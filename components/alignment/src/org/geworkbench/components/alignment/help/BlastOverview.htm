@@ -1,0 +1,83 @@
+<html>
+
+
+
+<head>
+
+<meta http-equiv="Content-Language" content="en-us">
+
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+
+<meta name="GENERATOR" content="Microsoft FrontPage 4.0">
+
+<meta name="ProgId" content="FrontPage.Editor.Document">
+
+<title>User Comments</title>
+
+<link rel="stylesheet" type="text/css" href="ncicb.css">
+
+</head>
+
+
+
+<body>
+
+
+
+<h3>Blast and Other algorithms </h3>
+
+<p>The application offers some popular sequence alignment algorithms and a simple Blast Parser. </p>
+<p>The Paracel Blast Machine is used as default backend blast Machine, GeneMatcher2 are used for other algorithms. Both Machines are hosted at Columbia Genome Center. </p>
+<p>To check the status of Blast Machine, use the &quot;Blast_Server_Info&quot; panel under the Blast_Parameters module, click Connection button to check the status:</p>
+<p><img src="images/blastServer.PNG" width="484" height="663"> </p>
+<p>To run your job: First load  a FASTA file into project, then you can view the Basic setup, choose which database and blast program to use. Then click &quot;BLAST&quot; Button. </p>
+<p>It will automaticly check Blast Machine status first, then if the sever is listening, the job will be submitted to the server.</p>
+<p>The programs include in blast are:</p>
+<ul>
+  <li> <u>blastp</u>: compares an amino acid query sequence against a protein sequence database </li>
+  <li><u>blastn</u>: compares a nucleotide query sequence against a nucleotide sequence database </li>
+  <li><u>blastx</u>: compares a nucleotide query sequence translated in all reading frames against a protein sequence database </li>
+  <li><u>tblastn</u>: compares a protein query sequence against a nucleotide sequence database dynamically translated in all reading frames</li>
+  <li> <u>tblastx</u>: compares the six-frame translations of a nucleotide query sequence against the six-frame translations of a nucleotide sequence database. </li>
+  <li>  </li>
+</ul>
+<p><img src="images/parametes.PNG" width="483" height="895"></p>
+
+
+
+<p class="MsoBodyText">&nbsp;</p>
+<p class="MsoBodyText">If you want to use other algorithms, you can select from &quot;Other Algorithms&quot; panel:</p>
+<ul>
+  <li> <u>smith waterman Protein </u>: compares an amino acid query sequence against a protein sequence database </li>
+  <li><u>smith waterman DNA </u>: compares a nucleotide query sequence against a nucleotide sequence database </li>
+  <li><u>frame(from DNA sequence to protein DB)</u>: compares a nucleotide query sequence against a protein sequence database </li>
+  <li> <u>frame(from Protein sequence to DNA DB</u>): compares an amino acid query sequence against against a nucleotide sequence database</li>
+</ul>
+<p class="MsoBodyText">&nbsp;</p>
+<p class="MsoBodyText"><img src="images/otherAlgorithms.PNG" width="481" height="671"></p>
+<p class="MsoBodyText">&nbsp;</p>
+<p class="MsoBodyText">All other algorithms requests will be processed on GeneMatcher2 machine.</p>
+<p class="MsoBodyText">&nbsp; </p>
+<p class="MsoBodyText">You can also use &quot;advanced&quot; panel l to set up more alignment options. In default, Your result will be showed both on an new web browser window and the &quot;Blast Parser&quot; Module. You can diselect this option. </p>
+<p class="MsoBodyText">&nbsp;</p>
+<p class="MsoBodyText"><img src="images/advanced.PNG" width="477" height="474"></p>
+<p class="MsoBodyText">&nbsp;</p>
+<p class="MsoBodyText">Frame Shift Penalty and Query generic code are optional selection used for blastx.</p>
+<p class="MsoBodyText">After the job is submitted, you can see the moving of the progress bar. If you want to stop the running job, click the &quot;stop&quot; button.</p>
+<p class="MsoBodyText"><img src="images/progress.PNG" width="472" height="146"> </p>
+<p class="MsoBodyText">&nbsp;</p>
+<p class="MsoBodyText"><img src="images/end.PNG" width="475" height="167"> </p>
+<p class="MsoBodyText">&nbsp;</p>
+<p class="MsoBodyText">The result will be showed on the BlastParser module and based on your choice, it may show on a new web browser too.</p>
+<p class="MsoBodyText"><img src="images/result1.PNG" width="915" height="515"> </p>
+<p class="MsoBodyText">&nbsp;</p>
+<p class="MsoBodyText">You can pick the hits you are interested, and collect the selected sequences of those hits into project. The program will generate a temparary FASTA file for those sequences, a new file node will be added under currrent project. You can save them later.</p>
+<p class="MsoBodyText"><img src="images/blastParser.PNG" width="819" height="722"> </p>
+<p class="MsoBodyText">&nbsp;</p>
+<p class="MsoBodyText"><img src="images/saveResult.PNG" width="1003" height="388"></p>
+</body>
+
+
+
+</html>
+

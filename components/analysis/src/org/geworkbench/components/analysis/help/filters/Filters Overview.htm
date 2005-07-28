@@ -1,0 +1,142 @@
+<html>
+
+
+
+<head>
+
+<meta http-equiv="Content-Language" content="en-us">
+
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+
+<meta name="GENERATOR" content="Microsoft FrontPage 4.0">
+
+<meta name="ProgId" content="FrontPage.Editor.Document">
+
+<title>User Comments</title>
+
+<link rel="stylesheet" type="text/css" href="ncicb.css">
+
+</head>
+
+
+
+<body>
+
+
+
+<h3>Filters</h3>
+
+<p>The application offers a selection of pluggable filters to
+
+assist in the manipulation of the data and in their preparation for analysis. </p>
+
+
+
+<p>Filters are used in order to remove data points from an expression
+
+dataset, e.g. because some quality data criterion is not met. The result of
+
+applying a filter is (1) either to set the status of a value to
+
+&quot;missing&quot; or, (2) to completely eliminate a marker from the dataset.
+
+In the later case, all measurements for that marker (across all microarrays in
+
+the microarray set being filtered) will be eliminated. </p>
+
+
+
+<p>Filtering a dataset A will give rise to a new dataset B. The
+
+dataset B will appear as a child of A in the project tree window. Available filters
+
+are displayed in the Filtering Panel (figure below). Experienced users
+
+can add or remove filters by manipulating the relative entries
+
+in the application configuration file (see the design documentation). Most
+
+filters have associated parameters that control their operation.
+
+Values for these must be provided in the appropriate areas within the Filtering
+
+Panel. </p>
+
+
+
+<p><img src="images/Filtering%20panel.gif" width="730" height="204"></p>
+
+
+
+<p class="MsoBodyText">A variety of filters are available with the application:</p>
+
+<p class="BulletL1"><b><i>Filters<o:p>
+
+</o:p>
+
+</i></b></p>
+
+<ul type="circle">
+
+  <li>
+
+    <p class="BulletL2"><i><u><a href="MissingValue%20Filter.htm">Missing values filter</a></u></i>: Discards all markers that
+
+have &quot;missing&quot; measurements in more than X microarrays, where X is a user specified
+
+value.<br>
+
+  </li>
+
+  <li>
+
+    <p class="BulletL2"><i><u><a href="Deviation%20Filter.htm">Deviation-based filter</a></u></i>: Sets to &quot;missing&quot; all markers whose
+
+measurement deviation across microarrays is below a given value.<br>
+
+  </li>
+
+  <li>
+
+    <p class="BulletL2"><i><u><a href="ExprThreshold%20Filter.htm">Expression threshold filter</a></u></i>: Sets to
+
+&quot;missing&quot; all markers
+
+whose measurement levels are outside (or inside) a user defined range.<br>
+
+  </li>
+
+  <li>
+
+    <p class="BulletL2"><u><i><a href="Affy%20detection%20call.htm">Affymetrix detection call filter</a></i></u>: Applicable to data
+
+from Affymetrix arrays. <span style="mso-bidi-font-size:12.0pt">Sets
+
+to “missing” all measurements whose detection status is any combinations of
+
+A, P or
+
+M.&nbsp;<br>
+
+    </span></li>
+
+  <li>
+
+    <p class="BulletL2"><i><u><a href="Two%20Channel%20Filter.htm">2 channel threshold filter</a></u></i>. Applicable to 2-channel
+
+arrays (Genepix). Defines applicable ranges for each individual channel. Sets to
+
+&quot;missing&quot; all values for which either channel intensity does not
+
+respect its defined range.</li>
+
+</ul>
+
+
+
+</body>
+
+
+
+</html>
+

@@ -1,0 +1,98 @@
+<html>
+
+
+
+<head>
+
+<meta http-equiv="Content-Language" content="en-us">
+
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+
+<meta name="GENERATOR" content="Microsoft FrontPage 4.0">
+
+<meta name="ProgId" content="FrontPage.Editor.Document">
+
+<title>User Comments</title>
+
+<link rel="stylesheet" type="text/css" href="ncicb.css">
+
+</head>
+
+
+
+<body>
+
+
+
+<h3>Deviation-based Filter</h3>
+
+<p> Sets to &quot;missing&quot; all markers whose
+
+measurement deviation across microarrays is below a given value. </p>
+
+
+
+<p>The parameters for this filter are: </p>
+
+
+
+<ol>
+
+  <li><u><i>Deviation bound</i></u>: A non-negative value D. For every
+
+    marker, the filter will compute the deviation for the measurements of the
+
+    marker across all microarrays in the set. If the deviation is less than D,
+
+    then all the measurements for the marker will be set to &quot;missing&quot;.</li>
+
+  <li><u><i>Missing values</i></u>: When computing the deviation for a marker,
+
+    it is possible that some of the marker's measurements are missing. The
+
+    &quot;Missing values&quot; drop-down allows users to designate how to handle
+
+    such missing measurements when computing the
+
+    marker's deviation. Available options are:
+
+    <ul>
+
+      <li><b><i>Marker average</i></b>: replaces a missing value with the
+
+        average measurement of its corresponding marker. The average is computed
+
+        using only non-missing values.</li>
+
+      <li><b><i>Microarray average</i></b>: replaces a missing value with the
+
+        average measurement of the microarray where the missing value belongs.
+
+        The average is computed using only the non-missing values in the
+
+        microarray.</li>
+
+      <li><b><i>Ignore</i></b>: a missing value is ignored (i.e., treated as
+
+        non-existent) in the computation of the marker's deviation.</li>
+
+    </ul>
+
+  </li>
+
+</ol>
+
+<p>For 2-channel data (Genepix) the measurements used in deviation computation
+
+are the ratio of the foreground/background intensities.</p>
+
+<p><img border="0" src="images/Deviation%20filter.gif" width="528" height="281"></p>
+
+
+
+</body>
+
+
+
+</html>
+

@@ -1,0 +1,5 @@
+<component-descriptor xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="Descriptor Schema.xsd">
+    <component class="org.geworkbench.components.plots.SOMClusterViewAppComponent">
+        <menu-item path="File.Image snapshot" mode="always" var="File.Image snapshot"/>
+    </component>
+</component-descriptor>

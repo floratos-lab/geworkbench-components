@@ -1,0 +1,50 @@
+[PropertyInfo]
+appComponent,SequenceDiscoveryViewAppComponent,false,false, , ,false,<default>
+borderLayout1,BorderLayout,false,false, , ,false,<default>
+borderLayout2,BorderLayout,false,false, , ,false,<default>
+borderLayout3,BorderLayout,false,false, , ,false,<default>
+borderLayout4,BorderLayout,false,false, , ,false,<default>
+cachedcompleted,double,false,false, , ,false,<default>
+completed,double,false,false, , ,false,<default>
+dbLoaded,boolean,false,false, , ,false,<default>
+discoveryButton,JButton,false,false, , ,false,<default>
+discoveryThread,Discovery,false,false, , ,false,<default>
+exhaustiveButton,JButton,false,false, , ,false,<default>
+exhaustiveThread,ExhaustiveDiscovery,false,false, , ,false,<default>
+exParms,ExhaustiveParameters,false,false, , ,false,<default>
+hiearcThread,HiearchicalDiscovery,false,false, , ,false,<default>
+hierarcButton,JButton,false,false, , ,false,<default>
+jLoadPatternsMenuItem,JMenuItem,false,false, , ,false,<default>
+jMenuItem1,JMenuItem,false,false, , ,false,<default>
+jPanel2,JPanel,false,false, , ,false,<default>
+jPanel3,JPanel,false,false, , ,false,<default>
+jPatternNoLabel,JLabel,false,false, , ,false,<default>
+jSavePatternsItem,JMenuItem,false,false, , ,false,<default>
+jSavePatternsWInfoItem,JMenuItem,false,false, , ,false,<default>
+jScrollPane1,JScrollPane,false,false, , ,false,<default>
+jToolBar1,JToolBar,false,false, , ,false,<default>
+maskPatternItem,JMenuItem,false,false, , ,false,<default>
+maskRepeats,JButton,false,false, , ,false,<default>
+model,PatternTableModel,false,false, , ,false,<default>
+parameterPanel,ParameterPanel,false,false, , ,false,<default>
+parameters,Parameters,false,false, , ,true,<default>
+parms,Parameters,false,false, , ,false,<default>
+parmsHandler,ParametersHandler,false,false, , ,false,<default>
+patternDB,PatternDB,false,false, , ,true,<default>
+patternMenu,JPopupMenu,false,false, , ,false,<default>
+patternTable,JTable,false,false, , ,true,<default>
+progressBar,JProgressBar,false,false, , ,false,<default>
+seqNo,int,false,false, , ,true,<default>
+sequenceDB,SequenceDB,false,false, , ,true,<default>
+sequenceDiscoveryViewAppComponent,SequenceDiscoveryViewAppComponent,false,false, , ,true,<default>
+sequenceModel,SequenceDiscoveryModel,false,false, , ,false,<default>
+stopButton,JButton,false,false, , ,false,<default>
+task,Thread,false,false, , ,false,<default>
+theSession,Session,false,false, , ,false,<default>
+timer,Timer,false,false, , ,false,<default>
+tList,TimerListener,false,false, , ,false,<default>
+[IconNames]
+
+
+
+

@@ -1,0 +1,697 @@
+package org.geworkbench.components.cytoscape;
+
+import com.jgoodies.plaf.FontSizeHints;
+import com.jgoodies.plaf.Options;
+import cytoscape.*;
+import cytoscape.Cytoscape;
+import cytoscape.data.Semantics;
+import cytoscape.data.servers.BioDataServer;
+import cytoscape.view.CyNetworkView;
+import org.geworkbench.events.ProjectEvent;
+import giny.model.Node;
+import giny.view.GraphViewChangeEvent;
+import giny.view.GraphViewChangeListener;
+import org.geworkbench.events.AdjacencyMatrixEvent;
+import org.geworkbench.events.GeneSelectorEvent;
+import org.geworkbench.events.PhenotypeSelectorEvent;
+import org.geworkbench.events.SubpanelChangedEvent;
+import org.geworkbench.util.pathwaydecoder.mutualinformation.AdjacencyMatrix;
+import org.geworkbench.util.pathwaydecoder.mutualinformation.EvdAdjacencyMatrix;
+import org.geworkbench.util.pathwaydecoder.mutualinformation.IAdjacencyMatrix;
+import org.geworkbench.engine.management.Publish;
+import org.geworkbench.engine.management.Subscribe;
+import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
+import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
+import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
+import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
+import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
+import org.geworkbench.engine.config.MenuListener;
+import org.geworkbench.engine.config.VisualPlugin;
+import org.geworkbench.engine.config.events.EventSource;
+import phoebe.event.PSelectionHandler;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionListener;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Properties;
+import java.util.Vector;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+/**
+ * <p>Title: Bioworks</p>
+ * <p>Description: Modular Application Framework for Gene Expession, Sequence
+ * and Genotype Analysis</p>
+ * <p>Copyright: Copyright (c) 2003 -2004</p>
+ * <p>Company: Columbia University</p>
+ *
+ * @author manjunath at genomecenter dot columbia dot edu
+ * @version 1.0
+ */
+
+public class CytoscapeWidget extends EventSource implements VisualPlugin, MenuListener {
+
+    protected Vector windows = new Vector();
+    protected CytoscapeVersion version = new CytoscapeVersion();
+    protected Logger logger;
+    protected boolean uiSetup = false;
+    protected DSMicroarraySet maSet = null;
+    protected CyNetwork cytoNetwork = null;
+    protected AdjacencyMatrix adjMatrix = null;
+    protected CyNetworkView view = null;
+    PSelectionHandler selectionHandler = null;
+    protected Vector adjStorage = new Vector(); // to store the adjacency matrices it received
+
+    public CytoscapeWidget() {
+        String[] args = new String[]{"-b", "annotation/manifest", "--JLD", "plugins"};
+        UIManager.put(Options.USE_SYSTEM_FONTS_APP_KEY, Boolean.TRUE);
+        Options.setGlobalFontSizeHints(FontSizeHints.MIXED);
+        Options.setDefaultIconSize(new Dimension(18, 18));
+
+        init(args);
+    }
+
+    /**
+     * <code>VisualPlugin</code> method
+     *
+     * @return <code>Component</code> the view for this component
+     */
+    public Component getComponent() {
+        JMenuBar menuBar = Cytoscape.getDesktop().getCyMenus().getMenuBar();
+        Container contentPane = Cytoscape.getDesktop().getContentPane();
+        final CytoscapeObj theCytoscapeObj = Cytoscape.getCytoscapeObj();
+        if (!uiSetup) {
+            Component[] components = contentPane.getComponents();
+            contentPane.removeAll();
+            contentPane.add(menuBar, BorderLayout.NORTH);
+            contentPane.add(components[0], BorderLayout.CENTER);
+            contentPane.add(components[1], BorderLayout.SOUTH);
+            uiSetup = true;
+        }
+
+        contentPane.addComponentListener(new ComponentListener() {
+            public void componentHidden(ComponentEvent e) {
+                theCytoscapeObj.saveCalculatorCatalog();
+            }
+
+            public void componentMoved(ComponentEvent e) {
+                theCytoscapeObj.saveCalculatorCatalog();
+            }
+
+            public void componentResized(ComponentEvent e) {
+                theCytoscapeObj.saveCalculatorCatalog();
+            }
+
+            public void componentShown(ComponentEvent e) {
+                theCytoscapeObj.saveCalculatorCatalog();
+            }
+        });
+
+        //        contentPane.addMouseListener(new MouseAdapter() {
+        //            public void mousePressed(MouseEvent e) {
+        //                mouseButtonDown = true;
+        //            }
+        //
+        //            public void mouseReleased(MouseEvent e) {
+        //                mouseButtonDown = false;
+        //            }
+        //        });
+
+        return contentPane;
+    }
+
+    protected void init(String[] args) {
+
+        CytoscapeConfig config = new CytoscapeConfig(args);
+
+        if (config.helpRequested()) {
+            displayHelp(config);
+        } else if (config.inputsError()) {
+            inputError(config);
+        } else if (config.displayVersion()) {
+            displayHelp(config);
+        }
+
+        setupLogger(config);
+        logger.info(config.toString());
+
+        CytoscapeObj cytoscapeObj = new CytoscapeObj(config);
+
+        String bioDataDirectory = config.getBioDataDirectory();
+        BioDataServer bioDataServer = Cytoscape.loadBioDataServer(bioDataDirectory); // null;
+
+        boolean canonicalize = Semantics.getCanonicalize(cytoscapeObj);
+        String defaultSpecies = Semantics.getDefaultSpecies(null, cytoscapeObj);
+
+        Cytoscape.getDesktop().setVisible(false);
+
+        Iterator gi = config.getGeometryFilenames().iterator();
+        Iterator ii = config.getInteractionsFilenames().iterator();
+        while (gi.hasNext()) {
+            CyNetwork network = Cytoscape.createNetwork((String) gi.next(), Cytoscape.FILE_GML, false, null, null);
+        }
+        while (ii.hasNext()) {
+            Cytoscape.createNetwork((String) ii.next(), Cytoscape.FILE_SIF, canonicalize, bioDataServer, defaultSpecies);
+        }
+
+        logger.info("reading attribute files");
+        Cytoscape.loadAttributes(config.getNodeAttributeFilenames(), config.getEdgeAttributeFilenames(), canonicalize, bioDataServer, defaultSpecies);
+        logger.info(" done");
+
+        String expDataFilename = config.getExpressionFilename();
+        if (expDataFilename != null) {
+            logger.info("reading " + expDataFilename + "...");
+            try {
+                Cytoscape.loadExpressionData(expDataFilename, config.getWhetherToCopyExpToAttribs());
+            } catch (Exception e) {
+                logger.severe("Exception reading expression data file '" + expDataFilename + "'");
+                logger.severe(e.getMessage());
+                e.printStackTrace();
+            }
+            logger.info("  done");
+        }
+        Cytoscape.getDesktop().setupPlugins();
+    }
+
+    protected void displayHelp(CytoscapeConfig config) {
+        System.out.println(version);
+        System.out.println(config.getUsage());
+    }
+
+    protected void inputError(CytoscapeConfig config) {
+        System.out.println(version);
+        System.out.println("------------- Inputs Error");
+        System.out.println(config.getUsage());
+        System.out.println(config);
+    }
+
+    /**
+     * configure logging:  cytoscape.props specifies what level of logging
+     * messages are written to the console; by default, only SEVERE messages
+     * are written.  in time, more control of logging (i.e., optional logging
+     * to a file, disabling console logging, per-window or per-plugin logging)
+     * can be provided
+     */
+    protected void setupLogger(CytoscapeConfig config) {
+        logger = Logger.getLogger("global");
+        Properties properties = config.getProperties();
+        String level = properties.getProperty("logging", "SEVERE");
+
+        if (level.equalsIgnoreCase("severe")) {
+            logger.setLevel(Level.SEVERE);
+        } else if (level.equalsIgnoreCase("warning")) {
+            logger.setLevel(Level.WARNING);
+        } else if (level.equalsIgnoreCase("info")) {
+            logger.setLevel(Level.INFO);
+        } else if (level.equalsIgnoreCase("config")) {
+            logger.setLevel(Level.CONFIG);
+        } else if (level.equalsIgnoreCase("all")) {
+            logger.setLevel(Level.ALL);
+        } else if (level.equalsIgnoreCase("none")) {
+            logger.setLevel(Level.OFF);
+        } else if (level.equalsIgnoreCase("off")) {
+            logger.setLevel(Level.OFF);
+        }
+    }
+
+    /**
+     * geneSelectorAction
+     *
+     * @param e GeneSelectorEvent
+     */
+    public void geneSelectorAction(GeneSelectorEvent e) {
+    }
+
+    /**
+     * getActionListener
+     *
+     * @param var String
+     * @return ActionListener
+     */
+    public ActionListener getActionListener(String var) {
+        return null;
+    }
+
+    /**
+     * receiveProjectSelection
+     *
+     * @param e ProjectEvent
+     */
+    public void receiveProjectSelection(org.geworkbench.events.ProjectEvent e) {
+        if (e.getDataSet() instanceof DSMicroarraySet) {
+            maSet = (DSMicroarraySet) e.getDataSet();
+        }
+    }
+
+    /**
+     * phenotypeSelectorAction
+     *
+     * @param e PhenotypeSelectorEvent
+     */
+    public void phenotypeSelectorAction(PhenotypeSelectorEvent e) {
+    }
+
+    /**
+     * receivedAdjacencyMatrix
+     *
+     * @param ae AdjacencyMatrixEvent
+     */
+    public void receiveAdjacencyMatrix(AdjacencyMatrixEvent ae) {
+        if (ae.getAdjacencyMatrix().getSource() == AdjacencyMatrix.fromGeneNetworkPanelTakenGoodCareOf) {
+            return;
+        }
+        String name = (maSet == null ? "Test" : maSet.getLabel());
+        String tmpname = ae.getAdjacencyMatrix().getLabel();
+        if (tmpname != null) {
+            name = tmpname + " [" + name + "]";
+        }
+        cytoNetwork = Cytoscape.createNetwork(name);
+
+        System.out.println(" adjSize  " + ae.getAdjacencyMatrix().getEdgeNo(5));
+    }
+
+    public void adjacencyMatrixLoaded(AdjacencyMatrixEvent ae) {
+    }
+
+    public AdjacencyMatrix getSelectedAdjMtx() {
+        int idx = Integer.parseInt(Cytoscape.getCurrentNetwork().getIdentifier());
+        return getStoredAdjMtx(idx);
+    }
+
+    public AdjacencyMatrix getStoredAdjMtx(int idx) {
+        return (AdjacencyMatrix) this.adjStorage.get(idx);
+    }
+
+    /**
+     * drawNetwork
+     *
+     * @param ae AdjacencyMatrixEvent
+     */
+    public void drawNetwork(AdjacencyMatrixEvent ae) {
+        if (ae.getNetworkFocus() == -1) {
+            drawCompleteNetwork(ae);
+        } else {
+            drawCentricNetwork(ae);
+        }
+    }
+
+    public void drawCompleteNetwork(AdjacencyMatrixEvent ae) {
+        adjMatrix = ae.getAdjacencyMatrix();
+        Iterator keysIt = adjMatrix.getGeneRows().keySet().iterator();
+        while (keysIt.hasNext()) {
+            int key = ((Integer) keysIt.next()).intValue();
+            createSubNetwork(key, ae.getThreshold(), 1);
+        }
+    }
+
+    public void drawCentricNetwork(AdjacencyMatrixEvent ae) {
+        adjMatrix = ae.getAdjacencyMatrix();
+        createSubNetwork(ae.getNetworkFocus(), ae.getThreshold(), ae.getDisplayDepth());
+    }
+
+    /**
+     * try to draw the network with the interaction type
+     */
+    public void drawNetworkAndInteraction(AdjacencyMatrixEvent ae) {
+        adjMatrix = (EvdAdjacencyMatrix) ae.getAdjacencyMatrix();
+        createWholeNetwork();
+    }
+
+    /**
+     * the current way to draw interaction networks with labeled edges <BR>
+     * createSubNetwork is used for MI-generated networks
+     */
+    private void createWholeNetwork() {
+
+        EvdAdjacencyMatrix tmpadj = (EvdAdjacencyMatrix) this.adjMatrix;
+        Object[] tmpFilter = tmpadj.getFilter();
+
+        double threshold = 0.0;
+        boolean passedFilter = false;
+        double mistrength = -1;
+
+        for (int i = 0; i < tmpadj.getNumType2Interaction(); i++) {
+            int geneId = tmpadj.getInteractionType2GeneAID(i);
+
+            DSGeneMarker gm1 = (DSGeneMarker) maSet.getMarkers().get(geneId);
+            int gm1Size = tmpadj.getConnectionNo(gm1.getSerial(), threshold);
+
+            int geneid2 = tmpadj.getInteractionType2GeneBID(i);
+
+            if ((geneid2 < maSet.getMarkers().size()) && (geneid2 != 12600)) {
+
+                String actiontype = tmpadj.getInteractionType2Action(i);
+                mistrength = tmpadj.getInteractionType2Strength(geneId, geneid2);
+
+                // test is the edge is strong enough
+                if (mistrength <= threshold) {
+                    continue;
+                }
+
+                passedFilter = false;
+
+                // test the interaction type to see if it is the desired interaction
+                // we may also test if the edge is strong enough to be shown here...
+                // this is to be compatable with the MI-generated networks
+                if (tmpFilter == null || tmpFilter.length == 0) {
+                    passedFilter = true;
+                } else if (actiontype.equals("pp") || tmpFilter[0].equals("ALL")) {
+                    passedFilter = true;
+                } else {
+                    for (int j = 0; j < tmpFilter.length; j++) {
+                        if (tmpFilter[j].equals(actiontype)) {
+                            passedFilter = true;
+                            break;
+                        }
+                    }
+                }
+                if (passedFilter == false) {
+                    continue;
+                }
+
+                boolean thresholdTest = false;
+                thresholdTest = true;
+                if (thresholdTest) {
+
+                    DSGeneMarker gm2 = (DSGeneMarker) maSet.getMarkers().get(geneid2);
+                    int gm2Size = tmpadj.getConnectionNo(gm2.getSerial(), threshold);
+
+                    String geneName1 = gm1.getShortName();
+                    String geneName2 = gm2.getShortName();
+
+                    // comment copied from createSubNetwork
+                    // The following line creates an issue if one is drawing just a single gene
+                    // rather than the full matrix. We'll need to rethink how we draw complete networks
+                    // In practice Cytoscape may already take care of it.
+                    // if (gm1.getSerial() < gm2.getSerial()) {
+                    if (!geneName2.equalsIgnoreCase(geneName1)) {
+                        // not a self loop
+                        String g1Name = gm1.getShortName();
+                        String g2Name = gm2.getShortName();
+
+                        CyNode n1 = Cytoscape.getCyNode(g1Name);
+                        CyNode n2 = Cytoscape.getCyNode(g2Name);
+                        if (n1 == null) {
+                            n1 = Cytoscape.getCyNode(g1Name, true);
+                            n1.setIdentifier(g1Name);
+                            cytoNetwork.setNodeAttributeValue(n1, "Unigene", gm1.getUnigene().getUnigeneAsString());
+                            cytoNetwork.setNodeAttributeValue(n1, "Serial", new Integer(gm1.getSerial()));
+                        }
+                        cytoNetwork.setNodeAttributeValue(n1, "HubSize", new String(g1Name + ": " + Integer.toString(gm1Size)));
+                        cytoNetwork.setNodeAttributeValue(n1, "Hub", new Integer(gm1Size));
+                        cytoNetwork.addNode(n1);
+
+                        if (n2 == null) {
+                            n2 = Cytoscape.getCyNode(g2Name, true);
+                            n2.setIdentifier(g2Name);
+                            cytoNetwork.setNodeAttributeValue(n2, "Unigene", gm2.getUnigene().getUnigeneAsString());
+                            cytoNetwork.setNodeAttributeValue(n2, "Serial", new Integer(gm2.getSerial()));
+                        }
+
+                        cytoNetwork.setNodeAttributeValue(n2, "HubSize", new String(g2Name + ": " + Integer.toString(gm2Size)));
+                        cytoNetwork.setNodeAttributeValue(n2, "Hub", new Integer(gm2Size));
+                        cytoNetwork.addNode(n2);
+
+                        // set up the edge
+                        CyEdge e = null;
+                        e = Cytoscape.getCyEdge(g1Name, g1Name + "." + actiontype + "." + g2Name, g2Name, actiontype);
+                        cytoNetwork.addEdge(e);
+                    } else {
+                    }
+                }
+            }
+        }
+        tmpadj = null;
+    }
+
+    /**
+     * @param geneId    int
+     * @param threshold double
+     * @param level     int
+     * @deprecated -- maybe not used anymore...
+     *             create the subnetwork and label or filter the interactions <BR>
+     *             using the tradition method (center -> neighbor + iteration) <BR>
+     */
+    private void createSubNetworkAndInteraction(int geneId, double threshold, int level) {
+        if (level == 0) {
+            return;
+        }
+        HashMap map = adjMatrix.getInteraction(geneId);
+
+        if (map != null) {
+            DSGeneMarker gm1 = (DSGeneMarker) maSet.getMarkers().get(geneId);
+            for (Iterator it = map.keySet().iterator(); it.hasNext();) {
+                Integer id2 = (Integer) it.next();
+                if ((id2.intValue() < maSet.getMarkers().size()) && (id2.intValue() != 12600)) {
+                    String actiontype = map.get(id2).toString();
+                    boolean thresholdTest = false;
+                    thresholdTest = true;
+                    if (thresholdTest) {
+                        DSGeneMarker gm2 = (DSGeneMarker) maSet.getMarkers().get(id2.intValue());
+
+                        String geneName1 = gm1.getShortName();
+                        String geneName2 = gm2.getShortName();
+                        //                        The following line creates an issue if one is drawing just a single gene
+                        //                        rather than the full matrix. We'll need to rethink how we draw complete networks
+                        //                        In practice Cytoscape may already take care of it.
+                        //                        if (gm1.getSerial() < gm2.getSerial()) {
+                        if (!geneName2.equalsIgnoreCase(geneName1)) {
+                            String g1Name = gm1.getShortName();
+                            String g2Name = gm2.getShortName();
+
+                            CyNode n1 = Cytoscape.getCyNode(g1Name);
+                            CyNode n2 = Cytoscape.getCyNode(g2Name);
+                            if (n1 == null) {
+                                n1 = Cytoscape.getCyNode(g1Name, true);
+                                n1.setIdentifier(g1Name);
+                                cytoNetwork.setNodeAttributeValue(n1, "Unigene", gm1.getUnigene().getUnigeneAsString());
+                                cytoNetwork.setNodeAttributeValue(n1, "Serial", new Integer(gm1.getSerial()));
+                            }
+
+                            cytoNetwork.addNode(n1);
+                            if (n2 == null) {
+                                n2 = Cytoscape.getCyNode(g2Name, true);
+                                n2.setIdentifier(g2Name);
+                                cytoNetwork.setNodeAttributeValue(n2, "Unigene", gm2.getUnigene().getUnigeneAsString());
+                                cytoNetwork.setNodeAttributeValue(n2, "Serial", new Integer(gm2.getSerial()));
+                            }
+
+                            cytoNetwork.addNode(n2);
+
+                            // set up the edge
+                            CyEdge e = Cytoscape.getCyEdge(g1Name, g1Name + ".pp." + g2Name, g2Name, actiontype);
+                            cytoNetwork.addEdge(e);
+
+                            // draw the subnetwork of this node2
+                            createSubNetwork(gm2.getSerial(), threshold, level - 1);
+                        } else {
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private void createSubNetwork(int geneId, double threshold, int level) {
+        if (level == 0) {
+            return;
+        }
+        // get the first neighbors of gene(geneID)
+        HashMap map = adjMatrix.get(geneId);
+        if (map != null) {
+            DSGeneMarker gm1 = (DSGeneMarker) maSet.getMarkers().get(geneId);
+            int gm1Size = adjMatrix.getConnectionNo(gm1.getSerial(), threshold);
+
+            for (Iterator it = map.keySet().iterator(); it.hasNext();) {
+                Integer id2 = (Integer) it.next();
+                if ((id2.intValue() < maSet.getMarkers().size()) && (id2.intValue() != 12600)) {
+                    Float v12 = (Float) map.get(id2);
+                    boolean thresholdTest = false;
+                    thresholdTest = v12.doubleValue() > threshold;
+                    if (thresholdTest) {
+                        DSGeneMarker gm2 = (DSGeneMarker) maSet.getMarkers().get(id2.intValue());
+                        int gm2Size = adjMatrix.getConnectionNo(gm2.getSerial(), threshold);
+                        String geneName1 = gm1.getShortName();
+                        String geneName2 = gm2.getShortName();
+                        if (!geneName2.equalsIgnoreCase(geneName1)) {
+                            String g1Name = gm1.getShortName();
+                            String g2Name = gm2.getShortName();
+                            CyNode n1 = Cytoscape.getCyNode(g1Name);
+                            CyNode n2 = Cytoscape.getCyNode(g2Name);
+                            if (n1 == null) {
+                                n1 = Cytoscape.getCyNode(g1Name, true);
+                                n1.setIdentifier(g1Name);
+                                cytoNetwork.setNodeAttributeValue(n1, "Unigene", gm1.getUnigene().getUnigeneAsString());
+                                cytoNetwork.setNodeAttributeValue(n1, "Serial", new Integer(gm1.getSerial()));
+                            }
+                            cytoNetwork.setNodeAttributeValue(n1, "HubSize", new String(g1Name + ": " + Integer.toString(gm1Size)));
+                            cytoNetwork.setNodeAttributeValue(n1, "Hub", new Integer(gm1Size));
+                            cytoNetwork.addNode(n1);
+                            if (n2 == null) {
+                                n2 = Cytoscape.getCyNode(g2Name, true);
+                                n2.setIdentifier(g2Name);
+                                cytoNetwork.setNodeAttributeValue(n2, "Unigene", gm2.getUnigene().getUnigeneAsString());
+                                cytoNetwork.setNodeAttributeValue(n2, "Serial", new Integer(gm2.getSerial()));
+                            }
+                            cytoNetwork.setNodeAttributeValue(n2, "HubSize", new String(g2Name + ": " + Integer.toString(gm2Size)));
+                            cytoNetwork.setNodeAttributeValue(n2, "Hub", new Integer(gm2Size));
+                            cytoNetwork.addNode(n2);
+                            CyEdge e = null;
+                            if (gm1.getSerial() > gm2.getSerial()) {
+                                e = Cytoscape.getCyEdge(g1Name, g1Name + ".pp." + g2Name, g2Name, "pp");
+                            } else {
+                                e = Cytoscape.getCyEdge(g2Name, g2Name + ".pp." + g1Name, g1Name, "pp");
+                            }
+                            cytoNetwork.addEdge(e);
+                            createSubNetwork(gm2.getSerial(), threshold, level - 1);
+                        } else {
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private void cyNetWorkView_graphViewChanged(GraphViewChangeEvent gvce) {
+        if (view != null && cytoNetwork != null) {
+            if (gvce.isNodesSelectedType()) {
+                int[] indices = gvce.getSelectedNodeIndices();
+                //                int[] indices = view.getSelectedNodeIndices();
+                // set the title under which the selected genes will be displayed in the panel
+                DSPanel selectedMarkers = new CSPanel("Selected Genes", "Cytoscape");
+                if (indices.length > 0) {
+                    int index = indices.length - 1;
+                    Node node = cytoNetwork.getNode(indices[index]);
+                    int serial = ((Integer) cytoNetwork.getNodeAttributeValue((CyNode) node, "Serial")).intValue();
+                    if (node instanceof CyNode) {
+                        selectedMarkers.add(maSet.getMarkers().get(serial));
+                    }
+                    selectedMarkers.setActive(true);
+                    publishSubpanelChangedEvent(new org.geworkbench.events.SubpanelChangedEvent(selectedMarkers, org.geworkbench.events.SubpanelChangedEvent.APPEND));
+                }
+            } else if (gvce.isNodesUnselectedType()) {
+                int[] indices = gvce.getUnselectedNodeIndices();
+                DSPanel selectedMarkers = new CSPanel("Selected Genes", "Cytoscape");
+                if (indices.length > 0) {
+                    int index = indices.length - 1;
+                    Node node = cytoNetwork.getNode(indices[index]);
+                    int serial = ((Integer) cytoNetwork.getNodeAttributeValue((CyNode) node, "Serial")).intValue();
+                    if (node instanceof CyNode) {
+                        selectedMarkers.add(maSet.getMarkers().get(serial));
+                    }
+                    selectedMarkers.setActive(true);
+                    publishSubpanelChangedEvent(new org.geworkbench.events.SubpanelChangedEvent(selectedMarkers, org.geworkbench.events.SubpanelChangedEvent.EXCLUDE));
+                }
+            }
+        }
+    }
+
+    @Publish public org.geworkbench.events.SubpanelChangedEvent publishSubpanelChangedEvent(org.geworkbench.events.SubpanelChangedEvent event) {
+        return event;
+    }
+
+
+    /**
+     * receiveProjectSelection
+     *
+     * @param e ProjectEvent
+     */
+    @Subscribe public void receive(org.geworkbench.events.ProjectEvent e, Object source) {
+        DSDataSet dataSet = e.getDataSet();
+        if (dataSet instanceof DSMicroarraySet) {
+            maSet = (DSMicroarraySet) dataSet;
+        }
+    }
+
+    /**
+     * phenotypeSelectorAction
+     *
+     * @param e PhenotypeSelectorEvent
+     */
+    @Subscribe public void receive(org.geworkbench.events.PhenotypeSelectorEvent e, Object source) {
+    }
+
+    @Subscribe public void receive(AdjacencyMatrixEvent ae, Object source) {
+        switch (ae.getAction()) {
+            case LOADED:
+                {
+                    // no-op
+                }
+                break;
+            case RECEIVE:
+                {
+                    // System.out.println("receiveAdjacencyMatrix from cytoscapeWidget");
+                    if (ae.getAdjacencyMatrix().getSource() == AdjacencyMatrix.fromGeneNetworkPanelTakenGoodCareOf) {
+                        // this adj mtx should be sent only to EviInt panel since it has been drawn
+                        // by GeneNetworkPanel once
+                        return;
+                    }
+                    String name = (maSet == null ? "Test" : maSet.getLabel());
+                    String tmpname = ae.getAdjacencyMatrix().getLabel();
+                    if (tmpname != null) {
+                        name = tmpname + " [" + name + "]";
+                    }
+                    cytoNetwork = Cytoscape.createNetwork(name);
+
+                    // this.adjStorage.add(ae.getAdjacencyMatrix());
+                    System.out.println(" adjSize  " + ae.getAdjacencyMatrix().getEdgeNo(5));
+                    // System.out.println("Current adj storage: "+ myio.vector2tring(this.adjStorage, "\n"));
+                }
+                break;
+            case DRAW_NETWORK:
+                {
+                    // System.out.println("drawNetwork from cytoscapeWidget");
+                    if (ae.getNetworkFocus() == -1) {
+                        drawCompleteNetwork(ae);
+                    } else {
+                        drawCentricNetwork(ae);
+                    }
+                }
+                break;
+            case DRAW_NETWORK_AND_INTERACTION:
+                {
+                    // System.out.println("drawNetworkAndInteraction from cytoscapeWidget");
+                    adjMatrix = (EvdAdjacencyMatrix) ae.getAdjacencyMatrix();
+                    createWholeNetwork();
+                }
+                break;
+            case FINISH:
+                {
+                    if (maSet != null) {
+                        view = Cytoscape.createNetworkView(cytoNetwork, maSet.getLabel());
+                        view.addGraphViewChangeListener(new GraphViewChangeListener() {
+                            public void graphViewChanged(GraphViewChangeEvent graphViewChangeEvent) {
+                                cyNetWorkView_graphViewChanged(graphViewChangeEvent);
+                            }
+                        });
+                    }
+                }
+                break;
+        }
+    }
+
+    public void setAdjacencyMatrix(IAdjacencyMatrix adjMat) {
+        String name = ((maSet = adjMat.getMicroarraySet()) == null ? "Test" : maSet.getLabel());
+        cytoNetwork = Cytoscape.createNetwork(name);
+        this.adjStorage.add(adjMat);
+    }
+
+    public DSPanel getFirstNeighbors(int geneid, double threshold, int level) {
+        createSubNetwork(geneid, threshold, level);
+        int[] indices = cytoNetwork.neighborsArray(geneid);
+        DSPanel selectedMarkers = new CSPanel("First Neighbors", cytoNetwork.getNode(geneid).getIdentifier());
+        for (int i = 0; i < indices.length; i++) {
+            Node node = cytoNetwork.getNode(indices[i]);
+            if (node instanceof CyNode) {
+                int serial = ((Integer) cytoNetwork.getNodeAttributeValue((CyNode) node, "Serial")).intValue();
+                selectedMarkers.add(maSet.getMarkers().get(serial));
+            }
+            selectedMarkers.setActive(true);
+        }
+        return selectedMarkers;
+    }
+}

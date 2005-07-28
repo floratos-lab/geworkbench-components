@@ -1,0 +1,377 @@
+package org.geworkbench.components.poshistogram;
+
+import org.geworkbench.events.SequenceDiscoveryTableEvent;
+import org.geworkbench.engine.parsers.ExampleFileFilter;
+import org.geworkbench.util.PropertiesMonitor;
+import org.geworkbench.util.patterns.CSMatchedSeqPattern;
+import org.geworkbench.util.patterns.FlexiblePattern;
+import org.geworkbench.util.patterns.PatternOperations;
+import org.geworkbench.util.sequences.SequenceDB;
+import org.geworkbench.bison.datastructure.complex.pattern.sequence.DSMatchedSeqPattern;
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.ChartUtilities;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.data.xy.XYSeries;
+import org.jfree.data.xy.XYSeriesCollection;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Iterator;
+
+/**
+ * <p>PositionHistogramWidget</p>
+ * <p>Description: </p>
+ * <p>Copyright: Copyright (c) 2003</p>
+ * <p>Company: </p>
+ *
+ * @author not attributable
+ * @version 1.0
+ */
+
+public class PositionHistogramWidget extends JPanel {
+    //JPanel jPanel1 = new JPanel();
+    private ArrayList patterns = new ArrayList();
+    private JLabel lblChart = new JLabel();
+    private JFreeChart chart = null;
+    private BorderLayout borderLayout1 = new BorderLayout();
+    private JToolBar jToolBar1 = new JToolBar();
+    private JButton jButton1 = new JButton();
+    private JButton jButton2 = new JButton();
+    private Component component1;
+    private Component component2;
+    private JToggleButton jAbsRelBtn = new JToggleButton();
+    private Component component3;
+    private JButton jButton3 = new JButton();
+    private JToggleButton jAvgPeakBtn = new JToggleButton();
+    private JButton jButton4 = new JButton();
+    private JTextField jFlexiSupportBox = new JTextField();
+    private JLabel jLabel1 = new JLabel();
+    private Component component4;
+    private Component component5;
+    private JTextField jStepBox = new JTextField();
+    private JLabel jLabel2 = new JLabel();
+    private Component component6;
+    private Component component7;
+    private SequenceDB sequenceDB = null;
+
+    public PositionHistogramWidget() {
+        // An XYDataset can create area, line, and step XY charts. The following example creates an XYDataset from a series of data containing three XY points. Next, ChartFactory's createAreaXYChart() method creates an area XY chart. In addition to parameters for title, dataset, and legend, createAreaXYChart() takes in the labels for the X and Y *
+        try {
+            jbInit();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+
+    }
+
+    private void jbInit() throws Exception {
+        component1 = Box.createHorizontalStrut(8);
+        component2 = Box.createHorizontalStrut(8);
+        component3 = Box.createHorizontalStrut(8);
+        component4 = Box.createHorizontalStrut(8);
+        component5 = Box.createHorizontalStrut(8);
+        component6 = Box.createHorizontalStrut(8);
+        component7 = Box.createHorizontalStrut(8);
+        this.setLayout(borderLayout1);
+        jButton1.setPreferredSize(new Dimension(80, 27));
+        jButton1.setText("Plot Position");
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                jButton1_actionPerformed(e);
+            }
+        });
+        jButton2.setPreferredSize(new Dimension(80, 27));
+        jButton2.setHorizontalAlignment(SwingConstants.CENTER);
+        jButton2.setText("Save Graph");
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                jButton2_actionPerformed(e);
+            }
+        });
+        jAbsRelBtn.setPreferredSize(new Dimension(80, 27));
+        jAbsRelBtn.setText("Abs/Rel");
+        jButton3.setPreferredSize(new Dimension(80, 27));
+        jButton3.setText("Filter");
+        jButton3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                jButton3_actionPerformed(e);
+            }
+        });
+        jAvgPeakBtn.setPreferredSize(new Dimension(80, 27));
+        jAvgPeakBtn.setText("Avg/Peak");
+        jAvgPeakBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                jAvgPeakBtn_actionPerformed(e);
+            }
+        });
+        jButton4.setToolTipText("");
+        jButton4.setText("Pairs");
+        jButton4.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                jButton4_actionPerformed(e);
+            }
+        });
+        jFlexiSupportBox.setText("100");
+        jLabel1.setText("Step:");
+        jStepBox.setText("2");
+        jStepBox.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                jStepBox_actionPerformed(e);
+            }
+        });
+        jLabel2.setText("flex thr.");
+        this.add(lblChart, BorderLayout.CENTER);
+        this.add(jToolBar1, BorderLayout.NORTH);
+        jToolBar1.add(jButton1, null);
+        jToolBar1.add(component1, null);
+        jToolBar1.add(jButton2, null);
+        jToolBar1.add(component2, null);
+        jToolBar1.add(jButton3, null);
+        jToolBar1.add(component3, null);
+        jToolBar1.add(jAbsRelBtn, null);
+        jToolBar1.add(jAvgPeakBtn, null);
+        jToolBar1.add(jButton4, null);
+        jToolBar1.add(component7, null);
+        jToolBar1.add(jLabel2, null);
+        jToolBar1.add(component6, null);
+        jToolBar1.add(jFlexiSupportBox, null);
+        jToolBar1.add(component5, null);
+        jToolBar1.add(jLabel1, null);
+        jToolBar1.add(component4, null);
+        jToolBar1.add(jStepBox, null);
+    }
+
+    private int getMaxLength() {
+        int maxLen = 0;
+        for (Iterator iter = patterns.iterator(); iter.hasNext();) {
+            DSMatchedSeqPattern item = (DSMatchedSeqPattern) iter.next();
+            maxLen = Math.max(maxLen, item.getMaxLength());
+        }
+        return maxLen;
+    }
+
+    void jButton1_actionPerformed(ActionEvent e) {
+        int maxLen = getMaxLength();
+        int step = Integer.parseInt(jStepBox.getText());
+        int wind = 1;
+        int maxBin = maxLen / step + 1;
+        boolean isAbs = !jAbsRelBtn.isSelected();
+        int factor = 1;
+        XYSeriesCollection plots = new XYSeriesCollection();
+        for (int rowId = 0; rowId < patterns.size(); rowId++) {
+            int[] yAxis = new int[maxBin * 2 + 1];
+            double[] yMean = new double[maxBin * 2 + 1];
+            DSMatchedSeqPattern pat = (DSMatchedSeqPattern) patterns.get(rowId);
+            if (pat != null) {
+                if (pat.getClass().isAssignableFrom(CSMatchedSeqPattern.class)) {
+                    CSMatchedSeqPattern pattern = (CSMatchedSeqPattern) pat;
+                    for (int id = 0; id < pattern.getSupport(); id++) {
+                        int dx = pattern.getOffset(id) / step;
+                        if (dx < maxBin) {
+                            yAxis[dx]++;
+                        }
+                    }
+                } else if (pat.getClass().isAssignableFrom(org.geworkbench.util.patterns.FlexiblePattern.class)) {
+                    factor = 2;
+                    FlexiblePattern pattern = (org.geworkbench.util.patterns.FlexiblePattern) pat;
+                    pattern.buildHistogram(yAxis, step, maxBin);
+                }
+                int count = 0;
+                yMean[0] = (double) count / (double) wind;
+                for (int x = 0; x < wind; x++) {
+                    count += yAxis[x];
+                }
+                for (int id = 0; id < maxBin * factor - wind; id++) {
+                    count -= yAxis[id];
+                    count += yAxis[id + wind];
+                    yMean[id + 1] = (double) count / (double) wind;
+                }
+                String ascii = pat.getASCII();
+                if (ascii == null) {
+                    PatternOperations.fill(pat, sequenceDB);
+                    ascii = pat.getASCII();
+                }
+                XYSeries series = new XYSeries(ascii);
+                for (int i = 0; i < maxBin * factor; i++) {
+                    if (isAbs) {
+                        if (factor == 1) {
+                            series.add((double) i * step, (double) yMean[i]);
+                        } else {
+                            series.add((double) ((i - maxBin) * step), (double) yMean[i]);
+                        }
+                    } else {
+                        if (factor == 1) {
+                            series.add((double) i * step, (double) yMean[i] / pat.getSupport());
+                        } else {
+                            series.add((double) ((i - maxBin) * step), (double) yMean[i] / pat.getSupport());
+                        }
+                    }
+                }
+                plots.addSeries(series);
+            }
+        }
+        chart = ChartFactory.createXYLineChart("Motif Location Histogram", // Title
+                "Position", // X-Axis label
+                "Support", // Y-Axis label
+                plots, // Dataset
+                PlotOrientation.VERTICAL, true, // Show legend
+                false, false);
+        BufferedImage image = chart.createBufferedImage(lblChart.getWidth() - 20, lblChart.getHeight() - 20);
+        lblChart.setIcon(new ImageIcon(image));
+    }
+
+    void jButton2_actionPerformed(ActionEvent e) {
+        if (chart != null) {
+            JFileChooser chooser = new JFileChooser(org.geworkbench.util.PropertiesMonitor.getPropertiesMonitor().getDefPath());
+            ExampleFileFilter filter = new ExampleFileFilter();
+            filter.addExtension("jpg");
+            filter.setDescription("JPG Images");
+            chooser.setFileFilter(filter);
+            int returnVal = chooser.showSaveDialog(this);
+            if (returnVal == JFileChooser.APPROVE_OPTION) {
+                org.geworkbench.util.PropertiesMonitor.getPropertiesMonitor().setDefPath(chooser.getCurrentDirectory().getAbsolutePath());
+                try {
+                    ChartUtilities.saveChartAsJPEG(chooser.getSelectedFile().getAbsoluteFile(), chart, 500, 300);
+                } catch (IOException ex) {
+                }
+            }
+        }
+    }
+
+    public void computeAllPatternStatistics() {
+        // Assuming a binomial model, the average density should be given by the likelyhood * SeqNo * size of step
+        // and the variance should be sqrt of that. For the time being, we assume a uniform likelihood
+        int step = Integer.parseInt(jStepBox.getText());
+        int rows = patterns.size();
+        int maxLen = getMaxLength();
+        int maxBin = maxLen / step + 1;
+        boolean isAverage = !jAvgPeakBtn.isSelected();
+        int maxIdNo = 1;
+        for (int i = 0; i < rows; i++) {
+            DSMatchedSeqPattern pattern = (DSMatchedSeqPattern) patterns.get(i);
+            if (pattern != null) {
+                maxIdNo = Math.max(maxIdNo, pattern.getSupport());
+            }
+        }
+        int maxCBin = (int) Math.log(maxIdNo) + 1;
+        int[] y = new int[maxBin * 2 + 1];
+        double[][] x = new double[maxCBin][];
+        double[][] xx = new double[maxCBin][];
+        double[] n = new double[maxCBin];
+        for (int i = 0; i < maxCBin; i++) {
+            x[i] = new double[maxBin];
+            xx[i] = new double[maxBin];
+        }
+        int factor = 1;
+        for (int i = 0; i < rows; i++) {
+            DSMatchedSeqPattern pattern = (DSMatchedSeqPattern) patterns.get(i);
+            if (pattern != null) {
+                for (int j = 0; j < 2 * maxBin + 1; j++) {
+                    y[j] = 0;
+                }
+                if (pattern instanceof org.geworkbench.util.patterns.CSMatchedSeqPattern) {
+                    org.geworkbench.util.patterns.CSMatchedSeqPattern p = (CSMatchedSeqPattern) pattern;
+                    for (int id = 0; id < p.getSupport(); id++) {
+                        int dx = p.getOffset(id) / step;
+                        if (dx < maxBin) {
+                            y[dx]++;
+                        }
+                    }
+                } else if (pattern instanceof org.geworkbench.util.patterns.FlexiblePattern) {
+                    factor = 2;
+                    org.geworkbench.util.patterns.FlexiblePattern p = (org.geworkbench.util.patterns.FlexiblePattern) pattern;
+                    p.buildHistogram(y, step, maxBin);
+                }
+                // Compute the expected density
+                double idNo = (double) pattern.getSupport();
+                double mean = (double) pattern.getSupport() / maxLen * step / idNo;
+                double sdev = Math.sqrt(mean) / Math.sqrt(idNo);
+
+                int cBin = (int) Math.log(idNo);
+                double zScore = 0;
+                for (int j = 0; j < maxBin * factor; j++) {
+                    double m0 = y[j] / idNo;
+                    double p = (double) (m0 - mean) / (sdev + 0.000000001);
+                    if (isAverage) {
+                        if (p > 0) {
+                            zScore += p;
+                        }
+                    } else {
+                        zScore = Math.max(zScore, p);
+                    }
+                }
+                pattern.setPValue(zScore);
+            }
+        }
+        //model.fireTableDataChanged();
+    }
+
+    void jButton3_actionPerformed(ActionEvent e) {
+        computeAllPatternStatistics();
+    }
+
+    void jButton4_actionPerformed(ActionEvent e) {
+        /*  RepeatFilter filter = new RepeatFilter();
+          int flexiSupport = Integer.parseInt(jFlexiSupportBox.getText());
+          PatternTableModel model    = new PatternTableModel(null, -1);
+          JTable            table    = patternTable;
+          PatternTableModel model_0  = (PatternTableModel)table.getModel();
+          int s1 = model_0.getPatterns().size();
+          ArrayList patterns = filter.filter(model_0.getPatterns(), sequenceDB);
+          s1 = patterns.size();
+          for(int i = 0; i < patterns.size(); i++) {
+            IPattern pat0 = (Pattern)patterns.get(i);
+            if (pat0.getClass().isAssignableFrom(Pattern.class)) {
+              Pattern p0 = (Pattern) pat0;
+              for(int j = i + 1; j < patterns.size(); j++) {
+                IPattern pat1 = (Pattern)patterns.get(j);
+                if (pat1.getClass().isAssignableFrom(Pattern.class)) {
+                  Pattern p1 = (Pattern) pat1;
+                  FlexiPattern fp = new FlexiPattern(p0, p1);
+                  int size = fp.getSupport();
+                  if(size >  flexiSupport) {
+                    model.addPattern(fp);
+                  }
+                }
+              }
+            }
+          }
+          table.setModel(model);
+          model.fireTableDataChanged(); */
+    }
+
+    void jStepBox_actionPerformed(ActionEvent e) {
+
+    }
+
+    public void sequenceDiscoveryTableRowSelected(SequenceDiscoveryTableEvent e) {
+        /** @todo Fix patterns */
+        //    setSequenceDB(e.getSequenceDB());
+        //    setPatterns(e.getPatterns());
+    }
+
+    public void setPatterns(DSMatchedSeqPattern[] _patterns) {
+        patterns.clear();
+        for (int i = 0; i < _patterns.length; i++) {
+            patterns.add(_patterns[i]);
+        }
+    }
+
+    public void setSequenceDB(SequenceDB sDB) {
+        sequenceDB = sDB;
+    }
+
+    public SequenceDB getSequenceDB() {
+        return sequenceDB;
+    }
+
+    void jAvgPeakBtn_actionPerformed(ActionEvent e) {
+
+    }
+}

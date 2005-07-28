@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="ISO-8859-1" standalone="yes"?>
+
+<toc version="1.0">
+
+	<tocitem text="Filters">
+
+		<tocitem target="overview" text="Overview"/>
+
+		<tocitem target="missing.value.filter" text="Missing Values Filter"/>
+
+		<tocitem target="single.value.filter" text="Affy Detection Call Filter"/>
+
+		<tocitem target="deviation.filter" text="Deviation Filter"/>
+
+		<tocitem target="expr.threshold.filter" text="Expression Threshold Filter"/>
+
+		<tocitem target="two.channel.filter" text="Two Channel Threshold Filter"/>		
+
+	</tocitem>
+
+</toc>
+

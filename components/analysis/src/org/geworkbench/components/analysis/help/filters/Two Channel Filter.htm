@@ -1,0 +1,98 @@
+<html>
+
+
+
+<head>
+
+<meta http-equiv="Content-Language" content="en-us">
+
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+
+<meta name="GENERATOR" content="Microsoft FrontPage 4.0">
+
+<meta name="ProgId" content="FrontPage.Editor.Document">
+
+<title>User Comments</title>
+
+<link rel="stylesheet" type="text/css" href="ncicb.css">
+
+</head>
+
+
+
+<body>
+
+
+
+<h3>2 Channel Threshold Filter</h3>
+
+<p>This is a filter appropriate for treating 2-channel data (Genepix). It allows
+
+users to filter each channel signal separately. Similar to the expression
+
+threshold filter, users define reference ranges. Here, though, there are 2
+
+reference ranges designated: one for the Cy3 channel (green) and one for the Cy5
+
+channel (red). Marker measurement are set to &quot;missing&quot; if the
+
+intensity of either channel is outside (or inside) their corresponding range.</p>
+
+
+
+<p>The parameters for this filter are:</p>
+
+
+
+<ol>
+
+  <li><u><i>Cy3 Range Min, Cy3 Range Max</i></u>: Real numbers that define a
+
+    reference range [min, max] against which the green channel intensities will be
+
+    compared .</li>
+
+  <li><u><i>Cy5 Range Min, Cy5 Range Max</i></u>: Real numbers that define a
+
+    reference range [min, max] against which the red channel intensities will be
+
+    compared .</li>
+
+  <li><u><i>Filter values</i></u>: Designates how the channel intensities are
+
+    compared to the reference range. Available options are:
+
+    <ul>
+
+      <li><b><i>Inside range</i></b>: Sets to &quot;missing&quot; the
+
+        measurement for a marker if either channel intensity is <u>inside</u> 
+
+        its corresponding the reference range.</li>
+
+      <li><b><i>Outside range</i></b>: Sets to &quot;missing&quot; the
+
+        measurement for a marker if either channel intensity is <u>outside</u> 
+
+        its corresponding the reference range.</li>
+
+    </ul>
+
+  </li>
+
+</ol>
+
+<p>The intensity for a channel is calculated by subtracting the background
+
+measurement from the foreground measurement for the channel.</p>
+
+<p><img border="0" src="images/Two-channel.gif" width="627" height="262"></p>
+
+
+
+</body>
+
+
+
+</html>
+

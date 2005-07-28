@@ -1,0 +1,972 @@
+MA0001	sysgroup	plant
+MA0001	total_ic	10.5900
+MA0001	medline	7632923
+MA0001	name	AGL3
+MA0001	class	MADS
+MA0001	species	Arabidopsis thaliana
+MA0001	type	SELEX
+MA0001	seqdb	SWISSPROT
+MA0001	acc	P29383
+MA0002	name	AML-1
+MA0002	class	RUNT
+MA0002	total_ic	10.9000
+MA0002	medline	8413232
+MA0002	sysgroup	vertebrate
+MA0002	species	Homo sapiens
+MA0002	type	SELEX
+MA0002	seqdb	SWISSPROT
+MA0002	acc	Q01196
+MA0003	name	AP2alpha
+MA0003	class	AP2
+MA0003	total_ic	7.8120
+MA0003	medline	497269
+MA0003	sysgroup	vertebrate
+MA0003	species	Homo sapiens
+MA0003	type	SELEX
+MA0003	seqdb	SWISSPROT
+MA0003	acc	P05549
+MA0004	name	ARNT
+MA0004	class	bHLH
+MA0004	total_ic	10.9920
+MA0004	medline	7592839
+MA0004	sysgroup	vertebrate
+MA0004	species	Mus musculus
+MA0004	type	SELEX
+MA0004	seqdb	SWISSPROT
+MA0004	acc	P53762
+MA0005	name	Agamous
+MA0005	class	MADS
+MA0005	total_ic	9.0940
+MA0005	medline	7901838
+MA0005	sysgroup	plant
+MA0005	species	Arabidopsis thaliana
+MA0005	type	SELEX
+MA0005	seqdb	SWISSPROT
+MA0005	acc	P17839
+MA0006	name	Ahr-ARNT
+MA0006	class	bHLH
+MA0006	total_ic	9.5320
+MA0006	medline	7592839
+MA0006	sysgroup	vertebrate
+MA0006	species	Mus musculus
+MA0006	type	SELEX
+MA0006	seqdb	SWISSPROT
+MA0006	acc	P30561
+MA0007	name	Androgen
+MA0007	class	NUCLEAR RECEPTOR
+MA0007	total_ic	15.7070
+MA0007	medline	1491700
+MA0007	sysgroup	vertebrate
+MA0007	species	Rattus rattus
+MA0007	type	SELEX
+MA0007	seqdb	SWISSPROT
+MA0007	acc	P15207
+MA0008	name	Athb-1
+MA0008	class	HOMEO-ZIP
+MA0008	total_ic	11.8810
+MA0008	medline	8253077
+MA0008	sysgroup	plant
+MA0008	species	Arabidopsis thaliana
+MA0008	type	SELEX
+MA0008	seqdb	SWISSPROT
+MA0008	acc	Q02283
+MA0009	name	Brachyury
+MA0009	class	T-BOX
+MA0009	total_ic	17.8630
+MA0009	medline	8344258
+MA0009	sysgroup	vertebrate
+MA0009	species	Mus musculus
+MA0009	type	SELEX
+MA0009	seqdb	SWISSPROT
+MA0009	acc	P20293
+MA0010	name	Broad-complex_1
+MA0010	class	ZN-FINGER, C2H2
+MA0010	total_ic	12.6150
+MA0010	medline	8062827
+MA0010	sysgroup	insect
+MA0010	species	Drosophila melanogaster
+MA0010	type	COMPILED
+MA0010	seqdb	EMBL
+MA0010	acc	X54663
+MA0011	name	Broad-complex_2
+MA0011	class	ZN-FINGER, C2H2
+MA0011	total_ic	7.7210
+MA0011	medline	8062827
+MA0011	sysgroup	insect
+MA0011	species	Drosophila melanogaster
+MA0011	type	COMPILED
+MA0011	seqdb	EMBL
+MA0011	acc	X54665
+MA0012	name	Broad-complex_3
+MA0012	class	ZN-FINGER, C2H2
+MA0012	total_ic	9.3380
+MA0012	medline	8062827
+MA0012	sysgroup	insect
+MA0012	species	Drosophila melanogaster
+MA0012	type	COMPILED
+MA0012	seqdb	EMBL
+MA0012	acc	X54664
+MA0013	name	Broad-complex_4
+MA0013	class	ZN-FINGER, C2H2
+MA0013	total_ic	11.6020
+MA0013	medline	8062827
+MA0013	sysgroup	insect
+MA0013	species	Drosophila melanogaster
+MA0013	type	COMPILED
+MA0013	seqdb	EMBL
+MA0013	acc	U51585
+MA0014	name	Bsap
+MA0014	class	PAIRED
+MA0014	total_ic	12.4280
+MA0014	medline	8406007
+MA0014	sysgroup	vertebrate
+MA0014	species	Mus musculus
+MA0014	type	COMPILED
+MA0014	seqdb	SWISSPROT
+MA0014	acc	Q02650
+MA0015	name	CF2-II
+MA0015	class	ZN-FINGER, C2H2
+MA0015	total_ic	10.9780
+MA0015	medline	1290524
+MA0015	sysgroup	insect
+MA0015	species	Drosophila melanogaster
+MA0015	type	SELEX
+MA0015	seqdb	FLYBASE
+MA0015	acc	FBgn000028
+MA0016	name	CFI-USP
+MA0016	class	NUCLEAR RECEPTOR
+MA0016	total_ic	13.7890
+MA0016	medline	1280827
+MA0016	sysgroup	insect
+MA0016	species	Drosophila melanogaster
+MA0016	type	SELEX
+MA0016	seqdb	FLYBASE
+MA0016	acc	FBgn000396
+MA0017	name	COUP-TF
+MA0017	class	NUCLEAR RECEPTOR
+MA0017	total_ic	15.9250
+MA0017	medline	8496174
+MA0017	sysgroup	vertebrate
+MA0017	species	Homo sapiens
+MA0017	type	COMPILED
+MA0017	seqdb	SWISSPROT
+MA0017	acc	P10589
+MA0018	name	CREB
+MA0018	class	bZIP
+MA0018	total_ic	12.6060
+MA0018	medline	8264613
+MA0018	sysgroup	vertebrate
+MA0018	species	Homo sapiens
+MA0018	type	SELEX
+MA0018	seqdb	SWISSPROT
+MA0018	acc	P16220
+MA0019	name	Chop-cEBP
+MA0019	class	bZIP
+MA0019	total_ic	11.6510
+MA0019	medline	8657121
+MA0019	sysgroup	vertebrate
+MA0019	species	Rattus norvegicus
+MA0019	type	SELEX
+MA0019	seqdb	SWISSPROT
+MA0019	acc	P05554
+MA0020	name	Dof2
+MA0020	class	ZN-FINGER, DOF
+MA0020	total_ic	8.6250
+MA0020	medline	10074718
+MA0020	sysgroup	plant
+MA0020	species	Zea mays
+MA0020	type	SELEX
+MA0020	seqdb	SWISSPROT
+MA0020	acc	Q41800
+MA0021	name	Dof3
+MA0021	class	ZN-FINGER, DOF
+MA0021	total_ic	9.0030
+MA0021	medline	10074718
+MA0021	sysgroup	plant
+MA0021	species	Zea mays
+MA0021	type	SELEX
+MA0021	seqdb	SWISSPROT
+MA0021	acc	Q41801
+MA0022	name	Dorsal_1
+MA0022	class	REL
+MA0022	total_ic	12.9060
+MA0022	medline	582412
+MA0022	sysgroup	insect
+MA0022	species	Drosophila melanogaster
+MA0022	type	SELEX
+MA0022	seqdb	FLYBASE
+MA0022	acc	FBgn000046
+MA0023	name	Dorsal_2
+MA0023	class	REL
+MA0023	total_ic	14.1210
+MA0023	medline	582412
+MA0023	sysgroup	insect
+MA0023	species	Drosophila melanogaster
+MA0023	type	SELEX
+MA0023	seqdb	FLYBASE
+MA0023	acc	FBgn000046
+MA0024	name	E2F
+MA0024	class	Unknown
+MA0024	total_ic	13.8380
+MA0024	medline	1411535
+MA0024	sysgroup	vertebrate
+MA0024	species	Homo sapiens
+MA0024	type	COMPILED
+MA0024	seqdb	EMBL
+MA0024	acc	S49592
+MA0025	name	E4BP4
+MA0025	class	bZIP
+MA0025	total_ic	14.1410
+MA0025	medline	1620116
+MA0025	sysgroup	vertebrate
+MA0025	species	Homo sapiens
+MA0025	type	SELEX
+MA0025	seqdb	EMBL
+MA0025	acc	X64318
+MA0026	name	E74A
+MA0026	class	ETS
+MA0026	total_ic	10.3540
+MA0026	medline	2208281
+MA0026	sysgroup	insect
+MA0026	species	Drosophila melanogaster
+MA0026	type	SELEX
+MA0026	seqdb	FLYBASE
+MA0026	acc	FBgn000056
+MA0027	name	EN-1
+MA0027	class	HOMEO
+MA0027	total_ic	6.4210
+MA0027	medline	8096059
+MA0027	sysgroup	vertebrate
+MA0027	species	Mus musculus
+MA0027	type	SELEX
+MA0027	seqdb	SWISSPROT
+MA0027	acc	P09065
+MA0028	name	Elk-1
+MA0028	class	ETS
+MA0028	total_ic	8.8130
+MA0028	medline	1425594
+MA0028	sysgroup	vertebrate
+MA0028	species	Homo sapiens
+MA0028	type	SELEX
+MA0028	seqdb	SWISSPROT
+MA0028	acc	P19419
+MA0029	name	Evi-1
+MA0029	class	ZN-FINGER, C2H2
+MA0029	total_ic	17.9080
+MA0029	medline	8321231
+MA0029	sysgroup	vertebrate
+MA0029	species	Mus musculus
+MA0029	type	SELEX
+MA0029	seqdb	SWISSPROT
+MA0029	acc	P14404
+MA0030	name	FREAC-2
+MA0030	class	FORKHEAD
+MA0030	total_ic	14.8250
+MA0030	medline	7957066
+MA0030	sysgroup	vertebrate
+MA0030	species	Homo sapiens
+MA0030	type	SELEX
+MA0030	seqdb	SWISSPROT
+MA0030	acc	Q9UQ85
+MA0031	name	FREAC-4
+MA0031	class	FORKHEAD
+MA0031	total_ic	11.9300
+MA0031	medline	7957066
+MA0031	sysgroup	vertebrate
+MA0031	species	Homo sapiens
+MA0031	type	SELEX
+MA0031	seqdb	SWISSPROT
+MA0031	acc	Q16676
+MA0032	name	FREAC-3
+MA0032	class	FORKHEAD
+MA0032	total_ic	6.5100
+MA0032	medline	7957066
+MA0032	sysgroup	vertebrate
+MA0032	species	Homo sapiens
+MA0032	type	SELEX
+MA0032	seqdb	SWISSPROT
+MA0032	acc	Q9UP06
+MA0033	name	FREAC-7
+MA0033	class	FORKHEAD
+MA0033	total_ic	6.0680
+MA0033	medline	7957066
+MA0033	sysgroup	vertebrate
+MA0033	species	Homo sapiens
+MA0033	type	SELEX
+MA0033	seqdb	SWISSPROT
+MA0033	acc	Q12952
+MA0034	sysgroup	plant
+MA0034	total_ic	9.3080
+MA0034	medline	10069063
+MA0034	name	GAMYB
+MA0034	class	TRP-CLUSTER
+MA0034	species	Hordeum vulgare
+MA0034	type	SELEX
+MA0034	seqdb	GENBANK
+MA0034	acc	g13236696
+MA0035	name	GATA-1
+MA0035	class	ZN-FINGER, GATA
+MA0035	total_ic	5.7370
+MA0035	medline	8321207
+MA0035	sysgroup	vertebrate
+MA0035	species	Mus musculus
+MA0035	type	SELEX
+MA0035	seqdb	SWISSPROT
+MA0035	acc	P17679
+MA0036	name	GATA-2
+MA0036	class	ZN-FINGER, GATA
+MA0036	total_ic	5.6870
+MA0036	medline	8321207
+MA0036	sysgroup	vertebrate
+MA0036	species	Homo sapiens
+MA0036	type	SELEX
+MA0036	seqdb	SWISSPROT
+MA0036	acc	P23769
+MA0037	name	GATA-3
+MA0037	class	ZN-FINGER, GATA
+MA0037	total_ic	6.6310
+MA0037	medline	8321207
+MA0037	sysgroup	vertebrate
+MA0037	species	Homo sapiens
+MA0037	type	SELEX
+MA0037	seqdb	SWISSPROT
+MA0037	acc	P23771
+MA0038	name	Gfi
+MA0038	class	ZN-FINGER, C2H2
+MA0038	total_ic	9.4670
+MA0038	medline	8754800
+MA0038	sysgroup	vertebrate
+MA0038	species	Rattus norvegicus
+MA0038	type	SELEX
+MA0038	seqdb	SWISSPROT
+MA0038	acc	Q07120
+MA0039	name	Gklf
+MA0039	class	ZN-FINGER, C2H2
+MA0039	total_ic	7.2340
+MA0039	medline	9443972
+MA0039	sysgroup	vertebrate
+MA0039	species	Mus musculus
+MA0039	type	SELEX
+MA0039	seqdb	SWISSPROT
+MA0039	acc	Q60793
+MA0040	name	HFH-1
+MA0040	class	FORKHEAD
+MA0040	total_ic	14.0720
+MA0040	medline	8139574
+MA0040	sysgroup	vertebrate
+MA0040	species	Rattus norvegicus
+MA0040	type	SELEX
+MA0040	seqdb	SWISSPROT
+MA0040	acc	Q63244
+MA0041	name	HFH-2
+MA0041	class	FORKHEAD
+MA0041	total_ic	12.9450
+MA0041	medline	8139574
+MA0041	sysgroup	vertebrate
+MA0041	species	Rattus norvegicus
+MA0041	type	SELEX
+MA0041	seqdb	SWISSPROT
+MA0041	acc	Q63245
+MA0042	name	HFH-3
+MA0042	class	FORKHEAD
+MA0042	total_ic	13.1850
+MA0042	medline	9153225
+MA0042	sysgroup	vertebrate
+MA0042	species	Homo sapiens
+MA0042	type	SELEX
+MA0042	seqdb	SWISSPROT
+MA0042	acc	Q14518
+MA0043	name	HLF
+MA0043	class	bZIP
+MA0043	total_ic	11.1450
+MA0043	medline	8065331
+MA0043	sysgroup	vertebrate
+MA0043	species	Homo sapiens
+MA0043	type	SELEX
+MA0043	seqdb	SWISSPROT
+MA0043	acc	Q16534
+MA0044	name	HMG-1
+MA0044	class	HMG
+MA0044	total_ic	8.4330
+MA0044	medline	9161031
+MA0044	sysgroup	plant
+MA0044	species	Pisum sativum
+MA0044	type	SELEX
+MA0044	seqdb	EMBL
+MA0044	acc	X76774
+MA0045	name	HMG-IY
+MA0045	class	HMG
+MA0045	total_ic	10.3400
+MA0045	medline	9161031
+MA0045	sysgroup	plant
+MA0045	species	Pisum sativum
+MA0045	type	SELEX
+MA0045	seqdb	EMBL
+MA0045	acc	X99373
+MA0046	name	HNF-1
+MA0046	class	HOMEO
+MA0046	total_ic	15.5480
+MA0046	medline	9047360
+MA0046	sysgroup	vertebrate
+MA0046	species	Vertebrates
+MA0046	type	COMPILED
+MA0046	seqdb	
+MA0046	acc	
+MA0047	name	HNF-3beta
+MA0047	class	FORKHEAD
+MA0047	total_ic	12.4370
+MA0047	medline	8139574
+MA0047	sysgroup	vertebrate
+MA0047	species	Rattus norvegicus
+MA0047	type	COMPILED
+MA0047	seqdb	SWISSPROT
+MA0047	acc	P32182
+MA0048	name	Hen-1
+MA0048	class	bHLH
+MA0048	total_ic	14.1300
+MA0048	medline	8289804
+MA0048	sysgroup	vertebrate
+MA0048	species	Homo sapiens
+MA0048	type	SELEX
+MA0048	seqdb	SWISSPROT
+MA0048	acc	Q02575
+MA0049	name	Hunchback
+MA0049	class	ZN-FINGER, C2H2
+MA0049	total_ic	10.4030
+MA0049	medline	2507923
+MA0049	sysgroup	insect
+MA0049	species	Drosophila melanogaster
+MA0049	type	COMPILED
+MA0049	seqdb	SWISSPROT
+MA0049	acc	P05084
+MA0050	name	Irf-1
+MA0050	class	TRP-CLUSTER
+MA0050	total_ic	16.0090
+MA0050	medline	7687740
+MA0050	sysgroup	vertebrate
+MA0050	species	Homo sapiens
+MA0050	type	SELEX
+MA0050	seqdb	SWISSPROT
+MA0050	acc	P10914
+MA0051	name	Irf-2
+MA0051	class	TRP-CLUSTER
+MA0051	total_ic	21.1360
+MA0051	medline	7687740
+MA0051	sysgroup	vertebrate
+MA0051	species	Homo sapiens
+MA0051	type	SELEX
+MA0051	seqdb	SWISSPROT
+MA0051	acc	P14316
+MA0052	name	MEF2
+MA0052	class	MADS
+MA0052	total_ic	15.7090
+MA0052	medline	1748287
+MA0052	sysgroup	vertebrate
+MA0052	species	Homo sapiens
+MA0052	type	SELEX
+MA0052	seqdb	EMBL
+MA0052	acc	X63381
+MA0053	name	MNB1A
+MA0053	class	ZN-FINGER, DOF
+MA0053	total_ic	8.6290
+MA0053	medline	10074718
+MA0053	sysgroup	plant
+MA0053	species	Zea mays
+MA0053	type	SELEX
+MA0053	seqdb	SWISSPROT
+MA0053	acc	P38564
+MA0054	name	MYB.ph3
+MA0054	class	TRP-CLUSTER
+MA0054	total_ic	8.5610
+MA0054	medline	7737128
+MA0054	sysgroup	plant
+MA0054	species	Petunia hybrida
+MA0054	type	SELEX
+MA0054	seqdb	SWISSPROT
+MA0054	acc	Q02994
+MA0055	name	Myf
+MA0055	class	bHLH
+MA0055	total_ic	15.9130
+MA0055	medline	9571041
+MA0055	sysgroup	vertebrate
+MA0055	species	Homo sapiens
+MA0055	type	COMPILED
+MA0055	seqdb	
+MA0055	acc	
+MA0056	name	MZF_1-4
+MA0056	class	ZN-FINGER, C2H2
+MA0056	total_ic	8.5860
+MA0056	medline	8114711
+MA0056	sysgroup	vertebrate
+MA0056	species	Homo sapiens
+MA0056	type	SELEX
+MA0056	seqdb	SWISSPROT
+MA0056	acc	P28698
+MA0057	name	MZF_5-13
+MA0057	class	ZN-FINGER, C2H2
+MA0057	total_ic	9.3990
+MA0057	medline	8114711
+MA0057	sysgroup	vertebrate
+MA0057	species	Homo sapiens
+MA0057	type	SELEX
+MA0057	seqdb	SWISSPROT
+MA0057	acc	P28698
+MA0058	name	Max
+MA0058	class	bHLH-ZIP
+MA0058	total_ic	12.6860
+MA0058	medline	8265351
+MA0058	sysgroup	vertebrate
+MA0058	species	Homo sapiens
+MA0058	type	SELEX
+MA0058	seqdb	SWISSPROT
+MA0058	acc	P25912
+MA0059	name	Myc-Max
+MA0059	class	bHLH-ZIP
+MA0059	total_ic	14.2360
+MA0059	medline	8265351
+MA0059	sysgroup	vertebrate
+MA0059	species	Homo sapiens
+MA0059	type	SELEX
+MA0059	seqdb	SWISSPROT
+MA0059	acc	P01106
+MA0060	name	NF-Y
+MA0060	class	CAAT-BOX
+MA0060	total_ic	12.9280
+MA0060	medline	9469818
+MA0060	sysgroup	
+MA0060	species	
+MA0060	type	COMPILED
+MA0060	seqdb	
+MA0060	acc	
+MA0061	name	NF-kappaB
+MA0061	class	REL
+MA0061	total_ic	13.3440
+MA0061	medline	8449662
+MA0061	sysgroup	vertebrate
+MA0061	species	Vertebrates
+MA0061	type	COMPILED
+MA0061	seqdb	
+MA0061	acc	
+MA0062	name	NRF-2
+MA0062	class	ETS
+MA0062	total_ic	13.8920
+MA0062	medline	8383622
+MA0062	sysgroup	vertebrate
+MA0062	species	Homo sapiens
+MA0062	type	COMPILED
+MA0062	seqdb	SWISSPROT
+MA0062	acc	Q06546
+MA0063	name	Nkx
+MA0063	class	HOMEO
+MA0063	total_ic	8.2690
+MA0063	medline	7797561
+MA0063	sysgroup	vertebrate
+MA0063	species	Mus musculus
+MA0063	type	SELEX
+MA0063	seqdb	SWISSPROT
+MA0063	acc	P42582
+MA0064	name	PBF
+MA0064	class	ZN-FINGER, DOF
+MA0064	total_ic	8.5090
+MA0064	medline	10074718
+MA0064	sysgroup	plant
+MA0064	species	Zea mays
+MA0064	type	SELEX
+MA0064	seqdb	SWISSPROT
+MA0064	acc	O24463
+MA0065	name	PPARgamma-RXRal
+MA0065	class	NUCLEAR RECEPTOR
+MA0065	total_ic	23.4450
+MA0065	medline	11139380
+MA0065	sysgroup	vertebrate
+MA0065	species	Homo sapiens
+MA0065	type	SELEX
+MA0065	seqdb	SWISSPROT
+MA0065	acc	P19793
+MA0066	name	PPARgamma
+MA0066	class	NUCLEAR RECEPTOR
+MA0066	total_ic	20.3660
+MA0066	medline	11139380
+MA0066	sysgroup	vertebrate
+MA0066	species	Homo sapiens
+MA0066	type	SELEX
+MA0066	seqdb	SWISSPROT
+MA0066	acc	P37231
+MA0067	name	Pax-2
+MA0067	class	PAIRED
+MA0067	total_ic	6.2060
+MA0067	medline	8132558
+MA0067	sysgroup	vertebrate
+MA0067	species	Mus musculus
+MA0067	type	SELEX
+MA0067	seqdb	SWISSPROT
+MA0067	acc	P32114
+MA0068	name	Pax-4
+MA0068	class	PAIRED-HOMEO
+MA0068	total_ic	11.0000
+MA0068	medline	10567552
+MA0068	sysgroup	vertebrate
+MA0068	species	Mus musculus
+MA0068	type	SELEX
+MA0068	seqdb	SWISSPROT
+MA0068	acc	P32115
+MA0069	name	Pax6
+MA0069	class	PAIRED
+MA0069	total_ic	13.7960
+MA0069	medline	8132558
+MA0069	sysgroup	vertebrate
+MA0069	species	Homo sapiens
+MA0069	type	SELEX
+MA0069	seqdb	SWISSPROT
+MA0069	acc	P26367
+MA0070	name	Pbx
+MA0070	class	HOMEO
+MA0070	total_ic	14.6440
+MA0070	medline	7910944
+MA0070	sysgroup	vertebrate
+MA0070	species	Homo sapiens
+MA0070	type	SELEX
+MA0070	seqdb	SWISSPROT
+MA0070	acc	P40424
+MA0071	name	RORalfa-1
+MA0071	class	NUCLEAR RECEPTOR
+MA0071	total_ic	13.1920
+MA0071	medline	7926749
+MA0071	sysgroup	vertebrate
+MA0071	species	Homo sapiens
+MA0071	type	SELEX
+MA0071	seqdb	SWISSPROT
+MA0071	acc	P35397
+MA0072	name	RORalfa-2
+MA0072	class	NUCLEAR RECEPTOR
+MA0072	total_ic	17.4230
+MA0072	medline	7926749
+MA0072	sysgroup	vertebrate
+MA0072	species	Homo sapiens
+MA0072	type	SELEX
+MA0072	seqdb	SWISSPROT
+MA0072	acc	P35398
+MA0073	name	RREB-1
+MA0073	class	ZN-FINGER, C2H2
+MA0073	total_ic	22.2800
+MA0073	medline	8816445
+MA0073	sysgroup	vertebrate
+MA0073	species	Homo sapiens
+MA0073	type	SELEX
+MA0073	seqdb	SWISSPROT
+MA0073	acc	Q92766
+MA0074	name	RXR-VDR
+MA0074	class	NUCLEAR RECEPTOR
+MA0074	total_ic	20.4520
+MA0074	medline	8674817
+MA0074	sysgroup	vertebrate
+MA0074	species	Homo sapiens
+MA0074	type	SELEX
+MA0074	seqdb	SWISSPROT
+MA0074	acc	P11473
+MA0075	name	S8
+MA0075	class	HOMEO
+MA0075	total_ic	9.0620
+MA0075	medline	7901837
+MA0075	sysgroup	vertebrate
+MA0075	species	Mus musculus
+MA0075	type	SELEX
+MA0075	seqdb	SWISSPROT
+MA0075	acc	Q06348
+MA0076	name	SAP-1
+MA0076	class	ETS
+MA0076	total_ic	14.1230
+MA0076	medline	8524663
+MA0076	sysgroup	vertebrate
+MA0076	species	Homo sapiens
+MA0076	type	SELEX
+MA0076	seqdb	SWISSPROT
+MA0076	acc	P28324
+MA0077	name	SOX-9
+MA0077	class	HMG
+MA0077	total_ic	9.0810
+MA0077	medline	9973626
+MA0077	sysgroup	vertebrate
+MA0077	species	Homo sapiens
+MA0077	type	SELEX
+MA0077	seqdb	SWISSPROT
+MA0077	acc	P48436
+MA0078	name	SOX17
+MA0078	class	HMG
+MA0078	total_ic	10.5030
+MA0078	medline	8636240
+MA0078	sysgroup	vertebrate
+MA0078	species	Mus musculus
+MA0078	type	SELEX
+MA0078	seqdb	SWISSPROT
+MA0078	acc	Q61473
+MA0079	name	SP1
+MA0079	class	ZN-FINGER, C2H2
+MA0079	total_ic	9.7160
+MA0079	medline	2192357
+MA0079	sysgroup	vertebrate
+MA0079	species	Homo sapiens
+MA0079	type	SELEX
+MA0079	seqdb	SWISSPROT
+MA0079	acc	P08047
+MA0080	name	SPI-1
+MA0080	class	ETS
+MA0080	total_ic	7.2180
+MA0080	medline	7624145
+MA0080	sysgroup	vertebrate
+MA0080	species	Homo sapiens
+MA0080	type	SELEX
+MA0080	seqdb	SWISSPROT
+MA0080	acc	P17947
+MA0081	name	SPI-B
+MA0081	class	ETS
+MA0081	total_ic	9.0600
+MA0081	medline	7624145
+MA0081	sysgroup	vertebrate
+MA0081	species	Homo sapiens
+MA0081	type	SELEX
+MA0081	seqdb	SWISSPROT
+MA0081	acc	Q01892
+MA0082	name	SQUA
+MA0082	class	MADS
+MA0082	total_ic	12.3870
+MA0082	medline	9826749
+MA0082	sysgroup	plant
+MA0082	species	Antirrhinum majus
+MA0082	type	SELEX
+MA0082	seqdb	EMBL
+MA0082	acc	X63701
+MA0083	name	SRF
+MA0083	class	MADS
+MA0083	total_ic	17.9670
+MA0083	medline	2243767
+MA0083	sysgroup	vertebrate
+MA0083	species	Homo sapiens
+MA0083	type	SELEX
+MA0083	seqdb	SWISSPROT
+MA0083	acc	P11831
+MA0084	name	SRY
+MA0084	class	HMG
+MA0084	total_ic	9.1930
+MA0084	medline	8190643
+MA0084	sysgroup	vertebrate
+MA0084	species	Homo sapiens
+MA0084	type	SELEX
+MA0084	seqdb	SWISSPROT
+MA0084	acc	Q05066
+MA0085	name	SU_h
+MA0085	class	IPT/TIG domain
+MA0085	total_ic	16.6710
+MA0085	medline	7590239
+MA0085	sysgroup	insect
+MA0085	species	Drosophila melanogaster
+MA0085	type	COMPILED
+MA0085	seqdb	SWISSPROT
+MA0085	acc	P28159
+MA0086	name	Snail
+MA0086	class	ZN-FINGER, C2H2
+MA0086	total_ic	10.7080
+MA0086	medline	8371971
+MA0086	sysgroup	insect
+MA0086	species	Drosophila melanogaster
+MA0086	type	SELEX
+MA0086	seqdb	SWISSPROT
+MA0086	acc	P08044
+MA0087	name	Sox-5
+MA0087	class	HMG
+MA0087	total_ic	10.8320
+MA0087	medline	1396566
+MA0087	sysgroup	vertebrate
+MA0087	species	Mus musculus
+MA0087	type	SELEX
+MA0087	seqdb	SWISSPROT
+MA0087	acc	P35710
+MA0088	name	Staf
+MA0088	class	ZN-FINGER, C2H2
+MA0088	total_ic	17.5380
+MA0088	medline	9009278
+MA0088	sysgroup	vertebrate
+MA0088	species	Xenupus laevis
+MA0088	type	COMPILED
+MA0088	seqdb	SWISSPROT
+MA0088	acc	Q91853
+MA0089	name	TCF11-MafG
+MA0089	class	bZIP
+MA0089	total_ic	7.9400
+MA0089	medline	9421508
+MA0089	sysgroup	vertebrate
+MA0089	species	Gallus gallus
+MA0089	type	SELEX
+MA0089	seqdb	SWISSPROT
+MA0089	acc	Q14494
+MA0090	name	TEF-1
+MA0090	class	TEA
+MA0090	total_ic	15.6790
+MA0090	medline	9571041
+MA0090	sysgroup	vertebrate
+MA0090	species	Homo sapiens
+MA0090	type	COMPILED
+MA0090	seqdb	SWISSPROT
+MA0090	acc	P28347
+MA0091	name	Tal1beta-E47S
+MA0091	class	bHLH
+MA0091	total_ic	14.0710
+MA0091	medline	8289805
+MA0091	sysgroup	vertebrate
+MA0091	species	Homo sapiens
+MA0091	type	SELEX
+MA0091	seqdb	SWISSPROT
+MA0091	acc	P15923
+MA0092	name	Thing1-E47
+MA0092	class	bHLH
+MA0092	total_ic	10.1450
+MA0092	medline	7791788
+MA0092	sysgroup	vertebrate
+MA0092	species	Homo sapiens
+MA0092	type	SELEX
+MA0092	seqdb	SWISSPROT
+MA0092	acc	P15923
+MA0093	name	USF
+MA0093	class	bHLH-ZIP
+MA0093	total_ic	11.2920
+MA0093	medline	8052536
+MA0093	sysgroup	vertebrate
+MA0093	species	Homo sapiens
+MA0093	type	SELEX
+MA0093	seqdb	SWISSPROT
+MA0093	acc	P22415
+MA0094	name	Ubx
+MA0094	class	HOMEO
+MA0094	total_ic	5.5770
+MA0094	medline	1673656
+MA0094	sysgroup	insect
+MA0094	species	Drosophila melanogaster
+MA0094	type	SELEX
+MA0094	seqdb	SWISSPROT
+MA0094	acc	P02834
+MA0095	name	Yin-Yang
+MA0095	class	ZN-FINGER, C2H2
+MA0095	total_ic	8.1020
+MA0095	medline	7816599
+MA0095	sysgroup	vertebrate
+MA0095	species	Homo sapiens
+MA0095	type	COMPILED
+MA0095	seqdb	SWISSPROT
+MA0095	acc	P25490
+MA0096	name	bZIP910
+MA0096	class	bZIP
+MA0096	total_ic	12.5510
+MA0096	medline	9680995
+MA0096	sysgroup	plant
+MA0096	species	Antirrhinum majus
+MA0096	type	SELEX
+MA0096	seqdb	EMBL
+MA0096	acc	Y13675
+MA0097	name	bZIP911
+MA0097	class	bZIP
+MA0097	total_ic	19.8800
+MA0097	medline	9680995
+MA0097	sysgroup	plant
+MA0097	species	Antirrhinum majus
+MA0097	type	SELEX
+MA0097	seqdb	EMBL
+MA0097	acc	Y13676
+MA0098	name	c-ETS
+MA0098	class	ETS
+MA0098	total_ic	7.0800
+MA0098	medline	1542566
+MA0098	sysgroup	vertebrate
+MA0098	species	Gallus gallus
+MA0098	type	SELEX
+MA0098	seqdb	SWISSPROT
+MA0098	acc	P13474
+MA0099	name	c-FOS
+MA0099	class	bZIP
+MA0099	total_ic	10.6720
+MA0099	medline	2243767
+MA0099	sysgroup	vertebrate
+MA0099	species	Mus musculus
+MA0099	type	SELEX
+MA0099	seqdb	SWISSPROT
+MA0099	acc	P01101
+MA0100	name	c-MYB_1
+MA0100	class	TRP-CLUSTER
+MA0100	total_ic	9.8840
+MA0100	medline	1861984
+MA0100	sysgroup	vertebrate
+MA0100	species	Mus musculus
+MA0100	type	SELEX
+MA0100	seqdb	SWISSPROT
+MA0100	acc	P06876
+MA0101	name	c-REL
+MA0101	class	REL
+MA0101	total_ic	10.5180
+MA0101	medline	1406630
+MA0101	sysgroup	vertebrate
+MA0101	species	Homo sapiens
+MA0101	type	SELEX
+MA0101	seqdb	SWISSPROT
+MA0101	acc	Q04864
+MA0102	name	cEBP
+MA0102	class	bZIP
+MA0102	total_ic	9.1860
+MA0102	medline	1672737
+MA0102	sysgroup	vertebrate
+MA0102	species	
+MA0102	type	COMPILED
+MA0102	seqdb	
+MA0102	acc	
+MA0103	name	deltaEF1
+MA0103	class	ZN-FINGER, C2H2
+MA0103	total_ic	8.3070
+MA0103	medline	8065305
+MA0103	sysgroup	vertebrate
+MA0103	species	Gallus gallus
+MA0103	type	SELEX
+MA0103	seqdb	SWISSPROT
+MA0103	acc	P36197
+MA0104	name	n-MYC
+MA0104	class	bHLH-ZIP
+MA0104	total_ic	10.4440
+MA0104	medline	1594445
+MA0104	sysgroup	vertebrate
+MA0104	species	Mus musculus
+MA0104	type	SELEX
+MA0104	seqdb	SWISSPROT
+MA0104	acc	P03966
+MA0105	name	p50
+MA0105	class	REL
+MA0105	total_ic	15.6280
+MA0105	medline	1406630
+MA0105	sysgroup	vertebrate
+MA0105	species	Homo sapiens
+MA0105	type	SELEX
+MA0105	seqdb	SWISSPROT
+MA0105	acc	P19838
+MA0106	name	p53
+MA0106	class	P53
+MA0106	total_ic	26.2420
+MA0106	medline	1588974
+MA0106	sysgroup	vertebrate
+MA0106	species	Homo sapiens
+MA0106	type	SELEX
+MA0106	seqdb	SWISSPROT
+MA0106	acc	P04637
+MA0107	name	p65
+MA0107	class	REL
+MA0107	total_ic	14.7550
+MA0107	medline	1406630
+MA0107	sysgroup	vertebrate
+MA0107	species	Homo sapiens
+MA0107	type	SELEX
+MA0107	seqdb	SWISSPROT
+MA0107	acc	Q04206
+MA0108	name	TBP
+MA0108	class	TATA-BOX
+MA0108	total_ic	15.3090
+MA0108	medline	8208615
+MA0108	sysgroup	
+MA0108	species	Acanthamoeba castellanii
+MA0108	type	SELEX
+MA0108	seqdb	SWISSPROT
+MA0108	acc	P26354

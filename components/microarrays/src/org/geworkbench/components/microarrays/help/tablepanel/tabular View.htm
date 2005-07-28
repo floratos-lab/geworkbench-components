@@ -1,0 +1,100 @@
+<html>
+
+
+
+<head>
+
+<meta http-equiv="Content-Language" content="en-us">
+
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+
+<meta name="GENERATOR" content="Microsoft FrontPage 4.0">
+
+<meta name="ProgId" content="FrontPage.Editor.Document">
+
+<title>User Comments</title>
+
+<link rel="stylesheet" type="text/css" href="ncicb.css">
+
+</head>
+
+
+
+<body>
+
+
+
+<h3>Tabular View</h3>
+
+<p>This is a utility for displaying numeric values in selected Microarray datasets. 
+
+  The Microarrays are displayed as columns and marker/genes as rows. Missing data 
+
+  are color coded for easy viewing. This component can handle gene expression 
+
+  data obtained loaded into the application either is <a href="http://www.affymetrix.com/index.affx">Affymetrix 
+
+  (MAS 4.0/5.0)</a> or <a href="http://www.axon.com/GN_GenePixSoftware.html">Genepix</a> 
+
+  formats</p>
+
+<p></p>
+
+<p>To view a dataset using Tabular View, first select a dataset in the &quot;Project 
+
+  Folder&quot; pane and then select the &quot;tabular View&quot; option in the 
+
+  main display pane at the top-right section of the interface. </p>
+
+<p>Depending on the type of dataset selected, the user if offered different functionality</p>
+
+<p><b>Affymetrix</b>: Selecting 'Show Panels' enables users to view a subselection 
+
+  of genes/markers in the current selected dataset. The selection includes those
+
+markers that belong to activated marker panels. Similarly, selecting 'Show Phenotypes' enables users to 
+
+  view a subselection of Microarrays in the selected dataset. These are those Microarrays
+
+that are part of activated phenotype panels. A user can also change signal 
+
+  values in the table. Double clicking on the cell of interest causes the data 
+
+  field to become editable. All changes made this way are included in a new dataset 
+
+  which is created as a child of the currently selected dataset. The child is 
+
+  created when another dataset or project node is selected in the Project Panel 
+
+  component. </p>
+
+<p><img src="tabularview-affymetrix.gif" width="529" height="512"></p>
+
+<p><b>Genepix</b>: In addition to the 'Show Panels' and 'Show Phenotypes' options 
+
+  similar to above, the user is allowed options to select 'Background' and 'Signal'. 
+
+  Selecting 'Background' causes background values of the two channels to be displayed. 
+
+  Selecting 'Signal' causes the foreground values for the two channels to be displayed. 
+
+  The background and foreground are appropriately color coded to distinguish the 
+
+  two channels. The signal is computed from the foregrounds and backgrounds and 
+
+  as such only the background and foreground values can be edited in a manner 
+
+  similar to above.</p>
+
+<p><img src="tabularview-genepix.gif" width="530" height="513"></p>
+
+<p>Also the columns can be moved around by dragging the Microarray name field 
+
+  to a new position to allow for easy comparisons between microarrays</p>
+
+</body>
+
+
+
+</html>
+

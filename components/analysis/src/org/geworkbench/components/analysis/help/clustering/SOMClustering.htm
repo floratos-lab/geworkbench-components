@@ -1,0 +1,154 @@
+<html>
+
+
+
+<head>
+
+<meta http-equiv="Content-Language" content="en-us">
+
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+
+<meta name="GENERATOR" content="Microsoft FrontPage 4.0">
+
+<meta name="ProgId" content="FrontPage.Editor.Document">
+
+<title>SOM Clustering</title>
+
+<link rel="stylesheet" type="text/css" href="ncicb.css">
+
+</head>
+
+
+
+<body>
+
+
+
+<h3>Self Organizing Map</h3>
+
+<p>The self organizing map is an algorithm to perform clustering of real vectors
+
+defined on an instance space of dimensionality d. The clusters found are described by prototypical instances,
+
+referred as neurons of the SOM, which are arranged topologically in the form of a one or two dimensional grid,&nbsp;
+
+the Self 
+
+  Organizing Map. Each point in the grid is associated with two set of coordinates.
+
+The first one gives the coordinates of the point within the grid, for example 
+
+  in the case of a two dimensional map it is the line and column number in which
+
+that neuron is placed. The second one is the set of coordinates of the point 
+
+  in the initial space where the training instances come from.&nbsp;</p>
+
+<p> The main property of the self organized maps is that points which are neighboring in the grid,
+
+i.e. are placed closely in terms of the lines and columns of the grid, are also close in the initial space. We are considering a two dimensional SOM only for 
+
+  ease of visualization</p>
+
+<p>The parameters used for this analysis method are:</p>
+
+<p><img src="images/SOMParameters.gif" width="524" height="204"></p>
+
+<ol>
+
+  <li> 
+
+    <u><i>Rows</i></u>: The number of rows that the user desires in the resulting SOM
+
+  </li>
+
+  <li> 
+
+    <u><i>Columns</i></u>: The number of columns that the user desires in the resulting SOM
+
+  </li>
+
+  <li> 
+
+    <u><i> 
+
+    Starting Radius</i></u>: When using the bubble neighborhood parameter this float 
+
+      value is used to define the extent of the neighborhood. If an SOM vector 
+
+      is within this distance from the winning node (the cluster to which an element 
+
+      has been assigned) then that Node (and SOM vector) is considered to be in 
+
+      the neighborhood and it's SOM vector is adapted.
+
+  </li>
+
+  <li> 
+
+      <u><i> 
+
+      Number of Iterations</i></u>: The number of times the dataset will be presented 
+
+      to the Map. Each expression element will be presented this number of times 
+
+      to train the Nodes.
+
+  </li>
+
+  <li> 
+
+      <u><i> 
+
+      Learning Rate</i></u>: This value is used to scale the change of individual SOM 
+
+      vectors when a new expression vector is associated with a node.
+
+  </li>
+
+  <li> 
+
+      <u><i>Function</i></u>: The neighborhood options indicate the conventions 
+
+      (formulas) used to update (adapt) an SOM vector once an expression vector 
+
+      has been added into a Node's neighborhood.
+
+    <ul>
+
+      <li> 
+
+          <b><i>Bubble</i></b>: This option uses the provided radius (see above) to determine 
+
+          which surrounding SOM nodes are in the neighborhood and therefore are 
+
+          candidates for adaptation. When this option is selected the Alpha parameter 
+
+          for scaling the adaptation is used directly as provided from the user.       
+
+      </li>
+
+      <li> 
+
+          <b><i>Gaussian</i></b>: This option forces all SOM vectors in the network to be adapted 
+
+          regardless of proximity to the winning node. In this case the Alpha 
+
+          parameter is scaled based on the distance between the SOM vector to 
+
+          be adapted and the winning node's SOM vector.
+
+      </li>
+
+    </ul>
+
+  </li>
+
+</ol>
+
+</body>
+
+
+
+</html>
+

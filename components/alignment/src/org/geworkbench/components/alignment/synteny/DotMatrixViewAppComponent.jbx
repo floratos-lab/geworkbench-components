@@ -1,0 +1,11 @@
+[PropertyInfo]
+component,Component,false,false, , ,true,<default>
+listener,ActionListener,false,false, , ,false,<default>
+listenerList,EventListenerList,false,false, , ,false,<default>
+listeners,HashMap,false,false, , ,true,<default>
+sViewWidget,DotMatrixViewWidget,false,false, , ,false,<default>
+[IconNames]
+
+
+
+
