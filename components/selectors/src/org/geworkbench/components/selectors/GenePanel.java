@@ -9,6 +9,7 @@ import org.geworkbench.builtin.projects.ProjectSelection;
 import org.geworkbench.engine.management.Asynchronous;
 import org.geworkbench.engine.management.Publish;
 import org.geworkbench.engine.management.Subscribe;
+import org.geworkbench.engine.management.Overflow;
 import org.geworkbench.util.JAutoList;
 import org.geworkbench.util.visualproperties.PanelVisualProperties;
 import org.geworkbench.util.visualproperties.PanelVisualPropertiesManager;
@@ -993,7 +994,7 @@ public class GenePanel implements VisualPlugin {
     /**
      * Called when a component wishes to add, change or remove a panel.
      */
-    @Subscribe(Asynchronous.class) public void receive(org.geworkbench.events.SubpanelChangedEvent spe, Object source) {
+    @Subscribe(Overflow.class) public void receive(org.geworkbench.events.SubpanelChangedEvent spe, Object source) {
         DSPanel<DSGeneMarker> receivedPanel = spe.getPanel();
         switch (spe.getMode()) {
             case SubpanelChangedEvent.NEW:
