@@ -994,7 +994,7 @@ public class GenePanel implements VisualPlugin {
     /**
      * Called when a component wishes to add, change or remove a panel.
      */
-    @Subscribe(Overflow.class) public void receive(org.geworkbench.events.SubpanelChangedEvent spe, Object source) {
+    @Subscribe(Asynchronous.class) public void receive(org.geworkbench.events.SubpanelChangedEvent spe, Object source) {
         DSPanel<DSGeneMarker> receivedPanel = spe.getPanel();
         switch (spe.getMode()) {
             case SubpanelChangedEvent.NEW:
@@ -1009,9 +1009,11 @@ public class GenePanel implements VisualPlugin {
                 }
             case SubpanelChangedEvent.APPEND:
                 {
+                    boolean foundPanel = false;
                     for (int i = 0; i < markerPanel.panels().size(); i++) {
                         DSPanel<DSGeneMarker> panel = markerPanel.panels().get(i);
                         if (panel.equals(receivedPanel)) {
+                            foundPanel = true;
                             for (DSGeneMarker marker : receivedPanel) {
                                 panel.add(marker);
                             }
@@ -1022,7 +1024,10 @@ public class GenePanel implements VisualPlugin {
                             break;
                         }
                     }
-                    addPanel(receivedPanel);
+                    if (!foundPanel) {
+                        // Add it as a new panel
+                        addPanel(receivedPanel);
+                    }
                     break;
                 }
             case SubpanelChangedEvent.EXCLUDE:
