@@ -994,7 +994,7 @@ public class GenePanel implements VisualPlugin {
     /**
      * Called when a component wishes to add, change or remove a panel.
      */
-    @Subscribe(Asynchronous.class) public void receive(org.geworkbench.events.SubpanelChangedEvent spe, Object source) {
+    @Subscribe(Overflow.class) public void receive(org.geworkbench.events.SubpanelChangedEvent spe, Object source) {
         DSPanel<DSGeneMarker> receivedPanel = spe.getPanel();
         switch (spe.getMode()) {
             case SubpanelChangedEvent.NEW:
@@ -1007,13 +1007,15 @@ public class GenePanel implements VisualPlugin {
                         // todo: consider renaming the panel instead so as to avoid overwrites
                     }
                 }
-            case SubpanelChangedEvent.APPEND:
+            case SubpanelChangedEvent.SET_CONTENTS:
                 {
                     boolean foundPanel = false;
                     for (int i = 0; i < markerPanel.panels().size(); i++) {
                         DSPanel<DSGeneMarker> panel = markerPanel.panels().get(i);
                         if (panel.equals(receivedPanel)) {
                             foundPanel = true;
+                            // Delete everything frpm the panel and re-add
+                            panel.clear();
                             for (DSGeneMarker marker : receivedPanel) {
                                 panel.add(marker);
                             }
@@ -1030,23 +1032,24 @@ public class GenePanel implements VisualPlugin {
                     }
                     break;
                 }
-            case SubpanelChangedEvent.EXCLUDE:
-                {
-                    for (int i = 0; i < markerPanel.panels().size(); i++) {
-                        DSPanel<DSGeneMarker> panel = markerPanel.panels().get(i);
-                        if (panel.equals(receivedPanel)) {
-                            for (DSGeneMarker marker : receivedPanel) {
-                                panel.remove(marker);
-                            }
-                            synchronized (treeModel) {
-                                treeModel.firePanelChildrenChanged(panel);
-                            }
-                            throwEvent(GeneSelectorEvent.PANEL_SELECTION);
-                            break;
-                        }
-                    }
-                    break;
-                }
+                // JWAT - exclude now phased out
+//            case SubpanelChangedEvent.EXCLUDE:
+//                {
+//                    for (int i = 0; i < markerPanel.panels().size(); i++) {
+//                        DSPanel<DSGeneMarker> panel = markerPanel.panels().get(i);
+//                        if (panel.equals(receivedPanel)) {
+//                            for (DSGeneMarker marker : receivedPanel) {
+//                                panel.remove(marker);
+//                            }
+//                            synchronized (treeModel) {
+//                                treeModel.firePanelChildrenChanged(panel);
+//                            }
+//                            throwEvent(GeneSelectorEvent.PANEL_SELECTION);
+//                            break;
+//                        }
+//                    }
+//                    break;
+//                }
             case SubpanelChangedEvent.DELETE:
                 {
                     for (int i = 0; i < markerPanel.panels().size(); i++) {

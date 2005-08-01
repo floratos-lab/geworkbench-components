@@ -29,6 +29,7 @@ import org.geworkbench.engine.config.MenuListener;
 import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.engine.config.events.EventSource;
 import phoebe.event.PSelectionHandler;
+import phoebe.PNodeView;
 
 import javax.swing.*;
 import java.awt.*;
@@ -558,36 +559,49 @@ public class CytoscapeWidget extends EventSource implements VisualPlugin, MenuLi
 
     private void cyNetWorkView_graphViewChanged(GraphViewChangeEvent gvce) {
         if (view != null && cytoNetwork != null) {
-            if (gvce.isNodesSelectedType()) {
-                int[] indices = gvce.getSelectedNodeIndices();
-                //                int[] indices = view.getSelectedNodeIndices();
-                // set the title under which the selected genes will be displayed in the panel
-                DSPanel selectedMarkers = new CSPanel("Selected Genes", "Cytoscape");
-                if (indices.length > 0) {
-                    int index = indices.length - 1;
-                    Node node = cytoNetwork.getNode(indices[index]);
+            java.util.List nodes = view.getSelectedNodes();
+            DSPanel selectedMarkers = new CSPanel("Selected Genes", "Cytoscape");
+            for (int i = 0; i < nodes.size(); i++) {
+                PNodeView pnode = (PNodeView) nodes.get(i);
+                Node node = pnode.getNode();
+                if (node instanceof CyNode) {
                     int serial = ((Integer) cytoNetwork.getNodeAttributeValue((CyNode) node, "Serial")).intValue();
-                    if (node instanceof CyNode) {
-                        selectedMarkers.add(maSet.getMarkers().get(serial));
-                    }
-                    selectedMarkers.setActive(true);
-                    publishSubpanelChangedEvent(new org.geworkbench.events.SubpanelChangedEvent(selectedMarkers, org.geworkbench.events.SubpanelChangedEvent.APPEND));
-                }
-            } else if (gvce.isNodesUnselectedType()) {
-                int[] indices = gvce.getUnselectedNodeIndices();
-                DSPanel selectedMarkers = new CSPanel("Selected Genes", "Cytoscape");
-                if (indices.length > 0) {
-                    int index = indices.length - 1;
-                    Node node = cytoNetwork.getNode(indices[index]);
-                    int serial = ((Integer) cytoNetwork.getNodeAttributeValue((CyNode) node, "Serial")).intValue();
-                    if (node instanceof CyNode) {
-                        selectedMarkers.add(maSet.getMarkers().get(serial));
-                    }
-                    selectedMarkers.setActive(true);
-                    publishSubpanelChangedEvent(new org.geworkbench.events.SubpanelChangedEvent(selectedMarkers, org.geworkbench.events.SubpanelChangedEvent.EXCLUDE));
+                    selectedMarkers.add(maSet.getMarkers().get(serial));
                 }
             }
+            selectedMarkers.setActive(true);
+            publishSubpanelChangedEvent(new org.geworkbench.events.SubpanelChangedEvent(selectedMarkers, org.geworkbench.events.SubpanelChangedEvent.SET_CONTENTS));
         }
+//            if (gvce.isNodesSelectedType()) {
+//                int[] indices = gvce.getSelectedNodeIndices();
+//                //                int[] indices = view.getSelectedNodeIndices();
+//                // set the title under which the selected genes will be displayed in the panel
+//                DSPanel selectedMarkers = new CSPanel("Selected Genes", "Cytoscape");
+//                if (indices.length > 0) {
+//                    int index = indices.length - 1;
+//                    Node node = cytoNetwork.getNode(indices[index]);
+//                    int serial = ((Integer) cytoNetwork.getNodeAttributeValue((CyNode) node, "Serial")).intValue();
+//                    if (node instanceof CyNode) {
+//                        selectedMarkers.add(maSet.getMarkers().get(serial));
+//                    }
+//                    selectedMarkers.setActive(true);
+//                    publishSubpanelChangedEvent(new org.geworkbench.events.SubpanelChangedEvent(selectedMarkers, org.geworkbench.events.SubpanelChangedEvent.SET_CONTENTS));
+//                }
+//            } else if (gvce.isNodesUnselectedType()) {
+//                int[] indices = gvce.getUnselectedNodeIndices();
+//                DSPanel selectedMarkers = new CSPanel("Selected Genes", "Cytoscape");
+//                if (indices.length > 0) {
+//                    int index = indices.length - 1;
+//                    Node node = cytoNetwork.getNode(indices[index]);
+//                    int serial = ((Integer) cytoNetwork.getNodeAttributeValue((CyNode) node, "Serial")).intValue();
+//                    if (node instanceof CyNode) {
+//                        selectedMarkers.add(maSet.getMarkers().get(serial));
+//                    }
+//                    selectedMarkers.setActive(true);
+//                    publishSubpanelChangedEvent(new org.geworkbench.events.SubpanelChangedEvent(selectedMarkers, org.geworkbench.events.SubpanelChangedEvent.EXCLUDE));
+//                }
+//            }
+//        }
     }
 
     @Publish public org.geworkbench.events.SubpanelChangedEvent publishSubpanelChangedEvent(org.geworkbench.events.SubpanelChangedEvent event) {

@@ -884,7 +884,7 @@ public class GenericMarkerSelectorPanel implements VisualPlugin, MenuListener {
             if (pan.isActive()) {
                 markerPanel.panels().add(pan);
             }
-        } else if (spe.getMode() == SubpanelChangedEvent.APPEND) {
+        } else if (spe.getMode() == SubpanelChangedEvent.SET_CONTENTS) {
             if (pan == null) {
                 int j = root.getChildCount();
                 for (int i = j - 1; i >= 0; i--) {
@@ -910,8 +910,6 @@ public class GenericMarkerSelectorPanel implements VisualPlugin, MenuListener {
                     panelTree.scrollPathToVisible(new TreePath(node.getPath()));
                 }
             }
-        } else if (spe.getMode() == org.geworkbench.events.SubpanelChangedEvent.EXCLUDE) {
-
         } else if (spe.getMode() == SubpanelChangedEvent.DELETE) {
             if (pan == null) {
                 int j = root.getChildCount();
