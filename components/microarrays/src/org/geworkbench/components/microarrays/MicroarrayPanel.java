@@ -315,13 +315,13 @@ public class MicroarrayPanel extends MicroarrayVisualizer implements VisualPlugi
     void jSaveImageMenu_actionPerformed(ActionEvent e) {
         Image currentImage = microarrayImageArea.getCurrentImage();
         if (currentImage != null && microarrayImageArea.microarray != null) {
-            int width = currentImage.getWidth(null);
-            int height = currentImage.getHeight(null);
-            double factor = IMAGE_SNAPSHOT_WIDTH / (double) width;
-            width = (int) (width * factor);
-            height = (int) (height * factor);
-            Image scaled = currentImage.getScaledInstance(width, height, Image.SCALE_FAST);
-            ImageIcon newIcon = new ImageIcon(scaled, "Microarray Image: " + microarrayImageArea.microarray.getLabel());
+//            int width = currentImage.getWidth(null);
+//            int height = currentImage.getHeight(null);
+//            double factor = IMAGE_SNAPSHOT_WIDTH / (double) width;
+//            width = (int) (width * factor);
+//            height = (int) (height * factor);
+//            Image scaled = currentImage.getScaledInstance(width, height, Image.SCALE_FAST);
+            ImageIcon newIcon = new ImageIcon(currentImage, "Microarray Image: " + microarrayImageArea.microarray.getLabel());
             org.geworkbench.events.ImageSnapshotEvent event = new org.geworkbench.events.ImageSnapshotEvent("MicroarrayPanel ImageSnapshot", newIcon, ImageSnapshotEvent.Action.SAVE);
             publishImageSnapshotEvent(event);
         }

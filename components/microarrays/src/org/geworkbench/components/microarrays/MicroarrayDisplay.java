@@ -15,6 +15,7 @@ import javax.swing.border.TitledBorder;
 import java.awt.*;
 import java.awt.image.ColorModel;
 import java.awt.image.MemoryImageSource;
+import java.awt.image.BufferedImage;
 import java.util.Stack;
 import java.util.Vector;
 
@@ -52,8 +53,6 @@ public class MicroarrayDisplay extends JPanel {
     protected char[] graphedGenes = null;
 
     TitledBorder titledBorder1;
-
-    private Image currentImage = null;
 
     public MicroarrayDisplay(org.geworkbench.util.microarrayutils.MicroarrayVisualizer visualizer) {
 
@@ -129,21 +128,26 @@ public class MicroarrayDisplay extends JPanel {
             cols = rows;
             float[] hsb = new float[3];
             computeScale();
-            Image memImg = createImage();
-            currentImage = memImg;
-            g.drawImage(memImg, dx, dy, wx, wy, null);
+//            Image memImg = createImage();
+//            currentImage = memImg;
+//            g.drawImage(memImg, dx, dy, wx, wy, null);
+            drawImage((Graphics2D) g);
             g.setColor(Color.black);
         }
     }
 
     public Image getCurrentImage() {
-        return currentImage;
+        Image image = new BufferedImage(wx - dx, wy - dy, BufferedImage.TYPE_INT_RGB);
+        Graphics2D ig = (Graphics2D) image.getGraphics();
+        ig.setColor(Color.white);
+        ig.fillRect(0,0,wx-dx, wy-dy);
+
+        drawImage(ig);
+
+        return image;
     }
 
-    protected Image createImage() {
-        //        int xvals[] = new int[2];
-        //        int yvals[] = new int[2];
-        int pixels[] = new int[rows * cols];
+    protected void drawImage(Graphics2D g) {
         int geneNo = microarrayVisualizer.getDataSetView().markers().size();
         int geneId = 0;
         DSDataSet maSet = microarrayVisualizer.getDataSetView().getDataSet();
@@ -155,35 +159,51 @@ public class MicroarrayDisplay extends JPanel {
                         DSGeneMarker stats = microarrayVisualizer.getDataSetView().markers().get(geneId);
                         //this place should get the right marker with the selecte markers or all markers
 
+
                         //this is the markerid of the whole microarryset
                         int markerId = stats.getSerial();
                         if (markerId >= 0 && markerId < patternGenes.length) {
-                            if (patternGenes[markerId] > 0) {
-                                pixels[markerId] = Color.blue.hashCode();
-                            } else if (maskedGenes[markerId] > 0) {
-                                pixels[markerId] = Color.orange.hashCode();
-                            } else if (graphedGenes[geneId] == '1') {
-                                pixels[markerId] = Color.magenta.hashCode();
+                            DSMutableMarkerValue spot = (DSMutableMarkerValue) microarray.getMarkerValue(stats.getSerial());
+
+                            if ((spot == null) || (spot.isMissing())) {
+                                g.setColor(Color.yellow);
+                            } else if (spot.isMasked()) {
+                                g.setColor(Color.white);
+                            } else if (!showValidOnly || (!spot.isMissing())) {
+                                g.setColor(colorContext.getMarkerValueColor(spot, stats, 1.0f));
+                                //pixels[geneId] = spot.getAbsColor(stats, 1.0F).getRGB();
                             } else {
-                                DSMutableMarkerValue spot = (DSMutableMarkerValue) microarray.getMarkerValue(stats.getSerial());
-                                if ((spot == null) || (spot.isMissing())) {
-                                    pixels[geneId] = Color.yellow.getRGB();
-                                } else if (spot.isMasked()) {
-                                    pixels[geneId] = Color.white.getRGB();
-                                } else if (!showValidOnly || (!spot.isMissing())) {
-                                    pixels[geneId] = colorContext.getMarkerValueColor(spot, stats, 1.0f).getRGB();
-                                    //pixels[geneId] = spot.getAbsColor(stats, 1.0F).getRGB();
-                                } else {
-                                    pixels[geneId] = Color.lightGray.hashCode();
-                                }
+                                g.setColor(Color.lightGray);
                             }
+                            int x0 = dx + (int) ((double) col * scaleX);
+                            int x1 = dx + (int) ((double) (col + 1) * scaleX);
+                            int y0 = dy + (int) ((double) row * scaleY);
+                            int y1 = dy + (int) ((double) (row + 1) * scaleY);
+
+                            g.fillRect(x0, y0, x1 - x0, y1 - y0);
+
+                            boolean needOutline = true;
+                            if (patternGenes[markerId] > 0) {
+                                g.setColor(Color.blue);
+                            } else if (maskedGenes[markerId] > 0) {
+                                g.setColor(Color.orange);
+                            } else if (graphedGenes[geneId] == '1') {
+                                g.setColor(Color.green);
+                            } else {
+                                needOutline = false;
+                            }
+                            if (needOutline) {
+                                g.setStroke(new BasicStroke(3));
+                                g.drawRect(x0, y0, x1 - x0 - 1, y1 - y0 - 1);
+                                g.setStroke(new BasicStroke(1));
+                            }
+
                             geneId++;
                         }
                     }
                 }
             }
         }
-        return createImage(new MemoryImageSource(cols, rows, ColorModel.getRGBdefault(), pixels, 0, cols));
     }
 
     protected int getCol(int geneId) {
