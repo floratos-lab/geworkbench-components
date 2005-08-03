@@ -11,6 +11,7 @@ import org.geworkbench.engine.management.Publish;
 import org.geworkbench.engine.management.Subscribe;
 import org.geworkbench.engine.management.Overflow;
 import org.geworkbench.util.JAutoList;
+import org.geworkbench.util.sequences.SequenceDB;
 import org.geworkbench.util.visualproperties.PanelVisualProperties;
 import org.geworkbench.util.visualproperties.PanelVisualPropertiesManager;
 import org.geworkbench.util.visualproperties.VisualPropertiesDialog;
@@ -834,6 +835,8 @@ public class GenePanel implements VisualPlugin {
         if (dataSet instanceof DSMicroarraySet) {
             DSMicroarraySet maSet = (DSMicroarraySet) dataSet;
             markerList = maSet.getMarkers();
+        } else if (dataSet instanceof SequenceDB) {
+            markerList = (DSItemList)((SequenceDB)dataSet).getMarkerList();
         } else {
             markerList = dataSet;
         }
