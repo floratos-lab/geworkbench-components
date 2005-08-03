@@ -2,6 +2,7 @@ package org.geworkbench.components.filtering;
 
 import org.geworkbench.analysis.AbstractAnalysis;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
+import org.geworkbench.bison.datastructure.bioobjects.microarray.DSAffyMarkerValue;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMarkerValue;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMutableMarkerValue;
@@ -36,8 +37,7 @@ public class AffyDetectionCallFilter extends AbstractAnalysis implements Filteri
     }
 
     public AlgorithmExecutionResults execute(Object input) {
-        if (input == null)
-            return new AlgorithmExecutionResults(false, "Invalid input.", null);
+        if (input == null) return new AlgorithmExecutionResults(false, "Invalid input.", null);
         assert input instanceof DSMicroarraySet;
         DSMicroarraySet<DSMicroarray> maSet = (DSMicroarraySet) input;
         // Collect the parameters needed for the execution of the filter
@@ -45,13 +45,12 @@ public class AffyDetectionCallFilter extends AbstractAnalysis implements Filteri
         filterAbsent = ((AffyDetectionCallFilterPanel) aspp).isAbsentSelected();
         filterMarginal = ((AffyDetectionCallFilterPanel) aspp).isMarginalSelected();
         int arrayCount = maSet.size();
-        int markerCount = maSet.size();
+        int markerCount = maSet.getMarkers().size();
         for (int i = 0; i < arrayCount; i++) {
             DSMicroarray mArray = maSet.get(i);
             for (int j = 0; j < markerCount; ++j) {
                 DSMutableMarkerValue mv = (DSMutableMarkerValue) mArray.getMarkerValue(j);
-                if (shouldBeFiltered(mv))
-                    mv.setMissing(true);
+                if (shouldBeFiltered(mv)) mv.setMissing(true);
             }
 
         }
@@ -66,15 +65,28 @@ public class AffyDetectionCallFilter extends AbstractAnalysis implements Filteri
      * @return
      */
     private boolean shouldBeFiltered(DSMarkerValue mv) {
-        if (mv == null || mv.isMissing())
+        if (mv instanceof DSAffyMarkerValue) {
+            DSAffyMarkerValue amv = (DSAffyMarkerValue) mv;
+            if (amv == null || mv.isMissing()) {
+                return false;
+            }
+            if (amv.isPresent() && filterPresent) {
+                return true;
+            }
+            if (amv.isAbsent() && filterAbsent) {
+                return true;
+            }
+            if (amv.isMarginal() && filterMarginal) {
+                return true;
+            }
             return false;
-        if (!mv.isMissing() && filterPresent)
-            return true;
-        if (mv.isMissing() && filterAbsent)
-            return true;
-        if ((mv.getConfidence() > 0.33) && (mv.getConfidence() <= 0.66) && filterMarginal)
-            return true;
-        return false;
+        } else {
+            if (mv == null || mv.isMissing()) return false;
+            if (!mv.isMissing() && filterPresent) return true;
+            if (mv.isMissing() && filterAbsent) return true;
+            if ((mv.getConfidence() > 0.33) && (mv.getConfidence() <= 0.66) && filterMarginal) return true;
+            return false;
+        }
     }
 
     public String getType() {
