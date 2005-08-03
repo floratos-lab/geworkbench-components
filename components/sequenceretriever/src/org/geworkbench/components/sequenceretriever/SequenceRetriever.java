@@ -424,10 +424,11 @@ public class SequenceRetriever implements VisualPlugin {
             ls2.clear();
             for (int j = 0; j < markers.panels().size(); j++) {
                 DSPanel<DSGeneMarker> mrk = markers.panels().get(j);
-                for (int i = 0; i < mrk.size(); i++) {
-                    ls2.addElement(mrk.get(i));
-
-                }
+                if (mrk.isActive())
+                    for (int i = 0; i < mrk.size(); i++) {
+                        if (!ls2.contains(mrk.get(i)))
+                            ls2.addElement(mrk.get(i));
+                    }
             }
         }
     }
