@@ -38,7 +38,6 @@ import java.awt.geom.Rectangle2D;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.HashMap;
-import org.bioworks.components.plots.SOMPlot;
 
 /**
  * <p>Copyright: Copyright (c) 2005</p>
