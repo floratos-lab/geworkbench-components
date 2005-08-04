@@ -38,6 +38,7 @@ import java.awt.geom.Rectangle2D;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.HashMap;
+import org.bioworks.components.plots.SOMPlot;
 
 /**
  * <p>Copyright: Copyright (c) 2005</p>
@@ -269,13 +270,17 @@ public class SOMDisplay implements VisualPlugin, MenuListener, PropertyChangeLis
             if (origX > -1 && origY > -1) {
                 x = y = 1;
                 Rectangle2D plotBounds = plot.getBounds().getBounds2D();
-                PBounds zoomToBounds = new PBounds(plotBounds);
-                PTransformActivity activity = display.getCamera().animateViewToCenterBounds(zoomToBounds, true, 500);
                 somWidget.repaint();
                 isReset = false;
+                display.removeAll();
+                plot.setSize(new Dimension(somWidget.getWidth(), somWidget.getHeight()));
+                plot.setPreferredSize(new Dimension(somWidget.getWidth(), somWidget.getHeight()));
+                display.add(plot, 0);
+                display.revalidate();
+                somWidget.repaint();
             }
         } else {
-            if (!isReset) {
+            if (!isReset && plots != null) {
                 currentPlots = plots;
                 x = currentPlots.length;
                 y = currentPlots[0].length;
@@ -291,6 +296,7 @@ public class SOMDisplay implements VisualPlugin, MenuListener, PropertyChangeLis
                         display.add(p);
                     }
                 }
+                display.revalidate();
                 somWidget.repaint();
                 isReset = true;
             }
