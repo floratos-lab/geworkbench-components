@@ -5,10 +5,13 @@ import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarr
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMarkerValue;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
+import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.engine.model.analysis.AlgorithmExecutionResults;
 import org.geworkbench.engine.model.analysis.FilteringAnalysis;
 
 import java.util.Vector;
+import java.util.List;
+import java.util.ArrayList;
 
 /**
  * <p>Copyright: Copyright (c) 2003</p>
@@ -41,15 +44,48 @@ public class MissingValuesFilter extends AbstractAnalysis implements FilteringAn
         // Collect the parameters needed for the execution of the filter
         maxMissingMicroarrays = ((MissingValuesFilterPanel) aspp).getMaxMissingArrays();
         int arrayCount = maSet.size();
-        int markerCount = maSet.size();
+        int markerCount = maSet.getMarkers().size();
         // Identify the markers that do not meet the cutoff value.
+        List<Integer> removeList = new ArrayList<Integer>();
+        for (int i = 0; i < markerCount; i++) {
+            if (isMissing(maSet, i, maxMissingMicroarrays)) {
+                removeList.add(i);
+            }
+        }
+        int removeCount = removeList.size();
+        int finalCount = markerCount - removeCount;
+        DSItemList<DSGeneMarker> markers = maSet.getMarkers();
+        for (int i = 0; i < removeCount; i++) {
+            // Account for already-removed markers
+            int index = removeList.get(i) - i;
+            // Remove the marker
+            markers.remove(markers.get(index));
+        }
+        // Resize each microarray
+        for (DSMicroarray microarray : maSet) {
+            DSMarkerValue[] newValues = new DSMarkerValue[finalCount];
+            int index = 0;
+            for (int i = 0; i < markerCount; i++) {
+                if (!removeList.contains(i)) {
+                    newValues[index] = microarray.getMarkerValue(i);
+                    index++;
+                }
+            }
+            microarray.resize(finalCount);
+            for (int i = 0; i < finalCount; i++) {
+                microarray.setMarkerValue(i, newValues[i]);
+            }
+        }
+        /*
         Vector markersToPrune = new Vector();
         for (int i = 0; i < markerCount; i++)
             if (isMissing(maSet, i, maxMissingMicroarrays))
-                markersToPrune.add(maSet.get(i));
+                markersToPrune.add(maSet.getMarkers().get(i));
         // Remove all identified markers.
-        for (int i = 0; i < markersToPrune.size(); i++)
+        for (int i = 0; i < markersToPrune.size(); i++) {
             maSet.getMarkers().remove((DSGeneMarker) markersToPrune.get(i));
+        }
+        */
         return new AlgorithmExecutionResults(true, "No errors", input);
     }
 
