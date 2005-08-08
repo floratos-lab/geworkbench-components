@@ -1059,8 +1059,8 @@ public class ScatterPlot implements VisualPlugin {
         for (int i = 0; i < microarrayNo; i++) {
             //            DSMicroarray ma = maSet.get(i);
             xyValues[i] = new org.geworkbench.util.pathwaydecoder.RankSorter();
-            xyValues[i].x = dataSetView.getMicroarraySet().getValue(i, marker1);
-            xyValues[i].y = dataSetView.getMicroarraySet().getValue(i, marker2);
+            xyValues[i].x = dataSetView.getMicroarraySet().getValue(marker1, i);
+            xyValues[i].y = dataSetView.getMicroarraySet().getValue(marker2, i);
 
             xyValues[i].id = i;
             //            map.put(new Integer(i), xyValues[i]);
