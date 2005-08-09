@@ -463,43 +463,49 @@ public class PropertyTagSelectorPanel implements VisualPlugin, MenuListener {
                 selectedPanel = (DSPanel) selectedNode.getUserObject();
                 criterionValue = selectedPanel;
                 criterion = selectedCriterion;
-            } else {
-                // Get the name of the criterion where we should add the data items
-                // The default is the currently selected criterion
-                String propertyName = JOptionPane.showInputDialog("Criterion:", selectedCriterion.getLabel());
-                if (propertyName.trim().length() == 0) {
-                    return;
-                }
-                // Get the panel name (value) we should use to tage the data items
-                // Default is the currently selected panel
-                property = new CSAnnotLabel(propertyName);
-                String valueName = JOptionPane.showInputDialog("Value:", "");
-                if (valueName.length() == 0) {
-                    return;
-                }
-                value = new CSAnnotValue(valueName, valueName.hashCode());
-                //
-                criterion = criteria.get(property);
-                if (criterion == null) {
-                    // we must add the new criterion to the set of available criteria
-                    criterion = new CSPanel<DSBioObject>(property.toString());
-                    criteria.put(property, criterion);
-                    jCriterionSelectionBox.addItem(property);
-                    jCriterionSelectionBox.setSelectedItem(property);
-                }
-                // Retrieve the required criterion value panel, if it exists
-                criterionValue = criterion.panels().get(value.toString());
-                if (criterionValue == null) {
-                    // Create one if it does not
-                    criterionValue = new CSPanel<DSBioObject>(value.toString());
-                    criterion.panels().add(criterionValue);
-                    if (criterion == selectedCriterion) {
-                        // If the criterion is the one currently shown in the tree
-                        selectedNode = new DefaultMutableTreeNode(criterionValue);
-                        treeModel.insertNodeInto(selectedNode, root, root.getChildCount());
-                    }
+            }
+            // Get the name of the criterion where we should add the data items
+            // The default is the currently selected criterion
+            String propertyName = JOptionPane.showInputDialog("Criterion:", selectedCriterion.getLabel());
+            if (propertyName.trim().length() == 0) {
+                return;
+            }
+            // Get the panel name (value) we should use to tage the data items
+            // Default is the currently selected panel
+            property = new CSAnnotLabel(propertyName);
+            String currentValue = "";
+            if (criterionValue != null) {
+                currentValue = criterionValue.getLabel();
+            }
+            String valueName = JOptionPane.showInputDialog("Value:", currentValue);
+            if (valueName.length() == 0) {
+                return;
+            }
+            value = new CSAnnotValue(valueName, valueName.hashCode());
+            //
+            criterion = criteria.get(property);
+            if (criterion == null) {
+                // we must add the new criterion to the set of available criteria
+                criterion = new CSPanel<DSBioObject>(property.toString());
+                criteria.put(property, criterion);
+                jCriterionSelectionBox.addItem(property);
+                jCriterionSelectionBox.setSelectedItem(property);
+            }
+            // Retrieve the required criterion value panel, if it exists
+            criterionValue = criterion.panels().get(value.toString());
+            if (criterionValue == null) {
+                // Create one if it does not
+                criterionValue = new CSPanel<DSBioObject>(value.toString());
+                criterion.panels().add(criterionValue);
+                if (criterion == selectedCriterion) {
+                    // If the criterion is the one currently shown in the tree
+                    selectedNode = new DefaultMutableTreeNode(criterionValue);
+                    treeModel.insertNodeInto(selectedNode, root, root.getChildCount());
                 }
             }
+            /*
+            }
+            */
             // Add all the data items to the new criterion value
             for (int i = 0; i < selection.length; i++) {
                 criterionValue.add((DSMicroarray) selection[i]);
@@ -822,7 +828,8 @@ public class PropertyTagSelectorPanel implements VisualPlugin, MenuListener {
         return mainPanel;
     }
 
-    @Subscribe public void receive(org.geworkbench.events.PhenotypeSelectedEvent event, Object source) {
+    @Subscribe
+    public void receive(org.geworkbench.events.PhenotypeSelectedEvent event, Object source) {
         DSBioObject object = event.getObject();
         if (dataSet != null) {
             int index = dataSet.indexOf(object);
@@ -833,27 +840,30 @@ public class PropertyTagSelectorPanel implements VisualPlugin, MenuListener {
         }
     }
 
-    @Subscribe public void receive(ProjectEvent projectEvent, Object source) {
+    @Subscribe
+    public void receive(ProjectEvent projectEvent, Object source) {
         if (projectEvent.getMessage().equals(ProjectEvent.CLEARED)) {
             notifyMAChange(null);
         }
-            ProjectSelection selection = ((ProjectPanel) source).getSelection();
-            DSDataSet dataFile = selection.getDataSet();
-            if (dataFile instanceof DSDataSet) {
-                if (selection.getSelectedNode() != selection.getSelectedProjectNode()) {
-                    notifyMAChange(dataFile);
-                }
-            } else {
-                notifyMAChange(null);
+        ProjectSelection selection = ((ProjectPanel) source).getSelection();
+        DSDataSet dataFile = selection.getDataSet();
+        if (dataFile instanceof DSDataSet) {
+            if (selection.getSelectedNode() != selection.getSelectedProjectNode()) {
+                notifyMAChange(dataFile);
             }
+        } else {
+            notifyMAChange(null);
+        }
 
     }
 
-    @Publish public SingleMicroarrayEvent publishSingleMicroarrayEvent(org.geworkbench.events.SingleMicroarrayEvent event) {
+    @Publish
+    public SingleMicroarrayEvent publishSingleMicroarrayEvent(org.geworkbench.events.SingleMicroarrayEvent event) {
         return event;
     }
 
-    @Publish public PhenotypeSelectorEvent publishPhenotypeSelectorEvent(org.geworkbench.events.PhenotypeSelectorEvent event) {
+    @Publish
+    public PhenotypeSelectorEvent publishPhenotypeSelectorEvent(org.geworkbench.events.PhenotypeSelectorEvent event) {
         return event;
     }
 
