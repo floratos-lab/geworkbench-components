@@ -6,10 +6,7 @@ import org.geworkbench.events.MarkerSelectedEvent;
 import org.geworkbench.events.SubpanelChangedEvent;
 import org.geworkbench.builtin.projects.ProjectPanel;
 import org.geworkbench.builtin.projects.ProjectSelection;
-import org.geworkbench.engine.management.Asynchronous;
-import org.geworkbench.engine.management.Publish;
-import org.geworkbench.engine.management.Subscribe;
-import org.geworkbench.engine.management.Overflow;
+import org.geworkbench.engine.management.*;
 import org.geworkbench.util.JAutoList;
 import org.geworkbench.util.sequences.SequenceDB;
 import org.geworkbench.util.visualproperties.PanelVisualProperties;
@@ -970,20 +967,28 @@ public class GenePanel implements VisualPlugin {
         }
         ProjectSelection selection = ((ProjectPanel) source).getSelection();
         DSDataSet dataSet = selection.getDataSet();
-        if (dataSet instanceof DSDataSet) {
-            if (selection.getSelectedNode() != selection.getSelectedProjectNode()) {
-                if (dataSet != null) {
-                    dataSetChanged(dataSet);
-                } else {
-                    dataSetCleared();
-                }
-            }
-        } else {
-            dataSetCleared();
+        if (selection.getSelectedNode() != selection.getSelectedProjectNode()) {
+            processDataSet(dataSet);
         }
 
     }
 
+    private void processDataSet(DSDataSet dataSet) {
+        if (dataSet != null) {
+            dataSetChanged(dataSet);
+        } else {
+            dataSetCleared();
+        }
+    }
+
+    @Script public void setDataSet(DSDataSet dataSet) {
+        processDataSet(dataSet);
+    }
+
+    @Script
+    public void createPanel(int a, int b, boolean c) {
+        // todo implement
+    }
     /**
      * Called when a single marker is selected by a component.
      */
