@@ -51,7 +51,7 @@ public class VersionInfoDialog
     FlowLayout flowLayout2 = new FlowLayout();
     GridLayout gridLayout1 = new GridLayout();
     static String product = "caWorkbench";
-    static String version = "Version 2.0";
+    static String version = "Version 3.0";
     static String buildTime = (new Date()).toString();
 
     static String build = "";
@@ -73,6 +73,7 @@ public class VersionInfoDialog
         catch (IOException ex) {
         }
         //readProperties(fullPath);
+        version = properties.getProperty("version");
         build = properties.getProperty("build");
         buildTime = properties.getProperty("buildTime");
 
