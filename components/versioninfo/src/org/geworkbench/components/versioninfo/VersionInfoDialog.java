@@ -14,19 +14,17 @@ package org.geworkbench.components.versioninfo;
  * @version 3.0
  */
 
-import javax.swing.*;
-import javax.swing.border.EmptyBorder;
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.WindowEvent;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.Date;
+import java.io.*;
+import java.util.*;
 
-public class VersionInfoDialog extends JDialog implements ActionListener {
+import java.awt.*;
+import java.awt.event.*;
+import javax.swing.*;
+import javax.swing.border.*;
+import java.net.URL;
+
+public class VersionInfoDialog
+    extends JDialog implements ActionListener {
     /**
      * VersionInfoDialog
      */
@@ -34,6 +32,7 @@ public class VersionInfoDialog extends JDialog implements ActionListener {
         this(null);
     }
 
+    private static Properties properties = new Properties();
     JPanel panel1 = new JPanel();
     JPanel panel2 = new JPanel();
     JPanel insetsPanel1 = new JPanel();
@@ -51,19 +50,36 @@ public class VersionInfoDialog extends JDialog implements ActionListener {
     FlowLayout flowLayout1 = new FlowLayout();
     FlowLayout flowLayout2 = new FlowLayout();
     GridLayout gridLayout1 = new GridLayout();
-    String product = "caWorkbench";
-    String version = "Version 3.0";
-    String build = (new Date()).toString();
-    String comments = "A Open Platform for BioMedical Informatics.";
-    String DEFAULTVERSIONFILE = "version.txt";
+    static String product = "caWorkbench";
+    static String version = "Version 2.0";
+    static String buildTime = (new Date()).toString();
+
+    static String build = "";
+
+    public String comments = "A Open Platform for BioMedical Informatics.";
+    public static final String DEFAULTVERSIONFILE = "version.txt";
+    public static final String VERSIONFILEPATH = "temp";
+    private static String fullPath = VERSIONFILEPATH + File.separator +
+        DEFAULTVERSIONFILE;
 
     public VersionInfoDialog(Frame parent) {
         super(parent);
+
         enableEvents(AWTEvent.WINDOW_EVENT_MASK);
-        parseVersionFile(DEFAULTVERSIONFILE);
+        try {
+            readProperties(VersionInfoDialog.class.getResource("version.txt").
+                           openStream());
+        }
+        catch (IOException ex) {
+        }
+        //readProperties(fullPath);
+        build = properties.getProperty("build");
+        buildTime = properties.getProperty("buildTime");
+
         try {
             jbInit();
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             e.printStackTrace();
         }
         //imageControl1.setIcon(imageIcon);
@@ -71,34 +87,80 @@ public class VersionInfoDialog extends JDialog implements ActionListener {
 
     }
 
-    /**
-     * parseVersionFile() to update versionomation inf
+    /*
+     * Reads the version file into a properties object.
      */
-    public void parseVersionFile(String versionfilename) {
-        File versionfile = new File(versionfilename);
+    protected static void readProperties(String versionfileName) {
+
         try {
-
-
-            if (versionfile.canRead()) {
-                BufferedReader br = new BufferedReader(new FileReader(versionfile));
-                String s;
-                if ((s = br.readLine()) != null) {
-                    version = s;
-                }
-                if ((s = br.readLine()) != null) {
-                    build = s;
-                }
-
+            File initFile = new File(versionfileName);
+            if (initFile.canRead()) {
+                FileInputStream input = new FileInputStream(initFile);
+                properties.load(input);
             }
-        } catch (IOException e) {
-            e.printStackTrace();
+            else {
+            }
         }
-        ;
+        catch (IOException ex1) {
+            System.out.println("VersionInfo Error" + ex1.toString());
+        }
     }
 
+    /**
+     *  Write to a version.txt file with the current properties.
+     */
+    public synchronized static void writeProperties(String versionfileName) {
+        try {
+            FileOutputStream output = new FileOutputStream(new File(
+                versionfileName));
+            properties.store(output, "Version Information:");
+        }
+        catch (IOException ex2) {
+            System.out.println("Error: " + ex2);
+        }
+    }
+
+    /**
+     *  Write to a version.txt file with the current properties.
+     */
+    public synchronized static void writeProperties(OutputStream output) {
+        try {
+            //FileOutputStream output = new FileOutputStream(new File(versionfileName));
+            properties.store(output, "Version Information:");
+        }
+        catch (IOException ex2) {
+            System.out.println("Error: " + ex2);
+        }
+    }
+
+    /**
+     * update the build number by 1.
+     */
+    private static void update() {
+        build = properties.getProperty("build");
+        try {
+
+            if (build != null) {
+                String[] items = build.split("_");
+                int newIntValue = new Integer(items[items.length - 1]).intValue() +
+                    1;
+                items[items.length - 1] = "" + newIntValue;
+
+                String newValue = "Build";
+                for (int i = 1; i < items.length; i++) {
+                    newValue = newValue + "_" + items[i];
+                }
+                properties.put("build", newValue);
+                properties.put("buildTime", buildTime);
+            }
+        }
+        catch (NumberFormatException e) {
+            e.printStackTrace();
+        }
+    }
 
     private void jbInit() throws Exception {
-        //imageIcon = new ImageIcon(getClass().getResource("[Your Image]"));
+
         this.setTitle("About caWorkbench");
         setResizable(false);
         panel1.setLayout(borderLayout1);
@@ -109,8 +171,8 @@ public class VersionInfoDialog extends JDialog implements ActionListener {
         gridLayout1.setRows(4);
         gridLayout1.setColumns(1);
         label1.setText(product);
-        label2.setText(version);
-        label3.setText(build);
+        label2.setText(version + " " + build);
+        label3.setText("Updated on " + buildTime);
         label4.setText(comments);
         insetsPanel3.setLayout(gridLayout1);
         insetsPanel3.setBorder(new EmptyBorder(10, 60, 10, 10));
@@ -145,4 +207,41 @@ public class VersionInfoDialog extends JDialog implements ActionListener {
             cancel();
         }
     }
+
+    /**
+     * main
+     *
+     * @param strings String[]
+     */
+    public static void main(String[] strings) throws IOException {
+        // VersionInfoDialog vid = new VersionInfoDialog();
+//
+//        URL url = VersionInfoDialog.class.getResource("version.txt");
+//        String s = url.toString();
+//        InputStream in = null;
+//        in = url.openStream();
+//        VersionInfoDialog.readProperties(in);
+        VersionInfoDialog.readProperties(fullPath);
+        VersionInfoDialog.update();
+        VersionInfoDialog.writeProperties(fullPath);
+        // VersionInfoDialog.writeProperties(new FileOutputStream(s));
+    }
+
+    /**
+     * readProperties
+     *
+     * @param in InputStream
+     */
+    public static void readProperties(InputStream in) {
+        try {
+
+            properties.load(in);
+
+        }
+        catch (IOException ex1) {
+            System.out.println("VersionInfo Error" + ex1.toString());
+        }
+
+    }
+
 }
