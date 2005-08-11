@@ -22,6 +22,11 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
+import org.geworkbench.bison.datastructure.complex.pattern.sequence.DSSeqRegistration;
+import org.geworkbench.bison.datastructure.complex.pattern.DSMatchedPattern;
+import org.geworkbench.bison.datastructure.biocollections.DSCollection;
+import org.geworkbench.bison.datastructure.bioobjects.sequence.DSSequence;
+import org.geworkbench.bison.datastructure.biocollections.Collection;
 
 /**
  * <p>PositionHistogramWidget</p>
@@ -35,7 +40,14 @@ import java.util.Iterator;
 
 public class PositionHistogramWidget extends JPanel {
     //JPanel jPanel1 = new JPanel();
-    private ArrayList patterns = new ArrayList();
+    //private ArrayList patterns = new ArrayList();
+
+    private DSCollection<DSMatchedPattern<DSSequence,
+            DSSeqRegistration>>
+            patterns = new Collection<DSMatchedPattern<DSSequence,
+                               DSSeqRegistration>>();
+
+
     private JLabel lblChart = new JLabel();
     private JFreeChart chart = null;
     private BorderLayout borderLayout1 = new BorderLayout();
@@ -58,6 +70,8 @@ public class PositionHistogramWidget extends JPanel {
     private Component component6;
     private Component component7;
     private SequenceDB sequenceDB = null;
+
+
 
     public PositionHistogramWidget() {
         // An XYDataset can create area, line, and step XY charts. The following example creates an XYDataset from a series of data containing three XY points. Next, ChartFactory's createAreaXYChart() method creates an area XY chart. In addition to parameters for title, dataset, and legend, createAreaXYChart() takes in the labels for the X and Y *
@@ -350,18 +364,30 @@ public class PositionHistogramWidget extends JPanel {
 
     }
 
+
     public void sequenceDiscoveryTableRowSelected(SequenceDiscoveryTableEvent e) {
         /** @todo Fix patterns */
         //    setSequenceDB(e.getSequenceDB());
         //    setPatterns(e.getPatterns());
+        //XQ changed to fix bug 252
+        setPatterns(e.getPatternMatchCollection());
     }
 
-    public void setPatterns(DSMatchedSeqPattern[] _patterns) {
-        patterns.clear();
-        for (int i = 0; i < _patterns.length; i++) {
-            patterns.add(_patterns[i]);
-        }
+//    public void setPatterns(DSMatchedSeqPattern[] _patterns) {
+//        patterns.clear();
+//        for (int i = 0; i < _patterns.length; i++) {
+//            patterns.add(_patterns[i]);
+//        }
+//    }
+
+    public void setPatterns(DSCollection<DSMatchedPattern<DSSequence,
+                              DSSeqRegistration>> matches) {
+          patterns.clear();
+          for (int i = 0; i < matches.size(); i++) {
+              patterns.add(matches.get(i));
+          }
     }
+
 
     public void setSequenceDB(SequenceDB sDB) {
         sequenceDB = sDB;

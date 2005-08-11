@@ -34,7 +34,7 @@ public class PositionHistogramAppComponent implements VisualPlugin {
 
     @Subscribe public void sequenceDiscoveryTableRowSelected(SequenceDiscoveryTableEvent e, Object publisher) {
         /** @todo Fix patterns */
-        //    pHistogramWidget.setPatterns(e.getPatterns());
+          pHistogramWidget.setPatterns(e.getPatternMatchCollection());
     }
 
     public Component getComponent() {
