@@ -1,6 +1,6 @@
 package org.geworkbench.components.alignment.panels;
 
-import org.geworkbench.util.RandomNumberGenerator;
+import org.geworkbench.bison.util.RandomNumberGenerator;
 import org.geworkbench.algorithms.BWAbstractAlgorithm;
 import org.geworkbench.components.alignment.client.BlastAlgorithm;
 import org.geworkbench.components.alignment.client.HMMDataSet;

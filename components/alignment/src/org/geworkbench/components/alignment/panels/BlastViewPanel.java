@@ -1,12 +1,10 @@
 package org.geworkbench.components.alignment.panels;
 
-import org.geworkbench.util.RandomNumberGenerator;
+import org.geworkbench.bison.util.RandomNumberGenerator;
 import org.geworkbench.components.alignment.blast.BlastObj;
 import org.geworkbench.components.alignment.blast.BlastParser;
 import org.geworkbench.components.alignment.blast.HmmObj;
 import org.geworkbench.components.alignment.blast.HmmResultParser;
-import org.geworkbench.events.ProjectNodeAddedEvent;
-import org.geworkbench.engine.parsers.ExampleFileFilter;
 import org.geworkbench.util.PropertiesMonitor;
 import org.geworkbench.util.sequences.SequenceDB;
 import org.geworkbench.engine.management.Subscribe;

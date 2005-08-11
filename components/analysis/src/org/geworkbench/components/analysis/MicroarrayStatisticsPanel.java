@@ -1,10 +1,9 @@
 package org.geworkbench.components.analysis;
 
-import org.geworkbench.events.ProjectEvent;
 import org.geworkbench.events.GeneSelectorEvent;
 import org.geworkbench.builtin.projects.ProjectPanel;
 import org.geworkbench.builtin.projects.ProjectSelection;
-import org.geworkbench.util.annotation.AnnotationParser;
+import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.AnnotationParser;
 import org.geworkbench.engine.management.Subscribe;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;

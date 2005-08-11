@@ -1,6 +1,6 @@
 package org.geworkbench.components.sequenceretriever;
 
-import org.geworkbench.util.RandomNumberGenerator;
+import org.geworkbench.bison.util.RandomNumberGenerator;
 import gov.nih.nci.caBIO.bean.Gene;
 import gov.nih.nci.common.exception.ManagerException;
 import org.apache.axis.client.Call;
@@ -9,8 +9,7 @@ import org.apache.axis.encoding.XMLType;
 import org.geworkbench.events.GeneSelectorEvent;
 import org.geworkbench.events.ProjectNodeAddedEvent;
 import org.geworkbench.util.promoter.SequencePatternDisplayPanel;
-import org.geworkbench.util.PromoterSequenceFetcher;
-import org.geworkbench.util.annotation.AnnotationParser;
+import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.AnnotationParser;
 import org.geworkbench.util.sequences.SequenceDB;
 import org.geworkbench.engine.management.Publish;
 import org.geworkbench.engine.management.Subscribe;
