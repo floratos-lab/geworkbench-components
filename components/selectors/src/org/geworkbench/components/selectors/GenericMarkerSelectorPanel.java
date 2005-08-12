@@ -2,7 +2,6 @@ package org.geworkbench.components.selectors;
 
 import com.borland.jbcl.layout.PaneConstraints;
 import com.borland.jbcl.layout.PaneLayout;
-import org.geworkbench.events.ProjectEvent;
 import org.geworkbench.events.GeneSelectorEvent;
 import org.geworkbench.events.MarkerSelectedEvent;
 import org.geworkbench.events.SubpanelChangedEvent;
@@ -10,7 +9,7 @@ import org.geworkbench.builtin.projects.ProjectPanel;
 import org.geworkbench.builtin.projects.ProjectSelection;
 import org.geworkbench.engine.management.Publish;
 import org.geworkbench.engine.management.Subscribe;
-import org.geworkbench.util.FileUtil;
+import org.geworkbench.bison.util.FileUtil;
 import org.geworkbench.util.visualproperties.PanelVisualProperties;
 import org.geworkbench.util.visualproperties.PanelVisualPropertiesManager;
 import org.geworkbench.util.visualproperties.VisualPropertiesDialog;
@@ -1169,7 +1168,7 @@ public class GenericMarkerSelectorPanel implements VisualPlugin, MenuListener {
         }
 
         File selectedFile = fc.getSelectedFile();
-        Vector<String> geneNames = org.geworkbench.util.FileUtil.readVector(selectedFile);
+        Vector<String> geneNames = org.geworkbench.bison.util.FileUtil.readVector(selectedFile);
         //        DSItemList<DSGeneMarker> markers = maSet.markers();
         CSMarkerVector markers = (CSMarkerVector) maSet.getMarkers();
         Vector selectedMarkers = new Vector();
