@@ -738,6 +738,7 @@ public class PromoterViewPanel extends JPanel {
     }
 
     public void mappingPatterns() {
+        seqDisPanel.initialize(sequenceDB);
         if (!isRunning) {
             averageNo = 10;
             try {
@@ -1047,7 +1048,7 @@ public class PromoterViewPanel extends JPanel {
                     patternPrime.put(o, n);
                     patternPrime.put(n, o);
                 }
-
+                Discovery.clear();
                 Discovery.discover(sequenceDB, matchesTable, Integer.parseInt(minOccur.getText()), Integer.parseInt(winSize.getText()), patternPrime);
 
                 Vector modules = Discovery.getFinalPattern();
