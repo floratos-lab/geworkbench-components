@@ -1,6 +1,6 @@
 package org.geworkbench.components.colormosaic;
 
-import org.geworkbench.util.colorcontext.ColorContext;
+import org.geworkbench.bison.util.colorcontext.ColorContext;
 import org.geworkbench.util.associationdiscovery.cluster.CSMatchedMatrixPattern;
 import org.geworkbench.events.MarkerSelectedEvent;
 import org.geworkbench.bison.datastructure.biocollections.classification.phenotype.CSClassCriteria;
@@ -115,7 +115,7 @@ public class ColorMosaicImage extends JPanel implements Scrollable {
         for (int i = 0; i < geneNo; i++) {
             DSGeneMarker stats = cluster.getGeneLabel(i);
             DSGeneMarker mkInfo = microarraySet.getMarkers().get(stats.getSerial());
-            org.geworkbench.util.colorcontext.ColorContext colorContext = (ColorContext) microarraySet.getObject(ColorContext.class);
+            org.geworkbench.bison.util.colorcontext.ColorContext colorContext = (ColorContext) microarraySet.getObject(ColorContext.class);
             int y = (row + i) * geneHeight;
             if (row + i > 500) {
                 return i;

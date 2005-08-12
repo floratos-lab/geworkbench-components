@@ -1,6 +1,6 @@
 package org.geworkbench.components.hierarchicalclustering;
 
-import org.geworkbench.util.colorcontext.ColorContext;
+import org.geworkbench.bison.util.colorcontext.ColorContext;
 import org.geworkbench.events.HierClusterModelEvent;
 import org.geworkbench.events.HierClusterModelEventListener;
 import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;

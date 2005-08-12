@@ -1,8 +1,6 @@
 package org.geworkbench.components.microarrays;
 
-import org.geworkbench.util.colorcontext.ColorContext;
 import org.geworkbench.util.associationdiscovery.cluster.CSMatchedMatrixPattern;
-import org.geworkbench.util.microarrayutils.*;
 import org.geworkbench.util.microarrayutils.MicroarrayVisualizer;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
@@ -13,8 +11,6 @@ import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMutableMarker
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import java.awt.*;
-import java.awt.image.ColorModel;
-import java.awt.image.MemoryImageSource;
 import java.awt.image.BufferedImage;
 import java.util.Stack;
 import java.util.Vector;
@@ -152,7 +148,7 @@ public class MicroarrayDisplay extends JPanel {
         int geneId = 0;
         DSDataSet maSet = microarrayVisualizer.getDataSetView().getDataSet();
         if (maSet != null) {
-            org.geworkbench.util.colorcontext.ColorContext colorContext = (org.geworkbench.util.colorcontext.ColorContext) maSet.getObject(org.geworkbench.util.colorcontext.ColorContext.class);
+            org.geworkbench.bison.util.colorcontext.ColorContext colorContext = (org.geworkbench.bison.util.colorcontext.ColorContext) maSet.getObject(org.geworkbench.bison.util.colorcontext.ColorContext.class);
             for (int row = 0; row < rows; row++) {
                 for (int col = 0; col < cols; col++) {
                     if (geneId < geneNo) {

@@ -1,7 +1,6 @@
 package org.geworkbench.components.hierarchicalclustering;
 
-import org.geworkbench.util.colorcontext.ColorContext;
-import org.geworkbench.util.colorcontext.DefaultColorContext;
+import org.geworkbench.bison.util.colorcontext.ColorContext;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
@@ -215,9 +214,9 @@ public class HierClusterDisplay extends JPanel {
                 ColorContext colorCtx = null;
 
                 if (microarraySet.getDataSet() instanceof DSMicroarraySet) {
-                    colorCtx = (org.geworkbench.util.colorcontext.ColorContext) ((DSMicroarraySet) microarraySet.getDataSet()).getObject(org.geworkbench.util.colorcontext.ColorContext.class);
+                    colorCtx = (org.geworkbench.bison.util.colorcontext.ColorContext) ((DSMicroarraySet) microarraySet.getDataSet()).getObject(org.geworkbench.bison.util.colorcontext.ColorContext.class);
                 } else {
-                    colorCtx = new org.geworkbench.util.colorcontext.DefaultColorContext();
+                    colorCtx = new org.geworkbench.bison.util.colorcontext.DefaultColorContext();
                 }
 
                 int firstMarker = (int) this.getVisibleRect().getY() / geneHeight;
