@@ -57,7 +57,7 @@ public class ExpressionThresholdFilter extends AbstractAnalysis implements Filte
         minValue = ((ExpressionThresholdFilterPanel) aspp).getLowerBound();
         maxValue = ((ExpressionThresholdFilterPanel) aspp).getUpperBound();
         rangeOption = ((ExpressionThresholdFilterPanel) aspp).getRangeOption();
-        int markerCount = maSet.size();
+        int markerCount = maSet.getMarkers().size();
         int arrayCount = maSet.size();
         DSMicroarray microarray = null;
         for (int i = 0; i < arrayCount; i++) {
