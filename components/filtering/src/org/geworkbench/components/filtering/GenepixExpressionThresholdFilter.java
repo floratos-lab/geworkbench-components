@@ -74,7 +74,7 @@ public class GenepixExpressionThresholdFilter extends AbstractAnalysis implement
         cy5Min = ((GenepixExpressionThresholdFilterPanel) aspp).getCy5Min();
         cy5Max = ((GenepixExpressionThresholdFilterPanel) aspp).getCy5Max();
         rangeOption = ((GenepixExpressionThresholdFilterPanel) aspp).getRangeOption();
-        int markerCount = maSet.size();
+        int markerCount = maSet.getMarkers().size();
         int arrayCount = maSet.size();
         for (int i = 0; i < arrayCount; i++) {
             DSMicroarray mArray = maSet.get(i);

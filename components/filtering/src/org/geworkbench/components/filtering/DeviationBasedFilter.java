@@ -74,7 +74,7 @@ public class DeviationBasedFilter extends AbstractAnalysis implements FilteringA
         deviationBound = ((DeviationBasedFilterPanel) aspp).getDeviationCutoff();
         missingValues = ((DeviationBasedFilterPanel) aspp).getMissingValueTreatment();
         int arrayCount = maSet.size();
-        int markerCount = maSet.size();
+        int markerCount = maSet.getMarkers().size();
         double[] profile = null;
         // Go over all markers, compute their deviation, and decide which to filter.
         microarrayAverages = new double[arrayCount];
