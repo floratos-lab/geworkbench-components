@@ -63,7 +63,8 @@ public class AnnotationsPanel implements VisualPlugin {
   private void jbInit() throws Exception {
     annotationsPanel.setLayout(borderLayout1);
     showPanels.setHorizontalAlignment(SwingConstants.CENTER);
-    showPanels.setText("Use Panels");
+    showPanels.setText("Retrieve annotations");
+    showPanels.setToolTipText("Retrieve gene and pathway information for markers in activated panels");
     showPanels.addActionListener(new ActionListener(){
       public void actionPerformed(ActionEvent e){
         showPanels_actionPerformed(e);
