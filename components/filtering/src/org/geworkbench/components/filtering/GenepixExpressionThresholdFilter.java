@@ -5,8 +5,8 @@ import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarr
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSGenepixMarkerValue;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMutableMarkerValue;
-import org.geworkbench.engine.model.analysis.AlgorithmExecutionResults;
-import org.geworkbench.engine.model.analysis.FilteringAnalysis;
+import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
+import org.geworkbench.bison.model.analysis.FilteringAnalysis;
 
 /**
  * <p>Copyright: Copyright (c) 2003</p>

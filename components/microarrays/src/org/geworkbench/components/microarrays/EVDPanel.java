@@ -2,13 +2,10 @@ package org.geworkbench.components.microarrays;
 
 
 import org.geworkbench.events.MicroarraySetViewEvent;
-import org.geworkbench.events.ImageSnapshotEvent;
 import org.geworkbench.events.ProjectEvent;
-import org.geworkbench.events.SubpanelChangedEvent;
 import org.geworkbench.util.microarrayutils.MicroarrayViewEventBase;
 import org.geworkbench.engine.management.Publish;
 import org.geworkbench.engine.management.Subscribe;
-import org.geworkbench.util.PrintUtils;
 import org.geworkbench.util.visualproperties.PanelVisualProperties;
 import org.geworkbench.util.visualproperties.PanelVisualPropertiesManager;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
@@ -18,7 +15,7 @@ import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
 import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.engine.config.MenuListener;
-import org.geworkbench.engine.model.analysis.AlgorithmExecutionResults;
+import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;

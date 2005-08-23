@@ -5,8 +5,8 @@ import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarr
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMarkerValue;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMutableMarkerValue;
-import org.geworkbench.engine.model.analysis.AlgorithmExecutionResults;
-import org.geworkbench.engine.model.analysis.NormalizingAnalysis;
+import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
+import org.geworkbench.bison.model.analysis.NormalizingAnalysis;
 
 import java.util.Arrays;
 

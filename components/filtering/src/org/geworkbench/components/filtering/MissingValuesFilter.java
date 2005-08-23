@@ -6,10 +6,9 @@ import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMarkerValue;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
-import org.geworkbench.engine.model.analysis.AlgorithmExecutionResults;
-import org.geworkbench.engine.model.analysis.FilteringAnalysis;
+import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
+import org.geworkbench.bison.model.analysis.FilteringAnalysis;
 
-import java.util.Vector;
 import java.util.List;
 import java.util.ArrayList;
 

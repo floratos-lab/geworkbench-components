@@ -2,7 +2,6 @@ package org.geworkbench.components.analysis;
 
 import org.geworkbench.analysis.AbstractAnalysis;
 import org.geworkbench.analysis.AbstractSaveableParameterPanel;
-import org.geworkbench.events.ClusterEvent;
 import org.geworkbench.events.SubpanelChangedEvent;
 import org.geworkbench.util.microarrayutils.MicroarrayViewEventBase;
 import org.geworkbench.engine.management.ComponentRegistry;
@@ -10,10 +9,10 @@ import org.geworkbench.engine.management.Publish;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.engine.config.VisualPlugin;
-import org.geworkbench.engine.model.analysis.AlgorithmExecutionResults;
-import org.geworkbench.engine.model.analysis.ClusteringAnalysis;
-import org.geworkbench.engine.model.analysis.ParamValidationResults;
-import org.geworkbench.engine.model.analysis.ParameterPanel;
+import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
+import org.geworkbench.bison.model.analysis.ClusteringAnalysis;
+import org.geworkbench.bison.model.analysis.ParamValidationResults;
+import org.geworkbench.bison.model.analysis.ParameterPanel;
 
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;

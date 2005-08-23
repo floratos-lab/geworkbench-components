@@ -1,7 +1,7 @@
 package org.geworkbench.components.filtering;
 
 import org.geworkbench.analysis.AbstractSaveableParameterPanel;
-import org.geworkbench.engine.model.analysis.ParamValidationResults;
+import org.geworkbench.bison.model.analysis.ParamValidationResults;
 
 import javax.swing.*;
 import java.awt.*;

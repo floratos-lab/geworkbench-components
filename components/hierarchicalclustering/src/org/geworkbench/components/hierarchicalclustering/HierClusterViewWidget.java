@@ -6,10 +6,10 @@ import org.geworkbench.events.HierClusterModelEventListener;
 import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
-import org.geworkbench.engine.model.clusters.Cluster;
-import org.geworkbench.engine.model.clusters.HierCluster;
-import org.geworkbench.engine.model.clusters.MarkerHierCluster;
-import org.geworkbench.engine.model.clusters.MicroarrayHierCluster;
+import org.geworkbench.bison.model.clusters.Cluster;
+import org.geworkbench.bison.model.clusters.HierCluster;
+import org.geworkbench.bison.model.clusters.MarkerHierCluster;
+import org.geworkbench.bison.model.clusters.MicroarrayHierCluster;
 
 import javax.swing.*;
 import javax.swing.border.LineBorder;

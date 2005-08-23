@@ -2,12 +2,10 @@ package org.geworkbench.components.normalization;
 
 import org.geworkbench.analysis.AbstractAnalysis;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
-import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMutableMarkerValue;
-import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
-import org.geworkbench.engine.model.analysis.AlgorithmExecutionResults;
-import org.geworkbench.engine.model.analysis.NormalizingAnalysis;
+import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
+import org.geworkbench.bison.model.analysis.NormalizingAnalysis;
 import java.util.Comparator;
 import java.util.Arrays;
 

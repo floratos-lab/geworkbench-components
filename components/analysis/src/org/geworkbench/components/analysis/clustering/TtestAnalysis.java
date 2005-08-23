@@ -16,8 +16,8 @@ import org.geworkbench.bison.datastructure.complex.panels.CSAnnotPanel;
 import org.geworkbench.bison.datastructure.complex.panels.DSAnnotatedPanel;
 import org.geworkbench.bison.util.CSCriterionManager;
 import org.geworkbench.bison.util.DSAnnotValue;
-import org.geworkbench.engine.model.analysis.AlgorithmExecutionResults;
-import org.geworkbench.engine.model.analysis.ClusteringAnalysis;
+import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
+import org.geworkbench.bison.model.analysis.ClusteringAnalysis;
 
 import java.util.Hashtable;
 import java.util.Random;

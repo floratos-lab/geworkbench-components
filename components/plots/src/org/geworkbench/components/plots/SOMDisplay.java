@@ -2,13 +2,9 @@ package org.geworkbench.components.plots;
 
 import org.geworkbench.util.ProgressBar;
 import edu.umd.cs.piccolo.PCanvas;
-import edu.umd.cs.piccolo.activities.PTransformActivity;
-import edu.umd.cs.piccolo.util.PBounds;
 import org.geworkbench.events.ClusterEvent;
-import org.geworkbench.events.ImageSnapshotEvent;
 import org.geworkbench.events.MultipleMarkerEvent;
 import org.geworkbench.events.MarkerSelectedEvent;
-import org.geworkbench.events.SubpanelChangedEvent;
 import org.geworkbench.engine.management.Asynchronous;
 import org.geworkbench.engine.management.Publish;
 import org.geworkbench.engine.management.Subscribe;
@@ -21,10 +17,10 @@ import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.engine.config.MenuListener;
 import org.geworkbench.engine.config.VisualPlugin;
-import org.geworkbench.engine.model.analysis.AlgorithmExecutionResults;
-import org.geworkbench.engine.model.clusters.Cluster;
-import org.geworkbench.engine.model.clusters.LeafSOMCluster;
-import org.geworkbench.engine.model.clusters.SOMCluster;
+import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
+import org.geworkbench.bison.model.clusters.Cluster;
+import org.geworkbench.bison.model.clusters.LeafSOMCluster;
+import org.geworkbench.bison.model.clusters.SOMCluster;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.PlotOrientation;
@@ -44,7 +40,7 @@ import java.util.HashMap;
  * <p>Company: Columbia University</p>
  * <p/>
  * Graphical representation of SOM Clusters contained in the
- * {@link org.geworkbench.engine.model.clusters.SOMCluster} format
+ * {@link org.geworkbench.bison.model.clusters.SOMCluster} format
  *
  * @author manjunath at genomecenter dot columbia dot edu
  * @version 3.0

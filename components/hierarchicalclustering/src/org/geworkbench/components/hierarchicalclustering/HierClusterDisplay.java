@@ -6,9 +6,9 @@ import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetV
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMutableMarkerValue;
-import org.geworkbench.engine.model.clusters.Cluster;
-import org.geworkbench.engine.model.clusters.MarkerHierCluster;
-import org.geworkbench.engine.model.clusters.MicroarrayHierCluster;
+import org.geworkbench.bison.model.clusters.Cluster;
+import org.geworkbench.bison.model.clusters.MarkerHierCluster;
+import org.geworkbench.bison.model.clusters.MicroarrayHierCluster;
 
 import javax.swing.*;
 import java.awt.*;

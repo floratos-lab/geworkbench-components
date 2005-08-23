@@ -3,7 +3,7 @@ package org.geworkbench.components.hierarchicalclustering;
 import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
-import org.geworkbench.engine.model.clusters.HierCluster;
+import org.geworkbench.bison.model.clusters.HierCluster;
 
 import javax.swing.*;
 import java.awt.*;
