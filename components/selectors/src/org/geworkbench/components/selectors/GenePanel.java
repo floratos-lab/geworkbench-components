@@ -320,7 +320,11 @@ public class GenePanel implements VisualPlugin {
         panelPopup.add(deletePanelItem);
         panelPopup.add(printPanelItem);
         panelPopup.add(savePanelItem);
-        panelPopup.add(exportPanelItem);
+
+        // Removing the "Export" popup item, until we decide what the export
+        // functionlity is, if anything (since there is also a "Save" option.
+        // panelPopup.add(exportPanelItem);
+
         panelPopup.add(visualPropertiesItem);
         rootPopup.add(loadPanelItem);
         markerPopup.add(removeFromPanelItem);
