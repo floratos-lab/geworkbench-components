@@ -43,13 +43,25 @@ public class LogTransformationNormalizer extends AbstractAnalysis implements Nor
         DSMicroarray microarray = null;
         DSMutableMarkerValue markerValue = null;
         double signal;
+
+        // Before applying any transformation, check there are no non-positive values
         for (int i = 0; i < markerInfo.size(); i++) {
             for (int j = 0; j < count; j++) {
                 microarray = ((DSMicroarraySet<DSMicroarray>) input).get(j);
                 markerValue = microarray.getMarkerValue(markerInfo.get(i));
                 signal = markerValue.getValue();
-                if (signal <= 0.0d)
-                    return new AlgorithmExecutionResults(false, "The dataset contains data non-positive data points", null);
+                if (!markerValue.isMissing() && signal <= 0.0d)
+                    return new AlgorithmExecutionResults(false,
+                            "The dataset contains non-positive data points", null);
+            }
+        }
+
+        // Now proceed with the actual transformations.
+        for (int i = 0; i < markerInfo.size(); i++) {
+            for (int j = 0; j < count; j++) {
+                microarray = ((DSMicroarraySet<DSMicroarray>) input).get(j);
+                markerValue = microarray.getMarkerValue(markerInfo.get(i));
+                signal = markerValue.getValue();
                 if ((!markerValue.isMissing())) {
                     markerValue.setValue(Math.log(signal) / Math.log(2.0));
                 }
