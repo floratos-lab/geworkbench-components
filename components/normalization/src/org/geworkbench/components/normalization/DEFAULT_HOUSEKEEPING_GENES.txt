@@ -1,2 +1,1 @@
-1973_at,testGene2
-test_at,testGene1
+AFFX-MurFAS_at,NoExistGene1
