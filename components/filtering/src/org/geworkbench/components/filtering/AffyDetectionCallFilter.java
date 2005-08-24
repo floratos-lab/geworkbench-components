@@ -9,6 +9,7 @@ import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMutableMarker
 import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
 import org.geworkbench.bison.model.analysis.FilteringAnalysis;
 
+
 /**
  * <p>Copyright: Copyright (c) 2003</p>
  * <p>Company: First Genetic Trust Inc.</p>
@@ -50,7 +51,11 @@ public class AffyDetectionCallFilter extends AbstractAnalysis implements Filteri
             DSMicroarray mArray = maSet.get(i);
             for (int j = 0; j < markerCount; ++j) {
                 DSMutableMarkerValue mv = (DSMutableMarkerValue) mArray.getMarkerValue(j);
-                if (shouldBeFiltered(mv)) mv.setMissing(true);
+                if ((mv instanceof DSAffyMarkerValue)) {
+                    if (shouldBeFiltered((mv)))
+                        mv.setMissing(true);
+                } else
+                    return new AlgorithmExecutionResults(false, "This filter can only be used with Affymetrix datasets", null);
             }
 
         }
