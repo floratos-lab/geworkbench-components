@@ -85,7 +85,7 @@ public class MicroarrayCenteringNormalizer extends AbstractAnalysis implements N
             maxValue = arrayValues[arrayValues.length - 1];
             mArray = maSet.get(i);
             for (int j = 0; j < markerCount; j++) {
-                markerValue = (DSMutableMarkerValue) mArray.getMarkerValue(i);
+                markerValue = (DSMutableMarkerValue) mArray.getMarkerValue(j);
                 if (!markerValue.isMissing()) {
                     signal = markerValue.getValue();
                     markerValue.setValue(signal - meanMedian);
