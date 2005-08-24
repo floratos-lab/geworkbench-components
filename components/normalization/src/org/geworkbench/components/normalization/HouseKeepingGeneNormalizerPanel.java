@@ -17,6 +17,7 @@ import org.geworkbench.bison.datastructure.bioobjects.markers.CSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.complex.panels.*;
 import org.geworkbench.events.GeneSelectorEvent;
+import com.borland.jbcl.layout.*;
 
 /**
  * <p>Title: </p>
@@ -30,8 +31,8 @@ import org.geworkbench.events.GeneSelectorEvent;
  * @author not attributable
  * @version 1.0
  */
- //public class HouseKeepingGeneNormalizerPanel extends JPanel implements Serializable {
-   public class HouseKeepingGeneNormalizerPanel extends AbstractSaveableParameterPanel implements Serializable {
+  //public class HouseKeepingGeneNormalizerPanel extends JPanel implements Serializable {
+   public class HouseKeepingGeneNormalizerPanel extends    AbstractSaveableParameterPanel implements Serializable {
     public HouseKeepingGeneNormalizerPanel() {
         try {
             jbInit();
@@ -40,33 +41,32 @@ import org.geworkbench.events.GeneSelectorEvent;
         }
 
     }
-    XYLayout xYLayout1 = new XYLayout();
-String[] samples = {"AFFX-BioB-M_at", "31463_s_at"};
-JScrollPane jScrollPane1 = new JScrollPane();
-JScrollPane jScrollPane2 = new JScrollPane();
-JList jList1;
-JPanel jPanel1 = new JPanel();
-JButton jButton1 = new JButton();
-JButton jButton2 = new JButton();
-JPanel jPanel2 = new JPanel();
 
-JPanel jPanel3 = new JPanel();
-XYLayout xYLayout2 = new XYLayout();
-JPanel jPanel4 = new JPanel();
-JLabel jLabel1 = new JLabel();
-JLabel jLabel2 = new JLabel();
-JButton jButton5 = new JButton();
-BorderLayout borderLayout1 = new BorderLayout();
+    String[] samples = {"AFFX-BioB-M_at", "31463_s_at"};
+    JScrollPane jScrollPane1 = new JScrollPane();
+    JScrollPane jScrollPane2 = new JScrollPane();
+    JList jList1;
+    JPanel jPanel1 = new JPanel();
+    JButton jButton1 = new JButton();
+    JButton jButton2 = new JButton();
+    JPanel jPanel3 = new JPanel();
+    XYLayout xYLayout2 = new XYLayout();
+    JPanel jPanel4 = new JPanel();
+    JLabel jLabel1 = new JLabel();
+    JLabel jLabel2 = new JLabel();
+    JButton jButton5 = new JButton();
+    BorderLayout borderLayout1 = new BorderLayout();
 // Data models
-private DSItemList<DSGeneMarker> markerList;
-private DSPanel<DSGeneMarker> panel;
-private DSPanel<DSGeneMarker> markerPanel;
-DefaultListModel selectedModel = new DefaultListModel();
-DefaultListModel markerModel = new DefaultListModel();
-JPanel mainPanel = new JPanel();
-JButton loadButton = new JButton();
-JList jList2 = new JList(selectedModel);
-JButton jButton3 = new JButton();
+    private DSItemList<DSGeneMarker> markerList;
+    private DSPanel<DSGeneMarker> panel;
+    private DSPanel<DSGeneMarker> markerPanel;
+    DefaultListModel selectedModel = new DefaultListModel();
+    DefaultListModel markerModel = new DefaultListModel();
+    JPanel mainPanel = new JPanel();
+    JButton loadButton = new JButton();
+    JList jList2 = new JList(selectedModel);
+    JButton jButton3 = new JButton();
+    XYLayout xYLayout1 = new XYLayout();
 
 
     private void saveButtonPressed(TreePath path) {
@@ -128,7 +128,6 @@ JButton jButton3 = new JButton();
     }
 
 
-
     private void loadButtonPressed() {
         JFileChooser fc = new JFileChooser(".");
         javax.swing.filechooser.FileFilter filter = new
@@ -143,7 +142,7 @@ JButton jButton3 = new JButton();
                 populateList(input2);
 
             } catch (Exception ex) {
-                 ex.printStackTrace();
+                ex.printStackTrace();
                 reportError(ex.toString(), null);
             }
 
@@ -160,7 +159,6 @@ JButton jButton3 = new JButton();
             }
         });
     }
-
 
 
     /**
@@ -258,7 +256,7 @@ JButton jButton3 = new JButton();
         //jList1.setModel(ls);
 
         br.close();
-      }
+    }
 
     public void markerList_mouseClicked(MouseEvent e) {
         int index = jList1.locationToIndex(e.getPoint());
@@ -329,7 +327,7 @@ JButton jButton3 = new JButton();
             }
         });
         jPanel3.setLayout(xYLayout2);
-        jLabel1.setText("Current Selected Genes");
+        jLabel1.setText("    Current Selected Genes");
         jLabel2.setText("Excluded HouseKeeping Genes");
         jButton5.setText("Clear all");
         jButton5.addActionListener(new
@@ -351,8 +349,6 @@ JButton jButton3 = new JButton();
         jPanel1.add(jButton5);
         jPanel1.add(loadButton);
         jPanel1.add(jButton3);
-        this.add(jPanel4, new XYConstraints(2, 0, 277, 31));
-        jPanel3.add(jScrollPane1, new XYConstraints(2, 3, 86, 128));
         //jList2.setModel(selectedModel);
         jList1 = new JList(samples);
         jList1.setToolTipText("HouseKeeping genes list");
@@ -377,19 +373,19 @@ JButton jButton3 = new JButton();
         jScrollPane2.getViewport().add(jList2);
         jScrollPane1.getViewport().add(jList1);
 
-        jPanel4.add(jLabel2, java.awt.BorderLayout.CENTER);
-        jPanel4.add(jLabel1, java.awt.BorderLayout.EAST);
-        this.add(jPanel2, new XYConstraints(0, 168, 277, 36));
-        this.add(jPanel3, new XYConstraints(0, 29, 277, 140));
-        jPanel3.add(jScrollPane2, new XYConstraints(170, 3, 75, -1));
-        jPanel3.add(jPanel1, new XYConstraints(90, 3, 71, 128));
+        jPanel4.add(jLabel2, java.awt.BorderLayout.WEST);
+        jPanel4.add(jLabel1, java.awt.BorderLayout.CENTER);
+        this.add(jPanel3, new XYConstraints(0, 30, 279, 156));
+        this.add(jPanel4, new XYConstraints(0, 0, 279, 30));
+        jPanel3.add(jPanel1, new XYConstraints(90, 3, 71, 137));
+        jPanel3.add(jScrollPane2, new XYConstraints(165, 3, 91, 137));
+        jPanel3.add(jScrollPane1, new XYConstraints(2, 3, 86, 137));
         InputStream input = HouseKeepingGeneNormalizer.class.
                             getResourceAsStream(
                                     "DEFAULT_HOUSEKEEPING_GENES.txt");
 
         populateList(input);
     }
-
 
 
     public void jButton3_actionPerformed(ActionEvent e) {
@@ -436,7 +432,7 @@ JButton jButton3 = new JButton();
     }
 
     public void jButton1_actionPerformed(ActionEvent e) {
-        Object[] selectedGenes =  jList1.getSelectedValues();
+        Object[] selectedGenes = jList1.getSelectedValues();
         if (selectedGenes != null) {
             for (Object selected : selectedGenes) {
                 markerModel.removeElement(selected);
@@ -448,7 +444,7 @@ JButton jButton3 = new JButton();
     }
 
     public void jButton2_actionPerformed(ActionEvent e) {
-        Object[] selectedGenes =   jList2.getSelectedValues();
+        Object[] selectedGenes = jList2.getSelectedValues();
         if (selectedGenes != null) {
             for (Object selected : selectedGenes) {
                 selectedModel.removeElement(selected);
@@ -459,6 +455,17 @@ JButton jButton3 = new JButton();
         }
 
     }
+
+    private void writeObject(java.io.ObjectOutputStream out) throws IOException {
+        out.defaultWriteObject();
+    }
+
+    private void readObject(java.io.ObjectInputStream in) throws IOException,
+            ClassNotFoundException {
+        in.defaultReadObject();
+        revalidate();
+    }
+
 }
 
 
