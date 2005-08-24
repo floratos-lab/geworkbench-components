@@ -155,7 +155,7 @@ public class SequenceRetriever implements VisualPlugin {
         jLabel6.setText("Type");
 
         jPanel1.setLayout(flowLayout1);
-        jComboCategory.setPreferredSize(new Dimension(46, 21));
+//        jComboCategory.setPreferredSize(new Dimension(46, 21));
         jpopMenu.add(jClearUnselectedItem);
         jpopMenu.add(jClearAllItem);
 
