@@ -13,16 +13,6 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib/caBIO.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module" module-name="geworkbench" />
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
           <root url="jar://$MODULE_DIR$/lib/batik-gui-util.jar!/" />
         </CLASSES>
         <JAVADOC />
@@ -236,6 +226,8 @@
         <SOURCES />
       </library>
     </orderEntry>
+    <orderEntry type="module" module-name="geworkbench" />
+    <orderEntry type="library" name="base" level="project" />
     <orderEntryProperties />
   </component>
 </module>
