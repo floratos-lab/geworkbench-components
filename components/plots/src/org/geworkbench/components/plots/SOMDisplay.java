@@ -1,7 +1,6 @@
 package org.geworkbench.components.plots;
 
 import org.geworkbench.util.ProgressBar;
-import edu.umd.cs.piccolo.PCanvas;
 import org.geworkbench.events.ClusterEvent;
 import org.geworkbench.events.MultipleMarkerEvent;
 import org.geworkbench.events.MarkerSelectedEvent;
@@ -34,6 +33,8 @@ import java.awt.geom.Rectangle2D;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.HashMap;
+
+import edu.umd.cs.piccolo.PCanvas;
 
 /**
  * <p>Copyright: Copyright (c) 2005</p>
