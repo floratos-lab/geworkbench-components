@@ -55,7 +55,7 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
     private JToolBar jToolBar1 = new JToolBar();
     private JButton printBtn = new JButton();
     private JButton copyBtn = new JButton();
-    private JToggleButton jToggleButton1 = new JToggleButton();
+    private JToggleButton jToggleButton1 = new JToggleButton("Abs");
     private JScrollPane jScrollPane = new JScrollPane();
     private ColorMosaicImage colorMosaicImage = new ColorMosaicImage();
     private JPanel jPanel1 = new JPanel();
@@ -69,8 +69,8 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
     private JToggleButton jTogglePrintDescription = new JToggleButton("Label", true);
     private JToggleButton jTogglePrintRatio = new JToggleButton("Ratio", true);
     private JToggleButton jTogglePrintAccession = new JToggleButton("Accession", false);
-    private JToggleButton jToggleButton2 = new JToggleButton();
-    private JToggleButton jHideMaskedBtn = new JToggleButton();
+    private JToggleButton jToggleButton2 = new JToggleButton("Pat");
+    private JToggleButton jHideMaskedBtn = new JToggleButton("Display");
     private BorderLayout borderLayout2 = new BorderLayout();
     private CMHRuler colRuler = new CMHRuler(colorMosaicImage);
     private CMVRuler rowRuler = new CMVRuler(colorMosaicImage);
@@ -113,9 +113,15 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
         copyBtn.setMinimumSize(new Dimension(26, 26));
         copyBtn.setPreferredSize(new Dimension(26, 26));
         copyBtn.setIcon(new ImageIcon(ColorMosaicPanel.class.getResource("copy.gif")));
-        jToggleButton1.setPreferredSize(new Dimension(26, 26));
-        jToggleButton1.setMinimumSize(new Dimension(26, 26));
-        jToggleButton1.setText("Abs");
+
+
+        jToggleButton1.setToolTipText("");
+        jToggleButton1.setHorizontalTextPosition(SwingConstants.CENTER);
+        jToggleButton1.setMargin(new Insets(2, 3, 2, 3));
+//        jToggleButton1.setFont(new java.awt.Font("Serif", 0, 10));
+//        jToggleButton1.setMaximumSize(new Dimension(26, 26));
+//        jToggleButton1.setPreferredSize(new Dimension(26, 26));
+//        jToggleButton1.setMinimumSize(new Dimension(26, 26));
 
         jToggleButton1.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -123,11 +129,6 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
             }
         });
 
-        jToggleButton1.setToolTipText("");
-        jToggleButton1.setHorizontalTextPosition(SwingConstants.CENTER);
-        jToggleButton1.setMargin(new Insets(0, 0, 0, 0));
-        jToggleButton1.setFont(new java.awt.Font("Serif", 0, 10));
-        jToggleButton1.setMaximumSize(new Dimension(26, 26));
         jPanel1.setLayout(gridBagLayout1);
         jLabel1.setText("Gene Height");
         jLabel2.setText("Gene Width");
@@ -158,9 +159,9 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
         jIntensitySlider.setMaximum(200);
         jIntensitySlider.setMajorTickSpacing(50);
         jLabel5.setText("Intensity");
-        jTogglePrintDescription.setMaximumSize(new Dimension(50, 25));
-        jTogglePrintDescription.setMinimumSize(new Dimension(50, 25));
-        jTogglePrintDescription.setPreferredSize(new Dimension(50, 25));
+//        jTogglePrintDescription.setMaximumSize(new Dimension(50, 25));
+//        jTogglePrintDescription.setMinimumSize(new Dimension(50, 25));
+//        jTogglePrintDescription.setPreferredSize(new Dimension(50, 25));
         jTogglePrintDescription.setMargin(new Insets(2, 3, 2, 3));
 
         ActionListener listener = new ActionListener() {
@@ -183,9 +184,9 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
             }
         });
 
-        jTogglePrintAccession.setMaximumSize(new Dimension(50, 25));
-        jTogglePrintAccession.setMinimumSize(new Dimension(50, 25));
-        jTogglePrintAccession.setPreferredSize(new Dimension(50, 25));
+//        jTogglePrintAccession.setMaximumSize(new Dimension(50, 25));
+//        jTogglePrintAccession.setMinimumSize(new Dimension(50, 25));
+//        jTogglePrintAccession.setPreferredSize(new Dimension(50, 25));
         jTogglePrintAccession.setMargin(new Insets(2, 3, 2, 3));
 
         jTogglePrintAccession.addActionListener(new ActionListener() {
@@ -194,11 +195,14 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
             }
         });
 
-        jToggleButton2.setMaximumSize(new Dimension(26, 26));
-        jToggleButton2.setFont(new java.awt.Font("Serif", 0, 10));
-        jToggleButton2.setMargin(new Insets(0, 0, 0, 0));
+        jToggleButton2.setMargin(new Insets(2, 3, 2, 3));
         jToggleButton2.setHorizontalTextPosition(SwingConstants.CENTER);
         jToggleButton2.setToolTipText("");
+
+//        jToggleButton2.setMinimumSize(new Dimension(26, 26));
+//        jToggleButton2.setPreferredSize(new Dimension(26, 26));
+//        jToggleButton2.setMaximumSize(new Dimension(26, 26));
+//        jToggleButton2.setFont(new java.awt.Font("Serif", 0, 10));
 
         jToggleButton2.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -206,14 +210,14 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
             }
         });
 
-        jToggleButton2.setText("Pat");
-        jToggleButton2.setMinimumSize(new Dimension(26, 26));
-        jToggleButton2.setPreferredSize(new Dimension(26, 26));
-        jHideMaskedBtn.setMaximumSize(new Dimension(26, 26));
-        jHideMaskedBtn.setFont(new java.awt.Font("Serif", 0, 10));
-        jHideMaskedBtn.setMargin(new Insets(0, 0, 0, 0));
+        jHideMaskedBtn.setMargin(new Insets(2, 3, 2, 3));
         jHideMaskedBtn.setHorizontalTextPosition(SwingConstants.CENTER);
         jHideMaskedBtn.setToolTipText("");
+
+//        jHideMaskedBtn.setMinimumSize(new Dimension(26, 26));
+//        jHideMaskedBtn.setPreferredSize(new Dimension(26, 26));
+//        jHideMaskedBtn.setMaximumSize(new Dimension(26, 26));
+//        jHideMaskedBtn.setFont(new java.awt.Font("Serif", 0, 10));
 
         jHideMaskedBtn.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -221,9 +225,6 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
             }
         });
 
-        jHideMaskedBtn.setText("All");
-        jHideMaskedBtn.setMinimumSize(new Dimension(26, 26));
-        jHideMaskedBtn.setPreferredSize(new Dimension(26, 26));
         jScrollPane.getViewport().setBackground(Color.white);
         jAllMArrays.setSelected(true);
         jAllMArrays.setText("All arrays");
