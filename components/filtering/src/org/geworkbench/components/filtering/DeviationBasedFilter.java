@@ -99,7 +99,7 @@ public class DeviationBasedFilter extends AbstractAnalysis implements FilteringA
     private double getMean(double[] profile) {
         if (profile == null)
             return 0.0;
-        int totalPresent = 0;
+
         double sum = 0.0d;
         for (int i = 0; i < profile.length; i++)
             sum += profile[i];
@@ -122,7 +122,7 @@ public class DeviationBasedFilter extends AbstractAnalysis implements FilteringA
         for (int i = 0; i < profile.length; ++i)
             deviation += (profile[i] - meanValue) * (profile[i] - meanValue);
         if (profile.length > 1)
-            deviation /= profile.length - 1;
+            deviation /= (profile.length - 1);
         return Math.sqrt(deviation);
     }
 
@@ -135,7 +135,7 @@ public class DeviationBasedFilter extends AbstractAnalysis implements FilteringA
      *         marker values across all microarrays.
      */
     double[] getProfile(DSMicroarraySet<DSMicroarray> maSet, int index) {
-        if (maSet == null || index < 0 || index >= maSet.size())
+        if (maSet == null || index < 0 || index >= maSet.getMarkers().size())
             return null;
         int arrayCount = maSet.size();
         // Compute the profile average (using non-missing values).
@@ -182,7 +182,7 @@ public class DeviationBasedFilter extends AbstractAnalysis implements FilteringA
     private void computeMicroarrayAverages(DSMicroarraySet<DSMicroarray> maSet) {
         if (maSet == null)
             return;
-        int markerCount = maSet.size();
+        int markerCount = maSet.getMarkers().size();
         for (int j = 0; j < maSet.size(); ++j) {
             int nonMissing = 0;
             DSMicroarray mArray = maSet.get(j);
