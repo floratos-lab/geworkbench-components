@@ -256,7 +256,7 @@ public class PropertyTagSelectorPanel implements VisualPlugin, MenuListener {
 
         jPanel1.setLayout(jBorderLayout);
         jLabel1.setHorizontalAlignment(SwingConstants.CENTER);
-        jLabel1.setText("Phenotype");
+        jLabel1.setText("Phenotype Groups");
         jCriterionSelectionBox.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 jPhenotypeSelectionBox_actionPerformed(e);
@@ -466,7 +466,7 @@ public class PropertyTagSelectorPanel implements VisualPlugin, MenuListener {
             }
             // Get the name of the criterion where we should add the data items
             // The default is the currently selected criterion
-            String propertyName = JOptionPane.showInputDialog("Criterion:", selectedCriterion.getLabel());
+            String propertyName = JOptionPane.showInputDialog("Phenotype group:", selectedCriterion.getLabel());
             if (propertyName.trim().length() == 0) {
                 return;
             }
@@ -477,7 +477,7 @@ public class PropertyTagSelectorPanel implements VisualPlugin, MenuListener {
             if (criterionValue != null) {
                 currentValue = criterionValue.getLabel();
             }
-            String valueName = JOptionPane.showInputDialog("Value:", currentValue);
+            String valueName = JOptionPane.showInputDialog("Phenotype:", currentValue);
             if (valueName.length() == 0) {
                 return;
             }
