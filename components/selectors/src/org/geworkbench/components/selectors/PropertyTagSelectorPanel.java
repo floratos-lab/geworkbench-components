@@ -467,7 +467,7 @@ public class PropertyTagSelectorPanel implements VisualPlugin, MenuListener {
             // Get the name of the criterion where we should add the data items
             // The default is the currently selected criterion
             String propertyName = JOptionPane.showInputDialog("Phenotype group:", selectedCriterion.getLabel());
-            if (propertyName.trim().length() == 0) {
+            if (propertyName == null || propertyName.trim().length() == 0) {
                 return;
             }
             // Get the panel name (value) we should use to tage the data items
@@ -478,7 +478,7 @@ public class PropertyTagSelectorPanel implements VisualPlugin, MenuListener {
                 currentValue = criterionValue.getLabel();
             }
             String valueName = JOptionPane.showInputDialog("Phenotype:", currentValue);
-            if (valueName.length() == 0) {
+            if (valueName == null || valueName.length() == 0) {
                 return;
             }
             value = new CSAnnotValue(valueName, valueName.hashCode());
