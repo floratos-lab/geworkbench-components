@@ -16,7 +16,6 @@ import org.geworkbench.analysis.AbstractSaveableParameterPanel;
 import org.geworkbench.bison.datastructure.bioobjects.markers.CSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.complex.panels.*;
-import org.geworkbench.events.GeneSelectorEvent;
 import com.borland.jbcl.layout.*;
 
 /**
@@ -28,11 +27,15 @@ import com.borland.jbcl.layout.*;
  *
  * <p>Company: </p>
  *
- * @author not attributable
+ * @author Xiaoqing Zhang
  * @version 1.0
  */
-  //public class HouseKeepingGeneNormalizerPanel extends JPanel implements Serializable {
-   public class HouseKeepingGeneNormalizerPanel extends    AbstractSaveableParameterPanel implements Serializable {
+
+/**
+ * Parameters panel for the <code>HouseKeepingGeneNormalizer</code>..
+ */
+
+   public class HouseKeepingGeneNormalizerPanel extends AbstractSaveableParameterPanel implements Serializable {
     public HouseKeepingGeneNormalizerPanel() {
         try {
             jbInit();
@@ -42,7 +45,7 @@ import com.borland.jbcl.layout.*;
 
     }
 
-    String[] samples = {"AFFX-BioB-M_at", "31463_s_at"};
+
     JScrollPane jScrollPane1 = new JScrollPane();
     JScrollPane jScrollPane2 = new JScrollPane();
     JList jList1;
@@ -57,9 +60,9 @@ import com.borland.jbcl.layout.*;
     JButton jButton5 = new JButton();
     BorderLayout borderLayout1 = new BorderLayout();
 // Data models
-    private DSItemList<DSGeneMarker> markerList;
-    private DSPanel<DSGeneMarker> panel;
-    private DSPanel<DSGeneMarker> markerPanel;
+     DSItemList<DSGeneMarker> markerList;
+      DSPanel<DSGeneMarker> panel;
+     DSPanel<DSGeneMarker> markerPanel;
     DefaultListModel selectedModel = new DefaultListModel();
     DefaultListModel markerModel = new DefaultListModel();
     JPanel mainPanel = new JPanel();
@@ -69,7 +72,12 @@ import com.borland.jbcl.layout.*;
     XYLayout xYLayout1 = new XYLayout();
 
 
-    private void saveButtonPressed(TreePath path) {
+    /**
+     * saveButtonPressed save the markers in selected marker list to a file.
+     *
+     * @param path TreePath
+     */
+    public void saveButtonPressed(TreePath path) {
 
         if (panel != null) {
             JFileChooser fc = new JFileChooser(".");
@@ -128,7 +136,10 @@ import com.borland.jbcl.layout.*;
     }
 
 
-    private void loadButtonPressed() {
+    /**
+     * loadButtonPressed to load markers from a csv format file.
+     */
+    public void loadButtonPressed() {
         JFileChooser fc = new JFileChooser(".");
         javax.swing.filechooser.FileFilter filter = new
                 MarkerPanelSetFileFilter();
@@ -165,7 +176,7 @@ import com.borland.jbcl.layout.*;
      * <code>FileFilter</code> that is used by the <code>JFileChoose</code> to
      * show just panel set files on the filesystem
      */
-    private static class MarkerPanelSetFileFilter extends javax.swing.
+    private  class MarkerPanelSetFileFilter extends javax.swing.
             filechooser.FileFilter {
         String fileExt;
 
@@ -228,11 +239,26 @@ import com.borland.jbcl.layout.*;
     }
 
 
+    /**
+     * reportError, Error report wrapper.
+     *
+     * @param message String
+     * @param title String
+     */
     public void reportError(String message, String title) {
         JOptionPane.showMessageDialog(null, message, title,
                                       JOptionPane.ERROR_MESSAGE);
     }
 
+
+    /**
+     * populateList, populate the list from an inputStream. The markers are
+     * added into selected_marker list.
+     *
+     * @param input InputStream
+     * @throws FileNotFoundException
+     * @throws IOException
+     */
     void populateList(InputStream input) throws FileNotFoundException,
             IOException {
 
@@ -253,10 +279,14 @@ import com.borland.jbcl.layout.*;
 
             markerList.add(new CSGeneMarker(cols[0]));
         }
-        //jList1.setModel(ls);
-
         br.close();
     }
+    /**
+        * marker_mouseClicked, add the double clicked marker to the
+        * selected_marker list.
+        *
+        * @param e MouseEvent
+     */
 
     public void markerList_mouseClicked(MouseEvent e) {
         int index = jList1.locationToIndex(e.getPoint());
@@ -267,6 +297,12 @@ import com.borland.jbcl.layout.*;
     }
 
 
+    /**
+     * List_mouseClicked, move the double clicked marker from the
+     * selected_marker list.
+     *
+     * @param e MouseEvent
+     */
     public void List_mouseClicked(MouseEvent e) {
         int index = jList2.locationToIndex(e.getPoint());
         if (e.getClickCount() == 2) {
@@ -276,7 +312,7 @@ import com.borland.jbcl.layout.*;
     }
 
     /**
-     * moveMarkers
+     * moveMarkers based on the label.
      *
      * @param value String
      */
@@ -310,7 +346,7 @@ import com.borland.jbcl.layout.*;
     }
 
 
-    private void jbInit() throws Exception {
+     void jbInit() throws Exception {
         this.setLayout(xYLayout1);
         markerList = new CSItemList<DSGeneMarker>();
         panel = new CSPanel<DSGeneMarker>();
@@ -350,7 +386,7 @@ import com.borland.jbcl.layout.*;
         jPanel1.add(loadButton);
         jPanel1.add(jButton3);
         //jList2.setModel(selectedModel);
-        jList1 = new JList(samples);
+        jList1 = new JList();
         jList1.setToolTipText("HouseKeeping genes list");
         markerModel = new DefaultListModel();
         jList1 = new JList(markerModel); //(DefaultListModel) jList1.getListModel();
@@ -403,9 +439,9 @@ import com.borland.jbcl.layout.*;
     }
 
     /**
-     * updatePanel
+     * updatePanel, set up the selected marker list.
      */
-    private void updatePanel() {
+    public void updatePanel() {
         panel = new CSPanel<DSGeneMarker>();
         for (Enumeration en = selectedModel.elements(); en.hasMoreElements(); ) {
 
@@ -465,7 +501,6 @@ import com.borland.jbcl.layout.*;
         in.defaultReadObject();
         revalidate();
     }
-
 }
 
 

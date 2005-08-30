@@ -1,6 +1,11 @@
 package org.geworkbench.components.normalization;
 
+import javax.swing.JOptionPane;
+
 import org.geworkbench.analysis.AbstractAnalysis;
+import org.geworkbench.bison.datastructure.biocollections.CSMarkerVector;
+import org.geworkbench.bison.datastructure.biocollections.microarrays.
+        CSMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.
         DSMicroarraySet;
 import org.geworkbench.bison.datastructure.bioobjects.markers.CSGeneMarker;
@@ -11,11 +16,9 @@ import org.geworkbench.bison.datastructure.bioobjects.microarray.
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
 import org.geworkbench.bison.model.analysis.NormalizingAnalysis;
-import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
-import javax.swing.JOptionPane;
-import org.geworkbench.bison.datastructure.biocollections.CSMarkerVector;
-import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
-import org.geworkbench.bison.datastructure.bioobjects.microarray.CSMicroarray;
+import org.geworkbench.bison.datastructure.bioobjects.microarray.
+        CSGenepixMarkerValue;
+import java.util.Vector;
 
 /**
  * <p>Copyright: Copyright (c) 2005</p>
@@ -71,7 +74,14 @@ public class HouseKeepingGeneNormalizer extends AbstractAnalysis implements
         markerPanel = ((HouseKeepingGeneNormalizerPanel) aspp).getPanel();
         int houseKeepgeneNumber = markerPanel.size();
         ExistedMarkers = new boolean[houseKeepgeneNumber];
-        double[] ratioArray = getRatioArrary(maSet, markerPanel, BASEARRAY);
+        double[] ratioArray = null;
+        if (maSet instanceof CSMicroarraySet &&
+            maSet.getCompatibilityLabel().equals("Genepix")) {
+            ratioArray = getRatioForGenepix(maSet, markerPanel);
+        } else {
+            ratioArray = getRatioArrary(maSet, markerPanel, BASEARRAY);
+        }
+
         if (haveNonExistMarker) {
             JOptionPane.showMessageDialog(null,
                                           errorMessage.toString() +
@@ -91,7 +101,13 @@ public class HouseKeepingGeneNormalizer extends AbstractAnalysis implements
                 markerValue = (DSMutableMarkerValue) microarray.getMarkerValue(
                         j);
                 if (!markerValue.isMissing()) {
-                    markerValue.setValue(markerValue.getValue() * ratioArray[i]);
+                    if (markerValue instanceof CSGenepixMarkerValue) {
+                        ((CSGenepixMarkerValue) markerValue).
+                                adjustForHousekeepingGenes(ratioArray[i]);
+                    } else {
+                        markerValue.setValue(markerValue.getValue() *
+                                             ratioArray[i]);
+                    }
 
                 }
             }
@@ -131,6 +147,8 @@ public class HouseKeepingGeneNormalizer extends AbstractAnalysis implements
     public double[] getHouseKeepingGenesValue(DSMicroarraySet maSet,
                                               DSPanel markerPanel) {
         int markerCount = markerPanel.size();
+        CSMarkerVector csMarkerVector = ((CSMicroarraySet) maSet).
+                                        getMarkerVector();
 
         double baseTotal = 0d;
         // DSMicroarray mArray = null;
@@ -148,25 +166,6 @@ public class HouseKeepingGeneNormalizer extends AbstractAnalysis implements
             ExistedMarkers[j] = true;
             CSGeneMarker csgMarker = (CSGeneMarker) markerPanel.get(j);
 
-//            int originIndex =0;
-//            CSGeneMarker cgMarker = (CSGeneMarker)maSet.getMarkers().get(0);
-//            System.out.println(maSet.getValue(cgMarker, 0) + " " + maSet.getValue(originIndex, 0));
-//            System.out.println(cgMarker.getLabel() + "|" + cgMarker.getGeneId() + "|" + cgMarker.getSerial());
-//            CSMicroarray csmicroarray = (CSMicroarray)maSet.get(0);
-//
-//            System.out.println(csmicroarray.getMarkerValue(cgMarker) + " " + csmicroarray.getMarkerValue(originIndex));
-//
-//             DSItemList csm = maSet.getMarkers();
-//            for (Object obj:csm){
-//                CSGeneMarker csgMarker = (CSGeneMarker)obj;
-//                System.out.println(csgMarker.getLabel() + "|" + csgMarker.getGeneId() + csgMarker.getSerial());
-//                System.out.println(maSet.getValue(csgMarker, 0) + " " + maSet.getValue(originIndex++, 0));
-//            }
-//            CSGeneMarker csgMarker = (CSGeneMarker)maSet.getMarkers().get(0);
-//
-//            double[] expressProfile = maSet.getRow(csgMarker);
-//
-//            System.out.println(csgMarker.getLabel() + "|" + expressProfile[0] + csgMarker.getGeneId() + csgMarker.getSerial());
             for (int k = 0; k < arrayCount; k++) {
                 arrays[j][k] = maSet.getValue(csgMarker, k);
 
@@ -187,6 +186,81 @@ public class HouseKeepingGeneNormalizer extends AbstractAnalysis implements
                     ratio[i] += arrays[j][i];
                 }
             }
+        }
+        return ratio;
+    }
+
+    /**
+     * getRatioForGenepix
+     *
+     * @param maSet DSMicroarraySet
+     * @param markerPanel DSPanel
+     * @return double[]
+     */
+    //There is a bug related to CSMarkerVector, similar to the bug listed above.
+    public double[] getRatioForGenepix(DSMicroarraySet maSet,
+                                       DSPanel markerPanel) {
+        CSMarkerVector csMarkerVector = ((CSMicroarraySet) maSet).
+                                        getMarkerVector();
+        int markerCount = markerPanel.size();
+        int arrayCount = maSet.size();
+        double ratio[] = new double[arrayCount];
+        for (int i = 0; i < arrayCount; i++) {
+            double newch1f = 0d;
+            double newch2f = 0d;
+            double newch1b = 0d;
+            double newch2b = 0d;
+            DSMicroarray microarray = (DSMicroarray) maSet.get(i);
+            for (int j = 0; j < markerCount; j++) {
+                //for the bug list above.
+                String csgMarkerString = ((CSGeneMarker) markerPanel.get(j)).
+                                         getLabel();
+                Vector<DSGeneMarker>
+                        marchedMarkersVector = csMarkerVector.
+                                               getMatchingMarkers((CSGeneMarker)
+                        markerPanel.get(j));
+                if (marchedMarkersVector != null) {
+                    for (DSGeneMarker dsgMarker : marchedMarkersVector) {
+                        CSGenepixMarkerValue csgMarkerValue = (
+                                CSGenepixMarkerValue)
+                                microarray.getMarkerValue(
+                                        dsgMarker);
+
+                        if (csgMarkerValue != null) {
+                            newch1f += csgMarkerValue.getCh1Fg();
+                            newch2f += csgMarkerValue.getCh2Fg();
+                            newch1b += csgMarkerValue.getCh1Bg();
+                            newch2b += csgMarkerValue.getCh2Bg();
+                        }
+
+                    }
+
+                }
+
+//                DSGeneMarker csgMarker = (CSGeneMarker) csMarkerVector.
+//                                         getMarkerByUniqueIdentifier(
+//                                                 csgMarkerString);
+//                CSGenepixMarkerValue csgMarkerValue = (CSGenepixMarkerValue)
+//                        microarray.getMarkerValue(
+//                                csgMarker);
+//                if (csgMarkerValue != null) {
+//                    newch1f += csgMarkerValue.getCh1Fg();
+//                    newch2f += csgMarkerValue.getCh2Fg();
+//                    newch1b += csgMarkerValue.getCh1Bg();
+//                    newch2b += csgMarkerValue.getCh2Bg();
+//                }
+//                DSMicroarray dsmicroarray = (DSMicroarray) maSet.get(i);
+//                Object[] ob = microarray.getValuesForName(csgMarkerString);
+//                csgMarkerValue = (CSGenepixMarkerValue) dsmicroarray.
+//                                 getMarkerValue(csgMarker);
+//                System.out.println(csgMarkerValue);
+            }
+            if (newch1f != newch1b) {
+                ratio[i] = (newch2f - newch2b) / (newch1f - newch1b);
+            } else {
+                ratio[i] = newch2f - newch2b;
+            }
+
         }
 
         return ratio;
