@@ -1346,25 +1346,27 @@ public class PromoterViewPanel extends JPanel {
         int tfLen = tf.getLength();
         String ascii = seq.getSequence();
 
-        for(int i = 0; i < tfLen; i++) {
-            char c = Character.toUpperCase(ascii.charAt(i));
-            if(isBasePair(c)) valid++;
-        }
-        for(int i = tfLen; i < ascii.length(); i++) {
-            char c1 = Character.toUpperCase(ascii.charAt(i));
-            char c2 = Character.toUpperCase(ascii.charAt(i - tfLen));
-            if(isBasePair(c1)) {
-                valid++;
-            } else {
-                int x = 1;
+        if (ascii.length() >= tfLen){
+            for (int i = 0; i < tfLen; i++) {
+                char c = Character.toUpperCase(ascii.charAt(i));
+                if (isBasePair(c)) valid++;
             }
-            if(isBasePair(c2)) {
-                valid--;
-            } else {
-                int x =1;
-            }
-            if(valid >= tfLen) {
-                validPositions++;
+            for (int i = tfLen; i < ascii.length(); i++) {
+                char c1 = Character.toUpperCase(ascii.charAt(i));
+                char c2 = Character.toUpperCase(ascii.charAt(i - tfLen));
+                if (isBasePair(c1)) {
+                    valid++;
+                } else {
+                    int x = 1;
+                }
+                if (isBasePair(c2)) {
+                    valid--;
+                } else {
+                    int x = 1;
+                }
+                if (valid >= tfLen) {
+                    validPositions++;
+                }
             }
         }
         return validPositions;
