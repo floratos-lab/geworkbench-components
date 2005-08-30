@@ -33,17 +33,11 @@ import java.util.Vector;
  */
 public class HouseKeepingGeneNormalizer extends AbstractAnalysis implements
         NormalizingAnalysis {
-    // Static fields used to designate the available user option within the
+
     // normalizer's parameters panel.
-    public static final int MINIMUM = 0;
-    public static final int MAXIMUM = 1;
-    public static final int IGNORE = 0;
-    public static final int REPLACE = 1;
+
     public static final int BASEARRAY = 0;
     public static StringBuffer errorMessage = new StringBuffer();
-    double threshold;
-    int thresholdType;
-    int missingValues;
     private DSPanel<DSGeneMarker> markerPanel;
     private boolean[] ExistedMarkers;
     private boolean haveNonExistMarker = false;
@@ -197,15 +191,23 @@ public class HouseKeepingGeneNormalizer extends AbstractAnalysis implements
      * @param markerPanel DSPanel
      * @return double[]
      */
-    //There is a bug related to CSMarkerVector, similar to the bug listed above.
+    //There is a bug related to CSMarkerVector,  similar to the bug listed above.
+    //geneNameMap and geneIDMap in CSMarkerVector always are empty (size =1 or 0)
+    //add a new correctMaps() method in CSMarkerVector to temp fix the probelm.
+
     public double[] getRatioForGenepix(DSMicroarraySet maSet,
                                        DSPanel markerPanel) {
         CSMarkerVector csMarkerVector = ((CSMicroarraySet) maSet).
                                         getMarkerVector();
+
+        csMarkerVector.correctMaps();
+
         int markerCount = markerPanel.size();
         int arrayCount = maSet.size();
         double ratio[] = new double[arrayCount];
         for (int i = 0; i < arrayCount; i++) {
+            ratio[i] = 1;
+            boolean needNormalization = false;
             double newch1f = 0d;
             double newch2f = 0d;
             double newch1b = 0d;
@@ -217,8 +219,8 @@ public class HouseKeepingGeneNormalizer extends AbstractAnalysis implements
                                          getLabel();
                 Vector<DSGeneMarker>
                         marchedMarkersVector = csMarkerVector.
-                                               getMatchingMarkers((CSGeneMarker)
-                        markerPanel.get(j));
+                                               getMatchingMarkers(
+                        csgMarkerString);
                 if (marchedMarkersVector != null) {
                     for (DSGeneMarker dsgMarker : marchedMarkersVector) {
                         CSGenepixMarkerValue csgMarkerValue = (
@@ -227,6 +229,7 @@ public class HouseKeepingGeneNormalizer extends AbstractAnalysis implements
                                         dsgMarker);
 
                         if (csgMarkerValue != null) {
+                            needNormalization = true;
                             newch1f += csgMarkerValue.getCh1Fg();
                             newch2f += csgMarkerValue.getCh2Fg();
                             newch1b += csgMarkerValue.getCh1Bg();
@@ -255,10 +258,12 @@ public class HouseKeepingGeneNormalizer extends AbstractAnalysis implements
 //                                 getMarkerValue(csgMarker);
 //                System.out.println(csgMarkerValue);
             }
-            if (newch1f != newch1b) {
-                ratio[i] = (newch2f - newch2b) / (newch1f - newch1b);
-            } else {
-                ratio[i] = newch2f - newch2b;
+            if (needNormalization) {
+                if (newch1f != newch1b) {
+                    ratio[i] = (newch2f - newch2b) / (newch1f - newch1b);
+                } else {
+                    ratio[i] = newch2f - newch2b;
+                }
             }
 
         }
