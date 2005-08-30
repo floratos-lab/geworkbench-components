@@ -274,7 +274,7 @@ import com.borland.jbcl.layout.*;
             String[] cols = line.split(",");
 
             for (String s : cols) {
-                selectedModel.addElement(s);
+                selectedModel.addElement(s.trim());
             }
 
             markerList.add(new CSGeneMarker(cols[0]));
