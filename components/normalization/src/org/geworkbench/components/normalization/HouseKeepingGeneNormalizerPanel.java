@@ -1,6 +1,6 @@
 package org.geworkbench.components.normalization;
 
-import java.awt.*;
+import java.awt.BorderLayout;
 import java.awt.event.*;
 import java.io.*;
 import java.util.Enumeration;
@@ -16,7 +16,6 @@ import org.geworkbench.analysis.AbstractSaveableParameterPanel;
 import org.geworkbench.bison.datastructure.bioobjects.markers.CSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.complex.panels.*;
-import com.borland.jbcl.layout.*;
 
 /**
  * <p>Title: </p>
@@ -70,9 +69,9 @@ import com.borland.jbcl.layout.*;
     JList jList2 = new JList(selectedModel);
     JButton jButton3 = new JButton();
     XYLayout xYLayout1 = new XYLayout();
-
-
-    /**
+    JPanel jPanel2 = new JPanel();
+    JLabel jLabel3 = new JLabel();
+    JComboBox jComboBox1 = new JComboBox(); /**
      * saveButtonPressed save the markers in selected marker list to a file.
      *
      * @param path TreePath
@@ -151,6 +150,7 @@ import com.borland.jbcl.layout.*;
             try {
                 InputStream input2 = new FileInputStream(filename);
                 populateList(input2);
+                updateLabel();
 
             } catch (Exception ex) {
                 ex.printStackTrace();
@@ -309,6 +309,7 @@ import com.borland.jbcl.layout.*;
             String value = (String) selectedModel.getElementAt(index);
             moveMarkers(value);
         }
+        updateLabel();
     }
 
     /**
@@ -321,6 +322,7 @@ import com.borland.jbcl.layout.*;
             markerModel.addElement(value);
         }
         selectedModel.removeElement(value);
+        updateLabel();
 
     }
 
@@ -333,6 +335,7 @@ import com.borland.jbcl.layout.*;
             selectedModel.addElement(markerName);
         }
         markerModel.removeElement(markerName);
+        updateLabel();
     }
 
     /**
@@ -342,6 +345,7 @@ import com.borland.jbcl.layout.*;
     public void removeMarkers(String markerName) {
 
         selectedModel.removeElement(markerName);
+        updateLabel();
 
     }
 
@@ -380,6 +384,8 @@ import com.borland.jbcl.layout.*;
                 jButton3_actionPerformed(e);
             }
         });
+        jLabel3.setText("Missing Values");
+        jComboBox1.setToolTipText("");
         jPanel1.add(jButton1);
         jPanel1.add(jButton2);
         jPanel1.add(jButton5);
@@ -411,16 +417,20 @@ import com.borland.jbcl.layout.*;
 
         jPanel4.add(jLabel2, java.awt.BorderLayout.WEST);
         jPanel4.add(jLabel1, java.awt.BorderLayout.CENTER);
-        this.add(jPanel3, new XYConstraints(0, 30, 279, 156));
-        this.add(jPanel4, new XYConstraints(0, 0, 279, 30));
+        jPanel2.add(jLabel3);
+        jPanel2.add(jComboBox1);
         jPanel3.add(jPanel1, new XYConstraints(90, 3, 71, 137));
         jPanel3.add(jScrollPane2, new XYConstraints(165, 3, 91, 137));
         jPanel3.add(jScrollPane1, new XYConstraints(2, 3, 86, 137));
+        this.add(jPanel4, new XYConstraints(0, 0, 279, 27));
+        this.add(jPanel2, new XYConstraints(0, 168, 279, 21));
+        this.add(jPanel3, new XYConstraints(0, 28, 279, -1));
         InputStream input = HouseKeepingGeneNormalizer.class.
                             getResourceAsStream(
                                     "DEFAULT_HOUSEKEEPING_GENES.txt");
 
         populateList(input);
+        updateLabel();
     }
 
 
@@ -436,6 +446,14 @@ import com.borland.jbcl.layout.*;
         updatePanel();
 
         return panel;
+    }
+
+    /**
+     * updateLabel, display the number of Genes listed in each list box.
+     */
+    public void updateLabel() {
+        jLabel1.setText("Current Selected Genes [" + selectedModel.size() + "]" );
+        jLabel2.setText("Excluded Genes [" + markerModel.size() + "]   ");
     }
 
     /**
