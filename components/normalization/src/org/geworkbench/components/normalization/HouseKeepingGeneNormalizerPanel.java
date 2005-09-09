@@ -72,9 +72,9 @@ public class HouseKeepingGeneNormalizerPanel extends
     private JMenuItem clearHightlights = new JMenuItem(
             "Clear Highlights");
     private JMenuItem removeAllHighlightsItem = new JMenuItem(
-            "Delete All Highlighted");
+            "Delete Highlighted");
     private JMenuItem moveAllHighlightsItem = new JMenuItem(
-            "Move All Hightlighted to Excluded List");
+            "Move Hightlighted to Excluded List");
     private Set<String> highlightedMarkers = new TreeSet<String>();
     final String AVG_OPTION = "Microarray Average";
     final String IGNORE_OPTION = "Ignore";
@@ -231,43 +231,6 @@ public class HouseKeepingGeneNormalizerPanel extends
             return returnVal;
         }
     }
-
-
-//    /**
-//     * List Model backed by the marker item list.
-//     */
-//    private class MarkerListModel extends AbstractListModel {
-//
-//        public int getSize() {
-//            if (markerList == null) {
-//                return 0;
-//            }
-//            return markerList.size();
-//        }
-//
-//        public Object getElementAt(int index) {
-//            if (markerList == null) {
-//                return null;
-//            }
-//            return markerList.get(index);
-//        }
-//
-//        public DSGeneMarker getMarker(int index) {
-//            return markerList.get(index);
-//        }
-//
-//        /**
-//         * Indicates to the associated JList that the contents need to be redrawn.
-//         */
-//        public void refresh() {
-//            if (markerList == null) {
-//                fireContentsChanged(this, 0, 0);
-//            } else {
-//                fireContentsChanged(this, 0, markerList.size());
-//            }
-//        }
-//
-//    }
 
 
     /**
@@ -455,10 +418,10 @@ public class HouseKeepingGeneNormalizerPanel extends
 
         listPopup.add(editItem);
         listPopup.add(removeItem);
-        listPopup.add(excludeItem);
+        //listPopup.add(excludeItem);
         listPopup.addSeparator();
-        //listPopup.add(moveAllHighlightsItem);
-        //listPopup.add(removeAllHighlightsItem);
+         listPopup.add(moveAllHighlightsItem);
+         listPopup.add(removeAllHighlightsItem);
         listPopup.add(clearHightlights);
 
         editItem.addActionListener(new ActionListener() {
@@ -666,6 +629,7 @@ public class HouseKeepingGeneNormalizerPanel extends
     public void jButton5_actionPerformed(ActionEvent e) {
         selectedModel.clear();
         markerModel.clear();
+        updateLabel();
     }
 
     public void jButton1_actionPerformed(ActionEvent e) {
@@ -675,9 +639,11 @@ public class HouseKeepingGeneNormalizerPanel extends
                 markerModel.removeElement(selected);
                 selectedModel.addElement(selected);
             }
+            updateLabel();
         } else {
             reportError("No gene is selected", "No selection");
         }
+
     }
 
     public void jButton2_actionPerformed(ActionEvent e) {
@@ -687,6 +653,7 @@ public class HouseKeepingGeneNormalizerPanel extends
                 selectedModel.removeElement(selected);
                 markerModel.addElement(selected);
             }
+            updateLabel();
         } else {
             reportError("No gene is selected", "No selection");
         }
