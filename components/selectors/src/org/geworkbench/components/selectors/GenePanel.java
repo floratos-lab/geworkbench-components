@@ -580,8 +580,7 @@ public class GenePanel implements VisualPlugin {
         fc.setDialogTitle("Open Marker Panel");
         int choice = fc.showOpenDialog(mainPanel.getParent());
         if (choice == JFileChooser.APPROVE_OPTION) {
-            String filename = fc.getSelectedFile().getAbsolutePath();
-            DSPanel<DSGeneMarker> panel = deserializePanel(filename);
+            DSPanel<DSGeneMarker> panel = deserializePanel(fc.getSelectedFile());
             addPanel(panel);
             throwEvent(GeneSelectorEvent.PANEL_SELECTION);
         }
@@ -913,13 +912,14 @@ public class GenePanel implements VisualPlugin {
      *
      * @param filename filename which contains the stored panel set
      */
-    private DSPanel<DSGeneMarker> deserializePanel(final String filename) {
+    private DSPanel<DSGeneMarker> deserializePanel(final File file) {
         BufferedReader stream = null;
         try {
-            stream = new BufferedReader(new InputStreamReader(new ProgressMonitorInputStream(getComponent(), "Loading probes " + filename, new FileInputStream(filename))));
+            stream = new BufferedReader(new InputStreamReader(new ProgressMonitorInputStream(getComponent(), "Loading probes " + file.getName(), new FileInputStream(file))));
             String line = null;
             DSPanel<DSGeneMarker> panel = new CSPanel<DSGeneMarker>();
             Class type = null;
+            int serial = 0;
             while ((line = stream.readLine()) != null) {
                 String[] tokens = line.split("\t");
                 if (tokens != null && tokens.length == 2) {
@@ -941,6 +941,18 @@ public class GenePanel implements VisualPlugin {
                             marker.setDescription(new String(tokens[2].trim()));
                             panel.add(marker);
                         }
+                    }
+                }
+                if (tokens.length == 1){
+                    if (type == null){
+                        type = Class.forName(System.getProperty("expression.marker.type"));
+                        panel.setLabel(new String(file.getName().split("\\.")[0]));
+                    }
+                    DSGeneMarker marker = (DSGeneMarker) type.newInstance();
+                    if (marker != null){
+                        marker.setSerial(serial++);
+                        marker.setLabel(new String(tokens[0].trim()));
+                        panel.add(marker);
                     }
                 }
             }
