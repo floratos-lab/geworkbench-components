@@ -1,19 +1,14 @@
 package org.geworkbench.components.alignment.synteny;
 
+import java.io.*;
 import org.geworkbench.util.sequences.SequenceAnnotation;
 import org.geworkbench.util.sequences.SequenceAnnotationTrack;
-
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
 
 /**
  * <p>Title: Bioworks</p>
  * <p>Description: Modular Application Framework for Gene Expession, Sequence and Genotype Analysis</p>
  * <p>Copyright: Copyright (c) 2003 -2004</p>
  * <p>Company: Columbia University</p>
- *
  * @author not attributable
  * @version 1.0
  */
@@ -24,7 +19,8 @@ public class GPAnnoParser {
     private static String startTag = null;
     private static String endTag = null;
 
-    public static void runGPAnnoParser(SequenceAnnotation sa, String gpAnnoFile, int which) {
+    public static void runGPAnnoParser(SequenceAnnotation sa, String gpAnnoFile,
+                                       int which) {
         SeqAObj = sa;
         if (which == 1) {
             startTag = new String("/# Start of Annotation 1 #/");
@@ -39,28 +35,42 @@ public class GPAnnoParser {
 
     private static void parseGoldenPathAnnotation(String gpAnnoFile) {
         int i, j = 0, numAnno = 0;
+        int SequenceHitStart=0;
+        int SequenceHitEnd=0;
         int[] numEach = new int[100], new_count = new int[100];
+
         String[] types = new String[100];
         String line, tempStr, tempStr1 = null, tempStr2 = null;
+        String FeatureName=null;
+        String FeatureTag=null;
+        String FeatureURL=null;
+        double FeatureEValue=0;
+        boolean FeatureDirection=true;
+
 
         try {
-            BufferedReader br = new BufferedReader(new FileReader(gpAnnoFile));
+            BufferedReader br =
+                new BufferedReader(new FileReader(gpAnnoFile));
 
             /* Walk to the begining of annotation */
             while (true) {
-                if ((line = br.readLine()) == null) break;
-                if ((i = line.indexOf(startTag)) != -1) {
+                if ( (line = br.readLine()) == null) {
+                    break;
+                }
+                if ( (i = line.indexOf(startTag)) != -1) {
                     break;
                 }
             }
 
             /* Counting everithing */
             while (true) {
-                if ((line = br.readLine()) == null) break;
-                if ((i = line.indexOf(endTag)) != -1) {
+                if ( (line = br.readLine()) == null) {
                     break;
                 }
-                if ((i = line.indexOf("<TYPE id=")) != -1) {
+                if ( (i = line.indexOf(endTag)) != -1) {
+                    break;
+                }
+                if ( (i = line.indexOf("<TYPE id=")) != -1) {
                     tempStr = line.substring(i + 10);
                     i = tempStr.indexOf('"');
                     tempStr = tempStr.substring(0, i);
@@ -72,12 +82,9 @@ public class GPAnnoParser {
                     if (i == numAnno) {
                         /* new type */
                         types[i] = new String(tempStr);
-                        numEach[i] = 1;
+                        numEach[i] = 0;
                         new_count[i] = -1;
                         numAnno++;
-                    } else {
-                        /* existing type */
-                        numEach[i]++;
                     }
                 }
                 if (line.indexOf("</DASGFF>") != -1) {
@@ -85,46 +92,53 @@ public class GPAnnoParser {
                 }
             }
 
+            System.out.println("NumAnno: "+numAnno);
+
             /* Allocation */
-            SeqATObj = new SequenceAnnotationTrack[100];
+            SeqATObj = new SequenceAnnotationTrack[numAnno];
             for (i = 0; i < numAnno; i++) {
-                SeqATObj[i] = new SequenceAnnotationTrack(numEach[i]);
+                SeqATObj[i] = new SequenceAnnotationTrack();
                 SeqATObj[i].setAnnotationName(types[i]);
             }
 
             /****** Extract the annotation */
-            br = new BufferedReader(new FileReader(gpAnnoFile));
+            br =
+                new BufferedReader(new FileReader(gpAnnoFile));
 
             /* Walk to the begining of annotation */
             while (true) {
-                if ((line = br.readLine()) == null) break;
-                if ((i = line.indexOf(startTag)) != -1) {
+                if ( (line = br.readLine()) == null) {
+                    break;
+                }
+                if ( (i = line.indexOf(startTag)) != -1) {
                     break;
                 }
             }
 
             /* Extracting */
             while (true) {
-                if ((line = br.readLine()) == null) break;
-                if ((i = line.indexOf(endTag)) != -1) {
+                if ( (line = br.readLine()) == null) {
+                    break;
+                }
+                if ( (i = line.indexOf(endTag)) != -1) {
                     break;
                 }
 
-                if ((i = line.indexOf("<FEATURE id=")) != -1) {
+                if ( (i = line.indexOf("<FEATURE id=")) != -1) {
                     tempStr = line.substring(i + 13);
                     i = tempStr.indexOf('\"');
                     tempStr = tempStr.substring(0, i);
                     tempStr1 = new String(tempStr);
                 }
 
-                if ((i = line.indexOf("label=\"")) != -1) {
+                if ( (i = line.indexOf("label=\"")) != -1) {
                     tempStr = line.substring(i + 7);
                     i = tempStr.indexOf('\"');
                     tempStr = tempStr.substring(0, i);
                     tempStr2 = new String(tempStr);
                 }
 
-                if ((i = line.indexOf("<TYPE id=")) != -1) {
+                if ( (i = line.indexOf("<TYPE id=")) != -1) {
                     tempStr = line.substring(i + 10);
                     i = tempStr.indexOf('"');
                     tempStr = tempStr.substring(0, i);
@@ -134,65 +148,69 @@ public class GPAnnoParser {
                         }
                     }
                     new_count[j]++;
-                    SeqATObj[j].setFeatureName(new_count[j], tempStr1);
-                    SeqATObj[j].setFeatureTag(new_count[j], tempStr2);
+                    FeatureName=new String(tempStr1);
                 }
 
-                if ((i = line.indexOf(" start=\"")) != -1) {
+                if ( (i = line.indexOf(" start=\"")) != -1) {
                     tempStr = line.substring(i + 8);
                     i = tempStr.indexOf('\"');
                     tempStr = tempStr.substring(0, i);
-                    //          SeqAObj.setSeqSegmentStart((int)Integer.parseInt(tempStr));
                 }
 
-                if ((i = line.indexOf(" stop=\"")) != -1) {
+                if ( (i = line.indexOf(" stop=\"")) != -1) {
                     tempStr = line.substring(i + 7);
                     i = tempStr.indexOf('\"');
                     tempStr = tempStr.substring(0, i);
-                    //          SeqAObj.setSeqSegmentEnd((int)Integer.parseInt(tempStr));
                 }
 
-                if ((i = line.indexOf("<START>")) != -1) {
+                if ( (i = line.indexOf("<START>")) != -1) {
                     tempStr = line.substring(i + 7);
                     i = tempStr.indexOf('<');
                     tempStr = tempStr.substring(0, i);
-                    SeqATObj[j].setSequenceHitStart(new_count[j], (int) Integer.parseInt(tempStr));
+                    SequenceHitStart=(int) Integer.parseInt(tempStr);
                 }
 
-                if ((i = line.indexOf("<END>")) != -1) {
+                if ( (i = line.indexOf("<END>")) != -1) {
                     tempStr = line.substring(i + 5);
                     i = tempStr.indexOf('<');
                     tempStr = tempStr.substring(0, i);
-                    SeqATObj[j].setSequenceHitEnd(new_count[j], (int) Integer.parseInt(tempStr));
+                    SequenceHitEnd=(int) Integer.parseInt(tempStr);
                 }
 
-                if ((i = line.indexOf("<SCORE>")) != -1) {
+                if ( (i = line.indexOf("<SCORE>")) != -1) {
                     tempStr = line.substring(i + 7);
                     i = tempStr.indexOf('<');
                     tempStr = tempStr.substring(0, i);
                     if (tempStr.equalsIgnoreCase("-")) {
-                        SeqATObj[j].setFeatureEValue(new_count[j], -1);
-                    } else {
-                        SeqATObj[j].setFeatureEValue(new_count[j], (double) Double.parseDouble(tempStr));
+                        FeatureEValue= -1;
+                    }
+                    else {
+                        FeatureEValue= (double) Double.parseDouble(tempStr);
                     }
                 }
 
-                if ((i = line.indexOf("<ORIENTATION>")) != -1) {
+                if ( (i = line.indexOf("<ORIENTATION>")) != -1) {
                     tempStr = line.substring(i + 13);
                     i = tempStr.indexOf('<');
                     tempStr = tempStr.substring(0, i);
                     if (tempStr.equalsIgnoreCase("-")) {
-                        SeqATObj[j].setFeatureDirection(new_count[j], false);
-                    } else {
-                        SeqATObj[j].setFeatureDirection(new_count[j], true);
+                        FeatureDirection=false;
+                    }
+                    else {
+                        FeatureDirection=true;
                     }
                 }
 
-                if ((i = line.indexOf("<LINK href=\"")) != -1) {
+                if ( (i = line.indexOf("<LINK href=\"")) != -1) {
                     tempStr = line.substring(i + 12);
                     i = tempStr.indexOf('\"');
                     tempStr = tempStr.substring(0, i);
-                    SeqATObj[j].setFeatureURL(new_count[j], tempStr);
+                    // SeqATObj[j].setFeatureURL(new_count[j], tempStr);
+                    FeatureURL=new String(tempStr);
+                    SeqATObj[j].addFeature(SequenceHitStart, SequenceHitEnd, SequenceHitStart, SequenceHitEnd,
+                                           SequenceHitEnd - SequenceHitStart + 1, FeatureDirection, true, FeatureEValue,
+                                           FeatureName, FeatureName, FeatureURL);
+                    numEach[j]++;
                 }
 
                 if (line.indexOf("</DASGFF>") != -1) {
@@ -204,9 +222,13 @@ public class GPAnnoParser {
             /* Set active and non active features */
             for (i = 0; i < numAnno; i++) {
                 for (j = 0; j < numEach[i]; j++) {
-                    if (SeqATObj[i].getSequenceHitEnd(j) < SeqAObj.getSeqSegmentStart() || SeqATObj[i].getSequenceHitEnd(j) > SeqAObj.getSeqSegmentEnd()) {
+                    if (SeqATObj[i].getSequenceHitEnd(j) <
+                        SeqAObj.getSeqSegmentStart() ||
+                        SeqATObj[i].getSequenceHitEnd(j) >
+                        SeqAObj.getSeqSegmentEnd()) {
                         SeqATObj[i].setFeatureActive(j, false);
-                    } else {
+                    }
+                    else {
                         SeqATObj[i].setFeatureActive(j, true);
                     }
                 }
@@ -216,11 +238,14 @@ public class GPAnnoParser {
             for (i = 0; i < numAnno; i++) {
                 SeqAObj.addAnnoTrack(SeqATObj[i]);
             }
-        } catch (FileNotFoundException e) {
+        }
+        catch (FileNotFoundException e) {
             System.out.println("Input file not found.");
-            //      System.exit(1);
-        } catch (IOException e) {
+            System.exit(1);
+        }
+        catch (IOException e) {
             System.out.println("IOException!");
+
         }
     }
 }

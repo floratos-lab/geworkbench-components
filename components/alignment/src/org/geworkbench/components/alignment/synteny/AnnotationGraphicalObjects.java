@@ -1,15 +1,14 @@
 package org.geworkbench.components.alignment.synteny;
 
-import org.geworkbench.util.sequences.SequenceAnnotation;
 
-import java.awt.*;
+import java.awt.Polygon;
+import org.geworkbench.util.sequences.SequenceAnnotation;
 
 /**
  * <p>Title: Bioworks</p>
  * <p>Description: Modular Application Framework for Gene Expession, Sequence and Genotype Analysis</p>
  * <p>Copyright: Copyright (c) 2003 -2004</p>
  * <p>Company: Columbia University</p>
- *
  * @author not attributable
  * @version 1.0
  */
@@ -25,7 +24,7 @@ public class AnnotationGraphicalObjects {
         int i;
 
         for (fnum = 0, i = 0; i < sa.getAnnotationTrackNum(); i++) {
-            fnum += ((sa.getAnnotationTrack(i)).getFeatureNum());
+            fnum += ( (sa.getAnnotationTrack(i)).getFeatureNum());
         }
 
         polygons = new Polygon[fnum];
@@ -71,7 +70,9 @@ public class AnnotationGraphicalObjects {
         int i;
         for (i = 0; i < fnum; i++) {
             if (polygons[i] != null) {
-                if (polygons[i].contains(x, y)) return i;
+                if (polygons[i].contains(x, y)) {
+                    return i;
+                }
             }
         }
         return -1;

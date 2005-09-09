@@ -1,5 +1,14 @@
 package org.geworkbench.components.alignment.synteny;
 
+import org.geworkbench.util.sequences.SequenceAnnotationTrack;
+import org.geworkbench.util.sequences.SequenceAnnotation;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.net.URL;
+import java.io.InputStream;
+import java.net.MalformedURLException;
+
 /**
  * <p>Title: Bioworks</p>
  * <p>Description: Modular Application Framework for Gene Expession, Sequence and Genotype Analysis</p>
@@ -8,16 +17,6 @@ package org.geworkbench.components.alignment.synteny;
  * @author not attributable
  * @version 1.0
  */
-
-import org.geworkbench.util.sequences.SequenceAnnotation;
-import org.geworkbench.util.sequences.SequenceAnnotationTrack;
-
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.net.URL;
 
 public class RemoteRepeatMasker {
 
@@ -36,17 +35,19 @@ public class RemoteRepeatMasker {
             /* skipping sequence name */
             String line = br.readLine();
 
-            request = "http://www.repeatmasker.org/cgi-bin/WEBRepeatMasker?filename=&sequence=";
+            request =
+                "http://www.repeatmasker.org/cgi-bin/WEBRepeatMasker?filename=&sequence=";
 
             /* adding the sequence */
             while (true) {
-                if ((line = br.readLine()) == null) {
+                if ( (line = br.readLine()) == null) {
                     break;
                 }
                 request = request.concat(line);
             }
             request = request.concat("&ReturnFormat=html&ReturnMethod=html&mailto=Your+email+address&submit=Submit+Sequence&speed=default&dnasource=human&contamination=none&repeatoptions=default&artifactcheck=default&alignment=default&masking=default&matrix=default&divergence=&lineage=default&species3=default&.cgifields=speed&.cgifields=ReturnMethod&.cgifields=ReturnFormat&.cgifields=dnasource&.cgifields=Parameters&.cgifields=mrna");
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             System.out.println(e);
         }
         SeqATObj = new SequenceAnnotationTrack();
@@ -64,7 +65,8 @@ public class RemoteRepeatMasker {
 
         try {
             infoLink = new URL(UrlToGet);
-        } catch (MalformedURLException ee) {
+        }
+        catch (MalformedURLException ee) {
             System.out.println("Malformed URL " + UrlToGet + " : " + ee);
             return null;
         }
@@ -72,29 +74,37 @@ public class RemoteRepeatMasker {
         // start the connection with the httpd and talk
         try {
             serverIO = infoLink.openStream();
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             System.out.println("Can't open stream " + UrlToGet + " : " + e);
             return null;
         }
 
         try {
             /* Read */
-            while ((info = serverIO.read()) != -1) {
-                oneL.append((char) info); /* make note of the info */
+            while ( (info = serverIO.read()) != -1) {
+                oneL.append( (char) info); /* make note of the info */
             }
             serverIO.close();
             buf = new String(oneL);
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             System.out.println(e);
             return null;
         }
         return buf;
     }
 
-    public static boolean GetItToAnnoTrack(SequenceAnnotationTrack sat, String UrlToGet) {
+    public static boolean GetItToAnnoTrack(SequenceAnnotationTrack sat,
+                                           String UrlToGet) {
         int i, j, start, end, num;
         String name, temp;
         boolean dir;
+
+        int SequenceHitStart = 0;
+        int SequenceHitEnd = 0;
+        String FeatureName = null;
+        boolean FeatureDirection = true;
 
         /* Get data */
         String buf = GetIt(UrlToGet);
@@ -104,7 +114,8 @@ public class RemoteRepeatMasker {
         }
 
         /* checking for the "no repeats found" */
-        if ((i = buf.indexOf("There were no repetitive sequences detected")) != -1) {
+        if ( (i = buf.indexOf("There were no repetitive sequences detected")) !=
+            -1) {
             return false;
         }
 
@@ -122,7 +133,6 @@ public class RemoteRepeatMasker {
         }
 
         /* Allocation of sequence annotation track */
-        sat.initSequenceAnnotationTrack(num);
         sat.setAnnotationName("Remote RepeatMasker");
 
         /* cycle through the html output - parsing repeat names and start/end features */
@@ -151,7 +161,7 @@ public class RemoteRepeatMasker {
             }
 
             start = Integer.parseInt(buf.substring(i, j));
-            sat.setSequenceHitStart(num, start);
+            SequenceHitStart = start;
 
             /* extracting end */
             for (i = j; i < buf.length(); i++) {
@@ -165,7 +175,7 @@ public class RemoteRepeatMasker {
                 }
             }
             end = Integer.parseInt(buf.substring(i, j));
-            sat.setSequenceHitEnd(num, end);
+            SequenceHitEnd = end;
 
             /* skipping the reast_length */
             for (i = j; i < buf.length(); i++) {
@@ -193,11 +203,11 @@ public class RemoteRepeatMasker {
 
             /* extracting directions */
             if (buf.charAt(i) == '+') {
-                dir = true;
-            } else {
-                dir = false;
+                FeatureDirection = true;
             }
-            sat.setFeatureDirection(num, dir);
+            else {
+                FeatureDirection = false;
+            }
 
             /* extracting name */
             for (i = j; i < buf.length(); i++) {
@@ -211,10 +221,13 @@ public class RemoteRepeatMasker {
                 }
             }
             name = new String(buf.substring(i, j));
-            sat.setFeatureName(num, name);
-            sat.setFeatureTag(num, name);
-            sat.setFeatureURL(num, null);
+            FeatureName = new String(name);
 
+            sat.addFeature(SequenceHitStart, SequenceHitEnd, SequenceHitStart,
+                           SequenceHitEnd,
+                           SequenceHitEnd - SequenceHitStart + 1,
+                           FeatureDirection, true, 0,
+                           FeatureName, FeatureName, null);
             num++;
 
             for (j = i + 1; j < buf.length(); j++) {

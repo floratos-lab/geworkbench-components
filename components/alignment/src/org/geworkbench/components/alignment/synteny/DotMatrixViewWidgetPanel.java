@@ -1,30 +1,38 @@
 package org.geworkbench.components.alignment.synteny;
 
-import org.geworkbench.components.alignment.synteny.*;
-import org.geworkbench.components.alignment.synteny.AnnotationGraphicalObjects;
-import org.geworkbench.components.alignment.synteny.AnnotationColors;
-import org.geworkbench.components.alignment.synteny.AnnotationViewWidget;
-import org.geworkbench.util.sequences.SequenceAnnotation;
-
+import java.awt.event.*;
 import javax.swing.*;
-import java.awt.*;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
+import java.awt.LayoutManager;
+import org.geworkbench.util.sequences.SequenceAnnotation;
+import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Font;
+import java.awt.Dimension;
+import java.awt.image.BufferedImage;
+import java.io.FileOutputStream;
+import com.sun.image.codec.jpeg.JPEGImageEncoder;
+import com.sun.image.codec.jpeg.JPEGCodec;
+import org.geworkbench.components.alignment.panels.BrowserLauncher;
+import java.io.IOException;
 
 /**
  * <p>Title: </p>
  * <p>Description: </p>
  * <p>Copyright: Copyright (c) 2003</p>
  * <p>Company: </p>
- *
  * @author not attributable
  * @version 1.0
  */
 
-public class DotMatrixViewWidgetPanel extends JPanel implements MouseListener, MouseMotionListener {
+public class DotMatrixViewWidgetPanel
+    extends JPanel implements MouseListener, MouseMotionListener {
 
-    final int xOff = 15;
+    JScrollPane displayScrollPane = new JScrollPane();
+    LayoutManager borderLayout2 = null;
+    DotMatrixInfoPanel DMInfo = null;
+
+    final int xOff = 150;
     final int yOff = 15;
     final int ruler = 10;
     final int annospace = 500;
@@ -34,8 +42,6 @@ public class DotMatrixViewWidgetPanel extends JPanel implements MouseListener, M
     int info_pane_y;
     int dm_right;
     int dm_bottom;
-
-    private JScrollPane scPane = new JScrollPane();
 
     static DotMatrixObj DotM;
     static SequenceAnnotation annoX = null;
@@ -48,51 +54,94 @@ public class DotMatrixViewWidgetPanel extends JPanel implements MouseListener, M
     String pos_info_string = new String(" ");
     static AnnotationGraphicalObjects agoX;
     static AnnotationGraphicalObjects agoY;
-
     public DotMatrixViewWidgetPanel() {
 
         DotM = null;
         try {
             jbInit();
-        } catch (Exception ex) {
+        }
+        catch (Exception ex) {
             ex.printStackTrace();
         }
     }
 
+    /*****************************************************/
     public DotMatrixViewWidgetPanel(DotMatrixObj dmo) {
         DotM = dmo;
 
         try {
             jbInit();
-        } catch (Exception ex) {
+        }
+        catch (Exception ex) {
             ex.printStackTrace();
         }
     }
 
-    public DotMatrixViewWidgetPanel(DotMatrixObj dmo, SequenceAnnotation sfox, SequenceAnnotation sfoy) {
+    /*****************************************************/
+    public void DMViewWidgetPaneladd(DotMatrixObj dmo, SequenceAnnotation sfox,
+                                     SequenceAnnotation sfoy,
+                                     DotMatrixInfoPanel dmi) {
+        DotM = dmo;
+        DMInfo = dmi;
+
+        annoX = sfox;
+        annoY = sfoy;
+
+        agoX = new AnnotationGraphicalObjects(annoX);
+        agoY = new AnnotationGraphicalObjects(annoY);
+        scaleX = ( (double) (annoX.getSeqSegmentEnd() -
+                             annoX.getSeqSegmentStart() +
+                             1)) / DotM.getPixX();
+        scaleY = ( (double) (annoY.getSeqSegmentEnd() -
+                             annoY.getSeqSegmentStart() +
+                             1)) / DotM.getPixY();
+        try {
+            jbInit();
+        }
+        catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    /*****************************************************/
+    public DotMatrixViewWidgetPanel(DotMatrixObj dmo, SequenceAnnotation sfox,
+                                    SequenceAnnotation sfoy) {
         DotM = dmo;
 
         annoX = sfox;
         annoY = sfoy;
 
         agoX = new AnnotationGraphicalObjects(annoX);
-        agoY = new org.geworkbench.components.alignment.synteny.AnnotationGraphicalObjects(annoY);
+        agoY = new AnnotationGraphicalObjects(annoY);
 
-        scaleX = ((double) (annoX.getSeqSegmentEnd() - annoX.getSeqSegmentStart() + 1)) / DotM.getPixX();
-        scaleY = ((double) (annoY.getSeqSegmentEnd() - annoY.getSeqSegmentStart() + 1)) / DotM.getPixY();
+        scaleX = ( (double) (annoX.getSeqSegmentEnd() -
+                             annoX.getSeqSegmentStart() +
+                             1)) / DotM.getPixX();
+        scaleY = ( (double) (annoY.getSeqSegmentEnd() -
+                             annoY.getSeqSegmentStart() +
+                             1)) / DotM.getPixY();
 
         try {
             jbInit();
-        } catch (Exception ex) {
+        }
+        catch (Exception ex) {
             ex.printStackTrace();
         }
     }
 
+    /*****************************************************/
     void jbInit() throws Exception {
+        this.setLayout(borderLayout2);
+
+        displayScrollPane.setHorizontalScrollBarPolicy(JScrollPane.
+            HORIZONTAL_SCROLLBAR_ALWAYS);
+        displayScrollPane.setVerticalScrollBarPolicy(JScrollPane.
+                                                 VERTICAL_SCROLLBAR_ALWAYS);
+//        displayScrollPane.setBorder(BorderFactory.createEtchedBorder());
+        this.add(displayScrollPane);
         this.addMouseListener(this);
         this.addMouseMotionListener(this);
-        this.setBackground(Color.green);
-
+        this.setBackground(Color.white);
     }
 
     private void setMaxLength() {
@@ -100,7 +149,7 @@ public class DotMatrixViewWidgetPanel extends JPanel implements MouseListener, M
 
     public void initialize(DotMatrixObj dmObj) {
         DotM = DotsParser.dm;
-        //    this.addMouseListener(this);
+//    this.addMouseListener(this);
         repaint();
     }
 
@@ -136,18 +185,35 @@ public class DotMatrixViewWidgetPanel extends JPanel implements MouseListener, M
 
         // draw rectangles
         g.setColor(Color.white);
-        g.fillRect(0, 0, DotM.getPixX() + xOff + 2 * ruler + annospace, DotM.getPixY() + yOff + 2 * ruler + annospace);
+        g.fillRect(0, 0, DotM.getPixX() + xOff + 2 * ruler + annospace,
+                   DotM.getPixY() + yOff + 2 * ruler + annospace);
 
         g.setColor(Color.black);
-        g.drawRect(ruler + xOff - 1, ruler + yOff - 1, DotM.getPixX() + 2, DotM.getPixY() + 2);
+        g.drawRect(ruler + xOff - 1, ruler + yOff - 1, DotM.getPixX() + 2,
+                   DotM.getPixY() + 2);
 
-        g.drawLine(ruler + xOff + DotM.getPixX() / 4, ruler + yOff + DotM.getPixY(), ruler + xOff + DotM.getPixX() / 4, ruler + yOff + DotM.getPixY() + 2);
-        g.drawLine(ruler + xOff + DotM.getPixX() / 2, ruler + yOff + DotM.getPixY(), ruler + xOff + DotM.getPixX() / 2, ruler + yOff + DotM.getPixY() + 2);
-        g.drawLine(ruler + xOff + 3 * DotM.getPixX() / 4, ruler + yOff + DotM.getPixY(), ruler + xOff + 3 * DotM.getPixX() / 4, ruler + yOff + DotM.getPixY() + 2);
+        g.drawLine(ruler + xOff + DotM.getPixX() / 4,
+                   ruler + yOff + DotM.getPixY(),
+                   ruler + xOff + DotM.getPixX() / 4,
+                   ruler + yOff + DotM.getPixY() + 2);
+        g.drawLine(ruler + xOff + DotM.getPixX() / 2,
+                   ruler + yOff + DotM.getPixY(),
+                   ruler + xOff + DotM.getPixX() / 2,
+                   ruler + yOff + DotM.getPixY() + 2);
+        g.drawLine(ruler + xOff + 3 * DotM.getPixX() / 4,
+                   ruler + yOff + DotM.getPixY(),
+                   ruler + xOff + 3 * DotM.getPixX() / 4,
+                   ruler + yOff + DotM.getPixY() + 2);
 
-        g.drawLine(ruler + xOff, ruler + yOff + DotM.getPixY() / 4, ruler + xOff - 2, ruler + yOff + DotM.getPixY() / 4);
-        g.drawLine(ruler + xOff, ruler + yOff + DotM.getPixY() / 2, ruler + xOff - 2, ruler + yOff + DotM.getPixY() / 2);
-        g.drawLine(ruler + xOff, ruler + yOff + 3 * DotM.getPixY() / 4, ruler + xOff - 2, ruler + yOff + 3 * DotM.getPixY() / 4);
+        g.drawLine(ruler + xOff, ruler + yOff + DotM.getPixY() / 4,
+                   ruler + xOff - 2,
+                   ruler + yOff + DotM.getPixY() / 4);
+        g.drawLine(ruler + xOff, ruler + yOff + DotM.getPixY() / 2,
+                   ruler + xOff - 2,
+                   ruler + yOff + DotM.getPixY() / 2);
+        g.drawLine(ruler + xOff, ruler + yOff + 3 * DotM.getPixY() / 4,
+                   ruler + xOff - 2,
+                   ruler + yOff + 3 * DotM.getPixY() / 4);
 
         /* Draw ruler */
         if (DotM != null) {
@@ -157,6 +223,10 @@ public class DotMatrixViewWidgetPanel extends JPanel implements MouseListener, M
 
         }
 
+        // Draw information
+        g.drawString("X: " + DotM.getDescriptionX(), 10, 10);
+        g.drawString("Y: " + DotM.getDescriptionY(), 10, 20);
+
         if (DotM != null) {
             // draw direct matches
             if (showDirect) {
@@ -165,7 +235,9 @@ public class DotMatrixViewWidgetPanel extends JPanel implements MouseListener, M
                     g.setColor(Color.black);
                     for (j = 0; j < DotM.getPixX(); j++) {
                         if (DotM.getDirectPixel(i, j) == '1') {
-                            g.drawLine(i + xOff + ruler, j + yOff + ruler, i + xOff + ruler, j + yOff + ruler);
+                            g.drawLine(i + xOff + ruler, j + yOff + ruler,
+                                       i + xOff + ruler,
+                                       j + yOff + ruler);
                         }
                     }
                 }
@@ -178,7 +250,9 @@ public class DotMatrixViewWidgetPanel extends JPanel implements MouseListener, M
                 for (i = 0; i < DotM.getPixX(); i++) {
                     for (j = 0; j < DotM.getPixX(); j++) {
                         if (DotM.getInvertedPixel(i, j) == '1') {
-                            g.drawLine(i + xOff + ruler, j + yOff + ruler, i + xOff + ruler, j + yOff + ruler);
+                            g.drawLine(i + xOff + ruler, j + yOff + ruler,
+                                       i + xOff + ruler,
+                                       j + yOff + ruler);
                         }
                     }
                 }
@@ -190,20 +264,25 @@ public class DotMatrixViewWidgetPanel extends JPanel implements MouseListener, M
             if (annoX.getAnnotationTrackNum() > annoY.getAnnotationTrackNum()) {
                 for (i = 0; i < annoX.getAnnotationTrackNum(); i++) {
                     annoX.getAnnotationTrack(i).setColorNum(i);
-                    String NameX = (annoX.getAnnotationTrack(i)).getAnnotationName();
+                    String NameX = (annoX.getAnnotationTrack(i)).
+                        getAnnotationName();
                     for (j = 0; j < annoY.getAnnotationTrackNum(); j++) {
-                        String NameY = (annoY.getAnnotationTrack(j)).getAnnotationName();
+                        String NameY = (annoY.getAnnotationTrack(j)).
+                            getAnnotationName();
                         if (NameY.equalsIgnoreCase(NameX)) {
                             annoY.getAnnotationTrack(j).setColorNum(i);
                         }
                     }
                 }
-            } else {
+            }
+            else {
                 for (i = 0; i < annoY.getAnnotationTrackNum(); i++) {
                     annoY.getAnnotationTrack(i).setColorNum(i);
-                    String NameY = (annoY.getAnnotationTrack(i)).getAnnotationName();
+                    String NameY = (annoY.getAnnotationTrack(i)).
+                        getAnnotationName();
                     for (j = 0; j < annoX.getAnnotationTrackNum(); j++) {
-                        String NameX = (annoX.getAnnotationTrack(j)).getAnnotationName();
+                        String NameX = (annoX.getAnnotationTrack(j)).
+                            getAnnotationName();
                         if (NameX.equalsIgnoreCase(NameY)) {
                             annoX.getAnnotationTrack(j).setColorNum(i);
                         }
@@ -214,67 +293,76 @@ public class DotMatrixViewWidgetPanel extends JPanel implements MouseListener, M
             /* draw annotation */
             if (showAnnotationX) {
                 drawAnnoX(g2d);
-            } else {
+            }
+            else {
                 g.setColor(Color.white);
-                g.fillRect(xOff + ruler - 1, yOff + 2 * ruler + DotM.getPixY(), DotM.getPixX() + 2, annospace);
+                g.fillRect(xOff + ruler - 1, yOff + 2 * ruler + DotM.getPixY(),
+                           DotM.getPixX() + 2, annospace);
             }
             if (showAnnotationY) {
                 drawAnnoY(g2d);
-            } else {
+            }
+            else {
                 g.setColor(Color.white);
-                g.fillRect(xOff + 2 * ruler + DotM.getPixX(), yOff + ruler - 1, annospace, DotM.getPixY() + 2);
+                g.fillRect(xOff + 2 * ruler + DotM.getPixX(), yOff + ruler - 1,
+                           annospace,
+                           DotM.getPixY() + 2);
             }
-
-            /* Clearing legends space */
-            g.setColor(Color.white);
-            g.fillRect(info_pane_x - ruler + 1, info_pane_y - ruler + 1, annospace + ruler, annospace + ruler);
-
-            /* Draw annotation legends *************************************/
-            /* First - draw all from annoX */
-            for (i = 0, j = 0; i < annoX.getAnnotationTrackNum(); i++) {
-                if (annoX.getAnnoTrackActive(i)) {
-                    g.setColor(AnnotationColors.AnnoColorMap[annoX.getAnnotationTrack(i).getColorNum()]);
-                    g.fillRect(info_pane_x + 20, info_pane_y + 10 + j * 15, 10, 10);
-                    g.setColor(Color.black);
-                    g.drawString(annoX.getAnnotationTrack(i).getAnnotationName(), info_pane_x + 40, info_pane_y + 15 + j * 15);
-                    j++;
-                }
-            }
-            /* Second draw all annotation from annoY, which is not in annoX */
-            boolean flag = true;
-            for (i = 0; i < annoY.getAnnotationTrackNum(); i++) {
-                if (annoY.getAnnoTrackActive(i)) {
-                    flag = true;
-                    for (k = 0; k < annoX.getAnnotationTrackNum(); k++) {
-                        if (annoX.getAnnoTrackActive(k)) {
-                            if ((annoY.getAnnotationTrack(i).getAnnotationName()).compareTo(annoX.getAnnotationTrack(k).getAnnotationName()) == 0) {
-                                flag = false;
-                                break;
-                            }
-                        }
-                    }
-
-                    if (flag) {
-                        g.setColor(AnnotationColors.AnnoColorMap[annoY.getAnnotationTrack(i).getColorNum()]);
-                        g.fillRect(info_pane_x + 20, info_pane_y + 10 + j * 15, 10, 10);
-                        g.setColor(Color.black);
-                        g.drawString(annoY.getAnnotationTrack(i).getAnnotationName(), info_pane_x + 40, info_pane_y + 15 + j * 15);
-                        j++;
-                    }
-
-                }
-            }
-            /* End of drawing the legends ***********************************/
-
         }
     }
 
     private void drawAnnoX(Graphics2D g2d) {
-        AnnotationViewWidget avwx = new AnnotationViewWidget(g2d, annoX, agoX, xOff + ruler, yOff + 2 * ruler + DotM.getPixY(), DotM.getPixX(), annospace, 0, DotM.getStartX(), DotM.getEndX());
+        int wx = DotM.getEndX() - DotM.getStartX() + 1;
+        int wy = DotM.getEndY() - DotM.getStartY() + 1;
+        int awidth = (DotM.getPixX() * wx) / wy;
+
+        if (awidth > DotM.getPixX()) {
+            awidth = DotM.getPixX();
+        }
+
+        AnnotationViewWidget avwx = new AnnotationViewWidget(g2d, annoX, agoX,
+            xOff + ruler, yOff + 2 * ruler + DotM.getPixY(), awidth,
+            annospace, 0, DotM.getStartX(), DotM.getEndX());
+    }
+
+    public void saveToJpeg() {
+        String fn = null;
+        JFileChooser fc = new JFileChooser();
+        fc.setDialogTitle("Save current image to jpeg.");
+        int returnVal = fc.showOpenDialog(this.getParent());
+        if (returnVal == JFileChooser.APPROVE_OPTION) {
+            fn = fc.getSelectedFile().getAbsolutePath();
+        }
+
+        Dimension size = this.getSize();
+        size.setSize(1050,900);
+        BufferedImage myImage = new BufferedImage(size.width, size.height,
+                                                  BufferedImage.TYPE_INT_RGB);
+        Graphics2D g2 = myImage.createGraphics();
+        this.paint(g2);
+        try {
+            FileOutputStream out = new FileOutputStream(fn);
+            JPEGImageEncoder encoder = JPEGCodec.createJPEGEncoder(out);
+            encoder.encode(myImage);
+            out.close();
+        }
+        catch (Exception e) {
+            System.out.println(e);
+        }
     }
 
     private void drawAnnoY(Graphics2D g2d) {
-        AnnotationViewWidget avwx = new AnnotationViewWidget(g2d, annoY, agoY, xOff + 2 * ruler + DotM.getPixX(), yOff + ruler, annospace, DotM.getPixY(), 1, DotM.getStartY(), DotM.getEndY());
+        int wx = DotM.getEndX() - DotM.getStartX() + 1;
+        int wy = DotM.getEndY() - DotM.getStartY() + 1;
+        int awidth = (DotM.getPixY() * wy) / wx;
+        if (awidth > DotM.getPixY()) {
+            awidth = DotM.getPixY();
+        }
+
+        AnnotationViewWidget avwx = new AnnotationViewWidget(g2d, annoY, agoY,
+            xOff + 2 * ruler + DotM.getPixX(),
+            yOff + ruler, annospace, awidth, 1,
+            DotM.getStartY(), DotM.getEndY());
     }
 
     public void setShowDirect(boolean all) {
@@ -293,11 +381,87 @@ public class DotMatrixViewWidgetPanel extends JPanel implements MouseListener, M
         showAnnotationY = all;
     }
 
-    // Mouse stuff
+// Mouse stuff
     public void mouseMoved(MouseEvent e) {
+        int i, x, y;
+
+        if (DotM == null) {
+            return;
+        }
+
+        x = e.getX();
+        y = e.getY();
+        if (x > (xOff + ruler) && x < dm_right) {
+            /* The mouse is in X zone */
+            if (y > (yOff + ruler) && y < dm_bottom) {
+                /* The mouse is in dotmatrix */
+                DMInfo.showInfo("\nX: " +
+                                (int) ( ( (x - xOff - ruler) * scaleX) +
+                                       DotM.getStartX()) +
+                                " [ " + (int) ( (x - xOff - ruler) * scaleX) +
+                                " ]  Y: " +
+                                (int) ( ( (y - yOff - ruler) * scaleY) +
+                                       DotM.getStartY()) +
+                                " [ " + (int) ( (y - yOff - ruler) * scaleY) +
+                                " ]");
+            }
+            else {
+                if (y > dm_bottom + ruler) {
+                    if ( (i = agoX.getHit(x, y)) != -1) {
+                        if ( (annoX.getAnnotationTrack(agoX.getTrackNum(i))).
+                            getFeatureTag(
+                                agoX.getNumInTrack(i)) != null) {
+                            DMInfo.showInfo( (annoX.getAnnotationTrack(agoX.
+                                getTrackNum(i))).getFeatureTag(agoX.
+                                getNumInTrack(i)) + " { " +
+                                            (annoX.
+                                             getAnnotationTrack(agoX.
+                                getTrackNum(i))).getAnnotationName() + " } "
+                                );
+                        }
+                    }
+                }
+                else {
+                    DMInfo.showInfo(" ");
+                }
+            }
+        }
+        else {
+            if (x > dm_right + ruler && y < dm_bottom) {
+                if ( (i = agoY.getHit(x, y)) != -1) {
+                    if ( (annoY.getAnnotationTrack(agoY.getTrackNum(i))).
+                        getFeatureTag(
+                            agoY.getNumInTrack(i)) != null) {
+                        DMInfo.showInfo( (annoY.getAnnotationTrack(agoY.
+                            getTrackNum(i))).getFeatureTag(agoY.getNumInTrack(i))
+                                        + " { " +
+                                        (annoY.getAnnotationTrack(agoY.
+                            getTrackNum(i))).getAnnotationName() + " } ");
+                    }
+                }
+            }
+            else {
+                DMInfo.showInfo(" ");
+            }
+        }
+    }
+
+    public void mouseEntered(MouseEvent e) {}
+
+    public void mouseClicked(MouseEvent e) {}
+
+    public void mouseReleased(MouseEvent e) {}
+
+    public void mouseExited(MouseEvent e) {}
+
+    public void mousePressed(MouseEvent e) {
         Graphics gg;
         int i, j, k, x, y;
         String line;
+
+        if (DotM == null) {
+            return;
+        }
 
         x = e.getX();
         y = e.getY();
@@ -307,72 +471,60 @@ public class DotMatrixViewWidgetPanel extends JPanel implements MouseListener, M
             /* The mouse is in X zone */
             if (y > (yOff + ruler) && y < dm_bottom) {
                 /* The mouse is in dotmatrix */
-                gg.setColor(Color.white);
-                //                gg.fillRect(info_pane_x + 10, info_pane_y + 10, 180, 20);
-                gg.fillRect(10, 5, 500, 15);
-
-                //        this.getGraphics().clearRect(info_pane_x + 10, info_pane_y + 10, 180, 20);
-
-                gg.setColor(Color.black);
-                gg.drawString("\nX: " + (int) ((x - xOff - ruler) * scaleX) + DotM.getStartX() + //                                     annoX.getSeqSegmentStart()) +
-                        " [ " + (int) ((x - xOff - ruler) * scaleX) + " ]  Y: " + (int) ((y - yOff - ruler) * scaleY) + DotM.getStartY() + //                                     annoY.getSeqSegmentStart())
-                        " [ " + (int) ((y - yOff - ruler) * scaleY) + " ]", //                              info_pane_x + 15, info_pane_y + 25);
-                        10, 15);
-            } else {
-                gg.setColor(Color.white);
-                //                gg.fillRect(info_pane_x + 10, info_pane_y + 10, 400, 20);
-                gg.fillRect(10, 5, 500, 15);
-                //        this.getGraphics().clearRect(info_pane_x + 10, info_pane_y + 10, 400, 20);
+            }
+            else {
 
                 if (y > dm_bottom + ruler) {
-                    if ((i = agoX.getHit(x, y)) != -1) {
-                        if ((annoX.getAnnotationTrack(agoX.getTrackNum(i))).getFeatureTag(agoX.getNumInTrack(i)) != null) {
-                            gg.setColor(Color.white);
-                            gg.fillRect(10, 5, 500, 15);
-                            gg.setColor(Color.black);
-                            gg.drawString((annoX.getAnnotationTrack(agoX.getTrackNum(i))).getFeatureTag(agoX.getNumInTrack(i)) + " { " + (annoX.getAnnotationTrack(agoX.getTrackNum(i))).getAnnotationName() + " } ", 10, 15);
+                    /* The mouse is in annotation zone */
 
+                    if ( (i = agoX.getHit(x, y)) != -1) {
+                        if ( (annoX.getAnnotationTrack(agoX.getTrackNum(i))).
+                            getFeatureURL(i) != null) {
+                            try {
+                                BrowserLauncher.openURL( (annoX.
+                                    getAnnotationTrack(agoX.getTrackNum(i))).
+                                    getFeatureURL(i));
+                            }
+                            catch (IOException ioe) {}
                         }
                     }
-                } else {
-                    gg.setColor(Color.white);
-                    gg.fillRect(10, 5, 500, 15);
+                }
+                else {
                 }
             }
-        } else {
-            gg.setColor(Color.white);
-            gg.fillRect(10, 5, 500, 15);
+        }
+        else {
             if (x > dm_right + ruler && y < dm_bottom) {
-                if ((i = agoY.getHit(x, y)) != -1) {
-                    if ((annoY.getAnnotationTrack(agoY.getTrackNum(i))).getFeatureTag(agoY.getNumInTrack(i)) != null) {
-                        gg.setColor(Color.white);
-                        gg.fillRect(10, 5, 500, 15);
-                        gg.setColor(Color.black);
-                        gg.drawString((annoY.getAnnotationTrack(agoY.getTrackNum(i))).getFeatureTag(agoY.getNumInTrack(i)) + " { " + (annoY.getAnnotationTrack(agoY.getTrackNum(i))).getAnnotationName() + " } ", 10, 15);
+                if ( (i = agoY.getHit(x, y)) != -1) {
+                    if ( (annoY.getAnnotationTrack(agoY.getTrackNum(i))).
+                        getFeatureURL(i) != null) {
+                        try {
+                            BrowserLauncher.openURL( (annoY.
+                                getAnnotationTrack(agoY.getTrackNum(i))).
+                                getFeatureURL(i));
+                        }
+                        catch (IOException ioe) {}
                     }
                 }
-            } else {
-                gg.setColor(Color.white);
-                gg.fillRect(10, 5, 500, 15);
+            }
+            else {
             }
         }
     }
 
-    public void mouseEntered(MouseEvent e) {
-    }
+    public void mouseDragged(MouseEvent e) {}
 
-    public void mouseClicked(MouseEvent e) {
-    }
-
-    public void mouseReleased(MouseEvent e) {
-    }
-
-    public void mouseExited(MouseEvent e) {
-    }
-
-    public void mousePressed(MouseEvent e) {
-    }
-
-    public void mouseDragged(MouseEvent e) {
+    /**
+     * isInitiated
+     *
+     * @return boolean
+     */
+    public boolean isInitiated() {
+        if (DotM != null) {
+            return true;
+        }
+        else {
+            return false;
+        }
     }
 }
