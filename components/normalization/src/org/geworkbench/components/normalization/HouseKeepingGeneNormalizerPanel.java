@@ -69,8 +69,8 @@ public class HouseKeepingGeneNormalizerPanel extends
     private JMenuItem editItem = new JMenuItem("Edit");
     private JMenuItem excludeItem = new JMenuItem("Move to Excluded List");
 
-    private JMenuItem clearAllHighlightsItem = new JMenuItem(
-            "Clear All Highlights");
+    private JMenuItem clearHightlights = new JMenuItem(
+            "Clear Highlights");
     private JMenuItem removeAllHighlightsItem = new JMenuItem(
             "Delete All Highlighted");
     private JMenuItem moveAllHighlightsItem = new JMenuItem(
@@ -341,7 +341,7 @@ public class HouseKeepingGeneNormalizerPanel extends
 
         if (index > -1 && e.getClickCount() == 2) {
             String value = (String) selectedModel.getElementAt(index);
-            moveMarkers(value);
+            moveMarker(value);
         }
         updateLabel();
     }
@@ -351,7 +351,7 @@ public class HouseKeepingGeneNormalizerPanel extends
      *
      * @param value String
      */
-    private void moveMarkers(String value) {
+    private void moveMarker(String value) {
         if (!markerModel.contains(value)) {
             markerModel.addElement(value);
         }
@@ -381,7 +381,7 @@ public class HouseKeepingGeneNormalizerPanel extends
      * Remove marker from selected list.
      * @param markerName String
      */
-    private void removeMarkers(String markerName) {
+    private void removeMarker(String markerName) {
         if (highlightedMarkers != null) {
             highlightedMarkers.remove(markerName);
         }
@@ -457,9 +457,9 @@ public class HouseKeepingGeneNormalizerPanel extends
         listPopup.add(removeItem);
         listPopup.add(excludeItem);
         listPopup.addSeparator();
-        listPopup.add(moveAllHighlightsItem);
-        listPopup.add(removeAllHighlightsItem);
-        listPopup.add(clearAllHighlightsItem);
+        //listPopup.add(moveAllHighlightsItem);
+        //listPopup.add(removeAllHighlightsItem);
+        listPopup.add(clearHightlights);
 
         editItem.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -477,9 +477,9 @@ public class HouseKeepingGeneNormalizerPanel extends
             }
         });
 
-        clearAllHighlightsItem.addActionListener(new ActionListener() {
+        clearHightlights.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                clearAllHightlightsPressed();
+                clearHightlightsPressed();
             }
         });
         removeAllHighlightsItem.addActionListener(new ActionListener() {
@@ -535,28 +535,40 @@ public class HouseKeepingGeneNormalizerPanel extends
      * removeItemPressed
      */
     private void removeItemPressed() {
-        String oldLabel = (String) jList2.getSelectedValue();
-        if (oldLabel != null) {
+        Object[] oldLabels =   jList2.getSelectedValues();
+        for(Object oldLabel: oldLabels){
+            if (oldLabel != null) {
 
-            removeMarkers(oldLabel);
+                removeMarker((String)oldLabel);
 
+            }
         }
-
     }
 
     /**
      * excludeItemPressed
      */
     private void excludeItemPressed() {
-        String oldLabel = (String) jList2.getSelectedValue();
-        if (oldLabel != null) {
+        Object[] oldLabels =   jList2.getSelectedValues();
+        for(Object oldLabel: oldLabels){
+            if (oldLabel != null) {
 
-            removeMarkers(oldLabel);
+                moveMarker((String)oldLabel);
 
+            }
         }
-
     }
 
+    private void clearHightlightsPressed() {
+        Object[] oldLabels =   jList2.getSelectedValues();
+        for(Object oldLabel: oldLabels){
+            if (oldLabel != null) {
+
+                highlightedMarkers.remove(oldLabel);
+
+            }
+        }
+    }
     private void clearAllHightlightsItemPressed() {
         if (highlightedMarkers != null) {
             for (Object ob : highlightedMarkers) {
@@ -577,7 +589,7 @@ public class HouseKeepingGeneNormalizerPanel extends
     private void moveAllHightlightsItemPressed() {
         if (highlightedMarkers != null) {
             for (Object ob : highlightedMarkers) {
-                removeMarkers((String) ob);
+                removeMarker((String) ob);
             }
         }
         highlightedMarkers.clear();
