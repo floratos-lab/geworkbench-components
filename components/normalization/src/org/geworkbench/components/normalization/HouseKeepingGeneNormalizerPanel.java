@@ -3,8 +3,7 @@ package org.geworkbench.components.normalization;
 import java.awt.BorderLayout;
 import java.awt.event.*;
 import java.io.*;
-import java.util.Enumeration;
-import java.util.HashMap;
+import java.util.*;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileFilter;
@@ -16,6 +15,8 @@ import org.geworkbench.analysis.AbstractSaveableParameterPanel;
 import org.geworkbench.bison.datastructure.bioobjects.markers.CSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.complex.panels.*;
+import java.awt.Component;
+import java.awt.Color;
 
 /**
  * <p>Title: </p>
@@ -34,7 +35,8 @@ import org.geworkbench.bison.datastructure.complex.panels.*;
  * Parameters panel for the <code>HouseKeepingGeneNormalizer</code>..
  */
 
-   public class HouseKeepingGeneNormalizerPanel extends AbstractSaveableParameterPanel implements Serializable {
+public class HouseKeepingGeneNormalizerPanel extends
+        AbstractSaveableParameterPanel implements Serializable {
     public HouseKeepingGeneNormalizerPanel() {
         try {
             jbInit();
@@ -58,10 +60,10 @@ import org.geworkbench.bison.datastructure.complex.panels.*;
     JLabel jLabel2 = new JLabel();
     JButton jButton5 = new JButton();
     BorderLayout borderLayout1 = new BorderLayout();
-// Data models
-     DSItemList<DSGeneMarker> markerList;
-      DSPanel<DSGeneMarker> panel;
-     DSPanel<DSGeneMarker> markerPanel;
+    // Data models
+    DSItemList<DSGeneMarker> markerList;
+    DSPanel<DSGeneMarker> panel;
+    DSPanel<DSGeneMarker> markerPanel;
     DefaultListModel selectedModel = new DefaultListModel();
     DefaultListModel markerModel = new DefaultListModel();
     JPanel mainPanel = new JPanel();
@@ -71,7 +73,26 @@ import org.geworkbench.bison.datastructure.complex.panels.*;
     XYLayout xYLayout1 = new XYLayout();
     JPanel jPanel2 = new JPanel();
     JLabel jLabel3 = new JLabel();
-    JComboBox jComboBox1 = new JComboBox(); /**
+    private JPopupMenu listPopup = new JPopupMenu();
+    private JMenuItem removeItem = new JMenuItem("Delete");
+    private JMenuItem editItem = new JMenuItem("Edit");
+    private JMenuItem excludeItem = new JMenuItem("Move to Excluded List");
+
+    private JMenuItem clearAllHighlightsItem = new JMenuItem(
+            "Clear All Highlights");
+    private JMenuItem removeAllHighlightsItem = new JMenuItem(
+            "Delete All Highlighted");
+    private JMenuItem moveAllHighlightsItem = new JMenuItem(
+            "Move All Hightlighted to Excluded List");
+    private Set<String> highlightedMarkers = new TreeSet<String>();
+    final String AVG_OPTION = "Microarray Average";
+    final String IGNORE_OPTION = "Ignore";
+    static String lastDirString = ".";
+    static final String USERSETTINGSFILE = "userSettings.txt";
+
+    JComboBox jComboBox1 = new JComboBox(new String[] {IGNORE_OPTION,
+                                         AVG_OPTION});
+    /**
      * saveButtonPressed save the markers in selected marker list to a file.
      *
      * @param path TreePath
@@ -79,7 +100,7 @@ import org.geworkbench.bison.datastructure.complex.panels.*;
     public void saveButtonPressed(TreePath path) {
 
         if (panel != null) {
-            JFileChooser fc = new JFileChooser(".");
+            JFileChooser fc = new JFileChooser(this.getLastDirectory());
             FileFilter filter = new MarkerPanelSetFileFilter();
             fc.setFileFilter(filter);
             fc.setDialogTitle("Save Housekeeping Genes Panel");
@@ -139,15 +160,19 @@ import org.geworkbench.bison.datastructure.complex.panels.*;
      * loadButtonPressed to load markers from a csv format file.
      */
     public void loadButtonPressed() {
-        JFileChooser fc = new JFileChooser(".");
+        JFileChooser fc = new JFileChooser(this.getLastDirectory());
         javax.swing.filechooser.FileFilter filter = new
                 MarkerPanelSetFileFilter();
         fc.setFileFilter(filter);
         fc.setDialogTitle("Load new housekeeping Genes");
         int choice = fc.showOpenDialog(mainPanel.getParent());
         if (choice == JFileChooser.APPROVE_OPTION) {
-            String filename = fc.getSelectedFile().getAbsolutePath();
+
             try {
+                String filename = fc.getSelectedFile().getAbsolutePath();
+                String filepath = fc.getCurrentDirectory().getCanonicalPath();
+                setLastDirectory(filepath);
+
                 InputStream input2 = new FileInputStream(filename);
                 populateList(input2);
                 updateLabel();
@@ -161,12 +186,17 @@ import org.geworkbench.bison.datastructure.complex.panels.*;
 
     }
 
-
+    /**
+     * Add a pop menu for mouse right click.
+     * @param index int
+     * @param e MouseEvent
+     */
     private void markerRightClicked(int index, final MouseEvent e) {
-        //ensureItemIsSelected(index);
+
         SwingUtilities.invokeLater(new Runnable() {
+
             public void run() {
-                //   geneListPopup.show(e.getComponent(), e.getX(), e.getY());
+                listPopup.show(e.getComponent(), e.getX(), e.getY());
             }
         });
     }
@@ -176,7 +206,7 @@ import org.geworkbench.bison.datastructure.complex.panels.*;
      * <code>FileFilter</code> that is used by the <code>JFileChoose</code> to
      * show just panel set files on the filesystem
      */
-    private  class MarkerPanelSetFileFilter extends javax.swing.
+    private class MarkerPanelSetFileFilter extends javax.swing.
             filechooser.FileFilter {
         String fileExt;
 
@@ -281,11 +311,12 @@ import org.geworkbench.bison.datastructure.complex.panels.*;
         }
         br.close();
     }
+
     /**
-        * marker_mouseClicked, add the double clicked marker to the
-        * selected_marker list.
-        *
-        * @param e MouseEvent
+     * marker_mouseClicked, add the double clicked marker to the
+     * selected_marker list.
+     *
+     * @param e MouseEvent
      */
 
     public void markerList_mouseClicked(MouseEvent e) {
@@ -296,7 +327,6 @@ import org.geworkbench.bison.datastructure.complex.panels.*;
         }
     }
 
-
     /**
      * List_mouseClicked, move the double clicked marker from the
      * selected_marker list.
@@ -305,7 +335,8 @@ import org.geworkbench.bison.datastructure.complex.panels.*;
      */
     public void List_mouseClicked(MouseEvent e) {
         int index = jList2.locationToIndex(e.getPoint());
-        if (e.getClickCount() == 2) {
+
+        if (index > -1 && e.getClickCount() == 2) {
             String value = (String) selectedModel.getElementAt(index);
             moveMarkers(value);
         }
@@ -321,6 +352,10 @@ import org.geworkbench.bison.datastructure.complex.panels.*;
         if (!markerModel.contains(value)) {
             markerModel.addElement(value);
         }
+        if (highlightedMarkers != null) {
+            highlightedMarkers.remove(value);
+        }
+
         selectedModel.removeElement(value);
         updateLabel();
 
@@ -334,6 +369,7 @@ import org.geworkbench.bison.datastructure.complex.panels.*;
         if (!selectedModel.contains(markerName)) {
             selectedModel.addElement(markerName);
         }
+
         markerModel.removeElement(markerName);
         updateLabel();
     }
@@ -343,6 +379,9 @@ import org.geworkbench.bison.datastructure.complex.panels.*;
      * @param markerName String
      */
     public void removeMarkers(String markerName) {
+        if (highlightedMarkers != null) {
+            highlightedMarkers.remove(markerName);
+        }
 
         selectedModel.removeElement(markerName);
         updateLabel();
@@ -350,7 +389,7 @@ import org.geworkbench.bison.datastructure.complex.panels.*;
     }
 
 
-     void jbInit() throws Exception {
+    void jbInit() throws Exception {
         this.setLayout(xYLayout1);
         markerList = new CSItemList<DSGeneMarker>();
         panel = new CSPanel<DSGeneMarker>();
@@ -404,13 +443,55 @@ import org.geworkbench.bison.datastructure.complex.panels.*;
             }
 
         });
-        jList2.addMouseListener(new java.awt.event.
-                                MouseAdapter() {
-            public void mouseClicked(MouseEvent e) {
-                List_mouseClicked(e);
-            }
 
+        jList2.addMouseListener(new MouseAdapter() {
+            @Override public void mouseReleased(MouseEvent e) {
+                handleMouseEvent(e);
+            }
         });
+        jList2.setCellRenderer(new ListCellRenderer());
+
+        listPopup.add(editItem);
+        listPopup.add(removeItem);
+        listPopup.add(excludeItem);
+        listPopup.addSeparator();
+        listPopup.add(moveAllHighlightsItem);
+        listPopup.add(removeAllHighlightsItem);
+        listPopup.add(clearAllHighlightsItem);
+
+        editItem.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                editItemPressed();
+            }
+        });
+        removeItem.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                removeItemPressed();
+            }
+        });
+        excludeItem.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent e) {
+                        excludeItemPressed();
+                    }
+        });
+
+        clearAllHighlightsItem.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent e) {
+                        clearAllHightlightsPressed();
+                    }
+        });
+        removeAllHighlightsItem.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent e) {
+                        clearAllHightlightsItemPressed();
+                    }
+        });
+        moveAllHighlightsItem.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent e) {
+                        moveAllHightlightsItemPressed();
+                    }
+        });
+
+
 
         jScrollPane2.getViewport().add(jList2);
         jScrollPane1.getViewport().add(jList1);
@@ -433,6 +514,95 @@ import org.geworkbench.bison.datastructure.complex.panels.*;
         updateLabel();
     }
 
+    /**
+     * editItemPressed
+     */
+    public void editItemPressed() {
+        String oldLabel = (String) jList2.getSelectedValue();
+        int selectedIndex = jList2.getSelectedIndex();
+
+        if (oldLabel != null) {
+
+            String label = JOptionPane.showInputDialog("New Label:", oldLabel);
+            if (label != null) {
+                selectedModel.set(selectedIndex, label);
+            }
+        }
+
+    }
+
+    /**
+     * removeItemPressed
+     */
+    public void removeItemPressed() {
+        String oldLabel = (String) jList2.getSelectedValue();
+        if (oldLabel != null) {
+
+            removeMarkers(oldLabel);
+
+        }
+
+    }
+
+    /**
+     * excludeItemPressed
+     */
+    public void excludeItemPressed() {
+        String oldLabel = (String) jList2.getSelectedValue();
+        if (oldLabel != null) {
+
+            addMarkers(oldLabel);
+
+        }
+
+    }
+
+    public void clearAllHightlightsItemPressed(){
+       if(highlightedMarkers!=null){
+           for (Object ob : highlightedMarkers) {
+               selectedModel.removeElement(ob);
+           }
+       }
+       highlightedMarkers.clear();
+    }
+
+    public void clearAllHightlightsPressed(){
+   if(highlightedMarkers!=null){
+        highlightedMarkers.clear();
+        repaint();
+   }
+
+}
+   public void moveAllHightlightsItemPressed(){
+       if(highlightedMarkers!=null){
+               for (Object ob : highlightedMarkers) {
+                   addMarkers((String)ob);
+               }
+           }
+           highlightedMarkers.clear();
+
+   }
+
+
+    /**
+     * Handle mouse event.
+     * @param event MouseEvent
+     */
+    private void handleMouseEvent(MouseEvent event) {
+        int index = jList2.locationToIndex(event.getPoint());
+        if (index != -1) {
+            if (event.getButton() == MouseEvent.BUTTON3) {
+                markerRightClicked(index, event);
+            } else if (event.getButton() == MouseEvent.BUTTON1) {
+                if (event.getClickCount() > 1) {
+                    List_mouseClicked(event);
+                } else {
+                    //elementClicked(index, event);
+                }
+            }
+        }
+    }
+
 
     public void jButton3_actionPerformed(ActionEvent e) {
         saveButtonPressed(null);
@@ -452,7 +622,7 @@ import org.geworkbench.bison.datastructure.complex.panels.*;
      * updateLabel, display the number of Genes listed in each list box.
      */
     public void updateLabel() {
-        jLabel1.setText("Current Selected Genes [" + selectedModel.size() + "]" );
+        jLabel1.setText("Current Selected Genes [" + selectedModel.size() + "]");
         jLabel2.setText("Excluded Genes [" + markerModel.size() + "]   ");
     }
 
@@ -510,6 +680,38 @@ import org.geworkbench.bison.datastructure.complex.panels.*;
 
     }
 
+    static public String getLastDirectory() {
+        String dir = ".";
+        try {
+            File file = new File(USERSETTINGSFILE);
+            if (file.exists()) {
+                BufferedReader br = new BufferedReader(new FileReader(file));
+
+                dir = br.readLine();
+                br.close();
+            }
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+        if (dir == null) {
+            dir = ".";
+        }
+        return dir;
+    }
+
+
+    static public void setLastDirectory(String dir) {
+        try { //save current settings.
+            BufferedWriter br = new BufferedWriter(new FileWriter(
+                    USERSETTINGSFILE));
+            br.write(dir);
+            br.close();
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+    }
+
+
     private void writeObject(java.io.ObjectOutputStream out) throws IOException {
         out.defaultWriteObject();
     }
@@ -519,6 +721,31 @@ import org.geworkbench.bison.datastructure.complex.panels.*;
         in.defaultReadObject();
         revalidate();
     }
+
+    /**
+     * highlightMarkers
+     *
+     * @param nonFoundGenes ArrayList
+     */
+    public void setHighlightedMarkers(Set<String> nonFoundGenes) {
+        highlightedMarkers = nonFoundGenes;
+    }
+
+    private class ListCellRenderer extends DefaultListCellRenderer {
+        @Override public Component getListCellRendererComponent(JList list,
+                Object value, int index, boolean isSelected,
+                boolean cellHasFocus) {
+            Component component = super.getListCellRendererComponent(list,
+                    value, index, isSelected, cellHasFocus);
+            if (!isSelected) {
+                if (highlightedMarkers.contains(selectedModel.get(index))) {
+                    component.setBackground(Color.YELLOW);
+                }
+            }
+            return component;
+        }
+    }
+
 }
 
 
