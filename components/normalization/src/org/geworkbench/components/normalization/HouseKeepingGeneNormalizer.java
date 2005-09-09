@@ -86,12 +86,14 @@ public class HouseKeepingGeneNormalizer extends AbstractAnalysis implements
         if (haveNonExistMarker) {
 
             int choice = JOptionPane.showConfirmDialog(null,
-                                          "Some of the designated genes are not in the dataset. Proceed? \n Genes: " +
-                                          errorMessage.toString(), "Warning", JOptionPane.OK_CANCEL_OPTION);
-    ((HouseKeepingGeneNormalizerPanel) aspp).setHighlightedMarkers(nonFoundGenes);
-    if(choice==2){
-             return new AlgorithmExecutionResults(true, "No errors", input);
-    }
+                    "Some of the designated genes are not in the dataset. Proceed? \n Genes: " +
+                    errorMessage.toString(), "Warning",
+                    JOptionPane.OK_CANCEL_OPTION);
+            ((HouseKeepingGeneNormalizerPanel) aspp).setHighlightedMarkers(
+                    nonFoundGenes);
+            if (choice == 2) {
+                return new AlgorithmExecutionResults(true, "No errors", input);
+            }
         }
         int arrayCount = maSet.size();
         int markerCount = maSet.getMarkers().size();

@@ -37,15 +37,6 @@ import java.awt.Color;
 
 public class HouseKeepingGeneNormalizerPanel extends
         AbstractSaveableParameterPanel implements Serializable {
-    public HouseKeepingGeneNormalizerPanel() {
-        try {
-            jbInit();
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-
-    }
-
 
     JScrollPane jScrollPane1 = new JScrollPane();
     JScrollPane jScrollPane2 = new JScrollPane();
@@ -92,6 +83,16 @@ public class HouseKeepingGeneNormalizerPanel extends
 
     JComboBox jComboBox1 = new JComboBox(new String[] {IGNORE_OPTION,
                                          AVG_OPTION});
+
+    public HouseKeepingGeneNormalizerPanel() {
+       try {
+           jbInit();
+       } catch (Exception ex) {
+           ex.printStackTrace();
+       }
+
+   }
+
     /**
      * saveButtonPressed save the markers in selected marker list to a file.
      *
@@ -232,41 +233,41 @@ public class HouseKeepingGeneNormalizerPanel extends
     }
 
 
-    /**
-     * List Model backed by the marker item list.
-     */
-    private class MarkerListModel extends AbstractListModel {
-
-        public int getSize() {
-            if (markerList == null) {
-                return 0;
-            }
-            return markerList.size();
-        }
-
-        public Object getElementAt(int index) {
-            if (markerList == null) {
-                return null;
-            }
-            return markerList.get(index);
-        }
-
-        public DSGeneMarker getMarker(int index) {
-            return markerList.get(index);
-        }
-
-        /**
-         * Indicates to the associated JList that the contents need to be redrawn.
-         */
-        public void refresh() {
-            if (markerList == null) {
-                fireContentsChanged(this, 0, 0);
-            } else {
-                fireContentsChanged(this, 0, markerList.size());
-            }
-        }
-
-    }
+//    /**
+//     * List Model backed by the marker item list.
+//     */
+//    private class MarkerListModel extends AbstractListModel {
+//
+//        public int getSize() {
+//            if (markerList == null) {
+//                return 0;
+//            }
+//            return markerList.size();
+//        }
+//
+//        public Object getElementAt(int index) {
+//            if (markerList == null) {
+//                return null;
+//            }
+//            return markerList.get(index);
+//        }
+//
+//        public DSGeneMarker getMarker(int index) {
+//            return markerList.get(index);
+//        }
+//
+//        /**
+//         * Indicates to the associated JList that the contents need to be redrawn.
+//         */
+//        public void refresh() {
+//            if (markerList == null) {
+//                fireContentsChanged(this, 0, 0);
+//            } else {
+//                fireContentsChanged(this, 0, markerList.size());
+//            }
+//        }
+//
+//    }
 
 
     /**
@@ -275,7 +276,7 @@ public class HouseKeepingGeneNormalizerPanel extends
      * @param message String
      * @param title String
      */
-    public void reportError(String message, String title) {
+    private void reportError(String message, String title) {
         JOptionPane.showMessageDialog(null, message, title,
                                       JOptionPane.ERROR_MESSAGE);
     }
@@ -289,7 +290,7 @@ public class HouseKeepingGeneNormalizerPanel extends
      * @throws FileNotFoundException
      * @throws IOException
      */
-    void populateList(InputStream input) throws FileNotFoundException,
+    private void populateList(InputStream input) throws FileNotFoundException,
             IOException {
 
         BufferedReader br = null;
@@ -304,7 +305,9 @@ public class HouseKeepingGeneNormalizerPanel extends
             String[] cols = line.split(",");
 
             for (String s : cols) {
-                selectedModel.addElement(s.trim());
+                if (!selectedModel.contains(s)) {
+                    selectedModel.addElement(s.trim());
+                }
             }
 
             markerList.add(new CSGeneMarker(cols[0]));
@@ -319,7 +322,7 @@ public class HouseKeepingGeneNormalizerPanel extends
      * @param e MouseEvent
      */
 
-    public void markerList_mouseClicked(MouseEvent e) {
+    private void markerList_mouseClicked(MouseEvent e) {
         int index = jList1.locationToIndex(e.getPoint());
         if (e.getClickCount() == 2) {
             String value = (String) markerModel.getElementAt(index);
@@ -333,7 +336,7 @@ public class HouseKeepingGeneNormalizerPanel extends
      *
      * @param e MouseEvent
      */
-    public void List_mouseClicked(MouseEvent e) {
+    private void List_mouseClicked(MouseEvent e) {
         int index = jList2.locationToIndex(e.getPoint());
 
         if (index > -1 && e.getClickCount() == 2) {
@@ -348,7 +351,7 @@ public class HouseKeepingGeneNormalizerPanel extends
      *
      * @param value String
      */
-    public void moveMarkers(String value) {
+    private void moveMarkers(String value) {
         if (!markerModel.contains(value)) {
             markerModel.addElement(value);
         }
@@ -365,7 +368,7 @@ public class HouseKeepingGeneNormalizerPanel extends
      * Add one marker into the selected list.
      * @param markerName String
      */
-    public void addMarkers(String markerName) {
+    private void addMarkers(String markerName) {
         if (!selectedModel.contains(markerName)) {
             selectedModel.addElement(markerName);
         }
@@ -378,11 +381,10 @@ public class HouseKeepingGeneNormalizerPanel extends
      * Remove marker from selected list.
      * @param markerName String
      */
-    public void removeMarkers(String markerName) {
+    private void removeMarkers(String markerName) {
         if (highlightedMarkers != null) {
             highlightedMarkers.remove(markerName);
         }
-
         selectedModel.removeElement(markerName);
         updateLabel();
 
@@ -470,28 +472,26 @@ public class HouseKeepingGeneNormalizerPanel extends
             }
         });
         excludeItem.addActionListener(new ActionListener() {
-                    public void actionPerformed(ActionEvent e) {
-                        excludeItemPressed();
-                    }
+            public void actionPerformed(ActionEvent e) {
+                excludeItemPressed();
+            }
         });
 
         clearAllHighlightsItem.addActionListener(new ActionListener() {
-                    public void actionPerformed(ActionEvent e) {
-                        clearAllHightlightsPressed();
-                    }
+            public void actionPerformed(ActionEvent e) {
+                clearAllHightlightsPressed();
+            }
         });
         removeAllHighlightsItem.addActionListener(new ActionListener() {
-                    public void actionPerformed(ActionEvent e) {
-                        clearAllHightlightsItemPressed();
-                    }
+            public void actionPerformed(ActionEvent e) {
+                clearAllHightlightsItemPressed();
+            }
         });
         moveAllHighlightsItem.addActionListener(new ActionListener() {
-                    public void actionPerformed(ActionEvent e) {
-                        moveAllHightlightsItemPressed();
-                    }
+            public void actionPerformed(ActionEvent e) {
+                moveAllHightlightsItemPressed();
+            }
         });
-
-
 
         jScrollPane2.getViewport().add(jList2);
         jScrollPane1.getViewport().add(jList1);
@@ -517,7 +517,7 @@ public class HouseKeepingGeneNormalizerPanel extends
     /**
      * editItemPressed
      */
-    public void editItemPressed() {
+    private void editItemPressed() {
         String oldLabel = (String) jList2.getSelectedValue();
         int selectedIndex = jList2.getSelectedIndex();
 
@@ -534,7 +534,7 @@ public class HouseKeepingGeneNormalizerPanel extends
     /**
      * removeItemPressed
      */
-    public void removeItemPressed() {
+    private void removeItemPressed() {
         String oldLabel = (String) jList2.getSelectedValue();
         if (oldLabel != null) {
 
@@ -547,41 +547,42 @@ public class HouseKeepingGeneNormalizerPanel extends
     /**
      * excludeItemPressed
      */
-    public void excludeItemPressed() {
+    private void excludeItemPressed() {
         String oldLabel = (String) jList2.getSelectedValue();
         if (oldLabel != null) {
 
-            addMarkers(oldLabel);
+            removeMarkers(oldLabel);
 
         }
 
     }
 
-    public void clearAllHightlightsItemPressed(){
-       if(highlightedMarkers!=null){
-           for (Object ob : highlightedMarkers) {
-               selectedModel.removeElement(ob);
-           }
-       }
-       highlightedMarkers.clear();
+    private void clearAllHightlightsItemPressed() {
+        if (highlightedMarkers != null) {
+            for (Object ob : highlightedMarkers) {
+                selectedModel.removeElement(ob);
+            }
+        }
+        highlightedMarkers.clear();
     }
 
-    public void clearAllHightlightsPressed(){
-   if(highlightedMarkers!=null){
+    private void clearAllHightlightsPressed() {
+        if (highlightedMarkers != null) {
+            highlightedMarkers.clear();
+            repaint();
+        }
+
+    }
+
+    private void moveAllHightlightsItemPressed() {
+        if (highlightedMarkers != null) {
+            for (Object ob : highlightedMarkers) {
+                removeMarkers((String) ob);
+            }
+        }
         highlightedMarkers.clear();
-        repaint();
-   }
 
-}
-   public void moveAllHightlightsItemPressed(){
-       if(highlightedMarkers!=null){
-               for (Object ob : highlightedMarkers) {
-                   addMarkers((String)ob);
-               }
-           }
-           highlightedMarkers.clear();
-
-   }
+    }
 
 
     /**
@@ -623,7 +624,7 @@ public class HouseKeepingGeneNormalizerPanel extends
      */
     public void updateLabel() {
         jLabel1.setText("Current Selected Genes [" + selectedModel.size() + "]");
-        jLabel2.setText("Excluded Genes [" + markerModel.size() + "]   ");
+        jLabel2.setText("Excluded Genes [" + markerModel.size() + "]    ");
     }
 
     /**
@@ -737,9 +738,12 @@ public class HouseKeepingGeneNormalizerPanel extends
                 boolean cellHasFocus) {
             Component component = super.getListCellRendererComponent(list,
                     value, index, isSelected, cellHasFocus);
-            if (!isSelected) {
+
                 if (highlightedMarkers.contains(selectedModel.get(index))) {
+                    if (!isSelected) {
                     component.setBackground(Color.YELLOW);
+                }else{
+                    component.setBackground(Color.ORANGE);
                 }
             }
             return component;
