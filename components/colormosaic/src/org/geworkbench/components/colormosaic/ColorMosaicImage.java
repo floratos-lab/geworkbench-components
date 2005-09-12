@@ -106,20 +106,29 @@ public class ColorMosaicImage extends JPanel implements Scrollable {
     private EisenBlock currentCluster = null;
 
     protected int showCluster(Graphics g, EisenBlock cluster, int row) {
+        Rectangle visibleRect = getVisibleRect();
         DSClassCriteria classCriteria = CSCriterionManager.getClassCriteria(microarraySet);
         //        DSPanel<DSMicroarray> criterion = CSCriterionManager.getCriteria(microarraySet).getSelectedCriterion();
         int fontGutter = (int) ((double) geneHeight * .22);
         currentCluster = cluster;
         int geneNo = cluster.getMarkerNo();
         int chipNo = getChipNo();
-        for (int i = 0; i < geneNo; i++) {
+        int startIndex = visibleRect.y / geneHeight - row - 1;
+        int stopIndex = (visibleRect.y + visibleRect.height) / geneHeight - row + 1;
+        if (startIndex < 0) {
+            startIndex = 0;
+        }
+        if (stopIndex > geneNo) {
+            stopIndex = geneNo;
+        }
+        for (int i = startIndex; i < stopIndex; i++) {
             DSGeneMarker stats = cluster.getGeneLabel(i);
             DSGeneMarker mkInfo = microarraySet.getMarkers().get(stats.getSerial());
             org.geworkbench.bison.util.colorcontext.ColorContext colorContext = (ColorContext) microarraySet.getObject(ColorContext.class);
             int y = (row + i) * geneHeight;
-            if (row + i > 500) {
-                return i;
-            }
+//            if (row + i > 500) {
+//                return i;
+//            }
             for (int j = 0; j < chipNo; j++) {
                 DSMicroarray pl = getPhenoLabel(j);
                 if (pl instanceof DSMicroarray) {
