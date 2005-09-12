@@ -41,7 +41,7 @@ public class QuantileNormalizer extends AbstractAnalysis implements NormalizingA
     int markerCount;
 
     public QuantileNormalizer() {
-        analysisType = AbstractAnalysis.LOG_TRANSFORMATION_NORMALIZER_TYPE;
+        analysisType = AbstractAnalysis.QUANTILE_NORMALIZER_TYPE;
         setLabel("Quantile Normalization");
     }
 
