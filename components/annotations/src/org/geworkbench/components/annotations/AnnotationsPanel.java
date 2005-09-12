@@ -18,11 +18,9 @@ import org.jfree.ui.SortableTable;
 import org.jfree.ui.SortableTableModel;
 
 import javax.swing.*;
+import javax.swing.table.DefaultTableCellRenderer;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.awt.event.*;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -91,14 +89,19 @@ public class AnnotationsPanel implements VisualPlugin {
             return 3;
         }
 
+        private String wrapInHTML(String s) {
+//            return "<html><u><font color=\"#0000FF\">" + s + "</font></u></html>";
+            return "<html><a href=\"__noop\">" + s + "</a></html>";
+        }
+
         public Object getValueAt(int rowIndex, int columnIndex) {
             switch (columnIndex) {
                 case COL_MARKER:
                     return markerData[indices[rowIndex]].name;
                 case COL_GENE:
-                    return geneData[indices[rowIndex]].name;
+                    return wrapInHTML(geneData[indices[rowIndex]].name);
                 case COL_PATHWAY:
-                    return pathwayData[indices[rowIndex]].name;
+                    return wrapInHTML(pathwayData[indices[rowIndex]].name);
             }
             return null;
         }
@@ -261,6 +264,26 @@ public class AnnotationsPanel implements VisualPlugin {
                 }
             }
         });
+        table.addMouseMotionListener(new MouseMotionAdapter() {
+            private boolean isHand = false;
+            public void mouseMoved(MouseEvent e) {
+                int column = table.columnAtPoint(e.getPoint());
+                int row = table.rowAtPoint(e.getPoint());
+                if ((column >= 0) && (row >= 0)) {
+                    if ((column == TableModel.COL_GENE) || (column == TableModel.COL_PATHWAY)) {
+                        if (!isHand) {
+                            isHand = true;
+                            table.setCursor(new Cursor(Cursor.HAND_CURSOR));
+                        }
+                    } else {
+                        if (isHand) {
+                            isHand = false;
+                            table.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+                        }
+                    }
+                }
+            }
+        });
         jScrollPane1.getViewport().add(table, null);
     }
 
@@ -324,14 +347,14 @@ public class AnnotationsPanel implements VisualPlugin {
                                         markerData.add(marker);
                                     }
                                 } else {
-                                    pathwayData.add(new PathwayData("(none)", null));
+                                    pathwayData.add(new PathwayData("", null));
                                     geneData.add(gene);
                                     markerData.add(marker);
                                 }
                             }
                             } else {
-                                pathwayData.add(new PathwayData("(none)", null));
-                                geneData.add(new GeneData("(no annotations)", null));
+                                pathwayData.add(new PathwayData("", null));
+                                geneData.add(new GeneData("", null));
                                 markerData.add(marker);
                             }
                         }
