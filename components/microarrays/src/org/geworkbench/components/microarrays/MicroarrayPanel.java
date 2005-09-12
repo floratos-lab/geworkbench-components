@@ -45,7 +45,7 @@ public class MicroarrayPanel extends MicroarrayVisualizer implements VisualPlugi
     Component jSpacer;
     JCheckBox jEnabledBox = new JCheckBox();
     JCheckBox jShowAllMArrays = new JCheckBox();
-    JTextField jMALabel = new JTextField(10) {
+    JTextField jMALabel = new JTextField(20) {
         @Override public Dimension getMaximumSize() {
             return getPreferredSize();
         }
