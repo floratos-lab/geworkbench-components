@@ -1021,16 +1021,21 @@ public class GenePanel implements VisualPlugin {
     @Subscribe(Overflow.class) public void receive(org.geworkbench.events.SubpanelChangedEvent spe, Object source) {
         DSPanel<DSGeneMarker> receivedPanel = spe.getPanel();
         switch (spe.getMode()) {
-            case SubpanelChangedEvent.NEW:
-                {
-                    if (!markerPanel.panels().contains(receivedPanel)) {
-                        addPanel(receivedPanel);
-                        break;
-                    } else {
-                        // Fall through to append
-                        // todo: consider renaming the panel instead so as to avoid overwrites
+            case SubpanelChangedEvent.NEW: {
+                String panelName = receivedPanel.getLabel();
+                if (markerPanel.panels().contains(receivedPanel)) {
+                    int number = 1;
+                    String newName = panelName + " (" + number + ")";
+                    receivedPanel.setLabel(newName);
+                    while (markerPanel.panels().contains(receivedPanel)) {
+                        number++;
+                        newName = panelName + " (" + number + ")";
+                        receivedPanel.setLabel(newName);
                     }
                 }
+                addPanel(receivedPanel);
+                break;
+            }
             case SubpanelChangedEvent.SET_CONTENTS:
                 {
                     boolean foundPanel = false;
