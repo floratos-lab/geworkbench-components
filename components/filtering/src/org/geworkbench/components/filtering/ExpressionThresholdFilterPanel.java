@@ -7,6 +7,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.io.IOException;
 import java.io.Serializable;
+import java.text.NumberFormat;
 
 /**
  * <p>Copyright: Copyright (c) 2003</p>
@@ -25,7 +26,7 @@ public class ExpressionThresholdFilterPanel extends AbstractSaveableParameterPan
     private JLabel rangeMaxLabel = new JLabel("Range Max");
     private JLabel rangeOptionLabel = new JLabel("Filter values");
     private JFormattedTextField rangeMinValue = new JFormattedTextField();
-    private JFormattedTextField rangeMaxValue = new JFormattedTextField();
+    private JFormattedTextField rangeMaxValue = new JFormattedTextField(NumberFormat.getNumberInstance());
     private JComboBox optionSelection = new JComboBox(new String[]{INSIDE_RANGE, OUTSIDE_RANGE});
     private GridLayout gridLayout1 = new GridLayout();
 
@@ -55,9 +56,9 @@ public class ExpressionThresholdFilterPanel extends AbstractSaveableParameterPan
         container.setPreferredSize(new Dimension(250, 80));
         this.add(container);
         rangeMinValue.setValue(new Double(0.0));
-        rangeMinValue.setFocusLostBehavior(JFormattedTextField.COMMIT);
+        rangeMinValue.setFocusLostBehavior(JFormattedTextField.COMMIT_OR_REVERT);
         rangeMaxValue.setValue(new Double(0.0));
-        rangeMaxValue.setFocusLostBehavior(JFormattedTextField.COMMIT);
+        rangeMaxValue.setFocusLostBehavior(JFormattedTextField.COMMIT_OR_REVERT);
     }
 
     /**
