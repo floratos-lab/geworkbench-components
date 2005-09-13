@@ -2,7 +2,6 @@ package org.geworkbench.components.selectors;
 
 import org.geworkbench.events.ProjectEvent;
 import org.geworkbench.events.SingleMicroarrayEvent;
-import org.geworkbench.events.PhenotypeSelectedEvent;
 import org.geworkbench.events.PhenotypeSelectorEvent;
 import org.geworkbench.builtin.projects.ProjectPanel;
 import org.geworkbench.builtin.projects.ProjectSelection;
@@ -247,7 +246,7 @@ public class PropertyTagSelectorPanel implements VisualPlugin, MenuListener {
         jClearItem.setText("Clear Selection");
         listener = new java.awt.event.ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                jMenuItem1_actionPerformed(e);
+                jClearItem_actionPerformed(e);
             }
         };
 
@@ -738,8 +737,16 @@ public class PropertyTagSelectorPanel implements VisualPlugin, MenuListener {
         }
     }
 
-    void jMenuItem1_actionPerformed(ActionEvent e) {
+    void jClearItem_actionPerformed(ActionEvent e) {
         selectedCriterion.getSelection().clear();
+        DefaultTreeModel model = ((DefaultTreeModel)jCriterionTree.getModel());
+        MutableTreeNode node = (MutableTreeNode)model.getChild(model.getRoot(), 0);
+        int n = node.getChildCount();
+        for (int i = 0; i < n; i++) {
+            node.remove(0);
+        }
+        model.nodeStructureChanged(node);
+        jCriterionTree.repaint();
         panelModified();
     }
 
