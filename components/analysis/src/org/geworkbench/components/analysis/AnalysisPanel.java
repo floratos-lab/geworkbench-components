@@ -434,6 +434,8 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements VisualPlug
             JOptionPane.showMessageDialog(null, pvr.getMessage(), "Parameter Validation Error", JOptionPane.ERROR_MESSAGE);
         } else {
             analyze.setEnabled(false);
+            maSetView.useMarkerPanel(activateMarkers);
+            maSetView.useItemPanel(activateArrays);
             Thread t = new Thread(new Runnable() {
                 public void run() {
                     results = selectedAnalysis.execute(maSetView);
