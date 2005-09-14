@@ -82,15 +82,15 @@ public class HouseKeepingGeneNormalizer extends AbstractAnalysis implements
             //ratioArray = getRatioArrary(maSet, markerPanel, BASEARRAY);
             ratioArray = getHouseKeepingGenesValue(maSet, markerPanel);
         }
-
+        ((HouseKeepingGeneNormalizerPanel) aspp).setHighlightedMarkers(
+                    nonFoundGenes);
         if (haveNonExistMarker) {
 
             int choice = JOptionPane.showConfirmDialog(null,
-                    "Some of the designated genes are not in the dataset. Proceed? \n Genes: " +
-                    errorMessage.toString(), "Warning",
+                    "Some of the designated genes are not in the dataset. Proceed?  ",
+                    "Warning",
                     JOptionPane.OK_CANCEL_OPTION);
-            ((HouseKeepingGeneNormalizerPanel) aspp).setHighlightedMarkers(
-                    nonFoundGenes);
+
             if (choice == 2) {
                 return new AlgorithmExecutionResults(true, "No errors", input);
             }

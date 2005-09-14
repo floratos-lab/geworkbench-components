@@ -1,6 +1,6 @@
 package org.geworkbench.components.normalization;
 
-import java.awt.BorderLayout;
+import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
 import java.util.*;
@@ -11,12 +11,10 @@ import javax.swing.tree.TreePath;
 
 import com.borland.jbcl.layout.XYConstraints;
 import com.borland.jbcl.layout.XYLayout;
-import org.geworkbench.analysis.AbstractSaveableParameterPanel;
 import org.geworkbench.bison.datastructure.bioobjects.markers.CSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.complex.panels.*;
-import java.awt.Component;
-import java.awt.Color;
+import org.geworkbench.analysis.AbstractSaveableParameterPanel;
 
 /**
  * <p>Title: </p>
@@ -34,7 +32,7 @@ import java.awt.Color;
 /**
  * Parameters panel for the <code>HouseKeepingGeneNormalizer</code>..
  */
-
+//AbstractSaveableParameterPanel
 public class HouseKeepingGeneNormalizerPanel extends
         AbstractSaveableParameterPanel implements Serializable {
 
@@ -74,24 +72,28 @@ public class HouseKeepingGeneNormalizerPanel extends
     private JMenuItem removeAllHighlightsItem = new JMenuItem(
             "Delete Highlighted");
     private JMenuItem moveAllHighlightsItem = new JMenuItem(
-            "Move Hightlighted to Excluded List");
+            "Excluded Hightlighted");
     private Set<String> highlightedMarkers = new TreeSet<String>();
     final String AVG_OPTION = "Microarray Average";
     final String IGNORE_OPTION = "Ignore";
     static String lastDirString = ".";
     static final String USERSETTINGSFILE = "userSettings.txt";
+    private int currentHighlightedIndex = -1;
 
     JComboBox jComboBox1 = new JComboBox(new String[] {IGNORE_OPTION,
                                          AVG_OPTION});
-
+    JPanel jPanel5 = new JPanel();
+    JButton moveToAboveButton = new JButton();
+    JButton moveNextButton = new JButton();
+    JPanel jPanel6 = new JPanel();
     public HouseKeepingGeneNormalizerPanel() {
-       try {
-           jbInit();
-       } catch (Exception ex) {
-           ex.printStackTrace();
-       }
+        try {
+            jbInit();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
 
-   }
+    }
 
     /**
      * saveButtonPressed save the markers in selected marker list to a file.
@@ -262,20 +264,24 @@ public class HouseKeepingGeneNormalizerPanel extends
 
         HashMap factors = new HashMap();
         String line = null;
-
+        Set<String> treeSet = new TreeSet<String>();
         while ((line = br.readLine()) != null) {
 
             String[] cols = line.split(",");
 
             for (String s : cols) {
-                if (!selectedModel.contains(s)) {
-                    selectedModel.addElement(s.trim());
-                }
+                treeSet.add(s);
             }
 
-            markerList.add(new CSGeneMarker(cols[0]));
+            // markerList.add(new CSGeneMarker(cols[0]));
         }
         br.close();
+        for (String s : treeSet) {
+            if (!selectedModel.contains(s)) {
+                selectedModel.addElement(s.trim());
+            }
+        }
+
     }
 
     /**
@@ -390,6 +396,22 @@ public class HouseKeepingGeneNormalizerPanel extends
         });
         jLabel3.setText("Missing Values");
         jComboBox1.setToolTipText("");
+        moveToAboveButton.setToolTipText("Previous highlighted marker");
+        moveToAboveButton.setText("^");
+        moveToAboveButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                moveToAboveButton_actionPerformed(e);
+            }
+        });
+
+        moveNextButton.setToolTipText("Next highlighted marker");
+        moveNextButton.setText("v");
+        moveNextButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                moveNextButton_actionPerformed(e);
+            }
+        });
+        jPanel6.setPreferredSize(new Dimension(10, 70));
         jPanel1.add(jButton1);
         jPanel1.add(jButton2);
         jPanel1.add(jButton5);
@@ -420,8 +442,8 @@ public class HouseKeepingGeneNormalizerPanel extends
         listPopup.add(removeItem);
         //listPopup.add(excludeItem);
         listPopup.addSeparator();
-         listPopup.add(moveAllHighlightsItem);
-         listPopup.add(removeAllHighlightsItem);
+        listPopup.add(moveAllHighlightsItem);
+        listPopup.add(removeAllHighlightsItem);
         listPopup.add(clearHightlights);
 
         editItem.addActionListener(new ActionListener() {
@@ -466,14 +488,19 @@ public class HouseKeepingGeneNormalizerPanel extends
         jPanel3.add(jPanel1, new XYConstraints(90, 3, 71, 137));
         jPanel3.add(jScrollPane2, new XYConstraints(165, 3, 91, 137));
         jPanel3.add(jScrollPane1, new XYConstraints(2, 3, 86, 137));
+        jPanel3.add(jPanel5, new XYConstraints(313, 7, 41, 132));
+        jPanel5.setVisible(false);
+        jPanel5.add(moveToAboveButton);
+        jPanel5.add(jPanel6);
+        jPanel5.add(moveNextButton);
         this.add(jPanel4, new XYConstraints(0, 0, 279, 27));
         this.add(jPanel2, new XYConstraints(0, 168, 279, 21));
-        this.add(jPanel3, new XYConstraints(0, 28, 279, -1));
-        InputStream input = HouseKeepingGeneNormalizer.class.
-                            getResourceAsStream(
-                                    "DEFAULT_HOUSEKEEPING_GENES.txt");
-
-        populateList(input);
+        this.add(jPanel3, new XYConstraints(0, 28, 357, -1));
+//        InputStream input = HouseKeepingGeneNormalizer.class.
+//                            getResourceAsStream(
+//                                    "DEFAULT_HOUSEKEEPING_GENES.txt");
+//
+//        populateList(input);
         updateLabel();
     }
 
@@ -486,7 +513,8 @@ public class HouseKeepingGeneNormalizerPanel extends
 
         if (oldLabel != null) {
 
-            String label = JOptionPane.showInputDialog("New Label:", oldLabel);
+            String label = JOptionPane.showInputDialog("New Marker Name:",
+                    oldLabel);
             if (label != null) {
                 selectedModel.set(selectedIndex, label);
             }
@@ -498,11 +526,11 @@ public class HouseKeepingGeneNormalizerPanel extends
      * removeItemPressed
      */
     private void removeItemPressed() {
-        Object[] oldLabels =   jList2.getSelectedValues();
-        for(Object oldLabel: oldLabels){
+        Object[] oldLabels = jList2.getSelectedValues();
+        for (Object oldLabel : oldLabels) {
             if (oldLabel != null) {
 
-                removeMarker((String)oldLabel);
+                removeMarker((String) oldLabel);
 
             }
         }
@@ -512,19 +540,19 @@ public class HouseKeepingGeneNormalizerPanel extends
      * excludeItemPressed
      */
     private void excludeItemPressed() {
-        Object[] oldLabels =   jList2.getSelectedValues();
-        for(Object oldLabel: oldLabels){
+        Object[] oldLabels = jList2.getSelectedValues();
+        for (Object oldLabel : oldLabels) {
             if (oldLabel != null) {
 
-                moveMarker((String)oldLabel);
+                moveMarker((String) oldLabel);
 
             }
         }
     }
 
     private void clearHightlightsPressed() {
-        Object[] oldLabels =   jList2.getSelectedValues();
-        for(Object oldLabel: oldLabels){
+        Object[] oldLabels = jList2.getSelectedValues();
+        for (Object oldLabel : oldLabels) {
             if (oldLabel != null) {
 
                 highlightedMarkers.remove(oldLabel);
@@ -532,13 +560,16 @@ public class HouseKeepingGeneNormalizerPanel extends
             }
         }
     }
+
     private void clearAllHightlightsItemPressed() {
         if (highlightedMarkers != null) {
             for (Object ob : highlightedMarkers) {
                 selectedModel.removeElement(ob);
+
             }
         }
         highlightedMarkers.clear();
+        updateLabel();
     }
 
     private void clearAllHightlightsPressed() {
@@ -552,10 +583,13 @@ public class HouseKeepingGeneNormalizerPanel extends
     private void moveAllHightlightsItemPressed() {
         if (highlightedMarkers != null) {
             for (Object ob : highlightedMarkers) {
-                removeMarker((String) ob);
+                selectedModel.removeElement(ob);
+                markerModel.addElement(ob);
             }
         }
         highlightedMarkers.clear();
+
+        updateLabel();
 
     }
 
@@ -600,6 +634,9 @@ public class HouseKeepingGeneNormalizerPanel extends
     public void updateLabel() {
         jLabel1.setText("Current Selected Genes [" + selectedModel.size() + "]");
         jLabel2.setText("Excluded Genes [" + markerModel.size() + "]    ");
+        if (highlightedMarkers.isEmpty()) {
+            jPanel5.setVisible(false);
+        }
     }
 
     /**
@@ -708,8 +745,60 @@ public class HouseKeepingGeneNormalizerPanel extends
      * @param nonFoundGenes ArrayList
      */
     public void setHighlightedMarkers(Set<String> nonFoundGenes) {
-        highlightedMarkers = nonFoundGenes;
+        if (nonFoundGenes != null) {
+            highlightedMarkers = nonFoundGenes;
+        }
+        if (nonFoundGenes.size() > 1) {
+
+            addnewMovePanel();
+        } else {
+            jPanel5.setVisible(false);
+            repaint();
+        }
+
+        if (highlightedMarkers.size() > 1) {
+            addnewMovePanel();
+        } else {
+            //this.getContentPane().remove(jPanel5);
+
+        }
     }
+
+    /**Add two buttons for browsing highlighted markers.
+     * addnewMovePanel
+     */
+    private void addnewMovePanel() {
+        //jPanel3.add(jPanel5, new XYConstraints(313, 7, 41, 132));
+        jPanel5.setVisible(true);
+        String currentMarker = (String) ((TreeSet) highlightedMarkers).first();
+        jList2.setSelectedValue(currentMarker, true);
+        currentHighlightedIndex = selectedModel.indexOf(currentMarker);
+        revalidate();
+        repaint();
+    }
+
+    public void moveToAboveButton_actionPerformed(ActionEvent e) {
+        for (int i = currentHighlightedIndex - 1; i >= 0; i--) {
+            if (highlightedMarkers.contains(selectedModel.elementAt(i))) {
+                jList2.setSelectedValue(selectedModel.elementAt(i), true);
+                currentHighlightedIndex = i;
+                break;
+            }
+        }
+
+    }
+
+    public void moveNextButton_actionPerformed(ActionEvent e) {
+        for (int i = currentHighlightedIndex + 1; i < selectedModel.size(); i++) {
+            if (highlightedMarkers.contains(selectedModel.elementAt(i))) {
+                jList2.setSelectedValue(selectedModel.elementAt(i), true);
+                currentHighlightedIndex = i;
+                this.repaint();
+                break;
+            }
+        }
+    }
+
 
     private class ListCellRenderer extends DefaultListCellRenderer {
         @Override public Component getListCellRendererComponent(JList list,
@@ -718,10 +807,10 @@ public class HouseKeepingGeneNormalizerPanel extends
             Component component = super.getListCellRendererComponent(list,
                     value, index, isSelected, cellHasFocus);
 
-                if (highlightedMarkers.contains(selectedModel.get(index))) {
-                    if (!isSelected) {
+            if (highlightedMarkers.contains(selectedModel.get(index))) {
+                if (!isSelected) {
                     component.setBackground(Color.YELLOW);
-                }else{
+                } else {
                     component.setBackground(Color.ORANGE);
                 }
             }
