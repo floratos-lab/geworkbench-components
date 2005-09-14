@@ -78,6 +78,9 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
     private JCheckBox jAllMarkers = new JCheckBox();
     private HashMap listeners = new HashMap();
 
+    private static final int GENE_HEIGHT = 10;
+    private static final int GENE_WIDTH = 20;
+
     public ColorMosaicPanel() {
         try {
             jbInit();
@@ -272,6 +275,8 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
         colorMosaicImage.setPrintRatio(jTogglePrintRatio.isSelected());
         colorMosaicImage.setPrintAccession(jTogglePrintAccession.isSelected());
         colorMosaicImage.setPrintDescription(jTogglePrintDescription.isSelected());
+//        colorMosaicImage = makeBlankColorMosaicImage(GENE_HEIGHT, GENE_WIDTH, jTogglePrintRatio.isSelected(),
+//                jTogglePrintAccession.isSelected(), jTogglePrintDescription.isSelected());
     }
 
     public void revalidate() {
@@ -284,6 +289,17 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
             colRuler.revalidate();
             colRuler.repaint();
         }
+    }
+
+    private void resetColorMosaicImage(int geneHeight, int geneWidth,
+                                                       boolean printRatio, boolean printAccession, boolean printDesc) {
+        colorMosaicImage.setGeneHeight(geneHeight);
+        colorMosaicImage.setGeneWidth(geneWidth);
+        colorMosaicImage.setPrintRatio(printRatio);
+        colorMosaicImage.setPrintAccession(printAccession);
+        colorMosaicImage.setPrintRatio(printRatio);
+        colorMosaicImage.setMarkerPanel(null);
+        colorMosaicImage.setPanel(null);
     }
 
     public void notifyPatternSelection(CSMatchedMatrixPattern[] selectedPatterns) {
@@ -464,8 +480,10 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
     }
 
     @Subscribe public void receive(ProjectEvent projectEvent, Object source) {
-            ProjectSelection selection = ((ProjectPanel) source).getSelection();
-            DSDataSet dataFile = selection.getDataSet();
+        ProjectSelection selection = ((ProjectPanel) source).getSelection();
+        DSDataSet dataFile = selection.getDataSet();
+
+        if (dataFile != null) {
             if (dataFile instanceof DSMicroarraySet) {
                 DSMicroarraySet set = (DSMicroarraySet) dataFile;
                 if (set != null) {
@@ -474,6 +492,14 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
                     }
                 }
             }
+        } else {
+            jToggleButton2.setSelected(false);
+            jHideMaskedBtn.setSelected(false);
+            resetColorMosaicImage(GENE_HEIGHT, GENE_WIDTH, jTogglePrintRatio.isSelected(),
+                    jTogglePrintAccession.isSelected(), jTogglePrintDescription.isSelected());
+            colorMosaicImage.repaint();
+            mainPanel.repaint();
+        }
     }
 
     public ActionListener getActionListener(String key) {

@@ -469,14 +469,8 @@ public class ScatterPlot implements VisualPlugin {
         mainPanel.add(westPanel);
         tabbedPane = new JTabbedPane();
         westPanel.add(tabbedPane, BorderLayout.CENTER);
-        microarrayList = new MicroarrayAutoList();
-        microarrayList.getList().setCellRenderer(new CellRenderer());
-        microarrayList.getList().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        microarrayList.getList().setFixedCellWidth(250);
-        markerList = new MarkerAutoList();
-        markerList.getList().setCellRenderer(new CellRenderer());
-        markerList.getList().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        markerList.getList().setFixedCellWidth(250);
+        makeDefaultMicroArrayList();
+        makeDefaultMarkerList();
         tabbedPane.add("Array", microarrayList);
         tabbedPane.add("Marker", markerList);
         JPanel checkboxPanel = new JPanel();
@@ -687,6 +681,20 @@ public class ScatterPlot implements VisualPlugin {
         });
         // Initialize chart panel
         packChartPanel(PlotType.ARRAY);
+    }
+
+    private void makeDefaultMarkerList() {
+        markerList = new MarkerAutoList();
+        markerList.getList().setCellRenderer(new CellRenderer());
+        markerList.getList().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        markerList.getList().setFixedCellWidth(250);
+    }
+
+    private void makeDefaultMicroArrayList() {
+        microarrayList = new MicroarrayAutoList();
+        microarrayList.getList().setCellRenderer(new CellRenderer());
+        microarrayList.getList().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        microarrayList.getList().setFixedCellWidth(250);
     }
 
     private void slopeFieldChanged() {
@@ -1010,7 +1018,12 @@ public class ScatterPlot implements VisualPlugin {
     @Subscribe public void receive(ProjectEvent e, Object source) {
         boolean doClear = true;
         if (e.getMessage().equals(org.geworkbench.events.ProjectEvent.CLEARED)) {
-            dataSetView.setMicroarraySet(null);
+            dataSetView = new CSMicroarraySetView<DSGeneMarker, DSMicroarray>();
+            markerModel.refresh();
+            microarrayModel.refresh();
+//            makeDefaultMarkerList();
+//            makeDefaultMicroArrayList();
+//            tabbedPane.invalidate();
         } else {
             ProjectSelection selection = ((ProjectPanel) source).getSelection();
             DSDataSet dataFile = selection.getDataSet();
@@ -1023,7 +1036,9 @@ public class ScatterPlot implements VisualPlugin {
                     doClear = false;
                 }
             } else {
-                dataSetView.setMicroarraySet(null);
+                dataSetView = new CSMicroarraySetView<DSGeneMarker, DSMicroarray>();
+                markerModel.refresh();
+                microarrayModel.refresh();
             }
         }
         if (doClear) {

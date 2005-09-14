@@ -485,7 +485,15 @@ public class AnnotationsPanel implements VisualPlugin {
     @Subscribe
     public void receive(ProjectEvent e, Object source) {
         DSDataSet data = e.getDataSet();
-        if (data != null && data instanceof DSMicroarraySet)
+        if (data != null && data instanceof DSMicroarraySet) {
             maSet = (DSMicroarraySet) data;
+        } else {
+            // Clear data
+            maSet = null;
+            selectedMarkerInfo = null;
+            model = new TableModel();
+            jScrollPane1.getViewport().remove(table);
+            jScrollPane1.invalidate();
+        }
     }
 }
