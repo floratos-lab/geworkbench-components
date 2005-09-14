@@ -306,7 +306,7 @@ public class SequenceRetriever implements VisualPlugin {
     }
 
     private void getSequences(DSGeneMarker marker) {
-        CSSequence[] seqs = org.geworkbench.util.PromoterSequenceFetcher.getPromoterSequence(marker, Integer.parseInt(this.beforeText.getText()), Integer.parseInt(this.afterText.getText()));
+        CSSequence[] seqs = org.geworkbench.components.sequenceretriever.PromoterSequenceFetcher.getPromoterSequence(marker, Integer.parseInt(this.beforeText.getText()), Integer.parseInt(this.afterText.getText()));
 
         if (seqs != null && seqs.length > 0) {
             for (int j = 0; j < seqs.length; j++) {
