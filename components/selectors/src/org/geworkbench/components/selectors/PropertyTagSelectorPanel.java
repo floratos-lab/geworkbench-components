@@ -544,7 +544,7 @@ public class PropertyTagSelectorPanel implements VisualPlugin, MenuListener {
     }
 
     void jList1_mouseReleased(MouseEvent e) {
-        if (e.getButton() == MouseEvent.BUTTON3) {
+        if (e.isMetaDown()) {
             int index = itemList.locationToIndex(new Point(e.getX(), e.getY()));
             if (!isListItemSelected(index)) {
                 itemList.setSelectedIndex(index);
@@ -589,7 +589,7 @@ public class PropertyTagSelectorPanel implements VisualPlugin, MenuListener {
                 } else if (obj instanceof DSMicroarray) {
                     selectedMicroarray = (DSMicroarray) obj;
                 }
-                if (e.getButton() == MouseEvent.BUTTON3) {
+                if (e.isMetaDown()) {
                     if (!isPathSelected(selectedPath)) {
                         jCriterionTree.setSelectionPath(selectedPath);
                     }

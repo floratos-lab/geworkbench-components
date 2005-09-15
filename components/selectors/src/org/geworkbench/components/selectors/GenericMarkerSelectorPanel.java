@@ -1,7 +1,5 @@
 package org.geworkbench.components.selectors;
 
-import com.borland.jbcl.layout.PaneConstraints;
-import com.borland.jbcl.layout.PaneLayout;
 import org.geworkbench.events.GeneSelectorEvent;
 import org.geworkbench.events.MarkerSelectedEvent;
 import org.geworkbench.events.SubpanelChangedEvent;
@@ -160,7 +158,7 @@ public class GenericMarkerSelectorPanel implements VisualPlugin, MenuListener {
     JPanel jPanel2 = new JPanel();
     JSplitPane jSplitPane1 = new JSplitPane();
     GridBagLayout gridBagLayout2 = new GridBagLayout();
-    PaneLayout paneLayout1 = new PaneLayout();
+
     JButton btnLoadList = new JButton();
     Component component2 = Box.createHorizontalStrut(8);
 
@@ -333,7 +331,7 @@ public class GenericMarkerSelectorPanel implements VisualPlugin, MenuListener {
         jSplitPane1.setOrientation(JSplitPane.VERTICAL_SPLIT);
         jSplitPane1.setDividerSize(3);
         jSplitPane1.setResizeWeight(0.5);
-        jPanel2.setLayout(paneLayout1);
+        jPanel2.setLayout(new BoxLayout(jPanel2,BoxLayout.X_AXIS));
         btnLoadList.setPreferredSize(new Dimension(60, 24));
         btnLoadList.setText("Load List");
         btnLoadList.addActionListener(new ActionListener() {
@@ -383,8 +381,8 @@ public class GenericMarkerSelectorPanel implements VisualPlugin, MenuListener {
 
         jGenePopup.add(viewPathway1);
         jPanelMenu.add(viewPathway);
-        jPanel2.add(jToggleButton1, new PaneConstraints("jToggleButton1", "jToggleButton1", PaneConstraints.ROOT, 1.0F));
-        jPanel2.add(markerBox, new PaneConstraints("markerBox", "jToggleButton1", PaneConstraints.RIGHT, 0.7975F));
+        jPanel2.add(jToggleButton1);
+        jPanel2.add(markerBox);
     }
 
     public void notifyMAChange(DSDataSet ds) {

@@ -1,6 +1,5 @@
 package org.geworkbench.components.alignment.grid;
 
-import com.borland.jbcl.layout.VerticalFlowLayout;
 
 import javax.swing.*;
 import javax.swing.border.Border;
@@ -11,6 +10,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.KeyEvent;
+
 
 
 /**
@@ -34,11 +34,9 @@ class ServiceDialog extends JDialog {
     JPanel jPanel1 = new JPanel();
     JButton cancelButton = new JButton();
     JButton connectButton = new JButton();
-    VerticalFlowLayout verticalFlowLayout1 = new VerticalFlowLayout();
     JPanel jPanel2 = new JPanel();
     Border border4;
     JPanel jPanel3 = new JPanel();
-    VerticalFlowLayout verticalFlowLayout2 = new VerticalFlowLayout();
     Border border5;
     TitledBorder titledBorder2;
     Border border6;
@@ -60,6 +58,10 @@ class ServiceDialog extends JDialog {
     Border border9;
     JComboBox serviceName = new JComboBox();
     GridBagLayout gridBagLayout1 = new GridBagLayout();
+    BorderLayout borderLayout3 = new BorderLayout();
+    GridLayout gridLayout1 = new GridLayout();
+    BorderLayout borderLayout4 = new BorderLayout();
+    BoxLayout boxLayout21;
 
     public ServiceDialog(Frame frame, String title, ServiceDataModel model, boolean modal) {
         super(frame, title, modal);
@@ -114,21 +116,13 @@ class ServiceDialog extends JDialog {
         connectButton.addActionListener(new ServiceDialog_connectButton_actionAdapter(this));
         connectButton.addKeyListener(keyAdapter);
         connectButton.addActionListener(new ServiceDialog_connectButton_actionAdapter(this));
-        jPanel2.setLayout(verticalFlowLayout1);
-        jPanel3.setLayout(verticalFlowLayout2);
+        boxLayout21 = new BoxLayout(jPanel2, BoxLayout.Y_AXIS);
+        jPanel2.setLayout(boxLayout21);
+        jPanel3.setLayout(borderLayout3);
         jPanel2.setBackground(UIManager.getColor("Menu.background"));
         jPanel2.setBorder(border7);
         jPanel3.setMinimumSize(new Dimension(600, 230));
         jPanel3.setPreferredSize(new Dimension(600, 230));
-        verticalFlowLayout1.setAlignment(VerticalFlowLayout.BOTTOM);
-        verticalFlowLayout1.setVgap(0);
-        verticalFlowLayout1.setHorizontalFill(true);
-        verticalFlowLayout1.setVerticalFill(false);
-        verticalFlowLayout2.setAlignment(VerticalFlowLayout.TOP);
-        verticalFlowLayout2.setHgap(5);
-        verticalFlowLayout2.setVgap(5);
-        verticalFlowLayout2.setHorizontalFill(true);
-        verticalFlowLayout2.setVerticalFill(true);
         jPanel5.setLayout(borderLayout1);
         jPanel4.setEnabled(true);
         jPanel4.setFont(new java.awt.Font("MS Sans Serif", 0, 11));
@@ -138,16 +132,17 @@ class ServiceDialog extends JDialog {
         jPanel4.setLayout(gridBagLayout1);
         serviceL.setText("Server Name:");
         jPanel5.setBorder(border9);
+
         jPanel4.add(serviceL, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 2, 0, 0), 0, 0));
         jPanel4.add(serviceName, new GridBagConstraints(1, 0, 1, 1, 1.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(0, 12, 0, 1), 174, 4));
-        jPanel3.add(jPanel4, null);
-        jPanel3.add(jPanel5, null);
         jPanel5.add(loginPanel, BorderLayout.CENTER);
         jPanel1.add(jPanel2, new GridBagConstraints(2, 1, 1, 1, 0.0, 1.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
-        jPanel2.add(connectButton, null);
-        jPanel2.add(cancelButton, null);
         jPanel1.add(jPanel3, new GridBagConstraints(1, 1, 1, 1, 1.0, 1.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 2, 0), 0, 0));
         this.getContentPane().add(jPanel1, BorderLayout.CENTER);
+        jPanel3.add(jPanel4, java.awt.BorderLayout.NORTH);
+        jPanel3.add(jPanel5, java.awt.BorderLayout.CENTER);
+        jPanel2.add(connectButton, null);
+        jPanel2.add(cancelButton, null);
     }
 
     /**

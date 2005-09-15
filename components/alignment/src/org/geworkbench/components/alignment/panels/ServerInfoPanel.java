@@ -1,6 +1,6 @@
 package org.geworkbench.components.alignment.panels;
 
-import com.borland.jbcl.layout.VerticalFlowLayout;
+
 import org.geworkbench.components.alignment.client.BlastDataSet;
 import org.geworkbench.util.session.SoapClient;
 import org.geworkbench.events.ProjectNodeAddedEvent;
@@ -17,6 +17,7 @@ import java.io.PrintWriter;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.StringTokenizer;
+
 
 /**
  * <p>Title: Sequence and Pattern Plugin</p>
@@ -51,7 +52,7 @@ public class ServerInfoPanel extends JPanel {
     JButton Refresh = new JButton();
     BorderLayout borderLayout2 = new BorderLayout();
     JTextField jTextField1 = new JTextField();
-    VerticalFlowLayout verticalFlowLayout1 = new VerticalFlowLayout();
+    BoxLayout boxLayout21;
 
     public ServerInfoPanel() {
         try {
@@ -67,7 +68,8 @@ public class ServerInfoPanel extends JPanel {
         this.setOpaque(true);
         this.addAncestorListener(new ServerInfoPanel_this_ancestorAdapter(this));
         this.setLayout(borderLayout2);
-        jPanel2.setLayout(verticalFlowLayout1);
+        boxLayout21 = new BoxLayout(jPanel2, BoxLayout.Y_AXIS);
+        jPanel2.setLayout(boxLayout21);
         jPanel3.setLayout(gridBagLayout1);
         jTotalProcessorLabel.setIconTextGap(3);
         jTotalProcessorLabel.setText("Total Processors:");
@@ -96,6 +98,7 @@ public class ServerInfoPanel extends JPanel {
         jAvailProcessorTextField.setFont(new java.awt.Font("Dialog", 0, 12));
         jqueuedTextField.setFont(new java.awt.Font("Dialog", 0, 12));
         jPanel2.setDebugGraphicsOptions(0);
+
         this.add(jPanel2, BorderLayout.CENTER);
         jPanel3.add(jQueueJobLabel, new GridBagConstraints(0, 4, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(2, 2, 2, 2), 0, 0));
         jPanel3.add(jCurrentAvailProcessorLabel, new GridBagConstraints(0, 3, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(2, 2, 2, 2), 0, 0));

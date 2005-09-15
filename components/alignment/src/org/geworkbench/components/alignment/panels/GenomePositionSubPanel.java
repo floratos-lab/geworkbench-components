@@ -6,7 +6,7 @@ import java.awt.Color;
 import java.awt.GridBagConstraints;
 import java.awt.Insets;
 import java.awt.*;
-import com.borland.jbcl.layout.VerticalFlowLayout;
+
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.IOException;
