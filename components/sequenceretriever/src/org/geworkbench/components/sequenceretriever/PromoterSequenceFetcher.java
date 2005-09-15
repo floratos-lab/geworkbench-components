@@ -43,13 +43,13 @@ public class PromoterSequenceFetcher {
             List genes = geneAdaptor.fetchBySynonym(marker.getGeneName());
 
             CSSequence[] sequences = new CSSequence[genes.size()];
-            System.out.println("Query gene name " + marker.getGeneName());
+//            System.out.println("Query gene name " + marker.getGeneName());
 
             for (int geneCtr = 0; geneCtr < genes.size(); geneCtr++) {
                 Gene gene = (Gene) genes.get(geneCtr);
 
                 Location location = gene.getLocation();
-                System.out.println(location.getStrand() + "\t" + location.getStartAsFormattedString() + "\t" + location.getEndAsFormattedString() + "\t" + (location.getEnd() - location.getStart()));
+                //System.out.println(location.getStrand() + "\t" + location.getStartAsFormattedString() + "\t" + location.getEndAsFormattedString() + "\t" + (location.getEnd() - location.getStart()));
                 Location newLocation = null;
                 if (location.getStrand() == 1) {
                     newLocation = location.transform(-upstream, -location.getNodeLength() + fromStart);
