@@ -192,7 +192,7 @@ public class PanelsEnabledSelectorPanel <T extends DSNamed> implements VisualPlu
     }
 
     void panelTree_mouseReleased(MouseEvent e) {
-        if (e.getButton() == MouseEvent.BUTTON3) {
+        if (e.isMetaDown()) {
             int x = e.getX();
             int y = e.getY();
             TreePath[] paths = panelTree.getSelectionPaths();

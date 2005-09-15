@@ -528,7 +528,7 @@ public class GenericMarkerSelectorPanel implements VisualPlugin, MenuListener {
     }
 
     void jList1_mouseReleased(MouseEvent e) {
-        if (e.getButton() == e.BUTTON3) { // if right click performed
+        if (e.isMetaDown()) { // if right click performed
             int index = geneList.locationToIndex(new Point(e.getX(), e.getY()));
             if (!isListItemSelected(index)) {
                 geneList.setSelectedIndex(index);
@@ -658,7 +658,7 @@ public class GenericMarkerSelectorPanel implements VisualPlugin, MenuListener {
     }
 
     void panelTree_mouseReleased(MouseEvent e) {
-        if (e.getButton() == e.BUTTON3) {
+        if (e.isMetaDown()) {
             int x = e.getX();
             int y = e.getY();
             TreePath[] paths = panelTree.getSelectionPaths();

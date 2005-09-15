@@ -345,7 +345,7 @@ public class MicroarrayPanel extends MicroarrayVisualizer implements VisualPlugi
     }
 
     void microarrayImageArea_mouseReleased(MouseEvent e) {
-        if (e.getButton() == MouseEvent.BUTTON3) {
+        if (e.isMetaDown()) {
             jDisplayPanelPopup.show(mainPanel, e.getX(), e.getY());
         }
     }

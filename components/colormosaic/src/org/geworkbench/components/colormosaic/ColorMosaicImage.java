@@ -446,7 +446,7 @@ public class ColorMosaicImage extends JPanel implements Scrollable {
     }
 
     void this_mouseClicked(MouseEvent e) {
-        if (e.getButton() == MouseEvent.BUTTON3) {
+        if (e.isMetaDown()) {
             popupMenu.show(this, e.getX(), e.getY());
         }
         int x = e.getX();

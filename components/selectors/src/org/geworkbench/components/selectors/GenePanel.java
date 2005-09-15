@@ -465,7 +465,7 @@ public class GenePanel implements VisualPlugin {
         if (path != null) {
             DSPanel<DSGeneMarker> panel = getPanelForPath(path);
             DSGeneMarker marker = getGeneMarkerForPath(path);
-            if ((e.getButton() == MouseEvent.BUTTON3) && (e.getClickCount() == 1)) {
+            if ((e.isMetaDown()) && (e.getClickCount() == 1)) {
                 rightClickedPath = path;
                 ensurePathIsSelected(rightClickedPath);
                 if (panel != null) {

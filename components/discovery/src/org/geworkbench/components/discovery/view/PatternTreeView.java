@@ -194,7 +194,7 @@ public class PatternTreeView extends JPanel implements TreeModelListener {
 
         patternTree.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseReleased(MouseEvent e) {
-                if (e.getButton() == MouseEvent.BUTTON3) {
+                if (e.isMetaDown()) {
                     patternMenu.show(patternTree, e.getX(), e.getY());
                 }
             }

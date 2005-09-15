@@ -601,7 +601,7 @@ public class HouseKeepingGeneNormalizerPanel extends
     private void handleMouseEvent(MouseEvent event) {
         int index = jList2.locationToIndex(event.getPoint());
         if (index != -1) {
-            if (event.getButton() == MouseEvent.BUTTON3) {
+            if (event.isMetaDown()) {
                 markerRightClicked(index, event);
             } else if (event.getButton() == MouseEvent.BUTTON1) {
                 if (event.getClickCount() > 1) {
