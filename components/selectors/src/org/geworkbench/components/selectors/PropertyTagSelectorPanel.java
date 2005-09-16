@@ -158,6 +158,7 @@ public class PropertyTagSelectorPanel implements VisualPlugin, MenuListener {
             return c;
         }
     };
+    private static final String MERGED_PANEL_NAME = "Merged Panel";
 
     /**
      * Standard constructor
@@ -225,6 +226,11 @@ public class PropertyTagSelectorPanel implements VisualPlugin, MenuListener {
         listeners.put("Commands.Panels.Delete", listener);
 
         jMergeItem.setText("Merge");
+        jMergeItem.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                jMergeItem_actionPerformed(e);
+            }
+        });
         jCriterionTree.setEditable(false);
         jRenameItem.setText("Rename");
         listener = new java.awt.event.ActionListener() {
@@ -665,6 +671,40 @@ public class PropertyTagSelectorPanel implements VisualPlugin, MenuListener {
                 ((DSPanel) obj).setLabel(inputValue);
                 treeModel.nodeChanged(node);
                 panelModified();
+            }
+        }
+    }
+
+    void jMergeItem_actionPerformed(ActionEvent e) {
+        TreePath[] paths = jCriterionTree.getSelectionPaths();
+        if (paths.length  > 1) {
+            String propertyName = selectedCriterion.getLabel();
+            CSAnnotLabel property = new CSAnnotLabel(propertyName);
+            DSPanel criterion = criteria.get(property);
+            DSPanel mergedPanel = new CSPanel();
+            String label = MERGED_PANEL_NAME;
+            mergedPanel.setLabel(label);
+            int index = 0;
+            while (criterion.panels().get(mergedPanel.getLabel()) != null) {
+                index++;
+                String newLabel = label + " (" + index + ")";
+                mergedPanel.setLabel(newLabel);
+            }
+            label = mergedPanel.getLabel();
+            criterion.panels().add(mergedPanel);
+            selectedNode = new DefaultMutableTreeNode(mergedPanel);
+            treeModel.insertNodeInto(selectedNode, root, root.getChildCount());
+            for (int i = 0; i < paths.length; i++) {
+                DefaultMutableTreeNode node = (DefaultMutableTreeNode) paths[i].getLastPathComponent();
+                Object obj = node.getUserObject();
+                if (obj instanceof DSPanel) {
+                    DSPanel panel = (DSPanel)obj;
+                    for (int j = 0; j < panel.size(); j++) {
+                        mergedPanel.add(panel.get(j));
+                        DefaultMutableTreeNode treeNode = new DefaultMutableTreeNode(panel.get(j));
+                        treeModel.insertNodeInto(treeNode, selectedNode, selectedNode.getChildCount());
+                    }
+                }
             }
         }
     }
