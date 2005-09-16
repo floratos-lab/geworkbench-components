@@ -295,7 +295,7 @@ public class ParameterViewWidget
         progressBarPanel.setMinimumSize(new Dimension(10, 16));
         jLabel4.setAlignmentY( (float) 0.5);
         jLabel4.setHorizontalTextPosition(SwingConstants.TRAILING);
-        jLabel4.setText("Please specify subsequence, database and program .");
+        jLabel4.setText("Please specify subsequence, program and database.");
         jLabel4.setVerticalAlignment(javax.swing.SwingConstants.BOTTOM);
         jLabel4.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
         progressBarPanel1.setMinimumSize(new Dimension(10, 16));
@@ -449,9 +449,9 @@ public class ParameterViewWidget
         jPanel3.add(jProgramBox, new GridBagConstraints(1, 0, 1, 1, 1.0, 0.0
             , GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
             new Insets(13, 20, 13, 0), 131, -1));
-        jBasicPane.add(jPanel1, new GridBagConstraints(0, 3, 1, 1, 1.0, 1.0
+        jBasicPane.add(jPanel3, new GridBagConstraints(0, 3, 1, 1, 1.0, 1.0
             , GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-            new Insets(0, -3, 0, 0), 329, 81));
+            new Insets(0, -3, 0, 0), 146, -13));
         jPanel4.add(blastButton, null);
         jPanel4.add(blastStopButton, null);
         jBasicPane.add(subSeqPanel, new GridBagConstraints(0, 2, 1, 1, 1.0, 1.0
@@ -496,9 +496,9 @@ public class ParameterViewWidget
             , GridBagConstraints.CENTER, GridBagConstraints.BOTH,
             new Insets(0, -3, 0, 0), 390, 18));
         jPanel5.add(jLabel4, null);
-        jBasicPane.add(jPanel3, new GridBagConstraints(0, 4, 1, 1, 1.0, 1.0
+        jBasicPane.add(jPanel1, new GridBagConstraints(0, 4, 1, 1, 1.0, 1.0
             , GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-            new Insets(0, -3, 0, 0), 146, -13));
+            new Insets(0, -3, 0, 0), 329, 81));
         jTabbedPane1.add(jBasicPane, "BLAST");
         jPanel6.add(algorithmSearch, null);
         jPanel6.add(jButton1, null);
