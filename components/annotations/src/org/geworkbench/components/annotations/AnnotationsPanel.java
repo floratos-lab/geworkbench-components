@@ -10,6 +10,7 @@ import org.geworkbench.bison.datastructure.biocollections.views.CSMicroarraySetV
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
+import org.geworkbench.bison.datastructure.complex.panels.CSItemList;
 import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.util.annotation.Pathway;
 import org.geworkbench.util.ProgressBar;
@@ -394,6 +395,9 @@ public class AnnotationsPanel implements VisualPlugin {
     }
 
     private void showPanels_actionPerformed(ActionEvent e) {
+        if (selectedMarkerInfo.size() == 0) {
+            JOptionPane.showMessageDialog(annotationsPanel, "Please activate marker panels to retrieve annotations.");
+        }
         showAnnotation();
     }
 
@@ -473,7 +477,11 @@ public class AnnotationsPanel implements VisualPlugin {
             DSMicroarraySetView<DSGeneMarker, DSMicroarray> maView = new CSMicroarraySetView<DSGeneMarker, DSMicroarray>(maSet);
             maView.setMarkerPanel(e.getPanel());
             maView.useMarkerPanel(true);
-            selectedMarkerInfo = maView.markers();
+            if (maView.getMarkerPanel().activeSubset().size() == 0) {
+                selectedMarkerInfo = new CSItemList<DSGeneMarker>();
+            } else {
+                selectedMarkerInfo = maView.markers();
+            }
         }
     }
 
