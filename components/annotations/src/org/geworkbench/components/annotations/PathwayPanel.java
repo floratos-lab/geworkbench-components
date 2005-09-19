@@ -46,6 +46,7 @@ public class PathwayPanel implements VisualPlugin {
      * Visual Widget
      */
     private JScrollPane scrollPane1 = new JScrollPane();
+    private JTextField pathwayName = new JTextField();
     /**
      * Visual Widget
      */
@@ -74,6 +75,7 @@ public class PathwayPanel implements VisualPlugin {
      */
     private void jbInit() throws Exception {
         pathwayPanel.setLayout(borderLayout1);
+        pathwayPanel.add(pathwayName, BorderLayout.NORTH);
         pathwayPanel.add(scrollPane1, BorderLayout.CENTER);
         svgCanvas.addLinkActivationListener(new LinkActivationListener() {
             public void linkActivated(LinkActivationEvent lae) {
@@ -118,6 +120,8 @@ public class PathwayPanel implements VisualPlugin {
                 pb.setMessage("Creating Image..");
                 pb.start();
                 setSvg(pathway.getPathwayDiagram().getSvgString());
+                pathwayName.setText(pathway.getPathwayName());
+                pathwayName.invalidate();
                 pb.stop();
                 pb.dispose();
             }
