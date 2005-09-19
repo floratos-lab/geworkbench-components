@@ -412,6 +412,7 @@ public class HouseKeepingGeneNormalizerPanel extends
             }
         });
         jPanel6.setPreferredSize(new Dimension(10, 70));
+        BoxLayout bl = new BoxLayout(jPanel1, BoxLayout.Y_AXIS);
         jPanel1.add(jButton1);
         jPanel1.add(jButton2);
         jPanel1.add(jButton5);
