@@ -238,11 +238,13 @@ public class HierClusterViewWidget extends JPanel implements HierClusterModelEve
      * Visual widget
      */
     private JSpinner jGeneHeight = new JSpinner();
+    private JLabel heightLabel = new JLabel("Gene Height");
 
     /**
      * Visual widget
      */
     private JSpinner jGeneWidth = new JSpinner();
+    private JLabel widthLabel = new JLabel("Gene Width");
 
     /**
      * Visual widget
@@ -440,7 +442,9 @@ public class HierClusterViewWidget extends JPanel implements HierClusterModelEve
             }
         });
         jToolBar1.add(jCheckBox1, null);
+        jToolBar1.add(heightLabel, null);
         jToolBar1.add(jGeneHeight, null);
+        jToolBar1.add(widthLabel, null);
         jToolBar1.add(jGeneWidth, null);
         jToolBar1.add(jSpacer1, null);
         jToolBar1.add(slider, null);
