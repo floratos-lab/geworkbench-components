@@ -74,6 +74,7 @@ public class ColorMosaicImage extends JPanel implements Scrollable {
     protected double intensity = 1.0;
     protected boolean hideMasked = false;
     protected int resolution = DEFAULTRES;
+    private int oldRes = DEFAULTRES;
     protected int fontSize = 0;
     protected int textSize = 0;
     protected ColorMosaicPanel parent = null;
@@ -86,26 +87,27 @@ public class ColorMosaicImage extends JPanel implements Scrollable {
 
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-        paint(g, DEFAULTRES);
+        paint(g, DEFAULTRES, true);
     }
 
-    public void paint(Graphics g, int res) {
-        if (resolution != DEFAULTRES) {
+    public void paint(Graphics g, int res, boolean screenMode) {
+        if (res != oldRes) {
             resolution = res;
             recomputeDimensions();
+            oldRes = res;
         }
         g.setFont(labelFont);
         int row = 0;
         for (int patId = 0; patId < clusterNo; patId++) {
             cluster[patId].setFirstRow(row);
-            row += showCluster(g, cluster[patId], row);
+            row += showCluster(g, cluster[patId], row, screenMode);
         }
         resolution = DEFAULTRES;
     }
 
     private EisenBlock currentCluster = null;
 
-    protected int showCluster(Graphics g, EisenBlock cluster, int row) {
+    protected int showCluster(Graphics g, EisenBlock cluster, int row, boolean screenMode) {
         Rectangle visibleRect = getVisibleRect();
         DSClassCriteria classCriteria = CSCriterionManager.getClassCriteria(microarraySet);
         //        DSPanel<DSMicroarray> criterion = CSCriterionManager.getCriteria(microarraySet).getSelectedCriterion();
@@ -113,8 +115,18 @@ public class ColorMosaicImage extends JPanel implements Scrollable {
         currentCluster = cluster;
         int geneNo = cluster.getMarkerNo();
         int chipNo = getChipNo();
-        int startIndex = visibleRect.y / geneHeight - row - 1;
-        int stopIndex = (visibleRect.y + visibleRect.height) / geneHeight - row + 1;
+        int startIndex;
+        if (screenMode) {
+            startIndex = visibleRect.y / geneHeight - row - 1;
+        } else {
+            startIndex = 0;
+        }
+        int stopIndex;
+        if (screenMode) {
+            stopIndex = (visibleRect.y + visibleRect.height) / geneHeight - row + 1;
+        } else {
+            stopIndex = geneNo;
+        }
         if (startIndex < 0) {
             startIndex = 0;
         }
@@ -344,7 +356,8 @@ public class ColorMosaicImage extends JPanel implements Scrollable {
     private void setSize() {
         maxUnitIncrement = geneHeight;
         if (microarraySet != null) {
-            this.setPreferredSize(new Dimension(getRequiredWidth(), getRequiredHeight()));
+            Dimension preferredSize = new Dimension(getRequiredWidth(), getRequiredHeight());
+            this.setPreferredSize(preferredSize);
             this.revalidate();
         } else {
             this.setPreferredSize(new Dimension(0, 0));
@@ -676,7 +689,7 @@ public class ColorMosaicImage extends JPanel implements Scrollable {
         ratioWidth += 3;
         labelWidth += 0;
         setSize();
-        repaint();
+        // repaint();
     }
 
     public void toggleShowPattern(boolean state) {
@@ -693,9 +706,10 @@ public class ColorMosaicImage extends JPanel implements Scrollable {
     }
 
     public void setAutoWidth(double inches, int res) {
-        if (res != DEFAULTRES) {
+        if (res != oldRes) {
             resolution = res;
             recomputeDimensions();
+            oldRes = res;
         }
         //double pixels = (double)((ChipManager.GetChipNo() * GeneWidth) / 1 + LabelGutter + TextSize);
         double width = inches * resolution;
@@ -703,7 +717,7 @@ public class ColorMosaicImage extends JPanel implements Scrollable {
         geneWidth = Math.min(40, (int) ((width - textSize - labelGutter) * 1.0 / (double) chipNo));
         geneHeight = 30;
         recomputeDimensions();
-        resolution = DEFAULTRES;
+        // resolution = DEFAULTRES;
     }
 
     public void notifyComponent(Object subscriber, Class anInterface) {

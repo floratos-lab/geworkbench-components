@@ -430,7 +430,7 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
         g2.translate(-rowSpace, colSpace);
         rowRuler.paint(g2, res[0]);
         g2.translate(rowSpace, 0);
-        colorMosaicImage.paint(g2, res[0]);
+        colorMosaicImage.paint(g2, res[0], false);
         System.out.println("Done");
         return Printable.PAGE_EXISTS;
     }
@@ -557,7 +557,7 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
         AffineTransform start = g.getTransform();
         // Draw the main image
         g.translate(leftDim.width, topDim.height);
-        colorMosaicImage.paintComponent(g);
+        colorMosaicImage.paint(g, ColorMosaicImage.DEFAULTRES, false);
         // Draw the column ruler
         g.setTransform(start);
         g.translate(leftDim.width, 0);
