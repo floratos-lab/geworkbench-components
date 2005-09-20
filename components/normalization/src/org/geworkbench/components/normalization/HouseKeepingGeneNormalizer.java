@@ -133,21 +133,29 @@ public class HouseKeepingGeneNormalizer extends AbstractAnalysis implements
      */
     private void adjustMarkerValue(CSGenepixMarkerValue markerValue,
                                    int arrayLocation) {
+        boolean recompute = false;
         if (ch1bArray[arrayLocation] != 0) {
             markerValue.setCh1Bg(markerValue.getCh1Bg() /
                                  ch1bArray[arrayLocation]);
+            recompute = true;
         }
         if (ch2bArray[arrayLocation] != 0) {
             markerValue.setCh2Bg(markerValue.getCh2Bg() /
                                  ch2bArray[arrayLocation]);
+            recompute = true;
         }
         if (ch1fArray[arrayLocation] != 0) {
             markerValue.setCh1Fg(markerValue.getCh1Fg() /
                                  ch1fArray[arrayLocation]);
+            recompute = true;
         }
         if (ch2fArray[arrayLocation] != 0) {
             markerValue.setCh2Fg(markerValue.getCh2Fg() /
                                  ch2fArray[arrayLocation]);
+            recompute = true;
+        }
+        if (recompute) {
+            markerValue.computeSignal();            
         }
 
     }
