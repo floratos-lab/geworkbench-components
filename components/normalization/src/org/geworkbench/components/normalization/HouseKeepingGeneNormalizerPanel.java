@@ -844,6 +844,8 @@ public class HouseKeepingGeneNormalizerPanel extends
     public void setHighlightedMarkers(Set<String> nonFoundGenes) {
         if (nonFoundGenes != null) {
             highlightedMarkers = nonFoundGenes;
+            updateLabel();
+
         }
         if (nonFoundGenes.size() > 1) {
 
