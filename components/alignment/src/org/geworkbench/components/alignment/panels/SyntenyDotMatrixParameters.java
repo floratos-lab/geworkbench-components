@@ -34,7 +34,9 @@ public class SyntenyDotMatrixParameters extends JPanel {
     SequenceAnnotation AnnoY = null;
     SyntenyAnnotationParameters SAnnoPar=null;
     public SyntenyPresentationsList SPL = null;
-    public String CurrentProgram=new String();;
+    public String CurrentProgram=new String();
+    private JComboBox ProgramBox = null;
+
     JPanel jDotMatrixPane = new JPanel();
     JLabel jLabel1 = new JLabel();
     JLabel jLabel6 = new JLabel();
@@ -384,7 +386,7 @@ String str=null;
             tmp = new String("JOB_ID: " + job_id + "\n");
             fout.write(tmp.getBytes());
 
-            tmp = new String("PROGRAM: " + CurrentProgram);
+            tmp = new String("PROGRAM: " + (String)ProgramBox.getSelectedItem() + "\n");
             fout.write(tmp.getBytes());
 
             tmp = new String("REQUEST_TYPE: DOTMATRIX\n");
@@ -525,6 +527,11 @@ infile, result_file));
     public void setAnnottionParameters(SyntenyAnnotationParameters SAP){
         SAnnoPar=SAP;
     }
+
+    public void setProgramBox(JComboBox pb){
+        ProgramBox = pb;
+    }
+
 }
 
 /**

@@ -56,7 +56,6 @@ public class SyntenyParameters
 
     private HashMap listeners = new HashMap();
 
-//    IMarkerPanel markers = null;
     boolean selectedRegionChanged = false;
     private SyntenyAnnotationParameters SAP = new SyntenyAnnotationParameters();
     private SyntenyDotMatrixParameters SDPM = new SyntenyDotMatrixParameters(
@@ -253,6 +252,7 @@ public class SyntenyParameters
 
         jTabbedPane1.add(jPanelMarkers, "Markers");
         jTabbedPane1.add(SDPM, "Genome");
+        SDPM.setProgramBox(ProgramBox);
         jTabbedPane1.add(jPanelProgram, "Program");
         jTabbedPane1.add(SAP, "Annotation");
         main.add(jTabbedPane1, java.awt.BorderLayout.CENTER);
@@ -534,21 +534,19 @@ public class SyntenyParameters
      * @param e GeneSelectorEvent
      */
 
-//    DSMicroarraySet<DSMicroarray> markers;
-
     DSPanel<DSGeneMarker> markers;
-    @Subscribe public void receive(GeneSelectorEvent e, Object source) {
-
+    @Subscribe public void geneSelectorAction(GeneSelectorEvent e, Object publisher) {
         markers = e.getPanel();
         if (markers != null) {
-            // adding to the list
             ls2.clear();
-//            for (int j = 0; j < markers.getSubPanelNo(); j++) {
-//                IMarkerSimplePanel mrk = markers.getSubPanel(j);
-//                for (int i = 0; i < mrk.getGenericMarkerNo(); i++) {
-//                    ls2.addElement(mrk.getGenericMarker(i));
-//                }
-//            }
+            for (int j = 0; j < markers.panels().size(); j++) {
+                DSPanel<DSGeneMarker> mrk = markers.panels().get(j);
+                if (mrk.isActive())
+                    for (int i = 0; i < mrk.size(); i++) {
+                        if (!ls2.contains(mrk.get(i)))
+                            ls2.addElement(mrk.get(i));
+                    }
+            }
         }
     }
 
@@ -719,32 +717,17 @@ public class SyntenyParameters
                         ".res");
 
                     ProcessStatus.setText("Retriving results from server");
-//                    if (DAS_Retriver.GetItToFile(tURL, resn) == false) {
-//                        error_flag = true;
-//                    }
                 }
                 catch (Exception ee) {
                     System.err.println(ee);
                     return;
                 }
                 ProcessStatus.setText("Parsing");
-//                if (CheckFileIntegrity(resn) == false) {
-//                    error_flag = true;
-//                }
-
-//                if (error_flag) {
-//                    ProcessStatus.setText("Server error! Please try again.");
-//                }
-//                else {
-//                }
             }
 
         };
         t.setPriority(Thread.MIN_PRIORITY);
         t.start();
-
-
-
 
         // here goes drawing
         //SyntenyMapViewWidget.smrepaint(smObj);
@@ -822,7 +805,7 @@ public class SyntenyParameters
             tmp = new String("REQUEST_TYPE: DOTMATRIX\n");
             fout.write(tmp.getBytes());
 
-            tmp = new String("PROGRAM: "+(String)ProgramBox.getSelectedItem());
+            tmp = new String("PROGRAM: "+(String)ProgramBox.getSelectedItem()+"\n");
             fout.write(tmp.getBytes());
 
             tmp = new String("GENOME1: " + genomex + "\n");
