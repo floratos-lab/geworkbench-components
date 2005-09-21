@@ -9,13 +9,12 @@ import javax.swing.*;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.tree.TreePath;
 
-import com.borland.jbcl.layout.XYConstraints;
-import com.borland.jbcl.layout.XYLayout;
+import com.borland.jbcl.layout.*;
+import org.geworkbench.analysis.AbstractSaveableParameterPanel;
 import org.geworkbench.bison.datastructure.bioobjects.markers.CSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
-import org.geworkbench.bison.datastructure.complex.panels.*;
-import org.geworkbench.analysis.AbstractSaveableParameterPanel;
-import com.borland.jbcl.layout.BoxLayout2;
+import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
+import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 
 /**
  * <p>Title: </p>
@@ -294,7 +293,7 @@ public class HouseKeepingGeneNormalizerPanel extends
 
     private void markerList_mouseClicked(MouseEvent e) {
         int index = jList1.locationToIndex(e.getPoint());
-        if (e.getClickCount() == 2) {
+        if (index>-1 && e.getClickCount() == 2) {
             String value = (String) markerModel.getElementAt(index);
             addMarkers(value);
         }
@@ -497,6 +496,7 @@ public class HouseKeepingGeneNormalizerPanel extends
         });
 
         jScrollPane2.getViewport().add(jList2);
+        jScrollPane1.getViewport().add(jList1);
         jPanel4.add(jLabel2, java.awt.BorderLayout.WEST);
         jPanel4.add(jLabel1, java.awt.BorderLayout.CENTER);
         jPanel2.add(jLabel3);
@@ -513,10 +513,10 @@ public class HouseKeepingGeneNormalizerPanel extends
           this.add(jPanel3, new XYConstraints(0, 28, 357, -1));
         this.add(jPanel2, new XYConstraints(0, 168, 279, 21));
         jPanel3.add(jScrollPane1);
-        jScrollPane1.getViewport().add(jList1);
-        jPanel3.add(jPanel1, null);
-        jPanel3.add(jScrollPane2, null);
-        jPanel3.add(jPanel5, null);
+
+        jPanel3.add(jPanel1);
+        jPanel3.add(jScrollPane2);
+        jPanel3.add(jPanel5);
         updateLabel();
     }
 
@@ -591,7 +591,8 @@ public class HouseKeepingGeneNormalizerPanel extends
     private void clearAllHightlightsPressed() {
         if (highlightedMarkers != null) {
             highlightedMarkers.clear();
-            repaint();
+             updateLabel();
+
         }
 
     }
@@ -652,6 +653,18 @@ public class HouseKeepingGeneNormalizerPanel extends
         jLabel2.setText("Excluded Genes [" + markerModel.size() + "]    ");
         if (highlightedMarkers.isEmpty()) {
             jPanel5.setVisible(false);
+            removeAllHighlightsItem.setEnabled(false);
+            clearHightlights.setEnabled(false);
+            moveAllHighlightsItem.setEnabled(false);
+
+
+
+
+        }else{
+            removeAllHighlightsItem.setEnabled(true);
+           clearHightlights.setEnabled(true);
+           moveAllHighlightsItem.setEnabled(true);
+
         }
     }
 
@@ -753,14 +766,63 @@ public class HouseKeepingGeneNormalizerPanel extends
         }
     }
 
+    /**
+     *
+     * validateLists
+     */
+    private void validateLists() {
+       //This is a temp fix for bug 308.
+       //After saving the the object, the contents of two list disappeared.
+       //But the data are still there, you just need to refresh it with a click.
+
+
+        if(markerModel.size()>0){
+                jList1.setSelectedIndex(0);
+                Object ob = markerModel.get(0);
+                markerModel.removeElement(ob);
+                markerModel.add(0, ob);
+
+            }
+            if(selectedModel.size()>0){
+                Object ob = selectedModel.get(0);
+                selectedModel.removeElement(ob);
+                selectedModel.add(0, ob);
+            }
+
+
+    }
+
+
+    /**
+     *
+     * @param out ObjectOutputStream
+     * @throws IOException
+     */
 
     private void writeObject(java.io.ObjectOutputStream out) throws IOException {
         out.defaultWriteObject();
-        try{
-            jbInit();
-            System.out.println(markerModel.getSize() + "selected" + selectedModel.getSize());
-        }catch (Exception e){e.printStackTrace();}
-         revalidate();
+        validateLists();
+//        try{
+//           // jbInit();
+//            System.out.println(markerModel.getSize() + "selected" + selectedModel.getSize() + jList1.getSize() + markerModel.elementAt(0));
+//            jList1.setModel(markerModel);
+//            jList1.setVisible(true);
+//            if(markerModel.size()>0){
+//                jList1.setSelectedIndex(0);
+//                Object ob = markerModel.get(0);
+//                markerModel.removeElement(ob);
+//                markerModel.add(0, ob);
+//
+//            }
+//            if(selectedModel.size()>0){
+//                Object ob = selectedModel.get(0);
+//                selectedModel.removeElement(ob);
+//                selectedModel.add(0, ob);
+//            }
+//
+//
+//        }catch (Exception e){e.printStackTrace();}
+
 
     }
 
@@ -771,7 +833,7 @@ public class HouseKeepingGeneNormalizerPanel extends
             jbInit();
             System.out.println(markerModel.getSize() + "In reading, selected" + selectedModel.getSize());
         }catch (Exception e){e.printStackTrace();}
-        revalidate();
+       revalidate();
     }
 
     /**
