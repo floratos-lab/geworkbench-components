@@ -385,8 +385,8 @@ public class MicroarrayPanel extends MicroarrayVisualizer implements VisualPlugi
      *
      * @param e PhenotypeSelectorEvent
      */
-    @Subscribe public void receive(org.geworkbench.events.PhenotypeSelectorEvent e, Object source) {
-        if (e.getTaggedItemSetTree() != null && e.getTaggedItemSetTree().size() > 0) {
+    @Subscribe public void receive(PhenotypeSelectorEvent e, Object source) {
+        if (e.getTaggedItemSetTree() != null) {
             mArrayPanel = e.getTaggedItemSetTree();
             dataSetView.setItemPanel((DSPanel) mArrayPanel);
             reset();

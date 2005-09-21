@@ -709,20 +709,6 @@ public class PropertyTagSelectorPanel implements VisualPlugin, MenuListener {
         }
     }
 
-    void jDeactivateItem_actionPerformed(ActionEvent e) {
-        TreePath[] paths = jCriterionTree.getSelectionPaths();
-        for (int i = 0; i < paths.length; i++) {
-            DefaultMutableTreeNode node = (DefaultMutableTreeNode) paths[i].getPathComponent(1);
-            if (node != null) {
-                DSPanel<DSBioObject> valuePanel = (DSPanel<DSBioObject>) node.getUserObject();
-                valuePanel.setActive(false);
-                DSAnnotValue av = classCriteria.getValue(valuePanel);
-                classCriteria.removePanel(av, valuePanel);
-            }
-        }
-        panelModified();
-    }
-
     void jDeleteItem_actionPerformed(ActionEvent e) {
         TreePath[] paths = jCriterionTree.getSelectionPaths();
         for (int i = 0; i < paths.length; i++) {
@@ -827,8 +813,8 @@ public class PropertyTagSelectorPanel implements VisualPlugin, MenuListener {
                     classCriteria.removePanel(av, maVector);
                 }
             }
-            panelModified();
         }
+        panelModified();
     }
 
     void setClass() {
@@ -915,10 +901,10 @@ public class PropertyTagSelectorPanel implements VisualPlugin, MenuListener {
     }
 
     void throwEvent() {
-        PhenotypeSelectorEvent event = new PhenotypeSelectorEvent(selectedCriterion);
-        if (dataSet instanceof CSExprMicroarraySet) {
-            ((CSExprMicroarraySet) dataSet).computeRange();
-        }
+        PhenotypeSelectorEvent event = new PhenotypeSelectorEvent(selectedCriterion, dataSet);
+//        if (dataSet instanceof CSExprMicroarraySet) {
+//            ((CSExprMicroarraySet) dataSet).computeRange();
+//        }
         publishPhenotypeSelectorEvent(event);
     }
 

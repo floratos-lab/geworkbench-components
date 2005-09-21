@@ -999,7 +999,7 @@ public class ScatterPlot implements VisualPlugin {
      * @param source the source of the event (unused).
      */
     @Subscribe public void receive(org.geworkbench.events.PhenotypeSelectorEvent e, Object source) {
-        if (e.getTaggedItemSetTree() != null && e.getTaggedItemSetTree().size() > 0) {
+        if (e.getTaggedItemSetTree() != null) {
             DSPanel activatedArrays = e.getTaggedItemSetTree().activeSubset();
             dataSetView.setItemPanel(activatedArrays);
             // expPanel = e.getTaggedItemSetTree();
