@@ -426,7 +426,7 @@ public class BlastObj {
                             label = ">" + str[1] + "\n";
                         }
                         line = in.readLine();
-                        while (!line.startsWith("</pre>")) {
+                        while (line!=null && !line.startsWith("</pre>")) {
                             name = name + line + "\n";
                             line = in.readLine();
                         }

@@ -25,7 +25,8 @@ public class BlastAlgorithm extends BWAbstractAlgorithm implements SoapClientIn 
     private BlastAppComponent blastAppComponent = null;
     private SoapClient soapClient = null;
     private boolean startBrowser;
-    private String tempURLFolder = "http://amdec-bioinfo.cu-genome.org/html/temp/";
+    private String tempURLFolder =
+            "http://amdec-bioinfo.cu-genome.org/html/temp/";
 
     public void setBlastAppComponent(BlastAppComponent _blastAppComponent) {
         blastAppComponent = _blastAppComponent;
@@ -57,14 +58,15 @@ public class BlastAlgorithm extends BWAbstractAlgorithm implements SoapClientIn 
 
                 if (cmd.startsWith("pb")) {
                     soapClient.startRun(true);
-                    htmlFile = ((org.geworkbench.util.session.SoapClient) soapClient).getOutputfile();
+                    htmlFile = ((org.geworkbench.util.session.SoapClient)
+                                soapClient).getOutputfile();
                     if (stopRequested) {
                         return;
                     }
                     if (startBrowser && !stopRequested) {
                         if ((new File(htmlFile)).canRead()) {
-                            System.out.println("CAN  READ " + getFileName(htmlFile));
-                            BrowserLauncher.openURL(tempURLFolder + getFileName(htmlFile));
+                            BrowserLauncher.openURL(tempURLFolder +
+                                    getFileName(htmlFile));
                         } else {
                             System.out.println("CANNOT READ " + htmlFile);
                         }
@@ -81,17 +83,22 @@ public class BlastAlgorithm extends BWAbstractAlgorithm implements SoapClientIn 
                 // System.out.println("htmlFile = " + htmlFile + "textfile" + textFile);
                 DSAncillaryDataSet blastResult = null;
                 if (htmlFile != null) {
-                    blastResult = new BlastDataSet(htmlFile, soapClient.getInputFileName());
+                    blastResult = new BlastDataSet(htmlFile,
+                            soapClient.getInputFileName());
                 } else if (cmd.startsWith("btk search")) {
 
-                    blastResult = new SWDataSet(textFile, soapClient.getInputFileName());
+                    blastResult = new SWDataSet(textFile,
+                                                soapClient.getInputFileName());
                 } else if (cmd.startsWith("btk hmm")) {
 
-                    blastResult = new HMMDataSet(textFile, soapClient.getInputFileName());
+                    blastResult = new HMMDataSet(textFile,
+                                                 soapClient.getInputFileName());
                 }
 
                 //add twice blastDataSet. change!@ ???
-                org.geworkbench.events.ProjectNodeAddedEvent event = new org.geworkbench.events.ProjectNodeAddedEvent("message", null, blastResult);
+                org.geworkbench.events.ProjectNodeAddedEvent event = new org.
+                        geworkbench.events.ProjectNodeAddedEvent("message", null,
+                        blastResult);
                 blastAppComponent.publishProjectNodeAddedEvent(event);
             } catch (Exception ex) {
                 ex.printStackTrace();
@@ -125,7 +132,7 @@ public class BlastAlgorithm extends BWAbstractAlgorithm implements SoapClientIn 
             }
 
             String s = st.nextToken();
-            System.out.println(s + " " + path);
+
             return s;
 
         }
