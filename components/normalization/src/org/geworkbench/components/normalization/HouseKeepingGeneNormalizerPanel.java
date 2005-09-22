@@ -9,7 +9,6 @@ import javax.swing.*;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.tree.TreePath;
 
-import com.borland.jbcl.layout.*;
 import org.geworkbench.analysis.AbstractSaveableParameterPanel;
 import org.geworkbench.bison.datastructure.bioobjects.markers.CSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
@@ -34,7 +33,7 @@ import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
  */
 //AbstractSaveableParameterPanel
 public class HouseKeepingGeneNormalizerPanel extends
-       AbstractSaveableParameterPanel  implements Serializable {
+        AbstractSaveableParameterPanel implements Serializable {
 
     JScrollPane jScrollPane1 = new JScrollPane();
     JScrollPane jScrollPane2 = new JScrollPane();
@@ -55,10 +54,10 @@ public class HouseKeepingGeneNormalizerPanel extends
     JPanel mainPanel = new JPanel();
     JButton loadButton = new JButton();
     JList jList2 = new JList(selectedModel);
-    JList jList1  = new JList(markerModel); //(DefaultListModel) jList1.getListModel();
+    JList jList1 = new JList(markerModel); //(DefaultListModel) jList1.getListModel();
 
     JButton jButton3 = new JButton();
-    XYLayout xYLayout1 = new XYLayout();
+
     JPanel jPanel2 = new JPanel();
     JLabel jLabel3 = new JLabel();
     private JPopupMenu listPopup = new JPopupMenu();
@@ -85,7 +84,7 @@ public class HouseKeepingGeneNormalizerPanel extends
     JButton moveToAboveButton = new JButton();
     JButton moveNextButton = new JButton();
     JPanel jPanel6 = new JPanel();
-    BoxLayout2 boxLayout21 = new BoxLayout2();
+
     public HouseKeepingGeneNormalizerPanel() {
         try {
             jbInit();
@@ -293,7 +292,7 @@ public class HouseKeepingGeneNormalizerPanel extends
 
     private void markerList_mouseClicked(MouseEvent e) {
         int index = jList1.locationToIndex(e.getPoint());
-        if (index>-1 && e.getClickCount() == 2) {
+        if (index > -1 && e.getClickCount() == 2) {
             String value = (String) markerModel.getElementAt(index);
             addMarkers(value);
         }
@@ -361,7 +360,9 @@ public class HouseKeepingGeneNormalizerPanel extends
 
 
     void jbInit() throws Exception {
-        this.setLayout(xYLayout1);
+        BoxLayout boxLayout2 = new BoxLayout(this, BoxLayout.Y_AXIS);
+        // this.setLayout(xYLayout1);
+        this.setLayout(boxLayout2);
         panel = new CSPanel<DSGeneMarker>();
         jButton1.setText(">");
         jButton1.addActionListener(new ActionListener() {
@@ -375,6 +376,7 @@ public class HouseKeepingGeneNormalizerPanel extends
                 jButton2_actionPerformed(e);
             }
         });
+        BoxLayout boxLayout21 = new BoxLayout(jPanel3, BoxLayout.X_AXIS);
         jPanel3.setLayout(boxLayout21);
         jLabel1.setText("    Current Selected Genes");
         jLabel2.setText("Excluded HouseKeeping Genes");
@@ -416,16 +418,16 @@ public class HouseKeepingGeneNormalizerPanel extends
         jPanel1.setMaximumSize(new Dimension(400, 200));
         jPanel1.setMinimumSize(new Dimension(100, 128));
         jPanel1.setPreferredSize(new Dimension(100, 128));
-        jScrollPane1.setMinimumSize(new Dimension(60, 100));
-        jScrollPane1.setPreferredSize(new Dimension(60, 100));
-        jScrollPane2.setMinimumSize(new Dimension(60, 100));
-        jScrollPane2.setPreferredSize(new Dimension(60, 100));
+        jScrollPane1.setMinimumSize(new Dimension(100, 100));
+        jScrollPane1.setPreferredSize(new Dimension(100, 100));
+        jScrollPane2.setMinimumSize(new Dimension(100, 100));
+        jScrollPane2.setPreferredSize(new Dimension(100, 100));
         jPanel5.setMinimumSize(new Dimension(60, 100));
         jPanel5.setPreferredSize(new Dimension(60, 100));
 
         jList1.setMinimumSize(new Dimension(100, 128));
         jList1.setPreferredSize(new Dimension(100, 128));
-        jPanel1.add(Box.createRigidArea(new Dimension(0,5)));
+        jPanel1.add(Box.createRigidArea(new Dimension(0, 5)));
         jButton1.setAlignmentX(Component.CENTER_ALIGNMENT);
         jButton2.setAlignmentX(Component.CENTER_ALIGNMENT);
         jButton5.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -498,7 +500,7 @@ public class HouseKeepingGeneNormalizerPanel extends
         jScrollPane2.getViewport().add(jList2);
         jScrollPane1.getViewport().add(jList1);
         jPanel4.add(jLabel2, java.awt.BorderLayout.WEST);
-        jPanel4.add(jLabel1, java.awt.BorderLayout.CENTER);
+        jPanel4.add(jLabel1, java.awt.BorderLayout.EAST);
         jPanel2.add(jLabel3);
         jPanel2.add(jComboBox1);
         BoxLayout boxLayout = new BoxLayout(jPanel3, BoxLayout.X_AXIS);
@@ -509,9 +511,15 @@ public class HouseKeepingGeneNormalizerPanel extends
         //jPanel5.add(jPanel6);
         jPanel5.add(Box.createVerticalGlue());
         jPanel5.add(moveNextButton);
-        this.add(jPanel4, new XYConstraints(0, 0, 279, 27));
-          this.add(jPanel3, new XYConstraints(0, 28, 357, -1));
-        this.add(jPanel2, new XYConstraints(0, 168, 279, 21));
+//        this.add(jPanel4, new XYConstraints(0, 0, 279, 27));
+//          this.add(jPanel3, new XYConstraints(0, 28, 357, -1));
+//        this.add(jPanel2, new XYConstraints(0, 168, 279, 21));
+        jPanel3.setPreferredSize(new Dimension(400, 140));
+        this.add(jPanel4);
+        this.add(jPanel3);
+        this.add(jPanel2);
+        this.add(Box.createHorizontalGlue());
+
         jPanel3.add(jScrollPane1);
 
         jPanel3.add(jPanel1);
@@ -591,7 +599,7 @@ public class HouseKeepingGeneNormalizerPanel extends
     private void clearAllHightlightsPressed() {
         if (highlightedMarkers != null) {
             highlightedMarkers.clear();
-             updateLabel();
+            updateLabel();
 
         }
 
@@ -657,13 +665,10 @@ public class HouseKeepingGeneNormalizerPanel extends
             clearHightlights.setEnabled(false);
             moveAllHighlightsItem.setEnabled(false);
 
-
-
-
-        }else{
+        } else {
             removeAllHighlightsItem.setEnabled(true);
-           clearHightlights.setEnabled(true);
-           moveAllHighlightsItem.setEnabled(true);
+            clearHightlights.setEnabled(true);
+            moveAllHighlightsItem.setEnabled(true);
 
         }
     }
@@ -726,12 +731,12 @@ public class HouseKeepingGeneNormalizerPanel extends
 
     }
 
-     public String getLastDirectory() {
+    public String getLastDirectory() {
         String dir = ".";
         try {
-            String  filename = USERSETTINGSFILE;
-            if(System.getProperty("housekeepingnormalizerSettings")!=null){
-                 filename = System.getProperty("housekeepingnormalizerSettings");
+            String filename = USERSETTINGSFILE;
+            if (System.getProperty("housekeepingnormalizerSettings") != null) {
+                filename = System.getProperty("housekeepingnormalizerSettings");
             }
 
             File file = new File(filename);
@@ -751,11 +756,12 @@ public class HouseKeepingGeneNormalizerPanel extends
     }
 
 
-     public void setLastDirectory(String dir) {
+    public void setLastDirectory(String dir) {
         try { //save current settings.
             String outputfile = USERSETTINGSFILE;
-            if(System.getProperty("housekeepingnormalizerSettings")!=null){
-                outputfile = System.getProperty("housekeepingnormalizerSettings");
+            if (System.getProperty("housekeepingnormalizerSettings") != null) {
+                outputfile = System.getProperty(
+                        "housekeepingnormalizerSettings");
             }
             BufferedWriter br = new BufferedWriter(new FileWriter(
                     outputfile));
@@ -771,24 +777,23 @@ public class HouseKeepingGeneNormalizerPanel extends
      * validateLists
      */
     private void validateLists() {
-       //This is a temp fix for bug 308.
-       //After saving the the object, the contents of two list disappeared.
-       //But the data are still there, you just need to refresh it with a click.
+        //This is a temp fix for bug 308.
+        //After saving the the object, the contents of two list disappeared.
+        //But the data are still there, you just need to refresh it with a click.
 
 
-        if(markerModel.size()>0){
-                jList1.setSelectedIndex(0);
-                Object ob = markerModel.get(0);
-                markerModel.removeElement(ob);
-                markerModel.add(0, ob);
+        if (markerModel.size() > 0) {
+            jList1.setSelectedIndex(0);
+            Object ob = markerModel.get(0);
+            markerModel.removeElement(ob);
+            markerModel.add(0, ob);
 
-            }
-            if(selectedModel.size()>0){
-                Object ob = selectedModel.get(0);
-                selectedModel.removeElement(ob);
-                selectedModel.add(0, ob);
-            }
-
+        }
+        if (selectedModel.size() > 0) {
+            Object ob = selectedModel.get(0);
+            selectedModel.removeElement(ob);
+            selectedModel.add(0, ob);
+        }
 
     }
 
@@ -802,38 +807,19 @@ public class HouseKeepingGeneNormalizerPanel extends
     private void writeObject(java.io.ObjectOutputStream out) throws IOException {
         out.defaultWriteObject();
         validateLists();
-//        try{
-//           // jbInit();
-//            System.out.println(markerModel.getSize() + "selected" + selectedModel.getSize() + jList1.getSize() + markerModel.elementAt(0));
-//            jList1.setModel(markerModel);
-//            jList1.setVisible(true);
-//            if(markerModel.size()>0){
-//                jList1.setSelectedIndex(0);
-//                Object ob = markerModel.get(0);
-//                markerModel.removeElement(ob);
-//                markerModel.add(0, ob);
-//
-//            }
-//            if(selectedModel.size()>0){
-//                Object ob = selectedModel.get(0);
-//                selectedModel.removeElement(ob);
-//                selectedModel.add(0, ob);
-//            }
-//
-//
-//        }catch (Exception e){e.printStackTrace();}
-
 
     }
 
     private void readObject(java.io.ObjectInputStream in) throws IOException,
             ClassNotFoundException {
         in.defaultReadObject();
-        try{
+        try {
             jbInit();
-            System.out.println(markerModel.getSize() + "In reading, selected" + selectedModel.getSize());
-        }catch (Exception e){e.printStackTrace();}
-       revalidate();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        revalidate();
     }
 
     /**
