@@ -147,7 +147,7 @@ public class SyntenyDotMatrixParameters extends JPanel {
         jDotMatrixPane.setForeground(Color.black);
         jDotMatrixPane.setAlignmentX( (float) 0.5);
         jDotMatrixPane.setMinimumSize(new Dimension(330, 363));
-        jDotMatrixPane.setPreferredSize(new Dimension(345, 390));
+        jDotMatrixPane.setPreferredSize(new Dimension(329, 265));
         jDotMatrixPane.setToolTipText("");
         ProcessStatus.setText(" ");
         ProcessStatus.setOpaque(true);
@@ -165,14 +165,6 @@ public class SyntenyDotMatrixParameters extends JPanel {
         GPosX.setPreferredSize(new Dimension(145, 51));
         GPosX.setToolTipText("");
         this.add(jDotMatrixPane, "Genome Segments");
-        jDotMatrixPane.add(ProcessStatus,
-                           new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
-                                                  , GridBagConstraints.CENTER,
-                                                  GridBagConstraints.BOTH,
-                                                  new Insets(0, 0, 0, 0), 0, 0));
-        jDotMatrixPane.add(jLabel6, new GridBagConstraints(0, 4, 2, 1, 1.0, 1.0
-            , GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-            new Insets(0, 0, 0, 0), 0, 0));
         jDotMatrixPane.add(jLabel1, new GridBagConstraints(0, 1, 1, 1, 1.0, 1.0
             , GridBagConstraints.CENTER, GridBagConstraints.BOTH,
             new Insets(0, 0, 0, 0), 0, 0));
@@ -187,6 +179,14 @@ public class SyntenyDotMatrixParameters extends JPanel {
                                                   , GridBagConstraints.CENTER,
                                                   GridBagConstraints.BOTH,
                                                   new Insets(8, 1, 1, 1), 0, 0));
+        jDotMatrixPane.add(ProcessStatus,
+                           new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
+                                                  , GridBagConstraints.CENTER,
+                                                  GridBagConstraints.BOTH,
+                                                  new Insets(0, 0, 0, 0), 0, 0));
+        jDotMatrixPane.add(jLabel6, new GridBagConstraints(0, 4, 2, 1, 1.0, 1.0
+                , GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                new Insets(0, 0, 0, 0), 0, 0));
     }
 
     public void setCurrentProgram(String cp){

@@ -36,6 +36,7 @@ import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
+import com.borland.jbcl.layout.VerticalFlowLayout;
 
 /**
  * <p>Title: Bioworks</p>
@@ -116,8 +117,6 @@ public class SyntenyParameters
     private DefaultMutableTreeNode category = null;
     JPanel jPanelProgram = new JPanel();
     JLabel jLabel3 = new JLabel();
-    GridBagLayout gridBagLayout4 = new GridBagLayout();
-
     public SyntenyParameters() {
         try {
             jbInit();
@@ -167,6 +166,7 @@ public class SyntenyParameters
         ProgramBox.addItem("MUMmer");
         ProgramBox.addItem("Dots");
         ProgramBox.addItem("SyntenyMap");
+        ProgramBox.setMaximumSize(new Dimension(300, 50));
         ProgramBox.setToolTipText("Select program to compare sequence regions");
         ProgramBox.addActionListener(new
                              SyntenyParameters_ProgramBox_actionAdapter(this));
@@ -178,9 +178,11 @@ public class SyntenyParameters
         ProcessStatus.setBorder(BorderFactory.createEtchedBorder());
         ProcessStatus.setOpaque(true);
         ProcessStatus.setText(" ");
+        jLabel3.setAlignmentX((float) 5.5);
         jLabel3.setToolTipText("");
-        jLabel3.setText("Program");
-        jPanelProgram.setLayout(gridBagLayout4);
+        jLabel3.setText("Select Program");
+        jLabel3.setVerticalAlignment(SwingConstants.BOTTOM);
+        jPanelProgram.setLayout(verticalFlowLayout1);
 
         SelectionMenu.add(jAddToX);
         TreeSelectionMenu.add(treeToX);
@@ -292,15 +294,8 @@ public class SyntenyParameters
                                                  GridBagConstraints.BOTH,
                                                  new Insets(0, 0, 0, 0), 1, 1));
 
-        jPanelProgram.add(ProgramBox,
-                          new GridBagConstraints(1, 0, 1, 1, 1.0, 1.0
-                                                 , GridBagConstraints.WEST,
-                                                 GridBagConstraints.HORIZONTAL,
-                                                 new Insets(0, 0, 0, 0), 0, 0));
-        jPanelProgram.add(jLabel3, new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
-            , GridBagConstraints.CENTER, GridBagConstraints.NONE,
-            new Insets(0, 40, 0, 0), 0, 0));
-
+        jPanelProgram.add(jLabel3, null);
+        jPanelProgram.add(ProgramBox, null);
     }
 
     /**************************/
@@ -535,6 +530,7 @@ public class SyntenyParameters
      */
 
     DSPanel<DSGeneMarker> markers;
+    VerticalFlowLayout verticalFlowLayout1 = new VerticalFlowLayout();
     @Subscribe public void geneSelectorAction(GeneSelectorEvent e, Object publisher) {
         markers = e.getPanel();
         if (markers != null) {
