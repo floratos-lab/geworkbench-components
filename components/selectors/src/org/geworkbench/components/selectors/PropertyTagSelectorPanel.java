@@ -880,7 +880,8 @@ public class PropertyTagSelectorPanel implements VisualPlugin, MenuListener {
         }
         ProjectSelection selection = ((ProjectPanel) source).getSelection();
         DSDataSet dataFile = selection.getDataSet();
-        if (dataFile instanceof DSDataSet) {
+        //change DSDataSet to DSMicroarraySet XQ
+        if (dataFile instanceof DSMicroarraySet) {
             if (selection.getSelectedNode() != selection.getSelectedProjectNode()) {
                 notifyMAChange(dataFile);
             }
