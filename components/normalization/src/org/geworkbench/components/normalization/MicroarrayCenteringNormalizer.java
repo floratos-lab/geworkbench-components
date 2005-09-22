@@ -9,6 +9,7 @@ import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
 import org.geworkbench.bison.model.analysis.NormalizingAnalysis;
 
 import java.util.Arrays;
+import java.util.Comparator;
 
 /**
  * <p>Copyright: Copyright (c) 2003</p>
@@ -77,7 +78,7 @@ public class MicroarrayCenteringNormalizer extends AbstractAnalysis implements N
         for (int i = 0; i < arrayCount; i++) {
             arrayValues = getNonMissingValues(maSet, i);
             Arrays.sort(arrayValues);
-            meanMedian = (meanMedianType == MEAN ? getMean(arrayValues) : arrayValues[arrayValues.length / 2]);
+            meanMedian = (meanMedianType == MEAN ? getMean(arrayValues) : getMedian(arrayValues));
             // Calculate the (post-mean/median subtraction) minimum & maximum values.
             for (int j = 0; j < arrayValues.length; ++j)
                 arrayValues[j] -= meanMedian;
@@ -122,7 +123,7 @@ public class MicroarrayCenteringNormalizer extends AbstractAnalysis implements N
     double[] getNonMissingValues(DSMicroarraySet<DSMicroarray> maSet, int index) {
         if (maSet == null || index < 0 || index >= maSet.size())
             return null;
-        int markerCount = maSet.size();
+        int markerCount = maSet.getMarkers().size();
         int nonMissing = 0;
         DSMicroarray mArray = maSet.get(index);
         // For space allocation purposes, first compute the number of non-missing values.
@@ -157,6 +158,21 @@ public class MicroarrayCenteringNormalizer extends AbstractAnalysis implements N
         if (profile.length > 0)
             sum /= profile.length;
         return (double) sum;
+    }
+
+
+    /**
+     * Compute the median value for the numbers in <code>profile</code>.
+     *
+     * @param profile
+     * @return
+     */
+    private double getMedian(double[] profile) {
+        if (profile == null || profile.length == 0)
+            return 0.0;
+
+        Arrays.sort(profile);
+        return profile[profile.length/2];
     }
 
 }
