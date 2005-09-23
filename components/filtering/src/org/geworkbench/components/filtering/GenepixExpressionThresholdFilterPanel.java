@@ -66,13 +66,13 @@ public class GenepixExpressionThresholdFilterPanel extends AbstractSaveableParam
         container.setPreferredSize(new Dimension(400, 80));
         this.add(container);
         Cy3MinValue.setValue(new Double(0.0));
-        Cy3MinValue.setFocusLostBehavior(JFormattedTextField.COMMIT);
+        Cy3MinValue.setFocusLostBehavior(JFormattedTextField.COMMIT_OR_REVERT);
         Cy3MaxValue.setValue(new Double(0.0));
-        Cy3MaxValue.setFocusLostBehavior(JFormattedTextField.COMMIT);
+        Cy3MaxValue.setFocusLostBehavior(JFormattedTextField.COMMIT_OR_REVERT);
         Cy5MinValue.setValue(new Double(0.0));
-        Cy5MinValue.setFocusLostBehavior(JFormattedTextField.COMMIT);
+        Cy5MinValue.setFocusLostBehavior(JFormattedTextField.COMMIT_OR_REVERT);
         Cy5MaxValue.setValue(new Double(0.0));
-        Cy5MaxValue.setFocusLostBehavior(JFormattedTextField.COMMIT);
+        Cy5MaxValue.setFocusLostBehavior(JFormattedTextField.COMMIT_OR_REVERT);
     }
 
     /**
