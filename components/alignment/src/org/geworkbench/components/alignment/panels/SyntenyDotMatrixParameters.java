@@ -386,10 +386,16 @@ String str=null;
             tmp = new String("JOB_ID: " + job_id + "\n");
             fout.write(tmp.getBytes());
 
-            tmp = new String("PROGRAM: " + (String)ProgramBox.getSelectedItem() + "\n");
+            String prg=new String((String)ProgramBox.getSelectedItem());
+            if(prg.indexOf("SyntenyMap")!=-1){
+                ProcessStatus.setText("SyntenyMap is not supported yet for this input");
+                return;
+            }
+
+            tmp = new String("PROGRAM: " + prg + "\n");
             fout.write(tmp.getBytes());
 
-            tmp = new String("REQUEST_TYPE: DOTMATRIX\n");
+            tmp = new String("REQUEST_TYPE: G_DOTMATRIX\n");
             fout.write(tmp.getBytes());
 
             String genome=new String(GPosX.getGenome());

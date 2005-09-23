@@ -625,7 +625,7 @@ public class SyntenyParameters
             String tmp;
             tmp = new String("JOB_ID: " + job_id + "\n");
             fout.write(tmp.getBytes());
-            tmp = new String("REQUEST_TYPE: SYNTENY_MAP\n");
+            tmp = new String("REQUEST_TYPE: M_SMAP\n");
             fout.write(tmp.getBytes());
 
             tmp = new String("PROGRAM: " + (String)ProgramBox.getSelectedItem() + "\n");
@@ -798,7 +798,7 @@ public class SyntenyParameters
             String tmp;
             tmp = new String("JOB_ID: " + job_id + "\n");
             fout.write(tmp.getBytes());
-            tmp = new String("REQUEST_TYPE: DOTMATRIX\n");
+            tmp = new String("REQUEST_TYPE: M_DOTMATRIX\n");
             fout.write(tmp.getBytes());
 
             tmp = new String("PROGRAM: "+(String)ProgramBox.getSelectedItem()+"\n");
