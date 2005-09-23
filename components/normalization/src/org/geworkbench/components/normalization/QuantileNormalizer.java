@@ -36,17 +36,27 @@ import java.util.Arrays;
  * the exact same approach can be used ar the probeset level.
  */
 public class QuantileNormalizer extends AbstractAnalysis implements NormalizingAnalysis {
-    int analysisType;
-    int arrayCount;
-    int markerCount;
+    // Static fields used to designate the available user option within the
+    // normalizer's parameters panel.
+    public static final int MARKER_PROFILE_MEAN = 0;
+    public static final int MICROARRAY_MEAN = 1;
+    /**
+     * Code describing the user-specified preference for the averaging method to
+     * use. It takes one of the values <code>MARKER_PROFILE_MEAN</code>,
+     * <code>MICROARRAY_MEAN</code>.
+     */
+    int averagingType = -1;
+
+    int arrayCount;   // The number of arrays in the input dataset.
+    int markerCount;  // The number of markers in the input dataset.
 
     public QuantileNormalizer() {
-        analysisType = AbstractAnalysis.QUANTILE_NORMALIZER_TYPE;
         setLabel("Quantile Normalization");
+        setDefaultPanel(new QuantileNormalizerPanel());
     }
 
     public int getAnalysisType() {
-        return analysisType;
+        return AbstractAnalysis.QUANTILE_NORMALIZER_TYPE;
     }
 
     public AlgorithmExecutionResults execute(Object input) {
@@ -56,7 +66,17 @@ public class QuantileNormalizer extends AbstractAnalysis implements NormalizingA
 
         arrayCount  = ((DSMicroarraySet) input).size();
         markerCount = ((DSMicroarraySet) input).getMarkers().size();
+        if (arrayCount < 2)
+            return new AlgorithmExecutionResults(false, "Data set must have at least 2 microarrays", input);
+
         DSMutableMarkerValue [][] arrays = new DSMutableMarkerValue[arrayCount][markerCount];
+
+        // Collect the parameters needed for the execution of the normalizer
+        averagingType = ((QuantileNormalizerPanel) aspp).getAveragingType();
+
+        // Replace missing values with the average specified
+        replaceMissingValues((DSMicroarraySet) input);
+
         for (int arrayIndex = 0; arrayIndex < arrayCount; ++arrayIndex){
             DSMutableMarkerValue[] anArray = ((DSMicroarray)((DSMicroarraySet) input).
                                               get(arrayIndex)).getMarkerValues();
@@ -75,6 +95,76 @@ public class QuantileNormalizer extends AbstractAnalysis implements NormalizingA
         return new AlgorithmExecutionResults(true, "No errors", input);
     }
 
+
+    /**
+     * Replace missing values in the input microarray set with either the average
+     * value of either their corresponding marker or their correponding microarray,
+     * per the preference set in the parameters panel.
+     */
+    private void replaceMissingValues(DSMicroarraySet<DSMicroarray> maSet){
+        DSMutableMarkerValue markerValue = null;
+        double meanValue = 0.0;
+        int nonMissingCount;
+
+        if (averagingType == MARKER_PROFILE_MEAN) {
+            for (int i = 0; i < markerCount; ++i) {
+                meanValue = 0.0;
+                nonMissingCount = 0;
+                for (int j = 0; j < arrayCount; ++j) {
+                    markerValue = (DSMutableMarkerValue) maSet.get(j).
+                                  getMarkerValue(i);
+                    if (!markerValue.isMissing()) {
+                        meanValue += markerValue.getValue();
+                        ++nonMissingCount;
+                    }
+                }
+
+                // Calculate the mean.
+                if (nonMissingCount > 0)
+                    meanValue /= nonMissingCount;
+                // Check if there are missing values for the marker at hand before
+                // proceeding with the replacement.
+                if (nonMissingCount < arrayCount)
+                    for (int j = 0; j < arrayCount; ++j) {
+                        markerValue = (DSMutableMarkerValue) maSet.get(j).
+                                      getMarkerValue(i);
+                        if (markerValue.isMissing()) {
+                            markerValue.setValue(meanValue);
+                            markerValue.setMissing(false);
+                        }
+                    }
+            }
+        } else { // that is, if avaragingType == MICROARRAY_MEAN
+            for (int i = 0; i < arrayCount; ++i) {
+                meanValue = 0.0;
+                nonMissingCount = 0;
+                for (int j = 0; j < markerCount; ++j) {
+                    markerValue = (DSMutableMarkerValue) maSet.get(i).
+                                  getMarkerValue(j);
+                    if (!markerValue.isMissing()) {
+                        meanValue += markerValue.getValue();
+                        ++nonMissingCount;
+                    }
+
+                }
+
+                // Calculate the mean.
+                if (nonMissingCount > 0)
+                    meanValue /= nonMissingCount;
+                // Check if there are missing values for the marker at hand before
+                // proceeding with the replacement.
+                if (nonMissingCount < markerCount)
+                    for (int j = 0; j < markerCount; ++j) {
+                        markerValue = (DSMutableMarkerValue) maSet.get(i).
+                                      getMarkerValue(j);
+                        if (markerValue.isMissing()) {
+                            markerValue.setValue(meanValue);
+                            markerValue.setMissing(false);
+                        }
+                    }
+            }
+        }
+    }
     /**
      * Return the mean value of the <code>colIndex</code>-th column of the
      * <code>arrays[][]</code> matrix.
