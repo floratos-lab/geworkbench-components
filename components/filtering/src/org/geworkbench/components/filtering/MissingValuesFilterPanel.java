@@ -48,7 +48,7 @@ public class MissingValuesFilterPanel extends AbstractSaveableParameterPanel imp
         container.setPreferredSize(new Dimension(220, 27));
         this.add(container);
         maxMissingValue.setValue(new Integer(0));
-        maxMissingValue.setFocusLostBehavior(JFormattedTextField.COMMIT);
+        maxMissingValue.setFocusLostBehavior(JFormattedTextField.COMMIT_OR_REVERT);
     }
 
     /**

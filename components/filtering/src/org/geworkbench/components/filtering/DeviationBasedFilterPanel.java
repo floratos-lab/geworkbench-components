@@ -54,7 +54,7 @@ public class DeviationBasedFilterPanel extends AbstractSaveableParameterPanel im
         container.setPreferredSize(new Dimension(250, 55));
         this.add(container);
         deviationCutoff.setValue(new Double(0.0));
-        deviationCutoff.setFocusLostBehavior(JFormattedTextField.COMMIT);
+        deviationCutoff.setFocusLostBehavior(JFormattedTextField.COMMIT_OR_REVERT);
     }
 
     /**
