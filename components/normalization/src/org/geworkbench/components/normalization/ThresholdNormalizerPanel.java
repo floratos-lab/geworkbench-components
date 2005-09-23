@@ -56,7 +56,7 @@ public class ThresholdNormalizerPanel extends AbstractSaveableParameterPanel imp
         container.setPreferredSize(new Dimension(220, 80));
         this.add(container);
         cutoffEdit.setValue(new Double(0.0));
-        cutoffEdit.setFocusLostBehavior(JFormattedTextField.COMMIT);
+        cutoffEdit.setFocusLostBehavior(JFormattedTextField.COMMIT_OR_REVERT);
     }
 
     /**
