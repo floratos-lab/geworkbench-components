@@ -19,7 +19,6 @@ import org.jfree.ui.SortableTable;
 import org.jfree.ui.SortableTableModel;
 
 import javax.swing.*;
-import javax.swing.table.DefaultTableCellRenderer;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.IOException;

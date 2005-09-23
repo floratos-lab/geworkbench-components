@@ -20,8 +20,6 @@ import javax.swing.tree.TreeSelectionModel;
 import javax.swing.event.TreeModelListener;
 import javax.swing.event.TreeModelEvent;
 import org.geworkbench.components.alignment.synteny.SyntenyMapFragment;
-import java.util.Properties;
-import org.biojava.bio.seq.db.SequenceDB;
 import org.geworkbench.engine.config.events.EventSource;
 import org.geworkbench.engine.config.VisualPlugin;
 
@@ -32,8 +30,6 @@ import org.geworkbench.components.alignment.synteny.DAS_Retriver;
 import org.geworkbench.components.alignment.synteny.SyntenyMapObject;
 import org.geworkbench.engine.management.Subscribe;
 import org.geworkbench.events.GeneSelectorEvent;
-import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
-import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import com.borland.jbcl.layout.VerticalFlowLayout;

@@ -7,7 +7,6 @@ import org.geworkbench.events.SubpanelChangedEvent;
 import org.geworkbench.builtin.projects.ProjectPanel;
 import org.geworkbench.builtin.projects.ProjectSelection;
 import org.geworkbench.engine.management.*;
-import org.geworkbench.util.JAutoList;
 import org.geworkbench.util.sequences.SequenceDB;
 import org.geworkbench.util.visualproperties.PanelVisualProperties;
 import org.geworkbench.util.visualproperties.PanelVisualPropertiesManager;

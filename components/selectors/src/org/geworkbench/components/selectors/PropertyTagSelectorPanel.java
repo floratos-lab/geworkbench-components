@@ -14,7 +14,6 @@ import org.geworkbench.util.visualproperties.PanelVisualPropertiesManager;
 import org.geworkbench.util.visualproperties.VisualPropertiesDialog;
 import org.geworkbench.bison.annotation.DSCriteria;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
-import org.geworkbench.bison.datastructure.biocollections.microarrays.CSExprMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.bioobjects.DSBioObject;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;

@@ -2,10 +2,8 @@ package org.geworkbench.components.plots;
 
 import org.geworkbench.events.ImageSnapshotEvent;
 import org.geworkbench.events.ProjectEvent;
-import org.geworkbench.events.GeneSelectorEvent;
 import org.geworkbench.events.MarkerSelectedEvent;
 import org.geworkbench.events.PhenotypeSelectedEvent;
-import org.geworkbench.events.PhenotypeSelectorEvent;
 import org.geworkbench.util.pathwaydecoder.RankSorter;
 import org.geworkbench.builtin.projects.ProjectPanel;
 import org.geworkbench.builtin.projects.ProjectSelection;
