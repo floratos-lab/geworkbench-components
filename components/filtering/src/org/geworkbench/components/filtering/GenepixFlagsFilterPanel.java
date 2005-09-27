@@ -29,7 +29,7 @@ public class GenepixFlagsFilterPanel extends AbstractSaveableParameterPanel impl
     /**
      * Inner class to represent FlagDetail.
      */
-    private class FlagDetail {
+    private class FlagDetail implements Serializable{
         String label;
         String number;
         boolean isFiltered;
@@ -70,14 +70,10 @@ public class GenepixFlagsFilterPanel extends AbstractSaveableParameterPanel impl
             "The Genepix file has no flags.";
     int unflaggedProbeNum = 0;
     Map flaggedProbeNum;
-    final static Hashtable<String,
+    final  Hashtable<String,
             String> flagExplanationTable = new Hashtable<String, String>();
     static {
-        flagExplanationTable.put("-100", "Bad");
-        flagExplanationTable.put("100", "Good");
-        flagExplanationTable.put("-50", "Not Found");
-        flagExplanationTable.put("-75", "Absent");
-        flagExplanationTable.put("0", "Unflagged");
+
     }
 
     final String PRESENT_OPTION = "P";
@@ -85,7 +81,7 @@ public class GenepixFlagsFilterPanel extends AbstractSaveableParameterPanel impl
     final String MARGINAL_OPTION = "M";
     private GridLayout gridLayout1 = new GridLayout();
     private JLabel callSelectionLabel = new JLabel(
-            "<html><p>Select flags to</p><p>be filtered out.</p></html>");
+            "<html><p>Select flags to be filtered out.</p></html>");
     private JCheckBox presentButton = new JCheckBox(PRESENT_OPTION);
     private JCheckBox absentButton = new JCheckBox(ABSENT_OPTION);
     private JCheckBox marginalButton = new JCheckBox(MARGINAL_OPTION);
@@ -98,7 +94,7 @@ public class GenepixFlagsFilterPanel extends AbstractSaveableParameterPanel impl
     private JPanel flagInfoPanel = new JPanel();
     private JLabel infoLabel;
     JPanel container = new JPanel();
-
+    BoxLayout boxlayout;
     JTable table1;
     public GenepixFlagsFilterPanel() {
         try {
@@ -110,19 +106,26 @@ public class GenepixFlagsFilterPanel extends AbstractSaveableParameterPanel impl
     }
 
     private void jbInit() throws Exception {
+        flagExplanationTable.put("-100", "Bad");
+        flagExplanationTable.put("100", "Good");
+        flagExplanationTable.put("-50", "Not Found");
+        flagExplanationTable.put("-75", "Absent");
+        flagExplanationTable.put("0", "Unflagged");
+
         this.setLayout(new FlowLayout());
 
         gridLayout1.setColumns(1);
 
         gridLayout1.setRows(2);
-
-        container.setLayout(new BorderLayout());
+        boxlayout = new BoxLayout(container, BoxLayout.Y_AXIS);
+        container.setLayout(boxlayout);
         infoLabel = new JLabel(nonApplicableReminder);
 
         // container.add(callSelectionLabel);
 
-        container.add(BorderLayout.NORTH, infoLabel);
-        container.setPreferredSize(new Dimension(450, 150));
+        container.add(infoLabel);
+        container.add(Box.createVerticalGlue());
+        container.setPreferredSize(new Dimension(300, 100));
         this.add(container);
     }
 
@@ -131,7 +134,8 @@ public class GenepixFlagsFilterPanel extends AbstractSaveableParameterPanel impl
      */
     public void setFlagInfoPanel() {
         container.removeAll();
-        container.add(BorderLayout.CENTER, new Label(nonApplicableReminder));
+        container.add(new Label(nonApplicableReminder));
+         container.add(Box.createVerticalGlue());
     }
 
     /**
@@ -141,8 +145,9 @@ public class GenepixFlagsFilterPanel extends AbstractSaveableParameterPanel impl
      */
     public void setFlagInfoPanel(String aString) {
         container.removeAll();
-        container.add(BorderLayout.NORTH, new Label(nonAppReminder));
-        container.add(BorderLayout.CENTER, new Label(aString));
+        container.add(  new Label(nonAppReminder));
+        container.add(  new Label(aString));
+        container.add(Box.createVerticalGlue());
         repaint();
     }
 
@@ -174,9 +179,10 @@ public class GenepixFlagsFilterPanel extends AbstractSaveableParameterPanel impl
         table1.setSelectionModel(rowSM);
 
         JScrollPane hitsPane = new JScrollPane(table1);
-        container.add(BorderLayout.NORTH,
+        container.add(
                       new Label("Please select flags to filter:"));
-        container.add(BorderLayout.CENTER, hitsPane);
+        container.add(  hitsPane);
+        container.add(Box.createVerticalGlue());
         //setFlagInfoPanel(hitsPane);
         repaint();
         revalidate();
