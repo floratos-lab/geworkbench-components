@@ -29,7 +29,7 @@ public class GenepixFlagsFilterPanel extends AbstractSaveableParameterPanel impl
     /**
      * Inner class to represent FlagDetail.
      */
-    private class FlagDetail implements Serializable{
+    private class FlagDetail implements Serializable {
         String label;
         String number;
         boolean isFiltered;
@@ -70,29 +70,19 @@ public class GenepixFlagsFilterPanel extends AbstractSaveableParameterPanel impl
             "The Genepix file has no flags.";
     int unflaggedProbeNum = 0;
     Map flaggedProbeNum;
-    final  Hashtable<String,
+    final Hashtable<String,
             String> flagExplanationTable = new Hashtable<String, String>();
     static {
 
     }
 
-    final String PRESENT_OPTION = "P";
-    final String ABSENT_OPTION = "A";
-    final String MARGINAL_OPTION = "M";
-    private GridLayout gridLayout1 = new GridLayout();
-    private JLabel callSelectionLabel = new JLabel(
-            "<html><p>Select flags to be filtered out.</p></html>");
-    private JCheckBox presentButton = new JCheckBox(PRESENT_OPTION);
-    private JCheckBox absentButton = new JCheckBox(ABSENT_OPTION);
-    private JCheckBox marginalButton = new JCheckBox(MARGINAL_OPTION);
-    private JCheckBox[] flagsBox;
-    private boolean presentButtonStatus;
-    private boolean absentButtonStatus;
-    private boolean marginalButtonStatus;
+
+
     JScrollPane flagInfoPane = new JScrollPane();
     private ArrayList hits = new ArrayList<FlagDetail>();
-    private JPanel flagInfoPanel = new JPanel();
+
     private JLabel infoLabel;
+    private JLabel noFlagLabel;
     JPanel container = new JPanel();
     BoxLayout boxlayout;
     JTable table1;
@@ -111,31 +101,25 @@ public class GenepixFlagsFilterPanel extends AbstractSaveableParameterPanel impl
         flagExplanationTable.put("-50", "Not Found");
         flagExplanationTable.put("-75", "Absent");
         flagExplanationTable.put("0", "Unflagged");
-
-        this.setLayout(new FlowLayout());
-
-        gridLayout1.setColumns(1);
-
-        gridLayout1.setRows(2);
-        boxlayout = new BoxLayout(container, BoxLayout.Y_AXIS);
+       boxlayout = new BoxLayout(container, BoxLayout.Y_AXIS);
         container.setLayout(boxlayout);
         infoLabel = new JLabel(nonApplicableReminder);
-
-        // container.add(callSelectionLabel);
-
         container.add(infoLabel);
         container.add(Box.createVerticalGlue());
-        container.setPreferredSize(new Dimension(300, 100));
+        container.setPreferredSize(new Dimension(380, 150));
         this.add(container);
+
     }
 
     /**
      * setFlagInfoPanel
      */
     public void setFlagInfoPanel() {
-        container.removeAll();
-        container.add(new Label(nonApplicableReminder));
-         container.add(Box.createVerticalGlue());
+         container.removeAll();
+        container.add(new JLabel(nonApplicableReminder));
+        //container.add(Box.createVerticalGlue());
+        revalidate();
+        repaint();
     }
 
     /**
@@ -144,10 +128,12 @@ public class GenepixFlagsFilterPanel extends AbstractSaveableParameterPanel impl
      * @param aString String
      */
     public void setFlagInfoPanel(String aString) {
-        container.removeAll();
-        container.add(  new Label(nonAppReminder));
-        container.add(  new Label(aString));
-        container.add(Box.createVerticalGlue());
+         container.removeAll();
+
+        container.add(new JLabel(nonAppReminder));
+        container.add(new JLabel(aString));
+        //container.add(Box.createVerticalGlue());
+        revalidate();
         repaint();
     }
 
@@ -168,7 +154,7 @@ public class GenepixFlagsFilterPanel extends AbstractSaveableParameterPanel impl
 
         FlagsTableModel myModel = new FlagsTableModel();
         JTable table1 = new JTable(myModel);
-        table1.setPreferredScrollableViewportSize(new Dimension(115, 90));
+        table1.setPreferredScrollableViewportSize(new Dimension(200, 90));
         table1.getColumnModel().getColumn(0).setPreferredWidth(15);
         table1.getColumnModel().getColumn(1).setPreferredWidth(30);
         table1.getColumnModel().getColumn(2).setPreferredWidth(30);
@@ -180,12 +166,11 @@ public class GenepixFlagsFilterPanel extends AbstractSaveableParameterPanel impl
 
         JScrollPane hitsPane = new JScrollPane(table1);
         container.add(
-                      new Label("Please select flags to filter:"));
-        container.add(  hitsPane);
+                new JLabel("Please select flags to filter:"));
+        container.add(hitsPane);
         container.add(Box.createVerticalGlue());
-        //setFlagInfoPanel(hitsPane);
-        repaint();
         revalidate();
+        repaint();
 
     }
 
@@ -255,22 +240,26 @@ public class GenepixFlagsFilterPanel extends AbstractSaveableParameterPanel impl
             /*get specific BlastObj based on row number*/
             hit = (FlagDetail) hits.get(row);
             /*display data depending on which column is chosen*/
-            switch (col) {
-            case 0:
-                return hit.isFiltered;
-            case 1:
-                return hit.getLabel(); //accesion number
-            case 2:
-                if (flagExplanationTable.get(hit.getLabel()) != null) {
-                    return flagExplanationTable.get(hit.getLabel());
+            if (hit != null) {
+                switch (col) {
+                case 0:
+                    return hit.isFiltered;
+                case 1:
+                    return hit.getLabel(); //accesion number
+                case 2:
+                    if (flagExplanationTable.get(hit.getLabel()) != null) {
+                        return flagExplanationTable.get(hit.getLabel());
+                    }
+                    return "N/A";
+                case 3:
+                    if (flaggedProbeNum!=null && flaggedProbeNum.get(hit.getLabel()) != null) {
+                        return flaggedProbeNum.get(hit.getLabel());
+                    }
+                    return "1"; //description
                 }
-                return "N/A";
-            case 3:
-                if (flaggedProbeNum.get(hit.getLabel()) != null) {
-                    return flaggedProbeNum.get(hit.getLabel());
-                }
-                return "1"; //description
+
             }
+
             return null;
         }
 

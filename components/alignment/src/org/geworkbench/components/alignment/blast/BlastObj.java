@@ -420,23 +420,27 @@ public class BlastObj {
                     if (line.startsWith("</form><pre>>") || line.trim().startsWith("<input name=\"__from\" type=\"hidden\" value=\"\">") || line.matches(".</form><pre>>.")) {
                         //  System.out.println("found" + line);
                         String[] str = line.split(">>");
-                        String name = "";
+                        StringBuffer name = new StringBuffer();
                         String label = "";
                         if (str.length > 1) {
                             label = ">" + str[1] + "\n";
                         }
-                        line = in.readLine();
-                        while (line!=null && !line.startsWith("</pre>")) {
-                            name = name + line + "\n";
-                            line = in.readLine();
+
+                        while ((line = in.readLine())!=null && !line.startsWith("</pre>")) {
+
+                            name.append(line + "\n");
+                            //name = name + line + "\n";
+                           // line = in.readLine();
                         }
                         // System.out.println("In BlastObj, name: Seq: " + name);
-                        CSSequence seq = new CSSequence(label, name);
+                        CSSequence seq = new CSSequence(label, name.toString());
                         return seq;
                     }
                 }
             } catch (IOException e) {
-                System.out.println(e);
+                  e.printStackTrace();
+            } catch (Exception e){
+                e.printStackTrace();
             }
 
         }
