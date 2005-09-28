@@ -113,7 +113,7 @@ public class GenepixFlagsFilter extends AbstractAnalysis implements
                 String compatibilityLabel = ((CSExprMicroarraySet) dataSet).
                                             getCompatibilityLabel();
                 CSExprMicroarraySet maSet = (CSExprMicroarraySet) dataSet;
-                if (compatibilityLabel.equals("Genepix")) {
+                if (compatibilityLabel != null && compatibilityLabel.equals("Genepix")) {
                     int markerCount = maSet.getMarkers().size();
                     int arrayCount = maSet.size();
                     for (int i = 0; i < arrayCount; i++) {
