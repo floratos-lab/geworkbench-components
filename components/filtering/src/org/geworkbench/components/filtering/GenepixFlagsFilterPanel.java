@@ -131,7 +131,9 @@ public class GenepixFlagsFilterPanel extends AbstractSaveableParameterPanel impl
          container.removeAll();
 
         container.add(new JLabel(nonAppReminder));
-        container.add(new JLabel(aString));
+        if(aString!=null){
+            container.add(new JLabel(aString));
+        }
         //container.add(Box.createVerticalGlue());
         revalidate();
         repaint();

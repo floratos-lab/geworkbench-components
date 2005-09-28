@@ -155,22 +155,30 @@ public class GenepixFlagsFilter extends AbstractAnalysis implements
                     } else {
                         ((GenepixFlagsFilterPanel) aspp).setFlagInfoPanel(
                                 "Only unFlagged data are found. The total probe number is " +
-                                unflaggedProbeNum);
+                                unflaggedProbeNum + ".");
                     }
                 } else {
                     ((GenepixFlagsFilterPanel) aspp).setFlagInfoPanel(
                             "The data format is: " + compatibilityLabel);
 
                 }
+            }else {
+                String datatype = dataSet.getCompatibilityLabel();
+                    ((GenepixFlagsFilterPanel) aspp).setFlagInfoPanel(
+                         "The data format is: " +  datatype);
+
+                }
+
 
             }
 
-        }
+
 
     }
 
     // We override here the method AbstractAnalysis.saveParametersUnderName(String name)
     // to prohibit saving the "parameters" panel as this is not appropriate for
     // this filter (due to the fact that the parameters are dataset specific).
-    public void saveParametersUnderName(String name) {}
+    public void saveParametersUnderName(String name) {
+          }
 }
