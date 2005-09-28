@@ -168,4 +168,9 @@ public class GenepixFlagsFilter extends AbstractAnalysis implements
         }
 
     }
+
+    // We override here the method AbstractAnalysis.saveParametersUnderName(String name)
+    // to prohibit saving the "parameters" panel as this is not appropriate for
+    // this filter (due to the fact that the parameters are dataset specific).
+    public void saveParametersUnderName(String name) {}
 }
