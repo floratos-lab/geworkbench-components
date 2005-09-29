@@ -452,150 +452,170 @@ public class EVDPanel extends MicroarrayViewEventBase implements MenuListener {
         if (maSet == null) {
             return null;
         }
+        try{
 
-        //draw base array.
-        DSMicroarray ma = maSet.get(selectedId);
-        XYSeries dataSeries = new XYSeries(ma.getLabel() + "(base)");
-        int[] basketValues = new int[basketNum + 1];
-        for (int i = 0; i < basketNum; i++) {
-            basketValues[i] = 0;
-        }
-        if (maSetView.markers() == null) {
-            return null;
-        }
-        int numGenes = maSetView.markers().size();
-        hs = new HistogramPanel(basketNum);
-        hs.process(ma, minValue, maxValue);
 
-        basketValues = hs.getBasketvalues();
-
-        //get rid of 0s. Not inside but on boundary
-        //Should not remove 0s. need more care review.
-        int maxIndex = basketNum;
-        int minIndex = 0;
-        if (basketValues == null) {
-            return null;
-        }
-        if (basketNum == 0) {
-            dataSeries.add(minValue, basketValues[0]);
-        } else {
-            //            for (int zeroSpot = basketNum; zeroSpot > 0; zeroSpot--) {
-            //                if (basketValues[zeroSpot] > 0) {
-            //                    maxIndex = zeroSpot;
-            //                    break;
-            //
-            //                }
-            //
-            //            }
-            //            for (int zeroSpot = 0; zeroSpot <= maxIndex; zeroSpot++) {
-            //                if (basketValues[zeroSpot] > 0) {
-            //                    minIndex = zeroSpot;
-            //                    break;
-            //
-            //                }
-
-            //            }
-
-            for (int i = minIndex; i <= maxIndex; i++) {
-
-                if (basketValues[i] > 0) {
-                    dataSeries.add(i * ((maxValue - minValue) / basketNum) + minValue, basketValues[i]);
-
-                }
-
+            //draw base array.
+            DSMicroarray ma = maSet.get(selectedId);
+            XYSeries dataSeries = new XYSeries(ma.getLabel() + "(base)");
+            int[] basketValues = new int[basketNum + 1];
+            for (int i = 0; i < basketNum; i++) {
+                basketValues[i] = 0;
             }
-        }
-        plots.addSeries(dataSeries);
-        //clear the old propertiesList.
-        propertiesList.clear();
+            if (maSetView.markers() == null) {
+                return null;
+            }
+            int numGenes = maSetView.markers().size();
+            hs = new HistogramPanel(basketNum);
+            hs.process(ma, minValue, maxValue);
 
-        //drew active phenotpye data.
+            basketValues = hs.getBasketvalues();
 
-        int panelIndex = 0;
-        if (active && maSetView.size() > 0) {
-            for (int pId = 0; pId < maSetView.getItemPanel().panels().size(); pId++) {
-                DSPanel<DSMicroarray> panel = maSetView.getItemPanel().panels().get(pId);
-                PanelVisualProperties properties = propertiesManager.getVisualProperties(panel);
-                panelIndex++;
-                if (properties == null) {
-                    properties = propertiesManager.getDefaultVisualProperties(panelIndex);
+            //get rid of 0s. Not inside but on boundary
+            //Should not remove 0s. need more care review.
+            int maxIndex = basketNum;
+            int minIndex = 0;
+            if (basketValues == null) {
+                return null;
+            }
+            if (basketNum == 0) {
+                dataSeries.add(minValue, basketValues[0]);
+            } else {
+                //            for (int zeroSpot = basketNum; zeroSpot > 0; zeroSpot--) {
+                //                if (basketValues[zeroSpot] > 0) {
+                //                    maxIndex = zeroSpot;
+                //                    break;
+                //
+                //                }
+                //
+                //            }
+                //            for (int zeroSpot = 0; zeroSpot <= maxIndex; zeroSpot++) {
+                //                if (basketValues[zeroSpot] > 0) {
+                //                    minIndex = zeroSpot;
+                //                    break;
+                //
+                //                }
+
+                //            }
+
+                for (int i = minIndex; i <= maxIndex; i++) {
+
+                    if (basketValues[i] > 0) {
+                        dataSeries.add(i * ((maxValue - minValue) / basketNum) +
+                                       minValue, basketValues[i]);
+
+                    }
+
                 }
+            }
+            plots.addSeries(dataSeries);
+            //clear the old propertiesList.
+            propertiesList.clear();
 
-                int itemNo = panel.size();
-                if (itemNo > 0) {
-                    for (int k = 0; k < itemNo; k++) {
-                        int serial = panel.get(k).getSerial();
+            //drew active phenotpye data.
 
-                        DSMicroarray currentMicroarray = panel.get(k);
-                        propertiesList.add(properties);
+            int panelIndex = 0;
+            if (active && maSetView.size() > 0) {
+                for (int pId = 0; pId < maSetView.getItemPanel().panels().size();
+                               pId++) {
+                    DSPanel<DSMicroarray>
+                            panel = maSetView.getItemPanel().panels().get(pId);
+                    PanelVisualProperties properties = propertiesManager.
+                            getVisualProperties(panel);
+                    panelIndex++;
+                    if (properties == null) {
+                        properties = propertiesManager.
+                                     getDefaultVisualProperties(panelIndex);
+                    }
 
-                        basketValues = new int[basketNum + 1];
-                        for (int i = 0; i < basketNum; i++) {
-                            basketValues[i] = 0;
-                        }
-                        dataSeries = new XYSeries(currentMicroarray.getLabel());
+                    int itemNo = panel.size();
+                    if (itemNo > 0) {
+                        for (int k = 0; k < itemNo; k++) {
+                            int serial = panel.get(k).getSerial();
 
-                        numGenes = maSetView.markers().size();
-                        for (int geneCtr = 0; geneCtr < numGenes; geneCtr++) {
-                            DSGeneMarker marker = maSetView.markers().get(geneCtr);
+                            DSMicroarray currentMicroarray = panel.get(k);
+                            propertiesList.add(properties);
 
-                            double value = currentMicroarray.getMarkerValue(marker).getValue();
+                            basketValues = new int[basketNum + 1];
+                            for (int i = 0; i < basketNum; i++) {
+                                basketValues[i] = 0;
+                            }
+                            dataSeries = new XYSeries(currentMicroarray.
+                                    getLabel());
 
-                            if (Double.isNaN(value)) {
-                                value = 0;
-                            } else {
-                                int count = (int) ((value - minValue) / ((maxValue - minValue) / basketNum));
-                                if (count >= 0 && count <= basketNum) {
-                                    basketValues[(int) ((value - minValue) / ((maxValue - minValue) / basketNum))]++;
+                            numGenes = maSetView.markers().size();
+                            for (int geneCtr = 0; geneCtr < numGenes; geneCtr++) {
+                                DSGeneMarker marker = maSetView.markers().get(
+                                        geneCtr);
+
+                                double value = currentMicroarray.getMarkerValue(
+                                        marker).getValue();
+
+                                if (Double.isNaN(value)) {
+                                    value = 0;
                                 } else {
-                                    System.err.println(value + " " + geneCtr + maSetView.markers().get(geneCtr).getLabel());
-                                }
-
-                            }
-
-                        }
-
-                        maxIndex = basketNum;
-                        minIndex = 0;
-                        if (basketNum == 0) {
-                            dataSeries.add(minValue, basketValues[0]);
-                        } else {
-                            //
-                            //                            for (int zeroSpot = basketNum; zeroSpot > 0;
-                            //                                                zeroSpot--) {
-                            //                                if (basketValues[zeroSpot] > 0) {
-                            //                                    maxIndex = zeroSpot;
-                            //                                    break;
-                            //
-                            //                                }
-                            //
-                            //                            }
-                            //                            for (int zeroSpot = 0; zeroSpot <= maxIndex;
-                            //                                                zeroSpot++) {
-                            //                                if (basketValues[zeroSpot] > 0) {
-                            //                                    minIndex = zeroSpot;
-                            //                                    break;
-                            //
-                            //                                }
-                            //
-                            //                            }
-
-                            for (int i = minIndex; i <= maxIndex; i++) {
-                                if (basketValues[i] > 0) {
-                                    dataSeries.add(i * ((maxValue - minValue) / basketNum) + minValue, basketValues[i]);
+                                    int count = (int) ((value - minValue) /
+                                            ((maxValue - minValue) / basketNum));
+                                    if (count >= 0 && count <= basketNum) {
+                                        basketValues[(int) ((value - minValue) /
+                                                ((maxValue - minValue) /
+                                                 basketNum))]++;
+                                    } else {
+                                        System.err.println(value + " " +
+                                                geneCtr +
+                                                maSetView.markers().get(geneCtr).
+                                                 getLabel());
+                                    }
 
                                 }
 
                             }
 
-                            plots.addSeries(dataSeries);
+                            maxIndex = basketNum;
+                            minIndex = 0;
+                            if (basketNum == 0) {
+                                dataSeries.add(minValue, basketValues[0]);
+                            } else {
+                                //
+                                //                            for (int zeroSpot = basketNum; zeroSpot > 0;
+                                //                                                zeroSpot--) {
+                                //                                if (basketValues[zeroSpot] > 0) {
+                                //                                    maxIndex = zeroSpot;
+                                //                                    break;
+                                //
+                                //                                }
+                                //
+                                //                            }
+                                //                            for (int zeroSpot = 0; zeroSpot <= maxIndex;
+                                //                                                zeroSpot++) {
+                                //                                if (basketValues[zeroSpot] > 0) {
+                                //                                    minIndex = zeroSpot;
+                                //                                    break;
+                                //
+                                //                                }
+                                //
+                                //                            }
 
+                                for (int i = minIndex; i <= maxIndex; i++) {
+                                    if (basketValues[i] > 0) {
+                                        dataSeries.add(i *
+                                                ((maxValue - minValue) /
+                                                 basketNum) + minValue,
+                                                basketValues[i]);
+
+                                    }
+
+                                }
+
+                                plots.addSeries(dataSeries);
+
+                            }
                         }
                     }
                 }
-            }
 
-        }
+            }
+        }catch (IndexOutOfBoundsException e){return null;}
         return plots;
     }
 
