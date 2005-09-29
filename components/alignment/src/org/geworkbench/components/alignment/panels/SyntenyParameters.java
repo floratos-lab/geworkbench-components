@@ -37,7 +37,6 @@ import org.geworkbench.bison.datastructure.biocollections.microarrays.
         DSMicroarraySet;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
-import com.borland.jbcl.layout.VerticalFlowLayout;
 import javax.swing.border.TitledBorder;
 
 /**
