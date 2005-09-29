@@ -863,6 +863,17 @@ public class SyntenyParameters extends EventSource implements VisualPlugin {
     void ButtonRun_actionPerformed(ActionEvent e) {
         int fx, tx, fy, ty, i, j;
 
+
+        // Error message...
+
+        if(((jLabelX.getText()).indexOf(">") == -1) || ((jLabelY.getText()).indexOf(">")==-1)){
+            JOptionPane.showMessageDialog
+                    (null, "Invlalid X or Y genomic region!", "Results",
+                     JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+
         FileOutputStream fout;
         String out_name = null;
         String job_id = null;
