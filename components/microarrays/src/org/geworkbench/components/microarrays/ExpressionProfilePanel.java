@@ -13,9 +13,9 @@ import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
-
 import java.awt.*;
 import java.awt.event.ActionListener;
+import java.awt.event.*;
 
 /**
  * <p>Title: caWorkbench</p>
@@ -30,6 +30,7 @@ import java.awt.event.ActionListener;
  * @author Adam Margolin
  * @version 3.0
  */
+
 public class ExpressionProfilePanel extends MicroarrayViewEventBase implements MenuListener {
 
     private JFreeChart chart;
@@ -77,19 +78,17 @@ public class ExpressionProfilePanel extends MicroarrayViewEventBase implements M
                 XYSeriesCollection plots = new XYSeriesCollection();
                 int numGenes = (genes.size() > 500) ? 500 : genes.size();
                 for (int geneCtr = 0; geneCtr < numGenes; geneCtr++) {
-                    XYSeries dataSeries = new XYSeries(genes.get(geneCtr).getGeneName());
+                    XYSeries dataSeries = new XYSeries(genes.get(geneCtr).getLabel());
                     for (int maCtr = 0; maCtr < arrays.size(); maCtr++) {
                         double value = arrays.get(maCtr).getMarkerValue(geneCtr).getValue();
                         if (Double.isNaN(value) || value <= 0) {
                             dataSeries.add(maCtr, 0);
                         } else {
-                            //                    dataSeries.add(maCtr, Math.exp(value) );
                             if (value > 0) {
                                 dataSeries.add(maCtr, Math.log(value) / log2);
                             } else {
                                 dataSeries.add(maCtr, 0);
                             }
-                            //                            dataSeries.add(maCtr, value);
                         }
                     }
                     plots.addSeries(dataSeries);
