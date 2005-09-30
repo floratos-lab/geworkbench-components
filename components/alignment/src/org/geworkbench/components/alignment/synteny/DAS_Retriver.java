@@ -102,6 +102,7 @@ public class DAS_Retriver {
 
 
     public static String GetIt(String UrlToGet) {
+
         int info;
         StringBuffer oneL = new StringBuffer();
         URL infoLink = null;
@@ -128,6 +129,7 @@ public class DAS_Retriver {
     }
 
     public static String GetItSilent(String UrlToGet) {
+
         int info;
         StringBuffer oneL = new StringBuffer();
         URL infoLink = null;
