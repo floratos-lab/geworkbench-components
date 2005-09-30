@@ -127,6 +127,30 @@ public class DAS_Retriver {
         return buf;
     }
 
+    public static String GetItSilent(String UrlToGet) {
+        int info;
+        StringBuffer oneL = new StringBuffer();
+        URL infoLink = null;
+        InputStream serverIO = null;
+        String buf = null;
+
+        try {
+            infoLink = new URL(UrlToGet);
+
+            // start the connection with the httpd and talk
+            serverIO = infoLink.openStream();
+
+            // Read from server
+            while ((info = serverIO.read()) != -1) {
+                oneL.append((char) info); /* make note of the info */
+            }
+            serverIO.close();
+            buf = new String(oneL);
+        } catch (IOException e) {
+            return null;
+        }
+        return buf;
+    }
 
 //    public static String GetIt(String UrlToGet) {
 //        int i, j, info;

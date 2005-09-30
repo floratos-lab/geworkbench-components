@@ -20,15 +20,12 @@ import javax.swing.tree.TreeSelectionModel;
 import javax.swing.event.TreeModelListener;
 import javax.swing.event.TreeModelEvent;
 import org.geworkbench.components.alignment.synteny.SyntenyMapFragment;
-import java.util.Properties;
-import org.biojava.bio.seq.db.SequenceDB;
 import org.geworkbench.engine.config.events.EventSource;
 import org.geworkbench.engine.config.VisualPlugin;
 
 import org.geworkbench.util.sequences.SequenceAnnotation;
 import org.geworkbench.builtin.projects.ProjectTreeNode;
 import org.geworkbench.util.session.SoapClient;
-import org.geworkbench.components.alignment.synteny.DAS_Retriver;
 import org.geworkbench.components.alignment.synteny.SyntenyMapObject;
 import org.geworkbench.engine.management.Subscribe;
 import org.geworkbench.events.GeneSelectorEvent;
@@ -38,6 +35,7 @@ import org.geworkbench.bison.datastructure.biocollections.microarrays.
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import javax.swing.border.TitledBorder;
+import org.geworkbench.components.alignment.synteny.DAS_Retriver;
 
 /**
  * <p>Title: Bioworks</p>
@@ -269,13 +267,13 @@ public class SyntenyParameters extends EventSource implements VisualPlugin {
         jToolbar2.setMinimumSize(new Dimension(20, 25));
         jToolbar2.setPreferredSize(new Dimension(20, 25));
 
-        beforeText.setText("10000");
+        beforeText.setText("1000");
         beforeText.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 text_actionPerformed(e);
             }
         });
-        afterText.setText("10000");
+        afterText.setText("1000");
         afterText.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 text_actionPerformed(e);
@@ -486,8 +484,8 @@ public class SyntenyParameters extends EventSource implements VisualPlugin {
 
         String ServerAnswer = null;
         while (true) {
-            Delay(100);
-            ServerAnswer = DAS_Retriver.GetIt(tURL);
+            Delay(500);
+            ServerAnswer = DAS_Retriver.GetItSilent(tURL);
             if (ServerAnswer != null) {
                 if (ServerAnswer.indexOf("Server job done") != -1) {
                     break;
@@ -862,7 +860,7 @@ public class SyntenyParameters extends EventSource implements VisualPlugin {
                     String ServerAnswer = null;
                     while (true) {
                         Delay(100);
-                        ServerAnswer = DAS_Retriver.GetIt(tURL);
+                        ServerAnswer = DAS_Retriver.GetItSilent(tURL);
                         if (ServerAnswer != null) {
                             ProcessStatus.setText(ServerAnswer);
                             if (ServerAnswer.indexOf("Server job done") != -1) {
