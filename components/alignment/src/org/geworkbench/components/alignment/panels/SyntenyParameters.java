@@ -158,6 +158,8 @@ public class SyntenyParameters extends EventSource implements VisualPlugin {
         ToX.addActionListener(regionsListListener);
         ToY.addActionListener(regionsListListener);
         Delete.addActionListener(regionsListListener);
+        jLabelProgram.setBackground(Color.white);
+        jLabelProgram.setBorder(BorderFactory.createEtchedBorder());
         XYMenu.add(ToX);
         XYMenu.add(ToY);
         XYMenu.add(Delete);
@@ -859,7 +861,7 @@ public class SyntenyParameters extends EventSource implements VisualPlugin {
                             "Waiting for reply from remote server");
                     String ServerAnswer = null;
                     while (true) {
-                        Delay(100);
+                        Delay(500);
                         ServerAnswer = DAS_Retriver.GetItSilent(tURL);
                         if (ServerAnswer != null) {
                             ProcessStatus.setText(ServerAnswer);
@@ -1037,8 +1039,8 @@ public class SyntenyParameters extends EventSource implements VisualPlugin {
                             "Waiting for reply from remote server");
                     String ServerAnswer = null;
                     while (true) {
-                        Delay(100);
-                        ServerAnswer = DAS_Retriver.GetIt(tURL);
+                        Delay(500);
+                        ServerAnswer = DAS_Retriver.GetItSilent(tURL);
                         if (ServerAnswer != null) {
                             ProcessStatus.setText(ServerAnswer);
                             if (ServerAnswer.indexOf("Server job done") != -1) {
@@ -1072,6 +1074,7 @@ public class SyntenyParameters extends EventSource implements VisualPlugin {
                 if (error_flag) {
                     ProcessStatus.setText("Server error! Please try again.");
                 } else {
+                    ProcessStatus.setText("Done");
                     SPList.addAndDisplay(resn, f_x, t_x, f_y, t_y);
                     jButtonRun.setBackground(Color.white);
                 }
