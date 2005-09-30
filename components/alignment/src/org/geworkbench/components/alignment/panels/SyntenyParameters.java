@@ -160,6 +160,12 @@ public class SyntenyParameters extends EventSource implements VisualPlugin {
         Delete.addActionListener(regionsListListener);
         jLabelProgram.setBackground(Color.white);
         jLabelProgram.setBorder(BorderFactory.createEtchedBorder());
+        jLabelProgram.setOpaque(true);
+        jLabelX.setBackground(Color.white);
+        jLabelX.setOpaque(true);
+        jLabelY.setBackground(Color.white);
+        jLabelY.setOpaque(true);
+        JPanelInfo.setBorder(titledBorder2);
         XYMenu.add(ToX);
         XYMenu.add(ToY);
         XYMenu.add(Delete);
@@ -228,8 +234,8 @@ public class SyntenyParameters extends EventSource implements VisualPlugin {
         jPanel5.setLayout(borderLayout4);
 
         RegionsList.setBackground(Color.white);
-        RegionsList.setBorder(BorderFactory.createLoweredBevelBorder());
-        RegionsList.setOpaque(false);
+        RegionsList.setBorder(BorderFactory.createLineBorder(Color.black));
+        RegionsList.setOpaque(true);
         RegionsList.setModel(RegionsListModel);
         RegionsList.addMouseListener(new MouseAdapter() {
             public void mouseReleased(MouseEvent e) {
@@ -652,6 +658,7 @@ public class SyntenyParameters extends EventSource implements VisualPlugin {
     GridBagLayout gridBagLayout5 = new GridBagLayout();
     JLabel jLabelProgram = new JLabel();
     JScrollPane jRegionsScrollPane = new JScrollPane();
+    TitledBorder titledBorder2 = new TitledBorder("");
     @Subscribe public void geneSelectorAction(GeneSelectorEvent e,
                                               Object publisher) {
         markers = e.getPanel();
