@@ -582,15 +582,14 @@ public class SyntenyParameters extends EventSource implements VisualPlugin {
         }
 
         if (str.compareTo("Add to selected") == 0) {
+            String[] sm_comps=sm.split(":");
+            int fr = (int)(Integer.parseInt(sm_comps[3]));
+                     fr = fr -(int)(Integer.parseInt(beforeText.getText()));
+            int tt = (int)(Integer.parseInt(sm_comps[4]))+(int)(Integer.parseInt(afterText.getText()));
+            sm = new String(sm_comps[0]+":"+sm_comps[1]+":"+sm_comps[2]+":"+fr+":"+tt+":"+ sm_comps[5]);
             addToRegionsListModel(sm);
         }
 
-        if (str.compareTo("Select as X") == 0) {
-            jLabelX.setText("  X: " + sm);
-        }
-        if (str.compareTo("Select as Y") == 0) {
-            jLabelY.setText("  Y: " + sm);
-        }
         if (str.indexOf("Synteny Map") != -1) {
             single_marker = new String(sm);
             SyntenyMap_action(1);
@@ -759,18 +758,58 @@ public class SyntenyParameters extends EventSource implements VisualPlugin {
             fout.write(tmp.getBytes());
 
             if (type == 2) {
+
                 String infstr = new String(jLabelX.getText());
                 int ii = infstr.indexOf(">");
                 int jj = infstr.indexOf(":", ii + 1);
                 String x_marker = new String(infstr.substring(ii + 1, jj));
 
-                tmp = new String("MARKER1: " + x_marker + "\n");
-                fout.write(tmp.getBytes());
+                ii = jj;
+                jj = infstr.indexOf(":", ii + 1);
+                ii = jj;
+                jj = infstr.indexOf(":", ii + 1);
+                String genomex = new String(infstr.substring(ii + 1, jj));
+                ii = jj;
+                jj = infstr.indexOf(":", ii + 1);
+                String chromX = new String(infstr.substring(ii + 1, jj));
+                ii = jj;
+                jj = infstr.indexOf(":", ii + 1);
+                String tmp1 = new String(infstr.substring(ii + 1, jj));
+                String tmp2 = new String(beforeText.getText());
 
+                int fx = Integer.parseInt(infstr.substring(ii + 1, jj)) -
+                     Integer.parseInt(beforeText.getText());
+                ii = jj;
+                jj = infstr.indexOf(":", ii + 1);
+                int tx = Integer.parseInt(infstr.substring(ii + 1, jj)) +
+                     Integer.parseInt(afterText.getText()); ;
+
+                // Parsing Y information
                 infstr = new String(jLabelY.getText());
                 ii = infstr.indexOf(">");
                 jj = infstr.indexOf(":", ii + 1);
                 String y_marker = new String(infstr.substring(ii + 1, jj));
+
+                ii = jj;
+                jj = infstr.indexOf(":", ii + 1);
+                ii = jj;
+                jj = infstr.indexOf(":", ii + 1);
+                String genomey = new String(infstr.substring(ii + 1, jj));
+                ii = jj;
+                jj = infstr.indexOf(":", ii + 1);
+                String chromY = new String(infstr.substring(ii + 1, jj));
+                ii = jj;
+                jj = infstr.indexOf(":", ii + 1);
+                int fy = Integer.parseInt(infstr.substring(ii + 1, jj)) -
+                     Integer.parseInt(beforeText.getText());
+                ii = jj;
+                jj = infstr.indexOf(":", ii + 1);
+                int ty = Integer.parseInt(infstr.substring(ii + 1, jj)) +
+                     Integer.parseInt(afterText.getText()); ;
+
+                // Writting necessary...
+                tmp = new String("MARKER1: " + x_marker + "\n");
+                fout.write(tmp.getBytes());
 
                 tmp = new String("MARKER2: " + y_marker + "\n");
                 fout.write(tmp.getBytes());
@@ -871,7 +910,6 @@ public class SyntenyParameters extends EventSource implements VisualPlugin {
                      JOptionPane.ERROR_MESSAGE);
             return;
         }
-
 
         FileOutputStream fout;
         String out_name = null;

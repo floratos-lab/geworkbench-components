@@ -127,7 +127,7 @@ public class DAS_Retriver {
             serverIO.close();
             buf = new String(oneL);
         } catch (IOException e) {
-            System.out.println(e);
+            // System.out.println(e);
             return null;
         }
         return buf;
