@@ -914,7 +914,10 @@ public class GenePanel implements VisualPlugin {
     private DSPanel<DSGeneMarker> deserializePanel(final File file) {
         BufferedReader stream = null;
         try {
-            stream = new BufferedReader(new InputStreamReader(new ProgressMonitorInputStream(getComponent(), "Loading probes " + file.getName(), new FileInputStream(file))));
+            stream = new BufferedReader(new InputStreamReader(new
+                    ProgressMonitorInputStream(getComponent(),
+                                               "Loading probes " + file.getName(),
+                                               new FileInputStream(file))));
             String line = null;
             DSPanel<DSGeneMarker> panel = new CSPanel<DSGeneMarker>();
             Class type = null;
@@ -942,13 +945,17 @@ public class GenePanel implements VisualPlugin {
                         }
                     }
                 }
-                if (tokens.length == 1){
-                    if (type == null){
-                        type = Class.forName(System.getProperty("expression.marker.type"));
+                if (tokens.length == 1 &&
+                    !tokens[0].trim().equalsIgnoreCase("Label") &&
+                    !tokens[0].trim().equalsIgnoreCase("MinorLabel") &&
+                    !tokens[0].trim().equalsIgnoreCase("MarkerType")) {
+                    if (type == null) {
+                        type = Class.forName(System.getProperty(
+                                "expression.marker.type"));
                         panel.setLabel(new String(file.getName().split("\\.")[0]));
                     }
                     DSGeneMarker marker = (DSGeneMarker) type.newInstance();
-                    if (marker != null){
+                    if (marker != null) {
                         marker.setSerial(serial++);
                         marker.setLabel(new String(tokens[0].trim()));
                         panel.add(marker);
