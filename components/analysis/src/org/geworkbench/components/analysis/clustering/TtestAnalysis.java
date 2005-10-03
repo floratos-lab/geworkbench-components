@@ -139,6 +139,7 @@ public class TtestAnalysis extends AbstractAnalysis implements ClusteringAnalysi
             DSMicroarraySet maSet = (DSMicroarraySet) set;
             DSClassCriteria criteria = CSCriterionManager.getClassCriteria(maSet);
             tTestDesign = TtestAnalysisPanel.ONE_CLASS;
+            boolean hasGroupA = false;
             for (int i = 0; i < arrays; i++) {
                 DSMicroarray ma = data.items().get(i);
                 if (ma instanceof DSMicroarray) {
@@ -146,6 +147,7 @@ public class TtestAnalysis extends AbstractAnalysis implements ClusteringAnalysi
                     DSAnnotValue v = criteria.getValue(ma);
                     if (v.equals(CSClassCriteria.cases)) {
                         groupAssignments[i] = TtestAnalysisPanel.GROUP_A;
+                        hasGroupA = true;
                     } else if (v.equals(CSClassCriteria.controls)) {
                         groupAssignments[i] = TtestAnalysisPanel.GROUP_B;
                         tTestDesign = TtestAnalysisPanel.BETWEEN_SUBJECTS;
@@ -155,6 +157,9 @@ public class TtestAnalysis extends AbstractAnalysis implements ClusteringAnalysi
                 } else {
                     groupAssignments[i] = TtestAnalysisPanel.NEITHER_GROUP;
                 }
+            }
+            if (!hasGroupA) {
+                return new AlgorithmExecutionResults(false, "Please specify at least one \"case\" microarray.", null);
             }
             function = ((TtestAnalysisPanel) aspp).getDistanceFunction();
             factor = ((TtestAnalysisPanel) aspp).getDistanceFactor();
