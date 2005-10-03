@@ -54,6 +54,7 @@ import org.geworkbench.components.alignment.synteny.DAS_Retriver;
 public class SyntenyParameters extends EventSource implements VisualPlugin {
 
     private HashMap listeners = new HashMap();
+    boolean cancel_flag = false;
 
     boolean selectedRegionChanged = false;
     private SyntenyAnnotationParameters SAP = new SyntenyAnnotationParameters();
@@ -166,6 +167,8 @@ public class SyntenyParameters extends EventSource implements VisualPlugin {
         jLabelY.setBackground(Color.white);
         jLabelY.setOpaque(true);
         JPanelInfo.setBorder(titledBorder2);
+        jPanelButtons.setLayout(borderLayout6);
+        jButtonStopIt.setText("Cancel");
         XYMenu.add(ToX);
         XYMenu.add(ToY);
         XYMenu.add(Delete);
@@ -173,7 +176,6 @@ public class SyntenyParameters extends EventSource implements VisualPlugin {
         SPList = new SyntenyPresentationsList();
         SAP.setSyntenyPresentationsList(SPList);
         SPList.setSyntenyAnnotationParameters(SAP);
-
 
         listener = new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -210,7 +212,8 @@ public class SyntenyParameters extends EventSource implements VisualPlugin {
         ProgramBox.addActionListener(new
                                      SyntenyParameters_ProgramBox_actionAdapter(this));
 
-        jLabelProgram.setText("  Program/Method :  " + (String)ProgramBox.getSelectedItem());
+        jLabelProgram.setText("  Program/Method :  " +
+                              (String) ProgramBox.getSelectedItem());
 
         jPanel3.setLayout(gridBagLayout2);
         jLabelX.setText("  X : ");
@@ -228,9 +231,13 @@ public class SyntenyParameters extends EventSource implements VisualPlugin {
         jTabbedPane1.setPreferredSize(new Dimension(200, 400));
         jLabel5.setToolTipText("");
         jLabel5.setText(" Selected regions");
+        jButtonStopIt.addActionListener(new
+                                        SyntenyParameters_cancelButton_actionAdapter(this));
+        jButtonStopIt.setForeground(Color.white);
+
         jButtonRun.setText("R U N");
         jButtonRun.addActionListener(new
-                                     SyntenyParameters_runButton_actionAdapter(this)); // Forming select boxes
+                                     SyntenyParameters_runButton_actionAdapter(this));
         jPanel5.setLayout(borderLayout4);
 
         RegionsList.setBackground(Color.white);
@@ -346,10 +353,8 @@ public class SyntenyParameters extends EventSource implements VisualPlugin {
                 new Insets(0, 0, 0, 0), 0, 0));
         jScrollPane1.getViewport().add(jTree1);
         JPanelRunSelected.add(jLabel5, java.awt.BorderLayout.NORTH);
-        jPanel5.add(jButtonRun, java.awt.BorderLayout.SOUTH);
         JPanelRunSelected.add(jPanel5, java.awt.BorderLayout.SOUTH);
         JPanelInfo.add(jLabelX, java.awt.BorderLayout.NORTH);
-        jPanel5.add(JPanelInfo, java.awt.BorderLayout.NORTH);
         GenomePosPanel.add(addButton,
                            new GridBagConstraints(0, 3, 1, 1, 1.0, 1.0
                                                   , GridBagConstraints.CENTER,
@@ -371,9 +376,9 @@ public class SyntenyParameters extends EventSource implements VisualPlugin {
                 , GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                 new Insets(0, 0, 0, 0), 0, 0));
         main.add(JPanelRunSelected, new GridBagConstraints(1, 1, 1, 1, 1.0, 1.0
-                                                 , GridBagConstraints.CENTER,
-                                                 GridBagConstraints.BOTH,
-                                                 new Insets(0, 0, 0, 0), 0, 0));
+                , GridBagConstraints.CENTER,
+                GridBagConstraints.BOTH,
+                new Insets(0, 0, 0, 0), 0, 0));
         JPanelInfo.add(jLabelY, java.awt.BorderLayout.CENTER);
         JPanelInfo.add(jLabelProgram, java.awt.BorderLayout.SOUTH);
         JPanelRunSelected.add(jRegionsScrollPane, java.awt.BorderLayout.CENTER);
@@ -381,6 +386,10 @@ public class SyntenyParameters extends EventSource implements VisualPlugin {
         main.add(ProcessStatus, new GridBagConstraints(0, 0, 2, 1, 0.0, 0.0
                 , GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                 new Insets(0, 0, 0, 0), 0, 0));
+        jPanel5.add(JPanelInfo, java.awt.BorderLayout.CENTER);
+        jPanel5.add(jPanelButtons, java.awt.BorderLayout.SOUTH);
+        jPanelButtons.add(jButtonRun, java.awt.BorderLayout.CENTER);
+        jPanelButtons.add(jButtonStopIt, java.awt.BorderLayout.EAST);
     }
 
     /**************************/
@@ -558,10 +567,11 @@ public class SyntenyParameters extends EventSource implements VisualPlugin {
         }
     }
 
-    public void addToRegionsListModel(String sm){
-        for(int i=0; i < RegionsListModel.getSize();i++){
-        if(sm.indexOf((String)RegionsListModel.elementAt(i))==0)
-            return;
+    public void addToRegionsListModel(String sm) {
+        for (int i = 0; i < RegionsListModel.getSize(); i++) {
+            if (sm.indexOf((String) RegionsListModel.elementAt(i)) == 0) {
+                return;
+            }
         }
 
         RegionsListModel.add(RegionsListModel.getSize(), sm);
@@ -588,11 +598,13 @@ public class SyntenyParameters extends EventSource implements VisualPlugin {
         }
 
         if (str.compareTo("Add to selected") == 0) {
-            String[] sm_comps=sm.split(":");
-            int fr = (int)(Integer.parseInt(sm_comps[3]));
-                     fr = fr -(int)(Integer.parseInt(beforeText.getText()));
-            int tt = (int)(Integer.parseInt(sm_comps[4]))+(int)(Integer.parseInt(afterText.getText()));
-            sm = new String(sm_comps[0]+":"+sm_comps[1]+":"+sm_comps[2]+":"+fr+":"+tt+":"+ sm_comps[5]);
+            String[] sm_comps = sm.split(":");
+            int fr = (int) (Integer.parseInt(sm_comps[3]));
+            fr = fr - (int) (Integer.parseInt(beforeText.getText()));
+            int tt = (int) (Integer.parseInt(sm_comps[4])) +
+                     (int) (Integer.parseInt(afterText.getText()));
+            sm = new String(sm_comps[0] + ":" + sm_comps[1] + ":" + sm_comps[2] +
+                            ":" + fr + ":" + tt + ":" + sm_comps[5]);
             addToRegionsListModel(sm);
         }
 
@@ -659,6 +671,9 @@ public class SyntenyParameters extends EventSource implements VisualPlugin {
     JLabel jLabelProgram = new JLabel();
     JScrollPane jRegionsScrollPane = new JScrollPane();
     TitledBorder titledBorder2 = new TitledBorder("");
+    JPanel jPanelButtons = new JPanel();
+    BorderLayout borderLayout6 = new BorderLayout();
+    JButton jButtonStopIt = new JButton();
     @Subscribe public void geneSelectorAction(GeneSelectorEvent e,
                                               Object publisher) {
         markers = e.getPanel();
@@ -785,11 +800,12 @@ public class SyntenyParameters extends EventSource implements VisualPlugin {
                 String tmp2 = new String(beforeText.getText());
 
                 int fx = Integer.parseInt(infstr.substring(ii + 1, jj)) -
-                     Integer.parseInt(beforeText.getText());
+                         Integer.parseInt(beforeText.getText());
                 ii = jj;
                 jj = infstr.indexOf(":", ii + 1);
                 int tx = Integer.parseInt(infstr.substring(ii + 1, jj)) +
-                     Integer.parseInt(afterText.getText()); ;
+                         Integer.parseInt(afterText.getText());
+                ;
 
                 // Parsing Y information
                 infstr = new String(jLabelY.getText());
@@ -808,11 +824,12 @@ public class SyntenyParameters extends EventSource implements VisualPlugin {
                 ii = jj;
                 jj = infstr.indexOf(":", ii + 1);
                 int fy = Integer.parseInt(infstr.substring(ii + 1, jj)) -
-                     Integer.parseInt(beforeText.getText());
+                         Integer.parseInt(beforeText.getText());
                 ii = jj;
                 jj = infstr.indexOf(":", ii + 1);
                 int ty = Integer.parseInt(infstr.substring(ii + 1, jj)) +
-                     Integer.parseInt(afterText.getText()); ;
+                         Integer.parseInt(afterText.getText());
+                ;
 
                 // Writting necessary...
                 tmp = new String("MARKER1: " + x_marker + "\n");
@@ -845,6 +862,7 @@ public class SyntenyParameters extends EventSource implements VisualPlugin {
         Thread t = new Thread() {
             public void run() {
                 jButtonRun.setBackground(Color.gray);
+                jButtonStopIt.setForeground(Color.black);
                 ProcessStatus.setText("Submitting job to remote server");
                 boolean error_flag = false;
 
@@ -869,6 +887,9 @@ public class SyntenyParameters extends EventSource implements VisualPlugin {
                     String ServerAnswer = null;
                     while (true) {
                         Delay(500);
+                        if (cancel_flag) {
+                            break;
+                        }
                         ServerAnswer = DAS_Retriver.GetItSilent(tURL);
                         if (ServerAnswer != null) {
                             ProcessStatus.setText(ServerAnswer);
@@ -881,12 +902,18 @@ public class SyntenyParameters extends EventSource implements VisualPlugin {
                         }
                     }
 
-                    tURL = new String(
-                            "http://amdec-bioinfo.cu-genome.org/html/temp/" +
-                            jid +
-                            ".res");
+                    if (cancel_flag == false) {
+                        tURL = new String(
+                                "http://amdec-bioinfo.cu-genome.org/html/temp/" +
+                                jid +
+                                ".res");
 
-                    ProcessStatus.setText("Retriving results from server");
+                        ProcessStatus.setText("Retriving results from server");
+                    }
+                    else{
+                        ProcessStatus.setText("Process cancelled");
+                        cancel_flag = false;
+                    }
                 } catch (Exception ee) {
                     System.err.println(ee);
                     return;
@@ -908,10 +935,10 @@ public class SyntenyParameters extends EventSource implements VisualPlugin {
     void ButtonRun_actionPerformed(ActionEvent e) {
         int fx, tx, fy, ty, i, j;
 
-
         // Error message...
 
-        if(((jLabelX.getText()).indexOf(">") == -1) || ((jLabelY.getText()).indexOf(">")==-1)){
+        if (((jLabelX.getText()).indexOf(">") == -1) ||
+            ((jLabelY.getText()).indexOf(">") == -1)) {
             JOptionPane.showMessageDialog
                     (null, "Invlalid X or Y genomic region!", "Results",
                      JOptionPane.ERROR_MESSAGE);
@@ -1023,6 +1050,7 @@ public class SyntenyParameters extends EventSource implements VisualPlugin {
         Thread t = new Thread() {
             public void run() {
                 jButtonRun.setBackground(Color.gray);
+                jButtonStopIt.setForeground(Color.black);
                 ProcessStatus.setText("Submitting job to remote server");
                 boolean error_flag = false;
 
@@ -1047,6 +1075,8 @@ public class SyntenyParameters extends EventSource implements VisualPlugin {
                     String ServerAnswer = null;
                     while (true) {
                         Delay(500);
+                        if (cancel_flag)
+                            break;
                         ServerAnswer = DAS_Retriver.GetItSilent(tURL);
                         if (ServerAnswer != null) {
                             ProcessStatus.setText(ServerAnswer);
@@ -1059,31 +1089,41 @@ public class SyntenyParameters extends EventSource implements VisualPlugin {
                         }
                     }
 
-                    tURL = new String(
-                            "http://amdec-bioinfo.cu-genome.org/html/temp/" +
-                            jid +
-                            ".res");
+                    if (cancel_flag == false) {
+                        tURL = new String(
+                                "http://amdec-bioinfo.cu-genome.org/html/temp/" +
+                                jid +
+                                ".res");
 
-                    ProcessStatus.setText("Retriving results from server");
-                    if (DAS_Retriver.GetItToFile(tURL, resn) == false) {
-                        error_flag = true;
+                        ProcessStatus.setText("Retriving results from server");
+                        if (DAS_Retriver.GetItToFile(tURL, resn) == false) {
+                            error_flag = true;
+                        }
                     }
                 } catch (Exception ee) {
                     System.err.println(ee);
                     return;
                 }
 
-                ProcessStatus.setText("Parsing");
-                if (CheckFileIntegrity(resn) == false) {
-                    error_flag = true;
-                }
+                if (cancel_flag == false) {
+                    ProcessStatus.setText("Parsing");
+                    if (CheckFileIntegrity(resn) == false) {
+                        error_flag = true;
+                    }
 
-                if (error_flag) {
-                    ProcessStatus.setText("Server error! Please try again.");
-                } else {
-                    ProcessStatus.setText("Done");
-                    SPList.addAndDisplay(resn, f_x, t_x, f_y, t_y);
+                    if (error_flag) {
+                        ProcessStatus.setText("Server error! Please try again.");
+                    } else {
+                        ProcessStatus.setText("Done");
+                        SPList.addAndDisplay(resn, f_x, t_x, f_y, t_y);
+                        jButtonRun.setBackground(Color.white);
+                    }
+                }
+                else {
+                    ProcessStatus.setText("Process cancelled");
                     jButtonRun.setBackground(Color.white);
+                    jButtonStopIt.setForeground(Color.white);
+                    cancel_flag = false;
                 }
             }
 
@@ -1094,8 +1134,8 @@ public class SyntenyParameters extends EventSource implements VisualPlugin {
 
     void addButton_actionPerformed(ActionEvent e) {
         addToRegionsListModel(">genomic:" + GPos.getGenome() + ":" +
-                             GPos.getChromosome() + ":" + GPos.getValueFrom() +
-                             ":" + GPos.getValueTo()+":");
+                              GPos.getChromosome() + ":" + GPos.getValueFrom() +
+                              ":" + GPos.getValueTo() + ":");
     }
 
     /*****************************************************/
@@ -1176,8 +1216,14 @@ public class SyntenyParameters extends EventSource implements VisualPlugin {
     }
 
     void ProgramBox_actionPerformed(ActionEvent e) {
-        jLabelProgram.setText("  Program/Method :  " + (String)ProgramBox.getSelectedItem());
+        jLabelProgram.setText("  Program/Method :  " +
+                              (String) ProgramBox.getSelectedItem());
     }
+
+    void ButtonCancel_actionPerformed(ActionEvent e){
+        cancel_flag = true;
+    }
+
 }
 
 
@@ -1240,6 +1286,7 @@ class SyntenyParameters_addButton_actionAdapter implements java.awt.event.
     }
 }
 
+
 /**
  * <p>Run Button
  */
@@ -1253,5 +1300,22 @@ class SyntenyParameters_runButton_actionAdapter implements java.awt.event.
 
     public void actionPerformed(ActionEvent e) {
         adaptee.ButtonRun_actionPerformed(e);
+    }
+}
+
+
+/**
+ * <p>Run Button
+ */
+class SyntenyParameters_cancelButton_actionAdapter implements java.awt.event.
+        ActionListener {
+    SyntenyParameters adaptee;
+
+    SyntenyParameters_cancelButton_actionAdapter(SyntenyParameters adaptee) {
+        this.adaptee = adaptee;
+    }
+
+    public void actionPerformed(ActionEvent e) {
+        adaptee.ButtonCancel_actionPerformed(e);
     }
 }
