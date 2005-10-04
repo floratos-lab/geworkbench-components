@@ -37,11 +37,8 @@ public class MicroarrayPanel extends MicroarrayVisualizer implements VisualPlugi
     MicroarrayDisplay microarrayImageArea = new MicroarrayDisplay(this);
     int x = 0;
     int y = 0;
-    JButton jSaveBttn = new JButton();
     JToolBar jToolBar = new JToolBar();
     JSlider jMASlider = new JSlider();
-    Component jSpacer;
-    JCheckBox jEnabledBox = new JCheckBox();
     JCheckBox jShowAllMArrays = new JCheckBox();
     JTextField jMALabel = new JTextField(20) {
         @Override public Dimension getMaximumSize() {
@@ -114,22 +111,7 @@ public class MicroarrayPanel extends MicroarrayVisualizer implements VisualPlugi
     }
 
     private void jbInit() throws Exception {
-        jSpacer = Box.createHorizontalStrut(8);
-        jSaveBttn.setText("File Operation");
-        jSaveBttn.setToolTipText("Save or make new matrix file");
-        jSaveBttn.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                jSaveBttn_actionPerformed(e);
-            }
-        });
-
         microarrayImageArea.setLayout(jLayout);
-        jEnabledBox.setText("Enabled");
-        jEnabledBox.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                enabledBox_actionPerformed(e);
-            }
-        });
         microarrayImageArea.setBorder(BorderFactory.createEtchedBorder());
         microarrayImageArea.setOpaque(false);
 
@@ -214,9 +196,6 @@ public class MicroarrayPanel extends MicroarrayVisualizer implements VisualPlugi
         jToolBar.add(jShowAllMarkers, null);
         jToolBar.add(jMALabel, null);
         jToolBar.add(jMASlider, null);
-        jToolBar.add(jSpacer, null);
-        jToolBar.add(jEnabledBox, null);
-        jToolBar.add(jSaveBttn, null);
         mainPanel.add(microarrayImageArea, BorderLayout.CENTER);
         jDisplayPanelPopup.add(jShowMarkerMenu);
         jDisplayPanelPopup.add(jRemoveMarkerMenu); // Popup Menu Added to the MAImageArea
@@ -251,7 +230,6 @@ public class MicroarrayPanel extends MicroarrayVisualizer implements VisualPlugi
                 //subscriber.notifyChange(this, IMarkerIdClickSubscriber.class);
                 try {
                     microarrayImageArea.repaint();
-                    jEnabledBox.setSelected(mArray.enabled());
                 } catch (java.lang.Exception exception) {
                     exception.printStackTrace();
                 }
@@ -283,14 +261,6 @@ public class MicroarrayPanel extends MicroarrayVisualizer implements VisualPlugi
     public void showValidOnly(boolean show) {
         microarrayImageArea.showValidOnly = show;
         mainPanel.repaint();
-    }
-
-    void enabledBox_actionPerformed(ActionEvent e) {
-        DSMicroarray im = microarrayImageArea.getMicroarray();
-        if (im != null) {
-
-            microarrayImageArea.getMicroarray().enable(jEnabledBox.isSelected());
-        }
     }
 
     void jShowMarkerMenu_actionPerformed(ActionEvent e) {
@@ -390,26 +360,6 @@ public class MicroarrayPanel extends MicroarrayVisualizer implements VisualPlugi
             reset();
             repaint();
         }
-    }
-
-    void jSaveBttn_actionPerformed(ActionEvent e) {
-        Object[] options = {"Create new matrix file from data", "Add Phenotype"};
-        int n = JOptionPane.showOptionDialog(null, "What do you want to do?", "File Operation", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[1]);
-        switch (n) {
-
-            case 0:
-                org.geworkbench.util.microarrayutils.MatrixCreater.loadData();
-                ;
-                break;
-
-            case 1:
-                MatrixCreater.addPhenotype();
-                break;
-            default:
-                ;
-
-        }
-
     }
 
 }
