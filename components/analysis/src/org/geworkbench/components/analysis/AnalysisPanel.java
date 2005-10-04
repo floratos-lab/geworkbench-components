@@ -438,7 +438,13 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements VisualPlug
             maSetView.useItemPanel(activateArrays);
             Thread t = new Thread(new Runnable() {
                 public void run() {
-                    results = selectedAnalysis.execute(maSetView);
+                    try {
+                        results = selectedAnalysis.execute(maSetView);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    } finally {
+                        analyze.setEnabled(true);
+                    }
                     analysisDone();
                 }
 
@@ -465,7 +471,6 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements VisualPlug
         // event, thus notify interested application components of
         // the results of the analysis operation.
         // If there were problems encountered, let the user know.
-        analyze.setEnabled(true);
         if (results != null) {
             if (!results.isExecutionSuccessful()) {
                 JOptionPane.showMessageDialog(null, results.getMessage(), "Analysis Error", JOptionPane.ERROR_MESSAGE);
