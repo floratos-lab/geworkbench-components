@@ -7,6 +7,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.io.IOException;
 import java.io.Serializable;
+import java.io.ObjectStreamException;
 
 /**
  * <p>Copyright: Copyright (c) 2003</p>
@@ -23,11 +24,21 @@ import java.io.Serializable;
 public class MissingValuesFilterPanel extends AbstractSaveableParameterPanel implements Serializable {
     private JLabel maxMissingLabel = new JLabel("<html><p>Maximum number of</p><p>missing arrays</p></html>");
     private JFormattedTextField maxMissingValue = new JFormattedTextField();
-    /**
-     * Store font sizes, used in the calculation of preffered sizes from swing
-     * components
-     */
-    private int fontHeight, fontWidth;
+
+    private static class SerialInstance implements Serializable {
+        Integer value;
+
+        public SerialInstance(Integer value) {
+            this.value = value;
+        }
+
+        Object readResolve() throws ObjectStreamException {
+            MissingValuesFilterPanel panel = new MissingValuesFilterPanel();
+            panel.maxMissingValue.setValue(value);
+            panel.revalidate();
+            return panel;
+        }
+    }
 
     public MissingValuesFilterPanel() {
         try {
@@ -75,13 +86,17 @@ public class MissingValuesFilterPanel extends AbstractSaveableParameterPanel imp
             return new ParamValidationResults(true, "No Error");
     }
 
-    private void writeObject(java.io.ObjectOutputStream out) throws IOException {
-        out.defaultWriteObject();
-    }
+//    private void writeObject(java.io.ObjectOutputStream out) throws IOException {
+//        out.defaultWriteObject();
+//    }
+//
+//    private void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
+//        in.defaultReadObject();
+//        revalidate();
+//    }
 
-    private void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
-        in.defaultReadObject();
-        revalidate();
+    Object writeReplace() throws ObjectStreamException {
+        return new SerialInstance((Integer) maxMissingValue.getValue());
     }
 
 }

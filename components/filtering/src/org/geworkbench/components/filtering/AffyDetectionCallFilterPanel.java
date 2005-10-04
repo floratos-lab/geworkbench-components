@@ -8,6 +8,7 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.io.IOException;
 import java.io.Serializable;
+import java.io.ObjectStreamException;
 
 /**
  * <p>Copyright: Copyright (c) 2003</p>
@@ -33,6 +34,31 @@ public class AffyDetectionCallFilterPanel extends AbstractSaveableParameterPanel
     private boolean presentButtonStatus;
     private boolean absentButtonStatus;
     private boolean marginalButtonStatus;
+
+    private static class SerializedInstance implements Serializable {
+        boolean present;
+        boolean absent;
+        boolean marginal;
+
+        public SerializedInstance(boolean present, boolean absent, boolean marginal) {
+            this.present = present;
+            this.absent = absent;
+            this.marginal = marginal;
+        }
+
+        Object readResolve() throws ObjectStreamException {
+            AffyDetectionCallFilterPanel panel = new AffyDetectionCallFilterPanel();
+            panel.presentButton.setSelected(present);
+            panel.absentButton.setSelected(absent);
+            panel.marginalButton.setSelected(marginal);
+            return panel;
+        }
+    }
+
+    Object writeReplace()  throws ObjectStreamException {
+        return new SerializedInstance(presentButton.isSelected(), absentButton.isSelected(), marginalButton.isSelected());
+    }
+
 
     public AffyDetectionCallFilterPanel() {
         try {

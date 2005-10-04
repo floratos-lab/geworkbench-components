@@ -7,6 +7,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.io.IOException;
 import java.io.Serializable;
+import java.io.ObjectStreamException;
 
 /**
  * <p>Copyright: Copyright (c) 2003</p>
@@ -29,6 +30,29 @@ public class DeviationBasedFilterPanel extends AbstractSaveableParameterPanel im
     private JLabel missingValuesLabel = new JLabel("Missing values");
     private JFormattedTextField deviationCutoff = new JFormattedTextField();
     private JComboBox missingValuesSelection = new JComboBox(new String[]{MARKER_OPTION, MICROARRAY_OPTION, IGNORE_OPTION});
+
+    private static class SerializedInstance implements Serializable {
+
+        String missingValues;
+        Double bound;
+
+        public SerializedInstance(String missingValues, Double bound) {
+            this.missingValues = missingValues;
+            this.bound = bound;
+        }
+
+        Object readResolve() throws ObjectStreamException {
+            DeviationBasedFilterPanel panel = new DeviationBasedFilterPanel();
+            panel.deviationCutoff.setValue(bound);
+            panel.missingValuesSelection.setSelectedItem(missingValues);
+            return panel;
+        }
+    }
+
+    Object writeReplace()  throws ObjectStreamException {
+        return new SerializedInstance((String)missingValuesSelection.getSelectedItem(), (Double) deviationCutoff.getValue());
+    }
+
 
     public DeviationBasedFilterPanel() {
         try {
