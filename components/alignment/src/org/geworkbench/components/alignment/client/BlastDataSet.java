@@ -72,9 +72,8 @@ public class BlastDataSet extends CSDataSet implements DSAncillaryDataSet {
     }
 
     public File getDataSetFile() {
-        String filename = resultFile.toString();
-        //System.out.println("in getData" + resultFile.getAbsolutePath());
-        return resultFile;
+
+        return fastaFile;
     }
 
     public void setDataSetFile(File _file) {

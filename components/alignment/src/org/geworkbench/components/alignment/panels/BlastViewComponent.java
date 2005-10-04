@@ -106,8 +106,6 @@ public class BlastViewComponent implements VisualPlugin {
      */
     @Subscribe public void receive(org.geworkbench.events.ProjectEvent e, Object source) {
 
-        //String fileName = "c:/data/output.txt";
-
         Container parent = blastViewPanel.getParent();
         if (parent instanceof JTabbedPane) {
             ((JTabbedPane) parent).setSelectedComponent(blastViewPanel);
@@ -117,9 +115,6 @@ public class BlastViewComponent implements VisualPlugin {
             DSAncillaryDataSet df = selection.getDataSubSet();
             DSDataSet sequenceDB = selection.getDataSet();
 
-            if (sequenceDB instanceof SequenceDB) {
-
-            }
             if (sequenceDB instanceof SequenceDB && df != null) {
                 //update db with the selected file in the project
                 if (df instanceof SWDataSet) {

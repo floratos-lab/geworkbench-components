@@ -1,12 +1,9 @@
 package org.geworkbench.components.alignment.blast;
 
-import org.geworkbench.bison.datastructure.bioobjects.sequence.CSSequence;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.net.URL;
+
+import org.geworkbench.bison.datastructure.bioobjects.sequence.CSSequence;
 
 /**
  * BlastObj.java
@@ -20,6 +17,12 @@ public class BlastObj {
      * The Databse ID of the protein sequence hit in this BlastObj.
      */
     String databaseID;
+    /**
+     *Set up the upper boundary of whole sequence size.
+     */
+    static final int MAXSEQUENCESIZE = 100000;
+    int maxSize = MAXSEQUENCESIZE;
+
     /**
      * The accession number of the protein sequence hit in this BlastObj.
      */
@@ -395,7 +398,8 @@ public class BlastObj {
     }
 
     public CSSequence getAlignedSeq() {
-        CSSequence seq = new CSSequence(">" + databaseID + "|" + name + "---ONLY PARTIALLY INCLUDED", subject);
+        CSSequence seq = new CSSequence(">" + databaseID + "|" + name +
+                                        "---ONLY PARTIALLY INCLUDED", subject);
 
         return seq;
 
@@ -406,40 +410,45 @@ public class BlastObj {
      *
      * @return Object
      */
-    public CSSequence getWholeSeq() {
-        // System.out.println( "enter getWholeSeq!" + retriveWholeSeq + seqURL);
+    public CSSequence getWholeSeq() throws BlastDataOutOfBoundException {
+
         if (retriveWholeSeq && seqURL != null) {
             try {
 
                 InputStream uin = seqURL.openStream();
-                BufferedReader in = new BufferedReader(new InputStreamReader(uin));
+                BufferedReader in = new BufferedReader(new InputStreamReader(
+                        uin));
                 String line;
-                // System.out.println( "enter getWholeSeq try");
                 while ((line = in.readLine()) != null) {
-                    // System.out.println(line);
-                    if (line.startsWith("</form><pre>>") || line.trim().startsWith("<input name=\"__from\" type=\"hidden\" value=\"\">") || line.matches(".</form><pre>>.")) {
+                    if (line.startsWith("</form><pre>>") ||
+                        line.trim().
+                        startsWith(
+                                "<input name=\"__from\" type=\"hidden\" value=\"\">") ||
+                        line.matches(".</form><pre>>.")) {
                         //  System.out.println("found" + line);
                         String[] str = line.split(">>");
+                        int size = 0;
                         StringBuffer name = new StringBuffer();
                         String label = "";
                         if (str.length > 1) {
                             label = ">" + str[1] + "\n";
-                        }
+                        } while ((line = in.readLine()) != null &&
+                                         !line.startsWith("</pre>")) {
+                            size += line.length();
+                            if (size >= maxSize) {
+                                throw new BlastDataOutOfBoundException(
+                                        "The sequence " + name +
+                                        "  is too long to retrieve the whole sequence.");
 
-                        while ((line = in.readLine())!=null && !line.startsWith("</pre>")) {
-
+                            }
                             name.append(line + "\n");
-                            //name = name + line + "\n";
-                           // line = in.readLine();
+
                         }
-                        // System.out.println("In BlastObj, name: Seq: " + name);
                         CSSequence seq = new CSSequence(label, name.toString());
                         return seq;
                     }
                 }
             } catch (IOException e) {
-                  e.printStackTrace();
-            } catch (Exception e){
                 e.printStackTrace();
             }
 
@@ -472,6 +481,10 @@ public class BlastObj {
         return endPoint;
     }
 
+    public int getMaxSize() {
+        return maxSize;
+    }
+
     public void setIdentity(String identity) {
         this.identity = identity;
     }
@@ -491,6 +504,10 @@ public class BlastObj {
 
     public void setEndPoint(int endPoint) {
         this.endPoint = endPoint;
+    }
+
+    public void setMaxSize(int maxSize) {
+        this.maxSize = maxSize;
     }
 
 }

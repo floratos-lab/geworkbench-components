@@ -24,6 +24,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Vector;
+import org.geworkbench.components.alignment.blast.BlastDataOutOfBoundException;
 
 /**
  * <p>Title: Bioworks</p>
@@ -560,7 +561,16 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
 
             org.geworkbench.events.ProjectNodeAddedEvent event = new org.geworkbench.events.ProjectNodeAddedEvent("message", db, null);
             blastViewComponent.publishProjectNodeAddedEvent(event);
-        } catch (Exception ex) {
+        }catch (BlastDataOutOfBoundException be){
+            be.printStackTrace();
+            JOptionPane.showMessageDialog(this,
+                                be.getMessage(),
+                                "Error",
+                                JOptionPane.WARNING_MESSAGE);
+
+
+        }
+        catch (Exception ex) {
             ex.printStackTrace();
         }
 
