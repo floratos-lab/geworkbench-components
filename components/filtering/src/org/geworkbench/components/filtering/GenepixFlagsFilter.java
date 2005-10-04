@@ -109,7 +109,12 @@ public class GenepixFlagsFilter extends AbstractAnalysis implements
             ((GenepixFlagsFilterPanel) aspp).setFlagInfoPanel();
         } else {
             DSDataSet dataSet = e.getDataSet();
-            if (dataSet instanceof CSExprMicroarraySet) {
+            if(dataSet==null){
+
+                ((GenepixFlagsFilterPanel) aspp).setFlagInfoPanel(
+                         "The data format is: null.");
+
+            }else if (dataSet instanceof CSExprMicroarraySet) {
                 String compatibilityLabel = ((CSExprMicroarraySet) dataSet).
                                             getCompatibilityLabel();
                 CSExprMicroarraySet maSet = (CSExprMicroarraySet) dataSet;
