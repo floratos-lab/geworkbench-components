@@ -358,7 +358,7 @@ public class MicroarrayPanel extends MicroarrayVisualizer implements VisualPlugi
      * @param e GeneSelectorEvent
      */
     @Subscribe public void receive(GeneSelectorEvent e, Object source) {
-        if (e.getPanel() != null && e.getPanel().size() > 0) {
+        if (e.getPanel() != null) {
             markerPanel = e.getPanel().activeSubset();
             dataSetView.setMarkerPanel(markerPanel);
             reset();
