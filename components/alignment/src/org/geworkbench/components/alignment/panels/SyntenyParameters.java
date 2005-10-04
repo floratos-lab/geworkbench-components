@@ -5,7 +5,6 @@ import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.event.ListSelectionEvent;
-import javax.swing.JPopupMenu;
 import java.util.HashMap;
 import java.io.IOException;
 import java.io.FileOutputStream;
@@ -22,16 +21,11 @@ import javax.swing.event.TreeModelEvent;
 import org.geworkbench.components.alignment.synteny.SyntenyMapFragment;
 import org.geworkbench.engine.config.events.EventSource;
 import org.geworkbench.engine.config.VisualPlugin;
-
-import org.geworkbench.util.sequences.SequenceAnnotation;
 import org.geworkbench.builtin.projects.ProjectTreeNode;
 import org.geworkbench.util.session.SoapClient;
 import org.geworkbench.components.alignment.synteny.SyntenyMapObject;
 import org.geworkbench.engine.management.Subscribe;
 import org.geworkbench.events.GeneSelectorEvent;
-import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
-import org.geworkbench.bison.datastructure.biocollections.microarrays.
-        DSMicroarraySet;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import javax.swing.border.TitledBorder;
@@ -40,8 +34,7 @@ import org.geworkbench.components.alignment.synteny.DAS_Retriver;
 /**
  * <p>Title: Bioworks</p>
  *
- * <p>Description: Modular Application Framework for Gene Expession, Sequence
- * and Genotype Analysis</p>
+ * <p>Description: Synteny Parameters Panel</p>
  *
  * <p>Copyright: Copyright (c) 2003 -2004</p>
  *
@@ -58,12 +51,10 @@ public class SyntenyParameters extends EventSource implements VisualPlugin {
 
     boolean selectedRegionChanged = false;
     private SyntenyAnnotationParameters SAP = new SyntenyAnnotationParameters();
-    private String single_marker = null;
     private GenomePositionSubPanel GPos;
     private JList RegionsList = new JList();
     private DefaultListModel RegionsListModel = new DefaultListModel();
 
-    private BorderLayout borderLayout1 = new BorderLayout();
     private GridBagLayout gridBagLayout1 = new GridBagLayout();
     private BorderLayout borderLayout5 = new BorderLayout();
 
@@ -71,10 +62,8 @@ public class SyntenyParameters extends EventSource implements VisualPlugin {
     private JPanel JPanelRunSelected = new JPanel();
     private BorderLayout borderLayout3 = new BorderLayout();
     private JLabel jLabel5 = new JLabel();
-//    private JButton RunButton = new JButton();
     private JPanel jPanel5 = new JPanel();
     private BorderLayout borderLayout4 = new BorderLayout();
-    private TitledBorder titledBorder1 = new TitledBorder("");
     private JPanel JPanelInfo = new JPanel();
     private BorderLayout borderLayout2 = new BorderLayout();
     private JPanel main = new JPanel();
@@ -94,9 +83,7 @@ public class SyntenyParameters extends EventSource implements VisualPlugin {
     private JTextField afterText = new JTextField();
     private JLabel jLabel1 = new JLabel();
     private JLabel jLabel2 = new JLabel();
-    private ButtonGroup sourceGroup = new ButtonGroup();
     private JLabel jLabel4 = new JLabel();
-    private DefaultListModel SelectedListModel = new DefaultListModel();
     private DefaultListModel ls2 = new DefaultListModel();
     private JList jInitialList = new JList();
     private JButton jButtonRun = new JButton();
@@ -107,8 +94,6 @@ public class SyntenyParameters extends EventSource implements VisualPlugin {
     private JMenuItem ToX = new JMenuItem();
     private JMenuItem ToY = new JMenuItem();
     private JMenuItem Delete = new JMenuItem();
-    private JMenuItem synMap = new JMenuItem(
-            "Build Synteny Map for this marker");
     private JLabel ProcessStatus = new JLabel();
     public SyntenyPresentationsList SPList = null;
     private JPanel jPanel3 = new JPanel();
@@ -116,8 +101,6 @@ public class SyntenyParameters extends EventSource implements VisualPlugin {
     private JLabel jLabelX = new JLabel();
     private JLabel jLabelY = new JLabel();
     private String tempDir = System.getProperty("temporary.files.directory");
-    private SequenceAnnotation AnnoX = null;
-    private SequenceAnnotation AnnoY = null;
     public JComboBox ProgramBox = new JComboBox();
     private GridBagLayout gridBagLayout3 = new GridBagLayout();
     private JScrollPane jScrollPane1 = new JScrollPane();
@@ -126,7 +109,6 @@ public class SyntenyParameters extends EventSource implements VisualPlugin {
             "Select regions from");
     private DefaultTreeModel mTreeModel = new DefaultTreeModel(root);
     private JTree jTree1 = null;
-    private DefaultMutableTreeNode category = null;
     private JPanel GenomePosPanel = new JPanel();
     private JButton addButton = new JButton();
     public SyntenyParameters() {
@@ -202,7 +184,6 @@ public class SyntenyParameters extends EventSource implements VisualPlugin {
         treeToX.addActionListener(treeListener);
         treeToY.addActionListener(treeListener);
         treeToSelected.addActionListener(treeListener);
-        synMap.addActionListener(treeListener);
 
         ProgramBox.addItem("MUMmer");
         ProgramBox.addItem("Dots");
@@ -259,7 +240,6 @@ public class SyntenyParameters extends EventSource implements VisualPlugin {
 
         SelectionMenu.add(jAddToX);
         TreeSelectionMenu.add(treeToSelected);
-        MarkerSelectionMenu.add(synMap);
 
         jPanelMarkers.setPreferredSize(new Dimension(256, 310));
         jPanelMarkers.setToolTipText("");
@@ -607,11 +587,6 @@ public class SyntenyParameters extends EventSource implements VisualPlugin {
                             ":" + fr + ":" + tt + ":" + sm_comps[5]);
             addToRegionsListModel(sm);
         }
-
-        if (str.indexOf("Synteny Map") != -1) {
-            single_marker = new String(sm);
-            SyntenyMap_action(1);
-        }
     }
 
     /**************************/
@@ -674,6 +649,7 @@ public class SyntenyParameters extends EventSource implements VisualPlugin {
     JPanel jPanelButtons = new JPanel();
     BorderLayout borderLayout6 = new BorderLayout();
     JButton jButtonStopIt = new JButton();
+
     @Subscribe public void geneSelectorAction(GeneSelectorEvent e,
                                               Object publisher) {
         markers = e.getPanel();
@@ -756,186 +732,9 @@ public class SyntenyParameters extends EventSource implements VisualPlugin {
         return smo;
     }
 
-    void SyntenyMap_action(int type) {
-        // It is the test for Synteny Map !
-        // SyntenyMapObject smObj = PopulateSyntenyMap();
-
-        String job_id = new String("Synteny_" +
-                                   Math.rint(Math.random() * 1000000));
-        String out_name = new String(tempDir + job_id + ".sub");
-        String res_name = new String(tempDir + job_id + ".res");
-
-        // Forming the request
-        try {
-            // Parsing input parameters
-            FileOutputStream fout = new FileOutputStream(out_name);
-            String tmp;
-            tmp = new String("JOB_ID: " + job_id + "\n");
-            fout.write(tmp.getBytes());
-            tmp = new String("REQUEST_TYPE: M_SMAP\n");
-            fout.write(tmp.getBytes());
-
-            tmp = new String("PROGRAM: " + (String) ProgramBox.getSelectedItem() +
-                             "\n");
-            fout.write(tmp.getBytes());
-
-            if (type == 2) {
-
-                String infstr = new String(jLabelX.getText());
-                int ii = infstr.indexOf(">");
-                int jj = infstr.indexOf(":", ii + 1);
-                String x_marker = new String(infstr.substring(ii + 1, jj));
-
-                ii = jj;
-                jj = infstr.indexOf(":", ii + 1);
-                ii = jj;
-                jj = infstr.indexOf(":", ii + 1);
-                String genomex = new String(infstr.substring(ii + 1, jj));
-                ii = jj;
-                jj = infstr.indexOf(":", ii + 1);
-                String chromX = new String(infstr.substring(ii + 1, jj));
-                ii = jj;
-                jj = infstr.indexOf(":", ii + 1);
-                String tmp1 = new String(infstr.substring(ii + 1, jj));
-                String tmp2 = new String(beforeText.getText());
-
-                int fx = Integer.parseInt(infstr.substring(ii + 1, jj)) -
-                         Integer.parseInt(beforeText.getText());
-                ii = jj;
-                jj = infstr.indexOf(":", ii + 1);
-                int tx = Integer.parseInt(infstr.substring(ii + 1, jj)) +
-                         Integer.parseInt(afterText.getText());
-                ;
-
-                // Parsing Y information
-                infstr = new String(jLabelY.getText());
-                ii = infstr.indexOf(">");
-                jj = infstr.indexOf(":", ii + 1);
-                String y_marker = new String(infstr.substring(ii + 1, jj));
-
-                ii = jj;
-                jj = infstr.indexOf(":", ii + 1);
-                ii = jj;
-                jj = infstr.indexOf(":", ii + 1);
-                String genomey = new String(infstr.substring(ii + 1, jj));
-                ii = jj;
-                jj = infstr.indexOf(":", ii + 1);
-                String chromY = new String(infstr.substring(ii + 1, jj));
-                ii = jj;
-                jj = infstr.indexOf(":", ii + 1);
-                int fy = Integer.parseInt(infstr.substring(ii + 1, jj)) -
-                         Integer.parseInt(beforeText.getText());
-                ii = jj;
-                jj = infstr.indexOf(":", ii + 1);
-                int ty = Integer.parseInt(infstr.substring(ii + 1, jj)) +
-                         Integer.parseInt(afterText.getText());
-                ;
-
-                // Writting necessary...
-                tmp = new String("MARKER1: " + x_marker + "\n");
-                fout.write(tmp.getBytes());
-
-                tmp = new String("MARKER2: " + y_marker + "\n");
-                fout.write(tmp.getBytes());
-            }
-            if (type == 1) {
-                tmp = new String("MARKER1:" + single_marker + "\n");
-                fout.write(tmp.getBytes());
-                tmp = new String("MARKER2: " + "NONE\n");
-                fout.write(tmp.getBytes());
-            }
-
-            tmp = new String("ZONE: " + Integer.parseInt(beforeText.getText()) +
-                             "\n");
-            fout.write(tmp.getBytes());
-
-            fout.flush();
-            fout.close();
-        } catch (IOException ioe) {
-            return;
-        }
-        // here goes request to the server
-        final String outf = new String(out_name);
-        final String jid = new String(job_id);
-        final String resn = new String(res_name);
-
-        Thread t = new Thread() {
-            public void run() {
-                jButtonRun.setBackground(Color.gray);
-                jButtonStopIt.setForeground(Color.black);
-                ProcessStatus.setText("Submitting job to remote server");
-                boolean error_flag = false;
-
-                try {
-                    SoapClient sp = new SoapClient();
-                    String infile = new String(sp.submitFile(outf));
-
-                    String result_file = new String(
-                            "/users/amdecweb/jakarta-tomcat-4.1.30/bin/outputFolder/" +
-                            jid + ".res");
-                    String job_string = new String(sp.submitJob(
-                            "java -cp /adtera/users/pavel/synteny_remote/ SyntenyServerSide",
-                            infile, result_file));
-
-                    String tURL = new String(
-                            "http://amdec-bioinfo.cu-genome.org/html/temp/" +
-                            jid +
-                            ".info");
-
-                    ProcessStatus.setText(
-                            "Waiting for reply from remote server");
-                    String ServerAnswer = null;
-                    while (true) {
-                        Delay(500);
-                        if (cancel_flag) {
-                            break;
-                        }
-                        ServerAnswer = DAS_Retriver.GetItSilent(tURL);
-                        if (ServerAnswer != null) {
-                            ProcessStatus.setText(ServerAnswer);
-                            if (ServerAnswer.indexOf("Server job done") != -1) {
-                                break;
-                            }
-                        } else {
-                            ProcessStatus.setText(
-                                    "Waiting for reply from server");
-                        }
-                    }
-
-                    if (cancel_flag == false) {
-                        tURL = new String(
-                                "http://amdec-bioinfo.cu-genome.org/html/temp/" +
-                                jid +
-                                ".res");
-
-                        ProcessStatus.setText("Retriving results from server");
-                    }
-                    else{
-                        ProcessStatus.setText("Process cancelled");
-                        cancel_flag = false;
-                    }
-                } catch (Exception ee) {
-                    System.err.println(ee);
-                    return;
-                }
-                ProcessStatus.setText("Parsing");
-            }
-
-        };
-        t.setPriority(Thread.MIN_PRIORITY);
-        t.start();
-
-        // here goes drawing
-        //SyntenyMapViewWidget.smrepaint(smObj);
-        //SyntenyMapViewWidget smw=new SyntenyMapViewWidget();
-        return;
-    }
-
     /*********************************************************/
     void ButtonRun_actionPerformed(ActionEvent e) {
         int fx, tx, fy, ty, i, j;
-
-        // Error message...
 
         if (((jLabelX.getText()).indexOf(">") == -1) ||
             ((jLabelY.getText()).indexOf(">") == -1)) {
@@ -949,71 +748,50 @@ public class SyntenyParameters extends EventSource implements VisualPlugin {
         String out_name = null;
         String job_id = null;
         String res_name;
-        final boolean debuging = true;
 
         job_id = new String("Synteny_" + Math.rint(Math.random() * 1000000));
         out_name = new String(tempDir + job_id + ".sub");
         res_name = new String(tempDir + job_id + ".res");
 
+        String req_type = new String("M_DOTMATRIX");
         if (((String) ProgramBox.getSelectedItem()).indexOf("SyntenyMap") != -1) {
-            SyntenyMap_action(2);
-            return;
+            req_type = new String("M_SMAP");
         }
 
         // Parsing X information
-        String infstr = new String(jLabelX.getText());
-        int ii = infstr.indexOf(":");
-        int jj = infstr.indexOf(":", ii + 1);
-        ii = jj;
-        jj = infstr.indexOf(":", ii + 1);
-        String genomex = new String(infstr.substring(ii + 1, jj));
-        ii = jj;
-        jj = infstr.indexOf(":", ii + 1);
-        String chromX = new String(infstr.substring(ii + 1, jj));
-        ii = jj;
-        jj = infstr.indexOf(":", ii + 1);
-        String tmp1 = new String(infstr.substring(ii + 1, jj));
-        String tmp2 = new String(beforeText.getText());
-
-        fx = Integer.parseInt(infstr.substring(ii + 1, jj)) -
+        String[] infstr = ((String) jLabelX.getText()).split(":");
+        String sourcex = new String(infstr[1].substring(2));
+        String genomex = new String(infstr[2]);
+        String chromX = new String(infstr[3]);
+        fx = Integer.parseInt(infstr[4]) -
              Integer.parseInt(beforeText.getText());
-        ii = jj;
-        jj = infstr.indexOf(":", ii + 1);
-        tx = Integer.parseInt(infstr.substring(ii + 1, jj)) +
-             Integer.parseInt(afterText.getText()); ;
+        tx = Integer.parseInt(infstr[5]) +
+             Integer.parseInt(afterText.getText());
 
         // Parsing Y information
-        infstr = new String(jLabelY.getText());
-        ii = infstr.indexOf(":");
-        jj = infstr.indexOf(":", ii + 1);
-        ii = jj;
-        jj = infstr.indexOf(":", ii + 1);
-        String genomey = new String(infstr.substring(ii + 1, jj));
-        ii = jj;
-        jj = infstr.indexOf(":", ii + 1);
-        String chromY = new String(infstr.substring(ii + 1, jj));
-        ii = jj;
-        jj = infstr.indexOf(":", ii + 1);
-        fy = Integer.parseInt(infstr.substring(ii + 1, jj)) -
+        infstr = (jLabelY.getText()).split(":");
+        String sourcey = new String(infstr[1].substring(2));
+        String genomey = new String(infstr[2]);
+        String chromY = new String(infstr[3]);
+        fy = Integer.parseInt(infstr[4]) -
              Integer.parseInt(beforeText.getText());
-        ii = jj;
-        jj = infstr.indexOf(":", ii + 1);
-        ty = Integer.parseInt(infstr.substring(ii + 1, jj)) +
-             Integer.parseInt(afterText.getText()); ;
+        ty = Integer.parseInt(infstr[5]) +
+             Integer.parseInt(afterText.getText());
 
         try {
-            // Parsing input parameters
             fout = new FileOutputStream(out_name);
             String tmp;
             tmp = new String("JOB_ID: " + job_id + "\n");
             fout.write(tmp.getBytes());
-            tmp = new String("REQUEST_TYPE: M_DOTMATRIX\n");
+            tmp = new String("REQUEST_TYPE: " + req_type + "\n");
             fout.write(tmp.getBytes());
 
             tmp = new String("PROGRAM: " + (String) ProgramBox.getSelectedItem() +
                              "\n");
             fout.write(tmp.getBytes());
 
+            tmp = new String("SOURCE1: " + sourcex + "\n");
+            fout.write(tmp.getBytes());
             tmp = new String("GENOME1: " + genomex + "\n");
             fout.write(tmp.getBytes());
             tmp = new String("CHR1: " + chromX +
@@ -1022,6 +800,8 @@ public class SyntenyParameters extends EventSource implements VisualPlugin {
             tmp = new String("FROM1: " + fx + "\n");
             fout.write(tmp.getBytes());
             tmp = new String("TO1: " + tx + "\n");
+            fout.write(tmp.getBytes());
+            tmp = new String("SOURCE2: " + sourcey + "\n");
             fout.write(tmp.getBytes());
             tmp = new String("GENOME2: " + genomey + "\n");
             fout.write(tmp.getBytes());
@@ -1075,8 +855,9 @@ public class SyntenyParameters extends EventSource implements VisualPlugin {
                     String ServerAnswer = null;
                     while (true) {
                         Delay(500);
-                        if (cancel_flag)
+                        if (cancel_flag) {
                             break;
+                        }
                         ServerAnswer = DAS_Retriver.GetItSilent(tURL);
                         if (ServerAnswer != null) {
                             ProcessStatus.setText(ServerAnswer);
@@ -1118,8 +899,7 @@ public class SyntenyParameters extends EventSource implements VisualPlugin {
                         SPList.addAndDisplay(resn, f_x, t_x, f_y, t_y);
                         jButtonRun.setBackground(Color.white);
                     }
-                }
-                else {
+                } else {
                     ProcessStatus.setText("Process cancelled");
                     jButtonRun.setBackground(Color.white);
                     jButtonStopIt.setForeground(Color.white);
@@ -1220,13 +1000,15 @@ public class SyntenyParameters extends EventSource implements VisualPlugin {
                               (String) ProgramBox.getSelectedItem());
     }
 
-    void ButtonCancel_actionPerformed(ActionEvent e){
+    void ButtonCancel_actionPerformed(ActionEvent e) {
         cancel_flag = true;
     }
 
 }
 
-
+/**
+ * <p>Tree Model Listener</p>
+ */
 class MyTreeModelListener implements TreeModelListener {
     public void treeNodesChanged(TreeModelEvent e) {
         DefaultMutableTreeNode node;
@@ -1244,18 +1026,17 @@ class MyTreeModelListener implements TreeModelListener {
                    (node.getChildAt(index));
         } catch (NullPointerException exc) {}
     }
-
     public void treeNodesInserted(TreeModelEvent e) {
     }
-
     public void treeNodesRemoved(TreeModelEvent e) {
     }
-
     public void treeStructureChanged(TreeModelEvent e) {
     }
 }
 
-
+/**
+ * <p>Program Box</p>
+ */
 class SyntenyParameters_ProgramBox_actionAdapter implements java.awt.event.
         ActionListener {
     SyntenyParameters adaptee;
@@ -1268,7 +1049,6 @@ class SyntenyParameters_ProgramBox_actionAdapter implements java.awt.event.
         adaptee.ProgramBox_actionPerformed(e);
     }
 }
-
 
 /**
  * <p>Run Button
@@ -1286,7 +1066,6 @@ class SyntenyParameters_addButton_actionAdapter implements java.awt.event.
     }
 }
 
-
 /**
  * <p>Run Button
  */
@@ -1302,7 +1081,6 @@ class SyntenyParameters_runButton_actionAdapter implements java.awt.event.
         adaptee.ButtonRun_actionPerformed(e);
     }
 }
-
 
 /**
  * <p>Run Button
