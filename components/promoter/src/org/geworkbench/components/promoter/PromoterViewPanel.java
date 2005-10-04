@@ -34,6 +34,8 @@ import java.io.*;
 import java.text.DecimalFormat;
 import java.util.*;
 import java.util.List;
+import org.geworkbench.bison.datastructure.complex.pattern.CSMatchedPattern;
+import org.geworkbench.util.patterns.CSMatchedSeqPattern;
 
 /**
  * <p>Widget provides all GUI services for sequence panel displays.</p>
@@ -1012,6 +1014,7 @@ public class PromoterViewPanel extends JPanel {
         //add newly selected patterns
         /** @todo Fix patterns */
         DSCollection<DSMatchedPattern<DSSequence, DSSeqRegistration>> patterns = e.getPatternMatchCollection();
+
         for (DSMatchedPattern<DSSequence, DSSeqRegistration> pattern : patterns) {
             //IGetPatternMatchCollection im = gp.match(sequenceDB);
             Display dis = new Display();
@@ -1019,6 +1022,11 @@ public class PromoterViewPanel extends JPanel {
             dis.setHeight(0.9);
             dis.setShape(Display.OVAL);
             DSPattern<DSSequence, DSSeqRegistration> p = pattern.getPattern();
+
+            if(pattern instanceof CSMatchedSeqPattern){
+                ((CSMatchedSeqPattern)pattern).setSeqDB(sequenceDB);
+            }
+
             List<DSPatternMatch<DSSequence, DSSeqRegistration>> matches = pattern.matches();
             seqDisPanel.addAPattern(p, dis, matches);
         }
