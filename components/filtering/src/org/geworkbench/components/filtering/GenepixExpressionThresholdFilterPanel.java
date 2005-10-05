@@ -7,6 +7,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.io.IOException;
 import java.io.Serializable;
+import java.io.ObjectStreamException;
 
 /**
  * <p>Copyright: Copyright (c) 2003</p>
@@ -35,6 +36,34 @@ public class GenepixExpressionThresholdFilterPanel extends AbstractSaveableParam
     private JFormattedTextField Cy5MaxValue = new JFormattedTextField();
     private JComboBox optionSelection = new JComboBox(new String[]{INSIDE_RANGE, OUTSIDE_RANGE});
     private GridLayout gridLayout1 = new GridLayout();
+
+    private static class SerializedInstance implements Serializable {
+
+        private double cy3Min, cy3Max, cy5Min, cy5Max;
+        private int rangeOption;
+
+        public SerializedInstance(double cy3Min, double cy3Max, double cy5Min, double cy5Max, int rangeOption) {
+            this.cy3Min = cy3Min;
+            this.cy3Max = cy3Max;
+            this.cy5Min = cy5Min;
+            this.cy5Max = cy5Max;
+            this.rangeOption = rangeOption;
+        }
+
+        Object readResolve() throws ObjectStreamException {
+            GenepixExpressionThresholdFilterPanel panel = new GenepixExpressionThresholdFilterPanel();
+            panel.Cy3MinValue.setValue(cy3Min);
+            panel.Cy3MaxValue.setValue(cy3Max);
+            panel.Cy5MinValue.setValue(cy5Min);
+            panel.Cy5MaxValue.setValue(cy5Max);
+            panel.optionSelection.setSelectedIndex(rangeOption);
+            return panel;
+        }
+    }
+
+    Object writeReplace()  throws ObjectStreamException {
+        return new SerializedInstance((Double)Cy3MinValue.getValue(), (Double)Cy3MaxValue.getValue(), (Double)Cy5MinValue.getValue(), (Double)Cy5MaxValue.getValue(), optionSelection.getSelectedIndex());
+    }
 
     public GenepixExpressionThresholdFilterPanel() {
         try {

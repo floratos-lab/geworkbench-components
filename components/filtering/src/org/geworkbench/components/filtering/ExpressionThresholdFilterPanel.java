@@ -7,6 +7,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.io.IOException;
 import java.io.Serializable;
+import java.io.ObjectStreamException;
 import java.text.NumberFormat;
 
 /**
@@ -29,6 +30,31 @@ public class ExpressionThresholdFilterPanel extends AbstractSaveableParameterPan
     private JFormattedTextField rangeMaxValue = new JFormattedTextField(NumberFormat.getNumberInstance());
     private JComboBox optionSelection = new JComboBox(new String[]{INSIDE_RANGE, OUTSIDE_RANGE});
     private GridLayout gridLayout1 = new GridLayout();
+
+    private static class SerializedInstance implements Serializable {
+
+        private Number rangeMin;
+        private Number rangeMax;
+        boolean isInside;
+
+        public SerializedInstance(Number rangeMin, Number rangeMax, boolean inside) {
+            this.rangeMin = rangeMin;
+            this.rangeMax = rangeMax;
+            isInside = inside;
+        }
+
+        Object readResolve() throws ObjectStreamException {
+            ExpressionThresholdFilterPanel panel = new ExpressionThresholdFilterPanel();
+            panel.rangeMinValue.setValue(rangeMin);
+            panel.rangeMaxValue.setValue(rangeMax);
+            panel.optionSelection.setSelectedIndex(isInside ? 0 : 1);
+            return panel;
+        }
+    }
+
+    Object writeReplace()  throws ObjectStreamException {
+        return new SerializedInstance((Number) rangeMinValue.getValue(), (Number) rangeMaxValue.getValue(), (optionSelection.getSelectedIndex() == 0));
+    }
 
     public ExpressionThresholdFilterPanel() {
         try {
