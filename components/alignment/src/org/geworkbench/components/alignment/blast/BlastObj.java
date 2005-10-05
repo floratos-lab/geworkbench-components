@@ -437,7 +437,7 @@ public class BlastObj {
                             size += line.length();
                             if (size >= maxSize) {
                                 throw new BlastDataOutOfBoundException(
-                                        "The sequence " + name +
+                                        "The sequence " + label +
                                         "  is too long to retrieve the whole sequence.");
 
                             }
