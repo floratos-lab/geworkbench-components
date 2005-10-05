@@ -260,9 +260,13 @@ public class HierClusterTree extends JPanel {
             else
                 maxHeight = microarraySet.items().size() * HierClusterDisplay.geneWidth;
             width = parent.getHeight() / 6;
+            branchWidth = Math.ceil((double) width / (double) maxDepth);
+            if (branchWidth < 2d)
+                branchWidth = 2d;
+            width = (int) branchWidth * maxDepth + offSet;
             setPreferredSize(new Dimension(this.getParent().getWidth(), width));
             setSize(new Dimension(this.getParent().getWidth(), width));
-            branchWidth = (double) width / (double) maxDepth;
+            // branchWidth = (double) width / (double) maxDepth;
         }
     }
 

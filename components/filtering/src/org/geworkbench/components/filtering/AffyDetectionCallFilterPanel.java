@@ -55,7 +55,7 @@ public class AffyDetectionCallFilterPanel extends AbstractSaveableParameterPanel
         }
     }
 
-    Object writeReplace()  throws ObjectStreamException {
+    Object writeReplace() throws ObjectStreamException {
         return new SerializedInstance(presentButton.isSelected(), absentButton.isSelected(), marginalButton.isSelected());
     }
 
