@@ -6,6 +6,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.io.IOException;
 import java.io.Serializable;
+import java.io.ObjectStreamException;
 
 /**
  * <p>Copyright: Copyright (c) 2003</p>
@@ -32,6 +33,27 @@ public class MarkerCenteringNormalizerPanel extends AbstractSaveableParameterPan
      */
     private JComboBox averagingSelection = new JComboBox(new String[]{MEAN_OPTION, MEDIAN_OPTION});
     private JComboBox missingValuesSelection = new JComboBox(new String[]{MIN_OPTION, MAX_OPTION, ZERO_OPTION, IGNORE_OPTION});
+
+    private static class SerialInstance implements Serializable {
+        int averaging;
+        int missing;
+
+        public SerialInstance(int averaging, int missing) {
+            this.averaging = averaging;
+            this.missing = missing;
+        }
+
+        Object readResolve() throws ObjectStreamException {
+            MarkerCenteringNormalizerPanel panel = new MarkerCenteringNormalizerPanel();
+            panel.averagingSelection.setSelectedIndex(averaging);
+            panel.missingValuesSelection.setSelectedIndex(missing);
+            return panel;
+        }
+    }
+
+    Object writeReplace() throws ObjectStreamException {
+        return new SerialInstance(averagingSelection.getSelectedIndex(), missingValuesSelection.getSelectedIndex());
+    }
 
     public MarkerCenteringNormalizerPanel() {
         try {

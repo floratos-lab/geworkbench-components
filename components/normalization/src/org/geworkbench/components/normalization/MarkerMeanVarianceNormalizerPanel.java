@@ -6,6 +6,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.io.IOException;
 import java.io.Serializable;
+import java.io.ObjectStreamException;
 
 /**
  * <p>Copyright: Copyright (c) 2003</p>
@@ -28,6 +29,25 @@ public class MarkerMeanVarianceNormalizerPanel extends AbstractSaveableParameter
      * Available options for computing the center to be
      */
     private JComboBox missingValuesSelection = new JComboBox(new String[]{MIN_OPTION, MAX_OPTION, ZERO_OPTION, IGNORE_OPTION});
+
+    private static class SerialInstance implements Serializable {
+
+        private int missing;
+
+        public SerialInstance(int missing) {
+            this.missing = missing;
+        }
+
+        Object readResolve() throws ObjectStreamException {
+            MarkerMeanVarianceNormalizerPanel panel = new MarkerMeanVarianceNormalizerPanel();
+            panel.missingValuesSelection.setSelectedIndex(missing);
+            return panel;
+        }
+    }
+
+    Object writeReplace() throws ObjectStreamException {
+        return new SerialInstance(missingValuesSelection.getSelectedIndex());
+    }
 
     public MarkerMeanVarianceNormalizerPanel() {
         try {

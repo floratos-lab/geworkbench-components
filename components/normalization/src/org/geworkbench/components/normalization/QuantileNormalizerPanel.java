@@ -6,6 +6,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.io.IOException;
 import java.io.Serializable;
+import java.io.ObjectStreamException;
 
 /**
  * <p>Copyright: Copyright (c) 2005</p>
@@ -23,6 +24,26 @@ public class QuantileNormalizerPanel extends AbstractSaveableParameterPanel impl
     private JLabel averagingTypeLabel = new JLabel("Averaging method");
     private JComboBox averagingTypeSelection = new JComboBox(new String[]{MARKER_OPTION, MICROARRAY_OPTION});
 
+    private static class SerialInstance implements Serializable {
+
+        private int averaging;
+
+        public SerialInstance(int averaging) {
+            this.averaging = averaging;
+        }
+
+        Object readResolve() throws ObjectStreamException {
+            QuantileNormalizerPanel panel = new QuantileNormalizerPanel();
+            panel.averagingTypeSelection.setSelectedIndex(averaging);
+            return panel;
+        }
+
+    }
+
+    Object writeReplace() throws ObjectStreamException {
+        return new SerialInstance(averagingTypeSelection.getSelectedIndex());
+    }
+    
     public QuantileNormalizerPanel() {
         try {
             jbInit();

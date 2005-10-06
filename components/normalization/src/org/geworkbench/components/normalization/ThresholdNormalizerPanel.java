@@ -6,6 +6,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.io.IOException;
 import java.io.Serializable;
+import java.io.ObjectStreamException;
 
 /**
  * <p>Copyright: Copyright (c) 2003</p>
@@ -29,6 +30,31 @@ public class ThresholdNormalizerPanel extends AbstractSaveableParameterPanel imp
     private JFormattedTextField cutoffEdit = new JFormattedTextField();
     private JComboBox cutoffTypeSelection = new JComboBox(new String[]{MIN_OPTION, MAX_OPTION});
     private JComboBox missingValuesSelection = new JComboBox(new String[]{IGNORE_OPTION, REPLACE_OPTION});
+
+    private static class SerializedInstance implements Serializable {
+
+        private Number cutoff;
+        private int cutoffType;
+        private int missing;
+
+        public SerializedInstance(Number cutoff, int cutoffType, int missing) {
+            this.cutoff = cutoff;
+            this.cutoffType = cutoffType;
+            this.missing = missing;
+        }
+
+        Object readResolve() throws ObjectStreamException {
+            ThresholdNormalizerPanel panel = new ThresholdNormalizerPanel();
+            panel.cutoffEdit.setValue(cutoff);
+            panel.cutoffTypeSelection.setSelectedIndex(cutoffType);
+            panel.missingValuesSelection.setSelectedIndex(missing);
+            return panel;
+        }
+    }
+
+    Object writeReplace() throws ObjectStreamException {
+        return new SerializedInstance((Number)cutoffEdit.getValue(), cutoffTypeSelection.getSelectedIndex(), missingValuesSelection.getSelectedIndex());
+    }
 
     public ThresholdNormalizerPanel() {
         try {

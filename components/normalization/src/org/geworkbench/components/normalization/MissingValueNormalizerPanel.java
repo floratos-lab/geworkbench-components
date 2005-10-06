@@ -6,6 +6,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.io.IOException;
 import java.io.Serializable;
+import java.io.ObjectStreamException;
 
 /**
  * <p>Copyright: Copyright (c) 2003</p>
@@ -23,6 +24,24 @@ public class MissingValueNormalizerPanel extends AbstractSaveableParameterPanel 
     private GridLayout gridLayout1 = new GridLayout();
     private JLabel averagingTypeLabel = new JLabel("Averaging method");
     private JComboBox averagingTypeSelection = new JComboBox(new String[]{MARKER_OPTION, MICROARRAY_OPTION});
+
+    private static class SerializedInstance implements Serializable {
+        int averaging;
+
+        public SerializedInstance(int averaging) {
+            this.averaging = averaging;
+        }
+
+        Object readResolve() throws ObjectStreamException {
+            MissingValueNormalizerPanel panel = new MissingValueNormalizerPanel();
+            panel.averagingTypeSelection.setSelectedIndex(averaging);
+            return panel;
+        }
+    }
+
+    Object writeReplace() throws ObjectStreamException {
+        return new SerializedInstance(averagingTypeSelection.getSelectedIndex());
+    }
 
     public MissingValueNormalizerPanel() {
         try {

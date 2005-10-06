@@ -85,6 +85,44 @@ public class HouseKeepingGeneNormalizerPanel extends
     JButton moveNextButton = new JButton();
     JPanel jPanel6 = new JPanel();
 
+    private static class SerializedInstance implements Serializable {
+
+        private ArrayList exclude;
+        private ArrayList select;
+
+        public SerializedInstance(DefaultListModel excluded, DefaultListModel selected) {
+            {
+                int n = excluded.size();
+                exclude = new ArrayList(n);
+                for (int i = 0; i < n; i++) {
+                    exclude.add(excluded.get(i));
+                }
+            }
+            {
+                int n = selected.size();
+                select = new ArrayList(n);
+                for (int i = 0; i < n; i++) {
+                    select.add(selected.get(i));
+                }
+            }
+        }
+
+        Object readResolve() throws ObjectStreamException {
+            HouseKeepingGeneNormalizerPanel panel = new HouseKeepingGeneNormalizerPanel();
+            for (int i = 0; i < exclude.size(); i++) {
+                panel.markerModel.add(i, exclude.get(i));
+            }
+            for (int i = 0; i < select.size(); i++) {
+                panel.selectedModel.add(i, select.get(i));
+            }
+            return panel;
+        }
+    }
+
+    Object writeReplace() throws ObjectStreamException {
+        return new SerializedInstance(markerModel, selectedModel);
+    }
+
     public HouseKeepingGeneNormalizerPanel() {
         try {
             jbInit();
