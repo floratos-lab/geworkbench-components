@@ -30,6 +30,8 @@ import org.geworkbench.util.promoter.SequencePatternDisplayPanel;
 import org.geworkbench.util.promoter.pattern.Display;
 import org.geworkbench.util.promoter.pattern.PatternDisplay;
 import org.geworkbench.util.sequences.SequenceDB;
+import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
+import org.geworkbench.bison.datastructure.bioobjects.markers.*;
 
 /**
  * <p>Widget provides all GUI services for sequence panel displays.</p>
@@ -789,34 +791,41 @@ public class PromoterViewPanel extends JPanel {
                 if (e.getActionCommand() == fc.APPROVE_SELECTION) {
                     File file = fc2.getSelectedFile();
                     try {
+                        String comma = ", ";
                         String tab = "\t";
                         BufferedWriter bw = new BufferedWriter(new FileWriter(
                                 file));
                         for (DSPattern pattern : promoterPatterns){
-                            bw.write(pattern.toString());
+                            bw.write("<<" + pattern.toString() + ">>");
                             bw.newLine();
-                            Hashtable<String, Vector<Integer>> hitsForPrinting = new Hashtable<String, Vector<Integer>>();
+                            Hashtable<DSSequence, Vector<Integer>> hitsForPrinting = new Hashtable<DSSequence, Vector<Integer>>();
                             List<DSPatternMatch<DSSequence, DSSeqRegistration>>
                                     matches = promoterPatternMatches.get(pattern);
-                            for (DSPatternMatch<DSSequence, DSSeqRegistration> match : matches){
-                                Vector<Integer> v = hitsForPrinting.get(match.getObject().getID());
-                                if (v == null){
-                                    Vector<Integer> val = new Vector<Integer>();
-                                    val.add(match.getRegistration().x1 + 1);
-                                    hitsForPrinting.put(match.getObject().getID(), val);
-                                }
-                                else {
-                                    v.add(match.getRegistration().x1 + 1);
-                                }
+                            DSItemList<? extends DSGeneMarker> list = sequenceDB.getMarkerList();
+                            for (DSGeneMarker seq : list){
+                                DSSequence sequence = sequenceDB.getSequence(seq.getSerial());
+                                hitsForPrinting.put(sequence, new Vector<Integer>());
                             }
-                            Enumeration<String> keys = hitsForPrinting.keys();
+                            for (DSPatternMatch<DSSequence, DSSeqRegistration> match : matches){
+                                Vector<Integer> v = hitsForPrinting.get(match.getObject());
+                                v.add(match.getRegistration().x1 + 1);
+                            }
+                            Enumeration<DSSequence> keys = hitsForPrinting.keys();
                             while (keys.hasMoreElements()){
-                                String id = keys.nextElement();
-                                Vector<Integer> val = hitsForPrinting.get(id);
-                                bw.write(id + tab);
+                                DSSequence seq = keys.nextElement();
+                                Vector<Integer> val = hitsForPrinting.get(seq);
+                                String label = seq.getLabel();
+                                bw.write("<" + label.split("\\|")[0] + ">" + tab);
+                                String positions = "";
+                                int c = 0;
                                 for (Integer i : val){
-                                    bw.write(i + tab);
+                                    if (c == 0)
+                                        positions += i;
+                                    else
+                                        positions += comma + i;
+                                    c++;
                                 }
+                                bw.write("<" + positions + ">");
                                 bw.newLine();
                             }
                         }
