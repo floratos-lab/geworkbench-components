@@ -796,14 +796,13 @@ public class PromoterViewPanel extends JPanel {
                         BufferedWriter bw = new BufferedWriter(new FileWriter(
                                 file));
                         for (DSPattern pattern : promoterPatterns){
-                            bw.write("<<" + pattern.toString() + ">>");
+                            bw.write(pattern.toString());
                             bw.newLine();
                             Hashtable<DSSequence, Vector<Integer>> hitsForPrinting = new Hashtable<DSSequence, Vector<Integer>>();
                             List<DSPatternMatch<DSSequence, DSSeqRegistration>>
                                     matches = promoterPatternMatches.get(pattern);
-                            DSItemList<? extends DSGeneMarker> list = sequenceDB.getMarkerList();
-                            for (DSGeneMarker seq : list){
-                                DSSequence sequence = sequenceDB.getSequence(seq.getSerial());
+                            for (int i = 0; i < sequenceDB.getSequenceNo(); i++){
+                                DSSequence sequence = sequenceDB.getSequence(i);
                                 hitsForPrinting.put(sequence, new Vector<Integer>());
                             }
                             for (DSPatternMatch<DSSequence, DSSeqRegistration> match : matches){
@@ -815,7 +814,7 @@ public class PromoterViewPanel extends JPanel {
                                 DSSequence seq = keys.nextElement();
                                 Vector<Integer> val = hitsForPrinting.get(seq);
                                 String label = seq.getLabel();
-                                bw.write("<" + label.split("\\|")[0] + ">" + tab);
+                                bw.write(label.split("\\|")[0] + tab);
                                 String positions = "";
                                 int c = 0;
                                 for (Integer i : val){
@@ -825,7 +824,7 @@ public class PromoterViewPanel extends JPanel {
                                         positions += comma + i;
                                     c++;
                                 }
-                                bw.write("<" + positions + ">");
+                                bw.write(positions);
                                 bw.newLine();
                             }
                         }
