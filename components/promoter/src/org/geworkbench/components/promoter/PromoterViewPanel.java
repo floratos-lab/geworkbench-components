@@ -798,30 +798,31 @@ public class PromoterViewPanel extends JPanel {
                         for (DSPattern pattern : promoterPatterns){
                             bw.write(pattern.toString());
                             bw.newLine();
+                            Hashtable<Integer, DSSequence> order = new Hashtable<Integer, DSSequence>();
                             Hashtable<DSSequence, Vector<Integer>> hitsForPrinting = new Hashtable<DSSequence, Vector<Integer>>();
                             List<DSPatternMatch<DSSequence, DSSeqRegistration>>
                                     matches = promoterPatternMatches.get(pattern);
                             for (int i = 0; i < sequenceDB.getSequenceNo(); i++){
                                 DSSequence sequence = sequenceDB.getSequence(i);
+                                order.put(i, sequence);
                                 hitsForPrinting.put(sequence, new Vector<Integer>());
                             }
                             for (DSPatternMatch<DSSequence, DSSeqRegistration> match : matches){
                                 Vector<Integer> v = hitsForPrinting.get(match.getObject());
                                 v.add(match.getRegistration().x1 + 1);
                             }
-                            Enumeration<DSSequence> keys = hitsForPrinting.keys();
-                            while (keys.hasMoreElements()){
-                                DSSequence seq = keys.nextElement();
-                                Vector<Integer> val = hitsForPrinting.get(seq);
-                                String label = seq.getLabel();
+                            for (int i = 0; i < sequenceDB.getSequenceNo(); i++){
+                                DSSequence sequence = order.get(i);
+                                Vector<Integer> val = hitsForPrinting.get(sequence);
+                                String label = sequence.getLabel();
                                 bw.write(label.split("\\|")[0] + tab);
                                 String positions = "";
                                 int c = 0;
-                                for (Integer i : val){
+                                for (Integer integer : val){
                                     if (c == 0)
-                                        positions += i;
+                                        positions += integer;
                                     else
-                                        positions += comma + i;
+                                        positions += comma + integer;
                                     c++;
                                 }
                                 bw.write(positions);
@@ -1555,7 +1556,7 @@ public class PromoterViewPanel extends JPanel {
 
         for (int i = 0; i < seqNo; i++) {
             double progress = (double) i / (double) seqNo;
-            updateProgressBar(progress, "Computing Null Hypothsis");
+            updateProgressBar(progress, "Computing Null Hypothesis");
             DSSequence sequence = rg.getRandomSequence(seqLen +
                     pattern.getLength());
             overT += pattern.getMatrix().collectSequenceScores(sequence, scores);
