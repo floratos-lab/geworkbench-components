@@ -4,6 +4,7 @@ package org.geworkbench.components.filtering;
 import java.awt.*;
 import java.io.IOException;
 import java.io.Serializable;
+import java.io.ObjectStreamException;
 import java.util.*;
 
 import javax.swing.*;
@@ -29,7 +30,7 @@ public class GenepixFlagsFilterPanel extends AbstractSaveableParameterPanel impl
     /**
      * Inner class to represent FlagDetail.
      */
-    private class FlagDetail implements Serializable {
+    private static class FlagDetail implements Serializable {
         String label;
         String number;
         boolean isFiltered;
@@ -86,9 +87,40 @@ public class GenepixFlagsFilterPanel extends AbstractSaveableParameterPanel impl
     JPanel container = new JPanel();
     BoxLayout boxlayout;
     JTable table1;
+
+    private static GenepixFlagsFilterPanel heldPanel;
+
+    private static class SerialInstance implements Serializable {
+
+        private ArrayList selectedFlags;
+
+        public SerialInstance(ArrayList selectedFlags) {
+            this.selectedFlags = selectedFlags;
+        }
+
+        Object readResolve() throws ObjectStreamException {
+            GenepixFlagsFilterPanel panel = heldPanel;
+            ArrayList selectedFlags = new ArrayList();            
+            for (Object fd : panel.hits) {
+                FlagDetail detail = (FlagDetail) fd;
+                if (selectedFlags.contains(detail.getLabel())) {
+                    detail.setIsFiltered(true);
+                } else {
+                    detail.setIsFiltered(false);
+                }
+            }
+            return panel;
+        }
+    }
+
+    Object writeReplace() throws ObjectStreamException {
+        return new SerialInstance(getSelectedFlags());
+    }
+
     public GenepixFlagsFilterPanel() {
         try {
             jbInit();
+            heldPanel = this;
         } catch (Exception e) {
             e.printStackTrace();
         }
