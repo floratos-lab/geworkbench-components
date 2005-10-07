@@ -8,7 +8,8 @@ import org.geworkbench.engine.management.Publish;
 import org.geworkbench.engine.management.Subscribe;
 import org.geworkbench.util.visualproperties.PanelVisualProperties;
 import org.geworkbench.util.visualproperties.PanelVisualPropertiesManager;
-import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
+import org.geworkbench.bison.datastructure.biocollections.microarrays.
+        DSMicroarraySet;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
@@ -66,11 +67,12 @@ public class EVDPanel extends MicroarrayViewEventBase implements MenuListener {
 
     private Vector dataInBins;
     private JButton jPrintBttn = new JButton();
-    ArrayList<PanelVisualProperties> propertiesList = new ArrayList<PanelVisualProperties>();
+    ArrayList<PanelVisualProperties> propertiesList = new ArrayList<
+            PanelVisualProperties>();
     HistogramPanel hs;
     JButton jAddBttn = new JButton();
     JToggleButton jTTestBttn;
-    JToolBar jToolBar = new JToolBar();
+
     JPanel markerSelectionPanel;
     JSlider jLeftBoundarySlider;
     JSlider jRightBoundarySlider;
@@ -82,7 +84,7 @@ public class EVDPanel extends MicroarrayViewEventBase implements MenuListener {
     JTextField rightBoundary;
     JLabel selectedGeneNum;
     JLabel binNumLabel;
-    public final static Shape baseShape = new Rectangle(-6, -6, 6, 6);
+    public final static Shape baseShape = new Rectangle( -6, -6, 6, 6);
     public final static Color baseColor = Color.ORANGE;
     JSlider jMASlider;
     Component jSpacer;
@@ -111,8 +113,10 @@ public class EVDPanel extends MicroarrayViewEventBase implements MenuListener {
     protected void jbInit() throws Exception {
         super.jbInit();
         setupGUI();
-        jLeftBoundarySlider.setToolTipText("Move the slider to change the lower boundary of selected genes expression.");
-        markerSelectionPanel.setBorder(BorderFactory.createLineBorder(Color.black));
+        jLeftBoundarySlider.setToolTipText(
+                "Move the slider to change the lower boundary of selected genes expression.");
+        markerSelectionPanel.setBorder(BorderFactory.createLineBorder(Color.
+                black));
         colorCheck.addActionListener(new EVDPanel_colorCheck_actionAdapter(this));
 
     }
@@ -151,10 +155,13 @@ public class EVDPanel extends MicroarrayViewEventBase implements MenuListener {
         });
 
         jEnabledBox = new JToggleButton();
-        jEnabledBox.setIcon(new ImageIcon(this.getClass().getResource("bulb_icon_grey.gif")));
-        jEnabledBox.setSelectedIcon(new ImageIcon(this.getClass().getResource("bulb_icon_gold.gif")));
+        jEnabledBox.setIcon(new ImageIcon(this.getClass().getResource(
+                "bulb_icon_grey.gif")));
+        jEnabledBox.setSelectedIcon(new ImageIcon(this.getClass().getResource(
+                "bulb_icon_gold.gif")));
         jEnabledBox.setSelected(true);
-        jEnabledBox.setToolTipText("Push down to view above graph details with mouse moveover");
+        jEnabledBox.setToolTipText(
+                "Push down to view above graph details with mouse moveover");
         jEnabledBox.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 isToolTipEnabled = jEnabledBox.isSelected();
@@ -170,7 +177,8 @@ public class EVDPanel extends MicroarrayViewEventBase implements MenuListener {
         jMASlider.setPaintTicks(true);
         jMASlider.setMinorTickSpacing(1);
         jMASlider.setMajorTickSpacing(5);
-        jMASlider.setCursor(java.awt.Cursor.getPredefinedCursor(java.awt.Cursor.HAND_CURSOR));
+        jMASlider.setCursor(java.awt.Cursor.getPredefinedCursor(java.awt.Cursor.
+                HAND_CURSOR));
         jMASlider.setToolTipText("Move the slider to change base microarray");
         jMASlider.addChangeListener(new javax.swing.event.ChangeListener() {
             public void stateChanged(ChangeEvent e) {
@@ -184,13 +192,16 @@ public class EVDPanel extends MicroarrayViewEventBase implements MenuListener {
         jLeftBoundarySlider.setPaintTicks(true);
         jLeftBoundarySlider.setMinorTickSpacing(1);
         jLeftBoundarySlider.setMajorTickSpacing(5);
-        jLeftBoundarySlider.setCursor(java.awt.Cursor.getPredefinedCursor(java.awt.Cursor.HAND_CURSOR));
-        jLeftBoundarySlider.addChangeListener(new javax.swing.event.ChangeListener() {
+        jLeftBoundarySlider.setCursor(java.awt.Cursor.getPredefinedCursor(java.
+                awt.Cursor.HAND_CURSOR));
+        jLeftBoundarySlider.addChangeListener(new javax.swing.event.
+                                              ChangeListener() {
             public void stateChanged(ChangeEvent e) {
                 jLeftBoundarySlider_stateChanged(e);
             }
         });
-        jLeftBoundarySlider.setToolTipText("Move the slider to change the low boundary of selected genes");
+        jLeftBoundarySlider.setToolTipText(
+                "Move the slider to change the low boundary of selected genes");
 
         jRightBoundarySlider = new JSlider();
         jRightBoundarySlider.setValue(0);
@@ -199,9 +210,12 @@ public class EVDPanel extends MicroarrayViewEventBase implements MenuListener {
         jRightBoundarySlider.setPaintTicks(true);
         jRightBoundarySlider.setMinorTickSpacing(1);
         jRightBoundarySlider.setMajorTickSpacing(5);
-        jRightBoundarySlider.setCursor(java.awt.Cursor.getPredefinedCursor(java.awt.Cursor.HAND_CURSOR));
-        jRightBoundarySlider.setToolTipText("Move the slider to change the upper boundary of selected genes");
-        jRightBoundarySlider.addChangeListener(new javax.swing.event.ChangeListener() {
+        jRightBoundarySlider.setCursor(java.awt.Cursor.getPredefinedCursor(java.
+                awt.Cursor.HAND_CURSOR));
+        jRightBoundarySlider.setToolTipText(
+                "Move the slider to change the upper boundary of selected genes");
+        jRightBoundarySlider.addChangeListener(new javax.swing.event.
+                                               ChangeListener() {
             public void stateChanged(ChangeEvent e) {
                 jRightBoundarySlider_stateChanged(e);
             }
@@ -213,7 +227,8 @@ public class EVDPanel extends MicroarrayViewEventBase implements MenuListener {
         jBinSizeSlider.setPaintTicks(true);
         jBinSizeSlider.setMinorTickSpacing(1);
         jBinSizeSlider.setMajorTickSpacing(5);
-        jBinSizeSlider.setCursor(java.awt.Cursor.getPredefinedCursor(java.awt.Cursor.HAND_CURSOR));
+        jBinSizeSlider.setCursor(java.awt.Cursor.getPredefinedCursor(java.awt.
+                Cursor.HAND_CURSOR));
         jBinSizeSlider.setToolTipText("Move the slider to change the bin size");
         jBinSizeSlider.addChangeListener(new javax.swing.event.ChangeListener() {
             public void stateChanged(ChangeEvent e) {
@@ -232,7 +247,7 @@ public class EVDPanel extends MicroarrayViewEventBase implements MenuListener {
         JPanel rightTopPanel = new JPanel();
         rightTopPanel.setLayout(new GridLayout(2, 1));
         JPanel buttonPanel = new JPanel();
-        JToolBar rightBoundaryPanel = new JToolBar();
+
         leftTopPanel.add(binNumLabel);
         leftTopPanel.add(jBinSizeLabel);
         buttonPanel.add(jAddBttn);
@@ -247,7 +262,8 @@ public class EVDPanel extends MicroarrayViewEventBase implements MenuListener {
         rightTopPanel.add(jRightBoundarySlider);
         //        leftTopPanel.setBorder(BorderFactory.createLineBorder(Color.
         //                black));
-        markerSelectionPanel.setLayout(new BoxLayout(markerSelectionPanel, BoxLayout.X_AXIS));
+        markerSelectionPanel.setLayout(new BoxLayout(markerSelectionPanel,
+                BoxLayout.X_AXIS));
         markerSelectionPanel.add(leftTopPanel);
         markerSelectionPanel.add(middleTopPanel);
         markerSelectionPanel.add(rightTopPanel);
@@ -268,7 +284,9 @@ public class EVDPanel extends MicroarrayViewEventBase implements MenuListener {
         jToolBar3.add(jPrintBttn);
         jToolBar3.add(imageSnapshotButton);
 
-        chart = ChartFactory.createXYLineChart("EVD", "Value", "Occurrences", null, PlotOrientation.VERTICAL, true, isToolTipEnabled, true); // Title,  X-Axis label,  Y-Axis label,  Dataset,  Show legend, show ToolTips
+        chart = ChartFactory.createXYLineChart("EVD", "Value", "Occurrences", null,
+                                               PlotOrientation.VERTICAL, true,
+                                               isToolTipEnabled, true); // Title,  X-Axis label,  Y-Axis label,  Dataset,  Show legend, show ToolTips
 
         graph = new ChartPanel(chart, true);
         XYPlot newPlot = (XYPlot) chart.getPlot();
@@ -297,7 +315,8 @@ public class EVDPanel extends MicroarrayViewEventBase implements MenuListener {
         String s = myFormatter.format(lowValue);
         leftBoundary.setText(s);
         if (hs != null) {
-            selectedGeneNum.setText("Selected genes: " + hs.getGeneNumbers(lowValue, highValue));
+            selectedGeneNum.setText("Selected genes: " +
+                                    hs.getGeneNumbers(lowValue, highValue));
         }
 
     }
@@ -315,7 +334,8 @@ public class EVDPanel extends MicroarrayViewEventBase implements MenuListener {
         String highStr = myFormatter.format(highValue); //String.format("Bin size: %1$.2d", new Double(binSize));
         rightBoundary.setText(highStr);
         if (hs != null) {
-            selectedGeneNum.setText("Selected genes: " + hs.getGeneNumbers(lowValue, highValue));
+            selectedGeneNum.setText("Selected genes: " +
+                                    hs.getGeneNumbers(lowValue, highValue));
         }
 
     }
@@ -344,28 +364,45 @@ public class EVDPanel extends MicroarrayViewEventBase implements MenuListener {
     }
 
     protected void fireModelChangedEvent(MicroarraySetViewEvent event) {
+        super.fireModelChangedEvent(event);
+        if(refMASet == null){
+            // mainPanel.remove(graph);
+
+            chart = ChartFactory.createXYLineChart("EVD", "Value", "Occurrences", null,
+                                              PlotOrientation.VERTICAL, true,
+                                              isToolTipEnabled, true);
+                                      graph.setChart(chart);
+            //graph = new ChartPanel(chart, true);
+             //mainPanel.add(graph, BorderLayout.CENTER);
+
+
+        }
         refresh();
     }
 
-    @Publish public org.geworkbench.events.ImageSnapshotEvent createImageSnapshot() {
+    @Publish public org.geworkbench.events.ImageSnapshotEvent
+            createImageSnapshot() {
         Dimension panelSize = graph.getSize();
-        BufferedImage image = new BufferedImage(panelSize.width, panelSize.height, BufferedImage.TYPE_INT_RGB);
+        BufferedImage image = new BufferedImage(panelSize.width,
+                                                panelSize.height,
+                                                BufferedImage.TYPE_INT_RGB);
         Graphics g = image.getGraphics();
         graph.paint(g);
         ImageIcon icon = new ImageIcon(image, "EVD Plot");
-        org.geworkbench.events.ImageSnapshotEvent event = new org.geworkbench.events.ImageSnapshotEvent("EVD Snapshot", icon, org.geworkbench.events.ImageSnapshotEvent.Action.SAVE);
+        org.geworkbench.events.ImageSnapshotEvent event = new org.geworkbench.
+                events.ImageSnapshotEvent("EVD Snapshot", icon,
+                                          org.geworkbench.events.
+                                          ImageSnapshotEvent.Action.SAVE);
         return event;
     }
 
-    protected void createNewChart(final int selectedArrayId, final boolean showActive) {
-        //        Thread t = new Thread() {
-        //            public void run() {
+    protected void createNewChart(final int selectedArrayId,
+                                  final boolean showActive) {
+
         double max[] = getBoundaryValue();
-        drawPlot(createCollection(max[0], max[1], selectedArrayId, showActive), "EVD");
-        //            }
-        //        };
-        //        t.setPriority(Thread.MIN_PRIORITY);
-        //        t.start();
+        drawPlot(createCollection(max[0], max[1], selectedArrayId, showActive),
+                 "EVD");
+
     }
 
     /**
@@ -378,7 +415,8 @@ public class EVDPanel extends MicroarrayViewEventBase implements MenuListener {
     public double[] getBoundaryValue() {
         double max = 0.0d;
         double min = 0.0d;
-        DSMicroarraySet<DSMicroarray> maSet = (DSMicroarraySet) maSetView.getDataSet();
+        DSMicroarraySet<DSMicroarray>
+                maSet = (DSMicroarraySet) maSetView.getDataSet();
         if (maSet != null && maSetView.markers() != null) {
             int numGenes = maSetView.markers().size();
             for (int geneCtr = 0; geneCtr < numGenes; geneCtr++) {
@@ -403,7 +441,9 @@ public class EVDPanel extends MicroarrayViewEventBase implements MenuListener {
         return values;
     }
 
-    public XYSeriesCollection createCollection(double min, double max, double[] tValues, DSItemList<DSGeneMarker> item) {
+    public XYSeriesCollection createCollection(double min, double max,
+                                               double[] tValues,
+                                               DSItemList<DSGeneMarker> item) {
         int[] basketValues = new int[basketNum + 1];
         maxValue = max;
         minValue = min;
@@ -425,7 +465,8 @@ public class EVDPanel extends MicroarrayViewEventBase implements MenuListener {
 
                 //only add value > 0. is it right?
                 if (basketValues[i] > 0) {
-                    dataSeries.add(i * ((maxValue - minValue) / basketNum) + minValue, basketValues[i]);
+                    dataSeries.add(i * ((maxValue - minValue) / basketNum) +
+                                   minValue, basketValues[i]);
 
                 }
 
@@ -439,8 +480,10 @@ public class EVDPanel extends MicroarrayViewEventBase implements MenuListener {
     }
 
 
-    public XYSeriesCollection createCollection(double min, double max, int selectedId, boolean active) {
-        PanelVisualPropertiesManager propertiesManager = PanelVisualPropertiesManager.getInstance();
+    public XYSeriesCollection createCollection(double min, double max,
+                                               int selectedId, boolean active) {
+        PanelVisualPropertiesManager propertiesManager =
+                PanelVisualPropertiesManager.getInstance();
         //Temp changed. Need move into a new method to update.
         maxValue = max;
         minValue = min;
@@ -448,12 +491,12 @@ public class EVDPanel extends MicroarrayViewEventBase implements MenuListener {
         String bin = myFormatter.format(binSize);
         binNumLabel.setText("Bin size:  " + bin);
         XYSeriesCollection plots = new XYSeriesCollection();
-        DSMicroarraySet<DSMicroarray> maSet = (DSMicroarraySet) maSetView.getDataSet();
+        DSMicroarraySet<DSMicroarray>
+                maSet = (DSMicroarraySet) maSetView.getDataSet();
         if (maSet == null) {
             return null;
         }
-        try{
-
+        try {
 
             //draw base array.
             DSMicroarray ma = maSet.get(selectedId);
@@ -564,7 +607,7 @@ public class EVDPanel extends MicroarrayViewEventBase implements MenuListener {
                                         System.err.println(value + " " +
                                                 geneCtr +
                                                 maSetView.markers().get(geneCtr).
-                                                 getLabel());
+                                                getLabel());
                                     }
 
                                 }
@@ -615,7 +658,9 @@ public class EVDPanel extends MicroarrayViewEventBase implements MenuListener {
                 }
 
             }
-        }catch (IndexOutOfBoundsException e){return null;}
+        } catch (IndexOutOfBoundsException e) {
+            return null;
+        }
         return plots;
     }
 
@@ -623,7 +668,9 @@ public class EVDPanel extends MicroarrayViewEventBase implements MenuListener {
         if (plots == null) {
             return;
         }
-        chart = ChartFactory.createXYLineChart(title, "Value", "Occurrences", plots, PlotOrientation.VERTICAL, true, isToolTipEnabled, true); // Title,  X-Axis label,  Y-Axis label,  Dataset,  Show legend
+        chart = ChartFactory.createXYLineChart(title, "Value", "Occurrences",
+                                               plots, PlotOrientation.VERTICAL, true,
+                                               isToolTipEnabled, true); // Title,  X-Axis label,  Y-Axis label,  Dataset,  Show legend
 
         // NOW DO SOME OPTIONAL CUSTOMISATION OF THE CHART...
         chart.setBackgroundPaint(Color.white);
@@ -646,7 +693,8 @@ public class EVDPanel extends MicroarrayViewEventBase implements MenuListener {
         //        ValueAxis xaxis = new NumberAxis();
         //        xaxis.setRange(minValue, maxValue);
         //        newPlot.setRangeAxis(xaxis);
-        XYLineAndShapeRenderer renderer = (XYLineAndShapeRenderer) newPlot.getRenderer();
+        XYLineAndShapeRenderer renderer = (XYLineAndShapeRenderer) newPlot.
+                                          getRenderer();
         renderer.setShapesVisible(true);
         renderer.setShapesFilled(true);
         if (isToolTipEnabled) {
@@ -654,7 +702,8 @@ public class EVDPanel extends MicroarrayViewEventBase implements MenuListener {
             renderer.setToolTipGenerator(new XYToolTipGenerator() {
 
 
-                public String generateToolTip(XYDataset dataset, int series, int item) {
+                public String generateToolTip(XYDataset dataset, int series,
+                                              int item) {
                     String resultStr = "";
                     Object[] result = new Object[3];
                     String label = (String) (plots.getSeries(series).getKey());
@@ -669,7 +718,9 @@ public class EVDPanel extends MicroarrayViewEventBase implements MenuListener {
                     }
                     String xStr = myFormatter.format(x);
 
-                    return resultStr = label + ": ([" + xStr + ", " + myFormatter.format(x + binSize) + "), " + (int) y + ")";
+                    return resultStr = label + ": ([" + xStr + ", " +
+                                       myFormatter.format(x + binSize) + "), " +
+                                       (int) y + ")";
                 }
             });
         }
@@ -685,7 +736,8 @@ public class EVDPanel extends MicroarrayViewEventBase implements MenuListener {
         if (!isColorChecked) {
 
             for (int i = 0; i < propertiesList.size(); i++) {
-                PanelVisualProperties panelVisualProperties = propertiesList.get(i);
+                PanelVisualProperties panelVisualProperties = propertiesList.
+                        get(i);
                 // Note: "i+1" because we did not define base.
                 int index = i + 1;
                 renderer.setSeriesPaint(index, panelVisualProperties.getColor());
@@ -705,27 +757,30 @@ public class EVDPanel extends MicroarrayViewEventBase implements MenuListener {
 
         //     xAxis.setAutoRange(false);
         //       xAxis.setRange(dateRange);
-        if (minValue < maxValue)
-            xAxis.setRange(minValue - RANGE * binSize, maxValue + RANGE * binSize);
+        if (minValue < maxValue) {
+            xAxis.setRange(minValue - RANGE * binSize,
+                           maxValue + RANGE * binSize);
+        }
 
         // OPTIONAL CUSTOMISATION COMPLETED.
 
 
         graph.setChart(chart);
 
-    }
-
-    /**
-     * receiveProjectSelection
-     *
-     * @param e ProjectEvent
-     */
-    @Subscribe public void receive(ProjectEvent e, Object source) {
-
-        super.receive(e, source);
-        jMASlider.setMaximum(refMASet != null ? refMASet.size() - 1 : 1);
 
     }
+
+//    /**
+//     * receiveProjectSelection
+//     *
+//     * @param e ProjectEvent
+//     */
+//    @Subscribe public void receive(ProjectEvent e, Object source) {
+//
+//        super.receive(e, source);
+//        jMASlider.setMaximum(refMASet != null ? refMASet.size() - 1 : 1);
+//
+//    }
 
 
     public ActionListener getActionListener(String var) {
@@ -744,9 +799,13 @@ public class EVDPanel extends MicroarrayViewEventBase implements MenuListener {
         }
         DSPanel panel = hs.getPanel(lowValue, highValue);
         if (panel != null) {
-            publishSubpanelChangedEvent(new org.geworkbench.events.SubpanelChangedEvent(panel, org.geworkbench.events.SubpanelChangedEvent.NEW));
+            publishSubpanelChangedEvent(new org.geworkbench.events.
+                                        SubpanelChangedEvent(panel,
+                    org.geworkbench.events.SubpanelChangedEvent.NEW));
         } else {
-            JOptionPane.showMessageDialog(null, "No gene is selected", "Please check", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(null, "No gene is selected",
+                                          "Please check",
+                                          JOptionPane.ERROR_MESSAGE);
         }
 
     }
@@ -754,14 +813,23 @@ public class EVDPanel extends MicroarrayViewEventBase implements MenuListener {
     public void refresh(int mode) {
 
         if (mode == EVDMODE) {
+            jMASlider.setMaximum(refMASet != null ? refMASet.size() - 1 : 1);
             jMASlider.setEnabled(true);
-            if (maSetView == null) {
+            if (refMASet == null) {
+                chart = ChartFactory.createXYLineChart("EVD", "Value",
+                        "Occurrences", null, PlotOrientation.VERTICAL, true,
+                        isToolTipEnabled, true); // Title,  X-Axis label,  Y-Axis label,  Dataset,  Show legend, show ToolTips
+
+                graph.setChart(chart);
+                mainPanel.repaint();
+
                 return;
             }
 
             int mArrayId = jMASlider.getValue();
             if (mArrayId >= 0) {
                 createNewChart(mArrayId, activateArrays);
+                  mainPanel.repaint();
             }
 
         } else if (mode == TTESTMODE) {
@@ -843,7 +911,8 @@ public class EVDPanel extends MicroarrayViewEventBase implements MenuListener {
          * @param tValues double[]
          * @param item    DSItemList
          */
-        public void process(double min, double max, double[] tValues, DSItemList<DSGeneMarker> item) {
+        public void process(double min, double max, double[] tValues,
+                            DSItemList<DSGeneMarker> item) {
             maxValue = max;
             minValue = min;
             for (int geneCtr = 0; geneCtr < tValues.length; geneCtr++) {
@@ -854,12 +923,15 @@ public class EVDPanel extends MicroarrayViewEventBase implements MenuListener {
                     value = 0;
                 } else {
 
-                    int count = (int) ((value - minValue) / ((maxValue - minValue) / nbins));
+                    int count = (int) ((value - minValue) /
+                                       ((maxValue - minValue) / nbins));
                     if (count >= 0 && count <= nbins) {
                         basketValues[count]++;
                         al[count].add(marker);
                     } else {
-                        System.err.println(value + " " + geneCtr + maSetView.markers().get(geneCtr).getLabel());
+                        System.err.println(value + " " + geneCtr +
+                                           maSetView.markers().get(geneCtr).
+                                           getLabel());
                     }
 
                 }
@@ -889,13 +961,15 @@ public class EVDPanel extends MicroarrayViewEventBase implements MenuListener {
                 if (Double.isNaN(value) || value < minValue || value > maxValue) {
                     value = 0;
                 } else {
-                    int column = (int) ((value - minValue) / ((maxValue - minValue) / nbins));
+                    int column = (int) ((value - minValue) /
+                                        ((maxValue - minValue) / nbins));
                     if (column >= 0 && column < nbins + 1) {
                         basketValues[column]++;
                         al[column].add(marker);
 
                     } else {
-                        System.err.println("IN  process " + marker + value + "Column=" + column);
+                        System.err.println("IN  process " + marker + value +
+                                           "Column=" + column);
 
                     }
 
@@ -920,13 +994,15 @@ public class EVDPanel extends MicroarrayViewEventBase implements MenuListener {
                 return 0;
             }
 
-            return (int) Math.round((cuValue - minValue) / ((maxValue - minValue) / nbins));
+            return (int) Math.round((cuValue - minValue) /
+                                    ((maxValue - minValue) / nbins));
         }
 
         DSPanel getPanel(double leftValue, double rightValue) {
             int leftBin = getBinPosition(leftValue);
             int rightBin = getBinPosition(rightValue);
-            DSPanel<DSGeneMarker> panel = new CSPanel<DSGeneMarker>("Selected from EVD");
+            DSPanel<DSGeneMarker>
+                    panel = new CSPanel<DSGeneMarker>("Selected from EVD");
             if (leftBin < 0 || rightBin < 0) {
 
                 return null;

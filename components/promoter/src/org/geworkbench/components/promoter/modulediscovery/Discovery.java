@@ -322,14 +322,22 @@ public class Discovery {
             Object[] sortedMatchArray = sortedMatches.toArray();
             Arrays.sort(sortedMatchArray, new PatternMatchComparator());
             for (int i = 0; i < sortedMatchArray.length; i++) {
-                DSSeqPatternMatch m1 = (DSSeqPatternMatch) sortedMatchArray[i];
-                DSSeqRegistration reg = m1.getRegistration();
+//                DSSeqPatternMatch m1 = (DSSeqPatternMatch) sortedMatchArray[i];
+//                DSSeqRegistration reg = m1.getRegistration();
+                DSPatternMatch m1 = (DSPatternMatch) sortedMatchArray[i];
+DSSeqRegistration reg = (DSSeqRegistration)m1.getRegistration();
+
                 int n = 1;
                 while (n + i < sortedMatchArray.length) {
                     int k2 = i + n++;
-                    DSSeqPatternMatch m2 = (DSSeqPatternMatch) sortedMatchArray[
-                                           k2];
-                    DSSeqRegistration reg2 = m2.getRegistration();
+//                    DSSeqPatternMatch m2 = (DSSeqPatternMatch) sortedMatchArray[
+//                                           k2];
+//                    DSSeqRegistration reg2 = m2.getRegistration();
+
+                    DSPatternMatch m2 = (DSPatternMatch) sortedMatchArray[
+                                            k2];
+                   DSSeqRegistration reg2 = (DSSeqRegistration)m2.getRegistration();
+
                     if ((reg2.x1 - reg.x1) < winSize) {
                         if (reg.x2 <= reg2.x1) { //no overlap
                             DSPattern p1 = lookup.get(m1);

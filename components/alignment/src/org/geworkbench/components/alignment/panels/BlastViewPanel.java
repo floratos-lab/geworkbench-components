@@ -562,9 +562,10 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
             org.geworkbench.events.ProjectNodeAddedEvent event = new org.geworkbench.events.ProjectNodeAddedEvent("message", db, null);
             blastViewComponent.publishProjectNodeAddedEvent(event);
         }catch (BlastDataOutOfBoundException be){
-            be.printStackTrace();
-            JOptionPane.showMessageDialog(this,
-                                be.getMessage(),
+            //be.printStackTrace();
+            String errorMessage = be.getMessage();
+            JOptionPane.showMessageDialog(null,
+                                errorMessage,
                                 "Error",
                                 JOptionPane.WARNING_MESSAGE);
 

@@ -4,6 +4,7 @@ import org.geworkbench.bison.datastructure.complex.pattern.sequence.DSSeqPattern
 import org.geworkbench.bison.datastructure.complex.pattern.sequence.DSSeqRegistration;
 
 import java.util.Comparator;
+import org.geworkbench.bison.datastructure.complex.pattern.DSPatternMatch;
 
 /**
  * Note: this comparator imposes orderings that are inconsistent with equals."
@@ -36,10 +37,15 @@ public class PatternMatchComparator implements Comparator {
      * @return int
      */
     public int compare(Object o1, Object o2) {
-        DSSeqPatternMatch m1 = (DSSeqPatternMatch) o1;
-        DSSeqPatternMatch m2 = (DSSeqPatternMatch) o2;
-        DSSeqRegistration reg1 = m1.getRegistration();
-        DSSeqRegistration reg2 = m2.getRegistration();
+//        DSSeqPatternMatch m1 = (DSSeqPatternMatch) o1;
+//        DSSeqPatternMatch m2 = (DSSeqPatternMatch) o2;
+//        DSSeqRegistration reg1 = m1.getRegistration();
+//        DSSeqRegistration reg2 = m2.getRegistration();
+        DSPatternMatch m1 = (DSPatternMatch) o1;
+        DSPatternMatch m2 = (DSPatternMatch) o2;
+        DSSeqRegistration reg1 =(DSSeqRegistration) m1.getRegistration();
+        DSSeqRegistration reg2 =(DSSeqRegistration) m2.getRegistration();
+
         if (reg1.x1 > reg2.x1)
             return 1;
         else if (reg1.x1 < reg2.x1) return -1;
