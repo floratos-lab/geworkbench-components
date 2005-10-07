@@ -789,14 +789,45 @@ public class PromoterViewPanel extends JPanel {
                 if (e.getActionCommand() == fc.APPROVE_SELECTION) {
                     File file = fc2.getSelectedFile();
                     try {
+                        String tab = "\t";
                         BufferedWriter bw = new BufferedWriter(new FileWriter(
                                 file));
-                        if (sequenceDB.getFile() != null) {
-                            String firstLine = sequenceDB.getFile().
-                                               getAbsolutePath();
-                            bw.write(firstLine);
+                        for (DSPattern pattern : promoterPatterns){
+                            bw.write(pattern.toString());
                             bw.newLine();
+                            Hashtable<String, Vector<Integer>> hitsForPrinting = new Hashtable<String, Vector<Integer>>();
+                            List<DSPatternMatch<DSSequence, DSSeqRegistration>>
+                                    matches = promoterPatternMatches.get(pattern);
+                            for (DSPatternMatch<DSSequence, DSSeqRegistration> match : matches){
+                                Vector<Integer> v = hitsForPrinting.get(match.getObject().getLabel());
+                                if (v == null){
+                                    Vector<Integer> val = new Vector<Integer>();
+                                    val.add(match.getRegistration().x1);
+                                    hitsForPrinting.put(match.getObject().getLabel(), val);
+                                }
+                                else {
+                                    v.add(match.getRegistration().x1);
+                                }
+                            }
+                            Enumeration<String> keys = hitsForPrinting.keys();
+                            while (keys.hasMoreElements()){
+                                String id = keys.nextElement();
+                                Vector<Integer> val = hitsForPrinting.get(id);
+                                bw.write(id + tab);
+                                for (Integer i : val){
+                                    bw.write(i + tab);
+                                }
+                                bw.newLine();
+                            }
                         }
+                        bw.flush();
+                        bw.close();
+//                        if (sequenceDB.getFile() != null) {
+//                            String firstLine = sequenceDB.getFile().
+//                                               getAbsolutePath();
+//                            bw.write(firstLine);
+//                            bw.newLine();
+//                        }
 //                        bw.write(seqDisPanel.asString());
                         bw.close();
                     } catch (IOException ex) {
