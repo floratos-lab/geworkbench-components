@@ -799,14 +799,14 @@ public class PromoterViewPanel extends JPanel {
                             List<DSPatternMatch<DSSequence, DSSeqRegistration>>
                                     matches = promoterPatternMatches.get(pattern);
                             for (DSPatternMatch<DSSequence, DSSeqRegistration> match : matches){
-                                Vector<Integer> v = hitsForPrinting.get(match.getObject().getLabel());
+                                Vector<Integer> v = hitsForPrinting.get(match.getObject().getID());
                                 if (v == null){
                                     Vector<Integer> val = new Vector<Integer>();
-                                    val.add(match.getRegistration().x1);
-                                    hitsForPrinting.put(match.getObject().getLabel(), val);
+                                    val.add(match.getRegistration().x1 + 1);
+                                    hitsForPrinting.put(match.getObject().getID(), val);
                                 }
                                 else {
-                                    v.add(match.getRegistration().x1);
+                                    v.add(match.getRegistration().x1 + 1);
                                 }
                             }
                             Enumeration<String> keys = hitsForPrinting.keys();
