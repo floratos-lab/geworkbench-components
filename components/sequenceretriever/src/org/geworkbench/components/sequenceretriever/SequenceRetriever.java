@@ -417,7 +417,7 @@ public class SequenceRetriever implements VisualPlugin {
      *
      * @param e GeneSelectorEvent
      */
-    @Subscribe public void geneSelectorAction(GeneSelectorEvent e, Object publisher) {
+    @Subscribe public void receive(GeneSelectorEvent e, Object publisher) {
         markers = e.getPanel();
         if (markers != null) {
             ls2.clear();
