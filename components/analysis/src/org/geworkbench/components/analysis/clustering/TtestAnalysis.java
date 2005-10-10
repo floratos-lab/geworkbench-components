@@ -140,6 +140,7 @@ public class TtestAnalysis extends AbstractAnalysis implements ClusteringAnalysi
             DSClassCriteria criteria = CSCriterionManager.getClassCriteria(maSet);
             tTestDesign = TtestAnalysisPanel.ONE_CLASS;
             boolean hasGroupA = false;
+            boolean hasGroupB = false;
             for (int i = 0; i < arrays; i++) {
                 DSMicroarray ma = data.items().get(i);
                 if (ma instanceof DSMicroarray) {
@@ -151,6 +152,7 @@ public class TtestAnalysis extends AbstractAnalysis implements ClusteringAnalysi
                     } else if (v.equals(CSClassCriteria.controls)) {
                         groupAssignments[i] = TtestAnalysisPanel.GROUP_B;
                         tTestDesign = TtestAnalysisPanel.BETWEEN_SUBJECTS;
+                        hasGroupB = true;
                     } else {
                         groupAssignments[i] = TtestAnalysisPanel.NEITHER_GROUP;
                     }
@@ -158,8 +160,14 @@ public class TtestAnalysis extends AbstractAnalysis implements ClusteringAnalysi
                     groupAssignments[i] = TtestAnalysisPanel.NEITHER_GROUP;
                 }
             }
+            if (!(hasGroupA || hasGroupB)) {
+                return new AlgorithmExecutionResults(false, "Please specify at least one \"case\" microarray and one \"control\" microarray.", null);
+            }
             if (!hasGroupA) {
                 return new AlgorithmExecutionResults(false, "Please specify at least one \"case\" microarray.", null);
+            }
+            if (!hasGroupB) {
+                return new AlgorithmExecutionResults(false, "Please specify at least one \"control\" microarray.", null);
             }
             function = ((TtestAnalysisPanel) aspp).getDistanceFunction();
             factor = ((TtestAnalysisPanel) aspp).getDistanceFactor();
