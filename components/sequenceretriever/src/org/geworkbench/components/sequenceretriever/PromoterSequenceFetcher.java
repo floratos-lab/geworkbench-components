@@ -1,9 +1,18 @@
 package org.geworkbench.components.sequenceretriever;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import javax.swing.Timer;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.sequence.CSSequence;
 import org.geworkbench.util.sequences.SequenceDB;
@@ -22,31 +31,73 @@ import org.geworkbench.util.sequences.SequenceDB;
 
 public class PromoterSequenceFetcher {
     
+    public static int UPSTREAM = 2000;
+    public static int DOWNSTREAM = 2000;
+    
+    static Timer timer = new Timer(240000, new ActionListener(){
+        public void actionPerformed(ActionEvent e){
+            cachedSequences = null;
+            System.gc();
+        }
+    });
+    
     public PromoterSequenceFetcher() {
     }
     
     private static SequenceDB cachedSequences = null;
     
     public static void populateSequenceCache(){
+//        if (!timer.isRunning())
+//            timer.start();
         if (cachedSequences == null){
-            try {
+            File file = new File(System.getProperty("temporary.files.directory") + File.separator + "sequences" + File.separator + "cachedSequences");
+            if (file.exists()){
+                try {
+                    FileInputStream fis = new FileInputStream(file);
+                    ObjectInputStream ois = new ObjectInputStream(fis);
+                    cachedSequences = (SequenceDB) ois.readObject();
+                    ois.close();
+                    fis.close();
+                } catch (FileNotFoundException fnfe){
+                    fnfe.printStackTrace();
+                } catch (IOException ioe){
+                    ioe.printStackTrace();
+                } catch (ClassNotFoundException cnfe) {
+                    cnfe.printStackTrace();
+                }
+            } else {
                 URL url = PromoterSequenceFetcher.class.getResource("All.NC.-2k+2k.txt");
                 if (url == null){
                     try {
                         url = new URL(System.getProperty("data.download.site") + "All.NC.-2k+2k.txt");
-                    } catch (MalformedURLException mfe){}
+                    } catch (MalformedURLException mfe){
+                        mfe.printStackTrace();
+                    }
                 }
-                File sequences = new File(url.toURI());
-                cachedSequences = SequenceDB.getSequenceDB(sequences);
-                cachedSequences.parseMarkers();
-            } catch (URISyntaxException use){}
+                try {
+                    File sequences = new File(url.toURI());
+                    cachedSequences = SequenceDB.getSequenceDB(sequences);
+                    cachedSequences.parseMarkers();
+                    FileOutputStream fos = new FileOutputStream(file.getAbsolutePath());
+                    ObjectOutputStream oos = new ObjectOutputStream(fos);
+                    oos.writeObject(cachedSequences);
+                    oos.flush();
+                    oos.close();
+                } catch (FileNotFoundException fnfe){
+                    fnfe.printStackTrace();
+                } catch (URISyntaxException use){
+                    use.printStackTrace();
+                } catch (IOException ioe){
+                    ioe.printStackTrace();
+                }
+            }
         }
     }
     
     public static CSSequence getPromoterSequence(DSGeneMarker marker, int upstream, int fromStart) {
         if (cachedSequences == null)
             populateSequenceCache();
-        
-        return (CSSequence)cachedSequences.get(marker.getLabel());
+        CSSequence sequence = (CSSequence)cachedSequences.get(marker.getLabel());
+        return sequence.getSubSequence(UPSTREAM - upstream - 1, sequence.length() - DOWNSTREAM + fromStart - 1);
     }
 }

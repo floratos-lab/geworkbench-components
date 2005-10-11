@@ -3,6 +3,12 @@ package org.geworkbench.components.sequenceretriever;
 import org.geworkbench.bison.util.RandomNumberGenerator;
 import gov.nih.nci.caBIO.bean.Gene;
 import gov.nih.nci.common.exception.ManagerException;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.GridLayout;
 import org.apache.axis.client.Call;
 import org.apache.axis.client.Service;
 import org.apache.axis.encoding.XMLType;
@@ -16,11 +22,8 @@ import org.geworkbench.engine.management.Subscribe;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.engine.config.VisualPlugin;
-
-import javax.swing.*;
 import javax.xml.namespace.QName;
 import javax.xml.rpc.ParameterMode;
-import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
 import java.io.BufferedWriter;
@@ -28,6 +31,27 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Vector;
+import javax.swing.BorderFactory;
+import javax.swing.ButtonGroup;
+import javax.swing.DefaultListModel;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
+import javax.swing.JProgressBar;
+import javax.swing.JScrollPane;
+import javax.swing.JSpinner;
+import javax.swing.JToolBar;
+import javax.swing.ListCellRenderer;
+import javax.swing.SpinnerNumberModel;
+import javax.swing.SwingConstants;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import org.geworkbench.bison.datastructure.bioobjects.sequence.CSSequence;
 
 /**
@@ -37,7 +61,8 @@ import org.geworkbench.bison.datastructure.bioobjects.sequence.CSSequence;
  * <p>Company: Califano Lab</p>
  *
  * @author Xuegong Wang
- * @version 1.0
+ * @auhtor manjunath at genomecenter dot columbia dot edu
+ * @version 2.0
  */
 
 public class SequenceRetriever implements VisualPlugin {
@@ -63,8 +88,10 @@ public class SequenceRetriever implements VisualPlugin {
 
     JPanel jPanel2 = new JPanel();
 
-    JTextField beforeText = new JTextField();
-    JTextField afterText = new JTextField();
+    SpinnerNumberModel model = new SpinnerNumberModel(2000, 1, 2000, 1);
+    JSpinner beforeText = new JSpinner();
+    SpinnerNumberModel model1 = new SpinnerNumberModel(2000, 1, 2000, 1);
+    JSpinner afterText = new JSpinner();
     JLabel jLabel1 = new JLabel();
     JLabel jLabel2 = new JLabel();
 
@@ -174,18 +201,22 @@ public class SequenceRetriever implements VisualPlugin {
         seqScrollPane.setPreferredSize(new Dimension(250, 250));
 
         jPanel2.setLayout(borderLayout1);
-        beforeText.setText("800");
-        beforeText.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(ActionEvent e) {
+        beforeText.setModel(model);
+        beforeText.addChangeListener(new ChangeListener() {
+            public void stateChanged(ChangeEvent e) {
                 text_actionPerformed(e);
             }
         });
-        afterText.setText("800");
-        afterText.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(ActionEvent e) {
+        beforeText.setSize(new Dimension(15, 10));
+        beforeText.setPreferredSize(new Dimension(15, 10));
+        afterText.setModel(model1);
+        afterText.addChangeListener(new ChangeListener() {
+            public void stateChanged(ChangeEvent e) {
                 text_actionPerformed(e);
             }
         });
+        afterText.setSize(new Dimension(15, 10));
+        afterText.setPreferredSize(new Dimension(15, 10));
         jLabel1.setToolTipText("downstream");
         jLabel1.setText("+");
         jLabel2.setToolTipText("Upstream");
@@ -301,14 +332,14 @@ public class SequenceRetriever implements VisualPlugin {
         }
     }
 
-    void text_actionPerformed(ActionEvent e) {
+    void text_actionPerformed(ChangeEvent e) {
         this.selectedRegionChanged = true;
     }
 
     private void getSequences(DSGeneMarker marker) {
-        CSSequence seqs = PromoterSequenceFetcher.getPromoterSequence(marker, Integer.parseInt(this.beforeText.getText()), Integer.parseInt(this.afterText.getText()));
+        CSSequence seqs = PromoterSequenceFetcher.getPromoterSequence(marker, ((Integer)model.getNumber()).intValue(), ((Integer)model1.getNumber()).intValue());
 
-        if (seqs != null) 
+        if (seqs != null)
             sequenceDB.addASequence(seqs);
         sequenceDB.parseMarkers();
     }
