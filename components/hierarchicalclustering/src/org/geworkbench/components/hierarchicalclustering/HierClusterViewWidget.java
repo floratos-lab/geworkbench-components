@@ -324,8 +324,8 @@ public class HierClusterViewWidget extends JPanel implements HierClusterModelEve
         if (mASet == null) {
             return;
         }
-        jGeneHeight.setValue(new Integer(HierClusterDisplay.geneHeight));
-        jGeneWidth.setValue(new Integer(HierClusterDisplay.geneWidth));
+        jGeneHeight.setValue(HierClusterDisplay.geneHeight);
+        jGeneWidth.setValue(HierClusterDisplay.geneWidth);
 
         display.setMarkerHierCluster((MarkerHierCluster) markerCluster);
         display.setMicroarrayHierCluster((MicroarrayHierCluster) arrayCluster);
@@ -423,16 +423,23 @@ public class HierClusterViewWidget extends JPanel implements HierClusterModelEve
         this.setBackground(Color.white);
         this.setForeground(Color.white);
         this.add(jToolBar1, BorderLayout.SOUTH);
-        jGeneHeight.setToolTipText("Gene Height");
 
-        SpinnerNumberModel snm2 = new SpinnerNumberModel(new Integer(HierClusterDisplay.geneHeight), new Integer(1), new Integer(100), new Integer(1));
-        jGeneHeight.setModel(snm2);
+//        jGeneHeight.setMaximumSize(new Dimension(25, jToolBar1.getHeight()));
+
+        SpinnerNumberModel snm2 = new SpinnerNumberModel(HierClusterDisplay.geneHeight, 1, 100, 1);
+        jGeneHeight = new JSpinner(snm2);
+//        Component comp = jGeneHeight.getComponent(0);
+//        JSpinner.NumberEditor editor = (JSpinner.NumberEditor) jGeneHeight.getEditor();
+//        editor.getTextField().setMargin(new Insets(0,0,0,0));
+        jGeneHeight.setToolTipText("Gene Height");
+//        jGeneHeight.setModel(snm2);
         jGeneHeight.addChangeListener(new ChangeListener() {
             public void stateChanged(ChangeEvent e) {
                 jGeneHeight_stateChanged(e);
             }
         });
         jGeneWidth.setToolTipText("Gene Width");
+//        jGeneWidth.setMaximumSize(new Dimension(25, jToolBar1.getHeight()));
 
         SpinnerNumberModel snm1 = new SpinnerNumberModel(new Integer(HierClusterDisplay.geneWidth), new Integer(1), new Integer(100), new Integer(1));
         jGeneWidth.setModel(snm1);
@@ -441,12 +448,18 @@ public class HierClusterViewWidget extends JPanel implements HierClusterModelEve
                 jGeneWidth_stateChanged(e);
             }
         });
+        jToolBar1.setLayout(new BoxLayout(jToolBar1, BoxLayout.X_AXIS));
+        int spacerSize = 10;
         jToolBar1.add(jCheckBox1, null);
+        jToolBar1.add(Box.createHorizontalGlue(), null);
         jToolBar1.add(heightLabel, null);
+        jToolBar1.add(Box.createHorizontalStrut(spacerSize/2), null);
         jToolBar1.add(jGeneHeight, null);
+        jToolBar1.add(Box.createHorizontalStrut(spacerSize), null);
         jToolBar1.add(widthLabel, null);
+        jToolBar1.add(Box.createHorizontalStrut(spacerSize/2), null);
         jToolBar1.add(jGeneWidth, null);
-        jToolBar1.add(jSpacer1, null);
+        jToolBar1.add(Box.createHorizontalStrut(spacerSize), null);
         jToolBar1.add(slider, null);
         jToolBar1.add(jSpacer4, null);
         jToolBar1.add(jToolTipToggleButton, null);
