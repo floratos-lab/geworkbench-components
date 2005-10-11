@@ -88,7 +88,7 @@ public class SequenceRetriever implements VisualPlugin {
 
     JPanel jPanel2 = new JPanel();
 
-    SpinnerNumberModel model = new SpinnerNumberModel(2000, 1, 2000, 1);
+    SpinnerNumberModel model = new SpinnerNumberModel(1999, 1, 1999, 1);
     JSpinner beforeText = new JSpinner();
     SpinnerNumberModel model1 = new SpinnerNumberModel(2000, 1, 2000, 1);
     JSpinner afterText = new JSpinner();
