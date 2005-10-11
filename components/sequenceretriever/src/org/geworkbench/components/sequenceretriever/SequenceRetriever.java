@@ -14,7 +14,6 @@ import org.geworkbench.util.sequences.SequenceDB;
 import org.geworkbench.engine.management.Publish;
 import org.geworkbench.engine.management.Subscribe;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
-import org.geworkbench.bison.datastructure.bioobjects.sequence.CSSequence;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.engine.config.VisualPlugin;
 
@@ -29,6 +28,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Vector;
+import org.geworkbench.bison.datastructure.bioobjects.sequence.CSSequence;
 
 /**
  * <p>Widget provides all GUI services for sequence panel displays.</p>
@@ -306,14 +306,11 @@ public class SequenceRetriever implements VisualPlugin {
     }
 
     private void getSequences(DSGeneMarker marker) {
-        CSSequence[] seqs = org.geworkbench.components.sequenceretriever.PromoterSequenceFetcher.getPromoterSequence(marker, Integer.parseInt(this.beforeText.getText()), Integer.parseInt(this.afterText.getText()));
+        CSSequence seqs = PromoterSequenceFetcher.getPromoterSequence(marker, Integer.parseInt(this.beforeText.getText()), Integer.parseInt(this.afterText.getText()));
 
-        if (seqs != null && seqs.length > 0) {
-            for (int j = 0; j < seqs.length; j++) {
-                sequenceDB.addASequence(seqs[j]);
-            }
-            sequenceDB.parseMarkers();
-        }
+        if (seqs != null) 
+            sequenceDB.addASequence(seqs);
+        sequenceDB.parseMarkers();
     }
 
     void getSequences() {
@@ -329,11 +326,6 @@ public class SequenceRetriever implements VisualPlugin {
                         DSGeneMarker marker = mrk.get(i);
 
                         getSequences(marker);
-                        //                        String affyid = mrk.get(i).getLabel();
-                        //                        if (affyid.endsWith("_at")) { // if this is affyid
-                        //
-                        //                            getSequencesFromAffy(affyid);
-                        //                        }
                     }
                 }
 
