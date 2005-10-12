@@ -59,7 +59,7 @@ import org.geworkbench.bison.datastructure.bioobjects.sequence.CSSequence;
  * <p>Copyright: Copyright (c) 2003 - 2005</p>
  *
  * @author Xuegong Wang
- * @auhtor manjunath at genomecenter dot columbia dot edu
+ * @author manjunath at genomecenter dot columbia dot edu
  * @version 2.0
  */
 
