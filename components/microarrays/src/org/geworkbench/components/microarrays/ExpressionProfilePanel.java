@@ -1,18 +1,25 @@
 package org.geworkbench.components.microarrays;
 
 import org.geworkbench.events.MicroarraySetViewEvent;
+import org.geworkbench.events.PhenotypeSelectedEvent;
+import org.geworkbench.events.MarkerSelectedEvent;
 import org.geworkbench.util.microarrayutils.MicroarrayViewEventBase;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.engine.config.MenuListener;
-import org.jfree.chart.ChartFactory;
-import org.jfree.chart.ChartPanel;
-import org.jfree.chart.JFreeChart;
+import org.geworkbench.engine.config.VisualPlugin;
+import org.geworkbench.engine.management.Publish;
+import org.jfree.chart.*;
+import org.jfree.chart.entity.ChartEntity;
+import org.jfree.chart.entity.XYItemEntity;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
+import org.jfree.data.category.CategoryDataset;
+import org.jfree.data.category.DefaultCategoryDataset;
+
 import java.awt.*;
 import java.awt.event.ActionListener;
 import java.awt.event.*;
@@ -31,7 +38,7 @@ import java.awt.event.*;
  * @version 3.0
  */
 
-public class ExpressionProfilePanel extends MicroarrayViewEventBase implements MenuListener {
+public class ExpressionProfilePanel extends MicroarrayViewEventBase implements MenuListener, VisualPlugin {
 
     private JFreeChart chart;
     ChartPanel graph;
@@ -100,13 +107,52 @@ public class ExpressionProfilePanel extends MicroarrayViewEventBase implements M
                         PlotOrientation.VERTICAL, false, // Show legend
                         true, true);
                 graph.setChart(chart);
+                graph.addChartMouseListener(new MicroarrayChartMouseListener());
             }
         };
         t.setPriority(Thread.MIN_PRIORITY);
         t.start();
     }
 
+    /**
+     * Responsible for handling marker selection in a microarray scatter plot.
+     */
+    private class MicroarrayChartMouseListener implements ChartMouseListener {
+
+        public void chartMouseClicked(ChartMouseEvent event) {
+            ChartEntity entity = event.getEntity();
+            if ((entity != null) && (entity instanceof XYItemEntity)) {
+                XYItemEntity xyEntity = (XYItemEntity) entity;
+                int series = xyEntity.getSeriesIndex();
+                int item = xyEntity.getItem();
+                DSGeneMarker marker = maSetView.markers().get(series);
+                if (marker != null) {
+                    MarkerSelectedEvent mse = new org.geworkbench.events.MarkerSelectedEvent(marker);
+                    publishMarkerSelectedEvent(mse);
+                }
+                DSMicroarray array = maSetView.items().get(item);
+                if (array != null) {
+                    PhenotypeSelectedEvent pse = new PhenotypeSelectedEvent(array);
+                    publishPhenotypeSelectedEvent(pse);
+                }
+            }
+        }
+
+        public void chartMouseMoved(ChartMouseEvent event) {
+            // No-op
+        }
+    }
+
     public ActionListener getActionListener(String var) {
         return null;
     }
+
+    @Publish public org.geworkbench.events.MarkerSelectedEvent publishMarkerSelectedEvent(MarkerSelectedEvent event) {
+        return event;
+    }
+
+    @Publish public PhenotypeSelectedEvent publishPhenotypeSelectedEvent(PhenotypeSelectedEvent event) {
+        return event;
+    }
+
 }
