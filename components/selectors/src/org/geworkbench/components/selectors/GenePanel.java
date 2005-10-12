@@ -87,9 +87,16 @@ public class GenePanel implements VisualPlugin {
                     index = lastIndex;
                 }
                 g.setColor(Color.black);
-                g.setFont(fnt);
+
                 int x = (int) pf.getImageableX() + 10;
                 int y = (int) pf.getImageableY() + 12;
+
+                // Put the panel name as a title
+                g.setFont(new Font("Arial", Font.PLAIN, 16));
+                g.drawString(panel.getLabel(), x, y);
+
+                // Now do the rest
+                g.setFont(fnt);
                 y += 36;
                 while (y + 12 < pf.getImageableY() + pf.getImageableHeight()) {
                     if (index >= itemNo) {
