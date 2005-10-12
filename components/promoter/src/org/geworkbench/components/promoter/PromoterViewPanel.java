@@ -667,11 +667,35 @@ public class PromoterViewPanel extends JPanel {
     JTextField match5PrimeActualBox = new JTextField();
     JTextField match3PrimeActualBox = new JTextField();
     JLabel jLabel15 = new JLabel();
+    PromoterPatternDB pdb; //= new PromoterPatternDB();
+    HashMap<String,
+            PromoterPatternDB> map = new HashMap<String, PromoterPatternDB>();
 
     public void setSequenceDB(SequenceDB db2) {
-        clear();
-        sequenceDB = db2;
-        seqDisPanel.initialize(sequenceDB);
+        String id = null;
+        if (db2 != null && sequenceDB != null) {
+            id = db2.getID();
+            if (sequenceDB.getID().equals(id)) {
+                return;
+            } else if (map.containsKey(id)) {
+                    pdb = map.get(id);
+                    sequenceDB = db2;
+                    seqDisPanel.initialize(sequenceDB);
+                    seqDisPanel.setPatternDisplay(pdb.getDisplay());
+                    seqDisPanel.setPatternMatches(pdb.getMatches());
+                }else{
+                    clear();
+                    sequenceDB = db2;
+                    seqDisPanel.initialize(sequenceDB);
+
+                }
+        }else if(db2!=null){
+            clear();
+                    sequenceDB = db2;
+                    seqDisPanel.initialize(sequenceDB);
+
+        }
+
     }
 
     /**
@@ -681,9 +705,20 @@ public class PromoterViewPanel extends JPanel {
         seqPatterns.clear();
         seqPatternDisplay.clear();
         seqPatternMatches.clear();
-        promoterPatterns.clear();
-        promoterPatternDisplay.clear();
-        promoterPatternMatches.clear();
+//        promoterPatterns.clear();
+//        promoterPatternDisplay.clear();
+//        promoterPatternMatches.clear();
+
+        promoterPatterns = new ArrayList<DSPattern>();
+
+           promoterPatternDisplay = new HashMap<DSPattern, Display>();
+
+            promoterPatternMatches = new Hashtable<DSPattern<DSSequence,
+                                     DSSeqRegistration>,
+                                     List<DSPatternMatch<DSSequence,
+                                     DSSeqRegistration>>>();
+
+
 
     }
 
@@ -795,34 +830,45 @@ public class PromoterViewPanel extends JPanel {
                         String tab = "\t";
                         BufferedWriter bw = new BufferedWriter(new FileWriter(
                                 file));
-                        for (DSPattern pattern : promoterPatterns){
+                        for (DSPattern pattern : promoterPatterns) {
                             bw.write(pattern.toString());
                             bw.newLine();
-                            Hashtable<Integer, DSSequence> order = new Hashtable<Integer, DSSequence>();
-                            Hashtable<DSSequence, Vector<Integer>> hitsForPrinting = new Hashtable<DSSequence, Vector<Integer>>();
+                            Hashtable<Integer,
+                                    DSSequence>
+                                    order = new Hashtable<Integer, DSSequence>();
+                            Hashtable<DSSequence,
+                                    Vector<Integer>>
+                                    hitsForPrinting = new Hashtable<DSSequence,
+                                    Vector<Integer>>();
                             List<DSPatternMatch<DSSequence, DSSeqRegistration>>
-                                    matches = promoterPatternMatches.get(pattern);
-                            for (int i = 0; i < sequenceDB.getSequenceNo(); i++){
+                                    matches = promoterPatternMatches.get(
+                                            pattern);
+                            for (int i = 0; i < sequenceDB.getSequenceNo(); i++) {
                                 DSSequence sequence = sequenceDB.getSequence(i);
                                 order.put(i, sequence);
-                                hitsForPrinting.put(sequence, new Vector<Integer>());
+                                hitsForPrinting.put(sequence,
+                                        new Vector<Integer>());
                             }
-                            for (DSPatternMatch<DSSequence, DSSeqRegistration> match : matches){
-                                Vector<Integer> v = hitsForPrinting.get(match.getObject());
+                            for (DSPatternMatch<DSSequence,
+                                 DSSeqRegistration> match : matches) {
+                                Vector<Integer>
+                                        v = hitsForPrinting.get(match.getObject());
                                 v.add(match.getRegistration().x1 + 1);
                             }
-                            for (int i = 0; i < sequenceDB.getSequenceNo(); i++){
+                            for (int i = 0; i < sequenceDB.getSequenceNo(); i++) {
                                 DSSequence sequence = order.get(i);
-                                Vector<Integer> val = hitsForPrinting.get(sequence);
+                                Vector<Integer>
+                                        val = hitsForPrinting.get(sequence);
                                 String label = sequence.getLabel();
                                 bw.write(label.split("\\|")[0] + tab);
                                 String positions = "";
                                 int c = 0;
-                                for (Integer integer : val){
-                                    if (c == 0)
+                                for (Integer integer : val) {
+                                    if (c == 0) {
                                         positions += integer;
-                                    else
+                                    } else {
                                         positions += comma + integer;
+                                    }
                                     c++;
                                 }
                                 bw.write(positions);
@@ -1166,10 +1212,10 @@ public class PromoterViewPanel extends JPanel {
                                 i++;
                                 dis.setHeight(0.9);
                                 dis.setShape(Display.RECTANGLE);
-                                 if (showTF.isSelected()) {
-                                     seqDisPanel.addAPattern(pattern, dis,
-                                             matches);
-                                 }
+                                if (showTF.isSelected()) {
+                                    seqDisPanel.addAPattern(pattern, dis,
+                                            matches);
+                                }
                                 promoterPatternDisplay.put(pattern, dis);
                                 promoterPatternMatches.put(pattern, matches);
                                 promoterPatterns.add(pattern);
@@ -1242,6 +1288,13 @@ public class PromoterViewPanel extends JPanel {
                     thresholdBox.setText(format.format(threshold));
                     countBox.setText(formatInt.format(matchCount));
                     updateProgressBar(0, "Done");
+
+                    //update the map, associate the seqenceDB with Patterns and save it to the map
+                    pdb = new PromoterPatternDB(sequenceDB);
+                    pdb.setDisplay(promoterPatternDisplay);
+                    pdb.setMatches(promoterPatternMatches);
+                    map.put(sequenceDB.getID(), pdb);
+
                 }
 
             };
@@ -1334,8 +1387,9 @@ public class PromoterViewPanel extends JPanel {
             seqPatternDisplay.put(p, dis);
             seqPatternMatches.put(p, matches);
 
-            if(showSeqPattern.isSelected())
-            seqDisPanel.addAPattern(p, dis, matches);
+            if (showSeqPattern.isSelected()) {
+                seqDisPanel.addAPattern(p, dis, matches);
+            }
         }
     }
 
@@ -1753,15 +1807,15 @@ public class PromoterViewPanel extends JPanel {
 
     public void showSeqPattern_actionPerformed(ActionEvent e) {
         if (showSeqPattern.isSelected()) {
-                   for (DSPattern pattern : seqPatterns) {
-                       seqDisPanel.addAPattern(pattern,
-                                               seqPatternDisplay.get(pattern),
-                                               seqPatternMatches.get(pattern));
-                   }
-               } else {
-                   for (DSPattern pattern : seqPatterns) {
-                       seqDisPanel.removePattern(pattern);
-                   }
+            for (DSPattern pattern : seqPatterns) {
+                seqDisPanel.addAPattern(pattern,
+                                        seqPatternDisplay.get(pattern),
+                                        seqPatternMatches.get(pattern));
+            }
+        } else {
+            for (DSPattern pattern : seqPatterns) {
+                seqDisPanel.removePattern(pattern);
+            }
 
         }
     }
