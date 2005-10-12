@@ -30,7 +30,7 @@ import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import javax.swing.border.TitledBorder;
 import org.geworkbench.components.alignment.synteny.DAS_Retriver;
-import org.geworkbench.components.alignment.synteny.SynMapParser;
+// import org.geworkbench.components.alignment.synteny.SynMapParser;
 
 
 /**
