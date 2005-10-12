@@ -47,6 +47,7 @@ public class MicroarrayDisplay extends JPanel {
     protected int[] patternGenes = null;
     protected char[] maskedGenes = null;
     protected char[] graphedGenes = null;
+    protected float intensity = 1f;
 
     TitledBorder titledBorder1;
 
@@ -166,7 +167,7 @@ public class MicroarrayDisplay extends JPanel {
                             } else if (spot.isMasked()) {
                                 g.setColor(Color.white);
                             } else if (!showValidOnly || (!spot.isMissing())) {
-                                g.setColor(colorContext.getMarkerValueColor(spot, stats, 1.0f));
+                                g.setColor(colorContext.getMarkerValueColor(spot, stats, intensity));
                                 //pixels[geneId] = spot.getAbsColor(stats, 1.0F).getRGB();
                             } else {
                                 g.setColor(Color.lightGray);
@@ -328,5 +329,13 @@ public class MicroarrayDisplay extends JPanel {
             for (int i = 0; i < maskedGenes.length; i++) {
                 maskedGenes[i] = 0;
             }
+    }
+
+    public float getIntensity() {
+        return intensity;
+    }
+
+    public void setIntensity(float intensity) {
+        this.intensity = intensity;
     }
 }

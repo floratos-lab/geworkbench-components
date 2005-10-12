@@ -39,12 +39,15 @@ public class MicroarrayPanel extends MicroarrayVisualizer implements VisualPlugi
     int y = 0;
     JToolBar jToolBar = new JToolBar();
     JSlider jMASlider = new JSlider();
+    JSlider intensitySlider = new JSlider();
     JCheckBox jShowAllMArrays = new JCheckBox();
     JTextField jMALabel = new JTextField(20) {
         @Override public Dimension getMaximumSize() {
             return getPreferredSize();
         }
     };
+    JLabel intensityLabel = new JLabel("Intensity");
+    JLabel arrayLabel = new JLabel("Array");
     JPopupMenu jDisplayPanelPopup = new JPopupMenu();
     JMenuItem jShowMarkerMenu = new JMenuItem();
     JMenuItem jRemoveMarkerMenu = new JMenuItem();
@@ -147,6 +150,19 @@ public class MicroarrayPanel extends MicroarrayVisualizer implements VisualPlugi
             }
         });
 
+        intensitySlider.setPaintTicks(true);
+        intensitySlider.setValue(100);
+        intensitySlider.setMinorTickSpacing(2);
+        intensitySlider.setMinimum(1);
+        intensitySlider.setMaximum(200);
+        intensitySlider.setMajorTickSpacing(50);
+        intensitySlider.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(ChangeEvent e) {
+                intensitySlider_stateChanged(e);
+            }
+        });
+
+
         jShowMarkerMenu.setText("Show Marker");
         jShowMarkerMenu.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -192,9 +208,19 @@ public class MicroarrayPanel extends MicroarrayVisualizer implements VisualPlugi
         });
         jMALabel.setEditable(false);
         mainPanel.add(jToolBar, BorderLayout.SOUTH);
+        jToolBar.setLayout(new BoxLayout(jToolBar, BoxLayout.X_AXIS));
         jToolBar.add(jShowAllMArrays, null);
+        jToolBar.add(Box.createHorizontalStrut(5), null);
         jToolBar.add(jShowAllMarkers, null);
+        jToolBar.add(Box.createGlue(), null);
         jToolBar.add(jMALabel, null);
+        jToolBar.add(Box.createGlue(), null);
+        jToolBar.add(intensityLabel, null);
+        jToolBar.add(Box.createHorizontalStrut(5), null);
+        jToolBar.add(intensitySlider, null);
+        jToolBar.add(Box.createGlue(), null);
+        jToolBar.add(arrayLabel, null);
+        jToolBar.add(Box.createHorizontalStrut(5), null);
         jToolBar.add(jMASlider, null);
         mainPanel.add(microarrayImageArea, BorderLayout.CENTER);
         jDisplayPanelPopup.add(jShowMarkerMenu);
@@ -205,11 +231,22 @@ public class MicroarrayPanel extends MicroarrayVisualizer implements VisualPlugi
     void chipSlider_stateChanged(ChangeEvent e) {
         int mArrayId = jMASlider.getValue();
         if ((mArrayId >= 0) && !forcedSliderChange) {
-            selectMicroarray(mArrayId);
-            DSMicroarray array = dataSetView.items().get(mArrayId);
-            publishPhenotypeSelectedEvent(new org.geworkbench.events.PhenotypeSelectedEvent(array));
-            updateLabel(array);
+            if (selectMicroarray(mArrayId)) {
+                DSMicroarray array = dataSetView.items().get(mArrayId);
+                publishPhenotypeSelectedEvent(new org.geworkbench.events.PhenotypeSelectedEvent(array));
+                updateLabel(array);
+            }
         }
+    }
+
+    void intensitySlider_stateChanged(ChangeEvent e) {
+        float v = intensitySlider.getValue() / 100.0f;
+        if (v > 1) {
+            microarrayImageArea.setIntensity((float) (1 + Math.exp(v) - Math.exp(1.0)));
+        } else {
+            microarrayImageArea.setIntensity(v);
+        }
+        microarrayImageArea.repaint();
     }
 
     private void updateLabel(DSMicroarray array) {
@@ -220,7 +257,7 @@ public class MicroarrayPanel extends MicroarrayVisualizer implements VisualPlugi
         return event;
     }
 
-    private void selectMicroarray(int mArrayId) {
+    private boolean selectMicroarray(int mArrayId) {
         if (mArraySet != null && dataSetView.items().size() > 0) {
             DSMicroarray mArray = dataSetView.items().get(mArrayId);
             if (mArray != null) {
@@ -234,8 +271,10 @@ public class MicroarrayPanel extends MicroarrayVisualizer implements VisualPlugi
                     exception.printStackTrace();
                 }
             }
+            return true;
         } else {
             microarrayImageArea.setMicroarray(null);
+            return false;
         }
     }
 
