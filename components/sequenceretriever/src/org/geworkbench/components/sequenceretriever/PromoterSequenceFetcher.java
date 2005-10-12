@@ -98,6 +98,8 @@ public class PromoterSequenceFetcher {
         if (cachedSequences == null)
             populateSequenceCache();
         CSSequence sequence = (CSSequence)cachedSequences.get(marker.getLabel());
-        return sequence.getSubSequence(UPSTREAM - upstream - 1, sequence.length() - DOWNSTREAM + fromStart - 1);
+        if (sequence != null)
+            return sequence.getSubSequence(UPSTREAM - upstream - 1, sequence.length() - DOWNSTREAM + fromStart - 1);
+        return null;
     }
 }
