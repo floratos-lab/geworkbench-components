@@ -30,6 +30,8 @@ import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import javax.swing.border.TitledBorder;
 import org.geworkbench.components.alignment.synteny.DAS_Retriver;
+import org.geworkbench.components.alignment.synteny.SynMapParser;
+
 
 /**
  * <p>Title: Bioworks</p>
@@ -734,7 +736,7 @@ public class SyntenyParameters extends EventSource implements VisualPlugin {
 
     /*********************************************************/
     void ButtonRun_actionPerformed(ActionEvent e) {
-        int fx, tx, fy, ty, i, j;
+        int fx, tx, fy, ty, i, j, ux, dx, uy, dy;
 
         if (((jLabelX.getText()).indexOf(">") == -1) ||
             ((jLabelY.getText()).indexOf(">") == -1)) {
@@ -763,26 +765,29 @@ public class SyntenyParameters extends EventSource implements VisualPlugin {
         String sourcex = new String(infstr[1].substring(2));
         String genomex = new String(infstr[2]);
         String chromX = new String(infstr[3]);
-        fx = Integer.parseInt(infstr[4]) -
-             Integer.parseInt(beforeText.getText());
-        tx = Integer.parseInt(infstr[5]) +
-             Integer.parseInt(afterText.getText());
+        dx = Integer.parseInt(beforeText.getText());
+        ux = Integer.parseInt(afterText.getText());
+        fx = Integer.parseInt(infstr[4]) - dx;
+        tx = Integer.parseInt(infstr[5]) + ux;
 
         // Parsing Y information
         infstr = (jLabelY.getText()).split(":");
         String sourcey = new String(infstr[1].substring(2));
         String genomey = new String(infstr[2]);
         String chromY = new String(infstr[3]);
-        fy = Integer.parseInt(infstr[4]) -
-             Integer.parseInt(beforeText.getText());
-        ty = Integer.parseInt(infstr[5]) +
-             Integer.parseInt(afterText.getText());
+
+        dy =  Integer.parseInt(beforeText.getText());
+        fy = Integer.parseInt(infstr[4]) - dy;
+
+        uy = Integer.parseInt(afterText.getText());
+        ty = Integer.parseInt(infstr[5]) + uy;
 
         try {
             fout = new FileOutputStream(out_name);
             String tmp;
             tmp = new String("JOB_ID: " + job_id + "\n");
             fout.write(tmp.getBytes());
+
             tmp = new String("REQUEST_TYPE: " + req_type + "\n");
             fout.write(tmp.getBytes());
 
@@ -801,6 +806,11 @@ public class SyntenyParameters extends EventSource implements VisualPlugin {
             fout.write(tmp.getBytes());
             tmp = new String("TO1: " + tx + "\n");
             fout.write(tmp.getBytes());
+            tmp = new String("UPSTREAM1: " + ux + "\n");
+            fout.write(tmp.getBytes());
+            tmp = new String("DOWNSTREAM1: " + dx + "\n");
+            fout.write(tmp.getBytes());
+
             tmp = new String("SOURCE2: " + sourcey + "\n");
             fout.write(tmp.getBytes());
             tmp = new String("GENOME2: " + genomey + "\n");
@@ -811,6 +821,10 @@ public class SyntenyParameters extends EventSource implements VisualPlugin {
             tmp = new String("FROM2: " + fy + "\n");
             fout.write(tmp.getBytes());
             tmp = new String("TO2: " + ty + "\n");
+            fout.write(tmp.getBytes());
+            tmp = new String("UPSTREAM2: " + uy + "\n");
+            fout.write(tmp.getBytes());
+            tmp = new String("DOWNSTREAM2: " + dy + "\n");
             fout.write(tmp.getBytes());
 
             fout.flush();
@@ -888,16 +902,29 @@ public class SyntenyParameters extends EventSource implements VisualPlugin {
 
                 if (cancel_flag == false) {
                     ProcessStatus.setText("Parsing");
-                    if (CheckFileIntegrity(resn) == false) {
-                        error_flag = true;
-                    }
-
-                    if (error_flag) {
-                        ProcessStatus.setText("Server error! Please try again.");
+                    if (((String) ProgramBox.getSelectedItem()).indexOf("SyntenyMap") != -1) {
+                        if (CheckSyntenyFileIntegrity(resn) == false) {
+                            error_flag = true;
+                        }
+                        if (error_flag) {
+                            ProcessStatus.setText("Server error! Please try again.");
+                            jButtonRun.setBackground(Color.white);
+                        } else {
+                            ProcessStatus.setText("Done");
+//                            SPList.addAndDisplay(resn, f_x, t_x, f_y, t_y);
+                        }
                     } else {
-                        ProcessStatus.setText("Done");
-                        SPList.addAndDisplay(resn, f_x, t_x, f_y, t_y);
-                        jButtonRun.setBackground(Color.white);
+                        if (CheckFileIntegrity(resn) == false) {
+                            error_flag = true;
+                        }
+                        if (error_flag) {
+                            ProcessStatus.setText("Server error! Please try again.");
+                            jButtonRun.setBackground(Color.white);
+                        } else {
+                            ProcessStatus.setText("Done");
+                            SPList.addAndDisplay(resn, f_x, t_x, f_y, t_y);
+                            jButtonRun.setBackground(Color.white);
+                        }
                     }
                 } else {
                     ProcessStatus.setText("Process cancelled");
@@ -916,6 +943,67 @@ public class SyntenyParameters extends EventSource implements VisualPlugin {
         addToRegionsListModel(">genomic:" + GPos.getGenome() + ":" +
                               GPos.getChromosome() + ":" + GPos.getValueFrom() +
                               ":" + GPos.getValueTo() + ":");
+    }
+
+    private boolean CheckSyntenyFileIntegrity(String Fil) {
+
+        File f = new File(Fil);
+        int size = (int) f.length();
+        int len = 0;
+        String datastr = null;
+
+        if (size < 20) {
+            return false;
+        }
+
+        byte[] data = new byte[size];
+
+        try {
+            FileInputStream fis = new FileInputStream(Fil);
+            BufferedInputStream bis = new BufferedInputStream(fis);
+            DataInputStream dis = new DataInputStream(bis);
+
+            dis.read(data);
+            datastr = new String(data);
+            dis.close();
+        } catch (IOException iox) {
+            System.out.println("File read error...");
+            iox.printStackTrace();
+            return false;
+        }
+
+        if (datastr.indexOf("/# Start of SYN_MAP output #/") == -1) {
+            return false;
+        }
+        if (datastr.indexOf("/# End of SYN_MAP output #/") == -1) {
+            return false;
+        }
+        if (datastr.indexOf("/# Start of Annotation 1 #/") == -1) {
+            return false;
+        }
+        if (datastr.indexOf("/# End of Annotation 1 #/") == -1) {
+            return false;
+        }
+        if (datastr.indexOf("/# Start of Annotation 2 #/") == -1) {
+            return false;
+        }
+        if (datastr.indexOf("/# End of Annotation 2 #/") == -1) {
+            return false;
+        }
+        if (datastr.indexOf("/# Start of PFP output 1 #/") == -1) {
+            return false;
+        }
+        if (datastr.indexOf("/# End PFP output 1 #/") == -1) {
+            return false;
+        }
+        if (datastr.indexOf("/# Start of PFP output 2 #/") == -1) {
+            return false;
+        }
+        if (datastr.indexOf("/# End PFP output 2 #/") == -1) {
+            return false;
+        }
+
+        return true;
     }
 
     /*****************************************************/
