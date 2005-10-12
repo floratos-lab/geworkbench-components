@@ -705,18 +705,18 @@ public class PromoterViewPanel extends JPanel {
         seqPatterns.clear();
         seqPatternDisplay.clear();
         seqPatternMatches.clear();
-//        promoterPatterns.clear();
-//        promoterPatternDisplay.clear();
-//        promoterPatternMatches.clear();
+        promoterPatterns.clear();
+        promoterPatternDisplay.clear();
+        promoterPatternMatches.clear();
 
-        promoterPatterns = new ArrayList<DSPattern>();
-
-           promoterPatternDisplay = new HashMap<DSPattern, Display>();
-
-            promoterPatternMatches = new Hashtable<DSPattern<DSSequence,
-                                     DSSeqRegistration>,
-                                     List<DSPatternMatch<DSSequence,
-                                     DSSeqRegistration>>>();
+//        promoterPatterns = new ArrayList<DSPattern>();
+//
+//           promoterPatternDisplay = new HashMap<DSPattern, Display>();
+//
+//            promoterPatternMatches = new Hashtable<DSPattern<DSSequence,
+//                                     DSSeqRegistration>,
+//                                     List<DSPatternMatch<DSSequence,
+//                                     DSSeqRegistration>>>();
 
 
 
@@ -1290,10 +1290,10 @@ public class PromoterViewPanel extends JPanel {
                     updateProgressBar(0, "Done");
 
                     //update the map, associate the seqenceDB with Patterns and save it to the map
-                    pdb = new PromoterPatternDB(sequenceDB);
-                    pdb.setDisplay(promoterPatternDisplay);
-                    pdb.setMatches(promoterPatternMatches);
-                    map.put(sequenceDB.getID(), pdb);
+//                    pdb = new PromoterPatternDB(sequenceDB);
+//                    pdb.setDisplay(promoterPatternDisplay);
+//                    pdb.setMatches(promoterPatternMatches);
+//                    map.put(sequenceDB.getID(), pdb);
 
                 }
 
