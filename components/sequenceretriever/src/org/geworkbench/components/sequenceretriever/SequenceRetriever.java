@@ -60,7 +60,7 @@ import org.geworkbench.bison.datastructure.bioobjects.sequence.CSSequence;
  *
  * @author Xuegong Wang
  * @author manjunath at genomecenter dot columbia dot edu
- * @version 2.0
+ * @version 3.0
  */
 
 public class SequenceRetriever implements VisualPlugin {
