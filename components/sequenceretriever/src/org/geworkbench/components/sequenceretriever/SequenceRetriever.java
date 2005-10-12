@@ -55,10 +55,8 @@ import javax.swing.event.ChangeListener;
 import org.geworkbench.bison.datastructure.bioobjects.sequence.CSSequence;
 
 /**
- * <p>Widget provides all GUI services for sequence panel displays.</p>
- * <p>Widget is controlled by its associated component, SequenceViewAppComponent</p>
- * <p>Copyright: Copyright (c) 2003</p>
- * <p>Company: Califano Lab</p>
+ * <p>Widget to retrieve Promoter sequence from UCSC's DAS sequence server</p>
+ * <p>Copyright: Copyright (c) 2003 - 2005</p>
  *
  * @author Xuegong Wang
  * @auhtor manjunath at genomecenter dot columbia dot edu
