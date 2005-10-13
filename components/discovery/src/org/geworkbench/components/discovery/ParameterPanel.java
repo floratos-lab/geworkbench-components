@@ -480,7 +480,9 @@ public class ParameterPanel extends JPanel {
         jMinPValueBox.setText(format.format(parms.getMinPValue()));
 
         // Parsing the HIERARCHICAL panel
+        if(parms!=null && parms.getHierarchical()!=null)
         jMinClusterSizeBox.setText(Integer.toString(parms.getHierarchical().getClusterSize()));
+
         jMinPatternNoBox.setText(Integer.toString(parms.getMinPatternNo()));
 
         // Parsing the GROUPING panel
