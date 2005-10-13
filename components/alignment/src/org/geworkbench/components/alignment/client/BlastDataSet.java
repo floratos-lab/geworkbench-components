@@ -5,8 +5,9 @@ import org.geworkbench.bison.datastructure.biocollections.DSAncillaryDataSet;
 
 import javax.swing.*;
 import java.io.File;
+import java.io.Serializable;
 
-public class BlastDataSet extends CSDataSet implements DSAncillaryDataSet {
+public class BlastDataSet extends CSDataSet implements DSAncillaryDataSet , Serializable{
     public BlastDataSet(String fileName, String inputFile) {
 
         resultFile = new File(fileName);
