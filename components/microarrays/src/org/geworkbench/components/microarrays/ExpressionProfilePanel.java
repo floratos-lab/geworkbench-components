@@ -12,17 +12,21 @@ import org.geworkbench.engine.config.MenuListener;
 import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.engine.management.Publish;
 import org.jfree.chart.*;
+import org.jfree.chart.renderer.xy.StandardXYItemRenderer;
+import org.jfree.chart.labels.StandardXYToolTipGenerator;
 import org.jfree.chart.entity.ChartEntity;
 import org.jfree.chart.entity.XYItemEntity;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
+import org.jfree.data.xy.XYDataset;
 import org.jfree.data.category.CategoryDataset;
 import org.jfree.data.category.DefaultCategoryDataset;
 
 import java.awt.*;
 import java.awt.event.ActionListener;
 import java.awt.event.*;
+import java.text.NumberFormat;
 
 /**
  * <p>Title: caWorkbench</p>
@@ -100,12 +104,14 @@ public class ExpressionProfilePanel extends MicroarrayViewEventBase implements M
                     }
                     plots.addSeries(dataSeries);
                 }
+                StandardXYItemRenderer renderer = new StandardXYItemRenderer(StandardXYItemRenderer.LINES, new ExpressionnXYToolTip());
                 chart = ChartFactory.createXYLineChart(null, // Title
                         "Experiment", // X-Axis label
                         "Value", // Y-Axis label
                         plots, // Dataset
                         PlotOrientation.VERTICAL, false, // Show legend
                         true, true);
+                chart.getXYPlot().setRenderer(renderer);
                 graph.setChart(chart);
                 graph.addChartMouseListener(new MicroarrayChartMouseListener());
             }
@@ -140,6 +146,29 @@ public class ExpressionProfilePanel extends MicroarrayViewEventBase implements M
 
         public void chartMouseMoved(ChartMouseEvent event) {
             // No-op
+        }
+    }
+
+    /**
+     * Tool-tip renderer for gene charts.
+     */
+    private class ExpressionnXYToolTip extends StandardXYToolTipGenerator {
+
+        public String generateToolTip(XYDataset data, int series, int item) {
+            String result = "Unknown: ";
+            NumberFormat nf = NumberFormat.getInstance();
+            nf.setMaximumFractionDigits(2);
+
+            DSGeneMarker marker = maSetView.markers().get(series);
+            DSMicroarray array = maSetView.items().get(item);
+            String tooltip = "";
+            if (marker != null) {
+                tooltip += "Marker: "+marker.getGeneName();
+            }
+            if (array != null) {
+                tooltip += " Array: "+array.getLabel();
+            }
+            return tooltip;
         }
     }
 
