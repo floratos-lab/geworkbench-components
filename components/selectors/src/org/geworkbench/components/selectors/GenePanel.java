@@ -18,6 +18,7 @@ import org.geworkbench.bison.datastructure.complex.panels.CSItemList;
 import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
 import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
+import org.geworkbench.bison.datastructure.properties.DSSequential;
 import org.geworkbench.bison.util.CSMarkerManager;
 import org.geworkbench.engine.config.VisualPlugin;
 
@@ -45,7 +46,7 @@ import java.util.Iterator;
  *
  * @author John Watkinson
  */
-public class GenePanel implements VisualPlugin {
+public class GenePanel extends SelectorPanel {
 
     //// Classes
 
@@ -59,7 +60,6 @@ public class GenePanel implements VisualPlugin {
         private boolean rememberedEOF = false;
         private int index = 0;
         private int lastIndex = 0;
-        DSGeneMarker gm = null;
         DSPanel<DSGeneMarker> panel;
 
         public PrintListingPainter(DSPanel<DSGeneMarker> panel) {
@@ -103,7 +103,7 @@ public class GenePanel implements VisualPlugin {
                         rememberedEOF = true;
                         break;
                     }
-                    gm = panel.get(index);
+                    DSSequential gm = panel.get(index);
                     String line = "[" + gm.getSerial() + "]";
                     g.drawString(line, x, y);
                     g.drawString(gm.getLabel(), x + 30, y);
