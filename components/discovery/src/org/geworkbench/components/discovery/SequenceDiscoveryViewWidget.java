@@ -96,6 +96,7 @@ public class SequenceDiscoveryViewWidget extends JPanel implements StatusChangeL
 
     private ParametersHandler parmsHandler = new ParametersHandler();
     private JCheckBox useglobus = new JCheckBox("use globus");
+    private String currentNodeID = "";
 
     JButton executeButton = new JButton();
     JButton stopButton = new JButton();
@@ -294,6 +295,7 @@ public class SequenceDiscoveryViewWidget extends JPanel implements StatusChangeL
         }
 
         switchAlgo(selectedAlgo, algorithm, viewId);
+
     }
 
     private void switchAlgo(String selectedAlgo, AbstractSequenceDiscoveryAlgorithm algorithm, int viewId) {
@@ -316,6 +318,9 @@ public class SequenceDiscoveryViewWidget extends JPanel implements StatusChangeL
         parms = p;
         //fire a parameter change to the application
         ParmsDataSet pds = new ParmsDataSet(p);
+        String id = pds.getID();
+        currentStubId = currentNodeID + id;
+        //currentStubId+=id;
         firePropertyChange(PARAMETERS, null, pds);
     }
 
@@ -440,6 +445,7 @@ public class SequenceDiscoveryViewWidget extends JPanel implements StatusChangeL
         //get a stubs.
         String oldStubId = currentStubId;
         currentStubId = stub;
+
         AlgorithmStub oldStub = (AlgorithmStub) algorithmStubManager.get(oldStubId);
         AlgorithmStub newStub = (AlgorithmStub) algorithmStubManager.get(currentStubId);
         if (oldStub == null && newStub == null) {
@@ -619,18 +625,46 @@ public class SequenceDiscoveryViewWidget extends JPanel implements StatusChangeL
         currentModel = model;
     }
 
-    public synchronized void setSequenceDB(SequenceDB sDB) {
+    public void setParms(Parameters parms) {
+        this.parms = parms;
+    }
+
+    public synchronized void setSequenceDB(SequenceDB sDB, boolean withExistedPatternNode, String patternNodeID, Parameters p) {
         if (sequenceDB.getID() != sDB.getID()) {
             sequenceDB = sDB;
             System.out.println("at sequenceDiscoveryviewWiget setSequeceDB: sequenceDB id..." + sDB.getID());
+
             String stubID = sDB.getID() + sDB.getDataSetName();
+            //Point currentNodeID to the name associated with the sequenceDB name no matter the node is subnode or node.
+            currentNodeID = stubID;
+            if(withExistedPatternNode && patternNodeID != null){
+                stubID += patternNodeID;
+            }
             //change the stub for the widget
             projectFileChanged(stubID);
+        }else{
+
+            String stubID = sDB.getID() + sDB.getDataSetName();
+             //Point currentNodeID to the name associated with the sequenceDB name no matter the node is subnode or node.
+            currentNodeID = stubID;
+           if(withExistedPatternNode && patternNodeID != null){
+               stubID += patternNodeID;
+           }
+           //change the stub for the widget
+           projectFileChanged(stubID);
+           if(p!=null){
+               updateParameterPanel(p);
+           }
+
         }
     }
 
     public synchronized SequenceDB getSequenceDB() {
         return sequenceDB;
+    }
+
+    public Parameters getParms() {
+        return parms;
     }
 
     public void setSequenceDiscoveryViewAppComponent(SequenceDiscoveryViewAppComponent s) {

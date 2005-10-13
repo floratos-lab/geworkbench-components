@@ -37,6 +37,8 @@ import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import org.geworkbench.util.patterns.PatternDB;
+import polgara.soapPD_wsdl.Parameters;
 
 /**
  * <p>This AppComponent controls its associated widget SequenceDiscoveryViewWidget</p>
@@ -202,8 +204,19 @@ public class SequenceDiscoveryViewAppComponent implements VisualPlugin, Property
             if (df != null) {
                 //update db with the selected file in the project
                 if (df instanceof SequenceDB) {
+                    Parameters parms = null;
                     sequenceDB = (SequenceDB) df;
-                    sDiscoveryViewWidget.setSequenceDB((SequenceDB) df);
+                    DSAncillaryDataSet ds = selection.getDataSubSet();
+                    String subNodeID = null;
+                    boolean withSubNode = false;
+                    if( ds!= null && ds instanceof ParmsDataSet){
+                        parms = ((ParmsDataSet)ds).getParameters();
+                        subNodeID = ds.getID();
+                        withSubNode = true;
+                    }
+
+                    sDiscoveryViewWidget.setSequenceDB((SequenceDB) df, withSubNode, subNodeID, parms);
+
                 }
             }
     }
