@@ -335,7 +335,7 @@ public class SequenceRetriever implements VisualPlugin {
     }
 
     private void getSequences(DSGeneMarker marker) {
-        CSSequence seqs = PromoterSequenceFetcher.getPromoterSequence(marker, ((Integer)model.getNumber()).intValue(), ((Integer)model1.getNumber()).intValue());
+        CSSequence seqs = PromoterSequenceFetcher.getCachedPromoterSequence(marker, ((Integer)model.getNumber()).intValue(), ((Integer)model1.getNumber()).intValue());
 
         if (seqs != null){
             sequenceDB.addASequence(seqs);
