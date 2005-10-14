@@ -8,6 +8,10 @@ import java.text.DecimalFormat;
 import java.io.Serializable;
 import java.io.ObjectStreamException;
 
+import com.jgoodies.forms.layout.FormLayout;
+import com.jgoodies.forms.builder.DefaultFormBuilder;
+import com.jgoodies.forms.debug.FormDebugPanel;
+
 /**
  * <p>Title: Bioworks</p>
  * <p>Description: Modular Application Framework for Gene Expession, Sequence and Genotype Analysis</p>
@@ -265,9 +269,9 @@ public class TtestAnalysisPanel extends AbstractSaveableParameterPanel implement
         jPanel9.setLayout(borderLayout5);
         bonferroni.setText("Standard Bonferroni Correction");
         noCorrection.setSelected(true);
-        noCorrection.setText("just alpha (no correction)");
+        noCorrection.setText("Just alpha (no correction)");
         jPanel3.setLayout(borderLayout6);
-        jPanel3.setBorder(BorderFactory.createLineBorder(Color.black));
+//        jPanel3.setBorder(BorderFactory.createLineBorder(Color.black));
         adjustedBonferroni.setText("Adjusted Bonferroni Correction");
         jPanel8.setLayout(gridLayout3);
         stepdownMaxT.setText("maxT");
@@ -280,16 +284,16 @@ public class TtestAnalysisPanel extends AbstractSaveableParameterPanel implement
         numCombs.setOpaque(true);
         numCombs.setMinimumSize(new Dimension(35, 20));
         pvaluesByTDistribution.setSelected(true);
-        pvaluesByTDistribution.setText("p-values based on t-distribution");
+        pvaluesByTDistribution.setText("t-distribution");
         jPanel2.setLayout(borderLayout2);
-        jPanel2.setBorder(BorderFactory.createLineBorder(Color.black));
+//        jPanel2.setBorder(BorderFactory.createLineBorder(Color.black));
         jLabel6.setText("times");
         jPanel6.setLayout(gridBagLayout1);
         allPerms.setText("Use all permutations");
         alpha.setValue(new Double(0.01));
         alpha.setPreferredSize(new Dimension(35, 20));
         alpha.setMinimumSize(new Dimension(35, 20));
-        pvaluesByPerm.setText("p-values based on permutation:");
+        pvaluesByPerm.setText("permutation:");
         jPanel7.setBorder(BorderFactory.createEtchedBorder());
         jPanel7.setLayout(flowLayout1);
         jLabel3.setText("Overall alpha (critical p-value):");
@@ -297,24 +301,88 @@ public class TtestAnalysisPanel extends AbstractSaveableParameterPanel implement
         jLabel3.setHorizontalAlignment(SwingConstants.LEFT);
         randomlyGroup.setSelected(true);
         randomlyGroup.setText("Randomly group experiments");
-        equalVariances.setText("Equal group variances");
+        equalVariances.setText("Equal");
         gridLayout2.setRows(2);
         gridLayout2.setHgap(0);
         gridLayout2.setColumns(1);
         welch.setSelected(true);
-        welch.setText("Welch approximation - unequal group variances");
+        welch.setText("Unequal (Welch approximation)");
         jPanel4.setLayout(gridLayout2);
-        jPanel1.setBorder(BorderFactory.createLineBorder(Color.black));
+//        jPanel1.setBorder(BorderFactory.createLineBorder(Color.black));
         jPanel1.setLayout(borderLayout1);
         this.setLayout(borderLayout3);
-        this.setMinimumSize(new Dimension(451, 154));
-        this.setPreferredSize(new Dimension(451, 154));
+//        this.setMinimumSize(new Dimension(451, 154));
+//        this.setPreferredSize(new Dimension(451, 154));
         this.add(jTabbedPane1, BorderLayout.CENTER);
+
+        // Degree of freedom pane
         jTabbedPane1.add(jPanel1, "Degree of freedom");
-        jPanel1.add(jPanel4, BorderLayout.CENTER);
-        jPanel4.add(welch, null);
-        jPanel4.add(equalVariances, null);
+//        jPanel1.add(jPanel4, BorderLayout.CENTER);
+        {
+            FormLayout layout = new FormLayout(
+                    "right:max(40dlu;pref), 3dlu, pref",
+                    "");
+            DefaultFormBuilder builder = new DefaultFormBuilder(layout);
+            builder.setDefaultDialogBorder();
+
+            builder.appendSeparator("Group Variances");
+
+            builder.append("", welch);
+            builder.append("", equalVariances);
+            jPanel1.add(builder.getPanel(), BorderLayout.CENTER);
+
+        }
+
+//        jPanel4.add(welch, null);
+//        jPanel4.add(equalVariances, null);
+
+        // P-Value pane
         jTabbedPane1.add(jPanel2, "P-Value Parameters");
+        {
+            FormLayout layout = new FormLayout(
+                    "right:max(10dlu;pref), 3dlu, pref, 7dlu, "
+                  + "right:max(10dlu;pref), 3dlu, pref, 7dlu, "
+                  + "right:max(10dlu;pref), 3dlu, pref, 7dlu ",
+                    "");
+//            layout.setColumnGroups(new int[][]{ {3, 7} });
+            DefaultFormBuilder builder = new DefaultFormBuilder(layout);
+            builder.setDefaultDialogBorder();
+
+            builder.appendSeparator("p-Values based on");
+
+            builder.append("", pvaluesByTDistribution);
+            builder.nextLine();
+
+            builder.append("", pvaluesByPerm);
+            builder.append("", randomlyGroup);
+            builder.append("(# times)", numCombs);
+            builder.nextLine();
+
+            builder.append("", new JLabel(""));
+            builder.append("", allPerms);
+            builder.nextLine();
+
+            jPanel2.add(builder.getPanel(), BorderLayout.CENTER);
+        }
+
+        {
+            FormLayout layout = new FormLayout(
+                    "right:max(40dlu;pref), 3dlu, 40dlu, 7dlu, "
+                  + "right:max(10dlu;pref), 3dlu, pref, 7dlu, "
+                  + "right:max(10dlu;pref), 3dlu, pref, 7dlu ",
+                    "");
+//            layout.setColumnGroups(new int[][]{ {3, 7} });
+            DefaultFormBuilder builder = new DefaultFormBuilder(layout);
+            builder.setDefaultDialogBorder();
+
+            builder.appendSeparator("Overall alpha (critical p-Value)");
+
+            builder.append("", alpha);
+
+            jPanel2.add(builder.getPanel(), BorderLayout.LINE_END);
+        }
+
+/*
         jPanel5.add(pvaluesByTDistribution, BorderLayout.NORTH);
         jPanel5.add(pvaluesByPerm, BorderLayout.CENTER);
         jPanel5.add(jPanel11, BorderLayout.SOUTH);
@@ -327,7 +395,38 @@ public class TtestAnalysisPanel extends AbstractSaveableParameterPanel implement
         jPanel2.add(jPanel5, BorderLayout.CENTER);
         jPanel6.add(jLabel3, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(5, 1, 5, 0), 0, 0));
         jPanel6.add(alpha, new GridBagConstraints(1, 0, 1, 1, 1.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(5, 16, 5, 91), 0, 0));
+*/
+
+        // Alpha corrections pane
         jTabbedPane1.add(jPanel3, "Alpha Corrections");
+
+        {
+            FormLayout layout = new FormLayout(
+                    "right:max(40dlu;pref), 3dlu, pref, 7dlu, "
+                  + "right:1dlu, 3dlu, pref, 7dlu, "
+                  + "right:1dlu, 3dlu, pref, 7dlu ",
+                    "");
+            layout.setColumnGroups(new int[][]{ {3, 7, 11} });
+            DefaultFormBuilder builder = new DefaultFormBuilder(layout);
+            builder.setDefaultDialogBorder();
+
+            builder.appendSeparator("Correction Method");
+
+            builder.append("", noCorrection);
+            builder.append("", bonferroni);
+            builder.append("", adjustedBonferroni);
+
+            builder.appendSeparator("Step down Westfall and Young Methods (for permutation only)");
+
+            builder.append("", stepdownMinP);
+            builder.appendGlueColumn();
+            builder.append("", stepdownMaxT);
+
+            jPanel3.add(builder.getPanel(), BorderLayout.CENTER);
+
+        }
+
+/*
         jPanel8.add(noCorrection, null);
         jPanel8.add(bonferroni, null);
         jPanel8.add(adjustedBonferroni, null);
@@ -338,5 +437,6 @@ public class TtestAnalysisPanel extends AbstractSaveableParameterPanel implement
         jPanel10.add(stepdownMinP, null);
         jPanel10.add(stepdownMaxT, null);
         jPanel9.add(jLabel5, BorderLayout.CENTER);
+*/
     }
 }
