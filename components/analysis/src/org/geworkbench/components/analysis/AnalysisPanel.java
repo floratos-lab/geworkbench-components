@@ -15,12 +15,18 @@ import org.geworkbench.bison.model.analysis.ParamValidationResults;
 import org.geworkbench.bison.model.analysis.ParameterPanel;
 
 import javax.swing.*;
+import javax.swing.border.EtchedBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Hashtable;
+
+import com.jgoodies.forms.layout.FormLayout;
+import com.jgoodies.forms.layout.CellConstraints;
+import com.jgoodies.forms.builder.DefaultFormBuilder;
+import com.jgoodies.forms.debug.FormDebugPanel;
 
 /**
  * <p>Copyright: Copyright (c) 2003</p>
@@ -203,7 +209,13 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements VisualPlug
         borderLayout4 = new BorderLayout();
         borderLayout5 = new BorderLayout();
         jPanel2 = new JPanel();
+
         analyze = new JButton("Analyze");
+        // Double it's width
+        Dimension d = analyze.getPreferredSize();
+        d.setSize(d.getWidth()*2, d.getHeight());
+        analyze.setPreferredSize(d);
+
         borderLayout6 = new BorderLayout();
         gridLayout3 = new GridLayout();
         namedParameters = new JList();
@@ -229,9 +241,9 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements VisualPlug
         });
         jPanel4.setLayout(borderLayout4);
         currentParameterPanel.setLayout(borderLayout5);
-        buttons.setLayout(new BoxLayout(buttons, BoxLayout.X_AXIS));
-        buttons.setPreferredSize(new Dimension(248, 60));
-        jPanel2.setLayout(borderLayout6);
+//        buttons.setLayout(new BoxLayout(buttons, BoxLayout.X_AXIS));
+//        buttons.setPreferredSize(new Dimension(248, 60));
+        jPanel2.setLayout(new BorderLayout());
         analyze.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 analyze_actionPerformed(e);
@@ -265,20 +277,35 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements VisualPlug
         jScrollPane2.getViewport().add(jPanel3, null);
         jPanel3.add(jSplitPane1, BorderLayout.CENTER);
         jSplitPane1.add(jPanel2, JSplitPane.BOTTOM);
-        buttons.add(save);
-        buttons.add(analyze);
-        jPanel2.add(jPanel4, BorderLayout.CENTER);
+
+//        buttons.add(save);
+//        buttons.add(analyze);
+
         jPanel4.add(currentParameterPanel, BorderLayout.CENTER);
+        jPanel2.add(jPanel4, BorderLayout.CENTER);
+
+        // Add buttons
+        save.setPreferredSize(analyze.getPreferredSize());
+        FormLayout layout = new FormLayout("right:100dlu,10dlu","");
+        DefaultFormBuilder builder = new DefaultFormBuilder(layout);
+        builder.setDefaultDialogBorder();
+        builder.appendSeparator("Analysis Actions");
+        builder.append(analyze);
+        builder.nextLine();
+        builder.append(save);
+
+        jPanel2.add(builder.getPanel(), BorderLayout.LINE_END);
+
         jSplitPane1.add(jPanel1, JSplitPane.TOP);
         jPanel1.add(jScrollPane1, null);
         jPanel1.add(jScrollPane3, null);
         jScrollPane3.getViewport().add(namedParameters);
         jScrollPane1.getViewport().add(pluginAnalyses);
-        jPanel2.add(buttons, BorderLayout.EAST);
-        buttons.add(Box.createHorizontalGlue());
-        buttons.add(Box.createRigidArea(new Dimension(10, 0)));
-        buttons.add(Box.createRigidArea(new Dimension(10, 0)));
-        buttons.add(Box.createRigidArea(new Dimension(10, 0)));
+
+//        buttons.add(Box.createHorizontalGlue());
+//        buttons.add(Box.createRigidArea(new Dimension(10, 0)));
+//        buttons.add(Box.createRigidArea(new Dimension(10, 0)));
+//        buttons.add(Box.createRigidArea(new Dimension(10, 0)));
 
         mainPanel.add(analysisPanel, BorderLayout.CENTER);
     }
