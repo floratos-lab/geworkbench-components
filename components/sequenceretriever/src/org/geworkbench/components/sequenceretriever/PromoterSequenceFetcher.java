@@ -78,6 +78,10 @@ public class PromoterSequenceFetcher {
                     File sequences = new File(url.toURI());
                     cachedSequences = SequenceDB.getSequenceDB(sequences);
                     cachedSequences.parseMarkers();
+                    if (!file.exists()){
+                        file.getParentFile().mkdirs();
+                        file.createNewFile();
+                    }
                     FileOutputStream fos = new FileOutputStream(file.getAbsolutePath());
                     ObjectOutputStream oos = new ObjectOutputStream(fos);
                     oos.writeObject(cachedSequences);
@@ -94,7 +98,7 @@ public class PromoterSequenceFetcher {
         }
     }
     
-    public static CSSequence getPromoterSequence(DSGeneMarker marker, int upstream, int fromStart) {
+    public static CSSequence getCachedPromoterSequence(DSGeneMarker marker, int upstream, int fromStart) {
         if (cachedSequences == null)
             populateSequenceCache();
         CSSequence sequence = (CSSequence)cachedSequences.get(marker.getLabel());
@@ -102,4 +106,6 @@ public class PromoterSequenceFetcher {
             return sequence.getSubSequence(UPSTREAM - upstream - 1, sequence.length() - DOWNSTREAM + fromStart - 1);
         return null;
     }
+    
+    
 }
