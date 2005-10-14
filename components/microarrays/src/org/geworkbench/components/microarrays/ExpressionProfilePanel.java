@@ -20,12 +20,9 @@ import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.jfree.data.xy.XYDataset;
-import org.jfree.data.category.CategoryDataset;
-import org.jfree.data.category.DefaultCategoryDataset;
 
 import java.awt.*;
 import java.awt.event.ActionListener;
-import java.awt.event.*;
 import java.text.NumberFormat;
 
 /**
@@ -104,7 +101,7 @@ public class ExpressionProfilePanel extends MicroarrayViewEventBase implements M
                     }
                     plots.addSeries(dataSeries);
                 }
-                StandardXYItemRenderer renderer = new StandardXYItemRenderer(StandardXYItemRenderer.LINES, new ExpressionnXYToolTip());
+                StandardXYItemRenderer renderer = new StandardXYItemRenderer(StandardXYItemRenderer.LINES, new ExpressionXYToolTip());
                 chart = ChartFactory.createXYLineChart(null, // Title
                         "Experiment", // X-Axis label
                         "Value", // Y-Axis label
@@ -152,7 +149,7 @@ public class ExpressionProfilePanel extends MicroarrayViewEventBase implements M
     /**
      * Tool-tip renderer for gene charts.
      */
-    private class ExpressionnXYToolTip extends StandardXYToolTipGenerator {
+    private class ExpressionXYToolTip extends StandardXYToolTipGenerator {
 
         public String generateToolTip(XYDataset data, int series, int item) {
             String result = "Unknown: ";
@@ -163,7 +160,7 @@ public class ExpressionProfilePanel extends MicroarrayViewEventBase implements M
             DSMicroarray array = maSetView.items().get(item);
             String tooltip = "";
             if (marker != null) {
-                tooltip += "Marker: "+marker.getGeneName();
+                tooltip += "Marker: "+marker.getLabel();
             }
             if (array != null) {
                 tooltip += " Array: "+array.getLabel();
