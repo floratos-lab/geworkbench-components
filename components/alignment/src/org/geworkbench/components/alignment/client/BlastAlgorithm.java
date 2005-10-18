@@ -3,9 +3,8 @@ package org.geworkbench.components.alignment.client;
 import org.geworkbench.algorithms.BWAbstractAlgorithm;
 import org.geworkbench.components.alignment.panels.BlastAppComponent;
 import org.geworkbench.components.alignment.panels.BrowserLauncher;
-import org.geworkbench.events.ProjectNodeAddedEvent;
 import org.geworkbench.bison.datastructure.biocollections.DSAncillaryDataSet;
-import org.geworkbench.util.session.*;
+import org.geworkbench.bison.datastructure.bioobjects.sequence.CSAlignmentResultSet;
 import org.geworkbench.util.session.SoapClient;
 
 import java.io.File;
@@ -79,11 +78,11 @@ public class BlastAlgorithm extends BWAbstractAlgorithm implements SoapClientIn 
                 blastAppComponent.blastFinished(cmd);
 
                 // AlignmentResultEvent event =  new AlignmentResultEvent(outputFile, null, "message", null, null);
-                // DataSet blastDataSet = new BlastDataSet(textFile);
+                // DataSet blastDataSet = new CSAlignmentResultSet(textFile);
                 // System.out.println("htmlFile = " + htmlFile + "textfile" + textFile);
                 DSAncillaryDataSet blastResult = null;
                 if (htmlFile != null) {
-                    blastResult = new BlastDataSet(htmlFile,
+                    blastResult = new CSAlignmentResultSet(htmlFile,
                             soapClient.getInputFileName());
                 } else if (cmd.startsWith("btk search")) {
 

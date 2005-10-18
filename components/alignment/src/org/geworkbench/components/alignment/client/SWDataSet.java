@@ -7,7 +7,7 @@
  * @version 1.0
  */
 /*
- public class SWDataSet extends BlastDataSet {
+ public class SWDataSet extends CSAlignmentResultSet {
    static private ImageIcon iconNew = new ImageIcon(SWDataSet.class.getResource(
     "sw.gif"));
  static private ImageIcon icon  = new ImageIcon(SWDataSet.class.getResource(
