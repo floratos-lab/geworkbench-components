@@ -579,40 +579,45 @@ public class EVDPanel extends MicroarrayViewEventBase implements MenuListener {
                             DSMicroarray currentMicroarray = panel.get(k);
                             propertiesList.add(properties);
 
-                            basketValues = new int[basketNum + 1];
-                            for (int i = 0; i < basketNum; i++) {
-                                basketValues[i] = 0;
-                            }
+                            hs = new HistogramPanel(basketNum);
+                            hs.process(currentMicroarray, minValue, maxValue);
+
+                        basketValues = hs.getBasketvalues();
+
+//                            basketValues = new int[basketNum + 1];
+//                            for (int i = 0; i < basketNum; i++) {
+//                                basketValues[i] = 0;
+//                            }
                             dataSeries = new XYSeries(currentMicroarray.
                                     getLabel());
 
-                            numGenes = maSetView.markers().size();
-                            for (int geneCtr = 0; geneCtr < numGenes; geneCtr++) {
-                                DSGeneMarker marker = maSetView.markers().get(
-                                        geneCtr);
-
-                                double value = currentMicroarray.getMarkerValue(
-                                        marker).getValue();
-
-                                if (Double.isNaN(value)) {
-                                    value = 0;
-                                } else {
-                                    int count = (int) ((value - minValue) /
-                                            ((maxValue - minValue) / basketNum));
-                                    if (count >= 0 && count <= basketNum) {
-                                        basketValues[(int) ((value - minValue) /
-                                                ((maxValue - minValue) /
-                                                 basketNum))]++;
-                                    } else {
-                                        System.err.println(value + " " +
-                                                geneCtr +
-                                                maSetView.markers().get(geneCtr).
-                                                getLabel());
-                                    }
-
-                                }
-
-                            }
+//                            numGenes = maSetView.markers().size();
+//                            for (int geneCtr = 0; geneCtr < numGenes; geneCtr++) {
+//                                DSGeneMarker marker = maSetView.markers().get(
+//                                        geneCtr);
+//
+//                                double value = currentMicroarray.getMarkerValue(
+//                                        marker).getValue();
+//
+//                                if (Double.isNaN(value)) {
+//                                    value = 0;
+//                                } else {
+//                                    int count = (int) ((value - minValue) /
+//                                            ((maxValue - minValue) / basketNum));
+//                                    if (count >= 0 && count <= basketNum) {
+//                                        basketValues[(int) ((value - minValue) /
+//                                                ((maxValue - minValue) /
+//                                                 basketNum))]++;
+//                                    } else {
+//                                        System.err.println(value + " " +
+//                                                geneCtr +
+//                                                maSetView.markers().get(geneCtr).
+//                                                getLabel());
+//                                    }
+//
+//                                }
+//
+//                            }
 
                             maxIndex = basketNum;
                             minIndex = 0;

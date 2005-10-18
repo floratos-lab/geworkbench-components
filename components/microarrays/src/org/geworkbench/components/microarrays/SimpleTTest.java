@@ -10,6 +10,8 @@ import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.bison.util.CSCriterionManager;
 import org.geworkbench.bison.util.DSAnnotValue;
+import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
+import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
 
 /**
  * <p>Title: caWorkbench</p>
@@ -106,27 +108,60 @@ public class SimpleTTest {
         }
 
         assert input instanceof DSMicroarraySetView;
-        //        DSDataSetView<DSMarker, DSMicroarray> data = (DSDataSetView<DSMarker, DSMicroarray>)input;
-        DSMicroarraySetView<? extends DSGeneMarker, ? extends DSMicroarray> data = (DSMicroarraySetView) input;
+
+
+
+        DSMicroarraySetView<? extends DSGeneMarker,? extends DSMicroarray> data = (DSMicroarraySetView) input;
+         DSMicroarraySet<DSMicroarray> set = (DSMicroarraySet) data.getDataSet();
+        // DSDataSet set = data.getDataSet();
+        DSPanel<DSGeneMarker> genes = new CSPanel<DSGeneMarker>("");
+
+        //fix bug 235. the data.size() will includes duplicate. so need create a new panel.
+        genes.addAll(data.markers());
+
         data.useItemPanel(true);
         data.useMarkerPanel(enableActiveMarkers);
         item = data.markers();
-        int markers = data.markers().size();
+        int temp = item.size();
+
+        int markers = genes.size();
         int arrays = data.items().size();
+          groupAssignments = new int[arrays];
 
         expMatrix = new float[markers][arrays];
         originalTValues = new double[markers];
+        for (int j = 0; j < arrays; j++) {
+            DSMicroarray ma = set.get(j);
+            for (int i = 0; i < markers; i++) {
+            DSGeneMarker marker = genes.get(i);
 
-        for (int i = 0; i < markers; i++) {
-            for (int j = 0; j < arrays; j++) {
-                //                expMatrix[i][j] = (float)data.items().get(j).getMarkerValue(i).getValue();
-                expMatrix[i][j] = (float) data.getValue(i, j);
+                expMatrix[i][j] = (float) ma.getMarkerValue(marker).getValue();;
             }
         }
 
-        groupAssignments = new int[arrays];
-        //.getObject();
-        DSDataSet set = data.getDataSet();
+
+//
+//        //        DSDataSetView<DSMarker, DSMicroarray> data = (DSDataSetView<DSMarker, DSMicroarray>)input;
+//        DSMicroarraySetView<? extends DSGeneMarker, ? extends DSMicroarray> data = (DSMicroarraySetView) input;
+//        data.useItemPanel(true);
+//        data.useMarkerPanel(enableActiveMarkers);
+//        item = data.markers();
+//        int markers = data.markers().size();
+//        int arrays = data.items().size();
+//
+//        expMatrix = new float[markers][arrays];
+//        originalTValues = new double[markers];
+//
+//        for (int i = 0; i < markers; i++) {
+//            for (int j = 0; j < arrays; j++) {
+//                //                expMatrix[i][j] = (float)data.items().get(j).getMarkerValue(i).getValue();
+//                expMatrix[i][j] = (float) data.getValue(i, j);
+//            }
+//        }
+//
+//        groupAssignments = new int[arrays];
+//        //.getObject();
+//        DSDataSet set = data.getDataSet();
 
         if (set instanceof DSMicroarraySet) {
             DSMicroarraySet maSet = (DSMicroarraySet) set;
@@ -150,7 +185,7 @@ public class SimpleTTest {
                 }
             }
 
-            numGenes = data.markers().size();
+            numGenes = genes.size();
             numExps = data.items().size();
 
             //    if (tTestDesign == TtestAnalysisPanel.BETWEEN_SUBJECTS) {
