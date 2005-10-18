@@ -1,7 +1,8 @@
 package org.geworkbench.components.alignment.panels;
 
 
-import org.geworkbench.components.alignment.client.BlastDataSet;
+import org.geworkbench.bison.datastructure.bioobjects.sequence.CSAlignmentResultSet;
+import org.geworkbench.bison.datastructure.bioobjects.sequence.DSAlignmentResultSet;
 import org.geworkbench.util.session.SoapClient;
 import org.geworkbench.events.ProjectNodeAddedEvent;
 import org.globus.progtutorial.clients.BlastService.Client;
@@ -226,7 +227,7 @@ public class ServerInfoPanel extends JPanel {
             br.close();
             bw.close();
 
-            BlastDataSet blastResult = new BlastDataSet(input, filename);
+            DSAlignmentResultSet blastResult = new CSAlignmentResultSet(input, filename);
 
             org.geworkbench.events.ProjectNodeAddedEvent event = new ProjectNodeAddedEvent("message", null, blastResult);
             BlastAppComponent blastAppComponent = pv.getBlastAppComponent();
@@ -279,7 +280,7 @@ public class ServerInfoPanel extends JPanel {
                br.close();
                bw.close();
 
-               BlastDataSet blastResult = new BlastDataSet( input, filename);
+               CSAlignmentResultSet blastResult = new CSAlignmentResultSet( input, filename);
 
            ProjectNodeAddedEvent event =
                        new ProjectNodeAddedEvent(null, "message", null,

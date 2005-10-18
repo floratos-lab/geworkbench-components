@@ -1,6 +1,7 @@
 package org.geworkbench.components.alignment.panels;
 
-import org.geworkbench.components.alignment.client.BlastDataSet;
+import org.geworkbench.bison.datastructure.bioobjects.sequence.CSAlignmentResultSet;
+import org.geworkbench.bison.datastructure.bioobjects.sequence.DSAlignmentResultSet;
 import org.geworkbench.components.alignment.grid.ServiceDataModel;
 import org.geworkbench.components.alignment.grid.ServiceDataViewPanel;
 import org.geworkbench.components.alignment.grid.service.SystemInformation;
@@ -328,7 +329,7 @@ public class BlastGridServiceDataPanel extends AbstractPortTypePanel implements 
             br.close();
             bw.close();
 
-            BlastDataSet blastResult = new BlastDataSet(filename, input);
+            DSAlignmentResultSet blastResult = new CSAlignmentResultSet(filename, input);
             System.out.println(input + " " + filename);
             ProjectNodeAddedEvent event = new ProjectNodeAddedEvent("message", null, blastResult);
             BlastAppComponent blastAppComponent = pv.getBlastAppComponent();

@@ -3,7 +3,7 @@ package org.geworkbench.components.alignment.panels;
 import org.geworkbench.events.ProjectEvent;
 import org.geworkbench.components.alignment.blast.BlastParser;
 import org.geworkbench.components.alignment.blast.TextResultParser;
-import org.geworkbench.components.alignment.client.BlastDataSet;
+import org.geworkbench.bison.datastructure.bioobjects.sequence.DSAlignmentResultSet;
 import org.geworkbench.components.alignment.client.HMMDataSet;
 import org.geworkbench.components.alignment.client.SWDataSet;
 import org.geworkbench.builtin.projects.ProjectPanel;
@@ -52,9 +52,9 @@ public class HMMComponent implements VisualPlugin {
         String resultFileName = DEFAULT_FILENAME;
 
         AncillaryDataSet ads = pnae.ancDataSet;
-        if (ads != null && ads instanceof BlastDataSet) {
+        if (ads != null && ads instanceof CSAlignmentResultSet) {
 
-          resultFileName = ( (BlastDataSet) ads).getResultFilePath();
+          resultFileName = ( (CSAlignmentResultSet) ads).getResultFilePath();
          bp = new BlastParser(resultFileName);
          if (ads instanceof SWDataSet)
          bp = new TextResultParser(resultFileName);
@@ -116,9 +116,9 @@ public class HMMComponent implements VisualPlugin {
 
                     blastViewPanel.setResults(hits);
 
-                } else if (df instanceof BlastDataSet) {
-                    //bp = new BlastParser( ( (BlastDataSet) df).getResultFilePath());
-                    bp = new BlastParser(((BlastDataSet) df).getResultFilePath());
+                } else if (df instanceof DSAlignmentResultSet) {
+                    //bp = new BlastParser( ( (CSAlignmentResultSet) df).getResultFilePath());
+                    bp = new BlastParser(((DSAlignmentResultSet) df).getResultFilePath());
                     bp.parseResults();
                     hits = bp.getHits();
 

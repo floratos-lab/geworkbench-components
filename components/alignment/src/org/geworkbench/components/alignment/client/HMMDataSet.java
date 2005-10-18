@@ -11,7 +11,7 @@
   */
 /*
  public class HMMDataSet
-    extends BlastDataSet {
+    extends CSAlignmentResultSet {
   static private ImageIcon iconNew = new ImageIcon(HMMDataSet.class.getResource(
       "hmm.gif"));
   public HMMDataSet(String fileName, String inputFile) {

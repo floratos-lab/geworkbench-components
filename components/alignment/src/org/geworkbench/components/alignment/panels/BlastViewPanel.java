@@ -557,7 +557,7 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
             db.setLabel("temp_Fasta_File");
             db.setFASTAFile(tempFile);
 
-            // AncillaryDataSet blastResult = new BlastDataSet (htmlFile, soapClient.getInputFileName());
+            // AncillaryDataSet blastResult = new CSAlignmentResultSet (htmlFile, soapClient.getInputFileName());
 
             org.geworkbench.events.ProjectNodeAddedEvent event = new org.geworkbench.events.ProjectNodeAddedEvent("message", db, null);
             blastViewComponent.publishProjectNodeAddedEvent(event);
