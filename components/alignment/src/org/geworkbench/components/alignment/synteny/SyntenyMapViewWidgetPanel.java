@@ -23,7 +23,19 @@ public class SyntenyMapViewWidgetPanel
     SyntenyMapObject smObj = null;
     BorderLayout borderLayout2 = new BorderLayout();
     public boolean scaledPicture = true;
-    public boolean showLegends = true;
+    public boolean showLegends = false;
+
+
+    public SyntenyMapViewWidgetPanel() {
+
+        smObj = null;
+        try {
+            jbInit();
+        }
+        catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
 
     public SyntenyMapViewWidgetPanel(SyntenyMapObject smo) {
         smObj = smo;
@@ -43,8 +55,7 @@ public class SyntenyMapViewWidgetPanel
         this.addMouseMotionListener(this);
         this.setMaximumSize(new Dimension(2647, 2647));
         this.setMinimumSize(new Dimension(50, 50));
-        this.setPreferredSize(new Dimension(300, 300));
-
+        this.setPreferredSize(new Dimension(300, 800));
     }
 
     public void drawStringAngle(Graphics2D g2, String st, int x, int y, int angle){
@@ -97,6 +108,8 @@ public class SyntenyMapViewWidgetPanel
         cell_width = 800 / k;
         cell_hight = 600 / k;
 
+        if(cell_hight < adds *5) adds = cell_hight/5;
+
         for (i = 0; i < fn; i++) {
             fs[i] = smObj.getFragment(i).getSpan();
         }
@@ -105,6 +118,8 @@ public class SyntenyMapViewWidgetPanel
 
         for (i = 0; i < fn; i++) {
             mashtab = fs[i] / (cell_width - 2 * adds);
+
+            g.setColor(Color.black);
 
             // Draw titles
             g.drawString(smObj.getFragment(i).getUpperGenome() + " : " +
@@ -123,91 +138,97 @@ public class SyntenyMapViewWidgetPanel
 
             if(scaledPicture){ // Draw picture in the scale of genomic position
 
-                // draw upper line
-                x1 = coords[i][0] * cell_width + adds;
-                x2 = x1 + smObj.getFragment(i).getUpperSpan() / mashtab;
-                y1 = y2 = coords[i][1] * cell_hight + 2 * adds;
-                g.setColor(Color.black);
-                g.drawLine(x1, y1, x2, y2);
-
-                // draw lower line
-                x2 = x1 + smObj.getFragment(i).getLowerSpan() / mashtab;
-                y1 = y2 = coords[i][1] * cell_hight + cell_hight - 2 * adds;
-                g.setColor(Color.black);
-                g.drawLine(x1, y1, x2, y2);
-
-                // draw features for Upper
-                int lfn = smObj.getFragment(i).getUpperObjectsNum();
-                for (j = 0; j < lfn; j++) {
-                    int os = smObj.getFragment(i).getUpperObjectStart(j);
-                    int oe = smObj.getFragment(i).getUpperObjectEnds(j);
-
-                    k = (oe - os + 1) / mashtab;
-                    os = os / mashtab;
-                    x1 = coords[i][0] * cell_width + adds + os;
-                    x2 = x1 + k;
-                    y1 = y2 = coords[i][1] * cell_width + 2 * adds + 1;
-                    g.setColor(Color.blue);
-                    g.drawRect(x1, y1 - 2, x2 - x1, y2 + 2 - y1);
-
-                    if(showLegends){
-                        g2.setColor(Color.black);
-                        drawStringAngle(g2, smObj.getFragment(i).getSingleUpperName(j), x1 + k/2, y1-4, -30);
-                    }
-                }
-
-                // draw features for Lower
-                int ufn = smObj.getFragment(i).getLowerObjectsNum();
-                for (j = 0; j < ufn; j++) {
-                    int os = smObj.getFragment(i).getLowerObjectStart(j);
-                    int oe = smObj.getFragment(i).getLowerObjectEnds(j);
-
-                    k = (oe - os + 1) / mashtab;
-                    os = os / mashtab;
-                    x1 = coords[i][0] * cell_width + adds + os;
-                    x2 = x1 + k;
-                    y1 = y2 = coords[i][1] * cell_hight + cell_hight - 2 * adds;
-                    g.setColor(Color.blue);
-                    g.drawRect(x1, y1 - 1, x2 - x1, y2 + 2 - y1);
-
-                    if(showLegends){
-                        g2.setColor(Color.black);
-                        drawStringAngle(g2, smObj.getFragment(i).getSingleLowerName(j), x1 + k/2, y1+11, 30);
-                    }
-                }
+                int yu = coords[i][1] * cell_hight + 2 * adds;
+                int yl = coords[i][1] * cell_hight + cell_hight - 2 * adds;
 
                 // draw connection lines
                 int pfn = smObj.getFragment(i).getPairNum();
                 for (j = 0; j < pfn; j++) {
-                    int wg = smObj.getFragment(i).getPairWeight(j);
-                    int lp = smObj.getFragment(i).getLowerPair(j);
-                    int up = smObj.getFragment(i).getUpperPair(j);
 
-                    int os = smObj.getFragment(i).getLowerObjectStart(up);
-                    int oe = smObj.getFragment(i).getLowerObjectEnds(up);
+                    double wg = smObj.getFragment(i).getPairWeight(j);
+                    int up = smObj.getFragment(i).getUpperPair(j);
+                    int lp = smObj.getFragment(i).getLowerPair(j);
+
+                    int os = smObj.getFragment(i).getUpperObjectStart(up)-smObj.getFragment(i).getUpperCromosomeStart()+1;
+                    int oe = smObj.getFragment(i).getUpperObjectEnd(up)-smObj.getFragment(i).getUpperCromosomeStart()+1;
+
                     k = (oe - os + 1) / mashtab;
                     os = os / mashtab;
                     oe = k / 2;
                     x1 = coords[i][0] * cell_width + adds + os + oe;
-                    y1 = coords[i][1] * cell_width + 2 * adds + 2;
 
-                    os = smObj.getFragment(i).getLowerObjectStart(lp);
-                    oe = smObj.getFragment(i).getLowerObjectEnds(lp);
+                    os = smObj.getFragment(i).getLowerObjectStart(lp)-smObj.getFragment(i).getLowerCromosomeStart()+1;
+                    oe = smObj.getFragment(i).getLowerObjectEnd(lp)-smObj.getFragment(i).getLowerCromosomeStart()+1;
+
                     k = (oe - os + 1) / mashtab;
                     os = os / mashtab;
                     oe = k / 2;
                     x2 = coords[i][0] * cell_width + adds + os + oe;
-                    y2 = coords[i][1] * cell_hight + cell_hight - 2 * adds - 2;
 
-                    if (wg == 2) {
+                    if (wg == 1.) {
                         g.setColor(Color.red);
                     }
                     else {
+                        if (wg != 0.)
                         g.setColor(Color.darkGray);
                     }
-
-                    g.drawLine(x1, y1, x2, y2);
+                    g.drawLine(x1, yu, x2, yl);
                 }
+
+                x1 = coords[i][0] * cell_width + adds;
+
+                // draw upper line
+                x2 = x1 + smObj.getFragment(i).getUpperSpan() / mashtab;
+                g.setColor(Color.black);
+                g.drawLine(x1, yu, x2, yu);
+
+                // draw features for Upper
+                int lfn = smObj.getFragment(i).getUpperObjectsNum();
+                for (j = 0; j < lfn; j++) {
+                    int os = smObj.getFragment(i).getUpperObjectStart(j)-smObj.getFragment(i).getUpperCromosomeStart()+1;
+                    int oe = smObj.getFragment(i).getUpperObjectEnd(j)-smObj.getFragment(i).getUpperCromosomeStart()+1;
+
+                    k = (oe - os + 1) / mashtab;
+                    os = os / mashtab;
+//                    yu = coords[i][1] * cell_hight + 2 * adds + 1;
+                    g.setColor(Color.blue);
+                    g.fillRect(x1 + os , yu - 2/* - j%2*/, k /* x2 - x1 */, 4);
+                    g.setColor(Color.gray);
+                    g.drawRect(x1 + os , yu - 2/* - j%2*/, k /* x2 - x1 */, 4);
+
+                    if(showLegends){
+                        g2.setColor(Color.black);
+                        drawStringAngle(g2, smObj.getFragment(i).getSingleUpperName(j), x1 + os + k/2, yu-4, -20);
+                    }
+                }
+
+                x1 = coords[i][0] * cell_width + adds;
+
+                // draw lower line
+                x2 = x1 + smObj.getFragment(i).getLowerSpan() / mashtab;
+                g.setColor(Color.black);
+                g.drawLine(x1, yl, x2, yl);
+
+                // draw features for Lower
+                int ufn = smObj.getFragment(i).getLowerObjectsNum();
+                for (j = 0; j < ufn; j++) {
+                    int os = smObj.getFragment(i).getLowerObjectStart(j)-smObj.getFragment(i).getLowerCromosomeStart()+1;
+                    int oe = smObj.getFragment(i).getLowerObjectEnd(j)-smObj.getFragment(i).getLowerCromosomeStart()+1;
+
+                    k = (oe - os + 1) / mashtab;
+                    os = os / mashtab;
+
+                    g.setColor(Color.blue);
+                    g.fillRect(x1 + os , yl - 2 /* - j%2*/, k /* x2 - x1 */, 4);
+                    g.setColor(Color.gray);
+                    g.drawRect(x1 + os , yl - 2 /*- j%2*/, k /* x2 - x1 */, 4);
+
+                    if(showLegends){
+                        g2.setColor(Color.black);
+                        drawStringAngle(g2, smObj.getFragment(i).getSingleLowerName(j), x1 + os + k/2, yl+11, 20);
+                    }
+                }
+
             }
             else {// Draw all features equeal
 
@@ -216,7 +237,6 @@ public class SyntenyMapViewWidgetPanel
                 int uo = smObj.getFragment(i).getUpperObjectsNum();
                 int on = Math.max(lo,uo);
                 on = (cell_width - 2*adds)/on;
-
 
                 for(j=0;j<uo;j++){
                     g.setColor(Color.blue);
@@ -228,7 +248,7 @@ public class SyntenyMapViewWidgetPanel
                     if(showLegends){
                         g.setColor(Color.black);
                         drawStringAngle(g2, smObj.getFragment(i).getSingleLowerName(j), x1+ on/2, y1-5, -30);
-                    }
+                   }
                 }
 
                 for(j=0;j<lo;j++){
@@ -247,15 +267,15 @@ public class SyntenyMapViewWidgetPanel
                 // draw connection lines
                 int pfn = smObj.getFragment(i).getPairNum();
                 for (j = 0; j < pfn; j++) {
-                    int wg = smObj.getFragment(i).getPairWeight(j);
+                    double wg = smObj.getFragment(i).getPairWeight(j);
                     int lp = smObj.getFragment(i).getLowerPair(j);
                     int up = smObj.getFragment(i).getUpperPair(j);
 
                     x1 = coords[i][0] * cell_width + adds + up * on + on /2;
-                    y1 = coords[i][1] * cell_width + 2 * adds + 3;
+                    y1 = coords[i][1] * cell_hight + 2 * adds -2;
 
                     x2 = coords[i][0] * cell_width + adds + lp * on + on /2;
-                    y2 = coords[i][1] * cell_hight + cell_hight - 2 * adds - 3;
+                    y2 = coords[i][1] * cell_hight + cell_hight - 2 * adds +2;
 
                     if (wg == 2) {
                         g.setColor(Color.red);

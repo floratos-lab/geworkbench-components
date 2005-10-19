@@ -15,7 +15,7 @@ package org.geworkbench.components.alignment.synteny;
  */
 public class SyntenyMapObject {
     int FragmentsNum = 0;
-    SyntenyMapFragment[] fragments = new SyntenyMapFragment[10];
+    SyntenyMapFragment[] fragments = new SyntenyMapFragment[50];
 
     public SyntenyMapObject() {
     }

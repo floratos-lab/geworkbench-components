@@ -36,17 +36,19 @@ public class SyntenyMapFragment {
     int[] LowerObjectsEnds = null;
 
     int[][] SyntenyPairs = null;
-    int[] SyntenyPairsWeight = null;
+    double[] SyntenyPairsWeight = null;
 
     int SyntenyPairsNum = 0;
     int UpperObjectsNum = 0;
     int LowerObjectsNum = 0;
 
-    public SyntenyMapFragment(int un, int ln, int np){
+    public SyntenyMapFragment(int un, int ln){
+
+        int np = un * ln;
 
         // upper number, lower number, number of pairs
         SyntenyPairs = new int[np][2];
-        SyntenyPairsWeight = new int[np];
+        SyntenyPairsWeight = new double[np];
 
         UpperObjectsNames = new String[un];
         LowerObjectsNames = new String[ln];
@@ -77,11 +79,11 @@ public class SyntenyMapFragment {
         }
     }
 
-    public void setSingleUpperName(int n, String nm){
+    public void setUpperName(int n, String nm){
             UpperObjectsNames[n]=new String(nm);
     }
 
-    public void setSingleLowerName(int n, String nm){
+    public void setLowerName(int n, String nm){
             LowerObjectsNames[n]=new String(nm);
     }
 
@@ -101,11 +103,11 @@ public class SyntenyMapFragment {
         }
     }
 
-    public void setSingleUpperStart(int n, int s){
+    public void setUpperStart(int n, int s){
             UpperObjectsStarts[n]=s;
     }
 
-    public void setSingleLowerStarts(int n, int s){
+    public void setLowerStart(int n, int s){
             LowerObjectsStarts[n]=s;
     }
 
@@ -125,11 +127,11 @@ public class SyntenyMapFragment {
         }
     }
 
-    public void setSingleUpperEnd(int n, int s){
+    public void setUpperEnd(int n, int s){
             UpperObjectsEnds[n]=s;
     }
 
-    public void setSingleLowerEnd(int n, int s){
+    public void setLowerEnd(int n, int s){
             LowerObjectsEnds[n]=s;
     }
 
@@ -145,7 +147,7 @@ public class SyntenyMapFragment {
         }
     }
 
-    public void addPair(int n, int first, int second, int weight){
+    public void addPair(int n, int first, int second, double weight){
         SyntenyPairs[n][0]=first;
         SyntenyPairs[n][1]=second;
         SyntenyPairsWeight[n]=weight;
@@ -222,7 +224,7 @@ public class SyntenyMapFragment {
         return SyntenyPairs[n];
     }
 
-    public int getPairWeight(int n){
+    public double getPairWeight(int n){
         return SyntenyPairsWeight[n];
     }
 
@@ -258,10 +260,10 @@ public class SyntenyMapFragment {
     }
 
     public int getLowerCromosomeStart(){
-        return UpperFrom;
+        return LowerFrom;
     }
     public int getLowerCromosomeEnd(){
-        return UpperTo;
+        return LowerTo;
     }
     public int getLowerSpan(){
         return LowerTo-LowerFrom+1;
@@ -287,13 +289,13 @@ public class SyntenyMapFragment {
     public int getUpperObjectStart(int n){
         return UpperObjectsStarts[n];
     }
-    public int getUpperObjectEnds(int n){
+    public int getUpperObjectEnd(int n){
         return UpperObjectsEnds[n];
     }
     public int getLowerObjectStart(int n){
         return LowerObjectsStarts[n];
     }
-    public int getLowerObjectEnds(int n){
+    public int getLowerObjectEnd(int n){
         return LowerObjectsEnds[n];
     }
     public int getLowerPair(int n){
