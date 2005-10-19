@@ -30,6 +30,8 @@ import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import javax.swing.border.TitledBorder;
 import org.geworkbench.components.alignment.synteny.DAS_Retriver;
+import org.geworkbench.components.alignment.panels.SynMapPresentationList;
+
 // import org.geworkbench.components.alignment.synteny.SynMapParser;
 
 
@@ -98,6 +100,7 @@ public class SyntenyParameters extends EventSource implements VisualPlugin {
     private JMenuItem Delete = new JMenuItem();
     private JLabel ProcessStatus = new JLabel();
     public SyntenyPresentationsList SPList = null;
+    public SynMapPresentationList SMPList = null;
     private JPanel jPanel3 = new JPanel();
     private GridBagLayout gridBagLayout2 = new GridBagLayout();
     private JLabel jLabelX = new JLabel();
@@ -155,9 +158,10 @@ public class SyntenyParameters extends EventSource implements VisualPlugin {
         jButtonStopIt.setText("Cancel");
         XYMenu.add(ToX);
         XYMenu.add(ToY);
-        XYMenu.add(Delete);
+//        XYMenu.add(Delete);
 
         SPList = new SyntenyPresentationsList();
+        SMPList = new SynMapPresentationList();
         SAP.setSyntenyPresentationsList(SPList);
         SPList.setSyntenyAnnotationParameters(SAP);
 
@@ -694,45 +698,6 @@ public class SyntenyParameters extends EventSource implements VisualPlugin {
      * Just populate SyntenyMapObject for testing purposes
      * @return SyntenyMapObject
      */
-    public SyntenyMapObject PopulateSyntenyMap() {
-        SyntenyMapObject smo = new SyntenyMapObject();
-
-        SyntenyMapFragment smf1 = new SyntenyMapFragment(3, 4, 5);
-
-        String[] nms = {"name1", "name2", "name3", "name4"};
-
-        smf1.setUpperNames(nms);
-        smf1.setLowerNames(nms);
-
-        int[] strts = {1000, 9000, 13000, 19000};
-
-        smf1.setUpperStarts(strts);
-        smf1.setLowerStarts(strts);
-
-        int[] ens = {1500, 9800, 14500, 20500};
-
-        smf1.setUpperEnds(ens);
-        smf1.setLowerEnds(ens);
-
-        int[] fp = {0, 0, 1, 2, 2};
-        int[] sp = {1, 2, 3, 1, 1};
-        int[] w = {1, 2, 1, 1, 1};
-
-        smf1.setPairs(fp, sp, w);
-        smf1.setUpperName("Upper");
-        smf1.setLowerName("Lower");
-        smf1.setLowerChromosome("chr1");
-        smf1.setUpperChromosome("chr2");
-        smf1.setLowerGenome("hg16");
-        smf1.setUpperGenome("hg16");
-        smf1.setUpperCoordinates(12345, 54321);
-        smf1.setLowerCoordinates(12345, 54321);
-
-        smo.addSyntenyFragment(smf1);
-        smo.addSyntenyFragment(smf1);
-
-        return smo;
-    }
 
     /*********************************************************/
     void ButtonRun_actionPerformed(ActionEvent e) {
@@ -741,7 +706,7 @@ public class SyntenyParameters extends EventSource implements VisualPlugin {
         if (((jLabelX.getText()).indexOf(">") == -1) ||
             ((jLabelY.getText()).indexOf(">") == -1)) {
             JOptionPane.showMessageDialog
-                    (null, "Invlalid X or Y genomic region!", "Results",
+                    (null, "Invalid X or Y genomic region!", "Results",
                      JOptionPane.ERROR_MESSAGE);
             return;
         }
@@ -763,6 +728,18 @@ public class SyntenyParameters extends EventSource implements VisualPlugin {
         // Parsing X information
         String[] infstr = ((String) jLabelX.getText()).split(":");
         String sourcex = new String(infstr[1].substring(2));
+        if ((((String) ProgramBox.getSelectedItem()).indexOf("SyntenyMap") != -1) && sourcex.equalsIgnoreCase("genomic"))
+            {
+                JOptionPane.showMessageDialog
+                        (null, "Currently SyntenyMap program can't accept genomic regions defined by genome positions!", "Results",
+                         JOptionPane.ERROR_MESSAGE);
+                return;
+        }
+//            res_name = new String(tempDir + "Synteny_458549.0.res");
+//            ProcessStatus.setText("Go to debugging...");
+//            return;
+
+
         String genomex = new String(infstr[2]);
         String chromX = new String(infstr[3]);
         dx = Integer.parseInt(beforeText.getText());
@@ -773,6 +750,13 @@ public class SyntenyParameters extends EventSource implements VisualPlugin {
         // Parsing Y information
         infstr = (jLabelY.getText()).split(":");
         String sourcey = new String(infstr[1].substring(2));
+        if ((((String) ProgramBox.getSelectedItem()).indexOf("SyntenyMap") != -1) && sourcey.equalsIgnoreCase("genomic"))
+            {
+                JOptionPane.showMessageDialog
+                        (null, "Currently SyntenyMap program can't accept genomic regions defined by genome positions!", "Results",
+                         JOptionPane.ERROR_MESSAGE);
+                return;
+        }
         String genomey = new String(infstr[2]);
         String chromY = new String(infstr[3]);
 
@@ -781,6 +765,21 @@ public class SyntenyParameters extends EventSource implements VisualPlugin {
 
         uy = Integer.parseInt(afterText.getText());
         ty = Integer.parseInt(infstr[5]) + uy;
+
+
+        /////////////////////////////////////////////////////////////
+
+//        if (((String) ProgramBox.getSelectedItem()).indexOf("SyntenyMap") != -1){
+//            res_name = new String(tempDir + "Synteny_458549.0.res");
+//            ProcessStatus.setText("Go to debugging...");
+//            return;
+//            fx = 244300000;
+//            tx = 244420000;
+//            fy = 244340000;
+//            ty = 244396751;
+//           SMPList.addAndDisplay(res_name, fx, tx, fy, ty);
+//           return;
+//        }
 
         try {
             fout = new FileOutputStream(out_name);
@@ -911,7 +910,8 @@ public class SyntenyParameters extends EventSource implements VisualPlugin {
                             jButtonRun.setBackground(Color.white);
                         } else {
                             ProcessStatus.setText("Done");
-//                            SPList.addAndDisplay(resn, f_x, t_x, f_y, t_y);
+                            SMPList.addAndDisplay(resn, f_x, t_x, f_y, t_y);
+
                         }
                     } else {
                         if (CheckFileIntegrity(resn) == false) {
@@ -938,6 +938,7 @@ public class SyntenyParameters extends EventSource implements VisualPlugin {
         t.setPriority(Thread.MIN_PRIORITY);
         t.start();
     }
+
 
     void addButton_actionPerformed(ActionEvent e) {
         addToRegionsListModel(">genomic:" + GPos.getGenome() + ":" +

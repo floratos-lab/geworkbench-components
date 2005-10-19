@@ -8,6 +8,9 @@ import javax.swing.JScrollPane;
 import javax.swing.JRadioButton;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import javax.swing.*;
+import javax.swing.border.TitledBorder;
+import javax.swing.border.Border;
 
 /**
  * <p>Title: Bioworks</p>
@@ -30,15 +33,15 @@ public class SyntenyMapViewWidget extends JPanel{
     private JScrollPane smScrollPane = new JScrollPane();
     BorderLayout borderLayout2 = new BorderLayout();
     JRadioButton toScaleSwitch = new JRadioButton();
-    JPanel jPanel1 = new JPanel();
     JRadioButton jRadioButtonLegends = new JRadioButton();
     JRadioButton jRadioButtonScale = new JRadioButton();
+    TitledBorder titledBorder1 = new TitledBorder("");
+    JToolBar jToolBar1 = new JToolBar();
+    Border border1 = BorderFactory.createEmptyBorder();
 
     public SyntenyMapViewWidget() {
 
 //        smObj = PopulateSyntenyMap();
-        smvwp = new SyntenyMapViewWidgetPanel(null);
-
         try {
             jbInit();
         }
@@ -49,6 +52,7 @@ public class SyntenyMapViewWidget extends JPanel{
 
     void jbInit() throws Exception {
 
+        smvwp = new SyntenyMapViewWidgetPanel();
         smScrollPane.setVerticalScrollBarPolicy(JScrollPane.
                                                  VERTICAL_SCROLLBAR_ALWAYS);
         smScrollPane.setAutoscrolls(true);
@@ -56,7 +60,7 @@ public class SyntenyMapViewWidget extends JPanel{
 
         this.setLayout(borderLayout2);
         toScaleSwitch.setText("To Scale");
-        jRadioButtonLegends.setSelected(true);
+        jRadioButtonLegends.setSelected(false);
         jRadioButtonLegends.setText("Legends");
         jRadioButtonScale.setSelected(true);
         jRadioButtonScale.addActionListener(new ActionListener() {
@@ -73,6 +77,7 @@ public class SyntenyMapViewWidget extends JPanel{
         });
 
         jRadioButtonScale.setText("Scale");
+        savePictButton.setBorder(BorderFactory.createEtchedBorder());
         this.add(smScrollPane, java.awt.BorderLayout.CENTER);
 
         savePictButton.setText("Save Image");
@@ -83,58 +88,33 @@ public class SyntenyMapViewWidget extends JPanel{
         });
 
         smScrollPane.getViewport().add(smvwp);
-        this.add(jPanel1, java.awt.BorderLayout.SOUTH);
-        jPanel1.add(jRadioButtonScale);
-        jPanel1.add(jRadioButtonLegends);
-        jPanel1.add(savePictButton);
+        this.add(jToolBar1, java.awt.BorderLayout.NORTH);
+        jToolBar1.add(jRadioButtonScale);
+        jToolBar1.add(jRadioButtonLegends);
+        jToolBar1.add(savePictButton);
     }
 
 
     public static void smrepaint(SyntenyMapObject smo) {
+//        smvwp = new SyntenyMapViewWidgetPanel();
         smvwp.setNewData(smo);
         smvwp.repaint();
-    }
-
-    public SyntenyMapObject PopulateSyntenyMap(){
-        SyntenyMapObject smo = new SyntenyMapObject();
-
-        SyntenyMapFragment smf1 = new SyntenyMapFragment(3, 4, 5);
-
-        String[] nms={"name1","name2","name3","name4"};
-        smf1.setUpperNames(nms);
-        smf1.setLowerNames(nms);
-
-        int[] strts={1000,9000,13000,19000};
-        smf1.setUpperStarts(strts);
-        smf1.setLowerStarts(strts);
-
-        int[] ens={1500,9800,14500,20500};
-        smf1.setUpperEnds(ens);
-        smf1.setLowerEnds(ens);
-
-        int[] fp={0,0,1,2,2};
-        int[] sp={1,2,3,1,1};
-        int[] w={1,2,1,1,1};
-
-        smf1.setPairs(fp, sp, w);
-        smf1.setUpperName("Upper");
-        smf1.setLowerName("Lower");
-        smf1.setLowerChromosome("chr1");
-        smf1.setUpperChromosome("chr2");
-        smf1.setLowerGenome("hg16");
-        smf1.setUpperGenome("hg16");
-        smf1.setUpperCoordinates(12345,54321);
-        smf1.setLowerCoordinates(12345,54321);
-
-        smo.addSyntenyFragment(smf1);
-        smo.addSyntenyFragment(smf1);
-
-        return smo;
+        smvwp.setPreferredSize(new Dimension(500, 800));
     }
 
     void jSaveButton_actionPerformed(ActionEvent e){
         smvwp.saveToJpeg();
     }
+
+    public static void drawNewSyntenyMap(SyntenyMapObject smo) {
+    smvwp.setNewData(smo);
+    smvwp.repaint();
+    smvwp.setPreferredSize(new Dimension(500, 800));
+
+//    DMInfoPanel.setTitle("X: "+" "+dmo.getDescriptionX()+"   Y: "+" "+dmo.getDescriptionY());
+
+}
+
 }
 
 

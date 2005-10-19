@@ -132,13 +132,15 @@ public class DotMatrixViewWidgetPanel
     /*****************************************************/
     void jbInit() throws Exception {
         this.setLayout(borderLayout2);
-
-        displayScrollPane.setHorizontalScrollBarPolicy(JScrollPane.
+        /*
+                 displayScrollPane.setHorizontalScrollBarPolicy(JScrollPane.
             HORIZONTAL_SCROLLBAR_ALWAYS);
-        displayScrollPane.setVerticalScrollBarPolicy(JScrollPane.
+                 displayScrollPane.setVerticalScrollBarPolicy(JScrollPane.
                                                  VERTICAL_SCROLLBAR_ALWAYS);
-//        displayScrollPane.setBorder(BorderFactory.createEtchedBorder());
-        this.add(displayScrollPane);
+         //        displayScrollPane.setBorder(BorderFactory.createEtchedBorder());
+                 this.add(displayScrollPane);
+         */
+
         this.addMouseListener(this);
         this.addMouseMotionListener(this);
         this.setBackground(Color.white);

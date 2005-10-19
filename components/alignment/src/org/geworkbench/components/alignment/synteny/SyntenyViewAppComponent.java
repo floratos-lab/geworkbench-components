@@ -28,8 +28,9 @@ public class SyntenyViewAppComponent extends EventSource
     HashMap listeners = new HashMap();
     BorderLayout borderLayout1 = new BorderLayout();
     JTabbedPane jTabbedPane1 = new JTabbedPane();
-    SyntenyMapViewWidget SMVW = new SyntenyMapViewWidget();
-    DotMatrixViewWidget DMVW = new DotMatrixViewWidget();
+
+    SyntenyMapViewWidget SMVW = null;
+    DotMatrixViewWidget DMVW = null;
 
     public SyntenyViewAppComponent() {
         try {
@@ -40,6 +41,9 @@ public class SyntenyViewAppComponent extends EventSource
     }
 
     private void jbInit() throws Exception {
+        SyntenyMapViewWidget SMVW = new SyntenyMapViewWidget();
+        DotMatrixViewWidget DMVW = new DotMatrixViewWidget();
+
         jPanel1.setLayout(borderLayout1);
         jPanel1.add(jTabbedPane1, java.awt.BorderLayout.CENTER);
         jTabbedPane1.add(DMVW,"Dotmatrix");

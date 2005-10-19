@@ -1,16 +1,16 @@
 package org.geworkbench.components.alignment.panels;
 
-import org.geworkbench.components.alignment.synteny.DotMatrixObj;
 import org.geworkbench.util.sequences.SequenceAnnotation;
 import org.geworkbench.components.alignment.synteny.GPAnnoParser;
+import org.geworkbench.components.alignment.synteny.SynMapParser;
 import org.geworkbench.components.alignment.synteny.PFPParser;
-import org.geworkbench.components.alignment.synteny.DotMatrixViewWidget;
-import org.geworkbench.components.alignment.synteny.DotsParser;
+import org.geworkbench.components.alignment.synteny.SyntenyMapObject;
+import org.geworkbench.components.alignment.synteny.SyntenyMapViewWidget;
 
 /**
  * <p>Title: Bioworks</p>
  *
- * <p>Description: This structure holds and process structures of DotMatrices and Annotations for Synteny Modules.
+ * <p>Description: This structure holds and process structures of Synteny Maps and Annotations for Synteny Modules.
  * and Genotype Analysis</p>
  *
  * <p>Copyright: Copyright (c) 2003 -2004</p>
@@ -20,8 +20,10 @@ import org.geworkbench.components.alignment.synteny.DotsParser;
  * @author not attributable
  * @version 1.0
  */
-public class SyntenyPresentationsList {
-    DotMatrixObj[] DotMObj = new DotMatrixObj[50];
+
+public class SynMapPresentationList {
+
+    SyntenyMapObject[] SynMObj = new SyntenyMapObject[50];
     SequenceAnnotation[] AnnotX = new SequenceAnnotation[50];
     SequenceAnnotation[] AnnotY = new SequenceAnnotation[50];
 
@@ -46,11 +48,10 @@ public class SyntenyPresentationsList {
     int NumAnnoKeys = 35;
     int cur_num=0;
 
-    public SyntenyPresentationsList() {
-
+    public SynMapPresentationList() {
     }
 
-    public void addAndDisplay(String fl,int f_x,int t_x,int f_y,int t_y){
+    public void addAndDisplay(String fl, int f_x, int t_x, int f_y, int t_y){
 
         AnnotX[cur_num] = new SequenceAnnotation();
         AnnotY[cur_num] = new SequenceAnnotation();
@@ -62,28 +63,29 @@ public class SyntenyPresentationsList {
 
             GPAnnoParser.runGPAnnoParser(AnnotX[cur_num], fl, 1);
             PFPParser.runPFPParser(AnnotX[cur_num], fl, 1);
-//                        AnnoX.SetColors(AnnoKeys, NumAnnoKeys);
             GPAnnoParser.runGPAnnoParser(AnnotY[cur_num], fl, 2);
             PFPParser.runPFPParser(AnnotY[cur_num], fl, 2);
-//                        AnnoY.SetColors(AnnoKeys, NumAnnoKeys);
 
         // Activating the annotations
          AdjustActiveAnnoTracks(AnnotX[cur_num]);
          AdjustActiveAnnoTracks(AnnotY[cur_num]);
 
         // Read dot matrix
-        DotMObj[cur_num]=new DotMatrixObj();
-        DotsParser dp = new DotsParser(fl,DotMObj[cur_num]);
+        SynMObj[cur_num]=new SyntenyMapObject();
+        SynMapParser smp = new SynMapParser(fl, SynMObj[cur_num],f_x,t_x,f_y,t_y);
 
-        DotMObj[cur_num].setStartX(f_x);
-        DotMObj[cur_num].setStartY(f_y);
-        DotMObj[cur_num].setEndX(t_x);
-        DotMObj[cur_num].setEndY(t_y);
+//        SynMObj[cur_num].setStartX(f_x);
+//        SynMObj[cur_num].setStartY(f_y);
+//        SynMObj[cur_num].setEndX(t_x);
+//        SynMObj[cur_num].setEndY(t_y);
 
-        SAPar.setAnnotations(AnnotX[cur_num],AnnotY[cur_num]);
+//        SAPar.setAnnotations(AnnotX[cur_num],AnnotY[cur_num]);
 
-        DotMatrixViewWidget.drawNewDotMatrix(DotMObj[cur_num], AnnotX[cur_num], AnnotY[cur_num]);
-        DotMatrixViewWidget.dmrepaint();
+        SyntenyMapViewWidget.smrepaint(SynMObj[cur_num]);
+
+//        SyntenyMapViewWidget.drawNewDotMatrix(DotMObj[cur_num], AnnotX[cur_num], AnnotY[cur_num]);
+//        SyntenyMapViewWidget.smrepaint();
+
         cur_num++;
     }
 
@@ -112,3 +114,7 @@ public class SyntenyPresentationsList {
 
 
 }
+
+
+
+

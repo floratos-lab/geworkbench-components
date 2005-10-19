@@ -62,7 +62,7 @@ public class DotMatrixViewWidget
         dotViewWPanel.DMViewWidgetPaneladd(dmo, sax, say, DMInfoPanel);
         dotViewWPanel.repaint();
         dotViewWPanel.setPreferredSize(new Dimension(500, 800));
-        DMInfoPanel.setTitle("X: "+" "+dmo.getDescriptionX()+"   Y: "+" "+dmo.getDescriptionY());
+        DMInfoPanel.setTitle("X: " + " " + dmo.getDescriptionX() + "   Y: " + " " + dmo.getDescriptionY());
     }
 
     void jbInit() throws Exception {
