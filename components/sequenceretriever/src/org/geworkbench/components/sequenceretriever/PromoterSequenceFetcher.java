@@ -2,11 +2,15 @@ package org.geworkbench.components.sequenceretriever;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.MalformedURLException;
@@ -49,8 +53,8 @@ public class PromoterSequenceFetcher {
     public static void populateSequenceCache(){
 //        if (!timer.isRunning())
 //            timer.start();
+        File file = new File(System.getProperty("temporary.files.directory") + File.separator + "sequences" + File.separator + "cachedSequences");
         if (cachedSequences == null){
-            File file = new File(System.getProperty("temporary.files.directory") + File.separator + "sequences" + File.separator + "cachedSequences");
             if (file.exists()){
                 try {
                     FileInputStream fis = new FileInputStream(file);
@@ -67,16 +71,33 @@ public class PromoterSequenceFetcher {
                 }
             } else {
                 URL url = PromoterSequenceFetcher.class.getResource("All.NC.-2k+2k.txt");
-                if (url == null){
-                    try {
+                File downloadedFile =
+                        new File(System.getProperty("temporary.files.directory") + File.separator + "sequences" + File.separator + "downloadedSequences");
+                try {
+                    if (!downloadedFile.exists()){
+                        downloadedFile.getParentFile().mkdirs();
+                        downloadedFile.createNewFile();
                         url = new URL(System.getProperty("data.download.site") + "All.NC.-2k+2k.txt");
-                    } catch (MalformedURLException mfe){
-                        mfe.printStackTrace();
+                        BufferedReader br = new BufferedReader(new InputStreamReader(url.openStream()));
+                        BufferedWriter bw = new BufferedWriter(new FileWriter(downloadedFile));
+                        String line = null;
+                        while ((line = br.readLine()) != null){
+                            bw.write(line);
+                            bw.write("\n");
+                        }
+                        bw.flush();
+                        br.close();
+                        bw.close();
                     }
+                } catch (MalformedURLException mfe){
+                    mfe.printStackTrace();
+                }catch (FileNotFoundException fnfe) {
+                    
+                }catch (IOException ioe){
+                    
                 }
                 try {
-                    File sequences = new File(url.toURI());
-                    cachedSequences = SequenceDB.getSequenceDB(sequences);
+                    cachedSequences = SequenceDB.getSequenceDB(downloadedFile);
                     cachedSequences.parseMarkers();
                     if (!file.exists()){
                         file.getParentFile().mkdirs();
@@ -89,8 +110,6 @@ public class PromoterSequenceFetcher {
                     oos.close();
                 } catch (FileNotFoundException fnfe){
                     fnfe.printStackTrace();
-                } catch (URISyntaxException use){
-                    use.printStackTrace();
                 } catch (IOException ioe){
                     ioe.printStackTrace();
                 }
