@@ -349,14 +349,9 @@ public class SequenceRetriever implements VisualPlugin {
             String fileName = this.getRandomFileName();
             if (((String) jComboCategory.getSelectedItem()).equalsIgnoreCase("DNA")) {
 
-                for (int j = 0; j < markers.panels().size(); j++) {
-
-                    DSPanel<DSGeneMarker> mrk = markers.panels().get(j);
-                    for (int i = 0; i < mrk.size(); i++) {
-                        DSGeneMarker marker = mrk.get(i);
-
+                for (int i = 0; i < ls2.size(); i++) {
+                        DSGeneMarker marker = (DSGeneMarker)ls2.get(i);
                         getSequences(marker);
-                    }
                 }
 
                 if (sequenceDB.getSequenceNo() == 0) {
