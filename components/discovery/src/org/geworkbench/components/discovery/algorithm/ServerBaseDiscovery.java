@@ -73,15 +73,15 @@ public abstract class ServerBaseDiscovery extends AbstractSequenceDiscoveryAlgor
     public void start() {
         try {
 //Temp change for bug 329.
-            //if (session.isDone() && (!reconnect)) {
-                 if (!session.loadSequenceRemote()) {
+             if (session.isDone() && (!reconnect)) {
+                // if (!session.loadSequenceRemote()) {
                     //upload sequences
                     fireStatusBarEvent("Uploading....");
                     if (!upload()) {
                         return;
                     }
                     session.saveSeqDB();
-                //}
+                // }
 
                 session.setParameters(parms);
                 fireStatusBarEvent("Discovering...");
