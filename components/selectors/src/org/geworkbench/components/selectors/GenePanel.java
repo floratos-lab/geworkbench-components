@@ -1018,6 +1018,16 @@ public class GenePanel extends SelectorPanel {
     public void createPanel(int a, int b, boolean c) {
         // todo implement
     }
+
+    @Script
+    public DSPanel getPanel(String dir) {
+        DSPanel<DSGeneMarker> panel = deserializePanel(new File(dir));
+        panel.setActive(true);
+        addPanel(panel); //redundancy between broadcast and script
+        throwEvent(GeneSelectorEvent.PANEL_SELECTION); //redundancy between broadcast and script
+        return panel;
+    }
+
     /**
      * Called when a single marker is selected by a component.
      */

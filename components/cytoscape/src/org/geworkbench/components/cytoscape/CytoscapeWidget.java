@@ -39,6 +39,7 @@ import java.util.Properties;
 import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.geworkbench.engine.management.Script;
 
 /**
  * <p>Title: Bioworks</p>
@@ -691,6 +692,7 @@ public class CytoscapeWidget extends EventSource implements VisualPlugin, MenuLi
         this.adjStorage.add(adjMat);
     }
 
+    @Script
     public DSPanel getFirstNeighbors(int geneid, double threshold, int level) {
         createSubNetwork(geneid, threshold, level);
         int[] indices = cytoNetwork.neighborsArray(geneid);
@@ -704,5 +706,31 @@ public class CytoscapeWidget extends EventSource implements VisualPlugin, MenuLi
             selectedMarkers.setActive(true);
         }
         return selectedMarkers;
+    }
+
+    @Script
+    public void computeAndDrawFirstNeighbors(DSGeneMarker m, AdjacencyMatrix am) {
+        adjMatrix = am;
+        createSubNetwork(m.getSerial(), 0, 1);
+        view = Cytoscape.createNetworkView(cytoNetwork, maSet.getLabel());
+                        view.addGraphViewChangeListener(new GraphViewChangeListener() {
+                            public void graphViewChanged(GraphViewChangeEvent graphViewChangeEvent) {
+                                cyNetWorkView_graphViewChanged(graphViewChangeEvent);
+                            }
+                        });
+
+    }
+
+    @Script
+    public void computeAndDrawFirstNeighbors(DSPanel<DSGeneMarker> p, int i, AdjacencyMatrix am) {
+        adjMatrix = am;
+        cytoNetwork = Cytoscape.createNetwork(maSet.getLabel() + i);
+        createSubNetwork(p.get(i).getSerial(), 0, 1);
+        view = Cytoscape.createNetworkView(cytoNetwork, maSet.getLabel());
+        view.addGraphViewChangeListener(new GraphViewChangeListener() {
+            public void graphViewChanged(GraphViewChangeEvent graphViewChangeEvent) {
+                cyNetWorkView_graphViewChanged(graphViewChangeEvent);
+            }
+        });
     }
 }
