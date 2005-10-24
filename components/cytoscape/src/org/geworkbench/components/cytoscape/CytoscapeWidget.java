@@ -711,14 +711,14 @@ public class CytoscapeWidget extends EventSource implements VisualPlugin, MenuLi
     @Script
     public void computeAndDrawFirstNeighbors(DSGeneMarker m, AdjacencyMatrix am) {
         adjMatrix = am;
+        cytoNetwork = Cytoscape.createNetwork(maSet.getLabel() + m.getSerial());
         createSubNetwork(m.getSerial(), 0, 1);
         view = Cytoscape.createNetworkView(cytoNetwork, maSet.getLabel());
-                        view.addGraphViewChangeListener(new GraphViewChangeListener() {
-                            public void graphViewChanged(GraphViewChangeEvent graphViewChangeEvent) {
-                                cyNetWorkView_graphViewChanged(graphViewChangeEvent);
-                            }
-                        });
-
+        view.addGraphViewChangeListener(new GraphViewChangeListener() {
+            public void graphViewChanged(GraphViewChangeEvent graphViewChangeEvent) {
+                cyNetWorkView_graphViewChanged(graphViewChangeEvent);
+            }
+        });
     }
 
     @Script
