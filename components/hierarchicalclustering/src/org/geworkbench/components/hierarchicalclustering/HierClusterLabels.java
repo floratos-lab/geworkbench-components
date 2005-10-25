@@ -11,6 +11,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
+import java.lang.reflect.Array;
 
 
 /**
@@ -167,7 +168,11 @@ public class HierClusterLabels extends JPanel {
         currentArrayCluster = mhc;
 
         if (currentArrayCluster != null) {
-            leafArrays = currentArrayCluster.getLeafChildren();
+            java.util.List<Cluster> leaves = currentArrayCluster.getLeafChildren();
+            leafArrays = (Cluster[]) Array.newInstance(Cluster.class, leaves.size());
+            leaves.toArray(leafArrays);
+
+//            leafArrays = currentArrayCluster.getLeafChildren();
         }
     }
 
