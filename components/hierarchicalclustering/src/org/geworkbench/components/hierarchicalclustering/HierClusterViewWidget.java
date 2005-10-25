@@ -19,6 +19,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.util.HashMap;
+import java.lang.reflect.Array;
 
 /**
  * <p>Copyright: Copyright (c) 2003</p>
@@ -716,11 +717,13 @@ public class HierClusterViewWidget extends JPanel implements HierClusterModelEve
      */
     private void addToPanel_actionPerformed(ActionEvent e) {
         if (selectedMarkerCluster != null) {
-            Cluster[] leaves = selectedMarkerCluster.getLeafChildren();
-            DSGeneMarker[] mInfos = new DSGeneMarker[leaves.length];
+            java.util.List<Cluster> leaves = selectedMarkerCluster.getLeafChildren();
 
-            for (int i = 0; i < leaves.length; i++)
-                mInfos[i] = ((MarkerHierCluster) leaves[i]).getMarkerInfo();
+//            Cluster[] leaves = selectedMarkerCluster.getLeafChildren();
+            DSGeneMarker[] mInfos = new DSGeneMarker[leaves.size()];
+
+            for (int i = 0; i < leaves.size(); i++)
+                mInfos[i] = ((MarkerHierCluster) leaves.get(i)).getMarkerInfo();
 
             if (mInfos != null) {
                 firePropertyChange(MULTIPLE_MARKER_SELECTED_PROPERTY, null, mInfos);

@@ -4,12 +4,12 @@ import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetV
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.model.clusters.HierCluster;
+import org.geworkbench.bison.model.clusters.Cluster;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.util.Enumeration;
-import java.util.Vector;
+import java.util.*;
 
 /**
  * <p>Copyright: Copyright (c) 2003</p>
@@ -278,6 +278,7 @@ public class HierClusterTree extends JPanel {
      * @param startY vertical start coordinate for painting tree beneath this node
      * @param endY   vertical end coordinate for painting tree beneath this node
      */
+/*
     private void paintNode(Graphics g, HierCluster node, int startY, int endY) {
         if (!node.isLeaf()) {
             int depth = node.getDepth();
@@ -312,6 +313,67 @@ public class HierClusterTree extends JPanel {
             sY = eY;
             eY = endY;
             paintNode(g, child2, sY, eY);
+        }
+    }
+*/
+
+    private void paintNode(Graphics g, HierCluster nodeParam, int startYparam, int endYparam) {
+        ArrayList<NodePaintingInstructions> nodesToPaint = new ArrayList<NodePaintingInstructions>();
+        Map<Cluster, Integer> childCounts = nodeParam.getLeafChildrenCountMap();
+        nodesToPaint.add(new NodePaintingInstructions(nodeParam, startYparam, endYparam));
+        while (!nodesToPaint.isEmpty()) {
+            NodePaintingInstructions instr = nodesToPaint.remove(0);
+            HierCluster node = instr.node;
+            int startY = instr.startY;
+            int endY = instr.endY;
+            if (!node.isLeaf()) {
+                int depth = node.getDepth();
+                HierCluster child1 = node.getNode(0);
+                HierCluster child2 = node.getNode(1);
+                int numChild1 = Math.max(childCounts.get(child1), 1);
+                int numChild2 = Math.max(childCounts.get(child2), 1);
+
+                int totalChildren = numChild1 + numChild2;
+                int depth1 = child1.getDepth();
+                int depth2 = child2.getDepth();
+                int yTemp = (numChild1 * (endY - startY) / totalChildren);
+                int yTemp2 = (numChild2 * (endY - startY) / totalChildren);
+                int y0 = startY + (yTemp / 2);
+                int x0 = offSet + (int) Math.ceil((maxDepth - depth) * branchWidth);
+                int y1 = startY + yTemp + (yTemp2 / 2);
+                int x1 = offSet + (int) Math.ceil((maxDepth - depth1) * branchWidth);
+                int x2 = offSet + (int) Math.ceil((maxDepth - depth2) * branchWidth);
+                if (orientation == HORIZONTAL) {
+                    ig.drawLine(x0, y0, x0, y1);
+                    ig.drawLine(x0, y0, x1, y0);
+                    ig.drawLine(x0, y1, x2, y1);
+                    brackets.add(new Bracket(node, x0, x1, x2, y0, y1));
+                } else if (orientation == VERTICAL) {
+                    ig.drawLine(leftOffset + y0, x0, leftOffset + y1, x0);
+                    ig.drawLine(leftOffset + y0, x0, leftOffset + y0, x1);
+                    ig.drawLine(leftOffset + y1, x0, leftOffset + y1, x2);
+                    brackets.add(new Bracket(node, x0, x1, x2, leftOffset + y0, leftOffset + y1));
+                }
+
+                int sY = startY, eY = startY + yTemp;
+//                paintNode(g, child1, sY, eY);
+                nodesToPaint.add(new NodePaintingInstructions(child1, sY, eY));
+                sY = eY;
+                eY = endY;
+//                paintNode(g, child2, sY, eY);
+                nodesToPaint.add(new NodePaintingInstructions(child2, sY, eY));
+            }
+        }
+    }
+
+    private class NodePaintingInstructions {
+        public HierCluster node;
+        public int startY, endY;
+
+        public NodePaintingInstructions(HierCluster node, int startY, int endY) {
+            this.node = node;
+            this.startY = startY;
+            this.endY = endY;
         }
     }
 

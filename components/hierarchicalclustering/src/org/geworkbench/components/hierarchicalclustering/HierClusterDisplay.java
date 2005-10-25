@@ -13,8 +13,8 @@ import org.geworkbench.bison.model.clusters.MicroarrayHierCluster;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.util.Enumeration;
-import java.util.Vector;
+import java.util.*;
+import java.lang.reflect.Array;
 
 
 /**
@@ -150,7 +150,11 @@ public class HierClusterDisplay extends JPanel {
         currentMarkerCluster = mhc;
 
         if (currentMarkerCluster != null) {
-            leafMarkers = currentMarkerCluster.getLeafChildren();
+            java.util.List<Cluster> leaves = currentMarkerCluster.getLeafChildren();
+            leafMarkers = (Cluster[]) Array.newInstance(Cluster.class, leaves.size());
+            leaves.toArray(leafMarkers);
+
+//            leafMarkers = currentMarkerCluster.getLeafChildren();
         }
 
         //if (parent != null && mhc.getLeafChildrenCount() > 1)
@@ -167,7 +171,9 @@ public class HierClusterDisplay extends JPanel {
         currentArrayCluster = mhc;
 
         if (currentArrayCluster != null) {
-            leafArrays = currentArrayCluster.getLeafChildren();
+            java.util.List<Cluster> leaves = currentArrayCluster.getLeafChildren();
+            leafArrays = (Cluster[]) Array.newInstance(Cluster.class, leaves.size());
+            leaves.toArray(leafArrays);
         }
     }
 
