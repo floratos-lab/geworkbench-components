@@ -25,86 +25,19 @@
 
 
 <h3>Expression Profile View</h3>
-
-<p>To view a dataset using Expression Profile View, first select a dataset in 
-
-  the &quot;Project Folder&quot; pane and then select the &quot;Expression Profile&quot; 
-
-  option in the main display pane at the top-right section of the interface. Measurements 
-
-  in the selected microarray dataset will be displayed in a graph with corresponding 
-
-  x-y axes coordinates. Measurements for the same marker are connected by straight 
-
-  line between adjacent microarrays.</p>
-
-<p><img src="images/Exp-profile.gif" width="528" height="513"></p>
-
-<p>This component contains some <b>tools</b> for users to manipulate the graph 
-
-  display:</p>
-
-<ul>
-
-  <li>
-
-    <p><u>Button with bulb</u>: Widget enables user to toggle <i>MouseOver</i> 
-
-      information on the graph.</p>
-
-  </li>
-
-  <li>
-
-    <p><u>Right Click on graph</u>: This shows a pop-up menu with a 'Save Image' 
-
-      option. Selecting this option lets user save the drawn graph image as a 
-
-      child of the currently selected dataset</p>
-
-  </li>
-
-  <li>
-
-    <p><u>Clicking on graph</u>: Clicking on any of the profiles in the graph 
-
-      highlights the marker clicked in the Marker Panel.</p>
-
-  </li>
-
-  <li>
-
-    <p><u>Show Phenotypes</u>: Widget lets user subselect profile samples to view. 
-
-      The number of grid points for each marker profile equals the number of Microarrays 
-
-      in activated Phenotype panels.</p>
-
-  </li>
-
-  <li>
-
-    <p><u>Show Panels</u>: Widget lets user subselect number of profiles to view. 
-
-      The marker profiles drawn correspond to markers in the activated Marker 
-
-      panels. </p>
-
-  </li>
-
-  <li>
-
-    <p><u>Mean Profile</u>: Widget lets user view mean marker profiles of either 
-
-      all markers in the selected dataset or a subselection of markers in the 
-
-      Marker panels. Appropriate variance bars are also drawn.</p>
-
-  </li>
-
-</ul>
-
-<p><img src="images/Exp-profile1.gif" width="527" height="513"></p>
+    <p>The Expression Profile is located in the <b>View Area</b> (see image below) in the top-right of the application. The Expression Profile view makes it possible to visualize changes in the gene expression levels across different hybridizations. This is useful especially in the analysis of time course or dose response experiments. Since the tool generates a graphical representation of relative expression levels across two or more arrays, the Expression Profile view can only be applied to datasets containing multiple arrays. </p> Measurements in the selected microarray dataset are displayed in the graph with corresponding x-y axes coordinates. Each Marker is displayed as a unique colored line. When the mouse is scrolled over a data point on the chart, the tool tip displays a description of the data point. 
+    <h3>Basic Usage</h3> 
+    <p>The steps of basic usage are indicated in the below screenshot.</p> 
+    <p><img width="819" height="502" src="ExpProfile%20Viewed_files/image001.jpg"></p> 
+    <p>A. The Expression level.</p> 
+    <p>B. The tool tip describes the data point where marker AFFX-BioB-3 in array CB511 has an expression level of 5.5.</p> 
+    <p>C. Each grid point is a microarray in an activated panel or in the dataset. </p> 
+    <p>D. Clicking on a data point highlights the selected gene in the gene panel and the selected array in the phenotype panel.</p> 
+    <p>&#10170; <b>Right click on graph:</b> </p> 
+    <p>&#12290; <b>Save Image:</b> Stores the image as a child of the currently selected dataset.</p> 
+    <p>&#12290; <b>Zoom in/out:</b> The user selects/highlights a region of the graph by left clicking and drag down (zooming in) or upward (zoom out) over a region of the image or selecting right click <b>Zoom In </b>or <b>Zoom Out </b>option.</p> 
+    <p>E. <b>Activated Arrays</b>: When selected, the only microarrays displayed are those belonging to activated phenotypic panels. Otherwise, data for all microarrays in the selected set are shown. The number of grid points for each marker profile equals the number of Microarrays in activated Phenotype panels.</p> 
+    <p>A. <b>Activated Markers: </b>Selecting this checkbox results in the display of markers that are part of activated marker panels. Otherwise, data from all markers are shown. The marker profiles drawn correspond to markers in the activated Marker panels. </p> 
 
 </body>
 
