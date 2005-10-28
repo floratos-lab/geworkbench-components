@@ -4,8 +4,9 @@
 
 	<tocitem text="Sequence Alignment Algorithms">
 
-		 <tocitem target="overview" text="BlastOverview.htm" /> 
- 
+		 <tocitem target="overview" text="Blast" />
+                 <tocitem target="overview" text="Alignment Results" />
+
 
 	</tocitem>
 
