@@ -35,9 +35,9 @@ public class ParameterViewWidget
     JLabel DatabaseLabel = new JLabel();
     JTabbedPane jTabbedPane1 = new JTabbedPane();
     ServerInfoPanel jServerInfoPane = new ServerInfoPanel();
-    BlastGridServiceDataPanel sgePanel = new
-          BlastGridServiceDataPanel();
-      //CreateGridServicePanel sgePanel = new CreateGridServicePanel();
+//    BlastGridServiceDataPanel sgePanel = new
+//          BlastGridServiceDataPanel();
+     CreateGridServicePanel sgePanel = new CreateGridServicePanel();
     JComboBox jMatrixBox = new JComboBox();
     JCheckBox lowComplexFilterBox = new JCheckBox();
     JLabel programLabel = new JLabel();
@@ -59,7 +59,7 @@ public class ParameterViewWidget
         "ncbi/swissprot      SWISS-PROT protein sequence database.",
         "ncbi/yeast.aa            Yeast  genomic CDS translations.",
         "ncbi/nt                    All Non-redundant  DNA equences.",
-        "ncbi/pdbnt                Peptides Sequences derived from the PDB.",
+        "ncbi/pdbnt                Nucleotide sequences derived from the PDB.",
         "ncbi/yeast.nt           Yeast genomic nucleotide sequences."};
 
     String[] programParameter = {
@@ -563,7 +563,7 @@ public class ParameterViewWidget
             , GridBagConstraints.CENTER, GridBagConstraints.BOTH,
             new Insets(0, 0, 1, 59), 78, -61));
         jTabbedPane1.add(jServerInfoPane, "Server_Info");
-        jTabbedPane1.add(sgePanel, "Grid_Service");
+        jTabbedPane1.add(sgePanel, "Grid_Services");
         jScrollPane2.getViewport().add(jList2, null);
 
         subSeqPanel3.add(jLabel13, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0
