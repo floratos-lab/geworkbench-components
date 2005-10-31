@@ -10,6 +10,8 @@ import org.geworkbench.bison.model.clusters.Cluster;
 import org.geworkbench.bison.model.clusters.HierCluster;
 import org.geworkbench.bison.model.clusters.MarkerHierCluster;
 import org.geworkbench.bison.model.clusters.MicroarrayHierCluster;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import javax.swing.*;
 import javax.swing.border.LineBorder;
@@ -19,7 +21,6 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.util.HashMap;
-import java.lang.reflect.Array;
 
 /**
  * <p>Copyright: Copyright (c) 2003</p>
@@ -53,6 +54,9 @@ import java.lang.reflect.Array;
  * @version 1.0
  */
 public class HierClusterViewWidget extends JPanel implements HierClusterModelEventListener {
+
+    static Log log = LogFactory.getLog(HierClusterViewWidget.class);
+
     /**
      * Property used for conveying the origin of a <code>PropertyChange</code>
      * event for distinguishing messages from other components which throw
@@ -172,6 +176,14 @@ public class HierClusterViewWidget extends JPanel implements HierClusterModelEve
 
         public void mouseClicked(MouseEvent e) {
             this_mouseClicked(e);
+        }
+
+        public void mouseExited(MouseEvent e) {
+            if (e.getSource() == markerDendrogram) {
+                markerDendrogram.setCurrentHighlight(null);
+            } else if (e.getSource() == arrayDendrogram) {
+                arrayDendrogram.setCurrentHighlight(null);
+            }
         }
     };
 
@@ -561,13 +573,15 @@ public class HierClusterViewWidget extends JPanel implements HierClusterModelEve
     private void this_mouseMoved(MouseEvent e) {
         if (zoomEnabled) {
             if (e.getSource() == markerDendrogram) {
-                if (markerDendrogram.isPointClickable(e.getX(), e.getY())) {
+                markerDendrogram.setCurrentHighlightForMouseLocation(e.getY(), e.getX());
+                if (markerDendrogram.isPointClickable(e.getX(), e.getY(), false)) {
                     this.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
                 } else {
                     this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
                 }
             } else if (e.getSource() == arrayDendrogram) {
-                if (arrayDendrogram.isPointClickable(e.getX(), e.getY())) {
+                arrayDendrogram.setCurrentHighlightForMouseLocation(e.getX(), e.getY());
+                if (arrayDendrogram.isPointClickable(e.getX(), e.getY(), true)) {
                     this.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
                 } else {
                     this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
