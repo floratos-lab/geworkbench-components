@@ -22,6 +22,8 @@ import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.util.HashMap;
 
+import com.jgoodies.forms.builder.ButtonBarBuilder;
+
 /**
  * <p>Copyright: Copyright (c) 2003</p>
  * <p>Company: First Genetic Trust Inc.</p>
@@ -435,7 +437,7 @@ public class HierClusterViewWidget extends JPanel implements HierClusterModelEve
         jScrollPane1.setForeground(Color.white);
         this.setBackground(Color.white);
         this.setForeground(Color.white);
-        this.add(jToolBar1, BorderLayout.SOUTH);
+
 
 //        jGeneHeight.setMaximumSize(new Dimension(25, jToolBar1.getHeight()));
 
@@ -461,22 +463,41 @@ public class HierClusterViewWidget extends JPanel implements HierClusterModelEve
                 jGeneWidth_stateChanged(e);
             }
         });
-        jToolBar1.setLayout(new BoxLayout(jToolBar1, BoxLayout.X_AXIS));
-        int spacerSize = 10;
-        jToolBar1.add(jCheckBox1, null);
-        jToolBar1.add(Box.createHorizontalGlue(), null);
-        jToolBar1.add(heightLabel, null);
-        jToolBar1.add(Box.createHorizontalStrut(spacerSize/2), null);
-        jToolBar1.add(jGeneHeight, null);
-        jToolBar1.add(Box.createHorizontalStrut(spacerSize), null);
-        jToolBar1.add(widthLabel, null);
-        jToolBar1.add(Box.createHorizontalStrut(spacerSize/2), null);
-        jToolBar1.add(jGeneWidth, null);
-        jToolBar1.add(Box.createHorizontalStrut(spacerSize), null);
-        jToolBar1.add(slider, null);
-        jToolBar1.add(jSpacer4, null);
-        jToolBar1.add(jToolTipToggleButton, null);
-        jToolBar1.add(jSpacer3, null);
+        ButtonBarBuilder bbuilder = new ButtonBarBuilder();
+//        jToolBar1.setLayout(new BoxLayout(jToolBar1, BoxLayout.X_AXIS));
+//        int spacerSize = 10;
+//        jToolBar1.add(jCheckBox1, null);
+        bbuilder.addFixed(jCheckBox1);
+//        jToolBar1.add(Box.createHorizontalGlue(), null);
+        bbuilder.addGlue();
+//        jToolBar1.add(heightLabel, null);
+//        jToolBar1.add(Box.createHorizontalStrut(spacerSize/2), null);
+//        jToolBar1.add(jGeneHeight, null);
+        bbuilder.addFixed(heightLabel);
+        bbuilder.addRelatedGap();
+        bbuilder.addFixed(jGeneHeight);
+//        jToolBar1.add(Box.createHorizontalStrut(spacerSize), null);
+        bbuilder.addUnrelatedGap();
+//        jToolBar1.add(widthLabel, null);
+//        jToolBar1.add(Box.createHorizontalStrut(spacerSize/2), null);
+//        jToolBar1.add(jGeneWidth, null);
+        bbuilder.addFixed(widthLabel);
+        bbuilder.addRelatedGap();
+        bbuilder.addFixed(jGeneWidth);
+        bbuilder.addGlue();
+//        jToolBar1.add(Box.createHorizontalStrut(spacerSize), null);
+//        jToolBar1.add(slider, null);
+        bbuilder.addFixed(new JLabel("Intensity"));
+        bbuilder.addRelatedGap();
+        bbuilder.addGriddedGrowing(slider);
+//        jToolBar1.add(jSpacer4, null);
+        bbuilder.addGlue();
+//        jToolBar1.add(jToolTipToggleButton, null);
+        bbuilder.addFixed(jToolTipToggleButton);
+//        jToolBar1.add(jSpacer3, null);
+
+        this.add(bbuilder.getPanel(), BorderLayout.SOUTH);
+
         this.add(jScrollPane1, BorderLayout.CENTER);
         jScrollPane1.getViewport().add(jPanel2, null);
         jScrollPane1.getVerticalScrollBar().addAdjustmentListener(scrollBarListener);
