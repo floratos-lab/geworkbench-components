@@ -5,7 +5,7 @@
 	<tocitem text="Sequence Alignment Algorithms">
 
 		 <tocitem target="overview" text="Blast" />
-                 <tocitem target="overview" text="Alignment Results" />
+         <tocitem target="alignmentResults" text="Alignment Results" />
 
 
 	</tocitem>
