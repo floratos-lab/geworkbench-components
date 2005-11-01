@@ -394,7 +394,7 @@ public class AnnotationsPanel implements VisualPlugin {
     }
 
     private void showPanels_actionPerformed(ActionEvent e) {
-        if (selectedMarkerInfo.size() == 0) {
+        if (selectedMarkerInfo == null || selectedMarkerInfo.size() == 0) {
             JOptionPane.showMessageDialog(annotationsPanel, "Please activate marker panels to retrieve annotations.");
         }
         showAnnotation();
