@@ -16,6 +16,10 @@
 
 		<tocitem target="mis.val.cal.norm" text="Missing Value Calculation Normalizer"/>
 
+		<tocitem target="Quantile" text="Quantile"/>
+
+		<tocitem target="Housekeeping" text="Housekeeping"/>
+
 	</tocitem>
 
 </toc>
