@@ -20,5 +20,9 @@
 
 	<mapID target="mis.val.cal.norm" url="MisValCal Normalizer.htm"/>
 
+	<mapID target="HOusekeeping" url="Housekeeping.htm"/>
+
+	<mapID target="Quantile" url="Quantile.htm"/>
+
 </map>
 
