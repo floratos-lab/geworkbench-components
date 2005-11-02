@@ -218,12 +218,12 @@ public class MicroarrayPanel extends MicroarrayVisualizer implements VisualPlugi
         jToolBar.add(Box.createGlue(), null);
         jToolBar.add(jMALabel, null);
         jToolBar.add(Box.createGlue(), null);
-        jToolBar.add(new JLabel("-"));
-        jToolBar.add(Box.createHorizontalStrut(2), null);
-        jToolBar.add(valueGradient);
-        jToolBar.add(Box.createHorizontalStrut(2), null);
-        jToolBar.add(new JLabel("+"));
-        jToolBar.add(Box.createGlue(), null);
+//        jToolBar.add(new JLabel("-"));
+//        jToolBar.add(Box.createHorizontalStrut(2), null);
+//        jToolBar.add(valueGradient);
+//        jToolBar.add(Box.createHorizontalStrut(2), null);
+//        jToolBar.add(new JLabel("+"));
+//        jToolBar.add(Box.createGlue(), null);
         jToolBar.add(intensityLabel, null);
         jToolBar.add(Box.createHorizontalStrut(5), null);
         jToolBar.add(intensitySlider, null);
