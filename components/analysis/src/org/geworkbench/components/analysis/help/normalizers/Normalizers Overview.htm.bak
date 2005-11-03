@@ -1,0 +1,144 @@
+<html>
+
+
+
+<head>
+
+<meta http-equiv="Content-Language" content="en-us">
+
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+
+<meta name="GENERATOR" content="Microsoft FrontPage 4.0">
+
+<meta name="ProgId" content="FrontPage.Editor.Document">
+
+<title>User Comments</title>
+
+<link rel="stylesheet" type="text/css" href="ncicb.css">
+
+</head>
+
+
+
+<body>
+
+
+
+<h3>Normalizers</h3>
+
+<p>The application offers a selection of pluggable normalizers to
+
+assist in the manipulation of the data. </p>
+
+
+
+<p>Normalizers are used to perform some needed data transformation, usually in preparation of an analysis step to
+
+follow. </p>
+
+
+
+<p>Normalizing a dataset A will give rise to a new dataset B. The
+
+dataset B will appear as a child of A in the project tree window. Available
+
+normalizers are displayed in the Normalization Panel (figure below). Experienced users
+
+can add or remove normalizers by manipulating the relative entries
+
+in the application configuration file (see the design documentation). Most
+
+normalizers have associated parameters that control their operation.
+
+Values for these must be provided in the appropriate areas within the
+
+Normalization Panel. </p>
+
+
+
+<p><img border="0" src="images/Normalization%20panel.gif" width="598" height="274"> </p>
+
+
+
+<p class="MsoBodyText">The application comes configures with the following normalizers:</p>
+
+<p class="BulletL1"><b><i>Normalizers<o:p>
+
+</o:p>
+
+</i></b></p>
+
+<ul type="circle">
+
+  <li>
+
+    <p class="BulletL2"><i><u><a href="MisValCal%20Normalizer.htm">Missing value
+
+    computation</a></u></i>:<span style="mso-bidi-font-size:12.0pt">
+
+Replaces every &quot;missing&quot; value with either the mean value of its
+
+marker across all microarrays, or with the mean measurement of all markers in
+
+the microarray where the missing value belongs.<br>
+
+    </span></li>
+
+  <li>
+
+    <p class="BulletL2"><i><u><a href="LogTrans%20Normalizer.htm">Log transformation</a></u></i>: The log2 transformation is
+
+applied to all measurements in a microarray.<br>
+
+  </li>
+
+  <li>
+
+    <p class="BulletL2"><i><u><a href="Threshold%20Normalizer.htm">Threshold value</a></u></i>: All data points whose value is
+
+less (or more) than a user-specified minimum (maximum) value are raised
+
+(reduced) to that minimum (maximum) value.<br>
+
+  </li>
+
+  <li>
+
+    <p class="BulletL2"><i><u><a href="MarkerMean%20Normalizer.htm">Marker-based centering</a></u></i>: Subtracts
+
+the mean (median) measurement of a marker profile from every measurement in the
+
+profile.<br>
+
+  </li>
+
+  <li>
+
+    <p class="BulletL2"><i><u><a href="ArrayMean%20Normalizer.htm">Microarray-based centering</a></u></i>:
+
+Subtracts the mean (median) measurement of a microarray from every measurement
+
+in that microarray.<br>
+
+  </li>
+
+  <li>
+
+    <p class="BulletL2"><i><u><a href="MeanDevi%20Normalizer.htm">Mean-variance normalizer</a></u></i>: For
+
+every marker profile, the mean measurement of the entire profile is subtracted
+
+from each measurement in the profile and the resulting value is divided by the
+
+profile’s deviation.</li>
+
+</ul>
+
+
+
+</body>
+
+
+
+</html>
+
