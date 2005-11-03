@@ -52,7 +52,7 @@ public class MicroarrayPanel extends MicroarrayVisualizer implements VisualPlugi
     JMenuItem jRemoveMarkerMenu = new JMenuItem();
     JMenuItem jSaveImageMenu = new JMenuItem();
     JCheckBox jShowAllMarkers = new JCheckBox();
-    MicroarrayColorGradient valueGradient = new MicroarrayColorGradient(Color.green, Color.red);
+    MicroarrayColorGradient valueGradient = new MicroarrayColorGradient(Color.green, Color.black, Color.red);
     BorderLayout jLayout = new BorderLayout();
     HashMap listeners = new HashMap();
     DSMicroarraySet<DSMicroarray> mArraySet = null;
@@ -78,8 +78,10 @@ public class MicroarrayPanel extends MicroarrayVisualizer implements VisualPlugi
         mArraySet = maSet;
         microarrayImageArea.setMicroarrays(mArraySet);
         org.geworkbench.bison.util.colorcontext.ColorContext colorContext = (org.geworkbench.bison.util.colorcontext.ColorContext) maSet.getObject(org.geworkbench.bison.util.colorcontext.ColorContext.class);
-        valueGradient = new MicroarrayColorGradient(colorContext.getMinColorValue(intensitySlider.getValue()),
-                colorContext.getMaxColorValue(intensitySlider.getValue()));
+        valueGradient.setMinColor(colorContext.getMinColorValue(intensitySlider.getValue()));
+        valueGradient.setCenterColor(colorContext.getMiddleColorValue(intensitySlider.getValue()));
+        valueGradient.setMaxColor(colorContext.getMaxColorValue(intensitySlider.getValue()));
+        valueGradient.repaint();
         reset();
         selectMicroarray(0);
     }
@@ -218,12 +220,12 @@ public class MicroarrayPanel extends MicroarrayVisualizer implements VisualPlugi
         jToolBar.add(Box.createGlue(), null);
         jToolBar.add(jMALabel, null);
         jToolBar.add(Box.createGlue(), null);
-//        jToolBar.add(new JLabel("-"));
-//        jToolBar.add(Box.createHorizontalStrut(2), null);
-//        jToolBar.add(valueGradient);
-//        jToolBar.add(Box.createHorizontalStrut(2), null);
-//        jToolBar.add(new JLabel("+"));
-//        jToolBar.add(Box.createGlue(), null);
+        jToolBar.add(new JLabel("-"));
+        jToolBar.add(Box.createHorizontalStrut(2), null);
+        jToolBar.add(valueGradient);
+        jToolBar.add(Box.createHorizontalStrut(2), null);
+        jToolBar.add(new JLabel("+"));
+        jToolBar.add(Box.createGlue(), null);
         jToolBar.add(intensityLabel, null);
         jToolBar.add(Box.createHorizontalStrut(5), null);
         jToolBar.add(intensitySlider, null);
@@ -411,19 +413,44 @@ public class MicroarrayPanel extends MicroarrayVisualizer implements VisualPlugi
     }
 
     private class MicroarrayColorGradient extends JComponent {
-        private Color minColor, maxColor;
+        private Color minColor, maxColor, centerColor;
 
-        public MicroarrayColorGradient(Color minColor, Color maxColor) {
+        public MicroarrayColorGradient(Color minColor, Color centerColor, Color maxColor) {
             this.minColor = minColor;
             this.maxColor = maxColor;
+            this.centerColor = centerColor;
         }
 
         protected void paintComponent(Graphics g) {
             Graphics2D g2d = (Graphics2D) g;
-            g2d.setPaint(new GradientPaint(0, 0, minColor, getWidth()/2, 0, Color.black));
+            g2d.setPaint(new GradientPaint(0, 0, minColor, getWidth()/2, 0, centerColor));
             g2d.fillRect(0, 0, getWidth()/2, getHeight());
-            g2d.setPaint(new GradientPaint(getWidth()/2, 0, Color.black, getWidth(), 0, maxColor));
+            g2d.setPaint(new GradientPaint(getWidth()/2, 0, centerColor, getWidth(), 0, maxColor));
             g2d.fillRect(getWidth()/2, 0, getWidth(), getHeight());
+        }
+
+        public Color getMinColor() {
+            return minColor;
+        }
+
+        public void setMinColor(Color minColor) {
+            this.minColor = minColor;
+        }
+
+        public Color getMaxColor() {
+            return maxColor;
+        }
+
+        public void setMaxColor(Color maxColor) {
+            this.maxColor = maxColor;
+        }
+
+        public Color getCenterColor() {
+            return centerColor;
+        }
+
+        public void setCenterColor(Color centerColor) {
+            this.centerColor = centerColor;
         }
     }
 }
