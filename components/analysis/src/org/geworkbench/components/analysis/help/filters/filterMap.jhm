@@ -10,15 +10,15 @@
 
 	<mapID target="deviation.filter" url="Deviation Filter.htm"/>
 
-	<mapID target="expr.threshold.filter" url="ExprThreshold Filter.htm"/>
+	<mapID target="expr.threshold.filter" url="Expression Threshold.htm"/>
 
 	<mapID target="missing.value.filter" url="MissingValue Filter.htm"/>
 
-	<mapID target="single.value.filter" url="Affy detection call.htm"/>
+	<mapID target="single.value.filter" url="Affy Detection Filter.htm"/>
 
 	<mapID target="Genepix Filter.filter" url="Genepix Filter.htm"/>
 
-	<mapID target="two.channel.filter" url="Two Channel Filter.htm"/>
+	<mapID target="two.channel.filter" url="Two Channel.htm"/>
 
 
 
