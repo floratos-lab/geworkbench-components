@@ -16,13 +16,13 @@
 
 	<mapID target="mean.devi.norm" url="MeanDevi Normalizer.htm"/>
 
-	<mapID target="min.value.norm" url="Threshold Normalizer.htm"/>
+	<mapID target="min.value.norm" url="Threshold.HTML"/>
 
 	<mapID target="mis.val.cal.norm" url="MisValCal Normalizer.htm"/>
 
-	<mapID target="HOusekeeping" url="Housekeeping.htm"/>
+	<mapID target="HOusekeeping" url="Housekeeping.HTML"/>
 
-	<mapID target="Quantile" url="Quantile.htm"/>
+	<mapID target="Quantile" url="Quantile.HTML"/>
 
 </map>
 
