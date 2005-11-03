@@ -10,7 +10,7 @@
 
 	<!-- title -->
 
-	<title>Project tree help</title>
+	<title>Hierarchical Clustering</title>
 
 	<!-- maps -->
 
@@ -18,7 +18,7 @@
 
 		<homeID>overview</homeID>
 
-		<mapref location="projectTreeMap.jhm"/>
+		<mapref location="hierarchClusteringMap.jhm"/>
 
 	</maps>
 
@@ -32,7 +32,7 @@
 
 		<type>javax.help.TOCView</type>
 
-		<data>projectTreeToc.xml</data>
+		<data>hierarchClusteringtoc.xml</data>
 
 	</view>
 
