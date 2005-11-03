@@ -7,6 +7,6 @@
 <map version="1.0">
 
 	<mapID target="overview" url="poshistogram.HTML"/>
-	<!--<mapID target="alignmentResults" url="Alignment Results.htm"/>-->
+	
 </map>
 
