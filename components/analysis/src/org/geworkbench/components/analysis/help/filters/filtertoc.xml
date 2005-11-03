@@ -16,6 +16,9 @@
 
 		<tocitem target="two.channel.filter" text="Two Channel Threshold Filter"/>		
 
+		<tocitem target="Genepix.filter" text="Genepix Filter"/>	
+	
+
 	</tocitem>
 
 </toc>
