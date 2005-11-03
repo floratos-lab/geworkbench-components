@@ -16,7 +16,11 @@
 
 	<mapID target="single.value.filter" url="Affy detection call.htm"/>
 
-	<mapID target="two.channel.filter" url="Two Channel Filter.htm"/>	
+	<mapID target="Genepix Filter.filter" url="Genepix Filter.htm"/>
+
+	<mapID target="two.channel.filter" url="Two Channel Filter.htm"/>
+
+
 
 </map>
 
