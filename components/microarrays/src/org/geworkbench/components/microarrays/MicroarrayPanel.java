@@ -52,7 +52,7 @@ public class MicroarrayPanel extends MicroarrayVisualizer implements VisualPlugi
     JMenuItem jRemoveMarkerMenu = new JMenuItem();
     JMenuItem jSaveImageMenu = new JMenuItem();
     JCheckBox jShowAllMarkers = new JCheckBox();
-    MicroarrayColorGradient valueGradient = new MicroarrayColorGradient(Color.green, Color.black, Color.red);
+    MicroarrayColorGradient valueGradient = new MicroarrayColorGradient(Color.gray, Color.gray, Color.gray);
     BorderLayout jLayout = new BorderLayout();
     HashMap listeners = new HashMap();
     DSMicroarraySet<DSMicroarray> mArraySet = null;
