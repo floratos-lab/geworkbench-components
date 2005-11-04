@@ -6,7 +6,7 @@
 <?TestTarget The help set file for the project tree component.?>
 <helpset version="1.0">
 	<!-- title -->
-	<title>Promoters</title>
+	<title>Promoter</title>
 	<!-- maps -->
 	<maps>
 		<homeID>overview</homeID>
@@ -15,7 +15,7 @@
 	<!-- views -->
 	<view>
 		<name>TOC</name>
-		<label>Promoters</label>
+		<label>Promoter</label>
 		<type>javax.help.TOCView</type>
 		<data>promotertoc.xml</data>
 	</view>
