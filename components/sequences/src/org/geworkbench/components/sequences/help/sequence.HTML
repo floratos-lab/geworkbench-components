@@ -21,45 +21,43 @@
 
 
 <body>
-  <p>Promoter Component</p> 
-    <p>The Promoter Component is located in the <b>View Area</b> in the upper right of the application. This visualization Component uses the JASPAR Transcription Factor Binding Profile Database (<a href="http://jaspar.cgb.ki.se/cgi-bin/jaspar_db.pl">http://jaspar.cgb.ki.se/cgi-bin/jaspar_db.pl</a> ). The promoter Component can used to visualize transcription factor binding sites (TFBS) using the following:</p> 
-    <p><b>Transcription Factor signature analysis</b></p> 
-    <p>n Searching putative regulatory sequences against a collection of known transcription factor DNA-binding signatures represented as a position weight matrices (PWMs) [Lawrence and Reilly, 1990].</p> 
-    <p>This help section describes promoter Component <a href="#_Basic_Usage">basic usage</a>, <a href="#_View_Transcription_Factor_Analysis">viewing transcription factor</a> analysis and <a href="#_View_Pattern_Discovery_Results">view results from Pattern Discover</a>y.</p> 
-    <p><a name="_Basic_Usage"></a>Basic Usage </p> 
-    <p>The steps of basic usage are indicated with letter in the below screenshot.</p> 
-    <p><img border="0" width="576" height="356" src="promoter%20panel_files/image001.jpg"></p> 
-    <p>A. This tab allows users to select TF Mapping or Module Discovery. The Module Discovery Tab functionality is not yet implemented.</p> 
-    <p>B. The TF list contains the names of available transcription factors signatures from Jaspar or those that have been loaded from files. This lists of known Transcription Factor (TF) binding site sequence patterns. Each is represented by a Position Specific Scoring Matrix (PSSM).</p> 
-    <p>C. Double click to move TF signatures from this list box to the Selected TF (lower box). This list box shows transcription factors which can be searched against the available genomic sequences by clicking on Scan. Double-clicking on a TF name clears it from the Selected TF list.</p> 
-    <p>D. Scan the sequences in the Selected TF against the available genomic sequences.</p> 
-    <p>E. Loads file of stored promoter sequences.</p> 
-    <p>F. Loads a file containing new transcription factors to add to the TF Listing. </p> 
-    <p>G. Stores the sequence data in the display area.</p> 
-    <p>H. The lines represent the full 4000 base pairs of each sequence. Double click on the sequences to see the textual representation of the DNA and the TF signature match, shown as a colored rectangle.</p> 
-    <p>I. A sequence logo representation of the TF signature. Pattern and the relative weights of each component are displayed at bottom in a logo-style graphic.</p> 
-    <p>J. Stops the scanning process.</p> 
-    <p>K. The progress bar used to provide a visual update of the mapping percentage completion.</p> 
-    <p>L. Clears the display area of active patterns and active TFs. This is useful mostly for resetting the &quot;active TFs&quot; data structure which is not automatically cleared before each <b>Scan</b> operation.</p> 
-    <p>M. <b>Show patterns</b> controls if the patterns currently in the &quot;active patterns&quot; structure are displayed (as ovals) over the sequences. When selected (checked), the patterns are displayed. Unselected, the patterns are not displayed. </p> 
-    <p>N. <b>Show TF</b> controls if the TFs currently in the &quot;active TF&quot; structure are displayed (as rectangles) over the sequences. When selected (checked), the display area will include TF&#8217;s in the sequence display. Unselected, the TF&#8217;s are not displayed.</p> 
-    <p><a name="_View_Transcription_Factor_Analysis"></a>View Transcription Factor Analysis</p> 
-    <p>1 Load a FASTA File into the project pane.</p> 
-    <p>2 Select promoter Component. The display area is updated to reflect the sequences for the FASTA file loaded.</p> 
-    <p>3 Click on TF signatures to move from the TF list to the Selected TF list. </p> 
-    <p>4 Click on Scan, the e Selected TF s are searched against the available genomic sequences. The patterns will be mapped onto the sequences according to match criteria below the Save and Retrieve buttons. If matches are found, they are returned in various colors. Individual hits can be identified by positioning the mouse pointer over them, which will display the pattern name.</p> 
-    <p>&#12290; Note: Each time that a transcription factor (TF) matching operation is run, the &quot;active TFs&quot; data structure is *AUGMENTED* with the results of the discovery operation (i.e., contents due to previous runs are maintained). The &quot;active TFs&quot; is not affected by pattern discovery.</p> 
-    <p><a name="_View_Pattern_Discovery_Results"></a>View Pattern Discovery Results </p> 
-    <p>1 Load a FASTA File into the project pane.</p> 
-    <p>2 Run Pattern Discovery analysis. (See Pattern Discovery online help for more information)</p> 
-    <p>3 In the Pattern Discovery Component discovery table, left click on the row(s) to display selected motifs and their frequencies in the dataset. The Promoter Component, Sequence Component, and Patterns are updated to display the patterns selected.</p> 
-    <p>&#12290; Note: Each time that a pattern discovery is run, the contents of the &quot;active patterns&quot; structure are REPLACED with the results of the discovery operation (i.e., contents due to previous runs are cleared). </p>
-</ul>
-
-
-
+    <h3>Sequence Component </h3> 
+    <p>The Sequence Component is located in the top-right of the application. This component displays result from the Sequence Discovery Component located in the Analysis Area in the lower-right of the application. In this view, each sequence in the selected dataset is displayed as a thin red line proportional to the sequence length. You can click on the individual lines and at the bottom of the Sequence Component, then the sequence details will be shown there. </p> 
+    <h3>To view a sequence dataset using Sequence Component:</h3> 
+    <p>1. <a href="#_To_load_a_sequence_file_into_projec">Load a sequence file into project</a>. FASTA files have a file extension of .FA<b>.</b></p> 
+    <p>2. Select a sequence dataset in the<b> Project Area</b> in the top-left section of the interface.</p> 
+    <p>3. Then select the <b>Sequence Component</b> option in the <b>View Area</b> in the top-right section of the interface. <a name="_To_load_a_sequence_file_into_projec"></a></p> 
+    <h3>Navigating a Sequence Component</h3> 
+    <p>&#12290; If you click on an individual line, the bottom of the Sequence Component displays the sequence detail. The display of sequence is proportional to the click position in the line. If you click at the beginning of the line, the bottom will show the first part of the sequence. If you click the center place of a line, the bottom will show the middle part of whole sequence.</p> 
+    <p>&#12290; You can use the right scroll bar to view all sequences.</p> 
+    <p><img border="0" width="495" height="414" src="SequenceViewed_files/image001.gif"></p> 
+    <h3>View Sequences with Patterns<a name="pattern"></a> </h3> 
+    <p>Use the Pattern Discovery Module to search for Patterns in the <b>Selection Area</b> in the lower-left of the application. The patterns can be viewed by selecting the hit of interest. The pattern will be displayed in the both the Pattern view, Promoter and the Sequence Component View. Each pattern (row) selection in the result of the Pattern Discovery Module displays a unique color in the Visualization components of Pattern, Promoter and Sequence Component View.</p> 
+    <p>1. Clicking on pattern hits in the Sequence Component</p> 
+    <p>2. If you click on the top button &quot;All / Matching Pattern&quot;, then only sequences with the specific pattern will be shown up.</p> 
+    <p><img border="0" width="729" height="582" src="images/showonlypattern.gif"></p> 
+    <h3> To load a sequence file into project:</h3> 
+    <p>1. In the <b>Project Area</b> of the application, right click a project node and select <b>Open File </b>or, from the top menu, File-&gt;Open&gt;File</p> 
+    <p>2. Select from the dropdown list <b>Files of Type </b>and select &quot;FASTA Files&quot;</p> 
+    <p>3. Navigate to the sequence file that you want to load. FASTA files have a file extension of <b>.FA</b></p> 
+    <p>4. Click the <b>Open </b>push button. If the file is successful loaded, a new icon created under the project node. If unsuccessful, the application will display an error message.</p>
+    <h3>Normal Discovery</h3> 
+    <p>Normal discovery is based on the algorithm SPLASH (Califano, A., 2000); it generates a list of all regular expression patterns (motifs) that satisfy a user-defined minimum support and a minimum density criteria.</p> <b> </b> 
+    <h3><a name="_Hierarchical_Discovery"></a>Hierarchical Discovery</h3> 
+    <p>Hierarchical discovery is used to analyze a sequence database and produce a sequence of clusters based on discovered patterns. For more information, visit <a href="http://sharepoint.cu-genome.org/exchweb/bin/redir.asp%3fURL=http:/www.research.ibm.com/splash/Hyerarchical/HierarchicalDiscovery.htm">http://www.research.ibm.com/splash/Hyerarchical/HierarchicalDiscovery.htm</a>. </p> 
+    <h3><a name="_Exhaustive_Discovery"></a>Exhaustive Discovery</h3> 
+    <p>Exhaustive discovery can be used to exhaustively analyze a sequence database for all non-overlapping motifs that are statistically significant. This is useful for discovering in order of relative sequence support, all regions of a protein family that have been preserved by evolution and may therefore play a functional or structural role. For more information, visit <a href="http://sharepoint.cu-genome.org/exchweb/bin/redir.asp%3fURL=http:/www.research.ibm.com/splash/Exhaustive/ExhaustiveDiscovery.htm">http://www.research.ibm.com/splash/Exhaustive/ExhaustiveDiscovery.htm</a>. </p>
+    <p>4 Select a <b>Database </b>from the dropdown list.</p>
+    <p>5 Modify the values of <b>subsequence</b> if needed</p>
+    <p>6 Select an Algorithm from the dropdown list. The includes:</p>
+    <p>&#12290; Smith-Waterman Protein: compares an amino acid query sequence against a protein sequence database </p>
+    <p>&#12290; Smith-Waterman DNA: compares a nucleotide query sequence against a nucleotide sequence database </p>
+    <p>&#12290; Frame(from DNA sequence to protein DB): compares a nucleotide query sequence against a protein sequence database </p>
+    <p>&#12290; Frame(from Protein sequence to DNA DB): compares an amino acid query sequence against a nucleotide sequence database</p>
+    <p>7 Click on <b>Search</b>. </p>
+    <p>&#12290; The result will be showed on the Alignment Results visualization component.</p>
+    <p><img border="0" width="493" height="440" src="BlastOverview_files/image003.jpg"></p>
+    <p><a name="_To_Add_Sequences_to_a_Project"></a> </p>
 </body>
-
-
-
 </html>
+
