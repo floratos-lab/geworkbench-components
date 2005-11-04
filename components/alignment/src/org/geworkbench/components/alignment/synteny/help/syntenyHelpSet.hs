@@ -6,18 +6,18 @@
 <?TestTarget The help set file for the project tree component.?>
 <helpset version="1.0">
 	<!-- title -->
-	<title>Promoters</title>
+	<title>Synteny</title>
 	<!-- maps -->
 	<maps>
 		<homeID>overview</homeID>
-		<mapref location="promoter.jhm"/>
+		<mapref location="synteny.jhm"/>
 	</maps>
 	<!-- views -->
 	<view>
 		<name>TOC</name>
-		<label>Promoters</label>
+		<label>Synteny</label>
 		<type>javax.help.TOCView</type>
-		<data>promotertoc.xml</data>
+		<data>syntenytoc.xml</data>
 	</view>
 </helpset>
 
