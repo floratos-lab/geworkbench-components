@@ -4,9 +4,7 @@
 
 	<tocitem text="Promoters">
 
-		 <tocitem target="overview" text="Overview" />
-         <!--<tocitem target="alignmentResults" text="Alignment Results" />-->
-
+		 <tocitem target="overview" text="promoter" />
 
 	</tocitem>
 
