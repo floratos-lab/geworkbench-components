@@ -4,8 +4,8 @@
 
 	<tocitem text="Synteny">
 
-		 <tocitem target="overview" text="Overview" />
-         <!--<tocitem target="alignmentResults" text="Alignment Results" />-->
+		 <tocitem target="overview" text="Synteny" />
+
 
 
 	</tocitem>
