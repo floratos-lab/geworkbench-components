@@ -14,7 +14,7 @@
 
 	<mapID target="missing.value.filter" url="MissingValue Filter.htm"/>
 
-	<mapID target="single.value.filter" url="Affy Detection Filter.htm"/>
+	<mapID target="single.value.filter" url="Affy Detection Filter.HTML"/>
 
 	<mapID target="Genepix.filter" url="Genepix Filter.HTML"/>
 
