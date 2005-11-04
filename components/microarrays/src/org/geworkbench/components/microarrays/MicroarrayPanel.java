@@ -77,13 +77,21 @@ public class MicroarrayPanel extends MicroarrayVisualizer implements VisualPlugi
         // This method should never be called other than by the superclass JNotifyMAChange method.
         mArraySet = maSet;
         microarrayImageArea.setMicroarrays(mArraySet);
-        org.geworkbench.bison.util.colorcontext.ColorContext colorContext = (org.geworkbench.bison.util.colorcontext.ColorContext) maSet.getObject(org.geworkbench.bison.util.colorcontext.ColorContext.class);
-        valueGradient.setMinColor(colorContext.getMinColorValue(intensitySlider.getValue()));
-        valueGradient.setCenterColor(colorContext.getMiddleColorValue(intensitySlider.getValue()));
-        valueGradient.setMaxColor(colorContext.getMaxColorValue(intensitySlider.getValue()));
-        valueGradient.repaint();
-        reset();
-        selectMicroarray(0);
+        if(maSet!=null){
+            org.geworkbench.bison.util.colorcontext.ColorContext colorContext = (
+                    org.geworkbench.bison.util.colorcontext.ColorContext) maSet.
+                    getObject(org.geworkbench.bison.util.colorcontext.
+                              ColorContext.class);
+            valueGradient.setMinColor(colorContext.getMinColorValue(
+                    intensitySlider.getValue()));
+            valueGradient.setCenterColor(colorContext.getMiddleColorValue(
+                    intensitySlider.getValue()));
+            valueGradient.setMaxColor(colorContext.getMaxColorValue(
+                    intensitySlider.getValue()));
+            valueGradient.repaint();
+            reset();
+            selectMicroarray(0);
+        }
     }
 
     protected void reset() {
