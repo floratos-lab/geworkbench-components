@@ -5,6 +5,8 @@
 	<tocitem text="Synteny">
 
 		 <tocitem target="overview" text="Synteny" />
+		 <tocitem target="dot.matrix" text="Dot Matrix" />
+
 
 	</tocitem>
 
