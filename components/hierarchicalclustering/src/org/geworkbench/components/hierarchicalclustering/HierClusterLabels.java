@@ -6,6 +6,8 @@ import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.model.clusters.Cluster;
 import org.geworkbench.bison.model.clusters.HierCluster;
 import org.geworkbench.bison.model.clusters.MicroarrayHierCluster;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import javax.swing.*;
 import java.awt.*;
@@ -29,6 +31,9 @@ import java.lang.reflect.Array;
  */
 
 public class HierClusterLabels extends JPanel {
+
+    static Log log = LogFactory.getLog(HierClusterLabels.class);
+
     /**
      * Value for width of marker in pixels
      */
@@ -272,13 +277,7 @@ public class HierClusterLabels extends JPanel {
                 }
             }
         } catch (NullPointerException npe) {
-            try {
-                Thread.sleep(2000);
-            } catch (InterruptedException ie) {
-            }
-
-            ;
-            repaint();
+            log.error(npe);
         }
     }
 
