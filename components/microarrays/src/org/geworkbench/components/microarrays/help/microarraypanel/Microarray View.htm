@@ -26,85 +26,21 @@
 
 <h3>Microarray View</h3>
 
-<p>To view a dataset using Microarray View, first select a dataset in the &quot;Project 
-
-  Folder&quot; pane and then select the &quot;Microarray Panel&quot; option in 
-
-  the main display pane at the top-right section of the interface. Measurements 
-
-  in the selected microarray dataset will be displayed as spots over a green-red 
-
-  color spectrum.<span style="mso-spacerun:yes"> Missing data are separately
-
-color coded. </span>For datasets comprising more than one microarray, only the first 
-
-  microarray is shown. Use the slider below the display area to view other microarrays.</p>
-
-<p><img src="images/microarray%20panel.gif" width="528" height="514"></p>
-
-<p>This component contains some <b>tools</b> for users to manipulate the microarray 
-
-  display:</p>
-
-<ul>
-
-  <li>
-
-    <p><u>Button with bulb</u>: Widget enables user to toggle <i>MouseOver</i> 
-
-      information on the grid.</p>
-
-  </li>
-
-  <li>
-
-    <p><u>Right Click on graph</u>: This shows a pop-up menu with a 'Save Image' 
-
-      option. Selecting this option lets user save the drawn grid image as a child 
-
-      of the currently selected dataset</p>
-
-  </li>
-
-  <li>
-
-    <p><u>Clicking on graph</u>: Clicking on any of the grid cells in the microarray 
-
-      display highlights the marker clicked in the Marker Panel.</p>
-
-  </li>
-
-  <li>
-
-    <p><u>Show Phenotypes</u>: Widget lets user subselect Microarrays to view. 
-
-      The number of points on the Microarray slider equals the number of Microarrays 
-
-      in actrivated Phenotype panels.</p>
-
-  </li>
-
-  <li>
-
-    <p><u>Show Panels</u>: Widget lets user subselect number of markers to view. 
-
-      The marker drawn correspond to markers in the activated Marker panels. </p>
-
-  </li>
-
-  <li>
-
-    <p><u>Microarray slider</u>: Widget lets user walk through all the Microarrays 
-
-      in the currently selected dataset. The grid is updates with spots representing 
-
-      marker values in the Microarray being displayed. The relative positions 
-
-      of the markers remain the same across all the Microarray grids.</p>
-
-  </li>
-
-</ul>
+<   <h3>Microarray View</h3> 
+    <p>The Microarray View is located in the<b> View Area</b> in the top right of the application. Measurements in the selected microarray dataset are displayed as spots over a green-red color spectrum in the Microarray View. For datasets comprising more than one microarray, the first microarray data is shown as default, use the slider below the display area to view other microarrays. Missing data is separately color coded (see Missing Values Filter in Filtering Panel for additional information).</p> 
+    <h3>Basic Usage</h3> 
+    <h3>The steps of basic usage are indicated in the below screenshot.</h3> 
+    <p><img width="1134" height="702" src="Microarray_files/image001.jpg"></p> 
+    <p>A. <u>All Arrays: </u>The checked/ selected <b>All Arrays</b> checkbox indicates the component is displaying the entire set of arrays from the loaded dataset. The user can clear the All Arrays check box to display only arrays in the activated Phenotype Panel. </p> 
+    <p>B. <u>All Markers:</u> The checked/ selected <b>All markers</b> checkbox indicated the component is displaying the entire set of markers from the data. To include only gene panels that are currently activated, the user clears the checkbox. If cleared, the markers displayed are marker drawn corresponds to markers in the activated Marker panels. </p> 
+    <p>C. The name of the array displayed in the component.</p> 
+    <p>D. <u>Intensity slider:</u> This widget increases or decreases the intensity of the display. </p> 
+    <p>E. <u>Microarray slider</u>: This widget is used to scroll through the Microarrays in the currently selected dataset. The grid is updated with spots representing marker values in the Microarray being displayed. The relative positions of the markers remain the same across all the Microarray grids.</p> 
+    <p>F. <u>Clicking on graph</u>: Clicking on any of the grid cells in the microarray display highlights the marker clicked in the Gene Panel.</p> 
+    <p><u>Right click on graph</u>: This displays a pop-up menu with the following options:</p> 
+    <p>Show marker will highlight the selected marker(s). </p> 
+    <p>Remove marker will remove the selected marker and repaint it with original color. </p> 
+    <p>Image Snapshot saves the drawn grid image as a child of the currently selected dataset</p>
 
 </body>
 
