@@ -10,7 +10,7 @@
 
 	<mapID target="deviation.filter" url="Deviation Filter.htm"/>
 
-	<mapID target="expr.threshold.filter" url="Expression Threshold.htm"/>
+	<mapID target="expr.threshold.filter" url="ExprThreshold Filter.htm"/>
 
 	<mapID target="missing.value.filter" url="MissingValue Filter.htm"/>
 
