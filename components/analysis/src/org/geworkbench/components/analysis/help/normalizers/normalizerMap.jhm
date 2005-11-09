@@ -6,7 +6,22 @@
 
 <map version="1.0">
 
-	<mapID target="overview" url="Pattern Discovery.HTML"/>
-	<mapID target="params" url="Parameter.HTML"/>
-	<!--<mapID target="alignmentResults" url="Alignment Results.htm"/>-->
+    <mapID target="overview" url="Normalizers Overview.htm"/>
+
+    <mapID target="log.trans.norm" url="LogTrans Normalizer.htm"/>
+
+    <mapID target="array.mean.norm" url="ArrayMean Normalizer.htm"/>
+
+    <mapID target="marker.mean.norm" url="MarkerMean Normalizer.htm"/>
+
+    <mapID target="mean.devi.norm" url="MeanDevi Normalizer.htm"/>
+
+    <mapID target="min.value.norm" url="Threshold.HTML"/>
+
+    <mapID target="mis.val.cal.norm" url="MisValCal Normalizer.htm"/>
+
+    <mapID target="Housekeeping" url="Housekeeping.HTML"/>
+
+    <mapID target="Quantile" url="Quantile.HTML"/>
+
 </map>
