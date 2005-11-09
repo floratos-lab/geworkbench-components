@@ -16,7 +16,7 @@
 
     <mapID target="mean.devi.norm" url="MeanDevi Normalizer.htm"/>
 
-    <mapID target="min.value.norm" url="Threshold.HTML"/>
+    <mapID target="min.value.norm" url="Threshold Normalizer.htm"/>
 
     <mapID target="mis.val.cal.norm" url="MisValCal Normalizer.htm"/>
 
