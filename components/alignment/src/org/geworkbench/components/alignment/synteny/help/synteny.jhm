@@ -6,7 +6,7 @@
 
 <map version="1.0">
 
-	<mapID target="overview" url="Synteny.HTML"/>
+	<mapID target="overview" url="synteny.htm"/>
 	<mapID target="dot.matrix" url="Dot Matrix.HTML"/>
 
 </map>
