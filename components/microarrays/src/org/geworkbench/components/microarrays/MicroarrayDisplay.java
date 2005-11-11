@@ -159,7 +159,7 @@ public class MicroarrayDisplay extends JPanel {
 
                         //this is the markerid of the whole microarryset
                         int markerId = stats.getSerial();
-                        if (markerId >= 0 && markerId < patternGenes.length) {
+                        if (patternGenes != null  && markerId >= 0 && markerId < patternGenes.length) {
                             DSMutableMarkerValue spot = (DSMutableMarkerValue) microarray.getMarkerValue(stats.getSerial());
 
                             if ((spot == null) || (spot.isMissing())) {
