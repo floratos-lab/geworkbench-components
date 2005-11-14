@@ -10,13 +10,14 @@ import org.geworkbench.builtin.projects.ProjectSelection;
 import org.geworkbench.util.sequences.SequenceDB;
 import org.geworkbench.engine.management.Publish;
 import org.geworkbench.engine.management.Subscribe;
+import org.geworkbench.engine.management.AcceptTypes;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.engine.config.VisualPlugin;
 
 import java.awt.*;
 
 
-public class BlastAppComponent implements VisualPlugin, StatusChangeListener {
+@AcceptTypes({SequenceDB.class}) public class BlastAppComponent implements VisualPlugin, StatusChangeListener {
 
     //    static URLClassLoader url = null;
     //    static {
@@ -54,6 +55,10 @@ public class BlastAppComponent implements VisualPlugin, StatusChangeListener {
         } catch (Exception ex) {
             ex.printStackTrace();
         }
+    }
+
+    public SequenceDB getFastFile() {
+        return tWidget.getFastaFile();
     }
 
     // the method for VisualPlugin interface

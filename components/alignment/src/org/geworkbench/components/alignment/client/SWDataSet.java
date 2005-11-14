@@ -32,19 +32,23 @@ package org.geworkbench.components.alignment.client;
 
 import org.geworkbench.bison.datastructure.biocollections.CSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.DSAncillaryDataSet;
+import org.geworkbench.bison.datastructure.biocollections.CSAncillaryDataSet;
+import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
+import org.geworkbench.bison.util.Icons;
 
 import javax.swing.*;
 import java.io.File;
 
-public class SWDataSet extends CSDataSet implements DSAncillaryDataSet {
-    public SWDataSet(String fileName, String inputFile) {
+public class SWDataSet extends CSAncillaryDataSet {
+    public SWDataSet(String fileName, String inputFile, DSDataSet parent) {
+        super(parent, fileName);
 
         resultFile = new File(fileName);
         fastaFile = new File(inputFile);
         //System.out.println("in construtor" + resultFile.getAbsolutePath());
     }
 
-    static private ImageIcon icon = new ImageIcon(SWDataSet.class.getResource("sw.gif"));
+    static private ImageIcon icon = Icons.ALIGNMENT_ICON;
     private String matrixName;
     private String cmd;
 

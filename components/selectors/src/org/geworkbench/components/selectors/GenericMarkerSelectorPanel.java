@@ -392,7 +392,7 @@ public class GenericMarkerSelectorPanel implements VisualPlugin, MenuListener {
                 markerPanel = new CSPanel<DSGeneMarker>("Marker Panel");
                 CSMarkerManager.setMarkerPanel(ds, markerPanel);
             }
-            // markerPanel.getSelection().setActive(true);
+            // itemPanel.getSelection().setActive(true);
             if (ds instanceof DSMicroarraySet) {
                 markerSet = ((DSMicroarraySet) ds).getMarkers();
                 geneList.setModel(new DefaultListModel());

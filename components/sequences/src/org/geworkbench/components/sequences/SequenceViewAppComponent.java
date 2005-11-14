@@ -11,6 +11,7 @@ import org.geworkbench.util.PropertiesMonitor;
 import org.geworkbench.util.sequences.*;
 import org.geworkbench.util.sequences.SequenceViewWidget;
 import org.geworkbench.engine.management.Subscribe;
+import org.geworkbench.engine.management.AcceptTypes;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.engine.config.VisualPlugin;
 
@@ -34,7 +35,7 @@ import java.util.HashMap;
  * @author
  * @version 1.0
  */
-public class SequenceViewAppComponent implements VisualPlugin, org.geworkbench.engine.config.MenuListener, PropertyChangeListener {
+@AcceptTypes({SequenceDB.class}) public class SequenceViewAppComponent implements VisualPlugin, org.geworkbench.engine.config.MenuListener, PropertyChangeListener {
     org.geworkbench.util.sequences.SequenceViewWidget sViewWidget;
     EventListenerList listenerList = new EventListenerList();
     JMenuItem jOpenFASTAItem = new JMenuItem();

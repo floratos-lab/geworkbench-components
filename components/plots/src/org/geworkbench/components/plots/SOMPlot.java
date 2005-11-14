@@ -62,7 +62,7 @@ public class SOMPlot extends ChartPanel {
      * @param parent the widget containing this plot
      */
     public SOMPlot(JFreeChart chart) {
-        super(chart, true);
+        super(chart, false);
         this.setLayout(new BorderLayout());
         JPopupMenu popup = createPopupMenu(true, false, false, true);
         setPopupMenu(popup);

@@ -8,9 +8,11 @@ import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
+import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.engine.config.MenuListener;
 import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.engine.management.Publish;
+import org.geworkbench.engine.management.AcceptTypes;
 import org.jfree.chart.*;
 import org.jfree.chart.renderer.xy.StandardXYItemRenderer;
 import org.jfree.chart.labels.StandardXYToolTipGenerator;
@@ -39,7 +41,7 @@ import java.text.NumberFormat;
  * @version 3.0
  */
 
-public class ExpressionProfilePanel extends MicroarrayViewEventBase implements MenuListener, VisualPlugin {
+@AcceptTypes({DSMicroarraySet.class}) public class ExpressionProfilePanel extends MicroarrayViewEventBase implements MenuListener, VisualPlugin {
 
     private JFreeChart chart;
     ChartPanel graph;

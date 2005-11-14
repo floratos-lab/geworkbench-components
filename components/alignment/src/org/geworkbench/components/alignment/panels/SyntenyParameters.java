@@ -25,9 +25,13 @@ import org.geworkbench.builtin.projects.ProjectTreeNode;
 import org.geworkbench.util.session.SoapClient;
 import org.geworkbench.components.alignment.synteny.SyntenyMapObject;
 import org.geworkbench.engine.management.Subscribe;
+import org.geworkbench.engine.management.AcceptTypes;
 import org.geworkbench.events.GeneSelectorEvent;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
+import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
+import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
+
 import javax.swing.border.TitledBorder;
 import org.geworkbench.components.alignment.synteny.DAS_Retriver;
 import org.geworkbench.components.alignment.panels.SynMapPresentationList;
@@ -48,7 +52,7 @@ import org.geworkbench.components.alignment.panels.SynMapPresentationList;
  * @version 1.0
  */
 
-public class SyntenyParameters extends EventSource implements VisualPlugin {
+@AcceptTypes({DSMicroarraySet.class}) public class SyntenyParameters extends EventSource implements VisualPlugin {
 
     private HashMap listeners = new HashMap();
     boolean cancel_flag = false;

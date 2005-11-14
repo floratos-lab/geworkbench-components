@@ -25,23 +25,31 @@ package org.geworkbench.components.alignment.client;
 
 import org.geworkbench.bison.datastructure.biocollections.CSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.DSAncillaryDataSet;
+import org.geworkbench.bison.datastructure.biocollections.CSAncillaryDataSet;
+import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
+import org.geworkbench.bison.datastructure.bioobjects.sequence.DSAlignmentResultSet;
+import org.geworkbench.bison.datastructure.bioobjects.sequence.CSAlignmentResultSet;
+import org.geworkbench.bison.util.Icons;
 
 import javax.swing.*;
 import java.io.File;
 
-public class HMMDataSet extends CSDataSet implements DSAncillaryDataSet {
-    public HMMDataSet(String fileName, String inputFile) {
-
+public class HMMDataSet extends CSAncillaryDataSet implements DSAncillaryDataSet {
+    public HMMDataSet(String fileName, String inputFile, DSDataSet dataSet) {
+        super(dataSet, "HMM Result");
         resultFile = new File(fileName);
         fastaFile = new File(inputFile);
         //System.out.println("in construtor" + resultFile.getAbsolutePath());
     }
 
     //private static ImageIcon icon = new ImageIcon("share/images/blast.gif");
-    static private ImageIcon icon = new ImageIcon(HMMDataSet.class.getResource("hmm.gif"));
-    private String label = "HMM_Result";
+    static private ImageIcon icon = Icons.ALIGNMENT_ICON;
     private File fastaFile = null;
     private File resultFile = null;
+
+    public ImageIcon getIcon() {
+        return icon;
+    }
 
     /**
      * getDataSetName

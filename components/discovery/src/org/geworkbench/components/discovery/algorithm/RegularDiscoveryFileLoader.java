@@ -45,7 +45,7 @@ public class RegularDiscoveryFileLoader extends AbstractSequenceDiscoveryAlgorit
             return;
         }
 
-        patternDB = new org.geworkbench.util.patterns.PatternDB(sequenceFile);
+        patternDB = new org.geworkbench.util.patterns.PatternDB(sequenceFile, null);
         //loading stuff
         if (patternDB.read(patternFile)) {
             PatternSource = new FileDataSource(patternDB);

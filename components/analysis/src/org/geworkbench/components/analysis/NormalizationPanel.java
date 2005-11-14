@@ -6,6 +6,7 @@ import org.geworkbench.events.NormalizationEvent;
 import org.geworkbench.engine.management.ComponentRegistry;
 import org.geworkbench.engine.management.Publish;
 import org.geworkbench.engine.management.Subscribe;
+import org.geworkbench.engine.management.AcceptTypes;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.engine.config.VisualPlugin;
@@ -32,7 +33,7 @@ import java.awt.event.ActionListener;
  * Application component offering users a selection of microarray
  * normalization options.
  */
-public class NormalizationPanel implements VisualPlugin {
+@AcceptTypes({DSMicroarraySet.class}) public class NormalizationPanel implements VisualPlugin {
     /**
      * The underlying panel for the normalization component
      */

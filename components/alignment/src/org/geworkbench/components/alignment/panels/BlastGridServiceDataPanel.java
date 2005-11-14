@@ -329,7 +329,7 @@ public class BlastGridServiceDataPanel extends AbstractPortTypePanel implements 
             br.close();
             bw.close();
 
-            DSAlignmentResultSet blastResult = new CSAlignmentResultSet(filename, input);
+            DSAlignmentResultSet blastResult = new CSAlignmentResultSet(filename, input, seq);
             System.out.println(input + " " + filename);
             ProjectNodeAddedEvent event = new ProjectNodeAddedEvent("message", null, blastResult);
             BlastAppComponent blastAppComponent = pv.getBlastAppComponent();

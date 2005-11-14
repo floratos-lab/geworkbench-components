@@ -4,7 +4,9 @@ import org.geworkbench.events.MicroarraySetViewEvent;
 import org.geworkbench.util.microarrayutils.MicroarrayViewEventBase;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMutableMarkerValue;
+import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.engine.config.VisualPlugin;
+import org.geworkbench.engine.management.AcceptTypes;
 
 import javax.swing.*;
 import javax.swing.table.*;
@@ -25,7 +27,7 @@ import java.text.NumberFormat;
  * @author Adam Margolin
  * @version 3.0
  */
-public class TabularMicroarrayPanel extends MicroarrayViewEventBase implements VisualPlugin {
+@AcceptTypes({DSMicroarraySet.class}) public class TabularMicroarrayPanel extends MicroarrayViewEventBase implements VisualPlugin {
 
     public TabularMicroarrayPanel() {
         try {

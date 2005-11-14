@@ -3,6 +3,7 @@ package org.geworkbench.components.annotations;
 import org.geworkbench.events.*;
 import org.geworkbench.engine.management.Publish;
 import org.geworkbench.engine.management.Subscribe;
+import org.geworkbench.engine.management.AcceptTypes;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
@@ -42,7 +43,7 @@ import java.net.URL;
  *          that this gene's product participates in.
  */
 
-public class AnnotationsPanel implements VisualPlugin {
+@AcceptTypes({DSMicroarraySet.class}) public class AnnotationsPanel implements VisualPlugin {
 
     private class TableModel extends SortableTableModel {
 

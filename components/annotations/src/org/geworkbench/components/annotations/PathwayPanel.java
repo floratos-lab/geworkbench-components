@@ -15,9 +15,11 @@ import org.apache.batik.util.ParsedURL;
 import org.apache.batik.util.XMLResourceDescriptor;
 import org.apache.batik.util.gui.JErrorPane;
 import org.geworkbench.engine.management.Subscribe;
+import org.geworkbench.engine.management.AcceptTypes;
 import org.geworkbench.util.BrowserLauncher;
 import org.geworkbench.util.annotation.*;
 import org.geworkbench.engine.config.VisualPlugin;
+import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.w3c.dom.*;
 
 import javax.swing.*;
@@ -37,7 +39,7 @@ import java.util.Locale;
  * @version 1.0
  * @(#)PathwayPanel.java	1.0 06/02/03
  */
-public class PathwayPanel implements VisualPlugin {
+@AcceptTypes({DSMicroarraySet.class}) public class PathwayPanel implements VisualPlugin {
     /**
      * Visual Widget
      */

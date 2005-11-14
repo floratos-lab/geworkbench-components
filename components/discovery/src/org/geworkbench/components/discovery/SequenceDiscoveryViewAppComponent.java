@@ -18,6 +18,7 @@ import org.geworkbench.util.remote.SPLASHDefinition;
 import org.geworkbench.util.sequences.SequenceDB;
 import org.geworkbench.engine.management.Publish;
 import org.geworkbench.engine.management.Subscribe;
+import org.geworkbench.engine.management.AcceptTypes;
 import org.geworkbench.bison.datastructure.biocollections.Collection;
 import org.geworkbench.bison.datastructure.biocollections.DSAncillaryDataSet;
 import org.geworkbench.bison.datastructure.biocollections.DSCollection;
@@ -52,7 +53,7 @@ import polgara.soapPD_wsdl.Parameters;
  * @version 1.0
  */
 
-public class SequenceDiscoveryViewAppComponent implements VisualPlugin, PropertyChangeListener {
+@AcceptTypes({SequenceDB.class, ParmsDataSet.class}) public class SequenceDiscoveryViewAppComponent implements VisualPlugin, PropertyChangeListener {
 
     private SequenceDiscoveryViewWidget sDiscoveryViewWidget = null;
 
@@ -63,7 +64,7 @@ public class SequenceDiscoveryViewAppComponent implements VisualPlugin, Property
     //login data parameters are stored here
     private LoginPanelModel loginPanelModel = new LoginPanelModel();
 
-    //intermidate values of the loginPanelModel are saved here
+    //intermediate values of the loginPanelModel are saved here
     LoginPanelModel tempLoginModel = new LoginPanelModel();
 
     public SequenceDiscoveryViewAppComponent() {
@@ -217,6 +218,9 @@ public class SequenceDiscoveryViewAppComponent implements VisualPlugin, Property
 
                     sDiscoveryViewWidget.setSequenceDB((SequenceDB) df, withSubNode, subNodeID, parms);
 
+                } else if (df instanceof ParmsDataSet) {
+                    ParmsDataSet pds = (ParmsDataSet) df;
+                    
                 }
             }
     }

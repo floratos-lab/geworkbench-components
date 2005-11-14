@@ -8,10 +8,11 @@ import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetV
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
-import org.geworkbench.bison.util.CSCriterionManager;
-import org.geworkbench.bison.util.DSAnnotValue;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
+import org.geworkbench.bison.annotation.DSAnnotationContext;
+import org.geworkbench.bison.annotation.CSAnnotationContextManager;
+import org.geworkbench.bison.annotation.CSAnnotationContext;
 
 /**
  * <p>Title: caWorkbench</p>
@@ -164,17 +165,18 @@ public class SimpleTTest {
 //        DSDataSet set = data.getDataSet();
 
         if (set instanceof DSMicroarraySet) {
-            DSMicroarraySet maSet = (DSMicroarraySet) set;
-            DSClassCriteria criteria = CSCriterionManager.getClassCriteria(maSet);
+            DSMicroarraySet<DSMicroarray> maSet = (DSMicroarraySet<DSMicroarray>) set;
+            // DSClassCriteria criteria = CSCriterionManager.getClassCriteria(maSet);
+            DSAnnotationContext<DSMicroarray> context = CSAnnotationContextManager.getInstance().getCurrentContext(maSet);
             tTestDesign = TTEST_ONE_CLASS;
             for (int i = 0; i < arrays; i++) {
                 DSMicroarray ma = data.items().get(i);
                 if (ma instanceof DSMicroarray) {
                     //DSPanel panel = selCriterion.panels().get(ma);
-                    DSAnnotValue v = criteria.getValue(ma);
-                    if (v.equals(CSClassCriteria.cases)) {
+                    String label = context.getClassForItem(ma);
+                    if (label.equals(CSAnnotationContext.CLASS_CASE)) {
                         groupAssignments[i] = CASES;
-                    } else if (v.equals(CSClassCriteria.controls)) {
+                    } else if (label.equals(CSAnnotationContext.CLASS_CONTROL)) {
                         groupAssignments[i] = CONTROLS;
                         tTestDesign = TWO_SAMPLE;
                     } else {

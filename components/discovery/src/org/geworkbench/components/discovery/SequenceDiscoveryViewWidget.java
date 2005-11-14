@@ -317,7 +317,7 @@ public class SequenceDiscoveryViewWidget extends JPanel implements StatusChangeL
         Parameters p = parmsHandler.readParameter(parameterPanel, getSequenceDB().getSequenceNo(), type);
         parms = p;
         //fire a parameter change to the application
-        ParmsDataSet pds = new ParmsDataSet(p);
+        ParmsDataSet pds = new ParmsDataSet(p, "Pattern Discovery", getSequenceDB());
         String id = pds.getID();
         currentStubId = currentNodeID + id;
         //currentStubId+=id;
@@ -738,7 +738,7 @@ public class SequenceDiscoveryViewWidget extends JPanel implements StatusChangeL
             algoPanelName = AlgorithmSelectionPanel.HIERARCHICAL;
 
         } else {
-            System.err.println("Loading faile. Did not recognize the data.");
+            System.err.println("Loading failed. Did not recognize the data.");
             return;
         }
 

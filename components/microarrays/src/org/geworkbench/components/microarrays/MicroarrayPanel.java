@@ -7,6 +7,7 @@ import org.geworkbench.events.MarkerSelectedEvent;
 import org.geworkbench.events.PhenotypeSelectorEvent;
 import org.geworkbench.engine.management.Publish;
 import org.geworkbench.engine.management.Subscribe;
+import org.geworkbench.engine.management.AcceptTypes;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
@@ -30,7 +31,7 @@ import java.util.HashMap;
  * @version 1.0
  */
 
-public class MicroarrayPanel extends MicroarrayVisualizer implements VisualPlugin, MenuListener {
+@AcceptTypes({DSMicroarraySet.class}) public class MicroarrayPanel extends MicroarrayVisualizer implements VisualPlugin, MenuListener {
     //IMarkerGraphSubscriber markerPlot = null;
     //JMicroarrayVisualzer visualizer           = new JMicroarrayVisualzer(this);
     MicroarrayDisplay microarrayImageArea = new MicroarrayDisplay(this);
@@ -396,6 +397,10 @@ public class MicroarrayPanel extends MicroarrayVisualizer implements VisualPlugi
 
     @Subscribe public void receive(SingleMicroarrayEvent event, Object source) {
         DSMicroarray array = event.getMicroarray();
+        displayMicroarray(array);
+    }
+
+    private void displayMicroarray(DSMicroarray array) {
         int index = dataSetView.items().indexOf(array);
         if (index != -1) {
             selectMicroarray(index);
@@ -413,9 +418,19 @@ public class MicroarrayPanel extends MicroarrayVisualizer implements VisualPlugi
      */
     @Subscribe public void receive(PhenotypeSelectorEvent e, Object source) {
         if (e.getTaggedItemSetTree() != null) {
+            DSMicroarray oldArray = null;
+            try {
+                oldArray = dataSetView.items().get(microarrayId);
+            } catch (IndexOutOfBoundsException ioobe) {
+                // Ignore -- no arrays
+            }
             mArrayPanel = e.getTaggedItemSetTree();
             dataSetView.setItemPanel((DSPanel) mArrayPanel);
             reset();
+            // Keep old microarray selection, if possible
+            if (oldArray != null) {
+                displayMicroarray(oldArray);
+            }
             repaint();
         }
     }

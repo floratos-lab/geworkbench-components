@@ -4,11 +4,14 @@ import org.geworkbench.util.ProgressBar;
 import org.geworkbench.events.ClusterEvent;
 import org.geworkbench.events.MultipleMarkerEvent;
 import org.geworkbench.events.MarkerSelectedEvent;
+import org.geworkbench.events.ProjectEvent;
 import org.geworkbench.engine.management.Asynchronous;
 import org.geworkbench.engine.management.Publish;
 import org.geworkbench.engine.management.Subscribe;
+import org.geworkbench.engine.management.AcceptTypes;
 import org.geworkbench.bison.datastructure.biocollections.views.CSMicroarraySetView;
 import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
+import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
@@ -20,6 +23,7 @@ import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
 import org.geworkbench.bison.model.clusters.Cluster;
 import org.geworkbench.bison.model.clusters.LeafSOMCluster;
 import org.geworkbench.bison.model.clusters.SOMCluster;
+import org.geworkbench.bison.model.clusters.DSSOMClusterDataSet;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.PlotOrientation;
@@ -47,6 +51,7 @@ import edu.umd.cs.piccolo.PCanvas;
  * @version 3.0
  */
 
+@AcceptTypes({DSSOMClusterDataSet.class})
 public class SOMDisplay implements VisualPlugin, MenuListener, PropertyChangeListener {
 
     /**
@@ -89,33 +94,37 @@ public class SOMDisplay implements VisualPlugin, MenuListener, PropertyChangeLis
      * @param event the application <code>ClusterEvent</code>
      *              SOM Clustering event received by the wrapper
      */
-    @Subscribe(Asynchronous.class) public void receive(ClusterEvent ce, Object source) {
+    @Subscribe(Asynchronous.class) public void receive(ProjectEvent event, Object source) {
         // Create and throw a HierClusterModelEvent event.
-        AlgorithmExecutionResults results = (AlgorithmExecutionResults) ce.getResults();
-        Object clusters = results.getResults();
-        if (clusters instanceof SOMCluster[][]) {
-            originalClusters = (SOMCluster[][]) clusters;
-            mASet = ce.getMicroarraySet();
-            origX = originalClusters.length;
-            origY = originalClusters[0].length;
-            display.setLayout(new GridLayout(origX, origY));
-            mASetName = new String(mASet.getDataSet().getLabel());
-            Thread t = new Thread() {
-                public void run() {
-                    reset();
-                }
-            };
-            t.setPriority(Thread.MIN_PRIORITY);
-            t.start();
-            System.gc();
+        DSDataSet dataSet = event.getDataSet();
+        if ((dataSet != null) && (dataSet instanceof DSSOMClusterDataSet)) {
+            DSSOMClusterDataSet newClusterSet = (DSSOMClusterDataSet) dataSet;
+            if (newClusterSet != clusterSet) {
+                clusterSet = newClusterSet;
+                originalClusters = clusterSet.getClusters();
+                mASet = (DSMicroarraySetView) clusterSet.getDataSetView();
+                origX = originalClusters.length;
+                origY = originalClusters[0].length;
+                mASetName = new String(mASet.getDataSet().getLabel());
+                reset();
+//            Thread t = new Thread() {
+//                public void run() {
+//                    reset();
+//                }
+//            };
+//            t.setPriority(Thread.MIN_PRIORITY);
+//            t.start();
+            }
         }
     }
 
-    @Publish public org.geworkbench.events.ImageSnapshotEvent publishImageSnapshotEvent(org.geworkbench.events.ImageSnapshotEvent event) {
+    @Publish
+    public org.geworkbench.events.ImageSnapshotEvent publishImageSnapshotEvent(org.geworkbench.events.ImageSnapshotEvent event) {
         return event;
     }
 
-    @Publish public org.geworkbench.events.MarkerSelectedEvent publishMarkerSelectedEvent(org.geworkbench.events.MarkerSelectedEvent event) {
+    @Publish
+    public org.geworkbench.events.MarkerSelectedEvent publishMarkerSelectedEvent(org.geworkbench.events.MarkerSelectedEvent event) {
         return event;
     }
 
@@ -123,7 +132,8 @@ public class SOMDisplay implements VisualPlugin, MenuListener, PropertyChangeLis
         return event;
     }
 
-    @Publish public org.geworkbench.events.SubpanelChangedEvent publishSubpanelChangedEvent(org.geworkbench.events.SubpanelChangedEvent event) {
+    @Publish
+    public org.geworkbench.events.SubpanelChangedEvent publishSubpanelChangedEvent(org.geworkbench.events.SubpanelChangedEvent event) {
         return event;
     }
 
@@ -167,10 +177,9 @@ public class SOMDisplay implements VisualPlugin, MenuListener, PropertyChangeLis
                 showSelected_actionPerformed(e);
             }
         });
-        somWidget.add(jScrollPane1, BorderLayout.CENTER);
+        somWidget.add(display, BorderLayout.CENTER);
         somWidget.add(jToolBar1, BorderLayout.SOUTH);
         jToolBar1.add(showSelected, null);
-        jScrollPane1.getViewport().add(display, null);
         origX = origY = -1;
         mASetName = null;
     }
@@ -185,15 +194,14 @@ public class SOMDisplay implements VisualPlugin, MenuListener, PropertyChangeLis
 
         int diffWidth = somWidget.getWidth() / x;
         int diffHeight = somWidget.getHeight() / y;
-        display.removeAll();
         ProgressBar pb = org.geworkbench.util.ProgressBar.create(ProgressBar.INDETERMINATE_TYPE);
         pb.setTitle("SOM Clustering");
         pb.setMessage("Rendering Clusters...");
         pb.start();
 
-        for (int i = 0; i < originalClusters.length; i++) {
-            int clusterLength = originalClusters[i].length;
-            for (int j = 0; j < clusterLength; j++) {
+        final SOMPlot[][] plots = new SOMPlot[x][y];
+        for (int i = 0; i < x; i++) {
+            for (int j = 0; j < y; j++) {
                 JFreeChart chart = ChartFactory.createXYLineChart(null, // Title
                         "Experiment", // X-Axis label
                         "Value", // Y-Axis label
@@ -201,7 +209,7 @@ public class SOMDisplay implements VisualPlugin, MenuListener, PropertyChangeLis
                         PlotOrientation.VERTICAL, false, // Show legend
                         true, true);
                 SOMPlot plot = new SOMPlot(chart);
-                display.add(plot);
+                plots[i][j] = plot;
                 plot.setSize(diffWidth, diffHeight);
                 plot.setPreferredSize(new Dimension(diffWidth, diffHeight));
 
@@ -242,7 +250,20 @@ public class SOMDisplay implements VisualPlugin, MenuListener, PropertyChangeLis
                 plots[i][j] = plot;
             }
         }
-
+        System.out.println("About to render SOMs");
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                display.removeAll();
+                display.setLayout(new GridLayout(x, y));
+                for (int i = 0; i < x; i++) {
+                    for (int j = 0; j < y; j++) {
+                        display.add(plots[i][j]);
+                    }
+                }
+                display.revalidate();
+                display.repaint();
+            }
+        });
         pb.stop();
         pb.dispose();
         currentPlots = plots;
@@ -315,6 +336,8 @@ public class SOMDisplay implements VisualPlugin, MenuListener, PropertyChangeLis
      */
     private SOMCluster[][] originalClusters = null;
 
+    private DSSOMClusterDataSet clusterSet = null;
+
     /**
      * There is one <code>SOMPlot</code> created for every SOMCluster
      */
@@ -368,11 +391,6 @@ public class SOMDisplay implements VisualPlugin, MenuListener, PropertyChangeLis
     /**
      * Visual Widget
      */
-    private JScrollPane jScrollPane1 = new JScrollPane();
-
-    /**
-     * Visual Widget
-     */
     private BorderLayout borderLayout1 = new BorderLayout();
 
     /**
@@ -388,5 +406,5 @@ public class SOMDisplay implements VisualPlugin, MenuListener, PropertyChangeLis
     /**
      * Visual Widget
      */
-    private PCanvas display = new PCanvas();
+    private JPanel display = new JPanel();
 }

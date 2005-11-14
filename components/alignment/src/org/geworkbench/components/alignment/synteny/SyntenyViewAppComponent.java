@@ -8,6 +8,9 @@ import javax.swing.JTabbedPane;
 import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.engine.config.events.EventSource;
 import org.geworkbench.engine.config.MenuListener;
+import org.geworkbench.engine.management.AcceptTypes;
+import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
+
 import java.awt.event.ActionListener;
 
 /**
@@ -22,7 +25,7 @@ import java.awt.event.ActionListener;
  * @author not attributable
  * @version 1.0
  */
-public class SyntenyViewAppComponent extends EventSource
+@AcceptTypes({DSMicroarraySet.class}) public class SyntenyViewAppComponent extends EventSource
     implements VisualPlugin, MenuListener {
     JPanel jPanel1 = new JPanel();
     HashMap listeners = new HashMap();

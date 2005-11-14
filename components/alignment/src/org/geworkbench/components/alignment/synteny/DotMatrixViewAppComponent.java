@@ -23,10 +23,7 @@ import org.geworkbench.engine.config.MenuListener;
  * @version 1.0
  */
 
-public class DotMatrixViewAppComponent
-
-    extends EventSource implements VisualPlugin, MenuListener,
-    PropertyChangeListener {
+public class DotMatrixViewAppComponent extends EventSource implements VisualPlugin, MenuListener, PropertyChangeListener {
 
     EventListenerList listenerList = new EventListenerList();
     DotMatrixViewWidget dmViewWidget;

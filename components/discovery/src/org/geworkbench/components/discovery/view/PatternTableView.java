@@ -272,7 +272,7 @@ public class PatternTableView extends JPanel {
 
     private PatternDB getPatternDB() {
         SequenceDB db = widget.getSequenceDB();
-        org.geworkbench.util.patterns.PatternDB patternDB = new PatternDB(db.getFile());
+        org.geworkbench.util.patterns.PatternDB patternDB = new PatternDB(db.getFile(), null);
 
         for (int i = 0; i < model.size(); i++) {
             DSMatchedSeqPattern pattern = model.getPattern(i);
@@ -285,7 +285,7 @@ public class PatternTableView extends JPanel {
 
     private org.geworkbench.util.patterns.PatternDB getPatternDB(int[] rows) {
         SequenceDB db = widget.getSequenceDB();
-        org.geworkbench.util.patterns.PatternDB patternDB = new PatternDB(db.getFile());
+        org.geworkbench.util.patterns.PatternDB patternDB = new PatternDB(db.getFile(), null);
 
         for (int i = 0; i < rows.length; i++) {
             DSMatchedSeqPattern pattern = model.getPattern(rows[i]);
