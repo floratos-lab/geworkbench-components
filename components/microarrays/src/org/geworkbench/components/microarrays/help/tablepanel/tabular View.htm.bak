@@ -22,7 +22,7 @@
 
 <body>
 
-   <h2>Tabular Microarray Panel</h2> 
+   <h3>Tabular Microarray Panel</h3> 
     <p>This Visual Area component displays a spreadsheet view of t the markers values in a microarray set. For sets involving multiple arrays (as in the figure below), microarrays are displayed across columns and markers across rows. </p> 
     <h3>To view a dataset using Tabular Microarray Panel</h3> 
     <p>&#12290; Select a dataset in the Project Panel and then select the <b>Tabular</b> in the <b>View Area </b>at the top-right section of the interface. </p> 
