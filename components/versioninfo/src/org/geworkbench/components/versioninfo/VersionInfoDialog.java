@@ -14,6 +14,9 @@ package org.geworkbench.components.versioninfo;
  * @version 3.0
  */
 
+import com.jgoodies.forms.layout.FormLayout;
+import com.jgoodies.forms.builder.DefaultFormBuilder;
+
 import java.io.*;
 import java.util.*;
 
@@ -22,6 +25,9 @@ import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.border.*;
 import java.net.URL;
+
+import org.geworkbench.engine.management.ComponentRegistry;
+import org.geworkbench.engine.config.PluginDescriptor;
 
 public class VersionInfoDialog
     extends JDialog implements ActionListener {
@@ -33,23 +39,9 @@ public class VersionInfoDialog
     }
 
     private static Properties properties = new Properties();
-    JPanel panel1 = new JPanel();
-    JPanel panel2 = new JPanel();
-    JPanel insetsPanel1 = new JPanel();
-    JPanel insetsPanel2 = new JPanel();
-    JPanel insetsPanel3 = new JPanel();
     JButton button1 = new JButton();
     JLabel imageControl1 = new JLabel();
     ImageIcon imageIcon;
-    JLabel label1 = new JLabel();
-    JLabel label2 = new JLabel();
-    JLabel label3 = new JLabel();
-    JLabel label4 = new JLabel();
-    BorderLayout borderLayout1 = new BorderLayout();
-    BorderLayout borderLayout2 = new BorderLayout();
-    FlowLayout flowLayout1 = new FlowLayout();
-    FlowLayout flowLayout2 = new FlowLayout();
-    GridLayout gridLayout1 = new GridLayout();
     static String product = "caWorkbench";
     static String version = "Version 3.0";
     static String buildTime = (new Date()).toString();
@@ -162,34 +154,72 @@ public class VersionInfoDialog
 
     private void jbInit() throws Exception {
 
-        this.setTitle("About caWorkbench");
+        this.setTitle("caWorkbench Version Info");
         setResizable(false);
-        panel1.setLayout(borderLayout1);
-        panel2.setLayout(borderLayout2);
-        insetsPanel1.setLayout(flowLayout1);
-        insetsPanel2.setLayout(flowLayout1);
-        insetsPanel2.setBorder(new EmptyBorder(10, 10, 10, 10));
-        gridLayout1.setRows(4);
-        gridLayout1.setColumns(1);
-        label1.setText(product);
-        label2.setText(version + " " + build);
-        label3.setText("Updated on " + buildTime);
-        label4.setText(comments);
-        insetsPanel3.setLayout(gridLayout1);
-        insetsPanel3.setBorder(new EmptyBorder(10, 60, 10, 10));
+
+        this.getContentPane().setLayout(new BoxLayout(this.getContentPane(), BoxLayout.PAGE_AXIS));
+
         button1.setText("Ok");
         button1.addActionListener(this);
-        insetsPanel2.add(imageControl1, null);
-        panel2.add(insetsPanel2, BorderLayout.WEST);
-        this.getContentPane().add(panel1, null);
-        insetsPanel3.add(label1, null);
-        insetsPanel3.add(label2, null);
-        insetsPanel3.add(label3, null);
-        insetsPanel3.add(label4, null);
-        panel2.add(insetsPanel3, BorderLayout.CENTER);
-        insetsPanel1.add(button1, null);
-        panel1.add(insetsPanel1, BorderLayout.SOUTH);
-        panel1.add(panel2, BorderLayout.NORTH);
+
+        {
+            FormLayout layout = new FormLayout("right:375dlu,10dlu", "");
+            DefaultFormBuilder builder = new DefaultFormBuilder(layout);
+            builder.setDefaultDialogBorder();
+            builder.appendSeparator("caWorkBench Core");
+            builder.nextLine();
+            builder.append(new JLabel("caWorkBench"));
+            builder.nextLine();
+            builder.append(new JLabel(version + " " + build));
+            builder.nextLine();
+            builder.append(new JLabel("Updated on " + buildTime));
+
+            this.getContentPane().add(builder.getPanel(), null);
+        }
+
+
+        {
+            // Loop through the components and add their info
+
+            FormLayout layout = new FormLayout("right:160dlu,10dlu,20dlu,5dlu,right:160dlu,10dlu,20dlu", "");
+            DefaultFormBuilder builder = new DefaultFormBuilder(layout);
+            builder.setDefaultDialogBorder();
+
+            builder.appendSeparator("Plugins / Components");
+            Collection components = ComponentRegistry.getRegistry().getAllPluginDescriptors();
+            for (Iterator iterator = components.iterator(); iterator.hasNext();) {
+                PluginDescriptor pluginDescriptor = (PluginDescriptor) iterator.next();
+
+                builder.nextLine();
+                builder.append(pluginDescriptor.getLabel(), new JLabel("v1.0"));
+//                builder.append("");
+//                builder.append("v1.0");
+                try {
+                    PluginDescriptor pluginDescriptor2 = (PluginDescriptor) iterator.next();
+                    if (pluginDescriptor2.isLoadedFromGear()) {
+                        builder.append(pluginDescriptor2.getLabel() + " (from GEAR)", new JLabel("v1.0"));
+                    } else {
+                        builder.append(pluginDescriptor2.getLabel(), new JLabel("v1.0"));
+                    }
+//                    builder.append("");
+//                    builder.append("v1.0");
+                } catch (NoSuchElementException e) {
+                    // Don't care, just means end of list
+                }
+            }
+
+            this.getContentPane().add(builder.getPanel(), null);
+        }
+
+        {
+            // A bit of overkill for the OK button layout
+            FormLayout layout = new FormLayout("right:385dlu", "");
+            DefaultFormBuilder builder = new DefaultFormBuilder(layout);
+            builder.setDefaultDialogBorder();
+            builder.append(button1);
+
+            this.getContentPane().add(builder.getPanel(), null);
+        }
     }
 
     protected void processWindowEvent(WindowEvent e) {
