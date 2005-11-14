@@ -12,6 +12,7 @@ import org.geworkbench.builtin.projects.ProjectPanel;
 import org.geworkbench.builtin.projects.ProjectSelection;
 import org.geworkbench.engine.management.Publish;
 import org.geworkbench.engine.management.Subscribe;
+import org.geworkbench.engine.management.AcceptTypes;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.bioobjects.DSBioObject;
@@ -49,7 +50,7 @@ import java.util.Iterator;
  * @version 1.0
  */
 
-public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
+@AcceptTypes({DSMicroarraySet.class}) public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
     private JPanel mainPanel = new JPanel();
     private BorderLayout borderLayout1 = new BorderLayout();
     private JToolBar jToolBar1 = new JToolBar();
@@ -300,6 +301,7 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
         colorMosaicImage.setPrintRatio(printRatio);
         colorMosaicImage.setMarkerPanel(null);
         colorMosaicImage.setPanel(null);
+        colorMosaicImage.setChips(null);
     }
 
     public void notifyPatternSelection(CSMatchedMatrixPattern[] selectedPatterns) {

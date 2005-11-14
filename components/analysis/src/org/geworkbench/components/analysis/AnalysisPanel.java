@@ -3,11 +3,15 @@ package org.geworkbench.components.analysis;
 import org.geworkbench.analysis.AbstractAnalysis;
 import org.geworkbench.analysis.AbstractSaveableParameterPanel;
 import org.geworkbench.events.SubpanelChangedEvent;
+import org.geworkbench.events.ProjectNodeAddedEvent;
 import org.geworkbench.util.microarrayutils.MicroarrayViewEventBase;
 import org.geworkbench.engine.management.ComponentRegistry;
 import org.geworkbench.engine.management.Publish;
+import org.geworkbench.engine.management.AcceptTypes;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
+import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
+import org.geworkbench.bison.datastructure.biocollections.DSAncillaryDataSet;
 import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
 import org.geworkbench.bison.model.analysis.ClusteringAnalysis;
@@ -39,7 +43,7 @@ import com.jgoodies.forms.debug.FormDebugPanel;
  * Application component offering users a selection of microarray data clustering
  * options.
  */
-public class AnalysisPanel extends MicroarrayViewEventBase implements VisualPlugin {
+@AcceptTypes({DSMicroarraySet.class}) public class AnalysisPanel extends MicroarrayViewEventBase implements VisualPlugin {
 
     /**
      * The underlying GUI panel for the clustering component
@@ -503,12 +507,27 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements VisualPlug
                 JOptionPane.showMessageDialog(null, results.getMessage(), "Analysis Error", JOptionPane.ERROR_MESSAGE);
                 return;
             }
+            Object resultObject = results.getResults();
+            if (resultObject instanceof DSAncillaryDataSet) {
+                DSAncillaryDataSet dataSet = (DSAncillaryDataSet) resultObject;
+                final ProjectNodeAddedEvent event = new ProjectNodeAddedEvent("Analysis Result", null, dataSet);
+//                SwingUtilities.invokeLater(new Runnable() {
+//                    public void run() {
+                        publishProjectNodeAddedEvent(event);
+//                    }
+//                });
+                return;
+            }
             publishClusterEvent(new org.geworkbench.events.ClusterEvent(maSetView, results, selectedAnalysis.getLabel()));
-            if (results.getResults() instanceof Hashtable) {
-                DSPanel<DSGeneMarker> panel = (DSPanel) ((Hashtable) results.getResults()).get("Significant Genes");
+            if (resultObject instanceof Hashtable) {
+                DSPanel<DSGeneMarker> panel = (DSPanel) ((Hashtable) resultObject).get("Significant Genes");
                 publishSubpanelChangedEvent(new org.geworkbench.events.SubpanelChangedEvent(panel, SubpanelChangedEvent.NEW));
             }
         }
+    }
+
+    @Publish public ProjectNodeAddedEvent publishProjectNodeAddedEvent(ProjectNodeAddedEvent event) {
+        return event;
     }
 
     /**

@@ -120,19 +120,17 @@ public class BlastAlgorithm
                 // System.out.println("htmlFile = " + htmlFile + "textfile" + textFile);
 
                 if (htmlFile != null) {
-                    blastResult = new CSAlignmentResultSet(htmlFile,
-                        soapClient.getInputFileName());
+                    blastResult = new CSAlignmentResultSet(htmlFile, soapClient.getInputFileName(), null);
                     ( (CSAlignmentResultSet) blastResult).setAlgorithm(this);
                 }
                 else if (cmd.startsWith("btk search")) {
 
                     blastResult = new SWDataSet(textFile,
-                                                soapClient.getInputFileName());
-                }
-                else if (cmd.startsWith("btk hmm")) {
+                                                soapClient.getInputFileName(), blastAppComponent.getFastFile());
+                } else if (cmd.startsWith("btk hmm")) {
 
                     blastResult = new HMMDataSet(textFile,
-                                                 soapClient.getInputFileName());
+                                                 soapClient.getInputFileName(), blastAppComponent.getFastFile());
                 }
                 ProjectNodeAddedEvent event =
                     new ProjectNodeAddedEvent(null,   null,
@@ -150,7 +148,7 @@ public class BlastAlgorithm
 
                 }
 
-                blastResult = new CSAlignmentResultSet(tempFolder + "a.html", inputFilename);
+                blastResult = new CSAlignmentResultSet(tempFolder + "a.html", inputFilename, null);
                 ( (CSAlignmentResultSet) blastResult).setAlgorithm(this);
                               org.geworkbench.events.ProjectNodeAddedEvent event = new org.
                       geworkbench.events.ProjectNodeAddedEvent("message", null,
@@ -187,7 +185,7 @@ public class BlastAlgorithm
                 br.close();
                 bw.close();
 
-                blastResult = new CSAlignmentResultSet(filename, inputFilename);
+                blastResult = new CSAlignmentResultSet(filename, inputFilename, null);
                 ( (CSAlignmentResultSet) blastResult).setAlgorithm(this);
 
             }

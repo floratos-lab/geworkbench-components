@@ -19,6 +19,7 @@ import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.A
 import org.geworkbench.util.sequences.SequenceDB;
 import org.geworkbench.engine.management.Publish;
 import org.geworkbench.engine.management.Subscribe;
+import org.geworkbench.engine.management.AcceptTypes;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.engine.config.VisualPlugin;
@@ -53,6 +54,7 @@ import javax.swing.SwingConstants;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import org.geworkbench.bison.datastructure.bioobjects.sequence.CSSequence;
+import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 
 /**
  * <p>Widget to retrieve Promoter sequence from UCSC's DAS sequence server</p>
@@ -63,7 +65,7 @@ import org.geworkbench.bison.datastructure.bioobjects.sequence.CSSequence;
  * @version 3.0
  */
 
-public class SequenceRetriever implements VisualPlugin {
+@AcceptTypes({DSMicroarraySet.class}) public class SequenceRetriever implements VisualPlugin {
 
     DSPanel<DSGeneMarker> markers = null;
     private SequenceDB sequenceDB = new SequenceDB();

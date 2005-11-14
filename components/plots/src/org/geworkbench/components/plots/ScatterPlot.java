@@ -9,11 +9,14 @@ import org.geworkbench.builtin.projects.ProjectPanel;
 import org.geworkbench.builtin.projects.ProjectSelection;
 import org.geworkbench.engine.management.Publish;
 import org.geworkbench.engine.management.Subscribe;
+import org.geworkbench.engine.management.AcceptTypes;
 import org.geworkbench.util.JAutoList;
 import org.geworkbench.util.PrintUtils;
 import org.geworkbench.util.visualproperties.PanelVisualProperties;
 import org.geworkbench.util.visualproperties.PanelVisualPropertiesManager;
 import org.geworkbench.bison.annotation.DSCriteria;
+import org.geworkbench.bison.annotation.DSAnnotationContext;
+import org.geworkbench.bison.annotation.CSAnnotationContextManager;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.views.CSMicroarraySetView;
@@ -53,7 +56,7 @@ import java.util.*;
  *
  * @author John Watkinson
  */
-public class ScatterPlot implements VisualPlugin {
+@AcceptTypes({DSMicroarraySet.class}) public class ScatterPlot implements VisualPlugin {
 
     /**
      * Maximum number of charts that can be viewed at once.
@@ -69,7 +72,9 @@ public class ScatterPlot implements VisualPlugin {
      */
     public enum PlotType {
         ARRAY, MARKER
-    };
+    }
+
+    ;
 
     private static final int TAB_ARRAY = 0;
     private static final int TAB_MARKER = 1;
@@ -218,7 +223,8 @@ public class ScatterPlot implements VisualPlugin {
      * Cell rendered for the lists that handles the special selection conditions.
      */
     private class CellRenderer extends DefaultListCellRenderer {
-        @Override public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+        @Override
+        public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
             JLabel label = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);    //To change body of overridden methods use File | Settings | File Templates.
             Chart chart;
             ChartGroup group;
@@ -367,22 +373,15 @@ public class ScatterPlot implements VisualPlugin {
             if (ma != null) {
                 org.geworkbench.util.pathwaydecoder.RankSorter rs = chartData.getRankSorter(series, item);
                 DSMicroarraySet<DSMicroarray> maSet = (DSMicroarraySet) dataSetView.getDataSet();
-                DSCriteria<DSBioObject> criteria = CSCriterionManager.getCriteria(maSet);
+                DSAnnotationContext<DSMicroarray> context = CSAnnotationContextManager.getInstance().getCurrentContext(maSet);
                 String xLabel = nf.format(rs.x);
                 String yLabel = nf.format(rs.y);
-                if (criteria != null) {
-                    DSPanel value = criteria.getValue(ma);
+                String[] labels = context.getLabelsForItem(ma);
 
-                    if (value != null) {
-                        //                        result = ma.getLabel() + ": " + value.getLabel() + " [" + rs.x + "," + rs.y + "]";
-                        result = ma.getLabel() + ": " + value.getLabel() + " [" + xLabel + "," + yLabel + "]";
-                    } else {
-                        //                        result = ma.getLabel() + ": " + "No Panel, " + " [" + rs.x + "," + rs.y + "]";
-                        result = ma.getLabel() + ": " + "No Panel, " + " [" + xLabel + "," + yLabel + "]";
-                    }
+                if (labels.length > 0) {
+                    result = ma.getLabel() + ": " + labels[0] + " [" + xLabel + "," + yLabel + "]";
                 } else {
-                    //                    result = ma.getLabel() + ": Unknown" + " [" + rs.x + "," + rs.y + "]";
-                    result = ma.getLabel() + ": Unknown" + " [" + xLabel + "," + yLabel + "]";
+                    result = ma.getLabel() + ": " + "No Panel, " + " [" + xLabel + "," + yLabel + "]";
                 }
                 return result;
             } else {

@@ -1,21 +1,22 @@
 package org.geworkbench.components.hierarchicalclustering;
 
-import org.geworkbench.events.HierClusterModelEvent;
-import org.geworkbench.events.HierClusterModelEventListener;
 import org.geworkbench.components.hierarchicalclustering.HierClusterViewWidget;
-import org.geworkbench.events.ImageSnapshotEvent;
-import org.geworkbench.events.MultipleMarkerEvent;
+import org.geworkbench.events.*;
 import org.geworkbench.engine.management.Publish;
 import org.geworkbench.engine.management.Subscribe;
+import org.geworkbench.engine.management.AcceptTypes;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
+import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
+import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
 import org.geworkbench.engine.config.MenuListener;
 import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
 import org.geworkbench.bison.model.clusters.HierCluster;
 import org.geworkbench.bison.model.clusters.MarkerHierCluster;
 import org.geworkbench.bison.model.clusters.MicroarrayHierCluster;
+import org.geworkbench.bison.model.clusters.DSHierClusterDataSet;
 
 import javax.swing.*;
 import javax.swing.event.EventListenerList;
@@ -43,6 +44,7 @@ import java.beans.PropertyChangeListener;
  * <code>HierClusterModelEvent</code> event that contains the new clustering
  * data.
  */
+@AcceptTypes({DSHierClusterDataSet.class})
 public class HierClusterViewAppComponent implements VisualPlugin, MenuListener, PropertyChangeListener {
     /**
      * The widget used by the component.
@@ -63,26 +65,18 @@ public class HierClusterViewAppComponent implements VisualPlugin, MenuListener, 
     }
 
     /**
-     * This is the method of the ClusterListener invoked
-     * by the 'throwEvent' in the AnalysisPanel when a hier clustering
-     * analysis ends. The event 'hcae' contains the microarray set used,
-     * as well as the clusters produced.
+     * Receives a {@link DSHierClusterDataSet} and renders it.
      *
-     * @param event the application <code>ClusterEvent</code>
-     *              Hierarchical Clustering event received by the wrapper
+     * @param event
+     * @param source
      */
-    @Subscribe public void receive(org.geworkbench.events.ClusterEvent event, Object source) {
-        // Create and throw a HierClusterModelEvent event.
-        AlgorithmExecutionResults results = (AlgorithmExecutionResults) event.getResults();
-        Object clusters = results.getResults();
-        MarkerHierCluster markerCluster = null;
-        MicroarrayHierCluster microarrayCluster = null;
-        if (clusters instanceof HierCluster[]) {
-            if (((HierCluster[]) clusters).length == 2) {
-                markerCluster = (MarkerHierCluster) ((HierCluster[]) clusters)[0];
-                microarrayCluster = (MicroarrayHierCluster) ((HierCluster[]) clusters)[1];
-            }
-            HierClusterModelEvent hcme = new HierClusterModelEvent(source, event.getMicroarraySet(), markerCluster, microarrayCluster);
+    @Subscribe public void receive(ProjectEvent event, Object source) {
+        DSDataSet dataSet = event.getDataSet();
+        if ((dataSet != null) && (dataSet instanceof DSHierClusterDataSet)) {
+            DSHierClusterDataSet clusterSet = (DSHierClusterDataSet) dataSet;
+            MarkerHierCluster markerCluster = (MarkerHierCluster) clusterSet.getCluster(0);
+            MicroarrayHierCluster microarrayCluster = (MicroarrayHierCluster) clusterSet.getCluster(1);
+            HierClusterModelEvent hcme = new HierClusterModelEvent(source, (DSMicroarraySetView) clusterSet.getDataSetView(), markerCluster, microarrayCluster);
             fireModelChanged(hcme);
         }
     }
@@ -124,7 +118,8 @@ public class HierClusterViewAppComponent implements VisualPlugin, MenuListener, 
         return event;
     }
 
-    @Publish public org.geworkbench.events.MarkerSelectedEvent publishSingleMarkerEvent(org.geworkbench.events.MarkerSelectedEvent event) {
+    @Publish
+    public org.geworkbench.events.MarkerSelectedEvent publishSingleMarkerEvent(org.geworkbench.events.MarkerSelectedEvent event) {
         return event;
     }
 
@@ -132,7 +127,8 @@ public class HierClusterViewAppComponent implements VisualPlugin, MenuListener, 
         return event;
     }
 
-    @Publish public org.geworkbench.events.SubpanelChangedEvent publishSubpanelChangedEvent(org.geworkbench.events.SubpanelChangedEvent event) {
+    @Publish
+    public org.geworkbench.events.SubpanelChangedEvent publishSubpanelChangedEvent(org.geworkbench.events.SubpanelChangedEvent event) {
         return event;
     }
 

@@ -1074,7 +1074,7 @@ public class ParameterViewWidget
         String inputfile =
             "C:\\FromOldCDisk\\cvsProject\\project\\BioWorks\\temp\\GEAW\\Hmm89547134.txt";
         HMMDataSet blastResult = new HMMDataSet(textFile,
-                                                inputfile);
+                                                inputfile, null);
         try {
 
 //add twice blastDataSet. change!@ ???

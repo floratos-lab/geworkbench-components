@@ -156,7 +156,7 @@ public class PanelsEnabledSelectorPanel <T extends DSNamed> implements VisualPlu
     }
 
     void panelModified() {
-        //    throwEvent(GeneSelectorEvent.PANEL_SELECTION);
+        //    throwLabelEvent(GeneSelectorEvent.PANEL_SELECTION);
 
         if (panel == null) {
             return;

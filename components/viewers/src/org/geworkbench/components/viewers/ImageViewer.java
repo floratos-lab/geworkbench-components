@@ -2,7 +2,9 @@ package org.geworkbench.components.viewers;
 
 import org.geworkbench.events.ImageSnapshotEvent;
 import org.geworkbench.engine.management.Subscribe;
+import org.geworkbench.engine.management.AcceptTypes;
 import org.geworkbench.engine.config.VisualPlugin;
+import org.geworkbench.builtin.projects.ImageData;
 
 import javax.swing.*;
 import java.awt.*;
@@ -14,7 +16,7 @@ import java.awt.*;
  * @author First Genetic Trust Inc.
  * @version 1.0
  */
-public class ImageViewer extends JPanel implements VisualPlugin {
+@AcceptTypes({ImageData.class}) public class ImageViewer extends JPanel implements VisualPlugin {
     /**
      * Canvas on which Image is painted
      */

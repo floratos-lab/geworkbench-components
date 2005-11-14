@@ -14,10 +14,12 @@ import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.complex.panels.CSAnnotPanel;
 import org.geworkbench.bison.datastructure.complex.panels.DSAnnotatedPanel;
-import org.geworkbench.bison.util.CSCriterionManager;
-import org.geworkbench.bison.util.DSAnnotValue;
 import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
 import org.geworkbench.bison.model.analysis.ClusteringAnalysis;
+import org.geworkbench.bison.annotation.DSAnnotationContextManager;
+import org.geworkbench.bison.annotation.CSAnnotationContextManager;
+import org.geworkbench.bison.annotation.DSAnnotationContext;
+import org.geworkbench.bison.annotation.CSAnnotationContext;
 
 import java.util.Hashtable;
 import java.util.Random;
@@ -137,7 +139,8 @@ public class TtestAnalysis extends AbstractAnalysis implements ClusteringAnalysi
 
         if (set instanceof DSMicroarraySet) {
             DSMicroarraySet maSet = (DSMicroarraySet) set;
-            DSClassCriteria criteria = CSCriterionManager.getClassCriteria(maSet);
+            DSAnnotationContextManager manager = CSAnnotationContextManager.getInstance();
+            DSAnnotationContext<DSMicroarray> context = manager.getCurrentContext(maSet);
             tTestDesign = TtestAnalysisPanel.ONE_CLASS;
             boolean hasGroupA = false;
             boolean hasGroupB = false;
@@ -145,11 +148,11 @@ public class TtestAnalysis extends AbstractAnalysis implements ClusteringAnalysi
                 DSMicroarray ma = data.items().get(i);
                 if (ma instanceof DSMicroarray) {
                     //DSPanel panel = selCriterion.panels().get(ma);
-                    DSAnnotValue v = criteria.getValue(ma);
-                    if (v.equals(CSClassCriteria.cases)) {
+                    String v = context.getClassForItem(ma);
+                    if (v.equals(CSAnnotationContext.CLASS_CASE)) {
                         groupAssignments[i] = TtestAnalysisPanel.GROUP_A;
                         hasGroupA = true;
-                    } else if (v.equals(CSClassCriteria.controls)) {
+                    } else if (v.equals(CSAnnotationContext.CLASS_CONTROL)) {
                         groupAssignments[i] = TtestAnalysisPanel.GROUP_B;
                         tTestDesign = TtestAnalysisPanel.BETWEEN_SUBJECTS;
                         hasGroupB = true;

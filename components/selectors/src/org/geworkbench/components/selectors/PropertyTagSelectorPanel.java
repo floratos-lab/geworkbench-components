@@ -777,7 +777,8 @@ public class PropertyTagSelectorPanel implements VisualPlugin, MenuListener {
 
     void jPhenotypeSelectionBox_actionPerformed(ActionEvent e) {
         DSAnnotLabel property = (CSAnnotLabel) jCriterionSelectionBox.getSelectedItem();
-        dataSet.setSelectedProperty(property);
+        // watkin - phased out
+        // dataSet.setSelectedProperty(property);
         showPhenotype(property);
         panelModified();
     }

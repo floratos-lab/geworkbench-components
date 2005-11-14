@@ -1,15 +1,882 @@
 package org.geworkbench.components.selectors;
 
+import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
+import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
+import org.geworkbench.bison.datastructure.complex.panels.CSItemList;
+import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
+import org.geworkbench.bison.datastructure.properties.DSSequential;
+import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
+import org.geworkbench.bison.annotation.DSAnnotationContext;
+import org.geworkbench.bison.annotation.CSAnnotationContext;
+import org.geworkbench.bison.annotation.CSAnnotationContextManager;
+import org.geworkbench.bison.annotation.DSAnnotationContextManager;
+import org.geworkbench.events.ProjectEvent;
+import org.geworkbench.util.visualproperties.VisualPropertiesDialog;
+import org.geworkbench.util.visualproperties.PanelVisualPropertiesManager;
+import org.geworkbench.util.visualproperties.PanelVisualProperties;
+import org.geworkbench.util.JAutoList;
+import org.geworkbench.engine.management.Subscribe;
+import org.geworkbench.engine.management.Script;
 import org.geworkbench.engine.config.VisualPlugin;
+import org.geworkbench.builtin.projects.ProjectSelection;
+import org.geworkbench.builtin.projects.ProjectPanel;
+import org.apache.commons.collections15.map.ReferenceMap;
 
+import javax.swing.*;
+import javax.swing.tree.TreePath;
+import java.awt.print.Printable;
+import java.awt.print.PageFormat;
+import java.awt.print.PrinterException;
+import java.awt.print.PrinterJob;
 import java.awt.*;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
+import java.text.DecimalFormat;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.ArrayList;
+import java.lang.reflect.Array;
 
 /**
  * @author John Watkinson
  */
-public class SelectorPanel implements VisualPlugin {
+public abstract class SelectorPanel<T extends DSSequential> implements VisualPlugin {
+
+    public static final String SELECTION_LABEL = "Selection";
+
+    // Data models
+    protected DSAnnotationContext<T> context;
+    protected SelectorTreeModel<T> treeModel;
+    protected DSItemList<T> itemList;
+    // protected DSPanel<T> itemPanel;
+    protected ItemListModel listModel;
+    // protected PanelsEnabledTreeModel treeModel;
+    //protected CSPanel<T> emptyPanel;
+    protected CSAnnotationContext<T> emptyContext;
+    protected CSItemList<T> emptyList;
+    // Components
+    protected JPanel mainPanel;
+    protected JAutoList itemAutoList;
+    protected JTree panelTree;
+    // Menu items
+    protected JPopupMenu itemListPopup = new JPopupMenu();
+    protected JMenuItem addToPanelItem = new JMenuItem("Add to Panel");
+    protected JMenuItem clearSelectionItem = new JMenuItem("Clear Selection");
+    protected JPopupMenu treePopup = new JPopupMenu();
+    protected JMenuItem renamePanelItem = new JMenuItem("Rename");
+    protected JMenuItem activatePanelItem = new JMenuItem("Activate");
+    protected JMenuItem deactivatePanelItem = new JMenuItem("Deactivate");
+    protected JMenuItem deletePanelItem = new JMenuItem("Delete");
+    protected JMenuItem printPanelItem = new JMenuItem("Print");
+    protected JMenuItem visualPropertiesItem = new JMenuItem("Visual Properties");
+    protected JPopupMenu rootPopup = new JPopupMenu();
+    protected JPopupMenu itemPopup = new JPopupMenu();
+    protected JMenuItem removeFromPanelItem = new JMenuItem("Remove from Panel");
+    protected JPanel lowerPanel = new JPanel();
+    protected JComboBox contextSelector;
+    protected JButton newContextButton;
+    // Context info for right-click events
+    TreePath rightClickedPath = null;
+
+    protected Class<T> panelType;
+    private SelectorTreeRenderer treeRenderer;
+
+    public SelectorPanel(Class<T> panelType, String name) {
+        this.panelType = panelType;
+        listModel = new ItemListModel();
+        itemAutoList = new ItemList(listModel);
+        // Initialize data models
+        emptyList = new CSItemList<T>();
+        // emptyPanel = new CSPanel<T>("");
+        emptyContext = new CSAnnotationContext<T>("", null);
+        itemList = emptyList;
+        treeModel = new SelectorTreeModel<T>(emptyContext);
+        // Initialize components
+        mainPanel = new JPanel();
+        mainPanel.setLayout(new BorderLayout());
+        itemAutoList.getList().setCellRenderer(new ListCellRenderer());
+        panelTree = new JTree(treeModel);
+        lowerPanel.setLayout(new BoxLayout(lowerPanel, BoxLayout.Y_AXIS));
+        // Add context selector
+        contextSelector = new JComboBox();
+        Dimension minSize = contextSelector.getMinimumSize();
+//        Dimension prefSize = contextSelector.getPreferredSize();
+        contextSelector.setMaximumSize(new Dimension(1000, minSize.height));
+        newContextButton = new JButton("New");
+        newContextButton.setEnabled(false);
+        JPanel contextPanel = new JPanel();
+        contextPanel.setLayout(new BoxLayout(contextPanel, BoxLayout.X_AXIS));
+        contextPanel.add(contextSelector);
+        contextPanel.add(newContextButton);
+        JLabel groupLabel = new JLabel(" " + name + " Groups");
+        JPanel labelPanel = new JPanel();
+        labelPanel.setLayout(new BoxLayout(labelPanel, BoxLayout.X_AXIS));
+        labelPanel.add(groupLabel);
+        labelPanel.add(Box.createHorizontalGlue());
+        lowerPanel.add(labelPanel);
+        lowerPanel.add(contextPanel);
+        lowerPanel.add(new JScrollPane(panelTree));
+        JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, itemAutoList, lowerPanel);
+        splitPane.setDividerSize(3);
+        splitPane.setResizeWeight(0.65);
+        treeRenderer = new SelectorTreeRenderer(this);
+        panelTree.setCellRenderer(treeRenderer);
+        mainPanel.add(splitPane, BorderLayout.CENTER);
+        // Initialize popups
+        itemListPopup.add(addToPanelItem);
+        itemListPopup.add(clearSelectionItem);
+        treePopup.add(renamePanelItem);
+        treePopup.add(activatePanelItem);
+        treePopup.add(deactivatePanelItem);
+        treePopup.add(deletePanelItem);
+        treePopup.add(printPanelItem);
+
+        // Removing the "Export" popup item, until we decide what the export
+        // functionlity is, if anything (since there is also a "Save" option.
+        // treePopup.add(exportPanelItem);
+
+        treePopup.add(visualPropertiesItem);
+        // todo - move to a new gui setup
+        itemPopup.add(removeFromPanelItem);
+        // Add behaviors
+        panelTree.addMouseListener(new MouseAdapter() {
+            @Override public void mouseClicked(MouseEvent e) {
+                panelTreeClicked(e);
+            }
+        });
+        addToPanelItem.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                addToLabelPressed();
+            }
+        });
+        clearSelectionItem.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                clearSelectionPressed();
+            }
+        });
+        renamePanelItem.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                renameLabelPressed(rightClickedPath);
+            }
+        });
+        activatePanelItem.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                activateOrDeactivateLabelPressed(true);
+            }
+        });
+        deactivatePanelItem.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                activateOrDeactivateLabelPressed(false);
+            }
+        });
+        deletePanelItem.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                deletePanelPressed();
+            }
+        });
+        printPanelItem.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                printPanelPressed(rightClickedPath);
+            }
+        });
+        visualPropertiesItem.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                visualPropertiesPressed(rightClickedPath);
+            }
+        });
+        removeFromPanelItem.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                removeFromLabelPressed();
+            }
+        });
+        contextSelector.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                DSAnnotationContext newContext = (DSAnnotationContext) contextSelector.getSelectedItem();
+                switchContext(newContext);
+            }
+        });
+        newContextButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                createNewContext();
+            }
+        });
+    }
+
+    protected String getLabelForPath(TreePath path) {
+        Object obj = path.getLastPathComponent();
+        if (obj instanceof String) {
+            return (String) obj;
+        } else {
+            return null;
+        }
+    }
+
+    private T getItemForPath(TreePath path) {
+        Object obj = path.getLastPathComponent();
+        if (panelType.isAssignableFrom(obj.getClass())) {
+            return panelType.cast(obj);
+        } else {
+            return null;
+        }
+    }
+
+    private void ensurePathIsSelected(TreePath path) {
+        if (path != null) {
+            boolean alreadySelected = false;
+            TreePath[] paths = panelTree.getSelectionPaths();
+            if (paths != null) {
+                for (int i = 0; i < paths.length; i++) {
+                    if (paths[i].getLastPathComponent().equals(path.getLastPathComponent())) {
+                        alreadySelected = true;
+                        break;
+                    }
+                }
+            }
+            if (!alreadySelected) {
+                panelTree.setSelectionPath(path);
+            }
+        }
+    }
+
+    private void ensureItemIsSelected(int index) {
+        boolean alreadySelected = false;
+        int[] indices = itemAutoList.getList().getSelectedIndices();
+        if (indices != null) {
+            for (int i = 0; i < indices.length; i++) {
+                if (index == indices[i]) {
+                    alreadySelected = true;
+                    break;
+                }
+            }
+        }
+        if (!alreadySelected) {
+            itemAutoList.getList().setSelectedIndex(index);
+        }
+    }
+
+    private void removePanel(final String label) {
+        final int index = treeModel.getIndexOfChild(context, label);
+        context.removeLabel(label);
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                treeModel.fireLabelRemoved(label, index);
+            }
+        });
+    }
+
+    protected void addPanel(DSPanel<T> panel) {
+        final String label = panel.getLabel();
+        context.addLabel(label);
+        for (int i = 0; i < panel.size(); i++) {
+            T t = panel.get(i);
+            context.labelItem(t, panel.getLabel());
+        }
+        final int index = treeModel.getIndexOfChild(context, label);
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                treeModel.fireLabelAdded(label, index);
+            }
+        });
+    }
+
+    protected void panelTreeClicked(final MouseEvent e) {
+        TreePath path = panelTree.getPathForLocation(e.getX(), e.getY());
+        if (path != null) {
+            String label = getLabelForPath(path);
+            T item = getItemForPath(path);
+            if ((e.isMetaDown()) && (e.getClickCount() == 1)) {
+                rightClickedPath = path;
+                ensurePathIsSelected(rightClickedPath);
+                if (label != null) {
+                    SwingUtilities.invokeLater(new Runnable() {
+                        public void run() {
+                            showTreePopup(e);
+                        }
+                    });
+                } else if (item != null) {
+                    SwingUtilities.invokeLater(new Runnable() {
+                        public void run() {
+                            itemPopup.show(e.getComponent(), e.getX(), e.getY());
+                        }
+                    });
+                } else { // root
+                    // Show root popup
+                    SwingUtilities.invokeLater(new Runnable() {
+                        public void run() {
+                            rootPopup.show(e.getComponent(), e.getX(), e.getY());
+                        }
+                    });
+                }
+            } else {
+                if (label != null) {
+                    if (e.getX() < panelTree.getPathBounds(path).x + treeRenderer.getCheckBoxWidth()) {
+                        context.setLabelActive(label, !context.isLabelActive(label));
+                        treeModel.valueForPathChanged(path, label);
+                        throwLabelEvent();
+                    }
+                } else if (item != null) {
+                    if (e.getButton() == MouseEvent.BUTTON1) {
+                        publishSingleSelectionEvent(item);
+                    }
+                }
+            }
+        } else {
+            panelTree.clearSelection();
+        }
+    }
+
+    protected void showTreePopup(MouseEvent e) {
+        treePopup.show(e.getComponent(), e.getX(), e.getY());
+    }
+
+    protected void activateOrDeactivateLabelPressed(boolean value) {
+        String[] labels = getSelectedTreesFromTree();
+        if (labels.length > 0) {
+            for (int i = 0; i < labels.length; i++) {
+                context.setLabelActive(labels[i], value);
+                // Notify model
+                treeModel.fireLabelChanged(labels[i]);
+            }
+            throwLabelEvent();
+        }
+    }
+
+    private void itemClicked(int index, MouseEvent e) {
+        if (index != -1) {
+            if (itemList != null) {
+                T item = itemList.get(index);
+                publishSingleSelectionEvent(item);
+            }
+        }
+    }
+
+    private void itemDoubleClicked(int index, MouseEvent e) {
+        // Get double-clicked item
+        T item = itemList.get(index);
+        if (context.hasLabel(item, SELECTION_LABEL)) {
+            context.removeLabelFromItem(item, SELECTION_LABEL);
+        } else {
+            context.labelItem(item, SELECTION_LABEL);
+        }
+        treeModel.fireLabelItemsChanged(SELECTION_LABEL);
+        throwLabelEvent();
+        listModel.refreshItem(index);
+    }
+
+    private void itemRightClicked(int index, final MouseEvent e) {
+        ensureItemIsSelected(index);
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                itemListPopup.show(e.getComponent(), e.getX(), e.getY());
+            }
+        });
+    }
+
+    protected void removeFromLabelPressed() {
+        TreePath[] paths = panelTree.getSelectionPaths();
+        HashSet<String> affectedLabels = new HashSet<String>();
+        for (int i = 0; i < paths.length; i++) {
+            TreePath path = paths[i];
+            Object obj = path.getLastPathComponent();
+            if (panelType.isAssignableFrom(obj.getClass())) {
+                T item = panelType.cast(obj);
+                // Path must have a panel as the second-to-last component
+                String label = (String) path.getParentPath().getLastPathComponent();
+                context.removeLabelFromItem(item, label);
+                affectedLabels.add(label);
+            }
+        }
+        for (Iterator<String> iterator = affectedLabels.iterator(); iterator.hasNext();) {
+            String label = iterator.next();
+            treeModel.fireLabelItemsChanged(label);
+        }
+        throwLabelEvent();
+    }
+
+    protected void addToLabelPressed() {
+        T[] items = getSelectedItemsFromList();
+        if (items.length > 0) {
+            // Is there already a selected panel?
+            String defaultLabel = getSelectedLabelFromTree();
+            if (defaultLabel == null) {
+                defaultLabel = "";
+            }
+            String label = JOptionPane.showInputDialog("Panel Label:", defaultLabel);
+            if (label == null) {
+                return;
+            } else {
+                if (context.indexOfLabel(label) == -1) {
+                    addPanel(new CSPanel<T>(label));
+                }
+                for (int i = 0; i < items.length; i++) {
+                    T item = items[i];
+                    context.labelItem(item, label);
+                }
+                panelTree.scrollPathToVisible(new TreePath(new Object[]{context, label}));
+                treeModel.fireLabelItemsChanged(label);
+                throwLabelEvent();
+            }
+        }
+    }
+
+    protected void clearSelectionPressed() {
+        context.clearItemsFromLabel(SELECTION_LABEL);
+        itemAutoList.getList().repaint();
+        treeModel.fireLabelItemsChanged(SELECTION_LABEL);
+        throwLabelEvent();
+    }
+
+    /**
+     * Only effects the right-clicked path, not the entire selection
+     */
+    protected void renameLabelPressed(TreePath path) {
+        String oldLabel = getLabelForPath(path);
+        if (oldLabel != null) {
+            String newLabel = JOptionPane.showInputDialog("New Label:", oldLabel);
+            if (newLabel != null) {
+                // todo: check for an existing panel with this name
+                context.renameLabel(oldLabel, newLabel);
+                treeModel.fireLabelChanged(newLabel);
+                throwLabelEvent();
+            }
+        }
+    }
+
+    protected void deletePanelPressed() {
+        String[] labels = getSelectedTreesFromTree();
+        if (labels.length > 0) {
+            int confirm = JOptionPane.showConfirmDialog(getComponent(), "Delete selected panel" + (labels.length > 1 ? "s" : "") + "?");
+            if (confirm == JOptionPane.YES_OPTION) {
+                panelTree.clearSelection();
+                for (int i = 0; i < labels.length; i++) {
+                    String label = labels[i];
+                    // Cannot delete root label or selection label
+                    if (!SELECTION_LABEL.equals(label)) {
+                        removePanel(label);
+                    }
+                }
+                throwLabelEvent();
+            }
+        }
+    }
+
+    protected void printPanelPressed(TreePath path) {
+        String label = getLabelForPath(path);
+        if (label != null) {
+            // Get a PrinterJob
+            PrinterJob job = PrinterJob.getPrinterJob();
+            // Ask user for page format (e.g., portrait/landscape)
+            PageFormat pf = job.pageDialog(job.defaultPage());
+            // Specify the Printable is an instance of
+            // PrintListingPainter; also provide given PageFormat
+            job.setPrintable(new PrintListingPainter(label), pf);
+            // Print 1 copy
+            job.setCopies(1);
+            // Put up the dialog box
+            if (job.printDialog()) {
+                // Print the job if the user didn't cancel printing
+                try {
+                    job.print();
+                } catch (Exception pe) {
+                    pe.printStackTrace();
+                }
+            }
+        }
+    }
+
+    /**
+     * Only effects the right-clicked path, not the entire selection
+     */
+    protected void visualPropertiesPressed(TreePath path) {
+        String label = getLabelForPath(path);
+        if (label != null) {
+            // Get current active index of panel for default visual properties
+            int index = 0;
+            if (context.isLabelActive(label)) {
+                int n = context.getNumberOfLabels();
+                for (int i = 0; i < n; i++) {
+                    String l = context.getLabel(i);
+                    if (context.isLabelActive(l)) {
+                        index++;
+                    }
+                    if (label.equals(l)) {
+                        break;
+                    }
+                }
+            }
+            VisualPropertiesDialog dialog = new VisualPropertiesDialog(null, "Change Visual Properties", label, index);
+            dialog.pack();
+            dialog.setSize(600, 600);
+            dialog.setVisible(true);
+            if (dialog.isPropertiesChanged()) {
+                PanelVisualPropertiesManager manager = PanelVisualPropertiesManager.getInstance();
+                PanelVisualProperties visualProperties = dialog.getVisualProperties();
+                if (visualProperties == null) {
+                    manager.clearVisualProperties(label);
+                } else {
+                    manager.setVisualProperties(label, visualProperties);
+                }
+                throwLabelEvent();
+            }
+        }
+    }
+
+    /**
+     * Convenience method to get all the selected items in the item list.
+     */
+    private T[] getSelectedItemsFromList() {
+        int[] indices = itemAutoList.getList().getSelectedIndices();
+        int n = indices.length;
+        T[] items = (T[]) Array.newInstance(panelType, n);
+        for (int i = 0; i < n; i++) {
+            items[i] = itemList.get(indices[i]);
+        }
+        return items;
+    }
+
+    /**
+     * Convenience method to get all the selected panels in the panel tree.
+     */
+    protected String[] getSelectedTreesFromTree() {
+        TreePath[] paths = panelTree.getSelectionPaths();
+        int n = paths.length;
+        ArrayList<String> list = new ArrayList<String>();
+        for (int i = 0; i < n; i++) {
+            TreePath path = paths[i];
+            Object obj = path.getLastPathComponent();
+            if (obj instanceof String) {
+                list.add((String) obj);
+            }
+        }
+        return list.toArray(new String[]{});
+    }
+
+    /**
+     * Convenience method to get all the selected panels in the panel tree.
+     */
+    private T[] getSelectedItemsFromTree() {
+        TreePath[] paths = panelTree.getSelectionPaths();
+        int n = paths.length;
+        ArrayList<T> list = new ArrayList<T>();
+        for (int i = 0; i < n; i++) {
+            TreePath path = paths[i];
+            Object obj = path.getLastPathComponent();
+            if (panelType.isAssignableFrom(obj.getClass())) {
+                list.add(panelType.cast(obj));
+            }
+        }
+        return list.toArray((T[]) Array.newInstance(panelType, 0));
+    }
+
+    /**
+     * Gets the single panel selected from the tree if there is one
+     */
+    private String getSelectedLabelFromTree() {
+        TreePath path = panelTree.getSelectionPath();
+        if (path == null) {
+            return null;
+        } else {
+            Object obj = path.getLastPathComponent();
+            if (obj instanceof String) {
+                return (String) obj;
+            } else {
+                return null;
+            }
+        }
+    }
+
+    protected void dataSetCleared() {
+        treeModel.setContext(emptyContext);
+        itemList = emptyList;
+        itemAutoList.getList().repaint();
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                treeModel.fireTreeStructureChanged();
+            }
+        });
+        contextSelector.removeAllItems();
+        newContextButton.setEnabled(false);
+        // throwLabelEvent();
+    }
+
+    protected abstract void dataSetChanged(DSDataSet dataSet);
+
+    protected abstract void throwLabelEvent();
 
     public Component getComponent() {
-        return null; // todo
+        return mainPanel;
     }
+
+    /**
+     * Called when a data set is selected or cleared in the project panel.
+     */
+    @Subscribe public void receive(ProjectEvent projectEvent, Object source) {
+        if (projectEvent.getMessage().equals(ProjectEvent.CLEARED)) {
+            dataSetCleared();
+        }
+        ProjectSelection selection = ((ProjectPanel) source).getSelection();
+        DSDataSet dataSet = selection.getDataSet();
+        if (selection.getSelectedNode() != selection.getSelectedProjectNode()) {
+            processDataSet(dataSet);
+        }
+
+    }
+
+    private void processDataSet(DSDataSet dataSet) {
+        if (dataSet != null) {
+            dataSetChanged(dataSet);
+        } else {
+            dataSetCleared();
+        }
+    }
+
+    @Script public void setDataSet(DSDataSet dataSet) {
+        processDataSet(dataSet);
+    }
+
+    @Script
+    public void createPanel(int a, int b, boolean c) {
+        // todo implement
+    }
+
+    protected abstract void publishSingleSelectionEvent(T item);
+
+
+    /**
+     * Printable that is responsible for printing the contents of a panel.
+     */
+    private class PrintListingPainter implements Printable {
+        private Font fnt = new Font("Helvetica", Font.PLAIN, 8);
+        private int rememberedPageIndex = -1;
+        private long rememberedFilePointer = -1;
+        private boolean rememberedEOF = false;
+        private int index = 0;
+        private int lastIndex = 0;
+        DSPanel<T> panel;
+
+        public PrintListingPainter(String label) {
+            this.panel = context.getItemsWithLabel(label);
+        }
+
+        /**
+         * Called by the print job.
+         */
+        public int print(Graphics g, PageFormat pf, int pageIndex) throws PrinterException {
+            DecimalFormat format = new DecimalFormat("#.####");
+            try {
+                int itemNo = Math.min(panel.size(), 500);
+                // For catching IOException
+                if (pageIndex != rememberedPageIndex) {
+                    // First time we've visited this page
+                    rememberedPageIndex = pageIndex;
+                    lastIndex = index;
+                    // If encountered EOF on previous page, done
+                    if (rememberedEOF) {
+                        return Printable.NO_SUCH_PAGE;
+                    }
+                    // Save current position in input file
+                } else {
+                    index = lastIndex;
+                }
+                g.setColor(Color.black);
+
+                int x = (int) pf.getImageableX() + 10;
+                int y = (int) pf.getImageableY() + 12;
+
+                // Put the panel name as a title
+                g.setFont(new Font("Arial", Font.PLAIN, 16));
+                g.drawString(panel.getLabel(), x, y);
+
+                // Now do the rest
+                g.setFont(fnt);
+                y += 36;
+                while (y + 12 < pf.getImageableY() + pf.getImageableHeight()) {
+                    if (index >= itemNo) {
+                        rememberedEOF = true;
+                        break;
+                    }
+                    DSSequential gm = panel.get(index);
+                    String line = "[" + gm.getSerial() + "]";
+                    g.drawString(line, x, y);
+                    g.drawString(gm.getLabel(), x + 30, y);
+                    g.drawString(gm.toString(), x + 160, y);
+                    y += 12;
+                    index++;
+                }
+                return Printable.PAGE_EXISTS;
+            } catch (Exception e) {
+                return Printable.NO_SUCH_PAGE;
+            }
+        }
+    }
+
+    /**
+     * List Model backed by the item list.
+     */
+    protected class ItemListModel extends AbstractListModel {
+
+        public int getSize() {
+            if (itemList == null) {
+                return 0;
+            }
+            return itemList.size();
+        }
+
+        public Object getElementAt(int index) {
+            if (itemList == null) {
+                return null;
+            }
+            return itemList.get(index);
+        }
+
+        public T getItem(int index) {
+            return itemList.get(index);
+        }
+
+        /**
+         * Indicates to the associated JList that the contents need to be redrawn.
+         */
+        public void refresh() {
+            if (itemList == null) {
+                fireContentsChanged(this, 0, 0);
+            } else {
+                fireContentsChanged(this, 0, itemList.size());
+            }
+        }
+
+        public void refreshItem(int index) {
+            fireContentsChanged(this, index, index);
+        }
+
+    }
+
+    /**
+     * Auto-scrolling list for items that customizes the double-click and right-click behavior.
+     */
+    protected class ItemList extends org.geworkbench.util.JAutoList {
+
+        public ItemList(ListModel model) {
+            super(model);
+        }
+
+        @Override protected void elementDoubleClicked(int index, MouseEvent e) {
+            itemDoubleClicked(index, e);
+        }
+
+        @Override protected void elementRightClicked(int index, MouseEvent e) {
+            itemRightClicked(index, e);
+        }
+
+        @Override protected void elementClicked(int index, MouseEvent e) {
+            itemClicked(index, e);
+        }
+
+    }
+
+    protected class ListCellRenderer extends DefaultListCellRenderer {
+        @Override
+        public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+            JLabel component = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+            Font font = component.getFont();
+            Font boldFont = font.deriveFont(Font.BOLD);
+            if (context.hasLabel(itemList.get(index), SELECTION_LABEL)) {
+                component.setFont(boldFont);
+            }
+//            if (!isSelected) {
+//                if (context.hasLabel(itemList.get(index), SELECTION_LABEL)) {
+//                    component.setBackground(Color.YELLOW);
+//                }
+//            } else {
+//                if (context.hasLabel(itemList.get(index), SELECTION_LABEL)) {
+//                    component.setBackground(Color.GREEN);
+//                }
+//            }
+            return component;
+        }
+    }
+
+    public DSAnnotationContext<T> getContext() {
+        return context;
+    }
+
+    public void setTreeRenderer(SelectorTreeRenderer treeRenderer) {
+        this.treeRenderer = treeRenderer;
+        panelTree.setCellRenderer(treeRenderer);
+    }
+
+    private boolean resetContextMode = false;
+
+    public void setItemList(DSItemList<T> itemList) {
+        resetContextMode = true;
+        try {
+            this.itemList = itemList;
+            CSAnnotationContextManager manager = CSAnnotationContextManager.getInstance();
+            context = manager.getCurrentContext(itemList);
+            initializeContext(context);
+            contextSelector.removeAllItems();
+            int n = manager.getNumberOfContexts(itemList);
+            for (int i = 0; i < n; i++) {
+                DSAnnotationContext aContext = manager.getContext(itemList, i);
+                contextSelector.addItem(aContext);
+                if (aContext == context) {
+                    contextSelector.setSelectedIndex(i);
+                }
+            }
+            newContextButton.setEnabled(true);
+            // Refresh list
+            listModel.refresh();
+            // Refresh tree
+            treeModel.setContext(context);
+            SwingUtilities.invokeLater(new Runnable() {
+                public void run() {
+                    treeModel.fireTreeStructureChanged();
+                }
+            });
+            throwLabelEvent();
+        } finally {
+            resetContextMode = false;
+        }
+    }
+
+    protected void createNewContext() {
+        String name = JOptionPane.showInputDialog("New group name:");
+        DSAnnotationContextManager manager = CSAnnotationContextManager.getInstance();
+        if (manager.hasContext(itemList, name)) {
+            JOptionPane.showMessageDialog(mainPanel, "Group already exists.");
+        } else {
+            context = manager.createContext(itemList, name);
+            initializeContext(context);
+            contextSelector.addItem(context);
+            contextSelector.setSelectedItem(context);
+            manager.setCurrentContext(itemList, context);
+            // Refresh list
+            listModel.refresh();
+            // Refresh tree
+            treeModel.setContext(context);
+            treeModel.fireTreeStructureChanged();
+            throwLabelEvent();
+        }
+    }
+
+    protected void switchContext(DSAnnotationContext newContext) {
+        if (!resetContextMode && (newContext != null)) {
+            context = newContext;
+            contextSelector.setSelectedItem(context);
+            DSAnnotationContextManager manager = CSAnnotationContextManager.getInstance();
+            manager.setCurrentContext(itemList, context);
+            // Refresh list
+            listModel.refresh();
+            // Refresh tree
+            treeModel.setContext(context);
+            treeModel.fireTreeStructureChanged();
+            throwLabelEvent();
+        }
+    }
+
+    protected void initializeContext(DSAnnotationContext context) {
+        context.addLabel(SELECTION_LABEL);
+    }
+
 }

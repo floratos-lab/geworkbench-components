@@ -6,6 +6,7 @@ import org.geworkbench.builtin.projects.ProjectPanel;
 import org.geworkbench.builtin.projects.ProjectSelection;
 import org.geworkbench.util.sequences.SequenceDB;
 import org.geworkbench.engine.management.Subscribe;
+import org.geworkbench.engine.management.AcceptTypes;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.engine.config.VisualPlugin;
 
@@ -23,7 +24,7 @@ import java.util.HashMap;
  * @version 1.0
  */
 
-public class PositionHistogramAppComponent implements VisualPlugin {
+@AcceptTypes({SequenceDB.class}) public class PositionHistogramAppComponent implements VisualPlugin {
 
     PositionHistogramWidget pHistogramWidget = null;
     HashMap listeners = new HashMap();

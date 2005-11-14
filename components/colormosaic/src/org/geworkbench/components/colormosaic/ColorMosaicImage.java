@@ -10,8 +10,9 @@ import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMutableMarkerValue;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
-import org.geworkbench.bison.util.CSCriterionManager;
-import org.geworkbench.bison.util.DSAnnotValue;
+import org.geworkbench.bison.annotation.DSAnnotationContext;
+import org.geworkbench.bison.annotation.CSAnnotationContextManager;
+import org.geworkbench.bison.annotation.CSAnnotationContext;
 
 import javax.swing.*;
 import java.awt.*;
@@ -109,7 +110,8 @@ public class ColorMosaicImage extends JPanel implements Scrollable {
 
     protected int showCluster(Graphics g, EisenBlock cluster, int row, boolean screenMode) {
         Rectangle visibleRect = getVisibleRect();
-        DSClassCriteria classCriteria = CSCriterionManager.getClassCriteria(microarraySet);
+        // DSClassCriteria classCriteria = CSCriterionManager.getClassCriteria(microarraySet);
+        DSAnnotationContext<DSMicroarray> context = CSAnnotationContextManager.getInstance().getCurrentContext(microarraySet);
         //        DSPanel<DSMicroarray> criterion = CSCriterionManager.getCriteria(microarraySet).getSelectedCriterion();
         int fontGutter = (int) ((double) geneHeight * .22);
         currentCluster = cluster;
@@ -157,7 +159,7 @@ public class ColorMosaicImage extends JPanel implements Scrollable {
                     } else if (j == chipNo - 1) {
                         g.setColor(Color.black);
                         g.fillRect(x + geneWidth - 1, y, 2, geneHeight);
-                    } else if (microarrayPanel.isBoundary(j - 1) && !showAllMArrays) {
+                    } else if ((microarrayPanel != null) && microarrayPanel.isBoundary(j - 1) && !showAllMArrays) {
                         g.setColor(Color.black);
                         g.fillRect(x / 1 - 2, y, 2, geneHeight);
                     }
@@ -171,8 +173,8 @@ public class ColorMosaicImage extends JPanel implements Scrollable {
                         if (cluster.getPattern().getPattern().match(mArray).getPValue() < 1.0) {
                             int x = (j * geneWidth) / 1;
                             int width = ((j + 1) * geneWidth) / 1 - x;
-                            DSAnnotValue v = classCriteria.getValue(mArray);
-                            g.setColor(CSClassCriteria.getSelectionColor(v.hashCode()));
+                            String v = context.getClassForItem(mArray);
+                            g.setColor(new Color(CSAnnotationContext.getRGBForClass(v)));
                             g.drawRect(x, y, width, geneHeight);
                         }
                     }

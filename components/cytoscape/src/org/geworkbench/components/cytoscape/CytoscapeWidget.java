@@ -10,13 +10,17 @@ import cytoscape.view.CyNetworkView;
 import giny.model.Node;
 import giny.view.GraphViewChangeEvent;
 import giny.view.GraphViewChangeListener;
+import giny.view.GraphView;
 import org.geworkbench.events.AdjacencyMatrixEvent;
 import org.geworkbench.events.GeneSelectorEvent;
 import org.geworkbench.events.PhenotypeSelectorEvent;
 import org.geworkbench.util.pathwaydecoder.mutualinformation.AdjacencyMatrix;
 import org.geworkbench.util.pathwaydecoder.mutualinformation.IAdjacencyMatrix;
+import org.geworkbench.util.pathwaydecoder.mutualinformation.AdjacencyMatrixDataSet;
+import org.geworkbench.util.Util;
 import org.geworkbench.engine.management.Publish;
 import org.geworkbench.engine.management.Subscribe;
+import org.geworkbench.engine.management.AcceptTypes;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
@@ -33,10 +37,7 @@ import java.awt.*;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Properties;
-import java.util.Vector;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.geworkbench.engine.management.Script;
@@ -52,6 +53,7 @@ import org.geworkbench.engine.management.Script;
  * @version 1.0
  */
 
+@AcceptTypes({AdjacencyMatrixDataSet.class})
 public class CytoscapeWidget extends EventSource implements VisualPlugin, MenuListener {
 
     protected Vector windows = new Vector();
@@ -59,11 +61,13 @@ public class CytoscapeWidget extends EventSource implements VisualPlugin, MenuLi
     protected Logger logger;
     protected boolean uiSetup = false;
     protected DSMicroarraySet maSet = null;
+    protected AdjacencyMatrixDataSet adjSet = null;
     protected CyNetwork cytoNetwork = null;
     protected AdjacencyMatrix adjMatrix = null;
     protected CyNetworkView view = null;
     PSelectionHandler selectionHandler = null;
     protected Vector adjStorage = new Vector(); // to store the adjacency matrices it received
+    protected HashSet<String> dataSetIDs = new HashSet<String>();
 
     public CytoscapeWidget() {
         String[] args = new String[]{"-b", "annotation/manifest", "--JLD", "plugins"};
@@ -292,24 +296,24 @@ public class CytoscapeWidget extends EventSource implements VisualPlugin, MenuLi
      */
     public void drawNetwork(AdjacencyMatrixEvent ae) {
         if (ae.getNetworkFocus() == -1) {
-            drawCompleteNetwork(ae);
+            drawCompleteNetwork(ae.getAdjacencyMatrix(), ae.getThreshold());
         } else {
-            drawCentricNetwork(ae);
+            drawCentricNetwork(ae.getAdjacencyMatrix(), ae.getNetworkFocus(), ae.getThreshold(), ae.getDisplayDepth());
         }
     }
 
-    public void drawCompleteNetwork(AdjacencyMatrixEvent ae) {
-        adjMatrix = ae.getAdjacencyMatrix();
+    public void drawCompleteNetwork(AdjacencyMatrix adjMatrix, double threshold) {
+        this.adjMatrix = adjMatrix;
         Iterator keysIt = adjMatrix.getGeneRows().keySet().iterator();
         while (keysIt.hasNext()) {
             int key = ((Integer) keysIt.next()).intValue();
-            createSubNetwork(key, ae.getThreshold(), 1);
+            createSubNetwork(key, threshold, 1);
         }
     }
 
-    public void drawCentricNetwork(AdjacencyMatrixEvent ae) {
-        adjMatrix = ae.getAdjacencyMatrix();
-        createSubNetwork(ae.getNetworkFocus(), ae.getThreshold(), ae.getDisplayDepth());
+    public void drawCentricNetwork(AdjacencyMatrix adjMatrix, int networkFocus, double threshold, int depth) {
+        this.adjMatrix = adjMatrix;
+        createSubNetwork(networkFocus, threshold, depth);
     }
 
     /**
@@ -602,7 +606,8 @@ public class CytoscapeWidget extends EventSource implements VisualPlugin, MenuLi
 //        }
     }
 
-    @Publish public org.geworkbench.events.SubpanelChangedEvent publishSubpanelChangedEvent(org.geworkbench.events.SubpanelChangedEvent event) {
+    @Publish
+    public org.geworkbench.events.SubpanelChangedEvent publishSubpanelChangedEvent(org.geworkbench.events.SubpanelChangedEvent event) {
         return event;
     }
 
@@ -614,9 +619,68 @@ public class CytoscapeWidget extends EventSource implements VisualPlugin, MenuLi
      */
     @Subscribe public void receive(org.geworkbench.events.ProjectEvent e, Object source) {
         DSDataSet dataSet = e.getDataSet();
-        if (dataSet instanceof DSMicroarraySet) {
-            maSet = (DSMicroarraySet) dataSet;
+        if (dataSet instanceof AdjacencyMatrixDataSet) {
+            adjSet = (AdjacencyMatrixDataSet) dataSet;
+            maSet = adjSet.getMatrix().getMicroarraySet();
+            boolean found = false;
+            String foundID = null;
+            if (!dataSetIDs.contains(adjSet.getID())) {
+                dataSetIDs.add(adjSet.getID());
+            } else {
+                Set networks = Cytoscape.getNetworkSet();
+                for (Iterator iterator = networks.iterator(); iterator.hasNext();) {
+                    String id = (String) iterator.next();
+                    CyNetwork network = Cytoscape.getNetwork(id);
+                    String title = network.getTitle();
+                    if (title.equals(adjSet.getNetworkName())) {
+                        found = true;
+                        foundID = id;
+                        break;
+                    }
+                }
+            }
+            if (!found) {
+                receiveMatrix();
+            } else {
+                Cytoscape.getDesktop().getNetworkPanel().focusNetworkNode(foundID);
+            }
         }
+    }
+
+    private void receiveMatrix() {
+        // 1) RECEIVE event
+        String name = adjSet.getNetworkName();
+        String tmpname = adjSet.getMatrix().getLabel();
+        if (tmpname != null) {
+            name = tmpname + " [" + name + "]";
+        }
+        Set networks = Cytoscape.getNetworkSet();
+        HashSet<String> names = new HashSet<String>();
+        for (Iterator iterator = networks.iterator(); iterator.hasNext();) {
+            String id = (String) iterator.next();
+            CyNetwork network = Cytoscape.getNetwork(id);
+            String title = network.getTitle();
+            names.add(title);
+        }
+        name = Util.getUniqueName(name, names);
+        adjSet.setNetworkName(name);
+        cytoNetwork = Cytoscape.createNetwork(name);
+        // 2) DRAW NETWORK event
+        if (adjSet.getGeneId() == -1) {
+            drawCompleteNetwork(adjSet.getMatrix(), adjSet.getThreshold());
+        } else {
+            drawCentricNetwork(adjSet.getMatrix(), adjSet.getGeneId(), adjSet.getThreshold(), adjSet.getDepth());
+        }
+        // 3) FINISH event
+        if (maSet != null) {
+            view = Cytoscape.createNetworkView(cytoNetwork, maSet.getLabel());
+            view.addGraphViewChangeListener(new GraphViewChangeListener() {
+                public void graphViewChanged(GraphViewChangeEvent graphViewChangeEvent) {
+                    cyNetWorkView_graphViewChanged(graphViewChangeEvent);
+                }
+            });
+        }
+
     }
 
     /**
@@ -629,41 +693,38 @@ public class CytoscapeWidget extends EventSource implements VisualPlugin, MenuLi
 
     @Subscribe public void receive(AdjacencyMatrixEvent ae, Object source) {
         switch (ae.getAction()) {
-            case LOADED:
-                {
-                    // no-op
+            case LOADED: {
+                // no-op
+            }
+            break;
+            case RECEIVE: {
+                // System.out.println("receiveAdjacencyMatrix from cytoscapeWidget");
+                if (ae.getAdjacencyMatrix().getSource() == AdjacencyMatrix.fromGeneNetworkPanelTakenGoodCareOf) {
+                    // this adj mtx should be sent only to EviInt panel since it has been drawn
+                    // by GeneNetworkPanel once
+                    return;
                 }
-                break;
-            case RECEIVE:
-                {
-                    // System.out.println("receiveAdjacencyMatrix from cytoscapeWidget");
-                    if (ae.getAdjacencyMatrix().getSource() == AdjacencyMatrix.fromGeneNetworkPanelTakenGoodCareOf) {
-                        // this adj mtx should be sent only to EviInt panel since it has been drawn
-                        // by GeneNetworkPanel once
-                        return;
-                    }
-                    String name = (maSet == null ? "Test" : maSet.getLabel());
-                    String tmpname = ae.getAdjacencyMatrix().getLabel();
-                    if (tmpname != null) {
-                        name = tmpname + " [" + name + "]";
-                    }
-                    cytoNetwork = Cytoscape.createNetwork(name);
+                String name = (maSet == null ? "Test" : maSet.getLabel());
+                String tmpname = ae.getAdjacencyMatrix().getLabel();
+                if (tmpname != null) {
+                    name = tmpname + " [" + name + "]";
+                }
+                cytoNetwork = Cytoscape.createNetwork(name);
 
-                    // this.adjStorage.add(ae.getAdjacencyMatrix());
-                    System.out.println(" adjSize  " + ae.getAdjacencyMatrix().getEdgeNo(5));
-                    // System.out.println("Current adj storage: "+ myio.vector2tring(this.adjStorage, "\n"));
+                // this.adjStorage.add(ae.getAdjacencyMatrix());
+                System.out.println(" adjSize  " + ae.getAdjacencyMatrix().getEdgeNo(5));
+                // System.out.println("Current adj storage: "+ myio.vector2tring(this.adjStorage, "\n"));
+            }
+            break;
+            case DRAW_NETWORK: {
+                // System.out.println("drawNetwork from cytoscapeWidget");
+                if (ae.getNetworkFocus() == -1) {
+                    drawCompleteNetwork(ae.getAdjacencyMatrix(), ae.getThreshold());
+                } else {
+                    drawCentricNetwork(ae.getAdjacencyMatrix(), ae.getNetworkFocus(), ae.getThreshold(), ae.getDisplayDepth());
                 }
-                break;
-            case DRAW_NETWORK:
-                {
-                    // System.out.println("drawNetwork from cytoscapeWidget");
-                    if (ae.getNetworkFocus() == -1) {
-                        drawCompleteNetwork(ae);
-                    } else {
-                        drawCentricNetwork(ae);
-                    }
-                }
-                break;
+            }
+            break;
 //            case DRAW_NETWORK_AND_INTERACTION:
 //                {
 //                    // System.out.println("drawNetworkAndInteraction from cytoscapeWidget");
@@ -671,18 +732,17 @@ public class CytoscapeWidget extends EventSource implements VisualPlugin, MenuLi
 //                    createWholeNetwork();
 //                }
 //                break;
-            case FINISH:
-                {
-                    if (maSet != null) {
-                        view = Cytoscape.createNetworkView(cytoNetwork, maSet.getLabel());
-                        view.addGraphViewChangeListener(new GraphViewChangeListener() {
-                            public void graphViewChanged(GraphViewChangeEvent graphViewChangeEvent) {
-                                cyNetWorkView_graphViewChanged(graphViewChangeEvent);
-                            }
-                        });
-                    }
+            case FINISH: {
+                if (maSet != null) {
+                    view = Cytoscape.createNetworkView(cytoNetwork, maSet.getLabel());
+                    view.addGraphViewChangeListener(new GraphViewChangeListener() {
+                        public void graphViewChanged(GraphViewChangeEvent graphViewChangeEvent) {
+                            cyNetWorkView_graphViewChanged(graphViewChangeEvent);
+                        }
+                    });
                 }
-                break;
+            }
+            break;
         }
     }
 

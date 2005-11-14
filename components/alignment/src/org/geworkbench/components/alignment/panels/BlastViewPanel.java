@@ -155,7 +155,7 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
         singleAlignmentArea.addHyperlinkListener(this);
         jButton1.setText("jButton1");
         addAlignedButton.setMinimumSize(new Dimension(100, 23));
-        addAlignedButton.setText("Only Added Aligned Parts");
+        addAlignedButton.setText("Only Add Aligned Parts");
         addAlignedButton.addActionListener(new BlastViewPanel_addAlignedButton_actionAdapter(this));
         allButton.setText("Select All");
         allButton.addActionListener(new BlastViewPanel_allButton_actionAdapter(this));

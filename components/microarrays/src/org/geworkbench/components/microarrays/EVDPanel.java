@@ -6,6 +6,7 @@ import org.geworkbench.events.ProjectEvent;
 import org.geworkbench.util.microarrayutils.MicroarrayViewEventBase;
 import org.geworkbench.engine.management.Publish;
 import org.geworkbench.engine.management.Subscribe;
+import org.geworkbench.engine.management.AcceptTypes;
 import org.geworkbench.util.visualproperties.PanelVisualProperties;
 import org.geworkbench.util.visualproperties.PanelVisualPropertiesManager;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.
@@ -55,7 +56,7 @@ import java.util.Vector;
  * @author Xiaoqing Zhang
  * @version 3.0
  */
-public class EVDPanel extends MicroarrayViewEventBase implements MenuListener {
+@AcceptTypes({DSMicroarraySet.class}) public class EVDPanel extends MicroarrayViewEventBase implements MenuListener {
 
     private JFreeChart chart;
     public static int EVDMODE = 1;

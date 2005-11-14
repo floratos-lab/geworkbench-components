@@ -1,8 +1,11 @@
 package org.geworkbench.components.discovery;
 
 import org.geworkbench.bison.util.RandomNumberGenerator;
+import org.geworkbench.bison.util.Icons;
 import org.geworkbench.bison.datastructure.biocollections.CSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.DSAncillaryDataSet;
+import org.geworkbench.bison.datastructure.biocollections.CSAncillaryDataSet;
+import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import polgara.soapPD_wsdl.Parameters;
 
 import javax.swing.*;
@@ -18,16 +21,22 @@ import java.io.File;
  * @version 1.0
  */
 
-public class ParmsDataSet extends CSDataSet implements DSAncillaryDataSet {
-    static private ImageIcon icon = new ImageIcon(ParmsDataSet.class.getResource("parameters.gif"));
+public class ParmsDataSet extends CSAncillaryDataSet {
     private Parameters parms = null;
     boolean dirty = true;
     File dataSetFile = null;
     String label = "Undefined";
 
-    public ParmsDataSet(Parameters p) {
+
+    public ImageIcon getIcon() {
+        return Icons.PATTERN_ICON;
+    }
+
+    public ParmsDataSet(Parameters p, String name, DSDataSet parent) {
+        super(parent, name);        
         parms = p;
         setID(RandomNumberGenerator.getID());
+        setLabel(name);
     }
 
     public File getDataSetFile() {

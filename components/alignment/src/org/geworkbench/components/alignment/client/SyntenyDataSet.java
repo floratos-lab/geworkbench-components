@@ -2,16 +2,19 @@ package org.geworkbench.components.alignment.client;
 
 import org.geworkbench.bison.datastructure.biocollections.CSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.DSAncillaryDataSet;
+import org.geworkbench.bison.datastructure.biocollections.CSAncillaryDataSet;
+import org.geworkbench.bison.util.Icons;
 
 import javax.swing.*;
 import java.io.File;
 
-public class SyntenyDataSet extends CSDataSet implements DSAncillaryDataSet {
-    public void SyntenyDataSet(String fileName) {
+public class SyntenyDataSet extends CSAncillaryDataSet {
+    public SyntenyDataSet(String fileName) {
+        super(null, fileName);
         resultFile = new File(fileName);
     }
 
-    private static ImageIcon icon = new ImageIcon("share/images/blast.gif");
+    // private static ImageIcon icon = new ImageIcon("share/images/blast.gif");
     private String label = "Synteny_Result";
     private File resultFile = null;
 
@@ -32,7 +35,7 @@ public class SyntenyDataSet extends CSDataSet implements DSAncillaryDataSet {
      * @todo Implement this medusa.components.projects.IDataSet method
      */
     public ImageIcon getIcon() {
-        return icon;
+        return Icons.GENERIC_ICON;
     }
 
     /**

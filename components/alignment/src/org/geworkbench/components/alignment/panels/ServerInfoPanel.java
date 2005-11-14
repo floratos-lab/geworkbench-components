@@ -227,7 +227,7 @@ public class ServerInfoPanel extends JPanel {
             br.close();
             bw.close();
 
-            DSAlignmentResultSet blastResult = new CSAlignmentResultSet(input, filename);
+            DSAlignmentResultSet blastResult = new CSAlignmentResultSet(input, filename, null);
 
             org.geworkbench.events.ProjectNodeAddedEvent event = new ProjectNodeAddedEvent("message", null, blastResult);
             BlastAppComponent blastAppComponent = pv.getBlastAppComponent();
