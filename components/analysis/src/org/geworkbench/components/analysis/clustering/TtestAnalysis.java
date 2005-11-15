@@ -12,6 +12,7 @@ import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarr
 import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
+import org.geworkbench.bison.datastructure.bioobjects.microarray.CSSignificanceResultSet;
 import org.geworkbench.bison.datastructure.complex.panels.CSAnnotPanel;
 import org.geworkbench.bison.datastructure.complex.panels.DSAnnotatedPanel;
 import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
@@ -20,6 +21,8 @@ import org.geworkbench.bison.annotation.DSAnnotationContextManager;
 import org.geworkbench.bison.annotation.CSAnnotationContextManager;
 import org.geworkbench.bison.annotation.DSAnnotationContext;
 import org.geworkbench.bison.annotation.CSAnnotationContext;
+import org.geworkbench.events.SubpanelChangedEvent;
+import org.geworkbench.engine.management.Publish;
 
 import java.util.Hashtable;
 import java.util.Random;
@@ -263,8 +266,11 @@ public class TtestAnalysis extends AbstractAnalysis implements ClusteringAnalysi
                 }
             }
 
+            CSSignificanceResultSet<DSGeneMarker> sigSet = new CSSignificanceResultSet<DSGeneMarker>(maSet, "T-Test");
+
             for (int i = 0; i < pValuesVector.size(); i++) {
                 pValuesMatrix[i][0] = ((Float) (pValuesVector.get(i))).floatValue();
+                sigSet.setSignificance(data.markers().get(i), pValuesMatrix[i][0]);
             }
             if (tTestDesign == TtestAnalysisPanel.BETWEEN_SUBJECTS) {
                 for (int i = 0; i < numGenes; i++) {
@@ -307,7 +313,7 @@ public class TtestAnalysis extends AbstractAnalysis implements ClusteringAnalysi
             float[][] means = getMeans(clusters);
             float[][] variances = getVariances(clusters, means);
 
-            Hashtable result = new Hashtable();
+//            Hashtable result = new Hashtable();
 
             DSAnnotatedPanel<DSGeneMarker, Float> panelSignificant = new CSAnnotPanel<DSGeneMarker, Float>("Significant Genes");
 
@@ -318,27 +324,31 @@ public class TtestAnalysis extends AbstractAnalysis implements ClusteringAnalysi
                     panelSignificant.add(item, new Float(pValuesMatrix[index][0]));
                 }
             }
-            panelSignificant.setActive(true);
-            result.put("Significant Genes", panelSignificant);
+            publishSubpanelChangedEvent(new SubpanelChangedEvent(panelSignificant, SubpanelChangedEvent.NEW));
+//            result.put("Significant Genes", panelSignificant);
+//
+//            result.put("number-of-clusters", String.valueOf(clusters.length));
+//            result.put("clusters_means", means);
+//            result.put("clusters_variances", variances);
+//            result.put("pValues", pValuesMatrix);
+//            result.put("tValues", tValuesMatrix);
+//            result.put("dfValues", dfMatrix);
+//            result.put("meansAMatrix", meansAMatrix);
+//            result.put("meansBMatrix", meansBMatrix);
+//            result.put("sdAMatrix", sdAMatrix);
+//            result.put("sdBMatrix", sdBMatrix);
+//            result.put("isSigMatrix", isSigMatrix);
+//            result.put("oneClassMeansMatrix", oneClassMeansMatrix);
+//            result.put("oneClassSDsMatrix", oneClassSDsMatrix);
 
-            result.put("number-of-clusters", String.valueOf(clusters.length));
-            result.put("clusters_means", means);
-            result.put("clusters_variances", variances);
-            result.put("pValues", pValuesMatrix);
-            result.put("tValues", tValuesMatrix);
-            result.put("dfValues", dfMatrix);
-            result.put("meansAMatrix", meansAMatrix);
-            result.put("meansBMatrix", meansBMatrix);
-            result.put("sdAMatrix", sdAMatrix);
-            result.put("sdBMatrix", sdBMatrix);
-            result.put("isSigMatrix", isSigMatrix);
-            result.put("oneClassMeansMatrix", oneClassMeansMatrix);
-            result.put("oneClassSDsMatrix", oneClassSDsMatrix);
-
-            AlgorithmExecutionResults results = new AlgorithmExecutionResults(true, "Ttest", result);
+            AlgorithmExecutionResults results = new AlgorithmExecutionResults(true, "Ttest", sigSet);
             return results;
         }
         return null;
+    }
+
+    @Publish public org.geworkbench.events.SubpanelChangedEvent publishSubpanelChangedEvent(org.geworkbench.events.SubpanelChangedEvent event) {
+        return event;
     }
 
     public AlgorithmExecutionResults executeMaxT() {
