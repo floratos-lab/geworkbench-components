@@ -9,6 +9,7 @@ import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarr
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMutableMarkerValue;
+import org.geworkbench.bison.datastructure.bioobjects.microarray.DSSignificanceResultSet;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.bison.annotation.DSAnnotationContext;
 import org.geworkbench.bison.annotation.CSAnnotationContextManager;
@@ -82,6 +83,7 @@ public class ColorMosaicImage extends JPanel implements Scrollable {
     protected boolean showAllMArrays = true;
     protected boolean showAllMarkers = true;
     private DecimalFormat format = new DecimalFormat("0.#E00");
+    private DSSignificanceResultSet<DSGeneMarker> significanceResultSet = null;
 
     private JPopupMenu popupMenu;
     private JMenuItem imageSnapshotItem;
@@ -89,6 +91,16 @@ public class ColorMosaicImage extends JPanel implements Scrollable {
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         paint(g, DEFAULTRES, true);
+    }
+
+    public void setSignificanceResultSet(DSSignificanceResultSet<DSGeneMarker> significanceResultSet) {
+        this.significanceResultSet = significanceResultSet;
+        recomputeDimensions();
+    }
+
+    public void clearSignificanceResultSet() {
+        significanceResultSet = null;
+        recomputeDimensions();        
     }
 
     public void paint(Graphics g, int res, boolean screenMode) {
@@ -570,6 +582,12 @@ public class ColorMosaicImage extends JPanel implements Scrollable {
             }
             if (isPrintPValue) {
                 double pValue = currentCluster.getGenePValue(stats);
+                if ((pValue == -1d) && (significanceResultSet != null)) {
+                    Double sig = significanceResultSet.getSignificance(stats);
+                    if (sig != null) {
+                        pValue = sig;
+                    }
+                }
                 String p = null;
                 if (pValue == -1d) {
                     p = " ";
@@ -644,6 +662,12 @@ public class ColorMosaicImage extends JPanel implements Scrollable {
                 String label = stats.getShortName(); //stats.getDescription();
                 String accession = stats.getLabel();
                 double pValue = cl.getGenePValue(stats);
+                if ((pValue == -1d) && (significanceResultSet != null)) {
+                    Double sig = significanceResultSet.getSignificance(stats);
+                    if (sig != null) {
+                        pValue = sig;
+                    }
+                }
                 String p = "";
                 //rect                 = LabelFont.getStringBounds(ratio, g.getFontRenderContext());
                 ratioWidth = 0; //Math.max(RatioWidth, (int)rect.getWidth());

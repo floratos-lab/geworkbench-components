@@ -18,6 +18,7 @@ import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarr
 import org.geworkbench.bison.datastructure.bioobjects.DSBioObject;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
+import org.geworkbench.bison.datastructure.bioobjects.microarray.DSSignificanceResultSet;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.bison.datastructure.complex.pattern.CSPatternMatch;
 import org.geworkbench.bison.datastructure.complex.pattern.DSPatternMatch;
@@ -50,7 +51,8 @@ import java.util.Iterator;
  * @version 1.0
  */
 
-@AcceptTypes({DSMicroarraySet.class}) public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
+@AcceptTypes({DSMicroarraySet.class, DSSignificanceResultSet.class})
+public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
     private JPanel mainPanel = new JPanel();
     private BorderLayout borderLayout1 = new BorderLayout();
     private JToolBar jToolBar1 = new JToolBar();
@@ -95,6 +97,11 @@ import java.util.Iterator;
             colorMosaicImage.setChips(chips);
             mainPanel.repaint();
         }
+    }
+
+    void setSignificance(DSSignificanceResultSet sigSet) {
+        colorMosaicImage.setSignificanceResultSet(sigSet);
+        mainPanel.repaint();
     }
 
     private void jbInit() throws Exception {
@@ -293,7 +300,7 @@ import java.util.Iterator;
     }
 
     private void resetColorMosaicImage(int geneHeight, int geneWidth,
-                                                       boolean printRatio, boolean printAccession, boolean printDesc) {
+                                       boolean printRatio, boolean printAccession, boolean printDesc) {
         colorMosaicImage.setGeneHeight(geneHeight);
         colorMosaicImage.setGeneWidth(geneWidth);
         colorMosaicImage.setPrintRatio(printRatio);
@@ -482,17 +489,22 @@ import java.util.Iterator;
     }
 
     @Subscribe public void receive(ProjectEvent projectEvent, Object source) {
-        ProjectSelection selection = ((ProjectPanel) source).getSelection();
-        DSDataSet dataFile = selection.getDataSet();
+        DSDataSet dataFile = projectEvent.getDataSet();
 
         if (dataFile != null) {
             if (dataFile instanceof DSMicroarraySet) {
                 DSMicroarraySet set = (DSMicroarraySet) dataFile;
-                if (set != null) {
-                    if (colorMosaicImage.getChips() != set) {
-                        setChips(set);
-                    }
+                if (colorMosaicImage.getChips() != set) {
+                    setChips(set);
+                    colorMosaicImage.clearSignificanceResultSet();
                 }
+            } else if (dataFile instanceof DSSignificanceResultSet) {
+                DSSignificanceResultSet sigSet = (DSSignificanceResultSet) dataFile;
+                DSMicroarraySet set = sigSet.getParentDataSet();
+                if (colorMosaicImage.getChips() != set) {
+                    colorMosaicImage.setChips(set);
+                }
+                setSignificance(sigSet);
             }
         } else {
             jToggleButton2.setSelected(false);
@@ -509,7 +521,7 @@ import java.util.Iterator;
     }
 
     @Subscribe public void receive(AssociationPanelEvent e, Object source) {
-        CSMatchedMatrixPattern[] patterns  = e.getPatterns();
+        CSMatchedMatrixPattern[] patterns = e.getPatterns();
         if (e.message.equalsIgnoreCase("selection")) {
             notifyPatternSelection(patterns);
         } else if (e.message.equalsIgnoreCase("clear")) {
@@ -594,7 +606,8 @@ import java.util.Iterator;
 
     }
 
-    @Publish public org.geworkbench.events.ImageSnapshotEvent publishImageSnapshotEvent(org.geworkbench.events.ImageSnapshotEvent event) {
+    @Publish
+    public org.geworkbench.events.ImageSnapshotEvent publishImageSnapshotEvent(org.geworkbench.events.ImageSnapshotEvent event) {
         return event;
     }
 
