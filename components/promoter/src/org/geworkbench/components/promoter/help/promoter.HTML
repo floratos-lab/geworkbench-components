@@ -21,27 +21,27 @@
 
 
 <body>
-      <h3>Promoter Panel</h3> 
+    <h3>Promoter Panel</h3> 
     <p>The Promoter Panel is located in the <b>View Area</b> in the upper right of the application. This visualization panel uses the JASPAR Transcription Factor Binding Profile Database (<a href="http://jaspar.cgb.ki.se/cgi-bin/jaspar_db.pl">http://jaspar.cgb.ki.se/cgi-bin/jaspar_db.pl</a> ). The promoter panel can used to visualize transcription factor binding sites (TFBS) using the following:</p> 
     <p><b>Transcription Factor signature analysis</b>: Searching putative regulatory sequences against a collection of known transcription factor DNA-binding signatures represented as a position weight matrices (PWMs) [Lawrence and Reilly, 1990].</p> 
     <p>This help section describes promoter panel <a href="#_Basic_Usage">basic usage</a>, <a href="#_View_Transcription_Factor_Analysis">viewing transcription factor</a> analysis and <a href="#_View_Pattern_Discovery_Results">view results from Pattern Discover</a>y.</p> 
-    <p><a name="_Basic_Usage"></a><img border="0" width="1107" height="683" src="promoter%20panel102005_files/image001.jpg"></p> 
-    <p><b>Basic Usage </b></p> 
-    <p>The steps of basic usage are indicated with letter in the above screenshot.</p> 
+    <p> <a name="_Basic_Usage"></a><img border="0" width="812" height="702" src="promoter%20panel_files/image001.gif"></p> 
+    <p> <b>Basic Usage </b></p> 
+    <p>The steps of basic usage are indicated in the above screenshot.</p> 
     <p><b>A. TF Mapping or Module Discovery: </b>This tab allows users to select A.TF Mapping or Module Discovery: This tab allows users to select TF Mapping or Module Discovery. The Module Discovery Tab functionality is not yet implemented. </p> 
     <p><b>B. TF list:</b> The TF list contains the names of available transcription factors signatures from Jaspar or those that have been loaded from files. This lists of known Transcription Factor (TF) binding site sequence patterns. Each is represented by a Position Specific Scoring Matrix (PSSM). </p> 
-    <p><b>C.</b> Double click to move TF signatures from TF list box to the Selected TF (lower box). This list box shows transcription factors which can be searched against the available genomic sequences by clicking on Scan. Double-clicking on a TF name clears it from the Selected TF list. </p> 
+    <p><b>C. Selected TF : </b>Double click to move TF signatures from TF list box to the Selected TF (lower box). This list box shows transcription factors which can be searched against the available genomic sequences by clicking on Scan. Double-clicking on a TF name clears it from the Selected TF list. </p> 
     <p><b>D. Scan: </b>Scan the sequences in the Selected TF against the available genomic sequences. </p> 
-    <p><b>E. Retrieve: </b>Loads file of stored promoter sequences. </p> 
-    <p><b>F. Load:</b> Loads a file containing new transcription factors to add to the TF Listing. </p> 
-    <p><b>G. Save: </b>Stores the sequence data in the display area. </p> 
-    <p>H. The lines in the display area represent the full 4000 base pairs of each sequence. Double click on the sequences to see the textual representation of the DNA and the TF signature match, shown as a colored rectangle. </p> 
-    <p>I. The bottom of the window includes a sequence logo representation of the TF signature. Pattern and the relative weights of each component are displayed at bottom in a logo-style graphic. </p> 
-    <p><b>J. Stop: </b>Stops the scanning process. </p> 
-    <p>K. The progress bar used to provide a visual update of the mapping percentage completion. </p> 
-    <p><b>L. Clear: </b>Clears the display area of active patterns and active TFs. This is useful mostly for resetting the &quot;active TFs&quot; data structure which is not automatically cleared before each Scan operation. </p> 
-    <p><b>M. Show patterns : </b>Controls if the patterns currently in the &quot;active patterns&quot; structure are displayed (as ovals) over the sequences. When selected (checked), the patterns are displayed. Unselected, the patterns are not displayed. </p> 
-    <p><b>N. Show TF:</b> Controls if the TFs currently in the &quot;active TF&quot; structure are displayed (as rectangles) over the sequences. When selected (checked), the display area will include TF&#8217;s in the sequence display. Unselected, the TF&#8217;s are not displayed. </p> 
+    <p><b>Retrieve: </b>Loads file of stored promoter sequences. </p> 
+    <p><b>Load:</b> Loads a file containing new transcription factors to add to the TF Listing. </p> 
+    <p><b>Save: </b>Stores the sequence data in the display area.</p> 
+    <p><b>Stop: </b>Stops the scanning process. </p> 
+    <p><b>E. </b>The progress bar used to provide a visual update of the mapping percentage completion. </p> 
+    <p><b>F.</b> The lines in the display area represent the full 4000 base pairs of each sequence. Double click on the sequences to see the textual representation of the DNA and the TF signature match, shown as a colored rectangle. </p> 
+    <p><b>G. Show TF:</b> Controls if the TFs currently in the &quot;active TF&quot; structure are displayed (as rectangles) over the sequences. When selected (checked), the display area will include TF&#8217;s in the sequence display. Unselected, the TF&#8217;s are not displayed.</p> 
+    <p><b>Show Patterns: </b>Controls if the patterns currently in the &quot;active patterns&quot; structure are displayed (as ovals) over the sequences. When selected (checked), the patterns are displayed. Unselected, the patterns are not displayed.</p> 
+    <p><b>Clear All: </b>Clears the display area of active patterns and active TFs. This is useful mostly for resetting the &quot;active TFs&quot; data structure which is not automatically cleared before each Scan operation. </p> 
+    <p><b>H.</b> The bottom of the window includes a sequence logo representation of the TF signature. Pattern and the relative weights of each component are displayed at bottom in a logo-style graphic. </p> 
     <p><a name="_View_Transcription_Factor_Analysis"></a>View Transcription Factor Analysis</p> 
     <p>1 Load a FASTA File into the project pane.</p> 
     <p>2 Select promoter panel. The display area is updated to reflect the sequences for the FASTA file loaded.</p> 
@@ -53,7 +53,6 @@
     <p>2 Run Pattern Discovery analysis. (See Pattern Discovery online help for more information)</p> 
     <p>3 In the Pattern Discovery Panel discovery table, left click on the row(s) to display selected motifs and their frequencies in the dataset. The Promoter Panel, Sequence Panel, and Patterns are updated to display the patterns selected.</p> 
     <p>&#12290; Note: Each time that a pattern discovery is run, the contents of the &quot;active patterns&quot; structure are REPLACED with the results of the discovery operation (i.e., contents due to previous runs are cleared). </p>
-
 
 </body>
 
