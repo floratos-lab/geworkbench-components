@@ -4,6 +4,7 @@ import org.geworkbench.events.MicroarraySetViewEvent;
 import org.geworkbench.events.PhenotypeSelectedEvent;
 import org.geworkbench.events.MarkerSelectedEvent;
 import org.geworkbench.util.microarrayutils.MicroarrayViewEventBase;
+import org.geworkbench.util.BusySwingWorker;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
@@ -23,6 +24,7 @@ import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.jfree.data.xy.XYDataset;
 
+import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionListener;
 import java.text.NumberFormat;
@@ -43,8 +45,7 @@ import java.text.NumberFormat;
 
 @AcceptTypes({DSMicroarraySet.class}) public class ExpressionProfilePanel extends MicroarrayViewEventBase implements MenuListener, VisualPlugin {
 
-    private JFreeChart chart;
-    ChartPanel graph;
+    JPanel graphPanel;
 
     public ExpressionProfilePanel() {
         try {
@@ -56,15 +57,16 @@ import java.text.NumberFormat;
 
     protected void jbInit() throws Exception {
         super.jbInit();
-        chart = ChartFactory.createXYLineChart(null, // Title
+        graphPanel = new JPanel(new BorderLayout());
+        JFreeChart chart = ChartFactory.createXYLineChart(null, // Title
                 "Experiment", // X-Axis label
                 "Value", // Y-Axis label
                 new XYSeriesCollection(), // Dataset
                 PlotOrientation.VERTICAL, false, // Show legend
                 true, true);
-        graph = new ChartPanel(chart, true);
-
-        mainPanel.add(graph, BorderLayout.CENTER);
+        ChartPanel graph = new ChartPanel(chart, true);
+        graphPanel.add(graph, BorderLayout.CENTER);
+        mainPanel.add(graphPanel, BorderLayout.CENTER);
 
         chkActivateMarkers.setSelected(true);
         this.activateMarkers = true;
@@ -78,8 +80,12 @@ import java.text.NumberFormat;
             return;
         }
 
-        Thread t = new Thread() {
-            public void run() {
+        graphPanel.removeAll();
+
+        BusySwingWorker worker = new BusySwingWorker() {
+            ChartPanel chartPanel;
+            public Object construct() {
+                setBusy(graphPanel);
                 DSPanel<DSGeneMarker> genes = new CSPanel<DSGeneMarker>("");
                 genes.addAll(maSetView.markers());
                 DSPanel<DSMicroarray> arrays = new CSPanel<DSMicroarray>("");
@@ -104,19 +110,28 @@ import java.text.NumberFormat;
                     plots.addSeries(dataSeries);
                 }
                 StandardXYItemRenderer renderer = new StandardXYItemRenderer(StandardXYItemRenderer.LINES, new ExpressionXYToolTip());
-                chart = ChartFactory.createXYLineChart(null, // Title
+
+                JFreeChart chart = ChartFactory.createXYLineChart(null, // Title
                         "Experiment", // X-Axis label
                         "Value", // Y-Axis label
                         plots, // Dataset
                         PlotOrientation.VERTICAL, false, // Show legend
                         true, true);
                 chart.getXYPlot().setRenderer(renderer);
-                graph.setChart(chart);
-                graph.addChartMouseListener(new MicroarrayChartMouseListener());
+                chartPanel = new ChartPanel(chart);
+                return null;
+            }
+
+            public void finished() {
+                graphPanel.removeAll();
+                chartPanel.addChartMouseListener(new MicroarrayChartMouseListener());
+                graphPanel.add(chartPanel, BorderLayout.CENTER);
+                graphPanel.revalidate();
+                graphPanel.repaint();
             }
         };
-        t.setPriority(Thread.MIN_PRIORITY);
-        t.start();
+
+        worker.start();
     }
 
     /**
