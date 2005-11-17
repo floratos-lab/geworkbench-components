@@ -3,8 +3,6 @@ package org.geworkbench.components.analysis.clustering;
 import JSci.maths.statistics.TDistribution;
 import org.geworkbench.util.ProgressBar;
 import org.geworkbench.analysis.AbstractAnalysis;
-import org.geworkbench.bison.datastructure.biocollections.classification.phenotype.CSClassCriteria;
-import org.geworkbench.bison.datastructure.biocollections.classification.phenotype.DSClassCriteria;
 import org.geworkbench.util.Combinations;
 import org.geworkbench.util.QSort;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
@@ -27,6 +25,7 @@ import org.geworkbench.engine.management.Publish;
 import java.util.Hashtable;
 import java.util.Random;
 import java.util.Vector;
+import java.util.HashSet;
 
 /**
  * <p>Title: Bioworks</p>
@@ -266,7 +265,27 @@ public class TtestAnalysis extends AbstractAnalysis implements ClusteringAnalysi
                 }
             }
 
-            CSSignificanceResultSet<DSGeneMarker> sigSet = new CSSignificanceResultSet<DSGeneMarker>(maSet, "T-Test");
+            String[][] labels = new String[2][];
+            labels[0] = context.getLabelsForClass(CSAnnotationContext.CLASS_CASE);
+            labels[1] = context.getLabelsForClass(CSAnnotationContext.CLASS_CONTROL);
+            HashSet<String>[] classSets = new HashSet[2];
+            for (int j = 0; j < 2; j++) {
+                String[] classLabels = labels[j];
+                classSets[j] = new HashSet<String>();
+                for (int i = 0; i < classLabels.length; i++) {
+                    String label = classLabels[i];
+                    if (context.isLabelActive(label)) {
+                        classSets[j].add(label);
+                    }
+                }
+            }
+            CSSignificanceResultSet<DSGeneMarker> sigSet = new CSSignificanceResultSet<DSGeneMarker>(
+                    maSet,
+                    "T-Test",
+                    classSets[0].toArray(new String[0]),
+                    classSets[1].toArray(new String[0]),
+                    alpha
+            );
 
             for (int i = 0; i < pValuesVector.size(); i++) {
                 pValuesMatrix[i][0] = ((Float) (pValuesVector.get(i))).floatValue();
@@ -341,17 +360,21 @@ public class TtestAnalysis extends AbstractAnalysis implements ClusteringAnalysi
 //            result.put("oneClassMeansMatrix", oneClassMeansMatrix);
 //            result.put("oneClassSDsMatrix", oneClassSDsMatrix);
 
+            sigSet.sortMarkersBySignificance();
             AlgorithmExecutionResults results = new AlgorithmExecutionResults(true, "Ttest", sigSet);
             return results;
         }
         return null;
     }
 
-    @Publish public org.geworkbench.events.SubpanelChangedEvent publishSubpanelChangedEvent(org.geworkbench.events.SubpanelChangedEvent event) {
+    @Publish public org.geworkbench.events.SubpanelChangedEvent publishSubpanelChangedEvent
+            (org.geworkbench.events.SubpanelChangedEvent
+                    event) {
         return event;
     }
 
-    public AlgorithmExecutionResults executeMaxT() {
+    public AlgorithmExecutionResults executeMaxT
+            () {
         double[] origTValues = new double[numGenes];
         double[] descTValues = new double[numGenes];
         int[] descGeneIndices = new int[numGenes];
@@ -433,7 +456,8 @@ public class TtestAnalysis extends AbstractAnalysis implements ClusteringAnalysi
 
                 int permCounter = 0;
 
-                while (org.geworkbench.util.Combinations.enumerateCombinations(usedExptsArray.length, numGroupAValues, combArray)) {
+                while (org.geworkbench.util.Combinations.enumerateCombinations(usedExptsArray.length, numGroupAValues, combArray))
+                {
 
                     int[] notInCombArray = new int[numGroupBValues];
                     int notCombCounter = 0;
@@ -683,7 +707,8 @@ public class TtestAnalysis extends AbstractAnalysis implements ClusteringAnalysi
         return results;
     }
 
-    public AlgorithmExecutionResults executeMinP() {
+    public AlgorithmExecutionResults executeMinP
+            () {
         double[] origTValues = new double[numGenes];
         double[] rawPValues = new double[numGenes];
         double[] adjPValues = new double[numGenes];
@@ -1037,11 +1062,14 @@ public class TtestAnalysis extends AbstractAnalysis implements ClusteringAnalysi
         return results;
     }
 
-    public void abort() {
+    public void abort
+            () {
         stop = true;
     }
 
-    private double[] getPValsFromOrderStats(double[] sortedTVals) {
+    private double[] getPValsFromOrderStats
+            (
+                    double[] sortedTVals) {
         double[] pVals = new double[sortedTVals.length];
         int[] ranksArray = new int[sortedTVals.length];
 
@@ -1113,7 +1141,9 @@ public class TtestAnalysis extends AbstractAnalysis implements ClusteringAnalysi
         return pVals;
     }
 
-    private double[] getTwoClassUnpairedTValues(float[][] inputMatrix) {
+    private double[] getTwoClassUnpairedTValues
+            (
+                    float[][] inputMatrix) {
         double[] tValsFromMatrix = new double[numGenes];
         for (int i = 0; i < numGenes; i++) {
             tValsFromMatrix[i] = Math.abs(getTValue(i, inputMatrix));
@@ -1122,7 +1152,10 @@ public class TtestAnalysis extends AbstractAnalysis implements ClusteringAnalysi
         return tValsFromMatrix;
     }
 
-    private float[][] getPermutedMatrix(float[][] inputMatrix, int[] permExpts) {
+    private float[][] getPermutedMatrix
+            (
+                    float[][] inputMatrix,
+                    int[] permExpts) {
         float[][] permutedMatrix = new float[inputMatrix.length][inputMatrix[0].length];
         for (int i = 0; i < inputMatrix.length; i++) {
             for (int j = 0; j < inputMatrix[0].length; j++) {
@@ -1132,7 +1165,10 @@ public class TtestAnalysis extends AbstractAnalysis implements ClusteringAnalysi
         return permutedMatrix;
     }
 
-    private int[] getPermutedValues(int arrayLength, int[] validArray) {
+    private int[] getPermutedValues
+            (
+                    int arrayLength,
+                    int[] validArray) {
         int[] permutedValues = new int[arrayLength];
         for (int i = 0; i < permutedValues.length; i++) {
             permutedValues[i] = i;
@@ -1165,7 +1201,8 @@ public class TtestAnalysis extends AbstractAnalysis implements ClusteringAnalysi
 
     }
 
-    private float[][] getMeans(Vector[] clusters) {
+    private float[][] getMeans
+            (Vector[] clusters) {
         float[][] means = new float[clusters.length][numExps];
         float[][] mean;
         for (int i = 0; i < clusters.length; i++) {
@@ -1175,7 +1212,9 @@ public class TtestAnalysis extends AbstractAnalysis implements ClusteringAnalysi
         return means;
     }
 
-    private float[][] getMean(Vector cluster) {
+    private float[][] getMean
+            (Vector
+                    cluster) {
         float[][] mean = new float[1][numExps];
         float currentMean;
         int n = cluster.size();
@@ -1197,7 +1236,8 @@ public class TtestAnalysis extends AbstractAnalysis implements ClusteringAnalysi
         return mean;
     }
 
-    private float[][] getVariances(Vector[] clusters, float[][] means) {
+    private float[][] getVariances
+            (Vector[] clusters, float[][] means) {
         final int rows = means.length;
         final int columns = means[0].length;
         float[][] variances = new float[rows][columns];
@@ -1211,7 +1251,10 @@ public class TtestAnalysis extends AbstractAnalysis implements ClusteringAnalysi
 
     private int validN;
 
-    private float getSampleNormalizedSum(Vector cluster, int column, float mean) {
+    private float getSampleNormalizedSum
+            (Vector
+                    cluster, int column,
+                             float mean) {
         final int size = cluster.size();
         float sum = 0f;
         float value;
@@ -1226,16 +1269,21 @@ public class TtestAnalysis extends AbstractAnalysis implements ClusteringAnalysi
         return sum;
     }
 
-    private float getSampleVariance(Vector cluster, int column, float mean) {
+    private float getSampleVariance
+            (Vector
+                    cluster, int column,
+                             float mean) {
         return (float) Math.sqrt(getSampleNormalizedSum(cluster, column, mean) / (float) (validN - 1));
     }
 
-    private Vector sortGenesForOneClassDesign() {
+    private Vector sortGenesForOneClassDesign
+            () {
         Vector sigGenes = new Vector();
         Vector nonSigGenes = new Vector();
         pValuesVector = new Vector();
         if (!isPermut) {
-            if ((significanceMethod == TtestAnalysisPanel.JUST_ALPHA) || (significanceMethod == TtestAnalysisPanel.STD_BONFERRONI)) {
+            if ((significanceMethod == TtestAnalysisPanel.JUST_ALPHA) || (significanceMethod == TtestAnalysisPanel.STD_BONFERRONI))
+            {
                 for (int i = 0; i < numGenes; i++) {
                     if (isSigOneClass(i)) {
                         sigGenes.add(new Integer(i));
@@ -1287,7 +1335,8 @@ public class TtestAnalysis extends AbstractAnalysis implements ClusteringAnalysi
             }
         } else {
             if (useAllCombs) {
-                if ((significanceMethod == TtestAnalysisPanel.JUST_ALPHA) || (significanceMethod == TtestAnalysisPanel.STD_BONFERRONI)) {
+                if ((significanceMethod == TtestAnalysisPanel.JUST_ALPHA) || (significanceMethod == TtestAnalysisPanel.STD_BONFERRONI))
+                {
                     for (int i = 0; i < numGenes; i++) {
                         if (significanceMethod == TtestAnalysisPanel.JUST_ALPHA) {
                             float currentProb = getAllCombsOneClassProb(i);
@@ -1347,7 +1396,8 @@ public class TtestAnalysis extends AbstractAnalysis implements ClusteringAnalysi
                     }
                 }
             } else {
-                if ((significanceMethod == TtestAnalysisPanel.JUST_ALPHA) || (significanceMethod == TtestAnalysisPanel.STD_BONFERRONI)) {
+                if ((significanceMethod == TtestAnalysisPanel.JUST_ALPHA) || (significanceMethod == TtestAnalysisPanel.STD_BONFERRONI))
+                {
                     for (int i = 0; i < numGenes; i++) {
                         float currentProb = getSomeCombsOneClassProb(i);
                         pValuesVector.add(new Float(currentProb));
@@ -1415,7 +1465,9 @@ public class TtestAnalysis extends AbstractAnalysis implements ClusteringAnalysi
         return sortedGenes;
     }
 
-    private float getSomeCombsOneClassProb(int gene) {
+    private float getSomeCombsOneClassProb
+            (
+                    int gene) {
         float[] origGeneValues = getOneClassGeneValues(gene);
         float origOneClassT = (float) Math.abs(getOneClassTValue(origGeneValues));
         if (Float.isNaN(origOneClassT)) {
@@ -1451,7 +1503,9 @@ public class TtestAnalysis extends AbstractAnalysis implements ClusteringAnalysi
         return (float) prob;
     }
 
-    private boolean[] getSomeCombsPermutArray(long seed) {
+    private boolean[] getSomeCombsPermutArray
+            (
+                    long seed) {
         boolean[] boolArray = new boolean[getNumValidOneClassExpts()];
         for (int i = 0; i < boolArray.length; i++) {
             boolArray[i] = false;
@@ -1464,7 +1518,9 @@ public class TtestAnalysis extends AbstractAnalysis implements ClusteringAnalysi
         return boolArray;
     }
 
-    private float getAllCombsOneClassProb(int gene) {
+    private float getAllCombsOneClassProb
+            (
+                    int gene) {
         int validNumExps = getNumValidOneClassExpts();
         int numAllPossOneClassPerms = (int) (Math.pow(2, validNumExps));
         float[] currentGene = expMatrix[gene];
@@ -1507,7 +1563,10 @@ public class TtestAnalysis extends AbstractAnalysis implements ClusteringAnalysi
         return (float) prob;
     }
 
-    private boolean[] getOneClassChangeSignArray(long seed, int[] validExpts) {
+    private boolean[] getOneClassChangeSignArray
+            (
+                    long seed,
+                    int[] validExpts) {
         boolean[] changeSignArray = new boolean[numExps];
         for (int i = 0; i < changeSignArray.length; i++) {
             changeSignArray[i] = false;
@@ -1519,7 +1578,10 @@ public class TtestAnalysis extends AbstractAnalysis implements ClusteringAnalysi
         return changeSignArray;
     }
 
-    private float[][] getOneClassPermMatrix(float[][] inputMatrix, boolean[] changeSign) {
+    private float[][] getOneClassPermMatrix
+            (
+                    float[][] inputMatrix,
+                    boolean[] changeSign) {
         float[][] permutedMatrix = new float[inputMatrix.length][inputMatrix[0].length];
         for (int i = 0; i < inputMatrix.length; i++) {
             for (int j = 0; j < inputMatrix[0].length; j++) {
@@ -1534,7 +1596,10 @@ public class TtestAnalysis extends AbstractAnalysis implements ClusteringAnalysi
         return permutedMatrix;
     }
 
-    private boolean[] getOneClassChangeSignArrayAllUniquePerms(int num, int[] validExpts) {
+    private boolean[] getOneClassChangeSignArrayAllUniquePerms
+            (
+                    int num,
+                    int[] validExpts) {
         boolean[] changeSignArray = new boolean[numExps];
         for (int i = 0; i < changeSignArray.length; i++) {
             changeSignArray[i] = false;
@@ -1571,7 +1636,9 @@ public class TtestAnalysis extends AbstractAnalysis implements ClusteringAnalysi
         return changeSignArray;
     }
 
-    boolean[] getOneClassPermutArray(int num) {
+    boolean[] getOneClassPermutArray
+            (
+                    int num) {
         boolean[] oneClassPermutArray = new boolean[numExps];
 
         for (int i = 0; i < oneClassPermutArray.length; i++) {
@@ -1612,7 +1679,8 @@ public class TtestAnalysis extends AbstractAnalysis implements ClusteringAnalysi
         return oneClassPermutArray;
     }
 
-    public int getNumValidOneClassExpts() {
+    public int getNumValidOneClassExpts
+            () {
         int validNum = 0;
         for (int i = 0; i < groupAssignments.length; i++) {
             if (groupAssignments[i] == 1) {
@@ -1622,7 +1690,9 @@ public class TtestAnalysis extends AbstractAnalysis implements ClusteringAnalysi
         return validNum;
     }
 
-    private float[] getOneClassGeneValues(int gene) {
+    private float[] getOneClassGeneValues
+            (
+                    int gene) {
         Vector currentGene = new Vector();
         for (int i = 0; i < numExps; i++) {
             if (groupAssignments[i] == 1) {
@@ -1636,7 +1706,9 @@ public class TtestAnalysis extends AbstractAnalysis implements ClusteringAnalysi
         return currGeneArray;
     }
 
-    private boolean isSigOneClass(int gene) {
+    private boolean isSigOneClass
+            (
+                    int gene) {
         boolean isSig = false;
         Vector currentGene = new Vector();
         for (int i = 0; i < numExps; i++) {
@@ -1692,7 +1764,10 @@ public class TtestAnalysis extends AbstractAnalysis implements ClusteringAnalysi
         return isSig;
     }
 
-    private double getOneClassTValue(int gene, float[][] inputMatrix) {
+    private double getOneClassTValue
+            (
+                    int gene,
+                    float[][] inputMatrix) {
         Vector currentGene = new Vector();
 
         for (int i = 0; i < numExps; i++) {
@@ -1710,12 +1785,16 @@ public class TtestAnalysis extends AbstractAnalysis implements ClusteringAnalysi
         return getOneClassTValue(currGeneArray);
     }
 
-    private double getOneClassTValue(int gene) {
+    private double getOneClassTValue
+            (
+                    int gene) {
         float[] currentGene = getOneClassGeneValues(gene);
         return getOneClassTValue(currentGene);
     }
 
-    private double getOneClassTValue(float[] geneArray) {
+    private double getOneClassTValue
+            (
+                    float[] geneArray) {
         double tValue;
         float mean = getMean(geneArray);
         double stdDev = Math.sqrt((double) (getVar(geneArray)));
@@ -1730,7 +1809,9 @@ public class TtestAnalysis extends AbstractAnalysis implements ClusteringAnalysi
         return Math.abs(tValue);
     }
 
-    double[] getOneClassTValues(float[][] inputMatrix) {
+    double[] getOneClassTValues
+            (
+                    float[][] inputMatrix) {
         double[] tValsFromMatrix = new double[numGenes];
         for (int i = 0; i < numGenes; i++) {
             tValsFromMatrix[i] = Math.abs(getOneClassTValue(i, inputMatrix));
@@ -1739,7 +1820,9 @@ public class TtestAnalysis extends AbstractAnalysis implements ClusteringAnalysi
         return tValsFromMatrix;
     }
 
-    private int getOneClassDFValue(float[] geneArray) {
+    private int getOneClassDFValue
+            (
+                    float[] geneArray) {
         int validNum = 0;
         for (int i = 0; i < geneArray.length; i++) {
             if (!Float.isNaN(geneArray[i])) {
@@ -1750,7 +1833,10 @@ public class TtestAnalysis extends AbstractAnalysis implements ClusteringAnalysi
         return df;
     }
 
-    private float getProb(float tValue, int df) {
+    private float getProb
+            (
+                    float tValue,
+                    int df) {
         TDistribution tDist = new TDistribution(df);
         double cumulP = tDist.cumulative(Math.abs((double) tValue));
         double prob = 2 * (1 - cumulP);
@@ -1761,11 +1847,13 @@ public class TtestAnalysis extends AbstractAnalysis implements ClusteringAnalysi
         return (float) prob;
     }
 
-    private Vector sortGenesBySignificance() {
+    private Vector sortGenesBySignificance
+            () {
         Vector sigGenes = new Vector();
         Vector nonSigGenes = new Vector();
 
-        if ((significanceMethod == TtestAnalysisPanel.JUST_ALPHA) || (significanceMethod == TtestAnalysisPanel.STD_BONFERRONI)) {
+        if ((significanceMethod == TtestAnalysisPanel.JUST_ALPHA) || (significanceMethod == TtestAnalysisPanel.STD_BONFERRONI))
+        {
             sigGenes = new Vector();
             nonSigGenes = new Vector();
             for (int i = 0; i < numGenes; i++) {
@@ -1885,11 +1973,13 @@ public class TtestAnalysis extends AbstractAnalysis implements ClusteringAnalysi
         return sortedGenes;
     }
 
-    private Vector sortGenesByPermutationSignificance() {
+    private Vector sortGenesByPermutationSignificance
+            () {
         Vector sigGenes = new Vector();
         Vector nonSigGenes = new Vector();
 
-        if ((significanceMethod == TtestAnalysisPanel.JUST_ALPHA) || (significanceMethod == TtestAnalysisPanel.STD_BONFERRONI)) {
+        if ((significanceMethod == TtestAnalysisPanel.JUST_ALPHA) || (significanceMethod == TtestAnalysisPanel.STD_BONFERRONI))
+        {
             sigGenes = new Vector();
             nonSigGenes = new Vector();
             for (int i = 0; i < numGenes; i++) {
@@ -1998,7 +2088,9 @@ public class TtestAnalysis extends AbstractAnalysis implements ClusteringAnalysi
         return sortedGenes;
     }
 
-    private double getPermutedProb(int gene) {
+    private double getPermutedProb
+            (
+                    int gene) {
         float[] geneValues = new float[numExps];
         for (int i = 0; i < numExps; i++) {
             geneValues[i] = expMatrix[gene][i];
@@ -2089,7 +2181,9 @@ public class TtestAnalysis extends AbstractAnalysis implements ClusteringAnalysi
         return permutProb;
     }
 
-    private boolean isSignificantByPermutation(int gene) {
+    private boolean isSignificantByPermutation
+            (
+                    int gene) {
         boolean sig = false;
         float[] geneValues = new float[numExps];
         for (int i = 0; i < numExps; i++) {
@@ -2216,7 +2310,12 @@ public class TtestAnalysis extends AbstractAnalysis implements ClusteringAnalysi
         return sig;
     }
 
-    private float[][] randomlyPermute(float[] gene, int[] groupedExpts, int groupALength, int groupBLength) {
+    private float[][] randomlyPermute
+            (
+                    float[] gene,
+                    int[] groupedExpts,
+                    int groupALength,
+                    int groupBLength) {
         float[][] groupedValues = new float[2][];
         groupedValues[0] = new float[groupALength];
         groupedValues[1] = new float[groupBLength];
@@ -2244,7 +2343,10 @@ public class TtestAnalysis extends AbstractAnalysis implements ClusteringAnalysi
         return groupedValues;
     }
 
-    private boolean belongsInArray(int i, int[] arr) {
+    private boolean belongsInArray
+            (
+                    int i,
+                    int[] arr) {
         boolean belongs = false;
 
         for (int j = 0; j < arr.length; j++) {
@@ -2256,7 +2358,10 @@ public class TtestAnalysis extends AbstractAnalysis implements ClusteringAnalysi
         return belongs;
     }
 
-    private float getTValue(int gene, float[][] inputMatrix) {
+    private float getTValue
+            (
+                    int gene,
+                    float[][] inputMatrix) {
         float[] geneValues = new float[numExps];
         for (int i = 0; i < numExps; i++) {
             geneValues[i] = inputMatrix[gene][i];
@@ -2293,7 +2398,9 @@ public class TtestAnalysis extends AbstractAnalysis implements ClusteringAnalysi
         return tValue;
     }
 
-    private float getTValue(int gene) {
+    private float getTValue
+            (
+                    int gene) {
         float[] geneValues = new float[numExps];
         for (int i = 0; i < numExps; i++) {
             geneValues[i] = expMatrix[gene][i];
@@ -2330,7 +2437,9 @@ public class TtestAnalysis extends AbstractAnalysis implements ClusteringAnalysi
         return tValue;
     }
 
-    private int getDF(int gene) {
+    private int getDF
+            (
+                    int gene) {
         float[] geneValues = new float[numExps];
         for (int i = 0; i < numExps; i++) {
             geneValues[i] = expMatrix[gene][i];
@@ -2368,7 +2477,8 @@ public class TtestAnalysis extends AbstractAnalysis implements ClusteringAnalysi
         return df;
     }
 
-    private Vector getMeansAndSDs() {
+    private Vector getMeansAndSDs
+            () {
         float[] meansA = new float[numGenes];
         float[] meansB = new float[numGenes];
         float[] sdA = new float[numGenes];
@@ -2421,7 +2531,9 @@ public class TtestAnalysis extends AbstractAnalysis implements ClusteringAnalysi
         return meansAndSDs;
     }
 
-    private boolean isSignificant(int gene) {
+    private boolean isSignificant
+            (
+                    int gene) {
         boolean sig = false;
         float[] geneValues = new float[numExps];
         for (int i = 0; i < numExps; i++) {
@@ -2508,7 +2620,10 @@ public class TtestAnalysis extends AbstractAnalysis implements ClusteringAnalysi
         return sig;
     }
 
-    private float calculateTValue(float[] groupA, float[] groupB) {
+    private float calculateTValue
+            (
+                    float[] groupA,
+                    float[] groupB) {
         int kA = groupA.length;
         int kB = groupB.length;
         float meanA = getMean(groupA);
@@ -2540,7 +2655,10 @@ public class TtestAnalysis extends AbstractAnalysis implements ClusteringAnalysi
         return Math.abs(tValue);
     }
 
-    private int calculateDf(float[] groupA, float[] groupB) {
+    private int calculateDf
+            (
+                    float[] groupA,
+                    float[] groupB) {
         int kA = 0;
         int kB = 0;
         for (int i = 0; i < groupA.length; i++) {
@@ -2572,7 +2690,9 @@ public class TtestAnalysis extends AbstractAnalysis implements ClusteringAnalysi
         return df;
     }
 
-    private float getMean(float[] group) {
+    private float getMean
+            (
+                    float[] group) {
         float sum = 0;
         int n = 0;
 
@@ -2593,7 +2713,9 @@ public class TtestAnalysis extends AbstractAnalysis implements ClusteringAnalysi
         return mean;
     }
 
-    private float getVar(float[] group) {
+    private float getVar
+            (
+                    float[] group) {
         float mean = getMean(group);
         int n = 0;
 
