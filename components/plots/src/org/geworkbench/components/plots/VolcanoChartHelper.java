@@ -47,19 +47,14 @@ public class VolcanoChartHelper {
         DSAnnotationContextManager manager = CSAnnotationContextManager.getInstance();
         DSAnnotationContext<DSMicroarray> context = manager.getCurrentContext(dataSetView.getDataSet());
         XYSeriesCollection plots = new XYSeriesCollection();
-        ArrayList seriesList = new ArrayList();
         ArrayList<PanelVisualProperties> propertiesList = new ArrayList<PanelVisualProperties>();
         PanelVisualPropertiesManager propertiesManager = PanelVisualPropertiesManager.getInstance();
         dataSetView.useItemPanel(!showAllArrays);
         dataSetView.useMarkerPanel(showAllMarkers);
 
-        DSMicroarraySet<DSMicroarray> maSet = (DSMicroarraySet) dataSetView.getDataSet();
-        HashMap map = new HashMap();
         //        int microarrayNo = maSet.size();
-        int microarrayNo = dataSetView.size();
 
         // First put all the gene pairs in the xyValues array
-        RankSorter[] xyValues = new RankSorter[microarrayNo];
         int arraySize = dataSetView.get(0).getMarkerValues().length;
 
         if (worker != null) {
@@ -105,16 +100,16 @@ public class VolcanoChartHelper {
             DSPanel<DSMicroarray> casePanel = context.getItemsForClass(CSAnnotationContext.CLASS_CASE);
             double caseMean = 0;
             for (DSMicroarray microarray : casePanel) {
-                caseMean += microarray.getMarkerValue(i).getValue() + minValue;
+                caseMean += microarray.getMarkerValue(i).getValue();
             }
-            caseMean = caseMean / casePanel.size();
+            caseMean = caseMean / casePanel.size() + minValue;
 
             DSPanel<DSMicroarray> controlPanel = context.getItemsForClass(CSAnnotationContext.CLASS_CONTROL);
             double controlMean = 0;
             for (DSMicroarray microarray : controlPanel) {
-                controlMean += microarray.getMarkerValue(i).getValue() + minValue;
+                controlMean += microarray.getMarkerValue(i).getValue();
             }
-            controlMean = controlMean / controlPanel.size();
+            controlMean = controlMean / controlPanel.size() + minValue;
 
             double sigValue = significance.getSignificance(dataSetView.markers().get(i));
             if (sigValue <= 0) {
@@ -132,6 +127,7 @@ public class VolcanoChartHelper {
             double ratio = caseMean / controlMean;
             double xVal = 0;
             if (ratio < 0) {
+                log.debug("Should not get a negative ratio, but got one.");
                 xVal = -Math.log(-ratio) / Math.log(2.0);
             } else {
                 xVal = Math.log(ratio) / Math.log(2.0);
@@ -150,7 +146,7 @@ public class VolcanoChartHelper {
 
                 series.add(xVal, yVal);
             } else {
-                log.debug("Gene " + i + " was infinite or NaN.");
+                log.debug("Marker " + i + " was infinite or NaN.");
             }
 
             if (worker != null) {
@@ -166,7 +162,7 @@ public class VolcanoChartHelper {
 
         plots.addSeries(series);
 
-        JFreeChart mainChart = ChartFactory.createScatterPlot("", "log2(Fold Change)", "log10(Significance)", plots, PlotOrientation.VERTICAL, true, true, false); // Title, (, // X-Axis label,  Y-Axis label,  Dataset,  Show legend
+        JFreeChart mainChart = ChartFactory.createScatterPlot(significance.getLabel(), "log2(Fold Change)", "log10(Significance)", plots, PlotOrientation.VERTICAL, false, true, false); // Title, (, // X-Axis label,  Y-Axis label,  Dataset,  Show legend
         //        mainChart.getXYPlot().setDomainAxis(new LogarithmicAxis("Fold Change"));
         //        mainChart.getXYPlot().setRangeAxis(new LogarithmicAxis("Significance"));
         //        XYLineAnnotation annotation = chartGroup.get(PlotType.MARKER).lineAnnotation;
@@ -174,15 +170,6 @@ public class VolcanoChartHelper {
         //            mainChart.getXYPlot().addAnnotation(annotation);
         //        }
         //        chartData.setXyPoints(xyPoints);
-        StandardXYItemRenderer renderer = new StandardXYItemRenderer(StandardXYItemRenderer.SHAPES);
-        for (int i = 0; i < propertiesList.size(); i++) {
-            PanelVisualProperties panelVisualProperties = propertiesList.get(i);
-            // Note: "i+1" because we skip the default 'other' series.
-            int index = showAllArrays ? i + 1 : i;
-            renderer.setSeriesPaint(index, panelVisualProperties.getColor());
-            renderer.setSeriesShape(index, panelVisualProperties.getShape());
-
-        }
         mainChart.getXYPlot().setRenderer(new VolcanoRenderer(plots, minPlotValue, maxPlotValue));
         //BufferedImage image = mainChart.createBufferedImage(width, height);
         //return image;

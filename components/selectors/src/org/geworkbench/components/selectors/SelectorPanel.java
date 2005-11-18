@@ -616,11 +616,8 @@ public abstract class SelectorPanel<T extends DSSequential> implements VisualPlu
         if (projectEvent.getMessage().equals(ProjectEvent.CLEARED)) {
             dataSetCleared();
         }
-        ProjectSelection selection = ((ProjectPanel) source).getSelection();
-        DSDataSet dataSet = selection.getDataSet();
-        if (selection.getSelectedNode() != selection.getSelectedProjectNode()) {
-            processDataSet(dataSet);
-        }
+        DSDataSet dataSet = projectEvent.getDataSet();
+        processDataSet(dataSet);
 
     }
 
