@@ -241,12 +241,11 @@ public class GenePanel extends SelectorPanel<DSGeneMarker> {
         if (dataSet instanceof DSMicroarraySet) {
             DSMicroarraySet maSet = (DSMicroarraySet) dataSet;
             items = maSet.getMarkers();
+            setItemList(items);
         } else if (dataSet instanceof SequenceDB) {
             items = (DSItemList) ((SequenceDB) dataSet).getMarkerList();
-        } else {
-            items = dataSet;
+            setItemList(items);
         }
-        setItemList(items);
     }
 
     /**

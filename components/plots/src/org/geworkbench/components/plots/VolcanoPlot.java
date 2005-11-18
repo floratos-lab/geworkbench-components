@@ -5,19 +5,12 @@ import org.geworkbench.events.ProjectEvent;
 import org.geworkbench.events.MarkerSelectedEvent;
 import org.geworkbench.events.PhenotypeSelectedEvent;
 import org.geworkbench.util.pathwaydecoder.RankSorter;
-import org.geworkbench.builtin.projects.ProjectPanel;
-import org.geworkbench.builtin.projects.ProjectSelection;
 import org.geworkbench.engine.management.Publish;
 import org.geworkbench.engine.management.Subscribe;
 import org.geworkbench.engine.management.AcceptTypes;
-import org.geworkbench.util.visualproperties.PanelVisualProperties;
-import org.geworkbench.util.visualproperties.PanelVisualPropertiesManager;
-import org.geworkbench.util.SwingWorker;
 import org.geworkbench.util.BusySwingWorker;
 import org.geworkbench.bison.annotation.DSAnnotationContext;
 import org.geworkbench.bison.annotation.CSAnnotationContextManager;
-import org.geworkbench.bison.annotation.DSAnnotationContextManager;
-import org.geworkbench.bison.annotation.CSAnnotationContext;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.views.CSMicroarraySetView;
@@ -26,16 +19,11 @@ import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSSignificanceResultSet;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
+import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
 import org.geworkbench.engine.config.VisualPlugin;
 import org.jfree.chart.*;
-import org.jfree.chart.axis.LogarithmicAxis;
 import org.jfree.chart.entity.ChartEntity;
 import org.jfree.chart.entity.XYItemEntity;
-import org.jfree.chart.plot.PlotOrientation;
-import org.jfree.chart.renderer.xy.StandardXYItemRenderer;
-import org.jfree.data.general.SeriesException;
-import org.jfree.data.xy.XYSeries;
-import org.jfree.data.xy.XYSeriesCollection;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.logging.Log;
 
@@ -213,7 +201,7 @@ import java.util.*;
     /**
      * The significance results we're plotting
      */
-    private DSSignificanceResultSet significance = null;
+    private DSSignificanceResultSet<DSGeneMarker> significance = null;
 
     /**
      * Constructor lays out the component and adds behaviors.
@@ -242,38 +230,6 @@ import java.util.*;
     }
 
     /**
-     * Receives a gene selection event.
-     * The list of markers is updated and microarray plots are updated to reflect the selection.
-     *
-     * @param e      the event
-     * @param source the source of the event (unused).
-     */
-    @Subscribe public void receive(org.geworkbench.events.GeneSelectorEvent e, Object source) {
-        if (e.getPanel() != null && e.getPanel().size() > 0) {
-            dataSetView.setMarkerPanel(e.getPanel());
-            // markerPanel = e.getPanel().activeSubset();
-//            markerModel.refresh();
-        }
-    }
-
-    /**
-     * Receives a phenotype selection event.
-     * The list of microarrays is updated and marker plots are updated to reflect the selection.
-     *
-     * @param e      the event.
-     * @param source the source of the event (unused).
-     */
-    @Subscribe public void receive(org.geworkbench.events.PhenotypeSelectorEvent e, Object source) {
-        if (e.getTaggedItemSetTree() != null) {
-            DSPanel activatedArrays = e.getTaggedItemSetTree().activeSubset();
-            dataSetView.setItemPanel(activatedArrays);
-            // expPanel = e.getTaggedItemSetTree();
-//            microarrayModel.refresh();
-            // All marker charts must be updated
-        }
-    }
-
-    /**
      * Receives a project event.
      *
      * @param e      the event.
@@ -290,7 +246,25 @@ import java.util.*;
                     dataSetView.setMicroarraySet(set);
                 }
             } else if (dataFile instanceof DSSignificanceResultSet) {
-                significance = (DSSignificanceResultSet) dataFile;
+                significance = (DSSignificanceResultSet<DSGeneMarker>) dataFile;
+                DSMicroarraySet<DSMicroarray> set = significance.getParentDataSet();
+                String[] caseLabels = significance.getLabels(DSSignificanceResultSet.CASE);
+                String[] controlLabels = significance.getLabels(DSSignificanceResultSet.CONTROL);
+                DSAnnotationContext<DSMicroarray> context = CSAnnotationContextManager.getInstance().getCurrentContext(set);
+                DSPanel<DSMicroarray> casePanel = context.getItemsWithAnyLabel(caseLabels);
+                casePanel.setActive(true);
+                DSPanel<DSMicroarray> controlPanel = context.getItemsWithAnyLabel(controlLabels);
+                controlPanel.setActive(true);
+                DSPanel<DSGeneMarker> significantGenes = significance.getSignificantMarkers();
+                DSPanel<DSMicroarray> itemPanel = new CSPanel<DSMicroarray>();
+                itemPanel.panels().add(casePanel);
+                itemPanel.panels().add(controlPanel);
+                significantGenes.setActive(true);
+                dataSetView = new CSMicroarraySetView<DSGeneMarker,DSMicroarray>(set);
+                dataSetView.setMarkerPanel(significantGenes);
+                dataSetView.setItemPanel(itemPanel);
+                dataSetView.useMarkerPanel(true);
+                dataSetView.useItemPanel(true);
                 log.debug("Generating graph.");
                 generateChartAndDisplay();
             }
