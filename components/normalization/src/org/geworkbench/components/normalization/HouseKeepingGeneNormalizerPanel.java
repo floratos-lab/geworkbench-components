@@ -14,6 +14,9 @@ import org.geworkbench.bison.datastructure.bioobjects.markers.CSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
+import com.jgoodies.forms.layout.FormLayout;
+import com.jgoodies.forms.layout.CellConstraints;
+import com.jgoodies.forms.builder.PanelBuilder;
 
 /**
  * <p>Title: </p>
@@ -39,13 +42,13 @@ public class HouseKeepingGeneNormalizerPanel extends
     JScrollPane jScrollPane2 = new JScrollPane();
 
     JPanel jPanel1 = new JPanel();
-    JButton jButton1 = new JButton();
-    JButton jButton2 = new JButton();
+    JButton addButton = new JButton();
+    JButton removeButton = new JButton();
     JPanel jPanel3 = new JPanel();
     JPanel jPanel4 = new JPanel();
-    JLabel jLabel1 = new JLabel();
-    JLabel jLabel2 = new JLabel();
-    JButton jButton5 = new JButton();
+    JLabel selectedGenesLabel = new JLabel();
+    JLabel excludedGenesLabel = new JLabel();
+    JButton clearButton = new JButton();
     BorderLayout borderLayout1 = new BorderLayout();
     DSPanel<DSGeneMarker> panel;
     DSPanel<DSGeneMarker> markerPanel;
@@ -56,10 +59,10 @@ public class HouseKeepingGeneNormalizerPanel extends
     JList jList2 = new JList(selectedModel);
     JList jList1 = new JList(markerModel); //(DefaultListModel) jList1.getListModel();
 
-    JButton jButton3 = new JButton();
+    JButton saveButton = new JButton();
 
     JPanel jPanel2 = new JPanel();
-    JLabel jLabel3 = new JLabel();
+    JLabel missingValuesLabel = new JLabel();
     private JPopupMenu listPopup = new JPopupMenu();
     private JMenuItem removeItem = new JMenuItem("Delete");
     private JMenuItem editItem = new JMenuItem("Rename");
@@ -78,8 +81,8 @@ public class HouseKeepingGeneNormalizerPanel extends
     final String USERSETTINGSFILE = "userSettings.txt";
     private int currentHighlightedIndex = -1;
 
-    JComboBox jComboBox1 = new JComboBox(new String[] {IGNORE_OPTION,
-                                         AVG_OPTION});
+    JComboBox missingValuesCombo = new JComboBox(new String[]{IGNORE_OPTION,
+            AVG_OPTION});
     JPanel jPanel5 = new JPanel();
     JButton moveToAboveButton = new JButton();
     JButton moveNextButton = new JButton();
@@ -228,8 +231,9 @@ public class HouseKeepingGeneNormalizerPanel extends
 
     /**
      * Add a pop menu for mouse right click.
+     *
      * @param index int
-     * @param e MouseEvent
+     * @param e     MouseEvent
      */
     private void markerRightClicked(int index, final MouseEvent e) {
 
@@ -276,11 +280,11 @@ public class HouseKeepingGeneNormalizerPanel extends
      * reportError, Error report wrapper.
      *
      * @param message String
-     * @param title String
+     * @param title   String
      */
     private void reportError(String message, String title) {
         JOptionPane.showMessageDialog(null, message, title,
-                                      JOptionPane.ERROR_MESSAGE);
+                JOptionPane.ERROR_MESSAGE);
     }
 
 
@@ -306,7 +310,7 @@ public class HouseKeepingGeneNormalizerPanel extends
             for (String s : cols) {
                 treeSet.add(s);
             }
-         }
+        }
         br.close();
         for (String s : treeSet) {
             if (!selectedModel.contains(s)) {
@@ -364,6 +368,7 @@ public class HouseKeepingGeneNormalizerPanel extends
 
     /**
      * Add one marker into the selected list.
+     *
      * @param markerName String
      */
     private void addMarkers(String markerName) {
@@ -376,6 +381,7 @@ public class HouseKeepingGeneNormalizerPanel extends
 
     /**
      * Remove marker from selected list.
+     *
      * @param markerName String
      */
     private void removeMarker(String markerName) {
@@ -388,43 +394,45 @@ public class HouseKeepingGeneNormalizerPanel extends
 
 
     void jbInit() throws Exception {
-        BoxLayout boxLayout2 = new BoxLayout(this, BoxLayout.Y_AXIS);
+        //        BoxLayout boxLayout2 = new BoxLayout(this, BoxLayout.Y_AXIS);
         // this.setLayout(xYLayout1);
-        this.setLayout(boxLayout2);
+        this.setLayout(new BorderLayout());
         panel = new CSPanel<DSGeneMarker>();
-        jButton1.setText(">");
-        jButton1.addActionListener(new ActionListener() {
+        addButton.setText(">");
+        addButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 jButton1_actionPerformed(e);
             }
         });
-        jButton2.setText("<");
-        jButton2.addActionListener(new ActionListener() {
+        removeButton.setText("<");
+        removeButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 jButton2_actionPerformed(e);
             }
         });
+
+
         BoxLayout boxLayout21 = new BoxLayout(jPanel3, BoxLayout.X_AXIS);
         jPanel3.setLayout(boxLayout21);
-        jLabel1.setText("    Current Selected Genes");
-        jLabel2.setText("Excluded HouseKeeping Genes");
-        jButton5.setText("Clear all");
-        jButton5.addActionListener(new
-                                   HouseKeepingGeneNormalizerPanel_jButton5_actionAdapter(this));
+        selectedGenesLabel.setText("Current Selected Genes");
+        excludedGenesLabel.setText("Excluded HouseKeeping Genes");
+        clearButton.setText("Clear all");
+        clearButton.addActionListener(new
+                HouseKeepingGeneNormalizerPanel_jButton5_actionAdapter(this));
         jPanel4.setLayout(borderLayout1);
         loadButton.setToolTipText("Load housekeeping genes from a file.");
         loadButton.setText("Load");
         loadButton.addActionListener(new
-                                     HouseKeepingGeneNormalizerPanel_loadButton_actionAdapter(this));
-        jButton3.setToolTipText("Save the housekeeping genes into a file.");
-        jButton3.setText("Save");
-        jButton3.addActionListener(new ActionListener() {
+                HouseKeepingGeneNormalizerPanel_loadButton_actionAdapter(this));
+        saveButton.setToolTipText("Save the housekeeping genes into a file.");
+        saveButton.setText("Save");
+        saveButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 jButton3_actionPerformed(e);
             }
         });
-        jLabel3.setText("Missing Values");
-        jComboBox1.setToolTipText("");
+        missingValuesLabel.setText("Missing Values");
+        missingValuesCombo.setToolTipText("");
         moveToAboveButton.setToolTipText("Previous highlighted marker");
         moveToAboveButton.setText("^");
         moveToAboveButton.addActionListener(new ActionListener() {
@@ -453,28 +461,30 @@ public class HouseKeepingGeneNormalizerPanel extends
         jScrollPane2.setPreferredSize(new Dimension(100, 100));
         jPanel5.setMinimumSize(new Dimension(60, 100));
         jPanel5.setPreferredSize(new Dimension(60, 100));
-       jPanel1.add(Box.createRigidArea(new Dimension(0, 5)));
-        jButton1.setAlignmentX(Component.CENTER_ALIGNMENT);
-        jButton2.setAlignmentX(Component.CENTER_ALIGNMENT);
-        jButton5.setAlignmentX(Component.CENTER_ALIGNMENT);
-        jButton3.setAlignmentX(Component.CENTER_ALIGNMENT);
+        jPanel1.add(Box.createRigidArea(new Dimension(0, 5)));
+        addButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+        removeButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+        clearButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+        saveButton.setAlignmentX(Component.CENTER_ALIGNMENT);
         loadButton.setAlignmentX(Component.CENTER_ALIGNMENT);
-        jPanel1.add(jButton1);
-        jPanel1.add(jButton2);
-        jPanel1.add(jButton5);
+        jPanel1.add(addButton);
+        jPanel1.add(removeButton);
+        jPanel1.add(clearButton);
         jPanel1.add(loadButton);
-        jPanel1.add(jButton3);
+        jPanel1.add(saveButton);
         jList1.setToolTipText("HouseKeeping genes list");
 
         jList1.addMouseListener(new MouseAdapter() {
-            @Override public void mouseReleased(MouseEvent e) {
+            @Override
+            public void mouseReleased(MouseEvent e) {
                 markerList_mouseClicked(e);
             }
 
         });
 
         jList2.addMouseListener(new MouseAdapter() {
-            @Override public void mouseReleased(MouseEvent e) {
+            @Override
+            public void mouseReleased(MouseEvent e) {
                 handleMouseEvent(e);
             }
         });
@@ -518,28 +528,61 @@ public class HouseKeepingGeneNormalizerPanel extends
             }
         });
 
+        FormLayout layout = new FormLayout("150dlu,5dlu,60dlu,5dlu,150dlu", "p,8dlu,p,p,p,p,p,p,8dlu,p,8dlu,p");
+        layout.setColumnGroups(new int[][]{{1, 5}});
+        PanelBuilder builder = new PanelBuilder(layout);
+
+        builder.addSeparator("HouseKeeping Parameters");
+
+        int row = 3;
+
+        CellConstraints cc = new CellConstraints();
+        builder.add(excludedGenesLabel, cc.xy(1, row));
+        builder.add(selectedGenesLabel, cc.xy(5, row));
+        row++;
+        builder.add(jScrollPane1, cc.xywh(1, row, 1, 5));
+        builder.add(jScrollPane2, cc.xywh(5, row, 1, 5));
+
+        // Add buttons
+        builder.add(addButton, cc.xy(3, row++));
+        builder.add(removeButton, cc.xy(3, row++));
+        builder.add(clearButton, cc.xy(3, row++));
+        builder.add(loadButton, cc.xy(3, row++));
+        builder.add(saveButton, cc.xy(3, row++));
+
+        // Add missing values controls
+        row++;
+        builder.addSeparator("Missing Values Options", cc.xyw(1, row++, 5));
+        row++;
+        builder.add(missingValuesLabel, cc.xy(3,row));
+        builder.add(missingValuesCombo, cc.xy(5,row));
+
+
         jScrollPane2.getViewport().add(jList2);
         jScrollPane1.getViewport().add(jList1);
-        jPanel4.add(jLabel2, java.awt.BorderLayout.WEST);
-        jPanel4.add(jLabel1, java.awt.BorderLayout.EAST);
-        jPanel2.add(jLabel3);
-        jPanel2.add(jComboBox1);
-        BoxLayout boxLayout = new BoxLayout(jPanel3, BoxLayout.X_AXIS);
-        jPanel5.setVisible(false);
-        BoxLayout boxLayout1 = new BoxLayout(jPanel5, BoxLayout.Y_AXIS);
-        jPanel5.setLayout(boxLayout1);
-        jPanel5.add(moveToAboveButton);
-        jPanel5.add(Box.createVerticalGlue());
-        jPanel5.add(moveNextButton);
-        jPanel3.setPreferredSize(new Dimension(400, 140));
-        this.add(jPanel4);
-        this.add(jPanel3);
-        this.add(jPanel2);
-        this.add(Box.createHorizontalGlue());
-        jPanel3.add(jScrollPane1);
-        jPanel3.add(jPanel1);
-        jPanel3.add(jScrollPane2);
-        jPanel3.add(jPanel5);
+
+        this.add(builder.getPanel(), BorderLayout.CENTER);
+
+        //        jPanel4.add(excludedGenesLabel, java.awt.BorderLayout.WEST);
+        //        jPanel4.add(selectedGenesLabel, java.awt.BorderLayout.EAST);
+        //        jPanel2.add(jLabel3);
+        //        jPanel2.add(jComboBox1);
+        //        BoxLayout boxLayout = new BoxLayout(jPanel3, BoxLayout.X_AXIS);
+        //        jPanel5.setVisible(false);
+        //        BoxLayout boxLayout1 = new BoxLayout(jPanel5, BoxLayout.Y_AXIS);
+        //        jPanel5.setLayout(boxLayout1);
+        //        jPanel5.add(moveToAboveButton);
+        //        jPanel5.add(Box.createVerticalGlue());
+        //        jPanel5.add(moveNextButton);
+        //        jPanel3.setPreferredSize(new Dimension(400, 140));
+        //        this.add(jPanel4);
+        //        this.add(jPanel3);
+        //        this.add(jPanel2);
+        //        this.add(Box.createHorizontalGlue());
+        //        jPanel3.add(jScrollPane1);
+        //        jPanel3.add(jPanel1);
+        //        jPanel3.add(jScrollPane2);
+        //        jPanel3.add(jPanel5);
         updateLabel();
     }
 
@@ -628,6 +671,7 @@ public class HouseKeepingGeneNormalizerPanel extends
 
     /**
      * Handle mouse event.
+     *
      * @param event MouseEvent
      */
     private void handleMouseEvent(MouseEvent event) {
@@ -662,8 +706,8 @@ public class HouseKeepingGeneNormalizerPanel extends
      * updateLabel, display the number of Genes listed in each list box.
      */
     public void updateLabel() {
-        jLabel1.setText("Current Selected Genes [" + selectedModel.size() + "]");
-        jLabel2.setText("Excluded Genes [" + markerModel.size() + "]    ");
+        selectedGenesLabel.setText("Current Selected Genes [" + selectedModel.size() + "]");
+        excludedGenesLabel.setText("Excluded Genes [" + markerModel.size() + "]    ");
         if (highlightedMarkers.isEmpty()) {
             jPanel5.setVisible(false);
             removeAllHighlightsItem.setEnabled(false);
@@ -683,7 +727,7 @@ public class HouseKeepingGeneNormalizerPanel extends
      */
     public void updatePanel() {
         panel = new CSPanel<DSGeneMarker>();
-        for (Enumeration en = selectedModel.elements(); en.hasMoreElements(); ) {
+        for (Enumeration en = selectedModel.elements(); en.hasMoreElements();) {
             CSGeneMarker csg = new CSGeneMarker((String) en.nextElement());
             panel.add(csg);
         }
@@ -777,7 +821,6 @@ public class HouseKeepingGeneNormalizerPanel extends
     }
 
     /**
-     *
      * validateLists
      */
     private void validateLists() {
@@ -801,7 +844,6 @@ public class HouseKeepingGeneNormalizerPanel extends
 
 
     /**
-     *
      * @param out ObjectOutputStream
      * @throws IOException
      */
@@ -815,13 +857,13 @@ public class HouseKeepingGeneNormalizerPanel extends
     private void readObject(java.io.ObjectInputStream in) throws IOException,
             ClassNotFoundException {
         in.defaultReadObject();
-             try {
+        try {
             jbInit();
 
         } catch (Exception e) {
             e.printStackTrace();
         }
-            revalidate();
+        revalidate();
     }
 
     /**
@@ -851,7 +893,8 @@ public class HouseKeepingGeneNormalizerPanel extends
         }
     }
 
-    /**Add two buttons for browsing highlighted markers.
+    /**
+     * Add two buttons for browsing highlighted markers.
      * addnewMovePanel
      */
     private void addnewMovePanel() {
@@ -888,9 +931,10 @@ public class HouseKeepingGeneNormalizerPanel extends
 
 
     private class ListCellRenderer extends DefaultListCellRenderer {
-        @Override public Component getListCellRendererComponent(JList list,
-                Object value, int index, boolean isSelected,
-                boolean cellHasFocus) {
+        @Override
+        public Component getListCellRendererComponent(JList list,
+                                                      Object value, int index, boolean isSelected,
+                                                      boolean cellHasFocus) {
             Component component = super.getListCellRendererComponent(list,
                     value, index, isSelected, cellHasFocus);
 
@@ -911,6 +955,7 @@ public class HouseKeepingGeneNormalizerPanel extends
 class HouseKeepingGeneNormalizerPanel_jButton5_actionAdapter implements
         ActionListener {
     private HouseKeepingGeneNormalizerPanel adaptee;
+
     HouseKeepingGeneNormalizerPanel_jButton5_actionAdapter(
             HouseKeepingGeneNormalizerPanel adaptee) {
         this.adaptee = adaptee;
@@ -925,6 +970,7 @@ class HouseKeepingGeneNormalizerPanel_jButton5_actionAdapter implements
 class HouseKeepingGeneNormalizerPanel_loadButton_actionAdapter implements
         ActionListener {
     private HouseKeepingGeneNormalizerPanel adaptee;
+
     HouseKeepingGeneNormalizerPanel_loadButton_actionAdapter(
             HouseKeepingGeneNormalizerPanel adaptee) {
         this.adaptee = adaptee;

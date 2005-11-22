@@ -22,6 +22,9 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+import com.jgoodies.forms.layout.FormLayout;
+import com.jgoodies.forms.builder.DefaultFormBuilder;
+
 /**
  * <p>Copyright: Copyright (c) 2003</p>
  * <p>Company: First Genetic Trust Inc.</p>
@@ -33,7 +36,8 @@ import java.awt.event.ActionListener;
  * Application component offering users a selection of microarray
  * normalization options.
  */
-@AcceptTypes({DSMicroarraySet.class}) public class NormalizationPanel implements VisualPlugin {
+//@AcceptTypes({DSMicroarraySet.class}) public class NormalizationPanel implements VisualPlugin {
+public class NormalizationPanel implements VisualPlugin {
     /**
      * The underlying panel for the normalization component
      */
@@ -69,7 +73,6 @@ import java.awt.event.ActionListener;
     JPanel jPanel3 = new JPanel();
     BorderLayout borderLayout2 = new BorderLayout();
     BorderLayout borderLayout3 = new BorderLayout();
-    JPanel buttons = new JPanel();
     GridLayout gridLayout1 = new GridLayout();
     GridLayout gridLayout2 = new GridLayout();
     JButton analyze = new JButton("Normalize");
@@ -109,8 +112,8 @@ import java.awt.event.ActionListener;
         jPanel4.setLayout(borderLayout4);
         normalizationPanel.setLayout(borderLayout2);
         jPanel3.setLayout(borderLayout3);
-        buttons.setLayout(new BoxLayout(buttons, BoxLayout.X_AXIS));
-        buttons.setPreferredSize(new Dimension(248, 60));
+//        buttons.setLayout(new BoxLayout(buttons, BoxLayout.X_AXIS));
+//        buttons.setPreferredSize(new Dimension(248, 60));
         gridLayout1.setColumns(2);
         gridLayout1.setRows(3);
         gridLayout1.setVgap(0);
@@ -156,18 +159,31 @@ import java.awt.event.ActionListener;
         currentParameterPanel.setLayout(borderLayout5);
         jPanel3.add(jPanel4, BorderLayout.WEST);
         jPanel4.add(currentParameterPanel, BorderLayout.CENTER);
-        buttons.add(Box.createHorizontalGlue());
-        buttons.add(Box.createRigidArea(new Dimension(10, 0)));
-        buttons.add(Box.createRigidArea(new Dimension(10, 0)));
-        buttons.add(save);
-        buttons.add(analyze);
+//        buttons.add(Box.createHorizontalGlue());
+//        buttons.add(Box.createRigidArea(new Dimension(10, 0)));
+//        buttons.add(Box.createRigidArea(new Dimension(10, 0)));
+//        buttons.add(save);
+//        buttons.add(analyze);
+
+        // Add buttons
+        analyze.setPreferredSize(save.getPreferredSize());
+        FormLayout layout = new FormLayout("right:100dlu,10dlu","");
+        DefaultFormBuilder builder = new DefaultFormBuilder(layout);
+        builder.setDefaultDialogBorder();
+        builder.appendSeparator("Normalization Actions");
+        builder.append(analyze);
+        builder.nextLine();
+        builder.append(save);
+
+        jPanel3.add(builder.getPanel(), BorderLayout.EAST);
+
         jPanel3.add(jPanel1, BorderLayout.NORTH);
         jPanel1.add(jScrollPane1, null);
         jPanel1.add(jScrollPane3, null);
         jScrollPane3.getViewport().add(namedParameters, null);
         jScrollPane1.getViewport().add(pluginNormalizers, null);
-        buttons.add(Box.createRigidArea(new Dimension(10, 0)));
-        jPanel3.add(buttons, BorderLayout.EAST);
+//        buttons.add(Box.createRigidArea(new Dimension(10, 0)));
+//        jPanel3.add(buttons, BorderLayout.EAST);
     }
 
     /**

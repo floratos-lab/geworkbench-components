@@ -8,6 +8,9 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.io.ObjectStreamException;
 
+import com.jgoodies.forms.layout.FormLayout;
+import com.jgoodies.forms.builder.DefaultFormBuilder;
+
 /**
  * <p>Copyright: Copyright (c) 2003</p>
  * <p>Company: First Genetic Trust Inc.</p>
@@ -59,17 +62,17 @@ public class MarkerMeanVarianceNormalizerPanel extends AbstractSaveableParameter
     }
 
     private void jbInit() throws Exception {
-        JPanel container = new JPanel();
-        this.setLayout(new FlowLayout());
-        gridLayout1.setColumns(2);
-        gridLayout1.setHgap(10);
-        gridLayout1.setRows(1);
-        gridLayout1.setVgap(10);
-        container.setLayout(gridLayout1);
-        container.add(missingValuesTreatmentLabel);
-        container.add(missingValuesSelection);
-        container.setPreferredSize(new Dimension(250, 27));
-        this.add(container);
+        FormLayout layout = new FormLayout(
+                "right:max(40dlu;pref), 8dlu, max(60dlu;pref)",
+                "");
+        DefaultFormBuilder builder = new DefaultFormBuilder(layout);
+        builder.setDefaultDialogBorder();
+
+        builder.appendSeparator("Centering Parameters");
+
+        builder.append("Missing values", missingValuesSelection);
+        this.add(builder.getPanel(), BorderLayout.CENTER);
+
     }
 
     /**
