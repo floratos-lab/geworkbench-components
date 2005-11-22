@@ -323,5 +323,31 @@ public class GenePanel extends SelectorPanel<DSGeneMarker> {
     protected void publishSingleSelectionEvent(DSGeneMarker item) {
         publishGeneSelectorEvent(new GeneSelectorEvent(item));
     }
+    
+    private void processDataSet(DSDataSet dataSet) {
+        if (dataSet != null) {
+            dataSetChanged(dataSet);
+        } else {
+            dataSetCleared();
+        }
+    }
 
+    @Script public void setDataSet(DSDataSet dataSet) {
+        processDataSet(dataSet);
+    }
+
+    @Script
+    public void createPanel(int a, int b, boolean c) {
+        // todo implement
+    }
+
+    @Script
+    public DSPanel getPanel(String dir) {
+        DSPanel<DSGeneMarker> panel = deserializePanel(new File(dir));
+        panel.setActive(true);
+        addPanel(panel); //redundancy between broadcast and script
+        publishGeneSelectorEvent(new GeneSelectorEvent(panel));
+        
+        return panel;
+    }
 }

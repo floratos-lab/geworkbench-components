@@ -771,6 +771,13 @@ public class CytoscapeWidget extends EventSource implements VisualPlugin, MenuLi
     @Script
     public void computeAndDrawFirstNeighbors(DSGeneMarker m, AdjacencyMatrix am) {
         adjMatrix = am;
+//        try {
+//        while (maSet == null) //THIS IS A BIG PROBLEM
+//            Thread.currentThread().sleep(1000);
+//        }
+//        catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
         cytoNetwork = Cytoscape.createNetwork(maSet.getLabel() + m.getSerial());
         createSubNetwork(m.getSerial(), 0, 1);
         view = Cytoscape.createNetworkView(cytoNetwork, maSet.getLabel());
