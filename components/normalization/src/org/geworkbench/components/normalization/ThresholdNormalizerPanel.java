@@ -8,6 +8,9 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.io.ObjectStreamException;
 
+import com.jgoodies.forms.layout.FormLayout;
+import com.jgoodies.forms.builder.DefaultFormBuilder;
+
 /**
  * <p>Copyright: Copyright (c) 2003</p>
  * <p>Company: First Genetic Trust Inc.</p>
@@ -66,21 +69,19 @@ public class ThresholdNormalizerPanel extends AbstractSaveableParameterPanel imp
     }
 
     private void jbInit() throws Exception {
-        JPanel container = new JPanel();
-        this.setLayout(new FlowLayout());
-        gridLayout1.setColumns(2);
-        gridLayout1.setHgap(10);
-        gridLayout1.setRows(3);
-        gridLayout1.setVgap(10);
-        container.setLayout(gridLayout1);
-        container.add(cutoffLabel);
-        container.add(cutoffEdit);
-        container.add(minMaxLabel);
-        container.add(cutoffTypeSelection);
-        container.add(missingValuesLabel);
-        container.add(missingValuesSelection);
-        container.setPreferredSize(new Dimension(220, 80));
-        this.add(container);
+        FormLayout layout = new FormLayout(
+                "right:max(40dlu;pref), 8dlu, max(60dlu;pref)",
+                "");
+        DefaultFormBuilder builder = new DefaultFormBuilder(layout);
+        builder.setDefaultDialogBorder();
+
+        builder.appendSeparator("Threshold Parameters");
+
+        builder.append("Cut-off value", cutoffEdit);
+        builder.append("Cut-off type", cutoffTypeSelection);
+        builder.append("Missing values", missingValuesSelection);
+        this.add(builder.getPanel(), BorderLayout.CENTER);
+
         cutoffEdit.setValue(new Double(0.0));
         cutoffEdit.setFocusLostBehavior(JFormattedTextField.COMMIT_OR_REVERT);
     }
