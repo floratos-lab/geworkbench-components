@@ -36,8 +36,7 @@ import com.jgoodies.forms.builder.DefaultFormBuilder;
  * Application component offering users a selection of microarray
  * normalization options.
  */
-//@AcceptTypes({DSMicroarraySet.class}) public class NormalizationPanel implements VisualPlugin {
-public class NormalizationPanel implements VisualPlugin {
+@AcceptTypes({DSMicroarraySet.class}) public class NormalizationPanel implements VisualPlugin {
     /**
      * The underlying panel for the normalization component
      */
