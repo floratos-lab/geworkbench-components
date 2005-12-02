@@ -199,7 +199,6 @@ public class SOMDisplay implements VisualPlugin, MenuListener, PropertyChangeLis
         pb.setMessage("Rendering Clusters...");
         pb.start();
 
-        final SOMPlot[][] plots = new SOMPlot[x][y];
         for (int i = 0; i < x; i++) {
             for (int j = 0; j < y; j++) {
                 JFreeChart chart = ChartFactory.createXYLineChart(null, // Title
@@ -290,9 +289,8 @@ public class SOMDisplay implements VisualPlugin, MenuListener, PropertyChangeLis
                 somWidget.repaint();
                 isReset = false;
                 display.removeAll();
-                plot.setSize(new Dimension(somWidget.getWidth(), somWidget.getHeight()));
-                plot.setPreferredSize(new Dimension(somWidget.getWidth(), somWidget.getHeight()));
-                display.add(plot, 0);
+                display.setLayout(new BorderLayout());
+                display.add(plot, BorderLayout.CENTER);
                 display.revalidate();
                 somWidget.repaint();
             }
