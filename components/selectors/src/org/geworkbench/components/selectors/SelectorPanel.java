@@ -18,6 +18,7 @@ import org.geworkbench.util.JAutoList;
 import org.geworkbench.engine.management.Subscribe;
 import org.geworkbench.engine.management.Script;
 import org.geworkbench.engine.config.VisualPlugin;
+import org.geworkbench.engine.config.MenuListener;
 import org.geworkbench.builtin.projects.ProjectSelection;
 import org.geworkbench.builtin.projects.ProjectPanel;
 import org.apache.commons.collections15.map.ReferenceMap;
@@ -42,7 +43,7 @@ import java.lang.reflect.Array;
 /**
  * @author John Watkinson
  */
-public abstract class SelectorPanel<T extends DSSequential> implements VisualPlugin {
+public abstract class SelectorPanel<T extends DSSequential> implements VisualPlugin, MenuListener {
 
     public static final String SELECTION_LABEL = "Selection";
 
@@ -874,6 +875,11 @@ public abstract class SelectorPanel<T extends DSSequential> implements VisualPlu
 
     protected void initializeContext(DSAnnotationContext context) {
         context.addLabel(SELECTION_LABEL);
+    }
+
+    public ActionListener getActionListener(String var) {
+        // todo - re-add menu support
+        return null;
     }
 
 }
