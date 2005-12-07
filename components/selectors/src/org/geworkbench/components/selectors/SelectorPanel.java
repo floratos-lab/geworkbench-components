@@ -38,6 +38,7 @@ import java.text.DecimalFormat;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.lang.reflect.Array;
 
 /**
@@ -83,6 +84,8 @@ public abstract class SelectorPanel<T extends DSSequential> implements VisualPlu
 
     protected Class<T> panelType;
     private SelectorTreeRenderer treeRenderer;
+
+    private HashMap<String,ActionListener> menuListeners;
 
     public SelectorPanel(Class<T> panelType, String name) {
         this.panelType = panelType;
@@ -142,41 +145,54 @@ public abstract class SelectorPanel<T extends DSSequential> implements VisualPlu
         // todo - move to a new gui setup
         itemPopup.add(removeFromPanelItem);
         // Add behaviors
+        menuListeners = new HashMap<String, ActionListener>();
         panelTree.addMouseListener(new MouseAdapter() {
             @Override public void mouseClicked(MouseEvent e) {
                 panelTreeClicked(e);
             }
         });
-        addToPanelItem.addActionListener(new ActionListener() {
+        ActionListener addToPanelListener = new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 addToLabelPressed();
             }
-        });
-        clearSelectionItem.addActionListener(new ActionListener() {
+        };
+        addToPanelItem.addActionListener(addToPanelListener);
+        menuListeners.put("Commands.Panels.Add to Panel", addToPanelListener);
+        ActionListener clearListener = new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 clearSelectionPressed();
             }
-        });
-        renamePanelItem.addActionListener(new ActionListener() {
+        };
+        clearSelectionItem.addActionListener(clearListener);
+        menuListeners.put("View.Clear Selection", clearListener);
+        ActionListener renameListener = new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 renameLabelPressed(rightClickedPath);
             }
-        });
-        activatePanelItem.addActionListener(new ActionListener() {
+        };
+        renamePanelItem.addActionListener(renameListener);
+        menuListeners.put("Commands.Panels.Rename", renameListener);
+        ActionListener activateListener = new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 activateOrDeactivateLabelPressed(true);
             }
-        });
-        deactivatePanelItem.addActionListener(new ActionListener() {
+        };
+        activatePanelItem.addActionListener(activateListener);
+        menuListeners.put("Commands.Panels.Activate", activateListener);
+        ActionListener deactivateListener = new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 activateOrDeactivateLabelPressed(false);
             }
-        });
-        deletePanelItem.addActionListener(new ActionListener() {
+        };
+        deactivatePanelItem.addActionListener(deactivateListener);
+        ActionListener deleteListener = new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 deletePanelPressed();
             }
-        });
+        };
+        deletePanelItem.addActionListener(deleteListener);
+        menuListeners.put("Commands.Panels.Delete", deleteListener);
+        menuListeners.put("Commands.Panels.Deactivate", deactivateListener);
         printPanelItem.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 printPanelPressed(rightClickedPath);
@@ -878,8 +894,7 @@ public abstract class SelectorPanel<T extends DSSequential> implements VisualPlu
     }
 
     public ActionListener getActionListener(String var) {
-        // todo - re-add menu support
-        return null;
+        return menuListeners.get(var);
     }
 
 }
