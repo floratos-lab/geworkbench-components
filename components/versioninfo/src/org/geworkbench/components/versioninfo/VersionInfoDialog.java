@@ -208,7 +208,7 @@ public class VersionInfoDialog
 
         {
             // A bit of overkill for the OK button layout
-            FormLayout layout = new FormLayout("right:385dlu", "");
+            FormLayout layout = new FormLayout("right:570dlu", "");
             DefaultFormBuilder builder = new DefaultFormBuilder(layout);
             builder.setDefaultDialogBorder();
             builder.append(button1);
