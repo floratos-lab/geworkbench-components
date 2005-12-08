@@ -175,7 +175,6 @@ public class ParameterViewWidget
     JScrollPane jScrollPane3 = new JScrollPane();
     BorderLayout borderLayout6 = new BorderLayout();
     GridBagLayout gridBagLayout4 = new GridBagLayout();
-
     public ParameterViewWidget() {
         try {
             jbInit();

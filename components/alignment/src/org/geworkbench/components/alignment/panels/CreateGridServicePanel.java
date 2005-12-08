@@ -110,6 +110,7 @@ public class CreateGridServicePanel
   GridBagLayout gridBagLayout1 = new GridBagLayout();
     JTextField userNameText = new JTextField();
     FlowLayout flowLayout1 = new FlowLayout();
+    JButton checkButton = new JButton();
 
     //private String DEFAULTURL = "http://localhost:8080/ogsa/services/core/registry/ContainerRegistryService";
 
@@ -421,6 +422,9 @@ public class CreateGridServicePanel
         jRadioButton1.setText("large");
         jRadioButton2.setText("middle");
         jRadioButton3.setText("small");
+        checkButton.setText("CheckStatus");
+        checkButton.addActionListener(new
+                CreateGridServicePanel_checkButton_actionAdapter(this));
         bg.add(jRadioButton1);
         bg.add(jRadioButton2);
         bg.add(jRadioButton3);
@@ -471,6 +475,7 @@ public class CreateGridServicePanel
         controlPanel.add(jPanel6, BorderLayout.CENTER);
         jPanel6.add(treeView, BorderLayout.CENTER);
         jSplitPane2.add(jSplitPane1, JSplitPane.RIGHT);
+        detailPanel.add(checkButton);
         detailPanel.add(viewButton, null);
         detailPanel.add(jLabel3, null);
         detailPanel.add(userNameText, null);
@@ -654,7 +659,29 @@ public class CreateGridServicePanel
     public void jTextField1_actionPerformed(ActionEvent e) {
 
     }
+
+    public void checkButton_actionPerformed(ActionEvent e) {
+       //  CreateGridServiceDialog csd = new CreateGridServiceDialog(null, "grid service");
+
+       JDialog gsd = new GridSessionsViewDialog( );
+     gsd.setVisible(true);
+    }
 }
+
+
+class CreateGridServicePanel_checkButton_actionAdapter implements
+        ActionListener {
+    private CreateGridServicePanel adaptee;
+    CreateGridServicePanel_checkButton_actionAdapter(CreateGridServicePanel
+            adaptee) {
+        this.adaptee = adaptee;
+    }
+
+    public void actionPerformed(ActionEvent e) {
+        adaptee.checkButton_actionPerformed(e);
+    }
+}
+
 
 class CreateGridServicePanel_jTextField1_actionAdapter
     implements ActionListener {
