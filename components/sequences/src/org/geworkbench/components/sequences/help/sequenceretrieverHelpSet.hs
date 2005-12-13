@@ -6,7 +6,7 @@
 <?TestTarget The help set file for the project tree component.?>
 <helpset version="1.0">
 	<!-- title -->
-	<title>Sequeuences</title>
+	<title>Sequences</title>
 	<!-- maps -->
 	<maps>
 		<homeID>overview</homeID>
@@ -17,7 +17,7 @@
 		<name>TOC</name>
 		<label>Sequences</label>
 		<type>javax.help.TOCView</type>
-		<data>sequence.xml</data>
+		<data>sequencestoc.xml</data>
 	</view>
 </helpset>
 
