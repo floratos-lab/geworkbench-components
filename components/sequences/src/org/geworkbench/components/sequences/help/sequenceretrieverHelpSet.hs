@@ -6,18 +6,18 @@
 <?TestTarget The help set file for the project tree component.?>
 <helpset version="1.0">
 	<!-- title -->
-	<title>Sequeuence Retriever</title>
+	<title>Sequeuences</title>
 	<!-- maps -->
 	<maps>
 		<homeID>overview</homeID>
-		<mapref location="sequenceretriever.jhm"/>
+		<mapref location="sequence.jhm"/>
 	</maps>
 	<!-- views -->
 	<view>
 		<name>TOC</name>
-		<label>Sequence Retriever</label>
+		<label>Sequences</label>
 		<type>javax.help.TOCView</type>
-		<data>sequenceretrievertoc.xml</data>
+		<data>sequence.xml</data>
 	</view>
 </helpset>
 
