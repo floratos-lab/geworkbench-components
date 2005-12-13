@@ -6,6 +6,6 @@
 
 <map version="1.0">
 
-	<mapID target="sequence_Panel" url="sequence.HTML"/>
-	<mapID target="sequence_retriever" url="sequenceretriever.HTML"/>
+	<mapID target="sequence.panel" url="sequence.HTML"/>
+	<mapID target="sequence.retriever" url="sequenceretriever.HTML"/>
 </map>
