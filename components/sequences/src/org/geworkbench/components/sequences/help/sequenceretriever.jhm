@@ -6,5 +6,5 @@
 
 <map version="1.0">
 
-	<mapID target="overview" url="sequence.HTML"/>
+	<mapID target="overview" url="sequenceretriever.HTML"/>
 </map>
