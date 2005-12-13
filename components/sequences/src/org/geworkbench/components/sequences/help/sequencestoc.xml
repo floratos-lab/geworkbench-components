@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="ISO-8859-1" standalone="yes"?>
+
+<toc version="1.0">
+
+	<tocitem text="Sequences">
+
+		 <tocitem target="overview" text="Sequence Panel" />
+		 <tocitem target="sequence_retriever" text="Sequence Retriever" />
+	</tocitem>
+
+</toc>
+
