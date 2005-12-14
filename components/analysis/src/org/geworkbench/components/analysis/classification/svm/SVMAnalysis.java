@@ -100,113 +100,73 @@ public class SVMAnalysis extends AbstractAnalysis implements ClusteringAnalysis 
         List<float[]> caseData = new ArrayList<float[]>();
         List<float[]> controlData = new ArrayList<float[]>();
 
-        List<DSMicroarray> validateDataCase = new ArrayList<DSMicroarray>();
-        List<DSMicroarray> validateDataControl = new ArrayList<DSMicroarray>();
+        String attribLabel = labels[0];
 
-        try {
-            String attribLabel = labels[0];
-
-            {
-                DSPanel<DSMicroarray> panel = new CSPanel<DSMicroarray>(context.getItemsWithLabel(attribLabel));
-                int aThird = panel.size() / 3;
-                int twoThirds = panel.size() - aThird;
-
-                for (int i = 0; i < twoThirds; i++) {
-                    DSMicroarray array = panel.remove(rand.nextInt(panel.size()));
-                    DSMutableMarkerValue[] values = array.getMarkerValues();
-                    float[] data = new float[values.length];
-                    for (int j = 0; j < values.length; j++) {
-                        data[j] = (float) values[j].getValue();
-                    }
-                    caseData.add(data);
-                }
-
-                for (DSMicroarray microarray : panel) {
-                    validateDataCase.add(microarray);
-                }
-            }
-
-            {
-                DSPanel<DSMicroarray> panel = new CSPanel<DSMicroarray>(context.getItemsWithoutLabel(attribLabel));
-                int aThird = panel.size() / 3;
-//                int twoThirds = panel.size() - aThird;
-                int twoThirds = validateDataCase.size() * 2;
-                log.debug("Two thirds " + twoThirds);
-
-                for (int i = 0; i < twoThirds; i++) {
-                    DSMicroarray array = panel.remove(rand.nextInt(panel.size()));
-                    DSMutableMarkerValue[] values = array.getMarkerValues();
-                    float[] data = new float[values.length];
-                    for (int j = 0; j < values.length; j++) {
-                        data[j] = (float) values[j].getValue();
-                    }
-                    controlData.add(data);
-                }
-
-                for (DSMicroarray microarray : panel) {
-                    validateDataControl.add(microarray);
-                }
-            }
-
-        } catch (Exception e) {
-            log.error(e);
+        {
+            DSPanel<DSMicroarray> panel = new CSPanel<DSMicroarray>(context.getItemsWithLabel(attribLabel));
+            addMicroarrayData(panel, caseData);
         }
 
-        for (float[] floats : caseData) {
-            for (float v : floats) {
-                if (Float.isNaN(v)) {
-                    log.warn("NaN at location ");
-                } else if (Float.isInfinite(v)) {
-                    log.warn("Infinite.");
+        {
+            DSPanel<DSMicroarray> panel = new CSPanel<DSMicroarray>(context.getItemsWithoutLabel(attribLabel));
+            addMicroarrayData(panel, controlData);
+        }
+
+        warnOnInvalidData(caseData);
+        warnOnInvalidData(controlData);
+
+        KFoldCrossValidation cross = new KFoldCrossValidation(3, caseData, controlData);
+
+        for (int i = 0; i < cross.getNumFolds(); i++) {
+            KFoldCrossValidation.CrossValidationData crossData = cross.getData(i);
+            log.debug("Training classifier data set #" + i);
+            SupportVectorMachine svm = new SupportVectorMachine(crossData.getTrainingCaseData(), crossData.getTrainingControlData(),
+                    SupportVectorMachine.LINEAR_KERNAL_FUNCTION, 1000, 1e-6);
+            log.debug("Classifier training complete.");
+
+            log.debug("Classifying test case data for set #" + i);
+            int correct = 0;
+            for (float[] values : crossData.getTestCaseData()) {
+                if (svm.evaluate(values)) {
+                    correct++;
                 }
             }
-        }
+            log.debug("True positives: "+correct+", false negatives: "+(crossData.getTestCaseData().size()-correct));
 
-        for (float[] floats : controlData) {
-            for (float v : floats) {
-                if (Float.isNaN(v)) {
-                    log.warn("NaN at location ");
-                } else if (Float.isInfinite(v)) {
-                    log.warn("Infinite.");
+            log.debug("Classifying test control data for set #" + i);
+            correct = 0;
+            for (float[] values : crossData.getTestControlData()) {
+                if (svm.evaluate(values)) {
+                    correct++;
                 }
             }
+            log.debug("True positives: "+correct+", false negatives: "+(crossData.getTrainingControlData().size()-correct));
         }
-
-        log.debug("Training classifier.");
-        SupportVectorMachine svm = new SupportVectorMachine(caseData, controlData, SupportVectorMachine.LINEAR_KERNAL_FUNCTION, 1000, 1e-6);
-        log.debug("Classifier training complete.");
-
-        log.debug("Testing classification of arrays in case test group");
-        int correct = 0;
-        for (DSMicroarray microarray : validateDataCase) {
-            DSMutableMarkerValue[] values = microarray.getMarkerValues();
-            float[] nodes = new float[values.length];
-            for (int j = 0; j < values.length; j++) {
-                nodes[j] = (float) values[j].getValue();
-            }
-            if (svm.evaluate(nodes)) {
-                correct++;
-            }
-
-        }
-        log.debug("True positives: "+correct+", false negatives: "+(validateDataCase.size()-correct));
-
-        log.debug("Testing classification of arrays in control test group");
-        correct = 0;
-        for (DSMicroarray microarray : validateDataControl) {
-            DSMutableMarkerValue[] values = microarray.getMarkerValues();
-            float[] nodes = new float[values.length];
-            for (int j = 0; j < values.length; j++) {
-                nodes[j] = (float) values[j].getValue();
-            }
-            if (!svm.evaluate(nodes)) {
-                correct++;
-            }
-
-        }
-        log.debug("True negatives: "+correct+", false positives: "+(validateDataControl.size()-correct));
 
         return null;
+    }
+
+    private void warnOnInvalidData(List<float[]> data) {
+        for (float[] floats : data) {
+            for (float v : floats) {
+                if (Float.isNaN(v)) {
+                    log.warn("NaN at location ");
+                } else if (Float.isInfinite(v)) {
+                    log.warn("Infinite.");
+                }
+            }
+        }
+    }
+
+    private void addMicroarrayData(DSPanel<DSMicroarray> panel, List<float[]> dataToAddTo) {
+        for (DSMicroarray microarray : panel) {
+            DSMutableMarkerValue[] values = microarray.getMarkerValues();
+            float[] data = new float[values.length];
+            for (int j = 0; j < values.length; j++) {
+                data[j] = (float) values[j].getValue();
+            }
+            dataToAddTo.add(data);
+        }
     }
 
     @Subscribe public void receive(ProjectEvent event, Object source) {
