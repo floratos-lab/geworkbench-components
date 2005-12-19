@@ -4,6 +4,9 @@ import org.geworkbench.events.MicroarraySetViewEvent;
 import org.geworkbench.util.microarrayutils.MicroarrayViewEventBase;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMutableMarkerValue;
+import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
+import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMarkerValue;
+import org.geworkbench.bison.datastructure.bioobjects.microarray.DSGenotypicMarkerValue;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.engine.management.AcceptTypes;
@@ -27,7 +30,8 @@ import java.text.NumberFormat;
  * @author Adam Margolin
  * @version 3.0
  */
-@AcceptTypes({DSMicroarraySet.class}) public class TabularMicroarrayPanel extends MicroarrayViewEventBase implements VisualPlugin {
+@AcceptTypes({DSMicroarraySet.class})
+public class TabularMicroarrayPanel extends MicroarrayViewEventBase implements VisualPlugin {
 
     public TabularMicroarrayPanel() {
         try {
@@ -96,9 +100,15 @@ import java.text.NumberFormat;
                     if (col == 0) {
                         return stats.toString() + stats.getDescription();
                     } else {
-                        //                        String value = maSetView.items().get(col - 1).getMarkerValue(stats).toString();
-                        double value = maSetView.getValue(row, col - 1);
-                        return nf.format(value);
+                        DSMicroarray array = maSetView.get(col - 1);
+                        DSMarkerValue value = array.getMarkerValue(row);
+                        if (value instanceof DSGenotypicMarkerValue) {
+                            return value.toString();
+                        } else {
+                            //                        String value = maSetView.items().get(col - 1).getMarkerValue(stats).toString();
+                            double v = maSetView.getValue(row, col - 1);
+                            return nf.format(v);
+                        }
                         //                        return value + "";
                     }
                 } else {
