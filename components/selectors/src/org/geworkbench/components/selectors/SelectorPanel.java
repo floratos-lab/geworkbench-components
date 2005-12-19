@@ -507,8 +507,10 @@ public abstract class SelectorPanel<T extends DSSequential> implements VisualPlu
      * Only effects the right-clicked path, not the entire selection
      */
     protected void visualPropertiesPressed(TreePath path) {
+        DSAnnotationContextManager contextManager = CSAnnotationContextManager.getInstance();
         String label = getLabelForPath(path);
-        if (label != null) {
+        DSPanel panel = contextManager.getCurrentContext(itemList).getItemsWithLabel(label);
+        if (panel != null) {
             // Get current active index of panel for default visual properties
             int index = 0;
             if (context.isLabelActive(label)) {
@@ -531,9 +533,9 @@ public abstract class SelectorPanel<T extends DSSequential> implements VisualPlu
                 PanelVisualPropertiesManager manager = PanelVisualPropertiesManager.getInstance();
                 PanelVisualProperties visualProperties = dialog.getVisualProperties();
                 if (visualProperties == null) {
-                    manager.clearVisualProperties(label);
+                    manager.clearVisualProperties(panel);
                 } else {
-                    manager.setVisualProperties(label, visualProperties);
+                    manager.setVisualProperties(panel, visualProperties);
                 }
                 throwLabelEvent();
             }
