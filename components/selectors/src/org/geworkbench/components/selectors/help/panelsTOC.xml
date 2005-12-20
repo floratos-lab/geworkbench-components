@@ -6,7 +6,7 @@
 
 		<tocitem target="panels.overview" text="Overview"/>
 
-		<tocitem target="create.set" text="Creating a panel set"/>
+		<tocitem target="create.set" text="Creating a panel group"/>
 
 		<tocitem target="create.panel" text="Creating a single panel"/>
 
