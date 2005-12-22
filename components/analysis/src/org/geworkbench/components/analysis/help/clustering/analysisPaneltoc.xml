@@ -8,7 +8,9 @@
 
 		<tocitem target="hier.clustering" text="Hierarchical Clustering"/>
 
-		<tocitem target="som.clustering" text="Self Organizing Maps"/>				
+		<tocitem target="som.clustering" text="Self Organizing Maps"/>	
+
+		<tocitem target="ttest" text="T-Test"/>			
 
 	</tocitem>
 
