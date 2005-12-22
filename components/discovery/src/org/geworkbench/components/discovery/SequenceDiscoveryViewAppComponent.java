@@ -1,9 +1,7 @@
 package org.geworkbench.components.discovery;
 
 import org.geworkbench.events.ProjectEvent;
-import org.geworkbench.util.patterns.PatternTableModel;
 import org.geworkbench.components.discovery.view.PatternNode;
-import org.geworkbench.events.ProjectNodeAddedEvent;
 import org.geworkbench.events.SequenceDiscoveryTableEvent;
 import org.geworkbench.events.SessionConnectEvent;
 import org.geworkbench.builtin.projects.ProjectPanel;
@@ -15,7 +13,8 @@ import org.geworkbench.util.remote.Connection;
 import org.geworkbench.util.remote.ConnectionCreationException;
 import org.geworkbench.util.remote.GlobusConnection;
 import org.geworkbench.util.remote.SPLASHDefinition;
-import org.geworkbench.util.sequences.SequenceDB;
+import org.geworkbench.bison.datastructure.biocollections.sequences.CSSequenceSet;
+import org.geworkbench.bison.datastructure.biocollections.sequences.DSSequenceSet;
 import org.geworkbench.engine.management.Publish;
 import org.geworkbench.engine.management.Subscribe;
 import org.geworkbench.engine.management.AcceptTypes;
@@ -38,7 +37,6 @@ import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
-import org.geworkbench.util.patterns.PatternDB;
 import polgara.soapPD_wsdl.Parameters;
 
 /**
@@ -53,13 +51,13 @@ import polgara.soapPD_wsdl.Parameters;
  * @version 1.0
  */
 
-@AcceptTypes({SequenceDB.class, ParmsDataSet.class}) public class SequenceDiscoveryViewAppComponent implements VisualPlugin, PropertyChangeListener {
+@AcceptTypes({CSSequenceSet.class, ParmsDataSet.class}) public class SequenceDiscoveryViewAppComponent implements VisualPlugin, PropertyChangeListener {
 
     private SequenceDiscoveryViewWidget sDiscoveryViewWidget = null;
 
     //This is the currently selected database in the project.
     //It is updated every time a file selection occurs in the main project.
-    private SequenceDB sequenceDB = null;
+    private DSSequenceSet sequenceDB = null;
 
     //login data parameters are stored here
     private LoginPanelModel loginPanelModel = new LoginPanelModel();
@@ -144,7 +142,7 @@ import polgara.soapPD_wsdl.Parameters;
             return null;
         }
 
-        SequenceDB database = SequenceDB.getSequenceDB(seqFile);
+        DSSequenceSet database = CSSequenceSet.getSequenceDB(seqFile);
         //the database will be saved with this name on the server.
         String databaseName = SPLASHDefinition.encodeFile(database.getFile(), uName);
         //create a session
@@ -204,9 +202,9 @@ import polgara.soapPD_wsdl.Parameters;
             DSDataSet df = selection.getDataSet();
             if (df != null) {
                 //update db with the selected file in the project
-                if (df instanceof SequenceDB) {
+                if (df instanceof DSSequenceSet) {
                     Parameters parms = null;
-                    sequenceDB = (SequenceDB) df;
+                    sequenceDB = (DSSequenceSet) df;
                     DSAncillaryDataSet ds = selection.getDataSubSet();
                     String subNodeID = null;
                     boolean withSubNode = false;
@@ -216,7 +214,7 @@ import polgara.soapPD_wsdl.Parameters;
                         withSubNode = true;
                     }
 
-                    sDiscoveryViewWidget.setSequenceDB((SequenceDB) df, withSubNode, subNodeID, parms);
+                    sDiscoveryViewWidget.setSequenceDB((DSSequenceSet) df, withSubNode, subNodeID, parms);
 
                 } else if (df instanceof ParmsDataSet) {
                     ParmsDataSet pds = (ParmsDataSet) df;
@@ -241,7 +239,7 @@ import polgara.soapPD_wsdl.Parameters;
             //now try to login
             Logger logger = getLogger(connection, evt.getUserName(), evt.getPassword().toCharArray());
 
-            SequenceDB database = SequenceDB.getSequenceDB(seqFile);
+            DSSequenceSet database = CSSequenceSet.getSequenceDB(seqFile);
             String localDatabase = SPLASHDefinition.encodeFile(database.getFile(), evt.getUserName());
             Session s = new Session(evt.getSessionName(), database, localDatabase, connection, logger.getUserName(), logger.getUserId(), evt.getSessionId());
 

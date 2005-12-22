@@ -1,7 +1,6 @@
 package org.geworkbench.components.alignment.synteny;
 
 import java.beans.*;
-import java.util.*;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -60,7 +59,7 @@ public class DotMatrixViewAppComponent extends EventSource implements VisualPlug
         if (source instanceof ProjectSelection) {
             ProjectSelection selection = (ProjectSelection) source;
             DataSet dataFile = selection.getDataSet();
-            if (dataFile instanceof SequenceDB) {
+            if (dataFile instanceof CSSequenceSet) {
             }
         }
     }

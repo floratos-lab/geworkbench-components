@@ -7,8 +7,9 @@ import org.geworkbench.components.alignment.client.HMMDataSet;
 import org.geworkbench.util.session.SoapClient;
 import org.geworkbench.components.alignment.grid.CreateGridServiceDialog;
 import org.geworkbench.events.ProjectNodeAddedEvent;
-import org.geworkbench.util.sequences.SequenceDB;
+import org.geworkbench.bison.datastructure.biocollections.sequences.CSSequenceSet;
 import org.geworkbench.bison.datastructure.bioobjects.sequence.CSSequence;
+import org.geworkbench.bison.datastructure.bioobjects.sequence.DSSequence;
 
 import javax.swing.*;
 import java.awt.*;
@@ -92,7 +93,7 @@ public class ParameterViewWidget
     JLabel jFrameShiftLabel = new JLabel();
     JComboBox jFrameShiftPaneltyBox = new JComboBox();
     ParameterSetter parameterSetter = new ParameterSetter();
-    SequenceDB fastaFile;
+    CSSequenceSet fastaFile;
     private BlastAppComponent blastAppComponent = null;
     JPanel jPanel3 = new JPanel();
     GridBagLayout gridBagLayout1 = new GridBagLayout();
@@ -708,7 +709,7 @@ public class ParameterViewWidget
 
     }
 
-    public SequenceDB getFastaFile() {
+    public CSSequenceSet getFastaFile() {
         return fastaFile;
     }
 
@@ -717,9 +718,9 @@ public class ParameterViewWidget
 
     }
 
-    public void setFastaFile(SequenceDB sd) {
+    public void setFastaFile(CSSequenceSet sd) {
         fastaFile = sd;
-        CSSequence s1 = sd.getSequence(0);
+        DSSequence s1 = sd.getSequence(0);
         if (s1 != null) {
             int end = s1.length();
             jendPointField.setText(new Integer(end).toString());

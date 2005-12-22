@@ -4,7 +4,7 @@ import java.io.File;
 import java.io.Serializable;
 import java.util.*;
 
-import org.geworkbench.util.sequences.SequenceDB;
+import org.geworkbench.bison.datastructure.biocollections.sequences.DSSequenceSet;
 
 /**
  * <p>Title: </p>
@@ -24,11 +24,11 @@ public class PromoterPatternDB implements Serializable {
     Hashtable matches;
     private ArrayList patterns;
     File seqFile;
-    SequenceDB seqDB;
+    DSSequenceSet seqDB;
     public PromoterPatternDB(File _seqFile) {
     }
 
-    public PromoterPatternDB(SequenceDB _seqDB) {
+    public PromoterPatternDB(DSSequenceSet _seqDB) {
         this.seqDB = _seqDB;
     }
 
@@ -93,7 +93,7 @@ public class PromoterPatternDB implements Serializable {
         this.matches = matches;
     }
 
-    public void setSeqDB(SequenceDB seqDB) {
+    public void setSeqDB(DSSequenceSet seqDB) {
         this.seqDB = seqDB;
     }
 
@@ -109,7 +109,7 @@ public class PromoterPatternDB implements Serializable {
         return display;
     }
 
-    public SequenceDB getSeqDB() {
+    public DSSequenceSet getSeqDB() {
         return seqDB;
     }
 

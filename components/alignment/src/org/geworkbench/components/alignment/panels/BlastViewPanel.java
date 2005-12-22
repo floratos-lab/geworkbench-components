@@ -6,7 +6,8 @@ import org.geworkbench.components.alignment.blast.BlastParser;
 import org.geworkbench.components.alignment.blast.HmmObj;
 import org.geworkbench.components.alignment.blast.HmmResultParser;
 import org.geworkbench.util.PropertiesMonitor;
-import org.geworkbench.util.sequences.SequenceDB;
+import org.geworkbench.bison.datastructure.biocollections.sequences.CSSequenceSet;
+import org.geworkbench.bison.datastructure.biocollections.sequences.DSSequenceSet;
 import org.geworkbench.engine.management.Subscribe;
 import org.geworkbench.bison.datastructure.bioobjects.sequence.CSSequence;
 
@@ -508,7 +509,7 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
     }
 
     void HMMButton_actionPerformed(ActionEvent e) {
-        SequenceDB db = new SequenceDB();
+        DSSequenceSet db = new CSSequenceSet();
         if (!verify()) {
             reportError(currentError);
             return;
@@ -519,7 +520,7 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
 
     void submitNewSequences(ActionEvent e, boolean isFullLength) {
 
-        SequenceDB db = new SequenceDB();
+        CSSequenceSet db = new CSSequenceSet();
 
         /**todo
          * Old SoapClient need fastaFile name, so just create a temp fasta file here.

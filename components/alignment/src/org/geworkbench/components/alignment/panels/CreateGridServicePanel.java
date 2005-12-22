@@ -35,7 +35,6 @@ import org.globus.progtutorial.clients.BlastService.*;
 import org.gridforum.ogsi.*;
 import org.w3c.dom.*;
 import org.globus.ogsa.wsdl.GSR;
-import org.geworkbench.util.BrowserLauncher;
 
 import javax.swing.border.*;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -43,7 +42,7 @@ import javax.swing.tree.TreeSelectionModel;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.event.TreeSelectionEvent;
 import com.borland.jbcl.layout.*;
-import org.geworkbench.util.sequences.SequenceDB;
+import org.geworkbench.bison.datastructure.biocollections.sequences.CSSequenceSet;
 
 public class CreateGridServicePanel
     extends JPanel
@@ -512,7 +511,7 @@ public class CreateGridServicePanel
         try {
 
             //String input = "C:/test.txt";
-            SequenceDB seq = pv.getFastaFile(); //
+            CSSequenceSet seq = pv.getFastaFile(); //
 
             if (seq == null) {
                 pv.reportError("Please select a sequence file first!",

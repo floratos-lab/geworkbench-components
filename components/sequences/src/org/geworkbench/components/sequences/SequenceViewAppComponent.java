@@ -1,18 +1,16 @@
 package org.geworkbench.components.sequences;
 
-import org.geworkbench.events.ProjectEvent;
-import org.geworkbench.engine.parsers.FileFormat;
-import org.geworkbench.events.SequenceDiscoveryTableEvent;
 import org.geworkbench.events.SequencePanelEvent;
 import org.geworkbench.builtin.projects.ProjectPanel;
 import org.geworkbench.builtin.projects.ProjectSelection;
 import org.geworkbench.engine.parsers.sequences.SequenceFileFormat;
 import org.geworkbench.util.PropertiesMonitor;
-import org.geworkbench.util.sequences.*;
 import org.geworkbench.util.sequences.SequenceViewWidget;
 import org.geworkbench.engine.management.Subscribe;
 import org.geworkbench.engine.management.AcceptTypes;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
+import org.geworkbench.bison.datastructure.biocollections.sequences.CSSequenceSet;
+import org.geworkbench.bison.datastructure.biocollections.sequences.DSSequenceSet;
 import org.geworkbench.engine.config.VisualPlugin;
 
 import javax.swing.*;
@@ -35,7 +33,7 @@ import java.util.HashMap;
  * @author
  * @version 1.0
  */
-@AcceptTypes({SequenceDB.class}) public class SequenceViewAppComponent implements VisualPlugin, org.geworkbench.engine.config.MenuListener, PropertyChangeListener {
+@AcceptTypes({CSSequenceSet.class}) public class SequenceViewAppComponent implements VisualPlugin, org.geworkbench.engine.config.MenuListener, PropertyChangeListener {
     org.geworkbench.util.sequences.SequenceViewWidget sViewWidget;
     EventListenerList listenerList = new EventListenerList();
     JMenuItem jOpenFASTAItem = new JMenuItem();
@@ -44,7 +42,7 @@ import java.util.HashMap;
     HashMap listeners = new HashMap();
     SequencePanelEvent spe = null;
     ActionListener listener = null;
-    SequenceDB sequenceDB = null;
+    DSSequenceSet sequenceDB = null;
 
     public SequenceViewAppComponent() {
         sViewWidget = new SequenceViewWidget();
@@ -88,8 +86,8 @@ import java.util.HashMap;
     @Subscribe public void receiveProjectSelection(org.geworkbench.events.ProjectEvent e, Object source) {
             ProjectSelection selection = ((ProjectPanel) source).getSelection();
             DSDataSet dataFile = selection.getDataSet();
-            if (dataFile instanceof SequenceDB) {
-                sViewWidget.setSequenceDB((SequenceDB) dataFile);
+            if (dataFile instanceof DSSequenceSet) {
+                sViewWidget.setSequenceDB((DSSequenceSet) dataFile);
             }
     }
 
@@ -109,7 +107,7 @@ import java.util.HashMap;
         if (choice == JFileChooser.APPROVE_OPTION) {
             PropertiesMonitor.getPropertiesMonitor().setDefPath(fc.getCurrentDirectory().getAbsolutePath());
             FASTAFilename = fc.getSelectedFile().getAbsolutePath();
-            sequenceDB = SequenceDB.getSequenceDB(fc.getSelectedFile());
+            sequenceDB = CSSequenceSet.getSequenceDB(fc.getSelectedFile());
             if (sequenceDB != null) {
                 sViewWidget.setSequenceDB(sequenceDB);
             }

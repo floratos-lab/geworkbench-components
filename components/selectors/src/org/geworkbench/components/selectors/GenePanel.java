@@ -4,7 +4,7 @@ import org.geworkbench.events.GeneSelectorEvent;
 import org.geworkbench.events.MarkerSelectedEvent;
 import org.geworkbench.events.SubpanelChangedEvent;
 import org.geworkbench.engine.management.*;
-import org.geworkbench.util.sequences.SequenceDB;
+import org.geworkbench.bison.datastructure.biocollections.sequences.DSSequenceSet;
 import org.geworkbench.util.Util;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
@@ -23,7 +23,6 @@ import java.util.Set;
 import java.util.HashSet;
 
 import com.Ostermiller.util.CSVPrinter;
-import com.Ostermiller.util.CSVParser;
 import com.Ostermiller.util.ExcelCSVParser;
 
 /**
@@ -242,8 +241,8 @@ public class GenePanel extends SelectorPanel<DSGeneMarker> {
             DSMicroarraySet maSet = (DSMicroarraySet) dataSet;
             items = maSet.getMarkers();
             setItemList(items);
-        } else if (dataSet instanceof SequenceDB) {
-            items = (DSItemList) ((SequenceDB) dataSet).getMarkerList();
+        } else if (dataSet instanceof DSSequenceSet) {
+            items = (DSItemList) ((DSSequenceSet) dataSet).getMarkerList();
             setItemList(items);
         }
     }

@@ -1,13 +1,12 @@
 package org.geworkbench.components.alignment.panels;
 
-import org.geworkbench.events.ProjectEvent;
 import org.geworkbench.events.ProgressBarEvent;
-import org.geworkbench.events.ProjectNodeAddedEvent;
 import org.geworkbench.events.StatusBarEvent;
 import org.geworkbench.events.listeners.StatusChangeListener;
 import org.geworkbench.builtin.projects.ProjectPanel;
 import org.geworkbench.builtin.projects.ProjectSelection;
-import org.geworkbench.util.sequences.SequenceDB;
+import org.geworkbench.bison.datastructure.biocollections.sequences.CSSequenceSet;
+import org.geworkbench.bison.datastructure.biocollections.sequences.DSSequenceSet;
 import org.geworkbench.engine.management.Publish;
 import org.geworkbench.engine.management.Subscribe;
 import org.geworkbench.engine.management.AcceptTypes;
@@ -17,7 +16,7 @@ import org.geworkbench.engine.config.VisualPlugin;
 import java.awt.*;
 
 
-@AcceptTypes({SequenceDB.class}) public class BlastAppComponent implements VisualPlugin, StatusChangeListener {
+@AcceptTypes({CSSequenceSet.class}) public class BlastAppComponent implements VisualPlugin, StatusChangeListener {
 
     //    static URLClassLoader url = null;
     //    static {
@@ -57,7 +56,7 @@ import java.awt.*;
         }
     }
 
-    public SequenceDB getFastFile() {
+    public DSSequenceSet getFastFile() {
         return tWidget.getFastaFile();
     }
 
@@ -79,11 +78,11 @@ import java.awt.*;
             DSDataSet df = selection.getDataSet();
             if (df != null) {
                 //update db with the selected file in the project
-                if (df instanceof SequenceDB) {
+                if (df instanceof DSSequenceSet) {
 
                     //System.out.println("at BlastAppComponent: fasta file id..." + df.getID());
                     // currentSessionID = df.getID() + df.getDataSetName();
-                    tWidget.setFastaFile((SequenceDB) df);
+                    tWidget.setFastaFile((CSSequenceSet) df);
                 }
             }
     }

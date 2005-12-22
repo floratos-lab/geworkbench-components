@@ -1,6 +1,6 @@
 package org.geworkbench.components.promoter;
 
-import org.geworkbench.util.sequences.SequenceDB;
+import org.geworkbench.bison.datastructure.biocollections.sequences.DSSequenceSet;
 import org.geworkbench.bison.datastructure.biocollections.DSCollection;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.sequence.CSSequence;
@@ -118,14 +118,14 @@ public class TranscriptionFactor implements DSPattern<DSSequence, DSSeqRegistrat
     }
 
     public List<DSPatternMatch<DSSequence, DSSeqRegistration>> progressiveMatch(Object object, ProgressMonitor progressMonitor, int start) {
-        SequenceDB seqdb = (SequenceDB) object;
+        DSSequenceSet seqdb = (DSSequenceSet) object;
         List<DSPatternMatch<DSSequence, DSSeqRegistration>> matches = new ArrayList<DSPatternMatch<DSSequence, DSSeqRegistration>>();
         //Pattern matches = new PatternImpl();
 
         for (int k = 0; k < seqdb.getSequenceNo(); k++) {
 
             progressMonitor.setProgress(start++);
-            CSSequence seq = seqdb.getSequence(k);
+            DSSequence seq = seqdb.getSequence(k);
             if (seq.isDNA()) {
                 for (int offset = 1; offset < seq.length() - matrix.getLength() + 1; offset++) {
 

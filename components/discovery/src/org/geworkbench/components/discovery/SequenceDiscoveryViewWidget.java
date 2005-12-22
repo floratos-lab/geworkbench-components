@@ -10,11 +10,10 @@ import org.geworkbench.events.ProgressBarEvent;
 import org.geworkbench.events.StatusBarEvent;
 import org.geworkbench.events.listeners.StatusChangeListener;
 import org.geworkbench.util.session.Session;
-import org.geworkbench.util.*;
 import org.geworkbench.util.AlgorithmSelectionPanel;
-import org.geworkbench.util.patterns.*;
 import org.geworkbench.util.remote.SPLASHDefinition;
-import org.geworkbench.util.sequences.SequenceDB;
+import org.geworkbench.bison.datastructure.biocollections.sequences.CSSequenceSet;
+import org.geworkbench.bison.datastructure.biocollections.sequences.DSSequenceSet;
 import polgara.soapPD_wsdl.Parameters;
 
 import javax.swing.*;
@@ -86,7 +85,7 @@ public class SequenceDiscoveryViewWidget extends JPanel implements StatusChangeL
     private JPanel sequenceViewPanel = new JPanel();
     private JToolBar jToolBar1 = new JToolBar();
     private BorderLayout borderLayout3 = new BorderLayout();
-    private SequenceDB sequenceDB = new SequenceDB();
+    private DSSequenceSet sequenceDB = new CSSequenceSet();
     private SequenceDiscoveryViewAppComponent appComponent = null;
     private JPanel panelView = new JPanel();
     private JProgressBar progressBar = new JProgressBar(0, 100);
@@ -629,7 +628,7 @@ public class SequenceDiscoveryViewWidget extends JPanel implements StatusChangeL
         this.parms = parms;
     }
 
-    public synchronized void setSequenceDB(SequenceDB sDB, boolean withExistedPatternNode, String patternNodeID, Parameters p) {
+    public synchronized void setSequenceDB(DSSequenceSet sDB, boolean withExistedPatternNode, String patternNodeID, Parameters p) {
         if (sequenceDB.getID() != sDB.getID()) {
             sequenceDB = sDB;
             System.out.println("at sequenceDiscoveryviewWiget setSequeceDB: sequenceDB id..." + sDB.getID());
@@ -659,7 +658,7 @@ public class SequenceDiscoveryViewWidget extends JPanel implements StatusChangeL
         }
     }
 
-    public synchronized SequenceDB getSequenceDB() {
+    public synchronized DSSequenceSet getSequenceDB() {
         return sequenceDB;
     }
 

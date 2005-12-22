@@ -16,7 +16,8 @@ import org.geworkbench.events.GeneSelectorEvent;
 import org.geworkbench.events.ProjectNodeAddedEvent;
 import org.geworkbench.util.promoter.SequencePatternDisplayPanel;
 import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.AnnotationParser;
-import org.geworkbench.util.sequences.SequenceDB;
+import org.geworkbench.bison.datastructure.biocollections.sequences.CSSequenceSet;
+import org.geworkbench.bison.datastructure.biocollections.sequences.DSSequenceSet;
 import org.geworkbench.engine.management.Publish;
 import org.geworkbench.engine.management.Subscribe;
 import org.geworkbench.engine.management.AcceptTypes;
@@ -68,7 +69,7 @@ import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarr
 @AcceptTypes({DSMicroarraySet.class}) public class SequenceRetriever implements VisualPlugin {
 
     DSPanel<DSGeneMarker> markers = null;
-    private SequenceDB sequenceDB = new SequenceDB();
+    private CSSequenceSet sequenceDB = new CSSequenceSet();
 
     boolean selectedRegionChanged = false;
 
@@ -292,12 +293,12 @@ import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarr
         jComboCategory.addItem("Protein");
     }
 
-    public void setSequenceDB(SequenceDB db2) {
+    public void setSequenceDB(CSSequenceSet db2) {
         sequenceDB = db2;
 
     }
 
-    public SequenceDB getSequenceDB() {
+    public DSSequenceSet getSequenceDB() {
         return sequenceDB;
     }
 
