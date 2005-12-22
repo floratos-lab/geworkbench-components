@@ -10,7 +10,10 @@
 
 	<mapID target="hier.clustering" url="Hierarchical Clustering.htm"/>
 
-	<mapID target="som.clustering" url="SOMClustering.htm"/>		
-
+	<mapID target="som.clustering" url="SOMClustering.htm"/>
+	
+	<mapID target="ttest" url="ttest.htm"/>
+		
+ttest
 </map>
 
