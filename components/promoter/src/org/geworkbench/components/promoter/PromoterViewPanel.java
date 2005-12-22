@@ -14,6 +14,8 @@ import javax.swing.event.ListSelectionListener;
 
 import org.biojava.bio.gui.DistributionLogo;
 import org.geworkbench.bison.datastructure.biocollections.DSCollection;
+import org.geworkbench.bison.datastructure.biocollections.sequences.CSSequenceSet;
+import org.geworkbench.bison.datastructure.biocollections.sequences.DSSequenceSet;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.sequence.DSSequence;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
@@ -29,9 +31,6 @@ import org.geworkbench.util.patterns.PatternOperations;
 import org.geworkbench.util.promoter.SequencePatternDisplayPanel;
 import org.geworkbench.util.promoter.pattern.Display;
 import org.geworkbench.util.promoter.pattern.PatternDisplay;
-import org.geworkbench.util.sequences.SequenceDB;
-import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
-import org.geworkbench.bison.datastructure.bioobjects.markers.*;
 
 /**
  * <p>Widget provides all GUI services for sequence panel displays.</p>
@@ -53,13 +52,13 @@ public class PromoterViewPanel extends JPanel {
 
     DSPanel<DSGeneMarker> markers = null;
 
-    private SequenceDB sequenceDB = null;
+    private DSSequenceSet sequenceDB = null;
 
     private JFileChooser fc = null;
     private JFileChooser fc2 = null;
     boolean selectedRegionChanged = false;
     JPanel jInfoPanel = new JPanel();
-    SequenceDB background = null;
+    DSSequenceSet background = null;
 
     //Layouts
 
@@ -618,7 +617,7 @@ public class PromoterViewPanel extends JPanel {
      */
     private DefaultListCellRenderer renderer = new DefaultListCellRenderer() {
         public Component getListCellRendererComponent(JList list, Object value,
-                int index, boolean isSelected, boolean cellHasFocus) {
+                                                      int index, boolean isSelected, boolean cellHasFocus) {
             Component c = super.getListCellRendererComponent(list, value, index,
                     isSelected, cellHasFocus);
             // IGenericMarker stats = (IGenericMarker) value;
@@ -671,7 +670,7 @@ public class PromoterViewPanel extends JPanel {
     HashMap<String,
             PromoterPatternDB> map = new HashMap<String, PromoterPatternDB>();
 
-    public void setSequenceDB(SequenceDB db2) {
+    public void setSequenceDB(DSSequenceSet db2) {
         String id = null;
         if (db2 != null && sequenceDB != null) {
             id = db2.getID();
@@ -722,7 +721,7 @@ public class PromoterViewPanel extends JPanel {
 
     }
 
-    public SequenceDB getSequenceDB() {
+    public DSSequenceSet getSequenceDB() {
         return sequenceDB;
     }
 
@@ -1148,7 +1147,7 @@ public class PromoterViewPanel extends JPanel {
                                     matches = new ArrayList<DSPatternMatch<
                                               DSSequence, DSSeqRegistration>>();
                             for (int seqId = 0; seqId < sequenceDB.size();
-                                             seqId++) {
+                                 seqId++) {
                                 double progress = (double) seqId /
                                                   (double) sequenceDB.size();
                                 updateProgressBar(progress,
@@ -1576,7 +1575,7 @@ public class PromoterViewPanel extends JPanel {
         if (background == null) {
             String file = System.getProperty("temporary.files.directory") +
                           "13K.fa";
-            background = SequenceDB.getSequenceDB(new File(file));
+            background = CSSequenceSet.getSequenceDB(new File(file));
         }
     }
 
@@ -1632,7 +1631,7 @@ public class PromoterViewPanel extends JPanel {
     }
 
     public ScoreStats getThreshold(TranscriptionFactor pattern,
-                                   SequenceDB seqDB, double pValue) {
+                                   DSSequenceSet seqDB, double pValue) {
         // computes the score based on a probability of a match of pValue
         // To get goo statistics, we expect at least 100 matches to exceed
         // the threshold in the null hypothesis. Hence, this is the number
@@ -1671,7 +1670,7 @@ public class PromoterViewPanel extends JPanel {
     }
 
     public void getMatchesPerLength(TranscriptionFactor pattern, int length,
-                                    double threshold, SequenceDB seqDB,
+                                    double threshold, DSSequenceSet seqDB,
                                     RandomSequenceGenerator rg, MatchStats ms) {
         // Determine the number of iterations so that the statistics are good
         int partialLength = 0;

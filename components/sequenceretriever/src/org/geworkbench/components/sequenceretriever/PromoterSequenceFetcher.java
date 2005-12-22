@@ -14,12 +14,11 @@ import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.MalformedURLException;
-import java.net.URISyntaxException;
 import java.net.URL;
 import javax.swing.Timer;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.sequence.CSSequence;
-import org.geworkbench.util.sequences.SequenceDB;
+import org.geworkbench.bison.datastructure.biocollections.sequences.CSSequenceSet;
 
 /**
  * <p>Title: geworkbench</p>
@@ -48,7 +47,7 @@ public class PromoterSequenceFetcher {
     public PromoterSequenceFetcher() {
     }
     
-    private static SequenceDB cachedSequences = null;
+    private static CSSequenceSet cachedSequences = null;
     
     public static void populateSequenceCache(){
 //        if (!timer.isRunning())
@@ -59,7 +58,7 @@ public class PromoterSequenceFetcher {
                 try {
                     FileInputStream fis = new FileInputStream(file);
                     ObjectInputStream ois = new ObjectInputStream(fis);
-                    cachedSequences = (SequenceDB) ois.readObject();
+                    cachedSequences = (CSSequenceSet) ois.readObject();
                     ois.close();
                     fis.close();
                 } catch (FileNotFoundException fnfe){
@@ -97,7 +96,7 @@ public class PromoterSequenceFetcher {
                     
                 }
                 try {
-                    cachedSequences = SequenceDB.getSequenceDB(downloadedFile);
+                    cachedSequences = CSSequenceSet.getSequenceDB(downloadedFile);
                     cachedSequences.parseMarkers();
                     if (!file.exists()){
                         file.getParentFile().mkdirs();

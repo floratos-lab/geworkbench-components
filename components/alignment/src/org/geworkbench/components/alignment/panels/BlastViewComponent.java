@@ -7,7 +7,7 @@ import org.geworkbench.components.alignment.client.HMMDataSet;
 import org.geworkbench.components.alignment.client.SWDataSet;
 import org.geworkbench.builtin.projects.ProjectPanel;
 import org.geworkbench.builtin.projects.ProjectSelection;
-import org.geworkbench.util.sequences.SequenceDB;
+import org.geworkbench.bison.datastructure.biocollections.sequences.DSSequenceSet;
 import org.geworkbench.engine.management.Publish;
 import org.geworkbench.engine.management.Subscribe;
 import org.geworkbench.engine.management.AcceptTypes;
@@ -114,7 +114,7 @@ import java.util.Vector;
             DSAncillaryDataSet df = selection.getDataSubSet();
             DSDataSet sequenceDB = selection.getDataSet();
 
-            if (sequenceDB instanceof SequenceDB && df != null) {
+            if (sequenceDB instanceof DSSequenceSet && df != null) {
                 //update db with the selected file in the project
                 if (df instanceof SWDataSet) {
                     bp = new TextResultParser(((SWDataSet) df).getResultFilePath());

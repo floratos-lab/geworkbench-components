@@ -1,8 +1,8 @@
 package org.geworkbench.components.promoter;
 
 import org.geworkbench.util.patterns.CSMatchedSeqPattern;
-import org.geworkbench.util.patterns.PatternOperations;
-import org.geworkbench.util.sequences.SequenceDB;
+import org.geworkbench.bison.datastructure.biocollections.sequences.CSSequenceSet;
+import org.geworkbench.bison.datastructure.biocollections.sequences.DSSequenceSet;
 import org.geworkbench.bison.datastructure.biocollections.DSCollection;
 import org.geworkbench.bison.datastructure.bioobjects.sequence.CSSequence;
 import org.geworkbench.bison.datastructure.bioobjects.sequence.DSSequence;
@@ -41,8 +41,8 @@ public class SequenceDisplayPanel extends JPanel {
     int maxLen = 1;
     ArrayList<DSPattern<DSSequence, DSSeqRegistration>> selectedPatterns = new ArrayList<DSPattern<DSSequence, DSSeqRegistration>>();
     org.geworkbench.bison.datastructure.complex.pattern.sequence.DSMatchedSeqPattern[] patterns = null;
-    CSSequence selected = null;
-    SequenceDB sequenceDB = new SequenceDB();
+    DSSequence selected = null;
+    DSSequenceSet sequenceDB = new CSSequenceSet();
     JPanel jinfoPanel = null;
 
     public void setIsDiscovery(boolean isDiscovery) {
@@ -84,7 +84,7 @@ public class SequenceDisplayPanel extends JPanel {
 
     }
 
-    public void initialize(ArrayList ar, SequenceDB seqDB) {
+    public void initialize(ArrayList ar, DSSequenceSet seqDB) {
         selectedPatterns = ar;
         sequenceDB = seqDB;
         repaint();
@@ -154,7 +154,7 @@ public class SequenceDisplayPanel extends JPanel {
                     } else {
                         String asc = ((org.geworkbench.util.patterns.CSMatchedSeqPattern) patterns[x]).getASCII();
                         for (int k = 0; k < sequenceDB.getSequenceNo(); k++) {
-                            CSSequence seq = sequenceDB.getSequence(k);
+                            DSSequence seq = sequenceDB.getSequence(k);
                             String s = seq.getSequence();
 
                             java.util.regex.Pattern pt = java.util.regex.Pattern.compile(asc);
@@ -322,7 +322,7 @@ public class SequenceDisplayPanel extends JPanel {
 
     void drawSequence(Graphics g, int rowId, int seqId) {
         String lab = ">seq " + seqId;
-        CSSequence theSequence = null;
+        DSSequence theSequence = null;
         if (sequenceDB.getSequenceNo() > 0) {
             theSequence = sequenceDB.getSequence(seqId);
 
@@ -343,7 +343,7 @@ public class SequenceDisplayPanel extends JPanel {
     void drawSequence(Graphics g, int rowId, int seqId, double len) {
         String lab = ">seq " + seqId;
         if (sequenceDB.getSequenceNo() > 0) {
-            CSSequence theSequence = sequenceDB.getSequence(seqId);
+            DSSequence theSequence = sequenceDB.getSequence(seqId);
             len = (double) theSequence.length();
             lab = theSequence.getLabel();
 

@@ -4,7 +4,8 @@ import org.geworkbench.events.ProjectEvent;
 import org.geworkbench.events.SequenceDiscoveryTableEvent;
 import org.geworkbench.builtin.projects.ProjectPanel;
 import org.geworkbench.builtin.projects.ProjectSelection;
-import org.geworkbench.util.sequences.SequenceDB;
+import org.geworkbench.bison.datastructure.biocollections.sequences.CSSequenceSet;
+import org.geworkbench.bison.datastructure.biocollections.sequences.DSSequenceSet;
 import org.geworkbench.engine.management.Subscribe;
 import org.geworkbench.engine.management.AcceptTypes;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
@@ -24,7 +25,7 @@ import java.util.HashMap;
  * @version 1.0
  */
 
-@AcceptTypes({SequenceDB.class}) public class PositionHistogramAppComponent implements VisualPlugin {
+@AcceptTypes({CSSequenceSet.class}) public class PositionHistogramAppComponent implements VisualPlugin {
 
     PositionHistogramWidget pHistogramWidget = null;
     HashMap listeners = new HashMap();
@@ -52,8 +53,8 @@ import java.util.HashMap;
     @Subscribe public void receiveProjectSelection(ProjectEvent e, Object source) {
             ProjectSelection selection = ((ProjectPanel) source).getSelection();
             DSDataSet dataFile = selection.getDataSet();
-            if (dataFile instanceof SequenceDB) {
-                pHistogramWidget.setSequenceDB((SequenceDB) dataFile);
+            if (dataFile instanceof DSSequenceSet) {
+                pHistogramWidget.setSequenceDB((DSSequenceSet) dataFile);
             }
     }
 

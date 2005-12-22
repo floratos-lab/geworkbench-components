@@ -2,11 +2,10 @@ package org.geworkbench.components.poshistogram;
 
 import org.geworkbench.events.SequenceDiscoveryTableEvent;
 import org.geworkbench.engine.parsers.ExampleFileFilter;
-import org.geworkbench.util.PropertiesMonitor;
 import org.geworkbench.util.patterns.CSMatchedSeqPattern;
 import org.geworkbench.util.patterns.FlexiblePattern;
 import org.geworkbench.util.patterns.PatternOperations;
-import org.geworkbench.util.sequences.SequenceDB;
+import org.geworkbench.bison.datastructure.biocollections.sequences.DSSequenceSet;
 import org.geworkbench.bison.datastructure.complex.pattern.sequence.DSMatchedSeqPattern;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartUtilities;
@@ -20,7 +19,6 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Iterator;
 import org.geworkbench.bison.datastructure.complex.pattern.sequence.DSSeqRegistration;
 import org.geworkbench.bison.datastructure.complex.pattern.DSMatchedPattern;
@@ -69,7 +67,7 @@ public class PositionHistogramWidget extends JPanel {
     private JLabel jLabel2 = new JLabel();
     private Component component6;
     private Component component7;
-    private SequenceDB sequenceDB = null;
+    private DSSequenceSet sequenceDB = null;
 
 
 
@@ -389,11 +387,11 @@ public class PositionHistogramWidget extends JPanel {
     }
 
 
-    public void setSequenceDB(SequenceDB sDB) {
+    public void setSequenceDB(DSSequenceSet sDB) {
         sequenceDB = sDB;
     }
 
-    public SequenceDB getSequenceDB() {
+    public DSSequenceSet getSequenceDB() {
         return sequenceDB;
     }
 

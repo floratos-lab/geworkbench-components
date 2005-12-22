@@ -64,8 +64,8 @@ public class FeatureMatrixViewAppComponent
     if (source instanceof ProjectSelection) {
       ProjectSelection selection = (ProjectSelection) source;
       DataSet dataFile = selection.getDataSet();
-      if (dataFile instanceof SequenceDB) {
-//        sViewWidget.setSequenceDB( (SequenceDB) dataFile);
+      if (dataFile instanceof CSSequenceSet) {
+//        sViewWidget.setSequenceDB( (CSSequenceSet) dataFile);
       }
     }
   }

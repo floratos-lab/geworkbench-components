@@ -8,7 +8,7 @@
 package org.geworkbench.components.promoter.modulediscovery;
 
 import org.geworkbench.util.RandomSequenceGenerator;
-import org.geworkbench.util.sequences.SequenceDB;
+import org.geworkbench.bison.datastructure.biocollections.sequences.DSSequenceSet;
 import org.geworkbench.bison.datastructure.biocollections.DSCollection;
 import org.geworkbench.bison.datastructure.bioobjects.sequence.DSSequence;
 import org.geworkbench.bison.datastructure.complex.pattern.*;
@@ -21,7 +21,7 @@ import java.util.List;
 
 public class CSMultiSeqPattern extends CSMatchedPattern<DSSequence, DSSeqRegistration> implements DSMatchedPattern<DSSequence, DSSeqRegistration>, DSPattern<DSSequence, DSSeqRegistration> {
     static HashMap primeNumberPattern = new HashMap();
-    SequenceDB seqDB = null;
+    DSSequenceSet seqDB = null;
     PatternKey patternKey; // each pattern is represented as a int array
     boolean isMaximal;
 

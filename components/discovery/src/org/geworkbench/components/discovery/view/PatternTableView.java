@@ -8,7 +8,7 @@ import org.geworkbench.events.listeners.ProgressChangeListener;
 import org.geworkbench.util.remote.SPLASHDefinition;
 import org.geworkbench.util.patterns.PatternDB;
 import org.geworkbench.util.patterns.PatternOperations;
-import org.geworkbench.util.sequences.SequenceDB;
+import org.geworkbench.bison.datastructure.biocollections.sequences.DSSequenceSet;
 import org.geworkbench.bison.datastructure.complex.pattern.sequence.DSMatchedSeqPattern;
 
 import javax.swing.*;
@@ -271,7 +271,7 @@ public class PatternTableView extends JPanel {
     }
 
     private PatternDB getPatternDB() {
-        SequenceDB db = widget.getSequenceDB();
+        DSSequenceSet db = widget.getSequenceDB();
         org.geworkbench.util.patterns.PatternDB patternDB = new PatternDB(db.getFile(), null);
 
         for (int i = 0; i < model.size(); i++) {
@@ -284,7 +284,7 @@ public class PatternTableView extends JPanel {
     }
 
     private org.geworkbench.util.patterns.PatternDB getPatternDB(int[] rows) {
-        SequenceDB db = widget.getSequenceDB();
+        DSSequenceSet db = widget.getSequenceDB();
         org.geworkbench.util.patterns.PatternDB patternDB = new PatternDB(db.getFile(), null);
 
         for (int i = 0; i < rows.length; i++) {

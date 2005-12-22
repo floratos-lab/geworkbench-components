@@ -1,7 +1,6 @@
 package org.geworkbench.components.alignment.panels;
 
 import java.beans.*;
-import java.util.*;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -19,8 +18,6 @@ import org.geworkbench.events.SequencePanelEvent;
 import org.geworkbench.engine.parsers.FileFormat;
 import org.geworkbench.engine.parsers.sequences.SequenceFileFormat;
 import org.geworkbench.util.PropertiesMonitor;
-import org.geworkbench.bison.datastructure.biocollections.DataSet;
-import org.geworkbench.builtin.projects.ProjectSelection;
 
 /**
  * <p>SequenceViewAppComponent controls all notification and communication for SequenceViewWidget</p>
@@ -105,7 +102,7 @@ public class DotMatrixViewAppComponent
 //    if (choice == JFileChooser.APPROVE_OPTION) {
 //      PropertiesMonitor.getPropertiesMonitor().setDefPath(
 //          fc.getCurrentDirectory().getAbsolutePath());
-//      sequenceDB = SequenceDB.getSequenceDB(fc.getSelectedFile());
+//      sequenceDB = CSSequenceSet.getSequenceDB(fc.getSelectedFile());
 //      if (sequenceDB != null) {
 //        sViewWidget.setSequenceDB(sequenceDB);
 //      }

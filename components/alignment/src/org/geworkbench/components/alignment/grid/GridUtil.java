@@ -1,29 +1,20 @@
 package org.geworkbench.components.alignment.grid;
 
-import java.io.*;
 import java.net.*;
 import java.rmi.*;
 import java.util.*;
 import javax.xml.rpc.*;
 
-import java.awt.*;
-import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.Timer;
 
 
-import org.globus.axis.gsi.*;
 import org.globus.ogsa.*;
 import org.globus.ogsa.client.managers.*;
 import org.globus.ogsa.gui.*;
-import org.globus.ogsa.impl.security.*;
-import org.globus.ogsa.impl.security.authorization.*;
 import org.globus.ogsa.utils.*;
-import org.globus.progtutorial.clients.BlastService.*;
 import org.gridforum.ogsi.*;
 import org.w3c.dom.*;
-
-import org.globus.ogsa.wsdl.GSR;
 
 
 /**
@@ -525,7 +516,7 @@ public class GridUtil
         try {
 
             //String input = "C:/test.txt";
-            SequenceDB seq = pv.getFastaFile(); //
+            CSSequenceSet seq = pv.getFastaFile(); //
 
             if (seq == null) {
                 pv.reportError("Please select a sequence file first!",

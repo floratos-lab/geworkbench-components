@@ -5,7 +5,7 @@
 
 package org.geworkbench.components.promoter.modulediscovery;
 
-import org.geworkbench.util.sequences.SequenceDB;
+import org.geworkbench.bison.datastructure.biocollections.sequences.DSSequenceSet;
 import org.geworkbench.bison.datastructure.biocollections.DSCollection;
 import org.geworkbench.bison.datastructure.bioobjects.sequence.DSSequence;
 import org.geworkbench.bison.datastructure.complex.pattern.CSPatternMatch;
@@ -14,8 +14,6 @@ import org.geworkbench.bison.datastructure.complex.pattern.DSPattern;
 import org.geworkbench.bison.datastructure.complex.pattern.DSPatternMatch;
 import org.geworkbench.bison.datastructure.complex.pattern.sequence.
         CSSeqCmplxRegistration;
-import org.geworkbench.bison.datastructure.complex.pattern.sequence.
-        DSSeqPatternMatch;
 import org.geworkbench.bison.datastructure.complex.pattern.sequence.
         DSSeqRegistration;
 
@@ -67,7 +65,7 @@ public class Discovery {
 
     }
 
-    private static void discover(SequenceDB seqDB, int minOccur, int winSize,
+    private static void discover(DSSequenceSet seqDB, int minOccur, int winSize,
                                  Hashtable motifTB, Hashtable patternTB,
                                  String infile) throws FileNotFoundException,
             IOException {
@@ -98,7 +96,7 @@ public class Discovery {
 
     }
 
-    public static void discover(SequenceDB sequenceDB,
+    public static void discover(DSSequenceSet sequenceDB,
                                 Hashtable<DSPattern<DSSequence,
                                 DSSeqRegistration>,
                                 List<DSPatternMatch<DSSequence,
@@ -208,7 +206,7 @@ public class Discovery {
     /*============================================================================*/
     /* Input file reader                                                          */
     /*============================================================================*/
-    private static void load(SequenceDB seqDB, String infile, Hashtable motifTB,
+    private static void load(DSSequenceSet seqDB, String infile, Hashtable motifTB,
                              Hashtable<DSPattern<DSSequence, DSSeqRegistration>,
                              DSCollection<DSMatchedPattern<DSSequence,
                              DSSeqRegistration>>> patternTB, int winSize,
@@ -288,7 +286,7 @@ public class Discovery {
         }
     }
 
-    private static void load(SequenceDB sequenceDB, Hashtable keyPrime,
+    private static void load(DSSequenceSet sequenceDB, Hashtable keyPrime,
                              Hashtable<DSPattern<DSSequence, DSSeqRegistration>,
                              List<DSPatternMatch<DSSequence,
                              DSSeqRegistration>>> patternMatch,
@@ -410,7 +408,7 @@ DSSeqRegistration reg = (DSSeqRegistration)m1.getRegistration();
     /*============================================================================*/
     /*                                                           */
     /*============================================================================*/
-    private static void updatePatternTable(SequenceDB seqDB, int[] m1, int[] m2,
+    private static void updatePatternTable(DSSequenceSet<? extends DSSequence> seqDB, int[] m1, int[] m2,
                                            Hashtable patternTB) {
         // m[0] - sid, m[1] - mid, m[2] - position
         int[] comb = {m1[1], m2[1]};

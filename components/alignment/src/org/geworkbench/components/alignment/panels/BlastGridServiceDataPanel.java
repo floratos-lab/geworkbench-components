@@ -6,7 +6,7 @@ import org.geworkbench.components.alignment.grid.ServiceDataModel;
 import org.geworkbench.components.alignment.grid.ServiceDataViewPanel;
 import org.geworkbench.components.alignment.grid.service.SystemInformation;
 import org.geworkbench.events.ProjectNodeAddedEvent;
-import org.geworkbench.util.sequences.SequenceDB;
+import org.geworkbench.bison.datastructure.biocollections.sequences.CSSequenceSet;
 import org.globus.ogsa.NotificationSinkCallback;
 import org.globus.ogsa.ServiceData;
 import org.globus.ogsa.client.managers.NotificationSinkManager;
@@ -286,7 +286,7 @@ public class BlastGridServiceDataPanel extends AbstractPortTypePanel implements 
         try {
 
             //String input = "C:/test.txt";
-            SequenceDB seq = pv.getFastaFile(); //
+            CSSequenceSet seq = pv.getFastaFile(); //
 
             if (seq == null) {
                 pv.reportError("Please select a sequence file first!", "Parameter Error");
