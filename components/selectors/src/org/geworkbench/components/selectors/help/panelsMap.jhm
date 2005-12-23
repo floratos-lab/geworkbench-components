@@ -10,7 +10,7 @@
 
 	<mapID target="create.set" url="create_marker_panel_set.htm"/>
 
-	<mapID target="deact.panel"" url="Deactivate.htm"/>
+	<mapID target="deact.panel"" url="create_marker_panel.htm"/>
 
 	<mapID target="save.load.set" url="save_load_panel_set.htm"/>
 
