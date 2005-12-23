@@ -8,9 +8,9 @@
 
 		<tocitem target="create.set" text="Creating a panel group"/>
 
-		<tocitem target="create.panel" text="Creating a single panel"/>
+		<tocitem target="create.panel" text="Deactivating a Panel"/>
 
-		<tocitem target="acdeac.panel" text="Activating/deactivating a panel"/>
+		<tocitem target="acdeac.panel" text="Activating a panel"/>
 
 		<tocitem target="save.load.set" text="Loading a panel"/>
 
