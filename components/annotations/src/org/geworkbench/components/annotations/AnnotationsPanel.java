@@ -495,13 +495,6 @@ import java.net.URL;
         DSDataSet data = e.getDataSet();
         if (data != null && data instanceof DSMicroarraySet) {
             maSet = (DSMicroarraySet) data;
-        } else {
-            // Clear data
-            maSet = null;
-            selectedMarkerInfo = null;
-            model = new TableModel();
-            jScrollPane1.getViewport().remove(table);
-            jScrollPane1.invalidate();
         }
     }
 }
