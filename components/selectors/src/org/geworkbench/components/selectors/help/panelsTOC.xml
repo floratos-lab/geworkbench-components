@@ -10,8 +10,6 @@
 
 		<tocitem target="deact.panel" text="Deactivating a Panel"/>
 
-		<tocitem target="acdeac.panel" text="Activating a panel"/>
-
 		<tocitem target="save.load.set" text="Loading a panel"/>
 
 		<tocitem target="rename.set" text="Renaming a panel set"/>
@@ -19,6 +17,8 @@
 		<tocitem target="delete.set" text="Saving a panel"/>
 
 		<tocitem target="delete.panel" text="Deleting a panel"/>
+
+		<tocitem target="acdeac.panel" text="Activating a panel"/>
 
 	</tocitem>
 
