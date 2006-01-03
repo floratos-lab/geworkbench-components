@@ -257,7 +257,7 @@ public class VolcanoPlot implements VisualPlugin {
         //        int microarrayNo = maSet.size();
 
         // First put all the gene pairs in the xyValues array
-        int numMarkers = dataSetView.markers().size();
+        int numMarkers = dataSetView.getMarkerPanel().size();
 
         if (worker != null) {
             worker.setProgressMax(numMarkers * 2);
@@ -268,7 +268,7 @@ public class VolcanoPlot implements VisualPlugin {
         // First pass to determine negative value correction amount
         double minValue = Double.MAX_VALUE;
         for (int i = 0; i < numMarkers; i++) {
-            DSGeneMarker marker = dataSetView.markers().get(i);
+            DSGeneMarker marker = dataSetView.getMarkerPanel().get(i);
             for (DSMicroarray microarray : casePanel) {
                 if (microarray.getMarkerValue(marker).getValue() < minValue) {
                     minValue = microarray.getMarkerValue(marker).getValue();
@@ -299,7 +299,7 @@ public class VolcanoPlot implements VisualPlugin {
         double validMaxSigValue = Double.MIN_VALUE;
         double maxPlotValue = Double.MIN_VALUE;
         for (int i = 0; i < numMarkers; i++) {
-            DSGeneMarker marker = dataSetView.markers().get(i);
+            DSGeneMarker marker = dataSetView.getMarkerPanel().get(i);
             // Calculate fold change
             double caseMean = 0;
             for (DSMicroarray microarray : casePanel) {
