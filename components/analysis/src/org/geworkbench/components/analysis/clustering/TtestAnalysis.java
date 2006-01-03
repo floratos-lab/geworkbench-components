@@ -120,8 +120,8 @@ public class TtestAnalysis extends AbstractAnalysis implements ClusteringAnalysi
         assert input instanceof DSMicroarraySetView;
         //        DSDataSetView<DSMarker, DSMicroarray> data = (DSDataSetView<DSMarker, DSMicroarray>)input;
         DSMicroarraySetView<? extends DSGeneMarker, ? extends DSMicroarray> data = (DSMicroarraySetView) input;
-        data.useItemPanel(true);
-        data.useMarkerPanel(true);
+//        data.useItemPanel(true);
+//        data.useMarkerPanel(true);
 
         int markers = data.markers().size();
         int arrays = data.items().size();
@@ -274,7 +274,8 @@ public class TtestAnalysis extends AbstractAnalysis implements ClusteringAnalysi
                 classSets[j] = new HashSet<String>();
                 for (int i = 0; i < classLabels.length; i++) {
                     String label = classLabels[i];
-                    if (context.isLabelActive(label)) {
+                    if (context.isLabelActive(label) || !data.useItemPanel()) {
+//                    if (context.isLabelActive(label)) {
                         classSets[j].add(label);
                     }
                 }
