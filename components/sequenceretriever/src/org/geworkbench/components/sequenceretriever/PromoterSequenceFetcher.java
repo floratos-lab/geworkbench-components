@@ -18,7 +18,8 @@ import java.net.URL;
 import javax.swing.Timer;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.sequence.CSSequence;
-import org.geworkbench.bison.datastructure.biocollections.sequences.CSSequenceSet;
+import org.geworkbench.bison.datastructure.biocollections.sequences.
+        CSSequenceSet;
 
 /**
  * <p>Title: geworkbench</p>
@@ -33,54 +34,62 @@ import org.geworkbench.bison.datastructure.biocollections.sequences.CSSequenceSe
  */
 
 public class PromoterSequenceFetcher {
-    
+
     public static int UPSTREAM = 2000;
     public static int DOWNSTREAM = 2000;
-    
-    static Timer timer = new Timer(240000, new ActionListener(){
-        public void actionPerformed(ActionEvent e){
+
+    static Timer timer = new Timer(240000, new ActionListener() {
+        public void actionPerformed(ActionEvent e) {
             cachedSequences = null;
             System.gc();
         }
     });
-    
+
     public PromoterSequenceFetcher() {
     }
-    
+
     private static CSSequenceSet cachedSequences = null;
-    
-    public static void populateSequenceCache(){
+
+    public static void populateSequenceCache() {
 //        if (!timer.isRunning())
 //            timer.start();
-        File file = new File(System.getProperty("temporary.files.directory") + File.separator + "sequences" + File.separator + "cachedSequences");
-        if (cachedSequences == null){
-            if (file.exists()){
+        File file = new File(System.getProperty("temporary.files.directory") +
+                             File.separator + "sequences" + File.separator +
+                             "cachedSequences");
+        if (cachedSequences == null) {
+            if (file.exists()) {
                 try {
                     FileInputStream fis = new FileInputStream(file);
                     ObjectInputStream ois = new ObjectInputStream(fis);
                     cachedSequences = (CSSequenceSet) ois.readObject();
                     ois.close();
                     fis.close();
-                } catch (FileNotFoundException fnfe){
+                } catch (FileNotFoundException fnfe) {
                     fnfe.printStackTrace();
-                } catch (IOException ioe){
+                } catch (IOException ioe) {
                     ioe.printStackTrace();
                 } catch (ClassNotFoundException cnfe) {
                     cnfe.printStackTrace();
                 }
             } else {
-                URL url = PromoterSequenceFetcher.class.getResource("All.NC.-2k+2k.txt");
+                URL url = PromoterSequenceFetcher.class.getResource(
+                        "All.NC.-2k+2k.txt");
                 File downloadedFile =
-                        new File(System.getProperty("temporary.files.directory") + File.separator + "sequences" + File.separator + "downloadedSequences");
+                        new File(System.getProperty("temporary.files.directory") +
+                                 File.separator + "sequences" + File.separator +
+                                 "downloadedSequences");
                 try {
-                    if (!downloadedFile.exists()){
+                    if (!downloadedFile.exists()) {
                         downloadedFile.getParentFile().mkdirs();
                         downloadedFile.createNewFile();
-                        url = new URL(System.getProperty("data.download.site") + "All.NC.-2k+2k.txt");
-                        BufferedReader br = new BufferedReader(new InputStreamReader(url.openStream()));
-                        BufferedWriter bw = new BufferedWriter(new FileWriter(downloadedFile));
+                        url = new URL(System.getProperty("data.download.site") +
+                                      "All.NC.-2k+2k.txt");
+                        BufferedReader br = new BufferedReader(new
+                                InputStreamReader(url.openStream()));
+                        BufferedWriter bw = new BufferedWriter(new FileWriter(
+                                downloadedFile));
                         String line = null;
-                        while ((line = br.readLine()) != null){
+                        while ((line = br.readLine()) != null) {
                             bw.write(line);
                             bw.write("\n");
                         }
@@ -88,42 +97,52 @@ public class PromoterSequenceFetcher {
                         br.close();
                         bw.close();
                     }
-                } catch (MalformedURLException mfe){
+                } catch (MalformedURLException mfe) {
                     mfe.printStackTrace();
-                }catch (FileNotFoundException fnfe) {
-                    
-                }catch (IOException ioe){
-                    
+                } catch (FileNotFoundException fnfe) {
+
+                } catch (IOException ioe) {
+
                 }
                 try {
-                    cachedSequences = CSSequenceSet.getSequenceDB(downloadedFile);
+                    cachedSequences = CSSequenceSet.getSequenceDB(
+                            downloadedFile);
                     cachedSequences.parseMarkers();
-                    if (!file.exists()){
+                    if (!file.exists()) {
                         file.getParentFile().mkdirs();
                         file.createNewFile();
                     }
-                    FileOutputStream fos = new FileOutputStream(file.getAbsolutePath());
+                    FileOutputStream fos = new FileOutputStream(file.
+                            getAbsolutePath());
                     ObjectOutputStream oos = new ObjectOutputStream(fos);
                     oos.writeObject(cachedSequences);
                     oos.flush();
                     oos.close();
-                } catch (FileNotFoundException fnfe){
+                } catch (FileNotFoundException fnfe) {
                     fnfe.printStackTrace();
-                } catch (IOException ioe){
+                } catch (IOException ioe) {
                     ioe.printStackTrace();
                 }
             }
         }
     }
-    
-    public static CSSequence getCachedPromoterSequence(DSGeneMarker marker, int upstream, int fromStart) {
-        if (cachedSequences == null)
+
+    public static CSSequence getCachedPromoterSequence(DSGeneMarker marker,
+            int upstream, int fromStart) {
+        if (cachedSequences == null) {
             populateSequenceCache();
-        CSSequence sequence = (CSSequence)cachedSequences.get(marker.getLabel());
-        if (sequence != null)
-            return sequence.getSubSequence(UPSTREAM - upstream - 1, sequence.length() - DOWNSTREAM + fromStart - 1);
+        }
+        if (cachedSequences != null) {
+            CSSequence sequence = (CSSequence) cachedSequences.get(marker.
+                    getLabel());
+            if (sequence != null) {
+                return sequence.getSubSequence(UPSTREAM - upstream - 1,
+                                               sequence.length() - DOWNSTREAM +
+                                               fromStart - 1);
+            }
+        }
         return null;
     }
-    
-    
+
+
 }

@@ -56,6 +56,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import org.geworkbench.bison.datastructure.bioobjects.sequence.CSSequence;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
+import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
 
 /**
  * <p>Widget to retrieve Promoter sequence from UCSC's DAS sequence server</p>
@@ -69,6 +70,7 @@ import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarr
 @AcceptTypes({DSMicroarraySet.class}) public class SequenceRetriever implements VisualPlugin {
 
     DSPanel<DSGeneMarker> markers = null;
+     DSPanel<DSGeneMarker> activeMarkers = null;
     private CSSequenceSet sequenceDB = new CSSequenceSet();
 
     boolean selectedRegionChanged = false;
@@ -304,6 +306,7 @@ import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarr
 
     void jButton2_actionPerformed(ActionEvent e) {
         if (ls2.getSize() > 0) {
+             seqDisPanel.initialize();
             jProgressBar1.setIndeterminate(true);
             sequenceDB.clear();
             Thread t = new Thread() {
@@ -348,7 +351,8 @@ import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarr
 
     void getSequences() {
         if (markers != null) {
-            sequenceDB.clear();
+            //sequenceDB.clear();
+            sequenceDB = new CSSequenceSet();
             String fileName = this.getRandomFileName();
             if (((String) jComboCategory.getSelectedItem()).equalsIgnoreCase("DNA")) {
 
@@ -369,14 +373,16 @@ import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarr
                 } catch (IOException ex) {
                     ex.printStackTrace();
                 }
-                for (int j = 0; j < markers.panels().size(); j++) {
-                    DSPanel<DSGeneMarker> mrk = markers.panels().get(j);
-                    for (int i = 0; i < mrk.size(); i++) {
+                if(markers!=null && markers.panels()!=null){
+                    for (int j = 0; j < markers.panels().size(); j++) {
+                        DSPanel<DSGeneMarker> mrk = markers.panels().get(j);
+                        for (int i = 0; i < mrk.size(); i++) {
 
-                        String affyid = mrk.get(i).getLabel();
-                        if (affyid.endsWith("_at")) { // if this is affyid
+                            String affyid = mrk.get(i).getLabel();
+                            if (affyid.endsWith("_at")) { // if this is affyid
 
-                            getAffyProteinSequences(affyid, br);
+                                getAffyProteinSequences(affyid, br);
+                            }
                         }
                     }
                 }
@@ -439,16 +445,26 @@ import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarr
      */
     @Subscribe public void receive(GeneSelectorEvent e, Object publisher) {
         markers = e.getPanel();
+       // activeMarkers = new CSPanel();
         if (markers != null) {
             ls2.clear();
             for (int j = 0; j < markers.panels().size(); j++) {
                 DSPanel<DSGeneMarker> mrk = markers.panels().get(j);
-                if (mrk.isActive())
+                if (mrk.isActive()){
                     for (int i = 0; i < mrk.size(); i++) {
                         if (!ls2.contains(mrk.get(i)))
                             ls2.addElement(mrk.get(i));
+//                         activeMarkers.add(mrk.get(i));
+
                     }
+
+                }
             }
+//          activeMarkers = markers.activeSubset();
+//          System.out.println(activeMarkers.size() + " " + markers.size());
+//          markers = activeMarkers;
+//
+//          System.out.println("afet" + activeMarkers.size() + " " + markers.size());
         }
     }
 
