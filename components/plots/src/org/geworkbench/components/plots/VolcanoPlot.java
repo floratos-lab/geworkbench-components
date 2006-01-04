@@ -368,7 +368,7 @@ public class VolcanoPlot implements VisualPlugin {
         plots.addSeries(series);
 
 
-        JFreeChart mainChart = ChartFactory.createScatterPlot(significance.getLabel(), "Fold Change", "Significance", plots, PlotOrientation.VERTICAL, false, true, false); // Title, (, // X-Axis label,  Y-Axis label,  Dataset,  Show legend
+        JFreeChart mainChart = ChartFactory.createScatterPlot(significance.getLabel(), "Fold Change (Log-2 Difference)", "Neg. Log-10 Significance", plots, PlotOrientation.VERTICAL, false, true, false); // Title, (, // X-Axis label,  Y-Axis label,  Dataset,  Show legend
         //        mainChart.getXYPlot().setDomainAxis(new LogarithmicAxis("Fold Change"));
         //        mainChart.getXYPlot().setRangeAxis(new LogarithmicAxis("Significance"));
         //        XYLineAnnotation annotation = chartGroup.get(PlotType.MARKER).lineAnnotation;
