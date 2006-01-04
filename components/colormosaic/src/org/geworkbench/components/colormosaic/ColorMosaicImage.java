@@ -100,7 +100,7 @@ public class ColorMosaicImage extends JPanel implements Scrollable {
 
     public void clearSignificanceResultSet() {
         significanceResultSet = null;
-        recomputeDimensions();        
+        recomputeDimensions();
     }
 
     public void paint(Graphics g, int res, boolean screenMode) {
@@ -554,12 +554,16 @@ public class ColorMosaicImage extends JPanel implements Scrollable {
             cluster[i].setPanel(panel);
             geneNo += cluster[i].getMarkerNo();
         }
-        recomputeDimensions();
+        if (isDisplayable()) {
+            recomputeDimensions();
+        }
     }
 
     public void setPanel(DSPanel<DSMicroarray> panel) {
         microarrayPanel = panel;
-        recomputeDimensions();
+        if (isDisplayable()) {
+            recomputeDimensions();
+        }
     }
 
     public void setIntensity(double intensity) {
@@ -636,7 +640,7 @@ public class ColorMosaicImage extends JPanel implements Scrollable {
 
     void setFont() {
         int fontSize = Math.min(getFontSize(), (int) ((double) MAXFONTSIZE / (double) DEFAULTRES * (double) resolution));
-        if (fontSize != this.fontSize) {
+        if ((fontSize != this.fontSize) || (labelFont == null)) {
             this.fontSize = fontSize;
             labelFont = new Font("Times New Roman", Font.PLAIN, this.fontSize);
         }
@@ -644,6 +648,10 @@ public class ColorMosaicImage extends JPanel implements Scrollable {
 
     protected void recomputeDimensions() {
         Graphics2D g = (Graphics2D) this.getGraphics();
+        if (g == null) {
+            // Not visible
+            return;
+        }
         Rectangle2D rect = null;
         accessionWidth = 0;
         ratioWidth = 0;

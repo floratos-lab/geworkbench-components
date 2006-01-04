@@ -292,14 +292,16 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
     }
 
     public void revalidate() {
-        mainPanel.revalidate();
-        if (rowRuler != null) {
-            rowRuler.revalidate();
-            rowRuler.repaint();
-        }
-        if (colRuler != null) {
-            colRuler.revalidate();
-            colRuler.repaint();
+        if (colorMosaicImage.isDisplayable()) {
+            mainPanel.revalidate();
+            if (rowRuler != null) {
+                rowRuler.revalidate();
+                rowRuler.repaint();
+            }
+            if (colRuler != null) {
+                colRuler.revalidate();
+                colRuler.repaint();
+            }
         }
     }
 
@@ -381,12 +383,14 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
     }
 
     void jHideMaskedBtn_actionPerformed(ActionEvent e) {
-        if (jHideMaskedBtn.isSelected()) {
-            displayMosaic();
-        } else {
-            clearMosaic();
+        if (colorMosaicImage.isDisplayable()) {
+            if (jHideMaskedBtn.isSelected()) {
+                displayMosaic();
+            } else {
+                clearMosaic();
+            }
+            revalidate();
         }
-        revalidate();
     }
 
     private void clearMosaic() {
@@ -471,16 +475,20 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
     private void setMarkerPanel(DSPanel<DSGeneMarker> panel) {
         if (panel != null) {
             colorMosaicImage.setMarkerPanel(panel);
-            revalidate();
-            colorMosaicImage.repaint();
+            if (colorMosaicImage.isDisplayable()) {
+                revalidate();
+                colorMosaicImage.repaint();
+            }
         }
     }
 
     private void setMicroarrayPanel(DSPanel<DSMicroarray> panel) {
         if (panel != null) {
             colorMosaicImage.setPanel(panel);
-            revalidate();
-            colorMosaicImage.repaint();
+            if (colorMosaicImage.isDisplayable()) {
+                revalidate();
+                colorMosaicImage.repaint();
+            }
         }
     }
 
