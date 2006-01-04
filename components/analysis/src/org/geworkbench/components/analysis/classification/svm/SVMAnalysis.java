@@ -121,7 +121,11 @@ public class SVMAnalysis extends AbstractAnalysis implements ClusteringAnalysis 
             KFoldCrossValidation.CrossValidationData crossData = cross.getData(i);
             log.debug("Training classifier data set #" + i);
             SupportVectorMachine svm = new SupportVectorMachine(crossData.getTrainingCaseData(), crossData.getTrainingControlData(),
-                    SupportVectorMachine.LINEAR_KERNAL_FUNCTION, 1000, 1e-6);
+                    SupportVectorMachine.LINEAR_KERNAL_FUNCTION);
+            // Non-SMO
+            // svm.buildSupportVectors(1000, 1e-6);
+            // SMO
+            svm.buildSupportVectorsSMO(1);
             log.debug("Classifier training complete.");
 
             log.debug("Classifying test case data for set #" + i);
@@ -131,7 +135,7 @@ public class SVMAnalysis extends AbstractAnalysis implements ClusteringAnalysis 
                     correct++;
                 }
             }
-            log.debug("True positives: "+correct+", false negatives: "+(crossData.getTestCaseData().size()-correct));
+            log.debug("True positives: "+correct+",  false negatives: "+(crossData.getTestCaseData().size()-correct));
 
             log.debug("Classifying test control data for set #" + i);
             correct = 0;
@@ -140,7 +144,7 @@ public class SVMAnalysis extends AbstractAnalysis implements ClusteringAnalysis 
                     correct++;
                 }
             }
-            log.debug("True positives: "+correct+", false negatives: "+(crossData.getTrainingControlData().size()-correct));
+            log.debug("False positives: "+correct+", true negatives:  "+(crossData.getTrainingControlData().size()-correct));
         }
 
         return null;
