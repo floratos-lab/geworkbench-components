@@ -121,7 +121,7 @@ public class SVMAnalysis extends AbstractAnalysis implements ClusteringAnalysis 
             KFoldCrossValidation.CrossValidationData crossData = cross.getData(i);
             log.debug("Training classifier data set #" + i);
             SupportVectorMachine svm = new SupportVectorMachine(crossData.getTrainingCaseData(), crossData.getTrainingControlData(),
-                    SupportVectorMachine.LINEAR_KERNAL_FUNCTION);
+                    SupportVectorMachine.LINEAR_KERNAL_FUNCTION, 0.1f);
             // Non-SMO
             // svm.buildSupportVectors(1000, 1e-6);
             // SMO
