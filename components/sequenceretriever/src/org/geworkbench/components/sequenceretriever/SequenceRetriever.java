@@ -15,9 +15,12 @@ import org.apache.axis.encoding.XMLType;
 import org.geworkbench.events.GeneSelectorEvent;
 import org.geworkbench.events.ProjectNodeAddedEvent;
 import org.geworkbench.util.promoter.SequencePatternDisplayPanel;
-import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.AnnotationParser;
-import org.geworkbench.bison.datastructure.biocollections.sequences.CSSequenceSet;
-import org.geworkbench.bison.datastructure.biocollections.sequences.DSSequenceSet;
+import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.
+        AnnotationParser;
+import org.geworkbench.bison.datastructure.biocollections.sequences.
+        CSSequenceSet;
+import org.geworkbench.bison.datastructure.biocollections.sequences.
+        DSSequenceSet;
 import org.geworkbench.engine.management.Publish;
 import org.geworkbench.engine.management.Subscribe;
 import org.geworkbench.engine.management.AcceptTypes;
@@ -55,7 +58,8 @@ import javax.swing.SwingConstants;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import org.geworkbench.bison.datastructure.bioobjects.sequence.CSSequence;
-import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
+import org.geworkbench.bison.datastructure.biocollections.microarrays.
+        DSMicroarraySet;
 import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
 
 /**
@@ -67,10 +71,11 @@ import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
  * @version 3.0
  */
 
-@AcceptTypes({DSMicroarraySet.class}) public class SequenceRetriever implements VisualPlugin {
+@AcceptTypes( {DSMicroarraySet.class})public class SequenceRetriever implements
+        VisualPlugin {
 
     DSPanel<DSGeneMarker> markers = null;
-     DSPanel<DSGeneMarker> activeMarkers = null;
+    DSPanel<DSGeneMarker> activeMarkers = null;
     private CSSequenceSet sequenceDB = new CSSequenceSet();
 
     boolean selectedRegionChanged = false;
@@ -87,7 +92,8 @@ import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
     private JToolBar jToolbar2 = new JToolBar();
     private JScrollPane seqScrollPane = new JScrollPane();
 
-    private SequencePatternDisplayPanel seqDisPanel = new SequencePatternDisplayPanel();
+    private SequencePatternDisplayPanel seqDisPanel = new
+            SequencePatternDisplayPanel();
 
     JPanel jPanel2 = new JPanel();
 
@@ -140,7 +146,8 @@ import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
         JCheckBox box = new JCheckBox();
         JLabel label = new JLabel();
 
-        public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+        public Component getListCellRendererComponent(JList list, Object value,
+                int index, boolean isSelected, boolean cellHasFocus) {
             BorderLayout bd = new BorderLayout();
             this.setLayout(bd);
             this.add(box, BorderLayout.WEST);
@@ -150,7 +157,8 @@ import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
             box.setSelected(results.contains(gene));
             String s = null;
             try {
-                s = gene.getOrganismAbbreviation() + gene.getClusterId() + "(" + gene.getName() + ")";
+                s = gene.getOrganismAbbreviation() + gene.getClusterId() + "(" +
+                    gene.getName() + ")";
             } catch (ManagerException ex) {
             }
 
@@ -306,7 +314,7 @@ import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
 
     void jButton2_actionPerformed(ActionEvent e) {
         if (ls2.getSize() > 0) {
-             seqDisPanel.initialize();
+            seqDisPanel.initialize();
             jProgressBar1.setIndeterminate(true);
             sequenceDB.clear();
             Thread t = new Thread() {
@@ -321,16 +329,19 @@ import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
             t.setPriority(Thread.MIN_PRIORITY);
             t.start();
         } else {
-            JOptionPane.showMessageDialog(null, "Please select gene(s) or marker(s).");
+            JOptionPane.showMessageDialog(null,
+                                          "Please select gene(s) or marker(s).");
         }
     }
 
     void jActivateBttn_actionPerformed(ActionEvent e) {
         if ((sequenceDB != null) && (sequenceDB.getSequenceNo() >= 1)) {
-            String label = JOptionPane.showInputDialog("Please enter a name for the dataset");
+            String label = JOptionPane.showInputDialog(
+                    "Please enter a name for the dataset");
             if (label != null) {
                 sequenceDB.setLabel(label);
-                ProjectNodeAddedEvent event = new ProjectNodeAddedEvent("message", sequenceDB, null);
+                ProjectNodeAddedEvent event = new ProjectNodeAddedEvent(
+                        "message", sequenceDB, null);
                 publishProjectNodeAddedEvent(event);
             }
         }
@@ -341,9 +352,11 @@ import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
     }
 
     private void getSequences(DSGeneMarker marker) {
-        CSSequence seqs = PromoterSequenceFetcher.getCachedPromoterSequence(marker, ((Integer)model.getNumber()).intValue(), ((Integer)model1.getNumber()).intValue());
+        CSSequence seqs = PromoterSequenceFetcher.getCachedPromoterSequence(
+                marker, ((Integer) model.getNumber()).intValue(),
+                ((Integer) model1.getNumber()).intValue());
 
-        if (seqs != null){
+        if (seqs != null) {
             sequenceDB.addASequence(seqs);
             sequenceDB.parseMarkers();
         }
@@ -351,18 +364,20 @@ import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
 
     void getSequences() {
         if (markers != null) {
-            //sequenceDB.clear();
-            sequenceDB = new CSSequenceSet();
+            sequenceDB.clear();
+            // sequenceDB = new CSSequenceSet();
             String fileName = this.getRandomFileName();
-            if (((String) jComboCategory.getSelectedItem()).equalsIgnoreCase("DNA")) {
+            if (((String) jComboCategory.getSelectedItem()).equalsIgnoreCase(
+                    "DNA")) {
 
                 for (int i = 0; i < ls2.size(); i++) {
-                        DSGeneMarker marker = (DSGeneMarker)ls2.get(i);
-                        getSequences(marker);
+                    DSGeneMarker marker = (DSGeneMarker) ls2.get(i);
+                    getSequences(marker);
                 }
 
                 if (sequenceDB.getSequenceNo() == 0) {
-                    JOptionPane.showMessageDialog(getComponent(), "No sequences retrieved for selected markers");
+                    JOptionPane.showMessageDialog(getComponent(),
+                            "No sequences retrieved for selected markers");
                 } else {
                     sequenceDB.writeToFile(fileName);
                 }
@@ -373,17 +388,27 @@ import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
                 } catch (IOException ex) {
                     ex.printStackTrace();
                 }
-                if(markers!=null && markers.panels()!=null){
-                    for (int j = 0; j < markers.panels().size(); j++) {
-                        DSPanel<DSGeneMarker> mrk = markers.panels().get(j);
-                        for (int i = 0; i < mrk.size(); i++) {
+                if (markers != null && markers.panels() != null) {
+//                    for (int j = 0; j < markers.panels().size(); j++) {
+//                         DSPanel<DSGeneMarker> mrk = markers.panels().get(j);
+//                        //DSPanel<DSGeneMarker> mrk = markers.get(j);
+//                        System.out.println(mrk.size() + " " + markers.size() + " " + markers.panels().size());
+//                        for (int i = 0; i < mrk.size(); i++) {
+//
+//                            String affyid = mrk.get(i).getLabel();
+//                            if (affyid.endsWith("_at")) { // if this is affyid
+//
+//                                getAffyProteinSequences(affyid, br);
+//                            }
+//                        }
+//                    }
+                    for (DSGeneMarker geneMarker : markers) {
+                        String affyid = geneMarker.getLabel();
+                        if (affyid.endsWith("_at")) { // if this is affyid
 
-                            String affyid = mrk.get(i).getLabel();
-                            if (affyid.endsWith("_at")) { // if this is affyid
-
-                                getAffyProteinSequences(affyid, br);
-                            }
+                            getAffyProteinSequences(affyid, br);
                         }
+
                     }
                 }
                 try {
@@ -393,7 +418,8 @@ import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
                 }
                 sequenceDB.readFASTAfile(new File(fileName));
                 if (sequenceDB.getSequenceNo() == 0) {
-                    JOptionPane.showMessageDialog(getComponent(), "No sequences retrieved for selected markers");
+                    JOptionPane.showMessageDialog(getComponent(),
+                            "No sequences retrieved for selected markers");
                 }
             }
             seqDisPanel.initialize(sequenceDB);
@@ -404,25 +430,30 @@ import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
     private void getAffyProteinSequences(String affyid, BufferedWriter br) {
         try {
 
-            Call call = (Call) new Service().createCall();
-            call.setTargetEndpointAddress(new java.net.URL("http://www.ebi.ac.uk/ws/services/Dbfetch"));
+            Call call = (Call)new Service().createCall();
+            call.setTargetEndpointAddress(new java.net.URL(
+                    "http://www.ebi.ac.uk/ws/services/Dbfetch"));
             call.setOperationName(new QName("urn:Dbfetch", "fetchData"));
             call.addParameter("query", XMLType.XSD_STRING, ParameterMode.IN);
             call.addParameter("format", XMLType.XSD_STRING, ParameterMode.IN);
             call.addParameter("style", XMLType.XSD_STRING, ParameterMode.IN);
             call.setReturnType(XMLType.SOAP_ARRAY);
-            String[] uniprotids = AnnotationParser.getInfo(affyid, AnnotationParser.SWISSPROT);
+            String[] uniprotids = AnnotationParser.getInfo(affyid,
+                    AnnotationParser.SWISSPROT);
             if (uniprotids != null) {
                 for (int i = 0; i < uniprotids.length; i++) {
-                    if (uniprotids[i] != null && !uniprotids[i].trim().equals("")) {
-                        String[] result = (String[]) call.invoke(new Object[]{"uniprot:" + uniprotids[i], "fasta", "raw"});
+                    if (uniprotids[i] != null &&
+                        !uniprotids[i].trim().equals("")) {
+                        String[] result = (String[]) call.invoke(new Object[] {
+                                "uniprot:" + uniprotids[i], "fasta", "raw"});
 
                         if (result.length == 0) {
                             System.out.println("hmm...something wrong :-(\n");
                         } else {
 
                             for (int count = 0; count < result.length; count++) {
-                                result[count] = result[count].replaceAll(">", ">" + affyid + "|");
+                                result[count] = result[count].replaceAll(">",
+                                        ">" + affyid + "|");
                                 br.write(result[count]); //need to write to a sequenceDB.
                                 br.newLine();
                             }
@@ -434,7 +465,8 @@ import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
         }
     }
 
-    @Publish public ProjectNodeAddedEvent publishProjectNodeAddedEvent(org.geworkbench.events.ProjectNodeAddedEvent event) {
+    @Publish public ProjectNodeAddedEvent publishProjectNodeAddedEvent(org.
+            geworkbench.events.ProjectNodeAddedEvent event) {
         return event;
     }
 
@@ -445,26 +477,28 @@ import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
      */
     @Subscribe public void receive(GeneSelectorEvent e, Object publisher) {
         markers = e.getPanel();
-       // activeMarkers = new CSPanel();
+        activeMarkers = new CSPanel();
         if (markers != null) {
             ls2.clear();
             for (int j = 0; j < markers.panels().size(); j++) {
                 DSPanel<DSGeneMarker> mrk = markers.panels().get(j);
-                if (mrk.isActive()){
+                if (mrk.isActive()) {
                     for (int i = 0; i < mrk.size(); i++) {
-                        if (!ls2.contains(mrk.get(i)))
+                        if (!ls2.contains(mrk.get(i))) {
                             ls2.addElement(mrk.get(i));
-//                         activeMarkers.add(mrk.get(i));
+                        }
+                        activeMarkers.add(mrk.get(i));
 
                     }
 
                 }
             }
 //          activeMarkers = markers.activeSubset();
-//          System.out.println(activeMarkers.size() + " " + markers.size());
-//          markers = activeMarkers;
+            System.out.println(activeMarkers.size() + " " + markers.size());
+            markers = activeMarkers;
 //
-//          System.out.println("afet" + activeMarkers.size() + " " + markers.size());
+            System.out.println("afet" + activeMarkers.size() + " " +
+                               markers.size());
         }
     }
 
@@ -492,7 +526,8 @@ import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
 
     private String getRandomFileName() {
         String tempString = "temp" + RandomNumberGenerator.getID() + ".fasta";
-        String tempFolder = System.getProperties().getProperty("temporary.files.directory");
+        String tempFolder = System.getProperties().getProperty(
+                "temporary.files.directory");
 
         if (tempFolder == null) {
             tempFolder = ".";

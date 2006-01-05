@@ -106,7 +106,7 @@ public abstract class ServerBaseDiscovery extends AbstractSequenceDiscoveryAlgor
             double percent = session.getCompletion();
             int percentAsInt = (int) (percent * 100);
             progressBarEvent.setPercentDone(percentAsInt);
-            System.out.println("ProgessBar at " + percentAsInt);
+//            System.out.println("ProgessBar at " + percentAsInt);
             if (!done && !isStop()) {
                 if (percentAsInt < 50) {
                     progressBarEvent.setMessage("Processing Seeds");
