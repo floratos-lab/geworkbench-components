@@ -22,6 +22,11 @@ import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.HashMap;
+import org.geworkbench.bison.datastructure.complex.pattern.sequence.DSSeqRegistration;
+import org.geworkbench.bison.datastructure.complex.pattern.DSMatchedPattern;
+import org.geworkbench.bison.datastructure.biocollections.DSCollection;
+import org.geworkbench.bison.datastructure.bioobjects.sequence.DSSequence;
+import org.geworkbench.components.discovery.ParmsDataSet;
 
 
 /**
@@ -33,7 +38,7 @@ import java.util.HashMap;
  * @author
  * @version 1.0
  */
-@AcceptTypes({CSSequenceSet.class}) public class SequenceViewAppComponent implements VisualPlugin, org.geworkbench.engine.config.MenuListener, PropertyChangeListener {
+@AcceptTypes({CSSequenceSet.class, ParmsDataSet.class}) public class SequenceViewAppComponent implements VisualPlugin, org.geworkbench.engine.config.MenuListener, PropertyChangeListener {
     org.geworkbench.util.sequences.SequenceViewWidget sViewWidget;
     EventListenerList listenerList = new EventListenerList();
     JMenuItem jOpenFASTAItem = new JMenuItem();
