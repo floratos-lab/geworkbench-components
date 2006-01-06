@@ -91,7 +91,7 @@ public class TestSVM extends TestCase {
 
 
     public void testSVM() {
-        List<SVMData> data = getMArraySet(new File("c:/code/geworkbench/data/yeastORFwithClass.txt"));
+        List<SVMData> data = getMArraySet(new File("data/yeastORFwithClass.txt"));
         log.debug("Data size: " + data.size());
 
         // 0 = TCA	 1 = Resp	2 = Ribo	3 = Proteas	4 = Hist	5 = HTH
