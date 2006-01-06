@@ -38,7 +38,7 @@ import org.geworkbench.components.discovery.ParmsDataSet;
  * @author
  * @version 1.0
  */
-@AcceptTypes({CSSequenceSet.class, ParmsDataSet.class}) public class SequenceViewAppComponent implements VisualPlugin, org.geworkbench.engine.config.MenuListener, PropertyChangeListener {
+@AcceptTypes({CSSequenceSet.class }) public class SequenceViewAppComponent implements VisualPlugin, org.geworkbench.engine.config.MenuListener, PropertyChangeListener {
     org.geworkbench.util.sequences.SequenceViewWidget sViewWidget;
     EventListenerList listenerList = new EventListenerList();
     JMenuItem jOpenFASTAItem = new JMenuItem();
