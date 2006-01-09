@@ -26,8 +26,6 @@ import org.geworkbench.bison.datastructure.complex.pattern.sequence.DSSeqRegistr
 import org.geworkbench.bison.datastructure.complex.pattern.DSMatchedPattern;
 import org.geworkbench.bison.datastructure.biocollections.DSCollection;
 import org.geworkbench.bison.datastructure.bioobjects.sequence.DSSequence;
-import org.geworkbench.components.discovery.ParmsDataSet;
-
 
 /**
  * <p>SequenceViewAppComponent controls all notification and communication for SequenceViewWidget</p>
