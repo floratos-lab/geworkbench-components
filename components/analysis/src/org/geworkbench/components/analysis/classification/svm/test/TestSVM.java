@@ -90,6 +90,11 @@ public class TestSVM extends TestCase {
     }
 
 
+    private void normalizeData(List<SVMData> maSet) {
+        float max = 0f;
+        
+    }
+
     public void testSVM() {
         List<SVMData> data = getMArraySet(new File("data/yeastORFwithClass.txt"));
         log.debug("Data size: " + data.size());

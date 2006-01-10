@@ -14,6 +14,7 @@ import org.geworkbench.util.AlgorithmSelectionPanel;
 import org.geworkbench.util.remote.SPLASHDefinition;
 import org.geworkbench.bison.datastructure.biocollections.sequences.CSSequenceSet;
 import org.geworkbench.bison.datastructure.biocollections.sequences.DSSequenceSet;
+import org.geworkbench.bison.datastructure.pattern.ParmsDataSet;
 import polgara.soapPD_wsdl.Parameters;
 
 import javax.swing.*;
