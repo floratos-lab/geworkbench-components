@@ -148,7 +148,7 @@ public class MultiTTestAnalysis extends AbstractAnalysis implements ClusteringAn
             // Add panels and sigsets
             for (int i = 0; i < numTests; i++) {
                 sigSets[i].sortMarkersBySignificance();                
-                publishSubpanelChangedEvent(new SubpanelChangedEvent<DSGeneMarker>(panels[i], SubpanelChangedEvent.NEW));
+                publishSubpanelChangedEvent(new SubpanelChangedEvent<DSGeneMarker>(DSGeneMarker.class, panels[i], SubpanelChangedEvent.NEW));
                 publishProjectNodeAddedEvent(new ProjectNodeAddedEvent("Analysis Result", null, sigSets[i]));
             }
         } catch (MathException me) {

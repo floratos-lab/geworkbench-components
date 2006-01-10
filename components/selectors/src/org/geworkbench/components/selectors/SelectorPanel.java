@@ -11,12 +11,14 @@ import org.geworkbench.bison.annotation.CSAnnotationContext;
 import org.geworkbench.bison.annotation.CSAnnotationContextManager;
 import org.geworkbench.bison.annotation.DSAnnotationContextManager;
 import org.geworkbench.events.ProjectEvent;
+import org.geworkbench.events.SubpanelChangedEvent;
 import org.geworkbench.util.visualproperties.VisualPropertiesDialog;
 import org.geworkbench.util.visualproperties.PanelVisualPropertiesManager;
 import org.geworkbench.util.visualproperties.PanelVisualProperties;
 import org.geworkbench.util.JAutoList;
 import org.geworkbench.engine.management.Subscribe;
 import org.geworkbench.engine.management.Script;
+import org.geworkbench.engine.management.Overflow;
 import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.engine.config.MenuListener;
 import org.geworkbench.builtin.projects.ProjectSelection;
@@ -85,7 +87,7 @@ public abstract class SelectorPanel<T extends DSSequential> implements VisualPlu
     protected Class<T> panelType;
     private SelectorTreeRenderer treeRenderer;
 
-    private HashMap<String,ActionListener> menuListeners;
+    private HashMap<String, ActionListener> menuListeners;
 
     public SelectorPanel(Class<T> panelType, String name) {
         this.panelType = panelType;
@@ -639,6 +641,63 @@ public abstract class SelectorPanel<T extends DSSequential> implements VisualPlu
         processDataSet(dataSet);
 
     }
+
+    /**
+     * Called when a component wishes to add, change or remove a panel.
+     */
+    @Subscribe(Overflow.class) public void receive(org.geworkbench.events.SubpanelChangedEvent spe, Object source) {
+        if (panelType.isAssignableFrom(spe.getType())) {
+            DSPanel<T> receivedPanel = spe.getPanel();
+            String panelName = receivedPanel.getLabel();
+            switch (spe.getMode()) {
+                case SubpanelChangedEvent.NEW: {
+                    if (context.indexOfLabel(panelName) != -1) {
+                        int number = 1;
+                        String newName = panelName + " (" + number + ")";
+                        receivedPanel.setLabel(newName);
+                        while (context.indexOfLabel(newName) != -1) {
+                            number++;
+                            newName = panelName + " (" + number + ")";
+                            receivedPanel.setLabel(newName);
+                        }
+                    }
+                    addPanel(receivedPanel);
+                    break;
+                }
+                case SubpanelChangedEvent.SET_CONTENTS: {
+                    boolean foundPanel = false;
+                    if (context.indexOfLabel(panelName) != -1) {
+                        foundPanel = true;
+                        // Delete everything from the panel and re-add
+                        context.clearItemsFromLabel(panelName);
+                        for (T marker : receivedPanel) {
+                            context.labelItem(marker, panelName);
+                        }
+                        synchronized (treeModel) {
+                            treeModel.fireLabelItemsChanged(panelName);
+                        }
+                        throwLabelEvent();
+                    }
+                    if (!foundPanel) {
+                        // Add it as a new panel
+                        addPanel(receivedPanel);
+                    }
+                    break;
+                }
+                case SubpanelChangedEvent.DELETE: {
+                    if (context.indexOfLabel(panelName) != -1) {
+                        int index = context.indexOfLabel(panelName);
+                        context.removeLabel(panelName);
+                        treeModel.fireLabelRemoved(panelName, index);
+                    }
+                    break;
+                }
+                default:
+                    throw new RuntimeException("Unknown subpanel changed event mode: " + spe.getMode());
+            }
+        }
+    }
+
 
     private void processDataSet(DSDataSet dataSet) {
         if (dataSet != null) {

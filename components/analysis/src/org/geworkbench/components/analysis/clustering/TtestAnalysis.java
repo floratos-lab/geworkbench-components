@@ -344,7 +344,7 @@ public class TtestAnalysis extends AbstractAnalysis implements ClusteringAnalysi
                     panelSignificant.add(item, new Float(pValuesMatrix[index][0]));
                 }
             }
-            publishSubpanelChangedEvent(new SubpanelChangedEvent(panelSignificant, SubpanelChangedEvent.NEW));
+            publishSubpanelChangedEvent(new SubpanelChangedEvent(DSGeneMarker.class, panelSignificant, SubpanelChangedEvent.NEW));
 //            result.put("Significant Genes", panelSignificant);
 //
 //            result.put("number-of-clusters", String.valueOf(clusters.length));
