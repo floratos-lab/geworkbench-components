@@ -572,7 +572,7 @@ public class CytoscapeWidget extends EventSource implements VisualPlugin, MenuLi
                 }
             }
             selectedMarkers.setActive(true);
-            publishSubpanelChangedEvent(new org.geworkbench.events.SubpanelChangedEvent(selectedMarkers, org.geworkbench.events.SubpanelChangedEvent.SET_CONTENTS));
+            publishSubpanelChangedEvent(new org.geworkbench.events.SubpanelChangedEvent(DSGeneMarker.class, selectedMarkers, org.geworkbench.events.SubpanelChangedEvent.SET_CONTENTS));
         }
 //            if (gvce.isNodesSelectedType()) {
 //                int[] indices = gvce.getSelectedNodeIndices();

@@ -149,7 +149,7 @@ public class HierClusterViewAppComponent implements VisualPlugin, MenuListener, 
                 clusterBranch.add(mInfos[i]);
             }
 
-            publishSubpanelChangedEvent(new org.geworkbench.events.SubpanelChangedEvent(clusterBranch, org.geworkbench.events.SubpanelChangedEvent.NEW));
+            publishSubpanelChangedEvent(new org.geworkbench.events.SubpanelChangedEvent(DSGeneMarker.class, clusterBranch, org.geworkbench.events.SubpanelChangedEvent.NEW));
         }
     }
 }

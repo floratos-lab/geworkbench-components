@@ -1056,7 +1056,7 @@ public class GenericMarkerSelectorPanel implements VisualPlugin, MenuListener {
                             }
                         }
                     }
-                    publishSubpanelChangedEvent(new SubpanelChangedEvent(msp, SubpanelChangedEvent.NEW));
+                    publishSubpanelChangedEvent(new SubpanelChangedEvent(DSGeneMarker.class, msp, SubpanelChangedEvent.NEW));
                     throwEvent(org.geworkbench.events.GeneSelectorEvent.PANEL_SELECTION);
                 } catch (IOException ioe) {
                     ioe.printStackTrace();

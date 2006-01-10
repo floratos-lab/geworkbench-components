@@ -257,60 +257,6 @@ public class GenePanel extends SelectorPanel<DSGeneMarker> {
         list.scrollRectToVisible(list.getCellBounds(index, index));
     }
 
-    /**
-     * Called when a component wishes to add, change or remove a panel.
-     */
-    @Subscribe(Overflow.class) public void receive(org.geworkbench.events.SubpanelChangedEvent spe, Object source) {
-        DSPanel<DSGeneMarker> receivedPanel = spe.getPanel();
-        String panelName = receivedPanel.getLabel();
-        switch (spe.getMode()) {
-            case SubpanelChangedEvent.NEW: {
-                if (context.indexOfLabel(panelName) != -1) {
-                    int number = 1;
-                    String newName = panelName + " (" + number + ")";
-                    receivedPanel.setLabel(newName);
-                    while (context.indexOfLabel(newName) != -1) {
-                        number++;
-                        newName = panelName + " (" + number + ")";
-                        receivedPanel.setLabel(newName);
-                    }
-                }
-                addPanel(receivedPanel);
-                break;
-            }
-            case SubpanelChangedEvent.SET_CONTENTS: {
-                boolean foundPanel = false;
-                if (context.indexOfLabel(panelName) != -1) {
-                    foundPanel = true;
-                    // Delete everything from the panel and re-add
-                    context.clearItemsFromLabel(panelName);
-                    for (DSGeneMarker marker : receivedPanel) {
-                        context.labelItem(marker, panelName);
-                    }
-                    synchronized (treeModel) {
-                        treeModel.fireLabelItemsChanged(panelName);
-                    }
-                    throwLabelEvent();
-                }
-                if (!foundPanel) {
-                    // Add it as a new panel
-                    addPanel(receivedPanel);
-                }
-                break;
-            }
-            case SubpanelChangedEvent.DELETE: {
-                if (context.indexOfLabel(panelName) != -1) {
-                    int index = context.indexOfLabel(panelName);
-                    context.removeLabel(panelName);
-                    treeModel.fireLabelRemoved(panelName, index);
-                }
-                break;
-            }
-            default:
-                throw new RuntimeException("Unknown subpanel changed event mode: " + spe.getMode());
-        }
-    }
-
     @Publish public SubpanelChangedEvent publishSubpanelChangedEvent(SubpanelChangedEvent event) {
         return event;
     }

@@ -3,6 +3,7 @@ package org.geworkbench.components.microarrays;
 
 import org.geworkbench.events.MicroarraySetViewEvent;
 import org.geworkbench.events.ProjectEvent;
+import org.geworkbench.events.SubpanelChangedEvent;
 import org.geworkbench.util.microarrayutils.MicroarrayViewEventBase;
 import org.geworkbench.engine.management.Publish;
 import org.geworkbench.engine.management.Subscribe;
@@ -805,9 +806,7 @@ import java.util.Vector;
         }
         DSPanel panel = hs.getPanel(lowValue, highValue);
         if (panel != null) {
-            publishSubpanelChangedEvent(new org.geworkbench.events.
-                                        SubpanelChangedEvent(panel,
-                    org.geworkbench.events.SubpanelChangedEvent.NEW));
+            publishSubpanelChangedEvent(new SubpanelChangedEvent(DSGeneMarker.class, panel, org.geworkbench.events.SubpanelChangedEvent.NEW));
         } else {
             JOptionPane.showMessageDialog(null, "No gene is selected",
                                           "Please check",
