@@ -1,7 +1,6 @@
 package org.geworkbench.components.plots;
 
 import org.geworkbench.util.ProgressBar;
-import org.geworkbench.events.ClusterEvent;
 import org.geworkbench.events.MultipleMarkerEvent;
 import org.geworkbench.events.MarkerSelectedEvent;
 import org.geworkbench.events.ProjectEvent;
@@ -155,7 +154,7 @@ public class SOMDisplay implements VisualPlugin, MenuListener, PropertyChangeLis
             for (int i = 0; i < mInfos.size(); i++)
                 clusterGrid.add(mInfos.get(i));
             clusterGrid.setActive(true);
-            publishSubpanelChangedEvent(new org.geworkbench.events.SubpanelChangedEvent<DSGeneMarker>(clusterGrid, org.geworkbench.events.SubpanelChangedEvent.NEW));
+            publishSubpanelChangedEvent(new org.geworkbench.events.SubpanelChangedEvent<DSGeneMarker>(DSGeneMarker.class, clusterGrid, org.geworkbench.events.SubpanelChangedEvent.NEW));
         } else if (propertyName.equals(SOMPlot.PLOT_MOUSE_CLICKED)) {
             if (newValue != null && newValue instanceof SOMPlot) {
                 showPlot((SOMPlot) newValue);
