@@ -4,6 +4,7 @@ import org.geworkbench.analysis.AbstractAnalysis;
 import org.geworkbench.analysis.AbstractSaveableParameterPanel;
 import org.geworkbench.events.SubpanelChangedEvent;
 import org.geworkbench.events.ProjectNodeAddedEvent;
+import org.geworkbench.events.ClusterEvent;
 import org.geworkbench.util.microarrayutils.MicroarrayViewEventBase;
 import org.geworkbench.engine.management.ComponentRegistry;
 import org.geworkbench.engine.management.Publish;
@@ -485,10 +486,6 @@ import com.jgoodies.forms.debug.FormDebugPanel;
         }
     }
 
-    @Publish public org.geworkbench.events.ClusterEvent publishClusterEvent(org.geworkbench.events.ClusterEvent event) {
-        return event;
-    }
-
     @Publish public org.geworkbench.events.SubpanelChangedEvent publishSubpanelChangedEvent(org.geworkbench.events.SubpanelChangedEvent event) {
         return event;
     }
@@ -518,10 +515,11 @@ import com.jgoodies.forms.debug.FormDebugPanel;
 //                });
                 return;
             }
-            publishClusterEvent(new org.geworkbench.events.ClusterEvent(maSetView, results, selectedAnalysis.getLabel()));
             if (resultObject instanceof Hashtable) {
                 DSPanel<DSGeneMarker> panel = (DSPanel) ((Hashtable) resultObject).get("Significant Genes");
-                publishSubpanelChangedEvent(new org.geworkbench.events.SubpanelChangedEvent(panel, SubpanelChangedEvent.NEW));
+                if (panel != null) {
+                    publishSubpanelChangedEvent(new org.geworkbench.events.SubpanelChangedEvent(DSGeneMarker.class, panel, SubpanelChangedEvent.NEW));
+                }
             }
         }
     }
