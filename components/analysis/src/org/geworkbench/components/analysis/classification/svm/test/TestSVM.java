@@ -12,6 +12,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.components.analysis.classification.svm.KFoldCrossValidation;
 import org.geworkbench.util.svm.SupportVectorMachine;
+import org.geworkbench.util.svm.ClassifierException;
 
 /**
  * Test SVM training and results.
@@ -92,7 +93,7 @@ public class TestSVM extends TestCase {
 
     private void normalizeData(List<SVMData> maSet) {
         float max = 0f;
-        
+
     }
 
     public void testSVM() {
@@ -124,8 +125,13 @@ public class TestSVM extends TestCase {
         for (int i = 0; i < cross.getNumFolds(); i++) {
             KFoldCrossValidation.CrossValidationData crossData = cross.getData(i);
             log.debug("Training classifier data set on fold " + i);
-            SupportVectorMachine svm = new SupportVectorMachine(crossData.getTrainingCaseData(), crossData.getTrainingControlData(),
-                    SupportVectorMachine.LINEAR_KERNAL_FUNCTION, 0.1f);
+            SupportVectorMachine svm = null;
+            try {
+                svm = new SupportVectorMachine(crossData.getTrainingCaseData(), crossData.getTrainingControlData(),
+                        SupportVectorMachine.LINEAR_KERNAL_FUNCTION, 0.1f);
+            } catch (ClassifierException e) {
+                log.error(e);
+            }
             // Non-SMO
             // svm.buildSupportVectors(1000, 1e-6);
             // SMO
@@ -141,7 +147,7 @@ public class TestSVM extends TestCase {
             }
             truePositives += numInClass1;
             falseNegatives += (crossData.getTestCaseData().size()-numInClass1);
-//            log.debug("True positives: "+numInClass1+",  false negatives: "+(crossData.getTestCaseData().size()-numInClass1));
+            log.debug("True positives: "+numInClass1+",  false negatives: "+(crossData.getTestCaseData().size()-numInClass1));
 
 //            log.debug("Classifying test control data for set #" + i);
             numInClass1 = 0;
@@ -152,7 +158,7 @@ public class TestSVM extends TestCase {
             }
             falsePositives += numInClass1;
             trueNegatives += (crossData.getTestControlData().size()-numInClass1);
-//            log.debug("False positives: "+numInClass1+", true negatives:  "+(crossData.getTestControlData().size()-numInClass1));
+            log.debug("False positives: "+numInClass1+", true negatives:  "+(crossData.getTestControlData().size()-numInClass1));
         }
 
         log.debug("Results: ");
