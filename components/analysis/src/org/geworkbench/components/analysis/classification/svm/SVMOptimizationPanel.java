@@ -192,7 +192,7 @@ public class SVMOptimizationPanel extends AbstractSaveableParameterPanel impleme
                         return super.cancel(mayInterruptIfRunning);
                     }
 
-                    public void finished() {
+                    public void done() {
                         if (errorString != null) {
                             JOptionPane.showMessageDialog(workerParent, errorString);
                             setTrainingStatus("");
@@ -245,7 +245,7 @@ public class SVMOptimizationPanel extends AbstractSaveableParameterPanel impleme
         checkBoxes.clear();
         classifyCheckboxes.clear();
         FormLayout layout = new FormLayout(
-                "right:max(80dlu;pref), 3dlu, max(70dlu;pref), 3dlu, max(70dlu;pref), 3dlu, max(70dlu;pref)",
+                "right:max(80dlu;pref), 3dlu, max(70dlu;pref), 3dlu, right:max(70dlu;pref), 3dlu, max(70dlu;pref)",
                 "");
         DefaultFormBuilder builder = new DefaultFormBuilder(layout);
         builder.setDefaultDialogBorder();
