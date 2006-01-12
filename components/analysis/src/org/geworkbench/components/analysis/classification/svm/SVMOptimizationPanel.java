@@ -11,7 +11,9 @@ import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.util.svm.SupportVectorMachine;
 import org.geworkbench.util.svm.KernelFunction;
 import org.geworkbench.util.svm.ClassifierException;
-import org.geworkbench.util.SwingWorker;
+import org.geworkbench.util.svm.TrainingProgressListener;
+import org.geworkbench.util.ProgressGraph;
+import org.geworkbench.util.threading.SwingWorker;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -25,8 +27,10 @@ import java.io.Serializable;
 import java.util.*;
 import java.text.DecimalFormat;
 
-public class SVMOptimizationPanel extends AbstractSaveableParameterPanel implements Serializable {
+public class SVMOptimizationPanel extends AbstractSaveableParameterPanel implements Serializable, TrainingProgressListener {
     static Log log = LogFactory.getLog(SVMOptimizationPanel.class);
+
+    public static final String DEFAULT_TRAINING_MESSAGE = "Training Progress";
 
     private static final double DEFAULT_EPSILON_VALUE = 0.001;
     private static final double DEFAULT_C_VALUE = 1;
@@ -35,17 +39,21 @@ public class SVMOptimizationPanel extends AbstractSaveableParameterPanel impleme
     private JFormattedTextField C = new JFormattedTextField();
     private JFormattedTextField numberFolds = new JFormattedTextField();
     private JComboBox kernelFunctionCombo = new JComboBox();
+    private ProgressGraph progressGraph = new ProgressGraph(0, 20, 100);
+    private JLabel trainingMessage = new JLabel(DEFAULT_TRAINING_MESSAGE);
     private JLabel falsePositives = new JLabel();
     private JLabel falseNegatives = new JLabel();
     private JLabel truePositives = new JLabel();
     private JLabel trueNegatives = new JLabel();
 
     private JButton crossTest = new JButton("Test via Cross Validation");
+    private JButton cancelTest = new JButton("Cancel Test");
 
     private DSMicroarraySet maSet = null;
 
     private ArrayList<JCheckBox> checkBoxes = new ArrayList<JCheckBox>();
     private ArrayList<JCheckBox> classifyCheckboxes = new ArrayList<JCheckBox>();
+    private SwingWorker worker;
 
     private static class SerializedInstance implements Serializable {
 
@@ -93,11 +101,13 @@ public class SVMOptimizationPanel extends AbstractSaveableParameterPanel impleme
         crossTest.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
 
-                SwingWorker worker = new SwingWorker() {
+                worker = new SwingWorker() {
                     int numTruePositives = 0, numFalseNegatives = 0, numFalsePositives = 0, numTrueNegatives = 0;
                     String errorString = null;
 
-                    public Object construct() {
+                    SupportVectorMachine svm = null;
+
+                    protected Object doInBackground() throws Exception {
                         truePositives.setText("Working...");
                         truePositives.repaint();
                         falsePositives.setText("Working...");
@@ -121,12 +131,14 @@ public class SVMOptimizationPanel extends AbstractSaveableParameterPanel impleme
 
 
                         try {
-                            for (int i = 0; i < cross.getNumFolds(); i++) {
+                            for (int i = 0; i < cross.getNumFolds() && !isCancelled(); i++) {
                                 KFoldCrossValidation.CrossValidationData crossData = cross.getData(i);
                                 log.debug("Training classifier data set " + (i+1) + "/"+numFolds);
+                                trainingMessage.setText(DEFAULT_TRAINING_MESSAGE + " (fold "+ (i+1) + "/"+numFolds +")");
 
-                                SupportVectorMachine svm = new SupportVectorMachine(crossData.getTrainingCaseData(), crossData.getTrainingControlData(),
+                                svm = new SupportVectorMachine(crossData.getTrainingCaseData(), crossData.getTrainingControlData(),
                                         getSelectedKernel(), 0.1f);
+                                svm.setTrainingProgressListener((TrainingProgressListener) workerParent);
                                 // Non-SMO
                                 // svm.buildSupportVectors(1000, 1e-6);
                                 // SMO
@@ -152,29 +164,40 @@ public class SVMOptimizationPanel extends AbstractSaveableParameterPanel impleme
                                 numTrueNegatives += (crossData.getTestControlData().size()-numInClass1);
                             }
 
-                            log.debug("Results of "+numFolds+" fold analysis: ");
-                            log.debug("FP\tFN\tTP\tTN");
-                            log.debug(numFalsePositives + "\t" + numFalseNegatives + "\t" + numTruePositives + "\t" + numTrueNegatives);
+                            if (!isCancelled()) {
+                                log.debug("Results of "+numFolds+" fold analysis: ");
+                                log.debug("FP\tFN\tTP\tTN");
+                                log.debug(numFalsePositives + "\t" + numFalseNegatives + "\t" + numTruePositives + "\t" + numTrueNegatives);
+                            } else {
+                                log.debug("Training cancelled.");
+                            }
 
                         } catch (ClassifierException e1) {
                             errorString = e1.getMessage();
-                            truePositives.setText("Error");
-                            truePositives.repaint();
-                            falsePositives.setText("Error");
-                            falsePositives.repaint();
-                            trueNegatives.setText("Error");
-                            trueNegatives.repaint();
-                            falseNegatives.setText("Error");
-                            falseNegatives.repaint();
+                            setTrainingStatus("Error");
                         }
 
                         return null;
                     }
 
+                    public boolean cancel(boolean mayInterruptIfRunning) {
+                        if (svm != null) {
+                            svm.setCancelled(true);
+                            svm.setTrainingProgressListener(null);
+                        }
+                        setTrainingStatus("");
+                        progressGraph.clearPoints();
+                        progressGraph.setDescription("");
+                        progressGraph.repaint();
+                        return super.cancel(mayInterruptIfRunning);
+                    }
+
                     public void finished() {
                         if (errorString != null) {
                             JOptionPane.showMessageDialog(workerParent, errorString);
+                            setTrainingStatus("");
                         } else {
+                            trainingMessage.setText(DEFAULT_TRAINING_MESSAGE);
                             truePositives.setText("" + numTruePositives);
                             truePositives.repaint();
                             falsePositives.setText("" + numFalsePositives);
@@ -184,14 +207,37 @@ public class SVMOptimizationPanel extends AbstractSaveableParameterPanel impleme
                             falseNegatives.setText("" + numFalseNegatives);
                             falseNegatives.repaint();
                         }
+                        progressGraph.clearPoints();
+                        progressGraph.repaint();
                     }
                 };
 
-                worker.start();
+                worker.execute();
             }
         });
+
+        cancelTest.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                if (!worker.isDone()) {
+                    worker.cancel(true);
+                }
+            }
+        });
+
         setLayout(new BorderLayout());
         rebuildForm();
+    }
+
+    private void setTrainingStatus(String message) {
+        trainingMessage.setText(DEFAULT_TRAINING_MESSAGE);
+        truePositives.setText(message);
+        truePositives.repaint();
+        falsePositives.setText(message);
+        falsePositives.repaint();
+        trueNegatives.setText(message);
+        trueNegatives.repaint();
+        falseNegatives.setText(message);
+        falseNegatives.repaint();
     }
 
     public void rebuildForm() {
@@ -214,6 +260,9 @@ public class SVMOptimizationPanel extends AbstractSaveableParameterPanel impleme
         builder.appendSeparator("Test Classifier Accuracy");
         builder.append("Number of Cross Validation Folds", numberFolds);
         builder.append("", crossTest);
+        builder.append(trainingMessage, progressGraph);
+        builder.append("", cancelTest);
+        builder.nextLine();
         builder.appendSeparator("Cross Validation Results");
         builder.append("True Positives", truePositives);
         builder.append("False Positives", falsePositives);
@@ -258,6 +307,16 @@ public class SVMOptimizationPanel extends AbstractSaveableParameterPanel impleme
 
     public void setMaSet(DSMicroarraySet maSet) {
         this.maSet = maSet;
+    }
+
+    public void stepUpdate(float value) {
+        progressGraph.addPoint((int) value);
+        progressGraph.repaint();
+    }
+
+    public void stepUpdate(String message, float value) {
+        progressGraph.setDescription(message);
+        stepUpdate(value);
     }
 }
 
