@@ -1,15 +1,12 @@
 package org.geworkbench.components.alignment.panels;
 
-import org.geworkbench.bison.util.RandomNumberGenerator;
-import org.geworkbench.components.alignment.blast.BlastObj;
-import org.geworkbench.components.alignment.blast.BlastParser;
-import org.geworkbench.components.alignment.blast.HmmObj;
-import org.geworkbench.components.alignment.blast.HmmResultParser;
-import org.geworkbench.util.PropertiesMonitor;
 import org.geworkbench.bison.datastructure.biocollections.sequences.CSSequenceSet;
 import org.geworkbench.bison.datastructure.biocollections.sequences.DSSequenceSet;
-import org.geworkbench.engine.management.Subscribe;
 import org.geworkbench.bison.datastructure.bioobjects.sequence.CSSequence;
+import org.geworkbench.bison.util.RandomNumberGenerator;
+import org.geworkbench.components.alignment.blast.*;
+import org.geworkbench.engine.management.Subscribe;
+import org.geworkbench.util.PropertiesMonitor;
 
 import javax.swing.*;
 import javax.swing.event.HyperlinkEvent;
@@ -25,7 +22,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Vector;
-import org.geworkbench.components.alignment.blast.BlastDataOutOfBoundException;
 
 /**
  * <p>Title: Bioworks</p>

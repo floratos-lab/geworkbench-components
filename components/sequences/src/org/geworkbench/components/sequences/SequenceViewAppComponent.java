@@ -1,17 +1,18 @@
 package org.geworkbench.components.sequences;
 
-import org.geworkbench.events.SequencePanelEvent;
-import org.geworkbench.builtin.projects.ProjectPanel;
-import org.geworkbench.builtin.projects.ProjectSelection;
-import org.geworkbench.engine.parsers.sequences.SequenceFileFormat;
-import org.geworkbench.util.PropertiesMonitor;
-import org.geworkbench.util.sequences.SequenceViewWidget;
-import org.geworkbench.engine.management.Subscribe;
-import org.geworkbench.engine.management.AcceptTypes;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.sequences.CSSequenceSet;
 import org.geworkbench.bison.datastructure.biocollections.sequences.DSSequenceSet;
+import org.geworkbench.bison.datastructure.complex.pattern.ParmsDataSet;
+import org.geworkbench.builtin.projects.ProjectPanel;
+import org.geworkbench.builtin.projects.ProjectSelection;
 import org.geworkbench.engine.config.VisualPlugin;
+import org.geworkbench.engine.management.AcceptTypes;
+import org.geworkbench.engine.management.Subscribe;
+import org.geworkbench.engine.parsers.sequences.SequenceFileFormat;
+import org.geworkbench.events.SequencePanelEvent;
+import org.geworkbench.util.PropertiesMonitor;
+import org.geworkbench.util.sequences.SequenceViewWidget;
 
 import javax.swing.*;
 import javax.swing.event.EventListenerList;
@@ -22,7 +23,6 @@ import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.HashMap;
-import org.geworkbench.bison.datastructure.complex.pattern.ParmsDataSet;
 
 /**
  * <p>SequenceViewAppComponent controls all notification and communication for SequenceViewWidget</p>

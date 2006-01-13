@@ -1,12 +1,12 @@
 package org.geworkbench.components.microarrays;
 
-import org.geworkbench.util.associationdiscovery.cluster.CSMatchedMatrixPattern;
-import org.geworkbench.util.microarrayutils.MicroarrayVisualizer;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMutableMarkerValue;
+import org.geworkbench.util.associationdiscovery.cluster.CSMatchedMatrixPattern;
+import org.geworkbench.util.microarrayutils.MicroarrayVisualizer;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;

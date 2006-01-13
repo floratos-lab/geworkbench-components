@@ -10,39 +10,39 @@ package org.geworkbench.components.alignment.panels;
  */
 
 
-import java.net.*;
-import java.rmi.*;
-import java.util.*;
-import javax.xml.rpc.*;
-
-import java.awt.*;
-import java.awt.event.*;
-import javax.swing.*;
-import javax.swing.Timer;
-
-import org.geworkbench.components.alignment.client.*;
-import org.geworkbench.components.alignment.grid.*;
-import org.geworkbench.components.alignment.grid.service.*;
-
-//import org.globus.axis.gsi.*;
-import org.globus.ogsa.*;
-import org.globus.ogsa.client.managers.*;
-import org.globus.ogsa.gui.*;
-//import org.globus.ogsa.impl.security.*;
-//import org.globus.ogsa.impl.security.authorization.*;
+import com.borland.jbcl.layout.XYConstraints;
+import com.borland.jbcl.layout.XYLayout;
+import org.geworkbench.bison.datastructure.biocollections.sequences.CSSequenceSet;
+import org.geworkbench.components.alignment.client.BlastAlgorithm;
+import org.geworkbench.components.alignment.grid.ServiceDataModel;
+import org.geworkbench.components.alignment.grid.service.SystemInformation;
+import org.globus.ogsa.NotificationSinkCallback;
+import org.globus.ogsa.ServiceData;
+import org.globus.ogsa.client.managers.NotificationSinkManager;
+import org.globus.ogsa.gui.XMLTree;
+import org.globus.ogsa.gui.XMLTreeModel;
 import org.globus.ogsa.utils.*;
-import org.globus.progtutorial.clients.BlastService.*;
-import org.gridforum.ogsi.*;
-import org.w3c.dom.*;
 import org.globus.ogsa.wsdl.GSR;
+import org.globus.progtutorial.clients.BlastService.Client;
+import org.gridforum.ogsi.*;
+import org.w3c.dom.Element;
 
-import javax.swing.border.*;
+import javax.swing.*;
+import javax.swing.border.TitledBorder;
+import javax.swing.event.TreeSelectionEvent;
+import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeSelectionModel;
-import javax.swing.event.TreeSelectionListener;
-import javax.swing.event.TreeSelectionEvent;
-import com.borland.jbcl.layout.*;
-import org.geworkbench.bison.datastructure.biocollections.sequences.CSSequenceSet;
+import javax.xml.rpc.Stub;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.net.URL;
+import java.rmi.RemoteException;
+import java.util.Hashtable;
+import java.util.Random;
 
 public class CreateGridServicePanel
     extends JPanel

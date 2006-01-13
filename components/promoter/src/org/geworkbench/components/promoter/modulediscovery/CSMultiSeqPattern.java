@@ -7,13 +7,13 @@
 
 package org.geworkbench.components.promoter.modulediscovery;
 
-import org.geworkbench.util.RandomSequenceGenerator;
-import org.geworkbench.bison.datastructure.biocollections.sequences.DSSequenceSet;
 import org.geworkbench.bison.datastructure.biocollections.DSCollection;
+import org.geworkbench.bison.datastructure.biocollections.sequences.DSSequenceSet;
 import org.geworkbench.bison.datastructure.bioobjects.sequence.DSSequence;
 import org.geworkbench.bison.datastructure.complex.pattern.*;
 import org.geworkbench.bison.datastructure.complex.pattern.sequence.CSSeqCmplxRegistration;
 import org.geworkbench.bison.datastructure.complex.pattern.sequence.DSSeqRegistration;
+import org.geworkbench.util.RandomSequenceGenerator;
 
 import java.util.ArrayList;
 import java.util.HashMap;

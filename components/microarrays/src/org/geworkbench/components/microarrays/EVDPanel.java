@@ -1,24 +1,21 @@
 package org.geworkbench.components.microarrays;
 
 
-import org.geworkbench.events.MicroarraySetViewEvent;
-import org.geworkbench.events.ProjectEvent;
-import org.geworkbench.events.SubpanelChangedEvent;
-import org.geworkbench.util.microarrayutils.MicroarrayViewEventBase;
-import org.geworkbench.engine.management.Publish;
-import org.geworkbench.engine.management.Subscribe;
-import org.geworkbench.engine.management.AcceptTypes;
-import org.geworkbench.util.visualproperties.PanelVisualProperties;
-import org.geworkbench.util.visualproperties.PanelVisualPropertiesManager;
-import org.geworkbench.bison.datastructure.biocollections.microarrays.
-        DSMicroarraySet;
+import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
 import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
-import org.geworkbench.engine.config.MenuListener;
 import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
+import org.geworkbench.engine.config.MenuListener;
+import org.geworkbench.engine.management.AcceptTypes;
+import org.geworkbench.engine.management.Publish;
+import org.geworkbench.events.MicroarraySetViewEvent;
+import org.geworkbench.events.SubpanelChangedEvent;
+import org.geworkbench.util.microarrayutils.MicroarrayViewEventBase;
+import org.geworkbench.util.visualproperties.PanelVisualProperties;
+import org.geworkbench.util.visualproperties.PanelVisualPropertiesManager;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;

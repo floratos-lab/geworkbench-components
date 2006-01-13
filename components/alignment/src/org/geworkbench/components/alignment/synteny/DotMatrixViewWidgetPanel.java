@@ -1,19 +1,17 @@
 package org.geworkbench.components.alignment.synteny;
 
-import java.awt.event.*;
-import javax.swing.*;
-import java.awt.LayoutManager;
+import com.sun.image.codec.jpeg.JPEGCodec;
+import com.sun.image.codec.jpeg.JPEGImageEncoder;
+import org.geworkbench.components.alignment.panels.BrowserLauncher;
 import org.geworkbench.util.sequences.SequenceAnnotation;
-import java.awt.Color;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Font;
-import java.awt.Dimension;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferedImage;
 import java.io.FileOutputStream;
-import com.sun.image.codec.jpeg.JPEGImageEncoder;
-import com.sun.image.codec.jpeg.JPEGCodec;
-import org.geworkbench.components.alignment.panels.BrowserLauncher;
 import java.io.IOException;
 
 /**

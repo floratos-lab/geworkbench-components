@@ -1,10 +1,8 @@
 package org.geworkbench.components.alignment.client;
 
-import org.geworkbench.bison.datastructure.biocollections.DSAncillaryDataSet;
 import org.geworkbench.bison.datastructure.biocollections.CSAncillaryDataSet;
-import org.geworkbench.bison.util.Icons;
+import org.geworkbench.bison.datastructure.biocollections.DSAncillaryDataSet;
 
-import javax.swing.*;
 import java.io.File;
 
 public class SyntenyDataSet extends CSAncillaryDataSet {
@@ -25,16 +23,6 @@ public class SyntenyDataSet extends CSAncillaryDataSet {
      */
     public boolean isDirty() {
         return false;
-    }
-
-    /**
-     * getIcon
-     *
-     * @return ImageIcon
-     * @todo Implement this medusa.components.projects.IDataSet method
-     */
-    public ImageIcon getIcon() {
-        return Icons.GENERIC_ICON;
     }
 
     /**

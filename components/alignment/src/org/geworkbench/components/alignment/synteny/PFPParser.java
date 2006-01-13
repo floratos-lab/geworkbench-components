@@ -1,12 +1,9 @@
 package org.geworkbench.components.alignment.synteny;
 
-import org.geworkbench.util.sequences.SequenceAnnotationTrack;
 import org.geworkbench.util.sequences.SequenceAnnotation;
-import java.io.File;
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.FileNotFoundException;
-import java.io.IOException;
+import org.geworkbench.util.sequences.SequenceAnnotationTrack;
+
+import java.io.*;
 
 /**
  * <p>Title: Bioworks</p>

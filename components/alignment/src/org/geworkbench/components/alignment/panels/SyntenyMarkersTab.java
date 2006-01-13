@@ -1,11 +1,9 @@
 package org.geworkbench.components.alignment.panels;
 
 import javax.swing.*;
-import java.awt.Component;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.LayoutManager;
-import java.awt.BorderLayout;
 //import org.geworkbench.events.listeners.GeneSelectorListener;
 
 /**

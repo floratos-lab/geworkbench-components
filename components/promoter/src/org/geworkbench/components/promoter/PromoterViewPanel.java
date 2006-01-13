@@ -1,17 +1,5 @@
 package org.geworkbench.components.promoter;
 
-import java.awt.*;
-import java.awt.event.*;
-import java.io.*;
-import java.text.DecimalFormat;
-import java.util.*;
-import java.util.List;
-
-import javax.swing.*;
-import javax.swing.border.TitledBorder;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
-
 import org.biojava.bio.gui.DistributionLogo;
 import org.geworkbench.bison.datastructure.biocollections.DSCollection;
 import org.geworkbench.bison.datastructure.biocollections.sequences.CSSequenceSet;
@@ -19,10 +7,13 @@ import org.geworkbench.bison.datastructure.biocollections.sequences.DSSequenceSe
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.sequence.DSSequence;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
-import org.geworkbench.bison.datastructure.complex.pattern.*;
-import org.geworkbench.bison.datastructure.complex.pattern.sequence.
-        DSSeqRegistration;
-import org.geworkbench.components.promoter.modulediscovery.*;
+import org.geworkbench.bison.datastructure.complex.pattern.DSMatchedPattern;
+import org.geworkbench.bison.datastructure.complex.pattern.DSPattern;
+import org.geworkbench.bison.datastructure.complex.pattern.DSPatternMatch;
+import org.geworkbench.bison.datastructure.complex.pattern.sequence.DSSeqRegistration;
+import org.geworkbench.components.promoter.modulediscovery.CSMultiSeqPattern;
+import org.geworkbench.components.promoter.modulediscovery.Discovery;
+import org.geworkbench.components.promoter.modulediscovery.SequenceFileReader;
 import org.geworkbench.events.SequenceDiscoveryTableEvent;
 import org.geworkbench.util.RandomSequenceGenerator;
 import org.geworkbench.util.associationdiscovery.statistics.ClusterStatistics;
@@ -31,6 +22,19 @@ import org.geworkbench.util.patterns.PatternOperations;
 import org.geworkbench.util.promoter.SequencePatternDisplayPanel;
 import org.geworkbench.util.promoter.pattern.Display;
 import org.geworkbench.util.promoter.pattern.PatternDisplay;
+
+import javax.swing.*;
+import javax.swing.border.TitledBorder;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.io.*;
+import java.text.DecimalFormat;
+import java.util.*;
+import java.util.List;
 
 /**
  * <p>Widget provides all GUI services for sequence panel displays.</p>

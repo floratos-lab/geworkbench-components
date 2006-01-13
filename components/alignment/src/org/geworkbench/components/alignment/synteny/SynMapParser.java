@@ -1,9 +1,8 @@
 package org.geworkbench.components.alignment.synteny;
 
-import org.geworkbench.components.alignment.synteny.SyntenyMapObject;
 import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 /**
  * <p>Title: </p>

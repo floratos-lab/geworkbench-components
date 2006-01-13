@@ -1,15 +1,14 @@
 package org.geworkbench.components.alignment.panels;
 
-import org.geworkbench.bison.util.RandomNumberGenerator;
 import org.geworkbench.algorithms.BWAbstractAlgorithm;
+import org.geworkbench.bison.datastructure.biocollections.sequences.CSSequenceSet;
+import org.geworkbench.bison.datastructure.bioobjects.sequence.DSSequence;
+import org.geworkbench.bison.util.RandomNumberGenerator;
 import org.geworkbench.components.alignment.client.BlastAlgorithm;
 import org.geworkbench.components.alignment.client.HMMDataSet;
-import org.geworkbench.util.session.SoapClient;
 import org.geworkbench.components.alignment.grid.CreateGridServiceDialog;
 import org.geworkbench.events.ProjectNodeAddedEvent;
-import org.geworkbench.bison.datastructure.biocollections.sequences.CSSequenceSet;
-import org.geworkbench.bison.datastructure.bioobjects.sequence.CSSequence;
-import org.geworkbench.bison.datastructure.bioobjects.sequence.DSSequence;
+import org.geworkbench.util.session.SoapClient;
 
 import javax.swing.*;
 import java.awt.*;

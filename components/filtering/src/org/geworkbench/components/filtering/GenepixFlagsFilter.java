@@ -1,25 +1,20 @@
 package org.geworkbench.components.filtering;
 
 import org.geworkbench.analysis.AbstractAnalysis;
-import org.geworkbench.bison.datastructure.biocollections.microarrays.
-        DSMicroarraySet;
-import org.geworkbench.bison.datastructure.bioobjects.microarray.
-        DSGenepixMarkerValue;
+import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
+import org.geworkbench.bison.datastructure.biocollections.microarrays.CSExprMicroarraySet;
+import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
+import org.geworkbench.bison.datastructure.bioobjects.microarray.CSGenepixMarkerValue;
+import org.geworkbench.bison.datastructure.bioobjects.microarray.DSGenepixMarkerValue;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
-import org.geworkbench.bison.datastructure.bioobjects.microarray.
-        DSMutableMarkerValue;
+import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMutableMarkerValue;
 import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
 import org.geworkbench.bison.model.analysis.FilteringAnalysis;
-import org.geworkbench.bison.datastructure.biocollections.microarrays.
-        CSExprMicroarraySet;
 import org.geworkbench.engine.management.Subscribe;
-import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
-import org.geworkbench.bison.datastructure.bioobjects.microarray.
-        CSGenepixMarkerValue;
-import java.util.TreeSet;
-import java.util.Set;
+
 import java.util.ArrayList;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
 /**
  * <p>Copyright: Copyright (c) 2005</p>

@@ -1,15 +1,15 @@
 package org.geworkbench.components.microarrays;
 
-import org.geworkbench.events.MicroarraySetViewEvent;
-import org.geworkbench.util.microarrayutils.MicroarrayViewEventBase;
-import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
-import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMutableMarkerValue;
-import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
-import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMarkerValue;
-import org.geworkbench.bison.datastructure.bioobjects.microarray.DSGenotypicMarkerValue;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
+import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
+import org.geworkbench.bison.datastructure.bioobjects.microarray.DSGenotypicMarkerValue;
+import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMarkerValue;
+import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
+import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMutableMarkerValue;
 import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.engine.management.AcceptTypes;
+import org.geworkbench.events.MicroarraySetViewEvent;
+import org.geworkbench.util.microarrayutils.MicroarrayViewEventBase;
 
 import javax.swing.*;
 import javax.swing.table.*;

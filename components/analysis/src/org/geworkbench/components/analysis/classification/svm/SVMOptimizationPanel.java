@@ -2,30 +2,30 @@ package org.geworkbench.components.analysis.classification.svm;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.layout.FormLayout;
-import org.geworkbench.analysis.AbstractSaveableParameterPanel;
-import org.geworkbench.bison.annotation.CSAnnotationContextManager;
-import org.geworkbench.bison.annotation.DSAnnotationContext;
-import org.geworkbench.bison.annotation.CSAnnotationContext;
-import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
-import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
-import org.geworkbench.util.svm.SupportVectorMachine;
-import org.geworkbench.util.svm.KernelFunction;
-import org.geworkbench.util.svm.ClassifierException;
-import org.geworkbench.util.svm.TrainingProgressListener;
-import org.geworkbench.util.ProgressGraph;
-import org.geworkbench.util.threading.SwingWorker;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.geworkbench.analysis.AbstractSaveableParameterPanel;
+import org.geworkbench.bison.annotation.CSAnnotationContext;
+import org.geworkbench.bison.annotation.CSAnnotationContextManager;
+import org.geworkbench.bison.annotation.DSAnnotationContext;
+import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
+import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
+import org.geworkbench.util.ProgressGraph;
+import org.geworkbench.util.svm.ClassifierException;
+import org.geworkbench.util.svm.KernelFunction;
+import org.geworkbench.util.svm.SupportVectorMachine;
+import org.geworkbench.util.svm.TrainingProgressListener;
+import org.geworkbench.util.threading.SwingWorker;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.io.ObjectStreamException;
 import java.io.Serializable;
-import java.util.*;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 
 public class SVMOptimizationPanel extends AbstractSaveableParameterPanel implements Serializable, TrainingProgressListener {
     static Log log = LogFactory.getLog(SVMOptimizationPanel.class);

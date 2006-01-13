@@ -1,9 +1,8 @@
 package org.geworkbench.components.discovery.model;
 
-import org.geworkbench.events.ProgressChangeEvent;
-import org.geworkbench.util.patterns.*;
-import org.geworkbench.util.patterns.PatternTableModel;
 import org.geworkbench.bison.datastructure.complex.pattern.sequence.DSMatchedSeqPattern;
+import org.geworkbench.events.ProgressChangeEvent;
+import org.geworkbench.util.patterns.PatternTableModel;
 
 import javax.swing.*;
 

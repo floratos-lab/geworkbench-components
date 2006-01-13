@@ -1,9 +1,7 @@
 package org.geworkbench.components.selectors;
 
-import org.geworkbench.bison.annotation.DSAnnotationContext;
-
-import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.*;
+import javax.swing.tree.DefaultTreeCellRenderer;
 import java.awt.*;
 
 /**

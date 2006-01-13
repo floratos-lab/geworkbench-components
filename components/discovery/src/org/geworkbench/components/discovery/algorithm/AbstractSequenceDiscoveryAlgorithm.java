@@ -1,7 +1,5 @@
 package org.geworkbench.components.discovery.algorithm;
 
-import org.geworkbench.algorithms.BWAlgorithm;
-import org.geworkbench.events.ProgressBarEvent;
 import org.geworkbench.events.ProgressChangeEvent;
 import org.geworkbench.events.StatusBarEvent;
 import org.geworkbench.events.listeners.ProgressChangeListener;

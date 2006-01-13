@@ -1,13 +1,12 @@
 package org.geworkbench.components.discovery.algorithm;
 
-import org.geworkbench.util.associationdiscovery.cluster.hierarchical.Node;
 import org.geworkbench.components.discovery.view.PatternNode;
-import org.geworkbench.events.HierarchicalProgressEvent;
+import org.geworkbench.util.associationdiscovery.cluster.hierarchical.Node;
+import org.geworkbench.util.patterns.PatternOperations;
 import org.geworkbench.util.patterns.TreePatternSource;
+import org.geworkbench.util.remote.SPLASHDefinition;
 import org.geworkbench.util.session.Session;
 import org.geworkbench.util.session.SessionOperationException;
-import org.geworkbench.util.remote.SPLASHDefinition;
-import org.geworkbench.util.patterns.PatternOperations;
 import polgara.soapPD_wsdl.Parameters;
 
 import javax.swing.tree.DefaultMutableTreeNode;

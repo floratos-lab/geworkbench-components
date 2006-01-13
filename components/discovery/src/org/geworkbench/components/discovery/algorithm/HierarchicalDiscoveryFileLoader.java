@@ -12,8 +12,8 @@ package org.geworkbench.components.discovery.algorithm;
 
 import org.geworkbench.components.discovery.view.PatternNode;
 import org.geworkbench.events.HierarchicalProgressEvent;
-import org.geworkbench.util.patterns.TreePatternSource;
 import org.geworkbench.util.patterns.CSMatchedSeqPattern;
+import org.geworkbench.util.patterns.TreePatternSource;
 
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;

@@ -1,7 +1,6 @@
 package org.geworkbench.components.annotations;
 
 import gov.nih.nci.caBIO.util.PathwayDiagram;
-import org.geworkbench.util.annotation.*;
 import org.geworkbench.util.annotation.Pathway;
 
 /**

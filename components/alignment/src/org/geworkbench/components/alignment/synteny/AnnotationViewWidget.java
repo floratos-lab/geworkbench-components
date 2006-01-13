@@ -9,11 +9,11 @@ package org.geworkbench.components.alignment.synteny;
  * @version 1.0
  */
 
-import java.awt.*;
-import javax.swing.*;
-
-import java.awt.geom.Rectangle2D;
 import org.geworkbench.util.sequences.SequenceAnnotation;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.geom.Rectangle2D;
 
 public class AnnotationViewWidget
     extends JPanel {

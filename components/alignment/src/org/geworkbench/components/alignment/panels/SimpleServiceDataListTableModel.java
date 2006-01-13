@@ -15,29 +15,27 @@ package org.geworkbench.components.alignment.panels;
  */
 
 
-import java.net.*;
-import java.util.*;
-import javax.xml.rpc.*;
+import edu.columbia.stubs.SequenceAlignmentService_sd.SequenceAlignmentPortType;
+import edu.columbia.stubs.SequenceAlignmentService_sd.service.SequenceAlignmentServiceGridLocator;
+import edu.columbia.stubs.SequenceAlignmentService_sd.servicedata.SessionDataType;
+import org.globus.ogsa.ServiceData;
+import org.globus.ogsa.gui.XMLTree;
+import org.globus.ogsa.gui.XMLTreeModel;
+import org.globus.ogsa.impl.core.handle.HandleHelper;
+import org.globus.ogsa.types.properties.PropertiesDetailType;
+import org.globus.ogsa.utils.AnyHelper;
+import org.globus.ogsa.utils.GSIUtils;
+import org.globus.ogsa.utils.QueryHelper;
+import org.globus.ogsa.utils.XmlFactory;
+import org.gridforum.ogsi.*;
+import org.w3c.dom.Element;
 
 import javax.swing.*;
-import javax.swing.table.*;
-
-//import org.globus.axis.gsi.*;
-import org.globus.ogsa.*;
-import org.globus.ogsa.gui.*;
-import org.globus.ogsa.impl.core.handle.*;
-import org.globus.ogsa.types.properties.*;
-//import org.globus.ogsa.impl.security.*;
-//import org.globus.ogsa.impl.security.authorization.*;
-import org.globus.ogsa.utils.*;
-import org.gridforum.ogsi.*;
-import org.w3c.dom.*;
-import javax.xml.namespace.QName;
-import edu.columbia.stubs.SequenceAlignmentService_sd.service.
-    SequenceAlignmentServiceGridLocator;
-import edu.columbia.stubs.SequenceAlignmentService_sd.SequenceAlignmentPortType;
-import edu.columbia.stubs.SequenceAlignmentService_sd.servicedata.
-    SessionDataType;
+import javax.swing.table.AbstractTableModel;
+import javax.xml.rpc.Stub;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
 public class SimpleServiceDataListTableModel
     extends AbstractTableModel {

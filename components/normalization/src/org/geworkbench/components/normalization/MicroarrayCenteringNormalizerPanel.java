@@ -5,8 +5,8 @@ import org.geworkbench.analysis.AbstractSaveableParameterPanel;
 import javax.swing.*;
 import java.awt.*;
 import java.io.IOException;
-import java.io.Serializable;
 import java.io.ObjectStreamException;
+import java.io.Serializable;
 
 /**
  * <p>Copyright: Copyright (c) 2003</p>

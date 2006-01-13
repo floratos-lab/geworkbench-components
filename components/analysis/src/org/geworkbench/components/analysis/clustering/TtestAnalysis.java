@@ -1,31 +1,31 @@
 package org.geworkbench.components.analysis.clustering;
 
 import JSci.maths.statistics.TDistribution;
-import org.geworkbench.util.ProgressBar;
 import org.geworkbench.analysis.AbstractAnalysis;
-import org.geworkbench.util.Combinations;
-import org.geworkbench.util.QSort;
+import org.geworkbench.bison.annotation.CSAnnotationContext;
+import org.geworkbench.bison.annotation.CSAnnotationContextManager;
+import org.geworkbench.bison.annotation.DSAnnotationContext;
+import org.geworkbench.bison.annotation.DSAnnotationContextManager;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
-import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.CSSignificanceResultSet;
+import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.complex.panels.CSAnnotPanel;
 import org.geworkbench.bison.datastructure.complex.panels.DSAnnotatedPanel;
 import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
 import org.geworkbench.bison.model.analysis.ClusteringAnalysis;
-import org.geworkbench.bison.annotation.DSAnnotationContextManager;
-import org.geworkbench.bison.annotation.CSAnnotationContextManager;
-import org.geworkbench.bison.annotation.DSAnnotationContext;
-import org.geworkbench.bison.annotation.CSAnnotationContext;
-import org.geworkbench.events.SubpanelChangedEvent;
 import org.geworkbench.engine.management.Publish;
+import org.geworkbench.events.SubpanelChangedEvent;
+import org.geworkbench.util.Combinations;
+import org.geworkbench.util.ProgressBar;
+import org.geworkbench.util.QSort;
 
+import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Random;
 import java.util.Vector;
-import java.util.HashSet;
 
 /**
  * <p>Title: Bioworks</p>

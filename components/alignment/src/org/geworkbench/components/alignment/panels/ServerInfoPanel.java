@@ -3,8 +3,8 @@ package org.geworkbench.components.alignment.panels;
 
 import org.geworkbench.bison.datastructure.bioobjects.sequence.CSAlignmentResultSet;
 import org.geworkbench.bison.datastructure.bioobjects.sequence.DSAlignmentResultSet;
-import org.geworkbench.util.session.SoapClient;
 import org.geworkbench.events.ProjectNodeAddedEvent;
+import org.geworkbench.util.session.SoapClient;
 import org.globus.progtutorial.clients.BlastService.Client;
 
 import javax.swing.*;

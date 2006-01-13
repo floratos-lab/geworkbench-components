@@ -9,8 +9,8 @@ import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
 import org.geworkbench.bison.model.analysis.FilteringAnalysis;
 
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * <p>Copyright: Copyright (c) 2003</p>

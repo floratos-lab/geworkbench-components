@@ -1,12 +1,12 @@
 package org.geworkbench.components.alignment.panels;
 
+import org.geworkbench.bison.datastructure.biocollections.sequences.CSSequenceSet;
 import org.geworkbench.bison.datastructure.bioobjects.sequence.CSAlignmentResultSet;
 import org.geworkbench.bison.datastructure.bioobjects.sequence.DSAlignmentResultSet;
 import org.geworkbench.components.alignment.grid.ServiceDataModel;
 import org.geworkbench.components.alignment.grid.ServiceDataViewPanel;
 import org.geworkbench.components.alignment.grid.service.SystemInformation;
 import org.geworkbench.events.ProjectNodeAddedEvent;
-import org.geworkbench.bison.datastructure.biocollections.sequences.CSSequenceSet;
 import org.globus.ogsa.NotificationSinkCallback;
 import org.globus.ogsa.ServiceData;
 import org.globus.ogsa.client.managers.NotificationSinkManager;

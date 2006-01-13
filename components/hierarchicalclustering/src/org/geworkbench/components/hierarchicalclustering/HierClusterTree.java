@@ -1,17 +1,20 @@
 package org.geworkbench.components.hierarchicalclustering;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
-import org.geworkbench.bison.model.clusters.HierCluster;
 import org.geworkbench.bison.model.clusters.Cluster;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.geworkbench.bison.model.clusters.HierCluster;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Vector;
 
 /**
  * <p>Copyright: Copyright (c) 2003</p>

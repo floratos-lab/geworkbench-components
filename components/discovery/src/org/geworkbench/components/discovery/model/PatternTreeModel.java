@@ -1,8 +1,6 @@
 package org.geworkbench.components.discovery.model;
 
 import org.geworkbench.util.patterns.DataSource;
-import org.geworkbench.events.HierarchicalProgressEvent;
-import org.geworkbench.events.ProgressChangeEvent;
 import org.geworkbench.util.patterns.TreePatternSource;
 
 import javax.swing.tree.DefaultMutableTreeNode;

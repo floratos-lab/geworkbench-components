@@ -1,8 +1,8 @@
 package org.geworkbench.components.discovery.algorithm;
 
-import org.geworkbench.util.patterns.DataSource;
 import org.geworkbench.events.listeners.ProgressChangeListener;
 import org.geworkbench.events.listeners.StatusChangeListener;
+import org.geworkbench.util.patterns.DataSource;
 
 import javax.swing.*;
 

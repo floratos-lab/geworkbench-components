@@ -1,10 +1,10 @@
 package org.geworkbench.components.alignment.synteny;
 
-import java.net.*;
-import java.io.*;
-import java.util.*;
-import java.util.regex.*;
 import javax.swing.*;
+import java.io.*;
+import java.net.Socket;
+import java.net.UnknownHostException;
+import java.util.regex.Pattern;
 
 /**
  * RemoteDots is a class that implements submission of a URL of two sequences to

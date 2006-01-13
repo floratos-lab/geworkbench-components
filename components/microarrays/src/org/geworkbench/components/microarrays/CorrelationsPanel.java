@@ -1,9 +1,9 @@
 package org.geworkbench.components.microarrays;
 
-import org.geworkbench.events.MicroarraySetViewEvent;
-import org.geworkbench.util.microarrayutils.MicroarrayViewEventBase;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
+import org.geworkbench.events.MicroarraySetViewEvent;
+import org.geworkbench.util.microarrayutils.MicroarrayViewEventBase;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;

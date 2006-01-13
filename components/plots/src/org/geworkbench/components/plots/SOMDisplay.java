@@ -1,28 +1,27 @@
 package org.geworkbench.components.plots;
 
-import org.geworkbench.util.ProgressBar;
-import org.geworkbench.events.MultipleMarkerEvent;
-import org.geworkbench.events.MarkerSelectedEvent;
-import org.geworkbench.events.ProjectEvent;
-import org.geworkbench.engine.management.Asynchronous;
-import org.geworkbench.engine.management.Publish;
-import org.geworkbench.engine.management.Subscribe;
-import org.geworkbench.engine.management.AcceptTypes;
+import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.views.CSMicroarraySetView;
 import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
-import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
 import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
-import org.geworkbench.engine.config.MenuListener;
-import org.geworkbench.engine.config.VisualPlugin;
-import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
 import org.geworkbench.bison.model.clusters.Cluster;
+import org.geworkbench.bison.model.clusters.DSSOMClusterDataSet;
 import org.geworkbench.bison.model.clusters.LeafSOMCluster;
 import org.geworkbench.bison.model.clusters.SOMCluster;
-import org.geworkbench.bison.model.clusters.DSSOMClusterDataSet;
+import org.geworkbench.engine.config.MenuListener;
+import org.geworkbench.engine.config.VisualPlugin;
+import org.geworkbench.engine.management.AcceptTypes;
+import org.geworkbench.engine.management.Asynchronous;
+import org.geworkbench.engine.management.Publish;
+import org.geworkbench.engine.management.Subscribe;
+import org.geworkbench.events.MarkerSelectedEvent;
+import org.geworkbench.events.MultipleMarkerEvent;
+import org.geworkbench.events.ProjectEvent;
+import org.geworkbench.util.ProgressBar;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.PlotOrientation;
@@ -36,8 +35,6 @@ import java.awt.geom.Rectangle2D;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.HashMap;
-
-import edu.umd.cs.piccolo.PCanvas;
 
 /**
  * <p>Copyright: Copyright (c) 2005</p>

@@ -1,14 +1,14 @@
 package org.geworkbench.components.alignment.synteny;
 
-import org.geworkbench.engine.config.events.EventSource;
-import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.engine.config.MenuListener;
-import javax.swing.JPanel;
-import java.awt.BorderLayout;
-import java.util.HashMap;
-import java.awt.event.ActionListener;
-import java.awt.Component;
+import org.geworkbench.engine.config.VisualPlugin;
+import org.geworkbench.engine.config.events.EventSource;
 import org.geworkbench.events.ProjectEvent;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionListener;
+import java.util.HashMap;
 
 
 

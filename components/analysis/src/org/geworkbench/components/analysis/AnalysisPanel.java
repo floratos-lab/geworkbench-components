@@ -1,37 +1,32 @@
 package org.geworkbench.components.analysis;
 
+import com.jgoodies.forms.builder.DefaultFormBuilder;
+import com.jgoodies.forms.layout.FormLayout;
 import org.geworkbench.analysis.AbstractAnalysis;
 import org.geworkbench.analysis.AbstractSaveableParameterPanel;
-import org.geworkbench.events.SubpanelChangedEvent;
-import org.geworkbench.events.ProjectNodeAddedEvent;
-import org.geworkbench.events.ClusterEvent;
-import org.geworkbench.util.microarrayutils.MicroarrayViewEventBase;
-import org.geworkbench.engine.management.ComponentRegistry;
-import org.geworkbench.engine.management.Publish;
-import org.geworkbench.engine.management.AcceptTypes;
+import org.geworkbench.bison.datastructure.biocollections.DSAncillaryDataSet;
+import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
-import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
-import org.geworkbench.bison.datastructure.biocollections.DSAncillaryDataSet;
-import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
 import org.geworkbench.bison.model.analysis.ClusteringAnalysis;
 import org.geworkbench.bison.model.analysis.ParamValidationResults;
 import org.geworkbench.bison.model.analysis.ParameterPanel;
+import org.geworkbench.engine.config.VisualPlugin;
+import org.geworkbench.engine.management.AcceptTypes;
+import org.geworkbench.engine.management.ComponentRegistry;
+import org.geworkbench.engine.management.Publish;
+import org.geworkbench.events.ProjectNodeAddedEvent;
+import org.geworkbench.events.SubpanelChangedEvent;
+import org.geworkbench.util.microarrayutils.MicroarrayViewEventBase;
 
 import javax.swing.*;
-import javax.swing.border.EtchedBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Hashtable;
-
-import com.jgoodies.forms.layout.FormLayout;
-import com.jgoodies.forms.layout.CellConstraints;
-import com.jgoodies.forms.builder.DefaultFormBuilder;
-import com.jgoodies.forms.debug.FormDebugPanel;
 
 /**
  * <p>Copyright: Copyright (c) 2003</p>

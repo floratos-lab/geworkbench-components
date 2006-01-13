@@ -1,10 +1,12 @@
 package org.geworkbench.components.promoter;
 
+import org.geworkbench.bison.datastructure.biocollections.sequences.DSSequenceSet;
+
 import java.io.File;
 import java.io.Serializable;
-import java.util.*;
-
-import org.geworkbench.bison.datastructure.biocollections.sequences.DSSequenceSet;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Hashtable;
 
 /**
  * <p>Title: </p>

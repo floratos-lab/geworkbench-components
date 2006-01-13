@@ -1,6 +1,6 @@
 package org.geworkbench.components.alignment.grid;
 
-import java.util.*;
+import java.util.Observable;
 
 /**
  * <p>Title: Bioworks</p>

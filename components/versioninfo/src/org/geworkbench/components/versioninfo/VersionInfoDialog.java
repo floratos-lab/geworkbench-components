@@ -14,20 +14,21 @@ package org.geworkbench.components.versioninfo;
  * @version 3.0
  */
 
-import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.forms.builder.DefaultFormBuilder;
-
-import java.io.*;
-import java.util.*;
-
-import java.awt.*;
-import java.awt.event.*;
-import javax.swing.*;
-import javax.swing.border.*;
-import java.net.URL;
-
-import org.geworkbench.engine.management.ComponentRegistry;
+import com.jgoodies.forms.layout.FormLayout;
 import org.geworkbench.engine.config.PluginDescriptor;
+import org.geworkbench.engine.management.ComponentRegistry;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.WindowEvent;
+import java.io.*;
+import java.util.Collection;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.Properties;
 
 public class VersionInfoDialog
     extends JDialog implements ActionListener {

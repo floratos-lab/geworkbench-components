@@ -1,18 +1,17 @@
 package org.geworkbench.components.analysis.classification.svm.test;
 
 import junit.framework.TestCase;
-
-import java.util.List;
-import java.util.ArrayList;
-import java.io.File;
-import java.io.BufferedReader;
-import java.io.FileReader;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.components.analysis.classification.svm.KFoldCrossValidation;
-import org.geworkbench.util.svm.SupportVectorMachine;
 import org.geworkbench.util.svm.ClassifierException;
+import org.geworkbench.util.svm.SupportVectorMachine;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Test SVM training and results.

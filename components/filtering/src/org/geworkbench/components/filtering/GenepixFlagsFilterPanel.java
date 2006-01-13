@@ -1,18 +1,17 @@
 package org.geworkbench.components.filtering;
 
 
-import java.awt.*;
-import java.io.IOException;
-import java.io.Serializable;
-import java.io.ObjectStreamException;
-import java.util.*;
+import org.geworkbench.analysis.AbstractSaveableParameterPanel;
 
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.AbstractTableModel;
-
-import org.geworkbench.analysis.AbstractSaveableParameterPanel;
+import java.awt.*;
+import java.io.IOException;
+import java.io.ObjectStreamException;
+import java.io.Serializable;
+import java.util.*;
 
 /**
  * <p>Copyright: Copyright (c) 2005</p>
