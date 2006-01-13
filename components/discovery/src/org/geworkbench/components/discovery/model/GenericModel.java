@@ -1,7 +1,7 @@
 package org.geworkbench.components.discovery.model;
 
-import org.geworkbench.util.patterns.DataSource;
 import org.geworkbench.events.listeners.ProgressChangeListener;
+import org.geworkbench.util.patterns.DataSource;
 
 /**
  * <p>Title: Sequence and Pattern Plugin</p>

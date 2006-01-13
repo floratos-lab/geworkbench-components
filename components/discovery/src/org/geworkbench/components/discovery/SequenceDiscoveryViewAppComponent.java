@@ -1,32 +1,33 @@
 package org.geworkbench.components.discovery;
 
-import org.geworkbench.events.ProjectEvent;
-import org.geworkbench.components.discovery.view.PatternNode;
-import org.geworkbench.events.SequenceDiscoveryTableEvent;
-import org.geworkbench.events.SessionConnectEvent;
+import org.geworkbench.bison.datastructure.biocollections.Collection;
+import org.geworkbench.bison.datastructure.biocollections.DSAncillaryDataSet;
+import org.geworkbench.bison.datastructure.biocollections.DSCollection;
+import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
+import org.geworkbench.bison.datastructure.biocollections.sequences.CSSequenceSet;
+import org.geworkbench.bison.datastructure.biocollections.sequences.DSSequenceSet;
+import org.geworkbench.bison.datastructure.bioobjects.sequence.DSSequence;
+import org.geworkbench.bison.datastructure.complex.pattern.DSMatchedPattern;
+import org.geworkbench.bison.datastructure.complex.pattern.ParmsDataSet;
+import org.geworkbench.bison.datastructure.complex.pattern.sequence.DSSeqRegistration;
 import org.geworkbench.builtin.projects.ProjectPanel;
 import org.geworkbench.builtin.projects.ProjectSelection;
-import org.geworkbench.util.session.*;
-import org.geworkbench.util.session.dialog.SessionChooser;
+import org.geworkbench.components.discovery.view.PatternNode;
+import org.geworkbench.engine.config.VisualPlugin;
+import org.geworkbench.engine.management.AcceptTypes;
+import org.geworkbench.engine.management.Publish;
+import org.geworkbench.engine.management.Subscribe;
+import org.geworkbench.events.ProjectEvent;
+import org.geworkbench.events.SequenceDiscoveryTableEvent;
+import org.geworkbench.events.SessionConnectEvent;
 import org.geworkbench.util.PropertiesMonitor;
 import org.geworkbench.util.remote.Connection;
 import org.geworkbench.util.remote.ConnectionCreationException;
 import org.geworkbench.util.remote.GlobusConnection;
 import org.geworkbench.util.remote.SPLASHDefinition;
-import org.geworkbench.bison.datastructure.biocollections.sequences.CSSequenceSet;
-import org.geworkbench.bison.datastructure.biocollections.sequences.DSSequenceSet;
-import org.geworkbench.engine.management.Publish;
-import org.geworkbench.engine.management.Subscribe;
-import org.geworkbench.engine.management.AcceptTypes;
-import org.geworkbench.bison.datastructure.biocollections.Collection;
-import org.geworkbench.bison.datastructure.biocollections.DSAncillaryDataSet;
-import org.geworkbench.bison.datastructure.biocollections.DSCollection;
-import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
-import org.geworkbench.bison.datastructure.bioobjects.sequence.DSSequence;
-import org.geworkbench.bison.datastructure.complex.pattern.DSMatchedPattern;
-import org.geworkbench.bison.datastructure.complex.pattern.ParmsDataSet;
-import org.geworkbench.bison.datastructure.complex.pattern.sequence.DSSeqRegistration;
-import org.geworkbench.engine.config.VisualPlugin;
+import org.geworkbench.util.session.*;
+import org.geworkbench.util.session.dialog.SessionChooser;
+import polgara.soapPD_wsdl.Parameters;
 
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -38,7 +39,6 @@ import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
-import polgara.soapPD_wsdl.Parameters;
 
 /**
  * <p>This AppComponent controls its associated widget SequenceDiscoveryViewWidget</p>

@@ -1,15 +1,15 @@
 package org.geworkbench.components.selectors;
 
-import org.geworkbench.bison.datastructure.properties.DSSequential;
-import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.bison.annotation.DSAnnotationContext;
+import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
+import org.geworkbench.bison.datastructure.properties.DSSequential;
 
+import javax.swing.event.TreeModelEvent;
+import javax.swing.event.TreeModelListener;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
-import javax.swing.event.TreeModelListener;
-import javax.swing.event.TreeModelEvent;
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author John Watkinson

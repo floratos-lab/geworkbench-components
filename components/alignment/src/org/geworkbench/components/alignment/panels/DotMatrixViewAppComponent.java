@@ -1,23 +1,25 @@
 package org.geworkbench.components.alignment.panels;
 
-import java.beans.*;
-
-import java.awt.*;
-import java.awt.event.*;
-import javax.swing.*;
-import javax.swing.event.*;
-import javax.swing.filechooser.*;
-import java.util.HashMap;
+import org.biojava.bio.seq.db.SequenceDB;
+import org.geworkbench.components.alignment.synteny.DotMatrixViewWidgetPanel;
+import org.geworkbench.engine.config.MenuListener;
 import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.engine.config.events.EventSource;
-import org.geworkbench.engine.config.MenuListener;
-import org.geworkbench.events.SequenceDiscoveryTableEvent;
-import org.geworkbench.components.alignment.synteny.DotMatrixViewWidgetPanel;
-import org.biojava.bio.seq.db.SequenceDB;
-import org.geworkbench.events.SequencePanelEvent;
 import org.geworkbench.engine.parsers.FileFormat;
 import org.geworkbench.engine.parsers.sequences.SequenceFileFormat;
+import org.geworkbench.events.SequenceDiscoveryTableEvent;
+import org.geworkbench.events.SequencePanelEvent;
 import org.geworkbench.util.PropertiesMonitor;
+
+import javax.swing.*;
+import javax.swing.event.EventListenerList;
+import javax.swing.filechooser.FileFilter;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.util.HashMap;
 
 /**
  * <p>SequenceViewAppComponent controls all notification and communication for SequenceViewWidget</p>

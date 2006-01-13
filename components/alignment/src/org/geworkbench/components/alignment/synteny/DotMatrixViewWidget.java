@@ -1,19 +1,13 @@
 package org.geworkbench.components.alignment.synteny;
 
 
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JToolBar;
-
+import org.geworkbench.util.sequences.SequenceAnnotation;
 
 import javax.swing.*;
-import java.awt.BorderLayout;
-import org.geworkbench.util.sequences.SequenceAnnotation;
-import java.awt.Dimension;
-import java.awt.event.MouseEvent;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.InputMethodEvent;
-import java.awt.Font;
+import java.awt.event.MouseEvent;
 
 /**
  * <p>Widget provides all GUI services for dot matrix panel displays.</p>

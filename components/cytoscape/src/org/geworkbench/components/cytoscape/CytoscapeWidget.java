@@ -10,17 +10,6 @@ import cytoscape.view.CyNetworkView;
 import giny.model.Node;
 import giny.view.GraphViewChangeEvent;
 import giny.view.GraphViewChangeListener;
-import giny.view.GraphView;
-import org.geworkbench.events.AdjacencyMatrixEvent;
-import org.geworkbench.events.GeneSelectorEvent;
-import org.geworkbench.events.PhenotypeSelectorEvent;
-import org.geworkbench.util.pathwaydecoder.mutualinformation.AdjacencyMatrix;
-import org.geworkbench.util.pathwaydecoder.mutualinformation.IAdjacencyMatrix;
-import org.geworkbench.util.pathwaydecoder.mutualinformation.AdjacencyMatrixDataSet;
-import org.geworkbench.util.Util;
-import org.geworkbench.engine.management.Publish;
-import org.geworkbench.engine.management.Subscribe;
-import org.geworkbench.engine.management.AcceptTypes;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
@@ -29,8 +18,19 @@ import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.engine.config.MenuListener;
 import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.engine.config.events.EventSource;
-import phoebe.event.PSelectionHandler;
+import org.geworkbench.engine.management.AcceptTypes;
+import org.geworkbench.engine.management.Publish;
+import org.geworkbench.engine.management.Script;
+import org.geworkbench.engine.management.Subscribe;
+import org.geworkbench.events.AdjacencyMatrixEvent;
+import org.geworkbench.events.GeneSelectorEvent;
+import org.geworkbench.events.PhenotypeSelectorEvent;
+import org.geworkbench.util.Util;
+import org.geworkbench.util.pathwaydecoder.mutualinformation.AdjacencyMatrix;
+import org.geworkbench.util.pathwaydecoder.mutualinformation.AdjacencyMatrixDataSet;
+import org.geworkbench.util.pathwaydecoder.mutualinformation.IAdjacencyMatrix;
 import phoebe.PNodeView;
+import phoebe.event.PSelectionHandler;
 
 import javax.swing.*;
 import java.awt.*;
@@ -40,7 +40,6 @@ import java.awt.event.ComponentListener;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.geworkbench.engine.management.Script;
 
 /**
  * <p>Title: Bioworks</p>

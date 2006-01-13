@@ -7,8 +7,8 @@ import java.awt.*;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.io.IOException;
-import java.io.Serializable;
 import java.io.ObjectStreamException;
+import java.io.Serializable;
 
 /**
  * <p>Copyright: Copyright (c) 2003</p>

@@ -1,8 +1,8 @@
 package org.geworkbench.components.alignment.grid;
 
-import org.geworkbench.util.session.SessionsViewController;
-import org.geworkbench.util.session.LoginPanelModel;
 import org.geworkbench.engine.config.events.Event;
+import org.geworkbench.util.session.LoginPanelModel;
+import org.geworkbench.util.session.SessionsViewController;
 
 
 

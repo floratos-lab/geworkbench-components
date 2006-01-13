@@ -1,21 +1,24 @@
 package org.geworkbench.components.annotations;
 
-import org.geworkbench.events.*;
-import org.geworkbench.engine.management.Publish;
-import org.geworkbench.engine.management.Subscribe;
-import org.geworkbench.engine.management.AcceptTypes;
+import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
+import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
+import org.geworkbench.bison.datastructure.biocollections.views.CSMicroarraySetView;
+import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
-import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
-import org.geworkbench.bison.datastructure.biocollections.views.CSMicroarraySetView;
-import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
-import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
-import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.bison.datastructure.complex.panels.CSItemList;
+import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.engine.config.VisualPlugin;
-import org.geworkbench.util.annotation.Pathway;
-import org.geworkbench.util.ProgressBar;
+import org.geworkbench.engine.management.AcceptTypes;
+import org.geworkbench.engine.management.Publish;
+import org.geworkbench.engine.management.Subscribe;
+import org.geworkbench.events.AnnotationsEvent;
+import org.geworkbench.events.GeneSelectorEvent;
+import org.geworkbench.events.MarkerSelectedEvent;
+import org.geworkbench.events.ProjectEvent;
 import org.geworkbench.util.BrowserLauncher;
+import org.geworkbench.util.ProgressBar;
+import org.geworkbench.util.annotation.Pathway;
 import org.jfree.ui.SortableTable;
 import org.jfree.ui.SortableTableModel;
 
@@ -23,10 +26,10 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.IOException;
+import java.net.URL;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.ArrayList;
-import java.net.URL;
 
 /**
  * <p>Title: Bioworks</p>

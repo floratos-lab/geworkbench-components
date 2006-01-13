@@ -1,9 +1,12 @@
 package org.geworkbench.components.alignment.blast;
 
-import java.io.*;
-import java.net.URL;
-
 import org.geworkbench.bison.datastructure.bioobjects.sequence.CSSequence;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.URL;
 
 /**
  * BlastObj.java

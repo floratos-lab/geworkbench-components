@@ -1,31 +1,31 @@
 package org.geworkbench.components.analysis.clustering;
 
-import org.geworkbench.analysis.AbstractAnalysis;
-import org.geworkbench.bison.model.analysis.ClusteringAnalysis;
-import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
-import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
-import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
-import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
-import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
-import org.geworkbench.bison.datastructure.bioobjects.microarray.DSSignificanceResultSet;
-import org.geworkbench.bison.datastructure.bioobjects.microarray.CSSignificanceResultSet;
-import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
-import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
-import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
-import org.geworkbench.bison.annotation.DSAnnotationContext;
-import org.geworkbench.bison.annotation.CSAnnotationContextManager;
-import org.geworkbench.engine.management.Subscribe;
-import org.geworkbench.engine.management.Publish;
-import org.geworkbench.events.ProjectEvent;
-import org.geworkbench.events.PhenotypeSelectorEvent;
-import org.geworkbench.events.SubpanelChangedEvent;
-import org.geworkbench.events.ProjectNodeAddedEvent;
+import org.apache.commons.math.MathException;
 import org.apache.commons.math.stat.inference.TTest;
 import org.apache.commons.math.stat.inference.TTestImpl;
-import org.apache.commons.math.MathException;
+import org.geworkbench.analysis.AbstractAnalysis;
+import org.geworkbench.bison.annotation.CSAnnotationContextManager;
+import org.geworkbench.bison.annotation.DSAnnotationContext;
+import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
+import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
+import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
+import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
+import org.geworkbench.bison.datastructure.bioobjects.microarray.CSSignificanceResultSet;
+import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
+import org.geworkbench.bison.datastructure.bioobjects.microarray.DSSignificanceResultSet;
+import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
+import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
+import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
+import org.geworkbench.bison.model.analysis.ClusteringAnalysis;
+import org.geworkbench.engine.management.Publish;
+import org.geworkbench.engine.management.Subscribe;
+import org.geworkbench.events.PhenotypeSelectorEvent;
+import org.geworkbench.events.ProjectEvent;
+import org.geworkbench.events.ProjectNodeAddedEvent;
+import org.geworkbench.events.SubpanelChangedEvent;
 
-import java.util.Set;
 import java.util.Arrays;
+import java.util.Set;
 
 /**
  * @author John Watkinson

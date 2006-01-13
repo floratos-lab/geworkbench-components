@@ -1,11 +1,10 @@
 package org.geworkbench.components.discovery.algorithm;
 
+import org.geworkbench.bison.datastructure.complex.pattern.sequence.DSMatchedSeqPattern;
 import org.geworkbench.events.ProgressChangeEvent;
 import org.geworkbench.events.StatusBarEvent;
-import org.geworkbench.util.patterns.SequentialPatternSource;
 import org.geworkbench.util.patterns.PatternSorter;
-import org.geworkbench.util.patterns.PatternDB;
-import org.geworkbench.bison.datastructure.complex.pattern.sequence.DSMatchedSeqPattern;
+import org.geworkbench.util.patterns.SequentialPatternSource;
 
 import javax.swing.*;
 import java.io.File;

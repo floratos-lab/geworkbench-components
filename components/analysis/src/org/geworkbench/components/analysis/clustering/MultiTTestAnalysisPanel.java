@@ -1,28 +1,21 @@
 package org.geworkbench.components.analysis.clustering;
 
+import com.jgoodies.forms.builder.DefaultFormBuilder;
+import com.jgoodies.forms.layout.FormLayout;
 import org.geworkbench.analysis.AbstractSaveableParameterPanel;
-import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
-import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
-import org.geworkbench.bison.annotation.DSAnnotationContextManager;
 import org.geworkbench.bison.annotation.CSAnnotationContextManager;
 import org.geworkbench.bison.annotation.DSAnnotationContext;
-import org.geworkbench.engine.management.Subscribe;
-import org.geworkbench.events.ProjectEvent;
-import org.geworkbench.events.PhenotypeSelectorEvent;
+import org.geworkbench.bison.annotation.DSAnnotationContextManager;
+import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 
 import javax.swing.*;
-import java.awt.event.ActionListener;
 import java.awt.*;
 import java.io.IOException;
-import java.io.Serializable;
 import java.io.ObjectStreamException;
+import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Set;
 import java.util.HashSet;
-
-import com.jgoodies.forms.layout.FormLayout;
-import com.jgoodies.forms.layout.RowSpec;
-import com.jgoodies.forms.builder.DefaultFormBuilder;
+import java.util.Set;
 
 /**
  * <p>Copyright: Copyright (c) 2003</p>

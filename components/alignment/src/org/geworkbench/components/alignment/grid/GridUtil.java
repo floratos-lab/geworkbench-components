@@ -1,20 +1,23 @@
 package org.geworkbench.components.alignment.grid;
 
-import java.net.*;
-import java.rmi.*;
-import java.util.*;
-import javax.xml.rpc.*;
+import org.globus.ogsa.NotificationSinkCallback;
+import org.globus.ogsa.ServiceData;
+import org.globus.ogsa.client.managers.NotificationSinkManager;
+import org.globus.ogsa.gui.AbstractPortTypePanel;
+import org.globus.ogsa.gui.XMLTree;
+import org.globus.ogsa.gui.XMLTreeModel;
+import org.globus.ogsa.utils.AnyHelper;
+import org.globus.ogsa.utils.GSIUtils;
+import org.globus.ogsa.utils.QueryHelper;
+import org.globus.ogsa.utils.XmlFactory;
+import org.gridforum.ogsi.*;
+import org.w3c.dom.Element;
 
 import javax.swing.*;
-import javax.swing.Timer;
-
-
-import org.globus.ogsa.*;
-import org.globus.ogsa.client.managers.*;
-import org.globus.ogsa.gui.*;
-import org.globus.ogsa.utils.*;
-import org.gridforum.ogsi.*;
-import org.w3c.dom.*;
+import javax.xml.rpc.Stub;
+import java.net.URL;
+import java.rmi.RemoteException;
+import java.util.Hashtable;
 
 
 /**

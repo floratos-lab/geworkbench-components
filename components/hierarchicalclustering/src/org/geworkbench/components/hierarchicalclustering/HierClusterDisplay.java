@@ -1,6 +1,5 @@
 package org.geworkbench.components.hierarchicalclustering;
 
-import org.geworkbench.bison.util.colorcontext.ColorContext;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
@@ -9,12 +8,14 @@ import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMutableMarker
 import org.geworkbench.bison.model.clusters.Cluster;
 import org.geworkbench.bison.model.clusters.MarkerHierCluster;
 import org.geworkbench.bison.model.clusters.MicroarrayHierCluster;
+import org.geworkbench.bison.util.colorcontext.ColorContext;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.util.*;
 import java.lang.reflect.Array;
+import java.util.Enumeration;
+import java.util.Vector;
 
 
 /**

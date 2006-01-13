@@ -30,13 +30,12 @@
 
 package org.geworkbench.components.alignment.client;
 
-import org.geworkbench.bison.datastructure.biocollections.CSDataSet;
-import org.geworkbench.bison.datastructure.biocollections.DSAncillaryDataSet;
 import org.geworkbench.bison.datastructure.biocollections.CSAncillaryDataSet;
+import org.geworkbench.bison.datastructure.biocollections.DSAncillaryDataSet;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
-import org.geworkbench.bison.util.Icons;
+import org.geworkbench.builtin.projects.Icons;
+import org.geworkbench.builtin.projects.ProjectPanel;
 
-import javax.swing.*;
 import java.io.File;
 
 public class SWDataSet extends CSAncillaryDataSet {
@@ -48,7 +47,10 @@ public class SWDataSet extends CSAncillaryDataSet {
         //System.out.println("in construtor" + resultFile.getAbsolutePath());
     }
 
-    static private ImageIcon icon = Icons.ALIGNMENT_ICON;
+    static {
+        ProjectPanel.setIconForType(SWDataSet.class, Icons.ALIGNMENT_ICON);
+    }
+
     private String matrixName;
     private String cmd;
 
@@ -64,20 +66,6 @@ public class SWDataSet extends CSAncillaryDataSet {
      */
     public boolean isDirty() {
         return false;
-    }
-
-    public void setIcon(ImageIcon icon) {
-        this.icon = icon;
-    }
-
-    /**
-     * getIcon
-     *
-     * @return ImageIcon
-     * @todo Implement this medusa.components.projects.IDataSet method
-     */
-    public ImageIcon getIcon() {
-        return icon;
     }
 
     /**

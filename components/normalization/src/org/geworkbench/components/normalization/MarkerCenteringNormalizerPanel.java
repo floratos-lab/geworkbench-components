@@ -1,15 +1,14 @@
 package org.geworkbench.components.normalization;
 
+import com.jgoodies.forms.builder.DefaultFormBuilder;
+import com.jgoodies.forms.layout.FormLayout;
 import org.geworkbench.analysis.AbstractSaveableParameterPanel;
 
 import javax.swing.*;
 import java.awt.*;
 import java.io.IOException;
-import java.io.Serializable;
 import java.io.ObjectStreamException;
-
-import com.jgoodies.forms.layout.FormLayout;
-import com.jgoodies.forms.builder.DefaultFormBuilder;
+import java.io.Serializable;
 
 /**
  * <p>Copyright: Copyright (c) 2003</p>

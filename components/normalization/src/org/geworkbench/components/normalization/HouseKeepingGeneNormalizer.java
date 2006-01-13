@@ -1,23 +1,21 @@
 package org.geworkbench.components.normalization;
 
-import java.util.Vector;
-
-import javax.swing.JOptionPane;
-
 import org.geworkbench.analysis.AbstractAnalysis;
 import org.geworkbench.bison.datastructure.biocollections.CSMarkerVector;
-import org.geworkbench.bison.datastructure.biocollections.microarrays.
-        CSMicroarraySet;
-import org.geworkbench.bison.datastructure.biocollections.microarrays.
-        DSMicroarraySet;
+import org.geworkbench.bison.datastructure.biocollections.microarrays.CSMicroarraySet;
+import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.bioobjects.markers.CSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
-import org.geworkbench.bison.datastructure.bioobjects.microarray.*;
+import org.geworkbench.bison.datastructure.bioobjects.microarray.CSGenepixMarkerValue;
+import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
+import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMutableMarkerValue;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
 import org.geworkbench.bison.model.analysis.NormalizingAnalysis;
-import java.util.ArrayList;
+
+import javax.swing.*;
 import java.util.TreeSet;
+import java.util.Vector;
 
 /**
  * <p>Copyright: Copyright (c) 2005</p>

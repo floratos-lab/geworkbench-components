@@ -1,6 +1,5 @@
 package org.geworkbench.components.annotations;
 
-import org.geworkbench.util.annotation.*;
 import org.geworkbench.util.annotation.Pathway;
 
 import java.net.URL;

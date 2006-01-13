@@ -3,12 +3,10 @@ package org.geworkbench.components.annotations;
 import gov.nih.nci.caBIO.bean.Gene;
 import gov.nih.nci.common.exception.ManagerException;
 import gov.nih.nci.common.exception.OperationException;
+import org.geworkbench.util.annotation.Pathway;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-
-import org.geworkbench.util.annotation.*;
-import org.geworkbench.util.annotation.Pathway;
 
 /**
  * <p>Copyright: Copyright (c) 2003</p>

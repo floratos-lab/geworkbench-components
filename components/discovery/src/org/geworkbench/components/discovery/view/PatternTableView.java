@@ -1,15 +1,15 @@
 package org.geworkbench.components.discovery.view;
 
-import org.geworkbench.components.discovery.PatFilter;
-import org.geworkbench.components.discovery.SequenceDiscoveryViewWidget;
-import org.geworkbench.util.patterns.PatternTableModel;
-import org.geworkbench.components.discovery.model.PatternTableModelWrapper;
-import org.geworkbench.events.listeners.ProgressChangeListener;
-import org.geworkbench.util.remote.SPLASHDefinition;
-import org.geworkbench.util.patterns.PatternDB;
-import org.geworkbench.util.patterns.PatternOperations;
 import org.geworkbench.bison.datastructure.biocollections.sequences.DSSequenceSet;
 import org.geworkbench.bison.datastructure.complex.pattern.sequence.DSMatchedSeqPattern;
+import org.geworkbench.components.discovery.PatFilter;
+import org.geworkbench.components.discovery.SequenceDiscoveryViewWidget;
+import org.geworkbench.components.discovery.model.PatternTableModelWrapper;
+import org.geworkbench.events.listeners.ProgressChangeListener;
+import org.geworkbench.util.patterns.PatternDB;
+import org.geworkbench.util.patterns.PatternOperations;
+import org.geworkbench.util.patterns.PatternTableModel;
+import org.geworkbench.util.remote.SPLASHDefinition;
 
 import javax.swing.*;
 import javax.swing.table.JTableHeader;

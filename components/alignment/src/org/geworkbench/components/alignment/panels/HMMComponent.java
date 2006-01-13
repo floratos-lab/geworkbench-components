@@ -1,18 +1,18 @@
 package org.geworkbench.components.alignment.panels;
 
-import org.geworkbench.events.ProjectEvent;
-import org.geworkbench.components.alignment.blast.BlastParser;
-import org.geworkbench.components.alignment.blast.TextResultParser;
-import org.geworkbench.bison.datastructure.bioobjects.sequence.DSAlignmentResultSet;
-import org.geworkbench.components.alignment.client.HMMDataSet;
-import org.geworkbench.components.alignment.client.SWDataSet;
-import org.geworkbench.builtin.projects.ProjectPanel;
-import org.geworkbench.builtin.projects.ProjectSelection;
-import org.geworkbench.bison.datastructure.biocollections.sequences.DSSequenceSet;
-import org.geworkbench.engine.management.Subscribe;
 import org.geworkbench.bison.datastructure.biocollections.DSAncillaryDataSet;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
+import org.geworkbench.bison.datastructure.biocollections.sequences.DSSequenceSet;
+import org.geworkbench.bison.datastructure.bioobjects.sequence.DSAlignmentResultSet;
+import org.geworkbench.builtin.projects.ProjectPanel;
+import org.geworkbench.builtin.projects.ProjectSelection;
+import org.geworkbench.components.alignment.blast.BlastParser;
+import org.geworkbench.components.alignment.blast.TextResultParser;
+import org.geworkbench.components.alignment.client.HMMDataSet;
+import org.geworkbench.components.alignment.client.SWDataSet;
 import org.geworkbench.engine.config.VisualPlugin;
+import org.geworkbench.engine.management.Subscribe;
+import org.geworkbench.events.ProjectEvent;
 
 import javax.swing.*;
 import java.awt.*;

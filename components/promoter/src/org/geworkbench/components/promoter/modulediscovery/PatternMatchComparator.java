@@ -1,10 +1,9 @@
 package org.geworkbench.components.promoter.modulediscovery;
 
-import org.geworkbench.bison.datastructure.complex.pattern.sequence.DSSeqPatternMatch;
+import org.geworkbench.bison.datastructure.complex.pattern.DSPatternMatch;
 import org.geworkbench.bison.datastructure.complex.pattern.sequence.DSSeqRegistration;
 
 import java.util.Comparator;
-import org.geworkbench.bison.datastructure.complex.pattern.DSPatternMatch;
 
 /**
  * Note: this comparator imposes orderings that are inconsistent with equals."

@@ -1,7 +1,5 @@
 package org.geworkbench.components.annotations;
 
-import org.geworkbench.util.ProgressBar;
-import org.geworkbench.events.AnnotationsEvent;
 import org.apache.batik.bridge.DefaultExternalResourceSecurity;
 import org.apache.batik.bridge.DefaultScriptSecurity;
 import org.apache.batik.bridge.ExternalResourceSecurity;
@@ -14,12 +12,11 @@ import org.apache.batik.swing.svg.SVGUserAgent;
 import org.apache.batik.util.ParsedURL;
 import org.apache.batik.util.XMLResourceDescriptor;
 import org.apache.batik.util.gui.JErrorPane;
-import org.geworkbench.engine.management.Subscribe;
-import org.geworkbench.engine.management.AcceptTypes;
-import org.geworkbench.util.BrowserLauncher;
-import org.geworkbench.util.annotation.*;
-import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
+import org.geworkbench.engine.config.VisualPlugin;
+import org.geworkbench.engine.management.AcceptTypes;
+import org.geworkbench.engine.management.Subscribe;
+import org.geworkbench.util.ProgressBar;
 import org.w3c.dom.*;
 
 import javax.swing.*;

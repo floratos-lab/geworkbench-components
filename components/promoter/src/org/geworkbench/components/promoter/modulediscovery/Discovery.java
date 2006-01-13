@@ -5,17 +5,15 @@
 
 package org.geworkbench.components.promoter.modulediscovery;
 
-import org.geworkbench.bison.datastructure.biocollections.sequences.DSSequenceSet;
 import org.geworkbench.bison.datastructure.biocollections.DSCollection;
+import org.geworkbench.bison.datastructure.biocollections.sequences.DSSequenceSet;
 import org.geworkbench.bison.datastructure.bioobjects.sequence.DSSequence;
 import org.geworkbench.bison.datastructure.complex.pattern.CSPatternMatch;
 import org.geworkbench.bison.datastructure.complex.pattern.DSMatchedPattern;
 import org.geworkbench.bison.datastructure.complex.pattern.DSPattern;
 import org.geworkbench.bison.datastructure.complex.pattern.DSPatternMatch;
-import org.geworkbench.bison.datastructure.complex.pattern.sequence.
-        CSSeqCmplxRegistration;
-import org.geworkbench.bison.datastructure.complex.pattern.sequence.
-        DSSeqRegistration;
+import org.geworkbench.bison.datastructure.complex.pattern.sequence.CSSeqCmplxRegistration;
+import org.geworkbench.bison.datastructure.complex.pattern.sequence.DSSeqRegistration;
 
 import java.io.*;
 import java.util.*;

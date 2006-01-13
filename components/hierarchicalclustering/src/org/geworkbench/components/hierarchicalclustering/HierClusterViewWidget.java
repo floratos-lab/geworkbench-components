@@ -1,8 +1,8 @@
 package org.geworkbench.components.hierarchicalclustering;
 
-import org.geworkbench.bison.util.colorcontext.ColorContext;
-import org.geworkbench.events.HierClusterModelEvent;
-import org.geworkbench.events.HierClusterModelEventListener;
+import com.jgoodies.forms.builder.ButtonBarBuilder;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
@@ -10,8 +10,9 @@ import org.geworkbench.bison.model.clusters.Cluster;
 import org.geworkbench.bison.model.clusters.HierCluster;
 import org.geworkbench.bison.model.clusters.MarkerHierCluster;
 import org.geworkbench.bison.model.clusters.MicroarrayHierCluster;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.geworkbench.bison.util.colorcontext.ColorContext;
+import org.geworkbench.events.HierClusterModelEvent;
+import org.geworkbench.events.HierClusterModelEventListener;
 
 import javax.swing.*;
 import javax.swing.border.LineBorder;
@@ -21,8 +22,6 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.util.HashMap;
-
-import com.jgoodies.forms.builder.ButtonBarBuilder;
 
 /**
  * <p>Copyright: Copyright (c) 2003</p>

@@ -1,16 +1,11 @@
 package org.geworkbench.components.alignment.synteny;
 
-import javax.swing.JPanel;
-import java.awt.BorderLayout;
-import javax.swing.JButton;
-import java.awt.*;
-import javax.swing.JScrollPane;
-import javax.swing.JRadioButton;
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
 import javax.swing.*;
-import javax.swing.border.TitledBorder;
 import javax.swing.border.Border;
+import javax.swing.border.TitledBorder;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 /**
  * <p>Title: Bioworks</p>

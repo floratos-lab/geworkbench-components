@@ -1,16 +1,14 @@
 package org.geworkbench.components.analysis.clustering;
 
+import com.jgoodies.forms.builder.DefaultFormBuilder;
+import com.jgoodies.forms.layout.FormLayout;
 import org.geworkbench.analysis.AbstractSaveableParameterPanel;
 
 import javax.swing.*;
 import java.awt.*;
-import java.text.DecimalFormat;
-import java.io.Serializable;
 import java.io.ObjectStreamException;
-
-import com.jgoodies.forms.layout.FormLayout;
-import com.jgoodies.forms.builder.DefaultFormBuilder;
-import com.jgoodies.forms.debug.FormDebugPanel;
+import java.io.Serializable;
+import java.text.DecimalFormat;
 
 /**
  * <p>Title: Bioworks</p>

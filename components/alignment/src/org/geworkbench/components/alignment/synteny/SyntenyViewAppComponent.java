@@ -1,17 +1,15 @@
 package org.geworkbench.components.alignment.synteny;
 
-import javax.swing.JPanel;
-import java.util.HashMap;
-import java.awt.BorderLayout;
-import java.awt.*;
-import javax.swing.JTabbedPane;
+import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
+import org.geworkbench.engine.config.MenuListener;
 import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.engine.config.events.EventSource;
-import org.geworkbench.engine.config.MenuListener;
 import org.geworkbench.engine.management.AcceptTypes;
-import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionListener;
+import java.util.HashMap;
 
 /**
  * <p>Title: </p>

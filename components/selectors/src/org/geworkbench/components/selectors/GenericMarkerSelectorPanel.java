@@ -1,16 +1,5 @@
 package org.geworkbench.components.selectors;
 
-import org.geworkbench.events.GeneSelectorEvent;
-import org.geworkbench.events.MarkerSelectedEvent;
-import org.geworkbench.events.SubpanelChangedEvent;
-import org.geworkbench.builtin.projects.ProjectPanel;
-import org.geworkbench.builtin.projects.ProjectSelection;
-import org.geworkbench.engine.management.Publish;
-import org.geworkbench.engine.management.Subscribe;
-import org.geworkbench.bison.util.FileUtil;
-import org.geworkbench.util.visualproperties.PanelVisualProperties;
-import org.geworkbench.util.visualproperties.PanelVisualPropertiesManager;
-import org.geworkbench.util.visualproperties.VisualPropertiesDialog;
 import org.geworkbench.bison.datastructure.biocollections.CSMarkerVector;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
@@ -19,8 +8,19 @@ import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
 import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.bison.util.CSMarkerManager;
+import org.geworkbench.bison.util.FileUtil;
+import org.geworkbench.builtin.projects.ProjectPanel;
+import org.geworkbench.builtin.projects.ProjectSelection;
 import org.geworkbench.engine.config.MenuListener;
 import org.geworkbench.engine.config.VisualPlugin;
+import org.geworkbench.engine.management.Publish;
+import org.geworkbench.engine.management.Subscribe;
+import org.geworkbench.events.GeneSelectorEvent;
+import org.geworkbench.events.MarkerSelectedEvent;
+import org.geworkbench.events.SubpanelChangedEvent;
+import org.geworkbench.util.visualproperties.PanelVisualProperties;
+import org.geworkbench.util.visualproperties.PanelVisualPropertiesManager;
+import org.geworkbench.util.visualproperties.VisualPropertiesDialog;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileFilter;

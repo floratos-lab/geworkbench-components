@@ -1,7 +1,5 @@
 package org.geworkbench.components.alignment.client;
 
-import org.geworkbench.util.session.*;
-
 import javax.swing.*;
 
 /**

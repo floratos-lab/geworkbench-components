@@ -1,7 +1,7 @@
 package org.geworkbench.components.analysis.classification.svm;
 
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 /**

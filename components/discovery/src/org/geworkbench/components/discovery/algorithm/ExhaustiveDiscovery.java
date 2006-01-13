@@ -1,14 +1,13 @@
 package org.geworkbench.components.discovery.algorithm;
 
+import org.geworkbench.bison.datastructure.complex.pattern.sequence.DSMatchedSeqPattern;
 import org.geworkbench.events.ProgressChangeEvent;
+import org.geworkbench.util.patterns.CSMatchedSeqPattern;
 import org.geworkbench.util.patterns.PatternFetchException;
 import org.geworkbench.util.patterns.SequentialPatternSource;
+import org.geworkbench.util.remote.SPLASHDefinition;
 import org.geworkbench.util.session.Session;
 import org.geworkbench.util.session.SessionOperationException;
-import org.geworkbench.util.remote.SPLASHDefinition;
-import org.geworkbench.util.patterns.CSMatchedSeqPattern;
-import org.geworkbench.util.patterns.PatternOperations;
-import org.geworkbench.bison.datastructure.complex.pattern.sequence.DSMatchedSeqPattern;
 import polgara.soapPD_wsdl.Parameters;
 
 import java.util.ArrayList;

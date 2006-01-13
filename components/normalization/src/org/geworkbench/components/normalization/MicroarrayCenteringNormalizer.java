@@ -9,7 +9,6 @@ import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
 import org.geworkbench.bison.model.analysis.NormalizingAnalysis;
 
 import java.util.Arrays;
-import java.util.Comparator;
 
 /**
  * <p>Copyright: Copyright (c) 2003</p>

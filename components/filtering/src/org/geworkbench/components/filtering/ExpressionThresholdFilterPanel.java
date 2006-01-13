@@ -6,8 +6,8 @@ import org.geworkbench.bison.model.analysis.ParamValidationResults;
 import javax.swing.*;
 import java.awt.*;
 import java.io.IOException;
-import java.io.Serializable;
 import java.io.ObjectStreamException;
+import java.io.Serializable;
 import java.text.NumberFormat;
 
 /**
