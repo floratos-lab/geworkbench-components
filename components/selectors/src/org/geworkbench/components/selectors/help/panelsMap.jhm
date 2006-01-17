@@ -20,7 +20,7 @@
 
 	<mapID target="delete.panel" url="delete_marker_panel.htm"/>
 
-	<mapID target="acdeac.panel" text="ac_deac_panel.htm"/>
+	<mapID target="acdeac.panel" url="ac_deac_panel.htm"/>
 
 	<mapID target="clas.panel" url="classify.htm"/>
 
