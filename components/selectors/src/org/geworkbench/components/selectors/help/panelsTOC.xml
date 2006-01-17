@@ -20,6 +20,8 @@
 
 		<tocitem target="acdeac.panel" text="Activating a panel"/>
 
+		<tocitem target="clas.panel" text="Classifying a panel"/>
+
 	</tocitem>
 
 </toc>
