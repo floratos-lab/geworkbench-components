@@ -20,11 +20,10 @@
 
 
 <body>
-
-    <h3>Housekeeping Gene Normalization</h3> 
+   <h3>Housekeeping Gene Normalization</h3> 
     <p>This Housekeeping Gene normalization method permits the normalization of data using the expression values of housekeeping genes. In particular, for every microarray the average expression of all markers corresponding to housekeeping genes is calculated and then all expression levels within the microarray are divided by that average. To specify the housekeeping gene markers, the user can load a CSV (comma separated values) file containing these markers. The loaded markers are displayed in the <b>Current Selected Genes</b> list box in the Normalization panel. The list can be modified in the normalization panel and the resulting marker set can be saved as a CSV file and stored externally for reuse. </p> 
-    <p>This help section describes:<a href="#_Basic_Usage"> basic usage</a>, <a href="#_Apply_Housekeeping_Gene_Normalizer:">applying the normalizer,</a> <a href="#_Save">saving the selected genes</a> to external location and <a href="#_Working_with_Missing_Values:">when selected genes are not included</a><a href="#_Working_with_Missing_Values:">.</a></p> 
-    <p><img border="0" width="892" height="232" src="../../../../../../../caWorkBench/geworkbench/components/analysis/src/org/geworkbench/components/analysis/help/normalizers/Housekeeping_files/image001.gif"></p> 
+    <p>This help section describes:<a href="#_Basic_Usage"> basic usage</a>, <a href="#_Apply_Housekeeping_Gene_Normalizer:">applying the normalizer,</a> <a href="#Save">saving the selected genes</a> to external location and <a href="#_Working_with_Missing_Values:">when selected genes are not included</a><a href="#_Working_with_Missing_Values:">.</a></p> 
+    <p><img border="0" width="892" height="232" src="Housekeeping_files/image001.gif"></p> 
     <p><a name="_Basic_Usage"></a><b>Basic Usage </b></p> 
     <p>The steps of basic usage are indicated with letters in the above screenshot. </p> 
     <p><b>A. </b>Lists the genes removed from the <b>Current Selected Genes </b>list box (by double clicking or using &#8216;&lt;&#8217; icon). The number in the brackets indicates the number of genes in the list box.</p> 
@@ -51,12 +50,12 @@
     <p>&#12290; If all of the markers listed in the <b>Current Selected Genes</b> list box are present in the microarray set being normalized, the View Area is updated to reflect normalization (after the screen has been refreshed).</p> 
     <p>&#12290; If some markers are NOT present in the dataset, the system generates a warning message and highlights the missing values yellow in the list box. See <a href="#_When_Genes_not_in_the_loaded_datase">Genes not in the loaded dataset</a> for additional description.</p> 
     <p>Note: Normalizing is performed directly on the loaded dataset; a separate copy is not generated.</p> 
-    <p><a name="_Working_with_Missing_Values:"></a><a name="_When_Genes_not_in_the_loaded_datase"></a><a name="_When_Selected_Genes_are_not_Include"></a><b>Selected Genes Not Included </b></p> 
+    <p><a name="_Save_a_Housekeeping_Gene_List:"></a><a name="_Working_with_Missing_Values:"></a><a name="_When_Genes_not_in_the_loaded_datase"></a><a name="_When_Selected_Genes_are_not_Include"></a><b>Selected Genes Not Included </b></p> 
     <p>When you have attempted to normalize the data with genes that are not included in the data, the system generates a warning message and highlights the missing genes yellow in the<b> Current Selected Genes</b> list box:</p> 
     <p>&#12290; If OK is selected &#8211; The system proceeds to normalize the data using only the markers that are present in the dataset and disregarding the highlighted markers.</p> 
     <p>&#12290; If Cancel is selected &#8211; The system cancels the normalization operation. The application indicates which genes are missing by highlighting the missing values.</p> 
-    <p><img border="0" width="748" height="322" src="../../../../../../../caWorkBench/geworkbench/components/analysis/src/org/geworkbench/components/analysis/help/normalizers/Housekeeping_files/image002.gif"></p> 
-    <p><b>Right Click Actions</b></p> 
+    <p><img border="0" width="748" height="322" src="Housekeeping_files/image002.gif"></p> 
+    <p><b>Right-click Actions</b></p> 
     <p>The application supports managing the highlighted genes by right clicking in the Current Selected Genes list box and selecting one of the actions described in the table below.</p>
  <table border="0" cellspacing="0" cellpadding="0">
   <tr>
@@ -92,13 +91,12 @@
    </td>
   </tr>
  </table> 
-    <p><a name="_Save"></a><b>Save a Housekeeping Gene List </b></p> 
+    <p><a name="Save"><b>Save a Housekeeping Gene List </b></a></p> 
     <p>The actual list of housekeeping genes used to perform the normalization can be saved to an external location for reuse.</p> 
-    <p>1. Click on  <b>Save</b>. The system displays the Save Housekeeping Gene Panel pop-up window. </u></p> 
-    <p>2. Choose the directory where to save the file.</p>  
+    <p>1. Click on<b> </b>the <b>Save</b> button. The system displays the Save Housekeeping Gene Panel pop-up window. </p> 
+    <p>2. Choose the directory where to save the file.</p> 
     <p>3. In the File name box, enter the desired name. </p> 
-    <p>4. Click <b>Save</b>. The file is saved in CSV format</p>
-
+    <p>4 Click <b>Save</b>. The file is saved in CSV format.</p>
 
 </body>
 
