@@ -16,6 +16,7 @@ import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMutableMarkerValue;
 import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
+import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
 import org.geworkbench.bison.model.analysis.ClusteringAnalysis;
 import org.geworkbench.engine.management.Publish;
@@ -78,6 +79,7 @@ public class SVMAnalysis extends AbstractAnalysis implements ClusteringAnalysis 
         assert (input instanceof DSMicroarraySetView);
         DSMicroarraySetView<DSGeneMarker, DSMicroarray> view = (DSMicroarraySetView<DSGeneMarker, DSMicroarray>) input;
         DSMicroarraySet maSet = view.getMicroarraySet();
+        DSItemList<DSGeneMarker> markers = view.markers();
         TTest tTest = new TTestImpl();
         // Get params
         float epsilon = panel.getEpsilon();
