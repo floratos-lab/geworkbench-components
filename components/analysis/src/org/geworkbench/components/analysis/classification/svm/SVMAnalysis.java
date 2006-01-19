@@ -82,7 +82,6 @@ public class SVMAnalysis extends AbstractAnalysis implements ClusteringAnalysis 
         DSMicroarraySetView<DSGeneMarker, DSMicroarray> view = (DSMicroarraySetView<DSGeneMarker, DSMicroarray>) input;
         DSMicroarraySet maSet = view.getMicroarraySet();
         DSItemList<DSGeneMarker> markers = view.markers();
-        TTest tTest = new TTestImpl();
         // Get params
         float epsilon = panel.getEpsilon();
         float C = panel.getC();
@@ -90,17 +89,16 @@ public class SVMAnalysis extends AbstractAnalysis implements ClusteringAnalysis 
         DSAnnotationContext<DSMicroarray> context = CSAnnotationContextManager.getInstance().getCurrentContext(maSet);
 
         List<float[]> caseData = new ArrayList<float[]>();
-        addMicroarrayData(context.getItemsForClass(CSAnnotationContext.CLASS_CASE), caseData);
+        addMicroarrayData(context.getItemsForClass(CSAnnotationContext.CLASS_CASE), caseData, markers);
         List<float[]> controlData = new ArrayList<float[]>();
-        addMicroarrayData(context.getItemsForClass(CSAnnotationContext.CLASS_CONTROL), controlData);
+        addMicroarrayData(context.getItemsForClass(CSAnnotationContext.CLASS_CONTROL), controlData, markers);
         List<float[]> testData = new ArrayList<float[]>();
-        addMicroarrayData(context.getItemsForClass(CSAnnotationContext.CLASS_TEST), testData);
+        addMicroarrayData(context.getItemsForClass(CSAnnotationContext.CLASS_TEST), testData, markers);
 
         log.debug("Training classifier.");
         SupportVectorMachine svm = null;
         try {
-            svm = new SupportVectorMachine(caseData, controlData,
-                    panel.getSelectedKernel(), 0.1f);
+            svm = new SupportVectorMachine(caseData, controlData, panel.getSelectedKernel(), 0.1f);
             // Non-SMO
             // svm.buildSupportVectors(1000, 1e-6);
             // SMO
@@ -135,12 +133,12 @@ public class SVMAnalysis extends AbstractAnalysis implements ClusteringAnalysis 
         }
     }
 
-    public static void addMicroarrayData(DSPanel<DSMicroarray> panel, List<float[]> dataToAddTo) {
+    public static void addMicroarrayData(DSPanel<DSMicroarray> panel, List<float[]> dataToAddTo, DSItemList<DSGeneMarker> markers) {
+        int m = markers.size();
         for (DSMicroarray microarray : panel) {
-            DSMutableMarkerValue[] values = microarray.getMarkerValues();
-            float[] data = new float[values.length];
-            for (int j = 0; j < values.length; j++) {
-                data[j] = (float) values[j].getValue();
+            float[] data = new float[m];
+            for (int i = 0; i < m; i++) {
+                data[i] = (float)microarray.getMarkerValue(markers.get(i)).getValue();
             }
             dataToAddTo.add(data);
         }
