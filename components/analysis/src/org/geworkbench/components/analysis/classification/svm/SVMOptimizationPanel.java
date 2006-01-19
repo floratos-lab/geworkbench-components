@@ -10,6 +10,8 @@ import org.geworkbench.bison.annotation.CSAnnotationContextManager;
 import org.geworkbench.bison.annotation.DSAnnotationContext;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
+import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
+import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.util.ProgressGraph;
 import org.geworkbench.util.svm.ClassifierException;
 import org.geworkbench.util.svm.KernelFunction;
@@ -119,12 +121,15 @@ public class SVMOptimizationPanel extends AbstractSaveableParameterPanel impleme
 
                         DSAnnotationContext<DSMicroarray> context = CSAnnotationContextManager.getInstance().getCurrentContext(maSet);
 
+                        // todo - Use microarray set view for marker lists
+                        DSItemList<DSGeneMarker> markers = maSet.getMarkers();
+
                         java.util.List<float[]> caseData = new ArrayList<float[]>();
-                        SVMAnalysis.addMicroarrayData(context.getItemsForClass(CSAnnotationContext.CLASS_CASE), caseData);
+                        SVMAnalysis.addMicroarrayData(context.getItemsForClass(CSAnnotationContext.CLASS_CASE), caseData, markers);
                         java.util.List<float[]> controlData = new ArrayList<float[]>();
-                        SVMAnalysis.addMicroarrayData(context.getItemsForClass(CSAnnotationContext.CLASS_CONTROL), controlData);
+                        SVMAnalysis.addMicroarrayData(context.getItemsForClass(CSAnnotationContext.CLASS_CONTROL), controlData, markers);
                         java.util.List<float[]> testData = new ArrayList<float[]>();
-                        SVMAnalysis.addMicroarrayData(context.getItemsForClass(CSAnnotationContext.CLASS_TEST), testData);
+                        SVMAnalysis.addMicroarrayData(context.getItemsForClass(CSAnnotationContext.CLASS_TEST), testData, markers);
 
                         int numFolds = ((Number) numberFolds.getValue()).intValue();
                         KFoldCrossValidation cross = new KFoldCrossValidation(numFolds, caseData, controlData);

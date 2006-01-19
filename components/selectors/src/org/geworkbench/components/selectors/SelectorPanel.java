@@ -81,6 +81,8 @@ public abstract class SelectorPanel<T extends DSSequential> implements VisualPlu
     // Context info for right-click events
     TreePath rightClickedPath = null;
 
+    private JCheckBox bypassCheckbox;
+
     protected Class<T> panelType;
     private SelectorTreeRenderer treeRenderer;
 
@@ -118,6 +120,8 @@ public abstract class SelectorPanel<T extends DSSequential> implements VisualPlu
         labelPanel.setLayout(new BoxLayout(labelPanel, BoxLayout.X_AXIS));
         labelPanel.add(groupLabel);
         labelPanel.add(Box.createHorizontalGlue());
+        bypassCheckbox = new JCheckBox("Bypass", false);
+        labelPanel.add(bypassCheckbox);
         lowerPanel.add(labelPanel);
         lowerPanel.add(contextPanel);
         lowerPanel.add(new JScrollPane(panelTree));
