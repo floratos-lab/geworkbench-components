@@ -19,6 +19,7 @@ import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
 import org.geworkbench.bison.model.analysis.ClusteringAnalysis;
+import org.geworkbench.bison.algorithm.classification.Classifier;
 import org.geworkbench.engine.management.Publish;
 import org.geworkbench.engine.management.Subscribe;
 import org.geworkbench.events.PhenotypeSelectorEvent;
@@ -27,6 +28,7 @@ import org.geworkbench.events.ProjectNodeAddedEvent;
 import org.geworkbench.events.SubpanelChangedEvent;
 import org.geworkbench.util.svm.ClassifierException;
 import org.geworkbench.util.svm.SupportVectorMachine;
+import org.geworkbench.util.svm.SVMPhenotypeClassifier;
 
 import javax.swing.*;
 import java.util.ArrayList;
@@ -107,7 +109,10 @@ public class SVMAnalysis extends AbstractAnalysis implements ClusteringAnalysis 
 
             DSPanel<DSMicroarray> newPanel = new CSPanel<DSMicroarray>("SVM Results");
             log.debug("Classifying test data.");
-            classifyData(context.getItemsForClass(CSAnnotationContext.CLASS_TEST), svm, newPanel);
+            SVMPhenotypeClassifier classifier = svm.getClassifier(null, "Phenotype Classifier");
+            classifyData(context.getItemsForClass(CSAnnotationContext.CLASS_TEST), classifier, newPanel);
+
+            publishProjectNodeAddedEvent(new ProjectNodeAddedEvent("SVM Phenotype Classifier", null, classifier));
 
             publishSubpanelChangedEvent(new SubpanelChangedEvent<DSMicroarray>(DSMicroarray.class, newPanel, SubpanelChangedEvent.NEW));
         } catch (ClassifierException e) {
@@ -141,14 +146,9 @@ public class SVMAnalysis extends AbstractAnalysis implements ClusteringAnalysis 
         }
     }
 
-    public static void classifyData(DSPanel<DSMicroarray> panel, SupportVectorMachine svm, DSPanel<DSMicroarray> newGroupPanel) {
+    public static void classifyData(DSPanel<DSMicroarray> panel, Classifier<DSMicroarray> classifier, DSPanel<DSMicroarray> newGroupPanel) {
         for (DSMicroarray microarray : panel) {
-            DSMutableMarkerValue[] values = microarray.getMarkerValues();
-            float[] data = new float[values.length];
-            for (int j = 0; j < values.length; j++) {
-                data[j] = (float) values[j].getValue();
-            }
-            if (svm.evaluate(data)) {
+            if (classifier.classify(microarray).equals(classifier.getClassifications()[0])) {
                 newGroupPanel.add(microarray);
             }
         }
