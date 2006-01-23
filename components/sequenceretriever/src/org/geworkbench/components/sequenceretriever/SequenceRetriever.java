@@ -5,6 +5,8 @@ import gov.nih.nci.common.exception.ManagerException;
 import org.apache.axis.client.Call;
 import org.apache.axis.client.Service;
 import org.apache.axis.encoding.XMLType;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.sequences.CSSequenceSet;
 import org.geworkbench.bison.datastructure.biocollections.sequences.DSSequenceSet;
@@ -47,6 +49,8 @@ import java.util.Vector;
 
 @AcceptTypes( {DSMicroarraySet.class})public class SequenceRetriever implements
         VisualPlugin {
+
+    static Log log = LogFactory.getLog(SequenceRetriever.class);
 
     DSPanel<DSGeneMarker> markers = null;
     DSPanel<DSGeneMarker> activeMarkers = null;
@@ -468,11 +472,9 @@ import java.util.Vector;
                 }
             }
 //          activeMarkers = markers.activeSubset();
-            System.out.println(activeMarkers.size() + " " + markers.size());
             markers = activeMarkers;
 //
-            System.out.println("afet" + activeMarkers.size() + " " +
-                               markers.size());
+            log.debug("Active markers / markers: " + activeMarkers.size() + " / " +markers.size());
         }
     }
 
