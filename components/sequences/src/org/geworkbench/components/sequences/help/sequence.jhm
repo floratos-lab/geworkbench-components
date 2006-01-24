@@ -7,5 +7,5 @@
 <map version="1.0">
 
 	<mapID target="overview" url="sequence.HTML"/>
-	<mapID target="sequence.retriever" url="sequenceretriever.HTML"/>
+	<mapID target="retriever" url="sequenceretriever.HTML"/>
 </map>
