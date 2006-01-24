@@ -23,61 +23,22 @@
 <body>
 
 
-
-<h3>Threshold Normalizer</h3>
-
-<p>In this normalizer, all measurements are adjusted to a user specified maximum
-
-or minimum value. </p>
-
-
-
-<p>The parameters for this normalizer are: </p>
-
-
-
-<ol>
-
-  <li><u><i>Cut-off value</i></u>: The threshold value T to use.</li>
-
-  <li><i><u>Cut-off type</u></i>: The threshold requirement. Available options
-
-    are:
-
-    <ul>
-
-      <li><b><i>Minimum</i></b>: This selection will force all measurements
-
-        below the threshold T to be replaced by T.</li>
-
-      <li><b><i>Maximum</i></b>: This selection will force all measurements
-
-        above threshold T to be replaced by T.</li>
-
-    </ul>
-
-  </li>
-
-  <li><u><i>Missing values</i></u>: The manner in which to handle missing
-
-    values. Options are:
-
-    <ul>
-
-      <li><b><i>Ignore</i></b>: Leaves missing values unchanged.</li>
-
-      <li><b><i>Replace</i></b>: Replaces each missing value with the threshold
-
-        T.</li>
-
-    </ul>
-
-  </li>
-
-</ol>
-
-<p><img border="0" src="images/Threshold%20normalizer.gif" width="608" height="234"></p>
-
+   <h3>Threshold Normalizer</h3> 
+    <p>In this normalizer, all measurements are adjusted to a user specified maximum or minimum value. The parameters for this normalizer are: </p> 
+    <p><i><u>Cut-off value</u></i>: The user defined threshold value.</p> 
+    <p><i><u>Cut-off type</u></i>: The cut-off type drop-down designates the threshold requirement. Available options are: </p> 
+    <p>o <b><i>Minimum</i></b>: This selection will force all measurements below the threshold to be replaced by the cut-off value.</p> 
+    <p>o <b><i>Maximum</i></b>: This selection will force all measurements above threshold to be replaced by the cut-off value.</p> 
+    <p><i><u>Missing values</u></i>: The Missing values drop-down designates how to handle missing measurements. Options are: </p> 
+    <p>o <b><i>Ignore</i></b>: Leaves missing values unchanged.</p> 
+    <b><p> Apply Threshold Normalizer</b></p> 
+    <p>1 In the Normalization Panel, select the <b>Threshold Normalizer.</b></p> 
+    <p>2 Enter the <b>Threshold Cut-off Value</b> in the text box. </p> 
+    <p>3 Select the<b> Cut-off type</b> from<b> </b>drop down list and select &#8220;Minimum&#8221; or &#8220;Maximum&#8221;.</p> 
+    <p>4 Select the<b> Missing Values </b>from drop down list and select &#8220;Ignore&#8221; or &#8220;Replace&#8221;.</p> 
+    <p>5 Click <b>Normalize</b>. The View Area is updated to reflect the normalization results.</p> 
+    <p>Note: Normalizing is performed directly on the loaded dataset; a separate copy is not generated.</p> 
+    <p><img  src="images/Threshold%20normalizer.gif"></p>
 
 
 </body>
