@@ -135,12 +135,14 @@ public class PhenotypePanel extends SelectorPanel<DSMicroarray> {
         context.setDefaultClass(DEFAULT_CLASS);
     }
 
-    protected void dataSetChanged(DSDataSet dataSet) {
+    protected boolean dataSetChanged(DSDataSet dataSet) {
         if (dataSet instanceof DSMicroarraySet) {
             set = (DSMicroarraySet<DSMicroarray>) dataSet;
             setItemList(set);
+            return true;
         } else {
             dataSetCleared();
+            return false;
         }
     }
 

@@ -239,16 +239,19 @@ public class GenePanel extends SelectorPanel<DSGeneMarker> {
         return panel;
     }
 
-    protected void dataSetChanged(DSDataSet dataSet) {
+    protected boolean dataSetChanged(DSDataSet dataSet) {
         DSItemList items;
         if (dataSet instanceof DSMicroarraySet) {
             DSMicroarraySet maSet = (DSMicroarraySet) dataSet;
             items = maSet.getMarkers();
             setItemList(items);
+            return true;
         } else if (dataSet instanceof DSSequenceSet) {
             items = (DSItemList) ((DSSequenceSet) dataSet).getMarkerList();
             setItemList(items);
+            return true;
         }
+        return false;
     }
 
     /**
@@ -273,14 +276,6 @@ public class GenePanel extends SelectorPanel<DSGeneMarker> {
         publishGeneSelectorEvent(new GeneSelectorEvent(item));
     }
     
-    private void processDataSet(DSDataSet dataSet) {
-        if (dataSet != null) {
-            dataSetChanged(dataSet);
-        } else {
-            dataSetCleared();
-        }
-    }
-
     @Script public void setDataSet(DSDataSet dataSet) {
         processDataSet(dataSet);
     }
