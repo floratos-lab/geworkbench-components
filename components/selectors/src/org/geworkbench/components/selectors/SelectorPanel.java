@@ -623,7 +623,7 @@ public abstract class SelectorPanel<T extends DSSequential> implements VisualPlu
         // throwLabelEvent();
     }
 
-    protected abstract void dataSetChanged(DSDataSet dataSet);
+    protected abstract boolean dataSetChanged(DSDataSet dataSet);
 
     protected abstract void throwLabelEvent();
 
@@ -639,8 +639,13 @@ public abstract class SelectorPanel<T extends DSSequential> implements VisualPlu
             dataSetCleared();
         }
         DSDataSet dataSet = projectEvent.getDataSet();
-        processDataSet(dataSet);
-
+        boolean processed = processDataSet(dataSet);
+        if (!processed) {
+            dataSet = projectEvent.getParent();
+            if (dataSet != null) {
+                processDataSet(dataSet);
+            }
+        }
     }
 
     /**
@@ -700,11 +705,12 @@ public abstract class SelectorPanel<T extends DSSequential> implements VisualPlu
     }
 
 
-    private void processDataSet(DSDataSet dataSet) {
+    protected boolean processDataSet(DSDataSet dataSet) {
         if (dataSet != null) {
-            dataSetChanged(dataSet);
+            return dataSetChanged(dataSet);
         } else {
             dataSetCleared();
+            return false;
         }
     }
 
