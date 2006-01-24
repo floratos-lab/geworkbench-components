@@ -5,7 +5,7 @@
 	<tocitem text="Sequences">
 
 		 <tocitem target="overview" text="overview" />
-		 <tocitem target="sequence.retriever" text="Sequence Retriever" />
+		 <tocitem target="retriever" text="Sequence Retriever" />
 	
        </tocitem>
 
