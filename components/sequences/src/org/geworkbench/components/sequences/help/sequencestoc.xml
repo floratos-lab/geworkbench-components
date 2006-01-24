@@ -4,7 +4,7 @@
 
 	<tocitem text="Sequences">
 
-		 <tocitem target="sequence.panel" text="Sequence Panel" />
+		 <tocitem target="sequence.panel" text=Sequence Panel" />
 		 <tocitem target="sequence.retriever" text="Sequence Retriever" />
 	
        </tocitem>
