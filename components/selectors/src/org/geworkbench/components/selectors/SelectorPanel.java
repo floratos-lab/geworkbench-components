@@ -84,7 +84,7 @@ public abstract class SelectorPanel<T extends DSSequential> implements VisualPlu
     private JCheckBox bypassCheckbox;
 
     protected Class<T> panelType;
-    private SelectorTreeRenderer treeRenderer;
+    protected SelectorTreeRenderer treeRenderer;
 
     private HashMap<String, ActionListener> menuListeners;
 
@@ -335,6 +335,8 @@ public abstract class SelectorPanel<T extends DSSequential> implements VisualPlu
                         context.setLabelActive(label, !context.isLabelActive(label));
                         treeModel.valueForPathChanged(path, label);
                         throwLabelEvent();
+                    } else {
+                        labelClicked(e, path, label);
                     }
                 } else if (item != null) {
                     if (e.getButton() == MouseEvent.BUTTON1) {
@@ -345,6 +347,10 @@ public abstract class SelectorPanel<T extends DSSequential> implements VisualPlu
         } else {
             panelTree.clearSelection();
         }
+    }
+
+    protected void labelClicked(MouseEvent e, TreePath path, String label) {
+        // No-op
     }
 
     protected void showTreePopup(MouseEvent e) {
