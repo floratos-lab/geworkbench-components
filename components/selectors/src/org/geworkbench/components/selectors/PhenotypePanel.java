@@ -9,10 +9,12 @@ import org.geworkbench.events.PhenotypeSelectorEvent;
 import org.geworkbench.events.SingleMicroarrayEvent;
 
 import javax.swing.*;
+import javax.swing.tree.TreePath;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseAdapter;
 
 /**
  * @author John Watkinson
@@ -57,7 +59,7 @@ public class PhenotypePanel extends SelectorPanel<DSMicroarray> {
 
     private static class PhenotypeCellRenderer extends SelectorTreeRenderer {
 
-        public PhenotypeCellRenderer(SelectorPanel panel) {
+        public PhenotypeCellRenderer(final PhenotypePanel panel) {
             super(panel);
         }
 
@@ -82,16 +84,19 @@ public class PhenotypePanel extends SelectorPanel<DSMicroarray> {
 
     private DSMicroarraySet<DSMicroarray> set;
     private JRadioButtonMenuItem[] classButtons;
+    private JPopupMenu classPopup;
 
     public PhenotypePanel() {
         super(DSMicroarray.class, "Phenotype");
         // Add "Classification" item and sub-items
         JMenu classificationMenu = new JMenu("Classification");
+        classPopup = new JPopupMenu();
         ButtonGroup classGroup = new ButtonGroup();
         classButtons = new JRadioButtonMenuItem[4];
         for (int i = 0; i < CLASSES.length; i++) {
             classButtons[i] = new JRadioButtonMenuItem(CLASSES[i]);
             classificationMenu.add(classButtons[i]);
+            classPopup.add(classButtons[i]);
             classButtons[i].addActionListener(new ClassificationListener(i));
             classGroup.add(classButtons[i]);
         }
@@ -117,6 +122,15 @@ public class PhenotypePanel extends SelectorPanel<DSMicroarray> {
             }
         }
         return -1;
+    }
+
+    protected void labelClicked(MouseEvent e, TreePath path, String label) {
+        if (e.getX() < panelTree.getPathBounds(path).x + treeRenderer.getCheckBoxWidth() + CLASS_ICONS[0].getIconWidth()) {
+            String clazz = context.getClassForLabel(label);
+            int i = getIndexForClass(clazz);
+            classButtons[i].setSelected(true);
+            classPopup.show(e.getComponent(), e.getX(), e.getY());
+        }
     }
 
     protected void showTreePopup(MouseEvent e) {
