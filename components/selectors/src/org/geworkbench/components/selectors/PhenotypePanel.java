@@ -14,7 +14,6 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseAdapter;
 
 /**
  * @author John Watkinson
@@ -83,7 +82,8 @@ public class PhenotypePanel extends SelectorPanel<DSMicroarray> {
     }
 
     private DSMicroarraySet<DSMicroarray> set;
-    private JRadioButtonMenuItem[] classButtons;
+    private JRadioButtonMenuItem[] rightClickClassButtons;
+    private JRadioButtonMenuItem[] leftClickClassButtons;
     private JPopupMenu classPopup;
 
     public PhenotypePanel() {
@@ -92,13 +92,17 @@ public class PhenotypePanel extends SelectorPanel<DSMicroarray> {
         JMenu classificationMenu = new JMenu("Classification");
         classPopup = new JPopupMenu();
         ButtonGroup classGroup = new ButtonGroup();
-        classButtons = new JRadioButtonMenuItem[4];
+        rightClickClassButtons = new JRadioButtonMenuItem[4];
+        leftClickClassButtons = new JRadioButtonMenuItem[4];
         for (int i = 0; i < CLASSES.length; i++) {
-            classButtons[i] = new JRadioButtonMenuItem(CLASSES[i]);
-            classificationMenu.add(classButtons[i]);
-            classPopup.add(classButtons[i]);
-            classButtons[i].addActionListener(new ClassificationListener(i));
-            classGroup.add(classButtons[i]);
+            rightClickClassButtons[i] = new JRadioButtonMenuItem(CLASSES[i]);
+            leftClickClassButtons[i] = new JRadioButtonMenuItem(CLASSES[i]);
+            classificationMenu.add(rightClickClassButtons[i]);
+            classPopup.add(leftClickClassButtons[i]);
+            rightClickClassButtons[i].addActionListener(new ClassificationListener(i));
+            leftClickClassButtons[i].addActionListener(new ClassificationListener(i));
+            classGroup.add(rightClickClassButtons[i]);
+            classGroup.add(leftClickClassButtons[i]);
         }
         treePopup.add(classificationMenu);
         setTreeRenderer(new PhenotypeCellRenderer(this));
@@ -128,7 +132,7 @@ public class PhenotypePanel extends SelectorPanel<DSMicroarray> {
         if (e.getX() < panelTree.getPathBounds(path).x + treeRenderer.getCheckBoxWidth() + CLASS_ICONS[0].getIconWidth()) {
             String clazz = context.getClassForLabel(label);
             int i = getIndexForClass(clazz);
-            classButtons[i].setSelected(true);
+            leftClickClassButtons[i].setSelected(true);
             classPopup.show(e.getComponent(), e.getX(), e.getY());
         }
     }
@@ -137,7 +141,7 @@ public class PhenotypePanel extends SelectorPanel<DSMicroarray> {
         String label = getLabelForPath(rightClickedPath);
         String clazz = context.getClassForLabel(label);
         int i = getIndexForClass(clazz);
-        classButtons[i].setSelected(true);
+        rightClickClassButtons[i].setSelected(true);
         super.showTreePopup(e);
     }
 
