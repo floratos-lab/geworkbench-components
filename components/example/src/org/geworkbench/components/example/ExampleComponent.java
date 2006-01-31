@@ -12,6 +12,8 @@ import java.awt.*;
 
 /**
  * This is an example geWorkbench component.
+ *
+ * @author John Watkinson
  */
 // This annotation lists the data set types that this component accepts.
 // The component will only appear when a data set of the appropriate type is selected.  
