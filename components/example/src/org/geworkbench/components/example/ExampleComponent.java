@@ -30,7 +30,7 @@ public class ExampleComponent extends JPanel implements VisualPlugin {
     }
 
     /**
-     * This method fulfills the contract of the {@link VisualPlugin} interface.
+     * This method fulfills the contract of the {@link VisualPlugin}  interface.
      * It returns the GUI component for this visual plugin.
      */
     public Component getComponent() {
