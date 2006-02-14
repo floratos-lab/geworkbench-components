@@ -117,7 +117,7 @@ public class BlastAlgorithm
 
                 if (htmlFile != null) {
                     blastResult = new CSAlignmentResultSet(htmlFile, soapClient.getInputFileName(), null);
-                    ( (CSAlignmentResultSet) blastResult).setAlgorithm(this);
+          //          ( (CSAlignmentResultSet) blastResult).setAlgorithm(this);
                 }
                 else if (cmd.startsWith("btk search")) {
 
@@ -145,7 +145,7 @@ public class BlastAlgorithm
                 }
 
                 blastResult = new CSAlignmentResultSet(tempFolder + "a.html", inputFilename, null);
-                ( (CSAlignmentResultSet) blastResult).setAlgorithm(this);
+        //        ( (CSAlignmentResultSet) blastResult).setAlgorithm(this);
                               org.geworkbench.events.ProjectNodeAddedEvent event = new org.
                       geworkbench.events.ProjectNodeAddedEvent("message", null,
                         blastResult);
@@ -182,7 +182,7 @@ public class BlastAlgorithm
                 bw.close();
 
                 blastResult = new CSAlignmentResultSet(filename, inputFilename, null);
-                ( (CSAlignmentResultSet) blastResult).setAlgorithm(this);
+              //  ( (CSAlignmentResultSet) blastResult).setAlgorithm(this);
 
             }
 
