@@ -1,12 +1,14 @@
 package org.geworkbench.components.alignment.blast;
 
-import javax.swing.*;
 import java.io.*;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import javax.swing.JProgressBar;
+import javax.swing.JTextArea;
 
 /**
  * RemoteBlast is a class that implements submission of a protein sequence to
@@ -72,6 +74,20 @@ public class RemoteBlast {
         this.textArea = textArea;
         this.CDD_rid = null;
     }
+
+    public RemoteBlast(String query, JProgressBar progressBar) {
+        this.query = query;
+        this.filename = DEFAULT_FILENAME;
+        this.textArea = new JTextArea();
+        this.CDD_rid = null;
+    }
+
+    public RemoteBlast(String query, String filename, JProgressBar progressBar) {
+     this.query = query;
+     this.filename = filename;
+     this.textArea = new JTextArea();
+     this.CDD_rid = null;
+ }
 
     /**
      * Creates a new RemoteBlast and sets query, filenmae, and textArea to the
@@ -174,7 +190,64 @@ public class RemoteBlast {
         }
         return null;
     } /* end of submitBlast method */
+    public String submitBlast(String message) {
 
+          // String message; /* HTTP GET message */
+
+           Socket s = null;
+
+
+           try {
+
+               s = new Socket(Blast_SERVER, DEFAULT_PORT);
+
+               //create an output stream for sending message.
+               DataOutputStream out = new DataOutputStream(s.getOutputStream());
+
+               //create buffered reader stream for reading incoming byte stream.
+               InputStreamReader inBytes = new InputStreamReader(s.getInputStream());
+               BufferedReader in = new BufferedReader(inBytes);
+
+               textArea.append("\n\nSending message: " + message + "\n");
+
+               //write String message to output stream as byte sequence.
+               out.writeBytes(message);
+
+               //reads each incoming line until it finds the CDD and Blast RIDs.
+               while (true) {
+                   String data = in.readLine();
+                   if (CDD_rid == null) {
+                       Matcher m1 = p1.matcher(data);
+                       Matcher m2 = p2.matcher(data);
+                       if (m1.find()) {
+                           CDD_rid = m1.group(1);
+                       }
+                       if (m2.find()) {
+                           CDD_rid = "none";
+                           System.out.println("No.putative.conserved.domains.have.been.detected");
+                       }
+                   }
+                   if (data.equals("<!--QBlastInfoBegin")) {
+                       StringTokenizer st = new StringTokenizer(in.readLine(), " ");
+                       String str = st.nextToken();
+                       str = st.nextToken();
+                       s.close();
+                       return st.nextToken();
+                   }
+                   //				System.out.println(data);
+                   if (data == null) {
+                       break;
+                   }
+               }
+           } catch (UnknownHostException e) {
+               System.out.println("Socket:" + e.getMessage());
+           } catch (EOFException e) {
+               System.out.println("EOF:" + e.getMessage());
+           } catch (IOException e) {
+               System.out.println("readline:" + e.getMessage());
+           }
+           return null;
+    }
     /**
      * Sets getBlastDone to <code>false</code> indicating Blast is not done yet
      * and creates a new GetBlast with the specified String as a parameter.
@@ -185,6 +258,10 @@ public class RemoteBlast {
     public void getBlast(String rid) {
         getBlastDone = false;
         GetBlast bl = new GetBlast(rid);
+    }
+    public void getBlast(String rid, String format) {
+        getBlastDone = false;
+        GetBlast bl = new GetBlast(rid, format);
     }
 
     /**
@@ -206,11 +283,17 @@ public class RemoteBlast {
             this.start();
         }
 
+
+        public GetBlast(String Blast_rid, String format) {
+            message =  "Get http://www.ncbi.nlm.nih.gov/blast/Blast.cgi?CMD=Get&FORMAT_TYPE=" + format + "&RID=" + Blast_rid + "\r\n\r\n";
+
+            this.start();
+        }
         public void run() {
 
             try {
-                //create an output stream for writing to a file.
-                PrintStream ps = new PrintStream(new FileOutputStream(new File(filename)));
+                //create an output stream for writing to a file. appending file.
+                PrintStream ps = new PrintStream(new FileOutputStream(new File(filename)), true);
 
                 boolean BlastnotDone = false;
                 while (!BlastnotDone) {
@@ -230,9 +313,10 @@ public class RemoteBlast {
                     out.writeBytes(message);
 
                     String data = in.readLine();
-
+                    System.out.println("IN HTML" +   data );
                     boolean done = false;
                     while (data != null) {
+                        System.out.println("IN HTML" +   data );
                         if (data.equals("\tStatus=WAITING")) {
                             done = false;
                         } else if (data.equals("\tStatus=READY")) {
@@ -268,12 +352,30 @@ public class RemoteBlast {
     } //end of class GetBlast.
 
 
-    /*public static void main(String[] args) {
+    public static void main(String[] args) {
+        String query = "MGARCPTRTLRARQPAHPRPPGTPRHHQRRPLPAASPTRHRSSRGRQIRARRPDRPGTRLRTGAAVDRQQPQHAPLRPLRLRSARADPRPQPGKPARRNPGHQRPRPRCRRPGAQQRPADRTLPADRSARHRVPAAPPAARPAHRRARQRRLRPARRPARPAGTRPLHDSRTRPAQLSGAADLRSDRRPATDRDHRQRRSPLLPAPCRRHHRTRRPPLPARIPPPVHSAAPHPPQQRGTRGNRGRPLLREPAQRHPSSRRRLRAPHRGRLPPGYRPAPQRGLPDHGHRRQDQRTHPRVPAGARGNGVAPTHGHPRMTSRRSHETPQGPDPRSPGAAPAYREAPPALTGRE";
+            RemoteBlast test = new RemoteBlast(query);
+            String  message = "Put http://www.ncbi.nlm.nih.gov/blast/Blast.cgi?CMD=Put&QUERY=" + query + "&DATABASE=nr&PROGRAM=blastp&FILTER=L&HITLIST_SZE=500&AUTO_FORMAT=Semiauto&CDD_SEARCH=on&SHOW_OVERVIEW=on&SERVICE=plain\r\n\r\n";
 
-            RemoteBlast test = new RemoteBlast("MGARCPTRTLRARQPAHPRPPGTPRHHQRRPLPAASPTRHRSSRGRQIRARRPDRPGTRLRTGAAVDRQQPQHAPLRPLRLRSARADPRPQPGKPARRNPGHQRPRPRCRRPGAQQRPADRTLPADRSARHRVPAAPPAARPAHRRARQRRLRPARRPARPAGTRPLHDSRTRPAQLSGAADLRSDRRPATDRDHRQRRSPLLPAPCRRHHRTRRPPLPARIPPPVHSAAPHPPQQRGTRGNRGRPLLREPAQRHPSSRRRLRAPHRGRLPPGYRPAPQRGLPDHGHRRQDQRTHPRVPAGARGNGVAPTHGHPRMTSRRSHETPQGPDPRSPGAAPAYREAPPALTGRE");
-            String Blast_rid = test.submitBlast();
-            test.getBlast(Blast_rid);
-    }*/
+            String Blast_rid = test.submitBlast(message);
+            String format = "HTML";
+            test.getBlast(Blast_rid, format);
+            format = "TEXT";
+            System.out.println("START TEXT");
+            //test.getBlast(Blast_rid, format);
+    }
+
+    /**
+     * RemoteBlast
+     *
+     * @param aQuery String
+     */
+    public RemoteBlast(String aQuery) {
+        this.query = aQuery;
+        textArea = new JTextArea();
+        this.filename = DEFAULT_FILENAME;
+         this.CDD_rid = null;
+    }
 
 } /* end of public class RemoteBlast */
 
