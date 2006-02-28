@@ -693,12 +693,10 @@ public class ColorMosaicImage extends JPanel implements Scrollable {
                 } else {
                     accessionWidth = 0;
                 }
-                if (label != null) {
-                    rect = labelFont.getStringBounds(label, g.getFontRenderContext());
-                    labelWidth = Math.max(labelWidth, (int) rect.getWidth());
-                } else {
-                    labelWidth = 0;
-                }
+                if (label == null)
+                    label = "Undefined";
+                rect = labelFont.getStringBounds(label, g.getFontRenderContext());
+                labelWidth = Math.max(labelWidth, (int) rect.getWidth());
             }
         }
         textSize = 0;
