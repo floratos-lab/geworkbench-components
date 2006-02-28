@@ -43,11 +43,11 @@ public class VersionInfoDialog
     JButton button1 = new JButton();
     JLabel imageControl1 = new JLabel();
     ImageIcon imageIcon;
-    static String product = "caWorkbench";
-    static String version = "Version 3.0";
+    static String product = "geWorkbench";
+    static String version = "Version 1.0.";
     static String buildTime = (new Date()).toString();
 
-    static String build = "";
+    static String build = "1";
 
     public String comments = "A Open Platform for BioMedical Informatics.";
     public static final String DEFAULTVERSIONFILE = "version.txt";
@@ -169,9 +169,9 @@ public class VersionInfoDialog
             builder.setDefaultDialogBorder();
             builder.appendSeparator("caWorkBench Core");
             builder.nextLine();
-            builder.append(new JLabel("caWorkBench"));
+            builder.append(new JLabel("geWorkbench"));
             builder.nextLine();
-            builder.append(new JLabel(version + " " + build));
+            builder.append(new JLabel(version + "." + build));
             builder.nextLine();
             builder.append(new JLabel("Updated on " + buildTime));
 

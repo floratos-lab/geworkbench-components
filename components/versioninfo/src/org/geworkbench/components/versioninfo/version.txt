@@ -1,5 +1,5 @@
 #Version Information:
-#Mon Aug 08 18:18:16 EDT 2005
-version=3.0
-buildTime=Friday Nov 04 16\:07\:16 EST 2005
-build=Build_V3_0_0_1
+#Mon Feb 27 18:18:16 EDT 2006
+version=Version 1.0
+buildTime=Monday Feb 27 18\:18\:16 EST 2006
+build=1
