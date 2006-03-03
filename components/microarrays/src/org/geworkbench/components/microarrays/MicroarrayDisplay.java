@@ -83,7 +83,7 @@ public class MicroarrayDisplay extends JPanel {
         if (microarrays != null) {
             int maxMarkerNo = microarrays.size();
             if (maxMarkerNo > 0) {
-                rows = (int) Math.ceil(Math.sqrt((double) microarrayVisualizer.getDataSetView().markers().size()));
+                rows = (int) Math.ceil(Math.sqrt((double) microarrayVisualizer.getUniqueMarkers().size()));
                 cols = rows;
                 patternGenes = new int[maxMarkerNo];
                 maskedGenes = new char[maxMarkerNo];
@@ -121,7 +121,7 @@ public class MicroarrayDisplay extends JPanel {
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         if (microarray != null) {
-            rows = (int) Math.ceil(Math.sqrt((double) microarrayVisualizer.getDataSetView().markers().size()));
+            rows = (int) Math.ceil(Math.sqrt((double) microarrayVisualizer.getUniqueMarkers().size()));
             cols = rows;
             float[] hsb = new float[3];
             computeScale();
@@ -145,7 +145,7 @@ public class MicroarrayDisplay extends JPanel {
     }
 
     protected void drawImage(Graphics2D g) {
-        int geneNo = microarrayVisualizer.getDataSetView().markers().size();
+        int geneNo = microarrayVisualizer.getUniqueMarkers().size();
         int geneId = 0;
         DSDataSet maSet = microarrayVisualizer.getDataSetView().getDataSet();
         if (maSet != null) {
@@ -153,7 +153,7 @@ public class MicroarrayDisplay extends JPanel {
             for (int row = 0; row < rows; row++) {
                 for (int col = 0; col < cols; col++) {
                     if (geneId < geneNo) {
-                        DSGeneMarker stats = microarrayVisualizer.getDataSetView().markers().get(geneId);
+                        DSGeneMarker stats = microarrayVisualizer.getUniqueMarkers().get(geneId);
                         //this place should get the right marker with the selecte markers or all markers
 
 
@@ -218,11 +218,11 @@ public class MicroarrayDisplay extends JPanel {
             int col = (int) (x / scaleX);
             rubberBandBox(row, col);
             geneId = row * cols + col;
-            if ((geneId < 0) || (geneId >= microarrayVisualizer.getDataSetView().markers().size())) {
+            if ((geneId < 0) || (geneId >= microarrayVisualizer.getUniqueMarkers().size())) {
                 return -1;
             }
         }
-        return microarrayVisualizer.getDataSetView().markers().get(geneId).getSerial();
+        return microarrayVisualizer.getUniqueMarkers().get(geneId).getSerial();
     }
 
     protected void rubberBandBox(int row, int col) {

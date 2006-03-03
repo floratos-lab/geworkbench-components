@@ -181,8 +181,10 @@ public class HierClusterViewWidget extends JPanel implements HierClusterModelEve
 
         public void mouseExited(MouseEvent e) {
             if (e.getSource() == markerDendrogram) {
+                log.debug("Setting highlight on marker dendrogram to null");
                 markerDendrogram.setCurrentHighlight(null);
             } else if (e.getSource() == arrayDendrogram) {
+                log.debug("Setting highlight on array dendrogram to null");
                 arrayDendrogram.setCurrentHighlight(null);
             }
         }
@@ -432,28 +434,16 @@ public class HierClusterViewWidget extends JPanel implements HierClusterModelEve
                 zoomCheckBox_actionPerformed(e);
             }
         });
-        jScrollPane1.getViewport().setBackground(Color.white);
-        jScrollPane1.setForeground(Color.white);
-        this.setBackground(Color.white);
-        this.setForeground(Color.white);
-
-
-//        jGeneHeight.setMaximumSize(new Dimension(25, jToolBar1.getHeight()));
 
         SpinnerNumberModel snm2 = new SpinnerNumberModel(HierClusterDisplay.geneHeight, 1, 100, 1);
         jGeneHeight = new JSpinner(snm2);
-//        Component comp = jGeneHeight.getComponent(0);
-//        JSpinner.NumberEditor editor = (JSpinner.NumberEditor) jGeneHeight.getEditor();
-//        editor.getTextField().setMargin(new Insets(0,0,0,0));
         jGeneHeight.setToolTipText("Gene Height");
-//        jGeneHeight.setModel(snm2);
         jGeneHeight.addChangeListener(new ChangeListener() {
             public void stateChanged(ChangeEvent e) {
                 jGeneHeight_stateChanged(e);
             }
         });
         jGeneWidth.setToolTipText("Gene Width");
-//        jGeneWidth.setMaximumSize(new Dimension(25, jToolBar1.getHeight()));
 
         SpinnerNumberModel snm1 = new SpinnerNumberModel(new Integer(HierClusterDisplay.geneWidth), new Integer(1), new Integer(100), new Integer(1));
         jGeneWidth.setModel(snm1);
@@ -463,37 +453,21 @@ public class HierClusterViewWidget extends JPanel implements HierClusterModelEve
             }
         });
         ButtonBarBuilder bbuilder = new ButtonBarBuilder();
-//        jToolBar1.setLayout(new BoxLayout(jToolBar1, BoxLayout.X_AXIS));
-//        int spacerSize = 10;
-//        jToolBar1.add(jCheckBox1, null);
         bbuilder.addFixed(jCheckBox1);
-//        jToolBar1.add(Box.createHorizontalGlue(), null);
         bbuilder.addGlue();
-//        jToolBar1.add(heightLabel, null);
-//        jToolBar1.add(Box.createHorizontalStrut(spacerSize/2), null);
-//        jToolBar1.add(jGeneHeight, null);
         bbuilder.addFixed(heightLabel);
         bbuilder.addRelatedGap();
         bbuilder.addFixed(jGeneHeight);
-//        jToolBar1.add(Box.createHorizontalStrut(spacerSize), null);
         bbuilder.addUnrelatedGap();
-//        jToolBar1.add(widthLabel, null);
-//        jToolBar1.add(Box.createHorizontalStrut(spacerSize/2), null);
-//        jToolBar1.add(jGeneWidth, null);
         bbuilder.addFixed(widthLabel);
         bbuilder.addRelatedGap();
         bbuilder.addFixed(jGeneWidth);
         bbuilder.addGlue();
-//        jToolBar1.add(Box.createHorizontalStrut(spacerSize), null);
-//        jToolBar1.add(slider, null);
         bbuilder.addFixed(new JLabel("Intensity"));
         bbuilder.addRelatedGap();
         bbuilder.addGriddedGrowing(slider);
-//        jToolBar1.add(jSpacer4, null);
         bbuilder.addGlue();
-//        jToolBar1.add(jToolTipToggleButton, null);
         bbuilder.addFixed(jToolTipToggleButton);
-//        jToolBar1.add(jSpacer3, null);
 
         this.add(bbuilder.getPanel(), BorderLayout.SOUTH);
 
@@ -519,7 +493,7 @@ public class HierClusterViewWidget extends JPanel implements HierClusterModelEve
         arrayContainer.add(arrayDendrogram, BorderLayout.CENTER);
         jPanel2.add(arrayContainer, BorderLayout.NORTH);
         imageSnapShot.setText("Image Snapshot");
-        addToPanel.setText("Add to Panel");
+        addToPanel.setText("Add to Set");
         contextMenu.add(imageSnapShot);
         contextMenu.add(addToPanel);
 
@@ -548,23 +522,6 @@ public class HierClusterViewWidget extends JPanel implements HierClusterModelEve
 
         if (!zoomEnabled) {
             resetOriginal();
-        }
-    }
-
-    /**
-     * <code>JComponent</code> method to render this component
-     *
-     * @param g <code>Graphics</code> to be rendered on
-     */
-    public void paint(Graphics g) {
-        super.paint(g);
-        arrayDendrogram.resizingMarker = true;
-        arrayNames.resizingMarker = true;
-
-        if (!arrayDendrogram.isShowing()) {
-            arrayDendrogram.auxiliaryPaintComponent(g);
-        } else {
-            arrayDendrogram.repaint();
         }
     }
 
@@ -725,22 +682,24 @@ public class HierClusterViewWidget extends JPanel implements HierClusterModelEve
             display.imageSnapshot = markerDendrogram.imageSnapshot = arrayDendrogram.imageSnapshot = arrayNames.imageSnapshot = true;
             this.paintImmediately(0, 0, this.getWidth(), this.getHeight());
 
-            if ((display.image != null) && (markerDendrogram.image != null) && (arrayDendrogram.image != null) && (arrayNames.image != null)) {
-                int w = display.image.getWidth() + markerDendrogram.image.getWidth();
-                int h = arrayDendrogram.image.getHeight() + display.image.getHeight() + arrayNames.image.getHeight();
-                BufferedImage tempImage = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
-                Graphics2D ig = tempImage.createGraphics();
-                ig.setColor(Color.white);
-                ig.fillRect(0, 0, markerDendrogram.image.getWidth(), arrayDendrogram.image.getHeight() + arrayNames.image.getHeight());
-                ig.drawImage(markerDendrogram.image, null, 0, arrayDendrogram.image.getHeight() + arrayNames.image.getHeight());
-                ig.drawImage(arrayNames.image, null, 0, 0);
-                ig.drawImage(arrayDendrogram.image, null, 0, arrayNames.image.getHeight());
-                ig.drawImage(display.image, null, markerDendrogram.image.getWidth(), arrayDendrogram.image.getHeight() + arrayNames.image.getHeight());
+            int w = display.image.getWidth() + markerDendrogram.getWidth();
+            int h = arrayDendrogram.getHeight() + display.image.getHeight() + arrayNames.image.getHeight();
+            BufferedImage tempImage = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
+            Graphics2D ig = tempImage.createGraphics();
+            ig.setColor(Color.white);
+            jPanel2.paint(ig);
+//            arrayNames.paintComponent(ig);
+//            markerDendrogram.paintComponent(ig);
+//            arrayDendrogram.paintComponent(ig);
+//            ig.fillRect(0, 0, markerDendrogram.getWidth(), arrayDendrogram.getHeight() + arrayNames.image.getHeight());
+//            ig.drawImage(markerDendrogram.image, null, 0, arrayDendrogram.image.getHeight() + arrayNames.image.getHeight());
+//            ig.drawImage(arrayNames.image, null, 0, 0);
+//            ig.drawImage(arrayDendrogram.image, null, 0, arrayNames.image.getHeight());
+            ig.drawImage(display.image, null, markerDendrogram.getWidth(), arrayDendrogram.getHeight() + arrayNames.image.getHeight());
 
-                ImageIcon newIcon = new ImageIcon(tempImage, "Hierarchical Clustering Image : " + mASet.getDataSet().getLabel());
-                display.imageSnapshot = markerDendrogram.imageSnapshot = arrayDendrogram.imageSnapshot = arrayNames.imageSnapshot = false;
-                firePropertyChange(SAVEIMAGE_PROPERTY, null, newIcon);
-            }
+            ImageIcon newIcon = new ImageIcon(tempImage, "Hierarchical Clustering Image : " + mASet.getDataSet().getLabel());
+            display.imageSnapshot = markerDendrogram.imageSnapshot = arrayDendrogram.imageSnapshot = arrayNames.imageSnapshot = false;
+            firePropertyChange(SAVEIMAGE_PROPERTY, null, newIcon);
         }
     }
 

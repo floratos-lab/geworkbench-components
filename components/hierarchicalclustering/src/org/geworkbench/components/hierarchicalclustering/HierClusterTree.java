@@ -108,8 +108,8 @@ public class HierClusterTree extends JPanel {
     /**
      * <code>Image</code> painted on synchronously with this panel
      */
-    BufferedImage image = null;
-    BufferedImage highlightImage = null;
+//    BufferedImage image = null;
+//    BufferedImage highlightImage = null;
 
     /**
      * Bit to paint the offline image
@@ -119,12 +119,17 @@ public class HierClusterTree extends JPanel {
     /**
      * Image obtained before scaling
      */
-    private Graphics2D ig = null;
+//    private Graphics2D ig = null;
 
     /**
      * An array that represents the parts of the display that are under the specified node, used for selecting subtrees
      */
     private HierCluster currentHighlight;
+
+    /**
+     * Used to store where the mouse was so we can draw the highlight on repaint.
+     */
+    private int lastMouseX = -1, lastMouseY = -1;
 
     /**
      * Constructor
@@ -147,7 +152,7 @@ public class HierClusterTree extends JPanel {
     public HierClusterTree(JPanel parent, HierCluster treeData, int orientation) {
         super();
         this.parent = parent;
-        setBackground(Color.white);
+//        setBackground(Color.white);
         this.clusterRoot = treeData;
         this.orientation = orientation;
         setTreeData(treeData);
@@ -295,10 +300,15 @@ public class HierClusterTree extends JPanel {
      */
     public void setCurrentHighlight(HierCluster currentHighlight) {
         if (this.currentHighlight != currentHighlight) {
-//            System.out.println("Selecting highlight "+currentHighlight.getDepth());
             this.currentHighlight = currentHighlight;
-            clearHighlightImage();
-            paintComponent(getGraphics());
+            if (currentHighlight == null) {
+                // Mark as out of region
+                lastMouseX = -1;
+                lastMouseY = -1;
+            } else {
+                log.debug("Selecting highlight "+currentHighlight.getDepth());
+            }
+            repaint();
         }
     }
 
@@ -321,7 +331,7 @@ public class HierClusterTree extends JPanel {
      * @param startYparam vertical start coordinate for painting tree beneath this node
      * @param endYparam   vertical end coordinate for painting tree beneath this node
      */
-    private void paintNode(HierCluster nodeParam, int startYparam, int endYparam) {
+    private void paintNode(Graphics ig, HierCluster nodeParam, int startYparam, int endYparam) {
         ArrayList<NodePaintingInstructions> nodesToPaint = new ArrayList<NodePaintingInstructions>();
         Map<Cluster, Integer> childCounts = nodeParam.getLeafChildrenCountMap();
         nodesToPaint.add(new NodePaintingInstructions(nodeParam, startYparam, endYparam, false));
@@ -381,6 +391,10 @@ public class HierClusterTree extends JPanel {
             log.debug("No rendering info yet to calculate highlight.");
             return;
         }
+        if (mouseX < 0 || mouseY < 0) {
+//            log.debug("Mouse has left component, not painting highlight.");
+            return;
+        }
         ArrayList<HierCluster> nodesToCheck = new ArrayList<HierCluster>();
         nodesToCheck.add(startNode);
         while (!nodesToCheck.isEmpty()) {
@@ -406,16 +420,17 @@ public class HierClusterTree extends JPanel {
                     nodeToPaint = node;
                 }
                 if (nodeToPaint != currentHighlight) {
-                    RenderedNodeInfo paintInfo = renderInfo.get(nodeToPaint);
-//                    log.debug("Found highlight node at depth " + nodeToPaint.getDepth());
+//                    log.debug("Found new highlight node at depth " + nodeToPaint.getDepth());
                     this.currentHighlight = nodeToPaint;
+                }
+                if (this.currentHighlight != null) {
+                    RenderedNodeInfo paintInfo = renderInfo.get(this.currentHighlight);
                     g.setColor(Color.blue);
                     if (orientation == HORIZONTAL) {
                         g.fillRect(paintInfo.y, paintInfo.startX, (int) paintInfo.highlightDim.getWidth(), (int) paintInfo.highlightDim.getHeight());
                     } else {
                         g.fillRect(paintInfo.startX, paintInfo.y, (int) paintInfo.highlightDim.getWidth(), (int) paintInfo.highlightDim.getHeight());
                     }
-                    paintComponent(getGraphics());
                 }
                 return;
             }
@@ -449,34 +464,6 @@ public class HierClusterTree extends JPanel {
     }
 
     /**
-     * Paints the tree into specified graphics when this component is not showing.
-     *
-     * @param g the Graphics context used for painting
-     */
-    protected void auxiliaryPaintComponent(Graphics g) {
-        if (imageSnapshot || resizingMarker) {
-            if (resizingMarker) {
-                setSizes(clusterRoot);
-            }
-            image = new BufferedImage(this.getWidth(), this.getHeight(), BufferedImage.TYPE_INT_RGB);
-            ig = image.createGraphics();
-            ig.setColor(Color.white);
-            ig.fillRect(0, 0, this.getWidth(), this.getHeight());
-            ig.setColor(Color.black);
-            if (clusterRoot != null) {
-                if (clusterRoot.getLeafChildrenCount() > 1) {
-                    if (!clusterRoot.isLeaf()) {
-                        paintNode(clusterRoot, 0, maxHeight);
-                    }
-                }
-            }
-        }
-        if (image != null)
-            ((Graphics2D) g).drawImage(image, null, 0, 0);
-        resizingMarker = false;
-    }
-
-    /**
      * Paints the tree into specified graphics.
      *
      * @param g the Graphics context used for painting
@@ -484,62 +471,39 @@ public class HierClusterTree extends JPanel {
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
 
-        if (imageSnapshot || resizingMarker) {
-            if (resizingMarker) {
-                setSizes(clusterRoot);
-            }
-            image = new BufferedImage(this.getWidth(), this.getHeight(), BufferedImage.TYPE_INT_ARGB);
-            ig = image.createGraphics();
+        if (resizingMarker) {
+            setSizes(clusterRoot);
+        }
 
-            ig.setComposite(AlphaComposite.getInstance(AlphaComposite.CLEAR, 0f));
-//            ig.setColor(Color.white);
-            ig.fillRect(0, 0, this.getWidth(), this.getHeight());
-            ig.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f));
-            ig.setColor(Color.black);
+        g.setColor(Color.white);
+        g.fillRect(0, 0, this.getWidth(), this.getHeight());
+        //            ig.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f));
+        g.setColor(Color.black);
 
-            if (clusterRoot != null) {
-                if (clusterRoot.getLeafChildrenCount() > 1) {
-                    if (!clusterRoot.isLeaf()) {
-                        paintNode(clusterRoot, 0, maxHeight);
-                    }
+        if (clusterRoot != null) {
+            if (clusterRoot.getLeafChildrenCount() > 1) {
+                if (!clusterRoot.isLeaf()) {
+                    paintNode(g, clusterRoot, 0, maxHeight);
                 }
             }
         }
 
-        ((Graphics2D) g).setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f));
-        if (image != null) {
-            ((Graphics2D) g).drawImage(image, null, 0, 0);
-        }
-        if (highlightImage != null) {
-            ((Graphics2D) g).setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.5f));
-            ((Graphics2D) g).drawImage(highlightImage, null, 0, 0);
-        }
+        Graphics2D g2d = (Graphics2D) g;
+
+        g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.5f));
+        g2d.setColor(Color.blue);
+        paintHighlight(g2d, clusterRoot, lastMouseX, lastMouseY);
+
         resizingMarker = false;
-    }
-
-    /**
-     * Clear the image that has the selected subtree of the dendrogram highlighted. Affects variable highlightImage
-     */
-    private void clearHighlightImage() {
-        if (highlightImage == null || highlightImage.getWidth() != this.getWidth() || highlightImage.getHeight() != this.getHeight()) {
-            highlightImage = new BufferedImage(this.getWidth(), this.getHeight(), BufferedImage.TYPE_INT_ARGB);
-        } else {
-            Graphics2D highlightg2d = highlightImage.createGraphics();
-
-            highlightg2d.setComposite(AlphaComposite.getInstance(AlphaComposite.CLEAR, 0f));
-            //            highlightg2d.setColor(Color.white);
-            highlightg2d.fillRect(0, 0, this.getWidth(), this.getHeight());
-        }
     }
 
     private void repaintHighlightImage(int mouseX, int mouseY) {
 //        log.debug("Redraw highlight image");
-        clearHighlightImage();
-        Graphics2D highlightg2d = highlightImage.createGraphics();
 
-        highlightg2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.5f));
-        highlightg2d.setColor(Color.blue);
-        paintHighlight(highlightg2d, clusterRoot, mouseX, mouseY);
+        lastMouseX = mouseX;
+        lastMouseY = mouseY;
+        repaint();
+
     }
 
     /**

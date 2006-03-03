@@ -63,7 +63,7 @@ public abstract class SelectorPanel<T extends DSSequential> implements VisualPlu
     protected JTree panelTree;
     // Menu items
     protected JPopupMenu itemListPopup = new JPopupMenu();
-    protected JMenuItem addToPanelItem = new JMenuItem("Add to Panel");
+    protected JMenuItem addToPanelItem = new JMenuItem("Add to Set");
     protected JMenuItem clearSelectionItem = new JMenuItem("Clear Selection");
     protected JPopupMenu treePopup = new JPopupMenu();
     protected JMenuItem renamePanelItem = new JMenuItem("Rename");
@@ -74,7 +74,7 @@ public abstract class SelectorPanel<T extends DSSequential> implements VisualPlu
     protected JMenuItem visualPropertiesItem = new JMenuItem("Visual Properties");
     protected JPopupMenu rootPopup = new JPopupMenu();
     protected JPopupMenu itemPopup = new JPopupMenu();
-    protected JMenuItem removeFromPanelItem = new JMenuItem("Remove from Panel");
+    protected JMenuItem removeFromPanelItem = new JMenuItem("Remove from Set");
     protected JPanel lowerPanel = new JPanel();
     protected JComboBox contextSelector;
     protected JButton newContextButton;
@@ -115,13 +115,14 @@ public abstract class SelectorPanel<T extends DSSequential> implements VisualPlu
         contextPanel.setLayout(new BoxLayout(contextPanel, BoxLayout.X_AXIS));
         contextPanel.add(contextSelector);
         contextPanel.add(newContextButton);
-        JLabel groupLabel = new JLabel(" " + name + " Groups");
+        JLabel groupLabel = new JLabel(" " + name + " Sets");
         JPanel labelPanel = new JPanel();
         labelPanel.setLayout(new BoxLayout(labelPanel, BoxLayout.X_AXIS));
         labelPanel.add(groupLabel);
         labelPanel.add(Box.createHorizontalGlue());
         bypassCheckbox = new JCheckBox("Bypass", false);
-        labelPanel.add(bypassCheckbox);
+        // Temporarily not in use for 3.1 release - watkin
+        // labelPanel.add(bypassCheckbox);
         lowerPanel.add(labelPanel);
         lowerPanel.add(contextPanel);
         lowerPanel.add(new JScrollPane(panelTree));
@@ -160,7 +161,7 @@ public abstract class SelectorPanel<T extends DSSequential> implements VisualPlu
             }
         };
         addToPanelItem.addActionListener(addToPanelListener);
-        menuListeners.put("Commands.Panels.Add to Panel", addToPanelListener);
+        menuListeners.put("Commands.Panels.Add to Set", addToPanelListener);
         ActionListener clearListener = new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 clearSelectionPressed();
@@ -429,7 +430,7 @@ public abstract class SelectorPanel<T extends DSSequential> implements VisualPlu
             if (defaultLabel == null) {
                 defaultLabel = "";
             }
-            String label = JOptionPane.showInputDialog("Panel Label:", defaultLabel);
+            String label = JOptionPane.showInputDialog("Set Label:", defaultLabel);
             if (label == null) {
                 return;
             } else {

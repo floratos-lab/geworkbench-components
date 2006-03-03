@@ -145,8 +145,8 @@ import java.util.Vector;
             }
         });
         jAddBttn = new JButton();
-        jAddBttn.setText("Add to Panel ");
-        jAddBttn.setToolTipText("Add to Panel.");
+        jAddBttn.setText("Add to Set ");
+        jAddBttn.setToolTipText("Add to Set.");
         jAddBttn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 jAddBttn_actionPerformed(e);
@@ -294,10 +294,10 @@ import java.util.Vector;
         rangeAxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
 
         mainPanel.add(graph, BorderLayout.CENTER);
-        chkActivateMarkers.setSelected(true);
-        this.activateMarkers = true;
-        chkShowArrays.setSelected(true);
-        this.activateArrays = true;
+        chkAllMarkers.setSelected(true);
+        this.onlyActivatedMarkers = false;
+        chkAllArrays.setSelected(true);
+        this.onlyActivatedArrays = false;
 
     }
 
@@ -830,7 +830,7 @@ import java.util.Vector;
 
             int mArrayId = jMASlider.getValue();
             if (mArrayId >= 0) {
-                createNewChart(mArrayId, activateArrays);
+                createNewChart(mArrayId, onlyActivatedArrays);
                   mainPanel.repaint();
             }
 
@@ -853,7 +853,7 @@ import java.util.Vector;
     public void doTTest() {
         SimpleTTest simpleTTest = new SimpleTTest();
         //  int num = maSetView
-        double values[] = simpleTTest.execute(maSetView, activateMarkers);
+        double values[] = simpleTTest.execute(maSetView, onlyActivatedMarkers);
         double minT = simpleTTest.getMinT();
         double maxT = simpleTTest.getMaxT();
         DSItemList<DSGeneMarker> item = simpleTTest.getItem();

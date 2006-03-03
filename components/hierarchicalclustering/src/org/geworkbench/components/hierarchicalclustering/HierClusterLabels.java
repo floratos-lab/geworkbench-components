@@ -277,6 +277,7 @@ public class HierClusterLabels extends JPanel {
                 }
             }
         } catch (NullPointerException npe) {
+            npe.printStackTrace();
             log.error(npe);
         }
     }

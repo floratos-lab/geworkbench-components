@@ -65,7 +65,7 @@ public class GenePanel extends SelectorPanel<DSGeneMarker> {
     }
 
     public GenePanel() {
-        super(DSGeneMarker.class, "Gene");
+        super(DSGeneMarker.class, "Marker");
         // Add gene panel specific menu items.
         treePopup.add(savePanelItem);
         rootPopup.add(loadPanelItem);
@@ -108,7 +108,7 @@ public class GenePanel extends SelectorPanel<DSGeneMarker> {
             JFileChooser fc = new JFileChooser(".");
             FileFilter filter = new MarkerPanelSetFileFilter();
             fc.setFileFilter(filter);
-            fc.setDialogTitle("Save Marker Panel");
+            fc.setDialogTitle("Save Marker Set");
             String extension = ((MarkerPanelSetFileFilter) filter).getExtension();
             int choice = fc.showSaveDialog(mainPanel.getParent());
             if (choice == JFileChooser.APPROVE_OPTION) {
@@ -135,7 +135,7 @@ public class GenePanel extends SelectorPanel<DSGeneMarker> {
         JFileChooser fc = new JFileChooser(".");
         javax.swing.filechooser.FileFilter filter = new MarkerPanelSetFileFilter();
         fc.setFileFilter(filter);
-        fc.setDialogTitle("Open Marker Panel");
+        fc.setDialogTitle("Open Marker Set");
         int choice = fc.showOpenDialog(mainPanel.getParent());
         if (choice == JFileChooser.APPROVE_OPTION) {
             DSPanel<DSGeneMarker> panel = deserializePanel(fc.getSelectedFile());
