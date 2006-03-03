@@ -483,7 +483,7 @@ import java.util.Comparator;
             if (maView.getMarkerPanel().activeSubset().size() == 0) {
                 selectedMarkerInfo = new CSItemList<DSGeneMarker>();
             } else {
-                selectedMarkerInfo = maView.markers();
+                selectedMarkerInfo = maView.getUniqueMarkers();
             }
         }
     }

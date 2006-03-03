@@ -2,16 +2,10 @@ package org.geworkbench.components.microarrays;
 
 /*
  * The geworkbench project
- * 
- * Copyright (c) 2006 Columbia University 
+ *
+ * Copyright (c) 2006 Columbia University
  *
  */
-
-import java.awt.BorderLayout;
-import java.awt.event.ActionListener;
-import java.text.NumberFormat;
-
-import javax.swing.JPanel;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -29,11 +23,7 @@ import org.geworkbench.events.MicroarraySetViewEvent;
 import org.geworkbench.events.PhenotypeSelectedEvent;
 import org.geworkbench.util.BusySwingWorker;
 import org.geworkbench.util.microarrayutils.MicroarrayViewEventBase;
-import org.jfree.chart.ChartFactory;
-import org.jfree.chart.ChartMouseEvent;
-import org.jfree.chart.ChartMouseListener;
-import org.jfree.chart.ChartPanel;
-import org.jfree.chart.JFreeChart;
+import org.jfree.chart.*;
 import org.jfree.chart.entity.ChartEntity;
 import org.jfree.chart.entity.XYItemEntity;
 import org.jfree.chart.labels.StandardXYToolTipGenerator;
@@ -43,16 +33,24 @@ import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 
-/**
- * Modular Application Framework for Gene Expession, Sequence and Genotype Analysis
- * 
- * @author Adam Margolin
- * @version $Id: ExpressionProfilePanel.java,v 1.9 2006-02-14 23:19:16 keshav Exp $
- */
-@AcceptTypes( { DSMicroarraySet.class })
-public class ExpressionProfilePanel extends MicroarrayViewEventBase implements MenuListener, VisualPlugin {
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.text.NumberFormat;
 
-    Log log = LogFactory.getLog( this.getClass() );
+/**
+ * Modular Application Framework for Gene Expession, Sequence and Genotype
+ * Analysis
+ *
+ * @author Adam Margolin
+ * @see MenuListener, VisualPlugin
+ */
+@AcceptTypes({DSMicroarraySet.class})
+public class ExpressionProfilePanel extends MicroarrayViewEventBase implements
+        MenuListener, VisualPlugin {
+
+    Log log = LogFactory.getLog(this.getClass());
 
     private JPanel graphPanel;
     private ChartPanel graph;
@@ -62,7 +60,7 @@ public class ExpressionProfilePanel extends MicroarrayViewEventBase implements M
     public ExpressionProfilePanel() {
         try {
             jbInit();
-        } catch ( Exception e ) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -71,91 +69,104 @@ public class ExpressionProfilePanel extends MicroarrayViewEventBase implements M
      * @throws Exception
      */
     protected void jbInit() throws Exception {
+
         super.jbInit();
-        graphPanel = new JPanel( new BorderLayout() );
-        chart = ChartFactory.createXYLineChart( null, // Title
+        graphPanel = new JPanel(new BorderLayout());
+        chart = ChartFactory.createXYLineChart(null, // Title
                 "Experiment", // X-Axis label
                 "Value", // Y-Axis label
                 new XYSeriesCollection(), // Dataset
                 PlotOrientation.VERTICAL, false, // Show legend
-                true, true );
-        graph = new ChartPanel( chart, true );
-        graphPanel.add( graph, BorderLayout.CENTER );
-        mainPanel.add( graphPanel, BorderLayout.CENTER );
+                true, true);
+        graph = new ChartPanel(chart, true);
+        graphPanel.add(graph, BorderLayout.CENTER);
+        mainPanel.add(graphPanel, BorderLayout.CENTER);
 
-        chkActivateMarkers.setSelected( true );
-        this.activateMarkers = true;
+        plotButton
+                .addActionListener(new ExpressionProfilePanel_plotButton_actionAdapter(
+                        this));
+        jToolBar3.add(plotButton);
+        jToolBar3.add(numMarkersSelectedLabel);
 
-        chkShowArrays.setSelected( true );
-        this.activateArrays = true;
+        chkAllMarkers.setSelected(true);
+        this.onlyActivatedMarkers = false;
+
+        chkAllArrays.setSelected(true);
+        this.onlyActivatedArrays = false;
     }
 
     /**
      * @param event
      */
-    protected void fireModelChangedEvent( MicroarraySetViewEvent event ) {
+    protected void fireModelChangedEvent(MicroarraySetViewEvent event) {
 
-        log.debug( "Event is " + event );
+        log.debug("Event is " + event);
 
-        if ( maSetView == null ) return;
+        if (maSetView == null)
+            return;
 
-        graphPanel.removeAll();
+        if (isPlotRefresh()) {
 
-        BusySwingWorker worker = new BusySwingWorker() {
+            graphPanel.removeAll();
 
-            public Object construct() {
+            setPlotRefresh(false);
 
-                setBusy( graphPanel );
-                DSPanel<DSGeneMarker> genes = new CSPanel<DSGeneMarker>( "" );
-                genes.addAll( maSetView.markers() );
-                DSPanel<DSMicroarray> arrays = new CSPanel<DSMicroarray>( "" );
-                arrays.addAll( maSetView.items() );
-                double log2 = Math.log( 2.0 );
-                XYSeriesCollection plots = new XYSeriesCollection();
-                int numGenes = ( genes.size() > 500 ) ? 500 : genes.size();
-                for ( int geneCtr = 0; geneCtr < numGenes; geneCtr++ ) {
-                    XYSeries dataSeries = new XYSeries( genes.get( geneCtr ).getLabel() );
-                    for ( int maCtr = 0; maCtr < arrays.size(); maCtr++ ) {
-                        double value = arrays.get( maCtr ).getMarkerValue( geneCtr ).getValue();
-                        if ( Double.isNaN( value ) || value <= 0 ) {
-                            dataSeries.add( maCtr, 0 );
-                        } else {
-                            if ( value > 0 ) {
-                                dataSeries.add( maCtr, Math.log( value ) / log2 );
+            BusySwingWorker worker = new BusySwingWorker() {
+                public Object construct() {
+                    setBusy(graphPanel);
+                    DSPanel<DSGeneMarker> genes = new CSPanel<DSGeneMarker>("");
+                    genes.addAll(maSetView.markers());
+                    DSPanel<DSMicroarray> arrays = new CSPanel<DSMicroarray>("");
+                    arrays.addAll(maSetView.items());
+                    XYSeriesCollection plots = new XYSeriesCollection();
+                    int numGenes = (genes.size() > 500) ? 500 : genes.size();
+                    for (int geneCtr = 0; geneCtr < numGenes; geneCtr++) {
+                        XYSeries dataSeries = new XYSeries(genes.get(geneCtr)
+                                .getLabel());
+                        for (int maCtr = 0; maCtr < arrays.size(); maCtr++) {
+                            double value = arrays.get(maCtr).getMarkerValue(
+                                    genes.get(geneCtr)).getValue();
+                            if (Double.isNaN(value)) {
+                                dataSeries.add(maCtr, 0);
                             } else {
-                                dataSeries.add( maCtr, 0 );
+                                dataSeries.add(maCtr, value);
                             }
                         }
+                        plots.addSeries(dataSeries);
                     }
-                    plots.addSeries( dataSeries );
+                    StandardXYItemRenderer renderer = new StandardXYItemRenderer(
+                            StandardXYItemRenderer.LINES,
+                            new ExpressionXYToolTip());
+
+                    JFreeChart ch = ChartFactory.createXYLineChart(null, // Title
+                            "Experiment", // X-Axis label
+                            "Value", // Y-Axis label
+                            plots, // Dataset
+                            PlotOrientation.VERTICAL, false, // Show legend
+                            true, true);
+
+                    ch.getXYPlot().setRenderer(renderer);
+
+                    chartPanel = new ChartPanel(ch);
+                    return null;
+
                 }
-                StandardXYItemRenderer renderer = new StandardXYItemRenderer( StandardXYItemRenderer.LINES,
-                        new ExpressionXYToolTip() );
 
-                JFreeChart ch = ChartFactory.createXYLineChart( null, // Title
-                        "Experiment", // X-Axis label
-                        "Value", // Y-Axis label
-                        plots, // Dataset
-                        PlotOrientation.VERTICAL, false, // Show legend
-                        true, true );
-                ch.getXYPlot().setRenderer( renderer );
+                public void finished() {
+                    graphPanel.removeAll();
+                    chartPanel
+                            .addChartMouseListener(new MicroarrayChartMouseListener());
+                    graphPanel.add(chartPanel, BorderLayout.CENTER);
+                    graphPanel.revalidate();
 
-                chartPanel = new ChartPanel( ch );
+                    graphPanel.repaint();
 
-                return null;
-            }
+                }
 
-            public void finished() {
+            };
 
-                graphPanel.removeAll();
-                chartPanel.addChartMouseListener( new MicroarrayChartMouseListener() );
-                graphPanel.add( chartPanel, BorderLayout.CENTER );
-                graphPanel.revalidate();
-                graphPanel.repaint();
-            }
-        };
-
-        worker.start();
+            worker.start();
+        }
     }
 
     /**
@@ -196,38 +207,40 @@ public class ExpressionProfilePanel extends MicroarrayViewEventBase implements M
 
     /**
      * Responsible for handling marker selection in a microarray scatter plot.
-     * 
+     *
      * @author unattributable
      */
     private class MicroarrayChartMouseListener implements ChartMouseListener {
 
-        public void chartMouseClicked( ChartMouseEvent event ) {
+        public void chartMouseClicked(ChartMouseEvent event) {
             ChartEntity entity = event.getEntity();
-            if ( ( entity != null ) && ( entity instanceof XYItemEntity ) ) {
-                XYItemEntity xyEntity = ( XYItemEntity ) entity;
+            if ((entity != null) && (entity instanceof XYItemEntity)) {
+                XYItemEntity xyEntity = (XYItemEntity) entity;
                 int series = xyEntity.getSeriesIndex();
                 int item = xyEntity.getItem();
-                DSGeneMarker marker = maSetView.markers().get( series );
-                if ( marker != null ) {
-                    MarkerSelectedEvent mse = new org.geworkbench.events.MarkerSelectedEvent( marker );
-                    publishMarkerSelectedEvent( mse );
+                DSGeneMarker marker = maSetView.markers().get(series);
+                if (marker != null) {
+                    MarkerSelectedEvent mse = new org.geworkbench.events.MarkerSelectedEvent(
+                            marker);
+                    publishMarkerSelectedEvent(mse);
                 }
-                DSMicroarray array = maSetView.items().get( item );
-                if ( array != null ) {
-                    PhenotypeSelectedEvent pse = new PhenotypeSelectedEvent( array );
-                    publishPhenotypeSelectedEvent( pse );
+                DSMicroarray array = maSetView.items().get(item);
+                if (array != null) {
+                    PhenotypeSelectedEvent pse = new PhenotypeSelectedEvent(
+                            array);
+                    publishPhenotypeSelectedEvent(pse);
                 }
             }
         }
 
-        public void chartMouseMoved( ChartMouseEvent event ) {
+        public void chartMouseMoved(ChartMouseEvent event) {
             // No-op
         }
     }
 
     /**
      * Tool-tip renderer for gene charts.
-     * 
+     *
      * @author unattributable
      */
     private class ExpressionXYToolTip extends StandardXYToolTipGenerator {
@@ -238,18 +251,21 @@ public class ExpressionProfilePanel extends MicroarrayViewEventBase implements M
          * @param item
          * @return String
          */
-        public String generateToolTip( XYDataset data, int series, int item ) {
+        public String generateToolTip(XYDataset data, int series, int item) {
+
+            if (!isPlotRefresh())
+                return null;
 
             NumberFormat nf = NumberFormat.getInstance();
-            nf.setMaximumFractionDigits( 2 );
+            nf.setMaximumFractionDigits(2);
 
-            DSGeneMarker marker = maSetView.markers().get( series );
-            DSMicroarray array = maSetView.items().get( item );
+            DSGeneMarker marker = maSetView.markers().get(series);
+            DSMicroarray array = maSetView.items().get(item);
             String tooltip = "";
-            if ( marker != null ) {
+            if (marker != null) {
                 tooltip += "Marker: " + marker.getLabel();
             }
-            if ( array != null ) {
+            if (array != null) {
                 tooltip += " Array: " + array.getLabel();
             }
             return tooltip;
@@ -257,21 +273,58 @@ public class ExpressionProfilePanel extends MicroarrayViewEventBase implements M
     }
 
     /**
-     * @return ActionListener
      * @param var
+     * @return ActionListener
      */
-    public ActionListener getActionListener( String var ) {
+    public ActionListener getActionListener(String var) {
         return null;
     }
 
+    /**
+     * @param e
+     */
+    void plotButton_actionPerformed(ActionEvent e) {
+
+        if (e.getActionCommand().equals(plotButton.getText())) {
+            setPlotRefresh(true);
+            refreshMaSetView();
+        }
+
+    }
+
     @Publish
-    public org.geworkbench.events.MarkerSelectedEvent publishMarkerSelectedEvent( MarkerSelectedEvent event ) {
+    public org.geworkbench.events.MarkerSelectedEvent publishMarkerSelectedEvent(
+            MarkerSelectedEvent event) {
         return event;
     }
 
     @Publish
-    public PhenotypeSelectedEvent publishPhenotypeSelectedEvent( PhenotypeSelectedEvent event ) {
+    public PhenotypeSelectedEvent publishPhenotypeSelectedEvent(
+            PhenotypeSelectedEvent event) {
         return event;
     }
 
+}
+
+/**
+ * @author keshav
+ */
+class ExpressionProfilePanel_plotButton_actionAdapter implements
+        java.awt.event.ActionListener {
+
+    private Log log = LogFactory.getLog(this.getClass());
+
+    ExpressionProfilePanel adaptee;
+
+    ExpressionProfilePanel_plotButton_actionAdapter(
+            ExpressionProfilePanel adaptee) {
+        this.adaptee = adaptee;
+    }
+
+    public void actionPerformed(ActionEvent e) {
+        log.debug("actionPerformed " + e);
+
+        adaptee.plotButton_actionPerformed(e);
+        adaptee.getComponent().repaint();
+    }
 }

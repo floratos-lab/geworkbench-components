@@ -173,7 +173,7 @@ public class SOMPlot extends ChartPanel {
         });
         result.add(imageSnapshot);
 
-        JMenuItem addToPanel = new JMenuItem("Add to Panel");
+        JMenuItem addToPanel = new JMenuItem("Add to Set");
         addToPanel.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 addToPanel_actionPerformed(e);

@@ -1,10 +1,4 @@
-<html>
-
-
-
-<head>
-
-<meta http-equiv="Content-Language" content="en-us">
+    <meta http-equiv="Content-Language" content="en-us">
 
 <meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
 
@@ -21,44 +15,45 @@
 
 
 <body>
-    <h3>Blast and Other Algorithms</h3> 
-    <p>The application offers some popular sequence alignment algorithms and a simple Blast Parser. The Paracel Blast Machine is used as default backend blast Machine, GeneMatcher2 are used for other algorithms which are both hosted at Columbia Genome Center. This help section covers: <a href="#_To_check_the_status_of_Blast_Machin">checking blast server status, running a Blast job</a> and <a href="#_Other_Algorithms">using other algorithms</a>.</p>
-    <p><b><a name="_To_check_the_status_of_Blast_Machin"></a>Checking Blast machine status</b></p>
-    <p>1 Use the <b>Server_Info </b>panel under the<b> Sequence Alignment</b> tab in the <b>Analysis Area</b> in the lower left of the application.</p>
-    <p>2 Click on <b>Connect</b> button to check the status.</p>
-    <p><img border="0" width="265" height="309" src="BlastOverview_files/image001.jpg"></p>
-    <p><b><a name="_To_run_a_Blast_job"></a>Running a Blast job</b></p>
-    <p>1 Load a FASTA file into a project.</p>
-    <p>2 In the <b>Selection Area, </b>select the <b>Sequence Alignment</b> tab.</p>
-    <p>3 Select the <b>Blast</b> tab.</p>
-    <p>4 Select a <b>program</b> from the dropdown list. The programs includes:</p>
-    <p>&middot; blastp: compares an amino acid query sequence against a protein sequence database </p>
-    <p>&middot; blastn: compares a nucleotide query sequence against a nucleotide sequence database </p>
-    <p>&middot; blastx: compares a nucleotide query sequence translated in all reading frames against a protein sequence database </p>
-    <p>&middot; tblastn: compares a protein query sequence against a nucleotide sequence database dynamically translated in all reading frames</p>
-    <p>&middot; tblastx: compares the six-frame translations of a nucleotide query sequence against the six-frame translations of a nucleotide sequence database.</p>
-    <p>5 Modify the values of <b>subsequence</b> if needed.</p>
-    <p>6 Click on the database name to select the <b>Database</b>. </p>
-    <p>7 Click on the<b> BLAST </b>push button. It will automatically check Blast Machine status first, then if the sever is listening, the job will be submitted to the server.</p>
-    <p>8 After the job is submitted, you can see the moving of the progress bar. If you want to stop the running job, click the <b>Stop </b>button.</p>
-    <p>9 The result will be showed on the BlastParser module and based on your choice; it may show on a new web browser too. You can unselect the button <b>Display your result in your browser</b>, which is located under <b>Advanced_Options</b>. </p>
-    <p><img border="0" width="491" height="445" src="BlastOverview_files/image002.jpg"></p>
-    <p><b><a name="_Other_Algorithms"></a>Other Algorithms <a name="sm"></a></b></p>
-    <p>To use other algorithms, select from <b>Other Algorithms</b> panel. All other algorithms requests will be processed on GeneMatcher2 machine.</p>
-    <p>1 Load a FASTA file into a project</p>
-    <p>2 In the <b>Selection Area</b>, select the <b>Sequence Alignment</b> tab</p>
-    <p>3 Select the <b>Other Algorithms</b> tab</p>
-    <p>4 Select a <b>Database </b>from the dropdown list.</p>
-    <p>5 Modify the values of <b>subsequence</b> if needed</p>
-    <p>6 Select an Algorithm from the dropdown list. The includes:</p>
-    <p>&#12290; Smith-Waterman Protein: compares an amino acid query sequence against a protein sequence database </p>
-    <p>&#12290; Smith-Waterman DNA: compares a nucleotide query sequence against a nucleotide sequence database </p>
-    <p>&#12290; Frame(from DNA sequence to protein DB): compares a nucleotide query sequence against a protein sequence database </p>
-    <p>&#12290; Frame(from Protein sequence to DNA DB): compares an amino acid query sequence against a nucleotide sequence database</p>
-    <p>7 Click on <b>Search</b>. </p>
-    <p>&#12290; The result will be showed on the Alignment Results visualization component.</p>
-    <p><img border="0" width="493" height="440" src="BlastOverview_files/image003.jpg"></p>
-    <p><a name="_To_Add_Sequences_to_a_Project"></a> </p>
-</body>
-</html>
+    <h2>Blast and Other Algorithms </h2> 
+    <p>The application offers some popular sequence alignment algorithms and a simple Blast Parser. The Paracel Blast Machine is used as default backend blast Machine, GeneMatcher2 are used for other algorithms which are both hosted at Columbia Genome Center. This help section covers: <a href="#_To_check_the_status_of_Blast_Machin">checking blast server status, running a Blast job</a> and <a href="#_Other_Algorithms">using other algorithms</a>.</p> 
+    <h3><a name="_To_check_the_status_of_Blast_Machin"></a>Checking the status of Blast Machine</h3> 
+    <p>1 Use the <b>Server_Info </b>panel under the<b> Sequence Alignment</b> tab in the <b>Analysis Area</b> in the lower left of the application.</p> 
+    <p>2 Click on <b>Connect</b> button to check the status.</p> 
+    <p><img border="0" width="509" height="413" src="BlastOverview_files/image001.jpg"></p> 
+    <h3><a name="_To_run_a_Blast_job"></a>Running a Blast</h3> 
+    <p>1 Load a FASTA file into a project.</p> 
+    <p>2 In the <b>Analysis Area, </b>select the <b>Sequence Alignment</b> tab.</p> 
+    <p>3 Select the <b>Blast</b> tab.</p> 
+    <p>4 Select a <b>program</b> from the dropdown list. The programs includes:</p> 
+    <p>&#12290; blastp: compares an amino acid query sequence against a protein sequence database </p> 
+    <p>&#12290; blastn: compares a nucleotide query sequence against a nucleotide sequence database </p> 
+    <p>&#12290; blastx: compares a nucleotide query sequence translated in all reading frames against a protein sequence database </p> 
+    <p>&#12290; tblastn: compares a protein query sequence against a nucleotide sequence database dynamically translated in all reading frames</p> 
+    <p>&#12290; tblastx: compares the six-frame translations of a nucleotide query sequence against the six-frame translations of a nucleotide sequence database.</p> 
+    <p>5 Modify the values of <b>subsequence</b> if needed.</p> 
+    <p>6 Click on the database name to select the <b>Database</b>. </p> 
+    <p>7 Click on the<b> BLAST </b>push button. It will automatically check Blast Machine status first, then if the sever is listening, the job will be submitted to the server.</p> 
+    <p>8 After the job is submitted, you can see the moving of the progress bar. If you want to stop the running job, click the <b>Stop </b>button.</p> 
+    <p>9 The result will be showed on the BlastParser module and based on your choice; it may show on a new web browser too. You can unselect the button &#8220;Display your result in your browser&#8221;, which is located under <b>&#8220;Advanced_Options&#8221;</b>. </p> 
+    <p><img border="0" width="540" height="368" src="BlastOverview_files/image002.jpg"></p> 
+    <h3><a name="_Other_Algorithms"></a>Other Algorithms <a name="sm"></a></h3> 
+    <p>To use other algorithms, select from &quot;Other Algorithms&quot; panel. All other algorithms requests will be processed on GeneMatcher2 machine.</p> 
+    <p>1 Load a FASTA file into a project</p> 
+    <p>2 In the <b>Analysis Area</b>, select the <b>Sequence Alignment</b> tab</p> 
+    <p>3 Select the <b>Other Algorithms</b> tab</p> 
+    <p>4 Select a <b>Database </b>from the dropdown list.</p> 
+    <p>5 Modify the values of <b>subsequence</b> if needed</p> 
+    <p>6 Select an Algorithm from the dropdown list. The includes:</p> 
+    <p>&#12290; Smith-Waterman Protein: compares an amino acid query sequence against a protein sequence database </p> 
+    <p>&#12290; Smith-Waterman DNA: compares a nucleotide query sequence against a nucleotide sequence database </p> 
+    <p>&#12290; Frame(from DNA sequence to protein DB): compares a nucleotide query sequence against a protein sequence database </p> 
+    <p>&#12290; Frame(from Protein sequence to DNA DB): compares an amino acid query sequence against a nucleotide sequence database</p> 
+    <p>7 Click on <b>Search</b>. </p> 
+    <p>&#12290; The result will be showed on the Alignment Results visualization component.</p> 
 
+</body>
+
+
+
+</html>

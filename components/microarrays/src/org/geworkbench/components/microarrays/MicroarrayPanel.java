@@ -92,6 +92,7 @@ import java.util.HashMap;
     }
 
     protected void reset() {
+        super.reset();
         if (mArraySet != null) {
             jMASlider.setMaximum(dataSetView.items().size() - 1);
             jMASlider.setMinimum(0);

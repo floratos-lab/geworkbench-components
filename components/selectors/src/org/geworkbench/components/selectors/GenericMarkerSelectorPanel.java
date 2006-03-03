@@ -192,14 +192,14 @@ public class GenericMarkerSelectorPanel implements VisualPlugin, MenuListener {
         panelTreeSelection = panelTree.getSelectionModel();
         component1 = Box.createHorizontalStrut(8);
         mainPanel.setLayout(borderLayout1);
-        jAddToPanel.setText("Add to Panel");
+        jAddToPanel.setText("Add to Set");
 
         ActionListener listener = new java.awt.event.ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 jAddToPanel_actionPerformed(e);
             }
         };
-        listeners.put("Commands.Panels.Add to Panel", listener);
+        listeners.put("Commands.Panels.Add to Set", listener);
         jAddToPanel.addActionListener(listener);
 
         geneList.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -433,7 +433,7 @@ public class GenericMarkerSelectorPanel implements VisualPlugin, MenuListener {
             panelLabel = markerVector.getLabel();
         }
 
-        panelLabel = JOptionPane.showInputDialog("Panel Label:", panelLabel);
+        panelLabel = JOptionPane.showInputDialog("Set Label:", panelLabel);
         if (panelLabel == null) {
             return;
         }

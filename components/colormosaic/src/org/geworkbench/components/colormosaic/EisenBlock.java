@@ -33,7 +33,7 @@ public class EisenBlock {
     /**
      * The cached markers from this and all children
      */
-    private DSPanel<DSGeneMarker> markerCache = new CSPanel<DSGeneMarker>("Cache");
+    // private DSPanel<DSGeneMarker> markerCache = new CSPanel<DSGeneMarker>("Cache");
     private HashMap<DSGeneMarker, Object> annotCache = new HashMap<DSGeneMarker, Object>();
     //private DSPanel<IGenericMarker> pValueMarkerCache = new CSPanel<IGenericMarker> ("Markers with associated pValues");
 
@@ -60,7 +60,7 @@ public class EisenBlock {
             if (showAllMarkers || (panel == null) || (panel.size() == 0)) {
                 return pattern.getPattern().markers().length;
             } else {
-                return markerCache.size();
+                return panel.size();
             }
         } else {
             if (showAllMarkers || (panel == null) || (panel.size() == 0)) {
@@ -108,7 +108,7 @@ public class EisenBlock {
                 if (showAllMarkers || (panel == null) || (panel.size() == 0)) {
                     return pattern.getPattern().markers()[row];
                 } else {
-                    return markerCache.get(row);
+                    return panel.get(row);
                 }
             } else {
                 //return Panel.GetMarkerStat(row - FirstRow).GetMarkerId();
@@ -141,7 +141,7 @@ public class EisenBlock {
 
     private void cache() {
         if ((pattern != null) && (panel != null)) {
-            markerCache.clear();
+            // markerCache.clear();
             annotCache.clear();
             for (int j = 0; j < panel.panels().size(); j++) { //added so the subpanels will be checked.
                 DSPanel<DSGeneMarker> onepanel = panel.panels().get(j);
@@ -149,7 +149,7 @@ public class EisenBlock {
                 if (onepanel.isActive()) {
                     for (int k = 0; k < onepanel.size(); k++) {
                         DSGeneMarker m = onepanel.get(k);
-                        markerCache.add(m);
+                        // markerCache.add(m);
                         if (onepanel instanceof DSAnnotatedPanel) {
                             Object x = ((DSAnnotatedPanel<DSGeneMarker, Float>) onepanel).getObject(m);
                             annotCache.put(m, x);

@@ -461,8 +461,8 @@ import java.util.Hashtable;
             JOptionPane.showMessageDialog(null, pvr.getMessage(), "Parameter Validation Error", JOptionPane.ERROR_MESSAGE);
         } else {
             analyze.setEnabled(false);
-            maSetView.useMarkerPanel(activateMarkers);
-            maSetView.useItemPanel(activateArrays);
+            maSetView.useMarkerPanel(onlyActivatedMarkers);
+            maSetView.useItemPanel(onlyActivatedArrays);
             Thread t = new Thread(new Runnable() {
                 public void run() {
                     try {

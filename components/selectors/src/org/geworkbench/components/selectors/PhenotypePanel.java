@@ -87,7 +87,7 @@ public class PhenotypePanel extends SelectorPanel<DSMicroarray> {
     private JPopupMenu classPopup;
 
     public PhenotypePanel() {
-        super(DSMicroarray.class, "Phenotype");
+        super(DSMicroarray.class, "Array/Phenotype");
         // Add "Classification" item and sub-items
         JMenu classificationMenu = new JMenu("Classification");
         classPopup = new JPopupMenu();
