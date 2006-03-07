@@ -474,7 +474,7 @@ public abstract class SelectorPanel<T extends DSSequential> implements VisualPlu
     protected void deletePanelPressed() {
         String[] labels = getSelectedTreesFromTree();
         if (labels.length > 0) {
-            int confirm = JOptionPane.showConfirmDialog(getComponent(), "Delete selected group" + (labels.length > 1 ? "s" : "") + "?");
+            int confirm = JOptionPane.showConfirmDialog(getComponent(), "Delete selected set" + (labels.length > 1 ? "s" : "") + "?");
             if (confirm == JOptionPane.YES_OPTION) {
                 panelTree.clearSelection();
                 for (int i = 0; i < labels.length; i++) {
