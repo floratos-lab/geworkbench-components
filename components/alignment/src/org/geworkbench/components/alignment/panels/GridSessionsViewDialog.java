@@ -1,27 +1,42 @@
 package org.geworkbench.components.alignment.panels;
 
-import org.geworkbench.components.alignment.grid.GridSessionViewController;
-import org.globus.ogsa.gui.ServiceContext;
-import org.globus.ogsa.gui.XMLTree;
-import org.globus.ogsa.types.properties.PropertiesDetailType;
-import org.globus.ogsa.utils.MessageUtils;
-import org.globus.ogsa.wsdl.GSR;
-
-import javax.swing.*;
-import javax.swing.border.Border;
-import javax.swing.border.EtchedBorder;
-import javax.swing.border.TitledBorder;
-import javax.swing.event.TreeSelectionEvent;
-import javax.swing.event.TreeSelectionListener;
-import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.TreeSelectionModel;
-import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
+import javax.swing.border.TitledBorder;
+import javax.swing.border.Border;
+import javax.swing.border.EtchedBorder;
+
+import java.awt.*;
+import javax.swing.*;
+
+import javax.swing.table.AbstractTableModel;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseAdapter;
+import org.globus.ogsa.types.properties.PropertiesDetailType;
+//import org.globus.ogsa.wsdl.GSR;
+import org.globus.ogsa.gui.XMLTreeModel;
+import org.globus.ogsa.utils.MessageUtils;
+import org.gridforum.ogsi.HandleType;
 import java.net.URL;
+import org.globus.ogsa.gui.XMLTree;
+import org.globus.ogsa.gui.ServiceContext;
+import org.globus.ogsa.gui.ServiceBrowserFrame;
+
 import java.util.Collection;
+import java.util.Iterator;
+import javax.xml.namespace.QName;
+import org.globus.ogsa.wsdl.extensions.PortTypeExtensibilityElement;
+import org.gridforum.ogsi.ServiceDataType;
+import org.w3c.dom.Document;
+import org.globus.ogsa.utils.XmlFactory;
+
+
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.TreeSelectionModel;
+import javax.swing.event.TreeSelectionListener;
+import javax.swing.event.TreeSelectionEvent;
+import org.geworkbench.components.alignment.grid.GridSessionViewController;
+import org.globus.ogsa.wsdl.GSR;
 
 
 /**

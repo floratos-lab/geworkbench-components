@@ -1,7 +1,11 @@
 package org.geworkbench.components.alignment.panels;
 
-import org.geworkbench.components.alignment.synteny.*;
+import org.geworkbench.components.alignment.synteny.DotMatrixObj;
 import org.geworkbench.util.sequences.SequenceAnnotation;
+import org.geworkbench.components.alignment.synteny.GPAnnoParser;
+import org.geworkbench.components.alignment.synteny.PFPParser;
+import org.geworkbench.components.alignment.synteny.DotMatrixViewWidget;
+import org.geworkbench.components.alignment.synteny.DotsParser;
 
 /**
  * <p>Title: Bioworks</p>

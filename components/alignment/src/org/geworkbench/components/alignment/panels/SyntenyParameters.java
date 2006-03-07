@@ -1,34 +1,40 @@
 package org.geworkbench.components.alignment.panels;
 
-import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
-import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
-import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
-import org.geworkbench.builtin.projects.ProjectTreeNode;
-import org.geworkbench.components.alignment.synteny.DAS_Retriver;
-import org.geworkbench.engine.config.VisualPlugin;
-import org.geworkbench.engine.config.events.EventSource;
-import org.geworkbench.engine.management.AcceptTypes;
-import org.geworkbench.engine.management.Subscribe;
-import org.geworkbench.events.GeneSelectorEvent;
-import org.geworkbench.util.session.SoapClient;
-
+import java.awt.*;
+import java.awt.event.*;
 import javax.swing.*;
-import javax.swing.border.TitledBorder;
-import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import javax.swing.event.TreeModelEvent;
-import javax.swing.event.TreeModelListener;
+import javax.swing.event.ListSelectionEvent;
+import java.util.HashMap;
+import java.io.IOException;
+import java.io.FileOutputStream;
+import java.io.File;
+import java.io.BufferedInputStream;
+import java.io.DataInputStream;
+import java.io.FileInputStream;
+import java.util.Calendar;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeSelectionModel;
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.io.*;
-import java.util.Calendar;
-import java.util.HashMap;
+import javax.swing.event.TreeModelListener;
+import javax.swing.event.TreeModelEvent;
+import org.geworkbench.components.alignment.synteny.SyntenyMapFragment;
+import org.geworkbench.engine.config.events.EventSource;
+import org.geworkbench.engine.config.VisualPlugin;
+import org.geworkbench.builtin.projects.ProjectTreeNode;
+import org.geworkbench.util.session.SoapClient;
+import org.geworkbench.components.alignment.synteny.SyntenyMapObject;
+import org.geworkbench.engine.management.Subscribe;
+import org.geworkbench.engine.management.AcceptTypes;
+import org.geworkbench.events.GeneSelectorEvent;
+import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
+import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
+import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
+import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
+
+import javax.swing.border.TitledBorder;
+import org.geworkbench.components.alignment.synteny.DAS_Retriver;
+import org.geworkbench.components.alignment.panels.SynMapPresentationList;
 
 // import org.geworkbench.components.alignment.synteny.SynMapParser;
 

@@ -1,11 +1,10 @@
 package org.geworkbench.components.alignment.panels;
 
-import org.geworkbench.components.alignment.synteny.DotMatrixViewWidget;
-import org.geworkbench.util.sequences.SequenceAnnotation;
-
-import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
+import java.awt.event.*;
+import javax.swing.*;
+import org.geworkbench.util.sequences.SequenceAnnotation;
+import org.geworkbench.components.alignment.synteny.DotMatrixViewWidget;
 
 /**
  * <p>Title: Bioworks</p>

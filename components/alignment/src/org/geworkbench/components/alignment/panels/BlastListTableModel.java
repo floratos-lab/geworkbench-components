@@ -10,27 +10,35 @@ package org.geworkbench.components.alignment.panels;
  */
 
 
-import edu.columbia.stubs.SequenceAlignmentService_sd.SequenceAlignmentPortType;
-import edu.columbia.stubs.SequenceAlignmentService_sd.service.SequenceAlignmentServiceGridLocator;
-import edu.columbia.stubs.SequenceAlignmentService_sd.servicedata.SessionDataType;
-import org.globus.ogsa.ServiceData;
-import org.globus.ogsa.gui.XMLTree;
-import org.globus.ogsa.gui.XMLTreeModel;
 import org.globus.ogsa.impl.core.handle.HandleHelper;
 import org.globus.ogsa.types.properties.PropertiesDetailType;
 import org.globus.ogsa.utils.AnyHelper;
-import org.globus.ogsa.utils.GSIUtils;
-import org.globus.ogsa.utils.QueryHelper;
-import org.globus.ogsa.utils.XmlFactory;
-import org.gridforum.ogsi.*;
-import org.w3c.dom.Element;
+import org.gridforum.ogsi.EntryType;
+import org.gridforum.ogsi.HandleType;
 
-import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
-import javax.xml.rpc.Stub;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+
+import edu.columbia.stubs.SequenceAlignmentService_sd.service.SequenceAlignmentServiceGridLocator;
+import javax.swing.JOptionPane;
+import javax.xml.rpc.Stub;
+import java.net.URL;
+import org.gridforum.ogsi.ExtendedDateTimeType;
+import org.gridforum.ogsi.ExtensibilityType;
+import org.globus.ogsa.ServiceData;
+import edu.columbia.stubs.SequenceAlignmentService_sd.SequenceAlignmentPortType;
+import org.globus.ogsa.gui.XMLTreeModel;
+import org.globus.ogsa.utils.QueryHelper;
+import edu.columbia.stubs.SequenceAlignmentService_sd.servicedata.SessionDataType;
+import org.gridforum.ogsi.OGSIServiceGridLocator;
+import org.gridforum.ogsi.ServiceDataValuesType;
+import org.globus.ogsa.utils.GSIUtils;
+import org.w3c.dom.Element;
+import org.globus.ogsa.gui.XMLTree;
+import org.gridforum.ogsi.TerminationTimeType;
+import org.gridforum.ogsi.GridService;
+import org.globus.ogsa.utils.XmlFactory;
 
 public class BlastListTableModel
     extends AbstractTableModel {
