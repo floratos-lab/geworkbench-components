@@ -1,11 +1,19 @@
 package org.geworkbench.components.alignment.panels;
 
-import org.geworkbench.util.sequences.Genome;
-
 import javax.swing.*;
+import java.awt.GridBagLayout;
+import java.awt.Color;
+import java.awt.GridBagConstraints;
+import java.awt.Insets;
 import java.awt.*;
+
 import java.awt.event.ActionEvent;
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.DataInputStream;
+import java.io.FileInputStream;
+import java.io.BufferedInputStream;
+import org.geworkbench.util.sequences.Genome;
 
 
 /**
