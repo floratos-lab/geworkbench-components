@@ -1,18 +1,18 @@
 package org.geworkbench.components.alignment.panels;
 
-import org.geworkbench.bison.datastructure.biocollections.DSAncillaryDataSet;
-import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
-import org.geworkbench.bison.datastructure.biocollections.sequences.DSSequenceSet;
-import org.geworkbench.bison.datastructure.bioobjects.sequence.DSAlignmentResultSet;
-import org.geworkbench.builtin.projects.ProjectPanel;
-import org.geworkbench.builtin.projects.ProjectSelection;
+import org.geworkbench.events.ProjectEvent;
 import org.geworkbench.components.alignment.blast.BlastParser;
 import org.geworkbench.components.alignment.blast.TextResultParser;
+import org.geworkbench.bison.datastructure.bioobjects.sequence.DSAlignmentResultSet;
 import org.geworkbench.components.alignment.client.HMMDataSet;
 import org.geworkbench.components.alignment.client.SWDataSet;
-import org.geworkbench.engine.config.VisualPlugin;
+import org.geworkbench.builtin.projects.ProjectPanel;
+import org.geworkbench.builtin.projects.ProjectSelection;
+import org.geworkbench.bison.datastructure.biocollections.sequences.CSSequenceSet;
 import org.geworkbench.engine.management.Subscribe;
-import org.geworkbench.events.ProjectEvent;
+import org.geworkbench.bison.datastructure.biocollections.DSAncillaryDataSet;
+import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
+import org.geworkbench.engine.config.VisualPlugin;
 
 import javax.swing.*;
 import java.awt.*;
@@ -106,7 +106,7 @@ public class HMMComponent implements VisualPlugin {
             ProjectSelection selection = ((ProjectPanel) source).getSelection();
             DSAncillaryDataSet df = selection.getDataSubSet();
             DSDataSet sequenceDB = selection.getDataSet();
-            if (sequenceDB instanceof DSSequenceSet && df != null) {
+            if (sequenceDB instanceof CSSequenceSet && df != null) {
                 //update db with the selected file in the project
                 if (df instanceof SWDataSet) {
                     bp = new TextResultParser(((SWDataSet) df).getResultFilePath());

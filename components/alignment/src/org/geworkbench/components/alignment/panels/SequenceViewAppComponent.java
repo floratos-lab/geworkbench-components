@@ -1,15 +1,18 @@
 package org.geworkbench.components.alignment.panels;
 
-import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
-import org.geworkbench.bison.datastructure.biocollections.sequences.CSSequenceSet;
-import org.geworkbench.bison.datastructure.biocollections.sequences.DSSequenceSet;
+import org.geworkbench.events.ProjectEvent;
+import org.geworkbench.engine.parsers.FileFormat;
+import org.geworkbench.events.SequenceDiscoveryTableEvent;
+import org.geworkbench.events.SequencePanelEvent;
 import org.geworkbench.builtin.projects.ProjectPanel;
 import org.geworkbench.builtin.projects.ProjectSelection;
-import org.geworkbench.engine.config.VisualPlugin;
-import org.geworkbench.engine.management.Subscribe;
+import org.geworkbench.util.sequences.SequenceViewWidget;
 import org.geworkbench.engine.parsers.sequences.SequenceFileFormat;
 import org.geworkbench.util.PropertiesMonitor;
-import org.geworkbench.util.sequences.SequenceViewWidget;
+import org.geworkbench.bison.datastructure.biocollections.sequences.CSSequenceSet;
+import org.geworkbench.engine.management.Subscribe;
+import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
+import org.geworkbench.engine.config.VisualPlugin;
 
 import javax.swing.*;
 import javax.swing.event.EventListenerList;
@@ -39,7 +42,7 @@ public class SequenceViewAppComponent implements VisualPlugin, org.geworkbench.e
     HashMap listeners = new HashMap();
     org.geworkbench.events.SequencePanelEvent spe = null;
     ActionListener listener = null;
-    DSSequenceSet sequenceDB = null;
+    CSSequenceSet sequenceDB = null;
 
     public SequenceViewAppComponent() {
 
@@ -90,8 +93,8 @@ public class SequenceViewAppComponent implements VisualPlugin, org.geworkbench.e
     @Subscribe public void receiveProjectSelection(org.geworkbench.events.ProjectEvent e, Object source) {
             ProjectSelection selection = ((ProjectPanel) source).getSelection();
             DSDataSet dataFile = selection.getDataSet();
-            if (dataFile instanceof DSSequenceSet) {
-                sViewWidget.setSequenceDB((DSSequenceSet) dataFile);
+            if (dataFile instanceof CSSequenceSet) {
+                sViewWidget.setSequenceDB((CSSequenceSet) dataFile);
             }
     }
 
