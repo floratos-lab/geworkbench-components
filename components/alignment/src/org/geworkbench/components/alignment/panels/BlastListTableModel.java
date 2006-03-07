@@ -89,11 +89,10 @@ public class BlastListTableModel
             if (obj instanceof PropertiesDetailType) {
                 PropertiesDetailType entry = (PropertiesDetailType) obj;
                 String name = entry.getName();
-                System.out.println(name + name.indexOf("Blast"));
+
                 int length = selectionCrit.length;
                 boolean selectedItem = false;
-                System.out.println("HERE" + name + name.indexOf("Sequence") +
-                                   name.indexOf(primarySelectionCrit));
+
                 for (int k = 0; k < length; k++) {
                     if (name.indexOf(primarySelectionCrit) != -1) {
                         if (name.indexOf(selectionCrit[k]) != -1) {
@@ -109,8 +108,7 @@ public class BlastListTableModel
 
                 }
                 int k = selectionCrit.length;
-                System.out.println("THERE" + name + name.indexOf("Sequence") +
-                                   k);
+
             }
 
         }
