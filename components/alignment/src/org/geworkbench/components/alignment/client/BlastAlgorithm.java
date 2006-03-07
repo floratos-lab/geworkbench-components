@@ -1,18 +1,27 @@
 package org.geworkbench.components.alignment.client;
 
-import org.geworkbench.algorithms.BWAbstractAlgorithm;
-import org.geworkbench.bison.datastructure.biocollections.DSAncillaryDataSet;
-import org.geworkbench.bison.datastructure.bioobjects.sequence.CSAlignmentResultSet;
-import org.geworkbench.components.alignment.panels.BlastAppComponent;
-import org.geworkbench.components.alignment.panels.BrowserLauncher;
-import org.geworkbench.events.ProjectNodeAddedEvent;
-import org.geworkbench.util.session.SoapClient;
-import org.globus.progtutorial.clients.BlastService.Client;
-
 import java.io.*;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.StringTokenizer;
+
+import javax.swing.JProgressBar;
+
+import org.geworkbench.algorithms.BWAbstractAlgorithm;
+import java.io.*;
+import java.net.URL;
+import java.net.URLConnection;
+import java.util.StringTokenizer;
+ import org.geworkbench.bison.datastructure.biocollections.DSAncillaryDataSet;
+import org.geworkbench.bison.datastructure.biocollections.sequences.CSSequenceSet;
+import org.geworkbench.bison.datastructure.bioobjects.sequence.CSAlignmentResultSet;
+import org.geworkbench.bison.datastructure.bioobjects.sequence.CSSequence;
+import org.geworkbench.bison.util.RandomNumberGenerator;
+import org.geworkbench.components.alignment.blast.RemoteBlast;
+import org.geworkbench.components.alignment.panels.*;
+import org.geworkbench.events.ProjectNodeAddedEvent;
+import org.geworkbench.util.session.SoapClient;
+import org.globus.progtutorial.clients.BlastService.Client;
 
 /**
  * <p>Title: Bioworks</p>
@@ -23,8 +32,7 @@ import java.util.StringTokenizer;
  * @author XZ
  * @version 1.0
  */
-public class BlastAlgorithm
-    extends BWAbstractAlgorithm implements SoapClientIn {
+public class BlastAlgorithm extends BWAbstractAlgorithm implements SoapClientIn {
     /**
      * BlastAlgorithm
      *
@@ -39,19 +47,27 @@ public class BlastAlgorithm
 
     private Client client;
     private BlastAppComponent blastAppComponent = null;
+   // private BlastAppComponent alignmentParametersPanel = null;
     private SoapClient soapClient = null;
     private boolean startBrowser;
     private boolean gridEnabled = false;
     private boolean jobFinished = false;
     private String inputFilename;
     private String tempURLFolder =
-        "http://amdec-bioinfo.cu-genome.org/html/temp/";
+            "http://amdec-bioinfo.cu-genome.org/html/temp/";
+    private boolean useNCBI = false;
+    private JProgressBar progressBar = new JProgressBar();
 
     public void setBlastAppComponent(BlastAppComponent _blastAppComponent) {
         blastAppComponent = _blastAppComponent;
     }
 
     public BlastAlgorithm() {
+        try {
+            jbInit();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
 
     }
 
@@ -65,107 +81,147 @@ public class BlastAlgorithm
 
     public void execute() {
         DSAncillaryDataSet blastResult = null;
-      //  System.out.println("INBlastAlgo");
+        //  System.out.println("INBlastAlgo");
         try {
             if (soapClient == null) {
                 try {
                     Thread.sleep(100);
-                }
-                catch (InterruptedException e) {
+                } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
             }
-            if (soapClient != null) {
+            if (useNCBI) {
+                String tempFolder = System.getProperties().getProperty(
+                        "temporary.files.directory");
+                if (tempFolder == null) {
+                    tempFolder = ".";
 
-                //update the progressbar to ini.
-                //  ProgressBarEvent progressBarEvent =
-                // new ProgressBarEvent("Uploading...", Color.pink, 0, 0, 10);
-                // blastAppComponent.throwEvent(ProjectNodeAddedListener.class, "projectNodeAdded", progressBarEvent);
+                }
+                String outputFile = tempFolder + "Blast" +
+                                    RandomNumberGenerator.getID() +
+                                    ".html";
+
+                RemoteBlast blast = null;
+                CSSequenceSet activeSequenceDB = soapClient.getSequenceDB();
+                progressBar.setMaximum(activeSequenceDB.size());
+                int count = 0;
+                for (Object sequence : activeSequenceDB) {
+
+                    blast = new RemoteBlast(((CSSequence) sequence).
+                                            getSequence(), outputFile,
+                                            progressBar);
+
+                    String BLAST_rid = blast.submitBlast();
+                    blast.getBlast(BLAST_rid);
+                    progressBar.setValue(++count);
+
+                }
+
+                while (!blast.getBlastDone()) {
+                    try {
+                        Thread.sleep(2000);
+                    } catch (Exception e) {
+
+                    }
+                }
+                progressBar.setIndeterminate(false);
+                progressBar.setString("NCBI Blast is finished.");
+                blastResult = new CSAlignmentResultSet(
+                        outputFile, outputFile, activeSequenceDB);
+                blastResult.setLabel(blastAppComponent.NCBILABEL);
+                ProjectNodeAddedEvent event =
+                        new ProjectNodeAddedEvent(null, null,
+                                                  blastResult);
+                if (blastAppComponent != null) {
+                    blastAppComponent.publishProjectNodeAddedEvent(event);
+                } else {
+                    blastAppComponent.publishProjectNodeAddedEvent(event);
+                }
+                return;
+            }
+            if (soapClient != null) {
 
                 String cmd = soapClient.getCMD();
                 String textFile = "";
                 String htmlFile = null;
 
                 if (cmd.startsWith("pb")) {
-//TEMP out by xq
+
                     soapClient.startRun(true);
-                    htmlFile = ( (SoapClient) soapClient).getOutputfile();
+                    htmlFile = ((SoapClient) soapClient).getOutputfile();
                     if (stopRequested) {
                         return;
                     }
                     if (startBrowser && !stopRequested) {
-                        if ( (new File(htmlFile)).canRead()) {
+                        if ((new File(htmlFile)).canRead()) {
 
                             BrowserLauncher.openURL(tempURLFolder +
-                                getFileName(htmlFile));
-                        }
-                        else {
+                                    getFileName(htmlFile));
+                        } else {
                             System.out.println("CANNOT READ " + htmlFile);
                         }
                     }
-                }
-                else {
+                } else {
                     soapClient.startRun();
-                    textFile = ( (SoapClient) soapClient).getOutputfile();
+                    textFile = ((SoapClient) soapClient).getOutputfile();
                 }
-
-                blastAppComponent.blastFinished(cmd);
-
-                // AlignmentResultEvent event =  new AlignmentResultEvent(outputFile, null, "message", null, null);
-                // DataSet blastDataSet = new BlastDataSet(textFile);
-                // System.out.println("htmlFile = " + htmlFile + "textfile" + textFile);
+                if (blastAppComponent != null) {
+                    blastAppComponent.blastFinished(cmd);
+                } else {
+                    blastAppComponent.blastFinished(cmd);
+                }
 
                 if (htmlFile != null) {
-                    blastResult = new CSAlignmentResultSet(htmlFile, soapClient.getInputFileName(), null);
-          //          ( (CSAlignmentResultSet) blastResult).setAlgorithm(this);
-                }
-                else if (cmd.startsWith("btk search")) {
+                    blastResult = new CSAlignmentResultSet(htmlFile,
+                            soapClient.getInputFileName(),
+                            soapClient.getSequenceDB());
+
+                } else if (cmd.startsWith("btk search")) {
 
                     blastResult = new SWDataSet(textFile,
-                                                soapClient.getInputFileName(), blastAppComponent.getFastFile());
+                                                soapClient.getInputFileName(),
+                                                blastAppComponent.getFastaFile());
                 } else if (cmd.startsWith("btk hmm")) {
 
                     blastResult = new HMMDataSet(textFile,
-                                                 soapClient.getInputFileName(), blastAppComponent.getFastFile());
+                                                 soapClient.getInputFileName(),
+                                                 blastAppComponent.getFastaFile());
                 }
                 ProjectNodeAddedEvent event =
-                    new ProjectNodeAddedEvent(null,   null,
-                                              blastResult);
-
-                blastAppComponent.publishProjectNodeAddedEvent(event);
-
+                        new ProjectNodeAddedEvent(null, null,
+                                                  blastResult);
+                if (blastAppComponent != null) {
+                    blastAppComponent.publishProjectNodeAddedEvent(event);
+                } else {
+                    blastAppComponent.publishProjectNodeAddedEvent(event);
+                }
             }
 
             if (gridEnabled) {
                 String tempFolder = System.getProperties().getProperty(
-                    "temporary.files.directory");
+                        "temporary.files.directory");
                 if (tempFolder == null) {
                     tempFolder = ".";
 
                 }
 
-                blastResult = new CSAlignmentResultSet(tempFolder + "a.html", inputFilename, null);
-        //        ( (CSAlignmentResultSet) blastResult).setAlgorithm(this);
-                              org.geworkbench.events.ProjectNodeAddedEvent event = new org.
-                      geworkbench.events.ProjectNodeAddedEvent("message", null,
+                blastResult = new CSAlignmentResultSet(tempFolder + "a.html",
+                        inputFilename, soapClient.getSequenceDB());
+
+                org.geworkbench.events.ProjectNodeAddedEvent event = new org.
+                        geworkbench.events.ProjectNodeAddedEvent("message", null,
                         blastResult);
-              blastAppComponent.publishProjectNodeAddedEvent(event);
-//                ProjectNodeAddedEvent event =
-//                    new ProjectNodeAddedEvent(null, "message", null,
-//                                              blastResult);
-//
-//                blastAppComponent.throwEvent(ProjectNodeAddedListener.class,
-//                                             "projectNodeAdded", event);
+                blastAppComponent.publishProjectNodeAddedEvent(event);
 
                 String output = client.submitRequest(inputFilename);
-           //     System.out.println(output);
+
                 URL url = new URL(output);
 
                 String filename = "C:\\" + url.getFile();
 
-                ( (CSAlignmentResultSet) blastResult).setResultFile(filename);
-                 jobFinished = true;
-                 BrowserLauncher.openURL(output);
+                ((CSAlignmentResultSet) blastResult).setResultFile(filename);
+                jobFinished = true;
+                BrowserLauncher.openURL(output);
 
                 PrintWriter bw = new PrintWriter(new FileOutputStream(filename));
                 URLConnection urlCon = url.openConnection();
@@ -174,20 +230,20 @@ public class BlastAlgorithm
                 String line = "";
 
                 BufferedReader br = new BufferedReader(
-                    new InputStreamReader(urlCon.getInputStream()));
-                while ( (line = br.readLine()) != null) {
+                        new InputStreamReader(urlCon.getInputStream()));
+                while ((line = br.readLine()) != null) {
                     bw.println(line);
                 }
                 br.close();
                 bw.close();
 
-                blastResult = new CSAlignmentResultSet(filename, inputFilename, null);
-              //  ( (CSAlignmentResultSet) blastResult).setAlgorithm(this);
+                blastResult = new CSAlignmentResultSet(filename, inputFilename,
+                        soapClient.getSequenceDB());
+
 
             }
 
-        }
-        catch (Exception ex) {
+        } catch (Exception ex) {
             ex.printStackTrace();
         }
 
@@ -201,8 +257,33 @@ public class BlastAlgorithm
         return startBrowser;
     }
 
+    public BlastAppComponent getBlastAppComponent() {
+        return blastAppComponent;
+    }
+
+    public boolean isUseNCBI() {
+        return useNCBI;
+    }
+
+    public JProgressBar getProgressBar() {
+        return progressBar;
+    }
+
     public void setStartBrowser(boolean startBrowser) {
         this.startBrowser = startBrowser;
+    }
+
+//    public void setBlastAppComponent(BlastAppComponent
+//                                            blastAppComponent) {
+//        this.blastAppComponent = blastAppComponent;
+//    }
+
+    public void setUseNCBI(boolean useNCBI) {
+        this.useNCBI = useNCBI;
+    }
+
+    public void setProgressBar(JProgressBar progressBar) {
+        this.progressBar = progressBar;
     }
 
     public String getFileName(String path) {
@@ -218,7 +299,7 @@ public class BlastAlgorithm
             }
 
             String s = st.nextToken();
-        //    System.out.println(s + " " + path);
+            //    System.out.println(s + " " + path);
             return s;
 
         }
@@ -230,6 +311,9 @@ public class BlastAlgorithm
         String s = st.nextToken();
 
         return s;
+    }
+
+    private void jbInit() throws Exception {
     }
 
 }

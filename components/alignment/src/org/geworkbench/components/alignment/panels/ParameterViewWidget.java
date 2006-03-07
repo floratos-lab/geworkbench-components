@@ -1,14 +1,14 @@
 package org.geworkbench.components.alignment.panels;
 
-import org.geworkbench.algorithms.BWAbstractAlgorithm;
-import org.geworkbench.bison.datastructure.biocollections.sequences.CSSequenceSet;
-import org.geworkbench.bison.datastructure.bioobjects.sequence.DSSequence;
 import org.geworkbench.bison.util.RandomNumberGenerator;
+import org.geworkbench.algorithms.BWAbstractAlgorithm;
 import org.geworkbench.components.alignment.client.BlastAlgorithm;
 import org.geworkbench.components.alignment.client.HMMDataSet;
+import org.geworkbench.util.session.SoapClient;
 import org.geworkbench.components.alignment.grid.CreateGridServiceDialog;
 import org.geworkbench.events.ProjectNodeAddedEvent;
-import org.geworkbench.util.session.SoapClient;
+import org.geworkbench.bison.datastructure.biocollections.sequences.CSSequenceSet;
+import org.geworkbench.bison.datastructure.bioobjects.sequence.CSSequence;
 
 import javax.swing.*;
 import java.awt.*;
@@ -18,6 +18,10 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.Date;
 import java.util.StringTokenizer;
+import com.borland.jbcl.layout.XYLayout;
+import com.borland.jbcl.layout.*;
+import javax.swing.border.TitledBorder;
+import javax.swing.border.Border;
 
 /**
  * <p>Title: Sequence and Pattern Plugin</p>
@@ -34,13 +38,15 @@ public class ParameterViewWidget
     JPanel jBasicPane = new JPanel();
     JLabel DatabaseLabel = new JLabel();
     JTabbedPane jTabbedPane1 = new JTabbedPane();
+    JTabbedPane jTabbedBlastPane = new JTabbedPane();
+     JTabbedPane jTabbedHmmPane = new JTabbedPane();
+      JTabbedPane jTabbedSmPane = new JTabbedPane();
     ServerInfoPanel jServerInfoPane = new ServerInfoPanel();
 //    BlastGridServiceDataPanel sgePanel = new
 //          BlastGridServiceDataPanel();
      CreateGridServicePanel sgePanel = new CreateGridServicePanel();
     JComboBox jMatrixBox = new JComboBox();
     JCheckBox lowComplexFilterBox = new JCheckBox();
-    JLabel programLabel = new JLabel();
     JPanel jAdvancedPane = new JPanel();
     JFileChooser jFileChooser1 = new JFileChooser();
 
@@ -78,6 +84,7 @@ public class ParameterViewWidget
     };
 
     //JList jDBList = new JList(databaseParameter);
+    JPanel checkboxPanel = new JPanel();
     JList jDBList = new JList();
     JButton blastButton = new JButton();
     JScrollPane jScrollPane1 = new JScrollPane();
@@ -94,26 +101,14 @@ public class ParameterViewWidget
     ParameterSetter parameterSetter = new ParameterSetter();
     CSSequenceSet fastaFile;
     private BlastAppComponent blastAppComponent = null;
-    JPanel jPanel3 = new JPanel();
-    GridBagLayout gridBagLayout1 = new GridBagLayout();
-    JPanel jPanel1 = new JPanel();
-    BorderLayout borderLayout2 = new BorderLayout();
-    JPanel progressBarPanel = new JPanel();
     JPanel subSeqPanel = new JPanel();
-    JPanel jPanel4 = new JPanel();
-    FlowLayout flowLayout1 = new FlowLayout();
     JLabel jLabel1 = new JLabel();
     JLabel jLabel2 = new JLabel();
     JLabel jLabel3 = new JLabel();
     JTextField jstartPointField = new JTextField();
     JTextField jendPointField = new JTextField();
-    GridBagLayout gridBagLayout5 = new GridBagLayout();
     CardLayout cardLayout1 = new CardLayout();
     JProgressBar progressBar = new JProgressBar();
-    JPanel jPanel5 = new JPanel();
-    GridBagLayout gridBagLayout6 = new GridBagLayout();
-    BorderLayout borderLayout3 = new BorderLayout();
-    JLabel jLabel4 = new JLabel();
     JPanel progressBarPanel1 = new JPanel();
     JLabel jLabel5 = new JLabel();
     JPanel subSeqPanel1 = new JPanel();
@@ -175,6 +170,24 @@ public class ParameterViewWidget
     JScrollPane jScrollPane3 = new JScrollPane();
     BorderLayout borderLayout6 = new BorderLayout();
     GridBagLayout gridBagLayout4 = new GridBagLayout();
+    JCheckBox allArraysCheckBox;
+    JToolBar jToolBar2 = new JToolBar();
+    TitledBorder titledBorder1 = new TitledBorder("");
+    Border border1 = BorderFactory.createEtchedBorder(Color.white,
+            new Color(165, 163, 151));
+    Border border2 = new TitledBorder(border1,
+            "Please specify subsequence, program and database");
+    JToolBar jToolBar1 = new JToolBar();
+    JLabel jLabel4 = new JLabel();
+    JLabel jLabel9 = new JLabel();
+    XYLayout xYLayout1 = new XYLayout();
+    ImageIcon startButtonIcon = new ImageIcon(this.getClass().getResource("start.gif"));
+    ImageIcon stopButtonIcon = new ImageIcon(this.getClass().getResource("stop.gif"));
+    JPanel jPanel2 = new JPanel();
+    JPanel jPanel3 = new JPanel();
+    BorderLayout borderLayout2 = new BorderLayout();
+    XYLayout xYLayout2 = new XYLayout();
+    BorderLayout borderLayout3 = new BorderLayout();
     public ParameterViewWidget() {
         try {
             jbInit();
@@ -196,12 +209,24 @@ public class ParameterViewWidget
         sgePanel.setPv(this);
         //sgePanel.getRegistry();
 //        System.out.println("getRegistration");
+        allArraysCheckBox = new JCheckBox("Activated Sequences", true);
+        subSeqPanel.setBorder(border2);
+        jLabel4.setText("jLabel4");
+        jLabel9.setText("Program: ");
+        jToolBar1.setBorder(null);
+        progressBar.setMinimumSize(new Dimension(10, 26));
+        progressBar.setPreferredSize(new Dimension(104, 26));
+
+        checkboxPanel.setLayout(xYLayout2);
+        jBasicPane.setPreferredSize(new Dimension(364, 250));
+        jPanel3.setLayout(borderLayout3);
+        this.add(jLabel4, java.awt.BorderLayout.NORTH);
         pfpFilterBox.setToolTipText("Paracel Filtering Package");
         pfpFilterBox.setSelected(true);
         pfpFilterBox.setText("PFP Filter");
         //   jEntThreshBox.addActionListener(new
         //                                  ParameterPanel_jEntThreshBox_actionAdapter(this));
-        jBasicPane.setLayout(gridBagLayout6);
+        jBasicPane.setLayout(borderLayout2);
         //jBasicPane.setPreferredSize(new Dimension(10, 100));
         jBasicPane.setMinimumSize(new Dimension(10, 100));
         //jDecreaseDensitySupportBox.setSelectedIndex(0);
@@ -215,7 +240,6 @@ public class ParameterViewWidget
         lowComplexFilterBox.setText("Low Complexity");
         lowComplexFilterBox.addActionListener(new
                                               ParameterViewWidget_lowComplexFilterBox_actionAdapter(this));
-        programLabel.setText("Program:");
         jAdvancedPane.setLayout(gridBagLayout3);
         //   jDecreaseSupportBox.addActionListener(new
         //    ParameterPanel_jDecreaseSupportBox_actionAdapter(this));
@@ -236,7 +260,13 @@ public class ParameterViewWidget
         blastButton.setFont(new java.awt.Font("Arial Black", 0, 11));
         blastButton.setHorizontalAlignment(SwingConstants.LEFT);
         blastButton.setHorizontalTextPosition(SwingConstants.CENTER);
-        blastButton.setText("BLAST");
+        //blastButton.setText("BLAST");
+         blastButton.setIcon(startButtonIcon);
+//         blastButton.setMaximumSize(new Dimension(26, 26));
+//      blastButton.setMinimumSize(new Dimension(26, 26));
+//      blastButton.setPreferredSize(new Dimension(26, 26));
+      blastButton.setToolTipText("Start BLAST");
+
         blastButton.addActionListener(new
                                       ParameterViewWidget_blastButton_actionAdapter(this));
         jTabbedPane1.setDebugGraphicsOptions(0);
@@ -278,25 +308,15 @@ public class ParameterViewWidget
         jServerInfoPane.setMinimumSize(new Dimension(0, 0));
         //jServerInfoPane.setPreferredSize(new Dimension(0, 0));
         jServerInfoPane.setToolTipText("Blast server Info");
-        jPanel3.setLayout(gridBagLayout1);
-        jPanel1.setLayout(borderLayout2);
         jProgramBox.setAutoscrolls(false);
         jProgramBox.setMinimumSize(new Dimension(26, 21));
         //jProgramBox.setPreferredSize(new Dimension(26, 21));
-        subSeqPanel.setLayout(gridBagLayout5);
-        jPanel4.setLayout(flowLayout1);
+        subSeqPanel.setLayout(xYLayout1);
         jLabel1.setText("to ");
-        jLabel2.setText("From");
+        jLabel2.setText("Subsequence: From");
         jLabel3.setText("Subsequence: ");
         jstartPointField.setText("1");
         jendPointField.setText("end");
-        progressBarPanel.setLayout(borderLayout3);
-        progressBarPanel.setMinimumSize(new Dimension(10, 16));
-        jLabel4.setAlignmentY( (float) 0.5);
-        jLabel4.setHorizontalTextPosition(SwingConstants.TRAILING);
-        jLabel4.setText("Please specify subsequence, program and database.");
-        jLabel4.setVerticalAlignment(javax.swing.SwingConstants.BOTTOM);
-        jLabel4.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
         progressBarPanel1.setMinimumSize(new Dimension(10, 16));
         progressBarPanel1.setLayout(borderLayout5);
         jLabel5.setAlignmentY( (float) 0.5);
@@ -348,16 +368,22 @@ public class ParameterViewWidget
         jDisplayInWebBox.setText("Display result in your web browser");
         jGenericCodeLabel.setText("Query genetic code:");
         jButton1.setFont(new java.awt.Font("Arial Black", 0, 11));
-        jButton1.setText("STOP");
+         jButton1.setIcon(stopButtonIcon);
+        //jButton1.setText("STOP");
+
         jButton1.addActionListener(new
                                    ParameterViewWidget_jButton1_actionAdapter(this));
         blastStopButton.setFont(new java.awt.Font("Arial Black", 0, 11));
         blastStopButton.setVerifyInputWhenFocusTarget(true);
-        blastStopButton.setText("STOP");
+        //blastStopButton.setText("STOP");
+         blastStopButton.setIcon(stopButtonIcon);
+        blastStopButton.setToolTipText("Stop Blast Query");
+
         blastStopButton.addActionListener(new
                                           ParameterViewWidget_blastStopButton_actionAdapter(this));
         algorithmSearch.setFont(new java.awt.Font("Arial Black", 0, 11));
-        algorithmSearch.setText("SEARCH");
+        //algorithmSearch.setText("SEARCH");
+        algorithmSearch.setIcon(startButtonIcon);
         algorithmSearch.addActionListener(new
                                           ParameterViewWidget_algorithmSearch_actionAdapter(this));
         jLabel13.setText("From");
@@ -398,7 +424,8 @@ public class ParameterViewWidget
         jButton7.addActionListener(new
                                    ParameterViewWidget_jButton7_actionAdapter(this));
         jButton2.setFont(new java.awt.Font("Arial Black", 0, 11));
-        jButton2.setText("HMM SEARCH");
+        //jButton2.setText("HMM SEARCH");
+         jButton2.setIcon(startButtonIcon);
         jButton2.addActionListener(new
                                    ParameterViewWidget_jButton2_actionAdapter(this));
         blastxSettingPanel.add(jExpectBox,
@@ -441,66 +468,21 @@ public class ParameterViewWidget
             , GridBagConstraints.WEST,
             GridBagConstraints.NONE,
             new Insets(2, 2, 2, 2), 0, 0));
-        jTabbedPane1.add(jHMMPane, "HMM");
-        jPanel3.add(programLabel, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
-            , GridBagConstraints.WEST, GridBagConstraints.NONE,
-            new Insets(13, 8, 13, 0), 23, 5));
-        jPanel3.add(jProgramBox, new GridBagConstraints(1, 0, 1, 1, 1.0, 0.0
-            , GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
-            new Insets(13, 20, 13, 0), 131, -1));
-        jBasicPane.add(jPanel3, new GridBagConstraints(0, 3, 1, 1, 1.0, 1.0
-            , GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-            new Insets(0, -3, 0, 0), 146, -13));
-        jPanel4.add(blastButton, null);
-        jPanel4.add(blastStopButton, null);
-        jBasicPane.add(subSeqPanel, new GridBagConstraints(0, 2, 1, 1, 1.0, 1.0
-            , GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-            new Insets(0, -3, 0, 14), 80, -1));
-        jPanel1.add(jScrollPane1, BorderLayout.CENTER);
-        jPanel1.add(DatabaseLabel, BorderLayout.NORTH);
-        jTabbedPane1.add(jAdvancedPane, "Advanced_Options");
-        jScrollPane1.getViewport().add(jDBList, null);
-        jBasicPane.add(jPanel4, new GridBagConstraints(0, 5, 1, 1, 1.0, 1.0
-            , GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-            new Insets(7, -3, 0, 0), 312, -5)); //progress bar init
+        jAdvancedPane.add(filterPanel,
+                          new GridBagConstraints(0, 1, 1, 1, 1.0, 1.0
+                                                 , GridBagConstraints.CENTER,
+                                                 GridBagConstraints.BOTH,
+                                                 new Insets(0, 0, 0, 0), -150,
+                                                 82));
+
+//        jTabbedHmmPane.add(jHMMPane, "HMM");
+//        jTabbedHmmPane.add(jAdvancedPane, "Advanced Options");
+        jToolBar2.add(progressBar);
         progressBar.setOrientation(JProgressBar.HORIZONTAL);
         progressBar.setBorder(BorderFactory.createEtchedBorder());
         progressBar.setStringPainted(true);
-        subSeqPanel.add(jLabel3, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
-            , GridBagConstraints.WEST, GridBagConstraints.NONE,
-            new Insets(5, 0, 0, 0), 0, 10));
-        subSeqPanel.add(jLabel2, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0
-            , GridBagConstraints.WEST, GridBagConstraints.NONE,
-            new Insets(5, 17, 0, 0), 0, 10));
-        subSeqPanel.add(jstartPointField,
-                        new GridBagConstraints(2, 0, 1, 1, 1.0, 0.0
-                                               , GridBagConstraints.WEST,
-                                               GridBagConstraints.HORIZONTAL,
-                                               new Insets(5, 18, 0, 0), 14, 4));
-        subSeqPanel.add(jLabel1, new GridBagConstraints(3, 0, 1, 1, 0.0, 0.0
-            , GridBagConstraints.WEST, GridBagConstraints.NONE,
-            new Insets(5, 21, 0, 0), 0, 10));
-        subSeqPanel.add(jendPointField,
-                        new GridBagConstraints(4, 0, 1, 1, 1.0, 0.0
-                                               , GridBagConstraints.WEST,
-                                               GridBagConstraints.HORIZONTAL,
-                                               new Insets(5, 36, 0, 49), 6, 4));
-        jBasicPane.add(progressBarPanel,
-                       new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
-                                              , GridBagConstraints.CENTER,
-                                              GridBagConstraints.BOTH,
-                                              new Insets(1, -3, 0, 0), 247, 2));
-        progressBarPanel.add(progressBar, BorderLayout.SOUTH);
-        jBasicPane.add(jPanel5, new GridBagConstraints(0, 1, 1, 1, 1.0, 1.0
-            , GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-            new Insets(0, -3, 0, 0), 390, 18));
-        jPanel5.add(jLabel4, null);
-        jBasicPane.add(jPanel1, new GridBagConstraints(0, 4, 1, 1, 1.0, 1.0
-            , GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-            new Insets(0, -3, 0, 0), 329, 81));
-        jTabbedPane1.add(jBasicPane, "BLAST");
-        jPanel6.add(algorithmSearch, null);
-        jPanel6.add(jButton1, null);
+        //jPanel6.add(algorithmSearch, null);
+        //jPanel6.add(jButton1, null);
         jOtherAlgorithemPane.add(progressBarPanel1,
                                  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
             , GridBagConstraints.CENTER,
@@ -561,8 +543,8 @@ public class ParameterViewWidget
         jPanel9.add(jScrollPane2, new GridBagConstraints(0, 1, 1, 1, 1.0, 1.0
             , GridBagConstraints.CENTER, GridBagConstraints.BOTH,
             new Insets(0, 0, 1, 59), 78, -61));
-        jTabbedPane1.add(jServerInfoPane, "Server_Info");
-        jTabbedPane1.add(sgePanel, "Grid_Services");
+        jTabbedPane1.add(jTabbedBlastPane, "BLAST");
+             jTabbedPane1.add(jHMMPane, "HMM");
         jScrollPane2.getViewport().add(jList2, null);
 
         subSeqPanel3.add(jLabel13, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0
@@ -584,7 +566,7 @@ public class ParameterViewWidget
         subSeqPanel3.add(jLabel14, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
             , GridBagConstraints.WEST, GridBagConstraints.NONE,
             new Insets(5, 0, 0, 0), 0, 10));
-        jTabbedPane1.add(jOtherAlgorithemPane, "Other_Algorithms");
+        jTabbedPane1.add(jOtherAlgorithemPane, "Other Algorithms");
         jHMMPane.add(progressBarPanel3,
                      new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
                                             , GridBagConstraints.CENTER,
@@ -604,7 +586,7 @@ public class ParameterViewWidget
         jHMMPane.add(jPanel15, new GridBagConstraints(0, 5, 1, 1, 1.0, 1.0
             , GridBagConstraints.CENTER, GridBagConstraints.BOTH,
             new Insets(7, 0, 3, 0), 192, 3));
-        jPanel15.add(jButton2, null);
+        //jPanel15.add(jButton2, null);
         jHMMPane.add(jPanel11, new GridBagConstraints(0, 2, 1, 1, 1.0, 1.0
             , GridBagConstraints.CENTER, GridBagConstraints.BOTH,
             new Insets(0, 0, 0, 0), 183, 26));
@@ -617,18 +599,33 @@ public class ParameterViewWidget
         filterPanel.add(lowComplexFilterBox, null);
         filterPanel.add(maskLookupOnlyBox, null);
         filterPanel.add(jDisplayInWebBox, null);
+        jTabbedBlastPane.add(jBasicPane, "Main");
+          jTabbedBlastPane.add(jAdvancedPane, "Advanced Options");
+        jTabbedBlastPane.add(jServerInfoPane, "Service");
+        //jTabbedBlastPane.add(sgePanel, "Grid Services");
+
         jAdvancedPane.add(blastxSettingPanel,
                           new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
                                                  , GridBagConstraints.CENTER,
                                                  GridBagConstraints.BOTH,
                                                  new Insets(10, 10, 0, 0), 0, 7));
-        jAdvancedPane.add(filterPanel,
-                          new GridBagConstraints(0, 1, 1, 1, 1.0, 1.0
-                                                 , GridBagConstraints.CENTER,
-                                                 GridBagConstraints.BOTH,
-                                                 new Insets(0, 0, 0, 0), -150,
-                                                 82));
         this.add(jTabbedPane1, java.awt.BorderLayout.CENTER);
+        this.add(checkboxPanel, BorderLayout.SOUTH);
+        jToolBar1.add(jLabel2);
+        jToolBar1.add(jstartPointField);
+        jToolBar1.add(jLabel1);
+        jToolBar1.add(jendPointField);
+        subSeqPanel.add(jLabel9, new XYConstraints(0, 36, 60, 23));
+        subSeqPanel.add(DatabaseLabel, new XYConstraints(0, 59, 61, 23));
+        subSeqPanel.add(jProgramBox, new XYConstraints(84, 36, 267, 25));
+        subSeqPanel.add(jScrollPane1, new XYConstraints(0, 89, 352, 50));
+        subSeqPanel.add(jToolBar1, new XYConstraints(6, 0, 346, 27));
+        jBasicPane.add(jToolBar2, java.awt.BorderLayout.NORTH);
+        checkboxPanel.add(allArraysCheckBox, new XYConstraints(25, 4, 146, -1));
+        checkboxPanel.add(blastButton, new XYConstraints(174, 1, -1, -1));
+        checkboxPanel.add(blastStopButton, new XYConstraints(237, 1, -1, -1));
+        jBasicPane.add(jPanel3, java.awt.BorderLayout.CENTER);
+        jPanel3.add(subSeqPanel, java.awt.BorderLayout.CENTER);
         jExpectBox.addItem("10");
         jExpectBox.addItem("1");
 
@@ -665,7 +662,8 @@ public class ParameterViewWidget
         jFrameShiftPaneltyBox.addItem("100");
 
         jFrameShiftPaneltyBox.addItem("1000");
-        jTabbedPane1.setSelectedComponent(jBasicPane);
+        jTabbedPane1.setSelectedComponent(jTabbedBlastPane);
+        jTabbedBlastPane.setSelectedComponent(jBasicPane);
         /*
              jProgramBox1.addItem("Smith-Waterman DNA");
              jProgramBox1.addItem("Smith-Waterman Protein");
@@ -719,7 +717,7 @@ public class ParameterViewWidget
 
     public void setFastaFile(CSSequenceSet sd) {
         fastaFile = sd;
-        DSSequence s1 = sd.getSequence(0);
+        CSSequence s1 = (CSSequence)sd.getSequence(0);
         if (s1 != null) {
             int end = s1.length();
             jendPointField.setText(new Integer(end).toString());
@@ -969,9 +967,13 @@ public class ParameterViewWidget
 
     void stopBlastAction() {
         blastFinished("Interrupted");
-        BWAbstractAlgorithm algo = parameterSetter.getAlgo();
-        if (algo != null) {
-            algo.stop();
+        if(parameterSetter!=null){
+
+
+            BWAbstractAlgorithm algo = parameterSetter.getAlgo();
+            if (algo != null) {
+                algo.stop();
+            }
         }
     };
 

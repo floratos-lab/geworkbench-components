@@ -1,23 +1,24 @@
 package org.geworkbench.components.alignment.panels;
 
 
-import org.geworkbench.bison.datastructure.bioobjects.sequence.CSAlignmentResultSet;
-import org.geworkbench.bison.datastructure.bioobjects.sequence.DSAlignmentResultSet;
-import org.geworkbench.events.ProjectNodeAddedEvent;
-import org.geworkbench.util.session.SoapClient;
-import org.globus.progtutorial.clients.BlastService.Client;
-
-import javax.swing.*;
-import javax.swing.event.AncestorEvent;
 import java.awt.*;
 import java.awt.event.ActionEvent;
-import java.io.BufferedReader;
-import java.io.FileOutputStream;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import java.awt.event.ActionListener;
+import java.io.*;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.StringTokenizer;
+
+import javax.swing.*;
+import javax.swing.event.AncestorEvent;
+
+import org.geworkbench.bison.datastructure.bioobjects.sequence.
+        CSAlignmentResultSet;
+import org.geworkbench.bison.datastructure.bioobjects.sequence.
+        DSAlignmentResultSet;
+import org.geworkbench.events.ProjectNodeAddedEvent;
+import org.geworkbench.util.session.SoapClient;
+import org.globus.progtutorial.clients.BlastService.Client;
 
 
 /**
@@ -46,14 +47,20 @@ public class ServerInfoPanel extends JPanel {
     GridBagLayout gridBagLayout1 = new GridBagLayout();
     private boolean serverOK;
     private ParameterViewWidget pv;
-    // String imageName = "c:/data/pbidle.png";
-    JPanel jPanel1 = new JPanel();
-    JButton Stop = new JButton();
-    JButton Connect = new JButton();
     JButton Refresh = new JButton();
     BorderLayout borderLayout2 = new BorderLayout();
     JTextField jTextField1 = new JTextField();
-    BoxLayout boxLayout21;
+    JPanel jToolBar1 = new JPanel();
+    ButtonGroup bottonGroup = new ButtonGroup();
+    JRadioButton jRadioButton1 = new JRadioButton();
+    JRadioButton jRadioButton2 = new JRadioButton();
+    JRadioButton jRadioButton3 = new JRadioButton();
+    BorderLayout borderLayout1 = new BorderLayout();
+    CreateGridServicePanel sgePanel = new CreateGridServicePanel();
+    static final String DEFAULTSERVERTYPE = "columbia";
+    String serverType = DEFAULTSERVERTYPE;
+    private static final String GRID = "grid";
+    public static final String NCBI = "ncbi";
 
     public ServerInfoPanel() {
         try {
@@ -66,15 +73,24 @@ public class ServerInfoPanel extends JPanel {
     private void jbInit() throws Exception {
 
         this.setDebugGraphicsOptions(0);
+        this.setMinimumSize(new Dimension(120, 100));
         this.setOpaque(true);
         this.addAncestorListener(new ServerInfoPanel_this_ancestorAdapter(this));
         this.setLayout(borderLayout2);
-        boxLayout21 = new BoxLayout(jPanel2, BoxLayout.Y_AXIS);
-        jPanel2.setLayout(boxLayout21);
+        jRadioButton3.addActionListener(new
+                                        ServerInfoPanel_jRadioButton3_actionAdapter(this));
+        jRadioButton2.addActionListener(new
+                                        ServerInfoPanel_jRadioButton2_actionAdapter(this));
+        jRadioButton1.setSelected(true);
+        bottonGroup.add(jRadioButton1);
+        bottonGroup.add(jRadioButton2);
+        bottonGroup.add(jRadioButton3);
+        jPanel2.setLayout(borderLayout1);
         jPanel3.setLayout(gridBagLayout1);
         jTotalProcessorLabel.setIconTextGap(3);
         jTotalProcessorLabel.setText("Total Processors:");
-        jServerVersionTextField.addActionListener(new ServerInfoPanel_jServerVersionTextField_actionAdapter(this));
+        jServerVersionTextField.addActionListener(new
+                                                  ServerInfoPanel_jServerVersionTextField_actionAdapter(this));
         jServerVersionLabel.setIconTextGap(3);
         jServerVersionLabel.setText("Server Up Time:");
         jCurrentAvailProcessorLabel.setIconTextGap(3);
@@ -83,10 +99,6 @@ public class ServerInfoPanel extends JPanel {
         jQueueJobLabel.setText("Queued jobs:");
         jServerUptimeLabel.setIconTextGap(3);
         jServerUptimeLabel.setText("Server Version:");
-        Stop.setText("Stop");
-        Connect.setRolloverEnabled(true);
-        Connect.setText("Connect");
-        Connect.addActionListener(new ServerInfoPanel_Connect_actionAdapter(this));
         Refresh.setText("Refresh");
         Refresh.addActionListener(new ServerInfoPanel_Refresh_actionAdapter(this));
         jServerUptimeTextField.setFont(new java.awt.Font("Dialog", 0, 12));
@@ -99,23 +111,70 @@ public class ServerInfoPanel extends JPanel {
         jAvailProcessorTextField.setFont(new java.awt.Font("Dialog", 0, 12));
         jqueuedTextField.setFont(new java.awt.Font("Dialog", 0, 12));
         jPanel2.setDebugGraphicsOptions(0);
+        jPanel2.setMinimumSize(new Dimension(120, 100));
+        jRadioButton1.setText("Default Columbia");
+        jRadioButton1.addActionListener(new
+                                        ServerInfoPanel_jRadioButton1_actionAdapter(this));
+        jRadioButton2.setText("NCBI");
+        jRadioButton3.setText("Grid");
 
         this.add(jPanel2, BorderLayout.CENTER);
-        jPanel3.add(jQueueJobLabel, new GridBagConstraints(0, 4, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(2, 2, 2, 2), 0, 0));
-        jPanel3.add(jCurrentAvailProcessorLabel, new GridBagConstraints(0, 3, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(2, 2, 2, 2), 0, 0));
-        jPanel3.add(jAvailProcessorTextField, new GridBagConstraints(1, 3, 1, 1, 1.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2), 0, 0));
-        jPanel3.add(jTotalProcessorLabel, new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(2, 2, 2, 2), 0, 0));
-        jPanel3.add(jTotalProcessor, new GridBagConstraints(1, 2, 1, 1, 1.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2), 0, 0));
-        jPanel3.add(jServerVersionLabel, new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(2, 2, 2, 2), 0, 0));
-        jPanel3.add(jServerUptimeTextField, new GridBagConstraints(1, 1, 1, 1, 1.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2), 0, 0));
-        jPanel3.add(jServerUptimeLabel, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(2, 2, 2, 2), 0, 0));
-        jPanel3.add(jServerVersionTextField, new GridBagConstraints(1, 0, 1, 1, 1.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2), 0, 0));
-        jPanel3.add(jqueuedTextField, new GridBagConstraints(1, 4, 1, 1, 1.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2), 0, 0));
-        jPanel1.add(Connect, null);
-        jPanel1.add(Refresh, null);
-        jPanel1.add(Stop, null);
-        jPanel2.add(jPanel3, null);
-        jPanel2.add(jPanel1, null);
+        jPanel3.add(jQueueJobLabel,
+                    new GridBagConstraints(0, 4, 1, 1, 0.0, 0.0,
+                                           GridBagConstraints.WEST,
+                                           GridBagConstraints.NONE,
+                                           new Insets(2, 2, 2, 2), 0, 0));
+        jPanel3.add(jCurrentAvailProcessorLabel,
+                    new GridBagConstraints(0, 3, 1, 1, 0.0, 0.0,
+                                           GridBagConstraints.WEST,
+                                           GridBagConstraints.NONE,
+                                           new Insets(2, 2, 2, 2), 0, 0));
+        jPanel3.add(jAvailProcessorTextField,
+                    new GridBagConstraints(1, 3, 1, 1, 1.0, 0.0,
+                                           GridBagConstraints.WEST,
+                                           GridBagConstraints.HORIZONTAL,
+                                           new Insets(2, 2, 2, 2), 0, 0));
+        jPanel3.add(jTotalProcessorLabel,
+                    new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0,
+                                           GridBagConstraints.WEST,
+                                           GridBagConstraints.NONE,
+                                           new Insets(2, 2, 2, 2), 0, 0));
+        jPanel3.add(jTotalProcessor,
+                    new GridBagConstraints(1, 2, 1, 1, 1.0, 0.0,
+                                           GridBagConstraints.WEST,
+                                           GridBagConstraints.HORIZONTAL,
+                                           new Insets(2, 2, 2, 2), 0, 0));
+        jPanel3.add(jServerVersionLabel,
+                    new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0,
+                                           GridBagConstraints.WEST,
+                                           GridBagConstraints.NONE,
+                                           new Insets(2, 2, 2, 2), 0, 0));
+        jPanel3.add(jServerUptimeTextField,
+                    new GridBagConstraints(1, 1, 1, 1, 1.0, 0.0,
+                                           GridBagConstraints.WEST,
+                                           GridBagConstraints.HORIZONTAL,
+                                           new Insets(2, 2, 2, 2), 0, 0));
+        jPanel3.add(jServerUptimeLabel,
+                    new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0,
+                                           GridBagConstraints.WEST,
+                                           GridBagConstraints.NONE,
+                                           new Insets(2, 2, 2, 2), 0, 0));
+        jPanel3.add(jServerVersionTextField,
+                    new GridBagConstraints(1, 0, 1, 1, 1.0, 0.0,
+                                           GridBagConstraints.WEST,
+                                           GridBagConstraints.HORIZONTAL,
+                                           new Insets(2, 2, 2, 2), 0, 0));
+        jPanel3.add(jqueuedTextField,
+                    new GridBagConstraints(1, 4, 1, 1, 1.0, 0.0,
+                                           GridBagConstraints.WEST,
+                                           GridBagConstraints.HORIZONTAL,
+                                           new Insets(2, 2, 2, 2), 0, 0));
+        jToolBar1.add(jRadioButton1);
+        jToolBar1.add(jRadioButton2);
+        jToolBar1.add(jRadioButton3);
+        jToolBar1.add(Refresh);
+        jPanel2.add(jToolBar1, java.awt.BorderLayout.NORTH);
+        jPanel2.add(jPanel3, java.awt.BorderLayout.CENTER);
     }
 
     void Connect_actionPerformed(ActionEvent e) {
@@ -125,7 +184,10 @@ public class ServerInfoPanel extends JPanel {
 
     public void reportServerError() {
 
-        JOptionPane.showMessageDialog(null, "The connection to Columbia Soap Server is refused.", "Connection Error", JOptionPane.ERROR_MESSAGE);
+        JOptionPane.showMessageDialog(null,
+                                      "The connection to Columbia Soap Server is refused.",
+                                      "Connection Error",
+                                      JOptionPane.ERROR_MESSAGE);
 
     }
 
@@ -165,6 +227,7 @@ public class ServerInfoPanel extends JPanel {
                         jAvailProcessorTextField.setText(idleWorker);
                     }
                     jTotalProcessor.setText("40.");
+                    serverType = DEFAULTSERVERTYPE;
                 }
 
             }
@@ -207,7 +270,8 @@ public class ServerInfoPanel extends JPanel {
 
             BrowserLauncher.openURL(output);
             URL url = new URL(output);
-            String tempFolder = System.getProperties().getProperty("temporary.files.directory");
+            String tempFolder = System.getProperties().getProperty(
+                    "temporary.files.directory");
             if (tempFolder == null) {
                 tempFolder = ".";
 
@@ -220,22 +284,24 @@ public class ServerInfoPanel extends JPanel {
             StringBuffer sb = new StringBuffer("");
             String line = "";
 
-            BufferedReader br = new BufferedReader(new InputStreamReader(urlCon.getInputStream()));
+            BufferedReader br = new BufferedReader(new InputStreamReader(urlCon.
+                    getInputStream()));
             while ((line = br.readLine()) != null) {
                 bw.println(line);
             }
             br.close();
             bw.close();
 
-            DSAlignmentResultSet blastResult = new CSAlignmentResultSet(input, filename, null);
+            DSAlignmentResultSet blastResult = new CSAlignmentResultSet(input,
+                    filename, null);
 
-            org.geworkbench.events.ProjectNodeAddedEvent event = new ProjectNodeAddedEvent("message", null, blastResult);
+            org.geworkbench.events.ProjectNodeAddedEvent event = new
+                    ProjectNodeAddedEvent("message", null, blastResult);
             BlastAppComponent blastAppComponent = pv.getBlastAppComponent();
             blastAppComponent.publishProjectNodeAddedEvent(event);
         } catch (Exception f) {
             f.printStackTrace();
         }
-
 
     }
 
@@ -280,7 +346,7 @@ public class ServerInfoPanel extends JPanel {
                br.close();
                bw.close();
 
-               CSAlignmentResultSet blastResult = new CSAlignmentResultSet( input, filename);
+     CSAlignmentResultSet blastResult = new CSAlignmentResultSet( input, filename);
 
            ProjectNodeAddedEvent event =
                        new ProjectNodeAddedEvent(null, "message", null,
@@ -291,7 +357,7 @@ public class ServerInfoPanel extends JPanel {
            }catch (Exception f){f.printStackTrace();}
         }
 
-    */
+     */
 
 
 
@@ -303,21 +369,92 @@ public class ServerInfoPanel extends JPanel {
         this.pv = pv;
     }
 
+    public void jRadioButton1_actionPerformed(ActionEvent e) {
+        jPanel2.remove(sgePanel);
+        jPanel2.add(jPanel3, BorderLayout.CENTER);
+        retriveServerInfo();
+        this.validate();
+        this.repaint();
+    }
+
+    public void jRadioButton3_actionPerformed(ActionEvent e) {
+        jPanel2.remove(jPanel3);
+        //  this.getContentPane().remove(jPanel6);
+        jPanel2.add(sgePanel, BorderLayout.CENTER);
+        serverType = this.GRID;
+        this.validate();
+        this.repaint();
+    }
+
+    public void jRadioButton2_actionPerformed(ActionEvent e) {
+
+
+        jServerUptimeTextField.setText("Dec. 6, 2005");
+        jServerVersionTextField.setText("Blast 2.2.13");
+        jqueuedTextField.setText("N/A");
+        jAvailProcessorTextField.setText("N/A");
+        jTotalProcessor.setText("N/A");
+        jPanel2.remove(sgePanel);
+        jPanel2.add(jPanel3, BorderLayout.CENTER);
+        serverType = this.NCBI;
+        this.validate();
+        this.repaint();
+
+    }
+
+    /**
+     * getServerType
+     */
+    public String getServerType() {
+        if (serverType != null) {
+            return serverType;
+        }
+        return DEFAULTSERVERTYPE;
+    }
+
+
 }
 
-class ServerInfoPanel_Connect_actionAdapter implements java.awt.event.ActionListener {
-    ServerInfoPanel adaptee;
 
-    ServerInfoPanel_Connect_actionAdapter(ServerInfoPanel adaptee) {
+class ServerInfoPanel_jRadioButton2_actionAdapter implements ActionListener {
+    private ServerInfoPanel adaptee;
+    ServerInfoPanel_jRadioButton2_actionAdapter(ServerInfoPanel adaptee) {
         this.adaptee = adaptee;
     }
 
     public void actionPerformed(ActionEvent e) {
-        adaptee.Connect_actionPerformed(e);
+        adaptee.jRadioButton2_actionPerformed(e);
     }
 }
 
-class ServerInfoPanel_this_ancestorAdapter implements javax.swing.event.AncestorListener {
+
+class ServerInfoPanel_jRadioButton1_actionAdapter implements ActionListener {
+    private ServerInfoPanel adaptee;
+    ServerInfoPanel_jRadioButton1_actionAdapter(ServerInfoPanel adaptee) {
+        this.adaptee = adaptee;
+    }
+
+    public void actionPerformed(ActionEvent e) {
+        adaptee.jRadioButton1_actionPerformed(e);
+    }
+}
+
+
+class ServerInfoPanel_jRadioButton3_actionAdapter implements ActionListener {
+    private ServerInfoPanel adaptee;
+    ServerInfoPanel_jRadioButton3_actionAdapter(ServerInfoPanel adaptee) {
+        this.adaptee = adaptee;
+    }
+
+    public void actionPerformed(ActionEvent e) {
+
+        adaptee.jRadioButton3_actionPerformed(e);
+    }
+}
+
+
+class ServerInfoPanel_this_ancestorAdapter implements javax.swing.event.
+        AncestorListener {
     ServerInfoPanel adaptee;
 
     ServerInfoPanel_this_ancestorAdapter(ServerInfoPanel adaptee) {
@@ -335,7 +472,9 @@ class ServerInfoPanel_this_ancestorAdapter implements javax.swing.event.Ancestor
     }
 }
 
-class ServerInfoPanel_Refresh_actionAdapter implements java.awt.event.ActionListener {
+
+class ServerInfoPanel_Refresh_actionAdapter implements java.awt.event.
+        ActionListener {
     ServerInfoPanel adaptee;
 
     ServerInfoPanel_Refresh_actionAdapter(ServerInfoPanel adaptee) {
@@ -347,10 +486,13 @@ class ServerInfoPanel_Refresh_actionAdapter implements java.awt.event.ActionList
     }
 }
 
-class ServerInfoPanel_jServerVersionTextField_actionAdapter implements java.awt.event.ActionListener {
+
+class ServerInfoPanel_jServerVersionTextField_actionAdapter implements java.awt.
+        event.ActionListener {
     ServerInfoPanel adaptee;
 
-    ServerInfoPanel_jServerVersionTextField_actionAdapter(ServerInfoPanel adaptee) {
+    ServerInfoPanel_jServerVersionTextField_actionAdapter(ServerInfoPanel
+            adaptee) {
         this.adaptee = adaptee;
     }
 
