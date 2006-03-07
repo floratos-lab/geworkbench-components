@@ -87,7 +87,7 @@ public class GenePanel extends SelectorPanel<DSGeneMarker> {
         // Load button at bottom of component
         JPanel loadPanel = new JPanel();
         loadPanel.setLayout(new BoxLayout(loadPanel, BoxLayout.X_AXIS));
-        JButton loadButton = new JButton("Load Panel");
+        JButton loadButton = new JButton("Load Set");
         loadPanel.add(loadButton);
         loadPanel.add(Box.createHorizontalGlue());
         loadButton.addActionListener(new ActionListener() {
@@ -99,7 +99,7 @@ public class GenePanel extends SelectorPanel<DSGeneMarker> {
     }
 
     private JMenuItem savePanelItem = new JMenuItem("Save");
-    private JMenuItem loadPanelItem = new JMenuItem("Load Panel");
+    private JMenuItem loadPanelItem = new JMenuItem("Load Set");
     private JMenuItem exportPanelItem = new JMenuItem("Export");
 
     private void saveButtonPressed(TreePath path) {
