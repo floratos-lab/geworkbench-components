@@ -176,7 +176,8 @@ public class CSSequenceSetViewEventBase implements VisualPlugin{
             if (activatedMarkers != null &&
                 activatedMarkers.size() > 0) {
 
-                if (activateMarkers) {
+
+                if (activateMarkers && (sequenceDB!=null)) {
                     // createActivatedSequenceSet();
                     activeSequenceDB = (CSSequenceSet) ((CSSequenceSet)
                             sequenceDB).

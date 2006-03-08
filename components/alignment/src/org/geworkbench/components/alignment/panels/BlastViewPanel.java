@@ -156,7 +156,8 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
         rightPanel.setDividerSize(2);
         rightPanel.setMinimumSize(new Dimension(155, 300));
         furtherProcess.setBorder(BorderFactory.createLoweredBevelBorder());
-        furtherProcess.setMinimumSize(new Dimension(10, 37));
+        furtherProcess.setMinimumSize(new Dimension(195, 40));
+        furtherProcess.setPreferredSize(new Dimension(195, 40));
         detailedInfo.setLayout(borderLayout2);
         jScrollPane1.setHorizontalScrollBarPolicy(JScrollPane.
                                                   HORIZONTAL_SCROLLBAR_ALWAYS);
@@ -188,7 +189,7 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
         allButton.setText("Select All");
         allButton.addActionListener(new BlastViewPanel_allButton_actionAdapter(this));
         jSplitPane1.setOrientation(JSplitPane.VERTICAL_SPLIT);
-        jSplitPane1.setMinimumSize(new Dimension(200, 500));
+        jSplitPane1.setMinimumSize(new Dimension(200, 400));
          jSplitPane1.setPreferredSize(new Dimension(500, 600));
         jSplitPane1.setDividerSize(1);
         this.setLayout(borderLayout3);
