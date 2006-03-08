@@ -21,6 +21,9 @@ public class RemoteBlast {
      * The protein sequence to submit to Blast.
      */
     private String query;
+
+    private static String DEFAULTPROGRAM = "blastp";
+    private static String DEFAULTDBNAME = "nr";
     /**
      * The default file name to write results out to.
      */
@@ -58,7 +61,10 @@ public class RemoteBlast {
     /**
      * Regular expression to parse out negative CDD Search results with.
      */
-    private Pattern p2 = Pattern.compile("No.putative.conserved.domains.have.been.detected");
+    private Pattern p2 = Pattern.compile(
+            "No.putative.conserved.domains.have.been.detected");
+    private String dbName;
+    private String programName;
 
     /**
      * Creates a new RemoteBlast and sets query and textArea to the specified
@@ -83,11 +89,11 @@ public class RemoteBlast {
     }
 
     public RemoteBlast(String query, String filename, JProgressBar progressBar) {
-     this.query = query;
-     this.filename = filename;
-     this.textArea = new JTextArea();
-     this.CDD_rid = null;
- }
+        this.query = query;
+        this.filename = filename;
+        this.textArea = new JTextArea();
+        this.CDD_rid = null;
+    }
 
     /**
      * Creates a new RemoteBlast and sets query, filenmae, and textArea to the
@@ -137,7 +143,9 @@ public class RemoteBlast {
 
         Socket s = null;
 
-        message = "Put http://www.ncbi.nlm.nih.gov/blast/Blast.cgi?CMD=Put&QUERY=" + query + "&DATABASE=pdbaa&PROGRAM=blastp&FILTER=L&HITLIST_SZE=500&AUTO_FORMAT=Semiauto&CDD_SEARCH=on&SHOW_OVERVIEW=on&SERVICE=plain\r\n\r\n";
+        message =
+                "Put http://www.ncbi.nlm.nih.gov/blast/Blast.cgi?CMD=Put&QUERY=" +
+                query + "&DATABASE=" + dbName + "&PROGRAM=" + programName + "&FILTER=L&HITLIST_SZE=500&AUTO_FORMAT=Semiauto&CDD_SEARCH=on&SHOW_OVERVIEW=on&SERVICE=plain\r\n\r\n";
 
         try {
 
@@ -166,7 +174,8 @@ public class RemoteBlast {
                     }
                     if (m2.find()) {
                         CDD_rid = "none";
-                        System.out.println("No.putative.conserved.domains.have.been.detected");
+                        System.out.println(
+                                "No.putative.conserved.domains.have.been.detected");
                     }
                 }
                 if (data.equals("<!--QBlastInfoBegin")) {
@@ -189,65 +198,69 @@ public class RemoteBlast {
             System.out.println("readline:" + e.getMessage());
         }
         return null;
-    } /* end of submitBlast method */
+    }
+
+    /* end of submitBlast method */
+
     public String submitBlast(String message) {
 
-          // String message; /* HTTP GET message */
+        // String message; /* HTTP GET message */
 
-           Socket s = null;
+        Socket s = null;
 
+        try {
 
-           try {
+            s = new Socket(Blast_SERVER, DEFAULT_PORT);
 
-               s = new Socket(Blast_SERVER, DEFAULT_PORT);
+            //create an output stream for sending message.
+            DataOutputStream out = new DataOutputStream(s.getOutputStream());
 
-               //create an output stream for sending message.
-               DataOutputStream out = new DataOutputStream(s.getOutputStream());
+            //create buffered reader stream for reading incoming byte stream.
+            InputStreamReader inBytes = new InputStreamReader(s.getInputStream());
+            BufferedReader in = new BufferedReader(inBytes);
 
-               //create buffered reader stream for reading incoming byte stream.
-               InputStreamReader inBytes = new InputStreamReader(s.getInputStream());
-               BufferedReader in = new BufferedReader(inBytes);
+            textArea.append("\n\nSending message: " + message + "\n");
 
-               textArea.append("\n\nSending message: " + message + "\n");
+            //write String message to output stream as byte sequence.
+            out.writeBytes(message);
 
-               //write String message to output stream as byte sequence.
-               out.writeBytes(message);
-
-               //reads each incoming line until it finds the CDD and Blast RIDs.
-               while (true) {
-                   String data = in.readLine();
-                   if (CDD_rid == null) {
-                       Matcher m1 = p1.matcher(data);
-                       Matcher m2 = p2.matcher(data);
-                       if (m1.find()) {
-                           CDD_rid = m1.group(1);
-                       }
-                       if (m2.find()) {
-                           CDD_rid = "none";
-                           System.out.println("No.putative.conserved.domains.have.been.detected");
-                       }
-                   }
-                   if (data.equals("<!--QBlastInfoBegin")) {
-                       StringTokenizer st = new StringTokenizer(in.readLine(), " ");
-                       String str = st.nextToken();
-                       str = st.nextToken();
-                       s.close();
-                       return st.nextToken();
-                   }
-                   //				System.out.println(data);
-                   if (data == null) {
-                       break;
-                   }
-               }
-           } catch (UnknownHostException e) {
-               System.out.println("Socket:" + e.getMessage());
-           } catch (EOFException e) {
-               System.out.println("EOF:" + e.getMessage());
-           } catch (IOException e) {
-               System.out.println("readline:" + e.getMessage());
-           }
-           return null;
+            //reads each incoming line until it finds the CDD and Blast RIDs.
+            while (true) {
+                String data = in.readLine();
+                if (CDD_rid == null) {
+                    Matcher m1 = p1.matcher(data);
+                    Matcher m2 = p2.matcher(data);
+                    if (m1.find()) {
+                        CDD_rid = m1.group(1);
+                    }
+                    if (m2.find()) {
+                        CDD_rid = "none";
+                        System.out.println(
+                                "No.putative.conserved.domains.have.been.detected");
+                    }
+                }
+                if (data.equals("<!--QBlastInfoBegin")) {
+                    StringTokenizer st = new StringTokenizer(in.readLine(), " ");
+                    String str = st.nextToken();
+                    str = st.nextToken();
+                    s.close();
+                    return st.nextToken();
+                }
+                //				System.out.println(data);
+                if (data == null) {
+                    break;
+                }
+            }
+        } catch (UnknownHostException e) {
+            System.out.println("Socket:" + e.getMessage());
+        } catch (EOFException e) {
+            System.out.println("EOF:" + e.getMessage());
+        } catch (IOException e) {
+            System.out.println("readline:" + e.getMessage());
+        }
+        return null;
     }
+
     /**
      * Sets getBlastDone to <code>false</code> indicating Blast is not done yet
      * and creates a new GetBlast with the specified String as a parameter.
@@ -259,21 +272,25 @@ public class RemoteBlast {
         getBlastDone = false;
         GetBlast bl = new GetBlast(rid);
     }
+
     public void getBlast(String rid, String format) {
         getBlastDone = false;
-        String  message =  "Get http://www.ncbi.nlm.nih.gov/blast/Blast.cgi?CMD=Get&FORMAT_TYPE=" + format + "&RID=" +  rid + "\r\n\r\n";
-
+        String message =
+                "Get http://www.ncbi.nlm.nih.gov/blast/Blast.cgi?CMD=Get&FORMAT_TYPE=" +
+                format + "&RID=" + rid + "\r\n\r\n";
 
         runMain(message);
         //GetBlast bl = new GetBlast(rid, format);
     }
+
     public void runMain(String message) {
 
-              String file;
+        String file;
         Socket s;
         try {
             //create an output stream for writing to a file. appending file.
-            PrintStream ps = new PrintStream(new FileOutputStream(new File(filename)), true);
+            PrintStream ps = new PrintStream(new FileOutputStream(new File(
+                    filename), true), true);
 
             boolean BlastnotDone = false;
             while (!BlastnotDone) {
@@ -284,7 +301,8 @@ public class RemoteBlast {
                 DataOutputStream out = new DataOutputStream(s.getOutputStream());
 
                 //create buffered reader stream for reading incoming byte stream.
-                InputStreamReader inBytes = new InputStreamReader(s.getInputStream());
+                InputStreamReader inBytes = new InputStreamReader(s.
+                        getInputStream());
                 BufferedReader in = new BufferedReader(inBytes);
 
                 textArea.append(message + "\n");
@@ -302,7 +320,7 @@ public class RemoteBlast {
                     } else if (data.equals("\tStatus=READY")) {
                         BlastnotDone = true;
                         done = true;
-                        ps.println(data);
+                        //ps.println(data);
                     } else {
                         if (done) {
                             ps.println(data);
@@ -328,7 +346,8 @@ public class RemoteBlast {
         } catch (InterruptedException e) {
             System.out.println("wait:" + e.getMessage());
         }
-        } //end of run().
+    } //end of run().
+
     /**
      * This class is a Thread that retrieves Blast results by Blast RID#, which
      * can take some period of time.  The thread continually requests results
@@ -344,39 +363,40 @@ public class RemoteBlast {
         public GetBlast(String Blast_rid) {
             s = null;
             //this.file = file;
-            message = "Get http://www.ncbi.nlm.nih.gov/blast/Blast.cgi?CMD=Get&FORMAT_TYPE=HTML&RID=" + Blast_rid + "\r\n\r\n";
+            message =
+                    "Get http://www.ncbi.nlm.nih.gov/blast/Blast.cgi?CMD=Get&FORMAT_TYPE=HTML&RID=" +
+                    Blast_rid + "\r\n\r\n";
             this.start();
         }
 
 
         public GetBlast(String Blast_rid, String format) {
-            message =  "Get http://www.ncbi.nlm.nih.gov/blast/Blast.cgi?CMD=Get&FORMAT_TYPE=" + format + "&RID=" + Blast_rid + "\r\n\r\n";
+            message =
+                    "Get http://www.ncbi.nlm.nih.gov/blast/Blast.cgi?CMD=Get&FORMAT_TYPE=" +
+                    format + "&RID=" + Blast_rid + "\r\n\r\n";
 
             this.start();
         }
+
         public void run() {
 
             try {
                 //create an output stream for writing to a file. appending file.
-                PrintStream ps = new PrintStream(new FileOutputStream(new File(filename)), true);
-
+                PrintStream ps = new PrintStream(new FileOutputStream(new File(
+                        filename)), true);
                 boolean BlastnotDone = false;
                 while (!BlastnotDone) {
-
                     s = new Socket(Blast_SERVER, DEFAULT_PORT);
-
                     //create an output stream for sending message.
-                    DataOutputStream out = new DataOutputStream(s.getOutputStream());
-
+                    DataOutputStream out = new DataOutputStream(s.
+                            getOutputStream());
                     //create buffered reader stream for reading incoming byte stream.
-                    InputStreamReader inBytes = new InputStreamReader(s.getInputStream());
+                    InputStreamReader inBytes = new InputStreamReader(s.
+                            getInputStream());
                     BufferedReader in = new BufferedReader(inBytes);
-
                     textArea.append(message + "\n");
-
                     //write String message to output stream as byte sequence.
                     out.writeBytes(message);
-
                     String data = in.readLine();
 //                    System.out.println("IN HTML" +   data );
                     boolean done = false;
@@ -419,15 +439,17 @@ public class RemoteBlast {
 
     public static void main(String[] args) {
         String query = "MGARCPTRTLRARQPAHPRPPGTPRHHQRRPLPAASPTRHRSSRGRQIRARRPDRPGTRLRTGAAVDRQQPQHAPLRPLRLRSARADPRPQPGKPARRNPGHQRPRPRCRRPGAQQRPADRTLPADRSARHRVPAAPPAARPAHRRARQRRLRPARRPARPAGTRPLHDSRTRPAQLSGAADLRSDRRPATDRDHRQRRSPLLPAPCRRHHRTRRPPLPARIPPPVHSAAPHPPQQRGTRGNRGRPLLREPAQRHPSSRRRLRAPHRGRLPPGYRPAPQRGLPDHGHRRQDQRTHPRVPAGARGNGVAPTHGHPRMTSRRSHETPQGPDPRSPGAAPAYREAPPALTGRE";
-            RemoteBlast test = new RemoteBlast(query);
-            String  message = "Put http://www.ncbi.nlm.nih.gov/blast/Blast.cgi?CMD=Put&QUERY=" + query + "&DATABASE=nr&PROGRAM=blastp&FILTER=L&HITLIST_SZE=500&AUTO_FORMAT=Semiauto&CDD_SEARCH=on&SHOW_OVERVIEW=on&SERVICE=plain\r\n\r\n";
+        RemoteBlast test = new RemoteBlast(query);
+        String message =
+                "Put http://www.ncbi.nlm.nih.gov/blast/Blast.cgi?CMD=Put&QUERY=" +
+                query + "&DATABASE=nr&PROGRAM=blastp&FILTER=L&HITLIST_SZE=500&AUTO_FORMAT=Semiauto&CDD_SEARCH=on&SHOW_OVERVIEW=on&SERVICE=plain\r\n\r\n";
 
-            String Blast_rid = test.submitBlast(message);
-            String format = "HTML";
-            test.getBlast(Blast_rid, format);
-            format = "TEXT";
-            System.out.println("START TEXT");
-            //test.getBlast(Blast_rid, format);
+        String Blast_rid = test.submitBlast(message);
+        String format = "HTML";
+        test.getBlast(Blast_rid, format);
+        format = "TEXT";
+        System.out.println("START TEXT");
+        //test.getBlast(Blast_rid, format);
     }
 
     /**
@@ -439,8 +461,24 @@ public class RemoteBlast {
         this.query = aQuery;
         textArea = new JTextArea();
         this.filename = DEFAULT_FILENAME;
-         this.CDD_rid = null;
+        this.CDD_rid = null;
     }
 
-} /* end of public class RemoteBlast */
+    public void setDbName(String dbName) {
+        this.dbName = dbName;
+    }
+
+    public void setProgamName(String progamName) {
+        this.programName = progamName;
+    }
+
+    public String getDbName() {
+        return dbName;
+    }
+
+    public String getProgamName() {
+        return programName;
+    }
+
+}
 

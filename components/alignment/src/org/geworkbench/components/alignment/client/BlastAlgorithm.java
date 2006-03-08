@@ -8,10 +8,6 @@ import java.util.StringTokenizer;
 import javax.swing.JProgressBar;
 
 import org.geworkbench.algorithms.BWAbstractAlgorithm;
-import java.io.*;
-import java.net.URL;
-import java.net.URLConnection;
-import java.util.StringTokenizer;
 import org.geworkbench.bison.datastructure.biocollections.DSAncillaryDataSet;
 import org.geworkbench.bison.datastructure.biocollections.sequences.
         CSSequenceSet;
@@ -49,7 +45,6 @@ public class BlastAlgorithm extends BWAbstractAlgorithm implements SoapClientIn 
 
     private Client client;
     private BlastAppComponent blastAppComponent = null;
-    // private BlastAppComponent alignmentParametersPanel = null;
     private SoapClient soapClient = null;
     private boolean startBrowser;
     private boolean gridEnabled = false;
@@ -59,6 +54,7 @@ public class BlastAlgorithm extends BWAbstractAlgorithm implements SoapClientIn 
             "http://amdec-bioinfo.cu-genome.org/html/temp/";
     private boolean useNCBI = false;
     private JProgressBar progressBar = new JProgressBar();
+    private ParameterSetting parameterSetting;
 
     public void setBlastAppComponent(BlastAppComponent _blastAppComponent) {
         blastAppComponent = _blastAppComponent;
@@ -83,7 +79,6 @@ public class BlastAlgorithm extends BWAbstractAlgorithm implements SoapClientIn 
 
     public void execute() {
         DSAncillaryDataSet blastResult = null;
-        //  System.out.println("INBlastAlgo");
         try {
             if (soapClient == null) {
                 try {
@@ -112,6 +107,8 @@ public class BlastAlgorithm extends BWAbstractAlgorithm implements SoapClientIn 
                     blast = new RemoteBlast(((CSSequence) sequence).
                                             getSequence(), outputFile,
                                             progressBar);
+                    blast.setDbName(parameterSetting.getDbName());
+                    blast.setProgamName(parameterSetting.getProgramName());
 
                     String BLAST_rid = blast.submitBlast();
                     blast.getBlast(BLAST_rid, "HTML");
@@ -128,6 +125,16 @@ public class BlastAlgorithm extends BWAbstractAlgorithm implements SoapClientIn 
 
                 progressBar.setIndeterminate(false);
                 progressBar.setString("NCBI Blast is finished.");
+                if (parameterSetting.isViewInBrowser()) {
+                    if ((new File(outputFile)).canRead()) {
+
+                        BrowserLauncher.openURL(new File(outputFile).
+                                                getAbsolutePath());
+                    } else {
+                        System.out.println("CANNOT READ " + outputFile);
+                    }
+
+                }
                 blastResult = new CSAlignmentResultSet(
                         outputFile, outputFile, activeSequenceDB);
                 blastResult.setLabel(blastAppComponent.NCBILABEL);
@@ -142,13 +149,10 @@ public class BlastAlgorithm extends BWAbstractAlgorithm implements SoapClientIn 
                 return;
             }
             if (soapClient != null) {
-
                 String cmd = soapClient.getCMD();
                 String textFile = "";
                 String htmlFile = null;
-
                 if (cmd.startsWith("pb")) {
-
                     soapClient.startRun(true);
                     htmlFile = ((SoapClient) soapClient).getOutputfile();
                     if (stopRequested) {
@@ -156,7 +160,6 @@ public class BlastAlgorithm extends BWAbstractAlgorithm implements SoapClientIn 
                     }
                     if (startBrowser && !stopRequested) {
                         if ((new File(htmlFile)).canRead()) {
-
                             BrowserLauncher.openURL(tempURLFolder +
                                     getFileName(htmlFile));
                         } else {
@@ -204,33 +207,24 @@ public class BlastAlgorithm extends BWAbstractAlgorithm implements SoapClientIn 
                         "temporary.files.directory");
                 if (tempFolder == null) {
                     tempFolder = ".";
-
                 }
 
                 blastResult = new CSAlignmentResultSet(tempFolder + "a.html",
                         inputFilename, soapClient.getSequenceDB());
-
                 org.geworkbench.events.ProjectNodeAddedEvent event = new org.
                         geworkbench.events.ProjectNodeAddedEvent("message", null,
                         blastResult);
                 blastAppComponent.publishProjectNodeAddedEvent(event);
-
                 String output = client.submitRequest(inputFilename);
-
                 URL url = new URL(output);
-
                 String filename = "C:\\" + url.getFile();
-
                 ((CSAlignmentResultSet) blastResult).setResultFile(filename);
                 jobFinished = true;
                 BrowserLauncher.openURL(output);
-
                 PrintWriter bw = new PrintWriter(new FileOutputStream(filename));
                 URLConnection urlCon = url.openConnection();
-
                 StringBuffer sb = new StringBuffer("");
                 String line = "";
-
                 BufferedReader br = new BufferedReader(
                         new InputStreamReader(urlCon.getInputStream()));
                 while ((line = br.readLine()) != null) {
@@ -238,10 +232,8 @@ public class BlastAlgorithm extends BWAbstractAlgorithm implements SoapClientIn 
                 }
                 br.close();
                 bw.close();
-
                 blastResult = new CSAlignmentResultSet(filename, inputFilename,
                         soapClient.getSequenceDB());
-
             }
 
         } catch (Exception ex) {
@@ -270,6 +262,10 @@ public class BlastAlgorithm extends BWAbstractAlgorithm implements SoapClientIn 
         return progressBar;
     }
 
+    public ParameterSetting getParameterSetting() {
+        return parameterSetting;
+    }
+
     public void setStartBrowser(boolean startBrowser) {
         this.startBrowser = startBrowser;
     }
@@ -285,6 +281,10 @@ public class BlastAlgorithm extends BWAbstractAlgorithm implements SoapClientIn 
 
     public void setProgressBar(JProgressBar progressBar) {
         this.progressBar = progressBar;
+    }
+
+    public void setParameterSetting(ParameterSetting parameterSetting) {
+        this.parameterSetting = parameterSetting;
     }
 
     public String getFileName(String path) {

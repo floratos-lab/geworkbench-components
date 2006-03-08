@@ -61,8 +61,8 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
     JSplitPane jSplitPane1 = new JSplitPane();
     private JSplitPane mainPanel;
     GeneListModel geneListModel = new GeneListModel();
-    JPanel rightPanel;
-
+    //JPanel rightPanel;
+    JSplitPane rightPanel = new JSplitPane();
     GridBagLayout gridBagLayout3 = new GridBagLayout();
     private CSSequenceSet sequenceDB;
     private ArrayList blastDataSet = new ArrayList();
@@ -136,8 +136,9 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
         // mainPanel.setPreferredSize(new Dimension(500, 500));
         mainPanel.setOneTouchExpandable(true);
 //        rightPanel.setLayout(borderLayout3);
-        rightPanel = new JPanel(gridBagLayout3); //this.setLayout(gridBagLayout3);
-
+        //rightPanel = new JPanel(gridBagLayout3); //this.setLayout(gridBagLayout3);
+        rightPanel = new JSplitPane();
+        rightPanel.setOrientation(JSplitPane.VERTICAL_SPLIT);
         markerList = new MarkerAutoList();
 
         blastResult.setLayout(borderLayout1);
@@ -150,7 +151,10 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
                                       BlastViewPanel_resetButton_actionAdapter(this));
 
         blastResult.setBorder(BorderFactory.createLoweredBevelBorder());
-        blastResult.setPreferredSize(new Dimension(145, 200));
+        blastResult.setPreferredSize(new Dimension(145, 100));
+        rightPanel.setPreferredSize(new Dimension(155, 400));
+        rightPanel.setDividerSize(2);
+        rightPanel.setMinimumSize(new Dimension(155, 300));
         furtherProcess.setBorder(BorderFactory.createLoweredBevelBorder());
         furtherProcess.setMinimumSize(new Dimension(10, 37));
         detailedInfo.setLayout(borderLayout2);
@@ -158,7 +162,7 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
                                                   HORIZONTAL_SCROLLBAR_ALWAYS);
         jScrollPane1.setVerticalScrollBarPolicy(JScrollPane.
                                                 VERTICAL_SCROLLBAR_ALWAYS);
-        rightPanel.setMinimumSize(new Dimension(10, 386));
+        //rightPanel.setMinimumSize(new Dimension(10, 386));
 
         loadButton.setText("Load");
         loadButton.addActionListener(new
@@ -184,6 +188,9 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
         allButton.setText("Select All");
         allButton.addActionListener(new BlastViewPanel_allButton_actionAdapter(this));
         jSplitPane1.setOrientation(JSplitPane.VERTICAL_SPLIT);
+        jSplitPane1.setMinimumSize(new Dimension(200, 500));
+         jSplitPane1.setPreferredSize(new Dimension(500, 600));
+        jSplitPane1.setDividerSize(1);
         this.setLayout(borderLayout3);
         furtherProcess.add(loadButton, null);
         furtherProcess.add(resetButton, null);
@@ -194,16 +201,18 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
         jSplitPane1.add(detailedInfo, JSplitPane.BOTTOM);
         detailedInfo.add(jScrollPane1, BorderLayout.CENTER);
         jScrollPane1.getViewport().add(singleAlignmentArea, null);
-        rightPanel.add(furtherProcess,
-                       new GridBagConstraints(0, 1, 1, 1, 1.0, 1.0,
-                                              GridBagConstraints.CENTER,
-                                              GridBagConstraints.BOTH,
-                                              new Insets(0, 0, 3, 7), -195, 18));
-        rightPanel.add(jSplitPane1,
-                       new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0,
-                                              GridBagConstraints.CENTER,
-                                              GridBagConstraints.BOTH,
-                                              new Insets(0, 0, 0, 0), 398, 223));
+//        rightPanel.add(furtherProcess,
+//                       new GridBagConstraints(0, 1, 1, 1, 1.0, 1.0,
+//                                              GridBagConstraints.CENTER,
+//                                              GridBagConstraints.BOTH,
+//                                              new Insets(0, 0, 3, 7), -195, 18));
+//        rightPanel.add(jSplitPane1,
+//                       new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0,
+//                                              GridBagConstraints.CENTER,
+//                                              GridBagConstraints.BOTH,
+//                                              new Insets(0, 0, 0, 0), 398, 223));
+        rightPanel.add(jSplitPane1, JSplitPane.TOP);
+        rightPanel.add(furtherProcess,JSplitPane.BOTTOM);
         currentError = "No alignment result is loaded, please check again.";
         westPanel.add(markerList, BorderLayout.CENTER);
         //mainPanel.add(markerList);
@@ -243,16 +252,17 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
     public void resetToWhite(String detailString) {
 
         blastResult.removeAll();
-        if(detailString == null){
+        if (detailString == null) {
             singleAlignmentArea.setText("Alignment Detail panel");
-        }else{
+        } else {
             singleAlignmentArea.setText(detailString);
         }
 
         revalidate();
         singleAlignmentArea.setCaretPosition(0);
     }
-    public void resetToWhite(){
+
+    public void resetToWhite() {
         resetToWhite(null);
     }
 
@@ -338,7 +348,7 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
         ListSelectionModel rowSM = table.getSelectionModel();
         rowSM.addListSelectionListener(new BlastDetaillistSelectionListener());
         table.setSelectionModel(rowSM);
-        table.changeSelection(0,0, false, false);
+        table.changeSelection(0, 0, false, false);
 
         JScrollPane hitsPane = new JScrollPane(table);
 
@@ -360,14 +370,17 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
 
             } else {
                 selectedRow = lsm.getMinSelectionIndex();
-                selectedHit = (BlastObj) hits.get(selectedRow);
+                if (hits != null && hits.size() > selectedRow) {
+                    selectedHit = (BlastObj) hits.get(selectedRow);
+                    showAlignment(selectedHit);
+                    if (foundAtLeastOneSelected()) {
+                        AddSequenceToProjectButton.setBackground(Color.orange);
+                    } else {
+                        AddSequenceToProjectButton.setBackground(Color.white);
+                    }
 
-                showAlignment(selectedHit);
-                if (foundAtLeastOneSelected()) {
-                    AddSequenceToProjectButton.setBackground(Color.orange);
-                } else {
-                    AddSequenceToProjectButton.setBackground(Color.white);
                 }
+
             }
         }
     }
@@ -406,8 +419,8 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
         /* returns the number of rows in table*/
         public int getRowCount() {
             if (hits == null) {
-           return 0;
-       }
+                return 0;
+            }
 
             return (hits.size());
         }
@@ -584,7 +597,7 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
          * Consider change SoapClient to Dataset directly for blast.
          */
         try {
-            if(!foundAtLeastOneSelected()){
+            if (!foundAtLeastOneSelected()) {
                 reportError("No hit is selected");
                 return;
             }
@@ -621,13 +634,10 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
             db.setLabel("temp_Fasta_File");
             db.setFASTAFile(tempFile);
 
-            // AncillaryDataSet blastResult = new CSAlignmentResultSet (htmlFile, soapClient.getInputFileName());
-
             org.geworkbench.events.ProjectNodeAddedEvent event = new org.
                     geworkbench.events.ProjectNodeAddedEvent("message", db, null);
             blastViewComponent.publishProjectNodeAddedEvent(event);
         } catch (BlastDataOutOfBoundException be) {
-            //be.printStackTrace();
             String errorMessage = be.getMessage();
             JOptionPane.showMessageDialog(null,
                                           errorMessage,
@@ -663,8 +673,6 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
      * @param string String
      */
     public void setResults(String string) {
-        // try {
-        //  singleAlignmentArea.setPage(string);
 
         HmmResultParser hmmParser = new HmmResultParser(string);
         hmmParser.parseResults();
@@ -673,8 +681,6 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
         blastResult.add(getHmmListPanel());
         revalidate();
 
-        //  }catch (IOException e){e.printStackTrace();
-        //System.out.println(string + " cannot be presented at visual area");
     }
 
     public void loadButton_actionPerformed(ActionEvent actionEvent) {
@@ -692,25 +698,35 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
         if (returnVal != JFileChooser.APPROVE_OPTION) {
             return;
         }
-        //      updateFileProperty(chooser.getSelectedFile().getAbsolutePath());
+
         org.geworkbench.util.PropertiesMonitor.getPropertiesMonitor().
                 setDefPath(chooser.getCurrentDirectory().getAbsolutePath());
         File patternfile = chooser.getSelectedFile();
         try {
 
             BlastParser bp = new BlastParser(patternfile.getAbsolutePath());
-            bp.setTotalSequenceNum(7);
+            bp.setTotalSequenceNum(1);
             if (bp.parseResults()) {
 
                 hits = bp.getHits();
 
                 setResults(hits);
             } else {
-                JOptionPane.showMessageDialog(null,
-                                              "The file is not in a supported format.",
-                                              "Format Error",
-                                              JOptionPane.ERROR_MESSAGE);
+                NCBIBlastParser nbp = new NCBIBlastParser(patternfile.
+                        getAbsolutePath());
+                nbp.setTotalSequenceNum(1);
+                if (nbp.parseResults()) {
 
+                    hits = nbp.getHits();
+
+                    setResults(hits);
+                } else {
+
+                    JOptionPane.showMessageDialog(null,
+                                                  "The file is not in a supported format.",
+                                                  "Format Error",
+                                                  JOptionPane.ERROR_MESSAGE);
+                }
             }
 
         } catch (NullPointerException e1) {
@@ -761,11 +777,10 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
                     setResults((Vector) blastDataSet.get(index));
 
                 } else {
-                   resetToWhite("No hits found");
-
+                    resetToWhite("No hits found");
 
                 }
-            } else if(blastDataSet != null){
+            } else if (blastDataSet != null) {
                 setResults((Vector) blastDataSet.get(0));
             }
         }

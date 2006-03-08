@@ -402,7 +402,7 @@ public class BlastObj {
 
     public CSSequence getAlignedSeq() {
         CSSequence seq = new CSSequence(">" + databaseID + "|" + name +
-                                        "---ONLY PARTIALLY INCLUDED", subject);
+                                        "---PARTIALLY INCLUDED", subject);
 
         return seq;
 
@@ -444,10 +444,8 @@ public class BlastObj {
                                         "The sequence " + label +
                                         "  is too long to retrieve the whole sequence. The upper limit is " +
                                         maxSize + " bases.");
-
                             }
                             name.append(line + "\n");
-
                         }
                         CSSequence seq = new CSSequence(label, name.toString());
                         return seq;

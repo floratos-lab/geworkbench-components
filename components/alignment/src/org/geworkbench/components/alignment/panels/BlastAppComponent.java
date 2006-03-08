@@ -28,6 +28,7 @@ import org.geworkbench.components.alignment.blast.RemoteBlast;
 import org.geworkbench.bison.datastructure.bioobjects.sequence.
         CSAlignmentResultSet;
 import java.util.Random;
+import org.geworkbench.events.MicroarraySetViewEvent;
 
 /**
  * <p>Title: </p>
@@ -228,8 +229,6 @@ import java.util.Random;
         jTabbedSmPane = new JTabbedPane();
         jServerInfoPane = new ServerInfoPanel();
         jScrollPane4 = new JScrollPane();
-//     BlastGridServiceDataPanel sgePanel = new
-//           BlastGridServiceDataPanel();
         CreateGridServicePanel sgePanel = new CreateGridServicePanel();
         JComboBox jMatrixBox = new JComboBox();
         JCheckBox lowComplexFilterBox = new JCheckBox();
@@ -846,12 +845,19 @@ import java.util.Random;
 
     public void setFastaFile(CSSequenceSet sd) {
         fastaFile = sd;
-        CSSequence s1 = (CSSequence) sd.getSequence(0);
-        if (s1 != null) {
-            int end = s1.length();
-            jendPointField.setText(new Integer(end).toString());
-            jendPointField1.setText(new Integer(end).toString());
-            jendPointField3.setText(new Integer(end).toString());
+        int endPoint = 0;
+        if (sd != null) {
+            for (Object o : sd) {
+                int newPoint = ((CSSequence) o).length();
+                if (endPoint < newPoint) {
+                    endPoint = newPoint;
+                }
+            }
+
+            jendPointField.setText(new Integer(endPoint).toString());
+            jendPointField1.setText(new Integer(endPoint).toString());
+            jendPointField3.setText(new Integer(endPoint).toString());
+
         }
     }
 
@@ -861,7 +867,7 @@ import java.util.Random;
     }
 
     public ParameterSetter retriveNCBIParameters() {
-
+        ParameterSetting parameterSetting = new ParameterSetting();
         String dbName = (String) jDBList.getSelectedValue();
 
         String programName = (String) jProgramBox.getSelectedItem();
@@ -872,14 +878,21 @@ import java.util.Random;
             return null;
 
         } else {
-            StringTokenizer st = new StringTokenizer(dbName);
-            dbName = st.nextToken();
+            //get the last part of db name
+            String[] list = dbName.split("/");
+            if (list.length > 1) {
+                dbName = list[list.length - 1];
+            } else {
 
+            }
         }
         if (programName == null) {
             reportError("Please select a PROGRAM to search!", "Parameter Error");
             return null;
         }
+        parameterSetting.setDbName(dbName);
+        parameterSetting.setProgramName(programName);
+        parameterSetting.setViewInBrowser(jDisplayInWebBox.isSelected());
 
         if (activeSequenceDB != null) {
             if (sequenceDB == null) {
@@ -905,7 +918,8 @@ import java.util.Random;
                     progressBar.setBackground(Color.WHITE);
 
                     progressBar.setIndeterminate(true);
-                    progressBar.setString("Please wait for response from NCBI BLAST Server...");
+                    progressBar.setString(
+                            "Please wait for response from NCBI BLAST Server...");
                     if (fastaFile == null) {
                         fastaFile = (CSSequenceSet) sequenceDB;
                     }
@@ -915,11 +929,12 @@ import java.util.Random;
                             outputFile);
 
 //                    //sc.setSequenceDB((CSSequenceSet) sequenceDB);
-                   sc.setSequenceDB(activeSequenceDB);
+                    sc.setSequenceDB(activeSequenceDB);
                     BlastAlgorithm blastAlgo = new BlastAlgorithm();
                     blastAlgo.setUseNCBI(true);
+                    blastAlgo.setParameterSetting(parameterSetting);
                     blastAlgo.setProgressBar(progressBar);
-               //       blastAlgo.setBlastAppComponent(blastAppComponent);
+                    //       blastAlgo.setBlastAppComponent(blastAppComponent);
                     blastAlgo.setBlastAppComponent(this);
                     blastAlgo.setSoapClient(sc);
 //                    blastAlgo.setStartBrowser(jDisplayInWebBox.isSelected());
@@ -1056,12 +1071,6 @@ import java.util.Random;
             }
         } else {
             jServerInfoPane.retriveServerInfo();
-            //above method will be run by a thread, so the status of server reported is not reliable.
-            /*Thread.sleep(5);
-                   if (!jServerInfoPane.isServerOK()){
-              System.out.println("OK" + jServerInfoPane.isServerOK() );
-              return null;
-                   }*/
 
             try {
                 String tempFolder = System.getProperties().getProperty(
@@ -1074,14 +1083,10 @@ import java.util.Random;
                 String outputFile = tempFolder + "Blast" +
                                     RandomNumberGenerator.getID() +
                                     ".html";
-                //progressBar = new JProgressBar(0, 100);
-
                 progressBar.setForeground(Color.ORANGE);
                 progressBar.setBackground(Color.WHITE);
-
                 progressBar.setIndeterminate(true);
                 progressBar.setString("Blast is running.");
-
                 SoapClient sc = new SoapClient(programName, dbName,
                                                fastaFile.getFASTAFileName().
                                                trim(),
@@ -1093,9 +1098,8 @@ import java.util.Random;
                 blastAlgo.setSoapClient(sc);
                 blastAlgo.setStartBrowser(jDisplayInWebBox.isSelected());
                 blastAlgo.start();
-                Thread.sleep(5);
-                //System.out.println("WRONG at PVW: " + parameterSetter + "algo" + blastAlgo);
-                if (blastAlgo != null) {
+                Thread.sleep(2);
+                if (blastAlgo != null && parameterSetter != null) {
                     parameterSetter.setAlgo(blastAlgo);
                 }
 
@@ -1109,8 +1113,19 @@ import java.util.Random;
     }
 
     public void retriveAlgoParameters() {
-        //String[] dbName = (String[]) jDBList.getSelectedValues();
 
+        if (jTabbedPane1.getSelectedIndex() == this.SW) {
+            reportError("Sorry, the backend server is unreachable now!",
+                        "No Available Server Error");
+            return;
+
+        }
+        if (jTabbedPane1.getSelectedIndex() == this.HMM) {
+            reportError("Sorry, the backend server is unreachable now!",
+                        "No Available Server Error");
+            return;
+
+        }
         if (fastaFile == null && sequenceDB == null) {
             reportError("Please load a sequence file first!",
                         "No File Error");
@@ -1144,19 +1159,18 @@ import java.util.Random;
 //
 //        }
 
-        if(jTabbedPane1.getSelectedIndex() == this.SW){
+        if (jTabbedPane1.getSelectedIndex() == this.SW) {
             reportError("Sorry, the backend server is unreachable now!",
-                       "No Available Server Error");
-           return;
+                        "No Available Server Error");
+            return;
 
         }
-        if(jTabbedPane1.getSelectedIndex() == this.HMM){
+        if (jTabbedPane1.getSelectedIndex() == this.HMM) {
             reportError("Sorry, the backend server is unreachable now!",
-                       "No Available Server Error");
-          return;
+                        "No Available Server Error");
+            return;
 
-       }
-
+        }
 
         //System.out.println("fasta file path: " + fastaFile);
 
@@ -1282,6 +1296,10 @@ import java.util.Random;
 
     }
 
+    protected void fireModelChangedEvent(MicroarraySetViewEvent event) {
+        setFastaFile(activeSequenceDB);
+    }
+
     void stopBlastAction() {
         blastFinished("Interrupted");
         if (parameterSetter != null) {
@@ -1400,6 +1418,7 @@ import java.util.Random;
         }
     }
 
+
     /**
      * loadFile
      */
@@ -1476,7 +1495,7 @@ class BlastAppComponent_jProgramBox_actionAdapter implements java.awt.
     BlastAppComponent adaptee;
 
     BlastAppComponent_jProgramBox_actionAdapter(BlastAppComponent
-            adaptee) {
+                                                adaptee) {
         this.adaptee = adaptee;
     }
 
@@ -1491,7 +1510,7 @@ class BlastAppComponent_jMatrixBox_actionAdapter implements java.awt.
     BlastAppComponent adaptee;
 
     BlastAppComponent_jMatrixBox_actionAdapter(BlastAppComponent
-            adaptee) {
+                                               adaptee) {
         this.adaptee = adaptee;
     }
 
@@ -1538,7 +1557,7 @@ class BlastAppComponent_blastButton_actionAdapter implements java.awt.
     BlastAppComponent adaptee;
 
     BlastAppComponent_blastButton_actionAdapter(BlastAppComponent
-            adaptee) {
+                                                adaptee) {
         this.adaptee = adaptee;
     }
 
@@ -1566,7 +1585,7 @@ class BlastAppComponent_jButton1_actionAdapter implements java.awt.event.
     BlastAppComponent adaptee;
 
     BlastAppComponent_jButton1_actionAdapter(BlastAppComponent
-            adaptee) {
+                                             adaptee) {
         this.adaptee = adaptee;
     }
 
@@ -1613,7 +1632,7 @@ class BlastAppComponent_jButton2_actionAdapter implements java.awt.event.
     BlastAppComponent adaptee;
 
     BlastAppComponent_jButton2_actionAdapter(BlastAppComponent
-            adaptee) {
+                                             adaptee) {
         this.adaptee = adaptee;
     }
 
@@ -1621,4 +1640,3 @@ class BlastAppComponent_jButton2_actionAdapter implements java.awt.event.
         adaptee.jButton2_actionPerformed(e);
     }
 }
-
