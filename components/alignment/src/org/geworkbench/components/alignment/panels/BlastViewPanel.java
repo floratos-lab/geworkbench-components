@@ -143,8 +143,7 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
 
         blastResult.setLayout(borderLayout1);
         AddSequenceToProjectButton.setMinimumSize(new Dimension(100, 23));
-        AddSequenceToProjectButton.setToolTipText(
-                "Add selected hits while sequences into project.");
+
         AddSequenceToProjectButton.setText("Add Selected Sequences to Project ");
         AddSequenceToProjectButton.addActionListener(new
                 BlastViewPanel_HMMButton_actionAdapter(this));
