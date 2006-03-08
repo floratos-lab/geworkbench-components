@@ -235,8 +235,8 @@ public class BlastParser {
                                         while (st4.hasMoreTokens()) {
                                             str = st4.nextToken();
                                         }
-                                        each.setScore(new Integer(str.trim()).
-                                                intValue());
+                                        each.setScore(new Float(str.trim()).intValue()
+                        );
                                     }
                                     each.setEvalue(strA[2]);
 
@@ -392,6 +392,7 @@ public class BlastParser {
             //System.exit(1);
         } catch (IOException e) {
             System.out.println("IOException!");
+            e.printStackTrace();
             return false;
         } catch (Exception e) {
 
