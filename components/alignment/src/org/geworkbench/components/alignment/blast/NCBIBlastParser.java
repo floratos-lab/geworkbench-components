@@ -71,9 +71,16 @@ public class NCBIBlastParser {
      */
     public NCBIBlastParser(CSSequenceSet sequenceDB, String filename) {
         this.sequenceDB = sequenceDB;
+        totalSequenceNum = sequenceDB.size();
         hits = new Vector();
         this.filename = filename;
     }
+    public NCBIBlastParser(String aString) {
+       filename = aString;
+       hits = new Vector();
+       totalSequenceNum = 1;
+   }
+
 
     /**
      * Creates a new BlastParser with filename set to default value.  Also
@@ -184,7 +191,7 @@ public class NCBIBlastParser {
                 line = br.readLine();
                 do {
                     hits = new Vector();
-                    String noResult = "No hits found";
+                    String noResult = "No significant similarity found.";
                     boolean noHitsFound = false;
                     //loop to proceed to beginning of hit list from Blast output file
                     while (true) {
@@ -196,7 +203,7 @@ public class NCBIBlastParser {
                                     "Sequences producing significant alignments:"))) {
                             break;
                         }
-                        if (line == null || (line.contains("No hits found"))) {
+                        if (line == null || (line.contains("No significant similarity found."))) {
                             noHitsFound = true;
                             break;
                         }
@@ -427,12 +434,12 @@ public class NCBIBlastParser {
             return false;
             //System.exit(1);
         } catch (IOException e) {
-            System.out.println("IOException!");
-            e.printStackTrace();
+            System.out.println("NCBIBLASTParser + IOException!");
+           // e.printStackTrace();
             return false;
         } catch (Exception e) {
 
-            System.out.println(errorline);
+            System.out.println("NCBIBLASTParser " + errorline);
             e.printStackTrace();
 
             //find a blast bug, temp change to true.

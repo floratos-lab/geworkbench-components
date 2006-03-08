@@ -53,7 +53,9 @@ public class BlastParser {
 
             //create the SearchContentHandler that will build SeqSimilaritySearchResults
             //in the results List
-            SearchContentHandler builder = new BlastLikeSearchBuilder(results, new DummySequenceDB("queries"), new DummySequenceDBInstallation());
+            SearchContentHandler builder = new BlastLikeSearchBuilder(results,
+                    new DummySequenceDB("queries"),
+                                           new DummySequenceDBInstallation());
 
             //register builder with adapter
             adapter.setSearchContentHandler(builder);
@@ -63,12 +65,13 @@ public class BlastParser {
             parser.parse(new InputSource(is));
 
             //output some blast details
-            for (Iterator i = results.iterator(); i.hasNext();) {
-                SeqSimilaritySearchResult result = (SeqSimilaritySearchResult) i.next();
+            for (Iterator i = results.iterator(); i.hasNext(); ) {
+                SeqSimilaritySearchResult result = (SeqSimilaritySearchResult)
+                        i.next();
 
                 Annotation anno = result.getAnnotation();
 
-                for (Iterator j = anno.keys().iterator(); j.hasNext();) {
+                for (Iterator j = anno.keys().iterator(); j.hasNext(); ) {
                     Object key = j.next();
                     Object property = anno.getProperty(key);
                     System.out.println(key + " : " + property);
@@ -76,8 +79,9 @@ public class BlastParser {
                 System.out.println("Hits: ");
 
                 //list the hits
-                for (Iterator k = result.getHits().iterator(); k.hasNext();) {
-                    SeqSimilaritySearchHit hit = (SeqSimilaritySearchHit) k.next();
+                for (Iterator k = result.getHits().iterator(); k.hasNext(); ) {
+                    SeqSimilaritySearchHit hit = (SeqSimilaritySearchHit) k.
+                                                 next();
                     System.out.print("\tmatch: " + hit.getSubjectID());
                     System.out.println("\te score: " + hit.getEValue());
                     System.out.println("\te P score: " + hit.getPValue());
@@ -100,7 +104,4 @@ public class BlastParser {
         }
     }
 }
-
-
-
 
