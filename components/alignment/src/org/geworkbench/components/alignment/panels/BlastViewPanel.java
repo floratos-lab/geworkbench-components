@@ -143,9 +143,12 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
 
         blastResult.setLayout(borderLayout1);
         AddSequenceToProjectButton.setMinimumSize(new Dimension(100, 23));
+        AddSequenceToProjectButton.setToolTipText(
+                "Add selected hits while sequences into project.");
         AddSequenceToProjectButton.setText("Add Selected Sequences to Project ");
         AddSequenceToProjectButton.addActionListener(new
                 BlastViewPanel_HMMButton_actionAdapter(this));
+        resetButton.setToolTipText("Clear all selections.");
         resetButton.setText("Reset");
         resetButton.addActionListener(new
                                       BlastViewPanel_resetButton_actionAdapter(this));
@@ -163,6 +166,7 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
                                                   HORIZONTAL_SCROLLBAR_ALWAYS);
         jScrollPane1.setVerticalScrollBarPolicy(JScrollPane.
                                                 VERTICAL_SCROLLBAR_ALWAYS);
+        loadButton.setToolTipText("Load a blast result file.");
         //rightPanel.setMinimumSize(new Dimension(10, 386));
 
         loadButton.setText("Load");
@@ -183,14 +187,16 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
         singleAlignmentArea.addHyperlinkListener(this);
         jButton1.setText("jButton1");
         addAlignedButton.setMinimumSize(new Dimension(100, 23));
+        addAlignedButton.setToolTipText("Add only aligned parts into project.");
         addAlignedButton.setText("Only Add Aligned Parts");
         addAlignedButton.addActionListener(new
                                            BlastViewPanel_addAlignedButton_actionAdapter(this));
+        allButton.setToolTipText("Select all hits.");
         allButton.setText("Select All");
         allButton.addActionListener(new BlastViewPanel_allButton_actionAdapter(this));
         jSplitPane1.setOrientation(JSplitPane.VERTICAL_SPLIT);
         jSplitPane1.setMinimumSize(new Dimension(200, 400));
-         jSplitPane1.setPreferredSize(new Dimension(500, 600));
+        jSplitPane1.setPreferredSize(new Dimension(500, 600));
         jSplitPane1.setDividerSize(1);
         this.setLayout(borderLayout3);
         furtherProcess.add(loadButton, null);
@@ -213,7 +219,7 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
 //                                              GridBagConstraints.BOTH,
 //                                              new Insets(0, 0, 0, 0), 398, 223));
         rightPanel.add(jSplitPane1, JSplitPane.TOP);
-        rightPanel.add(furtherProcess,JSplitPane.BOTTOM);
+        rightPanel.add(furtherProcess, JSplitPane.BOTTOM);
         currentError = "No alignment result is loaded, please check again.";
         westPanel.add(markerList, BorderLayout.CENTER);
         //mainPanel.add(markerList);
@@ -374,11 +380,11 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
                 if (hits != null && hits.size() > selectedRow) {
                     selectedHit = (BlastObj) hits.get(selectedRow);
                     showAlignment(selectedHit);
-                    if (foundAtLeastOneSelected()) {
-                        AddSequenceToProjectButton.setBackground(Color.orange);
-                    } else {
-                        AddSequenceToProjectButton.setBackground(Color.white);
-                    }
+//                    if (foundAtLeastOneSelected()) {
+//                        //AddSequenceToProjectButton.setBackground(Color.orange);
+//                    } else {
+//                        //AddSequenceToProjectButton.setBackground(Color.white);
+//                    }
 
                 }
 
@@ -598,8 +604,9 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
          * Consider change SoapClient to Dataset directly for blast.
          */
         try {
+
             if (!foundAtLeastOneSelected()) {
-                reportError("No hit is selected");
+                reportError("No hit is selected. Please choose at least one.");
                 return;
             }
             String tempString = "temp" + RandomNumberGenerator.getID() +
