@@ -137,7 +137,7 @@ public class RemoteBlast {
 
         Socket s = null;
 
-        message = "Put http://www.ncbi.nlm.nih.gov/blast/Blast.cgi?CMD=Put&QUERY=" + query + "&DATABASE=nr&PROGRAM=blastp&FILTER=L&HITLIST_SZE=500&AUTO_FORMAT=Semiauto&CDD_SEARCH=on&SHOW_OVERVIEW=on&SERVICE=plain\r\n\r\n";
+        message = "Put http://www.ncbi.nlm.nih.gov/blast/Blast.cgi?CMD=Put&QUERY=" + query + "&DATABASE=pdbaa&PROGRAM=blastp&FILTER=L&HITLIST_SZE=500&AUTO_FORMAT=Semiauto&CDD_SEARCH=on&SHOW_OVERVIEW=on&SERVICE=plain\r\n\r\n";
 
         try {
 
@@ -261,9 +261,74 @@ public class RemoteBlast {
     }
     public void getBlast(String rid, String format) {
         getBlastDone = false;
-        GetBlast bl = new GetBlast(rid, format);
-    }
+        String  message =  "Get http://www.ncbi.nlm.nih.gov/blast/Blast.cgi?CMD=Get&FORMAT_TYPE=" + format + "&RID=" +  rid + "\r\n\r\n";
 
+
+        runMain(message);
+        //GetBlast bl = new GetBlast(rid, format);
+    }
+    public void runMain(String message) {
+
+              String file;
+        Socket s;
+        try {
+            //create an output stream for writing to a file. appending file.
+            PrintStream ps = new PrintStream(new FileOutputStream(new File(filename)), true);
+
+            boolean BlastnotDone = false;
+            while (!BlastnotDone) {
+
+                s = new Socket(Blast_SERVER, DEFAULT_PORT);
+
+                //create an output stream for sending message.
+                DataOutputStream out = new DataOutputStream(s.getOutputStream());
+
+                //create buffered reader stream for reading incoming byte stream.
+                InputStreamReader inBytes = new InputStreamReader(s.getInputStream());
+                BufferedReader in = new BufferedReader(inBytes);
+
+                textArea.append(message + "\n");
+
+                //write String message to output stream as byte sequence.
+                out.writeBytes(message);
+
+                String data = in.readLine();
+//                System.out.println("IN HTML" +   data );
+                boolean done = false;
+                while (data != null) {
+//                    System.out.println("IN HTML" +   data );
+                    if (data.equals("\tStatus=WAITING")) {
+                        done = false;
+                    } else if (data.equals("\tStatus=READY")) {
+                        BlastnotDone = true;
+                        done = true;
+                        ps.println(data);
+                    } else {
+                        if (done) {
+                            ps.println(data);
+                        }
+                    }
+                    data = in.readLine();
+                }
+                if (!done) {
+                    textArea.append("Waiting for Blast to finish...\n");
+                    Thread.sleep(20000);
+                }
+                s.close();
+            } //end of while (BlastnotDone).
+            textArea.append("Blast done! You can now display your results");
+            getBlastDone = true;
+            ps.close();
+        } catch (UnknownHostException e) {
+            System.out.println("Socket:" + e.getMessage());
+        } catch (EOFException e) {
+            System.out.println("EOF:" + e.getMessage());
+        } catch (IOException e) {
+            System.out.println("readline:" + e.getMessage());
+        } catch (InterruptedException e) {
+            System.out.println("wait:" + e.getMessage());
+        }
+        } //end of run().
     /**
      * This class is a Thread that retrieves Blast results by Blast RID#, which
      * can take some period of time.  The thread continually requests results
@@ -279,7 +344,7 @@ public class RemoteBlast {
         public GetBlast(String Blast_rid) {
             s = null;
             //this.file = file;
-            message = "Get http://www.ncbi.nlm.nih.gov/blast/Blast.cgi?CMD=Get&FORMAT_TYPE=Text&RID=" + Blast_rid + "\r\n\r\n";
+            message = "Get http://www.ncbi.nlm.nih.gov/blast/Blast.cgi?CMD=Get&FORMAT_TYPE=HTML&RID=" + Blast_rid + "\r\n\r\n";
             this.start();
         }
 
@@ -313,10 +378,10 @@ public class RemoteBlast {
                     out.writeBytes(message);
 
                     String data = in.readLine();
-                    System.out.println("IN HTML" +   data );
+//                    System.out.println("IN HTML" +   data );
                     boolean done = false;
                     while (data != null) {
-                        System.out.println("IN HTML" +   data );
+//                        System.out.println("IN HTML" +   data );
                         if (data.equals("\tStatus=WAITING")) {
                             done = false;
                         } else if (data.equals("\tStatus=READY")) {

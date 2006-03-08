@@ -155,6 +155,9 @@ import org.geworkbench.components.alignment.blast.NCBIBlastParser;
                             getResultFilePath());
                     nbp.parseResults();
                     hits = nbp.getHits();
+
+
+
                     blastViewPanel.setResults(hits);
                     blastViewPanel.setSequenceDB((CSSequenceSet) sequenceDB);
                     blastViewPanel.setBlastDataSet(null);

@@ -417,17 +417,18 @@ public class BlastObj {
 
         if (retriveWholeSeq && seqURL != null) {
             try {
-
+                System.out.println(seqURL.getPath());
                 InputStream uin = seqURL.openStream();
                 BufferedReader in = new BufferedReader(new InputStreamReader(
                         uin));
                 String line;
                 while ((line = in.readLine()) != null) {
+
                     if (line.startsWith("</form><pre>>") ||
                         line.trim().
                         startsWith(
-                                "<input name=\"__from\" type=\"hidden\" value=\"\">") ||
-                        line.matches(".</form><pre>>.")) {
+                                "</div></form><pre>>") ||
+                        line.matches("</div></form><pre>>")) {
                         //  System.out.println("found" + line);
                         String[] str = line.split(">>");
                         int size = 0;

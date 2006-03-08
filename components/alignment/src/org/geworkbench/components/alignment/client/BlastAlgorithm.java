@@ -12,9 +12,11 @@ import java.io.*;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.StringTokenizer;
- import org.geworkbench.bison.datastructure.biocollections.DSAncillaryDataSet;
-import org.geworkbench.bison.datastructure.biocollections.sequences.CSSequenceSet;
-import org.geworkbench.bison.datastructure.bioobjects.sequence.CSAlignmentResultSet;
+import org.geworkbench.bison.datastructure.biocollections.DSAncillaryDataSet;
+import org.geworkbench.bison.datastructure.biocollections.sequences.
+        CSSequenceSet;
+import org.geworkbench.bison.datastructure.bioobjects.sequence.
+        CSAlignmentResultSet;
 import org.geworkbench.bison.datastructure.bioobjects.sequence.CSSequence;
 import org.geworkbench.bison.util.RandomNumberGenerator;
 import org.geworkbench.components.alignment.blast.RemoteBlast;
@@ -47,7 +49,7 @@ public class BlastAlgorithm extends BWAbstractAlgorithm implements SoapClientIn 
 
     private Client client;
     private BlastAppComponent blastAppComponent = null;
-   // private BlastAppComponent alignmentParametersPanel = null;
+    // private BlastAppComponent alignmentParametersPanel = null;
     private SoapClient soapClient = null;
     private boolean startBrowser;
     private boolean gridEnabled = false;
@@ -112,18 +114,18 @@ public class BlastAlgorithm extends BWAbstractAlgorithm implements SoapClientIn 
                                             progressBar);
 
                     String BLAST_rid = blast.submitBlast();
-                    blast.getBlast(BLAST_rid);
+                    blast.getBlast(BLAST_rid, "HTML");
                     progressBar.setValue(++count);
+                    while (!blast.getBlastDone()) {
+                        try {
+                            Thread.sleep(2000);
+                        } catch (Exception e) {
 
-                }
-
-                while (!blast.getBlastDone()) {
-                    try {
-                        Thread.sleep(2000);
-                    } catch (Exception e) {
-
+                        }
                     }
+
                 }
+
                 progressBar.setIndeterminate(false);
                 progressBar.setString("NCBI Blast is finished.");
                 blastResult = new CSAlignmentResultSet(
@@ -239,7 +241,6 @@ public class BlastAlgorithm extends BWAbstractAlgorithm implements SoapClientIn 
 
                 blastResult = new CSAlignmentResultSet(filename, inputFilename,
                         soapClient.getSequenceDB());
-
 
             }
 

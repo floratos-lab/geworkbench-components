@@ -178,8 +178,6 @@ import java.util.Random;
     JPanel jPanel16 = new JPanel();
     JLabel jAlgorithmLabel2 = new JLabel();
     JLabel jLabel16 = new JLabel();
-    JButton jButton6 = new JButton();
-    JButton jButton7 = new JButton();
     FlowLayout flowLayout5 = new FlowLayout();
     JButton jButton2 = new JButton();
     JScrollPane jScrollPane3 = new JScrollPane();
@@ -206,6 +204,7 @@ import java.util.Random;
     XYLayout xYLayout2 = new XYLayout();
     BorderLayout borderLayout3 = new BorderLayout();
     JScrollPane jScrollPane4 = new JScrollPane();
+    public static final int MAIN = 0;
     public BlastAppComponent() {
         try {
             jbInit();
@@ -314,8 +313,6 @@ import java.util.Random;
         jPanel16 = new JPanel();
         jAlgorithmLabel2 = new JLabel();
         jLabel16 = new JLabel();
-        jButton6 = new JButton();
-        jButton7 = new JButton();
         flowLayout5 = new FlowLayout();
         jButton2 = new JButton();
         jScrollPane3 = new JScrollPane();
@@ -554,12 +551,6 @@ import java.util.Random;
         jLabel16.setText("Please specify subsequence, search mode.");
         jLabel16.setVerticalAlignment(javax.swing.SwingConstants.BOTTOM);
         jLabel16.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
-        jButton6.setText("Load your own Model");
-        jButton6.addActionListener(new
-                                   BlastAppComponent_jButton6_actionAdapter(this));
-        jButton7.setText("Browse Pfam Model");
-        jButton7.addActionListener(new
-                                   BlastAppComponent_jButton7_actionAdapter(this));
         jButton2.setFont(new java.awt.Font("Arial Black", 0, 11));
         //jButton2.setText("HMM SEARCH");
         jButton2.setIcon(startButtonIcon);
@@ -713,8 +704,6 @@ import java.util.Random;
         jHMMPane.add(jPanel14, new GridBagConstraints(0, 4, 1, 1, 1.0, 1.0
                 , GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                 new Insets(0, 0, 0, 0), 390, -18));
-        jPanel14.add(jButton6, null);
-        jPanel14.add(jButton7, null);
         jHMMPane.add(jPanel16, new GridBagConstraints(0, 3, 1, 1, 1.0, 1.0
                 , GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                 new Insets(0, 0, 0, 0), 386, 1));
@@ -916,7 +905,7 @@ import java.util.Random;
                     progressBar.setBackground(Color.WHITE);
 
                     progressBar.setIndeterminate(true);
-                    progressBar.setString("Please wait...");
+                    progressBar.setString("Please wait for response from NCBI BLAST Server...");
                     if (fastaFile == null) {
                         fastaFile = (CSSequenceSet) sequenceDB;
                     }
@@ -1122,7 +1111,7 @@ import java.util.Random;
     public void retriveAlgoParameters() {
         //String[] dbName = (String[]) jDBList.getSelectedValues();
 
-        if (fastaFile == null) {
+        if (fastaFile == null && sequenceDB == null) {
             reportError("Please load a sequence file first!",
                         "No File Error");
             return;
@@ -1148,12 +1137,26 @@ import java.util.Random;
         }
 
         String matrix = (String) jMatrixBox.getSelectedItem();
-        if (matrix == null) {
-            reportError("Please select a matrix name first!",
-                        "No Matrix Error");
-            return;
+//        if (matrix == null) {
+//            reportError("Please select a matrix name first!",
+//                        "No Matrix Error");
+//            return;
+//
+//        }
+
+        if(jTabbedPane1.getSelectedIndex() == this.SW){
+            reportError("Sorry, the backend server is unreachable now!",
+                       "No Available Server Error");
+           return;
 
         }
+        if(jTabbedPane1.getSelectedIndex() == this.HMM){
+            reportError("Sorry, the backend server is unreachable now!",
+                       "No Available Server Error");
+          return;
+
+       }
+
 
         //System.out.println("fasta file path: " + fastaFile);
 
@@ -1246,6 +1249,7 @@ import java.util.Random;
     void blastButton_actionPerformed(ActionEvent e) {
 //        System.out.println("thenumber=" + jTabbedPane1.getSelectedIndex());
         if (jTabbedPane1.getSelectedIndex() == this.BLAST) {
+            jTabbedBlastPane.setSelectedIndex(this.MAIN);
             if (jServerInfoPane.getServerType() ==
                 ServerInfoPanel.DEFAULTSERVERTYPE) {
                 parameterSetter = retriveParameters();
@@ -1253,7 +1257,7 @@ import java.util.Random;
                 parameterSetter = retriveNCBIParameters();
 
             }
-        } else if (jTabbedPane1.getSelectedIndex() == this.HMM) {
+        } else {
             retriveAlgoParameters();
         }
         //Session session = createSession(parameter);
@@ -1604,21 +1608,6 @@ class BlastAppComponent_algorithmSearch_actionAdapter implements java.
 }
 
 
-class BlastAppComponent_jButton7_actionAdapter implements java.awt.event.
-        ActionListener {
-    BlastAppComponent adaptee;
-
-    BlastAppComponent_jButton7_actionAdapter(BlastAppComponent
-            adaptee) {
-        this.adaptee = adaptee;
-    }
-
-    public void actionPerformed(ActionEvent e) {
-        adaptee.jButton7_actionPerformed(e);
-    }
-}
-
-
 class BlastAppComponent_jButton2_actionAdapter implements java.awt.event.
         ActionListener {
     BlastAppComponent adaptee;
@@ -1633,17 +1622,3 @@ class BlastAppComponent_jButton2_actionAdapter implements java.awt.event.
     }
 }
 
-
-class BlastAppComponent_jButton6_actionAdapter implements java.awt.event.
-        ActionListener {
-    BlastAppComponent adaptee;
-
-    BlastAppComponent_jButton6_actionAdapter(BlastAppComponent
-            adaptee) {
-        this.adaptee = adaptee;
-    }
-
-    public void actionPerformed(ActionEvent e) {
-        adaptee.jButton6_actionPerformed(e);
-    }
-}

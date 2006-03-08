@@ -584,6 +584,10 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
          * Consider change SoapClient to Dataset directly for blast.
          */
         try {
+            if(!foundAtLeastOneSelected()){
+                reportError("No hit is selected");
+                return;
+            }
             String tempString = "temp" + RandomNumberGenerator.getID() +
                                 ".fasta";
             String tempFolder = System.getProperties().getProperty(
