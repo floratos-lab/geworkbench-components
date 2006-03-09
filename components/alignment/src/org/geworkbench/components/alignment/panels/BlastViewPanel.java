@@ -161,10 +161,10 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
         furtherProcess.setMinimumSize(new Dimension(195, 40));
         furtherProcess.setPreferredSize(new Dimension(195, 40));
         detailedInfo.setLayout(borderLayout2);
-        jScrollPane1.setHorizontalScrollBarPolicy(JScrollPane.
-                                                  HORIZONTAL_SCROLLBAR_ALWAYS);
-        jScrollPane1.setVerticalScrollBarPolicy(JScrollPane.
-                                                VERTICAL_SCROLLBAR_ALWAYS);
+//        jScrollPane1.setHorizontalScrollBarPolicy(JScrollPane.
+//                                                  HORIZONTAL_SCROLLBAR_ALWAYS);
+//        jScrollPane1.setVerticalScrollBarPolicy(JScrollPane.
+//                                                VERTICAL_SCROLLBAR_ALWAYS);
         loadButton.setToolTipText("Load a blast result file.");
         //rightPanel.setMinimumSize(new Dimension(10, 386));
 
@@ -292,6 +292,7 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
         text = hit.getDetailedAlignment();
         //System.out.println("(" + text + ")");
         singleAlignmentArea.setText(text);
+        singleAlignmentArea.setCaretPosition(0);
 
     }
 
@@ -639,7 +640,7 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
             out.flush();
             out.close();
             db.setLabel("temp_Fasta_File");
-            db.setFASTAFile(tempFile);
+            db.readFASTAFile(tempFile);
 
             org.geworkbench.events.ProjectNodeAddedEvent event = new org.
                     geworkbench.events.ProjectNodeAddedEvent("message", db, null);

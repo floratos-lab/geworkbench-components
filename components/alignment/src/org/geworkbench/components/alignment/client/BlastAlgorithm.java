@@ -119,6 +119,10 @@ public class BlastAlgorithm extends BWAbstractAlgorithm implements SoapClientIn 
                         } catch (Exception e) {
 
                         }
+
+                    }
+                    if (stopRequested) {
+                        return;
                     }
 
                 }
@@ -136,7 +140,8 @@ public class BlastAlgorithm extends BWAbstractAlgorithm implements SoapClientIn 
 
                 }
                 blastResult = new CSAlignmentResultSet(
-                        outputFile, outputFile, activeSequenceDB);
+                        outputFile, activeSequenceDB.getFASTAFileName(),
+                        activeSequenceDB);
                 blastResult.setLabel(blastAppComponent.NCBILABEL);
                 ProjectNodeAddedEvent event =
                         new ProjectNodeAddedEvent(null, null,
@@ -177,10 +182,12 @@ public class BlastAlgorithm extends BWAbstractAlgorithm implements SoapClientIn 
                 }
 
                 if (htmlFile != null) {
-                    blastResult = new CSAlignmentResultSet(htmlFile,
-                            soapClient.getInputFileName(),
-                            soapClient.getSequenceDB());
-
+                    if (soapClient.getSequenceDB() != null &&
+                        soapClient.getSequenceDB().getFASTAFileName() != null) {
+                        blastResult = new CSAlignmentResultSet(htmlFile,
+                                soapClient.getSequenceDB().getFASTAFileName(),
+                                soapClient.getSequenceDB());
+                    }
                 } else if (cmd.startsWith("btk search")) {
 
                     blastResult = new SWDataSet(textFile,

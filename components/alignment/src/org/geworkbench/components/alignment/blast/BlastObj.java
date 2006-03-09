@@ -417,8 +417,7 @@ public class BlastObj {
 
         if (retriveWholeSeq && seqURL != null) {
             try {
-                System.out.println(seqURL.getPath());
-                InputStream uin = seqURL.openStream();
+                                 InputStream uin = seqURL.openStream();
                 BufferedReader in = new BufferedReader(new InputStreamReader(
                         uin));
                 String line;

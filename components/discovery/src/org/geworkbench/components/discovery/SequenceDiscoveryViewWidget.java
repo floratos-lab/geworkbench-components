@@ -632,7 +632,6 @@ public class SequenceDiscoveryViewWidget extends JPanel implements StatusChangeL
     public synchronized void setSequenceDB(DSSequenceSet sDB, boolean withExistedPatternNode, String patternNodeID, Parameters p) {
         if (sequenceDB.getID() != sDB.getID()) {
             sequenceDB = sDB;
-            System.out.println("at sequenceDiscoveryviewWiget setSequeceDB: sequenceDB id..." + sDB.getID());
 
             String stubID = sDB.getID() + sDB.getDataSetName();
             //Point currentNodeID to the name associated with the sequenceDB name no matter the node is subnode or node.
