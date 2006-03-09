@@ -389,7 +389,7 @@ public class SequenceRetriever implements VisualPlugin {
                 } catch ( IOException ex1 ) {
                     ex1.printStackTrace();
                 }
-                sequenceDB.readFASTAfile( new File( fileName ) );
+                sequenceDB.readFASTAFile( new File( fileName ) );
                 if ( sequenceDB.getSequenceNo() == 0 ) {
                     JOptionPane.showMessageDialog( getComponent(), "No sequences retrieved for selected markers" );
                 }

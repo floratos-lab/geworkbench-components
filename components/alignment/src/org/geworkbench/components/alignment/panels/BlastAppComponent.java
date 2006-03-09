@@ -24,10 +24,6 @@ import org.geworkbench.events.ProjectNodeAddedEvent;
 import org.geworkbench.util.session.SoapClient;
 import org.geworkbench.engine.management.Publish;
 import org.geworkbench.engine.management.AcceptTypes;
-import org.geworkbench.components.alignment.blast.RemoteBlast;
-import org.geworkbench.bison.datastructure.bioobjects.sequence.
-        CSAlignmentResultSet;
-import java.util.Random;
 import org.geworkbench.events.MicroarraySetViewEvent;
 
 /**
@@ -65,15 +61,6 @@ import org.geworkbench.events.MicroarraySetViewEvent;
     static final int HMM = 2;
     public static final String NCBILABEL = "NCBIBLAST";
 
-    /*String[] databaseParameter = {
-        "ncbi/nr",
-        "ncbi/pdbaa",
-        "ncbi/swissprot",
-        "ncbi/yeast.aa",
-        "ncbi/nt1",
-        "ncbi/pdbnt",
-        "ncbi/yeast.nt"};
-     */
     String[] databaseParameter = {
                                  "ncbi/nr                      Peptides of all non-redundant sequences.",
                                  "ncbi/pdbaa               Peptides Sequences derived from the PDB.",
@@ -920,12 +907,10 @@ import org.geworkbench.events.MicroarraySetViewEvent;
                     progressBar.setIndeterminate(true);
                     progressBar.setString(
                             "Please wait for response from NCBI BLAST Server...");
-                    if (fastaFile == null) {
-                        fastaFile = (CSSequenceSet) sequenceDB;
+                    if (fastaFile == null && activeSequenceDB != null) {
+                        fastaFile = (CSSequenceSet) activeSequenceDB;
                     }
                     SoapClient sc = new SoapClient(programName, dbName,
-                            fastaFile.getFASTAFileName().
-                            trim(),
                             outputFile);
 
 //                    //sc.setSequenceDB((CSSequenceSet) sequenceDB);
@@ -940,52 +925,6 @@ import org.geworkbench.events.MicroarraySetViewEvent;
 //                    blastAlgo.setStartBrowser(jDisplayInWebBox.isSelected());
                     blastAlgo.start();
                     Thread.sleep(5);
-//                    tempFolder = System.getProperties().getProperty(
-//                            "temporary.files.directory");
-//                    if (tempFolder == null) {
-//                        tempFolder = ".";
-//
-//                    }
-//
-//                    RemoteBlast blast = null;
-//                    for (Object sequence : activeSequenceDB) {
-//                        //  ((CSSequence)sequence).getSequence()
-//
-//
-//                        progressBar.setString("Upload sequence: " +
-//                                              ((CSSequence) sequence).getLabel());
-//
-//                        blast = new RemoteBlast(((CSSequence) sequence).
-//                                                getSequence(), outputFile,
-//                                                progressBar);
-//
-//                        String BLAST_rid = blast.submitBlast();
-//                        blast.getBlast(BLAST_rid);
-//                        progressBar.setString(
-//                                "Download Blast result for sequence: " +
-//                                ((CSSequence) sequence).getLabel());
-//
-//                    }
-//                    progressBar.setString("NCBI Blast is finished at " +
-//                                          new Date());
-//                    while (!blast.getBlastDone()) {
-//                        try {
-//                            Thread.sleep(2000);
-//                        } catch (Exception e) {
-//
-//                        }
-//                    }
-//                    CSAlignmentResultSet blastResult = new CSAlignmentResultSet(
-//                            outputFile, outputFile, activeSequenceDB);
-//                    blastResult.setLabel(this.NCBILABEL);
-//                    ProjectNodeAddedEvent event =
-//                            new ProjectNodeAddedEvent(null, null,
-//                            blastResult);
-//                    if (blastAppComponent != null) {
-//                        blastAppComponent.publishProjectNodeAddedEvent(event);
-//                    } else {
-//                        this.publishProjectNodeAddedEvent(event);
-//                    }
 
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -1047,8 +986,6 @@ import org.geworkbench.events.MicroarraySetViewEvent;
                         fastaFile = (CSSequenceSet) sequenceDB;
                     }
                     SoapClient sc = new SoapClient(programName, dbName,
-                            fastaFile.getFASTAFileName().
-                            trim(),
                             outputFile);
                     //sc.setSequenceDB((CSSequenceSet) sequenceDB);
                     sc.setSequenceDB(activeSequenceDB);
@@ -1087,9 +1024,10 @@ import org.geworkbench.events.MicroarraySetViewEvent;
                 progressBar.setBackground(Color.WHITE);
                 progressBar.setIndeterminate(true);
                 progressBar.setString("Blast is running.");
+                if (fastaFile == null) {
+                    fastaFile = activeSequenceDB;
+                }
                 SoapClient sc = new SoapClient(programName, dbName,
-                                               fastaFile.getFASTAFileName().
-                                               trim(),
                                                outputFile);
                 BlastAlgorithm blastAlgo = new BlastAlgorithm();
                 sc.setSequenceDB(activeSequenceDB);
