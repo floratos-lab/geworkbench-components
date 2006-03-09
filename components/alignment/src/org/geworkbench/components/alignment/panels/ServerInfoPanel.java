@@ -242,8 +242,9 @@ public class ServerInfoPanel extends JPanel {
     }
 
     void Refresh_actionPerformed(ActionEvent e) {
-        retriveServerInfo();
-
+        if(jRadioButton1.isSelected()){
+            retriveServerInfo();
+        }
     }
 
     void jServerVersionTextField_actionPerformed(ActionEvent e) {
