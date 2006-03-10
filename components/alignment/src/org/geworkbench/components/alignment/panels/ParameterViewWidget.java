@@ -787,8 +787,6 @@ public class ParameterViewWidget
                 progressBar.setString("Blast is running.");
 
                 SoapClient sc = new SoapClient(programName, dbName,
-                                               fastaFile.getFASTAFileName().
-                                               trim(),
                                                outputFile);
                 BlastAlgorithm blastAlgo = new BlastAlgorithm();
                 blastAlgo.setBlastAppComponent(blastAppComponent);

@@ -24,6 +24,7 @@ import org.geworkbench.util.JAutoList;
 import org.geworkbench.util.PropertiesMonitor;
 import org.geworkbench.bison.datastructure.biocollections.sequences.
         CSSequenceSet;
+import com.borland.jbcl.layout.VerticalFlowLayout;
 
 /**
  * <p>Title: Bioworks</p>
@@ -43,13 +44,14 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
     JPanel detailedInfo = new JPanel();
     JPanel furtherProcess = new JPanel();
     JButton AddSequenceToProjectButton = new JButton();
+    JLabel summaryLabel = new JLabel();
     JButton resetButton = new JButton();
     JEditorPane singleAlignmentArea = new JEditorPane();
     private Vector hits;
+    String summaryStr;
     BorderLayout borderLayout1 = new BorderLayout();
     JScrollPane jScrollPane1 = new JScrollPane();
     BorderLayout borderLayout2 = new BorderLayout();
-
     BlastViewComponent blastViewComponent;
     JButton loadButton = new JButton();
     GridBagLayout gridBagLayout1 = new GridBagLayout();
@@ -59,9 +61,9 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
     GridBagLayout gridBagLayout2 = new GridBagLayout();
     JButton allButton = new JButton();
     JSplitPane jSplitPane1 = new JSplitPane();
-    private JSplitPane mainPanel;
+    JPanel summaryPanel = new JPanel();
+    private JSplitPane mainPanel = new JSplitPane();
     GeneListModel geneListModel = new GeneListModel();
-    //JPanel rightPanel;
     JSplitPane rightPanel = new JSplitPane();
     GridBagLayout gridBagLayout3 = new GridBagLayout();
     private CSSequenceSet sequenceDB;
@@ -153,13 +155,20 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
                                       BlastViewPanel_resetButton_actionAdapter(this));
 
         blastResult.setBorder(BorderFactory.createLoweredBevelBorder());
-        blastResult.setPreferredSize(new Dimension(145, 100));
+        blastResult.setPreferredSize(new Dimension(145, 150));
+         blastResult.setMinimumSize(new Dimension(145, 100));
         rightPanel.setPreferredSize(new Dimension(155, 400));
         rightPanel.setDividerSize(2);
         rightPanel.setMinimumSize(new Dimension(155, 300));
-        furtherProcess.setBorder(BorderFactory.createLoweredBevelBorder());
-        furtherProcess.setMinimumSize(new Dimension(195, 40));
-        furtherProcess.setPreferredSize(new Dimension(195, 40));
+        summaryPanel = new JPanel();
+        summaryLabel = new JLabel();
+        summaryPanel.setBorder(BorderFactory.createLoweredBevelBorder());
+        summaryPanel.setMinimumSize(new Dimension(195, 50));
+        summaryPanel.setPreferredSize(new Dimension(195, 50));
+        furtherProcess.setLayout(new BorderLayout());
+        furtherProcess.add(summaryPanel, java.awt.BorderLayout.CENTER);
+        furtherProcess.add(summaryLabel, java.awt.BorderLayout.SOUTH);
+        //displaySummary("HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH");
         detailedInfo.setLayout(borderLayout2);
 //        jScrollPane1.setHorizontalScrollBarPolicy(JScrollPane.
 //                                                  HORIZONTAL_SCROLLBAR_ALWAYS);
@@ -198,11 +207,17 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
         jSplitPane1.setPreferredSize(new Dimension(500, 600));
         jSplitPane1.setDividerSize(1);
         this.setLayout(borderLayout3);
-        furtherProcess.add(loadButton, null);
-        furtherProcess.add(resetButton, null);
-        furtherProcess.add(allButton);
-        furtherProcess.add(AddSequenceToProjectButton, null);
-        furtherProcess.add(addAlignedButton);
+//        furtherProcess.add(loadButton, null);
+//        furtherProcess.add(resetButton, null);
+//        furtherProcess.add(allButton);
+//        furtherProcess.add(AddSequenceToProjectButton, null);
+//        furtherProcess.add(addAlignedButton);
+        summaryPanel.add(loadButton, null);
+        summaryPanel.add(resetButton, null);
+        summaryPanel.add(allButton);
+        summaryPanel.add(AddSequenceToProjectButton, null);
+        summaryPanel.add(addAlignedButton);
+
         jSplitPane1.add(blastResult, JSplitPane.TOP);
         jSplitPane1.add(detailedInfo, JSplitPane.BOTTOM);
         detailedInfo.add(jScrollPane1, BorderLayout.CENTER);
@@ -245,6 +260,21 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
         revalidate();
     }
 
+    public void setSummary(String s) {
+        summaryStr = s;
+        displaySummaryLabel(s);
+    }
+
+    public void displaySummaryLabel(String s) {
+
+        summaryLabel.setText(s);
+        revalidate();
+    }
+
+    /**
+     * Display details of each alignment.
+     * @param s String
+     */
     public void displayResults(String s) {
 
         blastResult.removeAll();
@@ -340,15 +370,16 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
         /* table based on myModel*/
         JTable table = new JTable(myModel);
 
+
         // setting the size of the table and its columns
         table.setPreferredScrollableViewportSize(new Dimension(800, 100));
-        table.getColumnModel().getColumn(0).setPreferredWidth(15);
+        table.getColumnModel().getColumn(0).setPreferredWidth(35);
         table.getColumnModel().getColumn(1).setPreferredWidth(50);
         table.getColumnModel().getColumn(2).setPreferredWidth(300);
-        table.getColumnModel().getColumn(3).setPreferredWidth(20);
-        table.getColumnModel().getColumn(4).setPreferredWidth(20);
-        table.getColumnModel().getColumn(5).setPreferredWidth(20);
-        table.getColumnModel().getColumn(6).setPreferredWidth(20);
+        table.getColumnModel().getColumn(3).setPreferredWidth(50);
+        table.getColumnModel().getColumn(4).setPreferredWidth(80);
+        table.getColumnModel().getColumn(5).setPreferredWidth(80);
+        table.getColumnModel().getColumn(6).setPreferredWidth(30);
         /* */
         /*set up Listener for row selection on table*/
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -783,12 +814,17 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
             if (blastDataSet != null && blastDataSet.size() > index) {
                 if (blastDataSet.get(index) != null) {
                     setResults((Vector) blastDataSet.get(index));
+                    displaySummaryLabel(" " + summaryStr + " Sequence " +
+                                        ((CSSequence) sequenceDB.get(index)).
+                                        getLabel() + " has " +
+                                        ((Vector) blastDataSet.get(index)).size() +
+                                        " hits.");
 
                 } else {
                     resetToWhite("No hits found");
 
                 }
-            } else if (blastDataSet != null) {
+            } else if (blastDataSet != null && (Vector) blastDataSet.get(0)!= null ) {
                 setResults((Vector) blastDataSet.get(0));
             }
         }
@@ -852,6 +888,7 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
             DSMicroarray> dataSetView = new CSMicroarraySetView<DSGeneMarker,
                                         DSMicroarray>();
     BorderLayout borderLayout3 = new BorderLayout();
+    VerticalFlowLayout verticalFlowLayout1 = new VerticalFlowLayout();
     //private MarkerListModel markerModel = new MarkerListModel();
     // XYLayout xYLayout1 = new XYLayout();
     /**
