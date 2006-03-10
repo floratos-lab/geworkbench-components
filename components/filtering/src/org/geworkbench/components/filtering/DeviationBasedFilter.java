@@ -7,6 +7,9 @@ import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMutableMarkerValue;
 import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
 import org.geworkbench.bison.model.analysis.FilteringAnalysis;
+import org.geworkbench.engine.management.Script;
+import org.geworkbench.engine.management.Documentation;
+import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 
 /**
  * <p>Copyright: Copyright (c) 2003</p>
@@ -55,16 +58,16 @@ public class DeviationBasedFilter extends AbstractAnalysis implements FilteringA
      * Stores the mean marker value calculations for the individual microarrays.
      */
     protected double[] microarrayAverages = null;
-
+    
     public DeviationBasedFilter() {
         setLabel("Deviation filter");
         setDefaultPanel(new DeviationBasedFilterPanel());
     }
-
+    
     public int getAnalysisType() {
         return DEVIATION_BASED_FILTER_TYPE;
     }
-
+    
     public AlgorithmExecutionResults execute(Object input) {
         if (input == null)
             return new AlgorithmExecutionResults(false, "Invalid input.", null);
@@ -86,10 +89,10 @@ public class DeviationBasedFilter extends AbstractAnalysis implements FilteringA
                 for (int j = 0; j < arrayCount; ++j)
                     ((DSMutableMarkerValue) maSet.get(j).getMarkerValue(i)).setMissing(true);
         }
-
+        
         return new AlgorithmExecutionResults(true, "No errors", input);
     }
-
+    
     /**
      * Compute the mean value for the numbers in <code>profile</code>.
      *
@@ -99,7 +102,7 @@ public class DeviationBasedFilter extends AbstractAnalysis implements FilteringA
     private double getMean(double[] profile) {
         if (profile == null)
             return 0.0;
-
+        
         double sum = 0.0d;
         for (int i = 0; i < profile.length; i++)
             sum += profile[i];
@@ -107,7 +110,7 @@ public class DeviationBasedFilter extends AbstractAnalysis implements FilteringA
             sum /= profile.length;
         return (double) sum;
     }
-
+    
     /**
      * Compute the deviation for the numbers in <code>profile</code>.
      *
@@ -125,7 +128,7 @@ public class DeviationBasedFilter extends AbstractAnalysis implements FilteringA
             deviation /= (profile.length - 1);
         return Math.sqrt(deviation);
     }
-
+    
     /**
      * Obtain the profile values for the index-th marker within the array set.
      *
@@ -147,9 +150,8 @@ public class DeviationBasedFilter extends AbstractAnalysis implements FilteringA
                 average += mv.getValue();
                 ++nonMissing;
             }
-
         }
-
+        
         if (nonMissing > 0)
             average /= nonMissing;
         // Allocate the necessary space
@@ -169,10 +171,10 @@ public class DeviationBasedFilter extends AbstractAnalysis implements FilteringA
             else if (missingValues == MICROARRAY)
                 profile[j++] = microarrayAverages[microarray.getSerial()];
         }
-
+        
         return profile;
     }
-
+    
     /**
      * Populates <code>microarrayAverages[j]</code> with the average marker
      * value in the j-th microarray (using only non-missing values).
@@ -190,16 +192,62 @@ public class DeviationBasedFilter extends AbstractAnalysis implements FilteringA
             // Compute the microarray average.
             for (int i = 0; i < markerCount; i++)
                 if (!mArray.getMarkerValue(i).isMissing()) {
-                    average += mArray.getMarkerValue(i).getValue();
-                    ++nonMissing;
+                average += mArray.getMarkerValue(i).getValue();
+                ++nonMissing;
                 }
-
+            
             if (nonMissing > 0)
                 average /= nonMissing;
             microarrayAverages[j] = average;
         }
-
     }
-
+    
+    /**
+     * Method sets either Markers or Microarrays for removal by setting their <code>status</code>
+     * to be missing. 
+     * @param maSet the input Microarray Set
+     * @param deviations Marker(Microarray) status is set missing based on values being a certains 
+     *        number of deviations away from the Marker(Microarray) mean.
+     * @param inside Specifies that values inside the deviation range should be set missing. A 
+     *        <code>false</code> value would set values outside the deviation range as missing
+     * @param rowMajor Specifies if deviations based on Marker means or Microarray means should be used. A 
+     *        <code>true</code> would compute means for markers across all arrays and set markers as missing 
+     *        in arrays as missing based on deviation from this mean. A <code>false</code> value implies 
+     *        microarray means being used.
+     */
+    
+    @Documentation("<html><BODY BGCOLOR=\"white\"><A NAME=\"mask(, int, boolean, boolean)\"><!-- --></A><H3>mask</H3><PRE><DD>Method sets either " +
+                   "Markers or Microarrays for removal by setting their <code>status</code><br>to be missing. <P><DD>" +
+                   "<DL><DT><B>Parameters:</B><DD><B><CODE>maSet</CODE></B> - the input Microarray Set<DD><B><CODE>deviations</CODE></B>" +
+                   " - Marker(Microarray) status is set missing based on values being a certains <br>number of deviations " +
+                   "away from the Marker(Microarray) mean.<DD><B><CODE>inside</CODE></B> - Specifies that values inside the deviation " +
+                   "range should be set missing. A <br><code>false</code> value would set values outside the deviation range as " +
+                   "missing<DD><B><CODE>rowMajor</CODE></B> - Specifies if deviations based on Marker means or Microarray means should " +
+                   "be used. A <br><code>true</code> would compute means for markers across all arrays and set markers as missing " +
+                   "<br>in arrays as missing based on deviation from this mean. A <code>false</code> value implies <br>microarray " +
+                   "means being used.</DL><br><br></DD></DL></BODY></html>")
+    @Script public void mask(DSDataSet data, int deviations, boolean inside, boolean rowMajor){
+        DSMicroarraySet<DSMicroarray> maSet = null;
+        if (data instanceof DSMicroarraySet)
+             maSet = (DSMicroarraySet<DSMicroarray>)data;
+        else
+            return;
+        int arrayCount = maSet.size();
+        int markerCount = maSet.getMarkers().size();
+        double[] profile = null;
+        microarrayAverages = new double[arrayCount];        
+        computeMicroarrayAverages(maSet);
+        if (rowMajor){
+            for (int i = 0; i < markerCount; i++) {
+                profile = getProfile(maSet, i);
+                double markerDeviation = getDeviation(profile);
+                if (markerDeviation <= deviationBound)
+                    for (int j = 0; j < arrayCount; ++j)
+                        ((DSMutableMarkerValue) maSet.get(j).getMarkerValue(i)).setMissing(true);
+            }
+        }
+        else {
+            
+        }
+    }
 }
-
