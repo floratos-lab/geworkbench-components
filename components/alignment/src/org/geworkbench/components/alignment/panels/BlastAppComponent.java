@@ -59,7 +59,7 @@ import org.geworkbench.events.MicroarraySetViewEvent;
     static final int BLAST = 0;
     static final int SW = 1;
     static final int HMM = 2;
-    public static final String NCBILABEL = "NCBIBLAST";
+    public static final String NCBILABEL = "NCBI BLAST Result";
 
     String[] databaseParameter = {
                                  "ncbi/nr                      Peptides of all non-redundant sequences.",

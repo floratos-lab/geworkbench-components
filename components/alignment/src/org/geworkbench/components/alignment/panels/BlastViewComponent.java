@@ -138,7 +138,7 @@ import org.geworkbench.components.alignment.blast.NCBIBlastParser;
                 blastViewPanel.setResults(hits);
 
             } else if (df instanceof DSAlignmentResultSet) {
-                if (!((CSAlignmentResultSet) df).getLabel().equals("NCBIBLAST")) {
+                if (!((CSAlignmentResultSet) df).getLabel().equals(BlastAppComponent.NCBILABEL)) {
                     bp = new BlastParser(((DSAlignmentResultSet) df).
                                          getResultFilePath(), sequenceDB);
 
@@ -148,7 +148,8 @@ import org.geworkbench.components.alignment.blast.NCBIBlastParser;
                     blastViewPanel.setSequenceDB((CSSequenceSet) sequenceDB);
                     blastViewPanel.setBlastDataSet(bp.getBlastDataset());
                     String summary = bp.getSummary();
-                    blastViewPanel.displayResults(summary);
+                    blastViewPanel.setSummary(summary);
+                    df.addDescription(summary);
                 } else {
                     NCBIBlastParser nbp = new NCBIBlastParser((CSSequenceSet)
                             sequenceDB, ((DSAlignmentResultSet) df).
@@ -159,7 +160,11 @@ import org.geworkbench.components.alignment.blast.NCBIBlastParser;
                     blastViewPanel.setResults(hits);
                     blastViewPanel.setSequenceDB((CSSequenceSet) sequenceDB);
                     blastViewPanel.setBlastDataSet(nbp.getBlastDataset());
-                    blastViewPanel.displayResults("NCBI Blast Result");
+                    String summary = nbp.getSummary();
+                   blastViewPanel.setSummary(summary);
+                   df.addDescription(summary);
+
+
                 }
             } else if (df instanceof HMMDataSet) {
 
