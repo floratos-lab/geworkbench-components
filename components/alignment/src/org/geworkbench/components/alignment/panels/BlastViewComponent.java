@@ -144,7 +144,7 @@ import org.geworkbench.components.alignment.blast.NCBIBlastParser;
 
                     bp.parseResults();
                     hits = bp.getHits();
-                    blastViewPanel.setResults(hits);
+                     //blastViewPanel.setResults(hits);
                     blastViewPanel.setSequenceDB((CSSequenceSet) sequenceDB);
                     blastViewPanel.setBlastDataSet(bp.getBlastDataset());
                     String summary = bp.getSummary();
@@ -157,9 +157,10 @@ import org.geworkbench.components.alignment.blast.NCBIBlastParser;
                     nbp.parseResults();
                     hits = nbp.getHits();
 
-                    blastViewPanel.setResults(hits);
+                   //blastViewPanel.setResults(hits);
                     blastViewPanel.setSequenceDB((CSSequenceSet) sequenceDB);
                     blastViewPanel.setBlastDataSet(nbp.getBlastDataset());
+
                     String summary = nbp.getSummary();
                    blastViewPanel.setSummary(summary);
                    df.addDescription(summary);
