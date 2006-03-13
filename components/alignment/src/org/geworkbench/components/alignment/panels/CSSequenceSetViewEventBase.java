@@ -47,13 +47,13 @@ public class CSSequenceSetViewEventBase implements VisualPlugin{
     protected DSMicroarraySetView<DSGeneMarker, DSMicroarray> maSetView = null;
 
 
-    protected boolean activateMarkers = false;
-    protected boolean activateArrays = false;
-    protected JCheckBox chkActivateMarkers = new JCheckBox("Activated Markers");
+    protected boolean activateMarkers = true;
+   // protected boolean activateArrays = false;
+    protected JCheckBox chkAllMarkers = new JCheckBox("All Markers");
     protected JPanel mainPanel;
     protected JToolBar displayToolBar;
     protected DSPanel<? extends DSGeneMarker> activatedMarkers = null;
-    protected DSPanel activatedArrays = null;
+   // protected DSPanel activatedArrays = null;
     JTextField sequenceNumberField;
 
     public CSSequenceSetViewEventBase() {
@@ -94,8 +94,7 @@ public class CSSequenceSetViewEventBase implements VisualPlugin{
             if (dataSet instanceof DSSequenceSet) {
                 if (sequenceDB != dataSet) {
                     this.sequenceDB = (DSSequenceSet) dataSet;
-                    // panels are now invalid
-                    activatedArrays = null;
+
                     activatedMarkers = null;
                 }
             }
@@ -113,6 +112,8 @@ public class CSSequenceSetViewEventBase implements VisualPlugin{
             Object source) {
         if (e.getPanel() != null && e.getPanel().size() > 0) {
             activatedMarkers = e.getPanel().activeSubset();
+        }else{
+            activatedMarkers = null;
         }
         refreshMaSetView();
     }
@@ -132,9 +133,9 @@ public class CSSequenceSetViewEventBase implements VisualPlugin{
 
         displayToolBar = new JToolBar();
           displayToolBar.setLayout(new BoxLayout(displayToolBar, BoxLayout.X_AXIS));
-        chkActivateMarkers.setToolTipText("USe only activated Markers.");
-        chkActivateMarkers.setSelected(true);
-        chkActivateMarkers.addActionListener(new
+        chkAllMarkers.setToolTipText("USe All Markers.");
+        chkAllMarkers.setSelected(false);
+        chkAllMarkers.addActionListener(new
                 CSSequenceSetViewEventBase_chkActivateMarkers_actionAdapter(this));
 
         BorderLayout borderLayout2 = new BorderLayout();
@@ -147,7 +148,7 @@ public class CSSequenceSetViewEventBase implements VisualPlugin{
 
         sequenceNumberField.setText("Total Sequence Number:");
 
-        displayToolBar.add(chkActivateMarkers, null);
+        displayToolBar.add(chkAllMarkers, null);
         displayToolBar.add(Box.createHorizontalStrut(5), null);
         displayToolBar.add(sequenceNumberField);
 
@@ -156,22 +157,22 @@ public class CSSequenceSetViewEventBase implements VisualPlugin{
 
 
 
-        this.activateMarkers = chkActivateMarkers.isSelected();
+        this.activateMarkers = !chkAllMarkers.isSelected();
 
     }
 
-    void chkShowArrays_actionPerformed(ActionEvent e) {
-        activateArrays = ((JCheckBox) e.getSource()).isSelected();
-        refreshMaSetView();
-    }
+//    void chkShowArrays_actionPerformed(ActionEvent e) {
+//        activateArrays = ((JCheckBox) e.getSource()).isSelected();
+//        refreshMaSetView();
+//    }
 
     void chkActivateMarkers_actionPerformed(ActionEvent e) {
-        activateMarkers = ((JCheckBox) e.getSource()).isSelected();
+        activateMarkers = !((JCheckBox) e.getSource()).isSelected();
         refreshMaSetView();
     }
 
     public void getDataSetView() {
-        activateMarkers = chkActivateMarkers.isSelected();
+        activateMarkers = !chkAllMarkers.isSelected();
         if(activateMarkers){
             if (activatedMarkers != null &&
                 activatedMarkers.size() > 0) {

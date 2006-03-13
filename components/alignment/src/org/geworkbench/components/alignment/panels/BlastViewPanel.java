@@ -156,7 +156,7 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
 
         blastResult.setBorder(BorderFactory.createLoweredBevelBorder());
         blastResult.setPreferredSize(new Dimension(145, 150));
-         blastResult.setMinimumSize(new Dimension(145, 100));
+        blastResult.setMinimumSize(new Dimension(145, 100));
         rightPanel.setPreferredSize(new Dimension(155, 400));
         rightPanel.setDividerSize(2);
         rightPanel.setMinimumSize(new Dimension(155, 300));
@@ -258,6 +258,7 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
         blastResult.removeAll();
         blastResult.add(getBlastListPanel());
         revalidate();
+        repaint();
     }
 
     public void setSummary(String s) {
@@ -369,7 +370,6 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
         HitsTableModel myModel = new HitsTableModel();
         /* table based on myModel*/
         JTable table = new JTable(myModel);
-
 
         // setting the size of the table and its columns
         table.setPreferredScrollableViewportSize(new Dimension(800, 100));
@@ -808,6 +808,12 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
             super(geneListModel);
         }
 
+       public boolean setHighlightedIndex(int theIndex) {
+        super.setHighlightedIndex(theIndex);
+        elementClicked(theIndex, null);
+        return true;
+    }
+
         @Override protected void elementClicked(int index, MouseEvent e) {
 //            itemClicked(PlotType.MARKER, index);
 //            markerModel.refresh();
@@ -821,10 +827,15 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
                                         " hits.");
 
                 } else {
+
+                      setResults(new Vector());
                     resetToWhite("No hits found");
+                    displaySummaryLabel(" " + summaryStr + " Sequence " +
+                                        ((CSSequence) sequenceDB.get(index)).
+                                        getLabel() + " has 0 hit.");
 
                 }
-            } else if (blastDataSet != null && (Vector) blastDataSet.get(0)!= null ) {
+            } else if (blastDataSet != null && (Vector) blastDataSet.get(0) != null) {
                 setResults((Vector) blastDataSet.get(0));
             }
         }
@@ -908,6 +919,13 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
      */
     public void setBlastDataSet(ArrayList arrayList) {
         blastDataSet = arrayList;
+        if(markerList!=null && blastDataSet!=null && sequenceDB != null){
+            int index = sequenceDB.size() - 1;
+            markerList.setHighlightedIndex(sequenceDB.size() - 1);
+            //markerList.elementClicked(index, null);
+            //markerList.setH
+        }
+
     }
 }
 
