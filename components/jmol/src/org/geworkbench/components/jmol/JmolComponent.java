@@ -9,14 +9,20 @@ import org.geworkbench.engine.management.Subscribe;
 import org.geworkbench.events.ProjectEvent;
 import org.jmol.api.JmolSimpleViewer;
 import org.jmol.api.JmolAdapter;
+import org.jmol.api.JmolStatusListener;
+import org.jmol.api.JmolViewer;
 import org.jmol.adapter.smarter.SmarterJmolAdapter;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.openscience.jmol.ui.JmolPopup;
+import org.openscience.jmol.ui.JmolPopupSwing;
 
 import javax.swing.*;
 import javax.swing.border.Border;
 import java.awt.*;
 import java.io.*;
+import java.net.URL;
+import java.net.MalformedURLException;
 
 @AcceptTypes({DSProteinStructure.class})
 public class JmolComponent extends JPanel implements VisualPlugin {
@@ -57,7 +63,8 @@ public class JmolComponent extends JPanel implements VisualPlugin {
         return this;
     }
 
-    @Subscribe public void receive(ProjectEvent event, Object source) {
+    @Subscribe
+    public void receive(ProjectEvent event, Object source) {
         DSDataSet dataSet = event.getDataSet();
         // We will act on this object if it is a DSMicroarraySet
         if (dataSet instanceof DSProteinStructure) {
@@ -100,12 +107,16 @@ public class JmolComponent extends JPanel implements VisualPlugin {
 
 
     static class JmolPanel extends JPanel {
-        JmolSimpleViewer viewer;
+        JmolViewer viewer;
         JmolAdapter adapter;
+        JmolPopup popup;
+        MyStatusListener listener;
 
         JmolPanel() {
             adapter = new SmarterJmolAdapter(null);
-            viewer = JmolSimpleViewer.allocateSimpleViewer(this, adapter);
+            viewer = JmolViewer.allocateViewer(this, adapter);
+            popup = new JmolPopupSwing(viewer);
+            listener = new MyStatusListener(popup);
         }
 
         public JmolSimpleViewer getViewer() {
@@ -120,6 +131,81 @@ public class JmolComponent extends JPanel implements VisualPlugin {
             g.getClipBounds(rectClip);
             viewer.renderScreenImage(g, currentSize, rectClip);
         }
+    }
+
+    static class MyStatusListener implements JmolStatusListener {
+
+        JmolPopup jmolpopup;
+
+        public MyStatusListener(JmolPopup jmolpopup) {
+            this.jmolpopup = jmolpopup;
+        }
+
+        public void notifyFileLoaded(String fullPathName, String fileName,
+                                     String modelName, Object clientFile,
+                                     String errorMsg) {
+            jmolpopup.updateComputedMenus();
+        }
+
+        public void setStatusMessage(String statusMessage) {
+            if (statusMessage == null)
+                return;
+//            if (messageCallback != null && jsoWindow != null)
+//                jsoWindow.call(messageCallback, new Object[]{htmlName, statusMessage});
+//            showStatusAndConsole(statusMessage);
+        }
+
+        public void scriptEcho(String strEcho) {
+            scriptStatus(strEcho);
+        }
+
+        public void scriptStatus(String strStatus) {
+//            if (strStatus != null && messageCallback != null && jsoWindow != null)
+//                jsoWindow.call(messageCallback, new Object[]{htmlName, strStatus});
+//            consoleMessage(strStatus);
+        }
+
+        public void notifyScriptTermination(String errorMessage, int msWalltime) {
+//            showStatusAndConsole("Jmol script completed");
+//            if (buttonCallbackNotificationPending) {
+//                System.out.println("!!!! calling back " + buttonCallback);
+//                buttonCallbackAfter[0] = buttonName;
+//                buttonWindow.call(buttonCallback, buttonCallbackAfter);
+//            }
+        }
+
+        public void handlePopupMenu(int x, int y) {
+            if (jmolpopup != null)
+                jmolpopup.show(x, y);
+        }
+
+        public void measureSelection(int atomIndex) {
+        }
+
+        public void notifyMeasurementsChanged() {
+        }
+
+        public void notifyFrameChanged(int frameNo) {
+            //System.out.println("notifyFrameChanged(" + frameNo +")");
+//            if (animFrameCallback != null && jsoWindow != null)
+//                jsoWindow.call(animFrameCallback,
+//                        new Object[]{htmlName, new Integer(frameNo)});
+        }
+
+        public void notifyAtomPicked(int atomIndex, String strInfo) {
+            //System.out.println("notifyAtomPicked(" + atomIndex + "," + strInfo +")");
+//            showStatusAndConsole(strInfo);
+//            if (pickCallback != null && jsoWindow != null)
+//                jsoWindow.call(pickCallback,
+//                        new Object[]{htmlName, strInfo, new Integer(atomIndex)});
+        }
+
+        public void showUrl(String urlString) {
+        }
+
+        public void showConsole(boolean showConsole) {
+        }
+
     }
 
 }
