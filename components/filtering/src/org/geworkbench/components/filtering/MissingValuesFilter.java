@@ -10,10 +10,13 @@ import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
 import org.geworkbench.bison.model.analysis.FilteringAnalysis;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMutableMarkerValue;
 import org.geworkbench.engine.management.Script;
 import org.geworkbench.engine.management.Documentation;
+import org.geworkbench.engine.management.Publish;
+import org.geworkbench.events.FilteringEvent;
 
 /**
  * <p>Copyright: Copyright (c) 2003</p>
@@ -200,11 +203,35 @@ public class MissingValuesFilter extends AbstractAnalysis implements FilteringAn
             }
             int removeCount = removeList.size();
             int finalCount = arrayCount - removeCount;
-            List<DSMicroarray> arrays = maSet.subList(0, maSet.size());
             for (int i = 0; i < removeCount; i++) {
                 int index = removeList.get(i) - i;
-                maSet.remove(arrays.get(index));
+                maSet.remove(index);
             }
+            publishFilteringEvent(new FilteringEvent(maSet, maSet, getLabel()));
         }
+    }
+    
+    @Script public void prune(DSDataSet data, int size){
+        DSMicroarraySet<DSMicroarray> maSet = null;
+        if (data instanceof DSMicroarraySet)
+             maSet = (DSMicroarraySet<DSMicroarray>)data;
+        else
+            return;
+        if (maSet.size() > size){
+            Collections.shuffle(maSet);
+            int count = 0;
+            for (DSMicroarray array : maSet){
+                array.setSerial(count++);
+            }
+            int initialSize = maSet.size();
+            for (int i = initialSize - 1; i >= size; i--){
+                maSet.remove(i);
+            }
+            publishFilteringEvent(new FilteringEvent(maSet, maSet, getLabel()));
+        }
+    }
+    
+    @Publish public FilteringEvent publishFilteringEvent(FilteringEvent event) {
+        return event;
     }
 }
