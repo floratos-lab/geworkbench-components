@@ -207,7 +207,7 @@ public class MissingValuesFilter extends AbstractAnalysis implements FilteringAn
                 int index = removeList.get(i) - i;
                 maSet.remove(index);
             }
-            publishFilteringEvent(new FilteringEvent(maSet, maSet, getLabel()));
+            publishFilteringEvent(new FilteringEvent(maSet, maSet, getLabel() + "@Script filter: maxMissing = " + maxMissing + ", rowMajor = " + rowMajor));
         }
     }
     
@@ -238,7 +238,7 @@ public class MissingValuesFilter extends AbstractAnalysis implements FilteringAn
             for (int i = initialSize - 1; i >= size; i--){
                 maSet.remove(i);
             }
-            publishFilteringEvent(new FilteringEvent(maSet, maSet, getLabel()));
+            publishFilteringEvent(new FilteringEvent(maSet, maSet, getLabel() + "@Script prune: size = " + size));
         }
     }
     
