@@ -211,6 +211,17 @@ public class MissingValuesFilter extends AbstractAnalysis implements FilteringAn
         }
     }
     
+    /**
+     * Method to filter dataset so that it contains a maximum specified number of arrays.
+     * If the dataset contains less than the specified number of arrays, the method terminates
+     * @param data the input dataset to be filtered
+     * @param size the maximum size to which the datset need to be pruned
+     */
+    @Documentation("<html><BODY BGCOLOR=\"white\"><A NAME=\"prune(DSDataSet, int)\"><!-- --></A><br><H3>prune</H3><br>" +
+            "<PRE><DD>Method to filter dataset so that it contains a maximum specified number of arrays.<br>" +
+            "If the dataset contains less than the specified number of arrays, the method terminates<P>" +
+            "<DD><DL><DT><B>Parameters:</B><DD><CODE>data</CODE> - the input dataset to be filtered<DD><CODE>size</CODE>" +
+            " - the maximum size to which the datset need to be pruned</DL></DD></DL></BODY></html>")
     @Script public void prune(DSDataSet data, int size){
         DSMicroarraySet<DSMicroarray> maSet = null;
         if (data instanceof DSMicroarraySet)
