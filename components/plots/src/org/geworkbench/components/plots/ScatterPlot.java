@@ -978,7 +978,7 @@ import java.util.*;
      * @param source the source of the event (unused).
      */
     @Subscribe public void receive(org.geworkbench.events.GeneSelectorEvent e, Object source) {
-        if (e.getPanel() != null && e.getPanel().size() > 0) {
+        if (e.getPanel() != null) {
             dataSetView.setMarkerPanel(e.getPanel());
             // markerPanel = e.getPanel().activeSubset();
             markerModel.refresh();
@@ -1061,7 +1061,7 @@ import java.util.*;
         boolean rankPlot = rankStatisticsCheckbox.isSelected();
         HashMap map = new HashMap();
         //        int microarrayNo = maSet.size();
-        int microarrayNo = dataSetView.size();
+        int microarrayNo = dataSetView.getMicroarraySet().size();
 
         // First put all the gene pairs in the xyValues array
         org.geworkbench.util.pathwaydecoder.RankSorter[] xyValues = new RankSorter[microarrayNo];
@@ -1074,9 +1074,13 @@ import java.util.*;
 
             xyValues[i].id = i;
             //            map.put(new Integer(i), xyValues[i]);
-            map.put(new Integer(dataSetView.get(i).getSerial()), xyValues[i]);
+            map.put(new Integer(dataSetView.getMicroarraySet().get(i).getSerial()), xyValues[i]);
         }
         boolean panelsSelected = (dataSetView.getItemPanel().size() > 0) && (dataSetView.getItemPanel().getLabel().compareToIgnoreCase("Unsupervised") != 0) && (dataSetView.getItemPanel().panels().size() > 0);
+        if (dataSetView.getItemPanel().activeSubset().size() == 0) {
+            panelsSelected = false;
+            showAll = true;
+        }
         if (rankPlot && !showAll) {
             // Must first activate all valid points
             if (panelsSelected) {
@@ -1247,10 +1251,14 @@ import java.util.*;
             xyValues[i].id = i;
             map.put(new Integer(i), xyValues[i]);
         }
-
+        boolean panelsSelected = (dataSetView.getMarkerPanel().size() > 0) && (dataSetView.getMarkerPanel().getLabel().compareToIgnoreCase("Unsupervised") != 0) && (dataSetView.getMarkerPanel().panels().size() > 0);
+        if (dataSetView.getMarkerPanel().activeSubset().size() == 0) {
+            panelsSelected = false;
+            showAll = true;
+        }
         if (rankPlot && !showAll) {
             // Must first activate all valid points
-            if ((dataSetView.getMarkerPanel().size() > 0) && (dataSetView.getMarkerPanel().panels().size() > 1)) {
+            if ((dataSetView.getMarkerPanel().size() > 0) && (dataSetView.getMarkerPanel().panels().size() > 0)) {
                 for (int pId = 0; pId < dataSetView.getMarkerPanel().panels().size(); pId++) {
                     DSPanel<DSGeneMarker> panel = dataSetView.getMarkerPanel().panels().get(pId);
                     int itemNo = panel.size();
@@ -1298,7 +1306,7 @@ import java.util.*;
         int panelIndex = 0;
         boolean panelsUsed = false;
         // If gene panels have been selected
-        if ((dataSetView.getMarkerPanel().size() > 0) && (dataSetView.getMarkerPanel().getLabel().compareToIgnoreCase("Unsupervised") != 0) && (dataSetView.getMarkerPanel().panels().size() > 1)) {
+        if (panelsSelected) {
             panelsUsed = true;
             for (int pId = 0; pId < dataSetView.getMarkerPanel().panels().size(); pId++) {
                 ArrayList<org.geworkbench.util.pathwaydecoder.RankSorter> list = new ArrayList<RankSorter>();
