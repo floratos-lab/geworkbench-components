@@ -117,6 +117,7 @@ public class JmolComponent extends JPanel implements VisualPlugin {
             viewer = JmolViewer.allocateViewer(this, adapter);
             popup = new JmolPopupSwing(viewer);
             listener = new MyStatusListener(popup);
+            viewer.setJmolStatusListener(listener);
         }
 
         public JmolSimpleViewer getViewer() {
