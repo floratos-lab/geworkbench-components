@@ -834,13 +834,13 @@ import org.geworkbench.events.MicroarraySetViewEvent;
         fastaFile = sd;
         int endPoint = 0;
         if (sd != null) {
-            for (Object o : sd) {
-                int newPoint = ((CSSequence) o).length();
-                if (endPoint < newPoint) {
-                    endPoint = newPoint;
-                }
-            }
-
+//            for (Object o : sd) {
+//                int newPoint = ((CSSequence) o).length();
+//                if (endPoint < newPoint) {
+//                    endPoint = newPoint;
+//                }
+//            }
+                endPoint = sd.getMaxLength();
             jendPointField.setText(new Integer(endPoint).toString());
             jendPointField1.setText(new Integer(endPoint).toString());
             jendPointField3.setText(new Integer(endPoint).toString());
