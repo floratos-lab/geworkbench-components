@@ -1,13 +1,18 @@
 package org.geworkbench.components.alignment.synteny;
 
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JToolBar;
 
-import org.geworkbench.util.sequences.SequenceAnnotation;
 
 import javax.swing.*;
-import java.awt.*;
+import java.awt.BorderLayout;
+import org.geworkbench.util.sequences.SequenceAnnotation;
+import java.awt.Dimension;
+import java.awt.event.MouseEvent;
 import java.awt.event.ActionEvent;
 import java.awt.event.InputMethodEvent;
-import java.awt.event.MouseEvent;
+import java.awt.Font;
 
 /**
  * <p>Widget provides all GUI services for dot matrix panel displays.</p>
@@ -24,8 +29,8 @@ public class DotMatrixViewWidget
     private BorderLayout borderLayout2 = new BorderLayout();
     private JScrollPane dotScrollPane = new JScrollPane();
 
-    public static DotMatrixViewWidgetPanel dotViewWPanel=null;
-    public static DotMatrixInfoPanel DMInfoPanel=null;
+    public DotMatrixViewWidgetPanel dotViewWPanel=null;
+    public DotMatrixInfoPanel DMInfoPanel=null;
     private JToolBar jToolBar1 = new JToolBar();
     private JRadioButton showDirBtn = new JRadioButton();
     private JRadioButton showInvBtn = new JRadioButton();
@@ -44,15 +49,15 @@ public class DotMatrixViewWidget
         }
     }
 
-    public static void dmrepaint() {
+    public void dmrepaint() {
         dotViewWPanel.repaint();
     }
 
-    public static void showinfo(String inf) {
+    public void showinfo(String inf) {
         DMInfoPanel.showInfo(inf);
     }
 
-    public static void drawNewDotMatrix(DotMatrixObj dmo, SequenceAnnotation sax, SequenceAnnotation say) {
+    public void drawNewDotMatrix(DotMatrixObj dmo, SequenceAnnotation sax, SequenceAnnotation say) {
         dotViewWPanel.DMViewWidgetPaneladd(dmo, sax, say, DMInfoPanel);
         dotViewWPanel.repaint();
         dotViewWPanel.setPreferredSize(new Dimension(500, 800));

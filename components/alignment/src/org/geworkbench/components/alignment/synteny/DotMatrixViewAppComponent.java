@@ -1,15 +1,17 @@
 package org.geworkbench.components.alignment.synteny;
 
-import org.geworkbench.engine.config.MenuListener;
-import org.geworkbench.engine.config.VisualPlugin;
-import org.geworkbench.engine.config.events.EventSource;
+import java.beans.*;
+import java.util.*;
 
-import javax.swing.event.EventListenerList;
 import java.awt.*;
-import java.awt.event.ActionListener;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
+import java.awt.event.*;
+import javax.swing.event.*;
 import java.util.HashMap;
+
+
+import org.geworkbench.engine.config.events.EventSource;
+import org.geworkbench.engine.config.VisualPlugin;
+import org.geworkbench.engine.config.MenuListener;
 
 
 /**
@@ -21,7 +23,10 @@ import java.util.HashMap;
  * @version 1.0
  */
 
-public class DotMatrixViewAppComponent extends EventSource implements VisualPlugin, MenuListener, PropertyChangeListener {
+public class DotMatrixViewAppComponent
+
+    extends EventSource implements VisualPlugin, MenuListener,
+    PropertyChangeListener {
 
     EventListenerList listenerList = new EventListenerList();
     DotMatrixViewWidget dmViewWidget;
@@ -58,7 +63,7 @@ public class DotMatrixViewAppComponent extends EventSource implements VisualPlug
         if (source instanceof ProjectSelection) {
             ProjectSelection selection = (ProjectSelection) source;
             DataSet dataFile = selection.getDataSet();
-            if (dataFile instanceof CSSequenceSet) {
+            if (dataFile instanceof SequenceDB) {
             }
         }
     }

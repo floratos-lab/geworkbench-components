@@ -1,14 +1,13 @@
 package org.geworkbench.components.alignment.synteny;
 
-import org.geworkbench.util.sequences.SequenceAnnotation;
 import org.geworkbench.util.sequences.SequenceAnnotationTrack;
-
+import org.geworkbench.util.sequences.SequenceAnnotation;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.net.URL;
 import java.io.InputStream;
 import java.net.MalformedURLException;
-import java.net.URL;
 
 /**
  * <p>Title: Bioworks</p>

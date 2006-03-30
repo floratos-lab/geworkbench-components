@@ -1,15 +1,24 @@
 package org.geworkbench.components.alignment.synteny;
 
-import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
-import org.geworkbench.engine.config.MenuListener;
 import org.geworkbench.engine.config.VisualPlugin;
-import org.geworkbench.engine.config.events.EventSource;
 import org.geworkbench.engine.management.AcceptTypes;
-
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.ActionListener;
+import org.geworkbench.engine.management.Subscribe;
+import javax.swing.JPanel;
 import java.util.HashMap;
+import java.awt.BorderLayout;
+import java.awt.*;
+import javax.swing.JTabbedPane;
+import org.geworkbench.engine.config.MenuListener;
+import org.geworkbench.engine.config.events.EventSource;
+
+import java.awt.event.ActionListener;
+import org.geworkbench.components.alignment.panels.SynMapPresentationList;
+import org.geworkbench.components.alignment.panels.SyntenyPresentationsList;
+import org.geworkbench.events.SyntenyEvent;
+import org.geworkbench.components.alignment.panels.SyntenyAnnotationParameters;
+//import org.geworkbench.bison.datastructure.biocollections.views.DSSyntenyView;
+//import org.geworkbench.bison.datastructure.biocollections.views.CSSyntenyView;
+import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 
 /**
  * <p>Title: </p>
@@ -23,8 +32,16 @@ import java.util.HashMap;
  * @author not attributable
  * @version 1.0
  */
-@AcceptTypes({DSMicroarraySet.class}) public class SyntenyViewAppComponent extends EventSource
+
+@AcceptTypes({DSDataSet.class}) public class SyntenyViewAppComponent extends EventSource
     implements VisualPlugin, MenuListener {
+
+
+public SyntenyPresentationsList SPList = null;
+public SynMapPresentationList SMPList = null;
+public SyntenyAnnotationParameters SAP = null;
+public SyntenyAnnotationParameters SMAP = null;
+
     JPanel jPanel1 = new JPanel();
     HashMap listeners = new HashMap();
     BorderLayout borderLayout1 = new BorderLayout();
@@ -42,8 +59,14 @@ import java.util.HashMap;
     }
 
     private void jbInit() throws Exception {
-        SyntenyMapViewWidget SMVW = new SyntenyMapViewWidget();
-        DotMatrixViewWidget DMVW = new DotMatrixViewWidget();
+
+        SPList = new SyntenyPresentationsList();
+        SMPList = new SynMapPresentationList();
+        SAP = new SyntenyAnnotationParameters();
+        SPList.setSyntenyAnnotationParameters(SAP);
+        SMPList.setSyntenyAnnotationParameters(SAP);
+        SMVW = new SyntenyMapViewWidget();
+        DMVW = new DotMatrixViewWidget();
 
         jPanel1.setLayout(borderLayout1);
         jPanel1.add(jTabbedPane1, java.awt.BorderLayout.CENTER);
@@ -57,6 +80,31 @@ import java.util.HashMap;
     public ActionListener getActionListener(String key){
       return (ActionListener)listeners.get(key);
   }
+
+  @Subscribe public void SyntenyEvent(SyntenyEvent e, Object o) {
+  String[] splt = e.getText().split("\t");
+
+  if(splt[0].charAt(0) == 'D'){
+      System.out.println("\nDoing dotMatrix");
+      int f_x = Integer.parseInt(splt[2]);
+      int t_x = Integer.parseInt(splt[3]);
+      int f_y = Integer.parseInt(splt[4]);
+      int t_y = Integer.parseInt(splt[5]);
+      SPList.addAndDisplay(splt[1], f_x, t_x, f_y, t_y,DMVW);
+  }
+  if(splt[0].charAt(0) == 'S'){
+      System.out.println("\nDoing synMap");
+      int f_x = Integer.parseInt(splt[2]);
+      int t_x = Integer.parseInt(splt[3]);
+      int f_y = Integer.parseInt(splt[4]);
+      int t_y = Integer.parseInt(splt[5]);
+      SMPList.addAndDisplay(splt[1], f_x, t_x, f_y, t_y,SMVW);
+  }
+  if(splt[0].charAt(0) == 'A'){
+      SPList.redrawAnnotation(splt[1]);
+  }
+}
+
 }
 
 

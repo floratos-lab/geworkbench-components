@@ -1,7 +1,11 @@
 package org.geworkbench.components.alignment.synteny;
 
-import javax.swing.*;
+import javax.swing.JPanel;
+import java.awt.BorderLayout;
+import javax.swing.JLabel;
 import java.awt.*;
+import javax.swing.JTextField;
+import javax.swing.*;
 
 /**
  * <p>Title: Bioworks</p>

@@ -112,28 +112,30 @@ public class Matrix {
         double score;
         int count3 = 0;
         int count5 = 0;
-        for (int offset = 0; offset < sequence.length() - countTable.length; offset++) {
-            score = Math.exp(score(sequence, offset));
-            if (score >= threshold) {
-                count5++;
+        if (sequence != null) {
+            for (int offset = 0; offset < sequence.length() - countTable.length;
+                              offset++) {
+                score = Math.exp(score(sequence, offset));
+                if (score >= threshold) {
+                    count5++;
+                }
+                score = Math.exp(scoreReverse(sequence, offset));
+                if (score >= threshold) {
+                    count3++;
+                }
+                partialLength++;
+                if (partialLength > length * averageNo) {
+                    break;
+                }
             }
-            score = Math.exp(scoreReverse(sequence, offset));
-            if (score >= threshold) {
-                count3++;
+            if (count3 + count5 > 0) {
+                ms.matchSeq++;
             }
-            partialLength++;
-            if (partialLength > length * averageNo) {
-                break;
-            }
+            ms.match5primeNo += count5;
+            ms.match3primeNo += count3;
+            ms.matchNo += count3 + count5;
         }
-        if (count3 + count5 > 0) {
-            ms.matchSeq++;
-        }
-        ms.match5primeNo += count5;
-        ms.match3primeNo += count3;
-        ms.matchNo += count3 + count5;
     }
-
 
     private char getComplement(char char1) {
 

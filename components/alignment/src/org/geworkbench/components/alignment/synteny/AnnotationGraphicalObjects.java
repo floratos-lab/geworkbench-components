@@ -1,9 +1,8 @@
 package org.geworkbench.components.alignment.synteny;
 
 
+import java.awt.Polygon;
 import org.geworkbench.util.sequences.SequenceAnnotation;
-
-import java.awt.*;
 
 /**
  * <p>Title: Bioworks</p>

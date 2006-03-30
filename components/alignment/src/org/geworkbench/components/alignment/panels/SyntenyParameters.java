@@ -18,18 +18,17 @@ import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeSelectionModel;
 import javax.swing.event.TreeModelListener;
 import javax.swing.event.TreeModelEvent;
-import org.geworkbench.components.alignment.synteny.SyntenyMapFragment;
 import org.geworkbench.engine.config.events.EventSource;
 import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.builtin.projects.ProjectTreeNode;
 import org.geworkbench.util.session.SoapClient;
-import org.geworkbench.components.alignment.synteny.SyntenyMapObject;
 import org.geworkbench.engine.management.Subscribe;
-import org.geworkbench.engine.management.AcceptTypes;
 import org.geworkbench.events.GeneSelectorEvent;
+import org.geworkbench.engine.management.Publish;
+import org.geworkbench.engine.management.AcceptTypes;
+import org.geworkbench.events.SyntenyEvent;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
-import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 
 import javax.swing.border.TitledBorder;
@@ -52,11 +51,12 @@ import org.geworkbench.components.alignment.panels.SynMapPresentationList;
  * @version 1.0
  */
 
-@AcceptTypes({DSMicroarraySet.class}) public class SyntenyParameters extends EventSource implements VisualPlugin {
+@AcceptTypes(DSMicroarraySet.class)
+public class SyntenyParameters extends EventSource implements VisualPlugin {
 
     private HashMap listeners = new HashMap();
     boolean cancel_flag = false;
-
+    boolean job_active = false;
     boolean selectedRegionChanged = false;
     private SyntenyAnnotationParameters SAP = new SyntenyAnnotationParameters();
     private GenomePositionSubPanel GPos;
@@ -86,7 +86,15 @@ import org.geworkbench.components.alignment.panels.SynMapPresentationList;
     private JPopupMenu TreeSelectionMenu = new JPopupMenu();
     private JPopupMenu MarkerSelectionMenu = new JPopupMenu();
     private JPopupMenu XYMenu = new JPopupMenu();
-
+    GridBagLayout gridBagLayout4 = new GridBagLayout();
+    GridBagLayout gridBagLayout5 = new GridBagLayout();
+    JLabel jLabelProgram = new JLabel();
+    JScrollPane jRegionsScrollPane = new JScrollPane();
+    TitledBorder titledBorder2 = new TitledBorder("");
+    JPanel jPanelButtons = new JPanel();
+    BorderLayout borderLayout6 = new BorderLayout();
+    JButton jButtonStopIt = new JButton();
+    JComboBox SynMapParametersComboBox = new JComboBox();
     private JTextField beforeText = new JTextField();
     private JTextField afterText = new JTextField();
     private JLabel jLabel1 = new JLabel();
@@ -101,6 +109,7 @@ import org.geworkbench.components.alignment.panels.SynMapPresentationList;
     private JMenuItem treeToSelected = new JMenuItem();
     private JMenuItem ToX = new JMenuItem();
     private JMenuItem ToY = new JMenuItem();
+    private JMenuItem ShowAnnot = new JMenuItem();
     private JMenuItem Delete = new JMenuItem();
     private JLabel ProcessStatus = new JLabel();
     public SyntenyPresentationsList SPList = null;
@@ -145,11 +154,19 @@ import org.geworkbench.components.alignment.panels.SynMapPresentationList;
             }
         };
 
+        SynMapParametersComboBox.addItem("Complete search for markers");
+        SynMapParametersComboBox.addItem("Search for specifyed regions only");
+        SynMapParametersComboBox.hide();
+
         ToX.setText("Select as X");
         ToY.setText("Select as Y");
+        Delete.setText("Remove");
+        ShowAnnot.setText("Show Annotation");
         ToX.addActionListener(regionsListListener);
         ToY.addActionListener(regionsListListener);
+        ShowAnnot.addActionListener(regionsListListener);
         Delete.addActionListener(regionsListListener);
+
         jLabelProgram.setBackground(Color.white);
         jLabelProgram.setBorder(BorderFactory.createEtchedBorder());
         jLabelProgram.setOpaque(true);
@@ -160,9 +177,15 @@ import org.geworkbench.components.alignment.panels.SynMapPresentationList;
         JPanelInfo.setBorder(titledBorder2);
         jPanelButtons.setLayout(borderLayout6);
         jButtonStopIt.setText("Cancel");
+        jPanelProgram.setLayout(borderLayout1);
+        jButtonAnnotationRedraw.setToolTipText("");
+        jButtonAnnotationRedraw.setText("Redraw annotation");
+        jButtonAnnotationRedraw.addActionListener(new
+                                                  SyntenyParameters_redrawButton_actionAdapter(this));
         XYMenu.add(ToX);
         XYMenu.add(ToY);
-//        XYMenu.add(Delete);
+        XYMenu.add(ShowAnnot);
+        XYMenu.add(Delete);
 
         SPList = new SyntenyPresentationsList();
         SMPList = new SynMapPresentationList();
@@ -324,8 +347,8 @@ import org.geworkbench.components.alignment.panels.SynMapPresentationList;
 
         jTabbedPane1.add(jPanelMarkers, "Markers");
         jTabbedPane1.add(jPanelProgram, "Program");
-        jPanelProgram.add(ProgramBox);
         jTabbedPane1.add(SAP, "Annotation");
+        SAP.add(jButtonAnnotationRedraw, java.awt.BorderLayout.SOUTH);
         jTabbedPane1.add(GenomePosPanel, "Genome");
 
         jPanel2.add(jToolbar2, java.awt.BorderLayout.CENTER);
@@ -345,11 +368,6 @@ import org.geworkbench.components.alignment.panels.SynMapPresentationList;
         JPanelRunSelected.add(jLabel5, java.awt.BorderLayout.NORTH);
         JPanelRunSelected.add(jPanel5, java.awt.BorderLayout.SOUTH);
         JPanelInfo.add(jLabelX, java.awt.BorderLayout.NORTH);
-        GenomePosPanel.add(addButton,
-                           new GridBagConstraints(0, 3, 1, 1, 1.0, 1.0
-                                                  , GridBagConstraints.CENTER,
-                                                  GridBagConstraints.NONE,
-                                                  new Insets(20, 0, 5, 0), 0, 0));
         GenomePosPanel.add(GPos, new GridBagConstraints(0, 0, 1, 2, 1.0, 2.0
                 , GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
                 new Insets(5, 0, 5, 0), 0, 0));
@@ -380,6 +398,14 @@ import org.geworkbench.components.alignment.panels.SynMapPresentationList;
         jPanel5.add(jPanelButtons, java.awt.BorderLayout.SOUTH);
         jPanelButtons.add(jButtonRun, java.awt.BorderLayout.CENTER);
         jPanelButtons.add(jButtonStopIt, java.awt.BorderLayout.EAST);
+        GenomePosPanel.add(addButton,
+                           new GridBagConstraints(0, 3, 1, 1, 1.0, 1.0
+                                                  , GridBagConstraints.CENTER,
+                                                  GridBagConstraints.HORIZONTAL,
+                                                  new Insets(0, 0, 0, 0), 0, 0));
+        jPanel4.add(SynMapParametersComboBox);
+        jPanelProgram.add(jPanel4, java.awt.BorderLayout.CENTER);
+        jPanelProgram.add(ProgramBox, java.awt.BorderLayout.NORTH);
     }
 
     /**************************/
@@ -486,7 +512,7 @@ import org.geworkbench.components.alignment.panels.SynMapPresentationList;
         } catch (IOException ioe) {
             return null;
         } catch (Exception ex) {
-            /** @todo Handle this exception */
+            /** @//todo Handle this exception */
         }
 
         String ServerAnswer = null;
@@ -651,14 +677,9 @@ import org.geworkbench.components.alignment.panels.SynMapPresentationList;
     }
 
     DSPanel<DSGeneMarker> markers;
-    GridBagLayout gridBagLayout4 = new GridBagLayout();
-    GridBagLayout gridBagLayout5 = new GridBagLayout();
-    JLabel jLabelProgram = new JLabel();
-    JScrollPane jRegionsScrollPane = new JScrollPane();
-    TitledBorder titledBorder2 = new TitledBorder("");
-    JPanel jPanelButtons = new JPanel();
-    BorderLayout borderLayout6 = new BorderLayout();
-    JButton jButtonStopIt = new JButton();
+    JPanel jPanel4 = new JPanel();
+    BorderLayout borderLayout1 = new BorderLayout();
+    JButton jButtonAnnotationRedraw = new JButton();
 
     @Subscribe public void geneSelectorAction(GeneSelectorEvent e,
                                               Object publisher) {
@@ -698,6 +719,44 @@ import org.geworkbench.components.alignment.panels.SynMapPresentationList;
         ls2.removeAllElements();
     }
 
+    void CancelButtonAction(String jid) {
+        FileOutputStream fout;
+        String out_name = new String(tempDir + "cancel_request_" + jid);
+
+        job_active = false;
+        // forming file with request
+        try {
+            fout = new FileOutputStream(out_name);
+            String tmp;
+            tmp = new String("CANCEL: " + jid + "\n");
+            fout.write(tmp.getBytes());
+            fout.close();
+        } catch (IOException ioe) {
+            return;
+        }
+
+        // Submitting the request to the server
+        final String outf = new String(out_name);
+        Thread t = new Thread() {
+            public void run() {
+                ProcessStatus.setText("Cancelling...");
+                try {
+                    SoapClient sp = new SoapClient();
+                    String infile = new String(sp.submitFile(outf));
+                    String job_string = new String(sp.submitJob(
+                            "java -cp /adtera/users/pavel/synteny_remote/ SyntenyServerSide",
+                            infile, "nofile"));
+                } catch (Exception ee) {
+                    System.err.println(ee);
+                    return;
+                }
+            }
+        };
+        t.setPriority(Thread.MIN_PRIORITY);
+        t.start();
+        ProcessStatus.setText("Job cancelled.");
+    }
+
     /**
      * Just populate SyntenyMapObject for testing purposes
      * @return SyntenyMapObject
@@ -707,11 +766,35 @@ import org.geworkbench.components.alignment.panels.SynMapPresentationList;
     void ButtonRun_actionPerformed(ActionEvent e) {
         int fx, tx, fy, ty, i, j, ux, dx, uy, dy;
 
+        /******************************************************************************
+        if (((String) ProgramBox.getSelectedItem()).indexOf("SyntenyMap") != -1) {
+            String rr = tempDir + "Synteny_961301.0.res";
+            job_active = false;
+            int ff_x = 46224505;
+            int tt_x = 46638695;
+            int ff_y = 30924275;
+            int tt_y = 31342378;
+
+            sendEvent("SM\t" + rr + "\t" + ff_x + "\t" + tt_x + "\t" + ff_y +
+                      "\t" + tt_y);
+            jButtonRun.setBackground(Color.white);
+            return;
+        }
+        ******************************************************************************/
+
+        if (job_active) {
+            JOptionPane.showMessageDialog
+                    (null, "Previous job is active!", "Results",
+                     JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        job_active = true;
         if (((jLabelX.getText()).indexOf(">") == -1) ||
             ((jLabelY.getText()).indexOf(">") == -1)) {
             JOptionPane.showMessageDialog
                     (null, "Invalid X or Y genomic region!", "Results",
                      JOptionPane.ERROR_MESSAGE);
+            job_active = false;
             return;
         }
 
@@ -732,17 +815,14 @@ import org.geworkbench.components.alignment.panels.SynMapPresentationList;
         // Parsing X information
         String[] infstr = ((String) jLabelX.getText()).split(":");
         String sourcex = new String(infstr[1].substring(2));
-        if ((((String) ProgramBox.getSelectedItem()).indexOf("SyntenyMap") != -1) && sourcex.equalsIgnoreCase("genomic"))
-            {
-                JOptionPane.showMessageDialog
-                        (null, "Currently SyntenyMap program can't accept genomic regions defined by genome positions!", "Results",
-                         JOptionPane.ERROR_MESSAGE);
-                return;
+        if ((((String) ProgramBox.getSelectedItem()).indexOf("SyntenyMap") !=
+             -1) && sourcex.equalsIgnoreCase("genomic")) {
+            JOptionPane.showMessageDialog
+                    (null, "Currently SyntenyMap program can't accept genomic regions defined by genome positions!",
+                     "Results",
+                     JOptionPane.ERROR_MESSAGE);
+            return;
         }
-//            res_name = new String(tempDir + "Synteny_458549.0.res");
-//            ProcessStatus.setText("Go to debugging...");
-//            return;
-
 
         String genomex = new String(infstr[2]);
         String chromX = new String(infstr[3]);
@@ -754,40 +834,27 @@ import org.geworkbench.components.alignment.panels.SynMapPresentationList;
         // Parsing Y information
         infstr = (jLabelY.getText()).split(":");
         String sourcey = new String(infstr[1].substring(2));
-        if ((((String) ProgramBox.getSelectedItem()).indexOf("SyntenyMap") != -1) && sourcey.equalsIgnoreCase("genomic"))
-            {
-                JOptionPane.showMessageDialog
-                        (null, "Currently SyntenyMap program can't accept genomic regions defined by genome positions!", "Results",
-                         JOptionPane.ERROR_MESSAGE);
-                return;
+        if ((((String) ProgramBox.getSelectedItem()).indexOf("SyntenyMap") !=
+             -1) && sourcey.equalsIgnoreCase("genomic")) {
+            JOptionPane.showMessageDialog
+                    (null, "Currently SyntenyMap program can't accept genomic regions defined by genome positions!",
+                     "Results",
+                     JOptionPane.ERROR_MESSAGE);
+            return;
         }
         String genomey = new String(infstr[2]);
         String chromY = new String(infstr[3]);
 
-        dy =  Integer.parseInt(beforeText.getText());
+        dy = Integer.parseInt(beforeText.getText());
         fy = Integer.parseInt(infstr[4]) - dy;
 
         uy = Integer.parseInt(afterText.getText());
         ty = Integer.parseInt(infstr[5]) + uy;
 
-
-        /////////////////////////////////////////////////////////////
-
-//        if (((String) ProgramBox.getSelectedItem()).indexOf("SyntenyMap") != -1){
-//            res_name = new String(tempDir + "Synteny_458549.0.res");
-//            ProcessStatus.setText("Go to debugging...");
-//            return;
-//            fx = 244300000;
-//            tx = 244420000;
-//            fy = 244340000;
-//            ty = 244396751;
-//           SMPList.addAndDisplay(res_name, fx, tx, fy, ty);
-//           return;
-//        }
-
         try {
             fout = new FileOutputStream(out_name);
             String tmp;
+
             tmp = new String("JOB_ID: " + job_id + "\n");
             fout.write(tmp.getBytes());
 
@@ -796,6 +863,14 @@ import org.geworkbench.components.alignment.panels.SynMapPresentationList;
 
             tmp = new String("PROGRAM: " + (String) ProgramBox.getSelectedItem() +
                              "\n");
+            fout.write(tmp.getBytes());
+
+            if (((String) ProgramBox.getSelectedItem()).indexOf("SyntenyMap") !=
+                -1) {
+                tmp = new String("SYN_PARAME: " +
+                                 (String) SynMapParametersComboBox.
+                                 getSelectedItem() + "\n");
+            }
             fout.write(tmp.getBytes());
 
             tmp = new String("SOURCE1: " + sourcex + "\n");
@@ -860,6 +935,7 @@ import org.geworkbench.components.alignment.panels.SynMapPresentationList;
                             jid + ".res");
                     String job_string = new String(sp.submitJob(
                             "java -cp /adtera/users/pavel/synteny_remote/ SyntenyServerSide",
+//                            "java -cp /adtera/users/pavel/synteny_remote/ SSSTest",
                             infile, result_file));
 
                     String tURL = new String(
@@ -873,6 +949,7 @@ import org.geworkbench.components.alignment.panels.SynMapPresentationList;
                     while (true) {
                         Delay(500);
                         if (cancel_flag) {
+                            CancelButtonAction(jid);
                             break;
                         }
                         ServerAnswer = DAS_Retriver.GetItSilent(tURL);
@@ -905,28 +982,38 @@ import org.geworkbench.components.alignment.panels.SynMapPresentationList;
 
                 if (cancel_flag == false) {
                     ProcessStatus.setText("Parsing");
-                    if (((String) ProgramBox.getSelectedItem()).indexOf("SyntenyMap") != -1) {
-                        if (CheckSyntenyFileIntegrity(resn) == false) {
+                    if (((String) ProgramBox.getSelectedItem()).indexOf(
+                            "SyntenyMap") != -1) {
+                        if (CheckSynMapFileIntegrity(resn) == false) {
                             error_flag = true;
                         }
                         if (error_flag) {
-                            ProcessStatus.setText("Server error! Please try again.");
+                            job_active = false;
+                            ProcessStatus.setText(
+                                    "Server error! Please try again.");
                             jButtonRun.setBackground(Color.white);
                         } else {
                             ProcessStatus.setText("Done");
-                            SMPList.addAndDisplay(resn, f_x, t_x, f_y, t_y);
-
+                            job_active = false;
+//                            SMPList.addAndDisplay(resn, f_x, t_x, f_y, t_y);
+                            sendEvent("SM\t" + resn + "\t" + f_x + "\t" + t_x +
+                                      "\t" + f_y + "\t" + t_y);
+                            jButtonRun.setBackground(Color.white);
                         }
                     } else {
                         if (CheckFileIntegrity(resn) == false) {
                             error_flag = true;
                         }
                         if (error_flag) {
-                            ProcessStatus.setText("Server error! Please try again.");
+                            ProcessStatus.setText(
+                                    "Server error! Please try again.");
+                            job_active = false;
                             jButtonRun.setBackground(Color.white);
                         } else {
                             ProcessStatus.setText("Done");
-                            SPList.addAndDisplay(resn, f_x, t_x, f_y, t_y);
+                            job_active = false;
+                            sendEvent("DM\t" + resn + "\t" + f_x + "\t" + t_x +
+                                      "\t" + f_y + "\t" + t_y);
                             jButtonRun.setBackground(Color.white);
                         }
                     }
@@ -937,12 +1024,23 @@ import org.geworkbench.components.alignment.panels.SynMapPresentationList;
                     cancel_flag = false;
                 }
             }
-
         };
         t.setPriority(Thread.MIN_PRIORITY);
         t.start();
     }
 
+    @Publish public SyntenyEvent publishSyntenyEvent(SyntenyEvent se) {
+        return se;
+    }
+
+    void sendEvent(String s) {
+        publishSyntenyEvent(new SyntenyEvent(s));
+
+    }
+
+    void redrawButton_actionPerformed(ActionEvent e) {
+        publishSyntenyEvent(new SyntenyEvent("AC\t" + SAP.getAnnoString()));
+    }
 
     void addButton_actionPerformed(ActionEvent e) {
         addToRegionsListModel(">genomic:" + GPos.getGenome() + ":" +
@@ -950,7 +1048,7 @@ import org.geworkbench.components.alignment.panels.SynMapPresentationList;
                               ":" + GPos.getValueTo() + ":");
     }
 
-    private boolean CheckSyntenyFileIntegrity(String Fil) {
+    private boolean CheckSynMapFileIntegrity(String Fil) {
 
         File f = new File(Fil);
         int size = (int) f.length();
@@ -983,28 +1081,18 @@ import org.geworkbench.components.alignment.panels.SynMapPresentationList;
         if (datastr.indexOf("/# End of SYN_MAP output #/") == -1) {
             return false;
         }
-        if (datastr.indexOf("/# Start of Annotation 1 #/") == -1) {
+        if (datastr.indexOf("N1: ") == -1) {
             return false;
         }
-        if (datastr.indexOf("/# End of Annotation 1 #/") == -1) {
+        if (datastr.indexOf("N2: ") == -1) {
             return false;
         }
-        if (datastr.indexOf("/# Start of Annotation 2 #/") == -1) {
+        if (datastr.indexOf("ST: ") == -1) {
             return false;
         }
-        if (datastr.indexOf("/# End of Annotation 2 #/") == -1) {
-            return false;
-        }
-        if (datastr.indexOf("/# Start of PFP output 1 #/") == -1) {
-            return false;
-        }
-        if (datastr.indexOf("/# End PFP output 1 #/") == -1) {
-            return false;
-        }
-        if (datastr.indexOf("/# Start of PFP output 2 #/") == -1) {
-            return false;
-        }
-        if (datastr.indexOf("/# End PFP output 2 #/") == -1) {
+        int c = datastr.indexOf("FN: ");
+        int c1 = datastr.indexOf("N2: ", c);
+        if (c1 - c < 20) {
             return false;
         }
 
@@ -1091,6 +1179,11 @@ import org.geworkbench.components.alignment.panels.SynMapPresentationList;
     void ProgramBox_actionPerformed(ActionEvent e) {
         jLabelProgram.setText("  Program/Method :  " +
                               (String) ProgramBox.getSelectedItem());
+        if ((ProgramBox.getSelectedItem()).equals("SyntenyMap")) {
+            SynMapParametersComboBox.show();
+        } else {
+            SynMapParametersComboBox.hide();
+        }
     }
 
     void ButtonCancel_actionPerformed(ActionEvent e) {
@@ -1098,6 +1191,7 @@ import org.geworkbench.components.alignment.panels.SynMapPresentationList;
     }
 
 }
+
 
 /**
  * <p>Tree Model Listener</p>
@@ -1119,13 +1213,17 @@ class MyTreeModelListener implements TreeModelListener {
                    (node.getChildAt(index));
         } catch (NullPointerException exc) {}
     }
+
     public void treeNodesInserted(TreeModelEvent e) {
     }
+
     public void treeNodesRemoved(TreeModelEvent e) {
     }
+
     public void treeStructureChanged(TreeModelEvent e) {
     }
 }
+
 
 /**
  * <p>Program Box</p>
@@ -1143,6 +1241,7 @@ class SyntenyParameters_ProgramBox_actionAdapter implements java.awt.event.
     }
 }
 
+
 /**
  * <p>Run Button
  */
@@ -1158,6 +1257,7 @@ class SyntenyParameters_addButton_actionAdapter implements java.awt.event.
         adaptee.addButton_actionPerformed(e);
     }
 }
+
 
 /**
  * <p>Run Button
@@ -1175,6 +1275,7 @@ class SyntenyParameters_runButton_actionAdapter implements java.awt.event.
     }
 }
 
+
 /**
  * <p>Run Button
  */
@@ -1188,5 +1289,19 @@ class SyntenyParameters_cancelButton_actionAdapter implements java.awt.event.
 
     public void actionPerformed(ActionEvent e) {
         adaptee.ButtonCancel_actionPerformed(e);
+    }
+}
+
+
+class SyntenyParameters_redrawButton_actionAdapter implements java.awt.event.
+        ActionListener {
+    SyntenyParameters adaptee;
+
+    SyntenyParameters_redrawButton_actionAdapter(SyntenyParameters adaptee) {
+        this.adaptee = adaptee;
+    }
+
+    public void actionPerformed(ActionEvent e) {
+        adaptee.redrawButton_actionPerformed(e);
     }
 }

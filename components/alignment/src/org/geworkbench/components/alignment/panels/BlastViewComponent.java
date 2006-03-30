@@ -1,29 +1,23 @@
 package org.geworkbench.components.alignment.panels;
 
-import org.geworkbench.components.alignment.blast.BlastParser;
-import org.geworkbench.components.alignment.blast.TextResultParser;
-import org.geworkbench.bison.datastructure.bioobjects.sequence.
-        DSAlignmentResultSet;
-import org.geworkbench.components.alignment.client.HMMDataSet;
-import org.geworkbench.components.alignment.client.SWDataSet;
-import org.geworkbench.builtin.projects.ProjectPanel;
-import org.geworkbench.builtin.projects.ProjectSelection;
-import org.geworkbench.bison.datastructure.biocollections.sequences.
-        CSSequenceSet;
-import org.geworkbench.engine.management.Publish;
-import org.geworkbench.engine.management.Subscribe;
-import org.geworkbench.engine.management.AcceptTypes;
 import org.geworkbench.bison.datastructure.biocollections.DSAncillaryDataSet;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
+import org.geworkbench.bison.datastructure.biocollections.sequences.DSSequenceSet;
+import org.geworkbench.bison.datastructure.bioobjects.sequence.DSAlignmentResultSet;
+import org.geworkbench.builtin.projects.ProjectPanel;
+import org.geworkbench.builtin.projects.ProjectSelection;
+import org.geworkbench.components.alignment.blast.BlastParser;
+import org.geworkbench.components.alignment.blast.TextResultParser;
+import org.geworkbench.components.alignment.client.HMMDataSet;
+import org.geworkbench.components.alignment.client.SWDataSet;
 import org.geworkbench.engine.config.VisualPlugin;
+import org.geworkbench.engine.management.AcceptTypes;
+import org.geworkbench.engine.management.Publish;
+import org.geworkbench.engine.management.Subscribe;
 
 import javax.swing.*;
 import java.awt.*;
 import java.util.Vector;
-import java.util.ArrayList;
-import org.geworkbench.bison.datastructure.bioobjects.sequence.
-        CSAlignmentResultSet;
-import org.geworkbench.components.alignment.blast.NCBIBlastParser;
 
 /**
  * <p>Title: Bioworks</p>
@@ -34,18 +28,15 @@ import org.geworkbench.components.alignment.blast.NCBIBlastParser;
  * @author XZ
  * @version 1.0
  */
-//@AcceptTypes( {SequenceDB.class})public class BlastViewComponent implements
-@AcceptTypes( {DSAlignmentResultSet.class})public class BlastViewComponent implements
-        VisualPlugin {
+
+ @AcceptTypes({DSAlignmentResultSet.class}) public class BlastViewComponent implements VisualPlugin {
 
     private BlastParser bp;
     private Vector hits;
     private BlastViewPanel blastViewPanel;
     private String DEFAULT_FILENAME = "output.txt";
 
-    @Publish public org.geworkbench.events.ProjectNodeAddedEvent
-            publishProjectNodeAddedEvent(org.geworkbench.events.
-                                         ProjectNodeAddedEvent event) {
+    @Publish public org.geworkbench.events.ProjectNodeAddedEvent publishProjectNodeAddedEvent(org.geworkbench.events.ProjectNodeAddedEvent event) {
         return event;
     }
 
@@ -112,70 +103,45 @@ import org.geworkbench.components.alignment.blast.NCBIBlastParser;
      *
      * @param e ProjectEvent
      */
-    @Subscribe public void receive(org.geworkbench.events.ProjectEvent e,
-                                   Object source) {
+    @Subscribe public void receive(org.geworkbench.events.ProjectEvent e, Object source) {
 
         Container parent = blastViewPanel.getParent();
         if (parent instanceof JTabbedPane) {
             ((JTabbedPane) parent).setSelectedComponent(blastViewPanel);
         }
 
-        ProjectSelection selection = ((ProjectPanel) source).getSelection();
-        DSAncillaryDataSet df = selection.getDataSubSet();
-        //DSDataSet sequenceDB = selection.getDataSet();
-        //Get the sequenceDb from DAncillaryDataset not from project.
-        DSDataSet sequenceDB = selection.getDataSet();
-        if (df != null) {
-            sequenceDB = df.getParentDataSet();
-        }
-        if (sequenceDB instanceof CSSequenceSet && df != null) {
-            //update db with the selected file in the project
-            if (df instanceof SWDataSet) {
-                bp = new TextResultParser(((SWDataSet) df).getResultFilePath());
-                bp.parseResults();
-                hits = bp.getHits();
+            ProjectSelection selection = ((ProjectPanel) source).getSelection();
+            DSAncillaryDataSet df = selection.getDataSubSet();
+            DSDataSet sequenceDB = selection.getDataSet();
 
-                blastViewPanel.setResults(hits);
-
-            } else if (df instanceof DSAlignmentResultSet) {
-                if (!((CSAlignmentResultSet) df).getLabel().equals(BlastAppComponent.NCBILABEL)) {
-                    bp = new BlastParser(((DSAlignmentResultSet) df).
-                                         getResultFilePath(), sequenceDB);
-
+            if (sequenceDB instanceof DSSequenceSet && df != null) {
+                //update db with the selected file in the project
+                if (df instanceof SWDataSet) {
+                    bp = new TextResultParser(((SWDataSet) df).getResultFilePath());
                     bp.parseResults();
                     hits = bp.getHits();
-                     //blastViewPanel.setResults(hits);
-                    blastViewPanel.setSequenceDB((CSSequenceSet) sequenceDB);
-                    blastViewPanel.setBlastDataSet(bp.getBlastDataset());
+
+                    blastViewPanel.setResults(hits);
+
+                } else if (df instanceof DSAlignmentResultSet) {
+                    //bp = new BlastParser( ( (CSAlignmentResultSet) df).getResultFilePath());
+                    bp = new BlastParser(((DSAlignmentResultSet) df).getResultFilePath());
+                    bp.parseResults();
+                    hits = bp.getHits();
+                    blastViewPanel.setResults(hits);
                     String summary = bp.getSummary();
-                    blastViewPanel.setSummary(summary);
-                    df.addDescription(summary);
+                    blastViewPanel.displayResults(summary);
+
+                } else if (df instanceof HMMDataSet) {
+
+                    blastViewPanel.setResults(((HMMDataSet) df).getResultFilePath());
+
                 } else {
-                    NCBIBlastParser nbp = new NCBIBlastParser((CSSequenceSet)
-                            sequenceDB, ((DSAlignmentResultSet) df).
-                            getResultFilePath());
-                    nbp.parseResults();
-                    hits = nbp.getHits();
-
-                   //blastViewPanel.setResults(hits);
-                    blastViewPanel.setSequenceDB((CSSequenceSet) sequenceDB);
-                    blastViewPanel.setBlastDataSet(nbp.getBlastDataset());
-
-                    String summary = nbp.getSummary();
-                   blastViewPanel.setSummary(summary);
-                   df.addDescription(summary);
-
-
+                    blastViewPanel.resetToWhite();
                 }
-            } else if (df instanceof HMMDataSet) {
 
-                blastViewPanel.setResults(((HMMDataSet) df).getResultFilePath());
-
-            } else {
-                blastViewPanel.resetToWhite();
             }
 
-        }
 
     }
 

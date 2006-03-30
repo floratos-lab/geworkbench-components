@@ -868,7 +868,8 @@ import org.geworkbench.events.MicroarraySetViewEvent;
             //get the last part of db name
             String[] list = dbName.split("/");
             if (list.length > 1) {
-                dbName = list[list.length - 1];
+                String[]dbNameWithSuffix = list[list.length - 1].split(" ");
+                dbName = dbNameWithSuffix[0];
             } else {
 
             }

@@ -15,9 +15,20 @@ package org.geworkbench.components.alignment.synteny;
  */
 public class SyntenyMapObject {
     int FragmentsNum = 0;
+    int activeFragment = 0;
+
     SyntenyMapFragment[] fragments = new SyntenyMapFragment[50];
 
     public SyntenyMapObject() {
+    }
+
+    public int getActiveFragmentNum(){
+        return activeFragment;
+    }
+
+    public void setActiveFragmentNum(int n){
+        if(n>=0 && n<FragmentsNum)
+            activeFragment=n;
     }
 
     public void addSyntenyFragment(SyntenyMapFragment smf){
