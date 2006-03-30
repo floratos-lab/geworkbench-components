@@ -1,6 +1,6 @@
 package org.geworkbench.components.alignment.synteny;
 
-import java.awt.*;
+import java.awt.Color;
 
 /**
  * <p>Title: Bioworks</p>

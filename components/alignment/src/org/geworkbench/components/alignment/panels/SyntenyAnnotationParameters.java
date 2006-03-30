@@ -1,10 +1,8 @@
 package org.geworkbench.components.alignment.panels;
 
 import java.awt.*;
-import java.awt.event.*;
 import javax.swing.*;
 import org.geworkbench.util.sequences.SequenceAnnotation;
-import org.geworkbench.components.alignment.synteny.DotMatrixViewWidget;
 
 /**
  * <p>Title: Bioworks</p>
@@ -24,7 +22,6 @@ public class SyntenyAnnotationParameters
     extends JPanel {
 
     SyntenyPresentationsList SPL=null;
-
     SequenceAnnotation AnnoX = null;
     SequenceAnnotation AnnoY = null;
 
@@ -50,7 +47,6 @@ public class SyntenyAnnotationParameters
     JScrollPane scrollPane = null;
     BorderLayout borderLayout1 = new BorderLayout();
     JPanel AnnotationSelection = new JPanel();
-    JButton jButton1 = new JButton();
 
     public SyntenyAnnotationParameters() {
         try {
@@ -62,7 +58,6 @@ public class SyntenyAnnotationParameters
     }
 
     void jbInit() throws Exception {
-        SyntenyMarkersTab jMarkersPane = new SyntenyMarkersTab();
 
         scrollPane = new JScrollPane(AnnotationSelection);
         scrollPane.setHorizontalScrollBarPolicy(JScrollPane.
@@ -89,11 +84,7 @@ public class SyntenyAnnotationParameters
             AnnotationSelection.add(AnnoBoxes[tt]);
         }
 
-        jButton1.setText("Redraw");
-        jButton1.addActionListener(new
-                                   SyntenyAnnotationParameters_redrawButton_actionAdapter(this)); // Forming select boxes
         this.add(scrollPane, java.awt.BorderLayout.CENTER);
-        this.add(jButton1, java.awt.BorderLayout.SOUTH);
         scrollPane.getViewport().add(AnnotationSelection);
     }
 
@@ -102,26 +93,23 @@ public class SyntenyAnnotationParameters
         AnnoY = ay;
     }
 
-    void redrawButton_actionPerformed(ActionEvent e) {
+    public String getAnnoString(){
+        String anno_status = new String("");
+
         for (int i = 0; i < NumAnnoKeys; i++) {
             if (AnnoBoxes[i].isSelected()) {
-                ActiveAnnotaton[i] = 1;
-            }
-            else {
-                ActiveAnnotaton[i] = 0;
+                anno_status=anno_status.concat("1");
+            } else {
+                anno_status=anno_status.concat("0");
             }
         }
-        if (AnnoX != null && AnnoY != null) {
-            AdjustActiveAnnoTracks(AnnoX);
-            AdjustActiveAnnoTracks(AnnoY);
-            DotMatrixViewWidget.dmrepaint();
-        }
+        return anno_status;
     }
+
     /**********************************************************/
     public void setSyntenyPresentationsList(SyntenyPresentationsList sl){
         SPL=sl;
     }
-
 
     void AdjustActiveAnnoTracks(SequenceAnnotation Anno) {
         int i, j;
@@ -140,22 +128,6 @@ public class SyntenyAnnotationParameters
                 }
             }
         }
-    }
-
-
-}
-
-
-class SyntenyAnnotationParameters_redrawButton_actionAdapter
-    implements java.awt.event.ActionListener {
-    SyntenyAnnotationParameters adaptee;
-
-    SyntenyAnnotationParameters_redrawButton_actionAdapter(SyntenyAnnotationParameters adaptee) {
-        this.adaptee = adaptee;
-    }
-
-    public void actionPerformed(ActionEvent e) {
-        adaptee.redrawButton_actionPerformed(e);
     }
 }
 

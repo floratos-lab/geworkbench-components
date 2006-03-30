@@ -1,17 +1,15 @@
 package org.geworkbench.components.alignment.synteny;
 
-import org.geworkbench.engine.config.MenuListener;
-import org.geworkbench.engine.config.VisualPlugin;
+import java.beans.*;
+import java.util.*;
 import org.geworkbench.engine.config.events.EventSource;
+import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.events.SequenceDiscoveryTableEvent;
-
+import org.geworkbench.engine.config.MenuListener;
 import javax.swing.event.EventListenerList;
-import java.awt.*;
-import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
-import java.util.HashMap;
+import java.awt.event.ActionEvent;
+import java.awt.Component;
 
 /**
  * <p>Title: Bioworks</p>
@@ -66,8 +64,8 @@ public class FeatureMatrixViewAppComponent
     if (source instanceof ProjectSelection) {
       ProjectSelection selection = (ProjectSelection) source;
       DataSet dataFile = selection.getDataSet();
-      if (dataFile instanceof CSSequenceSet) {
-//        sViewWidget.setSequenceDB( (CSSequenceSet) dataFile);
+      if (dataFile instanceof SequenceDB) {
+//        sViewWidget.setSequenceDB( (SequenceDB) dataFile);
       }
     }
   }

@@ -51,9 +51,9 @@ public class SynMapPresentationList {
     public SynMapPresentationList() {
     }
 
-    public void addAndDisplay(String fl, int f_x, int t_x, int f_y, int t_y){
+    public void addAndDisplay(String fl, int f_x, int t_x, int f_y, int t_y, SyntenyMapViewWidget smvw){
 
-        AnnotX[cur_num] = new SequenceAnnotation();
+/*        AnnotX[cur_num] = new SequenceAnnotation();
         AnnotY[cur_num] = new SequenceAnnotation();
 
         AnnotX[cur_num].setSeqSegmentStart(f_x);
@@ -69,7 +69,7 @@ public class SynMapPresentationList {
         // Activating the annotations
          AdjustActiveAnnoTracks(AnnotX[cur_num]);
          AdjustActiveAnnoTracks(AnnotY[cur_num]);
-
+*/
         // Read dot matrix
         SynMObj[cur_num]=new SyntenyMapObject();
         SynMapParser smp = new SynMapParser(fl, SynMObj[cur_num],f_x,t_x,f_y,t_y);
@@ -81,7 +81,7 @@ public class SynMapPresentationList {
 
 //        SAPar.setAnnotations(AnnotX[cur_num],AnnotY[cur_num]);
 
-        SyntenyMapViewWidget.smrepaint(SynMObj[cur_num]);
+        smvw.smrepaint(SynMObj[cur_num]);
 
 //        SyntenyMapViewWidget.drawNewDotMatrix(DotMObj[cur_num], AnnotX[cur_num], AnnotY[cur_num]);
 //        SyntenyMapViewWidget.smrepaint();
@@ -89,7 +89,7 @@ public class SynMapPresentationList {
         cur_num++;
     }
 
-    void setSyntenyAnnotationParameters(SyntenyAnnotationParameters sp){
+    public void setSyntenyAnnotationParameters(SyntenyAnnotationParameters sp){
         SAPar = sp;
     }
 

@@ -12,7 +12,7 @@
 
 	<mapID target="expr.threshold.filter" url="ExprThreshold Filter.htm"/>
 
-	<mapID target="missing.value.filter" url="MissingValue Filter.htm"/>
+	<mapID target="missing.value.filter" url="Missing Value Filter.HTML"/>
 
 	<mapID target="single.value.filter" url="Affy Detection Filter.HTML"/>
 

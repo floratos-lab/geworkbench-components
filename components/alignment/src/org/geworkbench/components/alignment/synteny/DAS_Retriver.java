@@ -9,10 +9,8 @@ package org.geworkbench.components.alignment.synteny;
  * @version 1.0
  */
 
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
+import java.io.*;
+import java.net.*;
 
 public class DAS_Retriver {
     /**

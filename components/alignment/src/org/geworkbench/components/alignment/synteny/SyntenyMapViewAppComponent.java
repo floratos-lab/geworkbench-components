@@ -1,15 +1,17 @@
 package org.geworkbench.components.alignment.synteny;
 
-import org.geworkbench.engine.config.MenuListener;
-import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.engine.config.events.EventSource;
-import org.geworkbench.events.ProjectEvent;
+import org.geworkbench.engine.config.VisualPlugin;
+import org.geworkbench.engine.config.MenuListener;
+import org.geworkbench.engine.management.AcceptTypes;
 
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.ActionListener;
+import javax.swing.JPanel;
+import java.awt.BorderLayout;
 import java.util.HashMap;
-
+import java.awt.event.ActionListener;
+import java.awt.Component;
+import org.geworkbench.events.ProjectEvent;
+import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 
 
 /**
@@ -21,6 +23,7 @@ import java.util.HashMap;
  * @version 1.0
  */
 
+@AcceptTypes(DSMicroarraySet.class)
 public class SyntenyMapViewAppComponent extends EventSource
     implements VisualPlugin, MenuListener {
 
@@ -88,4 +91,7 @@ public class SyntenyMapViewAppComponent extends EventSource
         // Handle the selection or loading of a new dataset in the application
         // in the context of this component
     }
+
+
+
 }

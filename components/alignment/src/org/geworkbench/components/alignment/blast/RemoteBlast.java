@@ -9,6 +9,7 @@ import java.util.regex.Pattern;
 
 import javax.swing.JProgressBar;
 import javax.swing.JTextArea;
+import java.util.Date;
 
 /**
  * RemoteBlast is a class that implements submission of a protein sequence to
@@ -146,7 +147,11 @@ public class RemoteBlast {
         message =
                 "Put http://www.ncbi.nlm.nih.gov/blast/Blast.cgi?CMD=Put&QUERY=" +
                 query + "&DATABASE=" + dbName + "&PROGRAM=" + programName + "&FILTER=L&HITLIST_SZE=500&AUTO_FORMAT=Semiauto&CDD_SEARCH=on&SHOW_OVERVIEW=on&SERVICE=plain\r\n\r\n";
+//            message =
+//                          "Put http://www.ncbi.nlm.nih.gov/blast/Blast.cgi?CMD=Put&QUERY=" +
+//                          query + "&DATABASE=" + "nt" + "&PROGRAM=" + programName + "&FILTER=L&HITLIST_SZE=500&AUTO_FORMAT=Semiauto&SHOW_OVERVIEW=on&NCBI_GI=on&PAGE=Nucleotides&SERVICE=plain\r\n\r\n";
 
+            System.out.println(message);
         try {
 
             s = new Socket(Blast_SERVER, DEFAULT_PORT);
@@ -166,7 +171,8 @@ public class RemoteBlast {
             //reads each incoming line until it finds the CDD and Blast RIDs.
             while (true) {
                 String data = in.readLine();
-                if (CDD_rid == null) {
+               // System.out.println(data);
+                if (CDD_rid == null && data!= null) {
                     Matcher m1 = p1.matcher(data);
                     Matcher m2 = p2.matcher(data);
                     if (m1.find()) {
@@ -178,6 +184,10 @@ public class RemoteBlast {
                                 "No.putative.conserved.domains.have.been.detected");
                     }
                 }
+                if (data == null) {
+                   break;
+               }
+
                 if (data.equals("<!--QBlastInfoBegin")) {
                     StringTokenizer st = new StringTokenizer(in.readLine(), " ");
                     String str = st.nextToken();
@@ -185,7 +195,7 @@ public class RemoteBlast {
                     s.close();
                     return st.nextToken();
                 }
-                //				System.out.println(data);
+
                 if (data == null) {
                     break;
                 }
@@ -278,8 +288,9 @@ public class RemoteBlast {
         String message =
                 "Get http://www.ncbi.nlm.nih.gov/blast/Blast.cgi?CMD=Get&FORMAT_TYPE=" +
                 format + "&RID=" + rid + "\r\n\r\n";
-
+            System.out.println(new Date() + message);
         runMain(message);
+        System.out.println(new Date() + "END");
         //GetBlast bl = new GetBlast(rid, format);
     }
 
@@ -314,7 +325,7 @@ public class RemoteBlast {
 //                System.out.println("IN HTML" +   data );
                 boolean done = false;
                 while (data != null) {
-//                    System.out.println("IN HTML" +   data );
+                    System.out.println("IN HTML" +   data );
                     if (data.equals("\tStatus=WAITING")) {
                         done = false;
                     } else if (data.equals("\tStatus=READY")) {
@@ -330,7 +341,7 @@ public class RemoteBlast {
                 }
                 if (!done) {
                     textArea.append("Waiting for Blast to finish...\n");
-                    Thread.sleep(20000);
+                    Thread.sleep(5000);
                 }
                 s.close();
             } //end of while (BlastnotDone).

@@ -422,12 +422,12 @@ public class BlastObj {
                         uin));
                 String line;
                 while ((line = in.readLine()) != null) {
-
+                    System.out.println(line);
                     if (line.startsWith("</form><pre>>") ||
                         line.trim().
                         startsWith(
                                 "</div></form><pre>>") ||
-                        line.matches("</div></form><pre>>")) {
+                        line.matches("</div></form><pre>>") ||line.trim().startsWith("<pre><div class='recordbody'>>")) {
                         //  System.out.println("found" + line);
                         String[] str = line.split(">>");
                         int size = 0;
@@ -435,7 +435,8 @@ public class BlastObj {
                         String label = "";
                         if (str.length > 1) {
                             label = ">" + str[1] + "\n";
-                        } while ((line = in.readLine()) != null &&
+                        }
+                        while ((line = in.readLine()) != null &&
                                          !line.startsWith("</pre>")) {
                             size += line.length();
                             if (size >= maxSize) {

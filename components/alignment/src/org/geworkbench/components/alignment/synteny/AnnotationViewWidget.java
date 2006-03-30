@@ -9,14 +9,30 @@ package org.geworkbench.components.alignment.synteny;
  * @version 1.0
  */
 
-import org.geworkbench.util.sequences.SequenceAnnotation;
-
-import javax.swing.*;
 import java.awt.*;
-import java.awt.geom.Rectangle2D;
+import javax.swing.*;
 
-public class AnnotationViewWidget
-    extends JPanel {
+import java.awt.geom.Rectangle2D;
+import org.geworkbench.util.sequences.SequenceAnnotation;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseEvent;
+
+public class AnnotationViewWidget implements MouseListener
+    /* extends JPanel  */{
+
+
+    private JPopupMenu pMenu=new JPopupMenu();
+    private JMenuItem ExpTrack = new JMenuItem();
+    private JMenuItem ManageTracks = new JMenuItem();
+    private JMenuItem ShowRegion = new JMenuItem();
+    private JMenuItem ShowFeature = new JMenuItem();
+    private ActionListener anListener = null;
+
+
+    int lx=0, ty=0;
+    int wx=0, wy=0;
 
     int active_tracks;
     int total_tracks;
@@ -40,12 +56,39 @@ public class AnnotationViewWidget
     int between_tracks = 2;
     Color[] AnnoColor = {
         Color.black, Color.blue, Color.darkGray, Color.red};
+    JMenuBar jMenuBar1 = new JMenuBar();
+
+    public AnnotationViewWidget() {
+        try {
+            jbInit();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    public void AnnotationMenu(int x, int y){
+        pMenu.setVisible(true);
+        pMenu.requestFocus();
+        pMenu.setLocation(x,y);
+        /* Why 100 ????? */
+        pMenu.show();
+    }
 
     public AnnotationViewWidget(Graphics2D g, SequenceAnnotation sa,
                                 AnnotationGraphicalObjects ago, int left,
                                 int top, int width, int height, int direction,
                                 int seqStart, int seqEnd) {
         int k, l, num_in_track, ms, me, js, je;
+
+        lx = left;
+        ty = top;
+        wy = height;
+
+        try {
+            jbInit();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
 
         active_tracks = sa.getActiveAnnoTrackNum();
         total_tracks = sa.getAnnotationTrackNum();
@@ -298,6 +341,48 @@ public class AnnotationViewWidget
                 }
             }
         }
+    }
+
+    private void jbInit() throws Exception {
+
+        anListener = new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                anListener_actionPerformed(e);
+            }
+        };
+
+        ExpTrack.setText("Expand/Compress Annotation track");
+        ManageTracks.setText("Manage Annotation Tracks");
+        ShowRegion.setText("Show region in USCS browser");
+        ShowFeature.setText("Show feature in USCS browser");
+
+        ExpTrack.addActionListener(anListener);
+        ManageTracks.addActionListener(anListener);
+        ShowRegion.addActionListener(anListener);
+        ShowFeature.addActionListener(anListener);
+
+        pMenu.add(ExpTrack);
+        pMenu.add(ManageTracks);
+        pMenu.addSeparator();
+        pMenu.add(ShowRegion);
+        pMenu.add(ShowFeature);
+
+    }
+
+    private void anListener_actionPerformed(ActionEvent e){
+        System.out.println("Menu item!");
+        pMenu.setVisible(false);
+    }
+
+    public void mouseExited(MouseEvent e) {
+    }
+    public void mouseClicked(MouseEvent e) {
+    }
+    public void mousePressed(MouseEvent e) {
+    }
+    public void mouseReleased(MouseEvent e) {
+    }
+    public void mouseEntered(MouseEvent e) {
     }
 }
 

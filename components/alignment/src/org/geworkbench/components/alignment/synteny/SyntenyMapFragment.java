@@ -22,6 +22,7 @@ public class SyntenyMapFragment {
     String LowerChromosome = null;
     String UpperGenome = null;
     String LowerGenome = null;
+    String[] WeightNames = null;
     String[] UpperObjectsNames = null;
     String[] LowerObjectsNames = null;
 
@@ -36,11 +37,13 @@ public class SyntenyMapFragment {
     int[] LowerObjectsEnds = null;
 
     int[][] SyntenyPairs = null;
-    double[] SyntenyPairsWeight = null;
+    double[][] SyntenyPairsWeight = null;
 
     int SyntenyPairsNum = 0;
     int UpperObjectsNum = 0;
     int LowerObjectsNum = 0;
+    int WeightTypesNum = 1;
+    int ActiveWeightType = 0;
 
     public SyntenyMapFragment(int un, int ln){
 
@@ -48,7 +51,7 @@ public class SyntenyMapFragment {
 
         // upper number, lower number, number of pairs
         SyntenyPairs = new int[np][2];
-        SyntenyPairsWeight = new double[np];
+        SyntenyPairsWeight = new double[np][];
 
         UpperObjectsNames = new String[un];
         LowerObjectsNames = new String[ln];
@@ -87,9 +90,29 @@ public class SyntenyMapFragment {
             LowerObjectsNames[n]=new String(nm);
     }
 
+    public void setWeightName(int n, String nm){
+            WeightNames[n]=new String(nm);
+    }
+
+//    public void setWeightTypesNum(int n){
+//        WeightNames = new String[n];
+//        for(int i=0;i<SyntenyPairsNum;i++){
+//            SyntenyPairsWeight[i]=new double[n];
+//        }
+//    }
+
+    public void setWeightTypeNum(int n){
+
+        WeightTypesNum = n;
+        WeightNames = new String[WeightTypesNum];
+        for(int j=0;j<SyntenyPairsNum;j++){
+            SyntenyPairsWeight[j]=new double[WeightTypesNum];
+        }
+    }
+
     /**
      * Setting starts
-     * @param nms String[]
+     * // @param nms String[]
      */
     public void setUpperStarts(int[] sta){
         for(int i=0; i<UpperObjectsNum;i++){
@@ -113,7 +136,7 @@ public class SyntenyMapFragment {
 
     /**
      * Setting starts
-     * @param nms String[]
+     * //@param nms String[]
      */
     public void setUpperEnds(int[] sta){
         for(int i=0; i<UpperObjectsNum;i++){
@@ -135,46 +158,62 @@ public class SyntenyMapFragment {
             LowerObjectsEnds[n]=s;
     }
 
+    public void setActiveWeightType(int n){
+            ActiveWeightType=n;
+    }
+
     /**
      * Setting pairs
-     * @param nms String[]
+     * //@param nms String[]
      */
     public void setPairs(int[] first, int[] second, int[] weight){
         for(int i=0;i<SyntenyPairsNum;i++){
             SyntenyPairs[i][0]=first[i];
             SyntenyPairs[i][1]=second[i];
-            SyntenyPairsWeight[i]=weight[i];
+            SyntenyPairsWeight[i][ActiveWeightType]=weight[i];
         }
     }
 
     public void addPair(int n, int first, int second, double weight){
         SyntenyPairs[n][0]=first;
         SyntenyPairs[n][1]=second;
-        SyntenyPairsWeight[n]=weight;
+        SyntenyPairsWeight[n][ActiveWeightType]=weight;
     }
 
     public void setUpperName(String nm){
-        UpperName = new String(nm);
+        if(nm != null){
+            UpperName = new String(nm);
+        }
     }
 
     public void setLowerName(String nm){
-        LowerName = new String(nm);
+        if(nm != null){
+            LowerName = new String(nm);
+        }
     }
 
     public void setLowerChromosome(String chr){
-        LowerChromosome = new String(chr);
+        if(chr != null){
+            LowerChromosome = new String(chr);
+        }
     }
 
     public void setUpperChromosome(String chr){
-        UpperChromosome = new String(chr);
+        if(chr != null){
+            UpperChromosome = new String(chr);
+        }
     }
 
     public void setLowerGenome(String gnm){
-        LowerGenome = new String(gnm);
+        if(gnm != null){
+            LowerGenome = new String(gnm);
+        }
     }
 
     public void setUpperGenome(String gnm){
-        UpperGenome = new String(gnm);
+        if(gnm != null){
+            UpperGenome = new String(gnm);
+        }
     }
 
     public void setUpperCoordinates(int from, int to){
@@ -187,15 +226,24 @@ public class SyntenyMapFragment {
         LowerTo = to;
     }
 
-
     /**
      * Accessors
      */
 
+    public String getWeightName(int n){
+        if(WeightNames[n]!=null)
+            return WeightNames[n];
+        else
+            return "Unknown";
+    }
+
+    public int getWeightTypesNum(){
+            return WeightTypesNum;
+    }
+
     public String getSingleUpperName(int n){
             return UpperObjectsNames[n];
     }
-
     public String getSingleLowerName(int n){
             return LowerObjectsNames[n];
     }
@@ -225,7 +273,7 @@ public class SyntenyMapFragment {
     }
 
     public double getPairWeight(int n){
-        return SyntenyPairsWeight[n];
+        return SyntenyPairsWeight[n][ActiveWeightType];
     }
 
     public String getUpperName(){
@@ -303,5 +351,21 @@ public class SyntenyMapFragment {
     }
     public int getUpperPair(int n){
         return SyntenyPairs[n][0];
+    }
+    public void adjustCoordinates(){
+        int i;
+
+        for (i = 0; i < UpperObjectsNum; i++) {
+            if (UpperFrom > UpperObjectsStarts[i]) UpperFrom =
+                    UpperObjectsStarts[i] - 20;
+            if (UpperTo < UpperObjectsEnds[i]) UpperTo = UpperObjectsEnds[i] +
+                    20;
+        }
+        for (i = 0; i < LowerObjectsNum; i++) {
+            if (LowerFrom > LowerObjectsStarts[i]) LowerFrom =
+                    LowerObjectsStarts[i] - 20;
+            if (LowerTo < LowerObjectsEnds[i]) LowerTo = LowerObjectsEnds[i] +
+                    20;
+        }
     }
 }

@@ -21,10 +21,11 @@ import org.geworkbench.components.alignment.synteny.DotsParser;
  * @version 1.0
  */
 public class SyntenyPresentationsList {
+
     DotMatrixObj[] DotMObj = new DotMatrixObj[50];
     SequenceAnnotation[] AnnotX = new SequenceAnnotation[50];
     SequenceAnnotation[] AnnotY = new SequenceAnnotation[50];
-
+    DotMatrixViewWidget DotMVW = null;
     SyntenyAnnotationParameters SAPar=null;
 
     String[] AnnoKeys = {
@@ -50,7 +51,7 @@ public class SyntenyPresentationsList {
 
     }
 
-    public void addAndDisplay(String fl,int f_x,int t_x,int f_y,int t_y){
+    public void addAndDisplay(String fl,int f_x,int t_x,int f_y,int t_y, DotMatrixViewWidget dmvw){
 
         AnnotX[cur_num] = new SequenceAnnotation();
         AnnotY[cur_num] = new SequenceAnnotation();
@@ -82,12 +83,55 @@ public class SyntenyPresentationsList {
 
         SAPar.setAnnotations(AnnotX[cur_num],AnnotY[cur_num]);
 
-        DotMatrixViewWidget.drawNewDotMatrix(DotMObj[cur_num], AnnotX[cur_num], AnnotY[cur_num]);
-        DotMatrixViewWidget.dmrepaint();
+        dmvw.drawNewDotMatrix(DotMObj[cur_num], AnnotX[cur_num], AnnotY[cur_num]);
+        dmvw.dmrepaint();
         cur_num++;
+        DotMVW = dmvw;
     }
 
-    void setSyntenyAnnotationParameters(SyntenyAnnotationParameters sp){
+    public void redrawAnnotation(String as){
+        int i, j;
+
+        if(DotMVW == null)return;
+        if(AnnotX[cur_num-1]==null)return;
+        if(AnnotY[cur_num-1]==null)return;
+
+        int real_an = AnnotX[cur_num-1].getAnnotationTrackNum();
+        for (i = 0; i < as.length(); i++) {
+            String ak = AnnoKeys[i];
+            for(j=0;j<real_an;j++){
+                if((AnnotX[cur_num-1].getAnnotationTrack(j).
+                                      getAnnotationName()).compareTo(ak)==0){
+                                      if (as.charAt(i) == '0') {
+                                          AnnotX[cur_num - 1].setAnnoTrackActive(j, false);
+                                      } else {
+                                          AnnotX[cur_num - 1].setAnnoTrackActive(j, true);
+                                      }
+                                  }
+
+            }
+        }
+
+        real_an = AnnotY[cur_num-1].getAnnotationTrackNum();
+        for (i = 0; i < as.length(); i++) {
+            String ak = AnnoKeys[i];
+            for(j=0;j<real_an;j++){
+                if((AnnotY[cur_num-1].getAnnotationTrack(j).
+                                      getAnnotationName()).compareTo(ak)==0){
+                                      if (as.charAt(i) == '0') {
+                                          AnnotY[cur_num - 1].setAnnoTrackActive(j, false);
+                                      } else {
+                                          AnnotY[cur_num - 1].setAnnoTrackActive(j, true);
+                                      }
+                                  }
+
+            }
+        }
+
+        DotMVW.dmrepaint();
+    }
+
+    public void setSyntenyAnnotationParameters(SyntenyAnnotationParameters sp){
         SAPar = sp;
     }
 
