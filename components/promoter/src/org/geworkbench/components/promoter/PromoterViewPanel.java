@@ -35,6 +35,8 @@ import java.io.*;
 import java.text.DecimalFormat;
 import java.util.*;
 import java.util.List;
+import java.net.URL;
+import java.net.MalformedURLException;
 
 /**
  * <p>Widget provides all GUI services for sequence panel displays.</p>
@@ -1577,9 +1579,23 @@ public class PromoterViewPanel extends JPanel {
 
     void load13KBSet() {
         if (background == null) {
-            String file = System.getProperty("temporary.files.directory") +
-                          "13K.fa";
-            background = CSSequenceSet.getSequenceDB(new File(file));
+            try {
+                URL set13K = new URL(System.getProperty("data.download.site") + "13K.fa");
+                File set13KFile = new File(System.getProperty("temporary.files.directory") + "13K.fa");
+                if (!set13KFile.exists()){
+                    BufferedReader br = new BufferedReader(new InputStreamReader(set13K.openStream()));
+                    BufferedWriter bw = new BufferedWriter(new FileWriter(set13KFile));
+                    String line = null;
+                    while ((line = br.readLine()) != null){
+                        bw.write(line + "\n");
+                    }
+                    bw.flush();
+                    bw.close();
+                    br.close();
+                }
+                background = CSSequenceSet.getSequenceDB(set13KFile);
+            } catch (MalformedURLException mfe){mfe.printStackTrace();
+            } catch (IOException ioe) {ioe.printStackTrace();}
         }
     }
 
