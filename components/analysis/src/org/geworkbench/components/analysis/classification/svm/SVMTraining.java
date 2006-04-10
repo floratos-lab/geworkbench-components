@@ -3,27 +3,19 @@ package org.geworkbench.components.analysis.classification.svm;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.analysis.AbstractAnalysis;
-import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
-import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.model.analysis.ClusteringAnalysis;
 import org.geworkbench.bison.algorithm.classification.Classifier;
 import org.geworkbench.components.analysis.classification.AbstractTraining;
-import org.geworkbench.engine.management.Subscribe;
-import org.geworkbench.events.PhenotypeSelectorEvent;
-import org.geworkbench.events.ProjectEvent;
 import org.geworkbench.util.ClassifierException;
-import org.geworkbench.util.svm.SVMPhenotypeClassifier;
+import org.geworkbench.util.svm.SVMClassifier;
 import org.geworkbench.util.svm.SupportVectorMachine;
 
 import javax.swing.*;
 import java.util.List;
-import java.util.Random;
 
 public class SVMTraining extends AbstractTraining implements ClusteringAnalysis {
 
     static Log log = LogFactory.getLog(SVMTraining.class);
-
-    Random rand = new Random();
 
     private static class Indexable implements Comparable {
 
@@ -62,12 +54,13 @@ public class SVMTraining extends AbstractTraining implements ClusteringAnalysis 
     protected Classifier trainClassifier(List<float[]> caseData, List<float[]> controlData) {
         log.debug("Training classifier.");
         // Get params
-        float epsilon = panel.getEpsilon();
-        float c = panel.getC();
+        SVMTrainingPanel svmPanel = (SVMTrainingPanel) panel;
+        float epsilon = svmPanel.getEpsilon();
+        float c = svmPanel.getC();
         SupportVectorMachine svm = null;
-        SVMPhenotypeClassifier classifier = null;
+        SVMClassifier classifier = null;
         try {
-            svm = new SupportVectorMachine(caseData, controlData, panel.getSelectedKernel(), 0.1f);
+            svm = new SupportVectorMachine(caseData, controlData, svmPanel.getSelectedKernel(), 0.1f);
             // SMO
             svm.buildSupportVectorsSMO(c, epsilon);
             log.debug("Classifier training complete.");

@@ -109,6 +109,7 @@ public abstract class AbstractTrainingPanel extends AbstractSaveableParameterPan
 
     protected void jbInit() throws Exception {
         initUI();
+        numberFolds = new JFormattedTextField(3);
 
         crossTest.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -146,8 +147,8 @@ public abstract class AbstractTrainingPanel extends AbstractSaveableParameterPan
                         try {
                             for (int i = 0; i < cross.getNumFolds() && !isCancelled(); i++) {
                                 KFoldCrossValidation.CrossValidationData crossData = cross.getData(i);
-                                log.debug("Training classifier data set " + (i+1) + "/"+numFolds);
-                                trainingMessage.setText(DEFAULT_TRAINING_MESSAGE + " (fold "+ (i+1) + "/"+numFolds +")");
+                                log.debug("Training classifier data set " + (i + 1) + "/" + numFolds);
+                                trainingMessage.setText(DEFAULT_TRAINING_MESSAGE + " (fold " + (i + 1) + "/" + numFolds + ")");
 
                                 java.util.List<float[]> trainingCaseData = crossData.getTrainingCaseData();
                                 java.util.List<float[]> trainingControlData = crossData.getTrainingControlData();
@@ -161,7 +162,7 @@ public abstract class AbstractTrainingPanel extends AbstractSaveableParameterPan
                                     }
                                 }
                                 numTruePositives += numPositive;
-                                numFalseNegatives += (crossData.getTestCaseData().size()-numPositive);
+                                numFalseNegatives += (crossData.getTestCaseData().size() - numPositive);
 
                                 numPositive = 0;
                                 for (float[] values : crossData.getTestControlData()) {
@@ -170,11 +171,11 @@ public abstract class AbstractTrainingPanel extends AbstractSaveableParameterPan
                                     }
                                 }
                                 numFalsePositives += numPositive;
-                                numTrueNegatives += (crossData.getTestControlData().size()-numPositive);
+                                numTrueNegatives += (crossData.getTestControlData().size() - numPositive);
                             }
 
                             if (!isCancelled()) {
-                                log.debug("Results of "+numFolds+" fold analysis: ");
+                                log.debug("Results of " + numFolds + " fold analysis: ");
                                 log.debug("FP\tFN\tTP\tTN");
                                 log.debug(numFalsePositives + "\t" + numFalseNegatives + "\t" + numTruePositives + "\t" + numTrueNegatives);
                             } else {
@@ -182,8 +183,12 @@ public abstract class AbstractTrainingPanel extends AbstractSaveableParameterPan
                             }
 
                         } catch (ClassifierException e1) {
+                            log.error(e1);
                             errorString = e1.getMessage();
                             setTrainingStatus("Error");
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            log.error(e);
                         }
 
                         return null;

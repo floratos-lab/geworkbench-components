@@ -29,7 +29,7 @@ import java.util.ArrayList;
  * @author John Watkinson
  */
 public abstract class AbstractTraining extends AbstractAnalysis {
-    protected SVMTrainingPanel panel;
+    protected AbstractTrainingPanel panel;
 
     public AlgorithmExecutionResults execute(Object input) {
         assert (input instanceof DSMicroarraySetView);
