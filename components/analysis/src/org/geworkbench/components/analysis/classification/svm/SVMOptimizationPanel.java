@@ -36,11 +36,13 @@ public class SVMOptimizationPanel extends AbstractSaveableParameterPanel impleme
 
     private static final double DEFAULT_EPSILON_VALUE = 0.001;
     private static final double DEFAULT_C_VALUE = 1;
+    private static final double DEFAULT_GAMMA_VALUE = 1;
 
     private JFormattedTextField epsilon = new JFormattedTextField();
     private JFormattedTextField C = new JFormattedTextField();
     private JFormattedTextField numberFolds = new JFormattedTextField();
     private JComboBox kernelFunctionCombo = new JComboBox();
+    private JFormattedTextField gamma = new JFormattedTextField();
     private ProgressGraph progressGraph = new ProgressGraph(0, 20, 100);
     private JLabel trainingMessage = new JLabel(DEFAULT_TRAINING_MESSAGE);
     private JLabel falsePositives = new JLabel();
@@ -61,22 +63,25 @@ public class SVMOptimizationPanel extends AbstractSaveableParameterPanel impleme
 
         private Number epsilon;
         private Number C;
+        private Number gamma;
 
-        public SerializedInstance(Number epsilon, Number c) {
+        public SerializedInstance(Number epsilon, Number c,  Number gamma) {
             this.epsilon = epsilon;
             this.C = c;
+            this.gamma = gamma;
         }
 
         Object readResolve() throws ObjectStreamException {
             SVMOptimizationPanel panel = new SVMOptimizationPanel();
             panel.epsilon.setValue(epsilon);
             panel.C.setValue(C);
+            panel.gamma.setValue(gamma);
             return panel;
         }
     }
 
     Object writeReplace() throws ObjectStreamException {
-        return new SerializedInstance((Number) epsilon.getValue(), (Number) C.getValue());
+        return new SerializedInstance((Number) epsilon.getValue(), (Number) C.getValue(), (Number)gamma.getValue());
     }
 
     public SVMOptimizationPanel() {
@@ -93,11 +98,23 @@ public class SVMOptimizationPanel extends AbstractSaveableParameterPanel impleme
         epsilon.setValue(DEFAULT_EPSILON_VALUE);
         C = new JFormattedTextField(new DecimalFormat());
         C.setValue(DEFAULT_C_VALUE);
+        gamma = new JFormattedTextField(new DecimalFormat());
+        gamma.setEnabled(false);
+        gamma.setValue(DEFAULT_GAMMA_VALUE);
         numberFolds = new JFormattedTextField(3);
         kernelFunctionCombo.addItem(SupportVectorMachine.LINEAR_KERNAL_FUNCTION.toString());
         kernelFunctionCombo.addItem(SupportVectorMachine.LINEAR_KERNAL_FUNCTION_2ND_POWER.toString());
         kernelFunctionCombo.addItem(SupportVectorMachine.RADIAL_BASIS_KERNEL.toString());
 
+        kernelFunctionCombo.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                if (kernelFunctionCombo.getSelectedItem().equals(SupportVectorMachine.RADIAL_BASIS_KERNEL.toString())) {
+                    gamma.setEnabled(true);
+                } else {
+                    gamma.setEnabled(false);
+                }
+            }
+        });
         final JComponent workerParent = this;
 
         crossTest.addActionListener(new ActionListener() {
@@ -260,6 +277,7 @@ public class SVMOptimizationPanel extends AbstractSaveableParameterPanel impleme
         builder.append("Epsilon", epsilon);
         builder.append("Alpha Bound (C)", C);
         builder.append("Kernel Function", kernelFunctionCombo);
+        builder.append("Gamma", gamma);
         builder.nextLine();
 
         builder.appendSeparator("Test Classifier Accuracy");

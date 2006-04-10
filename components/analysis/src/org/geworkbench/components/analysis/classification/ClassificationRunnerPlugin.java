@@ -37,15 +37,19 @@ public class ClassificationRunnerPlugin extends JPanel implements VisualPlugin {
 
 
     public ClassificationRunnerPlugin() {
-//        infoLabel = new JLabel("This classifier will run on data classified as Test.");
-//        add(infoLabel);
+        setLayout(new BorderLayout());
+        JPanel internalPanel = new JPanel();
+        internalPanel.setLayout(new BoxLayout(internalPanel, BoxLayout.Y_AXIS));
+        add(internalPanel, BorderLayout.CENTER);
+        infoLabel = new JLabel("This classifier will run on activated panels classified as Test.");
+        internalPanel.add(infoLabel);
         classifyButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 // Get data and run classifier on it.
 
                 DSAnnotationContext<DSMicroarray> context = CSAnnotationContextManager.getInstance().getCurrentContext(microarraySet);
                 DSPanel<DSMicroarray> panel = context.getItemsForClass(CSAnnotationContext.CLASS_TEST);
-                log.debug("Running classifier on "+panel.size()+" test items.");
+                log.debug("Running classifier on " + panel.size() + " test items.");
                 DSPanel<DSMicroarray> newPanel = new CSPanel<DSMicroarray>("Classification Results");
                 for (DSMicroarray microarray : panel) {
                     if (classifier.classify(microarray).equals(classifier.getClassifications()[0])) {
@@ -56,7 +60,7 @@ public class ClassificationRunnerPlugin extends JPanel implements VisualPlugin {
                 log.debug("Added group.");
             }
         });
-        add(classifyButton);
+        internalPanel.add(classifyButton);
     }
 
     public Component getComponent() {

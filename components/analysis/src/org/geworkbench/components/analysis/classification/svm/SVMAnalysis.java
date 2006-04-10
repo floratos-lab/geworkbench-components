@@ -68,7 +68,7 @@ public class SVMAnalysis extends AbstractAnalysis implements ClusteringAnalysis 
     private SVMOptimizationPanel panel;
 
     public SVMAnalysis() {
-        setLabel("SVM Analysis");
+        setLabel("SVM Classifier");
         panel = new SVMOptimizationPanel();
         setDefaultPanel(panel);
     }
@@ -89,11 +89,11 @@ public class SVMAnalysis extends AbstractAnalysis implements ClusteringAnalysis 
         DSAnnotationContext<DSMicroarray> context = CSAnnotationContextManager.getInstance().getCurrentContext(maSet);
 
         List<float[]> caseData = new ArrayList<float[]>();
-        addMicroarrayData(context.getItemsForClass(CSAnnotationContext.CLASS_CASE), caseData, markers);
+        addMicroarrayData(context.getActivatedItemsForClass(CSAnnotationContext.CLASS_CASE), caseData, markers);
         List<float[]> controlData = new ArrayList<float[]>();
-        addMicroarrayData(context.getItemsForClass(CSAnnotationContext.CLASS_CONTROL), controlData, markers);
+        addMicroarrayData(context.getActivatedItemsForClass(CSAnnotationContext.CLASS_CONTROL), controlData, markers);
         List<float[]> testData = new ArrayList<float[]>();
-        addMicroarrayData(context.getItemsForClass(CSAnnotationContext.CLASS_TEST), testData, markers);
+        addMicroarrayData(context.getActivatedItemsForClass(CSAnnotationContext.CLASS_TEST), testData, markers);
 
         log.debug("Training classifier.");
         SupportVectorMachine svm = null;

@@ -19,6 +19,7 @@ import org.geworkbench.components.alignment.panels.SyntenyAnnotationParameters;
 //import org.geworkbench.bison.datastructure.biocollections.views.DSSyntenyView;
 //import org.geworkbench.bison.datastructure.biocollections.views.CSSyntenyView;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
+import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 
 /**
  * <p>Title: </p>
@@ -33,7 +34,7 @@ import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
  * @version 1.0
  */
 
-@AcceptTypes({DSDataSet.class}) public class SyntenyViewAppComponent extends EventSource
+@AcceptTypes({DSMicroarraySet.class}) public class SyntenyViewAppComponent extends EventSource
     implements VisualPlugin, MenuListener {
 
 
