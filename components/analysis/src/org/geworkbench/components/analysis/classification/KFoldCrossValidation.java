@@ -1,4 +1,4 @@
-package org.geworkbench.components.analysis.classification.svm;
+package org.geworkbench.components.analysis.classification;
 
 import java.util.ArrayList;
 import java.util.List;
