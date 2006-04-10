@@ -275,12 +275,12 @@ public class BlastParser {
                                 endofResult = true;
                                 break;
                             }
-                            boolean additionalDetail = false;
+                            boolean additionalAlignedParts = false;
                             if (line.trim().startsWith("Score")) {
                                 index--;
-                                additionalDetail = true;
-                                //  System.out.println(additionalDetail + line);
-
+                                additionalAlignedParts = true;
+                                //  System.out.println(additionalAlignedParts + line);
+                                System.out.println(index + " = index " + line);
                             }
                             //System.out.println("index"  + index + " " + hits.size());
                             String detaillines = "<PRE>" + line;
@@ -291,7 +291,7 @@ public class BlastParser {
                             if (count > 60) {
                                 //System.out.println(count);
                             }
-                            //System.out.println(each.getName());
+                            System.out.println(each.getName());
                             //skip the beginning description
                             subject = "";
                             boolean getStartPoint = true;
@@ -304,69 +304,80 @@ public class BlastParser {
                                     endofResult = true;
                                     break;
                                 }
-
-                                if (line.startsWith("Length")) {
-                                    each.setLength(new Integer(line.substring(8).
-                                            trim()).intValue());
-                                }
-                                if (line.startsWith("Identities = ")) {
-                                    /**todo
-                                     * use Matchs pattern later.
-                                     */
-                                    StringTokenizer st1 = new StringTokenizer(
-                                            line,
-                                            "(");
-                                    st1.nextToken();
-                                    String identity = st1.nextToken();
-                                    String[] s = identity.split("%");
-                                    each.setPercentAligned(new Integer(s[0]).
-                                            intValue());
-
-                                }
-                                // get the start point, end point and length
-
-                                if (line.trim().startsWith("Sbjct")) {
-                                    st = new StringTokenizer(line);
-                                    st.nextToken();
-                                    if (getStartPoint) {
-                                        each.setStartPoint(Integer.valueOf(st.
-                                                nextToken()).intValue());
-                                        getStartPoint = false;
-                                    } else {
-                                        st.nextToken();
+                                if (!additionalAlignedParts) {
+                                    if (line.startsWith("Length")) {
+                                        each.setLength(new Integer(line.
+                                                substring(8).
+                                                trim()).intValue());
                                     }
-                                    //concat the aligned parts and get rid of "-"
-                                    subject = subject.concat(st.nextToken().
-                                            replaceAll("-", ""));
+                                    if (line.startsWith("Identities = ")) {
+                                        /**todo
+                                         * use Matchs pattern later.
+                                         */
+                                        StringTokenizer st1 = new
+                                                StringTokenizer(
+                                                line,
+                                                "(");
+                                        st1.nextToken();
+                                        String identity = st1.nextToken();
+                                        String[] s = identity.split("%");
+                                        each.setPercentAligned(new Integer(s[0]).
+                                                intValue());
 
-                                    endPoint = Integer.valueOf(st.nextToken()).
-                                               intValue();
+                                    }
+                                    // get the start point, end point and length
+
+                                    if (line.trim().startsWith("Sbjct")) {
+                                        st = new StringTokenizer(line);
+                                        st.nextToken();
+                                        if (getStartPoint) {
+                                            each.setStartPoint(Integer.valueOf(
+                                                    st.
+                                                    nextToken()).intValue());
+                                            getStartPoint = false;
+                                        } else {
+                                            st.nextToken();
+                                        }
+                                        //concat the aligned parts and get rid of "-"
+                                        subject = subject.concat(st.nextToken().
+                                                replaceAll("-", ""));
+
+                                        endPoint = Integer.valueOf(st.nextToken()).
+                                                intValue();
+                                    }
+
                                 }
-
                                 //System.out.println(each.getStartPoint() + "" + each.getEndPoint());
                                 String s = br.readLine();
                                 line = s.trim();
 
                                 detaillines += s + NEWLINESIGN;
                             }
-                            each.setEndPoint(endPoint);
-                            each.setAlignmentLength(Math.abs(each.getStartPoint() -
-                                    each.getEndPoint() + 1));
-                            each.setSubject(subject);
-                            //System.out.println("sub" + subject);
+
+                            detaillines += "</PRE>";
+
+                            //System.out.println(detaillines);
+                            if (additionalAlignedParts) {
+                                String previousDetail = each.
+                                        getDetailedAlignment();
+                                detaillines = previousDetail + detaillines;
+                            } else {
+                                each.setEndPoint(endPoint);
+                                each.setAlignmentLength(Math.abs(each.getEndPoint() - each.
+                                        getStartPoint()  + 1));
+                                System.out.println("ENDPOINT" + endPoint + " " +
+                                        each.getStartPoint() + " " +
+                                        each.getAlignmentLength() +
+                                        subject);
+                                each.setSubject(subject);
+
+                            }
+                            each.setDetailedAlignment(detaillines);
                             if (endofResult) {
                                 endofResult = false;
                                 break;
                             }
-                            detaillines += "</PRE>";
 
-                            //System.out.println(detaillines);
-                            if (additionalDetail) {
-                                String previousDetail = each.
-                                        getDetailedAlignment();
-                                detaillines = previousDetail + detaillines;
-                            }
-                            each.setDetailedAlignment(detaillines);
                             br.readLine();
                             br.readLine();
                             line = br.readLine();

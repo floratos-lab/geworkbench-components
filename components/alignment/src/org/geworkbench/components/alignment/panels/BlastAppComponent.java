@@ -111,7 +111,7 @@ import org.geworkbench.events.MicroarraySetViewEvent;
     JTextField jstartPointField = new JTextField();
     JTextField jendPointField = new JTextField();
     CardLayout cardLayout1 = new CardLayout();
-    JProgressBar progressBar = new JProgressBar();
+    JProgressBar serviceProgressBar = new JProgressBar();
     JPanel progressBarPanel1 = new JPanel();
     JLabel jLabel5 = new JLabel();
     JPanel subSeqPanel1 = new JPanel();
@@ -244,7 +244,7 @@ import org.geworkbench.events.MicroarraySetViewEvent;
         jstartPointField = new JTextField();
         jendPointField = new JTextField();
         cardLayout1 = new CardLayout();
-        progressBar = new JProgressBar();
+        serviceProgressBar = new JProgressBar();
         progressBarPanel1 = new JPanel();
         jLabel5 = new JLabel();
         subSeqPanel1 = new JPanel();
@@ -334,8 +334,8 @@ import org.geworkbench.events.MicroarraySetViewEvent;
         jLabel4.setText("jLabel4");
         jLabel9.setText("Program: ");
         jToolBar1.setBorder(null);
-        progressBar.setMinimumSize(new Dimension(10, 26));
-        progressBar.setPreferredSize(new Dimension(104, 26));
+        serviceProgressBar.setMinimumSize(new Dimension(10, 26));
+        serviceProgressBar.setPreferredSize(new Dimension(104, 26));
 
         checkboxPanel.setLayout(xYLayout2);
         jBasicPane.setPreferredSize(new Dimension(364, 250));
@@ -396,7 +396,7 @@ import org.geworkbench.events.MicroarraySetViewEvent;
         jMatrixBox.addActionListener(new
                                      BlastAppComponent_jMatrixBox_actionAdapter(this));
         // this.setLayout(borderLayout1);
-        maskLookupOnlyBox.setText("Mask the lookup table only");
+        maskLookupOnlyBox.setText("Mask the lookup table.");
         maskLookupOnlyBox.setMinimumSize(new Dimension(5, 23));
         maskLookupOnlyBox.setMnemonic('0');
         maskLookupOnlyBox.setSelected(false);
@@ -591,10 +591,10 @@ import org.geworkbench.events.MicroarraySetViewEvent;
 
 //        jTabbedHmmPane.add(jHMMPane, "HMM");
 //        jTabbedHmmPane.add(jAdvancedPane, "Advanced Options");
-        jToolBar2.add(progressBar);
-        progressBar.setOrientation(JProgressBar.HORIZONTAL);
-        progressBar.setBorder(BorderFactory.createEtchedBorder());
-        progressBar.setStringPainted(true);
+        jToolBar2.add(serviceProgressBar);
+        serviceProgressBar.setOrientation(JProgressBar.HORIZONTAL);
+        serviceProgressBar.setBorder(BorderFactory.createEtchedBorder());
+        serviceProgressBar.setStringPainted(true);
         //jPanel6.add(algorithmSearch, null);
         //jPanel6.add(jButton1, null);
         jOtherAlgorithemPane.add(progressBarPanel1,
@@ -902,12 +902,13 @@ import org.geworkbench.events.MicroarraySetViewEvent;
                                         ".html";
                     //progressBar = new JProgressBar(0, 100);
 
-                    progressBar.setForeground(Color.BLUE);
-                    progressBar.setBackground(Color.WHITE);
+                    serviceProgressBar.setForeground(Color.BLUE);
+                    serviceProgressBar.setBackground(Color.WHITE);
 
-                    progressBar.setIndeterminate(true);
-                    progressBar.setString(
-                            "Please wait for response from NCBI BLAST Server...");
+//                    serviceProgressBar.setIndeterminate(true);
+//                    serviceProgressBar.setString(
+//                            "Please wait for response from NCBI BLAST Server...");
+                    updateProgressBar(10, "Wait...");
                     if (fastaFile == null && activeSequenceDB != null) {
                         fastaFile = (CSSequenceSet) activeSequenceDB;
                     }
@@ -919,7 +920,7 @@ import org.geworkbench.events.MicroarraySetViewEvent;
                     BlastAlgorithm blastAlgo = new BlastAlgorithm();
                     blastAlgo.setUseNCBI(true);
                     blastAlgo.setParameterSetting(parameterSetting);
-                    blastAlgo.setProgressBar(progressBar);
+                    blastAlgo.setProgressBar(serviceProgressBar);
                     //       blastAlgo.setBlastAppComponent(blastAppComponent);
                     blastAlgo.setBlastAppComponent(this);
                     blastAlgo.setSoapClient(sc);
@@ -978,11 +979,11 @@ import org.geworkbench.events.MicroarraySetViewEvent;
                                         ".html";
                     //progressBar = new JProgressBar(0, 100);
 
-                    progressBar.setForeground(Color.ORANGE);
-                    progressBar.setBackground(Color.WHITE);
+                    serviceProgressBar.setForeground(Color.ORANGE);
+                    serviceProgressBar.setBackground(Color.WHITE);
 
-                    progressBar.setIndeterminate(true);
-                    progressBar.setString("Blast is running.");
+                    serviceProgressBar.setIndeterminate(true);
+                    serviceProgressBar.setString("Blast is running.");
                     if (fastaFile == null) {
                         fastaFile = (CSSequenceSet) sequenceDB;
                     }
@@ -1021,10 +1022,10 @@ import org.geworkbench.events.MicroarraySetViewEvent;
                 String outputFile = tempFolder + "Blast" +
                                     RandomNumberGenerator.getID() +
                                     ".html";
-                progressBar.setForeground(Color.ORANGE);
-                progressBar.setBackground(Color.WHITE);
-                progressBar.setIndeterminate(true);
-                progressBar.setString("Blast is running.");
+                serviceProgressBar.setForeground(Color.ORANGE);
+                serviceProgressBar.setBackground(Color.WHITE);
+                serviceProgressBar.setIndeterminate(true);
+                serviceProgressBar.setString("Blast is running.");
                 if (fastaFile == null) {
                     fastaFile = activeSequenceDB;
                 }
@@ -1158,11 +1159,11 @@ import org.geworkbench.events.MicroarraySetViewEvent;
         Date finished_Date = new Date();
 
         if (cmd.startsWith("Interrupted")) {
-            progressBar.setIndeterminate(false);
+            serviceProgressBar.setIndeterminate(false);
 
-            progressBar.setForeground(Color.ORANGE);
-            progressBar.setBackground(Color.ORANGE);
-            progressBar.setString("Stopped on " + finished_Date);
+            serviceProgressBar.setForeground(Color.ORANGE);
+            serviceProgressBar.setBackground(Color.ORANGE);
+            serviceProgressBar.setString("Stopped on " + finished_Date);
 
         } else if (cmd.startsWith("OTHERS_Interrupted")) {
             progressBar1.setIndeterminate(false);
@@ -1175,11 +1176,11 @@ import org.geworkbench.events.MicroarraySetViewEvent;
 
             if (cmd.startsWith("pb")) {
 
-                progressBar.setIndeterminate(false);
+                serviceProgressBar.setIndeterminate(false);
 
-                progressBar.setForeground(Color.ORANGE);
-                progressBar.setBackground(Color.ORANGE);
-                progressBar.setString("Finished on " + finished_Date);
+                serviceProgressBar.setForeground(Color.ORANGE);
+                serviceProgressBar.setBackground(Color.ORANGE);
+                serviceProgressBar.setString("Finished on " + finished_Date);
             } else if (cmd.startsWith("btk search")) {
                 progressBar1.setIndeterminate(false);
 
@@ -1277,6 +1278,19 @@ import org.geworkbench.events.MicroarraySetViewEvent;
 
         }
     }
+
+    public void updateProgressBar(final double percent, final String text) {
+      Runnable r = new Runnable() {
+          public void run() {
+              try {
+                  serviceProgressBar.setString(text);
+                  serviceProgressBar.setValue((int) (percent * 100));
+              } catch (Exception e) {
+              }
+          }
+      };
+      SwingUtilities.invokeLater(r);
+  }
 
     void jButton2_actionPerformed(ActionEvent e) {
         if (fastaFile == null || fastaFile.isDNA()) {
