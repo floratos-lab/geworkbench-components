@@ -94,11 +94,11 @@ public class SVMOptimizationPanel extends AbstractSaveableParameterPanel impleme
     }
 
     private void jbInit() throws Exception {
-        epsilon = new JFormattedTextField(new DecimalFormat());
+        epsilon = new JFormattedTextField(new DecimalFormat("0.#####E0"));
         epsilon.setValue(DEFAULT_EPSILON_VALUE);
         C = new JFormattedTextField(new DecimalFormat());
         C.setValue(DEFAULT_C_VALUE);
-        gamma = new JFormattedTextField(new DecimalFormat());
+        gamma = new JFormattedTextField(new DecimalFormat("0.#####E0"));
         gamma.setEnabled(false);
         gamma.setValue(DEFAULT_GAMMA_VALUE);
         numberFolds = new JFormattedTextField(3);
