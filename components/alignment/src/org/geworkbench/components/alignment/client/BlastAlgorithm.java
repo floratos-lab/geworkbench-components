@@ -20,6 +20,7 @@ import org.geworkbench.components.alignment.panels.*;
 import org.geworkbench.events.ProjectNodeAddedEvent;
 import org.geworkbench.util.session.SoapClient;
 import org.globus.progtutorial.clients.BlastService.Client;
+import java.util.Date;
 
 /**
  * <p>Title: Bioworks</p>
@@ -53,7 +54,7 @@ public class BlastAlgorithm extends BWAbstractAlgorithm implements SoapClientIn 
     private String tempURLFolder =
             "http://amdec-bioinfo.cu-genome.org/html/temp/";
     private boolean useNCBI = false;
-    private JProgressBar progressBar = new JProgressBar();
+   // private JProgressBar progressBar = new JProgressBar();
     private ParameterSetting parameterSetting;
 
     public void setBlastAppComponent(BlastAppComponent _blastAppComponent) {
@@ -68,6 +69,17 @@ public class BlastAlgorithm extends BWAbstractAlgorithm implements SoapClientIn 
         }
 
     }
+    void updateProgressStatus(final double percent, final String text) {
+       if (blastAppComponent != null){
+           blastAppComponent.updateProgressBar(percent, text);
+       }
+  }
+  void updateProgressStatus(String text) {
+     if (blastAppComponent != null){
+         blastAppComponent.updateProgressBar(text);
+     }
+}
+
 
     public double getCompletion() {
         if (jobFinished) {
@@ -100,25 +112,29 @@ public class BlastAlgorithm extends BWAbstractAlgorithm implements SoapClientIn 
 
                 RemoteBlast blast = null;
                 CSSequenceSet activeSequenceDB = soapClient.getSequenceDB();
-                progressBar.setMaximum(activeSequenceDB.size());
+                updateProgressStatus(activeSequenceDB.size(), "Contacting NCBI BLAST Server");
+
                 int count = 0;
                 for (Object sequence : activeSequenceDB) {
 
                     blast = new RemoteBlast(((CSSequence) sequence).
-                                            getSequence(), outputFile,
-                                            progressBar);
+                                            getSequence(), outputFile);
                     blast.setDbName(parameterSetting.getDbName());
                     blast.setProgamName(parameterSetting.getProgramName());
 
                     String BLAST_rid = blast.submitBlast();
                     blast.getBlast(BLAST_rid, "HTML");
-                    progressBar.setValue(++count);
+                    updateProgressStatus(  "Uploading sequence: " + ((CSSequence)sequence).getDescriptions());
+
+                    //progressBar.setValue(++count);
                     while (!blast.getBlastDone()) {
                         try {
                             Thread.sleep(2000);
                         } catch (Exception e) {
 
                         }
+                        updateProgressStatus(  "Querying sequence: " + ((CSSequence)sequence).getDescriptions().toString());
+
 
                     }
                     if (stopRequested) {
@@ -126,9 +142,10 @@ public class BlastAlgorithm extends BWAbstractAlgorithm implements SoapClientIn 
                     }
 
                 }
+                updateProgressStatus( "NCBI Blast is finisheded at " + new Date());
 
-                progressBar.setIndeterminate(false);
-                progressBar.setString("NCBI Blast is finished.");
+//                progressBar.setIndeterminate(false);
+//                progressBar.setString("NCBI Blast is finished.");
                 if (parameterSetting.isViewInBrowser()) {
                     if ((new File(outputFile)).canRead()) {
 
@@ -265,9 +282,9 @@ public class BlastAlgorithm extends BWAbstractAlgorithm implements SoapClientIn 
         return useNCBI;
     }
 
-    public JProgressBar getProgressBar() {
-        return progressBar;
-    }
+//    public JProgressBar getProgressBar() {
+//        return progressBar;
+//    }
 
     public ParameterSetting getParameterSetting() {
         return parameterSetting;
@@ -286,9 +303,9 @@ public class BlastAlgorithm extends BWAbstractAlgorithm implements SoapClientIn 
         this.useNCBI = useNCBI;
     }
 
-    public void setProgressBar(JProgressBar progressBar) {
-        this.progressBar = progressBar;
-    }
+//    public void setProgressBar(JProgressBar progressBar) {
+//        this.progressBar = progressBar;
+//    }
 
     public void setParameterSetting(ParameterSetting parameterSetting) {
         this.parameterSetting = parameterSetting;

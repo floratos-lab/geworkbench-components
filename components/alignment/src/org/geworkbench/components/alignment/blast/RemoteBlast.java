@@ -89,7 +89,7 @@ public class RemoteBlast {
         this.CDD_rid = null;
     }
 
-    public RemoteBlast(String query, String filename, JProgressBar progressBar) {
+    public RemoteBlast(String query, String filename) {
         this.query = query;
         this.filename = filename;
         this.textArea = new JTextArea();
