@@ -314,12 +314,12 @@ public class NCBIBlastParser {
 //                                    break;
 //                                }
 
-                            boolean additionalDetail = false;
+                            boolean additionalAlignedParts = false;
                             if (line.trim().startsWith("Score")) {
                                 index--;
-                                additionalDetail = true;
+                                additionalAlignedParts = true;
                                 System.out.println("ADDITION" +
-                                        additionalDetail + line);
+                                        additionalAlignedParts + line);
 
                             }
                             //System.out.println("index"  + index + " " + hits.size());
@@ -349,6 +349,8 @@ public class NCBIBlastParser {
                                     each.setLength(new Integer(line.substring(8).
                                             trim()).intValue());
                                 }
+
+                                 if (!additionalAlignedParts) {
                                 if (line.startsWith("Identities = ")) {
                                     /**todo
                                      * use Matchs pattern later.
@@ -383,6 +385,7 @@ public class NCBIBlastParser {
                                                intValue();
                                 }
 
+                                 }
                                 //System.out.println(each.getStartPoint() + "" + each.getEndPoint());
                                 String s = br.readLine();
                                 line = s.trim();
@@ -402,7 +405,7 @@ public class NCBIBlastParser {
                             detaillines += "</PRE>";
 
                             //System.out.println(detaillines);
-                            if (additionalDetail) {
+                            if (additionalAlignedParts) {
                                 String previousDetail = each.
                                         getDetailedAlignment();
                                 detaillines = previousDetail + detaillines;

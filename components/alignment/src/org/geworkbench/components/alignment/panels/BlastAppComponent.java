@@ -920,7 +920,7 @@ import org.geworkbench.events.MicroarraySetViewEvent;
                     BlastAlgorithm blastAlgo = new BlastAlgorithm();
                     blastAlgo.setUseNCBI(true);
                     blastAlgo.setParameterSetting(parameterSetting);
-                    blastAlgo.setProgressBar(serviceProgressBar);
+
                     //       blastAlgo.setBlastAppComponent(blastAppComponent);
                     blastAlgo.setBlastAppComponent(this);
                     blastAlgo.setSoapClient(sc);
@@ -1291,6 +1291,19 @@ import org.geworkbench.events.MicroarraySetViewEvent;
       };
       SwingUtilities.invokeLater(r);
   }
+
+  public void updateProgressBar(final String text) {
+    Runnable r = new Runnable() {
+        public void run() {
+            try {
+                serviceProgressBar.setString(text);
+                serviceProgressBar.setIndeterminate(true);
+            } catch (Exception e) {
+            }
+        }
+    };
+    SwingUtilities.invokeLater(r);
+}
 
     void jButton2_actionPerformed(ActionEvent e) {
         if (fastaFile == null || fastaFile.isDNA()) {
