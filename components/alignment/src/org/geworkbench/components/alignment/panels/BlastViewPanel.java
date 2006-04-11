@@ -1,27 +1,30 @@
 package org.geworkbench.components.alignment.panels;
 
-import org.geworkbench.bison.datastructure.biocollections.sequences.CSSequenceSet;
-import org.geworkbench.bison.datastructure.biocollections.sequences.DSSequenceSet;
+import java.awt.*;
+import java.awt.event.*;
+import java.io.*;
+import java.util.ArrayList;
+import java.util.Vector;
+
+import javax.swing.*;
+import javax.swing.event.*;
+import javax.swing.table.AbstractTableModel;
+
+import org.geworkbench.bison.datastructure.biocollections.views.
+        CSMicroarraySetView;
+import org.geworkbench.bison.datastructure.biocollections.views.
+        DSMicroarraySetView;
+import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
+import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.bioobjects.sequence.CSSequence;
 import org.geworkbench.bison.util.RandomNumberGenerator;
 import org.geworkbench.components.alignment.blast.*;
 import org.geworkbench.engine.management.Subscribe;
+import org.geworkbench.util.JAutoList;
 import org.geworkbench.util.PropertiesMonitor;
-
-import javax.swing.*;
-import javax.swing.event.HyperlinkEvent;
-import javax.swing.event.HyperlinkListener;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
-import javax.swing.table.AbstractTableModel;
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.Vector;
+import org.geworkbench.bison.datastructure.biocollections.sequences.
+        CSSequenceSet;
+import com.borland.jbcl.layout.VerticalFlowLayout;
 
 /**
  * <p>Title: Bioworks</p>
@@ -34,17 +37,21 @@ import java.util.Vector;
  */
 
 public class BlastViewPanel extends JPanel implements HyperlinkListener {
+    JPanel westPanel = new JPanel(new BorderLayout());
+    private JAutoList markerList;
+
     JPanel blastResult = new JPanel();
     JPanel detailedInfo = new JPanel();
     JPanel furtherProcess = new JPanel();
-    JButton HMMButton = new JButton();
+    JButton AddSequenceToProjectButton = new JButton();
+    JLabel summaryLabel = new JLabel();
     JButton resetButton = new JButton();
     JEditorPane singleAlignmentArea = new JEditorPane();
     private Vector hits;
+    String summaryStr;
     BorderLayout borderLayout1 = new BorderLayout();
     JScrollPane jScrollPane1 = new JScrollPane();
     BorderLayout borderLayout2 = new BorderLayout();
-
     BlastViewComponent blastViewComponent;
     JButton loadButton = new JButton();
     GridBagLayout gridBagLayout1 = new GridBagLayout();
@@ -54,8 +61,13 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
     GridBagLayout gridBagLayout2 = new GridBagLayout();
     JButton allButton = new JButton();
     JSplitPane jSplitPane1 = new JSplitPane();
-
+    JPanel summaryPanel = new JPanel();
+    private JSplitPane mainPanel = new JSplitPane();
+    GeneListModel geneListModel = new GeneListModel();
+    JSplitPane rightPanel = new JSplitPane();
     GridBagLayout gridBagLayout3 = new GridBagLayout();
+    private CSSequenceSet sequenceDB;
+    private ArrayList blastDataSet = new ArrayList();
 
     public BlastViewPanel() {
         try {
@@ -69,9 +81,11 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
         blastViewComponent = bc;
     }
 
-    @Subscribe public void receive(org.geworkbench.events.ProjectNodeAddedEvent pnae, Object source) {
+    @Subscribe public void receive(org.geworkbench.events.ProjectNodeAddedEvent
+                                   pnae, Object source) {
         /**@todo Implement this medusa.components.listeners.ProjectNodeAddedListener method*/
-        throw new java.lang.UnsupportedOperationException("Method projectNodeAdded() not yet implemented.");
+        throw new java.lang.UnsupportedOperationException(
+                "Method projectNodeAdded() not yet implemented.");
     }
 
     public void hyperlinkUpdate(HyperlinkEvent event) {
@@ -120,30 +134,59 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
     }
 
     private void jbInit() throws Exception {
-        this.setLayout(gridBagLayout3);
+        mainPanel = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
+        // mainPanel.setPreferredSize(new Dimension(500, 500));
+        mainPanel.setOneTouchExpandable(true);
+//        rightPanel.setLayout(borderLayout3);
+        //rightPanel = new JPanel(gridBagLayout3); //this.setLayout(gridBagLayout3);
+        rightPanel = new JSplitPane();
+        rightPanel.setOrientation(JSplitPane.VERTICAL_SPLIT);
+        markerList = new MarkerAutoList();
+
         blastResult.setLayout(borderLayout1);
-        HMMButton.setMinimumSize(new Dimension(100, 23));
-        HMMButton.setText("Add Selected Sequences to Project ");
-        HMMButton.addActionListener(new BlastViewPanel_HMMButton_actionAdapter(this));
+        AddSequenceToProjectButton.setMinimumSize(new Dimension(100, 23));
+
+        AddSequenceToProjectButton.setText("Add Selected Sequences to Project ");
+        AddSequenceToProjectButton.addActionListener(new
+                BlastViewPanel_HMMButton_actionAdapter(this));
+        resetButton.setToolTipText("Clear all selections.");
         resetButton.setText("Reset");
-        resetButton.addActionListener(new BlastViewPanel_resetButton_actionAdapter(this));
+        resetButton.addActionListener(new
+                                      BlastViewPanel_resetButton_actionAdapter(this));
 
         blastResult.setBorder(BorderFactory.createLoweredBevelBorder());
-        blastResult.setPreferredSize(new Dimension(145, 200));
-        furtherProcess.setBorder(BorderFactory.createLoweredBevelBorder());
-        furtherProcess.setMinimumSize(new Dimension(10, 37));
+        blastResult.setPreferredSize(new Dimension(145, 150));
+        blastResult.setMinimumSize(new Dimension(145, 100));
+        rightPanel.setPreferredSize(new Dimension(155, 400));
+        rightPanel.setDividerSize(2);
+        rightPanel.setMinimumSize(new Dimension(155, 300));
+        summaryPanel = new JPanel();
+        summaryLabel = new JLabel();
+        summaryPanel.setBorder(BorderFactory.createLoweredBevelBorder());
+        summaryPanel.setMinimumSize(new Dimension(195, 50));
+        summaryPanel.setPreferredSize(new Dimension(195, 50));
+        furtherProcess.setLayout(new BorderLayout());
+        furtherProcess.add(summaryPanel, java.awt.BorderLayout.CENTER);
+        furtherProcess.add(summaryLabel, java.awt.BorderLayout.SOUTH);
+        //displaySummary("HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH");
         detailedInfo.setLayout(borderLayout2);
-        jScrollPane1.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
-        jScrollPane1.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-        this.setMinimumSize(new Dimension(10, 386));
+//        jScrollPane1.setHorizontalScrollBarPolicy(JScrollPane.
+//                                                  HORIZONTAL_SCROLLBAR_ALWAYS);
+//        jScrollPane1.setVerticalScrollBarPolicy(JScrollPane.
+//                                                VERTICAL_SCROLLBAR_ALWAYS);
+        loadButton.setToolTipText("Load a blast result file.");
+        //rightPanel.setMinimumSize(new Dimension(10, 386));
+
         loadButton.setText("Load");
-        loadButton.addActionListener(new BlastViewPanel_loadButton_actionAdapter(this));
+        loadButton.addActionListener(new
+                                     BlastViewPanel_loadButton_actionAdapter(this));
         singleAlignmentArea.setContentType("text/html");
         //singleAlignmentArea.setText("Single Alignment panel");
 
         String iniURL = "C:/Blast-1992809694.html";
         File f = new File(iniURL);
-        String s1 = "http://amdec-bioinfo.cu-genome.org/html/Blast-798903635.html";
+        String s1 =
+                "http://amdec-bioinfo.cu-genome.org/html/Blast-798903635.html";
         // s1 =  "http://amdec-bioinfo.cu-genome.org/html/hmmOut.txt";
         iniURL = "http://amdec-bioinfo.cu-genome.org/html/index.html";
         //singleAlignmentArea.setPage(s1);
@@ -152,23 +195,51 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
         singleAlignmentArea.addHyperlinkListener(this);
         jButton1.setText("jButton1");
         addAlignedButton.setMinimumSize(new Dimension(100, 23));
+        addAlignedButton.setToolTipText("Add only aligned parts into project.");
         addAlignedButton.setText("Only Add Aligned Parts");
-        addAlignedButton.addActionListener(new BlastViewPanel_addAlignedButton_actionAdapter(this));
+        addAlignedButton.addActionListener(new
+                                           BlastViewPanel_addAlignedButton_actionAdapter(this));
+        allButton.setToolTipText("Select all hits.");
         allButton.setText("Select All");
         allButton.addActionListener(new BlastViewPanel_allButton_actionAdapter(this));
         jSplitPane1.setOrientation(JSplitPane.VERTICAL_SPLIT);
-        furtherProcess.add(loadButton, null);
-        furtherProcess.add(resetButton, null);
-        furtherProcess.add(allButton);
-        furtherProcess.add(HMMButton, null);
-        furtherProcess.add(addAlignedButton);
+        jSplitPane1.setMinimumSize(new Dimension(200, 400));
+        jSplitPane1.setPreferredSize(new Dimension(500, 600));
+        jSplitPane1.setDividerSize(1);
+        this.setLayout(borderLayout3);
+//        furtherProcess.add(loadButton, null);
+//        furtherProcess.add(resetButton, null);
+//        furtherProcess.add(allButton);
+//        furtherProcess.add(AddSequenceToProjectButton, null);
+//        furtherProcess.add(addAlignedButton);
+        summaryPanel.add(loadButton, null);
+        summaryPanel.add(resetButton, null);
+        summaryPanel.add(allButton);
+        summaryPanel.add(AddSequenceToProjectButton, null);
+        summaryPanel.add(addAlignedButton);
+
         jSplitPane1.add(blastResult, JSplitPane.TOP);
         jSplitPane1.add(detailedInfo, JSplitPane.BOTTOM);
         detailedInfo.add(jScrollPane1, BorderLayout.CENTER);
         jScrollPane1.getViewport().add(singleAlignmentArea, null);
-        this.add(furtherProcess, new GridBagConstraints(0, 1, 1, 1, 1.0, 1.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 3, 7), -195, 18));
-        this.add(jSplitPane1, new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 398, 223));
+//        rightPanel.add(furtherProcess,
+//                       new GridBagConstraints(0, 1, 1, 1, 1.0, 1.0,
+//                                              GridBagConstraints.CENTER,
+//                                              GridBagConstraints.BOTH,
+//                                              new Insets(0, 0, 3, 7), -195, 18));
+//        rightPanel.add(jSplitPane1,
+//                       new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0,
+//                                              GridBagConstraints.CENTER,
+//                                              GridBagConstraints.BOTH,
+//                                              new Insets(0, 0, 0, 0), 398, 223));
+        rightPanel.add(jSplitPane1, JSplitPane.TOP);
+        rightPanel.add(furtherProcess, JSplitPane.BOTTOM);
         currentError = "No alignment result is loaded, please check again.";
+        westPanel.add(markerList, BorderLayout.CENTER);
+        //mainPanel.add(markerList);
+        mainPanel.add(westPanel);
+        mainPanel.add(rightPanel);
+        this.add(mainPanel, java.awt.BorderLayout.CENTER);
     }
 
 
@@ -187,8 +258,24 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
         blastResult.removeAll();
         blastResult.add(getBlastListPanel());
         revalidate();
+        repaint();
     }
 
+    public void setSummary(String s) {
+        summaryStr = s;
+        displaySummaryLabel(s);
+    }
+
+    public void displaySummaryLabel(String s) {
+
+        summaryLabel.setText(s);
+        revalidate();
+    }
+
+    /**
+     * Display details of each alignment.
+     * @param s String
+     */
     public void displayResults(String s) {
 
         blastResult.removeAll();
@@ -196,16 +283,24 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
         singleAlignmentArea.setText(s);
 
         revalidate();
+        singleAlignmentArea.setCaretPosition(0);
+    }
 
+    public void resetToWhite(String detailString) {
+
+        blastResult.removeAll();
+        if (detailString == null) {
+            singleAlignmentArea.setText("Alignment Detail panel");
+        } else {
+            singleAlignmentArea.setText(detailString);
+        }
+
+        revalidate();
+        singleAlignmentArea.setCaretPosition(0);
     }
 
     public void resetToWhite() {
-
-        blastResult.removeAll();
-
-        singleAlignmentArea.setText("Alignment Detail panel");
-        revalidate();
-
+        resetToWhite(null);
     }
 
     private void showAlignment(BlastObj hit) {
@@ -228,6 +323,7 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
         text = hit.getDetailedAlignment();
         //System.out.println("(" + text + ")");
         singleAlignmentArea.setText(text);
+        singleAlignmentArea.setCaretPosition(0);
 
     }
 
@@ -256,7 +352,7 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
         /*set up Listener for row selection on table*/
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         ListSelectionModel rowSM = table.getSelectionModel();
-        rowSM.addListSelectionListener(new listSelectionListener());
+        rowSM.addListSelectionListener(new BlastDetaillistSelectionListener());
         table.setSelectionModel(rowSM);
         JScrollPane hitsPane = new JScrollPane(table);
 
@@ -277,25 +373,28 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
 
         // setting the size of the table and its columns
         table.setPreferredScrollableViewportSize(new Dimension(800, 100));
-        table.getColumnModel().getColumn(0).setPreferredWidth(15);
+        table.getColumnModel().getColumn(0).setPreferredWidth(35);
         table.getColumnModel().getColumn(1).setPreferredWidth(50);
         table.getColumnModel().getColumn(2).setPreferredWidth(300);
-        table.getColumnModel().getColumn(3).setPreferredWidth(20);
-        table.getColumnModel().getColumn(4).setPreferredWidth(20);
-        table.getColumnModel().getColumn(5).setPreferredWidth(20);
-        table.getColumnModel().getColumn(6).setPreferredWidth(20);
+        table.getColumnModel().getColumn(3).setPreferredWidth(50);
+        table.getColumnModel().getColumn(4).setPreferredWidth(80);
+        table.getColumnModel().getColumn(5).setPreferredWidth(80);
+        table.getColumnModel().getColumn(6).setPreferredWidth(30);
         /* */
         /*set up Listener for row selection on table*/
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         ListSelectionModel rowSM = table.getSelectionModel();
-        rowSM.addListSelectionListener(new listSelectionListener());
+        rowSM.addListSelectionListener(new BlastDetaillistSelectionListener());
         table.setSelectionModel(rowSM);
+        table.changeSelection(0, 0, false, false);
+
         JScrollPane hitsPane = new JScrollPane(table);
 
         return hitsPane;
     }
 
-    private class listSelectionListener implements ListSelectionListener {
+    private class BlastDetaillistSelectionListener implements
+            ListSelectionListener {
         int selectedRow;
         BlastObj selectedHit;
 
@@ -306,16 +405,20 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
             }
             ListSelectionModel lsm = (ListSelectionModel) e.getSource();
             if (lsm.isSelectionEmpty()) {
+
             } else {
                 selectedRow = lsm.getMinSelectionIndex();
-                selectedHit = (BlastObj) hits.get(selectedRow);
+                if (hits != null && hits.size() > selectedRow) {
+                    selectedHit = (BlastObj) hits.get(selectedRow);
+                    showAlignment(selectedHit);
+//                    if (foundAtLeastOneSelected()) {
+//                        //AddSequenceToProjectButton.setBackground(Color.orange);
+//                    } else {
+//                        //AddSequenceToProjectButton.setBackground(Color.white);
+//                    }
 
-                showAlignment(selectedHit);
-                if (foundAtLeastOneSelected()) {
-                    HMMButton.setBackground(Color.orange);
-                } else {
-                    HMMButton.setBackground(Color.white);
                 }
+
             }
         }
     }
@@ -342,7 +445,8 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
         /* array of the column names in order from left to right*/
         final String[] columnNames = {
 
-            "Name", "ID", "Description", "e-value", "align length", "%identity", "Include"};
+                                     "Name", "ID", "Description", "e-value",
+                                     "align length", "%identity", "Include"};
         HmmObj hit;
 
         /* returns the number of columns in table*/
@@ -352,6 +456,10 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
 
         /* returns the number of rows in table*/
         public int getRowCount() {
+            if (hits == null) {
+                return 0;
+            }
+
             return (hits.size());
         }
 
@@ -366,23 +474,23 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
             hit = (HmmObj) hits.get(row);
             /*display data depending on which column is chosen*/
             switch (col) {
-                case 0:
-                    return hit.getName(); //name
-                case 1:
-                    return hit.getID();
-                case 2:
-                    return hit.getDescription(); //description
-                case 3:
-                    return "N/A"; //evalue
-                case 4:
-                    return "N/A"; //evalue
-                    //length of hit protein
-                case 5:
+            case 0:
+                return hit.getName(); //name
+            case 1:
+                return hit.getID();
+            case 2:
+                return hit.getDescription(); //description
+            case 3:
+                return "N/A"; //evalue
+            case 4:
+                return "N/A"; //evalue
+                //length of hit protein
+            case 5:
 
-                    //percent of sequence aligned to hit sequence
-                    return "N/A"; //evalue
-                case 6:
-                    return "N/A"; //evalue//whether is chosen for MSA
+                //percent of sequence aligned to hit sequence
+                return "N/A"; //evalue
+            case 6:
+                return "N/A"; //evalue//whether is chosen for MSA
             }
             return null;
         }
@@ -419,7 +527,9 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
      */
     private class HitsTableModel extends AbstractTableModel {
         /* array of the column names in order from left to right*/
-        final String[] columnNames = {"db", "Name", "Description", "e-value", "start point", "align length", "%identity", "Include"};
+        final String[] columnNames = {"db", "Name", "Description", "e-value",
+                                     "start point", "align length", "%identity",
+                                     "Include"};
         BlastObj hit;
 
         /* returns the number of columns in table*/
@@ -429,6 +539,7 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
 
         /* returns the number of rows in table*/
         public int getRowCount() {
+
             return (hits.size());
         }
 
@@ -443,25 +554,25 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
             hit = (BlastObj) hits.get(row);
             /*display data depending on which column is chosen*/
             switch (col) {
-                case 0:
-                    return hit.getDatabaseID(); //database ID
-                case 1:
-                    return hit.getName(); //accesion number
-                case 2:
-                    return hit.getDescription(); //description
-                case 3:
-                    return hit.getEvalue(); //evalue
-                case 4:
-                    return new Integer(hit.getStartPoint());
-                    //length of hit protein
-                case 5:
-                    return new Integer(hit.getAlignmentLength());
-                case 6:
+            case 0:
+                return hit.getDatabaseID(); //database ID
+            case 1:
+                return hit.getName(); //accesion number
+            case 2:
+                return hit.getDescription(); //description
+            case 3:
+                return hit.getEvalue(); //evalue
+            case 4:
+                return new Integer(hit.getStartPoint());
+                //length of hit protein
+            case 5:
+                return new Integer(hit.getAlignmentLength());
+            case 6:
 
-                    //percent of sequence aligned to hit sequence
-                    return new Integer(hit.getPercentAligned());
-                case 7:
-                    return new Boolean(hit.getInclude()); //whether is chosen for MSA
+                //percent of sequence aligned to hit sequence
+                return new Integer(hit.getPercentAligned());
+            case 7:
+                return new Boolean(hit.getInclude()); //whether is chosen for MSA
             }
             return null;
         }
@@ -501,11 +612,12 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
     }
 
     void reportError(String errorMessage) {
-        JOptionPane.showMessageDialog(null, errorMessage, "Error", JOptionPane.INFORMATION_MESSAGE);
+        JOptionPane.showMessageDialog(null, errorMessage, "Error",
+                                      JOptionPane.INFORMATION_MESSAGE);
     }
 
     void HMMButton_actionPerformed(ActionEvent e) {
-        DSSequenceSet db = new CSSequenceSet();
+        CSSequenceSet db = new CSSequenceSet();
         if (!verify()) {
             reportError(currentError);
             return;
@@ -523,8 +635,15 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
          * Consider change SoapClient to Dataset directly for blast.
          */
         try {
-            String tempString = "temp" + RandomNumberGenerator.getID() + ".fasta";
-            String tempFolder = System.getProperties().getProperty("temporary.files.directory");
+
+            if (!foundAtLeastOneSelected()) {
+                reportError("No hit is selected. Please choose at least one.");
+                return;
+            }
+            String tempString = "temp" + RandomNumberGenerator.getID() +
+                                ".fasta";
+            String tempFolder = System.getProperties().getProperty(
+                    "temporary.files.directory");
             if (tempFolder == null) {
                 tempFolder = ".";
             }
@@ -552,23 +671,19 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
             out.flush();
             out.close();
             db.setLabel("temp_Fasta_File");
-            db.setFASTAFile(tempFile);
+            db.readFASTAFile(tempFile);
 
-            // AncillaryDataSet blastResult = new CSAlignmentResultSet (htmlFile, soapClient.getInputFileName());
-
-            org.geworkbench.events.ProjectNodeAddedEvent event = new org.geworkbench.events.ProjectNodeAddedEvent("message", db, null);
+            org.geworkbench.events.ProjectNodeAddedEvent event = new org.
+                    geworkbench.events.ProjectNodeAddedEvent("message", db, null);
             blastViewComponent.publishProjectNodeAddedEvent(event);
-        }catch (BlastDataOutOfBoundException be){
-            //be.printStackTrace();
+        } catch (BlastDataOutOfBoundException be) {
             String errorMessage = be.getMessage();
             JOptionPane.showMessageDialog(null,
-                                errorMessage,
-                                "Error",
-                                JOptionPane.WARNING_MESSAGE);
+                                          errorMessage,
+                                          "Error",
+                                          JOptionPane.WARNING_MESSAGE);
 
-
-        }
-        catch (Exception ex) {
+        } catch (Exception ex) {
             ex.printStackTrace();
         }
 
@@ -584,7 +699,7 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
             BlastObj hit = (BlastObj) hits.get(i);
             hit.setInclude(false);
         }
-        HMMButton.setBackground(Color.white);
+        AddSequenceToProjectButton.setBackground(Color.white);
 
         displayResults("<h4>No alignment hit is selected.");
 
@@ -597,8 +712,6 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
      * @param string String
      */
     public void setResults(String string) {
-        // try {
-        //  singleAlignmentArea.setPage(string);
 
         HmmResultParser hmmParser = new HmmResultParser(string);
         hmmParser.parseResults();
@@ -607,14 +720,15 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
         blastResult.add(getHmmListPanel());
         revalidate();
 
-        //  }catch (IOException e){e.printStackTrace();
-        //System.out.println(string + " cannot be presented at visual area");
     }
 
     public void loadButton_actionPerformed(ActionEvent actionEvent) {
 
-        JFileChooser chooser = new JFileChooser(PropertiesMonitor.getPropertiesMonitor().getDefPath());
-        org.geworkbench.engine.parsers.ExampleFileFilter filter = new org.geworkbench.engine.parsers.ExampleFileFilter();
+        JFileChooser chooser = new JFileChooser(PropertiesMonitor.
+                                                getPropertiesMonitor().
+                                                getDefPath());
+        org.geworkbench.engine.parsers.ExampleFileFilter filter = new org.
+                geworkbench.engine.parsers.ExampleFileFilter();
         filter.setDescription("Alignment file (*.html)");
         filter.addExtension("html");
         chooser.addChoosableFileFilter(filter);
@@ -623,21 +737,35 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
         if (returnVal != JFileChooser.APPROVE_OPTION) {
             return;
         }
-        //      updateFileProperty(chooser.getSelectedFile().getAbsolutePath());
-        org.geworkbench.util.PropertiesMonitor.getPropertiesMonitor().setDefPath(chooser.getCurrentDirectory().getAbsolutePath());
+
+        org.geworkbench.util.PropertiesMonitor.getPropertiesMonitor().
+                setDefPath(chooser.getCurrentDirectory().getAbsolutePath());
         File patternfile = chooser.getSelectedFile();
         try {
 
             BlastParser bp = new BlastParser(patternfile.getAbsolutePath());
-
+            bp.setTotalSequenceNum(1);
             if (bp.parseResults()) {
 
                 hits = bp.getHits();
 
                 setResults(hits);
             } else {
-                JOptionPane.showMessageDialog(null, "The file is not in a supported format.", "Format Error", JOptionPane.ERROR_MESSAGE);
+                NCBIBlastParser nbp = new NCBIBlastParser(patternfile.
+                        getAbsolutePath());
+                nbp.setTotalSequenceNum(1);
+                if (nbp.parseResults()) {
 
+                    hits = nbp.getHits();
+
+                    setResults(hits);
+                } else {
+
+                    JOptionPane.showMessageDialog(null,
+                                                  "The file is not in a supported format.",
+                                                  "Format Error",
+                                                  JOptionPane.ERROR_MESSAGE);
+                }
             }
 
         } catch (NullPointerException e1) {
@@ -664,14 +792,141 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
         for (int i = 0; i < hits.size(); i++) {
             BlastObj hit = (BlastObj) hits.get(i);
             hit.setInclude(true);
-            HMMButton.setBackground(Color.orange);
+            AddSequenceToProjectButton.setBackground(Color.orange);
 
         }
         displayResults("<h4>All are selected.");
 
     }
 
+    /**
+     * The marker JAutoList type.
+     */
+    private class MarkerAutoList extends JAutoList {
 
+        public MarkerAutoList() {
+            super(geneListModel);
+        }
+
+       public boolean setHighlightedIndex(int theIndex) {
+        super.setHighlightedIndex(theIndex);
+        elementClicked(theIndex, null);
+        return true;
+    }
+
+        @Override protected void elementClicked(int index, MouseEvent e) {
+//            itemClicked(PlotType.MARKER, index);
+//            markerModel.refresh();
+            if (blastDataSet != null && blastDataSet.size() > index) {
+                if (blastDataSet.get(index) != null) {
+                    setResults((Vector) blastDataSet.get(index));
+                    displaySummaryLabel(" " + summaryStr + " Sequence " +
+                                        ((CSSequence) sequenceDB.get(index)).
+                                        getLabel() + " has " +
+                                        ((Vector) blastDataSet.get(index)).size() +
+                                        " hits.");
+
+                } else {
+
+                      setResults(new Vector());
+                    resetToWhite("No hits found");
+                    displaySummaryLabel(" " + summaryStr + " Sequence " +
+                                        ((CSSequence) sequenceDB.get(index)).
+                                        getLabel() + " has 0 hit.");
+
+                }
+            } else if (blastDataSet != null && (Vector) blastDataSet.get(0) != null) {
+                setResults((Vector) blastDataSet.get(0));
+            }
+        }
+
+        @Override protected void elementRightClicked(int index, MouseEvent e) {
+            //     itemRightClicked(PlotType.MARKER, e, index);
+        }
+    }
+
+
+    /**
+     * ListModel for the marker list.
+     */
+    private class GeneListModel extends AbstractListModel {
+
+        public int getSize() {
+            if (sequenceDB == null) {
+                return 0;
+            }
+            return sequenceDB.size();
+        }
+
+        public Object getElementAt(int index) {
+            if (sequenceDB == null) {
+                return null;
+            }
+            return ((CSSequence) sequenceDB.get(index)).getLabel();
+        }
+
+        public DSGeneMarker getMarker(int index) {
+            return dataSetView.getMicroarraySet().getMarkers().get(index);
+        }
+
+        public Object getItem(int index) {
+            return sequenceDB.get(index);
+        }
+
+        /**
+         * Indicates to the associated JList that the contents need to be redrawn.
+         */
+        public void refresh() {
+            if (sequenceDB == null) {
+                fireContentsChanged(this, 0, 0);
+            } else {
+                fireContentsChanged(this, 0, sequenceDB.size());
+            }
+        }
+
+        public void refreshItem(int index) {
+            fireContentsChanged(this, index, index);
+        }
+
+
+    }
+
+
+    /**
+     * The dataset that holds the microarrayset and panels.
+     */
+    private DSMicroarraySetView<DSGeneMarker,
+            DSMicroarray> dataSetView = new CSMicroarraySetView<DSGeneMarker,
+                                        DSMicroarray>();
+    BorderLayout borderLayout3 = new BorderLayout();
+    VerticalFlowLayout verticalFlowLayout1 = new VerticalFlowLayout();
+    //private MarkerListModel markerModel = new MarkerListModel();
+    // XYLayout xYLayout1 = new XYLayout();
+    /**
+     * setSequenceDB
+     *
+     * @param sequenceDB DSDataSet
+     */
+    public void setSequenceDB(CSSequenceSet sequenceDB) {
+        this.sequenceDB = sequenceDB;
+        geneListModel.refresh();
+    }
+
+    /**
+     * setBlastDataSet
+     *
+     * @param arrayList ArrayList
+     */
+    public void setBlastDataSet(ArrayList arrayList) {
+        blastDataSet = arrayList;
+        if(markerList!=null && blastDataSet!=null && sequenceDB != null){
+            int index = sequenceDB.size() - 1;
+            markerList.setHighlightedIndex(sequenceDB.size() - 1);
+            //markerList.elementClicked(index, null);
+            //markerList.setH
+        }
+
+    }
 }
 
 
@@ -687,6 +942,7 @@ class BlastViewPanel_allButton_actionAdapter implements ActionListener {
     }
 }
 
+
 class BlastViewPanel_loadButton_actionAdapter implements ActionListener {
     private BlastViewPanel adaptee;
 
@@ -700,7 +956,8 @@ class BlastViewPanel_loadButton_actionAdapter implements ActionListener {
 }
 
 
-class BlastViewPanel_HMMButton_actionAdapter implements java.awt.event.ActionListener {
+class BlastViewPanel_HMMButton_actionAdapter implements java.awt.event.
+        ActionListener {
     BlastViewPanel adaptee;
 
     BlastViewPanel_HMMButton_actionAdapter(BlastViewPanel adaptee) {
@@ -727,7 +984,8 @@ class BlastViewPanel_addAlignedButton_actionAdapter implements ActionListener {
 }
 
 
-class BlastViewPanel_resetButton_actionAdapter implements java.awt.event.ActionListener {
+class BlastViewPanel_resetButton_actionAdapter implements java.awt.event.
+        ActionListener {
     BlastViewPanel adaptee;
 
     BlastViewPanel_resetButton_actionAdapter(BlastViewPanel adaptee) {
@@ -738,3 +996,4 @@ class BlastViewPanel_resetButton_actionAdapter implements java.awt.event.ActionL
         adaptee.resetButton_actionPerformed(e);
     }
 }
+
