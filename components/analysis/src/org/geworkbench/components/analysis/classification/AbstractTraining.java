@@ -52,7 +52,7 @@ public abstract class AbstractTraining extends AbstractAnalysis {
         if (classifier != null) {
             publishProjectNodeAddedEvent(new ProjectNodeAddedEvent(classifier.getLabel(), null, classifier));
             if (testData.size() > 0) {
-                DSPanel<DSMicroarray> newPanel = new CSPanel<DSMicroarray>("Training Results");
+                DSPanel<DSMicroarray> newPanel = new CSPanel<DSMicroarray>("Classification Results");
                 classifyData(testPanel, classifier, newPanel);
                 publishSubpanelChangedEvent(new SubpanelChangedEvent<DSMicroarray>(DSMicroarray.class, newPanel, SubpanelChangedEvent.NEW));
             }
