@@ -296,82 +296,6 @@ public class RemoteBlast {
         //GetBlast bl = new GetBlast(rid, format);
     }
 
-    public void runMain(String message) {
-
-        String file;
-        Socket s;
-        try {
-            //create an output stream for writing to a file. appending file.
-            PrintStream ps = new PrintStream(new FileOutputStream(new File(
-                    filename), true), true);
-
-            boolean BlastnotDone = false;
-            while (!BlastnotDone) {
-
-                s = new Socket(Blast_SERVER, DEFAULT_PORT);
-
-                //create an output stream for sending message.
-                DataOutputStream out = new DataOutputStream(s.getOutputStream());
-
-                //create buffered reader stream for reading incoming byte stream.
-                InputStreamReader inBytes = new InputStreamReader(s.
-                        getInputStream());
-                BufferedReader in = new BufferedReader(inBytes);
-
-                textArea.append(message + "\n");
-
-                //write String message to output stream as byte sequence.
-                out.writeBytes(message);
-
-                String data = in.readLine();
-//                System.out.println("IN HTML" +   data );
-                boolean done = false;
-                boolean getWaitingTime = false;
-                while (data != null) {
-                    System.out.println("IN HTML" +   data );
-                    if (data.equals("\tStatus=WAITING")) {
-                        done = false;
-                    } else if (data.equals("\tStatus=READY")) {
-                        BlastnotDone = true;
-                        done = true;
-                        //ps.println(data);
-                    } else {
-                        if (done) {
-                            ps.println(data);
-                        }
-                    }
-                    if (getWaitingTime) {
-                        setWaitingTime(data);
-                        getWaitingTime = false;
-                    }
-                    if (data.trim().startsWith(
-                            "<tr><td>Time since submission</td>")) {
-                        getWaitingTime = true;
-                    }
-
-                    data = in.readLine();
-
-                }
-                if (!done) {
-                    textArea.append("Waiting for Blast to finish...\n");
-                    Thread.sleep(5000);
-                }
-                s.close();
-            } //end of while (BlastnotDone).
-            textArea.append("Blast done! You can now display your results");
-            getBlastDone = true;
-            ps.close();
-        } catch (UnknownHostException e) {
-            System.out.println("Socket:" + e.getMessage());
-        } catch (EOFException e) {
-            System.out.println("EOF:" + e.getMessage());
-        } catch (IOException e) {
-            System.out.println("readline:" + e.getMessage());
-        } catch (InterruptedException e) {
-            System.out.println("wait:" + e.getMessage());
-        }
-    } //end of run().
-
     /**
      * This class is a Thread that retrieves Blast results by Blast RID#, which
      * can take some period of time.  The thread continually requests results
@@ -453,7 +377,7 @@ public class RemoteBlast {
                         setWaitingTime("0");
                     }else{
 
-                        setWaitingTime(data.substring(4, 11));
+                        setWaitingTime(data.substring(4, 12));
                     }
 
                 getWaitingTime = false;
