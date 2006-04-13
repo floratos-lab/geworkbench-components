@@ -161,7 +161,6 @@ public class BlastParser {
                     //loop to proceed to beginning of hit list from Blast output file
                     while (true) {
                         line = br.readLine();
-                        // System.out.println("test2: " + line);
 
                         if (line == null ||
                             (line.startsWith(
@@ -180,12 +179,8 @@ public class BlastParser {
                         line = br.readLine();
                         hitCount = 0;
                         while (line != null && !line.trim().startsWith("</PRE>")) {
-                            // System.out.println("test3: " + line);
-                            String[] strA = line.split("</a>");
+                                 String[] strA = line.split("</a>");
 
-                            for (int i = 0; i < strA.length; i++) {
-                                //System.out.println(strA[i]);
-                            }
                             hitCount++;
                             totalHitCount++;
                             if (hitCount <= MAXNUMBERHITS) {
@@ -245,16 +240,14 @@ public class BlastParser {
 
                                     hits.add(each);
                                 }
-                                //System.out.println(each.getDatabaseID() + each.getDescription()
-                                //                   + each.getEvalue() + each.getScore());
-                            } else {
+                             } else {
                                 hit250More = true;
                             }
                             //end of check hitCount;
                             line = br.readLine();
 
                         } //end of processing summary.
-                        //System.out.println(line+ " " + hits.size());
+
                         index = 0;
                         line = br.readLine();
                         if (line == null) {
@@ -263,7 +256,7 @@ public class BlastParser {
                         boolean endofResult = false;
                         /* parsing detailed alignments Each has <PRE></PRE> */
                         while (line.trim().startsWith("<PRE>")) {
-                            //System.out.println("test5" + line);
+
                             if (line.trim().startsWith("<PRE>  Database")) {
                                 endofResult = true;
                                 break;
@@ -279,8 +272,7 @@ public class BlastParser {
                             if (line.trim().startsWith("Score")) {
                                 index--;
                                 additionalAlignedParts = true;
-                                //  System.out.println(additionalAlignedParts + line);
-                                System.out.println(index + " = index " + line);
+
                             }
                             //System.out.println("index"  + index + " " + hits.size());
                             String detaillines = "<PRE>" + line;
@@ -291,7 +283,7 @@ public class BlastParser {
                             if (count > 60) {
                                 //System.out.println(count);
                             }
-                            System.out.println(each.getName());
+                            //System.out.println(each.getName());
                             //skip the beginning description
                             subject = "";
                             boolean getStartPoint = true;
@@ -365,10 +357,10 @@ public class BlastParser {
                                 each.setEndPoint(endPoint);
                                 each.setAlignmentLength(Math.abs(each.getEndPoint() - each.
                                         getStartPoint()  + 1));
-                                System.out.println("ENDPOINT" + endPoint + " " +
-                                        each.getStartPoint() + " " +
-                                        each.getAlignmentLength() +
-                                        subject);
+//                                System.out.println("ENDPOINT" + endPoint + " " +
+//                                        each.getStartPoint() + " " +
+//                                        each.getAlignmentLength() +
+//                                        subject);
                                 each.setSubject(subject);
 
                             }

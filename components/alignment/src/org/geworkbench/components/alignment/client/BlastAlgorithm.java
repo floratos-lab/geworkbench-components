@@ -54,7 +54,7 @@ public class BlastAlgorithm extends BWAbstractAlgorithm implements SoapClientIn 
     private String tempURLFolder =
             "http://amdec-bioinfo.cu-genome.org/html/temp/";
     private boolean useNCBI = false;
-   // private JProgressBar progressBar = new JProgressBar();
+    // private JProgressBar progressBar = new JProgressBar();
     private ParameterSetting parameterSetting;
 
     public void setBlastAppComponent(BlastAppComponent _blastAppComponent) {
@@ -69,17 +69,25 @@ public class BlastAlgorithm extends BWAbstractAlgorithm implements SoapClientIn 
         }
 
     }
-    void updateProgressStatus(final double percent, final String text) {
-       if (blastAppComponent != null){
-           blastAppComponent.updateProgressBar(percent, text);
-       }
-  }
-  void updateProgressStatus(String text) {
-     if (blastAppComponent != null){
-         blastAppComponent.updateProgressBar(text);
-     }
-}
 
+
+    void updateProgressStatus(final double percent, final String text) {
+        if (blastAppComponent != null) {
+            blastAppComponent.updateProgressBar(percent, text);
+        }
+    }
+
+    void updateStatus(String text) {
+        if (blastAppComponent != null) {
+            blastAppComponent.updateProgressBar(text);
+        }
+    }
+
+    void updateStatus(boolean boo, String text) {
+        if (blastAppComponent != null) {
+            blastAppComponent.updateProgressBar(boo, text);
+        }
+    }
 
     public double getCompletion() {
         if (jobFinished) {
@@ -112,29 +120,37 @@ public class BlastAlgorithm extends BWAbstractAlgorithm implements SoapClientIn 
 
                 RemoteBlast blast = null;
                 CSSequenceSet activeSequenceDB = soapClient.getSequenceDB();
-                updateProgressStatus(activeSequenceDB.size(), "Contacting NCBI BLAST Server");
 
                 int count = 0;
                 for (Object sequence : activeSequenceDB) {
-
+                    updateStatus("Uploading sequence: " +
+                                 ((CSSequence) sequence) );
                     blast = new RemoteBlast(((CSSequence) sequence).
                                             getSequence(), outputFile);
                     blast.setDbName(parameterSetting.getDbName());
                     blast.setProgamName(parameterSetting.getProgramName());
 
                     String BLAST_rid = blast.submitBlast();
+                    updateStatus("Querying sequence: " +
+                                 ((CSSequence) sequence).getDescriptions().
+                                 toString());
+                    updateStatus("The Request ID is : " + BLAST_rid);
+
                     blast.getBlast(BLAST_rid, "HTML");
-                    updateProgressStatus(  "Uploading sequence: " + ((CSSequence)sequence).getDescriptions());
+                    // updateStatus(  "Uploading sequence: " + ((CSSequence)sequence).getDescriptions());
 
                     //progressBar.setValue(++count);
                     while (!blast.getBlastDone()) {
                         try {
+                            updateStatus("The Time since submission is : " +
+                                         blast.getWaitingTime());
                             Thread.sleep(2000);
                         } catch (Exception e) {
 
                         }
-                        updateProgressStatus(  "Querying sequence: " + ((CSSequence)sequence).getDescriptions().toString());
-
+                        updateStatus("Querying sequence: " +
+                                     ((CSSequence) sequence).getDescriptions().
+                                     toString());
 
                     }
                     if (stopRequested) {
@@ -142,7 +158,7 @@ public class BlastAlgorithm extends BWAbstractAlgorithm implements SoapClientIn 
                     }
 
                 }
-                updateProgressStatus( "NCBI Blast is finisheded at " + new Date());
+                updateStatus(false, "NCBI Blast is finisheded at " + new Date());
 
 //                progressBar.setIndeterminate(false);
 //                progressBar.setString("NCBI Blast is finished.");

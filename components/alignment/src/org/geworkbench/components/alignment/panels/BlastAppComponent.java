@@ -1305,6 +1305,20 @@ import org.geworkbench.events.MicroarraySetViewEvent;
     SwingUtilities.invokeLater(r);
 }
 
+public void updateProgressBar(final boolean boo, final String text) {
+  Runnable r = new Runnable() {
+      public void run() {
+          try {
+              serviceProgressBar.setString(text);
+              serviceProgressBar.setIndeterminate(boo);
+          } catch (Exception e) {
+          }
+      }
+  };
+  SwingUtilities.invokeLater(r);
+}
+
+
     void jButton2_actionPerformed(ActionEvent e) {
         if (fastaFile == null || fastaFile.isDNA()) {
             reportError("Please select a PROTEIN sequence file first.",

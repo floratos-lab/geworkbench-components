@@ -3,13 +3,13 @@ package org.geworkbench.components.alignment.blast;
 import java.io.*;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.Date;
 import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.swing.JProgressBar;
 import javax.swing.JTextArea;
-import java.util.Date;
 
 /**
  * RemoteBlast is a class that implements submission of a protein sequence to
@@ -22,6 +22,7 @@ public class RemoteBlast {
      * The protein sequence to submit to Blast.
      */
     private String query;
+    private String waitingTime;
 
     private static String DEFAULTPROGRAM = "blastp";
     private static String DEFAULTDBNAME = "nr";
@@ -151,7 +152,7 @@ public class RemoteBlast {
 //                          "Put http://www.ncbi.nlm.nih.gov/blast/Blast.cgi?CMD=Put&QUERY=" +
 //                          query + "&DATABASE=" + "nt" + "&PROGRAM=" + programName + "&FILTER=L&HITLIST_SZE=500&AUTO_FORMAT=Semiauto&SHOW_OVERVIEW=on&NCBI_GI=on&PAGE=Nucleotides&SERVICE=plain\r\n\r\n";
 
-            System.out.println(message);
+        System.out.println(message);
         try {
 
             s = new Socket(Blast_SERVER, DEFAULT_PORT);
@@ -171,8 +172,8 @@ public class RemoteBlast {
             //reads each incoming line until it finds the CDD and Blast RIDs.
             while (true) {
                 String data = in.readLine();
-               // System.out.println(data);
-                if (CDD_rid == null && data!= null) {
+                // System.out.println(data);
+                if (CDD_rid == null && data != null) {
                     Matcher m1 = p1.matcher(data);
                     Matcher m2 = p2.matcher(data);
                     if (m1.find()) {
@@ -185,8 +186,8 @@ public class RemoteBlast {
                     }
                 }
                 if (data == null) {
-                   break;
-               }
+                    break;
+                }
 
                 if (data.equals("<!--QBlastInfoBegin")) {
                     StringTokenizer st = new StringTokenizer(in.readLine(), " ");
@@ -288,76 +289,88 @@ public class RemoteBlast {
         String message =
                 "Get http://www.ncbi.nlm.nih.gov/blast/Blast.cgi?CMD=Get&FORMAT_TYPE=" +
                 format + "&RID=" + rid + "\r\n\r\n";
-            System.out.println(new Date() + message);
-        runMain(message);
-        System.out.println(new Date() + "END");
+        System.out.println(new Date() + message);
+      GetBlast getBlast = new GetBlast(message);
+      //  runMain(message);
+        //System.out.println(new Date() + "END");
         //GetBlast bl = new GetBlast(rid, format);
     }
 
-    public void runMain(String message) {
-
-        String file;
-        Socket s;
-        try {
-            //create an output stream for writing to a file. appending file.
-            PrintStream ps = new PrintStream(new FileOutputStream(new File(
-                    filename), true), true);
-
-            boolean BlastnotDone = false;
-            while (!BlastnotDone) {
-
-                s = new Socket(Blast_SERVER, DEFAULT_PORT);
-
-                //create an output stream for sending message.
-                DataOutputStream out = new DataOutputStream(s.getOutputStream());
-
-                //create buffered reader stream for reading incoming byte stream.
-                InputStreamReader inBytes = new InputStreamReader(s.
-                        getInputStream());
-                BufferedReader in = new BufferedReader(inBytes);
-
-                textArea.append(message + "\n");
-
-                //write String message to output stream as byte sequence.
-                out.writeBytes(message);
-
-                String data = in.readLine();
-//                System.out.println("IN HTML" +   data );
-                boolean done = false;
-                while (data != null) {
-                    System.out.println("IN HTML" +   data );
-                    if (data.equals("\tStatus=WAITING")) {
-                        done = false;
-                    } else if (data.equals("\tStatus=READY")) {
-                        BlastnotDone = true;
-                        done = true;
-                        //ps.println(data);
-                    } else {
-                        if (done) {
-                            ps.println(data);
-                        }
-                    }
-                    data = in.readLine();
-                }
-                if (!done) {
-                    textArea.append("Waiting for Blast to finish...\n");
-                    Thread.sleep(5000);
-                }
-                s.close();
-            } //end of while (BlastnotDone).
-            textArea.append("Blast done! You can now display your results");
-            getBlastDone = true;
-            ps.close();
-        } catch (UnknownHostException e) {
-            System.out.println("Socket:" + e.getMessage());
-        } catch (EOFException e) {
-            System.out.println("EOF:" + e.getMessage());
-        } catch (IOException e) {
-            System.out.println("readline:" + e.getMessage());
-        } catch (InterruptedException e) {
-            System.out.println("wait:" + e.getMessage());
-        }
-    } //end of run().
+//    public void runMain(String message) {
+//
+//        String file;
+//        Socket s;
+//        try {
+//            //create an output stream for writing to a file. appending file.
+//            PrintStream ps = new PrintStream(new FileOutputStream(new File(
+//                    filename), true), true);
+//
+//            boolean BlastnotDone = false;
+//            while (!BlastnotDone) {
+//
+//                s = new Socket(Blast_SERVER, DEFAULT_PORT);
+//
+//                //create an output stream for sending message.
+//                DataOutputStream out = new DataOutputStream(s.getOutputStream());
+//
+//                //create buffered reader stream for reading incoming byte stream.
+//                InputStreamReader inBytes = new InputStreamReader(s.
+//                        getInputStream());
+//                BufferedReader in = new BufferedReader(inBytes);
+//
+//                textArea.append(message + "\n");
+//
+//                //write String message to output stream as byte sequence.
+//                out.writeBytes(message);
+//
+//                String data = in.readLine();
+////                System.out.println("IN HTML" +   data );
+//                boolean done = false;
+//                boolean getWaitingTime = false;
+//                while (data != null) {
+//                    System.out.println("IN HTML" +   data );
+//                    if (data.equals("\tStatus=WAITING")) {
+//                        done = false;
+//                    } else if (data.equals("\tStatus=READY")) {
+//                        BlastnotDone = true;
+//                        done = true;
+//                        //ps.println(data);
+//                    } else {
+//                        if (done) {
+//                            ps.println(data);
+//                        }
+//                    }
+//                    if (getWaitingTime) {
+//                        setWaitingTime(data);
+//                        getWaitingTime = false;
+//                    }
+//                    if (data.trim().startsWith(
+//                            "<tr><td>Time since submission</td>")) {
+//                        getWaitingTime = true;
+//                    }
+//
+//                    data = in.readLine();
+//
+//                }
+//                if (!done) {
+//                    textArea.append("Waiting for Blast to finish...\n");
+//                    Thread.sleep(5000);
+//                }
+//                s.close();
+//            } //end of while (BlastnotDone).
+//            textArea.append("Blast done! You can now display your results");
+//            getBlastDone = true;
+//            ps.close();
+//        } catch (UnknownHostException e) {
+//            System.out.println("Socket:" + e.getMessage());
+//        } catch (EOFException e) {
+//            System.out.println("EOF:" + e.getMessage());
+//        } catch (IOException e) {
+//            System.out.println("readline:" + e.getMessage());
+//        } catch (InterruptedException e) {
+//            System.out.println("wait:" + e.getMessage());
+//        }
+//    } //end of run().
 
     /**
      * This class is a Thread that retrieves Blast results by Blast RID#, which
@@ -372,11 +385,7 @@ public class RemoteBlast {
         Socket s;
 
         public GetBlast(String Blast_rid) {
-            s = null;
-            //this.file = file;
-            message =
-                    "Get http://www.ncbi.nlm.nih.gov/blast/Blast.cgi?CMD=Get&FORMAT_TYPE=HTML&RID=" +
-                    Blast_rid + "\r\n\r\n";
+            message = Blast_rid;
             this.start();
         }
 
@@ -391,60 +400,93 @@ public class RemoteBlast {
 
         public void run() {
 
-            try {
-                //create an output stream for writing to a file. appending file.
-                PrintStream ps = new PrintStream(new FileOutputStream(new File(
-                        filename)), true);
-                boolean BlastnotDone = false;
-                while (!BlastnotDone) {
-                    s = new Socket(Blast_SERVER, DEFAULT_PORT);
-                    //create an output stream for sending message.
-                    DataOutputStream out = new DataOutputStream(s.
-                            getOutputStream());
-                    //create buffered reader stream for reading incoming byte stream.
-                    InputStreamReader inBytes = new InputStreamReader(s.
-                            getInputStream());
-                    BufferedReader in = new BufferedReader(inBytes);
-                    textArea.append(message + "\n");
-                    //write String message to output stream as byte sequence.
-                    out.writeBytes(message);
-                    String data = in.readLine();
-//                    System.out.println("IN HTML" +   data );
-                    boolean done = false;
-                    while (data != null) {
-//                        System.out.println("IN HTML" +   data );
-                        if (data.equals("\tStatus=WAITING")) {
-                            done = false;
-                        } else if (data.equals("\tStatus=READY")) {
-                            BlastnotDone = true;
-                            done = true;
-                            ps.println(data);
-                        } else {
-                            if (done) {
-                                ps.println(data);
-                            }
-                        }
-                        data = in.readLine();
-                    }
-                    if (!done) {
-                        textArea.append("Waiting for Blast to finish...\n");
-                        this.sleep(20000);
-                    }
-                    s.close();
-                } //end of while (BlastnotDone).
-                textArea.append("Blast done! You can now display your results");
-                getBlastDone = true;
-                ps.close();
-            } catch (UnknownHostException e) {
-                System.out.println("Socket:" + e.getMessage());
-            } catch (EOFException e) {
-                System.out.println("EOF:" + e.getMessage());
-            } catch (IOException e) {
-                System.out.println("readline:" + e.getMessage());
-            } catch (InterruptedException e) {
-                System.out.println("wait:" + e.getMessage());
-            }
+                runMain(message);
+
         } //end of run().
+
+        public void runMain(String message) {
+
+    String file;
+    Socket s;
+    try {
+        //create an output stream for writing to a file. appending file.
+        PrintStream ps = new PrintStream(new FileOutputStream(new File(
+                filename), true), true);
+
+        boolean BlastnotDone = false;
+        while (!BlastnotDone) {
+
+            s = new Socket(Blast_SERVER, DEFAULT_PORT);
+
+            //create an output stream for sending message.
+            DataOutputStream out = new DataOutputStream(s.getOutputStream());
+
+            //create buffered reader stream for reading incoming byte stream.
+            InputStreamReader inBytes = new InputStreamReader(s.
+                    getInputStream());
+            BufferedReader in = new BufferedReader(inBytes);
+
+            textArea.append(message + "\n");
+
+            //write String message to output stream as byte sequence.
+            out.writeBytes(message);
+
+            String data = in.readLine();
+//                System.out.println("IN HTML" +   data );
+            boolean done = false;
+            boolean getWaitingTime = false;
+            while (data != null) {
+               // System.out.println("IN HTML" +   data );
+                if (data.equals("\tStatus=WAITING")) {
+                    done = false;
+                } else if (data.equals("\tStatus=READY")) {
+                    BlastnotDone = true;
+                    done = true;
+                    //ps.println(data);
+                } else {
+                    if (done) {
+                        ps.println(data);
+                    }
+                }
+                if (getWaitingTime) {
+                    if(data==null){
+                        setWaitingTime("0");
+                    }else{
+
+                        setWaitingTime(data.substring(4, 11));
+                    }
+
+                }getWaitingTime = false;
+                }
+                if (data.trim().startsWith(
+                        "<tr><td>Time since submission</td>")) {
+                    getWaitingTime = true;
+                }
+
+                data = in.readLine();
+
+            }
+            if (!done) {
+                textArea.append("Waiting for Blast to finish...\n");
+                Thread.sleep(5000);
+            }
+            s.close();
+        } //end of while (BlastnotDone).
+        textArea.append("Blast done! You can now display your results");
+        getBlastDone = true;
+        ps.close();
+    } catch (UnknownHostException e) {
+        System.out.println("Socket:" + e.getMessage());
+    } catch (EOFException e) {
+        System.out.println("EOF:" + e.getMessage());
+    } catch (IOException e) {
+        System.out.println("readline:" + e.getMessage());
+    } catch (InterruptedException e) {
+        System.out.println("wait:" + e.getMessage());
+    }
+} //end of run().
+
+
     } //end of class GetBlast.
 
 
@@ -479,6 +521,10 @@ public class RemoteBlast {
         this.dbName = dbName;
     }
 
+    public void setWaitingTime(String waitingTime) {
+        this.waitingTime = waitingTime;
+    }
+
     public void setProgamName(String progamName) {
         this.programName = progamName;
     }
@@ -487,9 +533,12 @@ public class RemoteBlast {
         return dbName;
     }
 
+    public String getWaitingTime() {
+        return waitingTime;
+    }
+
     public String getProgamName() {
         return programName;
     }
 
 }
-
