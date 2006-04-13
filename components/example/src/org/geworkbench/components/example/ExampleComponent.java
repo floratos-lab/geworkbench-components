@@ -2,6 +2,7 @@ package org.geworkbench.components.example;
 
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
+import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.AnnotationParser;
 import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.engine.management.AcceptTypes;
 import org.geworkbench.engine.management.Subscribe;
@@ -9,6 +10,10 @@ import org.geworkbench.events.ProjectEvent;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
+import java.util.*;
+import java.util.List;
 
 /**
  * This is an example geWorkbench component.
@@ -16,7 +21,7 @@ import java.awt.*;
  * @author John Watkinson
  */
 // This annotation lists the data set types that this component accepts.
-// The component will only appear when a data set of the appropriate type is selected.  
+// The component will only appear when a data set of the appropriate type is selected.
 @AcceptTypes({DSMicroarraySet.class})
 public class ExampleComponent extends JPanel implements VisualPlugin {
 
@@ -27,6 +32,15 @@ public class ExampleComponent extends JPanel implements VisualPlugin {
     public ExampleComponent() {
         infoLabel = new JLabel("");
         add(infoLabel);
+        JButton testButton = new JButton("Test Annotations");
+        testButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                Map<String, List<String>> groups = AnnotationParser.getCustomAnnotationGroupings("Pathway", "///", microarraySet);
+                System.out.println("Worked.");
+            }
+        });        
+        add(testButton);
+
     }
 
     /**
