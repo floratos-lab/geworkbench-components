@@ -100,7 +100,7 @@ public class BlastParser {
     }
 
     /**
-     * BlastParser
+     * Create a new Blastpasrse with a given filename.
      *
      * @param aString String
      */
@@ -124,6 +124,11 @@ public class BlastParser {
         return blastDataset;
     }
 
+    /**
+     * Get the total sequence number.
+     *
+     * @return int
+     */
     public int getTotalSequenceNum() {
         return totalSequenceNum;
     }
@@ -357,10 +362,7 @@ public class BlastParser {
                                 each.setEndPoint(endPoint);
                                 each.setAlignmentLength(Math.abs(each.getEndPoint() - each.
                                         getStartPoint()  + 1));
-//                                System.out.println("ENDPOINT" + endPoint + " " +
-//                                        each.getStartPoint() + " " +
-//                                        each.getAlignmentLength() +
-//                                        subject);
+
                                 each.setSubject(subject);
 
                             }
@@ -379,12 +381,11 @@ public class BlastParser {
                         Vector newHits = hits;
                         blastDataset.add(newHits);
                         count++;
-//                        System.out.println("run ps" + count + blastDataset.size() +
-//                                           " " + newHits.size());
+
                     } else {
                         blastDataset.add(null);
                         count++;
-                        // System.out.println("Found 1 nohits" + count);
+
                     }
                 } while (count < totalSequenceNum);
                 //  System.out.println("run out of ps" + count + blastDataset.size());
@@ -394,17 +395,15 @@ public class BlastParser {
         } catch (FileNotFoundException e) {
             System.out.println("file not found.");
             return false;
-            //System.exit(1);
+
         } catch (IOException e) {
             System.out.println("IOException found in BlastParser.!");
-            // e.printStackTrace();
+
             return false;
         } catch (Exception e) {
 
             System.out.println("Blastparser" + errorline);
-            // e.printStackTrace();
 
-            //find a blast bug, temp change to true.
             return false;
 
         }
@@ -424,7 +423,7 @@ public class BlastParser {
     }
 
     /**
-     * getSummary
+     * get Blast Result Summary.
      *
      * @return String
      */
@@ -437,9 +436,6 @@ public class BlastParser {
         return "Total hits for all sequences are " + totalHitCount + ".";
     }
 
-    /*public static void main(String[] args) {
-            BlastParser test = new BlastParser();
-            test.parseResults();
-             }*/
+
 
 }

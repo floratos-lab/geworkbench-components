@@ -47,10 +47,10 @@ public class AlgorithmMatcher {
 
     public static String[] translateToArray(String programName) {
         if (programName.equalsIgnoreCase("blastp")) {
-            return new String[]{"ncbi/nr                      Peptides of all non-redundant sequences.", "ncbi/pdbaa               Peptide sequences  derived from the PDB.", "ncbi/swissprot      SWISS-PROT protein sequence database.", "ncbi/yeast.aa            Yeast  genomic CDS translations."};
+            return new String[]{"ncbi/nr                      Peptides of all non-redundant sequences.", "ncbi/pdbaa               Peptide sequences  derived from the PDB.", "ncbi/swissprot       SWISS-PROT protein sequence database.", "ncbi/yeast.aa            Yeast  genomic CDS translations."};
 
         } else if (programName.equalsIgnoreCase("blastn")) {
-            return new String[]{"ncbi/nt                    All non-redundant  DNA sequences.", "ncbi/pdbnt                Nucleotide sequences  derived from the PDB.", "ncbi/yeast.nt           Yeast genomic nucleotide sequences."};
+            return new String[]{"ncbi/nt                    All non-redundant  DNA sequences.", "ncbi/pdbnt               Nucleotide sequences  derived from the PDB.", "ncbi/yeast.nt           Yeast genomic nucleotide sequences."};
 
         } else if (programName.startsWith("tblast")) {
             return new String[]{"ncbi/nt                   All non-redundant  DNA sequences.", "ncbi/pdbnt               Nucleotide sequences  derived from the PDB.", "ncbi/yeast.nt           Yeast genomic nucleotide sequences."};

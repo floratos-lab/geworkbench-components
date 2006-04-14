@@ -102,6 +102,10 @@ import org.geworkbench.components.alignment.blast.NCBIBlastParser;
         return blastViewPanel;
     }
 
+    /**
+     * Get the last sequence's Blast result.
+     * @return Vector
+     */
     public Vector getResults() {
         return hits;
 

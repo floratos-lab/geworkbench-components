@@ -51,25 +51,25 @@ public class BlastAlgorithm extends BWAbstractAlgorithm implements SoapClientIn 
     private boolean gridEnabled = false;
     private boolean jobFinished = false;
     private String inputFilename;
-    private String tempURLFolder =
+    private static final String TEMPURLFOLDER =
             "http://amdec-bioinfo.cu-genome.org/html/temp/";
     private boolean useNCBI = false;
-    // private JProgressBar progressBar = new JProgressBar();
     private ParameterSetting parameterSetting;
+    private final static int TIMEGAP = 2000;
 
     public void setBlastAppComponent(BlastAppComponent _blastAppComponent) {
         blastAppComponent = _blastAppComponent;
     }
 
     public BlastAlgorithm() {
-        try {
-            jbInit();
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
 
     }
 
+    /**
+     * Update Progress with finished percentage and related information.
+     * @param percent double
+     * @param text String
+     */
 
     void updateProgressStatus(final double percent, final String text) {
         if (blastAppComponent != null) {
@@ -77,11 +77,21 @@ public class BlastAlgorithm extends BWAbstractAlgorithm implements SoapClientIn 
         }
     }
 
+    /**
+     * Update progess only with String information.
+     * @param text String
+     */
     void updateStatus(String text) {
         if (blastAppComponent != null) {
             blastAppComponent.updateProgressBar(text);
         }
     }
+
+    /**
+     * Update the component's progressBar with information and reset the ProgressBar.
+     * @param boo boolean
+     * @param text String
+     */
 
     void updateStatus(boolean boo, String text) {
         if (blastAppComponent != null) {
@@ -89,6 +99,10 @@ public class BlastAlgorithm extends BWAbstractAlgorithm implements SoapClientIn 
         }
     }
 
+    /**
+     * Get the percentage of completion.
+     * @return double
+     */
     public double getCompletion() {
         if (jobFinished) {
             //Make it bigger than 1, it means that job is done.
@@ -96,6 +110,11 @@ public class BlastAlgorithm extends BWAbstractAlgorithm implements SoapClientIn 
         }
         return super.getCompletion();
     }
+
+    /**
+     * The workhorse to run Blast program.
+     *
+     */
 
     public void execute() {
         DSAncillaryDataSet blastResult = null;
@@ -114,6 +133,7 @@ public class BlastAlgorithm extends BWAbstractAlgorithm implements SoapClientIn 
                     tempFolder = ".";
 
                 }
+                //generate a new file name for the coming outputfile.
                 String outputFile = tempFolder + "Blast" +
                                     RandomNumberGenerator.getID() +
                                     ".html";
@@ -137,14 +157,12 @@ public class BlastAlgorithm extends BWAbstractAlgorithm implements SoapClientIn 
                     updateStatus("The Request ID is : " + BLAST_rid);
 
                     blast.getBlast(BLAST_rid, "HTML");
-                    // updateStatus(  "Uploading sequence: " + ((CSSequence)sequence).getDescriptions());
 
-                    //progressBar.setValue(++count);
                     while (!blast.getBlastDone()) {
                         try {
                             updateStatus("The Time since submission is : " +
                                          blast.getWaitingTime());
-                            Thread.sleep(2000);
+                            Thread.sleep(this.TIMEGAP);
                         } catch (Exception e) {
 
                         }
@@ -160,8 +178,6 @@ public class BlastAlgorithm extends BWAbstractAlgorithm implements SoapClientIn 
                 }
                 updateStatus(false, "NCBI Blast is finisheded at " + new Date());
 
-//                progressBar.setIndeterminate(false);
-//                progressBar.setString("NCBI Blast is finished.");
                 if (parameterSetting.isViewInBrowser()) {
                     if ((new File(outputFile)).canRead()) {
 
@@ -198,7 +214,7 @@ public class BlastAlgorithm extends BWAbstractAlgorithm implements SoapClientIn 
                     }
                     if (startBrowser && !stopRequested) {
                         if ((new File(htmlFile)).canRead()) {
-                            BrowserLauncher.openURL(tempURLFolder +
+                            BrowserLauncher.openURL(TEMPURLFOLDER +
                                     getFileName(htmlFile));
                         } else {
                             System.out.println("CANNOT READ " + htmlFile);
@@ -241,7 +257,7 @@ public class BlastAlgorithm extends BWAbstractAlgorithm implements SoapClientIn 
                     blastAppComponent.publishProjectNodeAddedEvent(event);
                 }
             }
-
+//Handle grid situation.
             if (gridEnabled) {
                 String tempFolder = System.getProperties().getProperty(
                         "temporary.files.directory");
@@ -298,9 +314,6 @@ public class BlastAlgorithm extends BWAbstractAlgorithm implements SoapClientIn 
         return useNCBI;
     }
 
-//    public JProgressBar getProgressBar() {
-//        return progressBar;
-//    }
 
     public ParameterSetting getParameterSetting() {
         return parameterSetting;
@@ -310,18 +323,10 @@ public class BlastAlgorithm extends BWAbstractAlgorithm implements SoapClientIn 
         this.startBrowser = startBrowser;
     }
 
-//    public void setBlastAppComponent(BlastAppComponent
-//                                            blastAppComponent) {
-//        this.blastAppComponent = blastAppComponent;
-//    }
 
     public void setUseNCBI(boolean useNCBI) {
         this.useNCBI = useNCBI;
     }
-
-//    public void setProgressBar(JProgressBar progressBar) {
-//        this.progressBar = progressBar;
-//    }
 
     public void setParameterSetting(ParameterSetting parameterSetting) {
         this.parameterSetting = parameterSetting;
@@ -354,134 +359,6 @@ public class BlastAlgorithm extends BWAbstractAlgorithm implements SoapClientIn 
         return s;
     }
 
-    private void jbInit() throws Exception {
-    }
 
 }
 
-//public class BlastAlgorithm extends BWAbstractAlgorithm implements SoapClientIn {
-//    private BlastAppComponent blastAppComponent = null;
-//    private SoapClient soapClient = null;
-//    private boolean startBrowser;
-//    private String tempURLFolder =
-//            "http://amdec-bioinfo.cu-genome.org/html/temp/";
-//
-//    public void setBlastAppComponent(BlastAppComponent _blastAppComponent) {
-//        blastAppComponent = _blastAppComponent;
-//    }
-//
-//    public BlastAlgorithm() {
-//
-//    }
-//
-//    public void execute() {
-//        if (soapClient == null) {
-//            try {
-//                Thread.sleep(100);
-//            } catch (InterruptedException e) {
-//                e.printStackTrace();
-//            }
-//        }
-//        if (soapClient != null) {
-//            try {
-//
-//                //update the progressbar to ini.
-//                //  ProgressBarEvent progressBarEvent =
-//                // new ProgressBarEvent("Uploading...", Color.pink, 0, 0, 10);
-//                // blastAppComponent.throwEvent(ProjectNodeAddedListener.class, "projectNodeAdded", progressBarEvent);
-//
-//                String cmd = soapClient.getCMD();
-//                String textFile = "";
-//                String htmlFile = null;
-//
-//                if (cmd.startsWith("pb")) {
-//                    soapClient.startRun(true);
-//                    htmlFile = ((org.geworkbench.util.session.SoapClient)
-//                                soapClient).getOutputfile();
-//                    if (stopRequested) {
-//                        return;
-//                    }
-//                    if (startBrowser && !stopRequested) {
-//                        if ((new File(htmlFile)).canRead()) {
-//                            BrowserLauncher.openURL(tempURLFolder +
-//                                    getFileName(htmlFile));
-//                        } else {
-//                            System.out.println("CANNOT READ " + htmlFile);
-//                        }
-//                    }
-//                } else {
-//                    soapClient.startRun();
-//                    textFile = ((SoapClient) soapClient).getOutputfile();
-//                }
-//
-//                blastAppComponent.blastFinished(cmd);
-//
-//                // AlignmentResultEvent event =  new AlignmentResultEvent(outputFile, null, "message", null, null);
-//                // DataSet blastDataSet = new CSAlignmentResultSet(textFile);
-//                // System.out.println("htmlFile = " + htmlFile + "textfile" + textFile);
-//                DSAncillaryDataSet blastResult = null;
-//                if (htmlFile != null) {
-//                    blastResult = new CSAlignmentResultSet(htmlFile,
-//                            soapClient.getInputFileName());
-//                } else if (cmd.startsWith("btk search")) {
-//
-//                    blastResult = new SWDataSet(textFile,
-//                                                soapClient.getInputFileName());
-//                } else if (cmd.startsWith("btk hmm")) {
-//
-//                    blastResult = new HMMDataSet(textFile,
-//                                                 soapClient.getInputFileName());
-//                }
-//
-//                //add twice blastDataSet. change!@ ???
-//                org.geworkbench.events.ProjectNodeAddedEvent event = new org.
-//                        geworkbench.events.ProjectNodeAddedEvent("message", null,
-//                        blastResult);
-//                blastAppComponent.publishProjectNodeAddedEvent(event);
-//            } catch (Exception ex) {
-//                ex.printStackTrace();
-//            }
-//
-//        }
-//    }
-//
-//    public void setSoapClient(SoapClient client) {
-//        soapClient = client;
-//    }
-//
-//    public boolean isStartBrowser() {
-//        return startBrowser;
-//    }
-//
-//    public void setStartBrowser(boolean startBrowser) {
-//        this.startBrowser = startBrowser;
-//    }
-//
-//    public String getFileName(String path) {
-//        StringTokenizer st = new StringTokenizer(path, "/");
-//        if (st.countTokens() <= 1) {
-//            st = new StringTokenizer(path, "\\");
-//            if (st.countTokens() <= 1) {
-//                return path;
-//            }
-//            int k = st.countTokens();
-//            for (int i = 0; i < k - 1; i++) {
-//                st.nextToken();
-//            }
-//
-//            String s = st.nextToken();
-//
-//            return s;
-//
-//        }
-//        int k = st.countTokens();
-//        for (int i = 0; i < k - 1; i++) {
-//            st.nextToken();
-//        }
-//
-//        String s = st.nextToken();
-//
-//        return s;
-//    }
-//
-//}
