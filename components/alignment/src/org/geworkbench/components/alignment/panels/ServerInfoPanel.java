@@ -226,7 +226,7 @@ public class ServerInfoPanel extends JPanel {
                         //jAvailProcessorTextField.setText(new Integer(availableWorker).toString());
                         jAvailProcessorTextField.setText(idleWorker);
                     }
-                    jTotalProcessor.setText("40.");
+                    jTotalProcessor.setText("36.");
                     serverType = DEFAULTSERVERTYPE;
                 }
 
