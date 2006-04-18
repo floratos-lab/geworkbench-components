@@ -22,7 +22,7 @@ public class RemoteBlast {
      * The protein sequence to submit to Blast.
      */
     private String query;
-    private String waitingTime;
+    private String waitingTime = "0";
 
     private static String DEFAULTPROGRAM = "blastp";
     private static String DEFAULTDBNAME = "nr";
@@ -152,7 +152,7 @@ public class RemoteBlast {
 //                          "Put http://www.ncbi.nlm.nih.gov/blast/Blast.cgi?CMD=Put&QUERY=" +
 //                          query + "&DATABASE=" + "nt" + "&PROGRAM=" + programName + "&FILTER=L&HITLIST_SZE=500&AUTO_FORMAT=Semiauto&SHOW_OVERVIEW=on&NCBI_GI=on&PAGE=Nucleotides&SERVICE=plain\r\n\r\n";
 
-        System.out.println(message);
+       // System.out.println(message);
         try {
 
             s = new Socket(Blast_SERVER, DEFAULT_PORT);
@@ -181,8 +181,8 @@ public class RemoteBlast {
                     }
                     if (m2.find()) {
                         CDD_rid = "none";
-                        System.out.println(
-                                "No.putative.conserved.domains.have.been.detected");
+//                        System.out.println(
+//                                "No.putative.conserved.domains.have.been.detected");
                     }
                 }
                 if (data == null) {

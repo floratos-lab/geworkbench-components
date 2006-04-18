@@ -15,7 +15,7 @@ public class AlgorithmMatcher {
     }
 
     /**
-     * translate
+     * translate to real paramters used by GeneMatcher2.
      *
      * @param aString String
      * @return String
@@ -45,6 +45,11 @@ public class AlgorithmMatcher {
         return null;
     }
 
+    /**
+     * Match to correct database.
+     * @param programName String
+     * @return String[]
+     */
     public static String[] translateToArray(String programName) {
         if (programName.equalsIgnoreCase("blastp")) {
             return new String[]{"ncbi/nr                      Peptides of all non-redundant sequences.", "ncbi/pdbaa               Peptide sequences  derived from the PDB.", "ncbi/swissprot       SWISS-PROT protein sequence database.", "ncbi/yeast.aa            Yeast  genomic CDS translations."};
@@ -68,4 +73,19 @@ public class AlgorithmMatcher {
         }
 
     }
+    /**
+     * Match to correct matrix.
+     * @param programName String
+     * @return String[]
+     */
+    public static String[] translateToMatrices(String programName) {
+     if (programName.equalsIgnoreCase("blastn")) {
+         return new String[]{"dna.mat"};
+
+     } else   {
+         return new String[]{ "blosum62", "blosum50", "blosum100", "blosum150"};
+     }
+
+ }
+
 }

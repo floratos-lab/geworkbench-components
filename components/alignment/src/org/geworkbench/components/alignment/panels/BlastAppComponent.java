@@ -217,7 +217,7 @@ import org.geworkbench.events.MicroarraySetViewEvent;
         jServerInfoPane = new ServerInfoPanel();
         jScrollPane4 = new JScrollPane();
         CreateGridServicePanel sgePanel = new CreateGridServicePanel();
-        JComboBox jMatrixBox = new JComboBox();
+        //JComboBox jMatrixBox = new JComboBox();
         JCheckBox lowComplexFilterBox = new JCheckBox();
         JPanel jAdvancedPane = new JPanel();
         JFileChooser jFileChooser1 = new JFileChooser();
@@ -361,13 +361,6 @@ import org.geworkbench.events.MicroarraySetViewEvent;
         lowComplexFilterBox.addActionListener(new
                                               BlastAppComponent_lowComplexFilterBox_actionAdapter(this));
         jAdvancedPane.setLayout(gridBagLayout3);
-        //   jDecreaseSupportBox.addActionListener(new
-        //    ParameterPanel_jDecreaseSupportBox_actionAdapter(this));
-        jMatrixBox.addItem("dna.mat");
-        jMatrixBox.addItem("blosum50");
-        jMatrixBox.addItem("blosum62");
-        jMatrixBox.addItem("blosum100");
-        jMatrixBox.addItem("blosum150");
         jDBList.setToolTipText("Select a database");
         jDBList.setVerifyInputWhenFocusTarget(true);
         jDBList.setVisibleRowCount(1);
@@ -393,6 +386,7 @@ import org.geworkbench.events.MicroarraySetViewEvent;
         jTabbedPane1.setMinimumSize(new Dimension(5, 5));
         jProgramBox.addActionListener(new
                                       BlastAppComponent_jProgramBox_actionAdapter(this));
+        jMatrixBox = new JComboBox();
         jMatrixBox.addActionListener(new
                                      BlastAppComponent_jMatrixBox_actionAdapter(this));
         // this.setLayout(borderLayout1);
@@ -401,7 +395,8 @@ import org.geworkbench.events.MicroarraySetViewEvent;
         maskLookupOnlyBox.setMnemonic('0');
         maskLookupOnlyBox.setSelected(false);
         expectLabel.setText("Matrix:");
-        jMatrixBox.setToolTipText("Select the expect value here.");
+        jMatrixBox.addItem("dna.mat");
+        jMatrixBox.setToolTipText("Select the Matrix.");
         jMatrixBox.setVerifyInputWhenFocusTarget(true);
         jMatrixBox.setSelectedIndex(0);
 
@@ -414,10 +409,11 @@ import org.geworkbench.events.MicroarraySetViewEvent;
 
         jqueryGenericCodeBox.setSelectedIndex( -1);
         jqueryGenericCodeBox.setVerifyInputWhenFocusTarget(true);
-        jqueryGenericCodeBox.setToolTipText("Select the expect value here.");
+        jqueryGenericCodeBox.setToolTipText("Select the Generic Code.");
         //jqueryGenericCodeBox.addActionListener(new BlastAppComponent_jqueryGenericCodeBox_actionAdapter(this));
         jFrameShiftLabel.setText("Frame shift penalty:");
-        jFrameShiftPaneltyBox.setToolTipText("Select the expect value here.");
+        jFrameShiftPaneltyBox.setToolTipText(
+                "Select the panelty of FrameShift.");
         jFrameShiftPaneltyBox.setVerifyInputWhenFocusTarget(true);
         jFrameShiftPaneltyBox.setSelectedIndex( -1);
         jFrameShiftPaneltyBox.setSelectedIndex( -1);
@@ -486,6 +482,7 @@ import org.geworkbench.events.MicroarraySetViewEvent;
         jDisplayInWebBox.setMinimumSize(new Dimension(10, 23));
         jDisplayInWebBox.setSelected(true);
         jDisplayInWebBox.setText("Display result in your web browser");
+        jGenericCodeLabel.setToolTipText("");
         jGenericCodeLabel.setText("Query genetic code:");
         jButton1.setFont(new java.awt.Font("Arial Black", 0, 11));
         jButton1.setIcon(stopButtonIcon);
@@ -800,11 +797,17 @@ import org.geworkbench.events.MicroarraySetViewEvent;
         JComboBox cb = (JComboBox) e.getSource();
 
         // Get the new item
-        Object newItem = cb.getSelectedItem();
 
         //System.out.println(newItem + "selected the program" + e.getActionCommand());
-        jDBList = new JList(AlgorithmMatcher.translateToArray((String) newItem));
-        (jScrollPane1.getViewport()).add(jDBList, null);
+        String selectedProgramName = (String) cb.getSelectedItem();
+        if (selectedProgramName != null) {
+            jDBList = new JList(AlgorithmMatcher.translateToArray((String)
+                    selectedProgramName));
+            (jScrollPane1.getViewport()).add(jDBList, null);
+            String[] model = AlgorithmMatcher.translateToMatrices(
+                    selectedProgramName);
+            jMatrixBox.setModel(new DefaultComboBoxModel(model));
+        }
         //jScrollPanel = new JScrollPanel(jDBList);
         // repaint();
     }
@@ -840,7 +843,7 @@ import org.geworkbench.events.MicroarraySetViewEvent;
 //                    endPoint = newPoint;
 //                }
 //            }
-                endPoint = sd.getMaxLength();
+            endPoint = sd.getMaxLength();
             jendPointField.setText(new Integer(endPoint).toString());
             jendPointField1.setText(new Integer(endPoint).toString());
             jendPointField3.setText(new Integer(endPoint).toString());
@@ -868,7 +871,7 @@ import org.geworkbench.events.MicroarraySetViewEvent;
             //get the last part of db name
             String[] list = dbName.split("/");
             if (list.length > 1) {
-                String[]dbNameWithSuffix = list[list.length - 1].split(" ");
+                String[] dbNameWithSuffix = list[list.length - 1].split(" ");
                 dbName = dbNameWithSuffix[0];
             } else {
 
@@ -1280,43 +1283,43 @@ import org.geworkbench.events.MicroarraySetViewEvent;
     }
 
     public void updateProgressBar(final double percent, final String text) {
-      Runnable r = new Runnable() {
-          public void run() {
-              try {
-                  serviceProgressBar.setString(text);
-                  serviceProgressBar.setValue((int) (percent * 100));
-              } catch (Exception e) {
-              }
-          }
-      };
-      SwingUtilities.invokeLater(r);
-  }
-
-  public void updateProgressBar(final String text) {
-    Runnable r = new Runnable() {
-        public void run() {
-            try {
-                serviceProgressBar.setString(text);
-                serviceProgressBar.setIndeterminate(true);
-            } catch (Exception e) {
+        Runnable r = new Runnable() {
+            public void run() {
+                try {
+                    serviceProgressBar.setString(text);
+                    serviceProgressBar.setValue((int) (percent * 100));
+                } catch (Exception e) {
+                }
             }
-        }
-    };
-    SwingUtilities.invokeLater(r);
-}
+        };
+        SwingUtilities.invokeLater(r);
+    }
 
-public void updateProgressBar(final boolean boo, final String text) {
-  Runnable r = new Runnable() {
-      public void run() {
-          try {
-              serviceProgressBar.setString(text);
-              serviceProgressBar.setIndeterminate(boo);
-          } catch (Exception e) {
-          }
-      }
-  };
-  SwingUtilities.invokeLater(r);
-}
+    public void updateProgressBar(final String text) {
+        Runnable r = new Runnable() {
+            public void run() {
+                try {
+                    serviceProgressBar.setString(text);
+                    serviceProgressBar.setIndeterminate(true);
+                } catch (Exception e) {
+                }
+            }
+        };
+        SwingUtilities.invokeLater(r);
+    }
+
+    public void updateProgressBar(final boolean boo, final String text) {
+        Runnable r = new Runnable() {
+            public void run() {
+                try {
+                    serviceProgressBar.setString(text);
+                    serviceProgressBar.setIndeterminate(boo);
+                } catch (Exception e) {
+                }
+            }
+        };
+        SwingUtilities.invokeLater(r);
+    }
 
 
     void jButton2_actionPerformed(ActionEvent e) {
