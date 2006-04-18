@@ -1,377 +1,72 @@
-<html>
+meta http-equiv="Content-Language" content="en-us">
 
-<head>
-<meta http-equiv=Content-Type content="text/html; charset=us-ascii">
-<meta name=Generator content="Microsoft Word 11 (filtered)">
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+
+<meta name="GENERATOR" content="Microsoft FrontPage 4.0">
+
+<meta name="ProgId" content="FrontPage.Editor.Document">
+
 <title>User Comments</title>
 
-<style>
-<!--
- /* Font Definitions */
- @font-face
-	{font-family:PMingLiU;
-	panose-1:2 2 3 0 0 0 0 0 0 0;}
-@font-face
-	{font-family:"MS Gothic";
-	panose-1:2 11 6 9 7 2 5 8 2 4;}
-@font-face
-	{font-family:Verdana;
-	panose-1:2 11 6 4 3 5 4 4 2 4;}
-@font-face
-	{font-family:"\@PMingLiU";
-	panose-1:2 2 3 0 0 0 0 0 0 0;}
-@font-face
-	{font-family:"\@MS Gothic";
-	panose-1:2 11 6 9 7 2 5 8 2 4;}
- /* Style Definitions */
- p.MsoNormal, li.MsoNormal, div.MsoNormal
-	{margin:0in;
-	margin-bottom:.0001pt;
-	font-size:12.0pt;
-	font-family:"Times New Roman";}
-h1
-	{margin-top:9.0pt;
-	margin-right:0in;
-	margin-bottom:9.0pt;
-	margin-left:.3in;
-	text-indent:-.3in;
-	line-height:300%;
-	page-break-after:avoid;
-	font-size:26.0pt;
-	font-family:Arial;
-	font-weight:bold;}
-h2
-	{margin:0in;
-	margin-bottom:.0001pt;
-	line-height:125%;
-	page-break-after:avoid;
-	font-size:13.5pt;
-	font-family:Arial;
-	color:#312C2C;
-	font-weight:bold;}
-h3
-	{margin-right:0in;
-	margin-left:0in;
-	line-height:10.5pt;
-	font-size:10.0pt;
-	font-family:Verdana;
-	color:#312C2C;
-	font-weight:bold;}
-p.MsoBodyText, li.MsoBodyText, div.MsoBodyText
-	{margin-right:0in;
-	margin-left:0in;
-	font-size:12.0pt;
-	font-family:"Times New Roman";}
-a:link, span.MsoHyperlink
-	{color:#7373A5;
-	text-decoration:underline;}
-a:visited, span.MsoHyperlinkFollowed
-	{color:#7373A5;
-	text-decoration:underline;}
-p
-	{margin-right:0in;
-	margin-left:0in;
-	font-size:12.0pt;
-	font-family:"Times New Roman";}
-p.contentsides, li.contentsides, div.contentsides
-	{margin-right:0in;
-	margin-left:0in;
-	font-size:10.0pt;
-	font-family:Verdana;
-	color:#312C2C;}
-p.blueannounce, li.blueannounce, div.blueannounce
-	{margin-right:0in;
-	margin-left:0in;
-	line-height:12.0pt;
-	font-size:10.0pt;
-	font-family:Verdana;
-	color:#5A6B9F;}
-p.content, li.content, div.content
-	{margin-right:0in;
-	margin-left:0in;
-	line-height:10.5pt;
-	font-size:10.0pt;
-	font-family:Verdana;
-	color:#312C2C;}
-p.sidenavheader, li.sidenavheader, div.sidenavheader
-	{margin-right:0in;
-	margin-left:0in;
-	font-size:10.0pt;
-	font-family:Verdana;
-	color:#76769A;
-	font-weight:bold;}
-p.helpnormaltex, li.helpnormaltex, div.helpnormaltex
-	{margin-right:0in;
-	margin-left:0in;
-	font-size:9.0pt;
-	font-family:Verdana;}
-span.normalwebchar
-	{font-family:PMingLiU;}
-span.helpnormaltexchar
-	{font-family:Verdana;}
-@page Section1
-	{size:595.3pt 841.9pt;
-	margin:1.0in 1.25in 1.0in 1.25in;}
-div.Section1
-	{page:Section1;}
--->
-</style>
+<link rel="stylesheet" type="text/css" href="ncicb.css">
 
 </head>
 
-<body lang=EN-US link="#7373A5" vlink="#7373A5">
 
-<div class=Section1>
 
-<h2>Blast and Other Algorithms </h2>
+<body><h2>Blast and Other Algorithms </h2> 
+    <p>The application offers some popular sequence alignment algorithms and a simple Blast Parser. The Paracel Blast Machine is used as default backend blast Machine, GeneMatcher2 are used for other algorithms which are both hosted at Columbia Genome Center. This help section covers: <a href="#_To_check_the_status_of_Blast_Machin">checking blast server status, running a Blast job</a> and <a href="#_Other_Algorithms">using other algorithms</a>.</p> 
+    <h3><a name="_To_check_the_status_of_Blast_Machin"></a>Checking the status of Blast Machine</h3> 
+    <p>1 Select the <b>Sequence Alignment</b> tab in the <b>Analysis Area</b> in the lower left of the application.</p> 
+    <p>2 Click on the <b>Service </b>tab. By default, jobs will be submitted to the BLAST server at Columbia. </p> 
+    <p>&#12290; This server runs Paracel BLAST and is optimized for large searches, for example jobs where the query contains hundreds or thousands of input sequences. </p> 
+    <p>&#12290; NCBI has the advantage of providing access to the latest version of the NCBI BLAST program. </p> 
+    <p>Note: The text field at the bottom shows that one sequence has been selected. If you have a Fasta file that has multiple sequences, you can select the ones you want in the Markers component and activate this selection, letting you search on a subset. You may search on all sequences in a file by clicking the All Markers checkbox. </p> 
+    <p>3 Click on <b>Refresh</b> to check the status of the service. </p> 
+    <p><img border="0" width="692" height="377" src="BlastOverview_files/image001.gif"></p> 
+    <h3><a name="_To_run_a_Blast_job"></a>Running a Blast</h3> 
+    <p>1 Load a FASTA file into a project.</p> 
+    <p>2 In the <b>Analysis Area, </b>select the <b>Sequence Alignment</b> tab.</p> 
+    <p>3 Select the <b>Blast</b> tab.</p> 
+    <p>4 Select <b>program</b> from the dropdown list. This includes:</p> 
+    <p>&#12290; blastp: compares an amino acid query sequence against a protein sequence database </p> 
+    <p>&#12290; blastn: compares a nucleotide query sequence against a nucleotide sequence database </p> 
+    <p>&#12290; blastx: compares a nucleotide query sequence translated in all reading frames against a protein sequence database </p> 
+    <p>&#12290; tblastn: compares a protein query sequence against a nucleotide sequence database dynamically translated in all reading frames</p> 
+    <p>&#12290; tblastx: compares the six-frame translations of a nucleotide query sequence against the six-frame translations of a nucleotide sequence database.</p> 
+    <p>5 Modify the values of <b>subsequence</b> if needed.</p> 
+    <p>6 Click on the database name to select the <b>Database</b>. </p> 
+    <p>7 Click on the curved arrow submit button<b>. </b>It will automatically check Blast Machine status first, then if the sever is listening, the job will be submitted to the server.</p> 
+    <p>8 After the job is submitted, the progress bar will indicate that BLAST is now running. If you want to stop the job, click <b>Stop </b>(red hexagon).</p> 
+    <p>9 The result will be showed on the BlastParser module and based on your choice; it may show on a new web browser. You can unselect the button &#8220;Display your result in your browser&#8221;, which is located under <b>&#8220;</b>Advanced_Options&#8221;. The Alignment Results help section describes the Blast results. </p> 
+    <p>Additional parameters include:</p> 
+    <ul> 
+    <li>Frame Shift Penalty:TBD</li> 
+    <li>Query Genetic Code: TBD</li> 
+    <li>Matrix: TBD</li> 
+    <li>Expect: This sets the cutoff for which BLAST hits will be displayed. </li> 
+    <li>PFP Filter: PFP filtering for repeated sequence elements (Paracel Filtering Package).</li> 
+    <li>Low Complexity:TBD</li> 
+    <li>Mask the Lookup Table: TBD</li> 
+    <li>Display results:TBD</li> </ul> 
+    <p><img border="0" width="934" height="620" src="BlastOverview_files/image002.jpg"></p> 
+    <h3><a name="_Other_Algorithms"></a>Other Algorithms <a name="sm"></a></h3> 
+    <p>To use other algorithms, select from &quot;Other Algorithms&quot; panel. All other algorithms requests will be processed on GeneMatcher2 machine.</p> 
+    <p>1 Load a FASTA file into a project</p> 
+    <p>2 In the <b>Analysis Area</b>, select the <b>Sequence Alignment</b> tab</p> 
+    <p>3 Select the <b>Other Algorithms</b> tab</p> 
+    <p>4 Select a <b>Database </b>from the dropdown list.</p> 
+    <p>5 Modify the values of <b>subsequence</b> if needed</p> 
+    <p>6 Select an Algorithm from the dropdown list. The includes:</p> 
+    <p>&#12290; Smith-Waterman Protein: compares an amino acid query sequence against a protein sequence database </p> 
+    <p>&#12290; Smith-Waterman DNA: compares a nucleotide query sequence against a nucleotide sequence database </p> 
+    <p>&#12290; Frame(from DNA sequence to protein DB): compares a nucleotide query sequence against a protein sequence database </p> 
+    <p>&#12290; Frame(from Protein sequence to DNA DB): compares an amino acid query sequence against a nucleotide sequence database</p> 
+    <p>7 Click on <b>Search</b>. </p> 
+    <p>&#12290; The results are displayed in the Alignment Results visualization component.<a name="_To_Add_Sequences_to_a_Project"></a></p>
+    </body>
 
-<p style='line-height:10.5pt'><span class=helpnormaltexchar><span
-style='font-size:9.0pt'>The application offers some popular sequence alignment
-algorithms and a simple Blast Parser. The Paracel Blast Machine is used as
-default backend blast Machine, GeneMatcher2 are used for other algorithms which
-are both hosted at Columbia Genome Center.&nbsp;&nbsp; This help section
-covers: <a href="#_To_check_the_status_of_Blast_Machin">checking blast server
-status, running a Blast job</a> and </span></span><span class=MsoHyperlink><a
-href="#_Other_Algorithms"><span style='font-size:9.0pt;font-family:Verdana'>using
-other algorithms</span></a>.</span></p>
 
-<h3><a name="_To_check_the_status_of_Blast_Machin"></a>Checking the status of
-Blast Machine</h3>
-
-<p style='margin-left:21.25pt;text-indent:-21.25pt;line-height:10.5pt'><span
-style='font-size:8.5pt;font-family:Verdana;color:#312C2C'>1</span><span
-style='font-size:7.0pt;color:#312C2C'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span><span style='font-size:8.5pt;font-family:Verdana;color:#312C2C'>Select
-the <b>Sequence Alignment</b> tab in the <b>Analysis Area</b> in the lower left
-of the application.</span></p>
-
-<p class=MsoNormal style='margin-left:21.25pt;text-indent:-21.25pt'><span
-style='font-size:8.5pt;font-family:Verdana;color:#312C2C'>2</span><span
-style='font-size:7.0pt;color:#312C2C'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span><span style='font-size:8.5pt;font-family:Verdana;color:#312C2C'>Click on
-the <b>Service </b>tab. By default, jobs will be submitted to the BLAST server
-at Columbia. </span></p>
-
-<p class=MsoNormal style='margin-left:49.6pt;text-indent:-28.35pt'><span
-style='font-size:8.5pt;font-family:"MS Gothic"'>&#12290;</span><span
-style='font-size:7.0pt'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span><span style='font-size:8.5pt;font-family:Verdana;color:#312C2C'>This
-server runs Paracel BLAST and is optimized for large searches, for example jobs
-where the query contains hundreds or thousands of input sequences. </span></p>
-
-<p class=MsoNormal style='margin-left:49.6pt;text-indent:-28.35pt'><span
-style='font-size:8.5pt;font-family:"MS Gothic"'>&#12290;</span><span
-style='font-size:7.0pt'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span><span style='font-size:8.5pt;font-family:Verdana;color:#312C2C'>NCBI has
-the advantage of providing access to the latest version of the NCBI BLAST
-program. </span></p>
-
-<p class=MsoNormal><b><span lang=EN>Note:</span></b><span lang=EN> The text
-field at the bottom shows that one sequence has been selected. If you have a
-Fasta file that has multiple sequences, you can select the ones you want in the
-Markers component and activate this selection, letting you search on a subset.
-You may search on all sequences in a file by clicking the <b>All Markers</b>
-checkbox. </span></p>
-
-<p style='margin-left:21.25pt;text-indent:-21.25pt;line-height:10.5pt'><span
-style='font-size:8.5pt;font-family:Verdana;color:#312C2C'>3</span><span
-style='font-size:7.0pt;color:#312C2C'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span><span style='font-size:8.5pt;font-family:Verdana;color:#312C2C'>Click on
-<b>Refresh</b> to check the status of the service. </span></p>
-
-<p style='line-height:10.5pt'><span style='font-size:8.5pt;font-family:Verdana;
-color:#312C2C'><img border=0 width=692 height=377
-src="BlastOverview_files/image001.gif"></span></p>
-
-<h3><a name="_To_run_a_Blast_job"></a>Running a Blast</h3>
-
-<p style='margin-left:21.25pt;text-indent:-21.25pt;line-height:10.5pt'><span
-style='font-size:8.5pt;font-family:Verdana;color:#312C2C'>1</span><span
-style='font-size:7.0pt;color:#312C2C'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span><span style='font-size:8.5pt;font-family:Verdana;color:#312C2C'>Load a
-FASTA file into a project.</span></p>
-
-<p style='margin-left:21.25pt;text-indent:-21.25pt;line-height:10.5pt'><span
-style='font-size:8.5pt;font-family:Verdana;color:#312C2C'>2</span><span
-style='font-size:7.0pt;color:#312C2C'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span><span style='font-size:8.5pt;font-family:Verdana;color:#312C2C'>In the <b>Analysis
-Area, </b>select the <b>Sequence Alignment</b> tab.</span></p>
-
-<p style='margin-left:21.25pt;text-indent:-21.25pt;line-height:10.5pt'><span
-style='font-size:8.5pt;font-family:Verdana;color:#312C2C'>3</span><span
-style='font-size:7.0pt;color:#312C2C'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span><span style='font-size:8.5pt;font-family:Verdana;color:#312C2C'>Select
-the <b>Blast</b> tab.</span></p>
-
-<p style='margin-left:21.25pt;text-indent:-21.25pt;line-height:10.5pt'><span
-style='font-size:8.5pt;font-family:Verdana;color:#312C2C'>4</span><span
-style='font-size:7.0pt;color:#312C2C'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span><span style='font-size:8.5pt;font-family:Verdana;color:#312C2C'>Select <b>program</b>
-from the dropdown list.&nbsp; This includes:</span></p>
-
-<p style='margin-left:49.6pt;text-indent:-28.35pt;line-height:10.5pt'><span
-style='font-size:8.5pt;font-family:"MS Gothic"'>&#12290;</span><span
-style='font-size:7.0pt'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span><span style='font-size:8.5pt;font-family:Verdana;color:#312C2C'>blastp:
-compares an amino acid query sequence against a protein sequence database </span></p>
-
-<p style='margin-left:49.6pt;text-indent:-28.35pt;line-height:10.5pt'><span
-style='font-size:8.5pt;font-family:"MS Gothic"'>&#12290;</span><span
-style='font-size:7.0pt'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span><span style='font-size:8.5pt;font-family:Verdana;color:#312C2C'>blastn:
-compares a nucleotide query sequence against a nucleotide sequence database </span></p>
-
-<p style='margin-left:49.6pt;text-indent:-28.35pt;line-height:10.5pt'><span
-style='font-size:8.5pt;font-family:"MS Gothic"'>&#12290;</span><span
-style='font-size:7.0pt'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span><span style='font-size:8.5pt;font-family:Verdana;color:#312C2C'>blastx:
-compares a nucleotide query sequence translated in all reading frames against a
-protein sequence database </span></p>
-
-<p style='margin-left:49.6pt;text-indent:-28.35pt;line-height:10.5pt'><span
-style='font-size:8.5pt;font-family:"MS Gothic"'>&#12290;</span><span
-style='font-size:7.0pt'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span><span style='font-size:8.5pt;font-family:Verdana;color:#312C2C'>tblastn:
-compares a protein query sequence against a nucleotide sequence database
-dynamically translated in all reading frames</span></p>
-
-<p style='margin-left:49.6pt;text-indent:-28.35pt;line-height:10.5pt'><span
-style='font-size:8.5pt;font-family:"MS Gothic"'>&#12290;</span><span
-style='font-size:7.0pt'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span><span style='font-size:8.5pt;font-family:Verdana;color:#312C2C'>tblastx:
-compares the six-frame translations of a nucleotide query sequence against the
-six-frame translations of a nucleotide sequence database.</span></p>
-
-<p style='margin-left:21.25pt;text-indent:-21.25pt;line-height:10.5pt'><span
-style='font-size:8.5pt;font-family:Verdana;color:#312C2C'>5</span><span
-style='font-size:7.0pt;color:#312C2C'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span><span style='font-size:8.5pt;font-family:Verdana;color:#312C2C'>Modify
-the values of <b>subsequence</b> if needed.</span></p>
-
-<p style='margin-left:21.25pt;text-indent:-21.25pt;line-height:10.5pt'><span
-style='font-size:8.5pt;font-family:Verdana;color:#312C2C'>6</span><span
-style='font-size:7.0pt;color:#312C2C'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span><span style='font-size:8.5pt;font-family:Verdana;color:#312C2C'>Click on
-the database name to select the <b>Database</b>. </span></p>
-
-<p style='margin-left:21.25pt;text-indent:-21.25pt;line-height:10.5pt'><span
-style='font-size:8.5pt;font-family:Verdana;color:#312C2C'>7</span><span
-style='font-size:7.0pt;color:#312C2C'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span><span style='font-size:8.5pt;font-family:Verdana;color:#312C2C'>Click on
-the</span> <span lang=EN>curved arrow submit button</span><b><span
-style='font-size:8.5pt;font-family:Verdana;color:#312C2C'>. </span></b><span
-style='font-size:8.5pt;font-family:Verdana;color:#312C2C'>It will automatically
-check Blast Machine status first, then if the sever is listening, the job will
-be submitted to the server.</span></p>
-
-<p style='margin-left:21.25pt;text-indent:-21.25pt;line-height:10.5pt'><span
-style='font-size:8.5pt;font-family:Verdana;color:#312C2C'>8</span><span
-style='font-size:7.0pt;color:#312C2C'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span><span style='font-size:8.5pt;font-family:Verdana;color:#312C2C'>After
-the job is submitted, the progress bar will indicate that BLAST is now running.
-If you want to stop the job, click <b>Stop </b>(red hexagon).</span></p>
-
-<p style='margin-left:21.25pt;text-indent:-21.25pt;line-height:10.5pt'><span
-style='font-size:8.5pt;font-family:Verdana;color:#312C2C'>9</span><span
-style='font-size:7.0pt;color:#312C2C'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span><span style='font-size:8.5pt;font-family:Verdana;color:#312C2C'>The result
-will be showed on the BlastParser module and based on your choice; it may show
-on a new web browser. You can unselect the button &#8220;Display your result in
-your browser&#8221;, which is located under <b>&#8220;Advanced_Options&#8221;</b>.&nbsp;
-&nbsp;The Alignment Results help section describes the Blast results.</span></p>
-
-<p style='line-height:10.5pt'><span style='font-size:8.5pt;font-family:Verdana;
-color:#312C2C'><img border=0 width=934 height=620
-src="BlastOverview_files/image002.jpg"></span></p>
-
-<p>&nbsp;</p>
-
-<h3><a name="_Other_Algorithms"></a>Other Algorithms <a name=sm></a></h3>
-
-<p class=MsoBodyText style='line-height:10.5pt'><span style='font-size:8.5pt;
-font-family:Verdana;color:#312C2C'>To use other algorithms, select from
-&quot;Other Algorithms&quot; panel. All other algorithms requests will be
-processed on GeneMatcher2 machine.</span></p>
-
-<p style='margin-left:21.25pt;text-indent:-21.25pt;line-height:10.5pt'><span
-style='font-size:8.5pt;font-family:Verdana;color:#312C2C'>1</span><span
-style='font-size:7.0pt;color:#312C2C'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span><span style='font-size:8.5pt;font-family:Verdana;color:#312C2C'>Load a
-FASTA file into a project</span></p>
-
-<p style='margin-left:21.25pt;text-indent:-21.25pt;line-height:10.5pt'><span
-style='font-size:8.5pt;font-family:Verdana;color:#312C2C'>2</span><span
-style='font-size:7.0pt;color:#312C2C'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span><span style='font-size:8.5pt;font-family:Verdana;color:#312C2C'>In the <b>Analysis
-Area</b>, select the <b>Sequence Alignment</b> tab</span></p>
-
-<p style='margin-left:21.25pt;text-indent:-21.25pt;line-height:10.5pt'><span
-style='font-size:8.5pt;font-family:Verdana;color:#312C2C'>3</span><span
-style='font-size:7.0pt;color:#312C2C'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span><span style='font-size:8.5pt;font-family:Verdana;color:#312C2C'>Select
-the <b>Other Algorithms</b> tab</span></p>
-
-<p style='margin-left:21.25pt;text-indent:-21.25pt;line-height:10.5pt'><span
-style='font-size:8.5pt;font-family:Verdana;color:#312C2C'>4</span><span
-style='font-size:7.0pt;color:#312C2C'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span><span style='font-size:8.5pt;font-family:Verdana;color:#312C2C'>Select a
-<b>Database </b>from the dropdown list.</span></p>
-
-<p style='margin-left:21.25pt;text-indent:-21.25pt;line-height:10.5pt'><span
-style='font-size:8.5pt;font-family:Verdana;color:#312C2C'>5</span><span
-style='font-size:7.0pt;color:#312C2C'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span><span style='font-size:8.5pt;font-family:Verdana;color:#312C2C'>Modify
-the values of <b>subsequence</b> if needed</span></p>
-
-<p style='margin-left:21.25pt;text-indent:-21.25pt;line-height:10.5pt'><span
-style='font-size:8.5pt;font-family:Verdana;color:#312C2C'>6</span><span
-style='font-size:7.0pt;color:#312C2C'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span><span style='font-size:8.5pt;font-family:Verdana;color:#312C2C'>Select
-an Algorithm from the dropdown list.&nbsp; The&nbsp; includes:</span></p>
-
-<p style='margin-left:49.6pt;text-indent:-28.35pt;line-height:10.5pt'><span
-style='font-size:8.5pt;font-family:"MS Gothic"'>&#12290;</span><span
-style='font-size:7.0pt'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span><span style='font-size:8.5pt;font-family:Verdana;color:#312C2C'>Smith-Waterman
-Protein: compares an amino acid query sequence against a protein sequence
-database </span></p>
-
-<p style='margin-left:49.6pt;text-indent:-28.35pt;line-height:10.5pt'><span
-style='font-size:8.5pt;font-family:"MS Gothic"'>&#12290;</span><span
-style='font-size:7.0pt'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span><span style='font-size:8.5pt;font-family:Verdana;color:#312C2C'>Smith-Waterman
-DNA: compares a nucleotide query sequence against a nucleotide sequence
-database </span></p>
-
-<p style='margin-left:49.6pt;text-indent:-28.35pt;line-height:10.5pt'><span
-style='font-size:8.5pt;font-family:"MS Gothic"'>&#12290;</span><span
-style='font-size:7.0pt'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span><span style='font-size:8.5pt;font-family:Verdana;color:#312C2C'>Frame(from
-DNA sequence to protein DB): compares a nucleotide query sequence against a
-protein sequence database </span></p>
-
-<p style='margin-left:49.6pt;text-indent:-28.35pt;line-height:10.5pt'><span
-style='font-size:8.5pt;font-family:"MS Gothic"'>&#12290;</span><span
-style='font-size:7.0pt'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span><span style='font-size:8.5pt;font-family:Verdana;color:#312C2C'>Frame(from
-Protein sequence to DNA DB): compares an amino acid query sequence against a
-nucleotide sequence database</span></p>
-
-<p style='margin-left:21.25pt;text-indent:-21.25pt;line-height:10.5pt'><span
-style='font-size:8.5pt;font-family:Verdana;color:#312C2C'>7</span><span
-style='font-size:7.0pt;color:#312C2C'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span><span style='font-size:8.5pt;font-family:Verdana;color:#312C2C'>Click on
-<b>Search</b>. </span></p>
-
-<p style='margin-left:49.6pt;text-indent:-28.35pt;line-height:10.5pt'><span
-style='font-size:8.5pt;font-family:"MS Gothic"'>&#12290;</span><span
-style='font-size:7.0pt'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span><span style='font-size:8.5pt;font-family:Verdana;color:#312C2C'>The
-results are displayed in the Alignment Results visualization component.</span><a
-name="_To_Add_Sequences_to_a_Project"></a></p>
-
-</div>
-
-</body>
 
 </html>
+
