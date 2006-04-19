@@ -55,7 +55,8 @@ public class BlastAlgorithm extends BWAbstractAlgorithm implements SoapClientIn 
             "http://amdec-bioinfo.cu-genome.org/html/temp/";
     private boolean useNCBI = false;
     private ParameterSetting parameterSetting;
-    private final static int TIMEGAP = 2000;
+    private final static int TIMEGAP = 4000;
+    private final static int SHORTTIMEGAP = 50;
 
     public void setBlastAppComponent(BlastAppComponent _blastAppComponent) {
         blastAppComponent = _blastAppComponent;
@@ -121,12 +122,15 @@ public class BlastAlgorithm extends BWAbstractAlgorithm implements SoapClientIn 
         try {
             if (soapClient == null) {
                 try {
-                    Thread.sleep(100);
+                    Thread.sleep(this.SHORTTIMEGAP);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
             }
+            //Begin process NCBI query.
             if (useNCBI) {
+                //display the NCBI URL but only parse the result saved locally.
+                String ncbiResultURLStr = null;
                 String tempFolder = System.getProperties().getProperty(
                         "temporary.files.directory");
                 if (tempFolder == null) {
@@ -147,9 +151,9 @@ public class BlastAlgorithm extends BWAbstractAlgorithm implements SoapClientIn 
                                  ((CSSequence) sequence) );
                     blast = new RemoteBlast(((CSSequence) sequence).
                                             getSequence(), outputFile);
-                    blast.setDbName(parameterSetting.getDbName());
-                    blast.setProgamName(parameterSetting.getProgramName());
-
+                     blast.setDbName(parameterSetting.getDbName());
+//                    blast.setProgamName(parameterSetting.getProgramName());
+                    blast.setCmdLine(AlgorithmMatcher.translateToCommandline(parameterSetting));
                     String BLAST_rid = blast.submitBlast();
                     updateStatus("Querying sequence: " +
                                  ((CSSequence) sequence).getDescriptions().
@@ -157,10 +161,10 @@ public class BlastAlgorithm extends BWAbstractAlgorithm implements SoapClientIn 
                     updateStatus("The Request ID is : " + BLAST_rid);
 
                     blast.getBlast(BLAST_rid, "HTML");
-
+                    ncbiResultURLStr = blast.getResultURLString();
                     while (!blast.getBlastDone()) {
                         try {
-                            updateStatus("The Time since submission is : " +
+                            updateStatus("For sequence " + sequence + ", the Time since submission is : " +
                                          blast.getWaitingTime());
                             Thread.sleep(this.TIMEGAP);
                         } catch (Exception e) {
@@ -187,6 +191,7 @@ public class BlastAlgorithm extends BWAbstractAlgorithm implements SoapClientIn 
                         System.out.println("CANNOT READ " + outputFile);
                     }
 
+
                 }
                 blastResult = new CSAlignmentResultSet(
                         outputFile, activeSequenceDB.getFASTAFileName(),
@@ -197,13 +202,11 @@ public class BlastAlgorithm extends BWAbstractAlgorithm implements SoapClientIn 
                                                   blastResult);
                 if (blastAppComponent != null) {
                     blastAppComponent.publishProjectNodeAddedEvent(event);
-                } else {
-                    blastAppComponent.publishProjectNodeAddedEvent(event);
                 }
                 return;
-            }
+            }//end a NCBI query.
             if (soapClient != null) {
-                String cmd = soapClient.getCMD();
+                String cmd = soapClient.getCmd();
                 String textFile = "";
                 String htmlFile = null;
                 if (cmd.startsWith("pb")) {
@@ -225,8 +228,6 @@ public class BlastAlgorithm extends BWAbstractAlgorithm implements SoapClientIn 
                     textFile = ((SoapClient) soapClient).getOutputfile();
                 }
                 if (blastAppComponent != null) {
-                    blastAppComponent.blastFinished(cmd);
-                } else {
                     blastAppComponent.blastFinished(cmd);
                 }
 

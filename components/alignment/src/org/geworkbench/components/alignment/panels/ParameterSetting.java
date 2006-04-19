@@ -22,7 +22,44 @@ public class ParameterSetting {
          */
         private String penalty;
 
+        private final double DEFAULTEXPECT = 10;
+        /**
+         * Expect value.
+         */
+        private double expect = DEFAULTEXPECT;
+
+        /**
+         * Low complexity filter. Default is on.
+         */
+        private boolean lowComplexityFilterOn = true;
+        /**
+         * Human Repeat Filter, only for blastn program
+         */
+        private boolean humanRepeatFilterOn = false;
+
+        /**
+         * Filter the low case.
+         */
+
+        private boolean maskLowCase = false;
+
+        /**
+         * Whether use NCBI Blast Server
+         */
+        private boolean useNCBI = false;
+        /**
+         * For subsequence information.
+         */
+        private int startPoint = -1;
+        private int endPoint = -1;
+
+
     public ParameterSetting() {
+        try {
+            jbInit();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
     }
 
     public void setDbName(String dbName) {
@@ -45,6 +82,34 @@ public class ParameterSetting {
         this.penalty = penalty;
     }
 
+    public void setExpect(double expect) {
+        this.expect = expect;
+    }
+
+    public void setHumanRepeatFilterOn(boolean humanRepeatFilterOn) {
+        this.humanRepeatFilterOn = humanRepeatFilterOn;
+    }
+
+    public void setLowComplexityFilterOn(boolean lowComplexityFilterOn) {
+        this.lowComplexityFilterOn = lowComplexityFilterOn;
+    }
+
+    public void setUseNCBI(boolean useNCBI) {
+        this.useNCBI = useNCBI;
+    }
+
+    public void setEndPoint(int endPoint) {
+        this.endPoint = endPoint;
+    }
+
+    public void setStartPoint(int startPoint) {
+        this.startPoint = startPoint;
+    }
+
+    public void setMaskLowCase(boolean maskLowCase) {
+        this.maskLowCase = maskLowCase;
+    }
+
     public String getDbName() {
         return dbName;
     }
@@ -63,5 +128,36 @@ public class ParameterSetting {
 
     public String getPenalty() {
         return penalty;
+    }
+
+    public double getExpect() {
+        return expect;
+    }
+
+    public boolean isHumanRepeatFilterOn() {
+        return humanRepeatFilterOn;
+    }
+
+    public boolean isLowComplexityFilterOn() {
+        return lowComplexityFilterOn;
+    }
+
+    public boolean isUseNCBI() {
+        return useNCBI;
+    }
+
+    public int getEndPoint() {
+        return endPoint;
+    }
+
+    public int getStartPoint() {
+        return startPoint;
+    }
+
+    public boolean isMaskLowCase() {
+        return maskLowCase;
+    }
+
+    private void jbInit() throws Exception {
     }
 }

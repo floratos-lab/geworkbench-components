@@ -65,6 +65,9 @@ public class RemoteBlast {
      */
     private Pattern p2 = Pattern.compile(
             "No.putative.conserved.domains.have.been.detected");
+    private String cmdLine;
+
+    private String resultURLString;
     private String dbName;
     private String programName;
 
@@ -141,7 +144,7 @@ public class RemoteBlast {
      */
     public String submitBlast() {
 
-        String message; /* HTTP GET message */
+         String message; /* HTTP GET message */
 
         Socket s = null;
 
@@ -151,8 +154,10 @@ public class RemoteBlast {
 //            message =
 //                          "Put http://www.ncbi.nlm.nih.gov/blast/Blast.cgi?CMD=Put&QUERY=" +
 //                          query + "&DATABASE=" + "nt" + "&PROGRAM=" + programName + "&FILTER=L&HITLIST_SZE=500&AUTO_FORMAT=Semiauto&SHOW_OVERVIEW=on&NCBI_GI=on&PAGE=Nucleotides&SERVICE=plain\r\n\r\n";
-
-       // System.out.println(message);
+            if(cmdLine!=null){
+                message =  "Put http://www.ncbi.nlm.nih.gov/blast/Blast.cgi?CMD=Put&QUERY=" + query + cmdLine;
+            }
+        System.out.println(message);
         try {
 
             s = new Socket(Blast_SERVER, DEFAULT_PORT);
@@ -172,7 +177,7 @@ public class RemoteBlast {
             //reads each incoming line until it finds the CDD and Blast RIDs.
             while (true) {
                 String data = in.readLine();
-                // System.out.println(data);
+                 System.out.println(data);
                 if (CDD_rid == null && data != null) {
                     Matcher m1 = p1.matcher(data);
                     Matcher m2 = p2.matcher(data);
@@ -289,6 +294,8 @@ public class RemoteBlast {
         String message =
                 "Get http://www.ncbi.nlm.nih.gov/blast/Blast.cgi?CMD=Get&FORMAT_TYPE=" +
                 format + "&RID=" + rid + "\r\n\r\n";
+            resultURLString =  "http://www.ncbi.nlm.nih.gov/blast/Blast.cgi?CMD=Get&FORMAT_TYPE=" +
+                format + "&RID=";
         System.out.println(new Date() + message);
       GetBlast getBlast = new GetBlast(message);
       //  runMain(message);
@@ -449,6 +456,14 @@ public class RemoteBlast {
         this.waitingTime = waitingTime;
     }
 
+    public void setCmdLine(String cmdLine) {
+        this.cmdLine = cmdLine;
+    }
+
+    public void setResultURLString(String resultURLString) {
+        this.resultURLString = resultURLString;
+    }
+
     public void setProgamName(String progamName) {
         this.programName = progamName;
     }
@@ -459,6 +474,14 @@ public class RemoteBlast {
 
     public String getWaitingTime() {
         return waitingTime;
+    }
+
+    public String getCmdLine() {
+        return cmdLine;
+    }
+
+    public String getResultURLString() {
+        return resultURLString;
     }
 
     public String getProgamName() {
