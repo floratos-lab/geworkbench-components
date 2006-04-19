@@ -3,10 +3,19 @@ package org.geworkbench.components.example;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.AnnotationParser;
+import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
+import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
+import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
+import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
+import org.geworkbench.bison.annotation.DSAnnotationContext;
+import org.geworkbench.bison.annotation.CSAnnotationContextManager;
+import org.geworkbench.bison.annotation.CSAnnotationContext;
 import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.engine.management.AcceptTypes;
 import org.geworkbench.engine.management.Subscribe;
 import org.geworkbench.events.ProjectEvent;
+import org.apache.commons.math.stat.descriptive.SummaryStatistics;
+import org.apache.commons.math.stat.descriptive.SummaryStatisticsImpl;
 
 import javax.swing.*;
 import java.awt.*;
@@ -38,7 +47,7 @@ public class ExampleComponent extends JPanel implements VisualPlugin {
                 Map<String, List<String>> groups = AnnotationParser.getCustomAnnotationGroupings("Pathway", "///", microarraySet);
                 System.out.println("Worked.");
             }
-        });        
+        });
         add(testButton);
 
     }
@@ -61,7 +70,8 @@ public class ExampleComponent extends JPanel implements VisualPlugin {
      * @param event  the received object.
      * @param source the entity that published the object.
      */
-    @Subscribe public void receive(ProjectEvent event, Object source) {
+    @Subscribe
+    public void receive(ProjectEvent event, Object source) {
         DSDataSet dataSet = event.getDataSet();
         // We will act on this object if it is a DSMicroarraySet
         if (dataSet instanceof DSMicroarraySet) {
@@ -75,6 +85,48 @@ public class ExampleComponent extends JPanel implements VisualPlugin {
                     + "</table>"
                     + "</body></html>";
             infoLabel.setText(htmlText);
+        }
+    }
+
+    private void tProfilerStuff() {
+        // Get all markers in the microarrays
+        DSItemList<DSGeneMarker> markers = microarraySet.getMarkers();
+        // Get case and control sets
+        DSAnnotationContext<DSMicroarray> context = CSAnnotationContextManager.getInstance().getCurrentContext(microarraySet);
+        DSPanel<DSMicroarray> caseMicroararys = context.getActivatedItemsForClass(CSAnnotationContext.CLASS_CASE);
+        DSPanel<DSMicroarray> controlMicroararys = context.getActivatedItemsForClass(CSAnnotationContext.CLASS_CONTROL);
+        // Get marker groupings by a custom annotation
+        Map<String, List<String>> groups = AnnotationParser.getCustomAnnotationGroupings("Pathway", "///", microarraySet);
+        // Iterate through the groups
+        Set<String> groupNames = groups.keySet();
+        for (String groupName : groupNames) {
+            List<String> markerIDs = groups.get(groupName);
+            // Iterate through the markers
+            int index = 0;
+            int n = markerIDs.size();
+            double[] caseValues = new double[n];
+            double[] controlValues = new double[n];
+            for (String markerID : markerIDs) {
+                DSGeneMarker marker = markers.get(markerID);
+                SummaryStatistics caseStats = new SummaryStatisticsImpl();
+                SummaryStatistics controlStats = new SummaryStatisticsImpl();
+                // Iterate through the case microarrays
+                for (DSMicroarray microarray : caseMicroararys) {
+                    // Add the microaray value for this marker to the summary stats
+                    caseStats.addValue(microarray.getMarkerValue(marker).getValue());
+                }
+                for (DSMicroarray microarray : controlMicroararys) {
+                    // Add the microaray value for this marker to the summary stats
+                    controlStats.addValue(microarray.getMarkerValue(marker).getValue());
+                }
+                double caseMeanValue = caseStats.getMean();
+                double controlMeanValue = controlStats.getMean();
+                caseValues[index] = caseMeanValue;
+                controlValues[index] = controlMeanValue;
+                index++;
+            }
+            // todo - Compute t-value for group using caseValues and controlValues
+            double tValue = 5; // Fake t-value for now
         }
     }
 }
