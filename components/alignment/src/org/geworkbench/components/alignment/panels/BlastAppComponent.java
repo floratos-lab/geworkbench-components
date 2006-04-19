@@ -99,8 +99,8 @@ import org.geworkbench.events.MicroarraySetViewEvent;
     JLabel matrixLabel = new JLabel();
     JPanel blastxSettingPanel = new JPanel();
     JComboBox jqueryGenericCodeBox = new JComboBox();
-    JLabel jFrameShiftLabel = new JLabel();
-    JComboBox jFrameShiftPaneltyBox = new JComboBox();
+    JLabel jWordsizeLabel = new JLabel();
+    JComboBox jWordsizeBox = new JComboBox();
     ParameterSetter parameterSetter = new ParameterSetter();
     CSSequenceSet fastaFile;
     private BlastAppComponent blastAppComponent = null;
@@ -193,6 +193,9 @@ import org.geworkbench.events.MicroarraySetViewEvent;
     BorderLayout borderLayout3 = new BorderLayout();
     JScrollPane jScrollPane4 = new JScrollPane();
     public static final int MAIN = 0;
+    JCheckBox humanRepeatFilter = new JCheckBox();
+    JPanel jPanel1 = new JPanel();
+    private JCheckBox maskLowCaseBox = new JCheckBox();
     public BlastAppComponent() {
         try {
             jbInit();
@@ -218,8 +221,8 @@ import org.geworkbench.events.MicroarraySetViewEvent;
         jScrollPane4 = new JScrollPane();
         CreateGridServicePanel sgePanel = new CreateGridServicePanel();
         //JComboBox jMatrixBox = new JComboBox();
-        JCheckBox lowComplexFilterBox = new JCheckBox();
-        JPanel jAdvancedPane = new JPanel();
+        lowComplexFilterBox = new JCheckBox();
+        jAdvancedPane = new JPanel();
         JFileChooser jFileChooser1 = new JFileChooser();
 
         checkboxPanel = new JPanel();
@@ -234,8 +237,8 @@ import org.geworkbench.events.MicroarraySetViewEvent;
         matrixLabel = new JLabel();
         blastxSettingPanel = new JPanel();
         jqueryGenericCodeBox = new JComboBox();
-        jFrameShiftLabel = new JLabel();
-        jFrameShiftPaneltyBox = new JComboBox();
+        jWordsizeLabel = new JLabel();
+        jWordsizeBox = new JComboBox();
         parameterSetter = new ParameterSetter();
 
         jLabel1 = new JLabel();
@@ -342,7 +345,7 @@ import org.geworkbench.events.MicroarraySetViewEvent;
         jPanel3.setLayout(borderLayout3);
         //this.add(jLabel4, java.awt.BorderLayout.NORTH);
         pfpFilterBox.setToolTipText("Paracel Filtering Package");
-        pfpFilterBox.setSelected(true);
+        pfpFilterBox.setSelected(false);
         pfpFilterBox.setText("PFP Filter");
         //   jEntThreshBox.addActionListener(new
         //                                  ParameterPanel_jEntThreshBox_actionAdapter(this));
@@ -356,7 +359,7 @@ import org.geworkbench.events.MicroarraySetViewEvent;
         //jMatrixBox.setSelectedIndex(0);
         lowComplexFilterBox.setMinimumSize(new Dimension(10, 23));
         lowComplexFilterBox.setMnemonic('0');
-        lowComplexFilterBox.setSelected(false);
+        lowComplexFilterBox.setSelected(true);
         lowComplexFilterBox.setText("Low Complexity");
         lowComplexFilterBox.addActionListener(new
                                               BlastAppComponent_lowComplexFilterBox_actionAdapter(this));
@@ -390,7 +393,7 @@ import org.geworkbench.events.MicroarraySetViewEvent;
         jMatrixBox.addActionListener(new
                                      BlastAppComponent_jMatrixBox_actionAdapter(this));
         // this.setLayout(borderLayout1);
-        maskLookupOnlyBox.setText("Mask the lookup table.");
+        maskLookupOnlyBox.setText("Mask for lookup table only");
         maskLookupOnlyBox.setMinimumSize(new Dimension(5, 23));
         maskLookupOnlyBox.setMnemonic('0');
         maskLookupOnlyBox.setSelected(false);
@@ -411,14 +414,14 @@ import org.geworkbench.events.MicroarraySetViewEvent;
         jqueryGenericCodeBox.setVerifyInputWhenFocusTarget(true);
         jqueryGenericCodeBox.setToolTipText("Select the Generic Code.");
         //jqueryGenericCodeBox.addActionListener(new BlastAppComponent_jqueryGenericCodeBox_actionAdapter(this));
-        jFrameShiftLabel.setText("Frame shift penalty:");
-        jFrameShiftPaneltyBox.setToolTipText(
-                "Select the panelty of FrameShift.");
-        jFrameShiftPaneltyBox.setVerifyInputWhenFocusTarget(true);
-        jFrameShiftPaneltyBox.setSelectedIndex( -1);
-        jFrameShiftPaneltyBox.setSelectedIndex( -1);
-        jFrameShiftPaneltyBox.setSelectedItem(null);
-        jFrameShiftPaneltyBox.addActionListener(new
+       // jWordsizeLabel.setText("Word Size:");
+        jWordsizeBox.setToolTipText(
+                "Select the word size, default is 3 for blastp, 11 for blastn.");
+//        jWordsizeBox.setVerifyInputWhenFocusTarget(true);
+//        jWordsizeBox.setSelectedIndex( -1);
+//        jWordsizeBox.setSelectedIndex( -1);
+//        jWordsizeBox.setSelectedItem(null);
+        jWordsizeBox.addActionListener(new
                                                 BlastAppComponent_jFrameShiftPaneltyBox_actionAdapter(this));
         blastxSettingPanel.setLayout(gridBagLayout2);
         jServerInfoPane.setMinimumSize(new Dimension(0, 0));
@@ -539,12 +542,20 @@ import org.geworkbench.events.MicroarraySetViewEvent;
         jButton2.setIcon(startButtonIcon);
         jButton2.addActionListener(new
                                    BlastAppComponent_jButton2_actionAdapter(this));
+        humanRepeatFilter = new JCheckBox();
+        humanRepeatFilter.setToolTipText("Human Repeat Filter");
+        humanRepeatFilter.setSelected(false);
+        humanRepeatFilter.setText("Human Repeats Filter");
+        maskLowCaseBox = new JCheckBox();
+        maskLowCaseBox.setToolTipText("Filterl lower case sequences.");
+        maskLowCaseBox.setText("Mask lower case");
+        jWordsizeLabel.setText("Word size:");
         blastxSettingPanel.add(jExpectBox,
                                new GridBagConstraints(1, 3, 1, 1, 1.0, 0.0
                 , GridBagConstraints.WEST,
                 GridBagConstraints.HORIZONTAL,
                 new Insets(2, 2, 2, 2), 0, 0));
-        blastxSettingPanel.add(jFrameShiftPaneltyBox,
+        blastxSettingPanel.add(jWordsizeBox,
                                new GridBagConstraints(1, 0, 1, 1, 1.0, 0.0
                 , GridBagConstraints.WEST,
                 GridBagConstraints.HORIZONTAL,
@@ -554,7 +565,7 @@ import org.geworkbench.events.MicroarraySetViewEvent;
                 , GridBagConstraints.WEST,
                 GridBagConstraints.HORIZONTAL,
                 new Insets(2, 2, 2, 2), 0, 0));
-        blastxSettingPanel.add(jFrameShiftLabel,
+        blastxSettingPanel.add(jWordsizeLabel,
                                new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
                 , GridBagConstraints.WEST,
                 GridBagConstraints.NONE,
@@ -705,10 +716,14 @@ import org.geworkbench.events.MicroarraySetViewEvent;
                 , GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                 new Insets(0, 0, 0, 0), 98, 7));
         jScrollPane3.getViewport().add(jList4, null);
-        filterPanel.add(pfpFilterBox, null);
         filterPanel.add(lowComplexFilterBox, null);
+        filterPanel.add(maskLowCaseBox);
         filterPanel.add(maskLookupOnlyBox, null);
-        filterPanel.add(jDisplayInWebBox, null);
+        filterPanel.add(humanRepeatFilter);
+        filterPanel.add(pfpFilterBox, null);
+        jPanel1 = new JPanel();
+        filterPanel.add(jPanel1);
+        jPanel1.add(jDisplayInWebBox);
         jTabbedBlastPane.add(jBasicPane, "Main");
         jTabbedBlastPane.add(jAdvancedPane, "Advanced Options");
         jTabbedBlastPane.add(jServerInfoPane, "Service");
@@ -752,28 +767,26 @@ import org.geworkbench.events.MicroarraySetViewEvent;
         jqueryGenericCodeBox.addItem("Invertebrate Mitochondrial ");
         jqueryGenericCodeBox.addItem("Echinoderm Mitochondrial ");
         jqueryGenericCodeBox.addItem("Euplotid Nuclear ");
-        jFrameShiftPaneltyBox.addItem("NO OOF");
-        jFrameShiftPaneltyBox.addItem("6");
-        jFrameShiftPaneltyBox.addItem("7");
-        jFrameShiftPaneltyBox.addItem("8");
-        jFrameShiftPaneltyBox.addItem("9");
-        jFrameShiftPaneltyBox.addItem("10");
-        jFrameShiftPaneltyBox.addItem("11");
-        jFrameShiftPaneltyBox.addItem("12");
-        jFrameShiftPaneltyBox.addItem("13");
-        jFrameShiftPaneltyBox.addItem("14");
-        jFrameShiftPaneltyBox.addItem("15");
+//        jWordsizeBox.addItem("NO OOF");
+        jWordsizeBox.addItem("3");
+        jWordsizeBox.addItem("2");
 
-        jFrameShiftPaneltyBox.addItem("16");
-        jFrameShiftPaneltyBox.addItem("17");
-        jFrameShiftPaneltyBox.addItem("18");
-        jFrameShiftPaneltyBox.addItem("19");
-        jFrameShiftPaneltyBox.addItem("20");
-        jFrameShiftPaneltyBox.addItem("25");
-        jFrameShiftPaneltyBox.addItem("50");
-        jFrameShiftPaneltyBox.addItem("100");
+        jWordsizeBox.addItem("7");
 
-        jFrameShiftPaneltyBox.addItem("1000");
+        jWordsizeBox.addItem("11");
+
+        jWordsizeBox.addItem("15");
+
+//        jWordsizeBox.addItem("16");
+//        jWordsizeBox.addItem("17");
+//        jWordsizeBox.addItem("18");
+//        jWordsizeBox.addItem("19");
+//        jWordsizeBox.addItem("20");
+//        jWordsizeBox.addItem("25");
+//        jWordsizeBox.addItem("50");
+//        jWordsizeBox.addItem("100");
+//
+//        jWordsizeBox.addItem("1000");
         jTabbedPane1.setSelectedComponent(jTabbedBlastPane);
         jTabbedBlastPane.setSelectedComponent(jBasicPane);
         /*
@@ -807,6 +820,15 @@ import org.geworkbench.events.MicroarraySetViewEvent;
             String[] model = AlgorithmMatcher.translateToMatrices(
                     selectedProgramName);
             jMatrixBox.setModel(new DefaultComboBoxModel(model));
+            String[] model2 = AlgorithmMatcher.translateToWordSize(
+                 selectedProgramName);
+         jWordsizeBox.setModel(new DefaultComboBoxModel(model2));
+         if(selectedProgramName.equalsIgnoreCase("blastn")){
+             humanRepeatFilter.setEnabled(true);
+         }else{
+             humanRepeatFilter.setEnabled(false);
+         }
+
         }
         //jScrollPanel = new JScrollPanel(jDBList);
         // repaint();
@@ -837,12 +859,7 @@ import org.geworkbench.events.MicroarraySetViewEvent;
         fastaFile = sd;
         int endPoint = 0;
         if (sd != null) {
-//            for (Object o : sd) {
-//                int newPoint = ((CSSequence) o).length();
-//                if (endPoint < newPoint) {
-//                    endPoint = newPoint;
-//                }
-//            }
+
             endPoint = sd.getMaxLength();
             jendPointField.setText(new Integer(endPoint).toString());
             jendPointField1.setText(new Integer(endPoint).toString());
@@ -856,35 +873,9 @@ import org.geworkbench.events.MicroarraySetViewEvent;
                                       JOptionPane.ERROR_MESSAGE);
     }
 
-    public ParameterSetter retriveNCBIParameters() {
-        ParameterSetting parameterSetting = new ParameterSetting();
-        String dbName = (String) jDBList.getSelectedValue();
-
-        String programName = (String) jProgramBox.getSelectedItem();
-
-        if (dbName == null) {
-            reportError("Please select a DATABASE to search!",
-                        "Parameter Error");
-            return null;
-
-        } else {
-            //get the last part of db name
-            String[] list = dbName.split("/");
-            if (list.length > 1) {
-                String[] dbNameWithSuffix = list[list.length - 1].split(" ");
-                dbName = dbNameWithSuffix[0];
-            } else {
-
-            }
-        }
-        if (programName == null) {
-            reportError("Please select a PROGRAM to search!", "Parameter Error");
-            return null;
-        }
-        parameterSetting.setDbName(dbName);
-        parameterSetting.setProgramName(programName);
-        parameterSetting.setViewInBrowser(jDisplayInWebBox.isSelected());
-
+    public ParameterSetter processNCBIParameters() {
+        ParameterSetting parameterSetting = collectParameters();
+        parameterSetting.setUseNCBI(true);
         if (activeSequenceDB != null) {
             if (sequenceDB == null) {
                 reportError("Please select a sequence file first!",
@@ -905,29 +896,24 @@ import org.geworkbench.events.MicroarraySetViewEvent;
                                         ".html";
                     //progressBar = new JProgressBar(0, 100);
 
-                    serviceProgressBar.setForeground(Color.BLUE);
+                    serviceProgressBar.setForeground(Color.GREEN);
                     serviceProgressBar.setBackground(Color.WHITE);
 
-//                    serviceProgressBar.setIndeterminate(true);
-//                    serviceProgressBar.setString(
-//                            "Please wait for response from NCBI BLAST Server...");
                     updateProgressBar(10, "Wait...");
                     if (fastaFile == null && activeSequenceDB != null) {
                         fastaFile = (CSSequenceSet) activeSequenceDB;
                     }
-                    SoapClient sc = new SoapClient(programName, dbName,
+                    SoapClient sc = new SoapClient(parameterSetting.
+                            getProgramName(), parameterSetting.getDbName(),
                             outputFile);
 
-//                    //sc.setSequenceDB((CSSequenceSet) sequenceDB);
                     sc.setSequenceDB(activeSequenceDB);
                     BlastAlgorithm blastAlgo = new BlastAlgorithm();
                     blastAlgo.setUseNCBI(true);
                     blastAlgo.setParameterSetting(parameterSetting);
 
-                    //       blastAlgo.setBlastAppComponent(blastAppComponent);
                     blastAlgo.setBlastAppComponent(this);
                     blastAlgo.setSoapClient(sc);
-//                    blastAlgo.setStartBrowser(jDisplayInWebBox.isSelected());
                     blastAlgo.start();
                     Thread.sleep(5);
 
@@ -941,12 +927,18 @@ import org.geworkbench.events.MicroarraySetViewEvent;
 
     }
 
-    public ParameterSetter retriveParameters() {
-
+    /**
+     * Collect all selected parameters and save it to a ParameterSetting object.
+     * @return ParameterSetting
+     */
+    public ParameterSetting collectParameters() {
+        ParameterSetting ps = new ParameterSetting();
         String dbName = (String) jDBList.getSelectedValue();
-
         String programName = (String) jProgramBox.getSelectedItem();
-
+        if (programName == null) {
+                    reportError("Please select a PROGRAM to search!", "Parameter Error");
+                    return null;
+        }
         if (dbName == null) {
             reportError("Please select a DATABASE to search!",
                         "Parameter Error");
@@ -957,64 +949,73 @@ import org.geworkbench.events.MicroarraySetViewEvent;
             dbName = st.nextToken();
 
         }
-        if (programName == null) {
-            reportError("Please select a PROGRAM to search!", "Parameter Error");
-            return null;
+
+        boolean lowComplexFilterOn = lowComplexFilterBox.isSelected();
+        boolean humanRepeatFilterOn = humanRepeatFilter.isSelected();
+        String expectString = (String) jExpectBox.getSelectedItem();
+        double expectValue = 10;
+        if (expectString != null) {
+            expectValue = Double.parseDouble(expectString.trim());
+        }
+        String endPoint = jendPointField.getSelectedText();
+        String startPoint = jstartPointField.getSelectedText();
+        if (fastaFile == null && activeSequenceDB != null) {
+            fastaFile = (CSSequenceSet) activeSequenceDB;
+        } else if (fastaFile == null && sequenceDB != null) {
+            fastaFile = (CSSequenceSet) sequenceDB;
         }
 
+        int endValue = -1;
+        int startValue = 1;
+        if (endPoint != null) {
+            try {
+                endValue = Integer.parseInt(endPoint.trim());
+                startValue = Integer.parseInt(startPoint.trim());
+            } catch (NumberFormatException e) {
+
+            }
+        }
+
+        ps.setDbName(dbName);
+        ps.setProgramName(programName);
+        ps.setViewInBrowser(jDisplayInWebBox.isSelected());
+        ps.setExpect(expectValue);
+        ps.setLowComplexityFilterOn(lowComplexFilterOn);
+        ps.setHumanRepeatFilterOn(humanRepeatFilterOn);
+        ps.setMatrix((String)jMatrixBox.getSelectedItem());
+        if (startValue <= 1 && endValue >= fastaFile.getMaxLength()) {
+            //just use whole sequence. No end to reset.
+
+        } else {
+            ps.setStartPoint(startValue);
+            ps.setEndPoint(endValue);
+        }
+
+        return ps;
+    }
+
+
+    /**
+     * Collect selected parameters.
+     * @return ParameterSetter
+     */
+
+    public ParameterSetter processParameters() {
+        ParameterSetting parameterSetting = collectParameters();
+        parameterSetting.setUseNCBI(false);
+        jServerInfoPane.retriveServerInfo();
         if (fastaFile == null) {
             if (sequenceDB == null) {
                 reportError("Please select a sequence file first!",
                             "Parameter Error");
                 return null;
-            } else { //to handle new sequenceDB.
-                jServerInfoPane.retriveServerInfo();
-                try {
-                    String tempFolder = System.getProperties().getProperty(
-                            "temporary.files.directory");
-                    if (tempFolder == null) {
-                        tempFolder = ".";
-
-                    }
-
-                    String outputFile = tempFolder + "Blast" +
-                                        RandomNumberGenerator.getID() +
-                                        ".html";
-                    //progressBar = new JProgressBar(0, 100);
-
-                    serviceProgressBar.setForeground(Color.ORANGE);
-                    serviceProgressBar.setBackground(Color.WHITE);
-
-                    serviceProgressBar.setIndeterminate(true);
-                    serviceProgressBar.setString("Blast is running.");
-                    if (fastaFile == null) {
-                        fastaFile = (CSSequenceSet) sequenceDB;
-                    }
-                    SoapClient sc = new SoapClient(programName, dbName,
-                            outputFile);
-                    //sc.setSequenceDB((CSSequenceSet) sequenceDB);
-                    sc.setSequenceDB(activeSequenceDB);
-                    BlastAlgorithm blastAlgo = new BlastAlgorithm();
-                    // blastAlgo.setBlastAppComponent(blastAppComponent);
-                    blastAlgo.setBlastAppComponent(this);
-                    blastAlgo.setSoapClient(sc);
-                    blastAlgo.setStartBrowser(jDisplayInWebBox.isSelected());
-                    blastAlgo.start();
-                    Thread.sleep(5);
-                    //System.out.println("WRONG at PVW: " + parameterSetter + "algo" + blastAlgo);
-                    if (blastAlgo != null) {
-                        parameterSetter.setAlgo(blastAlgo);
-                    }
-
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-
             }
+
         } else {
-            jServerInfoPane.retriveServerInfo();
 
             try {
+
+
                 String tempFolder = System.getProperties().getProperty(
                         "temporary.files.directory");
                 if (tempFolder == null) {
@@ -1025,21 +1026,26 @@ import org.geworkbench.events.MicroarraySetViewEvent;
                 String outputFile = tempFolder + "Blast" +
                                     RandomNumberGenerator.getID() +
                                     ".html";
-                serviceProgressBar.setForeground(Color.ORANGE);
-                serviceProgressBar.setBackground(Color.WHITE);
-                serviceProgressBar.setIndeterminate(true);
-                serviceProgressBar.setString("Blast is running.");
+
                 if (fastaFile == null) {
                     fastaFile = activeSequenceDB;
                 }
-                SoapClient sc = new SoapClient(programName, dbName,
+                SoapClient sc = new SoapClient(parameterSetting.getProgramName(),
+                                               parameterSetting.getDbName(),
                                                outputFile);
+                serviceProgressBar.setForeground(Color.ORANGE);
+               serviceProgressBar.setBackground(Color.WHITE);
+               serviceProgressBar.setIndeterminate(true);
+               serviceProgressBar.setString(
+                       "Blast is running at Columbia Blast Server.");
+
                 BlastAlgorithm blastAlgo = new BlastAlgorithm();
                 sc.setSequenceDB(activeSequenceDB);
-                //blastAlgo.setBlastAppComponent(blastAppComponent);
+                sc.setCmd(AlgorithmMatcher.translateToCommandline(
+                        parameterSetting));
                 blastAlgo.setBlastAppComponent(this);
                 blastAlgo.setSoapClient(sc);
-                blastAlgo.setStartBrowser(jDisplayInWebBox.isSelected());
+                blastAlgo.setStartBrowser(parameterSetting.isViewInBrowser());
                 blastAlgo.start();
                 Thread.sleep(2);
                 if (blastAlgo != null && parameterSetter != null) {
@@ -1209,9 +1215,9 @@ import org.geworkbench.events.MicroarraySetViewEvent;
             jTabbedBlastPane.setSelectedIndex(this.MAIN);
             if (jServerInfoPane.getServerType() ==
                 ServerInfoPanel.DEFAULTSERVERTYPE) {
-                parameterSetter = retriveParameters();
+                parameterSetter = processParameters();
             } else if (jServerInfoPane.getServerType() == ServerInfoPanel.NCBI) {
-                parameterSetter = retriveNCBIParameters();
+                parameterSetter = processNCBIParameters();
 
             }
         } else {
