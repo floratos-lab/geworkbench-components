@@ -422,7 +422,7 @@ public class BlastObj {
                         uin));
                 String line;
                 while ((line = in.readLine()) != null) {
-                    System.out.println(line);
+
                     if (line.startsWith("</form><pre>>") ||
                         line.trim().
                         startsWith(
