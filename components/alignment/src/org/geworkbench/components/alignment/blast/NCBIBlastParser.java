@@ -75,11 +75,12 @@ public class NCBIBlastParser {
         hits = new Vector();
         this.filename = filename;
     }
+
     public NCBIBlastParser(String aString) {
-       filename = aString;
-       hits = new Vector();
-       totalSequenceNum = 1;
-   }
+        filename = aString;
+        hits = new Vector();
+        totalSequenceNum = 1;
+    }
 
 
     /**
@@ -203,7 +204,8 @@ public class NCBIBlastParser {
                                     "Sequences producing significant alignments:"))) {
                             break;
                         }
-                        if (line == null || (line.contains("No significant similarity found."))) {
+                        if (line == null ||
+                            (line.contains("No significant similarity found."))) {
                             noHitsFound = true;
                             break;
                         }
@@ -302,7 +304,7 @@ public class NCBIBlastParser {
                         while (line.trim().startsWith("<pre><script") ||
                                line.trim().startsWith(">")) {
                             //System.out.println("test5" + line);
-                            if (line.trim().startsWith("<PRE>  Database")) {
+                            if (line.trim().startsWith("</pre><form>")) {
                                 endofResult = true;
                                 break;
                             }
@@ -314,12 +316,10 @@ public class NCBIBlastParser {
 //                                    break;
 //                                }
 
-                            boolean additionalAlignedParts = false;
+                            boolean additionalDetail = false;
                             if (line.trim().startsWith("Score")) {
                                 index--;
-                                additionalAlignedParts = true;
-                                System.out.println("ADDITION" +
-                                        additionalAlignedParts + line);
+                                additionalDetail = true;
 
                             }
                             //System.out.println("index"  + index + " " + hits.size());
@@ -339,7 +339,7 @@ public class NCBIBlastParser {
                             int endPoint = 0;
                             while (!(line.trim().startsWith(">"))) {
 
-                                if (line.startsWith("Database:")) {
+                                if (line.startsWith("</pre><form>")) {
                                     //end of the useful information for one blast.
                                     endofResult = true;
                                     break;
@@ -349,8 +349,6 @@ public class NCBIBlastParser {
                                     each.setLength(new Integer(line.substring(8).
                                             trim()).intValue());
                                 }
-
-                                 if (!additionalAlignedParts) {
                                 if (line.startsWith("Identities = ")) {
                                     /**todo
                                      * use Matchs pattern later.
@@ -385,12 +383,11 @@ public class NCBIBlastParser {
                                                intValue();
                                 }
 
-                                 }
                                 //System.out.println(each.getStartPoint() + "" + each.getEndPoint());
                                 String s = br.readLine();
                                 line = s.trim();
-                                if(!line.startsWith(">")){
-                                detaillines += s + NEWLINESIGN;
+                                if (!line.startsWith(">")) {
+                                    detaillines += s + NEWLINESIGN;
                                 }
                             }
                             each.setEndPoint(endPoint);
@@ -398,14 +395,11 @@ public class NCBIBlastParser {
                                     each.getEndPoint() + 1));
                             each.setSubject(subject);
                             //System.out.println("sub" + subject);
-                            if (endofResult) {
-                                endofResult = false;
-                                break;
-                            }
+
                             detaillines += "</PRE>";
 
                             //System.out.println(detaillines);
-                            if (additionalAlignedParts) {
+                            if (additionalDetail) {
                                 String previousDetail = each.
                                         getDetailedAlignment();
                                 detaillines = previousDetail + detaillines;
@@ -414,7 +408,13 @@ public class NCBIBlastParser {
 //                                br.readLine();
 //                                br.readLine();
 //                                line = br.readLine();
+
                             index++;
+                            if (endofResult) {
+                                endofResult = false;
+                                break;
+                            }
+
                         }
                         line = br.readLine();
                         Vector newHits = hits;
@@ -438,7 +438,7 @@ public class NCBIBlastParser {
             //System.exit(1);
         } catch (IOException e) {
             System.out.println("NCBIBLASTParser + IOException!");
-           // e.printStackTrace();
+            // e.printStackTrace();
             return false;
         } catch (Exception e) {
 

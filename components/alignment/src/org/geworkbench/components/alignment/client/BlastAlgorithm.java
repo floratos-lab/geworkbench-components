@@ -210,7 +210,11 @@ public class BlastAlgorithm extends BWAbstractAlgorithm implements SoapClientIn 
                 String textFile = "";
                 String htmlFile = null;
                 if (cmd.startsWith("pb")) {
-                    soapClient.startRun(true);
+                    if(!soapClient.startRun(true)){
+                        //fail to connect or other problem.
+                        blastAppComponent.reportError("Fail to connect to Columbia Blast Server.", "Server unreachable");
+                        return;
+                    }
                     htmlFile = ((SoapClient) soapClient).getOutputfile();
                     if (stopRequested) {
                         return;
