@@ -1002,6 +1002,9 @@ import org.geworkbench.events.MicroarraySetViewEvent;
 
     public ParameterSetter processParameters() {
         ParameterSetting parameterSetting = collectParameters();
+        if(parameterSetting==null){
+            return null;
+        }
         parameterSetting.setUseNCBI(false);
         jServerInfoPane.retriveServerInfo();
         if (fastaFile == null) {

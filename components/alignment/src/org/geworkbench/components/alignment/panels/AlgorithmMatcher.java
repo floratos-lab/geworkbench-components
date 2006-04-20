@@ -142,11 +142,9 @@ public class AlgorithmMatcher {
                 cmd += "&EXPECT=" + ps.getExpect() + "&HITLIST_SZE=500&AUTO_FORMAT=Semiauto&CDD_SEARCH=on&SHOW_OVERVIEW=on&SERVICE=plain\r\n\r\n";
 
             }
-            //+ "&FILTER=L&HITLIST_SZE=500&AUTO_FORMAT=Semiauto&CDD_SEARCH=on&SHOW_OVERVIEW=on&SERVICE=plain\r\n\r\n";
-
 
         }
-        System.out.println("(" + cmd + ")");
+        //System.out.println("(" + cmd + ")");
         return cmd;
 
     }

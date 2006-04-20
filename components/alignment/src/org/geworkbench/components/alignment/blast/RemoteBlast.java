@@ -65,9 +65,19 @@ public class RemoteBlast {
      */
     private Pattern p2 = Pattern.compile(
             "No.putative.conserved.domains.have.been.detected");
+    /**
+     * the combination of parameters.
+     */
     private String cmdLine;
-
+    /**
+     *  The URL of the Blast result coresponds to one sequence. Don't use it in the problem.
+     */
     private String resultURLString;
+
+    private final String SUBMITPREFIX =
+            "Put http://www.ncbi.nlm.nih.gov/blast/Blast.cgi?CMD=Put&QUERY=";
+    private final String RESULTPREFIX =
+            "Get http://www.ncbi.nlm.nih.gov/blast/Blast.cgi?CMD=Get&FORMAT_TYPE=";
     private String dbName;
     private String programName;
 
@@ -144,20 +154,17 @@ public class RemoteBlast {
      */
     public String submitBlast() {
 
-         String message; /* HTTP GET message */
+        String message; /* HTTP GET message */
 
         Socket s = null;
 
         message =
-                "Put http://www.ncbi.nlm.nih.gov/blast/Blast.cgi?CMD=Put&QUERY=" +
+                SUBMITPREFIX +
                 query + "&DATABASE=" + dbName + "&PROGRAM=" + programName + "&FILTER=L&HITLIST_SZE=500&AUTO_FORMAT=Semiauto&CDD_SEARCH=on&SHOW_OVERVIEW=on&SERVICE=plain\r\n\r\n";
-//            message =
-//                          "Put http://www.ncbi.nlm.nih.gov/blast/Blast.cgi?CMD=Put&QUERY=" +
-//                          query + "&DATABASE=" + "nt" + "&PROGRAM=" + programName + "&FILTER=L&HITLIST_SZE=500&AUTO_FORMAT=Semiauto&SHOW_OVERVIEW=on&NCBI_GI=on&PAGE=Nucleotides&SERVICE=plain\r\n\r\n";
-            if(cmdLine!=null){
-                message =  "Put http://www.ncbi.nlm.nih.gov/blast/Blast.cgi?CMD=Put&QUERY=" + query + cmdLine;
-            }
-        System.out.println(message);
+        if (cmdLine != null) {
+            message = SUBMITPREFIX + query + cmdLine;
+        }
+        //System.out.println(message);
         try {
 
             s = new Socket(Blast_SERVER, DEFAULT_PORT);
@@ -177,7 +184,7 @@ public class RemoteBlast {
             //reads each incoming line until it finds the CDD and Blast RIDs.
             while (true) {
                 String data = in.readLine();
-                 System.out.println(data);
+                // System.out.println(data);
                 if (CDD_rid == null && data != null) {
                     Matcher m1 = p1.matcher(data);
                     Matcher m2 = p2.matcher(data);
@@ -186,8 +193,7 @@ public class RemoteBlast {
                     }
                     if (m2.find()) {
                         CDD_rid = "none";
-//                        System.out.println(
-//                                "No.putative.conserved.domains.have.been.detected");
+
                     }
                 }
                 if (data == null) {
@@ -292,13 +298,14 @@ public class RemoteBlast {
     public void getBlast(String rid, String format) {
         getBlastDone = false;
         String message =
-                "Get http://www.ncbi.nlm.nih.gov/blast/Blast.cgi?CMD=Get&FORMAT_TYPE=" +
+                RESULTPREFIX +
                 format + "&RID=" + rid + "\r\n\r\n";
-            resultURLString =  "http://www.ncbi.nlm.nih.gov/blast/Blast.cgi?CMD=Get&FORMAT_TYPE=" +
+        resultURLString =
+                "http://www.ncbi.nlm.nih.gov/blast/Blast.cgi?CMD=Get&FORMAT_TYPE=" +
                 format + "&RID=";
-        System.out.println(new Date() + message);
-      GetBlast getBlast = new GetBlast(message);
-      //  runMain(message);
+        // System.out.println(new Date() + message);
+        GetBlast getBlast = new GetBlast(message);
+        //  runMain(message);
         //System.out.println(new Date() + "END");
         //GetBlast bl = new GetBlast(rid, format);
     }
@@ -323,118 +330,103 @@ public class RemoteBlast {
 
         public GetBlast(String Blast_rid, String format) {
             message =
-                    "Get http://www.ncbi.nlm.nih.gov/blast/Blast.cgi?CMD=Get&FORMAT_TYPE=" +
-                    format + "&RID=" + Blast_rid + "\r\n\r\n";
+                    RESULTPREFIX + format + "&RID=" + Blast_rid + "\r\n\r\n";
 
             this.start();
         }
 
         public void run() {
 
-                runMain(message);
+            runMain(message);
 
         } //end of run().
 
         public void runMain(String message) {
 
-    String file;
-    Socket s;
-    try {
-        //create an output stream for writing to a file. appending file.
-        PrintStream ps = new PrintStream(new FileOutputStream(new File(
-                filename), true), true);
+            String file;
+            Socket s;
+            try {
+                //create an output stream for writing to a file. appending file.
+                PrintStream ps = new PrintStream(new FileOutputStream(new File(
+                        filename), true), true);
 
-        boolean BlastnotDone = false;
-        while (!BlastnotDone) {
+                boolean BlastnotDone = false;
+                while (!BlastnotDone) {
 
-            s = new Socket(Blast_SERVER, DEFAULT_PORT);
+                    s = new Socket(Blast_SERVER, DEFAULT_PORT);
 
-            //create an output stream for sending message.
-            DataOutputStream out = new DataOutputStream(s.getOutputStream());
+                    //create an output stream for sending message.
+                    DataOutputStream out = new DataOutputStream(s.
+                            getOutputStream());
 
-            //create buffered reader stream for reading incoming byte stream.
-            InputStreamReader inBytes = new InputStreamReader(s.
-                    getInputStream());
-            BufferedReader in = new BufferedReader(inBytes);
+                    //create buffered reader stream for reading incoming byte stream.
+                    InputStreamReader inBytes = new InputStreamReader(s.
+                            getInputStream());
+                    BufferedReader in = new BufferedReader(inBytes);
 
-            textArea.append(message + "\n");
+                    textArea.append(message + "\n");
 
-            //write String message to output stream as byte sequence.
-            out.writeBytes(message);
+                    //write String message to output stream as byte sequence.
+                    out.writeBytes(message);
 
-            String data = in.readLine();
+                    String data = in.readLine();
 //                System.out.println("IN HTML" +   data );
-            boolean done = false;
-            boolean getWaitingTime = false;
-            while (data != null) {
-               // System.out.println("IN HTML" +   data );
-                if (data.equals("\tStatus=WAITING")) {
-                    done = false;
-                } else if (data.equals("\tStatus=READY")) {
-                    BlastnotDone = true;
-                    done = true;
-                    //ps.println(data);
-                } else {
-                    if (done) {
-                        ps.println(data);
+                    boolean done = false;
+                    boolean getWaitingTime = false;
+                    while (data != null) {
+                        // System.out.println("IN HTML" +   data );
+                        if (data.equals("\tStatus=WAITING")) {
+                            done = false;
+                        } else if (data.equals("\tStatus=READY")) {
+                            BlastnotDone = true;
+                            done = true;
+                            //ps.println(data);
+                        } else {
+                            if (done) {
+                                ps.println(data);
+                            }
+                        }
+                        if (getWaitingTime) {
+                            if (data == null) {
+                                setWaitingTime("0");
+                            } else {
+
+                                setWaitingTime(data.substring(4, 12));
+                            }
+
+                            getWaitingTime = false;
+                        }
+                        if (data.trim().startsWith(
+                                "<tr><td>Time since submission</td>")) {
+                            getWaitingTime = true;
+                        }
+
+                        data = in.readLine();
+
                     }
-                }
-                if (getWaitingTime) {
-                    if(data==null){
-                        setWaitingTime("0");
-                    }else{
-
-                        setWaitingTime(data.substring(4, 12));
+                    if (!done) {
+                        textArea.append("Waiting for Blast to finish...\n");
+                        Thread.sleep(5000);
                     }
-
-                getWaitingTime = false;
-                }
-                if (data.trim().startsWith(
-                        "<tr><td>Time since submission</td>")) {
-                    getWaitingTime = true;
-                }
-
-                data = in.readLine();
-
+                    s.close();
+                } //end of while (BlastnotDone).
+                textArea.append("Blast done! You can now display your results");
+                getBlastDone = true;
+                ps.close();
+            } catch (UnknownHostException e) {
+                System.out.println("Socket:" + e.getMessage());
+            } catch (EOFException e) {
+                System.out.println("EOF:" + e.getMessage());
+            } catch (IOException e) {
+                System.out.println("readline:" + e.getMessage());
+            } catch (InterruptedException e) {
+                System.out.println("wait:" + e.getMessage());
             }
-            if (!done) {
-                textArea.append("Waiting for Blast to finish...\n");
-                Thread.sleep(5000);
-            }
-            s.close();
-        } //end of while (BlastnotDone).
-        textArea.append("Blast done! You can now display your results");
-        getBlastDone = true;
-        ps.close();
-    } catch (UnknownHostException e) {
-        System.out.println("Socket:" + e.getMessage());
-    } catch (EOFException e) {
-        System.out.println("EOF:" + e.getMessage());
-    } catch (IOException e) {
-        System.out.println("readline:" + e.getMessage());
-    } catch (InterruptedException e) {
-        System.out.println("wait:" + e.getMessage());
-    }
-} //end of run().
+        } //end of run().
 
 
     } //end of class GetBlast.
 
-
-    public static void main(String[] args) {
-        String query = "MGARCPTRTLRARQPAHPRPPGTPRHHQRRPLPAASPTRHRSSRGRQIRARRPDRPGTRLRTGAAVDRQQPQHAPLRPLRLRSARADPRPQPGKPARRNPGHQRPRPRCRRPGAQQRPADRTLPADRSARHRVPAAPPAARPAHRRARQRRLRPARRPARPAGTRPLHDSRTRPAQLSGAADLRSDRRPATDRDHRQRRSPLLPAPCRRHHRTRRPPLPARIPPPVHSAAPHPPQQRGTRGNRGRPLLREPAQRHPSSRRRLRAPHRGRLPPGYRPAPQRGLPDHGHRRQDQRTHPRVPAGARGNGVAPTHGHPRMTSRRSHETPQGPDPRSPGAAPAYREAPPALTGRE";
-        RemoteBlast test = new RemoteBlast(query);
-        String message =
-                "Put http://www.ncbi.nlm.nih.gov/blast/Blast.cgi?CMD=Put&QUERY=" +
-                query + "&DATABASE=nr&PROGRAM=blastp&FILTER=L&HITLIST_SZE=500&AUTO_FORMAT=Semiauto&CDD_SEARCH=on&SHOW_OVERVIEW=on&SERVICE=plain\r\n\r\n";
-
-        String Blast_rid = test.submitBlast(message);
-        String format = "HTML";
-        test.getBlast(Blast_rid, format);
-        format = "TEXT";
-        System.out.println("START TEXT");
-        //test.getBlast(Blast_rid, format);
-    }
 
     /**
      * RemoteBlast
