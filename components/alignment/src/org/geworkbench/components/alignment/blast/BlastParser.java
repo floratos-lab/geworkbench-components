@@ -184,7 +184,7 @@ public class BlastParser {
                         line = br.readLine();
                         hitCount = 0;
                         while (line != null && !line.trim().startsWith("</PRE>")) {
-                                 String[] strA = line.split("</a>");
+                            String[] strA = line.split("</a>");
 
                             hitCount++;
                             totalHitCount++;
@@ -245,7 +245,7 @@ public class BlastParser {
 
                                     hits.add(each);
                                 }
-                             } else {
+                            } else {
                                 hit250More = true;
                             }
                             //end of check hitCount;
@@ -302,11 +302,12 @@ public class BlastParser {
                                     break;
                                 }
                                 if (!additionalAlignedParts) {
-                                    if (line.startsWith("Length")) {
-                                        each.setLength(new Integer(line.
-                                                substring(8).
+                                    if (line.startsWith("Length=")) {
+                                        String[] lengthVal = line.split("=");
+                                        each.setLength(new Integer(lengthVal[1].
                                                 trim()).intValue());
                                     }
+
                                     if (line.startsWith("Identities = ")) {
                                         /**todo
                                          * use Matchs pattern later.
@@ -360,8 +361,9 @@ public class BlastParser {
                                 detaillines = previousDetail + detaillines;
                             } else {
                                 each.setEndPoint(endPoint);
-                                each.setAlignmentLength(Math.abs(each.getEndPoint() - each.
-                                        getStartPoint()  + 1));
+                                each.setAlignmentLength(Math.abs(each.
+                                        getEndPoint() - each.
+                                        getStartPoint() + 1));
 
                                 each.setSubject(subject);
 
@@ -435,7 +437,6 @@ public class BlastParser {
         }
         return "Total hits for all sequences are " + totalHitCount + ".";
     }
-
 
 
 }

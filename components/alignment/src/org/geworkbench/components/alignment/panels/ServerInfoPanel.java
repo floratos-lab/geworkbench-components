@@ -185,7 +185,7 @@ public class ServerInfoPanel extends JPanel {
     public void reportServerError() {
 
         JOptionPane.showMessageDialog(null,
-                                      "The connection to Columbia Soap Server is refused.",
+                                      "The connection to Columbia Server is refused.",
                                       "Connection Error",
                                       JOptionPane.ERROR_MESSAGE);
 
@@ -205,6 +205,7 @@ public class ServerInfoPanel extends JPanel {
 
                 serverOK = true;
                 StringTokenizer st = new StringTokenizer(serverInfo, "\n");
+                boolean realOK = false;
                 while (st.hasMoreTokens()) {
                     String token = st.nextToken();
                     if (token.startsWith("Server uptime:")) {
@@ -225,11 +226,18 @@ public class ServerInfoPanel extends JPanel {
                         //int availableWorker = 42 - new Integer(idleWorker.trim()).intValue();
                         //jAvailProcessorTextField.setText(new Integer(availableWorker).toString());
                         jAvailProcessorTextField.setText(idleWorker);
+                        realOK = true;
                     }
-                    jTotalProcessor.setText("36.");
+
                     serverType = DEFAULTSERVERTYPE;
                 }
+                if(realOK){
+                       //temp set up.
+                       jTotalProcessor.setText("36.");
+                   }else{
 
+                       reportServerError();
+                   }
             }
 
         };

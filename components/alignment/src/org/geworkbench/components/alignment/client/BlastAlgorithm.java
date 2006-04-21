@@ -3,16 +3,13 @@ package org.geworkbench.components.alignment.client;
 import java.io.*;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.Date;
 import java.util.StringTokenizer;
-
-import javax.swing.JProgressBar;
 
 import org.geworkbench.algorithms.BWAbstractAlgorithm;
 import org.geworkbench.bison.datastructure.biocollections.DSAncillaryDataSet;
-import org.geworkbench.bison.datastructure.biocollections.sequences.
-        CSSequenceSet;
-import org.geworkbench.bison.datastructure.bioobjects.sequence.
-        CSAlignmentResultSet;
+import org.geworkbench.bison.datastructure.biocollections.sequences.CSSequenceSet;
+import org.geworkbench.bison.datastructure.bioobjects.sequence.CSAlignmentResultSet;
 import org.geworkbench.bison.datastructure.bioobjects.sequence.CSSequence;
 import org.geworkbench.bison.util.RandomNumberGenerator;
 import org.geworkbench.components.alignment.blast.RemoteBlast;
@@ -20,7 +17,6 @@ import org.geworkbench.components.alignment.panels.*;
 import org.geworkbench.events.ProjectNodeAddedEvent;
 import org.geworkbench.util.session.SoapClient;
 import org.globus.progtutorial.clients.BlastService.Client;
-import java.util.Date;
 
 /**
  * <p>Title: Bioworks</p>
@@ -151,10 +147,19 @@ public class BlastAlgorithm extends BWAbstractAlgorithm implements SoapClientIn 
                                  ((CSSequence) sequence) );
                     blast = new RemoteBlast(((CSSequence) sequence).
                                             getSequence(), outputFile);
-                     blast.setDbName(parameterSetting.getDbName());
+                    // blast.setDbName(parameterSetting.getDbName());
 //                    blast.setProgamName(parameterSetting.getProgramName());
                     blast.setCmdLine(AlgorithmMatcher.translateToCommandline(parameterSetting));
                     String BLAST_rid = blast.submitBlast();
+                    if(BLAST_rid==null){
+                        if(blastAppComponent!=null){
+                            blastAppComponent.reportError("Sequence " + sequence + " cannot be blasted, please check your parameters.", "Parameter Error");
+
+                        }
+                        updateStatus(false, "NCBI Blast is stopped at " + new Date());
+                        return;
+
+                    }
                     updateStatus("Querying sequence: " +
                                  ((CSSequence) sequence).getDescriptions().
                                  toString());
@@ -164,9 +169,14 @@ public class BlastAlgorithm extends BWAbstractAlgorithm implements SoapClientIn 
                     ncbiResultURLStr = blast.getResultURLString();
                     while (!blast.getBlastDone()) {
                         try {
-                            updateStatus("For sequence " + sequence + ", the Time since submission is : " +
-                                         blast.getWaitingTime());
-                            Thread.sleep(this.TIMEGAP);
+                            if(blastAppComponent!=null && !blastAppComponent.isStopButtonPushed()){
+                                updateStatus("For sequence " + sequence +
+                                        ", the Time since submission is : " +
+                                             blast.getWaitingTime());
+                                Thread.sleep(this.TIMEGAP);
+                            }else{
+                                return;
+                            }
                         } catch (Exception e) {
 
                         }
@@ -212,7 +222,8 @@ public class BlastAlgorithm extends BWAbstractAlgorithm implements SoapClientIn 
                 if (cmd.startsWith("pb")) {
                     if(!soapClient.startRun(true)){
                         //fail to connect or other problem.
-                        blastAppComponent.reportError("Fail to connect to Columbia Blast Server.", "Server unreachable");
+                        blastAppComponent.reportError(blastAppComponent.ERROR2,  "Server unreachable");
+                        blastAppComponent.blastFinished(blastAppComponent.ERROR1);
                         return;
                     }
                     htmlFile = ((SoapClient) soapClient).getOutputfile();
@@ -324,6 +335,10 @@ public class BlastAlgorithm extends BWAbstractAlgorithm implements SoapClientIn 
         return parameterSetting;
     }
 
+    public boolean isJobFinished() {
+        return jobFinished;
+    }
+
     public void setStartBrowser(boolean startBrowser) {
         this.startBrowser = startBrowser;
     }
@@ -335,6 +350,10 @@ public class BlastAlgorithm extends BWAbstractAlgorithm implements SoapClientIn 
 
     public void setParameterSetting(ParameterSetting parameterSetting) {
         this.parameterSetting = parameterSetting;
+    }
+
+    public void setJobFinished(boolean jobFinished) {
+        this.jobFinished = jobFinished;
     }
 
     public String getFileName(String path) {
