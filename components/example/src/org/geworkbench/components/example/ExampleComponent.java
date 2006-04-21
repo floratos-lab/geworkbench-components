@@ -10,6 +10,9 @@ import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.bison.annotation.DSAnnotationContext;
 import org.geworkbench.bison.annotation.CSAnnotationContextManager;
 import org.geworkbench.bison.annotation.CSAnnotationContext;
+import org.geworkbench.bison.datastructure.bioobjects.markers.goterms.GeneOntologyTree;
+import org.geworkbench.bison.datastructure.bioobjects.markers.goterms.GoMapping;
+import org.geworkbench.bison.datastructure.bioobjects.markers.goterms.GOTerm;
 import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.engine.management.AcceptTypes;
 import org.geworkbench.engine.management.Subscribe;
@@ -46,6 +49,21 @@ public class ExampleComponent extends JPanel implements VisualPlugin {
             public void actionPerformed(ActionEvent e) {
                 Map<String, List<String>> groups = AnnotationParser.getCustomAnnotationGroupings("Pathway", "///", microarraySet);
                 System.out.println("Worked.");
+                // Build up GO Term data
+                try {
+                    GeneOntologyTree tree = new GeneOntologyTree();
+                    tree.parseOBOFile("data/gene_ontology.obo");
+                    GoMapping mapping = new GoMapping(tree, microarraySet);
+                    String markerID = "YAR015W";
+                    int goID = 6144;
+                    Set<GOTerm> allTerms = mapping.getGOTermsForMarker(markerID);
+                    Set<String> allMarkers = mapping.getMarkersForGOTerm(goID);
+                    Set<GOTerm> directTerms = mapping.getDirectGOTermsForMarker(markerID);
+                    Set<String> directMarkers = mapping.getDirectMarkersForGOTerm(goID);
+                    System.out.println("Done.");
+                } catch (Exception x) {
+                    x.printStackTrace();
+                }
             }
         });
         add(testButton);
