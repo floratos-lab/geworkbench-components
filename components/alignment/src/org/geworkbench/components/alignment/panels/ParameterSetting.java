@@ -47,6 +47,8 @@ public class ParameterSetting {
          * Whether use NCBI Blast Server
          */
         private boolean useNCBI = false;
+        private String wordsize = "11";
+        private String gapCost;
         /**
          * For subsequence information.
          */
@@ -110,6 +112,14 @@ public class ParameterSetting {
         this.maskLowCase = maskLowCase;
     }
 
+    public void setWordsize(String wordsize) {
+        this.wordsize = wordsize;
+    }
+
+    public void setGapCost(String gapCost) {
+        this.gapCost = gapCost;
+    }
+
     public String getDbName() {
         return dbName;
     }
@@ -156,6 +166,14 @@ public class ParameterSetting {
 
     public boolean isMaskLowCase() {
         return maskLowCase;
+    }
+
+    public String getWordsize() {
+        return wordsize;
+    }
+
+    public String getGapCost() {
+        return gapCost;
     }
 
     private void jbInit() throws Exception {

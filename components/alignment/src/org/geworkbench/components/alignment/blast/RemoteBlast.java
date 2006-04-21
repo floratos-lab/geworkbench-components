@@ -17,6 +17,13 @@ import javax.swing.JTextArea;
  * writes retrieved results out to a file.
  */
 public class RemoteBlast {
+    public RemoteBlast() {
+        try {
+            jbInit();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
 
     /**
      * The protein sequence to submit to Blast.
@@ -164,7 +171,7 @@ public class RemoteBlast {
         if (cmdLine != null) {
             message = SUBMITPREFIX + query + cmdLine;
         }
-        //System.out.println(message);
+        // System.out.println(message);
         try {
 
             s = new Socket(Blast_SERVER, DEFAULT_PORT);
@@ -184,7 +191,7 @@ public class RemoteBlast {
             //reads each incoming line until it finds the CDD and Blast RIDs.
             while (true) {
                 String data = in.readLine();
-                // System.out.println(data);
+//                System.out.println(data);
                 if (CDD_rid == null && data != null) {
                     Matcher m1 = p1.matcher(data);
                     Matcher m2 = p2.matcher(data);
@@ -242,7 +249,7 @@ public class RemoteBlast {
             BufferedReader in = new BufferedReader(inBytes);
 
             textArea.append("\n\nSending message: " + message + "\n");
-
+            System.out.println(message);
             //write String message to output stream as byte sequence.
             out.writeBytes(message);
 
@@ -427,6 +434,22 @@ public class RemoteBlast {
 
     } //end of class GetBlast.
 
+    public static void main(String[] args) {
+
+        String query = "MGARCPTRTLRARQPAHPRPPGTPRHHQRRPLPAASPTRHRSSRGRQIRARRPDRPGTRLRTGAAVDRQQPQHAPLRPLRLRSARADPRPQPGKPARRNPGHQRPRPRCRRPGAQQRPADRTLPADRSARHRVPAAPPAARPAHRRARQRRLRPARRPARPAGTRPLHDSRTRPAQLSGAADLRSDRRPATDRDHRQRRSPLLPAPCRRHHRTRRPPLPARIPPPVHSAAPHPPQQRGTRGNRGRPLLREPAQRHPSSRRRLRAPHRGRLPPGYRPAPQRGLPDHGHRRQDQRTHPRVPAGARGNGVAPTHGHPRMTSRRSHETPQGPDPRSPGAAPAYREAPPALTGRE";
+            RemoteBlast test = new RemoteBlast(query);
+            String message =
+                    "Put http://www.ncbi.nlm.nih.gov/blast/Blast.cgi?CMD=Put&QUERY=" +
+                    query + "&DATABASE=nr&PROGRAM=blastp&FILTER=L&GAPCOSTS=11%202&HITLIST_SZE=500&AUTO_FORMAT=Semiauto&CDD_SEARCH=on&SHOW_OVERVIEW=on&SERVICE=plain\r\n\r\n";
+
+            String Blast_rid = test.submitBlast(message);
+            String format = "HTML";
+            test.getBlast(Blast_rid, format);
+            format = "TEXT";
+            System.out.println("START TEXT");
+
+            //test.getBlast(Blast_rid, format);
+        }
 
     /**
      * RemoteBlast
@@ -478,6 +501,9 @@ public class RemoteBlast {
 
     public String getProgamName() {
         return programName;
+    }
+
+    private void jbInit() throws Exception {
     }
 
 }

@@ -15,16 +15,15 @@ import com.borland.jbcl.layout.XYLayout;
 import org.geworkbench.algorithms.BWAbstractAlgorithm;
 import org.geworkbench.bison.datastructure.biocollections.sequences.
         CSSequenceSet;
-import org.geworkbench.bison.datastructure.bioobjects.sequence.CSSequence;
 import org.geworkbench.bison.util.RandomNumberGenerator;
 import org.geworkbench.components.alignment.client.BlastAlgorithm;
 import org.geworkbench.components.alignment.client.HMMDataSet;
 import org.geworkbench.components.alignment.grid.CreateGridServiceDialog;
+import org.geworkbench.engine.management.AcceptTypes;
+import org.geworkbench.engine.management.Publish;
+import org.geworkbench.events.MicroarraySetViewEvent;
 import org.geworkbench.events.ProjectNodeAddedEvent;
 import org.geworkbench.util.session.SoapClient;
-import org.geworkbench.engine.management.Publish;
-import org.geworkbench.engine.management.AcceptTypes;
-import org.geworkbench.events.MicroarraySetViewEvent;
 
 /**
  * <p>Title: </p>
@@ -60,7 +59,8 @@ import org.geworkbench.events.MicroarraySetViewEvent;
     static final int SW = 1;
     static final int HMM = 2;
     public static final String NCBILABEL = "NCBI BLAST Result";
-
+     public static final String ERROR1 ="Interrupted";
+     public static final String ERROR2 = "Fail to connect to the Columbia Blast Server.";
     String[] databaseParameter = {
                                  "ncbi/nr                      Peptides of all non-redundant sequences.",
                                  "ncbi/pdbaa               Peptides Sequences derived from the PDB.",
@@ -98,7 +98,7 @@ import org.geworkbench.events.MicroarraySetViewEvent;
     JComboBox jExpectBox = new JComboBox();
     JLabel matrixLabel = new JLabel();
     JPanel blastxSettingPanel = new JPanel();
-    JComboBox jqueryGenericCodeBox = new JComboBox();
+    JComboBox jGapcostsBox = new JComboBox();
     JLabel jWordsizeLabel = new JLabel();
     JComboBox jWordsizeBox = new JComboBox();
     ParameterSetter parameterSetter = new ParameterSetter();
@@ -141,7 +141,7 @@ import org.geworkbench.events.MicroarraySetViewEvent;
     JCheckBox jDisplayInWebBox = new JCheckBox();
     BorderLayout borderLayout1 = new BorderLayout();
     GridBagLayout gridBagLayout3 = new GridBagLayout();
-    JLabel jGenericCodeLabel = new JLabel();
+    JLabel jGapcostsLabel = new JLabel();
     GridBagLayout gridBagLayout2 = new GridBagLayout();
     JButton jButton1 = new JButton();
     JButton blastStopButton = new JButton();
@@ -196,6 +196,7 @@ import org.geworkbench.events.MicroarraySetViewEvent;
     JCheckBox humanRepeatFilter = new JCheckBox();
     JPanel jPanel1 = new JPanel();
     private JCheckBox maskLowCaseBox = new JCheckBox();
+    private boolean stopButtonPushed;
     public BlastAppComponent() {
         try {
             jbInit();
@@ -236,7 +237,7 @@ import org.geworkbench.events.MicroarraySetViewEvent;
         jExpectBox = new JComboBox();
         matrixLabel = new JLabel();
         blastxSettingPanel = new JPanel();
-        jqueryGenericCodeBox = new JComboBox();
+        jGapcostsBox = new JComboBox();
         jWordsizeLabel = new JLabel();
         jWordsizeBox = new JComboBox();
         parameterSetter = new ParameterSetter();
@@ -277,7 +278,7 @@ import org.geworkbench.events.MicroarraySetViewEvent;
         jDisplayInWebBox = new JCheckBox();
         borderLayout1 = new BorderLayout();
         gridBagLayout3 = new GridBagLayout();
-        jGenericCodeLabel = new JLabel();
+        jGapcostsLabel = new JLabel();
         gridBagLayout2 = new GridBagLayout();
         jButton1 = new JButton();
         blastStopButton = new JButton();
@@ -378,9 +379,7 @@ import org.geworkbench.events.MicroarraySetViewEvent;
         blastButton.setHorizontalTextPosition(SwingConstants.CENTER);
         //blastButton.setText("BLAST");
         blastButton.setIcon(startButtonIcon);
-//         blastButton.setMaximumSize(new Dimension(26, 26));
-//      blastButton.setMinimumSize(new Dimension(26, 26));
-//      blastButton.setPreferredSize(new Dimension(26, 26));
+
         blastButton.setToolTipText("Start BLAST");
 
         blastButton.addActionListener(new
@@ -406,30 +405,19 @@ import org.geworkbench.events.MicroarraySetViewEvent;
         jExpectBox.setSelectedIndex( -1);
         jExpectBox.setVerifyInputWhenFocusTarget(true);
         jExpectBox.setToolTipText("Select the expect value here.");
-        // jExpectBox.addActionListener(new BlastAppComponent_jExpectBox_actionAdapter(this));
         matrixLabel.setText("Expect:");
-        jqueryGenericCodeBox.setSelectedItem("10");
-
-        jqueryGenericCodeBox.setSelectedIndex( -1);
-        jqueryGenericCodeBox.setVerifyInputWhenFocusTarget(true);
-        jqueryGenericCodeBox.setToolTipText("Select the Generic Code.");
-        //jqueryGenericCodeBox.addActionListener(new BlastAppComponent_jqueryGenericCodeBox_actionAdapter(this));
-       // jWordsizeLabel.setText("Word Size:");
+        jGapcostsBox.setVerifyInputWhenFocusTarget(true);
+        jGapcostsBox.setToolTipText("Select gap cost:");
         jWordsizeBox.setToolTipText(
                 "Select the word size, default is 3 for blastp, 11 for blastn.");
-//        jWordsizeBox.setVerifyInputWhenFocusTarget(true);
-//        jWordsizeBox.setSelectedIndex( -1);
-//        jWordsizeBox.setSelectedIndex( -1);
-//        jWordsizeBox.setSelectedItem(null);
         jWordsizeBox.addActionListener(new
-                                                BlastAppComponent_jFrameShiftPaneltyBox_actionAdapter(this));
+                                       BlastAppComponent_jFrameShiftPaneltyBox_actionAdapter(this));
         blastxSettingPanel.setLayout(gridBagLayout2);
         jServerInfoPane.setMinimumSize(new Dimension(0, 0));
         //jServerInfoPane.setPreferredSize(new Dimension(0, 0));
         jServerInfoPane.setToolTipText("Blast server Info");
         jProgramBox.setAutoscrolls(false);
         jProgramBox.setMinimumSize(new Dimension(26, 21));
-        //jProgramBox.setPreferredSize(new Dimension(26, 21));
         subSeqPanel.setLayout(xYLayout1);
         jLabel1.setText("to ");
         jLabel2.setText("Subsequence: From");
@@ -447,8 +435,6 @@ import org.geworkbench.events.MicroarraySetViewEvent;
         subSeqPanel1.setLayout(gridBagLayout9);
         jPanel6.setLayout(flowLayout2);
         jLabel6.setText("to ");
-//    jProgramBox1.addActionListener(new
-        //                                BlastAppComponent_jProgramBox1_actionAdapter(this));
         jProgramBox1.setAutoscrolls(false);
         jProgramBox1.setMinimumSize(new Dimension(26, 21));
         //jProgramBox1.setPreferredSize(new Dimension(26, 21));
@@ -485,8 +471,8 @@ import org.geworkbench.events.MicroarraySetViewEvent;
         jDisplayInWebBox.setMinimumSize(new Dimension(10, 23));
         jDisplayInWebBox.setSelected(true);
         jDisplayInWebBox.setText("Display result in your web browser");
-        jGenericCodeLabel.setToolTipText("");
-        jGenericCodeLabel.setText("Query genetic code:");
+        jGapcostsLabel.setToolTipText("");
+        jGapcostsLabel.setText("Gap costs:");
         jButton1.setFont(new java.awt.Font("Arial Black", 0, 11));
         jButton1.setIcon(stopButtonIcon);
         //jButton1.setText("STOP");
@@ -550,55 +536,6 @@ import org.geworkbench.events.MicroarraySetViewEvent;
         maskLowCaseBox.setToolTipText("Filterl lower case sequences.");
         maskLowCaseBox.setText("Mask lower case");
         jWordsizeLabel.setText("Word size:");
-        blastxSettingPanel.add(jExpectBox,
-                               new GridBagConstraints(1, 3, 1, 1, 1.0, 0.0
-                , GridBagConstraints.WEST,
-                GridBagConstraints.HORIZONTAL,
-                new Insets(2, 2, 2, 2), 0, 0));
-        blastxSettingPanel.add(jWordsizeBox,
-                               new GridBagConstraints(1, 0, 1, 1, 1.0, 0.0
-                , GridBagConstraints.WEST,
-                GridBagConstraints.HORIZONTAL,
-                new Insets(2, 2, 2, 2), 0, 0));
-        blastxSettingPanel.add(jqueryGenericCodeBox,
-                               new GridBagConstraints(1, 1, 1, 1, 1.0, 0.0
-                , GridBagConstraints.WEST,
-                GridBagConstraints.HORIZONTAL,
-                new Insets(2, 2, 2, 2), 0, 0));
-        blastxSettingPanel.add(jWordsizeLabel,
-                               new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
-                , GridBagConstraints.WEST,
-                GridBagConstraints.NONE,
-                new Insets(2, 2, 2, 2), 0, 0));
-        blastxSettingPanel.add(matrixLabel,
-                               new GridBagConstraints(0, 3, 1, 1, 0.0, 0.0
-                , GridBagConstraints.WEST,
-                GridBagConstraints.NONE,
-                new Insets(2, 2, 2, 2), 0, 0));
-        blastxSettingPanel.add(jMatrixBox,
-                               new GridBagConstraints(1, 2, 1, 1, 1.0, 0.0
-                , GridBagConstraints.WEST,
-                GridBagConstraints.HORIZONTAL,
-                new Insets(2, 2, 2, 2), 0, 0));
-        blastxSettingPanel.add(expectLabel,
-                               new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0
-                , GridBagConstraints.WEST,
-                GridBagConstraints.NONE,
-                new Insets(2, 2, 2, 2), 0, 0));
-        blastxSettingPanel.add(jGenericCodeLabel,
-                               new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0
-                , GridBagConstraints.WEST,
-                GridBagConstraints.NONE,
-                new Insets(2, 2, 2, 2), 0, 0));
-        jAdvancedPane.add(filterPanel,
-                          new GridBagConstraints(0, 1, 1, 1, 1.0, 1.0
-                                                 , GridBagConstraints.CENTER,
-                                                 GridBagConstraints.BOTH,
-                                                 new Insets(0, 0, 0, 0), -150,
-                                                 82));
-
-//        jTabbedHmmPane.add(jHMMPane, "HMM");
-//        jTabbedHmmPane.add(jAdvancedPane, "Advanced Options");
         jToolBar2.add(serviceProgressBar);
         serviceProgressBar.setOrientation(JProgressBar.HORIZONTAL);
         serviceProgressBar.setBorder(BorderFactory.createEtchedBorder());
@@ -727,13 +664,6 @@ import org.geworkbench.events.MicroarraySetViewEvent;
         jTabbedBlastPane.add(jBasicPane, "Main");
         jTabbedBlastPane.add(jAdvancedPane, "Advanced Options");
         jTabbedBlastPane.add(jServerInfoPane, "Service");
-        //jTabbedBlastPane.add(sgePanel, "Grid Services");
-
-        jAdvancedPane.add(blastxSettingPanel,
-                          new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
-                                                 , GridBagConstraints.CENTER,
-                                                 GridBagConstraints.BOTH,
-                                                 new Insets(10, 10, 0, 0), 0, 7));
         mainPanel.add(jTabbedPane1, java.awt.BorderLayout.CENTER);
         // mainPanel.add(checkboxPanel, BorderLayout.SOUTH);
         jToolBar1.add(jLabel2);
@@ -753,6 +683,49 @@ import org.geworkbench.events.MicroarraySetViewEvent;
         jPanel3.add(subSeqPanel, java.awt.BorderLayout.CENTER);
         jBasicPane.add(jScrollPane4, java.awt.BorderLayout.CENTER);
         jBasicPane.add(jToolBar2, java.awt.BorderLayout.NORTH);
+        blastxSettingPanel.add(jMatrixBox,
+                               new GridBagConstraints(1, 2, 1, 1, 1.0, 0.0
+                , GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL,
+                new Insets(2, 2, 2, 2), 0, 0));
+        blastxSettingPanel.add(expectLabel,
+                               new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0
+                , GridBagConstraints.WEST, GridBagConstraints.NONE,
+                new Insets(2, 2, 2, 2), 0, 0));
+        blastxSettingPanel.add(jWordsizeLabel,
+                               new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0
+                , GridBagConstraints.WEST, GridBagConstraints.NONE,
+                new Insets(2, 2, 2, 2), 0, 0));
+        blastxSettingPanel.add(jWordsizeBox,
+                               new GridBagConstraints(1, 1, 1, 1, 1.0, 0.0
+                , GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL,
+                new Insets(2, 2, 2, 2), 0, 0));
+        blastxSettingPanel.add(matrixLabel,
+                               new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
+                , GridBagConstraints.WEST, GridBagConstraints.NONE,
+                new Insets(2, 2, 2, 2), 0, 0));
+        blastxSettingPanel.add(jExpectBox,
+                               new GridBagConstraints(1, 0, 1, 1, 1.0, 0.0
+                , GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL,
+                new Insets(2, 2, 2, 2), 0, 0));
+        jAdvancedPane.add(filterPanel,
+                          new GridBagConstraints(0, 1, 1, 1, 1.0, 1.0
+                                                 , GridBagConstraints.CENTER,
+                                                 GridBagConstraints.BOTH,
+                                                 new Insets(0, 0, 0, 0), -150,
+                                                 82));
+        blastxSettingPanel.add(jGapcostsLabel,
+                               new GridBagConstraints(0, 3, 1, 1, 0.0, 0.0
+                , GridBagConstraints.WEST, GridBagConstraints.NONE,
+                new Insets(2, 2, 2, 6), 1, -2));
+        blastxSettingPanel.add(jGapcostsBox,
+                               new GridBagConstraints(1, 3, 1, 1, 1.0, 0.0
+                , GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL,
+                new Insets(2, 2, 2, 2), 0, 0));
+        jAdvancedPane.add(blastxSettingPanel,
+                          new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
+                                                 , GridBagConstraints.CENTER,
+                                                 GridBagConstraints.HORIZONTAL,
+                                                 new Insets(0, 2, 1, 3), 0, 23));
         jExpectBox.addItem("10");
         jExpectBox.addItem("1");
 
@@ -761,13 +734,13 @@ import org.geworkbench.events.MicroarraySetViewEvent;
         jExpectBox.addItem("100");
 
         jExpectBox.addItem("1000");
-        jqueryGenericCodeBox.addItem("Standard");
-        jqueryGenericCodeBox.addItem("Vertebrate Mitochondrial");
-        jqueryGenericCodeBox.addItem("Yeast Mitochondrial ");
-        jqueryGenericCodeBox.addItem("Invertebrate Mitochondrial ");
-        jqueryGenericCodeBox.addItem("Echinoderm Mitochondrial ");
-        jqueryGenericCodeBox.addItem("Euplotid Nuclear ");
-//        jWordsizeBox.addItem("NO OOF");
+        jGapcostsBox.addItem("Existence: 11 Extension: 1");
+        jGapcostsBox.addItem("Existence:  9 Extension: 2");
+        jGapcostsBox.addItem("Existence:  8 Extension: 2");
+        jGapcostsBox.addItem("Existence:  7 Extension: 2");
+        jGapcostsBox.addItem("Existence: 12 Extension: 1");
+        jGapcostsBox.addItem("Existence: 10 Extension: 1");
+
         jWordsizeBox.addItem("3");
         jWordsizeBox.addItem("2");
 
@@ -821,13 +794,19 @@ import org.geworkbench.events.MicroarraySetViewEvent;
                     selectedProgramName);
             jMatrixBox.setModel(new DefaultComboBoxModel(model));
             String[] model2 = AlgorithmMatcher.translateToWordSize(
-                 selectedProgramName);
-         jWordsizeBox.setModel(new DefaultComboBoxModel(model2));
-         if(selectedProgramName.equalsIgnoreCase("blastn")){
-             humanRepeatFilter.setEnabled(true);
-         }else{
-             humanRepeatFilter.setEnabled(false);
-         }
+                    selectedProgramName);
+            jWordsizeBox.setModel(new DefaultComboBoxModel(model2));
+            if (selectedProgramName.equalsIgnoreCase("blastn")) {
+                humanRepeatFilter.setEnabled(true);
+                jGapcostsBox.setEditable(false);
+                jGapcostsBox.setVisible(false);
+                jGapcostsLabel.setVisible(false);
+            } else {
+                humanRepeatFilter.setEnabled(false);
+                jGapcostsBox.setEditable(false);
+                jGapcostsBox.setVisible(true);
+                jGapcostsLabel.setVisible(true);
+            }
 
         }
         //jScrollPanel = new JScrollPanel(jDBList);
@@ -835,6 +814,9 @@ import org.geworkbench.events.MicroarraySetViewEvent;
     }
 
     void jMatrixBox_actionPerformed(ActionEvent e) {
+        String[] model = AlgorithmMatcher.translateToGapcosts(
+                jMatrixBox.getSelectedItem().toString());
+        jGapcostsBox.setModel(new DefaultComboBoxModel(model));
 
     }
 
@@ -865,160 +847,39 @@ import org.geworkbench.events.MicroarraySetViewEvent;
             jendPointField1.setText(new Integer(endPoint).toString());
             jendPointField3.setText(new Integer(endPoint).toString());
 
-        }
-    }
+            String[] model = AlgorithmMatcher.translateToPrograms(
+                    sd.isDNA());
+            jProgramBox.setModel(new DefaultComboBoxModel(model));
 
-    public void reportError(String message, String title) {
-        JOptionPane.showMessageDialog(null, message, title,
-                                      JOptionPane.ERROR_MESSAGE);
-    }
-
-    public ParameterSetter processNCBIParameters() {
-        ParameterSetting parameterSetting = collectParameters();
-        parameterSetting.setUseNCBI(true);
-        if (activeSequenceDB != null) {
-            if (sequenceDB == null) {
-                reportError("Please select a sequence file first!",
-                            "Parameter Error");
-                return null;
-            } else { //to handle new sequenceDB.
-
-                try {
-                    String tempFolder = System.getProperties().getProperty(
-                            "temporary.files.directory");
-                    if (tempFolder == null) {
-                        tempFolder = ".";
-
-                    }
-
-                    String outputFile = tempFolder + "Blast" +
-                                        RandomNumberGenerator.getID() +
-                                        ".html";
-                    //progressBar = new JProgressBar(0, 100);
-
-                    serviceProgressBar.setForeground(Color.GREEN);
-                    serviceProgressBar.setBackground(Color.WHITE);
-
-                    updateProgressBar(10, "Wait...");
-                    if (fastaFile == null && activeSequenceDB != null) {
-                        fastaFile = (CSSequenceSet) activeSequenceDB;
-                    }
-                    SoapClient sc = new SoapClient(parameterSetting.
-                            getProgramName(), parameterSetting.getDbName(),
-                            outputFile);
-
-                    sc.setSequenceDB(activeSequenceDB);
-                    BlastAlgorithm blastAlgo = new BlastAlgorithm();
-                    blastAlgo.setUseNCBI(true);
-                    blastAlgo.setParameterSetting(parameterSetting);
-
-                    blastAlgo.setBlastAppComponent(this);
-                    blastAlgo.setSoapClient(sc);
-                    blastAlgo.start();
-                    Thread.sleep(5);
-
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-
-            }
-        }
-        return parameterSetter;
 
     }
 
-    /**
-     * Collect all selected parameters and save it to a ParameterSetting object.
-     * @return ParameterSetting
-     */
-    public ParameterSetting collectParameters() {
-        ParameterSetting ps = new ParameterSetting();
-        String dbName = (String) jDBList.getSelectedValue();
-        String programName = (String) jProgramBox.getSelectedItem();
-        if (programName == null) {
-                    reportError("Please select a PROGRAM to search!", "Parameter Error");
-                    return null;
-        }
-        if (dbName == null) {
-            reportError("Please select a DATABASE to search!",
+}
+
+
+public void setStopButtonPushed(boolean stopButtonPushed) {
+    this.stopButtonPushed = stopButtonPushed;
+}
+
+public void reportError(String message, String title) {
+    JOptionPane.showMessageDialog(null, message, title,
+                                  JOptionPane.ERROR_MESSAGE);
+}
+
+public ParameterSetter processNCBIParameters() {
+    ParameterSetting parameterSetting = collectParameters();
+    if (parameterSetting == null) {
+        return null;
+    }
+    parameterSetting.setUseNCBI(true);
+    if (activeSequenceDB != null) {
+        if (sequenceDB == null) {
+            reportError("Please select a sequence file first!",
                         "Parameter Error");
             return null;
-
-        } else {
-            StringTokenizer st = new StringTokenizer(dbName);
-            dbName = st.nextToken();
-
-        }
-
-        boolean lowComplexFilterOn = lowComplexFilterBox.isSelected();
-        boolean humanRepeatFilterOn = humanRepeatFilter.isSelected();
-        String expectString = (String) jExpectBox.getSelectedItem();
-        double expectValue = 10;
-        if (expectString != null) {
-            expectValue = Double.parseDouble(expectString.trim());
-        }
-        String endPoint = jendPointField.getSelectedText();
-        String startPoint = jstartPointField.getSelectedText();
-        if (fastaFile == null && activeSequenceDB != null) {
-            fastaFile = (CSSequenceSet) activeSequenceDB;
-        } else if (fastaFile == null && sequenceDB != null) {
-            fastaFile = (CSSequenceSet) sequenceDB;
-        }
-
-        int endValue = -1;
-        int startValue = 1;
-        if (endPoint != null) {
-            try {
-                endValue = Integer.parseInt(endPoint.trim());
-                startValue = Integer.parseInt(startPoint.trim());
-            } catch (NumberFormatException e) {
-
-            }
-        }
-
-        ps.setDbName(dbName);
-        ps.setProgramName(programName);
-        ps.setViewInBrowser(jDisplayInWebBox.isSelected());
-        ps.setExpect(expectValue);
-        ps.setLowComplexityFilterOn(lowComplexFilterOn);
-        ps.setHumanRepeatFilterOn(humanRepeatFilterOn);
-        ps.setMatrix((String)jMatrixBox.getSelectedItem());
-        if (startValue <= 1 && endValue >= fastaFile.getMaxLength()) {
-            //just use whole sequence. No end to reset.
-
-        } else {
-            ps.setStartPoint(startValue);
-            ps.setEndPoint(endValue);
-        }
-
-        return ps;
-    }
-
-
-    /**
-     * Collect selected parameters.
-     * @return ParameterSetter
-     */
-
-    public ParameterSetter processParameters() {
-        ParameterSetting parameterSetting = collectParameters();
-        if(parameterSetting==null){
-            return null;
-        }
-        parameterSetting.setUseNCBI(false);
-        jServerInfoPane.retriveServerInfo();
-        if (fastaFile == null) {
-            if (sequenceDB == null) {
-                reportError("Please select a sequence file first!",
-                            "Parameter Error");
-                return null;
-            }
-
-        } else {
+        } else { //to handle new sequenceDB.
 
             try {
-
-
                 String tempFolder = System.getProperties().getProperty(
                         "temporary.files.directory");
                 if (tempFolder == null) {
@@ -1029,102 +890,135 @@ import org.geworkbench.events.MicroarraySetViewEvent;
                 String outputFile = tempFolder + "Blast" +
                                     RandomNumberGenerator.getID() +
                                     ".html";
+                //progressBar = new JProgressBar(0, 100);
 
-                if (fastaFile == null) {
-                    fastaFile = activeSequenceDB;
+                serviceProgressBar.setForeground(Color.GREEN);
+                serviceProgressBar.setBackground(Color.WHITE);
+
+                updateProgressBar(10, "Wait...");
+                if (fastaFile == null && activeSequenceDB != null) {
+                    fastaFile = (CSSequenceSet) activeSequenceDB;
                 }
-                SoapClient sc = new SoapClient(parameterSetting.getProgramName(),
+                SoapClient sc = new SoapClient(parameterSetting.
+                                               getProgramName(),
                                                parameterSetting.getDbName(),
                                                outputFile);
-                serviceProgressBar.setForeground(Color.ORANGE);
-               serviceProgressBar.setBackground(Color.WHITE);
-               serviceProgressBar.setIndeterminate(true);
-               serviceProgressBar.setString(
-                       "Blast is running at Columbia Blast Server.");
 
-                BlastAlgorithm blastAlgo = new BlastAlgorithm();
                 sc.setSequenceDB(activeSequenceDB);
-                sc.setCmd(AlgorithmMatcher.translateToCommandline(
-                        parameterSetting));
+                BlastAlgorithm blastAlgo = new BlastAlgorithm();
+                blastAlgo.setUseNCBI(true);
+                blastAlgo.setParameterSetting(parameterSetting);
+
                 blastAlgo.setBlastAppComponent(this);
                 blastAlgo.setSoapClient(sc);
-                blastAlgo.setStartBrowser(parameterSetting.isViewInBrowser());
                 blastAlgo.start();
-                Thread.sleep(2);
-                if (blastAlgo != null && parameterSetter != null) {
-                    parameterSetter.setAlgo(blastAlgo);
-                }
+                Thread.sleep(5);
 
             } catch (Exception e) {
                 e.printStackTrace();
             }
 
         }
-        return parameterSetter;
+    }
+    return parameterSetter;
+
+}
+
+/**
+ * Collect all selected parameters and save it to a ParameterSetting object.
+ * @return ParameterSetting
+ */
+public ParameterSetting collectParameters() {
+    ParameterSetting ps = new ParameterSetting();
+    String dbName = (String) jDBList.getSelectedValue();
+    String programName = (String) jProgramBox.getSelectedItem();
+    if (programName == null || programName.equalsIgnoreCase(AlgorithmMatcher.BLASTPROGRAM0)) {
+        reportError("Please select a PROGRAM to search!", "Parameter Error");
+        return null;
+    }
+    if (dbName == null) {
+        reportError("Please select a DATABASE to search!",
+                    "Parameter Error");
+        return null;
+
+    } else {
+        StringTokenizer st = new StringTokenizer(dbName);
+        dbName = st.nextToken();
 
     }
 
-    public void retriveAlgoParameters() {
+    boolean lowComplexFilterOn = lowComplexFilterBox.isSelected();
+    boolean humanRepeatFilterOn = humanRepeatFilter.isSelected();
+    String expectString = (String) jExpectBox.getSelectedItem();
+    double expectValue = 10;
+    if (expectString != null) {
+        expectValue = Double.parseDouble(expectString.trim());
+    }
+    String endPoint = jendPointField.getSelectedText();
+    String startPoint = jstartPointField.getSelectedText();
+    if (fastaFile == null && activeSequenceDB != null) {
+        fastaFile = (CSSequenceSet) activeSequenceDB;
+    } else if (fastaFile == null && sequenceDB != null) {
+        fastaFile = (CSSequenceSet) sequenceDB;
+    }
 
-        if (jTabbedPane1.getSelectedIndex() == this.SW) {
-            reportError("Sorry, the backend server is unreachable now!",
-                        "No Available Server Error");
-            return;
+    int endValue = -1;
+    int startValue = 1;
+    if (endPoint != null) {
+        try {
+            endValue = Integer.parseInt(endPoint.trim());
+            startValue = Integer.parseInt(startPoint.trim());
+        } catch (NumberFormatException e) {
 
         }
-        if (jTabbedPane1.getSelectedIndex() == this.HMM) {
-            reportError("Sorry, the backend server is unreachable now!",
-                        "No Available Server Error");
-            return;
+    }
+    String wordsize = (String) jWordsizeBox.getSelectedItem();
+    ps.setDbName(dbName);
+    ps.setProgramName(programName);
+    ps.setViewInBrowser(jDisplayInWebBox.isSelected());
+    ps.setExpect(expectValue);
+    ps.setLowComplexityFilterOn(lowComplexFilterOn);
+    ps.setHumanRepeatFilterOn(humanRepeatFilterOn);
+    ps.setMatrix((String) jMatrixBox.getSelectedItem());
+    if (startValue <= 1 && endValue >= fastaFile.getMaxLength()) {
+        //just use whole sequence. No end to reset.
 
-        }
-        if (fastaFile == null && sequenceDB == null) {
-            reportError("Please load a sequence file first!",
-                        "No File Error");
-            return;
+    } else {
+        ps.setStartPoint(startValue);
+        ps.setEndPoint(endValue);
+    }
+    if (wordsize != null) {
+        ps.setWordsize(wordsize);
+    }
+    String gapCost = (String) jGapcostsBox.getSelectedItem();
+    if (gapCost != null) {
+        ps.setGapCost(gapCost);
+    }
 
-        }
-        String algoTitle = (String) jList2.getSelectedValue();
-        if (algoTitle == null) {
-            reportError("Please select a algorithm to search!",
+    return ps;
+}
+
+
+/**
+ * Collect selected parameters.
+ * @return ParameterSetter
+ */
+
+public ParameterSetter processParameters() {
+    ParameterSetting parameterSetting = collectParameters();
+    if (parameterSetting == null) {
+        return null;
+    }
+    parameterSetting.setUseNCBI(false);
+    jServerInfoPane.retriveServerInfo();
+    if (fastaFile == null) {
+        if (sequenceDB == null) {
+            reportError("Please select a sequence file first!",
                         "Parameter Error");
-            return;
-
+            return null;
         }
 
-        String algoName = AlgorithmMatcher.translate(algoTitle);
-
-        String dbName = (String) jProgramBox1.getSelectedItem();
-
-        if (dbName == null) {
-            reportError("Please select a database name first!",
-                        "No Database Error");
-            return;
-
-        }
-
-        String matrix = (String) jMatrixBox.getSelectedItem();
-//        if (matrix == null) {
-//            reportError("Please select a matrix name first!",
-//                        "No Matrix Error");
-//            return;
-//
-//        }
-
-        if (jTabbedPane1.getSelectedIndex() == this.SW) {
-            reportError("Sorry, the backend server is unreachable now!",
-                        "No Available Server Error");
-            return;
-
-        }
-        if (jTabbedPane1.getSelectedIndex() == this.HMM) {
-            reportError("Sorry, the backend server is unreachable now!",
-                        "No Available Server Error");
-            return;
-
-        }
-
-        //System.out.println("fasta file path: " + fastaFile);
+    } else {
 
         try {
 
@@ -1134,355 +1028,470 @@ import org.geworkbench.events.MicroarraySetViewEvent;
                 tempFolder = ".";
 
             }
-            String outputFile = tempFolder + "Algo" +
+
+            String outputFile = tempFolder + "Blast" +
                                 RandomNumberGenerator.getID() +
                                 ".html";
-            // System.out.println(outputFile + " outputfile");
-            //progressBar = new JProgressBar(0, 100);
 
-            progressBar1.setForeground(Color.ORANGE);
-            progressBar1.setBackground(Color.WHITE);
-
-            progressBar1.setIndeterminate(true);
-            progressBar1.setString(algoTitle + " is running.");
-
-            SoapClient sc = new SoapClient(algoName, dbName, matrix,
-                                           fastaFile.getFASTAFileName().
-                                           trim(),
+            if (fastaFile == null) {
+                fastaFile = activeSequenceDB;
+            }
+            SoapClient sc = new SoapClient(parameterSetting.getProgramName(),
+                                           parameterSetting.getDbName(),
                                            outputFile);
+            serviceProgressBar.setForeground(Color.ORANGE);
+            serviceProgressBar.setBackground(Color.WHITE);
+            serviceProgressBar.setIndeterminate(true);
+            serviceProgressBar.setString(
+                    "Blast is running on the Columbia Blast Server.");
+
             BlastAlgorithm blastAlgo = new BlastAlgorithm();
-            blastAlgo.setStartBrowser(jDisplayInWebBox.isSelected());
-            blastAlgo.setBlastAppComponent(blastAppComponent);
+            sc.setSequenceDB(activeSequenceDB);
+            sc.setCmd(AlgorithmMatcher.translateToCommandline(
+                    parameterSetting));
+            blastAlgo.setBlastAppComponent(this);
             blastAlgo.setSoapClient(sc);
+            blastAlgo.setStartBrowser(parameterSetting.isViewInBrowser());
             blastAlgo.start();
-            Thread.sleep(5);
+            Thread.sleep(2);
+            if (blastAlgo != null && parameterSetter != null) {
+                parameterSetter.setAlgo(blastAlgo);
+            }
 
         } catch (Exception e) {
             e.printStackTrace();
         }
 
     }
+    return parameterSetter;
 
-    /**
-     * blastFinished
-     * Take care of the state of finished blast.
-     */
-    public void blastFinished(String cmd) {
-        Date finished_Date = new Date();
+}
 
-        if (cmd.startsWith("Interrupted")) {
-            serviceProgressBar.setIndeterminate(false);
+public void retriveAlgoParameters() {
 
-            serviceProgressBar.setForeground(Color.ORANGE);
-            serviceProgressBar.setBackground(Color.ORANGE);
-            serviceProgressBar.setString("Stopped on " + finished_Date);
+    if (jTabbedPane1.getSelectedIndex() == this.SW) {
+        reportError("Sorry, the backend server is unreachable now!",
+                    "No Available Server Error");
+        return;
 
-        } else if (cmd.startsWith("OTHERS_Interrupted")) {
-            progressBar1.setIndeterminate(false);
+    }
+    if (jTabbedPane1.getSelectedIndex() == this.HMM) {
+        reportError("Sorry, the backend server is unreachable now!",
+                    "No Available Server Error");
+        return;
 
-            progressBar1.setForeground(Color.ORANGE);
-            progressBar1.setBackground(Color.ORANGE);
-            progressBar1.setString("Stopped on " + finished_Date);
+    }
+    if (fastaFile == null && sequenceDB == null) {
+        reportError("Please load a sequence file first!",
+                    "No File Error");
+        return;
 
-        } else {
+    }
+    String algoTitle = (String) jList2.getSelectedValue();
+    if (algoTitle == null) {
+        reportError("Please select a algorithm to search!",
+                    "Parameter Error");
+        return;
 
-            if (cmd.startsWith("pb")) {
+    }
 
-                serviceProgressBar.setIndeterminate(false);
+    String algoName = AlgorithmMatcher.translate(algoTitle);
 
-                serviceProgressBar.setForeground(Color.ORANGE);
-                serviceProgressBar.setBackground(Color.ORANGE);
-                serviceProgressBar.setString("Finished on " + finished_Date);
-            } else if (cmd.startsWith("btk search")) {
-                progressBar1.setIndeterminate(false);
+    String dbName = (String) jProgramBox1.getSelectedItem();
 
-                progressBar1.setForeground(Color.ORANGE);
-                progressBar1.setBackground(Color.ORANGE);
-                progressBar1.setString("Finished on " + finished_Date);
+    if (dbName == null) {
+        reportError("Please select a database name first!",
+                    "No Database Error");
+        return;
 
-            } else if (cmd.startsWith("btk hmm")) {
-                progressBar3.setIndeterminate(false);
+    }
 
-                progressBar3.setForeground(Color.ORANGE);
-                progressBar3.setBackground(Color.ORANGE);
-                progressBar3.setString("Finished on " + finished_Date);
+    String matrix = (String) jMatrixBox.getSelectedItem();
+//        if (matrix == null) {
+//            reportError("Please select a matrix name first!",
+//                        "No Matrix Error");
+//            return;
+//
+//        }
 
-            }
+    if (jTabbedPane1.getSelectedIndex() == this.SW) {
+        reportError("Sorry, the backend server is unreachable now!",
+                    "No Available Server Error");
+        return;
+
+    }
+    if (jTabbedPane1.getSelectedIndex() == this.HMM) {
+        reportError("Sorry, the backend server is unreachable now!",
+                    "No Available Server Error");
+        return;
+
+    }
+
+    //System.out.println("fasta file path: " + fastaFile);
+
+    try {
+
+        String tempFolder = System.getProperties().getProperty(
+                "temporary.files.directory");
+        if (tempFolder == null) {
+            tempFolder = ".";
 
         }
-    }
+        String outputFile = tempFolder + "Algo" +
+                            RandomNumberGenerator.getID() +
+                            ".html";
+        // System.out.println(outputFile + " outputfile");
+        //progressBar = new JProgressBar(0, 100);
 
-    void blastButton_actionPerformed(ActionEvent e) {
-//        System.out.println("thenumber=" + jTabbedPane1.getSelectedIndex());
-        if (jTabbedPane1.getSelectedIndex() == this.BLAST) {
-            jTabbedBlastPane.setSelectedIndex(this.MAIN);
-            if (jServerInfoPane.getServerType() ==
-                ServerInfoPanel.DEFAULTSERVERTYPE) {
-                parameterSetter = processParameters();
-            } else if (jServerInfoPane.getServerType() == ServerInfoPanel.NCBI) {
-                parameterSetter = processNCBIParameters();
+        progressBar1.setForeground(Color.ORANGE);
+        progressBar1.setBackground(Color.WHITE);
 
-            }
-        } else {
-            retriveAlgoParameters();
-        }
-        //Session session = createSession(parameter);
-        //session.start();
+        progressBar1.setIndeterminate(true);
+        progressBar1.setString(algoTitle + " is running.");
 
-        /* try{
-           BrowserLauncher.openURL("c:/data/status.html");
-         }catch (IOException ex){ex.printStackTrace();}
-         */
-    }
+        SoapClient sc = new SoapClient(algoName, dbName, matrix,
+                                       fastaFile.getFASTAFileName().
+                                       trim(),
+                                       outputFile);
+        BlastAlgorithm blastAlgo = new BlastAlgorithm();
+        blastAlgo.setStartBrowser(jDisplayInWebBox.isSelected());
+        blastAlgo.setBlastAppComponent(blastAppComponent);
+        blastAlgo.setSoapClient(sc);
+        blastAlgo.start();
+        Thread.sleep(5);
 
-    void blastButton1_actionPerformed(ActionEvent e) {
-        //System.out.println("run");
-        //retriveParameters();
-        //retriveAlgoParameters();
-
-    }
-
-    void blastButton2_actionPerformed(ActionEvent e) {
-        //System.out.println("stop");
-        //stopBlastAction();
-
-    }
-
-    protected void fireModelChangedEvent(MicroarraySetViewEvent event) {
-        setFastaFile(activeSequenceDB);
-    }
-
-    void stopBlastAction() {
-        blastFinished("Interrupted");
-        if (parameterSetter != null) {
-
-            BWAbstractAlgorithm algo = parameterSetter.getAlgo();
-            if (algo != null) {
-                algo.stop();
-            }
-        }
-    };
-
-    void jButton1_actionPerformed(ActionEvent e) {
-        //System.out.println("jbutton1");
-        // retriveAlgoParameters();
-        blastFinished("OTHERS_Interrupted");
-
-    }
-
-    void blastStopButton_actionPerformed(ActionEvent e) {
-        stopBlastAction();
-    }
-
-    void algorithmSearch_actionPerformed(ActionEvent e) {
-        try {
-            retriveAlgoParameters();
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-    }
-
-    void jButton7_actionPerformed(ActionEvent e) {
-        try {
-            BrowserLauncher.openURL("http://pfam.wustl.edu/browse.shtml");
-        } catch (IOException ex) {
-            reportError(ex.getMessage(), "Connection Error");
-
-        }
-    }
-
-    public void updateProgressBar(final double percent, final String text) {
-        Runnable r = new Runnable() {
-            public void run() {
-                try {
-                    serviceProgressBar.setString(text);
-                    serviceProgressBar.setValue((int) (percent * 100));
-                } catch (Exception e) {
-                }
-            }
-        };
-        SwingUtilities.invokeLater(r);
-    }
-
-    public void updateProgressBar(final String text) {
-        Runnable r = new Runnable() {
-            public void run() {
-                try {
-                    serviceProgressBar.setString(text);
-                    serviceProgressBar.setIndeterminate(true);
-                } catch (Exception e) {
-                }
-            }
-        };
-        SwingUtilities.invokeLater(r);
-    }
-
-    public void updateProgressBar(final boolean boo, final String text) {
-        Runnable r = new Runnable() {
-            public void run() {
-                try {
-                    serviceProgressBar.setString(text);
-                    serviceProgressBar.setIndeterminate(boo);
-                } catch (Exception e) {
-                }
-            }
-        };
-        SwingUtilities.invokeLater(r);
-    }
-
-
-    void jButton2_actionPerformed(ActionEvent e) {
-        if (fastaFile == null || fastaFile.isDNA()) {
-            reportError("Please select a PROTEIN sequence file first.",
-                        "MisMatch Error");
-            return;
-        }
-        String algoTitle = (String) jList4.getSelectedValue();
-        if (algoTitle == null) {
-            reportError("Please select a Pfam model first.", "Null Parameter.");
-            return;
-        }
-        String query = AlgorithmMatcher.translate(algoTitle);
-
-        try {
-
-            String tempFolder = System.getProperties().getProperty(
-                    "temporary.files.directory");
-            if (tempFolder == null) {
-                tempFolder = "./";
-
-            }
-            String outputFile = tempFolder + "Hmm" +
-                                RandomNumberGenerator.getID() +
-                                ".txt";
-            //System.out.println(outputFile + " outputfile");
-            //progressBar = new JProgressBar(0, 100);
-
-            progressBar3.setForeground(Color.ORANGE);
-            progressBar3.setBackground(Color.WHITE);
-
-            progressBar3.setIndeterminate(true);
-            progressBar3.setString(algoTitle + " is running.");
-
-            SoapClient sc = new SoapClient(query, null, null,
-                                           fastaFile.getFASTAFileName().trim(),
-                                           outputFile);
-            BlastAlgorithm blastAlgo = new BlastAlgorithm();
-            blastAlgo.setStartBrowser(jDisplayInWebBox.isSelected());
-            blastAlgo.setBlastAppComponent(blastAppComponent);
-            blastAlgo.setSoapClient(sc);
-            blastAlgo.start();
-            Thread.sleep(5);
-
-        } catch (Exception ex) {
-            ex.printStackTrace();
-
-        }
-
-    }
-
-    /**
-     * createGridDialog
-     */
-    public void createGridDialog() {
-
-        CreateGridServiceDialog csd = new CreateGridServiceDialog(null,
-                "grid service");
-
-    }
-
-    void jButton6_actionPerformed(ActionEvent e) {
-        //loadFile();
-        String textFile =
-                "C:\\FromOldCDisk\\cvsProject\\project\\BioWorks\\temp\\GEAW\\Hmm89547134.txt";
-        String inputfile =
-                "C:\\FromOldCDisk\\cvsProject\\project\\BioWorks\\temp\\GEAW\\Hmm89547134.txt";
-        HMMDataSet blastResult = new HMMDataSet(textFile,
-                                                inputfile, null);
-        try {
-
-//add twice blastDataSet. change!@ ???
-            ProjectNodeAddedEvent event = new ProjectNodeAddedEvent("message", null,
-                    blastResult);
-            blastAppComponent.publishProjectNodeAddedEvent(event);
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-    }
-
-
-    /**
-     * loadFile
-     */
-    public void loadFile() {
-        if (JFileChooser.APPROVE_OPTION ==
-            jFileChooser1.showOpenDialog(mainPanel)) {
-            // Call openFile to attempt to load the text from file into TextArea
-            openFile(jFileChooser1.getSelectedFile().getPath());
-        }
-        mainPanel.repaint();
-
-    }
-
-    void openFile(String fileName) {
-        try {
-            // Open a file of the given name.
-            File file = new File(fileName);
-
-            // Get the size of the opened file.
-            int size = (int) file.length();
-
-            // Set to zero a counter for counting the number of
-            // characters that have been read from the file.
-            int chars_read = 0;
-
-            // Create an input reader based on the file, so we can read its data.
-            // FileReader handles international character encoding conversions.
-            FileReader in = new FileReader(file);
-
-            // Create a character array of the size of the file,
-            // to use as a data buffer, into which we will read
-            // the text data.
-            char[] data = new char[size];
-
-            // Read all available characters into the buffer.
-            while (in.ready()) {
-                // Increment the count for each character read,
-                // and accumulate them in the data buffer.
-                chars_read += in.read(data, chars_read, size - chars_read);
-            }
-            in.close();
-
-            // jTextArea1.setText(new String(data, 0, chars_read));
-
-//   jList4.add("your own model", null);
-            // Display the name of the opened directory+file in the statusBar.
-            //  statusBar.setText("Opened " + fileName);
-            //  updateCaption();
-        } catch (IOException e) {
-            //statusBar.setText("Error opening " + fileName);
-        }
-    }
-
-    public BlastAppComponent getBlastAppComponent() {
-        return blastAppComponent;
-    }
-
-    /**
-     * publishProjectNodeAddedEvent
-     *
-     * @param event ProjectNodeAddedEvent
-     */
-    @Publish public org.geworkbench.events.ProjectNodeAddedEvent
-            publishProjectNodeAddedEvent(org.geworkbench.events.
-                                         ProjectNodeAddedEvent event) {
-        return event;
+    } catch (Exception e) {
+        e.printStackTrace();
     }
 
 }
 
+/**
+ * blastFinished
+ * Take care of the state of finished blast.
+ */
+public void blastFinished(String cmd) {
+    Date finished_Date = new Date();
 
-class BlastAppComponent_jProgramBox_actionAdapter implements java.awt.
+    if (cmd.startsWith("Interrupted")) {
+        serviceProgressBar.setIndeterminate(false);
+
+        serviceProgressBar.setForeground(Color.ORANGE);
+        serviceProgressBar.setBackground(Color.ORANGE);
+        serviceProgressBar.setString("Stopped on " + finished_Date);
+
+    } else if (cmd.startsWith("OTHERS_Interrupted")) {
+        progressBar1.setIndeterminate(false);
+
+        progressBar1.setForeground(Color.ORANGE);
+        progressBar1.setBackground(Color.ORANGE);
+        progressBar1.setString("Stopped on " + finished_Date);
+
+    } else {
+
+        if (cmd.startsWith("pb")) {
+
+            serviceProgressBar.setIndeterminate(false);
+
+            serviceProgressBar.setForeground(Color.ORANGE);
+            serviceProgressBar.setBackground(Color.ORANGE);
+            serviceProgressBar.setString("Finished on " + finished_Date);
+        } else if (cmd.startsWith("btk search")) {
+            progressBar1.setIndeterminate(false);
+
+            progressBar1.setForeground(Color.ORANGE);
+            progressBar1.setBackground(Color.ORANGE);
+            progressBar1.setString("Finished on " + finished_Date);
+
+        } else if (cmd.startsWith("btk hmm")) {
+            progressBar3.setIndeterminate(false);
+
+            progressBar3.setForeground(Color.ORANGE);
+            progressBar3.setBackground(Color.ORANGE);
+            progressBar3.setString("Finished on " + finished_Date);
+
+        }
+
+    }
+}
+
+void blastButton_actionPerformed(ActionEvent e) {
+//        System.out.println("thenumber=" + jTabbedPane1.getSelectedIndex());
+    stopButtonPushed = false;
+    if (jTabbedPane1.getSelectedIndex() == this.BLAST) {
+        jTabbedBlastPane.setSelectedIndex(this.MAIN);
+        if (jServerInfoPane.getServerType() ==
+            ServerInfoPanel.DEFAULTSERVERTYPE) {
+            parameterSetter = processParameters();
+        } else if (jServerInfoPane.getServerType() == ServerInfoPanel.NCBI) {
+            parameterSetter = processNCBIParameters();
+
+        }
+    } else {
+        retriveAlgoParameters();
+    }
+    //Session session = createSession(parameter);
+    //session.start();
+
+    /* try{
+       BrowserLauncher.openURL("c:/data/status.html");
+     }catch (IOException ex){ex.printStackTrace();}
+     */
+}
+
+void blastButton1_actionPerformed(ActionEvent e) {
+    //System.out.println("run");
+    //retriveParameters();
+    //retriveAlgoParameters();
+
+}
+
+void blastButton2_actionPerformed(ActionEvent e) {
+    //System.out.println("stop");
+    //stopBlastAction();
+
+}
+
+protected void fireModelChangedEvent(MicroarraySetViewEvent event) {
+    setFastaFile(activeSequenceDB);
+}
+
+void stopBlastAction() {
+    stopButtonPushed = true;
+    blastFinished("Interrupted");
+    if (parameterSetter != null) {
+
+        BWAbstractAlgorithm algo = parameterSetter.getAlgo();
+        if (algo != null) {
+            algo.stop();
+        }
+    }
+};
+
+void jButton1_actionPerformed(ActionEvent e) {
+    //System.out.println("jbutton1");
+    // retriveAlgoParameters();
+    blastFinished("OTHERS_Interrupted");
+
+}
+
+void blastStopButton_actionPerformed(ActionEvent e) {
+    stopBlastAction();
+}
+
+void algorithmSearch_actionPerformed(ActionEvent e) {
+    try {
+        retriveAlgoParameters();
+    } catch (Exception ex) {
+        ex.printStackTrace();
+    }
+}
+
+void jButton7_actionPerformed(ActionEvent e) {
+    try {
+        BrowserLauncher.openURL("http://pfam.wustl.edu/browse.shtml");
+    } catch (IOException ex) {
+        reportError(ex.getMessage(), "Connection Error");
+
+    }
+}
+
+public void updateProgressBar(final double percent, final String text) {
+    Runnable r = new Runnable() {
+        public void run() {
+            try {
+                serviceProgressBar.setString(text);
+                serviceProgressBar.setValue((int) (percent * 100));
+            } catch (Exception e) {
+            }
+        }
+    };
+    SwingUtilities.invokeLater(r);
+}
+
+public void updateProgressBar(final String text) {
+    Runnable r = new Runnable() {
+        public void run() {
+            try {
+                serviceProgressBar.setString(text);
+                serviceProgressBar.setIndeterminate(true);
+            } catch (Exception e) {
+            }
+        }
+    };
+    SwingUtilities.invokeLater(r);
+}
+
+public void updateProgressBar(final boolean boo, final String text) {
+    Runnable r = new Runnable() {
+        public void run() {
+            try {
+                serviceProgressBar.setString(text);
+                serviceProgressBar.setIndeterminate(boo);
+            } catch (Exception e) {
+            }
+        }
+    };
+    SwingUtilities.invokeLater(r);
+}
+
+
+void jButton2_actionPerformed(ActionEvent e) {
+    if (fastaFile == null || fastaFile.isDNA()) {
+        reportError("Please select a PROTEIN sequence file first.",
+                    "MisMatch Error");
+        return;
+    }
+    String algoTitle = (String) jList4.getSelectedValue();
+    if (algoTitle == null) {
+        reportError("Please select a Pfam model first.", "Null Parameter.");
+        return;
+    }
+    String query = AlgorithmMatcher.translate(algoTitle);
+
+    try {
+
+        String tempFolder = System.getProperties().getProperty(
+                "temporary.files.directory");
+        if (tempFolder == null) {
+            tempFolder = "./";
+
+        }
+        String outputFile = tempFolder + "Hmm" +
+                            RandomNumberGenerator.getID() +
+                            ".txt";
+        //System.out.println(outputFile + " outputfile");
+        //progressBar = new JProgressBar(0, 100);
+
+        progressBar3.setForeground(Color.ORANGE);
+        progressBar3.setBackground(Color.WHITE);
+
+        progressBar3.setIndeterminate(true);
+        progressBar3.setString(algoTitle + " is running.");
+
+        SoapClient sc = new SoapClient(query, null, null,
+                                       fastaFile.getFASTAFileName().trim(),
+                                       outputFile);
+        BlastAlgorithm blastAlgo = new BlastAlgorithm();
+        blastAlgo.setStartBrowser(jDisplayInWebBox.isSelected());
+        blastAlgo.setBlastAppComponent(blastAppComponent);
+        blastAlgo.setSoapClient(sc);
+        blastAlgo.start();
+        Thread.sleep(5);
+
+    } catch (Exception ex) {
+        ex.printStackTrace();
+
+    }
+
+}
+
+/**
+ * createGridDialog
+ */
+public void createGridDialog() {
+
+    CreateGridServiceDialog csd = new CreateGridServiceDialog(null,
+            "grid service");
+
+}
+
+void jButton6_actionPerformed(ActionEvent e) {
+    //loadFile();
+    String textFile =
+            "C:\\FromOldCDisk\\cvsProject\\project\\BioWorks\\temp\\GEAW\\Hmm89547134.txt";
+    String inputfile =
+            "C:\\FromOldCDisk\\cvsProject\\project\\BioWorks\\temp\\GEAW\\Hmm89547134.txt";
+    HMMDataSet blastResult = new HMMDataSet(textFile,
+                                            inputfile, null);
+    try {
+
+//add twice blastDataSet. change!@ ???
+        ProjectNodeAddedEvent event = new ProjectNodeAddedEvent("message", null,
+                blastResult);
+        blastAppComponent.publishProjectNodeAddedEvent(event);
+    } catch (Exception ex) {
+        ex.printStackTrace();
+    }
+}
+
+
+/**
+ * loadFile
+ */
+public void loadFile() {
+    if (JFileChooser.APPROVE_OPTION ==
+        jFileChooser1.showOpenDialog(mainPanel)) {
+        // Call openFile to attempt to load the text from file into TextArea
+        openFile(jFileChooser1.getSelectedFile().getPath());
+    }
+    mainPanel.repaint();
+
+}
+
+void openFile(String fileName) {
+    try {
+        // Open a file of the given name.
+        File file = new File(fileName);
+
+        // Get the size of the opened file.
+        int size = (int) file.length();
+
+        // Set to zero a counter for counting the number of
+        // characters that have been read from the file.
+        int chars_read = 0;
+
+        // Create an input reader based on the file, so we can read its data.
+        // FileReader handles international character encoding conversions.
+        FileReader in = new FileReader(file);
+
+        // Create a character array of the size of the file,
+        // to use as a data buffer, into which we will read
+        // the text data.
+        char[] data = new char[size];
+
+        // Read all available characters into the buffer.
+        while (in.ready()) {
+            // Increment the count for each character read,
+            // and accumulate them in the data buffer.
+            chars_read += in.read(data, chars_read, size - chars_read);
+        }
+        in.close();
+
+        // jTextArea1.setText(new String(data, 0, chars_read));
+
+//   jList4.add("your own model", null);
+        // Display the name of the opened directory+file in the statusBar.
+        //  statusBar.setText("Opened " + fileName);
+        //  updateCaption();
+    } catch (IOException e) {
+        //statusBar.setText("Error opening " + fileName);
+    }
+}
+
+public BlastAppComponent getBlastAppComponent() {
+    return blastAppComponent;
+}
+
+public boolean isStopButtonPushed() {
+    return stopButtonPushed;
+}
+
+/**
+ * publishProjectNodeAddedEvent
+ *
+ * @param event ProjectNodeAddedEvent
+ */
+@Publish public org.geworkbench.events.ProjectNodeAddedEvent
+        publishProjectNodeAddedEvent(org.geworkbench.events.
+                                     ProjectNodeAddedEvent event) {
+    return event;
+}
+
+}
+
+
+        class BlastAppComponent_jProgramBox_actionAdapter implements java.awt.
         event.ActionListener {
     BlastAppComponent adaptee;
 

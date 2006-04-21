@@ -345,9 +345,9 @@ public class NCBIBlastParser {
                                     break;
                                 }
 
-                                if (line.startsWith("Length")) {
-                                    each.setLength(new Integer(line.substring(8).
-                                            trim()).intValue());
+                                if (line.startsWith("Length=")) {
+                                    String[] lengthVal = line.split("=");
+                                    each.setLength(new Integer(lengthVal[1].trim()).intValue());
                                 }
                                 if (line.startsWith("Identities = ")) {
                                     /**todo
