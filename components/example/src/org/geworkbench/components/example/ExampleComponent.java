@@ -106,20 +106,38 @@ public class ExampleComponent extends JPanel implements VisualPlugin {
         }
     }
 
-    private void tProfilerStuff() {
+    private void tProfilerStuff() throws Exception {
         // Get all markers in the microarrays
         DSItemList<DSGeneMarker> markers = microarraySet.getMarkers();
         // Get case and control sets
         DSAnnotationContext<DSMicroarray> context = CSAnnotationContextManager.getInstance().getCurrentContext(microarraySet);
         DSPanel<DSMicroarray> caseMicroararys = context.getActivatedItemsForClass(CSAnnotationContext.CLASS_CASE);
         DSPanel<DSMicroarray> controlMicroararys = context.getActivatedItemsForClass(CSAnnotationContext.CLASS_CONTROL);
+        //// GO Term stuff
+        // These two lines are a bit of a hack right now-- we will probably load this in a standard way later
+        GeneOntologyTree tree = new GeneOntologyTree();
+        tree.parseOBOFile("data/gene_ontology.obo");
+        // Construct a mapping of the microarray set markers on to the tree
+        GoMapping mapping = new GoMapping(tree, microarraySet);
+        // Get all GO terms
+        Collection<GOTerm> terms = tree.getAllTerms();
+        for (GOTerm term : terms) {
+            // For each term, find the associated markers
+            Set<String> markerIDs = mapping.getMarkersForGOTerm(term.getId());
+            // Ignore the group if there are fewer than, say 4 markers in the group
+            if (markerIDs.size() >= 4) {
+                // You can now iterate through these markers, just like we do below (see  "* Iterate..." in comments below)
+                // todo - iterate through markers, etc.
+            }
+        }
+        //// END GO Term stuff
         // Get marker groupings by a custom annotation
         Map<String, List<String>> groups = AnnotationParser.getCustomAnnotationGroupings("Pathway", "///", microarraySet);
         // Iterate through the groups
         Set<String> groupNames = groups.keySet();
         for (String groupName : groupNames) {
             List<String> markerIDs = groups.get(groupName);
-            // Iterate through the markers
+            // * Iterate through the markers
             int index = 0;
             int n = markerIDs.size();
             double[] caseValues = new double[n];
