@@ -64,6 +64,18 @@ public class JProfileTable extends JPanel {
     public static void main(String[] args) {
         JFrame frame = new JFrame();
         TProfilerResults results = new TProfilerResults();
-//        ProfileGroup test1 = new ProfileGroup("Group 1", );
+        ProfileGroup test1 = new ProfileGroup("Group 1", 4.3, null);
+        ProfileGroup test2 = new ProfileGroup("Group 2", 1.0, null);
+        ProfileGroup test3 = new ProfileGroup("Group 3", -3.2, null);
+        results.addGroup(test1);
+        results.addGroup(test2);
+        results.addGroup(test3);
+        JProfileTable table = new JProfileTable();
+        table.setResults(results);
+        frame.getContentPane().add(table);
+        frame.pack();
+        frame.setSize(400, 400);
+        frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        frame.setVisible(true);
     }
 }
