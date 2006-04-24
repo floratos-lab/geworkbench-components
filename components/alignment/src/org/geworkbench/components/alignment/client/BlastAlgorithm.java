@@ -171,7 +171,7 @@ public class BlastAlgorithm extends BWAbstractAlgorithm implements SoapClientIn 
                         try {
                             if(blastAppComponent!=null && !blastAppComponent.isStopButtonPushed()){
                                 updateStatus("For sequence " + sequence +
-                                        ", the Time since submission is : " +
+                                        ", time since submission is : " +
                                              blast.getWaitingTime());
                                 Thread.sleep(this.TIMEGAP);
                             }else{
@@ -223,6 +223,7 @@ public class BlastAlgorithm extends BWAbstractAlgorithm implements SoapClientIn 
                     if(!soapClient.startRun(true)){
                         //fail to connect or other problem.
                         blastAppComponent.reportError(blastAppComponent.ERROR2,  "Server unreachable");
+                        blastAppComponent.setBlastDisplayPanel(blastAppComponent.SERVER);
                         blastAppComponent.blastFinished(blastAppComponent.ERROR1);
                         return;
                     }

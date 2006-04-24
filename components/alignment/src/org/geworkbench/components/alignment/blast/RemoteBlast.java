@@ -10,6 +10,7 @@ import java.util.regex.Pattern;
 
 import javax.swing.JProgressBar;
 import javax.swing.JTextArea;
+import org.geworkbench.util.session.SoapClient;
 
 /**
  * RemoteBlast is a class that implements submission of a protein sequence to
@@ -17,6 +18,12 @@ import javax.swing.JTextArea;
  * writes retrieved results out to a file.
  */
 public class RemoteBlast {
+    private final static String NCBIHEADER =
+            "<HTML><HEAD><meta http-equiv=\"content-type\""
+            + "content=\"text/html;charset=utf-8\" /></HEAD><BODY BGCOLOR=\"#FFFFFF\" LINK=\"#0000FF\" VLINK=\"#660099\" ALINK=\"#660099\">"
+            + "<IMG SRC=\"http://www.ncbi.nlm.nih.gov/blast/images/head_results.gif\"    WIDTH=\"600\" HEIGHT=\"45\" ALIGN=\"middle\">"
+            +"<title>NCBI Blast Result</title><br><br>";
+
     public RemoteBlast() {
         try {
             jbInit();
@@ -161,13 +168,10 @@ public class RemoteBlast {
      */
     public String submitBlast() {
 
-        String message; /* HTTP GET message */
+        String message = ""; /* HTTP GET message */
 
         Socket s = null;
 
-        message =
-                SUBMITPREFIX +
-                query + "&DATABASE=" + dbName + "&PROGRAM=" + programName + "&FILTER=L&HITLIST_SZE=500&AUTO_FORMAT=Semiauto&CDD_SEARCH=on&SHOW_OVERVIEW=on&SERVICE=plain\r\n\r\n";
         if (cmdLine != null) {
             message = SUBMITPREFIX + query + cmdLine;
         }
@@ -357,6 +361,10 @@ public class RemoteBlast {
                 PrintStream ps = new PrintStream(new FileOutputStream(new File(
                         filename), true), true);
 
+                //print header.
+
+                ps.println(NCBIHEADER);
+
                 boolean BlastnotDone = false;
                 while (!BlastnotDone) {
 
@@ -380,6 +388,7 @@ public class RemoteBlast {
 //                System.out.println("IN HTML" +   data );
                     boolean done = false;
                     boolean getWaitingTime = false;
+
                     while (data != null) {
                         // System.out.println("IN HTML" +   data );
                         if (data.equals("\tStatus=WAITING")) {
@@ -387,11 +396,11 @@ public class RemoteBlast {
                         } else if (data.equals("\tStatus=READY")) {
                             BlastnotDone = true;
                             done = true;
+                            data = in.readLine();
+                            data = in.readLine();
+                            data = in.readLine();
+                            break;
                             //ps.println(data);
-                        } else {
-                            if (done) {
-                                ps.println(data);
-                            }
                         }
                         if (getWaitingTime) {
                             if (data == null) {
@@ -407,14 +416,18 @@ public class RemoteBlast {
                                 "<tr><td>Time since submission</td>")) {
                             getWaitingTime = true;
                         }
-
                         data = in.readLine();
-
                     }
                     if (!done) {
-                        textArea.append("Waiting for Blast to finish...\n");
-                        Thread.sleep(5000);
+
+                        Thread.sleep(SoapClient.TIMEGAP);
+                    } else {
+                        while (data != null) {
+                            ps.println(data);
+                            data = in.readLine();
+                        }
                     }
+
                     s.close();
                 } //end of while (BlastnotDone).
                 textArea.append("Blast done! You can now display your results");
@@ -434,22 +447,23 @@ public class RemoteBlast {
 
     } //end of class GetBlast.
 
+
     public static void main(String[] args) {
 
         String query = "MGARCPTRTLRARQPAHPRPPGTPRHHQRRPLPAASPTRHRSSRGRQIRARRPDRPGTRLRTGAAVDRQQPQHAPLRPLRLRSARADPRPQPGKPARRNPGHQRPRPRCRRPGAQQRPADRTLPADRSARHRVPAAPPAARPAHRRARQRRLRPARRPARPAGTRPLHDSRTRPAQLSGAADLRSDRRPATDRDHRQRRSPLLPAPCRRHHRTRRPPLPARIPPPVHSAAPHPPQQRGTRGNRGRPLLREPAQRHPSSRRRLRAPHRGRLPPGYRPAPQRGLPDHGHRRQDQRTHPRVPAGARGNGVAPTHGHPRMTSRRSHETPQGPDPRSPGAAPAYREAPPALTGRE";
-            RemoteBlast test = new RemoteBlast(query);
-            String message =
-                    "Put http://www.ncbi.nlm.nih.gov/blast/Blast.cgi?CMD=Put&QUERY=" +
-                    query + "&DATABASE=nr&PROGRAM=blastp&FILTER=L&GAPCOSTS=11%202&HITLIST_SZE=500&AUTO_FORMAT=Semiauto&CDD_SEARCH=on&SHOW_OVERVIEW=on&SERVICE=plain\r\n\r\n";
+        RemoteBlast test = new RemoteBlast(query);
+        String message =
+                "Put http://www.ncbi.nlm.nih.gov/blast/Blast.cgi?CMD=Put&QUERY=" +
+                query + "&DATABASE=nr&PROGRAM=blastp&FILTER=L&GAPCOSTS=11%202&HITLIST_SZE=500&AUTO_FORMAT=Semiauto&CDD_SEARCH=on&SHOW_OVERVIEW=on&SERVICE=plain\r\n\r\n";
 
-            String Blast_rid = test.submitBlast(message);
-            String format = "HTML";
-            test.getBlast(Blast_rid, format);
-            format = "TEXT";
-            System.out.println("START TEXT");
+        String Blast_rid = test.submitBlast(message);
+        String format = "HTML";
+        test.getBlast(Blast_rid, format);
+        format = "TEXT";
+        System.out.println("START TEXT");
 
-            //test.getBlast(Blast_rid, format);
-        }
+        //test.getBlast(Blast_rid, format);
+    }
 
     /**
      * RemoteBlast

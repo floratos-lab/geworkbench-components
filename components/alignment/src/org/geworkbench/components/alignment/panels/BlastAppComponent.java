@@ -60,7 +60,7 @@ import org.geworkbench.util.session.SoapClient;
     static final int HMM = 2;
     public static final String NCBILABEL = "NCBI BLAST Result";
      public static final String ERROR1 ="Interrupted";
-     public static final String ERROR2 = "Fail to connect to the Columbia Blast Server.";
+     public static final String ERROR2 = "The connection to the Columbia Blast Server cannot be established, please try NCBI Blast Server.";
     String[] databaseParameter = {
                                  "ncbi/nr                      Peptides of all non-redundant sequences.",
                                  "ncbi/pdbaa               Peptides Sequences derived from the PDB.",
@@ -193,6 +193,7 @@ import org.geworkbench.util.session.SoapClient;
     BorderLayout borderLayout3 = new BorderLayout();
     JScrollPane jScrollPane4 = new JScrollPane();
     public static final int MAIN = 0;
+    public static final int SERVER = 2;
     JCheckBox humanRepeatFilter = new JCheckBox();
     JPanel jPanel1 = new JPanel();
     private JCheckBox maskLowCaseBox = new JCheckBox();
@@ -1010,7 +1011,7 @@ public ParameterSetter processParameters() {
         return null;
     }
     parameterSetting.setUseNCBI(false);
-    jServerInfoPane.retriveServerInfo();
+    //jServerInfoPane.retriveServerInfo();
     if (fastaFile == null) {
         if (sequenceDB == null) {
             reportError("Please select a sequence file first!",
@@ -1230,13 +1231,17 @@ void blastButton_actionPerformed(ActionEvent e) {
     } else {
         retriveAlgoParameters();
     }
-    //Session session = createSession(parameter);
-    //session.start();
 
-    /* try{
-       BrowserLauncher.openURL("c:/data/status.html");
-     }catch (IOException ex){ex.printStackTrace();}
-     */
+}
+
+public void setBlastDisplayPanel(int selectedPanel){
+if(selectedPanel == this.SERVER){
+    jTabbedBlastPane.setSelectedIndex(this.SERVER);
+
+}else{
+    jTabbedBlastPane.setSelectedIndex(this.MAIN);
+}
+
 }
 
 void blastButton1_actionPerformed(ActionEvent e) {
