@@ -208,7 +208,9 @@ public class AlgorithmMatcher {
                 } else {
                     cmd += " -U F ";
                 }
-
+                if(ps.getWordsize()!=null){
+                    cmd += " -W " + ps.getWordsize() + " ";
+                }
                 if (!ps.getProgramName().equals("blastn")) {
 
                     String gapCost = ps.getGapCost();
@@ -297,6 +299,10 @@ public class AlgorithmMatcher {
                 if (!ps.getMatrix().startsWith("dna")) {
                     cmd += "&MATRIX_NAME=" + ps.getMatrix().trim();
                 }
+                if(ps.getWordsize()!=null){
+                    cmd += "&WORD_SIZE=" + ps.getWordsize().trim();
+                }
+
                 if (!ps.getProgramName().equals("blastn")) {
 
                     String gapCost = ps.getGapCost();
