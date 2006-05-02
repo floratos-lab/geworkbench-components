@@ -1,0 +1,5 @@
+<component-descriptor xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="Descriptor Schema.xsd">
+    <component class="org.geworkbench.components.analysis.clustering.TtestAnalysis">
+        <online-help helpSet="org/geworkbench/components/analysis/help/ttest/ttestHelpSet.hs"/>
+    </component>
+</component-descriptor>
