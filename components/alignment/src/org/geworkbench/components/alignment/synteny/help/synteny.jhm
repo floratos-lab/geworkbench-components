@@ -7,7 +7,7 @@
 <map version="1.0">
 
 	<mapID target="overview" url="synteny.HTML"/>
-	<mapID target="dot.matrix" url="Dot Matrix.HTML"/>
+	<mapID target="dot.matrix" url="DotMatrix.HTML"/>
 
 </map>
 
