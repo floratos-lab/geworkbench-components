@@ -5,6 +5,8 @@ import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarr
 import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.AnnotationParser;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
+import org.geworkbench.bison.datastructure.bioobjects.microarray.CSMicroarray;
+import org.geworkbench.bison.datastructure.bioobjects.microarray.CSExpressionMarkerValue;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.bison.annotation.DSAnnotationContext;
@@ -163,6 +165,13 @@ public class ExampleComponent extends JPanel implements VisualPlugin {
             }
             // todo - Compute t-value for group using caseValues and controlValues
             double tValue = 5; // Fake t-value for now
+        }
+        //// Make a new microarray, given an array of float values
+        float[] example = {1f, 2f, 3f, 4f, 5f};
+        int n = example.length;
+        CSMicroarray array = new CSMicroarray(n);
+        for (int i = 0; i < n; i++) {
+            array.setMarkerValue(i, new CSExpressionMarkerValue(example[i]));
         }
     }
 }
