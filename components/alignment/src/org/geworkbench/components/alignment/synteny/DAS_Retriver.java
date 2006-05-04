@@ -9,8 +9,10 @@ package org.geworkbench.components.alignment.synteny;
  * @version 1.0
  */
 
-import java.io.*;
-import java.net.*;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
 
 public class DAS_Retriver {
     /**
@@ -32,7 +34,7 @@ public class DAS_Retriver {
                                           String fil) {
         /* Forming request */
         String request =
-            "http://genome.cse.ucsc.edu/cgi-bin/das/hg16/features?segment=";
+            "http://genome.cse.ucsc.edu/cgi-bin/das/hg18/features?segment=";
         request = request.concat(chr);
         request = request.concat(":");
         request = request.concat(Integer.toString(from));
@@ -66,7 +68,7 @@ public class DAS_Retriver {
 
         /* Forming request */
         String request =
-            "http://genome.cse.ucsc.edu/cgi-bin/das/hg16/dna?segment=";
+            "http://genome.cse.ucsc.edu/cgi-bin/das/hg18/dna?segment=";
 //    String request = "http://genome.ucsc.edu/cgi-bin/hgc?hgsid=30936970&g=htcGetDna2&table=&i=mixed&getDnaPos=";
         request = request.concat(chr);
         request = request.concat(":");

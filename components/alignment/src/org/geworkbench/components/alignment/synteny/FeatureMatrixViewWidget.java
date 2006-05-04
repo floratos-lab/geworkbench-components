@@ -1,20 +1,14 @@
 package org.geworkbench.components.alignment.synteny;
 
-import javax.swing.JPanel;
-import java.awt.event.ActionListener;
-import java.awt.GridBagLayout;
-import java.awt.BorderLayout;
-import javax.swing.JScrollPane;
-import javax.swing.JToolBar;
-import javax.swing.JToggleButton;
-import javax.swing.BorderFactory;
-import java.awt.Dimension;
-import java.awt.event.MouseEvent;
-import java.awt.event.InputMethodEvent;
 import org.geworkbench.util.PropertiesMonitor;
-import java.beans.PropertyChangeEvent;
+
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
-import java.awt.Font;
+import java.awt.event.ActionListener;
+import java.awt.event.InputMethodEvent;
+import java.awt.event.MouseEvent;
+import java.beans.PropertyChangeEvent;
 
 /**
  * <p>Title: Bioworks</p>
