@@ -2,9 +2,9 @@ package org.geworkbench.components.microarrays;
 
 /*
  * The geworkbench_3.0 project
- * 
+ *
  * Copyright (c) 2006 Columbia University
- * 
+ *
  */
 
 import org.apache.commons.logging.Log;
@@ -40,7 +40,7 @@ import java.text.NumberFormat;
  */
 @AcceptTypes({DSMicroarraySet.class})
 public class TabularMicroarrayPanel extends MicroarrayViewEventBase implements VisualPlugin {
-	
+
 	Log log = LogFactory.getLog(this.getClass());
 
     public TabularMicroarrayPanel() {
@@ -190,21 +190,21 @@ public class TabularMicroarrayPanel extends MicroarrayViewEventBase implements V
     //}
 
     protected void fireModelChangedEvent(MicroarraySetViewEvent event) {
-    	
+
     	resetTablularView();
     }
-    
+
     private void resetTablularView() {
-		
+
 		if (chkAllMarkers.isSelected()){
 			reset();
-		} else if (onlyActivatedMarkers && activatedMarkers.size() > 0){
+		} else if (onlyActivatedMarkers && activatedMarkers!= null && activatedMarkers.size() > 0){
 			reset();
 		}
-		/* TODO - selection process in this panel is a candidate for refactoring 
-		 * it turns out that panels().size() represents the number of "unselected" marker panels (it doesn't matter if 'Selection' is selected)... 
-		 * when (multiple) panels (ie. p1, p2) are selected, this size is 1 (=Selection panel).  
-		 * For now, I have allowed this to handle the "remove" case. 
+		/* TODO - selection process in this panel is a candidate for refactoring
+		 * it turns out that panels().size() represents the number of "unselected" marker panels (it doesn't matter if 'Selection' is selected)...
+		 * when (multiple) panels (ie. p1, p2) are selected, this size is 1 (=Selection panel).
+		 * For now, I have allowed this to handle the "remove" case.
 		 */
 		else if (markers != null && markers.panels().size() >= 1){
 			reset();
