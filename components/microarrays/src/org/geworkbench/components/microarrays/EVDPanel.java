@@ -294,10 +294,10 @@ import java.util.Vector;
         rangeAxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
 
         mainPanel.add(graph, BorderLayout.CENTER);
-        chkAllMarkers.setSelected(true);
-        this.onlyActivatedMarkers = false;
-        chkAllArrays.setSelected(true);
-        this.onlyActivatedArrays = false;
+        chkAllMarkers.setSelected(false);
+        this.onlyActivatedMarkers = true;
+        chkAllArrays.setSelected(false);
+        this.onlyActivatedArrays = true;
 
     }
 

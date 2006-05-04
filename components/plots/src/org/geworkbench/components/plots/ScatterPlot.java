@@ -471,10 +471,10 @@ import java.util.*;
         JPanel checkboxPanel = new JPanel();
         checkboxPanel.setLayout(new BoxLayout(checkboxPanel, BoxLayout.X_AXIS));
         westPanel.add(checkboxPanel, BorderLayout.SOUTH);
-        allArraysCheckBox = new JCheckBox("All Arrays", true);
+        allArraysCheckBox = new JCheckBox("All Arrays", false);
         checkboxPanel.add(allArraysCheckBox);
         checkboxPanel.add(Box.createHorizontalStrut(10));
-        allMarkersCheckBox = new JCheckBox("All Markers", true);
+        allMarkersCheckBox = new JCheckBox("All Markers", false);
         checkboxPanel.add(allMarkersCheckBox);
         // Right side:
         JPanel rightPanel = new JPanel(new BorderLayout());

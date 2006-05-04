@@ -88,11 +88,11 @@ public class ExpressionProfilePanel extends MicroarrayViewEventBase implements
         jToolBar3.add(plotButton);
         jToolBar3.add(numMarkersSelectedLabel);
 
-        chkAllMarkers.setSelected(true);
-        this.onlyActivatedMarkers = false;
+        chkAllMarkers.setSelected(false);
+        this.onlyActivatedMarkers = true;
 
-        chkAllArrays.setSelected(true);
-        this.onlyActivatedArrays = false;
+        chkAllArrays.setSelected(false);
+        this.onlyActivatedArrays = true;
     }
 
     /**
