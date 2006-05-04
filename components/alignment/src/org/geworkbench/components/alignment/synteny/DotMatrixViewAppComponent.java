@@ -1,17 +1,15 @@
 package org.geworkbench.components.alignment.synteny;
 
-import java.beans.*;
-import java.util.*;
-
-import java.awt.*;
-import java.awt.event.*;
-import javax.swing.event.*;
-import java.util.HashMap;
-
-
-import org.geworkbench.engine.config.events.EventSource;
-import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.engine.config.MenuListener;
+import org.geworkbench.engine.config.VisualPlugin;
+import org.geworkbench.engine.config.events.EventSource;
+
+import javax.swing.event.EventListenerList;
+import java.awt.*;
+import java.awt.event.ActionListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.util.HashMap;
 
 
 /**
@@ -23,10 +21,7 @@ import org.geworkbench.engine.config.MenuListener;
  * @version 1.0
  */
 
-public class DotMatrixViewAppComponent
-
-    extends EventSource implements VisualPlugin, MenuListener,
-    PropertyChangeListener {
+public class DotMatrixViewAppComponent extends EventSource implements VisualPlugin, MenuListener, PropertyChangeListener {
 
     EventListenerList listenerList = new EventListenerList();
     DotMatrixViewWidget dmViewWidget;
@@ -58,16 +53,7 @@ public class DotMatrixViewAppComponent
         return (ActionListener) getListeners().get(var);
     } //implementation of core.config.MenuListener interface
 
-/*    public void receiveProjectSelection(ProjectEvent e) {
-        EventSource source = e.getSource();
-        if (source instanceof ProjectSelection) {
-            ProjectSelection selection = (ProjectSelection) source;
-            DataSet dataFile = selection.getDataSet();
-            if (dataFile instanceof SequenceDB) {
-            }
-        }
-    }
-*/
+
     public void propertyChange(PropertyChangeEvent e) {
         String propertyName = e.getPropertyName();
     }

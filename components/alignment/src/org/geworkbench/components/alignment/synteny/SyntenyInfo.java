@@ -1,11 +1,13 @@
 package org.geworkbench.components.alignment.synteny;
 
 import javax.swing.*;
-import javax.swing.event.*;
-import javax.swing.table.*;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+import javax.swing.table.AbstractTableModel;
 import java.awt.*;
-import java.awt.event.*;
-import java.util.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.Vector;
 
 /**
  * SyntenyInfo is a class that contains the "Synteny" panel which contains

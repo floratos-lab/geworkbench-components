@@ -1,21 +1,18 @@
 package org.geworkbench.components.alignment.synteny;
 
-import java.awt.event.*;
-import javax.swing.*;
-import java.awt.LayoutManager;
+import com.sun.image.codec.jpeg.JPEGCodec;
+import com.sun.image.codec.jpeg.JPEGImageEncoder;
+import org.geworkbench.components.alignment.panels.BrowserLauncher;
 import org.geworkbench.util.sequences.SequenceAnnotation;
-import java.awt.Color;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Font;
-import java.awt.Dimension;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferedImage;
 import java.io.FileOutputStream;
-import com.sun.image.codec.jpeg.JPEGImageEncoder;
-import com.sun.image.codec.jpeg.JPEGCodec;
-import org.geworkbench.components.alignment.panels.BrowserLauncher;
 import java.io.IOException;
-import java.awt.*;
 
 /**
  * <p>Title: </p>
@@ -55,9 +52,6 @@ public class DotMatrixViewWidgetPanel
     String pos_info_string = new String(" ");
     static AnnotationGraphicalObjects agoX;
     static AnnotationGraphicalObjects agoY;
-    static AnnotationViewWidget avwx= null;
-    static AnnotationViewWidget avwy= null;
-    JButton jButton1 = new JButton();
     public DotMatrixViewWidgetPanel() {
 
         DotM = null;
@@ -326,30 +320,16 @@ public class DotMatrixViewWidgetPanel
             awidth = DotM.getPixX();
         }
 
-        avwx = new AnnotationViewWidget(g2d, annoX, agoX,
-                                        xOff + ruler, yOff + 2 * ruler + DotM.getPixY(), awidth,
-                                        annospace, 0, DotM.getStartX(), DotM.getEndX());
-    }
-
-    private void drawAnnoY(Graphics2D g2d) {
-        int wx = DotM.getEndX() - DotM.getStartX() + 1;
-        int wy = DotM.getEndY() - DotM.getStartY() + 1;
-        int awidth = (DotM.getPixY() * wy) / wx;
-        if (awidth > DotM.getPixY()) {
-            awidth = DotM.getPixY();
-        }
-
-        avwy = new AnnotationViewWidget(g2d, annoY, agoY,
-                                        xOff + 2 * ruler + DotM.getPixX(),
-                                        yOff + ruler, annospace, awidth, 1,
-                                        DotM.getStartY(), DotM.getEndY());
+        AnnotationViewWidget avwx = new AnnotationViewWidget(g2d, annoX, agoX,
+            xOff + ruler, yOff + 2 * ruler + DotM.getPixY(), awidth,
+            annospace, 0, DotM.getStartX(), DotM.getEndX());
     }
 
     public void saveToJpeg() {
         String fn = null;
         JFileChooser fc = new JFileChooser();
         fc.setDialogTitle("Save current image to jpeg.");
-        int returnVal = fc.showSaveDialog(this.getParent());
+        int returnVal = fc.showOpenDialog(this.getParent());
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             fn = fc.getSelectedFile().getAbsolutePath();
         }
@@ -371,6 +351,19 @@ public class DotMatrixViewWidgetPanel
         }
     }
 
+    private void drawAnnoY(Graphics2D g2d) {
+        int wx = DotM.getEndX() - DotM.getStartX() + 1;
+        int wy = DotM.getEndY() - DotM.getStartY() + 1;
+        int awidth = (DotM.getPixY() * wy) / wx;
+        if (awidth > DotM.getPixY()) {
+            awidth = DotM.getPixY();
+        }
+
+        AnnotationViewWidget avwx = new AnnotationViewWidget(g2d, annoY, agoY,
+            xOff + 2 * ruler + DotM.getPixX(),
+            yOff + ruler, annospace, awidth, 1,
+            DotM.getStartY(), DotM.getEndY());
+    }
 
     public void setShowDirect(boolean all) {
         showDirect = all;
@@ -480,8 +473,8 @@ public class DotMatrixViewWidgetPanel
                 /* The mouse is in dotmatrix */
             }
             else {
+
                 if (y > dm_bottom + ruler) {
-                    avwx.AnnotationMenu(x,y);
                     /* The mouse is in annotation zone */
 
                     if ( (i = agoX.getHit(x, y)) != -1) {
@@ -503,7 +496,6 @@ public class DotMatrixViewWidgetPanel
         else {
             if (x > dm_right + ruler && y < dm_bottom) {
                 if ( (i = agoY.getHit(x, y)) != -1) {
-                    avwy.AnnotationMenu(x,y);
                     if ( (annoY.getAnnotationTrack(agoY.getTrackNum(i))).
                         getFeatureURL(i) != null) {
                         try {
