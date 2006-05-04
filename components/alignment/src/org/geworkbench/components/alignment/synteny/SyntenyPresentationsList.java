@@ -1,11 +1,6 @@
-package org.geworkbench.components.alignment.panels;
+package org.geworkbench.components.alignment.synteny;
 
-import org.geworkbench.components.alignment.synteny.DotMatrixObj;
 import org.geworkbench.util.sequences.SequenceAnnotation;
-import org.geworkbench.components.alignment.synteny.GPAnnoParser;
-import org.geworkbench.components.alignment.synteny.PFPParser;
-import org.geworkbench.components.alignment.synteny.DotMatrixViewWidget;
-import org.geworkbench.components.alignment.synteny.DotsParser;
 
 /**
  * <p>Title: Bioworks</p>
@@ -22,10 +17,11 @@ import org.geworkbench.components.alignment.synteny.DotsParser;
  */
 public class SyntenyPresentationsList {
 
+
+    DotMatrixViewWidget DotMVW = null;
     DotMatrixObj[] DotMObj = new DotMatrixObj[50];
     SequenceAnnotation[] AnnotX = new SequenceAnnotation[50];
     SequenceAnnotation[] AnnotY = new SequenceAnnotation[50];
-    DotMatrixViewWidget DotMVW = null;
     SyntenyAnnotationParameters SAPar=null;
 
     String[] AnnoKeys = {
@@ -89,6 +85,9 @@ public class SyntenyPresentationsList {
         DotMVW = dmvw;
     }
 
+    void setSyntenyAnnotationParameters(SyntenyAnnotationParameters sp){
+        SAPar = sp;
+    }
     public void redrawAnnotation(String as){
         int i, j;
 
@@ -130,11 +129,7 @@ public class SyntenyPresentationsList {
 
         DotMVW.dmrepaint();
     }
-
-    public void setSyntenyAnnotationParameters(SyntenyAnnotationParameters sp){
-        SAPar = sp;
-    }
-
+    
     void AdjustActiveAnnoTracks(SequenceAnnotation Anno) {
     int i, j;
     int real_an = Anno.getAnnotationTrackNum();
