@@ -203,7 +203,7 @@ import java.util.HashMap;
                 jShowAllMArrays_actionPerformed(e);
             }
         });
-        jShowAllMArrays.setSelected(true);
+        jShowAllMArrays.setSelected(false);
         jShowAllMArrays.setText("All Arrays");
         jShowAllMarkers.setText("All Markers");
         jShowAllMarkers.addActionListener(new java.awt.event.ActionListener() {
@@ -211,7 +211,7 @@ import java.util.HashMap;
                 jShowAllMarkers_actionPerformed(e);
             }
         });
-        jShowAllMarkers.setSelected(true);
+        jShowAllMarkers.setSelected(false);
         jShowAllMarkers.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 jShowAllMarkers_actionPerformed(e);

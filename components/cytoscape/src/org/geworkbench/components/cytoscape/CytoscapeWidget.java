@@ -510,7 +510,7 @@ public class CytoscapeWidget extends EventSource implements VisualPlugin, MenuLi
 
             for (Iterator it = map.keySet().iterator(); it.hasNext();) {
                 Integer id2 = (Integer) it.next();
-                if ((id2.intValue() < maSet.getMarkers().size()) && (id2.intValue() != 12600)) {
+                if ((id2.intValue() < maSet.getMarkers().size())) {
                     Float v12 = (Float) map.get(id2);
                     boolean thresholdTest = false;
                     thresholdTest = v12.doubleValue() > threshold;
