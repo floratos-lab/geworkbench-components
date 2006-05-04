@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="ISO-8859-1" standalone="yes"?>
+
+<toc version="1.0">
+
+	<tocitem text="Synteny">
+
+		 <tocitem target="overview" text="Synteny" />
+		 <tocitem target="dot.matrix" text="Dot Matrix" />
+
+
+	</tocitem>
+
+</toc>
+
