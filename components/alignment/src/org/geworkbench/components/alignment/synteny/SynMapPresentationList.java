@@ -1,11 +1,7 @@
-package org.geworkbench.components.alignment.panels;
+package org.geworkbench.components.alignment.synteny;
 
+import org.geworkbench.components.alignment.synteny.*;
 import org.geworkbench.util.sequences.SequenceAnnotation;
-import org.geworkbench.components.alignment.synteny.GPAnnoParser;
-import org.geworkbench.components.alignment.synteny.SynMapParser;
-import org.geworkbench.components.alignment.synteny.PFPParser;
-import org.geworkbench.components.alignment.synteny.SyntenyMapObject;
-import org.geworkbench.components.alignment.synteny.SyntenyMapViewWidget;
 
 /**
  * <p>Title: Bioworks</p>
@@ -89,7 +85,7 @@ public class SynMapPresentationList {
         cur_num++;
     }
 
-    public void setSyntenyAnnotationParameters(SyntenyAnnotationParameters sp){
+    void setSyntenyAnnotationParameters(SyntenyAnnotationParameters sp){
         SAPar = sp;
     }
 

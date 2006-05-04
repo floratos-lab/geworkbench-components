@@ -1,8 +1,10 @@
-package org.geworkbench.components.alignment.panels;
+package org.geworkbench.components.alignment.synteny;
 
-import java.awt.*;
-import javax.swing.*;
 import org.geworkbench.util.sequences.SequenceAnnotation;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
 
 /**
  * <p>Title: Bioworks</p>
@@ -17,6 +19,7 @@ import org.geworkbench.util.sequences.SequenceAnnotation;
  * @author not attributable
  * @version 1.0
  */
+
 
 public class SyntenyAnnotationParameters
     extends JPanel {
@@ -130,4 +133,3 @@ public class SyntenyAnnotationParameters
         }
     }
 }
-
