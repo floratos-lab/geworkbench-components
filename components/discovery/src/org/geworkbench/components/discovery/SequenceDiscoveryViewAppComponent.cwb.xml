@@ -1,0 +1,5 @@
+<component-descriptor xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="Descriptor Schema.xsd">
+    <component class="org.geworkbench.components.discovery.SequenceDiscoveryViewAppComponent">
+        <online-help helpSet="org/geworkbench/components/discovery/help/patternDiscoveryHelpSet.hs"/>
+    </component>
+</component-descriptor>
