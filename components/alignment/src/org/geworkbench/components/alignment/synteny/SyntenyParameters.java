@@ -596,7 +596,7 @@ import java.util.HashMap;
             String str = e.getActionCommand();
 
             Object[] selectedMarkers = jTree1.getSelectionPaths();
-            String sm = new String(selectedMarkers[0].toString());
+            String sm = selectedMarkers[0].toString();
 
             int ii = sm.indexOf(">");
             if (ii != -1) {
@@ -617,8 +617,8 @@ import java.util.HashMap;
                 fr = fr - (int) (Integer.parseInt(beforeText.getText()));
                 int tt = (int) (Integer.parseInt(sm_comps[4])) +
                          (int) (Integer.parseInt(afterText.getText()));
-                sm = new String(sm_comps[0] + ":" + sm_comps[1] + ":" + sm_comps[2] +
-                                ":" + fr + ":" + tt + ":" + sm_comps[5]);
+                sm = sm_comps[0] + ":" + sm_comps[1] + ":" + sm_comps[2] +
+                                ":" + fr + ":" + tt + ":" + sm_comps[5];
                 addToRegionsListModel(sm);
             }
         }
@@ -658,7 +658,7 @@ import java.util.HashMap;
 
                 Object selectedMarkers = jTree1.getSelectionPath();
                 if (selectedMarkers != null) {
-                    String sm = new String(selectedMarkers.toString());
+                    String sm = selectedMarkers.toString();
                     int ii = sm.indexOf(">");
                     if (ii != -1) {
                         TreeSelectionMenu.show(e.getComponent(), e.getX(), e.getY());
@@ -719,14 +719,14 @@ import java.util.HashMap;
 
         void CancelButtonAction(String jid) {
             FileOutputStream fout;
-            String out_name = new String(tempDir + "cancel_request_" + jid);
+            String out_name = tempDir + "cancel_request_" + jid;
 
             job_active = false;
             // forming file with request
             try {
                 fout = new FileOutputStream(out_name);
                 String tmp;
-                tmp = new String("CANCEL: " + jid + "\n");
+                tmp = "CANCEL: " + jid + "\n";
                 fout.write(tmp.getBytes());
                 fout.close();
             } catch (IOException ioe) {
@@ -734,19 +734,18 @@ import java.util.HashMap;
             }
 
             // Submitting the request to the server
-            final String outf = new String(out_name);
+            final String outf = out_name;
             Thread t = new Thread() {
                 public void run() {
                     ProcessStatus.setText("Cancelling...");
                     try {
                         SoapClient sp = new SoapClient();
-                        String infile = new String(sp.submitFile(outf));
-                        String job_string = new String(sp.submitJob(
+                        String infile = sp.submitFile(outf);
+                        String job_string = sp.submitJob(
                                 "java -cp /adtera/users/pavel/synteny_remote/ SyntenyServerSide",
-                                infile, "nofile"));
+                                infile, "nofile");
                     } catch (Exception ee) {
                         System.err.println(ee);
-                        return;
                     }
                 }
             };
@@ -854,54 +853,50 @@ import java.util.HashMap;
                 fout = new FileOutputStream(out_name);
                 String tmp;
 
-                tmp = new String("JOB_ID: " + job_id + "\n");
+                tmp = "JOB_ID: " + job_id + "\n";
                 fout.write(tmp.getBytes());
 
-                tmp = new String("REQUEST_TYPE: " + req_type + "\n");
+                tmp = "REQUEST_TYPE: " + req_type + "\n";
                 fout.write(tmp.getBytes());
 
-                tmp = new String("PROGRAM: " + (String) ProgramBox.getSelectedItem() +
-                                 "\n");
+                tmp = "PROGRAM: " + (String) ProgramBox.getSelectedItem() + "\n";
                 fout.write(tmp.getBytes());
 
                 if (((String) ProgramBox.getSelectedItem()).indexOf("SyntenyMap") !=
                     -1) {
-                    tmp = new String("SYN_PARAME: " +
-                                     (String) SynMapParametersComboBox.
-                                     getSelectedItem() + "\n");
+                    tmp = "SYN_PARAME: " + (String) SynMapParametersComboBox.
+                                     getSelectedItem() + "\n";
                 }
                 fout.write(tmp.getBytes());
 
-                tmp = new String("SOURCE1: " + sourcex + "\n");
+                tmp = "SOURCE1: " + sourcex + "\n";
                 fout.write(tmp.getBytes());
-                tmp = new String("GENOME1: " + genomex + "\n");
+                tmp = "GENOME1: " + genomex + "\n";
                 fout.write(tmp.getBytes());
-                tmp = new String("CHR1: " + chromX +
-                                 "\n");
+                tmp = "CHR1: " + chromX + "\n";
                 fout.write(tmp.getBytes());
-                tmp = new String("FROM1: " + fx + "\n");
+                tmp = "FROM1: " + fx + "\n";
                 fout.write(tmp.getBytes());
-                tmp = new String("TO1: " + tx + "\n");
+                tmp = "TO1: " + tx + "\n";
                 fout.write(tmp.getBytes());
-                tmp = new String("UPSTREAM1: " + ux + "\n");
+                tmp = "UPSTREAM1: " + ux + "\n";
                 fout.write(tmp.getBytes());
-                tmp = new String("DOWNSTREAM1: " + dx + "\n");
+                tmp = "DOWNSTREAM1: " + dx + "\n";
                 fout.write(tmp.getBytes());
 
-                tmp = new String("SOURCE2: " + sourcey + "\n");
+                tmp = "SOURCE2: " + sourcey + "\n";
                 fout.write(tmp.getBytes());
-                tmp = new String("GENOME2: " + genomey + "\n");
+                tmp = "GENOME2: " + genomey + "\n";
                 fout.write(tmp.getBytes());
-                tmp = new String("CHR2: " + chromY +
-                                 "\n");
+                tmp = "CHR2: " + chromY + "\n";
                 fout.write(tmp.getBytes());
-                tmp = new String("FROM2: " + fy + "\n");
+                tmp = "FROM2: " + fy + "\n";
                 fout.write(tmp.getBytes());
-                tmp = new String("TO2: " + ty + "\n");
+                tmp = "TO2: " + ty + "\n";
                 fout.write(tmp.getBytes());
-                tmp = new String("UPSTREAM2: " + uy + "\n");
+                tmp = "UPSTREAM2: " + uy + "\n";
                 fout.write(tmp.getBytes());
-                tmp = new String("DOWNSTREAM2: " + dy + "\n");
+                tmp = "DOWNSTREAM2: " + dy + "\n";
                 fout.write(tmp.getBytes());
 
                 fout.flush();
@@ -910,9 +905,9 @@ import java.util.HashMap;
                 return;
             }
 
-            final String outf = new String(out_name);
-            final String jid = new String(job_id);
-            final String resn = new String(res_name);
+            final String outf = out_name;
+            final String jid = job_id;
+            final String resn = res_name;
             final int f_x = fx;
             final int f_y = fy;
             final int t_x = tx;
@@ -927,20 +922,25 @@ import java.util.HashMap;
 
                     try {
                         SoapClient sp = new SoapClient();
-                        String infile = new String(sp.submitFile(outf));
+                        String infile = sp.submitFile(outf);
+                        System.out.println("Infile: " + infile);
 
-                        String result_file = new String(
-                                "/users/amdecweb/jakarta-tomcat-4.1.30/bin/outputFolder/" +
-                                jid + ".res");
-                        String job_string = new String(sp.submitJob(
+                        String result_file = "/users/amdecweb/jakarta-tomcat-4.1.30/bin/outputFolder/" +
+                                jid + ".res";
+                        System.out.println("result_file: " + result_file);
+
+                        System.out.println("submitted: java -cp /adtera/users/pavel/synteny_remote/ SyntenyServerSide "
+                                + infile+" "+ result_file);
+
+                        String job_string = sp.submitJob(
                                 "java -cp /adtera/users/pavel/synteny_remote/ SyntenyServerSide",
 //                            "java -cp /adtera/users/pavel/synteny_remote/ SSSTest",
-                                infile, result_file));
+                                infile, result_file);
+                        System.out.println("job_string: " + job_string);
 
-                        String tURL = new String(
-                                "http://amdec-bioinfo.cu-genome.org/html/temp/" +
-                                jid +
-                                ".info");
+
+                        String tURL = "http://amdec-bioinfo.cu-genome.org/html/temp/" +
+                                jid +  ".info";
 
                         ProcessStatus.setText(
                                 "Waiting for reply from remote server");
@@ -964,10 +964,8 @@ import java.util.HashMap;
                         }
 
                         if (cancel_flag == false) {
-                            tURL = new String(
-                                    "http://amdec-bioinfo.cu-genome.org/html/temp/" +
-                                    jid +
-                                    ".res");
+                            tURL = "http://amdec-bioinfo.cu-genome.org/html/temp/" +
+                                    jid + ".res";
 
                             ProcessStatus.setText("Retriving results from server");
                             if (DAS_Retriver.GetItToFile(tURL, resn) == false) {
