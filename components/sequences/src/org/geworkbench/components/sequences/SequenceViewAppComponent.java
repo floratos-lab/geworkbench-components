@@ -1,8 +1,10 @@
 package org.geworkbench.components.sequences;
 
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
-import org.geworkbench.bison.datastructure.biocollections.sequences.CSSequenceSet;
-import org.geworkbench.bison.datastructure.biocollections.sequences.DSSequenceSet;
+import org.geworkbench.bison.datastructure.biocollections.sequences.
+        CSSequenceSet;
+import org.geworkbench.bison.datastructure.biocollections.sequences.
+        DSSequenceSet;
 import org.geworkbench.bison.datastructure.complex.pattern.ParmsDataSet;
 import org.geworkbench.builtin.projects.ProjectPanel;
 import org.geworkbench.builtin.projects.ProjectSelection;
@@ -35,7 +37,9 @@ import org.geworkbench.engine.management.Asynchronous;
  * @author
  * @version 1.0
  */
-@AcceptTypes({CSSequenceSet.class, ParmsDataSet.class}) public class SequenceViewAppComponent implements VisualPlugin, org.geworkbench.engine.config.MenuListener, PropertyChangeListener {
+@AcceptTypes( {CSSequenceSet.class, ParmsDataSet.class})public class
+        SequenceViewAppComponent implements VisualPlugin,
+        org.geworkbench.engine.config.MenuListener, PropertyChangeListener {
     org.geworkbench.util.sequences.SequenceViewWidget sViewWidget;
     EventListenerList listenerList = new EventListenerList();
     JMenuItem jOpenFASTAItem = new JMenuItem();
@@ -71,10 +75,10 @@ import org.geworkbench.engine.management.Asynchronous;
         jOpenFASTAItem.addActionListener(listener);
     }
 
-    @Subscribe public void sequenceDiscoveryTableRowSelected(org.geworkbench.events.SequenceDiscoveryTableEvent e, Object publisher) {
+    @Subscribe public void sequenceDiscoveryTableRowSelected(org.geworkbench.
+            events.SequenceDiscoveryTableEvent e, Object publisher) {
         sViewWidget.patternSelectionHasChanged(e);
     }
-
 
 
     /**
@@ -97,12 +101,13 @@ import org.geworkbench.engine.management.Asynchronous;
 
     } //implementation of org.geworkbench.engine.config.MenuListener interface
 
-    @Subscribe public void receiveProjectSelection(org.geworkbench.events.ProjectEvent e, Object source) {
-            ProjectSelection selection = ((ProjectPanel) source).getSelection();
-            DSDataSet dataFile = selection.getDataSet();
-            if (dataFile instanceof DSSequenceSet) {
-                sViewWidget.setSequenceDB((DSSequenceSet) dataFile);
-            }
+    @Subscribe public void receiveProjectSelection(org.geworkbench.events.
+            ProjectEvent e, Object source) {
+        ProjectSelection selection = ((ProjectPanel) source).getSelection();
+        DSDataSet dataFile = selection.getDataSet();
+        if (dataFile instanceof DSSequenceSet) {
+            sViewWidget.setSequenceDB((DSSequenceSet) dataFile);
+        }
     }
 
     public void propertyChange(PropertyChangeEvent e) {
@@ -113,13 +118,15 @@ import org.geworkbench.engine.management.Asynchronous;
         String defPath = PropertiesMonitor.getPropertiesMonitor().getDefPath();
         JFileChooser fc = new JFileChooser(defPath);
         String FASTAFilename = null;
-        org.geworkbench.engine.parsers.FileFormat format = new SequenceFileFormat();
+        org.geworkbench.engine.parsers.FileFormat format = new
+                SequenceFileFormat();
         FileFilter filter = format.getFileFilter();
         fc.setFileFilter(filter);
         fc.setDialogTitle("Open FASTA file");
         int choice = fc.showOpenDialog(sViewWidget.getParent());
         if (choice == JFileChooser.APPROVE_OPTION) {
-            PropertiesMonitor.getPropertiesMonitor().setDefPath(fc.getCurrentDirectory().getAbsolutePath());
+            PropertiesMonitor.getPropertiesMonitor().setDefPath(fc.
+                    getCurrentDirectory().getAbsolutePath());
             FASTAFilename = fc.getSelectedFile().getAbsolutePath();
             sequenceDB = CSSequenceSet.getSequenceDB(fc.getSelectedFile());
             if (sequenceDB != null) {
