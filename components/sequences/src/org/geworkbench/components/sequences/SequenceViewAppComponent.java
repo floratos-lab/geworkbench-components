@@ -23,6 +23,8 @@ import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.HashMap;
+import org.geworkbench.events.GeneSelectorEvent;
+import org.geworkbench.engine.management.Asynchronous;
 
 /**
  * <p>SequenceViewAppComponent controls all notification and communication for SequenceViewWidget</p>
@@ -71,6 +73,18 @@ import java.util.HashMap;
 
     @Subscribe public void sequenceDiscoveryTableRowSelected(org.geworkbench.events.SequenceDiscoveryTableEvent e, Object publisher) {
         sViewWidget.patternSelectionHasChanged(e);
+    }
+
+
+
+    /**
+     * geneSelectorAction
+     *
+     * @param e GeneSelectorEvent
+     */
+    @Subscribe(Asynchronous.class)public void receive(GeneSelectorEvent e,
+            Object source) {
+        sViewWidget.sequenceDBUpdate(e);
     }
 
     public Component getComponent() {
