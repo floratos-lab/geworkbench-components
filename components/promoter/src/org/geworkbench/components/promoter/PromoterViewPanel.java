@@ -1667,7 +1667,7 @@ public class PromoterViewPanel extends JPanel {
             int i = (int) (Math.random() * seqDB.size());
             DSSequence sequence = seqDB.getSequence(i);
             double progress = (double) partialLength / (double) totalLength;
-            updateProgressBar(progress, "Computing Null Hypothsis");
+            updateProgressBar(progress, "Computing Null Hypothesis");
             pattern.getMatrix().collectSequenceScores(sequence, scores);
             partialLength += Math.min(countValid(pattern, sequence), maxSeqLen);
         }
