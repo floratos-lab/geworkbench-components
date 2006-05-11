@@ -1698,7 +1698,7 @@ public class PromoterViewPanel extends JPanel {
         while (partialLength < totalLength) {
             int invalidNo = 0;
             double progress = (double) partialLength / (double) totalLength;
-            updateProgressBar(progress, "Computing Null Hypothsis");
+            updateProgressBar(progress, "Computing Null Hypothesis");
             DSSequence sequence = null;
             if (seqDB != null) {
                 int i = (int) (Math.random() * seqDB.size());
