@@ -21,7 +21,11 @@ import java.util.Hashtable;
  * @version 1.0
  */
 public class PromoterPatternDB implements Serializable {
-    ArrayList promoterPatterns;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 6833799624245139500L;
+	ArrayList promoterPatterns;
     HashMap display;
     Hashtable matches;
     private ArrayList patterns;
