@@ -32,7 +32,12 @@ import org.geworkbench.builtin.projects.ProjectPanel;
 import java.io.File;
 
 public class HMMDataSet extends CSAncillaryDataSet implements DSAncillaryDataSet {
-    public HMMDataSet(String fileName, String inputFile, DSDataSet dataSet) {
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -5593443718731614407L;
+
+	public HMMDataSet(String fileName, String inputFile, DSDataSet dataSet) {
         super(dataSet, "HMM Result");
         resultFile = new File(fileName);
         fastaFile = new File(inputFile);
