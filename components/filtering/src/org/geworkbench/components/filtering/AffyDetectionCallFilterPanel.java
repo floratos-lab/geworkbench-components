@@ -23,7 +23,12 @@ import java.io.Serializable;
  * "Absent" or "Marginal") should be filtered out.
  */
 public class AffyDetectionCallFilterPanel extends AbstractSaveableParameterPanel implements Serializable, ItemListener {
-    final String PRESENT_OPTION = "P";
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -1144320550372709784L;
+	
+	final String PRESENT_OPTION = "P";
     final String ABSENT_OPTION = "A";
     final String MARGINAL_OPTION = "M";
     private GridLayout gridLayout1 = new GridLayout();
