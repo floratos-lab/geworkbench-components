@@ -41,7 +41,11 @@ public class AffyDetectionCallFilterPanel extends AbstractSaveableParameterPanel
     private boolean marginalButtonStatus;
 
     private static class SerializedInstance implements Serializable {
-        boolean present;
+        /**
+		 * 
+		 */
+		private static final long serialVersionUID = 108562498655239047L;
+		boolean present;
         boolean absent;
         boolean marginal;
 
