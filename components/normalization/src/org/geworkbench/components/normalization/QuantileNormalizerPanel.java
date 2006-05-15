@@ -20,7 +20,12 @@ import java.io.Serializable;
  * Parameters panels used by the <code>QuantileNormalizer</code>.
  */
 public class QuantileNormalizerPanel extends AbstractSaveableParameterPanel implements Serializable {
-    final String MARKER_OPTION = "Mean profile marker";
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 4689662471445840601L;
+	
+	final String MARKER_OPTION = "Mean profile marker";
     final String MICROARRAY_OPTION = "Mean microarray value";
     private GridLayout gridLayout1 = new GridLayout();
     private JLabel averagingTypeLabel = new JLabel("Averaging method");
@@ -28,7 +33,11 @@ public class QuantileNormalizerPanel extends AbstractSaveableParameterPanel impl
 
     private static class SerialInstance implements Serializable {
 
-        private int averaging;
+        /**
+		 * 
+		 */
+		private static final long serialVersionUID = 2525140046457874959L;
+		private int averaging;
 
         public SerialInstance(int averaging) {
             this.averaging = averaging;

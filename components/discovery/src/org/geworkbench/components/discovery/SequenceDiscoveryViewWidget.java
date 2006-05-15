@@ -50,9 +50,14 @@ import java.util.HashMap;
  * @version 1.0
  */
 
-public class SequenceDiscoveryViewWidget extends JPanel implements StatusChangeListener, PropertyChangeListener, Serializable {
+public class SequenceDiscoveryViewWidget extends JPanel implements StatusChangeListener, PropertyChangeListener{
 
-    //holds the id of the current selected project file.
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -7663914616670165388L;
+
+	//holds the id of the current selected project file.
     //this id is the key for mapping to an AlgorithmStub.
     private String currentStubId = "";
 
