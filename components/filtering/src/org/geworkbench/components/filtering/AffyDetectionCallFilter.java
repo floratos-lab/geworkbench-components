@@ -23,7 +23,11 @@ import org.geworkbench.bison.model.analysis.FilteringAnalysis;
  * GUI (<code>AffyDetectionCallFilterPanel</code>).
  */
 public class AffyDetectionCallFilter extends AbstractAnalysis implements FilteringAnalysis {
-    protected boolean filterPresent = false;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -6590700967249955520L;
+	protected boolean filterPresent = false;
     protected boolean filterAbsent = false;
     protected boolean filterMarginal = false;
 

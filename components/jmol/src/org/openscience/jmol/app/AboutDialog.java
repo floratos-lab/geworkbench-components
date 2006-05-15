@@ -1,7 +1,7 @@
 /* $RCSfile: AboutDialog.java,v $
- * $Author: mhall $
- * $Date: 2006-03-13 18:03:17 $
- * $Revision: 1.1 $
+ * $Author: keshav $
+ * $Date: 2006-05-15 20:10:17 $
+ * $Revision: 1.2 $
  *
  * Copyright (C) 2002-2004  The Jmol Development Team
  *
@@ -48,9 +48,12 @@ import java.io.IOException;
 
 public class AboutDialog extends JDialog implements HyperlinkListener {
 
-  JEditorPane html;
+	
+	private static final long serialVersionUID = 2688756493872292091L;
+	
+	JEditorPane html;
 
-  public AboutDialog(JFrame fr) {
+	public AboutDialog(JFrame fr) {
 
     super(fr, "About Jmol", true);
 
@@ -75,7 +78,9 @@ public class AboutDialog extends JDialog implements HyperlinkListener {
     }
     JScrollPane scroller = new JScrollPane() {
 
-      public Dimension getPreferredSize() {
+	private static final long serialVersionUID = -8631134341693590440L;
+
+	public Dimension getPreferredSize() {
         return new Dimension(500, 400);
       }
 
