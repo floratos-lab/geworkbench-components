@@ -39,7 +39,12 @@ import org.geworkbench.builtin.projects.ProjectPanel;
 import java.io.File;
 
 public class SWDataSet extends CSAncillaryDataSet {
-    public SWDataSet(String fileName, String inputFile, DSDataSet parent) {
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 6335332206456754542L;
+
+	public SWDataSet(String fileName, String inputFile, DSDataSet parent) {
         super(parent, fileName);
 
         resultFile = new File(fileName);

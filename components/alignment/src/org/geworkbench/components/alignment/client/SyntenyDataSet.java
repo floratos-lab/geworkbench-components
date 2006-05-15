@@ -6,7 +6,12 @@ import org.geworkbench.bison.datastructure.biocollections.DSAncillaryDataSet;
 import java.io.File;
 
 public class SyntenyDataSet extends CSAncillaryDataSet {
-    public SyntenyDataSet(String fileName) {
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -6683934264637554208L;
+
+	public SyntenyDataSet(String fileName) {
         super(null, fileName);
         resultFile = new File(fileName);
     }
