@@ -52,8 +52,10 @@ public class ClassificationRunnerPlugin extends JPanel implements VisualPlugin {
                 log.debug("Running classifier on " + panel.size() + " test items.");
                 DSPanel<DSMicroarray> newPanel = new CSPanel<DSMicroarray>("Classification Results");
                 for (DSMicroarray microarray : panel) {
-                    if (classifier.classify(microarray.getRawMarkerData()).equals(classifier.getClassifications()[0])) {
-                        newPanel.add(microarray);
+                    if (classifier != null){
+                        if (classifier.classify(microarray.getRawMarkerData()).equals(classifier.getClassifications()[0])) {
+                            newPanel.add(microarray);
+                        }
                     }
                 }
                 publishSubpanelChangedEvent(new SubpanelChangedEvent<DSMicroarray>(DSMicroarray.class, newPanel, SubpanelChangedEvent.NEW));

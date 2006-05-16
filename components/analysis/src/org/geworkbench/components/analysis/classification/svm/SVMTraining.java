@@ -69,7 +69,8 @@ public class SVMTraining extends AbstractTraining implements ClusteringAnalysis 
             JOptionPane.showMessageDialog(panel, e.getMessage());
             log.warn(e);
         }
-        classifier.setLabel("SVM Phenotype Classifier");
+        if (classifier != null)
+            classifier.setLabel("SVM Phenotype Classifier");
         return classifier;
     }
 
