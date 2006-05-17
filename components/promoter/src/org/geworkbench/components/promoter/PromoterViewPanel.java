@@ -322,7 +322,7 @@ public class PromoterViewPanel extends JPanel {
         jScrollPane2.setPreferredSize(new Dimension(4, 100));
 
         jPanel11.setLayout(gridLayout2);
-        gridLayout2.setColumns(2);
+        gridLayout2.setColumns(3);
         gridLayout2.setRows(2);
         jPanel12.setLayout(borderLayout12);
         parmsPanel.setLayout(gridBagLayout1);
@@ -426,6 +426,7 @@ public class PromoterViewPanel extends JPanel {
         jPanel11.add(jaddNewTFB, null);
         jPanel11.add(jSaveButton, null);
         jPanel11.add(jButton2, null);
+        jPanel11.add(stopButton, null);
         jPanel6.add(winSize, BorderLayout.EAST);
         jPanel6.add(winSizeL, BorderLayout.WEST);
         jPanel5.add(jPanel8, BorderLayout.NORTH);
@@ -449,22 +450,21 @@ public class PromoterViewPanel extends JPanel {
         jTabbedPane1.add(jPanel10, "TF Mapping");
         jTabbedPane1.add(jPanel9, "ModuleDiscovery");
 
-        seqScrollPane.getViewport().add(seqDisPanel, null);
         jToolBar.add(showTF);
         jToolBar.add(showSeqPattern);
         jToolBar.add(clearButton);
+        jTabbedPane2.add(jInfoPanel, "Logo");
+        jTabbedPane2.add(jPanel12, "Parameters");
         northPanel.setLayout(new BorderLayout());
         northPanel.add(seqScrollPane, BorderLayout.CENTER);
         northPanel.add(jToolBar, BorderLayout.SOUTH);
-        jSplitPane1.add(jTabbedPane1, JSplitPane.LEFT);
-        jSplitPane1.add(northPanel, JSplitPane.RIGHT);
+        seqScrollPane.getViewport().add(seqDisPanel, null);
 
+        jSplitPane1.add(jTabbedPane1, JSplitPane.LEFT);
         jPanel2.add(jSplitPane1, BorderLayout.CENTER);
         this.add(jPanel2, BorderLayout.CENTER);
-        jPanel2.add(jPanel12, java.awt.BorderLayout.SOUTH);
         jPanel2.add(jProgressBar1, java.awt.BorderLayout.NORTH);
-        jPanel12.add(jInfoPanel, java.awt.BorderLayout.CENTER);
-        jPanel12.add(parmsPanel, java.awt.BorderLayout.WEST);
+        jPanel12.add(parmsPanel, java.awt.BorderLayout.CENTER);
         parmsPanel.add(pValueField,
                        new GridBagConstraints(1, 0, 1, 1, 0.5, 0.0,
                                               GridBagConstraints.CENTER,
@@ -490,11 +490,11 @@ public class PromoterViewPanel extends JPanel {
                                               GridBagConstraints.CENTER,
                                               GridBagConstraints.NONE,
                                               new Insets(0, 0, 0, 0), 0, 0));
-        parmsPanel.add(stopButton,
-                       new GridBagConstraints(2, 0, 1, 1, 1.0, 0.0,
-                                              GridBagConstraints.CENTER,
-                                              GridBagConstraints.BOTH,
-                                              new Insets(1, 2, 1, 2), 0, 0));
+//        parmsPanel.add(stopButton,
+//                       new GridBagConstraints(2, 0, 1, 1, 1.0, 0.0,
+//                                              GridBagConstraints.CENTER,
+//                                              GridBagConstraints.BOTH,
+//                                              new Insets(1, 2, 1, 2), 0, 0));
         parmsPanel.add(jLabel5,
                        new GridBagConstraints(0, 2, 1, 1, 1.0, 0.0,
                                               GridBagConstraints.CENTER,
@@ -615,7 +615,9 @@ public class PromoterViewPanel extends JPanel {
                                               GridBagConstraints.CENTER,
                                               GridBagConstraints.HORIZONTAL,
                                               new Insets(1, 2, 1, 2), 0, 0));
-        jSplitPane1.setDividerLocation(180);
+        jSplitPane1.add(jTabbedPane2, JSplitPane.RIGHT);
+        jTabbedPane2.add(northPanel, "Sequence");
+        jSplitPane1.setDividerLocation(150);
     }
 
     /**
@@ -675,6 +677,7 @@ public class PromoterViewPanel extends JPanel {
     PromoterPatternDB pdb; //= new PromoterPatternDB();
     HashMap<String,
             PromoterPatternDB> map = new HashMap<String, PromoterPatternDB>();
+    private JTabbedPane jTabbedPane2 = new JTabbedPane();
 
     public void setSequenceDB(DSSequenceSet db2) {
         String id = null;

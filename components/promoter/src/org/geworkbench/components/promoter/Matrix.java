@@ -7,6 +7,14 @@ import java.util.Arrays;
 import java.util.HashMap;
 
 public class Matrix {
+    public Matrix() {
+        try {
+            jbInit();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+
     public char[] symbols = null;
     public boolean normalized = false;
     public static HashMap hash = new HashMap();
@@ -169,6 +177,9 @@ public class Matrix {
         }
         return result;
 
+    }
+
+    private void jbInit() throws Exception {
     }
 
 }
