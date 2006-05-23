@@ -1,22 +1,22 @@
 package org.geworkbench.components.promoter;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.swing.ProgressMonitor;
+
 import org.geworkbench.bison.datastructure.biocollections.DSCollection;
 import org.geworkbench.bison.datastructure.biocollections.sequences.DSSequenceSet;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.sequence.DSSequence;
-import org.geworkbench.bison.datastructure.complex.pattern.CSPatternMatch;
-import org.geworkbench.bison.datastructure.complex.pattern.DSPattern;
-import org.geworkbench.bison.datastructure.complex.pattern.DSPatternMatch;
+import org.geworkbench.bison.datastructure.complex.pattern.*;
 import org.geworkbench.bison.datastructure.complex.pattern.sequence.DSSeqRegistration;
-
-import javax.swing.*;
-import java.util.ArrayList;
-import java.util.List;
 
 public class TranscriptionFactor implements DSPattern<DSSequence, DSSeqRegistration> {
     //need to contain binding site matrix and realted  Generic Marker
     private Matrix matrix = null;
     private String name;
+    private String jasparID;
     private double threshold = 0;
 
     public String getName() {
@@ -31,12 +31,20 @@ public class TranscriptionFactor implements DSPattern<DSSequence, DSSeqRegistrat
         return matrix;
     }
 
+    public String getJasparID() {
+        return jasparID;
+    }
+
     public void setName(String name) {
         this.name = name;
     }
 
     public void setMatrix(Matrix matrix) {
         this.matrix = matrix;
+    }
+
+    public void setJasparID(String jasparID) {
+        this.jasparID = jasparID;
     }
 
     public int getLength() {

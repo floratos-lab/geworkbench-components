@@ -2,15 +2,18 @@ package org.geworkbench.components.promoter;
 
 import org.biojava.bio.gui.DistributionLogo;
 import org.geworkbench.bison.datastructure.biocollections.DSCollection;
-import org.geworkbench.bison.datastructure.biocollections.sequences.CSSequenceSet;
-import org.geworkbench.bison.datastructure.biocollections.sequences.DSSequenceSet;
+import org.geworkbench.bison.datastructure.biocollections.sequences.
+        CSSequenceSet;
+import org.geworkbench.bison.datastructure.biocollections.sequences.
+        DSSequenceSet;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.sequence.DSSequence;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.bison.datastructure.complex.pattern.DSMatchedPattern;
 import org.geworkbench.bison.datastructure.complex.pattern.DSPattern;
 import org.geworkbench.bison.datastructure.complex.pattern.DSPatternMatch;
-import org.geworkbench.bison.datastructure.complex.pattern.sequence.DSSeqRegistration;
+import org.geworkbench.bison.datastructure.complex.pattern.sequence.
+        DSSeqRegistration;
 import org.geworkbench.components.promoter.modulediscovery.CSMultiSeqPattern;
 import org.geworkbench.components.promoter.modulediscovery.Discovery;
 import org.geworkbench.components.promoter.modulediscovery.SequenceFileReader;
@@ -37,6 +40,10 @@ import java.util.*;
 import java.util.List;
 import java.net.URL;
 import java.net.MalformedURLException;
+import javax.swing.event.HyperlinkEvent;
+import org.geworkbench.util.BrowserLauncher;
+import javax.swing.event.HyperlinkListener;
+
 
 /**
  * <p>Widget provides all GUI services for sequence panel displays.</p>
@@ -48,7 +55,7 @@ import java.net.MalformedURLException;
  * @version 1.0
  */
 
-public class PromoterViewPanel extends JPanel {
+public class PromoterViewPanel extends JPanel implements HyperlinkListener {
     public class ScoreStats {
         public double score;
         public double pValue;
@@ -63,7 +70,7 @@ public class PromoterViewPanel extends JPanel {
     private JFileChooser fc = null;
     private JFileChooser fc2 = null;
     boolean selectedRegionChanged = false;
-    JPanel jInfoPanel = new JPanel();
+    JTextPane jInfoPanel = new JTextPane();
     DSSequenceSet background = null;
 
     //Layouts
@@ -191,12 +198,12 @@ public class PromoterViewPanel extends JPanel {
         jInfoPanel.setMinimumSize(new Dimension(14, 50));
         jInfoPanel.setOpaque(true);
         jInfoPanel.setPreferredSize(new Dimension(20, 60));
-
+        jInfoPanel.addHyperlinkListener(this);
         seqScrollPane.setBorder(BorderFactory.createEtchedBorder());
         seqScrollPane.setMaximumSize(new Dimension(32767, 32767));
         seqScrollPane.setMinimumSize(new Dimension(24, 24));
         seqScrollPane.setPreferredSize(new Dimension(250, 250));
-        seqDisPanel.setInfoPanel(jInfoPanel);
+        //seqDisPanel.setInfoPanel(jInfoPanel);
 
         jSplitPane1.setOrientation(JSplitPane.HORIZONTAL_SPLIT);
         jSplitPane1.setDividerSize(4);
@@ -376,6 +383,11 @@ public class PromoterViewPanel extends JPanel {
             }
         });
         iterationBox.setText("10");
+        iterationBox.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                iterationBox_actionPerformed(e);
+            }
+        });
         jLabel8.setHorizontalAlignment(SwingConstants.TRAILING);
         jLabel8.setText("Iterations:");
         jLabel10.setText("5\'");
@@ -617,7 +629,6 @@ public class PromoterViewPanel extends JPanel {
                                               new Insets(1, 2, 1, 2), 0, 0));
         jSplitPane1.add(jTabbedPane2, JSplitPane.RIGHT);
         jTabbedPane2.add(northPanel, "Sequence");
-        jSplitPane1.setDividerLocation(150);
     }
 
     /**
@@ -625,7 +636,7 @@ public class PromoterViewPanel extends JPanel {
      */
     private DefaultListCellRenderer renderer = new DefaultListCellRenderer() {
         public Component getListCellRendererComponent(JList list, Object value,
-                                                      int index, boolean isSelected, boolean cellHasFocus) {
+                int index, boolean isSelected, boolean cellHasFocus) {
             Component c = super.getListCellRendererComponent(list, value, index,
                     isSelected, cellHasFocus);
             // IGenericMarker stats = (IGenericMarker) value;
@@ -686,21 +697,21 @@ public class PromoterViewPanel extends JPanel {
             if (sequenceDB.getID().equals(id)) {
                 return;
             } else if (map.containsKey(id)) {
-                    pdb = map.get(id);
-                    sequenceDB = db2;
-                    seqDisPanel.initialize(sequenceDB);
-                    seqDisPanel.setPatternDisplay(pdb.getDisplay());
-                    seqDisPanel.setPatternMatches(pdb.getMatches());
-                }else{
-                    clear();
-                    sequenceDB = db2;
-                    seqDisPanel.initialize(sequenceDB);
+                pdb = map.get(id);
+                sequenceDB = db2;
+                seqDisPanel.initialize(sequenceDB);
+                seqDisPanel.setPatternDisplay(pdb.getDisplay());
+                seqDisPanel.setPatternMatches(pdb.getMatches());
+            } else {
+                clear();
+                sequenceDB = db2;
+                seqDisPanel.initialize(sequenceDB);
 
-                }
-        }else if(db2!=null){
+            }
+        } else if (db2 != null) {
             clear();
-                    sequenceDB = db2;
-                    seqDisPanel.initialize(sequenceDB);
+            sequenceDB = db2;
+            seqDisPanel.initialize(sequenceDB);
 
         }
 
@@ -795,6 +806,7 @@ public class PromoterViewPanel extends JPanel {
             String name = (String) hash.get("name") + ":" +
                           (String) hash.get("class");
             tf.setName(name);
+            tf.setJasparID(id.toString());
             Matrix mx = (Matrix) mxs.get(id);
             mx.normalize();
             tf.setMatrix(mx);
@@ -1011,25 +1023,48 @@ public class PromoterViewPanel extends JPanel {
                 RenderingHints hints = new RenderingHints(RenderingHints.
                         KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-                DistributionLogo[] logos = ((TranscriptionFactor) pattern).
-                                           getMatrix().getLogo();
-                for (int k = 0; k < logos.length; k++) {
+//                DistributionLogo[] logos = ((TranscriptionFactor) pattern).
+//                                           getMatrix().getLogo();
+//                for (int k = 0; k < logos.length; k++) {
+//
+//                    jInfoPanel.setLayout(new GridLayout(1, logos.length));
+//                    logos[k].setPreferredSize(new Dimension(40, 50));
+//                    logos[k].setRenderingHints(hints);
+//
+//                    jInfoPanel.add(logos[k]);
+//
+//                }
 
-                    jInfoPanel.setLayout(new GridLayout(1, logos.length));
-                    logos[k].setPreferredSize(new Dimension(40, 50));
-                    logos[k].setRenderingHints(hints);
+                jInfoPanel.setContentType("text/html");
 
-                    jInfoPanel.add(logos[k]);
+                String iniURL =
+                        "http://jaspar.cgb.ki.se/cgi-bin/jaspar_db.pl?ID=" +
+                        pattern.getJasparID() + "&rm=present";
 
-                }
+                jInfoPanel.setPage(iniURL);
+
                 jInfoPanel.revalidate();
                 jInfoPanel.repaint();
+                jTabbedPane2.setSelectedIndex(0);
             } catch (Exception e2) {
                 e2.printStackTrace();
             }
 
         }
     }
+
+    public void hyperlinkUpdate(HyperlinkEvent event) {
+        if (event.getEventType() == HyperlinkEvent.EventType.ACTIVATED) {
+            try {
+                BrowserLauncher.openURL(event.getURL().toString());
+                //singleAlignmentArea.setPage(event.getURL());
+                //urlField.setText(event.getURL().toExternalForm());
+            } catch (IOException ioe) {
+
+            }
+        }
+    }
+
 
     void jSelectedTFList_mouseClicked(MouseEvent e) {
         int index = jSelectedTFList.locationToIndex(e.getPoint());
@@ -1156,7 +1191,7 @@ public class PromoterViewPanel extends JPanel {
                                     matches = new ArrayList<DSPatternMatch<
                                               DSSequence, DSSeqRegistration>>();
                             for (int seqId = 0; seqId < sequenceDB.size();
-                                 seqId++) {
+                                             seqId++) {
                                 double progress = (double) seqId /
                                                   (double) sequenceDB.size();
                                 updateProgressBar(progress,
@@ -1583,13 +1618,17 @@ public class PromoterViewPanel extends JPanel {
     void load13KBSet() {
         if (background == null) {
             try {
-                URL set13K = new URL(System.getProperty("data.download.site") + "13K.fa");
-                File set13KFile = new File(System.getProperty("temporary.files.directory") + "13K.fa");
-                if (!set13KFile.exists()){
-                    BufferedReader br = new BufferedReader(new InputStreamReader(set13K.openStream()));
-                    BufferedWriter bw = new BufferedWriter(new FileWriter(set13KFile));
+                URL set13K = new URL(System.getProperty("data.download.site") +
+                                     "13K.fa");
+                File set13KFile = new File(System.getProperty(
+                        "temporary.files.directory") + "13K.fa");
+                if (!set13KFile.exists()) {
+                    BufferedReader br = new BufferedReader(new
+                            InputStreamReader(set13K.openStream()));
+                    BufferedWriter bw = new BufferedWriter(new FileWriter(
+                            set13KFile));
                     String line = null;
-                    while ((line = br.readLine()) != null){
+                    while ((line = br.readLine()) != null) {
                         bw.write(line + "\n");
                     }
                     bw.flush();
@@ -1597,8 +1636,11 @@ public class PromoterViewPanel extends JPanel {
                     br.close();
                 }
                 background = CSSequenceSet.getSequenceDB(set13KFile);
-            } catch (MalformedURLException mfe){mfe.printStackTrace();
-            } catch (IOException ioe) {ioe.printStackTrace();}
+            } catch (MalformedURLException mfe) {
+                mfe.printStackTrace();
+            } catch (IOException ioe) {
+                ioe.printStackTrace();
+            }
         }
     }
 
@@ -1840,5 +1882,9 @@ public class PromoterViewPanel extends JPanel {
             }
 
         }
+    }
+
+    public void iterationBox_actionPerformed(ActionEvent e) {
+
     }
 }
