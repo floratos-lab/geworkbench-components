@@ -2,9 +2,9 @@
 
 <toc version="1.0">
 
-	<tocitem text="TTest">
+	<tocitem text="T-Test">
 
-		<tocitem target="overview" text="Overview"/>
+		<tocitem target="Overview" text="Overview"/>
 
 	</tocitem>
 
