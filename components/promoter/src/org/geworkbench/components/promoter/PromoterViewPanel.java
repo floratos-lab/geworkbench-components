@@ -1,22 +1,28 @@
 package org.geworkbench.components.promoter;
 
-import org.biojava.bio.gui.DistributionLogo;
+import java.awt.*;
+import java.awt.event.*;
+import java.io.*;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.text.DecimalFormat;
+import java.util.*;
+import java.util.List;
+
+import javax.swing.*;
+import javax.swing.border.TitledBorder;
+import javax.swing.event.*;
+
 import org.geworkbench.bison.datastructure.biocollections.DSCollection;
-import org.geworkbench.bison.datastructure.biocollections.sequences.
-        CSSequenceSet;
-import org.geworkbench.bison.datastructure.biocollections.sequences.
-        DSSequenceSet;
+import org.geworkbench.bison.datastructure.biocollections.sequences.CSSequenceSet;
+import org.geworkbench.bison.datastructure.biocollections.sequences.DSSequenceSet;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.sequence.DSSequence;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
-import org.geworkbench.bison.datastructure.complex.pattern.DSMatchedPattern;
-import org.geworkbench.bison.datastructure.complex.pattern.DSPattern;
-import org.geworkbench.bison.datastructure.complex.pattern.DSPatternMatch;
-import org.geworkbench.bison.datastructure.complex.pattern.sequence.
-        DSSeqRegistration;
-import org.geworkbench.components.promoter.modulediscovery.CSMultiSeqPattern;
-import org.geworkbench.components.promoter.modulediscovery.Discovery;
-import org.geworkbench.components.promoter.modulediscovery.SequenceFileReader;
+import org.geworkbench.bison.datastructure.complex.pattern.*;
+import org.geworkbench.bison.datastructure.complex.pattern.sequence.DSSeqRegistration;
+import org.geworkbench.components.promoter.modulediscovery.*;
+import org.geworkbench.events.GeneSelectorEvent;
 import org.geworkbench.events.SequenceDiscoveryTableEvent;
 import org.geworkbench.util.RandomSequenceGenerator;
 import org.geworkbench.util.associationdiscovery.statistics.ClusterStatistics;
@@ -25,24 +31,6 @@ import org.geworkbench.util.patterns.PatternOperations;
 import org.geworkbench.util.promoter.SequencePatternDisplayPanel;
 import org.geworkbench.util.promoter.pattern.Display;
 import org.geworkbench.util.promoter.pattern.PatternDisplay;
-
-import javax.swing.*;
-import javax.swing.border.TitledBorder;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseEvent;
-import java.io.*;
-import java.text.DecimalFormat;
-import java.util.*;
-import java.util.List;
-import java.net.URL;
-import java.net.MalformedURLException;
-import javax.swing.event.HyperlinkEvent;
-import org.geworkbench.util.BrowserLauncher;
-import javax.swing.event.HyperlinkListener;
 
 
 /**
@@ -82,7 +70,7 @@ public class PromoterViewPanel extends JPanel implements HyperlinkListener {
 
     private SequencePatternDisplayPanel seqDisPanel = new
             SequencePatternDisplayPanel();
-
+//    private  SequenceViewWidget seqDisPanel = new SequenceViewWidget();
     JPanel jPanel2 = new JPanel();
 
     //stores transcriptionfactors
@@ -207,7 +195,7 @@ public class PromoterViewPanel extends JPanel implements HyperlinkListener {
 
         jSplitPane1.setOrientation(JSplitPane.HORIZONTAL_SPLIT);
         jSplitPane1.setDividerSize(4);
-        jSplitPane1.setLastDividerLocation(60);
+        jSplitPane1.setLastDividerLocation(245);
         jTabbedPane1.setMinimumSize(new Dimension(0, 0));
         jTabbedPane1.setPreferredSize(new Dimension(100, 100));
 
@@ -629,6 +617,7 @@ public class PromoterViewPanel extends JPanel implements HyperlinkListener {
                                               new Insets(1, 2, 1, 2), 0, 0));
         jSplitPane1.add(jTabbedPane2, JSplitPane.RIGHT);
         jTabbedPane2.add(northPanel, "Sequence");
+        jSplitPane1.setDividerLocation(245);
     }
 
     /**
@@ -989,7 +978,7 @@ public class PromoterViewPanel extends JPanel implements HyperlinkListener {
                 ex.printStackTrace();
             }
 
-//      mx.train(sec);
+            // mx.train(sec);
             TranscriptionFactor tf = new TranscriptionFactor();
             mx.normalize();
             tf.setMatrix(mx);
@@ -1011,7 +1000,9 @@ public class PromoterViewPanel extends JPanel implements HyperlinkListener {
                                         jTranscriptionFactorList.getModel().
                                         getElementAt(index);
             DefaultListModel ls = (DefaultListModel) jSelectedTFList.getModel();
-            ls.addElement(value);
+            if(!ls.contains(value)){
+                ls.addElement(value);
+            }
         } else {
 
             TranscriptionFactor pattern = (TranscriptionFactor)
@@ -1019,33 +1010,7 @@ public class PromoterViewPanel extends JPanel implements HyperlinkListener {
                                           getElementAt(index);
 
             try {
-                jInfoPanel.removeAll();
-                RenderingHints hints = new RenderingHints(RenderingHints.
-                        KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-
-//                DistributionLogo[] logos = ((TranscriptionFactor) pattern).
-//                                           getMatrix().getLogo();
-//                for (int k = 0; k < logos.length; k++) {
-//
-//                    jInfoPanel.setLayout(new GridLayout(1, logos.length));
-//                    logos[k].setPreferredSize(new Dimension(40, 50));
-//                    logos[k].setRenderingHints(hints);
-//
-//                    jInfoPanel.add(logos[k]);
-//
-//                }
-
-                jInfoPanel.setContentType("text/html");
-
-                String iniURL =
-                        "http://jaspar.cgb.ki.se/cgi-bin/jaspar_db.pl?ID=" +
-                        pattern.getJasparID() + "&rm=present";
-
-                jInfoPanel.setPage(iniURL);
-
-                jInfoPanel.revalidate();
-                jInfoPanel.repaint();
-                jTabbedPane2.setSelectedIndex(0);
+                drawLogo(pattern);
             } catch (Exception e2) {
                 e2.printStackTrace();
             }
@@ -1053,16 +1018,46 @@ public class PromoterViewPanel extends JPanel implements HyperlinkListener {
         }
     }
 
+    private void drawLogo(TranscriptionFactor pattern) throws Exception {
+        jInfoPanel.removeAll();
+        RenderingHints hints = new RenderingHints(RenderingHints.
+                                                  KEY_ANTIALIASING,
+                                                  RenderingHints.
+                                                  VALUE_ANTIALIAS_ON);
+
+        jInfoPanel.setContentType("text/html");
+
+        String iniURL =
+                "http://jaspar.cgb.ki.se/cgi-bin/jaspar_db.pl?ID=" +
+                pattern.getJasparID() + "&rm=present";
+
+        jInfoPanel.setPage(iniURL);
+
+        jInfoPanel.revalidate();
+        jInfoPanel.repaint();
+        jTabbedPane2.setSelectedIndex(0);
+
+    }
+
     public void hyperlinkUpdate(HyperlinkEvent event) {
+//        if (event.getEventType() == HyperlinkEvent.EventType.ACTIVATED) {
+//            try {
+//                BrowserLauncher.openURL(event.getURL().toString());
+//                //singleAlignmentArea.setPage(event.getURL());
+//                //urlField.setText(event.getURL().toExternalForm());
+//            } catch (IOException ioe) {
+//
+//            }
+//        }
+//
         if (event.getEventType() == HyperlinkEvent.EventType.ACTIVATED) {
             try {
-                BrowserLauncher.openURL(event.getURL().toString());
-                //singleAlignmentArea.setPage(event.getURL());
-                //urlField.setText(event.getURL().toExternalForm());
+                jInfoPanel.setPage(event.getURL());
             } catch (IOException ioe) {
-
+                // Some warning to user
             }
         }
+
     }
 
 
@@ -1079,23 +1074,24 @@ public class PromoterViewPanel extends JPanel implements HyperlinkListener {
                                           getModel().getElementAt(index);
 
             try {
-                jInfoPanel.removeAll();
-                RenderingHints hints = new RenderingHints(RenderingHints.
-                        KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-
-                DistributionLogo[] logos = ((TranscriptionFactor) pattern).
-                                           getMatrix().getLogo();
-                for (int k = 0; k < logos.length; k++) {
-
-                    jInfoPanel.setLayout(new GridLayout(1, logos.length));
-                    logos[k].setPreferredSize(new Dimension(40, 50));
-                    logos[k].setRenderingHints(hints);
-
-                    jInfoPanel.add(logos[k]);
-
-                }
-                jInfoPanel.revalidate();
-                jInfoPanel.repaint();
+                drawLogo(pattern);
+//                jInfoPanel.removeAll();
+//                RenderingHints hints = new RenderingHints(RenderingHints.
+//                        KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+//
+//                DistributionLogo[] logos = ((TranscriptionFactor) pattern).
+//                                           getMatrix().getLogo();
+//                for (int k = 0; k < logos.length; k++) {
+//
+//                    jInfoPanel.setLayout(new GridLayout(1, logos.length));
+//                    logos[k].setPreferredSize(new Dimension(40, 50));
+//                    logos[k].setRenderingHints(hints);
+//
+//                    jInfoPanel.add(logos[k]);
+//
+//                }
+//                jInfoPanel.revalidate();
+//                jInfoPanel.repaint();
             } catch (Exception e2) {
                 e2.printStackTrace();
             }
@@ -1103,7 +1099,9 @@ public class PromoterViewPanel extends JPanel implements HyperlinkListener {
         }
 
     }
-
+    /**
+     * Begin to scan the sequences.
+     */
     public void mappingPatterns() {
         if (!isRunning) {
             averageNo = 10;
@@ -1177,9 +1175,16 @@ public class PromoterViewPanel extends JPanel implements HyperlinkListener {
                                     stats = getThreshold(pattern, rs, pValue);
                                 }
                                 // assign the new pValue based on what we could find
-                                pValue = stats.pValue;
-                                pValueField.setText(formatPV.format(pValue));
-                                threshold = stats.score * 0.99;
+                                if (stats != null) {
+                                    pValue = stats.pValue;
+                                    pValueField.setText(formatPV.format(pValue));
+                                    threshold = stats.score * 0.99;
+                                } else {
+                                    //stopped.
+                                    updateProgressBar(1,
+                                            "Stopped on " + new Date());
+                                    return;
+                                }
                             }
                             pattern.setThreshold(threshold);
                             // Lengths are in base pairs (BP) and do not include the reverse
@@ -1673,6 +1678,9 @@ public class PromoterViewPanel extends JPanel implements HyperlinkListener {
         double scores[] = new double[seqLen * 3];
 
         for (int i = 0; i < seqNo; i++) {
+            if (stop) {
+                return null;
+            }
             double progress = (double) i / (double) seqNo;
             updateProgressBar(progress, "Computing Null Hypothesis");
             DSSequence sequence = rg.getRandomSequence(seqLen +
@@ -1709,6 +1717,9 @@ public class PromoterViewPanel extends JPanel implements HyperlinkListener {
         double scores[] = new double[maxSeqLen * 3];
 
         while (partialLength < totalLength) {
+            if (stop) {
+                return null;
+            }
             int i = (int) (Math.random() * seqDB.size());
             DSSequence sequence = seqDB.getSequence(i);
             double progress = (double) partialLength / (double) totalLength;
@@ -1886,5 +1897,14 @@ public class PromoterViewPanel extends JPanel implements HyperlinkListener {
 
     public void iterationBox_actionPerformed(ActionEvent e) {
 
+    }
+
+    /**
+     * receive
+     *
+     * @param e GeneSelectorEvent
+     */
+    public void receive(GeneSelectorEvent e) {
+        seqDisPanel.sequenceDBUpdate(e);
     }
 }
