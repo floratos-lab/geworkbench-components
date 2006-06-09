@@ -54,6 +54,7 @@ public class GridSessionsViewDialog
 
     private XMLTree wsdlTree;
     JTable table;
+    JPanel detailPanel ;
 
     public GridSessionsViewDialog() throws HeadlessException {
         super();
@@ -163,7 +164,7 @@ public class GridSessionsViewDialog
     }
 
     private void jbInit() throws Exception {
-        JPanel detailPanel = new JPanel();
+        detailPanel = new JPanel();
         this.getContentPane().setLayout(borderLayout6);
         this.getContentPane().setBackground(SystemColor.control);
         this.setTitle("Grid Sessions View");
@@ -255,7 +256,7 @@ public class GridSessionsViewDialog
         detailPanel.add(detailPane, java.awt.BorderLayout.CENTER);
         detailPanel.add(jPanel1, BorderLayout.SOUTH);
         jSplitPane2.add(controlPanel, JSplitPane.LEFT);
-        detailPane.getViewport().add(table, null);
+        detailPane.getViewport().add(table);
         hitsPane.getViewport().add(sessionTable, null);
         controlPanel.add(jPanel6, null);
         jPanel6.add(treeView, BorderLayout.CENTER);

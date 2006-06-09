@@ -45,7 +45,7 @@ import java.awt.*;
      * @param e GeneSelectorEvent
      */
     @Subscribe public void receive(org.geworkbench.events.GeneSelectorEvent e, Object publisher) {
-        main.markers = e.getPanel();
+        main.receive(e);
     }
 
     /**

@@ -43,6 +43,7 @@ import java.net.URL;
 import java.rmi.RemoteException;
 import java.util.Hashtable;
 import java.util.Random;
+import com.borland.jbcl.layout.VerticalFlowLayout;
 
 public class CreateGridServicePanel
     extends JPanel
@@ -71,7 +72,7 @@ public class CreateGridServicePanel
     //ServiceDataViewPanel sdvPanel;
     private String newSessionName;
 
-    private String DEFAULTURL = "http://adgate.cu-genome.org:8080/ogsa/services/core/registry/ContainerRegistryService";
+    private String DEFAULTURL = "http://gridgate.genomecenter.columbia.edu:18080/ogsa/services/core/registry/ContainerRegistryService";
 
     //private String DEFAULTFACTORYURL = "http://adgate.cu-genome.org:8080/ogsa/services/progtutorial/core/second/BlastFactoryService";
     private String DEFAULTFACTORYURL = "http://adgate.cu-genome.org:8080/ogsa/services/edu/columbia/session/SequenceAlignmentFactoryService";
@@ -92,24 +93,25 @@ public class CreateGridServicePanel
     JRadioButton jRadioButton1 = new JRadioButton();
     JRadioButton jRadioButton2 = new JRadioButton();
     JRadioButton jRadioButton3 = new JRadioButton();
-    JLabel jLabel1 = new JLabel();
-    JTextField jTextField2 = new JTextField();
-    JComboBox jComboBox1 = new JComboBox(expirationDays);
+    JLabel jobnameLabel = new JLabel();
+    JTextField jobnametField = new JTextField();
+    JComboBox jobExpirationBox1 = new JComboBox(expirationDays);
     TitledBorder titledBorder1;
     TitledBorder titledBorder2;
     TitledBorder titledBorder3;
     TitledBorder titledBorder4;
     BorderLayout borderLayout1 = new BorderLayout();
-    JLabel jLabel2 = new JLabel();
+    JLabel jobExpirationLabel = new JLabel();
     JLabel jLabel3 = new JLabel();
     JTextField cpuNumText = new JTextField();
     JLabel cpuNumberLabel = new JLabel();
-    XYLayout xYLayout1 = new XYLayout();
-  GridBagLayout gridBagLayout2 = new GridBagLayout();
+    GridBagLayout gridBagLayout2 = new GridBagLayout();
   GridBagLayout gridBagLayout1 = new GridBagLayout();
     JTextField userNameText = new JTextField();
     FlowLayout flowLayout1 = new FlowLayout();
     JButton checkButton = new JButton();
+    private VerticalFlowLayout verticalFlowLayout1 = new VerticalFlowLayout();
+    private BorderLayout borderLayout2 = new BorderLayout();
 
     //private String DEFAULTURL = "http://localhost:8080/ogsa/services/core/registry/ContainerRegistryService";
 
@@ -327,9 +329,9 @@ public class CreateGridServicePanel
 
         titledBorder1 = new TitledBorder("");
         titledBorder2 = new TitledBorder(BorderFactory.createEtchedBorder(Color.
-            white, new Color(165, 163, 151)), "Your Job Size");
+            white, new Color(165, 163, 151)), "Job Size");
         titledBorder3 = new TitledBorder(BorderFactory.createEtchedBorder(Color.
-            white, new Color(165, 163, 151)), "Your Job Detail");
+            white, new Color(165, 163, 151)), "Job Details");
         titledBorder4 = new TitledBorder("");
         /*  autoUpdateCB.setMinimumSize(new Dimension(85, 23));
               autoUpdateCB.setToolTipText("Auto update");
@@ -395,9 +397,10 @@ public class CreateGridServicePanel
         jSplitPane2.setTopComponent(controlPanel);
         jSplitPane2.setDividerSize(5);
         jSplitPane2.setLastDividerLocation(150);
-        sessionPanel.setPreferredSize(new Dimension(230, 110));
+        sessionPanel.setMinimumSize(new Dimension(300, 190));
+        sessionPanel.setPreferredSize(new Dimension(230, 190));
         sessionPanel.setToolTipText("");
-        sessionPanel.setLayout(gridBagLayout1);
+        sessionPanel.setLayout(borderLayout2);
         jPanel6.setLayout(borderLayout4);
         jPanel6.setBounds(new Rectangle(2, 38, 311, 29));
         jSplitPane1.setOrientation(JSplitPane.VERTICAL_SPLIT);
@@ -410,13 +413,15 @@ public class CreateGridServicePanel
                                      CreateGridServicePanel_viewButton_actionAdapter(this));
         //viewButton.addActionListener(new
         //                               GridSessionsViewDialog_jButton4_actionAdapter(this));
-        detailPanel.setPreferredSize(new Dimension(230, 100));
+        detailPanel.setPreferredSize(new Dimension(230, 30));
         detailPanel.setLayout(flowLayout1);
         jPanel1.setBorder(titledBorder2);
         jPanel1.setDebugGraphicsOptions(0);
+        jPanel1.setMinimumSize(new Dimension(77, 130));
         jPanel1.setVerifyInputWhenFocusTarget(true);
-        jPanel1.setLayout(xYLayout1);
+        jPanel1.setLayout(verticalFlowLayout1);
         jPanel2.setBorder(titledBorder3);
+        jPanel2.setMinimumSize(new Dimension(223, 130));
         jPanel2.setLayout(gridBagLayout2);
         jRadioButton1.setText("large");
         jRadioButton2.setText("middle");
@@ -432,10 +437,10 @@ public class CreateGridServicePanel
                 jRadioButton3_actionPerformed(e);
             }
         });
-        jLabel1.setText("Your new job name: ");
-        jTextField2.setText("BlastTestA");
+        jobnameLabel.setText("Your new job name: ");
+        jobnametField.setText("BlastTestA");
         treeView.setPreferredSize(new Dimension(45, 150));
-        jLabel2.setText("Expected Expiration Date:");
+        jobExpirationLabel.setText("Expected Expiration Date:");
         jLabel3.setVerifyInputWhenFocusTarget(true);
         jLabel3.setText("As User: ");
         cpuNumText.setText("4");
@@ -449,25 +454,18 @@ public class CreateGridServicePanel
 
         this.add(blastData, BorderLayout.CENTER);
         blastData.add(jSplitPane2, BorderLayout.CENTER);
-        jPanel1.add(jRadioButton3, new XYConstraints(1, 16, 68, -1));
-        jPanel1.add(jRadioButton2, new XYConstraints(1, 39, 68, 23));
-        jPanel1.add(jRadioButton1, new XYConstraints(1, 62, 68, 23));
-        sessionPanel.add(jPanel2,  new GridBagConstraints(1, 0, 1, 1, 1.0, 1.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(8, 10, 7, 0), -2, 49));
-        jPanel2.add(jTextField2,  new GridBagConstraints(0, 3, 1, 1, 1.0, 0.0
+        jPanel2.add(jobnametField,  new GridBagConstraints(0, 3, 1, 1, 1.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(0, 19, 0, 1), 127, 0));
-        jPanel2.add(jComboBox1,  new GridBagConstraints(0, 1, 1, 1, 1.0, 0.0
+        jPanel2.add(jobExpirationBox1,  new GridBagConstraints(0, 1, 1, 1, 1.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(8, 19, 0, 95), 37, 1));
-        jPanel2.add(jLabel2,  new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
+        jPanel2.add(jobExpirationLabel,  new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(1, 2, 0, 66), 20, 11));
-        jPanel2.add(jLabel1,  new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0
+        jPanel2.add(jobnameLabel,  new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(22, 2, 0, 85), 23, 11));
         jPanel2.add(cpuNumberLabel,    new GridBagConstraints(0, 4, 1, 1, 0.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(7, 2, 0, 124), 32, 11));
         jPanel2.add(cpuNumText,  new GridBagConstraints(0, 5, 1, 1, 1.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(0, 19, 5, 175), 0, 0));
-        sessionPanel.add(jPanel1,  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(8, 9, 7, 0), 4, 87));
         jSplitPane1.add(detailPanel, JSplitPane.BOTTOM);
         jSplitPane1.add(sessionPanel, JSplitPane.TOP);
         jSplitPane2.add(controlPanel, JSplitPane.LEFT);
@@ -478,6 +476,11 @@ public class CreateGridServicePanel
         detailPanel.add(viewButton, null);
         detailPanel.add(jLabel3, null);
         detailPanel.add(userNameText, null);
+        jPanel1.add(jRadioButton3, null);
+        jPanel1.add(jRadioButton2, null);
+        jPanel1.add(jRadioButton1, null);
+        sessionPanel.add(jPanel1, java.awt.BorderLayout.WEST);
+        sessionPanel.add(jPanel2, java.awt.BorderLayout.CENTER);
         table.addMouseListener(
             new MouseAdapter() {
             public void mousePressed(MouseEvent e) {
@@ -543,7 +546,7 @@ public class CreateGridServicePanel
     }
 
     public void runBlast_actionPerformed(ActionEvent e) {
-        String perferedInstanceName = jTextField2.getText();
+        String perferedInstanceName = jobnametField.getText();
         start(perferedInstanceName);
 
     }

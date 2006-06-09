@@ -257,6 +257,7 @@ public class ParameterViewWidget
 
         jExpectBox.setSelectedIndex( -1);
         jExpectBox.setVerifyInputWhenFocusTarget(true);
+        jExpectBox.setEditable(true);
         jExpectBox.setToolTipText("Select the expect value here.");
         // jExpectBox.addActionListener(new ParameterViewWidget_jExpectBox_actionAdapter(this));
         matrixLabel.setText("Expect:");
