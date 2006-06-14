@@ -450,14 +450,15 @@ public class PromoterViewPanel extends JPanel implements HyperlinkListener {
         jTabbedPane1.add(jPanel10, "TF Mapping");
         jTabbedPane1.add(jPanel9, "ModuleDiscovery");
 
-        jToolBar.add(showTF);
-        jToolBar.add(showSeqPattern);
-        jToolBar.add(clearButton);
+
+        seqDisPanel.addToolBarButton(showSeqPattern);
+        seqDisPanel.addToolBarButton(showTF);
+        seqDisPanel.addToolBarButton(clearButton);
         jTabbedPane2.add(jInfoPanel, "Logo");
         jTabbedPane2.add(jPanel12, "Parameters");
         northPanel.setLayout(new BorderLayout());
         northPanel.add(seqScrollPane, BorderLayout.CENTER);
-        northPanel.add(jToolBar, BorderLayout.SOUTH);
+       // northPanel.add(jToolBar, BorderLayout.SOUTH);
         seqScrollPane.getViewport().add(seqDisPanel, null);
 
         jSplitPane1.add(jTabbedPane1, JSplitPane.LEFT);
@@ -1401,6 +1402,8 @@ public class PromoterViewPanel extends JPanel implements HyperlinkListener {
      */
 
     public void sequenceDiscoveryTableRowSelected(SequenceDiscoveryTableEvent e) {
+        updateParameters();
+        seqDisPanel.patternSelectionHasChanged(e);
         /** @todo Fix patterns */
         //clear previously selected discovered patterns
         Vector<DSPattern> tobedeleted = new Vector<DSPattern>(seqPatterns);
@@ -1435,12 +1438,16 @@ public class PromoterViewPanel extends JPanel implements HyperlinkListener {
             seqPatternDisplay.put(p, dis);
             seqPatternMatches.put(p, matches);
 
-            if (showSeqPattern.isSelected()) {
-                seqDisPanel.addAPattern(p, dis, matches);
-            }
+//            if (showSeqPattern.isSelected()) {
+//                seqDisPanel.addAPattern(p, dis, matches);
+//            }
         }
     }
 
+    private void updateParameters(){
+        seqDisPanel.setDisplaySeqPattern(showSeqPattern.isSelected());
+        seqDisPanel.setDisplayTF(showTF.isSelected());
+    }
 //    void jButton1_actionPerformed(ActionEvent e) {
 //        BufferedWriter br = null;
 //        try {
@@ -1872,27 +1879,38 @@ public class PromoterViewPanel extends JPanel implements HyperlinkListener {
                                         promoterPatternDisplay.get(pattern),
                                         promoterPatternMatches.get(pattern));
             }
+
         } else {
-            for (DSPattern pattern : promoterPatterns) {
-                seqDisPanel.removePattern(pattern);
-            }
+//            for (DSPattern pattern : promoterPatterns) {
+//                seqDisPanel.removePattern(pattern);
+//            }
+                seqDisPanel.setPatternTFMatches(null);
 
         }
+        seqDisPanel.initPanelView();
+        repaint();
     }
 
     public void showSeqPattern_actionPerformed(ActionEvent e) {
-        if (showSeqPattern.isSelected()) {
-            for (DSPattern pattern : seqPatterns) {
-                seqDisPanel.addAPattern(pattern,
-                                        seqPatternDisplay.get(pattern),
-                                        seqPatternMatches.get(pattern));
-            }
-        } else {
-            for (DSPattern pattern : seqPatterns) {
-                seqDisPanel.removePattern(pattern);
-            }
-
+        if(seqPatterns!=null){
+    //        seqDisPanel.setPatternTFMatches(null);
         }
+        updateParameters();
+        seqDisPanel.initPanelView();
+        repaint();
+//        if (showSeqPattern.isSelected()) {
+//            for (DSPattern pattern : seqPatterns) {
+//                seqDisPanel.addAPattern(pattern,
+//                                        seqPatternDisplay.get(pattern),
+//                                        seqPatternMatches.get(pattern));
+//
+//            }
+//        } else {
+//            for (DSPattern pattern : seqPatterns) {
+//                seqDisPanel.removePattern(pattern);
+//            }
+//
+//        }
     }
 
     public void iterationBox_actionPerformed(ActionEvent e) {
