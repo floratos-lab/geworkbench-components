@@ -10,7 +10,6 @@ package org.geworkbench.components.alignment.synteny;
  */
 
 import org.geworkbench.util.sequences.SequenceAnnotation;
-import org.geworkbench.components.alignment.synteny.AnnotationGraphicalObjects;
 
 import javax.swing.*;
 import java.awt.*;
@@ -73,7 +72,7 @@ public class AnnotationViewWidget
         /* Determine parameters of drawing */
         for (i = 0; i < total_tracks; i++) {
 
-            if (sa.getAnnoTrackActive(i) == false)continue;
+            if (!sa.getAnnoTrackActive(i))continue;
             if (sa.getAnnotationTrack(i).getFeatureNum() < 1)continue;
 
             num_in_track = sa.getAnnotationTrack(i).getFeatureNum();
@@ -122,7 +121,7 @@ public class AnnotationViewWidget
         /* computing the absolute vertical position of every feature in
          every track by adding the height of previous tracks */
         for (k = 0, i = 0; i < total_tracks; i++) {
-            if (sa.getAnnoTrackActive(i) == false)continue;
+            if (!sa.getAnnoTrackActive(i))continue;
             if (sa.getAnnotationTrack(i).getFeatureNum() < 1)continue;
 
             for (l = 0; l < sa.getAnnotationTrack(i).getFeatureNum(); l++) {
@@ -150,7 +149,7 @@ public class AnnotationViewWidget
 
         for (int s = 0, i = 0; i < total_tracks; i++) {
 
-            if (sa.getAnnoTrackActive(i) == false)continue;
+            if (!sa.getAnnoTrackActive(i))continue;
             if (sa.getAnnotationTrack(i).getFeatureNum() < 1)continue;
             s++;
 
@@ -173,8 +172,7 @@ public class AnnotationViewWidget
                                             (sa.getAnnotationTrack(i).
                                              getSequenceHitEnd(j) - seqStart));
 
-                int shift = (int) ( (feature_x[i][j][1] - feature_x[i][j][0]) /
-                                   2);
+                int shift =(feature_x[i][j][1] - feature_x[i][j][0]) / 2;
                 if (shift > 20) shift = 20;
                 if (sa.getAnnotationTrack(i).getFeatureDirection(j)) {
                     feature_x[i][j][2] = feature_x[i][j][1] - shift;
@@ -210,9 +208,9 @@ public class AnnotationViewWidget
         /* Now transforming and drawing */
         l = 0;
         int cumul = 0;
-        Rectangle2D rctngl = null;
+        Rectangle2D rctngl;
         for (int s = 0, i = 0; i < total_tracks; i++) {
-            if (sa.getAnnoTrackActive(i) == false)continue;
+            if (!sa.getAnnoTrackActive(i))continue;
             if (sa.getAnnotationTrack(i).getFeatureNum() < 1)continue;
             s++;
             num_in_track = sa.getAnnotationTrack(i).getFeatureNum();
@@ -223,8 +221,8 @@ public class AnnotationViewWidget
                            cumul * element_height + top + s * between_tracks,
                            width, track_lines[i] * element_height);
                 g.setColor(Color.black);
-                String anm = new String(sa.getAnnotationTrack(i).
-                                        getAnnotationName());
+                String anm = sa.getAnnotationTrack(i).
+                                        getAnnotationName();
 
                 rctngl = currentMetrics.getStringBounds(anm, g);
                 int text_width = (int) rctngl.getWidth();
@@ -273,6 +271,7 @@ public class AnnotationViewWidget
                     g.setColor(AnnoColor[s % 4]);
                     g.fill(poly);
 
+                    // Filing out the ago object
                     ago.setPolygon(l, poly);
                     ago.setTrackNum(l, i);
                     ago.setNumInTrack(l++, j);

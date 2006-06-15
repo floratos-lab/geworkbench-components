@@ -18,6 +18,7 @@ import java.io.IOException;
  */
 
 public class GPAnnoParser {
+
     private static SequenceAnnotation SeqAObj;
     private static SequenceAnnotationTrack[] SeqATObj;
     private static String startTag = null;
@@ -27,12 +28,12 @@ public class GPAnnoParser {
                                        int which) {
         SeqAObj = sa;
         if (which == 1) {
-            startTag = new String("/# Start of Annotation 1 #/");
-            endTag = new String("/# End of Annotation 1 #/");
+            startTag = "/# Start of Annotation 1 #/";
+            endTag = "/# End of Annotation 1 #/";
         }
         if (which == 2) {
-            startTag = new String("/# Start of Annotation 2 #/");
-            endTag = new String("/# End of Annotation 2 #/");
+            startTag = "/# Start of Annotation 2 #/";
+            endTag = "/# End of Annotation 2 #/";
         }
         parseGoldenPathAnnotation(gpAnnoFile);
     }
@@ -44,10 +45,9 @@ public class GPAnnoParser {
         int[] numEach = new int[100], new_count = new int[100];
 
         String[] types = new String[100];
-        String line, tempStr, tempStr1 = null, tempStr2 = null;
+        String line, tempStr, tempStr1 = null;
         String FeatureName=null;
-        String FeatureTag=null;
-        String FeatureURL=null;
+        String FeatureURL;
         double FeatureEValue=0;
         boolean FeatureDirection=true;
 
@@ -85,7 +85,7 @@ public class GPAnnoParser {
                     }
                     if (i == numAnno) {
                         /* new type */
-                        types[i] = new String(tempStr);
+                        types[i] = tempStr;
                         numEach[i] = 0;
                         new_count[i] = -1;
                         numAnno++;
@@ -132,14 +132,13 @@ public class GPAnnoParser {
                     tempStr = line.substring(i + 13);
                     i = tempStr.indexOf('\"');
                     tempStr = tempStr.substring(0, i);
-                    tempStr1 = new String(tempStr);
+                    tempStr1 = tempStr;
                 }
 
                 if ( (i = line.indexOf("label=\"")) != -1) {
                     tempStr = line.substring(i + 7);
                     i = tempStr.indexOf('\"');
                     tempStr = tempStr.substring(0, i);
-                    tempStr2 = new String(tempStr);
                 }
 
                 if ( (i = line.indexOf("<TYPE id=")) != -1) {
@@ -178,7 +177,7 @@ public class GPAnnoParser {
                     tempStr = line.substring(i + 5);
                     i = tempStr.indexOf('<');
                     tempStr = tempStr.substring(0, i);
-                    SequenceHitEnd=(int) Integer.parseInt(tempStr);
+                    SequenceHitEnd = Integer.parseInt(tempStr);
                 }
 
                 if ( (i = line.indexOf("<SCORE>")) != -1) {
@@ -189,7 +188,7 @@ public class GPAnnoParser {
                         FeatureEValue= -1;
                     }
                     else {
-                        FeatureEValue= (double) Double.parseDouble(tempStr);
+                        FeatureEValue= Double.parseDouble(tempStr);
                     }
                 }
 

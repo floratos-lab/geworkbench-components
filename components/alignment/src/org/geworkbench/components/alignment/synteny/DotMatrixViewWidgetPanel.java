@@ -7,9 +7,7 @@ import org.geworkbench.util.sequences.SequenceAnnotation;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
+import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -19,23 +17,30 @@ import java.io.IOException;
  * <p>Description: </p>
  * <p>Copyright: Copyright (c) 2003</p>
  * <p>Company: </p>
+ *
  * @author not attributable
  * @version 1.0
  */
 
 public class DotMatrixViewWidgetPanel
-    extends JPanel implements MouseListener, MouseMotionListener {
+        extends JPanel implements MouseListener, MouseMotionListener {
 
     JScrollPane displayScrollPane = new JScrollPane();
     LayoutManager borderLayout2 = null;
     DotMatrixInfoPanel DMInfo = null;
+    JPopupMenu AnnoMenu = new JPopupMenu();
+    JMenuItem browsFeature = new JMenuItem();
+    JMenuItem browsRegion = new JMenuItem();
+    ActionListener annoListener;
 
+    long when = 0;
     final int xOff = 150;
     final int yOff = 15;
     final int ruler = 10;
     final int annospace = 500;
     static double scaleX;
     static double scaleY;
+    int ms_x, ms_y;
     int info_pane_x;
     int info_pane_y;
     int dm_right;
@@ -44,14 +49,17 @@ public class DotMatrixViewWidgetPanel
     static DotMatrixObj DotM;
     static SequenceAnnotation annoX = null;
     static SequenceAnnotation annoY = null;
+    static SequenceAnnotation curAnno = null;
 
     boolean showDirect = true;
     boolean showInverted = true;
     boolean showAnnotationX = true;
     boolean showAnnotationY = true;
-    String pos_info_string = new String(" ");
+    String pos_info_string = " ";
     static AnnotationGraphicalObjects agoX;
     static AnnotationGraphicalObjects agoY;
+    static AnnotationGraphicalObjects curAgo;
+
     public DotMatrixViewWidgetPanel() {
 
         DotM = null;
@@ -63,7 +71,9 @@ public class DotMatrixViewWidgetPanel
         }
     }
 
-    /*****************************************************/
+    /**
+     * *************************************************
+     */
     public DotMatrixViewWidgetPanel(DotMatrixObj dmo) {
         DotM = dmo;
 
@@ -75,7 +85,9 @@ public class DotMatrixViewWidgetPanel
         }
     }
 
-    /*****************************************************/
+    /**
+     * *************************************************
+     */
     public void DMViewWidgetPaneladd(DotMatrixObj dmo, SequenceAnnotation sfox,
                                      SequenceAnnotation sfoy,
                                      DotMatrixInfoPanel dmi) {
@@ -87,12 +99,12 @@ public class DotMatrixViewWidgetPanel
 
         agoX = new AnnotationGraphicalObjects(annoX);
         agoY = new AnnotationGraphicalObjects(annoY);
-        scaleX = ( (double) (annoX.getSeqSegmentEnd() -
-                             annoX.getSeqSegmentStart() +
-                             1)) / DotM.getPixX();
-        scaleY = ( (double) (annoY.getSeqSegmentEnd() -
-                             annoY.getSeqSegmentStart() +
-                             1)) / DotM.getPixY();
+        scaleX = ((double) (annoX.getSeqSegmentEnd() -
+                annoX.getSeqSegmentStart() +
+                1)) / DotM.getPixX();
+        scaleY = ((double) (annoY.getSeqSegmentEnd() -
+                annoY.getSeqSegmentStart() +
+                1)) / DotM.getPixY();
         try {
             jbInit();
         }
@@ -101,7 +113,9 @@ public class DotMatrixViewWidgetPanel
         }
     }
 
-    /*****************************************************/
+    /**
+     * *************************************************
+     */
     public DotMatrixViewWidgetPanel(DotMatrixObj dmo, SequenceAnnotation sfox,
                                     SequenceAnnotation sfoy) {
         DotM = dmo;
@@ -112,12 +126,12 @@ public class DotMatrixViewWidgetPanel
         agoX = new AnnotationGraphicalObjects(annoX);
         agoY = new AnnotationGraphicalObjects(annoY);
 
-        scaleX = ( (double) (annoX.getSeqSegmentEnd() -
-                             annoX.getSeqSegmentStart() +
-                             1)) / DotM.getPixX();
-        scaleY = ( (double) (annoY.getSeqSegmentEnd() -
-                             annoY.getSeqSegmentStart() +
-                             1)) / DotM.getPixY();
+        scaleX = ((double) (annoX.getSeqSegmentEnd() -
+                annoX.getSeqSegmentStart() +
+                1)) / DotM.getPixX();
+        scaleY = ((double) (annoY.getSeqSegmentEnd() -
+                annoY.getSeqSegmentStart() +
+                1)) / DotM.getPixY();
 
         try {
             jbInit();
@@ -127,7 +141,9 @@ public class DotMatrixViewWidgetPanel
         }
     }
 
-    /*****************************************************/
+    /**
+     * *************************************************
+     */
     void jbInit() throws Exception {
         this.setLayout(borderLayout2);
         /*
@@ -142,9 +158,21 @@ public class DotMatrixViewWidgetPanel
         this.addMouseListener(this);
         this.addMouseMotionListener(this);
         this.setBackground(Color.white);
-    }
 
-    private void setMaxLength() {
+        browsFeature.setText("USCS genome browser for feature");
+        browsRegion.setText("USCS genome browser for region");
+
+        annoListener = new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                annoListener_actionPerformed(e);
+            }
+        };
+
+        browsFeature.addActionListener(annoListener);
+        browsRegion.addActionListener(annoListener);
+
+        AnnoMenu.add(browsFeature);
+        AnnoMenu.add(browsRegion);
     }
 
     public void initialize(DotMatrixObj dmObj) {
@@ -154,7 +182,7 @@ public class DotMatrixViewWidgetPanel
     }
 
     public void paint(Graphics g) {
-        int i, j, k;
+        int i, j;
 
         if (DotM == null) {
             return;
@@ -186,42 +214,34 @@ public class DotMatrixViewWidgetPanel
         // draw rectangles
         g.setColor(Color.white);
         g.fillRect(0, 0, DotM.getPixX() + xOff + 2 * ruler + annospace,
-                   DotM.getPixY() + yOff + 2 * ruler + annospace);
+                DotM.getPixY() + yOff + 2 * ruler + annospace);
 
         g.setColor(Color.black);
         g.drawRect(ruler + xOff - 1, ruler + yOff - 1, DotM.getPixX() + 2,
-                   DotM.getPixY() + 2);
+                DotM.getPixY() + 2);
 
         g.drawLine(ruler + xOff + DotM.getPixX() / 4,
-                   ruler + yOff + DotM.getPixY(),
-                   ruler + xOff + DotM.getPixX() / 4,
-                   ruler + yOff + DotM.getPixY() + 2);
+                ruler + yOff + DotM.getPixY(),
+                ruler + xOff + DotM.getPixX() / 4,
+                ruler + yOff + DotM.getPixY() + 2);
         g.drawLine(ruler + xOff + DotM.getPixX() / 2,
-                   ruler + yOff + DotM.getPixY(),
-                   ruler + xOff + DotM.getPixX() / 2,
-                   ruler + yOff + DotM.getPixY() + 2);
+                ruler + yOff + DotM.getPixY(),
+                ruler + xOff + DotM.getPixX() / 2,
+                ruler + yOff + DotM.getPixY() + 2);
         g.drawLine(ruler + xOff + 3 * DotM.getPixX() / 4,
-                   ruler + yOff + DotM.getPixY(),
-                   ruler + xOff + 3 * DotM.getPixX() / 4,
-                   ruler + yOff + DotM.getPixY() + 2);
+                ruler + yOff + DotM.getPixY(),
+                ruler + xOff + 3 * DotM.getPixX() / 4,
+                ruler + yOff + DotM.getPixY() + 2);
 
         g.drawLine(ruler + xOff, ruler + yOff + DotM.getPixY() / 4,
-                   ruler + xOff - 2,
-                   ruler + yOff + DotM.getPixY() / 4);
+                ruler + xOff - 2,
+                ruler + yOff + DotM.getPixY() / 4);
         g.drawLine(ruler + xOff, ruler + yOff + DotM.getPixY() / 2,
-                   ruler + xOff - 2,
-                   ruler + yOff + DotM.getPixY() / 2);
+                ruler + xOff - 2,
+                ruler + yOff + DotM.getPixY() / 2);
         g.drawLine(ruler + xOff, ruler + yOff + 3 * DotM.getPixY() / 4,
-                   ruler + xOff - 2,
-                   ruler + yOff + 3 * DotM.getPixY() / 4);
-
-        /* Draw ruler */
-        if (DotM != null) {
-            /* along X */
-            i = (DotM.getEndX() - DotM.getStartX()) / 4;
-            /* to the neares round number */
-
-        }
+                ruler + xOff - 2,
+                ruler + yOff + 3 * DotM.getPixY() / 4);
 
         // Draw information
         g.drawString("X: " + DotM.getDescriptionX(), 10, 10);
@@ -236,8 +256,8 @@ public class DotMatrixViewWidgetPanel
                     for (j = 0; j < DotM.getPixX(); j++) {
                         if (DotM.getDirectPixel(i, j) == '1') {
                             g.drawLine(i + xOff + ruler, j + yOff + ruler,
-                                       i + xOff + ruler,
-                                       j + yOff + ruler);
+                                    i + xOff + ruler,
+                                    j + yOff + ruler);
                         }
                     }
                 }
@@ -251,8 +271,8 @@ public class DotMatrixViewWidgetPanel
                     for (j = 0; j < DotM.getPixX(); j++) {
                         if (DotM.getInvertedPixel(i, j) == '1') {
                             g.drawLine(i + xOff + ruler, j + yOff + ruler,
-                                       i + xOff + ruler,
-                                       j + yOff + ruler);
+                                    i + xOff + ruler,
+                                    j + yOff + ruler);
                         }
                     }
                 }
@@ -265,24 +285,23 @@ public class DotMatrixViewWidgetPanel
                 for (i = 0; i < annoX.getAnnotationTrackNum(); i++) {
                     annoX.getAnnotationTrack(i).setColorNum(i);
                     String NameX = (annoX.getAnnotationTrack(i)).
-                        getAnnotationName();
+                            getAnnotationName();
                     for (j = 0; j < annoY.getAnnotationTrackNum(); j++) {
                         String NameY = (annoY.getAnnotationTrack(j)).
-                            getAnnotationName();
+                                getAnnotationName();
                         if (NameY.equalsIgnoreCase(NameX)) {
                             annoY.getAnnotationTrack(j).setColorNum(i);
                         }
                     }
                 }
-            }
-            else {
+            } else {
                 for (i = 0; i < annoY.getAnnotationTrackNum(); i++) {
                     annoY.getAnnotationTrack(i).setColorNum(i);
                     String NameY = (annoY.getAnnotationTrack(i)).
-                        getAnnotationName();
+                            getAnnotationName();
                     for (j = 0; j < annoX.getAnnotationTrackNum(); j++) {
                         String NameX = (annoX.getAnnotationTrack(j)).
-                            getAnnotationName();
+                                getAnnotationName();
                         if (NameX.equalsIgnoreCase(NameY)) {
                             annoX.getAnnotationTrack(j).setColorNum(i);
                         }
@@ -293,20 +312,18 @@ public class DotMatrixViewWidgetPanel
             /* draw annotation */
             if (showAnnotationX) {
                 drawAnnoX(g2d);
-            }
-            else {
+            } else {
                 g.setColor(Color.white);
                 g.fillRect(xOff + ruler - 1, yOff + 2 * ruler + DotM.getPixY(),
-                           DotM.getPixX() + 2, annospace);
+                        DotM.getPixX() + 2, annospace);
             }
             if (showAnnotationY) {
                 drawAnnoY(g2d);
-            }
-            else {
+            } else {
                 g.setColor(Color.white);
                 g.fillRect(xOff + 2 * ruler + DotM.getPixX(), yOff + ruler - 1,
-                           annospace,
-                           DotM.getPixY() + 2);
+                        annospace,
+                        DotM.getPixY() + 2);
             }
         }
     }
@@ -320,9 +337,9 @@ public class DotMatrixViewWidgetPanel
             awidth = DotM.getPixX();
         }
 
-        AnnotationViewWidget avwx = new AnnotationViewWidget(g2d, annoX, agoX,
-            xOff + ruler, yOff + 2 * ruler + DotM.getPixY(), awidth,
-            annospace, 0, DotM.getStartX(), DotM.getEndX());
+        new AnnotationViewWidget(g2d, annoX, agoX,
+                xOff + ruler, yOff + 2 * ruler + DotM.getPixY(), awidth,
+                annospace, 0, DotM.getStartX(), DotM.getEndX());
     }
 
     public void saveToJpeg() {
@@ -335,9 +352,9 @@ public class DotMatrixViewWidgetPanel
         }
 
         Dimension size = this.getSize();
-        size.setSize(1050,900);
+        size.setSize(1050, 900);
         BufferedImage myImage = new BufferedImage(size.width, size.height,
-                                                  BufferedImage.TYPE_INT_RGB);
+                BufferedImage.TYPE_INT_RGB);
         Graphics2D g2 = myImage.createGraphics();
         this.paint(g2);
         try {
@@ -359,10 +376,10 @@ public class DotMatrixViewWidgetPanel
             awidth = DotM.getPixY();
         }
 
-        AnnotationViewWidget avwx = new AnnotationViewWidget(g2d, annoY, agoY,
-            xOff + 2 * ruler + DotM.getPixX(),
-            yOff + ruler, annospace, awidth, 1,
-            DotM.getStartY(), DotM.getEndY());
+        new AnnotationViewWidget(g2d, annoY, agoY,
+                xOff + 2 * ruler + DotM.getPixX(),
+                yOff + ruler, annospace, awidth, 1,
+                DotM.getStartY(), DotM.getEndY());
     }
 
     public void setShowDirect(boolean all) {
@@ -382,6 +399,7 @@ public class DotMatrixViewWidgetPanel
     }
 
 // Mouse stuff
+
     public void mouseMoved(MouseEvent e) {
         int i, x, y;
 
@@ -396,123 +414,158 @@ public class DotMatrixViewWidgetPanel
             if (y > (yOff + ruler) && y < dm_bottom) {
                 /* The mouse is in dotmatrix */
                 DMInfo.showInfo("\nX: " +
-                                (int) ( ( (x - xOff - ruler) * scaleX) +
-                                       DotM.getStartX()) +
-                                " [ " + (int) ( (x - xOff - ruler) * scaleX) +
-                                " ]  Y: " +
-                                (int) ( ( (y - yOff - ruler) * scaleY) +
-                                       DotM.getStartY()) +
-                                " [ " + (int) ( (y - yOff - ruler) * scaleY) +
-                                " ]");
-            }
-            else {
+                        (int) (((x - xOff - ruler) * scaleX) +
+                                DotM.getStartX()) +
+                        " [ " + (int) ((x - xOff - ruler) * scaleX) +
+                        " ]  Y: " +
+                        (int) (((y - yOff - ruler) * scaleY) +
+                                DotM.getStartY()) +
+                        " [ " + (int) ((y - yOff - ruler) * scaleY) +
+                        " ]");
+            } else {
                 if (y > dm_bottom + ruler) {
-                    if ( (i = agoX.getHit(x, y)) != -1) {
-                        if ( (annoX.getAnnotationTrack(agoX.getTrackNum(i))).
-                            getFeatureTag(
-                                agoX.getNumInTrack(i)) != null) {
-                            DMInfo.showInfo( (annoX.getAnnotationTrack(agoX.
-                                getTrackNum(i))).getFeatureTag(agoX.
-                                getNumInTrack(i)) + " { " +
-                                            (annoX.
-                                             getAnnotationTrack(agoX.
-                                getTrackNum(i))).getAnnotationName() + " } "
-                                );
+                    if ((i = agoX.getHit(x, y)) != -1) {
+                        if ((annoX.getAnnotationTrack(agoX.getTrackNum(i))).
+                                getFeatureTag(
+                                        agoX.getNumInTrack(i)) != null) {
+                            DMInfo.showInfo((annoX.getAnnotationTrack(agoX.
+                                    getTrackNum(i))).getFeatureTag(agoX.
+                                    getNumInTrack(i)) + " { " +
+                                    (annoX.
+                                            getAnnotationTrack(agoX.
+                                            getTrackNum(i))).getAnnotationName() + " } "
+                            );
                         }
                     }
-                }
-                else {
+                } else {
                     DMInfo.showInfo(" ");
                 }
             }
-        }
-        else {
+        } else {
             if (x > dm_right + ruler && y < dm_bottom) {
-                if ( (i = agoY.getHit(x, y)) != -1) {
-                    if ( (annoY.getAnnotationTrack(agoY.getTrackNum(i))).
-                        getFeatureTag(
-                            agoY.getNumInTrack(i)) != null) {
-                        DMInfo.showInfo( (annoY.getAnnotationTrack(agoY.
-                            getTrackNum(i))).getFeatureTag(agoY.getNumInTrack(i))
-                                        + " { " +
-                                        (annoY.getAnnotationTrack(agoY.
-                            getTrackNum(i))).getAnnotationName() + " } ");
+                if ((i = agoY.getHit(x, y)) != -1) {
+                    if ((annoY.getAnnotationTrack(agoY.getTrackNum(i))).
+                            getFeatureTag(
+                                    agoY.getNumInTrack(i)) != null) {
+                        DMInfo.showInfo((annoY.getAnnotationTrack(agoY.
+                                getTrackNum(i))).getFeatureTag(agoY.getNumInTrack(i))
+                                + " { " +
+                                (annoY.getAnnotationTrack(agoY.
+                                        getTrackNum(i))).getAnnotationName() + " } ");
                     }
                 }
-            }
-            else {
+            } else {
                 DMInfo.showInfo(" ");
             }
         }
     }
 
-    public void mouseEntered(MouseEvent e) {}
+    public void mouseEntered(MouseEvent e) {
+    }
 
-    public void mouseClicked(MouseEvent e) {}
+    public void mouseClicked(MouseEvent e) {
+    }
 
-    public void mouseReleased(MouseEvent e) {}
+    public void mouseReleased(MouseEvent e) {
+    }
 
-    public void mouseExited(MouseEvent e) {}
+    public void mouseExited(MouseEvent e) {
+    }
 
     public void mousePressed(MouseEvent e) {
-        Graphics gg;
-        int i, j, k, x, y;
-        String line;
+        int x, y;
 
         if (DotM == null) {
             return;
         }
 
-        x = e.getX();
-        y = e.getY();
-        gg = this.getGraphics();
+        ms_x = x = e.getX();
+        ms_y = y = e.getY();
 
         if (x > (xOff + ruler) && x < dm_right) {
             /* The mouse is in X zone */
             if (y > (yOff + ruler) && y < dm_bottom) {
                 /* The mouse is in dotmatrix */
-            }
-            else {
+            } else {
 
                 if (y > dm_bottom + ruler) {
-                    /* The mouse is in annotation zone */
+                    if (agoX.getHit(ms_x, ms_y) != -1) {
+                        browsFeature.setEnabled(true);
+                    } else {
+                        browsFeature.setEnabled(false);
+                    }
 
-                    if ( (i = agoX.getHit(x, y)) != -1) {
-                        if ( (annoX.getAnnotationTrack(agoX.getTrackNum(i))).
-                            getFeatureURL(i) != null) {
-                            try {
-                                BrowserLauncher.openURL( (annoX.
-                                    getAnnotationTrack(agoX.getTrackNum(i))).
-                                    getFeatureURL(i));
-                            }
-                            catch (IOException ioe) {}
-                        }
-                    }
-                }
-                else {
+                    curAnno = annoX;
+                    curAgo=agoX;
+                    /* The mouse is in annotation zone */
+                    AnnoMenu.show(e.getComponent(), x, y);
+
+                } else {
                 }
             }
-        }
-        else {
+        } else {
             if (x > dm_right + ruler && y < dm_bottom) {
-                if ( (i = agoY.getHit(x, y)) != -1) {
-                    if ( (annoY.getAnnotationTrack(agoY.getTrackNum(i))).
-                        getFeatureURL(i) != null) {
-                        try {
-                            BrowserLauncher.openURL( (annoY.
-                                getAnnotationTrack(agoY.getTrackNum(i))).
-                                getFeatureURL(i));
-                        }
-                        catch (IOException ioe) {}
-                    }
+                if (agoY.getHit(x, y) != -1) {
+                    browsFeature.setEnabled(true);
+                } else {
+                    browsFeature.setEnabled(false);
                 }
-            }
-            else {
+                curAnno = annoY;
+                curAgo=agoY;
+                AnnoMenu.show(e.getComponent(), x, y);
             }
         }
     }
 
-    public void mouseDragged(MouseEvent e) {}
+    private void annoListener_actionPerformed(ActionEvent e) {
+        int i, tn, nit, strt, ennd;
+        String feature_url, genm, chrom;
+
+        if (e.getWhen() == when)
+            return;
+        else
+            when = e.getWhen();
+
+        if(curAnno == null || curAgo == null)
+            return;
+
+        strt = curAnno.getSeqSegmentStart();
+        ennd = curAnno.getSeqSegmentEnd();
+        genm = curAnno.getGenome();
+        chrom = curAnno.getChromosome();
+
+        String str = e.getActionCommand();
+
+        if ((i = curAgo.getHit(ms_x, ms_y)) != -1) {
+            tn = curAgo.getTrackNum(i);
+            nit = curAgo.getNumInTrack(i);
+            feature_url = curAnno.getAnnotationTrack(tn).getFeatureURL(nit);
+        } else {
+            feature_url = null;
+        }
+
+        if (str.indexOf("feature") >= 0) {
+            if (feature_url != null) {
+                try {
+                    BrowserLauncher.openURL(feature_url);
+                }
+                catch (IOException ioe) {
+                    System.err.println(ioe);
+                }
+            }
+        }
+        if (str.indexOf("region") >= 0) {
+            try {
+                BrowserLauncher.openURL("http://genome.ucsc.edu/cgi-bin/hgTracks?db=" + genm + "&position=" + chrom + ":" + strt + "-" + ennd);
+            }
+            catch (IOException ioe) {
+                System.err.println(ioe);
+            }
+        }
+    }
+
+    public void mouseDragged(MouseEvent e) {
+    }
 
     /**
      * isInitiated
@@ -520,11 +573,6 @@ public class DotMatrixViewWidgetPanel
      * @return boolean
      */
     public boolean isInitiated() {
-        if (DotM != null) {
-            return true;
-        }
-        else {
-            return false;
-        }
+        return (DotM != null);
     }
 }
