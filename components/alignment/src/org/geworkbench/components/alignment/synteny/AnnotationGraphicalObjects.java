@@ -17,8 +17,8 @@ import java.awt.*;
 public class AnnotationGraphicalObjects {
 
     private Polygon[] polygons;
-    private int[] track_num;
-    private int[] num_in_track;
+    private int[] track_num;    // index of track to wich belongs each feature
+    private int[] num_in_track; // index of particular feature in it's own track
     private int fnum;
 
     public AnnotationGraphicalObjects(SequenceAnnotation sa) {

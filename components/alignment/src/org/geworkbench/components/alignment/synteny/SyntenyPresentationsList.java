@@ -57,16 +57,18 @@ public class SyntenyPresentationsList {
         AnnotY[cur_num].setSeqSegmentStart(f_y);
         AnnotY[cur_num].setSeqSegmentEnd(t_y);
 
+            BasicParser.parseInitialSettings(AnnotX[cur_num], fl, 1);
             GPAnnoParser.runGPAnnoParser(AnnotX[cur_num], fl, 1);
             PFPParser.runPFPParser(AnnotX[cur_num], fl, 1);
 //                        AnnoX.SetColors(AnnoKeys, NumAnnoKeys);
+            BasicParser.parseInitialSettings(AnnotY[cur_num], fl, 2);
             GPAnnoParser.runGPAnnoParser(AnnotY[cur_num], fl, 2);
             PFPParser.runPFPParser(AnnotY[cur_num], fl, 2);
 //                        AnnoY.SetColors(AnnoKeys, NumAnnoKeys);
 
         // Activating the annotations
-         AdjustActiveAnnoTracks(AnnotX[cur_num]);
-         AdjustActiveAnnoTracks(AnnotY[cur_num]);
+        AdjustActiveAnnoTracks(AnnotX[cur_num]);
+        AdjustActiveAnnoTracks(AnnotY[cur_num]);
 
         // Read dot matrix
         DotMObj[cur_num]=new DotMatrixObj();

@@ -16,6 +16,7 @@ import org.geworkbench.engine.management.Publish;
 import org.geworkbench.events.GeneSelectorEvent;
 import org.geworkbench.events.SyntenyEvent;
 import org.geworkbench.util.session.SoapClient;
+import org.geworkbench.util.BrowserLauncher;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
@@ -183,7 +184,7 @@ import java.util.HashMap;
             XYMenu.add(ToX);
             XYMenu.add(ToY);
             XYMenu.add(ShowAnnot);
-            XYMenu.add(Delete);
+//            XYMenu.add(Delete);
 
             SPList = new SyntenyPresentationsList();
             SMPList = new SynMapPresentationList();
@@ -579,6 +580,19 @@ import java.util.HashMap;
             if (str.compareTo("Select as Y") == 0) {
                 jLabelY.setText("  Y: " + sm);
             }
+            if (str.compareTo("Remove") == 0) {
+                RegionsList.remove(RegionsList.getMinSelectionIndex());
+            }
+            if (str.compareTo("Show Annotation") == 0) {
+                String[] infstr = sm.split(":");
+                try {
+                    BrowserLauncher.openURL("http://genome.ucsc.edu/cgi-bin/hgTracks?db=" + infstr[1] + "&position=" + infstr[2] + ":" + infstr[3] + "-" + infstr[4]);
+                }
+                catch (IOException ioe) {
+                    System.err.println(ioe);
+                }
+            }
+
         }
 
         public void addToRegionsListModel(String sm) {
