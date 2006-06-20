@@ -524,8 +524,10 @@ public class DotMatrixViewWidgetPanel
                 if (y > dm_bottom + ruler) {
                     if (agoX.getHit(ms_x, ms_y) != -1) {
                         browsFeature.setEnabled(true);
+                        markFeature.setEnabled(true);
                     } else {
                         browsFeature.setEnabled(false);
+                        markFeature.setEnabled(false);
                     }
 
                     curAnno = annoX;
@@ -540,8 +542,10 @@ public class DotMatrixViewWidgetPanel
             if (x > dm_right + ruler && y < dm_bottom) {
                 if (agoY.getHit(x, y) != -1) {
                     browsFeature.setEnabled(true);
+                    markFeature.setEnabled(true);
                 } else {
                     browsFeature.setEnabled(false);
+                    markFeature.setEnabled(false);
                 }
                 curAnno = annoY;
                 curAgo=agoY;

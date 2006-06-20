@@ -4,10 +4,10 @@ import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarr
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.builtin.projects.ProjectTreeNode;
-import org.geworkbench.components.alignment.synteny.DAS_Retriver;
-import org.geworkbench.components.alignment.synteny.SyntenyPresentationsList;
-import org.geworkbench.components.alignment.synteny.SyntenyAnnotationParameters;
-import org.geworkbench.components.alignment.synteny.SynMapPresentationList;
+//import org.geworkbench.components.alignment.synteny.DAS_Retriver;
+//import org.geworkbench.components.alignment.synteny.SyntenyPresentationsList;
+//import org.geworkbench.components.alignment.synteny.SyntenyAnnotationParameters;
+//import org.geworkbench.components.alignment.synteny.SynMapPresentationList;
 import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.engine.config.events.EventSource;
 import org.geworkbench.engine.management.AcceptTypes;
@@ -138,9 +138,9 @@ import java.util.HashMap;
 
         void jbInit() throws Exception {
 
-            ActionListener treeListener = null;
-            ActionListener listener = null;
-            ActionListener regionsListListener = null;
+            ActionListener treeListener;
+            ActionListener listener;
+            ActionListener regionsListListener;
 
             jAddToX.setText("Add marker");
             treeToX.setText("Select as X");
@@ -177,7 +177,6 @@ import java.util.HashMap;
             jPanelButtons.setLayout(borderLayout6);
             jButtonStopIt.setText("Cancel");
             jPanelProgram.setLayout(borderLayout1);
-            jButtonAnnotationRedraw.setToolTipText("");
             jButtonAnnotationRedraw.setText("Redraw annotation");
             jButtonAnnotationRedraw.addActionListener(new
                                                       SyntenyParameters_redrawButton_actionAdapter(this));
@@ -226,11 +225,10 @@ import java.util.HashMap;
                                          SyntenyParameters_ProgramBox_actionAdapter(this));
 
             jLabelProgram.setText("  Program/Method :  " +
-                                  (String) ProgramBox.getSelectedItem());
+                                  ProgramBox.getSelectedItem());
 
             jPanel3.setLayout(gridBagLayout2);
             jLabelX.setText("  X : ");
-            jLabelY.setToolTipText("");
             jLabelY.setText("  Y :");
             ProcessStatus.setForeground(Color.blue);
             ProcessStatus.setBorder(BorderFactory.createEtchedBorder());
@@ -242,7 +240,6 @@ import java.util.HashMap;
             main.setPreferredSize(new Dimension(500, 400));
             jTabbedPane1.setMinimumSize(new Dimension(100, 300));
             jTabbedPane1.setPreferredSize(new Dimension(200, 400));
-            jLabel5.setToolTipText("");
             jLabel5.setText(" Selected regions");
             jButtonStopIt.addActionListener(new
                                             SyntenyParameters_cancelButton_actionAdapter(this));
@@ -265,7 +262,6 @@ import java.util.HashMap;
             });
 
             JPanelInfo.setLayout(borderLayout2);
-            addButton.setToolTipText("");
             addButton.setText("Add to selected");
             addButton.addActionListener(new
                                         SyntenyParameters_addButton_actionAdapter(this)); // Forming select boxes
@@ -274,7 +270,6 @@ import java.util.HashMap;
             TreeSelectionMenu.add(treeToSelected);
 
             jPanelMarkers.setPreferredSize(new Dimension(256, 310));
-            jPanelMarkers.setToolTipText("");
             jPanelMarkers.setLayout(gridBagLayout3);
 
             GPos = new GenomePositionSubPanel();
@@ -314,7 +309,6 @@ import java.util.HashMap;
             jMarkerScrollPane.getViewport().setBackground(Color.lightGray);
             jMarkerScrollPane.setForeground(Color.lightGray);
             jMarkerScrollPane.setPreferredSize(new Dimension(150, 280));
-            jMarkerScrollPane.setToolTipText("");
             jPanel1.setLayout(gridBagLayout1);
             jPanel2.setLayout(borderLayout5);
             jToolbar2.add(jLabel2, null);
@@ -331,8 +325,8 @@ import java.util.HashMap;
 
             jInitialList.addListSelectionListener(new ListSelectionListener() {
                 public void valueChanged(ListSelectionEvent e) {
-                    int firstIndex = e.getFirstIndex();
-                    int lastIndex = e.getLastIndex();
+//                    int firstIndex = e.getFirstIndex();
+//                    int lastIndex = e.getLastIndex();
                     System.out.println("Event for indexes \n");
                 }
             });
@@ -447,14 +441,13 @@ import java.util.HashMap;
         private String[] check_marker(String mkstr) {
 
             FileOutputStream fout;
-            String out_name = null;
-            String job_id = null;
-            String res_name;
-            String tmp = null;
-            String[] to_return = null;
-            String infile = null;
+            String out_name;
+            String job_id;
+//            String res_name;
+            String tmp;
+            String[] to_return;
+            String infile;
             String tURL = null;
-            final boolean debuging = true;
 
             ProcessStatus.setText(
                     "Requesting marker information");
@@ -463,9 +456,9 @@ import java.util.HashMap;
             job_id = "Synteny_short_" +
                                 Math.rint(Math.random() * 1000000);
             out_name = tempDir + job_id + ".sub";
-            res_name = tempDir + job_id + ".res";
+//            res_name = tempDir + job_id + ".res";
 
-            String tmp1 = null;
+            String tmp1;
             try {
                 fout = new FileOutputStream(out_name);
                 tmp = "JOB_ID: " + job_id + "\n";
@@ -489,10 +482,10 @@ import java.util.HashMap;
 
             // running request
             final String jid = job_id;
-            final String resn = res_name;
-            final String result = null;
+//            final String resn = res_name;
+//            final String result = null;
 
-            boolean error_flag = false;
+//            boolean error_flag = false;
 
             try {
                 SoapClient sp = new SoapClient();
@@ -501,7 +494,7 @@ import java.util.HashMap;
                 String result_file =
                         "/users/amdecweb/jakarta-tomcat-4.1.30/bin/outputFolder/" +
                         jid + ".res";
-                String job_string = sp.submitJob(
+                sp.submitJob(
                         "java -cp /adtera/users/pavel/synteny_remote SyntenyServerSide",
                         infile, result_file);
 
@@ -515,7 +508,7 @@ import java.util.HashMap;
                  */
             }
 
-            String ServerAnswer = null;
+            String ServerAnswer;
             while (true) {
                 Delay(500);
                 ServerAnswer = DAS_Retriver.GetItSilent(tURL);
@@ -570,7 +563,7 @@ import java.util.HashMap;
                 sm = sm.substring(ii + 1, jj);
             }
 
-            if (selectedMarkers == null || selectedMarkers.length == 0) {
+            if (selectedMarkers.length == 0) {
                 return;
             }
 
@@ -621,16 +614,16 @@ import java.util.HashMap;
                 sm = sm.substring(ii + 1, jj);
             }
 
-            if (selectedMarkers == null || selectedMarkers.length == 0) {
+            if (selectedMarkers.length == 0) {
                 return;
             }
 
             if (str.compareTo("Add to selected") == 0) {
                 String[] sm_comps = sm.split(":");
-                int fr = (int) (Integer.parseInt(sm_comps[3]));
-                fr = fr - (int) (Integer.parseInt(beforeText.getText()));
-                int tt = (int) (Integer.parseInt(sm_comps[4])) +
-                         (int) (Integer.parseInt(afterText.getText()));
+                int fr = (Integer.parseInt(sm_comps[3]));
+                fr = fr - (Integer.parseInt(beforeText.getText()));
+                int tt = (Integer.parseInt(sm_comps[4])) +
+                         (Integer.parseInt(afterText.getText()));
                 sm = sm_comps[0] + ":" + sm_comps[1] + ":" + sm_comps[2] +
                                 ":" + fr + ":" + tt + ":" + sm_comps[5];
                 addToRegionsListModel(sm);
@@ -639,9 +632,9 @@ import java.util.HashMap;
 
         /**************************/
         private void Menu_actionPerformed(ActionEvent e) {
-            int i, j, nc;
-            String left = null, right = null;
-            boolean flag = true;
+//            int i, j, nc;
+//            String left = null, right = null;
+//            boolean flag = true;
 
             String str = e.getActionCommand();
 
@@ -724,7 +717,7 @@ import java.util.HashMap;
         }
 
         /**
-         * todo sdfsd
+         *
          * @param e ActionEvent
          */
         void jClearAllItem_actionPerformed(ActionEvent e) {
@@ -755,7 +748,7 @@ import java.util.HashMap;
                     try {
                         SoapClient sp = new SoapClient();
                         String infile = sp.submitFile(outf);
-                        String job_string = sp.submitJob(
+                        sp.submitJob(
                                 "java -cp /adtera/users/pavel/synteny_remote/ SyntenyServerSide",
                                 infile, "nofile");
                     } catch (Exception ee) {
