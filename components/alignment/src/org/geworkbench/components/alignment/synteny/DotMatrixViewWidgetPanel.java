@@ -6,6 +6,7 @@ import org.geworkbench.components.alignment.panels.BrowserLauncher;
 import org.geworkbench.util.sequences.SequenceAnnotation;
 
 import javax.swing.*;
+import javax.swing.text.Style;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
@@ -30,6 +31,7 @@ public class DotMatrixViewWidgetPanel
     DotMatrixInfoPanel DMInfo = null;
     JPopupMenu AnnoMenu = new JPopupMenu();
     JMenuItem browsFeature = new JMenuItem();
+    JMenuItem markFeature = new JMenuItem();
     JMenuItem browsRegion = new JMenuItem();
     ActionListener annoListener;
 
@@ -161,7 +163,7 @@ public class DotMatrixViewWidgetPanel
 
         browsFeature.setText("USCS genome browser for feature");
         browsRegion.setText("USCS genome browser for region");
-
+        markFeature.setText("Mark feature");
         annoListener = new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 annoListener_actionPerformed(e);
@@ -170,9 +172,11 @@ public class DotMatrixViewWidgetPanel
 
         browsFeature.addActionListener(annoListener);
         browsRegion.addActionListener(annoListener);
+        markFeature.addActionListener(annoListener);
 
         AnnoMenu.add(browsFeature);
         AnnoMenu.add(browsRegion);
+        AnnoMenu.add(markFeature);
     }
 
     public void initialize(DotMatrixObj dmObj) {
@@ -213,7 +217,7 @@ public class DotMatrixViewWidgetPanel
 
         // draw rectangles
         g.setColor(Color.white);
-        g.fillRect(0, 0, DotM.getPixX() + xOff + 2 * ruler + annospace,
+        g.fillRect(0, 0, DotM.getPixX() + xOff + 2 * ruler + 2*annospace,
                 DotM.getPixY() + yOff + 2 * ruler + annospace);
 
         g.setColor(Color.black);
@@ -247,6 +251,23 @@ public class DotMatrixViewWidgetPanel
         g.drawString("X: " + DotM.getDescriptionX(), 10, 10);
         g.drawString("Y: " + DotM.getDescriptionY(), 10, 20);
 
+        // Draw additional information
+        // Draw marking lines
+        for(i=0;i<DotM.getMarkLinesXnum();i++){
+            g.setColor(Color.lightGray);
+            g.drawLine(ruler + xOff + DotM.markLinesX[i],
+                    ruler + yOff,
+                    ruler + xOff + DotM.markLinesX[i],
+                    ruler + yOff + DotM.getPixY());
+        }
+        for(i=0;i<DotM.getMarkLinesYnum();i++){
+            g.setColor(Color.lightGray);
+            g.drawLine(ruler + xOff,
+                    ruler + yOff + DotM.markLinesY[i],
+                    ruler + xOff + DotM.getPixX(),
+                    ruler + yOff + DotM.markLinesY[i]);
+        }
+
         if (DotM != null) {
             // draw direct matches
             if (showDirect) {
@@ -278,7 +299,19 @@ public class DotMatrixViewWidgetPanel
                 }
             }
 
-            // Draw additional information
+/*            DotM.markLinesXnum=2;
+            DotM.markLinesX[0]=20;
+            DotM.markLinesX[1]=40;
+*/
+
+/*            for(i=0;i<DotM.markLinesYnum;i++){
+                g.setColor(Color.gray);
+                g.drawLine(ruler + xOff + DotM.markLinesY[i],
+                        ruler + yOff+1,
+                        ruler + xOff + DotM.markLinesY[i],
+                        ruler + yOff + DotM.getPixY() + 1);
+            }
+*/
             /* Setting colors */
             /* For X axis */
             if (annoX.getAnnotationTrackNum() > annoY.getAnnotationTrackNum()) {
@@ -518,7 +551,7 @@ public class DotMatrixViewWidgetPanel
     }
 
     private void annoListener_actionPerformed(ActionEvent e) {
-        int i, tn, nit, strt, ennd;
+        int i, tn, nit, strt, ennd, fs=0, fe=0;
         String feature_url, genm, chrom;
 
         if (e.getWhen() == when)
@@ -539,12 +572,14 @@ public class DotMatrixViewWidgetPanel
         if ((i = curAgo.getHit(ms_x, ms_y)) != -1) {
             tn = curAgo.getTrackNum(i);
             nit = curAgo.getNumInTrack(i);
+            fs = curAnno.getAnnotationTrack(tn).getSequenceHitStart(nit);
+            fe = curAnno.getAnnotationTrack(tn).getSequenceHitEnd(nit);
             feature_url = curAnno.getAnnotationTrack(tn).getFeatureURL(nit);
         } else {
             feature_url = null;
         }
 
-        if (str.indexOf("feature") >= 0) {
+        if (str.indexOf("for feature") >= 0) {
             if (feature_url != null) {
                 try {
                     BrowserLauncher.openURL(feature_url);
@@ -554,7 +589,7 @@ public class DotMatrixViewWidgetPanel
                 }
             }
         }
-        if (str.indexOf("region") >= 0) {
+        if (str.indexOf("for region") >= 0) {
             try {
                 BrowserLauncher.openURL("http://genome.ucsc.edu/cgi-bin/hgTracks?db=" + genm + "&position=" + chrom + ":" + strt + "-" + ennd);
             }
@@ -562,6 +597,21 @@ public class DotMatrixViewWidgetPanel
                 System.err.println(ioe);
             }
         }
+        if (str.indexOf("Mark feature") >= 0) {
+            if (feature_url != null) {
+                 if(curAnno == annoX){
+                     DotM.addMarkX(fs);
+                     DotM.addMarkX(fe);
+                     this.paint(this.getGraphics());
+                 }
+                if(curAnno == annoY){
+                    DotM.addMarkY(fs);
+                    DotM.addMarkY(fe);
+                    this.paint(this.getGraphics());
+                }
+            }
+        }
+
     }
 
     public void mouseDragged(MouseEvent e) {

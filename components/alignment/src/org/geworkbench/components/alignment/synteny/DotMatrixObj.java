@@ -35,8 +35,21 @@ public class DotMatrixObj {
 
     /* whether this DotMatrixObj is included in the MSA analysis */
         Boolean include= new Boolean(false);
+
+    /* marking coordinates */
+        int[] markLinesX;
+        int[] markLinesY;
+        int markLinesXnum;
+        int markLinesYnum;
+        int max_mark_lines;
+
     /* Constructor: is blank. */
         public DotMatrixObj() {
+        max_mark_lines = 40;
+        markLinesX=new int[max_mark_lines];
+        markLinesY=new int[max_mark_lines];
+        markLinesXnum=0;
+        markLinesYnum=0;
         }
 
         /* Get methods for class variables.*/
@@ -158,16 +171,33 @@ public class DotMatrixObj {
         /**
          * Sets the horizontal DotMatrix size in pixels in this DotMatrixObj.
          *
-         * @param		the width as an integer.
+         * the width as an integer.
          */
         public void setPixX(int pX) {
                 pixX=pX;
         }
 
+        public int getMarkLinesXnum() {
+            return markLinesXnum;
+        }
+
+        public int getMarkLinesYnum() {
+            return markLinesYnum;
+        }
+
+
+        public void addMarkX(int pos){
+            if(markLinesXnum+1 >= max_mark_lines) return;
+            markLinesX[markLinesXnum++]=((pos-startX)*pixX)/(endX-startX+1);
+        }
+        public void addMarkY(int pos){
+            if(markLinesYnum+1 >= max_mark_lines) return;
+            markLinesY[markLinesYnum++]=((pos-startY)*pixY)/(endY-startY+1);
+        }
         /**
          * Sets the vertical DotMatrix size in pixels stored in this DotMatrixObj.
          *
-         * @param		the height as an integer.
+         * the height as an integer.
          */
         public void setPixY(int pY) {
                 pixY=pY;
@@ -176,7 +206,7 @@ public class DotMatrixObj {
         /**
          * Set the horizontal sequence name in this DotMatrixObj.
          *
-         * @param		the name as a String.
+         * the name as a String.
          */
         public void setNameX(String nm) {
                 nameX=nm;
@@ -185,7 +215,7 @@ public class DotMatrixObj {
         /**
          * Sets the vertical sequence name in this DotMatrixObj.
          *
-         * @param		the name as a String.
+         * the name as a String.
          */
         public void setNameY(String nm) {
                 nameY=nm;
@@ -194,7 +224,7 @@ public class DotMatrixObj {
         /**
          * Sets the horizontal sequence description in this DotMatrixObj.
          *
-         * @param		the description as a String..
+         * the description as a String..
          */
         public void setDescriptionX(String desc) {
                 descriptionX=desc;
@@ -203,7 +233,7 @@ public class DotMatrixObj {
         /**
          * Sets the horizontal sequence description in this DotMatrixObj.
          *
-         * @param		the description as a String..
+         * the description as a String..
          */
         public void setDescriptionY(String desc) {
                 descriptionY=desc;
@@ -212,7 +242,7 @@ public class DotMatrixObj {
         /**
          * Sets the start position of horizontal in this DotMatrixObj.
          *
-         * @param		the start as an int.
+         * the start as an int.
          */
         public void setStartX(int st) {
                 startX=st;
@@ -221,7 +251,7 @@ public class DotMatrixObj {
         /**
          * Sets the start position of vertical sequence in this DotMatrixObj.
          *
-         * @param		the start as an int.
+         * the start as an int.
          */
         public void setStartY(int st) {
                 startY=st;
@@ -230,7 +260,7 @@ public class DotMatrixObj {
         /**
          * Sets the last position of horizontal sequence in this DotMatrixObj.
          *
-         * @param		the end as an int.
+         * the end as an int.
          */
         public void setEndX(int en) {
                 endX=en;
@@ -239,7 +269,7 @@ public class DotMatrixObj {
         /**
          * Sets the last position of vertical sequence in this DotMatrixObj.
          *
-         * @param		the end as an int.
+         * the end as an int.
          */
         public void setEndY(int en) {
                 endY=en;
@@ -248,7 +278,7 @@ public class DotMatrixObj {
         /**
          * Sets the DotMatrix values in this DotMatrixObj.
          *
-         * @param		the dotmatrix as an array of char.
+         * the dotmatrix as an array of char.
          */
         public void setDotMatrixDirect(char[] dm) {
                 DotMatrixDirect=dm;
