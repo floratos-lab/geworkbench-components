@@ -1,10 +1,10 @@
 package org.geworkbench.components.promoter;
 
-import org.biojava.bio.gui.DistributionLogo;
-import org.geworkbench.bison.datastructure.bioobjects.sequence.DSSequence;
-
 import java.util.Arrays;
 import java.util.HashMap;
+
+import org.biojava.bio.gui.DistributionLogo;
+import org.geworkbench.bison.datastructure.bioobjects.sequence.DSSequence;
 
 public class Matrix {
     public Matrix() {
@@ -20,9 +20,18 @@ public class Matrix {
     public static HashMap hash = new HashMap();
     public double random = 0;
     public Distribution[] countTable = new Distribution[1];
+    private Distribution[] rawCountTable = new Distribution[1];
 
     public double getRandom() {
         return random;
+    }
+
+    public Distribution[] getRawCountTable() {
+        return rawCountTable;
+    }
+
+    public char[] getSymbols() {
+        return symbols;
     }
 
     public Matrix(char[] symbol) {
@@ -34,7 +43,7 @@ public class Matrix {
     }
 
     public void normalize() {
-
+        rawCountTable = countTable;
         for (int i = 0; i < countTable.length; i++) {
 
             countTable[i].normalize();
@@ -180,6 +189,14 @@ public class Matrix {
     }
 
     private void jbInit() throws Exception {
+    }
+
+    public void setRawCountTable(Distribution[] rowCountTable) {
+        this.rawCountTable = rowCountTable;
+    }
+
+    public void setSymbols(char[] symbols) {
+        this.symbols = symbols;
     }
 
 }
