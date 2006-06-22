@@ -14,23 +14,30 @@ import javax.swing.border.TitledBorder;
 import javax.swing.event.*;
 
 import org.geworkbench.bison.datastructure.biocollections.DSCollection;
-import org.geworkbench.bison.datastructure.biocollections.sequences.CSSequenceSet;
-import org.geworkbench.bison.datastructure.biocollections.sequences.DSSequenceSet;
+import org.geworkbench.bison.datastructure.biocollections.sequences.
+        CSSequenceSet;
+import org.geworkbench.bison.datastructure.biocollections.sequences.
+        DSSequenceSet;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
+import org.geworkbench.bison.datastructure.bioobjects.sequence.CSSequence;
 import org.geworkbench.bison.datastructure.bioobjects.sequence.DSSequence;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.bison.datastructure.complex.pattern.*;
-import org.geworkbench.bison.datastructure.complex.pattern.sequence.DSSeqRegistration;
+import org.geworkbench.bison.datastructure.complex.pattern.sequence.
+        DSSeqRegistration;
 import org.geworkbench.components.promoter.modulediscovery.*;
 import org.geworkbench.events.GeneSelectorEvent;
 import org.geworkbench.events.SequenceDiscoveryTableEvent;
 import org.geworkbench.util.RandomSequenceGenerator;
 import org.geworkbench.util.associationdiscovery.statistics.ClusterStatistics;
-import org.geworkbench.util.patterns.CSMatchedSeqPattern;
-import org.geworkbench.util.patterns.PatternOperations;
+import org.geworkbench.util.patterns.*;
 import org.geworkbench.util.promoter.SequencePatternDisplayPanel;
 import org.geworkbench.util.promoter.pattern.Display;
 import org.geworkbench.util.promoter.pattern.PatternDisplay;
+import org.geworkbench.util.JAutoList;
+
+//import java.awt.image.renderable.ParameterBlock;
+//import javax.media.jai.JAI;
 
 
 /**
@@ -52,15 +59,16 @@ public class PromoterViewPanel extends JPanel implements HyperlinkListener {
 
 
     DSPanel<DSGeneMarker> markers = null;
-
     private DSSequenceSet sequenceDB = null;
-
     private JFileChooser fc = null;
     private JFileChooser fc2 = null;
     boolean selectedRegionChanged = false;
-    JTextPane jInfoPanel = new JTextPane();
+    //JTextPane jInfoPanel = new JTextPane();
+    ImagePanel jInfoPanel = new ImagePanel();
     DSSequenceSet background = null;
-
+    private TreeMap<String,
+            TranscriptionFactor> tfMap = new TreeMap<String,
+                                         TranscriptionFactor>();
     //Layouts
 
     private BorderLayout borderLayout2 = new BorderLayout();
@@ -70,11 +78,10 @@ public class PromoterViewPanel extends JPanel implements HyperlinkListener {
 
     private SequencePatternDisplayPanel seqDisPanel = new
             SequencePatternDisplayPanel();
-//    private  SequenceViewWidget seqDisPanel = new SequenceViewWidget();
     JPanel jPanel2 = new JPanel();
-
-    //stores transcriptionfactors
-
+    JPanel logoPanel = new JPanel();
+    TFListModel tfListModel = new TFListModel();
+    String[] tfNameSet;
     BorderLayout borderLayout1 = new BorderLayout();
     JButton displayBtn = new JButton();
     BorderLayout borderLayout3 = new BorderLayout();
@@ -87,7 +94,6 @@ public class PromoterViewPanel extends JPanel implements HyperlinkListener {
     JButton jButton2 = new JButton();
     JProgressBar jProgressBar1 = new JProgressBar();
     ButtonGroup sourceGroup = new ButtonGroup();
-
     File resultFile = null;
     SequenceFileReader sfr = null;
     DefaultListModel modulelistmodel = new DefaultListModel();
@@ -96,6 +102,7 @@ public class PromoterViewPanel extends JPanel implements HyperlinkListener {
     JSplitPane jSplitPane1 = new JSplitPane();
     GridLayout gridLayout2 = new GridLayout();
     JLabel jLabel4 = new JLabel();
+    JLabel noTFLabel = new JLabel("No TF is selected.");
     TitledBorder titledBorder1;
     TitledBorder titledBorder2;
     TitledBorder titledBorder3;
@@ -109,6 +116,11 @@ public class PromoterViewPanel extends JPanel implements HyperlinkListener {
     BorderLayout borderLayout6 = new BorderLayout();
     JTextField minOccur = new JTextField("50");
     JPanel jPanel7 = new JPanel();
+    JPopupMenu itemListPopup = new JPopupMenu();
+    JPopupMenu selectedItemListPopup = new JPopupMenu();
+    protected JMenuItem addToPanelItem = new JMenuItem("Add");
+    protected JMenuItem clearSelectionItem = new JMenuItem(
+            "Remove from Selected List.");
     JPanel jPanel6 = new JPanel();
     JPanel jPanel9 = new JPanel();
     JLabel jLabel2 = new JLabel();
@@ -175,37 +187,29 @@ public class PromoterViewPanel extends JPanel implements HyperlinkListener {
 
         jProgressBar1.setForeground(Color.green);
         jProgressBar1.setBorderPainted(true);
-
         jPanel2.setLayout(borderLayout1);
-
         seqDisPanel.setMinimumSize(new Dimension(0, 0));
         seqDisPanel.setMaximumSize(new Dimension(32767, 32767));
         seqDisPanel.setPreferredSize(new Dimension(0, 20));
         jInfoPanel.setBorder(BorderFactory.createEtchedBorder());
-
         jInfoPanel.setMinimumSize(new Dimension(14, 50));
         jInfoPanel.setOpaque(true);
         jInfoPanel.setPreferredSize(new Dimension(20, 60));
-        jInfoPanel.addHyperlinkListener(this);
+        //jInfoPanel.addHyperlinkListener(this);
         seqScrollPane.setBorder(BorderFactory.createEtchedBorder());
         seqScrollPane.setMaximumSize(new Dimension(32767, 32767));
         seqScrollPane.setMinimumSize(new Dimension(24, 24));
         seqScrollPane.setPreferredSize(new Dimension(250, 250));
         //seqDisPanel.setInfoPanel(jInfoPanel);
-
         jSplitPane1.setOrientation(JSplitPane.HORIZONTAL_SPLIT);
         jSplitPane1.setDividerSize(4);
         jSplitPane1.setLastDividerLocation(245);
         jTabbedPane1.setMinimumSize(new Dimension(0, 0));
         jTabbedPane1.setPreferredSize(new Dimension(100, 100));
-
         jPanel10.setLayout(borderLayout11);
-
         jPanel9.setBorder(BorderFactory.createRaisedBevelBorder());
         jPanel9.setLayout(borderLayout7);
-
         jPanel7.setLayout(borderLayout9);
-
         jDiscoverModuleBttn.setEnabled(true);
         jDiscoverModuleBttn.setPreferredSize(new Dimension(68, 23));
         jDiscoverModuleBttn.setSelected(false);
@@ -215,19 +219,45 @@ public class PromoterViewPanel extends JPanel implements HyperlinkListener {
                 jDiscoverModuleBttn_actionPerformed(e);
             }
         });
-
         jScrollPane3.setHorizontalScrollBarPolicy(JScrollPane.
                                                   HORIZONTAL_SCROLLBAR_ALWAYS);
         jScrollPane3.setVerticalScrollBarPolicy(JScrollPane.
                                                 VERTICAL_SCROLLBAR_ALWAYS);
         jScrollPane3.setAutoscrolls(false);
         jScrollPane3.setPreferredSize(new Dimension(64, 59));
-
         jPanel4.setLayout(borderLayout4);
         jLabel4.setHorizontalAlignment(SwingConstants.CENTER);
         jLabel4.setText("TF List");
 
         fillupTranscriptionFactorList();
+        matrixDetailButton.setText("Matrix Details");
+        matrixDetailButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                matrixDetailButton_actionPerformed(e);
+            }
+        });
+        matrixPane.setVerticalScrollBarPolicy(JScrollPane.
+                                              VERTICAL_SCROLLBAR_ALWAYS);
+        matrixPane.setViewportBorder(BorderFactory.createRaisedBevelBorder());
+        matrixPane.setMinimumSize(new Dimension(50, 100));
+        matrixPane.setPreferredSize(new Dimension(100, 100));
+        matrixPane.setToolTipText("Detaill");
+        //jEditorPane1.add(matrixTable);
+        itemListPopup.add(addToPanelItem);
+        selectedItemListPopup.add(clearSelectionItem);
+        clearSelectionItem.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                clearSelectionPressed();
+            }
+
+        });
+        addToPanelItem.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                addSelectionPressed();
+            }
+
+        });
+
         displayBtn.setToolTipText(
                 "Scans the selected sequences with the TF matrices");
 
@@ -302,7 +332,15 @@ public class PromoterViewPanel extends JPanel implements HyperlinkListener {
         winSize.setText("200");
         jSelectedTFList.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(MouseEvent e) {
-                jSelectedTFList_mouseClicked(e);
+                int index = jSelectedTFList.locationToIndex(e.getPoint());
+
+                if (e.isMetaDown()) {
+                    selectedItemRightClicked(index, e);
+
+                } else {
+
+                    jSelectedTFList_mouseClicked(e);
+                }
             }
         });
         jSelectedTFList.setToolTipText("Selected transcription factors");
@@ -319,16 +357,16 @@ public class PromoterViewPanel extends JPanel implements HyperlinkListener {
         jPanel11.setLayout(gridLayout2);
         gridLayout2.setColumns(3);
         gridLayout2.setRows(2);
-        jPanel12.setLayout(borderLayout12);
         parmsPanel.setLayout(gridBagLayout1);
-        jLabel1.setText("PValue / 1K:");
+        pValueLabel.setText("PValue / 1K:");
         pValueField.setMinimumSize(new Dimension(70, 18));
         pValueField.setPreferredSize(new Dimension(70, 18));
         pValueField.setText("0.05");
-        jLabel5.setHorizontalAlignment(SwingConstants.TRAILING);
-        jLabel5.setText("Expected:");
-        jLabel6.setHorizontalAlignment(SwingConstants.TRAILING);
-        jLabel6.setText("Actual:");
+        //expectedLabel1.setHorizontalAlignment(SwingConstants.TRAILING);
+        expectedLabel1.setHorizontalTextPosition(SwingConstants.LEADING);
+        expectedLabel1.setText("Expected:");
+        //actualLabel1.setHorizontalAlignment(SwingConstants.TRAILING);
+        actualLabel1.setText("Actual:");
         expectedCountBox.setPreferredSize(new Dimension(70, 18));
         expectedCountBox.setEditable(false);
         expectedCountBox.setText("0");
@@ -341,6 +379,8 @@ public class PromoterViewPanel extends JPanel implements HyperlinkListener {
         enrichmentBox.setEditable(false);
         enrichmentBox.setText("1.0");
         parmsPanel.setBorder(BorderFactory.createEtchedBorder());
+        parmsPanel.setMinimumSize(new Dimension(130, 100));
+        parmsPanel.setPreferredSize(new Dimension(130, 100));
         enrichmentLabel.setText("Enrich. p-value:");
         useThresholdCheck.setText("Use Thr.");
         useThresholdCheck.addActionListener(new ActionListener() {
@@ -356,8 +396,11 @@ public class PromoterViewPanel extends JPanel implements HyperlinkListener {
         percentSeqMatchBox.setPreferredSize(new Dimension(70, 18));
         percentSeqMatchBox.setEditable(false);
         percentSeqMatchBox.setText("0%");
-        jLabel7.setText("Total");
-        jLabel9.setText("Sequences");
+        totalLabel1.setFont(new java.awt.Font("Dialog", Font.BOLD, 11));
+        totalLabel1.setText("Total");
+        sequenceLabel1.setFont(new java.awt.Font("Dialog", Font.BOLD, 11));
+        sequenceLabel1.setHorizontalTextPosition(SwingConstants.LEADING);
+        sequenceLabel1.setText("Sequences");
         expectedSeqCountBox.setEditable(false);
         expectedSeqCountBox.setText("0");
         seqCountBox.setEditable(false);
@@ -376,22 +419,23 @@ public class PromoterViewPanel extends JPanel implements HyperlinkListener {
                 iterationBox_actionPerformed(e);
             }
         });
-        jLabel8.setHorizontalAlignment(SwingConstants.TRAILING);
-        jLabel8.setText("Iterations:");
-        jLabel10.setText("5\'");
-        jLabel11.setText("3\'");
-        jLabel12.setHorizontalAlignment(SwingConstants.TRAILING);
-        jLabel12.setText("Expected::");
+        //iterationLabel.setHorizontalAlignment(SwingConstants.TRAILING);
+        iterationLabel.setHorizontalTextPosition(SwingConstants.LEADING);
+        iterationLabel.setText("Iterations:");
+        primer5Label.setText("5\'");
+        primer3Label.setText("3\'");
+        //expect2Label.setHorizontalAlignment(SwingConstants.TRAILING);
+        expect2Label.setText("Expected:");
         match5PrimeExpectBox.setEditable(false);
         match5PrimeExpectBox.setText("0");
         match3PrimeExpectBox.setEditable(false);
         match3PrimeExpectBox.setText("0");
-        jLabel13.setText("Total");
-        jLabel14.setText("Sequence");
+        totalLabel.setText("Total");
+        sequenceLabel.setText("Sequence");
         match5PrimeActualBox.setEditable(false);
         match5PrimeActualBox.setText("0");
-        jLabel15.setHorizontalAlignment(SwingConstants.TRAILING);
-        jLabel15.setText("Actual:");
+        //actualLabel.setHorizontalAlignment(SwingConstants.TRAILING);
+        actualLabel.setText("Actual:");
         match3PrimeActualBox.setEditable(false);
         match3PrimeActualBox.setText("0");
         clearButton.setToolTipText("Clear all patterns and transc. factors.");
@@ -414,13 +458,38 @@ public class PromoterViewPanel extends JPanel implements HyperlinkListener {
                 showSeqPattern_actionPerformed(e);
             }
         });
+        parametersLabel.setFont(new java.awt.Font("Times New Roman", Font.BOLD,
+                                                  12));
+        parametersLabel.setText("Paramters:");
+        expectedCountBox.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                expectedCountBox_actionPerformed(e);
+            }
+        });
+        pValueField.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                pValueField_actionPerformed(e);
+            }
+        });
+        resultLabel.setFont(new java.awt.Font("Times New Roman", Font.BOLD, 12));
+        resultLabel.setToolTipText("");
+        resultLabel.setHorizontalTextPosition(SwingConstants.LEFT);
+        resultLabel.setText("Results:");
+        jLabel1.setText("% with hits:");
+        jPanel12.setLayout(borderLayout12);
         jPanel4.add(jScrollPane1, BorderLayout.CENTER);
         jPanel4.add(jLabel4, BorderLayout.NORTH);
 
         jScrollPane1.getViewport().add(jTranscriptionFactorList, null);
         jPanel1.add(jScrollPane2, BorderLayout.CENTER);
         jPanel1.add(jLabel3, BorderLayout.NORTH);
-        jPanel3.add(jPanel4, null);
+        //replace The old TF list Panel with JAutoList
+        //jPanel3.add(jPanel4, null);
+        tfListModel = new TFListModel();
+        tfListModel.refresh();
+        tfPanel = new TFListPanel();
+        jPanel3.add(tfPanel, null);
+
         jScrollPane2.getViewport().add(jSelectedTFList, null);
         jPanel11.add(displayBtn, null);
         jPanel11.add(jaddNewTFB, null);
@@ -448,177 +517,176 @@ public class PromoterViewPanel extends JPanel implements HyperlinkListener {
         jPanel10.add(jPanel11, BorderLayout.SOUTH);
 
         jTabbedPane1.add(jPanel10, "TF Mapping");
-        jTabbedPane1.add(jPanel9, "ModuleDiscovery");
-
+        //jTabbedPane1.add(jPanel9, "ModuleDiscovery");
 
         seqDisPanel.addToolBarButton(showSeqPattern);
         seqDisPanel.addToolBarButton(showTF);
         seqDisPanel.addToolBarButton(clearButton);
-        jTabbedPane2.add(jInfoPanel, "Logo");
+        logoPanel = new JPanel();
+        logoPanel.setLayout(new BorderLayout());
+        logoPanel.add(jInfoPanel, BorderLayout.NORTH);
+        matrixDisplayPanel = new JPanel();
+        logoPanel.add(matrixDisplayPanel, BorderLayout.CENTER);
+         matrixDisplayPanel.add(noTFLabel);
+        //matrixDisplayPanel.add(matrixPane);
+        jTabbedPane2.add(logoPanel, "Logo");
         jTabbedPane2.add(jPanel12, "Parameters");
         northPanel.setLayout(new BorderLayout());
         northPanel.add(seqScrollPane, BorderLayout.CENTER);
-       // northPanel.add(jToolBar, BorderLayout.SOUTH);
+        // northPanel.add(jToolBar, BorderLayout.SOUTH);
         seqScrollPane.getViewport().add(seqDisPanel, null);
-
         jSplitPane1.add(jTabbedPane1, JSplitPane.LEFT);
         jPanel2.add(jSplitPane1, BorderLayout.CENTER);
         this.add(jPanel2, BorderLayout.CENTER);
         jPanel2.add(jProgressBar1, java.awt.BorderLayout.NORTH);
+        jSplitPane1.add(jTabbedPane2, JSplitPane.RIGHT);
+        jTabbedPane2.add(northPanel, "Sequence");
         jPanel12.add(parmsPanel, java.awt.BorderLayout.CENTER);
-        parmsPanel.add(pValueField,
-                       new GridBagConstraints(1, 0, 1, 1, 0.5, 0.0,
-                                              GridBagConstraints.CENTER,
-                                              GridBagConstraints.HORIZONTAL,
-                                              new Insets(2, 2, 2, 2), 0, 0));
-        parmsPanel.add(jLabel1,
-                       new GridBagConstraints(0, 0, 1, 1, 1.0, 0.0,
-                                              GridBagConstraints.CENTER,
+        parmsPanel.add(actualLabel1,
+                       new GridBagConstraints(1, 8, 1, 1, 1.0, 0.0
+                                              , GridBagConstraints.CENTER,
                                               GridBagConstraints.HORIZONTAL,
                                               new Insets(1, 2, 1, 2), 0, 0));
-        parmsPanel.add(jLabel6,
-                       new GridBagConstraints(0, 3, 1, 1, 1.0, 0.0,
-                                              GridBagConstraints.CENTER,
-                                              GridBagConstraints.HORIZONTAL,
-                                              new Insets(1, 2, 1, 2), 0, 0));
-        parmsPanel.add(jLabel7,
-                       new GridBagConstraints(1, 1, 1, 1, 0.0, 0.0,
-                                              GridBagConstraints.CENTER,
+        parmsPanel.add(totalLabel1, new GridBagConstraints(2, 5, 1, 1, 0.0, 0.0
+                , GridBagConstraints.CENTER, GridBagConstraints.NONE,
+                new Insets(0, 0, 0, 0), 0, 0));
+        parmsPanel.add(sequenceLabel1,
+                       new GridBagConstraints(3, 5, 1, 1, 0.0, 0.0
+                                              , GridBagConstraints.CENTER,
                                               GridBagConstraints.NONE,
                                               new Insets(0, 0, 0, 0), 0, 0));
-        parmsPanel.add(jLabel9,
-                       new GridBagConstraints(2, 1, 1, 1, 0.0, 0.0,
-                                              GridBagConstraints.CENTER,
-                                              GridBagConstraints.NONE,
-                                              new Insets(0, 0, 0, 0), 0, 0));
-//        parmsPanel.add(stopButton,
-//                       new GridBagConstraints(2, 0, 1, 1, 1.0, 0.0,
-//                                              GridBagConstraints.CENTER,
-//                                              GridBagConstraints.BOTH,
-//                                              new Insets(1, 2, 1, 2), 0, 0));
-        parmsPanel.add(jLabel5,
-                       new GridBagConstraints(0, 2, 1, 1, 1.0, 0.0,
-                                              GridBagConstraints.CENTER,
+        parmsPanel.add(expectedLabel1,
+                       new GridBagConstraints(1, 7, 1, 1, 1.0, 0.0
+                                              , GridBagConstraints.CENTER,
                                               GridBagConstraints.HORIZONTAL,
                                               new Insets(1, 2, 1, 2), 0, 0));
         parmsPanel.add(expectedCountBox,
-                       new GridBagConstraints(1, 2, 1, 1, 1.0, 0.0,
-                                              GridBagConstraints.CENTER,
+                       new GridBagConstraints(2, 7, 1, 1, 1.0, 0.0
+                                              , GridBagConstraints.CENTER,
                                               GridBagConstraints.HORIZONTAL,
                                               new Insets(1, 2, 1, 2), 0, 0));
         parmsPanel.add(expectedSeqCountBox,
-                       new GridBagConstraints(2, 2, 1, 1, 1.0, 0.0,
-                                              GridBagConstraints.CENTER,
+                       new GridBagConstraints(3, 7, 1, 1, 1.0, 0.0
+                                              , GridBagConstraints.CENTER,
                                               GridBagConstraints.HORIZONTAL,
                                               new Insets(1, 2, 1, 2), 0, 0));
-        parmsPanel.add(countBox,
-                       new GridBagConstraints(1, 3, 1, 1, 1.0, 0.0,
-                                              GridBagConstraints.CENTER,
-                                              GridBagConstraints.HORIZONTAL,
-                                              new Insets(1, 2, 0, 2), 0, 0));
-        parmsPanel.add(seqCountBox,
-                       new GridBagConstraints(2, 3, 1, 1, 1.0, 0.0,
-                                              GridBagConstraints.CENTER,
-                                              GridBagConstraints.HORIZONTAL,
-                                              new Insets(1, 2, 0, 2), 0, 0));
-        parmsPanel.add(jLabel10,
-                       new GridBagConstraints(1, 4, 1, 1, 0.0, 0.0,
-                                              GridBagConstraints.CENTER,
+        parmsPanel.add(countBox, new GridBagConstraints(2, 8, 1, 1, 1.0, 0.0
+                , GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
+                new Insets(1, 2, 0, 2), 0, 0));
+        parmsPanel.add(seqCountBox, new GridBagConstraints(3, 8, 1, 1, 1.0, 0.0
+                , GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
+                new Insets(1, 2, 0, 2), 0, 0));
+        parmsPanel.add(primer5Label,
+                       new GridBagConstraints(2, 9, 1, 1, 0.0, 0.0
+                                              , GridBagConstraints.CENTER,
                                               GridBagConstraints.NONE,
                                               new Insets(0, 0, 0, 0), 0, 0));
-        parmsPanel.add(jLabel11,
-                       new GridBagConstraints(2, 4, 1, 1, 0.0, 0.0,
-                                              GridBagConstraints.CENTER,
+        parmsPanel.add(primer3Label,
+                       new GridBagConstraints(3, 9, 1, 1, 0.0, 0.0
+                                              , GridBagConstraints.CENTER,
                                               GridBagConstraints.NONE,
                                               new Insets(0, 0, 0, 0), 0, 0));
         parmsPanel.add(match5PrimeExpectBox,
-                       new GridBagConstraints(1, 5, 1, 1, 1.0, 0.0,
-                                              GridBagConstraints.CENTER,
+                       new GridBagConstraints(2, 10, 1, 1, 1.0, 0.0
+                                              , GridBagConstraints.CENTER,
                                               GridBagConstraints.HORIZONTAL,
                                               new Insets(1, 2, 1, 2), 0, 0));
         parmsPanel.add(match3PrimeExpectBox,
-                       new GridBagConstraints(2, 5, 1, 1, 1.0, 0.0,
-                                              GridBagConstraints.CENTER,
-                                              GridBagConstraints.HORIZONTAL,
-                                              new Insets(1, 2, 1, 2), 0, 0));
-        parmsPanel.add(jLabel12,
-                       new GridBagConstraints(0, 5, 1, 1, 1.0, 0.0,
-                                              GridBagConstraints.CENTER,
+                       new GridBagConstraints(3, 10, 1, 1, 1.0, 0.0
+                                              , GridBagConstraints.CENTER,
                                               GridBagConstraints.HORIZONTAL,
                                               new Insets(1, 2, 1, 2), 0, 0));
         parmsPanel.add(enrichmentBox,
-                       new GridBagConstraints(1, 8, 1, 1, 1.0, 0.0,
-                                              GridBagConstraints.CENTER,
+                       new GridBagConstraints(2, 12, 1, 1, 1.0, 0.0
+                                              , GridBagConstraints.CENTER,
                                               GridBagConstraints.HORIZONTAL,
                                               new Insets(1, 2, 1, 2), 0, 0));
         parmsPanel.add(seqEnrichmentBox,
-                       new GridBagConstraints(2, 8, 1, 1, 1.0, 0.0,
-                                              GridBagConstraints.CENTER,
+                       new GridBagConstraints(3, 12, 1, 1, 1.0, 0.0
+                                              , GridBagConstraints.CENTER,
                                               GridBagConstraints.HORIZONTAL,
                                               new Insets(1, 2, 1, 2), 0, 0));
-        parmsPanel.add(jLabel13,
-                       new GridBagConstraints(1, 7, 1, 1, 0.0, 0.0,
-                                              GridBagConstraints.CENTER,
-                                              GridBagConstraints.NONE,
-                                              new Insets(0, 0, 0, 0), 0, 0));
-        parmsPanel.add(jLabel14,
-                       new GridBagConstraints(2, 7, 1, 1, 0.0, 0.0,
-                                              GridBagConstraints.CENTER,
-                                              GridBagConstraints.NONE,
-                                              new Insets(0, 0, 0, 0), 0, 0));
         parmsPanel.add(enrichmentLabel,
-                       new GridBagConstraints(0, 8, 1, 1, 1.0, 0.0,
-                                              GridBagConstraints.CENTER,
+                       new GridBagConstraints(1, 12, 2, 1, 1.0, 0.0
+                                              , GridBagConstraints.CENTER,
                                               GridBagConstraints.HORIZONTAL,
                                               new Insets(1, 2, 1, 2), 0, 0));
         parmsPanel.add(percentSeqMatchBox,
-                       new GridBagConstraints(2, 9, 2, 1, 1.0, 0.0,
-                                              GridBagConstraints.CENTER,
+                       new GridBagConstraints(3, 13, 2, 1, 1.0, 0.0
+                                              , GridBagConstraints.CENTER,
                                               GridBagConstraints.HORIZONTAL,
                                               new Insets(1, 2, 1, 2), 0, 0));
-        parmsPanel.add(thresholdBox,
-                       new GridBagConstraints(1, 10, 1, 1, 1.0, 0.0,
-                                              GridBagConstraints.CENTER,
-                                              GridBagConstraints.HORIZONTAL,
-                                              new Insets(1, 2, 1, 2), 0, 0));
-        parmsPanel.add(useThresholdCheck,
-                       new GridBagConstraints(0, 10, 1, 1, 0.0, 0.0,
-                                              GridBagConstraints.CENTER,
-                                              GridBagConstraints.HORIZONTAL,
-                                              new Insets(0, 2, 0, 2), 0, 0));
-        parmsPanel.add(Set13KCheck,
-                       new GridBagConstraints(2, 10, 1, 1, 0.0, 0.0,
-                                              GridBagConstraints.CENTER,
-                                              GridBagConstraints.HORIZONTAL,
-                                              new Insets(0, 2, 0, 2), 0, 0));
-        parmsPanel.add(jLabel8,
-                       new GridBagConstraints(0, 11, 1, 1, 1.0, 0.0,
-                                              GridBagConstraints.CENTER,
-                                              GridBagConstraints.HORIZONTAL,
-                                              new Insets(1, 2, 1, 2), 0, 0));
-        parmsPanel.add(iterationBox,
-                       new GridBagConstraints(1, 11, 1, 1, 1.0, 0.0,
-                                              GridBagConstraints.CENTER,
-                                              GridBagConstraints.HORIZONTAL,
-                                              new Insets(1, 2, 1, 2), 0, 0));
-        parmsPanel.add(jLabel15,
-                       new GridBagConstraints(0, 6, 1, 1, 1.0, 0.0,
-                                              GridBagConstraints.CENTER,
+        parmsPanel.add(actualLabel,
+                       new GridBagConstraints(1, 11, 1, 1, 1.0, 0.0
+                                              , GridBagConstraints.CENTER,
                                               GridBagConstraints.HORIZONTAL,
                                               new Insets(1, 2, 1, 2), 0, 0));
         parmsPanel.add(match5PrimeActualBox,
-                       new GridBagConstraints(1, 6, 1, 1, 1.0, 0.0,
-                                              GridBagConstraints.CENTER,
+                       new GridBagConstraints(2, 11, 1, 1, 1.0, 0.0
+                                              , GridBagConstraints.CENTER,
                                               GridBagConstraints.HORIZONTAL,
                                               new Insets(1, 2, 1, 2), 0, 0));
         parmsPanel.add(match3PrimeActualBox,
-                       new GridBagConstraints(2, 6, 1, 1, 1.0, 0.0,
-                                              GridBagConstraints.CENTER,
+                       new GridBagConstraints(3, 11, 1, 1, 1.0, 0.0
+                                              , GridBagConstraints.CENTER,
                                               GridBagConstraints.HORIZONTAL,
                                               new Insets(1, 2, 1, 2), 0, 0));
-        jSplitPane1.add(jTabbedPane2, JSplitPane.RIGHT);
-        jTabbedPane2.add(northPanel, "Sequence");
+        parmsPanel.add(thresholdBox,
+                       new GridBagConstraints(2, 2, 1, 1, 1.0, 0.0
+                                              , GridBagConstraints.CENTER,
+                                              GridBagConstraints.HORIZONTAL,
+                                              new Insets(1, 2, 1, 2), 0, 0));
+        parmsPanel.add(useThresholdCheck,
+                       new GridBagConstraints(1, 2, 1, 1, 0.0, 0.0
+                                              , GridBagConstraints.CENTER,
+                                              GridBagConstraints.HORIZONTAL,
+                                              new Insets(0, 2, 0, 2), 0, 0));
+        parmsPanel.add(Set13KCheck, new GridBagConstraints(3, 2, 1, 1, 0.0, 0.0
+                , GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
+                new Insets(0, 2, 0, 2), 0, 0));
+        parmsPanel.add(iterationBox,
+                       new GridBagConstraints(2, 3, 1, 1, 1.0, 0.0
+                                              , GridBagConstraints.CENTER,
+                                              GridBagConstraints.HORIZONTAL,
+                                              new Insets(1, 2, 1, 2), 0, 0));
+        parmsPanel.add(iterationLabel,
+                       new GridBagConstraints(1, 3, 1, 1, 1.0, 0.0
+                                              , GridBagConstraints.CENTER,
+                                              GridBagConstraints.HORIZONTAL,
+                                              new Insets(1, 2, 1, 2), 0, 0));
+        parmsPanel.add(pValueLabel, new GridBagConstraints(1, 1, 1, 1, 1.0, 0.0
+                , GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
+                new Insets(1, 2, 1, 2), 0, 0));
+        parmsPanel.add(pValueField, new GridBagConstraints(2, 1, 1, 1, 0.5, 0.0
+                , GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
+                new Insets(1, 2, 1, 2), 0, 0));
+        parmsPanel.add(expect2Label,
+                       new GridBagConstraints(1, 10, 2, 1, 1.0, 0.0
+                                              , GridBagConstraints.CENTER,
+                                              GridBagConstraints.HORIZONTAL,
+                                              new Insets(1, 2, 1, 2), 0, 0));
+        parmsPanel.add(jLabel1, new GridBagConstraints(1, 13, 1, 1, 0.0, 0.0
+                , GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
+                new Insets(0, 0, 0, 0), 0, 0));
+        parmsPanel.add(jLabel5, new GridBagConstraints(2, 4, 1, 1, 0.0, 0.0
+                , GridBagConstraints.CENTER, GridBagConstraints.NONE,
+                new Insets(0, 0, 0, 0), 0, 0));
+        parmsPanel.add(jLabel6, new GridBagConstraints(2, 6, 1, 1, 0.0, 0.0
+                , GridBagConstraints.CENTER, GridBagConstraints.NONE,
+                new Insets(0, 0, 0, 0), 0, 0));
+        parmsPanel.add(resultLabel, new GridBagConstraints(0, 5, 1, 1, 0.0, 0.0
+                , GridBagConstraints.NORTHWEST, GridBagConstraints.NONE,
+                new Insets(0, 0, 0, 0), 0, 0));
+        parmsPanel.add(resultLabel, new GridBagConstraints(0, 4, 1, 1, 0.0, 0.0
+                , GridBagConstraints.NORTHWEST, GridBagConstraints.NONE,
+                new Insets(20, 0, 10, 0), 0, 0));
+        parmsPanel.add(parametersLabel,
+                       new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
+                                              , GridBagConstraints.NORTHWEST,
+                                              GridBagConstraints.NONE,
+                                              new Insets(0, 0, 10, 0), 0, 0));
         jSplitPane1.setDividerLocation(245);
+        jTabbedPane2.setSelectedIndex(2);
     }
 
     /**
@@ -642,14 +710,13 @@ public class PromoterViewPanel extends JPanel implements HyperlinkListener {
             return c;
         }
     }; JPanel jPanel12 = new JPanel();
-    BorderLayout borderLayout12 = new BorderLayout();
     JPanel parmsPanel = new JPanel();
     GridBagLayout gridBagLayout1 = new GridBagLayout();
     JTextField pValueField = new JTextField();
-    JLabel jLabel1 = new JLabel();
-    JLabel jLabel5 = new JLabel();
+    JLabel pValueLabel = new JLabel();
+    JLabel expectedLabel1 = new JLabel();
     JTextField expectedCountBox = new JTextField();
-    JLabel jLabel6 = new JLabel();
+    JLabel actualLabel1 = new JLabel();
     JTextField enrichmentBox = new JTextField();
     JLabel enrichmentLabel = new JLabel();
     JTextField countBox = new JTextField();
@@ -657,29 +724,40 @@ public class PromoterViewPanel extends JPanel implements HyperlinkListener {
     JTextField thresholdBox = new JTextField();
     JCheckBox Set13KCheck = new JCheckBox();
     JTextField percentSeqMatchBox = new JTextField();
-    JLabel jLabel7 = new JLabel();
-    JLabel jLabel9 = new JLabel();
+    JLabel totalLabel1 = new JLabel();
+    JLabel sequenceLabel1 = new JLabel();
     JTextField expectedSeqCountBox = new JTextField();
     JTextField seqCountBox = new JTextField();
     JTextField seqEnrichmentBox = new JTextField();
     JButton stopButton = new JButton();
     JTextField iterationBox = new JTextField();
-    JLabel jLabel8 = new JLabel();
-    JLabel jLabel10 = new JLabel();
-    JLabel jLabel11 = new JLabel();
+    JLabel iterationLabel = new JLabel();
+    JLabel primer5Label = new JLabel();
+    JLabel primer3Label = new JLabel();
     JTextField match5PrimeExpectBox = new JTextField();
     JTextField match3PrimeExpectBox = new JTextField();
-    JLabel jLabel12 = new JLabel();
-    JLabel jLabel13 = new JLabel();
-    JLabel jLabel14 = new JLabel();
+    JLabel expect2Label = new JLabel();
+    JLabel totalLabel = new JLabel();
+    JLabel sequenceLabel = new JLabel();
     JTextField match5PrimeActualBox = new JTextField();
     JTextField match3PrimeActualBox = new JTextField();
-    JLabel jLabel15 = new JLabel();
+    JLabel actualLabel = new JLabel();
     PromoterPatternDB pdb; //= new PromoterPatternDB();
     HashMap<String,
             PromoterPatternDB> map = new HashMap<String, PromoterPatternDB>();
     private JTabbedPane jTabbedPane2 = new JTabbedPane();
-
+    private JLabel parametersLabel = new JLabel();
+    private JLabel resultLabel = new JLabel();
+    private JLabel jLabel1 = new JLabel();
+    private BorderLayout borderLayout12 = new BorderLayout();
+    private JLabel jLabel5 = new JLabel();
+    private JLabel jLabel6 = new JLabel();
+    private TFListPanel tfPanel;
+    private JPanel matrixDisplayPanel = new JPanel();
+    private JButton matrixDetailButton = new JButton();
+    private MatrixScrollPane matrixPane = new MatrixScrollPane();
+    private TitledBorder titledBorder6 = new TitledBorder("");
+    // private JTable matrixTable = new MatrixTable();
     public void setSequenceDB(DSSequenceSet db2) {
         String id = null;
         if (db2 != null && sequenceDB != null) {
@@ -737,7 +815,10 @@ public class PromoterViewPanel extends JPanel implements HyperlinkListener {
 
     void fillupTranscriptionFactorList() throws FileNotFoundException,
             IOException {
-        DefaultListModel ls = new DefaultListModel();
+        if (tfMap == null) {
+            tfMap = new TreeMap();
+        }
+        //DefaultListModel ls = new DefaultListModel();
 
         BufferedReader br = null;
 
@@ -786,38 +867,39 @@ public class PromoterViewPanel extends JPanel implements HyperlinkListener {
             oneline = b.readLine();
         }
         b.close();
-        HashMap map = new HashMap();
-        String[] names = new String[factors.size()];
+
+        tfNameSet = new String[factors.size()];
         int i = 0;
         for (Iterator it = factors.keySet().iterator(); it.hasNext(); ) {
             Object id = it.next();
             TranscriptionFactor tf = new TranscriptionFactor();
             HashMap hash = (HashMap) factors.get(id);
             String name = (String) hash.get("name") + ":" +
-                          (String) hash.get("class");
+                          (String) hash.get("class") + ":" + id;
             tf.setName(name);
             tf.setJasparID(id.toString());
             Matrix mx = (Matrix) mxs.get(id);
             mx.normalize();
             tf.setMatrix(mx);
             //
-            names[i++] = name;
-            map.put(name, tf);
+            tfNameSet[i++] = name;
+            tfMap.put(name, tf);
         }
-        Arrays.sort(names);
-        for (int k = 0; k < names.length; k++) {
-            Object tf = map.get(names[k]);
-            ls.addElement(tf);
-        }
-        jTranscriptionFactorList.setToolTipText("Transcription factor list");
-        jTranscriptionFactorList.setModel(ls);
-        jTranscriptionFactorList.addMouseListener(new java.awt.event.
-                                                  MouseAdapter() {
-            public void mouseClicked(MouseEvent e) {
-                jTranscriptionFactorList_mouseClicked(e);
-            }
-
-        });
+        Arrays.sort(tfNameSet);
+//        Arrays.sort(names);
+//        for (int k = 0; k < names.length; k++) {
+//            Object tf = map.get(names[k]);
+//            tfListModel.addElement(tf);
+//        }
+//        jTranscriptionFactorList.setToolTipText("Transcription factor list");
+//        jTranscriptionFactorList.setModel(tfListModel);
+//        jTranscriptionFactorList.addMouseListener(new java.awt.event.
+//                                                  MouseAdapter() {
+//            public void mouseClicked(MouseEvent e) {
+//                jTranscriptionFactorList_mouseClicked(e);
+//            }
+//
+//        });
 
     }
 
@@ -840,61 +922,38 @@ public class PromoterViewPanel extends JPanel implements HyperlinkListener {
                         String tab = "\t";
                         BufferedWriter bw = new BufferedWriter(new FileWriter(
                                 file));
-                        for (DSPattern pattern : promoterPatterns) {
-                            bw.write(pattern.toString());
-                            bw.newLine();
-                            Hashtable<Integer,
-                                    DSSequence>
-                                    order = new Hashtable<Integer, DSSequence>();
-                            Hashtable<DSSequence,
-                                    Vector<Integer>>
-                                    hitsForPrinting = new Hashtable<DSSequence,
-                                    Vector<Integer>>();
-                            List<DSPatternMatch<DSSequence, DSSeqRegistration>>
-                                    matches = promoterPatternMatches.get(
-                                            pattern);
-                            for (int i = 0; i < sequenceDB.getSequenceNo(); i++) {
-                                DSSequence sequence = sequenceDB.getSequence(i);
-                                order.put(i, sequence);
-                                hitsForPrinting.put(sequence,
-                                        new Vector<Integer>());
-                            }
-                            for (DSPatternMatch<DSSequence,
-                                 DSSeqRegistration> match : matches) {
-                                Vector<Integer>
-                                        v = hitsForPrinting.get(match.getObject());
-                                v.add(match.getRegistration().x1 + 1);
-                            }
-                            for (int i = 0; i < sequenceDB.getSequenceNo(); i++) {
-                                DSSequence sequence = order.get(i);
-                                Vector<Integer>
-                                        val = hitsForPrinting.get(sequence);
-                                String label = sequence.getLabel();
-                                bw.write(label.split("\\|")[0] + tab);
-                                String positions = "";
-                                int c = 0;
-                                for (Integer integer : val) {
-                                    if (c == 0) {
-                                        positions += integer;
-                                    } else {
-                                        positions += comma + integer;
+                        HashMap<CSSequence,
+                                PatternSequenceDisplayUtil>
+                                tfPatterns = seqDisPanel.getPatternTFMatches();
+                        Set<CSSequence> keySet = tfPatterns.keySet();
+                        for (CSSequence sequence : keySet) {
+                            bw.write(sequence.getLabel());
+                            bw.write(tab);
+                            PatternSequenceDisplayUtil pu = tfPatterns.get(
+                                    sequence);
+                            TreeSet<PatternLocations>
+                                    patternsPerSequence = pu.getTreeSet();
+                            if (patternsPerSequence != null &&
+                                patternsPerSequence.size() > 0) {
+                                for (PatternLocations pl : patternsPerSequence) {
+                                    DSSeqRegistration registration = pl.
+                                            getRegistration();
+                                    if (registration != null) {
+
+                                        DSSeqRegistration seqReg = (
+                                                DSSeqRegistration) registration;
+                                        bw.write(pl.getAscii() + tab);
+                                        bw.write(seqReg.x1 + tab);
                                     }
-                                    c++;
                                 }
-                                bw.write(positions);
-                                bw.newLine();
                             }
+
+                            bw.newLine();
                         }
+
                         bw.flush();
                         bw.close();
-//                        if (sequenceDB.getFile() != null) {
-//                            String firstLine = sequenceDB.getFile().
-//                                               getAbsolutePath();
-//                            bw.write(firstLine);
-//                            bw.newLine();
-//                        }
-//                        bw.write(seqDisPanel.asString());
-                        bw.close();
+//
                     } catch (IOException ex) {
                         ex.printStackTrace();
                     }
@@ -994,49 +1053,43 @@ public class PromoterViewPanel extends JPanel implements HyperlinkListener {
 
 //    }
 
-    void jTranscriptionFactorList_mouseClicked(MouseEvent e) {
-        int index = jTranscriptionFactorList.locationToIndex(e.getPoint());
-        if (e.getClickCount() == 2) {
-            TranscriptionFactor value = (TranscriptionFactor)
-                                        jTranscriptionFactorList.getModel().
-                                        getElementAt(index);
-            DefaultListModel ls = (DefaultListModel) jSelectedTFList.getModel();
-            if(!ls.contains(value)){
-                ls.addElement(value);
-            }
-        } else {
+    void jTranscriptionFactorList_mouseClicked(int index, MouseEvent e) {
 
-            TranscriptionFactor pattern = (TranscriptionFactor)
-                                          jTranscriptionFactorList.getModel().
-                                          getElementAt(index);
-
-            try {
-                drawLogo(pattern);
-            } catch (Exception e2) {
-                e2.printStackTrace();
-            }
-
-        }
     }
 
     private void drawLogo(TranscriptionFactor pattern) throws Exception {
-        jInfoPanel.removeAll();
-        RenderingHints hints = new RenderingHints(RenderingHints.
-                                                  KEY_ANTIALIASING,
-                                                  RenderingHints.
-                                                  VALUE_ANTIALIAS_ON);
 
-        jInfoPanel.setContentType("text/html");
+//        RenderingHints hints = new RenderingHints(RenderingHints.
+//                                                  KEY_ANTIALIASING,
+//                                                  RenderingHints.
+//                                                  VALUE_ANTIALIAS_ON);
 
-        String iniURL =
-                "http://jaspar.cgb.ki.se/cgi-bin/jaspar_db.pl?ID=" +
-                pattern.getJasparID() + "&rm=present";
+        //jInfoPanel.setContentType("text/html");
+        try {
+            jInfoPanel.removeAll();
+            String id = pattern.getJasparID();
+            if(id==null){
+                id = "MA0008";
+            }
+            String iniURL =
+                    "http://jaspar.cgb.ki.se/cgi-bin/jaspar_db.pl?ID=" +
+                    id + "&rm=present";
+            iniURL = "http://mordor.cgb.ki.se/jaspar2005//TEMP/" +
+                     pattern.getJasparID().trim() + "_BIG.png";
+            jInfoPanel.setImage(iniURL);
 
-        jInfoPanel.setPage(iniURL);
+            matrixDisplayPanel.removeAll();
+            //matrixDisplayPanel.add(matrixDetailButton);
+            matrixDisplayPanel.setLayout(new BorderLayout());
+            JTable table = matrixPane.createMatrixTable(pattern.getMatrix());
+            //table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+            matrixDisplayPanel.add(new JScrollPane(table), BorderLayout.WEST);
+             this.repaint();
+            jTabbedPane2.setSelectedIndex(0);
 
-        jInfoPanel.revalidate();
-        jInfoPanel.repaint();
-        jTabbedPane2.setSelectedIndex(0);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
     }
 
@@ -1052,17 +1105,18 @@ public class PromoterViewPanel extends JPanel implements HyperlinkListener {
 //        }
 //
         if (event.getEventType() == HyperlinkEvent.EventType.ACTIVATED) {
-            try {
-                jInfoPanel.setPage(event.getURL());
-            } catch (IOException ioe) {
-                // Some warning to user
-            }
+//            try {
+//               // jInfoPanel.setPage(event.getURL());
+//            } catch (IOException ioe) {
+//                // Some warning to user
+//            }
         }
 
     }
 
 
     void jSelectedTFList_mouseClicked(MouseEvent e) {
+
         int index = jSelectedTFList.locationToIndex(e.getPoint());
         if (e.getClickCount() == 2) {
             ((DefaultListModel) jSelectedTFList.getModel()).removeElementAt(
@@ -1100,6 +1154,7 @@ public class PromoterViewPanel extends JPanel implements HyperlinkListener {
         }
 
     }
+
     /**
      * Begin to scan the sequences.
      */
@@ -1444,10 +1499,11 @@ public class PromoterViewPanel extends JPanel implements HyperlinkListener {
         }
     }
 
-    private void updateParameters(){
+    private void updateParameters() {
         seqDisPanel.setDisplaySeqPattern(showSeqPattern.isSelected());
         seqDisPanel.setDisplayTF(showTF.isSelected());
     }
+
 //    void jButton1_actionPerformed(ActionEvent e) {
 //        BufferedWriter br = null;
 //        try {
@@ -1539,6 +1595,39 @@ public class PromoterViewPanel extends JPanel implements HyperlinkListener {
         sfr = new SequenceFileReader(data);
         HashMap pr = sfr.motiftoPrime;
 
+    }
+
+    protected void clearSelectionPressed() {
+        int[] indices = jSelectedTFList.getSelectedIndices();
+        if (indices.length > 0) {
+            for (int i = indices.length - 1; i >= 0; i--) {
+                ((DefaultListModel) jSelectedTFList.getModel()).removeElementAt(
+                        indices[i]);
+            }
+
+        }
+    }
+
+    protected void addSelectionPressed() {
+        int[] indices = tfPanel.getList().getSelectedIndices();
+        if (indices.length > 0) {
+            for (int i = 0; i < indices.length; i++) {
+                addSelectedTF(indices[i]);
+            }
+        } else {
+            JOptionPane.showMessageDialog(this,
+                                          "Please select at least one TF first.");
+        }
+    }
+
+    protected void addSelectedTF(int index) {
+        String tfName = (String) tfListModel.getElementAt(index);
+        TranscriptionFactor value = tfMap.get(tfName);
+        DefaultListModel ls = (DefaultListModel) jSelectedTFList.
+                              getModel();
+        if (!ls.contains(value)) {
+            ls.addElement(value);
+        }
     }
 
     void moduleListSelection_action(ListSelectionEvent e) {
@@ -1869,11 +1958,24 @@ public class PromoterViewPanel extends JPanel implements HyperlinkListener {
     }
 
     public void clearButton_actionPerformed(ActionEvent e) {
+        showTF.setSelected(false);
+        showSeqPattern.setSelected(false);
+        updateParameters();
+        cleanAllPatterns();
         seqDisPanel.initialize(sequenceDB);
+        seqDisPanel.initPanelView();
+    }
+
+    /**
+     * cleanAllPatterns
+     */
+    public void cleanAllPatterns() {
+        clear();
     }
 
     public void showTF_actionPerformed(ActionEvent e) {
-        if (showTF.isSelected()) {
+        updateParameters();
+        if (showTF.isSelected() && promoterPatterns.size() > 0) {
             for (DSPattern pattern : promoterPatterns) {
                 seqDisPanel.addAPattern(pattern,
                                         promoterPatternDisplay.get(pattern),
@@ -1884,7 +1986,7 @@ public class PromoterViewPanel extends JPanel implements HyperlinkListener {
 //            for (DSPattern pattern : promoterPatterns) {
 //                seqDisPanel.removePattern(pattern);
 //            }
-                seqDisPanel.setPatternTFMatches(null);
+            seqDisPanel.setPatternTFMatches(null);
 
         }
         seqDisPanel.initPanelView();
@@ -1892,8 +1994,8 @@ public class PromoterViewPanel extends JPanel implements HyperlinkListener {
     }
 
     public void showSeqPattern_actionPerformed(ActionEvent e) {
-        if(seqPatterns!=null){
-    //        seqDisPanel.setPatternTFMatches(null);
+        if (seqPatterns != null) {
+            //        seqDisPanel.setPatternTFMatches(null);
         }
         updateParameters();
         seqDisPanel.initPanelView();
@@ -1925,4 +2027,186 @@ public class PromoterViewPanel extends JPanel implements HyperlinkListener {
     public void receive(GeneSelectorEvent e) {
         seqDisPanel.sequenceDBUpdate(e);
     }
+
+    public void pValueField_actionPerformed(ActionEvent e) {
+
+    }
+
+    /**
+     * The marker JAutoList type.
+     */
+    private class TFListPanel extends JAutoList {
+
+        public TFListPanel() {
+            super(tfListModel);
+        }
+
+        public boolean setHighlightedIndex(int theIndex) {
+            super.setHighlightedIndex(theIndex);
+            elementClicked(theIndex, null);
+            return true;
+        }
+
+        @Override protected void elementDoubleClicked(int index, MouseEvent e) {
+            addSelectedTF(index);
+        }
+
+
+        @Override protected void elementClicked(int index, MouseEvent e) {
+
+            String tfName = (String) tfListModel.getElementAt(index);
+
+            TranscriptionFactor pattern = tfMap.get(tfName);
+            try {
+                drawLogo(pattern);
+            } catch (Exception e2) {
+                e2.printStackTrace();
+            }
+
+        }
+
+        @Override protected void elementRightClicked(int index, MouseEvent e) {
+            itemRightClicked(index, e);
+        }
+    }
+
+
+    private void itemRightClicked(int index, final MouseEvent e) {
+        //ensureItemIsSelected(index);
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                itemListPopup.show(e.getComponent(), e.getX(), e.getY());
+            }
+        });
+    }
+
+    private void selectedItemRightClicked(int index, final MouseEvent e) {
+        //ensureItemIsSelected(index);
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                selectedItemListPopup.show(e.getComponent(), e.getX(), e.getY());
+            }
+        });
+    }
+
+    public void matrixDetailButton_actionPerformed(ActionEvent e) {
+
+    }
+
+    /**
+     * ListModel for the marker list.
+     */
+    private class TFListModel extends AbstractListModel {
+
+        public int getSize() {
+            if (tfNameSet == null) {
+                return 0;
+            }
+            return tfNameSet.length;
+        }
+
+        public Object getElementAt(int index) {
+            if ((tfNameSet == null) || tfNameSet.length <= index) {
+                return null;
+            } else {
+                return tfNameSet[index];
+            }
+        }
+
+        public Object getItem(int index) {
+            if ((tfNameSet == null) || tfNameSet.length <= index) {
+                return null;
+            } else {
+                return tfNameSet[index];
+            }
+
+        }
+
+        /**
+         * Indicates to the associated JList that the contents need to be redrawn.
+         */
+        public void refresh() {
+            if (tfNameSet == null) {
+                fireContentsChanged(this, 0, 0);
+            } else {
+                fireContentsChanged(this, 0, tfNameSet.length);
+            }
+        }
+
+        public void refreshItem(int index) {
+            fireContentsChanged(this, index, index);
+        }
+
+    }
+
+
+    class ImagePanel extends JPanel {
+
+        private Image img;
+
+        public ImagePanel() {
+            this.setBackground(Color.white);
+            //setSize(new Dimension(300, 200));
+        }
+
+        //painting Methods
+        public void paintComponent(Graphics g) {
+            update(g);
+        }
+
+        public void update(Graphics g) {
+            Graphics2D g2 = (Graphics2D) g;
+            g2.setColor(this.getBackground());
+            g2.fillRect(0, 0, this.getWidth(), this.getHeight());
+            if (img != null) {
+                g2.drawImage(img, 0, 0, this);
+            } else {
+                System.out.println(img == null);
+            }
+
+        }
+
+        public void setImage(Image src) {
+            this.img = null;
+            this.img = src;
+            repaint();
+        }
+
+        public void setImage(String url) {
+            try {
+                Toolkit toolkit = Toolkit.getDefaultToolkit();
+                Image im = toolkit.getImage(new URL(url));
+
+                MediaTracker t = new MediaTracker(this);
+
+                t.addImage(im, 0);
+
+                try {
+                    t.waitForID(0);
+                } catch (InterruptedException e) {
+                }
+
+                int width = im.getWidth(null);
+                if (width > 0) {
+                    this.img = im;
+                    repaint();
+                }
+            } catch (Exception ex) {
+
+            }
+
+        }
+
+        public Dimension getPreferredSize() {
+            if (img != null) {
+                return new Dimension(img.getWidth(this), img.getHeight(this));
+            }
+            return new Dimension(50, 50);
+        }
+
+        public Dimension getMinimumSize() {
+            return new Dimension(img.getWidth(this), img.getHeight(this));
+        }
+    }
+
 }
