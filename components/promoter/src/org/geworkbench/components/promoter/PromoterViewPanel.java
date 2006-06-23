@@ -35,6 +35,7 @@ import org.geworkbench.util.promoter.SequencePatternDisplayPanel;
 import org.geworkbench.util.promoter.pattern.Display;
 import org.geworkbench.util.promoter.pattern.PatternDisplay;
 import org.geworkbench.util.JAutoList;
+import org.biojava.bio.gui.DistributionLogo;
 
 //import java.awt.image.renderable.ParameterBlock;
 //import javax.media.jai.JAI;
@@ -64,7 +65,7 @@ public class PromoterViewPanel extends JPanel implements HyperlinkListener {
     private JFileChooser fc2 = null;
     boolean selectedRegionChanged = false;
     //JTextPane jInfoPanel = new JTextPane();
-    ImagePanel jInfoPanel = new ImagePanel();
+    JPanel jInfoPanel = new ImagePanel();
     DSSequenceSet background = null;
     private TreeMap<String,
             TranscriptionFactor> tfMap = new TreeMap<String,
@@ -527,7 +528,7 @@ public class PromoterViewPanel extends JPanel implements HyperlinkListener {
         logoPanel.add(jInfoPanel, BorderLayout.NORTH);
         matrixDisplayPanel = new JPanel();
         logoPanel.add(matrixDisplayPanel, BorderLayout.CENTER);
-         matrixDisplayPanel.add(noTFLabel);
+        matrixDisplayPanel.add(noTFLabel);
         //matrixDisplayPanel.add(matrixPane);
         jTabbedPane2.add(logoPanel, "Logo");
         jTabbedPane2.add(jPanel12, "Parameters");
@@ -1059,32 +1060,57 @@ public class PromoterViewPanel extends JPanel implements HyperlinkListener {
 
     private void drawLogo(TranscriptionFactor pattern) throws Exception {
 
-//        RenderingHints hints = new RenderingHints(RenderingHints.
-//                                                  KEY_ANTIALIASING,
-//                                                  RenderingHints.
-//                                                  VALUE_ANTIALIAS_ON);
-
-        //jInfoPanel.setContentType("text/html");
         try {
             jInfoPanel.removeAll();
+            logoPanel.removeAll();
             String id = pattern.getJasparID();
-            if(id==null){
-                id = "MA0008";
-            }
-            String iniURL =
-                    "http://jaspar.cgb.ki.se/cgi-bin/jaspar_db.pl?ID=" +
-                    id + "&rm=present";
-            iniURL = "http://mordor.cgb.ki.se/jaspar2005//TEMP/" +
-                     pattern.getJasparID().trim() + "_BIG.png";
-            jInfoPanel.setImage(iniURL);
+            if (id == null) {
+                jInfoPanel = new JPanel();
+                RenderingHints hints = new RenderingHints(RenderingHints.
+                        KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                DistributionLogo[] logos = ((TranscriptionFactor) pattern).
+                                           getMatrix().getLogo();
+                for (int k = 0; k < logos.length; k++) {
+                    jInfoPanel.setLayout(new GridLayout(1, logos.length));
+//                    jInfoPanel.setMinimumSize(new Dimension(30, 50));
+//                    jInfoPanel.setPreferredSize(new Dimension(20 * logos.length,
+//                            80));
+//                    logos[k].setPreferredSize(new Dimension(20, 60));
+                    logos[k].setRenderingHints(hints);
+                    jInfoPanel.add(logos[k]);
+                    matrixDisplayPanel.removeAll();
+                    matrixDisplayPanel.setLayout(new BorderLayout());
+                    JTable table = matrixPane.createMatrixTable(pattern.
+                            getMatrix());
+                    //table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+                    matrixDisplayPanel.add(new JScrollPane(table),
+                                           BorderLayout.WEST);
+                    logoPanel.add(jInfoPanel, BorderLayout.CENTER);
+                    //logoPanel.add(matrixDisplayPanel, BorderLayout.CENTER);
 
-            matrixDisplayPanel.removeAll();
-            //matrixDisplayPanel.add(matrixDetailButton);
-            matrixDisplayPanel.setLayout(new BorderLayout());
-            JTable table = matrixPane.createMatrixTable(pattern.getMatrix());
-            //table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-            matrixDisplayPanel.add(new JScrollPane(table), BorderLayout.WEST);
-             this.repaint();
+                }
+                //id = "MA0008";
+            } else {
+                String iniURL =
+                        "http://jaspar.cgb.ki.se/cgi-bin/jaspar_db.pl?ID=" +
+                        id + "&rm=present";
+                iniURL = "http://mordor.cgb.ki.se/jaspar2005//TEMP/" +
+                         pattern.getJasparID().trim() + "_BIG.png";
+                jInfoPanel = new ImagePanel();
+                ((ImagePanel) jInfoPanel).setImage(iniURL);
+
+                matrixDisplayPanel.removeAll();
+                matrixDisplayPanel.setLayout(new BorderLayout());
+                JTable table = matrixPane.createMatrixTable(pattern.getMatrix());
+                //table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+                matrixDisplayPanel.add(new JScrollPane(table),
+                                       BorderLayout.WEST);
+                logoPanel.add(jInfoPanel, BorderLayout.NORTH);
+                logoPanel.add(matrixDisplayPanel, BorderLayout.CENTER);
+
+            }
+
+            this.repaint();
             jTabbedPane2.setSelectedIndex(0);
 
         } catch (Exception e) {
@@ -1114,7 +1140,6 @@ public class PromoterViewPanel extends JPanel implements HyperlinkListener {
 
     }
 
-
     void jSelectedTFList_mouseClicked(MouseEvent e) {
 
         int index = jSelectedTFList.locationToIndex(e.getPoint());
@@ -1125,7 +1150,8 @@ public class PromoterViewPanel extends JPanel implements HyperlinkListener {
 
         } else {
 
-            TranscriptionFactor pattern = (TranscriptionFactor) jSelectedTFList.
+            TranscriptionFactor pattern = (TranscriptionFactor)
+                                          jSelectedTFList.
                                           getModel().getElementAt(index);
 
             try {
@@ -1183,7 +1209,8 @@ public class PromoterViewPanel extends JPanel implements HyperlinkListener {
                     DecimalFormat formatInt = new DecimalFormat("0");
                     DecimalFormat formatPV = new DecimalFormat("0.0000");
                     ArrayList ar = new ArrayList();
-                    DefaultListModel ls = (DefaultListModel) jSelectedTFList.
+                    DefaultListModel ls = (DefaultListModel)
+                                          jSelectedTFList.
                                           getModel();
                     double threshold = 0;
 
@@ -1191,7 +1218,8 @@ public class PromoterViewPanel extends JPanel implements HyperlinkListener {
                         pValue = 0.05;
                         pValueField.setText(formatPV.format(pValue));
                     }
-                    RandomSequenceGenerator rs = new RandomSequenceGenerator(
+                    RandomSequenceGenerator rs = new
+                                                 RandomSequenceGenerator(
                             sequenceDB, pValue);
 
                     int i = 0;
@@ -1201,7 +1229,8 @@ public class PromoterViewPanel extends JPanel implements HyperlinkListener {
                     int totalLength = 0;
                     for (Enumeration en = ls.elements(); en.hasMoreElements(); ) {
 
-                        TranscriptionFactor pattern = (TranscriptionFactor) en.
+                        TranscriptionFactor pattern = (TranscriptionFactor)
+                                en.
                                 nextElement();
                         jProgressBar1.setString("Processing :" +
                                                 pattern.getName());
@@ -1223,17 +1252,20 @@ public class PromoterViewPanel extends JPanel implements HyperlinkListener {
                                 if (background != null) {
                                     // compute the threshold from the required pValue
                                     // using the predefiedn background database
-                                    stats = getThreshold(pattern, background,
+                                    stats = getThreshold(pattern,
+                                            background,
                                             pValue);
                                 } else {
                                     // compute the threshold from the required pValue
                                     // using a random generative model
-                                    stats = getThreshold(pattern, rs, pValue);
+                                    stats = getThreshold(pattern, rs,
+                                            pValue);
                                 }
                                 // assign the new pValue based on what we could find
                                 if (stats != null) {
                                     pValue = stats.pValue;
-                                    pValueField.setText(formatPV.format(pValue));
+                                    pValueField.setText(formatPV.format(
+                                            pValue));
                                     threshold = stats.score * 0.99;
                                 } else {
                                     //stopped.
@@ -1258,7 +1290,8 @@ public class PromoterViewPanel extends JPanel implements HyperlinkListener {
                                 updateProgressBar(progress,
                                                   "Discovery: " +
                                                   pattern.getName());
-                                DSSequence seq = sequenceDB.getSequence(seqId);
+                                DSSequence seq = sequenceDB.getSequence(
+                                        seqId);
                                 // Count the valid positions so that we can compute the background matches
                                 // in a meaningful way. E.g. don't count # or stretches that do not contain
                                 // valid sequence data
@@ -1271,22 +1304,28 @@ public class PromoterViewPanel extends JPanel implements HyperlinkListener {
                                     if (!useThresholdCheck.isSelected()) {
                                         // This assumes that the pvalue has been correctly estimated
                                         // the compute the expected matches from the p-value
-                                        int oldMatch = (int) msExpect.matchNo;
+                                        int oldMatch = (int) msExpect.
+                                                matchNo;
                                         msExpect.matchNo += pValue *
-                                                (double) (positions) / 1000.0;
+                                                (double) (positions) /
+                                                1000.0;
                                         msExpect.match5primeNo += pValue *
-                                                (double) (positions) / 1000.0 /
+                                                (double) (positions) /
+                                                1000.0 /
                                                 2.0;
                                         msExpect.match3primeNo += pValue *
-                                                (double) (positions) / 1000.0 /
+                                                (double) (positions) /
+                                                1000.0 /
                                                 2.0;
-                                        if (msExpect.matchNo - oldMatch >= 1) {
+                                        if (msExpect.matchNo - oldMatch >=
+                                            1) {
                                             msExpect.matchSeq++;
                                         }
                                     }
                                     List<DSPatternMatch<DSSequence,
                                             DSSeqRegistration>>
-                                            seqMatches = pattern.match(seq, 1.0);
+                                            seqMatches = pattern.match(seq,
+                                            1.0);
                                     if (seqMatches.size() > 0) {
                                         msActual.matchSeq++;
                                     }
@@ -1297,7 +1336,8 @@ public class PromoterViewPanel extends JPanel implements HyperlinkListener {
                                 }
                             }
                             updateProgressBar(1,
-                                              "Discovery: " + pattern.getName());
+                                              "Discovery: " +
+                                              pattern.getName());
                             if (matches != null) {
                                 for (DSPatternMatch<DSSequence,
                                      DSSeqRegistration> match : matches) {
@@ -1311,7 +1351,8 @@ public class PromoterViewPanel extends JPanel implements HyperlinkListener {
                                 }
 //                                matchCount += matches.size();
                                 Display dis = new Display();
-                                dis.setColor(PatternOperations.getPatternColor(
+                                dis.setColor(PatternOperations.
+                                             getPatternColor(
                                         pattern.hashCode()));
                                 i++;
                                 dis.setHeight(0.9);
@@ -1329,13 +1370,15 @@ public class PromoterViewPanel extends JPanel implements HyperlinkListener {
                                 if (Set13KCheck.isSelected()) {
                                     // using the length of the current sequences as background, determine an appropriate pvalue
                                     // from the 13K Set
-                                    getMatchesPerLength(pattern, partialLength,
+                                    getMatchesPerLength(pattern,
+                                            partialLength,
                                             threshold, background, null,
                                             msExpect);
                                 } else {
                                     // using the length of the current sequences as background, determine an appropriate pvalue
                                     // from random data
-                                    getMatchesPerLength(pattern, partialLength,
+                                    getMatchesPerLength(pattern,
+                                            partialLength,
                                             threshold, null, rs, msExpect);
                                 }
                             }
@@ -1352,10 +1395,12 @@ public class PromoterViewPanel extends JPanel implements HyperlinkListener {
                     }
                     int percent = (int) (100 * (double) msActual.matchSeq /
                                          (double) seqNo);
-                    percentSeqMatchBox.setText(Integer.toString(percent) + "%");
+                    percentSeqMatchBox.setText(Integer.toString(percent) +
+                                               "%");
                     int matchCount = (int) msActual.matchNo;
                     double enrichmentPValue = Math.exp(ClusterStatistics.
-                            logBinomialDistribution(totalLength, matchCount, p));
+                            logBinomialDistribution(totalLength, matchCount,
+                            p));
                     enrichmentPValue +=
                             Math.exp(ClusterStatistics.
                                      logBinomialDistribution(totalLength,
@@ -1377,7 +1422,8 @@ public class PromoterViewPanel extends JPanel implements HyperlinkListener {
                                      logBinomialDistribution(totalLength,
                             matchCount + 5, p));
                     enrichmentBox.setText(format.format(enrichmentPValue));
-                    expectedCountBox.setText(formatPV.format(msExpect.matchNo));
+                    expectedCountBox.setText(formatPV.format(msExpect.
+                            matchNo));
                     expectedSeqCountBox.setText(formatInt.format(msExpect.
                             matchSeq));
                     seqCountBox.setText(formatInt.format(msActual.matchSeq));
@@ -1456,7 +1502,8 @@ public class PromoterViewPanel extends JPanel implements HyperlinkListener {
      * @param e SequenceDiscoveryTableEvent
      */
 
-    public void sequenceDiscoveryTableRowSelected(SequenceDiscoveryTableEvent e) {
+    public void sequenceDiscoveryTableRowSelected(
+            SequenceDiscoveryTableEvent e) {
         updateParameters();
         seqDisPanel.patternSelectionHasChanged(e);
         /** @todo Fix patterns */
@@ -1476,7 +1523,8 @@ public class PromoterViewPanel extends JPanel implements HyperlinkListener {
         DSCollection<DSMatchedPattern<DSSequence,
                 DSSeqRegistration>> patterns = e.getPatternMatchCollection();
         seqPatterns = new ArrayList(e.getPatternMatchCollection());
-        for (DSMatchedPattern<DSSequence, DSSeqRegistration> pattern : patterns) {
+        for (DSMatchedPattern<DSSequence,
+             DSSeqRegistration> pattern : patterns) {
             //IGetPatternMatchCollection im = gp.match(sequenceDB);
             Display dis = new Display();
             dis.setColor(PatternOperations.getPatternColor(pattern.hashCode()));
@@ -1546,7 +1594,6 @@ public class PromoterViewPanel extends JPanel implements HyperlinkListener {
         }
     }
 
-
     private void discovery() {
         if (sequenceDB == null) {
             return;
@@ -1559,7 +1606,8 @@ public class PromoterViewPanel extends JPanel implements HyperlinkListener {
                         matchesTable = seqDisPanel.getPatternMatches();
                 Hashtable patternPrime = new Hashtable();
                 Integer n = new Integer(1);
-                for (Iterator it = matchesTable.keySet().iterator(); it.hasNext(); ) {
+                for (Iterator it = matchesTable.keySet().iterator();
+                                   it.hasNext(); ) {
                     n = nextPrime(n);
                     Object o = it.next();
                     patternPrime.put(o, n);
@@ -1578,7 +1626,8 @@ public class PromoterViewPanel extends JPanel implements HyperlinkListener {
                     CSMultiSeqPattern pt = (CSMultiSeqPattern) it.next();
                     pt.getPatternKey().getMapping(patternPrime);
                     Display dis = new Display();
-                    dis.setColor(PatternOperations.getPatternColor(pt.hashCode()));
+                    dis.setColor(PatternOperations.getPatternColor(pt.
+                            hashCode()));
                     dis.setHeight(1.1);
                     dis.setShape(Display.ROUNDRECT);
                     PatternDisplay pd = new PatternDisplay(pt, dis);
@@ -1601,8 +1650,9 @@ public class PromoterViewPanel extends JPanel implements HyperlinkListener {
         int[] indices = jSelectedTFList.getSelectedIndices();
         if (indices.length > 0) {
             for (int i = indices.length - 1; i >= 0; i--) {
-                ((DefaultListModel) jSelectedTFList.getModel()).removeElementAt(
-                        indices[i]);
+                ((DefaultListModel) jSelectedTFList.getModel()).
+                        removeElementAt(
+                                indices[i]);
             }
 
         }
@@ -1638,8 +1688,10 @@ public class PromoterViewPanel extends JPanel implements HyperlinkListener {
                               DSSeqRegistration>>();
         Hashtable<DSPattern<DSSequence, DSSeqRegistration>,
                 List<DSPatternMatch<DSSequence,
-                DSSeqRegistration>>> matches = seqDisPanel.getPatternMatches();
-        for (DSPattern<DSSequence, DSSeqRegistration> pattern : matches.keySet()) {
+                DSSeqRegistration>>>
+                matches = seqDisPanel.getPatternMatches();
+        for (DSPattern<DSSequence,
+             DSSeqRegistration> pattern : matches.keySet()) {
             if (pattern.getClass().isAssignableFrom(CSMultiSeqPattern.class)) {
                 tobedeleted.add(pattern);
             }
@@ -1659,7 +1711,8 @@ public class PromoterViewPanel extends JPanel implements HyperlinkListener {
                 List<DSPatternMatch<DSSequence,
                         DSSeqRegistration>> pc = compPatt.match(sequenceDB);
                 for (int k = 0; k < pc.size(); k++) {
-                    DSPatternMatch<DSSequence, DSSeqRegistration> pm = pc.get(k);
+                    DSPatternMatch<DSSequence,
+                            DSSeqRegistration> pm = pc.get(k);
                     int lastsub = pm.getRegistration().x2;
                     DSPattern[] patterns = ((CSMultiSeqPattern) pd.getPt()).
                                            getPatternKey().subpatterns;
@@ -1672,7 +1725,8 @@ public class PromoterViewPanel extends JPanel implements HyperlinkListener {
                             DSPatternMatch<DSSequence,
                                     DSSeqRegistration> ma = p.get(n);
                             if (ma.getRegistration().x2 == lastsub) {
-                                pm.getRegistration().x2 = ma.getRegistration().
+                                pm.getRegistration().x2 = ma.
+                                        getRegistration().
                                         x2;
                                 break;
                             }
@@ -1719,7 +1773,8 @@ public class PromoterViewPanel extends JPanel implements HyperlinkListener {
     void load13KBSet() {
         if (background == null) {
             try {
-                URL set13K = new URL(System.getProperty("data.download.site") +
+                URL set13K = new URL(System.getProperty(
+                        "data.download.site") +
                                      "13K.fa");
                 File set13KFile = new File(System.getProperty(
                         "temporary.files.directory") + "13K.fa");
@@ -1763,7 +1818,8 @@ public class PromoterViewPanel extends JPanel implements HyperlinkListener {
     }
 
     public ScoreStats getThreshold(TranscriptionFactor pattern,
-                                   RandomSequenceGenerator rg, double pValue) {
+                                   RandomSequenceGenerator rg,
+                                   double pValue) {
         // computes the score based on a probability of a match of pValue
         // To get goo statistics, we expect at least 100 matches to exceed
         // the threshold in the null hypothesis. Hence, this is the number
@@ -1781,7 +1837,8 @@ public class PromoterViewPanel extends JPanel implements HyperlinkListener {
             updateProgressBar(progress, "Computing Null Hypothesis");
             DSSequence sequence = rg.getRandomSequence(seqLen +
                     pattern.getLength());
-            overT += pattern.getMatrix().collectSequenceScores(sequence, scores);
+            overT +=
+                    pattern.getMatrix().collectSequenceScores(sequence, scores);
         }
         int x = scores.length - 101;
         while ((x < scores.length) && scores[x - 1] == scores[x]) {
@@ -1821,7 +1878,8 @@ public class PromoterViewPanel extends JPanel implements HyperlinkListener {
             double progress = (double) partialLength / (double) totalLength;
             updateProgressBar(progress, "Computing Null Hypothesis");
             pattern.getMatrix().collectSequenceScores(sequence, scores);
-            partialLength += Math.min(countValid(pattern, sequence), maxSeqLen);
+            partialLength +=
+                    Math.min(countValid(pattern, sequence), maxSeqLen);
         }
 
         int x = scores.length - 101;
@@ -1843,7 +1901,8 @@ public class PromoterViewPanel extends JPanel implements HyperlinkListener {
 
     public void getMatchesPerLength(TranscriptionFactor pattern, int length,
                                     double threshold, DSSequenceSet seqDB,
-                                    RandomSequenceGenerator rg, MatchStats ms) {
+                                    RandomSequenceGenerator rg,
+                                    MatchStats ms) {
         // Determine the number of iterations so that the statistics are good
         int partialLength = 0;
         int totalLength = length * averageNo;
@@ -2047,7 +2106,8 @@ public class PromoterViewPanel extends JPanel implements HyperlinkListener {
             return true;
         }
 
-        @Override protected void elementDoubleClicked(int index, MouseEvent e) {
+        @Override protected void elementDoubleClicked(int index,
+                MouseEvent e) {
             addSelectedTF(index);
         }
 
@@ -2065,7 +2125,8 @@ public class PromoterViewPanel extends JPanel implements HyperlinkListener {
 
         }
 
-        @Override protected void elementRightClicked(int index, MouseEvent e) {
+        @Override protected void elementRightClicked(int index,
+                MouseEvent e) {
             itemRightClicked(index, e);
         }
     }
@@ -2084,7 +2145,8 @@ public class PromoterViewPanel extends JPanel implements HyperlinkListener {
         //ensureItemIsSelected(index);
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
-                selectedItemListPopup.show(e.getComponent(), e.getX(), e.getY());
+                selectedItemListPopup.show(e.getComponent(), e.getX(),
+                                           e.getY());
             }
         });
     }
@@ -2205,7 +2267,10 @@ public class PromoterViewPanel extends JPanel implements HyperlinkListener {
         }
 
         public Dimension getMinimumSize() {
-            return new Dimension(img.getWidth(this), img.getHeight(this));
+            if (img != null) {
+                return new Dimension(img.getWidth(this), img.getHeight(this));
+            }
+            return new Dimension(40, 40);
         }
     }
 
