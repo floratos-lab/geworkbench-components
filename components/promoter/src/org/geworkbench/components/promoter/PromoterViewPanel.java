@@ -170,7 +170,9 @@ public class PromoterViewPanel extends JPanel implements HyperlinkListener {
                                      DSSeqRegistration>,
                                      List<DSPatternMatch<DSSequence,
                                      DSSeqRegistration>>>();
-
+    private final static int SEQUENCE = 2;
+    private final static int LOGO = 0;
+    private final static int PARAMETERS = 1;
 
     private HashMap primerToMotif = new HashMap();
 
@@ -687,7 +689,7 @@ public class PromoterViewPanel extends JPanel implements HyperlinkListener {
                                               GridBagConstraints.NONE,
                                               new Insets(0, 0, 10, 0), 0, 0));
         jSplitPane1.setDividerLocation(245);
-        jTabbedPane2.setSelectedIndex(2);
+        jTabbedPane2.setSelectedIndex(SEQUENCE);
     }
 
     /**
@@ -906,6 +908,7 @@ public class PromoterViewPanel extends JPanel implements HyperlinkListener {
 
     void displayBtn_actionPerformed(ActionEvent e) {
         this.mappingPatterns();
+         jTabbedPane2.setSelectedIndex(SEQUENCE);
     }
 
     void jSaveButton_actionPerformed(ActionEvent e) {
@@ -1111,7 +1114,7 @@ public class PromoterViewPanel extends JPanel implements HyperlinkListener {
             }
 
             this.repaint();
-            jTabbedPane2.setSelectedIndex(0);
+            jTabbedPane2.setSelectedIndex(LOGO);
 
         } catch (Exception e) {
             e.printStackTrace();
