@@ -12,6 +12,7 @@ import org.biojava.bio.symbol.Symbol;
 import org.biojava.utils.ChangeVetoException;
 
 import java.util.Iterator;
+import org.biojava.bio.gui.DNAStyle;
 
 public class Distribution {
     private DistributionLogo logo = null; // this is the display of the distribution.
@@ -104,9 +105,10 @@ public class Distribution {
                 }
             }
             DistributionLogo dis = new DistributionLogo();
-
-            TextLogoPainter bp = new TextLogoPainter();
-            dis.setLogoPainter(bp);
+            //DistributionLogo dl = new DistributionLogo();
+              dis.setStyle(new DNAStyle());
+//            TextLogoPainter bp = new TextLogoPainter();
+//            dis.setLogoPainter(bp);
             try {
                 dis.setDistribution(sp);
             } catch (IllegalAlphabetException ex) {
