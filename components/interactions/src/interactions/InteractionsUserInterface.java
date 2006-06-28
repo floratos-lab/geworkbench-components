@@ -28,23 +28,25 @@ import org.geworkbench.events.ProjectEvent;
 import org.geworkbench.engine.management.AcceptTypes;
 import org.geworkbench.engine.management.Subscribe;
 import org.geworkbench.engine.config.VisualPlugin;
-        
+import org.apache.axis.EngineConfiguration;
+import org.apache.axis.configuration.BasicClientConfig;
+
 /**
  * @author manjunath at genomecenter dot columbia dot edu
  */
 @AcceptTypes ({DSMicroarraySet.class})
 public class InteractionsUserInterface extends javax.swing.JPanel implements VisualPlugin{
-    
+
     /** Creates new form Interactions */
     public InteractionsUserInterface() {
         initComponents();
         initConnections();
     }
-            
+
     public Component getComponent(){
         return this;
     }
-    
+
     /** This method is called from within the constructor to
      * initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is
@@ -236,11 +238,11 @@ public class InteractionsUserInterface extends javax.swing.JPanel implements Vis
                 .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
-    
+
     private void loadfromDBHandler(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_loadfromDBHandler
 // TODO add your handling code here:
     }//GEN-LAST:event_loadfromDBHandler
-        
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton addButton;
     private javax.swing.JList allGeneList;
@@ -257,7 +259,7 @@ public class InteractionsUserInterface extends javax.swing.JPanel implements Vis
     private javax.swing.JButton removeButton;
     private javax.swing.JList selectedGenesList;
     // End of variables declaration//GEN-END:variables
-            
+
     private void allGeneListHandler(MouseEvent evt){
         if (evt.getClickCount() == 2){
             int index = allGeneList.locationToIndex(evt.getPoint());
@@ -280,10 +282,10 @@ public class InteractionsUserInterface extends javax.swing.JPanel implements Vis
             allGeneList.setModel(new DefaultListModel());
             allGeneList.setModel(allGeneModel);
             selectedGenesList.setModel(new DefaultListModel());
-            selectedGenesList.setModel(selectedGenesModel);            
+            selectedGenesList.setModel(selectedGenesModel);
         }
     }
-    
+
     private void addButtonHandler(ActionEvent e){
         int[] indices = allGeneList.getSelectedIndices();
         if (indices != null && indices.length > 0){
@@ -319,7 +321,7 @@ public class InteractionsUserInterface extends javax.swing.JPanel implements Vis
             allGeneList.setModel(allGeneModel);
             selectedGenesList.setModel(new DefaultListModel());
             selectedGenesList.setModel(selectedGenesModel);
-        }        
+        }
     }
 
     private void previewSelectionsHandler(ActionEvent e){
@@ -332,10 +334,11 @@ public class InteractionsUserInterface extends javax.swing.JPanel implements Vis
         jTable1.setModel(new DefaultTableModel());
         jTable1.setModel(previewTableModel);
     }
-    
+
     private void initConnections(){
+        EngineConfiguration ec = new BasicClientConfig();
         interactions.INTERACTIONSServiceLocator service =
-                new interactions.INTERACTIONSServiceLocator();
+                new interactions.INTERACTIONSServiceLocator(ec);
         service.setinteractionsEndpointAddress(System.getProperty("interactions.endpoint"));
         try {
             interactionsService = service.getinteractions();
@@ -343,12 +346,12 @@ public class InteractionsUserInterface extends javax.swing.JPanel implements Vis
             se.printStackTrace();
         }
     }
-    
+
     ListModel allGeneModel = new AbstractListModel(){
         public Object getElementAt(int index){
             return allGenes.get(index);
         }
-        
+
         public int getSize(){
             return allGenes.size();
         }
@@ -358,24 +361,24 @@ public class InteractionsUserInterface extends javax.swing.JPanel implements Vis
         public Object getElementAt(int index){
             return selectedGenes.get(index);
         }
-        
+
         public int getSize(){
             return selectedGenes.size();
         }
     };
-    
-    TableModel previewTableModel = new DefaultTableModel(){
-        
+
+    DefaultTableModel previewTableModel = new DefaultTableModel(){
+
         public int getColumnCount(){
             return 3;
         }
-        
+
         public int getRowCount(){
             if (translatedNames != null)
                 return translatedNames.size();
             return 0;
         }
-        
+
         public String getColumnName(int index){
             switch (index){
                 case 0: return "Gene Name";
@@ -384,7 +387,7 @@ public class InteractionsUserInterface extends javax.swing.JPanel implements Vis
                 default: return "";
             }
         }
-        
+
         synchronized public Object getValueAt(int row, int column){
 //            if (interactionsService != null){
 //                try {
@@ -410,31 +413,34 @@ public class InteractionsUserInterface extends javax.swing.JPanel implements Vis
             TableWorker worker = new TableWorker(row, column);
             worker.start();
             return "loading ...";
-        }    
+        }
     };
-    
+
     Vector<Vector<Object>> tableData = new Vector<Vector<Object>>();
-    
+
     class TableWorker extends SwingWorker{
         int row = 0;
         int column = 0;
         public TableWorker(int r, int c){
             row = r;
+            column = c;
         }
-        
+
         synchronized public Object construct(){
+            Thread.currentThread().setContextClassLoader(InteractionsUserInterface.this.getClass().getClassLoader());
             if (interactionsService != null){
                 try {
                     Object value = null;
                     switch (column){
-                        case 0: value = translatedNames.get(row);
-                        case 1: value = interactionsService.getGENECOUNT();
-                        case 2: value = interactionsService.getGENECOUNT();
+                        case 0: value = translatedNames.get(row); break;
+                        case 1: value = interactionsService.getGENECOUNT(); break;
+                        case 2: value = interactionsService.getGENECOUNT(); break;
 //                        case 1: value =  interactionsService.getINTERACTIONCOUNT(translatedNames.get(row).toUpperCase(), new BigDecimal(1));
 //                        case 2: value = interactionsService.getINTERACTIONCOUNT(translatedNames.get(row).toUpperCase(), new BigDecimal(2));
                         default: value = "loading ...";
                     }
                     tableData.get(row).add(column, value);
+                    previewTableModel.fireTableDataChanged();
                 } catch (RemoteException re){
                     re.printStackTrace();
                 }
@@ -442,14 +448,14 @@ public class InteractionsUserInterface extends javax.swing.JPanel implements Vis
             return "loading ...";
         }
     }
-    
+
     private INTERACTIONS interactionsService = null;
-    
+
     private Vector<DSGeneMarker> allGenes = new Vector<DSGeneMarker>();
     private Vector<DSGeneMarker> selectedGenes = new Vector<DSGeneMarker>();
     private Vector<String> translatedNames = new Vector<String>();
     private DSMicroarraySet dataset = null;
-    
+
     @Subscribe public void receive(GeneSelectorEvent gse, Object source){
         DSPanel<DSGeneMarker> panel = gse.getPanel();
         if (panel != null){
@@ -463,7 +469,7 @@ public class InteractionsUserInterface extends javax.swing.JPanel implements Vis
             selectedGenesList.setModel(selectedGenesModel);
         }
     }
-    
+
     @Subscribe public void receive(ProjectEvent pe, Object source){
         DSDataSet ds = pe.getDataSet();
         if (ds != null && ds instanceof DSMicroarraySet){
