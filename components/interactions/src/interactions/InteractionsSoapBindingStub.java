@@ -260,7 +260,9 @@ public class InteractionsSoapBindingStub extends org.apache.axis.client.Stub imp
 
         oper = new org.apache.axis.description.OperationDesc();
         oper.setName("getFIRSTNEIGHBORS");
-        param = new org.apache.axis.description.ParameterDesc(new javax.xml.namespace.QName("", "in0"), org.apache.axis.description.ParameterDesc.IN, new javax.xml.namespace.QName("http://www.w3.org/2001/XMLSchema", "string"), java.lang.String.class, false, false);
+        param = new org.apache.axis.description.ParameterDesc(new javax.xml.namespace.QName("", "in0"), org.apache.axis.description.ParameterDesc.IN, new javax.xml.namespace.QName("http://www.w3.org/2001/XMLSchema", "decimal"), java.math.BigDecimal.class, false, false);
+        oper.addParameter(param);
+        param = new org.apache.axis.description.ParameterDesc(new javax.xml.namespace.QName("", "in1"), org.apache.axis.description.ParameterDesc.IN, new javax.xml.namespace.QName("http://www.w3.org/2001/XMLSchema", "string"), java.lang.String.class, false, false);
         oper.addParameter(param);
         oper.setReturnType(new javax.xml.namespace.QName("urn:interactions", "ArrayOf_xsd_anyType"));
         oper.setReturnClass(java.lang.Object[].class);
@@ -271,9 +273,9 @@ public class InteractionsSoapBindingStub extends org.apache.axis.client.Stub imp
 
         oper = new org.apache.axis.description.OperationDesc();
         oper.setName("getINTERACTIONCOUNT");
-        param = new org.apache.axis.description.ParameterDesc(new javax.xml.namespace.QName("", "in0"), org.apache.axis.description.ParameterDesc.IN, new javax.xml.namespace.QName("http://www.w3.org/2001/XMLSchema", "string"), java.lang.String.class, false, false);
+        param = new org.apache.axis.description.ParameterDesc(new javax.xml.namespace.QName("", "in0"), org.apache.axis.description.ParameterDesc.IN, new javax.xml.namespace.QName("http://www.w3.org/2001/XMLSchema", "decimal"), java.math.BigDecimal.class, false, false);
         oper.addParameter(param);
-        param = new org.apache.axis.description.ParameterDesc(new javax.xml.namespace.QName("", "in1"), org.apache.axis.description.ParameterDesc.IN, new javax.xml.namespace.QName("http://www.w3.org/2001/XMLSchema", "decimal"), java.math.BigDecimal.class, false, false);
+        param = new org.apache.axis.description.ParameterDesc(new javax.xml.namespace.QName("", "in1"), org.apache.axis.description.ParameterDesc.IN, new javax.xml.namespace.QName("http://www.w3.org/2001/XMLSchema", "string"), java.lang.String.class, false, false);
         oper.addParameter(param);
         oper.setReturnType(new javax.xml.namespace.QName("http://www.w3.org/2001/XMLSchema", "decimal"));
         oper.setReturnClass(java.math.BigDecimal.class);
@@ -1161,7 +1163,7 @@ public class InteractionsSoapBindingStub extends org.apache.axis.client.Stub imp
 }
     }
 
-    public java.lang.Object[] getFIRSTNEIGHBORS(java.lang.String in0) throws java.rmi.RemoteException {
+    public java.lang.Object[] getFIRSTNEIGHBORS(java.math.BigDecimal in0, java.lang.String in1) throws java.rmi.RemoteException {
         if (super.cachedEndpoint == null) {
             throw new org.apache.axis.NoEndPointException();
         }
@@ -1172,7 +1174,7 @@ public class InteractionsSoapBindingStub extends org.apache.axis.client.Stub imp
 
         setRequestHeaders(_call);
         setAttachments(_call);
- try {        java.lang.Object _resp = _call.invoke(new java.lang.Object[] {in0});
+ try {        java.lang.Object _resp = _call.invoke(new java.lang.Object[] {in0, in1});
 
         if (_resp instanceof java.rmi.RemoteException) {
             throw (java.rmi.RemoteException)_resp;
@@ -1190,7 +1192,7 @@ public class InteractionsSoapBindingStub extends org.apache.axis.client.Stub imp
 }
     }
 
-    public java.math.BigDecimal getINTERACTIONCOUNT(java.lang.String in0, java.math.BigDecimal in1) throws java.rmi.RemoteException {
+    public java.math.BigDecimal getINTERACTIONCOUNT(java.math.BigDecimal in0, java.lang.String in1) throws java.rmi.RemoteException {
         if (super.cachedEndpoint == null) {
             throw new org.apache.axis.NoEndPointException();
         }

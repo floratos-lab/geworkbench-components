@@ -33,8 +33,8 @@ public interface INTERACTIONS extends java.rmi.Remote {
     public java.lang.String getCHROMOSOME() throws java.rmi.RemoteException;
     public void setCHROMOSOME(java.lang.String in0) throws java.rmi.RemoteException;
     public java.math.BigDecimal getGENECOUNT() throws java.rmi.RemoteException;
-    public java.lang.Object[] getFIRSTNEIGHBORS(java.lang.String in0) throws java.rmi.RemoteException;
-    public java.math.BigDecimal getINTERACTIONCOUNT(java.lang.String in0, java.math.BigDecimal in1) throws java.rmi.RemoteException;
+    public java.lang.Object[] getFIRSTNEIGHBORS(java.math.BigDecimal in0, java.lang.String in1) throws java.rmi.RemoteException;
+    public java.math.BigDecimal getINTERACTIONCOUNT(java.math.BigDecimal in0, java.lang.String in1) throws java.rmi.RemoteException;
     public java.math.BigDecimal getENTREZID() throws java.rmi.RemoteException;
     public void setENTREZID(java.math.BigDecimal in0) throws java.rmi.RemoteException;
     public java.math.BigDecimal getTAXONID() throws java.rmi.RemoteException;

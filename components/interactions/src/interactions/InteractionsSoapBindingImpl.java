@@ -14,6 +14,7 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Vector;
 
 public class InteractionsSoapBindingImpl implements interactions.INTERACTIONS{
     
@@ -370,17 +371,19 @@ public class InteractionsSoapBindingImpl implements interactions.INTERACTIONS{
         return new Object[]{};
     }
 
-    public BigDecimal getINTERACTIONCOUNT(String in0, BigDecimal in1) throws RemoteException {
+    public BigDecimal getINTERACTIONCOUNT(BigDecimal in0, String in1) throws RemoteException {
         try {
             conn = DriverManager.getConnection("jdbc:oracle:thin:@adora.cgc.cpmc.columbia.edu:1521:BIODB2", "interaction_ro", "linkt0cellnet");
             statement = conn.createStatement();
-            ResultSet rs = statement.executeQuery("SELECT count(*) FROM PAIRWISE_INTERACTION where MS_ID1=" +
-                    "(SELECT EntrezID from MASTER_GENE where GENE_SYMBOL=" + in0 + ") or " +
-                    "MS_ID2=(SELECT EntrezID from MASTER_GENE where GENE_SYMBOL=" + in0 + ") " +
-                    "and INTERACTION_TYPE=" + in1.intValue());
+            ResultSet rs = statement.executeQuery("SELECT count(unique MS_ID2) FROM PAIRWISE_INTERACTION where MS_ID1=" + in0.intValue() + 
+                    " and (INTERACTION_TYPE=\'" + in1.toLowerCase() + "\' or INTERACTION_TYPE=\'" + in1.toUpperCase() + "\')");
             rs.next();
-            System.out.println("count: " + rs.getObject(1));
             BigDecimal count = (BigDecimal)rs.getObject(1);
+            rs.close();
+            rs = statement.executeQuery("SELECT count(unique MS_ID1) FROM PAIRWISE_INTERACTION where MS_ID2=" + in0.intValue() + 
+                    " and (INTERACTION_TYPE=\'" + in1.toLowerCase() + "\' or INTERACTION_TYPE=\'" + in1.toUpperCase() + "\')");
+            rs.next();
+            count = new BigDecimal(count.intValue() + ((BigDecimal)rs.getObject(1)).intValue());
             rs.close();
             statement.close();
             conn.close();
@@ -388,11 +391,32 @@ public class InteractionsSoapBindingImpl implements interactions.INTERACTIONS{
         } catch (SQLException se){
             se.printStackTrace();
         }
-        System.out.println("ResultSet.getRow() == 0, impl 191");
         return new BigDecimal(0);
     }
     
-    public java.lang.Object[] getFIRSTNEIGHBORS(java.lang.String in0) throws java.rmi.RemoteException{
-        return null;
+    public java.lang.Object[] getFIRSTNEIGHBORS(BigDecimal in0, String in1) throws java.rmi.RemoteException{
+        Vector<BigDecimal> neighbors = new Vector<BigDecimal>();
+        try {
+            conn = DriverManager.getConnection("jdbc:oracle:thin:@adora.cgc.cpmc.columbia.edu:1521:BIODB2", "interaction_ro", "linkt0cellnet");
+            statement = conn.createStatement();
+            ResultSet rs = statement.executeQuery("SELECT MS_ID1 FROM PAIRWISE_INTERACTION where MS_ID2=" + in0.intValue() + 
+                    " and (INTERACTION_TYPE=\'" + in1.toLowerCase() + "\' or INTERACTION_TYPE=\'" + in1.toUpperCase() + "\')");
+            while (rs.next()){
+                if (!neighbors.contains((BigDecimal)rs.getObject(1)))
+                    neighbors.add((BigDecimal)rs.getObject(1));
+            }
+            rs.close();
+            rs = statement.executeQuery("SELECT MS_ID2 FROM PAIRWISE_INTERACTION where MS_ID1=" + in0.intValue() + 
+                    " and (INTERACTION_TYPE=\'" + in1.toLowerCase() + "\' or INTERACTION_TYPE=\'" + in1.toUpperCase() + "\')");
+            while (rs.next()){
+                neighbors.add((BigDecimal)rs.getObject(1));
+            }
+            rs.close();
+            statement.close();
+            conn.close();
+        } catch (SQLException se){
+            se.printStackTrace();
+        }
+        return neighbors.toArray();
     }
 }
