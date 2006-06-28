@@ -15,9 +15,7 @@ import java.util.Vector;
 import javax.swing.AbstractListModel;
 import javax.swing.DefaultListModel;
 import javax.swing.ListModel;
-import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableModel;
 import javax.xml.rpc.ServiceException;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
@@ -240,7 +238,18 @@ public class InteractionsUserInterface extends javax.swing.JPanel implements Vis
     }// </editor-fold>//GEN-END:initComponents
 
     private void loadfromDBHandler(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_loadfromDBHandler
-// TODO add your handling code here:
+        int row = jTable1.getSelectedRow();
+        BigDecimal entrezId = entrezIds.get(row);
+        Vector<Object> data = cachedPreviewData.get(row);
+        try {
+            Object[] neighbors = interactionsService.getFIRSTNEIGHBORS(entrezId, "protein-protein");
+            System.out.println("Neighbors.size(): " + neighbors.length);
+            neighbors = interactionsService.getFIRSTNEIGHBORS(entrezId, "protein-dna");
+            System.out.println("Neighbors.size(): " + neighbors.length);
+        }
+        catch (RemoteException re){
+            re.printStackTrace();
+        }
     }//GEN-LAST:event_loadfromDBHandler
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -325,11 +334,15 @@ public class InteractionsUserInterface extends javax.swing.JPanel implements Vis
     }
 
     private void previewSelectionsHandler(ActionEvent e){
-        translatedNames.clear();
+        entrezIds.clear();
+        cachedPreviewData.clear();
         for (DSGeneMarker marker : selectedGenes){
-            String name = marker.getGeneName();
-            if (name != null && !translatedNames.contains(name))
-                translatedNames.add(name);
+            BigDecimal id = new BigDecimal(marker.getGeneId());
+            if (id != null && !entrezIds.contains(id)){
+                geneNames.add(marker.getGeneName());
+                entrezIds.add(id);
+                cachedPreviewData.add(new Vector<Object>());
+            }
         }
         jTable1.setModel(new DefaultTableModel());
         jTable1.setModel(previewTableModel);
@@ -374,8 +387,8 @@ public class InteractionsUserInterface extends javax.swing.JPanel implements Vis
         }
 
         public int getRowCount(){
-            if (translatedNames != null)
-                return translatedNames.size();
+            if (entrezIds != null)
+                return entrezIds.size();
             return 0;
         }
 
@@ -389,34 +402,46 @@ public class InteractionsUserInterface extends javax.swing.JPanel implements Vis
         }
 
         synchronized public Object getValueAt(int row, int column){
-//            if (interactionsService != null){
-//                try {
-//                    Object value = null;
-//                    switch (column){
-//                        case 0: return translatedNames.get(row);
-//                        case 1: return interactionsService.getINTERACTIONCOUNT(translatedNames.get(row).toUpperCase(), new BigDecimal(2));
-//                        case 2: return interactionsService.getINTERACTIONCOUNT(translatedNames.get(row).toUpperCase(), new BigDecimal(4));
-//                        default: return "loading ...";
-//                    }
-//                } catch (RemoteException re){
-//                    re.printStackTrace();
-//                }
-//            }
-//            return "loading ...";
-            if (tableData.size() > row && tableData.get(row).size() > column)
-                return tableData.get(row).get(column);
-            else if (tableData.size() <= row){
-                for (int k = tableData.size(); k <= row; k++){
-                    tableData.add(new Vector<Object>());
+            Thread.currentThread().setContextClassLoader(InteractionsUserInterface.this.getClass().getClassLoader());
+            if (interactionsService != null){
+                try {
+                    Object value = null;
+                    switch (column){
+                        case 0: {
+                            if (cachedPreviewData.get(row).size() == 0){
+                                String gn = geneNames.get(row);
+                                cachedPreviewData.get(row).add(0, gn);
+                                return gn;
+                            }
+                            return cachedPreviewData.get(row).get(0);
+                        }
+                        case 1: {
+                            if (cachedPreviewData.get(row).size() <= 1){
+                                BigDecimal ic = interactionsService.getINTERACTIONCOUNT(entrezIds.get(row), "protein-protein");
+                                cachedPreviewData.get(row).add(1, ic);
+                                return ic;
+                            }
+                            return cachedPreviewData.get(row).get(1);
+                        }
+                        case 2: {
+                            if (cachedPreviewData.get(row).size() <= 2){
+                                BigDecimal ic = interactionsService.getINTERACTIONCOUNT(entrezIds.get(row), "protein-dna");
+                                cachedPreviewData.get(row).add(2, ic);
+                                return ic;
+                            }
+                            return cachedPreviewData.get(row).get(2);
+                        }
+                        default: return "loading ...";
+                    }
+                } catch (RemoteException re){
+                    re.printStackTrace();
                 }
             }
-            TableWorker worker = new TableWorker(row, column);
-            worker.start();
+//            TableWorker worker = new TableWorker(row, column);
+//            worker.start();
             return "loading ...";
         }
     };
-
-    Vector<Vector<Object>> tableData = new Vector<Vector<Object>>();
 
     class TableWorker extends SwingWorker{
         int row = 0;
@@ -432,14 +457,14 @@ public class InteractionsUserInterface extends javax.swing.JPanel implements Vis
                 try {
                     Object value = null;
                     switch (column){
-                        case 0: value = translatedNames.get(row); break;
+                        case 0: value = entrezIds.get(row); break;
                         case 1: value = interactionsService.getGENECOUNT(); break;
                         case 2: value = interactionsService.getGENECOUNT(); break;
 //                        case 1: value =  interactionsService.getINTERACTIONCOUNT(translatedNames.get(row).toUpperCase(), new BigDecimal(1));
 //                        case 2: value = interactionsService.getINTERACTIONCOUNT(translatedNames.get(row).toUpperCase(), new BigDecimal(2));
                         default: value = "loading ...";
                     }
-                    tableData.get(row).add(column, value);
+                    cachedPreviewData.get(row).add(column, value);
                     previewTableModel.fireTableDataChanged();
                 } catch (RemoteException re){
                     re.printStackTrace();
@@ -453,7 +478,9 @@ public class InteractionsUserInterface extends javax.swing.JPanel implements Vis
 
     private Vector<DSGeneMarker> allGenes = new Vector<DSGeneMarker>();
     private Vector<DSGeneMarker> selectedGenes = new Vector<DSGeneMarker>();
-    private Vector<String> translatedNames = new Vector<String>();
+    private Vector<BigDecimal> entrezIds = new Vector<BigDecimal>();
+    private Vector<String> geneNames = new Vector<String>();
+    private Vector<Vector<Object>> cachedPreviewData = new Vector<Vector<Object>>();
     private DSMicroarraySet dataset = null;
 
     @Subscribe public void receive(GeneSelectorEvent gse, Object source){

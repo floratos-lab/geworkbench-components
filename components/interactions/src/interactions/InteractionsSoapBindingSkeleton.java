@@ -279,7 +279,8 @@ public class InteractionsSoapBindingSkeleton implements interactions.INTERACTION
         }
         ((java.util.List)_myOperations.get("getGENECOUNT")).add(_oper);
         _params = new org.apache.axis.description.ParameterDesc [] {
-            new org.apache.axis.description.ParameterDesc(new javax.xml.namespace.QName("", "in0"), org.apache.axis.description.ParameterDesc.IN, new javax.xml.namespace.QName("http://www.w3.org/2001/XMLSchema", "string"), java.lang.String.class, false, false), 
+            new org.apache.axis.description.ParameterDesc(new javax.xml.namespace.QName("", "in0"), org.apache.axis.description.ParameterDesc.IN, new javax.xml.namespace.QName("http://www.w3.org/2001/XMLSchema", "decimal"), java.math.BigDecimal.class, false, false), 
+            new org.apache.axis.description.ParameterDesc(new javax.xml.namespace.QName("", "in1"), org.apache.axis.description.ParameterDesc.IN, new javax.xml.namespace.QName("http://www.w3.org/2001/XMLSchema", "string"), java.lang.String.class, false, false), 
         };
         _oper = new org.apache.axis.description.OperationDesc("getFIRSTNEIGHBORS", _params, new javax.xml.namespace.QName("", "getFIRSTNEIGHBORSReturn"));
         _oper.setReturnType(new javax.xml.namespace.QName("urn:interactions", "ArrayOf_xsd_anyType"));
@@ -290,8 +291,8 @@ public class InteractionsSoapBindingSkeleton implements interactions.INTERACTION
         }
         ((java.util.List)_myOperations.get("getFIRSTNEIGHBORS")).add(_oper);
         _params = new org.apache.axis.description.ParameterDesc [] {
-            new org.apache.axis.description.ParameterDesc(new javax.xml.namespace.QName("", "in0"), org.apache.axis.description.ParameterDesc.IN, new javax.xml.namespace.QName("http://www.w3.org/2001/XMLSchema", "string"), java.lang.String.class, false, false), 
-            new org.apache.axis.description.ParameterDesc(new javax.xml.namespace.QName("", "in1"), org.apache.axis.description.ParameterDesc.IN, new javax.xml.namespace.QName("http://www.w3.org/2001/XMLSchema", "decimal"), java.math.BigDecimal.class, false, false), 
+            new org.apache.axis.description.ParameterDesc(new javax.xml.namespace.QName("", "in0"), org.apache.axis.description.ParameterDesc.IN, new javax.xml.namespace.QName("http://www.w3.org/2001/XMLSchema", "decimal"), java.math.BigDecimal.class, false, false), 
+            new org.apache.axis.description.ParameterDesc(new javax.xml.namespace.QName("", "in1"), org.apache.axis.description.ParameterDesc.IN, new javax.xml.namespace.QName("http://www.w3.org/2001/XMLSchema", "string"), java.lang.String.class, false, false), 
         };
         _oper = new org.apache.axis.description.OperationDesc("getINTERACTIONCOUNT", _params, new javax.xml.namespace.QName("", "getINTERACTIONCOUNTReturn"));
         _oper.setReturnType(new javax.xml.namespace.QName("http://www.w3.org/2001/XMLSchema", "decimal"));
@@ -588,13 +589,13 @@ public class InteractionsSoapBindingSkeleton implements interactions.INTERACTION
         return ret;
     }
 
-    public java.lang.Object[] getFIRSTNEIGHBORS(java.lang.String in0) throws java.rmi.RemoteException
+    public java.lang.Object[] getFIRSTNEIGHBORS(java.math.BigDecimal in0, java.lang.String in1) throws java.rmi.RemoteException
     {
-        java.lang.Object[] ret = impl.getFIRSTNEIGHBORS(in0);
+        java.lang.Object[] ret = impl.getFIRSTNEIGHBORS(in0, in1);
         return ret;
     }
 
-    public java.math.BigDecimal getINTERACTIONCOUNT(java.lang.String in0, java.math.BigDecimal in1) throws java.rmi.RemoteException
+    public java.math.BigDecimal getINTERACTIONCOUNT(java.math.BigDecimal in0, java.lang.String in1) throws java.rmi.RemoteException
     {
         java.math.BigDecimal ret = impl.getINTERACTIONCOUNT(in0, in1);
         return ret;
