@@ -278,7 +278,7 @@ public class InteractionsUserInterface extends javax.swing.JScrollPane implement
                         matrix.add(serial, serial2, 0.8f);
                     }
                 }
-                AdjacencyMatrixDataSet dataSet = new AdjacencyMatrixDataSet(matrix, serial, 0.8f, 2, "Adjacency Matrix", dataset.getLabel(), dataset);
+                AdjacencyMatrixDataSet dataSet = new AdjacencyMatrixDataSet(matrix, serial, 0.5f, 2, "Adjacency Matrix", dataset.getLabel(), dataset);
                 publishProjectNodeAddedEvent(new ProjectNodeAddedEvent("Adjacency Matrix Added", null, dataSet));
                 publishAdjacencyMatrixEvent(new AdjacencyMatrixEvent(matrix, "Initiate", serial, 2, 1.0, AdjacencyMatrixEvent.Action.RECEIVE));
                 publishAdjacencyMatrixEvent(new AdjacencyMatrixEvent(matrix, "Interactions from knowledgebase", serial, 2, 1.0, AdjacencyMatrixEvent.Action.DRAW_NETWORK));
