@@ -11,6 +11,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
 import java.math.BigDecimal;
 import java.rmi.RemoteException;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Vector;
 import javax.swing.AbstractListModel;
 import javax.swing.DefaultListModel;
@@ -28,12 +31,17 @@ import org.geworkbench.engine.management.Subscribe;
 import org.geworkbench.engine.config.VisualPlugin;
 import org.apache.axis.EngineConfiguration;
 import org.apache.axis.configuration.BasicClientConfig;
+import org.geworkbench.bison.datastructure.bioobjects.markers.CSGeneMarker;
+import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
+import org.geworkbench.engine.management.Publish;
+import org.geworkbench.events.AdjacencyMatrixEvent;
+import org.geworkbench.util.pathwaydecoder.mutualinformation.AdjacencyMatrix;
 
 /**
  * @author manjunath at genomecenter dot columbia dot edu
  */
 @AcceptTypes ({DSMicroarraySet.class})
-public class InteractionsUserInterface extends javax.swing.JPanel implements VisualPlugin{
+public class InteractionsUserInterface extends javax.swing.JScrollPane implements VisualPlugin{
 
     /** Creates new form Interactions */
     public InteractionsUserInterface() {
@@ -52,6 +60,7 @@ public class InteractionsUserInterface extends javax.swing.JPanel implements Vis
      */
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents() {
+	  mainPanel = new javax.swing.JPanel();
         jPanel2 = new javax.swing.JPanel();
         jLabel2 = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
@@ -215,8 +224,9 @@ public class InteractionsUserInterface extends javax.swing.JPanel implements Vis
                 .addContainerGap(19, Short.MAX_VALUE))
         );
 
-        org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
-        this.setLayout(layout);
+	  this.getViewport().add(mainPanel);
+        org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(mainPanel);
+        mainPanel.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
@@ -239,16 +249,38 @@ public class InteractionsUserInterface extends javax.swing.JPanel implements Vis
 
     private void loadfromDBHandler(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_loadfromDBHandler
         int row = jTable1.getSelectedRow();
-        BigDecimal entrezId = entrezIds.get(row);
-        Vector<Object> data = cachedPreviewData.get(row);
-        try {
-            Object[] neighbors = interactionsService.getFIRSTNEIGHBORS(entrezId, "protein-protein");
-            System.out.println("Neighbors.size(): " + neighbors.length);
-            neighbors = interactionsService.getFIRSTNEIGHBORS(entrezId, "protein-dna");
-            System.out.println("Neighbors.size(): " + neighbors.length);
-        }
-        catch (RemoteException re){
-            re.printStackTrace();
+        if (row >= 0){
+            BigDecimal entrezId = entrezIds.get(row);
+            Vector<Object> data = cachedPreviewData.get(row);
+            try {
+                Vector<Object> neighbors = new Vector<Object>();
+                neighbors.addAll(Arrays.asList(interactionsService.getFIRSTNEIGHBORS(entrezId, "protein-protein")));
+                neighbors.addAll(Arrays.asList(interactionsService.getFIRSTNEIGHBORS(entrezId, "protein-dna")));
+                AdjacencyMatrix matrix = new AdjacencyMatrix();
+                matrix.setMicroarraySet((DSMicroarraySet)dataset);
+                int eid = entrezId.intValue();
+                CSGeneMarker marker = new CSGeneMarker();
+                marker.setGeneId(eid);
+                DSItemList<DSGeneMarker> markers = dataset.getMarkers();
+                EntrezIdComparator eidc = new EntrezIdComparator();
+                Collections.sort(markers, eidc);
+                int index = Collections.binarySearch(markers, marker, eidc);
+                int serial = markers.get(index).getSerial();
+                matrix.addGeneRow(serial);
+                for (Object neighbor: neighbors){
+                    marker = new CSGeneMarker();
+                    marker.setGeneId(((BigDecimal)neighbor).intValue());
+                    index = Collections.binarySearch(markers, marker, eidc);
+                    if (index >=0 && index < markers.size()){
+                        int serial2 = markers.get(index).getSerial();
+                        matrix.add(serial, serial2, 0.8f);
+                    }
+                }
+                publishAdjacencyMatrixEvent(new AdjacencyMatrixEvent(matrix, "Initiate", serial, 2, 1.0, AdjacencyMatrixEvent.Action.RECEIVE));
+                publishAdjacencyMatrixEvent(new AdjacencyMatrixEvent(matrix, "Interactions from knowledgebase", serial, 2, 1.0, AdjacencyMatrixEvent.Action.DRAW_NETWORK));
+            } catch (RemoteException re){
+                re.printStackTrace();
+            }
         }
     }//GEN-LAST:event_loadfromDBHandler
 
@@ -259,6 +291,7 @@ public class InteractionsUserInterface extends javax.swing.JPanel implements Vis
     private javax.swing.JButton jButton2;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
+    private javax.swing.JPanel mainPanel;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JScrollPane jScrollPane1;
@@ -501,6 +534,16 @@ public class InteractionsUserInterface extends javax.swing.JPanel implements Vis
         DSDataSet ds = pe.getDataSet();
         if (ds != null && ds instanceof DSMicroarraySet){
             dataset = (DSMicroarraySet)ds;
+        }
+    }
+
+    @Publish public AdjacencyMatrixEvent publishAdjacencyMatrixEvent(AdjacencyMatrixEvent ae){
+        return ae;
+    }    
+    
+    class EntrezIdComparator implements Comparator<DSGeneMarker>{
+        public int compare(DSGeneMarker m1, DSGeneMarker m2){
+            return (new Integer(m1.getGeneId())).compareTo(new Integer(m2.getGeneId()));
         }
     }
 }
