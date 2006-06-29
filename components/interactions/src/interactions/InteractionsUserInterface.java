@@ -35,7 +35,9 @@ import org.geworkbench.bison.datastructure.bioobjects.markers.CSGeneMarker;
 import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.engine.management.Publish;
 import org.geworkbench.events.AdjacencyMatrixEvent;
+import org.geworkbench.events.ProjectNodeAddedEvent;
 import org.geworkbench.util.pathwaydecoder.mutualinformation.AdjacencyMatrix;
+import org.geworkbench.util.pathwaydecoder.mutualinformation.AdjacencyMatrixDataSet;
 
 /**
  * @author manjunath at genomecenter dot columbia dot edu
@@ -276,6 +278,8 @@ public class InteractionsUserInterface extends javax.swing.JScrollPane implement
                         matrix.add(serial, serial2, 0.8f);
                     }
                 }
+                AdjacencyMatrixDataSet dataSet = new AdjacencyMatrixDataSet(matrix, serial, 0.8f, 2, "Adjacency Matrix", dataset.getLabel(), dataset);
+                publishProjectNodeAddedEvent(new ProjectNodeAddedEvent("Adjacency Matrix Added", null, dataSet));
                 publishAdjacencyMatrixEvent(new AdjacencyMatrixEvent(matrix, "Initiate", serial, 2, 1.0, AdjacencyMatrixEvent.Action.RECEIVE));
                 publishAdjacencyMatrixEvent(new AdjacencyMatrixEvent(matrix, "Interactions from knowledgebase", serial, 2, 1.0, AdjacencyMatrixEvent.Action.DRAW_NETWORK));
             } catch (RemoteException re){
@@ -540,6 +544,10 @@ public class InteractionsUserInterface extends javax.swing.JScrollPane implement
     @Publish public AdjacencyMatrixEvent publishAdjacencyMatrixEvent(AdjacencyMatrixEvent ae){
         return ae;
     }    
+    
+    @Publish public ProjectNodeAddedEvent publishProjectNodeAddedEvent(ProjectNodeAddedEvent pe){
+        return pe;
+    }
     
     class EntrezIdComparator implements Comparator<DSGeneMarker>{
         public int compare(DSGeneMarker m1, DSGeneMarker m2){
