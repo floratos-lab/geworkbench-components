@@ -38,23 +38,24 @@ import org.geworkbench.events.AdjacencyMatrixEvent;
 import org.geworkbench.events.ProjectNodeAddedEvent;
 import org.geworkbench.util.pathwaydecoder.mutualinformation.AdjacencyMatrix;
 import org.geworkbench.util.pathwaydecoder.mutualinformation.AdjacencyMatrixDataSet;
+import org.geworkbench.bison.datastructure.complex.panels.CSItemList;
 
 /**
  * @author manjunath at genomecenter dot columbia dot edu
  */
-@AcceptTypes ({DSMicroarraySet.class})
+@AcceptTypes({DSMicroarraySet.class})
 public class InteractionsUserInterface extends javax.swing.JScrollPane implements VisualPlugin{
-
+    
     /** Creates new form Interactions */
     public InteractionsUserInterface() {
         initComponents();
         initConnections();
     }
-
+    
     public Component getComponent(){
         return this;
     }
-
+    
     /** This method is called from within the constructor to
      * initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is
@@ -248,46 +249,52 @@ public class InteractionsUserInterface extends javax.swing.JScrollPane implement
                 .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
-
+    
     private void loadfromDBHandler(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_loadfromDBHandler
-        int row = jTable1.getSelectedRow();
-        if (row >= 0){
-            BigDecimal entrezId = entrezIds.get(row);
-            Vector<Object> data = cachedPreviewData.get(row);
-            try {
-                Vector<Object> neighbors = new Vector<Object>();
-                neighbors.addAll(Arrays.asList(interactionsService.getFIRSTNEIGHBORS(entrezId, "protein-protein")));
-                neighbors.addAll(Arrays.asList(interactionsService.getFIRSTNEIGHBORS(entrezId, "protein-dna")));
-                AdjacencyMatrix matrix = new AdjacencyMatrix();
-                matrix.setMicroarraySet((DSMicroarraySet)dataset);
-                int eid = entrezId.intValue();
-                CSGeneMarker marker = new CSGeneMarker();
-                marker.setGeneId(eid);
-                DSItemList<DSGeneMarker> markers = dataset.getMarkers();
-                EntrezIdComparator eidc = new EntrezIdComparator();
-                Collections.sort(markers, eidc);
-                int index = Collections.binarySearch(markers, marker, eidc);
-                int serial = markers.get(index).getSerial();
-                matrix.addGeneRow(serial);
-                for (Object neighbor: neighbors){
-                    marker = new CSGeneMarker();
-                    marker.setGeneId(((BigDecimal)neighbor).intValue());
-                    index = Collections.binarySearch(markers, marker, eidc);
-                    if (index >=0 && index < markers.size()){
-                        int serial2 = markers.get(index).getSerial();
-                        matrix.add(serial, serial2, 0.8f);
+        int[] rows = jTable1.getSelectedRows();
+        if (rows != null && rows.length > 0){
+            AdjacencyMatrix matrix = new AdjacencyMatrix();
+            AdjacencyMatrixDataSet dataSet = null;
+            for (int row : rows){
+                Vector<Object> data = cachedPreviewData.get(row);
+                BigDecimal entrezId = (BigDecimal)data.get(1);
+                try {
+                    Vector<Object> neighbors = new Vector<Object>();
+                    neighbors.addAll(Arrays.asList(interactionsService.getFIRSTNEIGHBORS(entrezId, "protein-protein")));
+                    neighbors.addAll(Arrays.asList(interactionsService.getFIRSTNEIGHBORS(entrezId, "protein-dna")));
+                    matrix.setMicroarraySet((DSMicroarraySet)dataset);
+                    int eid = entrezId.intValue();
+                    CSGeneMarker marker = new CSGeneMarker();
+                    marker.setGeneId(eid);
+                    DSItemList<DSGeneMarker> markers = dataset.getMarkers();
+                    DSItemList<DSGeneMarker> copy = new CSItemList<DSGeneMarker>();
+                    copy.addAll(markers);
+                    EntrezIdComparator eidc = new EntrezIdComparator();
+                    Collections.sort(copy, eidc);
+                    int index = Collections.binarySearch(copy, marker, eidc);
+                    int serial = copy.get(index).getSerial();
+                    matrix.addGeneRow(serial);
+                    for (Object neighbor: neighbors){
+                        marker = new CSGeneMarker();
+                        marker.setGeneId(((BigDecimal)neighbor).intValue());
+                        index = Collections.binarySearch(copy, marker, eidc);
+                        if (index >=0 && index < markers.size()){
+                            int serial2 = copy.get(index).getSerial();
+                            matrix.add(serial, serial2, 0.8f);
+                        }
                     }
+                dataSet = new AdjacencyMatrixDataSet(matrix, serial, 0.5f, 2, "Adjacency Matrix", dataset.getLabel(), dataset);
+                } catch (RemoteException re){
+                    re.printStackTrace();
                 }
-                AdjacencyMatrixDataSet dataSet = new AdjacencyMatrixDataSet(matrix, serial, 0.5f, 2, "Adjacency Matrix", dataset.getLabel(), dataset);
+            }
+            if (dataSet != null){
                 publishProjectNodeAddedEvent(new ProjectNodeAddedEvent("Adjacency Matrix Added", null, dataSet));
-                publishAdjacencyMatrixEvent(new AdjacencyMatrixEvent(matrix, "Initiate", serial, 2, 1.0, AdjacencyMatrixEvent.Action.RECEIVE));
-                publishAdjacencyMatrixEvent(new AdjacencyMatrixEvent(matrix, "Interactions from knowledgebase", serial, 2, 1.0, AdjacencyMatrixEvent.Action.DRAW_NETWORK));
-            } catch (RemoteException re){
-                re.printStackTrace();
+                publishAdjacencyMatrixEvent(new AdjacencyMatrixEvent(matrix, "Interactions from knowledgebase", -1, 2, 0.5f, AdjacencyMatrixEvent.Action.DRAW_NETWORK));
             }
         }
     }//GEN-LAST:event_loadfromDBHandler
-
+    
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton addButton;
     private javax.swing.JList allGeneList;
@@ -305,7 +312,7 @@ public class InteractionsUserInterface extends javax.swing.JScrollPane implement
     private javax.swing.JButton removeButton;
     private javax.swing.JList selectedGenesList;
     // End of variables declaration//GEN-END:variables
-
+    
     private void allGeneListHandler(MouseEvent evt){
         if (evt.getClickCount() == 2){
             int index = allGeneList.locationToIndex(evt.getPoint());
@@ -318,20 +325,22 @@ public class InteractionsUserInterface extends javax.swing.JScrollPane implement
             selectedGenesList.setModel(selectedGenesModel);
         }
     }
-
+    
     private void selectedGenesListHandler(MouseEvent evt){
         if (evt.getClickCount() == 2){
             int index = selectedGenesList.locationToIndex(evt.getPoint());
-            DSGeneMarker m = selectedGenes.get(index);
-            allGenes.add(m);
-            selectedGenes.remove(m);
-            allGeneList.setModel(new DefaultListModel());
-            allGeneList.setModel(allGeneModel);
-            selectedGenesList.setModel(new DefaultListModel());
-            selectedGenesList.setModel(selectedGenesModel);
+            if (index >= 0){
+                DSGeneMarker m = selectedGenes.get(index);
+                allGenes.add(m);
+                selectedGenes.remove(m);
+                allGeneList.setModel(new DefaultListModel());
+                allGeneList.setModel(allGeneModel);
+                selectedGenesList.setModel(new DefaultListModel());
+                selectedGenesList.setModel(selectedGenesModel);
+            }
         }
     }
-
+    
     private void addButtonHandler(ActionEvent e){
         int[] indices = allGeneList.getSelectedIndices();
         if (indices != null && indices.length > 0){
@@ -350,7 +359,7 @@ public class InteractionsUserInterface extends javax.swing.JScrollPane implement
             selectedGenesList.setModel(selectedGenesModel);
         }
     }
-
+    
     private void removeButtonHandler(ActionEvent e){
         int[] indices = selectedGenesList.getSelectedIndices();
         if (indices != null && indices.length > 0){
@@ -369,22 +378,25 @@ public class InteractionsUserInterface extends javax.swing.JScrollPane implement
             selectedGenesList.setModel(selectedGenesModel);
         }
     }
-
+    
     private void previewSelectionsHandler(ActionEvent e){
         entrezIds.clear();
         cachedPreviewData.clear();
+        geneNames.clear();
         for (DSGeneMarker marker : selectedGenes){
-            BigDecimal id = new BigDecimal(marker.getGeneId());
-            if (id != null && !entrezIds.contains(id)){
-                geneNames.add(marker.getGeneName());
-                entrezIds.add(id);
-                cachedPreviewData.add(new Vector<Object>());
+            if (marker.getGeneId() != -1){
+                BigDecimal id = new BigDecimal(marker.getGeneId());
+                if (id != null && !entrezIds.contains(id)){
+                    geneNames.add(marker.getGeneName());
+                    entrezIds.add(id);
+                    cachedPreviewData.add(new Vector<Object>());
+                }
             }
         }
         jTable1.setModel(new DefaultTableModel());
         jTable1.setModel(previewTableModel);
     }
-
+    
     private void initConnections(){
         EngineConfiguration ec = new BasicClientConfig();
         interactions.INTERACTIONSServiceLocator service =
@@ -396,48 +408,49 @@ public class InteractionsUserInterface extends javax.swing.JScrollPane implement
             se.printStackTrace();
         }
     }
-
+    
     ListModel allGeneModel = new AbstractListModel(){
         public Object getElementAt(int index){
             return allGenes.get(index);
         }
-
+        
         public int getSize(){
             return allGenes.size();
         }
     };
-
+    
     ListModel selectedGenesModel = new AbstractListModel(){
         public Object getElementAt(int index){
             return selectedGenes.get(index);
         }
-
+        
         public int getSize(){
             return selectedGenes.size();
         }
     };
-
+    
     DefaultTableModel previewTableModel = new DefaultTableModel(){
-
+        
         public int getColumnCount(){
-            return 3;
+            return 4;
         }
-
+        
         public int getRowCount(){
             if (entrezIds != null)
                 return entrezIds.size();
             return 0;
         }
-
+        
         public String getColumnName(int index){
             switch (index){
-                case 0: return "Gene Name";
-                case 1: return "# of Protein-Protein Interactions";
-                case 2: return "# of Protein-DNA Interactions";
+                case 0: return "Gene Symbol";
+                case 1: return "Entrez ID";
+                case 2: return "# of Protein-Protein Interactions";
+                case 3: return "# of Protein-DNA Interactions";
                 default: return "";
             }
         }
-
+        
         synchronized public Object getValueAt(int row, int column){
             Thread.currentThread().setContextClassLoader(InteractionsUserInterface.this.getClass().getClassLoader());
             if (interactionsService != null){
@@ -454,19 +467,27 @@ public class InteractionsUserInterface extends javax.swing.JScrollPane implement
                         }
                         case 1: {
                             if (cachedPreviewData.get(row).size() <= 1){
-                                BigDecimal ic = interactionsService.getINTERACTIONCOUNT(entrezIds.get(row), "protein-protein");
-                                cachedPreviewData.get(row).add(1, ic);
-                                return ic;
+                                BigDecimal eid = entrezIds.get(row);
+                                cachedPreviewData.get(row).add(1, eid);
+                                return eid;
                             }
                             return cachedPreviewData.get(row).get(1);
                         }
                         case 2: {
                             if (cachedPreviewData.get(row).size() <= 2){
-                                BigDecimal ic = interactionsService.getINTERACTIONCOUNT(entrezIds.get(row), "protein-dna");
+                                BigDecimal ic = interactionsService.getINTERACTIONCOUNT(entrezIds.get(row), "protein-protein");
                                 cachedPreviewData.get(row).add(2, ic);
                                 return ic;
                             }
                             return cachedPreviewData.get(row).get(2);
+                        }
+                        case 3: {
+                            if (cachedPreviewData.get(row).size() <= 3){
+                                BigDecimal ic = interactionsService.getINTERACTIONCOUNT(entrezIds.get(row), "protein-dna");
+                                cachedPreviewData.get(row).add(3, ic);
+                                return ic;
+                            }
+                            return cachedPreviewData.get(row).get(3);
                         }
                         default: return "loading ...";
                     }
@@ -479,7 +500,7 @@ public class InteractionsUserInterface extends javax.swing.JScrollPane implement
             return "loading ...";
         }
     };
-
+    
     class TableWorker extends SwingWorker{
         int row = 0;
         int column = 0;
@@ -487,7 +508,7 @@ public class InteractionsUserInterface extends javax.swing.JScrollPane implement
             row = r;
             column = c;
         }
-
+        
         synchronized public Object construct(){
             Thread.currentThread().setContextClassLoader(InteractionsUserInterface.this.getClass().getClassLoader());
             if (interactionsService != null){
@@ -510,16 +531,16 @@ public class InteractionsUserInterface extends javax.swing.JScrollPane implement
             return "loading ...";
         }
     }
-
+    
     private INTERACTIONS interactionsService = null;
-
+    
     private Vector<DSGeneMarker> allGenes = new Vector<DSGeneMarker>();
     private Vector<DSGeneMarker> selectedGenes = new Vector<DSGeneMarker>();
     private Vector<BigDecimal> entrezIds = new Vector<BigDecimal>();
     private Vector<String> geneNames = new Vector<String>();
     private Vector<Vector<Object>> cachedPreviewData = new Vector<Vector<Object>>();
     private DSMicroarraySet dataset = null;
-
+    
     @Subscribe public void receive(GeneSelectorEvent gse, Object source){
         DSPanel<DSGeneMarker> panel = gse.getPanel();
         if (panel != null){
@@ -533,17 +554,17 @@ public class InteractionsUserInterface extends javax.swing.JScrollPane implement
             selectedGenesList.setModel(selectedGenesModel);
         }
     }
-
+    
     @Subscribe public void receive(ProjectEvent pe, Object source){
         DSDataSet ds = pe.getDataSet();
         if (ds != null && ds instanceof DSMicroarraySet){
             dataset = (DSMicroarraySet)ds;
         }
     }
-
+    
     @Publish public AdjacencyMatrixEvent publishAdjacencyMatrixEvent(AdjacencyMatrixEvent ae){
         return ae;
-    }    
+    }
     
     @Publish public ProjectNodeAddedEvent publishProjectNodeAddedEvent(ProjectNodeAddedEvent pe){
         return pe;
