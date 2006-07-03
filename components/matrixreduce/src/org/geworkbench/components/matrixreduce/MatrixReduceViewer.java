@@ -1,9 +1,12 @@
 package org.geworkbench.components.matrixreduce;
 
+import com.jgoodies.forms.builder.DefaultFormBuilder;
+import com.jgoodies.forms.layout.FormLayout;
 import org.apache.commons.collections15.map.ListOrderedMap;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.complex.pattern.matrix.DSMatrixReduceSet;
 import org.geworkbench.bison.datastructure.complex.pattern.matrix.DSPositionSpecificAffintyMatrix;
+import org.geworkbench.bison.util.StringUtils;
 import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.engine.management.AcceptTypes;
 import org.geworkbench.engine.management.Subscribe;
@@ -17,13 +20,20 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
 
 /**
  * @author John Watkinson
  */
 @AcceptTypes(DSMatrixReduceSet.class)
 public class MatrixReduceViewer implements VisualPlugin {
+
+    private enum Direction {
+        FORWARD, BACKWARD, BOTH
+    }
 
     private static final int TAB_PSAM = 0;
     private static final int TAB_SEQUENCE = 1;
@@ -38,26 +48,32 @@ public class MatrixReduceViewer implements VisualPlugin {
     private int defaultTableRowHeight;
     private int selectedPSAM = 0;
     private ListOrderedMap<String, String> sequences;
+    private ArrayList<String> selectedSequences;
     private ListModel sequenceModel;
     private int maxSequenceLength = 1;
-    private SequenceGraph[] graphs = null;
+    // todo - map from string -> graph
+    private HashMap<String, SequenceGraph> graphs = null;
+    private boolean showForward = true;
+    private boolean showBackward = true;
+    private String filterSequence = null;
+    private double threshold = 0.0;
 
     private class ListModel extends AbstractListModel {
         public int getSize() {
-            if (sequences == null) {
+            if (selectedSequences == null) {
                 return 0;
             } else {
-                return sequences.size();
+                return selectedSequences.size();
             }
         }
 
         public String getElementAt(int index) {
-            return sequences.get(sequences.get(index));
+            return selectedSequences.get(index);
         }
 
         public void fireContentsChanged() {
-            if (sequences != null) {
-                super.fireContentsChanged(this, 0, sequences.size() - 1);
+            if (selectedSequences != null) {
+                super.fireContentsChanged(this, 0, selectedSequences.size() - 1);
             } else {
                 super.fireContentsChanged(this, 0, 0);
             }
@@ -186,6 +202,7 @@ public class MatrixReduceViewer implements VisualPlugin {
                     if (row != -1) {
                         selectedPSAM = row;
                         updateGraphs();
+                        doFilter();
                         sequenceModel.fireContentsChanged();
                         tabPane.setSelectedIndex(TAB_SEQUENCE);
                     }
@@ -197,6 +214,7 @@ public class MatrixReduceViewer implements VisualPlugin {
         JScrollPane scrollPane = new JScrollPane(table);
         scrollPane.setColumnHeaderView(table.getTableHeader());
         psamPanel.add(scrollPane, BorderLayout.CENTER);
+
         //// Sequence Tab
         sequenceModel = new ListModel();
         JList sequenceList = new JList(sequenceModel);
@@ -206,17 +224,142 @@ public class MatrixReduceViewer implements VisualPlugin {
 //                JLabel label = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
 //                label.setText(value.toString());
 //                return label;
-                return graphs[index];
+                return graphs.get((String) value);
             }
         });
-        sequencePanel.add(new JScrollPane(sequenceList, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER));
+        sequencePanel.add(new JScrollPane(sequenceList, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER), BorderLayout.CENTER);
+        JPanel controlPanel = new JPanel();
+        controlPanel.setLayout(new BoxLayout(controlPanel, BoxLayout.Y_AXIS));
+        FormLayout layout = new FormLayout(
+                "right:max(40dlu;pref), 3dlu, 70dlu, 7dlu",
+                "");
+        DefaultFormBuilder builder = new DefaultFormBuilder(layout);
+        builder.setDefaultDialogBorder();
+
+        ButtonGroup directionGroup = new ButtonGroup();
+        JRadioButton forwardButton = new JRadioButton("Forward");
+        forwardButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                setDirection(Direction.FORWARD);
+            }
+        });
+        JRadioButton backwardsButton = new JRadioButton("Backward");
+        backwardsButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                setDirection(Direction.BACKWARD);
+            }
+        });
+        JRadioButton bothButton = new JRadioButton("Both", true);
+        bothButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                setDirection(Direction.BOTH);
+            }
+        });
+        directionGroup.add(forwardButton);
+        directionGroup.add(backwardsButton);
+        directionGroup.add(bothButton);
+        final JFormattedTextField thresholdField = new JFormattedTextField(0.0);
+        final JTextField searchField = new JTextField();
+        JButton filterButton = new JButton("Filter");
+        filterButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                String text = searchField.getText();
+                if ((text == null) || (text.trim().length() == 0)) {
+                    filterSequence = null;
+                } else {
+                    filterSequence = text.trim();
+                }
+                threshold = 0;
+                try {
+                    threshold = Double.parseDouble(thresholdField.getText());
+                } catch (NumberFormatException nfe) {
+                    // Ignore, use 0.
+                }
+                doFilter();
+                sequenceModel.fireContentsChanged();
+            }
+        });
+        builder.appendSeparator("Direction");
+        builder.append("", forwardButton);
+        builder.append("", backwardsButton);
+        builder.append("", bothButton);
+        builder.appendSeparator("Filtering");
+        builder.append("Threshold", thresholdField);
+        builder.append("Sequence Search", searchField);
+        builder.append("", filterButton);
+        controlPanel.add(builder.getPanel());
+        sequencePanel.add(controlPanel, BorderLayout.WEST);
+
     }
 
     private void updateGraphs() {
         if ((dataSet != null) && (selectedPSAM < dataSet.size())) {
-            for (SequenceGraph graph : graphs) {
+            for (SequenceGraph graph : graphs.values()) {
                 graph.createScores(dataSet.get(selectedPSAM), true);
                 graph.createScores(dataSet.get(selectedPSAM), false);
+            }
+        }
+    }
+
+    private void setDirection(Direction direction) {
+        showForward = true;
+        showBackward = true;
+        if (direction == Direction.FORWARD) {
+            showBackward = false;
+        } else if (direction == Direction.BACKWARD) {
+            showForward = false;
+        }
+        doFilter();
+        sequencePanel.repaint();
+    }
+
+    public boolean isShowForward() {
+        return showForward;
+    }
+
+    public boolean isShowBackward() {
+        return showBackward;
+    }
+
+    private void doFilter() {
+        HashSet<String> seqFilter = new HashSet<String>();
+        // 1) Filter by sequence
+        if (filterSequence == null) {
+            seqFilter.addAll(sequences.keySet());
+        } else {
+            String reverseSequence = StringUtils.reverseString(filterSequence);
+            for (int i = 0; i < sequences.size(); i++) {
+                String s = sequences.get(sequences.get(i));
+                if (s.contains(filterSequence) || s.contains(reverseSequence)) {
+                    seqFilter.add(sequences.get(i));
+                }
+            }
+        }
+        // 2) Filter by threshold
+        for (int i = 0; i < sequences.size(); i++) {
+            String key = sequences.get(i);
+            SequenceGraph graph = graphs.get(key);
+            boolean passed = false;
+            if (showForward) {
+               if (graph.getBestPosScore() > threshold) {
+                   passed = true;
+               }
+            }
+            if (showBackward) {
+                if (graph.getBestNegScore() > threshold) {
+                    passed = true;
+                }
+            }
+            if (!passed) {
+                seqFilter.remove(key);
+            }
+        }
+        // 3) Build ordered list of the result
+        selectedSequences = new ArrayList<String>();
+        for (int i = 0; i < sequences.size(); i++) {
+            String key = sequences.get(i);
+            if (seqFilter.contains(key)) {
+                selectedSequences.add(key);
             }
         }
     }
@@ -228,7 +371,6 @@ public class MatrixReduceViewer implements VisualPlugin {
             model.fireTableStructureChanged();
             sequences = dataSet.getSequences();
             int n = sequences.size();
-            graphs = new SequenceGraph[n];
             maxSequenceLength = 1;
             for (String s : ((Collection<String>) sequences.values())) {
                 if (s.length() > maxSequenceLength) {
@@ -237,20 +379,23 @@ public class MatrixReduceViewer implements VisualPlugin {
             }
             // Unregister tooltips
             if (graphs != null) {
-                for (SequenceGraph graph : graphs) {
+                for (SequenceGraph graph : graphs.values()) {
                     if (graph != null) {
                         ToolTipManager.sharedInstance().unregisterComponent(graph);
                     }
                 }
             }
+            graphs = new HashMap<String, SequenceGraph>();
             for (int i = 0; i < n; i++) {
                 String label = sequences.get(i);
                 String sequence = sequences.get(label);
-                graphs[i] = new SequenceGraph(sequence, label, maxSequenceLength);
-                ToolTipManager.sharedInstance().registerComponent(graphs[i]);
+                SequenceGraph graph = new SequenceGraph(sequence, label, maxSequenceLength, this);
+                ToolTipManager.sharedInstance().registerComponent(graph);
+                graphs.put(label, graph);
             }
             selectedPSAM = 0;
             updateGraphs();
+            doFilter();
             sequenceModel.fireContentsChanged();
         }
     }

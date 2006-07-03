@@ -42,12 +42,16 @@ public class SequenceGraph extends JPanel {
     private int[] sequence;
     private float[] posScores;
     private float[] negScores;
+    private float bestPosScore = 0;
+    private float bestNegScore = 0;
     private int componentWidth = 1;
     private int toolTipLength;
+    private MatrixReduceViewer viewer;
 
-    public SequenceGraph(String seq, String label, int maxLength) {
+    public SequenceGraph(String seq, String label, int maxLength, MatrixReduceViewer viewer) {
         super(true);
         this.label = label;
+        this.viewer = viewer;
         // Convert sequence in to indices
         n = seq.length();
         sequence = new int[n];
@@ -88,15 +92,6 @@ public class SequenceGraph extends JPanel {
         }
     }
 
-//    private static String reverseString(String s) {
-//        int m = s.length();
-//        char[] r = new char[m];
-//        for (int i = 0; i < m; i++) {
-//            r[i] = s.charAt(m - i - 1);
-//        }
-//        return new String(r);
-//    }
-
     public void clearScores(boolean forward) {
         if (forward) {
             posScores = new float[n];
@@ -120,13 +115,30 @@ public class SequenceGraph extends JPanel {
                 scores[i] = psam.getScores()[m - i - 1];
             }
         }
+        float bestScore = 0;
         for (int i = 0; i < (n - m); i++) {
             double v = 1.0;
             for (int j = 0; j < m; j++) {
                 v *= scores[j][sequence[i + j]];
             }
             results[i] = (float) v;
+            if (results[i] > bestScore) {
+                bestScore = results[i];
+            }
         }
+        if (forward) {
+            bestPosScore = bestScore;
+        } else {
+            bestNegScore = bestScore;
+        }
+    }
+
+    public float getBestPosScore() {
+        return bestPosScore;
+    }
+
+    public float getBestNegScore() {
+        return bestNegScore;
     }
 
     public Dimension getMinimumSize() {
@@ -199,17 +211,19 @@ public class SequenceGraph extends JPanel {
             g.setColor(Color.LIGHT_GRAY);
             g.fillRect(0, 0, getWidth(), endY);
             g.setColor(Color.BLACK);
-            float oldY = 0f;
-            float oldX = 0f;
-            float x = LABEL_WIDTH - charWidth / 2;
-            for (int i = 0; i < n; i++) {
-                float y = startY + (endY - startY) * posScores[i];
-                oldX = x;
-                x += charWidth;
-                if (i > 0) {
-                    g.draw(new Line2D.Float(oldX, oldY, x, y));
+            if (viewer.isShowForward()) {
+                float oldY = 0f;
+                float oldX = 0f;
+                float x = LABEL_WIDTH - charWidth / 2;
+                for (int i = 0; i < n; i++) {
+                    float y = startY + (endY - startY) * posScores[i];
+                    oldX = x;
+                    x += charWidth;
+                    if (i > 0) {
+                        g.draw(new Line2D.Float(oldX, oldY, x, y));
+                    }
+                    oldY = y;
                 }
-                oldY = y;
             }
         }
         // NEGATIVE GRAPH
@@ -220,17 +234,19 @@ public class SequenceGraph extends JPanel {
             g.setColor(Color.LIGHT_GRAY);
             g.fillRect(0, endY, getWidth(), centerLine - 2 - graphHeight);
             g.setColor(Color.BLACK);
-            float oldY = 0f;
-            float oldX = 0f;
-            float x = LABEL_WIDTH - charWidth / 2;
-            for (int i = 0; i < n; i++) {
-                float y = startY + (endY - startY) * negScores[i];
-                oldX = x;
-                x += charWidth;
-                if (i > 0) {
-                    g.draw(new Line2D.Float(oldX, oldY, x, y));
+            if (viewer.isShowBackward()) {
+                float oldY = 0f;
+                float oldX = 0f;
+                float x = LABEL_WIDTH - charWidth / 2;
+                for (int i = 0; i < n; i++) {
+                    float y = startY + (endY - startY) * negScores[i];
+                    oldX = x;
+                    x += charWidth;
+                    if (i > 0) {
+                        g.draw(new Line2D.Float(oldX, oldY, x, y));
+                    }
+                    oldY = y;
                 }
-                oldY = y;
             }
         }
 //        g.setColor(Color.GRAY);
