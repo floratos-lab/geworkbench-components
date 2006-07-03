@@ -117,7 +117,12 @@ public class AlgorithmMatcher {
             return new String[] {
                     "ncbi/nt                    All non-redundant  DNA sequences.",
                     "ncbi/pdbnt               Nucleotide sequences  derived from the PDB.",
-                    "ncbi/yeast.nt           Yeast genomic nucleotide sequences."};
+                    "ncbi/yeast.nt           Yeast genomic nucleotide sequences.",
+                    "/genomes/mouse/goldenPath_Aug2005/100/*",
+                    "/genomes/rat/goldenPath_June2003/100/*",
+                    "/genomes/chimpanzee/goldenPath_Feb2004/100/*",
+                    "/genomes/dog/goldenPath/2005_May/100/*"
+            };
 
         } else if (programName.startsWith("tblast")) {
             return new String[] {
@@ -208,7 +213,7 @@ public class AlgorithmMatcher {
                 } else {
                     cmd += " -U F ";
                 }
-                if(ps.getWordsize()!=null){
+                if (ps.getWordsize() != null) {
                     cmd += " -W " + ps.getWordsize() + " ";
                 }
                 if (!ps.getProgramName().equals("blastn")) {
@@ -299,7 +304,7 @@ public class AlgorithmMatcher {
                 if (!ps.getMatrix().startsWith("dna")) {
                     cmd += "&MATRIX_NAME=" + ps.getMatrix().trim();
                 }
-                if(ps.getWordsize()!=null){
+                if (ps.getWordsize() != null) {
                     cmd += "&WORD_SIZE=" + ps.getWordsize().trim();
                 }
 
