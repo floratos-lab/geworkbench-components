@@ -635,6 +635,7 @@ public class ParameterViewWidget
 
         jExpectBox.addItem("0.1");
         jExpectBox.addItem("0.01");
+        jExpectBox.addItem("0.000000001");
         jExpectBox.addItem("100");
 
         jExpectBox.addItem("1000");
