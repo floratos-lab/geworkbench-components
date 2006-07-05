@@ -169,7 +169,7 @@ public class SequenceGraph extends JPanel {
             for (int i = index; i < k; i++) {
                 chars[i - index] = NUCLEOTIDES[sequence[i]];
             }
-            return new String(chars);
+            return "" + index + ": " + new String(chars);
         }
         return null;
     }
@@ -177,6 +177,7 @@ public class SequenceGraph extends JPanel {
     public void paint(Graphics g1d) {
         Graphics2D g = (Graphics2D) g1d;
         g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+//        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         int width = getWidth() - LABEL_WIDTH - 4;
         componentWidth = width;
         float charWidth = ((float) width) / maxLength;
