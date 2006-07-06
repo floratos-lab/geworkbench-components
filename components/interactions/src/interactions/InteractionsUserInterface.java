@@ -546,7 +546,8 @@ public class InteractionsUserInterface extends javax.swing.JScrollPane implement
         if (panel != null){
             allGenes.clear();
             for (DSGeneMarker marker : panel){
-                allGenes.add(marker);
+                if (!selectedGenes.contains(marker))
+                    allGenes.add(marker);
             }
             allGeneList.setModel(new DefaultListModel());
             allGeneList.setModel(allGeneModel);
