@@ -369,7 +369,7 @@ import java.util.HashMap;
     }
 
     void microarrayImageArea_mouseReleased(MouseEvent e) {
-        if (e.isMetaDown()) {
+        if (e.isMetaDown() && markerId != -1) {
             jDisplayPanelPopup.show(mainPanel, e.getX(), e.getY());
         }
     }
