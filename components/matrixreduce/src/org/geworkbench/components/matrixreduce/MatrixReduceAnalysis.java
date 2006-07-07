@@ -18,6 +18,10 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FilenameFilter;
 import java.util.ArrayList;
+import java.awt.image.BufferedImage;
+import java.awt.*;
+
+import com.larvalabs.chart.PSAMPlot;
 
 /**
  * @author John Watkinson
@@ -38,11 +42,29 @@ public class MatrixReduceAnalysis extends AbstractAnalysis implements Clustering
         return AbstractAnalysis.ZERO_TYPE;
     }
 
+    private static double[][] convertScoresToWeights(double[][] psamData) {
+        double[][] psamddG = new double[psamData.length][4];
+        for (int i = 0; i < psamData.length; i++) {
+            double logMean = 0;
+            for (int j = 0; j < 4; j++) {
+                logMean += Math.log(psamData[i][j]);
+            }
+            logMean /= 4;
+            for (int j = 0; j < 4; j++) {
+                psamddG[i][j] = Math.log(psamData[i][j]) - logMean;
+            }
+        }
+        return psamddG;
+    }
+
     public AlgorithmExecutionResults execute(Object input) {
         try {
+            //// todo - EXEC MatrixREDUCE here
+            // Use data/Spellman1998Alpha for microarray data for now
             DSMicroarraySet parentSet = ((DSMicroarraySetView) input).getMicroarraySet();
             File dir = new File(ANALYSIS_DIR);
             // Parse FASTA sequence data
+            // todo - don't use hardcoded sequence here
             File fastaFile = new File(dir, "clean_Y5_600_Bst.fa");
             ListOrderedMap<String, String> sequenceMap = new ListOrderedMap<String, String>();
             {
@@ -142,8 +164,20 @@ public class MatrixReduceAnalysis extends AbstractAnalysis implements Clustering
                     }
                     psam.setScores(scores);
                     psam.setConsensusSequence(sb.toString());
-                    File logoFile = new File(file.getParentFile(), file.getName().replace(".out", ".png"));
-                    ImageIcon psamImage = new ImageIcon(logoFile.getAbsolutePath());
+                    // Generate logo
+                    PSAMPlot psamPlot = new PSAMPlot(convertScoresToWeights(scores));
+                    psamPlot.setMaintainProportions(false);
+                    psamPlot.setAxisDensityScale(4);
+                    psamPlot.setAxisLabelScale(3);
+                    // psamPlot.setAxisTitleScale(3);
+                    BufferedImage image = new BufferedImage(MatrixReduceViewer.IMAGE_WIDTH, MatrixReduceViewer.IMAGE_HEIGHT, BufferedImage.TYPE_INT_RGB);
+                    Graphics2D graphics = (Graphics2D) image.getGraphics();
+                    psamPlot.layoutChart(MatrixReduceViewer.IMAGE_WIDTH, MatrixReduceViewer.IMAGE_HEIGHT, graphics.getFontRenderContext());
+                    psamPlot.paint(graphics);
+                    ImageIcon psamImage = new ImageIcon(image);
+                    // Load logo - no longer used.
+//                    File logoFile = new File(file.getParentFile(), file.getName().replace(".out", ".png"));
+//                    ImageIcon psamImage = new ImageIcon(logoFile.getAbsolutePath());
                     psam.setPsamImage(psamImage);
                     dataSet.add(psam);
                 } catch (Exception e) {

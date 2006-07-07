@@ -13,6 +13,7 @@ import org.geworkbench.engine.management.Subscribe;
 import org.geworkbench.events.ProjectEvent;
 
 import javax.swing.*;
+import javax.swing.border.LineBorder;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
 import java.awt.*;
@@ -35,6 +36,9 @@ public class MatrixReduceViewer implements VisualPlugin {
         FORWARD, BACKWARD, BOTH
     }
 
+    public static final int IMAGE_HEIGHT = 100;
+    public static final int IMAGE_WIDTH = 200;
+
     private static final int TAB_PSAM = 0;
     private static final int TAB_SEQUENCE = 1;
 
@@ -43,7 +47,6 @@ public class MatrixReduceViewer implements VisualPlugin {
     private DSMatrixReduceSet dataSet = null;
     private boolean imageMode = true;
     private TableModel model;
-    private static final int IMAGE_HEIGHT = 284;
     private JTable table;
     private int defaultTableRowHeight;
     private int selectedPSAM = 0;
@@ -57,6 +60,7 @@ public class MatrixReduceViewer implements VisualPlugin {
     private boolean showBackward = true;
     private String filterSequence = null;
     private double threshold = 0.0;
+    private JLabel psamLabel;
 
     private class ListModel extends AbstractListModel {
         public int getSize() {
@@ -228,8 +232,8 @@ public class MatrixReduceViewer implements VisualPlugin {
             }
         });
         sequencePanel.add(new JScrollPane(sequenceList, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER), BorderLayout.CENTER);
-        JPanel controlPanel = new JPanel();
-        controlPanel.setLayout(new BoxLayout(controlPanel, BoxLayout.Y_AXIS));
+        JPanel controlPanel = new JPanel(new BorderLayout());
+        // controlPanel.setLayout(new BoxLayout(controlPanel, BoxLayout.Y_AXIS));
         FormLayout layout = new FormLayout(
                 "right:max(40dlu;pref), 3dlu, 70dlu, 7dlu",
                 "");
@@ -287,7 +291,13 @@ public class MatrixReduceViewer implements VisualPlugin {
         builder.append("Threshold", thresholdField);
         builder.append("Sequence Search", searchField);
         builder.append("", filterButton);
-        controlPanel.add(builder.getPanel());
+        builder.append(Box.createVerticalGlue());
+        psamLabel = new JLabel("");
+        psamLabel.setBorder(new LineBorder(Color.black, 1));
+        JPanel flowPanel = new JPanel(new FlowLayout());
+        flowPanel.add(psamLabel);
+        controlPanel.add(flowPanel, BorderLayout.NORTH);
+        controlPanel.add(builder.getPanel(), BorderLayout.CENTER);
         sequencePanel.add(controlPanel, BorderLayout.WEST);
 
     }
@@ -298,6 +308,7 @@ public class MatrixReduceViewer implements VisualPlugin {
                 graph.createScores(dataSet.get(selectedPSAM), true);
                 graph.createScores(dataSet.get(selectedPSAM), false);
             }
+            psamLabel.setIcon(dataSet.get(selectedPSAM).getPsamImage());
         }
     }
 
