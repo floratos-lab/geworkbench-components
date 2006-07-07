@@ -14,9 +14,12 @@ import com.jgoodies.forms.builder.DefaultFormBuilder;
 
 /**
  * @author John Watkinson
+ *
+ * todo - make serializable work
  */
 public class MatrixReduceParamPanel extends AbstractSaveableParameterPanel implements Serializable {
 
+    
     /* Example run
 MatrixREDUCE -sequence=../sequences/Y5_600_Bst.fa \
 	-output=May31 \
@@ -74,6 +77,50 @@ MatrixREDUCE -sequence=../sequences/Y5_600_Bst.fa \
                 sequenceFile = chooser.getSelectedFile().getPath();
             }
         });
+    }
+
+    public int getDyadLength() {
+        return ((Number) dyadLength.getValue()).intValue();
+    }
+
+    public double getPValue() {
+        return ((Number) pValue.getValue()).doubleValue();
+    }
+
+    public int getMinCounts() {
+        return ((Number) minCounts.getValue()).intValue();
+    }
+
+    public int getFlank() {
+        return ((Number) flank.getValue()).intValue();
+    }
+
+    public int getMinGap() {
+        return ((Number) minGap.getValue()).intValue();
+    }
+
+    public int getMaxGap() {
+        return ((Number) maxGap.getValue()).intValue();
+    }
+
+    public int getNumPrint() {
+        return ((Number) numPrint.getValue()).intValue();
+    }
+
+    public boolean isSingleStrand() {
+        return singleStrand.isSelected();
+    }
+
+    public int getMaxMotif() {
+        return ((Number) maxMotif.getValue()).intValue();
+    }
+
+    public int getMaxIteration() {
+        return ((Number) maxIteration.getValue()).intValue();
+    }
+
+    public String getSequenceFile() {
+        return sequenceFile;
     }
 
 }

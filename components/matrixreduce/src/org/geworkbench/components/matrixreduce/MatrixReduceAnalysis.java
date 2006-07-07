@@ -1,9 +1,13 @@
 package org.geworkbench.components.matrixreduce;
 
+import com.larvalabs.chart.PSAMPlot;
 import org.apache.commons.collections15.map.ListOrderedMap;
 import org.geworkbench.analysis.AbstractAnalysis;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
+import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
+import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
+import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.bison.datastructure.complex.pattern.matrix.CSMatrixReduceSet;
 import org.geworkbench.bison.datastructure.complex.pattern.matrix.CSPositionSpecificAffinityMatrix;
 import org.geworkbench.bison.datastructure.complex.pattern.matrix.DSMatrixReduceSet;
@@ -13,24 +17,22 @@ import org.geworkbench.bison.model.analysis.ClusteringAnalysis;
 import org.geworkbench.engine.management.Publish;
 
 import javax.swing.*;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.FilenameFilter;
-import java.util.ArrayList;
-import java.awt.image.BufferedImage;
 import java.awt.*;
-
-import com.larvalabs.chart.PSAMPlot;
+import java.awt.image.BufferedImage;
+import java.io.*;
+import java.util.ArrayList;
 
 /**
  * @author John Watkinson
  */
 public class MatrixReduceAnalysis extends AbstractAnalysis implements ClusteringAnalysis {
 
+    private static final String TEMP_DIR = "temporary.files.directory";
+
     public static final String[] NUCLEOTIDES = {"A", "C", "G", "T"};
 
     private static final String ANALYSIS_DIR = "c:/tmp/matrixreduce/TestRun";
+    private static final String MICROARRAY_SET_FILE_NAME = "microarraySet.txt";
 
     public MatrixReduceAnalysis() {
         setLabel("Matrix Reduce");
@@ -58,13 +60,41 @@ public class MatrixReduceAnalysis extends AbstractAnalysis implements Clustering
     }
 
     public AlgorithmExecutionResults execute(Object input) {
+        // Use this to get params for MatrixREDUCE executable
+        MatrixReduceParamPanel params = (MatrixReduceParamPanel) aspp;
         try {
-            //// todo - EXEC MatrixREDUCE here
-            // Use data/Spellman1998Alpha for microarray data for now
-            DSMicroarraySet parentSet = ((DSMicroarraySetView) input).getMicroarraySet();
+            DSMicroarraySet<DSMicroarray> mSet = ((DSMicroarraySetView) input).getMicroarraySet();
+            // Write set out to tab-delimited format
+            String tempDirParent = System.getProperty(TEMP_DIR);
+            String tempDirName = "mr" + System.currentTimeMillis();
+            File tempDir = new File(tempDirParent, tempDirName);
+            tempDir.mkdirs();
+            File microarrayFile = new File(tempDir, MICROARRAY_SET_FILE_NAME);
+            // Write out microarray data
+            PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(microarrayFile)));
+            out.print("ID");
+            for (int i = 0; i < mSet.size(); i++) {
+                out.print("\t" + mSet.get(i).getLabel());
+            }
+            out.println();
+            DSItemList<DSGeneMarker> markers = mSet.getMarkers();
+            for (int j = 0; j < markers.size(); j++) {
+                out.print(markers.get(j).getLabel());
+                for (int i = 0; i < mSet.size(); i++) {
+                    double v = mSet.getValue(j, i);
+                    if (Double.isNaN(v)) {
+                        out.print("\tNA");
+                    } else {
+                        out.print("\t" + v);
+                    }
+                }
+                out.println();
+            }
+            out.close();
+            //// todo - EXEC MatrixREDUCE here, using microarrayFile.getPath() for microarray data and params.getSequenceFile() for sequence data
             File dir = new File(ANALYSIS_DIR);
             // Parse FASTA sequence data
-            // todo - don't use hardcoded sequence here
+            // todo - eventually don't use hardcoded sequence here
             File fastaFile = new File(dir, "clean_Y5_600_Bst.fa");
             ListOrderedMap<String, String> sequenceMap = new ListOrderedMap<String, String>();
             {
@@ -98,7 +128,7 @@ public class MatrixReduceAnalysis extends AbstractAnalysis implements Clustering
                     }
                 }
             });
-            DSMatrixReduceSet dataSet = new CSMatrixReduceSet(parentSet, "MatrixREDUCE Results");
+            DSMatrixReduceSet dataSet = new CSMatrixReduceSet(mSet, "MatrixREDUCE Results");
             for (File file : files) {
                 int aIndex = file.getName().lastIndexOf('_');
                 int bIndex = file.getName().lastIndexOf('.');
