@@ -11,6 +11,10 @@ import org.geworkbench.engine.management.Subscribe;
 import org.geworkbench.events.ProjectEvent;
 
 import java.awt.*;
+import org.geworkbench.engine.management.Publish;
+import javax.swing.ImageIcon;
+import java.awt.image.BufferedImage;
+import org.geworkbench.events.ImageSnapshotEvent;
 
 @AcceptTypes({CSSequenceSet.class}) public class PromoterView implements VisualPlugin {
 
@@ -28,6 +32,8 @@ import java.awt.*;
 
     public void jbInit() {
         main.setSequenceDB(new CSSequenceSet());
+        main.setPromterView(this);
+
     }
 
     /**
@@ -70,4 +76,14 @@ import java.awt.*;
     @Subscribe public void receive(org.geworkbench.events.SequenceDiscoveryTableEvent e, Object publisher) {
         main.sequenceDiscoveryTableRowSelected(e);
     }
+    /**
+     * Publish the image of the result
+     * @return ImageSnapshotEvent
+     */
+    @Publish public org.geworkbench.events.ImageSnapshotEvent
+             createImageSnapshot(ImageSnapshotEvent event) {
+
+         return event;
+   }
+
 }
