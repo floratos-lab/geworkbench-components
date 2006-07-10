@@ -35,7 +35,6 @@ import org.geworkbench.util.promoter.SequencePatternDisplayPanel;
 import org.geworkbench.util.promoter.pattern.Display;
 import org.geworkbench.util.promoter.pattern.PatternDisplay;
 import java.awt.image.BufferedImage;
-import org.geworkbench.components.matrixreduce.MatrixReduceViewer;
 import com.larvalabs.chart.PSAMPlot;
 
 
