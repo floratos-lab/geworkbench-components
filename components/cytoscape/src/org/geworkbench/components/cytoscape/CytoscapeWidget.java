@@ -527,7 +527,6 @@ public class CytoscapeWidget implements VisualPlugin, MenuListener {
                 YFilesLayoutPlugin plugin = new YFilesLayoutPlugin(proxy);
                 OrganicLayout organiclayout = new OrganicLayout(plugin);
                 organiclayout.actionPerformed(null);
-                try{Thread.currentThread().sleep(2000);}catch(InterruptedException e){};
                 Cytoscape.getCurrentNetworkView().applyVizmapper(interactionsVisualStyle);
                 Cytoscape.getCurrentNetworkView().fitContent();
             }
