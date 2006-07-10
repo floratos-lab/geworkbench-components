@@ -6,8 +6,10 @@
 
 package interactions;
 
+import com.sun.media.sound.Toolkit;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.math.BigDecimal;
 import java.rmi.RemoteException;
@@ -17,8 +19,11 @@ import java.util.Comparator;
 import java.util.Vector;
 import javax.swing.AbstractListModel;
 import javax.swing.DefaultListModel;
+import javax.swing.JLabel;
+import javax.swing.JTable;
 import javax.swing.ListModel;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableCellRenderer;
 import javax.xml.rpc.ServiceException;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
@@ -50,6 +55,25 @@ public class InteractionsUserInterface extends javax.swing.JScrollPane implement
     public InteractionsUserInterface() {
         initComponents();
         initConnections();
+        ppInteractions.setSelected(true);
+        ppInteractions.setToolTipText("# of Protein-Protein Interactions");
+        pdInteractions.setSelected(true);
+        pdInteractions.setEnabled(true);
+        pdInteractions.setToolTipText("# of Protein-DNA Interactions");
+        jTable1.getTableHeader().setDefaultRenderer(tableRenderer);
+        jTable1.getTableHeader().setEnabled(true);
+        jTable1.getTableHeader().addMouseListener(new MouseAdapter(){
+           public void mouseClicked(MouseEvent e){
+               int col = jTable1.getTableHeader().columnAtPoint(e.getPoint());
+               if (col == 2){
+                   ppInteractions.setSelected(!ppInteractions.isSelected());
+               }
+               else if (col == 3){
+                   pdInteractions.setSelected(!pdInteractions.isSelected());
+               }
+               jTable1.getTableHeader().repaint();
+           } 
+        });
     }
     
     public Component getComponent(){
@@ -260,8 +284,10 @@ public class InteractionsUserInterface extends javax.swing.JScrollPane implement
                 BigDecimal entrezId = (BigDecimal)data.get(1);
                 try {
                     Vector<Object> neighbors = new Vector<Object>();
-                    neighbors.addAll(Arrays.asList(interactionsService.getFIRSTNEIGHBORS(entrezId, "protein-protein")));
-                    neighbors.addAll(Arrays.asList(interactionsService.getFIRSTNEIGHBORS(entrezId, "protein-dna")));
+                    if (ppInteractions.isSelected())
+                        neighbors.addAll(Arrays.asList(interactionsService.getFIRSTNEIGHBORS(entrezId, "protein-protein")));
+                    if (pdInteractions.isSelected())
+                        neighbors.addAll(Arrays.asList(interactionsService.getFIRSTNEIGHBORS(entrezId, "protein-dna")));
                     matrix.setMicroarraySet((DSMicroarraySet)dataset);
                     int eid = entrezId.intValue();
                     CSGeneMarker marker = new CSGeneMarker();
@@ -283,7 +309,7 @@ public class InteractionsUserInterface extends javax.swing.JScrollPane implement
                             matrix.add(serial, serial2, 0.8f);
                         }
                     }
-                dataSet = new AdjacencyMatrixDataSet(matrix, serial, 0.5f, 2, "Adjacency Matrix", dataset.getLabel(), dataset);
+                    dataSet = new AdjacencyMatrixDataSet(matrix, serial, 0.5f, 2, "Adjacency Matrix", dataset.getLabel(), dataset);
                 } catch (RemoteException re){
                     re.printStackTrace();
                 }
@@ -312,6 +338,9 @@ public class InteractionsUserInterface extends javax.swing.JScrollPane implement
     private javax.swing.JButton removeButton;
     private javax.swing.JList selectedGenesList;
     // End of variables declaration//GEN-END:variables
+    
+    private javax.swing.JCheckBox ppInteractions = new javax.swing.JCheckBox("# of Protein-Protein Interactions");
+    private javax.swing.JCheckBox pdInteractions = new javax.swing.JCheckBox("# of Protein-DNA Interactions");
     
     private void allGeneListHandler(MouseEvent evt){
         if (evt.getClickCount() == 2){
@@ -498,6 +527,20 @@ public class InteractionsUserInterface extends javax.swing.JScrollPane implement
 //            TableWorker worker = new TableWorker(row, column);
 //            worker.start();
             return "loading ...";
+        }
+    };
+    
+    TableCellRenderer tableRenderer = new TableCellRenderer(){
+        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column){
+            if (row == -1){
+                if (column == 2){
+                    return ppInteractions;
+                } else if (column == 3) {
+                    return pdInteractions;
+                }
+            }
+//            return super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+            return new JLabel((String)value);
         }
     };
     
