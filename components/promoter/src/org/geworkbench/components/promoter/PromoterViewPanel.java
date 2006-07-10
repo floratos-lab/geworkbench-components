@@ -35,6 +35,8 @@ import org.geworkbench.util.promoter.SequencePatternDisplayPanel;
 import org.geworkbench.util.promoter.pattern.Display;
 import org.geworkbench.util.promoter.pattern.PatternDisplay;
 import java.awt.image.BufferedImage;
+import org.geworkbench.components.matrixreduce.MatrixReduceViewer;
+import com.larvalabs.chart.PSAMPlot;
 
 
 /**
@@ -195,7 +197,7 @@ public class PromoterViewPanel extends JPanel {
         seqDisPanel.setMaximumSize(new Dimension(32767, 32767));
         seqDisPanel.setPreferredSize(new Dimension(0, 20));
         jInfoPanel.setBorder(BorderFactory.createEtchedBorder());
-        jInfoPanel.setMinimumSize(new Dimension(14, 50));
+        jInfoPanel.setMinimumSize(new Dimension(200, 100));
         jInfoPanel.setOpaque(true);
         jInfoPanel.setPreferredSize(new Dimension(20, 60));
         //jInfoPanel.addHyperlinkListener(this);
@@ -967,7 +969,7 @@ public class PromoterViewPanel extends JPanel {
                               getModel();
         if (ls.isEmpty()) {
             JOptionPane.showMessageDialog(null,
-                    "No Transcription Factor is Selected.",
+                                          "No Transcription Factor is Selected.",
                                           "Please check",
                                           JOptionPane.ERROR_MESSAGE);
             return;
@@ -1141,63 +1143,22 @@ public class PromoterViewPanel extends JPanel {
             jInfoPanel.removeAll();
             logoPanel.removeAll();
             String id = pattern.getJasparID();
-            if (id == null) {
-                jInfoPanel = new JPanel();
-                RenderingHints hints = new RenderingHints(RenderingHints.
-                        KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                DistributionLogo[] logos = ((TranscriptionFactor) pattern).
-                                           getMatrix().getLogo();
-                for (int k = 0; k < logos.length; k++) {
-                    jInfoPanel.setLayout(new GridLayout(1, logos.length));
-//                    jInfoPanel.setMinimumSize(new Dimension(30, 50));
-//                    jInfoPanel.setPreferredSize(new Dimension(20 * logos.length,
-//                            80));
-//                    logos[k].setPreferredSize(new Dimension(20, 60));
-                    logos[k].setRenderingHints(hints);
-                    jInfoPanel.add(logos[k]);
-                    matrixDisplayPanel.removeAll();
-                    matrixDisplayPanel.setLayout(new BorderLayout());
-                    JTable table = matrixPane.createMatrixTable(pattern.
-                            getMatrix());
-                    //table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-                    matrixDisplayPanel.add(new JScrollPane(table),
-                                           BorderLayout.WEST);
-                    matrixDisplayPanel.add(reverseButton, BorderLayout.NORTH);
-                    logoPanel.add(jInfoPanel, BorderLayout.CENTER);
-                    //logoPanel.add(matrixDisplayPanel, BorderLayout.CENTER);
 
-                }
-                //id = "MA0008";
-            } else {
-                String iniURL =
-                        "http://jaspar.cgb.ki.se/cgi-bin/jaspar_db.pl?ID=" +
-                        id + "&rm=present";
-                //below is the reverse logo
-                String revURL = "http://mordor.cgb.ki.se/jaspar2005//TEMP/" +
-                                pattern.getJasparID().trim() + "_BIG.png";
-                //below is the normal logo
-                iniURL = "http://jaspar.cgb.ki.se//TEMP/" +
-                         pattern.getJasparID().trim() + "_BIG.png";
-                jInfoPanel = new ImagePanel();
-//                if (!fivePrimerDirection) {
-//                    iniURL = revURL;
-//                    ((ImagePanel) jInfoPanel).setImage(iniURL);
-//
-//                }
-                //((ImagePanel) jInfoPanel).setImage(iniURL);
-                matrixDisplayPanel.removeAll();
-                ((ImagePanel) jInfoPanel).setImage(iniURL);
-                matrixDisplayPanel.setLayout(new BorderLayout());
-                JTable table = matrixPane.createMatrixTable(pattern.getMatrix());
-                // setting the size of the table and its columns
-                table.setPreferredScrollableViewportSize(new Dimension(800, 100));
-                //table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-                matrixDisplayPanel.add(new JScrollPane(table),
-                                       BorderLayout.CENTER);
-                logoPanel.add(jInfoPanel, BorderLayout.NORTH);
-                logoPanel.add(matrixDisplayPanel, BorderLayout.CENTER);
-
-            }
+//            String iniURL = "http://jaspar.cgb.ki.se//TEMP/" +
+//                            pattern.getJasparID().trim() + "_BIG.png";
+            jInfoPanel = new ImagePanel();
+            matrixDisplayPanel.removeAll();
+            matrixDisplayPanel.setLayout(new BorderLayout());
+            ((ImagePanel) jInfoPanel).setImage(pattern.getMatrix().
+                                               getScores());
+            JTable table = matrixPane.createMatrixTable(pattern.getMatrix());
+            // setting the size of the table and its columns
+            table.setPreferredScrollableViewportSize(new Dimension(800, 100));
+            //table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+            matrixDisplayPanel.add(new JScrollPane(table),
+                                   BorderLayout.CENTER);
+            logoPanel.add(jInfoPanel, BorderLayout.NORTH);
+            logoPanel.add(matrixDisplayPanel, BorderLayout.CENTER);
 
             this.repaint();
             jTabbedPane2.setSelectedIndex(LOGO);
@@ -2336,10 +2297,12 @@ public class PromoterViewPanel extends JPanel {
     class ImagePanel extends JPanel {
 
         private Image img;
+        private int WIDTH = 400;
+        private int HEIGHT = 200;
 
         public ImagePanel() {
             this.setBackground(Color.white);
-            //setSize(new Dimension(300, 200));
+            //  setSize(new Dimension(100, 200));
         }
 
         //painting Methods
@@ -2369,16 +2332,12 @@ public class PromoterViewPanel extends JPanel {
             try {
                 Toolkit toolkit = Toolkit.getDefaultToolkit();
                 Image im = toolkit.getImage(new URL(url));
-
                 MediaTracker t = new MediaTracker(this);
-
                 t.addImage(im, 0);
-
                 try {
                     t.waitForID(0);
                 } catch (InterruptedException e) {
                 }
-
                 int width = im.getWidth(null);
                 if (width > 0) {
                     this.img = im;
@@ -2388,6 +2347,29 @@ public class PromoterViewPanel extends JPanel {
 
             }
 
+        }
+
+        public void setImage(double scores[][]) {
+            PSAMPlot psamPlot = new PSAMPlot(scores);
+            psamPlot.setMaintainProportions(false);
+            psamPlot.setAxisDensityScale(1);
+            psamPlot.setYTitle("bits");
+            psamPlot.setAxisLabelScale(3);
+            psamPlot.setAllowXLabelRotation(false);
+            BufferedImage image = new BufferedImage(WIDTH,
+                    HEIGHT, BufferedImage.TYPE_INT_RGB);
+            Graphics2D graphics = (Graphics2D) image.getGraphics();
+            psamPlot.layoutChart(WIDTH,
+                                 HEIGHT,
+                                 graphics.getFontRenderContext());
+
+            psamPlot.paint(graphics);
+            //ImageIcon psamImage = new ImageIcon(image);
+            // Load logo - no longer used.
+            // File logoFile = new File(file.getParentFile(), file.getName().replace(".out", ".png"));
+            // ImageIcon psamImage = new ImageIcon(logoFile.getAbsolutePath());
+            //psam.setPsamImage(psamImage);
+            setImage(image);
         }
 
         public Dimension getPreferredSize() {
