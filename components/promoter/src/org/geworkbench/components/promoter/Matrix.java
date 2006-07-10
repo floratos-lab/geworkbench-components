@@ -75,6 +75,18 @@ public class Matrix {
 
     }
 
+    public double[][] getScores() {
+        double scores[][] = new double[countTable.length][symbols.length];
+        for (int i = 0; i < countTable.length; i++) {
+            for (int j = 0; j < symbols.length; j++) {
+                double rawValue = countTable[i].get(symbols[j]);
+                scores[i][j] = Math.abs(rawValue * Math.log(4 * rawValue));
+
+            }
+        }
+        return scores;
+    }
+
     public double score(DSSequence sequence, int offset) {
         double score = 0;
         int cols = countTable.length;
@@ -107,7 +119,10 @@ public class Matrix {
         int cUP = 0;
         int cDN = 0;
         int i = 0;
-        for (int offset = 0; offset < Math.min(scores.length / 3, sequence.length() - countTable.length - 1); offset++) {
+        for (int offset = 0;
+                          offset < Math.min(scores.length / 3,
+                                            sequence.length() -
+                                            countTable.length - 1); offset++) {
             double score1 = Math.exp(score(sequence, offset));
             scores[i++] = score1;
             double score2 = Math.exp(scoreReverse(sequence, offset));
@@ -125,7 +140,9 @@ public class Matrix {
         return cUP + cDN;
     }
 
-    public void countSequenceMatches(int length, double threshold, int averageNo, int partialLength, DSSequence sequence, MatchStats ms) {
+    public void countSequenceMatches(int length, double threshold,
+                                     int averageNo, int partialLength,
+                                     DSSequence sequence, MatchStats ms) {
         double score;
         int count3 = 0;
         int count5 = 0;
@@ -157,24 +174,24 @@ public class Matrix {
     private char getComplement(char char1) {
 
         switch (char1) {
-            case 'A':
-                return 'T';
-            case 'C':
-                return 'G';
-            case 'G':
-                return 'C';
-            case 'T':
-                return 'A';
-            case 'a':
-                return 't';
-            case 'c':
-                return 'g';
-            case 'g':
-                return 'c';
-            case 't':
-                return 'a';
-            default:
-                return char1;
+        case 'A':
+            return 'T';
+        case 'C':
+            return 'G';
+        case 'G':
+            return 'C';
+        case 'T':
+            return 'A';
+        case 'a':
+            return 't';
+        case 'c':
+            return 'g';
+        case 'g':
+            return 'c';
+        case 't':
+            return 'a';
+        default:
+            return char1;
         }
 
     }
