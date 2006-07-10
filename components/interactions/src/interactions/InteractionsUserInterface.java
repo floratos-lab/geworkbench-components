@@ -6,7 +6,6 @@
 
 package interactions;
 
-import com.sun.media.sound.Toolkit;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
@@ -63,16 +62,15 @@ public class InteractionsUserInterface extends javax.swing.JScrollPane implement
         jTable1.getTableHeader().setDefaultRenderer(tableRenderer);
         jTable1.getTableHeader().setEnabled(true);
         jTable1.getTableHeader().addMouseListener(new MouseAdapter(){
-           public void mouseClicked(MouseEvent e){
-               int col = jTable1.getTableHeader().columnAtPoint(e.getPoint());
-               if (col == 2){
-                   ppInteractions.setSelected(!ppInteractions.isSelected());
-               }
-               else if (col == 3){
-                   pdInteractions.setSelected(!pdInteractions.isSelected());
-               }
-               jTable1.getTableHeader().repaint();
-           } 
+            public void mouseClicked(MouseEvent e){
+                int col = jTable1.getTableHeader().columnAtPoint(e.getPoint());
+                if (col == 2){
+                    ppInteractions.setSelected(!ppInteractions.isSelected());
+                } else if (col == 3){
+                    pdInteractions.setSelected(!pdInteractions.isSelected());
+                }
+                jTable1.getTableHeader().repaint();
+            }
         });
     }
     
