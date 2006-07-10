@@ -164,7 +164,7 @@ public class MatrixReduceAnalysis extends AbstractAnalysis implements Clustering
             }
             
             // Parse FASTA sequence data
-            File fastaFile = new File( dir, filename );
+            File fastaFile = new File( params.getSequenceFile() );
             
             ListOrderedMap<String, String> sequenceMap = new ListOrderedMap<String, String>();
             {
