@@ -89,7 +89,7 @@ public class MatrixReduceAnalysis extends AbstractAnalysis implements Clustering
             String tempDirName = "mr" + System.currentTimeMillis();
             File tempDir = new File( tempDirParent, tempDirName );
             tempDir.mkdirs();
-            File microarrayFile = new File( tempDir, MICROARRAY_SET_FILE_NAME );
+            File microarrayFile = new File( MICROARRAY_SET_FILE_NAME );
             // Write out microarray data
             PrintWriter out = new PrintWriter( new BufferedWriter( new FileWriter( microarrayFile ) ) );
             out.print( "ID" );
@@ -114,9 +114,9 @@ public class MatrixReduceAnalysis extends AbstractAnalysis implements Clustering
             
 
             // FIXME - hardcoding test file for demo purposes only.
-            String filename = "clean_Y5_600_Bst.fa";
+            String filename = "Y5_600_Bst.fa";
 
-            File dir = new File( ANALYSIS_DIR );
+            File dir = tempDir;
             if ( !dir.exists() ) {// create dir and copy file from /data to this dir if it does not exist.
                 log.warn( "Directory " + dir + " does not exist ... creating now." );
                 dir.mkdirs();
@@ -150,7 +150,7 @@ public class MatrixReduceAnalysis extends AbstractAnalysis implements Clustering
 
                 // FIXME refactor to construct query from params from the MatrixReduceParamPanel.
                 Process process = Runtime.getRuntime().exec( query );
-                InputStream is = process.getInputStream();
+                InputStream is = process.getErrorStream();
                 InputStreamReader isr = new InputStreamReader( is );
                 BufferedReader br = new BufferedReader( isr );
                 String line;

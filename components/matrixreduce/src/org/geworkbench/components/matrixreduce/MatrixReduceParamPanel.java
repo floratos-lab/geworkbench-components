@@ -45,7 +45,7 @@ MatrixREDUCE -sequence=../sequences/Y5_600_Bst.fa \
     private JFormattedTextField maxMotif = new JFormattedTextField(20);
     private JFormattedTextField maxIteration = new JFormattedTextField(1000000);
     private JButton sequenceButton = new JButton("Load...");
-    private String sequenceFile = new String("data/clean_Y5_600_Bst.fa");
+    private String sequenceFile = new String("data/Y5_600_Bst.fa");
 
     public MatrixReduceParamPanel() {
         this.setLayout(new BorderLayout());
