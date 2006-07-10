@@ -112,11 +112,44 @@ public class MatrixReduceAnalysis extends AbstractAnalysis implements Clustering
             }
             out.close();
             
-            //invoking MatrixREDUCE.exe here
+
+            // FIXME - hardcoding test file for demo purposes only.
+            String filename = "clean_Y5_600_Bst.fa";
+
+            File dir = new File( ANALYSIS_DIR );
+            if ( !dir.exists() ) {// create dir and copy file from /data to this dir if it does not exist.
+                log.warn( "Directory " + dir + " does not exist ... creating now." );
+                dir.mkdirs();
+                Util.copyFile( MatrixReduceAnalysis.class.getResourceAsStream( "/data/" + filename ), new File( dir,
+                        filename ) );
+            }
+            
+            // get params and construct query
+            int flank = params.getFlank();
+            double pval = params.getPValue();
+            int dyadLength = params.getDyadLength();
+            int minGap = params.getMinGap();
+            int minCounts = params.getMinCounts();
+            int maxGap = params.getMaxGap();
+            int maxIteration = params.getMaxIteration();
+            int maxMotif = params.getMaxMotif();
+            
+            String queryBase = "MatrixREDUCE.exe -sequence=" + params.getSequenceFile() + " -expression="
+                    + microarrayFile.getPath();
+
+            String queryParams = " -p=" + pval + " -fl=" + flank + " -dy=" + dyadLength + " -min_g=" + minGap
+                    + "-min_c=" + minCounts + " -max_g=" + maxGap + " -max_i=" + maxIteration + " -max_m=" + maxMotif + 
+                    " -o=" + dir.getAbsolutePath();
+
+            String query = queryBase + queryParams;
+
+            log.warn( "invoking MatrixREDUCE with: " + query );
+
+            // invoking MatrixREDUCE.exe
             try {
-                
-                //FIXME refactor to construct query from params from the MatrixReduceParamPanel.
-                Process process = Runtime.getRuntime().exec( "MatrixREDUCE.exe -sequence=" + params.getSequenceFile() + " -expression=" + microarrayFile.getPath() );
+
+                // FIXME refactor to construct query from params from the MatrixReduceParamPanel.
+                Process process = Runtime.getRuntime().exec( query );
                 InputStream is = process.getInputStream();
                 InputStreamReader isr = new InputStreamReader( is );
                 BufferedReader br = new BufferedReader( isr );
@@ -128,17 +161,6 @@ public class MatrixReduceAnalysis extends AbstractAnalysis implements Clustering
 
             } catch ( IOException e ) {
                 e.printStackTrace();
-            }
-            
-
-            //FIXME - hardcoding test file for demo purposes only.
-            String filename = "clean_Y5_600_Bst.fa";
-            
-            File dir = new File( ANALYSIS_DIR );
-            if (!dir.exists()){//create dir and copy file from /data to this dir if it does not exist.
-                log.warn("Directory " + dir + " does not exist ... creating now.");
-                dir.mkdirs();
-                Util.copyFile(MatrixReduceAnalysis.class.getResourceAsStream("/data/" + filename), new File( dir, filename ));
             }
             
             // Parse FASTA sequence data
