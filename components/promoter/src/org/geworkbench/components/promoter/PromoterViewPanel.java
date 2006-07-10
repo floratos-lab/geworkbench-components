@@ -8,11 +8,10 @@ import java.net.URL;
 import java.text.DecimalFormat;
 import java.util.*;
 import java.util.List;
-
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.*;
-
+import org.biojava.bio.gui.DistributionLogo;
 import org.geworkbench.bison.datastructure.biocollections.DSCollection;
 import org.geworkbench.bison.datastructure.biocollections.sequences.
         CSSequenceSet;
@@ -28,17 +27,14 @@ import org.geworkbench.bison.datastructure.complex.pattern.sequence.
 import org.geworkbench.components.promoter.modulediscovery.*;
 import org.geworkbench.events.GeneSelectorEvent;
 import org.geworkbench.events.SequenceDiscoveryTableEvent;
+import org.geworkbench.util.JAutoList;
 import org.geworkbench.util.RandomSequenceGenerator;
 import org.geworkbench.util.associationdiscovery.statistics.ClusterStatistics;
 import org.geworkbench.util.patterns.*;
 import org.geworkbench.util.promoter.SequencePatternDisplayPanel;
 import org.geworkbench.util.promoter.pattern.Display;
 import org.geworkbench.util.promoter.pattern.PatternDisplay;
-import org.geworkbench.util.JAutoList;
-import org.biojava.bio.gui.DistributionLogo;
-
-//import java.awt.image.renderable.ParameterBlock;
-//import javax.media.jai.JAI;
+import java.awt.image.BufferedImage;
 
 
 /**
@@ -51,7 +47,7 @@ import org.biojava.bio.gui.DistributionLogo;
  * @version 1.0
  */
 
-public class PromoterViewPanel extends JPanel implements HyperlinkListener {
+public class PromoterViewPanel extends JPanel {
     public class ScoreStats {
         public double score;
         public double pValue;
@@ -59,6 +55,7 @@ public class PromoterViewPanel extends JPanel implements HyperlinkListener {
     }
 
 
+    private PromoterView promoterView;
     DSPanel<DSGeneMarker> markers = null;
     private DSSequenceSet sequenceDB = null;
     private JFileChooser fc = null;
@@ -73,16 +70,14 @@ public class PromoterViewPanel extends JPanel implements HyperlinkListener {
     //Layouts
 
     private BorderLayout borderLayout2 = new BorderLayout();
-
     //Panels and Panes
     private JScrollPane seqScrollPane = new JScrollPane();
-
     private SequencePatternDisplayPanel seqDisPanel = new
             SequencePatternDisplayPanel();
     JPanel jPanel2 = new JPanel();
     JPanel logoPanel = new JPanel();
     TFListModel tfListModel = new TFListModel();
-    String[] tfNameSet;
+    Vector tfNameSet;
     BorderLayout borderLayout1 = new BorderLayout();
     JButton displayBtn = new JButton();
     BorderLayout borderLayout3 = new BorderLayout();
@@ -93,6 +88,7 @@ public class PromoterViewPanel extends JPanel implements HyperlinkListener {
     JList jTranscriptionFactorList = new JList();
     GridLayout gridLayout1 = new GridLayout();
     JButton jButton2 = new JButton();
+    JButton reverseButton = new JButton("Reverse complement");
     JProgressBar jProgressBar1 = new JProgressBar();
     ButtonGroup sourceGroup = new ButtonGroup();
     File resultFile = null;
@@ -122,6 +118,8 @@ public class PromoterViewPanel extends JPanel implements HyperlinkListener {
     protected JMenuItem addToPanelItem = new JMenuItem("Add");
     protected JMenuItem clearSelectionItem = new JMenuItem(
             "Remove from Selected List.");
+    protected JMenuItem saveItem = new JMenuItem(
+            "Save");
     JPanel jPanel6 = new JPanel();
     JPanel jPanel9 = new JPanel();
     JLabel jLabel2 = new JLabel();
@@ -173,8 +171,10 @@ public class PromoterViewPanel extends JPanel implements HyperlinkListener {
     private final static int SEQUENCE = 2;
     private final static int LOGO = 0;
     private final static int PARAMETERS = 1;
-
+    protected JMenuItem imageSnapShotItem = new JMenuItem("Image SnapShot");
     private HashMap primerToMotif = new HashMap();
+    private boolean fivePrimerDirection = true;
+    private TranscriptionFactor currentTF;
 
     public PromoterViewPanel() {
         try {
@@ -245,6 +245,15 @@ public class PromoterViewPanel extends JPanel implements HyperlinkListener {
         matrixPane.setMinimumSize(new Dimension(50, 100));
         matrixPane.setPreferredSize(new Dimension(100, 100));
         matrixPane.setToolTipText("Detaill");
+        reverseButton = new JButton("Reverse complement");
+        reverseButton.addActionListener(new java.awt.event.ActionListener() {
+
+            public void actionPerformed(ActionEvent e) {
+
+                reverseButton_actionPerformed(e);
+            }
+        });
+
         //jEditorPane1.add(matrixTable);
         itemListPopup.add(addToPanelItem);
         selectedItemListPopup.add(clearSelectionItem);
@@ -257,6 +266,14 @@ public class PromoterViewPanel extends JPanel implements HyperlinkListener {
         addToPanelItem.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 addSelectionPressed();
+            }
+
+        });
+        saveItem = new JMenuItem(
+                "Save");
+        saveItem.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                saveResultToAFile();
             }
 
         });
@@ -279,12 +296,12 @@ public class PromoterViewPanel extends JPanel implements HyperlinkListener {
         jSaveButton.setText(" Save");
         jSaveButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                jSaveButton_actionPerformed(e);
+                saveResultToAFile();
             }
         });
         jaddNewTFB.setMaximumSize(new Dimension(100, 27));
         jaddNewTFB.setMinimumSize(new Dimension(73, 27));
-        jaddNewTFB.setToolTipText("Add new transcription factor");
+        jaddNewTFB.setToolTipText("Add a new transcription factor.");
         jaddNewTFB.setText("Add TF");
         jaddNewTFB.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -690,7 +707,34 @@ public class PromoterViewPanel extends JPanel implements HyperlinkListener {
                                               new Insets(0, 0, 10, 0), 0, 0));
         jSplitPane1.setDividerLocation(245);
         jTabbedPane2.setSelectedIndex(SEQUENCE);
+        imageSnapShotItem.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                createImageSnapshot();
+            }
+        });
+
+        seqDisPanel.addMenuItem(imageSnapShotItem);
+        seqDisPanel.addMenuItem(saveItem);
     }
+
+    public org.geworkbench.events.ImageSnapshotEvent
+            createImageSnapshot() {
+        JPanel graph = seqDisPanel.getSeqViewWPanel();
+        Dimension panelSize = graph.getSize();
+        BufferedImage image = new BufferedImage(panelSize.width,
+                                                panelSize.height,
+                                                BufferedImage.TYPE_INT_RGB);
+        Graphics g = image.getGraphics();
+        graph.paint(g);
+        ImageIcon icon = new ImageIcon(image, "Promoter");
+        org.geworkbench.events.ImageSnapshotEvent event = new org.geworkbench.
+                events.ImageSnapshotEvent("Promoter Snapshot", icon,
+                                          org.geworkbench.events.
+                                          ImageSnapshotEvent.Action.SAVE);
+        promoterView.createImageSnapshot(event);
+        return event;
+    }
+
 
     /**
      * @todo addto use on transcriptionFactorList
@@ -788,6 +832,10 @@ public class PromoterViewPanel extends JPanel implements HyperlinkListener {
 
     }
 
+    public void setPromterView(PromoterView promterView) {
+        this.promoterView = promterView;
+    }
+
     /**
      * clear
      */
@@ -814,6 +862,10 @@ public class PromoterViewPanel extends JPanel implements HyperlinkListener {
 
     public DSSequenceSet getSequenceDB() {
         return sequenceDB;
+    }
+
+    public PromoterView getPromterView() {
+        return promoterView;
     }
 
     void fillupTranscriptionFactorList() throws FileNotFoundException,
@@ -871,7 +923,8 @@ public class PromoterViewPanel extends JPanel implements HyperlinkListener {
         }
         b.close();
 
-        tfNameSet = new String[factors.size()];
+        tfNameSet = new Vector<String>();
+        //tfNameSet.add(); = "";
         int i = 0;
         for (Iterator it = factors.keySet().iterator(); it.hasNext(); ) {
             Object id = it.next();
@@ -885,10 +938,11 @@ public class PromoterViewPanel extends JPanel implements HyperlinkListener {
             mx.normalize();
             tf.setMatrix(mx);
             //
-            tfNameSet[i++] = name;
+            tfNameSet.add(name);
+            i++;
             tfMap.put(name, tf);
         }
-        Arrays.sort(tfNameSet);
+        Collections.sort(tfNameSet);
 //        Arrays.sort(names);
 //        for (int k = 0; k < names.length; k++) {
 //            Object tf = map.get(names[k]);
@@ -907,14 +961,36 @@ public class PromoterViewPanel extends JPanel implements HyperlinkListener {
     }
 
     void displayBtn_actionPerformed(ActionEvent e) {
+
+        DefaultListModel ls = (DefaultListModel)
+                              jSelectedTFList.
+                              getModel();
+        if (ls.isEmpty()) {
+            JOptionPane.showMessageDialog(null,
+                    "No Transcription Factor is Selected.",
+                                          "Please check",
+                                          JOptionPane.ERROR_MESSAGE);
+            return;
+        }
         this.mappingPatterns();
-         jTabbedPane2.setSelectedIndex(SEQUENCE);
+        jTabbedPane2.setSelectedIndex(SEQUENCE);
     }
 
-    void jSaveButton_actionPerformed(ActionEvent e) {
+    void saveResultToAFile() {
         //this will save the results into a file.
         if (sequenceDB == null) {
             return;
+        }
+        final HashMap<CSSequence,
+                PatternSequenceDisplayUtil>
+                tfPatterns = seqDisPanel.getPatternTFMatches();
+        final Set<CSSequence> keySet = tfPatterns.keySet();
+        if (tfPatterns == null || keySet == null || keySet.isEmpty()) {
+            JOptionPane.showMessageDialog(null, "No pattern is detected.",
+                                          "Please check",
+                                          JOptionPane.ERROR_MESSAGE);
+            return;
+
         }
         fc2 = new JFileChooser();
         fc2.addActionListener(new ActionListener() {
@@ -926,10 +1002,7 @@ public class PromoterViewPanel extends JPanel implements HyperlinkListener {
                         String tab = "\t";
                         BufferedWriter bw = new BufferedWriter(new FileWriter(
                                 file));
-                        HashMap<CSSequence,
-                                PatternSequenceDisplayUtil>
-                                tfPatterns = seqDisPanel.getPatternTFMatches();
-                        Set<CSSequence> keySet = tfPatterns.keySet();
+
                         for (CSSequence sequence : keySet) {
                             bw.write(sequence.getLabel());
                             bw.write(tab);
@@ -1023,6 +1096,7 @@ public class PromoterViewPanel extends JPanel implements HyperlinkListener {
                 String[] g = br.readLine().trim().split("\t");
                 String[] t = br.readLine().trim().split("\t");
                 br.close();
+
                 for (int indx = 0; indx < a.length; indx++) {
                     mx.setCounts('A', indx, Double.parseDouble(a[indx]));
                     mx.setCounts('C', indx, Double.parseDouble(c[indx]));
@@ -1088,6 +1162,7 @@ public class PromoterViewPanel extends JPanel implements HyperlinkListener {
                     //table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
                     matrixDisplayPanel.add(new JScrollPane(table),
                                            BorderLayout.WEST);
+                    matrixDisplayPanel.add(reverseButton, BorderLayout.NORTH);
                     logoPanel.add(jInfoPanel, BorderLayout.CENTER);
                     //logoPanel.add(matrixDisplayPanel, BorderLayout.CENTER);
 
@@ -1097,17 +1172,28 @@ public class PromoterViewPanel extends JPanel implements HyperlinkListener {
                 String iniURL =
                         "http://jaspar.cgb.ki.se/cgi-bin/jaspar_db.pl?ID=" +
                         id + "&rm=present";
-                iniURL = "http://mordor.cgb.ki.se/jaspar2005//TEMP/" +
+                //below is the reverse logo
+                String revURL = "http://mordor.cgb.ki.se/jaspar2005//TEMP/" +
+                                pattern.getJasparID().trim() + "_BIG.png";
+                //below is the normal logo
+                iniURL = "http://jaspar.cgb.ki.se//TEMP/" +
                          pattern.getJasparID().trim() + "_BIG.png";
                 jInfoPanel = new ImagePanel();
-                ((ImagePanel) jInfoPanel).setImage(iniURL);
-
+//                if (!fivePrimerDirection) {
+//                    iniURL = revURL;
+//                    ((ImagePanel) jInfoPanel).setImage(iniURL);
+//
+//                }
+                //((ImagePanel) jInfoPanel).setImage(iniURL);
                 matrixDisplayPanel.removeAll();
+                ((ImagePanel) jInfoPanel).setImage(iniURL);
                 matrixDisplayPanel.setLayout(new BorderLayout());
                 JTable table = matrixPane.createMatrixTable(pattern.getMatrix());
+                // setting the size of the table and its columns
+                table.setPreferredScrollableViewportSize(new Dimension(800, 100));
                 //table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
                 matrixDisplayPanel.add(new JScrollPane(table),
-                                       BorderLayout.WEST);
+                                       BorderLayout.CENTER);
                 logoPanel.add(jInfoPanel, BorderLayout.NORTH);
                 logoPanel.add(matrixDisplayPanel, BorderLayout.CENTER);
 
@@ -1146,16 +1232,20 @@ public class PromoterViewPanel extends JPanel implements HyperlinkListener {
     void jSelectedTFList_mouseClicked(MouseEvent e) {
 
         int index = jSelectedTFList.locationToIndex(e.getPoint());
+        if (index < 0) {
+            return;
+        }
+        TranscriptionFactor pattern = (TranscriptionFactor)
+                                      jSelectedTFList.
+                                      getModel().getElementAt(index);
+        currentTF = pattern;
         if (e.getClickCount() == 2) {
             ((DefaultListModel) jSelectedTFList.getModel()).removeElementAt(
                     index);
+            tfListModel.addElement(pattern);
 //            mappingPatterns();
 
         } else {
-
-            TranscriptionFactor pattern = (TranscriptionFactor)
-                                          jSelectedTFList.
-                                          getModel().getElementAt(index);
 
             try {
                 drawLogo(pattern);
@@ -1651,11 +1741,15 @@ public class PromoterViewPanel extends JPanel implements HyperlinkListener {
 
     protected void clearSelectionPressed() {
         int[] indices = jSelectedTFList.getSelectedIndices();
+        Object[] selectedTFs = jSelectedTFList.getSelectedValues();
         if (indices.length > 0) {
             for (int i = indices.length - 1; i >= 0; i--) {
                 ((DefaultListModel) jSelectedTFList.getModel()).
                         removeElementAt(
                                 indices[i]);
+            }
+            for (Object ob : selectedTFs) {
+                tfListModel.addElement(ob);
             }
 
         }
@@ -1664,9 +1758,11 @@ public class PromoterViewPanel extends JPanel implements HyperlinkListener {
     protected void addSelectionPressed() {
         int[] indices = tfPanel.getList().getSelectedIndices();
         if (indices.length > 0) {
-            for (int i = 0; i < indices.length; i++) {
+
+            for (int i = indices.length - 1; i >= 0; i--) {
                 addSelectedTF(indices[i]);
             }
+
         } else {
             JOptionPane.showMessageDialog(this,
                                           "Please select at least one TF first.");
@@ -1675,6 +1771,7 @@ public class PromoterViewPanel extends JPanel implements HyperlinkListener {
 
     protected void addSelectedTF(int index) {
         String tfName = (String) tfListModel.getElementAt(index);
+        tfListModel.remove(index);
         TranscriptionFactor value = tfMap.get(tfName);
         DefaultListModel ls = (DefaultListModel) jSelectedTFList.
                               getModel();
@@ -2120,6 +2217,7 @@ public class PromoterViewPanel extends JPanel implements HyperlinkListener {
             String tfName = (String) tfListModel.getElementAt(index);
 
             TranscriptionFactor pattern = tfMap.get(tfName);
+            currentTF = pattern;
             try {
                 drawLogo(pattern);
             } catch (Exception e2) {
@@ -2158,6 +2256,17 @@ public class PromoterViewPanel extends JPanel implements HyperlinkListener {
 
     }
 
+    public void reverseButton_actionPerformed(ActionEvent e) {
+        fivePrimerDirection = !fivePrimerDirection;
+        if (currentTF != null) {
+            try {
+                drawLogo(currentTF);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
+    }
+
     /**
      * ListModel for the marker list.
      */
@@ -2167,22 +2276,41 @@ public class PromoterViewPanel extends JPanel implements HyperlinkListener {
             if (tfNameSet == null) {
                 return 0;
             }
-            return tfNameSet.length;
+            return tfNameSet.size();
         }
 
         public Object getElementAt(int index) {
-            if ((tfNameSet == null) || tfNameSet.length <= index) {
+            if ((tfNameSet == null) || tfNameSet.size() <= index) {
                 return null;
             } else {
-                return tfNameSet[index];
+                return tfNameSet.get(index);
             }
         }
 
+        public void addElement(Object obj) {
+            if (!tfNameSet.contains(obj.toString())) {
+                tfNameSet.add(obj.toString());
+                Collections.sort(tfNameSet);
+                int index = tfNameSet.size();
+                fireIntervalAdded(this, index, index);
+
+            }
+
+        }
+
+        public Object remove(int index) {
+            Object rv = tfNameSet.get(index);
+            tfNameSet.remove(index);
+            fireIntervalRemoved(this, index, index);
+            return rv;
+        }
+
+
         public Object getItem(int index) {
-            if ((tfNameSet == null) || tfNameSet.length <= index) {
+            if ((tfNameSet == null) || tfNameSet.size() <= index) {
                 return null;
             } else {
-                return tfNameSet[index];
+                return tfNameSet.get(index);
             }
 
         }
@@ -2194,7 +2322,7 @@ public class PromoterViewPanel extends JPanel implements HyperlinkListener {
             if (tfNameSet == null) {
                 fireContentsChanged(this, 0, 0);
             } else {
-                fireContentsChanged(this, 0, tfNameSet.length);
+                fireContentsChanged(this, 0, tfNameSet.size());
             }
         }
 
