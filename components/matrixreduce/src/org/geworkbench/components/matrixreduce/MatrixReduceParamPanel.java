@@ -19,7 +19,7 @@ import com.jgoodies.forms.builder.DefaultFormBuilder;
  */
 public class MatrixReduceParamPanel extends AbstractSaveableParameterPanel implements Serializable {
 
-    
+
     /* Example run
 MatrixREDUCE -sequence=../sequences/Y5_600_Bst.fa \
 	-output=May31 \
@@ -37,13 +37,13 @@ MatrixREDUCE -sequence=../sequences/Y5_600_Bst.fa \
     private JFormattedTextField dyadLength = new JFormattedTextField(3);
     private JFormattedTextField pValue = new JFormattedTextField(0.001);
     private JFormattedTextField minCounts = new JFormattedTextField(5);
-    private JFormattedTextField flank = new JFormattedTextField(3);
+    private JFormattedTextField flank = new JFormattedTextField(0);
     private JFormattedTextField minGap = new JFormattedTextField(0);
-    private JFormattedTextField maxGap = new JFormattedTextField(20);
+    private JFormattedTextField maxGap = new JFormattedTextField(0);
     private JFormattedTextField numPrint = new JFormattedTextField(50);
     private JCheckBox singleStrand = new JCheckBox();
-    private JFormattedTextField maxMotif = new JFormattedTextField(20);
-    private JFormattedTextField maxIteration = new JFormattedTextField(1000000);
+    private JFormattedTextField maxMotif = new JFormattedTextField(10);
+    private JFormattedTextField maxIteration = new JFormattedTextField(10);
     private JButton sequenceButton = new JButton("Load...");
     private String sequenceFile = new String("data/Y5_600_Bst.fa");
 
