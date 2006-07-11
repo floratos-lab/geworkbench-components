@@ -57,7 +57,7 @@ public class CreateGridServicePanel
     private Hashtable properties = new Hashtable();
     private NotificationSinkManager manager;
     private String sink;
-    private ParameterViewWidget pv;
+    private BlastAppComponent pv;
     private ButtonGroup bg = new ButtonGroup();
     private int sequenceNum = 0;
     private String[] expirationDays = {
@@ -75,7 +75,7 @@ public class CreateGridServicePanel
     private String DEFAULTURL = "http://gridgate.genomecenter.columbia.edu:18080/ogsa/services/core/registry/ContainerRegistryService";
 
     //private String DEFAULTFACTORYURL = "http://adgate.cu-genome.org:8080/ogsa/services/progtutorial/core/second/BlastFactoryService";
-    private String DEFAULTFACTORYURL = "http://adgate.cu-genome.org:8080/ogsa/services/edu/columbia/session/SequenceAlignmentFactoryService";
+    private String DEFAULTFACTORYURL = "http://gridgate.genomecenter.columbia.edu:18080/ogsa/services/edu/columbia/session/SequenceAlignmentFactoryService";
 
     JPanel controlPanel = new JPanel();
     JSplitPane jSplitPane2 = new JSplitPane();
@@ -561,7 +561,7 @@ public class CreateGridServicePanel
         ///   }
 
         try {
-
+            DEFAULTFACTORYURL = "http://gridgate.genomecenter.columbia.edu:18080/ogsa/services/edu/columbia/SequenceAlignmentFactoryService";
             URL defaultFactoryEndpoint = new URL(DEFAULTFACTORYURL);
             this.defaultEndpoint = defaultFactoryEndpoint;
             OGSIServiceGridLocator factoryService =
@@ -636,11 +636,11 @@ public class CreateGridServicePanel
         }
     }
 
-    public void setPv(ParameterViewWidget pv) {
+    public void setPv(BlastAppComponent pv) {
         this.pv = pv;
     }
 
-    public ParameterViewWidget getPv() {
+    public BlastAppComponent getPv() {
         return pv;
     }
 

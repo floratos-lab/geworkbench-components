@@ -640,7 +640,7 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
                 reportError("No hit is selected. Please choose at least one.");
                 return;
             }
-            String tempString = "temp" + RandomNumberGenerator.getID() +
+            String tempString = "temp-" + RandomNumberGenerator.getID() +
                                 ".fasta";
             String tempFolder = System.getProperties().getProperty(
                     "temporary.files.directory");

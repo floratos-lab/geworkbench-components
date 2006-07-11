@@ -46,7 +46,7 @@ public class ServerInfoPanel extends JPanel {
     JTextField jServerUptimeTextField = new JTextField();
     GridBagLayout gridBagLayout1 = new GridBagLayout();
     private boolean serverOK;
-    private ParameterViewWidget pv;
+    private BlastAppComponent pv;
     JButton Refresh = new JButton();
     BorderLayout borderLayout2 = new BorderLayout();
     JTextField jTextField1 = new JTextField();
@@ -171,7 +171,7 @@ public class ServerInfoPanel extends JPanel {
                                            new Insets(2, 2, 2, 2), 0, 0));
         jToolBar1.add(jRadioButton1);
         jToolBar1.add(jRadioButton2);
-         jToolBar1.add(jRadioButton3);
+        //jToolBar1.add(jRadioButton3);
         jToolBar1.add(Refresh);
         jPanel2.add(jToolBar1, java.awt.BorderLayout.NORTH);
         jPanel2.add(jPanel3, java.awt.BorderLayout.CENTER);
@@ -231,13 +231,13 @@ public class ServerInfoPanel extends JPanel {
 
                     serverType = DEFAULTSERVERTYPE;
                 }
-                if(realOK){
-                       //temp set up.
-                       jTotalProcessor.setText("36.");
-                   }else{
+                if (realOK) {
+                    //temp set up.
+                    jTotalProcessor.setText("36.");
+                } else {
 
-                       reportServerError();
-                   }
+                    reportServerError();
+                }
             }
 
         };
@@ -250,7 +250,7 @@ public class ServerInfoPanel extends JPanel {
     }
 
     void Refresh_actionPerformed(ActionEvent e) {
-        if(jRadioButton1.isSelected()){
+        if (jRadioButton1.isSelected()) {
             retriveServerInfo();
         }
     }
@@ -306,7 +306,7 @@ public class ServerInfoPanel extends JPanel {
 
             org.geworkbench.events.ProjectNodeAddedEvent event = new
                     ProjectNodeAddedEvent("message", null, blastResult);
-            BlastAppComponent blastAppComponent = pv.getBlastAppComponent();
+            BlastAppComponent blastAppComponent = pv;
             blastAppComponent.publishProjectNodeAddedEvent(event);
         } catch (Exception f) {
             f.printStackTrace();
@@ -370,11 +370,11 @@ public class ServerInfoPanel extends JPanel {
 
 
 
-    public ParameterViewWidget getPv() {
+    public BlastAppComponent getPv() {
         return pv;
     }
 
-    public void setPv(ParameterViewWidget pv) {
+    public void setPv(BlastAppComponent pv) {
         this.pv = pv;
     }
 
@@ -390,6 +390,7 @@ public class ServerInfoPanel extends JPanel {
         jPanel2.remove(jPanel3);
         //  this.getContentPane().remove(jPanel6);
         jPanel2.add(sgePanel, BorderLayout.CENTER);
+        sgePanel.setPv(pv);
         serverType = this.GRID;
         this.validate();
         this.repaint();
@@ -397,8 +398,8 @@ public class ServerInfoPanel extends JPanel {
 
     public void jRadioButton2_actionPerformed(ActionEvent e) {
 
-        jServerUptimeTextField.setText("Nov. 27, 2005");
-        jServerVersionTextField.setText("Blast 2.2.13");
+        jServerUptimeTextField.setText("May 6, 2006");
+        jServerVersionTextField.setText("Blast 2.2.14");
         jqueuedTextField.setText("N/A");
         jAvailProcessorTextField.setText("N/A");
         jTotalProcessor.setText("N/A");
@@ -418,6 +419,15 @@ public class ServerInfoPanel extends JPanel {
             return serverType;
         }
         return DEFAULTSERVERTYPE;
+    }
+
+    /**
+     * setBlastAppComponent
+     *
+     * @param blastAppComponent BlastAppComponent
+     */
+    public void setBlastAppComponent(BlastAppComponent blastAppComponent) {
+        this.pv = blastAppComponent;
     }
 
 
