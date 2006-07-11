@@ -19,6 +19,7 @@ import java.util.Vector;
 import javax.swing.AbstractListModel;
 import javax.swing.DefaultListModel;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JTable;
 import javax.swing.ListModel;
 import javax.swing.table.DefaultTableModel;
@@ -309,7 +310,7 @@ public class InteractionsUserInterface extends javax.swing.JScrollPane implement
                     }
                     dataSet = new AdjacencyMatrixDataSet(matrix, serial, 0.5f, 2, "Adjacency Matrix", dataset.getLabel(), dataset);
                 } catch (RemoteException re){
-                    re.printStackTrace();
+                    JOptionPane.showMessageDialog(this, "Exception from server: " + System.getProperty("interactions.endpoint"), "Connect Exception", JOptionPane.ERROR_MESSAGE);
                 }
             }
             if (dataSet != null){
@@ -519,7 +520,7 @@ public class InteractionsUserInterface extends javax.swing.JScrollPane implement
                         default: return "loading ...";
                     }
                 } catch (RemoteException re){
-                    re.printStackTrace();
+                    return "Exception from server: " + System.getProperty("interactions.endpoint");
                 }
             }
 //            TableWorker worker = new TableWorker(row, column);
