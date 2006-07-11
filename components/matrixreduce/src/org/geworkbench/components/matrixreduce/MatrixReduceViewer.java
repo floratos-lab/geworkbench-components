@@ -338,6 +338,7 @@ public class MatrixReduceViewer implements VisualPlugin {
         if (filterSequence == null) {
             seqFilter.addAll(sequences.keySet());
         } else {
+            filterSequence = filterSequence.toUpperCase();
             String reverseSequence = StringUtils.reverseString(filterSequence);
             for (int i = 0; i < sequences.size(); i++) {
                 String s = sequences.get(sequences.get(i));

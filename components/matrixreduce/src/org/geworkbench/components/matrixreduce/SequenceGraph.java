@@ -121,7 +121,11 @@ public class SequenceGraph extends JPanel {
             for (int j = 0; j < m; j++) {
                 v *= scores[j][sequence[i + j]];
             }
-            results[i] = (float) v;
+            if (forward) {
+                results[i] = (float) v;
+            } else {
+                results[i + m] = (float) v;
+            }
             if (results[i] > bestScore) {
                 bestScore = results[i];
             }
