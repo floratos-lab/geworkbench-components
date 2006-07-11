@@ -17,6 +17,7 @@ import org.geworkbench.bison.datastructure.complex.pattern.matrix.DSPositionSpec
 import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
 import org.geworkbench.bison.model.analysis.ClusteringAnalysis;
 import org.geworkbench.engine.management.Publish;
+import org.geworkbench.util.ProgressBar;
 import org.geworkbench.util.Util;
 
 import javax.swing.*;
@@ -25,12 +26,14 @@ import java.awt.image.BufferedImage;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.Observable;
+import java.util.Observer;
 
 /**
  * @author John Watkinson
  * @author keshav
  */
-public class MatrixReduceAnalysis extends AbstractAnalysis implements ClusteringAnalysis {
+public class MatrixReduceAnalysis extends AbstractAnalysis implements ClusteringAnalysis, Observer {
     Log log = LogFactory.getLog(this.getClass());
 
     private static final String TEMP_DIR = "temporary.files.directory";
@@ -139,14 +142,28 @@ public class MatrixReduceAnalysis extends AbstractAnalysis implements Clustering
             log.warn("invoking MatrixREDUCE with: " + args);
 
             // invoking MatrixREDUCE.exe
+            Process process = null;
+            ProgressBar pb = ProgressBar.create(ProgressBar.INDETERMINATE_TYPE);
+            pb.setTitle("MatrixREDUCE");
+            pb.setMessage("Running MatrixREDUCE...");
+            pb.start();
+            boolean completed = false;
+
+            // todo
             try {
 
                 // FIXME refactor to construct query from params from the MatrixReduceParamPanel.
                 ProcessBuilder builder = new ProcessBuilder(args);
-                Map<String,String> env = builder.environment();
+                Map<String, String> env = builder.environment();
                 env.clear();
                 env.put("Path", "components\\matrixreduce\\lib");
-                Process process = builder.start();
+                process = builder.start();
+                final Process proc = process;
+                pb.addObserver(new Observer() {
+                    public void update(Observable o, Object arg) {
+                        proc.destroy();
+                    }
+                });
                 InputStream is = process.getErrorStream();
                 InputStreamReader isr = new InputStreamReader(is);
                 BufferedReader br = new BufferedReader(isr);
@@ -156,137 +173,147 @@ public class MatrixReduceAnalysis extends AbstractAnalysis implements Clustering
                 while ((line = br.readLine()) != null) {
                     System.out.println(line);
                 }
+                completed = (process.waitFor() == 0);
 
             } catch (IOException e) {
                 e.printStackTrace();
+            } finally {
+                if (process != null) {
+                    process.destroy();
+                }
+                pb.stop();
             }
+            if (completed) {
 
-            // Parse FASTA sequence data
-            File fastaFile = new File(params.getSequenceFile());
+                // Parse FASTA sequence data
+                File fastaFile = new File(params.getSequenceFile());
 
-            ListOrderedMap<String, String> sequenceMap = new ListOrderedMap<String, String>();
-            {
-                BufferedReader in = new BufferedReader(new FileReader(fastaFile));
-                String line = in.readLine();
-                String gene = null;
-                StringBuffer sequence = null;
-                while (line != null) {
-                    if (line.startsWith(">")) {
-                        if (gene != null) {
-                            sequenceMap.put(gene, sequence.toString().toUpperCase());
-                        }
-                        sequence = new StringBuffer();
-                        gene = line.substring(1).split(" ")[0];
-                    } else {
-                        sequence.append(line.trim());
-                    }
-                    line = in.readLine();
-                }
-                if (gene != null) {
-                    sequenceMap.put(gene, sequence.toString().toUpperCase());
-                }
-            }
-            // Parse results
-            File[] files = dir.listFiles(new FilenameFilter() {
-                public boolean accept(File dir, String name) {
-                    if (name.startsWith("matrix") && name.endsWith("out")) {
-                        return true;
-                    } else {
-                        return false;
-                    }
-                }
-            });
-            DSMatrixReduceSet dataSet = new CSMatrixReduceSet(mSet, "MatrixREDUCE Results");
-            for (File file : files) {
-                int aIndex = file.getName().lastIndexOf('_');
-                int bIndex = file.getName().lastIndexOf('.');
-                if ((aIndex == -1) || (bIndex == -1)) {
-                    continue;
-                }
-                int i = -1;
-                try {
-                    i = Integer.parseInt(file.getName().substring(aIndex + 1, bIndex));
-                } catch (NumberFormatException nfe) {
-                    continue;
-                }
-                try {
-                    BufferedReader in = new BufferedReader(new FileReader(file));
-                    // Line 1
+                ListOrderedMap<String, String> sequenceMap = new ListOrderedMap<String, String>();
+                {
+                    BufferedReader in = new BufferedReader(new FileReader(fastaFile));
                     String line = in.readLine();
-                    String[] tokens = line.split(" ");
-                    String seed = tokens[0];
-                    String experiment = tokens[2];
-                    // Line 2
-                    line = in.readLine();
-                    tokens = line.split(" ");
-                    double pValue = Double.parseDouble(tokens[0]);
-                    // Line 3
-                    line = in.readLine();
-                    tokens = line.split(" ");
-                    double bonferonni = Double.parseDouble(tokens[0]);
-                    // Line 4
-                    line = in.readLine();
-                    tokens = line.split(" ");
-                    int strand = Integer.parseInt(tokens[0]);
-                    // Line 5 - ignore
-                    line = in.readLine();
-                    // Remaining lines have PSAM data
-                    DSPositionSpecificAffintyMatrix psam = new CSPositionSpecificAffinityMatrix();
-                    psam.setSeedSequence(seed);
-                    psam.setExperiment(experiment);
-                    psam.setPValue(pValue);
-                    StringBuffer sb = new StringBuffer();
-                    line = in.readLine();
-                    ArrayList<double[]> values = new ArrayList<double[]>();
+                    String gene = null;
+                    StringBuffer sequence = null;
                     while (line != null) {
-                        tokens = line.split("\t");
-                        int best = 0;
-                        double bestValue = -1;
-                        double[] vals = new double[4];
-                        for (int j = 0; j < 4; j++) {
-                            double v = Double.parseDouble(tokens[1 + j]);
-                            vals[j] = v;
-                            if (v > bestValue) {
-                                bestValue = v;
-                                best = j;
+                        if (line.startsWith(">")) {
+                            if (gene != null) {
+                                sequenceMap.put(gene, sequence.toString().toUpperCase());
                             }
+                            sequence = new StringBuffer();
+                            gene = line.substring(1).split(" ")[0];
+                        } else {
+                            sequence.append(line.trim());
                         }
-                        sb.append(NUCLEOTIDES[best]);
-                        values.add(vals);
                         line = in.readLine();
                     }
-                    int n = values.size();
-                    double[][] scores = new double[n][4];
-                    for (int j = 0; j < n; j++) {
-                        scores[j] = values.get(j);
+                    if (gene != null) {
+                        sequenceMap.put(gene, sequence.toString().toUpperCase());
                     }
-                    psam.setScores(scores);
-                    psam.setConsensusSequence(sb.toString());
-                    // Generate logo
-                    PSAMPlot psamPlot = new PSAMPlot(convertScoresToWeights(scores));
-                    psamPlot.setMaintainProportions(false);
-                    psamPlot.setAxisDensityScale(4);
-                    psamPlot.setAxisLabelScale(3);
-                    // psamPlot.setAxisTitleScale(3);
-                    BufferedImage image = new BufferedImage(MatrixReduceViewer.IMAGE_WIDTH,
-                            MatrixReduceViewer.IMAGE_HEIGHT, BufferedImage.TYPE_INT_RGB);
-                    Graphics2D graphics = (Graphics2D) image.getGraphics();
-                    psamPlot.layoutChart(MatrixReduceViewer.IMAGE_WIDTH, MatrixReduceViewer.IMAGE_HEIGHT, graphics
-                            .getFontRenderContext());
-                    psamPlot.paint(graphics);
-                    ImageIcon psamImage = new ImageIcon(image);
-                    // Load logo - no longer used.
-                    // File logoFile = new File(file.getParentFile(), file.getName().replace(".out", ".png"));
-                    // ImageIcon psamImage = new ImageIcon(logoFile.getAbsolutePath());
-                    psam.setPsamImage(psamImage);
-                    dataSet.add(psam);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    System.out.println("Exception parsing " + file + ".");
                 }
+                // Parse results
+                File[] files = dir.listFiles(new FilenameFilter() {
+                    public boolean accept(File dir, String name) {
+                        if (name.startsWith("matrix") && name.endsWith("out")) {
+                            return true;
+                        } else {
+                            return false;
+                        }
+                    }
+                });
+                DSMatrixReduceSet dataSet = new CSMatrixReduceSet(mSet, "MatrixREDUCE Results");
+                for (File file : files) {
+                    int aIndex = file.getName().lastIndexOf('_');
+                    int bIndex = file.getName().lastIndexOf('.');
+                    if ((aIndex == -1) || (bIndex == -1)) {
+                        continue;
+                    }
+                    int i = -1;
+                    try {
+                        i = Integer.parseInt(file.getName().substring(aIndex + 1, bIndex));
+                    } catch (NumberFormatException nfe) {
+                        continue;
+                    }
+                    try {
+                        BufferedReader in = new BufferedReader(new FileReader(file));
+                        // Line 1
+                        String line = in.readLine();
+                        String[] tokens = line.split(" ");
+                        String seed = tokens[0];
+                        String experiment = tokens[2];
+                        // Line 2
+                        line = in.readLine();
+                        tokens = line.split(" ");
+                        double pValue = Double.parseDouble(tokens[0]);
+                        // Line 3
+                        line = in.readLine();
+                        tokens = line.split(" ");
+                        double bonferonni = Double.parseDouble(tokens[0]);
+                        // Line 4
+                        line = in.readLine();
+                        tokens = line.split(" ");
+                        int strand = Integer.parseInt(tokens[0]);
+                        // Line 5 - ignore
+                        line = in.readLine();
+                        // Remaining lines have PSAM data
+                        DSPositionSpecificAffintyMatrix psam = new CSPositionSpecificAffinityMatrix();
+                        psam.setSeedSequence(seed);
+                        psam.setExperiment(experiment);
+                        psam.setPValue(pValue);
+                        StringBuffer sb = new StringBuffer();
+                        line = in.readLine();
+                        ArrayList<double[]> values = new ArrayList<double[]>();
+                        while (line != null) {
+                            tokens = line.split("\t");
+                            int best = 0;
+                            double bestValue = -1;
+                            double[] vals = new double[4];
+                            for (int j = 0; j < 4; j++) {
+                                double v = Double.parseDouble(tokens[1 + j]);
+                                vals[j] = v;
+                                if (v > bestValue) {
+                                    bestValue = v;
+                                    best = j;
+                                }
+                            }
+                            sb.append(NUCLEOTIDES[best]);
+                            values.add(vals);
+                            line = in.readLine();
+                        }
+                        int n = values.size();
+                        double[][] scores = new double[n][4];
+                        for (int j = 0; j < n; j++) {
+                            scores[j] = values.get(j);
+                        }
+                        psam.setScores(scores);
+                        psam.setConsensusSequence(sb.toString());
+                        // Generate logo
+                        PSAMPlot psamPlot = new PSAMPlot(convertScoresToWeights(scores));
+                        psamPlot.setMaintainProportions(false);
+                        psamPlot.setAxisDensityScale(4);
+                        psamPlot.setAxisLabelScale(3);
+                        // psamPlot.setAxisTitleScale(3);
+                        BufferedImage image = new BufferedImage(MatrixReduceViewer.IMAGE_WIDTH,
+                                MatrixReduceViewer.IMAGE_HEIGHT, BufferedImage.TYPE_INT_RGB);
+                        Graphics2D graphics = (Graphics2D) image.getGraphics();
+                        psamPlot.layoutChart(MatrixReduceViewer.IMAGE_WIDTH, MatrixReduceViewer.IMAGE_HEIGHT, graphics
+                                .getFontRenderContext());
+                        psamPlot.paint(graphics);
+                        ImageIcon psamImage = new ImageIcon(image);
+                        // Load logo - no longer used.
+                        // File logoFile = new File(file.getParentFile(), file.getName().replace(".out", ".png"));
+                        // ImageIcon psamImage = new ImageIcon(logoFile.getAbsolutePath());
+                        psam.setPsamImage(psamImage);
+                        dataSet.add(psam);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        System.out.println("Exception parsing " + file + ".");
+                    }
+                }
+                dataSet.setSequences(sequenceMap);
+                return new AlgorithmExecutionResults(true, "Completed.", dataSet);
+            } else {
+                return new AlgorithmExecutionResults(false, "Cancelled", null);
             }
-            dataSet.setSequences(sequenceMap);
-            return new AlgorithmExecutionResults(true, "Completed.", dataSet);
         } catch (Exception e) {
             e.printStackTrace();
             throw new RuntimeException(e);
