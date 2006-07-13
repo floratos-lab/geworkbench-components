@@ -1160,7 +1160,7 @@ public class PromoterViewPanel extends JPanel {
             logoPanel.add(matrixDisplayPanel, BorderLayout.CENTER);
 
             this.repaint();
-            jTabbedPane2.setSelectedIndex(LOGO);
+            //jTabbedPane2.setSelectedIndex(LOGO);
 
         } catch (Exception e) {
             e.printStackTrace();
