@@ -54,7 +54,8 @@ import java.util.*;
  *
  * @author John Watkinson
  */
-@AcceptTypes({DSMicroarraySet.class}) public class ScatterPlot implements VisualPlugin {
+@AcceptTypes({DSMicroarraySet.class})
+public class ScatterPlot implements VisualPlugin {
 
     /**
      * Maximum number of charts that can be viewed at once.
@@ -1100,10 +1101,11 @@ import java.util.*;
         // Perform rank sorting if required
         int rank = 0;
         Arrays.sort(xyValues, RankSorter.SORT_Y);
-        // todo: we should fix the seed so that this does cause the graph to change upon re-rendering
         for (int j = 1; j < xyValues.length; j++) {
-            if (xyValues[j].y == xyValues[j - 1].y) {
-                xyValues[j - 1].y += Math.random() * 0.1 - 0.05;
+            if (rankPlot) {
+                if (xyValues[j].y == xyValues[j - 1].y) {
+                    xyValues[j - 1].y += Math.random() * 0.1 - 0.05;
+                }
             }
         }
         Arrays.sort(xyValues, RankSorter.SORT_Y);
@@ -1117,8 +1119,10 @@ import java.util.*;
         rank = 0;
         Arrays.sort(xyValues, RankSorter.SORT_X);
         for (int j = 1; j < xyValues.length; j++) {
-            if (xyValues[j].x == xyValues[j - 1].x) {
-                xyValues[j - 1].x += Math.random() * 0.1 - 0.05;
+            if (rankPlot) {
+                if (xyValues[j].x == xyValues[j - 1].x) {
+                    xyValues[j - 1].x += Math.random() * 0.1 - 0.05;
+                }
             }
         }
         Arrays.sort(xyValues, org.geworkbench.util.pathwaydecoder.RankSorter.SORT_X);
@@ -1276,8 +1280,10 @@ import java.util.*;
         int rank = 0;
         Arrays.sort(xyValues, RankSorter.SORT_Y);
         for (int j = 1; j < xyValues.length; j++) {
-            if (xyValues[j].y == xyValues[j - 1].y) {
-                xyValues[j - 1].y += Math.random() * 0.1 - 0.05;
+            if (rankPlot) {
+                if (xyValues[j].y == xyValues[j - 1].y) {
+                    xyValues[j - 1].y += Math.random() * 0.1 - 0.05;
+                }
             }
         }
         Arrays.sort(xyValues, RankSorter.SORT_Y);
@@ -1291,8 +1297,10 @@ import java.util.*;
         rank = 0;
         Arrays.sort(xyValues, RankSorter.SORT_X);
         for (int j = 1; j < xyValues.length; j++) {
-            if (xyValues[j].x == xyValues[j - 1].x) {
-                xyValues[j - 1].x += Math.random() * 0.1 - 0.05;
+            if (rankPlot) {
+                if (xyValues[j].x == xyValues[j - 1].x) {
+                    xyValues[j - 1].x += Math.random() * 0.1 - 0.05;
+                }
             }
         }
         Arrays.sort(xyValues, RankSorter.SORT_X);
