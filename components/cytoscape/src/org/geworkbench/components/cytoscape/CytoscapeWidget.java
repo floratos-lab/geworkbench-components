@@ -392,14 +392,14 @@ public class CytoscapeWidget implements VisualPlugin, MenuListener {
     }
 
     private void cyNetWorkView_graphViewChanged(GraphViewChangeEvent gvce) {
-        if (view != null && cytoNetwork != null) {
-            java.util.List nodes = view.getSelectedNodes();
+        if (Cytoscape.getCurrentNetworkView() != null && Cytoscape.getCurrentNetwork() != null) {
+            java.util.List nodes = Cytoscape.getCurrentNetworkView().getSelectedNodes();
             DSPanel selectedMarkers = new CSPanel("Selected Genes", "Cytoscape");
             for (int i = 0; i < nodes.size(); i++) {
                 PNodeView pnode = (PNodeView) nodes.get(i);
                 Node node = pnode.getNode();
                 if (node instanceof CyNode) {
-                    int serial = ((Integer) cytoNetwork.getNodeAttributeValue((CyNode) node, "Serial")).intValue();
+                    int serial = ((Integer) Cytoscape.getCurrentNetworkView().getNetwork().getNodeAttributeValue((CyNode) node, "Serial")).intValue();
                     selectedMarkers.add(maSet.getMarkers().get(serial));
                 }
             }
