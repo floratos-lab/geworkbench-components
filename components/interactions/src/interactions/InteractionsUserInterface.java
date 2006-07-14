@@ -587,6 +587,7 @@ public class InteractionsUserInterface extends javax.swing.JScrollPane implement
         DSPanel<DSGeneMarker> panel = gse.getPanel();
         if (panel != null){
             allGenes.clear();
+            selectedGenes.clear();
             for (DSGeneMarker marker : panel){
                 if (!selectedGenes.contains(marker))
                     allGenes.add(marker);
