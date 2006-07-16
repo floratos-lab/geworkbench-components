@@ -282,11 +282,22 @@ public class InteractionsUserInterface extends javax.swing.JScrollPane implement
                 Vector<Object> data = cachedPreviewData.get(row);
                 BigDecimal entrezId = (BigDecimal)data.get(1);
                 try {
+                    Vector<Integer> ppiIndices = new Vector<Integer>();
+                    Vector<Integer> pdiIndices = new Vector<Integer>();
                     Vector<Object> neighbors = new Vector<Object>();
-                    if (ppInteractions.isSelected())
-                        neighbors.addAll(Arrays.asList(interactionsService.getFIRSTNEIGHBORS(entrezId, "protein-protein")));
-                    if (pdInteractions.isSelected())
-                        neighbors.addAll(Arrays.asList(interactionsService.getFIRSTNEIGHBORS(entrezId, "protein-dna")));
+                    int i = 0;
+                    if (ppInteractions.isSelected()) {
+                        Object[] ppi = interactionsService.getFIRSTNEIGHBORS(entrezId, "protein-protein");
+                        neighbors.addAll(Arrays.asList(ppi));
+                        for (int j = 0; j < ppi.length; j++)
+                            ppiIndices.add(i++);
+                    }
+                    if (pdInteractions.isSelected()) {
+                        Object[] pdi = interactionsService.getFIRSTNEIGHBORS(entrezId, "protein-dna");
+                        neighbors.addAll(Arrays.asList(pdi));
+                        for (int j = 0; j < pdi.length; j++)
+                            pdiIndices.add(i++);
+                    }
                     matrix.setMicroarraySet((DSMicroarraySet)dataset);
                     int eid = entrezId.intValue();
                     CSGeneMarker marker = new CSGeneMarker();
@@ -299,6 +310,7 @@ public class InteractionsUserInterface extends javax.swing.JScrollPane implement
                     int index = Collections.binarySearch(copy, marker, eidc);
                     int serial = copy.get(index).getSerial();
                     matrix.addGeneRow(serial);
+                    i = 0;
                     for (Object neighbor: neighbors){
                         marker = new CSGeneMarker();
                         marker.setGeneId(((BigDecimal)neighbor).intValue());
@@ -306,7 +318,16 @@ public class InteractionsUserInterface extends javax.swing.JScrollPane implement
                         if (index >=0 && index < markers.size()){
                             int serial2 = copy.get(index).getSerial();
                             matrix.add(serial, serial2, 0.8f);
+                            if (ppiIndices.contains(i)) {
+                                matrix.addDirectional(serial, serial2, "pp");
+                                matrix.addDirectional(serial2, serial, "pp");
+                            }
+                            if (pdiIndices.contains(i)) {
+                                matrix.addDirectional(serial, serial2, "pd");
+                                matrix.addDirectional(serial2, serial, "pd");
+                            }
                         }
+                        i++;
                     }
                     dataSet = new AdjacencyMatrixDataSet(matrix, serial, 0.5f, 2, "Adjacency Matrix", dataset.getLabel(), dataset);
                 } catch (RemoteException re){

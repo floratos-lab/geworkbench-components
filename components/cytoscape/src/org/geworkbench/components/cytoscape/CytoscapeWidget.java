@@ -344,8 +344,9 @@ public class CytoscapeWidget implements VisualPlugin, MenuListener {
             for (Iterator it = map.keySet().iterator(); it.hasNext();) {
                 Integer id2 = (Integer) it.next();
                 if ((id2.intValue() < maSet.getMarkers().size())) {
-                    Float v12 = (Float) map.get(id2);
                     boolean thresholdTest = false;
+                    String type = (String)adjMatrix.getInteraction(gm1.getSerial()).get(id2);
+                    Float v12 = (Float) map.get(id2);
                     thresholdTest = v12.doubleValue() > threshold;
                     if (thresholdTest) {
                         DSGeneMarker gm2 = (DSGeneMarker) maSet.getMarkers().get(id2.intValue());
@@ -376,12 +377,14 @@ public class CytoscapeWidget implements VisualPlugin, MenuListener {
                             cytoNetwork.setNodeAttributeValue(n2, "Hub", new Integer(gm2Size));
                             cytoNetwork.addNode(n2);
                             CyEdge e = null;
-                            if (gm1.getSerial() > gm2.getSerial()) {
-                                e = Cytoscape.getCyEdge(g1Name, g1Name + ".pp." + g2Name, g2Name, "pp");
-                            } else {
-                                e = Cytoscape.getCyEdge(g2Name, g2Name + ".pp." + g1Name, g1Name, "pp");
+                            if (type != null){
+                                if (gm1.getSerial() > gm2.getSerial()) {
+                                    e = Cytoscape.getCyEdge(g1Name, g1Name + "." + type + "." + g2Name, g2Name, type);
+                                } else {
+                                    e = Cytoscape.getCyEdge(g2Name, g2Name + "." + type + "." + g1Name, g1Name, type);
+                                }
+                                cytoNetwork.addEdge(e);
                             }
-                            cytoNetwork.addEdge(e);
                             createSubNetwork(gm2.getSerial(), threshold, level - 1);
                         } else {
                         }
