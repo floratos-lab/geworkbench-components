@@ -345,7 +345,9 @@ public class CytoscapeWidget implements VisualPlugin, MenuListener {
                 Integer id2 = (Integer) it.next();
                 if ((id2.intValue() < maSet.getMarkers().size())) {
                     boolean thresholdTest = false;
-                    String type = (String)adjMatrix.getInteraction(gm1.getSerial()).get(id2);
+                    String type = null;
+                    if (adjMatrix.getInteraction(gm1.getSerial()) != null)
+                        type = (String)adjMatrix.getInteraction(gm1.getSerial()).get(id2);
                     Float v12 = (Float) map.get(id2);
                     thresholdTest = v12.doubleValue() > threshold;
                     if (thresholdTest) {
@@ -384,6 +386,14 @@ public class CytoscapeWidget implements VisualPlugin, MenuListener {
                                     e = Cytoscape.getCyEdge(g2Name, g2Name + "." + type + "." + g1Name, g1Name, type);
                                 }
                                 cytoNetwork.addEdge(e);
+                            }
+                            else {
+                                if (gm1.getSerial() > gm2.getSerial()) {
+                                    e = Cytoscape.getCyEdge(g1Name, g1Name + ".pp." + g2Name, g2Name, type);
+                                } else {
+                                    e = Cytoscape.getCyEdge(g2Name, g2Name + ".pp." + g1Name, g1Name, type);
+                                }
+                                cytoNetwork.addEdge(e);                                
                             }
                             createSubNetwork(gm2.getSerial(), threshold, level - 1);
                         } else {
