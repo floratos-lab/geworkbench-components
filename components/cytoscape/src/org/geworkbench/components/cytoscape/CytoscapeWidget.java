@@ -389,9 +389,9 @@ public class CytoscapeWidget implements VisualPlugin, MenuListener {
                             }
                             else {
                                 if (gm1.getSerial() > gm2.getSerial()) {
-                                    e = Cytoscape.getCyEdge(g1Name, g1Name + ".pp." + g2Name, g2Name, type);
+                                    e = Cytoscape.getCyEdge(g1Name, g1Name + ".pp." + g2Name, g2Name, "pp");
                                 } else {
-                                    e = Cytoscape.getCyEdge(g2Name, g2Name + ".pp." + g1Name, g1Name, type);
+                                    e = Cytoscape.getCyEdge(g2Name, g2Name + ".pp." + g1Name, g1Name, "pp");
                                 }
                                 cytoNetwork.addEdge(e);                                
                             }
