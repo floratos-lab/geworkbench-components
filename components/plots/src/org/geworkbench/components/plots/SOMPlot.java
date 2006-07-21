@@ -95,7 +95,7 @@ public class SOMPlot extends ChartPanel {
                     XYSeries series = new XYSeries(chips.markers().get(geneCtr).getLabel());
                     for (int maCtr = 0; maCtr < chips.size(); maCtr++) {
                         double value = chips.getValue(geneCtr, maCtr);
-                        if (Double.isNaN(value) || value <= 0) {
+                        if (Double.isNaN(value)) {
                             series.add(maCtr, 0);
                         } else {
                             series.add(maCtr, value);
