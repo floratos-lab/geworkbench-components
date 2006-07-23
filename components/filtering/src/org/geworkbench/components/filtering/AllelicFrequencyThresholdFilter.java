@@ -60,8 +60,8 @@ public class AllelicFrequencyThresholdFilter extends AbstractAnalysis implements
         }
         int index = 0;
         for (DSGeneMarker marker : removedMarkers){
-//            int oldIndex = marker.getSerial();
-//            marker.setSerial(oldIndex - index);
+            int oldIndex = marker.getSerial();
+            marker.setSerial(oldIndex - index);
             for (DSMicroarray microarray : data) {
                 DSMarkerValue[] mValues = microarray.getMarkerValues();
                 DSMarkerValue mv = microarray.getMarkerValue(marker);
@@ -72,7 +72,7 @@ public class AllelicFrequencyThresholdFilter extends AbstractAnalysis implements
                     microarray.setMarkerValue(i, mvList.get(i));
                 }
             }
-//            marker.setSerial(oldIndex);
+            marker.setSerial(oldIndex);
             data.getMarkers().remove(marker);
             index++;
         }
