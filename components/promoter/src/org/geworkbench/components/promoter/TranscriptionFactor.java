@@ -67,7 +67,7 @@ public class TranscriptionFactor implements DSPattern<DSSequence, DSSeqRegistrat
         //The pvalue is ignored here
         List<DSPatternMatch<DSSequence, DSSeqRegistration>> matches = new ArrayList<DSPatternMatch<DSSequence, DSSeqRegistration>>();
         if (sequence.isDNA()) {
-            for (int offset = 1; offset < sequence.length() - matrix.getLength() + 1; offset++) {
+            for (int offset = 0; offset < sequence.length() - matrix.getLength() + 1; offset++) {
                 double score = matrix.score(sequence, offset);
                 double q = Math.exp(score);
                 double rscore = matrix.scoreReverse(sequence, offset);
