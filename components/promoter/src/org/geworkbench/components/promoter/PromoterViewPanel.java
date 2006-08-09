@@ -966,6 +966,19 @@ public class PromoterViewPanel extends JPanel {
         DefaultListModel ls = (DefaultListModel)
                               jSelectedTFList.
                               getModel();
+
+        if (sequenceDB == null) {
+            return;
+        }
+        if (!sequenceDB.isDNA()) {
+            JOptionPane.showMessageDialog(null,
+                                          "It looks like you are trying to find TF from protein seqeunces. Please load a DNA sequence first.",
+                                          "Please check",
+                                          JOptionPane.ERROR_MESSAGE);
+            return;
+
+        }
+
         if (ls.isEmpty()) {
             JOptionPane.showMessageDialog(null,
                                           "No Transcription Factor is Selected.",
@@ -973,6 +986,7 @@ public class PromoterViewPanel extends JPanel {
                                           JOptionPane.ERROR_MESSAGE);
             return;
         }
+
         this.mappingPatterns();
         jTabbedPane2.setSelectedIndex(SEQUENCE);
     }
@@ -1248,9 +1262,7 @@ public class PromoterViewPanel extends JPanel {
                 pValue = Double.parseDouble(pValueField.getText());
             } catch (NumberFormatException ex) {
             }
-            if (sequenceDB == null) {
-                return;
-            }
+
             jProgressBar1.setIndeterminate(false);
             jProgressBar1.setMinimum(0);
             jProgressBar1.setMaximum(100);
@@ -1870,6 +1882,9 @@ public class PromoterViewPanel extends JPanel {
                 try {
                     jProgressBar1.setString(text);
                     jProgressBar1.setValue((int) (percent * 100));
+                    if(text.startsWith("Stop")){
+                        jProgressBar1.setForeground(Color.RED);
+                    }
                 } catch (Exception e) {
                 }
             }
