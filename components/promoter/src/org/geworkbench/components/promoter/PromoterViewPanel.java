@@ -1880,6 +1880,7 @@ public class PromoterViewPanel extends JPanel {
         Runnable r = new Runnable() {
             public void run() {
                 try {
+                    jProgressBar1.setForeground(Color.GREEN);
                     jProgressBar1.setString(text);
                     jProgressBar1.setValue((int) (percent * 100));
                     if(text.startsWith("Stop")){
