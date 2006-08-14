@@ -21,16 +21,20 @@
 
 
 <body>
-    <h3>Sequence Panel</h3> 
-    <p>The Sequence Panel is located in the top-right of the application. This component displays results from the Sequence Discovery Component located in the Analysis Area in the lower-right of the application. In this view, each sequence in the selected dataset is displayed as a thin red line proportional to the sequence length. Click on the individual lines to display the sequence details and at the bottom of the Sequence Component. </p> 
-    <p><img border="0" width="904" height="374" src="Sequence_files/image001.jpg"></p> 
-    <p><b>Navigating a Sequence Panel</b></p> 
-    <p>&#12290; Clicking on an individual line displays the sequence detail at the bottom of the Sequence Component. The display of sequence is proportional to the click position in the line. If you click at the beginning of the line, the bottom will show the first part of the sequence. If you click the center place of a line, the bottom will show the middle part of whole sequence. </p> 
-    <p>&#12290; Use the right scroll bar to view all sequences. </p> 
-    <p>&#12290; Click on &quot;All / Matching Pattern&quot; to display only sequences with the specific pattern.</p> 
-    <p><b>Viewing Sequences with Patterns<a name="pattern"></a> </b></p>  
-    <p>Use the Pattern Discovery Module to search for Patterns in the <b>Selection Area</b> in the lower-left of the application. The patterns can be viewed by selecting the hit of interest. The pattern will be displayed in the Pattern view, Promoter and the Sequence Component View. Each pattern (row) selection in the result of the Pattern Discovery Module displays a unique color in the Visualization components of Pattern, Promoter and Sequence Component View. </p> 
-    <p><img border="0" width="905" height="648" src="Sequence_files/image002.jpg"></p> 
+<h3>Sequence Panel</h3> 
+    <p>The Sequence Panel is located in the top-right of the application in the Visualization area. In this view, each sequence in the selected dataset FASTA file dataset is displayed as a thin line proportional to the sequence length in the <b>Line View</b> as well as character strings in the <b>Full Sequence</b> View. This help topic describes <a href="#_Navigating_a_Sequence_Panel">basic navigation</a> and <a href="#_Viewing_Sequences_with_Patterns">viewing sequences</a> with patterns. </p> 
+    <p><img border="0" width="581" height="403" src="sequence_files/image001.jpg"></p> 
+    <h3><a name="_Navigating_a_Sequence_Panel"></a>Navigating a Sequence Panel</h3> 
+    <p>The steps of basic usage are indicated in the above screenshot. </p> 
+    <p>1. View: Select the display format of the sequence data. In the <b>Line View</b>, each sequence is represented by a line proportional to its length, preceded by the sequence ID. The <b>Full Sequence</b> the full character strings are displayed preceded by the sequence ID.</p> 
+    <p>2. All / Matching Pattern: Limits the display to sequence with Patterns.</p> 
+    <p>3. All Sequence: Limits the display to only sequences that belong to activated groups. </p> 
+    <p>4. A user can mouse over a string and the numeric position is displayed (as in the promoter) on a line. Click on the individual lines to display the sequence details and at the bottom of the Sequence Component. </p> 
+    <p>5. Sequence Display: A single click on a line or sequence string, the Sequence Detail will populate with the character strings of the section of the sequence string selected. The display of sequence details is proportional to the click position in the line. If you click at the beginning of the line, the bottom will show the first part of the sequence. If you click the center place of a line, the Sequence display will show the middle part of whole sequence. </p> 
+    <p>6. Arrows: Allows for scrolling to view the right/left of character string in the <b>Sequence Display</b> window.</p> 
+    <h3><a name="_Viewing_Sequences_with_Patterns"></a>Viewing Sequences with Patterns<a name="pattern"></a> </h3> 
+    <p>Use the Pattern Discovery Module to search for Patterns in the <b>Selection Area</b> in the lower-left of the application. The patterns can be viewed by selecting the hit of interest in Pattern Discovery. The pattern(s) are then displayed in the Pattern view, Promoter and the Sequence Component View. Each pattern (row) selection in the result of the Pattern Discovery Module displays a unique color in the Visualization components of Pattern, Promoter and Sequence Component View. When patterns are displayed in the sequence panel, the user can click on a pattern block (in the Line or Full Sequence view) and the location of the pattern match is displayed in the Sequence Displays at bottom of the view with the matching location centered in the view. In addition, this sequence detail and tool tip shall include the numeric position of the first and the last matching pattern character.</p> 
+    <p><img border="0" width="622" height="579" src="sequence_files/image002.gif"></p>
    
 </body>
 </html>
