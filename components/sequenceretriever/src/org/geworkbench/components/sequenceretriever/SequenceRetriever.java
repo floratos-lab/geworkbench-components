@@ -278,6 +278,31 @@ import java.util.Date;
 
             }
         });
+        jSourceCategory.addActionListener(new java.awt.event.ActionListener() {
+
+            public void actionPerformed(ActionEvent e) {
+                if (jSourceCategory != null) {
+                    String cmd = (String) jSourceCategory.getSelectedItem();
+                    if (cmd != null && cmd.equalsIgnoreCase(LOCAL)) {
+                        model = new SpinnerNumberModel(1999, 1, 1999, 1);
+                        model1 = new SpinnerNumberModel(2000, 1, 2000, 1);
+
+                    } else if (cmd != null && cmd.equalsIgnoreCase(UCSC)) {
+
+                        model = new SpinnerNumberModel(10000, 1, 98000, 1);
+                        model1 = new SpinnerNumberModel(10000, 1, 10000, 1);
+
+                    }
+                    beforeText.setModel(model);
+                    afterText.setModel(model1);
+                    beforeText.revalidate();
+                    beforeText.repaint();
+                    main.repaint();
+
+                }
+            }
+        });
+
         main.add(jToolbar2, BorderLayout.SOUTH);
         jToolbar2.add(jLabel2, null);
         jToolbar2.add(beforeText, null);
@@ -394,7 +419,7 @@ import java.util.Date;
 
     void getSequences() {
         if (markers != null) {
-           // sequenceDB.clear();
+            // sequenceDB.clear();
             sequenceDB = new CSSequenceSet();
             // sequenceDB = new CSSequenceSet();
             String fileName = this.getRandomFileName();
@@ -415,9 +440,9 @@ import java.util.Date;
                     }
                 } else if (jSourceCategory.getSelectedItem().equals(UCSC)) {
                     int startPoint = ((Integer) model.getNumber())
-                                         .intValue();
-                                 int endPoint = ((Integer) model1.getNumber()).
-                                         intValue();
+                                     .intValue();
+                    int endPoint = ((Integer) model1.getNumber()).
+                                   intValue();
 
                     for (int i = 0; i < ls2.size(); i++) {
                         DSGeneMarker marker = (DSGeneMarker) ls2.get(i);
@@ -426,26 +451,28 @@ import java.util.Date;
                                           "Retrieving " + marker.getLabel());
                         String[] knownGeneName = AnnotationParser.getInfo(
                                 marker.getLabel(), AnnotationParser.TRANSCRIPT);
-                        if (knownGeneName == null || knownGeneName.length == 0) {
-//                            JOptionPane.showMessageDialog(getComponent(),
-//                                    marker.getLabel() +
-//                                    " cannot be matched to any gene or any chromosome location.");
-                        } else {
+                        if (knownGeneName != null && knownGeneName.length > 0) {
+
                             for (String geneName : knownGeneName) {
                                 String[] realNameList = geneName.split("//");
 
                                 Vector geneChromosomeMatchers =
                                         SequenceFetcher.
-                                        getGeneChromosomeMatchers(realNameList[0],
+                                        getGeneChromosomeMatchers(realNameList[
+                                        0],
                                         AnnotationParser.getCurrentChipType());
-                                for (int j=0; j<geneChromosomeMatchers.size(); j++) {
-                                    GeneChromosomeMatcher o = (GeneChromosomeMatcher) geneChromosomeMatchers.get(j);
-                                    CSSequence seqs = SequenceFetcher.getSequenceFetcher().
+                                for (int j = 0; j < geneChromosomeMatchers.size();
+                                             j++) {
+                                    GeneChromosomeMatcher o = (
+                                            GeneChromosomeMatcher)
+                                            geneChromosomeMatchers.get(j);
+                                    CSSequence seqs = SequenceFetcher.
+                                            getSequenceFetcher().
                                             getSequences(o, startPoint,
                                             endPoint);
                                     if (seqs != null) {
                                         sequenceDB.addASequence(seqs);
-                                        seqs.setLabel(marker.getLabel() + "_" +j + "_" + startPoint + "_" + endPoint);
+                                        seqs.setLabel(marker.getLabel());
                                         //sequenceDB.parseMarkers();
                                     }
 
