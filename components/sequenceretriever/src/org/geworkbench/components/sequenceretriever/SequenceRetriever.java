@@ -67,7 +67,7 @@ import java.util.Date;
     DSPanel<DSGeneMarker> markers = null;
     DSPanel<DSGeneMarker> activeMarkers = null;
     private CSSequenceSet sequenceDB = new CSSequenceSet();
-
+    public static final String NOANNOTATION = "--";
     boolean selectedRegionChanged = false;
 
     // selected results
@@ -375,7 +375,6 @@ import java.util.Date;
             Thread t = new Thread() {
 
                 public void run() {
-
                     getSequences();
                     updateProgressBar(100, "Finished on " + new Date());
 
@@ -418,6 +417,7 @@ import java.util.Date;
     }
 
     void getSequences() {
+
         if (markers != null) {
             // sequenceDB.clear();
             sequenceDB = new CSSequenceSet();
@@ -430,7 +430,7 @@ import java.util.Date;
                         DSGeneMarker marker = (DSGeneMarker) ls2.get(i);
                         double progress = (double) i / (double) (ls2.size());
                         updateProgressBar(progress,
-                                          "Retrieving " + marker.getShortName());
+                                          "Retrieving " + marker.getLabel());
                         getSequences(marker);
                     }
 
@@ -446,12 +446,13 @@ import java.util.Date;
 
                     for (int i = 0; i < ls2.size(); i++) {
                         DSGeneMarker marker = (DSGeneMarker) ls2.get(i);
-                        double progress = (double) i / (double) (ls2.size());
+                        double progress = (double) (i +1) / (double) (ls2.size());
                         updateProgressBar(progress,
                                           "Retrieving " + marker.getLabel());
                         String[] knownGeneName = AnnotationParser.getInfo(
-                                marker.getLabel(), AnnotationParser.TRANSCRIPT);
-                        if (knownGeneName != null && knownGeneName.length > 0) {
+                                marker.getLabel(), AnnotationParser.REFSEQ);
+                       String database = SequenceFetcher.matchChipType(AnnotationParser.getCurrentChipType());
+                        if ( knownGeneName != null && knownGeneName.length > 0 && !knownGeneName.equals(NOANNOTATION )) {
 
                             for (String geneName : knownGeneName) {
                                 String[] realNameList = geneName.split("//");
@@ -460,7 +461,7 @@ import java.util.Date;
                                         SequenceFetcher.
                                         getGeneChromosomeMatchers(realNameList[
                                         0],
-                                        AnnotationParser.getCurrentChipType());
+                                       database);
                                 for (int j = 0; j < geneChromosomeMatchers.size();
                                              j++) {
                                     GeneChromosomeMatcher o = (
@@ -471,8 +472,9 @@ import java.util.Date;
                                             getSequences(o, startPoint,
                                             endPoint);
                                     if (seqs != null) {
+                                         seqs.setLabel(marker.getLabel() + "_" + j);
                                         sequenceDB.addASequence(seqs);
-                                        seqs.setLabel(marker.getLabel());
+
                                         //sequenceDB.parseMarkers();
                                     }
 
