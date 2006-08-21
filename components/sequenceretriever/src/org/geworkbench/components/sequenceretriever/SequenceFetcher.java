@@ -7,7 +7,11 @@ import java.util.Vector;
 
 import org.geworkbench.bison.datastructure.bioobjects.sequence.CSSequence;
 import org.geworkbench.util.sequences.GeneChromosomeMatcher;
-import com.mysql.jdbc.Driver;
+import java.util.Arrays;
+import javax.swing.JOptionPane;
+import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
+import java.util.HashMap;
+import java.util.ArrayList;
 
 /**
  * <p>Title: </p>
@@ -24,6 +28,32 @@ import com.mysql.jdbc.Driver;
 public class SequenceFetcher {
     public static final String UCSC = "UCSC";
     private static SequenceFetcher theSequenceFetcher = new SequenceFetcher();
+    private final static String chiptyemapfilename = "chiptypeDatabaseMap.txt";
+    private static HashMap chiptypeMap = new HashMap();
+    private static ArrayList<String> chipTypes = new ArrayList<String>();
+    public static String DEFAULT_CHIPTYPE = "hg18";
+
+    static {
+
+        BufferedReader br = new BufferedReader(new InputStreamReader(
+                SequenceFetcher.class.getResourceAsStream(chiptyemapfilename)));
+        try {
+            String str = br.readLine();
+            while (str != null) {
+                String[] data = str.split(",");
+                chiptypeMap.put(data[0].trim(), data[1].trim());
+                chiptypeMap.put(data[1].trim(), data[0].trim());
+                chipTypes.add(data[1].trim());
+                str = br.readLine();
+            }
+            br.close();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
     public SequenceFetcher() {
     }
 
@@ -42,6 +72,46 @@ public class SequenceFetcher {
             return getSequences(geneName);
         }
         return null;
+    }
+
+
+    public static String matchChipType(String chipId) {
+        if (chiptypeMap.size() == 0) {
+            //no property file loaded.
+            return matchChipTypeToDatabase(chipId);
+        }
+        String database = (String) chiptypeMap.get(chipId);
+        String defaultChipChoice = database;
+
+        if (defaultChipChoice == null) {
+            defaultChipChoice = DEFAULT_CHIPTYPE;
+            Object[] possibleValues = chipTypes.toArray();
+            Arrays.sort(possibleValues);
+            Object selectedValue = JOptionPane.showInputDialog(null,
+                    "Please confirm your genome assembly",
+                    "Select Assembly", JOptionPane.QUESTION_MESSAGE, null,
+                    possibleValues, defaultChipChoice);
+            if (selectedValue != null) {
+                database = (String) selectedValue;
+                if (database.equals("Other")) {
+                    return null;
+                }
+            }
+            return database;
+        }
+        return database;
+    }
+
+    /**
+     * Only used when the property file cannot be found.
+     */
+    public static String matchChipTypeToDatabase(String chipType) {
+        if (chipType.startsWith("HG")) {
+            return "hg18";
+        } else if (chipType.startsWith("M")) {
+            return "mm8";
+        }
+        return "hg18";
     }
 
     /**
@@ -63,10 +133,13 @@ public class SequenceFetcher {
      */
     public static Vector getGeneChromosomeMatchers(String
             geneName,
-            String chipType) {
-        String database = "hg18";
+            String database) {
+        if (database == null) {
+            return null;
+        }
         String[] columnName = {"chrom", "strand", "txStart", "txEnd"};
-        Vector<GeneChromosomeMatcher> vector = new Vector<GeneChromosomeMatcher>();
+        Vector<GeneChromosomeMatcher>
+                vector = new Vector<GeneChromosomeMatcher>();
         try {
             Statement stmt;
             Class.forName("com.mysql.jdbc.Driver");
@@ -78,7 +151,8 @@ public class SequenceFetcher {
                             url, "genome", "");
             stmt = con.createStatement();
             boolean success = stmt.execute(
-                    "select * from knownGene where name = '" + geneName + "' ");
+                    "select known.chrom, known.strand, known.txStart, known.txEnd, kg.refseq from knownGene as known, kgXref as kg  where kg.refseq = '" +
+                    geneName + "' and kg.kgID = known.name ");
             if (success) {
                 ResultSet rs = stmt.getResultSet();
                 while (rs.next()) {
@@ -129,7 +203,8 @@ public class SequenceFetcher {
                 startPoint = downStartPoint - downstreamRegion;
                 endPoint = downStartPoint + upstreamRegion;
             }
-            sequence = getSequence(geneChromosomeMatcher.getGenomeBuildNumber(),
+            sequence = getSequence(geneChromosomeMatcher.
+                                   getGenomeBuildNumber(),
                                    geneChromosomeMatcher.getChr(),
                                    startPoint, endPoint,
                                    geneChromosomeMatcher.
@@ -176,7 +251,8 @@ public class SequenceFetcher {
 
         int maxSize = 1000000;
         String request = "http://genome.cse.ucsc.edu/cgi-bin/das/" +
-                         genomeBuilderName + "/dna?segment=" + chromosomeName +
+                         genomeBuilderName + "/dna?segment=" +
+                         chromosomeName +
                          ":" + startPoint + ":" + endPoint; ;
 
         try {
@@ -223,6 +299,5 @@ public class SequenceFetcher {
         return null;
 
     }
-
 
 }

@@ -1,0 +1,6 @@
+HG-U133_Plus_2, hg18
+"Other" ,Other
+HG_U133A, hg18
+Mouse430_2, mm8
+MG_U74Av2, mm8
+HG_U95Av2, hg18
