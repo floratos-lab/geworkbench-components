@@ -197,10 +197,10 @@ public class SequenceFetcher {
         if (geneChromosomeMatcher != null) {
             int upStartPoint = geneChromosomeMatcher.getStartPoint();
             int downStartPoint = geneChromosomeMatcher.getEndPoint();
-            int startPoint = upStartPoint - upstreamRegion - 1;
-            int endPoint = upStartPoint + downstreamRegion;
+            int startPoint = upStartPoint - upstreamRegion;
+            int endPoint = upStartPoint + downstreamRegion - 1;
             if (!geneChromosomeMatcher.isPositiveStrandDirection()) {
-                startPoint = downStartPoint - downstreamRegion;
+                startPoint = downStartPoint - downstreamRegion + 1;
                 endPoint = downStartPoint + upstreamRegion;
             }
             sequence = getSequence(geneChromosomeMatcher.
@@ -212,32 +212,7 @@ public class SequenceFetcher {
         }
         return sequence;
     }
-
-    /**
-     * getSequence
-     * @param genomeBuilderName String
-     * @param chromosomeName String
-     * @param isPositiveStrand boolean
-     * @param startPoint int
-     * @param length int
-     */
-    private CSSequence getSequence(String genomeBuilderName,
-                                   String chromosomeName,
-                                   boolean isPositiveStrand,
-                                   int startPoint, int length) {
-
-        int maxSize = 1000000;
-        int endPoint = startPoint + length - 1;
-        if (!isPositiveStrand) {
-            endPoint = startPoint;
-            startPoint = endPoint - length + 1;
-        }
-        return getSequence(genomeBuilderName, chromosomeName, startPoint,
-                           endPoint, true);
-
-    }
-
-    /**
+  /**
      * getSequence
      * @param genomeBuilderName String
      * @param chromosomeName String
