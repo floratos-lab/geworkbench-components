@@ -286,19 +286,15 @@ import java.util.Date;
                     if (cmd != null && cmd.equalsIgnoreCase(LOCAL)) {
                         model = new SpinnerNumberModel(1999, 1, 1999, 1);
                         model1 = new SpinnerNumberModel(2000, 1, 2000, 1);
-
                     } else if (cmd != null && cmd.equalsIgnoreCase(UCSC)) {
-
                         model = new SpinnerNumberModel(10000, 1, 98000, 1);
                         model1 = new SpinnerNumberModel(10000, 1, 10000, 1);
-
                     }
                     beforeText.setModel(model);
                     afterText.setModel(model1);
                     beforeText.revalidate();
                     beforeText.repaint();
                     main.repaint();
-
                 }
             }
         });
@@ -312,27 +308,21 @@ import java.util.Date;
         jToolbar2.add(jActivateBttn, null);
         jPanel2.add(seqScrollPane, BorderLayout.CENTER);
         jPanel2.add(jPanel3, BorderLayout.WEST);
-
         jPanel3.add(jPanel4, null);
         jPanel4.add(jScrollPane2, BorderLayout.CENTER);
-
         jSelectedList.setModel(ls2);
         jScrollPane2.getViewport().add(jSelectedList, null);
         jPanel4.add(jLabel4, BorderLayout.NORTH);
         jPanel2.add(jPanel1, BorderLayout.NORTH);
         jPanel1.add(jLabel6, null);
-
         jPanel1.add(jComboCategory, null);
         jPanel1.add(jSourceCategory, null);
         main.add(jPanel6, BorderLayout.NORTH);
         jPanel6.add(jProgressBar1, null);
-
         seqScrollPane.getViewport().add(seqDisPanel, null);
-
         main.add(jPanel2, BorderLayout.CENTER);
         jComboCategory.addItem("DNA");
         jComboCategory.addItem("Protein");
-
     }
 
     public void setSequenceDB(CSSequenceSet db2) {
@@ -434,55 +424,64 @@ import java.util.Date;
                         getSequences(marker);
                     }
 
-                    if (sequenceDB.getSequenceNo() != 0) {
-
-                        sequenceDB.writeToFile(fileName);
-                    }
                 } else if (jSourceCategory.getSelectedItem().equals(UCSC)) {
                     int startPoint = ((Integer) model.getNumber())
                                      .intValue();
                     int endPoint = ((Integer) model1.getNumber()).
                                    intValue();
+                    String database = SequenceFetcher.matchChipType(
+                            AnnotationParser.getCurrentChipType());
 
                     for (int i = 0; i < ls2.size(); i++) {
                         DSGeneMarker marker = (DSGeneMarker) ls2.get(i);
-                        double progress = (double) (i +1) / (double) (ls2.size());
+                        double progress = (double) (i + 1) / (double) (ls2.size());
                         updateProgressBar(progress,
                                           "Retrieving " + marker.getLabel());
                         String[] knownGeneName = AnnotationParser.getInfo(
                                 marker.getLabel(), AnnotationParser.REFSEQ);
-                       String database = SequenceFetcher.matchChipType(AnnotationParser.getCurrentChipType());
-                        if ( knownGeneName != null && knownGeneName.length > 0 && !knownGeneName.equals(NOANNOTATION )) {
+                        if (knownGeneName != null && knownGeneName.length > 0 &&
+                            !knownGeneName.equals(NOANNOTATION)) {
 
                             for (String geneName : knownGeneName) {
-                                String[] realNameList = geneName.split("//");
-
+                                if (geneName == null) {
+                                    continue;
+                                }
                                 Vector geneChromosomeMatchers =
                                         SequenceFetcher.
-                                        getGeneChromosomeMatchers(realNameList[
-                                        0],
-                                       database);
-                                for (int j = 0; j < geneChromosomeMatchers.size();
-                                             j++) {
-                                    GeneChromosomeMatcher o = (
-                                            GeneChromosomeMatcher)
-                                            geneChromosomeMatchers.get(j);
-                                    CSSequence seqs = SequenceFetcher.
-                                            getSequenceFetcher().
-                                            getSequences(o, startPoint,
-                                            endPoint);
-                                    if (seqs != null) {
-                                         seqs.setLabel(marker.getLabel() + "_" + j);
-                                        sequenceDB.addASequence(seqs);
+                                        getGeneChromosomeMatchers(geneName,
+                                        database);
+                                if (geneChromosomeMatchers != null) {
+                                    for (int j = 0;
+                                                 j < geneChromosomeMatchers.
+                                                 size();
+                                                 j++) {
+                                        GeneChromosomeMatcher o = (
+                                                GeneChromosomeMatcher)
+                                                geneChromosomeMatchers.get(j);
+                                        CSSequence seqs = SequenceFetcher.
+                                                getSequenceFetcher().
+                                                getSequences(o, startPoint,
+                                                endPoint);
+                                        if (seqs != null) {
+                                            seqs.setLabel(marker.getLabel() +
+                                                    "_" +
+                                                    j);
+                                            sequenceDB.addASequence(seqs);
+                                            //sequenceDB.parseMarkers();
+                                        }
 
-                                        //sequenceDB.parseMarkers();
                                     }
-
                                 }
                             }
                         }
                     }
 
+                }
+                //get the object sequenceDB from local or UCSC, save it to a local file.
+                if (sequenceDB.getSequenceNo() != 0) {
+                    sequenceDB.writeToFile(fileName);
+                    sequenceDB = new CSSequenceSet();
+                    sequenceDB.readFASTAFile(new File(fileName));
                 }
             } else {
                 BufferedWriter br = null;
@@ -507,6 +506,8 @@ import java.util.Date;
                 } catch (IOException ex1) {
                     ex1.printStackTrace();
                 }
+                //Need to remove all previous result.
+                sequenceDB = new CSSequenceSet();
                 sequenceDB.readFASTAFile(new File(fileName));
 
             }
