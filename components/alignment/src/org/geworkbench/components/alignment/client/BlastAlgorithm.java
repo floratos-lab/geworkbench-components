@@ -64,8 +64,9 @@ public class BlastAlgorithm extends BWAbstractAlgorithm implements SoapClientIn 
 
     /**
      * Update Progress with finished percentage and related information.
+     *
      * @param percent double
-     * @param text String
+     * @param text    String
      */
 
     void updateProgressStatus(final double percent, final String text) {
@@ -76,6 +77,7 @@ public class BlastAlgorithm extends BWAbstractAlgorithm implements SoapClientIn 
 
     /**
      * Update progess only with String information.
+     *
      * @param text String
      */
     void updateStatus(String text) {
@@ -86,7 +88,8 @@ public class BlastAlgorithm extends BWAbstractAlgorithm implements SoapClientIn 
 
     /**
      * Update the component's progressBar with information and reset the ProgressBar.
-     * @param boo boolean
+     *
+     * @param boo  boolean
      * @param text String
      */
 
@@ -98,6 +101,7 @@ public class BlastAlgorithm extends BWAbstractAlgorithm implements SoapClientIn 
 
     /**
      * Get the percentage of completion.
+     *
      * @return double
      */
     public double getCompletion() {
@@ -110,7 +114,6 @@ public class BlastAlgorithm extends BWAbstractAlgorithm implements SoapClientIn 
 
     /**
      * The workhorse to run Blast program.
-     *
      */
 
     public void execute() {
@@ -135,24 +138,24 @@ public class BlastAlgorithm extends BWAbstractAlgorithm implements SoapClientIn 
                 }
                 //generate a new file name for the coming outputfile.
                 String outputFile = tempFolder + "Blast" +
-                                    RandomNumberGenerator.getID() +
-                                    ".html";
+                        RandomNumberGenerator.getID() +
+                        ".html";
 
-                RemoteBlast blast = null;
+                RemoteBlast blast;
                 CSSequenceSet activeSequenceDB = soapClient.getSequenceDB();
 
                 int count = 0;
                 for (Object sequence : activeSequenceDB) {
                     updateStatus("Uploading sequence: " +
-                                 ((CSSequence) sequence) );
+                            ((CSSequence) sequence));
                     blast = new RemoteBlast(((CSSequence) sequence).
-                                            getSequence(), outputFile);
+                            getSequence(), outputFile);
                     // blast.setDbName(parameterSetting.getDbName());
 //                    blast.setProgamName(parameterSetting.getProgramName());
                     blast.setCmdLine(AlgorithmMatcher.translateToCommandline(parameterSetting));
                     String BLAST_rid = blast.submitBlast();
-                    if(BLAST_rid==null){
-                        if(blastAppComponent!=null){
+                    if (BLAST_rid == null) {
+                        if (blastAppComponent != null) {
                             blastAppComponent.reportError("Sequence " + sequence + " cannot be blasted, please check your parameters.", "Parameter Error");
 
                         }
@@ -161,28 +164,28 @@ public class BlastAlgorithm extends BWAbstractAlgorithm implements SoapClientIn 
 
                     }
                     updateStatus("Querying sequence: " +
-                                 ((CSSequence) sequence).getDescriptions().
-                                 toString());
+                            ((CSSequence) sequence).getDescriptions().
+                                    toString());
                     updateStatus("The Request ID is : " + BLAST_rid);
 
                     blast.getBlast(BLAST_rid, "HTML");
                     ncbiResultURLStr = blast.getResultURLString();
                     while (!blast.getBlastDone()) {
                         try {
-                            if(blastAppComponent!=null && !blastAppComponent.isStopButtonPushed()){
+                            if (blastAppComponent != null && !blastAppComponent.isStopButtonPushed()) {
                                 updateStatus("For sequence " + sequence +
                                         ", time since submission is : " +
-                                             blast.getWaitingTime());
+                                        blast.getWaitingTime());
                                 Thread.sleep(this.TIMEGAP);
-                            }else{
+                            } else {
                                 return;
                             }
                         } catch (Exception e) {
 
                         }
                         updateStatus("Querying sequence: " +
-                                     ((CSSequence) sequence).getDescriptions().
-                                     toString());
+                                ((CSSequence) sequence).getDescriptions().
+                                        toString());
 
                     }
                     if (stopRequested) {
@@ -196,7 +199,7 @@ public class BlastAlgorithm extends BWAbstractAlgorithm implements SoapClientIn 
                     if ((new File(outputFile)).canRead()) {
 
                         BrowserLauncher.openURL(new File(outputFile).
-                                                getAbsolutePath());
+                                getAbsolutePath());
                     } else {
                         System.out.println("CANNOT READ " + outputFile);
                     }
@@ -209,7 +212,7 @@ public class BlastAlgorithm extends BWAbstractAlgorithm implements SoapClientIn 
                 blastResult.setLabel(blastAppComponent.NCBILABEL);
                 ProjectNodeAddedEvent event =
                         new ProjectNodeAddedEvent(null, null,
-                                                  blastResult);
+                                blastResult);
                 if (blastAppComponent != null) {
                     blastAppComponent.publishProjectNodeAddedEvent(event);
                 }
@@ -219,29 +222,37 @@ public class BlastAlgorithm extends BWAbstractAlgorithm implements SoapClientIn 
                 String cmd = soapClient.getCmd();
                 String textFile = "";
                 String htmlFile = null;
-                if (cmd.startsWith("pb")) {
-                    if(!soapClient.startRun(true)){
-                        //fail to connect or other problem.
-                        blastAppComponent.reportError(blastAppComponent.ERROR2,  "Server unreachable");
-                        blastAppComponent.setBlastDisplayPanel(blastAppComponent.SERVER);
-                        blastAppComponent.blastFinished(blastAppComponent.ERROR1);
-                        return;
-                    }
-                    htmlFile = ((SoapClient) soapClient).getOutputfile();
-                    if (stopRequested) {
-                        return;
-                    }
-                    if (startBrowser && !stopRequested) {
-                        if ((new File(htmlFile)).canRead()) {
-                            BrowserLauncher.openURL(TEMPURLFOLDER +
-                                    getFileName(htmlFile));
-                        } else {
-                            System.out.println("CANNOT READ " + htmlFile);
+
+                try {
+                    if (cmd.startsWith("pb")) {
+
+                        if (!soapClient.startRun(true)) {
+                            //fail to connect or other problem.
+                            blastAppComponent.reportError(blastAppComponent.ERROR2, "Server unreachable");
+                            blastAppComponent.setBlastDisplayPanel(blastAppComponent.SERVER);
+                            blastAppComponent.blastFinished(blastAppComponent.ERROR1);
+                            return;
                         }
+                        htmlFile = ((SoapClient) soapClient).getOutputfile();
+                        if (stopRequested) {
+                            return;
+                        }
+                        if (startBrowser && !stopRequested) {
+                            if ((new File(htmlFile)).canRead()) {
+                                BrowserLauncher.openURL(TEMPURLFOLDER +
+                                        getFileName(htmlFile));
+                            } else {
+                                System.out.println("CANNOT READ " + htmlFile);
+                            }
+                        }
+
+                    } else {
+                        soapClient.startRun();
+                        textFile = ((SoapClient) soapClient).getOutputfile();
                     }
-                } else {
-                    soapClient.startRun();
-                    textFile = ((SoapClient) soapClient).getOutputfile();
+                } catch (Exception exce) {
+                    blastAppComponent.reportError(blastAppComponent.ERROR2, "Server unreachable");
+
                 }
                 if (blastAppComponent != null) {
                     blastAppComponent.blastFinished(cmd);
@@ -249,7 +260,7 @@ public class BlastAlgorithm extends BWAbstractAlgorithm implements SoapClientIn 
 
                 if (htmlFile != null) {
                     if (soapClient.getSequenceDB() != null &&
-                        soapClient.getSequenceDB().getFASTAFileName() != null) {
+                            soapClient.getSequenceDB().getFASTAFileName() != null) {
                         blastResult = new CSAlignmentResultSet(htmlFile,
                                 soapClient.getSequenceDB().getFASTAFileName(),
                                 soapClient.getSequenceDB());
@@ -257,17 +268,17 @@ public class BlastAlgorithm extends BWAbstractAlgorithm implements SoapClientIn 
                 } else if (cmd.startsWith("btk search")) {
 
                     blastResult = new SWDataSet(textFile,
-                                                soapClient.getInputFileName(),
-                                                blastAppComponent.getFastaFile());
+                            soapClient.getInputFileName(),
+                            blastAppComponent.getFastaFile());
                 } else if (cmd.startsWith("btk hmm")) {
 
                     blastResult = new HMMDataSet(textFile,
-                                                 soapClient.getInputFileName(),
-                                                 blastAppComponent.getFastaFile());
+                            soapClient.getInputFileName(),
+                            blastAppComponent.getFastaFile());
                 }
                 ProjectNodeAddedEvent event =
                         new ProjectNodeAddedEvent(null, null,
-                                                  blastResult);
+                                blastResult);
                 if (blastAppComponent != null) {
                     blastAppComponent.publishProjectNodeAddedEvent(event);
                 } else {
@@ -310,6 +321,7 @@ public class BlastAlgorithm extends BWAbstractAlgorithm implements SoapClientIn 
             }
 
         } catch (Exception ex) {
+
             ex.printStackTrace();
         }
 

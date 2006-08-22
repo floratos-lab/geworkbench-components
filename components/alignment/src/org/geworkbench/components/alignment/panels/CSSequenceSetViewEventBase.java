@@ -19,22 +19,22 @@ import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.engine.management.*;
 import org.geworkbench.events.*;
 import org.geworkbench.engine.config.VisualPlugin;
+
 import java.awt.Dimension;
 
 /**
  * <p>Title: </p>
- *
+ * <p/>
  * <p>Description: </p>
- *
+ * <p/>
  * <p>Copyright: Copyright (c) 2005</p>
- *
+ * <p/>
  * <p>Company: </p>
  *
  * @author not attributable
  * @version 1.0
  */
-public class CSSequenceSetViewEventBase implements VisualPlugin{
-
+public class CSSequenceSetViewEventBase implements VisualPlugin {
 
     // There should be some new class similar to MicroarraySetView
 
@@ -48,12 +48,12 @@ public class CSSequenceSetViewEventBase implements VisualPlugin{
 
 
     protected boolean activateMarkers = true;
-   // protected boolean activateArrays = false;
+    // protected boolean activateArrays = false;
     protected JCheckBox chkAllMarkers = new JCheckBox("All Markers");
     protected JPanel mainPanel;
     protected JToolBar displayToolBar;
     protected DSPanel<? extends DSGeneMarker> activatedMarkers = null;
-   // protected DSPanel activatedArrays = null;
+    // protected DSPanel activatedArrays = null;
     JTextField sequenceNumberField;
 
     public CSSequenceSetViewEventBase() {
@@ -74,7 +74,8 @@ public class CSSequenceSetViewEventBase implements VisualPlugin{
         return mainPanel;
     }
 
-    @Publish public SubpanelChangedEvent publishSubpanelChangedEvent(org.
+    @Publish
+    public SubpanelChangedEvent publishSubpanelChangedEvent(org.
             geworkbench.events.SubpanelChangedEvent event) {
         return event;
     }
@@ -84,8 +85,9 @@ public class CSSequenceSetViewEventBase implements VisualPlugin{
      *
      * @param e ProjectEvent
      */
-    @Subscribe public void receive(org.geworkbench.events.ProjectEvent e,
-                                   Object source) {
+    @Subscribe
+    public void receive(org.geworkbench.events.ProjectEvent e,
+                        Object source) {
         if (e.getMessage().equals(org.geworkbench.events.ProjectEvent.CLEARED)) {
             refMASet = null;
             fireModelChangedEvent(null);
@@ -108,11 +110,12 @@ public class CSSequenceSetViewEventBase implements VisualPlugin{
      *
      * @param e GeneSelectorEvent
      */
-    @Subscribe(Asynchronous.class)public void receive(GeneSelectorEvent e,
-            Object source) {
+    @Subscribe(Asynchronous.class)
+    public void receive(GeneSelectorEvent e,
+                        Object source) {
         if (e.getPanel() != null && e.getPanel().size() > 0) {
             activatedMarkers = e.getPanel().activeSubset();
-        }else{
+        } else {
             activatedMarkers = null;
         }
         refreshMaSetView();
@@ -120,7 +123,7 @@ public class CSSequenceSetViewEventBase implements VisualPlugin{
 
 
     protected void refreshMaSetView() {
-         getDataSetView();
+        getDataSetView();
         fireModelChangedEvent(null);
     }
 
@@ -132,7 +135,7 @@ public class CSSequenceSetViewEventBase implements VisualPlugin{
         mainPanel = new JPanel();
 
         displayToolBar = new JToolBar();
-          displayToolBar.setLayout(new BoxLayout(displayToolBar, BoxLayout.X_AXIS));
+        displayToolBar.setLayout(new BoxLayout(displayToolBar, BoxLayout.X_AXIS));
         chkAllMarkers.setToolTipText("USe All Markers.");
         chkAllMarkers.setSelected(false);
         chkAllMarkers.addActionListener(new
@@ -141,22 +144,23 @@ public class CSSequenceSetViewEventBase implements VisualPlugin{
         BorderLayout borderLayout2 = new BorderLayout();
         mainPanel.setLayout(borderLayout2);
         sequenceNumberField = new JTextField(20) {
-        @Override public Dimension getMaximumSize() {
-            return getPreferredSize();
-        }
-    };
+            @Override
+            public Dimension getMaximumSize() {
+                return getPreferredSize();
+            }
+            public void setEditable(boolean isEditable){
+                super.setEditable(false);
+            }
+
+        };
 
         sequenceNumberField.setText("Total Sequence Number:");
-
+        sequenceNumberField.setEditable(false);
         displayToolBar.add(chkAllMarkers, null);
         displayToolBar.add(Box.createHorizontalStrut(5), null);
         displayToolBar.add(sequenceNumberField);
-
+        sequenceNumberField.setEditable(false);
         mainPanel.add(displayToolBar, java.awt.BorderLayout.SOUTH);
-
-
-
-
         this.activateMarkers = !chkAllMarkers.isSelected();
 
     }
@@ -173,31 +177,34 @@ public class CSSequenceSetViewEventBase implements VisualPlugin{
 
     public void getDataSetView() {
         activateMarkers = !chkAllMarkers.isSelected();
-        if(activateMarkers){
+        if (activateMarkers) {
             if (activatedMarkers != null &&
-                activatedMarkers.size() > 0) {
+                    activatedMarkers.size() > 0) {
 
 
-                if (activateMarkers && (sequenceDB!=null)) {
+                if (activateMarkers && (sequenceDB != null)) {
                     // createActivatedSequenceSet();
                     activeSequenceDB = (CSSequenceSet) ((CSSequenceSet)
                             sequenceDB).
-                                       getActiveSequenceSet(activatedMarkers);
+                            getActiveSequenceSet(activatedMarkers);
                     sequenceNumberField.setText("Activated Sequence Number: " +
-                                                activeSequenceDB.size());
+                            activeSequenceDB.size());
+                         sequenceNumberField.setEditable(false);
                 }
 
-            }else if (sequenceDB != null) {
+            } else if (sequenceDB != null) {
                 sequenceNumberField.setText("Total Sequence Number: " +
-                                            sequenceDB.size());
-                activeSequenceDB = (CSSequenceSet)sequenceDB;
+                        sequenceDB.size());
+
+
+                activeSequenceDB = (CSSequenceSet) sequenceDB;
             }
 
-        }else if (sequenceDB != null) {
-                sequenceNumberField.setText("Total Sequence Number: " +
-                                            sequenceDB.size());
-            }
-
+        } else if (sequenceDB != null) {
+            sequenceNumberField.setText("Total Sequence Number: " +
+                    sequenceDB.size());
+              sequenceNumberField.setEditable(false);
+        }
 
 
     }
@@ -215,6 +222,7 @@ public class CSSequenceSetViewEventBase implements VisualPlugin{
 class CSSequenceSetViewEventBase_chkActivateMarkers_actionAdapter implements
         ActionListener {
     private CSSequenceSetViewEventBase adaptee;
+
     CSSequenceSetViewEventBase_chkActivateMarkers_actionAdapter(
             CSSequenceSetViewEventBase adaptee) {
         this.adaptee = adaptee;
