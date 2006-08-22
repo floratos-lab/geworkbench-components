@@ -24,6 +24,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.io.File;
 import java.util.Iterator;
 
 /**
@@ -243,13 +244,27 @@ public class PositionHistogramWidget extends JPanel {
             JFileChooser chooser = new JFileChooser(org.geworkbench.util.PropertiesMonitor.getPropertiesMonitor().getDefPath());
             ExampleFileFilter filter = new ExampleFileFilter();
             filter.addExtension("jpg");
+            filter.addExtension("JPG");
             filter.setDescription("JPG Images");
             chooser.setFileFilter(filter);
             int returnVal = chooser.showSaveDialog(this);
             if (returnVal == JFileChooser.APPROVE_OPTION) {
                 org.geworkbench.util.PropertiesMonitor.getPropertiesMonitor().setDefPath(chooser.getCurrentDirectory().getAbsolutePath());
                 try {
-                    ChartUtilities.saveChartAsJPEG(chooser.getSelectedFile().getAbsoluteFile(), chart, 500, 300);
+
+                    File absoluteFile = chooser.getSelectedFile().getAbsoluteFile();
+                    if(absoluteFile.exists()){
+                       int confirm = JOptionPane.showConfirmDialog(null, "Replace existing file?");
+                    if (confirm == JOptionPane.YES_OPTION) {
+                        ChartUtilities.saveChartAsJPEG(absoluteFile, chart, 500, 300);
+                    }
+                    }else{
+                        if( (!absoluteFile.getAbsolutePath().endsWith(".jpg") && !absoluteFile.getAbsolutePath().endsWith(".JPG"))){
+                            absoluteFile = new File(absoluteFile.getAbsolutePath() + ".jpg");
+                        }
+                        ChartUtilities.saveChartAsJPEG(absoluteFile, chart, 500, 300);
+                    }
+
                 } catch (IOException ex) {
                 }
             }
@@ -364,7 +379,7 @@ public class PositionHistogramWidget extends JPanel {
 
 
     public void sequenceDiscoveryTableRowSelected(SequenceDiscoveryTableEvent e) {
-        /** @todo Fix patterns */
+
         //    setSequenceDB(e.getSequenceDB());
         //    setPatterns(e.getPatterns());
         //XQ changed to fix bug 252
