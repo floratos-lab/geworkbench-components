@@ -480,6 +480,10 @@ public class InteractionsUserInterface extends javax.swing.JScrollPane implement
     
     DefaultTableModel previewTableModel = new DefaultTableModel(){
         
+        public boolean isCellEditable(int r, int c){
+            return false;
+        }
+        
         public int getColumnCount(){
             return 4;
         }
@@ -608,11 +612,17 @@ public class InteractionsUserInterface extends javax.swing.JScrollPane implement
         DSPanel<DSGeneMarker> panel = gse.getPanel();
         if (panel != null){
             allGenes.clear();
-            selectedGenes.clear();
             for (DSGeneMarker marker : panel){
                 if (!selectedGenes.contains(marker))
                     allGenes.add(marker);
             }
+            Vector<DSGeneMarker> temp = new Vector<DSGeneMarker>();
+            for (DSGeneMarker marker : selectedGenes){
+                if (!panel.contains(marker))
+                    temp.add(marker);
+            }
+            for (DSGeneMarker marker : temp)
+                selectedGenes.remove(marker);
             allGeneList.setModel(new DefaultListModel());
             allGeneList.setModel(allGeneModel);
             selectedGenesList.setModel(new DefaultListModel());
