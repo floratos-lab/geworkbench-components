@@ -29,7 +29,7 @@
     <h3> Basic Usage </h3> 
     <p>The following describes the basic usage of the Promoter Panel:</p> 
     <ul> 
-    <li><b>TF list:</b> The TF list contains the names of available transcription factors signatures from JASPAR or those that have been loaded from files using <b>Add TF</b>. This lists known Transcription Factor (TF) binding site sequence patterns.  Double click to move TF signatures from TF list box (upper box) to the Selected TF (lower box). This list box displays transcription factors which can be searched against the available genomic sequences by clicking on <b>Scan.</b> Double-clicking on a TF name clears it from the Selected TF list. </li> 
+    <li><b>TF list:</b> The TF list contains the names of available transcription factors binding site sequence patterns from JASPAR or those that have been loaded from files using <b>Add TF</b>.  Double click to move TF signatures from TF list box (upper box) to the Selected TF (lower box). This list box displays transcription factors which can be searched against the available genomic sequences by clicking on <b>Scan.</b> Double-clicking on a TF name clears it from the Selected TF list and returns it to the <b>TF List</b>. </li> 
     <li><b>Search: </b> Enter a portion of a TF name in the Search text box. The list scrolls to and highlights the TF containing the text string. Click <b>Find Next </b>to highlight the TF containing the text string. If nothing matches the text string, the entered text is changed to red.</li> 
     <li><b>Scan:</b> Scans the sequences in the <b>Selected TF</b> list against the available genomic sequences. </li> 
     <li><b>Save:</b> Stores the sequence data in the display area. </li> 
@@ -48,7 +48,7 @@
     <h3><a name="_View_Transcription_Factor_Analysis"></a><a name="_Logo"></a>Logo</h3> 
     <p><img border="0" width="611" height="304" src="promoterpanel_files/image002.jpg"></p> 
     <h3>View Transcription Factor Analysis</h3> 
-    <p>1. Load a FASTA File into the project pane.</p> 
+    <p>1. Load a DNA Sequence FASTA File into the project pane.</p> 
     <p>2. Select the promoter panel. The display area is updated to reflect the sequences for the FASTA file loaded.</p> 
     <p>3. Click on TF signatures to move from the TF list to the Selected TF list. </p> 
     <p>4. Click on <b>Scan,</b> the Selected TF s is searched against the available genomic sequences. The patterns will be mapped onto the sequences according to match criteria in the <a href="#_Parameter_Tab">Parameter Tab. </a> Note: Each time that a transcription factor (TF) matching operation is run, the &quot;active TFs&quot; data structure is *AUGMENTED* with the results of the discovery operation (i.e., contents due to previous runs are maintained). The &quot;active TFs&quot; is not affected by pattern discovery</p> 
