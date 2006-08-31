@@ -727,8 +727,7 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
         JFileChooser chooser = new JFileChooser(PropertiesMonitor.
                                                 getPropertiesMonitor().
                                                 getDefPath());
-        org.geworkbench.engine.parsers.ExampleFileFilter filter = new org.
-                geworkbench.engine.parsers.ExampleFileFilter();
+        org.geworkbench.components.parsers.ExampleFileFilter filter = new org.geworkbench.components.parsers.ExampleFileFilter();
         filter.setDescription("Alignment file (*.html)");
         filter.addExtension("html");
         chooser.addChoosableFileFilter(filter);

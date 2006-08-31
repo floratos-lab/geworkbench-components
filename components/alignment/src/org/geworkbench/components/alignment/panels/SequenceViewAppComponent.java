@@ -7,7 +7,7 @@ import org.geworkbench.builtin.projects.ProjectPanel;
 import org.geworkbench.builtin.projects.ProjectSelection;
 import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.engine.management.Subscribe;
-import org.geworkbench.engine.parsers.sequences.SequenceFileFormat;
+import org.geworkbench.components.parsers.sequences.SequenceFileFormat;
 import org.geworkbench.util.PropertiesMonitor;
 import org.geworkbench.util.sequences.SequenceViewWidget;
 
@@ -103,7 +103,7 @@ public class SequenceViewAppComponent implements VisualPlugin, org.geworkbench.e
         String defPath = PropertiesMonitor.getPropertiesMonitor().getDefPath();
         JFileChooser fc = new JFileChooser(defPath);
         String FASTAFilename = null;
-        org.geworkbench.engine.parsers.FileFormat format = new SequenceFileFormat();
+        org.geworkbench.components.parsers.FileFormat format = new SequenceFileFormat();
         FileFilter filter = format.getFileFilter();
         fc.setFileFilter(filter);
         fc.setDialogTitle("Open FASTA file");

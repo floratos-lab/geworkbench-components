@@ -1,7 +1,7 @@
 package org.geworkbench.components.discovery.view;
 
 import org.geworkbench.components.discovery.SequenceDiscoveryViewWidget;
-import org.geworkbench.engine.parsers.patterns.PatternFileFormat;
+import org.geworkbench.components.parsers.patterns.PatternFileFormat;
 import org.geworkbench.util.AlgorithmSelectionPanel;
 import org.geworkbench.util.PropertiesMonitor;
 
