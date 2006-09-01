@@ -3,6 +3,8 @@ package org.geworkbench.components.alignment.panels;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.io.*;
+import java.net.Socket;
+import java.net.UnknownHostException;
 import java.util.Date;
 import java.util.StringTokenizer;
 
@@ -17,6 +19,7 @@ import org.geworkbench.bison.datastructure.biocollections.sequences.
         CSSequenceSet;
 import org.geworkbench.bison.util.RandomNumberGenerator;
 import org.geworkbench.components.alignment.client.BlastAlgorithm;
+import org.geworkbench.components.alignment.client.BlatAlgorithm;
 import org.geworkbench.components.alignment.client.HMMDataSet;
 import org.geworkbench.components.alignment.grid.CreateGridServiceDialog;
 import org.geworkbench.engine.management.AcceptTypes;
@@ -45,6 +48,115 @@ import org.geworkbench.util.session.SoapClient;
     JLabel DatabaseLabel = new JLabel();
     JTabbedPane jTabbedPane1 = new JTabbedPane();
     JTabbedPane jTabbedBlastPane = new JTabbedPane();
+    
+    /*********Code Implement By Anh Vu***************
+     *********Contact: vietanh.vu@m4x.org************
+     *********Declaration of Blat's component********/
+    JTabbedPane jTabbedBlatPane = new JTabbedPane();
+    /*Blat Web Server Tab
+     */
+    JLabel jLabelGenome = new JLabel();
+    JLabel jLabelAssembly = new JLabel();
+    JLabel jLabelQueryType = new JLabel();
+    JLabel jLabelSortOutput = new JLabel();
+    JLabel jLabelOutputType = new JLabel();
+    JComboBox jComboBoxGenome = new JComboBox();
+    JComboBox jComboBoxAssembly = new JComboBox();
+    JComboBox jComboBoxAssemblyValue = new JComboBox();
+    JComboBox jComboBoxQueryType = new JComboBox();
+    JComboBox jComboBoxSortOutput = new JComboBox();
+    JComboBox jComboBoxOutputType = new JComboBox();
+    JCheckBox jCheckBoxLucky = new JCheckBox();
+    JCheckBox jCheckBoxOpenInBrowser = new JCheckBox();
+    JPanel jPanelMain = new JPanel();
+    JPanel jPanelSubBlat = new JPanel();
+    JPanel jPanelUpBlat = new JPanel();
+    JScrollPane jScrollPaneBlat = new JScrollPane(); 
+    Border borderBlat1 = BorderFactory.createEtchedBorder(Color.white,
+            new Color(165, 163, 151));
+    Border borderBlat2 = new TitledBorder(borderBlat1,
+                                      "Please select the information from the lists below");
+    BorderLayout borderLayoutBlat1 = new BorderLayout();
+    BorderLayout borderLayoutBlat2 = new BorderLayout();
+    BorderLayout borderLayoutBlat3 = new BorderLayout();
+    JToolBar jToolBarBlat = new JToolBar();
+    JProgressBar jProgressBarBlat = new JProgressBar();
+    JButton jButtonUpdate = new JButton(); 
+    
+    /*Blat Stand Alone Tab
+     */
+    JLabel jLabelOoc = new JLabel();
+    JLabel jLabelTileSize = new JLabel();
+    JLabel jLabelOneOff = new JLabel();
+    JLabel jLabelMinMatch = new JLabel();
+    JLabel jLabelMinScore = new JLabel();
+    JLabel jLabelMinIdentity = new JLabel();
+    JLabel jLabelMaxGap = new JLabel();
+    JLabel jLabelRepMatch = new JLabel();
+    JLabel jLabelMinDivergence = new JLabel();
+    JLabel jLabelDots = new JLabel();
+    JLabel jLabelSelectDatabase = new JLabel();
+    JLabel jLabelOutputFile = new JLabel();
+    JLabel jLabelNoHead = new JLabel();
+    JLabel jLabelMakeOoc = new JLabel();
+    JLabel jLabelTrimT = new JLabel();
+    JLabel jLabelNoTrimA = new JLabel();
+    JLabel jLabelTrimHardA = new JLabel();
+    JLabel jLabelFine = new JLabel();
+    JLabel jLabelProt = new JLabel();
+    JLabel jLabelDatabaseType = new JLabel();
+    JLabel jLabelQType = new JLabel();
+    JLabel jLabelMask = new JLabel();
+    JLabel jLabelQMask = new JLabel();
+    JLabel jLabelOut = new JLabel();
+            
+    JPanel jPanelStandAloneBlat = new JPanel();
+    JTextField jTextFieldOoc = new JTextField();
+    JTextField jTextFieldTileSize = new JTextField();
+    JTextField jTextFieldOneOff = new JTextField();
+    JTextField jTextFieldMinMatch = new JTextField();
+    JTextField jTextFieldMinScore = new JTextField();
+    JTextField jTextFieldMinIdentity = new JTextField();
+    JTextField jTextFieldMaxGap = new JTextField();
+    JTextField jTextFieldRepMatch = new JTextField();
+    JTextField jTextFieldMinDivergence = new JTextField();
+    JTextField jTextFieldDots = new JTextField();
+    JTextField jTextFieldSelectDatabase = new JTextField();
+    JTextField jTextFieldOutputFile = new JTextField();
+    
+    JCheckBox jCheckBoxNoHead = new JCheckBox();
+    JCheckBox jCheckBoxMakeOoc = new JCheckBox();
+    JCheckBox jCheckBoxTrimT = new JCheckBox();
+    JCheckBox jCheckBoxNoTrimA = new JCheckBox();
+    JCheckBox jCheckBoxTrimHardA = new JCheckBox();
+    JCheckBox jCheckBoxFine = new JCheckBox();
+    JCheckBox jCheckBoxProt = new JCheckBox();
+    
+    JComboBox jComboBoxDatabaseType = new JComboBox();
+    JComboBox jComboBoxQType = new JComboBox();
+    JComboBox jComboBoxMask = new JComboBox();
+    JComboBox jComboBoxQMask = new JComboBox();
+    JComboBox jComboBoxOut = new JComboBox();
+    
+    JPanel jPanelSubSBlat = new JPanel();
+    JPanel jPanelUpSBlat = new JPanel();
+    JScrollPane jScrollPaneSBlat = new JScrollPane(); 
+    Border borderSBlat1 = BorderFactory.createEtchedBorder(Color.white,
+            new Color(165, 163, 151));
+    Border borderSBlat2 = new TitledBorder(borderBlat1,
+                                      "Please select the information from the lists below");
+    BorderLayout borderLayoutSBlat1 = new BorderLayout();
+    BorderLayout borderLayoutSBlat2 = new BorderLayout();
+    BorderLayout borderLayoutSBlat3 = new BorderLayout();
+    JToolBar jToolBarSBlat = new JToolBar();
+    JProgressBar jProgressBarSBlat = new JProgressBar();
+    
+    JButton jButtonSetDefault = new JButton();
+    JButton jButtonBrowse = new JButton();
+    JButton jButtonOpen = new JButton();
+           
+    /*********End Code*******************************/
+    
     JTabbedPane jTabbedHmmPane = new JTabbedPane();
     JTabbedPane jTabbedSmPane = new JTabbedPane();
     ServerInfoPanel jServerInfoPane = new ServerInfoPanel();
@@ -55,9 +167,19 @@ import org.geworkbench.util.session.SoapClient;
     JCheckBox lowComplexFilterBox = new JCheckBox();
     JPanel jAdvancedPane = new JPanel();
     JFileChooser jFileChooser1 = new JFileChooser();
-    static final int BLAST = 0;
-    static final int SW = 1;
-    static final int HMM = 2;
+    /*********Code Implement By Anh Vu***************
+     *********Contact: vietanh.vu@m4x.org************
+     **Modify the Macros accordingly with new code***/
+    static final int BLAST = 0;//keep unchange
+    //static final int SW = 1; old code
+    //static final int HMM = 2; old code
+    static final int BLAT = 1;//new code
+    static final int HMM = 2;//new code
+    static final int SW = 3;//new code
+    
+    static final int BLAT_SERVER = 0;
+    static final int SBLAT = 1;
+    /*********End Code*******************************/
     public static final String NCBILABEL = "NCBI BLAST Result";
     public static final String ERROR1 = "Interrupted";
     public static final String ERROR2 = "The connection to the Columbia Blast Server cannot be established, please try NCBI Blast Server.";
@@ -73,7 +195,7 @@ import org.geworkbench.util.session.SoapClient;
                                  "/genomes/rat/goldenPath_June2003/100/*",
                                  "/genomes/chimpanzee/goldenPath_Feb2004/100/*",
                                  "/genomes/dog/goldenPath/2005_May/100/*"};
-
+    
     String[] programParameter = {
                                 "blastp", "blastn", "blastx", "tblastn",
                                 "tblastx"};
@@ -89,7 +211,33 @@ import org.geworkbench.util.session.SoapClient;
                             "Pfam local alignment only",
                             "Pfam global and local alignments"
     };
-
+     /*********Code Implement By Anh Vu***************
+     *********Contact: vietanh.vu@m4x.org*************
+     ***Setup the default parameter for blat stand 
+     ***alone application*****************************/
+     public final String DEFAULT_DATABASE_TYPE = "dna";
+     public final String DEFAULT_QTYPE = "dna";
+     public final String DEFAULT_MASK = "none";
+     public final String DEFAULT_QMASK = "none";
+     public final String DEFAULT_OUT = "psl";
+     public final String DEFAULT_Ooc = "11";
+     public final String DEFAULT_TILE_SIZE_DNA = "11";
+     public final String DEFAULT_TILE_SIZE_PROT = "5";
+     public final String DEFAULT_ONE_OFF = "0";
+     public final String DEFAULT_MIN_MATCH_NUCLEOTIDE = "2";
+     public final String DEFAULT_MIN_MATCH_PROTEIN = "1";
+     public final String DEFAULT_MIN_SCORE = "30";
+     public final String DEFAULT_MIN_IDENTITY_NUCLEOTIDE = "90";
+     public final String DEFAULT_MIN_IDENTITY_PROTEIN = "25";
+     public final String DEFAULT_MAX_GAP = "2";
+     public final String DEFAULT_REP_MATCH = "1024"; 
+     public final String DEFAULT_MIN_DIVERGENCE = "15";
+     public final String DEFAULT_DOTS = "0";
+     public final String DEFAULT_DATABASE_DIRECTORY = "C:\\AnhVu\\Fasta";
+     public final String DEFAULT_OUTPUT_RESULT = "C:\\AnhVu\\SBlatResults";
+     public final String SCRIPT_DIRECTORY = "C:\\AnhVu";
+     /*********End Code*******************************/
+     
     //JList jDBList = new JList(databaseParameter);
     JPanel checkboxPanel = new JPanel();
     JList jDBList = new JList();
@@ -221,6 +369,263 @@ import org.geworkbench.util.session.SoapClient;
         DatabaseLabel = new JLabel();
         jTabbedPane1 = new JTabbedPane();
         jTabbedBlastPane = new JTabbedPane();
+        
+        /*********Code Implement By Anh Vu***************
+        *********Contact: vietanh.vu@m4x.org************/
+        jTabbedBlatPane = new JTabbedPane();
+        jPanelMain = new JPanel();
+        borderLayoutBlat1 = new BorderLayout();
+        borderLayoutBlat2 = new BorderLayout();
+        borderLayoutBlat3 = new BorderLayout();
+        jPanelMain.setPreferredSize(new Dimension(364, 250));
+        jPanelMain.setLayout(borderLayoutBlat1);
+        jPanelMain.setMinimumSize(new Dimension(10, 100));
+        jPanelSubBlat = new JPanel();
+        jPanelSubBlat.setLayout(new XYLayout());
+        jPanelUpBlat = new JPanel();
+        jPanelUpBlat.setLayout(borderLayoutBlat2);
+        jScrollPaneBlat = new JScrollPane();
+        jLabelGenome = new JLabel();
+        jLabelGenome.setText("Genome");
+        jLabelAssembly = new JLabel();
+        jLabelAssembly.setText("Assembly");
+        jLabelQueryType = new JLabel();
+        jLabelQueryType.setText("Query Type");
+        jLabelSortOutput = new JLabel();
+        jLabelSortOutput.setText("Sort Output");
+        jLabelOutputType = new JLabel();
+        jLabelOutputType.setText("Output Type");
+        jToolBarBlat = new JToolBar();
+        jProgressBarBlat = new JProgressBar();
+        jProgressBarBlat.setMinimumSize(new Dimension(10, 26));
+        jProgressBarBlat.setPreferredSize(new Dimension(104, 26));
+        jProgressBarBlat.setOrientation(JProgressBar.HORIZONTAL);
+        jProgressBarBlat.setBorder(BorderFactory.createEtchedBorder());
+        jProgressBarBlat.setStringPainted(true);
+        jButtonUpdate = new JButton();
+        jButtonUpdate.setText("Update");
+        jButtonUpdate.addActionListener(new
+                                      BlastAppComponent_jButtonUpdate_actionAdapter(this));
+
+        /*setting up the parameters like on Blat web search page*/
+        String[] strGenome = {"Human", "Chimp", "Rhesus", "Dog", "Cow", "Mouse", "Rat", 
+                            "Opossum", "Chicken", "X. tropicalis", "Zebrafish",
+                            "Tetraodon", "Fugu", "C. intestinalis", "D. melanogaster", 
+                            "D. simulans", "D. sechellia", "D. yakuba", "D. erecta", 
+                            "D. ananassae", "D. persimilis", "D. pseudoobscura", "D. virilis", 
+                            "D. mojavensis", "D. grimshawi", "A. mellifera", "A. gambiae", 
+                            "C. elegans", "C. briggsae", "S. purpuratus", "S. cerevisiae", "SARS"};
+        String[] strAssembly = {"Mar. 2006", "May 2004", "July 2003", "Apr. 2003"};
+        String[] strAssemblyValue = {"hg18", "hg17", "hg16", "hg15"};
+        String[] strQueryType = {"BLAT's guess", "DNA", "protein", "translated RNA", "translated DNA"};
+        String[] strSortOutput = {"query,score", "query,start", "chrom,score", "chrom,start", "score"};
+        String[] strOutputType = {"hyperlink", "psl", "psl no header"};
+      
+        jComboBoxGenome = new JComboBox(strGenome);
+        jComboBoxAssembly = new JComboBox(strAssembly);
+        jComboBoxAssembly.addActionListener(new BlastAppComponent_jComboBoxAssembly_actionAdapter(this));
+        jComboBoxAssemblyValue = new JComboBox(strAssemblyValue);
+        jComboBoxAssemblyValue.setVisible(false);
+        jComboBoxQueryType = new JComboBox(strQueryType);
+        jComboBoxSortOutput = new JComboBox(strSortOutput);
+        jComboBoxOutputType = new JComboBox(strOutputType);
+        jCheckBoxLucky = new JCheckBox();
+        jCheckBoxLucky.setText("I'm feeling lucky");
+        jCheckBoxOpenInBrowser = new JCheckBox();
+        jCheckBoxOpenInBrowser.setText("Open Results In Web Browser");
+        jCheckBoxOpenInBrowser.setSelected(true);
+        Border borderBlat1 = BorderFactory.createEtchedBorder(Color.white,
+            new Color(165, 163, 151));
+        Border borderBlat2 = new TitledBorder(borderBlat1,
+                                      "Please select the information from the lists below");
+        jPanelSubBlat.setBorder(borderBlat2);
+        jPanelSubBlat.add(jLabelGenome, new XYConstraints(0, 10, 60, 20));
+        jPanelSubBlat.add(jLabelAssembly, new XYConstraints(0, 40, 60, 20));
+        jPanelSubBlat.add(jLabelQueryType, new XYConstraints(0, 70, 60, 20));
+        jPanelSubBlat.add(jLabelSortOutput, new XYConstraints(0, 100, 60, 20));
+        jPanelSubBlat.add(jLabelOutputType, new XYConstraints(0, 130, 100, 20));
+        jPanelSubBlat.add(jCheckBoxLucky, new XYConstraints(0, 180, 100, 20));
+        jPanelSubBlat.add(jCheckBoxOpenInBrowser, new XYConstraints(0, 230, 200, 20));
+        jPanelSubBlat.add(jComboBoxGenome, new XYConstraints(100, 10, 200, 20));
+        jPanelSubBlat.add(jComboBoxAssembly, new XYConstraints(100, 40, 200, 20));
+        jPanelSubBlat.add(jComboBoxAssemblyValue, new XYConstraints(350, 40, 100, 20));
+        jPanelSubBlat.add(jComboBoxQueryType, new XYConstraints(100, 70, 200, 20));
+        jPanelSubBlat.add(jComboBoxSortOutput, new XYConstraints(100, 100, 200, 20));
+        jPanelSubBlat.add(jComboBoxOutputType, new XYConstraints(100, 130, 200, 20));
+        jPanelSubBlat.add(jButtonUpdate, new XYConstraints(400, 70, 100, 20));
+        jPanelUpBlat.add(jPanelSubBlat, java.awt.BorderLayout.CENTER);
+        jScrollPaneBlat.getViewport().add(jPanelUpBlat);
+        jPanelMain.add(jScrollPaneBlat, java.awt.BorderLayout.CENTER);
+        jToolBarBlat.add(jProgressBarBlat);
+        jPanelMain.add(jToolBarBlat, java.awt.BorderLayout.NORTH); 
+        jTabbedBlatPane.add(jPanelMain, "BlatServer");
+        
+        /*Stand Alone Blat
+         */
+        jLabelOoc = new JLabel("Ooc");
+        jLabelTileSize = new JLabel("Tile Size");
+        jLabelOneOff = new JLabel("One Off");
+        jLabelMinMatch = new JLabel("Min Match");
+        jLabelMinScore = new JLabel("Min Score");
+        jLabelMinIdentity = new JLabel("Min Identity");
+        jLabelMaxGap = new JLabel("Max Gap");
+        jLabelRepMatch = new JLabel("Rep Match");
+        jLabelMinDivergence = new JLabel("Min Divergence");
+        jLabelDots = new JLabel("Dots");
+        jLabelSelectDatabase = new JLabel("Select Database");
+        jLabelOutputFile = new JLabel("Output File");
+        jLabelNoHead = new JLabel("No Head");
+        jLabelMakeOoc = new JLabel("Make Ooc");
+        jLabelTrimT = new JLabel("Trim T");
+        jLabelNoTrimA = new JLabel("No Trim A");
+        jLabelTrimHardA = new JLabel("Trim Hard A");
+        jLabelFine = new JLabel("Fine");
+        jLabelProt = new JLabel("Prot");
+        jLabelDatabaseType = new JLabel("Database Type");
+        jLabelQType = new JLabel("Query Type");
+        jLabelMask = new JLabel("Mask");
+        jLabelQMask = new JLabel("QMask");
+        jLabelOut = new JLabel("Out");
+        
+        jTextFieldOoc = new JTextField();
+        jTextFieldTileSize = new JTextField();
+        jTextFieldOneOff = new JTextField();
+        jTextFieldMinMatch = new JTextField();
+        jTextFieldMinScore = new JTextField();
+        jTextFieldMinIdentity = new JTextField();
+        jTextFieldMaxGap = new JTextField();
+        jTextFieldRepMatch = new JTextField();
+        jTextFieldMinDivergence = new JTextField();
+        jTextFieldDots = new JTextField();
+        jTextFieldSelectDatabase = new JTextField();
+        jTextFieldOutputFile = new JTextField();
+    
+        jCheckBoxNoHead = new JCheckBox();
+        jCheckBoxMakeOoc = new JCheckBox();
+        jCheckBoxTrimT = new JCheckBox();
+        jCheckBoxNoTrimA = new JCheckBox();
+        jCheckBoxTrimHardA = new JCheckBox();
+        jCheckBoxFine = new JCheckBox();
+        jCheckBoxProt = new JCheckBox();
+        
+        String[] sDatabaseType = {"dna", "prot", "dnax"};
+        String[] sQType = {"dna", "rna", "prot", "dnax", "rnax"};
+        String[] sMask = {"none","lower", "upper", "out", "file.out"}; 
+        String[] sQMask = {"none","lower", "upper", "out", "file.out"}; 
+        String[] sOut ={"psl", "pslx", "axt", "maf", "wublast", "blast"};
+        jComboBoxDatabaseType = new JComboBox(sDatabaseType);
+        jComboBoxQType = new JComboBox(sQType);
+        jComboBoxQType.addActionListener(new BlastAppComponent_jComboBoxQType_actionAdapter(this));
+        jComboBoxMask = new JComboBox(sMask);
+        jComboBoxQMask = new JComboBox(sQMask);
+        jComboBoxOut = new JComboBox(sOut);
+        
+        borderLayoutSBlat1 = new BorderLayout();
+        borderLayoutSBlat2 = new BorderLayout();
+        borderLayoutSBlat3 = new BorderLayout();
+        
+        jPanelStandAloneBlat = new JPanel();
+        jPanelStandAloneBlat.setPreferredSize(new Dimension(364, 250));
+        jPanelStandAloneBlat.setLayout(borderLayoutSBlat1);
+        jPanelStandAloneBlat.setMinimumSize(new Dimension(10, 100));
+        jPanelSubSBlat = new JPanel();
+        jPanelSubSBlat.setLayout(new XYLayout());
+        jPanelUpSBlat = new JPanel();
+        jPanelUpSBlat.setLayout(borderLayoutSBlat2);
+        
+        jScrollPaneSBlat = new JScrollPane(); 
+        borderSBlat1 = BorderFactory.createEtchedBorder(Color.white,
+            new Color(165, 163, 151));
+        borderSBlat2 = new TitledBorder(borderBlat1,
+                                      "Please select the options below, check blat documents for more infor");
+        
+        jToolBarSBlat = new JToolBar();
+        jProgressBarSBlat = new JProgressBar();
+        jProgressBarSBlat.setMinimumSize(new Dimension(10, 26));
+        jProgressBarSBlat.setPreferredSize(new Dimension(104, 26));
+        jProgressBarSBlat.setOrientation(JProgressBar.HORIZONTAL);
+        jProgressBarSBlat.setBorder(BorderFactory.createEtchedBorder());
+        jProgressBarSBlat.setStringPainted(true);
+    
+        jButtonSetDefault = new JButton();
+        jButtonSetDefault.setText("Reset Default");
+        jButtonSetDefault.addActionListener(new BlastAppComponent_jButtonSetDefault_actionAdapter(this));
+        jButtonBrowse = new JButton();
+        jButtonBrowse.addActionListener(new BlastAppComponent_jButtonBrowse_actionAdapter(this));
+        jButtonBrowse.setText("Browse");
+        jButtonOpen = new JButton();
+        jButtonOpen.addActionListener(new BlastAppComponent_jButtonOpen_actionAdapter(this));
+        jButtonOpen.setText("Open File");
+        
+        jPanelSubSBlat.setBorder(borderSBlat2);
+        jPanelSubSBlat.add(jLabelSelectDatabase, new XYConstraints(100, 10, 100, 20));
+        jPanelSubSBlat.add(jTextFieldSelectDatabase, new XYConstraints(200, 10, 200, 20));
+        jPanelSubSBlat.add(jButtonBrowse, new XYConstraints(400, 10, 100, 20));
+        
+        jPanelSubSBlat.add(jLabelDatabaseType, new XYConstraints(15, 100, 80, 20));
+        jPanelSubSBlat.add(jLabelQType, new XYConstraints(130, 100, 80, 20));
+        jPanelSubSBlat.add(jLabelMask, new XYConstraints(260, 100, 80, 20));
+        jPanelSubSBlat.add(jLabelQMask, new XYConstraints(365, 100, 80, 20));
+        jPanelSubSBlat.add(jLabelOut, new XYConstraints(480, 100, 80, 20));
+        
+        jPanelSubSBlat.add(jComboBoxDatabaseType, new XYConstraints(0, 130, 100, 20));
+        jPanelSubSBlat.add(jComboBoxQType, new XYConstraints(110, 130, 100, 20));
+        jPanelSubSBlat.add(jComboBoxMask, new XYConstraints(220, 130, 100, 20));
+        jPanelSubSBlat.add(jComboBoxQMask, new XYConstraints(330, 130, 100, 20));
+        jPanelSubSBlat.add(jComboBoxOut, new XYConstraints(440, 130, 100, 20));
+        
+        jPanelSubSBlat.add(jLabelOoc, new XYConstraints(0, 160, 80, 20));
+        jPanelSubSBlat.add(jLabelTileSize, new XYConstraints(0, 190, 80, 20));
+        jPanelSubSBlat.add(jLabelOneOff, new XYConstraints(0, 220, 80, 20));
+        jPanelSubSBlat.add(jLabelMinMatch, new XYConstraints(0, 250, 80, 20));
+        jPanelSubSBlat.add(jLabelMinScore, new XYConstraints(0, 280, 80, 20));
+        jPanelSubSBlat.add(jLabelMinIdentity, new XYConstraints(0, 310, 80, 20));
+        jPanelSubSBlat.add(jLabelMaxGap, new XYConstraints(0, 340, 80, 20));
+        jPanelSubSBlat.add(jLabelRepMatch, new XYConstraints(0, 370, 80, 20));
+        jPanelSubSBlat.add(jLabelMinDivergence, new XYConstraints(0, 400, 80, 20));
+        jPanelSubSBlat.add(jLabelDots, new XYConstraints(0, 430, 80, 20));
+        
+        jPanelSubSBlat.add(jTextFieldOoc, new XYConstraints(90, 160, 30, 20));
+        jPanelSubSBlat.add(jTextFieldTileSize, new XYConstraints(90, 190, 30, 20));
+        jPanelSubSBlat.add(jTextFieldOneOff, new XYConstraints(90, 220, 30, 20));
+        jPanelSubSBlat.add(jTextFieldMinMatch, new XYConstraints(90, 250, 30, 20));
+        jPanelSubSBlat.add(jTextFieldMinScore, new XYConstraints(90, 280, 30, 20));
+        jPanelSubSBlat.add(jTextFieldMinIdentity, new XYConstraints(90, 310, 30, 20));
+        jPanelSubSBlat.add(jTextFieldMaxGap, new XYConstraints(90, 340, 30, 20));
+        jPanelSubSBlat.add(jTextFieldRepMatch, new XYConstraints(90, 370, 30, 20));
+        jPanelSubSBlat.add(jTextFieldMinDivergence, new XYConstraints(90, 400, 30, 20));
+        jPanelSubSBlat.add(jTextFieldDots, new XYConstraints(90, 430, 30, 20));
+        
+        jPanelSubSBlat.add(jLabelNoHead, new XYConstraints(150, 250, 70, 20));
+        jPanelSubSBlat.add(jLabelMakeOoc, new XYConstraints(150, 280, 70, 20));
+        jPanelSubSBlat.add(jLabelTrimT, new XYConstraints(150, 310, 70, 20));
+        jPanelSubSBlat.add(jLabelTrimHardA, new XYConstraints(150, 340, 70, 20));
+        jPanelSubSBlat.add(jLabelFine, new XYConstraints(150, 370, 70, 20));
+        jPanelSubSBlat.add(jLabelProt, new XYConstraints(150, 400, 70, 20));
+        
+        jPanelSubSBlat.add(jCheckBoxNoHead, new XYConstraints(225, 250, 30, 20));
+        jPanelSubSBlat.add(jCheckBoxMakeOoc, new XYConstraints(225, 280, 30, 20));
+        jPanelSubSBlat.add(jCheckBoxTrimT, new XYConstraints(225, 310, 30, 20));
+        jPanelSubSBlat.add(jCheckBoxTrimHardA, new XYConstraints(225, 340, 30, 20));
+        jPanelSubSBlat.add(jCheckBoxFine, new XYConstraints(225, 370, 30, 30));
+        jPanelSubSBlat.add(jCheckBoxProt, new XYConstraints(225, 400, 30, 30));
+        
+        jPanelSubSBlat.add(jButtonSetDefault, new XYConstraints(400, 300, 120, 30));
+        
+        jPanelSubSBlat.add(jLabelOutputFile, new XYConstraints(100, 500, 100, 20));
+        jPanelSubSBlat.add(jTextFieldOutputFile, new XYConstraints(200, 500, 200, 20));
+        jPanelSubSBlat.add(jButtonOpen, new XYConstraints(400, 500, 100, 20));
+        
+        jPanelUpSBlat.add(jPanelSubSBlat, java.awt.BorderLayout.CENTER);
+        jScrollPaneSBlat.getViewport().add(jPanelUpSBlat);
+        jPanelStandAloneBlat.add(jScrollPaneSBlat, java.awt.BorderLayout.CENTER);
+        jToolBarSBlat.add(jProgressBarSBlat);
+        jPanelStandAloneBlat.add(jToolBarSBlat, java.awt.BorderLayout.NORTH); 
+        jTabbedBlatPane.add(jPanelStandAloneBlat, "StandAloneBlat");
+        standAloneBlatDefault();
+        
+        /*********End Code*******************************/
+        
         jTabbedHmmPane = new JTabbedPane();
         jTabbedSmPane = new JTabbedPane();
         jServerInfoPane = new ServerInfoPanel();
@@ -608,6 +1013,12 @@ import org.geworkbench.util.session.SoapClient;
                 , GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                 new Insets(0, 0, 1, 59), 78, -61));
         jTabbedPane1.add(jTabbedBlastPane, "BLAST");
+        
+        /*********Code Implement By Anh Vu***************
+        *********Contact: vietanh.vu@m4x.org************/
+        jTabbedPane1.add(jTabbedBlatPane, "BLAT");
+        /*********End Code*******************************/
+        
         jTabbedPane1.add(jHMMPane, "HMM");
         jScrollPane2.getViewport().add(jList2, null);
 
@@ -824,7 +1235,6 @@ import org.geworkbench.util.session.SoapClient;
         String[] model = AlgorithmMatcher.translateToGapcosts(
                 jMatrixBox.getSelectedItem().toString());
         jGapcostsBox.setModel(new DefaultComboBoxModel(model));
-
     }
 
     void jFrameShiftPaneltyBox_actionPerformed(ActionEvent e) {
@@ -1004,7 +1414,7 @@ import org.geworkbench.util.session.SoapClient;
 
         return ps;
     }
-
+    
 
     /**
      * Collect selected parameters.
@@ -1073,7 +1483,147 @@ import org.geworkbench.util.session.SoapClient;
         return parameterSetter;
 
     }
+    /*********Code Implement By Anh Vu***************
+     *********Contact: vietanh.vu@m4x.org************
+     *Collect all selected parameters and save it to*
+     * a ParameterBlatSetting object. @return this*** 
+     * ParameterBlatSetting*************************/
+    public ParameterBlatSetting collectBlatParameters(){
+        ParameterBlatSetting ps = new ParameterBlatSetting();
+        ps.setStringGenome((String) jComboBoxGenome.getSelectedItem());
+        ps.setStringAssembly((String) jComboBoxAssemblyValue.getSelectedItem());
+        ps.setStringOutputType((String) jComboBoxOutputType.getSelectedItem());
+        ps.setStringQueryType((String) jComboBoxQueryType.getSelectedItem());
+        ps.setStringSortOutput((String) jComboBoxSortOutput.getSelectedItem());
+        ps.setBooleanFeelLucky(jCheckBoxLucky.isSelected()); 
+        ps.setBooleanOpenInBrowser(jCheckBoxOpenInBrowser.isSelected());
+        return ps;
+    }
+    
+    public ParameterSetter processBlatParameters(){
+        ParameterBlatSetting parameterBlatSetting = collectBlatParameters();
+        if (parameterBlatSetting == null) {
+            return null;
+        }
+        if (fastaFile == null) {
+            if (sequenceDB == null) {
+                reportError("Unknown input fasta file", "Parameter Error");
+                return null;
+            }
+        } else {
 
+            try {
+                String tempFolder = System.getProperties().getProperty(
+                        "temporary.files.directory");
+                if (tempFolder == null) {
+                    tempFolder = ".";
+                }
+                String outputFile = tempFolder + "Blat" +
+                                    RandomNumberGenerator.getID() +
+                                    ".html";
+
+                if (fastaFile == null) {
+                    fastaFile = activeSequenceDB;
+                }
+                jProgressBarBlat.setForeground(Color.ORANGE);
+                jProgressBarBlat.setBackground(Color.WHITE);
+                jProgressBarBlat.setIndeterminate(true);
+                jProgressBarBlat.setString(
+                        "Blat is running on the Web Blat Server.");
+                SoapClient sc = new SoapClient();
+                sc.setSequenceDB(activeSequenceDB);
+                BlatAlgorithm blatAlgo = new BlatAlgorithm();
+                blatAlgo.setBlastAppComponent(this);
+                blatAlgo.setParameterBlatSetting(parameterBlatSetting);
+                blatAlgo.setSoapClient(sc);
+                blatAlgo.start();
+                Thread.sleep(2);
+                if (blatAlgo != null && parameterSetter != null) {
+                    parameterSetter.setAlgo(blatAlgo);
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+        }
+        return parameterSetter;
+    } 
+    /*********End Code*******************************/   
+    
+    /*********Code Implement By Anh Vu***************
+    *********Contact: vietanh.vu@m4x.org************
+    ****Set up the command Line for Stand Alone Blat*/
+    public String sBlatCommandLine(String sDatabase, String sQuery, String sOutput){
+        String sCommandLine = "";
+        sCommandLine += SCRIPT_DIRECTORY;
+        sCommandLine += "\\blat ";
+        sCommandLine += sDatabase;
+        sCommandLine += " ";
+        sCommandLine += sQuery;
+        sCommandLine += " -t=";
+        sCommandLine += jComboBoxDatabaseType.getSelectedItem();
+        sCommandLine += " -q=";
+        sCommandLine += jComboBoxQType.getSelectedItem();
+        sCommandLine += " ";
+        if(jCheckBoxProt.isSelected())
+            sCommandLine += "-prot ";
+        //not implemented yet
+        /*sCommandLine += "-ooc=";
+        sCommandLine += jTextFieldOoc.getText();
+        sCommandLine += ".ooc ";*/
+        sCommandLine += "-tileSize=";
+        sCommandLine += jTextFieldTileSize.getText();
+        sCommandLine += " -oneOff=";
+        sCommandLine += jTextFieldOneOff.getText();
+        sCommandLine += " -minMatch=";
+        sCommandLine += jTextFieldMinMatch.getText();
+        sCommandLine += " -minScore=";
+        sCommandLine += jTextFieldMinScore.getText();
+        sCommandLine += " -minIdentity=";
+        sCommandLine += jTextFieldMinIdentity.getText();
+        sCommandLine += " maxGap=";
+        sCommandLine += jTextFieldMaxGap.getText();
+        sCommandLine += " ";
+        if(jCheckBoxNoHead.isSelected())
+            sCommandLine += "-noHead ";
+        //option not implement yet
+        /*sCommandLine += "-makeOoc";
+        sCommandLine += jTextFieldMakeOoc.getText();*/
+        sCommandLine += " -repMatch=";
+        sCommandLine += jTextFieldRepMatch.getText();
+        sCommandLine += " ";
+        if(!jComboBoxMask.getSelectedItem().equals(DEFAULT_MASK)){
+            sCommandLine += "-mask=";
+            sCommandLine += jComboBoxMask.getSelectedItem();
+            sCommandLine += " ";
+        }
+        
+        if(!jComboBoxQMask.getSelectedItem().equals(DEFAULT_QMASK)){
+            sCommandLine += "-qMask=";
+            sCommandLine += jComboBoxQMask.getSelectedItem();
+            sCommandLine += " ";
+        }
+        sCommandLine += "-minRepDivergence="; 
+        sCommandLine += jTextFieldMinDivergence.getText();
+        sCommandLine += " dots=";
+        sCommandLine += jTextFieldDots.getText();
+        if(jCheckBoxTrimT.isSelected())
+            sCommandLine += " -trimT";
+        if(jCheckBoxNoTrimA.isSelected())
+            sCommandLine += " -noTrimA";
+        if(jCheckBoxTrimHardA.isSelected())
+            sCommandLine += " -trimHardA";
+        sCommandLine += " -out=";
+        sCommandLine += jComboBoxOut.getSelectedItem();
+        if(jCheckBoxFine.isSelected())
+            sCommandLine += " -fine";
+        sCommandLine += " ";
+        sCommandLine += sOutput;
+        return sCommandLine;
+    }
+    /*********End Code*******************************/   
+    
     public void retriveAlgoParameters() {
 
         if (jTabbedPane1.getSelectedIndex() == this.SW) {
@@ -1179,7 +1729,6 @@ import org.geworkbench.util.session.SoapClient;
      */
     public void blastFinished(String cmd) {
         Date finished_Date = new Date();
-
         if (cmd.startsWith("Interrupted")) {
             serviceProgressBar.setIndeterminate(false);
 
@@ -1234,12 +1783,32 @@ import org.geworkbench.util.session.SoapClient;
                 parameterSetter = processNCBIParameters();
 
             }
-        } else {
+        } 
+        else if (jTabbedPane1.getSelectedIndex() == this.BLAT){
+            if(jTabbedBlatPane.getSelectedIndex() == BLAT_SERVER)
+                parameterSetter = processBlatParameters();
+            else{//Stand Alone Blat
+                processSBlat();
+            }
+        }
+        else {
             retriveAlgoParameters();
         }
 
     }
-
+    /*********Code Implement By Anh Vu***************
+     *********Contact: vietanh.vu@m4x.org************/
+    public void blatFinished(String cmd) {
+        Date finished_Date = new Date();
+        if (cmd.startsWith("Interrupted")) {
+            jProgressBarBlat.setIndeterminate(false);
+            jProgressBarBlat.setForeground(Color.ORANGE);
+            jProgressBarBlat.setBackground(Color.ORANGE);
+            jProgressBarBlat.setString("Blat Search Stopped On " + finished_Date);
+        }
+    }
+    /*********End Code*******************************/ 
+    
     public void setBlastDisplayPanel(int selectedPanel) {
         if (selectedPanel == this.SERVER) {
             jTabbedBlastPane.setSelectedIndex(this.SERVER);
@@ -1269,7 +1838,10 @@ import org.geworkbench.util.session.SoapClient;
 
     void stopBlastAction() {
         stopButtonPushed = true;
-        blastFinished("Interrupted");
+        if (this.jTabbedPane1.getSelectedIndex() == this.BLAST)
+            blastFinished("Interrupted");
+        else if (this.jTabbedPane1.getSelectedIndex() == this.BLAT)
+            blatFinished("Interrupted");
         if (parameterSetter != null) {
 
             BWAbstractAlgorithm algo = parameterSetter.getAlgo();
@@ -1346,7 +1918,49 @@ import org.geworkbench.util.session.SoapClient;
         SwingUtilities.invokeLater(r);
     }
 
+     /*********Code Implement By Anh Vu***************
+     *********Contact: vietanh.vu@m4x.org************/
+    public void updateProgressBarBlat(final double percent, final String text) {
+        Runnable r = new Runnable() {
+            public void run() {
+                try {
+                    jProgressBarBlat.setString(text);
+                    jProgressBarBlat.setValue((int) (percent * 100));
+                } catch (Exception e) {
+                }
+            }
+        };
+        SwingUtilities.invokeLater(r);
+    }
 
+    public void updateProgressBarBlat(final String text) {
+        Runnable r = new Runnable() {
+            public void run() {
+                try {
+                    jProgressBarBlat.setString(text);
+                    jProgressBarBlat.setIndeterminate(true);
+                } catch (Exception e) {
+                }
+            }
+        };
+        SwingUtilities.invokeLater(r);
+    }
+
+    public void updateProgressBarBlat(final boolean boo, final String text) {
+        Runnable r = new Runnable() {
+            public void run() {
+                try {
+                    jProgressBarBlat.setString(text);
+                    jProgressBarBlat.setIndeterminate(boo);
+                } catch (Exception e) {
+                }
+            }
+        };
+        SwingUtilities.invokeLater(r);
+    }
+    
+     /*********End Code*******************************/   
+    
     void jButton2_actionPerformed(ActionEvent e) {
         if (fastaFile == null || fastaFile.isDNA()) {
             reportError("Please select a PROTEIN sequence file first.",
@@ -1498,7 +2112,51 @@ import org.geworkbench.util.session.SoapClient;
                                          ProjectNodeAddedEvent event) {
         return event;
     }
-
+    /*********Code Implement By Anh Vu***************
+     *********Contact: vietanh.vu@m4x.org************
+     *Setting up the default parameters for Stand****
+     *Alone Blat Application*************************/
+    
+    public void standAloneBlatDefault(){
+        jTextFieldOoc.setText(DEFAULT_Ooc);
+        jTextFieldTileSize.setText(DEFAULT_TILE_SIZE_DNA);
+        jTextFieldOneOff.setText(DEFAULT_ONE_OFF);
+        jTextFieldMinMatch.setText(DEFAULT_MIN_MATCH_NUCLEOTIDE);
+        jTextFieldMinScore.setText(DEFAULT_MIN_SCORE);
+        jTextFieldMinIdentity.setText(DEFAULT_MIN_IDENTITY_NUCLEOTIDE);
+        jTextFieldMaxGap.setText(DEFAULT_MAX_GAP);
+        jTextFieldRepMatch.setText(DEFAULT_REP_MATCH);
+        jTextFieldMinDivergence.setText(DEFAULT_MIN_DIVERGENCE);
+        jTextFieldDots.setText(DEFAULT_DOTS);
+        jComboBoxDatabaseType.setSelectedIndex(0);
+        jComboBoxQType.setSelectedIndex(0);
+        jComboBoxMask.setSelectedIndex(0);
+        jComboBoxQMask.setSelectedIndex(0);
+        jComboBoxOut.setSelectedIndex(0);
+        jTextFieldSelectDatabase.setText(DEFAULT_DATABASE_DIRECTORY);
+    }
+    
+    public void processSBlat(){
+        String sCommandLine;
+        File f = new File(jTextFieldSelectDatabase.getText());
+        File files[] = f.listFiles();
+        String sOutput = DEFAULT_OUTPUT_RESULT + "\\" + RandomNumberGenerator.getID() + ".sql";
+        String sQuery = "\"" + activeSequenceDB.getFile().getAbsolutePath() + "\"";
+        for(int i=0;i<files.length;i++){
+            if(files[i].isFile()){
+                String sDatabase = "\"" + files[i].getAbsolutePath() + "\"";
+                sCommandLine = sBlatCommandLine(sDatabase, sQuery, sOutput);
+                RunCommand runCommand = new RunCommand(sCommandLine);
+                try{            
+                    Runtime rt = Runtime.getRuntime();
+                    Process proc = rt.exec(sCommandLine);
+                } catch (Throwable t){
+                t.printStackTrace();
+                }
+            }
+        }
+        jTextFieldOutputFile.setText(sOutput);
+    }
 }
 
 
@@ -1642,7 +2300,7 @@ class BlastAppComponent_algorithmSearch_actionAdapter implements java.
 class BlastAppComponent_jButton2_actionAdapter implements java.awt.event.
         ActionListener {
     BlastAppComponent adaptee;
-
+    
     BlastAppComponent_jButton2_actionAdapter(BlastAppComponent
                                              adaptee) {
         this.adaptee = adaptee;
@@ -1652,3 +2310,197 @@ class BlastAppComponent_jButton2_actionAdapter implements java.awt.event.
         adaptee.jButton2_actionPerformed(e);
     }
 }
+
+/*********Code Implement By Anh Vu***************
+ *********Contact: vietanh.vu@m4x.org************
+ **Add an actionlistener to jComboBoxAssembly****
+ **so everytime its selected item changes, the***
+ **jComboBoxAssemblyValue's selected item *******
+ **changes accordingly***************************
+ ************************************************
+ **Add an actionlistener to jButtonUpdate********
+ **so this button will take information from web*
+ **server to update current available options****/
+
+class BlastAppComponent_jComboBoxAssembly_actionAdapter implements java.awt.event.ActionListener{
+    BlastAppComponent adaptee;
+    BlastAppComponent_jComboBoxAssembly_actionAdapter(BlastAppComponent adaptee){
+        this.adaptee = adaptee;
+    }
+    public void actionPerformed(ActionEvent e){
+        this.adaptee.jComboBoxAssemblyValue.setSelectedIndex(this.adaptee.jComboBoxAssembly.getSelectedIndex());
+    }
+}
+ 
+class BlastAppComponent_jButtonUpdate_actionAdapter implements java.awt.event.ActionListener{
+    BlastAppComponent adaptee;
+    BlastAppComponent_jButtonUpdate_actionAdapter(BlastAppComponent adaptee){
+        this.adaptee = adaptee;
+    }
+    public void actionPerformed(ActionEvent e){  
+        try {
+            Socket s = new Socket(org.geworkbench.components.alignment.blast.RemoteBlat.getBlatServer(),
+                                  org.geworkbench.components.alignment.blast.RemoteBlat.getBlatPort());
+
+            //create an output stream for sending message.
+            DataOutputStream out = new DataOutputStream(s.getOutputStream());
+            
+            //create buffered reader stream for reading incoming byte stream.
+            InputStreamReader inBytes = new InputStreamReader(s.getInputStream());
+            BufferedReader in = new BufferedReader(inBytes);
+            
+            out.writeBytes("PUT /cgi-bin/hgBlat\r\n");
+            java.util.regex.Pattern p = java.util.regex.Pattern.compile("<SELECT NAME");
+            while(true){
+                String sData = in.readLine();
+                if (sData == null)
+                    break;
+                java.util.regex.Matcher m = p.matcher(sData);
+                if (m.find()){
+                    String sOption = org.geworkbench.components.alignment.blast.RemoteBlat.getString(sData, '\"');
+                    if (sOption.equals("org")){
+                        adaptee.jComboBoxGenome.removeAllItems();
+                        sData = in.readLine();
+                        if (sData == null)
+                            break;
+                        while (!sData.equals("</SELECT>")){
+                            adaptee.jComboBoxGenome.addItem(org.geworkbench.components.alignment.blast.RemoteBlat.getString(sData, '\"'));
+                            sData = in.readLine();
+                        }
+                    }
+                    
+                    else if (sOption.equals("db")){
+                        adaptee.jComboBoxAssembly.removeAllItems();
+                        adaptee.jComboBoxAssemblyValue.removeAllItems();
+                        sData = in.readLine();
+                        if (sData == null)
+                            break;
+                        while (!sData.equals("</SELECT>")){
+                            adaptee.jComboBoxAssemblyValue.addItem(org.geworkbench.components.alignment.blast.RemoteBlat.getString(sData, '\"'));
+                            adaptee.jComboBoxAssembly.addItem(org.geworkbench.components.alignment.blast.RemoteBlat.getString(sData, '>', '<'));
+                            sData = in.readLine();
+                        }
+                    }
+                    
+                    else if (sOption.equals("type")){
+                        adaptee.jComboBoxQueryType.removeAllItems();
+                        sData = in.readLine();
+                        if (sData == null)
+                            break;
+                        while (!sData.equals("</SELECT>")){
+                            adaptee.jComboBoxQueryType.addItem(org.geworkbench.components.alignment.blast.RemoteBlat.getString(sData, '>', '<'));
+                            sData = in.readLine();
+                        }
+                    }
+                    
+                    else if (sOption.equals("sort")){
+                        adaptee.jComboBoxSortOutput.removeAllItems();
+                        sData = in.readLine();
+                        if (sData == null)
+                            break;
+                        while (!sData.equals("</SELECT>")){
+                            adaptee.jComboBoxSortOutput.addItem(org.geworkbench.components.alignment.blast.RemoteBlat.getString(sData, '>', '<'));
+                            sData = in.readLine();
+                        }
+                    }
+                    else if (sOption.equals("output")){
+                        adaptee.jComboBoxOutputType.removeAllItems();
+                        sData = in.readLine();
+                        if (sData == null)
+                            break;
+                        while (!sData.equals("</SELECT>")){
+                            adaptee.jComboBoxOutputType.addItem(org.geworkbench.components.alignment.blast.RemoteBlat.getString(sData, '>', '<'));
+                            sData = in.readLine();
+                        }
+                    }
+                    
+                    else {
+                        
+                    }
+                }
+            }
+        }
+        catch (UnknownHostException err) {
+            adaptee.reportError("Socket:" + err.getMessage(), "Unknown Host Exception Error");
+        }
+        catch (EOFException err) {
+            adaptee.reportError("EOF:" + err.getMessage(), "EOF Exception Error");
+        } 
+        catch (IOException err) {
+            adaptee.reportError(err.getMessage(), "IO Exception Error");
+        }
+    }
+}
+
+class BlastAppComponent_jButtonSetDefault_actionAdapter implements java.awt.event.ActionListener{
+    BlastAppComponent adaptee;
+    BlastAppComponent_jButtonSetDefault_actionAdapter(BlastAppComponent adaptee){
+        this.adaptee = adaptee;
+    }
+    public void actionPerformed(ActionEvent e){
+        this.adaptee.standAloneBlatDefault();
+    }
+}
+class BlastAppComponent_jButtonBrowse_actionAdapter implements java.awt.event.ActionListener{
+    BlastAppComponent adaptee;
+    BlastAppComponent_jButtonBrowse_actionAdapter(BlastAppComponent adaptee){
+        this.adaptee = adaptee;
+    }
+    public void actionPerformed(ActionEvent e){
+        JFileChooser fc = new JFileChooser();
+        fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);      
+        if (fc.showOpenDialog(null) == fc.APPROVE_OPTION){
+            File dir = fc.getSelectedFile();
+            this.adaptee.jTextFieldSelectDatabase.setText(dir.getAbsolutePath());
+        }
+    }
+}
+class BlastAppComponent_jButtonOpen_actionAdapter implements java.awt.event.ActionListener{
+    BlastAppComponent adaptee;
+    BlastAppComponent_jButtonOpen_actionAdapter(BlastAppComponent adaptee){
+        this.adaptee = adaptee;
+    }
+    public void actionPerformed(ActionEvent e){
+        try{
+        BrowserLauncher.openURL("file:///"+ this.adaptee.jTextFieldOutputFile.getText());
+        }
+        catch(Exception ex){
+            System.out.println("Some problems");
+            ex.printStackTrace();
+        }
+    }
+}
+class BlastAppComponent_jComboBoxQType_actionAdapter implements java.awt.event.ActionListener{
+    BlastAppComponent adaptee;
+    BlastAppComponent_jComboBoxQType_actionAdapter(BlastAppComponent adaptee){
+        this.adaptee = adaptee;
+    }
+    public void actionPerformed(ActionEvent e){
+        if(this.adaptee.jComboBoxQType.getSelectedItem().equals("prot")){
+            this.adaptee.jTextFieldTileSize.setText(this.adaptee.DEFAULT_TILE_SIZE_PROT);
+            this.adaptee.jTextFieldMinMatch.setText(this.adaptee.DEFAULT_MIN_MATCH_PROTEIN);
+            this.adaptee.jTextFieldMinIdentity.setText(this.adaptee.DEFAULT_MIN_IDENTITY_PROTEIN);
+        }
+        else{
+            this.adaptee.jTextFieldTileSize.setText(this.adaptee.DEFAULT_TILE_SIZE_DNA);
+            this.adaptee.jTextFieldMinMatch.setText(this.adaptee.DEFAULT_MIN_MATCH_NUCLEOTIDE);
+            this.adaptee.jTextFieldMinIdentity.setText(this.adaptee.DEFAULT_MIN_IDENTITY_NUCLEOTIDE);
+        }
+    }
+}
+class RunCommand extends Thread{
+    String sCommand;
+    RunCommand(String sCommand){
+        this.sCommand = sCommand;
+        this.start();
+    }
+    public void run(){
+        try{            
+            Runtime rt = Runtime.getRuntime();
+            Process proc = rt.exec(sCommand);
+        } catch (Throwable t){
+            t.printStackTrace();
+        }
+    }
+} 
+ /*********End Code*******************************/

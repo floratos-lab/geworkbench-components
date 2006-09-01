@@ -402,7 +402,7 @@ public class BlastObj {
 
     public CSSequence getAlignedSeq() {
         CSSequence seq = new CSSequence(">" + databaseID + "|" + name +
-                                        "-PART", subject);
+                                        "---PARTIALLY INCLUDED", subject);
 
         return seq;
 
@@ -431,15 +431,11 @@ public class BlastObj {
                         //  System.out.println("found" + line);
                         String[] str = line.split(">>");
                         int size = 0;
-                        StringBuffer sequenceContent = new StringBuffer();
+                        StringBuffer name = new StringBuffer();
                         String label = "";
                         if (str.length > 1) {
-                            //label is the GI number.
                             label = ">" + str[1] + "\n";
                         }
-                        //fix bug 570, change the label to DBname + DBID.
-
-                        label = ">" + databaseID + "|" + name;
                         while ((line = in.readLine()) != null &&
                                          !line.startsWith("</pre>")) {
                             size += line.length();
@@ -449,9 +445,9 @@ public class BlastObj {
                                         "  is too long to retrieve the whole sequence. The upper limit is " +
                                         maxSize + " bases.");
                             }
-                            sequenceContent.append(line + "\n");
+                            name.append(line + "\n");
                         }
-                        CSSequence seq = new CSSequence(label, sequenceContent.toString());
+                        CSSequence seq = new CSSequence(label, name.toString());
                         return seq;
                     }
                 }
