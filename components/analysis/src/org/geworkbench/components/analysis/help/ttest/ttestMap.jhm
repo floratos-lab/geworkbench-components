@@ -6,7 +6,8 @@
 
 <map version="1.0">
 
-	<mapID target="Overview" url="ttest.htm"/>
+	<mapID target="T Test" url="ttest.htm"/>	
+	<mapID target="Multi T Test" url="Mttest.htm"/>
 	
 
 		
