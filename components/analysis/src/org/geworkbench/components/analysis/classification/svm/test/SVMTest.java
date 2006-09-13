@@ -19,9 +19,9 @@ import java.util.List;
  * Date: Jan 5, 2006
  * Time: 11:54:57 AM
  */
-public class TestSVM extends TestCase {
+public class SVMTest extends TestCase {
 
-    static Log log = LogFactory.getLog(TestSVM.class);
+    static Log log = LogFactory.getLog(SVMTest.class);
 
     private static int INDEX_CLASSIFICATIONS = 2;
     private static int INDEX_DATA = 8;
