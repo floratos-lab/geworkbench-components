@@ -428,7 +428,7 @@ public class HierClusterViewWidget extends JPanel implements HierClusterModelEve
                 slider_stateChanged(e);
             }
         });
-        jCheckBox1.setText("Enable Zoom");
+        jCheckBox1.setText("Enable Selection");
         jCheckBox1.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 zoomCheckBox_actionPerformed(e);
