@@ -115,6 +115,7 @@ public class RetrievedSequenceDisplay extends JPanel {
                 int row = table.rowAtPoint(e.getPoint());
                 if (row != -1) {
                     selectedSequence = (DSSequence) sequenceDB.get(row);
+                    
                 }
                 if (e.getClickCount() == 2) {
                     row = table.rowAtPoint(e.getPoint());

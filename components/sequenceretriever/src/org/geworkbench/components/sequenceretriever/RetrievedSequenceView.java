@@ -6,6 +6,7 @@ import org.geworkbench.util.sequences.GeneChromosomeMatcher;
 import org.geworkbench.bison.datastructure.bioobjects.sequence.CSSequence;
 
 import java.awt.*;
+import java.awt.event.MouseEvent;
 import java.awt.font.FontRenderContext;
 
 /**
@@ -167,5 +168,18 @@ public class RetrievedSequenceView extends JPanel {
         g.setColor(Color.BLACK);
         //g.drawString("LABLE", 4, 4);
 
+    }
+    public String getToolTipText(MouseEvent event) {
+        float x = event.getX() - xOff;
+
+        int index = (int) (x / scale);
+        if ((index >= 0) && (index < sequence.length())) {
+
+             String highlight = null;
+            highlight = sequence.getSequence().substring(index, index+10);
+
+            return "" + index + ": " + highlight;
+        }
+        return null;
     }
 }
