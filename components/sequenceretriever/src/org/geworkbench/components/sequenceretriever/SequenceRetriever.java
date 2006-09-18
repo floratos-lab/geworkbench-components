@@ -712,7 +712,6 @@ public class SequenceRetriever implements VisualPlugin {
                     sequenceDB = new CSSequenceSet();
                     seqDisPanel.initialize();
                     seqDisPanel.initPanelView();
-
                     markerList = refMASet.getMarkers();
                 }
             }
