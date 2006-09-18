@@ -169,15 +169,14 @@ public class RetrievedSequenceView extends JPanel {
         //g.drawString("LABLE", 4, 4);
 
     }
+
     public String getToolTipText(MouseEvent event) {
         float x = event.getX() - xOff;
 
         int index = (int) (x / scale);
         if ((index >= 0) && (index < sequence.length())) {
-
-             String highlight = null;
-            highlight = sequence.getSequence().substring(index, index+10);
-             System.out.println("highlight" + index);
+            String highlight = null;
+            highlight = sequence.getSequence().substring(index, index + 10);
             return "" + index + ": " + highlight;
         }
         return null;
