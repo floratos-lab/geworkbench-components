@@ -13,12 +13,16 @@ import org.geworkbench.bison.datastructure.biocollections.sequences.
         CSSequenceSet;
 import org.geworkbench.bison.datastructure.biocollections.sequences.
         DSSequenceSet;
+import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.
         AnnotationParser;
 import org.geworkbench.bison.datastructure.bioobjects.sequence.CSSequence;
+import org.geworkbench.bison.datastructure.bioobjects.sequence.DSSequence;
+import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
+import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.bison.util.RandomNumberGenerator;
 import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.engine.management.AcceptTypes;
@@ -26,30 +30,31 @@ import org.geworkbench.engine.management.Publish;
 import org.geworkbench.engine.management.Subscribe;
 import org.geworkbench.events.GeneSelectorEvent;
 import org.geworkbench.events.ProjectNodeAddedEvent;
-import org.geworkbench.util.promoter.SequencePatternDisplayPanel;
 
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.event.DocumentListener;
+import javax.swing.event.DocumentEvent;
 import javax.xml.namespace.QName;
 import javax.xml.rpc.ParameterMode;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.MouseEvent;
+import java.awt.event.*;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.Vector;
+
 import org.geworkbench.components.sequenceretriever.SequenceFetcher;
 import org.geworkbench.util.sequences.GeneChromosomeMatcher;
-import java.util.Date;
+
+import java.util.*;
 
 /**
- * <p>
+ * <p/>
  * Widget to retrieve Promoter sequence from UCSC's DAS sequence server
  * </p>
- * <p>
+ * <p/>
  * Copyright: Copyright (c) 2003 - 2005
  * </p>
  *
@@ -59,19 +64,28 @@ import java.util.Date;
  * @version 3.0
  */
 
-@AcceptTypes( {DSMicroarraySet.class})
-        public class SequenceRetriever implements VisualPlugin {
+@AcceptTypes({DSMicroarraySet.class})
+public class SequenceRetriever implements VisualPlugin {
 
     private Log log = LogFactory.getLog(SequenceRetriever.class);
 
     DSPanel<DSGeneMarker> markers = null;
     DSPanel<DSGeneMarker> activeMarkers = null;
-    private CSSequenceSet sequenceDB = new CSSequenceSet();
-    public static final String NOANNOTATION = "--";
+    private CSSequenceSet displaySequenceDB = new CSSequenceSet();
+    private CSSequenceSet sequenceDB = new CSSequenceSet<DSSequence>();
+    private CSSequenceSet selectedSequences = new CSSequenceSet<DSSequence>();
+    private DSItemList markerList;
+    public static final String NOANNOTATION = "---";
     boolean selectedRegionChanged = false;
-
+    protected DSMicroarraySet<DSMicroarray> refMASet = null;
+    private final static String NORMAL = "normal";
+    private final static String STOP = "stop";
+    private final static String CLEAR = "clear";
+    private final static String RUNNING = "running";
+    private String status = NORMAL;
     // selected results
     Vector results = new Vector();
+    Vector tfNameSet;
     private JPanel main = new JPanel();
 
     // Layouts
@@ -82,11 +96,13 @@ import java.util.Date;
     private JToolBar jToolbar2 = new JToolBar();
     private JScrollPane seqScrollPane = new JScrollPane();
 
-    private SequencePatternDisplayPanel seqDisPanel = new
-            SequencePatternDisplayPanel();
+    private RetrievedSequencesPanel seqDisPanel = new
+            RetrievedSequencesPanel();
+    private HashMap<String, RetrievedSequenceView> retrievedMap = new HashMap<String, RetrievedSequenceView>();
+    private TreeMap<String, ArrayList<String>> retrievedSequences = new TreeMap<String, ArrayList<String>>();
 
     JPanel jPanel2 = new JPanel();
-
+    public static String newline = System.getProperty("line.separator");
     SpinnerNumberModel model = new SpinnerNumberModel(1999, 1, 1999, 1);
     JSpinner beforeText = new JSpinner();
     SpinnerNumberModel model1 = new SpinnerNumberModel(2000, 1, 2000, 1);
@@ -100,6 +116,7 @@ import java.util.Date;
     JMenuItem jDeleteItem = new JMenuItem();
     JMenuItem jClearUnselectedItem = new JMenuItem();
     JMenuItem jClearAllItem = new JMenuItem();
+    JSplitPane rightPanel = new JSplitPane();
 
     BorderLayout borderLayout1 = new BorderLayout();
     BorderLayout borderLayout3 = new BorderLayout();
@@ -107,6 +124,8 @@ import java.util.Date;
     GridLayout gridLayout1 = new GridLayout();
     JButton jActivateBttn = new JButton();
     JButton jButton2 = new JButton();
+    JButton stopButton = new JButton();
+    JButton clearButton = new JButton();
     ButtonGroup sourceGroup = new ButtonGroup();
     JPanel jPanel1 = new JPanel();
     JScrollPane jScrollPane2 = new JScrollPane();
@@ -122,6 +141,8 @@ import java.util.Date;
     JProgressBar jProgressBar1 = new JProgressBar();
     GridLayout gridLayout2 = new GridLayout();
     JLabel jLabel6 = new JLabel();
+    JTabbedPane tabPane = new JTabbedPane();
+    JPanel markerPanel = new JPanel();
     FlowLayout flowLayout1 = new FlowLayout();
     public static final String LOCAL = "Local";
     public static final String UCSC = "UCSC";
@@ -137,13 +158,42 @@ import java.util.Date;
         }
     }
 
+    class SequenceListRenderer extends JLabel implements ListCellRenderer {
+
+        public Component getListCellRendererComponent(
+                JList list,
+                Object value,            // value to display
+                int index,               // cell index
+                boolean isSelected,      // is the cell selected
+                boolean cellHasFocus)    // the list and the cell have the focus
+        {
+            String s = value.toString();
+            if (retrievedSequences.containsKey(s)) {
+                setText("<html><font color=blue>" + s + "</font></html>");
+            } else {
+                setText(s);
+            }
+
+            if (isSelected) {
+                setBackground(list.getSelectionBackground());
+                setForeground(list.getSelectionForeground());
+            } else {
+                setBackground(list.getBackground());
+                setForeground(list.getForeground());
+            }
+            setEnabled(list.isEnabled());
+            setFont(list.getFont());
+            return this;
+        }
+    }
+
     class ResultCellRenderer extends JPanel implements ListCellRenderer {
         JCheckBox box = new JCheckBox();
         JLabel label = new JLabel();
 
         public Component getListCellRendererComponent(JList list, Object value,
-                int index, boolean isSelected,
-                boolean cellHasFocus) {
+                                                      int index, boolean isSelected,
+                                                      boolean cellHasFocus) {
             BorderLayout bd = new BorderLayout();
             this.setLayout(bd);
             this.add(box, BorderLayout.WEST);
@@ -154,7 +204,7 @@ import java.util.Date;
             String s = null;
             try {
                 s = gene.getOrganismAbbreviation() + gene.getClusterId() + "(" +
-                    gene.getName() + ")";
+                        gene.getName() + ")";
             } catch (ManagerException ex) {
             }
 
@@ -187,7 +237,8 @@ import java.util.Date;
         jPanel6.setLayout(gridLayout2);
         jLabel6.setHorizontalAlignment(SwingConstants.LEFT);
         jLabel6.setText("Type");
-
+        rightPanel = new JSplitPane();
+        rightPanel.setOrientation(JSplitPane.HORIZONTAL_SPLIT);
         jPanel1.setLayout(flowLayout1);
         // jComboCategory.setPreferredSize(new Dimension(46, 21));
         jpopMenu.add(jClearUnselectedItem);
@@ -252,7 +303,18 @@ import java.util.Date;
                 jButton2_actionPerformed(e);
             }
         });
-
+        stopButton.setText("Stop");
+        stopButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                stopButton_actionPerformed(e);
+            }
+        });
+        clearButton.setText("Clear");
+        clearButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                clearButton_actionPerformed(e);
+            }
+        });
         jPanel4.setLayout(borderLayout5);
         jLabel4.setText("Selected Microarray Markers");
         jComboCategory.setSelectedItem("DNA");
@@ -304,15 +366,26 @@ import java.util.Date;
         jToolbar2.add(beforeText, null);
         jToolbar2.add(jLabel1, null);
         jToolbar2.add(afterText, null);
+        jToolbar2.add(stopButton, null);
+        jToolbar2.add(clearButton, null);
         jToolbar2.add(jButton2, null);
         jToolbar2.add(jActivateBttn, null);
-        jPanel2.add(seqScrollPane, BorderLayout.CENTER);
-        jPanel2.add(jPanel3, BorderLayout.WEST);
+//        jPanel2.add(seqScrollPane, BorderLayout.CENTER);
+//        jPanel2.add(jPanel3, BorderLayout.WEST);
+
+        jPanel2.add(rightPanel, BorderLayout.CENTER);
+        tabPane = new JTabbedPane();
+        markerPanel = new TFListPanel();
+        tabPane.add("Marker", jPanel3);
+        tabPane.add("Find a Marker", markerPanel);
+        rightPanel.add(seqScrollPane, JSplitPane.RIGHT);
+        rightPanel.add(tabPane, JSplitPane.LEFT);
         jPanel3.add(jPanel4, null);
         jPanel4.add(jScrollPane2, BorderLayout.CENTER);
         jSelectedList.setModel(ls2);
+        jSelectedList.setCellRenderer(new SequenceListRenderer());
         jScrollPane2.getViewport().add(jSelectedList, null);
-        jPanel4.add(jLabel4, BorderLayout.NORTH);
+        //jPanel4.add(jLabel4, BorderLayout.NORTH);
         jPanel2.add(jPanel1, BorderLayout.NORTH);
         jPanel1.add(jLabel6, null);
         jPanel1.add(jComboCategory, null);
@@ -351,30 +424,55 @@ import java.util.Date;
         SwingUtilities.invokeLater(r);
     }
 
+
+    void stopButton_actionPerformed(ActionEvent e) {
+        status = STOP;
+        stopButton.setEnabled(false);
+    }
+
+    void clearButton_actionPerformed(ActionEvent e) {
+        status = CLEAR;
+    }
+
     void jButton2_actionPerformed(ActionEvent e) {
+        retrievedMap = new HashMap<String, RetrievedSequenceView>();
+        retrievedSequences = new TreeMap<String, ArrayList<String>>();
+        jSelectedList.repaint();
+
+        status = RUNNING;
+        stopButton.setEnabled(true);
         if (ls2.getSize() > 0) {
             seqDisPanel.initialize();
             jProgressBar1.setIndeterminate(false);
             jProgressBar1.setMinimum(0);
             jProgressBar1.setMaximum(100);
             jProgressBar1.setStringPainted(true);
-
+             jProgressBar1.setValue(0);
             if (sequenceDB != null) {
                 sequenceDB = new CSSequenceSet();
             }
             Thread t = new Thread() {
 
                 public void run() {
-                    getSequences();
-                    updateProgressBar(100, "Finished on " + new Date());
-
+                    getSequences(ls2);
+                    if (status.equalsIgnoreCase(STOP)) {
+                        sequenceDB = new CSSequenceSet();
+                        updateProgressBar(100, "Stopped on " + new Date());
+                    } else {
+                        updateProgressBar(100, "Finished on " + new Date());
+                        jSelectedList.updateUI();
+                        //jSelectedList.repaint();
+                        //main.revalidate();
+                        seqDisPanel.setRetrievedMap(retrievedMap);
+                    }
+                    stopButton.setEnabled(false);
                 }
             };
             t.setPriority(Thread.MIN_PRIORITY);
             t.start();
         } else {
             JOptionPane.showMessageDialog(null,
-                                          "Please select gene(s) or marker(s).");
+                    "Please select gene(s) or marker(s).");
         }
     }
 
@@ -383,9 +481,18 @@ import java.util.Date;
             String label = JOptionPane.showInputDialog(
                     "Please enter a name for the dataset");
             if (label != null) {
-                sequenceDB.setLabel(label);
+                CSSequenceSet selectedSequenceDB = new CSSequenceSet();
+                for (Object sequence : sequenceDB) {
+                    if (sequence != null) {
+                        RetrievedSequenceView retrievedSequenceView = retrievedMap.get(sequence.toString());
+                        if (retrievedSequenceView.isIncluded()) {
+                            selectedSequenceDB.add(sequence);
+                        }
+                    }
+                }
+                selectedSequenceDB.setLabel(label);
                 ProjectNodeAddedEvent event = new ProjectNodeAddedEvent(
-                        "message", sequenceDB, null);
+                        "message", selectedSequenceDB, null);
                 publishProjectNodeAddedEvent(event);
             }
         }
@@ -402,13 +509,23 @@ import java.util.Date;
 
         if (seqs != null) {
             sequenceDB.addASequence(seqs);
+            RetrievedSequenceView retrievedSequenceView = new RetrievedSequenceView(seqs);
+            retrievedMap.put(seqs.toString(), retrievedSequenceView);
             sequenceDB.parseMarkers();
+            if (retrievedSequences.containsKey(marker.toString())) {
+                ArrayList<String> values = retrievedSequences.get(marker.toString());
+                values.add(seqs.toString());
+            } else {
+                ArrayList<String> values = new ArrayList<String>();
+                values.add(seqs.toString());
+                retrievedSequences.put(marker.toString(), values);
+            }
         }
     }
 
-    void getSequences() {
+    void getSequences(DefaultListModel selectedList) {
 
-        if (markers != null) {
+        if (markers != null && selectedList != null) {
             // sequenceDB.clear();
             sequenceDB = new CSSequenceSet();
             // sequenceDB = new CSSequenceSet();
@@ -416,57 +533,72 @@ import java.util.Date;
             if (((String) jComboCategory.getSelectedItem()).equalsIgnoreCase(
                     "DNA")) {
                 if (jSourceCategory.getSelectedItem().equals(LOCAL)) {
-                    for (int i = 0; i < ls2.size(); i++) {
-                        DSGeneMarker marker = (DSGeneMarker) ls2.get(i);
-                        double progress = (double) i / (double) (ls2.size());
+                    for (int i = 0; i < selectedList.size(); i++) {
+                        DSGeneMarker marker = (DSGeneMarker) selectedList.get(i);
+                        double progress = (double) i / (double) (selectedList.size());
                         updateProgressBar(progress,
-                                          "Retrieving " + marker.getLabel());
+                                "Retrieving " + marker.getLabel());
+                        if (status.equalsIgnoreCase(STOP)) {
+                            return;
+                        }
                         getSequences(marker);
                     }
 
                 } else if (jSourceCategory.getSelectedItem().equals(UCSC)) {
                     int startPoint = ((Integer) model.getNumber())
-                                     .intValue();
+                            .intValue();
                     int endPoint = ((Integer) model1.getNumber()).
-                                   intValue();
+                            intValue();
                     String database = SequenceFetcher.matchChipType(
                             AnnotationParser.getCurrentChipType());
-
-                    for (int i = 0; i < ls2.size(); i++) {
-                        DSGeneMarker marker = (DSGeneMarker) ls2.get(i);
-                        double progress = (double) (i + 1) / (double) (ls2.size());
+                    for (int i = 0; i < selectedList.size(); i++) {
+                        DSGeneMarker marker = (DSGeneMarker) selectedList.get(i);
+                        double progress = (double) (i + 1) / (double) (selectedList.size());
+                        if (status.equalsIgnoreCase(STOP)) {
+                            return;
+                        }
                         updateProgressBar(progress,
-                                          "Retrieving " + marker.getLabel());
+                                "Retrieving " + marker.getLabel());
                         String[] knownGeneName = AnnotationParser.getInfo(
                                 marker.getLabel(), AnnotationParser.REFSEQ);
-                        if (knownGeneName != null && knownGeneName.length > 0 &&
-                            !knownGeneName.equals(NOANNOTATION)) {
+                        if (knownGeneName != null && knownGeneName.length > 0) {
 
                             for (String geneName : knownGeneName) {
-                                if (geneName == null) {
+                                if (geneName == null ||
+                                        geneName.equals(NOANNOTATION)) {
                                     continue;
                                 }
                                 Vector geneChromosomeMatchers =
                                         SequenceFetcher.
-                                        getGeneChromosomeMatchers(geneName,
-                                        database);
+                                                getGeneChromosomeMatchers(geneName,
+                                                        database);
                                 if (geneChromosomeMatchers != null) {
                                     for (int j = 0;
-                                                 j < geneChromosomeMatchers.
+                                         j < geneChromosomeMatchers.
                                                  size();
-                                                 j++) {
+                                         j++) {
                                         GeneChromosomeMatcher o = (
                                                 GeneChromosomeMatcher)
                                                 geneChromosomeMatchers.get(j);
                                         CSSequence seqs = SequenceFetcher.
                                                 getSequenceFetcher().
                                                 getSequences(o, startPoint,
-                                                endPoint);
+                                                        endPoint);
                                         if (seqs != null) {
                                             seqs.setLabel(marker.getLabel() +
-                                                    "_" +
-                                                    j);
+                                                    "_" + o.getChr() + "_" + o.getStartPoint() + "_" + o.getEndPoint());
                                             sequenceDB.addASequence(seqs);
+                                            RetrievedSequenceView retrievedSequenceView = new RetrievedSequenceView(seqs);
+                                            retrievedSequenceView.setGeneChromosomeMatcher(o);
+                                            retrievedMap.put(seqs.toString(), retrievedSequenceView);
+                                            if (retrievedSequences.containsKey(marker.toString())) {
+                                                ArrayList<String> values = retrievedSequences.get(marker.toString());
+                                                values.add(seqs.toString());
+                                            } else {
+                                                ArrayList<String> values = new ArrayList<String>();
+                                                values.add(seqs.toString());
+                                                retrievedSequences.put(marker.toString(), values);
+                                            }
                                             //sequenceDB.parseMarkers();
                                         }
 
@@ -484,6 +616,7 @@ import java.util.Date;
                     sequenceDB.readFASTAFile(new File(fileName));
                 }
             } else {
+                sequenceDB = new CSSequenceSet();
                 BufferedWriter br = null;
                 try {
                     br = new BufferedWriter(new FileWriter(fileName));
@@ -494,12 +627,33 @@ import java.util.Date;
 
                     for (DSGeneMarker geneMarker : markers) {
                         String affyid = geneMarker.getLabel();
-                        if (affyid.endsWith("_at")) { // if this is affyid
-
-                            getAffyProteinSequences(affyid, br);
+                        if (status.equalsIgnoreCase(STOP)) {
+                            return;
                         }
+                        if (affyid.endsWith("_at")) { // if this is affyid
+                            CSSequenceSet sequenceSet = SequenceFetcher.getAffyProteinSequences(affyid);
 
+                            String[] uniprotids = AnnotationParser.getInfo(affyid,
+                                    AnnotationParser.SWISSPROT);
+                            if (sequenceSet.size() > 0) {
+                                ArrayList<String> values = new ArrayList<String>();
+                                int i = 0;
+                                for (Object o : sequenceSet) {
+                                    retrievedSequences.put(geneMarker.toString(), values);
+                                    sequenceDB.addASequence((CSSequence) o);
+                                    RetrievedSequenceView retrievedSequenceView = new RetrievedSequenceView((CSSequence) o);
+                                    retrievedSequenceView.setUrl(uniprotids[i++]);
+                                    retrievedMap.put(o.toString(), retrievedSequenceView);
+                                    sequenceDB.parseMarkers();
+                                    values.add(o.toString());
+                                    retrievedSequences.put(geneMarker.toString(), values);
+
+                                }
+                            }
+
+                        }
                     }
+
                 }
                 try {
                     br.close();
@@ -507,62 +661,68 @@ import java.util.Date;
                     ex1.printStackTrace();
                 }
                 //Need to remove all previous result.
-                sequenceDB = new CSSequenceSet();
-                sequenceDB.readFASTAFile(new File(fileName));
+                // sequenceDB = new CSSequenceSet();
+                //  sequenceDB.readFASTAFile(new File(fileName));
+                /**
+                 * todo Don't know why we need save it in temp file. Maybe for the editor to read it?
+                 */
+                if (sequenceDB.getSequenceNo() != 0) {
+                    sequenceDB.writeToFile(fileName);
+                    sequenceDB = new CSSequenceSet();
+                    sequenceDB.readFASTAFile(new File(fileName));
+                }
 
             }
             if (sequenceDB.getSequenceNo() == 0) {
                 JOptionPane.showMessageDialog(getComponent(),
-                                              "No sequences retrieved for selected markers");
+                        "No sequences retrieved for selected markers");
             }
 
             seqDisPanel.initialize(sequenceDB);
-        }
-    }
+            main.revalidate();
+            main.repaint();
 
-    private void getAffyProteinSequences(String affyid, BufferedWriter br) {
-        try {
-
-            Call call = (Call)new Service().createCall();
-            call.setTargetEndpointAddress(new java.net.URL(
-                    "http://www.ebi.ac.uk/ws/services/Dbfetch"));
-            call.setOperationName(new QName("urn:Dbfetch", "fetchData"));
-            call.addParameter("query", XMLType.XSD_STRING, ParameterMode.IN);
-            call.addParameter("format", XMLType.XSD_STRING, ParameterMode.IN);
-            call.addParameter("style", XMLType.XSD_STRING, ParameterMode.IN);
-            call.setReturnType(XMLType.SOAP_ARRAY);
-            String[] uniprotids = AnnotationParser.getInfo(affyid,
-                    AnnotationParser.SWISSPROT);
-            if (uniprotids != null) {
-                for (int i = 0; i < uniprotids.length; i++) {
-                    if (uniprotids[i] != null &&
-                        !uniprotids[i].trim().equals("")) {
-                        String[] result = (String[]) call.invoke(new Object[] {
-                                "uniprot:" + uniprotids[i], "fasta",
-                                "raw"});
-
-                        if (result.length == 0) {
-                            System.out.println("hmm...something wrong :-(\n");
-                        } else {
-
-                            for (int count = 0; count < result.length; count++) {
-                                result[count] = result[count].replaceAll(">",
-                                        ">" + affyid + "|");
-                                br.write(result[count]); // need to write to a sequenceDB.
-                                br.newLine();
-                            }
-                        }
-                    }
-                }
-            }
-        } catch (Exception e) {
         }
     }
 
     @Publish
-            public ProjectNodeAddedEvent publishProjectNodeAddedEvent(org.
+    public ProjectNodeAddedEvent publishProjectNodeAddedEvent(org.
             geworkbench.events.ProjectNodeAddedEvent event) {
         return event;
+    }
+
+    /**
+     * receiveProjectSelection
+     *
+     * @param e ProjectEvent
+     */
+    @Subscribe
+    @SuppressWarnings("unchecked")
+    public void receive(org.geworkbench.events.ProjectEvent e, Object source) {
+
+        log.debug("Source object " + source);
+
+        if (e.getMessage().equals(org.geworkbench.events.ProjectEvent.CLEARED)) {
+            refMASet = null;
+        } else {
+            DSDataSet dataSet = e.getDataSet();
+            if (dataSet instanceof DSMicroarraySet) {
+                if (refMASet != dataSet) {
+                    this.refMASet = (DSMicroarraySet) dataSet;
+                    sequenceDB = new CSSequenceSet();
+                    seqDisPanel.initialize();
+                    seqDisPanel.initPanelView();
+
+                    markerList = refMASet.getMarkers();
+                }
+            }
+
+            //remove below part for production.
+            if (dataSet instanceof DSSequenceSet) {
+                seqDisPanel.setSequenceDB((DSSequenceSet) dataSet);
+            }
+            // refreshMaSetView();
+        }
     }
 
     /**
@@ -571,7 +731,7 @@ import java.util.Date;
      * @param e GeneSelectorEvent
      */
     @Subscribe
-            public void receive(GeneSelectorEvent e, Object publisher) {
+    public void receive(GeneSelectorEvent e, Object publisher) {
         markers = e.getPanel();
         activeMarkers = new CSPanel();
         if (markers != null) {
@@ -593,7 +753,7 @@ import java.util.Date;
             markers = activeMarkers;
             //
             log.debug("Active markers / markers: " + activeMarkers.size() +
-                      " / " + markers.size());
+                    " / " + markers.size());
         }
     }
 
@@ -630,4 +790,333 @@ import java.util.Date;
         String fileName = tempFolder + tempString;
         return fileName;
     }
+
+
+    private class TFListPanel extends JPanel {
+
+
+        public static final String NEXT_BUTTON_TEXT = "Find";
+        public static final String SEARCH_LABEL_TEXT = "Search:";
+
+        private JList list;
+        private JButton nextButton;
+        private JTextField searchField;
+        private DefaultListModel model;
+        private JScrollPane scrollPane;
+
+        private boolean lastSearchFailed = false;
+        private boolean lastSearchWasAscending = true;
+
+        private boolean prefixMode = false;
+
+        public TFListPanel() {
+            this(null);
+        }
+
+        public TFListPanel(ListModel themodel) {
+            super();
+            //this.model = model;
+            // Create and lay out components
+            model = new DefaultListModel();
+
+            setLayout(new BorderLayout());
+            JPanel topPanel = new JPanel();
+            topPanel.setLayout(new BoxLayout(topPanel, BoxLayout.X_AXIS));
+            JLabel searchLabel = new JLabel(SEARCH_LABEL_TEXT);
+            nextButton = new JButton(NEXT_BUTTON_TEXT);
+            searchField = new JTextField();
+            list = new JList(model);
+            scrollPane = new JScrollPane();
+            // Compose components
+            topPanel.add(searchLabel);
+            topPanel.add(searchField);
+            topPanel.add(nextButton);
+            add(topPanel, BorderLayout.NORTH);
+            scrollPane.getViewport().setView(list);
+            add(scrollPane, BorderLayout.CENTER);
+            // Add appropriate listeners
+            nextButton.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    findNext(true);
+                }
+            });
+            list.addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseReleased(MouseEvent e) {
+                    handleMouseEvent(e);
+                }
+            });
+            searchField.getDocument().addDocumentListener(new DocumentListener() {
+                public void insertUpdate(DocumentEvent e) {
+                    searchFieldChanged();
+                }
+
+                public void removeUpdate(DocumentEvent e) {
+                    searchFieldChanged();
+                }
+
+                public void changedUpdate(DocumentEvent e) {
+                    searchFieldChanged();
+                }
+            });
+
+        }
+
+        private void handleMouseEvent(MouseEvent event) {
+            int index = list.locationToIndex(event.getPoint());
+            if (index != -1) {
+                if (event.isMetaDown()) {
+                    elementRightClicked(index, event);
+                } else if (event.getButton() == MouseEvent.BUTTON1) {
+                    if (event.getClickCount() > 1) {
+                        elementDoubleClicked(index, event);
+                    } else {
+                        elementClicked(index, event);
+                    }
+                }
+            }
+        }
+
+
+        private void handlePostSearch() {
+            if (lastSearchFailed) {
+                searchField.setForeground(Color.red);
+            }
+        }
+
+        private void handlePreSearch() {
+            searchField.setForeground(Color.black);
+        }
+
+        /**
+         * Override to customize the result of the 'next' button being clicked (or ENTER being pressed in text field).
+         */
+        protected boolean findNext(boolean ascending) {
+            handlePreSearch();
+
+            String text = searchField.getText();
+            if (findNext(text) == null) {
+                boolean confirmed = true;
+                JOptionPane.showMessageDialog(this, "No marker can be found.");
+            } else {
+                boolean confirmed = false;
+                int confirm = JOptionPane.showConfirmDialog(this, "Use the marker to search sequences?");
+                if (confirm != JOptionPane.YES_OPTION) {
+                    confirmed = true;
+                }
+                if (confirmed) {
+                    if (model.getSize() > 0) {
+                        seqDisPanel.initialize();
+                        jProgressBar1.setIndeterminate(false);
+                        jProgressBar1.setMinimum(0);
+                        jProgressBar1.setMaximum(100);
+                        jProgressBar1.setStringPainted(true);
+
+                        if (sequenceDB != null) {
+                            sequenceDB = new CSSequenceSet();
+                        }
+                        Thread t = new Thread() {
+
+                            public void run() {
+                                getSequences(model);
+                                if (status.equalsIgnoreCase(STOP)) {
+                                    sequenceDB = new CSSequenceSet();
+                                    updateProgressBar(100, "Stopped on " + new Date());
+                                } else {
+                                    updateProgressBar(100, "Finished on " + new Date());
+                                    jSelectedList.updateUI();
+                                    seqDisPanel.setRetrievedMap(retrievedMap);
+                                }
+                                stopButton.setEnabled(false);
+                            }
+                        };
+                        t.setPriority(Thread.MIN_PRIORITY);
+                        t.start();
+                    }
+
+                }
+            }
+            handlePostSearch();
+            return !lastSearchFailed;
+        }
+
+        /**
+         * Search the markerList to get the matched markers.
+         */
+        protected DSItemList findNext(String query) {
+            model.removeAllElements();
+            if (markerList != null) {
+                Object theOne = markerList.get(query);
+                if (theOne != null) {
+                    model.addElement(theOne);
+
+                }
+                for (Object o : markerList) {
+
+                }
+            }
+            return null;
+        }
+
+
+        protected void searchFieldChanged() {
+            handlePreSearch();
+
+            handlePostSearch();
+        }
+
+        /**
+         * Does nothing by default. Override to handle a list element being clicked.
+         *
+         * @param index the list element that was clicked.
+         */
+        protected void elementClicked(int index, MouseEvent e) {
+        }
+
+        /**
+         * Does nothing by default. Override to handle a list element being double-clicked.
+         *
+         * @param index the list element that was clicked.
+         */
+        protected void elementDoubleClicked(int index, MouseEvent e) {
+        }
+
+        /**
+         * Does nothing by default. Override to handle a list element being right-clicked.
+         *
+         * @param index the list element that was clicked.
+         */
+        protected void elementRightClicked(int index, MouseEvent e) {
+        }
+
+        public JList getList() {
+            return list;
+        }
+
+        public ListModel getModel() {
+            return model;
+        }
+
+        public int getHighlightedIndex() {
+            return list.getSelectedIndex();
+        }
+
+        /**
+         * Set the highlightedIndex automatically.
+         *
+         * @param theIndex int
+         * @return boolean
+         */
+        public boolean setHighlightedIndex(int theIndex) {
+            if (model != null && model.getSize() > theIndex) {
+                list.setSelectedIndex(theIndex);
+                list.scrollRectToVisible(list.getCellBounds(theIndex, theIndex));
+
+                return true;
+            }
+            return false;
+        }
+
+        public boolean isPrefixMode() {
+            return prefixMode;
+        }
+
+        public void setPrefixMode(boolean prefixMode) {
+            this.prefixMode = prefixMode;
+        }
+
+
+    }
+
+
+    private void itemRightClicked(int index, final MouseEvent e) {
+        //ensureItemIsSelected(index);
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                //  itemListPopup.show(e.getComponent(), e.getX(), e.getY());
+            }
+        });
+    }
+
+    private void selectedItemRightClicked(int index, final MouseEvent e) {
+        //ensureItemIsSelected(index);
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                //  selectedItemListPopup.show(e.getComponent(), e.getX(),
+                //         e.getY());
+            }
+        });
+    }
+
+    public void matrixDetailButton_actionPerformed(ActionEvent e) {
+
+    }
+
+
+    /**
+     * ListModel for the marker list.
+     */
+    private class TFListModel extends AbstractListModel {
+
+        public int getSize() {
+            if (tfNameSet == null) {
+                return 0;
+            }
+            return tfNameSet.size();
+        }
+
+        public Object getElementAt(int index) {
+            if ((tfNameSet == null) || tfNameSet.size() <= index) {
+                return null;
+            } else {
+                return tfNameSet.get(index);
+            }
+        }
+
+        public void addElement(Object obj) {
+            if (!tfNameSet.contains(obj.toString())) {
+                tfNameSet.add(obj.toString());
+                Collections.sort(tfNameSet);
+                int index = tfNameSet.size();
+                fireIntervalAdded(this, index, index);
+
+            }
+
+        }
+
+        public Object remove(int index) {
+            Object rv = tfNameSet.get(index);
+            tfNameSet.remove(index);
+            fireIntervalRemoved(this, index, index);
+            return rv;
+        }
+
+
+        public Object getItem(int index) {
+            if ((tfNameSet == null) || tfNameSet.size() <= index) {
+                return null;
+            } else {
+                return tfNameSet.get(index);
+            }
+
+        }
+
+        /**
+         * Indicates to the associated JList that the contents need to be redrawn.
+         */
+        public void refresh() {
+            if (tfNameSet == null) {
+                fireContentsChanged(this, 0, 0);
+            } else {
+                fireContentsChanged(this, 0, tfNameSet.size());
+            }
+        }
+
+        public void refreshItem(int index) {
+            fireContentsChanged(this, index, index);
+        }
+
+    }
+
+
 }

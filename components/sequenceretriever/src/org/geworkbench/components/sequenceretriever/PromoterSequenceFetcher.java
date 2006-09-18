@@ -44,8 +44,8 @@ public class PromoterSequenceFetcher {
 //        if (!timer.isRunning())
 //            timer.start();
         File file = new File(System.getProperty("temporary.files.directory") +
-                             File.separator + "sequences" + File.separator +
-                             "cachedSequences");
+                File.separator + "sequences" + File.separator +
+                "cachedSequences");
         if (cachedSequences == null) {
             if (file.exists()) {
                 try {
@@ -66,14 +66,14 @@ public class PromoterSequenceFetcher {
                         "All.NC.-2k+2k.txt");
                 File downloadedFile =
                         new File(System.getProperty("temporary.files.directory") +
-                                 File.separator + "sequences" + File.separator +
-                                 "downloadedSequences");
+                                File.separator + "sequences" + File.separator +
+                                "downloadedSequences");
                 try {
                     if (!downloadedFile.exists()) {
                         downloadedFile.getParentFile().mkdirs();
                         downloadedFile.createNewFile();
                         url = new URL(System.getProperty("data.download.site") +
-                                      "All.NC.-2k+2k.txt");
+                                "All.NC.-2k+2k.txt");
                         BufferedReader br = new BufferedReader(new
                                 InputStreamReader(url.openStream()));
                         BufferedWriter bw = new BufferedWriter(new FileWriter(
@@ -118,7 +118,7 @@ public class PromoterSequenceFetcher {
     }
 
     public static CSSequence getCachedPromoterSequence(DSGeneMarker marker,
-            int upstream, int fromStart) {
+                                                       int upstream, int fromStart) {
         if (cachedSequences == null) {
             populateSequenceCache();
         }
@@ -127,8 +127,8 @@ public class PromoterSequenceFetcher {
                     getLabel());
             if (sequence != null) {
                 return sequence.getSubSequence(UPSTREAM - upstream - 1,
-                                               sequence.length() - DOWNSTREAM +
-                                               fromStart - 1);
+                        sequence.length() - DOWNSTREAM +
+                                fromStart - 1);
             }
         }
         return null;
