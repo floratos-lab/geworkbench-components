@@ -124,7 +124,7 @@ public class RetrievedSequenceDisplay extends JPanel {
                         String tiptext = retrievedSequenceView.getToolTipText(e);
                         if(tiptext!=null){
                             String[] locationStr = tiptext.split(":");
-                            System.out.println("location" + tiptext);
+                            //System.out.println("location" + tiptext);
                             seqXclickPoint = new Integer(locationStr[0]);
                             retrievedSequencesPanel.updateDetailPanel(seqXclickPoint);
                         }

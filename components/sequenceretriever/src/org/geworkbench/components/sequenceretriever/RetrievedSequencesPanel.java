@@ -114,11 +114,11 @@ public class RetrievedSequencesPanel extends JPanel {
         //seqScrollPane.setBorder(BorderFactory.createEtchedBorder());
         seqViewWPanel.setRetrievedSequencesPanel(this);
         oldViewPanel.setRetrievedSequencesPanel(this);
-        seqViewWPanel.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(MouseEvent e) {
-                jDisplayPanel_mouseClicked(e);
-            }
-        });
+//        seqViewWPanel.addMouseListener(new java.awt.event.MouseAdapter() {
+//            public void mouseClicked(MouseEvent e) {
+//                jDisplayPanel_mouseClicked(e);
+//            }
+//        });
         oldViewPanel.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(MouseEvent e) {
                 joldViewPanel_mouseClicked(e);
@@ -338,6 +338,8 @@ public class RetrievedSequencesPanel extends JPanel {
     public void initialize() {
 
         sequenceDB = null;
+        seqViewWPanel.removeAll();
+        revalidate();
         repaint();
     }
 
@@ -386,10 +388,7 @@ public class RetrievedSequencesPanel extends JPanel {
      */
 
    void jDisplayPanel_mouseClicked(MouseEvent e) {
-        // seqViewWPanel.this_mouseClicked(e);
-        xStartPoint = seqViewWPanel.getSeqXclickPoint();
-        sequencedetailPanel.repaint();
-        //updateBottomPanel(e);
+
     }
     void updateDetailPanel(int newPosition) {
             // seqViewWPanel.this_mouseClicked(e);

@@ -432,12 +432,19 @@ public class SequenceRetriever implements VisualPlugin {
 
     void clearButton_actionPerformed(ActionEvent e) {
         status = CLEAR;
+        cleanUp();
     }
 
-    void jButton2_actionPerformed(ActionEvent e) {
+    void cleanUp() {
         retrievedMap = new HashMap<String, RetrievedSequenceView>();
         retrievedSequences = new TreeMap<String, ArrayList<String>>();
         jSelectedList.repaint();
+        seqDisPanel.setRetrievedMap(retrievedMap);
+        seqDisPanel.initialize();
+    }
+
+    void jButton2_actionPerformed(ActionEvent e) {
+        cleanUp();
 
         status = RUNNING;
         stopButton.setEnabled(true);
@@ -447,7 +454,7 @@ public class SequenceRetriever implements VisualPlugin {
             jProgressBar1.setMinimum(0);
             jProgressBar1.setMaximum(100);
             jProgressBar1.setStringPainted(true);
-             jProgressBar1.setValue(0);
+            jProgressBar1.setValue(0);
             if (sequenceDB != null) {
                 sequenceDB = new CSSequenceSet();
             }
