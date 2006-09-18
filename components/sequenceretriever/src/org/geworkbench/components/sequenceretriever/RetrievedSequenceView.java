@@ -177,7 +177,7 @@ public class RetrievedSequenceView extends JPanel {
 
              String highlight = null;
             highlight = sequence.getSequence().substring(index, index+10);
-
+             System.out.println("highlight" + index);
             return "" + index + ": " + highlight;
         }
         return null;
