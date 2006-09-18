@@ -385,12 +385,18 @@ public class RetrievedSequencesPanel extends JPanel {
      * @param e MouseEvent
      */
 
-    void jDisplayPanel_mouseClicked(MouseEvent e) {
-        seqViewWPanel.this_mouseClicked(e);
+   void jDisplayPanel_mouseClicked(MouseEvent e) {
+        // seqViewWPanel.this_mouseClicked(e);
         xStartPoint = seqViewWPanel.getSeqXclickPoint();
         sequencedetailPanel.repaint();
         //updateBottomPanel(e);
     }
+    void updateDetailPanel(int newPosition) {
+            // seqViewWPanel.this_mouseClicked(e);
+            xStartPoint = newPosition;
+            sequencedetailPanel.repaint();
+            //updateBottomPanel(e);
+        }
 
     /**
      * Change view from single sequence view to new view.

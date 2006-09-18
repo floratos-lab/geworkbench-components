@@ -97,6 +97,8 @@ public class RetrievedSequenceDisplay extends JPanel {
         });
         model = new TableModel();
         table = new JTable(model);
+
+
         final JLabel imageLabel = new JLabel() {
             public Dimension getMinimumSize() {
                 return getPreferredSize();
@@ -115,7 +117,18 @@ public class RetrievedSequenceDisplay extends JPanel {
                 int row = table.rowAtPoint(e.getPoint());
                 if (row != -1) {
                     selectedSequence = (DSSequence) sequenceDB.get(row);
-                    
+                    int column = table.columnAtPoint(e.getPoint());
+                    if(column==2){
+                         Object sequence = sequenceDB.get(row);
+                            RetrievedSequenceView retrievedSequenceView = retrievedMap.get(sequence.toString());
+                        String tiptext = retrievedSequenceView.getToolTipText(e);
+                        if(tiptext!=null){
+                            String[] locationStr = tiptext.split(":");
+                            System.out.println("location" + tiptext);
+                            seqXclickPoint = new Integer(locationStr[0]);
+                            retrievedSequencesPanel.updateDetailPanel(seqXclickPoint);
+                        }
+                    }
                 }
                 if (e.getClickCount() == 2) {
                     row = table.rowAtPoint(e.getPoint());
@@ -912,30 +925,30 @@ public class RetrievedSequenceDisplay extends JPanel {
         return seqDx;
     }
 
-    /**
-     * Handle Mouse clicks.
-     *
-     * @param e MouseEvent
-     */
-    public void this_mouseClicked(final MouseEvent e) {
-        if (e.isMetaDown()) {
-            SwingUtilities.invokeLater(new Runnable() {
-                public void run() {
-                    itemListPopup.show(e.getComponent(), e.getX(), e.getY());
-                }
-            });
-
-            return;
-        }
-        setTranslatedParameters(e);
-
-        if (e.getClickCount() == 2) {
-
-            this.flipLineView();
-            this.repaint();
-        }
-
-    }
+//    /**
+//     * Handle Mouse clicks.
+//     *
+//     * @param e MouseEvent
+//     */
+//    public void this_mouseClicked(final MouseEvent e) {
+//        if (e.isMetaDown()) {
+//            SwingUtilities.invokeLater(new Runnable() {
+//                public void run() {
+//                    itemListPopup.show(e.getComponent(), e.getX(), e.getY());
+//                }
+//            });
+//
+//            return;
+//        }
+//        setTranslatedParameters(e);
+//
+//        if (e.getClickCount() == 2) {
+//
+//            this.flipLineView();
+//            this.repaint();
+//        }
+//
+//    }
 
     /**
      * Set up the coresponding parameters when mouse moves.
