@@ -71,8 +71,7 @@ public class SequenceRetriever implements VisualPlugin {
 
     DSPanel<DSGeneMarker> markers = null;
     DSPanel<DSGeneMarker> activeMarkers = null;
-    private CSSequenceSet displaySequenceDB = new CSSequenceSet();
-    private CSSequenceSet sequenceDB = new CSSequenceSet<DSSequence>();
+        private CSSequenceSet sequenceDB = new CSSequenceSet<DSSequence>();
     private CSSequenceSet selectedSequences = new CSSequenceSet<DSSequence>();
     private DSItemList markerList;
     public static final String NOANNOTATION = "---";
@@ -176,7 +175,8 @@ public class SequenceRetriever implements VisualPlugin {
 
             if (isSelected) {
                 setBackground(list.getSelectionBackground());
-                setForeground(list.getSelectionForeground());
+                setForeground(Color.RED);
+                setText("<html><font color=RED>" + s + "</font></html>");
             } else {
                 setBackground(list.getBackground());
                 setForeground(list.getForeground());
@@ -384,6 +384,15 @@ public class SequenceRetriever implements VisualPlugin {
         jPanel4.add(jScrollPane2, BorderLayout.CENTER);
         jSelectedList.setModel(ls2);
         jSelectedList.setCellRenderer(new SequenceListRenderer());
+        MouseListener mouseListener = new MouseAdapter() {
+            public void mouseClicked(MouseEvent e) {
+
+                    int index = jSelectedList.locationToIndex(e.getPoint());
+                    updateSelectedSequenceDB(index);
+            }
+        };
+        jSelectedList.addMouseListener(mouseListener);
+
         jScrollPane2.getViewport().add(jSelectedList, null);
         //jPanel4.add(jLabel4, BorderLayout.NORTH);
         jPanel2.add(jPanel1, BorderLayout.NORTH);
@@ -407,6 +416,25 @@ public class SequenceRetriever implements VisualPlugin {
         return sequenceDB;
     }
 
+   private void   updateSelectedSequenceDB(int index){
+                    if(ls2!=null && ls2.size()>index){
+                      DSGeneMarker marker = (DSGeneMarker) ls2.get(index);
+                     ArrayList<String> values = retrievedSequences.get(marker.toString());
+                        if(values==null){
+                            JOptionPane.showMessageDialog(main, "No sequence is retrieved.");
+                            seqDisPanel.initialize();
+                        }else{
+                            CSSequenceSet displaySequenceDB = new CSSequenceSet();
+                            for(String o: values){
+                                RetrievedSequenceView retrievedSequenceView = retrievedMap.get(o);
+                                if(retrievedSequenceView!=null && retrievedSequenceView.getSequence()!=null){
+                                    displaySequenceDB.add(retrievedSequenceView.getSequence());
+                                }
+                            }
+                              seqDisPanel.setDisplaySequenceDB(displaySequenceDB);
+                        }
+                    }
+      }
     void updateProgressBar(final double percent, final String text) {
         Runnable r = new Runnable() {
             public void run() {
@@ -685,11 +713,15 @@ public class SequenceRetriever implements VisualPlugin {
                         "No sequences retrieved for selected markers");
             }
 
-            seqDisPanel.initialize(sequenceDB);
-            main.revalidate();
-            main.repaint();
+            updateDisplay(sequenceDB);
 
         }
+    }
+
+    private void updateDisplay(CSSequenceSet selectedSet) {
+        seqDisPanel.initialize(selectedSet);
+        main.revalidate();
+        main.repaint();
     }
 
     @Publish

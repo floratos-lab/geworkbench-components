@@ -233,6 +233,15 @@ public class RetrievedSequencesPanel extends JPanel {
         }
     }
 
+    public DSSequenceSet getDisplaySequenceDB() {
+        return displaySequenceDB;
+    }
+
+    public void setDisplaySequenceDB(DSSequenceSet displaySequenceDB) {
+        this.displaySequenceDB = displaySequenceDB;
+        getDataSetView();
+    }
+
     public void flapToNewView(boolean newView) {
         if (!newView) {
             seqScrollPane.getViewport().removeAll();
@@ -275,13 +284,11 @@ public class RetrievedSequencesPanel extends JPanel {
         } else {
             activatedMarkers = null;
         }
-        refreshMaSetView();
+         getDataSetView();
     }
 
 
-    protected void refreshMaSetView() {
-        getDataSetView();
-    }
+
 
     protected void fireModelChangedEvent(MicroarraySetViewEvent event) {
         this.repaint();
@@ -290,21 +297,15 @@ public class RetrievedSequencesPanel extends JPanel {
 
     void chkActivateMarkers_actionPerformed(ActionEvent e) {
         subsetMarkerOn = !((JCheckBox) e.getSource()).isSelected();
-        refreshMaSetView();
+         getDataSetView();
     }
 
     public void getDataSetView() {
         subsetMarkerOn = !jAllSequenceCheckBox.isSelected();
         if (subsetMarkerOn) {
-            if (activatedMarkers != null &&
-                    activatedMarkers.size() > 0) {
-
-                if (subsetMarkerOn && (orgSequenceDB != null)) {
-                    // createActivatedSequenceSet();
-                    activeSequenceDB = (CSSequenceSet) ((CSSequenceSet)
-                            orgSequenceDB).
-                            getActiveSequenceSet(activatedMarkers);
-                }
+            if (displaySequenceDB != null &&
+                    displaySequenceDB.size() > 0) {
+                                     activeSequenceDB = (CSSequenceSet)displaySequenceDB;
 
             } else if (orgSequenceDB != null) {
                 activeSequenceDB = (CSSequenceSet) orgSequenceDB;
@@ -317,19 +318,18 @@ public class RetrievedSequencesPanel extends JPanel {
             sequenceDB = activeSequenceDB;
             initPanelView();
         }
-        initPanelView();
+       // initPanelView();
     }
 
 
     public void patternSelectionHasChanged(SequenceDiscoveryTableEvent e) {
         setPatterns(e.getPatternMatchCollection());
-        refreshMaSetView();
+         getDataSetView();
 
     }
 
     public void initialize(DSSequenceSet seqDB) {
         setSequenceDB(seqDB);
-        sequenceDB = seqDB;
         updateBottomPanel();
         repaint();
     }
@@ -464,7 +464,7 @@ public class RetrievedSequencesPanel extends JPanel {
         sequenceDB = db;
         displaySequenceDB = db;
 
-        refreshMaSetView();
+         getDataSetView();
         //selectedPatterns = new ArrayList();
         if (sequenceDB != null) {
             seqViewWPanel.setMaxSeqLen(sequenceDB.getMaxLength());
@@ -581,7 +581,7 @@ public class RetrievedSequencesPanel extends JPanel {
     }
 
     public void jAllSequenceCheckBox_actionPerformed(ActionEvent e) {
-        refreshMaSetView();
+         getDataSetView();
     }
 
     private class JDetailPanel extends JPanel {

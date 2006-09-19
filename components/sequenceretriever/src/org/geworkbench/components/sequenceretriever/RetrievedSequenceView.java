@@ -59,6 +59,10 @@ public class RetrievedSequenceView extends JPanel {
         this.sequence = sequence;
     }
 
+    public CSSequence getSequence() {
+        return sequence;
+    }
+
     public void setIncluded(boolean included) {
         isIncluded = included;
     }
@@ -128,14 +132,14 @@ public class RetrievedSequenceView extends JPanel {
                 int[] xi = new int[shape];
                 int[] yi = new int[shape];
                 int height = 12;
-                if (geneChromosomeMatcher.isPositiveStrandDirection()) {
+                if (geneChromosomeMatcher!=null && geneChromosomeMatcher.isPositiveStrandDirection()) {
                     xi[0] = xi[1] = xOff + 20;
                     yi[0] = (int) y - height / 2 - 2;
                     yi[1] = (int) y - height / 2 + 6;
                     xi[2] = xi[0] + 4;
                     yi[2] = (int) y - height / 2 + 2;
                     // g.drawPolyline(xi, yi, addtionalPoint);
-                } else {
+                } else if(geneChromosomeMatcher!=null){
                     xi[0] = xi[1] = xOff + 20;
                     yi[0] = (int) y - height / 2 - 2;
                     yi[1] = (int) y - height / 2 + 6;
