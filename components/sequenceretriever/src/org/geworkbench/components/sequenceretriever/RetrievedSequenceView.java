@@ -178,9 +178,11 @@ public class RetrievedSequenceView extends JPanel {
         float x = event.getX() - xOff;
 
         int index = (int) (x / scale);
-        if ((index >= 0) && (index < sequence.length())) {
+        if (sequence!=null && (index >= 0) && (index < sequence.length())) {
             String highlight = null;
-            highlight = sequence.getSequence().substring(index, index + 10);
+            int endPoint = Math.min(index + 10, sequence.length()-1);
+            highlight = sequence.getSequence().substring(index, endPoint);
+            System.out.println("index = " + index);
             return "" + index + ": " + highlight;
         }
         return null;
