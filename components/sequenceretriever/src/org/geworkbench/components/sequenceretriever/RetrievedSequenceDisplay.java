@@ -122,10 +122,23 @@ public class RetrievedSequenceDisplay extends JPanel {
                          Object sequence = sequenceDB.get(row);
                             RetrievedSequenceView retrievedSequenceView = retrievedMap.get(sequence.toString());
                         String tiptext = retrievedSequenceView.getToolTipText(e);
-                        if(tiptext!=null){
-                            String[] locationStr = tiptext.split(":");
+
+                            
+                            Rectangle rect = table.getCellRect(row, 0, true);
+                            double xOff = rect.getWidth();
+                            Rectangle rect1 = table.getCellRect(row, 1, true);
+                            double xOff1 = rect1.getWidth();
+                            Rectangle rect2 = table.getCellRect(row, 2, true);
+                            double xOff2 = rect2.getWidth();
+
+                            double x0 = e.getPoint().getX() - xOff1 - xOff;
+                            double xT = x0/xOff2*RetrievedSequenceView.getMaxSeqLen();
+
+                            System.out.println(xT + "te" + tiptext + "rec size" + xOff + " " + xOff1  + " " + e.getPoint().getX());
+
                             //System.out.println("location" + tiptext);
-                            seqXclickPoint = new Integer(locationStr[0]);
+                        if(xT<((CSSequence)sequence).length()){
+                            seqXclickPoint = new Integer((int)xT);
                             retrievedSequencesPanel.updateDetailPanel(seqXclickPoint);
                         }
                     }

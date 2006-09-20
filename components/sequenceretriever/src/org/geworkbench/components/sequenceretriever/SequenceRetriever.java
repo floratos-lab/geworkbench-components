@@ -71,7 +71,7 @@ public class SequenceRetriever implements VisualPlugin {
 
     DSPanel<DSGeneMarker> markers = null;
     DSPanel<DSGeneMarker> activeMarkers = null;
-        private CSSequenceSet sequenceDB = new CSSequenceSet<DSSequence>();
+    private CSSequenceSet sequenceDB = new CSSequenceSet<DSSequence>();
     private CSSequenceSet selectedSequences = new CSSequenceSet<DSSequence>();
     private DSItemList markerList;
     public static final String NOANNOTATION = "---";
@@ -167,19 +167,20 @@ public class SequenceRetriever implements VisualPlugin {
                 boolean cellHasFocus)    // the list and the cell have the focus
         {
             String s = value.toString();
-            if (retrievedSequences.containsKey(s)) {
-                setText("<html><font color=blue>" + s + "</font></html>");
-            } else {
-                setText(s);
-            }
+
 
             if (isSelected) {
                 setBackground(list.getSelectionBackground());
-                setForeground(Color.RED);
+                setForeground(list.getSelectionForeground());
                 setText("<html><font color=RED>" + s + "</font></html>");
             } else {
                 setBackground(list.getBackground());
                 setForeground(list.getForeground());
+                if (retrievedSequences.containsKey(s)) {
+                    setText("<html><font color=blue>" + s + "</font></html>");
+                } else {
+                    setText(s);
+                }
             }
             setEnabled(list.isEnabled());
             setFont(list.getFont());
@@ -328,6 +329,7 @@ public class SequenceRetriever implements VisualPlugin {
                     afterText.setEnabled(false);
                     jSourceCategory.removeAllItems();
                     jSourceCategory.addItem(EBI);
+
                 } else {
                     beforeText.setEnabled(true);
                     afterText.setEnabled(true);
@@ -337,7 +339,7 @@ public class SequenceRetriever implements VisualPlugin {
                     //jSourceCategory.addItem(CABIO);
                     jSourceCategory.setSelectedItem(UCSC);
                 }
-
+                cleanUp();
             }
         });
         jSourceCategory.addActionListener(new java.awt.event.ActionListener() {
@@ -387,8 +389,8 @@ public class SequenceRetriever implements VisualPlugin {
         MouseListener mouseListener = new MouseAdapter() {
             public void mouseClicked(MouseEvent e) {
 
-                    int index = jSelectedList.locationToIndex(e.getPoint());
-                    updateSelectedSequenceDB(index);
+                int index = jSelectedList.locationToIndex(e.getPoint());
+                updateSelectedSequenceDB(index);
             }
         };
         jSelectedList.addMouseListener(mouseListener);
@@ -416,25 +418,26 @@ public class SequenceRetriever implements VisualPlugin {
         return sequenceDB;
     }
 
-   private void   updateSelectedSequenceDB(int index){
-                    if(ls2!=null && ls2.size()>index){
-                      DSGeneMarker marker = (DSGeneMarker) ls2.get(index);
-                     ArrayList<String> values = retrievedSequences.get(marker.toString());
-                        if(values==null){
-                            JOptionPane.showMessageDialog(main, "No sequence is retrieved.");
-                            seqDisPanel.initialize();
-                        }else{
-                            CSSequenceSet displaySequenceDB = new CSSequenceSet();
-                            for(String o: values){
-                                RetrievedSequenceView retrievedSequenceView = retrievedMap.get(o);
-                                if(retrievedSequenceView!=null && retrievedSequenceView.getSequence()!=null){
-                                    displaySequenceDB.add(retrievedSequenceView.getSequence());
-                                }
-                            }
-                              seqDisPanel.setDisplaySequenceDB(displaySequenceDB);
-                        }
+    private void updateSelectedSequenceDB(int index) {
+        if (ls2 != null && ls2.size() > index) {
+            DSGeneMarker marker = (DSGeneMarker) ls2.get(index);
+            ArrayList<String> values = retrievedSequences.get(marker.toString());
+            if (values == null) {
+                JOptionPane.showMessageDialog(main, "No sequence is retrieved.");
+                seqDisPanel.initialize();
+            } else {
+                CSSequenceSet displaySequenceDB = new CSSequenceSet();
+                for (String o : values) {
+                    RetrievedSequenceView retrievedSequenceView = retrievedMap.get(o);
+                    if (retrievedSequenceView != null && retrievedSequenceView.getSequence() != null) {
+                        displaySequenceDB.add(retrievedSequenceView.getSequence());
                     }
-      }
+                }
+                seqDisPanel.setDisplaySequenceDB(displaySequenceDB);
+            }
+        }
+    }
+
     void updateProgressBar(final double percent, final String text) {
         Runnable r = new Runnable() {
             public void run() {
@@ -482,7 +485,7 @@ public class SequenceRetriever implements VisualPlugin {
             jProgressBar1.setMinimum(0);
             jProgressBar1.setMaximum(100);
             jProgressBar1.setStringPainted(true);
-            jProgressBar1.setValue(0);
+           updateProgressBar(0, "");
             if (sequenceDB != null) {
                 sequenceDB = new CSSequenceSet();
             }
@@ -525,10 +528,16 @@ public class SequenceRetriever implements VisualPlugin {
                         }
                     }
                 }
+                if(selectedSequenceDB.size()>0){
                 selectedSequenceDB.setLabel(label);
+                selectedSequenceDB.parseMarkers();    
                 ProjectNodeAddedEvent event = new ProjectNodeAddedEvent(
                         "message", selectedSequenceDB, null);
                 publishProjectNodeAddedEvent(event);
+                }else{
+                   JOptionPane.showInputDialog(
+                    "Please select at least one sequence.");
+                }
             }
         }
     }
@@ -755,11 +764,6 @@ public class SequenceRetriever implements VisualPlugin {
                 }
             }
 
-            //remove below part for production.
-            if (dataSet instanceof DSSequenceSet) {
-                seqDisPanel.setSequenceDB((DSSequenceSet) dataSet);
-            }
-            // refreshMaSetView();
         }
     }
 
@@ -932,8 +936,8 @@ public class SequenceRetriever implements VisualPlugin {
         protected boolean findNext(boolean ascending) {
             handlePreSearch();
 
-            String text = searchField.getText();
-            if (findNext(text) == null) {
+            String text = searchField.getText().toLowerCase();
+            if (findNext(text)) {
                 boolean confirmed = true;
                 JOptionPane.showMessageDialog(this, "No marker can be found.");
             } else {
@@ -981,8 +985,9 @@ public class SequenceRetriever implements VisualPlugin {
         /**
          * Search the markerList to get the matched markers.
          */
-        protected DSItemList findNext(String query) {
+        protected boolean findNext(String query) {
             model.removeAllElements();
+            boolean found = false;
             if (markerList != null) {
                 Object theOne = markerList.get(query);
                 if (theOne != null) {
@@ -990,10 +995,15 @@ public class SequenceRetriever implements VisualPlugin {
 
                 }
                 for (Object o : markerList) {
-
+                    String element = o.toString().toLowerCase();
+                    if (element.contains(query)) {
+                        model.addElement(o);
+                        found = true;
+                    }
                 }
             }
-            return null;
+
+            return false;
         }
 
 
