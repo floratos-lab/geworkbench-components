@@ -670,14 +670,15 @@ public class SequenceRetriever implements VisualPlugin {
                 } catch (IOException ex) {
                     ex.printStackTrace();
                 }
-                if (markers != null && markers.panels() != null) {
+                if (selectedList != null) {
                     int count = 0;
-                    for (DSGeneMarker geneMarker : markers) {
+                    for (count = 0; count < selectedList.size(); count++) {
+                        DSGeneMarker geneMarker = (DSGeneMarker) selectedList.get(count);
                         String affyid = geneMarker.getLabel();
                         if (status.equalsIgnoreCase(STOP)) {
                             return;
                         }
-                        double progress = (double) count++ / (double) (markers.size());
+                        double progress = (double) count / (double) (markers.size());
                         if (affyid.endsWith("_at")) { // if this is affyid
                              updateProgressBar(progress,
                                 "Retrieving " + affyid);
@@ -953,6 +954,7 @@ public class SequenceRetriever implements VisualPlugin {
                     confirmed = true;
                 }
                 if (confirmed) {
+                    cleanUp();
                     if (model.getSize() > 0) {
                         seqDisPanel.initialize();
                         jProgressBar1.setIndeterminate(false);
