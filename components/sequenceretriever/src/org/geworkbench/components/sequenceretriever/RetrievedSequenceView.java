@@ -17,7 +17,7 @@ import java.awt.font.FontRenderContext;
  * To change this template use File | Settings | File Templates.
  */
 public class RetrievedSequenceView extends JPanel {
-    int xOff = 4;
+    int xOff = 0;
     double scale = 1;
     static int maxSeqLen = 20000;
     private CSSequence sequence;
@@ -132,14 +132,14 @@ public class RetrievedSequenceView extends JPanel {
                 int[] xi = new int[shape];
                 int[] yi = new int[shape];
                 int height = 12;
-                if (geneChromosomeMatcher!=null && geneChromosomeMatcher.isPositiveStrandDirection()) {
+                if (geneChromosomeMatcher != null && geneChromosomeMatcher.isPositiveStrandDirection()) {
                     xi[0] = xi[1] = xOff + 20;
                     yi[0] = (int) y - height / 2 - 2;
                     yi[1] = (int) y - height / 2 + 6;
                     xi[2] = xi[0] + 4;
                     yi[2] = (int) y - height / 2 + 2;
                     // g.drawPolyline(xi, yi, addtionalPoint);
-                } else if(geneChromosomeMatcher!=null){
+                } else if (geneChromosomeMatcher != null) {
                     xi[0] = xi[1] = xOff + 20;
                     yi[0] = (int) y - height / 2 - 2;
                     yi[1] = (int) y - height / 2 + 6;
@@ -150,9 +150,7 @@ public class RetrievedSequenceView extends JPanel {
 
                 g.drawPolygon(xi, yi, shape);
                 g.fillPolygon(xi, yi, shape);
-
                 g.setColor(SEQUENCEDOWNSTREAMCOLOR);
-
                 int x1 = xOff + (int) (sequence.length() * scale);
                 g.drawLine(x, y, x1, y);
                 g.drawLine(x, y - 10, x, y);
@@ -161,6 +159,8 @@ public class RetrievedSequenceView extends JPanel {
             } else {
                 x = xOff + (int) (sequence.length() * scale);
                 g.drawLine(xOff, y, x, y);
+                g.drawLine(x, y - 10, x, y);
+                g.drawLine(xOff, y - 10, xOff, y);
             }
 
         }
@@ -176,13 +176,11 @@ public class RetrievedSequenceView extends JPanel {
 
     public String getToolTipText(MouseEvent event) {
         float x = event.getX() - xOff;
-
         int index = (int) (x / scale);
-        if (sequence!=null && (index >= 0) && (index < sequence.length())) {
+        if (sequence != null && (index >= 0) && (index < sequence.length())) {
             String highlight = null;
-            int endPoint = Math.min(index + 10, sequence.length()-1);
+            int endPoint = Math.min(index + 10, sequence.length() - 1);
             highlight = sequence.getSequence().substring(index, endPoint);
-            System.out.println("index = " + index);
             return "" + index + ": " + highlight;
         }
         return null;

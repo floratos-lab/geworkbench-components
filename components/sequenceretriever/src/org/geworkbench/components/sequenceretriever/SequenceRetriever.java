@@ -430,9 +430,11 @@ public class SequenceRetriever implements VisualPlugin {
                 for (String o : values) {
                     RetrievedSequenceView retrievedSequenceView = retrievedMap.get(o);
                     if (retrievedSequenceView != null && retrievedSequenceView.getSequence() != null) {
-                        displaySequenceDB.add(retrievedSequenceView.getSequence());
+                        displaySequenceDB.addASequence(retrievedSequenceView.getSequence());
                     }
                 }
+                displaySequenceDB.parseMarkers();
+
                 seqDisPanel.setDisplaySequenceDB(displaySequenceDB);
             }
         }
@@ -469,6 +471,7 @@ public class SequenceRetriever implements VisualPlugin {
     void cleanUp() {
         retrievedMap = new HashMap<String, RetrievedSequenceView>();
         retrievedSequences = new TreeMap<String, ArrayList<String>>();
+        jSelectedList.clearSelection();
         jSelectedList.repaint();
         seqDisPanel.setRetrievedMap(retrievedMap);
         seqDisPanel.initialize();
@@ -530,7 +533,7 @@ public class SequenceRetriever implements VisualPlugin {
                 }
                 if(selectedSequenceDB.size()>0){
                 selectedSequenceDB.setLabel(label);
-                selectedSequenceDB.parseMarkers();    
+                selectedSequenceDB.parseMarkers();
                 ProjectNodeAddedEvent event = new ProjectNodeAddedEvent(
                         "message", selectedSequenceDB, null);
                 publishProjectNodeAddedEvent(event);
@@ -668,13 +671,16 @@ public class SequenceRetriever implements VisualPlugin {
                     ex.printStackTrace();
                 }
                 if (markers != null && markers.panels() != null) {
-
+                    int count = 0;
                     for (DSGeneMarker geneMarker : markers) {
                         String affyid = geneMarker.getLabel();
                         if (status.equalsIgnoreCase(STOP)) {
                             return;
                         }
+                        double progress = (double) count++ / (double) (markers.size());
                         if (affyid.endsWith("_at")) { // if this is affyid
+                             updateProgressBar(progress,
+                                "Retrieving " + affyid);
                             CSSequenceSet sequenceSet = SequenceFetcher.getAffyProteinSequences(affyid);
 
                             String[] uniprotids = AnnotationParser.getInfo(affyid,
@@ -942,8 +948,8 @@ public class SequenceRetriever implements VisualPlugin {
                 JOptionPane.showMessageDialog(this, "No marker can be found.");
             } else {
                 boolean confirmed = false;
-                int confirm = JOptionPane.showConfirmDialog(this, "Use the marker to search sequences?");
-                if (confirm != JOptionPane.YES_OPTION) {
+                int confirm = JOptionPane.showConfirmDialog(this, "Use the markers to retrieve sequences?");
+                if (confirm == JOptionPane.YES_OPTION) {
                     confirmed = true;
                 }
                 if (confirmed) {
@@ -953,7 +959,7 @@ public class SequenceRetriever implements VisualPlugin {
                         jProgressBar1.setMinimum(0);
                         jProgressBar1.setMaximum(100);
                         jProgressBar1.setStringPainted(true);
-
+                        updateProgressBar(0, "");
                         if (sequenceDB != null) {
                             sequenceDB = new CSSequenceSet();
                         }
