@@ -65,7 +65,7 @@ public class GenepixFlagsFilterPanel extends AbstractSaveableParameterPanel impl
     String nonApplicableReminder =
             "No data is loaded.";
     String nonAppReminder =
-            "The dataset is not applicable for Genepix Flags filter.";
+            "The dataset is not ammenable to filtering by the Genepix Flags filter: ";
     String noFlagDetectedReminder =
             "The Genepix file has no flags.";
     int unflaggedProbeNum = 0;

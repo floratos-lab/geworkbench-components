@@ -153,9 +153,7 @@ public class GenepixFlagsFilter extends AbstractAnalysis implements
                         ((GenepixFlagsFilterPanel) aspp).setflaggedProbeNum(
                                 flagsProbeNum);
                     } else {
-                        ((GenepixFlagsFilterPanel) aspp).setFlagInfoPanel(
-                                "Only unFlagged data are found. The total probe number is " +
-                                unflaggedProbeNum + ".");
+                        ((GenepixFlagsFilterPanel) aspp).setFlagInfoPanel("it contains only unflagged data.");
                     }
                 } else {
                     ((GenepixFlagsFilterPanel) aspp).setFlagInfoPanel(

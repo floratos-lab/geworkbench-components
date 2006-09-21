@@ -118,30 +118,25 @@ public class RetrievedSequenceDisplay extends JPanel {
                 if (row != -1) {
                     selectedSequence = (DSSequence) sequenceDB.get(row);
                     int column = table.columnAtPoint(e.getPoint());
-                    if(column==2){
-                         Object sequence = sequenceDB.get(row);
-                            RetrievedSequenceView retrievedSequenceView = retrievedMap.get(sequence.toString());
+                    if (column == 2) {
+                        Object sequence = sequenceDB.get(row);
+                        RetrievedSequenceView retrievedSequenceView = retrievedMap.get(sequence.toString());
                         String tiptext = retrievedSequenceView.getToolTipText(e);
 
+                        //Need ask John what is the best way to find the relative postion of mouse clikc in the column.
 
-                            Rectangle rect = table.getCellRect(row, 0, true);
-                            double xOff = rect.getWidth();
-                            Rectangle rect1 = table.getCellRect(row, 1, true);
-                            double xOff1 = rect1.getWidth();
-                            Rectangle rect2 = table.getCellRect(row, 2, true);
-                            double xOff2 = rect2.getWidth();
-                         rect2 = table.getCellRect(row, 2, false);
-                            double xOff3 = rect2.getWidth();
-                            double xAll = table.getX();
-                        double xAllD = table.getWidth();
-                            double cacaluatedAll = xOff + xOff1 + xOff2;
-                            double x0 = e.getPoint().getX() - xOff1 - xOff;
-                            double xT = x0/xOff3*RetrievedSequenceView.getMaxSeqLen();
-
-                            System.out.println(xT + "te" + tiptext + "rec size" + xOff + " " + xOff1  + " " + e.getPoint().getX());
-
-                        if(xT<((CSSequence)sequence).length()){
-                            seqXclickPoint = new Integer((int)xT);
+                        Rectangle rect = table.getCellRect(row, 0, true);
+                        double xOff = rect.getWidth();
+                        Rectangle rect1 = table.getCellRect(row, 1, true);
+                        double xOff1 = rect1.getWidth();
+                        Rectangle rect2 = table.getCellRect(row, 2, true);
+                        double xOff2 = rect2.getWidth();
+                        rect2 = table.getCellRect(row, 2, false);
+                        double xOff3 = rect2.getWidth();
+                        double x0 = e.getPoint().getX() - xOff1 - xOff;
+                        double xT = x0 / xOff3 * RetrievedSequenceView.getMaxSeqLen();
+                        if (xT < ((CSSequence) sequence).length()) {
+                            seqXclickPoint = new Integer((int) xT);
                             retrievedSequencesPanel.updateDetailPanel(seqXclickPoint);
                         }
                     }
@@ -1317,10 +1312,10 @@ public class RetrievedSequenceDisplay extends JPanel {
                 case 0:
                     return new Boolean(retrievedSequenceView.isIncluded());
                 case 1:
-                    if(sequenceDB.isDNA()){
-                    return sequence.toString();
-                    }else{
-                        return "<html><font  color=\"#0000FF\">" + sequence.toString() + "</font>"; 
+                    if (sequenceDB.isDNA()) {
+                        return sequence.toString();
+                    } else {
+                        return "<html><font  color=\"#0000FF\">" + sequence.toString() + "</font>";
                     }
                 case 2:
                     return retrievedSequenceView;
