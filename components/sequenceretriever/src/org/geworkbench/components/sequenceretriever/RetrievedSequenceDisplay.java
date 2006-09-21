@@ -123,20 +123,23 @@ public class RetrievedSequenceDisplay extends JPanel {
                             RetrievedSequenceView retrievedSequenceView = retrievedMap.get(sequence.toString());
                         String tiptext = retrievedSequenceView.getToolTipText(e);
 
-                            
+
                             Rectangle rect = table.getCellRect(row, 0, true);
                             double xOff = rect.getWidth();
                             Rectangle rect1 = table.getCellRect(row, 1, true);
                             double xOff1 = rect1.getWidth();
                             Rectangle rect2 = table.getCellRect(row, 2, true);
                             double xOff2 = rect2.getWidth();
-
+                         rect2 = table.getCellRect(row, 2, false);
+                            double xOff3 = rect2.getWidth();
+                            double xAll = table.getX();
+                        double xAllD = table.getWidth();
+                            double cacaluatedAll = xOff + xOff1 + xOff2;
                             double x0 = e.getPoint().getX() - xOff1 - xOff;
-                            double xT = x0/xOff2*RetrievedSequenceView.getMaxSeqLen();
+                            double xT = x0/xOff3*RetrievedSequenceView.getMaxSeqLen();
 
                             System.out.println(xT + "te" + tiptext + "rec size" + xOff + " " + xOff1  + " " + e.getPoint().getX());
 
-                            //System.out.println("location" + tiptext);
                         if(xT<((CSSequence)sequence).length()){
                             seqXclickPoint = new Integer((int)xT);
                             retrievedSequencesPanel.updateDetailPanel(seqXclickPoint);
@@ -1284,7 +1287,7 @@ public class RetrievedSequenceDisplay extends JPanel {
                 case 2:
                     return "Sequence Detail";
                 default:
-                    return "P-Value";
+                    return "Sequence Detail";
             }
         }
 
@@ -1314,7 +1317,11 @@ public class RetrievedSequenceDisplay extends JPanel {
                 case 0:
                     return new Boolean(retrievedSequenceView.isIncluded());
                 case 1:
+                    if(sequenceDB.isDNA()){
                     return sequence.toString();
+                    }else{
+                        return "<html><font  color=\"#0000FF\">" + sequence.toString() + "</font>"; 
+                    }
                 case 2:
                     return retrievedSequenceView;
                 default:

@@ -339,6 +339,8 @@ public class RetrievedSequencesPanel extends JPanel {
 
         sequenceDB = null;
         seqViewWPanel.removeAll();
+        seqViewWPanel.setSelectedSequence(null);
+        updateBottomPanel();
         revalidate();
         repaint();
     }
