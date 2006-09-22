@@ -250,11 +250,11 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
         });
         mainPanel.add(jToolBar1, BorderLayout.NORTH);
         jToolBar1.add(printBtn, null);
-        jToolBar1.add(copyBtn, null);
-        jToolBar1.add(jToggleButton2, null);
-        jToolBar1.add(jToggleButton1, null);
+//        jToolBar1.add(copyBtn, null);
+//        jToolBar1.add(jToggleButton2, null);
+//        jToolBar1.add(jToggleButton1, null);
         jToolBar1.add(jHideMaskedBtn, null);
-        jToolBar1.add(jTogglePrintRatio, null);
+//        jToolBar1.add(jTogglePrintRatio, null);
         jToolBar1.add(jTogglePrintAccession, null);
         jToolBar1.add(jTogglePrintDescription, null);
         jToolBar1.add(jAllMArrays, null);
