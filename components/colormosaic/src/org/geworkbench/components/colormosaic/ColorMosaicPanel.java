@@ -59,8 +59,8 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
     private ColorMosaicImage colorMosaicImage = new ColorMosaicImage();
     private JPanel jPanel1 = new JPanel();
     private GridBagLayout gridBagLayout1 = new GridBagLayout();
-    private JSpinner jGeneWidthSlider = new JSpinner();
-    private JSpinner jGeneHeightSlider = new JSpinner();
+    private JSpinner jGeneWidthSlider = new JSpinner(new SpinnerNumberModel(20,1,100,1));
+    private JSpinner jGeneHeightSlider = new JSpinner(new SpinnerNumberModel(10,1,100,1));
     private JLabel jLabel1 = new JLabel();
     private JLabel jLabel2 = new JLabel();
     private JSlider jIntensitySlider = new JSlider();
@@ -140,7 +140,7 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
         jPanel1.setLayout(gridBagLayout1);
         jLabel1.setText("Gene Height");
         jLabel2.setText("Gene Width");
-        jGeneHeightSlider.setValue(new Integer(10));
+//        jGeneHeightSlider.setValue(new Integer(10));
         colorMosaicImage.setGeneHeight(10);
         colorMosaicImage.setParent(this);
         jGeneHeightSlider.addChangeListener(new javax.swing.event.ChangeListener() {
@@ -148,7 +148,7 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
                 jGeneHeightSlider_stateChanged(e);
             }
         });
-        jGeneWidthSlider.setValue(new Integer(20));
+//        jGeneWidthSlider.setValue(new Integer(20));
         colorMosaicImage.setGeneWidth(20);
         jGeneWidthSlider.addChangeListener(new javax.swing.event.ChangeListener() {
             public void stateChanged(ChangeEvent e) {
