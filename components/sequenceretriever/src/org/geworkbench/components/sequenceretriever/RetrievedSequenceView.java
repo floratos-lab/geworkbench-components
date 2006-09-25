@@ -20,12 +20,13 @@ public class RetrievedSequenceView extends JPanel {
     int xOff = 0;
     double scale = 1;
     static int maxSeqLen = 20000;
+    static int currentLocation = -1;
     private CSSequence sequence;
     private GeneChromosomeMatcher geneChromosomeMatcher;
 
 
     private String url;
-    public static final int HEIGHT = 50;
+    public static final int HEIGHT = 30;
     private static final Color SEQUENCEBACKGROUDCOLOR = Color.BLUE;
     private static final Color SEQUENCEDOWNSTREAMCOLOR = Color.RED;
     private final static String baseUNIPROURLStr = "http://www.ebi.ac.uk/cgi-bin/dbfetch?db=uniprot&id=";
@@ -37,6 +38,14 @@ public class RetrievedSequenceView extends JPanel {
 
     public static void setMaxSeqLen(int maxSeqLen) {
         RetrievedSequenceView.maxSeqLen = maxSeqLen;
+    }
+
+    public static int getCurrentLocation() {
+        return currentLocation;
+    }
+
+    public static void setCurrentLocation(int currentLocation) {
+        RetrievedSequenceView.currentLocation = currentLocation;
     }
 
     public void setGeneChromosomeMatcher(GeneChromosomeMatcher geneChromosomeMatcher) {
@@ -123,7 +132,7 @@ public class RetrievedSequenceView extends JPanel {
         if (sequence != null) {
             int x = xOff + (int) (sequence.length() * scale / 2);
             g.setColor(SEQUENCEBACKGROUDCOLOR);
-            int y = 30;
+            int y = HEIGHT - 10;
             if (sequence.isDNA()) {
 
                 g.drawLine(xOff, y, x, y);
@@ -166,11 +175,10 @@ public class RetrievedSequenceView extends JPanel {
         }
         g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
         int componentWidth = width;
-        //float charWidth = ((float) width) / maxLength;
         FontRenderContext fontRenderContext = g.getFontRenderContext();
         int centerLine = HEIGHT / 2;
         g.setColor(Color.BLACK);
-        //g.drawString("LABLE", 4, 4);
+
 
     }
 
@@ -181,6 +189,12 @@ public class RetrievedSequenceView extends JPanel {
             String highlight = null;
             int endPoint = Math.min(index + 10, sequence.length() - 1);
             highlight = sequence.getSequence().substring(index, endPoint);
+            //Start from 1 not 0.
+            index++;
+            if (event.getID() != MouseEvent.MOUSE_CLICKED) {
+                currentLocation = index;
+            }
+
             return "" + index + ": " + highlight;
         }
         return null;

@@ -121,22 +121,10 @@ public class RetrievedSequenceDisplay extends JPanel {
                     if (column == 2) {
                         Object sequence = sequenceDB.get(row);
                         RetrievedSequenceView retrievedSequenceView = retrievedMap.get(sequence.toString());
-                        String tiptext = retrievedSequenceView.getToolTipText(e);
-
-                        //Need ask John what is the best way to find the relative postion of mouse clikc in the column.
-
-                        Rectangle rect = table.getCellRect(row, 0, true);
-                        double xOff = rect.getWidth();
-                        Rectangle rect1 = table.getCellRect(row, 1, true);
-                        double xOff1 = rect1.getWidth();
-                        Rectangle rect2 = table.getCellRect(row, 2, true);
-                        double xOff2 = rect2.getWidth();
-                        rect2 = table.getCellRect(row, 2, false);
-                        double xOff3 = rect2.getWidth();
-                        double x0 = e.getPoint().getX() - xOff1 - xOff;
-                        double xT = x0 / xOff3 * RetrievedSequenceView.getMaxSeqLen();
+                        double xT = retrievedSequenceView.getCurrentLocation();
                         if (xT < ((CSSequence) sequence).length()) {
                             seqXclickPoint = new Integer((int) xT);
+                            retrievedSequencesPanel.setSelectedSequence(selectedSequence);
                             retrievedSequencesPanel.updateDetailPanel(seqXclickPoint);
                         }
                     }
@@ -175,7 +163,7 @@ public class RetrievedSequenceDisplay extends JPanel {
         ListSelectionModel rowSM = table.getSelectionModel();
         rowSM.addListSelectionListener(new BlastDetaillistSelectionListener());
         int defaultTableRowHeight = table.getRowHeight();
-        //table.setRowHeight(IMAGE_HEIGHT);
+        table.setRowHeight(RetrievedSequenceView.HEIGHT);
         JScrollPane scrollPane = new JScrollPane(table);
         //scrollPane.setColumnHeaderView(table.getTableHeader());
         this.setLayout(new BorderLayout());
@@ -1315,7 +1303,7 @@ public class RetrievedSequenceDisplay extends JPanel {
                     if (sequenceDB.isDNA()) {
                         return sequence.toString();
                     } else {
-                        return "<html><font  color=\"#0000FF\">" + sequence.toString() + "</font>";
+                        return "<html><<font  color=\"#0000FF\"><u>" + sequence.toString() + "</u></font>";
                     }
                 case 2:
                     return retrievedSequenceView;

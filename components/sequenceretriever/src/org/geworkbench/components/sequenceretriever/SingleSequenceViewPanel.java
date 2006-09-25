@@ -214,10 +214,7 @@ public class SingleSequenceViewPanel extends JPanel {
 
                     String lab = theone.getLabel();
                     g.setColor(org.geworkbench.components.sequenceretriever.SingleSequenceViewPanel.SEQUENCEBACKGROUDCOLOR);
-                    //            if (lab.length() > 10) {
-                    //                g.drawString(lab.substring(0, 10), 2, y + 3);
-                    //            }
-                    //            else {
+
                     g.drawString(lab, 2, (int) (y));
                     //            }
                     y += 1 * yscale;
@@ -296,6 +293,8 @@ public class SingleSequenceViewPanel extends JPanel {
             setPreferredSize(new Dimension(this.getWidth() - yOff, maxY));
             revalidate();
 
+        }else{
+              g.clearRect(0, 0, getWidth(), getHeight());
         }
     }
 
@@ -467,6 +466,8 @@ public class SingleSequenceViewPanel extends JPanel {
             int maxY = (rowId + 1) * yStep + yOff;
             setPreferredSize(new Dimension(this.getWidth() - yOff, maxY));
             revalidate();
+        }else{
+              g.clearRect(0, 0, getWidth(), getHeight());
         }
     }
 
@@ -548,6 +549,17 @@ public class SingleSequenceViewPanel extends JPanel {
 
     public void setSelectedSequence(DSSequence selectedSequence) {
         this.selectedSequence = selectedSequence;
+        //update selected index.
+        if(sequenceDB!=null && selectedSequence!=null){
+            int location = 0;
+            for(Object seq: sequenceDB){
+                if(seq.equals(selectedSequence)){
+                      selected = location;
+                    return;
+                }
+                location++;
+            }
+        }
     }
 
     void drawSequence(Graphics g, int rowId, int seqId, double len) {
@@ -1291,6 +1303,13 @@ public class SingleSequenceViewPanel extends JPanel {
      * initialize
      */
     public void initialize() {
+       this.removeAll();
+       this.setSequenceDB(null);
+        this.setSelectedSequence(null);
+        this.setSeqXclickPoint(-1);
+        this.repaint();
+
+
     }
 
 
