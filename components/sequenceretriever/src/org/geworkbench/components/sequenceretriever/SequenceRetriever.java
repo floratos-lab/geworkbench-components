@@ -423,8 +423,7 @@ public class SequenceRetriever implements VisualPlugin {
             DSGeneMarker marker = (DSGeneMarker) ls2.get(index);
             ArrayList<String> values = retrievedSequences.get(marker.toString());
             if (values == null) {
-                JOptionPane.showMessageDialog(main, "No sequence is retrieved.");
-                seqDisPanel.initialize();
+               seqDisPanel.initialize();
             } else {
                 CSSequenceSet displaySequenceDB = new CSSequenceSet();
                 for (String o : values) {

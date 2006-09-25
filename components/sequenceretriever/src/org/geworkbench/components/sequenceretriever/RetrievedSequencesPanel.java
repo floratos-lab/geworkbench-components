@@ -63,6 +63,7 @@ public class RetrievedSequencesPanel extends JPanel {
     private BorderLayout borderLayout1 = new BorderLayout();
     private BorderLayout borderLayout2 = new BorderLayout();
     private BorderLayout borderLayout3 = new BorderLayout();
+    private  DSSequence selectedSequence = null;
     //Panels and Panes
     private JDetailPanel sequencedetailPanel = new JDetailPanel();
     private JPanel bottomPanel = new JPanel();
@@ -233,6 +234,14 @@ public class RetrievedSequencesPanel extends JPanel {
         }
     }
 
+    public DSSequence getSelectedSequence() {
+        return selectedSequence;
+    }
+
+    public void setSelectedSequence(DSSequence selectedSequence) {
+        this.selectedSequence = selectedSequence;
+    }
+
     public DSSequenceSet getDisplaySequenceDB() {
         return displaySequenceDB;
     }
@@ -339,7 +348,9 @@ public class RetrievedSequencesPanel extends JPanel {
 
         sequenceDB = null;
         seqViewWPanel.removeAll();
+        selectedSequence = null;
         seqViewWPanel.setSelectedSequence(null);
+        oldViewPanel.initialize();
         updateBottomPanel();
         revalidate();
         repaint();
@@ -347,7 +358,7 @@ public class RetrievedSequencesPanel extends JPanel {
 
     public void updateBottomPanel() {
 
-        DSSequence selectedSequence = seqViewWPanel.getSelectedSequence();
+       // DSSequence selectedSequence = seqViewWPanel.getSelectedSequence();
         if (selectedSequence == null) {
             Graphics g = sequencedetailPanel.getGraphics();
             if (g != null) {
@@ -371,27 +382,12 @@ public class RetrievedSequencesPanel extends JPanel {
             }
         }
         sequencedetailPanel.repaint();
-//        if (xStartPoint < selectedSequence.length() - 100) {
-//            rightShiftButton.setEnabled(true);
-//        }
-//        if (xStartPoint > 100) {
-//            leftShiftButton.setEnabled(true);
-//        }
-
         prevSeqDx = xStartPoint;
         sequencedetailPanel.setOpaque(false);
 
     }
 
-    /**
-     * Update the detail of sequence.
-     *
-     * @param e MouseEvent
-     */
 
-   void jDisplayPanel_mouseClicked(MouseEvent e) {
-
-    }
     void updateDetailPanel(int newPosition) {
             // seqViewWPanel.this_mouseClicked(e);
             xStartPoint = newPosition;
@@ -413,6 +409,7 @@ public class RetrievedSequencesPanel extends JPanel {
             }
         }
         xStartPoint = oldViewPanel.getSeqXclickPoint();
+        selectedSequence = oldViewPanel.getSelectedSequence();
         sequencedetailPanel.repaint();
         //updateBottomPanel(e);
     }
@@ -589,7 +586,7 @@ public class RetrievedSequencesPanel extends JPanel {
     private class JDetailPanel extends JPanel {
         public void paintComponent(Graphics g) {
             super.paintComponent(g);
-            DSSequence selectedSequence = seqViewWPanel.getSelectedSequence();
+          // DSSequence selectedSequence = seqViewWPanel.getSelectedSequence();
             if (selectedSequence == null) {
                 g.clearRect(0, 0, sequencedetailPanel.getWidth(),
                         sequencedetailPanel.getHeight());
