@@ -423,7 +423,7 @@ public class SequenceRetriever implements VisualPlugin {
             DSGeneMarker marker = (DSGeneMarker) ls2.get(index);
             ArrayList<String> values = retrievedSequences.get(marker.toString());
             if (values == null) {
-               seqDisPanel.initialize();
+                seqDisPanel.initialize();
             } else {
                 CSSequenceSet displaySequenceDB = new CSSequenceSet();
                 for (String o : values) {
@@ -468,6 +468,7 @@ public class SequenceRetriever implements VisualPlugin {
     }
 
     void cleanUp() {
+        //keep the sequence info. why?
         retrievedMap = new HashMap<String, RetrievedSequenceView>();
         retrievedSequences = new TreeMap<String, ArrayList<String>>();
         jSelectedList.clearSelection();
@@ -487,7 +488,7 @@ public class SequenceRetriever implements VisualPlugin {
             jProgressBar1.setMinimum(0);
             jProgressBar1.setMaximum(100);
             jProgressBar1.setStringPainted(true);
-           updateProgressBar(0, "");
+            updateProgressBar(0, "");
             if (sequenceDB != null) {
                 sequenceDB = new CSSequenceSet();
             }
@@ -530,15 +531,15 @@ public class SequenceRetriever implements VisualPlugin {
                         }
                     }
                 }
-                if(selectedSequenceDB.size()>0){
-                selectedSequenceDB.setLabel(label);
-                selectedSequenceDB.parseMarkers();
-                ProjectNodeAddedEvent event = new ProjectNodeAddedEvent(
-                        "message", selectedSequenceDB, null);
-                publishProjectNodeAddedEvent(event);
-                }else{
-                   JOptionPane.showInputDialog(
-                    "Please select at least one sequence.");
+                if (selectedSequenceDB.size() > 0) {
+                    selectedSequenceDB.setLabel(label);
+                    selectedSequenceDB.parseMarkers();
+                    ProjectNodeAddedEvent event = new ProjectNodeAddedEvent(
+                            "message", selectedSequenceDB, null);
+                    publishProjectNodeAddedEvent(event);
+                } else {
+                    JOptionPane.showInputDialog(
+                            "Please select at least one sequence.");
                 }
             }
         }
@@ -549,6 +550,7 @@ public class SequenceRetriever implements VisualPlugin {
     }
 
     private void getSequences(DSGeneMarker marker) {
+
         CSSequence seqs = PromoterSequenceFetcher.getCachedPromoterSequence(
                 marker, ((Integer) model.getNumber())
                 .intValue(), ((Integer) model1.getNumber()).intValue());
@@ -578,6 +580,9 @@ public class SequenceRetriever implements VisualPlugin {
             String fileName = this.getRandomFileName();
             if (((String) jComboCategory.getSelectedItem()).equalsIgnoreCase(
                     "DNA")) {
+                        RetrievedSequenceView.setUpstreamTotal(((Integer) model.getNumber())
+                .intValue());
+        RetrievedSequenceView.setDownstreamTotal(((Integer) model1.getNumber()).intValue());
                 if (jSourceCategory.getSelectedItem().equals(LOCAL)) {
                     for (int i = 0; i < selectedList.size(); i++) {
                         DSGeneMarker marker = (DSGeneMarker) selectedList.get(i);
@@ -679,8 +684,8 @@ public class SequenceRetriever implements VisualPlugin {
                         }
                         double progress = (double) count / (double) (markers.size());
                         if (affyid.endsWith("_at")) { // if this is affyid
-                             updateProgressBar(progress,
-                                "Retrieving " + affyid);
+                            updateProgressBar(progress,
+                                    "Retrieving " + affyid);
                             CSSequenceSet sequenceSet = SequenceFetcher.getAffyProteinSequences(affyid);
 
                             String[] uniprotids = AnnotationParser.getInfo(affyid,
@@ -763,9 +768,9 @@ public class SequenceRetriever implements VisualPlugin {
             if (dataSet instanceof DSMicroarraySet) {
                 if (refMASet != dataSet) {
                     this.refMASet = (DSMicroarraySet) dataSet;
+                   cleanUp();
                     sequenceDB = new CSSequenceSet();
-                    seqDisPanel.initialize();
-                    seqDisPanel.initPanelView();
+                    cleanUp();
                     markerList = refMASet.getMarkers();
                 }
             }
@@ -784,6 +789,8 @@ public class SequenceRetriever implements VisualPlugin {
         activeMarkers = new CSPanel();
         if (markers != null) {
             ls2.clear();
+            cleanUp();
+
             for (int j = 0; j < markers.panels().size(); j++) {
                 DSPanel<DSGeneMarker> mrk = markers.panels().get(j);
                 if (mrk.isActive()) {

@@ -125,6 +125,11 @@ public class RetrievedSequencesPanel extends JPanel {
                 joldViewPanel_mouseClicked(e);
             }
         });
+       oldViewPanel.addMouseMotionListener(new MouseMotionAdapter() {
+            public void mouseMoved(MouseEvent e) {
+                oldViewPanel.this_mouseMoved(e);
+            }
+        });
         this.addInputMethodListener(new java.awt.event.InputMethodListener() {
             public void inputMethodTextChanged(InputMethodEvent e) {
             }
