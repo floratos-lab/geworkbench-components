@@ -160,7 +160,7 @@ public class SingleSequenceViewPanel extends JPanel {
             if (!singleSequenceView) {
                 paintText(g);
             } else {
-                if (selected < sequenceDB.size()) {
+                if (sequenceDB != null && selected < sequenceDB.size()) {
                     paintSingleSequence(g);
                 } else {
                     paintText(g);
@@ -293,8 +293,8 @@ public class SingleSequenceViewPanel extends JPanel {
             setPreferredSize(new Dimension(this.getWidth() - yOff, maxY));
             revalidate();
 
-        }else{
-              g.clearRect(0, 0, getWidth(), getHeight());
+        } else {
+            g.clearRect(0, 0, getWidth(), getHeight());
         }
     }
 
@@ -316,20 +316,21 @@ public class SingleSequenceViewPanel extends JPanel {
                 Rectangle2D r2d = fm.getStringBounds(asc, g);
                 double xscale = (r2d.getWidth() + 3) / (double) (asc.length());
                 double yscale = 1.3 * r2d.getHeight();
-                int width = this.getWidth();
+                               int width = this.getWidth();
                 int cols = (int) (width / xscale) - 8;
+                yBasescale = yscale;
+                xBasescale = xscale;
+                xBaseCols = cols;
                 g.setFont(f);
                 JViewport scroller = (JViewport) this.getParent();
                 Rectangle r = scroller.getViewRect();
                 String lab = theone.getLabel();
                 y += (int) (rowId * yscale);
                 g.setColor(org.geworkbench.components.sequenceretriever.SingleSequenceViewPanel.SEQUENCEBACKGROUDCOLOR);
-                if (lab.length() > 10) {
-                    g.drawString(lab.substring(0, 10), 2, y + 3);
-                } else {
-                    g.drawString(lab, 2, y + 3);
-                }
-                int x0 = (int) (10 * xscale);
+
+                g.drawString(lab, 2, y + 3);
+
+                int x0 = (int) (lab.length() * xscale);
                 int x = x0 + (int) (theone.length() * scale);
 
                 g.drawLine(x0, y, x, y);
@@ -466,8 +467,8 @@ public class SingleSequenceViewPanel extends JPanel {
             int maxY = (rowId + 1) * yStep + yOff;
             setPreferredSize(new Dimension(this.getWidth() - yOff, maxY));
             revalidate();
-        }else{
-              g.clearRect(0, 0, getWidth(), getHeight());
+        } else {
+            g.clearRect(0, 0, getWidth(), getHeight());
         }
     }
 
@@ -550,11 +551,11 @@ public class SingleSequenceViewPanel extends JPanel {
     public void setSelectedSequence(DSSequence selectedSequence) {
         this.selectedSequence = selectedSequence;
         //update selected index.
-        if(sequenceDB!=null && selectedSequence!=null){
+        if (sequenceDB != null && selectedSequence != null) {
             int location = 0;
-            for(Object seq: sequenceDB){
-                if(seq.equals(selectedSequence)){
-                      selected = location;
+            for (Object seq : sequenceDB) {
+                if (seq.equals(selectedSequence)) {
+                    selected = location;
                     return;
                 }
                 location++;
@@ -1303,8 +1304,8 @@ public class SingleSequenceViewPanel extends JPanel {
      * initialize
      */
     public void initialize() {
-       this.removeAll();
-       this.setSequenceDB(null);
+        this.removeAll();
+        this.setSequenceDB(null);
         this.setSelectedSequence(null);
         this.setSeqXclickPoint(-1);
         this.repaint();

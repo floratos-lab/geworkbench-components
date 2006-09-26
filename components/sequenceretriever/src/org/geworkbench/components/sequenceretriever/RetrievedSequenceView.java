@@ -23,7 +23,8 @@ public class RetrievedSequenceView extends JPanel {
     static int currentLocation = -1;
     private CSSequence sequence;
     private GeneChromosomeMatcher geneChromosomeMatcher;
-
+    static int upstreamTotal = -1;
+    static int downstreamTotal = -1;
 
     private String url;
     public static final int HEIGHT = 30;
@@ -38,6 +39,22 @@ public class RetrievedSequenceView extends JPanel {
 
     public static void setMaxSeqLen(int maxSeqLen) {
         RetrievedSequenceView.maxSeqLen = maxSeqLen;
+    }
+
+    public static int getUpstreamTotal() {
+        return upstreamTotal;
+    }
+
+    public static int getDownstreamTotal() {
+        return downstreamTotal;
+    }
+
+    public static void setDownstreamTotal(int downstreamTotal) {
+        RetrievedSequenceView.downstreamTotal = downstreamTotal;
+    }
+
+    public static void setUpstreamTotal(int upstreamTotal) {
+        RetrievedSequenceView.upstreamTotal = upstreamTotal;
     }
 
     public static int getCurrentLocation() {
@@ -131,6 +148,11 @@ public class RetrievedSequenceView extends JPanel {
         int width = getWidth() - 4;
         if (sequence != null) {
             int x = xOff + (int) (sequence.length() * scale / 2);
+            if (upstreamTotal > -1) {
+                x = xOff + (int) (sequence.length() * scale * upstreamTotal / maxSeqLen
+                );
+            }
+
             g.setColor(SEQUENCEBACKGROUDCOLOR);
             int y = HEIGHT - 10;
             if (sequence.isDNA()) {
