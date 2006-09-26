@@ -769,24 +769,7 @@ import java.util.HashMap;
         /*********************************************************/
         void ButtonRun_actionPerformed(ActionEvent e) {
             int fx, tx, fy, ty, i, j, ux, dx, uy, dy;
-
-            /******************************************************************************
-            if (((String) ProgramBox.getSelectedItem()).indexOf("SyntenyMap") != -1) {
-//            String rr = tempDir + "Synteny_838728.0.res";
-                String rr = tempDir + "Synteny_961301.0.res";
-                job_active = false;
-                int ff_x = 46224505;
-                int tt_x = 46638695;
-                int ff_y = 30924275;
-                int tt_y = 31342378;
-
-                sendEvent("SM\t" + rr + "\t" + ff_x + "\t" + tt_x + "\t" + ff_y +
-                          "\t" + tt_y);
-                jButtonRun.setBackground(Color.white);
-                return;
-            }
             /******************************************************************************/
-
             if (job_active) {
                 JOptionPane.showMessageDialog
                         (null, "Previous job is active!", "Results",
@@ -812,9 +795,9 @@ import java.util.HashMap;
             out_name = tempDir + job_id + ".sub";
             res_name = tempDir + job_id + ".res";
 
-            String req_type = "M_DOTMATRIX";
+            String req_type = "G_DOTMATRIX";
             if (((String) ProgramBox.getSelectedItem()).indexOf("SyntenyMap") != -1) {
-                req_type = "M_SMAP";
+                req_type = "G_SMAP";
             }
 
             // Parsing X information
