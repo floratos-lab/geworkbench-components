@@ -15,12 +15,6 @@ import java.io.InputStream;
 import java.net.URL;
 
 public class DAS_Retriver {
-    /**
-     *
-     */
-    public void DAS_Retriver() {
-
-    }
 
     /**
      *
@@ -49,7 +43,7 @@ public class DAS_Retriver {
                                        int to, String feat,
                                        String fil) {
         /* Forming request */
-        String request = new String("http://genome.cse.ucsc.edu/cgi-bin/das/");
+        String request = "http://genome.cse.ucsc.edu/cgi-bin/das/";
         request = request.concat(genome);
         request = request.concat("/features?segment=");
         request = request.concat(chr);
@@ -105,11 +99,11 @@ public class DAS_Retriver {
 
     public static String GetIt(String UrlToGet) {
 
-        int info;
+        int info, end_flag=0;
         StringBuffer oneL = new StringBuffer();
-        URL infoLink = null;
-        InputStream serverIO = null;
-        String buf = null;
+        URL infoLink;
+        InputStream serverIO;
+        String buf;
 
         try {
             infoLink = new URL(UrlToGet);
@@ -120,6 +114,12 @@ public class DAS_Retriver {
             // Read from server
             while ((info = serverIO.read()) != -1) {
                 oneL.append((char) info); /* make note of the info */
+                if((char)info == '/')
+                    end_flag++;
+                else
+                    end_flag=0;
+                if(end_flag == 4)
+                    break;
             }
             serverIO.close();
             buf = new String(oneL);
@@ -134,9 +134,9 @@ public class DAS_Retriver {
 
         int info;
         StringBuffer oneL = new StringBuffer();
-        URL infoLink = null;
-        InputStream serverIO = null;
-        String buf = null;
+        URL infoLink;
+        InputStream serverIO;
+        String buf;
 
         try {
             infoLink = new URL(UrlToGet);
@@ -156,47 +156,6 @@ public class DAS_Retriver {
         return buf;
     }
 
-//    public static String GetIt(String UrlToGet) {
-//        int i, j, info;
-//        StringBuffer oneL = new StringBuffer();
-//        URL infoLink = null;
-//        InputStream serverIO = null;
-//        String buf = null;
-//
-//        try {
-//            infoLink = new URL(UrlToGet);
-//        }
-//        catch (MalformedURLException ee) {
-//            System.out.println("Malformed URL " + UrlToGet + " : " + ee);
-//            return null;
-//        }
-//
-//        // start the connection with the httpd and talk
-//        try {
-//            serverIO = infoLink.openStream();
-//        }
-//        catch (IOException e) {
-//            System.out.println("Can't open stream " + UrlToGet + " : " + e);
-//            return null;
-//        }
-//
-//        /* do the deed - one character at a time. you can use read(byte b[], int off, int len) if you know
-//               how many characters you expect from the server. */
-//        try {
-//            /* Read */
-//            while ( (info = serverIO.read()) != -1) {
-//                oneL.append( (char) info); /* make note of the info */
-//            }
-//            serverIO.close();
-//            buf = new String(oneL);
-//        }
-//        catch (IOException e) {
-//            System.out.println(e);
-//            return null;
-//        }
-//        return buf;
-//    }
-
     /**
      *
      * @param UrlToGet String
@@ -206,7 +165,7 @@ public class DAS_Retriver {
 
     public static boolean GetItToFasta(String UrlToGet, String FileToSaveIn) {
         int i, j;
-        FileOutputStream f = null;
+        FileOutputStream f;
 
         /* do the deed - one character at a time. you can use read(byte b[], int off, int len) if you know
                how many characters you expect from the server. */
@@ -243,7 +202,6 @@ public class DAS_Retriver {
                             j = 0;
                             f.write('\n');
                         }
-                        continue;
                     }
                 }
             }
@@ -258,24 +216,46 @@ public class DAS_Retriver {
 
     /**
      *
-     * @param UrlToGet String
-     * @param FileToSaveIn String
-     * @return boolean
+     * @param UrlToGet
+     * @param FileToSaveIn
+     * @return bolean
      */
-
     public static boolean GetItToFile(String UrlToGet, String FileToSaveIn) {
-        int i, j;
-        FileOutputStream f = null;
+        FileOutputStream f;
+        int info;
+        StringBuffer oneL = new StringBuffer();
+        URL infoLink;
+        InputStream serverIO;
 
         /* do the deed - one character at a time. you can use read(byte b[], int off, int len) if you know
                how many characters you expect from the server. */
         try {
             /* Open file */
             f = new FileOutputStream(FileToSaveIn);
-            String buf = GetIt(UrlToGet);
+//            String buf = GetIt(UrlToGet);
 
-            /* writting */
-            f.write( (buf.toString()).getBytes());
+            /* READING/WRITTING */
+            try {
+                infoLink = new URL(UrlToGet);
+
+                // start the connection with the httpd and talk
+                serverIO = infoLink.openStream();
+
+                // Read from server
+                while ((info = serverIO.read()) != -1) {
+                    oneL.append((char) info); /* make note of the info */
+                    if(oneL.length()==10000)
+                        {
+                        f.write( (oneL.toString()).getBytes());
+                        oneL = new StringBuffer();
+                        }
+                    }
+            serverIO.close();
+            } catch (IOException e) {
+                System.out.println("Error retrieving data from server.");
+                }
+
+            f.write( (oneL.toString()).getBytes());
 
             f.close();
         }
@@ -285,12 +265,4 @@ public class DAS_Retriver {
         }
         return true;
     }
-
-    /**
-     * GetItToString
-     *
-     * @param tURL String
-     * @return Object
-     */
-
 }
