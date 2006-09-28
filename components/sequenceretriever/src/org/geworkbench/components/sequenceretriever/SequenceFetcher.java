@@ -96,7 +96,7 @@ public class SequenceFetcher {
                     if (uniprotids[i] != null &&
                             !uniprotids[i].trim().equals("")) {
                         String[] result = (String[]) call.invoke(new Object[]{
-                                "uniprot:" + uniprotids[i], "fasta",
+                                "uniprot:" + uniprotids[i].trim(), "fasta",
                                 "raw"});
 
                         if (result.length == 0) {
@@ -117,6 +117,7 @@ public class SequenceFetcher {
                 }
             }
         } catch (Exception e) {
+            e.printStackTrace();
         }
         return sequenceSet;
     }
