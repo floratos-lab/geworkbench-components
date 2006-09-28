@@ -210,7 +210,7 @@ import java.util.HashMap;
                     (TreeSelectionModel.SINGLE_TREE_SELECTION);
             jTree1.setShowsRootHandles(true);
 
-            listeners.put("Commands.Panels.Add to Panel", listener);
+            listeners.put("Commands.Sets.Add to Set", listener);
             jAddToX.addActionListener(listener);
             treeToX.addActionListener(treeListener);
             treeToY.addActionListener(treeListener);
