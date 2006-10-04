@@ -636,8 +636,14 @@ public class SequenceRetriever implements VisualPlugin {
                                                 getSequences(o, startPoint,
                                                         endPoint);
                                         if (seqs != null) {
+                                            //set up label now only marker.label + Real start point.
+                                            if(o.isPositiveStrandDirection()){
                                             seqs.setLabel(marker.getLabel() +
-                                                    "_" + o.getChr() + "_" + o.getStartPoint() + "_" + o.getEndPoint());
+                                                    "_" + o.getChr() + "_" + o.getStartPoint());
+                                            }else{
+                                               seqs.setLabel(marker.getLabel() +
+                                                    "_" + o.getChr() + "_" + o.getEndPoint());
+                                            }
                                             sequenceDB.addASequence(seqs);
                                             RetrievedSequenceView retrievedSequenceView = new RetrievedSequenceView(seqs);
                                             retrievedSequenceView.setGeneChromosomeMatcher(o);
@@ -788,8 +794,13 @@ public class SequenceRetriever implements VisualPlugin {
         markers = e.getPanel();
         activeMarkers = new CSPanel();
         if (markers != null) {
+
+            Object[] oldMarklist = ls2.toArray();
+            
+
             ls2.clear();
-            cleanUp();
+           //below line is removed to keep the previous display when a new marker is added.
+            //cleanUp();
 
             for (int j = 0; j < markers.panels().size(); j++) {
                 DSPanel<DSGeneMarker> mrk = markers.panels().get(j);
@@ -809,6 +820,8 @@ public class SequenceRetriever implements VisualPlugin {
             //
             log.debug("Active markers / markers: " + activeMarkers.size() +
                     " / " + markers.size());
+        }else{
+            cleanUp();
         }
     }
 
