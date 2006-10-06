@@ -57,7 +57,7 @@ import java.util.HashMap;
         boolean cancel_flag = false;
         boolean job_active = false;
         boolean selectedRegionChanged = false;
-        private SyntenyAnnotationParameters SAP = new SyntenyAnnotationParameters();
+//        private SyntenyAnnotationParameters SAP = new SyntenyAnnotationParameters();
         private GenomePositionSubPanel GPos;
         private JList RegionsList = new JList();
         private DefaultListModel RegionsListModel = new DefaultListModel();
@@ -177,9 +177,9 @@ import java.util.HashMap;
             jPanelButtons.setLayout(borderLayout6);
             jButtonStopIt.setText("Cancel");
             jPanelProgram.setLayout(borderLayout1);
-            jButtonAnnotationRedraw.setText("Redraw annotation");
-            jButtonAnnotationRedraw.addActionListener(new
-                                                      SyntenyParameters_redrawButton_actionAdapter(this));
+//            jButtonAnnotationRedraw.setText("Redraw annotation");
+//            jButtonAnnotationRedraw.addActionListener(new
+//                                                      SyntenyParameters_redrawButton_actionAdapter(this));
             XYMenu.add(ToX);
             XYMenu.add(ToY);
             XYMenu.add(ShowAnnot);
@@ -187,8 +187,8 @@ import java.util.HashMap;
 
             SPList = new SyntenyPresentationsList();
             SMPList = new SynMapPresentationList();
-            SAP.setSyntenyPresentationsList(SPList);
-            SPList.setSyntenyAnnotationParameters(SAP);
+//            SAP.setSyntenyPresentationsList(SPList);
+//            SPList.setSyntenyAnnotationParameters(SAP);
 
             listener = new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
@@ -210,7 +210,7 @@ import java.util.HashMap;
                     (TreeSelectionModel.SINGLE_TREE_SELECTION);
             jTree1.setShowsRootHandles(true);
 
-            listeners.put("Commands.Sets.Add to Set", listener);
+            listeners.put("Commands.Panels.Add to Panel", listener);
             jAddToX.addActionListener(listener);
             treeToX.addActionListener(treeListener);
             treeToY.addActionListener(treeListener);
@@ -340,8 +340,8 @@ import java.util.HashMap;
 
             jTabbedPane1.add(jPanelMarkers, "Markers");
             jTabbedPane1.add(jPanelProgram, "Program");
-            jTabbedPane1.add(SAP, "Annotation");
-            SAP.add(jButtonAnnotationRedraw, java.awt.BorderLayout.SOUTH);
+//            jTabbedPane1.add(SAP, "Annotation");
+//            SAP.add(jButtonAnnotationRedraw, java.awt.BorderLayout.SOUTH);
             jTabbedPane1.add(GenomePosPanel, "Genome");
 
             jPanel2.add(jToolbar2, java.awt.BorderLayout.CENTER);
@@ -897,7 +897,10 @@ import java.util.HashMap;
 
             final String outf = out_name;
             final String jid = job_id;
-            final String resn = res_name;
+/* */       final String resn = res_name;
+
+//            final String resn = "c:\\project\\temp\\GEAW\\Synteny_834329.0.res";
+/* */
             final int f_x = fx;
             final int f_y = fy;
             final int t_x = tx;
@@ -910,7 +913,9 @@ import java.util.HashMap;
                     ProcessStatus.setText("Submitting job to remote server");
                     boolean error_flag = false;
 
+
                     try {
+
                         SoapClient sp = new SoapClient();
                         String infile = sp.submitFile(outf);
                         System.out.println("Infile: " + infile);
@@ -982,7 +987,6 @@ import java.util.HashMap;
                             } else {
                                 ProcessStatus.setText("Done");
                                 job_active = false;
-//                            SMPList.addAndDisplay(resn, f_x, t_x, f_y, t_y);
                                 sendEvent("SM\t" + resn + "\t" + f_x + "\t" + t_x +
                                           "\t" + f_y + "\t" + t_y);
                                 jButtonRun.setBackground(Color.white);
@@ -1025,9 +1029,9 @@ import java.util.HashMap;
 
         }
 
-        void redrawButton_actionPerformed(ActionEvent e) {
-            publishSyntenyEvent(new SyntenyEvent("AC\t" + SAP.getAnnoString()));
-        }
+//        void redrawButton_actionPerformed(ActionEvent e) {
+//            publishSyntenyEvent(new SyntenyEvent("AC\t" + SAP.getAnnoString()));
+//        }
 
         void addButton_actionPerformed(ActionEvent e) {
             addToRegionsListModel(">genomic:" + GPos.getGenome() + ":" +
@@ -1280,18 +1284,18 @@ import java.util.HashMap;
     }
 
 
-    class SyntenyParameters_redrawButton_actionAdapter implements java.awt.event.
-            ActionListener {
-        SyntenyParameters adaptee;
+//    class SyntenyParameters_redrawButton_actionAdapter implements java.awt.event.
+//            ActionListener {
+//        SyntenyParameters adaptee;
+//
+//        SyntenyParameters_redrawButton_actionAdapter(SyntenyParameters adaptee) {
+//            this.adaptee = adaptee;
+//        }
 
-        SyntenyParameters_redrawButton_actionAdapter(SyntenyParameters adaptee) {
-            this.adaptee = adaptee;
-        }
-
-        public void actionPerformed(ActionEvent e) {
-            adaptee.redrawButton_actionPerformed(e);
-        }
-    }
+//        public void actionPerformed(ActionEvent e) {
+//            adaptee.redrawButton_actionPerformed(e);
+//        }
+//    }
 
 
 

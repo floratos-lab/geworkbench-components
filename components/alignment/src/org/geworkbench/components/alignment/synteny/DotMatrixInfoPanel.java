@@ -16,7 +16,7 @@ import java.awt.*;
  * @author not attributable
  * @version 1.0
  */
-public class DotMatrixInfoPanel     extends JPanel {
+public class DotMatrixInfoPanel extends JPanel {
 
     private BorderLayout borderLayout2 = new BorderLayout();
     JLabel jLabelDMTitle = new JLabel();
