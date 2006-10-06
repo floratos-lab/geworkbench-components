@@ -26,6 +26,8 @@ public class DotMatrixViewWidget
 
     public static DotMatrixViewWidgetPanel dotViewWPanel=null;
     public static DotMatrixInfoPanel DMInfoPanel=null;
+    public static AnnotationControlPanel ACPanel=null;
+
     private JToolBar jToolBar1 = new JToolBar();
     private JRadioButton showDirBtn = new JRadioButton();
     private JRadioButton showInvBtn = new JRadioButton();
@@ -34,8 +36,8 @@ public class DotMatrixViewWidget
     JPanel jPanel1 = new JPanel();
     BorderLayout borderLayout1 = new BorderLayout();
     JButton saveButton = new JButton();
-    public DotMatrixViewWidget() {
 
+    public DotMatrixViewWidget() {
         try {
             jbInit();
         }
@@ -57,11 +59,15 @@ public class DotMatrixViewWidget
         dotViewWPanel.repaint();
         dotViewWPanel.setPreferredSize(new Dimension(500, 800));
         DMInfoPanel.setTitle("X: " + " " + dmo.getDescriptionX() + "   Y: " + " " + dmo.getDescriptionY());
+        ACPanel.setAnnotations(sax,say);
+        ACPanel.setDotViewPanel(dotViewWPanel);
     }
 
     void jbInit() throws Exception {
         dotViewWPanel = new DotMatrixViewWidgetPanel();
         DMInfoPanel = new DotMatrixInfoPanel();
+        ACPanel = new AnnotationControlPanel();
+
         this.setLayout(borderLayout2);
         dotScrollPane.setVerticalScrollBarPolicy(JScrollPane.
                                                  VERTICAL_SCROLLBAR_ALWAYS);
@@ -123,8 +129,12 @@ public class DotMatrixViewWidget
         dotScrollPane.getViewport().add(dotViewWPanel);
 //        dotScrollPane.getViewport().add(dotViewWPanel);
         this.add(jPanel1, java.awt.BorderLayout.NORTH);
+
+        this.add(ACPanel, java.awt.BorderLayout.WEST);
+
         jPanel1.add(DMInfoPanel, java.awt.BorderLayout.CENTER);
         jPanel1.add(jToolBar1, java.awt.BorderLayout.NORTH);
+
         dotViewWPanel.setShowDirect(showDirBtn.isSelected());
         dotViewWPanel.setShowInverted(showInvBtn.isSelected());
     }
