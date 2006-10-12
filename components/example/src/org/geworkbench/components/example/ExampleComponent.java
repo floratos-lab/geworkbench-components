@@ -18,6 +18,7 @@ import org.geworkbench.bison.datastructure.bioobjects.markers.goterms.GOTerm;
 import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.engine.management.AcceptTypes;
 import org.geworkbench.engine.management.Subscribe;
+import org.geworkbench.engine.properties.PropertiesManager;
 import org.geworkbench.events.ProjectEvent;
 import org.apache.commons.math.stat.descriptive.SummaryStatistics;
 import org.apache.commons.math.stat.descriptive.SummaryStatisticsImpl;
@@ -28,6 +29,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.util.*;
 import java.util.List;
+import java.io.IOException;
 
 /**
  * This is an example geWorkbench component.
@@ -69,7 +71,12 @@ public class ExampleComponent extends JPanel implements VisualPlugin {
             }
         });
         add(testButton);
-
+        try {
+            PropertiesManager.getInstance().setProperty(getClass(), "test", "value");
+        } catch (IOException e) {
+            System.out.println("----- Property test failed.");
+            e.printStackTrace();
+        }
     }
 
     /**
