@@ -19,7 +19,7 @@ import java.awt.font.FontRenderContext;
 public class RetrievedSequenceView extends JPanel {
     int xOff = 0;
     double scale = 1;
-    static int maxSeqLen = 20000;
+    static int maxSeqLen = 20000;  //default is 20000.
     static int currentLocation = -1;
     private CSSequence sequence;
     private GeneChromosomeMatcher geneChromosomeMatcher;
@@ -30,7 +30,7 @@ public class RetrievedSequenceView extends JPanel {
     public static final int HEIGHT = 30;
     private static final Color SEQUENCEBACKGROUDCOLOR = Color.BLUE;
     private static final Color SEQUENCEDOWNSTREAMCOLOR = Color.RED;
-    private final static String baseUNIPROURLStr = "http://www.ebi.ac.uk/cgi-bin/dbfetch?db=uniprot&id=";
+    private final static String BASEUNIURLSTR = "http://www.ebi.ac.uk/cgi-bin/dbfetch?db=uniprot&id=";
 
 
     public static int getMaxSeqLen() {
@@ -74,7 +74,7 @@ public class RetrievedSequenceView extends JPanel {
     }
 
     public void setUrl(String url) {
-        this.url = baseUNIPROURLStr + url.trim();
+        this.url = BASEUNIURLSTR + url.trim();
     }
 
     public String getUrl() {
@@ -111,33 +111,7 @@ public class RetrievedSequenceView extends JPanel {
 
     }
 
-    private void jbInit() throws Exception {
-
-//        this.setLayout(new BorderLayout());
-//        upperPanel = new JPanel();
-//        lowerPanel = new JPanel();
-//        jCheckBox1 = new JCheckBox();
-//        jCheckBox1.setText("TEST2");
-//        jLabel1 = new JLabel("<HTML><font color=red>TEST</font></html>");
-//        //upperPanel.add(jLabel1);
-//        upperPanel.add(jCheckBox1);
-//        this.add(upperPanel, BorderLayout.WEST);
-//        this.add(lowerPanel, BorderLayout.CENTER);
-//        this.setPreferredSize(new Dimension(500, 50));
-//        System.out.println("here");
-    }
-
-//    class SequenceDetailPanel extends JPanel {
-//
-//        public SequenceDetailPanel() {
-//            try {
-//                jbInit();
-//            } catch (Exception ex) {
-//                ex.printStackTrace();
-//            }
-//        }
-//       public void paint(Graphics g1d) {
-
+ 
     public void paintComponent(Graphics g1d) {
         super.paintComponent(g1d);
         scale = Math.min(5.0,
