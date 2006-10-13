@@ -48,6 +48,7 @@
     </orderEntry>
     <orderEntry type="library" name="base" level="project" />
     <orderEntry type="module" module-name="geworkbench" />
+    <orderEntry type="library" name="lib" level="application" />
     <orderEntryProperties />
   </component>
 </module>
