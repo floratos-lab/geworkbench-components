@@ -2,10 +2,12 @@ package org.geworkbench.components.sequenceretriever;
 
 import java.io.*;
 import java.net.URL;
+import java.net.MalformedURLException;
 import java.sql.*;
 
 import org.geworkbench.bison.datastructure.bioobjects.sequence.CSSequence;
 import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.AnnotationParser;
+import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.util.sequences.GeneChromosomeMatcher;
 
 import javax.swing.JOptionPane;
@@ -40,7 +42,104 @@ public class SequenceFetcher {
     private static ArrayList<String> chipTypes = new ArrayList<String>();
     public static String DEFAULT_CHIPTYPE = "hg18";
     public static final String newline = System.getProperty("line.separator");
+    public static String UCSCDATABASEURL = "jdbc:mysql://genome-mysql.cse.ucsc.edu:3306/";
+    public static final String EBIURL = "http://www.ebi.ac.uk/ws/services/Dbfetch";
+    public static int UPSTREAM = 2000;
+    public static int DOWNSTREAM = 2000;
 
+    private static CSSequenceSet cachedSequences = null;
+
+    public static void populateSequenceCache() {
+        File file = new File(System.getProperty("temporary.files.directory") +
+                File.separator + "sequences" + File.separator +
+                "cachedSequences");
+        if (cachedSequences == null) {
+            if (file.exists()) {
+                try {
+                    FileInputStream fis = new FileInputStream(file);
+                    ObjectInputStream ois = new ObjectInputStream(fis);
+                    cachedSequences = (CSSequenceSet) ois.readObject();
+                    ois.close();
+                    fis.close();
+                } catch (FileNotFoundException fnfe) {
+                    fnfe.printStackTrace();
+                } catch (IOException ioe) {
+                    ioe.printStackTrace();
+                } catch (ClassNotFoundException cnfe) {
+                    cnfe.printStackTrace();
+                }
+            } else {
+                URL url =  SequenceFetcher.class.getResource(
+                        "All.NC.-2k+2k.txt");
+                File downloadedFile =
+                        new File(System.getProperty("temporary.files.directory") +
+                                File.separator + "sequences" + File.separator +
+                                "downloadedSequences");
+                try {
+                    if (!downloadedFile.exists()) {
+                        downloadedFile.getParentFile().mkdirs();
+                        downloadedFile.createNewFile();
+                        url = new URL(System.getProperty("data.download.site") +
+                                "All.NC.-2k+2k.txt");
+                        BufferedReader br = new BufferedReader(new
+                                InputStreamReader(url.openStream()));
+                        BufferedWriter bw = new BufferedWriter(new FileWriter(
+                                downloadedFile));
+                        String line = null;
+                        while ((line = br.readLine()) != null) {
+                            bw.write(line);
+                            bw.write("\n");
+                        }
+                        bw.flush();
+                        br.close();
+                        bw.close();
+                    }
+                } catch (MalformedURLException mfe) {
+                    mfe.printStackTrace();
+                } catch (FileNotFoundException fnfe) {
+
+                } catch (IOException ioe) {
+
+                }
+                try {
+                    cachedSequences = CSSequenceSet.getSequenceDB(
+                            downloadedFile);
+                    cachedSequences.parseMarkers();
+                    if (!file.exists()) {
+                        file.getParentFile().mkdirs();
+                        file.createNewFile();
+                    }
+                    FileOutputStream fos = new FileOutputStream(file.
+                            getAbsolutePath());
+                    ObjectOutputStream oos = new ObjectOutputStream(fos);
+                    oos.writeObject(cachedSequences);
+                    oos.flush();
+                    oos.close();
+                } catch (FileNotFoundException fnfe) {
+                    fnfe.printStackTrace();
+                } catch (IOException ioe) {
+                    ioe.printStackTrace();
+                }
+            }
+        }
+    }
+
+    public static CSSequence getCachedPromoterSequence(DSGeneMarker marker,
+                                                       int upstream, int fromStart) {
+        if (cachedSequences == null) {
+            populateSequenceCache();
+        }
+        if (cachedSequences != null) {
+            CSSequence sequence = (CSSequence) cachedSequences.get(marker.
+                    getLabel());
+            if (sequence != null) {
+                return sequence.getSubSequence(UPSTREAM - upstream - 1,
+                        sequence.length() - DOWNSTREAM +
+                                fromStart - 1);
+            }
+        }
+        return null;
+    }
 
     static {
         BufferedReader br = new BufferedReader(new InputStreamReader(
@@ -80,7 +179,7 @@ public class SequenceFetcher {
 
             Call call = (Call) new Service().createCall();
             call.setTargetEndpointAddress(new java.net.URL(
-                    "http://www.ebi.ac.uk/ws/services/Dbfetch"));
+                    EBIURL));
             call.setOperationName(new QName("urn:Dbfetch", "fetchData"));
             call.addParameter("query", XMLType.XSD_STRING, ParameterMode.IN);
             call.addParameter("format", XMLType.XSD_STRING, ParameterMode.IN);
@@ -112,7 +211,6 @@ public class SequenceFetcher {
                             }
                             sequence = new CSSequence(label, seqStr);
                             sequenceSet.addASequence(sequence);
-                            // return ;
                         }
                     }
                 }
@@ -200,8 +298,9 @@ public class SequenceFetcher {
         try {
             Statement stmt;
             Class.forName("com.mysql.jdbc.Driver");
+
             String url =
-                    "jdbc:mysql://genome-mysql.cse.ucsc.edu:3306/" +
+                    UCSCDATABASEURL +
                             database.trim() + "?autoReconnect=true";
             Connection con =
                     DriverManager.getConnection(

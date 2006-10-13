@@ -281,7 +281,11 @@ public class SequenceRetriever implements VisualPlugin {
                     String item = getModel().getElementAt(index).toString();
                     ArrayList arraylist = currentRetrievedSequences.get(item);
                     if (arraylist != null && arraylist.size() > 0) {
-                        return arraylist.size() + " sequence(s) found.";
+                        if (arraylist.size() == 1) {
+                            return arraylist.size() + " sequence found.";
+                        } else {
+                            return arraylist.size() + " sequences found.";
+                        }
                     } else {
                         return "No sequnece.";
                     }
@@ -297,7 +301,7 @@ public class SequenceRetriever implements VisualPlugin {
             }
 
         };
-       // jSelectedList.addMouseListener(mouseListener);
+        // jSelectedList.addMouseListener(mouseListener);
         jSelectedList.addListSelectionListener(new SequenceListSelectionListener());
         jComboCategory.setSelectedItem(DNAVIEW);
         jComboCategory.addActionListener(new java.awt.event.ActionListener() {
@@ -588,7 +592,7 @@ public class SequenceRetriever implements VisualPlugin {
 
     private void getCachedDNASequences(DSGeneMarker marker) {
 
-        CSSequence seqs = PromoterSequenceFetcher.getCachedPromoterSequence(
+        CSSequence seqs = SequenceFetcher.getCachedPromoterSequence(
                 marker, ((Integer) model.getNumber())
                 .intValue(), ((Integer) model1.getNumber()).intValue());
 
@@ -1257,10 +1261,10 @@ public class SequenceRetriever implements VisualPlugin {
             if (e.getValueIsAdjusting()) {
                 return;
             }
-           JList lsm = (JList) e.getSource();
+            JList lsm = (JList) e.getSource();
 
-                selectedRow = lsm.getMinSelectionIndex();
-                updateSelectedSequenceDB(selectedRow);
+            selectedRow = lsm.getMinSelectionIndex();
+            updateSelectedSequenceDB(selectedRow);
 
 
         }
