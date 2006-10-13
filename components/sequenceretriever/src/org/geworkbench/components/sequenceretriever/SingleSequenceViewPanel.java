@@ -42,7 +42,8 @@ public class SingleSequenceViewPanel extends JPanel {
     int selected = 0;
     int maxSeqLen = 1;
     private String displayInfo = "";
-    //ArrayList  selectedPatterns   = null;
+
+
     DSCollection<DSMatchedPattern<DSSequence,
             DSSeqRegistration>> selectedPatterns = null;
     DSSequenceSet sequenceDB = null;
@@ -74,9 +75,6 @@ public class SingleSequenceViewPanel extends JPanel {
 
     void jbInit() throws Exception {
         itemListPopup = new JPopupMenu();
-        //imageSnapshotItem = new JMenuItem("Image Snapshot");
-        //itemListPopup.add(imageSnapshotItem);
-        //itemListPopup.add(saveItem);
         imageSnapshotItem.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 createImageSnapshot();
@@ -316,7 +314,7 @@ public class SingleSequenceViewPanel extends JPanel {
                 Rectangle2D r2d = fm.getStringBounds(asc, g);
                 double xscale = (r2d.getWidth() + 3) / (double) (asc.length());
                 double yscale = 1.3 * r2d.getHeight();
-                               int width = this.getWidth();
+                int width = this.getWidth();
                 int cols = (int) (width / xscale) - 8;
                 yBasescale = yscale;
                 xBasescale = xscale;
@@ -624,83 +622,6 @@ public class SingleSequenceViewPanel extends JPanel {
         return false;
     }
 
-//    private void drawPattern(Graphics g, DSPatternMatch<DSSequence,
-//                             DSSeqRegistration> sp, double xscale,
-//                             double yscale, int yBase, int cols, Color color,
-//                             String highlight) {
-//
-//        int length = sp.getRegistration().length(); //very strange, the length is incorrect.
-//        length = highlight.length();
-//        int offset = sp.getRegistration().x1;
-//        int x = (int) ((6 + offset % cols) * xscale);
-//        double y = ((yBase + 2 + (offset / cols)) * yscale);
-//        int xb = (int) (length * xscale);
-//
-//        int height = (int) (1.3 * yscale);
-//
-//        DSSequence hitSeq = sp.getObject();
-//        String hitSeqStr = hitSeq.getSequence().substring(offset,
-//                offset + length);
-//        if (offset % cols + length <= cols) {
-//            g.clearRect(x, (int) y - height / 2, xb, height);
-//            g.setColor(SEQUENCEBACKGROUDCOLOR);
-//            g.drawString(hitSeqStr,
-//                         x, (int) (y - 1 * yscale + yOff + 3));
-//            g.setColor(color);
-//            g.drawString(highlight, x, (int) (y - 1 * yscale + yOff + 3));
-//            g.draw3DRect(x, (int) y - height / 2, xb, height, false);
-//
-//        } else {
-//
-//            int startx = (int) (6 * xscale);
-//            int endx = (int) ((cols + 6) * xscale);
-//            int k = (offset + length) / cols - offset / cols;
-//            g.clearRect(x, (int) y - height / 2, endx - x, height);
-//            g.setColor(SEQUENCEBACKGROUDCOLOR);
-//            g.drawString(hitSeqStr.substring(0, cols - offset % cols), x,
-//                         (int) (y - 1 * yscale + yOff + 3));
-//            g.setColor(color);
-//            g.drawString(highlight.substring(0, cols - offset % cols), x,
-//                         (int) (y - 1 * yscale + yOff + 3));
-//            g.draw3DRect(x, (int) y - height / 2, endx - x, height, true);
-//            for (int i = 1; i < k; i++) {
-//                g.clearRect(startx, (int) (y - height / 2 + (i * yscale)),
-//                            endx - startx, height);
-//                g.setColor(SEQUENCEBACKGROUDCOLOR);
-//                g.drawString(hitSeqStr.substring(cols - offset % cols +
-//                                                 (k - 1) * cols,
-//                                                 cols - offset % cols +
-//                                                 k * cols), startx,
-//                             (int) (y + (k - 1) * yscale + yOff + 3));
-//                g.setColor(color);
-//                g.drawString(highlight.substring(cols - offset % cols +
-//                                                 (k - 1) * cols,
-//                                                 cols - offset % cols +
-//                                                 k * cols), startx,
-//                             (int) (y + (k - 1) * yscale + yOff + 3));
-//                g.draw3DRect(startx, (int) (y - height / 2 + (i * yscale)),
-//                             endx - startx, height, true);
-//            }
-//            g.clearRect(startx,
-//                        (int) (y - height / 2 + (k * yscale)),
-//                        (int) (((offset + length) % cols) * xscale),
-//                        height
-//                    );
-//            g.setColor(SEQUENCEBACKGROUDCOLOR);
-//            g.drawString(hitSeqStr.substring(cols - offset % cols +
-//                                             (k - 1) * cols), startx,
-//                         (int) (y + (k - 1) * yscale + yOff + 3));
-//            g.setColor(color);
-//            g.drawString(highlight.substring(cols - offset % cols), startx,
-//                         (int) (y + (k - 1) * yscale + yOff + 3));
-//            g.draw3DRect(startx,
-//                         (int) (y - height / 2 + (k * yscale)),
-//                         (int) (((offset + length) % cols) * xscale),
-//                         height, true);
-//
-//        }
-//        //g.drawString(highlight, x, (int) (y - 1 * yscale + yOff + 3));
-//    }
 
 //changed for the simplifed use,should replace the above method.
 

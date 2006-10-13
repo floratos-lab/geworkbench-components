@@ -111,7 +111,7 @@ public class RetrievedSequenceView extends JPanel {
 
     }
 
- 
+
     public void paintComponent(Graphics g1d) {
         super.paintComponent(g1d);
         scale = Math.min(5.0,
