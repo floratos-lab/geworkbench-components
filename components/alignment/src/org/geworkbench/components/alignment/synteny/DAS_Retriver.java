@@ -151,6 +151,7 @@ public class DAS_Retriver {
             serverIO.close();
             buf = new String(oneL);
         } catch (IOException e) {
+            if((e.toString()).indexOf("403")!=-1)return "Server error 403: access forbiidden.";
             return null;
         }
         return buf;

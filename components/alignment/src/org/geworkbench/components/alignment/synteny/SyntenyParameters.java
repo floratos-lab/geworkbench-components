@@ -949,6 +949,12 @@ import java.util.HashMap;
                             ServerAnswer = DAS_Retriver.GetItSilent(tURL);
                             if (ServerAnswer != null) {
                                 ProcessStatus.setText(ServerAnswer);
+
+                                if (ServerAnswer.indexOf("Server error") != -1) {
+                                    CancelButtonAction(jid);
+                                    break;
+                                }
+
                                 if (ServerAnswer.indexOf("Server job done") != -1) {
                                     break;
                                 }
