@@ -43,7 +43,6 @@ public class SequenceFetcher {
 
 
     static {
-
         BufferedReader br = new BufferedReader(new InputStreamReader(
                 SequenceFetcher.class.getResourceAsStream(chiptyemapfilename)));
         try {
@@ -71,9 +70,7 @@ public class SequenceFetcher {
     }
 
     public String translateFromAffIDtoRefSeqID(String affID) {
-
         return null;
-
     }
 
 
@@ -102,6 +99,10 @@ public class SequenceFetcher {
                         if (result.length == 0) {
                             System.out.println("hmm...something wrong :-(\n");
                         } else {
+                            if (result[0].trim().startsWith("<html>")) {
+                                //retrieved some error message. skip this sequence.
+                                continue;
+                            }
                             CSSequence sequence = new CSSequence();
                             String label = affyid + "_" + uniprotids[i];
                             String seqStr = "";
@@ -189,7 +190,7 @@ public class SequenceFetcher {
      * @return any[]
      */
     public static Vector getGeneChromosomeMatchers(String
-            geneName,  String database) {
+            geneName, String database) {
         if (database == null) {
             return null;
         }
@@ -237,6 +238,7 @@ public class SequenceFetcher {
 
     /**
      * Retrieve sequences based on the chromosome position of the gene.
+     *
      * @param geneChromosomeMatcher
      * @param upstreamRegion
      * @param downstreamRegion
@@ -271,6 +273,7 @@ public class SequenceFetcher {
 
     /**
      * Contact UCSC to get the sequence back. Real workhorse.
+     *
      * @param genomeBuilderName
      * @param chromosomeName
      * @param startPoint
