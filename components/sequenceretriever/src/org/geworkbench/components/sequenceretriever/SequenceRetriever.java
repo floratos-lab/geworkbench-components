@@ -412,10 +412,9 @@ public class SequenceRetriever implements VisualPlugin {
      * @param index
      */
     private void updateSelectedSequenceDB(int index) {
-        if (ls2 != null && ls2.size() > index) {
+        if (ls2 != null && ls2.size() > index && index > -1) {
             DSGeneMarker marker = (DSGeneMarker) ls2.get(index);
             CSSequenceSet displaySequenceDB = new CSSequenceSet();
-            //  if (currentView.equalsIgnoreCase(DNAVIEW)) {
             ArrayList<String> values = currentRetrievedSequences.get(marker.toString());
             if (values == null) {
                 seqDisPanel.initialize();
@@ -431,25 +430,6 @@ public class SequenceRetriever implements VisualPlugin {
                 displaySequenceDB.parseMarkers();
                 seqDisPanel.setDisplaySequenceDB(displaySequenceDB);
             }
-            //           }
-//            else {
-//                //For protein view.
-//                ArrayList<String> values = retrievedProteinSequences.get(marker.toString());
-//                if (values == null) {
-//                    seqDisPanel.initialize();
-//                    return;
-//                }
-//                for (String o : values) {
-//                    RetrievedSequenceView retrievedSequenceView = retrievedProteinMap.get(o);
-//                    if (retrievedSequenceView != null && retrievedSequenceView.getSequence() != null) {
-//                        displaySequenceDB.addASequence(retrievedSequenceView.getSequence());
-//                    }
-//                }
-//                displaySequenceDB.parseMarkers();
-//                seqDisPanel.setDisplaySequenceDB(displaySequenceDB);
-//            }
-
-
         }
     }
 

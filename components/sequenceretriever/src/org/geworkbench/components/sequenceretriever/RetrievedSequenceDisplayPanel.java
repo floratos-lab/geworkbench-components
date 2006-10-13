@@ -120,7 +120,7 @@ public class RetrievedSequenceDisplayPanel extends JPanel {
                         RetrievedSequenceView retrievedSequenceView = retrievedMap.get(sequence.toString());
                         double xT = retrievedSequenceView.getCurrentLocation();
                         if (xT < ((CSSequence) sequence).length()) {
-                            seqXclickPoint = new Integer((int)xT);
+                            seqXclickPoint = new Integer((int) xT);
                             retrievedSequencesPanel.setSelectedSequence(selectedSequence);
                             retrievedSequencesPanel.updateDetailPanel(seqXclickPoint);
                         }
@@ -273,9 +273,6 @@ public class RetrievedSequenceDisplayPanel extends JPanel {
         }
         g.drawLine(xOff, y, x, y);
     }
-
-
-
 
 
     public int getMaxSeqLen() {

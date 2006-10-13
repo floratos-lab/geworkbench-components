@@ -58,8 +58,8 @@ public class RetrievedSequencesPanel extends JPanel {
 
 
     //Layouts
-      private BorderLayout borderLayout2 = new BorderLayout();
-    private  DSSequence selectedSequence = null;
+    private BorderLayout borderLayout2 = new BorderLayout();
+    private DSSequence selectedSequence = null;
     //Panels and Panes
     private JDetailPanel sequencedetailPanel = new JDetailPanel();
     private JPanel bottomPanel = new JPanel();
@@ -120,7 +120,7 @@ public class RetrievedSequencesPanel extends JPanel {
                 joldViewPanel_mouseClicked(e);
             }
         });
-       oldViewPanel.addMouseMotionListener(new MouseMotionAdapter() {
+        oldViewPanel.addMouseMotionListener(new MouseMotionAdapter() {
             public void mouseMoved(MouseEvent e) {
                 oldViewPanel.this_mouseMoved(e);
             }
@@ -208,7 +208,7 @@ public class RetrievedSequencesPanel extends JPanel {
     }
 
     public void setRetrievedMap(HashMap<String, RetrievedSequenceView> retrievedMap) {
-             seqViewWPanel.setRetrievedMap(retrievedMap);
+        seqViewWPanel.setRetrievedMap(retrievedMap);
     }
 
     /**
@@ -284,10 +284,8 @@ public class RetrievedSequencesPanel extends JPanel {
         } else {
             activatedMarkers = null;
         }
-         getDataSetView();
+        getDataSetView();
     }
-
-
 
 
     protected void fireModelChangedEvent(MicroarraySetViewEvent event) {
@@ -297,7 +295,7 @@ public class RetrievedSequencesPanel extends JPanel {
 
     void chkActivateMarkers_actionPerformed(ActionEvent e) {
         subsetMarkerOn = !((JCheckBox) e.getSource()).isSelected();
-         getDataSetView();
+        getDataSetView();
     }
 
     public void getDataSetView() {
@@ -305,7 +303,7 @@ public class RetrievedSequencesPanel extends JPanel {
         if (subsetMarkerOn) {
             if (displaySequenceDB != null &&
                     displaySequenceDB.size() > 0) {
-                                     activeSequenceDB = (CSSequenceSet)displaySequenceDB;
+                activeSequenceDB = (CSSequenceSet) displaySequenceDB;
 
             } else if (orgSequenceDB != null) {
                 activeSequenceDB = (CSSequenceSet) orgSequenceDB;
@@ -318,13 +316,13 @@ public class RetrievedSequencesPanel extends JPanel {
             sequenceDB = activeSequenceDB;
             initPanelView();
         }
-       // initPanelView();
+        // initPanelView();
     }
 
 
     public void patternSelectionHasChanged(SequenceDiscoveryTableEvent e) {
         setPatterns(e.getPatternMatchCollection());
-         getDataSetView();
+        getDataSetView();
 
     }
 
@@ -349,7 +347,7 @@ public class RetrievedSequencesPanel extends JPanel {
 
     public void updateBottomPanel() {
 
-       // DSSequence selectedSequence = seqViewWPanel.getSelectedSequence();
+        // DSSequence selectedSequence = seqViewWPanel.getSelectedSequence();
         if (selectedSequence == null) {
             Graphics g = sequencedetailPanel.getGraphics();
             if (g != null) {
@@ -380,11 +378,11 @@ public class RetrievedSequencesPanel extends JPanel {
 
 
     void updateDetailPanel(int newPosition) {
-            // seqViewWPanel.this_mouseClicked(e);
-            xStartPoint = newPosition;
-            sequencedetailPanel.repaint();
-            //updateBottomPanel(e);
-        }
+        // seqViewWPanel.this_mouseClicked(e);
+        xStartPoint = newPosition;
+        sequencedetailPanel.repaint();
+        //updateBottomPanel(e);
+    }
 
     /**
      * Change view from single sequence view to new view.
@@ -454,7 +452,7 @@ public class RetrievedSequencesPanel extends JPanel {
         sequenceDB = db;
         displaySequenceDB = db;
 
-         getDataSetView();
+        getDataSetView();
         //selectedPatterns = new ArrayList();
         if (sequenceDB != null) {
             seqViewWPanel.setMaxSeqLen(sequenceDB.getMaxLength());
@@ -570,13 +568,13 @@ public class RetrievedSequencesPanel extends JPanel {
     }
 
     public void jAllSequenceCheckBox_actionPerformed(ActionEvent e) {
-         getDataSetView();
+        getDataSetView();
     }
 
     private class JDetailPanel extends JPanel {
         public void paintComponent(Graphics g) {
             super.paintComponent(g);
-          // DSSequence selectedSequence = seqViewWPanel.getSelectedSequence();
+            // DSSequence selectedSequence = seqViewWPanel.getSelectedSequence();
             if (selectedSequence == null) {
                 g.clearRect(0, 0, sequencedetailPanel.getWidth(),
                         sequencedetailPanel.getHeight());
