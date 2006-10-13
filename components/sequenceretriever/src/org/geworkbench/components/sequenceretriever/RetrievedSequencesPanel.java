@@ -4,7 +4,6 @@ import org.geworkbench.bison.datastructure.biocollections.sequences.DSSequenceSe
 import org.geworkbench.bison.datastructure.biocollections.sequences.CSSequenceSet;
 import org.geworkbench.bison.datastructure.biocollections.DSCollection;
 import org.geworkbench.bison.datastructure.biocollections.Collection;
-import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.bioobjects.sequence.CSSequence;
 import org.geworkbench.bison.datastructure.bioobjects.sequence.DSSequence;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
@@ -18,7 +17,6 @@ import org.geworkbench.util.patterns.PatternOperations;
 import org.geworkbench.util.patterns.PatternLocations;
 import org.geworkbench.util.sequences.SequenceViewWidgetPanel;
 import org.geworkbench.util.Util;
-import org.geworkbench.engine.management.Subscribe;
 import org.geworkbench.events.GeneSelectorEvent;
 import org.geworkbench.events.MicroarraySetViewEvent;
 import org.geworkbench.events.SequenceDiscoveryTableEvent;
@@ -39,6 +37,9 @@ import java.beans.PropertyChangeEvent;
  * To change this template use File | Settings | File Templates.
  */
 
+/**
+ * The main GUI class for sequence display panel.
+ */
 
 public class RetrievedSequencesPanel extends JPanel {
     private HashMap listeners = new HashMap();
@@ -54,15 +55,10 @@ public class RetrievedSequencesPanel extends JPanel {
     private DSSequenceSet displaySequenceDB = new CSSequenceSet();
     public HashMap<CSSequence,
             PatternSequenceDisplayUtil> patternLocationsMatches;
-    private HashMap<String, RetrievedSequenceView> retrievedMap = new HashMap<String, RetrievedSequenceView>();
 
 
     //Layouts
-    private GridBagLayout gridBagLayout1 = new GridBagLayout();
-    private GridBagLayout gridBagLayout2 = new GridBagLayout();
-    private BorderLayout borderLayout1 = new BorderLayout();
-    private BorderLayout borderLayout2 = new BorderLayout();
-    private BorderLayout borderLayout3 = new BorderLayout();
+      private BorderLayout borderLayout2 = new BorderLayout();
     private  DSSequence selectedSequence = null;
     //Panels and Panes
     private JDetailPanel sequencedetailPanel = new JDetailPanel();
@@ -70,8 +66,8 @@ public class RetrievedSequencesPanel extends JPanel {
     private JButton leftShiftButton = new JButton();
     private JButton rightShiftButton = new JButton();
     private JScrollPane seqScrollPane = new JScrollPane();
-    protected RetrievedSequenceDisplay seqViewWPanel = new
-            RetrievedSequenceDisplay();
+    protected RetrievedSequenceDisplayPanel seqViewWPanel = new
+            RetrievedSequenceDisplayPanel();
     protected SingleSequenceViewPanel oldViewPanel = new SingleSequenceViewPanel();
     public DSCollection<DSMatchedPattern<DSSequence,
             DSSeqRegistration>>
@@ -86,7 +82,6 @@ public class RetrievedSequencesPanel extends JPanel {
     private static final String FULLVIEW = "Full Sequence";
     private JTextField jSequenceSummaryTextField = new JTextField();
     private boolean isLineView = true; //true is for LineView.
-    private boolean onlyShowPattern = false;
     protected CSSequenceSet activeSequenceDB = null;
     protected boolean subsetMarkerOn = true;
     protected DSPanel<? extends DSGeneMarker> activatedMarkers = null;
@@ -142,14 +137,6 @@ public class RetrievedSequencesPanel extends JPanel {
                 PropertyChangeListener() {
             public void propertyChange(PropertyChangeEvent e) {
                 this_propertyChange(e);
-            }
-        });
-        showAllBtn.setToolTipText(
-                "Push down to show sequences with selected patterns.");
-        showAllBtn.setText("All / Matching Pattern");
-        showAllBtn.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                showAllBtn_actionPerformed(e);
             }
         });
         jAllSequenceCheckBox.setToolTipText("Click to display all sequences.");
@@ -221,8 +208,7 @@ public class RetrievedSequencesPanel extends JPanel {
     }
 
     public void setRetrievedMap(HashMap<String, RetrievedSequenceView> retrievedMap) {
-        this.retrievedMap = retrievedMap;
-        seqViewWPanel.setRetrievedMap(retrievedMap);
+             seqViewWPanel.setRetrievedMap(retrievedMap);
     }
 
     /**
@@ -487,7 +473,7 @@ public class RetrievedSequencesPanel extends JPanel {
         return sequenceDB;
     }
 
-    public RetrievedSequenceDisplay getSeqViewWPanel() {
+    public RetrievedSequenceDisplayPanel getSeqViewWPanel() {
         return seqViewWPanel;
     }
 
@@ -563,7 +549,6 @@ public class RetrievedSequencesPanel extends JPanel {
     public boolean initPanelView() {
         //updatePatternSeqMatches();
         isLineView = jViewComboBox.getSelectedItem().equals(LINEVIEW);
-        onlyShowPattern = showAllBtn.isSelected();
         if (isLineView) {
             seqViewWPanel.initialize(sequenceDB, true);
             flapToNewView(true);

@@ -39,7 +39,7 @@ public class SequenceFetcher {
     private static HashMap chiptypeMap = new HashMap();
     private static ArrayList<String> chipTypes = new ArrayList<String>();
     public static String DEFAULT_CHIPTYPE = "hg18";
-    public static String newline = System.getProperty("line.separator");
+    public static final String newline = System.getProperty("line.separator");
 
 
     static {
@@ -137,7 +137,6 @@ public class SequenceFetcher {
         }
         String database = (String) chiptypeMap.get(chipId);
         String defaultChipChoice = database;
-
         if (defaultChipChoice == null) {
             defaultChipChoice = DEFAULT_CHIPTYPE;
             Object[] possibleValues = chipTypes.toArray();
@@ -145,7 +144,6 @@ public class SequenceFetcher {
             for (Object o : possibleValues) {
                 differentValues.add(o);
             }
-
             Object selectedValue = JOptionPane.showInputDialog(null,
                     "Please confirm your genome assembly",
                     "Select Assembly", JOptionPane.QUESTION_MESSAGE, null,
@@ -187,12 +185,11 @@ public class SequenceFetcher {
      * getGeneChromosomeMatchers
      *
      * @param geneName String
-     * @param chipType String
+     * @param database String
      * @return any[]
      */
     public static Vector getGeneChromosomeMatchers(String
-            geneName,
-                                                   String database) {
+            geneName,  String database) {
         if (database == null) {
             return null;
         }
@@ -239,11 +236,11 @@ public class SequenceFetcher {
     }
 
     /**
-     * getSequences
-     *
-     * @param geneChromosomeMatcher GeneChromosomeMatcher
-     * @param upsteamRegion         int
-     * @param downstreamRegion      int
+     * Retrieve sequences based on the chromosome position of the gene.
+     * @param geneChromosomeMatcher
+     * @param upstreamRegion
+     * @param downstreamRegion
+     * @return
      */
     public CSSequence getSequences(GeneChromosomeMatcher
             geneChromosomeMatcher,
@@ -273,12 +270,13 @@ public class SequenceFetcher {
     }
 
     /**
-     * getSequence
-     *
-     * @param genomeBuilderName String
-     * @param chromosomeName    String
-     * @param startPoint        int
-     * @param length            int
+     * Contact UCSC to get the sequence back. Real workhorse.
+     * @param genomeBuilderName
+     * @param chromosomeName
+     * @param startPoint
+     * @param endPoint
+     * @param isPositiveStrand
+     * @return
      */
     private CSSequence getSequence(String genomeBuilderName,
                                    String chromosomeName,
