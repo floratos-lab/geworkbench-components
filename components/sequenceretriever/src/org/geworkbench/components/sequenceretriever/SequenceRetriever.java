@@ -294,49 +294,12 @@ public class SequenceRetriever implements VisualPlugin {
             }
         };
         jSelectedList.setCellRenderer(new SequenceListRenderer());
-        MouseListener mouseListener = new MouseAdapter() {
-
-            public void mouseReleased(MouseEvent e) {
-                handleMouseEvent(e);
-            }
-
-        };
-        // jSelectedList.addMouseListener(mouseListener);
         jSelectedList.addListSelectionListener(new SequenceListSelectionListener());
         jComboCategory.setSelectedItem(DNAVIEW);
         jComboCategory.addActionListener(new java.awt.event.ActionListener() {
 
             public void actionPerformed(ActionEvent e) {
-
-                String sequenceType = (String) jComboCategory.getSelectedItem();
-                currentView = sequenceType;
-                if (sequenceType.equalsIgnoreCase(PROTEINVIEW)) {
-                    beforeText.setEnabled(false);
-                    afterText.setEnabled(false);
-                    jSourceCategory.removeAllItems();
-                    jSourceCategory.addItem(EBI);
-                    sequenceDB = proteinSequenceDB;
-                    currentRetrievedMap = retrievedProteinMap;
-                    currentRetrievedSequences = retrievedProteinSequences;
-                    updateDisplay(proteinSequenceDB, retrievedProteinMap);
-
-
-                } else {
-                    beforeText.setEnabled(true);
-                    afterText.setEnabled(true);
-                    jSourceCategory.removeAllItems();
-                    jSourceCategory.addItem(UCSC);
-                    jSourceCategory.addItem(LOCAL);
-                    //jSourceCategory.addItem(CABIO);
-                    jSourceCategory.setSelectedItem(UCSC);
-                    sequenceDB = dnaSequenceDB;
-                    currentRetrievedMap = retrievedDNAMap;
-                    currentRetrievedSequences = retrievedDNASequences;
-                    updateDisplay(dnaSequenceDB, retrievedDNAMap);
-                }
-                sequenceDB.parseMarkers();
-                jSelectedList.updateUI();
-                // cleanUp();
+                changeSeqeunceCategory();
             }
         });
         jSourceCategory.addActionListener(new java.awt.event.ActionListener() {
@@ -369,9 +332,6 @@ public class SequenceRetriever implements VisualPlugin {
         jToolbar2.add(clearButton, null);
         jToolbar2.add(jButton2, null);
         jToolbar2.add(jActivateBttn, null);
-//        jPanel2.add(seqScrollPane, BorderLayout.CENTER);
-//        jPanel2.add(jPanel3, BorderLayout.WEST);
-
         jPanel2.add(rightPanel, BorderLayout.CENTER);
         tabPane = new JTabbedPane();
         markerPanel = new TFListPanel();
@@ -383,7 +343,6 @@ public class SequenceRetriever implements VisualPlugin {
         rightPanel.add(tabPane, JSplitPane.LEFT);
         jPanel3.add(jPanel4, null);
         jPanel4.add(jScrollPane2, BorderLayout.CENTER);
-
         jScrollPane2.getViewport().add(jSelectedList, null);
         jPanel2.add(jPanel1, BorderLayout.NORTH);
         jPanel1.add(jLabel6, null);
@@ -404,6 +363,37 @@ public class SequenceRetriever implements VisualPlugin {
 
     public DSSequenceSet getSequenceDB() {
         return sequenceDB;
+    }
+
+    private void changeSeqeunceCategory() {
+
+        String sequenceType = (String) jComboCategory.getSelectedItem();
+        currentView = sequenceType;
+        if (sequenceType.equalsIgnoreCase(PROTEINVIEW)) {
+            beforeText.setEnabled(false);
+            afterText.setEnabled(false);
+            jSourceCategory.removeAllItems();
+            jSourceCategory.addItem(EBI);
+            sequenceDB = proteinSequenceDB;
+            currentRetrievedMap = retrievedProteinMap;
+            currentRetrievedSequences = retrievedProteinSequences;
+            updateDisplay(proteinSequenceDB, retrievedProteinMap);
+        } else {
+            beforeText.setEnabled(true);
+            afterText.setEnabled(true);
+            jSourceCategory.removeAllItems();
+            jSourceCategory.addItem(UCSC);
+            jSourceCategory.addItem(LOCAL);
+            //jSourceCategory.addItem(CABIO);
+            jSourceCategory.setSelectedItem(UCSC);
+            sequenceDB = dnaSequenceDB;
+            currentRetrievedMap = retrievedDNAMap;
+            currentRetrievedSequences = retrievedDNASequences;
+            updateDisplay(dnaSequenceDB, retrievedDNAMap);
+        }
+        sequenceDB.parseMarkers();
+        jSelectedList.updateUI();
+
     }
 
     /**
@@ -844,56 +834,53 @@ public class SequenceRetriever implements VisualPlugin {
     public void receive(GeneSelectorEvent e, Object publisher) {
         markers = e.getPanel();
         activeMarkers = new CSPanel();
-        if (markers != null && markers.size() > 0) {
-
-
-            TreeSet oldList = new TreeSet();
+        if (markers != null) {
+        TreeSet oldList = new TreeSet();
             if (ls2.size() > 0) {
                 for (Object o : ls2.toArray()) {
                     oldList.add(o);
                 }
             }
             ls2.clear();
-            CSSequenceSet tempSequenceDB = new CSSequenceSet();
-            HashMap tempMap = new HashMap<String, RetrievedSequenceView>();
-            TreeMap tempSequencesList = new TreeMap<String, ArrayList<String>>();
-            for (int j = 0; j < markers.panels().size(); j++) {
-                DSPanel<DSGeneMarker> mrk = markers.panels().get(j);
-                if (mrk.isActive()) {
-                    for (int i = 0; i < mrk.size(); i++) {
-                        if (!ls2.contains(mrk.get(i))) {
-                            ls2.addElement(mrk.get(i));
-                            oldList.remove(mrk.get(i));
+            if (markers.size() > 0) {
+                CSSequenceSet tempSequenceDB = new CSSequenceSet();
+                HashMap tempMap = new HashMap<String, RetrievedSequenceView>();
+                TreeMap tempSequencesList = new TreeMap<String, ArrayList<String>>();
+                for (int j = 0; j < markers.panels().size(); j++) {
+                    DSPanel<DSGeneMarker> mrk = markers.panels().get(j);
+                    if (mrk.isActive()) {
+                        for (int i = 0; i < mrk.size(); i++) {
+                            if (!ls2.contains(mrk.get(i))) {
+                                ls2.addElement(mrk.get(i));
+                                oldList.remove(mrk.get(i));
+                                 ArrayList<String> values = currentRetrievedSequences.get(mrk.get(i).toString());
+                                if (values != null) {
 
+                                    String str = mrk.toString();
+                                    log.debug(mrk.toString());
+                                    for (String key : values) {
+                                        RetrievedSequenceView retrievedSequenceView = currentRetrievedMap.get(key);
 
-                            ArrayList<String> values = currentRetrievedSequences.get(mrk.get(i).toString());
-                            if (values != null) {
+                                        DSSequence sequence = retrievedSequenceView.getSequence();
+                                        if (retrievedSequenceView != null && sequence != null) {
+                                            tempMap.put(key, retrievedSequenceView);
+                                            tempSequenceDB.addASequence(sequence);
 
-                                String str = mrk.toString();
-                                log.debug(mrk.toString());
-                                for (String key : values) {
-                                    RetrievedSequenceView retrievedSequenceView = currentRetrievedMap.get(key);
-
-                                    DSSequence sequence = retrievedSequenceView.getSequence();
-                                    if (retrievedSequenceView != null && sequence != null) {
-                                        tempMap.put(key, retrievedSequenceView);
-                                        tempSequenceDB.addASequence(sequence);
+                                        }
 
                                     }
-
+                                    tempSequencesList.put(mrk.get(i).toString(), values);
                                 }
-                                tempSequencesList.put(mrk.get(i).toString(), values);
+                                // currentRetrievedSequences.remove(marker.toString());
+
+
                             }
-                            // currentRetrievedSequences.remove(marker.toString());
-
-
+                            activeMarkers.add(mrk.get(i));
                         }
-                        activeMarkers.add(mrk.get(i));
+
                     }
 
                 }
-            }
-
 //            if (oldList.size() > 0) {
 //                for (Object o : oldList) {
 //                    DSGeneMarker marker = (DSGeneMarker) o;
@@ -913,14 +900,15 @@ public class SequenceRetriever implements VisualPlugin {
 //                }
 //
 //            }
-            currentRetrievedMap = tempMap;
-            currentRetrievedSequences = tempSequencesList;
-            sequenceDB = tempSequenceDB;
-            updateDisplay(sequenceDB, currentRetrievedMap);
-            markers = activeMarkers;
-            //
-            log.debug("Active markers / markers: " + activeMarkers.size() +
-                    " / " + markers.size());
+                currentRetrievedMap = tempMap;
+                currentRetrievedSequences = tempSequencesList;
+                sequenceDB = tempSequenceDB;
+                updateDisplay(sequenceDB, currentRetrievedMap);
+                markers = activeMarkers;
+                //
+                log.debug("Active markers / markers: " + activeMarkers.size() +
+                        " / " + markers.size());
+            }
         }
     }
 
@@ -970,22 +958,13 @@ public class SequenceRetriever implements VisualPlugin {
         private JTextField searchField;
         private DefaultListModel model;
         private JScrollPane scrollPane;
-
         private boolean lastSearchFailed = false;
-        private boolean lastSearchWasAscending = true;
-
         private boolean prefixMode = false;
 
+
         public TFListPanel() {
-            this(null);
-        }
-
-        public TFListPanel(ListModel themodel) {
             super();
-            //this.model = model;
-            // Create and lay out components
             model = new DefaultListModel();
-
             setLayout(new BorderLayout());
             JPanel topPanel = new JPanel();
             topPanel.setLayout(new BoxLayout(topPanel, BoxLayout.X_AXIS));
@@ -1208,25 +1187,6 @@ public class SequenceRetriever implements VisualPlugin {
 
     }
 
-
-    private void itemRightClicked(int index, final MouseEvent e) {
-        //ensureItemIsSelected(index);
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                //  itemListPopup.show(e.getComponent(), e.getX(), e.getY());
-            }
-        });
-    }
-
-    private void selectedItemRightClicked(int index, final MouseEvent e) {
-        //ensureItemIsSelected(index);
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                //  selectedItemListPopup.show(e.getComponent(), e.getX(),
-                //         e.getY());
-            }
-        });
-    }
 
     public void matrixDetailButton_actionPerformed(ActionEvent e) {
 
