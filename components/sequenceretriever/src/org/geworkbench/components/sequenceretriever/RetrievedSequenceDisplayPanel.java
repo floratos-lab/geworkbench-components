@@ -8,9 +8,7 @@ import org.geworkbench.bison.datastructure.biocollections.DSCollection;
 import org.geworkbench.bison.datastructure.biocollections.sequences.DSSequenceSet;
 import org.geworkbench.util.patterns.PatternSequenceDisplayUtil;
 import org.geworkbench.util.patterns.PatternLocations;
-import org.geworkbench.util.patterns.CSMatchedSeqPattern;
 import org.geworkbench.util.BrowserLauncher;
-
 import javax.swing.*;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.event.ListSelectionEvent;
@@ -159,10 +157,8 @@ public class RetrievedSequenceDisplayPanel extends JPanel {
         }
         ListSelectionModel rowSM = table.getSelectionModel();
         rowSM.addListSelectionListener(new BlastDetaillistSelectionListener());
-        int defaultTableRowHeight = table.getRowHeight();
         table.setRowHeight(RetrievedSequenceView.HEIGHT);
         JScrollPane scrollPane = new JScrollPane(table);
-        //scrollPane.setColumnHeaderView(table.getTableHeader());
         this.setLayout(new BorderLayout());
         add(scrollPane, BorderLayout.CENTER);
 
@@ -186,11 +182,11 @@ public class RetrievedSequenceDisplayPanel extends JPanel {
         Graphics g = image.getGraphics();
         this.paint(g);
         ImageIcon icon = new ImageIcon(image, "Sequence Snapshot");
-        org.geworkbench.events.ImageSnapshotEvent event = new org.geworkbench.
+           return   new org.geworkbench.
                 events.ImageSnapshotEvent("Sequence Snapshot", icon,
                 org.geworkbench.events.
                         ImageSnapshotEvent.Action.SAVE);
-        return event;
+
     }
 
     /**
@@ -297,8 +293,8 @@ public class RetrievedSequenceDisplayPanel extends JPanel {
 
     private int getSeqDx(int x) {
 
-        int seqDx = (int) ((double) (x - xOff) / scale);
-        return seqDx;
+       return (int) ((double) (x - xOff) / scale);
+
     }
 
 //    /**
@@ -390,67 +386,7 @@ public class RetrievedSequenceDisplayPanel extends JPanel {
 
     }
 
-    /**
-     * Set up coresponding parameters when a mouse click happens.
-     *
-     * @param e MouseEvent
-     */
-    public void setTranslatedParameters(MouseEvent e) {
-        int y = e.getY();
-        int x = e.getX();
 
-        if (!lineView) {
-            selected = getSeqIdInFullView(y);
-            if (eachSeqStartRowNum != null &&
-                    selected < eachSeqStartRowNum.length) {
-                seqXclickPoint = (int) ((int) ((y - yOff - 1 -
-                        ((double) eachSeqStartRowNum[
-                                selected]) *
-                                yBasescale) / yBasescale) *
-                        xBaseCols +
-                        x / xBasescale -
-                        5);
-            }
-        } else {
-            if (!singleSequenceView) {
-                selected = getSeqId(y);
-                seqXclickPoint = getSeqDx(x);
-
-            } else {
-
-                seqXclickPoint = (int) ((int) ((y - yOff - 1) / yBasescale) *
-                        xBaseCols +
-                        x / xBasescale -
-                        5);
-            }
-        }
-        if (sequenceDB != null && selected < sequenceDB.size()) {
-            selectedSequence = sequenceDB.getSequence(selected);
-        } else {
-            selectedSequence = null;
-        }
-        if (selectedSequence != null) {
-            displayInfo = "For sequence " + selectedSequence.getLabel() +
-                    ", total length: " +
-                    selectedSequence.length();
-            if (sequencePatternmatches != null) {
-                PatternSequenceDisplayUtil psu = sequencePatternmatches.get(
-                        selectedSequence);
-                if (psu != null && psu.getTreeSet() != null) {
-                    displayInfo += ", pattern number: " + psu.getTreeSet().size();
-                }
-            }
-            if ((seqXclickPoint <= selectedSequence.length()) &&
-                    (seqXclickPoint > 0)) {
-                this.setToolTipText("" + seqXclickPoint);
-                displayInfo += ". Current location: " + seqXclickPoint;
-            }
-        }
-        {
-            this.setToolTipText(null);
-        }
-
-    }
 
     /**
      * getSeqIdInFullView
@@ -478,9 +414,8 @@ public class RetrievedSequenceDisplayPanel extends JPanel {
     }
 
     public int getSeqId(int y) {
-        int seqId = (y - yOff + 5) / yStep;
-        return seqId;
-    }
+        return  (y - yOff + 5) / yStep;
+             }
 
     public void this_mouseMoved(MouseEvent e) {
         setMouseMoveParameters(e);
@@ -606,7 +541,7 @@ public class RetrievedSequenceDisplayPanel extends JPanel {
                     get(sequence);
             if (psd != null) {
                 TreeSet<PatternLocations>
-                        patternsPerSequence = psd.getTreeSet();
+                        patternsPerSequence =psd.getTreeSet();
                 if (patternsPerSequence != null &&
                         patternsPerSequence.size() > 0) {
                     for (PatternLocations pl : patternsPerSequence) {
@@ -675,7 +610,7 @@ public class RetrievedSequenceDisplayPanel extends JPanel {
             }
             switch (columnIndex) {
                 case 0:
-                    return new Boolean(retrievedSequenceView.isIncluded());
+                    return  retrievedSequenceView.isIncluded();
                 case 1:
                     if (sequenceDB.isDNA()) {
                         return sequence.toString();
@@ -704,9 +639,8 @@ public class RetrievedSequenceDisplayPanel extends JPanel {
 
         /*returns if the cell is editable; returns false for all cells in columns except column 6*/
         public boolean isCellEditable(int row, int col) {
-            if (col == 0)
-                return true;
-            return false;
+            return col == 0;
+
         }
 
         /*detect change in cell at (row, col); set cell to value; update the table */
@@ -758,9 +692,7 @@ public class RetrievedSequenceDisplayPanel extends JPanel {
                     g.drawString(lab, 4, y + 3);
                 }
                 g.drawLine(xOff, y, x, y);
-                return;
-
-            }
+               }
         }
     }
 
