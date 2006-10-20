@@ -301,13 +301,14 @@ public class RetrievedSequencesPanel extends JPanel {
     public void getDataSetView() {
         subsetMarkerOn = !jAllSequenceCheckBox.isSelected();
         if (subsetMarkerOn) {
-            if (displaySequenceDB != null &&
-                    displaySequenceDB.size() > 0) {
-                activeSequenceDB = (CSSequenceSet) displaySequenceDB;
-
-            } else if (orgSequenceDB != null) {
-                activeSequenceDB = (CSSequenceSet) orgSequenceDB;
-            }
+              activeSequenceDB = (CSSequenceSet) displaySequenceDB;
+//            if (displaySequenceDB != null &&
+//                    displaySequenceDB.size() > 0) {
+//                activeSequenceDB = (CSSequenceSet) displaySequenceDB;
+//
+//            } else if (orgSequenceDB != null) {
+//                activeSequenceDB = (CSSequenceSet) orgSequenceDB;
+//            }
 
         } else if (orgSequenceDB != null) {
             activeSequenceDB = (CSSequenceSet) orgSequenceDB;
@@ -316,7 +317,7 @@ public class RetrievedSequencesPanel extends JPanel {
             sequenceDB = activeSequenceDB;
             initPanelView();
         }
-        // initPanelView();
+         initPanelView();
     }
 
 
@@ -339,6 +340,7 @@ public class RetrievedSequencesPanel extends JPanel {
         seqViewWPanel.removeAll();
         selectedSequence = null;
         seqViewWPanel.setSelectedSequence(null);
+        displaySequenceDB = new CSSequenceSet();
         oldViewPanel.initialize();
         updateBottomPanel();
         revalidate();
