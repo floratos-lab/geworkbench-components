@@ -448,17 +448,21 @@ public class SequenceRetriever implements VisualPlugin {
 
     void clearButton_actionPerformed(ActionEvent e) {
         status = CLEAR;
-        cleanUp(currentView);
+        cleanUp();
+
     }
 
     void cleanUp() {
-        cleanUp(DNAVIEW);
+        sequenceDB = new CSSequenceSet();
+        currentRetrievedMap = new HashMap<String, RetrievedSequenceView>();
+        currentRetrievedSequences = new TreeMap<String, ArrayList<String>>();
+       cleanUp(DNAVIEW);
         cleanUp(PROTEINVIEW);
+
     }
 
     void cleanUp(String theView) {
-        jSelectedList.clearSelection();
-        jSelectedList.repaint();
+
         if (theView == DNAVIEW) {
             dnaSequenceDB = new CSSequenceSet();
             retrievedDNAMap = new HashMap<String, RetrievedSequenceView>();
@@ -470,6 +474,8 @@ public class SequenceRetriever implements VisualPlugin {
         }
         seqDisPanel.setRetrievedMap(new HashMap<String, RetrievedSequenceView>());
         seqDisPanel.initialize();
+          jSelectedList.clearSelection();
+        jSelectedList.repaint();
     }
 
     private void handleMouseEvent(MouseEvent event) {
