@@ -52,6 +52,7 @@ public class SyntenyParameters extends EventSource implements VisualPlugin {
     private GenomePositionSubPanel GPos;
     private JList RegionsList = new JList();
     private DefaultListModel RegionsListModel = new DefaultListModel();
+    private String retrive_url="http://adparacel.cu-genome.org/examples/output/";
 
     private GridBagLayout gridBagLayout1 = new GridBagLayout();
     private BorderLayout borderLayout5 = new BorderLayout();
@@ -411,7 +412,7 @@ public class SyntenyParameters extends EventSource implements VisualPlugin {
                     "java -cp /adtera/users/pavel/synteny_remote SyntenyServerSide",
                     infile, result_file);
 
-            tURL = "http://amdec-bioinfo.cu-genome.org/html/temp/" + jid +
+            tURL = retrive_url + jid +
                     ".info";
         } catch (IOException ioe) {
             return null;
@@ -437,7 +438,7 @@ public class SyntenyParameters extends EventSource implements VisualPlugin {
         ProcessStatus.setText("Done");
 
         // parsing the answer
-        tURL = "http://amdec-bioinfo.cu-genome.org/html/temp/" + jid +
+        tURL = retrive_url + jid +
                 ".res";
         tmp = DAS_Retriver.GetIt(tURL);
         int ii = tmp.indexOf("\n");
@@ -822,7 +823,7 @@ public class SyntenyParameters extends EventSource implements VisualPlugin {
                     System.out.println("job_string: " + job_string);
 
 
-                    String tURL = "http://amdec-bioinfo.cu-genome.org/html/temp/" +
+                    String tURL = retrive_url +
                             jid + ".info";
 
                     ProcessStatus.setText(
@@ -853,7 +854,7 @@ public class SyntenyParameters extends EventSource implements VisualPlugin {
                     }
 
                     if (cancel_flag == false) {
-                        tURL = "http://amdec-bioinfo.cu-genome.org/html/temp/" +
+                        tURL = retrive_url +
                                 jid + ".res";
 
                         ProcessStatus.setText("Retriving results from server");
