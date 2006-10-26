@@ -1,7 +1,9 @@
 package org.geworkbench.components.alignment.synteny;
 
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
+import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
+import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.AnnotationParser;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.engine.config.events.EventSource;
@@ -25,6 +27,8 @@ import java.awt.event.MouseEvent;
 import java.io.*;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.Vector;
+import java.util.Map;
 
 // import org.geworkbench.components.alignment.synteny.SynMapParser;
 
@@ -45,6 +49,7 @@ import java.util.HashMap;
 @AcceptTypes({DSMicroarraySet.class})
 public class SyntenyParameters extends EventSource implements VisualPlugin {
 //        private HashMap listeners = new HashMap();
+    public static final String NOANNOTATION = "---";
     boolean cancel_flag = false;
     boolean job_active = false;
     boolean selectedRegionChanged = false;
@@ -53,10 +58,8 @@ public class SyntenyParameters extends EventSource implements VisualPlugin {
     private JList RegionsList = new JList();
     private DefaultListModel RegionsListModel = new DefaultListModel();
     private String retrive_url="http://adparacel.cu-genome.org/examples/output/";
-
     private GridBagLayout gridBagLayout1 = new GridBagLayout();
     private BorderLayout borderLayout5 = new BorderLayout();
-
     //Panels and Panes
     private JPanel JPanelRunSelected = new JPanel();
     private BorderLayout borderLayout3 = new BorderLayout();
@@ -267,10 +270,12 @@ public class SyntenyParameters extends EventSource implements VisualPlugin {
         jMarkerScrollPane.setPreferredSize(new Dimension(150, 280));
         jPanel1.setLayout(gridBagLayout1);
         jPanel2.setLayout(borderLayout5);
+
         jToolbar2.add(jLabel2, null);
         jToolbar2.add(beforeText, null);
         jToolbar2.add(jLabel1, null);
         jToolbar2.add(afterText, null);
+
         jInitialList.setModel(ls2);
         jInitialList.addMouseListener(new MouseAdapter() {
             public void mouseReleased(MouseEvent e) {
@@ -293,16 +298,20 @@ public class SyntenyParameters extends EventSource implements VisualPlugin {
 //            SAP.add(jButtonAnnotationRedraw, java.awt.BorderLayout.SOUTH);
         jTabbedPane1.add(GenomePosPanel, "Genome");
 
-        jPanel2.add(jToolbar2, java.awt.BorderLayout.CENTER);
+//        jPanel2.add(jToolbar2, java.awt.BorderLayout.CENTER);
         jPanel1.add(jMarkerScrollPane,
-                new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
+                new GridBagConstraints(0, 0, 1, 5, 1.0, 1.0
                         , GridBagConstraints.CENTER,
                         GridBagConstraints.BOTH,
                         new Insets(0, 0, 0, 0), 1, 1));
+        jPanel1.add(jToolbar2,new GridBagConstraints(0, 6, 1, 1, 0, 0
+                        , GridBagConstraints.NORTH,
+                        GridBagConstraints.HORIZONTAL,
+                        new Insets(0, 0, 0, 0), 1, 1) );
         jMarkerScrollPane.getViewport().add(jInitialList);
-        jPanel1.add(jPanel3, new GridBagConstraints(0, 1, 2, 1, 0.0, 0.0
-                , GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                new Insets(0, 0, 0, 0), 1, 1));
+//        jPanel1.add(jPanel3, new GridBagConstraints(0, 1, 2, 1, 0.0, 0.0
+//                , GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+//                new Insets(0, 0, 0, 0), 1, 1));
 //            jPanel1.add(jScrollPane1, new GridBagConstraints(1, 0, 1, 1, 1.0, 1.0
 //                    , GridBagConstraints.SOUTHEAST, GridBagConstraints.BOTH,
 //                    new Insets(0, 0, 0, 0), 0, 0));
@@ -353,108 +362,53 @@ public class SyntenyParameters extends EventSource implements VisualPlugin {
      * **********************
      */
     private String[] check_marker(String mkstr) {
-
-        FileOutputStream fout;
-        String out_name;
-        String job_id;
-//            String res_name;
-        String tmp;
         String[] to_return;
-        String infile;
-        String tURL = null;
 
-        ProcessStatus.setText(
-                "Requesting marker information");
-
-        // Forming request
-        job_id = "Synteny_short_" +
-                Math.rint(Math.random() * 1000000);
-        out_name = tempDir + job_id + ".sub";
-//            res_name = tempDir + job_id + ".res";
-
-        String tmp1;
-        try {
-            fout = new FileOutputStream(out_name);
-            tmp = "JOB_ID: " + job_id + "\n";
-            fout.write(tmp.getBytes());
-            tmp = "REQUEST_TYPE: ASK_MKR_INFO\n";
-            fout.write(tmp.getBytes());
-
-            tmp1 = mkstr;
-            int pr = tmp1.lastIndexOf(":");
-            if (pr != -1) {
-                tmp1 = tmp1.substring(0, pr);
-            }
-            tmp = "MARKER: " + tmp1 + "\n";
-
-            fout.write(tmp.getBytes());
-            fout.flush();
-            fout.close();
-        } catch (IOException ioe) {
-            return null;
-        }
-
-        // running request
-        final String jid = job_id;
-//            final String resn = res_name;
-//            final String result = null;
-
-//            boolean error_flag = false;
-
-        try {
-            SoapClient sp = new SoapClient();
-            infile = sp.submitFile(out_name);
-
-            String result_file =
-                    "/users/amdecweb/jakarta-tomcat-4.1.30/bin/outputFolder/" +
-                            jid + ".res";
-            sp.submitJob(
-                    "java -cp /adtera/users/pavel/synteny_remote SyntenyServerSide",
-                    infile, result_file);
-
-            tURL = retrive_url + jid +
-                    ".info";
-        } catch (IOException ioe) {
-            return null;
-        } catch (Exception ex) {
-            /**
-             *
-             */
-        }
-
-        String ServerAnswer;
-        while (true) {
-            Delay(500);
-            ServerAnswer = DAS_Retriver.GetItSilent(tURL);
-            if (ServerAnswer != null) {
-                if (ServerAnswer.indexOf("Server job done") != -1) {
-                    break;
+        String spl[] = mkstr.split(":");
+        String[] genome = AnnotationParser.getInfo(
+                                spl[0], "Genome Version");
+        String[] organism = AnnotationParser.getInfo(
+                                spl[0], "Species Scientific Name");
+        String gnm="no genome";
+            if(organism[0].indexOf("Homo sapiens")!=-1){
+                if(genome[0].indexOf("March 2006")!=-1){
+                   gnm="hg18";
                 }
-            } else {
-                ProcessStatus.setText(
-                        "Waiting for reply from server");
+                if(genome[0].indexOf("May 2004")!=-1){
+                   gnm="hg17";
+                }
+
+            }
+        if(organism[0].indexOf("Mus musculus")!=-1){
+            if(genome[0].indexOf("March 2006")!=-1){
+               gnm="mm8";
             }
         }
-        ProcessStatus.setText("Done");
 
-        // parsing the answer
-        tURL = retrive_url + jid +
-                ".res";
-        tmp = DAS_Retriver.GetIt(tURL);
-        int ii = tmp.indexOf("\n");
-        String toparse = tmp.substring(0, ii);
-        int jj = Integer.parseInt(toparse);
-        to_return = new String[jj];
+        if(gnm.equals("no genome"))return null;
 
-        int kk = ii + 1;
-        for (int k = 0; k < jj; k++) {
-            int ll = tmp.indexOf("\n", kk);
-            to_return[k] = tmp.substring(kk, ll - 1);
-            kk = ll + 1;
+        String[] align = AnnotationParser.getInfo(
+                                spl[0], "Alignments");
+        if (align[0].equals(NOANNOTATION)) {
+                    return null;
+                }
+        to_return = new String[align.length];
+        for(int j=0;j<align.length;j++){
+            String[] tmpd = align[j].split(" \\(");
+            String[] tmpd1 = tmpd[0].split(":");
+            if(tmpd1[0].charAt(0)==' '){
+                tmpd1[0]=tmpd1[0].substring(1);
+                }
+            String[] tmpd2 = tmpd1[1].split("-");
+
+            int fr=Integer.parseInt(tmpd2[0]);
+            fr = fr - (Integer.parseInt(beforeText.getText()));
+            int to=Integer.parseInt(tmpd2[1]);
+            to = to + (Integer.parseInt(afterText.getText()));
+            to_return[j]=">"+spl[0]+":"+gnm+":"+tmpd1[0]+":"+fr+":"+to;
         }
         return to_return;
-    }
-
+            }
     /**
      * **********************
      */
@@ -649,12 +603,7 @@ public class SyntenyParameters extends EventSource implements VisualPlugin {
     }
 
     /**
-     * Just populate SyntenyMapObject for testing purposes
-     * @return SyntenyMapObject
-     */
-
-    /**
-     * *****************************************************
+     *
      */
     void ButtonRun_actionPerformed(ActionEvent e) {
         int fx, tx, fy, ty, ux, dx, uy, dy;
@@ -692,14 +641,14 @@ public class SyntenyParameters extends EventSource implements VisualPlugin {
         // Parsing X information
         String[] infstr = (jLabelX.getText()).split(":");
         String sourcex = infstr[1].substring(2);
-        if ((((String) ProgramBox.getSelectedItem()).indexOf("SyntenyMap") !=
-                -1) && sourcex.equalsIgnoreCase("genomic")) {
-            JOptionPane.showMessageDialog
-                    (null, "Currently SyntenyMap program can't accept genomic regions defined by genome positions!",
-                            "Results",
-                            JOptionPane.ERROR_MESSAGE);
-            return;
-        }
+//        if ((((String) ProgramBox.getSelectedItem()).indexOf("SyntenyMap") !=
+//                -1) && sourcex.equalsIgnoreCase("genomic")) {
+//            JOptionPane.showMessageDialog
+//                    (null, "Currently SyntenyMap program can't accept genomic regions defined by genome positions!",
+//                            "Results",
+//                            JOptionPane.ERROR_MESSAGE);
+//            return;
+//        }
 
         String genomex = infstr[2];
         String chromX = infstr[3];
@@ -933,7 +882,7 @@ public class SyntenyParameters extends EventSource implements VisualPlugin {
 
     /**
      * @param Fil
-     * @return
+     *
      */
     private boolean CheckSynMapFileIntegrity(String Fil) {
 
@@ -986,7 +935,7 @@ public class SyntenyParameters extends EventSource implements VisualPlugin {
 
     /**
      * @param Fil
-     * @return
+     * 
      */
     private boolean CheckFileIntegrity(String Fil) {
 
