@@ -161,7 +161,7 @@ public abstract class SelectorPanel<T extends DSSequential> implements VisualPlu
             }
         };
         addToPanelItem.addActionListener(addToPanelListener);
-        menuListeners.put("Commands.Panels.Add to Set", addToPanelListener);
+        menuListeners.put("Commands.Sets.Add to Set", addToPanelListener);
         ActionListener clearListener = new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 clearSelectionPressed();
@@ -175,14 +175,14 @@ public abstract class SelectorPanel<T extends DSSequential> implements VisualPlu
             }
         };
         renamePanelItem.addActionListener(renameListener);
-        menuListeners.put("Commands.Panels.Rename", renameListener);
+        menuListeners.put("Commands.Sets.Rename", renameListener);
         ActionListener activateListener = new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 activateOrDeactivateLabelPressed(true);
             }
         };
         activatePanelItem.addActionListener(activateListener);
-        menuListeners.put("Commands.Panels.Activate", activateListener);
+        menuListeners.put("Commands.Sets.Activate", activateListener);
         ActionListener deactivateListener = new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 activateOrDeactivateLabelPressed(false);
@@ -195,8 +195,8 @@ public abstract class SelectorPanel<T extends DSSequential> implements VisualPlu
             }
         };
         deletePanelItem.addActionListener(deleteListener);
-        menuListeners.put("Commands.Panels.Delete", deleteListener);
-        menuListeners.put("Commands.Panels.Deactivate", deactivateListener);
+        menuListeners.put("Commands.Sets.Delete", deleteListener);
+        menuListeners.put("Commands.Sets.Deactivate", deactivateListener);
         printPanelItem.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 printPanelPressed(rightClickedPath);
