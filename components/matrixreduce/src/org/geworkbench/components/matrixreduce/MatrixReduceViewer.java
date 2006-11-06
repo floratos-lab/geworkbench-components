@@ -7,6 +7,7 @@ import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.complex.pattern.matrix.DSMatrixReduceSet;
 import org.geworkbench.bison.datastructure.complex.pattern.matrix.DSPositionSpecificAffintyMatrix;
 import org.geworkbench.bison.util.StringUtils;
+import org.geworkbench.builtin.projects.LoadData;
 import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.engine.management.AcceptTypes;
 import org.geworkbench.engine.management.Subscribe;
@@ -21,10 +22,11 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.*;
 
 /**
  * @author John Watkinson
@@ -50,6 +52,7 @@ public class MatrixReduceViewer implements VisualPlugin {
     private JTable table;
     private int defaultTableRowHeight;
     private int selectedPSAM = 0;
+    private HashSet<DSPositionSpecificAffintyMatrix> selectedPSAMs = new HashSet<DSPositionSpecificAffintyMatrix>();
     private ListOrderedMap<String, String> sequences;
     private ArrayList<String> selectedSequences;
     private ListModel sequenceModel;
@@ -89,10 +92,12 @@ public class MatrixReduceViewer implements VisualPlugin {
         public String getColumnName(int column) {
             switch (column) {
                 case 0:
-                    return "Consensus Sequence";
+                    return "Select";
                 case 1:
-                    return "Experiment Name";
+                    return "Consensus Sequence";
                 case 2:
+                    return "Experiment Name";
+                case 3:
                     return "Seed Sequence";
                 default:
                     return "P-Value";
@@ -111,7 +116,7 @@ public class MatrixReduceViewer implements VisualPlugin {
             if (dataSet == null) {
                 return 0;
             } else {
-                return 4;
+                return 5;
             }
         }
 
@@ -119,29 +124,51 @@ public class MatrixReduceViewer implements VisualPlugin {
             DSPositionSpecificAffintyMatrix psam = dataSet.get(rowIndex);
             switch (columnIndex) {
                 case 0:
+                    return selectedPSAMs.contains(psam);
+                case 1:
                     if (imageMode) {
                         return psam.getPsamImage();
                     } else {
                         return psam.getConsensusSequence();
                     }
-                case 1:
-                    return psam.getExperiment();
                 case 2:
+                    return psam.getExperiment();
+                case 3:
                     return psam.getSeedSequence();
                 default:
                     return psam.getPValue();
             }
         }
 
+        public boolean isCellEditable(int rowIndex, int columnIndex) {
+            if (columnIndex == 0) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+
+        public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
+            assert (rowIndex == 0);
+            DSPositionSpecificAffintyMatrix psam = dataSet.get(rowIndex);
+            if (selectedPSAMs.contains(psam)) {
+                selectedPSAMs.remove(psam);
+            } else {
+                selectedPSAMs.add(psam);
+            }
+        }
+
         public Class<?> getColumnClass(int columnIndex) {
             switch (columnIndex) {
                 case 0:
+                    return Boolean.class;
+                case 1:
                     if (imageMode) {
                         return ImageIcon.class;
                     } else {
                         return String.class;
                     }
-                case 3:
+                case 4:
                     return Double.class;
                 default:
                     return String.class;
@@ -185,6 +212,28 @@ public class MatrixReduceViewer implements VisualPlugin {
         buttonPanel.add(imageViewButton);
         buttonPanel.add(Box.createHorizontalGlue());
         psamPanel.add(buttonPanel, BorderLayout.NORTH);
+        // Do export button
+        JButton exportAllButton = new JButton("Export All");
+        exportAllButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                exportPSAMs(new HashSet(dataSet));
+            }
+        });
+        JButton exportSelectedButton = new JButton("Export Selected");
+        exportSelectedButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                if (selectedPSAMs.isEmpty()) {
+                    JOptionPane.showMessageDialog(getComponent(), "Please select some PSAMs.");
+                } else {
+                    exportPSAMs(selectedPSAMs);
+                }
+            }
+        });
+        JPanel lowerPanel = new JPanel(new FlowLayout());
+        lowerPanel.add(Box.createHorizontalGlue());
+        lowerPanel.add(exportAllButton);
+        lowerPanel.add(exportSelectedButton);
+        psamPanel.add(lowerPanel, BorderLayout.SOUTH);
         model = new TableModel();
         table = new JTable(model);
         final JLabel imageLabel = new JLabel() {
@@ -302,6 +351,28 @@ public class MatrixReduceViewer implements VisualPlugin {
 
     }
 
+    private void exportPSAMs(Set<DSPositionSpecificAffintyMatrix> psams) {
+        // Pop up a file chooser
+        String dir = LoadData.getLastDataDirectory();
+        if (dir == null) {
+            dir = ".";
+        }
+        JFileChooser chooser = new JFileChooser(dir);
+        chooser.setDialogType(JFileChooser.SAVE_DIALOG);
+        chooser.showSaveDialog(getComponent());
+        File file = chooser.getSelectedFile();
+        try {
+            PrintWriter out = new PrintWriter(new FileWriter(file));
+            for (DSPositionSpecificAffintyMatrix psam : psams) {
+                MatrixReduceAnalysis.writePSAM(psam, out);
+                out.println();
+            }
+            out.close();
+        } catch (IOException ioe) {
+            ioe.printStackTrace();
+        }
+    }
+
     private void updateGraphs() {
         if ((dataSet != null) && (selectedPSAM < dataSet.size())) {
             for (SequenceGraph graph : graphs.values()) {
@@ -353,9 +424,9 @@ public class MatrixReduceViewer implements VisualPlugin {
             SequenceGraph graph = graphs.get(key);
             boolean passed = false;
             if (showForward) {
-               if (graph.getBestPosScore() > threshold) {
-                   passed = true;
-               }
+                if (graph.getBestPosScore() > threshold) {
+                    passed = true;
+                }
             }
             if (showBackward) {
                 if (graph.getBestNegScore() > threshold) {

@@ -39,6 +39,7 @@ public class MatrixReduceAnalysis extends AbstractAnalysis implements Clustering
     private static final String TEMP_DIR = "temporary.files.directory";
 
     public static final String[] NUCLEOTIDES = {"A", "C", "G", "T"};
+    public static final String[] NUCLEOTIDES_SMALL = {"a", "c", "g", "t"};
 
     private static final String ANALYSIS_DIR = "c:/tmp/matrixreduce/TestRun";
     private static final String MICROARRAY_SET_FILE_NAME = "microarraySet.txt";
@@ -149,7 +150,6 @@ public class MatrixReduceAnalysis extends AbstractAnalysis implements Clustering
             pb.start();
             boolean completed = false;
 
-            // todo
             try {
 
                 // FIXME refactor to construct query from params from the MatrixReduceParamPanel.
@@ -247,7 +247,7 @@ public class MatrixReduceAnalysis extends AbstractAnalysis implements Clustering
                         // Line 3
                         line = in.readLine();
                         tokens = line.split(" ");
-                        double bonferonni = Double.parseDouble(tokens[0]);
+                        long bonferroni = Long.parseLong(tokens[0]);
                         // Line 4
                         line = in.readLine();
                         tokens = line.split(" ");
@@ -256,6 +256,12 @@ public class MatrixReduceAnalysis extends AbstractAnalysis implements Clustering
                         line = in.readLine();
                         // Remaining lines have PSAM data
                         DSPositionSpecificAffintyMatrix psam = new CSPositionSpecificAffinityMatrix();
+                        if (strand != 0) {
+                            psam.setTrailingStrand(true);
+                        } else {
+                            psam.setTrailingStrand(false);
+                        }
+                        psam.setBonferroni(bonferroni);
                         psam.setSeedSequence(seed);
                         psam.setExperiment(experiment);
                         psam.setPValue(pValue);
@@ -317,6 +323,35 @@ public class MatrixReduceAnalysis extends AbstractAnalysis implements Clustering
         } catch (Exception e) {
             e.printStackTrace();
             throw new RuntimeException(e);
+        }
+    }
+
+    public static void writePSAM(DSPositionSpecificAffintyMatrix psam, PrintWriter out) throws IOException {
+        out.println(psam.getSeedSequence() + " # " + psam.getExperiment());
+        out.println("" + psam.getPValue() + " # p-value");
+        out.println("" + psam.getBonferroni() + " # bonferroni");
+        if (psam.isTrailingStrand()) {
+            out.println("1 # derived from trailing strand");
+        } else {
+            out.println("0 # derived from leading strand");
+        }
+        // Header
+        out.println("#\ta                   \tc                   \tg                   \tt                   ");
+        double[][] scores = psam.getScores();
+        for (double[] values : scores) {
+            int best = 0;
+            double bestValue = Double.NEGATIVE_INFINITY;
+            for (int i = 0; i < values.length; i++) {
+                if (values[i] > bestValue) {
+                    bestValue = values[i];
+                    best = i;
+                }
+            }
+            out.print(NUCLEOTIDES_SMALL[best]);
+            for (int i = 0; i < values.length; i++) {
+                out.printf("\t%1.20f", values[i]);
+            }
+            out.println();
         }
     }
 
