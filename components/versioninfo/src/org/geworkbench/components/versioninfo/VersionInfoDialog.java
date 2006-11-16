@@ -164,7 +164,8 @@ public class VersionInfoDialog
         button1.addActionListener(this);
 
         {
-            FormLayout layout = new FormLayout("right:570dlu,10dlu", "");
+            FormLayout layout = new FormLayout("right:270dlu,10dlu", "");
+//            FormLayout layout = new FormLayout("right:570dlu,10dlu", "");
             DefaultFormBuilder builder = new DefaultFormBuilder(layout);
             builder.setDefaultDialogBorder();
             builder.appendSeparator("caWorkBench Core");
@@ -179,37 +180,38 @@ public class VersionInfoDialog
         }
 
 
-        {
-            // Loop through the components and add their info
-
-            FormLayout layout = new FormLayout("right:160dlu,10dlu,20dlu,5dlu,right:160dlu,10dlu,20dlu,5dlu,right:160dlu,10dlu,20dlu", "");
-            DefaultFormBuilder builder = new DefaultFormBuilder(layout);
-            builder.setDefaultDialogBorder();
-
-            builder.appendSeparator("Plugins / Components");
-            Collection components = ComponentRegistry.getRegistry().getAllPluginDescriptors();
-            int counter = 0;
-            for (Iterator iterator = components.iterator(); iterator.hasNext();) {
-                PluginDescriptor pluginDescriptor = (PluginDescriptor) iterator.next();
-
-                if (counter % 3 == 0) {
-                    builder.nextLine();
-                }
-
-                addPluginInfo(builder, pluginDescriptor);
-                counter++;
-
-//                builder.append(pluginDescriptor.getLabel(), new JLabel("v1.0"));
-//                builder.append("");
-//                builder.append("v1.0");
-            }
-
-            this.getContentPane().add(builder.getPanel(), null);
-        }
+//        {
+//            // Loop through the components and add their info
+//
+//            FormLayout layout = new FormLayout("right:160dlu,10dlu,20dlu,5dlu,right:160dlu,10dlu,20dlu,5dlu,right:160dlu,10dlu,20dlu", "");
+//            DefaultFormBuilder builder = new DefaultFormBuilder(layout);
+//            builder.setDefaultDialogBorder();
+//
+//            builder.appendSeparator("Plugins / Components");
+//            Collection components = ComponentRegistry.getRegistry().getAllPluginDescriptors();
+//            int counter = 0;
+//            for (Iterator iterator = components.iterator(); iterator.hasNext();) {
+//                PluginDescriptor pluginDescriptor = (PluginDescriptor) iterator.next();
+//
+//                if (counter % 3 == 0) {
+//                    builder.nextLine();
+//                }
+//
+//                addPluginInfo(builder, pluginDescriptor);
+//                counter++;
+//
+////                builder.append(pluginDescriptor.getLabel(), new JLabel("v1.0"));
+////                builder.append("");
+////                builder.append("v1.0");
+//            }
+//
+//            this.getContentPane().add(builder.getPanel(), null);
+//        }
 
         {
             // A bit of overkill for the OK button layout
-            FormLayout layout = new FormLayout("right:570dlu", "");
+//            FormLayout layout = new FormLayout("right:570dlu", "");
+            FormLayout layout = new FormLayout("right:270dlu", "");
             DefaultFormBuilder builder = new DefaultFormBuilder(layout);
             builder.setDefaultDialogBorder();
             builder.append(button1);
