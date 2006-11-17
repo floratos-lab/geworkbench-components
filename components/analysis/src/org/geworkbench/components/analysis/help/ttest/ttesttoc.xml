@@ -6,6 +6,8 @@
 
 		<tocitem target="T Test" text="T Test"/>
 		<tocitem target="Multi T Test" text="Multi T Test"/>
+		<tocitem target="Volcano Plot" text="Volcano Plot"/>
+
 
 	</tocitem>
 

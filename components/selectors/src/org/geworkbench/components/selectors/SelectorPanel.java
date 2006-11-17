@@ -461,12 +461,19 @@ public abstract class SelectorPanel<T extends DSSequential> implements VisualPlu
     protected void renameLabelPressed(TreePath path) {
         String oldLabel = getLabelForPath(path);
         if (oldLabel != null) {
-            String newLabel = JOptionPane.showInputDialog("New Label:", oldLabel);
-            if (newLabel != null) {
-                // todo: check for an existing panel with this name
-                context.renameLabel(oldLabel, newLabel);
-                treeModel.fireLabelChanged(newLabel);
-                throwLabelEvent();
+            if (SELECTION_LABEL.equals(oldLabel)) {
+                JOptionPane.showMessageDialog(getComponent(), "This set is built in and cannot be renamed.");
+            } else {
+                String newLabel = JOptionPane.showInputDialog("New Label:", oldLabel);
+                if (newLabel != null) {
+                    if (context.labelExists(newLabel)) {
+                        JOptionPane.showMessageDialog(getComponent(), "A set already exists with that name.");
+                    } else {
+                        context.renameLabel(oldLabel, newLabel);
+                        treeModel.fireLabelChanged(newLabel);
+                        throwLabelEvent();
+                    }
+                }
             }
         }
     }
@@ -651,7 +658,10 @@ public abstract class SelectorPanel<T extends DSSequential> implements VisualPlu
             dataSet = projectEvent.getParent();
             if (dataSet != null) {
                 processDataSet(dataSet);
+                itemAutoList.getList().clearSelection();
             }
+        } else {
+            itemAutoList.getList().clearSelection();
         }
     }
 
