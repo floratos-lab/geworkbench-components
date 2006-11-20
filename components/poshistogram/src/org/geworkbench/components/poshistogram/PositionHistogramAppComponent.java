@@ -9,6 +9,7 @@ import org.geworkbench.builtin.projects.ProjectSelection;
 import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.engine.management.AcceptTypes;
 import org.geworkbench.engine.management.Subscribe;
+import org.geworkbench.engine.management.Publish;
 import org.geworkbench.events.ProjectEvent;
 import org.geworkbench.events.SequenceDiscoveryTableEvent;
 
@@ -32,7 +33,7 @@ import java.util.HashMap;
     HashMap listeners = new HashMap();
 
     public PositionHistogramAppComponent() {
-        pHistogramWidget = new PositionHistogramWidget();
+        pHistogramWidget = new PositionHistogramWidget(this);
     }
 
     @Subscribe public void sequenceDiscoveryTableRowSelected(SequenceDiscoveryTableEvent e, Object publisher) {
@@ -57,6 +58,13 @@ import java.util.HashMap;
             if (dataFile instanceof DSSequenceSet) {
                 pHistogramWidget.setSequenceDB((DSSequenceSet) dataFile);
             }
+    }
+
+    @Publish
+    public org.geworkbench.events.ImageSnapshotEvent publishImageSnapshotEvent
+            (org.geworkbench.events.ImageSnapshotEvent
+                    event) {
+        return event;
     }
 
     public HashMap getListeners() {
