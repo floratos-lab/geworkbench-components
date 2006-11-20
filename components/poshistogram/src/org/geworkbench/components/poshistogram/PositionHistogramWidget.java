@@ -12,6 +12,7 @@ import org.geworkbench.events.SequenceDiscoveryTableEvent;
 import org.geworkbench.util.patterns.CSMatchedSeqPattern;
 import org.geworkbench.util.patterns.FlexiblePattern;
 import org.geworkbench.util.patterns.PatternOperations;
+import org.geworkbench.engine.management.Publish;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartUtilities;
 import org.jfree.chart.JFreeChart;
@@ -25,6 +26,7 @@ import java.awt.event.ActionEvent;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.File;
+import java.io.ByteArrayOutputStream;
 import java.util.Iterator;
 
 /**
@@ -44,7 +46,7 @@ public class PositionHistogramWidget extends JPanel {
     private DSCollection<DSMatchedPattern<DSSequence,
             DSSeqRegistration>>
             patterns = new Collection<DSMatchedPattern<DSSequence,
-                               DSSeqRegistration>>();
+            DSSeqRegistration>>();
 
 
     private JLabel lblChart = new JLabel();
@@ -69,10 +71,11 @@ public class PositionHistogramWidget extends JPanel {
     private Component component6;
     private Component component7;
     private DSSequenceSet sequenceDB = null;
+    private PositionHistogramAppComponent parentComponent;
 
 
-
-    public PositionHistogramWidget() {
+    public PositionHistogramWidget(PositionHistogramAppComponent positionHistogramAppComponent) {
+        this.parentComponent = positionHistogramAppComponent;
         // An XYDataset can create area, line, and step XY charts. The following example creates an XYDataset from a series of data containing three XY points. Next, ChartFactory's createAreaXYChart() method creates an area XY chart. In addition to parameters for title, dataset, and legend, createAreaXYChart() takes in the labels for the X and Y *
         try {
             jbInit();
@@ -241,35 +244,20 @@ public class PositionHistogramWidget extends JPanel {
 
     void jButton2_actionPerformed(ActionEvent e) {
         if (chart != null) {
-            JFileChooser chooser = new JFileChooser(org.geworkbench.util.PropertiesMonitor.getPropertiesMonitor().getDefPath());
-            ExampleFileFilter filter = new ExampleFileFilter();
-            filter.addExtension("jpg");
-            filter.addExtension("JPG");
-            filter.setDescription("JPG Images");
-            chooser.setFileFilter(filter);
-            int returnVal = chooser.showSaveDialog(this);
-            if (returnVal == JFileChooser.APPROVE_OPTION) {
-                org.geworkbench.util.PropertiesMonitor.getPropertiesMonitor().setDefPath(chooser.getCurrentDirectory().getAbsolutePath());
-                try {
-
-                    File absoluteFile = chooser.getSelectedFile().getAbsoluteFile();
-                    if(absoluteFile.exists()){
-                       int confirm = JOptionPane.showConfirmDialog(null, "Replace existing file?");
-                    if (confirm == JOptionPane.YES_OPTION) {
-                        ChartUtilities.saveChartAsJPEG(absoluteFile, chart, 500, 300);
-                    }
-                    }else{
-                        if( (!absoluteFile.getAbsolutePath().endsWith(".jpg") && !absoluteFile.getAbsolutePath().endsWith(".JPG"))){
-                            absoluteFile = new File(absoluteFile.getAbsolutePath() + ".jpg");
-                        }
-                        ChartUtilities.saveChartAsJPEG(absoluteFile, chart, 500, 300);
-                    }
-
-                } catch (IOException ex) {
-                }
+            ByteArrayOutputStream byteout = new ByteArrayOutputStream();
+            try {
+                ChartUtilities.writeChartAsPNG(byteout, chart, 500, 300);
+            } catch (IOException e1) {
+                e1.printStackTrace();
             }
+            ImageIcon chartImage = new ImageIcon(byteout.toByteArray());
+            ImageIcon newIcon = new ImageIcon(chartImage.getImage(), "Position Histogram Snapshot");
+            org.geworkbench.events.ImageSnapshotEvent event = new org.geworkbench.events.ImageSnapshotEvent("Positions Histogram Snapshot", newIcon, org.geworkbench.events.ImageSnapshotEvent.Action.SAVE);
+            parentComponent.publishImageSnapshotEvent(event);
         }
+
     }
+
 
     public void computeAllPatternStatistics() {
         // Assuming a binomial model, the average density should be given by the likelyhood * SeqNo * size of step
@@ -394,11 +382,11 @@ public class PositionHistogramWidget extends JPanel {
 //    }
 
     public void setPatterns(DSCollection<DSMatchedPattern<DSSequence,
-                              DSSeqRegistration>> matches) {
-          patterns.clear();
-          for (int i = 0; i < matches.size(); i++) {
-              patterns.add(matches.get(i));
-          }
+            DSSeqRegistration>> matches) {
+        patterns.clear();
+        for (int i = 0; i < matches.size(); i++) {
+            patterns.add(matches.get(i));
+        }
     }
 
 
