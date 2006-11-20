@@ -1,0 +1,11 @@
+<component-descriptor xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="Descriptor Schema.xsd">
+    <component class="org.geworkbench.components.selectors.PhenotypePanel">
+        <online-help helpSet="org/geworkbench/components/selectors/help/PanelsHelpSet.hs"/>
+        <menu-item path="Commands.Sets.Delete Set" mode="onFocus" var="Commands.Sets.Delete"/>
+        <menu-item path="Commands.Sets.Activate Set" mode="onFocus" var="Commands.Sets.Activate"/>
+        <menu-item path="Commands.Sets.Deactivate Set" mode="onFocus" var="Commands.Sets.Deactivate"/>
+        <menu-item path="Commands.Sets.Rename Set" mode="onFocus" var="Commands.Sets.Rename"/>
+        <menu-item path="Commands.Sets.Add to Set" mode="onFocus" var="Commands.Sets.Add to Set"/>
+        <menu-item path="View.Clear Selection" mode="onFocus" var="View.Clear Selection"/>
+    </component>
+</component-descriptor>
