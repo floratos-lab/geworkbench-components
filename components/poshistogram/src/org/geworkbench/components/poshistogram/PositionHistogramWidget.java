@@ -104,7 +104,7 @@ public class PositionHistogramWidget extends JPanel {
         });
         jButton2.setPreferredSize(new Dimension(80, 27));
         jButton2.setHorizontalAlignment(SwingConstants.CENTER);
-        jButton2.setText("Save Graph");
+        jButton2.setText("Image Snapshot");
         jButton2.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 jButton2_actionPerformed(e);
