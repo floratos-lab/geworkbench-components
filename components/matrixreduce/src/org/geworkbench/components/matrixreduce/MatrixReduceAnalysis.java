@@ -104,17 +104,10 @@ public class MatrixReduceAnalysis extends AbstractAnalysis implements Clustering
             }
             out.close();
 
-            // FIXME - hardcoding test file for demo purposes only.
-            String filename = "Y5_600_Bst.fa";
-
-            File dir = tempDir;
-            if (!dir.exists()) {// create dir and copy file from /data to this dir if it does not exist.
-                log.warn("Directory " + dir + " does not exist ... creating now.");
-                dir.mkdirs();
-                Util.copyFile(MatrixReduceAnalysis.class.getResourceAsStream("/data/" + filename), new File(dir,
-                        filename));
-            }
-
+            // Copy sequence file in to temp dir
+            File sequenceSource = new File(params.getSequenceFile());
+            File sequenceFile = new File(sequenceSource.getName());
+            Util.copyFile(new FileInputStream(sequenceSource), sequenceFile);
             // get params and construct query
             int flank = params.getFlank();
             double pval = params.getPValue();
@@ -128,7 +121,7 @@ public class MatrixReduceAnalysis extends AbstractAnalysis implements Clustering
             String[] args =
                     {
                             "MatrixREDUCE.exe",
-                            "-sequence=" + params.getSequenceFile(),
+                            "-sequence=" + sequenceFile.getName(),
                             "-expression=" + microarrayFile.getPath(),
                             "-p=" + pval,
                             "-fl=" + flank,
@@ -138,7 +131,7 @@ public class MatrixReduceAnalysis extends AbstractAnalysis implements Clustering
                             "-max_g=" + maxGap,
                             "-max_i=" + maxIteration,
                             "-max_m=" + maxMotif,
-                            "-o=" + dir.getAbsolutePath()
+                            "-o=" + tempDir.getAbsolutePath()
                     };
             log.warn("invoking MatrixREDUCE with: " + args);
 
@@ -211,7 +204,7 @@ public class MatrixReduceAnalysis extends AbstractAnalysis implements Clustering
                     }
                 }
                 // Parse results
-                File[] files = dir.listFiles(new FilenameFilter() {
+                File[] files = tempDir.listFiles(new FilenameFilter() {
                     public boolean accept(File dir, String name) {
                         if (name.startsWith("matrix") && name.endsWith("out")) {
                             return true;
