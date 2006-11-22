@@ -7,12 +7,10 @@ import org.geworkbench.bison.datastructure.bioobjects.sequence.DSSequence;
 import org.geworkbench.bison.datastructure.complex.pattern.DSMatchedPattern;
 import org.geworkbench.bison.datastructure.complex.pattern.sequence.DSMatchedSeqPattern;
 import org.geworkbench.bison.datastructure.complex.pattern.sequence.DSSeqRegistration;
-import org.geworkbench.components.parsers.ExampleFileFilter;
 import org.geworkbench.events.SequenceDiscoveryTableEvent;
 import org.geworkbench.util.patterns.CSMatchedSeqPattern;
 import org.geworkbench.util.patterns.FlexiblePattern;
 import org.geworkbench.util.patterns.PatternOperations;
-import org.geworkbench.engine.management.Publish;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartUtilities;
 import org.jfree.chart.JFreeChart;
@@ -25,7 +23,6 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.io.File;
 import java.io.ByteArrayOutputStream;
 import java.util.Iterator;
 
@@ -53,15 +50,15 @@ public class PositionHistogramWidget extends JPanel {
     private JFreeChart chart = null;
     private BorderLayout borderLayout1 = new BorderLayout();
     private JToolBar jToolBar1 = new JToolBar();
-    private JButton jButton1 = new JButton();
-    private JButton jButton2 = new JButton();
+    private JButton plotButton = new JButton();
+    private JButton imageSnapshotButton = new JButton();
     private Component component1;
     private Component component2;
     private JToggleButton jAbsRelBtn = new JToggleButton();
     private Component component3;
-    private JButton jButton3 = new JButton();
+    private JButton filterButton = new JButton();
     private JToggleButton jAvgPeakBtn = new JToggleButton();
-    private JButton jButton4 = new JButton();
+    private JButton pairsButton = new JButton();
     private JTextField jFlexiSupportBox = new JTextField();
     private JLabel jLabel1 = new JLabel();
     private Component component4;
@@ -95,28 +92,28 @@ public class PositionHistogramWidget extends JPanel {
         component6 = Box.createHorizontalStrut(8);
         component7 = Box.createHorizontalStrut(8);
         this.setLayout(borderLayout1);
-        jButton1.setPreferredSize(new Dimension(80, 27));
-        jButton1.setText("Plot Position");
-        jButton1.addActionListener(new java.awt.event.ActionListener() {
+        plotButton.setPreferredSize(new Dimension(80, 27));
+        plotButton.setText("Plot Position");
+        plotButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                jButton1_actionPerformed(e);
+                plotAction(e);
             }
         });
-        jButton2.setPreferredSize(new Dimension(80, 27));
-        jButton2.setHorizontalAlignment(SwingConstants.CENTER);
-        jButton2.setText("Image Snapshot");
-        jButton2.addActionListener(new java.awt.event.ActionListener() {
+        imageSnapshotButton.setPreferredSize(new Dimension(80, 27));
+        imageSnapshotButton.setHorizontalAlignment(SwingConstants.CENTER);
+        imageSnapshotButton.setText("Image Snapshot");
+        imageSnapshotButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                jButton2_actionPerformed(e);
+                imageSnapshotAction(e);
             }
         });
         jAbsRelBtn.setPreferredSize(new Dimension(80, 27));
         jAbsRelBtn.setText("Abs/Rel");
-        jButton3.setPreferredSize(new Dimension(80, 27));
-        jButton3.setText("Filter");
-        jButton3.addActionListener(new java.awt.event.ActionListener() {
+        filterButton.setPreferredSize(new Dimension(80, 27));
+        filterButton.setText("Filter");
+        filterButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                jButton3_actionPerformed(e);
+                filterAction(e);
             }
         });
         jAvgPeakBtn.setPreferredSize(new Dimension(80, 27));
@@ -126,11 +123,11 @@ public class PositionHistogramWidget extends JPanel {
                 jAvgPeakBtn_actionPerformed(e);
             }
         });
-        jButton4.setToolTipText("");
-        jButton4.setText("Pairs");
-        jButton4.addActionListener(new java.awt.event.ActionListener() {
+        pairsButton.setToolTipText("");
+        pairsButton.setText("Pairs");
+        pairsButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                jButton4_actionPerformed(e);
+                pairsAction(e);
             }
         });
         jFlexiSupportBox.setText("100");
@@ -144,15 +141,15 @@ public class PositionHistogramWidget extends JPanel {
         jLabel2.setText("flex thr.");
         this.add(lblChart, BorderLayout.CENTER);
         this.add(jToolBar1, BorderLayout.NORTH);
-        jToolBar1.add(jButton1, null);
+        jToolBar1.add(plotButton, null);
         jToolBar1.add(component1, null);
-        jToolBar1.add(jButton2, null);
+        jToolBar1.add(imageSnapshotButton, null);
         jToolBar1.add(component2, null);
-        jToolBar1.add(jButton3, null);
+        jToolBar1.add(filterButton, null);
         jToolBar1.add(component3, null);
         jToolBar1.add(jAbsRelBtn, null);
         jToolBar1.add(jAvgPeakBtn, null);
-        jToolBar1.add(jButton4, null);
+        jToolBar1.add(pairsButton, null);
         jToolBar1.add(component7, null);
         jToolBar1.add(jLabel2, null);
         jToolBar1.add(component6, null);
@@ -172,7 +169,7 @@ public class PositionHistogramWidget extends JPanel {
         return maxLen;
     }
 
-    void jButton1_actionPerformed(ActionEvent e) {
+    void plotAction(ActionEvent e) {
         int maxLen = getMaxLength();
         int step = Integer.parseInt(jStepBox.getText());
         int wind = 1;
@@ -242,7 +239,7 @@ public class PositionHistogramWidget extends JPanel {
         lblChart.setIcon(new ImageIcon(image));
     }
 
-    void jButton2_actionPerformed(ActionEvent e) {
+    public void imageSnapshotAction(ActionEvent e) {
         if (chart != null) {
             ByteArrayOutputStream byteout = new ByteArrayOutputStream();
             try {
@@ -327,11 +324,11 @@ public class PositionHistogramWidget extends JPanel {
         //model.fireTableDataChanged();
     }
 
-    void jButton3_actionPerformed(ActionEvent e) {
+    void filterAction(ActionEvent e) {
         computeAllPatternStatistics();
     }
 
-    void jButton4_actionPerformed(ActionEvent e) {
+    void pairsAction(ActionEvent e) {
         /*  RepeatFilter filter = new RepeatFilter();
           int flexiSupport = Integer.parseInt(jFlexiSupportBox.getText());
           PatternTableModel model    = new PatternTableModel(null, -1);

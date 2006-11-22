@@ -1,5 +1,6 @@
 <component-descriptor xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="Descriptor Schema.xsd">
-    <component class="org.geworkbench.builtin.projects.ProjectPanel">
+    <component class="org.geworkbench.components.poshistogram.PositionHistogramAppComponentû">
+        <menu-item path="File.Image snapshot" mode="onFocus" var="File.Image snapshot"/>
         <online-help helpSet="org/geworkbench/components/poshistogram/help/posHistogramHelpSet.hs"/>
     </component>
 </component-descriptor>
