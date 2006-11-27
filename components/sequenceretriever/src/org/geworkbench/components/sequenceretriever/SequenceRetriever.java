@@ -75,7 +75,7 @@ public class SequenceRetriever implements VisualPlugin {
     public static final String UCSC = "UCSC";
     public static final String CABIO = "CABIO";
     public static final String EBI = "EBI";
-
+    public String currentSource = LOCAL;
     private String currentView = DNAVIEW;
     private String status = NORMAL;
     // selected results
@@ -307,12 +307,15 @@ public class SequenceRetriever implements VisualPlugin {
             public void actionPerformed(ActionEvent e) {
                 if (jSourceCategory != null) {
                     String cmd = (String) jSourceCategory.getSelectedItem();
+                    if( currentSource != null && !currentSource.equalsIgnoreCase(cmd)){
                     if (cmd != null && cmd.equalsIgnoreCase(LOCAL)) {
                         model = new SpinnerNumberModel(1999, 1, 1999, 1);
                         model1 = new SpinnerNumberModel(2000, 1, 2000, 1);
                     } else if (cmd != null && cmd.equalsIgnoreCase(UCSC)) {
                         model = new SpinnerNumberModel(10000, 1, 98000, 1);
                         model1 = new SpinnerNumberModel(10000, 1, 10000, 1);
+                    }
+                        currentSource = cmd;
                     }
                     beforeText.setModel(model);
                     afterText.setModel(model1);
@@ -384,8 +387,8 @@ public class SequenceRetriever implements VisualPlugin {
             jSourceCategory.removeAllItems();
             jSourceCategory.addItem(UCSC);
             jSourceCategory.addItem(LOCAL);
-            //jSourceCategory.addItem(CABIO);
-            jSourceCategory.setSelectedItem(UCSC);
+             
+            currentSource = UCSC;
             sequenceDB = dnaSequenceDB;
             currentRetrievedMap = retrievedDNAMap;
             currentRetrievedSequences = retrievedDNASequences;
@@ -487,6 +490,7 @@ public class SequenceRetriever implements VisualPlugin {
 
     void jButton2_actionPerformed(ActionEvent e) {
         currentView = (String) jComboCategory.getSelectedItem();
+        currentSource =  (String) jSourceCategory.getSelectedItem();
         cleanUp(currentView);
         status = RUNNING;
         stopButton.setEnabled(true);
