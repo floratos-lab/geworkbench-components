@@ -307,14 +307,14 @@ public class SequenceRetriever implements VisualPlugin {
             public void actionPerformed(ActionEvent e) {
                 if (jSourceCategory != null) {
                     String cmd = (String) jSourceCategory.getSelectedItem();
-                    if( currentSource != null && !currentSource.equalsIgnoreCase(cmd)){
-                    if (cmd != null && cmd.equalsIgnoreCase(LOCAL)) {
-                        model = new SpinnerNumberModel(1999, 1, 1999, 1);
-                        model1 = new SpinnerNumberModel(2000, 1, 2000, 1);
-                    } else if (cmd != null && cmd.equalsIgnoreCase(UCSC)) {
-                        model = new SpinnerNumberModel(10000, 1, 98000, 1);
-                        model1 = new SpinnerNumberModel(10000, 1, 10000, 1);
-                    }
+                    if (currentSource != null && !currentSource.equalsIgnoreCase(cmd)) {
+                        if (cmd != null && cmd.equalsIgnoreCase(LOCAL)) {
+                            model = new SpinnerNumberModel(1999, 1, 1999, 1);
+                            model1 = new SpinnerNumberModel(2000, 1, 2000, 1);
+                        } else if (cmd != null && cmd.equalsIgnoreCase(UCSC)) {
+                            model = new SpinnerNumberModel(10000, 1, 98000, 1);
+                            model1 = new SpinnerNumberModel(10000, 1, 10000, 1);
+                        }
                         currentSource = cmd;
                     }
                     beforeText.setModel(model);
@@ -387,7 +387,7 @@ public class SequenceRetriever implements VisualPlugin {
             jSourceCategory.removeAllItems();
             jSourceCategory.addItem(UCSC);
             jSourceCategory.addItem(LOCAL);
-             
+
             currentSource = UCSC;
             sequenceDB = dnaSequenceDB;
             currentRetrievedMap = retrievedDNAMap;
@@ -459,7 +459,7 @@ public class SequenceRetriever implements VisualPlugin {
         sequenceDB = new CSSequenceSet();
         currentRetrievedMap = new HashMap<String, RetrievedSequenceView>();
         currentRetrievedSequences = new TreeMap<String, ArrayList<String>>();
-       cleanUp(DNAVIEW);
+        cleanUp(DNAVIEW);
         cleanUp(PROTEINVIEW);
 
     }
@@ -477,7 +477,7 @@ public class SequenceRetriever implements VisualPlugin {
         }
         seqDisPanel.setRetrievedMap(new HashMap<String, RetrievedSequenceView>());
         seqDisPanel.initialize();
-          jSelectedList.clearSelection();
+        jSelectedList.clearSelection();
         jSelectedList.repaint();
     }
 
@@ -490,7 +490,7 @@ public class SequenceRetriever implements VisualPlugin {
 
     void jButton2_actionPerformed(ActionEvent e) {
         currentView = (String) jComboCategory.getSelectedItem();
-        currentSource =  (String) jSourceCategory.getSelectedItem();
+        currentSource = (String) jSourceCategory.getSelectedItem();
         cleanUp(currentView);
         status = RUNNING;
         stopButton.setEnabled(true);
@@ -537,32 +537,33 @@ public class SequenceRetriever implements VisualPlugin {
 
     void jActivateBttn_actionPerformed(ActionEvent e) {
         if ((sequenceDB != null) && (sequenceDB.getSequenceNo() >= 1)) {
-            String label = JOptionPane.showInputDialog(
-                    "Please enter a name for the dataset");
-            if (label != null) {
-                CSSequenceSet selectedSequenceDB = new CSSequenceSet();
-                for (Object sequence : sequenceDB) {
-                    if (sequence != null) {
-                        RetrievedSequenceView retrievedSequenceView = currentRetrievedMap.get(sequence.toString());
-                        if (retrievedSequenceView.isIncluded()) {
-                            selectedSequenceDB.add(sequence);
-                        }
+
+
+            CSSequenceSet selectedSequenceDB = new CSSequenceSet();
+            for (Object sequence : sequenceDB) {
+                if (sequence != null) {
+                    RetrievedSequenceView retrievedSequenceView = currentRetrievedMap.get(sequence.toString());
+                    if (retrievedSequenceView.isIncluded()) {
+                        selectedSequenceDB.add(sequence);
                     }
                 }
+            }
                 if (selectedSequenceDB.size() > 0) {
                     String fileName = this.getRandomFileName();
                     selectedSequenceDB.writeToFile(fileName);
-                    selectedSequenceDB.setLabel(label);
-                    selectedSequenceDB.parseMarkers();
-                    ProjectNodeAddedEvent event = new ProjectNodeAddedEvent(
-                            "message", selectedSequenceDB, null);
-                    publishProjectNodeAddedEvent(event);
+                    String label = JOptionPane.showInputDialog(
+                            "Please enter a name for the dataset");
+                    if (label != null) {
+                        selectedSequenceDB.setLabel(label);
+                        selectedSequenceDB.parseMarkers();
+                        ProjectNodeAddedEvent event = new ProjectNodeAddedEvent(
+                                "message", selectedSequenceDB, null);
+                        publishProjectNodeAddedEvent(event);
+                    }
                 } else {
-                    JOptionPane.showInputDialog(
+                    JOptionPane.showMessageDialog(null,
                             "Please select at least one sequence.");
                 }
-
-            }
         }
     }
 
@@ -845,7 +846,7 @@ public class SequenceRetriever implements VisualPlugin {
         markers = e.getPanel();
         activeMarkers = new CSPanel();
         if (markers != null) {
-        TreeSet oldList = new TreeSet();
+            TreeSet oldList = new TreeSet();
             if (ls2.size() > 0) {
                 for (Object o : ls2.toArray()) {
                     oldList.add(o);
@@ -863,7 +864,7 @@ public class SequenceRetriever implements VisualPlugin {
                             if (!ls2.contains(mrk.get(i))) {
                                 ls2.addElement(mrk.get(i));
                                 oldList.remove(mrk.get(i));
-                                 ArrayList<String> values = currentRetrievedSequences.get(mrk.get(i).toString());
+                                ArrayList<String> values = currentRetrievedSequences.get(mrk.get(i).toString());
                                 if (values != null) {
 
                                     String str = mrk.toString();
