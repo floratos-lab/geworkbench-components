@@ -90,7 +90,7 @@ public class HouseKeepingGeneNormalizer extends AbstractAnalysis implements
                     JOptionPane.OK_CANCEL_OPTION);
 
             if (choice == 2) {
-                return new AlgorithmExecutionResults(true, "No errors", input);
+                return new AlgorithmExecutionResults(false, "Cancelled by user.", input);
             }
         }
         int arrayCount = maSet.size();
