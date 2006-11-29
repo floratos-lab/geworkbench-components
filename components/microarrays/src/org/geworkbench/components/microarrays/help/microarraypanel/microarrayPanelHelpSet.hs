@@ -10,7 +10,7 @@
 
 	<!-- title -->
 
-	<title>Microarray panel help</title>
+	<title>Microarray View</title>
 
 	<!-- maps -->
 

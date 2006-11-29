@@ -10,7 +10,7 @@
 
 	<!-- title -->
 
-	<title>Project tree help</title>
+	<title>Normalizers</title>
 
 	<!-- maps -->
 
