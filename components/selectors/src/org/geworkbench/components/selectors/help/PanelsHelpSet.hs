@@ -10,7 +10,7 @@
 
 	<!-- title -->
 
-	<title>Panels help</title>
+	<title>Marker and Phenotypes</title>
 
 	<!-- maps -->
 

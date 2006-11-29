@@ -6,7 +6,7 @@
 <?TestTarget The help set file for the project tree component.?>
 <helpset version="1.0">
 	<!-- title -->
-	<title>POS Histogram</title>
+	<title>Position Histogram</title>
 	<!-- maps -->
 	<maps>
 		<homeID>overview</homeID>
