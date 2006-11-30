@@ -554,7 +554,7 @@ public class HouseKeepingGeneNormalizerPanel extends
 
         // Add missing values controls
         row++;
-        builder.addSeparator("Missing Values Options", cc.xyw(1, row++, 5));
+        builder.addSeparator("Missing Values Options for Housekeeping Genes", cc.xyw(1, row++, 5));
         row++;
         builder.add(missingValuesLabel, cc.xy(3,row));
         builder.add(missingValuesCombo, cc.xy(5,row));
