@@ -157,17 +157,23 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
         blastResult.setBorder(BorderFactory.createLoweredBevelBorder());
         blastResult.setPreferredSize(new Dimension(145, 150));
         blastResult.setMinimumSize(new Dimension(145, 100));
+        detailedInfo.setPreferredSize(new Dimension(145, 150));
+       detailedInfo.setMinimumSize(new Dimension(145, 100));
         rightPanel.setPreferredSize(new Dimension(155, 400));
         rightPanel.setDividerSize(2);
+
         rightPanel.setMinimumSize(new Dimension(155, 300));
         summaryPanel = new JPanel();
         summaryLabel = new JLabel();
         summaryPanel.setBorder(BorderFactory.createLoweredBevelBorder());
-        summaryPanel.setMinimumSize(new Dimension(195, 50));
-        summaryPanel.setPreferredSize(new Dimension(195, 50));
+        summaryPanel.setMinimumSize(new Dimension(100, 40));
+        summaryPanel.setPreferredSize(new Dimension(100, 40));
         furtherProcess.setLayout(new BorderLayout());
         furtherProcess.add(summaryPanel, java.awt.BorderLayout.CENTER);
         furtherProcess.add(summaryLabel, java.awt.BorderLayout.SOUTH);
+        furtherProcess.setMinimumSize(new Dimension(100, 40));
+        furtherProcess.setPreferredSize(new Dimension(100, 40));
+        furtherProcess.setMaximumSize(new Dimension(200, 100));
         //displaySummary("HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH");
         detailedInfo.setLayout(borderLayout2);
 //        jScrollPane1.setHorizontalScrollBarPolicy(JScrollPane.
@@ -203,7 +209,7 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
         allButton.setText("Select All");
         allButton.addActionListener(new BlastViewPanel_allButton_actionAdapter(this));
         jSplitPane1.setOrientation(JSplitPane.VERTICAL_SPLIT);
-        jSplitPane1.setMinimumSize(new Dimension(200, 400));
+        jSplitPane1.setMinimumSize(new Dimension(100, 100));
         jSplitPane1.setPreferredSize(new Dimension(500, 600));
         jSplitPane1.setDividerSize(1);
         this.setLayout(borderLayout3);
@@ -221,6 +227,7 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
         jSplitPane1.add(blastResult, JSplitPane.TOP);
         jSplitPane1.add(detailedInfo, JSplitPane.BOTTOM);
         detailedInfo.add(jScrollPane1, BorderLayout.CENTER);
+        jSplitPane1.setDividerLocation(0.3);
         jScrollPane1.getViewport().add(singleAlignmentArea, null);
 //        rightPanel.add(furtherProcess,
 //                       new GridBagConstraints(0, 1, 1, 1, 1.0, 1.0,
@@ -233,6 +240,7 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
 //                                              GridBagConstraints.BOTH,
 //                                              new Insets(0, 0, 0, 0), 398, 223));
         rightPanel.add(jSplitPane1, JSplitPane.TOP);
+         //rightPanel.setDividerLocation(0.8);
         rightPanel.add(furtherProcess, JSplitPane.BOTTOM);
         currentError = "No alignment result is loaded, please check again.";
         westPanel.add(markerList, BorderLayout.CENTER);
@@ -653,7 +661,7 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
                 BlastObj hit = (BlastObj) hits.get(i);
                 if (hit.getInclude()) {
 
-                    CSSequence seq = hit.getWholeSeq();
+                    CSSequence seq = null;
                     if (isFullLength) {
 
                         seq = hit.getWholeSeq();
@@ -742,8 +750,11 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
         File patternfile = chooser.getSelectedFile();
         try {
 
-            BlastParser bp = new BlastParser(patternfile.getAbsolutePath());
-            bp.setTotalSequenceNum(1);
+           //BlastParser bp = new BlastParser(patternfile.getAbsolutePath());
+            NCBIBlastParser bp = new NCBIBlastParser(patternfile.getAbsolutePath());
+
+
+            //bp.setTotalSequenceNum(1);
             if (bp.parseResults()) {
 
                 hits = bp.getHits();

@@ -47,8 +47,8 @@ public class BlastAlgorithm extends BWAbstractAlgorithm implements SoapClientIn 
     private boolean gridEnabled = false;
     private boolean jobFinished = false;
     private String inputFilename;
-    private static final String TEMPURLFOLDER =
-            "http://amdec-bioinfo.cu-genome.org/html/temp/";
+    private static final String TEMPURLFOLDER =   "http://adparacel.cu-genome.org/examples/output/";
+      //      "http://amdec-bioinfo.cu-genome.org/html/temp/";
     private boolean useNCBI = false;
     private ParameterSetting parameterSetting;
     private final static int TIMEGAP = 4000;
