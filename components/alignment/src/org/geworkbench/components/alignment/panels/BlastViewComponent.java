@@ -41,7 +41,7 @@ import org.geworkbench.components.alignment.blast.NCBIBlastParser;
     private BlastParser bp;
     private Vector hits;
     private BlastViewPanel blastViewPanel;
-    private String DEFAULT_FILENAME = "output.txt";
+
 
     @Publish public org.geworkbench.events.ProjectNodeAddedEvent
             publishProjectNodeAddedEvent(org.geworkbench.events.

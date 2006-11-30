@@ -1065,9 +1065,9 @@ import org.geworkbench.util.session.SoapClient;
                 , GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                 new Insets(0, 0, 0, 0), 183, 26));
         jPanel11.add(jLabel16, BorderLayout.CENTER);
-        jHMMPane.add(subSeqPanel3, new GridBagConstraints(0, 1, 1, 1, 1.0, 1.0
-                , GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                new Insets(0, 0, 0, 0), 98, 7));
+//        jHMMPane.add(subSeqPanel3, new GridBagConstraints(0, 1, 1, 1, 1.0, 1.0
+//                , GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+//                new Insets(0, 0, 0, 0), 98, 7));
         jScrollPane3.getViewport().add(jList4, null);
         filterPanel.add(lowComplexFilterBox, null);
         filterPanel.add(maskLowCaseBox);
@@ -1090,7 +1090,7 @@ import org.geworkbench.util.session.SoapClient;
         subSeqPanel.add(jLabel9, new XYConstraints(0, 36, 60, 23));
         subSeqPanel.add(DatabaseLabel, new XYConstraints(0, 59, 61, 23));
         subSeqPanel.add(jProgramBox, new XYConstraints(84, 36, 267, 25)); //edit for new class.
-        subSeqPanel.add(jToolBar1, new XYConstraints( -1, 0, 353, 27));
+       // subSeqPanel.add(jToolBar1, new XYConstraints( -1, 0, 353, 27));
         displayToolBar.add(Box.createHorizontalStrut(10), null);
         displayToolBar.add(blastButton);
         displayToolBar.add(Box.createHorizontalStrut(5), null);
@@ -1777,7 +1777,7 @@ import org.geworkbench.util.session.SoapClient;
         if (jTabbedPane1.getSelectedIndex() == this.BLAST) {
             jTabbedBlastPane.setSelectedIndex(this.MAIN);
             if (jServerInfoPane.getServerType() ==
-                ServerInfoPanel.DEFAULTSERVERTYPE) {
+                ServerInfoPanel.COLUMBIA) {
                 parameterSetter = processParameters();
             } else if (jServerInfoPane.getServerType() == ServerInfoPanel.NCBI) {
                 parameterSetter = processNCBIParameters();
