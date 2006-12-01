@@ -117,11 +117,12 @@ public class AlgorithmMatcher {
             return new String[] {
                     "ncbi/nt                    All non-redundant  DNA sequences.",
                     "ncbi/pdbnt               Nucleotide sequences  derived from the PDB.",
-                    "ncbi/yeast.nt           Yeast genomic nucleotide sequences.",
-                    "/genomes/mouse/goldenPath_Aug2005/100/*",
-                    "/genomes/rat/goldenPath_June2003/100/*",
-                    "/genomes/chimpanzee/goldenPath_Feb2004/100/*",
-                    "/genomes/dog/goldenPath/2005_May/100/*"
+                    "ncbi/yeast.nt           Yeast genomic nucleotide sequences."
+// ,
+//                    "/genomes/mouse/goldenPath_Aug2005/100/*",
+//                    "/genomes/rat/goldenPath_June2003/100/*",
+//                    "/genomes/chimpanzee/goldenPath_Feb2004/100/*",
+//                    "/genomes/dog/goldenPath/2005_May/100/*"
             };
 
         } else if (programName.startsWith("tblast")) {

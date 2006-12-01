@@ -179,7 +179,7 @@ public class ServerInfoPanel extends JPanel {
                         new Insets(2, 2, 2, 2), 0, 0));
         jToolBar1.add(jRadioButton1);
         jToolBar1.add(jRadioButton2);
-        jToolBar1.add(jRadioButton3);
+       // jToolBar1.add(jRadioButton3);
         jToolBar1.add(Refresh);
         jPanel2.add(jToolBar1, java.awt.BorderLayout.NORTH);
         jPanel2.add(jPanel3, java.awt.BorderLayout.CENTER);
