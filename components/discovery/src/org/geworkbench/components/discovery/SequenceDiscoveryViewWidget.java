@@ -402,13 +402,13 @@ public class SequenceDiscoveryViewWidget extends JPanel implements StatusChangeL
      * @return session or null if a session does not exist.
      */
     private Session getSession(String stubId) {
-        Session s = Session.isNormalSession ? (Session) sessionManager.get(stubId) : (Session) globusManager.get(stubId);
-
-        if (s != null && !s.isFailed()) {
-            return s;
-        }
+//        Session s = Session.isNormalSession ? (Session) sessionManager.get(stubId) : (Session) globusManager.get(stubId);
+//
+//        if (s != null && !s.isFailed()) {
+//            return s;
+//        }
         //we don't have a session mapped. Get one from the app component.
-        s = appComponent.getSession();
+        Session s = appComponent.getSession();
         return registerSession(stubId, s) ? s : null;
     }
 
