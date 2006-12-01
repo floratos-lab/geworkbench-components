@@ -2,6 +2,7 @@ package org.geworkbench.components.plots;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.commons.collections15.map.ReferenceMap;
 import org.geworkbench.bison.annotation.CSAnnotationContextManager;
 import org.geworkbench.bison.annotation.DSAnnotationContext;
 import org.geworkbench.bison.annotation.DSAnnotationContextManager;
@@ -11,6 +12,7 @@ import org.geworkbench.bison.datastructure.biocollections.views.CSMicroarraySetV
 import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
+import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMutableMarkerValue;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSSignificanceResultSet;
 import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
@@ -35,11 +37,11 @@ import org.jfree.data.xy.XYSeriesCollection;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
+import java.util.*;
 import java.util.List;
-import java.util.SortedSet;
-import java.util.TreeSet;
 
 /**
  * Volcano plot.
@@ -127,10 +129,17 @@ public class VolcanoPlot implements VisualPlugin {
     public static final int MAXIMUM_CHARTS = 6;
 
     private JPanel mainPanel;
+    private JPanel parentPanel;
+    private ReferenceMap<DSDataSet, Boolean> userOverrideMap = new ReferenceMap<DSDataSet, Boolean>(ReferenceMap.SOFT, ReferenceMap.HARD);
+
     /**
      * The dataset that holds the microarrayset and panels.
      */
     private DSMicroarraySetView<DSGeneMarker, DSMicroarray> dataSetView = new CSMicroarraySetView<DSGeneMarker, DSMicroarray>();
+
+    private boolean isLogNormalized = false;
+
+    private JCheckBox logCheckbox;
 
     /**
      * The significance results we're plotting
@@ -141,7 +150,22 @@ public class VolcanoPlot implements VisualPlugin {
      * Constructor lays out the component and adds behaviors.
      */
     public VolcanoPlot() {
+        parentPanel = new JPanel(new BorderLayout());
         mainPanel = new JPanel(new BorderLayout());
+        parentPanel.add(mainPanel, BorderLayout.CENTER);
+        JPanel lowerPanel = new JPanel(new FlowLayout());
+        logCheckbox = new JCheckBox("Analyzed data was log2-transformed", false);
+        lowerPanel.add(logCheckbox);
+        parentPanel.add(lowerPanel, BorderLayout.SOUTH);
+        logCheckbox.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                if ((significance != null) && (dataSetView != null)) {
+                    userOverrideMap.put(significance.getParentDataSet(), logCheckbox.isSelected());
+                    isLogNormalized = logCheckbox.isSelected();
+                    generateChart();
+                }
+            }
+        });
     }
 
     @Publish public ImageSnapshotEvent createImageSnapshot() {
@@ -160,7 +184,31 @@ public class VolcanoPlot implements VisualPlugin {
      * The component for the GUI engine.
      */
     public Component getComponent() {
-        return mainPanel;
+        return parentPanel;
+    }
+
+    private void guessLogNormalized(DSMicroarraySet<DSMicroarray> set) {
+        double minValue = Double.POSITIVE_INFINITY;
+        double maxValue = Double.NEGATIVE_INFINITY;
+        for (DSMicroarray microarray : set) {
+            DSMutableMarkerValue[] values = microarray.getMarkerValues();
+            double v;
+            for (DSMutableMarkerValue value : values) {
+                v = value.getValue();
+                if (v < minValue) {
+                    minValue = v;
+                }
+                if (v > maxValue) {
+                    maxValue = v;
+                }
+            }
+        }
+        if (maxValue - minValue < 100) {
+            isLogNormalized = true;
+        } else {
+            isLogNormalized = false;
+        }
+        logCheckbox.setSelected(isLogNormalized);
     }
 
     /**
@@ -182,35 +230,47 @@ public class VolcanoPlot implements VisualPlugin {
             } else if (dataFile instanceof DSSignificanceResultSet) {
                 significance = (DSSignificanceResultSet<DSGeneMarker>) dataFile;
                 DSMicroarraySet<DSMicroarray> set = significance.getParentDataSet();
-                String[] caseLabels = significance.getLabels(DSSignificanceResultSet.CASE);
-                String[] controlLabels = significance.getLabels(DSSignificanceResultSet.CONTROL);
-                DSAnnotationContext<DSMicroarray> context = CSAnnotationContextManager.getInstance().getCurrentContext(set);
-                DSPanel<DSMicroarray> casePanel = new CSPanel<DSMicroarray>("Case");
-                for (int i = 0; i < caseLabels.length; i++) {
-                    String label = caseLabels[i];
-                    casePanel.addAll(context.getItemsWithLabel(label));
+                Boolean userOverride = userOverrideMap.get(set);
+                if (userOverride != null) {
+                    isLogNormalized = userOverride;
+                    logCheckbox.setSelected(isLogNormalized);
+                } else {
+                    guessLogNormalized(set);
                 }
-                casePanel.setActive(true);
-                DSPanel<DSMicroarray> controlPanel = new CSPanel<DSMicroarray>("Control");
-                for (int i = 0; i < controlLabels.length; i++) {
-                    String label = controlLabels[i];
-                    controlPanel.addAll(context.getItemsWithLabel(label));
-                }
-                casePanel.setActive(true);
-                DSPanel<DSGeneMarker> significantGenes = significance.getSignificantMarkers();
-                DSPanel<DSMicroarray> itemPanel = new CSPanel<DSMicroarray>();
-                itemPanel.panels().add(casePanel);
-                itemPanel.panels().add(controlPanel);
-                significantGenes.setActive(true);
-                dataSetView = new CSMicroarraySetView<DSGeneMarker, DSMicroarray>(set);
-                dataSetView.getMarkerPanel().panels().add(significantGenes);
-                dataSetView.setItemPanel(itemPanel);
-                dataSetView.useMarkerPanel(true);
-                dataSetView.useItemPanel(true);
-                log.debug("Generating graph.");
-                generateChartAndDisplay();
+                generateChart();
             }
         }
+    }
+
+    private void generateChart() {
+        DSMicroarraySet<DSMicroarray> set = significance.getParentDataSet();
+        String[] caseLabels = significance.getLabels(DSSignificanceResultSet.CASE);
+        String[] controlLabels = significance.getLabels(DSSignificanceResultSet.CONTROL);
+        DSAnnotationContext<DSMicroarray> context = CSAnnotationContextManager.getInstance().getCurrentContext(set);
+        DSPanel<DSMicroarray> casePanel = new CSPanel<DSMicroarray>("Case");
+        for (int i = 0; i < caseLabels.length; i++) {
+            String label = caseLabels[i];
+            casePanel.addAll(context.getItemsWithLabel(label));
+        }
+        casePanel.setActive(true);
+        DSPanel<DSMicroarray> controlPanel = new CSPanel<DSMicroarray>("Control");
+        for (int i = 0; i < controlLabels.length; i++) {
+            String label = controlLabels[i];
+            controlPanel.addAll(context.getItemsWithLabel(label));
+        }
+        casePanel.setActive(true);
+        DSPanel<DSGeneMarker> significantGenes = significance.getSignificantMarkers();
+        DSPanel<DSMicroarray> itemPanel = new CSPanel<DSMicroarray>();
+        itemPanel.panels().add(casePanel);
+        itemPanel.panels().add(controlPanel);
+        significantGenes.setActive(true);
+        dataSetView = new CSMicroarraySetView<DSGeneMarker, DSMicroarray>(set);
+        dataSetView.getMarkerPanel().panels().add(significantGenes);
+        dataSetView.setItemPanel(itemPanel);
+        dataSetView.useMarkerPanel(true);
+        dataSetView.useItemPanel(true);
+        log.debug("Generating graph.");
+        generateChartAndDisplay();
     }
 
     private void generateChartAndDisplay() {
@@ -248,7 +308,7 @@ public class VolcanoPlot implements VisualPlugin {
             boolean showAllMarkers,
             BusySwingWorker worker,
             MarkerXYToolTipGenerator toolTipGenerator
-            ) throws SeriesException {
+    ) throws SeriesException {
         DSAnnotationContextManager manager = CSAnnotationContextManager.getInstance();
         DSAnnotationContext<DSMicroarray> context = manager.getCurrentContext(dataSetView.getDataSet());
         XYSeriesCollection plots = new XYSeriesCollection();
@@ -325,13 +385,17 @@ public class VolcanoPlot implements VisualPlugin {
                 }
             }
 
-            double ratio = caseMean / controlMean;
             double xVal = 0;
-            if (ratio < 0) {
-                log.debug("Should not get a negative ratio, but got one.");
-                xVal = -Math.log(-ratio) / Math.log(2.0);
+            if (!isLogNormalized) {
+                double ratio = caseMean / controlMean;
+                if (ratio < 0) {
+                    log.debug("Should not get a negative ratio, but got one.");
+                    xVal = -Math.log(-ratio) / Math.log(2.0);
+                } else {
+                    xVal = Math.log(ratio) / Math.log(2.0);
+                }
             } else {
-                xVal = Math.log(ratio) / Math.log(2.0);
+                xVal = caseMean - controlMean;
             }
             if (!Double.isNaN(xVal) && !Double.isInfinite(xVal)) {
 //                log.debug("xVal = " + caseMean + " / " + controlMean);
