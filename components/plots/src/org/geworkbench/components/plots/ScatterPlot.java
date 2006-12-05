@@ -770,8 +770,8 @@ public class ScatterPlot implements VisualPlugin {
 
     private static XYLineAnnotation getXYLineAnnotation(double slope) {
         // Lines must unfortunately be limited in length due to bug in JFreeChart.
-        double low = -1000.0;
-        double high = 1000000.0;
+        double low = -100.0;
+        double high = 100000.0;
         if (slope > 1) {
             double highX = high / slope;
             double lowX = low / slope;
