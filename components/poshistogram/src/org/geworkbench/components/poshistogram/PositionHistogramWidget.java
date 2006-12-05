@@ -149,7 +149,7 @@ public class PositionHistogramWidget extends JPanel {
         jToolBar1.add(component3, null);
         jToolBar1.add(jAbsRelBtn, null);
         jToolBar1.add(jAvgPeakBtn, null);
-        jToolBar1.add(pairsButton, null);
+        // jToolBar1.add(pairsButton, null);
         jToolBar1.add(component7, null);
         jToolBar1.add(jLabel2, null);
         jToolBar1.add(component6, null);
