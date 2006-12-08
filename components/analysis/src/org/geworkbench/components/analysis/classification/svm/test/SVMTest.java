@@ -3,7 +3,7 @@ package org.geworkbench.components.analysis.classification.svm.test;
 import junit.framework.TestCase;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.geworkbench.components.analysis.classification.KFoldCrossValidation;
+import org.geworkbench.algorithms.KFoldCrossValidation;
 import org.geworkbench.util.ClassifierException;
 import org.geworkbench.util.svm.SupportVectorMachine;
 

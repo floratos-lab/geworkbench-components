@@ -1,17 +1,11 @@
 package org.geworkbench.components.analysis.classification.smlr;
 
-import org.geworkbench.components.analysis.classification.AbstractTraining;
-import org.geworkbench.components.analysis.classification.svm.SVMTrainingPanel;
-import org.geworkbench.bison.model.analysis.ClusteringAnalysis;
-import org.geworkbench.bison.algorithm.classification.Classifier;
+import org.geworkbench.algorithms.AbstractTraining;
+import org.geworkbench.bison.algorithm.classification.CSClassifier;
 import org.geworkbench.analysis.AbstractAnalysis;
-import org.geworkbench.util.svm.SupportVectorMachine;
-import org.geworkbench.util.svm.SVMClassifier;
-import org.geworkbench.util.ClassifierException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import javax.swing.*;
 import java.util.List;
 
 import edu.duke.cs.smlr.util.Constants;
@@ -21,7 +15,7 @@ import edu.duke.cs.smlr.learn.properties.LearnProperty;
 import edu.duke.cs.smlr.learn.results.LearnResult;
 import edu.duke.cs.smlr.learn.Learner;
 
-public class SMLRTraining extends AbstractTraining implements ClusteringAnalysis {
+public class SMLRTraining extends AbstractTraining {
 
     static Log log = LogFactory.getLog(SMLRTraining.class);
 
@@ -64,7 +58,7 @@ public class SMLRTraining extends AbstractTraining implements ClusteringAnalysis
         return AbstractAnalysis.TTEST_TYPE;
     }
 
-    protected Classifier trainClassifier(List<float[]> caseData, List<float[]> controlData) {
+    protected CSClassifier trainClassifier(List<float[]> caseData, List<float[]> controlData) {
         SMLRTraining.log.debug("Training classifier.");
         SMLRTrainingPanel smlrPanel = (SMLRTrainingPanel) panel;
         // Get params

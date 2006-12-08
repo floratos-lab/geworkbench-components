@@ -1,11 +1,8 @@
 package org.geworkbench.components.analysis.classification.smlr;
 
-import org.geworkbench.components.analysis.classification.AbstractTrainingPanel;
-import org.geworkbench.components.analysis.classification.svm.SVMTrainingPanel;
-import org.geworkbench.util.svm.SupportVectorMachine;
-import org.geworkbench.util.svm.KernelFunction;
+import org.geworkbench.algorithms.AbstractTrainingPanel;
 import org.geworkbench.util.ClassifierException;
-import org.geworkbench.bison.algorithm.classification.Classifier;
+import org.geworkbench.bison.algorithm.classification.CSClassifier;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -82,7 +79,7 @@ public class SMLRTrainingPanel extends AbstractTrainingPanel {
         });
     }
 
-    protected Classifier trainForValidation(java.util.List<float[]> trainingCaseData, java.util.List<float[]> trainingControlData) throws ClassifierException {
+    protected CSClassifier trainForValidation(java.util.List<float[]> trainingCaseData, java.util.List<float[]> trainingControlData) throws ClassifierException {
         return smlrTraining.trainClassifier(trainingCaseData, trainingControlData);
     }
 
