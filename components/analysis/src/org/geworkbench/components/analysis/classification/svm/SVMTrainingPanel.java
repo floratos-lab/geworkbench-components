@@ -3,11 +3,11 @@ package org.geworkbench.components.analysis.classification.svm;
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.geworkbench.bison.algorithm.classification.Classifier;
+import org.geworkbench.bison.algorithm.classification.CSClassifier;
 import org.geworkbench.util.ClassifierException;
 import org.geworkbench.util.svm.KernelFunction;
 import org.geworkbench.util.svm.SupportVectorMachine;
-import org.geworkbench.components.analysis.classification.AbstractTrainingPanel;
+import org.geworkbench.algorithms.AbstractTrainingPanel;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -87,14 +87,14 @@ public class SVMTrainingPanel extends AbstractTrainingPanel {
         });
     }
 
-    protected Classifier trainForValidation(java.util.List<float[]> trainingCaseData, java.util.List<float[]> trainingControlData) throws ClassifierException {
+    protected CSClassifier trainForValidation(java.util.List<float[]> trainingCaseData, java.util.List<float[]> trainingControlData) throws ClassifierException {
         SupportVectorMachine svm = new SupportVectorMachine(trainingCaseData, trainingControlData, getSelectedKernel(), 0.1f);
         setTrainingTask(svm);
         // Non-SMO
         // svm.buildSupportVectors(1000, 1e-6);
         // SMO
         svm.buildSupportVectorsSMO(((Number) c.getValue()).floatValue(), ((Number) epsilon.getValue()).floatValue());
-        Classifier classifier = svm.getClassifier(null, "");
+        CSClassifier classifier = svm.getClassifier(null, "");
         return classifier;
     }
 
