@@ -74,11 +74,14 @@ public class GeneAnnotationImpl implements GeneAnnotation {
         name = gene.getTitle();
         description = gene.getLocusLinkSummary();
         locusLinkId = gene.getLocusLinkId();
+/*
         try {
+            // Todo: Change to new objects.
             pathways = PathwayImpl.toArray(gene.getPathways());
         } catch (OperationException oe) {
             oe.printStackTrace();
         }
+*/
 
         url = composeURL(gene);
     }

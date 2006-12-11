@@ -118,7 +118,7 @@ import java.util.Locale;
                 pb.setTitle("Constructing SVG Pathway");
                 pb.setMessage("Creating Image..");
                 pb.start();
-                setSvg(pathway.getPathwayDiagram().getSvgString());
+                setSvg(pathway.getPathwayDiagram());
                 pathwayName.setText(pathway.getPathwayName());
                 pathwayName.invalidate();
                 pb.stop();

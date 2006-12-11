@@ -1,6 +1,7 @@
 package org.geworkbench.components.annotations;
 
 import gov.nih.nci.caBIO.util.PathwayDiagram;
+import gov.nih.nci.common.util.SVGManipulator;
 import org.geworkbench.util.annotation.Pathway;
 
 /**
@@ -13,7 +14,7 @@ import org.geworkbench.util.annotation.Pathway;
  * @version 1.0
  */
 public class PathwayImpl implements org.geworkbench.util.annotation.Pathway {
-    private gov.nih.nci.caBIO.bean.Pathway pathway = null;
+    private gov.nih.nci.cabio.domain.Pathway pathway = null;
 
     /**
      * Default Constructor
@@ -21,7 +22,7 @@ public class PathwayImpl implements org.geworkbench.util.annotation.Pathway {
     public PathwayImpl() {
     }
 
-    public PathwayImpl(gov.nih.nci.caBIO.bean.Pathway pathway) {
+    public PathwayImpl(gov.nih.nci.cabio.domain.Pathway pathway) {
         this.pathway = pathway;
     }
 
@@ -30,7 +31,7 @@ public class PathwayImpl implements org.geworkbench.util.annotation.Pathway {
      *
      * @param pathway Pathway to be contained in this instance
      */
-    public void setPathway(gov.nih.nci.caBIO.bean.Pathway pathway) {
+    public void setPathway(gov.nih.nci.cabio.domain.Pathway pathway) {
         this.pathway = pathway;
     }
 
@@ -49,8 +50,8 @@ public class PathwayImpl implements org.geworkbench.util.annotation.Pathway {
      *
      * @return Pathway diagram
      */
-    public PathwayDiagram getPathwayDiagram() {
-        return pathway.getSvgPathwayDiagram();
+    public String getPathwayDiagram() {
+        return pathway.getDiagram();
     }
 
     /**
@@ -70,7 +71,7 @@ public class PathwayImpl implements org.geworkbench.util.annotation.Pathway {
      * @return list of <code>Pathway</code> intances corresponding to the caBIO
      *         results
      */
-    public static Pathway[] toArray(gov.nih.nci.caBIO.bean.Pathway[] array) {
+    public static Pathway[] toArray(gov.nih.nci.cabio.domain.Pathway[] array) {
         Pathway[] toBeReturned = new PathwayImpl[array.length];
         for (int i = 0; i < array.length; i++) {
             toBeReturned[i] = new PathwayImpl(array[i]);

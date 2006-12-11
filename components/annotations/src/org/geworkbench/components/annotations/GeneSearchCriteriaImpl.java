@@ -20,7 +20,7 @@ public class GeneSearchCriteriaImpl implements GeneSearchCriteria {
     private gov.nih.nci.caBIO.bean.GeneSearchCriteria geneSearchCriteria = null;
     private Gene gene = null;
     private GeneAnnotation[] geneAnnotations = null;
-    private SearchResult result = null;
+    private Gene[] results = null;
 
     /**
      * Default Constructor
@@ -57,13 +57,15 @@ public class GeneSearchCriteriaImpl implements GeneSearchCriteria {
      */
     public void search() {
         try {
-            result = gene.search(geneSearchCriteria);
+            results = gene.searchGenes(geneSearchCriteria);
         } catch (ManagerException me) {
             me.printStackTrace();
+        } catch (gov.nih.nci.common.exception.ManagerException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
         }
 
-        assert result != null : "Result null";
-        geneAnnotations = GeneAnnotationImpl.toArray((Gene[]) result.getResultSet());
+        assert results != null : "Result null";
+        geneAnnotations = GeneAnnotationImpl.toArray(results);
     }
 
     /**
