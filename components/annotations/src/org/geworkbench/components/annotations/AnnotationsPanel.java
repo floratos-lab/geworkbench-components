@@ -21,15 +21,23 @@ import org.geworkbench.util.ProgressBar;
 import org.geworkbench.util.annotation.Pathway;
 import org.jfree.ui.SortableTable;
 import org.jfree.ui.SortableTableModel;
+import org.apache.commons.logging.LogFactory;
+import org.apache.commons.logging.Log;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.IOException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
+import java.net.MalformedURLException;
+import java.util.*;
+import java.util.List;
+
+import gov.nih.nci.system.applicationservice.ApplicationService;
+import gov.nih.nci.system.applicationservice.ApplicationServiceProvider;
+import gov.nih.nci.system.applicationservice.ApplicationException;
+import gov.nih.nci.cabio.domain.Gene;
+import gov.nih.nci.common.domain.DatabaseCrossReference;
 
 /**
  * <p>Title: Bioworks</p>
@@ -46,7 +54,10 @@ import java.util.Comparator;
  *          that this gene's product participates in.
  */
 
-@AcceptTypes({DSMicroarraySet.class}) public class AnnotationsPanel implements VisualPlugin {
+@AcceptTypes({DSMicroarraySet.class})
+public class AnnotationsPanel implements VisualPlugin {
+
+    static Log log = LogFactory.getLog(AnnotationsPanel.class);
 
     private class TableModel extends SortableTableModel {
 
@@ -270,6 +281,7 @@ import java.util.Comparator;
         });
         table.addMouseMotionListener(new MouseMotionAdapter() {
             private boolean isHand = false;
+
             public void mouseMoved(MouseEvent e) {
                 int column = table.columnAtPoint(e.getPoint());
                 int row = table.rowAtPoint(e.getPoint());
@@ -307,66 +319,76 @@ import java.util.Comparator;
      * Performs caBIO queries and constructs HTML display of the results
      */
     private void showAnnotation() {
-        if (criteria == null) {
-            try {
-                criteria = new GeneSearchCriteriaImpl();
-            } catch (Exception e) {
-                System.out.println("Exception: could not create caBIO search criteria in Annotation Panel");
-                return;
-            }
-        }
-        pathways = new Pathway[0];
+        final ApplicationService appService = ApplicationServiceProvider.getApplicationService();
         try {
             Runnable query = new Runnable() {
                 public void run() {
                     ProgressBar pb = ProgressBar.create(ProgressBar.INDETERMINATE_TYPE);
                     ArrayList<MarkerData> markerData = new ArrayList<MarkerData>();
-                    ArrayList<GeneData> geneData = new ArrayList<GeneData>();
+                    ArrayList<GeneData> geneDataList = new ArrayList<GeneData>();
                     ArrayList<PathwayData> pathwayData = new ArrayList<PathwayData>();
                     if (selectedMarkerInfo != null) {
                         pb.setTitle("Querying caBIO..");
                         pb.start();
                         int index = 0;
                         for (int i = 0; i < selectedMarkerInfo.size(); i++) {
-                            criteria.setSearchName(selectedMarkerInfo.get(i).getLabel());
+                            Gene gene = new Gene();
+                            gene.setSymbol(selectedMarkerInfo.get(i).getGeneName());
+//                            criteria.setSearchName(selectedMarkerInfo.get(i).getLabel());
                             pb.setMessage("Getting Marker Annotation and Pathways: " + selectedMarkerInfo.get(i).getLabel());
-                            criteria.search();
+//                            criteria.search();
                             MarkerData marker = new MarkerData(selectedMarkerInfo.get(i));
-                            GeneAnnotation[] annotations = criteria.getGeneAnnotations();
-                            if (annotations.length > 0) {
-                            for (int j = 0; j < annotations.length; j++) {
-                                Pathway[] pways = annotations[j].getPathways();
-                                Pathway[] temp = new Pathway[pathways.length + pways.length];
-                                System.arraycopy(pathways, 0, temp, 0, pathways.length);
-                                System.arraycopy(pways, 0, temp, pathways.length, pways.length);
-                                pathways = temp;
-                                //geneAnnotation +=
-                                //  "<table width=\"90%\" border=\"1\" cellspacing=\"0\" "
-                                //+ "cellpadding=\"2\"><tr valign=\"top\">";
-                                GeneData gene = new GeneData(annotations[j].getGeneName(), annotations[j].getGeneURL());
-                                if (pways.length > 0) {
-                                    for (int k = 0; k < pways.length; k++) {
-                                        pathwayData.add(new PathwayData(pways[k].getPathwayName(), pways[k]));
-                                        geneData.add(gene);
-                                        markerData.add(marker);
+                            try {
+
+                                java.util.List<Gene> resultList = appService.search(Gene.class, gene);
+//                                GeneAnnotation[] annotations = criteria.getGeneAnnotations();
+                                if (resultList.size() > 0) {
+                                    for (Gene geneResult : resultList) {
+                                        gov.nih.nci.cabio.domain.Pathway pathway = new gov.nih.nci.cabio.domain.Pathway();
+                                        Set genes = new HashSet();
+                                        genes.add(geneResult);
+                                        pathway.setGeneCollection(genes);
+                                        List<gov.nih.nci.cabio.domain.Pathway> pways = appService.search(
+                                                "gov.nih.nci.cabio.domain.Pathway", pathway);
+
+//                                        Collection<gov.nih.nci.cabio.domain.Pathway> pways = geneResult.getPathwayCollection();
+
+//                                        Pathway[] temp = new Pathway[pathways.length + pways.length];
+//                                        System.arraycopy(pathways, 0, temp, 0, pathways.length);
+//                                        System.arraycopy(pways, 0, temp, pathways.length, pways.length);
+//                                        pathways = pways.toArray(new Pathway[]{});
+                                        //geneAnnotation +=
+                                        //  "<table width=\"90%\" border=\"1\" cellspacing=\"0\" "
+                                        //+ "cellpadding=\"2\"><tr valign=\"top\">";
+                                        GeneData geneData = new GeneData(geneResult.getFullName(), new URL("http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?CMD=search&DB=gene&term=" + geneResult.getFullName()));
+                                        if (pways.size() > 0) {
+                                            for (gov.nih.nci.cabio.domain.Pathway pway : pways) {
+                                                pathwayData.add(new PathwayData(pway.getDisplayValue(), new PathwayImpl(pway)));
+                                                geneDataList.add(geneData);
+                                                markerData.add(marker);
+                                            }
+                                        } else {
+                                            pathwayData.add(new PathwayData("", null));
+                                            geneDataList.add(geneData);
+                                            markerData.add(marker);
+                                        }
                                     }
                                 } else {
                                     pathwayData.add(new PathwayData("", null));
-                                    geneData.add(gene);
+                                    geneDataList.add(new GeneData("", null));
                                     markerData.add(marker);
                                 }
-                            }
-                            } else {
-                                pathwayData.add(new PathwayData("", null));
-                                geneData.add(new GeneData("", null));
-                                markerData.add(marker);
+                            } catch (ApplicationException e) {
+                                log.error(e);
+                            } catch (MalformedURLException e) {
+                                log.error(e);
                             }
                         }
                         pb.stop();
                         pb.dispose();
                     }
                     MarkerData[] markers = markerData.toArray(new MarkerData[0]);
-                    GeneData[] genes = geneData.toArray(new GeneData[0]);
+                    GeneData[] genes = geneDataList.toArray(new GeneData[0]);
                     PathwayData[] pathways = pathwayData.toArray(new PathwayData[0]);
                     model = new TableModel(markers, genes, pathways);
                     table.setSortableModel(model);
@@ -426,7 +448,8 @@ import java.util.Comparator;
         return ae;
     }
 
-    @Publish public MarkerSelectedEvent publishMarkerSelectedEvent(MarkerSelectedEvent event) {
+    @Publish
+    public MarkerSelectedEvent publishMarkerSelectedEvent(MarkerSelectedEvent event) {
         return event;
     }
 
@@ -462,9 +485,7 @@ import java.util.Comparator;
     private JButton showPanels = new JButton();
     private DSItemList<DSGeneMarker> selectedMarkerInfo = null;
     private DSGeneMarker singleMarker = null;
-    private GeneSearchCriteria criteria = null;
     private boolean showMarkers = true;
-    private Pathway[] pathways = new Pathway[0];
 
     private DSMicroarraySet maSet = null;
     JButton clearButton = new JButton();
