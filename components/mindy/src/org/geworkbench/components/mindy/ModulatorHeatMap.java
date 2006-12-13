@@ -7,9 +7,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.geom.Rectangle2D;
 import java.awt.font.FontRenderContext;
-import java.util.Arrays;
-import java.util.ArrayList;
-import java.util.Collections;
+import java.util.*;
 
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
@@ -26,7 +24,7 @@ public class ModulatorHeatMap extends JPanel {
     private static final int SPACER_TOP = 20;
     private static final int SPACER_SIDE = 20;
     private static final int BAR_HEIGHT = 12;
-    private static final int PREFERRED_CELL_WIDTH = 6;
+    private static final int PREFERRED_CELL_WIDTH = 3;
 
     public static final int MAX_MARKER_NAME_CHARS = 30;
 
@@ -44,6 +42,7 @@ public class ModulatorHeatMap extends JPanel {
     private float valueRange;
     private int maxGeneNameWidth = -1;
     private float[][] sortedValues;
+    private java.util.List<MindyData.MindyResultRow> targetRows;
 
     public ModulatorHeatMap(DSGeneMarker modulator, DSGeneMarker transcriptionFactor, MindyData mindyData) {
         this.maSet = mindyData.getArraySet();
@@ -89,7 +88,9 @@ public class ModulatorHeatMap extends JPanel {
         this.modulator = modulator;
         this.transcriptionFactor = transcriptionFactor;
         this.mindyData = mindyData;
+        targetRows = mindyData.getRows(modulator, transcriptionFactor);
         findMaxValues();
+
 
         gradient = new ColorGradient(Color.black, Color.yellow);
         gradient.addColorPoint(Color.red, 0f);
@@ -189,14 +190,14 @@ public class ModulatorHeatMap extends JPanel {
         // Draw the target's expression values
         int targetStartY = transFacBarY + BAR_HEIGHT + 5;
         int targetCurrY = targetStartY;
-        DSItemList<DSGeneMarker> markers = maSet.getMarkers();
-        int numMarkers = markers.size();
-        for (int i = 0; i < numMarkers; i++) {
+
+        for (int i = 0; i < targetRows.size(); i++) {
             // Only paint clipping area unless this is a print request
             if (print || (targetCurrY > clip.y - 10 && targetCurrY < clip.y + clip.height + 10)) {
-                DSGeneMarker marker = markers.get(i);
-                paintExpressionBar(cellWidth, thirdOfWidth, g, targetCurrY, marker);
-                String targetName = marker.getShortName().trim();
+                MindyData.MindyResultRow mindyRow = targetRows.get(i);
+                DSGeneMarker target = mindyRow.getTarget();
+                paintExpressionBar(cellWidth, thirdOfWidth, g, targetCurrY, target);
+                String targetName = target.getShortName().trim();
                 if (targetName.length() > MAX_MARKER_NAME_CHARS) {
                     targetName = targetName.substring(0, MAX_MARKER_NAME_CHARS) + " ... ";
                 }
@@ -216,8 +217,8 @@ public class ModulatorHeatMap extends JPanel {
     }
 
     private void paintExpressionBar(float cellWidth, float thirdOfWidth, Graphics2D g, int y, DSGeneMarker markerToPaint) {
-        int halfArrays = maSet.size() / 2;
-        for (int i = 0; i < maSet.size(); i++) {
+        int halfArrays = sortedValues.length / 2;
+        for (int i = 0; i < sortedValues.length; i++) {
             float thisValue = (float) sortedValues[i][markerToPaint.getSerial()];
             int startX = SPACER_SIDE;
             if (i < halfArrays) {
@@ -231,25 +232,34 @@ public class ModulatorHeatMap extends JPanel {
         }
     }
 
+    /**
+     * Find's the min and max expression values for the modulator, trans factor and targets
+     */
     private void findMaxValues() {
         maxValue = Float.NEGATIVE_INFINITY;
         minValue = Float.POSITIVE_INFINITY;
-        for (int i = 0; i < maSet.size(); i++) {
-            float[] value = sortedValues[i];
-            for (int j = 0; j < value.length; j++) {
-                if (value[j] > maxValue) {
-                    maxValue = value[j];
-                }
-                if (value[j] < minValue) {
-                    minValue = value[j];
-                }
-            }
+        for (MindyData.MindyResultRow mindyResultRow : targetRows) {
+            findMinMaxForMarker(mindyResultRow.getTarget().getSerial());
         }
+        findMinMaxForMarker(modulator.getSerial());
+        findMinMaxForMarker(transcriptionFactor.getSerial());
         if (maxValue == minValue) {
             // Avoid div by zero in this degenerate case
             maxValue += 1e-9f;
         }
         valueRange = maxValue - minValue;
+    }
+
+    private void findMinMaxForMarker(int index) {
+        for (int i = 0; i < sortedValues.length; i++) {
+            float value = sortedValues[i][index];
+            if (value > maxValue) {
+                maxValue = value;
+            }
+            if (value < minValue) {
+                minValue = value;
+            }
+        }
     }
 
     public Dimension getPreferredSize() {
@@ -258,7 +268,7 @@ public class ModulatorHeatMap extends JPanel {
             // This means there are probably a small number of arrays, so the calculated width is going to be small
             preferredWidth = 3 * maxGeneNameWidth + (2 * SPACER_SIDE);
         }
-        int preferredHeight = (maSet.getMarkers().size() * BAR_HEIGHT) + (6 * BAR_HEIGHT) + (2 * SPACER_TOP);
+        int preferredHeight = (targetRows.size() * BAR_HEIGHT) + (6 * BAR_HEIGHT) + (2 * SPACER_TOP);
         return new Dimension(preferredWidth, preferredHeight);
     }
 
