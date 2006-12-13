@@ -332,6 +332,8 @@ public class MatrixReduceViewer implements VisualPlugin {
                 sequenceModel.fireContentsChanged();
             }
         });
+        JButton imageSnapshotButton = new JButton("Take Snapshot");
+        // imageSnapshotButton.addActionListener(new );
         builder.appendSeparator("Direction");
         builder.append("", forwardButton);
         builder.append("", backwardsButton);
@@ -340,6 +342,8 @@ public class MatrixReduceViewer implements VisualPlugin {
         builder.append("Threshold", thresholdField);
         builder.append("Sequence Search", searchField);
         builder.append("", filterButton);
+        builder.appendSeparator("Image Snapshot");
+        builder.append("", imageSnapshotButton);
         builder.append(Box.createVerticalGlue());
         psamLabel = new JLabel("");
         psamLabel.setBorder(new LineBorder(Color.black, 1));
