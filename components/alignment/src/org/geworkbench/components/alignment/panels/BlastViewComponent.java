@@ -129,8 +129,9 @@ import org.geworkbench.components.alignment.blast.NCBIBlastParser;
         //DSDataSet sequenceDB = selection.getDataSet();
         //Get the sequenceDb from DAncillaryDataset not from project.
         DSDataSet sequenceDB = selection.getDataSet();
-        if (df != null) {
-            sequenceDB = df.getParentDataSet();
+        if (df != null && df instanceof CSAlignmentResultSet) {
+          //  sequenceDB = df.getParentDataSet();
+            sequenceDB = ((CSAlignmentResultSet)df).getBlastedParentDataSet();
         }
         if (sequenceDB instanceof CSSequenceSet && df != null) {
             //update db with the selected file in the project

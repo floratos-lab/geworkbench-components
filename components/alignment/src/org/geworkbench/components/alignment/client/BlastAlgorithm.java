@@ -9,6 +9,7 @@ import java.util.StringTokenizer;
 import org.geworkbench.algorithms.BWAbstractAlgorithm;
 import org.geworkbench.bison.datastructure.biocollections.DSAncillaryDataSet;
 import org.geworkbench.bison.datastructure.biocollections.sequences.CSSequenceSet;
+import org.geworkbench.bison.datastructure.biocollections.sequences.DSSequenceSet;
 import org.geworkbench.bison.datastructure.bioobjects.sequence.CSAlignmentResultSet;
 import org.geworkbench.bison.datastructure.bioobjects.sequence.CSSequence;
 import org.geworkbench.bison.util.RandomNumberGenerator;
@@ -143,6 +144,8 @@ public class BlastAlgorithm extends BWAbstractAlgorithm implements SoapClientIn 
 
                 RemoteBlast blast;
                 CSSequenceSet activeSequenceDB = soapClient.getSequenceDB();
+                DSSequenceSet parentSequenceSet = soapClient.getParentSequenceDB();
+
 
                 int count = 0;
                 for (Object sequence : activeSequenceDB) {
@@ -172,7 +175,7 @@ public class BlastAlgorithm extends BWAbstractAlgorithm implements SoapClientIn 
                     ncbiResultURLStr = blast.getResultURLString();
                     while (!blast.getBlastDone()) {
                         try {
-                            if (blastAppComponent != null && !blastAppComponent.isStopButtonPushed()) {
+                            if (blastAppComponent != null && !blastAppComponent.isStopButtonPushed() && !stopRequested) {
                                 updateStatus("For sequence " + sequence +
                                         ", time since submission is : " +
                                         blast.getWaitingTime());
@@ -208,7 +211,7 @@ public class BlastAlgorithm extends BWAbstractAlgorithm implements SoapClientIn 
                 }
                 blastResult = new CSAlignmentResultSet(
                         outputFile, activeSequenceDB.getFASTAFileName(),
-                        activeSequenceDB);
+                        activeSequenceDB, parentSequenceSet);
                 blastResult.setLabel(blastAppComponent.NCBILABEL);
                 ProjectNodeAddedEvent event =
                         new ProjectNodeAddedEvent(null, null,

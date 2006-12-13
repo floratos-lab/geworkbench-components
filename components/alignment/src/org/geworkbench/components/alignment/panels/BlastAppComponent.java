@@ -1321,6 +1321,7 @@ import org.geworkbench.util.session.SoapClient;
                             outputFile);
 
                     sc.setSequenceDB(activeSequenceDB);
+                    sc.setParentSequenceDB(sequenceDB);
                     BlastAlgorithm blastAlgo = new BlastAlgorithm();
                     blastAlgo.setUseNCBI(true);
                     blastAlgo.setParameterSetting(parameterSetting);
@@ -1464,6 +1465,7 @@ import org.geworkbench.util.session.SoapClient;
 
                 BlastAlgorithm blastAlgo = new BlastAlgorithm();
                 sc.setSequenceDB(activeSequenceDB);
+                sc.setParentSequenceDB(sequenceDB);
                 sc.setCmd(AlgorithmMatcher.translateToCommandline(
                         parameterSetting));
                 blastAlgo.setBlastAppComponent(this);
@@ -1730,18 +1732,18 @@ import org.geworkbench.util.session.SoapClient;
     public void blastFinished(String cmd) {
         Date finished_Date = new Date();
         if (cmd.startsWith("Interrupted")) {
-            serviceProgressBar.setIndeterminate(false);
+
+
 
             serviceProgressBar.setForeground(Color.ORANGE);
             serviceProgressBar.setBackground(Color.ORANGE);
-            serviceProgressBar.setString("Stopped on " + finished_Date);
+           updateProgressBar(false, "Stopped on " + finished_Date);
 
         } else if (cmd.startsWith("OTHERS_Interrupted")) {
-            progressBar1.setIndeterminate(false);
 
             progressBar1.setForeground(Color.ORANGE);
             progressBar1.setBackground(Color.ORANGE);
-            progressBar1.setString("Stopped on " + finished_Date);
+            updateProgressBar(false, "Stopped on " + finished_Date);
 
         } else {
 
