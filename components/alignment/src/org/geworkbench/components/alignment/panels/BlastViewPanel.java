@@ -163,17 +163,19 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
         rightPanel.setDividerSize(2);
 
         rightPanel.setMinimumSize(new Dimension(155, 300));
+
         summaryPanel = new JPanel();
         summaryLabel = new JLabel();
         summaryPanel.setBorder(BorderFactory.createLoweredBevelBorder());
         summaryPanel.setMinimumSize(new Dimension(100, 40));
         summaryPanel.setPreferredSize(new Dimension(100, 40));
-        furtherProcess.setLayout(new BorderLayout());
-        furtherProcess.add(summaryPanel, java.awt.BorderLayout.CENTER);
-        furtherProcess.add(summaryLabel, java.awt.BorderLayout.SOUTH);
-        furtherProcess.setMinimumSize(new Dimension(100, 40));
-        furtherProcess.setPreferredSize(new Dimension(100, 40));
-        furtherProcess.setMaximumSize(new Dimension(200, 100));
+         furtherProcess.setLayout(new BorderLayout());
+         furtherProcess.add(summaryPanel, java.awt.BorderLayout.CENTER);
+         furtherProcess.add(summaryLabel, java.awt.BorderLayout.SOUTH);
+        //furtherProcess.add(summaryLabel);
+        furtherProcess.setMinimumSize(new Dimension(50, 40));
+        furtherProcess.setPreferredSize(new Dimension(50, 40));
+        furtherProcess.setMaximumSize(new Dimension(50, 40));
         //displaySummary("HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH");
         detailedInfo.setLayout(borderLayout2);
 //        jScrollPane1.setHorizontalScrollBarPolicy(JScrollPane.
@@ -227,7 +229,7 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
         jSplitPane1.add(blastResult, JSplitPane.TOP);
         jSplitPane1.add(detailedInfo, JSplitPane.BOTTOM);
         detailedInfo.add(jScrollPane1, BorderLayout.CENTER);
-        jSplitPane1.setDividerLocation(0.3);
+        jSplitPane1.setDividerLocation(0.8);
         jScrollPane1.getViewport().add(singleAlignmentArea, null);
 //        rightPanel.add(furtherProcess,
 //                       new GridBagConstraints(0, 1, 1, 1, 1.0, 1.0,
@@ -247,6 +249,8 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
         //mainPanel.add(markerList);
         mainPanel.add(westPanel);
         mainPanel.add(rightPanel);
+        double propLoc = .5D;
+        rightPanel.setDividerLocation(propLoc);
         this.add(mainPanel, java.awt.BorderLayout.CENTER);
     }
 
@@ -270,6 +274,7 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
     }
 
     public void setSummary(String s) {
+
         summaryStr = s;
         displaySummaryLabel(s);
     }
@@ -277,6 +282,11 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
     public void displaySummaryLabel(String s) {
 
         summaryLabel.setText(s);
+         double propLoc = .8D;
+        rightPanel.setDividerLocation(propLoc);
+        rightPanel.setResizeWeight(0.95);
+        jSplitPane1.setDividerLocation(1-propLoc);
+        jSplitPane1.setResizeWeight(0.4);
         revalidate();
     }
 

@@ -10,8 +10,6 @@
 package org.geworkbench.components.alignment.client;
 
 import java.io.*;
-import java.net.URL;
-import java.net.URLConnection;
 import java.util.Date;
 import java.util.StringTokenizer;
 import java.util.ArrayList;
@@ -19,15 +17,12 @@ import java.util.ArrayList;
 import org.geworkbench.algorithms.BWAbstractAlgorithm;
 import org.geworkbench.bison.datastructure.biocollections.DSAncillaryDataSet;
 import org.geworkbench.bison.datastructure.biocollections.sequences.CSSequenceSet;
-import org.geworkbench.bison.datastructure.bioobjects.sequence.CSAlignmentResultSet;
 import org.geworkbench.bison.datastructure.bioobjects.sequence.CSSequence;
 import org.geworkbench.bison.util.RandomNumberGenerator;
 import org.geworkbench.components.alignment.blast.RemoteBlat;
 import org.geworkbench.components.alignment.panels.*;
-import org.geworkbench.events.ProjectNodeAddedEvent;
 import org.geworkbench.util.session.SoapClient;
 import org.globus.progtutorial.clients.BlastService.Client;
-import org.geworkbench.components.alignment.blast.BlatOutput;
 
 /**
  *
