@@ -8,11 +8,11 @@ import java.awt.*;
 import java.awt.geom.Rectangle2D;
 import java.awt.font.FontRenderContext;
 import java.util.*;
+import java.util.List;
 
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
-import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 
 /**
  * @author mhall
@@ -46,7 +46,7 @@ public class ModulatorHeatMap extends JPanel {
 
     public ModulatorHeatMap(DSGeneMarker modulator, DSGeneMarker transcriptionFactor, MindyData mindyData) {
         this.maSet = mindyData.getArraySet();
-        DSItemList<DSGeneMarker> markers = maSet.getMarkers();
+        List<DSGeneMarker> markers = mindyData.getTargets(modulator, transcriptionFactor);
 
         // Extract and sort set based on modulator
         sortedValues = new float[maSet.size()][];
@@ -61,8 +61,6 @@ public class ModulatorHeatMap extends JPanel {
         // Sort half sets based on trans factor
         ArrayList<float[]> firstHalf = new ArrayList<float[]>();
         ArrayList<float[]> secondHalf = new ArrayList<float[]>();
-//        MicroarraySet firstHalf = new MicroarraySet("Half 1", "Half 1", "", markers);
-//        MicroarraySet secondHalf = new MicroarraySet("Half 2", "Half 2", "", markers);
         int count = 0;
         for (float[] values : sortedValues) {
             if (count < sortedValues.length / 2) {
@@ -97,10 +95,7 @@ public class ModulatorHeatMap extends JPanel {
 
         FontRenderContext context = new FontRenderContext(null, true, false);
         for (DSGeneMarker marker : markers) {
-            String shortName = marker.getShortName().trim();
-            if (shortName.length() > MAX_MARKER_NAME_CHARS) {
-                shortName = shortName.substring(0, MAX_MARKER_NAME_CHARS) + " ... ";
-            }
+            String shortName = marker.getShortName(ModulatorHeatMap.MAX_MARKER_NAME_CHARS);
             Rectangle2D bounds = BASE_FONT.getStringBounds(shortName, context);
             if (bounds.getWidth() > maxGeneNameWidth) {
                 maxGeneNameWidth = (int) bounds.getWidth() + 1;
@@ -163,8 +158,8 @@ public class ModulatorHeatMap extends JPanel {
 
 
         // Some variables useful for the next two sections of painting
-        float thirdOfWidth = (getWidth() - (2 * SPACER_SIDE)) / 3f;
-        float cellWidth = thirdOfWidth / (maSet.size() / 2f);
+        float expressionBarWidth = (getWidth() - (2 * SPACER_SIDE) - (2 * SPACER_SIDE + maxGeneNameWidth)) / 2f;
+        float cellWidth = expressionBarWidth / (sortedValues.length / 2f);
         int transFacStartY = modBarTopY + BAR_HEIGHT + SPACER_TOP;
 
         // Paint the two transcription factor gradients
@@ -175,17 +170,17 @@ public class ModulatorHeatMap extends JPanel {
         int transFacNameWidth = metrics.stringWidth(transFacName + "+");
         // Left Side
         g.drawString(transFacName + "-", SPACER_SIDE, transFacStartY);
-        g.drawString(transFacName + "+", SPACER_SIDE + thirdOfWidth - transFacNameWidth + 1, transFacStartY);
+        g.drawString(transFacName + "+", SPACER_SIDE + expressionBarWidth - transFacNameWidth + 1, transFacStartY);
         // Right Side
-        g.drawString(transFacName + "-", getWidth() - SPACER_SIDE - thirdOfWidth, transFacStartY);
+        g.drawString(transFacName + "-", getWidth() - SPACER_SIDE - expressionBarWidth, transFacStartY);
         g.drawString(transFacName + "+", getWidth() - SPACER_SIDE - transFacNameWidth + 1, transFacStartY);
         int transFacBarY = transFacStartY + metrics.getDescent() + 1;
 
-        paintExpressionBar(cellWidth, thirdOfWidth, g, transFacBarY, transcriptionFactor);
+        paintExpressionBar(cellWidth, expressionBarWidth, g, transFacBarY, transcriptionFactor);
         // Outlines for trans fac gradients
         g.setColor(Color.GRAY);
-        g.drawRect(SPACER_SIDE, transFacBarY, (int) thirdOfWidth, BAR_HEIGHT);
-        g.drawRect((int) (SPACER_SIDE + (2 * thirdOfWidth)), transFacBarY, (int) thirdOfWidth, BAR_HEIGHT);
+        g.drawRect(SPACER_SIDE, transFacBarY, (int) expressionBarWidth, BAR_HEIGHT + 1);
+        g.drawRect((int) (getWidth() - SPACER_SIDE - expressionBarWidth - 1), transFacBarY, (int) (expressionBarWidth + 1), BAR_HEIGHT + 1);
 
         // Draw the target's expression values
         int targetStartY = transFacBarY + BAR_HEIGHT + 5;
@@ -196,38 +191,34 @@ public class ModulatorHeatMap extends JPanel {
             if (print || (targetCurrY > clip.y - 10 && targetCurrY < clip.y + clip.height + 10)) {
                 MindyData.MindyResultRow mindyRow = targetRows.get(i);
                 DSGeneMarker target = mindyRow.getTarget();
-                paintExpressionBar(cellWidth, thirdOfWidth, g, targetCurrY, target);
-                String targetName = target.getShortName().trim();
-                if (targetName.length() > MAX_MARKER_NAME_CHARS) {
-                    targetName = targetName.substring(0, MAX_MARKER_NAME_CHARS) + " ... ";
-                }
+                paintExpressionBar(cellWidth, expressionBarWidth, g, targetCurrY, target);
+                String targetName = target.getShortName(ModulatorHeatMap.MAX_MARKER_NAME_CHARS);
 
-                int targetNameWidth = metrics.stringWidth(targetName + "+");
+                int targetNameWidth = metrics.stringWidth(targetName);
                 g.setColor(COLOR_TEXT);
 
-                g.drawString(targetName, getWidth() / 2 - (targetNameWidth / 2), targetCurrY + BAR_HEIGHT - 1);
+                g.drawString(targetName, (getWidth() / 2) - (targetNameWidth / 2), targetCurrY + BAR_HEIGHT - 1);
             }
             targetCurrY += BAR_HEIGHT;
         }
         // Outlines for target gradients
         g.setColor(Color.GRAY);
-        g.drawRect(SPACER_SIDE, targetStartY, (int) thirdOfWidth, targetCurrY - targetStartY);
-        g.drawRect((int) (SPACER_SIDE + (2 * thirdOfWidth)), targetStartY, (int) thirdOfWidth, targetCurrY - targetStartY);
+        g.drawRect(SPACER_SIDE, targetStartY, (int) expressionBarWidth, targetCurrY - targetStartY + 1);
+        g.drawRect((int) (getWidth() - SPACER_SIDE - expressionBarWidth - 1), targetStartY, (int) (expressionBarWidth + 1), targetCurrY - targetStartY + 1);
 
     }
 
-    private void paintExpressionBar(float cellWidth, float thirdOfWidth, Graphics2D g, int y, DSGeneMarker markerToPaint) {
+    private void paintExpressionBar(float cellWidth, float expressionBarWidth, Graphics2D g, int y, DSGeneMarker markerToPaint) {
         int halfArrays = sortedValues.length / 2;
         for (int i = 0; i < sortedValues.length; i++) {
             float thisValue = (float) sortedValues[i][markerToPaint.getSerial()];
-            int startX = SPACER_SIDE;
+            int startX;
             if (i < halfArrays) {
-                startX += (int) (i * cellWidth);
+                startX = SPACER_SIDE + (int) (i * cellWidth);
             } else {
-                startX += 2 * thirdOfWidth + ((i - halfArrays) * cellWidth);
-
+                startX = (int) (getWidth() - SPACER_SIDE - expressionBarWidth + ((i - halfArrays) * cellWidth));
             }
-            g.setColor(gradient.getColor((thisValue - minValue) / valueRange));
+            g.setColor(gradient.getColor(2 * ((thisValue - minValue) / valueRange) - 1));
             g.fillRect(startX, y, (int) (cellWidth + 1), BAR_HEIGHT);
         }
     }
@@ -263,7 +254,7 @@ public class ModulatorHeatMap extends JPanel {
     }
 
     public Dimension getPreferredSize() {
-        int preferredWidth = (int) ((PREFERRED_CELL_WIDTH * maSet.size()) * 1.5 + (2 * SPACER_SIDE));
+        int preferredWidth = (int) ((PREFERRED_CELL_WIDTH * sortedValues.length) * 1.5 + (2 * SPACER_SIDE));
         if (preferredWidth < 3 * maxGeneNameWidth) {
             // This means there are probably a small number of arrays, so the calculated width is going to be small
             preferredWidth = 3 * maxGeneNameWidth + (2 * SPACER_SIDE);

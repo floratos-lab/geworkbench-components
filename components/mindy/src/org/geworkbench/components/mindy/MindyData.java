@@ -2,6 +2,7 @@ package org.geworkbench.components.mindy;
 
 import org.geworkbench.bison.datastructure.biocollections.microarrays.CSMicroarraySet;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
+import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -104,6 +105,15 @@ public class MindyData {
 
     public HashMap<DSGeneMarker, ModulatorStatistics> getAllModulatorStatistics() {
         return modulatorStatistics;
+    }
+
+    public List<DSGeneMarker> getTargets(DSGeneMarker modulator, DSGeneMarker transcriptionFactor) {
+        List<DSGeneMarker> targets = new ArrayList<DSGeneMarker>();
+        List<MindyResultRow> rows = getRows(modulator, transcriptionFactor);
+        for (MindyResultRow mindyResultRow : rows) {
+            targets.add(mindyResultRow.getTarget());
+        }
+        return targets;
     }
 
     public static class MindyResultRow {
