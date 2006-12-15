@@ -35,20 +35,4 @@ public class MindyResultsParser {
         }
         return new MindyData(maSet, rows);
     }
-
-    public static void main(String[] args) {
-        JXTaskPane jxTaskPane = new JXTaskPane();
-        jxTaskPane.setTitle("Pane 1");
-        JList list = new JList(new String[]{"One", "Two"});
-        jxTaskPane.add(list);
-        JXTaskPaneContainer taskContainer = new JXTaskPaneContainer();
-        taskContainer.add(jxTaskPane);
-
-        JFrame frame = new JFrame("MINDY Plugin");
-        frame.getContentPane().add(taskContainer, BorderLayout.CENTER);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.pack();
-        frame.setSize(800, 600);
-        frame.setVisible(true);
-    }
 }
