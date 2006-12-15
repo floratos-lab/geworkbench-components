@@ -196,10 +196,43 @@ public class TtestAnalysis extends AbstractAnalysis implements ClusteringAnalysi
             numCombs = ((TtestAnalysisPanel) aspp).getNumCombs();
             useAllCombs = ((TtestAnalysisPanel) aspp).useAllCombs();
 
-            if (significanceMethod == TtestAnalysisPanel.MIN_P) {
-                return executeMinP();
-            } else if (significanceMethod == TtestAnalysisPanel.MAX_T) {
-                return executeMaxT();
+            String[][] labels = new String[2][];
+            labels[0] = context.getLabelsForClass(CSAnnotationContext.CLASS_CASE);
+            labels[1] = context.getLabelsForClass(CSAnnotationContext.CLASS_CONTROL);
+            HashSet<String>[] classSets = new HashSet[2];
+            for (int j = 0; j < 2; j++) {
+                String[] classLabels = labels[j];
+                classSets[j] = new HashSet<String>();
+                for (int i = 0; i < classLabels.length; i++) {
+                    String label = classLabels[i];
+                    if (context.isLabelActive(label) || !data.useItemPanel()) {
+//                    if (context.isLabelActive(label)) {
+                        classSets[j].add(label);
+                    }
+                }
+            }
+
+            if (significanceMethod == TtestAnalysisPanel.MIN_P || significanceMethod == TtestAnalysisPanel.MAX_T) {
+                AlgorithmExecutionResults results = null;
+                if (significanceMethod == TtestAnalysisPanel.MIN_P) {
+                    results = executeMinP();
+                } else if (significanceMethod == TtestAnalysisPanel.MAX_T) {
+                    results = executeMaxT();
+                }
+                CSSignificanceResultSet<DSGeneMarker> sigSet = new CSSignificanceResultSet<DSGeneMarker>(
+                        maSet,
+                        "T-Test",
+                        classSets[0].toArray(new String[0]),
+                        classSets[1].toArray(new String[0]),
+                        alpha
+                );
+                Hashtable result = (Hashtable) results.getResults();
+                float[][] pValuesMatrix = (float[][]) result.get("pValues");
+                for (int i = 0; i < pValuesMatrix.length; i++) {
+                    sigSet.setSignificance(data.markers().get(i), pValuesMatrix[i][0]);
+                }
+                sigSet.sortMarkersBySignificance();
+                return new AlgorithmExecutionResults(true, "Ttest", sigSet);
             }
 
             Vector clusterVector = new Vector();
@@ -265,21 +298,6 @@ public class TtestAnalysis extends AbstractAnalysis implements ClusteringAnalysi
                 }
             }
 
-            String[][] labels = new String[2][];
-            labels[0] = context.getLabelsForClass(CSAnnotationContext.CLASS_CASE);
-            labels[1] = context.getLabelsForClass(CSAnnotationContext.CLASS_CONTROL);
-            HashSet<String>[] classSets = new HashSet[2];
-            for (int j = 0; j < 2; j++) {
-                String[] classLabels = labels[j];
-                classSets[j] = new HashSet<String>();
-                for (int i = 0; i < classLabels.length; i++) {
-                    String label = classLabels[i];
-                    if (context.isLabelActive(label) || !data.useItemPanel()) {
-//                    if (context.isLabelActive(label)) {
-                        classSets[j].add(label);
-                    }
-                }
-            }
             CSSignificanceResultSet<DSGeneMarker> sigSet = new CSSignificanceResultSet<DSGeneMarker>(
                     maSet,
                     "T-Test",
