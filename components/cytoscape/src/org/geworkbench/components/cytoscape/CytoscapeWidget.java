@@ -35,6 +35,8 @@ import org.geworkbench.util.pathwaydecoder.mutualinformation.AdjacencyMatrixData
 import org.geworkbench.util.pathwaydecoder.mutualinformation.IAdjacencyMatrix;
 import phoebe.PNodeView;
 import phoebe.event.PSelectionHandler;
+import yfiles.OrganicLayout;
+import yfiles.YFilesLayoutPlugin;
 
 import javax.swing.*;
 import java.awt.*;
@@ -44,8 +46,6 @@ import java.awt.event.ComponentListener;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import yfiles.OrganicLayout;
-import yfiles.YFilesLayoutPlugin;
 
 /**
  * <p>Title: Bioworks</p>
@@ -61,6 +61,28 @@ import yfiles.YFilesLayoutPlugin;
 @AcceptTypes({AdjacencyMatrixDataSet.class})
 public class CytoscapeWidget implements VisualPlugin, MenuListener {
 
+    private class TwoStrings {
+        private String s1, s2;
+
+        public TwoStrings(String s1, String s2) {
+            this.s1 = s1;
+            this.s2 = s2;
+        }
+
+        public int hashCode() {
+            return s1.hashCode() ^ s2.hashCode();
+        }
+
+        public boolean equals(Object obj) {
+            TwoStrings o = (TwoStrings) obj;
+            return ((s1.equals(o.s1) && (s2.equals(o.s2))) ||  (s1.equals(o.s2) && (s2.equals(o.s1))));
+        }
+
+        public String toString() {
+            return "(" + s1 + ", " + s2 + ")";
+        }
+    }
+
     protected Vector windows = new Vector();
     protected CytoscapeVersion version = new CytoscapeVersion();
     protected Logger logger;
@@ -74,7 +96,7 @@ public class CytoscapeWidget implements VisualPlugin, MenuListener {
     protected Vector adjStorage = new Vector(); // to store the adjacency matrices it received
     protected HashSet<String> dataSetIDs = new HashSet<String>();
     protected VisualStyle interactionsVisualStyle = VisualStyleFactory.createDefaultVisualStyle();
-    
+
     public CytoscapeWidget() {
         String[] args = new String[]{"-b", "annotation/manifest", "--JLD", "plugins"};
         UIManager.put(Options.USE_SYSTEM_FONTS_APP_KEY, Boolean.TRUE);
@@ -252,15 +274,16 @@ public class CytoscapeWidget implements VisualPlugin, MenuListener {
     public void drawCompleteNetwork(AdjacencyMatrix adjMatrix, double threshold) {
         this.adjMatrix = adjMatrix;
         Iterator keysIt = adjMatrix.getGeneRows().keySet().iterator();
+        HashSet<TwoStrings> edgeSet = new HashSet<TwoStrings>();
         while (keysIt.hasNext()) {
             int key = ((Integer) keysIt.next()).intValue();
-            createSubNetwork(key, threshold, 1);
+            createSubNetwork(key, threshold, 1, edgeSet);
         }
     }
 
     public void drawCentricNetwork(AdjacencyMatrix adjMatrix, int networkFocus, double threshold, int depth) {
         this.adjMatrix = adjMatrix;
-        createSubNetwork(networkFocus, threshold, depth);
+        createSubNetwork(networkFocus, threshold, depth, null);
     }
 
     /**
@@ -322,7 +345,7 @@ public class CytoscapeWidget implements VisualPlugin, MenuListener {
                             cytoNetwork.addEdge(e);
 
                             // draw the subnetwork of this node2
-                            createSubNetwork(gm2.getSerial(), threshold, level - 1);
+                            createSubNetwork(gm2.getSerial(), threshold, level - 1, null);
                         } else {
                         }
                     }
@@ -331,7 +354,7 @@ public class CytoscapeWidget implements VisualPlugin, MenuListener {
         }
     }
 
-    private void createSubNetwork(int geneId, double threshold, int level) {
+    private void createSubNetwork(int geneId, double threshold, int level, HashSet<TwoStrings> edgeSet) {
         if (level == 0) {
             return;
         }
@@ -347,7 +370,7 @@ public class CytoscapeWidget implements VisualPlugin, MenuListener {
                     boolean thresholdTest = false;
                     String type = null;
                     if (adjMatrix.getInteraction(gm1.getSerial()) != null)
-                        type = (String)adjMatrix.getInteraction(gm1.getSerial()).get(id2);
+                        type = (String) adjMatrix.getInteraction(gm1.getSerial()).get(id2);
                     Float v12 = (Float) map.get(id2);
                     thresholdTest = v12.doubleValue() > threshold;
                     if (thresholdTest) {
@@ -379,23 +402,29 @@ public class CytoscapeWidget implements VisualPlugin, MenuListener {
                             cytoNetwork.setNodeAttributeValue(n2, "Hub", new Integer(gm2Size));
                             cytoNetwork.addNode(n2);
                             CyEdge e = null;
-                            if (type != null){
-                                if (gm1.getSerial() > gm2.getSerial()) {
-                                    e = Cytoscape.getCyEdge(g1Name, g1Name + "." + type + "." + g2Name, g2Name, type);
-                                } else {
-                                    e = Cytoscape.getCyEdge(g2Name, g2Name + "." + type + "." + g1Name, g1Name, type);
+                            // Only add edge if there is not already an edge for these genes
+                            TwoStrings key = new TwoStrings(g1Name, g2Name);
+                            if (edgeSet == null || !edgeSet.contains(key)) {
+                                if (edgeSet != null) {
+                                    edgeSet.add(key);
                                 }
-                                cytoNetwork.addEdge(e);
-                            }
-                            else {
-                                if (gm1.getSerial() > gm2.getSerial()) {
-                                    e = Cytoscape.getCyEdge(g1Name, g1Name + ".pp." + g2Name, g2Name, "pp");
+                                if (type != null) {
+                                    if (gm1.getSerial() > gm2.getSerial()) {
+                                        e = Cytoscape.getCyEdge(g1Name, g1Name + "." + type + "." + g2Name, g2Name, type);
+                                    } else {
+                                        e = Cytoscape.getCyEdge(g2Name, g2Name + "." + type + "." + g1Name, g1Name, type);
+                                    }
+                                    cytoNetwork.addEdge(e);
                                 } else {
-                                    e = Cytoscape.getCyEdge(g2Name, g2Name + ".pp." + g1Name, g1Name, "pp");
+                                    if (gm1.getSerial() > gm2.getSerial()) {
+                                        e = Cytoscape.getCyEdge(g1Name, g1Name + ".pp." + g2Name, g2Name, "pp");
+                                    } else {
+                                        e = Cytoscape.getCyEdge(g2Name, g2Name + ".pp." + g1Name, g1Name, "pp");
+                                    }
+                                    cytoNetwork.addEdge(e);
                                 }
-                                cytoNetwork.addEdge(e);                                
+                                createSubNetwork(gm2.getSerial(), threshold, level - 1, null);
                             }
-                            createSubNetwork(gm2.getSerial(), threshold, level - 1);
                         } else {
                         }
                     }
@@ -566,7 +595,7 @@ public class CytoscapeWidget implements VisualPlugin, MenuListener {
 
     @Script
     public DSPanel getFirstNeighbors(int geneid, double threshold, int level) {
-        createSubNetwork(geneid, threshold, level);
+        createSubNetwork(geneid, threshold, level, null);
         int[] indices = cytoNetwork.neighborsArray(geneid);
         DSPanel selectedMarkers = new CSPanel("First Neighbors", cytoNetwork.getNode(geneid).getIdentifier());
         for (int i = 0; i < indices.length; i++) {
@@ -585,7 +614,7 @@ public class CytoscapeWidget implements VisualPlugin, MenuListener {
         adjMatrix = am;
         maSet = am.getMicroarraySet();
         cytoNetwork = Cytoscape.createNetwork(maSet.getLabel() + m.getSerial());
-        createSubNetwork(m.getSerial(), 0, 1);
+        createSubNetwork(m.getSerial(), 0, 1, null);
         view = Cytoscape.createNetworkView(cytoNetwork, maSet.getLabel());
         view.addGraphViewChangeListener(new GraphViewChangeListener() {
             public void graphViewChanged(GraphViewChangeEvent graphViewChangeEvent) {
@@ -598,7 +627,7 @@ public class CytoscapeWidget implements VisualPlugin, MenuListener {
     public void computeAndDrawFirstNeighbors(DSPanel<DSGeneMarker> p, int i, AdjacencyMatrix am) {
         adjMatrix = am;
         cytoNetwork = Cytoscape.createNetwork(maSet.getLabel() + i);
-        createSubNetwork(p.get(i).getSerial(), 0, 1);
+        createSubNetwork(p.get(i).getSerial(), 0, 1, null);
         view = Cytoscape.createNetworkView(cytoNetwork, maSet.getLabel());
         view.addGraphViewChangeListener(new GraphViewChangeListener() {
             public void graphViewChanged(GraphViewChangeEvent graphViewChangeEvent) {
@@ -607,30 +636,86 @@ public class CytoscapeWidget implements VisualPlugin, MenuListener {
         });
     }
 
-    public class CyWindowProxy implements CyWindow{
-        public CyWindowProxy() {}
-        public CyNetworkView getView() {return Cytoscape.getCurrentNetworkView();}
-        public void showWindow(int i, int i0) {}
-        public void showWindow() {}
-        public CytoscapeObj getCytoscapeObj() {return Cytoscape.getCytoscapeObj();}
-        public CyNetwork getNetwork() {return Cytoscape.getCurrentNetwork();}
-        public GraphViewController getGraphViewController() {return Cytoscape.getDesktop().getGraphViewController();}
-        public VisualMappingManager getVizMapManager() {return Cytoscape.getCurrentNetworkView().getVizMapManager();}
-        public VizMapUI getVizMapUI() {return Cytoscape.getCurrentNetworkView().getVizMapUI();}
-        public JFrame getMainFrame() {return Cytoscape.getDesktop().getMainFrame();}
-        public String getWindowTitle() {return "";}
-        public void setWindowTitle(String string) {}
-        public CyMenus getCyMenus() {return Cytoscape.getDesktop().getCyMenus();}
-        public void setNewNetwork(CyNetwork cyNetwork) {}
-        public void setInteractivity(boolean b) {}
-        public void redrawGraph() {}
-        public void redrawGraph(boolean b) {}
-        public void redrawGraph(boolean b, boolean b0) {}
-        public void applyLayout(GraphView graphView) {}
-        public void applySelLayout() {}
-        public void setVisualMapperEnabled(boolean b) {}
-        public void toggleVisualMapperEnabled() {}
-        public void switchToReadOnlyMode() {}
-        public void switchToEditMode() {}
-     }
+    public class CyWindowProxy implements CyWindow {
+        public CyWindowProxy() {
+        }
+
+        public CyNetworkView getView() {
+            return Cytoscape.getCurrentNetworkView();
+        }
+
+        public void showWindow(int i, int i0) {
+        }
+
+        public void showWindow() {
+        }
+
+        public CytoscapeObj getCytoscapeObj() {
+            return Cytoscape.getCytoscapeObj();
+        }
+
+        public CyNetwork getNetwork() {
+            return Cytoscape.getCurrentNetwork();
+        }
+
+        public GraphViewController getGraphViewController() {
+            return Cytoscape.getDesktop().getGraphViewController();
+        }
+
+        public VisualMappingManager getVizMapManager() {
+            return Cytoscape.getCurrentNetworkView().getVizMapManager();
+        }
+
+        public VizMapUI getVizMapUI() {
+            return Cytoscape.getCurrentNetworkView().getVizMapUI();
+        }
+
+        public JFrame getMainFrame() {
+            return Cytoscape.getDesktop().getMainFrame();
+        }
+
+        public String getWindowTitle() {
+            return "";
+        }
+
+        public void setWindowTitle(String string) {
+        }
+
+        public CyMenus getCyMenus() {
+            return Cytoscape.getDesktop().getCyMenus();
+        }
+
+        public void setNewNetwork(CyNetwork cyNetwork) {
+        }
+
+        public void setInteractivity(boolean b) {
+        }
+
+        public void redrawGraph() {
+        }
+
+        public void redrawGraph(boolean b) {
+        }
+
+        public void redrawGraph(boolean b, boolean b0) {
+        }
+
+        public void applyLayout(GraphView graphView) {
+        }
+
+        public void applySelLayout() {
+        }
+
+        public void setVisualMapperEnabled(boolean b) {
+        }
+
+        public void toggleVisualMapperEnabled() {
+        }
+
+        public void switchToReadOnlyMode() {
+        }
+
+        public void switchToEditMode() {
+        }
+    }
 }
