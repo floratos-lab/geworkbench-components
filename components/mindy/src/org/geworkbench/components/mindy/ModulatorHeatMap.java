@@ -218,9 +218,15 @@ public class ModulatorHeatMap extends JPanel {
             } else {
                 startX = (int) (getWidth() - SPACER_SIDE - expressionBarWidth + ((i - halfArrays) * cellWidth));
             }
-            g.setColor(gradient.getColor(2 * ((thisValue - minValue) / valueRange) - 1));
+            Color expressionColor = getColorForScore(thisValue);
+            g.setColor(expressionColor);
             g.fillRect(startX, y, (int) (cellWidth + 1), BAR_HEIGHT);
         }
+    }
+
+    public Color getColorForScore(float thisValue) {
+        Color expressionColor = gradient.getColor(2 * ((thisValue - minValue) / valueRange) - 1);
+        return expressionColor;
     }
 
     /**

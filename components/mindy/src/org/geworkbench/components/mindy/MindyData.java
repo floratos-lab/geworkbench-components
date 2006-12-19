@@ -2,9 +2,9 @@ package org.geworkbench.components.mindy;
 
 import org.geworkbench.bison.datastructure.biocollections.microarrays.CSMicroarraySet;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
-import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.commons.collections15.map.MultiKeyMap;
 
 import java.util.*;
 
@@ -17,13 +17,21 @@ public class MindyData {
     static Log log = LogFactory.getLog(MindyData.class);
 
     private CSMicroarraySet arraySet;
+    private DSGeneMarker transcriptionFactor;
     private List<MindyResultRow> data;
+
+    private MultiKeyMap<DSGeneMarker, MindyResultRow> dataMap = new MultiKeyMap<DSGeneMarker, MindyResultRow>();
 
     private HashMap<DSGeneMarker, ModulatorStatistics> modulatorStatistics = new HashMap<DSGeneMarker, ModulatorStatistics>();
 
     public MindyData(CSMicroarraySet arraySet, List<MindyResultRow> data) {
         this.arraySet = arraySet;
         this.data = data;
+        if (data.size() > 0) {
+            this.transcriptionFactor = data.get(0).getTranscriptionFactor();
+        } else {
+            log.warn("Data passed in had 0 records, unable to determine transcription factor under consideration.");
+        }
         calculateModulatorStatistics();
     }
 
@@ -46,6 +54,14 @@ public class MindyData {
 
     public ModulatorStatistics getStatistics(DSGeneMarker modulator) {
         return modulatorStatistics.get(modulator);
+    }
+
+    public DSGeneMarker getTranscriptionFactor() {
+        return transcriptionFactor;
+    }
+
+    public void setTranscriptionFactor(DSGeneMarker transcriptionFactor) {
+        this.transcriptionFactor = transcriptionFactor;
     }
 
     public List<DSGeneMarker> getModulators() {
@@ -87,14 +103,15 @@ public class MindyData {
 
     private void calculateModulatorStatistics() {
         log.debug("Calculating modulator stats...");
-        for (MindyResultRow mindyResultRow : data) {
-            ModulatorStatistics modStats = modulatorStatistics.get(mindyResultRow.getModulator());
+        for (MindyResultRow row : data) {
+            dataMap.put(row.getModulator(), row.getTranscriptionFactor(), row.getTarget(), row);
+            ModulatorStatistics modStats = modulatorStatistics.get(row.getModulator());
             if (modStats == null) {
                 modStats = new ModulatorStatistics(0, 0, 0);
-                modulatorStatistics.put(mindyResultRow.getModulator(), modStats);
+                modulatorStatistics.put(row.getModulator(), modStats);
             }
             modStats.count++;
-            if (mindyResultRow.getScore() < 0) {
+            if (row.getScore() < 0) {
                 modStats.munder++;
             } else {
                 modStats.mover++;
@@ -114,6 +131,23 @@ public class MindyData {
             targets.add(mindyResultRow.getTarget());
         }
         return targets;
+    }
+
+    public List<DSGeneMarker> getAllTargets() {
+        List<DSGeneMarker> targets = new ArrayList<DSGeneMarker>();
+        for (MindyResultRow mindyResultRow : data) {
+            targets.add(mindyResultRow.getTarget());
+        }
+        return targets;
+    }
+
+    public float getScore(DSGeneMarker modulator, DSGeneMarker transcriptionFactor, DSGeneMarker target) {
+        MindyResultRow row = dataMap.get(modulator, transcriptionFactor, target);
+        if (row == null) {
+            return 0;
+        } else {
+            return row.getScore();
+        }
     }
 
     public static class MindyResultRow {
