@@ -4,9 +4,7 @@ import javax.swing.*;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListDataListener;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableCellRenderer;
-import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.*;
 import java.util.List;
 import java.util.Map;
 import java.util.ArrayList;
@@ -35,6 +33,9 @@ import org.apache.commons.math.stat.descriptive.StatisticalSummary;
 public class MindyPlugin extends JPanel {
 
     static Log log = LogFactory.getLog(MindyPlugin.class);
+    private static final int DEFAULT_MODULATOR_LIMIT = 10;
+
+    private enum ModulatorSort {AGGREGATE, ENHANCING, NEGATIVE}
 
     private JScrollPane heatMapScrollPane;
     private List<DSGeneMarker> modulators;
@@ -72,7 +73,7 @@ public class MindyPlugin extends JPanel {
             renderer.setHorizontalAlignment(DefaultTableCellRenderer.CENTER);
             table.getColumnModel().getColumn(5).setCellRenderer(renderer);
 //            table.getColumnModel().getColumn(5).setHeaderRenderer(renderer);
-            table.packTable(10);
+            table.packTable(DEFAULT_MODULATOR_LIMIT);
             panel.add(scrollPane, BorderLayout.CENTER);
 
             JXTaskPane markerSetPane = new JXTaskPane();
@@ -99,6 +100,102 @@ public class MindyPlugin extends JPanel {
             panel.add(taskContainer, BorderLayout.WEST);
 
             tabs.add("Modulator", panel);
+        }
+
+        {
+            // Modulator / Target Table
+            Panel panel = new Panel(new BorderLayout());
+
+            JXTaskPane sortPane = new JXTaskPane();
+            sortPane.setTitle("Sorting");
+            JComboBox sortOptions = new JComboBox();
+            sortOptions.addItem("Aggregate");
+            sortOptions.addItem("Enhancing");
+            sortOptions.addItem("Negative");
+            sortPane.add(sortOptions);
+
+            JXTaskPane limitPane = new JXTaskPane();
+            Panel limitControls = new Panel(new BorderLayout());
+            limitPane.setTitle("Modulator Limits");
+            final JCheckBox modulatorLimits = new JCheckBox("Limit To Top");
+            modulatorLimits.setSelected(true);
+            limitControls.add(modulatorLimits, BorderLayout.WEST);
+            final JSpinner modLimitValue = new JSpinner();
+            modLimitValue.setValue(DEFAULT_MODULATOR_LIMIT);
+            limitControls.add(modLimitValue, BorderLayout.EAST);
+            limitPane.add(limitControls);
+
+            JXTaskPane tableOptionsPane = new JXTaskPane();
+            tableOptionsPane.setTitle("Display Options");
+            final JCheckBox colorCheck = new JCheckBox("Color View");
+            tableOptionsPane.add(colorCheck);
+            final JCheckBox scoreCheck = new JCheckBox("Score View");
+            tableOptionsPane.add(scoreCheck);
+
+            final ColorGradient gradient = new ColorGradient(Color.black, Color.yellow);
+            gradient.addColorPoint(Color.red, 0f);
+
+            final AggregateTableModel model = new AggregateTableModel(mindyData);
+            model.setModLimit(DEFAULT_MODULATOR_LIMIT);
+            model.setModulatorsLimited(modulatorLimits.isSelected());
+            final JXTable table = new JXTable(model) {
+                public Component prepareRenderer(TableCellRenderer tableCellRenderer, int row, int col) {
+                    Component component = super.prepareRenderer(tableCellRenderer, row, col);
+                    if (colorCheck.isSelected() && col > 1) {
+                        float score = model.getScoreAt(row, col);
+                        component.setBackground(gradient.getColor(score));
+                    }
+                    return component;
+                }
+            };
+            JScrollPane scrollPane = new JScrollPane(table);
+            table.setHorizontalScrollEnabled(true);
+
+            colorCheck.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent actionEvent) {
+                    table.invalidate();
+                    table.repaint();
+                }
+            });
+
+            scoreCheck.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent actionEvent) {
+                    model.setScoreView(scoreCheck.isSelected());
+                    table.invalidate();
+                    table.repaint();
+                }
+            });
+
+            modulatorLimits.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent actionEvent) {
+                    Integer modLimit = (Integer) modLimitValue.getValue();
+                    log.debug("Limiting modulators displayed to top " + modLimit);
+                    model.setModLimit(modLimit);
+                    boolean selected = modulatorLimits.isSelected();
+                    model.setModulatorsLimited(selected);
+                    model.fireTableStructureChanged();
+                    table.packAll();
+                    table.repaint();
+                }
+            });
+
+//            TableColumnModel columnModel = table.getColumnModel();
+//            TableColumn column = columnModel.getColumn(2);
+//            column.setCellRenderer(new ScoreColorRenderer(mindyData));
+
+            table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+            table.setHighlighters(new HighlighterPipeline(new Highlighter[]{AlternateRowHighlighter.genericGrey}));
+
+            table.packAll();
+            panel.add(scrollPane, BorderLayout.CENTER);
+
+            JXTaskPaneContainer taskContainer = new JXTaskPaneContainer();
+            taskContainer.add(sortPane);
+            taskContainer.add(limitPane);
+            taskContainer.add(tableOptionsPane);
+            panel.add(taskContainer, BorderLayout.WEST);
+
+            tabs.add("Table", panel);
         }
 
         {
@@ -182,7 +279,9 @@ public class MindyPlugin extends JPanel {
             panel.add(heatMapScrollPane, BorderLayout.CENTER);
 
             JXTaskPane transFacPane = new JXTaskPane();
-            transFacPane.setTitle("Trans. Factors");
+            transFacPane.setTitle("Transcription Factor");
+            JLabel transFactorName = new JLabel(mindyData.getTranscriptionFactor().getShortName());
+            transFacPane.add(transFactorName);
             final JList transNameList = new JList();
             transNameList.setModel(new ListModel() {
                 public int getSize() {
@@ -224,10 +323,14 @@ public class MindyPlugin extends JPanel {
             modNameList.addListSelectionListener(new ListSelectionListener() {
                 public void valueChanged(ListSelectionEvent listSelectionEvent) {
                     DSGeneMarker modMarker = modulators.get(modNameList.getSelectedIndex());
-                    log.debug("Selected value: " + modMarker.getShortName());
-                    transFactors = mindyData.getTranscriptionFactors(modMarker);
-                    transNameList.clearSelection();
-                    transNameList.invalidate();
+//                    log.debug("Selected value: " + modMarker.getShortName());
+//                    transFactors = mindyData.getTranscriptionFactors(modMarker);
+//                    transNameList.clearSelection();
+//                    transNameList.invalidate();
+
+                    log.debug("Rebuilding heat map.");
+                    setHeatMap(new ModulatorHeatMap(modMarker, mindyData.getTranscriptionFactor(), mindyData));
+
                 }
             });
             AutoCompleteDecorator.decorate(modNameList, modFilterField);
@@ -247,11 +350,11 @@ public class MindyPlugin extends JPanel {
                 }
             });
 
-            transFacPane.add(transNameList);
+//            transFacPane.add(transNameList);
 
             JXTaskPaneContainer taskContainer = new JXTaskPaneContainer();
-            taskContainer.add(modulatorPane);
             taskContainer.add(transFacPane);
+            taskContainer.add(modulatorPane);
             JScrollPane modTransScroll = new JScrollPane(taskContainer);
             panel.add(modTransScroll, BorderLayout.WEST);
             tabs.add("Heat Map", panel);
@@ -503,6 +606,146 @@ public class MindyPlugin extends JPanel {
 
     }
 
+    private class AggregateTableModel extends DefaultTableModel {
+
+        private boolean[] enabledMods;
+        private boolean[] enabledTargets;
+        private List<DSGeneMarker> modulators;
+        private List<DSGeneMarker> targets;
+        private MindyData mindyData;
+        private boolean scoreView = false;
+        private boolean modulatorsLimited = false;
+        private int modLimit = DEFAULT_MODULATOR_LIMIT;
+        private ModulatorSort modulatorSortMethod = ModulatorSort.AGGREGATE;
+
+        public AggregateTableModel(MindyData mindyData) {
+            this.enabledTargets = new boolean[mindyData.getData().size()];
+            this.mindyData = mindyData;
+            modulators = mindyData.getModulators();
+            targets = mindyData.getAllTargets();
+        }
+
+        public boolean isScoreView() {
+            return scoreView;
+        }
+
+        public void setScoreView(boolean scoreView) {
+            this.scoreView = scoreView;
+        }
+
+        public ModulatorSort getModulatorSortMethod() {
+            return modulatorSortMethod;
+        }
+
+        public void setModulatorSortMethod(ModulatorSort modulatorSortMethod) {
+            this.modulatorSortMethod = modulatorSortMethod;
+        }
+
+        public boolean isModulatorsLimited() {
+            return modulatorsLimited;
+        }
+
+        public void setModulatorsLimited(boolean modulatorsLimited) {
+            this.modulatorsLimited = modulatorsLimited;
+        }
+
+        public int getModLimit() {
+            return modLimit;
+        }
+
+        public void setModLimit(int modLimit) {
+            this.modLimit = modLimit;
+        }
+
+        public int getColumnCount() {
+            // Number of modulators plus target name and checkbox column
+            if (!modulatorsLimited) {
+                return modulators.size() + 2;
+            } else {
+                return modLimit + 2;
+            }
+        }
+
+        public int getRowCount() {
+            if (targets == null) {
+                return 0;
+            }
+            return targets.size();
+        }
+
+        public Class<?> getColumnClass(int i) {
+            if (i == 0) {
+                return String.class;
+            } else if (i == 1) {
+                return Boolean.class;
+            } else {
+                return Float.class;
+            }
+        }
+
+        public Object getValueAt(int row, int col) {
+            if (col == 0) {
+                return targets.get(row).getShortName();
+            } else if (col == 1) {
+                return enabledTargets[row];
+            } else {
+                float score = mindyData.getScore(modulators.get(col - 2), mindyData.getTranscriptionFactor(), targets.get(row));
+                if (score != 0) {
+                    if (scoreView) {
+                        return score;
+                    } else {
+                        return Math.signum(score) * 1;
+                    }
+                } else {
+                    return score;
+                }
+            }
+        }
+
+        public float getScoreAt(int row, int col) {
+            float score = mindyData.getScore(modulators.get(col - 2), mindyData.getTranscriptionFactor(), targets.get(row));
+            return score;
+        }
+
+        public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
+            if (columnIndex == 0) {
+                enabledTargets[rowIndex] = (Boolean) aValue;
+            }
+        }
+
+        public String getColumnName(int col) {
+            if (col == 0) {
+                return "Target";
+            } else if (col == 1) {
+                return " ";
+            } else {
+                return modulators.get(col - 2).getShortName();
+            }
+        }
+
+        public String getModName(int i) {
+            return modulators.get(i).getShortName();
+        }
+    }
+
+    private class ScoreColorRenderer extends DefaultTableCellRenderer {
+        MindyData data;
+
+        public ScoreColorRenderer(MindyData data) {
+            this.data = data;
+        }
+
+        public Component getTableCellRendererComponent(JTable jTable, Object object, boolean b, boolean b1, int i, int i1) {
+            setValue(object);
+            this.setBackground(Color.red);
+            return this;
+        }
+    }
+
+
+    /**
+     * This doesn't quite work, but it's close.
+     */
     private class ModulatorHighlighter extends ConditionalHighlighter {
 
         private boolean useBackground = false;

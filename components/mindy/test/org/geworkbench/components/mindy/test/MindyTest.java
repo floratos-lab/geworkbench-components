@@ -62,11 +62,17 @@ public class MindyTest extends TestCase {
 
         MindyPlugin mindy = new MindyPlugin(loadedData);
 
+        try {
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        } catch (Exception e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        }
+
         JFrame frame = new JFrame("MINDY Plugin");
         frame.getContentPane().add(mindy, BorderLayout.CENTER);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.pack();
-        frame.setSize(800, 600);
+        frame.setSize(1024, 800);
         frame.setVisible(true);
 
         log.debug("Done.");
