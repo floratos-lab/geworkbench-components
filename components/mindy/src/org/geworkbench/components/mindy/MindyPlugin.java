@@ -685,7 +685,7 @@ public class MindyPlugin extends JPanel {
 
         public Object getValueAt(int row, int col) {
             if (col == 0) {
-                return targets.get(row).getShortName();
+                return targets.get(row).getShortName(ModulatorHeatMap.MAX_MARKER_NAME_CHARS);
             } else if (col == 1) {
                 return enabledTargets[row];
             } else {
@@ -708,7 +708,7 @@ public class MindyPlugin extends JPanel {
         }
 
         public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
-            if (columnIndex == 0) {
+            if (columnIndex == 1) {
                 enabledTargets[rowIndex] = (Boolean) aValue;
             }
         }
