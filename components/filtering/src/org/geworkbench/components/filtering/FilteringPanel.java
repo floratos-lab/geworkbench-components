@@ -1,4 +1,4 @@
-package org.geworkbench.components.analysis;
+package org.geworkbench.components.filtering;
 
 import org.geworkbench.analysis.AbstractAnalysis;
 import org.geworkbench.analysis.AbstractSaveableParameterPanel;
