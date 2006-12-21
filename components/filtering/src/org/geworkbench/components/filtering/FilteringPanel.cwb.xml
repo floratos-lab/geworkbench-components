@@ -1,5 +1,5 @@
 <component-descriptor xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="Descriptor Schema.xsd">
     <component class="org.geworkbench.components.filtering.FilteringPanel">
-        <online-help helpSet="org/geworkbench/components/analysis/help/filters/filterHelpSet.hs"/>
+        <online-help helpSet="org/geworkbench/components/filtering/help/filterHelpSet.hs"/>
     </component>
 </component-descriptor>
