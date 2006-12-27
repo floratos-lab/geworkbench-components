@@ -150,16 +150,21 @@ public class TtestAnalysis extends AbstractAnalysis implements ClusteringAnalysi
                 DSMicroarray ma = data.items().get(i);
                 if (ma instanceof DSMicroarray) {
                     //DSPanel panel = selCriterion.panels().get(ma);
-                    String v = context.getClassForItem(ma);
-                    if (v.equals(CSAnnotationContext.CLASS_CASE)) {
-                        groupAssignments[i] = TtestAnalysisPanel.GROUP_A;
-                        hasGroupA = true;
-                    } else if (v.equals(CSAnnotationContext.CLASS_CONTROL)) {
-                        groupAssignments[i] = TtestAnalysisPanel.GROUP_B;
-                        tTestDesign = TtestAnalysisPanel.BETWEEN_SUBJECTS;
-                        hasGroupB = true;
-                    } else {
-                        groupAssignments[i] = TtestAnalysisPanel.NEITHER_GROUP;
+                    String[] labels = context.getLabelsForItem(ma);
+                    for (String label : labels) {
+                        if (context.isLabelActive(label)) {
+                            String v = context.getClassForLabel(label);
+                            if (v.equals(CSAnnotationContext.CLASS_CASE)) {
+                                groupAssignments[i] = TtestAnalysisPanel.GROUP_A;
+                                hasGroupA = true;
+                            } else if (v.equals(CSAnnotationContext.CLASS_CONTROL)) {
+                                groupAssignments[i] = TtestAnalysisPanel.GROUP_B;
+                                tTestDesign = TtestAnalysisPanel.BETWEEN_SUBJECTS;
+                                hasGroupB = true;
+                            } else {
+                                groupAssignments[i] = TtestAnalysisPanel.NEITHER_GROUP;
+                            }
+                        }
                     }
                 } else {
                     groupAssignments[i] = TtestAnalysisPanel.NEITHER_GROUP;
