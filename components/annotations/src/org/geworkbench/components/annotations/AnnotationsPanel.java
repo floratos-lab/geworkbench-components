@@ -37,7 +37,7 @@ import gov.nih.nci.system.applicationservice.ApplicationService;
 import gov.nih.nci.system.applicationservice.ApplicationServiceProvider;
 import gov.nih.nci.system.applicationservice.ApplicationException;
 import gov.nih.nci.cabio.domain.Gene;
-import gov.nih.nci.common.domain.DatabaseCrossReference;
+import gov.nih.nci.cabio.domain.GenericReporter;
 
 /**
  * <p>Title: Bioworks</p>
@@ -333,14 +333,29 @@ public class AnnotationsPanel implements VisualPlugin {
                         int index = 0;
                         for (int i = 0; i < selectedMarkerInfo.size(); i++) {
                             Gene gene = new Gene();
-                            gene.setSymbol(selectedMarkerInfo.get(i).getGeneName());
+                            String geneName = selectedMarkerInfo.get(i).getGeneName();
+                            String probeLabel = selectedMarkerInfo.get(i).getLabel();
+                            gene.setSymbol(geneName);
+                            boolean useGeneName = true;
+                            if ("".equals(geneName) || geneName.equals(probeLabel)) {
+                                useGeneName = false;
+                            }
+                            GenericReporter reporter = new GenericReporter();
+                            reporter.setName(probeLabel);
 //                            criteria.setSearchName(selectedMarkerInfo.get(i).getLabel());
                             pb.setMessage("Getting Marker Annotation and Pathways: " + selectedMarkerInfo.get(i).getLabel());
 //                            criteria.search();
                             MarkerData marker = new MarkerData(selectedMarkerInfo.get(i));
                             try {
 
-                                java.util.List<Gene> resultList = appService.search(Gene.class, gene);
+                                java.util.List<Gene> resultList;
+                                if (useGeneName) {
+                                    log.debug("Using gene name to query CaBIO: " + geneName);
+                                    resultList = appService.search(Gene.class, gene);
+                                } else {
+                                    log.debug("Using probe id to query CaBIO: " + probeLabel);
+                                    resultList = appService.search(Gene.class, reporter);
+                                }
 //                                GeneAnnotation[] annotations = criteria.getGeneAnnotations();
                                 if (resultList.size() > 0) {
                                     for (Gene geneResult : resultList) {
