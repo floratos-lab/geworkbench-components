@@ -5,9 +5,8 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListDataListener;
 import javax.swing.table.*;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
-import java.util.ArrayList;
 import java.awt.*;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
@@ -34,8 +33,12 @@ public class MindyPlugin extends JPanel {
 
     static Log log = LogFactory.getLog(MindyPlugin.class);
     private static final int DEFAULT_MODULATOR_LIMIT = 10;
+    private AggregateTableModel aggregateModel;
+    private ModulatorTargetModel modTargetModel;
+    private JCheckBox selectionEnabledCheckBox;
+    private JList heatMapModNameList;
 
-    private enum ModulatorSort {AGGREGATE, ENHANCING, NEGATIVE}
+    private enum ModulatorSort {Aggregate, Enhancing, Negative}
 
     private JScrollPane heatMapScrollPane;
     private List<DSGeneMarker> modulators;
@@ -109,9 +112,25 @@ public class MindyPlugin extends JPanel {
             JXTaskPane sortPane = new JXTaskPane();
             sortPane.setTitle("Sorting");
             JComboBox sortOptions = new JComboBox();
-            sortOptions.addItem("Aggregate");
-            sortOptions.addItem("Enhancing");
-            sortOptions.addItem("Negative");
+            sortOptions.addItem(ModulatorSort.Aggregate);
+            sortOptions.addItem(ModulatorSort.Enhancing);
+            sortOptions.addItem(ModulatorSort.Negative);
+            sortOptions.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent actionEvent) {
+                    JComboBox cb = (JComboBox) actionEvent.getSource();
+                    ModulatorSort selected = (ModulatorSort) cb.getSelectedItem();
+                    if (selected == ModulatorSort.Aggregate) {
+                        log.debug("Setting sort to Aggregate");
+                        aggregateModel.setModulatorSortMethod(ModulatorSort.Aggregate);
+                    } else if (selected == ModulatorSort.Enhancing) {
+                        log.debug("Setting sort to Enhacing");
+                        aggregateModel.setModulatorSortMethod(ModulatorSort.Enhancing);
+                    } else {
+                        log.debug("Setting sort to Negative");
+                        aggregateModel.setModulatorSortMethod(ModulatorSort.Negative);
+                    }
+                }
+            });
             sortPane.add(sortOptions);
 
             JXTaskPane limitPane = new JXTaskPane();
@@ -135,19 +154,20 @@ public class MindyPlugin extends JPanel {
             final ColorGradient gradient = new ColorGradient(Color.black, Color.yellow);
             gradient.addColorPoint(Color.red, 0f);
 
-            final AggregateTableModel model = new AggregateTableModel(mindyData);
-            model.setModLimit(DEFAULT_MODULATOR_LIMIT);
-            model.setModulatorsLimited(modulatorLimits.isSelected());
-            final JXTable table = new JXTable(model) {
+            aggregateModel = new AggregateTableModel(mindyData);
+            aggregateModel.setModLimit(DEFAULT_MODULATOR_LIMIT);
+            aggregateModel.setModulatorsLimited(modulatorLimits.isSelected());
+            final JXTable table = new JXTable(aggregateModel) {
                 public Component prepareRenderer(TableCellRenderer tableCellRenderer, int row, int col) {
                     Component component = super.prepareRenderer(tableCellRenderer, row, col);
                     if (colorCheck.isSelected() && col > 1) {
-                        float score = model.getScoreAt(row, col);
+                        float score = aggregateModel.getScoreAt(row, col);
                         component.setBackground(gradient.getColor(score));
                     }
                     return component;
                 }
             };
+            table.setAutoCreateColumnsFromModel(true);
             JScrollPane scrollPane = new JScrollPane(table);
             table.setHorizontalScrollEnabled(true);
 
@@ -160,7 +180,7 @@ public class MindyPlugin extends JPanel {
 
             scoreCheck.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent actionEvent) {
-                    model.setScoreView(scoreCheck.isSelected());
+                    aggregateModel.setScoreView(scoreCheck.isSelected());
                     table.invalidate();
                     table.repaint();
                 }
@@ -170,10 +190,10 @@ public class MindyPlugin extends JPanel {
                 public void actionPerformed(ActionEvent actionEvent) {
                     Integer modLimit = (Integer) modLimitValue.getValue();
                     log.debug("Limiting modulators displayed to top " + modLimit);
-                    model.setModLimit(modLimit);
+                    aggregateModel.setModLimit(modLimit);
                     boolean selected = modulatorLimits.isSelected();
-                    model.setModulatorsLimited(selected);
-                    model.fireTableStructureChanged();
+                    aggregateModel.setModulatorsLimited(selected);
+                    aggregateModel.fireTableStructureChanged();
                     table.packAll();
                     table.repaint();
                 }
@@ -206,8 +226,8 @@ public class MindyPlugin extends JPanel {
             JXTaskPane markerSetPane = new JXTaskPane();
             markerSetPane.setTitle("List Selections");
 
-            ModulatorTargetModel model = new ModulatorTargetModel(mindyData);
-            listTable = new JXTable(model);
+            modTargetModel = new ModulatorTargetModel(mindyData);
+            listTable = new JXTable(modTargetModel);
             listTable.setBackground(new Color(245, 245, 245));
 //            ModulatorHighlighter modulatorHighlighter = new ModulatorHighlighter();
 //            modulatorHighlighter.setBackground(new Color(233, 233, 233));
@@ -216,21 +236,22 @@ public class MindyPlugin extends JPanel {
             listTable.setHighlighters(new HighlighterPipeline(new Highlighter[]{AlternateRowHighlighter.genericGrey}));
             JScrollPane scrollPane = new JScrollPane(listTable);
             listTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-            listTable.getColumnExt(0).setMaxWidth(20);
-            listTable.getColumnExt(2).setMaxWidth(20);
-            setListCheckboxesVisibility(false);
-            listTable.packAll();
 
-            final JCheckBox selectionCheck = new JCheckBox("Enable Selection");
-            markerSetPane.add(selectionCheck);
-            selectionCheck.addActionListener(new ActionListener() {
+
+            selectionEnabledCheckBox = new JCheckBox("Enable Selection");
+            markerSetPane.add(selectionEnabledCheckBox);
+            selectionEnabledCheckBox.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent actionEvent) {
-                    boolean selected = selectionCheck.isSelected();
+                    boolean selected = selectionEnabledCheckBox.isSelected();
                     log.debug("Setting list box visibility to " + selected);
                     setListCheckboxesVisibility(selected);
                     setListControlVisibility(selected);
+                    setListTableViewOptions();
                 }
             });
+
+            setListTableViewOptions();
+
             selectAllModsCheckBox = new JCheckBox("Select All Modulators");
             markerSetPane.add(selectAllModsCheckBox);
             selectAllModsCheckBox.addActionListener(new ActionListener() {
@@ -282,47 +303,17 @@ public class MindyPlugin extends JPanel {
             transFacPane.setTitle("Transcription Factor");
             JLabel transFactorName = new JLabel(mindyData.getTranscriptionFactor().getShortName());
             transFacPane.add(transFactorName);
-            final JList transNameList = new JList();
-            transNameList.setModel(new ListModel() {
-                public int getSize() {
-                    return transFactors.size();
-                }
-
-                public Object getElementAt(int i) {
-                    return transFactors.get(i).getShortName(ModulatorHeatMap.MAX_MARKER_NAME_CHARS);
-                }
-
-                public void addListDataListener(ListDataListener listDataListener) {
-                }
-
-                public void removeListDataListener(ListDataListener listDataListener) {
-                }
-            });
 
             JXTaskPane modulatorPane = new JXTaskPane();
             JTextField modFilterField = new JTextField();
 //            modulatorPane.setExpanded(false);
             modulatorPane.setTitle("Modulators");
-            final JList modNameList = new JList();
-            JScrollPane modListScrollPane = new JScrollPane(modNameList);
-            modNameList.setModel(new ListModel() {
-                public int getSize() {
-                    return modulators.size();
-                }
-
-                public Object getElementAt(int i) {
-                    return modulators.get(i).getShortName(ModulatorHeatMap.MAX_MARKER_NAME_CHARS);
-                }
-
-                public void addListDataListener(ListDataListener listDataListener) {
-                }
-
-                public void removeListDataListener(ListDataListener listDataListener) {
-                }
-            });
-            modNameList.addListSelectionListener(new ListSelectionListener() {
+            heatMapModNameList = new JList();
+            JScrollPane modListScrollPane = new JScrollPane(heatMapModNameList);
+            heatMapModNameList.setModel(new ModulatorListModel());
+            heatMapModNameList.addListSelectionListener(new ListSelectionListener() {
                 public void valueChanged(ListSelectionEvent listSelectionEvent) {
-                    DSGeneMarker modMarker = modulators.get(modNameList.getSelectedIndex());
+                    DSGeneMarker modMarker = modTargetModel.getEnabledModulators().get(heatMapModNameList.getSelectedIndex());
 //                    log.debug("Selected value: " + modMarker.getShortName());
 //                    transFactors = mindyData.getTranscriptionFactors(modMarker);
 //                    transNameList.clearSelection();
@@ -333,24 +324,9 @@ public class MindyPlugin extends JPanel {
 
                 }
             });
-            AutoCompleteDecorator.decorate(modNameList, modFilterField);
+            AutoCompleteDecorator.decorate(heatMapModNameList, modFilterField);
             modulatorPane.add(modFilterField);
             modulatorPane.add(modListScrollPane);
-
-            transNameList.addListSelectionListener(new ListSelectionListener() {
-                public void valueChanged(ListSelectionEvent listSelectionEvent) {
-
-                    if (!listSelectionEvent.getValueIsAdjusting() && transNameList.getSelectedIndex() > -1) {
-                        DSGeneMarker modMarker = modulators.get(modNameList.getSelectedIndex());
-                        DSGeneMarker transMarker = transFactors.get(transNameList.getSelectedIndex());
-
-                        log.debug("Rebuilding heat map.");
-                        setHeatMap(new ModulatorHeatMap(modMarker, transMarker, mindyData));
-                    }
-                }
-            });
-
-//            transFacPane.add(transNameList);
 
             JXTaskPaneContainer taskContainer = new JXTaskPaneContainer();
             taskContainer.add(transFacPane);
@@ -362,6 +338,16 @@ public class MindyPlugin extends JPanel {
 
         setLayout(new BorderLayout());
         add(tabs, BorderLayout.CENTER);
+    }
+
+    private void setListTableViewOptions() {
+        boolean selected = selectionEnabledCheckBox.isSelected();
+        if (selected) {
+            listTable.getColumnExt(0).setMaxWidth(20);
+            listTable.getColumnExt(2).setMaxWidth(20);
+        }
+        setListCheckboxesVisibility(selected);
+        listTable.packAll();
     }
 
     private void markerMeanVariance(DSMicroarraySet microarraySet) {
@@ -504,6 +490,19 @@ public class MindyPlugin extends JPanel {
         public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
             if (columnIndex == 0) {
                 enabled[rowIndex] = (Boolean) aValue;
+                if (enabled[rowIndex]) {
+                    DSGeneMarker mod = modulators.get(rowIndex);
+                    aggregateModel.enableModulator(mod);
+                    modTargetModel.enableModulator(mod);
+                    ModulatorListModel model = (ModulatorListModel) heatMapModNameList.getModel();
+                    model.refresh();
+                } else {
+                    DSGeneMarker mod = modulators.get(rowIndex);
+                    aggregateModel.disableModulator(mod);
+                    modTargetModel.disableModulator(mod);
+                    ModulatorListModel model = (ModulatorListModel) heatMapModNameList.getModel();
+                    model.refresh();
+                }
             }
         }
 
@@ -518,17 +517,288 @@ public class MindyPlugin extends JPanel {
         }
     }
 
+    private class AggregateTableModel extends DefaultTableModel {
+
+        private static final int EXTRA_COLS = 2;
+
+        private boolean[] checkedTargets;
+        private List<DSGeneMarker> allModulators;
+        private List<DSGeneMarker> enabledModulators;
+        private List<DSGeneMarker> activeTargets;
+        private MindyData mindyData;
+        private boolean scoreView = false;
+        private boolean modulatorsLimited = false;
+        private int modLimit = DEFAULT_MODULATOR_LIMIT;
+        private ModulatorSort modulatorSortMethod = ModulatorSort.Aggregate;
+
+        public AggregateTableModel(MindyData mindyData) {
+            this.checkedTargets = new boolean[mindyData.getData().size()];
+            this.mindyData = mindyData;
+            allModulators = mindyData.getModulators();
+            enabledModulators = new ArrayList<DSGeneMarker>();
+            activeTargets = new ArrayList<DSGeneMarker>();
+        }
+
+        public boolean isScoreView() {
+            return scoreView;
+        }
+
+        public void setScoreView(boolean scoreView) {
+            this.scoreView = scoreView;
+        }
+
+        public ModulatorSort getModulatorSortMethod() {
+            return modulatorSortMethod;
+        }
+
+        public void setModulatorSortMethod(ModulatorSort modulatorSortMethod) {
+            this.modulatorSortMethod = modulatorSortMethod;
+            resortModulators();
+        }
+
+        public boolean isModulatorsLimited() {
+            return modulatorsLimited;
+        }
+
+        public void setModulatorsLimited(boolean modulatorsLimited) {
+            this.modulatorsLimited = modulatorsLimited;
+        }
+
+        public int getModLimit() {
+            return modLimit;
+        }
+
+        public void setModLimit(int modLimit) {
+            this.modLimit = modLimit;
+        }
+
+        public List<DSGeneMarker> getEnabledModulators() {
+            return enabledModulators;
+        }
+
+        public void setEnabledModulators(List<DSGeneMarker> enabledModulators) {
+            this.enabledModulators = enabledModulators;
+        }
+
+        public void enableModulator(DSGeneMarker mod) {
+            if (!enabledModulators.contains(mod)) {
+                enabledModulators.add(mod);
+                recalcActiveTargets();
+                resortModulators();     // This also fires structure changed
+                repaint();
+            }
+        }
+
+        public void disableModulator(DSGeneMarker mod) {
+            enabledModulators.remove(mod);
+            recalcActiveTargets();
+            resortModulators();     // This also fires structure changed
+            repaint();
+        }
+
+        private void recalcActiveTargets() {
+            activeTargets.clear();
+            for (DSGeneMarker modMarker : enabledModulators) {
+                List<MindyData.MindyResultRow> rows = mindyData.getRows(modMarker, mindyData.getTranscriptionFactor());
+                for (MindyData.MindyResultRow row : rows) {
+                    DSGeneMarker target = row.getTarget();
+                    if (!activeTargets.contains(target)) {
+                        activeTargets.add(target);
+                    }
+                }
+            }
+            fireTableDataChanged();
+        }
+
+        public int getColumnCount() {
+            // Number of allModulators plus target name and checkbox column
+            if (!modulatorsLimited) {
+                return enabledModulators.size() + EXTRA_COLS;
+            } else {
+                return Math.min(modLimit + EXTRA_COLS, enabledModulators.size() + EXTRA_COLS);
+            }
+        }
+
+        public int getRowCount() {
+            if (activeTargets == null) {
+                return 0;
+            }
+            return activeTargets.size();
+        }
+
+        public Class<?> getColumnClass(int i) {
+            if (i == 0) {
+                return String.class;
+            } else if (i == 1) {
+                return Boolean.class;
+            } else {
+                return Float.class;
+            }
+        }
+
+        public Object getValueAt(int row, int col) {
+            if (col == 0) {
+                return activeTargets.get(row).getShortName(ModulatorHeatMap.MAX_MARKER_NAME_CHARS);
+            } else if (col == 1) {
+                return checkedTargets[row];
+            } else {
+                float score = mindyData.getScore(enabledModulators.get(col - EXTRA_COLS), mindyData.getTranscriptionFactor(), activeTargets.get(row));
+                if (score != 0) {
+                    if (scoreView) {
+                        return score;
+                    } else {
+                        return Math.signum(score) * 1;
+                    }
+                } else {
+                    return score;
+                }
+            }
+        }
+
+        public float getScoreAt(int row, int col) {
+            float score = mindyData.getScore(allModulators.get(col - EXTRA_COLS), mindyData.getTranscriptionFactor(), activeTargets.get(row));
+            return score;
+        }
+
+        public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
+            if (columnIndex == 1) {
+                checkedTargets[rowIndex] = (Boolean) aValue;
+                if (checkedTargets[rowIndex]) {
+                    DSGeneMarker mod = activeTargets.get(rowIndex);
+                    modTargetModel.enableTarget(mod);
+                } else {
+                    DSGeneMarker mod = activeTargets.get(rowIndex);
+                    modTargetModel.disableTarget(mod);
+                }
+            }
+        }
+
+        public String getColumnName(int col) {
+            if (col == 0) {
+                return "Target";
+            } else if (col == 1) {
+                return " ";
+            } else {
+                DSGeneMarker mod = enabledModulators.get(col - EXTRA_COLS);
+                String colName =  mod.getShortName();
+                if (modulatorSortMethod == ModulatorSort.Aggregate) {
+                    colName += " (M# " + mindyData.getStatistics(mod).getCount() + ")";
+                } else if (modulatorSortMethod == ModulatorSort.Enhancing) {
+                    colName += " (M+ " + mindyData.getStatistics(mod).getMover() + ")";
+                } else if (modulatorSortMethod == ModulatorSort.Negative) {
+                    colName += " (M- " + mindyData.getStatistics(mod).getMunder() + ")";
+                }
+                return colName;
+            }
+        }
+
+        public void resortModulators() {
+            Collections.sort(enabledModulators, new ModulatorStatComparator(mindyData, modulatorSortMethod));
+            fireTableStructureChanged();
+        }
+
+    }
+
+    private class ModulatorStatComparator implements Comparator<DSGeneMarker> {
+
+        private MindyData data;
+        private ModulatorSort sortType;
+
+        public ModulatorStatComparator(MindyData data, ModulatorSort sortType) {
+            this.data = data;
+            this.sortType = sortType;
+        }
+
+        public int compare(DSGeneMarker dsGeneMarker, DSGeneMarker dsGeneMarker1) {
+            if (sortType == ModulatorSort.Aggregate) {
+                return data.getStatistics(dsGeneMarker1).getCount() - data.getStatistics(dsGeneMarker).getCount();
+            } else if (sortType == ModulatorSort.Enhancing) {
+                return data.getStatistics(dsGeneMarker1).getMover() - data.getStatistics(dsGeneMarker).getMover();
+            } else {
+                return data.getStatistics(dsGeneMarker1).getMunder() - data.getStatistics(dsGeneMarker).getMunder();
+            }
+        }
+
+    }
+
     private class ModulatorTargetModel extends DefaultTableModel {
 
-        private boolean[] enabledMods;
-        private boolean[] enabledTrans;
+        private boolean[] modChecks;
+        private boolean[] targetChecks;
+        private ArrayList<DSGeneMarker> enabledModulators = new ArrayList<DSGeneMarker>();
+        private ArrayList<DSGeneMarker> enabledTargets = new ArrayList<DSGeneMarker>();
         private MindyData mindyData;
         private String[] columnNames = new String[]{" ", "Modulator", "  ", "Target", "Score"};
+        private ArrayList<MindyData.MindyResultRow> rows = new ArrayList<MindyData.MindyResultRow>();
 
         public ModulatorTargetModel(MindyData mindyData) {
-            this.enabledMods = new boolean[mindyData.getData().size()];
-            this.enabledTrans = new boolean[mindyData.getData().size()];
+            this.modChecks = new boolean[mindyData.getData().size()];
+            this.targetChecks = new boolean[mindyData.getData().size()];
             this.mindyData = mindyData;
+        }
+
+        public ArrayList<DSGeneMarker> getEnabledModulators() {
+            return enabledModulators;
+        }
+
+        public void setEnabledModulators(ArrayList<DSGeneMarker> enabledModulators) {
+            this.enabledModulators = enabledModulators;
+        }
+
+        public ArrayList<DSGeneMarker> getEnabledTargets() {
+            return enabledTargets;
+        }
+
+        public void setEnabledTargets(ArrayList<DSGeneMarker> enabledTargets) {
+            this.enabledTargets = enabledTargets;
+        }
+
+        public void enableModulator(DSGeneMarker mod) {
+            if (!enabledModulators.contains(mod)) {
+                enabledModulators.add(mod);
+                recalculateRows();
+                fireTableDataChanged();
+                setListTableViewOptions();
+                repaint();
+            }
+        }
+
+        public void disableModulator(DSGeneMarker mod) {
+            enabledModulators.remove(mod);
+            recalculateRows();
+            fireTableStructureChanged();
+            setListTableViewOptions();
+            repaint();
+        }
+
+        public void enableTarget(DSGeneMarker target) {
+            if (!enabledTargets.contains(target)) {
+                enabledTargets.add(target);
+                recalculateRows();
+                fireTableDataChanged();
+                setListTableViewOptions();
+                repaint();
+            }
+        }
+
+        public void disableTarget(DSGeneMarker target) {
+            enabledTargets.remove(target);
+            recalculateRows();
+            fireTableDataChanged();
+            setListTableViewOptions();
+            repaint();
+        }
+
+        private void recalculateRows() {
+            rows.clear();
+            for (DSGeneMarker modMarker : enabledModulators) {
+                List<DSGeneMarker> targets = mindyData.getTargets(modMarker, mindyData.getTranscriptionFactor());
+                for (DSGeneMarker target : targets) {
+                    if (enabledTargets.contains(target)) {
+                        rows.add(mindyData.getRow(modMarker, mindyData.getTranscriptionFactor(), target));
+                    }
+                }
+            }
         }
 
         public int getColumnCount() {
@@ -536,10 +806,10 @@ public class MindyPlugin extends JPanel {
         }
 
         public int getRowCount() {
-            if (enabledMods == null) {
+            if (modChecks == null) {
                 return 0;
             } else {
-                return mindyData.getData().size();
+                return rows.size();
             }
         }
 
@@ -563,15 +833,15 @@ public class MindyPlugin extends JPanel {
 
         public Object getValueAt(int rowIndex, int columnIndex) {
             if (columnIndex == 0) {
-                return enabledMods[rowIndex];
+                return modChecks[rowIndex];
             } else if (columnIndex == 1) {
-                return mindyData.getData().get(rowIndex).getModulator().getShortName(ModulatorHeatMap.MAX_MARKER_NAME_CHARS);
+                return rows.get(rowIndex).getModulator().getShortName(ModulatorHeatMap.MAX_MARKER_NAME_CHARS);
             } else if (columnIndex == 2) {
-                return enabledTrans[rowIndex];
+                return targetChecks[rowIndex];
             } else if (columnIndex == 3) {
-                return mindyData.getData().get(rowIndex).getTarget().getShortName(ModulatorHeatMap.MAX_MARKER_NAME_CHARS);
+                return rows.get(rowIndex).getTarget().getShortName(ModulatorHeatMap.MAX_MARKER_NAME_CHARS);
             } else if (columnIndex == 4) {
-                return mindyData.getData().get(rowIndex).getScore();
+                return rows.get(rowIndex).getScore();
             } else {
                 log.error("Requested unknown column");
                 return null;
@@ -580,9 +850,9 @@ public class MindyPlugin extends JPanel {
 
         public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
             if (columnIndex == 0) {
-                enabledMods[rowIndex] = (Boolean) aValue;
+                modChecks[rowIndex] = (Boolean) aValue;
             } else if (columnIndex == 2) {
-                enabledTrans[rowIndex] = (Boolean) aValue;
+                targetChecks[rowIndex] = (Boolean) aValue;
             }
         }
 
@@ -591,141 +861,19 @@ public class MindyPlugin extends JPanel {
         }
 
         private void selectAllModulators(boolean select) {
-            for (int i = 0; i < enabledMods.length; i++) {
-                enabledMods[i] = select;
+            for (int i = 0; i < modChecks.length; i++) {
+                modChecks[i] = select;
             }
             listTable.repaint();
         }
 
         private void selectAllTargets(boolean select) {
-            for (int i = 0; i < enabledTrans.length; i++) {
-                enabledTrans[i] = select;
+            for (int i = 0; i < targetChecks.length; i++) {
+                targetChecks[i] = select;
             }
             listTable.repaint();
         }
 
-    }
-
-    private class AggregateTableModel extends DefaultTableModel {
-
-        private boolean[] enabledMods;
-        private boolean[] enabledTargets;
-        private List<DSGeneMarker> modulators;
-        private List<DSGeneMarker> targets;
-        private MindyData mindyData;
-        private boolean scoreView = false;
-        private boolean modulatorsLimited = false;
-        private int modLimit = DEFAULT_MODULATOR_LIMIT;
-        private ModulatorSort modulatorSortMethod = ModulatorSort.AGGREGATE;
-
-        public AggregateTableModel(MindyData mindyData) {
-            this.enabledTargets = new boolean[mindyData.getData().size()];
-            this.mindyData = mindyData;
-            modulators = mindyData.getModulators();
-            targets = mindyData.getAllTargets();
-        }
-
-        public boolean isScoreView() {
-            return scoreView;
-        }
-
-        public void setScoreView(boolean scoreView) {
-            this.scoreView = scoreView;
-        }
-
-        public ModulatorSort getModulatorSortMethod() {
-            return modulatorSortMethod;
-        }
-
-        public void setModulatorSortMethod(ModulatorSort modulatorSortMethod) {
-            this.modulatorSortMethod = modulatorSortMethod;
-        }
-
-        public boolean isModulatorsLimited() {
-            return modulatorsLimited;
-        }
-
-        public void setModulatorsLimited(boolean modulatorsLimited) {
-            this.modulatorsLimited = modulatorsLimited;
-        }
-
-        public int getModLimit() {
-            return modLimit;
-        }
-
-        public void setModLimit(int modLimit) {
-            this.modLimit = modLimit;
-        }
-
-        public int getColumnCount() {
-            // Number of modulators plus target name and checkbox column
-            if (!modulatorsLimited) {
-                return modulators.size() + 2;
-            } else {
-                return modLimit + 2;
-            }
-        }
-
-        public int getRowCount() {
-            if (targets == null) {
-                return 0;
-            }
-            return targets.size();
-        }
-
-        public Class<?> getColumnClass(int i) {
-            if (i == 0) {
-                return String.class;
-            } else if (i == 1) {
-                return Boolean.class;
-            } else {
-                return Float.class;
-            }
-        }
-
-        public Object getValueAt(int row, int col) {
-            if (col == 0) {
-                return targets.get(row).getShortName(ModulatorHeatMap.MAX_MARKER_NAME_CHARS);
-            } else if (col == 1) {
-                return enabledTargets[row];
-            } else {
-                float score = mindyData.getScore(modulators.get(col - 2), mindyData.getTranscriptionFactor(), targets.get(row));
-                if (score != 0) {
-                    if (scoreView) {
-                        return score;
-                    } else {
-                        return Math.signum(score) * 1;
-                    }
-                } else {
-                    return score;
-                }
-            }
-        }
-
-        public float getScoreAt(int row, int col) {
-            float score = mindyData.getScore(modulators.get(col - 2), mindyData.getTranscriptionFactor(), targets.get(row));
-            return score;
-        }
-
-        public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
-            if (columnIndex == 1) {
-                enabledTargets[rowIndex] = (Boolean) aValue;
-            }
-        }
-
-        public String getColumnName(int col) {
-            if (col == 0) {
-                return "Target";
-            } else if (col == 1) {
-                return " ";
-            } else {
-                return modulators.get(col - 2).getShortName();
-            }
-        }
-
-        public String getModName(int i) {
-            return modulators.get(i).getShortName();
-        }
     }
 
     private class ScoreColorRenderer extends DefaultTableCellRenderer {
@@ -739,6 +887,20 @@ public class MindyPlugin extends JPanel {
             setValue(object);
             this.setBackground(Color.red);
             return this;
+        }
+    }
+
+    private class ModulatorListModel extends AbstractListModel {
+        public int getSize() {
+            return modTargetModel.getEnabledModulators().size();
+        }
+
+        public Object getElementAt(int i) {
+            return modTargetModel.getEnabledModulators().get(i).getShortName(ModulatorHeatMap.MAX_MARKER_NAME_CHARS);
+        }
+
+        public void refresh() {
+            fireContentsChanged(this, 0, getSize());
         }
     }
 
