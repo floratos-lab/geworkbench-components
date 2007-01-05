@@ -150,6 +150,10 @@ public class MindyData {
         }
     }
 
+    public MindyResultRow getRow(DSGeneMarker modulator, DSGeneMarker transcriptionFactor, DSGeneMarker target) {
+        return dataMap.get(modulator, transcriptionFactor, target);
+    }
+
     public static class MindyResultRow {
         private DSGeneMarker modulator;
         private DSGeneMarker transcriptionFactor;
