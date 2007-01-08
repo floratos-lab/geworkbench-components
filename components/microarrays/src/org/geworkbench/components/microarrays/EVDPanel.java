@@ -54,7 +54,8 @@ import java.util.Vector;
  * @author Xiaoqing Zhang
  * @version 3.0
  */
-@AcceptTypes({DSMicroarraySet.class}) public class EVDPanel extends MicroarrayViewEventBase implements MenuListener {
+@AcceptTypes({DSMicroarraySet.class})
+public class EVDPanel extends MicroarrayViewEventBase implements MenuListener {
 
     private JFreeChart chart;
     public static int EVDMODE = 1;
@@ -83,7 +84,7 @@ import java.util.Vector;
     JTextField rightBoundary;
     JLabel selectedGeneNum;
     JLabel binNumLabel;
-    public final static Shape baseShape = new Rectangle( -6, -6, 6, 6);
+    public final static Shape baseShape = new Rectangle(-6, -6, 6, 6);
     public final static Color baseColor = Color.ORANGE;
     JSlider jMASlider;
     Component jSpacer;
@@ -194,7 +195,7 @@ import java.util.Vector;
         jLeftBoundarySlider.setCursor(java.awt.Cursor.getPredefinedCursor(java.
                 awt.Cursor.HAND_CURSOR));
         jLeftBoundarySlider.addChangeListener(new javax.swing.event.
-                                              ChangeListener() {
+                ChangeListener() {
             public void stateChanged(ChangeEvent e) {
                 jLeftBoundarySlider_stateChanged(e);
             }
@@ -214,7 +215,7 @@ import java.util.Vector;
         jRightBoundarySlider.setToolTipText(
                 "Move the slider to change the upper boundary of selected genes");
         jRightBoundarySlider.addChangeListener(new javax.swing.event.
-                                               ChangeListener() {
+                ChangeListener() {
             public void stateChanged(ChangeEvent e) {
                 jRightBoundarySlider_stateChanged(e);
             }
@@ -284,8 +285,8 @@ import java.util.Vector;
         jToolBar3.add(imageSnapshotButton);
 
         chart = ChartFactory.createXYLineChart("EVD", "Value", "Occurrences", null,
-                                               PlotOrientation.VERTICAL, true,
-                                               isToolTipEnabled, true); // Title,  X-Axis label,  Y-Axis label,  Dataset,  Show legend, show ToolTips
+                PlotOrientation.VERTICAL, true,
+                isToolTipEnabled, true); // Title,  X-Axis label,  Y-Axis label,  Dataset,  Show legend, show ToolTips
 
         graph = new ChartPanel(chart, true);
         XYPlot newPlot = (XYPlot) chart.getPlot();
@@ -315,7 +316,7 @@ import java.util.Vector;
         leftBoundary.setText(s);
         if (hs != null) {
             selectedGeneNum.setText("Selected genes: " +
-                                    hs.getGeneNumbers(lowValue, highValue));
+                    hs.getGeneNumbers(lowValue, highValue));
         }
 
     }
@@ -334,7 +335,7 @@ import java.util.Vector;
         rightBoundary.setText(highStr);
         if (hs != null) {
             selectedGeneNum.setText("Selected genes: " +
-                                    hs.getGeneNumbers(lowValue, highValue));
+                    hs.getGeneNumbers(lowValue, highValue));
         }
 
     }
@@ -364,34 +365,35 @@ import java.util.Vector;
 
     protected void fireModelChangedEvent(MicroarraySetViewEvent event) {
         super.fireModelChangedEvent(event);
-        if(refMASet == null){
+        if (refMASet == null) {
             // mainPanel.remove(graph);
 
             chart = ChartFactory.createXYLineChart("EVD", "Value", "Occurrences", null,
-                                              PlotOrientation.VERTICAL, true,
-                                              isToolTipEnabled, true);
-                                      graph.setChart(chart);
+                    PlotOrientation.VERTICAL, true,
+                    isToolTipEnabled, true);
+            graph.setChart(chart);
             //graph = new ChartPanel(chart, true);
-             //mainPanel.add(graph, BorderLayout.CENTER);
+            //mainPanel.add(graph, BorderLayout.CENTER);
 
 
         }
         refresh();
     }
 
-    @Publish public org.geworkbench.events.ImageSnapshotEvent
+    @Publish
+    public org.geworkbench.events.ImageSnapshotEvent
             createImageSnapshot() {
         Dimension panelSize = graph.getSize();
         BufferedImage image = new BufferedImage(panelSize.width,
-                                                panelSize.height,
-                                                BufferedImage.TYPE_INT_RGB);
+                panelSize.height,
+                BufferedImage.TYPE_INT_RGB);
         Graphics g = image.getGraphics();
         graph.paint(g);
         ImageIcon icon = new ImageIcon(image, "EVD Plot");
         org.geworkbench.events.ImageSnapshotEvent event = new org.geworkbench.
                 events.ImageSnapshotEvent("EVD Snapshot", icon,
-                                          org.geworkbench.events.
-                                          ImageSnapshotEvent.Action.SAVE);
+                org.geworkbench.events.
+                        ImageSnapshotEvent.Action.SAVE);
         return event;
     }
 
@@ -400,7 +402,7 @@ import java.util.Vector;
 
         double max[] = getBoundaryValue();
         drawPlot(createCollection(max[0], max[1], selectedArrayId, showActive),
-                 "EVD");
+                "EVD");
 
     }
 
@@ -465,7 +467,7 @@ import java.util.Vector;
                 //only add value > 0. is it right?
                 if (basketValues[i] > 0) {
                     dataSeries.add(i * ((maxValue - minValue) / basketNum) +
-                                   minValue, basketValues[i]);
+                            minValue, basketValues[i]);
 
                 }
 
@@ -544,7 +546,7 @@ import java.util.Vector;
 
                     if (basketValues[i] > 0) {
                         dataSeries.add(i * ((maxValue - minValue) / basketNum) +
-                                       minValue, basketValues[i]);
+                                minValue, basketValues[i]);
 
                     }
 
@@ -559,7 +561,7 @@ import java.util.Vector;
             int panelIndex = 0;
             if (active && maSetView.size() > 0) {
                 for (int pId = 0; pId < maSetView.getItemPanel().panels().size();
-                               pId++) {
+                     pId++) {
                     DSPanel<DSMicroarray>
                             panel = maSetView.getItemPanel().panels().get(pId);
                     PanelVisualProperties properties = propertiesManager.
@@ -567,7 +569,7 @@ import java.util.Vector;
                     panelIndex++;
                     if (properties == null) {
                         properties = propertiesManager.
-                                     getDefaultVisualProperties(panelIndex);
+                                getDefaultVisualProperties(panelIndex);
                     }
 
                     int itemNo = panel.size();
@@ -581,7 +583,7 @@ import java.util.Vector;
                             hs = new HistogramPanel(basketNum);
                             hs.process(currentMicroarray, minValue, maxValue);
 
-                        basketValues = hs.getBasketvalues();
+                            basketValues = hs.getBasketvalues();
 
 //                            basketValues = new int[basketNum + 1];
 //                            for (int i = 0; i < basketNum; i++) {
@@ -647,7 +649,7 @@ import java.util.Vector;
                                     if (basketValues[i] > 0) {
                                         dataSeries.add(i *
                                                 ((maxValue - minValue) /
-                                                 basketNum) + minValue,
+                                                        basketNum) + minValue,
                                                 basketValues[i]);
 
                                     }
@@ -673,8 +675,8 @@ import java.util.Vector;
             return;
         }
         chart = ChartFactory.createXYLineChart(title, "Value", "Occurrences",
-                                               plots, PlotOrientation.VERTICAL, true,
-                                               isToolTipEnabled, true); // Title,  X-Axis label,  Y-Axis label,  Dataset,  Show legend
+                plots, PlotOrientation.VERTICAL, true,
+                isToolTipEnabled, true); // Title,  X-Axis label,  Y-Axis label,  Dataset,  Show legend
 
         // NOW DO SOME OPTIONAL CUSTOMISATION OF THE CHART...
         chart.setBackgroundPaint(Color.white);
@@ -698,7 +700,7 @@ import java.util.Vector;
         //        xaxis.setRange(minValue, maxValue);
         //        newPlot.setRangeAxis(xaxis);
         XYLineAndShapeRenderer renderer = (XYLineAndShapeRenderer) newPlot.
-                                          getRenderer();
+                getRenderer();
         renderer.setShapesVisible(true);
         renderer.setShapesFilled(true);
         if (isToolTipEnabled) {
@@ -723,8 +725,8 @@ import java.util.Vector;
                     String xStr = myFormatter.format(x);
 
                     return resultStr = label + ": ([" + xStr + ", " +
-                                       myFormatter.format(x + binSize) + "), " +
-                                       (int) y + ")";
+                            myFormatter.format(x + binSize) + "), " +
+                            (int) y + ")";
                 }
             });
         }
@@ -763,7 +765,7 @@ import java.util.Vector;
         //       xAxis.setRange(dateRange);
         if (minValue < maxValue) {
             xAxis.setRange(minValue - RANGE * binSize,
-                           maxValue + RANGE * binSize);
+                    maxValue + RANGE * binSize);
         }
 
         // OPTIONAL CUSTOMISATION COMPLETED.
@@ -796,18 +798,36 @@ import java.util.Vector;
     }
 
     private void jAddBttn_actionPerformed(ActionEvent e) {
+        try {
+            lowValue = new Double(leftBoundary.getText().trim());
+        } catch (NumberFormatException ex) {
+            JOptionPane.showMessageDialog(null, "Please set up correct lower threshold.",
+                    "Please check",
+                    JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        try {
+            highValue = new Double(rightBoundary.getText().trim());
+        } catch (NumberFormatException ex) {
+            JOptionPane.showMessageDialog(null, "Please set up correct upper threshold.",
+                    "Please check",
+                    JOptionPane.ERROR_MESSAGE);
+            return;
+        }
         if (lowValue > highValue) {
             double temp = highValue;
             highValue = lowValue;
             lowValue = temp;
         }
         DSPanel panel = hs.getPanel(lowValue, highValue);
+        selectedGeneNum.setText("Selected genes: " +
+                    hs.getGeneNumbers(lowValue, highValue));
         if (panel != null) {
             publishSubpanelChangedEvent(new SubpanelChangedEvent(DSGeneMarker.class, panel, org.geworkbench.events.SubpanelChangedEvent.NEW));
         } else {
             JOptionPane.showMessageDialog(null, "No gene is selected",
-                                          "Please check",
-                                          JOptionPane.ERROR_MESSAGE);
+                    "Please check",
+                    JOptionPane.ERROR_MESSAGE);
         }
 
     }
@@ -831,7 +851,7 @@ import java.util.Vector;
             int mArrayId = jMASlider.getValue();
             if (mArrayId >= 0) {
                 createNewChart(mArrayId, onlyActivatedArrays);
-                  mainPanel.repaint();
+                mainPanel.repaint();
             }
 
         } else if (mode == TTESTMODE) {
@@ -926,14 +946,14 @@ import java.util.Vector;
                 } else {
 
                     int count = (int) ((value - minValue) /
-                                       ((maxValue - minValue) / nbins));
+                            ((maxValue - minValue) / nbins));
                     if (count >= 0 && count <= nbins) {
                         basketValues[count]++;
                         al[count].add(marker);
                     } else {
                         System.err.println(value + " " + geneCtr +
-                                           maSetView.markers().get(geneCtr).
-                                           getLabel());
+                                maSetView.markers().get(geneCtr).
+                                        getLabel());
                     }
 
                 }
@@ -964,14 +984,14 @@ import java.util.Vector;
                     value = 0;
                 } else {
                     int column = (int) ((value - minValue) /
-                                        ((maxValue - minValue) / nbins));
+                            ((maxValue - minValue) / nbins));
                     if (column >= 0 && column < nbins + 1) {
                         basketValues[column]++;
                         al[column].add(marker);
 
                     } else {
                         System.err.println("IN  process " + marker + value +
-                                           "Column=" + column);
+                                "Column=" + column);
 
                     }
 
@@ -997,7 +1017,7 @@ import java.util.Vector;
             }
 
             return (int) Math.round((cuValue - minValue) /
-                                    ((maxValue - minValue) / nbins));
+                    ((maxValue - minValue) / nbins));
         }
 
         DSPanel getPanel(double leftValue, double rightValue) {
