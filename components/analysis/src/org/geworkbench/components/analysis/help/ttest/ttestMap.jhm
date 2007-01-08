@@ -7,7 +7,8 @@
 <map version="1.0">
 
 	<mapID target="T Test" url="ttest.htm"/>	
-	<mapID target="Volcano Plot" url="volcano.HTML"/>
+	<mapID target="Multi T Test" url="Mttest.htm"/>
+
 	
 
 		
