@@ -1,12 +1,18 @@
 package org.geworkbench.components.annotations;
 
-import gov.nih.nci.caBIO.bean.Gene;
-import gov.nih.nci.common.exception.ManagerException;
-import gov.nih.nci.common.exception.OperationException;
 import org.geworkbench.util.annotation.Pathway;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.*;
+
+import gov.nih.nci.cabio.domain.Gene;
+import gov.nih.nci.cabio.domain.Taxon;
+import gov.nih.nci.system.applicationservice.ApplicationService;
+import gov.nih.nci.system.applicationservice.ApplicationServiceProvider;
+import gov.nih.nci.system.applicationservice.ApplicationException;
 
 /**
  * <p>Copyright: Copyright (c) 2003</p>
@@ -18,6 +24,9 @@ import java.net.URL;
  * @version 1.0
  */
 public class GeneAnnotationImpl implements GeneAnnotation {
+
+    static Log log = LogFactory.getLog(GeneAnnotationImpl.class);
+
     /**
      * Web URL prefix for obtaining Locus Link annotation
      */
@@ -42,6 +51,7 @@ public class GeneAnnotationImpl implements GeneAnnotation {
      * Gene annotation URL
      */
     private URL url = null;
+    private List<CGAPUrl> CGAPURLs = null;
     /**
      * Associated pathways
      */
@@ -58,6 +68,8 @@ public class GeneAnnotationImpl implements GeneAnnotation {
      * Organism abbreviation
      */
     private String organism = null;
+    private static final String HUMAN_ABBREV = "Hs";
+    private static final String MOUSE_ABBREV = "Mm";
 
     /**
      * Default Constructor
@@ -71,35 +83,54 @@ public class GeneAnnotationImpl implements GeneAnnotation {
      * @param gene <code>Gene</code>
      */
     public GeneAnnotationImpl(Gene gene) {
-        name = gene.getTitle();
-        description = gene.getLocusLinkSummary();
-        locusLinkId = gene.getLocusLinkId();
-/*
+        name = gene.getFullName();
+//        description = gene.getLocusLinkSummary();
+//        locusLinkId = gene.getLocusLinkId();
+        description = "Unknown";
+        locusLinkId = "-1";
+
+        gov.nih.nci.cabio.domain.Pathway pathway = new gov.nih.nci.cabio.domain.Pathway();
+        Set genes = new HashSet();
+        genes.add(gene);
+        pathway.setGeneCollection(genes);
+        ApplicationService appService = ApplicationServiceProvider.getApplicationService();
         try {
-            // Todo: Change to new objects.
-            pathways = PathwayImpl.toArray(gene.getPathways());
-        } catch (OperationException oe) {
-            oe.printStackTrace();
+            List<gov.nih.nci.cabio.domain.Pathway> pways = appService.search(
+                    "gov.nih.nci.cabio.domain.Pathway", pathway);
+            pathways = PathwayImpl.toArray(pways);
+        } catch (ApplicationException e) {
+            log.error(e);
         }
-*/
 
         url = composeURL(gene);
+        CGAPURLs = composeCGAPURLs(gene);
     }
 
     private URL composeURL(Gene gene) {
         URL link = null;
         unigeneClusterId = gene.getClusterId();
         try {
-            organism = gene.getOrganismAbbreviation().trim();
+            organism = gene.getTaxon().getAbbreviation();
             link = new URL(GENE_FINDER_PREFIX + "ORG=" + organism + "&CID=" + unigeneClusterId);
             //link = new URL(LOCUS_LINK_PREFIX + locusLinkId);
         } catch (MalformedURLException mu) {
             mu.printStackTrace();
-        } catch (ManagerException me) {
-            me.printStackTrace();
         }
 
         return link;
+    }
+
+    private List<CGAPUrl> composeCGAPURLs(Gene gene) {
+        ArrayList<CGAPUrl> urls = new ArrayList<CGAPUrl>();
+        unigeneClusterId = gene.getClusterId();
+        try {
+            urls.add(new CGAPUrl(new URL(GENE_FINDER_PREFIX + "ORG=" + HUMAN_ABBREV + "&CID=" + unigeneClusterId), HUMAN_ABBREV, "Human"));
+            urls.add(new CGAPUrl(new URL(GENE_FINDER_PREFIX + "ORG=" + MOUSE_ABBREV + "&CID=" + unigeneClusterId), MOUSE_ABBREV, "Mouse"));
+        } catch (MalformedURLException mu) {
+            mu.printStackTrace();
+        }
+
+        return urls;
     }
 
     /**
@@ -158,6 +189,10 @@ public class GeneAnnotationImpl implements GeneAnnotation {
         return url;
     }
 
+    public List<CGAPUrl> getCGAPGeneURLs() {
+        return CGAPURLs;
+    }
+
     /**
      * Gets Scalable Vector Graphic images of Pathways contained in a
      * <code>Pathway[]</code> data structure
@@ -169,41 +204,63 @@ public class GeneAnnotationImpl implements GeneAnnotation {
     }
 
     /**
-     * Gets the number of Pathways associated with this <code>GeneAnnotation</code>
-     * hence <code>Gene</code> instance
-     *
-     * @return pathway count
-     */
-    public int getPathwaysCount() {
-        return pathways.length;
-    }
-
-    /**
-     * Utility method to retrieve individual Pathways
-     *
-     * @param index index of Pathway to be retrieved
-     * @return Pathway
-     */
-    public Pathway getPathwayAtIndex(int index) {
-        if (index < pathways.length)
-            return pathways[index];
-        throw new ArrayIndexOutOfBoundsException(index);
-    }
-
-    /**
      * Creates <code>GeneAnnotation[]</code> object from <code>Gene[]</code>
      * obtained from caBIO queries
      *
-     * @param array query result from caBIO
+     * @param geneList query result from caBIO
      * @return <code>GeneAnnotation[]</code> object
      */
-    public static GeneAnnotation[] toArray(Gene[] array) {
-        GeneAnnotation[] toBeReturned = new GeneAnnotationImpl[array.length];
-        for (int i = 0; i < array.length; i++) {
-            toBeReturned[i] = new GeneAnnotationImpl(array[i]);
+    public static GeneAnnotation[] toUniqueArray(List<gov.nih.nci.cabio.domain.Gene> geneList) {
+        Set<GeneAnnotation> uniqueGenes = new HashSet<GeneAnnotation>();
+        for (int i = 0; i < geneList.size(); i++) {
+            uniqueGenes.add(new GeneAnnotationImpl(geneList.get(i)));
+        }
+        return uniqueGenes.toArray(new GeneAnnotation[]{});
+    }
+
+    public boolean equals(Object object) {
+        GeneAnnotation other = (GeneAnnotation) object;
+        return name.equals(other.getGeneName());
+    }
+
+    public int hashCode() {
+        return name.hashCode();
+    }
+
+    public class CGAPUrl {
+        private URL url;
+        private String organismAbbrev;
+        private String organismName;
+
+        public CGAPUrl(URL url, String organismAbbrev, String organismName) {
+            this.url = url;
+            this.organismAbbrev = organismAbbrev;
+            this.organismName = organismName;
         }
 
-        return toBeReturned;
+        public URL getUrl() {
+            return url;
+        }
+
+        public void setUrl(URL url) {
+            this.url = url;
+        }
+
+        public String getOrganismAbbrev() {
+            return organismAbbrev;
+        }
+
+        public void setOrganismAbbrev(String organismAbbrev) {
+            this.organismAbbrev = organismAbbrev;
+        }
+
+        public String getOrganismName() {
+            return organismName;
+        }
+
+        public void setOrganismName(String organismName) {
+            this.organismName = organismName;
+        }
     }
 
 }

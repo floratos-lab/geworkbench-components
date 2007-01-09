@@ -17,39 +17,14 @@ public interface GeneSearchCriteria {
      *
      * @param name accession
      */
-    void setSearchName(String name);
+    GeneAnnotation[] searchByName(String name);
 
     /**
      * Sets a BioCarta identifier to be a Search criterion
      *
      * @param bcid BioCarta ID
      */
-    void setSearchByBCID(String bcid);
+    GeneAnnotation[] searchByBCID(String bcid);
 
-    /**
-     * Invokes the query for annotations to caBIO
-     */
-    void search();
-
-    /**
-     * Gets the <code>GeneAnnotation[]</code> returned by a serach to caBIO
-     *
-     * @return gene annotation search result
-     */
-    GeneAnnotation[] getGeneAnnotations();
-
-    /**
-     * Gets the number of <code>GeneAnnotation[]</code> obtained by a serach
-     *
-     * @return number of Genes retrieved
-     */
-    int getResultsSize();
-
-    /**
-     * Utility method to retrieve individual <code>GeneAnnotation</code> objects
-     *
-     * @param index index of Annotation to be retrieved
-     * @return Annotation
-     */
-    GeneAnnotation getGeneAnnotationAtIndex(int index);
+    GeneAnnotation[] searchByProbeId(String probeId);
 }

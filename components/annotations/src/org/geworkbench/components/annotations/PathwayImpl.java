@@ -1,8 +1,8 @@
 package org.geworkbench.components.annotations;
 
-import gov.nih.nci.caBIO.util.PathwayDiagram;
-import gov.nih.nci.common.util.SVGManipulator;
 import org.geworkbench.util.annotation.Pathway;
+
+import java.util.List;
 
 /**
  * <p>Copyright: Copyright (c) 2003</p>
@@ -71,10 +71,10 @@ public class PathwayImpl implements org.geworkbench.util.annotation.Pathway {
      * @return list of <code>Pathway</code> intances corresponding to the caBIO
      *         results
      */
-    public static Pathway[] toArray(gov.nih.nci.cabio.domain.Pathway[] array) {
-        Pathway[] toBeReturned = new PathwayImpl[array.length];
-        for (int i = 0; i < array.length; i++) {
-            toBeReturned[i] = new PathwayImpl(array[i]);
+    public static Pathway[] toArray(List<gov.nih.nci.cabio.domain.Pathway> array) {
+        Pathway[] toBeReturned = new PathwayImpl[array.size()];
+        for (int i = 0; i < array.size(); i++) {
+            toBeReturned[i] = new PathwayImpl(array.get(i));
         }
 
         return toBeReturned;
