@@ -1,10 +1,15 @@
 package org.geworkbench.components.annotations;
 
-import gov.nih.nci.caBIO.bean.ExpressionMeasurementSearchCriteria;
-import gov.nih.nci.caBIO.bean.Gene;
-import gov.nih.nci.caBIO.bean.SearchResult;
-import gov.nih.nci.caBIO.util.CriteriaElement;
-import gov.nih.nci.caBIO.util.ManagerException;
+import gov.nih.nci.cabio.domain.Gene;
+import gov.nih.nci.cabio.domain.GenericReporter;
+import gov.nih.nci.system.applicationservice.ApplicationService;
+import gov.nih.nci.system.applicationservice.ApplicationServiceProvider;
+import gov.nih.nci.system.applicationservice.ApplicationException;
+
+import java.util.List;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * <p>Copyright: Copyright (c) 2003</p>
@@ -16,27 +21,26 @@ import gov.nih.nci.caBIO.util.ManagerException;
  * @version 1.0
  */
 public class GeneSearchCriteriaImpl implements GeneSearchCriteria {
-    private ExpressionMeasurementSearchCriteria exMeasurementSC = null;
-    private gov.nih.nci.caBIO.bean.GeneSearchCriteria geneSearchCriteria = null;
-    private Gene gene = null;
-    private GeneAnnotation[] geneAnnotations = null;
-    private Gene[] results = null;
+    static Log log = LogFactory.getLog(GeneSearchCriteriaImpl.class);
 
-    /**
-     * Default Constructor
-     */
-    public GeneSearchCriteriaImpl() {
-        gene = new Gene();
-    }
+    ApplicationService appService = ApplicationServiceProvider.getApplicationService();
 
     /**
      * Sets a BioCarta identifier to be a Search criterion
      *
      * @param bcid BioCarta ID
      */
-    public void setSearchByBCID(String bcid) {
-        geneSearchCriteria = new gov.nih.nci.caBIO.bean.GeneSearchCriteria();
-        geneSearchCriteria.setBCId(bcid.toUpperCase());
+    public GeneAnnotation[] searchByBCID(String bcid) {
+        Gene gene = new Gene();
+        gene.setSymbol(bcid);
+//        gene.setClusterId(Long.parseLong(bcid));
+        try {
+            List<Gene> results = appService.search(Gene.class, gene);
+            return GeneAnnotationImpl.toUniqueArray(results);
+        } catch (ApplicationException e) {
+            log.error(e);
+            return null;
+        }
     }
 
     /**
@@ -45,57 +49,29 @@ public class GeneSearchCriteriaImpl implements GeneSearchCriteria {
      *
      * @param name accession
      */
-    public void setSearchName(String name) {
-        exMeasurementSC = new ExpressionMeasurementSearchCriteria();
-        geneSearchCriteria = new gov.nih.nci.caBIO.bean.GeneSearchCriteria();
-        exMeasurementSC.setName(name);
-        geneSearchCriteria.putSearchCriteria(exMeasurementSC, CriteriaElement.AND);
-    }
+    public GeneAnnotation[] searchByName(String name) {
+        Gene gene = new Gene();
+        gene.setSymbol(name);
 
-    /**
-     * Invokes the query for annotations to caBIO
-     */
-    public void search() {
         try {
-            results = gene.searchGenes(geneSearchCriteria);
-        } catch (ManagerException me) {
-            me.printStackTrace();
-        } catch (gov.nih.nci.common.exception.ManagerException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            List<Gene> results = appService.search(Gene.class, gene);
+            return GeneAnnotationImpl.toUniqueArray(results);
+        } catch (ApplicationException e) {
+            log.error(e);
+            return null;
         }
-
-        assert results != null : "Result null";
-        geneAnnotations = GeneAnnotationImpl.toArray(results);
     }
 
-    /**
-     * Gets the <code>GeneAnnotation[]</code> returned by a serach to caBIO
-     *
-     * @return gene annotation search result
-     */
-    public GeneAnnotation[] getGeneAnnotations() {
-        return geneAnnotations;
-    }
+    public GeneAnnotation[] searchByProbeId(String probeId) {
+        GenericReporter reporter = new GenericReporter();
+        reporter.setName(probeId);
 
-    /**
-     * Gets the number of <code>GeneAnnotation[]</code> obtained by a serach
-     *
-     * @return number of Genes retrieved
-     */
-    public int getResultsSize() {
-        return geneAnnotations.length;
+        try {
+            List<Gene> results = appService.search(Gene.class, reporter);
+            return GeneAnnotationImpl.toUniqueArray(results);
+        } catch (ApplicationException e) {
+            log.error(e);
+            return null;
+        }
     }
-
-    /**
-     * Utility method to retrieve individual <code>GeneAnnotation</code> objects
-     *
-     * @param index index of Annotation to be retrieved
-     * @return Annotation
-     */
-    public GeneAnnotation getGeneAnnotationAtIndex(int index) {
-        if (index < geneAnnotations.length)
-            return geneAnnotations[index];
-        throw new ArrayIndexOutOfBoundsException(index);
-    }
-
 }

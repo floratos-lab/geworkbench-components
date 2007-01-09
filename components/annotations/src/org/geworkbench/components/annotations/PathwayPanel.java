@@ -12,6 +12,8 @@ import org.apache.batik.swing.svg.SVGUserAgent;
 import org.apache.batik.util.ParsedURL;
 import org.apache.batik.util.XMLResourceDescriptor;
 import org.apache.batik.util.gui.JErrorPane;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.engine.management.AcceptTypes;
@@ -36,7 +38,11 @@ import java.util.Locale;
  * @version 1.0
  * @(#)PathwayPanel.java	1.0 06/02/03
  */
-@AcceptTypes({DSMicroarraySet.class}) public class PathwayPanel implements VisualPlugin {
+@AcceptTypes({DSMicroarraySet.class})
+public class PathwayPanel implements VisualPlugin {
+
+    static Log log = LogFactory.getLog(PathwayPanel.class);
+
     /**
      * Visual Widget
      */
@@ -54,6 +60,7 @@ import java.util.Locale;
      * <code>Canvas</code> on which the Pathway SVG image is drawn
      */
     private JSVGCanvas svgCanvas = new JSVGCanvas(new UserAgent(), true, true);
+    private static final String CABIO_BASE_URL = "http://cabio.nci.nih.gov/";
 
     /**
      * Default Constructor
@@ -107,7 +114,8 @@ import java.util.Locale;
      * @param ae <code>AnnotationsEvent</code> that contains the
      *           <code>Pathway</code> to be shown
      */
-    @Subscribe public void receive(org.geworkbench.events.AnnotationsEvent ae, Object source) {
+    @Subscribe
+    public void receive(org.geworkbench.events.AnnotationsEvent ae, Object source) {
         Container parent = pathwayPanel.getParent();
         if (parent instanceof JTabbedPane)
             ((JTabbedPane) parent).setSelectedComponent(pathwayPanel);
@@ -159,60 +167,54 @@ import java.util.Locale;
     private void walk(Node node) {
         int type = node.getNodeType();
         switch (type) {
-            case Node.DOCUMENT_NODE:
-                {
-                    System.out.println("<?xml version=\"1.0\" encoding=\"" + "UTF-8" + "\"?>");
-                    break;
-                }
+            case Node.DOCUMENT_NODE: {
+                System.out.println("<?xml version=\"1.0\" encoding=\"" + "UTF-8" + "\"?>");
+                break;
+            }
 
-            case Node.ELEMENT_NODE:
-                {
-                    System.out.print('<' + node.getNodeName());
-                    NamedNodeMap nnm = node.getAttributes();
-                    if (nnm != null) {
-                        int len = nnm.getLength();
-                        Attr attr;
-                        for (int i = 0; i < len; i++) {
-                            attr = (Attr) nnm.item(i);
-                            System.out.print(" " + attr.getNodeName() + "=\"" + attr.getNodeValue() + "\"");
-                        }
-
+            case Node.ELEMENT_NODE: {
+                System.out.print('<' + node.getNodeName());
+                NamedNodeMap nnm = node.getAttributes();
+                if (nnm != null) {
+                    int len = nnm.getLength();
+                    Attr attr;
+                    for (int i = 0; i < len; i++) {
+                        attr = (Attr) nnm.item(i);
+                        System.out.print(" " + attr.getNodeName() + "=\"" + attr.getNodeValue() + "\"");
                     }
 
-                    System.out.print('>');
-                    break;
                 }
 
-            case Node.ENTITY_REFERENCE_NODE:
-                {
-                    System.out.print('&' + node.getNodeName() + ';');
-                    break;
+                System.out.print('>');
+                break;
+            }
+
+            case Node.ENTITY_REFERENCE_NODE: {
+                System.out.print('&' + node.getNodeName() + ';');
+                break;
+            }
+
+            case Node.CDATA_SECTION_NODE: {
+                System.out.print("<![CDATA[" + node.getNodeValue() + "]]>");
+                break;
+            }
+
+            case Node.TEXT_NODE: {
+                System.out.print(node.getNodeValue());
+                break;
+            }
+
+            case Node.PROCESSING_INSTRUCTION_NODE: {
+                System.out.print("<?" + node.getNodeName());
+                String data = node.getNodeValue();
+                if (data != null && data.length() > 0) {
+                    System.out.print(' ');
+                    System.out.print(data);
                 }
 
-            case Node.CDATA_SECTION_NODE:
-                {
-                    System.out.print("<![CDATA[" + node.getNodeValue() + "]]>");
-                    break;
-                }
-
-            case Node.TEXT_NODE:
-                {
-                    System.out.print(node.getNodeValue());
-                    break;
-                }
-
-            case Node.PROCESSING_INSTRUCTION_NODE:
-                {
-                    System.out.print("<?" + node.getNodeName());
-                    String data = node.getNodeValue();
-                    if (data != null && data.length() > 0) {
-                        System.out.print(' ');
-                        System.out.print(data);
-                    }
-
-                    System.out.println("?>");
-                    break;
-                }
+                System.out.println("?>");
+                break;
+            }
 
         }
 
@@ -225,17 +227,20 @@ import java.util.Locale;
     }
 
     private void svgCanvas_linkActivated(LinkActivationEvent lae) {
-        String uri = lae.getReferencedURI();
+        String uri = CABIO_BASE_URL + lae.getReferencedURI();
+
+/*
         int index = uri.indexOf("BCID");
         String bcid = uri.substring(index + 5, uri.length());
         GeneSearchCriteria criteria = new GeneSearchCriteriaImpl();
-        criteria.setSearchByBCID(bcid);
-        criteria.search();
-        GeneAnnotation[] matchingGenes = criteria.getGeneAnnotations();
+        GeneAnnotation[] matchingGenes = criteria.searchByBCID(bcid);
+//        criteria.search();
+//        GeneAnnotation[] matchingGenes = criteria.getGeneAnnotations();
         assert matchingGenes.length == 1 : "Search on BCID should return just 1 Gene";
-        String url = matchingGenes[0].getGeneURL().toString();
+*/
         try {
-            org.geworkbench.util.BrowserLauncher.openURL(url.toString());
+            log.debug("Opening " + uri);
+            org.geworkbench.util.BrowserLauncher.openURL(uri);
         } catch (IOException ioe) {
             ioe.printStackTrace();
         }

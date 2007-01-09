@@ -3,6 +3,7 @@ package org.geworkbench.components.annotations;
 import org.geworkbench.util.annotation.Pathway;
 
 import java.net.URL;
+import java.util.List;
 
 /**
  * <p>Copyright: Copyright (c) 2003</p>
@@ -28,12 +29,7 @@ public interface GeneAnnotation {
      */
     String getGeneDescription();
 
-    /**
-     * Gets Gene URL
-     *
-     * @return Gene URL
-     */
-    URL getGeneURL();
+    List<GeneAnnotationImpl.CGAPUrl> getCGAPGeneURLs();
 
     /**
      * Gets Gene Locus Link ID
@@ -63,18 +59,5 @@ public interface GeneAnnotation {
      */
     org.geworkbench.util.annotation.Pathway[] getPathways();
 
-    /**
-     * Gets associated pathways count
-     *
-     * @return associated pathways count
-     */
-    int getPathwaysCount();
-
-    /**
-     * Gets the Pathway at a certain index
-     *
-     * @param index at which pathway has to be retrieved
-     * @return pathway
-     */
-    Pathway getPathwayAtIndex(int index);
+//    boolean equals(Object object);
 }
