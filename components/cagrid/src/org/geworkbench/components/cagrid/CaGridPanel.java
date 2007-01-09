@@ -2,6 +2,7 @@ package org.geworkbench.components.cagrid;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -9,13 +10,14 @@ import java.rmi.RemoteException;
 
 import javax.swing.Box;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
+import javax.swing.JTextField;
 
 import org.apache.axis.message.addressing.EndpointReferenceType;
 import org.apache.axis.types.URI;
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
@@ -51,7 +53,7 @@ import gov.nih.nci.cagrid.metadata.ServiceMetadata;
 
 /**
  * @author John Watkinson
- * @version $Id: CaGridPanel.java,v 1.3 2007-01-09 16:15:37 keshav Exp $
+ * @version $Id: CaGridPanel.java,v 1.4 2007-01-09 20:37:56 keshav Exp $
  */
 public class CaGridPanel extends JPanel implements VisualPlugin {
 
@@ -153,6 +155,7 @@ public class CaGridPanel extends JPanel implements VisualPlugin {
 		DefaultFormBuilder builder = new DefaultFormBuilder(layout);
 		builder.setDefaultDialogBorder();
 		builder.appendSeparator("Services");
+
 		ActionListener serviceListener = new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				try {
@@ -177,6 +180,28 @@ public class CaGridPanel extends JPanel implements VisualPlugin {
 				builder.append(runButton, new JLabel(name));
 			}
 		}
+		servicePanel.removeAll();
+		servicePanel.add(builder.getPanel());
+		revalidate();
+		repaint();
+	}
+
+	/**
+	 * 
+	 * 
+	 */
+	private void populateSomParameters() {
+		FormLayout layout = new FormLayout(
+				"right:max(40dlu;pref), 3dlu, 100dlu, 7dlu", "");
+		DefaultFormBuilder builder = new DefaultFormBuilder(layout);
+		builder.setDefaultDialogBorder();
+		builder.appendSeparator("Parameters");
+		builder.append("dim x", new JTextField());
+		builder.append("dim y", new JTextField());
+		builder.append("function", new JTextField());
+		builder.append("radius", new JTextField());
+		builder.append("alpha", new JTextField());
+		builder.append("iteration", new JTextField());
 		servicePanel.removeAll();
 		servicePanel.add(builder.getPanel());
 		revalidate();
@@ -228,13 +253,16 @@ public class CaGridPanel extends JPanel implements VisualPlugin {
 								microarraySet);
 						MicroarraySet gridSet = CagridMicroarrayTypeConverter
 								.convertToCagridMicroarrayType(view);
-						// HierarchicalClusteringParameter parameters = new
-						// HierarchicalClusteringParameter("microarray",
-						// "euclidean", "total");
+
 						if (url.contains(HIERARCHICAL_CLUSTERING)) {
 							GridHierarchicalClusteringDialog dialog = new GridHierarchicalClusteringDialog();
+
 							HierarchicalClusteringParameter parameters = dialog
 									.getParameters();
+
+							// HierarchicalClusteringParameter parameters =
+							// populateHierarchicalParameters();
+
 							if (parameters == null) {
 								// Cancelled dialog
 								return;
@@ -258,6 +286,8 @@ public class CaGridPanel extends JPanel implements VisualPlugin {
 							}
 						} else if (url.contains(SOM_CLUSTERING)) {
 
+							populateSomParameters();
+
 						} else {
 							log.info("No services exist at " + url);
 							// TODO add error message
@@ -269,6 +299,7 @@ public class CaGridPanel extends JPanel implements VisualPlugin {
 						pBar.stop();
 					}
 				}
+
 			};
 			Thread thread = new Thread(task);
 			thread.start();
