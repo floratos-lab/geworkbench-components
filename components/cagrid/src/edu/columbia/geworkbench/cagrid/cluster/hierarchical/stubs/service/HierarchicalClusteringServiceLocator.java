@@ -5,9 +5,9 @@
  * by the Apache Axis 1.2RC2 Mar 03, 2006 (12:17:06 EST) WSDL2Java emitter.
  */
 
-package edu.columbia.geworkbench.cagrid.cluster.stubs.service;
+package edu.columbia.geworkbench.cagrid.cluster.hierarchical.stubs.service;
 
-public class HierarchicalClusteringServiceLocator extends org.apache.axis.client.Service implements edu.columbia.geworkbench.cagrid.cluster.stubs.service.HierarchicalClusteringService {
+public class HierarchicalClusteringServiceLocator extends org.apache.axis.client.Service implements edu.columbia.geworkbench.cagrid.cluster.hierarchical.stubs.service.HierarchicalClusteringService {
 
     public HierarchicalClusteringServiceLocator() {
     }
@@ -39,7 +39,7 @@ public class HierarchicalClusteringServiceLocator extends org.apache.axis.client
         HierarchicalClusteringPortTypePortWSDDServiceName = name;
     }
 
-    public edu.columbia.geworkbench.cagrid.cluster.stubs.HierarchicalClusteringPortType getHierarchicalClusteringPortTypePort() throws javax.xml.rpc.ServiceException {
+    public edu.columbia.geworkbench.cagrid.cluster.hierarchical.stubs.HierarchicalClusteringPortType getHierarchicalClusteringPortTypePort() throws javax.xml.rpc.ServiceException {
        java.net.URL endpoint;
         try {
             endpoint = new java.net.URL(HierarchicalClusteringPortTypePort_address);
@@ -50,9 +50,9 @@ public class HierarchicalClusteringServiceLocator extends org.apache.axis.client
         return getHierarchicalClusteringPortTypePort(endpoint);
     }
 
-    public edu.columbia.geworkbench.cagrid.cluster.stubs.HierarchicalClusteringPortType getHierarchicalClusteringPortTypePort(java.net.URL portAddress) throws javax.xml.rpc.ServiceException {
+    public edu.columbia.geworkbench.cagrid.cluster.hierarchical.stubs.HierarchicalClusteringPortType getHierarchicalClusteringPortTypePort(java.net.URL portAddress) throws javax.xml.rpc.ServiceException {
         try {
-            edu.columbia.geworkbench.cagrid.cluster.stubs.bindings.HierarchicalClusteringPortTypeSOAPBindingStub _stub = new edu.columbia.geworkbench.cagrid.cluster.stubs.bindings.HierarchicalClusteringPortTypeSOAPBindingStub(portAddress, this);
+            edu.columbia.geworkbench.cagrid.cluster.hierarchical.stubs.bindings.HierarchicalClusteringPortTypeSOAPBindingStub _stub = new edu.columbia.geworkbench.cagrid.cluster.hierarchical.stubs.bindings.HierarchicalClusteringPortTypeSOAPBindingStub(portAddress, this);
             _stub.setPortName(getHierarchicalClusteringPortTypePortWSDDServiceName());
             return _stub;
         }
@@ -72,8 +72,8 @@ public class HierarchicalClusteringServiceLocator extends org.apache.axis.client
      */
     public java.rmi.Remote getPort(Class serviceEndpointInterface) throws javax.xml.rpc.ServiceException {
         try {
-            if (edu.columbia.geworkbench.cagrid.cluster.stubs.HierarchicalClusteringPortType.class.isAssignableFrom(serviceEndpointInterface)) {
-                edu.columbia.geworkbench.cagrid.cluster.stubs.bindings.HierarchicalClusteringPortTypeSOAPBindingStub _stub = new edu.columbia.geworkbench.cagrid.cluster.stubs.bindings.HierarchicalClusteringPortTypeSOAPBindingStub(new java.net.URL(HierarchicalClusteringPortTypePort_address), this);
+            if (edu.columbia.geworkbench.cagrid.cluster.hierarchical.stubs.HierarchicalClusteringPortType.class.isAssignableFrom(serviceEndpointInterface)) {
+                edu.columbia.geworkbench.cagrid.cluster.hierarchical.stubs.bindings.HierarchicalClusteringPortTypeSOAPBindingStub _stub = new edu.columbia.geworkbench.cagrid.cluster.hierarchical.stubs.bindings.HierarchicalClusteringPortTypeSOAPBindingStub(new java.net.URL(HierarchicalClusteringPortTypePort_address), this);
                 _stub.setPortName(getHierarchicalClusteringPortTypePortWSDDServiceName());
                 return _stub;
             }
