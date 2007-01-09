@@ -5,18 +5,18 @@
  * by the Apache Axis 1.2RC2 Mar 03, 2006 (12:17:06 EST) WSDL2Java emitter.
  */
 
-package edu.columbia.geworkbench.cagrid.cluster.stubs;
+package edu.columbia.geworkbench.cagrid.cluster.hierarchical.stubs;
 
 public class ExecuteRequest  implements java.io.Serializable {
-    private edu.columbia.geworkbench.cagrid.cluster.stubs.ExecuteRequestMicroarraySet microarraySet;
-    private edu.columbia.geworkbench.cagrid.cluster.stubs.ExecuteRequestHierarchicalClusteringParameter hierarchicalClusteringParameter;
+    private edu.columbia.geworkbench.cagrid.cluster.hierarchical.stubs.ExecuteRequestMicroarraySet microarraySet;
+    private edu.columbia.geworkbench.cagrid.cluster.hierarchical.stubs.ExecuteRequestHierarchicalClusteringParameter hierarchicalClusteringParameter;
 
     public ExecuteRequest() {
     }
 
     public ExecuteRequest(
-           edu.columbia.geworkbench.cagrid.cluster.stubs.ExecuteRequestHierarchicalClusteringParameter hierarchicalClusteringParameter,
-           edu.columbia.geworkbench.cagrid.cluster.stubs.ExecuteRequestMicroarraySet microarraySet) {
+           edu.columbia.geworkbench.cagrid.cluster.hierarchical.stubs.ExecuteRequestHierarchicalClusteringParameter hierarchicalClusteringParameter,
+           edu.columbia.geworkbench.cagrid.cluster.hierarchical.stubs.ExecuteRequestMicroarraySet microarraySet) {
            this.microarraySet = microarraySet;
            this.hierarchicalClusteringParameter = hierarchicalClusteringParameter;
     }
@@ -27,7 +27,7 @@ public class ExecuteRequest  implements java.io.Serializable {
      * 
      * @return microarraySet
      */
-    public edu.columbia.geworkbench.cagrid.cluster.stubs.ExecuteRequestMicroarraySet getMicroarraySet() {
+    public edu.columbia.geworkbench.cagrid.cluster.hierarchical.stubs.ExecuteRequestMicroarraySet getMicroarraySet() {
         return microarraySet;
     }
 
@@ -37,7 +37,7 @@ public class ExecuteRequest  implements java.io.Serializable {
      * 
      * @param microarraySet
      */
-    public void setMicroarraySet(edu.columbia.geworkbench.cagrid.cluster.stubs.ExecuteRequestMicroarraySet microarraySet) {
+    public void setMicroarraySet(edu.columbia.geworkbench.cagrid.cluster.hierarchical.stubs.ExecuteRequestMicroarraySet microarraySet) {
         this.microarraySet = microarraySet;
     }
 
@@ -47,7 +47,7 @@ public class ExecuteRequest  implements java.io.Serializable {
      * 
      * @return hierarchicalClusteringParameter
      */
-    public edu.columbia.geworkbench.cagrid.cluster.stubs.ExecuteRequestHierarchicalClusteringParameter getHierarchicalClusteringParameter() {
+    public edu.columbia.geworkbench.cagrid.cluster.hierarchical.stubs.ExecuteRequestHierarchicalClusteringParameter getHierarchicalClusteringParameter() {
         return hierarchicalClusteringParameter;
     }
 
@@ -57,7 +57,7 @@ public class ExecuteRequest  implements java.io.Serializable {
      * 
      * @param hierarchicalClusteringParameter
      */
-    public void setHierarchicalClusteringParameter(edu.columbia.geworkbench.cagrid.cluster.stubs.ExecuteRequestHierarchicalClusteringParameter hierarchicalClusteringParameter) {
+    public void setHierarchicalClusteringParameter(edu.columbia.geworkbench.cagrid.cluster.hierarchical.stubs.ExecuteRequestHierarchicalClusteringParameter hierarchicalClusteringParameter) {
         this.hierarchicalClusteringParameter = hierarchicalClusteringParameter;
     }
 

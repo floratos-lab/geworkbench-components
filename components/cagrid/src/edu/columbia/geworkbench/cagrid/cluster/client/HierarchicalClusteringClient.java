@@ -21,9 +21,9 @@ package edu.columbia.geworkbench.cagrid.cluster.client;
 import edu.columbia.geworkbench.cagrid.cluster.common.HierarchicalClusteringI;
 import edu.columbia.geworkbench.cagrid.cluster.hierarchical.HierarchicalCluster;
 import edu.columbia.geworkbench.cagrid.cluster.hierarchical.HierarchicalClusteringParameter;
+import edu.columbia.geworkbench.cagrid.cluster.hierarchical.stubs.HierarchicalClusteringPortType;
+import edu.columbia.geworkbench.cagrid.cluster.hierarchical.stubs.service.HierarchicalClusteringServiceAddressingLocator;
 import edu.columbia.geworkbench.cagrid.cluster.parser.TabDelimParser;
-import edu.columbia.geworkbench.cagrid.cluster.stubs.HierarchicalClusteringPortType;
-import edu.columbia.geworkbench.cagrid.cluster.stubs.service.HierarchicalClusteringServiceAddressingLocator;
 import edu.columbia.geworkbench.cagrid.microarray.Marker;
 import edu.columbia.geworkbench.cagrid.microarray.Microarray;
 import edu.columbia.geworkbench.cagrid.microarray.MicroarraySet;
@@ -55,7 +55,7 @@ import org.globus.gsi.GlobusCredential;
  * 
  * @created by Introduce Toolkit version 1.0
  * @author Kiran Keshav
- * @version $Id: HierarchicalClusteringClient.java,v 1.2 2007-01-04 22:03:15 watkinson Exp $
+ * @version $Id: HierarchicalClusteringClient.java,v 1.3 2007-01-09 16:15:09 keshav Exp $
  */
 public class HierarchicalClusteringClient extends ServiceSecurityClient implements HierarchicalClusteringI {
     private static Log log = LogFactory.getLog( HierarchicalClusteringClient.class );
@@ -239,14 +239,14 @@ public class HierarchicalClusteringClient extends ServiceSecurityClient implemen
     public edu.columbia.geworkbench.cagrid.cluster.hierarchical.HierarchicalCluster execute(edu.columbia.geworkbench.cagrid.microarray.MicroarraySet microarraySet,edu.columbia.geworkbench.cagrid.cluster.hierarchical.HierarchicalClusteringParameter hierarchicalClusteringParameter) throws RemoteException {
       synchronized(portTypeMutex){
         configureStubSecurity((Stub)portType,"execute");
-        edu.columbia.geworkbench.cagrid.cluster.stubs.ExecuteRequest params = new edu.columbia.geworkbench.cagrid.cluster.stubs.ExecuteRequest();
-        edu.columbia.geworkbench.cagrid.cluster.stubs.ExecuteRequestMicroarraySet microarraySetContainer = new edu.columbia.geworkbench.cagrid.cluster.stubs.ExecuteRequestMicroarraySet();
+        edu.columbia.geworkbench.cagrid.cluster.hierarchical.stubs.ExecuteRequest params = new edu.columbia.geworkbench.cagrid.cluster.hierarchical.stubs.ExecuteRequest();
+        edu.columbia.geworkbench.cagrid.cluster.hierarchical.stubs.ExecuteRequestMicroarraySet microarraySetContainer = new edu.columbia.geworkbench.cagrid.cluster.hierarchical.stubs.ExecuteRequestMicroarraySet();
         microarraySetContainer.setMicroarraySet(microarraySet);
         params.setMicroarraySet(microarraySetContainer);
-        edu.columbia.geworkbench.cagrid.cluster.stubs.ExecuteRequestHierarchicalClusteringParameter hierarchicalClusteringParameterContainer = new edu.columbia.geworkbench.cagrid.cluster.stubs.ExecuteRequestHierarchicalClusteringParameter();
+        edu.columbia.geworkbench.cagrid.cluster.hierarchical.stubs.ExecuteRequestHierarchicalClusteringParameter hierarchicalClusteringParameterContainer = new edu.columbia.geworkbench.cagrid.cluster.hierarchical.stubs.ExecuteRequestHierarchicalClusteringParameter();
         hierarchicalClusteringParameterContainer.setHierarchicalClusteringParameter(hierarchicalClusteringParameter);
         params.setHierarchicalClusteringParameter(hierarchicalClusteringParameterContainer);
-        edu.columbia.geworkbench.cagrid.cluster.stubs.ExecuteResponse boxedResult = portType.execute(params);
+        edu.columbia.geworkbench.cagrid.cluster.hierarchical.stubs.ExecuteResponse boxedResult = portType.execute(params);
         return boxedResult.getHierarchicalCluster();
       }
     }

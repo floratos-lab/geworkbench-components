@@ -5,9 +5,9 @@
  * by the Apache Axis 1.2RC2 Mar 03, 2006 (12:17:06 EST) WSDL2Java emitter.
  */
 
-package edu.columbia.geworkbench.cagrid.cluster.stubs.bindings;
+package edu.columbia.geworkbench.cagrid.cluster.hierarchical.stubs.bindings;
 
-public class HierarchicalClusteringPortTypeSOAPBindingStub extends org.apache.axis.client.Stub implements edu.columbia.geworkbench.cagrid.cluster.stubs.HierarchicalClusteringPortType {
+public class HierarchicalClusteringPortTypeSOAPBindingStub extends org.apache.axis.client.Stub implements edu.columbia.geworkbench.cagrid.cluster.hierarchical.stubs.HierarchicalClusteringPortType {
     private java.util.Vector cachedSerClasses = new java.util.Vector();
     private java.util.Vector cachedSerQNames = new java.util.Vector();
     private java.util.Vector cachedSerFactories = new java.util.Vector();
@@ -24,9 +24,9 @@ public class HierarchicalClusteringPortTypeSOAPBindingStub extends org.apache.ax
         org.apache.axis.description.OperationDesc oper;
         oper = new org.apache.axis.description.OperationDesc();
         oper.setName("execute");
-        oper.addParameter(new javax.xml.namespace.QName("http://cagrid.geworkbench.columbia.edu/HierarchicalClustering", "ExecuteRequest"), new javax.xml.namespace.QName("http://cagrid.geworkbench.columbia.edu/HierarchicalClustering", ">ExecuteRequest"), edu.columbia.geworkbench.cagrid.cluster.stubs.ExecuteRequest.class, org.apache.axis.description.ParameterDesc.IN, false, false);
+        oper.addParameter(new javax.xml.namespace.QName("http://cagrid.geworkbench.columbia.edu/HierarchicalClustering", "ExecuteRequest"), new javax.xml.namespace.QName("http://cagrid.geworkbench.columbia.edu/HierarchicalClustering", ">ExecuteRequest"), edu.columbia.geworkbench.cagrid.cluster.hierarchical.stubs.ExecuteRequest.class, org.apache.axis.description.ParameterDesc.IN, false, false);
         oper.setReturnType(new javax.xml.namespace.QName("http://cagrid.geworkbench.columbia.edu/HierarchicalClustering", ">ExecuteResponse"));
-        oper.setReturnClass(edu.columbia.geworkbench.cagrid.cluster.stubs.ExecuteResponse.class);
+        oper.setReturnClass(edu.columbia.geworkbench.cagrid.cluster.hierarchical.stubs.ExecuteResponse.class);
         oper.setReturnQName(new javax.xml.namespace.QName("http://cagrid.geworkbench.columbia.edu/HierarchicalClustering", "ExecuteResponse"));
         oper.setStyle(org.apache.axis.constants.Style.DOCUMENT);
         oper.setUse(org.apache.axis.constants.Use.LITERAL);
@@ -349,7 +349,7 @@ public class HierarchicalClusteringPortTypeSOAPBindingStub extends org.apache.ax
 
             qName = new javax.xml.namespace.QName("http://cagrid.geworkbench.columbia.edu/HierarchicalClustering", ">>ExecuteRequest>hierarchicalClusteringParameter");
             cachedSerQNames.add(qName);
-            cls = edu.columbia.geworkbench.cagrid.cluster.stubs.ExecuteRequestHierarchicalClusteringParameter.class;
+            cls = edu.columbia.geworkbench.cagrid.cluster.hierarchical.stubs.ExecuteRequestHierarchicalClusteringParameter.class;
             cachedSerClasses.add(cls);
             cachedSerFactories.add(beansf);
             cachedDeserFactories.add(beandf);
@@ -398,7 +398,7 @@ public class HierarchicalClusteringPortTypeSOAPBindingStub extends org.apache.ax
 
             qName = new javax.xml.namespace.QName("http://cagrid.geworkbench.columbia.edu/HierarchicalClustering", ">ExecuteResponse");
             cachedSerQNames.add(qName);
-            cls = edu.columbia.geworkbench.cagrid.cluster.stubs.ExecuteResponse.class;
+            cls = edu.columbia.geworkbench.cagrid.cluster.hierarchical.stubs.ExecuteResponse.class;
             cachedSerClasses.add(cls);
             cachedSerFactories.add(beansf);
             cachedDeserFactories.add(beandf);
@@ -965,7 +965,7 @@ public class HierarchicalClusteringPortTypeSOAPBindingStub extends org.apache.ax
 
             qName = new javax.xml.namespace.QName("http://cagrid.geworkbench.columbia.edu/HierarchicalClustering", ">HierarchicalClusteringResourceProperties");
             cachedSerQNames.add(qName);
-            cls = edu.columbia.geworkbench.cagrid.cluster.stubs.HierarchicalClusteringResourceProperties.class;
+            cls = edu.columbia.geworkbench.cagrid.cluster.hierarchical.stubs.HierarchicalClusteringResourceProperties.class;
             cachedSerClasses.add(cls);
             cachedSerFactories.add(beansf);
             cachedDeserFactories.add(beandf);
@@ -1021,7 +1021,7 @@ public class HierarchicalClusteringPortTypeSOAPBindingStub extends org.apache.ax
 
             qName = new javax.xml.namespace.QName("http://cagrid.geworkbench.columbia.edu/HierarchicalClustering", ">ExecuteRequest");
             cachedSerQNames.add(qName);
-            cls = edu.columbia.geworkbench.cagrid.cluster.stubs.ExecuteRequest.class;
+            cls = edu.columbia.geworkbench.cagrid.cluster.hierarchical.stubs.ExecuteRequest.class;
             cachedSerClasses.add(cls);
             cachedSerFactories.add(beansf);
             cachedDeserFactories.add(beandf);
@@ -1070,7 +1070,7 @@ public class HierarchicalClusteringPortTypeSOAPBindingStub extends org.apache.ax
 
             qName = new javax.xml.namespace.QName("http://cagrid.geworkbench.columbia.edu/HierarchicalClustering", ">>ExecuteRequest>microarraySet");
             cachedSerQNames.add(qName);
-            cls = edu.columbia.geworkbench.cagrid.cluster.stubs.ExecuteRequestMicroarraySet.class;
+            cls = edu.columbia.geworkbench.cagrid.cluster.hierarchical.stubs.ExecuteRequestMicroarraySet.class;
             cachedSerClasses.add(cls);
             cachedSerFactories.add(beansf);
             cachedDeserFactories.add(beandf);
@@ -1268,7 +1268,7 @@ public class HierarchicalClusteringPortTypeSOAPBindingStub extends org.apache.ax
         }
     }
 
-    public edu.columbia.geworkbench.cagrid.cluster.stubs.ExecuteResponse execute(edu.columbia.geworkbench.cagrid.cluster.stubs.ExecuteRequest parameters) throws java.rmi.RemoteException {
+    public edu.columbia.geworkbench.cagrid.cluster.hierarchical.stubs.ExecuteResponse execute(edu.columbia.geworkbench.cagrid.cluster.hierarchical.stubs.ExecuteRequest parameters) throws java.rmi.RemoteException {
         if (super.cachedEndpoint == null) {
             throw new org.apache.axis.NoEndPointException();
         }
@@ -1292,9 +1292,9 @@ public class HierarchicalClusteringPortTypeSOAPBindingStub extends org.apache.ax
         else {
             extractAttachments(_call);
             try {
-                return (edu.columbia.geworkbench.cagrid.cluster.stubs.ExecuteResponse) _resp;
+                return (edu.columbia.geworkbench.cagrid.cluster.hierarchical.stubs.ExecuteResponse) _resp;
             } catch (java.lang.Exception _exception) {
-                return (edu.columbia.geworkbench.cagrid.cluster.stubs.ExecuteResponse) org.apache.axis.utils.JavaUtils.convert(_resp, edu.columbia.geworkbench.cagrid.cluster.stubs.ExecuteResponse.class);
+                return (edu.columbia.geworkbench.cagrid.cluster.hierarchical.stubs.ExecuteResponse) org.apache.axis.utils.JavaUtils.convert(_resp, edu.columbia.geworkbench.cagrid.cluster.hierarchical.stubs.ExecuteResponse.class);
             }
         }
     }

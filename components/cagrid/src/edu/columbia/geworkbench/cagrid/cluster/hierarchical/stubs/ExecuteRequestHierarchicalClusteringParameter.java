@@ -5,7 +5,7 @@
  * by the Apache Axis 1.2RC2 Mar 03, 2006 (12:17:06 EST) WSDL2Java emitter.
  */
 
-package edu.columbia.geworkbench.cagrid.cluster.stubs;
+package edu.columbia.geworkbench.cagrid.cluster.hierarchical.stubs;
 
 public class ExecuteRequestHierarchicalClusteringParameter  implements java.io.Serializable {
     private edu.columbia.geworkbench.cagrid.cluster.hierarchical.HierarchicalClusteringParameter hierarchicalClusteringParameter;
