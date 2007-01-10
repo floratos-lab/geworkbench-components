@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Collection;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -16,30 +16,23 @@ import org.apache.commons.logging.LogFactory;
  * Forces the user implement how a single line will be parsed.
  * 
  * @author keshav
- * @version $Id: BasicLineParser.java,v 1.2 2007-01-04 22:03:15 watkinson Exp $
+ * @version $Id: BasicLineParser.java,v 1.3 2007-01-10 17:14:28 keshav Exp $
  */
 public abstract class BasicLineParser implements Parser {
 
     protected static final Log log = LogFactory.getLog( BasicLineParser.class );
 
     // private Collection<Object> results;
-    private Collection results;
+    private LinkedHashSet results;
 
     protected int linesParsed = 0;
+    private Object header = null;
 
-    /**
-     * 
-     *
-     */
     public BasicLineParser() {
         // results = new HashSet<Object>();
-        results = new HashSet();
+        results = new LinkedHashSet();
     }
 
-    /**
-     * @param is
-     * @throws IOException
-     */
     public void parse( InputStream is ) throws IOException {
         linesParsed = 0;
         BufferedReader br = new BufferedReader( new InputStreamReader( is ) );
@@ -50,6 +43,9 @@ public abstract class BasicLineParser implements Parser {
             Object newItem = parseOneLine( line );
 
             if ( newItem != null ) {
+                if ( ( ( String[] ) newItem )[0].equalsIgnoreCase( "probe" ) ) {
+                    header = newItem;
+                }
                 results.add( newItem );
                 linesParsed++;
             }
@@ -59,10 +55,6 @@ public abstract class BasicLineParser implements Parser {
         log.info( "Parsed " + linesParsed + " lines." );
     }
 
-    /**
-     * @param file
-     * @throws IOException
-     */
     public void parse( File file ) throws IOException {
         if ( !file.exists() || !file.canRead() ) {
             throw new IOException( "Could not read from file " + file.getPath() );
@@ -72,9 +64,6 @@ public abstract class BasicLineParser implements Parser {
         stream.close();
     }
 
-    /**
-     * @param filename
-     */
     public void parse( String filename ) throws IOException {
         File infile = new File( filename );
         parse( infile );
@@ -95,6 +84,13 @@ public abstract class BasicLineParser implements Parser {
     // public Collection<Object> getResults() {
     public Collection getResults() {
         return results;
+    }
+
+    public Object getHeader() {
+        if ( header == null )
+            throw new RuntimeException( "Header is null.  Cannot invoke this method if header is null." );
+
+        return header;
     }
 
 }
