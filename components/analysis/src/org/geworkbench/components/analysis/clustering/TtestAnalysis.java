@@ -120,6 +120,8 @@ public class TtestAnalysis extends AbstractAnalysis implements ClusteringAnalysi
         assert input instanceof DSMicroarraySetView;
         //        DSDataSetView<DSMarker, DSMicroarray> data = (DSDataSetView<DSMarker, DSMicroarray>)input;
         DSMicroarraySetView<? extends DSGeneMarker, ? extends DSMicroarray> data = (DSMicroarraySetView) input;
+        boolean allArrays = !data.useItemPanel();
+        System.out.println("All arrays: " + allArrays);
 //        data.useItemPanel(true);
 //        data.useMarkerPanel(true);
 
@@ -151,8 +153,13 @@ public class TtestAnalysis extends AbstractAnalysis implements ClusteringAnalysi
                 if (ma instanceof DSMicroarray) {
                     //DSPanel panel = selCriterion.panels().get(ma);
                     String[] labels = context.getLabelsForItem(ma);
+                    if ((labels.length == 0) && allArrays) {
+                        groupAssignments[i] = TtestAnalysisPanel.GROUP_B;
+                        tTestDesign = TtestAnalysisPanel.BETWEEN_SUBJECTS;
+                        hasGroupB = true;                        
+                    }
                     for (String label : labels) {
-                        if (context.isLabelActive(label)) {
+                        if (context.isLabelActive(label) || allArrays) {
                             String v = context.getClassForLabel(label);
                             if (v.equals(CSAnnotationContext.CLASS_CASE)) {
                                 groupAssignments[i] = TtestAnalysisPanel.GROUP_A;
