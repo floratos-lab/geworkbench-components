@@ -26,6 +26,7 @@ import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.model.clusters.CSHierClusterDataSet;
 import org.geworkbench.bison.model.clusters.CSSOMClusterDataSet;
 import org.geworkbench.bison.model.clusters.DSHierClusterDataSet;
+import org.geworkbench.bison.model.clusters.DefaultSOMCluster;
 import org.geworkbench.bison.model.clusters.HierCluster;
 import org.geworkbench.bison.model.clusters.MarkerHierCluster;
 import org.geworkbench.bison.model.clusters.MicroarrayHierCluster;
@@ -58,7 +59,7 @@ import gov.nih.nci.cagrid.metadata.ServiceMetadata;
 /**
  * @author watkinson
  * @author keshav
- * @version $Id: CaGridPanel.java,v 1.10 2007-01-10 21:53:37 keshav Exp $
+ * @version $Id: CaGridPanel.java,v 1.11 2007-01-10 22:17:49 keshav Exp $
  */
 public class CaGridPanel extends JPanel implements VisualPlugin {
 
@@ -466,7 +467,13 @@ public class CaGridPanel extends JPanel implements VisualPlugin {
 				y = somCluster.getYCoordinate(j);
 				log.debug("y: " + y);
 
-				// Cluster cluster = new LeafSOMCluster();
+				if (bisonSomCluster[x][y] == null) {
+					SOMCluster cluster = new DefaultSOMCluster();
+					// Cluster c = new LeafSOMCluster();
+					// bisonSomCluster[x][y] = cluster;
+					// cluster.addNode(newCluster)
+				}
+
 			}
 		}
 		CSSOMClusterDataSet dataSet = new CSSOMClusterDataSet(bisonSomCluster,
