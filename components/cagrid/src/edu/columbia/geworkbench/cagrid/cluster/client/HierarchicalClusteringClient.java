@@ -1,21 +1,3 @@
-/*
- * The HiClustering project
- * 
- * Copyright (c) 2006 Columbia University
- * 
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *       http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- */
 package edu.columbia.geworkbench.cagrid.cluster.client;
 
 import edu.columbia.geworkbench.cagrid.cluster.common.HierarchicalClusteringI;
@@ -23,19 +5,15 @@ import edu.columbia.geworkbench.cagrid.cluster.hierarchical.HierarchicalCluster;
 import edu.columbia.geworkbench.cagrid.cluster.hierarchical.HierarchicalClusteringParameter;
 import edu.columbia.geworkbench.cagrid.cluster.hierarchical.stubs.HierarchicalClusteringPortType;
 import edu.columbia.geworkbench.cagrid.cluster.hierarchical.stubs.service.HierarchicalClusteringServiceAddressingLocator;
-import edu.columbia.geworkbench.cagrid.cluster.parser.TabDelimParser;
+import edu.columbia.geworkbench.cagrid.converter.Converter;
 import edu.columbia.geworkbench.cagrid.microarray.Marker;
 import edu.columbia.geworkbench.cagrid.microarray.Microarray;
 import edu.columbia.geworkbench.cagrid.microarray.MicroarraySet;
+import edu.columbia.geworkbench.cagrid.utils.GridUtils;
 import gov.nih.nci.cagrid.introduce.security.client.ServiceSecurityClient;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.InputStream;
 import java.rmi.RemoteException;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Iterator;
 
 import org.apache.axis.EngineConfiguration;
 import org.apache.axis.client.AxisClient;
@@ -54,8 +32,8 @@ import org.globus.gsi.GlobusCredential;
  * security metadata description which it will use to configure the Stub specifically for each method call.
  * 
  * @created by Introduce Toolkit version 1.0
- * @author Kiran Keshav
- * @version $Id: HierarchicalClusteringClient.java,v 1.3 2007-01-09 16:15:09 keshav Exp $
+ * @author keshav
+ * @version $Id: HierarchicalClusteringClient.java,v 1.4 2007-01-10 17:13:53 keshav Exp $
  */
 public class HierarchicalClusteringClient extends ServiceSecurityClient implements HierarchicalClusteringI {
     private static Log log = LogFactory.getLog( HierarchicalClusteringClient.class );
@@ -125,7 +103,7 @@ public class HierarchicalClusteringClient extends ServiceSecurityClient implemen
                     log.debug( "Invoking Hierarchical Clustering Service ... " );
                     // MicroarraySet arraySet = client.configureTestMicroarrays(); // test
                     String filename = args[2];
-                    MicroarraySet arraySet = HierarchicalClusteringClient.float2DToMicroarraySet( readTabFile( filename ) );
+                    MicroarraySet arraySet = Converter.float2DToMicroarraySet( GridUtils.readTabFile( filename ) );
 
                     HierarchicalClusteringParameter parameters = new HierarchicalClusteringParameter();
                     parameters.setDim( "both" );
@@ -149,43 +127,6 @@ public class HierarchicalClusteringClient extends ServiceSecurityClient implemen
         } catch ( Exception e ) {
             e.printStackTrace();
         }
-    }
-
-    /**
-     * @param filename
-     * @return float[][]
-     */
-    public static float[][] readTabFile( String filename ) {
-        TabDelimParser parser = new TabDelimParser();
-        InputStream is;
-        Collection results = new HashSet();
-        try {
-            is = new FileInputStream( new File( filename ) );
-            parser.parse( is );
-            results = parser.getResults();
-        } catch ( Exception e ) {
-            e.printStackTrace();
-        }
-
-        int i = 0;
-        float[][] values = new float[results.size()][];
-        // for (Object result : results) {
-        Iterator iter = results.iterator();
-        while ( iter.hasNext() ) {
-            // String[] array = (String[]) result;
-            String[] array = ( String[] ) iter.next();
-            values[i] = new float[array.length];
-            for ( int j = 0; j < values[i].length; j++ ) {
-                /*
-                 * FIXME exp files acually contain val | pval, but this is a performance test, so I don't care about the
-                 * actual values
-                 */
-                values[i][j] = Float.parseFloat( array[j] );
-            }
-            i++;
-        }
-
-        return values;
     }
 
     /**
@@ -228,27 +169,34 @@ public class HierarchicalClusteringClient extends ServiceSecurityClient implemen
         return microarraySet;
     }
 
-    public gov.nih.nci.cagrid.metadata.security.ServiceSecurityMetadata getServiceSecurityMetadata() throws RemoteException {
-      synchronized(portTypeMutex){
-        configureStubSecurity((Stub)portType,"getServiceSecurityMetadata");
-        gov.nih.nci.cagrid.introduce.security.stubs.GetServiceSecurityMetadataRequest params = new gov.nih.nci.cagrid.introduce.security.stubs.GetServiceSecurityMetadataRequest();
-        gov.nih.nci.cagrid.introduce.security.stubs.GetServiceSecurityMetadataResponse boxedResult = portType.getServiceSecurityMetadata(params);
-        return boxedResult.getServiceSecurityMetadata();
-      }
+    public gov.nih.nci.cagrid.metadata.security.ServiceSecurityMetadata getServiceSecurityMetadata()
+            throws RemoteException {
+        synchronized ( portTypeMutex ) {
+            configureStubSecurity( ( Stub ) portType, "getServiceSecurityMetadata" );
+            gov.nih.nci.cagrid.introduce.security.stubs.GetServiceSecurityMetadataRequest params = new gov.nih.nci.cagrid.introduce.security.stubs.GetServiceSecurityMetadataRequest();
+            gov.nih.nci.cagrid.introduce.security.stubs.GetServiceSecurityMetadataResponse boxedResult = portType
+                    .getServiceSecurityMetadata( params );
+            return boxedResult.getServiceSecurityMetadata();
+        }
     }
-    public edu.columbia.geworkbench.cagrid.cluster.hierarchical.HierarchicalCluster execute(edu.columbia.geworkbench.cagrid.microarray.MicroarraySet microarraySet,edu.columbia.geworkbench.cagrid.cluster.hierarchical.HierarchicalClusteringParameter hierarchicalClusteringParameter) throws RemoteException {
-      synchronized(portTypeMutex){
-        configureStubSecurity((Stub)portType,"execute");
-        edu.columbia.geworkbench.cagrid.cluster.hierarchical.stubs.ExecuteRequest params = new edu.columbia.geworkbench.cagrid.cluster.hierarchical.stubs.ExecuteRequest();
-        edu.columbia.geworkbench.cagrid.cluster.hierarchical.stubs.ExecuteRequestMicroarraySet microarraySetContainer = new edu.columbia.geworkbench.cagrid.cluster.hierarchical.stubs.ExecuteRequestMicroarraySet();
-        microarraySetContainer.setMicroarraySet(microarraySet);
-        params.setMicroarraySet(microarraySetContainer);
-        edu.columbia.geworkbench.cagrid.cluster.hierarchical.stubs.ExecuteRequestHierarchicalClusteringParameter hierarchicalClusteringParameterContainer = new edu.columbia.geworkbench.cagrid.cluster.hierarchical.stubs.ExecuteRequestHierarchicalClusteringParameter();
-        hierarchicalClusteringParameterContainer.setHierarchicalClusteringParameter(hierarchicalClusteringParameter);
-        params.setHierarchicalClusteringParameter(hierarchicalClusteringParameterContainer);
-        edu.columbia.geworkbench.cagrid.cluster.hierarchical.stubs.ExecuteResponse boxedResult = portType.execute(params);
-        return boxedResult.getHierarchicalCluster();
-      }
+
+    public edu.columbia.geworkbench.cagrid.cluster.hierarchical.HierarchicalCluster execute(
+            edu.columbia.geworkbench.cagrid.microarray.MicroarraySet microarraySet,
+            edu.columbia.geworkbench.cagrid.cluster.hierarchical.HierarchicalClusteringParameter hierarchicalClusteringParameter )
+            throws RemoteException {
+        synchronized ( portTypeMutex ) {
+            configureStubSecurity( ( Stub ) portType, "execute" );
+            edu.columbia.geworkbench.cagrid.cluster.hierarchical.stubs.ExecuteRequest params = new edu.columbia.geworkbench.cagrid.cluster.hierarchical.stubs.ExecuteRequest();
+            edu.columbia.geworkbench.cagrid.cluster.hierarchical.stubs.ExecuteRequestMicroarraySet microarraySetContainer = new edu.columbia.geworkbench.cagrid.cluster.hierarchical.stubs.ExecuteRequestMicroarraySet();
+            microarraySetContainer.setMicroarraySet( microarraySet );
+            params.setMicroarraySet( microarraySetContainer );
+            edu.columbia.geworkbench.cagrid.cluster.hierarchical.stubs.ExecuteRequestHierarchicalClusteringParameter hierarchicalClusteringParameterContainer = new edu.columbia.geworkbench.cagrid.cluster.hierarchical.stubs.ExecuteRequestHierarchicalClusteringParameter();
+            hierarchicalClusteringParameterContainer
+                    .setHierarchicalClusteringParameter( hierarchicalClusteringParameter );
+            params.setHierarchicalClusteringParameter( hierarchicalClusteringParameterContainer );
+            edu.columbia.geworkbench.cagrid.cluster.hierarchical.stubs.ExecuteResponse boxedResult = portType.execute( params );
+            return boxedResult.getHierarchicalCluster();
+        }
     }
 
 }
