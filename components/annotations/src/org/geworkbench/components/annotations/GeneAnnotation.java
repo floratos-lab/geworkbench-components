@@ -60,4 +60,8 @@ public interface GeneAnnotation {
     org.geworkbench.util.annotation.Pathway[] getPathways();
 
 //    boolean equals(Object object);
+
+    String getGeneSymbol();
+
+    void setSymbol(String symbol);
 }
