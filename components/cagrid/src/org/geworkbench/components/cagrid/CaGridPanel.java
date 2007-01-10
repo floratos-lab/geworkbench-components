@@ -24,10 +24,12 @@ import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarr
 import org.geworkbench.bison.datastructure.biocollections.views.CSMicroarraySetView;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.model.clusters.CSHierClusterDataSet;
+import org.geworkbench.bison.model.clusters.CSSOMClusterDataSet;
 import org.geworkbench.bison.model.clusters.DSHierClusterDataSet;
 import org.geworkbench.bison.model.clusters.HierCluster;
 import org.geworkbench.bison.model.clusters.MarkerHierCluster;
 import org.geworkbench.bison.model.clusters.MicroarrayHierCluster;
+import org.geworkbench.bison.model.clusters.SOMCluster;
 import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.engine.management.Publish;
 import org.geworkbench.engine.management.Script;
@@ -56,7 +58,7 @@ import gov.nih.nci.cagrid.metadata.ServiceMetadata;
 /**
  * @author watkinson
  * @author keshav
- * @version $Id: CaGridPanel.java,v 1.5 2007-01-10 19:07:01 keshav Exp $
+ * @version $Id: CaGridPanel.java,v 1.6 2007-01-10 21:22:43 keshav Exp $
  */
 public class CaGridPanel extends JPanel implements VisualPlugin {
 
@@ -215,18 +217,6 @@ public class CaGridPanel extends JPanel implements VisualPlugin {
 		JButton okButton = new JButton("OK");
 		okButton.addActionListener(new ActionListener() {
 
-			int dimx;
-
-			int dimy;
-
-			int function;
-
-			float radius;
-
-			float alpha;
-
-			int iterations;
-
 			public void actionPerformed(ActionEvent e) {
 				log.debug("event " + e);
 
@@ -236,19 +226,19 @@ public class CaGridPanel extends JPanel implements VisualPlugin {
 				try {
 					Thread.currentThread().setContextClassLoader(
 							CaGridPanel.class.getClassLoader());
-					dimx = Integer.parseInt(dimxField.getText());
-					dimy = Integer.parseInt(dimyField.getText());
-					function = Integer.parseInt(functionField.getText());
-					radius = Float.parseFloat(radiusField.getText());
-					alpha = Float.parseFloat(alphaField.getText());
-					iterations = Integer.parseInt(iterationsField.getText());
 
-					somParameters.setDim_x(dimx);
-					somParameters.setDim_y(dimy);
-					somParameters.setFunction(function);
-					somParameters.setRadius(radius);
-					somParameters.setAlpha(alpha);
-					somParameters.setIteration(iterations);
+					somParameters.setDim_x(Integer
+							.parseInt(dimxField.getText()));
+					somParameters.setDim_y(Integer
+							.parseInt(dimyField.getText()));
+					somParameters.setFunction(Integer.parseInt(functionField
+							.getText()));
+					somParameters.setRadius(Float.parseFloat(radiusField
+							.getText()));
+					somParameters.setAlpha(Float.parseFloat(alphaField
+							.getText()));
+					somParameters.setIteration(Integer.parseInt(iterationsField
+							.getText()));
 
 					// a test
 					String url = "http://156.145.29.64:8080/wsrf/services/cagrid/SomClustering";
@@ -364,7 +354,7 @@ public class CaGridPanel extends JPanel implements VisualPlugin {
 									.execute(gridSet, parameters);
 							if (hierarchicalCluster != null) {
 								// convert grid to bison hierarchical cluster
-								CSHierClusterDataSet dataSet = createBisonClustering(
+								CSHierClusterDataSet dataSet = createBisonHierarchicalClustering(
 										hierarchicalCluster, view);
 								ProjectNodeAddedEvent event = new ProjectNodeAddedEvent(
 										"Hierarchical Clustering", null,
@@ -427,9 +417,15 @@ public class CaGridPanel extends JPanel implements VisualPlugin {
 		}
 	}
 
-	private CSHierClusterDataSet createBisonClustering(
+	/**
+	 * 
+	 * @param hierarchicalCluster
+	 * @param view
+	 * @return CSHierClusterDataSet
+	 */
+	private CSHierClusterDataSet createBisonHierarchicalClustering(
 			HierarchicalCluster hierarchicalCluster, CSMicroarraySetView view) {
-		log.debug("creating bison cluster");
+		log.debug("creating bison hierarchical cluster");
 		HierarchicalClusterNode microarrayCluster = hierarchicalCluster
 				.getMarkerCluster();
 		HierarchicalClusterNode markerCluster = hierarchicalCluster
@@ -444,6 +440,27 @@ public class CaGridPanel extends JPanel implements VisualPlugin {
 		CSHierClusterDataSet dataSet = new CSHierClusterDataSet(resultClusters,
 				"Hierarchical Clustering", view);
 		return dataSet;
+	}
+
+	/**
+	 * 
+	 * @param somCluster
+	 * @param view
+	 * @return CSSOMClusterDataSet
+	 */
+	private CSSOMClusterDataSet createBisonSomClustering(SomCluster somCluster,
+			CSMicroarraySetView view) {
+		log.debug("creating bison som cluster");
+
+		SOMCluster[][] bisonSomCluster = new SOMCluster[somCluster
+				.getXCoordinate().length][somCluster.getYCoordinate().length];
+		for (int i = 0; i < somCluster.getXCoordinate().length; i++) {
+			for (int j = 0; i < somCluster.getYCoordinate().length; j++) {
+
+			}
+		}
+
+		return null;
 	}
 
 	@Script
@@ -461,7 +478,7 @@ public class CaGridPanel extends JPanel implements VisualPlugin {
 		HierarchicalCluster hierarchicalCluster = client.execute(gridSet,
 				parameters);
 		if (hierarchicalCluster != null) {
-			CSHierClusterDataSet dataSet = createBisonClustering(
+			CSHierClusterDataSet dataSet = createBisonHierarchicalClustering(
 					hierarchicalCluster, view);
 			return dataSet;
 		} else {
