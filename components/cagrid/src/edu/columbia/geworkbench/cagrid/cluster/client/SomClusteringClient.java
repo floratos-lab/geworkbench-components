@@ -1,9 +1,3 @@
-/*
- * The SomClustering project
- * 
- * Copyright (c) 2006 Columbia University
- * 
- */
 package edu.columbia.geworkbench.cagrid.cluster.client;
 
 import edu.columbia.geworkbench.cagrid.cluster.common.SomClusteringI;
@@ -45,7 +39,7 @@ import org.globus.gsi.GlobusCredential;
  * 
  * @created by Introduce Toolkit version 1.0
  * @author keshav
- * @version $Id: SomClusteringClient.java,v 1.1 2007-01-10 17:14:28 keshav Exp $
+ * @version $Id: SomClusteringClient.java,v 1.2 2007-01-10 17:19:24 keshav Exp $
  */
 public class SomClusteringClient extends ServiceSecurityClient implements SomClusteringI {
     private static Log log = LogFactory.getLog( SomClusteringClient.class );
