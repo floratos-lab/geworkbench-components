@@ -25,10 +25,8 @@ import org.geworkbench.bison.datastructure.biocollections.views.CSMicroarraySetV
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.model.clusters.CSHierClusterDataSet;
 import org.geworkbench.bison.model.clusters.CSSOMClusterDataSet;
-import org.geworkbench.bison.model.clusters.Cluster;
 import org.geworkbench.bison.model.clusters.DSHierClusterDataSet;
 import org.geworkbench.bison.model.clusters.HierCluster;
-import org.geworkbench.bison.model.clusters.LeafSOMCluster;
 import org.geworkbench.bison.model.clusters.MarkerHierCluster;
 import org.geworkbench.bison.model.clusters.MicroarrayHierCluster;
 import org.geworkbench.bison.model.clusters.SOMCluster;
@@ -60,7 +58,7 @@ import gov.nih.nci.cagrid.metadata.ServiceMetadata;
 /**
  * @author watkinson
  * @author keshav
- * @version $Id: CaGridPanel.java,v 1.7 2007-01-10 21:46:11 keshav Exp $
+ * @version $Id: CaGridPanel.java,v 1.8 2007-01-10 21:49:45 keshav Exp $
  */
 public class CaGridPanel extends JPanel implements VisualPlugin {
 
@@ -475,6 +473,16 @@ public class CaGridPanel extends JPanel implements VisualPlugin {
 		return null;
 	}
 
+	/**
+	 * 
+	 * @param microarraySet
+	 * @param method
+	 * @param dimensions
+	 * @param distance
+	 * @param url
+	 * @return DSHierClusterDataSet
+	 * @throws Exception
+	 */
 	@Script
 	public DSHierClusterDataSet doClustering(DSMicroarraySet microarraySet,
 			String method, String dimensions, String distance, String url)
