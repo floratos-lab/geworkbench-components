@@ -1,47 +1,89 @@
 package org.geworkbench.components.cagrid;
 
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.ActionListener;
+import java.awt.BorderLayout;
+import java.awt.FlowLayout;
+import java.awt.HeadlessException;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
-import com.jgoodies.forms.layout.FormLayout;
-import com.jgoodies.forms.builder.DefaultFormBuilder;
-
-import edu.columbia.geworkbench.cagrid.cluster.hierarchical.HierarchicalClusteringParameter;
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
 
 import org.geworkbench.util.Util;
 
+import com.jgoodies.forms.builder.DefaultFormBuilder;
+import com.jgoodies.forms.layout.FormLayout;
+
+import edu.columbia.geworkbench.cagrid.cluster.som.SomClusteringParameter;
+
 /**
  * @author keshav
- * @version $Id: GridSomClusteringDialog.java,v 1.1 2007-01-09 16:17:30 keshav Exp $
+ * @version $Id: GridSomClusteringDialog.java,v 1.2 2007-01-10 19:07:01 keshav Exp $
  */
 public class GridSomClusteringDialog extends JDialog {
 
-    private HierarchicalClusteringParameter parameters = null;
+    private SomClusteringParameter somClusteringParameters = null;
 
     /**
      * @throws HeadlessException
      */
     public GridSomClusteringDialog() throws HeadlessException {
-        FormLayout layout = new FormLayout( "right:max(60dlu;pref), 3dlu, 100dlu, 7dlu", "" );
+    	FormLayout layout = new FormLayout( "right:max(40dlu;pref), 3dlu, 100dlu, 7dlu", "" );
         DefaultFormBuilder builder = new DefaultFormBuilder( layout );
         builder.setDefaultDialogBorder();
+        builder.appendSeparator("Som Clustering Parameters");
 
-        builder.appendSeparator( "Hierarchical Clustering Parameters" );
-        final JComboBox methodBox = new JComboBox( new String[] { "Single", "Average", "Total" } );
-        final JComboBox dimBox = new JComboBox( new String[] { "Marker", "Microarray", "Both" } );
-        final JComboBox distanceBox = new JComboBox( new String[] { "Euclidean", "Pearson", "Spearman" } );
-        builder.append( "Method", methodBox );
-        builder.append( "Dimension", dimBox );
-        builder.append( "Distance", distanceBox );
+
+        final JTextField dimxField = new JTextField("3");
+		final JTextField dimyField = new JTextField("3");
+		final JTextField functionField = new JTextField("1");
+		final JTextField radiusField = new JTextField("3.0");
+		final JTextField alphaField = new JTextField("0.08");
+		final JTextField iterationsField = new JTextField("4000");
+		
+		/* append all the fields to the builder */
+		builder.append("dim x", dimxField);
+		builder.append("dim y", dimyField);
+		builder.append("function", functionField);
+		builder.append("radius", radiusField);
+		builder.append("alpha", alphaField);
+		builder.append("iteration", iterationsField);
+		
         JPanel dialogPanel = builder.getPanel();
         JPanel buttonPanel = new JPanel( new FlowLayout() );
         JButton okButton = new JButton( "OK" );
         okButton.addActionListener( new ActionListener() {
             public void actionPerformed( ActionEvent e ) {
-                parameters = new HierarchicalClusteringParameter( ( String ) dimBox.getSelectedItem(),
-                        ( String ) distanceBox.getSelectedItem(), ( String ) methodBox.getSelectedItem() );
+            	int dimx;
+
+    			int dimy;
+
+    			int function;
+
+    			float radius;
+
+    			float alpha;
+
+    			int iterations;
+    			
+    			somClusteringParameters = new SomClusteringParameter();
+    			
+				dimx = Integer.parseInt(dimxField.getText());
+				dimy = Integer.parseInt(dimyField.getText());
+				function = Integer.parseInt(functionField.getText());
+				radius = Float.parseFloat(radiusField.getText());
+				alpha = Float.parseFloat(alphaField.getText());
+				iterations = Integer.parseInt(iterationsField.getText());
+
+				somClusteringParameters.setDim_x(dimx);
+				somClusteringParameters.setDim_y(dimy);
+				somClusteringParameters.setFunction(function);
+				somClusteringParameters.setRadius(radius);
+				somClusteringParameters.setAlpha(alpha);
+				somClusteringParameters.setIteration(iterations);
+				
                 dispose();
             }
         } );
@@ -63,12 +105,12 @@ public class GridSomClusteringDialog extends JDialog {
     /**
      * @return HierarchicalClusteringParameter
      */
-    public HierarchicalClusteringParameter getParameters() {
+    public SomClusteringParameter getParameters() {
         pack();
         setSize( 300, 200 );
         Util.centerWindow( this );
         setVisible( true );
-        return parameters;
+        return somClusteringParameters;
     }
 
 }

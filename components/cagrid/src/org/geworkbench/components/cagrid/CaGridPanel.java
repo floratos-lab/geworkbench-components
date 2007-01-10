@@ -10,7 +10,6 @@ import java.rmi.RemoteException;
 
 import javax.swing.Box;
 import javax.swing.JButton;
-import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
@@ -42,9 +41,12 @@ import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.layout.FormLayout;
 
 import edu.columbia.geworkbench.cagrid.cluster.client.HierarchicalClusteringClient;
+import edu.columbia.geworkbench.cagrid.cluster.client.SomClusteringClient;
 import edu.columbia.geworkbench.cagrid.cluster.hierarchical.HierarchicalCluster;
 import edu.columbia.geworkbench.cagrid.cluster.hierarchical.HierarchicalClusterNode;
 import edu.columbia.geworkbench.cagrid.cluster.hierarchical.HierarchicalClusteringParameter;
+import edu.columbia.geworkbench.cagrid.cluster.som.SomCluster;
+import edu.columbia.geworkbench.cagrid.cluster.som.SomClusteringParameter;
 import edu.columbia.geworkbench.cagrid.converter.CagridMicroarrayTypeConverter;
 import edu.columbia.geworkbench.cagrid.discovery.client.AnalyticalServiceDiscoveryClient;
 import edu.columbia.geworkbench.cagrid.microarray.MicroarraySet;
@@ -52,8 +54,9 @@ import gov.nih.nci.cagrid.discovery.MetadataUtils;
 import gov.nih.nci.cagrid.metadata.ServiceMetadata;
 
 /**
- * @author John Watkinson
- * @version $Id: CaGridPanel.java,v 1.4 2007-01-09 20:37:56 keshav Exp $
+ * @author watkinson
+ * @author keshav
+ * @version $Id: CaGridPanel.java,v 1.5 2007-01-10 19:07:01 keshav Exp $
  */
 public class CaGridPanel extends JPanel implements VisualPlugin {
 
@@ -66,6 +69,8 @@ public class CaGridPanel extends JPanel implements VisualPlugin {
 	private static final String HIERARCHICAL_CLUSTERING = "HierarchicalClustering";
 
 	private static final String SOM_CLUSTERING = "SomClustering";
+
+	private static final String cagridTitle = "caGrid";
 
 	private JPanel servicePanel;
 
@@ -190,20 +195,105 @@ public class CaGridPanel extends JPanel implements VisualPlugin {
 	 * 
 	 * 
 	 */
-	private void populateSomParameters() {
+	private void populateSomParameters() {// TODO remove me
 		FormLayout layout = new FormLayout(
 				"right:max(40dlu;pref), 3dlu, 100dlu, 7dlu", "");
 		DefaultFormBuilder builder = new DefaultFormBuilder(layout);
 		builder.setDefaultDialogBorder();
 		builder.appendSeparator("Parameters");
-		builder.append("dim x", new JTextField());
-		builder.append("dim y", new JTextField());
-		builder.append("function", new JTextField());
-		builder.append("radius", new JTextField());
-		builder.append("alpha", new JTextField());
-		builder.append("iteration", new JTextField());
+
+		final JTextField dimxField = new JTextField("3");
+		final JTextField dimyField = new JTextField("3");
+		final JTextField functionField = new JTextField("1");
+		final JTextField radiusField = new JTextField("3.0");
+		final JTextField alphaField = new JTextField("0.08");
+		final JTextField iterationsField = new JTextField("4000");
+
+		final SomClusteringParameter somParameters = new SomClusteringParameter();
+
+		JPanel buttonPanel = new JPanel(new FlowLayout());
+		JButton okButton = new JButton("OK");
+		okButton.addActionListener(new ActionListener() {
+
+			int dimx;
+
+			int dimy;
+
+			int function;
+
+			float radius;
+
+			float alpha;
+
+			int iterations;
+
+			public void actionPerformed(ActionEvent e) {
+				log.debug("event " + e);
+
+				ClassLoader oldClassLoader = Thread.currentThread()
+						.getContextClassLoader();
+
+				try {
+					Thread.currentThread().setContextClassLoader(
+							CaGridPanel.class.getClassLoader());
+					dimx = Integer.parseInt(dimxField.getText());
+					dimy = Integer.parseInt(dimyField.getText());
+					function = Integer.parseInt(functionField.getText());
+					radius = Float.parseFloat(radiusField.getText());
+					alpha = Float.parseFloat(alphaField.getText());
+					iterations = Integer.parseInt(iterationsField.getText());
+
+					somParameters.setDim_x(dimx);
+					somParameters.setDim_y(dimy);
+					somParameters.setFunction(function);
+					somParameters.setRadius(radius);
+					somParameters.setAlpha(alpha);
+					somParameters.setIteration(iterations);
+
+					// a test
+					String url = "http://156.145.29.64:8080/wsrf/services/cagrid/SomClustering";
+					SomClusteringClient client = new SomClusteringClient(url);
+					CSMicroarraySetView view = new CSMicroarraySetView(
+							microarraySet);
+					MicroarraySet gridSet = CagridMicroarrayTypeConverter
+							.convertToCagridMicroarrayType(view);
+					SomCluster somCluster = client.execute(gridSet,
+							somParameters);
+
+				} catch (Exception e1) {
+					e1.printStackTrace();
+				} finally {
+					Thread.currentThread()
+							.setContextClassLoader(oldClassLoader);
+				}
+
+			}
+		});
+		JButton cancelButton = new JButton("Cancel");
+		cancelButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				log.debug("event " + e);
+				// dispose();
+			}
+		});
+
+		/* append all the fields to the builder */
+		builder.append("dim x", dimxField);
+		builder.append("dim y", dimyField);
+		builder.append("function", functionField);
+		builder.append("radius", radiusField);
+		builder.append("alpha", alphaField);
+		builder.append("iteration", iterationsField);
+
+		/* create a buttonPanel and append to builder */
+		buttonPanel.add(okButton);
+		buttonPanel.add(cancelButton);
+		builder.append(buttonPanel);
+
+		/* add panel from builder to the servicePanel */
 		servicePanel.removeAll();
 		servicePanel.add(builder.getPanel());
+
 		revalidate();
 		repaint();
 	}
@@ -260,14 +350,11 @@ public class CaGridPanel extends JPanel implements VisualPlugin {
 							HierarchicalClusteringParameter parameters = dialog
 									.getParameters();
 
-							// HierarchicalClusteringParameter parameters =
-							// populateHierarchicalParameters();
-
 							if (parameters == null) {
 								// Cancelled dialog
 								return;
 							}
-							pBar.setTitle("caGrid");
+							pBar.setTitle(cagridTitle);
 							pBar.setMessage("Running Hierarchical Clustering");
 							pBar.start();
 							pBar.reset();
@@ -276,7 +363,7 @@ public class CaGridPanel extends JPanel implements VisualPlugin {
 							HierarchicalCluster hierarchicalCluster = client
 									.execute(gridSet, parameters);
 							if (hierarchicalCluster != null) {
-								// Create Bison-friendly structure
+								// convert grid to bison hierarchical cluster
 								CSHierClusterDataSet dataSet = createBisonClustering(
 										hierarchicalCluster, view);
 								ProjectNodeAddedEvent event = new ProjectNodeAddedEvent(
@@ -286,7 +373,41 @@ public class CaGridPanel extends JPanel implements VisualPlugin {
 							}
 						} else if (url.contains(SOM_CLUSTERING)) {
 
-							populateSomParameters();
+							// populateSomParameters();
+							GridSomClusteringDialog dialog = new GridSomClusteringDialog();
+
+							SomClusteringParameter somClusteringParameters = dialog
+									.getParameters();
+
+							if (somClusteringParameters == null)
+								return;
+
+							pBar.setTitle(cagridTitle);
+							pBar.setMessage("Running Som Clustering");
+							pBar.start();
+							pBar.reset();
+							SomClusteringClient client = new SomClusteringClient(
+									url);
+							SomCluster somCluster = client.execute(gridSet,
+									somClusteringParameters);
+
+							if (somCluster != null) {
+								// convert grid to bison hierarchical cluster
+								// TODO implement me - for now, doing:
+								FormLayout layout = new FormLayout(
+										"right:max(40dlu;pref), 3dlu, 100dlu, 7dlu",
+										"");
+								DefaultFormBuilder builder = new DefaultFormBuilder(
+										layout);
+								builder.setDefaultDialogBorder();
+								builder.append(new JLabel("Successful"));
+
+								servicePanel.removeAll();
+								servicePanel.add(builder.getPanel());
+								revalidate();
+								repaint();
+
+							}
 
 						} else {
 							log.info("No services exist at " + url);
