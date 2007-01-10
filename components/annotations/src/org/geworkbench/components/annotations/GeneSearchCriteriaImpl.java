@@ -2,11 +2,13 @@ package org.geworkbench.components.annotations;
 
 import gov.nih.nci.cabio.domain.Gene;
 import gov.nih.nci.cabio.domain.GenericReporter;
+import gov.nih.nci.cabio.domain.Pathway;
 import gov.nih.nci.system.applicationservice.ApplicationService;
 import gov.nih.nci.system.applicationservice.ApplicationServiceProvider;
 import gov.nih.nci.system.applicationservice.ApplicationException;
 
 import java.util.List;
+import java.util.ArrayList;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -72,6 +74,43 @@ public class GeneSearchCriteriaImpl implements GeneSearchCriteria {
         } catch (ApplicationException e) {
             log.error(e);
             return null;
+        }
+    }
+
+    public GeneAnnotation[] getGenesInPathway(org.geworkbench.util.annotation.Pathway pathway) {
+        Pathway searchPathway = new Pathway();
+        searchPathway.setName(pathway.getPathwayName());
+
+        try {
+            List<Pathway> results = appService.search(Pathway.class, searchPathway);
+            if (results.size() > 1) {
+                log.warn("Found more than 1 pathway for " + pathway.getPathwayName());
+            }
+            Pathway resultPathway = results.get(0);
+
+            return GeneAnnotationImpl.toUniqueArray(new ArrayList(resultPathway.getGeneCollection()));
+        } catch (Exception e) {
+            log.error(e);
+            return null;
+        }
+    }
+
+    public static void main(String[] args) {
+        GeneSearchCriteriaImpl searcher = new GeneSearchCriteriaImpl();
+        GeneAnnotation[] geneAnnotations = searcher.searchByName("IL1A");
+        for (int i = 0; i < geneAnnotations.length; i++) {
+            GeneAnnotation geneAnnotation = geneAnnotations[i];
+            System.out.println(geneAnnotation.getGeneName());
+            org.geworkbench.util.annotation.Pathway[] pathways = geneAnnotation.getPathways();
+            for (int j = 0; j < pathways.length; j++) {
+                org.geworkbench.util.annotation.Pathway pathway = pathways[j];
+                System.out.println(" - " + pathway.getPathwayName());
+                GeneAnnotation[] genesInPathway = searcher.getGenesInPathway(pathway);
+                for (int k = 0; k < genesInPathway.length; k++) {
+                    GeneAnnotation annotation = genesInPathway[k];
+                    System.out.println("   - " + annotation.getGeneSymbol() + ":" + annotation.getGeneName());
+                }
+            }
         }
     }
 }

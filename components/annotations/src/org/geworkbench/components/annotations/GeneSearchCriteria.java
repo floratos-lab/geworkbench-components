@@ -27,4 +27,6 @@ public interface GeneSearchCriteria {
     GeneAnnotation[] searchByBCID(String bcid);
 
     GeneAnnotation[] searchByProbeId(String probeId);
+
+    GeneAnnotation[] getGenesInPathway(org.geworkbench.util.annotation.Pathway pathway);
 }

@@ -9,7 +9,6 @@ import java.net.URL;
 import java.util.*;
 
 import gov.nih.nci.cabio.domain.Gene;
-import gov.nih.nci.cabio.domain.Taxon;
 import gov.nih.nci.system.applicationservice.ApplicationService;
 import gov.nih.nci.system.applicationservice.ApplicationServiceProvider;
 import gov.nih.nci.system.applicationservice.ApplicationException;
@@ -70,6 +69,7 @@ public class GeneAnnotationImpl implements GeneAnnotation {
     private String organism = null;
     private static final String HUMAN_ABBREV = "Hs";
     private static final String MOUSE_ABBREV = "Mm";
+    private String symbol;
 
     /**
      * Default Constructor
@@ -84,6 +84,7 @@ public class GeneAnnotationImpl implements GeneAnnotation {
      */
     public GeneAnnotationImpl(Gene gene) {
         name = gene.getFullName();
+        symbol = gene.getSymbol();
 //        description = gene.getLocusLinkSummary();
 //        locusLinkId = gene.getLocusLinkId();
         description = "Unknown";
@@ -203,6 +204,14 @@ public class GeneAnnotationImpl implements GeneAnnotation {
         return pathways;
     }
 
+    public String getGeneSymbol() {
+        return symbol;
+    }
+
+    public void setSymbol(String symbol) {
+        this.symbol = symbol;
+    }
+
     /**
      * Creates <code>GeneAnnotation[]</code> object from <code>Gene[]</code>
      * obtained from caBIO queries
@@ -220,11 +229,11 @@ public class GeneAnnotationImpl implements GeneAnnotation {
 
     public boolean equals(Object object) {
         GeneAnnotation other = (GeneAnnotation) object;
-        return name.equals(other.getGeneName());
+        return symbol.equals(other.getGeneSymbol());
     }
 
     public int hashCode() {
-        return name.hashCode();
+        return symbol.hashCode();
     }
 
     public class CGAPUrl {

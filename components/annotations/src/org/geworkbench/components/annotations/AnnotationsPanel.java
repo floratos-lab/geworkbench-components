@@ -2,20 +2,22 @@ package org.geworkbench.components.annotations;
 
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
+import org.geworkbench.bison.datastructure.biocollections.microarrays.CSMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.views.CSMicroarraySetView;
 import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
+import org.geworkbench.bison.datastructure.bioobjects.markers.CSGeneMarker;
+import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.ExampleFilter;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.complex.panels.CSItemList;
 import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
+import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
+import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.engine.management.AcceptTypes;
 import org.geworkbench.engine.management.Publish;
 import org.geworkbench.engine.management.Subscribe;
-import org.geworkbench.events.AnnotationsEvent;
-import org.geworkbench.events.GeneSelectorEvent;
-import org.geworkbench.events.MarkerSelectedEvent;
-import org.geworkbench.events.ProjectEvent;
+import org.geworkbench.events.*;
 import org.geworkbench.util.BrowserLauncher;
 import org.geworkbench.util.ProgressBar;
 import org.geworkbench.util.annotation.Pathway;
@@ -27,7 +29,7 @@ import org.apache.commons.logging.LogFactory;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.io.IOException;
+import java.io.*;
 import java.net.URL;
 import java.util.*;
 
@@ -46,7 +48,8 @@ import java.util.*;
  *          that this gene's product participates in.
  */
 
-@AcceptTypes({DSMicroarraySet.class}) public class AnnotationsPanel implements VisualPlugin {
+@AcceptTypes({DSMicroarraySet.class})
+public class AnnotationsPanel implements VisualPlugin {
     static Log log = LogFactory.getLog(AnnotationsPanel.class);
 
     private class TableModel extends SortableTableModel {
@@ -271,6 +274,7 @@ import java.util.*;
         });
         table.addMouseMotionListener(new MouseMotionAdapter() {
             private boolean isHand = false;
+
             public void mouseMoved(MouseEvent e) {
                 int column = table.columnAtPoint(e.getPoint());
                 int row = table.rowAtPoint(e.getPoint());
@@ -345,28 +349,28 @@ import java.util.*;
                             MarkerData marker = new MarkerData(selectedMarkerInfo.get(i));
 //                            GeneAnnotation[] annotations = criteria.searchByName();
                             if (annotations.length > 0) {
-                            for (int j = 0; j < annotations.length; j++) {
-                                Pathway[] pways = annotations[j].getPathways();
-                                Pathway[] temp = new Pathway[pathways.length + pways.length];
-                                System.arraycopy(pathways, 0, temp, 0, pathways.length);
-                                System.arraycopy(pways, 0, temp, pathways.length, pways.length);
-                                pathways = temp;
-                                //geneAnnotation +=
-                                //  "<table width=\"90%\" border=\"1\" cellspacing=\"0\" "
-                                //+ "cellpadding=\"2\"><tr valign=\"top\">";
-                                GeneData gene = new GeneData(annotations[j].getGeneName(), annotations[j]);
-                                if (pways.length > 0) {
-                                    for (int k = 0; k < pways.length; k++) {
-                                        pathwayData.add(new PathwayData(pways[k].getPathwayName(), pways[k]));
+                                for (int j = 0; j < annotations.length; j++) {
+                                    Pathway[] pways = annotations[j].getPathways();
+                                    Pathway[] temp = new Pathway[pathways.length + pways.length];
+                                    System.arraycopy(pathways, 0, temp, 0, pathways.length);
+                                    System.arraycopy(pways, 0, temp, pathways.length, pways.length);
+                                    pathways = temp;
+                                    //geneAnnotation +=
+                                    //  "<table width=\"90%\" border=\"1\" cellspacing=\"0\" "
+                                    //+ "cellpadding=\"2\"><tr valign=\"top\">";
+                                    GeneData gene = new GeneData(annotations[j].getGeneName(), annotations[j]);
+                                    if (pways.length > 0) {
+                                        for (int k = 0; k < pways.length; k++) {
+                                            pathwayData.add(new PathwayData(pways[k].getPathwayName(), pways[k]));
+                                            geneData.add(gene);
+                                            markerData.add(marker);
+                                        }
+                                    } else {
+                                        pathwayData.add(new PathwayData("", null));
                                         geneData.add(gene);
                                         markerData.add(marker);
                                     }
-                                } else {
-                                    pathwayData.add(new PathwayData("", null));
-                                    geneData.add(gene);
-                                    markerData.add(marker);
                                 }
-                            }
                             } else {
                                 pathwayData.add(new PathwayData("", null));
                                 geneData.add(new GeneData("", null));
@@ -446,8 +450,123 @@ import java.util.*;
                 (int) (MouseInfo.getPointerInfo().getLocation().getY() - table.getLocationOnScreen().getY()));
     }
 
-    private void activatePathway(PathwayData pathwayData) {
-        publishAnnotationsEvent(new AnnotationsEvent("Pathway Selected", pathwayData.pathway));
+    private void activatePathway(final PathwayData pathwayData) {
+        JPopupMenu popup = new JPopupMenu();
+
+        JMenuItem viewDiagram = new JMenuItem("View Diagram");
+        viewDiagram.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent actionEvent) {
+                publishAnnotationsEvent(new AnnotationsEvent("Pathway Selected", pathwayData.pathway));
+            }
+        });
+        popup.add(viewDiagram);
+
+        JMenuItem makeSet = new JMenuItem("Add pathway genes to set");
+        makeSet.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent actionEvent) {
+
+                Thread thread = new Thread(new Runnable() {
+                    public void run() {
+
+                        String tmpSetLabel = JOptionPane.showInputDialog("Panel Set Label:", pathwayData.pathway.getPathwayName());
+                        // String tmpLabel = JOptionPane.showInputDialog("Set Label:", "");
+                        if (tmpSetLabel == null) {
+                            // User hit cancel
+                            return;
+                        }
+                        if (tmpSetLabel.equals("") || tmpSetLabel == null) {
+                            tmpSetLabel = pathwayData.pathway.getPathwayName();
+                        }
+
+                        ProgressBar pb = ProgressBar.create(ProgressBar.INDETERMINATE_TYPE);
+                        pb.setTitle("Genes For Pathway");
+                        pb.setMessage("Retrieving from server...");
+                        pb.start();
+
+                        GeneAnnotation[] genesInPathway = criteria.getGenesInPathway(pathwayData.pathway);
+
+                        pb.stop();
+                        pb.dispose();
+
+                        DSPanel<DSGeneMarker> selectedMarkers = new CSPanel<DSGeneMarker>(tmpSetLabel, tmpSetLabel);
+                        for (int i = 0; i < genesInPathway.length; i++) {
+                            GeneAnnotation geneAnnotation = genesInPathway[i];
+                            log.info(geneAnnotation.getGeneSymbol() + " : " + geneAnnotation.getGeneName());
+                            DSItemList markers = maSet.getMarkers();
+                            for (Iterator iterator = markers.iterator(); iterator.hasNext();) {
+                                DSGeneMarker marker = (DSGeneMarker) iterator.next();
+                                if (marker.getShortName().equals(geneAnnotation.getGeneSymbol())) {
+                                    log.debug("Found " + geneAnnotation.getGeneSymbol() + " in set.");
+                                    selectedMarkers.add(marker);
+                                    break;
+                                }
+                            }
+                        }
+
+                        selectedMarkers.setActive(true);
+                        publishSubpanelChangedEvent(new SubpanelChangedEvent(DSGeneMarker.class, selectedMarkers, SubpanelChangedEvent.SET_CONTENTS));
+
+                    }
+                });
+                thread.start();
+
+            }
+        });
+        popup.add(makeSet);
+
+        JMenuItem export = new JMenuItem("Export genes to CSV");
+        export.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent actionEvent) {
+
+                Thread thread = new Thread(new Runnable() {
+                    public void run() {
+                        JFileChooser chooser = new JFileChooser(pathwayData.pathway.getPathwayName() + ".csv");
+                        ExampleFilter filter = new ExampleFilter();
+                        filter.addExtension("csv");
+                        filter.setDescription("CSV Files");
+                        chooser.setFileFilter(filter);
+                        int returnVal = chooser.showSaveDialog(null);
+                        if (returnVal == JFileChooser.APPROVE_OPTION) {
+                            try {
+                                ProgressBar pb = ProgressBar.create(ProgressBar.INDETERMINATE_TYPE);
+                                pb.setTitle("Genes For Pathway");
+                                pb.setMessage("Retrieving from server...");
+                                pb.start();
+
+                                GeneAnnotation[] genesInPathway = criteria.getGenesInPathway(pathwayData.pathway);
+
+                                pb.stop();
+                                pb.dispose();
+
+                                saveGenesInPathway(chooser.getSelectedFile(), genesInPathway);
+                            } catch (IOException ex) {
+                                log.error(ex);
+                            }
+                        }
+                    }
+                });
+                thread.start();
+            }
+
+        });
+        popup.add(export);
+
+        popup.show(table, (int) (MouseInfo.getPointerInfo().getLocation().getX() - table.getLocationOnScreen().getX()),
+                (int) (MouseInfo.getPointerInfo().getLocation().getY() - table.getLocationOnScreen().getY()));
+    }
+
+    private void saveGenesInPathway(File selectedFile, GeneAnnotation[] genesInPathway) throws IOException {
+        FileWriter writer = new FileWriter(selectedFile);
+        for (int i = 0; i < genesInPathway.length; i++) {
+            GeneAnnotation geneAnnotation = genesInPathway[i];
+            writer.write(geneAnnotation.getGeneSymbol() + ", " + geneAnnotation.getGeneName() + "\n");
+        }
+        writer.close();
+    }
+
+    @Publish
+    public org.geworkbench.events.SubpanelChangedEvent publishSubpanelChangedEvent(org.geworkbench.events.SubpanelChangedEvent event) {
+        return event;
     }
 
     @Publish
@@ -455,7 +574,8 @@ import java.util.*;
         return ae;
     }
 
-    @Publish public MarkerSelectedEvent publishMarkerSelectedEvent(MarkerSelectedEvent event) {
+    @Publish
+    public MarkerSelectedEvent publishMarkerSelectedEvent(MarkerSelectedEvent event) {
         return event;
     }
 
