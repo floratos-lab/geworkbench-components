@@ -58,7 +58,7 @@ import gov.nih.nci.cagrid.metadata.ServiceMetadata;
 /**
  * @author watkinson
  * @author keshav
- * @version $Id: CaGridPanel.java,v 1.9 2007-01-10 21:50:34 keshav Exp $
+ * @version $Id: CaGridPanel.java,v 1.10 2007-01-10 21:53:37 keshav Exp $
  */
 public class CaGridPanel extends JPanel implements VisualPlugin {
 
@@ -384,7 +384,7 @@ public class CaGridPanel extends JPanel implements VisualPlugin {
 							if (somCluster != null) {
 								// convert grid to bison hierarchical cluster
 
-								// createBisonSomClustering(somCluster, view);
+								createBisonSomClustering(somCluster, view);
 								// TODO implement me - for now, doing:
 								FormLayout layout = new FormLayout(
 										"right:max(40dlu;pref), 3dlu, 100dlu, 7dlu",
@@ -469,8 +469,10 @@ public class CaGridPanel extends JPanel implements VisualPlugin {
 				// Cluster cluster = new LeafSOMCluster();
 			}
 		}
+		CSSOMClusterDataSet dataSet = new CSSOMClusterDataSet(bisonSomCluster,
+				"Som Clustering", view);
 
-		return null;
+		return dataSet;
 	}
 
 	/**
