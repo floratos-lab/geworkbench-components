@@ -4,7 +4,7 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="lib/addressing-1.0.jar"/>
 	<classpathentry kind="lib" path="lib/ant-contrib.jar"/>
-	<classpathentry kind="lib" path="lib/axis.jar"/>
+	<classpathentry kind="lib" path="lib/axis.jar" sourcepath="C:/java/jar_source/axis-1_2RC2/src"/>
 	<classpathentry kind="lib" path="lib/axis-url.jar"/>
 	<classpathentry kind="lib" path="lib/bootstrap.jar"/>
 	<classpathentry kind="lib" path="lib/caGrid-core-1.0.jar"/>
