@@ -2,7 +2,6 @@ package org.geworkbench.components.cagrid;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
-import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -13,7 +12,6 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
-import javax.swing.JTextField;
 
 import org.apache.axis.message.addressing.EndpointReferenceType;
 import org.apache.axis.types.URI;
@@ -59,7 +57,7 @@ import gov.nih.nci.cagrid.metadata.ServiceMetadata;
 /**
  * @author watkinson
  * @author keshav
- * @version $Id: CaGridPanel.java,v 1.11 2007-01-10 22:17:49 keshav Exp $
+ * @version $Id: CaGridPanel.java,v 1.12 2007-01-11 14:56:28 keshav Exp $
  */
 public class CaGridPanel extends JPanel implements VisualPlugin {
 
@@ -190,101 +188,6 @@ public class CaGridPanel extends JPanel implements VisualPlugin {
 		}
 		servicePanel.removeAll();
 		servicePanel.add(builder.getPanel());
-		revalidate();
-		repaint();
-	}
-
-	/**
-	 * 
-	 * 
-	 */
-	private void populateSomParameters() {// TODO remove me
-		FormLayout layout = new FormLayout(
-				"right:max(40dlu;pref), 3dlu, 100dlu, 7dlu", "");
-		DefaultFormBuilder builder = new DefaultFormBuilder(layout);
-		builder.setDefaultDialogBorder();
-		builder.appendSeparator("Parameters");
-
-		final JTextField dimxField = new JTextField("3");
-		final JTextField dimyField = new JTextField("3");
-		final JTextField functionField = new JTextField("1");
-		final JTextField radiusField = new JTextField("3.0");
-		final JTextField alphaField = new JTextField("0.08");
-		final JTextField iterationsField = new JTextField("4000");
-
-		final SomClusteringParameter somParameters = new SomClusteringParameter();
-
-		JPanel buttonPanel = new JPanel(new FlowLayout());
-		JButton okButton = new JButton("OK");
-		okButton.addActionListener(new ActionListener() {
-
-			public void actionPerformed(ActionEvent e) {
-				log.debug("event " + e);
-
-				ClassLoader oldClassLoader = Thread.currentThread()
-						.getContextClassLoader();
-
-				try {
-					Thread.currentThread().setContextClassLoader(
-							CaGridPanel.class.getClassLoader());
-
-					somParameters.setDim_x(Integer
-							.parseInt(dimxField.getText()));
-					somParameters.setDim_y(Integer
-							.parseInt(dimyField.getText()));
-					somParameters.setFunction(Integer.parseInt(functionField
-							.getText()));
-					somParameters.setRadius(Float.parseFloat(radiusField
-							.getText()));
-					somParameters.setAlpha(Float.parseFloat(alphaField
-							.getText()));
-					somParameters.setIteration(Integer.parseInt(iterationsField
-							.getText()));
-
-					// a test
-					String url = "http://156.145.29.64:8080/wsrf/services/cagrid/SomClustering";
-					SomClusteringClient client = new SomClusteringClient(url);
-					CSMicroarraySetView view = new CSMicroarraySetView(
-							microarraySet);
-					MicroarraySet gridSet = CagridMicroarrayTypeConverter
-							.convertToCagridMicroarrayType(view);
-					SomCluster somCluster = client.execute(gridSet,
-							somParameters);
-
-				} catch (Exception e1) {
-					e1.printStackTrace();
-				} finally {
-					Thread.currentThread()
-							.setContextClassLoader(oldClassLoader);
-				}
-
-			}
-		});
-		JButton cancelButton = new JButton("Cancel");
-		cancelButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				log.debug("event " + e);
-				// dispose();
-			}
-		});
-
-		/* append all the fields to the builder */
-		builder.append("dim x", dimxField);
-		builder.append("dim y", dimyField);
-		builder.append("function", functionField);
-		builder.append("radius", radiusField);
-		builder.append("alpha", alphaField);
-		builder.append("iteration", iterationsField);
-
-		/* create a buttonPanel and append to builder */
-		buttonPanel.add(okButton);
-		buttonPanel.add(cancelButton);
-		builder.append(buttonPanel);
-
-		/* add panel from builder to the servicePanel */
-		servicePanel.removeAll();
-		servicePanel.add(builder.getPanel());
-
 		revalidate();
 		repaint();
 	}
