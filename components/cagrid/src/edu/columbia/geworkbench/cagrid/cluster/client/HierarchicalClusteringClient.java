@@ -33,7 +33,7 @@ import org.globus.gsi.GlobusCredential;
  * 
  * @created by Introduce Toolkit version 1.0
  * @author keshav
- * @version $Id: HierarchicalClusteringClient.java,v 1.4 2007-01-10 17:13:53 keshav Exp $
+ * @version $Id: HierarchicalClusteringClient.java,v 1.5 2007-01-11 15:23:43 keshav Exp $
  */
 public class HierarchicalClusteringClient extends ServiceSecurityClient implements HierarchicalClusteringI {
     private static Log log = LogFactory.getLog( HierarchicalClusteringClient.class );
@@ -69,7 +69,8 @@ public class HierarchicalClusteringClient extends ServiceSecurityClient implemen
 
         HierarchicalClusteringServiceAddressingLocator locator = new HierarchicalClusteringServiceAddressingLocator();
         // attempt to load our context sensitive wsdd file
-        InputStream resourceAsStream = ClassUtils.getResourceAsStream( getClass(), "client-config.wsdd" );
+        //InputStream resourceAsStream = ClassUtils.getResourceAsStream( getClass(), "client-config.wsdd" );
+        InputStream resourceAsStream = ClassUtils.getResourceAsStream( getClass(), "conf/client-config.wsdd" );
         if ( resourceAsStream != null ) {
             // we found it, so tell axis to configure an engine to use it
             EngineConfiguration engineConfig = new FileProvider( resourceAsStream );
