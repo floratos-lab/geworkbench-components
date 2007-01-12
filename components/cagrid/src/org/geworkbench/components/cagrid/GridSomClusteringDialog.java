@@ -20,7 +20,7 @@ import edu.columbia.geworkbench.cagrid.cluster.som.SomClusteringParameter;
 
 /**
  * @author keshav
- * @version $Id: GridSomClusteringDialog.java,v 1.2 2007-01-10 19:07:01 keshav Exp $
+ * @version $Id: GridSomClusteringDialog.java,v 1.3 2007-01-12 17:29:43 keshav Exp $
  */
 public class GridSomClusteringDialog extends JDialog {
 
@@ -107,7 +107,7 @@ public class GridSomClusteringDialog extends JDialog {
      */
     public SomClusteringParameter getParameters() {
         pack();
-        setSize( 300, 200 );
+        setSize( 300, 250 );
         Util.centerWindow( this );
         setVisible( true );
         return somClusteringParameters;
