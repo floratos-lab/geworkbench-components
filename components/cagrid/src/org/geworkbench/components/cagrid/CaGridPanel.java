@@ -51,7 +51,7 @@ import gov.nih.nci.cagrid.metadata.ServiceMetadata;
 /**
  * @author watkinson
  * @author keshav
- * @version $Id: CaGridPanel.java,v 1.18 2007-01-12 16:21:29 watkinson Exp $
+ * @version $Id: CaGridPanel.java,v 1.19 2007-01-12 16:54:06 keshav Exp $
  */
 public class CaGridPanel extends JPanel implements VisualPlugin {
 
@@ -72,7 +72,7 @@ public class CaGridPanel extends JPanel implements VisualPlugin {
 	private DSMicroarraySet<DSMicroarray> microarraySet = null;
 
 	/**
-	 *
+	 * 
 	 */
 	public Component getComponent() {
 		log.debug("getting components");
@@ -80,8 +80,8 @@ public class CaGridPanel extends JPanel implements VisualPlugin {
 	}
 
 	/**
-	 *
-	 *
+	 * 
+	 * 
 	 */
 	public CaGridPanel() {
 		log.debug("initializing");
@@ -280,23 +280,11 @@ public class CaGridPanel extends JPanel implements VisualPlugin {
 
 							if (somCluster != null) {
 								// convert grid to bison hierarchical cluster
-								CSSOMClusterDataSet dataSet = createBisonSomClustering(somCluster, view);
-                                ProjectNodeAddedEvent event = new ProjectNodeAddedEvent("Som Clustering", null, dataSet);
-                                publishProjectNodeAddedEvent(event);
-								// TODO implement me - for now, doing:
-								FormLayout layout = new FormLayout(
-										"right:max(40dlu;pref), 3dlu, 100dlu, 7dlu",
-										"");
-								DefaultFormBuilder builder = new DefaultFormBuilder(
-										layout);
-								builder.setDefaultDialogBorder();
-								builder.append(new JLabel("Successful"));
-
-								servicePanel.removeAll();
-								servicePanel.add(builder.getPanel());
-								revalidate();
-								repaint();
-
+								CSSOMClusterDataSet dataSet = createBisonSomClustering(
+										somCluster, view);
+								ProjectNodeAddedEvent event = new ProjectNodeAddedEvent(
+										"Som Clustering", null, dataSet);
+								publishProjectNodeAddedEvent(event);
 							}
 
 						} else {
@@ -347,30 +335,32 @@ public class CaGridPanel extends JPanel implements VisualPlugin {
 	 * @param view
 	 * @return CSSOMClusterDataSet
 	 */
-	private CSSOMClusterDataSet createBisonSomClustering(SomCluster somCluster, CSMicroarraySetView view) {
+	private CSSOMClusterDataSet createBisonSomClustering(SomCluster somCluster,
+			CSMicroarraySetView view) {
 		log.debug("creating bison som cluster");
 
-        int width = somCluster.getWidth();
-        int height = somCluster.getHeight();
-        // Initialize width x height Bison SOM Cluster
-        SOMCluster[][] bisonSomCluster = new SOMCluster[width][height];
-        for (int x = 0; x < width; x++) {
-            for (int y = 0; y < height; y++) {
-                bisonSomCluster[x][y] = new DefaultSOMCluster();
-                bisonSomCluster[x][y].setGridCoordinates(x, y);
-            }
-        }
-        // Assign each marker to its appropriate cluster
-        for (int i = 0; i < somCluster.getXCoordinate().length; i++) {
+		int width = somCluster.getWidth();
+		int height = somCluster.getHeight();
+		// Initialize width x height Bison SOM Cluster
+		SOMCluster[][] bisonSomCluster = new SOMCluster[width][height];
+		for (int x = 0; x < width; x++) {
+			for (int y = 0; y < height; y++) {
+				bisonSomCluster[x][y] = new DefaultSOMCluster();
+				bisonSomCluster[x][y].setGridCoordinates(x, y);
+			}
+		}
+		// Assign each marker to its appropriate cluster
+		for (int i = 0; i < somCluster.getXCoordinate().length; i++) {
 			int x = somCluster.getXCoordinate(i);
-            int y = somCluster.getYCoordinate(i);
-            DSGeneMarker marker = (DSGeneMarker) view.getMicroarraySet().getMarkers().get(i);
-            LeafSOMCluster node = new LeafSOMCluster(marker);
-            bisonSomCluster[x][y].addNode(node);
+			int y = somCluster.getYCoordinate(i);
+			DSGeneMarker marker = (DSGeneMarker) view.getMicroarraySet()
+					.getMarkers().get(i);
+			LeafSOMCluster node = new LeafSOMCluster(marker);
+			bisonSomCluster[x][y].addNode(node);
 		}
 
-        // Build final result set
-        CSSOMClusterDataSet dataSet = new CSSOMClusterDataSet(bisonSomCluster,
+		// Build final result set
+		CSSOMClusterDataSet dataSet = new CSSOMClusterDataSet(bisonSomCluster,
 				"Som Clustering", view);
 
 		return dataSet;
