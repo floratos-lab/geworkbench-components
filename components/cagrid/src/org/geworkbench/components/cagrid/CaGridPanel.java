@@ -20,9 +20,17 @@ import org.apache.commons.logging.LogFactory;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.views.CSMicroarraySetView;
-import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
-import org.geworkbench.bison.model.clusters.*;
+import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
+import org.geworkbench.bison.model.clusters.CSHierClusterDataSet;
+import org.geworkbench.bison.model.clusters.CSSOMClusterDataSet;
+import org.geworkbench.bison.model.clusters.DSHierClusterDataSet;
+import org.geworkbench.bison.model.clusters.DefaultSOMCluster;
+import org.geworkbench.bison.model.clusters.HierCluster;
+import org.geworkbench.bison.model.clusters.LeafSOMCluster;
+import org.geworkbench.bison.model.clusters.MarkerHierCluster;
+import org.geworkbench.bison.model.clusters.MicroarrayHierCluster;
+import org.geworkbench.bison.model.clusters.SOMCluster;
 import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.engine.management.Publish;
 import org.geworkbench.engine.management.Script;
@@ -51,7 +59,7 @@ import gov.nih.nci.cagrid.metadata.ServiceMetadata;
 /**
  * @author watkinson
  * @author keshav
- * @version $Id: CaGridPanel.java,v 1.19 2007-01-12 16:54:06 keshav Exp $
+ * @version $Id: CaGridPanel.java,v 1.20 2007-01-12 17:01:40 keshav Exp $
  */
 public class CaGridPanel extends JPanel implements VisualPlugin {
 
@@ -63,7 +71,11 @@ public class CaGridPanel extends JPanel implements VisualPlugin {
 
 	private static final String HIERARCHICAL_CLUSTERING = "HierarchicalClustering";
 
+	private static final String HIERARCHICAL_CLUSTERING_NAME = "Hierarchical Clustering";
+
 	private static final String SOM_CLUSTERING = "SomClustering";
+
+	private static final String SOM_CLUSTERING_NAME = "Som Clustering";
 
 	private static final String cagridTitle = "caGrid";
 
@@ -243,7 +255,8 @@ public class CaGridPanel extends JPanel implements VisualPlugin {
 								return;
 							}
 							pBar.setTitle(cagridTitle);
-							pBar.setMessage("Running Hierarchical Clustering");
+							pBar.setMessage("Running "
+									+ HIERARCHICAL_CLUSTERING_NAME);
 							pBar.start();
 							pBar.reset();
 							HierarchicalClusteringClient client = new HierarchicalClusteringClient(
@@ -255,7 +268,7 @@ public class CaGridPanel extends JPanel implements VisualPlugin {
 								CSHierClusterDataSet dataSet = createBisonHierarchicalClustering(
 										hierarchicalCluster, view);
 								ProjectNodeAddedEvent event = new ProjectNodeAddedEvent(
-										"Hierarchical Clustering", null,
+										HIERARCHICAL_CLUSTERING_NAME, null,
 										dataSet);
 								publishProjectNodeAddedEvent(event);
 							}
@@ -270,7 +283,7 @@ public class CaGridPanel extends JPanel implements VisualPlugin {
 								return;
 
 							pBar.setTitle(cagridTitle);
-							pBar.setMessage("Running Som Clustering");
+							pBar.setMessage("Running " + SOM_CLUSTERING_NAME);
 							pBar.start();
 							pBar.reset();
 							SomClusteringClient client = new SomClusteringClient(
@@ -283,7 +296,7 @@ public class CaGridPanel extends JPanel implements VisualPlugin {
 								CSSOMClusterDataSet dataSet = createBisonSomClustering(
 										somCluster, view);
 								ProjectNodeAddedEvent event = new ProjectNodeAddedEvent(
-										"Som Clustering", null, dataSet);
+										SOM_CLUSTERING_NAME, null, dataSet);
 								publishProjectNodeAddedEvent(event);
 							}
 
@@ -325,7 +338,7 @@ public class CaGridPanel extends JPanel implements VisualPlugin {
 			resultClusters[1] = convertToMicroarrayHierCluster(microarrayCluster);
 		}
 		CSHierClusterDataSet dataSet = new CSHierClusterDataSet(resultClusters,
-				"Hierarchical Clustering", view);
+				HIERARCHICAL_CLUSTERING_NAME, view);
 		return dataSet;
 	}
 
@@ -361,7 +374,7 @@ public class CaGridPanel extends JPanel implements VisualPlugin {
 
 		// Build final result set
 		CSSOMClusterDataSet dataSet = new CSSOMClusterDataSet(bisonSomCluster,
-				"Som Clustering", view);
+				SOM_CLUSTERING_NAME, view);
 
 		return dataSet;
 	}
