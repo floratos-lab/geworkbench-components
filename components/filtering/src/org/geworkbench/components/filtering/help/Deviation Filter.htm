@@ -27,10 +27,10 @@
 <h3>Deviation-based Filter</h3>
 
    <p>This filter sets to the measurement status to &#8220;missing&quot; in all markers whose measurement deviation across microarrays is below a user defined value. </p> 
-    <p><b>The parameters are: </b></p> 
-    <p><u>Deviation bound: </u> A non-negative value D. For every marker, the filter will compute the standard deviation for the measurements of the marker across all microarrays in the set. If the deviation is less than D, then all the measurements for the marker will be set to &quot;missing&quot;.</p> 
-    <p><u>Missing values: </u> When computing the deviation for a marker, it is possible that some of the marker's measurements are missing. The &quot;Missing values&quot; drop-down allows users to designate how to handle such missing measurements when computing the marker's deviation. Available options are: </p> 
-    <p>&#12290; <b>Marker average</b>: Replaces a missing value with the average measurement of its corresponding marker. The average is computed using only non-missing values.</p> 
+    <p>The parameters are: </p> 
+    <p><u>Deviation bound</u>:  A non-negative value D. For every marker, the filter will compute the standard deviation for the measurements of the marker across all microarrays in the set. If the deviation is less than D, then all the measurements for the marker will be set to &quot;missing&quot;.</p> 
+    <p><u>Missing values</u>:  When computing the deviation for a marker, it is possible that some of the marker's measurements are missing. The &quot;Missing values&quot; drop-down allows users to designate how to handle such missing measurements when computing the marker's deviation. Available options are: </p> 
+    <p>&#12290; <b>Marker average: </b> Replaces a missing value with the average measurement of its corresponding marker. The average is computed using only non-missing values.</p> 
     <p>&#12290; <b>Microarray average:</b> Replaces a missing value with the average measurement of the microarray where the missing value belongs. The average is computed using only the non-missing values in the microarray.</p> 
     <p>&#12290; <b>Ignore: </b>A missing value is ignored (i.e., treated as non-existent) in the computation of the marker's deviation.</p> 
     <p>Note: For 2-channel data (Genepix) the measurements used in deviation computation are the ratio of the foreground/background intensities.</p> 
