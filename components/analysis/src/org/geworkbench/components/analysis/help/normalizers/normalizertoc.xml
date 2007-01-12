@@ -4,6 +4,9 @@
 
 	<tocitem text="Normalizers">
 
+	
+		<tocitem target="overview" text="Normalizer Overview"/>
+	
 		<tocitem target="log.trans.norm" text="Log Transformation"/>
 
 		<tocitem target="array.mean.norm" text="Array Mean"/>
