@@ -57,7 +57,7 @@ import gov.nih.nci.cagrid.metadata.ServiceMetadata;
 /**
  * @author watkinson
  * @author keshav
- * @version $Id: CaGridPanel.java,v 1.16 2007-01-12 15:37:58 keshav Exp $
+ * @version $Id: CaGridPanel.java,v 1.17 2007-01-12 15:50:33 keshav Exp $
  */
 public class CaGridPanel extends JPanel implements VisualPlugin {
 
@@ -285,7 +285,7 @@ public class CaGridPanel extends JPanel implements VisualPlugin {
 									somClusteringParameters);
 
 							if (somCluster != null) {
-								// convert grid to bison hierarchical cluster
+								// convert grid to bison som cluster
 								// CSSOMClusterDataSet dataSet =
 								// createBisonSomClustering(
 								// somCluster, view);
