@@ -40,7 +40,7 @@ public class INTERACTIONSServiceLocator extends org.apache.axis.client.Service i
     }
 
     public interactions.INTERACTIONS getinteractions() throws javax.xml.rpc.ServiceException {
-       java.net.URL endpoint;
+        java.net.URL endpoint;
         try {
             endpoint = new java.net.URL(interactions_address);
         }
@@ -96,8 +96,7 @@ public class INTERACTIONSServiceLocator extends org.apache.axis.client.Service i
         java.lang.String inputPortName = portName.getLocalPart();
         if ("interactions".equals(inputPortName)) {
             return getinteractions();
-        }
-        else  {
+        } else {
             java.rmi.Remote _stub = getPort(serviceEndpointInterface);
             ((org.apache.axis.client.Stub) _stub).setPortName(portName);
             return _stub;
@@ -119,22 +118,20 @@ public class INTERACTIONSServiceLocator extends org.apache.axis.client.Service i
     }
 
     /**
-    * Set the endpoint address for the specified port name.
-    */
+     * Set the endpoint address for the specified port name.
+     */
     public void setEndpointAddress(java.lang.String portName, java.lang.String address) throws javax.xml.rpc.ServiceException {
-        
-if ("interactions".equals(portName)) {
+
+        if ("interactions".equals(portName)) {
             setinteractionsEndpointAddress(address);
-        }
-        else 
-{ // Unknown Port Name
+        } else { // Unknown Port Name
             throw new javax.xml.rpc.ServiceException(" Cannot set Endpoint Address for Unknown Port" + portName);
         }
     }
 
     /**
-    * Set the endpoint address for the specified port name.
-    */
+     * Set the endpoint address for the specified port name.
+     */
     public void setEndpointAddress(javax.xml.namespace.QName portName, java.lang.String address) throws javax.xml.rpc.ServiceException {
         setEndpointAddress(portName.getLocalPart(), address);
     }

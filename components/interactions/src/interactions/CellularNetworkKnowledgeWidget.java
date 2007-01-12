@@ -2,6 +2,7 @@ package interactions;
 
 import org.geworkbench.engine.management.Subscribe;
 import org.geworkbench.engine.management.Publish;
+import org.geworkbench.engine.management.AcceptTypes;
 import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
@@ -53,7 +54,7 @@ import java.text.DecimalFormat;
 /**
  * @author manjunath at genomecenter dot columbia dot edu,  xiaoqing zhang
  */
-//@AcceptTypes({DSMicroarraySet.class})
+ @AcceptTypes({DSMicroarraySet.class})
 public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane implements VisualPlugin {
 
     /**
@@ -70,7 +71,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane impl
         //  activatedMarkerTable.getTableHeader().setDefaultRenderer(activeMarkersTableModel);
         activatedMarkerTable.getTableHeader().setEnabled(true);
         // setting the size of the table and its columns
-        activatedMarkerTable.setPreferredScrollableViewportSize(new Dimension(230, 100));
+        activatedMarkerTable.setPreferredScrollableViewportSize(new Dimension(280, 100));
         activatedMarkerTable.getColumnModel().getColumn(0).setPreferredWidth(200);
         activatedMarkerTable.getColumnModel().getColumn(1).setPreferredWidth(50);
         activatedMarkerTable.getColumnModel().getColumn(2).setPreferredWidth(30);
@@ -170,8 +171,11 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane impl
         });
         jPanel2.setBorder(javax.swing.BorderFactory.createLineBorder(new Color(204, 204, 255)));
         //   jPanel2.setMaximumSize(new Dimension(200, 80));
-        jPanel2.setMinimumSize(new Dimension(200, 80));
-        jPanel2.setPreferredSize(new Dimension(200, 80));
+        jPanel2.setMinimumSize(new Dimension(230, 80));
+        jPanel2.setPreferredSize(new Dimension(230, 80));
+         throttlePanel.setBorder(javax.swing.BorderFactory.createLineBorder(new Color(204, 204, 255)));
+        throttlePanel.setMinimumSize(new Dimension(230, 100));
+        throttlePanel.setPreferredSize(new Dimension(230, 300));
         jLabel2.setText("Obtain Interactions for Gene(s):");
 
         allGeneList.setToolTipText("Available Genes");
@@ -210,7 +214,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane impl
             }
         });
 
-        refreshButton.setText("Preview Selections...");
+        refreshButton.setText("Refresh");
         refreshButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 previewSelectionsHandler(evt);
@@ -242,7 +246,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane impl
                     if (row < hits.size()) {
                         CellularNetWorkElementInformation marker = hits.get(row);
                         hits.remove(row);
-                        if (marker != null && allGenes.contains(marker)) {
+                        if (marker != null && !allGenes.contains(marker)) {
                             allGenes.add(marker.getdSGeneMarker());
                             activatedMarkerTable.revalidate();
                             detailTable.revalidate();
@@ -285,10 +289,13 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane impl
         jPanel1.add(jLabel1, BorderLayout.NORTH);
         jPanel1.add(jScrollPane3, BorderLayout.CENTER);
 
-        jPanel1.add(commandToolBar, BorderLayout.SOUTH);
+      //  jPanel1.add(commandToolBar, BorderLayout.SOUTH);
 
-
-        this.getViewport().add(upPanel);
+        topPanel = new JPanel();
+        topPanel.setLayout(new BorderLayout());
+        topPanel.add(upPanel, BorderLayout.CENTER);
+        topPanel.add(commandToolBar, BorderLayout.SOUTH);
+        this.getViewport().add(topPanel);
         upPanel.setOrientation(JSplitPane.VERTICAL_SPLIT);
         activeMarkersLabel = new JLabel("Activated Marker List");
         jPanel2.setLayout(new BorderLayout());
@@ -310,6 +317,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane impl
         throttlePanel.add(graph, BorderLayout.CENTER);
         upPanel.add(topPane, JSplitPane.TOP);
         upPanel.add(jPanel1, JSplitPane.BOTTOM);
+        upPanel.setOneTouchExpandable(true);
         throttlePanel.add(graphToolBar, BorderLayout.SOUTH);
         commandToolBar.add(allProteinDNACheckbox);
         commandToolBar.add(allProteinCheckbox);
@@ -487,16 +495,16 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane impl
         Range range = domainAxis.getRange();
         //        double c = domainAxis.getLowerBound()
         //                   + (value / maxValue) * range.getLength();
-        System.out.print(value);
+
         double lowValue = (double) value / (CellularNetWorkElementInformation.getBinNumber() - 1);
-        System.out.println(value + " " + lowValue);
+
         plot.setDomainCrosshairValue(lowValue);
         String s = myFormatter.format(lowValue);
         thresholdTextField.setText(s);
 
         for (CellularNetWorkElementInformation cellularNetWorkElementInformation : hits) {
             cellularNetWorkElementInformation.setThreshold(lowValue);
-            System.out.println("PP: " + cellularNetWorkElementInformation.getPpInteractionNum());
+
         }
         previewTableModel.fireTableDataChanged();
         detailTable.revalidate();

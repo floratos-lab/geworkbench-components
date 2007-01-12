@@ -128,8 +128,7 @@ public class CellularNetWorkElementInformation {
         }
 
         reset();
-        System.out.println("PP: " + ppInteractionNum + " at the begiin update." + threshold);
-        for (InteractionDetail interactionDetail : interactionDetails) {
+               for (InteractionDetail interactionDetail : interactionDetails) {
             if(interactionDetail!=null){
             int confidence = (int) (interactionDetail.getConfidence() * 100);
             if (confidence < distribution.length && confidence >= 0) {
@@ -157,7 +156,6 @@ public class CellularNetWorkElementInformation {
             }
         }
         }
-        System.out.println("PP: " + ppInteractionNum + " after update.");
     }
 
     public int[] getPpDistribution() {
