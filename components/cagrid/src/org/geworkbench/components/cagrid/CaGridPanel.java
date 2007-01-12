@@ -21,14 +21,8 @@ import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.views.CSMicroarraySetView;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
-import org.geworkbench.bison.model.clusters.CSHierClusterDataSet;
-import org.geworkbench.bison.model.clusters.CSSOMClusterDataSet;
-import org.geworkbench.bison.model.clusters.DSHierClusterDataSet;
-import org.geworkbench.bison.model.clusters.DefaultSOMCluster;
-import org.geworkbench.bison.model.clusters.HierCluster;
-import org.geworkbench.bison.model.clusters.MarkerHierCluster;
-import org.geworkbench.bison.model.clusters.MicroarrayHierCluster;
-import org.geworkbench.bison.model.clusters.SOMCluster;
+import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
+import org.geworkbench.bison.model.clusters.*;
 import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.engine.management.Publish;
 import org.geworkbench.engine.management.Script;
@@ -57,7 +51,7 @@ import gov.nih.nci.cagrid.metadata.ServiceMetadata;
 /**
  * @author watkinson
  * @author keshav
- * @version $Id: CaGridPanel.java,v 1.17 2007-01-12 15:50:33 keshav Exp $
+ * @version $Id: CaGridPanel.java,v 1.18 2007-01-12 16:21:29 watkinson Exp $
  */
 public class CaGridPanel extends JPanel implements VisualPlugin {
 
@@ -78,7 +72,7 @@ public class CaGridPanel extends JPanel implements VisualPlugin {
 	private DSMicroarraySet<DSMicroarray> microarraySet = null;
 
 	/**
-	 * 
+	 *
 	 */
 	public Component getComponent() {
 		log.debug("getting components");
@@ -86,8 +80,8 @@ public class CaGridPanel extends JPanel implements VisualPlugin {
 	}
 
 	/**
-	 * 
-	 * 
+	 *
+	 *
 	 */
 	public CaGridPanel() {
 		log.debug("initializing");
@@ -285,14 +279,10 @@ public class CaGridPanel extends JPanel implements VisualPlugin {
 									somClusteringParameters);
 
 							if (somCluster != null) {
-								// convert grid to bison som cluster
-								// CSSOMClusterDataSet dataSet =
-								// createBisonSomClustering(
-								// somCluster, view);
-								// ProjectNodeAddedEvent event = new
-								// ProjectNodeAddedEvent(
-								// "Som Clustering", null, dataSet);
-								// publishProjectNodeAddedEvent(event);
+								// convert grid to bison hierarchical cluster
+								CSSOMClusterDataSet dataSet = createBisonSomClustering(somCluster, view);
+                                ProjectNodeAddedEvent event = new ProjectNodeAddedEvent("Som Clustering", null, dataSet);
+                                publishProjectNodeAddedEvent(event);
 								// TODO implement me - for now, doing:
 								FormLayout layout = new FormLayout(
 										"right:max(40dlu;pref), 3dlu, 100dlu, 7dlu",
@@ -357,32 +347,30 @@ public class CaGridPanel extends JPanel implements VisualPlugin {
 	 * @param view
 	 * @return CSSOMClusterDataSet
 	 */
-	private CSSOMClusterDataSet createBisonSomClustering(SomCluster somCluster,
-			CSMicroarraySetView view) {
+	private CSSOMClusterDataSet createBisonSomClustering(SomCluster somCluster, CSMicroarraySetView view) {
 		log.debug("creating bison som cluster");
 
-		SOMCluster[][] bisonSomCluster = new SOMCluster[somCluster
-				.getXCoordinate().length][somCluster.getYCoordinate().length];
-
-		int x = 0;
-		int y = 0;
-		for (int i = 0; i < somCluster.getXCoordinate().length; i++) {
-			x = somCluster.getXCoordinate(i);
-			log.debug("x: " + x);
-			for (int j = 0; j < somCluster.getYCoordinate().length; j++) {
-				y = somCluster.getYCoordinate(j);
-				log.debug("y: " + y);
-
-				if (bisonSomCluster[x][y] == null) {
-					SOMCluster cluster = new DefaultSOMCluster();
-					// Cluster c = new LeafSOMCluster();
-					// bisonSomCluster[x][y] = cluster;
-					// cluster.addNode(newCluster)
-				}
-
-			}
+        int width = somCluster.getWidth();
+        int height = somCluster.getHeight();
+        // Initialize width x height Bison SOM Cluster
+        SOMCluster[][] bisonSomCluster = new SOMCluster[width][height];
+        for (int x = 0; x < width; x++) {
+            for (int y = 0; y < height; y++) {
+                bisonSomCluster[x][y] = new DefaultSOMCluster();
+                bisonSomCluster[x][y].setGridCoordinates(x, y);
+            }
+        }
+        // Assign each marker to its appropriate cluster
+        for (int i = 0; i < somCluster.getXCoordinate().length; i++) {
+			int x = somCluster.getXCoordinate(i);
+            int y = somCluster.getYCoordinate(i);
+            DSGeneMarker marker = (DSGeneMarker) view.getMicroarraySet().getMarkers().get(i);
+            LeafSOMCluster node = new LeafSOMCluster(marker);
+            bisonSomCluster[x][y].addNode(node);
 		}
-		CSSOMClusterDataSet dataSet = new CSSOMClusterDataSet(bisonSomCluster,
+
+        // Build final result set
+        CSSOMClusterDataSet dataSet = new CSSOMClusterDataSet(bisonSomCluster,
 				"Som Clustering", view);
 
 		return dataSet;
