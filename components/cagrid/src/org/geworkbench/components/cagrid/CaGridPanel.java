@@ -57,7 +57,7 @@ import gov.nih.nci.cagrid.metadata.ServiceMetadata;
 /**
  * @author watkinson
  * @author keshav
- * @version $Id: CaGridPanel.java,v 1.15 2007-01-12 15:34:40 keshav Exp $
+ * @version $Id: CaGridPanel.java,v 1.16 2007-01-12 15:37:58 keshav Exp $
  */
 public class CaGridPanel extends JPanel implements VisualPlugin {
 
@@ -286,8 +286,13 @@ public class CaGridPanel extends JPanel implements VisualPlugin {
 
 							if (somCluster != null) {
 								// convert grid to bison hierarchical cluster
-
-								// createBisonSomClustering(somCluster, view);
+								// CSSOMClusterDataSet dataSet =
+								// createBisonSomClustering(
+								// somCluster, view);
+								// ProjectNodeAddedEvent event = new
+								// ProjectNodeAddedEvent(
+								// "Som Clustering", null, dataSet);
+								// publishProjectNodeAddedEvent(event);
 								// TODO implement me - for now, doing:
 								FormLayout layout = new FormLayout(
 										"right:max(40dlu;pref), 3dlu, 100dlu, 7dlu",
