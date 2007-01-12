@@ -16,8 +16,9 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Vector;
 
-public class InteractionsSoapBindingImpl implements interactions.INTERACTIONS{
-    
+
+public class InteractionsSoapBindingImpl implements interactions.INTERACTIONS {
+
     private String interactionType = null;
     private BigDecimal msid2 = null;
     private String isReversible = null;
@@ -28,108 +29,108 @@ public class InteractionsSoapBindingImpl implements interactions.INTERACTIONS{
     private double confidenceValue = 0d;
     private String isModulated = null;
     private BigDecimal id = null;
-    
+
     private Connection conn = null;
     private Statement statement = null;
-    
+
     static {
         try {
             DriverManager.registerDriver(new oracle.jdbc.driver.OracleDriver());
-        } catch (SQLException se){
+        } catch (SQLException se) {
             se.printStackTrace();
         }
     }
-    
-    public InteractionsSoapBindingImpl(){
+
+    public InteractionsSoapBindingImpl() {
         try {
             conn = DriverManager.getConnection("jdbc:oracle:thin:@adora.cgc.cpmc.columbia.edu:1521:BIODB2", "interaction_ro", "linkt0cellnet");
             statement = conn.createStatement();
-        } catch (SQLException se){
+        } catch (SQLException se) {
             se.printStackTrace();
         }
     }
-    
+
     public java.lang.String getINTERACTIONTYPE() throws java.rmi.RemoteException {
         return interactionType;
     }
-    
+
     public void setINTERACTIONTYPE(java.lang.String in0) throws java.rmi.RemoteException {
         interactionType = in0;
     }
-    
+
     public java.math.BigDecimal getMSID2() throws java.rmi.RemoteException {
         return msid2;
     }
-    
+
     public void setMSID2(java.math.BigDecimal in0) throws java.rmi.RemoteException {
         msid2 = in0;
     }
-    
+
     public java.lang.String getISREVERSIBLE() throws java.rmi.RemoteException {
         return isReversible;
     }
-    
+
     public void setISREVERSIBLE(java.lang.String in0) throws java.rmi.RemoteException {
         isReversible = in0;
     }
-    
+
     public java.math.BigDecimal getMSID1() throws java.rmi.RemoteException {
         return msid1;
     }
-    
+
     public void setMSID1(java.math.BigDecimal in0) throws java.rmi.RemoteException {
         msid1 = in0;
     }
-    
+
     public java.lang.String getSOURCE() throws java.rmi.RemoteException {
         return source;
     }
-    
+
     public void setSOURCE(java.lang.String in0) throws java.rmi.RemoteException {
         source = in0;
     }
-    
+
     public java.lang.String getCONTROLTYPE() throws java.rmi.RemoteException {
         return controlType;
     }
-    
+
     public void setCONTROLTYPE(java.lang.String in0) throws java.rmi.RemoteException {
         controlType = in0;
     }
-    
+
     public java.lang.String getDIRECTION() throws java.rmi.RemoteException {
         return direction;
     }
-    
+
     public void setDIRECTION(java.lang.String in0) throws java.rmi.RemoteException {
         direction = in0;
     }
-    
+
     public double getCONFIDENCEVALUE() throws java.rmi.RemoteException {
         return confidenceValue;
     }
-    
+
     public void setCONFIDENCEVALUE(double in0) throws java.rmi.RemoteException {
         confidenceValue = in0;
     }
-    
+
     public java.lang.String getISMODULATED() throws java.rmi.RemoteException {
         return isModulated;
     }
-    
+
     public void setISMODULATED(java.lang.String in0) throws java.rmi.RemoteException {
         isModulated = in0;
     }
-    
+
     public java.math.BigDecimal getID() throws java.rmi.RemoteException {
         return id;
     }
-    
+
     public void setID(java.math.BigDecimal in0) throws java.rmi.RemoteException {
         id = in0;
     }
-    
-    public void insert() throws java.rmi.RemoteException{
+
+    public void insert() throws java.rmi.RemoteException {
         try {
             conn = DriverManager.getConnection("jdbc:oracle:thin:@adora.cgc.cpmc.columbia.edu:1521:BIODB2", "interaction_ro", "linkt0cellnet");
             statement = conn.createStatement();
@@ -139,17 +140,17 @@ public class InteractionsSoapBindingImpl implements interactions.INTERACTIONS{
                     interactionType + "," + controlType + "," + direction + "," + isReversible + "," + source + "\"");
             conn.commit();
             conn.close();
-        } catch (SQLException se){
+        } catch (SQLException se) {
             se.printStackTrace();
         }
     }
-    
-    public void retrieve() throws java.rmi.RemoteException{
+
+    public void retrieve() throws java.rmi.RemoteException {
         try {
             conn = DriverManager.getConnection("jdbc:oracle:thin:@adora.cgc.cpmc.columbia.edu:1521:BIODB2", "interaction_ro", "linkt0cellnet");
             statement = conn.createStatement();
             ResultSet rs = statement.executeQuery("SELECT * FROM PAIRWISE_INTERACTION where ms_id1=" + msid1.toString());
-            if (rs.getRow() > 0){
+            if (rs.getRow() > 0) {
                 rs.next();
                 msid2 = rs.getBigDecimal("ms_id2");
                 confidenceValue = rs.getDouble("confidence");
@@ -161,33 +162,34 @@ public class InteractionsSoapBindingImpl implements interactions.INTERACTIONS{
                 source = rs.getString("source");
             }
             conn.close();
-        } catch (SQLException se){
+        } catch (SQLException se) {
             se.printStackTrace();
         }
     }
-    
+
     public java.lang.String getCHROMOSOME() throws java.rmi.RemoteException {
         try {
             conn = DriverManager.getConnection("jdbc:oracle:thin:@adora.cgc.cpmc.columbia.edu:1521:BIODB2", "interaction_ro", "linkt0cellnet");
             statement = conn.createStatement();
-            ResultSet rs = statement.executeQuery("select CHROMOSOME from (select CHROMOSOME, rownum rn from master_gene where rownum<" + (chromosomeId + 1) +") where rn=" + chromosomeId);
+            ResultSet rs = statement.executeQuery("select CHROMOSOME from (select CHROMOSOME, rownum rn from master_gene where rownum<" + (chromosomeId + 1) + ") where rn=" + chromosomeId);
             rs.next();
             String chr = rs.getString("CHROMOSOME");
             rs.close();
             statement.close();
             conn.close();
             return chr;
-        } catch (SQLException se){
+        } catch (SQLException se) {
             se.printStackTrace();
         }
         return "";
     }
-    
+
     private int chromosomeId = 0;
+
     public void setCHROMOSOME(java.lang.String in0) throws java.rmi.RemoteException {
         chromosomeId = Integer.parseInt(in0);
     }
-    
+
     public java.math.BigDecimal getGENECOUNT() throws java.rmi.RemoteException {
         try {
             conn = DriverManager.getConnection("jdbc:oracle:thin:@adora.cgc.cpmc.columbia.edu:1521:BIODB2", "interaction_ro", "linkt0cellnet");
@@ -195,150 +197,156 @@ public class InteractionsSoapBindingImpl implements interactions.INTERACTIONS{
             ResultSet rs = statement.executeQuery("SELECT count(*) FROM MASTER_GENE");
             rs.next();
             System.out.println("count: " + rs.getObject(1));
-            BigDecimal count = (BigDecimal)rs.getObject(1);
+            BigDecimal count = (BigDecimal) rs.getObject(1);
             rs.close();
             statement.close();
             conn.close();
             return count;
-        } catch (SQLException se){
+        } catch (SQLException se) {
             se.printStackTrace();
         }
         System.out.println("ResultSet.getRow() == 0, impl 191");
         return new BigDecimal(0);
     }
-    
+
     private int egIndex = 0;
+
     public java.math.BigDecimal getENTREZID() throws java.rmi.RemoteException {
         try {
             conn = DriverManager.getConnection("jdbc:oracle:thin:@adora.cgc.cpmc.columbia.edu:1521:BIODB2", "interaction_ro", "linkt0cellnet");
             statement = conn.createStatement();
-            ResultSet rs = statement.executeQuery("select entrez_id from (select entrez_id, rownum rn from master_gene where rownum<" + (egIndex + 1) +") where rn=" + egIndex);
+            ResultSet rs = statement.executeQuery("select entrez_id from (select entrez_id, rownum rn from master_gene where rownum<" + (egIndex + 1) + ") where rn=" + egIndex);
             rs.next();
             BigDecimal ei = rs.getBigDecimal("ENTREZ_ID");
             rs.close();
             statement.close();
             conn.close();
             return ei;
-        } catch (SQLException se){
+        } catch (SQLException se) {
             se.printStackTrace();
         }
         return new BigDecimal(0);
     }
-    
+
     public void setENTREZID(java.math.BigDecimal in0) throws java.rmi.RemoteException {
         egIndex = in0.intValue() + 1;
     }
-    
+
     private int taxonIndex = 0;
+
     public java.math.BigDecimal getTAXONID() throws java.rmi.RemoteException {
         try {
             conn = DriverManager.getConnection("jdbc:oracle:thin:@adora.cgc.cpmc.columbia.edu:1521:BIODB2", "interaction_ro", "linkt0cellnet");
             statement = conn.createStatement();
-            ResultSet rs = statement.executeQuery("select taxon_id from (select taxon_id, rownum rn from master_gene where rownum<" + (taxonIndex + 1) +") where rn=" + taxonIndex);
+            ResultSet rs = statement.executeQuery("select taxon_id from (select taxon_id, rownum rn from master_gene where rownum<" + (taxonIndex + 1) + ") where rn=" + taxonIndex);
             rs.next();
             BigDecimal ti = rs.getBigDecimal("TAXON_ID");
             rs.close();
             statement.close();
             conn.close();
             return ti;
-        } catch (SQLException se){
+        } catch (SQLException se) {
             se.printStackTrace();
         }
         return new BigDecimal(0);
     }
-    
+
     public void setTAXONID(java.math.BigDecimal in0) throws java.rmi.RemoteException {
         taxonIndex = in0.intValue() + 1;
     }
-    
+
     private int geneTypeIndex = 0;
+
     public java.lang.String getGENETYPE() throws java.rmi.RemoteException {
         try {
             conn = DriverManager.getConnection("jdbc:oracle:thin:@adora.cgc.cpmc.columbia.edu:1521:BIODB2", "interaction_ro", "linkt0cellnet");
             statement = conn.createStatement();
-            ResultSet rs = statement.executeQuery("select GENE_TYPE from (select GENE_TYPE, rownum rn from master_gene where rownum<" + (geneTypeIndex + 1) +") where rn=" + geneTypeIndex);
+            ResultSet rs = statement.executeQuery("select GENE_TYPE from (select GENE_TYPE, rownum rn from master_gene where rownum<" + (geneTypeIndex + 1) + ") where rn=" + geneTypeIndex);
             rs.next();
             String gt = rs.getString("GENE_TYPE");
             rs.close();
             statement.close();
             conn.close();
             return gt;
-        } catch (SQLException se){
+        } catch (SQLException se) {
             se.printStackTrace();
         }
         return "";
     }
-    
+
     public void setGENETYPE(java.lang.String in0) throws java.rmi.RemoteException {
         geneTypeIndex = Integer.parseInt(in0) + 1;
     }
-    
+
     private int geneSymbolIndex = 0;
+
     public java.lang.String getGENESYMBOL() throws java.rmi.RemoteException {
         try {
             conn = DriverManager.getConnection("jdbc:oracle:thin:@adora.cgc.cpmc.columbia.edu:1521:BIODB2", "interaction_ro", "linkt0cellnet");
             statement = conn.createStatement();
-            ResultSet rs = statement.executeQuery("select GENE_SYMBOL from (select GENE_SYMBOL, rownum rn from master_gene where rownum<" + (geneSymbolIndex + 1) +") where rn=" + geneSymbolIndex);
+            ResultSet rs = statement.executeQuery("select GENE_SYMBOL from (select GENE_SYMBOL, rownum rn from master_gene where rownum<" + (geneSymbolIndex + 1) + ") where rn=" + geneSymbolIndex);
             rs.next();
             String gs = rs.getString("GENE_SYMBOL");
             rs.close();
             statement.close();
             conn.close();
             return gs;
-        } catch (SQLException se){
+        } catch (SQLException se) {
             se.printStackTrace();
         }
         return "";
     }
-    
+
     public void setGENESYMBOL(java.lang.String in0) throws java.rmi.RemoteException {
         geneSymbolIndex = Integer.parseInt(in0) + 1;
     }
-    
+
     public java.lang.Object[] getENTREZTOGO() throws java.rmi.RemoteException {
         return null;
     }
-    
+
     private int locusTagIndex = 0;
+
     public java.lang.String getLOCUSTAG() throws java.rmi.RemoteException {
         try {
             conn = DriverManager.getConnection("jdbc:oracle:thin:@adora.cgc.cpmc.columbia.edu:1521:BIODB2", "interaction_ro", "linkt0cellnet");
             statement = conn.createStatement();
-            ResultSet rs = statement.executeQuery("select LOCUS_TAG from (select LOCUS_TAG, rownum rn from master_gene where rownum<" + (locusTagIndex + 1) +") where rn=" + locusTagIndex);
+            ResultSet rs = statement.executeQuery("select LOCUS_TAG from (select LOCUS_TAG, rownum rn from master_gene where rownum<" + (locusTagIndex + 1) + ") where rn=" + locusTagIndex);
             rs.next();
             String lt = rs.getString("LOCUS_TAG");
             rs.close();
             statement.close();
             conn.close();
             return lt;
-        } catch (SQLException se){
+        } catch (SQLException se) {
             se.printStackTrace();
         }
         return "";
     }
-    
+
     public void setLOCUSTAG(java.lang.String in0) throws java.rmi.RemoteException {
         locusTagIndex = Integer.parseInt(in0) + 1;
     }
-    
+
     private int descIndex = 0;
+
     public java.lang.String getDESCRIPTION() throws java.rmi.RemoteException {
         try {
             conn = DriverManager.getConnection("jdbc:oracle:thin:@adora.cgc.cpmc.columbia.edu:1521:BIODB2", "interaction_ro", "linkt0cellnet");
             statement = conn.createStatement();
-            ResultSet rs = statement.executeQuery("select DESCRIPTION from (select DESCRIPTION, rownum rn from master_gene where rownum<" + (descIndex + 1) +") where rn=" + descIndex);
+            ResultSet rs = statement.executeQuery("select DESCRIPTION from (select DESCRIPTION, rownum rn from master_gene where rownum<" + (descIndex + 1) + ") where rn=" + descIndex);
             rs.next();
             String desc = rs.getString("DESCRIPTION");
             rs.close();
             statement.close();
             conn.close();
             return desc;
-        } catch (SQLException se){
+        } catch (SQLException se) {
             se.printStackTrace();
         }
         return "";
     }
-    
+
     public void setDESCRIPTION(java.lang.String in0) throws java.rmi.RemoteException {
         descIndex = Integer.parseInt(in0) + 1;
     }
@@ -350,7 +358,7 @@ public class InteractionsSoapBindingImpl implements interactions.INTERACTIONS{
             statement = conn.createStatement();
             ResultSet rs = statement.executeQuery("select ENTREZ_ID, TAXON_ID, GENE_TYPE, CHROMOSOME, GENE_SYMBOL, LOCUS_TAG, DESCRIPTION " +
                     "from (select ENTREZ_ID, TAXON_ID, GENE_TYPE, CHROMOSOME, GENE_SYMBOL, LOCUS_TAG, DESCRIPTION, rownum rn from master_gene " +
-                    "where rownum<" + (index + 1) +") where rn=" + index);
+                    "where rownum<" + (index + 1) + ") where rn=" + index);
 //            if (rs.getRow() == 0)
 //                return new Object[]{};
             rs.next();
@@ -365,7 +373,7 @@ public class InteractionsSoapBindingImpl implements interactions.INTERACTIONS{
             statement.close();
             conn.close();
             return new Object[]{ei, ti, gs, lt, chr, desc, gt};
-        } catch (SQLException se){
+        } catch (SQLException se) {
             se.printStackTrace();
         }
         return new Object[]{};
@@ -375,46 +383,46 @@ public class InteractionsSoapBindingImpl implements interactions.INTERACTIONS{
         try {
             conn = DriverManager.getConnection("jdbc:oracle:thin:@adora.cgc.cpmc.columbia.edu:1521:BIODB2", "interaction_ro", "linkt0cellnet");
             statement = conn.createStatement();
-            ResultSet rs = statement.executeQuery("SELECT count(unique MS_ID2) FROM PAIRWISE_INTERACTION where MS_ID1=" + in0.intValue() + 
+            ResultSet rs = statement.executeQuery("SELECT count(unique MS_ID2) FROM PAIRWISE_INTERACTION where MS_ID1=" + in0.intValue() +
                     " and (INTERACTION_TYPE=\'" + in1.toLowerCase() + "\' or INTERACTION_TYPE=\'" + in1.toUpperCase() + "\')");
             rs.next();
-            BigDecimal count = (BigDecimal)rs.getObject(1);
+            BigDecimal count = (BigDecimal) rs.getObject(1);
             rs.close();
-            rs = statement.executeQuery("SELECT count(unique MS_ID1) FROM PAIRWISE_INTERACTION where MS_ID2=" + in0.intValue() + 
+            rs = statement.executeQuery("SELECT count(unique MS_ID1) FROM PAIRWISE_INTERACTION where MS_ID2=" + in0.intValue() +
                     " and (INTERACTION_TYPE=\'" + in1.toLowerCase() + "\' or INTERACTION_TYPE=\'" + in1.toUpperCase() + "\')");
             rs.next();
-            count = new BigDecimal(count.intValue() + ((BigDecimal)rs.getObject(1)).intValue());
+            count = new BigDecimal(count.intValue() + ((BigDecimal) rs.getObject(1)).intValue());
             rs.close();
             statement.close();
             conn.close();
             return count;
-        } catch (SQLException se){
+        } catch (SQLException se) {
             se.printStackTrace();
         }
         return new BigDecimal(0);
     }
-    
-    public java.lang.Object[] getFIRSTNEIGHBORS(BigDecimal in0, String in1) throws java.rmi.RemoteException{
+
+    public java.lang.Object[] getFIRSTNEIGHBORS(BigDecimal in0, String in1) throws java.rmi.RemoteException {
         Vector<BigDecimal> neighbors = new Vector<BigDecimal>();
         try {
             conn = DriverManager.getConnection("jdbc:oracle:thin:@adora.cgc.cpmc.columbia.edu:1521:BIODB2", "interaction_ro", "linkt0cellnet");
             statement = conn.createStatement();
-            ResultSet rs = statement.executeQuery("SELECT MS_ID1 FROM PAIRWISE_INTERACTION where MS_ID2=" + in0.intValue() + 
+            ResultSet rs = statement.executeQuery("SELECT MS_ID1 FROM PAIRWISE_INTERACTION where MS_ID2=" + in0.intValue() +
                     " and (INTERACTION_TYPE=\'" + in1.toLowerCase() + "\' or INTERACTION_TYPE=\'" + in1.toUpperCase() + "\')");
-            while (rs.next()){
-                if (!neighbors.contains((BigDecimal)rs.getObject(1)))
-                    neighbors.add((BigDecimal)rs.getObject(1));
+            while (rs.next()) {
+                if (!neighbors.contains((BigDecimal) rs.getObject(1)))
+                    neighbors.add((BigDecimal) rs.getObject(1));
             }
             rs.close();
-            rs = statement.executeQuery("SELECT MS_ID2 FROM PAIRWISE_INTERACTION where MS_ID1=" + in0.intValue() + 
+            rs = statement.executeQuery("SELECT MS_ID2 FROM PAIRWISE_INTERACTION where MS_ID1=" + in0.intValue() +
                     " and (INTERACTION_TYPE=\'" + in1.toLowerCase() + "\' or INTERACTION_TYPE=\'" + in1.toUpperCase() + "\')");
-            while (rs.next()){
-                neighbors.add((BigDecimal)rs.getObject(1));
+            while (rs.next()) {
+                neighbors.add((BigDecimal) rs.getObject(1));
             }
             rs.close();
             statement.close();
             conn.close();
-        } catch (SQLException se){
+        } catch (SQLException se) {
             se.printStackTrace();
         }
         return neighbors.toArray();
