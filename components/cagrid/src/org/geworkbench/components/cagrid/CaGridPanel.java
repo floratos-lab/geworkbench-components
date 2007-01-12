@@ -57,7 +57,7 @@ import gov.nih.nci.cagrid.metadata.ServiceMetadata;
 /**
  * @author watkinson
  * @author keshav
- * @version $Id: CaGridPanel.java,v 1.14 2007-01-12 15:34:12 keshav Exp $
+ * @version $Id: CaGridPanel.java,v 1.15 2007-01-12 15:34:40 keshav Exp $
  */
 public class CaGridPanel extends JPanel implements VisualPlugin {
 
@@ -267,7 +267,6 @@ public class CaGridPanel extends JPanel implements VisualPlugin {
 							}
 						} else if (url.contains(SOM_CLUSTERING)) {
 
-							// populateSomParameters();
 							GridSomClusteringDialog dialog = new GridSomClusteringDialog();
 
 							SomClusteringParameter somClusteringParameters = dialog
