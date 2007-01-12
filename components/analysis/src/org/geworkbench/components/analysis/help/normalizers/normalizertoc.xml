@@ -4,17 +4,17 @@
 
 	<tocitem text="Normalizers">
 
-		<tocitem target="log.trans.norm" text="Log Transformation Normalizer"/>
+		<tocitem target="log.trans.norm" text="Log Transformation"/>
 
-		<tocitem target="array.mean.norm" text="Array Mean Normalizer"/>
+		<tocitem target="array.mean.norm" text="Array Mean"/>
 
-		<tocitem target="marker.mean.norm" text="Marker Mean Normalizer"/>
+		<tocitem target="marker.mean.norm" text="Marker Mean"/>
 
-		<tocitem target="mean.devi.norm" text="Mean Deviant Normalizer"/>
+		<tocitem target="mean.devi.norm" text="Mean Deviant"/>
 
-		<tocitem target="min.value.norm" text="Threshold Normalizer"/>
+		<tocitem target="min.value.norm" text="Threshold"/>
 
-		<tocitem target="mis.val.cal.norm" text="Missing Value Calculation Normalizer"/>
+		<tocitem target="mis.val.cal.norm" text="Missing Value Calculation"/>
 
 		<tocitem target="Quantile" text="Quantile"/>
 
