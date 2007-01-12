@@ -57,7 +57,7 @@ import gov.nih.nci.cagrid.metadata.ServiceMetadata;
 /**
  * @author watkinson
  * @author keshav
- * @version $Id: CaGridPanel.java,v 1.13 2007-01-12 15:31:52 keshav Exp $
+ * @version $Id: CaGridPanel.java,v 1.14 2007-01-12 15:34:12 keshav Exp $
  */
 public class CaGridPanel extends JPanel implements VisualPlugin {
 
@@ -307,7 +307,6 @@ public class CaGridPanel extends JPanel implements VisualPlugin {
 
 						} else {
 							log.info("No services exist at " + url);
-							// TODO add error message
 						}
 					} catch (Exception e) {
 						e.printStackTrace();
