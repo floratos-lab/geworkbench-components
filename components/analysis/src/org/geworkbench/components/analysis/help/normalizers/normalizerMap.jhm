@@ -6,7 +6,7 @@
 
 <map version="1.0">
 
-    <mapID target="overview" url="Normalizers Overview.htm"/>
+    <mapID target="overview" url="NormalizersOverview.htm"/>
 
     <mapID target="log.trans.norm" url="LogTrans Normalizer.htm"/>
 
