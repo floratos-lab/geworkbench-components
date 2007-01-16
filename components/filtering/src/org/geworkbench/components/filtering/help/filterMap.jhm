@@ -16,9 +16,9 @@
 
 	<mapID target="single.value.filter" url="Affy Detection Filter.HTML"/>
 
-	<mapID target="Genepix.filter" url="Genepix Filter.HTML"/>
+	<mapID target="Genepix.filter" url="GenepixFilter.HTML"/>
 
-	<mapID target="two.channel.filter" url="Two Channel.HTML"/>
+	<mapID target="two.channel.filter" url="TwoChannel.HTML"/>
 
 
 
