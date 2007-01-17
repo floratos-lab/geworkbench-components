@@ -2,14 +2,11 @@ package org.geworkbench.components.mindy;
 
 import org.geworkbench.bison.datastructure.biocollections.microarrays.CSMicroarraySet;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
-import org.jdesktop.swingx.JXTaskPane;
-import org.jdesktop.swingx.JXTaskPaneContainer;
+import org.geworkbench.util.pathwaydecoder.mutualinformation.MindyData;
 
-import javax.swing.*;
 import java.io.*;
 import java.util.List;
 import java.util.ArrayList;
-import java.awt.*;
 
 /**
  * @author mhall

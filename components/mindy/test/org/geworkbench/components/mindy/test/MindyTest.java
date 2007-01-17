@@ -2,14 +2,11 @@ package org.geworkbench.components.mindy.test;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.geworkbench.bison.datastructure.biocollections.microarrays.CSAffyMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.CSExprMicroarraySet;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.components.mindy.MindyPlugin;
-import org.geworkbench.components.mindy.MindyData;
+import org.geworkbench.util.pathwaydecoder.mutualinformation.MindyData;
 import org.geworkbench.components.mindy.MindyResultsParser;
-import org.jdesktop.swingx.JXTaskPane;
-import org.jdesktop.swingx.JXTaskPaneContainer;
 
 import javax.swing.*;
 import java.io.File;
@@ -38,21 +35,16 @@ public class MindyTest extends TestCase {
         CSExprMicroarraySet maSet = new CSExprMicroarraySet();
         maSet.read(new File("data/mindy/SmallerMatrix.exp"));
 
-        DSGeneMarker mod = maSet.getMarkers().get("35411_at");
-        DSGeneMarker transFac = maSet.getMarkers().get("1850_at");
+        ArrayList<DSGeneMarker> limitList = new ArrayList<DSGeneMarker>();
+        // Modulators
+        limitList.add(maSet.getMarkers().get("316_g_at"));
+        limitList.add(maSet.getMarkers().get("31947_r_at"));
+        // Targets
+        limitList.add(maSet.getMarkers().get("34451_at"));
+        limitList.add(maSet.getMarkers().get("40325_at"));
+
 
         log.debug("Creating JFrame");
-        ArrayList<MindyData.MindyResultRow> mindyRows = new ArrayList<MindyData.MindyResultRow>();
-        mindyRows.add(new MindyData.MindyResultRow(mod, transFac, maSet.getMarkers().get(0), 1f, 0.001f));
-        mindyRows.add(new MindyData.MindyResultRow(mod, transFac, maSet.getMarkers().get(1), 0.9f, 0.01f));
-        mindyRows.add(new MindyData.MindyResultRow(mod, transFac, maSet.getMarkers().get(2), -0.8f, 0.1f));
-        mindyRows.add(new MindyData.MindyResultRow(maSet.getMarkers().get("846_s_at"), transFac, maSet.getMarkers().get(2), -0.8f, 0.1f));
-//        ArrayList<DSGeneMarker> modulators = new ArrayList<DSGeneMarker>();
-//        modulators.add(mod);
-//        ArrayList<DSGeneMarker> transfacs = new ArrayList<DSGeneMarker>();
-//        transfacs.add(transFac);
-
-        MindyData data = new MindyData(maSet, mindyRows);
         MindyData loadedData = null;
         try {
             loadedData = MindyResultsParser.parseResults(maSet, new File("data/mindy/MINDY_output_MYC_cofactors.txt"));
@@ -61,6 +53,7 @@ public class MindyTest extends TestCase {
         }
 
         MindyPlugin mindy = new MindyPlugin(loadedData);
+//        mindy.limitMarkers(limitList);
 
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());

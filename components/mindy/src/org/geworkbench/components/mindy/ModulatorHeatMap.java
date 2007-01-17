@@ -13,6 +13,7 @@ import java.util.List;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
+import org.geworkbench.util.pathwaydecoder.mutualinformation.MindyData;
 
 /**
  * @author mhall
