@@ -56,16 +56,30 @@ import org.jfree.ui.SortableTableModel;
 /**
  * 
  * @author keshav
- * @version $Id: CGemsPanel.java,v 1.1 2007-01-17 18:05:24 keshav Exp $
+ * @version $Id: CGemsPanel.java,v 1.2 2007-01-17 20:42:56 keshav Exp $
  */
 @AcceptTypes( { DSMicroarraySet.class })
 public class CGemsPanel implements VisualPlugin {
 	static Log log = LogFactory.getLog(CGemsPanel.class);
 
-	private final String HEADER_SNP = "SNP";
+	private final String HEADER_SNP = "SNP Id";
+	private final String HEADER_FINDING = "Association Finding Id";
 	private final String HEADER_ANALYSIS = "Analysis";
 	private final String HEADER_GENE = "Gene Symbol";
 	private final String HEADER_MARKER = "Marker";
+	private final String HEADER_RANK = "Rank";
+
+	public final int COL_SNP = 0;
+
+	public final int COL_FINDING = 1;
+
+	public final int COL_ANALYSIS = 2;
+
+	public final int COL_GENE = 3;
+
+	private final int COL_MARKER = 4;
+
+	private final int COL_RANK = 5;
 
 	/**
 	 * 
@@ -74,21 +88,17 @@ public class CGemsPanel implements VisualPlugin {
 	 */
 	private class TableModel extends SortableTableModel {
 
-		public static final int COL_SNP = 0;
-
-		public static final int COL_ANALYSIS = 1;
-
-		public static final int COL_GENE = 2;
-
-		private static final int COL_MARKER = 3;
-
 		private SnpAssociationFindingData[] snpAssociationFindingData;
+
+		private SnpData[] snpData;
 
 		private AnalysisData[] analysisData;
 
 		private GeneData[] geneData;
 
 		private MarkerData[] markerData;
+
+		private RankData[] rankData;
 
 		private Integer[] indices;
 
@@ -101,14 +111,16 @@ public class CGemsPanel implements VisualPlugin {
 		 * @param geneData
 		 * @param markerData
 		 */
-		public TableModel(
+		public TableModel(SnpData[] snpData,
 				SnpAssociationFindingData[] snpAssociationFindingData,
 				AnalysisData[] analysisData, GeneData[] geneData,
-				MarkerData[] markerData) {
+				MarkerData[] markerData, RankData[] rankData) {
+			this.snpData = snpData;
 			this.snpAssociationFindingData = snpAssociationFindingData;
 			this.analysisData = analysisData;
 			this.geneData = geneData;
 			this.markerData = markerData;
+			this.rankData = rankData;
 			size = snpAssociationFindingData.length;
 			indices = new Integer[size];
 			resetIndices();
@@ -119,10 +131,12 @@ public class CGemsPanel implements VisualPlugin {
 		 * 
 		 */
 		public TableModel() {
+			this.snpData = new SnpData[0];
 			this.snpAssociationFindingData = new SnpAssociationFindingData[0];
 			this.analysisData = new AnalysisData[0];
 			this.geneData = new GeneData[0];
 			this.markerData = new MarkerData[0];
+			this.rankData = new RankData[0];
 			size = 0;
 			indices = new Integer[0];
 		}
@@ -151,7 +165,7 @@ public class CGemsPanel implements VisualPlugin {
 		 * @see javax.swing.table.TableModel#getColumnCount()
 		 */
 		public int getColumnCount() {
-			return 4;
+			return 6;
 		}
 
 		/**
@@ -171,6 +185,9 @@ public class CGemsPanel implements VisualPlugin {
 		public Object getValueAt(int rowIndex, int columnIndex) {
 			switch (columnIndex) {
 			case COL_SNP:
+				return snpData[indices[rowIndex]].name;
+
+			case COL_FINDING:
 				return snpAssociationFindingData[indices[rowIndex]].name;
 
 			case COL_ANALYSIS:
@@ -181,6 +198,9 @@ public class CGemsPanel implements VisualPlugin {
 
 			case COL_MARKER:
 				return markerData[indices[rowIndex]].name;
+
+			case COL_RANK:
+				return rankData[indices[rowIndex]].rank;
 			}
 			return null;
 		}
@@ -192,8 +212,9 @@ public class CGemsPanel implements VisualPlugin {
 		 */
 		public void sortByColumn(final int column, final boolean ascending) {
 			resetIndices();
-			final Comparable[][] columns = { snpAssociationFindingData,
-					analysisData, geneData, markerData };
+			final Comparable[][] columns = { snpData,
+					snpAssociationFindingData, analysisData, geneData,
+					markerData, rankData };
 			Comparator<Integer> comparator = new Comparator<Integer>() {
 				public int compare(Integer i, Integer j) {
 					if (ascending) {
@@ -224,7 +245,11 @@ public class CGemsPanel implements VisualPlugin {
 		public void activateCell(int rowIndex, int columnIndex) {
 			switch (columnIndex) {
 			case COL_SNP:
-				SnpAssociationFindingData snp = snpAssociationFindingData[indices[rowIndex]];
+				SnpData snp = snpData[indices[rowIndex]];
+				// activateSnp(snp); TODO add for snp
+				break;
+			case COL_FINDING:
+				SnpAssociationFindingData snpFinding = snpAssociationFindingData[indices[rowIndex]];
 				// activateSnp(snp); TODO add for snp
 				break;
 			case COL_ANALYSIS:
@@ -239,7 +264,32 @@ public class CGemsPanel implements VisualPlugin {
 				MarkerData marker = markerData[indices[rowIndex]];
 				// activateMarker(marker);TODO add for marker
 				break;
+			case COL_RANK:
+				RankData rank = rankData[indices[rowIndex]];
+				// activateMarker(marker);TODO add for marker
+				break;
 			}
+		}
+	}
+
+	/**
+	 * 
+	 * @author keshav
+	 * 
+	 */
+	private static class SnpData implements Comparable {
+
+		public String name;
+
+		public SnpData(String name) {
+			this.name = name;
+		}
+
+		public int compareTo(Object o) {
+			if (o instanceof SnpData) {
+				return name.compareTo(((SnpData) o).name);
+			}
+			return -1;
 		}
 	}
 
@@ -337,6 +387,27 @@ public class CGemsPanel implements VisualPlugin {
 
 	/**
 	 * 
+	 * @author keshav
+	 * 
+	 */
+	private static class RankData implements Comparable {
+
+		public Integer rank;
+
+		public RankData(Integer name) {
+			this.rank = name;
+		}
+
+		public int compareTo(Object o) {
+			if (o instanceof RankData) {
+				return rank.compareTo(((RankData) o).rank);
+			}
+			return -1;
+		}
+	}
+
+	/**
+	 * 
 	 * 
 	 */
 	public CGemsPanel() {
@@ -382,10 +453,15 @@ public class CGemsPanel implements VisualPlugin {
 		buttonPanel.add(clearButton);
 		model = new TableModel();
 		table = new SortableTable(model);
-		table.getColumnModel().getColumn(0).setHeaderValue(HEADER_SNP);
-		table.getColumnModel().getColumn(1).setHeaderValue(HEADER_ANALYSIS);
-		table.getColumnModel().getColumn(2).setHeaderValue(HEADER_GENE);
-		table.getColumnModel().getColumn(3).setHeaderValue(HEADER_MARKER);
+		table.getColumnModel().getColumn(COL_SNP).setHeaderValue(HEADER_SNP);
+		table.getColumnModel().getColumn(COL_FINDING).setHeaderValue(
+				HEADER_FINDING);
+		table.getColumnModel().getColumn(COL_ANALYSIS).setHeaderValue(
+				HEADER_ANALYSIS);
+		table.getColumnModel().getColumn(COL_GENE).setHeaderValue(HEADER_GENE);
+		table.getColumnModel().getColumn(COL_MARKER).setHeaderValue(
+				HEADER_MARKER);
+		table.getColumnModel().getColumn(COL_RANK).setHeaderValue(HEADER_RANK);
 		table.setCellSelectionEnabled(false);
 		table.setRowSelectionAllowed(false);
 		table.setColumnSelectionAllowed(false);
@@ -405,10 +481,9 @@ public class CGemsPanel implements VisualPlugin {
 				int column = table.columnAtPoint(e.getPoint());
 				int row = table.rowAtPoint(e.getPoint());
 				if ((column >= 0) && (row >= 0)) {
-					if ((column == TableModel.COL_SNP)
-							|| (column == TableModel.COL_ANALYSIS)
-							|| (column == TableModel.COL_GENE)
-							|| (column == TableModel.COL_MARKER)) {
+					if ((column == COL_SNP) || (column == COL_FINDING)
+							|| (column == COL_ANALYSIS) || (column == COL_GENE)
+							|| (column == COL_MARKER) || (column == COL_RANK)) {
 						if (!isHand) {
 							isHand = true;
 							table.setCursor(new Cursor(Cursor.HAND_CURSOR));
@@ -517,10 +592,12 @@ public class CGemsPanel implements VisualPlugin {
 							.create(ProgressBar.INDETERMINATE_TYPE);
 					pb.setMessage("Connecting to server...");
 
+					ArrayList<SnpData> snpData = new ArrayList<SnpData>();
 					ArrayList<SnpAssociationFindingData> snpAssociationFindingData = new ArrayList<SnpAssociationFindingData>();
 					ArrayList<AnalysisData> analysisData = new ArrayList<AnalysisData>();
 					ArrayList<GeneData> geneData = new ArrayList<GeneData>();
 					ArrayList<MarkerData> markerData = new ArrayList<MarkerData>();
+					ArrayList<RankData> rankData = new ArrayList<RankData>();
 					if (selectedMarkerInfo != null) {
 						pb.setTitle("Querying caIntegrator..");
 						pb.start();
@@ -576,12 +653,17 @@ public class CGemsPanel implements VisualPlugin {
 									SNPAssociationFinding returnedObj = (SNPAssociationFinding) resultsIterator
 											.next();
 
+									/* SnpData */
+									SnpData snp = new SnpData(returnedObj
+											.getSnpAnnotation().getId());
+									snpData.add(snp);
+
 									/* SnpAssociationFindingData */
-									SnpAssociationFindingData snp = new SnpAssociationFindingData(
+									SnpAssociationFindingData snpFinding = new SnpAssociationFindingData(
 											returnedObj.getSnpAnnotation()
 													.getDbsnpId(), returnedObj
 													.getSnpAnnotation());
-									snpAssociationFindingData.add(snp);
+									snpAssociationFindingData.add(snpFinding);
 
 									/* AnalysisData */
 									AnalysisData analysis = new AnalysisData(
@@ -616,6 +698,11 @@ public class CGemsPanel implements VisualPlugin {
 													.getLabel());
 									markerData.add(marker);
 
+									/* Rank Data */
+									RankData rank = new RankData(returnedObj
+											.getRank());
+									rankData.add(rank);
+
 									// System.out
 									// .println(returnedObj
 									// .getSnpAnnotation()
@@ -645,35 +732,45 @@ public class CGemsPanel implements VisualPlugin {
 							}
 
 							else {
+								snpData.add(new SnpData(""));
 								snpAssociationFindingData
 										.add(new SnpAssociationFindingData("",
 												null));
 								analysisData.add(new AnalysisData("", null));
 								geneData.add(new GeneData(""));
 								markerData.add(new MarkerData(""));
+								rankData.add(new RankData(null));
 							}
 						}
 						pb.stop();
 						pb.dispose();
 					}
 
-					SnpAssociationFindingData[] snps = snpAssociationFindingData
+					SnpData[] snps = snpData.toArray(new SnpData[0]);
+					SnpAssociationFindingData[] snpFindings = snpAssociationFindingData
 							.toArray(new SnpAssociationFindingData[0]);
 					AnalysisData[] analyses = analysisData
 							.toArray(new AnalysisData[0]);
 					GeneData[] genes = geneData.toArray(new GeneData[0]);
 					MarkerData[] markers = markerData
 							.toArray(new MarkerData[0]);
-					model = new TableModel(snps, analyses, genes, markers);
+					RankData[] ranks = rankData.toArray(new RankData[0]);
+					model = new TableModel(snps, snpFindings, analyses, genes,
+							markers, ranks);
+
 					table.setSortableModel(model);
-					table.getColumnModel().getColumn(0).setHeaderValue(
+					table.getColumnModel().getColumn(COL_SNP).setHeaderValue(
 							HEADER_SNP);
-					table.getColumnModel().getColumn(1).setHeaderValue(
-							HEADER_ANALYSIS);
-					table.getColumnModel().getColumn(2).setHeaderValue(
+					table.getColumnModel().getColumn(COL_FINDING)
+							.setHeaderValue(HEADER_FINDING);
+					table.getColumnModel().getColumn(COL_ANALYSIS)
+							.setHeaderValue(HEADER_ANALYSIS);
+					table.getColumnModel().getColumn(COL_GENE).setHeaderValue(
 							HEADER_GENE);
-					table.getColumnModel().getColumn(3).setHeaderValue(
-							HEADER_MARKER);
+					table.getColumnModel().getColumn(COL_MARKER)
+							.setHeaderValue(HEADER_MARKER);
+					table.getColumnModel().getColumn(COL_RANK).setHeaderValue(
+							HEADER_RANK);
 					SwingUtilities.invokeLater(new Runnable() {
 						public void run() {
 							table.getTableHeader().repaint();
@@ -726,10 +823,15 @@ public class CGemsPanel implements VisualPlugin {
 	 */
 	private void clearButton_actionPerformed(ActionEvent e) {
 		table.setSortableModel(new TableModel());
-		table.getColumnModel().getColumn(0).setHeaderValue(HEADER_SNP);
-		table.getColumnModel().getColumn(1).setHeaderValue(HEADER_ANALYSIS);
-		table.getColumnModel().getColumn(2).setHeaderValue(HEADER_GENE);
-		table.getColumnModel().getColumn(3).setHeaderValue(HEADER_MARKER);
+		table.getColumnModel().getColumn(COL_SNP).setHeaderValue(HEADER_SNP);
+		table.getColumnModel().getColumn(COL_FINDING).setHeaderValue(
+				HEADER_FINDING);
+		table.getColumnModel().getColumn(COL_ANALYSIS).setHeaderValue(
+				HEADER_ANALYSIS);
+		table.getColumnModel().getColumn(COL_GENE).setHeaderValue(HEADER_GENE);
+		table.getColumnModel().getColumn(COL_MARKER).setHeaderValue(
+				HEADER_MARKER);
+		table.getColumnModel().getColumn(COL_RANK).setHeaderValue(HEADER_RANK);
 		table.getTableHeader().revalidate();
 	}
 
