@@ -1,4 +1,4 @@
-package interactions;
+package org.geworkbench.components.interactions.cellularnetwork;
 
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 
@@ -27,6 +27,8 @@ public class CellularNetWorkElementInformation {
     private static double smallestIncrement;
     private static Double defaultSmallestIncrement = 0.01;
     private static int binNumber;
+    private boolean isDirty;
+
 
     public CellularNetWorkElementInformation(int ppInteractionNum, int pdInteractionNum, boolean includePPInteraction, boolean includePDInteraction, DSGeneMarker dSGeneMarker, String goInfoStr, String geneType) {
         this.ppInteractionNum = ppInteractionNum;
@@ -41,11 +43,13 @@ public class CellularNetWorkElementInformation {
     public CellularNetWorkElementInformation(DSGeneMarker dSGeneMarker) {
         this.dSGeneMarker = dSGeneMarker;
         smallestIncrement = defaultSmallestIncrement;
+        isDirty = true;
         reset();
 
     }
 
     public void reset() {
+       // isDirty = true;
         ppInteractionNum = 0;
         pdInteractionNum = 0;
         binNumber = (int) (1 / smallestIncrement) + 1;
@@ -56,6 +60,26 @@ public class CellularNetWorkElementInformation {
             distribution[i] = 0;
             pdDistribution[i] = ppDistribution[i] = 0;
         }
+    }
+
+    public ArrayList<InteractionDetail> getSelectedInteractions() {
+        ArrayList<InteractionDetail> arrayList = new ArrayList<InteractionDetail>();
+        if (interactionDetails != null && interactionDetails.length > 0) {
+            for (int i = 0; i < interactionDetails.length; i++) {
+                InteractionDetail interactionDetail = interactionDetails[i];
+                if (interactionDetail.getConfidence() >= threshold) {
+                    if (isIncludePDInteraction() && interactionDetail.getInteraactionType().equalsIgnoreCase(InteractionDetail.PROTEINDNAINTERACTION))
+                    {
+                        arrayList.add(interactionDetail);
+                    }
+                    if (isIncludePPInteraction() && interactionDetail.getInteraactionType().equalsIgnoreCase(InteractionDetail.PROTEINPROTEININTERACTION))
+                    {
+                        arrayList.add(interactionDetail);
+                    }
+                }
+            }
+        }
+        return arrayList;
     }
 
     public static double getSmallestIncrement() {
@@ -76,6 +100,14 @@ public class CellularNetWorkElementInformation {
 
     public static int getBinNumber() {
         return binNumber;
+    }
+
+    public boolean isDirty() {
+        return isDirty;
+    }
+
+    public void setDirty(boolean dirty) {
+        isDirty = dirty;
     }
 
     public static void setBinNumber(int binNumber) {
@@ -101,7 +133,7 @@ public class CellularNetWorkElementInformation {
             this.threshold = _threshold;
 
         }
-         update();
+        update();
     }
 
     public InteractionDetail[] getInteractionDetails() {
@@ -128,33 +160,33 @@ public class CellularNetWorkElementInformation {
         }
 
         reset();
-               for (InteractionDetail interactionDetail : interactionDetails) {
-            if(interactionDetail!=null){
-            int confidence = (int) (interactionDetail.getConfidence() * 100);
-            if (confidence < distribution.length && confidence >= 0) {
-                for (int i = 0; i <= confidence; i++) {
-                    distribution[i]++;
-                }
-                if (interactionDetail.getInteraactionType().equalsIgnoreCase(InteractionDetail.PROTEINPRETEININTERACTION))
-                {
+        for (InteractionDetail interactionDetail : interactionDetails) {
+            if (interactionDetail != null) {
+                int confidence = (int) (interactionDetail.getConfidence() * 100);
+                if (confidence < distribution.length && confidence >= 0) {
                     for (int i = 0; i <= confidence; i++) {
-                        ppDistribution[i]++;
+                        distribution[i]++;
                     }
-                } else {
-                    for (int i = 0; i <= confidence; i++) {
-                        pdDistribution[i]++;
+                    if (interactionDetail.getInteraactionType().equalsIgnoreCase(InteractionDetail.PROTEINPROTEININTERACTION))
+                    {
+                        for (int i = 0; i <= confidence; i++) {
+                            ppDistribution[i]++;
+                        }
+                    } else {
+                        for (int i = 0; i <= confidence; i++) {
+                            pdDistribution[i]++;
+                        }
                     }
                 }
-            }
-            if (confidence >= 100 * threshold) {
-                if (interactionDetail.getInteraactionType().equals(InteractionDetail.PROTEINPRETEININTERACTION)) {
-                    ppInteractionNum++;
-                } else {
-                    pdInteractionNum++;
-                }
+                if (confidence >= 100 * threshold) {
+                    if (interactionDetail.getInteraactionType().equals(InteractionDetail.PROTEINPROTEININTERACTION)) {
+                        ppInteractionNum++;
+                    } else {
+                        pdInteractionNum++;
+                    }
 
+                }
             }
-        }
         }
     }
 
