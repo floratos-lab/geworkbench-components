@@ -56,7 +56,7 @@ import org.jfree.ui.SortableTableModel;
 /**
  * 
  * @author keshav
- * @version $Id: CGemsPanel.java,v 1.2 2007-01-17 20:42:56 keshav Exp $
+ * @version $Id: CGemsPanel.java,v 1.3 2007-01-18 20:36:07 keshav Exp $
  */
 @AcceptTypes( { DSMicroarraySet.class })
 public class CGemsPanel implements VisualPlugin {
@@ -636,18 +636,6 @@ public class CGemsPanel implements VisualPlugin {
 											+ selectedMarkerInfo.get(i)
 													.getLabel());
 							if (resultList != null) {
-								System.out
-										.println("Number of results returned: "
-												+ resultList.size());
-								System.out.println("DbsnpId" + "\t"
-										+ "ChromosomeName" + "\t"
-										+ "ChromosomeLocation" + "\t"
-										+ "GenomeBuild" + "\t"
-										+ "ReferenceSequence" + "\t"
-										+ "ReferenceStrand" + "\t"
-										+ "GeneBiomarker(s)" + "\t"
-										+ "Analysis Name" + "\t" + "p-Value"
-										+ "\t" + "rank" + "\n");
 								for (Iterator resultsIterator = resultList
 										.iterator(); resultsIterator.hasNext();) {
 									SNPAssociationFinding returnedObj = (SNPAssociationFinding) resultsIterator
@@ -702,32 +690,6 @@ public class CGemsPanel implements VisualPlugin {
 									RankData rank = new RankData(returnedObj
 											.getRank());
 									rankData.add(rank);
-
-									// System.out
-									// .println(returnedObj
-									// .getSnpAnnotation()
-									// .getDbsnpId()
-									// + "\t"
-									// + returnedObj
-									// .getSnpAnnotation()
-									// .getChromosomeName()
-									// + "\t"
-									// + returnedObj
-									// .getSnpAnnotation()
-									// .getChromosomeLocation()
-									// + "\t"
-									// + pipeGeneBiomarkers(returnedObj
-									// .getSnpAnnotation()
-									// .getGeneBiomarkerCollection())
-									// + "\t"
-									// + returnedObj
-									// .getSnpAssociationAnalysis()
-									// .getName()
-									// + "\t"
-									// + returnedObj.getPvalue()
-									// + "\t"
-									// + returnedObj.getRank()
-									// + "\n");
 								}
 							}
 
