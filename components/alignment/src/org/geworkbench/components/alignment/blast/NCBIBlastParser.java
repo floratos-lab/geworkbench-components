@@ -399,7 +399,7 @@ public class NCBIBlastParser {
                             }
                             each.setEndPoint(endPoint);
                             each.setAlignmentLength(Math.abs(each.getStartPoint() -
-                                    each.getEndPoint() + 1));
+                                    each.getEndPoint()) + 1);
                             each.setSubject(subject);
                             //System.out.println("sub" + subject);
 
