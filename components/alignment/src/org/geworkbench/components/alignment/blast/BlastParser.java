@@ -363,7 +363,7 @@ public class BlastParser {
                                 each.setEndPoint(endPoint);
                                 each.setAlignmentLength(Math.abs(each.
                                         getEndPoint() - each.
-                                        getStartPoint() + 1));
+                                        getStartPoint() )+ 1);
 
                                 each.setSubject(subject);
 
