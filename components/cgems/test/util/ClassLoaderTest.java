@@ -1,3 +1,5 @@
+package util;
+
 import junit.framework.TestCase;
 
 import org.apache.commons.lang.StringUtils;
@@ -6,16 +8,17 @@ import org.apache.commons.logging.LogFactory;
 
 /**
  * @author keshav
+ * @version $Id: ClassLoaderTest.java,v 1.1 2007-01-22 20:42:29 keshav Exp $
  * 
  */
-public class ClassloadingTest extends TestCase {
+public class ClassLoaderTest extends TestCase {
 
-	private static Log log = LogFactory.getLog(ClassloadingTest.class);
+	private static Log log = LogFactory.getLog(ClassLoaderTest.class);
 
 	/**
 	 * @param args
 	 */
-	public static void main(String[] args) {
+	public void testClassLoading() {
 		log.info("BootstrapClassLoader");
 		log.info("ExtClassLoader: " + System.getProperty("java.ext.dirs"));
 		String[] javaClasspath = StringUtils.split(System
