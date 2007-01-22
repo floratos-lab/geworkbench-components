@@ -45,7 +45,7 @@ public class ModulatorHeatMap extends JPanel {
     private float[][] sortedValues;
     private java.util.List<MindyData.MindyResultRow> targetRows;
 
-    public ModulatorHeatMap(DSGeneMarker modulator, DSGeneMarker transcriptionFactor, MindyData mindyData) {
+    public ModulatorHeatMap(DSGeneMarker modulator, DSGeneMarker transcriptionFactor, MindyData mindyData, List<DSGeneMarker> targetLimits) {
         this.maSet = mindyData.getArraySet();
         List<DSGeneMarker> markers = mindyData.getTargets(modulator, transcriptionFactor);
 
@@ -87,9 +87,7 @@ public class ModulatorHeatMap extends JPanel {
         this.modulator = modulator;
         this.transcriptionFactor = transcriptionFactor;
         this.mindyData = mindyData;
-        targetRows = mindyData.getRows(modulator, transcriptionFactor);
-        findMaxValues();
-
+        limitTargets(targetLimits);
 
         gradient = new ColorGradient(Color.black, Color.yellow);
         gradient.addColorPoint(Color.red, 0f);
@@ -106,6 +104,16 @@ public class ModulatorHeatMap extends JPanel {
 
         this.setBackground(Color.white);
         this.setOpaque(true);
+    }
+
+    private void limitTargets(List<DSGeneMarker> targetLimits) {
+        if (targetLimits != null) {
+            targetRows = mindyData.getRows(modulator, transcriptionFactor, targetLimits);
+        } else {
+            targetRows = mindyData.getRows(modulator, transcriptionFactor);
+        }
+        findMaxValues();
+        invalidate();
     }
 
     public void paint(Graphics graphics) {
