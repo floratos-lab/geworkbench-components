@@ -25,7 +25,7 @@ import org.apache.commons.logging.LogFactory;
 public class GeneSearchCriteriaImpl implements GeneSearchCriteria {
     static Log log = LogFactory.getLog(GeneSearchCriteriaImpl.class);
 
-    ApplicationService appService = ApplicationServiceProvider.getApplicationService();
+    ApplicationService appService = ApplicationServiceProvider.getRemoteInstance("http://cabio.nci.nih.gov:80/cacore31/http/remoteService");//.getApplicationService();
 
     /**
      * Sets a BioCarta identifier to be a Search criterion
