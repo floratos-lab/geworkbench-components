@@ -2,6 +2,7 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="conf"/>
+	<classpathentry kind="src" path="test"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="lib/batik.jar"/>
 	<classpathentry kind="lib" path="lib/batik-awt-util.jar"/>
@@ -28,8 +29,14 @@
 	<classpathentry kind="lib" path="lib/batik-util.jar"/>
 	<classpathentry kind="lib" path="lib/batik-xml.jar"/>
 	<classpathentry kind="lib" path="lib/axis.jar"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/geworkbench-core"/>
 	<classpathentry kind="lib" path="lib/castor-0.9.9.jar"/>
 	<classpathentry kind="lib" path="lib/commons-discovery-0.2.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/geworkbench-core"/>
+	<classpathentry kind="lib" path="lib/aspectjrt.jar"/>
+	<classpathentry kind="lib" path="lib/cgom-cgems-client.jar"/>
+	<classpathentry kind="lib" path="lib/hibernate3.jar"/>
+	<classpathentry kind="lib" path="lib/spring.jar"/>
+	<classpathentry kind="lib" path="lib/spring-richclient.jar"/>
+	<classpathentry kind="lib" path="lib/dom4j-1.4.jar"/>
 	<classpathentry kind="output" path="classes"/>
 </classpath>
