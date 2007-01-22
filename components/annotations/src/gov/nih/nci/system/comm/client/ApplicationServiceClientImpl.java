@@ -8,17 +8,12 @@ import gov.nih.nci.system.applicationservice.ApplicationException;
 import gov.nih.nci.system.applicationservice.ApplicationService;
 import gov.nih.nci.system.comm.common.ApplicationServiceProxy;
 
-import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
-import java.net.URLClassLoader;
 import java.util.List;
 import java.util.Properties;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.hibernate.criterion.DetachedCriteria;
 import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
@@ -27,6 +22,12 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.core.io.InputStreamResource;
 
+/**
+ * @author unattributable
+ * @author keshav
+ * @version $Id: ApplicationServiceClientImpl.java,v 1.2 2007-01-22 21:08:48 keshav Exp $
+ *
+ */
 public class ApplicationServiceClientImpl extends ApplicationService
 {
 
@@ -104,15 +105,6 @@ public class ApplicationServiceClientImpl extends ApplicationService
 	
 	private static ApplicationServiceProxy getRemoteServiceFromPath(String URL)
 	{
-        Thread.currentThread().setContextClassLoader(loader);	
-		try {
-			
-		       BufferedWriter out = new BufferedWriter(new FileWriter("outfilename"));
-		       out.write("aString");
-		       out.close();
-		   } catch (IOException e) {
-		   }
-		
 		String xmlFileString = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><!DOCTYPE beans PUBLIC \"-//SPRING//DTD BEAN//EN\" \"http://www.springframework.org/dtd/spring-beans.dtd\"><beans><bean id=\"remoteService\" class=\"org.springframework.remoting.httpinvoker.HttpInvokerProxyFactoryBean\"><property name=\"serviceUrl\"><value>" + URL + "</value></property><property name=\"serviceInterface\"><value>gov.nih.nci.system.comm.common.ApplicationServiceProxy</value></property></bean></beans>";
 		Thread.currentThread().setContextClassLoader(loader);
 		
@@ -128,6 +120,7 @@ public class ApplicationServiceClientImpl extends ApplicationService
 	
 	private static ApplicationServiceProxy getRemoteServiceFromClassPath()
 	{
+		Thread.currentThread().setContextClassLoader(loader);	
 		ApplicationContext ctx = new ClassPathXmlApplicationContext(Constant.REMOTE_SERVICE_FILE_NAME);
 		ApplicationServiceProxy applicationServiceProxy = (ApplicationServiceProxy) ctx.getBean(Constant.REMOTE_APPLICATION_SERVICE);
 		return applicationServiceProxy;
