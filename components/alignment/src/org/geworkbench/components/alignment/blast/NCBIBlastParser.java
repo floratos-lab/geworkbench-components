@@ -169,7 +169,7 @@ public class NCBIBlastParser {
      * Reads in Blast results from file and parses data into BlastObj objects.
      */
     public boolean parseResults() {
-
+        totalHitCount = 0;
         StringTokenizer st;
         BlastObj each;
         String[] fields;
@@ -218,7 +218,7 @@ public class NCBIBlastParser {
                         line = br.readLine();
                         hitCount = 0;
                         while (line != null &&
-                                !line.trim().startsWith("</form>")) {
+                                !line.trim().startsWith("</pre>")) {
                             // System.out.println("test3: " + line);
                             String[] strA = line.split("</a>");
 
@@ -390,10 +390,9 @@ public class NCBIBlastParser {
                                 }
 
                                 //System.out.println(each.getStartPoint() + "" + each.getEndPoint());
-
-                                if (!line.startsWith(">")) {
-                                    String s = br.readLine();
+                                String s = br.readLine();
                                 line = s.trim();
+                                if (!line.startsWith(">")) {
                                     detaillines += s + NEWLINESIGN;
                                 }
                             }
@@ -423,7 +422,7 @@ public class NCBIBlastParser {
                             }
 
                         }
-                      //  line = br.readLine();
+                        line = br.readLine();
                         Vector newHits = hits;
                         blastDataset.add(newHits);
                         count++;
