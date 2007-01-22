@@ -56,7 +56,7 @@ import org.jfree.ui.SortableTableModel;
 /**
  * 
  * @author keshav
- * @version $Id: CGemsPanel.java,v 1.4 2007-01-22 20:07:28 keshav Exp $
+ * @version $Id: CGemsPanel.java,v 1.5 2007-01-22 21:23:45 keshav Exp $
  */
 @AcceptTypes( { DSMicroarraySet.class })
 public class CGemsPanel implements VisualPlugin {
@@ -578,7 +578,7 @@ public class CGemsPanel implements VisualPlugin {
 
 		if (appService == null) {
 			try {
-				appService = ApplicationServiceProvider.getRemoteInstance("http://caintegrator.nci.nih.gov/cgom-cgems/http/remoteService");//getApplicationService();
+				appService = ApplicationServiceProvider.getApplicationService();
 			} catch (Exception e) {
 				log.error("Could not create ApplicationService in "
 						+ this.getClass().getName() + ".  Exception is: ");
