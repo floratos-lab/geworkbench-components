@@ -316,7 +316,8 @@ public class AnnotationsPanel implements VisualPlugin {
             try {
                 criteria = new GeneSearchCriteriaImpl();
             } catch (Exception e) {
-                System.out.println("Exception: could not create caBIO search criteria in Annotation Panel");
+                log.error("Exception: could not create caBIO search criteria in Annotation Panel. Exception is: ");
+                e.printStackTrace();
                 return;
             }
         }
