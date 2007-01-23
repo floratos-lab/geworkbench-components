@@ -56,14 +56,13 @@ import org.jfree.ui.SortableTableModel;
 /**
  * 
  * @author keshav
- * @version $Id: CGemsPanel.java,v 1.6 2007-01-23 18:32:20 keshav Exp $
+ * @version $Id: CGemsPanel.java,v 1.7 2007-01-23 18:50:01 keshav Exp $
  */
 @AcceptTypes( { DSMicroarraySet.class })
 public class CGemsPanel implements VisualPlugin {
 	static Log log = LogFactory.getLog(CGemsPanel.class);
 
-	private final String HEADER_SNP = "SNP Id";
-	private final String HEADER_FINDING = "Association Finding Id";
+	private final String HEADER_FINDING = "SNP Id";
 	private final String HEADER_ANALYSIS = "Analysis";
 	private final String HEADER_GENE = "Gene Symbol";
 	private final String HEADER_MARKER = "Marker";
@@ -75,8 +74,9 @@ public class CGemsPanel implements VisualPlugin {
 	public final int COL_FINDING = 2;
 	private final int COL_RANK = 3;
 	public final int COL_ANALYSIS = 4;
-	public final int COL_SNP = 5;
-	public final int COL_PVAL = 6;
+	public final int COL_PVAL = 5;
+
+	public final int COL_COUNT = 6;
 
 	/**
 	 * 
@@ -86,8 +86,6 @@ public class CGemsPanel implements VisualPlugin {
 	private class TableModel extends SortableTableModel {
 
 		private SnpAssociationFindingData[] snpAssociationFindingData;
-
-		private SnpData[] snpData;
 
 		private AnalysisData[] analysisData;
 
@@ -110,12 +108,11 @@ public class CGemsPanel implements VisualPlugin {
 		 * @param geneData
 		 * @param markerData
 		 */
-		public TableModel(SnpData[] snpData,
+		public TableModel(
 				SnpAssociationFindingData[] snpAssociationFindingData,
 				AnalysisData[] analysisData, GeneData[] geneData,
 				MarkerData[] markerData, RankData[] rankData,
 				PValData[] pvalData) {
-			this.snpData = snpData;
 			this.snpAssociationFindingData = snpAssociationFindingData;
 			this.analysisData = analysisData;
 			this.geneData = geneData;
@@ -132,7 +129,6 @@ public class CGemsPanel implements VisualPlugin {
 		 * 
 		 */
 		public TableModel() {
-			this.snpData = new SnpData[0];
 			this.snpAssociationFindingData = new SnpAssociationFindingData[0];
 			this.analysisData = new AnalysisData[0];
 			this.geneData = new GeneData[0];
@@ -167,7 +163,7 @@ public class CGemsPanel implements VisualPlugin {
 		 * @see javax.swing.table.TableModel#getColumnCount()
 		 */
 		public int getColumnCount() {
-			return 7;
+			return COL_COUNT;
 		}
 
 		/**
@@ -186,8 +182,8 @@ public class CGemsPanel implements VisualPlugin {
 		 */
 		public Object getValueAt(int rowIndex, int columnIndex) {
 			switch (columnIndex) {
-			case COL_SNP:
-				return snpData[indices[rowIndex]].name;
+			// case COL_SNP:
+			// return snpData[indices[rowIndex]].name;
 
 			case COL_FINDING:
 				return snpAssociationFindingData[indices[rowIndex]].name;
@@ -217,9 +213,8 @@ public class CGemsPanel implements VisualPlugin {
 		 */
 		public void sortByColumn(final int column, final boolean ascending) {
 			resetIndices();
-			final Comparable[][] columns = { snpData,
-					snpAssociationFindingData, analysisData, geneData,
-					markerData, rankData, pvalData };
+			final Comparable[][] columns = { snpAssociationFindingData,
+					analysisData, geneData, markerData, rankData, pvalData };
 			Comparator<Integer> comparator = new Comparator<Integer>() {
 				public int compare(Integer i, Integer j) {
 					if (ascending) {
@@ -249,10 +244,7 @@ public class CGemsPanel implements VisualPlugin {
 		 */
 		public void activateCell(int rowIndex, int columnIndex) {
 			switch (columnIndex) {
-			case COL_SNP:
-				SnpData snp = snpData[indices[rowIndex]];
-				// activateSnp(snp); TODO add for snp
-				break;
+
 			case COL_FINDING:
 				SnpAssociationFindingData snpFinding = snpAssociationFindingData[indices[rowIndex]];
 				// activateSnp(snp); TODO add for snp
@@ -278,27 +270,6 @@ public class CGemsPanel implements VisualPlugin {
 				// activateMarker(marker);TODO add for marker
 				break;
 			}
-		}
-	}
-
-	/**
-	 * 
-	 * @author keshav
-	 * 
-	 */
-	private static class SnpData implements Comparable {
-
-		public String name;
-
-		public SnpData(String name) {
-			this.name = name;
-		}
-
-		public int compareTo(Object o) {
-			if (o instanceof SnpData) {
-				return name.compareTo(((SnpData) o).name);
-			}
-			return -1;
 		}
 	}
 
@@ -483,7 +454,7 @@ public class CGemsPanel implements VisualPlugin {
 		buttonPanel.add(clearButton);
 		model = new TableModel();
 		table = new SortableTable(model);
-		table.getColumnModel().getColumn(COL_SNP).setHeaderValue(HEADER_SNP);
+		// table.getColumnModel().getColumn(COL_SNP).setHeaderValue(HEADER_SNP);
 		table.getColumnModel().getColumn(COL_FINDING).setHeaderValue(
 				HEADER_FINDING);
 		table.getColumnModel().getColumn(COL_ANALYSIS).setHeaderValue(
@@ -512,10 +483,10 @@ public class CGemsPanel implements VisualPlugin {
 				int column = table.columnAtPoint(e.getPoint());
 				int row = table.rowAtPoint(e.getPoint());
 				if ((column >= 0) && (row >= 0)) {
-					if ((column == COL_SNP) || (column == COL_FINDING)
-							|| (column == COL_ANALYSIS) || (column == COL_GENE)
-							|| (column == COL_MARKER) || (column == COL_RANK)
-							|| (column == COL_PVAL)) {
+					// if ((column == COL_SNP) || (column == COL_FINDING)
+					if ((column == COL_FINDING) || (column == COL_ANALYSIS)
+							|| (column == COL_GENE) || (column == COL_MARKER)
+							|| (column == COL_RANK) || (column == COL_PVAL)) {
 						if (!isHand) {
 							isHand = true;
 							table.setCursor(new Cursor(Cursor.HAND_CURSOR));
@@ -624,7 +595,6 @@ public class CGemsPanel implements VisualPlugin {
 							.create(ProgressBar.INDETERMINATE_TYPE);
 					pb.setMessage("Connecting to server...");
 
-					ArrayList<SnpData> snpData = new ArrayList<SnpData>();
 					ArrayList<SnpAssociationFindingData> snpAssociationFindingData = new ArrayList<SnpAssociationFindingData>();
 					ArrayList<AnalysisData> analysisData = new ArrayList<AnalysisData>();
 					ArrayList<GeneData> geneData = new ArrayList<GeneData>();
@@ -682,11 +652,6 @@ public class CGemsPanel implements VisualPlugin {
 									SNPAssociationFinding returnedObj = (SNPAssociationFinding) resultsIterator
 											.next();
 
-									/* SnpData */
-									SnpData snp = new SnpData(returnedObj
-											.getSnpAnnotation().getId());
-									snpData.add(snp);
-
 									/* SnpAssociationFindingData */
 									SnpAssociationFindingData snpFinding = new SnpAssociationFindingData(
 											returnedObj.getSnpAnnotation()
@@ -740,7 +705,6 @@ public class CGemsPanel implements VisualPlugin {
 							}
 
 							else {
-								snpData.add(new SnpData(""));
 								snpAssociationFindingData
 										.add(new SnpAssociationFindingData("",
 												null));
@@ -755,7 +719,6 @@ public class CGemsPanel implements VisualPlugin {
 						pb.dispose();
 					}
 
-					SnpData[] snps = snpData.toArray(new SnpData[0]);
 					SnpAssociationFindingData[] snpFindings = snpAssociationFindingData
 							.toArray(new SnpAssociationFindingData[0]);
 					AnalysisData[] analyses = analysisData
@@ -766,12 +729,12 @@ public class CGemsPanel implements VisualPlugin {
 					RankData[] ranks = rankData.toArray(new RankData[0]);
 					PValData[] pvals = pvalData.toArray(new PValData[0]);
 
-					model = new TableModel(snps, snpFindings, analyses, genes,
+					model = new TableModel(snpFindings, analyses, genes,
 							markers, ranks, pvals);
 
 					table.setSortableModel(model);
-					table.getColumnModel().getColumn(COL_SNP).setHeaderValue(
-							HEADER_SNP);
+					// table.getColumnModel().getColumn(COL_SNP).setHeaderValue(
+					// HEADER_SNP);
 					table.getColumnModel().getColumn(COL_FINDING)
 							.setHeaderValue(HEADER_FINDING);
 					table.getColumnModel().getColumn(COL_ANALYSIS)
@@ -836,7 +799,7 @@ public class CGemsPanel implements VisualPlugin {
 	 */
 	private void clearButton_actionPerformed(ActionEvent e) {
 		table.setSortableModel(new TableModel());
-		table.getColumnModel().getColumn(COL_SNP).setHeaderValue(HEADER_SNP);
+		// table.getColumnModel().getColumn(COL_SNP).setHeaderValue(HEADER_SNP);
 		table.getColumnModel().getColumn(COL_FINDING).setHeaderValue(
 				HEADER_FINDING);
 		table.getColumnModel().getColumn(COL_ANALYSIS).setHeaderValue(
