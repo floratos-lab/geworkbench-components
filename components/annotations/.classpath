@@ -26,7 +26,6 @@
 	<classpathentry kind="lib" path="lib/batik-ttf2svg.jar"/>
 	<classpathentry kind="lib" path="lib/batik-util.jar"/>
 	<classpathentry kind="lib" path="lib/batik-xml.jar"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/geworkbench-core"/>
 	<classpathentry kind="lib" path="lib/aspectjrt.jar"/>
 	<classpathentry kind="lib" path="lib/client.jar"/>
 	<classpathentry kind="lib" path="lib/dom4j-1.4.jar"/>
@@ -38,5 +37,6 @@
 	<classpathentry kind="lib" path="lib/spring-richclient.jar"/>
 	<classpathentry kind="lib" path="lib/wsdl4j.jar"/>
 	<classpathentry kind="lib" path="lib/wsdl4j-1.5.1.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/geworkbench-core"/>
 	<classpathentry kind="output" path="classes"/>
 </classpath>
