@@ -1,53 +1,86 @@
 package org.geworkbench.components.annotations;
 
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Cursor;
+import java.awt.MouseInfo;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionAdapter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.Iterator;
+
+import javax.swing.JButton;
+import javax.swing.JFileChooser;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
+import javax.swing.JScrollPane;
+import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
-import org.geworkbench.bison.datastructure.biocollections.microarrays.CSMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.views.CSMicroarraySetView;
 import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
-import org.geworkbench.bison.datastructure.bioobjects.markers.CSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.ExampleFilter;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.complex.panels.CSItemList;
-import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
+import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.engine.management.AcceptTypes;
 import org.geworkbench.engine.management.Publish;
 import org.geworkbench.engine.management.Subscribe;
-import org.geworkbench.events.*;
+import org.geworkbench.events.AnnotationsEvent;
+import org.geworkbench.events.GeneSelectorEvent;
+import org.geworkbench.events.MarkerSelectedEvent;
+import org.geworkbench.events.ProjectEvent;
+import org.geworkbench.events.SubpanelChangedEvent;
 import org.geworkbench.util.BrowserLauncher;
 import org.geworkbench.util.ProgressBar;
 import org.geworkbench.util.annotation.Pathway;
 import org.jfree.ui.SortableTable;
 import org.jfree.ui.SortableTableModel;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.*;
-import java.io.*;
-import java.net.URL;
-import java.util.*;
 
 /**
- * <p>Title: Bioworks</p>
- * <p>Description: Modular Application Framework for Gene Expession, Sequence and Genotype Analysis</p>
- * <p>Copyright: Copyright (c) 2003 -2004</p>
- * <p>Company: Columbia University</p>
- *
+ * <p>
+ * Title: Bioworks
+ * </p>
+ * <p>
+ * Description: Modular Application Framework for Gene Expession, Sequence and
+ * Genotype Analysis
+ * </p>
+ * <p>
+ * Copyright: Copyright (c) 2003 -2004
+ * </p>
+ * <p>
+ * Company: Columbia University
+ * </p>
+ * 
+ * Component responsible for displaying Gene Annotation obtained from caBIO
+ * Displays data in a Tabular format with 2 columns. The first column contains
+ * The Gene Discription and the second column contains a list of known Pathways
+ * that this gene's product participates in.
+ * 
  * @author manjunath at genomecenter dot columbia dot edu
- * @version 1.0
- *          <p/>
- *          Component responsible for displaying Gene Annotation obtained from caBIO
- *          Displays data in a Tabular format with 2 columns. The first column contains
- *          The Gene Discription and the second column contains a list of known Pathways
- *          that this gene's product participates in.
+ * @version $Id: AnnotationsPanel.java,v 1.20 2007-01-23 18:58:24 keshav Exp $
+ * 
+ * 
  */
-
 @AcceptTypes({DSMicroarraySet.class})
 public class AnnotationsPanel implements VisualPlugin {
     static Log log = LogFactory.getLog(AnnotationsPanel.class);
