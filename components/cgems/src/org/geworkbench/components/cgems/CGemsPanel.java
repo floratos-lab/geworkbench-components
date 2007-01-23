@@ -17,6 +17,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -50,6 +51,7 @@ import org.geworkbench.events.AnnotationsEvent;
 import org.geworkbench.events.GeneSelectorEvent;
 import org.geworkbench.events.MarkerSelectedEvent;
 import org.geworkbench.events.ProjectEvent;
+import org.geworkbench.util.BrowserLauncher;
 import org.geworkbench.util.ProgressBar;
 import org.jfree.ui.SortableTable;
 import org.jfree.ui.SortableTableModel;
@@ -57,7 +59,7 @@ import org.jfree.ui.SortableTableModel;
 /**
  * 
  * @author keshav
- * @version $Id: CGemsPanel.java,v 1.11 2007-01-23 20:00:51 keshav Exp $
+ * @version $Id: CGemsPanel.java,v 1.12 2007-01-23 21:24:47 keshav Exp $
  */
 @AcceptTypes( { DSMicroarraySet.class })
 public class CGemsPanel implements VisualPlugin {
@@ -71,13 +73,16 @@ public class CGemsPanel implements VisualPlugin {
 	private final String HEADER_PVAL = "P-Value";
 
 	private final int COL_MARKER = 0;
-	public final int COL_GENE = 1;
-	public final int COL_FINDING = 2;
+	private final int COL_GENE = 1;
+	private final int COL_FINDING = 2;
 	private final int COL_RANK = 3;
-	public final int COL_PVAL = 4;
-	public final int COL_ANALYSIS = 5;
+	private final int COL_PVAL = 4;
+	private final int COL_ANALYSIS = 5;
 
-	public final int COL_COUNT = 6;
+	private final int COL_COUNT = 6;
+
+	private final String HTML_PREFIX = "<html><a href=\"";
+	private final String SNP_URL = "http://www.ncbi.nlm.nih.gov/projects/SNP/snp_ref.cgi?searchType=adhoc_search&type=rs&rs=";
 
 	/**
 	 * 
@@ -168,14 +173,40 @@ public class CGemsPanel implements VisualPlugin {
 		}
 
 		/**
+		 * Adds html to the given snp id.
 		 * 
 		 * @param s
 		 * @return String
 		 */
-		private String wrapInHtml(String s) {
-			String prefix = "http://www.ncbi.nlm.nih.gov/projects/SNP/snp_ref.cgi?searchType=adhoc_search&type=rs&rs=";
-			return "<html><a href=\"" + prefix + s + "\">" + prefix + s
-					+ "</a></html>";
+		private String addHtmlToSnp(String s) {
+			if (s.contains("http"))
+				throw new RuntimeException(
+						"Do not pass a url to this method.  The url gets formed here.");
+
+			return HTML_PREFIX + SNP_URL + s + "\">" + s + "</a></html>";
+		}
+
+		/**
+		 * Removes html from the String.
+		 * 
+		 * @param s
+		 * @return
+		 */
+		private String removeHtml(String s) {
+
+			String url = null;
+			try {
+				String wrappedUrl = s;
+				url = StringUtils.substringBetween(wrappedUrl, HTML_PREFIX,
+						"\">");
+				BrowserLauncher.openURL(url);
+			} catch (IOException e) {
+				log.error("Error removing html from " + s + "."
+						+ "Exception is: ");
+				e.printStackTrace();
+			}
+
+			return url;
 		}
 
 		/*
@@ -187,7 +218,7 @@ public class CGemsPanel implements VisualPlugin {
 			switch (columnIndex) {
 
 			case COL_FINDING:
-				return wrapInHtml(snpAssociationFindingData[indices[rowIndex]].name);
+				return addHtmlToSnp(snpAssociationFindingData[indices[rowIndex]].name);
 
 			case COL_ANALYSIS:
 				return analysisData[indices[rowIndex]].name;
@@ -248,7 +279,7 @@ public class CGemsPanel implements VisualPlugin {
 
 			case COL_FINDING:
 				SnpAssociationFindingData snpFinding = snpAssociationFindingData[indices[rowIndex]];
-				// activateSnp(snp); TODO add for snp
+				removeHtml((String) getValueAt(rowIndex, columnIndex));
 				break;
 			case COL_ANALYSIS:
 				AnalysisData analysis = analysisData[indices[rowIndex]];
