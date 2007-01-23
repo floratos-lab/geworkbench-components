@@ -28,7 +28,7 @@
 
 		<name>TOC</name>
 
-		<label>Pathway Panel</label>
+		<label>caBio Pathways</label>
 
 		<type>javax.help.TOCView</type>
 
