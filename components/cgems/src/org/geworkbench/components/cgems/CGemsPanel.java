@@ -56,7 +56,7 @@ import org.jfree.ui.SortableTableModel;
 /**
  * 
  * @author keshav
- * @version $Id: CGemsPanel.java,v 1.8 2007-01-23 19:10:35 keshav Exp $
+ * @version $Id: CGemsPanel.java,v 1.9 2007-01-23 19:21:24 keshav Exp $
  */
 @AcceptTypes( { DSMicroarraySet.class })
 public class CGemsPanel implements VisualPlugin {
@@ -73,8 +73,8 @@ public class CGemsPanel implements VisualPlugin {
 	public final int COL_GENE = 1;
 	public final int COL_FINDING = 2;
 	private final int COL_RANK = 3;
-	public final int COL_ANALYSIS = 4;
-	public final int COL_PVAL = 5;
+	public final int COL_PVAL = 4;
+	public final int COL_ANALYSIS = 5;
 
 	public final int COL_COUNT = 6;
 
@@ -171,9 +171,10 @@ public class CGemsPanel implements VisualPlugin {
 		 * @param s
 		 * @return String
 		 */
-		private String wrapInHTML(String s) {
+		private String wrapInHtml(String s) {
 			String prefix = "http://www.ncbi.nlm.nih.gov/projects/SNP/snp_ref.cgi?searchType=adhoc_search&type=rs&rs=";
-			return "<html><a href=\"__noop\">" + prefix + s + "</a></html>";
+			return "<html><a href=\"" + prefix + s + "\">" + prefix + s
+					+ "</a></html>";
 		}
 
 		/*
@@ -185,7 +186,7 @@ public class CGemsPanel implements VisualPlugin {
 			switch (columnIndex) {
 
 			case COL_FINDING:
-				return snpAssociationFindingData[indices[rowIndex]].name;
+				return wrapInHtml(snpAssociationFindingData[indices[rowIndex]].name);
 
 			case COL_ANALYSIS:
 				return analysisData[indices[rowIndex]].name;
@@ -427,7 +428,7 @@ public class CGemsPanel implements VisualPlugin {
 	 * @throws Exception
 	 */
 	private void jbInit() throws Exception {
-		annotationsPanel.setLayout(borderLayout1);
+		cgemsPanel.setLayout(borderLayout1);
 		showPanels.setHorizontalAlignment(SwingConstants.CENTER);
 		showPanels.setText("Retrieve SNP Data");
 		showPanels
@@ -447,8 +448,8 @@ public class CGemsPanel implements VisualPlugin {
 				clearButton_actionPerformed(e);
 			}
 		});
-		annotationsPanel.add(jScrollPane1, BorderLayout.CENTER);
-		annotationsPanel.add(buttonPanel, BorderLayout.SOUTH);
+		cgemsPanel.add(jScrollPane1, BorderLayout.CENTER);
+		cgemsPanel.add(buttonPanel, BorderLayout.SOUTH);
 		buttonPanel.add(showPanels);
 		buttonPanel.add(clearButton);
 		model = new TableModel();
@@ -509,9 +510,9 @@ public class CGemsPanel implements VisualPlugin {
 	 *         <code>AnnotationsPanel</code>
 	 */
 	public Component getComponent() {
-		return annotationsPanel;
+		return cgemsPanel;
 	}
-	
+
 	/**
 	 * query caIntegrator
 	 */
@@ -756,7 +757,7 @@ public class CGemsPanel implements VisualPlugin {
 	 */
 	private void showPanels_actionPerformed(ActionEvent e) {
 		if (selectedMarkerInfo == null || selectedMarkerInfo.size() == 0) {
-			JOptionPane.showMessageDialog(annotationsPanel,
+			JOptionPane.showMessageDialog(cgemsPanel,
 					"Must activate marker panels to retrieve SNP data.");
 		}
 		showSnpData();
@@ -780,36 +781,15 @@ public class CGemsPanel implements VisualPlugin {
 		return event;
 	}
 
-	/**
-	 * The Visual Component on which the annotation results are shown
-	 */
-	private JPanel annotationsPanel = new JPanel();
+	/* Panel on which to view the snp data. */
+	private JPanel cgemsPanel = new JPanel();
 
-	/**
-	 * Visual Widget
-	 */
+	/* Visual Widgets */
 	private JScrollPane jScrollPane1 = new JScrollPane();
-
-	/**
-	 * Visual Widget
-	 */
 	private BorderLayout borderLayout1 = new BorderLayout();
-
-	/**
-	 * Visual Widget
-	 */
 	private SortableTable table;
-
 	private TableModel model;
-
-	/**
-	 * Visual Widget
-	 */
 	private JPanel buttonPanel = new JPanel();
-
-	/**
-	 * Visual Widget
-	 */
 	private JButton showPanels = new JButton();
 
 	private DSItemList<DSGeneMarker> selectedMarkerInfo = null;
