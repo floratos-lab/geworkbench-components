@@ -17,7 +17,7 @@
 		<name>TOC</name>
 		<label>JMOL</label>
 		<type>javax.help.TOCView</type>
-		<data>jmolTOC.xml</data>
+		<data>jmoltoc.xml</data>
 	</view>
 </helpset>
 
