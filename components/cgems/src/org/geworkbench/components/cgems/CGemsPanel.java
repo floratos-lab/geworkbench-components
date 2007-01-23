@@ -31,6 +31,7 @@ import javax.swing.JScrollPane;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
@@ -56,7 +57,7 @@ import org.jfree.ui.SortableTableModel;
 /**
  * 
  * @author keshav
- * @version $Id: CGemsPanel.java,v 1.10 2007-01-23 19:29:21 keshav Exp $
+ * @version $Id: CGemsPanel.java,v 1.11 2007-01-23 20:00:51 keshav Exp $
  */
 @AcceptTypes( { DSMicroarraySet.class })
 public class CGemsPanel implements VisualPlugin {
@@ -608,24 +609,26 @@ public class CGemsPanel implements VisualPlugin {
 									analysisData.add(analysis);
 
 									/* GeneData */
-									// String entrezIds = null;
-									// Collection<GeneBiomarker>
-									// geneBioMarkerCol = returnedObj
-									// .getSnpAnnotation()
-									// .getGeneBiomarkerCollection();
-									// for (GeneBiomarker gbm :
-									// geneBioMarkerCol) {
-									// String entrezId = gbm
-									// .getHugoGeneSymbol();
-									// if (geneBioMarkerCol.size() > 1) {
-									// entrezIds = entrezIds + "|"
-									// + entrezId;
-									// } else {
-									// entrezIds = entrezId;
-									// }
-									// }
-									// GeneData gene = new GeneData(entrezIds);
-									GeneData gene = new GeneData(labelToUse);
+									String entrezIds = null;
+									Collection<GeneBiomarker> geneBioMarkerCol = returnedObj
+											.getSnpAnnotation()
+											.getGeneBiomarkerCollection();
+									for (GeneBiomarker gbm : geneBioMarkerCol) {
+										String entrezId = gbm
+												.getHugoGeneSymbol();
+										if (geneBioMarkerCol.size() > 1
+												&& StringUtils
+														.isNotEmpty(entrezIds)) {
+											if (StringUtils
+													.isNotEmpty(entrezId)) {
+												entrezIds = entrezIds + ", "
+														+ entrezId;
+											}
+										} else {
+											entrezIds = entrezId;
+										}
+									}
+									GeneData gene = new GeneData(entrezIds);
 									geneData.add(gene);
 
 									/* Marker Data */
