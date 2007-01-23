@@ -59,7 +59,7 @@ import org.jfree.ui.SortableTableModel;
 /**
  * 
  * @author keshav
- * @version $Id: CGemsPanel.java,v 1.12 2007-01-23 21:24:47 keshav Exp $
+ * @version $Id: CGemsPanel.java,v 1.13 2007-01-23 21:43:33 keshav Exp $
  */
 @AcceptTypes( { DSMicroarraySet.class })
 public class CGemsPanel implements VisualPlugin {
@@ -82,6 +82,7 @@ public class CGemsPanel implements VisualPlugin {
 	private final int COL_COUNT = 6;
 
 	private final String HTML_PREFIX = "<html><a href=\"";
+	private final String HTML_SUFFIX = "</a></html>";
 	private final String SNP_URL = "http://www.ncbi.nlm.nih.gov/projects/SNP/snp_ref.cgi?searchType=adhoc_search&type=rs&rs=";
 
 	/**
@@ -183,7 +184,7 @@ public class CGemsPanel implements VisualPlugin {
 				throw new RuntimeException(
 						"Do not pass a url to this method.  The url gets formed here.");
 
-			return HTML_PREFIX + SNP_URL + s + "\">" + s + "</a></html>";
+			return HTML_PREFIX + SNP_URL + s + "\">" + s + HTML_SUFFIX;
 		}
 
 		/**
@@ -195,18 +196,29 @@ public class CGemsPanel implements VisualPlugin {
 		private String removeHtml(String s) {
 
 			String url = null;
+			String wrappedUrl = s;
+			url = StringUtils.substringBetween(wrappedUrl, HTML_PREFIX, "\">");
+
+			return url;
+		}
+
+		/**
+		 * Launches the given url in a browser.
+		 * 
+		 */
+		private void launchInBrowser(String url) {
+			if (!url.startsWith("http"))
+				throw new RuntimeException("Invalid url: " + url);
+
 			try {
-				String wrappedUrl = s;
-				url = StringUtils.substringBetween(wrappedUrl, HTML_PREFIX,
-						"\">");
+
 				BrowserLauncher.openURL(url);
 			} catch (IOException e) {
-				log.error("Error removing html from " + s + "."
+				log.error("Error removing html from " + url + "."
 						+ "Exception is: ");
 				e.printStackTrace();
 			}
 
-			return url;
 		}
 
 		/*
@@ -279,7 +291,9 @@ public class CGemsPanel implements VisualPlugin {
 
 			case COL_FINDING:
 				SnpAssociationFindingData snpFinding = snpAssociationFindingData[indices[rowIndex]];
-				removeHtml((String) getValueAt(rowIndex, columnIndex));
+				String url = removeHtml((String) getValueAt(rowIndex,
+						columnIndex));
+				launchInBrowser(url);
 				break;
 			case COL_ANALYSIS:
 				AnalysisData analysis = analysisData[indices[rowIndex]];
