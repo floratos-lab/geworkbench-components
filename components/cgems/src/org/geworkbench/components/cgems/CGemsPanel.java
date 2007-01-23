@@ -56,7 +56,7 @@ import org.jfree.ui.SortableTableModel;
 /**
  * 
  * @author keshav
- * @version $Id: CGemsPanel.java,v 1.9 2007-01-23 19:21:24 keshav Exp $
+ * @version $Id: CGemsPanel.java,v 1.10 2007-01-23 19:29:21 keshav Exp $
  */
 @AcceptTypes( { DSMicroarraySet.class })
 public class CGemsPanel implements VisualPlugin {
@@ -608,21 +608,24 @@ public class CGemsPanel implements VisualPlugin {
 									analysisData.add(analysis);
 
 									/* GeneData */
-									String entrezIds = null;
-									Collection<GeneBiomarker> geneBioMarkerCol = returnedObj
-											.getSnpAnnotation()
-											.getGeneBiomarkerCollection();
-									for (GeneBiomarker gbm : geneBioMarkerCol) {
-										String entrezId = gbm
-												.getHugoGeneSymbol();
-										if (geneBioMarkerCol.size() > 1) {
-											entrezIds = entrezIds + "|"
-													+ entrezId;
-										} else {
-											entrezIds = entrezId;
-										}
-									}
-									GeneData gene = new GeneData(entrezIds);
+									// String entrezIds = null;
+									// Collection<GeneBiomarker>
+									// geneBioMarkerCol = returnedObj
+									// .getSnpAnnotation()
+									// .getGeneBiomarkerCollection();
+									// for (GeneBiomarker gbm :
+									// geneBioMarkerCol) {
+									// String entrezId = gbm
+									// .getHugoGeneSymbol();
+									// if (geneBioMarkerCol.size() > 1) {
+									// entrezIds = entrezIds + "|"
+									// + entrezId;
+									// } else {
+									// entrezIds = entrezId;
+									// }
+									// }
+									// GeneData gene = new GeneData(entrezIds);
+									GeneData gene = new GeneData(labelToUse);
 									geneData.add(gene);
 
 									/* Marker Data */
