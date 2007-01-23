@@ -56,7 +56,7 @@ import org.jfree.ui.SortableTableModel;
 /**
  * 
  * @author keshav
- * @version $Id: CGemsPanel.java,v 1.7 2007-01-23 18:50:01 keshav Exp $
+ * @version $Id: CGemsPanel.java,v 1.8 2007-01-23 19:10:35 keshav Exp $
  */
 @AcceptTypes( { DSMicroarraySet.class })
 public class CGemsPanel implements VisualPlugin {
@@ -172,7 +172,8 @@ public class CGemsPanel implements VisualPlugin {
 		 * @return String
 		 */
 		private String wrapInHTML(String s) {
-			return "<html><a href=\"__noop\">" + s + "</a></html>";
+			String prefix = "http://www.ncbi.nlm.nih.gov/projects/SNP/snp_ref.cgi?searchType=adhoc_search&type=rs&rs=";
+			return "<html><a href=\"__noop\">" + prefix + s + "</a></html>";
 		}
 
 		/*
@@ -182,8 +183,6 @@ public class CGemsPanel implements VisualPlugin {
 		 */
 		public Object getValueAt(int rowIndex, int columnIndex) {
 			switch (columnIndex) {
-			// case COL_SNP:
-			// return snpData[indices[rowIndex]].name;
 
 			case COL_FINDING:
 				return snpAssociationFindingData[indices[rowIndex]].name;
@@ -454,7 +453,6 @@ public class CGemsPanel implements VisualPlugin {
 		buttonPanel.add(clearButton);
 		model = new TableModel();
 		table = new SortableTable(model);
-		// table.getColumnModel().getColumn(COL_SNP).setHeaderValue(HEADER_SNP);
 		table.getColumnModel().getColumn(COL_FINDING).setHeaderValue(
 				HEADER_FINDING);
 		table.getColumnModel().getColumn(COL_ANALYSIS).setHeaderValue(
@@ -483,7 +481,6 @@ public class CGemsPanel implements VisualPlugin {
 				int column = table.columnAtPoint(e.getPoint());
 				int row = table.rowAtPoint(e.getPoint());
 				if ((column >= 0) && (row >= 0)) {
-					// if ((column == COL_SNP) || (column == COL_FINDING)
 					if ((column == COL_FINDING) || (column == COL_ANALYSIS)
 							|| (column == COL_GENE) || (column == COL_MARKER)
 							|| (column == COL_RANK) || (column == COL_PVAL)) {
@@ -514,66 +511,7 @@ public class CGemsPanel implements VisualPlugin {
 	public Component getComponent() {
 		return annotationsPanel;
 	}
-
-	/**
-	 * 
-	 * 
-	 */
-	public void searchSNPAssociationFinding() {
-		// TODO keshav - remove me ... this is just a test
-		Collection geneBiomarkerCollection = new ArrayList();
-		GeneBiomarker wt1 = new GeneBiomarker();
-		wt1.setHugoGeneSymbol("WT1");
-		geneBiomarkerCollection.add(wt1);
-
-		SNPAnnotation snpAnnotation = new SNPAnnotation();
-		snpAnnotation.setGeneBiomarkerCollection(geneBiomarkerCollection);
-		try {
-			System.out
-					.println("______________________________________________________________________");
-			System.out.println("Retrieving all SNPAssiciationFindings for WT1");
-			ApplicationService appService = ApplicationServiceProvider
-					.getApplicationService();
-
-			List resultList = appService.search(SNPAssociationFinding.class,
-					snpAnnotation);
-			if (resultList != null) {
-				System.out.println("Number of results returned: "
-						+ resultList.size());
-				System.out.println("DbsnpId" + "\t" + "ChromosomeName" + "\t"
-						+ "ChromosomeLocation" + "\t" + "GenomeBuild" + "\t"
-						+ "ReferenceSequence" + "\t" + "ReferenceStrand" + "\t"
-						+ "GeneBiomarker(s)" + "\t" + "Analysis Name" + "\t"
-						+ "p-Value" + "\t" + "rank" + "\n");
-				for (Iterator resultsIterator = resultList.iterator(); resultsIterator
-						.hasNext();) {
-					SNPAssociationFinding returnedObj = (SNPAssociationFinding) resultsIterator
-							.next();
-					System.out.println(returnedObj.getSnpAnnotation()
-							.getDbsnpId()
-							+ "\t"
-							+ returnedObj.getSnpAnnotation()
-									.getChromosomeName()
-							+ "\t"
-							+ returnedObj.getSnpAnnotation()
-									.getChromosomeLocation()
-							+ "\t"
-							+ pipeGeneBiomarkers(returnedObj.getSnpAnnotation()
-									.getGeneBiomarkerCollection())
-							+ "\t"
-							+ returnedObj.getSnpAssociationAnalysis().getName()
-							+ "\t"
-							+ returnedObj.getPvalue()
-							+ "\t"
-							+ returnedObj.getRank() + "\n");
-				}
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
-	}
-
+	
 	/**
 	 * query caIntegrator
 	 */
@@ -733,8 +671,7 @@ public class CGemsPanel implements VisualPlugin {
 							markers, ranks, pvals);
 
 					table.setSortableModel(model);
-					// table.getColumnModel().getColumn(COL_SNP).setHeaderValue(
-					// HEADER_SNP);
+
 					table.getColumnModel().getColumn(COL_FINDING)
 							.setHeaderValue(HEADER_FINDING);
 					table.getColumnModel().getColumn(COL_ANALYSIS)
@@ -799,7 +736,7 @@ public class CGemsPanel implements VisualPlugin {
 	 */
 	private void clearButton_actionPerformed(ActionEvent e) {
 		table.setSortableModel(new TableModel());
-		// table.getColumnModel().getColumn(COL_SNP).setHeaderValue(HEADER_SNP);
+
 		table.getColumnModel().getColumn(COL_FINDING).setHeaderValue(
 				HEADER_FINDING);
 		table.getColumnModel().getColumn(COL_ANALYSIS).setHeaderValue(
