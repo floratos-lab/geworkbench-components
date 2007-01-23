@@ -8,7 +8,7 @@ import org.apache.commons.logging.LogFactory;
 
 /**
  * @author keshav
- * @version $Id: ClassLoaderTest.java,v 1.1 2007-01-22 20:42:29 keshav Exp $
+ * @version $Id: ClassLoaderTest.java,v 1.2 2007-01-23 18:04:14 keshav Exp $
  * 
  */
 public class ClassLoaderTest extends TestCase {
@@ -26,6 +26,14 @@ public class ClassLoaderTest extends TestCase {
 		for (String entry : javaClasspath) {
 			log.info("AppClassLoader: " + entry);
 		}
+
+		log.info("class loader: "
+				+ this.getClass().getClassLoader().getClass().getName());
+		log.info("class loader parent: "
+				+ this.getClass().getClassLoader().getParent().getClass()
+						.getName());
+		log.info("system class loader: "
+				+ this.getClass().getClassLoader().getSystemClassLoader());
 
 	}
 
