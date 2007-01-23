@@ -6,7 +6,7 @@
 <?TestTarget The help set file for the project tree component.?>
 <helpset version="1.0">
 	<!-- title -->
-	<title>GoTerm</title>
+	<title>JMOL</title>
 	<!-- maps -->
 	<maps>
 		<homeID>overview</homeID>
