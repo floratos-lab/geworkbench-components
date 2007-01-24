@@ -103,7 +103,6 @@ public class WVTraining extends GPTraining implements TrainingTask
             else
             {                
                 int numFeatures = wvPanel.getNumFeatures();
-                System.out.println("Num features: " + numFeatures);
                 String statistic = wvPanel.getStatistic();
                 boolean useMedian = wvPanel.useMedian();
 
@@ -136,7 +135,7 @@ public class WVTraining extends GPTraining implements TrainingTask
             JOptionPane.showMessageDialog(panel, e.getMessage());
             log.warn(e);
         }
-        
+
         return wvClassifier;
     }
 
