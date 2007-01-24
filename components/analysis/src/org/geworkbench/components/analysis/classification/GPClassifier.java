@@ -142,7 +142,6 @@ public abstract class GPClassifier extends CSClassifier
             JobResult analysisResult = server.runAnalysis(classifierName, parameters);
 
             System.out.println("Error occurred: " + analysisResult.hasStandardError());
-            System.out.println("Num output files: " + analysisResult.getOutputFileNames().length);
 
             String[] outputFiles = analysisResult.getOutputFileNames();
 
