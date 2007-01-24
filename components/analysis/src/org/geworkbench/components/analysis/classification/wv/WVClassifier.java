@@ -40,7 +40,7 @@ public class WVClassifier extends GPClassifier
         File testCLSData = createTestCLSFile("WVTest_Cls");
 
         List parameters = new ArrayList();
-        parameters.add(new Parameter("saved.model.filename", model.getAbsolutePath()));
+        parameters.add(new Parameter("saved.model.filename", predModel.getPredModelFile().getAbsolutePath()));
         parameters.add(new Parameter("test.filename", testData.getAbsolutePath()));
         parameters.add(new Parameter("test.class.filename", testCLSData.getAbsolutePath()));
 
