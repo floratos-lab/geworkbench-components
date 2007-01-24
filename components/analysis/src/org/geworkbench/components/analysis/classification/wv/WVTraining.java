@@ -122,9 +122,6 @@ public class WVTraining extends GPTraining implements TrainingTask
             if(trainingProgressListener != null)
                 trainingProgressListener.stepUpdate("training classifier", 2);
 
-            File modelFile = File.createTempFile("wvModelFile", ".model.odf", new File(System.getProperty("temporary.files.directory")));
-            parameters.add(new Parameter("model.file", modelFile.getCanonicalPath()));
-
             PredictionModel predModel = createModel("WeightedVoting", (Parameter[])parameters.toArray(new Parameter[0]));
 
             wvClassifier = new WVClassifier(null, "WV Classifier", new String[]{"Positive", "Negative"}, predModel, featureNames);
@@ -139,11 +136,7 @@ public class WVTraining extends GPTraining implements TrainingTask
             JOptionPane.showMessageDialog(panel, e.getMessage());
             log.warn(e);
         }
-        catch(IOException e)
-        {
-            e.printStackTrace();
-        }
-
+        
         return wvClassifier;
     }
 
