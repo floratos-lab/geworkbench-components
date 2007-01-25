@@ -156,6 +156,7 @@ public abstract class GPClassifier extends CSClassifier
                 throw new Exception("Error: No classifier generated");
 
             predFile = analysisResult.downloadFile(predFileName, System.getProperty("temporary.files.directory"));
+            predFile.deleteOnExit();
 
             // remove job from GenePattern server
             AnalysisWebServiceProxy analysisProxy = new AnalysisWebServiceProxy(serverName, userName);
