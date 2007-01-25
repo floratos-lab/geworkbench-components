@@ -33,7 +33,7 @@ import org.globus.gsi.GlobusCredential;
  * 
  * @created by Introduce Toolkit version 1.0
  * @author keshav
- * @version $Id: HierarchicalClusteringClient.java,v 1.5 2007-01-11 15:23:43 keshav Exp $
+ * @version $Id: HierarchicalClusteringClient.java,v 1.6 2007-01-25 21:33:19 keshav Exp $
  */
 public class HierarchicalClusteringClient extends ServiceSecurityClient implements HierarchicalClusteringI {
     private static Log log = LogFactory.getLog( HierarchicalClusteringClient.class );
@@ -116,6 +116,9 @@ public class HierarchicalClusteringClient extends ServiceSecurityClient implemen
                     log.debug( "hierarchical cluster: " + hierarchicalClustering + "\nmicroarray cluster height: "
                             + hierarchicalClustering.getMicroarrayCluster().getHeight() + "\nmarker cluster height: "
                             + hierarchicalClustering.getMarkerCluster().getHeight() );
+                    
+                    GridUtils.serializeToXml(arraySet);
+                    GridUtils.serializeToXml(hierarchicalClustering);
 
                 } else {
                     usage();
