@@ -10,7 +10,7 @@
 
 	<!-- title -->
 
-	<title>Analysis panel help</title>
+	<title>Clustering Tools</title>
 
 	<!-- maps -->
 
