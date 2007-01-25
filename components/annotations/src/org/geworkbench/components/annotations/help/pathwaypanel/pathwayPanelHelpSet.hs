@@ -10,7 +10,7 @@
 
 	<!-- title -->
 
-	<title>Pathway Panel</title>
+	<title>caBio Pathways Panel</title>
 
 	<!-- maps -->
 
