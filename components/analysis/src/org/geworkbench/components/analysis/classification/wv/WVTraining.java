@@ -23,6 +23,8 @@ import org.genepattern.data.matrix.ClassVector;
 import org.genepattern.webservice.Parameter;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.logging.Log;
+//import org.apache.commons.logging.LogFactory;
+//import org.apache.commons.logging.Log;
 
 import javax.swing.*;
 import java.util.List;

@@ -11,7 +11,7 @@
 */
 package org.geworkbench.components.analysis.classification;
 
-import org.genepattern.io.OdfWriter;
+import org.genepattern.io.odf.OdfWriter;
 import org.genepattern.io.odf.OdfObject;
 
 import java.io.File;

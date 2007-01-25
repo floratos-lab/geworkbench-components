@@ -12,6 +12,7 @@
 package org.geworkbench.components.analysis.classification;
 
 import org.genepattern.data.expr.IExpressionData;
+import org.genepattern.data.expr.AbstractExpressionData;
 import org.genepattern.data.matrix.ClassVector;
 import org.genepattern.io.expr.gct.GctWriter;
 import org.genepattern.io.expr.cls.ClsWriter;
@@ -34,7 +35,7 @@ public abstract class GPTraining extends AbstractTraining
     protected File createGCTFile(String fileName, final List trainingSet, final List featureNames)
     {
         File gctFile = null;
-        IExpressionData data = new IExpressionData() {
+        IExpressionData data = new AbstractExpressionData() {
 
             public double getValue(int row, int column)
             {
@@ -69,21 +70,6 @@ public abstract class GPTraining extends AbstractTraining
             public String getColumnDescription(int column)
             {
                 return "";
-            }
-
-            public int getRowIndex(String row)
-            {
-                return featureNames.indexOf(row);
-            }
-
-            public int getColumnIndex(String row)
-            {
-                return 0;
-            }
-
-            public String getValueAsString(int row, int column)
-            {
-                return String.valueOf(((float[])trainingSet.get(column))[row]);
             }
         };
 
@@ -178,6 +164,7 @@ public abstract class GPTraining extends AbstractTraining
 
             // save the model of the classifer
             File modelFile = analysisResult.downloadFile(modelFileName, System.getProperty("temporary.files.directory"));
+            modelFile.deleteOnExit();
 
             predModel = new PredictionModel(modelFile);
 

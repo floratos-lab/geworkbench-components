@@ -194,7 +194,7 @@ public class WVTrainingPanel extends AbstractTrainingPanel
 
     private JLabel getGPLogo()
     {
-        java.net.URL imageURL = WVTrainingPanel.class.getResource("/images/gp-logo.jpg");
+        java.net.URL imageURL = WVTrainingPanel.class.getResource("images/gp-logo.jpg");
         ImageIcon image = new ImageIcon(imageURL);
 
         JLabel label = new JLabel();
