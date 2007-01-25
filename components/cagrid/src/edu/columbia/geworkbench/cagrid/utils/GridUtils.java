@@ -18,7 +18,7 @@ import edu.columbia.geworkbench.cagrid.cluster.parser.TabDelimParser;
 
 /**
  * @author keshav
- * @version $Id: GridUtils.java,v 1.2 2007-01-25 21:33:19 keshav Exp $
+ * @version $Id: GridUtils.java,v 1.3 2007-01-25 22:28:59 keshav Exp $
  */
 public class GridUtils {
 	private static Log log = LogFactory.getLog(GridUtils.class);
@@ -112,12 +112,13 @@ public class GridUtils {
 		FileOutputStream fos = null;
 		Random r = new Random();
 		try {
-			fos = new FileOutputStream(obj.getClass().getSimpleName()
+			fos = new FileOutputStream(obj.getClass().getSimpleName() + "-"
 					+ r.nextInt() + ".xml");
 			// Create XML encoder.
 			XMLEncoder xenc = new XMLEncoder(fos);
 			// Write object.
 			xenc.writeObject(obj);
+			xenc.close();
 		} catch (FileNotFoundException e) {
 			log.error("Could not create the FileOutputStream.  Exception is: ");
 			throw new RuntimeException(e);
