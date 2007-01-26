@@ -59,7 +59,7 @@ import org.jfree.ui.SortableTableModel;
 /**
  * 
  * @author keshav
- * @version $Id: CGemsPanel.java,v 1.13 2007-01-23 21:43:33 keshav Exp $
+ * @version $Id: CGemsPanel.java,v 1.14 2007-01-26 20:46:34 keshav Exp $
  */
 @AcceptTypes( { DSMicroarraySet.class })
 public class CGemsPanel implements VisualPlugin {
@@ -257,8 +257,8 @@ public class CGemsPanel implements VisualPlugin {
 		 */
 		public void sortByColumn(final int column, final boolean ascending) {
 			resetIndices();
-			final Comparable[][] columns = { snpAssociationFindingData,
-					analysisData, geneData, markerData, rankData, pvalData };
+			final Comparable[][] columns = { markerData, geneData,
+					snpAssociationFindingData, rankData, pvalData, analysisData };
 			Comparator<Integer> comparator = new Comparator<Integer>() {
 				public int compare(Integer i, Integer j) {
 					if (ascending) {
