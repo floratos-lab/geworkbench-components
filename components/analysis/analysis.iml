@@ -10,7 +10,6 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="module" module-name="geworkbench" />
     <orderEntry type="module-library">
       <library>
         <CLASSES>
@@ -20,7 +19,6 @@
         <SOURCES />
       </library>
     </orderEntry>
-    <orderEntry type="library" name="base" level="project" />
     <orderEntry type="module-library">
       <library>
         <CLASSES>
@@ -120,6 +118,8 @@
         <SOURCES />
       </library>
     </orderEntry>
+    <orderEntry type="module" module-name="geworkbench" />
+    <orderEntry type="library" name="base" level="project" />
     <orderEntryProperties />
   </component>
 </module>
