@@ -187,11 +187,6 @@ public class WVTrainingPanel extends AbstractTrainingPanel
         return false;
     }
 
-    public DSItemList<DSGeneMarker> getFeatures()
-    {
-        return maSet.getMarkers();
-    }
-
     private JLabel getGPLogo()
     {
         java.net.URL imageURL = WVTrainingPanel.class.getResource("images/gp-logo.jpg");
@@ -235,8 +230,8 @@ public class WVTrainingPanel extends AbstractTrainingPanel
     {
         if(getNumFeatures() <= 0)
             return new ParamValidationResults(false, "num features must be greater than 0");
-        else if(getNumFeatures() > getFeatures().size())
-            return new ParamValidationResults(false, "num features can not be greater than " + getFeatures().size());
+        else if(getNumFeatures() > getActiveMarkers().size())
+            return new ParamValidationResults(false, "num features can not be greater than " + getActiveMarkers().size());
         else if(useMinStdDev() && getMinStdDev() == null)
             return new ParamValidationResults(false, "min std dev not provided");
         else if(useMinStdDev() && Double.parseDouble(getMinStdDev()) <= 0)

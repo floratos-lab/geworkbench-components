@@ -66,7 +66,7 @@ public class WVTraining extends GPTraining implements TrainingTask
                 trainingProgressListener.stepUpdate("processing training parameters", 1);
 
             WVTrainingPanel wvPanel = (WVTrainingPanel)panel;
-            DSItemList markers = wvPanel.getFeatures();
+            DSItemList markers = wvPanel.getActiveMarkers();
 
             List featureNames = new ArrayList();
             for(int i =0; i < markers.size(); i++)
