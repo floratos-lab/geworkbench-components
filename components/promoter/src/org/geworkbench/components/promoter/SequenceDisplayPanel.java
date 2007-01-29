@@ -8,7 +8,7 @@ import org.geworkbench.bison.datastructure.complex.pattern.DSPattern;
 import org.geworkbench.bison.datastructure.complex.pattern.DSPatternMatch;
 import org.geworkbench.bison.datastructure.complex.pattern.sequence.DSSeqRegistration;
 import org.geworkbench.util.patterns.CSMatchedSeqPattern;
-
+import org.geworkbench.util.patterns.PatternOfflet;
 import javax.swing.*;
 import javax.swing.event.MouseInputAdapter;
 import java.awt.*;
@@ -239,7 +239,8 @@ public class SequenceDisplayPanel extends JPanel {
                         if (selected.equals(sequenceDB.getSequence(seqId))) {
                             org.geworkbench.util.patterns.CSMatchedSeqPattern pat = (CSMatchedSeqPattern) patterns[row];
                             int offset = pat.getAbsoluteOffset(locusId);
-                            int ty = pat.offset.value.length;
+                            //change for remove the CSMatchedSeqPattern polgara dependence.
+                            int ty = pat.offset.size();
                             int MTwidth = (int) (ty * xscale);
                             g.setColor(org.geworkbench.util.patterns.PatternOperations.getPatternColor(pat.hashCode()));
                             int ycoord = yOff + (int) ((offset / cols - 1.7) * yscale);
@@ -447,7 +448,8 @@ public class SequenceDisplayPanel extends JPanel {
                         if (selected.equals(sequenceDB.getSequence(seqId))) {
                             org.geworkbench.util.patterns.CSMatchedSeqPattern pat = (org.geworkbench.util.patterns.CSMatchedSeqPattern) patterns[row];
                             int offset = pat.getAbsoluteOffset(locusId);
-                            int ty = pat.offset.value.length;
+                            //changed by xiaoqing 0n 1.27.07
+                            int ty = pat.offset.size();
                             int MTwidth = (int) (ty * xscale);
                             int ycoord = yOff + (int) ((offset / cols - 1.7) * yscale);
                             int xcoord = (int) (10 * xscale) + (int) ((offset % cols) * xscale);
@@ -566,7 +568,9 @@ public class SequenceDisplayPanel extends JPanel {
                 return true;
             }
             //            double x0 = (double) pat.getOff(locusId);
-            double dx = pat.offset.value[pat.getLength() - 1].getDx() + 1;
+            //changed on 1/25/07 by xiaoqing
+            //double dx = pat.offset.value[pat.getLength() - 1].getDx() + 1;
+            double dx = pat.offset.get(pat.getLength() - 1).getPosition() + 1;
             int xa = xOff + (int) (x0 * scale) + 1;
             int xb = (int) (dx * scale) - 1;
             g.setColor(color);
@@ -586,7 +590,8 @@ public class SequenceDisplayPanel extends JPanel {
             if (y > r.y + r.height) {
                 return true;
             }
-            double dx = pat.offset.value[pat.getLength() - 1].getDx() + 1;
+            //double dx = pat.offset.value[pat.getLength() - 1].getDx() + 1;
+             double dx = pat.offset.get(pat.getLength() - 1).getPosition() + 1;
             int xa = xOff + (int) (x0 * scale) + 1;
             int xb = xa + (int) (dx * scale) - 1;
             g.setColor(color);

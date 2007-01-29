@@ -30,13 +30,14 @@ public class Logger {
     private GlobusLogger globusLogger;
 
     public Logger(Connection connection, String userName, char[] password) throws LoggerException {
-        if (Session.isNormalSession) {
+        if (DiscoverySession.isNormalSession) {
             this.port = connection.getPort();
 
             try {
                 login(userName, password);
             } catch (RemoteException exp) {
-                throw new LoggerException("Could not connect to the server.");
+                exp.printStackTrace();
+                 throw new LoggerException("Could not connect to the server.");
             }
         } else {
             globusLogger = new GlobusLogger(connection.getInnerConnection(), userName, password);
@@ -65,7 +66,7 @@ public class Logger {
     }
 
     public char[] getPassword() {
-        if (Session.isNormalSession) {
+        if (DiscoverySession.isNormalSession) {
             char[] retPassword = new char[password.length];
             System.arraycopy(password, 0, retPassword, 0, password.length);
 
@@ -81,7 +82,7 @@ public class Logger {
      * @return userId
      */
     public int getUserId() {
-        return (Session.isNormalSession) ? userId : globusLogger.getUserId();
+        return (DiscoverySession.isNormalSession) ? userId : globusLogger.getUserId();
     }
 
     /**
@@ -90,7 +91,7 @@ public class Logger {
      * @return user name
      */
     public String getUserName() {
-        return (Session.isNormalSession) ? userName : globusLogger.getUserName();
+        return (DiscoverySession.isNormalSession) ? userName : globusLogger.getUserName();
     }
 
     /**
@@ -100,7 +101,7 @@ public class Logger {
      * @throws RemoteException
      */
     public void logout() throws LoggerException {
-        if (Session.isNormalSession) {
+        if (DiscoverySession.isNormalSession) {
             try {
                 port.logout(userId);
             } catch (RemoteException e) {

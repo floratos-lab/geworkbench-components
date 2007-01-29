@@ -73,7 +73,7 @@ class CreateSessionDialog extends JDialog {
     }
 
     public CreateSessionDialog(LoginPanelModel model) {
-        this(null, "New Session", model, true);
+        this(null, "New DiscoverySession", model, true);
     }
 
     public CreateSessionDialog(String title, LoginPanelModel model) {
@@ -85,13 +85,13 @@ class CreateSessionDialog extends JDialog {
         border2 = BorderFactory.createLineBorder(Color.white, 1);
         titledBorder1 = new TitledBorder(BorderFactory.createLineBorder(Color.white, 1), "Server Login");
         border3 = BorderFactory.createCompoundBorder(new TitledBorder(BorderFactory.createLineBorder(Color.gray, 1), "Sessions"), BorderFactory.createEmptyBorder(2, 2, 2, 2));
-        border4 = BorderFactory.createCompoundBorder(new TitledBorder(new EtchedBorder(EtchedBorder.RAISED, Color.white, new Color(165, 163, 151)), "Session's Server"), BorderFactory.createEmptyBorder(1, 1, 1, 1));
+        border4 = BorderFactory.createCompoundBorder(new TitledBorder(new EtchedBorder(EtchedBorder.RAISED, Color.white, new Color(165, 163, 151)), "DiscoverySession's Server"), BorderFactory.createEmptyBorder(1, 1, 1, 1));
         border5 = new EtchedBorder(EtchedBorder.RAISED, Color.white, new Color(165, 163, 151));
-        titledBorder2 = new TitledBorder(border5, "Session's Data");
-        border6 = BorderFactory.createCompoundBorder(new TitledBorder(new EtchedBorder(EtchedBorder.RAISED, Color.white, new Color(165, 163, 151)), "Session"), BorderFactory.createEmptyBorder(2, 1, 1, 1));
+        titledBorder2 = new TitledBorder(border5, "DiscoverySession's Data");
+        border6 = BorderFactory.createCompoundBorder(new TitledBorder(new EtchedBorder(EtchedBorder.RAISED, Color.white, new Color(165, 163, 151)), "DiscoverySession"), BorderFactory.createEmptyBorder(2, 1, 1, 1));
         border7 = new TitledBorder(BorderFactory.createEmptyBorder(), "");
         border8 = BorderFactory.createEmptyBorder(1, 1, 1, 1);
-        titledBorder3 = new TitledBorder(new EtchedBorder(EtchedBorder.RAISED, Color.white, new Color(142, 142, 142)), "Session's server");
+        titledBorder3 = new TitledBorder(new EtchedBorder(EtchedBorder.RAISED, Color.white, new Color(142, 142, 142)), "DiscoverySession's server");
         border9 = BorderFactory.createCompoundBorder(titledBorder3, BorderFactory.createEmptyBorder(1, 1, 1, 1));
         this.getContentPane().setLayout(borderLayout2);
         jPanel1.setLayout(gridBagLayout3);
@@ -128,7 +128,7 @@ class CreateSessionDialog extends JDialog {
         sessionName.setPreferredSize(new Dimension(150, 22));
         sessionName.setText("");
         sessionName.addKeyListener(keyAdapter);
-        sessionL.setText("Session Name:");
+        sessionL.setText("DiscoverySession Name:");
         jPanel5.setBorder(border9);
         jPanel4.add(sessionL, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(2, 2, 2, 2), 0, 0));
         jPanel4.add(sessionName, new GridBagConstraints(1, 0, 1, 1, 1.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(2, 2, 2, 2), 0, 0));

@@ -1,11 +1,11 @@
 package org.geworkbench.components.alignment.grid.service;
 
-import org.geworkbench.util.session.Session;
+//import org.geworkbench.util.session.Session;
 
 
 public class SystemInformation {
     private String cpu;
-    private Session currentSession;
+   // private Session currentSession;
     private String lastResults;
     private String cost;
     private org.globus.ogsa.wsdl.GSR GSH;
@@ -18,13 +18,13 @@ public class SystemInformation {
         this.cpu = cpu;
     }
 
-    public Session getCurrentSession() {
-        return currentSession;
-    }
-
-    public void setCurrentSession(Session currentSession) {
-        this.currentSession = currentSession;
-    }
+//    public Session getCurrentSession() {
+//        return currentSession;
+//    }
+//
+//    public void setCurrentSession(Session currentSession) {
+//        this.currentSession = currentSession;
+//    }
 
     public String getLastResults() {
         return lastResults;

@@ -1,7 +1,7 @@
 package org.geworkbench.util.session;
 
 /**
- * <p>Title: Session Exception</p>
+ * <p>Title: DiscoverySession Exception</p>
  * <p>Description: Signals that a session with the same name already exits.</p>
  * <p>Copyright: Copyright (c) 2003</p>
  * <p>Company: </p>

@@ -372,9 +372,9 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
         ListSelectionModel rowSM = table.getSelectionModel();
         rowSM.addListSelectionListener(new BlastDetaillistSelectionListener());
         table.setSelectionModel(rowSM);
-        JScrollPane hitsPane = new JScrollPane(table);
+        return new JScrollPane(table);
 
-        return hitsPane;
+
     }
 
     /**
@@ -406,9 +406,9 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
         table.setSelectionModel(rowSM);
         table.changeSelection(0, 0, false, false);
 
-        JScrollPane hitsPane = new JScrollPane(table);
+          return  new JScrollPane(table);
 
-        return hitsPane;
+
     }
 
     private class BlastDetaillistSelectionListener implements
@@ -522,11 +522,8 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
         public boolean isCellEditable(int row, int col) {
             //Note that the data/cell address is constant,
             //no matter where the cell appears onscreen.
-            if (col < 6) {
-                return false;
-            } else {
-                return true;
-            }
+            return col >= 6;
+
         }
 
         /*detect change in cell at (row, col); set cell to value; update the table */

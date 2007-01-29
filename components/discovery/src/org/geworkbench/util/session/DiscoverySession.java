@@ -6,11 +6,9 @@ import org.geworkbench.bison.datastructure.bioobjects.sequence.CSSequence;
 import org.geworkbench.util.associationdiscovery.cluster.hierarchical.Node;
 import org.geworkbench.util.patterns.CSMatchedHMMSeqPattern;
 import org.geworkbench.util.patterns.CSMatchedSeqPattern;
+import org.geworkbench.util.patterns.PatternOfflet;
 import org.geworkbench.util.remote.Connection;
-import polgara.soapPD_wsdl.HMMLoci;
-import polgara.soapPD_wsdl.LoginToken;
-import polgara.soapPD_wsdl.Parameters;
-import polgara.soapPD_wsdl.SoapPDPortType;
+import polgara.soapPD_wsdl.*;
 import polgara.soapPD_wsdl.holders.*;
 
 import javax.xml.rpc.holders.ByteArrayHolder;
@@ -18,11 +16,12 @@ import javax.xml.rpc.holders.DoubleHolder;
 import javax.xml.rpc.holders.IntHolder;
 import javax.xml.rpc.holders.StringHolder;
 import java.rmi.RemoteException;
+import java.util.ArrayList;
 
 
 /**
- * <p>Title: Session</p>
- * <p>Description: Class Session describes a
+ * <p>Title: DiscoverySession</p>
+ * <p>Description: Class DiscoverySession describes a
  * session. A session is an abstraction of a session on
  * a SPLASH server on which different queries
  * will be perfomred. </p>
@@ -32,7 +31,7 @@ import java.rmi.RemoteException;
  * @author Aner
  * @version 1.0
  */
-public class Session {
+public class DiscoverySession {
     // indicate if this is a normal SPLASH session(true) or globus(false)
     public static boolean isNormalSession = true;
 
@@ -45,7 +44,7 @@ public class Session {
     //the database for this session
     private DSSequenceSet database;
 
-    //the name Session's name.
+    //the name DiscoverySession's name.
     private String sessionName;
 
     //the last parameters which were set for this session
@@ -78,11 +77,11 @@ public class Session {
      * @param userId       for creating a session
      * @throws SessionCreationException if a a call to the server failed.
      */
-    public Session(String sessionName, DSSequenceSet database, String databaseName, Connection connection, String userName, int userId) throws SessionCreationException {
+    public DiscoverySession(String sessionName, DSSequenceSet database, String databaseName, Connection connection, String userName, int userId) throws SessionCreationException {
         /** @todo   fix this  type matching!  ... (dna=0 protein=1 on server)*/
         sType = (database.isDNA()) ? 0 : 1;
 
-        if (Session.isNormalSession) {
+        if (DiscoverySession.isNormalSession) {
             try {
                 init(sessionName, database, databaseName, connection, userName);
 
@@ -109,10 +108,10 @@ public class Session {
      * @param userId       int
      * @param sessionId    int
      */
-    public Session(String sessionName, DSSequenceSet database, String databaseName, Connection connection, String userName, int userId, int sessionId) {
+    public DiscoverySession(String sessionName, DSSequenceSet database, String databaseName, Connection connection, String userName, int userId, int sessionId) {
         sType = (database.isDNA()) ? 0 : 1;
 
-        if (Session.isNormalSession) {
+        if (DiscoverySession.isNormalSession) {
             init(sessionName, database, databaseName, connection, userName);
             setLogToken(userId, sessionId);
         } else {
@@ -146,7 +145,7 @@ public class Session {
      * @throws SessionOperationException if upload fails.
      */
     public void upload(int index) throws SessionOperationException {
-        if (Session.isNormalSession) {
+        if (DiscoverySession.isNormalSession) {
             if ((index < 0) || (index >= database.getSequenceNo())) {
                 throw new IndexOutOfBoundsException("0<= idexRange <" + database.getSequenceNo() + " ; index = " + index);
             }
@@ -173,7 +172,7 @@ public class Session {
      * @throws SessionOperationException
      */
     public boolean loadSequenceRemote() throws SessionOperationException {
-        if (Session.isNormalSession) {
+        if (DiscoverySession.isNormalSession) {
             int retValue;
 
             try {
@@ -190,14 +189,14 @@ public class Session {
     }
 
     /**
-     * This method uploads all the sequences in this Session's database and saves
+     * This method uploads all the sequences in this DiscoverySession's database and saves
      * them to the server.
      * There is no need to reload a file once it is saved on the server.
      *
      * @throws SessionOperationException if a call to the server failed.
      */
     public void uploadAndSave() throws SessionOperationException {
-        if (Session.isNormalSession) {
+        if (DiscoverySession.isNormalSession) {
             boolean status = loadSequenceRemote();
 
             if (status == true) {
@@ -237,7 +236,7 @@ public class Session {
      * @return the sequence database
      */
     public synchronized DSSequenceSet getSequenceDB() {
-        if (Session.isNormalSession) {
+        if (DiscoverySession.isNormalSession) {
             return database;
         }
 
@@ -248,10 +247,9 @@ public class Session {
      * Set the search parameters.
      *
      * @throws SessionOperationException if the parameters cant be set.
-     * @params parms parameters for this session
      */
     public int setParameters(Parameters parms) throws SessionOperationException {
-        if (Session.isNormalSession) {
+        if (DiscoverySession.isNormalSession) {
             int returnVal;
             try {
                 returnVal = soapPort.setParameters(logToken, parms);
@@ -274,7 +272,7 @@ public class Session {
      * @return parameters;
      */
     public Parameters getParameter() {
-        return (Session.isNormalSession) ? parameter : globSession.getParameter();
+        return (DiscoverySession.isNormalSession) ? parameter : globSession.getParameter();
     }
 
     /**
@@ -283,7 +281,7 @@ public class Session {
      * @throws SessionOperationException
      */
     public int getPatternNo() throws SessionOperationException {
-        if (Session.isNormalSession) {
+        if (DiscoverySession.isNormalSession) {
             try {
                 return soapPort.getPatternNo(logToken);
             } catch (RemoteException ex) {
@@ -296,7 +294,7 @@ public class Session {
     }
 
     public Parameters getParameters() throws SessionOperationException {
-        if (Session.isNormalSession) {
+        if (DiscoverySession.isNormalSession) {
             try {
                 IntHolder minSupport = new IntHolder(); //1
                 IntHolder minTokens = new IntHolder();
@@ -383,7 +381,7 @@ public class Session {
      * @throws SessionOperationException if a a call to the server failed.
      */
     public boolean isDone() throws SessionOperationException {
-        if (Session.isNormalSession) {
+        if (DiscoverySession.isNormalSession) {
             try {
                 return soapPort.isDone(logToken);
             } catch (Exception ex) {
@@ -396,7 +394,7 @@ public class Session {
     }
 
     public String getDataFileName() throws SessionOperationException {
-        if (Session.isNormalSession) {
+        if (DiscoverySession.isNormalSession) {
             try {
                 return soapPort.getDataFileName(logToken);
             } catch (RemoteException ex) {
@@ -412,7 +410,7 @@ public class Session {
      * Save the database on the server.
      */
     public int saveSeqDB() throws SessionOperationException {
-        if (Session.isNormalSession) {
+        if (DiscoverySession.isNormalSession) {
             try {
                 return soapPort.saveSeqDB(logToken, databaseName);
             } catch (java.rmi.RemoteException exp) {
@@ -442,7 +440,7 @@ public class Session {
      * @throws SessionOperationException if the discovery can't run.
      */
     public int discover(String algorithm) throws SessionOperationException {
-        if (Session.isNormalSession) {
+        if (DiscoverySession.isNormalSession) {
             try {
                 return soapPort.discover(logToken, algorithm);
             } catch (RemoteException ex) {
@@ -460,12 +458,12 @@ public class Session {
      * Delete this session on the server.
      */
     public int deleteSession() throws SessionOperationException {
-        if (Session.isNormalSession) {
+        if (DiscoverySession.isNormalSession) {
             try {
                 return soapPort.deleteSession(logToken);
             } catch (RemoteException exp) {
                 setState(true);
-                throw new SessionOperationException("Session was not deleted. Server was not reached.");
+                throw new SessionOperationException("DiscoverySession was not deleted. Server was not reached.");
             }
         } else {
             return globSession.deleteSession();
@@ -473,15 +471,26 @@ public class Session {
     }
 
     public void getPattern(int patId, org.geworkbench.util.patterns.CSMatchedSeqPattern pattern) throws SessionOperationException {
-        if (Session.isNormalSession) {
+        if (DiscoverySession.isNormalSession) {
             DoubleHolder pValue = new DoubleHolder();
             ByteArrayHolder loci = new ByteArrayHolder();
 
             try {
-                soapPort.getPattern(logToken, patId, pattern.idNo, pattern.seqNo, pValue, pattern.offset, loci);
+
+                ArrayOfSOAPOffsetHolder arrayOfSOAPOffsetHolder = new ArrayOfSOAPOffsetHolder();
+                soapPort.getPattern(logToken, patId, pattern.idNo, pattern.seqNo, pValue, arrayOfSOAPOffsetHolder, loci);
                 pattern.setPValue(pValue.value);
                 pattern.locus = loci.value;
-                String s = null;
+                translateToNewPattern(pattern, arrayOfSOAPOffsetHolder);
+//                SOAPOffset[] values = arrayOfSOAPOffsetHolder.value;
+//                PatternOfflet[] patternOfflets = new PatternOfflet[values.length];
+//                ArrayList<PatternOfflet> arrayList = new ArrayList<PatternOfflet>();
+//                for (int i=0; i<values.length; i++){
+//                    PatternOfflet patternOfflet = new PatternOfflet(values[i].getDx(), values[i].getToken());
+//                    arrayList.add(i, patternOfflet);
+//                }
+//
+//                pattern.offset =   arrayList;
             } catch (RemoteException ex) {
                 setState(true);
                 throw new SessionOperationException("Could not get the pattern.");
@@ -491,6 +500,19 @@ public class Session {
         }
     }
 
+    public boolean translateToNewPattern(CSMatchedSeqPattern csMatchedSeqPattern, ArrayOfSOAPOffsetHolder arrayOfSOAPOffsetHolder){
+        SOAPOffset[] values = arrayOfSOAPOffsetHolder.value;
+        PatternOfflet[] patternOfflets = new PatternOfflet[values.length];
+        ArrayList<PatternOfflet> arrayList = new ArrayList<PatternOfflet>();
+        for (int i=0; i<values.length; i++){
+            PatternOfflet patternOfflet = new PatternOfflet(values[i].getDx(), values[i].getToken());
+            arrayList.add(i, patternOfflet);
+        }
+
+        csMatchedSeqPattern.setOffset(arrayList);
+        return true;
+
+    }
     /**
      * Sort the patterns on the server.
      *
@@ -498,7 +520,7 @@ public class Session {
      * @throws SessionOperationException
      */
     public int sortPatterns(int sortMode) throws SessionOperationException {
-        if (Session.isNormalSession) {
+        if (DiscoverySession.isNormalSession) {
             try {
                 return soapPort.sortPatterns(logToken, sortMode);
             } catch (Exception ex) {
@@ -516,7 +538,7 @@ public class Session {
      * @throws SessionOperationException
      */
     public double getCompletion() throws SessionOperationException {
-        if (Session.isNormalSession) {
+        if (DiscoverySession.isNormalSession) {
             try {
                 return soapPort.getCompletion(logToken);
             } catch (RemoteException ex) {
@@ -529,7 +551,7 @@ public class Session {
     }
 
     public void stop() throws SessionOperationException {
-        if (Session.isNormalSession) {
+        if (DiscoverySession.isNormalSession) {
             try {
                 soapPort.stop(logToken);
             } catch (RemoteException ex) {
@@ -548,7 +570,7 @@ public class Session {
      * @throws SessionOperationException
      */
     public int maskPattern(int patId, int complete) throws SessionOperationException {
-        if (Session.isNormalSession) {
+        if (DiscoverySession.isNormalSession) {
             try {
                 return soapPort.maskPattern(logToken, patId, complete);
             } catch (RemoteException ex) {
@@ -566,7 +588,7 @@ public class Session {
      * @throws SessionOperationException
      */
     public void unmask() throws SessionOperationException {
-        if (Session.isNormalSession) {
+        if (DiscoverySession.isNormalSession) {
             try {
                 soapPort.unmask(logToken);
             } catch (RemoteException ex) {
@@ -579,7 +601,7 @@ public class Session {
     }
 
     public String getAlgorithmName() throws SessionOperationException {
-        if (Session.isNormalSession) {
+        if (DiscoverySession.isNormalSession) {
             try {
                 return soapPort.getAlgorithmName(logToken);
             } catch (RemoteException ex) {
@@ -600,7 +622,7 @@ public class Session {
      * @throws SessionOperationException
      */
     public Node getPatternNode(String path) throws SessionOperationException {
-        if (Session.isNormalSession) {
+        if (DiscoverySession.isNormalSession) {
             try {
                 SOAPPatternHolder patHolder = new SOAPPatternHolder();
                 IntHolder patIncluded = new IntHolder();
@@ -623,7 +645,7 @@ public class Session {
                 pattern.seqNo = new IntHolder(patHolder.value.getSeqNo());
                 pattern.setPValue(patHolder.value.getPValue());
                 pattern.locus = patHolder.value.getLoci();
-                pattern.offset = new ArrayOfSOAPOffsetHolder(patHolder.value.getOffset());
+                translateToNewPattern(pattern, new ArrayOfSOAPOffsetHolder(patHolder.value.getOffset()));
 
                 Node node = new Node(pattern);
                 node.patIncluded = patIncluded.value;
@@ -632,8 +654,10 @@ public class Session {
                 String conSeq = hmmPat.value.getConsensusSeq();
 
                 HMMLoci[] hmmArr = hmmPat.value.getLoci().getItem();
-                node.hmmPattern = new CSMatchedHMMSeqPattern(database, conSeq, hmmArr);
-
+               //todo
+                //disabled by xz, 01/25/07
+                // / node.hmmPattern = new CSMatchedHMMSeqPattern(database, conSeq, hmmArr);
+                node.hmmPattern = new CSMatchedHMMSeqPattern();
                 node.hPatIncluded = hPatIncluded.value;
                 node.hPatExcluded = hPatExcluded.value;
 
@@ -656,7 +680,7 @@ public class Session {
      * @param mask   - 0 masks 1 unmasks
      */
     public int maskPatternLocus(byte[] locus, int from, int to, int mask) throws SessionOperationException {
-        if (Session.isNormalSession) {
+        if (DiscoverySession.isNormalSession) {
             try {
                 return soapPort.maskPatternLocus(logToken, locus, from, to, mask);
             } catch (RemoteException ex) {
@@ -675,7 +699,7 @@ public class Session {
      * @throws SessionOperationException
      */
     public int setStatus(int[] ids, int enable) throws SessionOperationException {
-        if (Session.isNormalSession) {
+        if (DiscoverySession.isNormalSession) {
             try {
                 return soapPort.setStatus(logToken, ids, enable);
             } catch (RemoteException ex) {
@@ -693,17 +717,17 @@ public class Session {
      * @return this session name
      */
     public String getSessionName() {
-        return (Session.isNormalSession) ? sessionName : globSession.getSessionName();
+        return (DiscoverySession.isNormalSession) ? sessionName : globSession.getSessionName();
     }
 
     /**
      * This method returns the number of sequences in the database file of
      * the current session.
      *
-     * @retrun number of sequences.
+     * .
      */
     public int getSequenceNo() {
-        return (Session.isNormalSession) ? database.getSequenceNo() : globSession.getSequenceNo();
+        return (DiscoverySession.isNormalSession) ? database.getSequenceNo() : globSession.getSequenceNo();
     }
 
     /**
@@ -712,7 +736,7 @@ public class Session {
      * @return true if a session failed else false
      */
     public boolean isFailed() {
-        return (Session.isNormalSession) ? this.failed : globSession.isFailed();
+        return (DiscoverySession.isNormalSession) ? this.failed : globSession.isFailed();
     }
 
     private void setState(boolean fail) {
@@ -729,10 +753,10 @@ public class Session {
     }
 
     public String getUserName() {
-        return (Session.isNormalSession) ? userName : globSession.getUserName();
+        return (DiscoverySession.isNormalSession) ? userName : globSession.getUserName();
     }
 
     public int getUserId() {
-        return (Session.isNormalSession) ? logToken.getUserId().intValue() : globSession.getUserId();
+        return (DiscoverySession.isNormalSession) ? logToken.getUserId().intValue() : globSession.getUserId();
     }
 }

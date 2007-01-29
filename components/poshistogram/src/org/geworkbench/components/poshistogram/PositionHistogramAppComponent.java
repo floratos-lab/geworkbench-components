@@ -1,9 +1,8 @@
 package org.geworkbench.components.poshistogram;
 
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
-import org.geworkbench.bison.datastructure.biocollections.sequences.CSSequenceSet;
 import org.geworkbench.bison.datastructure.biocollections.sequences.DSSequenceSet;
-import org.geworkbench.bison.datastructure.complex.pattern.ParmsDataSet;
+import org.geworkbench.bison.datastructure.complex.pattern.SoapParmsDataSet;
 import org.geworkbench.builtin.projects.ProjectPanel;
 import org.geworkbench.builtin.projects.ProjectSelection;
 import org.geworkbench.engine.config.VisualPlugin;
@@ -30,7 +29,7 @@ import java.util.HashMap;
  * @version 1.0
  */
 
-@AcceptTypes({ParmsDataSet.class})
+@AcceptTypes({SoapParmsDataSet.class})
 public class PositionHistogramAppComponent implements VisualPlugin, MenuListener {
 
     PositionHistogramWidget pHistogramWidget = null;

@@ -8,7 +8,7 @@ import org.geworkbench.bison.datastructure.biocollections.sequences.CSSequenceSe
 import org.geworkbench.bison.datastructure.biocollections.sequences.DSSequenceSet;
 import org.geworkbench.bison.datastructure.bioobjects.sequence.DSSequence;
 import org.geworkbench.bison.datastructure.complex.pattern.DSMatchedPattern;
-import org.geworkbench.bison.datastructure.complex.pattern.ParmsDataSet;
+import org.geworkbench.bison.datastructure.complex.pattern.SoapParmsDataSet;
 import org.geworkbench.bison.datastructure.complex.pattern.sequence.DSSeqRegistration;
 import org.geworkbench.builtin.projects.ProjectPanel;
 import org.geworkbench.builtin.projects.ProjectSelection;
@@ -52,7 +52,7 @@ import java.util.ArrayList;
  * @version 1.0
  */
 
-@AcceptTypes({CSSequenceSet.class, ParmsDataSet.class}) public class SequenceDiscoveryViewAppComponent implements VisualPlugin, PropertyChangeListener {
+@AcceptTypes({CSSequenceSet.class, SoapParmsDataSet.class}) public class SequenceDiscoveryViewAppComponent implements VisualPlugin, PropertyChangeListener {
 
     private SequenceDiscoveryViewWidget sDiscoveryViewWidget = null;
 
@@ -81,15 +81,15 @@ import java.util.ArrayList;
      * This method checks that a database file is set in the project.
      * If the file is set it creates a session.
      */
-    private Session doNewSession() {
-        Session session = null;
+    private DiscoverySession doNewSession() {
+        DiscoverySession discoverySession = null;
         //check that a database file is selected in the project.
         if (!isDiscoveryFileSet()) {
             showInfoMessage("Please select a sequence file.", "Select File");
-            return session;
+            return discoverySession;
         }
-        session = createSession();
-        return session;
+        discoverySession = createSession();
+        return discoverySession;
     }
 
     /**
@@ -98,13 +98,13 @@ import java.util.ArrayList;
      *
      * @return the new session or null if no session was created.
      */
-    private Session createSession() {
+    private DiscoverySession createSession() {
         //try to create this session
-        Session aSession = null;
+        DiscoverySession aDiscoverySession = null;
         //if the chooser is null, the user cancelled the dialog
         SessionChooser chooser = showChooser();
         if (chooser == null) {
-            return aSession;
+            return aDiscoverySession;
         }
         String host = chooser.getHostName();
         int port = chooser.getPortNum();
@@ -113,21 +113,22 @@ import java.util.ArrayList;
         String sName = chooser.getSession();
 
         try {
-            aSession = connectToService(host, port, userName, password, sName);
+            aDiscoverySession = connectToService(host, port, userName, password, sName);
 
         } catch (SessionCreationException exp) {
-            showInfoMessage("Session was not created. " + exp.getMessage(), "Session Error");
-            return aSession;
+            exp.printStackTrace();
+            showInfoMessage("DiscoverySession was not created. " + exp.getMessage(), "DiscoverySession Error");
+            return aDiscoverySession;
         }
 
         //save the user's choosing to the Properties file and to the model
         saveSessionProperties(host, port, userName);
         copyLoginPanelModel(tempLoginModel, loginPanelModel);
 
-        return aSession;
+        return aDiscoverySession;
     }
 
-    private Session connectToService(String host, int port, String userName, char[] password, String sessionName) throws SessionCreationException {
+    private DiscoverySession connectToService(String host, int port, String userName, char[] password, String sessionName) throws SessionCreationException {
         URL url = getURL(host, port);
         //establish a connection
         Connection connection = getConnection(url);
@@ -137,7 +138,7 @@ import java.util.ArrayList;
         return createSession(sessionName, connection, userName, logger.getUserId());
     }
 
-    private Session createSession(String sessionName, Connection con, String uName, int uId) throws SessionCreationException {
+    private DiscoverySession createSession(String sessionName, Connection con, String uName, int uId) throws SessionCreationException {
         File seqFile = getDiscoveryFile();
         if (seqFile == null) {
             return null;
@@ -147,7 +148,7 @@ import java.util.ArrayList;
         //the database will be saved with this name on the server.
         String databaseName = SPLASHDefinition.encodeFile(database.getFile(), uName);
         //create a session
-        return new Session(sessionName, database, databaseName, con, uName, uId);
+        return new DiscoverySession(sessionName, database, databaseName, con, uName, uId);
     }
 
     /**
@@ -159,7 +160,7 @@ import java.util.ArrayList;
      */
     private URL getURL(String host, int port) throws SessionCreationException {
         try {
-            return (Session.isNormalSession) ? Connection.getURL(host, port) : GlobusConnection.getURL(host, port);
+            return (DiscoverySession.isNormalSession) ? Connection.getURL(host, port) : GlobusConnection.getURL(host, port);
         } catch (MalformedURLException ex) {
             throw new SessionCreationException("Could not form URL. (host: " + host + "port: " + port + ")");
         }
@@ -209,16 +210,19 @@ import java.util.ArrayList;
                     DSAncillaryDataSet ds = selection.getDataSubSet();
                     String subNodeID = null;
                     boolean withSubNode = false;
-                    if( ds!= null && ds instanceof ParmsDataSet){
-                        parms = ((ParmsDataSet)ds).getParameters();
+                    if( ds!= null && ds instanceof SoapParmsDataSet){
+                        ParameterTranslation.getParameterTranslation(). getParameters(((SoapParmsDataSet)ds).getParameters());
+
+                        parms = ParameterTranslation.getParameterTranslation(). getParameters(((SoapParmsDataSet)ds).getParameters());
+                       ;
                         subNodeID = ds.getID();
                         withSubNode = true;
                     }
 
                     sDiscoveryViewWidget.setSequenceDB((DSSequenceSet) df, withSubNode, subNodeID, parms);
 
-                } else if (df instanceof ParmsDataSet) {
-                    ParmsDataSet pds = (ParmsDataSet) df;
+                } else if (df instanceof SoapParmsDataSet) {
+                    SoapParmsDataSet pds = (SoapParmsDataSet) df;
                     
                 }
             }
@@ -242,7 +246,7 @@ import java.util.ArrayList;
 
             DSSequenceSet database = CSSequenceSet.getSequenceDB(seqFile);
             String localDatabase = SPLASHDefinition.encodeFile(database.getFile(), evt.getUserName());
-            Session s = new Session(evt.getSessionName(), database, localDatabase, connection, logger.getUserName(), logger.getUserId(), evt.getSessionId());
+            DiscoverySession s = new DiscoverySession(evt.getSessionName(), database, localDatabase, connection, logger.getUserName(), logger.getUserId(), evt.getSessionId());
 
             if (!checkDataFile(s, localDatabase, logger.getUserName())) {
                 return;
@@ -250,7 +254,8 @@ import java.util.ArrayList;
 
             sDiscoveryViewWidget.viewResult(s);
         } catch (SessionCreationException exp) {
-            showInfoMessage("Session was not created. " + exp.getMessage(), "Session Error");
+            exp.printStackTrace();
+            showInfoMessage("DiscoverySession was not created. " + exp.getMessage(), "DiscoverySession Error");
         }
     }
 
@@ -258,10 +263,10 @@ import java.util.ArrayList;
      * The function varifies that the selected data file in the same
      * as the session's data file.
      *
-     * @param s Session
+     * @param s DiscoverySession
      * @return boolean
      */
-    private boolean checkDataFile(Session s, String localDataFile, String user) {
+    private boolean checkDataFile(DiscoverySession s, String localDataFile, String user) {
         try {
             String remoteDatabase = s.getDataFileName();
             if (remoteDatabase.equals(localDataFile)) {
@@ -269,12 +274,12 @@ import java.util.ArrayList;
             } else {
                 File f = SPLASHDefinition.decode(remoteDatabase, user);
                 String file = f.getAbsolutePath();
-                showInfoMessage("The selected data file does not match\n" + file + " which is set for the session.\n" + "Please select the correct " + "file before trying to reconnect.", "Session Error");
+                showInfoMessage("The selected data file does not match\n" + file + " which is set for the session.\n" + "Please select the correct " + "file before trying to reconnect.", "DiscoverySession Error");
                 return false;
             }
 
         } catch (SessionOperationException exp) {
-            showInfoMessage("Error while varifying data. " + exp.getMessage(), "Session Error");
+            showInfoMessage("Error while varifying data. " + exp.getMessage(), "DiscoverySession Error");
         }
         return false;
     }
@@ -285,9 +290,9 @@ import java.util.ArrayList;
      *
      * @return the active session.
      */
-    public synchronized Session getSession() {
-        Session session = doNewSession();
-        return session;
+    public synchronized DiscoverySession getSession() {
+        DiscoverySession discoverySession = doNewSession();
+        return discoverySession;
     }
 
     /**
@@ -298,7 +303,7 @@ import java.util.ArrayList;
      */
     private SessionChooser showChooser() {
         copyLoginPanelModel(loginPanelModel, tempLoginModel);
-        SessionChooser chooser = new SessionChooser(null, "New Session", tempLoginModel);
+        SessionChooser chooser = new SessionChooser(null, "New DiscoverySession", tempLoginModel);
         int retVal = chooser.show();
         if (retVal == SessionChooser.CANCEL_OPTION) {
             return (null);
@@ -414,7 +419,11 @@ import java.util.ArrayList;
             org.geworkbench.util.patterns.PatternTableModel model = (org.geworkbench.util.patterns.PatternTableModel) (table).getModel();
             int[] rows = table.getSelectedRows();
             for (int i = 0; i < rows.length; i++) {
-                patternMatches.add(model.getPattern(rows[i]));
+                DSMatchedPattern pattern = model.getPattern(rows[i]);
+//                 if (pattern instanceof CSMatchedSeqPattern) {
+//                ((CSMatchedSeqPattern) pattern).setSeqDB(sequenceDB);
+//            }
+                patternMatches.add(pattern);
             }
         }
 

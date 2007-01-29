@@ -3,7 +3,7 @@ package org.geworkbench.components.promoter;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.sequences.CSSequenceSet;
 import org.geworkbench.bison.datastructure.biocollections.sequences.DSSequenceSet;
-import org.geworkbench.bison.datastructure.complex.pattern.ParmsDataSet;
+import org.geworkbench.bison.datastructure.complex.pattern.SoapParmsDataSet;
 import org.geworkbench.builtin.projects.ProjectPanel;
 import org.geworkbench.builtin.projects.ProjectSelection;
 import org.geworkbench.engine.config.VisualPlugin;
@@ -13,11 +13,9 @@ import org.geworkbench.events.ProjectEvent;
 
 import java.awt.*;
 import org.geworkbench.engine.management.Publish;
-import javax.swing.ImageIcon;
-import java.awt.image.BufferedImage;
 import org.geworkbench.events.ImageSnapshotEvent;
 
-@AcceptTypes({CSSequenceSet.class, ParmsDataSet.class}) public class PromoterView implements VisualPlugin {
+@AcceptTypes({CSSequenceSet.class, SoapParmsDataSet.class}) public class PromoterView implements VisualPlugin {
 
     PromoterViewPanel main = new PromoterViewPanel();
 

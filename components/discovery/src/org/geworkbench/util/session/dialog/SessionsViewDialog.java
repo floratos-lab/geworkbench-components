@@ -79,7 +79,7 @@ public class SessionsViewDialog extends JDialog {
         border1 = new EtchedBorder(EtchedBorder.RAISED, Color.white, new Color(165, 163, 151));
         titledBorder1 = new TitledBorder(border1, "My Sessions on");
         border2 = BorderFactory.createCompoundBorder(titledBorder1, BorderFactory.createEmptyBorder(2, 2, 2, 2));
-        titledBorder2 = new TitledBorder(BorderFactory.createLineBorder(new Color(153, 153, 153), 2), "Session");
+        titledBorder2 = new TitledBorder(BorderFactory.createLineBorder(new Color(153, 153, 153), 2), "DiscoverySession");
         border3 = BorderFactory.createCompoundBorder(new TitledBorder(new EtchedBorder(EtchedBorder.RAISED, Color.white, new Color(142, 142, 142)), "Sessions"), BorderFactory.createEmptyBorder(2, 2, 2, 2));
         border4 = BorderFactory.createEmptyBorder();
         border5 = BorderFactory.createEmptyBorder(2, 2, 2, 2);

@@ -5,7 +5,7 @@ import org.geworkbench.bison.datastructure.biocollections.sequences.
         CSSequenceSet;
 import org.geworkbench.bison.datastructure.biocollections.sequences.
         DSSequenceSet;
-import org.geworkbench.bison.datastructure.complex.pattern.ParmsDataSet;
+import org.geworkbench.bison.datastructure.complex.pattern.SoapParmsDataSet;
 import org.geworkbench.builtin.projects.ProjectPanel;
 import org.geworkbench.builtin.projects.ProjectSelection;
 import org.geworkbench.engine.config.VisualPlugin;
@@ -37,7 +37,7 @@ import org.geworkbench.engine.management.Asynchronous;
  * @author
  * @version 1.0
  */
-@AcceptTypes( {CSSequenceSet.class, ParmsDataSet.class})public class
+@AcceptTypes( {CSSequenceSet.class, SoapParmsDataSet.class})public class
         SequenceViewAppComponent implements VisualPlugin,
         org.geworkbench.engine.config.MenuListener, PropertyChangeListener {
     org.geworkbench.util.sequences.SequenceViewWidget sViewWidget;

@@ -2,8 +2,10 @@ package org.geworkbench.components.discovery.view;
 
 import org.geworkbench.bison.datastructure.biocollections.sequences.DSSequenceSet;
 import org.geworkbench.bison.datastructure.complex.pattern.sequence.DSMatchedSeqPattern;
+import org.geworkbench.bison.datastructure.complex.pattern.Parameters;
 import org.geworkbench.components.discovery.PatFilter;
 import org.geworkbench.components.discovery.SequenceDiscoveryViewWidget;
+import org.geworkbench.components.discovery.ParameterTranslation;
 import org.geworkbench.components.discovery.model.PatternTableModelWrapper;
 import org.geworkbench.events.listeners.ProgressChangeListener;
 import org.geworkbench.util.patterns.PatternDB;
@@ -279,7 +281,8 @@ public class PatternTableView extends JPanel {
             PatternOperations.fill(pattern, db);
             patternDB.add(pattern);
         }
-        patternDB.setParameters(widget.getParameters());
+        Parameters parameters = ParameterTranslation.getParameterTranslation().translate(widget.getParameters());
+        patternDB.setParameters(parameters);
         return patternDB;
     }
 
@@ -292,7 +295,9 @@ public class PatternTableView extends JPanel {
             PatternOperations.fill(pattern, db);
             patternDB.add(pattern);
         }
-        patternDB.setParameters(widget.getParameters());
+        Parameters parameters = ParameterTranslation.getParameterTranslation().translate(widget.getParameters());
+
+        patternDB.setParameters(parameters);
         return patternDB;
     }
 

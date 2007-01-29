@@ -186,7 +186,7 @@ public class SequenceRetriever implements VisualPlugin {
 
 
     void jbInit() throws Exception {
-        jProgressBar1.setForeground(Color.green);
+        //jProgressBar1.setForeground(Color.green);
         jProgressBar1.setMinimumSize(new Dimension(10, 16));
         jProgressBar1.setBorderPainted(true);
         jPanel6.setLayout(gridLayout2);

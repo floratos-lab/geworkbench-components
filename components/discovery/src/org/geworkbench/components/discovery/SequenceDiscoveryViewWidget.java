@@ -2,7 +2,7 @@ package org.geworkbench.components.discovery;
 
 import org.geworkbench.bison.datastructure.biocollections.sequences.CSSequenceSet;
 import org.geworkbench.bison.datastructure.biocollections.sequences.DSSequenceSet;
-import org.geworkbench.bison.datastructure.complex.pattern.ParmsDataSet;
+import org.geworkbench.bison.datastructure.complex.pattern.SoapParmsDataSet;
 import org.geworkbench.components.discovery.algorithm.*;
 import org.geworkbench.components.discovery.model.GenericModel;
 import org.geworkbench.components.discovery.model.PatternTableModelWrapper;
@@ -14,7 +14,7 @@ import org.geworkbench.events.StatusBarEvent;
 import org.geworkbench.events.listeners.StatusChangeListener;
 import org.geworkbench.util.AlgorithmSelectionPanel;
 import org.geworkbench.util.remote.SPLASHDefinition;
-import org.geworkbench.util.session.Session;
+import org.geworkbench.util.session.DiscoverySession;
 import polgara.soapPD_wsdl.Parameters;
 
 import javax.swing.*;
@@ -211,9 +211,9 @@ public class SequenceDiscoveryViewWidget extends JPanel implements StatusChangeL
         useglobus.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 if (useglobus.isSelected()) {
-                    Session.isNormalSession = false;
+                    DiscoverySession.isNormalSession = false;
                 } else {
-                    Session.isNormalSession = true;
+                    DiscoverySession.isNormalSession = true;
                 }
             }
         });
@@ -265,19 +265,19 @@ public class SequenceDiscoveryViewWidget extends JPanel implements StatusChangeL
      * @param e ActionEvent
      */
     private void executButton_actionPerformed(ActionEvent e) {
-        //get a session for running the algo
+        //get a discoverySession for running the algo
         String stubKey = getProjectFileId();
-        Session session = getSession(stubKey);
-        if (session == null) { //we cannot run this algorithm with no session
+        DiscoverySession discoverySession = getSession(stubKey);
+        if (discoverySession == null) { //we cannot run this algorithm with no discoverySession
             return;
         }
 
         //fire a clear table event
         firePropertyChange(TABLE_EVENT, null, null);
-        selectAlgorithm(session);
+        selectAlgorithm(discoverySession);
     }
 
-    private void selectAlgorithm(Session session) {
+    private void selectAlgorithm(DiscoverySession discoverySession) {
 
         String selectedAlgo = algoPanel.getSelectedAlgorithmName();
         //the algorithm to run
@@ -286,13 +286,13 @@ public class SequenceDiscoveryViewWidget extends JPanel implements StatusChangeL
 
         //select the algorithm to run
         if (selectedAlgo.equalsIgnoreCase(AlgorithmSelectionPanel.DISCOVER)) {
-            algorithm = discovery_actionPerformed(session);
+            algorithm = discovery_actionPerformed(discoverySession);
             viewId = PATTERN_TABLE;
         } else if (selectedAlgo.equalsIgnoreCase(AlgorithmSelectionPanel.EXHAUSTIVE)) {
-            algorithm = exhaustive_actionPerformed(session);
+            algorithm = exhaustive_actionPerformed(discoverySession);
             viewId = PATTERN_TABLE;
         } else if (selectedAlgo.equalsIgnoreCase(AlgorithmSelectionPanel.HIERARCHICAL)) {
-            algorithm = hierarc_actionPerformed(session);
+            algorithm = hierarc_actionPerformed(discoverySession);
             viewId = PATTERN_TREE;
         } else {
             System.err.print("No Algorithm found...");
@@ -322,7 +322,8 @@ public class SequenceDiscoveryViewWidget extends JPanel implements StatusChangeL
         Parameters p = parmsHandler.readParameter(parameterPanel, getSequenceDB().getSequenceNo(), type);
         parms = p;
         //fire a parameter change to the application
-        ParmsDataSet pds = new ParmsDataSet(p, "Pattern Discovery", getSequenceDB());
+        org.geworkbench.bison.datastructure.complex.pattern.Parameters pp = ParameterTranslation.getParameterTranslation().translate(parms);
+        SoapParmsDataSet pds = new SoapParmsDataSet(pp, "Pattern Discovery", getSequenceDB());
         String id = pds.getID();
         currentStubId = currentNodeID + id;
         //currentStubId+=id;
@@ -346,22 +347,22 @@ public class SequenceDiscoveryViewWidget extends JPanel implements StatusChangeL
     }
 
     /**
-     * The function display the result of the session.
+     * The function display the result of the discoverySession.
      *
-     * @param session Session
+     * @param discoverySession DiscoverySession
      */
-    public void viewResult(Session session) {
+    public void viewResult(DiscoverySession discoverySession) {
         String stubKey = getProjectFileId();
 
-        if (!registerSession(stubKey, session)) {
+        if (!registerSession(stubKey, discoverySession)) {
             return;
         }
 
         String algoServerName = "";
         Parameters p = null;
         try {
-            algoServerName = session.getAlgorithmName();
-            p = session.getParameters();
+            algoServerName = discoverySession.getAlgorithmName();
+            p = discoverySession.getParameters();
         } catch (Exception ex) {
         }
 
@@ -370,15 +371,15 @@ public class SequenceDiscoveryViewWidget extends JPanel implements StatusChangeL
         AbstractSequenceDiscoveryAlgorithm torun = null;
         //connect to the algorithm
         if (algoServerName.equalsIgnoreCase(SPLASHDefinition.Algorithm.REGULAR)) {
-            torun = new RegularDiscovery(session);
+            torun = new RegularDiscovery(discoverySession);
             algoPanelName = AlgorithmSelectionPanel.DISCOVER;
             id = PATTERN_TABLE;
         } else if (algoServerName.equalsIgnoreCase(SPLASHDefinition.Algorithm.EXHAUSTIVE)) {
-            torun = new ExhaustiveDiscovery(session);
+            torun = new ExhaustiveDiscovery(discoverySession);
             algoPanelName = AlgorithmSelectionPanel.EXHAUSTIVE;
             id = PATTERN_TABLE;
         } else if (algoServerName.equalsIgnoreCase(SPLASHDefinition.Algorithm.HIERARCHICAL)) {
-            torun = new HierarchicalDiscovery(session);
+            torun = new HierarchicalDiscovery(discoverySession);
             algoPanelName = AlgorithmSelectionPanel.HIERARCHICAL;
             id = PATTERN_TREE;
         } else {
@@ -401,14 +402,14 @@ public class SequenceDiscoveryViewWidget extends JPanel implements StatusChangeL
      * @param stubId an identifier for the seesion
      * @return session or null if a session does not exist.
      */
-    private Session getSession(String stubId) {
-//        Session s = Session.isNormalSession ? (Session) sessionManager.get(stubId) : (Session) globusManager.get(stubId);
+    private DiscoverySession getSession(String stubId) {
+//        DiscoverySession s = DiscoverySession.isNormalSession ? (DiscoverySession) sessionManager.get(stubId) : (DiscoverySession) globusManager.get(stubId);
 //
 //        if (s != null && !s.isFailed()) {
 //            return s;
 //        }
         //we don't have a session mapped. Get one from the app component.
-        Session s = appComponent.getSession();
+        DiscoverySession s = appComponent.getSession();
         return registerSession(stubId, s) ? s : null;
     }
 
@@ -416,12 +417,12 @@ public class SequenceDiscoveryViewWidget extends JPanel implements StatusChangeL
      * Registers a sesssion.
      *
      * @param stubId String
-     * @param s      Session
+     * @param s      DiscoverySession
      * @return boolean
      */
-    private boolean registerSession(String stubId, Session s) {
+    private boolean registerSession(String stubId, DiscoverySession s) {
         if ((s != null) && (stubId != null)) {
-            if (Session.isNormalSession) {
+            if (DiscoverySession.isNormalSession) {
                 sessionManager.put(stubId, s);
             } else {
                 globusManager.put(stubId, s);
@@ -568,9 +569,9 @@ public class SequenceDiscoveryViewWidget extends JPanel implements StatusChangeL
     /**
      * The plain vanilla sequence discovery.
      */
-    private AbstractSequenceDiscoveryAlgorithm discovery_actionPerformed(Session session) {
+    private AbstractSequenceDiscoveryAlgorithm discovery_actionPerformed(DiscoverySession discoverySession) {
         readParameter("Discovery");
-        return new RegularDiscovery(session, getParameters());
+        return new RegularDiscovery(discoverySession, getParameters());
     }
 
     /**
@@ -589,17 +590,17 @@ public class SequenceDiscoveryViewWidget extends JPanel implements StatusChangeL
     /**
      * Exhaustive
      */
-    public AbstractSequenceDiscoveryAlgorithm exhaustive_actionPerformed(Session session) {
+    public AbstractSequenceDiscoveryAlgorithm exhaustive_actionPerformed(DiscoverySession discoverySession) {
         readParameter("Exhaustive");
-        return new ExhaustiveDiscovery(session, getParameters());
+        return new ExhaustiveDiscovery(discoverySession, getParameters());
     }
 
     /**
      * Hiearchical discovery.
      */
-    public AbstractSequenceDiscoveryAlgorithm hierarc_actionPerformed(Session session) {
+    public AbstractSequenceDiscoveryAlgorithm hierarc_actionPerformed(DiscoverySession discoverySession) {
         readParameter("Hiearchical");
-        return new HierarchicalDiscovery(session, getParameters());
+        return new HierarchicalDiscovery(discoverySession, getParameters());
     }
 
     private void initAndStart(AlgorithmStub stub, int viewId) {
