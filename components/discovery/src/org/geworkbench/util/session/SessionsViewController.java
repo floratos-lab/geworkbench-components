@@ -44,7 +44,7 @@ public class SessionsViewController {
     public SessionsViewController(LoginPanelModel lModel, SessionAppComponent component) {
         this.loginPanelModel = lModel;
         this.component = component;
-        messageDialog.setTitle("Session viewer");
+        messageDialog.setTitle("DiscoverySession viewer");
     }
 
     /**

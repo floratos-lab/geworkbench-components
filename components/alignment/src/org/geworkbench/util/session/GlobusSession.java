@@ -7,6 +7,8 @@ import org.geworkbench.bison.datastructure.biocollections.sequences.DSSequenceSe
 import org.geworkbench.bison.datastructure.bioobjects.sequence.CSSequence;
 import org.geworkbench.util.associationdiscovery.cluster.hierarchical.Node;
 import org.geworkbench.util.patterns.CSMatchedHMMSeqPattern;
+import org.geworkbench.util.patterns.CSMatchedSeqPattern;
+import org.geworkbench.util.patterns.PatternOfflet;
 import org.geworkbench.util.remote.GlobusConnection;
 
 import javax.xml.rpc.holders.ByteArrayHolder;
@@ -18,8 +20,8 @@ import java.util.ArrayList;
 
 
 /**
- * <p>Title: Session</p>
- * <p>Description: Class Session describes a
+ * <p>Title: DiscoverySession</p>
+ * <p>Description: Class DiscoverySession describes a
  * session. A session is an abstraction of a session on
  * a SPLASH server on which different queries
  * will be perfomred. </p>
@@ -41,7 +43,7 @@ public class GlobusSession {
     //the database for this session
     private DSSequenceSet database;
 
-    //the name Session's name.
+    //the name DiscoverySession's name.
     private String sessionName;
 
     //the last parameters which were set for this session
@@ -145,7 +147,19 @@ public class GlobusSession {
             throw new SessionOperationException("Could not load Sequences.");
         }
     }
+    public boolean translateToNewPattern(CSMatchedSeqPattern csMatchedSeqPattern, ArrayOfSOAPOffsetHolder arrayOfSOAPOffsetHolder){
+        SOAPOffset[] values = arrayOfSOAPOffsetHolder.value;
+        PatternOfflet[] patternOfflets = new PatternOfflet[values.length];
+        ArrayList<PatternOfflet> arrayList = new ArrayList<PatternOfflet>();
+        for (int i=0; i<values.length; i++){
+            PatternOfflet patternOfflet = new PatternOfflet(values[i].getDx(), values[i].getToken());
+            arrayList.add(i, patternOfflet);
+        }
 
+        csMatchedSeqPattern.setOffset(arrayList);
+        return true;
+
+    }
     /**
      * The method tries to read into the server's memory the session's database
      * sequence file from a remote location
@@ -168,7 +182,7 @@ public class GlobusSession {
     }
 
     /**
-     * This method uploads all the sequences in this Session's database and saves
+     * This method uploads all the sequences in this DiscoverySession's database and saves
      * them to the server.
      * There is no need to reload a file once it is saved on the server.
      *
@@ -221,8 +235,8 @@ public class GlobusSession {
      * Set the search parameters.
      *
      * @throws SessionOperationException if the parameters cant be set.
-     * @params parms parameters for this session
-     */
+     *
+     *  */
     public int setParameters(polgara.soapPD_wsdl.Parameters parms) throws SessionOperationException {
         int returnVal;
         Parameters p = new Parameters();
@@ -518,7 +532,7 @@ public class GlobusSession {
             return soapPort.deleteSession(logToken);
         } catch (RemoteException exp) {
             setState(true);
-            throw new SessionOperationException("Session was not deleted. Server was not reached.");
+            throw new SessionOperationException("DiscoverySession was not deleted. Server was not reached.");
         }
     }
 
@@ -539,7 +553,8 @@ public class GlobusSession {
                 sarray[i].setToken(arr[i].getToken());
             }
 
-            pattern.offset = new polgara.soapPD_wsdl.holders.ArrayOfSOAPOffsetHolder(sarray);
+            //pattern.offset = new polgara.soapPD_wsdl.holders.ArrayOfSOAPOffsetHolder(sarray);
+           translateToNewPattern(pattern, new ArrayOfSOAPOffsetHolder(arr));
             pattern.setPValue(pValue.value);
             pattern.locus = loci.value;
         } catch (RemoteException ex) {
@@ -663,10 +678,12 @@ public class GlobusSession {
                     arr[i].setDx(sarray[i].getDx());
                     arr[i].setToken(sarray[i].getToken());
                 }
+                //todo disabled now for test. xz
 
-                pattern.offset = new polgara.soapPD_wsdl.holders.ArrayOfSOAPOffsetHolder(arr);
+                // translateToNewPattern(pattern, new ArrayOfSOAPOffsetHolder(arr));
+               // pattern.offset = new polgara.soapPD_wsdl.holders.ArrayOfSOAPOffsetHolder(arr);
             } else {
-                pattern.offset = new polgara.soapPD_wsdl.holders.ArrayOfSOAPOffsetHolder(null);
+              //  pattern.offset = new polgara.soapPD_wsdl.holders.ArrayOfSOAPOffsetHolder(null);
             }
 
             Node node = new Node(pattern);
@@ -685,8 +702,9 @@ public class GlobusSession {
                 pHmmArr[i].setEnd(hmmArr[i].getEnd());
                 pHmmArr[i].setSeqId(hmmArr[i].getSeqId());
             }
+            //todo disabled now
 
-            node.hmmPattern = new CSMatchedHMMSeqPattern(database, conSeq, pHmmArr);
+           // node.hmmPattern = new CSMatchedHMMSeqPattern(database, conSeq, pHmmArr);
 
             return node;
         } catch (RemoteException ex) {
@@ -740,7 +758,7 @@ public class GlobusSession {
      * This method returns the number of sequences in the database file of
      * the current session.
      *
-     * @retrun number of sequences.
+     *
      */
     public int getSequenceNo() {
         return database.getSequenceNo();

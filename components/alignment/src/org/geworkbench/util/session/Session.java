@@ -248,7 +248,7 @@ public class Session {
      * Set the search parameters.
      *
      * @throws SessionOperationException if the parameters cant be set.
-     * @params parms parameters for this session
+     *
      */
     public int setParameters(Parameters parms) throws SessionOperationException {
         if (Session.isNormalSession) {
@@ -477,15 +477,15 @@ public class Session {
             DoubleHolder pValue = new DoubleHolder();
             ByteArrayHolder loci = new ByteArrayHolder();
 
-            try {
-                soapPort.getPattern(logToken, patId, pattern.idNo, pattern.seqNo, pValue, pattern.offset, loci);
-                pattern.setPValue(pValue.value);
-                pattern.locus = loci.value;
-                String s = null;
-            } catch (RemoteException ex) {
-                setState(true);
-                throw new SessionOperationException("Could not get the pattern.");
-            }
+//            try {
+//                soapPort.getPattern(logToken, patId, pattern.idNo, pattern.seqNo, pValue, pattern.offset, loci);
+//                pattern.setPValue(pValue.value);
+//                pattern.locus = loci.value;
+//                String s = null;
+//            } catch (RemoteException ex) {
+//                setState(true);
+//                throw new SessionOperationException("Could not get the pattern.");
+//            }
         } else {
             globSession.getPattern(patId, pattern);
         }
@@ -623,7 +623,7 @@ public class Session {
                 pattern.seqNo = new IntHolder(patHolder.value.getSeqNo());
                 pattern.setPValue(patHolder.value.getPValue());
                 pattern.locus = patHolder.value.getLoci();
-                pattern.offset = new ArrayOfSOAPOffsetHolder(patHolder.value.getOffset());
+                //pattern.offset = new ArrayOfSOAPOffsetHolder(patHolder.value.getOffset());
 
                 Node node = new Node(pattern);
                 node.patIncluded = patIncluded.value;
@@ -632,7 +632,7 @@ public class Session {
                 String conSeq = hmmPat.value.getConsensusSeq();
 
                 HMMLoci[] hmmArr = hmmPat.value.getLoci().getItem();
-                node.hmmPattern = new CSMatchedHMMSeqPattern(database, conSeq, hmmArr);
+               // node.hmmPattern = new CSMatchedHMMSeqPattern(database, conSeq, hmmArr);
 
                 node.hPatIncluded = hPatIncluded.value;
                 node.hPatExcluded = hPatExcluded.value;
@@ -700,7 +700,7 @@ public class Session {
      * This method returns the number of sequences in the database file of
      * the current session.
      *
-     * @retrun number of sequences.
+     * 
      */
     public int getSequenceNo() {
         return (Session.isNormalSession) ? database.getSequenceNo() : globSession.getSequenceNo();

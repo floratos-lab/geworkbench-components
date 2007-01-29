@@ -41,7 +41,7 @@ public class BlastListTableModel
         "Sequence", "session"};
     private String primarySelectionCrit = "Instance";
     private XMLTree entryTree; //=  new XMLTree(XmlFactory.newDocument());;
-    private String DEFAULTURL = "http://adgate.cu-genome.org:8080/ogsa/services/core/registry/ContainerRegistryService";
+    private String DEFAULTURL = "http://gridgate.genomecenter.columbia.edu:18080/ogsa/services/core/registry/ContainerRegistryService";
 
     private URL defaultEndpoint;
     public BlastListTableModel() {

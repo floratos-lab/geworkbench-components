@@ -75,7 +75,7 @@ public class SplashSessionQuery implements SessionQuery {
         try {
             setSessionId(sessionId);
             if (0 != port.deleteSession(token)) {
-                throw new SessionOperationException("Session was not deleted. (Are all operations done?)");
+                throw new SessionOperationException("DiscoverySession was not deleted. (Are all operations done?)");
             }
         } catch (RemoteException exp) {
             throw new SessionOperationException("Connection error while trying to delete the seesion.");

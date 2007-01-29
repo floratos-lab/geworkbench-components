@@ -5,7 +5,7 @@ import org.geworkbench.events.ProgressChangeEvent;
 import org.geworkbench.util.patterns.PatternFetchException;
 import org.geworkbench.util.patterns.PatternOperations;
 import org.geworkbench.util.remote.SPLASHDefinition;
-import org.geworkbench.util.session.Session;
+import org.geworkbench.util.session.DiscoverySession;
 import org.geworkbench.util.session.SessionOperationException;
 import polgara.soapPD_wsdl.Parameters;
 
@@ -42,27 +42,27 @@ public final class RegularDiscovery extends ServerBaseDiscovery implements org.g
     /**
      * Start a new algorithm.
      *
-     * @param s         Session
+     * @param s         DiscoverySession
      * @param parameter Parameters
      */
-    public RegularDiscovery(Session s, Parameters parameter) {
+    public RegularDiscovery(DiscoverySession s, Parameters parameter) {
         super(s, parameter);
     }
 
     /**
      * Reconnect to an already started algorithm.
      *
-     * @param s Session
+     * @param s DiscoverySession
      */
-    public RegularDiscovery(Session s) {
+    public RegularDiscovery(DiscoverySession s) {
         super(s);
     }
 
     protected void runAlgorithm() {
-        Session session = getSession();
+        DiscoverySession discoverySession = getSession();
         try {
             //start discovery
-            session.discover(SPLASHDefinition.Algorithm.REGULAR);
+            discoverySession.discover(SPLASHDefinition.Algorithm.REGULAR);
             started = true;
             pollAndUpdate();
         } catch (SessionOperationException ex) { //end try
@@ -82,12 +82,12 @@ public final class RegularDiscovery extends ServerBaseDiscovery implements org.g
      * with the "tryWait()"
      */
     private void pollAndUpdate() {
-        Session session = getSession();
+        DiscoverySession discoverySession = getSession();
         try {
             while (!done && !isStop()) {
                 Thread.sleep(100);
                 update();
-                done = session.isDone();
+                done = discoverySession.isDone();
                 tryWait();
             }
         } catch (SessionOperationException ex) {
@@ -113,10 +113,10 @@ public final class RegularDiscovery extends ServerBaseDiscovery implements org.g
     }
 
     private void fireStatusBarEvent() {
-        Session session = getSession();
+        DiscoverySession discoverySession = getSession();
 
         try {
-            discoveredPattern = session.getPatternNo();
+            discoveredPattern = discoverySession.getPatternNo();
             statusBarMessage = "Pattern/s found: " + discoveredPattern;
         } catch (SessionOperationException ex) {
         }
@@ -152,7 +152,7 @@ public final class RegularDiscovery extends ServerBaseDiscovery implements org.g
                 }
             }
         } catch (SessionOperationException ex) {
-            System.out.println("Session operationException at mask.");
+            System.out.println("DiscoverySession operationException at mask.");
         }
 
     }
@@ -163,7 +163,7 @@ public final class RegularDiscovery extends ServerBaseDiscovery implements org.g
             pattern.clear();
             getSession().sortPatterns(i);
         } catch (SessionOperationException ex) {
-            System.out.println("Session operationException at Sort");
+            System.out.println("DiscoverySession operationException at Sort");
         }
     }
 
@@ -171,18 +171,18 @@ public final class RegularDiscovery extends ServerBaseDiscovery implements org.g
      * As specified by SequentialPatternSource.
      */
     public synchronized DSMatchedSeqPattern getPattern(int index) {
-        Session session = getSession();
+        DiscoverySession discoverySession = getSession();
         if (index >= pattern.size() || pattern.get(index) == null) {
-            org.geworkbench.util.patterns.CSMatchedSeqPattern pat = new org.geworkbench.util.patterns.CSMatchedSeqPattern(session.getSequenceDB());
+            org.geworkbench.util.patterns.CSMatchedSeqPattern pat = new org.geworkbench.util.patterns.CSMatchedSeqPattern(discoverySession.getSequenceDB());
             try {
-                session.getPattern(index, pat);
+                discoverySession.getPattern(index, pat);
             } catch (SessionOperationException ext) {
                 throw new PatternFetchException(ext.getMessage());
             }
             while (pattern.size() < index) {
                 pattern.add(null);
             }
-            PatternOperations.fill(pat, session.getSequenceDB());
+            PatternOperations.fill(pat, discoverySession.getSequenceDB());
             pattern.add(index, pat);
         }
         return (DSMatchedSeqPattern) pattern.get(index);
@@ -192,13 +192,13 @@ public final class RegularDiscovery extends ServerBaseDiscovery implements org.g
      * As specified by SequentialPatternSource.
      */
     public synchronized int getPatternSourceSize() {
-        Session session = getSession();
+        DiscoverySession discoverySession = getSession();
         if (!started) {
             //we have not started the discovery...
             return 0;
         }
         try {
-            discoveredPattern = session.getPatternNo();
+            discoveredPattern = discoverySession.getPatternNo();
         } catch (SessionOperationException exp) {
         }
         return discoveredPattern;

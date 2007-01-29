@@ -2,7 +2,7 @@ package org.geworkbench.components.discovery.algorithm;
 
 import org.geworkbench.events.ProgressBarEvent;
 import org.geworkbench.events.StatusBarEvent;
-import org.geworkbench.util.session.Session;
+import org.geworkbench.util.session.DiscoverySession;
 import org.geworkbench.util.session.SessionOperationException;
 import polgara.soapPD_wsdl.Parameters;
 
@@ -20,8 +20,8 @@ import java.awt.*;
  */
 
 public abstract class ServerBaseDiscovery extends AbstractSequenceDiscoveryAlgorithm {
-    //the session to connect to.
-    private Session session;
+    //the discoverySession to connect to.
+    private DiscoverySession discoverySession;
     //initial parameters for the search
     private Parameters parms;
     //Status event
@@ -38,10 +38,10 @@ public abstract class ServerBaseDiscovery extends AbstractSequenceDiscoveryAlgor
     /**
      * This constructor will start the running of algorithm by calling runAlogrithm.
      *
-     * @param session the object to run queries to the server.
+     * @param discoverySession the object to run queries to the server.
      */
-    public ServerBaseDiscovery(Session session, Parameters parm) {
-        initSession(session);
+    public ServerBaseDiscovery(DiscoverySession discoverySession, Parameters parm) {
+        initSession(discoverySession);
         if (parm == null) {
             throw new NullPointerException("ServerBaseDiscovery Constructor failed: [parm=null]");
         }
@@ -52,18 +52,18 @@ public abstract class ServerBaseDiscovery extends AbstractSequenceDiscoveryAlgor
      * This constructor will force a reconnection to an existing running algorithm
      * on the server. It will reconnectAlgorithm.
      *
-     * @param session Session
+     * @param discoverySession DiscoverySession
      */
-    public ServerBaseDiscovery(Session session) {
-        initSession(session);
+    public ServerBaseDiscovery(DiscoverySession discoverySession) {
+        initSession(discoverySession);
         this.reconnect = true;
     }
 
-    private void initSession(Session session) {
-        if (session == null) {
-            throw new NullPointerException("ServerBaseDiscovery Constructor failed: [session=null]");
+    private void initSession(DiscoverySession discoverySession) {
+        if (discoverySession == null) {
+            throw new NullPointerException("ServerBaseDiscovery Constructor failed: [discoverySession=null]");
         }
-        this.session = session;
+        this.discoverySession = discoverySession;
     }
 
     /**
@@ -73,17 +73,17 @@ public abstract class ServerBaseDiscovery extends AbstractSequenceDiscoveryAlgor
     public void start() {
         try {
 //Temp change for bug 329.
-             if (session.isDone() && (!reconnect)) {
-                // if (!session.loadSequenceRemote()) {
+             if (discoverySession.isDone() && (!reconnect)) {
+                // if (!discoverySession.loadSequenceRemote()) {
                     //upload sequences
                     fireStatusBarEvent("Uploading....");
                     if (!upload()) {
                         return;
                     }
-                    session.saveSeqDB();
+                    discoverySession.saveSeqDB();
                 // }
 
-                session.setParameters(parms);
+                discoverySession.setParameters(parms);
                 fireStatusBarEvent("Discovering...");
                 runAlgorithm();
             } else {
@@ -101,9 +101,9 @@ public abstract class ServerBaseDiscovery extends AbstractSequenceDiscoveryAlgor
      * fires a progress change event.
      */
     protected void fireProgressBarEvent() {
-        Session session = getSession();
+        DiscoverySession discoverySession = getSession();
         try {
-            double percent = session.getCompletion();
+            double percent = discoverySession.getCompletion();
             int percentAsInt = (int) (percent * 100);
             progressBarEvent.setPercentDone(percentAsInt);
 //            System.out.println("ProgessBar at " + percentAsInt);
@@ -129,7 +129,7 @@ public abstract class ServerBaseDiscovery extends AbstractSequenceDiscoveryAlgor
     public synchronized void stop() {
         algorithmStop = true;
         try {
-            session.stop();
+            discoverySession.stop();
         } catch (SessionOperationException ex) {
             System.out.println(ex.toString());
             ex.printStackTrace();
@@ -146,21 +146,21 @@ public abstract class ServerBaseDiscovery extends AbstractSequenceDiscoveryAlgor
     }
 
     /**
-     * Get the session of this algorithm.
+     * Get the discoverySession of this algorithm.
      *
-     * @return session the session object.
+     * @return discoverySession the discoverySession object.
      */
-    protected Session getSession() {
-        return session;
+    protected DiscoverySession getSession() {
+        return discoverySession;
     }
 
     /**
-     * Uploads the sequence in the session to the server.
+     * Uploads the sequence in the discoverySession to the server.
      *
      * @param s
      */
     private boolean upload() {
-        final int databaseSize = session.getSequenceDB().getSequenceNo();
+        final int databaseSize = discoverySession.getSequenceDB().getSequenceNo();
         ProgressBarEvent progressBarEvent = new ProgressBarEvent("Uploading...", Color.pink, 0, 0, databaseSize);
         fireProgressBarChanged(progressBarEvent);
         for (int i = 0; i < databaseSize; ++i) {
@@ -176,9 +176,9 @@ public abstract class ServerBaseDiscovery extends AbstractSequenceDiscoveryAlgor
 
     private void upload(int i) {
         try {
-            session.upload(i);
+            discoverySession.upload(i);
         } catch (SessionOperationException exp) {
-            System.out.println("Session operation exception");
+            System.out.println("DiscoverySession operation exception");
         }
 
     }

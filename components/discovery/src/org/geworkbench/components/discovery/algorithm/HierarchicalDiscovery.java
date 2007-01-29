@@ -5,7 +5,7 @@ import org.geworkbench.util.associationdiscovery.cluster.hierarchical.Node;
 import org.geworkbench.util.patterns.PatternOperations;
 import org.geworkbench.util.patterns.TreePatternSource;
 import org.geworkbench.util.remote.SPLASHDefinition;
-import org.geworkbench.util.session.Session;
+import org.geworkbench.util.session.DiscoverySession;
 import org.geworkbench.util.session.SessionOperationException;
 import polgara.soapPD_wsdl.Parameters;
 
@@ -43,12 +43,12 @@ public class HierarchicalDiscovery extends ServerBaseDiscovery implements TreePa
     //the number of patterns cached locally.
     private int sizeLocal = 0;
 
-    public HierarchicalDiscovery(Session s, Parameters parameter) {
+    public HierarchicalDiscovery(DiscoverySession s, Parameters parameter) {
         super(s, parameter);
         init();
     }
 
-    public HierarchicalDiscovery(Session s) {
+    public HierarchicalDiscovery(DiscoverySession s) {
         super(s);
         init();
     }
@@ -63,10 +63,10 @@ public class HierarchicalDiscovery extends ServerBaseDiscovery implements TreePa
     }
 
     protected void runAlgorithm() {
-        Session session = getSession();
+        DiscoverySession discoverySession = getSession();
         try {
             //start discovery
-            session.discover(SPLASHDefinition.Algorithm.HIERARCHICAL);
+            discoverySession.discover(SPLASHDefinition.Algorithm.HIERARCHICAL);
             pollAndUpdate();
         } catch (SessionOperationException ex) { //end try
             System.out.println(ex.toString());
@@ -85,16 +85,16 @@ public class HierarchicalDiscovery extends ServerBaseDiscovery implements TreePa
         //the number of patterns on the server as per the last call
         int sizeRemote = 0;
         DefaultMutableTreeNode latestNode = root;
-        Session session = getSession();
+        DiscoverySession discoverySession = getSession();
 
         try {
             while (!done && !isStop()) {
                 Thread.sleep(100);
                 tryWait();
-                done = session.isDone();
+                done = discoverySession.isDone();
 
                 //check for new patterns
-                sizeRemote = session.getPatternNo();
+                sizeRemote = discoverySession.getPatternNo();
                 if (sizeRemote > sizeLocal) {
                     latestNode = buildTree(sizeRemote, latestNode);
                     sizeLocal = sizeRemote;
@@ -259,12 +259,12 @@ public class HierarchicalDiscovery extends ServerBaseDiscovery implements TreePa
      * @throws SessionOperationException
      */
     private Node getRemoteNode(String path) throws SessionOperationException {
-        Session session = getSession();
+        DiscoverySession discoverySession = getSession();
         Node node = null;
-        node = session.getPatternNode(path.toString());
+        node = discoverySession.getPatternNode(path.toString());
 
         if (node != null) {
-            PatternOperations.fill(node.pattern, session.getSequenceDB());
+            PatternOperations.fill(node.pattern, discoverySession.getSequenceDB());
         }
         return (node);
     }

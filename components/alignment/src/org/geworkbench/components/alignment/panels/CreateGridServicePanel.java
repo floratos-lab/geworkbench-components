@@ -23,7 +23,7 @@ import org.globus.ogsa.gui.XMLTree;
 import org.globus.ogsa.gui.XMLTreeModel;
 import org.globus.ogsa.utils.*;
 import org.globus.ogsa.wsdl.GSR;
-import org.globus.progtutorial.clients.BlastService.Client;
+//import org.globus.progtutorial.clients.BlastService.Client;
 import org.gridforum.ogsi.*;
 import org.w3c.dom.Element;
 
@@ -44,6 +44,7 @@ import java.rmi.RemoteException;
 import java.util.Hashtable;
 import java.util.Random;
 import com.borland.jbcl.layout.VerticalFlowLayout;
+import org.globus.progtutorial.clients.BlastService.Client;
 
 public class CreateGridServicePanel
     extends JPanel
@@ -561,7 +562,7 @@ public class CreateGridServicePanel
         ///   }
 
         try {
-            DEFAULTFACTORYURL = "http://gridgate.genomecenter.columbia.edu:18080/ogsa/services/edu/columbia/SequenceAlignmentFactoryService";
+            DEFAULTFACTORYURL = "http://gridgate.genomecenter.columbia.edu:18080/ogsa/services/edu/columbia/SequenceFactoryService";
             URL defaultFactoryEndpoint = new URL(DEFAULTFACTORYURL);
             this.defaultEndpoint = defaultFactoryEndpoint;
             OGSIServiceGridLocator factoryService =
@@ -626,6 +627,7 @@ public class CreateGridServicePanel
             return null;
         }
         catch (Exception e) {
+            e.printStackTrace();
             JOptionPane.showMessageDialog(
                 this, "Failed to create instance: " + e.getMessage(),
                 "Factory: createService error", JOptionPane.ERROR_MESSAGE

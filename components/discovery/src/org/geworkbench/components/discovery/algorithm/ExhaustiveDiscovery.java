@@ -6,7 +6,7 @@ import org.geworkbench.util.patterns.CSMatchedSeqPattern;
 import org.geworkbench.util.patterns.PatternFetchException;
 import org.geworkbench.util.patterns.SequentialPatternSource;
 import org.geworkbench.util.remote.SPLASHDefinition;
-import org.geworkbench.util.session.Session;
+import org.geworkbench.util.session.DiscoverySession;
 import org.geworkbench.util.session.SessionOperationException;
 import polgara.soapPD_wsdl.Parameters;
 
@@ -46,27 +46,27 @@ public final class ExhaustiveDiscovery extends ServerBaseDiscovery implements Se
     /**
      * Start an exhaustive discovery on the server.
      *
-     * @param s         Session
+     * @param s         DiscoverySession
      * @param parameter Parameters
      */
-    public ExhaustiveDiscovery(Session s, Parameters parameter) {
+    public ExhaustiveDiscovery(DiscoverySession s, Parameters parameter) {
         super(s, parameter);
     }
 
     /**
      * Reconnect to an Exhaustive algorithm on the server.
      *
-     * @param s Session
+     * @param s DiscoverySession
      */
-    public ExhaustiveDiscovery(Session s) {
+    public ExhaustiveDiscovery(DiscoverySession s) {
         super(s);
     }
 
     protected void runAlgorithm() {
-        Session session = getSession();
+        DiscoverySession discoverySession = getSession();
         try {
             //start discovery
-            session.discover(SPLASHDefinition.Algorithm.EXHAUSTIVE);
+            discoverySession.discover(SPLASHDefinition.Algorithm.EXHAUSTIVE);
             started = true;
             pollAndUpdate();
         } catch (SessionOperationException ex) { //end try
@@ -86,12 +86,12 @@ public final class ExhaustiveDiscovery extends ServerBaseDiscovery implements Se
      * with the "tryWait()"
      */
     private void pollAndUpdate() {
-        Session session = getSession();
+        DiscoverySession discoverySession = getSession();
         try {
             while (!done && !isStop()) {
                 Thread.sleep(100);
                 fireDisplayUpdate();
-                done = session.isDone();
+                done = discoverySession.isDone();
                 tryWait();
             }
         } catch (SessionOperationException ex) {
@@ -105,12 +105,12 @@ public final class ExhaustiveDiscovery extends ServerBaseDiscovery implements Se
     }
 
     private void fireStatusEvent() {
-        Session session = getSession();
+        DiscoverySession discoverySession = getSession();
         //only get patterns if the algorithm
         //was started on the server
         if (started) {
             try {
-                discoveredPattern = session.getPatternNo();
+                discoveredPattern = discoverySession.getPatternNo();
             } catch (SessionOperationException ex) {
             }
         }
@@ -154,7 +154,7 @@ public final class ExhaustiveDiscovery extends ServerBaseDiscovery implements Se
                 }
             }
         } catch (SessionOperationException ex) {
-            System.out.println("Session operationException at mask");
+            System.out.println("DiscoverySession operationException at mask");
         }
 
     }
@@ -165,7 +165,7 @@ public final class ExhaustiveDiscovery extends ServerBaseDiscovery implements Se
             pattern.clear();
             getSession().sortPatterns(i);
         } catch (SessionOperationException ex) {
-            System.out.println("Session operationException at Sort");
+            System.out.println("DiscoverySession operationException at Sort");
         }
     }
 
@@ -173,18 +173,18 @@ public final class ExhaustiveDiscovery extends ServerBaseDiscovery implements Se
      * As specified by SequentialPatternSource.
      */
     public synchronized DSMatchedSeqPattern getPattern(int index) {
-        Session session = getSession();
+        DiscoverySession discoverySession = getSession();
         if (index >= pattern.size() || pattern.get(index) == null) {
-            CSMatchedSeqPattern pat = new org.geworkbench.util.patterns.CSMatchedSeqPattern(session.getSequenceDB());
+            CSMatchedSeqPattern pat = new org.geworkbench.util.patterns.CSMatchedSeqPattern(discoverySession.getSequenceDB());
             try {
-                session.getPattern(index, pat);
+                discoverySession.getPattern(index, pat);
             } catch (SessionOperationException ext) {
                 throw new PatternFetchException(ext.getMessage());
             }
             while (pattern.size() < index) {
                 pattern.add(null);
             }
-            org.geworkbench.util.patterns.PatternOperations.fill(pat, session.getSequenceDB());
+            org.geworkbench.util.patterns.PatternOperations.fill(pat, discoverySession.getSequenceDB());
             pattern.add(index, pat);
         }
         return (DSMatchedSeqPattern) pattern.get(index);
@@ -194,13 +194,13 @@ public final class ExhaustiveDiscovery extends ServerBaseDiscovery implements Se
      * As specified by SequentialPatternSource.
      */
     public synchronized int getPatternSourceSize() {
-        Session session = getSession();
+        DiscoverySession discoverySession = getSession();
         if (!started) {
             //we have not started the discovery...
             return 0;
         }
         try {
-            discoveredPattern = session.getPatternNo();
+            discoveredPattern = discoverySession.getPatternNo();
         } catch (SessionOperationException exp) {
         }
         return discoveredPattern;

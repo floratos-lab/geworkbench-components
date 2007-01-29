@@ -11,6 +11,11 @@ import java.util.regex.Pattern;
 import javax.swing.JProgressBar;
 import javax.swing.JTextArea;
 import org.geworkbench.util.session.SoapClient;
+import java.sql.DriverManager;
+import java.sql.Statement;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 /**
  * RemoteBlast is a class that implements submission of a protein sequence to
@@ -187,7 +192,7 @@ public class RemoteBlast {
             InputStreamReader inBytes = new InputStreamReader(s.getInputStream());
             BufferedReader in = new BufferedReader(inBytes);
 
-            textArea.append("\n\nSending message: " + message + "\n");
+            //System.out.println("\n\nSending message: " + message + "\n");
 
             //write String message to output stream as byte sequence.
             out.writeBytes(message);
@@ -449,7 +454,7 @@ public class RemoteBlast {
 
 
     public static void main(String[] args) {
-
+        connectJDBC(args);
         String query = "MGARCPTRTLRARQPAHPRPPGTPRHHQRRPLPAASPTRHRSSRGRQIRARRPDRPGTRLRTGAAVDRQQPQHAPLRPLRLRSARADPRPQPGKPARRNPGHQRPRPRCRRPGAQQRPADRTLPADRSARHRVPAAPPAARPAHRRARQRRLRPARRPARPAGTRPLHDSRTRPAQLSGAADLRSDRRPATDRDHRQRRSPLLPAPCRRHHRTRRPPLPARIPPPVHSAAPHPPQQRGTRGNRGRPLLREPAQRHPSSRRRLRAPHRGRLPPGYRPAPQRGLPDHGHRRQDQRTHPRVPAGARGNGVAPTHGHPRMTSRRSHETPQGPDPRSPGAAPAYREAPPALTGRE";
         RemoteBlast test = new RemoteBlast(query);
         String message =
@@ -464,7 +469,56 @@ public class RemoteBlast {
 
         //test.getBlast(Blast_rid, format);
     }
+    public static void connectJDBC(String args[]) {
 
+       try {
+         Statement stmt;
+
+         //Register the JDBC driver for MySQL.
+         Class.forName("com.mysql.jdbc.Driver");
+
+         //Define URL of database server for
+         // database named mysql on the localhost
+         // with the default port number 3306.
+         String url =
+             "jdbc:mysql://genome-mysql.cse.ucsc.edu:3306/hg18";
+
+         //Get a connection to the database for a
+         // user named root with a blank password.
+         // This user is the default administrator
+         // having full privileges to do anything.
+         Connection con =
+             DriverManager.getConnection(
+                 url, "genome", "");
+
+         //Display URL and connection information
+         System.out.println("URL: " + url);
+         System.out.println("Connection: " + con);
+
+         //Get a Statement object
+         stmt = con.createStatement();
+         boolean success = stmt.execute("select * from knownGene where name = 'BC073913' ");
+         success = stmt.execute("select * from knownGene where name = 'NM_010548'");
+         if(success){
+             ResultSet rs = stmt.getResultSet();
+             while (rs.next()) {
+
+                 //String s = rs.getString(1);
+                 for (int i = 1; i < 10; i++) {
+                     Object o = rs.getString(i);
+                     System.out.println(o);
+                 }
+             }
+            // Get the data from the row using the column name
+
+        }
+
+
+
+       } catch (Exception e) {
+         e.printStackTrace();
+       }
+  }
     /**
      * RemoteBlast
      *

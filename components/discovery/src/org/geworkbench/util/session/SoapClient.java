@@ -305,7 +305,7 @@ public class SoapClient {
             call.setReturnType(org.apache.axis.Constants.XSD_STRING);
 
             Object result = call.invoke(new Object[] {s, s});
-            System.out.println("Session: the array result is " +
+            System.out.println("DiscoverySession: the array result is " +
                                result.toString());
             return result.toString();
         } catch (Exception e) {
