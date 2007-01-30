@@ -186,7 +186,7 @@ public class ParameterPanel extends JPanel {
         jMinTokensBox.setInputVerifier(new RegularExpressionVerifier("(\\d){1,9}"));
         jMinWTokensBox.setInputVerifier(new RegularExpressionVerifier("(\\d){1,9}"));
         jWindowBox.setInputVerifier(new RegularExpressionVerifier("(\\d){1,9}"));
-        jMinSupportBox.setInputVerifier(new RegularExpressionVerifier("(\\d){1,9}(%)?"));
+        jMinSupportBox.setInputVerifier(new RegularExpressionVerifier("0?\\.?(\\d){1,9}(%)?"));
         //Advanced Panel
         jMatrixBox.addItem("BLOSUM50");
         jMatrixBox.addItem("BLOSUM100");
