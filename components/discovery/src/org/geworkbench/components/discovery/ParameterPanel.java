@@ -209,7 +209,7 @@ public class ParameterPanel extends JPanel {
         jSimThresholdBox.setPreferredSize(new Dimension(80, 20));
         jSimThresholdBox.setInputVerifier(new RegularExpressionVerifier("(\\d){1,9}"));
         //check if it's double
-        jMinPValueBox.setInputVerifier(new RegularExpressionVerifier("(-)?(\\d){1,10}(.)?(\\d){1,10}"));
+        jMinPValueBox.setInputVerifier(new RegularExpressionVerifier("(-)?(\\d){1,10}(.)?(\\d){1,10}?(.)?(\\d){1,10}"));
         //Groups Panel
         jGroupsBox.addItem("Normal");
         jGroupsBox.addItem("Occurs in Group");
