@@ -33,7 +33,7 @@ public class ParametersHandler {
         try {
 
             String supportString = parmsPanel.getMinSupport();
- 
+
             // Parsing the BASIC panel
             if (supportString.endsWith("%")) {
                 //If this is a percentage then CountSeq is true by default
@@ -43,11 +43,18 @@ public class ParametersHandler {
             } else {
 
                 parms.setMinPer100Support(0);
-               // parms.setMinSupport(Integer.parseInt(supportString));
-
+                // parms.setMinSupport(Integer.parseInt(supportString));
                 //fix bug 849
-                parms.setMinPer100Support(Double.parseDouble(supportString.trim()));
-                 parms.setMinSupport((int) (parms.getMinPer100Support() * (double) seqNo));
+                double value = Double.parseDouble(supportString.trim());
+                if (value >1) {
+                    parms.setMinPer100Support(value / 100);
+
+                } else {
+
+                    parms.setMinPer100Support(Double.parseDouble(supportString.trim()));
+
+                }
+                parms.setMinSupport((int) (parms.getMinPer100Support() * (double) seqNo));
                 parms.setCountSeq(parmsPanel.getCountSeqBoxSelected());
             }
 
