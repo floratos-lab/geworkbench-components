@@ -82,7 +82,7 @@ public class KNNTraining extends GPTraining implements TrainingTask
                 trainingProgressListener.stepUpdate("processing training parameters", 1);
 
             KNNTrainingPanel knnPanel = (KNNTrainingPanel)panel;
-            DSItemList markers = knnPanel.getFeatures();
+            DSItemList markers = knnPanel.getActiveMarkers();
 
             List featureNames = new ArrayList();
             for(int i =0; i < markers.size();i++)
@@ -116,6 +116,7 @@ public class KNNTraining extends GPTraining implements TrainingTask
             if(knnPanel.useFeatureFileMethod())
             {
                 String featureFile = knnPanel.getFeatureFile();
+                validateFeatureFile(featureFile, featureNames);
                 parameters.add(new Parameter("train.filename", trainingData.getAbsolutePath()));
                 parameters.add(new Parameter("train.class.filename", clsData.getAbsolutePath()));
                 parameters.add(new Parameter("feature.list.filename", featureFile));
