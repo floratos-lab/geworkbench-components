@@ -13,12 +13,9 @@ package org.geworkbench.components.analysis.classification.knn;
 
 import org.geworkbench.algorithms.AbstractTrainingPanel;
 import org.geworkbench.bison.algorithm.classification.CSClassifier;
-import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
-import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.bison.model.analysis.ParamValidationResults;
 import org.geworkbench.util.ClassifierException;
 import org.geworkbench.builtin.projects.LoadData;
-import org.geworkbench.builtin.projects.Icons;
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.layout.ColumnSpec;
 
@@ -27,7 +24,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.ItemEvent;
-import java.awt.*;
 import java.io.File;
 import java.io.ObjectStreamException;
 import java.io.Serializable;
@@ -199,10 +195,7 @@ public class KNNTrainingPanel extends AbstractTrainingPanel
 
     public boolean useFeatureFileMethod()
     {
-        if(featureFileMethod.isSelected())
-            return true;
-
-        return false;
+        return(featureFileMethod.isSelected());
     }
 
     public String getWeightType()
@@ -218,11 +211,6 @@ public class KNNTrainingPanel extends AbstractTrainingPanel
     public int getNumNeighbors()
     {
         return ((Integer)numNeighbors.getValue()).intValue();
-    }
-
-    public DSItemList<DSGeneMarker> getFeatures()
-    {
-        return maSet.getMarkers();
     }
 
     private JLabel getGPLogo()
@@ -267,6 +255,10 @@ public class KNNTrainingPanel extends AbstractTrainingPanel
 
     protected CSClassifier trainForValidation(java.util.List<float[]> trainingCaseData, java.util.List<float[]> trainingControlData) throws ClassifierException
     {
+        ParamValidationResults validationResults = validateParameters();
+        if(!validationResults.isValid())
+            throw new ClassifierException(validationResults.getMessage());
+
         setTrainingTask(knnTraining);
 
         return knnTraining.trainClassifier(trainingCaseData, trainingControlData);
@@ -274,8 +266,11 @@ public class KNNTrainingPanel extends AbstractTrainingPanel
 
     public ParamValidationResults validateParameters()
     {
-        if(getNumFeatures() <= 0)
+        if(!useFeatureFileMethod() && getNumFeatures() <= 0)
             return new ParamValidationResults(false, "num features must be greater than 0");
+        else if(!useFeatureFileMethod() && getNumFeatures() > getActiveMarkers().size())
+            return new ParamValidationResults(false, "num features cannot be greater than \nnumber of activated markers: "
+                    + getActiveMarkers().size());
         else if(useMinStdDev() && getMinStdDev() == null)
             return new ParamValidationResults(false, "min std dev not provided");
         else if(useMinStdDev() && Double.parseDouble(getMinStdDev()) <= 0)
