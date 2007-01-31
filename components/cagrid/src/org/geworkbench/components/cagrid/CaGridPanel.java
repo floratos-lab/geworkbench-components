@@ -6,6 +6,7 @@ import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.rmi.RemoteException;
+import java.util.ArrayList;
 
 import javax.swing.Box;
 import javax.swing.JButton;
@@ -59,7 +60,7 @@ import gov.nih.nci.cagrid.metadata.ServiceMetadata;
 /**
  * @author watkinson
  * @author keshav
- * @version $Id: CaGridPanel.java,v 1.20 2007-01-12 17:01:40 keshav Exp $
+ * @version $Id: CaGridPanel.java,v 1.21 2007-01-31 18:14:53 mhall Exp $
  */
 public class CaGridPanel extends JPanel implements VisualPlugin {
 
@@ -125,22 +126,8 @@ public class CaGridPanel extends JPanel implements VisualPlugin {
 					} catch (NumberFormatException nfe) {
 						// Ignore for now
 					}
-					AnalyticalServiceDiscoveryClient client = new AnalyticalServiceDiscoveryClient(
-							hostField.getText(), port);
-					EndpointReferenceType[] allServices = client
-							.getAllServices();
-					if (allServices != null) {
-						for (EndpointReferenceType service : allServices) {
-							System.out.println("Service: "
-									+ service.getAddress());
-							ServiceMetadata commonMetadata = MetadataUtils
-									.getServiceMetadata(service);
-							System.out.println("  Description: "
-									+ commonMetadata.getServiceDescription()
-											.getService().getDescription());
-						}
-					}
-					populateServicePanel(allServices);
+                    EndpointReferenceType[] allServices = getServices(hostField.getText(), port);
+                    populateServicePanel(allServices);
 				} catch (Exception e1) {
 					e1.printStackTrace();
 				} finally {
@@ -155,48 +142,88 @@ public class CaGridPanel extends JPanel implements VisualPlugin {
 		add(Box.createHorizontalGlue());
 	}
 
-	/**
-	 * @param services
-	 * @throws Exception
-	 */
-	private void populateServicePanel(EndpointReferenceType[] services)
-			throws Exception {
-		log.debug("populating service panel");
-		FormLayout layout = new FormLayout(
-				"right:max(40dlu;pref), 3dlu, 100dlu, 7dlu", "");
-		DefaultFormBuilder builder = new DefaultFormBuilder(layout);
-		builder.setDefaultDialogBorder();
-		builder.appendSeparator("Services");
+    @Script
+    public String getServiceUrl(String host, int port, String serviceFilter) {
+        try {
+            EndpointReferenceType[] services = getServices(host, port);
+            ArrayList<String> urls = new ArrayList<String>();
+            for (EndpointReferenceType service : services) {
+                ServiceMetadata commonMetadata = MetadataUtils.getServiceMetadata(service);
+                if (service.getAddress().toString().toLowerCase().contains(serviceFilter.toLowerCase())) {
+                    urls.add(service.getAddress().toString());
+                }
+            }
+            if (urls.size() > 0) {
+                return urls.get(0);
+            } else {
+                return null;
+            }
+            // return urls.toArray(new String[]{});
+        } catch (Exception e) {
+            log.error("Error retrieving service list via script method.", e);
+            return null;
+        }
+    }
 
-		ActionListener serviceListener = new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				try {
-					runService(e.getActionCommand());
-					log.info(e.getActionCommand());
-				} catch (Exception x) {
-					x.printStackTrace();
-				}
-			}
-		};
-		if (services == null) {
-			builder.append("", new JLabel("No Services found."));
-		} else {
-			for (EndpointReferenceType service : services) {
-				ServiceMetadata commonMetadata = MetadataUtils
-						.getServiceMetadata(service);
-				JButton runButton = new JButton("Run");
-				runButton.addActionListener(serviceListener);
-				String name = commonMetadata.getServiceDescription()
-						.getService().getName();
-				runButton.setActionCommand(service.getAddress().toString());
-				builder.append(runButton, new JLabel(name));
-			}
-		}
-		servicePanel.removeAll();
-		servicePanel.add(builder.getPanel());
-		revalidate();
-		repaint();
-	}
+    private EndpointReferenceType[] getServices(String host, int port) throws Exception {
+        AnalyticalServiceDiscoveryClient client = new AnalyticalServiceDiscoveryClient(host, port);
+        EndpointReferenceType[] allServices = client .getAllServices();
+        if (allServices != null) {
+            for (EndpointReferenceType service : allServices) {
+                System.out.println("Service: "
+                        + service.getAddress());
+                ServiceMetadata commonMetadata = MetadataUtils
+                        .getServiceMetadata(service);
+                System.out.println("  Description: "
+                        + commonMetadata.getServiceDescription()
+                                .getService().getDescription());
+            }
+        }
+        return allServices;
+    }
+
+    /**
+     * @param services
+     * @throws Exception
+     */
+    private void populateServicePanel(EndpointReferenceType[] services)
+            throws Exception {
+        log.debug("populating service panel");
+        FormLayout layout = new FormLayout(
+                "right:max(40dlu;pref), 3dlu, 100dlu, 7dlu", "");
+        DefaultFormBuilder builder = new DefaultFormBuilder(layout);
+        builder.setDefaultDialogBorder();
+        builder.appendSeparator("Services");
+
+        ActionListener serviceListener = new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    runService(e.getActionCommand());
+                    log.info(e.getActionCommand());
+                } catch (Exception x) {
+                    x.printStackTrace();
+                }
+            }
+        };
+        if (services == null) {
+            builder.append("", new JLabel("No Services found."));
+        } else {
+            for (EndpointReferenceType service : services) {
+                ServiceMetadata commonMetadata = MetadataUtils
+                        .getServiceMetadata(service);
+                JButton runButton = new JButton("Run");
+                runButton.addActionListener(serviceListener);
+                String name = commonMetadata.getServiceDescription()
+                        .getService().getName();
+                runButton.setActionCommand(service.getAddress().toString());
+                builder.append(runButton, new JLabel(name));
+            }
+        }
+        servicePanel.removeAll();
+        servicePanel.add(builder.getPanel());
+        revalidate();
+        repaint();
+    }
 
 	/**
 	 * @param event
