@@ -20,6 +20,7 @@ import org.genepattern.client.GPServer;
 import org.genepattern.webservice.JobResult;
 import org.genepattern.webservice.Parameter;
 import org.genepattern.webservice.AnalysisWebServiceProxy;
+import org.genepattern.webservice.WebServiceException;
 import org.genepattern.util.GPpropertiesManager;
 import org.geworkbench.util.ClassifierException;
 import org.geworkbench.algorithms.AbstractTraining;
@@ -137,7 +138,7 @@ public abstract class GPTraining extends AbstractTraining
         return stat;
     }
 
-    protected PredictionModel createModel(String modelName, Parameter[] parameters)
+    protected PredictionModel createModel(String modelName, Parameter[] parameters) throws ClassifierException
     {
         PredictionModel predModel = null;
         try
@@ -146,6 +147,7 @@ public abstract class GPTraining extends AbstractTraining
             String userName = GPpropertiesManager.getProperty("gp.user.name");
 
             GPServer server = new GPServer(serverName, userName);
+
             JobResult analysisResult = server.runAnalysis(modelName, parameters);
 
             System.out.println("Error occurred: " + analysisResult.hasStandardError());
@@ -172,6 +174,10 @@ public abstract class GPTraining extends AbstractTraining
             AnalysisWebServiceProxy analysisProxy = new AnalysisWebServiceProxy(serverName, userName);
             analysisProxy.purgeJob(analysisResult.getJobNumber());
         }
+        catch(WebServiceException we)
+        {
+            throw new ClassifierException("Could not connect to GenePattern server");
+        }
         catch(Exception e)
         {
             e.printStackTrace();
@@ -189,7 +195,7 @@ public abstract class GPTraining extends AbstractTraining
             {
                 if(!featureNames.contains(feature))
                 {
-                    throw new ClassifierException("Marker: " + feature + " in "+ filename 
+                    throw new ClassifierException("Marker: " + feature + " in "+ filename
                                 + "\nnot found in training data");
                 }
             }
