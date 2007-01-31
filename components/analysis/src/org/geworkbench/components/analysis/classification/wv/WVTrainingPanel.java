@@ -14,8 +14,6 @@ package org.geworkbench.components.analysis.classification.wv;
 import org.geworkbench.algorithms.AbstractTrainingPanel;
 import org.geworkbench.util.ClassifierException;
 import org.geworkbench.bison.algorithm.classification.CSClassifier;
-import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
-import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.bison.model.analysis.ParamValidationResults;
 import org.geworkbench.builtin.projects.LoadData;
 import com.jgoodies.forms.builder.DefaultFormBuilder;
@@ -181,10 +179,7 @@ public class WVTrainingPanel extends AbstractTrainingPanel
 
     public boolean useFeatureFileMethod()
     {
-        if(featureFileMethod.isSelected())
-            return true;
-
-        return false;
+        return(featureFileMethod.isSelected());
     }
 
     private JLabel getGPLogo()
@@ -222,6 +217,10 @@ public class WVTrainingPanel extends AbstractTrainingPanel
 
     protected CSClassifier trainForValidation(java.util.List<float[]> trainingCaseData, java.util.List<float[]> trainingControlData) throws ClassifierException
     {
+        ParamValidationResults validationResults = validateParameters();
+        if(!validationResults.isValid())
+            throw new ClassifierException(validationResults.getMessage());
+
         setTrainingTask(this.wvTraining);
         return wvTraining.trainClassifier(trainingCaseData, trainingControlData);
     }
@@ -231,7 +230,7 @@ public class WVTrainingPanel extends AbstractTrainingPanel
         if(getNumFeatures() <= 0)
             return new ParamValidationResults(false, "num features must be greater than 0");
         else if(getNumFeatures() > getActiveMarkers().size())
-            return new ParamValidationResults(false, "num features can not be greater than " + getActiveMarkers().size());
+            return new ParamValidationResults(false, "num features cannot be greater than \nnumber of activated markers: " + getActiveMarkers().size());
         else if(useMinStdDev() && getMinStdDev() == null)
             return new ParamValidationResults(false, "min std dev not provided");
         else if(useMinStdDev() && Double.parseDouble(getMinStdDev()) <= 0)
