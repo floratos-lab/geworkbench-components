@@ -160,7 +160,7 @@ public abstract class GPTraining extends AbstractTraining
             }
 
             if(modelFileName == null)
-                throw new Exception("Error: No classifier model created");
+                throw new ClassifierException("Error: Classifier model could not be generated");
 
             // save the model of the classifer
             File modelFile = analysisResult.downloadFile(modelFileName, System.getProperty("temporary.files.directory"));
@@ -189,7 +189,8 @@ public abstract class GPTraining extends AbstractTraining
             {
                 if(!featureNames.contains(feature))
                 {
-                    throw new ClassifierException("Marker " + feature + " not found in training data");
+                    throw new ClassifierException("Marker: " + feature + " in "+ filename 
+                                + "\nnot found in training data");
                 }
             }
         }
