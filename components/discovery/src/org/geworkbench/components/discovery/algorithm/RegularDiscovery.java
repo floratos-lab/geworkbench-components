@@ -4,6 +4,7 @@ import org.geworkbench.bison.datastructure.complex.pattern.sequence.DSMatchedSeq
 import org.geworkbench.events.ProgressChangeEvent;
 import org.geworkbench.util.patterns.PatternFetchException;
 import org.geworkbench.util.patterns.PatternOperations;
+import org.geworkbench.util.patterns.PatternDB;
 import org.geworkbench.util.remote.SPLASHDefinition;
 import org.geworkbench.util.session.DiscoverySession;
 import org.geworkbench.util.session.SessionOperationException;
@@ -90,6 +91,9 @@ public final class RegularDiscovery extends ServerBaseDiscovery implements org.g
                 done = discoverySession.isDone();
                 tryWait();
             }
+            //create a resultFile
+            writeToResultfile();
+           
         } catch (SessionOperationException ex) {
             System.out.println(ex.toString());
             ex.printStackTrace();
@@ -213,5 +217,24 @@ public final class RegularDiscovery extends ServerBaseDiscovery implements org.g
     protected void progressChangeListenerAdded() {
         super.progressChangeListenerAdded();
         fireProgressBarEvent();
+    }
+
+  public boolean writeToResultfile(){
+         try{
+        DiscoverySession session = getSession();
+        org.geworkbench.util.patterns.PatternDB patternDB = new PatternDB(sequenceInputData.getFile(), null);
+        int totalPatternNum = session.getPatternNo();
+        for (int i = 0; i <totalPatternNum; i++) {
+            DSMatchedSeqPattern pattern = getPattern(i);
+            PatternOperations.fill(pattern, sequenceInputData);
+            patternDB.add(pattern);
+        }
+        //patternDB.setParameters(widget.getParameters());
+        patternDB.write(resultFile);
+
+         }catch (Exception e){
+             e.printStackTrace();
+         }
+        return true;
     }
 }

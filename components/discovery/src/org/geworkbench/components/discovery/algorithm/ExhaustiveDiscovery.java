@@ -2,9 +2,7 @@ package org.geworkbench.components.discovery.algorithm;
 
 import org.geworkbench.bison.datastructure.complex.pattern.sequence.DSMatchedSeqPattern;
 import org.geworkbench.events.ProgressChangeEvent;
-import org.geworkbench.util.patterns.CSMatchedSeqPattern;
-import org.geworkbench.util.patterns.PatternFetchException;
-import org.geworkbench.util.patterns.SequentialPatternSource;
+import org.geworkbench.util.patterns.*;
 import org.geworkbench.util.remote.SPLASHDefinition;
 import org.geworkbench.util.session.DiscoverySession;
 import org.geworkbench.util.session.SessionOperationException;
@@ -94,6 +92,7 @@ public final class ExhaustiveDiscovery extends ServerBaseDiscovery implements Se
                 done = discoverySession.isDone();
                 tryWait();
             }
+            writeToResultfile();
         } catch (SessionOperationException ex) {
             System.out.println(ex.toString());
             ex.printStackTrace();
@@ -215,5 +214,23 @@ public final class ExhaustiveDiscovery extends ServerBaseDiscovery implements Se
         super.progressChangeListenerAdded();
         fireDisplayUpdate();
 
+    }
+    public boolean writeToResultfile(){
+         try{
+        DiscoverySession session = getSession();
+        org.geworkbench.util.patterns.PatternDB patternDB = new PatternDB(sequenceInputData.getFile(), null);
+        int totalPatternNum = session.getPatternNo();
+        for (int i = 0; i <totalPatternNum; i++) {
+            DSMatchedSeqPattern pattern = getPattern(i);
+            PatternOperations.fill(pattern, sequenceInputData);
+            patternDB.add(pattern);
+        }
+        //patternDB.setParameters(widget.getParameters());
+        patternDB.write(resultFile);
+
+         }catch (Exception e){
+             e.printStackTrace();
+         }
+        return true;
     }
 }

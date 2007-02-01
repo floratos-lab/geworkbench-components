@@ -61,6 +61,9 @@ public class SequenceDiscoveryViewWidget extends JPanel implements StatusChangeL
     //this id is the key for mapping to an AlgorithmStub.
     private String currentStubId = "";
 
+    //Hold the reference to current PD result.
+    private File currentResultFile;
+
     //Contains all the algorithm Stubs - they are mapped by the selected file.
     private HashMap algorithmStubManager = new HashMap();
 
@@ -318,6 +321,19 @@ public class SequenceDiscoveryViewWidget extends JPanel implements StatusChangeL
      *
      * @param type
      */
+
+     private String readParameterAndCreateResultfile(String type) {
+        Parameters p = parmsHandler.readParameter(parameterPanel, getSequenceDB().getSequenceNo(), type);
+        parms = p;
+        //fire a parameter change to the application
+        org.geworkbench.bison.datastructure.complex.pattern.Parameters pp = ParameterTranslation.getParameterTranslation().translate(parms);
+        SoapParmsDataSet pds = new SoapParmsDataSet(pp, "Pattern Discovery", getSequenceDB());
+        String id = pds.getID();
+        File resultFile = pds.getResultFile();
+        currentStubId = currentNodeID + id;
+        firePropertyChange(PARAMETERS, null, pds);
+        return resultFile.getAbsolutePath();
+    }
     private void readParameter(String type) {
         Parameters p = parmsHandler.readParameter(parameterPanel, getSequenceDB().getSequenceNo(), type);
         parms = p;
@@ -392,7 +408,7 @@ public class SequenceDiscoveryViewWidget extends JPanel implements StatusChangeL
     }
 
     private void updateParameterPanel(Parameters p) {
-        System.out.println(" " + p.getMinSupport() + " " + p.getComputePValue());
+        
         parmsHandler.writeParameter(parameterPanel, p);
     }
 
@@ -454,10 +470,15 @@ public class SequenceDiscoveryViewWidget extends JPanel implements StatusChangeL
 
         AlgorithmStub oldStub = (AlgorithmStub) algorithmStubManager.get(oldStubId);
         AlgorithmStub newStub = (AlgorithmStub) algorithmStubManager.get(currentStubId);
-        if (oldStub == null && newStub == null) {
-            //no algorithm stub is mapped
-            return;
+
+        if(currentResultFile!=null){
+            loadPatternFile(currentResultFile);
         }
+   if (oldStub == null && newStub == null) {
+       //no algorithm stub is mapped
+
+       return;
+   }
 
         if (oldStub != null) {
             oldStub.lostFocus(modelList[currentModel]);
@@ -569,9 +590,12 @@ public class SequenceDiscoveryViewWidget extends JPanel implements StatusChangeL
     /**
      * The plain vanilla sequence discovery.
      */
-    private AbstractSequenceDiscoveryAlgorithm discovery_actionPerformed(DiscoverySession discoverySession) {
-        readParameter("Discovery");
-        return new RegularDiscovery(discoverySession, getParameters());
+     private AbstractSequenceDiscoveryAlgorithm discovery_actionPerformed(DiscoverySession session) {
+        String resultStr = readParameterAndCreateResultfile("Discovery");
+        AbstractSequenceDiscoveryAlgorithm abstractSequenceDiscoveryAlgorithm =  new RegularDiscovery(session, getParameters());
+        abstractSequenceDiscoveryAlgorithm.setResultFile(new File(resultStr));
+        abstractSequenceDiscoveryAlgorithm.setSequenceInputData(this.getSequenceDB());
+        return abstractSequenceDiscoveryAlgorithm;
     }
 
     /**
@@ -634,7 +658,40 @@ public class SequenceDiscoveryViewWidget extends JPanel implements StatusChangeL
     public void setParms(Parameters parms) {
         this.parms = parms;
     }
+   public synchronized void setSequenceDB(DSSequenceSet sDB, boolean withExistedPatternNode, String patternNodeID, Parameters p, File resultFile) {
+       //reset the currentResultFile.
+        currentResultFile = null;
 
+        if(resultFile!=null){
+           currentResultFile = resultFile;
+        }
+        if (sequenceDB.getID() != sDB.getID()) {
+            sequenceDB = sDB;
+
+            String stubID = sDB.getID() + sDB.getDataSetName();
+            //Point currentNodeID to the name associated with the sequenceDB name no matter the node is subnode or node.
+            currentNodeID = stubID;
+            if(withExistedPatternNode && patternNodeID != null){
+                stubID += patternNodeID;
+            }
+            //change the stub for the widget
+            projectFileChanged(stubID);
+        }else{
+
+            String stubID = sDB.getID() + sDB.getDataSetName();
+             //Point currentNodeID to the name associated with the sequenceDB name no matter the node is subnode or node.
+            currentNodeID = stubID;
+           if(withExistedPatternNode && patternNodeID != null){
+               stubID += patternNodeID;
+           }
+           //change the stub for the widget
+           projectFileChanged(stubID);
+           if(p!=null){
+               updateParameterPanel(p);
+           }
+
+        }
+    }
     public synchronized void setSequenceDB(DSSequenceSet sDB, boolean withExistedPatternNode, String patternNodeID, Parameters p) {
         if (sequenceDB.getID() != sDB.getID()) {
             sequenceDB = sDB;
@@ -690,6 +747,55 @@ public class SequenceDiscoveryViewWidget extends JPanel implements StatusChangeL
 
     private void readObject(ObjectInputStream ois) throws ClassNotFoundException, IOException {
         ois.defaultReadObject();
+    }
+
+    private void loadPatternFile(File patternfile){
+        File sequenceFile = getSequenceDB().getFile();
+          if (!patternfile.getName().endsWith(".pat")) {
+            String msg = "Not a valid file! File extension must end with .pat";
+
+            JOptionPane.showMessageDialog(null, msg, "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        if (!patternfile.exists()) {
+            String msg = "Not a valid file! File " + patternfile.getName() + " does not exist";
+
+            JOptionPane.showMessageDialog(null, msg, "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+
+        }
+
+        String type = "";
+        try {
+            BufferedReader bf = new BufferedReader(new FileReader(patternfile));
+            type = bf.readLine();
+            bf.close();
+        } catch (Exception e1) {
+            e1.printStackTrace();
+        }
+
+        AbstractSequenceDiscoveryAlgorithm loader = null;
+        String algoPanelName = "";
+        int id = DEFAULT_VIEW;
+        if (type != null && type.equalsIgnoreCase(AlgorithmSelectionPanel.DISCOVER)) {
+            loader = new RegularDiscoveryFileLoader(sequenceFile, patternfile);
+            id = PATTERN_TABLE;
+            algoPanelName = AlgorithmSelectionPanel.DISCOVER;
+        } else if (type != null && type.equalsIgnoreCase(AlgorithmSelectionPanel.HIERARCHICAL)) {
+            loader = new HierarchicalDiscoveryFileLoader(sequenceFile, patternfile);
+            id = PATTERN_TREE;
+            algoPanelName = AlgorithmSelectionPanel.HIERARCHICAL;
+
+        } else {
+            System.err.println("Loading failed. Did not recognize the data.");
+            return;
+        }
+
+        switchAlgo(algoPanelName, loader, id);
+
+        //fire a clear table event
+        firePropertyChange(TABLE_EVENT, null, null);
     }
 
     void loadBttn_actionPerformed(ActionEvent e) {

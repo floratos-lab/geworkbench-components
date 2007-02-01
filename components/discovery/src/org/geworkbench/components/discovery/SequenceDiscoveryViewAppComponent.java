@@ -206,20 +206,21 @@ import java.util.ArrayList;
                 //update db with the selected file in the project
                 if (df instanceof DSSequenceSet) {
                     Parameters parms = null;
+                    File resultFile = null;
                     sequenceDB = (DSSequenceSet) df;
                     DSAncillaryDataSet ds = selection.getDataSubSet();
                     String subNodeID = null;
                     boolean withSubNode = false;
                     if( ds!= null && ds instanceof SoapParmsDataSet){
-                        ParameterTranslation.getParameterTranslation(). getParameters(((SoapParmsDataSet)ds).getParameters());
+                       // ParameterTranslation.getParameterTranslation(). getParameters(((SoapParmsDataSet)ds).getParameters());
 
                         parms = ParameterTranslation.getParameterTranslation(). getParameters(((SoapParmsDataSet)ds).getParameters());
                        ;
                         subNodeID = ds.getID();
                         withSubNode = true;
+                        resultFile = ((SoapParmsDataSet)ds).getResultFile();
                     }
-
-                    sDiscoveryViewWidget.setSequenceDB((DSSequenceSet) df, withSubNode, subNodeID, parms);
+                    sDiscoveryViewWidget.setSequenceDB((DSSequenceSet) df, withSubNode, subNodeID, parms, resultFile);
 
                 } else if (df instanceof SoapParmsDataSet) {
                     SoapParmsDataSet pds = (SoapParmsDataSet) df;

@@ -310,9 +310,11 @@ public class ParameterPanel extends JPanel {
 
         AdvancedPane.add(jExactOnlyBox, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(1, 2, 1, 2), 0, 0));
         AdvancedPane.add(jCountSeqBox, new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(1, 2, 1, 40), 0, 0));
-        AdvancedPane.add(jPValueBox, new GridBagConstraints(0, 3, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.BOTH, new Insets(1, 2, 1, 2), 0, 0));
-        AdvancedPane.add(jMinPValueLabel, new GridBagConstraints(1, 3, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(1, 2, 2, 2), 0, 0));
-        AdvancedPane.add(jMinPValueBox, new GridBagConstraints(2, 3, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(1, 1, 2, 2), 0, 0));
+
+        //Remove Z score, fix bug 850
+//        AdvancedPane.add(jPValueBox, new GridBagConstraints(0, 3, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.BOTH, new Insets(1, 2, 1, 2), 0, 0));
+//        AdvancedPane.add(jMinPValueLabel, new GridBagConstraints(1, 3, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(1, 2, 2, 2), 0, 0));
+//        AdvancedPane.add(jMinPValueBox, new GridBagConstraints(2, 3, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(1, 1, 2, 2), 0, 0));
         AdvancedPane.add(jMatrixBox, new GridBagConstraints(1, 0, 2, 1, 1.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2), 0, 0));
         AdvancedPane.add(jSimThresholdLabel, new GridBagConstraints(1, 1, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(1, 2, 2, 2), 0, 0));
         AdvancedPane.add(jSimThresholdBox, new GridBagConstraints(2, 1, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(1, 1, 2, 2), 0, 0));
