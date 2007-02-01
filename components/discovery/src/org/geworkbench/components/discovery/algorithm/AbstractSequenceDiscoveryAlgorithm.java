@@ -4,9 +4,11 @@ import org.geworkbench.events.ProgressChangeEvent;
 import org.geworkbench.events.StatusBarEvent;
 import org.geworkbench.events.listeners.ProgressChangeListener;
 import org.geworkbench.events.listeners.StatusChangeListener;
+import org.geworkbench.bison.datastructure.biocollections.sequences.DSSequenceSet;
 
 import javax.swing.event.EventListenerList;
 import java.util.EventListener;
+import java.io.File;
 
 /**
  * <p>Title: Sequence and Pattern Plugin</p>
@@ -25,6 +27,8 @@ public abstract class AbstractSequenceDiscoveryAlgorithm implements org.geworkbe
      */
     private EventListenerList listenerList = new EventListenerList();
 
+    File resultFile;
+    DSSequenceSet sequenceInputData;
     /**
      * Adds a listener to the list that's notified each time a change
      * to the progress of the algorithm occurs.
@@ -220,5 +224,21 @@ public abstract class AbstractSequenceDiscoveryAlgorithm implements org.geworkbe
      */
     public double getCompletion() {
         return 0.0;
+    }
+
+    public File getResultFile() {
+        return resultFile;
+    }
+
+    public void setResultFile(File resultFile) {
+        this.resultFile = resultFile;
+    }
+
+    public DSSequenceSet getSequenceInputData() {
+        return sequenceInputData;
+    }
+
+    public void setSequenceInputData(DSSequenceSet sequenceInputData) {
+        this.sequenceInputData = sequenceInputData;
     }
 }

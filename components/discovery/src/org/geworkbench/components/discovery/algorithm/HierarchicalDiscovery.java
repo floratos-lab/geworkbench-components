@@ -4,9 +4,11 @@ import org.geworkbench.components.discovery.view.PatternNode;
 import org.geworkbench.util.associationdiscovery.cluster.hierarchical.Node;
 import org.geworkbench.util.patterns.PatternOperations;
 import org.geworkbench.util.patterns.TreePatternSource;
+import org.geworkbench.util.patterns.PatternDB;
 import org.geworkbench.util.remote.SPLASHDefinition;
 import org.geworkbench.util.session.DiscoverySession;
 import org.geworkbench.util.session.SessionOperationException;
+import org.geworkbench.bison.datastructure.complex.pattern.sequence.DSMatchedSeqPattern;
 import polgara.soapPD_wsdl.Parameters;
 
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -105,7 +107,7 @@ public class HierarchicalDiscovery extends ServerBaseDiscovery implements TreePa
                 //visual updates
                 fireProgressBarEvent();
             }
-
+            writeToResultfile();
             if (isStop()) {
                 stopMessage();
             } else {
@@ -283,6 +285,24 @@ public class HierarchicalDiscovery extends ServerBaseDiscovery implements TreePa
     protected void progressChangeListenerAdded() {
         super.progressChangeListenerAdded();
         fireProgressBarEvent();
+    }
+    public boolean writeToResultfile(){
+         try{
+        DiscoverySession session = getSession();
+        org.geworkbench.util.patterns.PatternDB patternDB = new PatternDB(sequenceInputData.getFile(), null);
+        int totalPatternNum = session.getPatternNo();
+        for (int i = 0; i <totalPatternNum; i++) {
+//            DSMatchedSeqPattern pattern = getPattern(i);
+//            PatternOperations.fill(pattern, sequenceInputData);
+//            patternDB.add(pattern);
+        }
+        //patternDB.setParameters(widget.getParameters());
+//        patternDB.write(resultFile);
+
+         }catch (Exception e){
+             e.printStackTrace();
+         }
+        return true;
     }
 
 }

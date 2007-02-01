@@ -90,6 +90,7 @@ public abstract class ServerBaseDiscovery extends AbstractSequenceDiscoveryAlgor
                 //reconnection code
                 reconnectAlgorithm();
             }
+
         } //end try
         catch (SessionOperationException ex) {
             System.out.println(ex.toString());
@@ -210,4 +211,6 @@ public abstract class ServerBaseDiscovery extends AbstractSequenceDiscoveryAlgor
      */
 
     protected abstract void reconnectAlgorithm();
+
+    
 }
