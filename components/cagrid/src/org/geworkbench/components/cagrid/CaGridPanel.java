@@ -23,15 +23,7 @@ import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarr
 import org.geworkbench.bison.datastructure.biocollections.views.CSMicroarraySetView;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
-import org.geworkbench.bison.model.clusters.CSHierClusterDataSet;
-import org.geworkbench.bison.model.clusters.CSSOMClusterDataSet;
-import org.geworkbench.bison.model.clusters.DSHierClusterDataSet;
-import org.geworkbench.bison.model.clusters.DefaultSOMCluster;
-import org.geworkbench.bison.model.clusters.HierCluster;
-import org.geworkbench.bison.model.clusters.LeafSOMCluster;
-import org.geworkbench.bison.model.clusters.MarkerHierCluster;
-import org.geworkbench.bison.model.clusters.MicroarrayHierCluster;
-import org.geworkbench.bison.model.clusters.SOMCluster;
+import org.geworkbench.bison.model.clusters.*;
 import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.engine.management.Publish;
 import org.geworkbench.engine.management.Script;
@@ -60,7 +52,7 @@ import gov.nih.nci.cagrid.metadata.ServiceMetadata;
 /**
  * @author watkinson
  * @author keshav
- * @version $Id: CaGridPanel.java,v 1.21 2007-01-31 18:14:53 mhall Exp $
+ * @version $Id: CaGridPanel.java,v 1.22 2007-02-02 17:08:03 mhall Exp $
  */
 public class CaGridPanel extends JPanel implements VisualPlugin {
 
@@ -439,7 +431,31 @@ public class CaGridPanel extends JPanel implements VisualPlugin {
 		}
 	}
 
-	/**
+	@Script
+    public DSSOMClusterDataSet doSOMClustering(DSMicroarraySet microarraySet,
+                                                double alpha,
+                                                int dim_x,
+                                                int dim_y,
+                                                int function,
+                                                int iteration,
+                                                double radius,
+                                                String url)
+            throws Exception {
+        log.debug("script method:  do SOM clustering");
+        CSMicroarraySetView view = new CSMicroarraySetView(microarraySet);
+        MicroarraySet gridSet = CagridMicroarrayTypeConverter
+                .convertToCagridMicroarrayType(view);
+        SomClusteringParameter parameters = new SomClusteringParameter((float) alpha, dim_x, dim_y, function, iteration, (float) radius);
+        SomClusteringClient client = new SomClusteringClient(url);
+        SomCluster somCluster = client.execute(gridSet, parameters);
+        if (somCluster != null) {
+            CSSOMClusterDataSet bisonSomClustering = createBisonSomClustering(somCluster, view);
+            return bisonSomClustering;
+        }
+        return null;
+    }
+
+    /**
 	 * @param name
 	 * @return DSMicroarray
 	 */
