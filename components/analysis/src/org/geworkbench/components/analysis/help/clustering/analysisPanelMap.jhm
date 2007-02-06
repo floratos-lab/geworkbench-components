@@ -8,7 +8,7 @@
 
 	<mapID target="overview" url="Clustering_Overview.htm"/>
 
-	<mapID target="hier.clustering" url="Hierarchical Clustering.htm"/>
+	<mapID target="hier.clustering" url="HierarchicalClustering.htm"/>
 
 	<mapID target="som.clustering" url="SOMClustering.htm"/>
 	
