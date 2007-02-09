@@ -1,12 +1,8 @@
 package edu.columbia.geworkbench.cagrid.converter;
 
-import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-
-import org.apache.axis.encoding.Base64;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.ginkgo.labs.converter.BasicConverter;
 
 import edu.columbia.geworkbench.cagrid.microarray.Marker;
 import edu.columbia.geworkbench.cagrid.microarray.Microarray;
@@ -21,7 +17,7 @@ import edu.duke.cabig.rproteomics.model.statml.ScalarType;
  * A converter that contains methods for conversion of basic data structures.
  * 
  * @author keshav
- * @version $Id: Converter.java,v 1.2 2007-02-09 17:18:00 keshav Exp $
+ * @version $Id: Converter.java,v 1.3 2007-02-09 23:40:25 keshav Exp $
  */
 public class Converter {
 
@@ -95,7 +91,7 @@ public class Converter {
 
 			ArrayType array = new ArrayType();
 			array.setName("array" + j);
-			String base64Value = Converter.base64Encode(col);
+			String base64Value = BasicConverter.base64Encode(col);
 			array.set_value(base64Value);
 			array.setType(ArrayTypeType.value5);
 			microarrays.setArray(array);
@@ -113,36 +109,5 @@ public class Converter {
 		microarraySet.setList(microarrays);
 
 		return microarraySet;
-	}
-
-	/**
-	 * @param farray
-	 * @return byte[]
-	 */
-	public static byte[] floatArrayToBytes(float[] farray) {
-		if (farray == null)
-			return null;
-		ByteArrayOutputStream bos = new ByteArrayOutputStream();
-		DataOutputStream dos = new DataOutputStream(bos);
-		try {
-			for (int i = 0; i < farray.length; i++) {
-				dos.writeDouble(farray[i]);
-			}
-		} catch (IOException e) {
-			throw new RuntimeException(
-					"Error converting float array to byte array.");
-		}
-		return bos.toByteArray();
-	}
-
-	/**
-	 * 
-	 * @param data
-	 * @return String
-	 */
-	public static String base64Encode(float[] data) {
-		byte[] bdata = Converter.floatArrayToBytes(data);
-		String base64Value = Base64.encode(bdata);
-		return base64Value;
 	}
 }
