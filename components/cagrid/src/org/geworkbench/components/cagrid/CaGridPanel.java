@@ -43,7 +43,7 @@ import edu.columbia.geworkbench.cagrid.cluster.hierarchical.HierarchicalClusterN
 import edu.columbia.geworkbench.cagrid.cluster.hierarchical.HierarchicalClusteringParameter;
 import edu.columbia.geworkbench.cagrid.cluster.som.SomCluster;
 import edu.columbia.geworkbench.cagrid.cluster.som.SomClusteringParameter;
-import edu.columbia.geworkbench.cagrid.converter.CagridMicroarrayTypeConverter;
+import edu.columbia.geworkbench.cagrid.converter.CaGridConverter;
 import edu.columbia.geworkbench.cagrid.discovery.client.AnalyticalServiceDiscoveryClient;
 import edu.columbia.geworkbench.cagrid.microarray.MicroarraySet;
 import gov.nih.nci.cagrid.discovery.MetadataUtils;
@@ -52,7 +52,7 @@ import gov.nih.nci.cagrid.metadata.ServiceMetadata;
 /**
  * @author watkinson
  * @author keshav
- * @version $Id: CaGridPanel.java,v 1.22 2007-02-02 17:08:03 mhall Exp $
+ * @version $Id: CaGridPanel.java,v 1.23 2007-02-09 23:50:03 keshav Exp $
  */
 public class CaGridPanel extends JPanel implements VisualPlugin {
 
@@ -260,7 +260,7 @@ public class CaGridPanel extends JPanel implements VisualPlugin {
 					try {
 						CSMicroarraySetView view = new CSMicroarraySetView(
 								microarraySet);
-						MicroarraySet gridSet = CagridMicroarrayTypeConverter
+						MicroarraySet gridSet = CaGridConverter
 								.convertToCagridMicroarrayType(view);
 
 						if (url.contains(HIERARCHICAL_CLUSTERING)) {
@@ -414,7 +414,7 @@ public class CaGridPanel extends JPanel implements VisualPlugin {
 			throws Exception {
 		log.debug("script method:  do clustering");
 		CSMicroarraySetView view = new CSMicroarraySetView(microarraySet);
-		MicroarraySet gridSet = CagridMicroarrayTypeConverter
+		MicroarraySet gridSet = CaGridConverter
 				.convertToCagridMicroarrayType(view);
 		HierarchicalClusteringParameter parameters = new HierarchicalClusteringParameter(
 				dimensions, distance, method);
@@ -443,7 +443,7 @@ public class CaGridPanel extends JPanel implements VisualPlugin {
             throws Exception {
         log.debug("script method:  do SOM clustering");
         CSMicroarraySetView view = new CSMicroarraySetView(microarraySet);
-        MicroarraySet gridSet = CagridMicroarrayTypeConverter
+        MicroarraySet gridSet = CaGridConverter
                 .convertToCagridMicroarrayType(view);
         SomClusteringParameter parameters = new SomClusteringParameter((float) alpha, dim_x, dim_y, function, iteration, (float) radius);
         SomClusteringClient client = new SomClusteringClient(url);

@@ -5,7 +5,7 @@ import edu.columbia.geworkbench.cagrid.cluster.hierarchical.HierarchicalCluster;
 import edu.columbia.geworkbench.cagrid.cluster.hierarchical.HierarchicalClusteringParameter;
 import edu.columbia.geworkbench.cagrid.cluster.hierarchical.stubs.HierarchicalClusteringPortType;
 import edu.columbia.geworkbench.cagrid.cluster.hierarchical.stubs.service.HierarchicalClusteringServiceAddressingLocator;
-import edu.columbia.geworkbench.cagrid.converter.Converter;
+import edu.columbia.geworkbench.cagrid.converter.CaGridConverter;
 import edu.columbia.geworkbench.cagrid.microarray.Marker;
 import edu.columbia.geworkbench.cagrid.microarray.Microarray;
 import edu.columbia.geworkbench.cagrid.microarray.MicroarraySet;
@@ -33,7 +33,7 @@ import org.globus.gsi.GlobusCredential;
  * 
  * @created by Introduce Toolkit version 1.0
  * @author keshav
- * @version $Id: HierarchicalClusteringClient.java,v 1.7 2007-02-09 21:56:10 keshav Exp $
+ * @version $Id: HierarchicalClusteringClient.java,v 1.8 2007-02-09 23:50:03 keshav Exp $
  */
 public class HierarchicalClusteringClient extends ServiceSecurityClient implements HierarchicalClusteringI {
     private static Log log = LogFactory.getLog( HierarchicalClusteringClient.class );
@@ -104,7 +104,7 @@ public class HierarchicalClusteringClient extends ServiceSecurityClient implemen
                     log.debug( "Invoking Hierarchical Clustering Service ... " );
                     // MicroarraySet arraySet = client.configureTestMicroarrays(); // test
                     String filename = args[2];
-                    MicroarraySet arraySet = Converter.float2DToMicroarraySet( TabFileReader.readTabFile( filename ) );
+                    MicroarraySet arraySet = CaGridConverter.float2DToMicroarraySet( TabFileReader.readTabFile( filename ) );
 
                     HierarchicalClusteringParameter parameters = new HierarchicalClusteringParameter();
                     parameters.setDim( "both" );
