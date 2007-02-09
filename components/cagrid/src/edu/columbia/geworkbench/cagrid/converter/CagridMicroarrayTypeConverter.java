@@ -14,6 +14,7 @@ import org.geworkbench.bison.datastructure.bioobjects.microarray.CSMicroarray;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMarkerValue;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
+import org.ginkgo.labs.converter.BasicConverter;
 
 import edu.columbia.geworkbench.cagrid.microarray.Marker;
 import edu.columbia.geworkbench.cagrid.microarray.Microarray;
@@ -120,7 +121,7 @@ public class CagridMicroarrayTypeConverter {
 
 			/* cagrid array */
 			ArrayType array = new ArrayType();
-			String base64Value = Converter.base64Encode(data);
+			String base64Value = BasicConverter.base64Encode(data);
 			array.set_value(base64Value);
 			array.setName(name);
 			arrays.setArray(array);
@@ -261,7 +262,7 @@ public class CagridMicroarrayTypeConverter {
 
 			ArrayType array = new ArrayType();
 			array.setName("array" + j);
-			String base64Value = Converter.base64Encode(col);
+			String base64Value = BasicConverter.base64Encode(col);
 			array.set_value(base64Value);
 			array.setType(ArrayTypeType.value5);
 			microarrays.setArray(array);
