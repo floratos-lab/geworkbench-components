@@ -10,7 +10,7 @@ import edu.columbia.geworkbench.cagrid.converter.Converter;
 import edu.columbia.geworkbench.cagrid.microarray.Marker;
 import edu.columbia.geworkbench.cagrid.microarray.Microarray;
 import edu.columbia.geworkbench.cagrid.microarray.MicroarraySet;
-import edu.columbia.geworkbench.cagrid.utils.GridUtils;
+import org.ginkgo.labs.reader.TabFileReader;
 import gov.nih.nci.cagrid.introduce.security.client.ServiceSecurityClient;
 
 import java.io.File;
@@ -41,7 +41,7 @@ import org.globus.gsi.GlobusCredential;
  * 
  * @created by Introduce Toolkit version 1.0
  * @author keshav
- * @version $Id: SomClusteringClient.java,v 1.3 2007-01-11 21:31:50 keshav Exp $
+ * @version $Id: SomClusteringClient.java,v 1.4 2007-02-09 21:56:10 keshav Exp $
  */
 public class SomClusteringClient extends ServiceSecurityClient implements
 		SomClusteringI {
@@ -123,7 +123,7 @@ public class SomClusteringClient extends ServiceSecurityClient implements
 					// client.configureTestMicroarrays(); // test
 					String filename = args[2];
 					MicroarraySet arraySet = Converter
-							.float2DToMicroarraySet(GridUtils
+							.float2DToMicroarraySet(TabFileReader
 									.readTabFile(filename));
 
 					/* set parameters */
