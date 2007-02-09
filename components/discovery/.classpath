@@ -6,5 +6,7 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/geworkbench-core"/>
 	<classpathentry kind="lib" path="lib/axis.jar"/>
 	<classpathentry kind="lib" path="lib/ogsa.jar"/>
+	<classpathentry kind="lib" path="lib/polgara.jar"/>
+	<classpathentry kind="lib" path="lib/globusSplash.jar"/>
 	<classpathentry kind="output" path="classes"/>
 </classpath>
