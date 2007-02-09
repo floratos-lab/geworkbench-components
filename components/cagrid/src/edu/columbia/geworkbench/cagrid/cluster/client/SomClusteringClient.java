@@ -1,7 +1,6 @@
 package edu.columbia.geworkbench.cagrid.cluster.client;
 
 import edu.columbia.geworkbench.cagrid.cluster.common.SomClusteringI;
-import edu.columbia.geworkbench.cagrid.cluster.parser.TabDelimParser;
 import edu.columbia.geworkbench.cagrid.cluster.som.SomCluster;
 import edu.columbia.geworkbench.cagrid.cluster.som.SomClusteringParameter;
 import edu.columbia.geworkbench.cagrid.cluster.som.stubs.SomClusteringPortType;
@@ -10,7 +9,6 @@ import edu.columbia.geworkbench.cagrid.converter.Converter;
 import edu.columbia.geworkbench.cagrid.microarray.Marker;
 import edu.columbia.geworkbench.cagrid.microarray.Microarray;
 import edu.columbia.geworkbench.cagrid.microarray.MicroarraySet;
-import org.ginkgo.labs.reader.TabFileReader;
 import gov.nih.nci.cagrid.introduce.security.client.ServiceSecurityClient;
 
 import java.io.File;
@@ -30,6 +28,8 @@ import org.apache.axis.types.URI.MalformedURIException;
 import org.apache.axis.utils.ClassUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.ginkgo.labs.parser.TabDelimParser;
+import org.ginkgo.labs.reader.TabFileReader;
 import org.globus.gsi.GlobusCredential;
 
 /**
@@ -41,7 +41,7 @@ import org.globus.gsi.GlobusCredential;
  * 
  * @created by Introduce Toolkit version 1.0
  * @author keshav
- * @version $Id: SomClusteringClient.java,v 1.4 2007-02-09 21:56:10 keshav Exp $
+ * @version $Id: SomClusteringClient.java,v 1.5 2007-02-09 22:36:17 keshav Exp $
  */
 public class SomClusteringClient extends ServiceSecurityClient implements
 		SomClusteringI {
