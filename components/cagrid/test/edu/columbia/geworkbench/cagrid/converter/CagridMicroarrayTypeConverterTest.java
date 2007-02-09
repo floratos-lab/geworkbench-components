@@ -4,13 +4,13 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 
 import junit.framework.TestCase;
-import edu.columbia.geworkbench.cagrid.utils.GridUtils;
+import org.ginkgo.labs.reader.TabFileReader;
 import edu.duke.cabig.rproteomics.model.statml.DataType;
 
 /**
  * 
  * @author keshav
- * @version $Id: CagridMicroarrayTypeConverterTest.java,v 1.1 2007-02-09 17:18:00 keshav Exp $
+ * @version $Id: CagridMicroarrayTypeConverterTest.java,v 1.2 2007-02-09 21:56:10 keshav Exp $
  */
 public class CagridMicroarrayTypeConverterTest extends TestCase {
 
@@ -34,7 +34,7 @@ public class CagridMicroarrayTypeConverterTest extends TestCase {
 	 */
 	public void testConvertToCagridDataType() {
 
-		float[][] fdata = GridUtils.readTabFile(is);
+		float[][] fdata = TabFileReader.readTabFile(is);
 		DataType microaraySet = Converter.float2DToDataType(fdata);
 		// CagridMicroarrayTypeConverter.convertToCagridDataType(microarraySetView);
 

@@ -9,7 +9,6 @@ import edu.columbia.geworkbench.cagrid.converter.Converter;
 import edu.columbia.geworkbench.cagrid.microarray.Marker;
 import edu.columbia.geworkbench.cagrid.microarray.Microarray;
 import edu.columbia.geworkbench.cagrid.microarray.MicroarraySet;
-import edu.columbia.geworkbench.cagrid.utils.GridUtils;
 import gov.nih.nci.cagrid.introduce.security.client.ServiceSecurityClient;
 
 import java.io.InputStream;
@@ -24,6 +23,7 @@ import org.apache.axis.types.URI.MalformedURIException;
 import org.apache.axis.utils.ClassUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.ginkgo.labs.reader.TabFileReader;
 import org.globus.gsi.GlobusCredential;
 
 /**
@@ -33,7 +33,7 @@ import org.globus.gsi.GlobusCredential;
  * 
  * @created by Introduce Toolkit version 1.0
  * @author keshav
- * @version $Id: HierarchicalClusteringClient.java,v 1.6 2007-01-25 21:33:19 keshav Exp $
+ * @version $Id: HierarchicalClusteringClient.java,v 1.7 2007-02-09 21:56:10 keshav Exp $
  */
 public class HierarchicalClusteringClient extends ServiceSecurityClient implements HierarchicalClusteringI {
     private static Log log = LogFactory.getLog( HierarchicalClusteringClient.class );
@@ -104,7 +104,7 @@ public class HierarchicalClusteringClient extends ServiceSecurityClient implemen
                     log.debug( "Invoking Hierarchical Clustering Service ... " );
                     // MicroarraySet arraySet = client.configureTestMicroarrays(); // test
                     String filename = args[2];
-                    MicroarraySet arraySet = Converter.float2DToMicroarraySet( GridUtils.readTabFile( filename ) );
+                    MicroarraySet arraySet = Converter.float2DToMicroarraySet( TabFileReader.readTabFile( filename ) );
 
                     HierarchicalClusteringParameter parameters = new HierarchicalClusteringParameter();
                     parameters.setDim( "both" );
@@ -117,8 +117,8 @@ public class HierarchicalClusteringClient extends ServiceSecurityClient implemen
                             + hierarchicalClustering.getMicroarrayCluster().getHeight() + "\nmarker cluster height: "
                             + hierarchicalClustering.getMarkerCluster().getHeight() );
                     
-                    GridUtils.serializeToXml(arraySet);
-                    GridUtils.serializeToXml(hierarchicalClustering);
+                    TabFileReader.serializeToXml(arraySet);
+                    TabFileReader.serializeToXml(hierarchicalClustering);
 
                 } else {
                     usage();
