@@ -5,5 +5,6 @@
 	<classpathentry kind="lib" path="lib/JSciCore.jar"/>
 	<classpathentry kind="lib" path="lib/smlr.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/geworkbench-core"/>
+	<classpathentry kind="lib" path="lib/gp-full.jar"/>
 	<classpathentry kind="output" path="classes"/>
 </classpath>
