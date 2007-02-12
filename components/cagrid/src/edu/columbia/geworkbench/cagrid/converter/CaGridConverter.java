@@ -21,7 +21,6 @@ import edu.columbia.geworkbench.cagrid.microarray.Microarray;
 import edu.columbia.geworkbench.cagrid.microarray.MicroarraySet;
 import edu.duke.cabig.rproteomics.model.statml.Array;
 import edu.duke.cabig.rproteomics.model.statml.Data;
-import edu.duke.cabig.rproteomics.model.statml.List;
 import edu.duke.cabig.rproteomics.model.statml.Scalar;
 
 /**
@@ -93,7 +92,7 @@ public class CaGridConverter {
 	/**
 	 * 
 	 * @param microarraySetView
-	 * @return DataType
+	 * @return Data
 	 */
 	public static Data convertToCagridDataType(
 			DSMicroarraySetView microarraySetView) {
@@ -235,7 +234,7 @@ public class CaGridConverter {
 	/**
 	 * 
 	 * @param data
-	 * @return DataType
+	 * @return Data
 	 */
 	public static Data float2DToDataType(float[][] data) {
 
