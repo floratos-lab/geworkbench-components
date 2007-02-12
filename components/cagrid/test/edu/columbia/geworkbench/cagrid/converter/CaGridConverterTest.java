@@ -7,7 +7,7 @@ import junit.framework.TestCase;
 
 import org.ginkgo.labs.reader.TabFileReader;
 
-import edu.duke.cabig.rproteomics.model.statml.DataType;
+import edu.duke.cabig.rproteomics.model.statml.Data;
 
 /**
  * 
@@ -38,7 +38,7 @@ public class CaGridConverterTest extends TestCase {
 	public void testConvertToCagridDataType() {
 
 		float[][] fdata = TabFileReader.readTabFile(is);
-		DataType microaraySet = CaGridConverter.float2DToDataType(fdata);
+		Data microaraySet = CaGridConverter.float2DToDataType(fdata);
 		// CagridMicroarrayTypeConverter.convertToCagridDataType(microarraySetView);
 
 	}
