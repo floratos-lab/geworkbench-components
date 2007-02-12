@@ -544,7 +544,7 @@ public class SequenceRetriever implements VisualPlugin {
                 if (sequence != null) {
                     RetrievedSequenceView retrievedSequenceView = currentRetrievedMap.get(sequence.toString());
                     if (retrievedSequenceView.isIncluded()) {
-                        selectedSequenceDB.add(sequence);
+                        selectedSequenceDB.addASequence((DSSequence)sequence);
                     }
                 }
             }
