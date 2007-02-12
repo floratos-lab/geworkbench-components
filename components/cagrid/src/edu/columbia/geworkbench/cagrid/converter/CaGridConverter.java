@@ -19,11 +19,10 @@ import org.ginkgo.labs.converter.BasicConverter;
 import edu.columbia.geworkbench.cagrid.microarray.Marker;
 import edu.columbia.geworkbench.cagrid.microarray.Microarray;
 import edu.columbia.geworkbench.cagrid.microarray.MicroarraySet;
-import edu.duke.cabig.rproteomics.model.statml.ArrayType;
-import edu.duke.cabig.rproteomics.model.statml.ArrayTypeType;
-import edu.duke.cabig.rproteomics.model.statml.DataType;
-import edu.duke.cabig.rproteomics.model.statml.ListType;
-import edu.duke.cabig.rproteomics.model.statml.ScalarType;
+import edu.duke.cabig.rproteomics.model.statml.Array;
+import edu.duke.cabig.rproteomics.model.statml.Data;
+import edu.duke.cabig.rproteomics.model.statml.List;
+import edu.duke.cabig.rproteomics.model.statml.Scalar;
 
 /**
  * Converts to/from cagrid microarray set types from/to geworkbench microarray
@@ -96,7 +95,7 @@ public class CaGridConverter {
 	 * @param microarraySetView
 	 * @return DataType
 	 */
-	public static DataType convertToCagridDataType(
+	public static Data convertToCagridDataType(
 			DSMicroarraySetView microarraySetView) {
 
 		DSMicroarraySet microarraySet = microarraySetView.getMicroarraySet();
@@ -105,11 +104,13 @@ public class CaGridConverter {
 		int numArrays = microarraySetView.size();
 		String arrayName = microarraySet.getDataSetName();
 
-		ListType arrays = new ListType();
+		/* extract marker info from DSMicroarraySet */
+		int numMarkers = ((DSMicroarray) microarraySet.get(0)).getMarkerNo();
+
+		Array[] arrays = new Array[numArrays];
 		NonNegativeInteger numArraysAsNonNegInteger = new NonNegativeInteger(
 				String.valueOf(numArrays));
-		arrays.setLength(numArraysAsNonNegInteger);
-		// arrays.setType(type);
+
 		for (int i = 0; i < numArrays; i++) {
 			/* geworkbench array */
 			DSMicroarray microarray = (DSMicroarray) microarraySetView.get(i);
@@ -119,35 +120,32 @@ public class CaGridConverter {
 				name = "i";// give array a name
 
 			/* cagrid array */
-			ArrayType array = new ArrayType();
+			Array array = new Array();
 			String base64Value = BasicConverter.base64Encode(data);
-			array.set_value(base64Value);
+			array.setBase64Value(base64Value);
 			array.setName(name);
-			arrays.setArray(array);
+			array.setType("float");
+			array.setDimensions(String.valueOf(numMarkers));
+			arrays[i] = array;
 		}
 
-		/* extract marker info from DSMicroarraySet */
-		int numMarkers = ((DSMicroarray) microarraySet.get(0)).getMarkerNo();
-
-		ListType markers = new ListType();
-		NonNegativeInteger numMarkersAsNonNegInteger = new NonNegativeInteger(
-				String.valueOf(numMarkers));
-		markers.setLength(numMarkersAsNonNegInteger);
-		// markers.setType(type);
+		Scalar[] markers = new Scalar[numMarkers];
 
 		int i = 0;
 		for (DSGeneMarker marker : (DSItemList<DSGeneMarker>) microarraySetView
 				.markers()) {
-			ScalarType scalar = new ScalarType();
-			scalar.setName(marker.getLabel());
-			markers.setScalar(scalar);
+			Scalar scalar = new Scalar();
+			scalar.setName(String.valueOf(i));
+			scalar.setValue(marker.getLabel());
+			scalar.setType("String");
+			markers[i] = scalar;
 			i++;
 		}
 
 		/* cagrid array set */
-		DataType dataType = new DataType();
-		dataType.setList(arrays);
-		dataType.setList(markers);
+		Data dataType = new Data();
+		dataType.setArray(arrays);
+		dataType.setScalar(markers);
 
 		return dataType;
 	}
@@ -239,7 +237,7 @@ public class CaGridConverter {
 	 * @param data
 	 * @return DataType
 	 */
-	public static DataType float2DToDataType(float[][] data) {
+	public static Data float2DToDataType(float[][] data) {
 
 		int numMarkers = data.length;
 		int numMicroarrays = data[0].length;
@@ -247,9 +245,9 @@ public class CaGridConverter {
 		log.debug("data set contains " + numMicroarrays + " microarrays");
 		log.debug("data set contains " + numMarkers + " markers");
 
-		DataType microarraySet = new DataType();
-		ListType microarrays = new ListType();
-		ListType markers = new ListType();
+		Data microarraySet = new Data();
+		Array[] microarrays = new Array[numMicroarrays];
+		Scalar[] markers = new Scalar[numMarkers];
 
 		// FIXME should have a marker equivalent of constructing this matrix
 		// set array data
@@ -259,24 +257,26 @@ public class CaGridConverter {
 				col[i] = data[i][j];
 			}
 
-			ArrayType array = new ArrayType();
+			Array array = new Array();
 			array.setName("array" + j);
+			array.setType("float");
+			array.setDimensions(String.valueOf(numMarkers));
 			String base64Value = BasicConverter.base64Encode(col);
-			array.set_value(base64Value);
-			array.setType(ArrayTypeType.value5);
-			microarrays.setArray(array);
+			array.setBase64Value(base64Value);
+			microarrays[j] = array;
 		}
 
 		// set marker names
 		for (int i = 0; i < numMarkers; i++) {
-
-			ScalarType scalar = new ScalarType();
-			scalar.setName(i + "_at");
-			markers.setScalar(scalar);
+			Scalar scalar = new Scalar();
+			scalar.setName(String.valueOf(i));
+			scalar.setValue(i + "_at");
+			scalar.setType("String");
+			markers[i] = scalar;
 		}
 
-		microarraySet.setList(markers);
-		microarraySet.setList(microarrays);
+		microarraySet.setScalar(markers);
+		microarraySet.setArray(microarrays);
 
 		return microarraySet;
 	}
