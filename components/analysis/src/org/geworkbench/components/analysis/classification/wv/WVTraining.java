@@ -51,7 +51,7 @@ public class WVTraining extends GPTraining implements TrainingTask
     protected CSClassifier trainClassifier(List<float[]> caseData, List<float[]> controlData)
     {
         log.debug("Training classifier.");
-
+       
         WVClassifier wvClassifier = null;
 
         try
