@@ -222,14 +222,15 @@ public class WVTrainingPanel extends AbstractTrainingPanel
             throw new ClassifierException(validationResults.getMessage());
 
         setTrainingTask(this.wvTraining);
+
         return wvTraining.trainClassifier(trainingCaseData, trainingControlData);
     }
 
     public ParamValidationResults validateParameters()
     {
-        if(getNumFeatures() <= 0)
+        if(!useFeatureFileMethod() && getNumFeatures() <= 0)
             return new ParamValidationResults(false, "num features must be greater than 0");
-        else if(getNumFeatures() > getActiveMarkers().size())
+        else if(!useFeatureFileMethod() && getNumFeatures() > getActiveMarkers().size())
             return new ParamValidationResults(false, "num features cannot be greater than \nnumber of activated markers: " + getActiveMarkers().size());
         else if(useMinStdDev() && getMinStdDev() == null)
             return new ParamValidationResults(false, "min std dev not provided");
