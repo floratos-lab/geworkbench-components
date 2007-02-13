@@ -13,6 +13,7 @@ package org.geworkbench.components.analysis.classification;
 
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.algorithm.classification.CSClassifier;
+import org.geworkbench.util.ClassifierException;
 import org.genepattern.data.expr.IExpressionData;
 import org.genepattern.data.expr.AbstractExpressionData;
 import org.genepattern.data.matrix.ClassVector;
@@ -24,6 +25,7 @@ import org.genepattern.webservice.JobResult;
 import org.genepattern.webservice.Parameter;
 import org.genepattern.webservice.AnalysisWebServiceProxy;
 
+import javax.swing.*;
 import java.io.*;
 import java.util.List;
 
@@ -153,7 +155,7 @@ public abstract class GPClassifier extends CSClassifier
             }
 
             if(predFileName == null)
-                throw new Exception("Error: No classifier generated");
+                throw new ClassifierException("Error: Classifier model could not be generated");
 
             predFile = analysisResult.downloadFile(predFileName, System.getProperty("temporary.files.directory"));
             predFile.deleteOnExit();
@@ -161,6 +163,10 @@ public abstract class GPClassifier extends CSClassifier
             // remove job from GenePattern server
             AnalysisWebServiceProxy analysisProxy = new AnalysisWebServiceProxy(serverName, userName);
             analysisProxy.purgeJob(analysisResult.getJobNumber());
+        }
+        catch(ClassifierException ce)
+        {
+            JOptionPane.showMessageDialog(null, ce.getMessage());
         }
         catch(Exception e)
         {
