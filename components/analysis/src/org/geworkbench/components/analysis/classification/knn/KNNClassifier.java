@@ -48,7 +48,6 @@ public class KNNClassifier extends GPClassifier
         parameters.add(new Parameter("test.filename", testData.getAbsolutePath()));
         parameters.add(new Parameter("test.class.filename", testCLSData.getAbsolutePath()));
         parameters.addAll(knnParameters);
-        
 
         File predFile = runPredictor("KNN", (Parameter[])parameters.toArray(new Parameter[0]));
       
