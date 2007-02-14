@@ -39,7 +39,7 @@ public class CaGridConverterTest extends TestCase {
 
 		float[][] fdata = TabFileReader.readTabFile(is);
 		Data microaraySet = CaGridConverter.float2DToDataType(fdata);
-		// CagridMicroarrayTypeConverter.convertToCagridDataType(microarraySetView);
+		// CagridMicroarrayTypeConverter.convertToCagridData(microarraySetView);
 
 	}
 

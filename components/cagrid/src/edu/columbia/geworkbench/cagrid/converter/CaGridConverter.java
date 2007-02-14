@@ -94,7 +94,7 @@ public class CaGridConverter {
 	 * @param microarraySetView
 	 * @return Data
 	 */
-	public static Data convertToCagridDataType(
+	public static Data convertToCagridData(
 			DSMicroarraySetView microarraySetView) {
 
 		DSMicroarraySet microarraySet = microarraySetView.getMicroarraySet();
