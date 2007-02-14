@@ -236,7 +236,7 @@ public class CaGridConverter {
 	 * @param data
 	 * @return Data
 	 */
-	public static Data float2DToDataType(float[][] data) {
+	public static Data float2DToData(float[][] data) {
 
 		int numMarkers = data.length;
 		int numMicroarrays = data[0].length;
