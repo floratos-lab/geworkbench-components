@@ -1,6 +1,5 @@
 package edu.columbia.geworkbench.cagrid.converter;
 
-import org.apache.axis.types.NonNegativeInteger;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -22,6 +21,13 @@ import edu.columbia.geworkbench.cagrid.microarray.MicroarraySet;
 import edu.duke.cabig.rproteomics.model.statml.Array;
 import edu.duke.cabig.rproteomics.model.statml.Data;
 import edu.duke.cabig.rproteomics.model.statml.Scalar;
+import gov.nih.nci.mageom.domain.bioassay.BioAssay;
+import gov.nih.nci.mageom.domain.bioassay.BioDataCube;
+import gov.nih.nci.mageom.domain.bioassay.DerivedBioAssay;
+import gov.nih.nci.mageom.domain.bioassay.DerivedBioAssayData;
+import gov.nih.nci.mageom.domain.bioassay.QuantitationTypeDimension;
+import gov.nih.nci.mageom.domain.bioassay.Reporter;
+import gov.nih.nci.mageom.domain.bioassay.ReporterDimension;
 
 /**
  * Converts to/from cagrid microarray set types from/to geworkbench microarray
@@ -94,21 +100,17 @@ public class CaGridConverter {
 	 * @param microarraySetView
 	 * @return Data
 	 */
-	public static Data convertToCagridData(
-			DSMicroarraySetView microarraySetView) {
+	public static Data convertToCagridData(DSMicroarraySetView microarraySetView) {
 
 		DSMicroarraySet microarraySet = microarraySetView.getMicroarraySet();
 
 		/* extract microarray info from DSMicroarraySet */
 		int numArrays = microarraySetView.size();
-		String arrayName = microarraySet.getDataSetName();
 
 		/* extract marker info from DSMicroarraySet */
 		int numMarkers = ((DSMicroarray) microarraySet.get(0)).getMarkerNo();
 
 		Array[] arrays = new Array[numArrays];
-		NonNegativeInteger numArraysAsNonNegInteger = new NonNegativeInteger(
-				String.valueOf(numArrays));
 
 		for (int i = 0; i < numArrays; i++) {
 			/* geworkbench array */
@@ -197,7 +199,7 @@ public class CaGridConverter {
 	public static MicroarraySet float2DToMicroarraySet(float[][] data) {
 
 		int numMarkers = data.length;
-		int numMicroarrays = data[0].length;
+		int numMicroarrays = data[0].length;// assuming non-ragged
 
 		log.debug("data set contains " + numMicroarrays + " microarrays");
 		log.debug("data set contains " + numMarkers + " markers");
@@ -239,7 +241,7 @@ public class CaGridConverter {
 	public static Data float2DToData(float[][] data) {
 
 		int numMarkers = data.length;
-		int numMicroarrays = data[0].length;
+		int numMicroarrays = data[0].length; // assuming non-ragged
 
 		log.debug("data set contains " + numMicroarrays + " microarrays");
 		log.debug("data set contains " + numMarkers + " markers");
@@ -278,5 +280,70 @@ public class CaGridConverter {
 		microarraySet.setArray(microarrays);
 
 		return microarraySet;
+	}
+
+	/**
+	 * 
+	 * @param data
+	 * @return BioAssay[]
+	 */
+	public static BioAssay[] float2DToBioAssayArray(float[][] data) {
+
+		int numMarkers = data.length;
+		int numMicroarrays = data[0].length;// assuming non-ragged
+
+		log.debug("data set contains " + numMicroarrays + " microarrays");
+		log.debug("data set contains " + numMarkers + " markers");
+
+		BioAssay[] bioAssays = new BioAssay[numMicroarrays];
+		Reporter[] reporters = new Reporter[numMarkers];
+
+		// set reporters
+		for (int i = 0; i < numMarkers; i++) {
+			Reporter reporter = new Reporter();
+			reporter.setName(i + "_at");
+			reporters[i] = reporter;
+		}
+
+		for (int j = 0; j < numMicroarrays; j++) {
+			float[] col = new float[numMarkers];
+			for (int i = 0; i < data.length; i++) {
+				col[i] = data[i][j];
+			}
+
+			/* BioDataCube */
+			BioDataCube bioDataValues = new BioDataCube();
+			String cube = BasicConverter.base64Encode(col);
+			bioDataValues.setCube(cube);
+			// String order = ;
+			// bioDataValues.setOrder(order);
+
+			/* DesignElementDimension */
+			ReporterDimension designElementDimension = new ReporterDimension();
+			designElementDimension.setReporters(reporters);
+
+			/* QuantitationTypeDimension */
+			QuantitationTypeDimension quantitationTypeDimension = new QuantitationTypeDimension();
+			quantitationTypeDimension.setIdentifier("QT:1");
+
+			/* DerivedBioAssayData */
+			DerivedBioAssayData derivedBioAssayData = new DerivedBioAssayData();
+			derivedBioAssayData
+					.setQuantitationTypeDimension(quantitationTypeDimension);
+			derivedBioAssayData.setBioDataValues(bioDataValues);
+			derivedBioAssayData
+					.setDesignElementDimension(designElementDimension);
+
+			/* the DerivedBioAssay route to setting the data */
+			DerivedBioAssay derivedBioAssay = new DerivedBioAssay();
+			derivedBioAssay.setName("array" + j);
+			DerivedBioAssayData[] derivedBioAssayDatas = { derivedBioAssayData };
+			derivedBioAssay.setDerivedBioAssayData(derivedBioAssayDatas);
+
+			// add to the list of bioassays
+			bioAssays[j] = derivedBioAssay;
+		}
+
+		return bioAssays;
 	}
 }
