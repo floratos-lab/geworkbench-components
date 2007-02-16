@@ -5,13 +5,16 @@ import java.io.InputStream;
 
 import junit.framework.TestCase;
 
-import org.apache.axis.encoding.Base64;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.ginkgo.labs.converter.BasicConverter;
 import org.ginkgo.labs.reader.TabFileReader;
 
+import com.sun.org.apache.xerces.internal.impl.dv.util.Base64;
+
 import edu.duke.cabig.rproteomics.model.statml.Data;
+import gov.nih.nci.cagrid.annualdemo.util.MageParser;
+import gov.nih.nci.cagrid.annualdemo.util.MageParser.MGEDCubeHandler;
 import gov.nih.nci.mageom.domain.bioassay.BioAssay;
 import gov.nih.nci.mageom.domain.bioassay.BioDataCube;
 import gov.nih.nci.mageom.domain.bioassay.BioDataValues;
@@ -27,7 +30,7 @@ import gov.nih.nci.mageom.domain.bioassay.DerivedBioAssayData;
 public class CaGridConverterTest extends TestCase {
 	private static Log log = LogFactory.getLog(CaGridConverterTest.class);
 
-	String filename = "test/edu/columbia/geworkbench/cagrid/converter/aTestDataSet_without_headers_30x45.txt";
+	String filename = "test/edu/columbia/geworkbench/cagrid/converter/aTestDataSet_2x2.txt";
 	InputStream is = null;
 
 	/*
@@ -62,6 +65,7 @@ public class CaGridConverterTest extends TestCase {
 
 		BioAssay[] bioAssays = CaGridConverter.float2DToBioAssayArray(fdata);
 
+		String cube = null;
 		for (BioAssay bioAssay : bioAssays) {
 			DerivedBioAssay derivedBioAssay = (DerivedBioAssay) bioAssay;
 			DerivedBioAssayData[] derivedBioAssayDatas = derivedBioAssay
@@ -69,13 +73,27 @@ public class CaGridConverterTest extends TestCase {
 			for (DerivedBioAssayData derivedBioAssayData : derivedBioAssayDatas) {
 				BioDataValues bioDataValues = derivedBioAssayData
 						.getBioDataValues();
-				String cube = ((BioDataCube) bioDataValues).getCube();
-				byte[] bdata = Base64.decode(cube);
-				float[] returnedFdata = BasicConverter.byteArrayToFloats(bdata);
-				log.debug("float data: " + returnedFdata);
+				cube = ((BioDataCube) bioDataValues).getCube();
+				// byte[] bdata = Base64.decode(cube);
+				// float[] returnedFdata =
+				// BasicConverter.byteArrayToFloats(bdata);
+				// log.debug("float data: " + returnedFdata);
 			}
 
 		}
 
+		// parseBase64Encoding(cube);
+
+	}
+
+	/**
+	 * 
+	 * @param cube
+	 */
+	private void parseBase64Encoding(String cube) {
+		MageParser mageParser = new MageParser();
+		MGEDCubeHandler cubeHandler = mageParser.new MGEDCubeHandler();
+		double[][][] dcube = cubeHandler.getCubeFromString(cube);
+		log.debug(dcube);
 	}
 }
