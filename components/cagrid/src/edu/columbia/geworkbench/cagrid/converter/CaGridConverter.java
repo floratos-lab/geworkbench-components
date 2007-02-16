@@ -344,7 +344,6 @@ public class CaGridConverter {
 			// add to the list of bioassays
 			bioAssays[j] = derivedBioAssay;
 		}
-
 		return bioAssays;
 	}
 
@@ -358,6 +357,7 @@ public class CaGridConverter {
 	 */
 	public static String convertCubeToString(float[][][] cube) {
 
+		CaGridConverter.convertFloatCubeToDoubleCube(cube);
 		StringBuffer sb = new StringBuffer();
 
 		for (int i = 0; i < cube.length; i++) {
@@ -368,11 +368,30 @@ public class CaGridConverter {
 					sb.append("|");
 				}
 				sb.setLength(sb.length() - 1); // Remove the last pipe.
-				sb.append("\n");
+				sb.append("\\");
 			}
-			sb.append("\n");
+			sb.append("\\");
 		}
 		return new String(sb);
+	}
+
+	/**
+	 * Converts the floats to doubles.
+	 * 
+	 * @param cube
+	 * @return double[][][]
+	 */
+	private static double[][][] convertFloatCubeToDoubleCube(float[][][] cube) {
+		double[][][] dcube = new double[cube.length][cube[0].length][cube[0][0].length];
+
+		for (int i = 0; i < cube.length; i++) {
+			for (int j = 0; j < cube[i].length; j++) {
+				for (int k = 0; k < cube[i][j].length; k++) {
+					dcube[i][j][k] = new Double(cube[i][j][k]);
+				}
+			}
+		}
+		return dcube;
 	}
 
 }
