@@ -305,18 +305,19 @@ public class CaGridConverter {
 			reporters[i] = reporter;
 		}
 
+		float[][][] threeDimCube = new float[numMarkers][1][1];
 		for (int j = 0; j < numMicroarrays; j++) {
 			float[] col = new float[numMarkers];
-			for (int i = 0; i < data.length; i++) {
+			for (int i = 0; i < numMarkers; i++) {
 				col[i] = data[i][j];
+				threeDimCube[i][0][0] = col[i];
 			}
 
 			/* BioDataCube */
 			BioDataCube bioDataValues = new BioDataCube();
-			String cube = BasicConverter.base64Encode(col);
+			// String cube = BasicConverter.base64Encode(col);
+			String cube = CaGridConverter.convertCubeToString(threeDimCube);
 			bioDataValues.setCube(cube);
-			// String order = ;
-			// bioDataValues.setOrder(order);
 
 			/* DesignElementDimension */
 			ReporterDimension designElementDimension = new ReporterDimension();
@@ -346,4 +347,32 @@ public class CaGridConverter {
 
 		return bioAssays;
 	}
+
+	/**
+	 * Converts a cube to a MAGE encoded string. The MAGE encoded string is tab
+	 * delimited within an array, and line breaks between arrays. The algorithm
+	 * is taken from the MAGEstk.
+	 * 
+	 * @param cube
+	 * @return String
+	 */
+	public static String convertCubeToString(float[][][] cube) {
+
+		StringBuffer sb = new StringBuffer();
+
+		for (int i = 0; i < cube.length; i++) {
+			for (int j = 0; j < cube[i].length; j++) {
+
+				for (int k = 0; k < cube[i][j].length; k++) {
+					sb.append(cube[i][j][k]);
+					sb.append("|");
+				}
+				sb.setLength(sb.length() - 1); // Remove the last pipe.
+				sb.append("\n");
+			}
+			sb.append("\n");
+		}
+		return new String(sb);
+	}
+
 }
