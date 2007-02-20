@@ -22,7 +22,7 @@ public class INTERACTIONSServiceLocator extends org.apache.axis.client.Service i
     }
 
     // Use to get a proxy class for interactions
-    private java.lang.String interactions_address = "http://geworkbench.org/interactions";
+    private static java.lang.String interactions_address = "http://geworkbench.org/interactions";
 
     public java.lang.String getinteractionsAddress() {
         return interactions_address;
