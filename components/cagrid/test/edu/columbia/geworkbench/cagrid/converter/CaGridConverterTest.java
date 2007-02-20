@@ -30,7 +30,7 @@ import gov.nih.nci.mageom.domain.bioassay.DerivedBioAssayData;
 public class CaGridConverterTest extends TestCase {
 	private static Log log = LogFactory.getLog(CaGridConverterTest.class);
 
-	String filename = "test/edu/columbia/geworkbench/cagrid/converter/aTestDataSet_2x2.txt";
+	String filename = "test/edu/columbia/geworkbench/cagrid/converter/aTestDataSet_without_headers_2x2.txt";
 	InputStream is = null;
 
 	/*
