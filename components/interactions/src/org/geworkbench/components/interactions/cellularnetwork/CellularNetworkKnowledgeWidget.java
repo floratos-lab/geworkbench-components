@@ -98,52 +98,52 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane impl
         detailTable.getTableHeader().setEnabled(true);
         detailTable.setDefaultRenderer(String.class, new ColorRenderer(true));
         detailTable.setDefaultRenderer(Integer.class, new IntegerRenderer(true));
-        detailTable.getTableHeader().addMouseListener(new MouseAdapter() {
-            public void mouseClicked(MouseEvent e) {
-                int col = detailTable.getTableHeader().columnAtPoint(e.getPoint());
-                TableColumn tableColumn = detailTable.getColumnModel().getColumn(col);
-                if (tableColumn.getHeaderValue().toString().equalsIgnoreCase(INCLUDEPPLABEL)) {
-                    ppInteractions.setSelected(!ppInteractions.isSelected());
-                } else if (tableColumn.getHeaderValue().toString().equalsIgnoreCase(INCLUDEPDLABEL)) {
-                    pdInteractions.setSelected(!pdInteractions.isSelected());
-                }
-                detailTable.getTableHeader().repaint();
-            }
-
-            private void maybeShowPopup(MouseEvent e) {
-                // System.out.println(e.isPopupTrigger() + " " + detailTable.isEnabled());
-                if (e.isPopupTrigger() && detailTable.isEnabled()) {
-                    Point p = new Point(e.getX(), e.getY());
-                    int col = detailTable.columnAtPoint(p);
-                    int row = detailTable.rowAtPoint(p);
-
-// translate table index to model index
-                    int mcol = detailTable.getColumn(
-                            detailTable.getColumnName(col)).getModelIndex();
-
-// create popup menu...
-                    JPopupMenu contextMenu = createContextMenu(row,
-                            mcol);
-
-// ... and show it
-                    if (contextMenu != null
-                            && contextMenu.getComponentCount() > 0) {
-                        contextMenu.show(detailTable, p.x, p.y);
-                    }
-
-                }
-            }
-
-            public void mousePressed(MouseEvent e) {
-                maybeShowPopup(e);
-            }
-
-            public void mouseReleased(MouseEvent e) {
-                maybeShowPopup(e);
-            }
-
-
-        });
+//        detailTable.getTableHeader().addMouseListener(new MouseAdapter() {
+//            public void mouseClicked(MouseEvent e) {
+//                int col = detailTable.getTableHeader().columnAtPoint(e.getPoint());
+//                TableColumn tableColumn = detailTable.getColumnModel().getColumn(col);
+//                if (tableColumn.getHeaderValue().toString().equalsIgnoreCase(INCLUDEPPLABEL)) {
+//                    ppInteractions.setSelected(!ppInteractions.isSelected());
+//                } else if (tableColumn.getHeaderValue().toString().equalsIgnoreCase(INCLUDEPDLABEL)) {
+//                    pdInteractions.setSelected(!pdInteractions.isSelected());
+//                }
+//                detailTable.getTableHeader().repaint();
+//            }
+//
+//            private void maybeShowPopup(MouseEvent e) {
+//                // System.out.println(e.isPopupTrigger() + " " + detailTable.isEnabled());
+//                if (e.isPopupTrigger() && detailTable.isEnabled()) {
+//                    Point p = new Point(e.getX(), e.getY());
+//                    int col = detailTable.columnAtPoint(p);
+//                    int row = detailTable.rowAtPoint(p);
+//
+//// translate table index to model index
+//                    int mcol = detailTable.getColumn(
+//                            detailTable.getColumnName(col)).getModelIndex();
+//
+//// create popup menu...
+//                    JPopupMenu contextMenu = createContextMenu(row,
+//                            mcol);
+//
+//// ... and show it
+//                    if (contextMenu != null
+//                            && contextMenu.getComponentCount() > 0) {
+//                        contextMenu.show(detailTable, p.x, p.y);
+//                    }
+//
+//                }
+//            }
+//
+//            public void mousePressed(MouseEvent e) {
+//                maybeShowPopup(e);
+//            }
+//
+//            public void mouseReleased(MouseEvent e) {
+//                maybeShowPopup(e);
+//            }
+//
+//
+//        });
     }
 
     public Component getComponent() {
@@ -244,32 +244,31 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane impl
 
     }
 
-     private DefaultMutableTreeNode
-        createNodes(Set<GOTerm> set){
-          Object[] array = set.toArray();
-         DefaultMutableTreeNode node = null;
-          if(array!=null && array.length>0){
-               node = new DefaultMutableTreeNode(array[array.length -1]);
-             DefaultMutableTreeNode[] childnode = new DefaultMutableTreeNode[array.length -1];
-             if(array.length>1){
-               childnode[array.length -2] = new DefaultMutableTreeNode(array[array.length -2]);
-              node.add(childnode[array.length -2]);
+    private DefaultMutableTreeNode
+            createNodes(Set<GOTerm> set) {
+        Object[] array = set.toArray();
+        DefaultMutableTreeNode node = null;
+        if (array != null && array.length > 0) {
+            node = new DefaultMutableTreeNode(array[array.length - 1]);
+            DefaultMutableTreeNode[] childnode = new DefaultMutableTreeNode[array.length - 1];
+            if (array.length > 1) {
+                childnode[array.length - 2] = new DefaultMutableTreeNode(array[array.length - 2]);
+                node.add(childnode[array.length - 2]);
 
-              for(int i=array.length -3; i>=0; i--){
-                  childnode[i] = new DefaultMutableTreeNode(array[i]);
-                  childnode[i+1].add(childnode[i]);
-              }
-             }
-          }
-         return node;
-     };
+                for (int i = array.length - 3; i >= 0; i--) {
+                    childnode[i] = new DefaultMutableTreeNode(array[i]);
+                    childnode[i + 1].add(childnode[i]);
+                }
+            }
+        }
+        return node;
+    }
+
+    ;
 
     private void dispalyGoTree(Set<GOTerm> set) {
-                Frame frame = JOptionPane.getFrameForComponent(this);
+        Frame frame = JOptionPane.getFrameForComponent(this);
         goDialog = new JDialog(frame, "Display Preference", true);
-
-
-
 
         //Create a tree that allows one selection at a time.
         JTree tree = new JTree(createNodes(set));
@@ -835,6 +834,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane impl
             AdjacencyMatrixDataSet dataSet = null;
             matrix.setMicroarraySet(dataset);
             int serial = 0;
+            boolean isEmpty = true;
             for (CellularNetWorkElementInformation cellularNetWorkElementInformation : hits) {
                 ArrayList<InteractionDetail> arrayList = cellularNetWorkElementInformation.getSelectedInteractions();
                 if (arrayList != null && arrayList.size() > 0) {
@@ -848,16 +848,21 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane impl
                         DSGeneMarker marker = new CSGeneMarker();
                         marker.setGeneId(new Integer(interactionDetail.getdSGeneMarker2()));
                         index = Collections.binarySearch(copy, marker, eidc);
-                        int serial2 = copy.get(index).getSerial();
-                        matrix.add(serial, serial2, 0.8f);
-                        if (interactionDetail.getInteraactionType().equalsIgnoreCase(InteractionDetail.PROTEINPROTEININTERACTION))
-                        {
-                            matrix.addDirectional(serial, serial2, "pp");
-                            matrix.addDirectional(serial2, serial, "pp");
+                        if (index >= 0) {
+                            isEmpty = false;
+                            int serial2 = copy.get(index).getSerial();
+                            matrix.add(serial, serial2, 0.8f);
+                            if (interactionDetail.getInteraactionType().equalsIgnoreCase(InteractionDetail.PROTEINPROTEININTERACTION))
+                            {
+                                matrix.addDirectional(serial, serial2, "pp");
+                                matrix.addDirectional(serial2, serial, "pp");
 
-                        } else {
-                            matrix.addDirectional(serial, serial2, "pd");
-                            matrix.addDirectional(serial2, serial, "pd");
+                            } else {
+                                matrix.addDirectional(serial, serial2, "pd");
+                                matrix.addDirectional(serial2, serial, "pd");
+                            }
+                        }else{
+                            System.out.println("Marker "+  interactionDetail.getdSGeneMarker2() +  " does not exist at the dataset. " );
                         }
                     }
                 }
@@ -867,9 +872,11 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane impl
 
             }   //end for loop
 
-            if (dataSet != null) {
+            if (dataSet != null && !isEmpty) {
                 publishProjectNodeAddedEvent(new ProjectNodeAddedEvent("Adjacency Matrix Added", null, dataSet));
                 publishAdjacencyMatrixEvent(new AdjacencyMatrixEvent(matrix, "Interactions from knowledgebase", -1, 2, 0.5f, AdjacencyMatrixEvent.Action.DRAW_NETWORK));
+            }else{
+                JOptionPane.showMessageDialog(null,"No interactions exists in the current databaset",  "Empty Set", JOptionPane.ERROR_MESSAGE);
             }
         }
     }//GEN-LAST:event_loadfromDBHandler
@@ -1007,7 +1014,10 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane impl
                     InteractionsConnectionImpl interactionsConnection = new InteractionsConnectionImpl();
                     int retrievedQueryNumber = 0;
                     for (CellularNetWorkElementInformation cellularNetWorkElementInformation : hits) {
-                        updateProgressBar(retrievedQueryNumber++ / hits.size(), "Querying the Knowledge Base...");
+                        System.out.println(new Date() + " " + retrievedQueryNumber);
+                        retrievedQueryNumber++;
+                         jProgressBar1.setValue((int) (((double) retrievedQueryNumber) * 100/ hits.size() ));
+                        //updateProgressBar(((double) retrievedQueryNumber) / hits.size(), "Querying the Knowledge Base...");
                         cellularNetWorkElementInformation.setDirty(false);
                         DSGeneMarker marker = cellularNetWorkElementInformation.getdSGeneMarker();
                         if (marker != null && marker.getGeneId() != -1) {
