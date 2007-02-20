@@ -7,10 +7,7 @@ import junit.framework.TestCase;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.ginkgo.labs.converter.BasicConverter;
 import org.ginkgo.labs.reader.TabFileReader;
-
-import com.sun.org.apache.xerces.internal.impl.dv.util.Base64;
 
 import edu.duke.cabig.rproteomics.model.statml.Data;
 import gov.nih.nci.cagrid.annualdemo.util.MageParser;
