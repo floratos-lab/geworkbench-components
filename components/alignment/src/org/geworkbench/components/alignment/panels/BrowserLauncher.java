@@ -198,6 +198,8 @@ public class BrowserLauncher {
      */
     private static final int WINDOWS_9x = 6;
 
+    private static final int LINUX = 7;
+
     /**
      * JVM constant for any other platform
      */
@@ -289,6 +291,8 @@ public class BrowserLauncher {
             } else {
                 jvm = WINDOWS_NT;
             }
+        } else if (osName.startsWith("Linux")) {
+            jvm = LINUX;
         } else {
             jvm = OTHER;
         }
@@ -517,6 +521,9 @@ public class BrowserLauncher {
                 break;
             case WINDOWS_9x:
                 browser = "command.com";
+                break;
+            case LINUX:
+                browser = "mozilla";
                 break;
             case OTHER:
             default:

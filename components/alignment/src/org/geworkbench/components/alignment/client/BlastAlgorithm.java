@@ -17,7 +17,10 @@ import org.geworkbench.components.alignment.blast.RemoteBlast;
 import org.geworkbench.components.alignment.panels.*;
 import org.geworkbench.events.ProjectNodeAddedEvent;
 import org.geworkbench.util.session.SoapClient;
+import org.geworkbench.util.BrowserLauncher;
 import org.globus.progtutorial.clients.BlastService.Client;
+
+import javax.swing.*;
 
 /**
  * <p>Title: Bioworks</p>
@@ -48,8 +51,8 @@ public class BlastAlgorithm extends BWAbstractAlgorithm implements SoapClientIn 
     private boolean gridEnabled = false;
     private boolean jobFinished = false;
     private String inputFilename;
-    private static final String TEMPURLFOLDER =   "http://adparacel.cu-genome.org/examples/output/";
-      //      "http://amdec-bioinfo.cu-genome.org/html/temp/";
+    private static final String TEMPURLFOLDER = "http://adparacel.cu-genome.org/examples/output/";
+    //      "http://amdec-bioinfo.cu-genome.org/html/temp/";
     private boolean useNCBI = false;
     private ParameterSetting parameterSetting;
     private final static int TIMEGAP = 4000;
@@ -175,7 +178,8 @@ public class BlastAlgorithm extends BWAbstractAlgorithm implements SoapClientIn 
                     ncbiResultURLStr = blast.getResultURLString();
                     while (!blast.getBlastDone()) {
                         try {
-                            if (blastAppComponent != null && !blastAppComponent.isStopButtonPushed() && !stopRequested) {
+                            if (blastAppComponent != null && !blastAppComponent.isStopButtonPushed() && !stopRequested)
+                            {
                                 updateStatus("For sequence " + sequence +
                                         ", time since submission is : " +
                                         blast.getWaitingTime());
@@ -200,11 +204,17 @@ public class BlastAlgorithm extends BWAbstractAlgorithm implements SoapClientIn 
 
                 if (parameterSetting.isViewInBrowser()) {
                     if ((new File(outputFile)).canRead()) {
+                        try {
+                            BrowserLauncher.openURL(new File(outputFile).
+                                    getAbsolutePath());
+                        } catch (Exception ex) {
 
-                        BrowserLauncher.openURL(new File(outputFile).
-                                getAbsolutePath());
+                            JOptionPane.showMessageDialog(null, "Error", "No web browser can be launched, the result is saved at " + outputFile, JOptionPane.ERROR_MESSAGE);
+
+                        }
                     } else {
-                        System.out.println("CANNOT READ " + outputFile);
+                        JOptionPane.showMessageDialog(null, "Error", "The result cannot be read at " + outputFile, JOptionPane.ERROR_MESSAGE);
+
                     }
 
 
