@@ -357,21 +357,21 @@ public class CaGridConverter {
 	 */
 	public static String convertCubeToString(float[][][] cube) {
 
-		CaGridConverter.convertFloatCubeToDoubleCube(cube);
+		double[][][] dcube = CaGridConverter.convertFloatCubeToDoubleCube(cube);
 		StringBuffer sb = new StringBuffer();
 
-		for (int i = 0; i < cube.length; i++) {
-			for (int j = 0; j < cube[i].length; j++) {
+		for (int i = 0; i < dcube.length; i++) {
+			for (int j = 0; j < dcube[i].length; j++) {
 
-				for (int k = 0; k < cube[i][j].length; k++) {
-					sb.append(cube[i][j][k]);
+				for (int k = 0; k < dcube[i][j].length; k++) {
+					sb.append(dcube[i][j][k]);
 					sb.append("|");
 				}
-				sb.setLength(sb.length() - 1); // Remove the last pipe.
-				sb.append("\\");
 			}
-			sb.append("\\");
 		}
+
+		sb.setLength(sb.length() - 1); // Remove the last pipe.
+		sb.append("\\");
 		return new String(sb);
 	}
 
