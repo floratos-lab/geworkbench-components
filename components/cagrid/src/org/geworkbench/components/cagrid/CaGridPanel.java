@@ -1,5 +1,21 @@
 package org.geworkbench.components.cagrid;
 
+import edu.columbia.geworkbench.cagrid.cluster.client.HierarchicalClusteringClient;
+import edu.columbia.geworkbench.cagrid.cluster.client.SomClusteringClient;
+import edu.columbia.geworkbench.cagrid.cluster.hierarchical.Dim;
+import edu.columbia.geworkbench.cagrid.cluster.hierarchical.Distance;
+import edu.columbia.geworkbench.cagrid.cluster.hierarchical.HierarchicalCluster;
+import edu.columbia.geworkbench.cagrid.cluster.hierarchical.HierarchicalClusterNode;
+import edu.columbia.geworkbench.cagrid.cluster.hierarchical.HierarchicalClusteringParameter;
+import edu.columbia.geworkbench.cagrid.cluster.hierarchical.Method;
+import edu.columbia.geworkbench.cagrid.cluster.som.SomCluster;
+import edu.columbia.geworkbench.cagrid.cluster.som.SomClusteringParameter;
+import edu.columbia.geworkbench.cagrid.converter.CaGridConverter;
+import edu.columbia.geworkbench.cagrid.discovery.client.AnalyticalServiceDiscoveryClient;
+import edu.columbia.geworkbench.cagrid.microarray.MicroarraySet;
+import gov.nih.nci.cagrid.discovery.MetadataUtils;
+import gov.nih.nci.cagrid.metadata.ServiceMetadata;
+
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.GridLayout;
@@ -23,7 +39,16 @@ import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarr
 import org.geworkbench.bison.datastructure.biocollections.views.CSMicroarraySetView;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
-import org.geworkbench.bison.model.clusters.*;
+import org.geworkbench.bison.model.clusters.CSHierClusterDataSet;
+import org.geworkbench.bison.model.clusters.CSSOMClusterDataSet;
+import org.geworkbench.bison.model.clusters.DSHierClusterDataSet;
+import org.geworkbench.bison.model.clusters.DSSOMClusterDataSet;
+import org.geworkbench.bison.model.clusters.DefaultSOMCluster;
+import org.geworkbench.bison.model.clusters.HierCluster;
+import org.geworkbench.bison.model.clusters.LeafSOMCluster;
+import org.geworkbench.bison.model.clusters.MarkerHierCluster;
+import org.geworkbench.bison.model.clusters.MicroarrayHierCluster;
+import org.geworkbench.bison.model.clusters.SOMCluster;
 import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.engine.management.Publish;
 import org.geworkbench.engine.management.Script;
@@ -36,23 +61,10 @@ import org.geworkbench.util.Util;
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.layout.FormLayout;
 
-import edu.columbia.geworkbench.cagrid.cluster.client.HierarchicalClusteringClient;
-import edu.columbia.geworkbench.cagrid.cluster.client.SomClusteringClient;
-import edu.columbia.geworkbench.cagrid.cluster.hierarchical.HierarchicalCluster;
-import edu.columbia.geworkbench.cagrid.cluster.hierarchical.HierarchicalClusterNode;
-import edu.columbia.geworkbench.cagrid.cluster.hierarchical.HierarchicalClusteringParameter;
-import edu.columbia.geworkbench.cagrid.cluster.som.SomCluster;
-import edu.columbia.geworkbench.cagrid.cluster.som.SomClusteringParameter;
-import edu.columbia.geworkbench.cagrid.converter.CaGridConverter;
-import edu.columbia.geworkbench.cagrid.discovery.client.AnalyticalServiceDiscoveryClient;
-import edu.columbia.geworkbench.cagrid.microarray.MicroarraySet;
-import gov.nih.nci.cagrid.discovery.MetadataUtils;
-import gov.nih.nci.cagrid.metadata.ServiceMetadata;
-
 /**
  * @author watkinson
  * @author keshav
- * @version $Id: CaGridPanel.java,v 1.23 2007-02-09 23:50:03 keshav Exp $
+ * @version $Id: CaGridPanel.java,v 1.24 2007-02-22 18:46:32 keshav Exp $
  */
 public class CaGridPanel extends JPanel implements VisualPlugin {
 
@@ -71,6 +83,16 @@ public class CaGridPanel extends JPanel implements VisualPlugin {
 	private static final String SOM_CLUSTERING_NAME = "Som Clustering";
 
 	private static final String cagridTitle = "caGrid";
+
+	private static final String SPEARMAN = "Spearman";
+	private static final String PEARSON = "Pearson";
+	private static final String EUCLIDEAN = "Euclidean";
+	private static final String BOTH = "Both";
+	private static final String MICROARRAY = "Microarray";
+	private static final String MARKER = "Marker";
+	private static final String TOTAL = "Total";
+	private static final String AVERAGE = "Average";
+	private static final String SINGLE = "Single";
 
 	private JPanel servicePanel;
 
@@ -118,8 +140,9 @@ public class CaGridPanel extends JPanel implements VisualPlugin {
 					} catch (NumberFormatException nfe) {
 						// Ignore for now
 					}
-                    EndpointReferenceType[] allServices = getServices(hostField.getText(), port);
-                    populateServicePanel(allServices);
+					EndpointReferenceType[] allServices = getServices(hostField
+							.getText(), port);
+					populateServicePanel(allServices);
 				} catch (Exception e1) {
 					e1.printStackTrace();
 				} finally {
@@ -134,88 +157,91 @@ public class CaGridPanel extends JPanel implements VisualPlugin {
 		add(Box.createHorizontalGlue());
 	}
 
-    @Script
-    public String getServiceUrl(String host, int port, String serviceFilter) {
-        try {
-            EndpointReferenceType[] services = getServices(host, port);
-            ArrayList<String> urls = new ArrayList<String>();
-            for (EndpointReferenceType service : services) {
-                ServiceMetadata commonMetadata = MetadataUtils.getServiceMetadata(service);
-                if (service.getAddress().toString().toLowerCase().contains(serviceFilter.toLowerCase())) {
-                    urls.add(service.getAddress().toString());
-                }
-            }
-            if (urls.size() > 0) {
-                return urls.get(0);
-            } else {
-                return null;
-            }
-            // return urls.toArray(new String[]{});
-        } catch (Exception e) {
-            log.error("Error retrieving service list via script method.", e);
-            return null;
-        }
-    }
+	@Script
+	public String getServiceUrl(String host, int port, String serviceFilter) {
+		try {
+			EndpointReferenceType[] services = getServices(host, port);
+			ArrayList<String> urls = new ArrayList<String>();
+			for (EndpointReferenceType service : services) {
+				ServiceMetadata commonMetadata = MetadataUtils
+						.getServiceMetadata(service);
+				if (service.getAddress().toString().toLowerCase().contains(
+						serviceFilter.toLowerCase())) {
+					urls.add(service.getAddress().toString());
+				}
+			}
+			if (urls.size() > 0) {
+				return urls.get(0);
+			} else {
+				return null;
+			}
+			// return urls.toArray(new String[]{});
+		} catch (Exception e) {
+			log.error("Error retrieving service list via script method.", e);
+			return null;
+		}
+	}
 
-    private EndpointReferenceType[] getServices(String host, int port) throws Exception {
-        AnalyticalServiceDiscoveryClient client = new AnalyticalServiceDiscoveryClient(host, port);
-        EndpointReferenceType[] allServices = client .getAllServices();
-        if (allServices != null) {
-            for (EndpointReferenceType service : allServices) {
-                System.out.println("Service: "
-                        + service.getAddress());
-                ServiceMetadata commonMetadata = MetadataUtils
-                        .getServiceMetadata(service);
-                System.out.println("  Description: "
-                        + commonMetadata.getServiceDescription()
-                                .getService().getDescription());
-            }
-        }
-        return allServices;
-    }
+	private EndpointReferenceType[] getServices(String host, int port)
+			throws Exception {
+		AnalyticalServiceDiscoveryClient client = new AnalyticalServiceDiscoveryClient(
+				host, port);
+		EndpointReferenceType[] allServices = client.getAllServices();
+		if (allServices != null) {
+			for (EndpointReferenceType service : allServices) {
+				System.out.println("Service: " + service.getAddress());
+				ServiceMetadata commonMetadata = MetadataUtils
+						.getServiceMetadata(service);
+				System.out.println("  Description: "
+						+ commonMetadata.getServiceDescription().getService()
+								.getDescription());
+			}
+		}
+		return allServices;
+	}
 
-    /**
-     * @param services
-     * @throws Exception
-     */
-    private void populateServicePanel(EndpointReferenceType[] services)
-            throws Exception {
-        log.debug("populating service panel");
-        FormLayout layout = new FormLayout(
-                "right:max(40dlu;pref), 3dlu, 100dlu, 7dlu", "");
-        DefaultFormBuilder builder = new DefaultFormBuilder(layout);
-        builder.setDefaultDialogBorder();
-        builder.appendSeparator("Services");
+	/**
+	 * @param services
+	 * @throws Exception
+	 */
+	private void populateServicePanel(EndpointReferenceType[] services)
+			throws Exception {
+		log.debug("populating service panel");
+		FormLayout layout = new FormLayout(
+				"right:max(40dlu;pref), 3dlu, 100dlu, 7dlu", "");
+		DefaultFormBuilder builder = new DefaultFormBuilder(layout);
+		builder.setDefaultDialogBorder();
+		builder.appendSeparator("Services");
 
-        ActionListener serviceListener = new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                try {
-                    runService(e.getActionCommand());
-                    log.info(e.getActionCommand());
-                } catch (Exception x) {
-                    x.printStackTrace();
-                }
-            }
-        };
-        if (services == null) {
-            builder.append("", new JLabel("No Services found."));
-        } else {
-            for (EndpointReferenceType service : services) {
-                ServiceMetadata commonMetadata = MetadataUtils
-                        .getServiceMetadata(service);
-                JButton runButton = new JButton("Run");
-                runButton.addActionListener(serviceListener);
-                String name = commonMetadata.getServiceDescription()
-                        .getService().getName();
-                runButton.setActionCommand(service.getAddress().toString());
-                builder.append(runButton, new JLabel(name));
-            }
-        }
-        servicePanel.removeAll();
-        servicePanel.add(builder.getPanel());
-        revalidate();
-        repaint();
-    }
+		ActionListener serviceListener = new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				try {
+					runService(e.getActionCommand());
+					log.info(e.getActionCommand());
+				} catch (Exception x) {
+					x.printStackTrace();
+				}
+			}
+		};
+		if (services == null) {
+			builder.append("", new JLabel("No Services found."));
+		} else {
+			for (EndpointReferenceType service : services) {
+				ServiceMetadata commonMetadata = MetadataUtils
+						.getServiceMetadata(service);
+				JButton runButton = new JButton("Run");
+				runButton.addActionListener(serviceListener);
+				String name = commonMetadata.getServiceDescription()
+						.getService().getName();
+				runButton.setActionCommand(service.getAddress().toString());
+				builder.append(runButton, new JLabel(name));
+			}
+		}
+		servicePanel.removeAll();
+		servicePanel.add(builder.getPanel());
+		revalidate();
+		repaint();
+	}
 
 	/**
 	 * @param event
@@ -416,8 +442,34 @@ public class CaGridPanel extends JPanel implements VisualPlugin {
 		CSMicroarraySetView view = new CSMicroarraySetView(microarraySet);
 		MicroarraySet gridSet = CaGridConverter
 				.convertToCagridMicroarrayType(view);
+
+		Dim dim = null;
+		if (dimensions.equalsIgnoreCase(MARKER))
+			dim = Dim.marker;
+		else if (dimensions.equalsIgnoreCase(MICROARRAY))
+			dim = Dim.microarray;
+		else
+			dim = Dim.both;
+
+		Distance dist = null;
+		if (distance.equalsIgnoreCase(EUCLIDEAN))
+			dist = Distance.euclidean;
+		else if (distance.equalsIgnoreCase(PEARSON))
+			dist = Distance.pearson;
+		else
+			dist = Distance.spearman;
+
+		Method meth = null;
+		if (method.equalsIgnoreCase(SINGLE))
+			meth = Method.single;
+		else if (method.equalsIgnoreCase(AVERAGE))
+			meth = Method.average;
+		else
+			meth = Method.complete;
+
 		HierarchicalClusteringParameter parameters = new HierarchicalClusteringParameter(
-				dimensions, distance, method);
+				dim, dist, meth);
+
 		HierarchicalClusteringClient client = new HierarchicalClusteringClient(
 				url);
 		HierarchicalCluster hierarchicalCluster = client.execute(gridSet,
@@ -432,30 +484,27 @@ public class CaGridPanel extends JPanel implements VisualPlugin {
 	}
 
 	@Script
-    public DSSOMClusterDataSet doSOMClustering(DSMicroarraySet microarraySet,
-                                                double alpha,
-                                                int dim_x,
-                                                int dim_y,
-                                                int function,
-                                                int iteration,
-                                                double radius,
-                                                String url)
-            throws Exception {
-        log.debug("script method:  do SOM clustering");
-        CSMicroarraySetView view = new CSMicroarraySetView(microarraySet);
-        MicroarraySet gridSet = CaGridConverter
-                .convertToCagridMicroarrayType(view);
-        SomClusteringParameter parameters = new SomClusteringParameter((float) alpha, dim_x, dim_y, function, iteration, (float) radius);
-        SomClusteringClient client = new SomClusteringClient(url);
-        SomCluster somCluster = client.execute(gridSet, parameters);
-        if (somCluster != null) {
-            CSSOMClusterDataSet bisonSomClustering = createBisonSomClustering(somCluster, view);
-            return bisonSomClustering;
-        }
-        return null;
-    }
+	public DSSOMClusterDataSet doSOMClustering(DSMicroarraySet microarraySet,
+			double alpha, int dim_x, int dim_y, int function, int iteration,
+			double radius, String url) throws Exception {
+		log.debug("script method:  do SOM clustering");
+		CSMicroarraySetView view = new CSMicroarraySetView(microarraySet);
+		MicroarraySet gridSet = CaGridConverter
+				.convertToCagridMicroarrayType(view);
+		SomClusteringParameter parameters = new SomClusteringParameter(
+				(float) alpha, dim_x, dim_y, function, iteration,
+				(float) radius);
+		SomClusteringClient client = new SomClusteringClient(url);
+		SomCluster somCluster = client.execute(gridSet, parameters);
+		if (somCluster != null) {
+			CSSOMClusterDataSet bisonSomClustering = createBisonSomClustering(
+					somCluster, view);
+			return bisonSomClustering;
+		}
+		return null;
+	}
 
-    /**
+	/**
 	 * @param name
 	 * @return DSMicroarray
 	 */
