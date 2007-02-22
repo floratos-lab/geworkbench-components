@@ -75,5 +75,7 @@
 	<classpathentry kind="lib" path="lib/xmlsec.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/geworkbench-core"/>
 	<classpathentry kind="lib" path="lib/commons-codec-1.3.jar" sourcepath="C:/java/jar_source/commons-codec-1.3/src"/>
+	<classpathentry kind="lib" path="lib/statmlutil.jar" sourcepath="C:/java/jar_source/statmlutil"/>
+	<classpathentry kind="lib" path="lib/MageUtility.jar"/>
 	<classpathentry kind="output" path="classes"/>
 </classpath>
