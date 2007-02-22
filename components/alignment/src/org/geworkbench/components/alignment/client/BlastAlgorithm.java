@@ -156,8 +156,7 @@ public class BlastAlgorithm extends BWAbstractAlgorithm implements SoapClientIn 
                             ((CSSequence) sequence));
                     blast = new RemoteBlast(((CSSequence) sequence).
                             getSequence(), outputFile);
-                    // blast.setDbName(parameterSetting.getDbName());
-//                    blast.setProgamName(parameterSetting.getProgramName());
+
                     blast.setCmdLine(AlgorithmMatcher.translateToCommandline(parameterSetting));
                     String BLAST_rid = blast.submitBlast();
                     if (BLAST_rid == null) {
@@ -209,11 +208,11 @@ public class BlastAlgorithm extends BWAbstractAlgorithm implements SoapClientIn 
                                     getAbsolutePath());
                         } catch (Exception ex) {
 
-                            JOptionPane.showMessageDialog(null, "Error", "No web browser can be launched, the result is saved at " + outputFile, JOptionPane.ERROR_MESSAGE);
+                            JOptionPane.showMessageDialog(null, "No web browser can be launched, the result is saved at " + outputFile, "No Web Browser",  JOptionPane.ERROR_MESSAGE);
 
                         }
                     } else {
-                        JOptionPane.showMessageDialog(null, "Error", "The result cannot be read at " + outputFile, JOptionPane.ERROR_MESSAGE);
+                        JOptionPane.showMessageDialog(null,"The result cannot be read at " + outputFile,  "File cannot be read",  JOptionPane.ERROR_MESSAGE);
 
                     }
 

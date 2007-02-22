@@ -861,8 +861,8 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane impl
                                 matrix.addDirectional(serial, serial2, "pd");
                                 matrix.addDirectional(serial2, serial, "pd");
                             }
-                        }else{
-                            System.out.println("Marker "+  interactionDetail.getdSGeneMarker2() +  " does not exist at the dataset. " );
+                        } else {
+                            System.out.println("Marker " + interactionDetail.getdSGeneMarker2() + " does not exist at the dataset. ");
                         }
                     }
                 }
@@ -875,8 +875,8 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane impl
             if (dataSet != null && !isEmpty) {
                 publishProjectNodeAddedEvent(new ProjectNodeAddedEvent("Adjacency Matrix Added", null, dataSet));
                 publishAdjacencyMatrixEvent(new AdjacencyMatrixEvent(matrix, "Interactions from knowledgebase", -1, 2, 0.5f, AdjacencyMatrixEvent.Action.DRAW_NETWORK));
-            }else{
-                JOptionPane.showMessageDialog(null,"No interactions exists in the current databaset",  "Empty Set", JOptionPane.ERROR_MESSAGE);
+            } else {
+                JOptionPane.showMessageDialog(null, "No interactions exists in the current databaset", "Empty Set", JOptionPane.ERROR_MESSAGE);
             }
         }
     }//GEN-LAST:event_loadfromDBHandler
@@ -1014,10 +1014,8 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane impl
                     InteractionsConnectionImpl interactionsConnection = new InteractionsConnectionImpl();
                     int retrievedQueryNumber = 0;
                     for (CellularNetWorkElementInformation cellularNetWorkElementInformation : hits) {
-                        System.out.println(new Date() + " " + retrievedQueryNumber);
                         retrievedQueryNumber++;
-                         jProgressBar1.setValue((int) (((double) retrievedQueryNumber) * 100/ hits.size() ));
-                        //updateProgressBar(((double) retrievedQueryNumber) / hits.size(), "Querying the Knowledge Base...");
+                        updateProgressBar(((double) retrievedQueryNumber) / hits.size(), "Querying the Knowledge Base...");
                         cellularNetWorkElementInformation.setDirty(false);
                         DSGeneMarker marker = cellularNetWorkElementInformation.getdSGeneMarker();
                         if (marker != null && marker.getGeneId() != -1) {
@@ -1036,7 +1034,9 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane impl
                 }
             }
         };
-        SwingUtilities.invokeLater(r);
+
+        Thread thread = new Thread(r);
+        thread.start();
 
     }
 
