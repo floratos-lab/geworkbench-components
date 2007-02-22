@@ -22,7 +22,8 @@ import edu.columbia.geworkbench.cagrid.cluster.hierarchical.HierarchicalClusteri
 import edu.columbia.geworkbench.cagrid.cluster.hierarchical.Method;
 
 /**
- * @author John Watkinson
+ * @author watkinson
+ * @author keshav
  * @version $Id: GridHierarchicalClusteringDialog.java,v 1.1 2007/01/09 16:16:49
  *          keshav Exp $
  */
