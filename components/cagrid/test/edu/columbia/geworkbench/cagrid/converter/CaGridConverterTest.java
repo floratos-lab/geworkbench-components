@@ -9,6 +9,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.ginkgo.labs.reader.TabFileReader;
 
+import edu.columbia.geworkbench.cagrid.MageBioAssayGenerator;
+import edu.columbia.geworkbench.cagrid.MageBioAssayGeneratorImpl;
 import edu.duke.cabig.rproteomics.model.statml.Data;
 import gov.nih.nci.cagrid.annualdemo.util.MageParser;
 import gov.nih.nci.cagrid.annualdemo.util.MageParser.MGEDCubeHandler;
@@ -60,7 +62,19 @@ public class CaGridConverterTest extends TestCase {
 	public void testConvertToCagridBioAssayArray() {
 		float[][] fdata = TabFileReader.readTabFile(is);
 
-		BioAssay[] bioAssays = CaGridConverter.float2DToBioAssayArray(fdata);
+		MageBioAssayGenerator mageBioAssayGenerator = new MageBioAssayGeneratorImpl();
+
+		String[] rowNames = new String[fdata.length];
+		for (int i = 0; i < rowNames.length; i++) {
+			rowNames[i] = String.valueOf(i);
+		}
+
+		String[] colNames = new String[fdata[0].length];
+		for (int i = 0; i < colNames.length; i++) {
+			rowNames[i] = String.valueOf(i);
+		}
+		BioAssay[] bioAssays = mageBioAssayGenerator.float2DToBioAssayArray(
+				fdata, rowNames, colNames);
 
 		String cube = null;
 		for (BioAssay bioAssay : bioAssays) {

@@ -1,5 +1,7 @@
 package edu.columbia.geworkbench.cagrid.cluster.hierarchical.mage.client;
 
+import edu.columbia.geworkbench.cagrid.MageBioAssayGenerator;
+import edu.columbia.geworkbench.cagrid.MageBioAssayGeneratorImpl;
 import edu.columbia.geworkbench.cagrid.cluster.hierarchical.Dim;
 import edu.columbia.geworkbench.cagrid.cluster.hierarchical.Distance;
 import edu.columbia.geworkbench.cagrid.cluster.hierarchical.HierarchicalClusteringParameter;
@@ -35,7 +37,8 @@ import org.globus.gsi.GlobusCredential;
  * 
  * @created by Introduce Toolkit version 1.0
  * @author keshav
- * @version $Id: HierarchicalClusteringMageClient.java,v 1.1 2007-02-22 18:43:52 keshav Exp $
+ * @version $Id: HierarchicalClusteringMageClient.java,v 1.1 2007/02/22 18:43:52
+ *          keshav Exp $
  */
 public class HierarchicalClusteringMageClient extends ServiceSecurityClient
 		implements HierarchicalClusteringMageI {
@@ -153,8 +156,19 @@ public class HierarchicalClusteringMageClient extends ServiceSecurityClient
 					is = new FileInputStream(filename);
 					float[][] fdata = TabFileReader.readTabFile(is);
 
-					BioAssay[] bioAssays = CaGridConverter
-							.float2DToBioAssayArray(fdata);
+					MageBioAssayGenerator mageBioAssayGenerator = new MageBioAssayGeneratorImpl();
+
+					String[] rowNames = new String[fdata.length];
+					for (int i = 0; i < rowNames.length; i++) {
+						rowNames[i] = String.valueOf(i);
+					}
+
+					String[] colNames = new String[fdata[0].length];
+					for (int i = 0; i < colNames.length; i++) {
+						rowNames[i] = String.valueOf(i);
+					}
+					BioAssay[] bioAssays = mageBioAssayGenerator
+							.float2DToBioAssayArray(fdata, rowNames, colNames);
 
 					HierarchicalClusteringParameter parameters = new HierarchicalClusteringParameter();
 					parameters.setDim(Dim.both);
