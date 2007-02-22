@@ -7,157 +7,153 @@
 
 package edu.columbia.geworkbench.cagrid.cluster.hierarchical;
 
+
 /**
- * Tuning parameters for a hierarchical clustering analysis.
- * 
- * @author keshav
- * @version $Id: HierarchicalClusteringParameter.java,v 1.2 2007-01-04 22:03:15 watkinson Exp $
+ * Tuning Parameters for the Hierarchical Clustering algorithm.
  */
-public class HierarchicalClusteringParameter implements java.io.Serializable {
-    /** Single, average, or total (complete) linkage. */
-    private java.lang.String method;
-    /** Cluster by marker, microarray, or both. */
-    private java.lang.String dim;
-    /** Distance metric. Can be euclidean, pearson, or spearman */
-    private java.lang.String distance;
+public class HierarchicalClusteringParameter  implements java.io.Serializable {
+    private edu.columbia.geworkbench.cagrid.cluster.hierarchical.Dim dim;
+    private edu.columbia.geworkbench.cagrid.cluster.hierarchical.Distance distance;
+    private edu.columbia.geworkbench.cagrid.cluster.hierarchical.Method method;
 
     public HierarchicalClusteringParameter() {
     }
 
-    public HierarchicalClusteringParameter( java.lang.String dim, java.lang.String distance, java.lang.String method ) {
-        this.method = method;
-        this.dim = dim;
-        this.distance = distance;
+    public HierarchicalClusteringParameter(
+           edu.columbia.geworkbench.cagrid.cluster.hierarchical.Dim dim,
+           edu.columbia.geworkbench.cagrid.cluster.hierarchical.Distance distance,
+           edu.columbia.geworkbench.cagrid.cluster.hierarchical.Method method) {
+           this.dim = dim;
+           this.distance = distance;
+           this.method = method;
     }
 
-    /**
-     * Gets the method value for this HierarchicalClusteringParameter.
-     * 
-     * @return method Single, average, or total (complete) linkage.
-     */
-    public java.lang.String getMethod() {
-        return method;
-    }
-
-    /**
-     * Sets the method value for this HierarchicalClusteringParameter.
-     * 
-     * @param method Single, average, or total (complete) linkage.
-     */
-    public void setMethod( java.lang.String method ) {
-        this.method = method;
-    }
 
     /**
      * Gets the dim value for this HierarchicalClusteringParameter.
      * 
-     * @return dim Cluster by marker, microarray, or both.
+     * @return dim
      */
-    public java.lang.String getDim() {
+    public edu.columbia.geworkbench.cagrid.cluster.hierarchical.Dim getDim() {
         return dim;
     }
+
 
     /**
      * Sets the dim value for this HierarchicalClusteringParameter.
      * 
-     * @param dim Cluster by marker, microarray, or both.
+     * @param dim
      */
-    public void setDim( java.lang.String dim ) {
+    public void setDim(edu.columbia.geworkbench.cagrid.cluster.hierarchical.Dim dim) {
         this.dim = dim;
     }
+
 
     /**
      * Gets the distance value for this HierarchicalClusteringParameter.
      * 
-     * @return distance Distance metric. Can be euclidean, pearson, or spearman
+     * @return distance
      */
-    public java.lang.String getDistance() {
+    public edu.columbia.geworkbench.cagrid.cluster.hierarchical.Distance getDistance() {
         return distance;
     }
+
 
     /**
      * Sets the distance value for this HierarchicalClusteringParameter.
      * 
-     * @param distance Distance metric. Can be euclidean, pearson, or spearman
+     * @param distance
      */
-    public void setDistance( java.lang.String distance ) {
+    public void setDistance(edu.columbia.geworkbench.cagrid.cluster.hierarchical.Distance distance) {
         this.distance = distance;
     }
 
-    private java.lang.Object __equalsCalc = null;
 
-    public synchronized boolean equals( java.lang.Object obj ) {
-        if ( !( obj instanceof HierarchicalClusteringParameter ) ) return false;
-        HierarchicalClusteringParameter other = ( HierarchicalClusteringParameter ) obj;
-        if ( obj == null ) return false;
-        if ( this == obj ) return true;
-        if ( __equalsCalc != null ) {
-            return ( __equalsCalc == obj );
+    /**
+     * Gets the method value for this HierarchicalClusteringParameter.
+     * 
+     * @return method
+     */
+    public edu.columbia.geworkbench.cagrid.cluster.hierarchical.Method getMethod() {
+        return method;
+    }
+
+
+    /**
+     * Sets the method value for this HierarchicalClusteringParameter.
+     * 
+     * @param method
+     */
+    public void setMethod(edu.columbia.geworkbench.cagrid.cluster.hierarchical.Method method) {
+        this.method = method;
+    }
+
+    private java.lang.Object __equalsCalc = null;
+    public synchronized boolean equals(java.lang.Object obj) {
+        if (!(obj instanceof HierarchicalClusteringParameter)) return false;
+        HierarchicalClusteringParameter other = (HierarchicalClusteringParameter) obj;
+        if (obj == null) return false;
+        if (this == obj) return true;
+        if (__equalsCalc != null) {
+            return (__equalsCalc == obj);
         }
         __equalsCalc = obj;
         boolean _equals;
-        _equals = true
-                && ( ( this.method == null && other.getMethod() == null ) || ( this.method != null && this.method
-                        .equals( other.getMethod() ) ) )
-                && ( ( this.dim == null && other.getDim() == null ) || ( this.dim != null && this.dim.equals( other
-                        .getDim() ) ) )
-                && ( ( this.distance == null && other.getDistance() == null ) || ( this.distance != null && this.distance
-                        .equals( other.getDistance() ) ) );
+        _equals = true && 
+            ((this.dim==null && other.getDim()==null) || 
+             (this.dim!=null &&
+              this.dim.equals(other.getDim()))) &&
+            ((this.distance==null && other.getDistance()==null) || 
+             (this.distance!=null &&
+              this.distance.equals(other.getDistance()))) &&
+            ((this.method==null && other.getMethod()==null) || 
+             (this.method!=null &&
+              this.method.equals(other.getMethod())));
         __equalsCalc = null;
         return _equals;
     }
 
     private boolean __hashCodeCalc = false;
-
     public synchronized int hashCode() {
-        if ( __hashCodeCalc ) {
+        if (__hashCodeCalc) {
             return 0;
         }
         __hashCodeCalc = true;
         int _hashCode = 1;
-        if ( getMethod() != null ) {
-            _hashCode += getMethod().hashCode();
-        }
-        if ( getDim() != null ) {
+        if (getDim() != null) {
             _hashCode += getDim().hashCode();
         }
-        if ( getDistance() != null ) {
+        if (getDistance() != null) {
             _hashCode += getDistance().hashCode();
+        }
+        if (getMethod() != null) {
+            _hashCode += getMethod().hashCode();
         }
         __hashCodeCalc = false;
         return _hashCode;
     }
 
     // Type metadata
-    private static org.apache.axis.description.TypeDesc typeDesc = new org.apache.axis.description.TypeDesc(
-            HierarchicalClusteringParameter.class, true );
+    private static org.apache.axis.description.TypeDesc typeDesc =
+        new org.apache.axis.description.TypeDesc(HierarchicalClusteringParameter.class, true);
 
     static {
-        typeDesc.setXmlType( new javax.xml.namespace.QName(
-                "gme://cagrid.geworkbench.columbia.edu/1/edu.columbia.geworkbench.cagrid.cluster.hierarchical",
-                "HierarchicalClusteringParameter" ) );
+        typeDesc.setXmlType(new javax.xml.namespace.QName("gme://cagrid.geworkbench.columbia.edu/1/edu.columbia.geworkbench.cagrid.cluster.hierarchical", "HierarchicalClusteringParameter"));
         org.apache.axis.description.ElementDesc elemField = new org.apache.axis.description.ElementDesc();
-        elemField.setFieldName( "method" );
-        elemField.setXmlName( new javax.xml.namespace.QName(
-                "gme://cagrid.geworkbench.columbia.edu/1/edu.columbia.geworkbench.cagrid.cluster.hierarchical",
-                "method" ) );
-        elemField.setXmlType( new javax.xml.namespace.QName( "http://www.w3.org/2001/XMLSchema", "string" ) );
-        typeDesc.addFieldDesc( elemField );
+        elemField.setFieldName("dim");
+        elemField.setXmlName(new javax.xml.namespace.QName("gme://cagrid.geworkbench.columbia.edu/1/edu.columbia.geworkbench.cagrid.cluster.hierarchical", "dim"));
+        elemField.setXmlType(new javax.xml.namespace.QName("gme://cagrid.geworkbench.columbia.edu/1/edu.columbia.geworkbench.cagrid.cluster.hierarchical", "dim"));
+        typeDesc.addFieldDesc(elemField);
         elemField = new org.apache.axis.description.ElementDesc();
-        elemField.setFieldName( "dim" );
-        elemField
-                .setXmlName( new javax.xml.namespace.QName(
-                        "gme://cagrid.geworkbench.columbia.edu/1/edu.columbia.geworkbench.cagrid.cluster.hierarchical",
-                        "dim" ) );
-        elemField.setXmlType( new javax.xml.namespace.QName( "http://www.w3.org/2001/XMLSchema", "string" ) );
-        typeDesc.addFieldDesc( elemField );
+        elemField.setFieldName("distance");
+        elemField.setXmlName(new javax.xml.namespace.QName("gme://cagrid.geworkbench.columbia.edu/1/edu.columbia.geworkbench.cagrid.cluster.hierarchical", "distance"));
+        elemField.setXmlType(new javax.xml.namespace.QName("gme://cagrid.geworkbench.columbia.edu/1/edu.columbia.geworkbench.cagrid.cluster.hierarchical", "distance"));
+        typeDesc.addFieldDesc(elemField);
         elemField = new org.apache.axis.description.ElementDesc();
-        elemField.setFieldName( "distance" );
-        elemField.setXmlName( new javax.xml.namespace.QName(
-                "gme://cagrid.geworkbench.columbia.edu/1/edu.columbia.geworkbench.cagrid.cluster.hierarchical",
-                "distance" ) );
-        elemField.setXmlType( new javax.xml.namespace.QName( "http://www.w3.org/2001/XMLSchema", "string" ) );
-        typeDesc.addFieldDesc( elemField );
+        elemField.setFieldName("method");
+        elemField.setXmlName(new javax.xml.namespace.QName("gme://cagrid.geworkbench.columbia.edu/1/edu.columbia.geworkbench.cagrid.cluster.hierarchical", "method"));
+        elemField.setXmlType(new javax.xml.namespace.QName("gme://cagrid.geworkbench.columbia.edu/1/edu.columbia.geworkbench.cagrid.cluster.hierarchical", "method"));
+        typeDesc.addFieldDesc(elemField);
     }
 
     /**
@@ -170,17 +166,25 @@ public class HierarchicalClusteringParameter implements java.io.Serializable {
     /**
      * Get Custom Serializer
      */
-    public static org.apache.axis.encoding.Serializer getSerializer( java.lang.String mechType,
-            java.lang.Class _javaType, javax.xml.namespace.QName _xmlType ) {
-        return new org.apache.axis.encoding.ser.BeanSerializer( _javaType, _xmlType, typeDesc );
+    public static org.apache.axis.encoding.Serializer getSerializer(
+           java.lang.String mechType, 
+           java.lang.Class _javaType,  
+           javax.xml.namespace.QName _xmlType) {
+        return 
+          new  org.apache.axis.encoding.ser.BeanSerializer(
+            _javaType, _xmlType, typeDesc);
     }
 
     /**
      * Get Custom Deserializer
      */
-    public static org.apache.axis.encoding.Deserializer getDeserializer( java.lang.String mechType,
-            java.lang.Class _javaType, javax.xml.namespace.QName _xmlType ) {
-        return new org.apache.axis.encoding.ser.BeanDeserializer( _javaType, _xmlType, typeDesc );
+    public static org.apache.axis.encoding.Deserializer getDeserializer(
+           java.lang.String mechType, 
+           java.lang.Class _javaType,  
+           javax.xml.namespace.QName _xmlType) {
+        return 
+          new  org.apache.axis.encoding.ser.BeanDeserializer(
+            _javaType, _xmlType, typeDesc);
     }
 
 }
