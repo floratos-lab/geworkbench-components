@@ -9,16 +9,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.ginkgo.labs.reader.TabFileReader;
 
-import edu.columbia.geworkbench.cagrid.MageBioAssayGenerator;
-import edu.columbia.geworkbench.cagrid.MageBioAssayGeneratorImpl;
 import edu.duke.cabig.rproteomics.model.statml.Data;
-import gov.nih.nci.cagrid.annualdemo.util.MageParser;
-import gov.nih.nci.cagrid.annualdemo.util.MageParser.MGEDCubeHandler;
-import gov.nih.nci.mageom.domain.bioassay.BioAssay;
-import gov.nih.nci.mageom.domain.bioassay.BioDataCube;
-import gov.nih.nci.mageom.domain.bioassay.BioDataValues;
-import gov.nih.nci.mageom.domain.bioassay.DerivedBioAssay;
-import gov.nih.nci.mageom.domain.bioassay.DerivedBioAssayData;
 
 /**
  * 
@@ -53,16 +44,5 @@ public class CaGridConverterTest extends TestCase {
 		Data microaraySet = CaGridConverter.float2DToData(fdata);
 		// CagridMicroarrayTypeConverter.convertToCagridData(microarraySetView);
 
-	}
-
-	/**
-	 * 
-	 * @param cube
-	 */
-	private void parseBase64Encoding(String cube) {
-		MageParser mageParser = new MageParser();
-		MGEDCubeHandler cubeHandler = mageParser.new MGEDCubeHandler();
-		double[][][] dcube = cubeHandler.getCubeFromString(cube);
-		log.debug(dcube);
 	}
 }
