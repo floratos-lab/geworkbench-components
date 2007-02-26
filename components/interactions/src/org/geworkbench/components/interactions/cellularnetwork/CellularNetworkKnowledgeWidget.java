@@ -19,7 +19,6 @@ import org.geworkbench.events.ProjectNodeAddedEvent;
 import org.geworkbench.events.AdjacencyMatrixEvent;
 import org.geworkbench.events.GeneSelectorEvent;
 import org.geworkbench.events.ProjectEvent;
-import org.geworkbench.builtin.projects.remoteresources.RemoteResourceDialog;
 import org.apache.axis.EngineConfiguration;
 import org.apache.axis.configuration.BasicClientConfig;
 import org.jfree.chart.ChartFactory;
@@ -56,7 +55,6 @@ import java.awt.*;
 import java.util.*;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
-import java.lang.reflect.Array;
 
 /**
  * @author manjunath at genomecenter dot columbia dot edu,  xiaoqing zhang
@@ -506,7 +504,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane impl
         createNetWorkButton.setText("Create Network");
         createNetWorkButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                loadfromDBHandler(evt);
+                createNetworks(evt);
             }
         });
 
@@ -822,63 +820,61 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane impl
         SwingUtilities.invokeLater(r);
     }
 
-    private void loadfromDBHandler(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_loadfromDBHandler
-        int[] rows = detailTable.getSelectedRows();
+    private void createNetworks(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_loadfromDBHandler
         DSItemList<DSGeneMarker> markers = dataset.getMarkers();
         DSItemList<DSGeneMarker> copy = new CSItemList<DSGeneMarker>();
         copy.addAll(markers);
         CellularNetworkKnowledgeWidget.EntrezIdComparator eidc = new CellularNetworkKnowledgeWidget.EntrezIdComparator();
         Collections.sort(copy, eidc);
-        if (rows != null && rows.length > 0) {
-            AdjacencyMatrix matrix = new AdjacencyMatrix();
-            AdjacencyMatrixDataSet dataSet = null;
-            matrix.setMicroarraySet(dataset);
-            int serial = 0;
-            boolean isEmpty = true;
-            for (CellularNetWorkElementInformation cellularNetWorkElementInformation : hits) {
-                ArrayList<InteractionDetail> arrayList = cellularNetWorkElementInformation.getSelectedInteractions();
-                if (arrayList != null && arrayList.size() > 0) {
-                    int index = Collections.binarySearch(copy, cellularNetWorkElementInformation.getdSGeneMarker(), eidc);
-                    serial = copy.get(index).getSerial();
-                    matrix.addGeneRow(serial);
-                    int i = 0;
+        AdjacencyMatrix matrix = new AdjacencyMatrix();
+        AdjacencyMatrixDataSet dataSet = null;
+        matrix.setMicroarraySet(dataset);
+        int serial = 0;
+        boolean isEmpty = true;
+        for (CellularNetWorkElementInformation cellularNetWorkElementInformation : hits) {
+            ArrayList<InteractionDetail> arrayList = cellularNetWorkElementInformation.getSelectedInteractions();
+            if (arrayList != null && arrayList.size() > 0) {
+                int index = Collections.binarySearch(copy, cellularNetWorkElementInformation.getdSGeneMarker(), eidc);
+                serial = copy.get(index).getSerial();
+                matrix.addGeneRow(serial);
+                int i = 0;
 
 
-                    for (InteractionDetail interactionDetail : arrayList) {
-                        DSGeneMarker marker = new CSGeneMarker();
-                        marker.setGeneId(new Integer(interactionDetail.getdSGeneMarker2()));
-                        index = Collections.binarySearch(copy, marker, eidc);
-                        if (index >= 0) {
-                            isEmpty = false;
-                            int serial2 = copy.get(index).getSerial();
-                            matrix.add(serial, serial2, 0.8f);
-                            if (interactionDetail.getInteraactionType().equalsIgnoreCase(InteractionDetail.PROTEINPROTEININTERACTION))
-                            {
-                                matrix.addDirectional(serial, serial2, "pp");
-                                matrix.addDirectional(serial2, serial, "pp");
+                for (InteractionDetail interactionDetail : arrayList) {
+                    DSGeneMarker marker = new CSGeneMarker();
+                    marker.setGeneId(new Integer(interactionDetail.getdSGeneMarker2()));
+                    index = Collections.binarySearch(copy, marker, eidc);
+                    if (index >= 0) {
+                        isEmpty = false;
+                        int serial2 = copy.get(index).getSerial();
+                        matrix.add(serial, serial2, 0.8f);
+                        if (interactionDetail.getInteraactionType().equalsIgnoreCase(InteractionDetail.PROTEINPROTEININTERACTION))
+                        {
+                            matrix.addDirectional(serial, serial2, "pp");
+                            matrix.addDirectional(serial2, serial, "pp");
 
-                            } else {
-                                matrix.addDirectional(serial, serial2, "pd");
-                                matrix.addDirectional(serial2, serial, "pd");
-                            }
                         } else {
-                            System.out.println("Marker " + interactionDetail.getdSGeneMarker2() + " does not exist at the dataset. ");
+                            matrix.addDirectional(serial, serial2, "pd");
+                            matrix.addDirectional(serial2, serial, "pd");
                         }
+                    } else {
+                        System.out.println("Marker " + interactionDetail.getdSGeneMarker2() + " does not exist at the dataset. ");
                     }
                 }
-
-
-                dataSet = new AdjacencyMatrixDataSet(matrix, serial, 0.5f, 2, "Adjacency Matrix", dataset.getLabel(), dataset);
-
-            }   //end for loop
-
-            if (dataSet != null && !isEmpty) {
-                publishProjectNodeAddedEvent(new ProjectNodeAddedEvent("Adjacency Matrix Added", null, dataSet));
-                publishAdjacencyMatrixEvent(new AdjacencyMatrixEvent(matrix, "Interactions from knowledgebase", -1, 2, 0.5f, AdjacencyMatrixEvent.Action.DRAW_NETWORK));
-            } else {
-                JOptionPane.showMessageDialog(null, "No interactions exists in the current databaset", "Empty Set", JOptionPane.ERROR_MESSAGE);
             }
+
+
+            dataSet = new AdjacencyMatrixDataSet(matrix, serial, 0.5f, 2, "Adjacency Matrix", dataset.getLabel(), dataset);
+
+        }   //end for loop
+
+        if (dataSet != null && !isEmpty) {
+            publishProjectNodeAddedEvent(new ProjectNodeAddedEvent("Adjacency Matrix Added", null, dataSet));
+            publishAdjacencyMatrixEvent(new AdjacencyMatrixEvent(matrix, "Interactions from knowledgebase", -1, 2, 0.5f, AdjacencyMatrixEvent.Action.DRAW_NETWORK));
+        } else {
+            JOptionPane.showMessageDialog(null, "No interactions exists in the current databaset", "Empty Set", JOptionPane.ERROR_MESSAGE);
         }
+
     }//GEN-LAST:event_loadfromDBHandler
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
