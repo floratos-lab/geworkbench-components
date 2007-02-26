@@ -72,7 +72,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane impl
     private static String PPNUMBERLABEL = "# of Protein-Protein Interactions";
     private static String[] columnLabels = new String[]{INCLUDEPDLABEL, INCLUDEPPLABEL, MARKERLABEL, GENELABEL, GENETYPELABEL, GOTERMCOLUMN, PDNUMBERLABEL, PPNUMBERLABEL};
     private static TableColumn[] tableColumns;
-
+    private boolean cancelAction = false;
     /**
      * Creates new form Interactions
      */
@@ -96,52 +96,6 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane impl
         detailTable.getTableHeader().setEnabled(true);
         detailTable.setDefaultRenderer(String.class, new ColorRenderer(true));
         detailTable.setDefaultRenderer(Integer.class, new IntegerRenderer(true));
-//        detailTable.getTableHeader().addMouseListener(new MouseAdapter() {
-//            public void mouseClicked(MouseEvent e) {
-//                int col = detailTable.getTableHeader().columnAtPoint(e.getPoint());
-//                TableColumn tableColumn = detailTable.getColumnModel().getColumn(col);
-//                if (tableColumn.getHeaderValue().toString().equalsIgnoreCase(INCLUDEPPLABEL)) {
-//                    ppInteractions.setSelected(!ppInteractions.isSelected());
-//                } else if (tableColumn.getHeaderValue().toString().equalsIgnoreCase(INCLUDEPDLABEL)) {
-//                    pdInteractions.setSelected(!pdInteractions.isSelected());
-//                }
-//                detailTable.getTableHeader().repaint();
-//            }
-//
-//            private void maybeShowPopup(MouseEvent e) {
-//                // System.out.println(e.isPopupTrigger() + " " + detailTable.isEnabled());
-//                if (e.isPopupTrigger() && detailTable.isEnabled()) {
-//                    Point p = new Point(e.getX(), e.getY());
-//                    int col = detailTable.columnAtPoint(p);
-//                    int row = detailTable.rowAtPoint(p);
-//
-//// translate table index to model index
-//                    int mcol = detailTable.getColumn(
-//                            detailTable.getColumnName(col)).getModelIndex();
-//
-//// create popup menu...
-//                    JPopupMenu contextMenu = createContextMenu(row,
-//                            mcol);
-//
-//// ... and show it
-//                    if (contextMenu != null
-//                            && contextMenu.getComponentCount() > 0) {
-//                        contextMenu.show(detailTable, p.x, p.y);
-//                    }
-//
-//                }
-//            }
-//
-//            public void mousePressed(MouseEvent e) {
-//                maybeShowPopup(e);
-//            }
-//
-//            public void mouseReleased(MouseEvent e) {
-//                maybeShowPopup(e);
-//            }
-//
-//
-//        });
     }
 
     public Component getComponent() {
@@ -155,44 +109,23 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane impl
         }
     }
 
+    /**
+     * Create a popup menu to display thge name of different Go Terms in 3 catagories.
+     *
+     * @param rowIndex
+     * @param columnIndex
+     * @return
+     */
     private JPopupMenu createContextMenu(final int rowIndex,
                                          final int columnIndex) {
         JPopupMenu contextMenu = new JPopupMenu();
         final CellularNetWorkElementInformation hit = hits.get(rowIndex);
         JMenu copyMenu = new JMenu();
-//        MouseAdapter mouseAdapter = new MouseAdapter() {
-//            public void mouseClicked(MouseEvent e) {
-//                 popupGoInformation(e);
-//            }
-//
-//            public void popupGoInformation(MouseEvent e) {
-//                Point p = new Point(e.getX(), e.getY());
-//                 displayGoTermItemMenu(hit.getTreeMapForComponent()).show(detailTable, p.x, p.y);
-//            }
-//
-//
-//            public void mousePressed(MouseEvent e) {
-//                popupGoInformation(e);
-//            }
-//
-//            public void mouseReleased(MouseEvent e) {
-//                popupGoInformation(e);
-//            }
-//
-//
-//        };
-
-
         copyMenu.setText("Component");
-
-        //copyMenu.addMouseListener(mouseAdapter);
-
         JMenu goFunctionMenu = new JMenu();
         goFunctionMenu.setText("Function");
         JMenu processMenu = new JMenu();
         processMenu.setText("Process");
-
-
         if (hit.getTreeMapForComponent() != null && hit.getTreeMapForComponent().size() > 0) {
             addGoTermMenuItem(copyMenu, hit.getTreeMapForComponent());
             contextMenu.add(copyMenu);
@@ -209,6 +142,10 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane impl
         return contextMenu;
     }
 
+    /**
+     * @param treeMap
+     * @return
+     */
     private JPopupMenu displayGoTermItemMenu(TreeMap<String, Set<GOTerm>> treeMap) {
         JPopupMenu contextMenu = new JPopupMenu();
         if (treeMap != null && treeMap.size() > 0) {
@@ -222,6 +159,12 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane impl
         return contextMenu;
     }
 
+    /**
+     * Display a tree for a specific go term.
+     *
+     * @param jMenu
+     * @param treeMap
+     */
     private void addGoTermMenuItem(JMenu jMenu, TreeMap<String, Set<GOTerm>> treeMap) {
 
         if (treeMap != null && treeMap.size() > 0) {
@@ -242,8 +185,13 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane impl
 
     }
 
-    private DefaultMutableTreeNode
-            createNodes(Set<GOTerm> set) {
+    /**
+     * Create a TreeNode from the Go Term data.
+     *
+     * @param set
+     * @return
+     */
+    private DefaultMutableTreeNode createNodes(Set<GOTerm> set) {
         Object[] array = set.toArray();
         DefaultMutableTreeNode node = null;
         if (array != null && array.length > 0) {
@@ -262,8 +210,12 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane impl
         return node;
     }
 
-    ;
 
+    /**
+     * Display Go Tree.
+     *
+     * @param set
+     */
     private void dispalyGoTree(Set<GOTerm> set) {
         Frame frame = JOptionPane.getFrameForComponent(this);
         goDialog = new JDialog(frame, "Display Preference", true);
@@ -273,24 +225,19 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane impl
         tree.getSelectionModel().setSelectionMode
                 (TreeSelectionModel.SINGLE_TREE_SELECTION);
 
-        //Listen for when the selection changes.
-        //tree.addTreeSelectionListener(this);
-
-//        if (playWithLineStyle) {
-//            System.out.println("line style = " + lineStyle);
-//            tree.putClientProperty("JTree.lineStyle", lineStyle);
-//        }
-
         //Create the scroll pane and add the tree to it.
         JScrollPane treeView = new JScrollPane(tree);
         goDialog.getContentPane().add(treeView);
         goDialog.setMinimumSize(new Dimension(100, 100));
         goDialog.setPreferredSize(new Dimension(300, 300));
         goDialog.pack();
+        goDialog.setLocationRelativeTo(null);
         goDialog.setVisible(true);
     }
 
-    ;
+    /**
+     * The old methold to create the GUI. It was generated by IDE than edited  manually.
+     */
 
     private void initComponents() {
         mainPanel = new javax.swing.JPanel();
@@ -416,6 +363,12 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane impl
             }
         });
 
+        cancelButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cancelTheAction(evt);
+            }
+        });
+
         jPanel1.setBorder(javax.swing.BorderFactory.createLineBorder(new Color(204, 204, 255)));
         //jPanel1.setMaximumSize(new Dimension(587, 382));
         jPanel1.setMinimumSize(new Dimension(300, 50));
@@ -431,11 +384,12 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane impl
                     if (row < hits.size()) {
                         CellularNetWorkElementInformation marker = hits.get(row);
                         hits.remove(row);
-                        if (marker != null && !allGenes.contains(marker)) {
+                        if (marker != null && !allGenes.contains(marker.getdSGeneMarker())) {
                             allGenes.add(marker.getdSGeneMarker());
-                            activatedMarkerTable.revalidate();
-                            detailTable.revalidate();
+
                         }
+                        activatedMarkerTable.revalidate();
+                        detailTable.revalidate();
                     }
                 }
             }
@@ -486,9 +440,20 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane impl
                     int row = target.getSelectedRow();
                     if (row < allGenes.size()) {
                         DSGeneMarker marker = allGenes.get(row);
-                        if (marker != null && !hits.contains(marker)) {
-                            hits.addElement(new CellularNetWorkElementInformation(marker));
+                        if (marker != null) {
+                            //   !hits.contains(new CellularNetWorkElementInformation(marker)))
+                            CellularNetWorkElementInformation cellularNetWorkElementInformation = new CellularNetWorkElementInformation(marker);
+                            boolean newEntry = true;
                             allGenes.remove(row);
+                            for (CellularNetWorkElementInformation cell : hits) {
+                                if (cell.equals(cellularNetWorkElementInformation)) {
+                                    newEntry = false;
+                                    break;
+                                }
+                            }
+                            if (newEntry) {
+                                hits.addElement(new CellularNetWorkElementInformation(marker));
+                            }
                             activatedMarkerTable.revalidate();
                             detailTable.revalidate();
                         }
@@ -592,8 +557,20 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane impl
         dialog.setMinimumSize(new Dimension(100, 100));
         dialog.setPreferredSize(new Dimension(300, 300));
         dialog.pack();
+         dialog.setLocationRelativeTo(null);
 
     }// </editor-fold>//GEN-END:initComponents
+
+
+    /**
+     * Generate the data to draw the curve.
+     *
+     * @param min
+     * @param max
+     * @param selectedId
+     * @param active
+     * @return
+     */
 
     public XYSeriesCollection createCollection(double min, double max,
                                                int selectedId, boolean active) {
@@ -644,7 +621,11 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane impl
         return plots;
     }
 
-
+    /**
+     * Respond to the select/unselect of Protein Protein interaction checkbox.
+     *
+     * @param e
+     */
     public void jProteinCheckBox_actionPerformed(ActionEvent e) {
         if (hits != null && hits.size() > 0) {
             if (((JCheckBox) (e.getSource())).getText().equalsIgnoreCase("All Protein-Protein")) {
@@ -663,14 +644,21 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane impl
 
     }
 
+    /**
+     * Respond to display the table perference. Make the selection dialog visible.
+     *
+     * @param e
+     */
     public void displayPreferenceButton_actionPerformed(ActionEvent e) {
         Frame frame = JOptionPane.getFrameForComponent(this);
-
 
         dialog.setVisible(true);
 
     }
 
+    /**
+     * @param e
+     */
     public void updatePreferenceButton_actionPerformed(ActionEvent e) {
 
         dialog.setVisible(false);
@@ -691,6 +679,12 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane impl
 
     }
 
+    /**
+     * Create the plot for the throttle graph.
+     *
+     * @param plots
+     * @param title
+     */
     public void drawPlot(final XYSeriesCollection plots, String title) {
         if (plots == null) {
             return;
@@ -1002,7 +996,13 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane impl
         }
     }
 
+     private void cancelTheAction(ActionEvent e) {
+      cancelAction = true;
+     }
+
+
     private void previewSelectionsHandler(ActionEvent e) {
+        cancelAction = false;
         Runnable r = new Runnable() {
             public void run() {
                 try {
@@ -1014,15 +1014,23 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane impl
                         updateProgressBar(((double) retrievedQueryNumber) / hits.size(), "Querying the Knowledge Base...");
                         cellularNetWorkElementInformation.setDirty(false);
                         DSGeneMarker marker = cellularNetWorkElementInformation.getdSGeneMarker();
+                        if(cancelAction){
+                            break;
+                        }
                         if (marker != null && marker.getGeneId() != -1) {
                             BigDecimal id = new BigDecimal(marker.getGeneId());
                             ArrayList<InteractionDetail> interactionDetails = interactionsConnection.getPairWiseInteraction(id);
                             cellularNetWorkElementInformation.setInteractionDetails(interactionDetails);
                         }
                     }
+                    if(!cancelAction){
                     updateProgressBar(1, "Query is finished.");
                     drawPlot(createCollection(0, 1, 1, true), "Throttle Graph");
                     throttlePanel.repaint();
+
+                    }else{
+                      updateProgressBar(1, "Stopped");
+                    }
                     previewTableModel.fireTableDataChanged();
                     detailTable.revalidate();
 
@@ -1036,6 +1044,9 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane impl
 
     }
 
+    /**
+     * Create a connection with the server.
+     */
     private void initConnections() {
         EngineConfiguration ec = new BasicClientConfig();
         INTERACTIONSServiceLocator service =

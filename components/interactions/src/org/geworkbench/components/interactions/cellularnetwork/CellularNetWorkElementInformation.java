@@ -15,6 +15,11 @@ import java.util.TreeMap;
  * Time: 12:31:48 PM
  * To change this template use File | Settings | File Templates.
  */
+
+/**
+ * It is used to save all celllualr Network information related to a specific marker.
+ *
+ */
 public class CellularNetWorkElementInformation {
     private int ppInteractionNum;
     private int pdInteractionNum;
@@ -93,6 +98,9 @@ public class CellularNetWorkElementInformation {
 
     }
 
+    /**
+     * Remove all previous retrieved information.
+     */
     public void reset() {
         // isDirty = true;
         ppInteractionNum = 0;
@@ -185,6 +193,10 @@ public class CellularNetWorkElementInformation {
         return interactionDetails;
     }
 
+    /**
+     * Associate the gene marker with the details.
+     * @param arrayList
+     */
     public void setInteractionDetails(ArrayList<InteractionDetail> arrayList) {
 
         if (arrayList != null && arrayList.size() > 0) {
@@ -301,5 +313,13 @@ public class CellularNetWorkElementInformation {
 
     public void setGeneType(String geneType) {
         this.geneType = geneType;
+    }
+
+    public boolean equals(Object obj){
+        if(obj instanceof CellularNetWorkElementInformation){
+            return dSGeneMarker.getGeneName().equals(((CellularNetWorkElementInformation)obj).getdSGeneMarker().getGeneName());
+        }else{
+            return false;
+        }
     }
 }

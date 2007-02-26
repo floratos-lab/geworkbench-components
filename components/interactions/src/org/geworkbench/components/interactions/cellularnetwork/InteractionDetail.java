@@ -7,8 +7,12 @@ package org.geworkbench.components.interactions.cellularnetwork;
  * Time: 4:27:11 PM
  * To change this template use File | Settings | File Templates.
  */
+
+/**
+ * The deatil of one interaction.
+ */
 public class InteractionDetail {
-    private String dSGeneMarker1;
+    private String dSGeneMarker1;    //One node name
     private String dSGeneMarker2;
     private double confidence;
     private String InteraactionType;
