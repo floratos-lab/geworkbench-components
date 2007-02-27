@@ -176,7 +176,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane impl
                 final Set<GOTerm> set = treeMap.get(array[i]);
                 jMenuItems[i].addActionListener(new ActionListener() {
                     public void actionPerformed(ActionEvent e) {
-                        dispalyGoTree(set);
+                        displayGoTree(set);
                     }
 
                 });
@@ -216,7 +216,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane impl
      *
      * @param set
      */
-    private void dispalyGoTree(Set<GOTerm> set) {
+    private void displayGoTree(Set<GOTerm> set) {
         Frame frame = JOptionPane.getFrameForComponent(this);
         goDialog = new JDialog(frame, "Display Preference", true);
 
@@ -559,7 +559,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane impl
         dialog.pack();
          dialog.setLocationRelativeTo(null);
 
-    }// </editor-fold>//GEN-END:initComponents
+    }// </editor-fold>                        
 
 
     /**
