@@ -50,7 +50,7 @@ public class InteractionDetail {
         this.confidence = confidence;
     }
 
-    public String getInteraactionType() {
+    public String getInteractionType() {
         return InteraactionType;
     }
 
