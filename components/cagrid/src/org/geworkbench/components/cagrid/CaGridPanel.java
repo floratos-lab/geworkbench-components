@@ -32,6 +32,7 @@ import javax.swing.JTextArea;
 
 import org.apache.axis.message.addressing.EndpointReferenceType;
 import org.apache.axis.types.URI;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
@@ -64,13 +65,15 @@ import com.jgoodies.forms.layout.FormLayout;
 /**
  * @author watkinson
  * @author keshav
- * @version $Id: CaGridPanel.java,v 1.24 2007-02-22 18:46:32 keshav Exp $
+ * @version $Id: CaGridPanel.java,v 1.25 2007-02-27 21:26:02 keshav Exp $
  */
 public class CaGridPanel extends JPanel implements VisualPlugin {
 
 	static Log log = LogFactory.getLog(CaGridPanel.class);
 
 	private static final String DEFAULT_HOST = "cagridnode.c2b2.columbia.edu";
+
+	private static final String DEFAULT_FILTER = "hierarchical";
 
 	private static final int DEFAULT_PORT = 8080;
 
@@ -123,8 +126,10 @@ public class CaGridPanel extends JPanel implements VisualPlugin {
 		builder.appendSeparator("caGrid Discovery Host");
 		final JTextArea hostField = new JTextArea(DEFAULT_HOST);
 		final JTextArea portField = new JTextArea("" + DEFAULT_PORT);
+		final JTextArea filterField = new JTextArea("" + DEFAULT_FILTER);
 		builder.append("Host", hostField);
 		builder.append("Port", portField);
+		builder.append("Filter", filterField);
 		JButton lookupButton = new JButton("Lookup Services");
 		lookupButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -141,7 +146,7 @@ public class CaGridPanel extends JPanel implements VisualPlugin {
 						// Ignore for now
 					}
 					EndpointReferenceType[] allServices = getServices(hostField
-							.getText(), port);
+							.getText(), port, filterField.getText());
 					populateServicePanel(allServices);
 				} catch (Exception e1) {
 					e1.printStackTrace();
@@ -159,8 +164,12 @@ public class CaGridPanel extends JPanel implements VisualPlugin {
 
 	@Script
 	public String getServiceUrl(String host, int port, String serviceFilter) {
+
 		try {
-			EndpointReferenceType[] services = getServices(host, port);
+			EndpointReferenceType[] services = null;
+
+			services = getServices(host, port, serviceFilter);
+
 			ArrayList<String> urls = new ArrayList<String>();
 			for (EndpointReferenceType service : services) {
 				ServiceMetadata commonMetadata = MetadataUtils
@@ -182,14 +191,21 @@ public class CaGridPanel extends JPanel implements VisualPlugin {
 		}
 	}
 
-	private EndpointReferenceType[] getServices(String host, int port)
-			throws Exception {
+	private EndpointReferenceType[] getServices(String host, int port,
+			String search) throws Exception {
 		AnalyticalServiceDiscoveryClient client = new AnalyticalServiceDiscoveryClient(
 				host, port);
-		EndpointReferenceType[] allServices = client.getAllServices();
+
+		EndpointReferenceType[] allServices = null;
+		if (StringUtils.isEmpty(search)) {
+			allServices = client.getAllServices();
+		} else {
+			allServices = client.discoverServicesBySearchString(search);
+		}
 		if (allServices != null) {
 			for (EndpointReferenceType service : allServices) {
 				System.out.println("Service: " + service.getAddress());
+				log.info(service.getParameters());
 				ServiceMetadata commonMetadata = MetadataUtils
 						.getServiceMetadata(service);
 				System.out.println("  Description: "
