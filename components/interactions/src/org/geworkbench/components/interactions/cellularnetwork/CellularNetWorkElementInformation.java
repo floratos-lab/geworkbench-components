@@ -121,11 +121,11 @@ public class CellularNetWorkElementInformation {
             for (int i = 0; i < interactionDetails.length; i++) {
                 InteractionDetail interactionDetail = interactionDetails[i];
                 if (interactionDetail != null && interactionDetail.getConfidence() >= threshold) {
-                    if (isIncludePDInteraction() && interactionDetail.getInteraactionType().equalsIgnoreCase(InteractionDetail.PROTEINDNAINTERACTION))
+                    if (isIncludePDInteraction() && interactionDetail.getInteractionType().equalsIgnoreCase(InteractionDetail.PROTEINDNAINTERACTION))
                     {
                         arrayList.add(interactionDetail);
                     }
-                    if (isIncludePPInteraction() && interactionDetail.getInteraactionType().equalsIgnoreCase(InteractionDetail.PROTEINPROTEININTERACTION))
+                    if (isIncludePPInteraction() && interactionDetail.getInteractionType().equalsIgnoreCase(InteractionDetail.PROTEINPROTEININTERACTION))
                     {
                         arrayList.add(interactionDetail);
                     }
@@ -224,7 +224,7 @@ public class CellularNetWorkElementInformation {
                     for (int i = 0; i <= confidence; i++) {
                         distribution[i]++;
                     }
-                    if (interactionDetail.getInteraactionType().equalsIgnoreCase(InteractionDetail.PROTEINPROTEININTERACTION))
+                    if (interactionDetail.getInteractionType().equalsIgnoreCase(InteractionDetail.PROTEINPROTEININTERACTION))
                     {
                         for (int i = 0; i <= confidence; i++) {
                             ppDistribution[i]++;
@@ -236,7 +236,7 @@ public class CellularNetWorkElementInformation {
                     }
                 }
                 if (confidence >= 100 * threshold) {
-                    if (interactionDetail.getInteraactionType().equals(InteractionDetail.PROTEINPROTEININTERACTION)) {
+                    if (interactionDetail.getInteractionType().equals(InteractionDetail.PROTEINPROTEININTERACTION)) {
                         ppInteractionNum++;
                     } else {
                         pdInteractionNum++;

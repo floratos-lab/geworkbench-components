@@ -842,7 +842,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane impl
                         isEmpty = false;
                         int serial2 = copy.get(index).getSerial();
                         matrix.add(serial, serial2, 0.8f);
-                        if (interactionDetail.getInteraactionType().equalsIgnoreCase(InteractionDetail.PROTEINPROTEININTERACTION))
+                        if (interactionDetail.getInteractionType().equalsIgnoreCase(InteractionDetail.PROTEINPROTEININTERACTION))
                         {
                             matrix.addDirectional(serial, serial2, "pp");
                             matrix.addDirectional(serial2, serial, "pp");
