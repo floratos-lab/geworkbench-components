@@ -15,6 +15,12 @@ import edu.columbia.geworkbench.cagrid.discovery.client.AnalyticalServiceDiscove
 import edu.columbia.geworkbench.cagrid.microarray.MicroarraySet;
 import gov.nih.nci.cagrid.discovery.MetadataUtils;
 import gov.nih.nci.cagrid.metadata.ServiceMetadata;
+import gov.nih.nci.cagrid.metadata.service.InputParameter;
+import gov.nih.nci.cagrid.metadata.service.Operation;
+import gov.nih.nci.cagrid.metadata.service.OperationInputParameterCollection;
+import gov.nih.nci.cagrid.metadata.service.ServiceContext;
+import gov.nih.nci.cagrid.metadata.service.ServiceContextOperationCollection;
+import gov.nih.nci.cagrid.metadata.service.ServiceServiceContextCollection;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
@@ -32,6 +38,7 @@ import javax.swing.JTextArea;
 
 import org.apache.axis.message.addressing.EndpointReferenceType;
 import org.apache.axis.types.URI;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -65,7 +72,7 @@ import com.jgoodies.forms.layout.FormLayout;
 /**
  * @author watkinson
  * @author keshav
- * @version $Id: CaGridPanel.java,v 1.25 2007-02-27 21:26:02 keshav Exp $
+ * @version $Id: CaGridPanel.java,v 1.26 2007-02-27 22:26:11 keshav Exp $
  */
 public class CaGridPanel extends JPanel implements VisualPlugin {
 
@@ -202,18 +209,68 @@ public class CaGridPanel extends JPanel implements VisualPlugin {
 		} else {
 			allServices = client.discoverServicesBySearchString(search);
 		}
+		if (log.isInfoEnabled())
+			displayMetadata(allServices);
+
+		return allServices;
+	}
+
+	/**
+	 * 
+	 * @param allServices
+	 * @throws Exception
+	 */
+	public void displayMetadata(EndpointReferenceType[] allServices)
+			throws Exception {
 		if (allServices != null) {
 			for (EndpointReferenceType service : allServices) {
-				System.out.println("Service: " + service.getAddress());
-				log.info(service.getParameters());
+
 				ServiceMetadata commonMetadata = MetadataUtils
 						.getServiceMetadata(service);
-				System.out.println("  Description: "
+
+				log.info("Service: " + service.getAddress());
+
+				log.info("  Description: "
 						+ commonMetadata.getServiceDescription().getService()
 								.getDescription());
+
+				ServiceServiceContextCollection serContextCol = commonMetadata
+						.getServiceDescription().getService()
+						.getServiceContextCollection();
+
+				ServiceContext[] contexts = serContextCol.getServiceContext();
+				if (contexts == null)
+					continue;
+
+				for (ServiceContext context : contexts) {
+					log.info("context: " + context.getName());
+					ServiceContextOperationCollection serOperatonCol = context
+							.getOperationCollection();
+
+					Operation[] operations = serOperatonCol.getOperation();
+					if (operations == null)
+						continue;
+
+					for (Operation operation : operations) {
+						log.info("operation: " + operation.getName());
+						OperationInputParameterCollection inputParamCol = operation
+								.getInputParameterCollection();
+
+						InputParameter[] inputParams = inputParamCol
+								.getInputParameter();
+						if (inputParams == null)
+							continue;
+
+						for (InputParameter param : inputParams) {
+							log.info("input param: " + param.getName());
+							log.info("qname: " + param.getQName());
+						}
+
+					}
+
+				}
 			}
 		}
-		return allServices;
 	}
 
 	/**
