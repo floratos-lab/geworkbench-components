@@ -11,28 +11,31 @@
 */
 package org.geworkbench.components.analysis.classification.wv;
 
-import org.geworkbench.algorithms.AbstractTrainingPanel;
 import org.geworkbench.util.ClassifierException;
 import org.geworkbench.bison.algorithm.classification.CSClassifier;
 import org.geworkbench.bison.model.analysis.ParamValidationResults;
 import org.geworkbench.builtin.projects.LoadData;
+import org.geworkbench.components.analysis.classification.GPTrainingPanel;
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.layout.ColumnSpec;
+import com.jgoodies.forms.layout.FormLayout;
+import com.jgoodies.forms.layout.CellConstraints;
+import com.jgoodies.forms.layout.RowSpec;
 
 import javax.swing.*;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.*;
 import java.io.File;
 import java.io.Serializable;
 import java.io.ObjectStreamException;
 
 /**
- * @author Marc-Danie Nazaire
+ * @author Marc-Danie Nazaire                                      
  */
-public class WVTrainingPanel extends AbstractTrainingPanel
-{
+public class WVTrainingPanel extends GPTrainingPanel {
     private static final int DEFAULT_NUM_FEATURES = 10;
 
     private String featureFile = null;
@@ -50,6 +53,7 @@ public class WVTrainingPanel extends AbstractTrainingPanel
 
     public WVTrainingPanel(WVTraining wv)
     {
+        super();
         this.wvTraining = wv;
         try
         {   jbInit(); }
@@ -86,6 +90,9 @@ public class WVTrainingPanel extends AbstractTrainingPanel
         });
 
         numFeatures = new JFormattedTextField();
+        numFeatures.setPreferredSize(new Dimension(170, 20));
+        numFeatures.setMinimumSize(new Dimension(170, 20));
+        numFeatures.setMaximumSize(new Dimension(170, 20));
         numFeatures.setValue(DEFAULT_NUM_FEATURES);
 
         featureFileMethod = new JRadioButton();
@@ -108,7 +115,11 @@ public class WVTrainingPanel extends AbstractTrainingPanel
         });
 
         featureFileTextBox = new JTextField();
+        featureFileTextBox.setPreferredSize(new Dimension(170, 20));
+        featureFileTextBox.setMinimumSize(new Dimension(170, 20));
+        featureFileTextBox.setMaximumSize(new Dimension(170, 20));
         featureFileTextBox.setEnabled(false);
+
         loadFeatureFileButton = new JButton("Load");
         loadFeatureFileButton.setEnabled(false);
         loadFeatureFileButton.addActionListener(new ActionListener()
@@ -124,6 +135,9 @@ public class WVTrainingPanel extends AbstractTrainingPanel
         group.add(featureFileMethod);
 
         statistic = new JComboBox();
+        statistic.setPreferredSize(new Dimension(170, 20));
+        statistic.setMinimumSize(new Dimension(170, 20));
+        statistic.setMaximumSize(new Dimension(170, 20));
         statistic.addItem("SNR");
         statistic.addItem("T-Test");
 
@@ -144,6 +158,9 @@ public class WVTrainingPanel extends AbstractTrainingPanel
         });
 
         minStdDev = new JFormattedTextField("");
+        minStdDev.setMaximumSize(new Dimension(170,20));
+        minStdDev.setMinimumSize(new Dimension(170, 20));
+        minStdDev.setMaximumSize(new Dimension(170, 20));
         minStdDev.setEnabled(false);
     }
 
@@ -193,12 +210,18 @@ public class WVTrainingPanel extends AbstractTrainingPanel
         return label;
     }
 
-    protected void addParameters(DefaultFormBuilder builder)
+    protected JPanel getParameterPanel()
     {
+        FormLayout layout = new FormLayout(
+                    "right:max(80dlu;pref), 7dlu,  max(70dlu;pref), 7dlu, max(70dlu;pref),7dlu, max(70dlu;pref)",
+                    "");
+        DefaultFormBuilder builder = new DefaultFormBuilder(layout);
+        builder.setDefaultDialogBorder();
+
         builder.appendSeparator("Weighted Voting Parameters");
         builder.nextRow();
 
-        builder.appendColumn(new ColumnSpec("9dlu"));
+        builder.appendColumn(new ColumnSpec("135dlu"));
         builder.append(numFeatureMethod, numFeatures);
 
         // add the GenePattern logo
@@ -210,9 +233,10 @@ public class WVTrainingPanel extends AbstractTrainingPanel
         builder.nextRow();
 
         builder.append(minStdDevCheckbox, minStdDev, medianCheckbox);
-        builder.nextRow();
+        builder.nextLine();
 
         builder.append(featureFileMethod, featureFileTextBox, loadFeatureFileButton);
+        return builder.getPanel();
     }
 
     protected CSClassifier trainForValidation(java.util.List<float[]> trainingCaseData, java.util.List<float[]> trainingControlData) throws ClassifierException
@@ -249,6 +273,7 @@ public class WVTrainingPanel extends AbstractTrainingPanel
         if (file != null)
         {
             featureFile = featureFileChooser.getSelectedFile().getAbsolutePath();
+            featureFileTextBox.setSelectionEnd(10);
             featureFileTextBox.setText(featureFile);
         }
     }
@@ -299,5 +324,5 @@ public class WVTrainingPanel extends AbstractTrainingPanel
     }
 }
 
-                                                    
+
 
