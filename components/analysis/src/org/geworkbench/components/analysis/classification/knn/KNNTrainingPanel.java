@@ -11,19 +11,21 @@
 */
 package org.geworkbench.components.analysis.classification.knn;
 
-import org.geworkbench.algorithms.AbstractTrainingPanel;
 import org.geworkbench.bison.algorithm.classification.CSClassifier;
 import org.geworkbench.bison.model.analysis.ParamValidationResults;
 import org.geworkbench.util.ClassifierException;
 import org.geworkbench.builtin.projects.LoadData;
+import org.geworkbench.components.analysis.classification.GPTrainingPanel;
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.layout.ColumnSpec;
+import com.jgoodies.forms.layout.FormLayout;
 
 import javax.swing.*;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.ItemEvent;
+import java.awt.*;
 import java.io.File;
 import java.io.ObjectStreamException;
 import java.io.Serializable;
@@ -31,7 +33,7 @@ import java.io.Serializable;
 /**
  * @author Marc-Danie Nazaire
  */
-public class KNNTrainingPanel extends AbstractTrainingPanel
+public class KNNTrainingPanel extends GPTrainingPanel
 {
     private static final int DEFAULT_NUM_FEATURES = 10;
     private static final int DEFAULT_NUM_NEIGHBORS = 3;
@@ -54,6 +56,7 @@ public class KNNTrainingPanel extends AbstractTrainingPanel
 
     public KNNTrainingPanel(KNNTraining knnTraining)
     {
+        super();
         this.knnTraining = knnTraining;
         try
         {   jbInit();   }
@@ -90,6 +93,9 @@ public class KNNTrainingPanel extends AbstractTrainingPanel
         });
 
         numFeatures = new JFormattedTextField();
+        numFeatures.setPreferredSize(new Dimension(120, 20));
+        numFeatures.setMinimumSize(new Dimension(120, 20));
+        numFeatures.setMaximumSize(new Dimension(120, 20));
         numFeatures.setValue(DEFAULT_NUM_FEATURES);
 
         featureFileMethod = new JRadioButton();
@@ -112,6 +118,9 @@ public class KNNTrainingPanel extends AbstractTrainingPanel
         });
 
         featureFileTextBox = new JTextField();
+        featureFileTextBox.setPreferredSize(new Dimension(120, 20));
+        featureFileTextBox.setMinimumSize(new Dimension(120, 20));
+        featureFileTextBox.setMaximumSize(new Dimension(120, 20));
         featureFileTextBox.setEnabled(false);
         loadFeatureFileButton = new JButton("Load");
         loadFeatureFileButton.setEnabled(false);
@@ -128,6 +137,9 @@ public class KNNTrainingPanel extends AbstractTrainingPanel
         group.add(featureFileMethod);
 
         statistic = new JComboBox();
+        statistic.setPreferredSize(new Dimension(120, 20));
+        statistic.setMinimumSize(new Dimension(120, 20));
+        statistic.setMaximumSize(new Dimension(120, 20));
         statistic.addItem("SNR");
         statistic.addItem("T-Test");
 
@@ -148,17 +160,26 @@ public class KNNTrainingPanel extends AbstractTrainingPanel
         });
 
         minStdDev = new JFormattedTextField("");
+        minStdDev.setMaximumSize(new Dimension(120,20));
+        minStdDev.setMinimumSize(new Dimension(120, 20));
+        minStdDev.setMaximumSize(new Dimension(120, 20));
         minStdDev.setEnabled(false);
 
         numNeighbors = new JFormattedTextField();
         numNeighbors.setValue(DEFAULT_NUM_NEIGHBORS);
 
         weightType = new JComboBox();
+        weightType.setMaximumSize(new Dimension(120,20));
+        weightType.setMinimumSize(new Dimension(120, 20));
+        weightType.setMaximumSize(new Dimension(120, 20));
         weightType.addItem("none");
         weightType.addItem("one-over-k");
         weightType.addItem("distance");
 
         distanceMeasure = new JComboBox();
+        distanceMeasure.setMaximumSize(new Dimension(120,20));
+        distanceMeasure.setMinimumSize(new Dimension(120, 20));
+        distanceMeasure.setMaximumSize(new Dimension(120, 20));
         distanceMeasure.addItem("Cosine");
         distanceMeasure.addItem("Euclidean");
     }
@@ -224,8 +245,14 @@ public class KNNTrainingPanel extends AbstractTrainingPanel
         return label;
     }
 
-    protected void addParameters(DefaultFormBuilder builder)
+    protected JPanel getParameterPanel()
     {
+        FormLayout layout = new FormLayout(
+                    "right:max(80dlu;pref), 7dlu,  max(70dlu;pref), 7dlu, max(70dlu;pref),7dlu, max(70dlu;pref)",
+                    "");
+        DefaultFormBuilder builder = new DefaultFormBuilder(layout);
+        builder.setDefaultDialogBorder();
+        
         builder.appendSeparator("K-Nearest Neighbor Parameters");
         builder.nextRow();
 
@@ -251,6 +278,8 @@ public class KNNTrainingPanel extends AbstractTrainingPanel
 
         builder.append("neighbor weight type", weightType);
         builder.append("distance measure", distanceMeasure);
+
+        return builder.getPanel();
     }
 
     protected CSClassifier trainForValidation(java.util.List<float[]> trainingCaseData, java.util.List<float[]> trainingControlData) throws ClassifierException
