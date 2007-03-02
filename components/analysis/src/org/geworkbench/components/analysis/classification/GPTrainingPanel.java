@@ -4,6 +4,7 @@ import org.geworkbench.algorithms.AbstractTrainingPanel;
 import org.genepattern.util.GPpropertiesManager;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.systemsbiology.util.InvalidInputException;
 
 import javax.swing.*;
 
@@ -11,10 +12,10 @@ import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.layout.*;
 
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.event.*;
 import java.net.URL;
 import java.net.MalformedURLException;
+import java.io.IOException;
 
 /**
  * @author: Marc-Danie Nazaire
@@ -24,10 +25,10 @@ public abstract class GPTrainingPanel extends AbstractTrainingPanel
     private static Log log = LogFactory.getLog(AbstractTrainingPanel.class);
     protected JTabbedPane gpTabbedPane;
     protected JPanel gpConfig;
-    private static JFormattedTextField protocol;
-    private static JFormattedTextField host;
-    private static JFormattedTextField port;
-    private static JFormattedTextField userName;
+    private JFormattedTextField protocol;
+    private JFormattedTextField host;
+    private JFormattedTextField port;
+    private JFormattedTextField username;
 
     public GPTrainingPanel()
     {
@@ -49,30 +50,35 @@ public abstract class GPTrainingPanel extends AbstractTrainingPanel
         DefaultFormBuilder builder = new DefaultFormBuilder(layout);
         builder.setDefaultDialogBorder();
 
+        protocol = new JFormattedTextField("");
+        host = new JFormattedTextField("");
+        port = new JFormattedTextField("");
+        username = new JFormattedTextField("");
+
         resetGPConfigParameters();
 
         protocol.setPreferredSize(new Dimension(170, 20));
         protocol.setMinimumSize(new Dimension(170, 20));
         protocol.setMaximumSize(new Dimension(170, 20));
-        builder.append(new JLabel("Protocol:"), protocol);
+        builder.append(new JLabel("Protocol"), protocol);
         builder.nextLine();
 
         host.setPreferredSize(new Dimension(170, 20));
         host.setMinimumSize(new Dimension(170, 20));
         host.setMaximumSize(new Dimension(170, 20));
-        builder.append(new JLabel("Host:"), host);
+        builder.append(new JLabel("Host"), host);
         builder.nextLine();
 
         port.setPreferredSize(new Dimension(170, 20));
         port.setMinimumSize(new Dimension(170, 20));
         port.setMaximumSize(new Dimension(170, 20));
-        builder.append(new JLabel("Port:"), port);
+        builder.append(new JLabel("Port"), port);
         builder.nextLine();
 
-        userName.setPreferredSize(new Dimension(170, 20));
-        userName.setMinimumSize(new Dimension(170, 20));
-        userName.setMaximumSize(new Dimension(170, 20));
-        builder.append(new JLabel("Username:"), userName);
+        username.setPreferredSize(new Dimension(170, 20));
+        username.setMinimumSize(new Dimension(170, 20));
+        username.setMaximumSize(new Dimension(170, 20));
+        builder.append(new JLabel("Username"), username);
         builder.nextLine();
 
         JButton saveButton = new JButton("Save");
@@ -88,55 +94,83 @@ public abstract class GPTrainingPanel extends AbstractTrainingPanel
         builder.append(new JPanel(), saveButton);
 
         gpConfig.add(builder.getPanel());
+        gpConfig.addComponentListener( new ComponentListener()
+        {
+            public void componentShown(ComponentEvent event)
+            {
+                resetGPConfigParameters();                        
+            }
+
+            public void componentResized(ComponentEvent event){}
+            public void componentMoved(ComponentEvent event){}
+            public void componentHidden(ComponentEvent event){}
+        });
     }
 
     private void resetGPConfigParameters()
     {
         String serverName = GPpropertiesManager.getProperty("gp.server");
+
         URL gpServer = null;
         try
         {
-            gpServer = new URL(serverName);
+            if(serverName != null)
+                gpServer = new URL(serverName);
         }
         catch(MalformedURLException e)
         {
             log.debug(e.getMessage());
         }
 
-        if(gpServer == null)
+        if(gpServer != null)
         {
-            protocol = new JFormattedTextField();
-            host = new JFormattedTextField();
-            port = new JFormattedTextField();
+            protocol.setValue(gpServer.getProtocol());
+            host.setValue(gpServer.getHost());
+            port.setValue(new Integer(gpServer.getPort()));
         }
         else
         {
-            protocol = new JFormattedTextField(gpServer.getProtocol());
-            host = new JFormattedTextField(gpServer.getHost());
-            port = new JFormattedTextField(String.valueOf(gpServer.getPort()));
+            protocol.setValue("");
+            host.setValue("");
+            port.setValue("");
         }
 
         if(GPpropertiesManager.getProperty("gp.user.name") != null)
-            userName = new JFormattedTextField(GPpropertiesManager.getProperty("gp.user.name"));
+            username.setValue(GPpropertiesManager.getProperty("gp.user.name"));
         else
-             userName = new JFormattedTextField();
+            username.setValue("");
     }
     
+    private void validateInput() throws InvalidInputException
+    {
+        if(protocol.getValue() == null || ((String)protocol.getValue()).length() == 0)
+        {
+            throw new InvalidInputException("Protocol must be provided");
+        }
+        else if(host.getValue() == null || ((String)host.getValue()).length() == 0)
+        {
+            throw new InvalidInputException("Host must be provided");
+        }
+        else if(port.getValue() == null || ((Integer)port.getValue()).intValue() == -1)
+        {
+            throw new InvalidInputException("Port must be provided");
+        }
+        else if(username.getValue() == null || ((String)username.getValue()).length() == 0)
+        {
+            throw new InvalidInputException("Username must be provided");
+        }
+    }
     private void saveGPConfigActionPerformed(ActionEvent event)
     {
         if(event.getActionCommand().equalsIgnoreCase("Save"))
         {
             try
             {
-                String protocolInput = protocol.getText();
-                String hostInput = host.getText();
-                int portInput = Integer.parseInt(port.getText());
-                String userNameInput = userName.getText();
-
-                if(protocolInput == null || protocolInput.equals("") ||
-                        hostInput == null || hostInput.equals("") ||
-                        portInput == -1 || userNameInput == null || userNameInput.equals(""))
-                    throw new Exception();
+                validateInput();
+                String protocolInput = (String)protocol.getValue();
+                String hostInput = (String)host.getValue();
+                int portInput = ((Integer)port.getValue()).intValue();
+                String userNameInput = (String)username.getValue();
                 
                 URL gpServer = new URL(protocolInput, hostInput , portInput, "");
                 GPpropertiesManager.setProperty("gp.server", gpServer.toString());
@@ -144,12 +178,16 @@ public abstract class GPTrainingPanel extends AbstractTrainingPanel
                 GPpropertiesManager.saveGenePatternProperties();
                 JOptionPane.showMessageDialog(this, "GenePattern server settings saved");
             }
-            catch(Exception e)
+            catch(IOException e)
             {
                 log.debug(e.getMessage());
                 resetGPConfigParameters();
                 JOptionPane.showMessageDialog(this, "Problem saving GenePattern server settings");
-            }            
+            }
+            catch(InvalidInputException e)
+            {
+                JOptionPane.showMessageDialog(this, e.getMessage());
+            }             
         }
     }
 
