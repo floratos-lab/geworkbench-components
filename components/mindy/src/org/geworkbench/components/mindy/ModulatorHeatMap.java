@@ -188,8 +188,8 @@ public class ModulatorHeatMap extends JPanel {
         paintExpressionBar(cellWidth, expressionBarWidth, g, transFacBarY, transcriptionFactor);
         // Outlines for trans fac gradients
         g.setColor(Color.GRAY);
-        g.drawRect(SPACER_SIDE, transFacBarY, (int) expressionBarWidth, BAR_HEIGHT + 1);
-        g.drawRect((int) (getWidth() - SPACER_SIDE - expressionBarWidth - 1), transFacBarY, (int) (expressionBarWidth + 1), BAR_HEIGHT + 1);
+        g.drawRect(SPACER_SIDE, transFacBarY, (int) expressionBarWidth, BAR_HEIGHT);
+        g.drawRect((int) (getWidth() - SPACER_SIDE - expressionBarWidth - 1), transFacBarY, (int) (expressionBarWidth + 1), BAR_HEIGHT);
 
         // Draw the target's expression values
         int targetStartY = transFacBarY + BAR_HEIGHT + 5;
@@ -212,8 +212,8 @@ public class ModulatorHeatMap extends JPanel {
         }
         // Outlines for target gradients
         g.setColor(Color.GRAY);
-        g.drawRect(SPACER_SIDE, targetStartY, (int) expressionBarWidth, targetCurrY - targetStartY + 1);
-        g.drawRect((int) (getWidth() - SPACER_SIDE - expressionBarWidth - 1), targetStartY, (int) (expressionBarWidth + 1), targetCurrY - targetStartY + 1);
+        g.drawRect(SPACER_SIDE, targetStartY, (int) expressionBarWidth, targetCurrY - targetStartY);
+        g.drawRect((int) (getWidth() - SPACER_SIDE - expressionBarWidth - 1), targetStartY, (int) (expressionBarWidth + 1), targetCurrY - targetStartY);
 
     }
 
