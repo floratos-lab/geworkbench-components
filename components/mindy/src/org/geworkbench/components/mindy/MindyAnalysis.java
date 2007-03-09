@@ -84,8 +84,10 @@ public class MindyAnalysis extends AbstractAnalysis implements ClusteringAnalysi
 
         Mindy mindy = new Mindy();
         DSGeneMarker transFac = mSet.getMarkers().get(params.getTranscriptionFactor());
+        log.info("Running MINDY analysis.");
         MindyResults results = mindy.runMindy(convert(mSet), new Marker(params.getTranscriptionFactor()), modulators,
                 params.getSetFraction()/100f, params.getDPITolerance());
+        log.info("MINDY analysis complete.");
         List<MindyData.MindyResultRow> dataRows = new ArrayList<MindyData.MindyResultRow>();
         for (MindyResults.MindyResultForTarget result : results) {
             DSItemList<DSGeneMarker> markers = mSet.getMarkers();
@@ -97,6 +99,7 @@ public class MindyAnalysis extends AbstractAnalysis implements ClusteringAnalysi
         }
 
         MindyData loadedData = new MindyData((CSMicroarraySet) mSet, dataRows);
+        log.info("Done converting MINDY results.");
 
         MindyDataSet dataSet = new MindyDataSet(mSet, "MINDY Results", loadedData, params.getCandidateModulatorsFile());
         return new AlgorithmExecutionResults(true, "MINDY Results Loaded.", dataSet);
