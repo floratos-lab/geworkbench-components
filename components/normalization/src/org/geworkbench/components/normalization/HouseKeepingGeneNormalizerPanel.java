@@ -82,7 +82,7 @@ public class HouseKeepingGeneNormalizerPanel extends
     String lastDirString = ".";
     final String USERSETTINGSFILE = "userSettings.txt";
     private int currentHighlightedIndex = -1;
-
+    private boolean isMissingValueIgnored = true;
     JComboBox missingValuesCombo = new JComboBox(new String[]{IGNORE_OPTION,
             AVG_OPTION});
     JPanel jPanel5 = new JPanel();
@@ -135,6 +135,15 @@ public class HouseKeepingGeneNormalizerPanel extends
             ex.printStackTrace();
         }
 
+    }
+
+    public boolean isMissingValueIgnored() {
+        isMissingValueIgnored = missingValuesCombo.getSelectedItem().toString().equalsIgnoreCase(IGNORE_OPTION);
+        return isMissingValueIgnored;
+    }
+
+    public void setMissingValueIgnored(boolean missingValueIgnored) {
+        isMissingValueIgnored = missingValueIgnored;
     }
 
     /**
@@ -556,8 +565,8 @@ public class HouseKeepingGeneNormalizerPanel extends
         row++;
         builder.addSeparator("Missing Values Options for Housekeeping Genes", cc.xyw(1, row++, 5));
         row++;
-        builder.add(missingValuesLabel, cc.xy(3,row));
-        builder.add(missingValuesCombo, cc.xy(5,row));
+        builder.add(missingValuesLabel, cc.xy(3, row));
+        builder.add(missingValuesCombo, cc.xy(5, row));
 
 
         jScrollPane2.getViewport().add(jList2);
