@@ -21,13 +21,6 @@ import edu.columbia.geworkbench.cagrid.microarray.MicroarraySet;
 import edu.duke.cabig.rproteomics.model.statml.Array;
 import edu.duke.cabig.rproteomics.model.statml.Data;
 import edu.duke.cabig.rproteomics.model.statml.Scalar;
-import gov.nih.nci.mageom.domain.bioassay.BioAssay;
-import gov.nih.nci.mageom.domain.bioassay.BioDataCube;
-import gov.nih.nci.mageom.domain.bioassay.DerivedBioAssay;
-import gov.nih.nci.mageom.domain.bioassay.DerivedBioAssayData;
-import gov.nih.nci.mageom.domain.bioassay.QuantitationTypeDimension;
-import gov.nih.nci.mageom.domain.bioassay.Reporter;
-import gov.nih.nci.mageom.domain.bioassay.ReporterDimension;
 
 /**
  * Converts to/from cagrid microarray set types from/to geworkbench microarray
@@ -47,7 +40,7 @@ public class CaGridConverter {
 	 * @param microarraySetView
 	 * @return MicroarraySet
 	 */
-	public static MicroarraySet convertToCagridMicroarrayType(
+	public static MicroarraySet convertFromBisonToCagridMicroarray(
 			DSMicroarraySetView microarraySetView) {
 
 		DSMicroarraySet microarraySet = microarraySetView.getMicroarraySet();
@@ -100,7 +93,7 @@ public class CaGridConverter {
 	 * @param microarraySetView
 	 * @return Data
 	 */
-	public static Data convertToCagridData(DSMicroarraySetView microarraySetView) {
+	public static Data convertFromBisonToCagridData(DSMicroarraySetView microarraySetView) {
 
 		DSMicroarraySet microarraySet = microarraySetView.getMicroarraySet();
 
@@ -158,7 +151,7 @@ public class CaGridConverter {
 	 * @param gridMicroarraySet
 	 * @return DSMicroarraySet
 	 */
-	public static DSMicroarraySetView convertFromCagridMicroarrayType(
+	public static DSMicroarraySetView convertFromCagridMicroarrayToBison(
 			MicroarraySet gridMicroarraySet) {
 
 		/* microarray info */
@@ -190,95 +183,5 @@ public class CaGridConverter {
 		microarraySetView.setMicroarraySet(microarraySet);
 
 		return microarraySetView;
-	}
-
-	/**
-	 * @param data
-	 * @return MicroarraySet
-	 */
-	public static MicroarraySet float2DToMicroarraySet(float[][] data) {
-
-		int numMarkers = data.length;
-		int numMicroarrays = data[0].length;// assuming non-ragged
-
-		log.debug("data set contains " + numMicroarrays + " microarrays");
-		log.debug("data set contains " + numMarkers + " markers");
-
-		MicroarraySet microarraySet = new MicroarraySet();
-		Microarray microarrays[] = new Microarray[numMicroarrays];
-		Marker markers[] = new Marker[numMarkers];
-		// FIXME should have a marker equivalent of constructing this matrix
-		// set array data
-		for (int j = 0; j < numMicroarrays; j++) {
-			float[] col = new float[numMarkers];
-			for (int i = 0; i < data.length; i++) {
-				col[i] = data[i][j];
-			}
-			Microarray microarray = new Microarray();
-			microarray.setArrayName("array" + j);
-			microarray.setArrayData(col);
-			microarrays[j] = microarray;
-		}
-
-		// set marker names
-		for (int i = 0; i < numMarkers; i++) {
-			Marker marker = new Marker();
-			marker.setMarkerName(i + "_at");
-			markers[i] = marker;
-		}
-
-		microarraySet.setName("A test microaray set");
-		microarraySet.setMicroarray(microarrays);
-		microarraySet.setMarker(markers);
-		return microarraySet;
-	}
-
-	/**
-	 * 
-	 * @param data
-	 * @return Data
-	 */
-	public static Data float2DToData(float[][] data) {
-
-		int numMarkers = data.length;
-		int numMicroarrays = data[0].length; // assuming non-ragged
-
-		log.debug("data set contains " + numMicroarrays + " microarrays");
-		log.debug("data set contains " + numMarkers + " markers");
-
-		Data microarraySet = new Data();
-		Array[] microarrays = new Array[numMicroarrays];
-		Scalar[] markers = new Scalar[numMarkers];
-
-		// FIXME should have a marker equivalent of constructing this matrix
-		// set array data
-		for (int j = 0; j < numMicroarrays; j++) {
-			float[] col = new float[numMarkers];
-			for (int i = 0; i < data.length; i++) {
-				col[i] = data[i][j];
-			}
-
-			Array array = new Array();
-			array.setName("array" + j);
-			array.setType("float");
-			array.setDimensions(String.valueOf(numMarkers));
-			String base64Value = BasicConverter.base64Encode(col);
-			array.setBase64Value(base64Value);
-			microarrays[j] = array;
-		}
-
-		// set marker names
-		for (int i = 0; i < numMarkers; i++) {
-			Scalar scalar = new Scalar();
-			scalar.setName(String.valueOf(i));
-			scalar.setValue(i + "_at");
-			scalar.setType("String");
-			markers[i] = scalar;
-		}
-
-		microarraySet.setScalar(markers);
-		microarraySet.setArray(microarrays);
-
-		return microarraySet;
 	}
 }

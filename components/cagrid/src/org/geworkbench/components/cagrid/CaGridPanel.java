@@ -72,7 +72,7 @@ import com.jgoodies.forms.layout.FormLayout;
 /**
  * @author watkinson
  * @author keshav
- * @version $Id: CaGridPanel.java,v 1.26 2007-02-27 22:26:11 keshav Exp $
+ * @version $Id: CaGridPanel.java,v 1.27 2007-03-09 02:55:21 keshav Exp $
  */
 public class CaGridPanel extends JPanel implements VisualPlugin {
 
@@ -360,7 +360,7 @@ public class CaGridPanel extends JPanel implements VisualPlugin {
 						CSMicroarraySetView view = new CSMicroarraySetView(
 								microarraySet);
 						MicroarraySet gridSet = CaGridConverter
-								.convertToCagridMicroarrayType(view);
+								.convertFromBisonToCagridMicroarray(view);
 
 						if (url.contains(HIERARCHICAL_CLUSTERING)) {
 							GridHierarchicalClusteringDialog dialog = new GridHierarchicalClusteringDialog();
@@ -514,7 +514,7 @@ public class CaGridPanel extends JPanel implements VisualPlugin {
 		log.debug("script method:  do clustering");
 		CSMicroarraySetView view = new CSMicroarraySetView(microarraySet);
 		MicroarraySet gridSet = CaGridConverter
-				.convertToCagridMicroarrayType(view);
+				.convertFromBisonToCagridMicroarray(view);
 
 		Dim dim = null;
 		if (dimensions.equalsIgnoreCase(MARKER))
@@ -563,7 +563,7 @@ public class CaGridPanel extends JPanel implements VisualPlugin {
 		log.debug("script method:  do SOM clustering");
 		CSMicroarraySetView view = new CSMicroarraySetView(microarraySet);
 		MicroarraySet gridSet = CaGridConverter
-				.convertToCagridMicroarrayType(view);
+				.convertFromBisonToCagridMicroarray(view);
 		SomClusteringParameter parameters = new SomClusteringParameter(
 				(float) alpha, dim_x, dim_y, function, iteration,
 				(float) radius);
