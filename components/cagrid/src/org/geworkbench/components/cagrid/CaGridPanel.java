@@ -10,7 +10,7 @@ import edu.columbia.geworkbench.cagrid.cluster.hierarchical.HierarchicalClusteri
 import edu.columbia.geworkbench.cagrid.cluster.hierarchical.Method;
 import edu.columbia.geworkbench.cagrid.cluster.som.SomCluster;
 import edu.columbia.geworkbench.cagrid.cluster.som.SomClusteringParameter;
-import edu.columbia.geworkbench.cagrid.converter.CaGridConverter;
+import edu.columbia.geworkbench.cagrid.converter.CagridBisonConverter;
 import edu.columbia.geworkbench.cagrid.discovery.client.AnalyticalServiceDiscoveryClient;
 import edu.columbia.geworkbench.cagrid.microarray.MicroarraySet;
 import gov.nih.nci.cagrid.discovery.MetadataUtils;
@@ -72,7 +72,7 @@ import com.jgoodies.forms.layout.FormLayout;
 /**
  * @author watkinson
  * @author keshav
- * @version $Id: CaGridPanel.java,v 1.27 2007-03-09 02:55:21 keshav Exp $
+ * @version $Id: CaGridPanel.java,v 1.28 2007-03-09 02:58:57 keshav Exp $
  */
 public class CaGridPanel extends JPanel implements VisualPlugin {
 
@@ -359,7 +359,7 @@ public class CaGridPanel extends JPanel implements VisualPlugin {
 					try {
 						CSMicroarraySetView view = new CSMicroarraySetView(
 								microarraySet);
-						MicroarraySet gridSet = CaGridConverter
+						MicroarraySet gridSet = CagridBisonConverter
 								.convertFromBisonToCagridMicroarray(view);
 
 						if (url.contains(HIERARCHICAL_CLUSTERING)) {
@@ -513,7 +513,7 @@ public class CaGridPanel extends JPanel implements VisualPlugin {
 			throws Exception {
 		log.debug("script method:  do clustering");
 		CSMicroarraySetView view = new CSMicroarraySetView(microarraySet);
-		MicroarraySet gridSet = CaGridConverter
+		MicroarraySet gridSet = CagridBisonConverter
 				.convertFromBisonToCagridMicroarray(view);
 
 		Dim dim = null;
@@ -562,7 +562,7 @@ public class CaGridPanel extends JPanel implements VisualPlugin {
 			double radius, String url) throws Exception {
 		log.debug("script method:  do SOM clustering");
 		CSMicroarraySetView view = new CSMicroarraySetView(microarraySet);
-		MicroarraySet gridSet = CaGridConverter
+		MicroarraySet gridSet = CagridBisonConverter
 				.convertFromBisonToCagridMicroarray(view);
 		SomClusteringParameter parameters = new SomClusteringParameter(
 				(float) alpha, dim_x, dim_y, function, iteration,
