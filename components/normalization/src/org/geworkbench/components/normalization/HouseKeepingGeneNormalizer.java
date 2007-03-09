@@ -43,6 +43,7 @@ public class HouseKeepingGeneNormalizer extends AbstractAnalysis implements
     double[] ch1bArray = null;
     double[] ch2fArray = null;
     double[] ch2bArray = null;
+    boolean ignoreMissingValues = true;
 
 
     public HouseKeepingGeneNormalizer() {
@@ -69,12 +70,13 @@ public class HouseKeepingGeneNormalizer extends AbstractAnalysis implements
         haveNonExistMarker = false;
         // Collect the parameters needed for the execution of the normalizer
         markerPanel = ((HouseKeepingGeneNormalizerPanel) aspp).getPanel();
+        ignoreMissingValues = ((HouseKeepingGeneNormalizerPanel) aspp).isMissingValueIgnored();
         int houseKeepgeneNumber = markerPanel.size();
         ExistedMarkers = new boolean[houseKeepgeneNumber];
         double[] ratioArray = null;
 
         if (maSet instanceof CSMicroarraySet &&
-            maSet.getCompatibilityLabel().equals("Genepix")) {
+                maSet.getCompatibilityLabel().equals("Genepix")) {
             ratioArray = getRatioForGenepix(maSet, markerPanel);
         } else {
             //ratioArray = getRatioArrary(maSet, markerPanel, BASEARRAY);
@@ -93,10 +95,13 @@ public class HouseKeepingGeneNormalizer extends AbstractAnalysis implements
                 return new AlgorithmExecutionResults(false, "Cancelled by user.", input);
             }
         }
+
+
         int arrayCount = maSet.size();
         int markerCount = maSet.getMarkers().size();
         DSMicroarray microarray = null;
         DSMutableMarkerValue markerValue = null;
+
         for (int i = 0; i < arrayCount; i++) {
             if (Double.isNaN(ratioArray[i])) {
                 continue;
@@ -112,7 +117,7 @@ public class HouseKeepingGeneNormalizer extends AbstractAnalysis implements
                     } else {
                         if (ratioArray[i] != 0) {
                             markerValue.setValue(markerValue.getValue() /
-                                                 ratioArray[i]);
+                                    ratioArray[i]);
                         }
 
                     }
@@ -134,22 +139,22 @@ public class HouseKeepingGeneNormalizer extends AbstractAnalysis implements
         boolean recompute = false;
         if (ch1bArray[arrayLocation] != 0) {
             markerValue.setCh1Bg(markerValue.getCh1Bg() /
-                                 ch1bArray[arrayLocation]);
+                    ch1bArray[arrayLocation]);
             recompute = true;
         }
         if (ch2bArray[arrayLocation] != 0) {
             markerValue.setCh2Bg(markerValue.getCh2Bg() /
-                                 ch2bArray[arrayLocation]);
+                    ch2bArray[arrayLocation]);
             recompute = true;
         }
         if (ch1fArray[arrayLocation] != 0) {
             markerValue.setCh1Fg(markerValue.getCh1Fg() /
-                                 ch1fArray[arrayLocation]);
+                    ch1fArray[arrayLocation]);
             recompute = true;
         }
         if (ch2fArray[arrayLocation] != 0) {
             markerValue.setCh2Fg(markerValue.getCh2Fg() /
-                                 ch2fArray[arrayLocation]);
+                    ch2fArray[arrayLocation]);
             recompute = true;
         }
         if (recompute) {
@@ -161,9 +166,9 @@ public class HouseKeepingGeneNormalizer extends AbstractAnalysis implements
     /**
      * getRatioArrary, caculate the adjust factor for aff_type data.
      *
-     * @param maSet DSMicroarraySet
+     * @param maSet       DSMicroarraySet
      * @param markerPanel DSPanel
-     * @param baseArray int
+     * @param baseArray   int
      * @return double[]
      */
     public double[] getRatioArrary(DSMicroarraySet maSet, DSPanel markerPanel,
@@ -181,7 +186,7 @@ public class HouseKeepingGeneNormalizer extends AbstractAnalysis implements
     /**
      * sum the housekeeping genes expression values together.
      *
-     * @param maSet DSMicroarraySet
+     * @param maSet       DSMicroarraySet
      * @param markerPanel DSPanel
      * @return double[]
      */
@@ -191,25 +196,21 @@ public class HouseKeepingGeneNormalizer extends AbstractAnalysis implements
         int markerCount = markerPanel.size();
 
         CSMarkerVector csMarkerVector = ((CSMicroarraySet) maSet).
-                                        getMarkerVector();
+                getMarkerVector();
 
         DSGeneMarker dsgmarker = csMarkerVector.get(0);
         //DSGeneMarker dsgmarker = (CSGeneMarker) markerPanel.get(0);
         if (csMarkerVector.contains(dsgmarker)) {
             Vector<DSGeneMarker>
                     matchedMarkersVector = csMarkerVector.
-                                           getMatchingMarkers(
-                    dsgmarker);
+                    getMatchingMarkers(
+                            dsgmarker);
             // System.out.println("Something wrong" + matchedMarkersVector);
             if (matchedMarkersVector == null ||
-                matchedMarkersVector.size() == 0) {
+                    matchedMarkersVector.size() == 0) {
                 matchedMarkersVector = csMarkerVector.
-                                       getMatchingMarkers(
-                                               dsgmarker.getLabel());
-//                System.out.println("Something wrong" +
-//                                   matchedMarkersVector.size() +
-//                                   matchedMarkersVector.get(0));
-
+                        getMatchingMarkers(
+                                dsgmarker.getLabel());
             }
 
         }
@@ -234,21 +235,31 @@ public class HouseKeepingGeneNormalizer extends AbstractAnalysis implements
 
             Vector<DSGeneMarker>
                     matchedMarkersVector = csMarkerVector.
-                                           getMatchingMarkers(
-                    csgMarker.getLabel());
+                    getMatchingMarkers(
+                            csgMarker.getLabel());
             if (matchedMarkersVector != null && matchedMarkersVector.size() > 0) {
                 csgMarker = (CSGeneMarker) matchedMarkersVector.get(0);
             }
 
             for (int k = 0; k < arrayCount; k++) {
                 arrays[j][k] = maSet.getValue(csgMarker, k);
-
-                if (Double.isNaN(arrays[j][k])) {
-                    errorMessage.append(csgMarker.getLabel() + " ");
-                    nonFoundGenes.add(csgMarker.getLabel());
-                    ExistedMarkers[j] = false;
-                    haveNonExistMarker = true;
-                    break;
+                // DSMutableMarkerValue dsMutableMarkerValue = maSet.getValuesForName()
+                if (Double.isNaN(arrays[j][k])||arrays[j][k]==0) {
+                    if (ignoreMissingValues) {
+                        errorMessage.append(csgMarker.getLabel() + " ");
+                        nonFoundGenes.add(csgMarker.getLabel());
+                        ExistedMarkers[j] = false;
+                        haveNonExistMarker = true;
+                        break;
+                    } else {
+                        ExistedMarkers[j] = updateMissingValue(csgMarker, maSet);
+                        arrays[j][k] = maSet.getValue(csgMarker, k);
+                        if (!ExistedMarkers[j]) {
+                            errorMessage.append(csgMarker.getLabel() + " ");
+                            nonFoundGenes.add(csgMarker.getLabel());
+                            haveNonExistMarker = true;
+                        }
+                    }
                 }
             }
         }
@@ -271,24 +282,142 @@ public class HouseKeepingGeneNormalizer extends AbstractAnalysis implements
     }
 
     /**
+     * Update the missing value of the housekeeping genes to mean value for non-genpix platforms.
+     *
+     * @param csgMarker
+     * @param maSet
+     * @return
+     */
+    public boolean updateMissingValue(CSGeneMarker csgMarker, DSMicroarraySet maSet) {
+        int arrayCount = maSet.size();
+        DSMutableMarkerValue markerValue = null;
+        int existingValues = 0;
+        double meanValue = 0;
+
+        for (int k = 0; k < arrayCount; k++) {
+            DSMicroarray microarray = (DSMicroarray) (maSet.get(k));
+//            markerValue = (DSMutableMarkerValue) microarray.getMarkerValue(
+//                    csgMarker);
+             double newValue = maSet.getValue(csgMarker, k);
+             if (!Double.isNaN(newValue)) {
+                meanValue += newValue;
+                existingValues++;
+            }
+        }
+        if (existingValues == 0) {
+            return false;
+        } else {
+            meanValue = meanValue / existingValues;
+            for (int k = 0; k < arrayCount; k++) {
+                DSMicroarray microarray = (DSMicroarray) (maSet.get(k));
+                 markerValue = (DSMutableMarkerValue) microarray.getMarkerValue(
+                        csgMarker);
+                if (markerValue.isMissing()) {
+                    markerValue.setMissing(false);
+                    markerValue.setValue(meanValue);
+                }
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Update the missing value of the housekeeping genes to mean value for genpix platforms.
+     *
+     * @param csgMarkerStr
+     * @param maSet
+     * @return
+     */
+    public boolean updateMissingValue(String csgMarkerStr, DSMicroarraySet maSet) {
+        CSMarkerVector csMarkerVector = ((CSMicroarraySet) maSet).
+                getMarkerVector();
+        int arrayCount = maSet.size();
+        DSMutableMarkerValue markerValue = null;
+        int existingValues = 0;
+        double meanValue = 0;
+        double theCh1f = 0;
+        double theCh1b = 0;
+        double theCh2f = 0;
+        double theCh2b = 0;
+        String csgMarkerString = ((CSGeneMarker) markerPanel.get(csgMarkerStr)).
+                getLabel();
+        Vector<DSGeneMarker>
+                marchedMarkersVector = csMarkerVector.
+                getMatchingMarkers(
+                        csgMarkerString);
+
+        for (int i = 0; i < arrayCount; i++) {
+            DSMicroarray microarray = (DSMicroarray) maSet.get(i);
+            if (marchedMarkersVector != null && marchedMarkersVector.size() > 0) {
+                for (DSGeneMarker dsgMarker : marchedMarkersVector) {
+                    CSGenepixMarkerValue csgMarkerValue = (
+                            CSGenepixMarkerValue)
+                            microarray.getMarkerValue(
+                                    dsgMarker);
+
+                    if (csgMarkerValue != null && !csgMarkerValue.isMissing()) {
+                        existingValues++;
+                        theCh1f += csgMarkerValue.getCh1Fg();
+                        theCh2f += csgMarkerValue.getCh2Fg();
+                        theCh1b += csgMarkerValue.getCh1Bg();
+                        theCh2b += csgMarkerValue.getCh2Bg();
+                    }
+
+                }
+
+            }
+
+        }
+        if (existingValues == 0) {
+            return false;
+        } else {
+            theCh1f /= existingValues;
+            theCh2f /= existingValues;
+            theCh1b /= existingValues;
+            theCh2b /= existingValues;
+
+            for (int k = 0; k < arrayCount; k++) {
+                DSMicroarray microarray = (DSMicroarray) (maSet.get(k));
+
+                if (marchedMarkersVector != null && marchedMarkersVector.size() > 0) {
+                    for (DSGeneMarker dsgMarker : marchedMarkersVector) {
+                        CSGenepixMarkerValue csgMarkerValue = (
+                                CSGenepixMarkerValue)
+                                microarray.getMarkerValue(
+                                        dsgMarker);
+                        if (csgMarkerValue.isMissing()) {
+                            csgMarkerValue.setMissing(false);
+                            csgMarkerValue.setCh1Bg(theCh1b);
+                            csgMarkerValue.setCh1Fg(theCh1f);
+                            csgMarkerValue.setCh2Bg(theCh2b);
+                            csgMarkerValue.setCh2Fg(theCh2f);
+                        }
+                    }
+                }
+
+            }
+        }
+
+        return true;
+    }
+
+    /**
      * getRatioForGenepix
      *
-     * @param maSet DSMicroarraySet
+     * @param maSet       DSMicroarraySet
      * @param markerPanel DSPanel
      * @return double[]
      */
     //There is a bug related to CSMarkerVector,  similar to the bug listed above.
     //geneNameMap and geneIDMap in CSMarkerVector always are empty (size =1 or 0)
     //add a new correctMaps() method in CSMarkerVector to temp fix the probelm.
-
     public double[] getRatioForGenepix(DSMicroarraySet maSet,
                                        DSPanel markerPanel) {
 
         CSMarkerVector csMarkerVector = ((CSMicroarraySet) maSet).
-                                        getMarkerVector();
-
+                getMarkerVector();
         csMarkerVector.correctMaps();
-
         int markerCount = markerPanel.size();
         int arrayCount = maSet.size();
         double ratio[] = new double[arrayCount];
@@ -310,14 +439,14 @@ public class HouseKeepingGeneNormalizer extends AbstractAnalysis implements
                 //for the bug list above.
                 ExistedMarkers[j] = true;
                 String csgMarkerString = ((CSGeneMarker) markerPanel.get(j)).
-                                         getLabel();
+                        getLabel();
                 Vector<DSGeneMarker>
                         marchedMarkersVector = csMarkerVector.
-                                               getMatchingMarkers(
-                        csgMarkerString);
+                        getMatchingMarkers(
+                                csgMarkerString);
 
-                if (marchedMarkersVector != null && marchedMarkersVector.size()>0) {
-                     for (DSGeneMarker dsgMarker : marchedMarkersVector) {
+                if (marchedMarkersVector != null && marchedMarkersVector.size() > 0) {
+                    for (DSGeneMarker dsgMarker : marchedMarkersVector) {
                         CSGenepixMarkerValue csgMarkerValue = (
                                 CSGenepixMarkerValue)
                                 microarray.getMarkerValue(
@@ -330,22 +459,32 @@ public class HouseKeepingGeneNormalizer extends AbstractAnalysis implements
                             ch1bArray[i] += csgMarkerValue.getCh1Bg();
                             ch2bArray[i] += csgMarkerValue.getCh2Bg();
                         } else {
-
-                            nonFoundGenes.add(dsgMarker.getLabel());
-                            ExistedMarkers[j] = false;
-                            haveNonExistMarker = true;
-
+                            if (ignoreMissingValues) {
+                                nonFoundGenes.add(dsgMarker.getLabel());
+                                ExistedMarkers[j] = false;
+                                haveNonExistMarker = true;
+                            } else {
+                                // updateMissingValue(csgMarkerValue,  maSet);
+                                if (updateMissingValue(csgMarkerString, maSet)) {
+                                    ch1fArray[i] += csgMarkerValue.getCh1Fg();
+                                    ch2fArray[i] += csgMarkerValue.getCh2Fg();
+                                    ch1bArray[i] += csgMarkerValue.getCh1Bg();
+                                    ch2bArray[i] += csgMarkerValue.getCh2Bg();
+                                } else {
+                                    ExistedMarkers[j] = false;
+                                }
+                            }
                         }
 
                     }
 
-                }else {
+                } else {
 
-                            nonFoundGenes.add(csgMarkerString);
-                            ExistedMarkers[j] = false;
-                            haveNonExistMarker = true;
+                    nonFoundGenes.add(csgMarkerString);
+                    ExistedMarkers[j] = false;
+                    haveNonExistMarker = true;
 
-                        }
+                }
 
 
             }
