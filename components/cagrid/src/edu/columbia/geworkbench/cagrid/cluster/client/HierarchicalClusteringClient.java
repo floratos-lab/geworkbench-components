@@ -8,10 +8,11 @@ import edu.columbia.geworkbench.cagrid.cluster.hierarchical.HierarchicalClusteri
 import edu.columbia.geworkbench.cagrid.cluster.hierarchical.Method;
 import edu.columbia.geworkbench.cagrid.cluster.hierarchical.stubs.HierarchicalClusteringPortType;
 import edu.columbia.geworkbench.cagrid.cluster.hierarchical.stubs.service.HierarchicalClusteringServiceAddressingLocator;
-import edu.columbia.geworkbench.cagrid.converter.CaGridConverter;
 import edu.columbia.geworkbench.cagrid.microarray.Marker;
 import edu.columbia.geworkbench.cagrid.microarray.Microarray;
 import edu.columbia.geworkbench.cagrid.microarray.MicroarraySet;
+import edu.columbia.geworkbench.cagrid.microarray.MicroarraySetGenerator;
+import edu.columbia.geworkbench.cagrid.microarray.MicroarraySetGeneratorImpl;
 import gov.nih.nci.cagrid.introduce.security.client.ServiceSecurityClient;
 
 import java.io.InputStream;
@@ -124,9 +125,22 @@ public class HierarchicalClusteringClient extends ServiceSecurityClient
 					// MicroarraySet arraySet =
 					// client.configureTestMicroarrays(); // test
 					String filename = args[2];
-					MicroarraySet arraySet = CaGridConverter
-							.float2DToMicroarraySet(TabFileReader
-									.readTabFile(filename));
+
+					float[][] fdata = TabFileReader.readTabFile(filename);
+
+					String[] rowNames = new String[fdata.length];
+					for (int i = 0; i < rowNames.length; i++) {
+						rowNames[i] = i + "_at";
+					}
+
+					String[] colNames = new String[fdata[0].length]; // non-ragged
+					for (int j = 0; j < colNames.length; j++) {
+						colNames[j] = String.valueOf(j);
+					}
+
+					MicroarraySetGenerator microarraySetGenerator = new MicroarraySetGeneratorImpl();
+					MicroarraySet arraySet = microarraySetGenerator
+							.float2DToMicroarraySet(fdata, rowNames, colNames);
 
 					HierarchicalClusteringParameter parameters = new HierarchicalClusteringParameter();
 					parameters.setDim(Dim.both);

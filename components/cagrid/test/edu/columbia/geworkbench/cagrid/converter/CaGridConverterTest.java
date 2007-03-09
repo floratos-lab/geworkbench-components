@@ -9,6 +9,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.ginkgo.labs.reader.TabFileReader;
 
+import edu.columbia.geworkbench.cagrid.microarray.MicroarraySet;
+import edu.columbia.geworkbench.cagrid.microarray.MicroarraySetGenerator;
+import edu.columbia.geworkbench.cagrid.microarray.MicroarraySetGeneratorImpl;
 import edu.duke.cabig.rproteomics.model.statml.Data;
 
 /**
@@ -41,7 +44,20 @@ public class CaGridConverterTest extends TestCase {
 	public void testConvertToCagridData() {
 
 		float[][] fdata = TabFileReader.readTabFile(is);
-		Data microaraySet = CaGridConverter.float2DToData(fdata);
+
+		String[] rowNames = new String[fdata.length];
+		for (int i = 0; i < rowNames.length; i++) {
+			rowNames[i] = i + "_at";
+		}
+
+		String[] colNames = new String[fdata[0].length]; // non-ragged
+		for (int j = 0; j < colNames.length; j++) {
+			colNames[j] = String.valueOf(j);
+		}
+
+		MicroarraySetGenerator microarraySetGenerator = new MicroarraySetGeneratorImpl();
+		MicroarraySet arraySet = microarraySetGenerator.float2DToMicroarraySet(
+				fdata, rowNames, colNames);
 		// CagridMicroarrayTypeConverter.convertToCagridData(microarraySetView);
 
 	}

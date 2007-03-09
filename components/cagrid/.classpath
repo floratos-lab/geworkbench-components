@@ -77,5 +77,6 @@
 	<classpathentry kind="lib" path="lib/statmlutil.jar" sourcepath="C:/java/jar_source/statmlutil"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/geworkbench-core"/>
 	<classpathentry kind="lib" path="lib/mageUtility.jar"/>
+	<classpathentry kind="lib" path="lib/microarrayUtility.jar"/>
 	<classpathentry kind="output" path="classes"/>
 </classpath>

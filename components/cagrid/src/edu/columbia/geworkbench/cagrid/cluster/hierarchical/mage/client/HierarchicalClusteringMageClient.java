@@ -9,7 +9,6 @@ import edu.columbia.geworkbench.cagrid.cluster.hierarchical.Method;
 import edu.columbia.geworkbench.cagrid.cluster.hierarchical.mage.common.HierarchicalClusteringMageI;
 import edu.columbia.geworkbench.cagrid.cluster.hierarchical.mage.stubs.HierarchicalClusteringMagePortType;
 import edu.columbia.geworkbench.cagrid.cluster.hierarchical.mage.stubs.service.HierarchicalClusteringMageServiceAddressingLocator;
-import edu.columbia.geworkbench.cagrid.converter.CaGridConverter;
 import gov.nih.nci.cagrid.introduce.security.client.ServiceSecurityClient;
 import gov.nih.nci.mageom.domain.bioassay.BioAssay;
 

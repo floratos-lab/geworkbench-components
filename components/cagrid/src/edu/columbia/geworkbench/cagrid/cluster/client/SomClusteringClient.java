@@ -5,10 +5,11 @@ import edu.columbia.geworkbench.cagrid.cluster.som.SomCluster;
 import edu.columbia.geworkbench.cagrid.cluster.som.SomClusteringParameter;
 import edu.columbia.geworkbench.cagrid.cluster.som.stubs.SomClusteringPortType;
 import edu.columbia.geworkbench.cagrid.cluster.som.stubs.service.SomClusteringServiceAddressingLocator;
-import edu.columbia.geworkbench.cagrid.converter.CaGridConverter;
 import edu.columbia.geworkbench.cagrid.microarray.Marker;
 import edu.columbia.geworkbench.cagrid.microarray.Microarray;
 import edu.columbia.geworkbench.cagrid.microarray.MicroarraySet;
+import edu.columbia.geworkbench.cagrid.microarray.MicroarraySetGenerator;
+import edu.columbia.geworkbench.cagrid.microarray.MicroarraySetGeneratorImpl;
 import gov.nih.nci.cagrid.introduce.security.client.ServiceSecurityClient;
 
 import java.io.File;
@@ -41,7 +42,7 @@ import org.globus.gsi.GlobusCredential;
  * 
  * @created by Introduce Toolkit version 1.0
  * @author keshav
- * @version $Id: SomClusteringClient.java,v 1.6 2007-02-09 23:50:03 keshav Exp $
+ * @version $Id: SomClusteringClient.java,v 1.7 2007-03-09 02:55:22 keshav Exp $
  */
 public class SomClusteringClient extends ServiceSecurityClient implements
 		SomClusteringI {
@@ -122,9 +123,21 @@ public class SomClusteringClient extends ServiceSecurityClient implements
 					// MicroarraySet arraySet =
 					// client.configureTestMicroarrays(); // test
 					String filename = args[2];
-					MicroarraySet arraySet = CaGridConverter
-							.float2DToMicroarraySet(TabFileReader
-									.readTabFile(filename));
+					float[][] fdata = TabFileReader.readTabFile(filename);
+
+					String[] rowNames = new String[fdata.length];
+					for (int i = 0; i < rowNames.length; i++) {
+						rowNames[i] = i + "_at";
+					}
+
+					String[] colNames = new String[fdata[0].length]; // non-ragged
+					for (int j = 0; j < colNames.length; j++) {
+						colNames[j] = String.valueOf(j);
+					}
+
+					MicroarraySetGenerator microarraySetGenerator = new MicroarraySetGeneratorImpl();
+					MicroarraySet arraySet = microarraySetGenerator
+							.float2DToMicroarraySet(fdata, rowNames, colNames);
 
 					/* set parameters */
 					SomClusteringParameter somParameter = new SomClusteringParameter();
