@@ -30,8 +30,8 @@ import edu.duke.cabig.rproteomics.model.statml.Scalar;
  * @version $Id: CagridMicroarrayTypeConverter.java,v 1.2 2007/01/04 22:03:15
  *          watkinson Exp $
  */
-public class CaGridConverter {
-	private static Log log = LogFactory.getLog(CaGridConverter.class);
+public class CagridBisonConverter {
+	private static Log log = LogFactory.getLog(CagridBisonConverter.class);
 
 	/**
 	 * Convert to edu.columbia.geworkbench.cagrid.microarray.MicroarraySet from
