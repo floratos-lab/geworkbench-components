@@ -13,11 +13,13 @@ package org.geworkbench.components.analysis.classification;
 
 import org.geworkbench.algorithms.AbstractTrainingPanel;
 import org.genepattern.util.GPpropertiesManager;
+import org.genepattern.util.BrowserLauncher;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.systemsbiology.util.InvalidInputException;
 
 import javax.swing.*;
+import javax.swing.text.StyledEditorKit;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.layout.*;
@@ -27,6 +29,7 @@ import java.awt.event.*;
 import java.net.URL;
 import java.net.MalformedURLException;
 import java.io.IOException;
+import java.io.File;
 
 /**
  * @author: Marc-Danie Nazaire
@@ -36,6 +39,7 @@ public abstract class GPTrainingPanel extends AbstractTrainingPanel
     private static Log log = LogFactory.getLog(AbstractTrainingPanel.class);
     protected JTabbedPane gpTabbedPane;
     protected JPanel gpConfig;
+    protected JSplitPane gpHelp;
     private JFormattedTextField protocol;
     private JFormattedTextField host;
     private JFormattedTextField port;
@@ -50,6 +54,7 @@ public abstract class GPTrainingPanel extends AbstractTrainingPanel
     {
         gpTabbedPane = new JTabbedPane();
         initGPConfigPanel();
+        initGPHelp();
     }
 
     private void initGPConfigPanel()
@@ -109,7 +114,7 @@ public abstract class GPTrainingPanel extends AbstractTrainingPanel
         {
             public void componentShown(ComponentEvent event)
             {
-                resetGPConfigParameters();                        
+                resetGPConfigParameters();
             }
 
             public void componentResized(ComponentEvent event){}
@@ -151,7 +156,7 @@ public abstract class GPTrainingPanel extends AbstractTrainingPanel
         else
             username.setValue("");
     }
-    
+
     private void validateInput() throws InvalidInputException
     {
         if(protocol.getValue() == null || ((String)protocol.getValue()).length() == 0)
@@ -182,7 +187,7 @@ public abstract class GPTrainingPanel extends AbstractTrainingPanel
                 String hostInput = (String)host.getValue();
                 int portInput = ((Integer)port.getValue()).intValue();
                 String userNameInput = (String)username.getValue();
-                
+
                 URL gpServer = new URL(protocolInput, hostInput , portInput, "");
                 GPpropertiesManager.setProperty("gp.server", gpServer.toString());
                 GPpropertiesManager.setProperty("gp.user.name", userNameInput);
@@ -198,19 +203,99 @@ public abstract class GPTrainingPanel extends AbstractTrainingPanel
             catch(InvalidInputException e)
             {
                 JOptionPane.showMessageDialog(this, e.getMessage());
-            }             
+            }
         }
     }
 
     protected abstract JPanel getParameterPanel();
+    protected abstract File getDescriptionFile();
 
-    protected void addParameters(DefaultFormBuilder builder) 
+    private void initGPHelp()
+    {
+        gpHelp = new JSplitPane();
+        JPanel jPanel = new JPanel();
+        BoxLayout bLayout = new BoxLayout(jPanel, BoxLayout.PAGE_AXIS);
+        jPanel.setLayout(bLayout);
+
+        JButton genePatternButton = new JButton("GenePattern Website");
+        genePatternButton.setMinimumSize(new Dimension(150, 24));
+        genePatternButton.setPreferredSize(new Dimension(150, 24));
+        genePatternButton.setMaximumSize(new Dimension(150, 24));
+        genePatternButton.addActionListener( new ActionListener()
+        {
+            public void actionPerformed(ActionEvent event)
+            {
+                System.out.println("GenePattern action: " + event.getActionCommand());
+                try
+                {
+                    BrowserLauncher.openURL("http://www.genepattern.org");
+                }
+                catch(Exception e)
+                {
+                    e.printStackTrace();
+                }
+            }
+        });
+
+        final JTextPane gpAccessLabel = new JTextPane();
+        gpAccessLabel.setEditorKit(new StyledEditorKit());
+        try
+        {
+            gpAccessLabel.setPage(getDescriptionFile().toURL());
+            gpAccessLabel.setEditable(false);
+        }
+        catch(Exception e)
+        {
+            e.printStackTrace();
+        }
+        
+        JScrollPane gpScrollPane = new JScrollPane();
+        JViewport viewPort = new JViewport();
+        viewPort.setMinimumSize(new Dimension(220, 150));
+        viewPort.setPreferredSize(new Dimension(220, 150));
+        viewPort.setMaximumSize(new Dimension(220, 150));
+        viewPort.setView(gpAccessLabel);
+        gpScrollPane.setViewport(viewPort);
+
+        JButton gpDownloadButton = new JButton("Download GenePattern");
+        gpDownloadButton.setMinimumSize(new Dimension(150, 24));
+        gpDownloadButton.setPreferredSize(new Dimension(150, 24));
+        gpDownloadButton.setMaximumSize(new Dimension(150, 24));
+        jPanel.add(Box.createRigidArea(new Dimension(1,7)));
+        jPanel.add(gpDownloadButton);
+        gpDownloadButton.addActionListener( new ActionListener()
+        {
+            public void actionPerformed(ActionEvent event)
+            {
+                try
+                {
+                    BrowserLauncher.openURL("http://www.broad.mit.edu/cancer/software/genepattern/download/");
+                }
+                catch(Exception e)
+                {
+                    e.printStackTrace();
+                }
+            }
+        });
+
+        jPanel.add(Box.createRigidArea(new Dimension(1, 10)));
+        jPanel.add(genePatternButton, BorderLayout.CENTER);
+        jPanel.setVisible(true);
+
+        gpHelp.setDividerSize(10);
+        gpHelp.setLeftComponent(jPanel);
+        gpHelp.setRightComponent(gpScrollPane);
+    }
+
+    protected void addParameters(DefaultFormBuilder builder)
     {
         gpTabbedPane.removeAll();
-        
+
         gpTabbedPane.addTab("Parameters", getParameterPanel());
         gpTabbedPane.addTab("GenePattern Server Settings", gpConfig);
+        gpTabbedPane.addTab("Help", gpHelp);
 
+        gpTabbedPane.setMaximumSize(new Dimension(240, 180));
         add(gpTabbedPane, BorderLayout.PAGE_START);
         builder.appendUnrelatedComponentsGapRow();
     }
