@@ -42,7 +42,7 @@ import org.globus.gsi.GlobusCredential;
  * 
  * @created by Introduce Toolkit version 1.0
  * @author keshav
- * @version $Id: SomClusteringClient.java,v 1.2 2007-03-14 20:48:23 keshav Exp $
+ * @version $Id: SomClusteringClient.java,v 1.3 2007-03-14 20:52:07 keshav Exp $
  */
 public class SomClusteringClient extends ServiceSecurityClient implements
 		SomClusteringI {
@@ -169,75 +169,6 @@ public class SomClusteringClient extends ServiceSecurityClient implements
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-	}
-
-	/**
-	 * @param filename
-	 * @return float[][]
-	 */
-	private static float[][] readTabFile(String filename) {
-		TabDelimParser parser = new TabDelimParser();
-		InputStream is;
-		Collection results = new HashSet();
-		try {
-			is = new FileInputStream(new File(filename));
-			parser.parse(is);
-			results = parser.getResults();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
-		int i = 0;
-		float[][] values = new float[results.size()][];
-		// for (Object result : results) {
-		Iterator iter = results.iterator();
-		while (iter.hasNext()) {
-			// String[] array = (String[]) result;
-			String[] array = (String[]) iter.next();
-			values[i] = new float[array.length];
-			for (int j = 0; j < values[i].length; j++) {
-				/*
-				 * FIXME exp files acually contain val | pval, but this is a
-				 * performance test, so I don't care about the actual values
-				 */
-				values[i][j] = Float.parseFloat(array[j]);
-			}
-			i++;
-		}
-
-		return values;
-	}
-
-	/**
-	 * @param data
-	 * @return MicroarraySet
-	 */
-	private MicroarraySet float2DToMicroarraySet(float[][] data) {
-
-		MicroarraySet microarraySet = new MicroarraySet();
-		Microarray microarrays[] = new Microarray[data[0].length];
-		Marker markers[] = new Marker[data.length];
-		// FIXME should have a marker equivalent of constructing this matrix
-		for (int j = 0; j < data[j].length; j++) {
-			float[] col = new float[data.length];
-			for (int i = 0; i < data.length; i++) {
-				col[i] = data[i][j];
-			}
-			Microarray microarray = new Microarray();
-			microarray.setArrayName("array" + j);
-			microarray.setArrayData(col);
-			microarrays[j] = microarray;
-		}
-
-		for (int i = 0; i < data.length; i++) {
-			Marker marker = new Marker();
-			marker.setMarkerName(i + "_at");
-			markers[i] = marker;
-		}
-
-		microarraySet.setMicroarray(microarrays);
-		microarraySet.setMarker(markers);
-		return microarraySet;
 	}
 
 	public gov.nih.nci.cagrid.metadata.security.ServiceSecurityMetadata getServiceSecurityMetadata()
