@@ -13,6 +13,7 @@ import edu.columbia.geworkbench.cagrid.microarray.MicroarraySetGenerator;
 import edu.columbia.geworkbench.cagrid.microarray.MicroarraySetGeneratorImpl;
 import gov.nih.nci.cagrid.introduce.security.client.ServiceSecurityClient;
 
+import java.io.FileInputStream;
 import java.io.InputStream;
 import java.rmi.RemoteException;
 
@@ -111,8 +112,7 @@ public class HierarchicalClusteringClient extends ServiceSecurityClient
 	public static void main(String[] args) {
 		log.debug("Running the Grid Service Client");
 		try {
-			// if (!(args.length < 2)) {
-			if (!(args.length < 3)) {// keshav
+			if (!(args.length < 2)) {
 				if (args[0].equals("-url")) {
 					String url = args[1];
 					HierarchicalClusteringClient client = new HierarchicalClusteringClient(
@@ -120,9 +120,9 @@ public class HierarchicalClusteringClient extends ServiceSecurityClient
 
 					/* my client side method invocation */
 					log.debug("Invoking Hierarchical Clustering Service ... ");
-					// MicroarraySet arraySet =
-					// client.configureTestMicroarrays(); // test
-					String filename = args[2];
+
+					String filename = "src//edu//columbia//geworkbench//cagrid//cluster//client//aTestDataSet_without_headers_30.txt";
+					InputStream is = new FileInputStream(filename);
 
 					float[][] fdata = TabFileReader.readTabFile(filename);
 
