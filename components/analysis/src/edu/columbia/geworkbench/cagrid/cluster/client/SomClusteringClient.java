@@ -42,7 +42,7 @@ import org.globus.gsi.GlobusCredential;
  * 
  * @created by Introduce Toolkit version 1.0
  * @author keshav
- * @version $Id: SomClusteringClient.java,v 1.1 2007-03-14 20:30:06 keshav Exp $
+ * @version $Id: SomClusteringClient.java,v 1.2 2007-03-14 20:48:23 keshav Exp $
  */
 public class SomClusteringClient extends ServiceSecurityClient implements
 		SomClusteringI {
@@ -84,7 +84,7 @@ public class SomClusteringClient extends ServiceSecurityClient implements
 		SomClusteringServiceAddressingLocator locator = new SomClusteringServiceAddressingLocator();
 		// attempt to load our context sensitive wsdd file
 		InputStream resourceAsStream = ClassUtils.getResourceAsStream(
-				getClass(), "conf/client-config.wsdd");
+				getClass(), "client-config.wsdd");
 		if (resourceAsStream != null) {
 			// we found it, so tell axis to configure an engine to use it
 			EngineConfiguration engineConfig = new FileProvider(
@@ -123,6 +123,7 @@ public class SomClusteringClient extends ServiceSecurityClient implements
 					// MicroarraySet arraySet =
 					// client.configureTestMicroarrays(); // test
 					String filename = args[2];
+
 					float[][] fdata = TabFileReader.readTabFile(filename);
 
 					String[] rowNames = new String[fdata.length];
