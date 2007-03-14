@@ -1,0 +1,156 @@
+package edu.columbia.geworkbench.cagrid.discovery.client;
+
+import gov.nih.nci.cagrid.discovery.MetadataUtils;
+import gov.nih.nci.cagrid.metadata.ServiceMetadata;
+
+import org.apache.axis.message.addressing.EndpointReferenceType;
+import org.apache.axis.types.URI.MalformedURIException;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+/**
+ * @author keshav
+ * @version $Id: AnalyticalServiceDiscoveryClient.java,v 1.1 2007-03-14 20:28:40 keshav Exp $
+ */
+public class AnalyticalServiceDiscoveryClient extends DiscoveryClient {
+    private static Log log = LogFactory.getLog( AnalyticalServiceDiscoveryClient.class );
+    protected static final String LOCALHOST_INDEX_SERVICE = "http://localhost:8080/wsrf/services/DefaultIndexService";
+
+    private static final String URL_PRE = "http://";
+    private static final String URL_POST = "/wsrf/services/DefaultIndexService";
+
+    private String url;
+
+    /**
+     * @throws MalformedURIException
+     */
+    public AnalyticalServiceDiscoveryClient() throws MalformedURIException {
+        super( LOCALHOST_INDEX_SERVICE );
+        this.url = LOCALHOST_INDEX_SERVICE;
+    }
+
+    /**
+     * @param indexURL
+     * @throws MalformedURIException
+     */
+    public AnalyticalServiceDiscoveryClient( String indexURL ) throws MalformedURIException {
+        super( indexURL );
+        this.url = indexURL;
+    }
+
+    /**
+     * @param host
+     * @param port
+     * @throws MalformedURIException
+     */
+    public AnalyticalServiceDiscoveryClient( String host, int port ) throws MalformedURIException {
+        this( URL_PRE + host + ":" + port + URL_POST );
+    }
+
+    /**
+     * Get all the services from the Index service running on the localhost.
+     * 
+     * @return EndpointReferenceType[]
+     */
+    public EndpointReferenceType[] getAllServices() {
+        return getAllServices( url );
+    }
+
+    /**
+     * Get all the services from the Index service running on a server at the supplied url.
+     * 
+     * @param url
+     * @return EndpointReferenceType[]
+     */
+    public EndpointReferenceType[] getAllServices( String url ) {
+        AnalyticalServiceDiscoveryClient client = null;
+        try {
+            if ( url != null ) {
+                client = new AnalyticalServiceDiscoveryClient( url );
+            } else {
+                client = new AnalyticalServiceDiscoveryClient();
+            }
+        } catch ( Exception e ) {
+            e.printStackTrace();
+        }
+
+        EndpointReferenceType[] allServices = null;
+        try {
+            /* If true, returns only services with standard metadata. */
+            // allServices = client.getAllServices( true );
+            allServices = client.getAllServices( false );
+        } catch ( Exception e1 ) {
+            e1.printStackTrace();
+        }
+
+        if ( allServices != null ) {
+            for ( int i = 0; i < allServices.length; i++ ) {
+                EndpointReferenceType service = allServices[i];
+                log.info( "\n\n" + service.getAddress() );
+                try {
+                    ServiceMetadata commonMetadata = MetadataUtils.getServiceMetadata( service );
+                    log.info( commonMetadata.getServiceDescription().getService().getDescription() );
+                    if ( commonMetadata != null && commonMetadata.getHostingResearchCenter() != null
+                            && commonMetadata.getHostingResearchCenter().getResearchCenter() != null ) {
+                        log.info( "Service is from:"
+                                + commonMetadata.getHostingResearchCenter().getResearchCenter().getDisplayName() );
+                    }
+                } catch ( Exception e ) {
+                    // e.printStackTrace();
+                    log.error( "Unable to access service's standard resource properties: " + e.getMessage() );
+                }
+            }
+        } else {
+            log.warn( "No services found." );
+
+        }
+        return allServices;
+    }
+
+    /**
+     * Tests the discovery of analytical services.
+     */
+    public static void main( String[] args ) {
+
+        AnalyticalServiceDiscoveryClient client = null;
+        try {
+            if ( args.length == 1 ) {
+                client = new AnalyticalServiceDiscoveryClient( args[0] );
+            } else {
+                client = new AnalyticalServiceDiscoveryClient();
+            }
+        } catch ( Exception e ) {
+            e.printStackTrace();
+        }
+
+        EndpointReferenceType[] allServices = null;
+        try {
+            // allServices = client.getAllServices( true );
+            allServices = client.getAllServices( false );
+        } catch ( Exception e1 ) {
+            e1.printStackTrace();
+        }
+
+        if ( allServices != null ) {
+            for ( int i = 0; i < allServices.length; i++ ) {
+                EndpointReferenceType service = allServices[i];
+                log.info( service.getAddress() );
+                try {
+                    ServiceMetadata commonMetadata = MetadataUtils.getServiceMetadata( service );
+                    log.info( commonMetadata.getServiceDescription().getService().getDescription() );
+                    if ( commonMetadata != null && commonMetadata.getHostingResearchCenter() != null
+                            && commonMetadata.getHostingResearchCenter().getResearchCenter() != null ) {
+                        log.info( "Service is from:"
+                                + commonMetadata.getHostingResearchCenter().getResearchCenter().getDisplayName() );
+                    }
+                } catch ( Exception e ) {
+                    // e.printStackTrace();
+                    log.error( "Unable to access service's standard resource properties: " + e.getMessage() );
+                }
+            }
+        } else {
+            log.warn( "No services found." );
+
+        }
+    }
+}
