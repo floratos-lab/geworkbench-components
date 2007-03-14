@@ -42,7 +42,7 @@ import org.globus.gsi.GlobusCredential;
  * 
  * @created by Introduce Toolkit version 1.0
  * @author keshav
- * @version $Id: SomClusteringClient.java,v 1.3 2007-03-14 20:52:07 keshav Exp $
+ * @version $Id: SomClusteringClient.java,v 1.4 2007-03-14 20:57:37 keshav Exp $
  */
 public class SomClusteringClient extends ServiceSecurityClient implements
 		SomClusteringI {
@@ -111,8 +111,7 @@ public class SomClusteringClient extends ServiceSecurityClient implements
 	public static void main(String[] args) {
 		log.debug("Running the Grid Service Client");
 		try {
-			// if(!(args.length < 2)){
-			if (!(args.length < 3)) {// keshav
+			if (!(args.length < 2)) {
 				if (args[0].equals("-url")) {
 					String url = args[1];
 					SomClusteringClient client = new SomClusteringClient(url);
@@ -120,9 +119,8 @@ public class SomClusteringClient extends ServiceSecurityClient implements
 					/* my client side method invocation */
 					log
 							.debug("Invoking Self Organized Maps Clustering Service ... ");
-					// MicroarraySet arraySet =
-					// client.configureTestMicroarrays(); // test
-					String filename = args[2];
+
+					String filename = "src//edu//columbia//geworkbench//cagrid//cluster//client//aTestDataSet_without_headers_30.txt";
 
 					float[][] fdata = TabFileReader.readTabFile(filename);
 
