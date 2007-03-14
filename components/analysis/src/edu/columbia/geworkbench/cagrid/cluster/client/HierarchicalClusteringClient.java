@@ -8,8 +8,6 @@ import edu.columbia.geworkbench.cagrid.cluster.hierarchical.HierarchicalClusteri
 import edu.columbia.geworkbench.cagrid.cluster.hierarchical.Method;
 import edu.columbia.geworkbench.cagrid.cluster.hierarchical.stubs.HierarchicalClusteringPortType;
 import edu.columbia.geworkbench.cagrid.cluster.hierarchical.stubs.service.HierarchicalClusteringServiceAddressingLocator;
-import edu.columbia.geworkbench.cagrid.microarray.Marker;
-import edu.columbia.geworkbench.cagrid.microarray.Microarray;
 import edu.columbia.geworkbench.cagrid.microarray.MicroarraySet;
 import edu.columbia.geworkbench.cagrid.microarray.MicroarraySetGenerator;
 import edu.columbia.geworkbench.cagrid.microarray.MicroarraySetGeneratorImpl;
@@ -39,14 +37,16 @@ import org.globus.gsi.GlobusCredential;
  * 
  * @created by Introduce Toolkit version 1.0
  * @author keshav
- * @version $Id: HierarchicalClusteringClient.java,v 1.8 2007/02/09 23:50:03
+ * @version $Id: HierarchicalClusteringClient.java,v 1.3 2007/03/09 00:36:59
  *          keshav Exp $
  */
 public class HierarchicalClusteringClient extends ServiceSecurityClient
 		implements HierarchicalClusteringI {
 	private static Log log = LogFactory
 			.getLog(HierarchicalClusteringClient.class);
+
 	protected HierarchicalClusteringPortType portType;
+
 	private Object portTypeMutex;
 
 	public HierarchicalClusteringClient(String url)
@@ -82,10 +82,8 @@ public class HierarchicalClusteringClient extends ServiceSecurityClient
 
 		HierarchicalClusteringServiceAddressingLocator locator = new HierarchicalClusteringServiceAddressingLocator();
 		// attempt to load our context sensitive wsdd file
-		// InputStream resourceAsStream = ClassUtils.getResourceAsStream(
-		// getClass(), "client-config.wsdd" );
 		InputStream resourceAsStream = ClassUtils.getResourceAsStream(
-				getClass(), "conf/client-config.wsdd");
+				getClass(), "client-config.wsdd");
 		if (resourceAsStream != null) {
 			// we found it, so tell axis to configure an engine to use it
 			EngineConfiguration engineConfig = new FileProvider(
@@ -143,14 +141,14 @@ public class HierarchicalClusteringClient extends ServiceSecurityClient
 							.float2DToMicroarraySet(fdata, rowNames, colNames);
 
 					HierarchicalClusteringParameter parameters = new HierarchicalClusteringParameter();
+
 					parameters.setDim(Dim.both);
 					parameters.setDistance(Distance.euclidean);
 					parameters.setMethod(Method.complete);
 					HierarchicalCluster hierarchicalClustering = client
 							.execute(arraySet, parameters);
 
-					// TODO rename to getMicroarrayCluster and getMarkerCluster
-					log.debug("hierarchical cluster: "
+					log.info("hierarchical cluster: "
 							+ hierarchicalClustering
 							+ "\nmicroarray cluster height: "
 							+ hierarchicalClustering.getMicroarrayCluster()
@@ -158,9 +156,6 @@ public class HierarchicalClusteringClient extends ServiceSecurityClient
 							+ "\nmarker cluster height: "
 							+ hierarchicalClustering.getMarkerCluster()
 									.getHeight());
-
-					TabFileReader.serializeToXml(arraySet);
-					TabFileReader.serializeToXml(hierarchicalClustering);
 
 				} else {
 					usage();
@@ -173,46 +168,6 @@ public class HierarchicalClusteringClient extends ServiceSecurityClient
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-	}
-
-	/**
-	 * @param data
-	 * @return MicroarraySet
-	 */
-	public static MicroarraySet float2DToMicroarraySet(float[][] data) {
-
-		int numMarkers = data.length;
-		int numMicroarrays = data[0].length;
-
-		log.debug("data set contains " + numMicroarrays + " microarrays");
-		log.debug("data set contains " + numMarkers + " markers");
-
-		MicroarraySet microarraySet = new MicroarraySet();
-		Microarray microarrays[] = new Microarray[numMicroarrays];
-		Marker markers[] = new Marker[numMarkers];
-		// FIXME should have a marker equivalent of constructing this matrix
-		// set array data
-		for (int j = 0; j < numMicroarrays; j++) {
-			float[] col = new float[numMarkers];
-			for (int i = 0; i < data.length; i++) {
-				col[i] = data[i][j];
-			}
-			Microarray microarray = new Microarray();
-			microarray.setArrayName("array" + j);
-			microarray.setArrayData(col);
-			microarrays[j] = microarray;
-		}
-
-		// set marker names
-		for (int i = 0; i < numMarkers; i++) {
-			Marker marker = new Marker();
-			marker.setMarkerName(i + "_at");
-			markers[i] = marker;
-		}
-
-		microarraySet.setMicroarray(microarrays);
-		microarraySet.setMarker(markers);
-		return microarraySet;
 	}
 
 	public gov.nih.nci.cagrid.metadata.security.ServiceSecurityMetadata getServiceSecurityMetadata()
