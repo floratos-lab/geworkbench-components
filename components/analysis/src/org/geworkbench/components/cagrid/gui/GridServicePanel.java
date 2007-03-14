@@ -8,7 +8,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import javax.swing.BorderFactory;
-import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -32,7 +31,7 @@ import gov.nih.nci.cagrid.metadata.ServiceMetadata;
 /**
  * 
  * @author keshav
- * @version $Id: GridServicePanel.java,v 1.1 2007-03-14 20:32:08 keshav Exp $
+ * @version $Id: GridServicePanel.java,v 1.2 2007-03-14 21:14:18 keshav Exp $
  */
 public class GridServicePanel extends JPanel {
 	private Log log = LogFactory.getLog(this.getClass());
@@ -125,23 +124,27 @@ public class GridServicePanel extends JPanel {
 		urlServiceBuilder.append("Research Center Name");
 		urlServiceBuilder.append("Description");
 
-		JScrollPane UrlServiceBuilderScrollPane = new JScrollPane(
+		JScrollPane urlServiceBuilderScrollPane = new JScrollPane(
 				urlServiceBuilder.getPanel(),
 				ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS,
 				ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 
-		final Map<String, EndpointReferenceType> seenServices = new HashMap<String, EndpointReferenceType>(); // TODO
-
 		/* part C */
+		final Map<String, EndpointReferenceType> seenServices = new HashMap<String, EndpointReferenceType>();
+
 		final DefaultFormBuilder serviceDetailsBuilder = new DefaultFormBuilder(
 				new FormLayout(
 						"right:max(60dlu;pref), 3dlu, max(150dlu;pref), 7dlu",
 						""));
 		serviceDetailsBuilder.setBorder(BorderFactory
 				.createBevelBorder(BevelBorder.LOWERED));
-		// serviceDetailsBuilder.appendColumn("left:pref");
 		serviceDetailsBuilder.appendSeparator("Service Details");
 		serviceDetailsBuilder.nextLine();
+
+		JScrollPane serviceDetailsBuilderScrollPane = new JScrollPane(
+				serviceDetailsBuilder.getPanel(),
+				ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS,
+				ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		// end C
 
 		// TODO refactor me into a separate listener
@@ -197,13 +200,14 @@ public class GridServicePanel extends JPanel {
 					}
 				}
 				urlServiceBuilder.getPanel().revalidate();
+				serviceDetailsBuilder.getPanel().revalidate();
 			}
 		});
 
 		/* add A, B, and C to the main */
 		this.add(indexServiceBuilder.getPanel(), BorderLayout.NORTH);
-		this.add(UrlServiceBuilderScrollPane);
-		this.add(serviceDetailsBuilder.getPanel(), BorderLayout.SOUTH);
+		this.add(urlServiceBuilderScrollPane);
+		this.add(serviceDetailsBuilderScrollPane, BorderLayout.SOUTH);
 	}
 
 }

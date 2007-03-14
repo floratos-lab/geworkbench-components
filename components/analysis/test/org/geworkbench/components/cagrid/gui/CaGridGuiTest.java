@@ -40,7 +40,7 @@ import gov.nih.nci.cagrid.metadata.ServiceMetadata;
 /**
  * 
  * @author keshav
- * @version $Id: CaGridGuiTest.java,v 1.1 2007-03-14 20:33:47 keshav Exp $
+ * @version $Id: CaGridGuiTest.java,v 1.2 2007-03-14 21:14:18 keshav Exp $
  */
 public class CaGridGuiTest extends TestCase {
 
@@ -274,23 +274,27 @@ public class CaGridGuiTest extends TestCase {
 		urlServiceBuilder.append("Research Center Name");
 		urlServiceBuilder.append("Description");
 
-		JScrollPane UrlServiceBuilderScrollPane = new JScrollPane(
+		JScrollPane urlServiceBuilderScrollPane = new JScrollPane(
 				urlServiceBuilder.getPanel(),
 				ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS,
 				ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 
-		final Map<String, EndpointReferenceType> seenServices = new HashMap<String, EndpointReferenceType>(); // TODO
-
 		/* part C */
+		final Map<String, EndpointReferenceType> seenServices = new HashMap<String, EndpointReferenceType>();
+
 		final DefaultFormBuilder serviceDetailsBuilder = new DefaultFormBuilder(
 				new FormLayout(
 						"right:max(60dlu;pref), 3dlu, max(150dlu;pref), 7dlu",
 						""));
 		serviceDetailsBuilder.setBorder(BorderFactory
 				.createBevelBorder(BevelBorder.LOWERED));
-		// serviceDetailsBuilder.appendColumn("left:pref");
 		serviceDetailsBuilder.appendSeparator("Service Details");
 		serviceDetailsBuilder.nextLine();
+
+		JScrollPane serviceDetailsBuilderScrollPane = new JScrollPane(
+				serviceDetailsBuilder.getPanel(),
+				ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS,
+				ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		// end C
 
 		// TODO refactor me into a separate listener
@@ -346,13 +350,14 @@ public class CaGridGuiTest extends TestCase {
 					}
 				}
 				urlServiceBuilder.getPanel().revalidate();
+				serviceDetailsBuilder.getPanel().revalidate();
 			}
 		});
 
 		/* add A, B, and C to the main */
 		testDialog.add(indexServiceBuilder.getPanel(), BorderLayout.NORTH);
-		testDialog.add(UrlServiceBuilderScrollPane);
-		testDialog.add(serviceDetailsBuilder.getPanel(), BorderLayout.SOUTH);
+		testDialog.add(urlServiceBuilderScrollPane);
+		testDialog.add(serviceDetailsBuilderScrollPane, BorderLayout.SOUTH);
 		testDialog.pack();
 		Util.centerWindow(testDialog);
 		testDialog.setModal(true);
