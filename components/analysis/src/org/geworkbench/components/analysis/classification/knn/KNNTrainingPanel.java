@@ -66,6 +66,10 @@ public class KNNTrainingPanel extends GPTrainingPanel
         }
     }
 
+    protected File getDescriptionFile() {
+        return null;  // Added to allow this class to compile.
+    }
+
     protected void initUI()
     {
         numFeatureMethod = new JRadioButton();
