@@ -70,6 +70,8 @@ import edu.columbia.geworkbench.cagrid.microarray.MicroarraySet;
 public class AnalysisPanel extends MicroarrayViewEventBase implements
 		VisualPlugin {
 
+	private static final String HIERARCHICAL_CLUSTERING_GRID = "Hierarchical Clustering (Grid)";
+
 	private static final String SERVICE = "Service";
 
 	private static final String PARAMETERS = "Parameters";
@@ -557,7 +559,7 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 										.createBisonHierarchicalClustering(
 												hierarchicalCluster, maSetView);
 								ProjectNodeAddedEvent event = new ProjectNodeAddedEvent(
-										"Hierarchical Clustering", null,
+										HIERARCHICAL_CLUSTERING_GRID, null,
 										dataSet);
 								publishProjectNodeAddedEvent(event);
 							}
