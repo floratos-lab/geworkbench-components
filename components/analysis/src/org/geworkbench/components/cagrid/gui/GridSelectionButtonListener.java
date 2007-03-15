@@ -10,13 +10,17 @@ import org.apache.commons.logging.LogFactory;
 /**
  * 
  * @author keshav
- * @version $Id: GridSelectionButtonListener.java,v 1.1 2007-03-15 16:21:39 keshav Exp $
+ * @version $Id: GridSelectionButtonListener.java,v 1.1 2007/03/15 16:21:39
+ *          keshav Exp $
  */
 public class GridSelectionButtonListener implements ActionListener {
+	private static final String LOCAL = "Local";
+
 	private Log log = LogFactory.getLog(GridSelectionButtonListener.class);
 
 	private static final String GRID = "Grid";
-	boolean gridVersion = false;
+
+	boolean gridAnalysis = false;
 
 	/*
 	 * (non-Javadoc)
@@ -28,7 +32,11 @@ public class GridSelectionButtonListener implements ActionListener {
 		String actionCommand = e.getActionCommand();
 
 		if (StringUtils.equals(actionCommand, GRID)) {
-			gridVersion = true;
+			gridAnalysis = true;
+		}
+
+		if (StringUtils.equals(actionCommand, LOCAL)) {
+			gridAnalysis = false;
 		}
 	}
 
@@ -37,6 +45,6 @@ public class GridSelectionButtonListener implements ActionListener {
 	 * @return
 	 */
 	public boolean isGridVersion() {
-		return gridVersion;
+		return gridAnalysis;
 	}
 }
