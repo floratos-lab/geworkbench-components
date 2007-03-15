@@ -20,7 +20,6 @@ import javax.swing.border.BevelBorder;
 import org.apache.axis.message.addressing.EndpointReferenceType;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.geworkbench.util.Util;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.layout.FormLayout;
@@ -32,7 +31,7 @@ import gov.nih.nci.cagrid.metadata.ServiceMetadata;
 /**
  * 
  * @author keshav
- * @version $Id: GridServicePanel.java,v 1.3 2007-03-15 15:47:02 keshav Exp $
+ * @version $Id: GridServicePanel.java,v 1.4 2007-03-15 16:21:39 keshav Exp $
  */
 public class GridServicePanel extends JPanel {
 	private Log log = LogFactory.getLog(this.getClass());
@@ -66,25 +65,18 @@ public class GridServicePanel extends JPanel {
 		indexServiceBuilder.appendColumn("10dlu");
 
 		// TODO move this
+		GridSelectionButtonListener gridSelectionButtonListener = new GridSelectionButtonListener();
 		String localButtonString = "Local";
 		JRadioButton localButton = new JRadioButton(localButtonString);
 		localButton.setSelected(true);
 		localButton.setActionCommand(localButtonString);
-		localButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				log.debug("local radio button");
-			}
-		});
+		localButton.addActionListener(gridSelectionButtonListener);
 		// TODO move this
-		String localGridString = "Grid";
-		JRadioButton gridButton = new JRadioButton(localGridString);
+		String gridButtonString = "Grid";
+		JRadioButton gridButton = new JRadioButton(gridButtonString);
 		gridButton.setSelected(false);
-		gridButton.setActionCommand(localGridString);
-		gridButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				log.debug("grid radio button");
-			}
-		});
+		gridButton.setActionCommand(gridButtonString);
+		gridButton.addActionListener(gridSelectionButtonListener);
 
 		ButtonGroup buttonGroup = new ButtonGroup();
 		buttonGroup.add(localButton);
