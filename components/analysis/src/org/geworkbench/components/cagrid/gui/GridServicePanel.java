@@ -31,7 +31,7 @@ import gov.nih.nci.cagrid.metadata.ServiceMetadata;
 /**
  * 
  * @author keshav
- * @version $Id: GridServicePanel.java,v 1.5 2007-03-15 19:10:15 keshav Exp $
+ * @version $Id: GridServicePanel.java,v 1.6 2007-03-15 20:29:22 keshav Exp $
  */
 public class GridServicePanel extends JPanel {
 	private Log log = LogFactory.getLog(this.getClass());
@@ -67,19 +67,16 @@ public class GridServicePanel extends JPanel {
 		indexServiceBuilder.appendColumn("10dlu");
 
 		// TODO move this
-		GridSelectionButtonListener gridSelectionButtonListener = new GridSelectionButtonListener();
 		String localButtonString = "Local";
 		JRadioButton localButton = new JRadioButton(localButtonString);
 		localButton.setSelected(true);
 		localButton.setActionCommand(localButtonString);
-		localButton.addActionListener(gridSelectionButtonListener);
 		// TODO move this
 		String gridButtonString = "Grid";
 		JRadioButton gridButton = new JRadioButton(gridButtonString);
 		gridButton.setSelected(false);
 		gridButton.setActionCommand(gridButtonString);
-		gridButton.addActionListener(gridSelectionButtonListener);
-
+		/* add to the button group */
 		buttonGroup = new ButtonGroup();
 		buttonGroup.add(localButton);
 		buttonGroup.add(gridButton);

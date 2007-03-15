@@ -35,7 +35,7 @@ import gov.nih.nci.cagrid.metadata.ServiceMetadata;
 /**
  * 
  * @author keshav
- * @version $Id: CaGridGuiTest.java,v 1.4 2007-03-15 16:21:39 keshav Exp $
+ * @version $Id: CaGridGuiTest.java,v 1.5 2007-03-15 20:29:30 keshav Exp $
  */
 public class CaGridGuiTest extends TestCase {
 
@@ -210,18 +210,15 @@ public class CaGridGuiTest extends TestCase {
 		indexServiceBuilder.appendColumn("10dlu");
 
 		// TODO move this
-		GridSelectionButtonListener gridSelectionButtonListener = new GridSelectionButtonListener();
 		String localButtonString = "Local";
 		JRadioButton localButton = new JRadioButton(localButtonString);
 		localButton.setSelected(true);
 		localButton.setActionCommand(localButtonString);
-		localButton.addActionListener(gridSelectionButtonListener);
 		// TODO move this
 		String gridButtonString = "Grid";
 		JRadioButton gridButton = new JRadioButton(gridButtonString);
 		gridButton.setSelected(false);
 		gridButton.setActionCommand(gridButtonString);
-		gridButton.addActionListener(gridSelectionButtonListener);
 
 		ButtonGroup buttonGroup = new ButtonGroup();
 		buttonGroup.add(localButton);
@@ -350,7 +347,7 @@ public class CaGridGuiTest extends TestCase {
 		testDialog.add(indexServiceBuilder.getPanel(), BorderLayout.NORTH);
 		testDialog.add(urlServiceBuilderScrollPane);
 		testDialog.add(serviceDetailsBuilderScrollPane, BorderLayout.SOUTH);
-		
+
 		testDialog.pack();
 		Util.centerWindow(testDialog);
 		testDialog.setModal(true);

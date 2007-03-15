@@ -6,17 +6,15 @@ import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.Enumeration;
 import java.util.Hashtable;
 
-import javax.swing.AbstractButton;
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
+import javax.swing.ButtonModel;
 import javax.swing.JButton;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
@@ -24,6 +22,7 @@ import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.analysis.AbstractAnalysis;
@@ -38,7 +37,6 @@ import org.geworkbench.bison.model.analysis.ParamValidationResults;
 import org.geworkbench.bison.model.analysis.ParameterPanel;
 import org.geworkbench.bison.model.clusters.CSHierClusterDataSet;
 import org.geworkbench.components.cagrid.GridHierarchicalClusteringDialog;
-import org.geworkbench.components.cagrid.gui.GridSelectionButtonListener;
 import org.geworkbench.components.cagrid.gui.GridServicePanel;
 import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.engine.management.AcceptTypes;
@@ -588,21 +586,12 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 	private boolean isGridAnalysis() {
 		ButtonGroup gridSelectionButtonGroup = jGridServicePanel
 				.getButtonGroup();
-		Enumeration<AbstractButton> buttons = gridSelectionButtonGroup
-				.getElements();
-		JRadioButton button = (JRadioButton) buttons.nextElement();
-		ActionListener[] listeners = button.getActionListeners();
-		for (ActionListener listener : listeners) {
-			if (listener instanceof GridSelectionButtonListener) {
-				boolean isGridAnalysis = ((GridSelectionButtonListener) listener)
-						.isGridVersion();
-				if (isGridAnalysis) {
-					log.info(isGridAnalysis);
-					return true;
-				}
-			}
-			continue;
+
+		ButtonModel bm = gridSelectionButtonGroup.getSelection();
+		if (StringUtils.equals(bm.getActionCommand(), "Grid")) {
+			return true;
 		}
+
 		return false;
 	}
 
