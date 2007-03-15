@@ -36,6 +36,8 @@ import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
 import org.geworkbench.bison.model.analysis.ClusteringAnalysis;
 import org.geworkbench.bison.model.analysis.ParamValidationResults;
 import org.geworkbench.bison.model.analysis.ParameterPanel;
+import org.geworkbench.bison.model.clusters.CSHierClusterDataSet;
+import org.geworkbench.components.cagrid.GridHierarchicalClusteringDialog;
 import org.geworkbench.components.cagrid.gui.GridSelectionButtonListener;
 import org.geworkbench.components.cagrid.gui.GridServicePanel;
 import org.geworkbench.engine.config.VisualPlugin;
@@ -49,7 +51,11 @@ import org.geworkbench.util.microarrayutils.MicroarrayViewEventBase;
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.layout.FormLayout;
 
+import edu.columbia.geworkbench.cagrid.cluster.client.HierarchicalClusteringClient;
+import edu.columbia.geworkbench.cagrid.cluster.hierarchical.HierarchicalCluster;
+import edu.columbia.geworkbench.cagrid.cluster.hierarchical.HierarchicalClusteringParameter;
 import edu.columbia.geworkbench.cagrid.converter.CagridBisonConverter;
+import edu.columbia.geworkbench.cagrid.microarray.MicroarraySet;
 
 /**
  * <p>Copyright: Copyright (c) 2003</p>
@@ -527,9 +533,37 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 					try {
 						/* check if we are dealing with a grid analysis */
 						if (isGridAnalysis()) {
-							CagridBisonConverter
+							MicroarraySet gridSet = CagridBisonConverter
 									.convertFromBisonToCagridMicroarray(maSetView);
 							log.info("running grid service");
+
+							GridHierarchicalClusteringDialog dialog = new GridHierarchicalClusteringDialog();
+
+							HierarchicalClusteringParameter parameters = dialog
+									.getParameters();
+
+							if (parameters == null) {
+								// Cancelled dialog
+								return;
+							}
+
+							String url = "http://localhost:8080/wsrf/services/cagrid/HierarchicalClustering";
+							HierarchicalClusteringClient client = new HierarchicalClusteringClient(
+									url);
+							HierarchicalCluster hierarchicalCluster = client
+									.execute(gridSet, parameters);
+							if (hierarchicalCluster != null) {
+								// convert grid to bison hierarchical cluster
+								CagridBisonConverter cagridBisonConverter = new CagridBisonConverter();
+								CSHierClusterDataSet dataSet = cagridBisonConverter
+										.createBisonHierarchicalClustering(
+												hierarchicalCluster, maSetView);
+								ProjectNodeAddedEvent event = new ProjectNodeAddedEvent(
+										"Hierarchical Clustering", null,
+										dataSet);
+								publishProjectNodeAddedEvent(event);
+							}
+
 						} else {
 							results = selectedAnalysis.execute(maSetView);
 						}
