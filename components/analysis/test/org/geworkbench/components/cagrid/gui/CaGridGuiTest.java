@@ -35,7 +35,7 @@ import gov.nih.nci.cagrid.metadata.ServiceMetadata;
 /**
  * 
  * @author keshav
- * @version $Id: CaGridGuiTest.java,v 1.3 2007-03-15 15:41:35 keshav Exp $
+ * @version $Id: CaGridGuiTest.java,v 1.4 2007-03-15 16:21:39 keshav Exp $
  */
 public class CaGridGuiTest extends TestCase {
 
@@ -210,25 +210,18 @@ public class CaGridGuiTest extends TestCase {
 		indexServiceBuilder.appendColumn("10dlu");
 
 		// TODO move this
+		GridSelectionButtonListener gridSelectionButtonListener = new GridSelectionButtonListener();
 		String localButtonString = "Local";
 		JRadioButton localButton = new JRadioButton(localButtonString);
 		localButton.setSelected(true);
 		localButton.setActionCommand(localButtonString);
-		localButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				log.debug("local radio button");
-			}
-		});
+		localButton.addActionListener(gridSelectionButtonListener);
 		// TODO move this
-		String localGridString = "Grid";
-		JRadioButton gridButton = new JRadioButton(localGridString);
+		String gridButtonString = "Grid";
+		JRadioButton gridButton = new JRadioButton(gridButtonString);
 		gridButton.setSelected(false);
-		gridButton.setActionCommand(localGridString);
-		gridButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				log.debug("grid radio button");
-			}
-		});
+		gridButton.setActionCommand(gridButtonString);
+		gridButton.addActionListener(gridSelectionButtonListener);
 
 		ButtonGroup buttonGroup = new ButtonGroup();
 		buttonGroup.add(localButton);
@@ -332,7 +325,7 @@ public class CaGridGuiTest extends TestCase {
 						urlServiceBuilder.append(new JLabel("put center here"));
 						urlServiceBuilder.append(new JLabel(description));
 						urlServiceBuilder.nextLine();
-						
+
 						serviceDetailsBuilder.append("Research Center Name: ",
 								new JLabel("put center name"));
 						serviceDetailsBuilder.append("Type: ", new JLabel(
@@ -357,6 +350,7 @@ public class CaGridGuiTest extends TestCase {
 		testDialog.add(indexServiceBuilder.getPanel(), BorderLayout.NORTH);
 		testDialog.add(urlServiceBuilderScrollPane);
 		testDialog.add(serviceDetailsBuilderScrollPane, BorderLayout.SOUTH);
+		
 		testDialog.pack();
 		Util.centerWindow(testDialog);
 		testDialog.setModal(true);
