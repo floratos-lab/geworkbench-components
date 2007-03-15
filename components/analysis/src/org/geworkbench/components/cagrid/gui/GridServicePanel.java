@@ -31,7 +31,7 @@ import gov.nih.nci.cagrid.metadata.ServiceMetadata;
 /**
  * 
  * @author keshav
- * @version $Id: GridServicePanel.java,v 1.4 2007-03-15 16:21:39 keshav Exp $
+ * @version $Id: GridServicePanel.java,v 1.5 2007-03-15 19:10:15 keshav Exp $
  */
 public class GridServicePanel extends JPanel {
 	private Log log = LogFactory.getLog(this.getClass());
@@ -41,6 +41,8 @@ public class GridServicePanel extends JPanel {
 	JPanel outerPanel = null;
 
 	JScrollPane serviceDetailsScrollPane = null;
+
+	ButtonGroup buttonGroup = null;
 
 	/**
 	 * 
@@ -78,7 +80,7 @@ public class GridServicePanel extends JPanel {
 		gridButton.setActionCommand(gridButtonString);
 		gridButton.addActionListener(gridSelectionButtonListener);
 
-		ButtonGroup buttonGroup = new ButtonGroup();
+		buttonGroup = new ButtonGroup();
 		buttonGroup.add(localButton);
 		buttonGroup.add(gridButton);
 
@@ -205,5 +207,13 @@ public class GridServicePanel extends JPanel {
 		this.add(indexServiceBuilder.getPanel(), BorderLayout.NORTH);
 		this.add(urlServiceBuilderScrollPane);
 		this.add(serviceDetailsBuilderScrollPane, BorderLayout.SOUTH);
+	}
+
+	/**
+	 * 
+	 * @return
+	 */
+	public ButtonGroup getButtonGroup() {
+		return buttonGroup;
 	}
 }

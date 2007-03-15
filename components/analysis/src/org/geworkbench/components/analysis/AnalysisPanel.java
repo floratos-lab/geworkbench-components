@@ -6,13 +6,17 @@ import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Enumeration;
 import java.util.Hashtable;
 
+import javax.swing.AbstractButton;
 import javax.swing.BorderFactory;
+import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
@@ -32,6 +36,7 @@ import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
 import org.geworkbench.bison.model.analysis.ClusteringAnalysis;
 import org.geworkbench.bison.model.analysis.ParamValidationResults;
 import org.geworkbench.bison.model.analysis.ParameterPanel;
+import org.geworkbench.components.cagrid.gui.GridSelectionButtonListener;
 import org.geworkbench.components.cagrid.gui.GridServicePanel;
 import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.engine.management.AcceptTypes;
@@ -43,6 +48,8 @@ import org.geworkbench.util.microarrayutils.MicroarrayViewEventBase;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.layout.FormLayout;
+
+import edu.columbia.geworkbench.cagrid.converter.CagridBisonConverter;
 
 /**
  * <p>Copyright: Copyright (c) 2003</p>
@@ -202,7 +209,7 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 	// keshav
 	private JTabbedPane jAnalysisTabbedPane = null;
 
-	private JPanel jGridServicePanel = null;
+	private GridServicePanel jGridServicePanel = null;
 
 	/**
 	 * Default Constructor
@@ -518,7 +525,14 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 			Thread t = new Thread(new Runnable() {
 				public void run() {
 					try {
-						results = selectedAnalysis.execute(maSetView);
+						/* check if we are dealing with a grid analysis */
+						if (isGridAnalysis()) {
+							CagridBisonConverter
+									.convertFromBisonToCagridMicroarray(maSetView);
+							log.info("running grid service");
+						} else {
+							results = selectedAnalysis.execute(maSetView);
+						}
 					} catch (Exception e) {
 						e.printStackTrace();
 					} finally {
@@ -531,6 +545,31 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 			t.setPriority(Thread.MIN_PRIORITY);
 			t.start();
 		}
+	}
+
+	/**
+	 * 
+	 * @return
+	 */
+	private boolean isGridAnalysis() {
+		ButtonGroup gridSelectionButtonGroup = jGridServicePanel
+				.getButtonGroup();
+		Enumeration<AbstractButton> buttons = gridSelectionButtonGroup
+				.getElements();
+		JRadioButton button = (JRadioButton) buttons.nextElement();
+		ActionListener[] listeners = button.getActionListeners();
+		for (ActionListener listener : listeners) {
+			if (listener instanceof GridSelectionButtonListener) {
+				boolean isGridAnalysis = ((GridSelectionButtonListener) listener)
+						.isGridVersion();
+				if (isGridAnalysis) {
+					log.info(isGridAnalysis);
+					return true;
+				}
+			}
+			continue;
+		}
+		return false;
 	}
 
 	@Publish
