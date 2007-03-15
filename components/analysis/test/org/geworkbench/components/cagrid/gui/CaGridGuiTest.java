@@ -2,15 +2,12 @@ package org.geworkbench.components.cagrid.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.HashMap;
 import java.util.Map;
 
 import javax.swing.BorderFactory;
-import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JDialog;
@@ -18,14 +15,12 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
-import javax.swing.JTextField;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.border.BevelBorder;
 
 import junit.framework.TestCase;
 
 import org.apache.axis.message.addressing.EndpointReferenceType;
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.util.Util;
@@ -40,7 +35,7 @@ import gov.nih.nci.cagrid.metadata.ServiceMetadata;
 /**
  * 
  * @author keshav
- * @version $Id: CaGridGuiTest.java,v 1.2 2007-03-14 21:14:18 keshav Exp $
+ * @version $Id: CaGridGuiTest.java,v 1.3 2007-03-15 15:41:35 keshav Exp $
  */
 public class CaGridGuiTest extends TestCase {
 
@@ -76,125 +71,125 @@ public class CaGridGuiTest extends TestCase {
 
 	public static final int WINDOW_HEIGHT = 200;
 
-	/**
-	 * Creates a form builder.
-	 * 
-	 */
-	public void testDefaultFormBuilder() {
-
-		jIndexServiceDialog = new JDialog();
-		// JPanel mainPanel = new JPanel(new BorderLayout());
-		DefaultFormBuilder mainPanelBuilder = new DefaultFormBuilder(
-				new FormLayout("right:20dlu"));
-		final JTextField hostField = new JTextField(host);
-		final JTextField portField = new JTextField("" + port);
-		final JTextField filterField = new JTextField("" + filter);
-
-		JPanel buttonPanel = new JPanel(new FlowLayout());
-		JButton okButton = new JButton("Ok");
-		okButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				port = Integer.parseInt(portField.getText());
-				host = hostField.getText();
-				filter = filterField.getText();
-
-				log.info("host: " + host);
-				log.info("port: " + port);
-				log.info("filter: " + filter);
-
-				jIndexServiceDialog.dispose();
-			}
-		});
-
-		JButton cancelButton = new JButton("Cancel");
-		cancelButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				jIndexServiceDialog.dispose();
-			}
-		});
-
-		/* add to button panel */
-		buttonPanel.add(okButton);
-		buttonPanel.add(cancelButton);
-
-		mainPanelBuilder.appendColumn("5dlu");
-		mainPanelBuilder.appendColumn("45dlu");
-
-		/* add main panel */
-		mainPanelBuilder.append("host", hostField);
-		mainPanelBuilder.append("port", portField);
-		mainPanelBuilder.append("filter", filterField);
-
-		if (!StringUtils.isEmpty(host))
-			hostField.setText(host);
-
-		/* change color for clickable text */
-		indexServiceLabel.setForeground(Color.magenta);
-
-		JPanel mainPanel = new JPanel(new BorderLayout());
-		mainPanel.add(mainPanelBuilder.getPanel());
-		mainPanel.add(buttonPanel, BorderLayout.SOUTH);
-		jIndexServiceDialog.add(mainPanel);
-		jIndexServiceDialog.setModal(true);
-		jIndexServiceDialog.pack();
-		Util.centerWindow(jIndexServiceDialog);
-		jIndexServiceDialog.setVisible(true);
-
-	}
-
-	/**
-	 * Creates a scroll pane.
-	 * 
-	 */
-	public void testCreateScrollPane() {
-
-		mainPanel = new JPanel();
-		innerPanel = new JPanel();
-
-		// added code:
-		innerPanel.setLayout(new BoxLayout(innerPanel, BoxLayout.Y_AXIS));
-		// end added code.
-
-		// removed code:
-		// innerPanel.setPreferredSize(new Dimension(100, 100));
-		// end removed code.
-
-		scroll = new JScrollPane(innerPanel);
-		scroll.setPreferredSize(new Dimension(100, 100));
-		addItem = new JButton("Add an item to JPanel");
-		addItem.addActionListener(new ButtonListener());
-		mainPanel.add(scroll);
-		mainPanel.add(addItem);
-
-		JDialog frame = new JDialog();
-		frame.add(mainPanel);
-		frame.setModal(true);
-		frame.pack();
-		Util.centerWindow(frame);
-		frame.setVisible(true);
-	}
-
-	/**
-	 * Action listener for the button used by the scroll pane example.
-	 * 
-	 * @author keshav
-	 * 
-	 */
-	private class ButtonListener implements ActionListener {
-
-		public void actionPerformed(ActionEvent e) {
-
-			innerPanel.add(new JLabel("Testing......"));
-			innerPanel.validate();
-
-			// added code:
-			scroll.validate();
-			scroll.getVerticalScrollBar().setValue(
-					(scroll.getVerticalScrollBar()).getMaximum());
-			// end added code.
-
-		}
-	}
+	// /**
+	// * Creates a form builder.
+	// *
+	// */
+	// public void testDefaultFormBuilder() {
+	//
+	// jIndexServiceDialog = new JDialog();
+	// // JPanel mainPanel = new JPanel(new BorderLayout());
+	// DefaultFormBuilder mainPanelBuilder = new DefaultFormBuilder(
+	// new FormLayout("right:20dlu"));
+	// final JTextField hostField = new JTextField(host);
+	// final JTextField portField = new JTextField("" + port);
+	// final JTextField filterField = new JTextField("" + filter);
+	//
+	// JPanel buttonPanel = new JPanel(new FlowLayout());
+	// JButton okButton = new JButton("Ok");
+	// okButton.addActionListener(new ActionListener() {
+	// public void actionPerformed(ActionEvent e) {
+	// port = Integer.parseInt(portField.getText());
+	// host = hostField.getText();
+	// filter = filterField.getText();
+	//
+	// log.info("host: " + host);
+	// log.info("port: " + port);
+	// log.info("filter: " + filter);
+	//
+	// jIndexServiceDialog.dispose();
+	// }
+	// });
+	//
+	// JButton cancelButton = new JButton("Cancel");
+	// cancelButton.addActionListener(new ActionListener() {
+	// public void actionPerformed(ActionEvent e) {
+	// jIndexServiceDialog.dispose();
+	// }
+	// });
+	//
+	// /* add to button panel */
+	// buttonPanel.add(okButton);
+	// buttonPanel.add(cancelButton);
+	//
+	// mainPanelBuilder.appendColumn("5dlu");
+	// mainPanelBuilder.appendColumn("45dlu");
+	//
+	// /* add main panel */
+	// mainPanelBuilder.append("host", hostField);
+	// mainPanelBuilder.append("port", portField);
+	// mainPanelBuilder.append("filter", filterField);
+	//
+	// if (!StringUtils.isEmpty(host))
+	// hostField.setText(host);
+	//
+	// /* change color for clickable text */
+	// indexServiceLabel.setForeground(Color.magenta);
+	//
+	// JPanel mainPanel = new JPanel(new BorderLayout());
+	// mainPanel.add(mainPanelBuilder.getPanel());
+	// mainPanel.add(buttonPanel, BorderLayout.SOUTH);
+	// jIndexServiceDialog.add(mainPanel);
+	// jIndexServiceDialog.setModal(true);
+	// jIndexServiceDialog.pack();
+	// Util.centerWindow(jIndexServiceDialog);
+	// jIndexServiceDialog.setVisible(true);
+	//
+	// }
+	//
+	// /**
+	// * Creates a scroll pane.
+	// *
+	// */
+	// public void testCreateScrollPane() {
+	//
+	// mainPanel = new JPanel();
+	// innerPanel = new JPanel();
+	//
+	// // added code:
+	// innerPanel.setLayout(new BoxLayout(innerPanel, BoxLayout.Y_AXIS));
+	// // end added code.
+	//
+	// // removed code:
+	// // innerPanel.setPreferredSize(new Dimension(100, 100));
+	// // end removed code.
+	//
+	// scroll = new JScrollPane(innerPanel);
+	// scroll.setPreferredSize(new Dimension(100, 100));
+	// addItem = new JButton("Add an item to JPanel");
+	// addItem.addActionListener(new ButtonListener());
+	// mainPanel.add(scroll);
+	// mainPanel.add(addItem);
+	//
+	// JDialog frame = new JDialog();
+	// frame.add(mainPanel);
+	// frame.setModal(true);
+	// frame.pack();
+	// Util.centerWindow(frame);
+	// frame.setVisible(true);
+	// }
+	//
+	// /**
+	// * Action listener for the button used by the scroll pane example.
+	// *
+	// * @author keshav
+	// *
+	// */
+	// private class ButtonListener implements ActionListener {
+	//
+	// public void actionPerformed(ActionEvent e) {
+	//
+	// innerPanel.add(new JLabel("Testing......"));
+	// innerPanel.validate();
+	//
+	// // added code:
+	// scroll.validate();
+	// scroll.getVerticalScrollBar().setValue(
+	// (scroll.getVerticalScrollBar()).getMaximum());
+	// // end added code.
+	//
+	// }
+	// }
 
 	/**
 	 * 
@@ -317,13 +312,17 @@ public class CaGridGuiTest extends TestCase {
 						throw new RuntimeException(e1);
 					}
 
-					JRadioButton button = new JRadioButton();
-					servicesButtonGroup.add(button);
-
 					String url = DiscoveryServiceUtil
 							.getUrlFromMetadata(service);
 					String description = DiscoveryServiceUtil
 							.getDescriptionFromMetadata(commonMetadata);
+
+					JRadioButton button = new JRadioButton();
+					IndexServiceSelectionButtonListener indexSelectionButtonListener = new IndexServiceSelectionButtonListener();
+					button.setActionCommand(url);
+					button.addActionListener(indexSelectionButtonListener);
+
+					servicesButtonGroup.add(button);
 
 					/* check if we've already seen this service */
 					if (!seenServices.containsKey(url)) {
@@ -333,7 +332,7 @@ public class CaGridGuiTest extends TestCase {
 						urlServiceBuilder.append(new JLabel("put center here"));
 						urlServiceBuilder.append(new JLabel(description));
 						urlServiceBuilder.nextLine();
-
+						
 						serviceDetailsBuilder.append("Research Center Name: ",
 								new JLabel("put center name"));
 						serviceDetailsBuilder.append("Type: ", new JLabel(
