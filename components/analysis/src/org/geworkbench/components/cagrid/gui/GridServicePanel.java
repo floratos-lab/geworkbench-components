@@ -20,6 +20,7 @@ import javax.swing.border.BevelBorder;
 import org.apache.axis.message.addressing.EndpointReferenceType;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.geworkbench.util.Util;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.layout.FormLayout;
@@ -31,7 +32,7 @@ import gov.nih.nci.cagrid.metadata.ServiceMetadata;
 /**
  * 
  * @author keshav
- * @version $Id: GridServicePanel.java,v 1.2 2007-03-14 21:14:18 keshav Exp $
+ * @version $Id: GridServicePanel.java,v 1.3 2007-03-15 15:47:02 keshav Exp $
  */
 public class GridServicePanel extends JPanel {
 	private Log log = LogFactory.getLog(this.getClass());
@@ -167,13 +168,17 @@ public class GridServicePanel extends JPanel {
 						throw new RuntimeException(e1);
 					}
 
-					JRadioButton button = new JRadioButton();
-					servicesButtonGroup.add(button);
-
 					String url = DiscoveryServiceUtil
 							.getUrlFromMetadata(service);
 					String description = DiscoveryServiceUtil
 							.getDescriptionFromMetadata(commonMetadata);
+
+					JRadioButton button = new JRadioButton();
+					IndexServiceSelectionButtonListener indexSelectionButtonListener = new IndexServiceSelectionButtonListener();
+					button.setActionCommand(url);
+					button.addActionListener(indexSelectionButtonListener);
+
+					servicesButtonGroup.add(button);
 
 					/* check if we've already seen this service */
 					if (!seenServices.containsKey(url)) {
@@ -209,5 +214,4 @@ public class GridServicePanel extends JPanel {
 		this.add(urlServiceBuilderScrollPane);
 		this.add(serviceDetailsBuilderScrollPane, BorderLayout.SOUTH);
 	}
-
 }
