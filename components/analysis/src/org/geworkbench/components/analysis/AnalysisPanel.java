@@ -533,36 +533,7 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 					try {
 						/* check if we are dealing with a grid analysis */
 						if (isGridAnalysis()) {
-							MicroarraySet gridSet = CagridBisonConverter
-									.convertFromBisonToCagridMicroarray(maSetView);
-							log.info("running grid service");
-
-							GridHierarchicalClusteringDialog dialog = new GridHierarchicalClusteringDialog();
-
-							HierarchicalClusteringParameter parameters = dialog
-									.getParameters();
-
-							if (parameters == null) {
-								// Cancelled dialog
-								return;
-							}
-
-							String url = "http://localhost:8080/wsrf/services/cagrid/HierarchicalClustering";
-							HierarchicalClusteringClient client = new HierarchicalClusteringClient(
-									url);
-							HierarchicalCluster hierarchicalCluster = client
-									.execute(gridSet, parameters);
-							if (hierarchicalCluster != null) {
-								// convert grid to bison hierarchical cluster
-								CagridBisonConverter cagridBisonConverter = new CagridBisonConverter();
-								CSHierClusterDataSet dataSet = cagridBisonConverter
-										.createBisonHierarchicalClustering(
-												hierarchicalCluster, maSetView);
-								ProjectNodeAddedEvent event = new ProjectNodeAddedEvent(
-										HIERARCHICAL_CLUSTERING_GRID, null,
-										dataSet);
-								publishProjectNodeAddedEvent(event);
-							}
+							executeGridAnalysis();
 
 						} else {
 							results = selectedAnalysis.execute(maSetView);
@@ -579,6 +550,46 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 			t.setPriority(Thread.MIN_PRIORITY);
 			t.start();
 		}
+	}
+
+	/**
+	 * Executes the grid service at the given url
+	 * 
+	 */
+	protected void executeGridAnalysis() {
+		MicroarraySet gridSet = CagridBisonConverter
+				.convertFromBisonToCagridMicroarray(maSetView);
+		log.info("running grid service");
+
+		GridHierarchicalClusteringDialog dialog = new GridHierarchicalClusteringDialog();
+
+		HierarchicalClusteringParameter parameters = dialog.getParameters();
+
+		if (parameters == null) {
+			// Cancelled dialog
+			return;
+		}
+
+		String url = "http://localhost:8080/wsrf/services/cagrid/HierarchicalClustering";
+		HierarchicalCluster hierarchicalCluster;
+		try {
+			HierarchicalClusteringClient client = new HierarchicalClusteringClient(
+					url);
+			hierarchicalCluster = client.execute(gridSet, parameters);
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+		if (hierarchicalCluster != null) {
+			// convert grid to bison hierarchical cluster
+			CagridBisonConverter cagridBisonConverter = new CagridBisonConverter();
+			CSHierClusterDataSet dataSet = cagridBisonConverter
+					.createBisonHierarchicalClustering(hierarchicalCluster,
+							maSetView);
+			ProjectNodeAddedEvent event = new ProjectNodeAddedEvent(
+					HIERARCHICAL_CLUSTERING_GRID, null, dataSet);
+			publishProjectNodeAddedEvent(event);
+		}
+
 	}
 
 	/**
