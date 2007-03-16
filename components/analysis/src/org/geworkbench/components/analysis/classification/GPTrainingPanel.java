@@ -30,7 +30,6 @@ import java.net.URL;
 import java.net.MalformedURLException;
 import java.io.IOException;
 import java.io.File;
-
 /**
  * @author: Marc-Danie Nazaire
  */
@@ -40,13 +39,17 @@ public abstract class GPTrainingPanel extends AbstractTrainingPanel
     protected JTabbedPane gpTabbedPane;
     protected JPanel gpConfig;
     protected JSplitPane gpHelp;
+    protected JScrollPane paramDescPanel;
+    protected JScrollPane classDescPanel;
     private JFormattedTextField protocol;
     private JFormattedTextField host;
     private JFormattedTextField port;
     private JFormattedTextField username;
+    private String trainLabel;
 
-    public GPTrainingPanel()
+    public GPTrainingPanel(String label)
     {
+        this.trainLabel = label;
         initGPUI();
     }
 
@@ -209,23 +212,106 @@ public abstract class GPTrainingPanel extends AbstractTrainingPanel
 
     protected abstract JPanel getParameterPanel();
     protected abstract File getDescriptionFile();
+    protected abstract File getParamDescriptions();
+
+    protected void initParamDescPanel()
+    {
+        paramDescPanel = new JScrollPane();
+
+        JTextPane paramDescTextPane = new JTextPane();
+        paramDescTextPane.setEditorKit(new StyledEditorKit());
+        try
+        {
+            paramDescTextPane.setPage(getParamDescriptions().toURL());
+            paramDescTextPane.setEditable(false);
+        }
+        catch(Exception e)
+        {
+            e.printStackTrace();
+        }
+
+        JViewport viewPort = new JViewport();
+        viewPort.setMinimumSize(new Dimension(220, 150));
+        viewPort.setPreferredSize(new Dimension(220, 150));
+        viewPort.setMaximumSize(new Dimension(220, 150));
+        viewPort.setView(paramDescTextPane);
+        paramDescPanel.setViewport(viewPort);
+    }
+
+    protected void initClassDescPanel()
+    {
+        classDescPanel = new JScrollPane();
+
+        JTextPane paramDescTextPane = new JTextPane();
+        paramDescTextPane.setEditorKit(new StyledEditorKit());
+        try
+        {
+            paramDescTextPane.setPage(getDescriptionFile().toURL());
+            paramDescTextPane.setEditable(false);
+        }
+        catch(Exception e)
+        {
+            e.printStackTrace();
+        }
+
+        JViewport viewPort = new JViewport();
+        viewPort.setMinimumSize(new Dimension(220, 150));
+        viewPort.setPreferredSize(new Dimension(220, 150));
+        viewPort.setMaximumSize(new Dimension(220, 150));
+        viewPort.setView(paramDescTextPane);
+        classDescPanel.setViewport(viewPort);
+    }
 
     private void initGPHelp()
     {
         gpHelp = new JSplitPane();
-        JPanel jPanel = new JPanel();
-        BoxLayout bLayout = new BoxLayout(jPanel, BoxLayout.PAGE_AXIS);
-        jPanel.setLayout(bLayout);
+
+        JPanel leftComponent = new JPanel();
+        BoxLayout bLayout = new BoxLayout(leftComponent, BoxLayout.PAGE_AXIS);
+        leftComponent.setLayout(bLayout);
+
+        initClassDescPanel();
+        JButton classifierButton = new JButton(trainLabel);
+        classifierButton.setMinimumSize(new Dimension(145, 24));
+        classifierButton.setPreferredSize(new Dimension(145, 24));
+        classifierButton.setMaximumSize(new Dimension(145, 24));
+        classifierButton.addActionListener( new ActionListener()
+        {
+            public void actionPerformed(ActionEvent event)
+            {
+                gpHelp.remove(gpHelp.getRightComponent());
+                gpHelp.setRightComponent(classDescPanel);
+            }
+        });
+
+        leftComponent.add(Box.createRigidArea(new Dimension(1, 8)));
+        leftComponent.add(classifierButton);
+
+        initParamDescPanel();
+        JButton parameterButton = new JButton("Parameters");
+        parameterButton.setMinimumSize(new Dimension(145, 24));
+        parameterButton.setPreferredSize(new Dimension(145, 24));
+        parameterButton.setMaximumSize(new Dimension(145, 24));
+        parameterButton.addActionListener( new ActionListener()
+        {
+            public void actionPerformed(ActionEvent event)
+            {
+                gpHelp.remove(gpHelp.getRightComponent());
+                gpHelp.setRightComponent(paramDescPanel);
+            }
+        });
+
+        leftComponent.add(Box.createRigidArea(new Dimension(1,10)));
+        leftComponent.add(parameterButton);
 
         JButton genePatternButton = new JButton("GenePattern Website");
-        genePatternButton.setMinimumSize(new Dimension(150, 24));
-        genePatternButton.setPreferredSize(new Dimension(150, 24));
-        genePatternButton.setMaximumSize(new Dimension(150, 24));
+        genePatternButton.setMinimumSize(new Dimension(145, 24));
+        genePatternButton.setPreferredSize(new Dimension(145, 24));
+        genePatternButton.setMaximumSize(new Dimension(145, 24));
         genePatternButton.addActionListener( new ActionListener()
         {
             public void actionPerformed(ActionEvent event)
             {
-                System.out.println("GenePattern action: " + event.getActionCommand());
                 try
                 {
                     BrowserLauncher.openURL("http://www.genepattern.org");
@@ -237,32 +323,12 @@ public abstract class GPTrainingPanel extends AbstractTrainingPanel
             }
         });
 
-        final JTextPane gpAccessLabel = new JTextPane();
-        gpAccessLabel.setEditorKit(new StyledEditorKit());
-        try
-        {
-            gpAccessLabel.setPage(getDescriptionFile().toURL());
-            gpAccessLabel.setEditable(false);
-        }
-        catch(Exception e)
-        {
-            e.printStackTrace();
-        }
-        
-        JScrollPane gpScrollPane = new JScrollPane();
-        JViewport viewPort = new JViewport();
-        viewPort.setMinimumSize(new Dimension(220, 150));
-        viewPort.setPreferredSize(new Dimension(220, 150));
-        viewPort.setMaximumSize(new Dimension(220, 150));
-        viewPort.setView(gpAccessLabel);
-        gpScrollPane.setViewport(viewPort);
-
         JButton gpDownloadButton = new JButton("Download GenePattern");
-        gpDownloadButton.setMinimumSize(new Dimension(150, 24));
-        gpDownloadButton.setPreferredSize(new Dimension(150, 24));
-        gpDownloadButton.setMaximumSize(new Dimension(150, 24));
-        jPanel.add(Box.createRigidArea(new Dimension(1,7)));
-        jPanel.add(gpDownloadButton);
+        gpDownloadButton.setMinimumSize(new Dimension(145, 24));
+        gpDownloadButton.setPreferredSize(new Dimension(145, 24));
+        gpDownloadButton.setMaximumSize(new Dimension(145, 24));
+        leftComponent.add(Box.createRigidArea(new Dimension(1, 10)));
+        leftComponent.add(gpDownloadButton);
         gpDownloadButton.addActionListener( new ActionListener()
         {
             public void actionPerformed(ActionEvent event)
@@ -278,13 +344,13 @@ public abstract class GPTrainingPanel extends AbstractTrainingPanel
             }
         });
 
-        jPanel.add(Box.createRigidArea(new Dimension(1, 10)));
-        jPanel.add(genePatternButton, BorderLayout.CENTER);
-        jPanel.setVisible(true);
+        leftComponent.add(Box.createRigidArea(new Dimension(1, 10)));
+        leftComponent.add(genePatternButton, BorderLayout.CENTER);
+        leftComponent.setVisible(true);
 
         gpHelp.setDividerSize(10);
-        gpHelp.setLeftComponent(jPanel);
-        gpHelp.setRightComponent(gpScrollPane);
+        gpHelp.setLeftComponent(leftComponent);
+        gpHelp.setRightComponent(classDescPanel);
     }
 
     protected void addParameters(DefaultFormBuilder builder)
@@ -300,3 +366,4 @@ public abstract class GPTrainingPanel extends AbstractTrainingPanel
         builder.appendUnrelatedComponentsGapRow();
     }
 }
+
