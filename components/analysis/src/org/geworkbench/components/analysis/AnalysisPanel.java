@@ -36,7 +36,9 @@ import org.geworkbench.bison.model.analysis.ClusteringAnalysis;
 import org.geworkbench.bison.model.analysis.ParamValidationResults;
 import org.geworkbench.bison.model.analysis.ParameterPanel;
 import org.geworkbench.bison.model.clusters.CSHierClusterDataSet;
+import org.geworkbench.bison.model.clusters.CSSOMClusterDataSet;
 import org.geworkbench.components.cagrid.GridHierarchicalClusteringDialog;
+import org.geworkbench.components.cagrid.GridSomClusteringDialog;
 import org.geworkbench.components.cagrid.gui.GridServicePanel;
 import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.engine.management.AcceptTypes;
@@ -50,8 +52,11 @@ import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.layout.FormLayout;
 
 import edu.columbia.geworkbench.cagrid.cluster.client.HierarchicalClusteringClient;
+import edu.columbia.geworkbench.cagrid.cluster.client.SomClusteringClient;
 import edu.columbia.geworkbench.cagrid.cluster.hierarchical.HierarchicalCluster;
 import edu.columbia.geworkbench.cagrid.cluster.hierarchical.HierarchicalClusteringParameter;
+import edu.columbia.geworkbench.cagrid.cluster.som.SomCluster;
+import edu.columbia.geworkbench.cagrid.cluster.som.SomClusteringParameter;
 import edu.columbia.geworkbench.cagrid.converter.CagridBisonConverter;
 import edu.columbia.geworkbench.cagrid.microarray.MicroarraySet;
 
@@ -69,6 +74,12 @@ import edu.columbia.geworkbench.cagrid.microarray.MicroarraySet;
 @AcceptTypes( { DSMicroarraySet.class })
 public class AnalysisPanel extends MicroarrayViewEventBase implements
 		VisualPlugin {
+
+	private static final String STATML = "Statml";
+
+	private static final String MAGE = "Mage";
+
+	private static final String SOM_NAME = "Som";
 
 	private static final String HIERARCHICAL_NAME = "Hierarchical";
 
@@ -218,6 +229,10 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 	private JTabbedPane jAnalysisTabbedPane = null;
 
 	private GridServicePanel jGridServicePanel = null;
+
+	private CagridBisonConverter cagridBisonConverter = null;
+
+	// end keshav
 
 	/**
 	 * Default Constructor
@@ -594,14 +609,16 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 					MicroarraySet gridSet = CagridBisonConverter
 							.convertFromBisonToCagridMicroarray(maSetView);
 
+					cagridBisonConverter = new CagridBisonConverter();
+
 					log.info("running grid service");
 
 					if (url.contains(HIERARCHICAL_NAME)) {
 						log
 								.info("Hierarchical Clustering service detected ... ");
-						if (url.contains("Mage")) {
+						if (url.contains(MAGE)) {
 							log.info("Mage service detected ...");
-						} else if (url.contains("Statml")) {
+						} else if (url.contains(STATML)) {
 							log.info("Statml service detected ...");
 						} else {
 							log.info("Base service detected ... ");
@@ -626,7 +643,6 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 							}
 							if (hierarchicalCluster != null) {
 								// convert grid to bison hierarchical cluster
-								CagridBisonConverter cagridBisonConverter = new CagridBisonConverter();
 								CSHierClusterDataSet dataSet = cagridBisonConverter
 										.createBisonHierarchicalClustering(
 												hierarchicalCluster, maSetView);
@@ -636,6 +652,49 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 								publishProjectNodeAddedEvent(event);
 							}
 						}
+					}
+
+					else if (url.contains(SOM_NAME)) {
+						if (url.contains(MAGE)) {
+
+						} else if (url.contains(STATML)) {
+
+						} else {
+							GridSomClusteringDialog dialog = new GridSomClusteringDialog();
+
+							SomClusteringParameter somClusteringParameters = dialog
+									.getParameters();
+
+							if (somClusteringParameters == null)
+								return;
+
+							SomCluster somCluster = null;
+							try {
+								SomClusteringClient client = new SomClusteringClient(
+										url);
+								somCluster = client.execute(gridSet,
+										somClusteringParameters);
+							} catch (Exception e) {
+								throw new RuntimeException(e);
+							}
+							if (somCluster != null) {
+								// convert grid to bison hierarchical cluster
+								CSSOMClusterDataSet dataSet = cagridBisonConverter
+										.createBisonSomClustering(somCluster,
+												maSetView);
+								ProjectNodeAddedEvent event = new ProjectNodeAddedEvent(
+										"Som Clustering", null, dataSet);
+								publishProjectNodeAddedEvent(event);
+							}
+						}
+
+					}
+
+					else {
+						JOptionPane.showMessageDialog(null,
+								"Cannot run service at " + url,
+								"Grid Service Client",
+								JOptionPane.ERROR_MESSAGE);
 					}
 				}
 
