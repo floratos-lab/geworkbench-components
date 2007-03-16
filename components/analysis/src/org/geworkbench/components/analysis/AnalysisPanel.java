@@ -70,6 +70,8 @@ import edu.columbia.geworkbench.cagrid.microarray.MicroarraySet;
 public class AnalysisPanel extends MicroarrayViewEventBase implements
 		VisualPlugin {
 
+	private static final String HIERARCHICAL_NAME = "Hierarchical";
+
 	private static final String HIERARCHICAL_CLUSTERING_GRID = "Hierarchical Clustering (Grid)";
 
 	private static final String SERVICE = "Service";
@@ -521,7 +523,6 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 
 		ParamValidationResults pvr = selectedAnalysis.validateParameters();
 		if (!pvr.isValid()) {
-			// Bring up an error message
 			JOptionPane.showMessageDialog(null, pvr.getMessage(),
 					"Parameter Validation Error", JOptionPane.ERROR_MESSAGE);
 		} else {
@@ -533,8 +534,12 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 					try {
 						/* check if we are dealing with a grid analysis */
 						if (isGridAnalysis()) {
-							executeGridAnalysis();
-
+							String url = getServiceUrl();
+							if (!StringUtils.isEmpty(url)) {
+								executeGridAnalysis(url);
+							} else {
+								log.error("Cannot execute with url:  " + url);
+							}
 						} else {
 							results = selectedAnalysis.execute(maSetView);
 						}
@@ -546,66 +551,98 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 					analysisDone();
 				}
 
+				// TODO move these 3 methods out of Runnable
+				/**
+				 * 
+				 * @return
+				 */
+				private boolean isGridAnalysis() {
+					ButtonGroup gridSelectionButtonGroup = jGridServicePanel
+							.getButtonGroup();
+
+					ButtonModel bm = gridSelectionButtonGroup.getSelection();
+					if (StringUtils.equals(bm.getActionCommand(), "Grid")) {
+						return true;
+					}
+
+					return false;
+				}
+
+				/**
+				 * 
+				 * @return
+				 */
+				private String getServiceUrl() {
+					ButtonGroup bg = jGridServicePanel.getServicesButtonGroup();
+
+					ButtonModel bm = bg.getSelection();
+
+					if (bm == null) {
+						return null;
+					}
+
+					String url = bm.getActionCommand();
+					return url;
+				}
+
+				/**
+				 * Executes the grid service at the given url
+				 * 
+				 */
+				protected void executeGridAnalysis(String url) {
+
+					MicroarraySet gridSet = CagridBisonConverter
+							.convertFromBisonToCagridMicroarray(maSetView);
+
+					log.info("running grid service");
+
+					if (url.contains(HIERARCHICAL_NAME)) {
+						log
+								.info("Hierarchical Clustering service detected ... ");
+						if (url.contains("Mage")) {
+							log.info("Mage service detected ...");
+						} else if (url.contains("Statml")) {
+							log.info("Statml service detected ...");
+						} else {
+							log.info("Base service detected ... ");
+							GridHierarchicalClusteringDialog dialog = new GridHierarchicalClusteringDialog();
+
+							HierarchicalClusteringParameter parameters = dialog
+									.getParameters();
+
+							if (parameters == null) {
+								// Cancelled dialog
+								return;
+							}
+
+							HierarchicalCluster hierarchicalCluster;
+							try {
+								HierarchicalClusteringClient client = new HierarchicalClusteringClient(
+										url);
+								hierarchicalCluster = client.execute(gridSet,
+										parameters);
+							} catch (Exception e) {
+								throw new RuntimeException(e);
+							}
+							if (hierarchicalCluster != null) {
+								// convert grid to bison hierarchical cluster
+								CagridBisonConverter cagridBisonConverter = new CagridBisonConverter();
+								CSHierClusterDataSet dataSet = cagridBisonConverter
+										.createBisonHierarchicalClustering(
+												hierarchicalCluster, maSetView);
+								ProjectNodeAddedEvent event = new ProjectNodeAddedEvent(
+										HIERARCHICAL_CLUSTERING_GRID, null,
+										dataSet);
+								publishProjectNodeAddedEvent(event);
+							}
+						}
+					}
+				}
+
 			});
 			t.setPriority(Thread.MIN_PRIORITY);
 			t.start();
 		}
-	}
-
-	/**
-	 * Executes the grid service at the given url
-	 * 
-	 */
-	protected void executeGridAnalysis() {
-		MicroarraySet gridSet = CagridBisonConverter
-				.convertFromBisonToCagridMicroarray(maSetView);
-		log.info("running grid service");
-
-		GridHierarchicalClusteringDialog dialog = new GridHierarchicalClusteringDialog();
-
-		HierarchicalClusteringParameter parameters = dialog.getParameters();
-
-		if (parameters == null) {
-			// Cancelled dialog
-			return;
-		}
-
-		String url = "http://localhost:8080/wsrf/services/cagrid/HierarchicalClustering";
-		HierarchicalCluster hierarchicalCluster;
-		try {
-			HierarchicalClusteringClient client = new HierarchicalClusteringClient(
-					url);
-			hierarchicalCluster = client.execute(gridSet, parameters);
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-		if (hierarchicalCluster != null) {
-			// convert grid to bison hierarchical cluster
-			CagridBisonConverter cagridBisonConverter = new CagridBisonConverter();
-			CSHierClusterDataSet dataSet = cagridBisonConverter
-					.createBisonHierarchicalClustering(hierarchicalCluster,
-							maSetView);
-			ProjectNodeAddedEvent event = new ProjectNodeAddedEvent(
-					HIERARCHICAL_CLUSTERING_GRID, null, dataSet);
-			publishProjectNodeAddedEvent(event);
-		}
-
-	}
-
-	/**
-	 * 
-	 * @return
-	 */
-	private boolean isGridAnalysis() {
-		ButtonGroup gridSelectionButtonGroup = jGridServicePanel
-				.getButtonGroup();
-
-		ButtonModel bm = gridSelectionButtonGroup.getSelection();
-		if (StringUtils.equals(bm.getActionCommand(), "Grid")) {
-			return true;
-		}
-
-		return false;
 	}
 
 	@Publish

@@ -31,7 +31,7 @@ import gov.nih.nci.cagrid.metadata.ServiceMetadata;
 /**
  * 
  * @author keshav
- * @version $Id: GridServicePanel.java,v 1.6 2007-03-15 20:29:22 keshav Exp $
+ * @version $Id: GridServicePanel.java,v 1.7 2007-03-16 20:24:08 keshav Exp $
  */
 public class GridServicePanel extends JPanel {
 	private Log log = LogFactory.getLog(this.getClass());
@@ -43,6 +43,8 @@ public class GridServicePanel extends JPanel {
 	JScrollPane serviceDetailsScrollPane = null;
 
 	ButtonGroup buttonGroup = null;
+
+	ButtonGroup servicesButtonGroup = null;
 
 	/**
 	 * 
@@ -140,7 +142,7 @@ public class GridServicePanel extends JPanel {
 		// end C
 
 		// TODO refactor me into a separate listener
-		final ButtonGroup servicesButtonGroup = new ButtonGroup();
+		servicesButtonGroup = new ButtonGroup();
 		getServicesButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 
@@ -165,9 +167,11 @@ public class GridServicePanel extends JPanel {
 							.getDescriptionFromMetadata(commonMetadata);
 
 					JRadioButton button = new JRadioButton();
-					IndexServiceSelectionButtonListener indexSelectionButtonListener = new IndexServiceSelectionButtonListener();
+					// IndexServiceSelectionButtonListener
+					// indexSelectionButtonListener = new
+					// IndexServiceSelectionButtonListener();
 					button.setActionCommand(url);
-					button.addActionListener(indexSelectionButtonListener);
+					// button.addActionListener(indexSelectionButtonListener);
 
 					servicesButtonGroup.add(button);
 
@@ -212,5 +216,13 @@ public class GridServicePanel extends JPanel {
 	 */
 	public ButtonGroup getButtonGroup() {
 		return buttonGroup;
+	}
+
+	/**
+	 * 
+	 * @return
+	 */
+	public ButtonGroup getServicesButtonGroup() {
+		return servicesButtonGroup;
 	}
 }
