@@ -1,0 +1,18 @@
+void main() {
+   module expressionFileFilter expFileFormat;
+   print "0";
+   module projectWindow projectPanel;
+   print "1";
+   module reverseEngineering gpro; 
+   print "2";
+   module cytoscapePanel csw;
+   print "3";
+   module genePanel gpan;
+   print "4";
+  projectPanel.loadDataSet("data/web100.exp", expFileFormat);
+  datatype AdjacencyMatrix AM = gpro.getAdjacencyMatrix("data/web100.adj");
+  datatype DSPanel p = gpan.getPanel("data/gpan.csv");
+  print "hello";
+  csw.computeAndDrawFirstNeighbors(p, 2, AM);
+
+}

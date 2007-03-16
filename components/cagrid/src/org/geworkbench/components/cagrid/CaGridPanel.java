@@ -29,6 +29,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.Box;
 import javax.swing.JButton;
@@ -72,7 +73,7 @@ import com.jgoodies.forms.layout.FormLayout;
 /**
  * @author watkinson
  * @author keshav
- * @version $Id: CaGridPanel.java,v 1.28 2007-03-09 02:58:57 keshav Exp $
+ * @version $Id: CaGridPanel.java,v 1.29 2007-03-16 21:40:10 mhall Exp $
  */
 public class CaGridPanel extends JPanel implements VisualPlugin {
 
@@ -198,10 +199,26 @@ public class CaGridPanel extends JPanel implements VisualPlugin {
 		}
 	}
 
-	private EndpointReferenceType[] getServices(String host, int port,
-			String search) throws Exception {
-		AnalyticalServiceDiscoveryClient client = new AnalyticalServiceDiscoveryClient(
-				host, port);
+    public static List<String> getServiceURLs(String host, int port) {
+        try {
+            EndpointReferenceType[] services = null;
+
+            services = getServices(host, port, null);
+
+            ArrayList<String> urls = new ArrayList<String>();
+            for (EndpointReferenceType service : services) {
+                ServiceMetadata commonMetadata = MetadataUtils .getServiceMetadata(service);
+                    urls.add(service.getAddress().toString());
+            }
+            return urls;
+        } catch (Exception e) {
+            log.error(e);
+            return null;
+        }
+    }
+
+    private static EndpointReferenceType[] getServices(String host, int port, String search) throws Exception {
+		AnalyticalServiceDiscoveryClient client = new AnalyticalServiceDiscoveryClient(host, port);
 
 		EndpointReferenceType[] allServices = null;
 		if (StringUtils.isEmpty(search)) {
@@ -220,7 +237,7 @@ public class CaGridPanel extends JPanel implements VisualPlugin {
 	 * @param allServices
 	 * @throws Exception
 	 */
-	public void displayMetadata(EndpointReferenceType[] allServices)
+	public static void displayMetadata(EndpointReferenceType[] allServices)
 			throws Exception {
 		if (allServices != null) {
 			for (EndpointReferenceType service : allServices) {

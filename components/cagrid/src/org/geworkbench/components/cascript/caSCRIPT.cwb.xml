@@ -1,0 +1,4 @@
+<component-descriptor xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="Descriptor Schema.xsd">
+	<component class="org.geworkbench.components.cascript.CaSCRIPTEditor">
+	</component>
+</component-descriptor>
