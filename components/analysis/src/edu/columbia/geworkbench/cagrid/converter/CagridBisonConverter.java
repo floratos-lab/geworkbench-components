@@ -236,7 +236,8 @@ public class CagridBisonConverter {
 	 * @return CSHierClusterDataSet
 	 */
 	public CSHierClusterDataSet createBisonHierarchicalClustering(
-			HierarchicalCluster hierarchicalCluster, DSMicroarraySetView<DSGeneMarker, DSMicroarray> view) {
+			HierarchicalCluster hierarchicalCluster,
+			DSMicroarraySetView<DSGeneMarker, DSMicroarray> view) {
 		log.debug("creating bison hierarchical cluster");
 		HierarchicalClusterNode microarrayCluster = hierarchicalCluster
 				.getMarkerCluster();
@@ -253,43 +254,6 @@ public class CagridBisonConverter {
 		}
 		CSHierClusterDataSet dataSet = new CSHierClusterDataSet(resultClusters,
 				HIERARCHICAL_CLUSTERING_NAME, view);
-		return dataSet;
-	}
-
-	/**
-	 * 
-	 * @param somCluster
-	 * @param view
-	 * @return CSSOMClusterDataSet
-	 */
-	private CSSOMClusterDataSet createBisonSomClustering(SomCluster somCluster,
-			CSMicroarraySetView view) {
-		log.debug("creating bison som cluster");
-
-		int width = somCluster.getWidth();
-		int height = somCluster.getHeight();
-		// Initialize width x height Bison SOM Cluster
-		SOMCluster[][] bisonSomCluster = new SOMCluster[width][height];
-		for (int x = 0; x < width; x++) {
-			for (int y = 0; y < height; y++) {
-				bisonSomCluster[x][y] = new DefaultSOMCluster();
-				bisonSomCluster[x][y].setGridCoordinates(x, y);
-			}
-		}
-		// Assign each marker to its appropriate cluster
-		for (int i = 0; i < somCluster.getXCoordinate().length; i++) {
-			int x = somCluster.getXCoordinate(i);
-			int y = somCluster.getYCoordinate(i);
-			DSGeneMarker marker = (DSGeneMarker) view.getMicroarraySet()
-					.getMarkers().get(i);
-			LeafSOMCluster node = new LeafSOMCluster(marker);
-			bisonSomCluster[x][y].addNode(node);
-		}
-
-		// Build final result set
-		CSSOMClusterDataSet dataSet = new CSSOMClusterDataSet(bisonSomCluster,
-				SOM_CLUSTERING_NAME, view);
-
 		return dataSet;
 	}
 
@@ -388,8 +352,10 @@ public class CagridBisonConverter {
 	}
 
 	/**
+	 * 
 	 * @param node
-	 * @return MicroarrayHierCluster
+	 * @param microarraySet
+	 * @return
 	 */
 	private MicroarrayHierCluster convertToMicroarrayHierCluster(
 			HierarchicalClusterNode node,
@@ -440,5 +406,42 @@ public class CagridBisonConverter {
 			cluster.addNode(right, 0);
 		}
 		return cluster;
+	}
+
+	/**
+	 * 
+	 * @param somCluster
+	 * @param view
+	 * @return
+	 */
+	public CSSOMClusterDataSet createBisonSomClustering(SomCluster somCluster,
+			DSMicroarraySetView<DSGeneMarker, DSMicroarray> view) {
+		log.debug("creating bison som cluster");
+
+		int width = somCluster.getWidth();
+		int height = somCluster.getHeight();
+		// Initialize width x height Bison SOM Cluster
+		SOMCluster[][] bisonSomCluster = new SOMCluster[width][height];
+		for (int x = 0; x < width; x++) {
+			for (int y = 0; y < height; y++) {
+				bisonSomCluster[x][y] = new DefaultSOMCluster();
+				bisonSomCluster[x][y].setGridCoordinates(x, y);
+			}
+		}
+		// Assign each marker to its appropriate cluster
+		for (int i = 0; i < somCluster.getXCoordinate().length; i++) {
+			int x = somCluster.getXCoordinate(i);
+			int y = somCluster.getYCoordinate(i);
+			DSGeneMarker marker = (DSGeneMarker) view.getMicroarraySet()
+					.getMarkers().get(i);
+			LeafSOMCluster node = new LeafSOMCluster(marker);
+			bisonSomCluster[x][y].addNode(node);
+		}
+
+		// Build final result set
+		CSSOMClusterDataSet dataSet = new CSSOMClusterDataSet(bisonSomCluster,
+				SOM_CLUSTERING_NAME, view);
+
+		return dataSet;
 	}
 }
