@@ -19,20 +19,14 @@ import org.geworkbench.components.analysis.classification.GPTrainingPanel;
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.layout.ColumnSpec;
 import com.jgoodies.forms.layout.FormLayout;
-import com.jgoodies.forms.layout.CellConstraints;
-import com.jgoodies.forms.layout.RowSpec;
 
 import javax.swing.*;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.event.*;
 import java.awt.*;
 import java.io.File;
 import java.io.Serializable;
 import java.io.ObjectStreamException;
-
-/**
+                             /**
  * @author Marc-Danie Nazaire                                      
  */
 public class WVTrainingPanel extends GPTrainingPanel {
@@ -51,20 +45,16 @@ public class WVTrainingPanel extends GPTrainingPanel {
     private JRadioButton featureFileMethod;
     private WVTraining wvTraining;
 
-    public WVTrainingPanel(WVTraining wv)
+    public WVTrainingPanel(WVTraining wvTraining)
     {
-        super();
-        this.wvTraining = wv;
+        super(wvTraining.getLabel());
+        this.wvTraining = wvTraining;
         try
         {   jbInit(); }
         catch (Exception e)
         {
             e.printStackTrace();
         }
-    }
-
-    protected File getDescriptionFile() {
-        return null;  // Added to allow this class to compile.
     }
 
     protected void initUI()
@@ -94,9 +84,9 @@ public class WVTrainingPanel extends GPTrainingPanel {
         });
 
         numFeatures = new JFormattedTextField();
-        numFeatures.setPreferredSize(new Dimension(170, 20));
-        numFeatures.setMinimumSize(new Dimension(170, 20));
-        numFeatures.setMaximumSize(new Dimension(170, 20));
+        numFeatures.setPreferredSize(new Dimension(150, 20));
+        numFeatures.setMinimumSize(new Dimension(150, 20));
+        numFeatures.setMaximumSize(new Dimension(150, 20));
         numFeatures.setValue(DEFAULT_NUM_FEATURES);
 
         featureFileMethod = new JRadioButton();
@@ -119,9 +109,9 @@ public class WVTrainingPanel extends GPTrainingPanel {
         });
 
         featureFileTextBox = new JTextField();
-        featureFileTextBox.setPreferredSize(new Dimension(170, 20));
-        featureFileTextBox.setMinimumSize(new Dimension(170, 20));
-        featureFileTextBox.setMaximumSize(new Dimension(170, 20));
+        featureFileTextBox.setPreferredSize(new Dimension(150, 20));
+        featureFileTextBox.setMinimumSize(new Dimension(150, 20));
+        featureFileTextBox.setMaximumSize(new Dimension(150, 20));
         featureFileTextBox.setEnabled(false);
 
         loadFeatureFileButton = new JButton("Load");
@@ -139,9 +129,10 @@ public class WVTrainingPanel extends GPTrainingPanel {
         group.add(featureFileMethod);
 
         statistic = new JComboBox();
-        statistic.setPreferredSize(new Dimension(170, 20));
-        statistic.setMinimumSize(new Dimension(170, 20));
-        statistic.setMaximumSize(new Dimension(170, 20));
+        statistic.setName("feature selection statistic");
+        statistic.setPreferredSize(new Dimension(150, 20));
+        statistic.setMinimumSize(new Dimension(150, 20));
+        statistic.setMaximumSize(new Dimension(150, 20));
         statistic.addItem("SNR");
         statistic.addItem("T-Test");
 
@@ -162,9 +153,9 @@ public class WVTrainingPanel extends GPTrainingPanel {
         });
 
         minStdDev = new JFormattedTextField("");
-        minStdDev.setMaximumSize(new Dimension(170,20));
-        minStdDev.setMinimumSize(new Dimension(170, 20));
-        minStdDev.setMaximumSize(new Dimension(170, 20));
+        minStdDev.setMaximumSize(new Dimension(150, 20));
+        minStdDev.setMinimumSize(new Dimension(150, 20));
+        minStdDev.setMaximumSize(new Dimension(150, 20));
         minStdDev.setEnabled(false);
     }
 
@@ -214,6 +205,20 @@ public class WVTrainingPanel extends GPTrainingPanel {
         return label;
     }
 
+    protected File getDescriptionFile()
+    {
+        File descriptFile = new File(WVTrainingPanel.class.getResource("help.html").getPath());
+
+        return descriptFile;
+    }
+
+    protected File getParamDescriptions()
+    {
+        File paramDescriptFile = new File(WVTrainingPanel.class.getResource("paramDesc.html").getPath());
+
+        return paramDescriptFile;
+    }
+    
     protected JPanel getParameterPanel()
     {
         FormLayout layout = new FormLayout(
@@ -225,7 +230,7 @@ public class WVTrainingPanel extends GPTrainingPanel {
         builder.appendSeparator("Weighted Voting Parameters");
         builder.nextRow();
 
-        builder.appendColumn(new ColumnSpec("135dlu"));
+        builder.appendColumn(new ColumnSpec("25dlu"));
         builder.append(numFeatureMethod, numFeatures);
 
         // add the GenePattern logo
@@ -240,6 +245,7 @@ public class WVTrainingPanel extends GPTrainingPanel {
         builder.nextLine();
 
         builder.append(featureFileMethod, featureFileTextBox, loadFeatureFileButton);
+
         return builder.getPanel();
     }
 
