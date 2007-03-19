@@ -498,6 +498,7 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 
 		// keshav
 		if (selectedAnalysis.isGridEnabled()) {
+			jGridServicePanel.setAnalysisType(selectedAnalysis);
 			jAnalysisTabbedPane.addTab("Services", jGridServicePanel);
 		} else {
 			jAnalysisTabbedPane.remove(jGridServicePanel);
