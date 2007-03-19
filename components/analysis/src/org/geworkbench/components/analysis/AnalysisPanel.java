@@ -39,7 +39,6 @@ import org.geworkbench.bison.model.analysis.ParamValidationResults;
 import org.geworkbench.bison.model.analysis.ParameterPanel;
 import org.geworkbench.bison.model.clusters.CSHierClusterDataSet;
 import org.geworkbench.bison.model.clusters.CSSOMClusterDataSet;
-import org.geworkbench.components.cagrid.GridHierarchicalClusteringDialog;
 import org.geworkbench.components.cagrid.GridSomClusteringDialog;
 import org.geworkbench.components.cagrid.gui.GridServicePanel;
 import org.geworkbench.engine.config.VisualPlugin;
@@ -570,148 +569,11 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 					} finally {
 						analyze.setEnabled(true);
 					}
-					analysisDone();
+					// FIXME don't use this check - remove projectNodeEvent from
+					// executeGridAnalysis first
+					if (!isGridAnalysis())
+						analysisDone();
 				}
-
-				// TODO move these 3 methods out of Runnable
-				/**
-				 * 
-				 * @return
-				 */
-				private boolean isGridAnalysis() {
-					ButtonGroup gridSelectionButtonGroup = jGridServicePanel
-							.getButtonGroup();
-
-					ButtonModel bm = gridSelectionButtonGroup.getSelection();
-					if (StringUtils.equals(bm.getActionCommand(), "Grid")) {
-						return true;
-					}
-
-					return false;
-				}
-
-				/**
-				 * 
-				 * @return
-				 */
-				private String getServiceUrl() {
-					ButtonGroup bg = jGridServicePanel.getServicesButtonGroup();
-
-					ButtonModel bm = bg.getSelection();
-
-					if (bm == null) {
-						return null;
-					}
-
-					String url = bm.getActionCommand();
-					return url;
-				}
-
-				/**
-				 * Executes the grid service at the given url
-				 * 
-				 */
-				protected void executeGridAnalysis(String url) {
-
-					MicroarraySet gridSet = CagridBisonConverter
-							.convertFromBisonToCagridMicroarray(maSetView);
-
-					cagridBisonConverter = new CagridBisonConverter();
-
-					log.info("running grid service");
-
-					if (url.contains(HIERARCHICAL_NAME)) {
-						log
-								.info("Hierarchical Clustering service detected ... ");
-						if (url.contains(MAGE)) {
-							log.info("Mage service detected ...");
-						} else if (url.contains(STATML)) {
-							log.info("Statml service detected ...");
-						} else {
-							log.info("Base service detected ... ");
-
-							// GridHierarchicalClusteringDialog dialog = new
-							// GridHierarchicalClusteringDialog();
-							//
-							// HierarchicalClusteringParameter parameters =
-							// dialog
-							// .getParameters();
-							// if (parameters == null) {
-							// // Cancelled dialog
-							// return;
-							// }
-
-							Map<String, String> bisonParameters = ((AbstractGridAnalysis) selectedAnalysis)
-									.getBisonParameters();
-							HierarchicalClusteringParameter parameters = cagridBisonConverter
-									.convertHierarchicalBisonToCagridParameter(bisonParameters);
-
-							HierarchicalCluster hierarchicalCluster;
-							try {
-								HierarchicalClusteringClient client = new HierarchicalClusteringClient(
-										url);
-								hierarchicalCluster = client.execute(gridSet,
-										parameters);
-							} catch (Exception e) {
-								throw new RuntimeException(e);
-							}
-							if (hierarchicalCluster != null) {
-								// convert grid to bison hierarchical cluster
-								CSHierClusterDataSet dataSet = cagridBisonConverter
-										.createBisonHierarchicalClustering(
-												hierarchicalCluster, maSetView);
-								ProjectNodeAddedEvent event = new ProjectNodeAddedEvent(
-										HIERARCHICAL_CLUSTERING_GRID, null,
-										dataSet);
-								publishProjectNodeAddedEvent(event);
-							}
-						}
-					}
-
-					else if (url.contains(SOM_NAME)) {
-						if (url.contains(MAGE)) {
-
-						} else if (url.contains(STATML)) {
-
-						} else {
-							GridSomClusteringDialog dialog = new GridSomClusteringDialog();
-
-							SomClusteringParameter somClusteringParameters = dialog
-									.getParameters();
-
-							if (somClusteringParameters == null)
-								return;
-
-							SomCluster somCluster = null;
-							try {
-								SomClusteringClient client = new SomClusteringClient(
-										url);
-								somCluster = client.execute(gridSet,
-										somClusteringParameters);
-							} catch (Exception e) {
-								throw new RuntimeException(e);
-							}
-							if (somCluster != null) {
-								// convert grid to bison hierarchical cluster
-								CSSOMClusterDataSet dataSet = cagridBisonConverter
-										.createBisonSomClustering(somCluster,
-												maSetView);
-								ProjectNodeAddedEvent event = new ProjectNodeAddedEvent(
-										"Som Clustering", null, dataSet);
-								publishProjectNodeAddedEvent(event);
-							}
-						}
-
-					}
-
-					else {
-						JOptionPane.showMessageDialog(null,
-								"Cannot run service at " + url,
-								"Grid Service Client",
-								JOptionPane.ERROR_MESSAGE);
-					}
-				}
-
 			});
 			t.setPriority(Thread.MIN_PRIORITY);
 			t.start();
@@ -795,6 +657,126 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 		if (selectedAnalysis != null && paramName != null) {
 			selectedAnalysis.saveParametersUnderName(paramName);
 			setNamedParameters(selectedAnalysis.getNamesOfStoredParameterSets());
+		}
+	}
+
+	/**
+	 * 
+	 * @return boolean
+	 */
+	private boolean isGridAnalysis() {
+		ButtonGroup gridSelectionButtonGroup = jGridServicePanel
+				.getButtonGroup();
+
+		ButtonModel bm = gridSelectionButtonGroup.getSelection();
+		if (StringUtils.equals(bm.getActionCommand(), "Grid")) {
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
+	 * 
+	 * @return String
+	 */
+	private String getServiceUrl() {
+		ButtonGroup bg = jGridServicePanel.getServicesButtonGroup();
+
+		ButtonModel bm = bg.getSelection();
+
+		if (bm == null) {
+			return null;
+		}
+
+		String url = bm.getActionCommand();
+		return url;
+	}
+
+	/**
+	 * Executes the grid service at the given url
+	 * 
+	 */
+	protected void executeGridAnalysis(String url) {
+
+		MicroarraySet gridSet = CagridBisonConverter
+				.convertFromBisonToCagridMicroarray(maSetView);
+
+		cagridBisonConverter = new CagridBisonConverter();
+
+		log.info("running grid service");
+
+		if (url.contains(HIERARCHICAL_NAME)) {
+			log.info("Hierarchical Clustering service detected ... ");
+			if (url.contains(MAGE)) {
+				log.info("Mage service detected ...");
+			} else if (url.contains(STATML)) {
+				log.info("Statml service detected ...");
+			} else {
+				log.info("Base service detected ... ");
+
+				Map<String, String> bisonParameters = ((AbstractGridAnalysis) selectedAnalysis)
+						.getBisonParameters();
+				HierarchicalClusteringParameter parameters = cagridBisonConverter
+						.convertHierarchicalBisonToCagridParameter(bisonParameters);
+
+				HierarchicalCluster hierarchicalCluster;
+				try {
+					HierarchicalClusteringClient client = new HierarchicalClusteringClient(
+							url);
+					hierarchicalCluster = client.execute(gridSet, parameters);
+				} catch (Exception e) {
+					throw new RuntimeException(e);
+				}
+				if (hierarchicalCluster != null) {
+					// convert grid to bison hierarchical cluster
+					CSHierClusterDataSet dataSet = cagridBisonConverter
+							.createBisonHierarchicalClustering(
+									hierarchicalCluster, maSetView);
+					ProjectNodeAddedEvent event = new ProjectNodeAddedEvent(
+							HIERARCHICAL_CLUSTERING_GRID, null, dataSet);
+					publishProjectNodeAddedEvent(event);
+				}
+			}
+		}
+
+		else if (url.contains(SOM_NAME)) {
+			if (url.contains(MAGE)) {
+
+			} else if (url.contains(STATML)) {
+
+			} else {
+				GridSomClusteringDialog dialog = new GridSomClusteringDialog();
+
+				SomClusteringParameter somClusteringParameters = dialog
+						.getParameters();
+
+				if (somClusteringParameters == null)
+					return;
+
+				SomCluster somCluster = null;
+				try {
+					SomClusteringClient client = new SomClusteringClient(url);
+					somCluster = client.execute(gridSet,
+							somClusteringParameters);
+				} catch (Exception e) {
+					throw new RuntimeException(e);
+				}
+				if (somCluster != null) {
+					// convert grid to bison hierarchical cluster
+					CSSOMClusterDataSet dataSet = cagridBisonConverter
+							.createBisonSomClustering(somCluster, maSetView);
+					ProjectNodeAddedEvent event = new ProjectNodeAddedEvent(
+							"Som Clustering", null, dataSet);
+					publishProjectNodeAddedEvent(event);
+				}
+			}
+
+		}
+
+		else {
+			JOptionPane.showMessageDialog(null, "Cannot run service at " + url,
+					"Grid Service Client", JOptionPane.ERROR_MESSAGE);
 		}
 	}
 }
