@@ -35,7 +35,7 @@ import gov.nih.nci.cagrid.metadata.ServiceMetadata;
 /**
  * 
  * @author keshav
- * @version $Id: GridServicePanel.java,v 1.10 2007-03-19 15:39:06 keshav Exp $
+ * @version $Id: GridServicePanel.java,v 1.11 2007-03-19 15:52:21 keshav Exp $
  */
 public class GridServicePanel extends JPanel {
 	private Log log = LogFactory.getLog(this.getClass());
@@ -164,7 +164,7 @@ public class GridServicePanel extends JPanel {
 								selectedAnalysisType);
 
 				if (services == null) {
-					// serviceDetailsBuilder.appendSeparator("No services");
+					// TODO clear panel if populated
 				}
 
 				else {
@@ -215,9 +215,10 @@ public class GridServicePanel extends JPanel {
 
 						}
 					}
-					urlServiceBuilder.getPanel().revalidate();
-					serviceDetailsBuilder.getPanel().revalidate();
 				}
+
+				urlServiceBuilder.getPanel().revalidate();
+				serviceDetailsBuilder.getPanel().revalidate();
 			}
 		});
 
