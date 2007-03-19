@@ -35,7 +35,7 @@ import gov.nih.nci.cagrid.metadata.ServiceMetadata;
 /**
  * 
  * @author keshav
- * @version $Id: GridServicePanel.java,v 1.12 2007-03-19 18:09:44 keshav Exp $
+ * @version $Id: GridServicePanel.java,v 1.13 2007-03-19 19:59:29 keshav Exp $
  */
 public class GridServicePanel extends JPanel {
 	private Log log = LogFactory.getLog(this.getClass());
@@ -178,10 +178,19 @@ public class GridServicePanel extends JPanel {
 							throw new RuntimeException(e1);
 						}
 
-						String url = DiscoveryServiceUtil
-								.getUrlFromMetadata(service);
+						String url = DiscoveryServiceUtil.getUrl(service);
+						String researchCenter = DiscoveryServiceUtil
+								.getResearchCenterName(commonMetadata);
 						String description = DiscoveryServiceUtil
-								.getDescriptionFromMetadata(commonMetadata);
+								.getDescription(commonMetadata);
+						String type = DiscoveryServiceUtil
+								.getType(commonMetadata);
+						String contact = DiscoveryServiceUtil
+								.getContactName(commonMetadata);
+						String contactNumber = DiscoveryServiceUtil
+								.getContactNumber(commonMetadata);
+						String address = DiscoveryServiceUtil
+								.getAddress(commonMetadata);
 
 						JRadioButton button = new JRadioButton();
 
@@ -194,24 +203,24 @@ public class GridServicePanel extends JPanel {
 							seenServices.put(url, service);
 							urlServiceBuilder.append(button);
 							urlServiceBuilder.append(new JLabel(url));
-							urlServiceBuilder.append(new JLabel(
-									"put center here"));
+							urlServiceBuilder
+									.append(new JLabel(researchCenter));
 							urlServiceBuilder.append(new JLabel(description));
 							urlServiceBuilder.nextLine();
 
 							serviceDetailsBuilder.append(
 									"Research Center Name: ", new JLabel(
-											"put center name"));
+											researchCenter));
 							serviceDetailsBuilder.append("Type: ", new JLabel(
-									"put type here"));
+									type));
 							serviceDetailsBuilder.append("Description: ",
 									new JLabel(description));
 							serviceDetailsBuilder.append("Contact: ",
-									new JLabel("put contact here"));
+									new JLabel(contact));
 							serviceDetailsBuilder.append("Contact Number: ",
-									new JLabel("put number here"));
+									new JLabel(contactNumber));
 							serviceDetailsBuilder.append("Address: ",
-									new JLabel("put address here"));
+									new JLabel(address));
 
 						}
 					}
