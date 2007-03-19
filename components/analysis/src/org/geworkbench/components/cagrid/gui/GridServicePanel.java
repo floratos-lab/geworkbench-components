@@ -35,7 +35,7 @@ import gov.nih.nci.cagrid.metadata.ServiceMetadata;
 /**
  * 
  * @author keshav
- * @version $Id: GridServicePanel.java,v 1.9 2007-03-19 15:21:52 keshav Exp $
+ * @version $Id: GridServicePanel.java,v 1.10 2007-03-19 15:39:06 keshav Exp $
  */
 public class GridServicePanel extends JPanel {
 	private Log log = LogFactory.getLog(this.getClass());
@@ -163,53 +163,61 @@ public class GridServicePanel extends JPanel {
 								indexServiceLabelListener.getPort(),
 								selectedAnalysisType);
 
-				for (EndpointReferenceType service : services) {
-
-					ServiceMetadata commonMetadata;
-					try {
-						commonMetadata = MetadataUtils
-								.getServiceMetadata(service);
-					} catch (Exception e1) {
-						throw new RuntimeException(e1);
-					}
-
-					String url = DiscoveryServiceUtil
-							.getUrlFromMetadata(service);
-					String description = DiscoveryServiceUtil
-							.getDescriptionFromMetadata(commonMetadata);
-
-					JRadioButton button = new JRadioButton();
-
-					button.setActionCommand(url);
-
-					servicesButtonGroup.add(button);
-
-					/* check if we've already seen this service */
-					if (!seenServices.containsKey(url)) {
-						seenServices.put(url, service);
-						urlServiceBuilder.append(button);
-						urlServiceBuilder.append(new JLabel(url));
-						urlServiceBuilder.append(new JLabel("put center here"));
-						urlServiceBuilder.append(new JLabel(description));
-						urlServiceBuilder.nextLine();
-
-						serviceDetailsBuilder.append("Research Center Name: ",
-								new JLabel("put center name"));
-						serviceDetailsBuilder.append("Type: ", new JLabel(
-								"put type here"));
-						serviceDetailsBuilder.append("Description: ",
-								new JLabel(description));
-						serviceDetailsBuilder.append("Contact: ", new JLabel(
-								"put contact here"));
-						serviceDetailsBuilder.append("Contact Number: ",
-								new JLabel("put number here"));
-						serviceDetailsBuilder.append("Address: ", new JLabel(
-								"put address here"));
-
-					}
+				if (services == null) {
+					// serviceDetailsBuilder.appendSeparator("No services");
 				}
-				urlServiceBuilder.getPanel().revalidate();
-				serviceDetailsBuilder.getPanel().revalidate();
+
+				else {
+					for (EndpointReferenceType service : services) {
+
+						ServiceMetadata commonMetadata;
+						try {
+							commonMetadata = MetadataUtils
+									.getServiceMetadata(service);
+						} catch (Exception e1) {
+							throw new RuntimeException(e1);
+						}
+
+						String url = DiscoveryServiceUtil
+								.getUrlFromMetadata(service);
+						String description = DiscoveryServiceUtil
+								.getDescriptionFromMetadata(commonMetadata);
+
+						JRadioButton button = new JRadioButton();
+
+						button.setActionCommand(url);
+
+						servicesButtonGroup.add(button);
+
+						/* check if we've already seen this service */
+						if (!seenServices.containsKey(url)) {
+							seenServices.put(url, service);
+							urlServiceBuilder.append(button);
+							urlServiceBuilder.append(new JLabel(url));
+							urlServiceBuilder.append(new JLabel(
+									"put center here"));
+							urlServiceBuilder.append(new JLabel(description));
+							urlServiceBuilder.nextLine();
+
+							serviceDetailsBuilder.append(
+									"Research Center Name: ", new JLabel(
+											"put center name"));
+							serviceDetailsBuilder.append("Type: ", new JLabel(
+									"put type here"));
+							serviceDetailsBuilder.append("Description: ",
+									new JLabel(description));
+							serviceDetailsBuilder.append("Contact: ",
+									new JLabel("put contact here"));
+							serviceDetailsBuilder.append("Contact Number: ",
+									new JLabel("put number here"));
+							serviceDetailsBuilder.append("Address: ",
+									new JLabel("put address here"));
+
+						}
+					}
+					urlServiceBuilder.getPanel().revalidate();
+					serviceDetailsBuilder.getPanel().revalidate();
+				}
 			}
 		});
 
