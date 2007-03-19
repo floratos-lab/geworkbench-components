@@ -48,7 +48,7 @@ public class IndexServiceLabelListener implements MouseListener {
 		super();
 		this.indexServiceLabel = indexServiceLabel;
 
-		indexServiceButton = new JButton("Get Services");
+		indexServiceButton = new JButton("Grid Services");
 	}
 
 	/*
