@@ -80,8 +80,8 @@ public class EVDPanel extends MicroarrayViewEventBase implements MenuListener {
     JLabel jBinSizeLabel = new JLabel("100");
     JCheckBox colorCheck = new JCheckBox("One color per array");
     JSlider jDirectionSlider;
-    JTextField leftBoundary;
-    JTextField rightBoundary;
+    JLabel leftBoundary;
+    JLabel rightBoundary;
     JLabel selectedGeneNum;
     JLabel binNumLabel;
     public final static Shape baseShape = new Rectangle(-6, -6, 6, 6);
@@ -236,8 +236,9 @@ public class EVDPanel extends MicroarrayViewEventBase implements MenuListener {
             }
         });
         controlPanel.add(jBinSizeSlider);
-        leftBoundary = new JTextField("0.00");
-        rightBoundary = new JTextField("0.00");
+       //leftBoundary = new JTextField("0.00");
+        leftBoundary = new JLabel("0.00");
+        rightBoundary = new JLabel("0.00");
         selectedGeneNum = new JLabel("Selected genes: 0");
         binNumLabel = new JLabel("Bin size:   0.1");
         markerSelectionPanel = new JPanel();
