@@ -73,9 +73,6 @@ public class IndexServiceLabelListener implements MouseListener {
 				port = Integer.parseInt(portField.getText());
 				host = hostField.getText();
 
-				log.info("host: " + host);
-				log.info("port: " + port);
-
 				indexServiceDialog.dispose();
 
 			}
