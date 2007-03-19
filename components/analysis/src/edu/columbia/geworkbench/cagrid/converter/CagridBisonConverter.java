@@ -1,5 +1,8 @@
 package edu.columbia.geworkbench.cagrid.converter;
 
+import java.util.Map;
+import java.util.Set;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -443,5 +446,34 @@ public class CagridBisonConverter {
 				SOM_CLUSTERING_NAME, view);
 
 		return dataSet;
+	}
+
+	/**
+	 * 
+	 * @param bisonParams
+	 * @return HierarchicalClusteringParameter
+	 */
+	public HierarchicalClusteringParameter convertHierarchicalBisonToCagridParameter(
+			Map<String, String> bisonParams) {
+
+		HierarchicalClusteringParameter hierarchicalClusteringParameter = new HierarchicalClusteringParameter();
+
+		Set<String> keySet = bisonParams.keySet();
+		for (String param : keySet) {
+			if (StringUtils.equals(param, "Method")) {
+				hierarchicalClusteringParameter.setMethod(Method
+						.fromString(bisonParams.get(param)));
+			}
+
+			else if (StringUtils.equals(param, "Distance")) {
+				hierarchicalClusteringParameter.setDistance(Distance
+						.fromString(bisonParams.get(param)));
+			} else {
+				hierarchicalClusteringParameter.setDim(Dim
+						.fromString(bisonParams.get(param)));
+			}
+		}
+
+		return hierarchicalClusteringParameter;
 	}
 }
