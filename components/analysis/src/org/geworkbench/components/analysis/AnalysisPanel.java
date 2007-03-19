@@ -26,6 +26,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.analysis.AbstractAnalysis;
+import org.geworkbench.analysis.AbstractGridAnalysis;
 import org.geworkbench.analysis.AbstractSaveableParameterPanel;
 import org.geworkbench.bison.datastructure.biocollections.DSAncillaryDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
@@ -421,9 +422,13 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 		for (int i = 0; i < availableAnalyses.length; i++) {
 			names[i] = availableAnalyses[i].getLabel();
 			if (log.isDebugEnabled())
-				log.info("Analysis: " + availableAnalyses[i]
-						+ ", Is grid enabled? "
-						+ availableAnalyses[i].isGridEnabled());
+				if (availableAnalyses[i] instanceof AbstractGridAnalysis) {
+					log.info("Analysis: " + availableAnalyses[i]
+							+ ", Is grid enabled? " + true);
+				} else {
+					log.info("Analysis: " + availableAnalyses[i]
+							+ ", Is grid enabled? " + false);
+				}
 		}
 
 		pluginAnalyses.setListData(names);
@@ -497,7 +502,7 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 		}
 
 		// keshav
-		if (selectedAnalysis.isGridEnabled()) {
+		if (selectedAnalysis instanceof AbstractGridAnalysis) {
 			jGridServicePanel.setAnalysisType(selectedAnalysis);
 			jAnalysisTabbedPane.addTab("Services", jGridServicePanel);
 		} else {
