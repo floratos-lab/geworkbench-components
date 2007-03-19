@@ -35,7 +35,7 @@ import gov.nih.nci.cagrid.metadata.ServiceMetadata;
 /**
  * 
  * @author keshav
- * @version $Id: CaGridGuiTest.java,v 1.6 2007-03-19 15:17:07 keshav Exp $
+ * @version $Id: CaGridGuiTest.java,v 1.7 2007-03-19 19:59:43 keshav Exp $
  */
 public class CaGridGuiTest extends TestCase {
 
@@ -303,9 +303,9 @@ public class CaGridGuiTest extends TestCase {
 					}
 
 					String url = DiscoveryServiceUtil
-							.getUrlFromMetadata(service);
+							.getUrl(service);
 					String description = DiscoveryServiceUtil
-							.getDescriptionFromMetadata(commonMetadata);
+							.getDescription(commonMetadata);
 
 					JRadioButton button = new JRadioButton();
 					IndexServiceSelectionButtonListener indexSelectionButtonListener = new IndexServiceSelectionButtonListener();
