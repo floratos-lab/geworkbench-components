@@ -8,9 +8,17 @@ import org.apache.commons.logging.LogFactory;
 
 import gov.nih.nci.cagrid.discovery.MetadataUtils;
 import gov.nih.nci.cagrid.metadata.ServiceMetadata;
+import gov.nih.nci.cagrid.metadata.ServiceMetadataHostingResearchCenter;
+import gov.nih.nci.cagrid.metadata.ServiceMetadataServiceDescription;
+import gov.nih.nci.cagrid.metadata.common.Address;
+import gov.nih.nci.cagrid.metadata.common.PointOfContact;
+import gov.nih.nci.cagrid.metadata.common.ResearchCenter;
+import gov.nih.nci.cagrid.metadata.common.ResearchCenterDescription;
+import gov.nih.nci.cagrid.metadata.common.ResearchCenterPointOfContactCollection;
 import gov.nih.nci.cagrid.metadata.service.InputParameter;
 import gov.nih.nci.cagrid.metadata.service.Operation;
 import gov.nih.nci.cagrid.metadata.service.OperationInputParameterCollection;
+import gov.nih.nci.cagrid.metadata.service.Service;
 import gov.nih.nci.cagrid.metadata.service.ServiceContext;
 import gov.nih.nci.cagrid.metadata.service.ServiceContextOperationCollection;
 import gov.nih.nci.cagrid.metadata.service.ServiceServiceContextCollection;
@@ -18,9 +26,11 @@ import gov.nih.nci.cagrid.metadata.service.ServiceServiceContextCollection;
 /**
  * 
  * @author keshav
- * @version $Id: DiscoveryServiceUtil.java,v 1.1 2007-03-14 20:29:02 keshav Exp $
+ * @version $Id: DiscoveryServiceUtil.java,v 1.2 2007-03-19 19:59:10 keshav Exp $
  */
 public class DiscoveryServiceUtil {
+	private static final String NOT_AVAILABLE = "unavailable";
+
 	private static Log log = LogFactory.getLog(DiscoveryServiceUtil.class);
 
 	/**
@@ -63,9 +73,9 @@ public class DiscoveryServiceUtil {
 				ServiceMetadata commonMetadata = MetadataUtils
 						.getServiceMetadata(service);
 
-				getUrlFromMetadata(service);
+				getUrl(service);
 
-				getDescriptionFromMetadata(commonMetadata);
+				getDescription(commonMetadata);
 
 				ServiceServiceContextCollection serContextCol = commonMetadata
 						.getServiceDescription().getService()
@@ -111,12 +121,11 @@ public class DiscoveryServiceUtil {
 	 * @param service
 	 * @return
 	 */
-	public static String getUrlFromMetadata(EndpointReferenceType service) {
+	public static String getUrl(EndpointReferenceType service) {
 
 		AttributedURI uri = service.getAddress();
 
 		String url = uri.toString();
-		log.info("Service: " + url);
 
 		return url;
 	}
@@ -126,13 +135,192 @@ public class DiscoveryServiceUtil {
 	 * @param service
 	 * @return
 	 */
-	public static String getDescriptionFromMetadata(
-			ServiceMetadata commonMetadata) {
+	public static String getDescription(ServiceMetadata commonMetadata) {
 
-		String description = commonMetadata.getServiceDescription()
-				.getService().getDescription();
-		log.info("  Description: " + description);
+		String description = NOT_AVAILABLE;
+
+		ServiceMetadataServiceDescription serviceMetadataDescription = commonMetadata
+				.getServiceDescription();
+		if (serviceMetadataDescription == null)
+			return description;
+
+		Service service = serviceMetadataDescription.getService();
+		if (service == null)
+			return description;
+
+		description = service.getDescription();
+		if (StringUtils.isEmpty(description))
+			description = NOT_AVAILABLE;
 
 		return description;
 	}
+
+	/**
+	 * 
+	 * @param commonMetadata
+	 * @return
+	 */
+	public static String getResearchCenterName(ServiceMetadata commonMetadata) {
+
+		String researchCenterName = NOT_AVAILABLE;
+
+		ServiceMetadataHostingResearchCenter serviceMetadataHostingResearchCenter = commonMetadata
+				.getHostingResearchCenter();
+
+		if (serviceMetadataHostingResearchCenter == null)
+			return researchCenterName;
+
+		ResearchCenter researchCenter = serviceMetadataHostingResearchCenter
+				.getResearchCenter();
+		if (researchCenter == null)
+			return researchCenterName;
+
+		researchCenterName = researchCenter.getDisplayName();
+		if (StringUtils.isEmpty(researchCenterName))
+			researchCenterName = NOT_AVAILABLE;
+
+		return researchCenterName;
+
+	}
+
+	/**
+	 * 
+	 * @param commonMetadata
+	 * @return
+	 */
+	public static String getContactName(ServiceMetadata commonMetadata) {
+
+		String contactNames = NOT_AVAILABLE;
+
+		ServiceMetadataHostingResearchCenter serviceMetadataHostingResearchCenter = commonMetadata
+				.getHostingResearchCenter();
+		if (serviceMetadataHostingResearchCenter == null)
+			return contactNames;
+
+		ResearchCenter researchCenter = serviceMetadataHostingResearchCenter
+				.getResearchCenter();
+		if (researchCenter == null)
+			return contactNames;
+
+		ResearchCenterPointOfContactCollection pointOfContactCol = researchCenter
+				.getPointOfContactCollection();
+		if (pointOfContactCol == null)
+			return contactNames;
+
+		PointOfContact contacts[] = pointOfContactCol.getPointOfContact();
+		if (contacts == null)
+			return contactNames;
+
+		int i = 0;
+		for (PointOfContact contact : contacts) {
+			contactNames = contact.getFirstName() + " " + contact.getLastName();
+			if (i < contacts.length - 1)
+				contactNames = contactNames + ", ";
+		}
+
+		if (StringUtils.isEmpty(contactNames))
+			contactNames = NOT_AVAILABLE;
+
+		return contactNames;
+	}
+
+	/**
+	 * 
+	 * @param commonMetadata
+	 * @return
+	 */
+	public static String getContactNumber(ServiceMetadata commonMetadata) {
+		String contactNum = NOT_AVAILABLE;
+
+		ServiceMetadataHostingResearchCenter serviceMetadataHostingResearchCenter = commonMetadata
+				.getHostingResearchCenter();
+		if (serviceMetadataHostingResearchCenter == null)
+			return contactNum;
+
+		ResearchCenter researchCenter = serviceMetadataHostingResearchCenter
+				.getResearchCenter();
+		if (researchCenter == null)
+			return contactNum;
+
+		ResearchCenterPointOfContactCollection pointOfContactCol = researchCenter
+				.getPointOfContactCollection();
+		if (pointOfContactCol == null)
+			return contactNum;
+
+		PointOfContact contacts[] = pointOfContactCol.getPointOfContact();
+		if (contacts == null)
+			return contactNum;
+
+		int i = 0;
+		for (PointOfContact contact : contacts) {
+			contactNum = contact.getPhoneNumber();
+			if (i < contacts.length - 1)
+				contactNum = contactNum + ", ";
+		}
+
+		if (StringUtils.isEmpty(contactNum))
+			contactNum = NOT_AVAILABLE;
+
+		return contactNum;
+	}
+
+	/**
+	 * 
+	 * @param commonMetadata
+	 * @return
+	 */
+	public static String getAddress(ServiceMetadata commonMetadata) {
+		String addressName = NOT_AVAILABLE;
+
+		ServiceMetadataHostingResearchCenter serviceMetadataHostingResearchCenter = commonMetadata
+				.getHostingResearchCenter();
+		if (serviceMetadataHostingResearchCenter == null)
+			return addressName;
+
+		ResearchCenter researchCenter = serviceMetadataHostingResearchCenter
+				.getResearchCenter();
+		if (researchCenter == null)
+			return addressName;
+
+		Address address = researchCenter.getAddress();
+		if (address == null)
+			return addressName;
+
+		addressName = address.toString();
+		if (StringUtils.isEmpty(addressName))
+			addressName = NOT_AVAILABLE;
+
+		return addressName;
+	}
+
+	/**
+	 * 
+	 * @param commonMetadata
+	 * @return
+	 */
+	public static String getType(ServiceMetadata commonMetadata) {
+		String typeDescription = NOT_AVAILABLE;
+
+		ServiceMetadataHostingResearchCenter serviceMetadataHostingResearchCenter = commonMetadata
+				.getHostingResearchCenter();
+		if (serviceMetadataHostingResearchCenter == null)
+			return typeDescription;
+
+		ResearchCenter researchCenter = serviceMetadataHostingResearchCenter
+				.getResearchCenter();
+		if (researchCenter == null)
+			return typeDescription;
+
+		ResearchCenterDescription type = researchCenter
+				.getResearchCenterDescription();
+		if (type == null)
+			return typeDescription;
+
+		typeDescription = type.getDescription();
+		if (StringUtils.isEmpty(typeDescription))
+			typeDescription = NOT_AVAILABLE;
+
+		return typeDescription;
+	}
+
 }
