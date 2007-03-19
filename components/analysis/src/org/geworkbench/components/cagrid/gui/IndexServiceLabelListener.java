@@ -49,7 +49,6 @@ public class IndexServiceLabelListener implements MouseListener {
 		this.indexServiceLabel = indexServiceLabel;
 
 		indexServiceButton = new JButton("Get Services");
-		indexServiceButton.setVisible(false);
 	}
 
 	/*
@@ -76,10 +75,6 @@ public class IndexServiceLabelListener implements MouseListener {
 
 				log.info("host: " + host);
 				log.info("port: " + port);
-
-				/* change color for clickable text */
-				// indexServiceLabel.setForeground(Color.magenta);
-				indexServiceButton.setVisible(true);
 
 				indexServiceDialog.dispose();
 
