@@ -4,7 +4,9 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 
 import javax.swing.BorderFactory;
@@ -18,8 +20,10 @@ import javax.swing.ScrollPaneConstants;
 import javax.swing.border.BevelBorder;
 
 import org.apache.axis.message.addressing.EndpointReferenceType;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.geworkbench.analysis.AbstractAnalysis;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.layout.FormLayout;
@@ -31,7 +35,7 @@ import gov.nih.nci.cagrid.metadata.ServiceMetadata;
 /**
  * 
  * @author keshav
- * @version $Id: GridServicePanel.java,v 1.7 2007-03-16 20:24:08 keshav Exp $
+ * @version $Id: GridServicePanel.java,v 1.8 2007-03-19 15:16:37 keshav Exp $
  */
 public class GridServicePanel extends JPanel {
 	private Log log = LogFactory.getLog(this.getClass());
@@ -46,6 +50,10 @@ public class GridServicePanel extends JPanel {
 
 	ButtonGroup servicesButtonGroup = null;
 
+	Collection<String> analysisSet = new HashSet<String>();
+
+	String selectedAnalysisType = null;
+
 	/**
 	 * 
 	 */
@@ -55,6 +63,10 @@ public class GridServicePanel extends JPanel {
 		super();
 		super.setName(name);
 		super.setLayout(new BorderLayout());
+
+		analysisSet.add("Hierarchical");
+		analysisSet.add("Som");
+		analysisSet.add("Aracne");
 
 		/* part A */
 		DefaultFormBuilder indexServiceBuilder = new DefaultFormBuilder(
@@ -149,7 +161,7 @@ public class GridServicePanel extends JPanel {
 				EndpointReferenceType[] services = DiscoveryServiceUtil
 						.getServices(indexServiceLabelListener.getHost(),
 								indexServiceLabelListener.getPort(),
-								indexServiceLabelListener.getFilter());
+								selectedAnalysisType);
 
 				for (EndpointReferenceType service : services) {
 
@@ -208,6 +220,23 @@ public class GridServicePanel extends JPanel {
 		this.add(indexServiceBuilder.getPanel(), BorderLayout.NORTH);
 		this.add(urlServiceBuilderScrollPane);
 		this.add(serviceDetailsBuilderScrollPane, BorderLayout.SOUTH);
+	}
+
+	/**
+	 * 
+	 * @param analysisType
+	 */
+	public void setAnalysisType(AbstractAnalysis analysisType) {
+
+		for (String type : analysisSet) {
+			if (StringUtils.lowerCase(analysisType.getLabel()).contains(
+					StringUtils.lowerCase(type))) {
+				log.info("Analysis is " + type);
+				selectedAnalysisType = type;
+				break;
+			}
+		}
+
 	}
 
 	/**
