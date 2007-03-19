@@ -35,7 +35,7 @@ import gov.nih.nci.cagrid.metadata.ServiceMetadata;
 /**
  * 
  * @author keshav
- * @version $Id: CaGridGuiTest.java,v 1.5 2007-03-15 20:29:30 keshav Exp $
+ * @version $Id: CaGridGuiTest.java,v 1.6 2007-03-19 15:17:07 keshav Exp $
  */
 public class CaGridGuiTest extends TestCase {
 
@@ -290,7 +290,7 @@ public class CaGridGuiTest extends TestCase {
 				EndpointReferenceType[] services = DiscoveryServiceUtil
 						.getServices(indexServiceLabelListener.getHost(),
 								indexServiceLabelListener.getPort(),
-								indexServiceLabelListener.getFilter());
+								"Hierarchical");
 
 				for (EndpointReferenceType service : services) {
 

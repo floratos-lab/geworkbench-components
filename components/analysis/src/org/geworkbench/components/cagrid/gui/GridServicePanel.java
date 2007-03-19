@@ -35,7 +35,7 @@ import gov.nih.nci.cagrid.metadata.ServiceMetadata;
 /**
  * 
  * @author keshav
- * @version $Id: GridServicePanel.java,v 1.8 2007-03-19 15:16:37 keshav Exp $
+ * @version $Id: GridServicePanel.java,v 1.9 2007-03-19 15:21:52 keshav Exp $
  */
 public class GridServicePanel extends JPanel {
 	private Log log = LogFactory.getLog(this.getClass());
@@ -179,11 +179,8 @@ public class GridServicePanel extends JPanel {
 							.getDescriptionFromMetadata(commonMetadata);
 
 					JRadioButton button = new JRadioButton();
-					// IndexServiceSelectionButtonListener
-					// indexSelectionButtonListener = new
-					// IndexServiceSelectionButtonListener();
+
 					button.setActionCommand(url);
-					// button.addActionListener(indexSelectionButtonListener);
 
 					servicesButtonGroup.add(button);
 
