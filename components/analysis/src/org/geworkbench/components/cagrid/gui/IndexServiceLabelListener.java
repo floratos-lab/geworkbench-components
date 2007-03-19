@@ -1,7 +1,6 @@
 package org.geworkbench.components.cagrid.gui;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -14,7 +13,6 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
-import org.apache.axis.message.addressing.EndpointReferenceType;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -23,19 +21,16 @@ import org.geworkbench.util.Util;
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.layout.FormLayout;
 
-import edu.columbia.geworkbench.cagrid.discovery.client.DiscoveryServiceUtil;
-
 /**
  * 
  * @author keshav
- * @version $Id: IndexServiceLabelListener.java,v 1.1 2007-03-14 20:32:08 keshav Exp $
+ * @version $Id: IndexServiceLabelListener.java,v 1.1 2007/03/14 20:32:08 keshav
+ *          Exp $
  */
 public class IndexServiceLabelListener implements MouseListener {
 	private Log log = LogFactory.getLog(this.getClass());
 
 	private int DEFAULT_PORT = 8080;
-
-	private String DEFAULT_FILTER = "hierarchical";
 
 	private String DEFAULT_HOST = "localhost";
 
@@ -44,8 +39,6 @@ public class IndexServiceLabelListener implements MouseListener {
 	private String host = DEFAULT_HOST;
 
 	private int port = DEFAULT_PORT;
-
-	private String filter = DEFAULT_FILTER;
 
 	JLabel indexServiceLabel = null;
 
@@ -73,7 +66,6 @@ public class IndexServiceLabelListener implements MouseListener {
 				new FormLayout("right:20dlu"));
 		final JTextField hostField = new JTextField(host);
 		final JTextField portField = new JTextField("" + port);
-		final JTextField filterField = new JTextField("" + filter);
 
 		JPanel buttonPanel = new JPanel(new FlowLayout());
 		JButton okButton = new JButton("Ok");
@@ -81,11 +73,9 @@ public class IndexServiceLabelListener implements MouseListener {
 			public void actionPerformed(ActionEvent e) {
 				port = Integer.parseInt(portField.getText());
 				host = hostField.getText();
-				filter = filterField.getText();
 
 				log.info("host: " + host);
 				log.info("port: " + port);
-				log.info("filter: " + filter);
 
 				/* change color for clickable text */
 				// indexServiceLabel.setForeground(Color.magenta);
@@ -113,7 +103,6 @@ public class IndexServiceLabelListener implements MouseListener {
 
 		indexServicePanelBuilder.append("host", hostField);
 		indexServicePanelBuilder.append("port", portField);
-		indexServicePanelBuilder.append("filter", filterField);
 
 		if (!StringUtils.isEmpty(host))
 			hostField.setText(host);
@@ -182,13 +171,6 @@ public class IndexServiceLabelListener implements MouseListener {
 	 */
 	public int getPort() {
 		return port;
-	}
-
-	/**
-	 * @return String
-	 */
-	public String getFilter() {
-		return filter;
 	}
 
 	/**
