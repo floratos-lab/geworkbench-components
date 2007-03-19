@@ -418,10 +418,10 @@ public class PromoterViewPanel extends JPanel {
         percentSeqMatchBox.setEditable(false);
         percentSeqMatchBox.setText("0%");
         totalLabel1.setFont(new java.awt.Font("Dialog", Font.BOLD, 11));
-        totalLabel1.setText("Total");
+        totalLabel1.setText("Total hits");
         sequenceLabel1.setFont(new java.awt.Font("Dialog", Font.BOLD, 11));
         sequenceLabel1.setHorizontalTextPosition(SwingConstants.LEADING);
-        sequenceLabel1.setText("Sequences");
+        sequenceLabel1.setText("Sequences with hits");
         expectedSeqCountBox.setEditable(false);
         expectedSeqCountBox.setText("0");
         seqCountBox.setEditable(false);
@@ -443,16 +443,18 @@ public class PromoterViewPanel extends JPanel {
         //iterationLabel.setHorizontalAlignment(SwingConstants.TRAILING);
         iterationLabel.setHorizontalTextPosition(SwingConstants.LEADING);
         iterationLabel.setText("Iterations:");
-        primer5Label.setText("5\'");
-        primer3Label.setText("3\'");
+         primer5Label.setFont(new java.awt.Font("Dialog", Font.BOLD, 11));
+          primer3Label.setFont(new java.awt.Font("Dialog", Font.BOLD, 11));
+        primer5Label.setText("5\' hits");
+        primer3Label.setText("3\' hits");
         //expect2Label.setHorizontalAlignment(SwingConstants.TRAILING);
         expect2Label.setText("Expected:");
         match5PrimeExpectBox.setEditable(false);
         match5PrimeExpectBox.setText("0");
         match3PrimeExpectBox.setEditable(false);
         match3PrimeExpectBox.setText("0");
-        totalLabel.setText("Total");
-        sequenceLabel.setText("Sequence");
+//        totalLabel.setText("Total");
+//        sequenceLabel.setText("Sequence");
         match5PrimeActualBox.setEditable(false);
         match5PrimeActualBox.setText("0");
         //actualLabel.setHorizontalAlignment(SwingConstants.TRAILING);
@@ -597,58 +599,72 @@ public class PromoterViewPanel extends JPanel {
         parmsPanel.add(seqCountBox, new GridBagConstraints(3, 8, 1, 1, 1.0, 0.0
                 , GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
                 new Insets(1, 2, 0, 2), 0, 0));
-        parmsPanel.add(primer5Label,
-                       new GridBagConstraints(2, 9, 1, 1, 0.0, 0.0
-                                              , GridBagConstraints.CENTER,
-                                              GridBagConstraints.NONE,
-                                              new Insets(0, 0, 0, 0), 0, 0));
-        parmsPanel.add(primer3Label,
-                       new GridBagConstraints(3, 9, 1, 1, 0.0, 0.0
-                                              , GridBagConstraints.CENTER,
-                                              GridBagConstraints.NONE,
-                                              new Insets(0, 0, 0, 0), 0, 0));
-        parmsPanel.add(match5PrimeExpectBox,
-                       new GridBagConstraints(2, 10, 1, 1, 1.0, 0.0
-                                              , GridBagConstraints.CENTER,
-                                              GridBagConstraints.HORIZONTAL,
-                                              new Insets(1, 2, 1, 2), 0, 0));
-        parmsPanel.add(match3PrimeExpectBox,
-                       new GridBagConstraints(3, 10, 1, 1, 1.0, 0.0
-                                              , GridBagConstraints.CENTER,
-                                              GridBagConstraints.HORIZONTAL,
-                                              new Insets(1, 2, 1, 2), 0, 0));
-        parmsPanel.add(enrichmentBox,
-                       new GridBagConstraints(2, 12, 1, 1, 1.0, 0.0
+
+          parmsPanel.add(enrichmentBox,
+                       new GridBagConstraints(2, 9, 1, 1, 1.0, 0.0
                                               , GridBagConstraints.CENTER,
                                               GridBagConstraints.HORIZONTAL,
                                               new Insets(1, 2, 1, 2), 0, 0));
         parmsPanel.add(seqEnrichmentBox,
-                       new GridBagConstraints(3, 12, 1, 1, 1.0, 0.0
+                       new GridBagConstraints(3, 9, 1, 1, 1.0, 0.0
                                               , GridBagConstraints.CENTER,
                                               GridBagConstraints.HORIZONTAL,
                                               new Insets(1, 2, 1, 2), 0, 0));
         parmsPanel.add(enrichmentLabel,
+                       new GridBagConstraints(1, 9, 2, 1, 1.0, 0.0
+                                              , GridBagConstraints.CENTER,
+                                              GridBagConstraints.HORIZONTAL,
+                                              new Insets(1, 2, 1, 2), 0, 0));
+
+          parmsPanel.add(percentSeqMatchBox,
+                       new GridBagConstraints(3, 10, 2, 1, 1.0, 0.0
+                                              , GridBagConstraints.CENTER,
+                                              GridBagConstraints.HORIZONTAL,
+                                              new Insets(1, 2, 1, 2), 0, 0));
+
+          parmsPanel.add(jLabel1, new GridBagConstraints(1, 10, 1, 1, 0.0, 0.0
+                , GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
+                new Insets(0, 0, 0, 0), 0, 0));
+
+        parmsPanel.add(primer5Label,
+                       new GridBagConstraints(2, 11, 1, 1, 0.0, 0.0
+                                              , GridBagConstraints.CENTER,
+                                              GridBagConstraints.NONE,
+                                              new Insets(0, 0, 0, 0), 0, 0));
+        parmsPanel.add(primer3Label,
+                       new GridBagConstraints(3, 11, 1, 1, 0.0, 0.0
+                                              , GridBagConstraints.CENTER,
+                                              GridBagConstraints.NONE,
+                                              new Insets(0, 0, 0, 0), 0, 0));
+        parmsPanel.add(match5PrimeExpectBox,
+                       new GridBagConstraints(2, 12, 1, 1, 1.0, 0.0
+                                              , GridBagConstraints.CENTER,
+                                              GridBagConstraints.HORIZONTAL,
+                                              new Insets(1, 2, 1, 2), 0, 0));
+        parmsPanel.add(match3PrimeExpectBox,
+                       new GridBagConstraints(3, 12, 1, 1, 1.0, 0.0
+                                              , GridBagConstraints.CENTER,
+                                              GridBagConstraints.HORIZONTAL,
+                                              new Insets(1, 2, 1, 2), 0, 0));
+
+                parmsPanel.add(expect2Label,
                        new GridBagConstraints(1, 12, 2, 1, 1.0, 0.0
                                               , GridBagConstraints.CENTER,
                                               GridBagConstraints.HORIZONTAL,
                                               new Insets(1, 2, 1, 2), 0, 0));
-        parmsPanel.add(percentSeqMatchBox,
-                       new GridBagConstraints(3, 13, 2, 1, 1.0, 0.0
-                                              , GridBagConstraints.CENTER,
-                                              GridBagConstraints.HORIZONTAL,
-                                              new Insets(1, 2, 1, 2), 0, 0));
+
         parmsPanel.add(actualLabel,
-                       new GridBagConstraints(1, 11, 1, 1, 1.0, 0.0
+                       new GridBagConstraints(1, 13, 1, 1, 1.0, 0.0
                                               , GridBagConstraints.CENTER,
                                               GridBagConstraints.HORIZONTAL,
                                               new Insets(1, 2, 1, 2), 0, 0));
         parmsPanel.add(match5PrimeActualBox,
-                       new GridBagConstraints(2, 11, 1, 1, 1.0, 0.0
+                       new GridBagConstraints(2, 13, 1, 1, 1.0, 0.0
                                               , GridBagConstraints.CENTER,
                                               GridBagConstraints.HORIZONTAL,
                                               new Insets(1, 2, 1, 2), 0, 0));
         parmsPanel.add(match3PrimeActualBox,
-                       new GridBagConstraints(3, 11, 1, 1, 1.0, 0.0
+                       new GridBagConstraints(3, 13, 1, 1, 1.0, 0.0
                                               , GridBagConstraints.CENTER,
                                               GridBagConstraints.HORIZONTAL,
                                               new Insets(1, 2, 1, 2), 0, 0));
@@ -681,14 +697,8 @@ public class PromoterViewPanel extends JPanel {
         parmsPanel.add(pValueField, new GridBagConstraints(2, 1, 1, 1, 0.5, 0.0
                 , GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
                 new Insets(1, 2, 1, 2), 0, 0));
-        parmsPanel.add(expect2Label,
-                       new GridBagConstraints(1, 10, 2, 1, 1.0, 0.0
-                                              , GridBagConstraints.CENTER,
-                                              GridBagConstraints.HORIZONTAL,
-                                              new Insets(1, 2, 1, 2), 0, 0));
-        parmsPanel.add(jLabel1, new GridBagConstraints(1, 13, 1, 1, 0.0, 0.0
-                , GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
-                new Insets(0, 0, 0, 0), 0, 0));
+
+
         parmsPanel.add(jLabel5, new GridBagConstraints(2, 4, 1, 1, 0.0, 0.0
                 , GridBagConstraints.CENTER, GridBagConstraints.NONE,
                 new Insets(0, 0, 0, 0), 0, 0));
