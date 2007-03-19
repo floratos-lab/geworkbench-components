@@ -7,6 +7,7 @@ import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Hashtable;
+import java.util.Map;
 
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
@@ -628,15 +629,22 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 							log.info("Statml service detected ...");
 						} else {
 							log.info("Base service detected ... ");
-							GridHierarchicalClusteringDialog dialog = new GridHierarchicalClusteringDialog();
 
-							HierarchicalClusteringParameter parameters = dialog
-									.getParameters();
+							// GridHierarchicalClusteringDialog dialog = new
+							// GridHierarchicalClusteringDialog();
+							//
+							// HierarchicalClusteringParameter parameters =
+							// dialog
+							// .getParameters();
+							// if (parameters == null) {
+							// // Cancelled dialog
+							// return;
+							// }
 
-							if (parameters == null) {
-								// Cancelled dialog
-								return;
-							}
+							Map<String, String> bisonParameters = ((AbstractGridAnalysis) selectedAnalysis)
+									.getBisonParameters();
+							HierarchicalClusteringParameter parameters = cagridBisonConverter
+									.convertHierarchicalBisonToCagridParameter(bisonParameters);
 
 							HierarchicalCluster hierarchicalCluster;
 							try {
