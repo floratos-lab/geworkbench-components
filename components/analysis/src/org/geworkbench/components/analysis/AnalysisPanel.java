@@ -47,6 +47,8 @@ import org.geworkbench.engine.management.ComponentRegistry;
 import org.geworkbench.engine.management.Publish;
 import org.geworkbench.events.ProjectNodeAddedEvent;
 import org.geworkbench.events.SubpanelChangedEvent;
+import org.geworkbench.util.ProgressBar;
+import org.geworkbench.util.Util;
 import org.geworkbench.util.microarrayutils.MicroarrayViewEventBase;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
@@ -75,6 +77,8 @@ import edu.columbia.geworkbench.cagrid.microarray.MicroarraySet;
 @AcceptTypes( { DSMicroarraySet.class })
 public class AnalysisPanel extends MicroarrayViewEventBase implements
 		VisualPlugin {
+
+	private static final String GRID_ANALYSIS = "Grid Analysis";
 
 	private static final String STATML = "Statml";
 
@@ -706,6 +710,10 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 
 		log.info("running grid service");
 
+		final ProgressBar pBar = ProgressBar
+				.create(ProgressBar.INDETERMINATE_TYPE);
+		Util.centerWindow(pBar);
+
 		if (url.contains(HIERARCHICAL_NAME)) {
 			log.info("Hierarchical Clustering service detected ... ");
 			if (url.contains(MAGE)) {
@@ -722,11 +730,17 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 
 				HierarchicalCluster hierarchicalCluster;
 				try {
+					pBar.setTitle(GRID_ANALYSIS);
+					pBar.setMessage("Running " + HIERARCHICAL_CLUSTERING_GRID);
+					pBar.start();
+					pBar.reset();
 					HierarchicalClusteringClient client = new HierarchicalClusteringClient(
 							url);
 					hierarchicalCluster = client.execute(gridSet, parameters);
 				} catch (Exception e) {
 					throw new RuntimeException(e);
+				} finally {
+					pBar.stop();
 				}
 				if (hierarchicalCluster != null) {
 					// convert grid to bison hierarchical cluster
@@ -761,6 +775,8 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 							somClusteringParameters);
 				} catch (Exception e) {
 					throw new RuntimeException(e);
+				} finally {
+					pBar.stop();
 				}
 				if (somCluster != null) {
 					// convert grid to bison hierarchical cluster
