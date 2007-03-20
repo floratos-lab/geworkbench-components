@@ -106,7 +106,6 @@ public class IndexServiceSelectionButtonListener implements ActionListener {
 				serviceDetailsBuilder.append("Contact Number: ", new JLabel(
 						contactNumber));
 				serviceDetailsBuilder.append("Address: ", new JLabel(address));
-				serviceDetailsBuilder.nextLine();
 
 				serviceDetailsBuilderScrollPane.revalidate();
 			}
