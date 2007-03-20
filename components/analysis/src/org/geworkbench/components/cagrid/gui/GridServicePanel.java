@@ -33,7 +33,7 @@ import gov.nih.nci.cagrid.metadata.ServiceMetadata;
 /**
  * 
  * @author keshav
- * @version $Id: GridServicePanel.java,v 1.14 2007-03-20 19:31:55 keshav Exp $
+ * @version $Id: GridServicePanel.java,v 1.15 2007-03-20 19:32:22 keshav Exp $
  */
 public class GridServicePanel extends JPanel {
 	private Log log = LogFactory.getLog(this.getClass());
@@ -134,7 +134,6 @@ public class GridServicePanel extends JPanel {
 				ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 
 		/* part C */
-
 		// TODO refactor me into a separate listener
 		final IndexServiceSelectionButtonListener indexServiceSelectionButtonListener = new IndexServiceSelectionButtonListener();
 		servicesButtonGroup = new ButtonGroup();
