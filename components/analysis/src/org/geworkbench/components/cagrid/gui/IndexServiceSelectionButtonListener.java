@@ -10,7 +10,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import javax.swing.BorderFactory;
-import javax.swing.ButtonGroup;
 import javax.swing.JLabel;
 import javax.swing.JScrollPane;
 import javax.swing.ScrollPaneConstants;
@@ -36,8 +35,6 @@ public class IndexServiceSelectionButtonListener implements ActionListener {
 	private String url = null;
 
 	private Map<String, EndpointReferenceType> seenServices = null;
-
-	private ButtonGroup servicesButtonGroup = null;
 
 	/**
 	 * 
@@ -121,22 +118,6 @@ public class IndexServiceSelectionButtonListener implements ActionListener {
 
 	public Map<String, EndpointReferenceType> getSeenServices() {
 		return seenServices;
-	}
-
-	/**
-	 * 
-	 * @return
-	 */
-	public ButtonGroup getServicesButtonGroup() {
-		return servicesButtonGroup;
-	}
-
-	/**
-	 * 
-	 * @param servicesButtonGroup
-	 */
-	public void setServicesButtonGroup(ButtonGroup servicesButtonGroup) {
-		this.servicesButtonGroup = servicesButtonGroup;
 	}
 
 	/**

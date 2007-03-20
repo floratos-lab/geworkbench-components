@@ -33,7 +33,7 @@ import gov.nih.nci.cagrid.metadata.ServiceMetadata;
 /**
  * 
  * @author keshav
- * @version $Id: GridServicePanel.java,v 1.15 2007-03-20 19:32:22 keshav Exp $
+ * @version $Id: GridServicePanel.java,v 1.16 2007-03-20 19:38:56 keshav Exp $
  */
 public class GridServicePanel extends JPanel {
 	private Log log = LogFactory.getLog(this.getClass());
@@ -171,8 +171,6 @@ public class GridServicePanel extends JPanel {
 								.addActionListener(indexServiceSelectionButtonListener);
 						button.setActionCommand(url);
 						servicesButtonGroup.add(button);
-						indexServiceSelectionButtonListener
-								.setServicesButtonGroup(servicesButtonGroup);
 
 						/* check if we've already seen this service */
 						if (!indexServiceSelectionButtonListener
