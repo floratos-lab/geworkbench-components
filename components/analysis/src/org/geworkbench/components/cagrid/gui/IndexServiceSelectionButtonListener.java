@@ -83,6 +83,7 @@ public class IndexServiceSelectionButtonListener implements ActionListener {
 					throw new RuntimeException(e1);
 				}
 
+				String url = DiscoveryServiceUtil.getUrl(service);
 				String researchCenter = DiscoveryServiceUtil
 						.getResearchCenterName(commonMetadata);
 				String description = DiscoveryServiceUtil
@@ -95,6 +96,7 @@ public class IndexServiceSelectionButtonListener implements ActionListener {
 				String address = DiscoveryServiceUtil
 						.getAddress(commonMetadata);
 
+				serviceDetailsBuilder.append("URL: ", new JLabel(url));
 				serviceDetailsBuilder.append("Research Center Name: ",
 						new JLabel(researchCenter));
 				serviceDetailsBuilder.append("Type: ", new JLabel(type));
