@@ -64,46 +64,42 @@ public class IndexServiceSelectionButtonListener implements ActionListener {
 	public void actionPerformed(ActionEvent e) {
 		url = e.getActionCommand();
 
-		for (String serviceUrl : seenServices.keySet()) {
-			if (serviceUrl.equalsIgnoreCase(url)) {
+		if (seenServices.containsKey(url)) {
 
-				// serviceDetailsBuilder.getPanel().removeAll();
+			// serviceDetailsBuilder.getPanel().removeAll();
 
-				EndpointReferenceType service = seenServices.get(serviceUrl);
+			EndpointReferenceType service = seenServices.get(url);
 
-				ServiceMetadata commonMetadata;
-				try {
-					commonMetadata = MetadataUtils.getServiceMetadata(service);
-				} catch (Exception e1) {
-					throw new RuntimeException(e1);
-				}
-
-				String researchCenter = DiscoveryServiceUtil
-						.getResearchCenterName(commonMetadata);
-				String description = DiscoveryServiceUtil
-						.getDescription(commonMetadata);
-				String type = DiscoveryServiceUtil.getType(commonMetadata);
-				String contact = DiscoveryServiceUtil
-						.getContactName(commonMetadata);
-				String contactNumber = DiscoveryServiceUtil
-						.getContactNumber(commonMetadata);
-				String address = DiscoveryServiceUtil
-						.getAddress(commonMetadata);
-
-				serviceDetailsBuilder.append("Research Center Name: ",
-						new JLabel(researchCenter));
-				serviceDetailsBuilder.append("Type: ", new JLabel(type));
-				serviceDetailsBuilder.append("Description: ", new JLabel(
-						description));
-				serviceDetailsBuilder.append("Contact: ", new JLabel(contact));
-				serviceDetailsBuilder.append("Contact Number: ", new JLabel(
-						contactNumber));
-				serviceDetailsBuilder.append("Address: ", new JLabel(address));
-
-				serviceDetailsBuilder.getPanel().revalidate();
-
-				break;
+			ServiceMetadata commonMetadata;
+			try {
+				commonMetadata = MetadataUtils.getServiceMetadata(service);
+			} catch (Exception e1) {
+				throw new RuntimeException(e1);
 			}
+
+			String researchCenter = DiscoveryServiceUtil
+					.getResearchCenterName(commonMetadata);
+			String description = DiscoveryServiceUtil
+					.getDescription(commonMetadata);
+			String type = DiscoveryServiceUtil.getType(commonMetadata);
+			String contact = DiscoveryServiceUtil
+					.getContactName(commonMetadata);
+			String contactNumber = DiscoveryServiceUtil
+					.getContactNumber(commonMetadata);
+			String address = DiscoveryServiceUtil.getAddress(commonMetadata);
+
+			serviceDetailsBuilder.append("Research Center Name: ", new JLabel(
+					researchCenter));
+			serviceDetailsBuilder.append("Type: ", new JLabel(type));
+			serviceDetailsBuilder.append("Description: ", new JLabel(
+					description));
+			serviceDetailsBuilder.append("Contact: ", new JLabel(contact));
+			serviceDetailsBuilder.append("Contact Number: ", new JLabel(
+					contactNumber));
+			serviceDetailsBuilder.append("Address: ", new JLabel(address));
+			serviceDetailsBuilder.nextLine();
+
+			serviceDetailsBuilderScrollPane.revalidate();
 		}
 
 	}
