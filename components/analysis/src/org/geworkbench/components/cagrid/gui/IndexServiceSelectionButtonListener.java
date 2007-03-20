@@ -36,6 +36,8 @@ public class IndexServiceSelectionButtonListener implements ActionListener {
 
 	private Map<String, EndpointReferenceType> seenServices = null;
 
+	private Map<String, EndpointReferenceType> seenServicesTwice = null;
+
 	/**
 	 * 
 	 * 
@@ -43,6 +45,8 @@ public class IndexServiceSelectionButtonListener implements ActionListener {
 	public IndexServiceSelectionButtonListener() {
 
 		seenServices = new HashMap<String, EndpointReferenceType>();
+
+		seenServicesTwice = new HashMap<String, EndpointReferenceType>();
 
 		serviceDetailsBuilder = new DefaultFormBuilder(new FormLayout(
 				"right:max(60dlu;pref), 3dlu, max(150dlu;pref), 7dlu", ""));
@@ -66,40 +70,44 @@ public class IndexServiceSelectionButtonListener implements ActionListener {
 
 		if (seenServices.containsKey(url)) {
 
-			// serviceDetailsBuilder.getPanel().removeAll();
+			if (!seenServicesTwice.containsKey(url)) {
 
-			EndpointReferenceType service = seenServices.get(url);
+				EndpointReferenceType service = seenServices.get(url);
 
-			ServiceMetadata commonMetadata;
-			try {
-				commonMetadata = MetadataUtils.getServiceMetadata(service);
-			} catch (Exception e1) {
-				throw new RuntimeException(e1);
+				seenServicesTwice.put(url, service);
+
+				ServiceMetadata commonMetadata;
+				try {
+					commonMetadata = MetadataUtils.getServiceMetadata(service);
+				} catch (Exception e1) {
+					throw new RuntimeException(e1);
+				}
+
+				String researchCenter = DiscoveryServiceUtil
+						.getResearchCenterName(commonMetadata);
+				String description = DiscoveryServiceUtil
+						.getDescription(commonMetadata);
+				String type = DiscoveryServiceUtil.getType(commonMetadata);
+				String contact = DiscoveryServiceUtil
+						.getContactName(commonMetadata);
+				String contactNumber = DiscoveryServiceUtil
+						.getContactNumber(commonMetadata);
+				String address = DiscoveryServiceUtil
+						.getAddress(commonMetadata);
+
+				serviceDetailsBuilder.append("Research Center Name: ",
+						new JLabel(researchCenter));
+				serviceDetailsBuilder.append("Type: ", new JLabel(type));
+				serviceDetailsBuilder.append("Description: ", new JLabel(
+						description));
+				serviceDetailsBuilder.append("Contact: ", new JLabel(contact));
+				serviceDetailsBuilder.append("Contact Number: ", new JLabel(
+						contactNumber));
+				serviceDetailsBuilder.append("Address: ", new JLabel(address));
+				serviceDetailsBuilder.nextLine();
+
+				serviceDetailsBuilderScrollPane.revalidate();
 			}
-
-			String researchCenter = DiscoveryServiceUtil
-					.getResearchCenterName(commonMetadata);
-			String description = DiscoveryServiceUtil
-					.getDescription(commonMetadata);
-			String type = DiscoveryServiceUtil.getType(commonMetadata);
-			String contact = DiscoveryServiceUtil
-					.getContactName(commonMetadata);
-			String contactNumber = DiscoveryServiceUtil
-					.getContactNumber(commonMetadata);
-			String address = DiscoveryServiceUtil.getAddress(commonMetadata);
-
-			serviceDetailsBuilder.append("Research Center Name: ", new JLabel(
-					researchCenter));
-			serviceDetailsBuilder.append("Type: ", new JLabel(type));
-			serviceDetailsBuilder.append("Description: ", new JLabel(
-					description));
-			serviceDetailsBuilder.append("Contact: ", new JLabel(contact));
-			serviceDetailsBuilder.append("Contact Number: ", new JLabel(
-					contactNumber));
-			serviceDetailsBuilder.append("Address: ", new JLabel(address));
-			serviceDetailsBuilder.nextLine();
-
-			serviceDetailsBuilderScrollPane.revalidate();
 		}
 
 	}
