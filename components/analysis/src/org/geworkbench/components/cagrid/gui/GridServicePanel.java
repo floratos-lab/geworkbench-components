@@ -5,9 +5,7 @@ import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
@@ -35,7 +33,7 @@ import gov.nih.nci.cagrid.metadata.ServiceMetadata;
 /**
  * 
  * @author keshav
- * @version $Id: GridServicePanel.java,v 1.13 2007-03-19 19:59:29 keshav Exp $
+ * @version $Id: GridServicePanel.java,v 1.14 2007-03-20 19:31:55 keshav Exp $
  */
 public class GridServicePanel extends JPanel {
 	private Log log = LogFactory.getLog(this.getClass());
@@ -136,24 +134,9 @@ public class GridServicePanel extends JPanel {
 				ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 
 		/* part C */
-		final Map<String, EndpointReferenceType> seenServices = new HashMap<String, EndpointReferenceType>();
-
-		final DefaultFormBuilder serviceDetailsBuilder = new DefaultFormBuilder(
-				new FormLayout(
-						"right:max(60dlu;pref), 3dlu, max(150dlu;pref), 7dlu",
-						""));
-		serviceDetailsBuilder.setBorder(BorderFactory
-				.createBevelBorder(BevelBorder.LOWERED));
-		serviceDetailsBuilder.appendSeparator("Service Details");
-		serviceDetailsBuilder.nextLine();
-
-		JScrollPane serviceDetailsBuilderScrollPane = new JScrollPane(
-				serviceDetailsBuilder.getPanel(),
-				ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS,
-				ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-		// end C
 
 		// TODO refactor me into a separate listener
+		final IndexServiceSelectionButtonListener indexServiceSelectionButtonListener = new IndexServiceSelectionButtonListener();
 		servicesButtonGroup = new ButtonGroup();
 		getServicesButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -183,58 +166,42 @@ public class GridServicePanel extends JPanel {
 								.getResearchCenterName(commonMetadata);
 						String description = DiscoveryServiceUtil
 								.getDescription(commonMetadata);
-						String type = DiscoveryServiceUtil
-								.getType(commonMetadata);
-						String contact = DiscoveryServiceUtil
-								.getContactName(commonMetadata);
-						String contactNumber = DiscoveryServiceUtil
-								.getContactNumber(commonMetadata);
-						String address = DiscoveryServiceUtil
-								.getAddress(commonMetadata);
 
 						JRadioButton button = new JRadioButton();
-
+						button
+								.addActionListener(indexServiceSelectionButtonListener);
 						button.setActionCommand(url);
-
 						servicesButtonGroup.add(button);
+						indexServiceSelectionButtonListener
+								.setServicesButtonGroup(servicesButtonGroup);
 
 						/* check if we've already seen this service */
-						if (!seenServices.containsKey(url)) {
-							seenServices.put(url, service);
+						if (!indexServiceSelectionButtonListener
+								.getSeenServices().containsKey(url)) {
+							indexServiceSelectionButtonListener
+									.getSeenServices().put(url, service);
+
 							urlServiceBuilder.append(button);
 							urlServiceBuilder.append(new JLabel(url));
 							urlServiceBuilder
 									.append(new JLabel(researchCenter));
 							urlServiceBuilder.append(new JLabel(description));
 							urlServiceBuilder.nextLine();
-
-							serviceDetailsBuilder.append(
-									"Research Center Name: ", new JLabel(
-											researchCenter));
-							serviceDetailsBuilder.append("Type: ", new JLabel(
-									type));
-							serviceDetailsBuilder.append("Description: ",
-									new JLabel(description));
-							serviceDetailsBuilder.append("Contact: ",
-									new JLabel(contact));
-							serviceDetailsBuilder.append("Contact Number: ",
-									new JLabel(contactNumber));
-							serviceDetailsBuilder.append("Address: ",
-									new JLabel(address));
-
 						}
 					}
 				}
 
 				urlServiceBuilder.getPanel().revalidate();
-				serviceDetailsBuilder.getPanel().revalidate();
+				indexServiceSelectionButtonListener.getServiceDetailsBuilder()
+						.getPanel().revalidate();
 			}
 		});
 
 		/* add A, B, and C to the main (this) */
 		this.add(indexServiceBuilder.getPanel(), BorderLayout.NORTH);
 		this.add(urlServiceBuilderScrollPane);
-		this.add(serviceDetailsBuilderScrollPane, BorderLayout.SOUTH);
+		this.add(indexServiceSelectionButtonListener
+				.getServiceDetailsBuilderScrollPane(), BorderLayout.SOUTH);
 	}
 
 	/**
