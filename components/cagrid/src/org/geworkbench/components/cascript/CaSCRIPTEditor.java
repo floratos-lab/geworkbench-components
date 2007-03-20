@@ -28,10 +28,13 @@ import org.geworkbench.util.PropertiesMonitor;
 import org.geworkbench.components.cagrid.CaGridPanel;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.axis.message.addressing.EndpointReferenceType;
 import com.ibm.wsdl.xml.WSDLReaderImpl;
 import com.ibm.wsdl.ServiceImpl;
 import com.ibm.wsdl.PortImpl;
 import com.ibm.wsdl.BindingOperationImpl;
+import gov.nih.nci.cagrid.metadata.ServiceMetadata;
+import gov.nih.nci.cagrid.discovery.MetadataUtils;
 
 /**
  * <p>Title: caSCRIPT Editor</p>
@@ -51,14 +54,16 @@ public class CaSCRIPTEditor implements VisualPlugin {
     static Log log = LogFactory.getLog(CaSCRIPTEditor.class);
 
     private HashMap<String, OperationInfo> paramModuleMap = new HashMap<String, OperationInfo>();
-    private OperationInfo hierClusterOperation = new OperationInfo(null, "execute", "{http://cagrid.geworkbench.columbia.edu/HierarchicalClustering}ExecuteResponse",
-            "{http://cagrid.geworkbench.columbia.edu/HierarchicalClustering}ExecuteRequest", "HierClusterModule",
+    private OperationInfo hierClusterOperation = new OperationInfo(null, "execute", "HierarchicalClustering:ExecuteResponse",
+            "HierarchicalClustering:ExecuteRequest", "HierClusterModule",
             "datatype DSHierClusterDataSet cluster = cagrid.doClustering(<DSMicroarraySet>, \"Average\", \"Both\", \"Euclidean\", <url>);\n"
             );
 
     {
         paramModuleMap.put(hierClusterOperation.getParameters(), hierClusterOperation);
     }
+
+    HashMap<String, String> urlToDescription = new HashMap<String, String>();
 
     //CDTIImport is for the datatype testing of CTRL Period
     CasDataTypeImport CDTI = new CasDataTypeImport();
@@ -96,7 +101,7 @@ public class CaSCRIPTEditor implements VisualPlugin {
     // Grid components
     private JScrollPane gridServiceScrollPane = new JScrollPane();
     private DefaultListModel gridServiceListModel = new DefaultListModel();
-    private JList gridServiceList = new JList(gridServiceListModel);
+    private JList gridServiceList;
     private JScrollPane gridMethodScrollPane = new JScrollPane();
     private GridMethodTableModel gridMethodModel = new GridMethodTableModel();
     private JTable gridMethodTable = new JTable(gridMethodModel);
@@ -241,6 +246,14 @@ public class CaSCRIPTEditor implements VisualPlugin {
         gridTableSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
         gridTableSplitPane.setDividerSize(3);
 
+        gridServiceList = new JList(gridServiceListModel) {
+            public String getToolTipText(MouseEvent evt) {
+                int index = locationToIndex(evt.getPoint());
+                Object item = getModel().getElementAt(index);
+                return urlToDescription.get(item.toString());
+            }
+        };
+        gridServiceScrollPane.setMinimumSize(new Dimension(100, 100));
         gridServiceScrollPane.getViewport().add(gridServiceList);
         gridTableSplitPane.add(gridServiceScrollPane, JSplitPane.TOP);
         gridMethodModel.setColumnIdentifiers(columnnames);
@@ -254,13 +267,26 @@ public class CaSCRIPTEditor implements VisualPlugin {
 
         gridDiscoverServicesButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent actionEvent) {
-                java.util.List<String> serviceURLs = CaGridPanel.getServiceURLs(gridDiscoverySericeField.getText(), gridPort);
-                gridServiceListModel.clear();
-                for (String url : serviceURLs) {
-                    log.debug("Added URL: " + url);
-                    gridServiceListModel.addElement(url);
+                try {
+                    java.util.List<String> serviceURLs = CaGridPanel.getServiceURLs(gridDiscoverySericeField.getText(), gridPort);
+                    EndpointReferenceType[] services = CaGridPanel.getServices(gridDiscoverySericeField.getText(), gridPort, null);
+                    gridServiceListModel.clear();
+                    urlToDescription.clear();
+                    int index = 0;
+                    for (String url : serviceURLs) {
+                        log.debug("Added URL: " + url);
+                        gridServiceListModel.addElement(url);
+                        ServiceMetadata commonMetadata = MetadataUtils .getServiceMetadata(services[index]);
+
+                        String desc = commonMetadata.getServiceDescription().getService().getDescription();
+                        log.debug("Adding description: " + desc);
+                        urlToDescription.put(url, desc);
+                    }
+                    gridServiceList.repaint();
+
+                } catch (Exception e) {
+                    e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
                 }
-                gridServiceList.repaint();
             }
         });
 
@@ -274,7 +300,7 @@ public class CaSCRIPTEditor implements VisualPlugin {
                         gridMethodModel.removeRow(0);
                     }
                     for (OperationInfo operation : operations) {
-                        gridMethodModel.addRow(new String[]{operation.getName(), operation.getParameters(), operation.getReturnType()});
+                        gridMethodModel.addRow(new String[]{operation.getName(), formatForDisplay(operation.getParameters()), formatForDisplay(operation.getReturnType())});
                     }
                     gridMethodModel.fireTableDataChanged();
                 } catch (WSDLException e) {
@@ -282,6 +308,7 @@ public class CaSCRIPTEditor implements VisualPlugin {
                 }
             }
         });
+
 
         gridMethodTable.addMouseListener(new MouseAdapter() {
             public void mouseClicked(MouseEvent e) {
@@ -299,6 +326,13 @@ public class CaSCRIPTEditor implements VisualPlugin {
             }
         }
         );
+    }
+
+    private String formatForDisplay(String gridObject) {
+        // Example: {http://cagrid.geworkbench.columbia.edu/HierarchicalClustering}ExecuteRequest
+        String domain = gridObject.substring(gridObject.lastIndexOf("/")+1, gridObject.lastIndexOf("}"));
+        String objectName = gridObject.substring(gridObject.lastIndexOf("}")+1);
+        return domain + ":" + objectName;
     }
 
     private List<OperationInfo> getValidOperations(String url) throws WSDLException {
