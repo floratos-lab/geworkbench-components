@@ -73,7 +73,7 @@ import com.jgoodies.forms.layout.FormLayout;
 /**
  * @author watkinson
  * @author keshav
- * @version $Id: CaGridPanel.java,v 1.29 2007-03-16 21:40:10 mhall Exp $
+ * @version $Id: CaGridPanel.java,v 1.30 2007-03-20 20:39:22 mhall Exp $
  */
 public class CaGridPanel extends JPanel implements VisualPlugin {
 
@@ -217,7 +217,7 @@ public class CaGridPanel extends JPanel implements VisualPlugin {
         }
     }
 
-    private static EndpointReferenceType[] getServices(String host, int port, String search) throws Exception {
+    public static EndpointReferenceType[] getServices(String host, int port, String search) throws Exception {
 		AnalyticalServiceDiscoveryClient client = new AnalyticalServiceDiscoveryClient(host, port);
 
 		EndpointReferenceType[] allServices = null;
