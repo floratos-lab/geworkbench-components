@@ -33,7 +33,7 @@ import gov.nih.nci.cagrid.metadata.ServiceMetadata;
 /**
  * 
  * @author keshav
- * @version $Id: GridServicePanel.java,v 1.16 2007-03-20 19:38:56 keshav Exp $
+ * @version $Id: GridServicePanel.java,v 1.17 2007-03-20 20:22:58 keshav Exp $
  */
 public class GridServicePanel extends JPanel {
 	private Log log = LogFactory.getLog(this.getClass());
@@ -199,6 +199,7 @@ public class GridServicePanel extends JPanel {
 		this.add(urlServiceBuilderScrollPane);
 		this.add(indexServiceSelectionButtonListener
 				.getServiceDetailsBuilderScrollPane(), BorderLayout.SOUTH);
+		this.revalidate();
 	}
 
 	/**
