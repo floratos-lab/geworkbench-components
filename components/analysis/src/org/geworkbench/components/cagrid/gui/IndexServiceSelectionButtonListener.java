@@ -70,6 +70,7 @@ public class IndexServiceSelectionButtonListener implements ActionListener {
 
 		if (seenServices.containsKey(url)) {
 
+			/* check if we've already seen this service elsewhere */
 			if (!seenServicesTwice.containsKey(url)) {
 
 				EndpointReferenceType service = seenServices.get(url);
