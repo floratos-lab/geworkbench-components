@@ -76,28 +76,32 @@ public abstract class GPTrainingPanel extends AbstractTrainingPanel
 
         resetGPConfigParameters();
 
-        protocol.setPreferredSize(new Dimension(170, 20));
-        protocol.setMinimumSize(new Dimension(170, 20));
-        protocol.setMaximumSize(new Dimension(170, 20));
+        protocol.setPreferredSize(new Dimension(145, 20));
+        protocol.setMinimumSize(new Dimension(145, 20));
+        protocol.setMaximumSize(new Dimension(145, 20));
         builder.append(new JLabel("Protocol"), protocol);
+        builder.append("Whether to connect using http or https protocol");
         builder.nextLine();
 
-        host.setPreferredSize(new Dimension(170, 20));
-        host.setMinimumSize(new Dimension(170, 20));
-        host.setMaximumSize(new Dimension(170, 20));
+        host.setPreferredSize(new Dimension(145, 20));
+        host.setMinimumSize(new Dimension(145, 20));
+        host.setMaximumSize(new Dimension(145, 20));
         builder.append(new JLabel("Host"), host);
+        builder.append("The name or ip address of the server");
         builder.nextLine();
 
-        port.setPreferredSize(new Dimension(170, 20));
-        port.setMinimumSize(new Dimension(170, 20));
-        port.setMaximumSize(new Dimension(170, 20));
+        port.setPreferredSize(new Dimension(145, 20));
+        port.setMinimumSize(new Dimension(145, 20));
+        port.setMaximumSize(new Dimension(145, 20));
         builder.append(new JLabel("Port"), port);
+        builder.append("The port specified for the server");
         builder.nextLine();
 
-        username.setPreferredSize(new Dimension(170, 20));
-        username.setMinimumSize(new Dimension(170, 20));
-        username.setMaximumSize(new Dimension(170, 20));
+        username.setPreferredSize(new Dimension(145, 20));
+        username.setMinimumSize(new Dimension(145, 20));
+        username.setMaximumSize(new Dimension(145, 20));
         builder.append(new JLabel("Username"), username);
+        builder.append("The login username");
         builder.nextLine();
 
         JButton saveButton = new JButton("Save");
@@ -108,8 +112,7 @@ public abstract class GPTrainingPanel extends AbstractTrainingPanel
                saveGPConfigActionPerformed(event);
             }
         });
-
-        builder.nextColumn();
+       
         builder.append(new JPanel(), saveButton);
 
         gpConfig.add(builder.getPanel());
@@ -179,6 +182,7 @@ public abstract class GPTrainingPanel extends AbstractTrainingPanel
             throw new InvalidInputException("Username must be provided");
         }
     }
+
     private void saveGPConfigActionPerformed(ActionEvent event)
     {
         if(event.getActionCommand().equalsIgnoreCase("Save"))
@@ -235,7 +239,7 @@ public abstract class GPTrainingPanel extends AbstractTrainingPanel
         viewPort.setPreferredSize(new Dimension(220, 150));
         viewPort.setMaximumSize(new Dimension(220, 150));
         viewPort.setView(paramDescTextPane);
-        paramDescPanel.setViewport(viewPort);
+        paramDescPanel.setViewport(viewPort);       
     }
 
     protected void initClassDescPanel()
