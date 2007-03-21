@@ -7,12 +7,12 @@ samples. No explicit model for the probability density of the classes is
 formed; each point is estimated locally from the surrounding points. Target
 classes for prediction (classes 0 and 1) can be defined based on a phenotype
 such as morphological class or treatment outcome. The class predictor is
-uniquely defined by the initial set of samples and marker genes. The k-nearest
-neighbor algorithm stores the training instances and uses a distance function
+uniquely defined by the initial set of samples and marker genes. The K-Nearest
+Neighbor algorithm stores the training instances and uses a distance function
 to determine which k members of the training set are closest to an unknown test
 instance. Once the k-nearest training instances have been found, their class
 assignments are used to predict the class for the test instance by a majority
-vote. Our implementation of the k-nearest neighbor algorithm allows the votes
+vote. Our implementation of the K-Nearest Neighbor algorithm allows the votes
 of the k neighbors to be un-weighted, weighted by the reciprocal of the rank of
 the neighbor's distance (e.g., the closest neighbor is given weight 1/1, next
 closest neighbor is given weight 1/2, etc.), or by the reciprocal of the
