@@ -403,6 +403,7 @@ public class SequenceDiscoveryViewWidget extends JPanel implements StatusChangeL
         }
 
         updateParameterPanel(p);
+        updateParameterPanel(p);
         changeAlgorithmSelection(algoPanelName);
         switchAlgo(algoPanelName, torun, id);
     }
@@ -615,8 +616,12 @@ public class SequenceDiscoveryViewWidget extends JPanel implements StatusChangeL
      * Exhaustive
      */
     public AbstractSequenceDiscoveryAlgorithm exhaustive_actionPerformed(DiscoverySession discoverySession) {
-        readParameter("Exhaustive");
-        return new ExhaustiveDiscovery(discoverySession, getParameters());
+        //readParameter("Exhaustive");
+         String resultStr = readParameterAndCreateResultfile("Exhaustive");
+         AbstractSequenceDiscoveryAlgorithm abstractSequenceDiscoveryAlgorithm =  new ExhaustiveDiscovery(discoverySession, getParameters());
+        abstractSequenceDiscoveryAlgorithm.setResultFile(new File(resultStr));
+        abstractSequenceDiscoveryAlgorithm.setSequenceInputData(this.getSequenceDB());
+        return abstractSequenceDiscoveryAlgorithm; 
     }
 
     /**

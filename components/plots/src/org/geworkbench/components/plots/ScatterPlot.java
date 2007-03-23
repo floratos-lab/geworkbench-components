@@ -1100,6 +1100,7 @@ public class ScatterPlot implements VisualPlugin {
 
         // Perform rank sorting if required
         int rank = 0;
+        /*
         Arrays.sort(xyValues, RankSorter.SORT_Y);
         for (int j = 1; j < xyValues.length; j++) {
             if (rankPlot) {
@@ -1108,6 +1109,7 @@ public class ScatterPlot implements VisualPlugin {
                 }
             }
         }
+        */
         Arrays.sort(xyValues, RankSorter.SORT_Y);
         for (int j = 0; j < xyValues.length; j++) {
             if (showAll || xyValues[j].isActive() || xyValues[j].isFiltered()) {
@@ -1117,6 +1119,7 @@ public class ScatterPlot implements VisualPlugin {
         double maxY = xyValues[xyValues.length - 1].y;
 
         rank = 0;
+        /*
         Arrays.sort(xyValues, RankSorter.SORT_X);
         for (int j = 1; j < xyValues.length; j++) {
             if (rankPlot) {
@@ -1125,6 +1128,8 @@ public class ScatterPlot implements VisualPlugin {
                 }
             }
         }
+        */
+        
         Arrays.sort(xyValues, org.geworkbench.util.pathwaydecoder.RankSorter.SORT_X);
         for (int j = 0; j < xyValues.length; j++) {
             if (showAll || xyValues[j].isActive() || xyValues[j].isFiltered()) {
@@ -1278,6 +1283,7 @@ public class ScatterPlot implements VisualPlugin {
 
         // Perform rank sorting if required
         int rank = 0;
+        /*
         Arrays.sort(xyValues, RankSorter.SORT_Y);
         for (int j = 1; j < xyValues.length; j++) {
             if (rankPlot) {
@@ -1286,6 +1292,7 @@ public class ScatterPlot implements VisualPlugin {
                 }
             }
         }
+        */
         Arrays.sort(xyValues, RankSorter.SORT_Y);
         for (int j = 0; j < xyValues.length; j++) {
             if (showAll || xyValues[j].isActive() || xyValues[j].isFiltered()) {
@@ -1295,6 +1302,7 @@ public class ScatterPlot implements VisualPlugin {
         double maxY = xyValues[xyValues.length - 1].y;
 
         rank = 0;
+        /*
         Arrays.sort(xyValues, RankSorter.SORT_X);
         for (int j = 1; j < xyValues.length; j++) {
             if (rankPlot) {
@@ -1303,6 +1311,7 @@ public class ScatterPlot implements VisualPlugin {
                 }
             }
         }
+        */
         Arrays.sort(xyValues, RankSorter.SORT_X);
         for (int j = 0; j < xyValues.length; j++) {
             if (showAll || xyValues[j].isActive() || xyValues[j].isFiltered()) {

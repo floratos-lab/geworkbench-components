@@ -206,8 +206,8 @@ public class SequenceFetcher {
                             String label = affyid + "_" + uniprotids[i];
                             String seqStr = "";
                             for (int count = 1; count < result.length; count++) {
-                                seqStr += result[count] + newline;
-
+                               // seqStr += result[count] + newline;
+                                      seqStr += result[count];//new line causes troubles when blastp directly. xz
                             }
                             sequence = new CSSequence(label, seqStr);
                             sequenceSet.addASequence(sequence);

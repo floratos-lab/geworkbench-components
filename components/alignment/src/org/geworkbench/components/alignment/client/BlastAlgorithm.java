@@ -200,19 +200,25 @@ public class BlastAlgorithm extends BWAbstractAlgorithm implements SoapClientIn 
 
                 }
                 updateStatus(false, "NCBI Blast is finisheded at " + new Date());
-
+                String outputFilePath = "file://" + new File(outputFile).getAbsolutePath();
                 if (parameterSetting.isViewInBrowser()) {
                     if ((new File(outputFile)).canRead()) {
                         try {
-                            BrowserLauncher.openURL(new File(outputFile).
-                                    getAbsolutePath());
+                            String osName = System.getProperty("os.name");
+                            if (osName.startsWith("Mac OS")) {
+                                BrowserLauncher.openURL(outputFilePath);
+                            } else {
+                                BrowserLauncher.openURL(new File(outputFile).
+                                        getAbsolutePath());
+                            }
                         } catch (Exception ex) {
-
-                            JOptionPane.showMessageDialog(null, "No web browser can be launched, the result is saved at " + outputFile, "No Web Browser",  JOptionPane.ERROR_MESSAGE);
+                            ex.printStackTrace();
+                            JOptionPane.showMessageDialog(null, "No web browser can be launched, the result is saved at " + outputFile, "No Web Browser", JOptionPane.ERROR_MESSAGE);
 
                         }
                     } else {
-                        JOptionPane.showMessageDialog(null,"The result cannot be read at " + outputFile,  "File cannot be read",  JOptionPane.ERROR_MESSAGE);
+
+                        JOptionPane.showMessageDialog(null, "The result cannot be read at " + outputFile, "File cannot be read", JOptionPane.ERROR_MESSAGE);
 
                     }
 
