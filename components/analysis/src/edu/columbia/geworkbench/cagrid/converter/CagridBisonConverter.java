@@ -448,32 +448,86 @@ public class CagridBisonConverter {
 		return dataSet;
 	}
 
+	// FIXME refactor this cagrid parameter handling from parameters panel
 	/**
 	 * 
 	 * @param bisonParams
 	 * @return HierarchicalClusteringParameter
 	 */
 	public HierarchicalClusteringParameter convertHierarchicalBisonToCagridParameter(
-			Map<String, String> bisonParams) {
+			Map<String, Object> bisonParams) {
 
 		HierarchicalClusteringParameter hierarchicalClusteringParameter = new HierarchicalClusteringParameter();
 
 		Set<String> keySet = bisonParams.keySet();
 		for (String param : keySet) {
-			if (StringUtils.equals(param, "Method")) {
+			if (StringUtils.equalsIgnoreCase(param, "Method")) {
 				hierarchicalClusteringParameter.setMethod(Method
-						.fromString(bisonParams.get(param)));
-			}
-
-			else if (StringUtils.equals(param, "Distance")) {
+						.fromString((String) bisonParams.get(param)));
+			} else if (StringUtils.equalsIgnoreCase(param, "Distance")) {
 				hierarchicalClusteringParameter.setDistance(Distance
-						.fromString(bisonParams.get(param)));
-			} else {
+						.fromString((String) bisonParams.get(param)));
+			} else if (StringUtils.equalsIgnoreCase(param, "Dimension")) {
 				hierarchicalClusteringParameter.setDim(Dim
-						.fromString(bisonParams.get(param)));
+						.fromString((String) bisonParams.get(param)));
+			} else {
+				log.equals("Skipping param " + param);
 			}
 		}
 
 		return hierarchicalClusteringParameter;
+	}
+
+	/**
+	 * 
+	 * @param bisonParameters
+	 * @return SomClusteringParameter
+	 */
+	public SomClusteringParameter convertSomBisonToCagridParameter(
+			Map<String, Object> bisonParameters) {
+
+		SomClusteringParameter somClusteringParameter = new SomClusteringParameter();
+
+		Set<String> keySet = bisonParameters.keySet();
+
+		for (String param : keySet) {
+			if (StringUtils.equalsIgnoreCase(param, "dimx")) {
+				somClusteringParameter.setDim_x((Integer) bisonParameters
+						.get(param));
+			}
+
+			else if (StringUtils.equalsIgnoreCase(param, "dimy")) {
+				somClusteringParameter.setDim_y((Integer) bisonParameters
+						.get(param));
+			}
+
+			else if (StringUtils.equalsIgnoreCase(param, "iterations")) {
+				somClusteringParameter.setIteration((Integer) bisonParameters
+						.get(param));
+			}
+
+			else if (StringUtils.equalsIgnoreCase(param, "radius")) {
+				somClusteringParameter.setRadius((Float) bisonParameters
+						.get(param));
+			}
+
+			else if (StringUtils.equalsIgnoreCase(param, "alpha")) {
+				somClusteringParameter.setAlpha((Float) bisonParameters
+						.get(param));
+			}
+
+			else if (StringUtils.equalsIgnoreCase(param, "function")) {
+
+				String func = (String) bisonParameters.get(param);
+				log.info(func);
+			}
+
+			else {
+				log.debug("Skipping param " + param);
+			}
+
+		}
+
+		return somClusteringParameter;
 	}
 }

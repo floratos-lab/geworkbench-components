@@ -80,15 +80,17 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 
 	private static final String GRID_ANALYSIS = "Grid Analysis";
 
-	private static final String STATML = "Statml";
-
-	private static final String MAGE = "Mage";
-
-	private static final String SOM_NAME = "Som";
-
 	private static final String HIERARCHICAL_NAME = "Hierarchical";
 
 	private static final String HIERARCHICAL_CLUSTERING_GRID = "Hierarchical Clustering (Grid)";
+
+	private static final String SOM_CLUSTERING_GRID = "Som Clustering (Grid)";
+
+	private static final String SOM_NAME = "Som";
+
+	private static final String STATML = "Statml";
+
+	private static final String MAGE = "Mage";
 
 	private static final String SERVICE = "Service";
 
@@ -723,7 +725,7 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 			} else {
 				log.info("Base service detected ... ");
 
-				Map<String, String> bisonParameters = ((AbstractGridAnalysis) selectedAnalysis)
+				Map<String, Object> bisonParameters = ((AbstractGridAnalysis) selectedAnalysis)
 						.getBisonParameters();
 				HierarchicalClusteringParameter parameters = cagridBisonConverter
 						.convertHierarchicalBisonToCagridParameter(bisonParameters);
@@ -760,16 +762,23 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 			} else if (url.contains(STATML)) {
 
 			} else {
-				GridSomClusteringDialog dialog = new GridSomClusteringDialog();
+				// GridSomClusteringDialog dialog = new
+				// GridSomClusteringDialog();
+				Map<String, Object> bisonParameters = ((AbstractGridAnalysis) selectedAnalysis)
+						.getBisonParameters();
 
-				SomClusteringParameter somClusteringParameters = dialog
-						.getParameters();
+				SomClusteringParameter somClusteringParameters = cagridBisonConverter
+						.convertSomBisonToCagridParameter(bisonParameters);
 
 				if (somClusteringParameters == null)
 					return;
 
 				SomCluster somCluster = null;
 				try {
+					pBar.setTitle(GRID_ANALYSIS);
+					pBar.setMessage("Running " + SOM_CLUSTERING_GRID);
+					pBar.start();
+					pBar.reset();
 					SomClusteringClient client = new SomClusteringClient(url);
 					somCluster = client.execute(gridSet,
 							somClusteringParameters);
@@ -783,7 +792,7 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 					CSSOMClusterDataSet dataSet = cagridBisonConverter
 							.createBisonSomClustering(somCluster, maSetView);
 					ProjectNodeAddedEvent event = new ProjectNodeAddedEvent(
-							"Som Clustering", null, dataSet);
+							SOM_CLUSTERING_GRID, null, dataSet);
 					publishProjectNodeAddedEvent(event);
 				}
 			}
