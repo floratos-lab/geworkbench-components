@@ -22,6 +22,8 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.analysis.AbstractAnalysis;
+import org.geworkbench.util.ProgressBar;
+import org.geworkbench.util.Util;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.layout.FormLayout;
@@ -33,7 +35,7 @@ import gov.nih.nci.cagrid.metadata.ServiceMetadata;
 /**
  * 
  * @author keshav
- * @version $Id: GridServicePanel.java,v 1.17 2007-03-20 20:22:58 keshav Exp $
+ * @version $Id: GridServicePanel.java,v 1.18 2007-03-27 21:09:53 keshav Exp $
  */
 public class GridServicePanel extends JPanel {
 	private Log log = LogFactory.getLog(this.getClass());
@@ -110,6 +112,95 @@ public class GridServicePanel extends JPanel {
 		indexServiceBuilder.append(getServicesButton);
 
 		/* part B */
+		final DefaultFormBuilder urlServiceBuilder = createUrlServiceBuilder();
+
+		JScrollPane urlServiceBuilderScrollPane = new JScrollPane(
+				urlServiceBuilder.getPanel(),
+				ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS,
+				ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+
+		/* part C */
+		// TODO refactor me into a separate listener
+		final IndexServiceSelectionButtonListener indexServiceSelectionButtonListener = new IndexServiceSelectionButtonListener();
+		servicesButtonGroup = new ButtonGroup();
+		getServicesButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+
+				ProgressBar pBar = Util.createProgressBar("Grid Services");
+
+				pBar.start();
+				pBar.reset();
+				EndpointReferenceType[] services = DiscoveryServiceUtil
+						.getServices(indexServiceLabelListener.getHost(),
+								indexServiceLabelListener.getPort(),
+								selectedAnalysisType);
+
+				if (services == null) {
+					// TODO clear panel if populated
+				}
+
+				else {
+					for (EndpointReferenceType service : services) {
+
+						ServiceMetadata commonMetadata;
+						try {
+							commonMetadata = MetadataUtils
+									.getServiceMetadata(service);
+
+							String url = DiscoveryServiceUtil.getUrl(service);
+							String researchCenter = DiscoveryServiceUtil
+									.getResearchCenterName(commonMetadata);
+							String description = DiscoveryServiceUtil
+									.getDescription(commonMetadata);
+
+							JRadioButton button = new JRadioButton();
+							button
+									.addActionListener(indexServiceSelectionButtonListener);
+							button.setActionCommand(url);
+							servicesButtonGroup.add(button);
+
+							/* check if we've already seen this service */
+							if (!indexServiceSelectionButtonListener
+									.getSeenServices().containsKey(url)) {
+								indexServiceSelectionButtonListener
+										.getSeenServices().put(url, service);
+
+								urlServiceBuilder.append(button);
+								urlServiceBuilder.append(new JLabel(url));
+								urlServiceBuilder.append(new JLabel(
+										researchCenter));
+								urlServiceBuilder
+										.append(new JLabel(description));
+								urlServiceBuilder.nextLine();
+							}
+
+						} catch (Exception e1) {
+							throw new RuntimeException(e1);
+						}
+					}
+				}
+
+				pBar.stop();
+
+				urlServiceBuilder.getPanel().revalidate();
+				indexServiceSelectionButtonListener.getServiceDetailsBuilder()
+						.getPanel().revalidate();
+			}
+		});
+
+		/* add A, B, and C to the main (this) */
+		this.add(indexServiceBuilder.getPanel(), BorderLayout.NORTH);
+		this.add(urlServiceBuilderScrollPane);
+		this.add(indexServiceSelectionButtonListener
+				.getServiceDetailsBuilderScrollPane(), BorderLayout.SOUTH);
+		this.revalidate();
+	}
+
+	/**
+	 * 
+	 * @return
+	 */
+	private DefaultFormBuilder createUrlServiceBuilder() {
 		final DefaultFormBuilder urlServiceBuilder = new DefaultFormBuilder(
 				new FormLayout(""));
 		urlServiceBuilder.setBorder(BorderFactory
@@ -127,79 +218,7 @@ public class GridServicePanel extends JPanel {
 		urlServiceBuilder.append("Grid Service URL");
 		urlServiceBuilder.append("Research Center Name");
 		urlServiceBuilder.append("Description");
-
-		JScrollPane urlServiceBuilderScrollPane = new JScrollPane(
-				urlServiceBuilder.getPanel(),
-				ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS,
-				ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-
-		/* part C */
-		// TODO refactor me into a separate listener
-		final IndexServiceSelectionButtonListener indexServiceSelectionButtonListener = new IndexServiceSelectionButtonListener();
-		servicesButtonGroup = new ButtonGroup();
-		getServicesButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-
-				EndpointReferenceType[] services = DiscoveryServiceUtil
-						.getServices(indexServiceLabelListener.getHost(),
-								indexServiceLabelListener.getPort(),
-								selectedAnalysisType);
-
-				if (services == null) {
-					// TODO clear panel if populated
-				}
-
-				else {
-					for (EndpointReferenceType service : services) {
-
-						ServiceMetadata commonMetadata;
-						try {
-							commonMetadata = MetadataUtils
-									.getServiceMetadata(service);
-						} catch (Exception e1) {
-							throw new RuntimeException(e1);
-						}
-
-						String url = DiscoveryServiceUtil.getUrl(service);
-						String researchCenter = DiscoveryServiceUtil
-								.getResearchCenterName(commonMetadata);
-						String description = DiscoveryServiceUtil
-								.getDescription(commonMetadata);
-
-						JRadioButton button = new JRadioButton();
-						button
-								.addActionListener(indexServiceSelectionButtonListener);
-						button.setActionCommand(url);
-						servicesButtonGroup.add(button);
-
-						/* check if we've already seen this service */
-						if (!indexServiceSelectionButtonListener
-								.getSeenServices().containsKey(url)) {
-							indexServiceSelectionButtonListener
-									.getSeenServices().put(url, service);
-
-							urlServiceBuilder.append(button);
-							urlServiceBuilder.append(new JLabel(url));
-							urlServiceBuilder
-									.append(new JLabel(researchCenter));
-							urlServiceBuilder.append(new JLabel(description));
-							urlServiceBuilder.nextLine();
-						}
-					}
-				}
-
-				urlServiceBuilder.getPanel().revalidate();
-				indexServiceSelectionButtonListener.getServiceDetailsBuilder()
-						.getPanel().revalidate();
-			}
-		});
-
-		/* add A, B, and C to the main (this) */
-		this.add(indexServiceBuilder.getPanel(), BorderLayout.NORTH);
-		this.add(urlServiceBuilderScrollPane);
-		this.add(indexServiceSelectionButtonListener
-				.getServiceDetailsBuilderScrollPane(), BorderLayout.SOUTH);
-		this.revalidate();
+		return urlServiceBuilder;
 	}
 
 	/**

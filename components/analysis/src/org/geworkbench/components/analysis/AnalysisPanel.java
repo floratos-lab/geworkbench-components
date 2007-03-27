@@ -712,9 +712,7 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 
 		log.info("running grid service");
 
-		final ProgressBar pBar = ProgressBar
-				.create(ProgressBar.INDETERMINATE_TYPE);
-		Util.centerWindow(pBar);
+		ProgressBar pBar = Util.createProgressBar(GRID_ANALYSIS);
 
 		if (url.contains(HIERARCHICAL_NAME)) {
 			log.info("Hierarchical Clustering service detected ... ");
@@ -732,7 +730,6 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 
 				HierarchicalCluster hierarchicalCluster;
 				try {
-					pBar.setTitle(GRID_ANALYSIS);
 					pBar.setMessage("Running " + HIERARCHICAL_CLUSTERING_GRID);
 					pBar.start();
 					pBar.reset();
@@ -775,7 +772,6 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 
 				SomCluster somCluster = null;
 				try {
-					pBar.setTitle(GRID_ANALYSIS);
 					pBar.setMessage("Running " + SOM_CLUSTERING_GRID);
 					pBar.start();
 					pBar.reset();
