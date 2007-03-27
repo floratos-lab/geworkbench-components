@@ -35,7 +35,7 @@ import gov.nih.nci.cagrid.metadata.ServiceMetadata;
 /**
  * 
  * @author keshav
- * @version $Id: GridServicePanel.java,v 1.18 2007-03-27 21:09:53 keshav Exp $
+ * @version $Id: GridServicePanel.java,v 1.19 2007-03-27 21:21:47 keshav Exp $
  */
 public class GridServicePanel extends JPanel {
 	private Log log = LogFactory.getLog(this.getClass());
@@ -126,66 +126,80 @@ public class GridServicePanel extends JPanel {
 		getServicesButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 
-				ProgressBar pBar = Util.createProgressBar("Grid Services");
+				Thread t = new Thread(new Runnable() {
+					public void run() {
+						ProgressBar pBar = Util.createProgressBar(
+								"Grid Services", "Retrieving Services");
 
-				pBar.start();
-				pBar.reset();
-				EndpointReferenceType[] services = DiscoveryServiceUtil
-						.getServices(indexServiceLabelListener.getHost(),
-								indexServiceLabelListener.getPort(),
-								selectedAnalysisType);
+						pBar.start();
+						pBar.reset();
+						EndpointReferenceType[] services = DiscoveryServiceUtil
+								.getServices(indexServiceLabelListener
+										.getHost(), indexServiceLabelListener
+										.getPort(), selectedAnalysisType);
 
-				if (services == null) {
-					// TODO clear panel if populated
-				}
-
-				else {
-					for (EndpointReferenceType service : services) {
-
-						ServiceMetadata commonMetadata;
-						try {
-							commonMetadata = MetadataUtils
-									.getServiceMetadata(service);
-
-							String url = DiscoveryServiceUtil.getUrl(service);
-							String researchCenter = DiscoveryServiceUtil
-									.getResearchCenterName(commonMetadata);
-							String description = DiscoveryServiceUtil
-									.getDescription(commonMetadata);
-
-							JRadioButton button = new JRadioButton();
-							button
-									.addActionListener(indexServiceSelectionButtonListener);
-							button.setActionCommand(url);
-							servicesButtonGroup.add(button);
-
-							/* check if we've already seen this service */
-							if (!indexServiceSelectionButtonListener
-									.getSeenServices().containsKey(url)) {
-								indexServiceSelectionButtonListener
-										.getSeenServices().put(url, service);
-
-								urlServiceBuilder.append(button);
-								urlServiceBuilder.append(new JLabel(url));
-								urlServiceBuilder.append(new JLabel(
-										researchCenter));
-								urlServiceBuilder
-										.append(new JLabel(description));
-								urlServiceBuilder.nextLine();
-							}
-
-						} catch (Exception e1) {
-							throw new RuntimeException(e1);
+						if (services == null) {
+							// TODO clear panel if populated
 						}
+
+						else {
+							for (EndpointReferenceType service : services) {
+
+								ServiceMetadata commonMetadata;
+								try {
+									commonMetadata = MetadataUtils
+											.getServiceMetadata(service);
+
+									String url = DiscoveryServiceUtil
+											.getUrl(service);
+									String researchCenter = DiscoveryServiceUtil
+											.getResearchCenterName(commonMetadata);
+									String description = DiscoveryServiceUtil
+											.getDescription(commonMetadata);
+
+									JRadioButton button = new JRadioButton();
+									button
+											.addActionListener(indexServiceSelectionButtonListener);
+									button.setActionCommand(url);
+									servicesButtonGroup.add(button);
+
+									/* check if we've already seen this service */
+									if (!indexServiceSelectionButtonListener
+											.getSeenServices().containsKey(url)) {
+										indexServiceSelectionButtonListener
+												.getSeenServices().put(url,
+														service);
+
+										urlServiceBuilder.append(button);
+										urlServiceBuilder
+												.append(new JLabel(url));
+										urlServiceBuilder.append(new JLabel(
+												researchCenter));
+										urlServiceBuilder.append(new JLabel(
+												description));
+										urlServiceBuilder.nextLine();
+									}
+
+								} catch (Exception e1) {
+									throw new RuntimeException(e1);
+								}
+							}
+						}
+
+						pBar.stop();
+
+						urlServiceBuilder.getPanel().revalidate();
+						indexServiceSelectionButtonListener
+								.getServiceDetailsBuilder().getPanel()
+								.revalidate();
+
 					}
-				}
+				});
+				t.setPriority(Thread.MIN_PRIORITY);
+				t.start();
 
-				pBar.stop();
-
-				urlServiceBuilder.getPanel().revalidate();
-				indexServiceSelectionButtonListener.getServiceDetailsBuilder()
-						.getPanel().revalidate();
 			}
+
 		});
 
 		/* add A, B, and C to the main (this) */
