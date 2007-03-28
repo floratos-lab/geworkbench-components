@@ -93,9 +93,9 @@ public class KNNTrainingPanel extends GPTrainingPanel
         });
 
         numFeatures = new JFormattedTextField();
-        numFeatures.setPreferredSize(new Dimension(150, 20));
-        numFeatures.setMinimumSize(new Dimension(150, 20));
-        numFeatures.setMaximumSize(new Dimension(150, 20));
+        numFeatures.setPreferredSize(new Dimension(145, 20));
+        numFeatures.setMinimumSize(new Dimension(145, 20));
+        numFeatures.setMaximumSize(new Dimension(145, 20));
         numFeatures.setValue(DEFAULT_NUM_FEATURES);
 
         featureFileMethod = new JRadioButton();
@@ -118,9 +118,9 @@ public class KNNTrainingPanel extends GPTrainingPanel
         });
 
         featureFileTextBox = new JTextField();
-        featureFileTextBox.setPreferredSize(new Dimension(150, 20));
-        featureFileTextBox.setMinimumSize(new Dimension(150, 20));
-        featureFileTextBox.setMaximumSize(new Dimension(150, 20));
+        featureFileTextBox.setPreferredSize(new Dimension(145, 20));
+        featureFileTextBox.setMinimumSize(new Dimension(145, 20));
+        featureFileTextBox.setMaximumSize(new Dimension(145, 20));
         featureFileTextBox.setEnabled(false);
         loadFeatureFileButton = new JButton("Load");
         loadFeatureFileButton.setEnabled(false);
@@ -137,9 +137,9 @@ public class KNNTrainingPanel extends GPTrainingPanel
         group.add(featureFileMethod);
 
         statistic = new JComboBox();
-        statistic.setPreferredSize(new Dimension(150, 20));
-        statistic.setMinimumSize(new Dimension(150, 20));
-        statistic.setMaximumSize(new Dimension(150, 20));
+        statistic.setPreferredSize(new Dimension(145, 20));
+        statistic.setMinimumSize(new Dimension(145, 20));
+        statistic.setMaximumSize(new Dimension(145, 20));
         statistic.addItem("SNR");
         statistic.addItem("T-Test");
 
@@ -160,26 +160,26 @@ public class KNNTrainingPanel extends GPTrainingPanel
         });
 
         minStdDev = new JFormattedTextField("");
-        minStdDev.setMaximumSize(new Dimension(150, 20));
-        minStdDev.setMinimumSize(new Dimension(150, 20));
-        minStdDev.setMaximumSize(new Dimension(150, 20));
+        minStdDev.setMaximumSize(new Dimension(145, 20));
+        minStdDev.setMinimumSize(new Dimension(145, 20));
+        minStdDev.setMaximumSize(new Dimension(145, 20));
         minStdDev.setEnabled(false);
 
         numNeighbors = new JFormattedTextField();
         numNeighbors.setValue(DEFAULT_NUM_NEIGHBORS);
 
         weightType = new JComboBox();
-        weightType.setMaximumSize(new Dimension(150, 20));
-        weightType.setMinimumSize(new Dimension(150, 20));
-        weightType.setMaximumSize(new Dimension(150, 20));
+        weightType.setMaximumSize(new Dimension(145, 20));
+        weightType.setMinimumSize(new Dimension(145, 20));
+        weightType.setMaximumSize(new Dimension(145, 20));
         weightType.addItem("none");
         weightType.addItem("one-over-k");
         weightType.addItem("distance");
      
         distanceMeasure = new JComboBox();
-        distanceMeasure.setMaximumSize(new Dimension(150, 20));
-        distanceMeasure.setMinimumSize(new Dimension(150, 20));
-        distanceMeasure.setMaximumSize(new Dimension(150, 20));
+        distanceMeasure.setMaximumSize(new Dimension(145, 20));
+        distanceMeasure.setMinimumSize(new Dimension(145, 20));
+        distanceMeasure.setMaximumSize(new Dimension(145, 20));
         distanceMeasure.addItem("Cosine");
         distanceMeasure.addItem("Euclidean");
     }
@@ -336,7 +336,8 @@ public class KNNTrainingPanel extends GPTrainingPanel
         }
     }
 
-    Object writeReplace() throws ObjectStreamException {
+    Object writeReplace() throws ObjectStreamException
+    {
         return new SerializedInstance(numFeatureMethod.isSelected(), getNumFeatures(),
                 getStatistic(), useMedian(), useMinStdDev(), getMinStdDev(),
                 useFeatureFileMethod(), featureFile, getNumNeighbors(), getWeightType(), getDistanceMeasure());
@@ -375,7 +376,8 @@ public class KNNTrainingPanel extends GPTrainingPanel
 
         Object readResolve() throws ObjectStreamException
         {
-            KNNTrainingPanel panel = new KNNTrainingPanel(null);
+            KNNTraining knnTraining = new KNNTraining();
+            KNNTrainingPanel panel = new KNNTrainingPanel(knnTraining);
             panel.numFeatureMethod.setSelected(numFeatureMethod);
             panel.numFeatures.setValue(numFeatures);
             panel.statistic.setSelectedItem(statistic);

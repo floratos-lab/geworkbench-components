@@ -84,9 +84,9 @@ public class WVTrainingPanel extends GPTrainingPanel {
         });
 
         numFeatures = new JFormattedTextField();
-        numFeatures.setPreferredSize(new Dimension(150, 20));
-        numFeatures.setMinimumSize(new Dimension(150, 20));
-        numFeatures.setMaximumSize(new Dimension(150, 20));
+        numFeatures.setPreferredSize(new Dimension(145, 20));
+        numFeatures.setMinimumSize(new Dimension(145, 20));
+        numFeatures.setMaximumSize(new Dimension(145, 20));
         numFeatures.setValue(DEFAULT_NUM_FEATURES);
 
         featureFileMethod = new JRadioButton();
@@ -109,9 +109,9 @@ public class WVTrainingPanel extends GPTrainingPanel {
         });
 
         featureFileTextBox = new JTextField();
-        featureFileTextBox.setPreferredSize(new Dimension(150, 20));
-        featureFileTextBox.setMinimumSize(new Dimension(150, 20));
-        featureFileTextBox.setMaximumSize(new Dimension(150, 20));
+        featureFileTextBox.setPreferredSize(new Dimension(145, 20));
+        featureFileTextBox.setMinimumSize(new Dimension(145, 20));
+        featureFileTextBox.setMaximumSize(new Dimension(145, 20));
         featureFileTextBox.setEnabled(false);
 
         loadFeatureFileButton = new JButton("Load");
@@ -130,9 +130,9 @@ public class WVTrainingPanel extends GPTrainingPanel {
 
         statistic = new JComboBox();
         statistic.setName("feature selection statistic");
-        statistic.setPreferredSize(new Dimension(150, 20));
-        statistic.setMinimumSize(new Dimension(150, 20));
-        statistic.setMaximumSize(new Dimension(150, 20));
+        statistic.setPreferredSize(new Dimension(145, 20));
+        statistic.setMinimumSize(new Dimension(145, 20));
+        statistic.setMaximumSize(new Dimension(145, 20));
         statistic.addItem("SNR");
         statistic.addItem("T-Test");
 
@@ -153,9 +153,9 @@ public class WVTrainingPanel extends GPTrainingPanel {
         });
 
         minStdDev = new JFormattedTextField("");
-        minStdDev.setMaximumSize(new Dimension(150, 20));
-        minStdDev.setMinimumSize(new Dimension(150, 20));
-        minStdDev.setMaximumSize(new Dimension(150, 20));
+        minStdDev.setMaximumSize(new Dimension(145, 20));
+        minStdDev.setMinimumSize(new Dimension(145, 20));
+        minStdDev.setMaximumSize(new Dimension(145, 20));
         minStdDev.setEnabled(false);
     }
 
@@ -288,7 +288,8 @@ public class WVTrainingPanel extends GPTrainingPanel {
         }
     }
 
-    Object writeReplace() throws ObjectStreamException {
+    Object writeReplace() throws ObjectStreamException
+    {
         return new SerializedInstance(numFeatureMethod.isSelected(), (Integer)numFeatures.getValue(), (String)statistic.getSelectedItem(), medianCheckbox.isSelected(),
                 minStdDevCheckbox.isSelected(), (String)minStdDev.getValue(), featureFileMethod.isSelected(), featureFile);
     }
@@ -319,7 +320,8 @@ public class WVTrainingPanel extends GPTrainingPanel {
 
         Object readResolve() throws ObjectStreamException
         {
-            WVTrainingPanel panel = new WVTrainingPanel(null);
+            WVTraining wvTraining = new WVTraining();
+            WVTrainingPanel panel = new WVTrainingPanel(wvTraining);
             panel.numFeatureMethod.setSelected(numFeatureMethod);
             panel.numFeatures.setValue(numFeatures);
             panel.statistic.setSelectedItem(statistic);
