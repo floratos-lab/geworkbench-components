@@ -12,24 +12,29 @@ import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMarkerValue;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.CSExpressionMarkerValue;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.markers.CSGeneMarker;
-import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
 import org.geworkbench.bison.model.analysis.ClusteringAnalysis;
 import org.geworkbench.engine.management.Publish;
-import org.geworkbench.util.pathwaydecoder.mutualinformation.MindyDataSet;
-import org.geworkbench.util.pathwaydecoder.mutualinformation.MindyData;
+import org.geworkbench.util.pathwaydecoder.mutualinformation.AdjacencyMatrix;
+import org.geworkbench.util.pathwaydecoder.mutualinformation.AdjacencyMatrixDataSet;
+import org.geworkbench.events.AdjacencyMatrixEvent;
+import org.geworkbench.events.ProjectNodeAddedEvent;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Collections;
 
 import wb.data.MicroarraySet;
 import wb.data.Microarray;
 import wb.data.MarkerSet;
 import wb.data.Marker;
+import wb.plugins.aracne.WeightedGraph;
+import wb.plugins.aracne.GraphEdge;
+import edu.columbia.c2b2.aracne.Parameter;
+import edu.columbia.c2b2.aracne.Aracne;
 
 /**
  * @author Matt Hall
@@ -57,29 +62,54 @@ public class AracneAnalysis extends AbstractAnalysis implements ClusteringAnalys
 
 //        MindyData loadedData = null;
 //        try {
-//            loadedData = MindyResultsParser.parseResults((CSMicroarraySet) mSet, new File(params.getCandidateModulatorsFile()));
+//            loadedData = MindyResultsParser.parseResults((CSMicroarraySet) mSet, new File(params.getHubMarkersFile()));
 //        } catch (IOException e) {
 //            log.error(e);
 //        }
 
-        ArrayList<Marker> modulators = new ArrayList<Marker>();
-        try {
-            File modulatorFile = new File(params.getCandidateModulatorsFile());
-            BufferedReader reader = new BufferedReader(new FileReader(modulatorFile));
-            String modulator = reader.readLine();
-            while (modulator != null) {
-                DSGeneMarker marker = mSet.getMarkers().get(modulator);
-                if (marker == null) {
-                    log.info("Couldn't find marker " + modulator + " from modulator file in microarray set.");
-                } else {
-                    modulators.add(new Marker(modulator));
-                }
-                modulator = reader.readLine();
-            }
-        } catch (IOException e) {
-            log.error(e);
-        }
+//        ArrayList<Marker> modulators = new ArrayList<Marker>();
+//        try {
+//            File modulatorFile = new File(params.getHubMarkersFile());
+//            BufferedReader reader = new BufferedReader(new FileReader(modulatorFile));
+//            String modulator = reader.readLine();
+//            while (modulator != null) {
+//                DSGeneMarker marker = mSet.getMarkers().get(modulator);
+//                if (marker == null) {
+//                    log.info("Couldn't find marker " + modulator + " from modulator file in microarray set.");
+//                } else {
+//                    modulators.add(new Marker(modulator));
+//                }
+//                modulator = reader.readLine();
+//            }
+//        } catch (IOException e) {
+//            log.error(e);
+//        }
 
+        Parameter p = new Parameter();
+        if (params.isHubListSpecified()) {
+            p.setHub(params.getHubGeneString());
+        }
+        if (params.isThresholdMI()) {
+            p.setThreshold(params.getThreshold());
+        } else {
+            p.setPvalue(params.getThreshold());
+        }
+        if (params.isKernelWidthSpecified()) {
+            p.setSigma(params.getKernelWidth());
+        }
+        if (params.isDPIToleranceSpecified()) {
+            p.setEps(params.getDPITolerance());
+        }
+        WeightedGraph weightedGraph = Aracne.run(convert(mSet), p);
+
+        AdjacencyMatrixDataSet dataSet = new AdjacencyMatrixDataSet(convert(weightedGraph, mSet), -1, 0, 1000, "Adjacency Matrix",
+                "ARACNE Set", mSet);
+        publishProjectNodeAddedEvent(new ProjectNodeAddedEvent("Adjacency Matrix Added", null, dataSet));
+
+//        publishAdjacencyMatrixEvent(new AdjacencyMatrixEvent(convert(weightedGraph, mSet), "ARACNE Set",
+//                -1, 2, 0.5f, AdjacencyMatrixEvent.Action.RECEIVE));
+        publishAdjacencyMatrixEvent(new AdjacencyMatrixEvent(convert(weightedGraph, mSet), "ARACNE Set",
+                -1, 2, 0.5f, AdjacencyMatrixEvent.Action.DRAW_NETWORK));
 /*
         Mindy mindy = new Mindy();
         DSGeneMarker transFac = mSet.getMarkers().get(params.getTranscriptionFactor());
@@ -100,7 +130,7 @@ public class AracneAnalysis extends AbstractAnalysis implements ClusteringAnalys
         MindyData loadedData = new MindyData((CSMicroarraySet) mSet, dataRows);
         log.info("Done converting MINDY results.");
 
-        MindyDataSet dataSet = new MindyDataSet(mSet, "MINDY Results", loadedData, params.getCandidateModulatorsFile());
+        MindyDataSet dataSet = new MindyDataSet(mSet, "MINDY Results", loadedData, params.getHubMarkersFile());
 */
         return new AlgorithmExecutionResults(true, "MINDY Results Loaded.", null);
 
@@ -145,8 +175,27 @@ public class AracneAnalysis extends AbstractAnalysis implements ClusteringAnalys
         return microarraySet;
     }
 
-    @Publish
-    public MindyDataSet publishMatrixReduceSet(MindyDataSet data) {
-        return data;
+    private AdjacencyMatrix convert(WeightedGraph graph, DSMicroarraySet<DSMicroarray> mSet) {
+        AdjacencyMatrix matrix = new AdjacencyMatrix();
+        matrix.setMicroarraySet(mSet);
+        for (String node : graph.getNodes()) {
+            DSGeneMarker marker = mSet.getMarkers().get(node);
+            matrix.addGeneRow(marker.getSerial());
+        }
+        for (GraphEdge graphEdge : graph.getEdges()) {
+            DSGeneMarker marker1 = mSet.getMarkers().get(graphEdge.getNode1());
+            DSGeneMarker marker2 = mSet.getMarkers().get(graphEdge.getNode2());
+            matrix.add(marker1.getSerial(), marker2.getSerial(), graphEdge.getWeight());
+        }
+        return matrix;
     }
+
+    @Publish public AdjacencyMatrixEvent publishAdjacencyMatrixEvent(AdjacencyMatrixEvent ae) {
+        return ae;
+    }
+
+    @Publish public ProjectNodeAddedEvent publishProjectNodeAddedEvent(ProjectNodeAddedEvent event) {
+        return event;
+    }
+
 }
