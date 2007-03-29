@@ -17,6 +17,7 @@ import org.geworkbench.bison.model.analysis.ClusteringAnalysis;
 import org.geworkbench.engine.management.Publish;
 import org.geworkbench.util.pathwaydecoder.mutualinformation.AdjacencyMatrix;
 import org.geworkbench.util.pathwaydecoder.mutualinformation.AdjacencyMatrixDataSet;
+import org.geworkbench.util.threading.SwingWorker;
 import org.geworkbench.events.AdjacencyMatrixEvent;
 import org.geworkbench.events.ProjectNodeAddedEvent;
 
@@ -58,7 +59,7 @@ public class AracneAnalysis extends AbstractAnalysis implements ClusteringAnalys
         log.debug("input: " + input);
         // Use this to get params
         AracneParamPanel params = (AracneParamPanel) aspp;
-        DSMicroarraySet<DSMicroarray> mSet = ((DSMicroarraySetView) input).getMicroarraySet();
+        final DSMicroarraySet<DSMicroarray> mSet = ((DSMicroarraySetView) input).getMicroarraySet();
 
 //        MindyData loadedData = null;
 //        try {
@@ -85,7 +86,7 @@ public class AracneAnalysis extends AbstractAnalysis implements ClusteringAnalys
 //            log.error(e);
 //        }
 
-        Parameter p = new Parameter();
+        final Parameter p = new Parameter();
         if (params.isHubListSpecified()) {
             p.setHub(params.getHubGeneString());
         }
@@ -100,16 +101,13 @@ public class AracneAnalysis extends AbstractAnalysis implements ClusteringAnalys
         if (params.isDPIToleranceSpecified()) {
             p.setEps(params.getDPITolerance());
         }
-        WeightedGraph weightedGraph = Aracne.run(convert(mSet), p);
 
-        AdjacencyMatrixDataSet dataSet = new AdjacencyMatrixDataSet(convert(weightedGraph, mSet), -1, 0, 1000, "Adjacency Matrix",
-                "ARACNE Set", mSet);
-        publishProjectNodeAddedEvent(new ProjectNodeAddedEvent("Adjacency Matrix Added", null, dataSet));
+        AracneWorker aracneWorker = new AracneWorker(mSet, p);
 
-//        publishAdjacencyMatrixEvent(new AdjacencyMatrixEvent(convert(weightedGraph, mSet), "ARACNE Set",
-//                -1, 2, 0.5f, AdjacencyMatrixEvent.Action.RECEIVE));
-        publishAdjacencyMatrixEvent(new AdjacencyMatrixEvent(convert(weightedGraph, mSet), "ARACNE Set",
-                -1, 2, 0.5f, AdjacencyMatrixEvent.Action.DRAW_NETWORK));
+        AracneProgress progress = new AracneProgress(aracneWorker);
+        aracneWorker.setProgressWindow(progress);
+        progress.setVisible(true);
+
 /*
         Mindy mindy = new Mindy();
         DSGeneMarker transFac = mSet.getMarkers().get(params.getTranscriptionFactor());
@@ -132,7 +130,7 @@ public class AracneAnalysis extends AbstractAnalysis implements ClusteringAnalys
 
         MindyDataSet dataSet = new MindyDataSet(mSet, "MINDY Results", loadedData, params.getHubMarkersFile());
 */
-        return new AlgorithmExecutionResults(true, "MINDY Results Loaded.", null);
+        return new AlgorithmExecutionResults(true, "ARACNE in progress.", null);
 
     }
 
@@ -190,12 +188,55 @@ public class AracneAnalysis extends AbstractAnalysis implements ClusteringAnalys
         return matrix;
     }
 
-    @Publish public AdjacencyMatrixEvent publishAdjacencyMatrixEvent(AdjacencyMatrixEvent ae) {
+    @Publish
+    public AdjacencyMatrixEvent publishAdjacencyMatrixEvent(AdjacencyMatrixEvent ae) {
         return ae;
     }
 
-    @Publish public ProjectNodeAddedEvent publishProjectNodeAddedEvent(ProjectNodeAddedEvent event) {
+    @Publish
+    public ProjectNodeAddedEvent publishProjectNodeAddedEvent(ProjectNodeAddedEvent event) {
         return event;
     }
 
+    class AracneWorker extends SwingWorker<WeightedGraph, Object> {
+        private WeightedGraph weightedGraph;
+        private AracneProgress progressWindow;
+        private DSMicroarraySet<DSMicroarray> mSet;
+        private Parameter p;
+
+        public AracneWorker(DSMicroarraySet<DSMicroarray> mSet, Parameter p) {
+            this.mSet = mSet;
+            this.p = p;
+        }
+
+        protected WeightedGraph doInBackground() throws Exception {
+            log.debug("Running ARACNE in worker thread.");
+            weightedGraph = Aracne.run(convert(mSet), p);
+            log.debug("Done running ARACNE in worker thread.");
+            return weightedGraph;
+        }
+
+        protected void done() {
+            if (!isCancelled()) {
+                AdjacencyMatrixDataSet dataSet = new AdjacencyMatrixDataSet(convert(weightedGraph, mSet), -1, 0, 1000,
+                        "Adjacency Matrix", "ARACNE Set", mSet);
+                publishProjectNodeAddedEvent(new ProjectNodeAddedEvent("Adjacency Matrix Added", null, dataSet));
+
+//        publishAdjacencyMatrixEvent(new AdjacencyMatrixEvent(convert(weightedGraph, mSet), "ARACNE Set",
+//                -1, 2, 0.5f, AdjacencyMatrixEvent.Action.RECEIVE));
+                publishAdjacencyMatrixEvent(new AdjacencyMatrixEvent(convert(weightedGraph, mSet), "ARACNE Set",
+                        -1, 2, 0.5f, AdjacencyMatrixEvent.Action.DRAW_NETWORK));
+            }
+
+            progressWindow.setVisible(false);
+        }
+
+        public AracneProgress getProgressWindow() {
+            return progressWindow;
+        }
+
+        public void setProgressWindow(AracneProgress progressWindow) {
+            this.progressWindow = progressWindow;
+        }
+    }
 }
