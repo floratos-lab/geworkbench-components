@@ -41,7 +41,7 @@ import edu.columbia.c2b2.aracne.Aracne;
  * @author Matt Hall
  */
 public class AracneAnalysis extends AbstractAnalysis implements ClusteringAnalysis {
-    Log log = LogFactory.getLog(this.getClass());
+    static Log log = LogFactory.getLog(AracneAnalysis.class);
 
     private static final String TEMP_DIR = "temporary.files.directory";
 
@@ -102,34 +102,13 @@ public class AracneAnalysis extends AbstractAnalysis implements ClusteringAnalys
             p.setEps(params.getDPITolerance());
         }
 
-        AracneWorker aracneWorker = new AracneWorker(mSet, p);
+//        AracneWorker aracneWorker = new AracneWorker(mSet, p);
+        AracneThread aracneThread = new AracneThread(mSet, p);
 
-        AracneProgress progress = new AracneProgress(aracneWorker);
-        aracneWorker.setProgressWindow(progress);
+        AracneProgress progress = new AracneProgress(aracneThread);
+        aracneThread.setProgressWindow(progress);
         progress.setVisible(true);
 
-/*
-        Mindy mindy = new Mindy();
-        DSGeneMarker transFac = mSet.getMarkers().get(params.getTranscriptionFactor());
-        log.info("Running MINDY analysis.");
-        MindyResults results = mindy.runMindy(convert(mSet), new Marker(params.getTranscriptionFactor()), modulators,
-                params.getSetFraction()/100f, params.getDPITolerance());
-        log.info("MINDY analysis complete.");
-        List<MindyData.MindyResultRow> dataRows = new ArrayList<MindyData.MindyResultRow>();
-        for (MindyResults.MindyResultForTarget result : results) {
-            DSItemList<DSGeneMarker> markers = mSet.getMarkers();
-            DSGeneMarker target = markers.get(result.getTarget().getName());
-            for (MindyResults.MindyResultForTarget.ModulatorSpecificResult specificResult : result) {
-                DSGeneMarker mod = markers.get(specificResult.getModulator().getName());
-                dataRows.add(new MindyData.MindyResultRow(mod, transFac, target, specificResult.getScore(), 0f));
-            }
-        }
-
-        MindyData loadedData = new MindyData((CSMicroarraySet) mSet, dataRows);
-        log.info("Done converting MINDY results.");
-
-        MindyDataSet dataSet = new MindyDataSet(mSet, "MINDY Results", loadedData, params.getHubMarkersFile());
-*/
         return new AlgorithmExecutionResults(true, "ARACNE in progress.", null);
 
     }
@@ -196,6 +175,44 @@ public class AracneAnalysis extends AbstractAnalysis implements ClusteringAnalys
     @Publish
     public ProjectNodeAddedEvent publishProjectNodeAddedEvent(ProjectNodeAddedEvent event) {
         return event;
+    }
+
+    class AracneThread extends Thread {
+        private WeightedGraph weightedGraph;
+        private AracneProgress progressWindow;
+        private DSMicroarraySet<DSMicroarray> mSet;
+        private Parameter p;
+
+        public AracneThread(DSMicroarraySet<DSMicroarray> mSet, Parameter p) {
+            this.mSet = mSet;
+            this.p = p;
+        }
+
+        public void run() {
+            log.debug("Running ARACNE in worker thread.");
+            weightedGraph = Aracne.run(convert(mSet), p);
+            log.debug("Done running ARACNE in worker thread.");
+
+            AdjacencyMatrixDataSet dataSet = new AdjacencyMatrixDataSet(convert(weightedGraph, mSet), -1, 0, 1000,
+                    "Adjacency Matrix", "ARACNE Set", mSet);
+            publishProjectNodeAddedEvent(new ProjectNodeAddedEvent("Adjacency Matrix Added", null, dataSet));
+
+//        publishAdjacencyMatrixEvent(new AdjacencyMatrixEvent(convert(weightedGraph, mSet), "ARACNE Set",
+//                -1, 2, 0.5f, AdjacencyMatrixEvent.Action.RECEIVE));
+            publishAdjacencyMatrixEvent(new AdjacencyMatrixEvent(convert(weightedGraph, mSet), "ARACNE Set",
+                    -1, 2, 0.5f, AdjacencyMatrixEvent.Action.DRAW_NETWORK));
+
+            progressWindow.setVisible(false);
+        }
+
+        public AracneProgress getProgressWindow() {
+            return progressWindow;
+        }
+
+        public void setProgressWindow(AracneProgress progressWindow) {
+            this.progressWindow = progressWindow;
+        }
+
     }
 
     class AracneWorker extends SwingWorker<WeightedGraph, Object> {
