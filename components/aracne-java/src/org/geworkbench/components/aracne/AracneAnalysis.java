@@ -27,6 +27,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Vector;
 
 import wb.data.MicroarraySet;
 import wb.data.Microarray;
@@ -36,6 +37,8 @@ import wb.plugins.aracne.WeightedGraph;
 import wb.plugins.aracne.GraphEdge;
 import edu.columbia.c2b2.aracne.Parameter;
 import edu.columbia.c2b2.aracne.Aracne;
+
+import javax.swing.*;
 
 /**
  * @author Matt Hall
@@ -88,7 +91,17 @@ public class AracneAnalysis extends AbstractAnalysis implements ClusteringAnalys
 
         final Parameter p = new Parameter();
         if (params.isHubListSpecified()) {
-            p.setHub(params.getHubGeneString());
+            if (params.getHubGeneList() == null || params.getHubGeneList().size() == 0) {
+                JOptionPane.showMessageDialog(null, "You did not load any genes as hub markers.");
+                return null;
+            }
+
+            ArrayList<String> hubGeneList = params.getHubGeneList();
+            for (String gene : hubGeneList) {
+                log.debug("Adding hub gene: " + gene);
+            }
+            p.setSubnet(new Vector<String>(hubGeneList));
+//            p.setHub(params.getHubGeneString());
         }
         if (params.isThresholdMI()) {
             p.setThreshold(params.getThreshold());
@@ -100,6 +113,13 @@ public class AracneAnalysis extends AbstractAnalysis implements ClusteringAnalys
         }
         if (params.isDPIToleranceSpecified()) {
             p.setEps(params.getDPITolerance());
+        }
+        if (params.isTargetListSpecified()) {
+            if (params.getTargetGenes() == null || params.getTargetGenes().size() == 0) {
+                JOptionPane.showMessageDialog(null, "You did not load any target genes.");
+                return null;
+            }
+            p.setTf_list(new Vector<String>(params.getTargetGenes()));
         }
 
 //        AracneWorker aracneWorker = new AracneWorker(mSet, p);
@@ -192,17 +212,22 @@ public class AracneAnalysis extends AbstractAnalysis implements ClusteringAnalys
             log.debug("Running ARACNE in worker thread.");
             weightedGraph = Aracne.run(convert(mSet), p);
             log.debug("Done running ARACNE in worker thread.");
+            progressWindow.setVisible(false);
 
-            AdjacencyMatrixDataSet dataSet = new AdjacencyMatrixDataSet(convert(weightedGraph, mSet), -1, 0, 1000,
-                    "Adjacency Matrix", "ARACNE Set", mSet);
-            publishProjectNodeAddedEvent(new ProjectNodeAddedEvent("Adjacency Matrix Added", null, dataSet));
+            if (weightedGraph.getEdges().size() > 0) {
+                AdjacencyMatrixDataSet dataSet = new AdjacencyMatrixDataSet(convert(weightedGraph, mSet), -1, 0, 1000,
+                        "Adjacency Matrix", "ARACNE Set", mSet);
+                publishProjectNodeAddedEvent(new ProjectNodeAddedEvent("Adjacency Matrix Added", null, dataSet));
 
 //        publishAdjacencyMatrixEvent(new AdjacencyMatrixEvent(convert(weightedGraph, mSet), "ARACNE Set",
 //                -1, 2, 0.5f, AdjacencyMatrixEvent.Action.RECEIVE));
-            publishAdjacencyMatrixEvent(new AdjacencyMatrixEvent(convert(weightedGraph, mSet), "ARACNE Set",
-                    -1, 2, 0.5f, AdjacencyMatrixEvent.Action.DRAW_NETWORK));
+                publishAdjacencyMatrixEvent(new AdjacencyMatrixEvent(convert(weightedGraph, mSet), "ARACNE Set",
+                        -1, 2, 0.5f, AdjacencyMatrixEvent.Action.DRAW_NETWORK));
+            } else {
+                JOptionPane.showMessageDialog(null, "The ARACNE run resulted in no adjacent genes, " +
+                        "consider relaxing your thresholds.");
+            }
 
-            progressWindow.setVisible(false);
         }
 
         public AracneProgress getProgressWindow() {
