@@ -15,10 +15,11 @@ import wb.plugins.aracne.WeightedGraph;
 public class AracneProgress extends JDialog {
 
     SwingWorker<WeightedGraph, Object> worker;
+    Thread aracneThread;
     private JButton cancelButton = new JButton("Cancel");
 
-    public AracneProgress(SwingWorker<WeightedGraph, Object> aracneWorker) throws HeadlessException {
-        worker = aracneWorker;
+    public AracneProgress(Thread thread) throws HeadlessException {
+        aracneThread = thread;
         setLayout(new BorderLayout());
         setTitle("ARACNE Process Running");
         setSize(300, 50);
@@ -30,11 +31,11 @@ public class AracneProgress extends JDialog {
 
         cancelButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent actionEvent) {
-                worker.cancel(true);
+                aracneThread.stop();
                 setVisible(false);
             }
         });
 
-        worker.execute();
+        aracneThread.start();
     }
 }
