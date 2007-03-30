@@ -1,7 +1,6 @@
 package org.geworkbench.components.aracne;
 
 import org.geworkbench.analysis.AbstractSaveableParameterPanel;
-import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -14,7 +13,6 @@ import java.util.ArrayList;
 
 import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.forms.builder.DefaultFormBuilder;
-import wb.data.Marker;
 
 /**
  * @author mhall
@@ -50,12 +48,7 @@ public class AracneParamPanel extends AbstractSaveableParameterPanel implements 
     private JTextField targetList = new JTextField();
     private JButton loadTargetsButton = new JButton("Load Targets");
 
-    private ArrayList<String> hubGenes = new ArrayList<String>();
-
-    {
-        // Default hub gene
-        hubGenes.add(DEFAULT_HUB);
-    }
+    private String targetListFile = new String("data/targets.txt");
 
     public AracneParamPanel() {
         this.setLayout(new BorderLayout());
@@ -68,7 +61,7 @@ public class AracneParamPanel extends AbstractSaveableParameterPanel implements 
         loadTargetsButton.setEnabled(false);
 
         FormLayout layout = new FormLayout(
-                "right:max(40dlu;pref), 3dlu, 60dlu, 3dlu, 50dlu, 3dlu, 40dlu, 7dlu",
+                "right:max(40dlu;pref), 3dlu, 60dlu, 3dlu, 90dlu, 3dlu, 40dlu, 7dlu",
                 "");
         DefaultFormBuilder builder = new DefaultFormBuilder(layout);
         builder.setDefaultDialogBorder();
@@ -141,7 +134,7 @@ public class AracneParamPanel extends AbstractSaveableParameterPanel implements 
 
         loadMarkersButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent actionEvent) {
-                hubGenes = new ArrayList<String>();
+//                hubGenes = new ArrayList<String>();
                 StringBuilder geneListBuilder = new StringBuilder();
                 try {
                     File hubFile = new File(hubMarkersFile);
@@ -151,12 +144,42 @@ public class AracneParamPanel extends AbstractSaveableParameterPanel implements 
 
                     BufferedReader reader = new BufferedReader(new FileReader(hubMarkersFile));
                     String hub = reader.readLine();
-                    while (hub != null) {
-                        hubGenes.add(hub);
-                        geneListBuilder.append(hub + ",");
+                    while (hub != null && !"".equals(hub)) {
+//                        hubGenes.add(hub);
+                        geneListBuilder.append(hub + ", ");
+                        hub = reader.readLine();
                     }
 
-                    hubMarkerList.setText(geneListBuilder.toString());
+                    String geneString = geneListBuilder.toString();
+                    hubMarkerList.setText(geneString.substring(0, geneString.length() - 2));
+
+                } catch (IOException e) {
+                    log.error(e);
+                }
+
+            }
+        });
+
+        loadTargetsButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent actionEvent) {
+//                targetGenes = new ArrayList<String>();
+                StringBuilder geneListBuilder = new StringBuilder();
+                try {
+                    File targetFile = new File(targetListFile);
+                    JFileChooser chooser = new JFileChooser(targetFile.getParent());
+                    chooser.showOpenDialog(AracneParamPanel.this);
+                    targetListFile = chooser.getSelectedFile().getPath();
+
+                    BufferedReader reader = new BufferedReader(new FileReader(targetListFile));
+                    String target = reader.readLine();
+                    while (target != null && !"".equals(target)) {
+//                        targetGenes.add(target);
+                        geneListBuilder.append(target + ", ");
+                        target = reader.readLine();
+                    }
+
+                    String geneString = geneListBuilder.toString();
+                    targetList.setText(geneString.substring(0, geneString.length() - 2));
 
                 } catch (IOException e) {
                     log.error(e);
@@ -213,8 +236,21 @@ public class AracneParamPanel extends AbstractSaveableParameterPanel implements 
         return Float.valueOf(dpiTolerance.getText());
     }
 
-    public java.util.List<String> getHubGeneList() {
-        return hubGenes;
+    public ArrayList<String> getHubGeneList() {
+        String geneString = hubMarkerList.getText();
+        ArrayList<String> geneList = breakStringIntoGenes(geneString);
+        return geneList;
+    }
+
+    private ArrayList<String> breakStringIntoGenes(String geneString) {
+        String[] genes = geneString.split(",");
+        ArrayList<String> geneList = new ArrayList<String>();
+        for (String gene : genes) {
+            if (gene != null && !"".equals(gene)) {
+                geneList.add(gene.trim());
+            }
+        }
+        return geneList;
     }
 
     public String getHubGeneString() {
@@ -223,6 +259,16 @@ public class AracneParamPanel extends AbstractSaveableParameterPanel implements 
 
     public boolean isTargetListSpecified() {
         return targetCheckbox.isSelected();
+    }
+
+    public ArrayList<String> getTargetGenes() {
+        String geneString = targetList.getText();
+        ArrayList<String> geneList = breakStringIntoGenes(geneString);
+        return geneList;
+    }
+
+    public String getTargetListFile() {
+        return targetListFile;
     }
 
 }
