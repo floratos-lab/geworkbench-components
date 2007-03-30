@@ -12,6 +12,7 @@ import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMarkerValue;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.CSExpressionMarkerValue;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.markers.CSGeneMarker;
+import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
 import org.geworkbench.bison.model.analysis.ClusteringAnalysis;
 import org.geworkbench.engine.management.Publish;
@@ -21,12 +22,7 @@ import org.geworkbench.util.threading.SwingWorker;
 import org.geworkbench.events.AdjacencyMatrixEvent;
 import org.geworkbench.events.ProjectNodeAddedEvent;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.BufferedReader;
-import java.io.FileReader;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Vector;
 
 import wb.data.MicroarraySet;
@@ -47,6 +43,7 @@ public class AracneAnalysis extends AbstractAnalysis implements ClusteringAnalys
     static Log log = LogFactory.getLog(AracneAnalysis.class);
 
     private static final String TEMP_DIR = "temporary.files.directory";
+    private DSMicroarraySetView<DSGeneMarker, DSMicroarray> mSetView;
 
     public AracneAnalysis() {
         setLabel("ARACNE");
@@ -62,11 +59,11 @@ public class AracneAnalysis extends AbstractAnalysis implements ClusteringAnalys
         log.debug("input: " + input);
         // Use this to get params
         AracneParamPanel params = (AracneParamPanel) aspp;
-        final DSMicroarraySet<DSMicroarray> mSet = ((DSMicroarraySetView) input).getMicroarraySet();
+        mSetView = (DSMicroarraySetView) input;
 
 //        MindyData loadedData = null;
 //        try {
-//            loadedData = MindyResultsParser.parseResults((CSMicroarraySet) mSet, new File(params.getHubMarkersFile()));
+//            loadedData = MindyResultsParser.parseResults((CSMicroarraySet) mSetView, new File(params.getHubMarkersFile()));
 //        } catch (IOException e) {
 //            log.error(e);
 //        }
@@ -77,7 +74,7 @@ public class AracneAnalysis extends AbstractAnalysis implements ClusteringAnalys
 //            BufferedReader reader = new BufferedReader(new FileReader(modulatorFile));
 //            String modulator = reader.readLine();
 //            while (modulator != null) {
-//                DSGeneMarker marker = mSet.getMarkers().get(modulator);
+//                DSGeneMarker marker = mSetView.getMarkers().get(modulator);
 //                if (marker == null) {
 //                    log.info("Couldn't find marker " + modulator + " from modulator file in microarray set.");
 //                } else {
@@ -122,8 +119,8 @@ public class AracneAnalysis extends AbstractAnalysis implements ClusteringAnalys
             p.setTf_list(new Vector<String>(params.getTargetGenes()));
         }
 
-//        AracneWorker aracneWorker = new AracneWorker(mSet, p);
-        AracneThread aracneThread = new AracneThread(mSet, p);
+//        AracneWorker aracneWorker = new AracneWorker(mSetView, p);
+        AracneThread aracneThread = new AracneThread(mSetView, p);
 
         AracneProgress progress = new AracneProgress(aracneThread);
         aracneThread.setProgressWindow(progress);
@@ -133,13 +130,14 @@ public class AracneAnalysis extends AbstractAnalysis implements ClusteringAnalys
 
     }
 
-    private MicroarraySet convert(DSMicroarraySet<DSMicroarray> inSet) {
+    private MicroarraySet convert(DSMicroarraySetView<DSGeneMarker, DSMicroarray> inSet) {
         MarkerSet markers = new MarkerSet();
-        for (DSGeneMarker marker : inSet.getMarkers()) {
+        for (DSGeneMarker marker : inSet.markers()) {
             markers.addMarker(new Marker(marker.getLabel()));
         }
         MicroarraySet returnSet = new MicroarraySet("Converted Set", "ID", "ChipType", markers);
-        for (DSMicroarray microarray : inSet) {
+        DSItemList<DSMicroarray> arrays = inSet.items();
+        for (DSMicroarray microarray : arrays) {
             returnSet.addMicroarray(new Microarray(microarray.getLabel(), microarray.getRawMarkerData()));
         }
         return returnSet;
@@ -200,28 +198,28 @@ public class AracneAnalysis extends AbstractAnalysis implements ClusteringAnalys
     class AracneThread extends Thread {
         private WeightedGraph weightedGraph;
         private AracneProgress progressWindow;
-        private DSMicroarraySet<DSMicroarray> mSet;
+        private DSMicroarraySetView<DSGeneMarker, DSMicroarray> mSetView;
         private Parameter p;
 
-        public AracneThread(DSMicroarraySet<DSMicroarray> mSet, Parameter p) {
-            this.mSet = mSet;
+        public AracneThread(DSMicroarraySetView<DSGeneMarker, DSMicroarray> mSet, Parameter p) {
+            this.mSetView = mSet;
             this.p = p;
         }
 
         public void run() {
             log.debug("Running ARACNE in worker thread.");
-            weightedGraph = Aracne.run(convert(mSet), p);
+            weightedGraph = Aracne.run(convert(mSetView), p);
             log.debug("Done running ARACNE in worker thread.");
             progressWindow.setVisible(false);
 
             if (weightedGraph.getEdges().size() > 0) {
-                AdjacencyMatrixDataSet dataSet = new AdjacencyMatrixDataSet(convert(weightedGraph, mSet), -1, 0, 1000,
-                        "Adjacency Matrix", "ARACNE Set", mSet);
+                AdjacencyMatrixDataSet dataSet = new AdjacencyMatrixDataSet(convert(weightedGraph, mSetView.getMicroarraySet()), -1, 0, 1000,
+                        "Adjacency Matrix", "ARACNE Set", mSetView.getMicroarraySet());
                 publishProjectNodeAddedEvent(new ProjectNodeAddedEvent("Adjacency Matrix Added", null, dataSet));
 
-//        publishAdjacencyMatrixEvent(new AdjacencyMatrixEvent(convert(weightedGraph, mSet), "ARACNE Set",
+//        publishAdjacencyMatrixEvent(new AdjacencyMatrixEvent(convert(weightedGraph, mSetView), "ARACNE Set",
 //                -1, 2, 0.5f, AdjacencyMatrixEvent.Action.RECEIVE));
-                publishAdjacencyMatrixEvent(new AdjacencyMatrixEvent(convert(weightedGraph, mSet), "ARACNE Set",
+                publishAdjacencyMatrixEvent(new AdjacencyMatrixEvent(convert(weightedGraph, mSetView.getMicroarraySet()), "ARACNE Set",
                         -1, 2, 0.5f, AdjacencyMatrixEvent.Action.DRAW_NETWORK));
             } else {
                 JOptionPane.showMessageDialog(null, "The ARACNE run resulted in no adjacent genes, " +
@@ -238,47 +236,5 @@ public class AracneAnalysis extends AbstractAnalysis implements ClusteringAnalys
             this.progressWindow = progressWindow;
         }
 
-    }
-
-    class AracneWorker extends SwingWorker<WeightedGraph, Object> {
-        private WeightedGraph weightedGraph;
-        private AracneProgress progressWindow;
-        private DSMicroarraySet<DSMicroarray> mSet;
-        private Parameter p;
-
-        public AracneWorker(DSMicroarraySet<DSMicroarray> mSet, Parameter p) {
-            this.mSet = mSet;
-            this.p = p;
-        }
-
-        protected WeightedGraph doInBackground() throws Exception {
-            log.debug("Running ARACNE in worker thread.");
-            weightedGraph = Aracne.run(convert(mSet), p);
-            log.debug("Done running ARACNE in worker thread.");
-            return weightedGraph;
-        }
-
-        protected void done() {
-            if (!isCancelled()) {
-                AdjacencyMatrixDataSet dataSet = new AdjacencyMatrixDataSet(convert(weightedGraph, mSet), -1, 0, 1000,
-                        "Adjacency Matrix", "ARACNE Set", mSet);
-                publishProjectNodeAddedEvent(new ProjectNodeAddedEvent("Adjacency Matrix Added", null, dataSet));
-
-//        publishAdjacencyMatrixEvent(new AdjacencyMatrixEvent(convert(weightedGraph, mSet), "ARACNE Set",
-//                -1, 2, 0.5f, AdjacencyMatrixEvent.Action.RECEIVE));
-                publishAdjacencyMatrixEvent(new AdjacencyMatrixEvent(convert(weightedGraph, mSet), "ARACNE Set",
-                        -1, 2, 0.5f, AdjacencyMatrixEvent.Action.DRAW_NETWORK));
-            }
-
-            progressWindow.setVisible(false);
-        }
-
-        public AracneProgress getProgressWindow() {
-            return progressWindow;
-        }
-
-        public void setProgressWindow(AracneProgress progressWindow) {
-            this.progressWindow = progressWindow;
-        }
     }
 }
