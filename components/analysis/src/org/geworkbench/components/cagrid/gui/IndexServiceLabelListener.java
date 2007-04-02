@@ -6,6 +6,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.io.File;
+import java.io.IOException;
 
 import javax.swing.JButton;
 import javax.swing.JDialog;
@@ -16,6 +18,8 @@ import javax.swing.JTextField;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.geworkbench.engine.preferences.PreferencesManager;
+import org.geworkbench.engine.properties.PropertiesManager;
 import org.geworkbench.util.Util;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
@@ -28,6 +32,10 @@ import com.jgoodies.forms.layout.FormLayout;
  *          Exp $
  */
 public class IndexServiceLabelListener implements MouseListener {
+	private static final String GRID_PORT_KEY = "gridPort";
+
+	private static final String GRID_HOST_KEY = "gridHost";
+
 	private Log log = LogFactory.getLog(this.getClass());
 
 	private int DEFAULT_PORT = 8080;
@@ -63,6 +71,9 @@ public class IndexServiceLabelListener implements MouseListener {
 		indexServiceDialog = new JDialog();
 		DefaultFormBuilder indexServicePanelBuilder = new DefaultFormBuilder(
 				new FormLayout("right:20dlu"));
+
+		readProperties();
+
 		final JTextField hostField = new JTextField(host);
 		final JTextField portField = new JTextField("" + port);
 
@@ -72,6 +83,8 @@ public class IndexServiceLabelListener implements MouseListener {
 			public void actionPerformed(ActionEvent e) {
 				port = Integer.parseInt(portField.getText());
 				host = hostField.getText();
+
+				saveProperties();
 
 				indexServiceDialog.dispose();
 
@@ -95,9 +108,6 @@ public class IndexServiceLabelListener implements MouseListener {
 
 		indexServicePanelBuilder.append("host", hostField);
 		indexServicePanelBuilder.append("port", portField);
-
-		if (!StringUtils.isEmpty(host))
-			hostField.setText(host);
 
 		JPanel indexServicePanel = new JPanel(new BorderLayout());
 		indexServicePanel.add(indexServicePanelBuilder.getPanel());
@@ -172,4 +182,43 @@ public class IndexServiceLabelListener implements MouseListener {
 		return indexServiceButton;
 	}
 
+	/**
+	 * 
+	 * 
+	 */
+	private void saveProperties() {
+
+		PropertiesManager properties = PropertiesManager.getInstance();
+		try {
+			properties.setProperty(this.getClass(), GRID_HOST_KEY, String
+					.valueOf(host));
+			properties.setProperty(this.getClass(), GRID_PORT_KEY, String
+					.valueOf(port));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	/**
+	 * 
+	 * 
+	 */
+	private void readProperties() {
+		PropertiesManager pm = PropertiesManager.getInstance();
+		String savedHost = null;
+		String savedPort = null;
+		try {
+			savedHost = pm.getProperty(this.getClass(), GRID_HOST_KEY, host);
+			if (!StringUtils.isEmpty(savedHost)) {
+				host = savedHost;
+			}
+			savedPort = pm.getProperty(this.getClass(), GRID_PORT_KEY, String
+					.valueOf(port));
+			if (!StringUtils.isEmpty(savedPort)) {
+				port = Integer.parseInt(savedPort);
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 }
