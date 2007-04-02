@@ -49,6 +49,7 @@ import org.geworkbench.events.ProjectNodeAddedEvent;
 import org.geworkbench.events.SubpanelChangedEvent;
 import org.geworkbench.util.ProgressBar;
 import org.geworkbench.util.Util;
+import org.geworkbench.util.pathwaydecoder.mutualinformation.AdjacencyMatrixDataSet;
 import org.geworkbench.util.microarrayutils.MicroarrayViewEventBase;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
@@ -74,7 +75,7 @@ import edu.columbia.geworkbench.cagrid.microarray.MicroarraySet;
  * Application component offering users a selection of microarray data
  * clustering options.
  */
-@AcceptTypes( { DSMicroarraySet.class })
+@AcceptTypes( { DSMicroarraySet.class, AdjacencyMatrixDataSet.class })
 public class AnalysisPanel extends MicroarrayViewEventBase implements
 		VisualPlugin {
 

@@ -24,6 +24,8 @@ import org.geworkbench.events.ProjectNodeAddedEvent;
 
 import java.util.ArrayList;
 import java.util.Vector;
+import java.util.HashMap;
+import java.util.Map;
 
 import wb.data.MicroarraySet;
 import wb.data.Microarray;
@@ -44,6 +46,7 @@ public class AracneAnalysis extends AbstractAnalysis implements ClusteringAnalys
 
     private static final String TEMP_DIR = "temporary.files.directory";
     private DSMicroarraySetView<DSGeneMarker, DSMicroarray> mSetView;
+    private AdjacencyMatrixDataSet adjMatrix;
 
     public AracneAnalysis() {
         setLabel("ARACNE");
@@ -59,7 +62,13 @@ public class AracneAnalysis extends AbstractAnalysis implements ClusteringAnalys
         log.debug("input: " + input);
         // Use this to get params
         AracneParamPanel params = (AracneParamPanel) aspp;
-        mSetView = (DSMicroarraySetView) input;
+        if (input instanceof DSMicroarraySetView) {
+            log.debug("Input dataset is microarray type.");
+            mSetView = (DSMicroarraySetView) input;
+        } else if (input instanceof AdjacencyMatrixDataSet) {
+            log.debug("Input dataset is adjacency matrix, will only perform DPI.");
+            adjMatrix = (AdjacencyMatrixDataSet) input;
+        }
 
 //        MindyData loadedData = null;
 //        try {
@@ -118,6 +127,9 @@ public class AracneAnalysis extends AbstractAnalysis implements ClusteringAnalys
             }
             p.setTf_list(new Vector<String>(params.getTargetGenes()));
         }
+        if (adjMatrix != null) {
+            p.setPrecomputedAdjacencies(convert(adjMatrix, mSetView));
+        }
 
 //        AracneWorker aracneWorker = new AracneWorker(mSetView, p);
         AracneThread aracneThread = new AracneThread(mSetView, p);
@@ -128,6 +140,30 @@ public class AracneAnalysis extends AbstractAnalysis implements ClusteringAnalys
 
         return new AlgorithmExecutionResults(true, "ARACNE in progress.", null);
 
+    }
+
+    private WeightedGraph convert(AdjacencyMatrixDataSet adjMatrix, DSMicroarraySetView<DSGeneMarker, DSMicroarray> mSet) {
+        WeightedGraph graph = new WeightedGraph(adjMatrix.getNetworkName());
+        AdjacencyMatrix matrix = adjMatrix.getMatrix();
+        HashMap<Integer, HashMap<Integer, Float>> geneRows = matrix.getGeneRows();
+        DSItemList<DSGeneMarker> markers = mSet.markers();
+        for (Map.Entry<Integer, HashMap<Integer, Float>> entry : geneRows.entrySet()) {
+            DSGeneMarker gene1 = markers.get(entry.getKey());
+            if (gene1 != null) {
+                HashMap<Integer, Float> destGenes = entry.getValue();
+                for (Map.Entry<Integer, Float> destEntry : destGenes.entrySet()) {
+                    DSGeneMarker destGene = markers.get(destEntry.getKey());
+                    if (destGene != null) {
+                        graph.addEdge(gene1.getShortName(), destGene.getShortName(), destEntry.getValue());
+                    } else {
+                        log.debug("Gene with index "+destEntry.getKey()+" not found in selected genes, skipping.");
+                    }
+                }
+            } else {
+                log.debug("Gene with index "+entry.getKey()+" not found in selected genes, skipping.");
+            }
+        }
+        return graph;
     }
 
     private MicroarraySet convert(DSMicroarraySetView<DSGeneMarker, DSMicroarray> inSet) {
@@ -208,6 +244,7 @@ public class AracneAnalysis extends AbstractAnalysis implements ClusteringAnalys
 
         public void run() {
             log.debug("Running ARACNE in worker thread.");
+            p.setSuppressFileWriting(true);
             weightedGraph = Aracne.run(convert(mSetView), p);
             log.debug("Done running ARACNE in worker thread.");
             progressWindow.setVisible(false);
