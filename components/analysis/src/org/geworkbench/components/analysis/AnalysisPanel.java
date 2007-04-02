@@ -88,6 +88,8 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 
 	private static final String SOM_NAME = "Som";
 
+	private static final String ARACNE_NAME = "Aracne";
+
 	private static final String STATML = "Statml";
 
 	private static final String MAGE = "Mage";
@@ -715,7 +717,7 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 		ProgressBar pBar = Util.createProgressBar(GRID_ANALYSIS);
 
 		if (url.contains(HIERARCHICAL_NAME)) {
-			log.info("Hierarchical Clustering service detected ... ");
+			log.info("Hierarchical Clustering grid service detected ... ");
 			if (url.contains(MAGE)) {
 				log.info("Mage service detected ...");
 			} else if (url.contains(STATML)) {
@@ -793,6 +795,17 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 				}
 			}
 
+		}
+
+		else if (url.contains(ARACNE_NAME)) {
+			log.info("Aracne grid service detected ...");
+			if (url.contains(MAGE)) {
+
+			} else if (url.contains(STATML)) {
+
+			} else {
+
+			}
 		}
 
 		else {
