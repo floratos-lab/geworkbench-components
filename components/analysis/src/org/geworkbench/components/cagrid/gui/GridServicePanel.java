@@ -26,7 +26,7 @@ import com.jgoodies.forms.layout.FormLayout;
 /**
  * 
  * @author keshav
- * @version $Id: GridServicePanel.java,v 1.21 2007-04-03 02:47:58 keshav Exp $
+ * @version $Id: GridServicePanel.java,v 1.22 2007-04-03 05:26:57 keshav Exp $
  */
 public class GridServicePanel extends JPanel {
 	private Log log = LogFactory.getLog(this.getClass());
@@ -69,12 +69,11 @@ public class GridServicePanel extends JPanel {
 		indexServiceBuilder.appendColumn("right:pref");
 		indexServiceBuilder.appendColumn("10dlu");
 
-		// TODO move this
 		String localButtonString = "Local";
 		JRadioButton localButton = new JRadioButton(localButtonString);
 		localButton.setSelected(true);
 		localButton.setActionCommand(localButtonString);
-		// TODO move this
+
 		String gridButtonString = "Grid";
 		JRadioButton gridButton = new JRadioButton(gridButtonString);
 		gridButton.setSelected(false);
