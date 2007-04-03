@@ -26,7 +26,7 @@ import gov.nih.nci.cagrid.metadata.service.ServiceServiceContextCollection;
 /**
  * 
  * @author keshav
- * @version $Id: DiscoveryServiceUtil.java,v 1.2 2007-03-19 19:59:10 keshav Exp $
+ * @version $Id: DiscoveryServiceUtil.java,v 1.3 2007-04-03 05:04:57 keshav Exp $
  */
 public class DiscoveryServiceUtil {
 	private static final String NOT_AVAILABLE = "unavailable";
@@ -36,26 +36,27 @@ public class DiscoveryServiceUtil {
 	/**
 	 * Retrieves all services at indexServiceUrl
 	 * 
-	 * @param indexServiceUrl
+	 * @param indexServiceHost
+	 * @param indexServicePort
+	 * @param search
+	 * @return
+	 * @throws Exception
 	 */
 	public static EndpointReferenceType[] getServices(String indexServiceHost,
-			int indexServicePort, String search) {
+			int indexServicePort, String search) throws Exception {
 
 		EndpointReferenceType[] allServices = null;
-		try {
-			AnalyticalServiceDiscoveryClient client = new AnalyticalServiceDiscoveryClient(
-					indexServiceHost, indexServicePort);
 
-			if (StringUtils.isEmpty(search)) {
-				allServices = client.getAllServices();
-			} else {
-				allServices = client.discoverServicesBySearchString(search);
-			}
-			if (log.isInfoEnabled())
-				displayMetadata(allServices);
-		} catch (Exception e) {
-			throw new RuntimeException(e);
+		AnalyticalServiceDiscoveryClient client = new AnalyticalServiceDiscoveryClient(
+				indexServiceHost, indexServicePort);
+
+		if (StringUtils.isEmpty(search)) {
+			allServices = client.getAllServices();
+		} else {
+			allServices = client.discoverServicesBySearchString(search);
 		}
+		if (log.isInfoEnabled())
+			displayMetadata(allServices);
 
 		return allServices;
 	}
