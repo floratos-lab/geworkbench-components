@@ -162,6 +162,7 @@ public class IndexServiceLabelListener implements MouseListener {
 	 * @return String
 	 */
 	public String getHost() {
+		readProperties();
 		return host;
 	}
 
@@ -170,6 +171,7 @@ public class IndexServiceLabelListener implements MouseListener {
 	 * @return int
 	 */
 	public int getPort() {
+		readProperties();
 		return port;
 	}
 
