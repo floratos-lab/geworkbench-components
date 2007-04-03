@@ -45,6 +45,7 @@ public class GridServicesButtonListener implements ActionListener {
 		this.indexServiceSelectionButtonListener = indexServiceSelectionButtonListener;
 		this.indexServiceLabelListener = indexServiceLabelListener;
 		this.urlServiceBuilder = urlServiceBuilder;
+		this.servicesButtonGroup = new ButtonGroup();
 	}
 
 	public void actionPerformed(ActionEvent e) {
@@ -66,7 +67,6 @@ public class GridServicesButtonListener implements ActionListener {
 				}
 
 				else {
-					servicesButtonGroup = new ButtonGroup();
 					for (EndpointReferenceType service : services) {
 
 						ServiceMetadata commonMetadata;
