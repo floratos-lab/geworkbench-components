@@ -26,7 +26,7 @@ import com.jgoodies.forms.layout.FormLayout;
 /**
  * 
  * @author keshav
- * @version $Id: GridServicePanel.java,v 1.20 2007-04-03 02:39:59 keshav Exp $
+ * @version $Id: GridServicePanel.java,v 1.21 2007-04-03 02:47:58 keshav Exp $
  */
 public class GridServicePanel extends JPanel {
 	private Log log = LogFactory.getLog(this.getClass());
@@ -87,15 +87,17 @@ public class GridServicePanel extends JPanel {
 		indexServiceBuilder.append(localButton);
 		indexServiceBuilder.append(gridButton);
 
+		// index service label
 		JLabel indexServiceLabel = new JLabel("Change Index Service");
-
 		indexServiceLabel.setForeground(Color.BLUE);
 
+		// index service label listener
 		final IndexServiceLabelListener indexServiceLabelListener = new IndexServiceLabelListener(
 				indexServiceLabel);
 		indexServiceLabel.addMouseListener(indexServiceLabelListener);
 		indexServiceBuilder.append(indexServiceLabel);
 
+		// grid services button
 		JButton getServicesButton = indexServiceLabelListener
 				.getIndexServiceButton();
 		indexServiceBuilder.append(getServicesButton);
@@ -113,7 +115,7 @@ public class GridServicePanel extends JPanel {
 
 		gridServicesButtonListener = new GridServicesButtonListener(
 				indexServiceSelectionButtonListener, indexServiceLabelListener,
-				urlServiceBuilder, urlServiceBuilderScrollPane);
+				urlServiceBuilder);
 		getServicesButton.addActionListener(gridServicesButtonListener);
 
 		/* add A, B, and C to the main (this) */
