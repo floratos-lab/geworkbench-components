@@ -5,8 +5,8 @@ import java.awt.event.ActionListener;
 
 import javax.swing.ButtonGroup;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JRadioButton;
-import javax.swing.JScrollPane;
 
 import org.apache.axis.message.addressing.EndpointReferenceType;
 import org.geworkbench.util.ProgressBar;
@@ -57,10 +57,22 @@ public class GridServicesButtonListener implements ActionListener {
 
 				pBar.start();
 				pBar.reset();
-				EndpointReferenceType[] services = DiscoveryServiceUtil
-						.getServices(indexServiceLabelListener.getHost(),
-								indexServiceLabelListener.getPort(),
-								selectedAnalysisType);
+
+				String host = indexServiceLabelListener.getHost();
+				int port = indexServiceLabelListener.getPort();
+				EndpointReferenceType[] services = null;
+				try {
+					services = DiscoveryServiceUtil.getServices(host, port,
+							selectedAnalysisType);
+				} catch (Exception e) {
+					// JDialog jdialog = new ErrorDialog("");
+					// jdialog.setVisible(true);
+					// Util.centerWindow(jdialog);
+					JOptionPane.showMessageDialog(null, "Cannot reach host "
+							+ host + ":" + port, "Error",
+							JOptionPane.ERROR_MESSAGE);
+					e.printStackTrace();
+				}
 
 				if (services == null) {
 					// TODO clear panel if populated
