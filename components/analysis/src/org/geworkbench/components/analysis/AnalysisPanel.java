@@ -39,7 +39,6 @@ import org.geworkbench.bison.model.analysis.ParamValidationResults;
 import org.geworkbench.bison.model.analysis.ParameterPanel;
 import org.geworkbench.bison.model.clusters.CSHierClusterDataSet;
 import org.geworkbench.bison.model.clusters.CSSOMClusterDataSet;
-import org.geworkbench.components.cagrid.GridSomClusteringDialog;
 import org.geworkbench.components.cagrid.gui.GridServicePanel;
 import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.engine.management.AcceptTypes;
@@ -49,8 +48,8 @@ import org.geworkbench.events.ProjectNodeAddedEvent;
 import org.geworkbench.events.SubpanelChangedEvent;
 import org.geworkbench.util.ProgressBar;
 import org.geworkbench.util.Util;
-import org.geworkbench.util.pathwaydecoder.mutualinformation.AdjacencyMatrixDataSet;
 import org.geworkbench.util.microarrayutils.MicroarrayViewEventBase;
+import org.geworkbench.util.pathwaydecoder.mutualinformation.AdjacencyMatrixDataSet;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.layout.FormLayout;
@@ -373,7 +372,6 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 		// keshav
 		jAnalysisTabbedPane = new JTabbedPane();
 		jParameterPanel.setName(PARAMETERS);
-		jGridServicePanel = new GridServicePanel(SERVICE);
 		jAnalysisTabbedPane.add(jParameterPanel);
 		jSplitPane1.add(jAnalysisTabbedPane);
 		// end keshav
@@ -512,7 +510,11 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 
 		// keshav
 		if (selectedAnalysis instanceof AbstractGridAnalysis) {
+			jGridServicePanel = new GridServicePanel(SERVICE);
 			jGridServicePanel.setAnalysisType(selectedAnalysis);
+			if (jAnalysisTabbedPane.getTabCount() > 1)
+				jAnalysisTabbedPane.remove(1);
+
 			jAnalysisTabbedPane.addTab("Services", jGridServicePanel);
 		} else {
 			jAnalysisTabbedPane.remove(jGridServicePanel);
