@@ -22,7 +22,8 @@ import gov.nih.nci.cagrid.metadata.ServiceMetadata;
  * An action listener for the grid services button.
  * 
  * @author keshav
- * @version $Id: GridServicesButtonListener.java,v 1.1 2007-04-03 02:39:14 keshav Exp $
+ * @version $Id: GridServicesButtonListener.java,v 1.1 2007/04/03 02:39:14
+ *          keshav Exp $
  */
 public class GridServicesButtonListener implements ActionListener {
 
@@ -39,8 +40,7 @@ public class GridServicesButtonListener implements ActionListener {
 	public GridServicesButtonListener(
 			IndexServiceSelectionButtonListener indexServiceSelectionButtonListener,
 			IndexServiceLabelListener indexServiceLabelListener,
-			DefaultFormBuilder urlServiceBuilder,
-			JScrollPane urlServiceBuilderScrollPane) {
+			DefaultFormBuilder urlServiceBuilder) {
 		super();
 		this.indexServiceSelectionButtonListener = indexServiceSelectionButtonListener;
 		this.indexServiceLabelListener = indexServiceLabelListener;
