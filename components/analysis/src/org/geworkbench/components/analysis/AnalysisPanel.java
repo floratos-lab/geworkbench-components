@@ -98,6 +98,8 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 
 	private static final String PARAMETERS = "Parameters";
 
+	private static final int ANALYSIS_TAB_COUNT = 1;
+
 	private Log log = LogFactory.getLog(this.getClass());
 
 	/**
@@ -512,8 +514,8 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 		if (selectedAnalysis instanceof AbstractGridAnalysis) {
 			jGridServicePanel = new GridServicePanel(SERVICE);
 			jGridServicePanel.setAnalysisType(selectedAnalysis);
-			if (jAnalysisTabbedPane.getTabCount() > 1)
-				jAnalysisTabbedPane.remove(1);
+			if (jAnalysisTabbedPane.getTabCount() > ANALYSIS_TAB_COUNT)
+				jAnalysisTabbedPane.remove(ANALYSIS_TAB_COUNT);
 
 			jAnalysisTabbedPane.addTab("Services", jGridServicePanel);
 		} else {
