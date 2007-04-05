@@ -1,48 +1,48 @@
 package org.geworkbench.components.aracne;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Vector;
+
+import javax.swing.JOptionPane;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.analysis.AbstractAnalysis;
-import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
+import org.geworkbench.analysis.AbstractGridAnalysis;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.CSMicroarraySet;
+import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
-import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
+import org.geworkbench.bison.datastructure.bioobjects.markers.CSGeneMarker;
+import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
+import org.geworkbench.bison.datastructure.bioobjects.microarray.CSExpressionMarkerValue;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.CSMicroarray;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMarkerValue;
-import org.geworkbench.bison.datastructure.bioobjects.microarray.CSExpressionMarkerValue;
-import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
-import org.geworkbench.bison.datastructure.bioobjects.markers.CSGeneMarker;
+import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
 import org.geworkbench.bison.model.analysis.ClusteringAnalysis;
+import org.geworkbench.builtin.projects.ProjectPanel;
 import org.geworkbench.engine.management.Publish;
-import org.geworkbench.util.pathwaydecoder.mutualinformation.AdjacencyMatrix;
-import org.geworkbench.util.pathwaydecoder.mutualinformation.AdjacencyMatrixDataSet;
-import org.geworkbench.util.threading.SwingWorker;
 import org.geworkbench.events.AdjacencyMatrixEvent;
 import org.geworkbench.events.ProjectNodeAddedEvent;
-import org.geworkbench.builtin.projects.ProjectPanel;
+import org.geworkbench.util.pathwaydecoder.mutualinformation.AdjacencyMatrix;
+import org.geworkbench.util.pathwaydecoder.mutualinformation.AdjacencyMatrixDataSet;
 
-import java.util.ArrayList;
-import java.util.Vector;
-import java.util.HashMap;
-import java.util.Map;
-
-import wb.data.MicroarraySet;
-import wb.data.Microarray;
-import wb.data.MarkerSet;
 import wb.data.Marker;
-import wb.plugins.aracne.WeightedGraph;
+import wb.data.MarkerSet;
+import wb.data.Microarray;
+import wb.data.MicroarraySet;
 import wb.plugins.aracne.GraphEdge;
-import edu.columbia.c2b2.aracne.Parameter;
+import wb.plugins.aracne.WeightedGraph;
 import edu.columbia.c2b2.aracne.Aracne;
-
-import javax.swing.*;
+import edu.columbia.c2b2.aracne.Parameter;
 
 /**
  * @author Matt Hall
  */
-public class AracneAnalysis extends AbstractAnalysis implements ClusteringAnalysis {
+public class AracneAnalysis extends AbstractGridAnalysis implements ClusteringAnalysis {
     static Log log = LogFactory.getLog(AracneAnalysis.class);
 
     private static final String TEMP_DIR = "temporary.files.directory";
@@ -277,4 +277,25 @@ public class AracneAnalysis extends AbstractAnalysis implements ClusteringAnalys
         }
 
     }
+    
+    @Override
+	public Map<String, Object> getBisonParameters() {
+		log.debug("Reading bison parameters");
+
+		Map<String, Object> bisonParameters = new HashMap<String, Object>();
+		AracneParamPanel paramPanel = (AracneParamPanel) this.aspp;
+		float dpiTolerence = paramPanel.getDPITolerance();
+		float kernelWidth = paramPanel.getKernelWidth();
+		float threshold = paramPanel.getThreshold();
+		// ArrayList<String> hubGeneList = paramPanel.getHubGeneList();
+		String hubGene = paramPanel.getHubGeneString();
+		// String hubMarkersFile = paramPanel.getHubMarkersFile();
+
+		bisonParameters.put("dpi", dpiTolerence);
+		bisonParameters.put("kernel", kernelWidth);
+		bisonParameters.put("threshold", threshold);
+		bisonParameters.put("hub", hubGene);
+
+		return bisonParameters;
+	}
 }
