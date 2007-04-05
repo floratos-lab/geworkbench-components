@@ -5,8 +5,7 @@ import globus.soapPD_wsdl.holders.*;
 import org.apache.axis.types.UnsignedInt;
 import org.geworkbench.bison.datastructure.biocollections.sequences.DSSequenceSet;
 import org.geworkbench.bison.datastructure.bioobjects.sequence.CSSequence;
-import org.geworkbench.util.associationdiscovery.cluster.hierarchical.Node;
-import org.geworkbench.util.patterns.CSMatchedHMMSeqPattern;
+import org.geworkbench.util.associationdiscovery.cluster.hierarchical.PatternDiscoveryHierachicalNode;
 import org.geworkbench.util.patterns.CSMatchedSeqPattern;
 import org.geworkbench.util.patterns.PatternOfflet;
 import org.geworkbench.util.remote.GlobusConnection;
@@ -647,7 +646,7 @@ public class GlobusSession {
      * @return Node - may return null if no pattern was found.
      * @throws SessionOperationException
      */
-    public Node getPatternNode(String path) throws SessionOperationException {
+    public PatternDiscoveryHierachicalNode getPatternNode(String path) throws SessionOperationException {
         try {
             SOAPPatternHolder patHolder = new SOAPPatternHolder();
             IntHolder patIncluded = new IntHolder();
@@ -686,7 +685,7 @@ public class GlobusSession {
               //  pattern.offset = new polgara.soapPD_wsdl.holders.ArrayOfSOAPOffsetHolder(null);
             }
 
-            Node node = new Node(pattern);
+            PatternDiscoveryHierachicalNode node = new PatternDiscoveryHierachicalNode(pattern);
             node.patIncluded = patIncluded.value;
             node.patExcluded = patExcluded.value;
             node.hPatIncluded = hPatIncluded.value;
@@ -704,7 +703,7 @@ public class GlobusSession {
             }
             //todo disabled now
 
-           // node.hmmPattern = new CSMatchedHMMSeqPattern(database, conSeq, pHmmArr);
+           // node.hmmPatternOrigin = new CSMatchedHMMOriginSeqPattern(database, conSeq, pHmmArr);
 
             return node;
         } catch (RemoteException ex) {

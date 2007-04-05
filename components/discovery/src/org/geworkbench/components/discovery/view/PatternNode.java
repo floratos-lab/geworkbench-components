@@ -1,7 +1,8 @@
 package org.geworkbench.components.discovery.view;
 
-import org.geworkbench.util.patterns.CSMatchedHMMSeqPattern;
+import org.geworkbench.util.patterns.CSMatchedHMMOriginSeqPattern;
 import org.geworkbench.util.patterns.CSMatchedSeqPattern;
+import org.geworkbench.util.patterns.CSMatchedHMMSeqPattern;
 
 /**
  * The visual representation of a Pattern node.
@@ -24,9 +25,9 @@ public class PatternNode {
 
     public String toString() {
         if (pattern != null) {
-            if (pattern instanceof CSMatchedHMMSeqPattern) {
-                org.geworkbench.util.patterns.CSMatchedHMMSeqPattern hmmPat = (org.geworkbench.util.patterns.CSMatchedHMMSeqPattern) pattern;
-                return "HMM [" + hmmPat.ascii + "] SeqNo: " + hmmPat.getUniqueSupport() + " Supp: " + hmmPat.getSupport();
+            if (pattern instanceof CSMatchedHMMOriginSeqPattern) {
+                CSMatchedHMMSeqPattern hmmPatOrigin = (CSMatchedHMMSeqPattern) pattern;
+                return "HMM [" + hmmPatOrigin.ascii + "] SeqNo: " + hmmPatOrigin.getUniqueSupport() + " Supp: " + hmmPatOrigin.getSupport();
 
             } else {
                 org.geworkbench.util.patterns.CSMatchedSeqPattern pat = (CSMatchedSeqPattern) pattern;
