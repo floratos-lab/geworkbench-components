@@ -21,6 +21,7 @@ import org.geworkbench.util.pathwaydecoder.mutualinformation.AdjacencyMatrixData
 import org.geworkbench.util.threading.SwingWorker;
 import org.geworkbench.events.AdjacencyMatrixEvent;
 import org.geworkbench.events.ProjectNodeAddedEvent;
+import org.geworkbench.builtin.projects.ProjectPanel;
 
 import java.util.ArrayList;
 import java.util.Vector;
@@ -252,6 +253,8 @@ public class AracneAnalysis extends AbstractAnalysis implements ClusteringAnalys
             if (weightedGraph.getEdges().size() > 0) {
                 AdjacencyMatrixDataSet dataSet = new AdjacencyMatrixDataSet(convert(weightedGraph, mSetView.getMicroarraySet()), -1, 0, 1000,
                         "Adjacency Matrix", "ARACNE Set", mSetView.getMicroarraySet());
+                ProjectPanel.addToHistory(dataSet, "Generated with ARACNE run with paramters: " + p.getParamterDescription());
+
                 publishProjectNodeAddedEvent(new ProjectNodeAddedEvent("Adjacency Matrix Added", null, dataSet));
 
 //        publishAdjacencyMatrixEvent(new AdjacencyMatrixEvent(convert(weightedGraph, mSetView), "ARACNE Set",
