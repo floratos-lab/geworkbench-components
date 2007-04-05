@@ -50,14 +50,14 @@ import java.util.HashMap;
  * @version 1.0
  */
 
-public class SequenceDiscoveryViewWidget extends JPanel implements StatusChangeListener, PropertyChangeListener{
+public class SequenceDiscoveryViewWidget extends JPanel implements StatusChangeListener, PropertyChangeListener {
 
     /**
-	 * 
-	 */
-	private static final long serialVersionUID = -7663914616670165388L;
+     *
+     */
+    private static final long serialVersionUID = -7663914616670165388L;
 
-	//holds the id of the current selected project file.
+    //holds the id of the current selected project file.
     //this id is the key for mapping to an AlgorithmStub.
     private String currentStubId = "";
 
@@ -322,11 +322,12 @@ public class SequenceDiscoveryViewWidget extends JPanel implements StatusChangeL
      * @param type
      */
 
-     private String readParameterAndCreateResultfile(String type) {
+    private String readParameterAndCreateResultfile(String type) {
         Parameters p = parmsHandler.readParameter(parameterPanel, getSequenceDB().getSequenceNo(), type);
         parms = p;
         //fire a parameter change to the application
-        org.geworkbench.bison.datastructure.complex.pattern.Parameters pp = ParameterTranslation.getParameterTranslation().translate(parms);
+        org.geworkbench.bison.datastructure.complex.pattern.Parameters pp;
+        pp = ParameterTranslation.getParameterTranslation().translate(parms);
         SoapParmsDataSet pds = new SoapParmsDataSet(pp, "Pattern Discovery", getSequenceDB());
         String id = pds.getID();
         File resultFile = pds.getResultFile();
@@ -334,6 +335,7 @@ public class SequenceDiscoveryViewWidget extends JPanel implements StatusChangeL
         firePropertyChange(PARAMETERS, null, pds);
         return resultFile.getAbsolutePath();
     }
+
     private void readParameter(String type) {
         Parameters p = parmsHandler.readParameter(parameterPanel, getSequenceDB().getSequenceNo(), type);
         parms = p;
@@ -409,7 +411,7 @@ public class SequenceDiscoveryViewWidget extends JPanel implements StatusChangeL
     }
 
     private void updateParameterPanel(Parameters p) {
-        
+
         parmsHandler.writeParameter(parameterPanel, p);
     }
 
@@ -472,14 +474,14 @@ public class SequenceDiscoveryViewWidget extends JPanel implements StatusChangeL
         AlgorithmStub oldStub = (AlgorithmStub) algorithmStubManager.get(oldStubId);
         AlgorithmStub newStub = (AlgorithmStub) algorithmStubManager.get(currentStubId);
 
-        if(currentResultFile!=null){
+        if (currentResultFile != null) {
             loadPatternFile(currentResultFile);
         }
-   if (oldStub == null && newStub == null) {
-       //no algorithm stub is mapped
+        if (oldStub == null && newStub == null) {
+            //no algorithm stub is mapped
 
-       return;
-   }
+            return;
+        }
 
         if (oldStub != null) {
             oldStub.lostFocus(modelList[currentModel]);
@@ -591,9 +593,9 @@ public class SequenceDiscoveryViewWidget extends JPanel implements StatusChangeL
     /**
      * The plain vanilla sequence discovery.
      */
-     private AbstractSequenceDiscoveryAlgorithm discovery_actionPerformed(DiscoverySession session) {
+    private AbstractSequenceDiscoveryAlgorithm discovery_actionPerformed(DiscoverySession session) {
         String resultStr = readParameterAndCreateResultfile("Discovery");
-        AbstractSequenceDiscoveryAlgorithm abstractSequenceDiscoveryAlgorithm =  new RegularDiscovery(session, getParameters());
+        AbstractSequenceDiscoveryAlgorithm abstractSequenceDiscoveryAlgorithm = new RegularDiscovery(session, getParameters());
         abstractSequenceDiscoveryAlgorithm.setResultFile(new File(resultStr));
         abstractSequenceDiscoveryAlgorithm.setSequenceInputData(this.getSequenceDB());
         return abstractSequenceDiscoveryAlgorithm;
@@ -616,20 +618,27 @@ public class SequenceDiscoveryViewWidget extends JPanel implements StatusChangeL
      * Exhaustive
      */
     public AbstractSequenceDiscoveryAlgorithm exhaustive_actionPerformed(DiscoverySession discoverySession) {
+
         //readParameter("Exhaustive");
          String resultStr = readParameterAndCreateResultfile("Exhaustive");
          AbstractSequenceDiscoveryAlgorithm abstractSequenceDiscoveryAlgorithm =  new ExhaustiveDiscovery(discoverySession, getParameters());
         abstractSequenceDiscoveryAlgorithm.setResultFile(new File(resultStr));
         abstractSequenceDiscoveryAlgorithm.setSequenceInputData(this.getSequenceDB());
-        return abstractSequenceDiscoveryAlgorithm; 
+        return abstractSequenceDiscoveryAlgorithm;
+ 
     }
 
     /**
      * Hiearchical discovery.
      */
     public AbstractSequenceDiscoveryAlgorithm hierarc_actionPerformed(DiscoverySession discoverySession) {
-        readParameter("Hiearchical");
-        return new HierarchicalDiscovery(discoverySession, getParameters());
+
+        String resultStr = readParameterAndCreateResultfile("Hiearchical");
+        AbstractSequenceDiscoveryAlgorithm abstractSequenceDiscoveryAlgorithm = new HierarchicalDiscovery(discoverySession, getParameters());
+        abstractSequenceDiscoveryAlgorithm.setResultFile(new File(resultStr));
+        abstractSequenceDiscoveryAlgorithm.setSequenceInputData(this.getSequenceDB());
+        return abstractSequenceDiscoveryAlgorithm;
+
     }
 
     private void initAndStart(AlgorithmStub stub, int viewId) {
@@ -663,12 +672,13 @@ public class SequenceDiscoveryViewWidget extends JPanel implements StatusChangeL
     public void setParms(Parameters parms) {
         this.parms = parms;
     }
-   public synchronized void setSequenceDB(DSSequenceSet sDB, boolean withExistedPatternNode, String patternNodeID, Parameters p, File resultFile) {
-       //reset the currentResultFile.
+
+    public synchronized void setSequenceDB(DSSequenceSet sDB, boolean withExistedPatternNode, String patternNodeID, Parameters p, File resultFile) {
+        //reset the currentResultFile.
         currentResultFile = null;
 
-        if(resultFile!=null){
-           currentResultFile = resultFile;
+        if (resultFile != null) {
+            currentResultFile = resultFile;
         }
         if (sequenceDB.getID() != sDB.getID()) {
             sequenceDB = sDB;
@@ -676,27 +686,28 @@ public class SequenceDiscoveryViewWidget extends JPanel implements StatusChangeL
             String stubID = sDB.getID() + sDB.getDataSetName();
             //Point currentNodeID to the name associated with the sequenceDB name no matter the node is subnode or node.
             currentNodeID = stubID;
-            if(withExistedPatternNode && patternNodeID != null){
+            if (withExistedPatternNode && patternNodeID != null) {
                 stubID += patternNodeID;
             }
             //change the stub for the widget
             projectFileChanged(stubID);
-        }else{
+        } else {
 
             String stubID = sDB.getID() + sDB.getDataSetName();
-             //Point currentNodeID to the name associated with the sequenceDB name no matter the node is subnode or node.
+            //Point currentNodeID to the name associated with the sequenceDB name no matter the node is subnode or node.
             currentNodeID = stubID;
-           if(withExistedPatternNode && patternNodeID != null){
-               stubID += patternNodeID;
-           }
-           //change the stub for the widget
-           projectFileChanged(stubID);
-           if(p!=null){
-               updateParameterPanel(p);
-           }
+            if (withExistedPatternNode && patternNodeID != null) {
+                stubID += patternNodeID;
+            }
+            //change the stub for the widget
+            projectFileChanged(stubID);
+            if (p != null) {
+                updateParameterPanel(p);
+            }
 
         }
     }
+
     public synchronized void setSequenceDB(DSSequenceSet sDB, boolean withExistedPatternNode, String patternNodeID, Parameters p) {
         if (sequenceDB.getID() != sDB.getID()) {
             sequenceDB = sDB;
@@ -704,24 +715,24 @@ public class SequenceDiscoveryViewWidget extends JPanel implements StatusChangeL
             String stubID = sDB.getID() + sDB.getDataSetName();
             //Point currentNodeID to the name associated with the sequenceDB name no matter the node is subnode or node.
             currentNodeID = stubID;
-            if(withExistedPatternNode && patternNodeID != null){
+            if (withExistedPatternNode && patternNodeID != null) {
                 stubID += patternNodeID;
             }
             //change the stub for the widget
             projectFileChanged(stubID);
-        }else{
+        } else {
 
             String stubID = sDB.getID() + sDB.getDataSetName();
-             //Point currentNodeID to the name associated with the sequenceDB name no matter the node is subnode or node.
+            //Point currentNodeID to the name associated with the sequenceDB name no matter the node is subnode or node.
             currentNodeID = stubID;
-           if(withExistedPatternNode && patternNodeID != null){
-               stubID += patternNodeID;
-           }
-           //change the stub for the widget
-           projectFileChanged(stubID);
-           if(p!=null){
-               updateParameterPanel(p);
-           }
+            if (withExistedPatternNode && patternNodeID != null) {
+                stubID += patternNodeID;
+            }
+            //change the stub for the widget
+            projectFileChanged(stubID);
+            if (p != null) {
+                updateParameterPanel(p);
+            }
 
         }
     }
@@ -754,9 +765,9 @@ public class SequenceDiscoveryViewWidget extends JPanel implements StatusChangeL
         ois.defaultReadObject();
     }
 
-    private void loadPatternFile(File patternfile){
+    private void loadPatternFile(File patternfile) {
         File sequenceFile = getSequenceDB().getFile();
-          if (!patternfile.getName().endsWith(".pat")) {
+        if (!patternfile.getName().endsWith(".pat")) {
             String msg = "Not a valid file! File extension must end with .pat";
 
             JOptionPane.showMessageDialog(null, msg, "Error", JOptionPane.ERROR_MESSAGE);

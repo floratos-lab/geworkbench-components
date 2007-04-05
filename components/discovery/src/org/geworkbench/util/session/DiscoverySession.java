@@ -3,10 +3,11 @@ package org.geworkbench.util.session;
 import org.apache.axis.types.UnsignedInt;
 import org.geworkbench.bison.datastructure.biocollections.sequences.DSSequenceSet;
 import org.geworkbench.bison.datastructure.bioobjects.sequence.CSSequence;
-import org.geworkbench.util.associationdiscovery.cluster.hierarchical.Node;
-import org.geworkbench.util.patterns.CSMatchedHMMSeqPattern;
+import org.geworkbench.util.associationdiscovery.cluster.hierarchical.PatternDiscoveryHierachicalNode;
+import org.geworkbench.util.patterns.CSMatchedHMMOriginSeqPattern;
 import org.geworkbench.util.patterns.CSMatchedSeqPattern;
 import org.geworkbench.util.patterns.PatternOfflet;
+import org.geworkbench.util.patterns.CSMatchedHMMSeqPattern;
 import org.geworkbench.util.remote.Connection;
 import polgara.soapPD_wsdl.*;
 import polgara.soapPD_wsdl.holders.*;
@@ -500,7 +501,7 @@ public class DiscoverySession {
         }
     }
 
-    public boolean translateToNewPattern(CSMatchedSeqPattern csMatchedSeqPattern, ArrayOfSOAPOffsetHolder arrayOfSOAPOffsetHolder){
+    public  boolean translateToNewPattern(CSMatchedSeqPattern csMatchedSeqPattern, ArrayOfSOAPOffsetHolder arrayOfSOAPOffsetHolder){
         SOAPOffset[] values = arrayOfSOAPOffsetHolder.value;
         PatternOfflet[] patternOfflets = new PatternOfflet[values.length];
         ArrayList<PatternOfflet> arrayList = new ArrayList<PatternOfflet>();
@@ -516,9 +517,7 @@ public class DiscoverySession {
     /**
      * Sort the patterns on the server.
      *
-     * @param sortmode sort on field sortmode
-     * @throws SessionOperationException
-     */
+    */
     public int sortPatterns(int sortMode) throws SessionOperationException {
         if (DiscoverySession.isNormalSession) {
             try {
@@ -616,20 +615,22 @@ public class DiscoverySession {
     /**
      * Return a Node structure based on a path
      *
-     * @param path String
-     * @param node Node
-     * @return Node - may return null if no pattern was found.
+     *
+     * @param path
+     * @return
      * @throws SessionOperationException
      */
-    public Node getPatternNode(String path) throws SessionOperationException {
+    public PatternDiscoveryHierachicalNode getPatternNode(String path) throws SessionOperationException {
         if (DiscoverySession.isNormalSession) {
             try {
+
                 SOAPPatternHolder patHolder = new SOAPPatternHolder();
                 IntHolder patIncluded = new IntHolder();
                 IntHolder patExcluded = new IntHolder();
                 IntHolder hPatIncluded = new IntHolder();
                 IntHolder hPatExcluded = new IntHolder();
                 HMMPatternHolder hmmPat = new HMMPatternHolder();
+                  System.out.println(path + " path = " + patHolder + logToken);
                 // soapPort.getPatternNode(logToken, path, 0, patHolder,
                 //   patIncluded, patExcluded);
                 soapPort.getPatternNode(logToken, path, 0, patHolder, hmmPat, hPatIncluded, hPatExcluded, patIncluded, patExcluded);
@@ -641,13 +642,15 @@ public class DiscoverySession {
                 }
 
                 org.geworkbench.util.patterns.CSMatchedSeqPattern pattern = new CSMatchedSeqPattern(database);
+                System.out.println(patHolder + " patholder, value =" + patHolder.value);
+
                 pattern.idNo = new IntHolder(patHolder.value.getIdNo());
                 pattern.seqNo = new IntHolder(patHolder.value.getSeqNo());
                 pattern.setPValue(patHolder.value.getPValue());
                 pattern.locus = patHolder.value.getLoci();
                 translateToNewPattern(pattern, new ArrayOfSOAPOffsetHolder(patHolder.value.getOffset()));
 
-                Node node = new Node(pattern);
+                PatternDiscoveryHierachicalNode node = new PatternDiscoveryHierachicalNode(pattern);
                 node.patIncluded = patIncluded.value;
                 node.patExcluded = patExcluded.value;
 
@@ -656,8 +659,8 @@ public class DiscoverySession {
                 HMMLoci[] hmmArr = hmmPat.value.getLoci().getItem();
                //todo
                 //disabled by xz, 01/25/07
-                // / node.hmmPattern = new CSMatchedHMMSeqPattern(database, conSeq, hmmArr);
-                node.hmmPattern = new CSMatchedHMMSeqPattern();
+                 node.hmmPattern = new CSMatchedHMMOriginSeqPattern(database, conSeq, hmmArr);
+                 //node.hmmPatternOrigin = new CSMatchedHMMOriginSeqPattern();
                 node.hPatIncluded = hPatIncluded.value;
                 node.hPatExcluded = hPatExcluded.value;
 
@@ -674,10 +677,12 @@ public class DiscoverySession {
     /**
      * Mask Locus on the server.
      *
-     * @param locuse - locus array to mask
-     * @param extent - mask [offset+from, offset+to] were offset is calculated from
-     *               the locus array
-     * @param mask   - 0 masks 1 unmasks
+     * @param locus
+     * @param from
+     * @param to
+     * @param mask
+     * @return
+     * @throws SessionOperationException
      */
     public int maskPatternLocus(byte[] locus, int from, int to, int mask) throws SessionOperationException {
         if (DiscoverySession.isNormalSession) {

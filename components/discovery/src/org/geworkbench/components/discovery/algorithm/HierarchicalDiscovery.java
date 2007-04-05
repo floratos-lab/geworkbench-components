@@ -1,14 +1,13 @@
 package org.geworkbench.components.discovery.algorithm;
 
 import org.geworkbench.components.discovery.view.PatternNode;
-import org.geworkbench.util.associationdiscovery.cluster.hierarchical.Node;
+import org.geworkbench.util.associationdiscovery.cluster.hierarchical.PatternDiscoveryHierachicalNode;
 import org.geworkbench.util.patterns.PatternOperations;
 import org.geworkbench.util.patterns.TreePatternSource;
 import org.geworkbench.util.patterns.PatternDB;
 import org.geworkbench.util.remote.SPLASHDefinition;
 import org.geworkbench.util.session.DiscoverySession;
 import org.geworkbench.util.session.SessionOperationException;
-import org.geworkbench.bison.datastructure.complex.pattern.sequence.DSMatchedSeqPattern;
 import polgara.soapPD_wsdl.Parameters;
 
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -153,7 +152,7 @@ public class HierarchicalDiscovery extends ServerBaseDiscovery implements TreePa
     private DefaultMutableTreeNode buildTree(int remote, DefaultMutableTreeNode currentNode) throws SessionOperationException {
 
         while (sizeLocal < remote) {
-            Node node = getRemoteNode(path.toString());
+            PatternDiscoveryHierachicalNode node = getRemoteNode(path.toString());
             if (node != null) {
 
                 //check the path and, if needed, make the right child the new currentNode
@@ -198,11 +197,16 @@ public class HierarchicalDiscovery extends ServerBaseDiscovery implements TreePa
     /**
      * Add the remote node to the local tree.
      *
-     * @param root DefaultMutableTreeNode
-     * @param node Node
-     * @return DefaultMutableTreeNode
+
      */
-    private DefaultMutableTreeNode addRemoteNode(DefaultMutableTreeNode parent, Node node, boolean pNode) {
+    /**
+     *
+     * @param parent
+     * @param node
+     * @param pNode
+     * @return
+     */
+    private DefaultMutableTreeNode addRemoteNode(DefaultMutableTreeNode parent, PatternDiscoveryHierachicalNode node, boolean pNode) {
 
         //initializing our splash data nodes and the default tree nodes
         DefaultMutableTreeNode child = new DefaultMutableTreeNode();
@@ -246,8 +250,10 @@ public class HierarchicalDiscovery extends ServerBaseDiscovery implements TreePa
 
     /**
      * Attach the root of this source to the main model
+      */
+    /**
      *
-     * @param visitormodel
+     * @param visitorModel
      */
     public synchronized void getRoot(DefaultTreeModel visitorModel) {
         visitorModel.setRoot(root);
@@ -260,9 +266,10 @@ public class HierarchicalDiscovery extends ServerBaseDiscovery implements TreePa
      * @return Node
      * @throws SessionOperationException
      */
-    private Node getRemoteNode(String path) throws SessionOperationException {
+    private PatternDiscoveryHierachicalNode getRemoteNode(String path) throws SessionOperationException {
         DiscoverySession discoverySession = getSession();
-        Node node = null;
+        PatternDiscoveryHierachicalNode node = null;
+
         node = discoverySession.getPatternNode(path.toString());
 
         if (node != null) {
@@ -292,6 +299,7 @@ public class HierarchicalDiscovery extends ServerBaseDiscovery implements TreePa
         org.geworkbench.util.patterns.PatternDB patternDB = new PatternDB(sequenceInputData.getFile(), null);
         int totalPatternNum = session.getPatternNo();
         for (int i = 0; i <totalPatternNum; i++) {
+            //todo why?
 //            DSMatchedSeqPattern pattern = getPattern(i);
 //            PatternOperations.fill(pattern, sequenceInputData);
 //            patternDB.add(pattern);

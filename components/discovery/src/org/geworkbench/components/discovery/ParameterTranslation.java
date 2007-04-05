@@ -26,7 +26,9 @@ public class ParameterTranslation {
     }
     public static org.geworkbench.bison.datastructure.complex.pattern.Parameters translate(Parameters parameters){
       org.geworkbench.bison.datastructure.complex.pattern.Parameters newParameters   = new org.geworkbench.bison.datastructure.complex.pattern.Parameters();
-      newParameters.setMinSupport(parameters.getMinSupport());
+        //@todo  why only few values are translated? xz/
+        
+        newParameters.setMinSupport(parameters.getMinSupport());
        newParameters.setMinTokens(parameters.getMinTokens());
        newParameters.setWindow(parameters.getWindow());
          newParameters.setExactTokens(parameters.getExactTokens());
