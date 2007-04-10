@@ -29,6 +29,7 @@ import org.geworkbench.bison.model.clusters.SOMCluster;
 import org.geworkbench.engine.management.Script;
 import org.ginkgo.labs.converter.BasicConverter;
 
+import edu.columbia.geworkbench.cagrid.aracne.AracneParameter;
 import edu.columbia.geworkbench.cagrid.cluster.client.HierarchicalClusteringClient;
 import edu.columbia.geworkbench.cagrid.cluster.client.SomClusteringClient;
 import edu.columbia.geworkbench.cagrid.cluster.hierarchical.Dim;
@@ -529,5 +530,43 @@ public class CagridBisonConverter {
 		}
 
 		return somClusteringParameter;
+	}
+
+	/**
+	 * 
+	 * @param bisonParameters
+	 * @return {@link AracneParameter}
+	 */
+	public AracneParameter convertAracneBisonToCagridParameter(
+			Map<String, Object> bisonParameters) {
+
+		AracneParameter aracneParameter = new AracneParameter();
+
+		for (String param : bisonParameters.keySet()) {
+
+			if (StringUtils.equalsIgnoreCase(param, "dpi")) {
+				float dpi = (Float) bisonParameters.get(param);
+				aracneParameter.setTolerance(dpi);
+			}
+
+			else if (StringUtils.equalsIgnoreCase(param, "threshold")) {
+				double threshold = (Float) bisonParameters.get(param);
+				aracneParameter.setMutualInformationThreshold(threshold);
+			}
+
+			else if (StringUtils.equalsIgnoreCase(param, "hub")) {
+				String hub = (String) bisonParameters.get(param);
+				aracneParameter.setHub(hub);
+			}
+
+			else if (StringUtils.equalsIgnoreCase(param, "kernel")) {
+				double kernelWidth = (Float) bisonParameters.get(param);
+				aracneParameter.setKernelWidth(kernelWidth);
+			} else {
+				log.debug("Skipping param " + param);
+			}
+
+		}
+		return aracneParameter;
 	}
 }
