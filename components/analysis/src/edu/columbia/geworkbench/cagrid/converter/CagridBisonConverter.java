@@ -52,8 +52,7 @@ import edu.duke.cabig.rproteomics.model.statml.Scalar;
  * set types.
  * 
  * @author keshav
- * @version $Id: CagridMicroarrayTypeConverter.java,v 1.2 2007/01/04 22:03:15
- *          watkinson Exp $
+ * @version $Id: CagridBisonConverter.java,v 1.7 2007-04-10 20:43:37 keshav Exp $
  */
 public class CagridBisonConverter {
 	private static final String HIERARCHICAL_CLUSTERING_NAME = "Hierarchical Clustering";
