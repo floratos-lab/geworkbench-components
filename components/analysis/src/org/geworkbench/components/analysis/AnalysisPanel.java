@@ -54,6 +54,9 @@ import org.geworkbench.util.pathwaydecoder.mutualinformation.AdjacencyMatrixData
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.layout.FormLayout;
 
+import edu.columbia.geworkbench.cagrid.aracne.AdjacencyMatrix;
+import edu.columbia.geworkbench.cagrid.aracne.AracneParameter;
+import edu.columbia.geworkbench.cagrid.aracne.client.AracneClient;
 import edu.columbia.geworkbench.cagrid.cluster.client.HierarchicalClusteringClient;
 import edu.columbia.geworkbench.cagrid.cluster.client.SomClusteringClient;
 import edu.columbia.geworkbench.cagrid.cluster.hierarchical.HierarchicalCluster;
@@ -85,6 +88,8 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 	private static final String HIERARCHICAL_CLUSTERING_GRID = "Hierarchical Clustering (Grid)";
 
 	private static final String SOM_CLUSTERING_GRID = "Som Clustering (Grid)";
+
+	private static final String ARACNE_GRID = "Aracne (Grid)";
 
 	private static final String SOM_NAME = "Som";
 
@@ -717,16 +722,18 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 
 		cagridBisonConverter = new CagridBisonConverter();
 
-		log.info("running grid service");
-
 		ProgressBar pBar = Util.createProgressBar(GRID_ANALYSIS);
 
 		if (url.contains(HIERARCHICAL_NAME)) {
 			log.info("Hierarchical Clustering grid service detected ... ");
 			if (url.contains(MAGE)) {
 				log.info("Mage service detected ...");
+				// TODO add hooks to handle this
+
 			} else if (url.contains(STATML)) {
 				log.info("Statml service detected ...");
+				// TODO add hooks to handle this
+
 			} else {
 				log.info("Base service detected ... ");
 
@@ -762,12 +769,13 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 
 		else if (url.contains(SOM_NAME)) {
 			if (url.contains(MAGE)) {
-
+				log.info("Mage service detected ...");
+				// TODO add hooks to handle this
 			} else if (url.contains(STATML)) {
-
+				log.info("Statml service detected ...");
+				// TODO add hooks to handle this
 			} else {
-				// GridSomClusteringDialog dialog = new
-				// GridSomClusteringDialog();
+				log.info("Base service detected ... ");
 				Map<String, Object> bisonParameters = ((AbstractGridAnalysis) selectedAnalysis)
 						.getBisonParameters();
 
@@ -805,11 +813,34 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 		else if (url.contains(ARACNE_NAME)) {
 			log.info("Aracne grid service detected ...");
 			if (url.contains(MAGE)) {
-
+				log.info("Mage service detected ...");
+				// TODO add hooks to handle this
 			} else if (url.contains(STATML)) {
-
+				log.info("Statml service detected ...");
+				// TODO add hooks to handle this
 			} else {
+				Map<String, Object> bisonParameters = ((AbstractGridAnalysis) selectedAnalysis)
+						.getBisonParameters();
 
+				AracneParameter aracneParameters = cagridBisonConverter
+						.convertAracneBisonToCagridParameter(bisonParameters);
+
+				if (aracneParameters == null)
+					return;
+
+				AdjacencyMatrix adjacencyMatrix = null;
+				try {
+					pBar.setMessage("Running " + ARACNE_GRID);
+					pBar.start();
+					pBar.reset();
+					AracneClient client = new AracneClient(url);
+					adjacencyMatrix = client.execute(aracneParameters, gridSet);
+				} catch (Exception e) {
+					throw new RuntimeException("Error executing " + ARACNE_GRID
+							+ e);
+				} finally {
+					pBar.stop();
+				}
 			}
 		}
 
