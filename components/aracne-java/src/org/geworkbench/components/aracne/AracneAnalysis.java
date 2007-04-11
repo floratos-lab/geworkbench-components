@@ -172,7 +172,7 @@ public class AracneAnalysis extends AbstractGridAnalysis implements ClusteringAn
         for (DSGeneMarker marker : inSet.markers()) {
             markers.addMarker(new Marker(marker.getLabel()));
         }
-        MicroarraySet returnSet = new MicroarraySet("Converted Set", "ID", "ChipType", markers);
+        MicroarraySet returnSet = new MicroarraySet(inSet.getDataSet().getDataSetName(), inSet.getDataSet().getID(), "Unknown", markers);
         DSItemList<DSMicroarray> arrays = inSet.items();
         for (DSMicroarray microarray : arrays) {
             returnSet.addMicroarray(new Microarray(microarray.getLabel(), microarray.getRawMarkerData()));
