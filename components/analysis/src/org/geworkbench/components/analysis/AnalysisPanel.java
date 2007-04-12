@@ -835,6 +835,18 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 					pBar.reset();
 					AracneClient client = new AracneClient(url);
 					adjacencyMatrix = client.execute(aracneParameters, gridSet);
+
+					if (adjacencyMatrix != null) {
+						AdjacencyMatrixDataSet dataSet = cagridBisonConverter
+								.createBisonAdjacencyMatrixDataSet(
+										adjacencyMatrix, maSetView,
+										(Float) bisonParameters
+												.get("threshold"));
+
+						ProjectNodeAddedEvent event = new ProjectNodeAddedEvent(
+								ARACNE_GRID, null, dataSet);
+						publishProjectNodeAddedEvent(event);
+					}
 				} catch (Exception e) {
 					throw new RuntimeException("Error executing " + ARACNE_GRID
 							+ e);
