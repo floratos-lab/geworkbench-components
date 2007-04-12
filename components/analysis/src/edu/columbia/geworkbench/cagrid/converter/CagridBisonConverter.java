@@ -16,6 +16,7 @@ import org.geworkbench.bison.datastructure.bioobjects.microarray.CSMicroarray;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMarkerValue;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
+import org.geworkbench.bison.datastructure.properties.DSSequential;
 import org.geworkbench.bison.model.clusters.CSHierClusterDataSet;
 import org.geworkbench.bison.model.clusters.CSSOMClusterDataSet;
 import org.geworkbench.bison.model.clusters.DSHierClusterDataSet;
@@ -27,8 +28,10 @@ import org.geworkbench.bison.model.clusters.MarkerHierCluster;
 import org.geworkbench.bison.model.clusters.MicroarrayHierCluster;
 import org.geworkbench.bison.model.clusters.SOMCluster;
 import org.geworkbench.engine.management.Script;
+import org.geworkbench.util.pathwaydecoder.mutualinformation.AdjacencyMatrixDataSet;
 import org.ginkgo.labs.converter.BasicConverter;
 
+import edu.columbia.geworkbench.cagrid.aracne.AdjacencyMatrix;
 import edu.columbia.geworkbench.cagrid.aracne.AracneParameter;
 import edu.columbia.geworkbench.cagrid.cluster.client.HierarchicalClusteringClient;
 import edu.columbia.geworkbench.cagrid.cluster.client.SomClusteringClient;
@@ -52,12 +55,14 @@ import edu.duke.cabig.rproteomics.model.statml.Scalar;
  * set types.
  * 
  * @author keshav
- * @version $Id: CagridBisonConverter.java,v 1.7 2007-04-10 20:43:37 keshav Exp $
+ * @version $Id: CagridBisonConverter.java,v 1.8 2007-04-12 22:07:44 keshav Exp $
  */
 public class CagridBisonConverter {
 	private static final String HIERARCHICAL_CLUSTERING_NAME = "Hierarchical Clustering";
 
 	private static final String SOM_CLUSTERING_NAME = "Som Clustering";
+
+	private static final String ARACNE_NAME = "Aracne";
 
 	private static final String MICROARRAY = "Microarray";
 
@@ -446,6 +451,62 @@ public class CagridBisonConverter {
 				SOM_CLUSTERING_NAME, view);
 
 		return dataSet;
+	}
+
+	/**
+	 * 
+	 * @param adjacencyMatrix
+	 * @return {@link AdjacencyMatrixDataSet}
+	 */
+	public AdjacencyMatrixDataSet createBisonAdjacencyMatrixDataSet(
+			AdjacencyMatrix adjacencyMatrix,
+			DSMicroarraySetView bisonMicroarraySetView, float threshold) {
+
+		org.geworkbench.util.pathwaydecoder.mutualinformation.AdjacencyMatrix bisonAdjacencyMatrix = new org.geworkbench.util.pathwaydecoder.mutualinformation.AdjacencyMatrix();
+
+		if (adjacencyMatrix.getGeneListA() == null
+				|| adjacencyMatrix.getGeneListB() == null
+				|| adjacencyMatrix.getMutualInformationValues() == null)
+
+			return null;
+
+		DSMicroarraySet microarraySet = bisonMicroarraySetView
+				.getMicroarraySet();
+		bisonAdjacencyMatrix.setMicroarraySet(microarraySet);
+
+		DSItemList<DSSequential> markers = bisonMicroarraySetView.allMarkers();
+
+		for (int i = 0; i < adjacencyMatrix.getGeneListA().length; i++) {
+			double value = adjacencyMatrix.getMutualInformationValues(i);
+			String geneALabel = adjacencyMatrix.getGeneListA(i);
+			String geneBLabel = adjacencyMatrix.getGeneListB(i);
+
+			DSSequential markerA = markers.get(geneALabel);
+			int idA = markerA.getSerial();
+
+			DSSequential markerB = markers.get(geneBLabel);
+			int idB = markerB.getSerial();
+
+			bisonAdjacencyMatrix
+					.add(idA, idB, (new Double(value)).floatValue());
+
+			if (log.isDebugEnabled()) {
+
+				log.debug(geneALabel + " with id " + idA);
+				log.debug(geneBLabel + " with id " + idB);
+
+				log.debug("A[" + i + "]: " + geneALabel);
+				log.debug("B[" + i + "]: " + geneBLabel);
+				log.debug("value: " + value);
+			}
+		}
+
+		AdjacencyMatrixDataSet adjacencyMatrixDataSet = new AdjacencyMatrixDataSet(
+				bisonAdjacencyMatrix, -1, 0, 1000, "Adjacency Matrix",
+				ARACNE_NAME, microarraySet);
+
+		return adjacencyMatrixDataSet;
+
 	}
 
 	// FIXME refactor this cagrid parameter handling from parameters panel
