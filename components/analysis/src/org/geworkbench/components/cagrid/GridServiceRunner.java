@@ -35,7 +35,7 @@ import edu.columbia.geworkbench.cagrid.microarray.MicroarraySet;
  * Used to execute grid services.
  * 
  * @author keshav
- * @version $Id: GridServiceRunner.java,v 1.2 2007-04-16 20:04:22 keshav Exp $
+ * @version $Id: GridServiceRunner.java,v 1.3 2007-04-16 20:26:58 keshav Exp $
  */
 public class GridServiceRunner {
 	private static Log log = LogFactory.getLog(GridServiceRunner.class);
@@ -98,6 +98,9 @@ public class GridServiceRunner {
 			String analysisName = selectedGridAnalysis.getAnalysisName();
 			log.info("Service is of type " + analysisName);
 
+			Map<String, Object> bisonParameters = selectedGridAnalysis
+					.getBisonParameters();
+
 			if (url.contains(MAGE)) {
 				log.info("Mage service detected ...");
 				// TODO add hooks to handle this
@@ -109,8 +112,7 @@ public class GridServiceRunner {
 			} else {
 
 				if (analysisName.equalsIgnoreCase(HIERARCHICAL_NAME)) {
-					Map<String, Object> bisonParameters = ((AbstractGridAnalysis) selectedAnalysis)
-							.getBisonParameters();
+
 					HierarchicalClusteringParameter parameters = cagridBisonConverter
 							.convertHierarchicalBisonToCagridParameter(bisonParameters);
 
@@ -140,8 +142,6 @@ public class GridServiceRunner {
 				}
 
 				else if (analysisName.equalsIgnoreCase(SOM_NAME)) {
-					Map<String, Object> bisonParameters = ((AbstractGridAnalysis) selectedAnalysis)
-							.getBisonParameters();
 
 					SomClusteringParameter somClusteringParameters = cagridBisonConverter
 							.convertSomBisonToCagridParameter(bisonParameters);
@@ -174,9 +174,6 @@ public class GridServiceRunner {
 				}
 
 				else if (analysisName.equalsIgnoreCase(ARACNE_NAME)) {
-
-					Map<String, Object> bisonParameters = ((AbstractGridAnalysis) selectedAnalysis)
-							.getBisonParameters();
 
 					AracneParameter aracneParameters = cagridBisonConverter
 							.convertAracneBisonToCagridParameter(bisonParameters);
