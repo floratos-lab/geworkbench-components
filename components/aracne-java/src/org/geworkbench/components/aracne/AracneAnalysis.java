@@ -50,6 +50,7 @@ public class AracneAnalysis extends AbstractGridAnalysis implements ClusteringAn
     private DSMicroarraySetView<DSGeneMarker, DSMicroarray> mSetView;
     private AdjacencyMatrixDataSet adjMatrix;
     private String COMMA_SEP = ",";
+    private final String analysisName = "Aracne";
 
     public AracneAnalysis() {
         setLabel("ARACNE");
@@ -309,5 +310,14 @@ public class AracneAnalysis extends AbstractGridAnalysis implements ClusteringAn
 		bisonParameters.put("threshold", threshold);
 
 		return bisonParameters;
+	}
+    
+    /*
+	 * (non-Javadoc)
+	 * @see org.geworkbench.analysis.AbstractGridAnalysis#getAnalysisName()
+	 */
+	@Override
+	public String getAnalysisName() {
+		return analysisName;
 	}
 }
