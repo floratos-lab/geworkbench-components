@@ -7,7 +7,6 @@ import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Hashtable;
-import java.util.Map;
 
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
@@ -37,8 +36,7 @@ import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
 import org.geworkbench.bison.model.analysis.ClusteringAnalysis;
 import org.geworkbench.bison.model.analysis.ParamValidationResults;
 import org.geworkbench.bison.model.analysis.ParameterPanel;
-import org.geworkbench.bison.model.clusters.CSHierClusterDataSet;
-import org.geworkbench.bison.model.clusters.CSSOMClusterDataSet;
+import org.geworkbench.components.cagrid.GridServiceRunner;
 import org.geworkbench.components.cagrid.gui.GridServicePanel;
 import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.engine.management.AcceptTypes;
@@ -46,25 +44,11 @@ import org.geworkbench.engine.management.ComponentRegistry;
 import org.geworkbench.engine.management.Publish;
 import org.geworkbench.events.ProjectNodeAddedEvent;
 import org.geworkbench.events.SubpanelChangedEvent;
-import org.geworkbench.util.ProgressBar;
-import org.geworkbench.util.Util;
 import org.geworkbench.util.microarrayutils.MicroarrayViewEventBase;
 import org.geworkbench.util.pathwaydecoder.mutualinformation.AdjacencyMatrixDataSet;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.layout.FormLayout;
-
-import edu.columbia.geworkbench.cagrid.aracne.AdjacencyMatrix;
-import edu.columbia.geworkbench.cagrid.aracne.AracneParameter;
-import edu.columbia.geworkbench.cagrid.aracne.client.AracneClient;
-import edu.columbia.geworkbench.cagrid.cluster.client.HierarchicalClusteringClient;
-import edu.columbia.geworkbench.cagrid.cluster.client.SomClusteringClient;
-import edu.columbia.geworkbench.cagrid.cluster.hierarchical.HierarchicalCluster;
-import edu.columbia.geworkbench.cagrid.cluster.hierarchical.HierarchicalClusteringParameter;
-import edu.columbia.geworkbench.cagrid.cluster.som.SomCluster;
-import edu.columbia.geworkbench.cagrid.cluster.som.SomClusteringParameter;
-import edu.columbia.geworkbench.cagrid.converter.CagridBisonConverter;
-import edu.columbia.geworkbench.cagrid.microarray.MicroarraySet;
 
 /**
  * <p>Copyright: Copyright (c) 2003</p>
@@ -80,24 +64,6 @@ import edu.columbia.geworkbench.cagrid.microarray.MicroarraySet;
 @AcceptTypes( { DSMicroarraySet.class, AdjacencyMatrixDataSet.class })
 public class AnalysisPanel extends MicroarrayViewEventBase implements
 		VisualPlugin {
-
-	private static final String GRID_ANALYSIS = "Grid Analysis";
-
-	private static final String HIERARCHICAL_NAME = "Hierarchical";
-
-	private static final String HIERARCHICAL_CLUSTERING_GRID = "Hierarchical Clustering (Grid)";
-
-	private static final String SOM_CLUSTERING_GRID = "Som Clustering (Grid)";
-
-	private static final String ARACNE_GRID = "Aracne (Grid)";
-
-	private static final String SOM_NAME = "Som";
-
-	private static final String ARACNE_NAME = "Aracne";
-
-	private static final String STATML = "Statml";
-
-	private static final String MAGE = "Mage";
 
 	private static final String SERVICE = "Service";
 
@@ -245,8 +211,6 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 	private JTabbedPane jAnalysisTabbedPane = null;
 
 	private GridServicePanel jGridServicePanel = null;
-
-	private CagridBisonConverter cagridBisonConverter = null;
 
 	// end keshav
 
@@ -575,7 +539,14 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 						if (isGridAnalysis()) {
 							String url = getServiceUrl();
 							if (!StringUtils.isEmpty(url)) {
-								executeGridAnalysis(url);
+								GridServiceRunner gridRunner = new GridServiceRunner();
+								ProjectNodeAddedEvent event = gridRunner
+										.executeGridAnalysis(url, maSetView,
+												selectedAnalysis);
+								log.info("event is " + event);
+								if (event != null) {
+									publishProjectNodeAddedEvent(event);
+								}
 							} else {
 								log.error("Cannot execute with url:  " + url);
 							}
@@ -709,156 +680,5 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 
 		String url = bm.getActionCommand();
 		return url;
-	}
-
-	/**
-	 * Executes the grid service at the given url
-	 * 
-	 */
-	protected void executeGridAnalysis(String url) {
-
-		MicroarraySet gridSet = CagridBisonConverter
-				.convertFromBisonToCagridMicroarray(maSetView);
-
-		cagridBisonConverter = new CagridBisonConverter();
-
-		ProgressBar pBar = Util.createProgressBar(GRID_ANALYSIS);
-
-		if (url.contains(HIERARCHICAL_NAME)) {
-			log.info("Hierarchical Clustering grid service detected ... ");
-			if (url.contains(MAGE)) {
-				log.info("Mage service detected ...");
-				// TODO add hooks to handle this
-
-			} else if (url.contains(STATML)) {
-				log.info("Statml service detected ...");
-				// TODO add hooks to handle this
-
-			} else {
-				log.info("Base service detected ... ");
-
-				Map<String, Object> bisonParameters = ((AbstractGridAnalysis) selectedAnalysis)
-						.getBisonParameters();
-				HierarchicalClusteringParameter parameters = cagridBisonConverter
-						.convertHierarchicalBisonToCagridParameter(bisonParameters);
-
-				HierarchicalCluster hierarchicalCluster;
-				try {
-					pBar.setMessage("Running " + HIERARCHICAL_CLUSTERING_GRID);
-					pBar.start();
-					pBar.reset();
-					HierarchicalClusteringClient client = new HierarchicalClusteringClient(
-							url);
-					hierarchicalCluster = client.execute(gridSet, parameters);
-				} catch (Exception e) {
-					throw new RuntimeException(e);
-				} finally {
-					pBar.stop();
-				}
-				if (hierarchicalCluster != null) {
-					// convert grid to bison hierarchical cluster
-					CSHierClusterDataSet dataSet = cagridBisonConverter
-							.createBisonHierarchicalClustering(
-									hierarchicalCluster, maSetView);
-					ProjectNodeAddedEvent event = new ProjectNodeAddedEvent(
-							HIERARCHICAL_CLUSTERING_GRID, null, dataSet);
-					publishProjectNodeAddedEvent(event);
-				}
-			}
-		}
-
-		else if (url.contains(SOM_NAME)) {
-			if (url.contains(MAGE)) {
-				log.info("Mage service detected ...");
-				// TODO add hooks to handle this
-			} else if (url.contains(STATML)) {
-				log.info("Statml service detected ...");
-				// TODO add hooks to handle this
-			} else {
-				log.info("Base service detected ... ");
-				Map<String, Object> bisonParameters = ((AbstractGridAnalysis) selectedAnalysis)
-						.getBisonParameters();
-
-				SomClusteringParameter somClusteringParameters = cagridBisonConverter
-						.convertSomBisonToCagridParameter(bisonParameters);
-
-				if (somClusteringParameters == null)
-					return;
-
-				SomCluster somCluster = null;
-				try {
-					pBar.setMessage("Running " + SOM_CLUSTERING_GRID);
-					pBar.start();
-					pBar.reset();
-					SomClusteringClient client = new SomClusteringClient(url);
-					somCluster = client.execute(gridSet,
-							somClusteringParameters);
-				} catch (Exception e) {
-					throw new RuntimeException(e);
-				} finally {
-					pBar.stop();
-				}
-				if (somCluster != null) {
-					// convert grid to bison hierarchical cluster
-					CSSOMClusterDataSet dataSet = cagridBisonConverter
-							.createBisonSomClustering(somCluster, maSetView);
-					ProjectNodeAddedEvent event = new ProjectNodeAddedEvent(
-							SOM_CLUSTERING_GRID, null, dataSet);
-					publishProjectNodeAddedEvent(event);
-				}
-			}
-
-		}
-
-		else if (url.contains(ARACNE_NAME)) {
-			log.info("Aracne grid service detected ...");
-			if (url.contains(MAGE)) {
-				log.info("Mage service detected ...");
-				// TODO add hooks to handle this
-			} else if (url.contains(STATML)) {
-				log.info("Statml service detected ...");
-				// TODO add hooks to handle this
-			} else {
-				Map<String, Object> bisonParameters = ((AbstractGridAnalysis) selectedAnalysis)
-						.getBisonParameters();
-
-				AracneParameter aracneParameters = cagridBisonConverter
-						.convertAracneBisonToCagridParameter(bisonParameters);
-
-				if (aracneParameters == null)
-					return;
-
-				AdjacencyMatrix adjacencyMatrix = null;
-				try {
-					pBar.setMessage("Running " + ARACNE_GRID);
-					pBar.start();
-					pBar.reset();
-					AracneClient client = new AracneClient(url);
-					adjacencyMatrix = client.execute(aracneParameters, gridSet);
-
-					if (adjacencyMatrix != null) {
-						AdjacencyMatrixDataSet dataSet = cagridBisonConverter
-								.createBisonAdjacencyMatrixDataSet(
-										adjacencyMatrix, maSetView,
-										(Float) bisonParameters
-												.get("threshold"));
-
-						ProjectNodeAddedEvent event = new ProjectNodeAddedEvent(
-								ARACNE_GRID, null, dataSet);
-						publishProjectNodeAddedEvent(event);
-					}
-				} catch (Exception e) {
-					throw new RuntimeException("Error executing " + ARACNE_GRID
-							+ e);
-				} finally {
-					pBar.stop();
-				}
-			}
-		}
-
-		else {
-			JOptionPane.showMessageDialog(null, "Cannot run service at " + url,
-					"Grid Service Client", JOptionPane.ERROR_MESSAGE);
-		}
 	}
 }
