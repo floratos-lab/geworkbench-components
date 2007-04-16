@@ -7,6 +7,7 @@ import java.util.Vector;
 
 import javax.swing.JOptionPane;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.analysis.AbstractAnalysis;
@@ -48,6 +49,7 @@ public class AracneAnalysis extends AbstractGridAnalysis implements ClusteringAn
     private static final String TEMP_DIR = "temporary.files.directory";
     private DSMicroarraySetView<DSGeneMarker, DSMicroarray> mSetView;
     private AdjacencyMatrixDataSet adjMatrix;
+    private String COMMA_SEP = ",";
 
     public AracneAnalysis() {
         setLabel("ARACNE");
@@ -284,17 +286,27 @@ public class AracneAnalysis extends AbstractGridAnalysis implements ClusteringAn
 
 		Map<String, Object> bisonParameters = new HashMap<String, Object>();
 		AracneParamPanel paramPanel = (AracneParamPanel) this.aspp;
-		float dpiTolerence = paramPanel.getDPITolerance();
-		float kernelWidth = paramPanel.getKernelWidth();
-		float threshold = paramPanel.getThreshold();
+
+		if (paramPanel.isDPIToleranceSpecified()) {
+			float dpiTolerence = paramPanel.getDPITolerance();
+			bisonParameters.put("dpi", dpiTolerence);
+		}
+		if (paramPanel.isKernelWidthSpecified()) {
+			float kernelWidth = paramPanel.getKernelWidth();
+			bisonParameters.put("kernel", kernelWidth);
+		}
+
+		// TODO allow user to enter many markers or a file of markers
+		// String hubMarkersFile = paramPanel.getHubMarkersFile();
 		// ArrayList<String> hubGeneList = paramPanel.getHubGeneList();
 		String hubGene = paramPanel.getHubGeneString();
-		// String hubMarkersFile = paramPanel.getHubMarkersFile();
-
-		bisonParameters.put("dpi", dpiTolerence);
-		bisonParameters.put("kernel", kernelWidth);
-		bisonParameters.put("threshold", threshold);
+		String[] genes = StringUtils.split(hubGene, COMMA_SEP);
+		if (genes.length > 1)
+			hubGene = genes[0];
 		bisonParameters.put("hub", hubGene);
+
+		float threshold = paramPanel.getThreshold();
+		bisonParameters.put("threshold", threshold);
 
 		return bisonParameters;
 	}
