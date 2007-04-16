@@ -37,6 +37,12 @@ public class GridServicesButtonListener implements ActionListener {
 
 	ButtonGroup servicesButtonGroup = null;
 
+	/**
+	 * 
+	 * @param indexServiceSelectionButtonListener
+	 * @param indexServiceLabelListener
+	 * @param urlServiceBuilder
+	 */
 	public GridServicesButtonListener(
 			IndexServiceSelectionButtonListener indexServiceSelectionButtonListener,
 			IndexServiceLabelListener indexServiceLabelListener,
@@ -48,6 +54,11 @@ public class GridServicesButtonListener implements ActionListener {
 		this.servicesButtonGroup = new ButtonGroup();
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
+	 */
 	public void actionPerformed(ActionEvent e) {
 
 		Thread t = new Thread(new Runnable() {
@@ -132,10 +143,18 @@ public class GridServicesButtonListener implements ActionListener {
 
 	}
 
+	/**
+	 * 
+	 * @return {@link ButtonGroup}
+	 */
 	public ButtonGroup getServicesButtonGroup() {
 		return this.servicesButtonGroup;
 	}
 
+	/**
+	 * 
+	 * @param selectedAnalysisType
+	 */
 	public void setSelectedAnalysisType(String selectedAnalysisType) {
 		this.selectedAnalysisType = selectedAnalysisType;
 	}
