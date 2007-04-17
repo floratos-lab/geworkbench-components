@@ -33,6 +33,8 @@ import wb.data.Microarray;
 import wb.data.MarkerSet;
 import wb.data.Marker;
 
+import javax.swing.*;
+
 /**
  * @author Matt Hall
  */
@@ -65,28 +67,28 @@ public class MindyAnalysis extends AbstractAnalysis implements ClusteringAnalysi
 //        }
 
         ArrayList<Marker> modulators = new ArrayList<Marker>();
-        try {
-            File modulatorFile = new File(params.getCandidateModulatorsFile());
-            BufferedReader reader = new BufferedReader(new FileReader(modulatorFile));
-            String modulator = reader.readLine();
-            while (modulator != null) {
-                DSGeneMarker marker = mSet.getMarkers().get(modulator);
-                if (marker == null) {
-                    log.info("Couldn't find marker " + modulator + " from modulator file in microarray set.");
-                } else {
-                    modulators.add(new Marker(modulator));
-                }
-                modulator = reader.readLine();
+        ArrayList<String> modulatorGeneList = params.getModulatorGeneList();
+        for (String modGene : modulatorGeneList) {
+            DSGeneMarker marker = mSet.getMarkers().get(modGene);
+            if (marker == null) {
+                log.info("Couldn't find marker " + modGene + " from modulator file in microarray set.");
+                JOptionPane.showMessageDialog(null, modGene + " candidate modulator not found in loadad microarray set.");
+                return null;
+            } else {
+                modulators.add(new Marker(modGene));
             }
-        } catch (IOException e) {
-            log.error(e);
         }
 
         Mindy mindy = new Mindy();
-        DSGeneMarker transFac = mSet.getMarkers().get(params.getTranscriptionFactor());
+        String transcriptionFactor = params.getTranscriptionFactor();
+        DSGeneMarker transFac = mSet.getMarkers().get(transcriptionFactor);
+        if (transFac == null) {
+            JOptionPane.showMessageDialog(null, "Specified hub gene (" + transcriptionFactor + ") not found in loadad microarray set.");
+            return null;
+        }
         log.info("Running MINDY analysis.");
         MindyResults results = mindy.runMindy(convert(mSet), new Marker(params.getTranscriptionFactor()), modulators,
-                params.getSetFraction()/100f, params.getDPITolerance());
+                params.getSetFraction() / 100f, params.getDPITolerance());
         log.info("MINDY analysis complete.");
         List<MindyData.MindyResultRow> dataRows = new ArrayList<MindyData.MindyResultRow>();
         for (MindyResults.MindyResultForTarget result : results) {
@@ -111,7 +113,7 @@ public class MindyAnalysis extends AbstractAnalysis implements ClusteringAnalysi
         for (DSGeneMarker marker : inSet.getMarkers()) {
             markers.addMarker(new Marker(marker.getLabel()));
         }
-        MicroarraySet returnSet = new MicroarraySet("Converted Set", "ID", "ChipType", markers);
+        MicroarraySet returnSet = new MicroarraySet(inSet.getDataSetName(), "ID", "ChipType", markers);
         for (DSMicroarray microarray : inSet) {
             returnSet.addMicroarray(new Microarray(microarray.getLabel(), microarray.getRawMarkerData()));
         }
