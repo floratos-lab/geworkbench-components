@@ -79,6 +79,19 @@ public class MindyAnalysis extends AbstractAnalysis implements ClusteringAnalysi
             }
         }
 
+        ArrayList<Marker> dpiAnnots = new ArrayList<Marker>();
+        ArrayList<String> dpiAnnotList = params.getDPIAnnotatedGeneList();
+        for (String modGene : dpiAnnotList) {
+            DSGeneMarker marker = mSet.getMarkers().get(modGene);
+            if (marker == null) {
+                log.info("Couldn't find marker " + modGene + " from DPI annotation file in microarray set.");
+                JOptionPane.showMessageDialog(null, modGene + " DPI annotated gene not found in loadad microarray set.");
+                return null;
+            } else {
+                dpiAnnots.add(new Marker(modGene));
+            }
+        }
+
         Mindy mindy = new Mindy();
         String transcriptionFactor = params.getTranscriptionFactor();
         DSGeneMarker transFac = mSet.getMarkers().get(transcriptionFactor);
@@ -86,9 +99,30 @@ public class MindyAnalysis extends AbstractAnalysis implements ClusteringAnalysi
             JOptionPane.showMessageDialog(null, "Specified hub gene (" + transcriptionFactor + ") not found in loadad microarray set.");
             return null;
         }
+
+        boolean fullSetMI = true;
+        float fullSetThreshold = 0f;
+        if (params.getFullSetMIThreshold() > 0) {
+            fullSetThreshold = params.getFullSetMIThreshold();
+        } else {
+            fullSetMI = false;
+            fullSetThreshold = params.getFullsetPValueThreshold();
+        }
+
+        boolean subsetMI = true;
+        float subsetThreshold = 0f;
+        if (params.getSubsetMIThreshold() > 0) {
+            subsetThreshold = params.getSubsetMIThreshold();
+        } else {
+            subsetMI = false;
+            subsetThreshold = params.getSubsetPValueThreshold();
+        }
+
         log.info("Running MINDY analysis.");
+        float setFraction = params.getSetFraction() / 100f;
         MindyResults results = mindy.runMindy(convert(mSet), new Marker(params.getTranscriptionFactor()), modulators,
-                params.getSetFraction() / 100f, params.getDPITolerance());
+                dpiAnnots, fullSetMI, fullSetThreshold, subsetMI, subsetThreshold,
+                setFraction, params.getDPITolerance());
         log.info("MINDY analysis complete.");
         List<MindyData.MindyResultRow> dataRows = new ArrayList<MindyData.MindyResultRow>();
         for (MindyResults.MindyResultForTarget result : results) {
