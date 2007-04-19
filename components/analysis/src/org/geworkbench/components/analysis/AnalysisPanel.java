@@ -171,7 +171,7 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 	/**
 	 * Visual Widget
 	 */
-	private JPanel jParameterPanel = new JPanel();
+	private JPanel jParameterPanel = null;
 
 	/**
 	 * Visual Widget
