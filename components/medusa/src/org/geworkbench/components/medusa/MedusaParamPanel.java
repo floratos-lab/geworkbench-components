@@ -6,7 +6,6 @@ import java.io.Serializable;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
-import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 
@@ -18,10 +17,18 @@ import com.jgoodies.forms.layout.FormLayout;
 /**
  * 
  * @author keshav
- * @version $Id: MedusaParamPanel.java,v 1.3 2007-04-24 16:24:12 keshav Exp $
+ * @version $Id: MedusaParamPanel.java,v 1.4 2007-04-24 18:06:51 keshav Exp $
  */
 public class MedusaParamPanel extends AbstractSaveableParameterPanel implements
 		Serializable {
+
+	private static final String TRUE = "True";
+
+	private static final String FALSE = "False";
+
+	private static final String YES = "Yes";
+
+	private static final String NO = "No";
 
 	/**
 	 * 
@@ -29,6 +36,8 @@ public class MedusaParamPanel extends AbstractSaveableParameterPanel implements
 	private static final long serialVersionUID = 1L;
 
 	private JTabbedPane parametersTabbedPane = new JTabbedPane();
+
+	/* MAIN PANEL */
 
 	/* features */
 	private JButton loadFeaturesButton = new JButton("Load Features");
@@ -83,6 +92,43 @@ public class MedusaParamPanel extends AbstractSaveableParameterPanel implements
 	/* all arrays */
 	private JCheckBox allArraysCheckBox = new JCheckBox("", true);
 
+	/* SECONDARY PANEL */
+
+	/* min kmers */
+	private int minKmer = 3;
+
+	private JTextField minKmerTextField = new JTextField(minKmer);
+
+	/* max kmers */
+	private int maxKmer = 7;
+
+	private JTextField maxKmerTextField = new JTextField(maxKmer);
+
+	/* dimers */
+	private JComboBox dimersCombo = new JComboBox(new String[] { NO, YES });
+
+	private int minGap = 0;
+
+	private JTextField dimerMinGapTextField = new JTextField(minGap);
+
+	private int maxGap = 2;
+
+	private JTextField dimerMaxGapTextField = new JTextField(maxGap);
+
+	/* reverse compliment */
+	private JComboBox reverseComplementCombo = new JComboBox(new String[] {
+			TRUE, FALSE });
+
+	/* pssm length */
+	private int pssmLength = 5;
+
+	private JTextField pssmLengthTextField = new JTextField(pssmLength);
+
+	/* agglomerations per round */
+	private int agg = 5;
+
+	private JTextField aggTextField = new JTextField(agg);
+
 	/**
 	 * 
 	 * 
@@ -98,12 +144,15 @@ public class MedusaParamPanel extends AbstractSaveableParameterPanel implements
 		this.intervalBaseTextField.setEnabled(false);
 		this.intervalBoundTextField.setEnabled(false);
 
-		/* form layout */
+		this.dimerMinGapTextField.setEnabled(false);
+		this.dimerMaxGapTextField.setEnabled(false);
+
+		/* MAIN PANEL */
+
 		FormLayout layout = new FormLayout(
 				"right:max(40dlu;pref), 3dlu, 60dlu, 3dlu, 90dlu, 3dlu, 40dlu, 7dlu",
 				"");
 
-		/* build the main panel */
 		DefaultFormBuilder mainBuilder = new DefaultFormBuilder(layout);
 		mainBuilder.setDefaultDialogBorder();
 		mainBuilder.appendSeparator("MEDUSA Main Paramaters");
@@ -135,10 +184,46 @@ public class MedusaParamPanel extends AbstractSaveableParameterPanel implements
 		/* all arrays */
 		mainBuilder.append("All Arrays", allArraysCheckBox);
 
-		/* build the secondary panel */
-		DefaultFormBuilder secondaryBuilder = new DefaultFormBuilder(layout);
+		/* SECONDARY PANEL */
+
+		FormLayout secondaryLayout = new FormLayout(
+				"right:max(40dlu;pref), 3dlu, 60dlu, 3dlu, 90dlu, 3dlu, 40dlu, 7dlu",
+				"");
+
+		DefaultFormBuilder secondaryBuilder = new DefaultFormBuilder(
+				secondaryLayout);
 		secondaryBuilder.setDefaultDialogBorder();
-		secondaryBuilder.addSeparator("MEDUSA Secondary Parameters");
+		secondaryBuilder.appendSeparator("MEDUSA Secondary Parameters");
+
+		/* kmer */
+		secondaryBuilder.append("Minimum Kmer", minKmerTextField);
+		secondaryBuilder.nextRow();
+
+		secondaryBuilder.append("Maximum Kmer", maxKmerTextField);
+		secondaryBuilder.nextRow();
+
+		/* dimers */
+		secondaryBuilder.append("Learn Dimers", dimersCombo);
+		secondaryBuilder.nextRow();
+
+		/* dimer gaps */
+		secondaryBuilder.append("Dimer Min Gap", dimerMinGapTextField);
+		secondaryBuilder.nextRow();
+
+		secondaryBuilder.append("Dimer Max Gap", dimerMaxGapTextField);
+		secondaryBuilder.nextRow();
+
+		/* reverse complement */
+		secondaryBuilder.append("Reverse Complement", reverseComplementCombo);
+		secondaryBuilder.nextRow();
+
+		/* pssm length */
+		secondaryBuilder.append("Max PSSM Length", pssmLengthTextField);
+		secondaryBuilder.nextRow();
+
+		/* agglomerations per round */
+		secondaryBuilder.append("Agglomerations Per Round", aggTextField);
+		secondaryBuilder.nextRow();
 
 		/* add tabs */
 		parametersTabbedPane.add("Main", mainBuilder.getPanel());
@@ -147,5 +232,4 @@ public class MedusaParamPanel extends AbstractSaveableParameterPanel implements
 		this.add(parametersTabbedPane);
 
 	}
-
 }
