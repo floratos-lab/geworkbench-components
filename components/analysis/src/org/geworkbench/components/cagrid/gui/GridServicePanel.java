@@ -2,6 +2,9 @@ package org.geworkbench.components.cagrid.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Cursor;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionAdapter;
 import java.util.Collection;
 import java.util.HashSet;
 
@@ -26,7 +29,7 @@ import com.jgoodies.forms.layout.FormLayout;
 /**
  * 
  * @author keshav
- * @version $Id: GridServicePanel.java,v 1.22 2007-04-03 05:26:57 keshav Exp $
+ * @version $Id: GridServicePanel.java,v 1.23 2007-04-24 18:28:04 keshav Exp $
  */
 public class GridServicePanel extends JPanel {
 	private Log log = LogFactory.getLog(this.getClass());
@@ -87,13 +90,24 @@ public class GridServicePanel extends JPanel {
 		indexServiceBuilder.append(gridButton);
 
 		// index service label
-		JLabel indexServiceLabel = new JLabel("Change Index Service");
+		String htmlText = "<html>" + "<font><u>"
+				+ "Change Index Service</u><br></font>" + "";
+
+		final JLabel indexServiceLabel = new JLabel(htmlText);
 		indexServiceLabel.setForeground(Color.BLUE);
 
 		// index service label listener
 		final IndexServiceLabelListener indexServiceLabelListener = new IndexServiceLabelListener(
 				indexServiceLabel);
 		indexServiceLabel.addMouseListener(indexServiceLabelListener);
+		indexServiceLabel.addMouseMotionListener(new MouseMotionAdapter() {
+
+			public void mouseMoved(MouseEvent e) {
+
+				indexServiceLabel.setCursor(new Cursor(Cursor.HAND_CURSOR));
+			}
+
+		});
 		indexServiceBuilder.append(indexServiceLabel);
 
 		// grid services button
