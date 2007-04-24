@@ -18,7 +18,7 @@ import com.jgoodies.forms.layout.FormLayout;
 /**
  * 
  * @author keshav
- * @version $Id: MedusaParamPanel.java,v 1.2 2007-04-24 15:43:36 keshav Exp $
+ * @version $Id: MedusaParamPanel.java,v 1.3 2007-04-24 16:24:12 keshav Exp $
  */
 public class MedusaParamPanel extends AbstractSaveableParameterPanel implements
 		Serializable {
@@ -29,10 +29,6 @@ public class MedusaParamPanel extends AbstractSaveableParameterPanel implements
 	private static final long serialVersionUID = 1L;
 
 	private JTabbedPane parametersTabbedPane = new JTabbedPane();
-
-	private JPanel mainPanel = new JPanel();
-
-	private JPanel secondaryPanel = new JPanel();
 
 	/* features */
 	private JButton loadFeaturesButton = new JButton("Load Features");
@@ -106,44 +102,49 @@ public class MedusaParamPanel extends AbstractSaveableParameterPanel implements
 		FormLayout layout = new FormLayout(
 				"right:max(40dlu;pref), 3dlu, 60dlu, 3dlu, 90dlu, 3dlu, 40dlu, 7dlu",
 				"");
-		DefaultFormBuilder builder = new DefaultFormBuilder(layout);
-		builder.setDefaultDialogBorder();
-		builder.appendSeparator("MEDUSA Paramaters");
+
+		/* build the main panel */
+		DefaultFormBuilder mainBuilder = new DefaultFormBuilder(layout);
+		mainBuilder.setDefaultDialogBorder();
+		mainBuilder.appendSeparator("MEDUSA Main Paramaters");
 
 		/* features */
-		builder.append("Features File", loadFeaturesButton);
-		builder.nextRow();
+		mainBuilder.append("Features File", loadFeaturesButton);
+		mainBuilder.nextRow();
 
 		/* regulators */
-		builder.append("Regulators", regulatorCombo);
-		builder.append(regulatorTextField, loadRegulatorsButton);
+		mainBuilder.append("Regulators", regulatorCombo);
+		mainBuilder.append(regulatorTextField, loadRegulatorsButton);
 		// builder.nextRow();
 
 		/* targets */
-		builder.append("Targets", targetCombo);
-		builder.append(targetTextField, loadTargetsButton);
+		mainBuilder.append("Targets", targetCombo);
+		mainBuilder.append(targetTextField, loadTargetsButton);
 		// builder.nextRow();
 
 		/* intervals */
-		builder.append("Interval Base", intervalBaseTextField);
-		builder.nextRow();
-		builder.append("Interval Bound", intervalBoundTextField);
-		builder.nextRow();
+		mainBuilder.append("Interval Base", intervalBaseTextField);
+		mainBuilder.nextRow();
+		mainBuilder.append("Interval Bound", intervalBoundTextField);
+		mainBuilder.nextRow();
 
 		/* iterations */
-		builder.append("Boosting Iterations", boostingIterationsTextField);
-		builder.nextRow();
+		mainBuilder.append("Boosting Iterations", boostingIterationsTextField);
+		mainBuilder.nextRow();
 
 		/* all arrays */
-		builder.append("All Arrays", allArraysCheckBox);
+		mainBuilder.append("All Arrays", allArraysCheckBox);
 
-		mainPanel.add(builder.getPanel());
+		/* build the secondary panel */
+		DefaultFormBuilder secondaryBuilder = new DefaultFormBuilder(layout);
+		secondaryBuilder.setDefaultDialogBorder();
+		secondaryBuilder.addSeparator("MEDUSA Secondary Parameters");
 
-		parametersTabbedPane.add("Main", mainPanel);
-		parametersTabbedPane.add("Secondary", secondaryPanel);
+		/* add tabs */
+		parametersTabbedPane.add("Main", mainBuilder.getPanel());
+		parametersTabbedPane.add("Secondary", secondaryBuilder.getPanel());
 
 		this.add(parametersTabbedPane);
-		// this.add(builder.getPanel());
 
 	}
 
