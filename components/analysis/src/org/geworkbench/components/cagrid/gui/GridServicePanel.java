@@ -22,6 +22,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.analysis.AbstractAnalysis;
+import org.ginkgo.labs.gui.SwingUtil;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.layout.FormLayout;
@@ -29,7 +30,7 @@ import com.jgoodies.forms.layout.FormLayout;
 /**
  * 
  * @author keshav
- * @version $Id: GridServicePanel.java,v 1.23 2007-04-24 18:28:04 keshav Exp $
+ * @version $Id: GridServicePanel.java,v 1.24 2007-04-25 20:54:28 keshav Exp $
  */
 public class GridServicePanel extends JPanel {
 	private Log log = LogFactory.getLog(this.getClass());
@@ -90,10 +91,8 @@ public class GridServicePanel extends JPanel {
 		indexServiceBuilder.append(gridButton);
 
 		// index service label
-		String htmlText = "<html>" + "<font><u>"
-				+ "Change Index Service</u><br></font>" + "";
-
-		final JLabel indexServiceLabel = new JLabel(htmlText);
+		final JLabel indexServiceLabel = new JLabel(SwingUtil
+				.convertTextToHtml("Change Index Service"));
 		indexServiceLabel.setForeground(Color.BLUE);
 
 		// index service label listener
