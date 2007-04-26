@@ -398,7 +398,7 @@ public class GenetegrateViewWidget extends JPanel {
      */
     public void preProcess() {
         if (activeSequenceDB.isDNA()) {
-             isNormal = false;
+            isNormal = false;
             JOptionPane.showMessageDialog(null, "The sequences are DNA sequence, please load a protein sequence first.", "DNA Sequence", JOptionPane.ERROR_MESSAGE);
             return;
         }
@@ -414,11 +414,16 @@ public class GenetegrateViewWidget extends JPanel {
             }
             String tempString = name + "_" + seq.getLabel() +
                     ".fasta";
-
+            tempString = tempString.replace('|', '_');
+            tempString = tempString.replace(' ', '_');
+            tempString = tempString.replace('/', '_');
             if (tempFolder == null) {
                 tempFolder = ".";
             }
             File tempFile = new File(tempFolder + tempString);
+            if (tempFile.exists()) {
+                tempFile.delete();
+            }
             try {
                 PrintWriter out = new PrintWriter(new FileOutputStream(tempFile));
                 out.println(">" + seq.getLabel());
@@ -427,7 +432,8 @@ public class GenetegrateViewWidget extends JPanel {
                 out.close();
                 inputFileNames[i] = tempFile.getAbsolutePath();
             } catch (Exception e) {
-                JOptionPane.showMessageDialog(null, "Some temp files cannot be created.", "Error", JOptionPane.ERROR_MESSAGE);
+                e.printStackTrace();
+                JOptionPane.showMessageDialog(null, "Some temp files cannot be created. " + e, "Error", JOptionPane.ERROR_MESSAGE);
                 isNormal = false;
                 postProcess();
             }
@@ -459,14 +465,14 @@ public class GenetegrateViewWidget extends JPanel {
             else {
                 outputfilename = inputfilename.substring(0, dot) + "." + inputParameters[0].toLowerCase();
             }
+            //Temp solution. genetegrate can use any location of inputfile, but the output file always is saved at the root folder.
             File file = new File(outputfilename);
-
+            file = new File(file.getName());
             boolean finished = false;
-
             while (!finished) {
                 progressInfo = genetegrate.demos.sendRequest.sendRequest(inputParameters);
 
-                System.out.println("progressInfo(" + progressInfo + file.exists() + ")" + executeButton.isEnabled());
+                // System.out.println("progressInfo(" + progressInfo + file.exists() + ")" + executeButton.isEnabled());
                 if (progressInfo == null) {
                     if (file.exists() && file.length() > 0) {
                         finished = true;
@@ -475,7 +481,7 @@ public class GenetegrateViewWidget extends JPanel {
                     }
 
                 } else if (progressInfo.startsWith("Response expected")) {
-                    updateProgressBar(true, progressInfo);
+                    updateProgressBar(true, "For " + file.getName() + " " + progressInfo);
                     try {
                         Thread.sleep(GAPSECOND);
                     } catch (Exception e) {
@@ -483,19 +489,18 @@ public class GenetegrateViewWidget extends JPanel {
                     ;
                 } else {
                     finished = true;
-                    updateProgressBar(true, progressInfo);
+                    updateProgressBar(false, progressInfo);
                 }
 
             }
             postProcess(file.getAbsolutePath());
         }
-        //System.out.println(progressInfo + "TEST" + activeSequenceDB.size() + args[1] + args[0]);
     }
 
 
     public void postProcess(String outputFilename) {
         postProcess();
-        System.out.println(new Date() + "end"  + serviceProgressBar.isIndeterminate());
+        serviceProgressBar.setString("The job is done at " + new Date());
         File pdbFile = PDBFileGenerator.generatePDBFileFromSwissModel(new File(outputFilename));
         new File(outputFilename).delete();
         if (pdbFile.exists()) {
@@ -511,7 +516,7 @@ public class GenetegrateViewWidget extends JPanel {
 
         executeButton.setEnabled(true);
         serviceProgressBar.setIndeterminate(false);
-        serviceProgressBar.setString("Please resubmit your query again.");
+        //serviceProgressBar.setString("Please resubmit your query again.");
         revalidate();
         repaint();
     }
@@ -542,13 +547,6 @@ public class GenetegrateViewWidget extends JPanel {
             }
         }
         sequencedetailPanel.repaint();
-//        if (xStartPoint < selectedSequence.length() - 100) {
-//            rightShiftButton.setEnabled(true);
-//        }
-//        if (xStartPoint > 100) {
-//            leftShiftButton.setEnabled(true);
-//        }
-
         prevSeqDx = xStartPoint;
         sequencedetailPanel.setOpaque(false);
 
@@ -564,7 +562,6 @@ public class GenetegrateViewWidget extends JPanel {
         seqViewWPanel.this_mouseClicked(e);
         xStartPoint = seqViewWPanel.getSeqXclickPoint();
         sequencedetailPanel.repaint();
-        //updateBottomPanel(e);
     }
 
 
