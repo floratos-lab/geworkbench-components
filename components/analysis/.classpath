@@ -80,6 +80,5 @@
 	<classpathentry kind="lib" path="lib/wss4j.jar"/>
 	<classpathentry kind="lib" path="lib/xmlsec.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/geworkbench-core"/>
-	<classpathentry kind="lib" path="lib/gp-full.jar"/>
 	<classpathentry kind="output" path="classes"/>
 </classpath>
