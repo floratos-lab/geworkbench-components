@@ -444,7 +444,7 @@ public class NCBIBlastParser {
             //System.exit(1);
         } catch (IOException e) {
             System.out.println("NCBIBLASTParser + IOException!");
-            // e.printStackTrace();
+             e.printStackTrace();
             return false;
         } catch (Exception e) {
 
@@ -484,10 +484,13 @@ public class NCBIBlastParser {
         return "Total hits for all sequences are " + totalHitCount + ".";
     }
 
-    /*public static void main(String[] args) {
+     public static void main(String[] args) {
+
             BlastParser test = new BlastParser();
+        // test.filename = "C:\\Blast-1992809694.html";
+         test.filename = "C:\\gforge\\geworkbench\\temp\\GEAW\\Blast1374003213.html";
             test.parseResults();
-             }*/
+             }
 
 
 }
