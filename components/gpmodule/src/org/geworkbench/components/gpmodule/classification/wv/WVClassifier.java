@@ -9,11 +9,11 @@
   whatsoever. Neither the Broad Institute nor MIT can be responsible for its
   use, misuse, or functionality.
 */
-package org.geworkbench.components.analysis.classification.wv;
+package org.geworkbench.components.gpmodule.classification.wv;
 
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
-import org.geworkbench.components.analysis.classification.GPClassifier;
-import org.geworkbench.components.analysis.classification.PredictionModel;
+import org.geworkbench.components.gpmodule.classification.PredictionModel;
+import org.geworkbench.components.gpmodule.classification.GPClassifier;
 import org.genepattern.webservice.Parameter;
 
 import java.io.*;
@@ -23,8 +23,7 @@ import java.util.ArrayList;
 /**
  * @author Marc-Danie Nazaire
  */
-public class WVClassifier extends GPClassifier
-{
+public class WVClassifier extends GPClassifier {
     PredictionModel predModel;
 
     public WVClassifier(DSDataSet parent, String label, String[] classifications, PredictionModel model, List featureNames)

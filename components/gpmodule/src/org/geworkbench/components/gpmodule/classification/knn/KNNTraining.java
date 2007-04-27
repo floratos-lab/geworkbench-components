@@ -9,22 +9,20 @@
   whatsoever. Neither the Broad Institute nor MIT can be responsible for its
   use, misuse, or functionality.
 */
-package org.geworkbench.components.analysis.classification.wv;
+package org.geworkbench.components.gpmodule.classification.knn;
 
-import org.geworkbench.components.analysis.classification.GPTraining;
-import org.geworkbench.components.analysis.classification.PredictionModel;
+import org.geworkbench.components.gpmodule.classification.GPTraining;
+import org.geworkbench.components.gpmodule.classification.PredictionModel;
 import org.geworkbench.bison.algorithm.classification.CSClassifier;
-import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
+import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.util.ClassifierException;
 import org.geworkbench.util.TrainingTask;
 import org.geworkbench.util.TrainingProgressListener;
 import org.genepattern.data.matrix.ClassVector;
 import org.genepattern.webservice.Parameter;
-import org.apache.commons.logging.LogFactory;
 import org.apache.commons.logging.Log;
-//import org.apache.commons.logging.LogFactory;
-//import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import javax.swing.*;
 import java.util.List;
@@ -34,25 +32,43 @@ import java.io.*;
 /**
  * @author Marc-Danie Nazaire
  */
-public class WVTraining extends GPTraining implements TrainingTask
+public class KNNTraining extends GPTraining implements TrainingTask
 {
-    static Log log = LogFactory.getLog(WVTraining.class);
+    static Log log = LogFactory.getLog(KNNTraining.class);
 
     TrainingProgressListener trainingProgressListener = null;
     private boolean cancelled = false;
 
-    public WVTraining()
+    public KNNTraining()
     {
-        setLabel("WV Classifier");
-        panel = new WVTrainingPanel(this);
-        setDefaultPanel(panel);
+       setLabel("KNN Classifier");
+       panel = new KNNTrainingPanel(this);
+       setDefaultPanel(panel);
+    }
+
+    private int getWeightType(String weightType)
+    {
+        if(weightType.equals("one-over-k"))
+        {   return 2;   }
+        else if(weightType.equals("distance"))
+        {    return 3;  }
+        else
+        {   return 1;   }
+    }
+
+    private int getDistance(String distance)
+    {
+        if(distance.equals("Euclidean"))
+        {   return 2;   }
+        else
+        {   return 1;   }
     }
 
     protected CSClassifier trainClassifier(List<float[]> caseData, List<float[]> controlData)
     {
         log.debug("Training classifier.");
-       
-        WVClassifier wvClassifier = null;
+
+        KNNClassifier knnClassifier = null;
 
         try
         {
@@ -65,11 +81,11 @@ public class WVTraining extends GPTraining implements TrainingTask
             if(trainingProgressListener != null)
                 trainingProgressListener.stepUpdate("processing training parameters", 1);
 
-            WVTrainingPanel wvPanel = (WVTrainingPanel)panel;
-            DSItemList markers = wvPanel.getActiveMarkers();
+            KNNTrainingPanel knnPanel = (KNNTrainingPanel)panel;
+            DSItemList markers = knnPanel.getActiveMarkers();
 
             List featureNames = new ArrayList();
-            for(int i =0; i < markers.size(); i++)
+            for(int i =0; i < markers.size();i++)
             {
                 featureNames.add(((DSGeneMarker)markers.get(i)).getLabel());
             }
@@ -78,7 +94,7 @@ public class WVTraining extends GPTraining implements TrainingTask
             trainingSet.addAll(controlData);
             trainingSet.addAll(caseData);
 
-            File trainingData = createGCTFile("WV_Data", trainingSet, featureNames);
+            File trainingData = createGCTFile("KNN_Data", trainingSet, featureNames);
 
             int sampleSize = caseData.size() + controlData.size();
             String[] classLabels = new String[sampleSize];
@@ -91,24 +107,26 @@ public class WVTraining extends GPTraining implements TrainingTask
             }
 
             ClassVector classVec = new ClassVector(classLabels);
-            File clsData = createCLSFile("WV_Cls", classVec);
+            File clsData = createCLSFile("KNN_Cls", classVec);
+
+            int numNeighbors = knnPanel.getNumNeighbors();
+            int weightType = getWeightType(knnPanel.getWeightType());
 
             List parameters = new ArrayList();
-            if(wvPanel.useFeatureFileMethod())
+            if(knnPanel.useFeatureFileMethod())
             {
-                String featureFile = wvPanel.getFeatureFile();
+                String featureFile = knnPanel.getFeatureFile();
                 validateFeatureFile(featureFile, featureNames);
                 parameters.add(new Parameter("train.filename", trainingData.getAbsolutePath()));
                 parameters.add(new Parameter("train.class.filename", clsData.getAbsolutePath()));
                 parameters.add(new Parameter("feature.list.filename", featureFile));
             }
             else
-            {                
-                int numFeatures = wvPanel.getNumFeatures();
-                String statistic = wvPanel.getStatistic();
-                boolean useMedian = wvPanel.useMedian();
-
-                boolean useStdDev = wvPanel.useMinStdDev();
+            {
+                int numFeatures = knnPanel.getNumFeatures();
+                String statistic = knnPanel.getStatistic();
+                boolean useMedian = knnPanel.useMedian();
+                boolean useStdDev = knnPanel.useMinStdDev();
                 int stat = getStatistic(statistic, useMedian, useStdDev);
 
                 parameters.add(new Parameter("train.filename", trainingData.getAbsolutePath()));
@@ -117,15 +135,20 @@ public class WVTraining extends GPTraining implements TrainingTask
                 parameters.add(new Parameter("feature.selection.statistic", stat));
 
                 if(useStdDev)
-                    parameters.add(new Parameter("min.std", wvPanel.getMinStdDev()));
+                    parameters.add(new Parameter("min.std", knnPanel.getMinStdDev()));
             }
+            
+            ArrayList knnParams = new ArrayList();
+            knnParams.add(new Parameter("num.neighbors", numNeighbors));
+            knnParams.add(new Parameter("weighting.type", weightType));
+            knnParams.add(new Parameter("distance.measure", getDistance(knnPanel.getDistanceMeasure())));
 
             if(trainingProgressListener != null)
                 trainingProgressListener.stepUpdate("training classifier", 2);
 
-            PredictionModel predModel = createModel("WeightedVoting", (Parameter[])parameters.toArray(new Parameter[0]));
+            PredictionModel predModel = createModel("KNN", (Parameter[])parameters.toArray(new Parameter[0]));
 
-            wvClassifier = new WVClassifier(null, "WV Classifier", new String[]{"Positive", "Negative"}, predModel, featureNames);
+            knnClassifier = new KNNClassifier(null, "KNN Classifier", new String[]{"Positive", "Negative"}, predModel, featureNames, knnParams);
 
             if(trainingProgressListener != null)
                 trainingProgressListener.stepUpdate("classifier trained", 3);
@@ -138,7 +161,7 @@ public class WVTraining extends GPTraining implements TrainingTask
             log.warn(e);
         }
 
-        return wvClassifier;
+        return knnClassifier;
     }
 
     public TrainingProgressListener getTrainingProgressListener()

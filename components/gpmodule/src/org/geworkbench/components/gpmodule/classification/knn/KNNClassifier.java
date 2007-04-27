@@ -9,11 +9,11 @@
   whatsoever. Neither the Broad Institute nor MIT can be responsible for its
   use, misuse, or functionality.
 */
-package org.geworkbench.components.analysis.classification.knn;
+package org.geworkbench.components.gpmodule.classification.knn;
 
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
-import org.geworkbench.components.analysis.classification.GPClassifier;
-import org.geworkbench.components.analysis.classification.PredictionModel;
+import org.geworkbench.components.gpmodule.classification.PredictionModel;
+import org.geworkbench.components.gpmodule.classification.GPClassifier;
 import org.genepattern.webservice.Parameter;
 
 import java.io.File;
@@ -23,8 +23,7 @@ import java.util.ArrayList;
 /**
  * @author Marc-Danie Nazaire
  */
-public class KNNClassifier extends GPClassifier
-{
+public class KNNClassifier extends GPClassifier {
     List knnParameters = null;
     PredictionModel predModel;
 

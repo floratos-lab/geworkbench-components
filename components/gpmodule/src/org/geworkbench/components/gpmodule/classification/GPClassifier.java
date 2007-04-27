@@ -9,7 +9,7 @@
   whatsoever. Neither the Broad Institute nor MIT can be responsible for its
   use, misuse, or functionality.
 */
-package org.geworkbench.components.analysis.classification;
+package org.geworkbench.components.gpmodule.classification;
 
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.algorithm.classification.CSClassifier;
