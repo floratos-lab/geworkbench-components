@@ -1,9 +1,13 @@
 package org.geworkbench.components.cytoscape;
 
-import cytoscape.CytoscapeObj;
+//import cytoscape.CytoscapeObj;
+import cytoscape.*;
+import cytoscape.visual.ui.VizMapBypassNetworkListener;
 import cytoscape.view.CyMenus;
 import cytoscape.view.NetworkPanel;
 import cytoscape.view.NetworkViewManager;
+import cytoscape.view.CyHelpBroker;
+import cytoscape.view.cytopanels.BiModalJSplitPane;
 
 import javax.swing.*;
 import java.awt.*;
@@ -29,11 +33,13 @@ public class CytoscapeDesktop extends cytoscape.view.CytoscapeDesktop {
 
     public CytoscapeDesktop(int view_type) {
         this.VIEW_TYPE = view_type;
-        initialize();
+        this.initialize();
     }
 
-    protected void initialize() {
+    /*protected void initialize() {
         JPanel main_panel = new JPanel();
+
+        cyHelpBroker = new CyHelpBroker();
 
         main_panel.setLayout(new BorderLayout());
 
@@ -49,7 +55,21 @@ public class CytoscapeDesktop extends cytoscape.view.CytoscapeDesktop {
         this.getSwingPropertyChangeSupport().addPropertyChangeListener(networkPanel);
         networkPanel.getSwingPropertyChangeSupport().addPropertyChangeListener(this);
 
+        // add a listener for node bypass
+        cytoscape.Cytoscape.getSwingPropertyChangeSupport().addPropertyChangeListener(new VizMapBypassNetworkListener());
+
+        // initialize undo manager
+        undo = new cytoscape.util.UndoManager(cyMenus);
+
         cyMenus.initializeMenus();
+
+        // initialize Help Menu
+        //kkumar:  have to check how it can be done.
+        //cyMenus.initializeHelp(cyHelpBroker.getHelpBroker());
+
+        // create the CytoscapeDesktop
+        BiModalJSplitPane masterPane = setupCytoPanels(networkPanel,
+                networkViewManager);
 
         if (VIEW_TYPE == TABBED_VIEW) {
             JScrollPane scroll_tab = new JScrollPane(networkViewManager.getTabbedPane());
@@ -86,7 +106,7 @@ public class CytoscapeDesktop extends cytoscape.view.CytoscapeDesktop {
         }
         setupVizMapper(main_panel);
 
-        Cytoscape.getCytoscapeObj().getPluginRegistry().addPluginListener(this);
+//        Cytoscape.getCytoscapeObj().getPluginRegistry().addPluginListener(this);
 
         final CytoscapeObj theCytoscapeObj = Cytoscape.getCytoscapeObj();
         final CytoscapeDesktop thisWindow = this;
@@ -100,26 +120,11 @@ public class CytoscapeDesktop extends cytoscape.view.CytoscapeDesktop {
             }
         });
 
-        addWindowListener(Cytoscape.getCytoscapeObj().getParentApp());
+            addWindowListener(Cytoscape.getCytoscapeObj().getParentApp());
 
         setContentPane(main_panel);
         pack();
         if (VIEW_TYPE != EXTERNAL_VIEW)
             setSize(700, 700);
-        /*
-            CyNetwork network = Cytoscape.createNetwork("Test");
-            CyNode    node1   = Cytoscape.getCyNode("Node 1", true);
-            CyNode    node2   = Cytoscape.getCyNode("Node 2", true);
-            node1.setIdentifier("foo");
-            node2.setIdentifier("baz");
-
-            CyEdge    edge    = Cytoscape.getCyEdge("Node 1", "Edge 1", "Node 2", "pp");
-            network.addNode(node1);
-            network.addNode(node2);
-            network.addEdge(edge);
-            //CyNetworkView view = Cytoscape.createNetworkView(network, "view");
-            //
-            Cytoscape.setCurrentNetworkView("view");
-         */
-    }
+    }  */
 }
