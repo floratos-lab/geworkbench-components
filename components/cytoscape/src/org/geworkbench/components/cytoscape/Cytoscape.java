@@ -1,9 +1,5 @@
 package org.geworkbench.components.cytoscape;
 
-import cytoscape.view.*;
-import cytoscape.view.CytoscapeDesktop;
-import cytoscape.CytoscapeInit;
-
 /**
  * <p>Title: Bioworks</p>
  * <p>Description: Modular Application Framework for Gene Expession, Sequence and Genotype Analysis</p>
@@ -17,11 +13,8 @@ import cytoscape.CytoscapeInit;
 public abstract class Cytoscape extends cytoscape.Cytoscape {
     public static cytoscape.view.CytoscapeDesktop getDesktop() {
         if (defaultDesktop == null) {
-            // System.out.println( " Defaultdesktop created: "+defaultDesktop );
-            defaultDesktop = new cytoscape.view.CytoscapeDesktop(CytoscapeDesktop
-                    .parseViewType(CytoscapeInit.getProperties().getProperty(
-                            "viewType")));
+            defaultDesktop = new CytoscapeDesktop(getCytoscapeObj().getConfiguration().getViewType());
         }
-        return defaultDesktop;
+        return defaultDesktop;       
     }
 }
