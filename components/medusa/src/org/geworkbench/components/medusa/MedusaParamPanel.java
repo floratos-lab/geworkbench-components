@@ -27,7 +27,7 @@ import com.jgoodies.forms.layout.FormLayout;
 /**
  * 
  * @author keshav
- * @version $Id: MedusaParamPanel.java,v 1.7 2007-05-01 19:37:17 keshav Exp $
+ * @version $Id: MedusaParamPanel.java,v 1.8 2007-05-01 21:01:11 keshav Exp $
  */
 public class MedusaParamPanel extends AbstractSaveableParameterPanel implements
 		Serializable {
@@ -121,12 +121,12 @@ public class MedusaParamPanel extends AbstractSaveableParameterPanel implements
 	/* min kmers */
 	private int minKmer = 3;
 
-	private JTextField minKmerTextField = new JTextField(minKmer);
+	private JTextField minKmerTextField = new JTextField();
 
 	/* max kmers */
 	private int maxKmer = 7;
 
-	private JTextField maxKmerTextField = new JTextField(maxKmer);
+	private JTextField maxKmerTextField = new JTextField();
 
 	/* dimers */
 	private JComboBox dimersCombo = new JComboBox(new String[] { NO, YES });
@@ -138,6 +138,8 @@ public class MedusaParamPanel extends AbstractSaveableParameterPanel implements
 	private int maxGap = 2;
 
 	private JTextField dimerMaxGapTextField = new JTextField(maxGap);
+
+	private boolean usingDimers = false;
 
 	/* reverse compliment */
 	private JComboBox reverseComplementCombo = new JComboBox(new String[] {
@@ -220,9 +222,11 @@ public class MedusaParamPanel extends AbstractSaveableParameterPanel implements
 		secondaryBuilder.appendSeparator("MEDUSA Secondary Parameters");
 
 		/* kmer */
+		minKmerTextField.setText(String.valueOf(minKmer));
 		secondaryBuilder.append("Minimum Kmer", minKmerTextField);
 		secondaryBuilder.nextRow();
 
+		maxKmerTextField.setText(String.valueOf(maxKmer));
 		secondaryBuilder.append("Maximum Kmer", maxKmerTextField);
 		secondaryBuilder.nextRow();
 
@@ -424,9 +428,11 @@ public class MedusaParamPanel extends AbstractSaveableParameterPanel implements
 				if (YES.equals(selectedItem)) {
 					dimerMinGapTextField.setEnabled(true);
 					dimerMaxGapTextField.setEnabled(true);
+					usingDimers = true;
 				} else {
 					dimerMinGapTextField.setEnabled(false);
 					dimerMaxGapTextField.setEnabled(false);
+					usingDimers = false;
 				}
 			}
 		});
@@ -547,4 +553,74 @@ public class MedusaParamPanel extends AbstractSaveableParameterPanel implements
 
 		return minGap;
 	}
+
+	/**
+	 * 
+	 * @return
+	 */
+	public int getMaxKmer() {
+		try {
+			maxKmer = Integer.valueOf(maxKmerTextField.getText());
+		} catch (NumberFormatException nfe) {
+			JOptionPane.showMessageDialog(null, NUMERIC_VALUES_ONLY, "Error",
+					JOptionPane.ERROR_MESSAGE);
+			throw new RuntimeException(nfe.getMessage());
+		}
+
+		if (maxKmer < 0) {
+			JOptionPane.showMessageDialog(null, "Max kmer "
+					+ CANNOT_BE_NEGATIVE, "Error", JOptionPane.ERROR_MESSAGE);
+			throw new RuntimeException("Max kmer " + CANNOT_BE_NEGATIVE);
+		}
+		return maxKmer;
+	}
+
+	/**
+	 * 
+	 * @return
+	 */
+	public int getMinKmer() {
+		try {
+			minKmer = Integer.valueOf(minKmerTextField.getText());
+		} catch (NumberFormatException nfe) {
+			JOptionPane.showMessageDialog(null, NUMERIC_VALUES_ONLY, "Error",
+					JOptionPane.ERROR_MESSAGE);
+			throw new RuntimeException(nfe.getMessage());
+		}
+
+		if (minKmer < 0) {
+			JOptionPane.showMessageDialog(null, "Min kmer "
+					+ CANNOT_BE_NEGATIVE, "Error", JOptionPane.ERROR_MESSAGE);
+			throw new RuntimeException("Min kmer " + CANNOT_BE_NEGATIVE);
+		}
+
+		return minKmer;
+	}
+
+	/**
+	 * 
+	 * @return
+	 */
+	public int getAgg() {
+		try {
+			agg = Integer.valueOf(aggTextField.getText());
+		} catch (NumberFormatException nfe) {
+			JOptionPane.showMessageDialog(null, NUMERIC_VALUES_ONLY, "Error",
+					JOptionPane.ERROR_MESSAGE);
+			throw new RuntimeException(nfe.getMessage());
+		}
+
+		if (agg < 0) {
+			JOptionPane.showMessageDialog(null, "Agglomerations "
+					+ CANNOT_BE_NEGATIVE, "Error", JOptionPane.ERROR_MESSAGE);
+			throw new RuntimeException("Agglomerations " + CANNOT_BE_NEGATIVE);
+		}
+
+		return agg;
+	}
+
+	public boolean isUsingDimers() {
+		return usingDimers;
+	}
+
 }
