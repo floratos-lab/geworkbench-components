@@ -44,6 +44,7 @@ public class ModulatorHeatMap extends JPanel {
     private int maxGeneNameWidth = -1;
     private float[][] sortedValues;
     private java.util.List<MindyData.MindyResultRow> targetRows;
+    private float[] sortedModValues;
 
     public ModulatorHeatMap(DSGeneMarker modulator, DSGeneMarker transcriptionFactor, MindyData mindyData, List<DSGeneMarker> targetLimits) {
         this.maSet = mindyData.getArraySet();
@@ -57,7 +58,12 @@ public class ModulatorHeatMap extends JPanel {
             System.arraycopy(array, 0, sortedValues[i], 0, array.length);
         }
 
-        Arrays.sort(sortedValues, new ArrayIndexComparator(modulator.getSerial(), true));
+        int modSerial = modulator.getSerial();
+        Arrays.sort(sortedValues, new ArrayIndexComparator(modSerial, true));
+        sortedModValues = new float[sortedValues.length];
+        for (int i = 0; i < sortedValues.length; i++) {
+            sortedModValues[i] = sortedValues[i][modSerial];
+        }
 //        sortArrays(new ArrayIndexComparator(modulator.getSerial(), true));
         // Sort half sets based on trans factor
         ArrayList<float[]> firstHalf = new ArrayList<float[]>();
@@ -89,8 +95,8 @@ public class ModulatorHeatMap extends JPanel {
         this.mindyData = mindyData;
         limitTargets(targetLimits);
 
-        gradient = new ColorGradient(Color.black, Color.yellow);
-        gradient.addColorPoint(Color.red, 0f);
+        gradient = new ColorGradient(Color.blue, Color.red);
+        gradient.addColorPoint(Color.white, 0f);
 
         FontRenderContext context = new FontRenderContext(null, true, false);
         for (DSGeneMarker marker : markers) {
@@ -134,6 +140,8 @@ public class ModulatorHeatMap extends JPanel {
 
         g.setBackground(Color.WHITE);
 
+        int modulatorIndex = modulator.getSerial();
+
         // Paint the modulator expression bar
         g.setColor(COLOR_TEXT);
         FontMetrics metrics = g.getFontMetrics();
@@ -149,6 +157,16 @@ public class ModulatorHeatMap extends JPanel {
         float px = modBarStartX;
         float lastX = modBarStartX;
         ColorGradient.ColorPoint lastPoint = null;
+        int numArrays = sortedValues.length;
+        float modCellWidth = barWidth / (float) numArrays;
+        for (int i = 0; i < numArrays; i++) {
+            int x = (int) (modBarStartX + (i * modCellWidth));
+            Color cellColor = getColorForScore(sortedModValues[i]);
+            g.setColor(cellColor);
+            g.fillRect(x, modBarTopY, (int) (modCellWidth + 1), BAR_HEIGHT);
+        }
+
+/*
         for (int i = 0; i < n; i++) {
             ColorGradient.ColorPoint cPoint = gradient.getColorPoint(i);
             if (lastPoint != null) {
@@ -162,6 +180,7 @@ public class ModulatorHeatMap extends JPanel {
             lastPoint = cPoint;
             lastX = px;
         }
+*/
         g.setColor(Color.GRAY);
         g.drawRect(modBarStartX, modBarTopY, barWidth, BAR_HEIGHT);
 
