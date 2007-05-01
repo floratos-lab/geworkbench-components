@@ -3,6 +3,8 @@ package org.geworkbench.components.mindy;
 import javax.swing.*;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ChangeListener;
+import javax.swing.event.ChangeEvent;
 import javax.swing.table.*;
 import java.util.*;
 import java.util.List;
@@ -204,12 +206,16 @@ public class MindyPlugin extends JPanel {
                 public void actionPerformed(ActionEvent actionEvent) {
                     Integer modLimit = (Integer) modLimitValue.getValue();
                     log.debug("Limiting modulators displayed to top " + modLimit);
-                    aggregateModel.setModLimit(modLimit);
                     boolean selected = modulatorLimits.isSelected();
-                    aggregateModel.setModulatorsLimited(selected);
-                    aggregateModel.fireTableStructureChanged();
-                    table.packAll();
-                    table.repaint();
+                    limitModulators(modLimit, selected, table);
+                }
+            });
+
+            modLimitValue.addChangeListener(new ChangeListener() {
+                public void stateChanged(ChangeEvent changeEvent) {
+                    if (modulatorLimits.isSelected()) {
+                        limitModulators((Integer) modLimitValue.getValue(), true, table);
+                    }
                 }
             });
 
@@ -352,6 +358,14 @@ public class MindyPlugin extends JPanel {
 
         setLayout(new BorderLayout());
         add(tabs, BorderLayout.CENTER);
+    }
+
+    private void limitModulators(Integer modLimit, boolean selected, JXTable table) {
+        aggregateModel.setModLimit(modLimit);
+        aggregateModel.setModulatorsLimited(selected);
+        aggregateModel.fireTableStructureChanged();
+        table.packAll();
+        table.repaint();
     }
 
     private void rebuildHeatMap() {
