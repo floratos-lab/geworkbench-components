@@ -84,12 +84,15 @@ public class GenetegrateViewWidget extends JPanel {
     private JCheckBox jAllSequenceCheckBox = new JCheckBox();
     private JComboBox functionViewComboBox = new JComboBox();
     private JButton executeButton = new JButton();
+    private JButton stopButton = new JButton();
+    private ImageIcon executeButtonIcon = Util.createImageIcon("/images/start.gif");
     private JLabel jViewLabel = new JLabel();
     private JComboBox jViewComboBox = new JComboBox();
     private static final String LINEVIEW = "Line";
     private static final String FULLVIEW = "Full Sequence";
     private static final String SWISSMODEL = "SWISSMODEL";
     private static final String ESYPRED = "ESYPRED";
+    private static final String PUDGE = "PUDGE";
     private JTextField jSequenceSummaryTextField = new JTextField();
     private boolean isLineView = true; //true is for LineView.
     private boolean onlyShowPattern = false;
@@ -108,6 +111,7 @@ public class GenetegrateViewWidget extends JPanel {
             "temporary.files.directory");
     private static int GAPSECOND = 60000;
     private boolean isNormal = true;
+    private boolean isStopped = false;
 
     public GenetegrateViewWidget(GenetegrateViewAppComponent _genetegrateViewAppComponent) {
         genetegrateViewAppComponent = _genetegrateViewAppComponent;
@@ -156,8 +160,25 @@ public class GenetegrateViewWidget extends JPanel {
         jAllSequenceCheckBox.setToolTipText("Click to display all sequences.");
         jAllSequenceCheckBox.setSelected(false);
         jAllSequenceCheckBox.setText("All Sequences");
-        executeButton.setText("Run");
-        executeButton.setToolTipText("Run selected functions.");
+        executeButtonIcon = Util.createImageIcon("/images/start.gif");
+        executeButton.setIcon(executeButtonIcon);
+        executeButton.setMaximumSize(new Dimension(35, 35));
+        //executeButton.setText("Run");
+        //executeButton.setText("Run");
+
+        stopButton.setMaximumSize(new Dimension(35, 35));
+        stopButton.setMinimumSize(new Dimension(35, 35));
+        stopButton.setPreferredSize(new Dimension(35, 35));
+        stopButton.setToolTipText("Stop");
+        ImageIcon stopButtonIcon = Util.createImageIcon("/images/stop.gif");
+        stopButton.setMaximumSize(new Dimension(35, 35));
+        stopButton.setIcon(stopButtonIcon);
+        stopButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                stopButton_actionPerformed(e);
+            }
+        });
+        executeButton.setToolTipText("Run selected function.");
         jAllSequenceCheckBox.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 jAllSequenceCheckBox_actionPerformed(e);
@@ -215,16 +236,20 @@ public class GenetegrateViewWidget extends JPanel {
 
         serviceProgressBar.setOrientation(JProgressBar.HORIZONTAL);
         serviceProgressBar.setBorder(BorderFactory.createEtchedBorder());
-        serviceProgressBar.setMaximumSize(new Dimension(32767, 26));
-        serviceProgressBar.setMinimumSize(new Dimension(10, 26));
-        serviceProgressBar.setPreferredSize(new Dimension(104, 26));
+        serviceProgressBar.setMaximumSize(new Dimension(32767, 35));
+        serviceProgressBar.setMinimumSize(new Dimension(10, 35));
+        serviceProgressBar.setPreferredSize(new Dimension(104, 35));
         serviceProgressBar.setStringPainted(true);
         jToolBar1.add(jViewLabel);
         jToolBar1.add(jViewComboBox);
         //jToolBar1.add(showAllBtn);
         jToolBar1.add(functionViewComboBox);
         jToolBar1.add(executeButton);
+        jToolBar1.add(stopButton);
         jToolBar1.add(serviceProgressBar);
+         jToolBar1.setMaximumSize(new Dimension(32767, 35));
+       jToolBar1.setMinimumSize(new Dimension(10, 35));
+        jToolBar1.setPreferredSize(new Dimension(300, 35));
         //jToolBar1.add(jAllSequenceCheckBox);
         //jToolBar1.addSeparator();
         //jToolBar1.add(jSequenceSummaryTextField);
@@ -232,6 +257,7 @@ public class GenetegrateViewWidget extends JPanel {
         jViewComboBox.addItem(GenetegrateViewWidget.FULLVIEW);
         functionViewComboBox.addItem(GenetegrateViewWidget.SWISSMODEL);
         functionViewComboBox.addItem(GenetegrateViewWidget.ESYPRED);
+        functionViewComboBox.addItem(GenetegrateViewWidget.PUDGE);
         executeButton = new JButton("Run");
 
         jViewComboBox.setSize(jViewComboBox.getPreferredSize());
@@ -374,6 +400,10 @@ public class GenetegrateViewWidget extends JPanel {
         SwingUtilities.invokeLater(r);
     }
 
+    public void stopButton_actionPerformed(ActionEvent e) {
+        updateProgressBar(false, "Stopped at " + new Date());
+        isStopped = true;
+    }
 
     public void invokeFunction() {
         isNormal = true;
@@ -440,6 +470,7 @@ public class GenetegrateViewWidget extends JPanel {
         }
         executeButton.setEnabled(false);
         serviceProgressBar.setIndeterminate(true);
+        serviceProgressBar.setString("Your job is submitted at " + new Date());
         revalidate();
         repaint();
     }
@@ -471,17 +502,21 @@ public class GenetegrateViewWidget extends JPanel {
             boolean finished = false;
             while (!finished) {
                 progressInfo = genetegrate.demos.sendRequest.sendRequest(inputParameters);
-
+                if (isStopped) {
+                    isStopped = false;
+                    break;
+                }
                 // System.out.println("progressInfo(" + progressInfo + file.exists() + ")" + executeButton.isEnabled());
                 if (progressInfo == null) {
                     if (file.exists() && file.length() > 0) {
                         finished = true;
+                        serviceProgressBar.setString("The job is done at " + new Date());
                     } else {
                         updateProgressBar(true, "Waiting the response from the server.");
                     }
 
                 } else if (progressInfo.startsWith("Response expected")) {
-                    updateProgressBar(true, "For " + file.getName() + " " + progressInfo);
+                    updateProgressBar(true, file.getName() + ": " + progressInfo);
                     try {
                         Thread.sleep(GAPSECOND);
                     } catch (Exception e) {
@@ -500,7 +535,7 @@ public class GenetegrateViewWidget extends JPanel {
 
     public void postProcess(String outputFilename) {
         postProcess();
-        serviceProgressBar.setString("The job is done at " + new Date());
+       // serviceProgressBar.setString("The job is done at " + new Date());
         File pdbFile = PDBFileGenerator.generatePDBFileFromSwissModel(new File(outputFilename));
         new File(outputFilename).delete();
         if (pdbFile.exists()) {
