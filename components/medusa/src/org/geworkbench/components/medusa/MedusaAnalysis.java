@@ -13,7 +13,7 @@ import org.geworkbench.bison.model.analysis.ClusteringAnalysis;
 /**
  * 
  * @author keshav
- * @version $Id: MedusaAnalysis.java,v 1.3 2007-05-01 19:37:17 keshav Exp $
+ * @version $Id: MedusaAnalysis.java,v 1.4 2007-05-01 21:01:11 keshav Exp $
  */
 public class MedusaAnalysis extends AbstractGridAnalysis implements
 		ClusteringAnalysis {
@@ -81,14 +81,26 @@ public class MedusaAnalysis extends AbstractGridAnalysis implements
 
 		int boosting = params.getBoostingIterations();
 
-		int minGap = params.getMinGap();
-		int maxGap = params.getMaxGap();
+		int minKmer = params.getMinKmer();
+		int maxKmer = params.getMaxKmer();
 
-		if (minGap > maxGap) {
+		if (minKmer > maxKmer) {
 			JOptionPane.showMessageDialog(null,
-					"Min gap cannot exceed max gap.", "Error",
+					"Min kmer cannot exceed max kmer.", "Error",
 					JOptionPane.ERROR_MESSAGE);
-			throw new RuntimeException("Min gap cannot exceed max gap.");
+			throw new RuntimeException("Min kmer cannot exceed max kmer.");
+		}
+
+		if (params.isUsingDimers()) {
+			int minGap = params.getMinGap();
+			int maxGap = params.getMaxGap();
+
+			if (minGap > maxGap) {
+				JOptionPane.showMessageDialog(null,
+						"Min gap cannot exceed max gap.", "Error",
+						JOptionPane.ERROR_MESSAGE);
+				throw new RuntimeException("Min gap cannot exceed max gap.");
+			}
 		}
 
 		log.info("executing ...");
