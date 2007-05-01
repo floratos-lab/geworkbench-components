@@ -573,6 +573,21 @@ public class CytoscapeWidget implements VisualPlugin, MenuListener {
                 Cytoscape.getCurrentNetworkView().fitContent();
             }
             break;
+            case DRAW_GENEWAYS_COMPLETE_NETWORK: {
+                // System.out.println("drawNetwork from cytoscapeWidget");
+                if (ae.getNetworkFocus() == -1) {
+                    drawCompleteNetwork(ae.getAdjacencyMatrix(), ae.getThreshold());
+                } else {
+                    drawCentricNetwork(ae.getAdjacencyMatrix(), ae.getNetworkFocus(), ae.getThreshold(), ae.getDisplayDepth());
+                }
+                CyWindowProxy proxy = new CyWindowProxy();
+                YFilesLayoutPlugin plugin = new YFilesLayoutPlugin(proxy);
+                OrganicLayout organiclayout = new OrganicLayout(plugin);
+                organiclayout.actionPerformed(null);
+                Cytoscape.getCurrentNetworkView().applyVizmapper(interactionsVisualStyle);
+                Cytoscape.getCurrentNetworkView().fitContent();
+            }
+            break;
             case FINISH: {
                 if (maSet != null) {
                     view = Cytoscape.createNetworkView(cytoNetwork, maSet.getLabel());
