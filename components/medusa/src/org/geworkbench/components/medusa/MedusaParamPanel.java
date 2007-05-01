@@ -27,10 +27,14 @@ import com.jgoodies.forms.layout.FormLayout;
 /**
  * 
  * @author keshav
- * @version $Id: MedusaParamPanel.java,v 1.6 2007-05-01 19:02:47 keshav Exp $
+ * @version $Id: MedusaParamPanel.java,v 1.7 2007-05-01 19:37:17 keshav Exp $
  */
 public class MedusaParamPanel extends AbstractSaveableParameterPanel implements
 		Serializable {
+
+	private static final String NUMERIC_VALUES_ONLY = "Numeric values only (make sure fields are not empty).";
+
+	private static final String CANNOT_BE_NEGATIVE = "cannot be negative.";
 
 	private static final String FASTA_PREFIX = ">";
 
@@ -261,6 +265,7 @@ public class MedusaParamPanel extends AbstractSaveableParameterPanel implements
 	 */
 	private void addListeners() {
 
+		/* PRIMARY */
 		/* features */
 		// button listener
 		loadFeaturesButton.addActionListener(new ActionListener() {
@@ -408,6 +413,23 @@ public class MedusaParamPanel extends AbstractSaveableParameterPanel implements
 
 			}
 		});
+
+		/* SECONDARY */
+
+		// combo listener
+		dimersCombo.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				JComboBox cb = (JComboBox) e.getSource();
+				String selectedItem = (String) cb.getSelectedItem();
+				if (YES.equals(selectedItem)) {
+					dimerMinGapTextField.setEnabled(true);
+					dimerMaxGapTextField.setEnabled(true);
+				} else {
+					dimerMinGapTextField.setEnabled(false);
+					dimerMaxGapTextField.setEnabled(false);
+				}
+			}
+		});
 	}
 
 	/**
@@ -422,6 +444,12 @@ public class MedusaParamPanel extends AbstractSaveableParameterPanel implements
 					"Must use numeric values for interval base.", "Error",
 					JOptionPane.ERROR_MESSAGE);
 			throw new RuntimeException(nfe.getMessage());
+		}
+
+		if (intervalBase < 0) {
+			JOptionPane.showMessageDialog(null, "Interval base "
+					+ CANNOT_BE_NEGATIVE, "Error", JOptionPane.ERROR_MESSAGE);
+			throw new RuntimeException("Interval base " + CANNOT_BE_NEGATIVE);
 		}
 
 		return intervalBase;
@@ -442,6 +470,12 @@ public class MedusaParamPanel extends AbstractSaveableParameterPanel implements
 			throw new RuntimeException(nfe.getMessage());
 		}
 
+		if (intervalBound < 0) {
+			JOptionPane.showMessageDialog(null, "Interval bound "
+					+ CANNOT_BE_NEGATIVE, "Error", JOptionPane.ERROR_MESSAGE);
+			throw new RuntimeException("Interval bound " + CANNOT_BE_NEGATIVE);
+		}
+
 		return intervalBound;
 	}
 
@@ -454,10 +488,63 @@ public class MedusaParamPanel extends AbstractSaveableParameterPanel implements
 			boostingIterations = Integer.valueOf(boostingIterationsTextField
 					.getText());
 		} catch (NumberFormatException nfe) {
-			JOptionPane.showMessageDialog(null, "Numeric values only.",
-					"Error", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(null, NUMERIC_VALUES_ONLY, "Error",
+					JOptionPane.ERROR_MESSAGE);
 			throw new RuntimeException(nfe.getMessage());
 		}
+
+		if (boostingIterations < 0) {
+			JOptionPane.showMessageDialog(null, "Boosting iterations "
+					+ CANNOT_BE_NEGATIVE, "Error", JOptionPane.ERROR_MESSAGE);
+			throw new RuntimeException("Boosting iterations "
+					+ CANNOT_BE_NEGATIVE);
+		}
+
 		return boostingIterations;
+	}
+
+	/**
+	 * 
+	 * @return
+	 */
+	public int getMaxGap() {
+		try {
+			maxGap = Integer.valueOf(dimerMaxGapTextField.getText());
+		} catch (NumberFormatException nfe) {
+			JOptionPane.showMessageDialog(null, NUMERIC_VALUES_ONLY, "Error",
+					JOptionPane.ERROR_MESSAGE);
+			throw new RuntimeException(nfe.getMessage());
+		}
+
+		if (maxGap < 0) {
+			JOptionPane.showMessageDialog(null,
+					"Max gap " + CANNOT_BE_NEGATIVE, "Error",
+					JOptionPane.ERROR_MESSAGE);
+			throw new RuntimeException("Max gap " + CANNOT_BE_NEGATIVE);
+		}
+		return maxGap;
+	}
+
+	/**
+	 * 
+	 * @return
+	 */
+	public int getMinGap() {
+
+		try {
+			minGap = Integer.valueOf(dimerMinGapTextField.getText());
+		} catch (NumberFormatException nfe) {
+			JOptionPane.showMessageDialog(null, NUMERIC_VALUES_ONLY, "Error",
+					JOptionPane.ERROR_MESSAGE);
+			throw new RuntimeException(nfe.getMessage());
+		}
+
+		if (minGap < 0) {
+			JOptionPane.showMessageDialog(null, "Min gap cannot be negative.",
+					"Error", JOptionPane.ERROR_MESSAGE);
+			throw new RuntimeException("Min gap " + CANNOT_BE_NEGATIVE);
+		}
+
+		return minGap;
 	}
 }
