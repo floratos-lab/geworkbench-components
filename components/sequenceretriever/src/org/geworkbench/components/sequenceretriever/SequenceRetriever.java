@@ -287,7 +287,7 @@ public class SequenceRetriever implements VisualPlugin {
                             return arraylist.size() + " sequences found.";
                         }
                     } else {
-                        return "No sequnece.";
+                        return "No sequence.";
                     }
                 }
                 return null;
