@@ -1,14 +1,24 @@
 package org.geworkbench.components.medusa;
 
 import java.awt.BorderLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.io.Serializable;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
+import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.geworkbench.analysis.AbstractSaveableParameterPanel;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
@@ -17,10 +27,14 @@ import com.jgoodies.forms.layout.FormLayout;
 /**
  * 
  * @author keshav
- * @version $Id: MedusaParamPanel.java,v 1.4 2007-04-24 18:06:51 keshav Exp $
+ * @version $Id: MedusaParamPanel.java,v 1.5 2007-05-01 16:52:27 keshav Exp $
  */
 public class MedusaParamPanel extends AbstractSaveableParameterPanel implements
 		Serializable {
+
+	private static final String FASTA_PREFIX = ">";
+
+	private Log log = LogFactory.getLog(MedusaParamPanel.class);
 
 	private static final String TRUE = "True";
 
@@ -42,8 +56,10 @@ public class MedusaParamPanel extends AbstractSaveableParameterPanel implements
 	/* features */
 	private JButton loadFeaturesButton = new JButton("Load Features");
 
+	private String featuresListFile = new String("data/test.txt");
+
 	/* regulators */
-	private String REGULATOR_LIST = "Specify";
+	private String REGULATOR_LIST = "Specify (csv)";
 
 	private String REGULATOR_ACTIVATED = "Activated Markers";
 
@@ -57,8 +73,10 @@ public class MedusaParamPanel extends AbstractSaveableParameterPanel implements
 
 	private JButton loadRegulatorsButton = new JButton("Load Regulators");
 
+	private String regulatorsFile = new String("data/regulators.txt");
+
 	/* targets */
-	private String TARGET_LIST = "Specify";
+	private String TARGET_LIST = "Specify (csv)";
 
 	private String TARGET_ALL = "Activated Markers";
 
@@ -70,6 +88,8 @@ public class MedusaParamPanel extends AbstractSaveableParameterPanel implements
 	private JTextField targetTextField = new JTextField(DEFAULT_TARGET_LIST);
 
 	private JButton loadTargetsButton = new JButton("Load Targets");
+
+	private String targetsFile = new String("data/targets.txt");
 
 	/* discretization interval */
 
@@ -158,7 +178,7 @@ public class MedusaParamPanel extends AbstractSaveableParameterPanel implements
 		mainBuilder.appendSeparator("MEDUSA Main Paramaters");
 
 		/* features */
-		mainBuilder.append("Features File", loadFeaturesButton);
+		mainBuilder.append("Features File (FASTA)", loadFeaturesButton);
 		mainBuilder.nextRow();
 
 		/* regulators */
@@ -230,6 +250,164 @@ public class MedusaParamPanel extends AbstractSaveableParameterPanel implements
 		parametersTabbedPane.add("Secondary", secondaryBuilder.getPanel());
 
 		this.add(parametersTabbedPane);
+
+		addListeners();
+
+	}
+
+	/**
+	 * 
+	 * 
+	 */
+	private void addListeners() {
+
+		/* features */
+		// button listener
+		loadFeaturesButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent actionEvent) {
+				StringBuilder geneListBuilder = new StringBuilder();
+				try {
+					File targetFile = new File(featuresListFile);
+					JFileChooser chooser = new JFileChooser(targetFile
+							.getParent());
+					int retVal = chooser.showOpenDialog(MedusaParamPanel.this);
+
+					if (retVal == JFileChooser.APPROVE_OPTION) {
+						featuresListFile = chooser.getSelectedFile().getPath();
+
+						BufferedReader reader = new BufferedReader(
+								new FileReader(featuresListFile));
+						String target = reader.readLine();
+
+						if (!target.startsWith(FASTA_PREFIX)) {
+							JOptionPane.showMessageDialog(null,
+									"Not in FASTA format.", "Error",
+									JOptionPane.ERROR_MESSAGE);
+						}
+
+						while (target != null && !"".equals(target)) {
+
+							geneListBuilder.append(target + ", ");
+							target = reader.readLine();
+						}
+
+						// String geneString = geneListBuilder.toString();
+						// featuresList.setText(geneString.substring(0,
+						// geneString.length() - 2));
+					} else {
+						log.debug("cancelled ... ");
+					}
+
+				} catch (IOException e) {
+					log.error(e);
+				}
+
+			}
+		});
+
+		/* regulators */
+		// combo listener
+		regulatorCombo.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				JComboBox cb = (JComboBox) e.getSource();
+				String selectedItem = (String) cb.getSelectedItem();
+				if (REGULATOR_ACTIVATED.equals(selectedItem)) {
+					regulatorTextField.setEnabled(false);
+					loadRegulatorsButton.setEnabled(false);
+				} else {
+					regulatorTextField.setEnabled(true);
+					loadRegulatorsButton.setEnabled(true);
+				}
+			}
+		});
+
+		// button listener
+		loadRegulatorsButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent actionEvent) {
+				StringBuilder geneListBuilder = new StringBuilder();
+				try {
+					File hubFile = new File(regulatorsFile);
+					JFileChooser chooser = new JFileChooser(hubFile.getParent());
+					int retVal = chooser.showOpenDialog(MedusaParamPanel.this);
+
+					if (retVal == JFileChooser.APPROVE_OPTION) {
+						regulatorsFile = chooser.getSelectedFile().getPath();
+
+						BufferedReader reader = new BufferedReader(
+								new FileReader(regulatorsFile));
+						String hub = reader.readLine();
+						while (hub != null && !"".equals(hub)) {
+							geneListBuilder.append(hub + ", ");
+							hub = reader.readLine();
+						}
+
+						String geneString = geneListBuilder.toString();
+						regulatorTextField.setText(geneString.substring(0,
+								geneString.length() - 2));
+					}
+
+					else {
+						log.debug("cancelled ... ");
+					}
+
+				} catch (IOException e) {
+					log.error(e);
+				}
+
+			}
+		});
+
+		/* targets */
+		// combo listener
+		targetCombo.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				JComboBox cb = (JComboBox) e.getSource();
+				String selectedItem = (String) cb.getSelectedItem();
+				if (TARGET_ALL.equals(selectedItem)) {
+					targetTextField.setEnabled(false);
+					loadTargetsButton.setEnabled(false);
+				} else {
+					targetTextField.setEnabled(true);
+					loadTargetsButton.setEnabled(true);
+				}
+			}
+		});
+		// button listener
+		loadTargetsButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent actionEvent) {
+				// targetGenes = new ArrayList<String>();
+				StringBuilder geneListBuilder = new StringBuilder();
+				try {
+					File targetFile = new File(targetsFile);
+					JFileChooser chooser = new JFileChooser(targetFile
+							.getParent());
+					int retVal = chooser.showOpenDialog(MedusaParamPanel.this);
+
+					if (retVal == JFileChooser.APPROVE_OPTION) {
+						targetsFile = chooser.getSelectedFile().getPath();
+
+						BufferedReader reader = new BufferedReader(
+								new FileReader(targetsFile));
+						String target = reader.readLine();
+						while (target != null && !"".equals(target)) {
+							// targetGenes.add(target);
+							geneListBuilder.append(target + ", ");
+							target = reader.readLine();
+						}
+
+						String geneString = geneListBuilder.toString();
+						targetTextField.setText(geneString.substring(0,
+								geneString.length() - 2));
+					} else {
+						log.debug("cancelled ... ");
+					}
+
+				} catch (IOException e) {
+					log.error(e);
+				}
+
+			}
+		});
 
 	}
 }
