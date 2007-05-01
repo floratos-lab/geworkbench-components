@@ -10,7 +10,9 @@ import java.util.regex.Pattern;
 
 import javax.swing.JProgressBar;
 import javax.swing.JTextArea;
+
 import org.geworkbench.util.session.SoapClient;
+
 import java.sql.DriverManager;
 import java.sql.Statement;
 import java.sql.Connection;
@@ -25,9 +27,9 @@ import java.sql.SQLException;
 public class RemoteBlast {
     private final static String NCBIHEADER =
             "<HTML><HEAD><meta http-equiv=\"content-type\""
-            + "content=\"text/html;charset=utf-8\" /></HEAD><BODY BGCOLOR=\"#FFFFFF\" LINK=\"#0000FF\" VLINK=\"#660099\" ALINK=\"#660099\">"
-            + "<IMG SRC=\"http://www.ncbi.nlm.nih.gov/blast/images/head_results.gif\"    WIDTH=\"600\" HEIGHT=\"45\" ALIGN=\"middle\">"
-            +"<title>NCBI Blast Result</title><br><br>";
+                    + "content=\"text/html;charset=utf-8\" /></HEAD><BODY BGCOLOR=\"#FFFFFF\" LINK=\"#0000FF\" VLINK=\"#660099\" ALINK=\"#660099\">"
+                    + "<IMG SRC=\"http://www.ncbi.nlm.nih.gov/blast/images/head_results.gif\"    WIDTH=\"600\" HEIGHT=\"45\" ALIGN=\"middle\">"
+                    + "<title>NCBI Blast Result</title><br><br>";
 
     public RemoteBlast() {
         try {
@@ -89,7 +91,7 @@ public class RemoteBlast {
      */
     private String cmdLine;
     /**
-     *  The URL of the Blast result coresponds to one sequence. Don't use it in the problem.
+     * The URL of the Blast result coresponds to one sequence. Don't use it in the problem.
      */
     private String resultURLString;
 
@@ -106,7 +108,7 @@ public class RemoteBlast {
      * name.
      *
      * @param the JTextArea to set textArea with.
-     * @param		the String value to set query with.
+     * @param the String value to set query with.
      */
     public RemoteBlast(String query, JTextArea textArea) {
         this.query = query;
@@ -180,7 +182,7 @@ public class RemoteBlast {
         if (cmdLine != null) {
             message = SUBMITPREFIX + query + cmdLine;
         }
-        // System.out.println(message);
+
         try {
 
             s = new Socket(Blast_SERVER, DEFAULT_PORT);
@@ -258,7 +260,7 @@ public class RemoteBlast {
             BufferedReader in = new BufferedReader(inBytes);
 
             textArea.append("\n\nSending message: " + message + "\n");
-            System.out.println(message);
+            //System.out.println(message);
             //write String message to output stream as byte sequence.
             out.writeBytes(message);
 
@@ -315,10 +317,10 @@ public class RemoteBlast {
         getBlastDone = false;
         String message =
                 RESULTPREFIX +
-                format + "&RID=" + rid + "\r\n\r\n";
+                        format + "&RID=" + rid + "\r\n\r\n";
         resultURLString =
                 "http://www.ncbi.nlm.nih.gov/blast/Blast.cgi?CMD=Get&FORMAT_TYPE=" +
-                format + "&RID=";
+                        format + "&RID=";
         // System.out.println(new Date() + message);
         GetBlast getBlast = new GetBlast(message);
         //  runMain(message);
@@ -427,8 +429,33 @@ public class RemoteBlast {
 
                         Thread.sleep(SoapClient.TIMEGAP);
                     } else {
+                        //todo Remove the new feature. WE need figure out a way to download the images later.
+                        boolean needRemoveNewFeature = false;
                         while (data != null) {
-                            ps.println(data);
+                            data = updateImageLink(data);
+                            if (data.trim().startsWith("<div id=\"graphic\" class=\"blRes\">")) {
+                                needRemoveNewFeature = true;
+                            } else
+                            if (data.trim().startsWith("</center><hr></div><!--/#graphic-->") && needRemoveNewFeature) {
+                                needRemoveNewFeature = false;
+//                                data = in.readLine();
+//                                ps.println(data);
+//                                while (!data.trim().startsWith("<a href=\"http://www.ncbi.nlm.nih.gov/blast/treeview/blast_tree_view.cgi?"))
+//                                {
+//                                    ps.println(data);
+//                                    data = in.readLine();
+//
+//                                }
+//                                String newStr = "http://www.ncbi.nlm.nih.gov/blast/images/D.gif";
+//                                if (data.indexOf("src=\"/blast/images") > -1) {
+//                                    data = data.replaceAll("src=\"/blast/images", "http://www.ncbi.nlm.nih.gov/blast/images");
+//                                }
+//
+//                                ps.println(data);
+                            } else if (!needRemoveNewFeature) {
+
+                                ps.println(data);
+                            }
                             data = in.readLine();
                         }
                     }
@@ -452,73 +479,83 @@ public class RemoteBlast {
 
     } //end of class GetBlast.
 
-
-    public static void main(String[] args) {
-        connectJDBC(args);
-        String query = "MGARCPTRTLRARQPAHPRPPGTPRHHQRRPLPAASPTRHRSSRGRQIRARRPDRPGTRLRTGAAVDRQQPQHAPLRPLRLRSARADPRPQPGKPARRNPGHQRPRPRCRRPGAQQRPADRTLPADRSARHRVPAAPPAARPAHRRARQRRLRPARRPARPAGTRPLHDSRTRPAQLSGAADLRSDRRPATDRDHRQRRSPLLPAPCRRHHRTRRPPLPARIPPPVHSAAPHPPQQRGTRGNRGRPLLREPAQRHPSSRRRLRAPHRGRLPPGYRPAPQRGLPDHGHRRQDQRTHPRVPAGARGNGVAPTHGHPRMTSRRSHETPQGPDPRSPGAAPAYREAPPALTGRE";
-        RemoteBlast test = new RemoteBlast(query);
-        String message =
-                "Put http://www.ncbi.nlm.nih.gov/blast/Blast.cgi?CMD=Put&QUERY=" +
-                query + "&DATABASE=nr&PROGRAM=blastp&FILTER=L&GAPCOSTS=11%202&HITLIST_SZE=500&AUTO_FORMAT=Semiauto&CDD_SEARCH=on&SHOW_OVERVIEW=on&SERVICE=plain\r\n\r\n";
-
-        String Blast_rid = test.submitBlast(message);
-        String format = "HTML";
-        test.getBlast(Blast_rid, format);
-        format = "TEXT";
-        System.out.println("START TEXT");
-
-        //test.getBlast(Blast_rid, format);
+    private String updateImageLink(String data) {
+        if (data.indexOf("SRC=\"/blast/images") > -1) {
+            data = data.replaceAll("SRC=\"/blast/images", "src=\"http://www.ncbi.nlm.nih.gov/blast/images");
+        }
+        if (data.indexOf("src=\"/blast/images") > -1) {
+            data = data.replaceAll("src=\"/blast/images", "src=\"http://www.ncbi.nlm.nih.gov/blast/images");
+        }
+        return data;
     }
+
+//    public static void main(String[] args) {
+//        connectJDBC(args);
+//        String query = "MGARCPTRTLRARQPAHPRPPGTPRHHQRRPLPAASPTRHRSSRGRQIRARRPDRPGTRLRTGAAVDRQQPQHAPLRPLRLRSARADPRPQPGKPARRNPGHQRPRPRCRRPGAQQRPADRTLPADRSARHRVPAAPPAARPAHRRARQRRLRPARRPARPAGTRPLHDSRTRPAQLSGAADLRSDRRPATDRDHRQRRSPLLPAPCRRHHRTRRPPLPARIPPPVHSAAPHPPQQRGTRGNRGRPLLREPAQRHPSSRRRLRAPHRGRLPPGYRPAPQRGLPDHGHRRQDQRTHPRVPAGARGNGVAPTHGHPRMTSRRSHETPQGPDPRSPGAAPAYREAPPALTGRE";
+//        RemoteBlast test = new RemoteBlast(query);
+//        String message =
+//                "Put http://www.ncbi.nlm.nih.gov/blast/Blast.cgi?CMD=Put&QUERY=" +
+//                        query + "&DATABASE=nr&PROGRAM=blastp&FILTER=L&GAPCOSTS=11%202&HITLIST_SZE=500&AUTO_FORMAT=Semiauto&CDD_SEARCH=on&SHOW_OVERVIEW=on&SERVICE=plain\r\n\r\n";
+//
+//        String Blast_rid = test.submitBlast(message);
+//        String format = "HTML";
+//        test.getBlast(Blast_rid, format);
+//        format = "TEXT";
+//        System.out.println("START TEXT");
+//
+//        //test.getBlast(Blast_rid, format);
+//    }
+
     public static void connectJDBC(String args[]) {
 
-       try {
-         Statement stmt;
+        try {
+            Statement stmt;
 
-         //Register the JDBC driver for MySQL.
-         Class.forName("com.mysql.jdbc.Driver");
+            //Register the JDBC driver for MySQL.
+            Class.forName("com.mysql.jdbc.Driver");
 
-         //Define URL of database server for
-         // database named mysql on the localhost
-         // with the default port number 3306.
-         String url =
-             "jdbc:mysql://genome-mysql.cse.ucsc.edu:3306/hg18";
+            //Define URL of database server for
+            // database named mysql on the localhost
+            // with the default port number 3306.
+            String url =
+                    "jdbc:mysql://genome-mysql.cse.ucsc.edu:3306/hg18";
 
-         //Get a connection to the database for a
-         // user named root with a blank password.
-         // This user is the default administrator
-         // having full privileges to do anything.
-         Connection con =
-             DriverManager.getConnection(
-                 url, "genome", "");
+            //Get a connection to the database for a
+            // user named root with a blank password.
+            // This user is the default administrator
+            // having full privileges to do anything.
+            Connection con =
+                    DriverManager.getConnection(
+                            url, "genome", "");
 
-         //Display URL and connection information
-         System.out.println("URL: " + url);
-         System.out.println("Connection: " + con);
+            //Display URL and connection information
+            System.out.println("URL: " + url);
+            System.out.println("Connection: " + con);
 
-         //Get a Statement object
-         stmt = con.createStatement();
-         boolean success = stmt.execute("select * from knownGene where name = 'BC073913' ");
-         success = stmt.execute("select * from knownGene where name = 'NM_010548'");
-         if(success){
-             ResultSet rs = stmt.getResultSet();
-             while (rs.next()) {
+            //Get a Statement object
+            stmt = con.createStatement();
+            boolean success = stmt.execute("select * from knownGene where name = 'BC073913' ");
+            success = stmt.execute("select * from knownGene where name = 'NM_010548'");
+            if (success) {
+                ResultSet rs = stmt.getResultSet();
+                while (rs.next()) {
 
-                 //String s = rs.getString(1);
-                 for (int i = 1; i < 10; i++) {
-                     Object o = rs.getString(i);
-                     System.out.println(o);
-                 }
-             }
-            // Get the data from the row using the column name
+                    //String s = rs.getString(1);
+                    for (int i = 1; i < 10; i++) {
+                        Object o = rs.getString(i);
+                        System.out.println(o);
+                    }
+                }
+                // Get the data from the row using the column name
 
+            }
+
+
+        } catch (Exception e) {
+            e.printStackTrace();
         }
+    }
 
-
-
-       } catch (Exception e) {
-         e.printStackTrace();
-       }
-  }
     /**
      * RemoteBlast
      *
