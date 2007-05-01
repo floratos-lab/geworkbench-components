@@ -27,7 +27,7 @@ import com.jgoodies.forms.layout.FormLayout;
 /**
  * 
  * @author keshav
- * @version $Id: MedusaParamPanel.java,v 1.5 2007-05-01 16:52:27 keshav Exp $
+ * @version $Id: MedusaParamPanel.java,v 1.6 2007-05-01 19:02:47 keshav Exp $
  */
 public class MedusaParamPanel extends AbstractSaveableParameterPanel implements
 		Serializable {
@@ -161,8 +161,8 @@ public class MedusaParamPanel extends AbstractSaveableParameterPanel implements
 		this.loadRegulatorsButton.setEnabled(false);
 		this.targetTextField.setEnabled(false);
 		this.loadTargetsButton.setEnabled(false);
-		this.intervalBaseTextField.setEnabled(false);
-		this.intervalBoundTextField.setEnabled(false);
+		// this.intervalBaseTextField.setEnabled(false);
+		// this.intervalBoundTextField.setEnabled(false);
 
 		this.dimerMinGapTextField.setEnabled(false);
 		this.dimerMaxGapTextField.setEnabled(false);
@@ -408,6 +408,56 @@ public class MedusaParamPanel extends AbstractSaveableParameterPanel implements
 
 			}
 		});
+	}
 
+	/**
+	 * 
+	 * @return
+	 */
+	public double getIntervalBase() {
+		try {
+			this.intervalBase = Double.valueOf(intervalBaseTextField.getText());
+		} catch (NumberFormatException nfe) {
+			JOptionPane.showMessageDialog(null,
+					"Must use numeric values for interval base.", "Error",
+					JOptionPane.ERROR_MESSAGE);
+			throw new RuntimeException(nfe.getMessage());
+		}
+
+		return intervalBase;
+	}
+
+	/**
+	 * 
+	 * @return
+	 */
+	public double getIntervalBound() {
+		try {
+			this.intervalBound = Double.valueOf(intervalBoundTextField
+					.getText());
+		} catch (NumberFormatException nfe) {
+			JOptionPane.showMessageDialog(null,
+					"Must use numeric values for interval bound.", "Error",
+					JOptionPane.ERROR_MESSAGE);
+			throw new RuntimeException(nfe.getMessage());
+		}
+
+		return intervalBound;
+	}
+
+	/**
+	 * 
+	 * @return
+	 */
+	public int getBoostingIterations() {
+		try {
+			boostingIterations = Integer.valueOf(boostingIterationsTextField
+					.getText());
+		} catch (NumberFormatException nfe) {
+			JOptionPane.showMessageDialog(null, "Numeric values only.",
+					"Error", JOptionPane.ERROR_MESSAGE);
+			throw new RuntimeException(nfe.getMessage());
+		}
+		return boostingIterations;
 	}
 }
