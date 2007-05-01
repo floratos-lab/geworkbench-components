@@ -584,19 +584,7 @@ public class MindyPlugin extends JPanel {
 
         public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
             if (columnIndex == 0) {
-                enabled[rowIndex] = (Boolean) aValue;
-                DSGeneMarker mod = getModulatorForIndex(rowIndex);
-                if (enabled[rowIndex]) {
-                    aggregateModel.enableModulator(mod);
-                    modTargetModel.enableModulator(mod);
-                    ModulatorListModel model = (ModulatorListModel) heatMapModNameList.getModel();
-                    model.refresh();
-                } else {
-                    aggregateModel.disableModulator(mod);
-                    modTargetModel.disableModulator(mod);
-                    ModulatorListModel model = (ModulatorListModel) heatMapModNameList.getModel();
-                    model.refresh();
-                }
+                enableModulator(rowIndex, (Boolean) aValue);
             }
         }
 
@@ -616,9 +604,26 @@ public class MindyPlugin extends JPanel {
 
         public void selectAllModulators(boolean selected) {
             for (int i = 0; i < enabled.length; i++) {
-                enabled[i] = selected;
+                enableModulator(i, selected);
             }
         }
+
+        private void enableModulator(int rowIndex, boolean enable) {
+            enabled[rowIndex] = enable;
+            DSGeneMarker mod = getModulatorForIndex(rowIndex);
+            if (enabled[rowIndex]) {
+                aggregateModel.enableModulator(mod);
+                modTargetModel.enableModulator(mod);
+                ModulatorListModel model = (ModulatorListModel) heatMapModNameList.getModel();
+                model.refresh();
+            } else {
+                aggregateModel.disableModulator(mod);
+                modTargetModel.disableModulator(mod);
+                ModulatorListModel model = (ModulatorListModel) heatMapModNameList.getModel();
+                model.refresh();
+            }
+        }
+
     }
 
     private class AggregateTableModel extends DefaultTableModel {

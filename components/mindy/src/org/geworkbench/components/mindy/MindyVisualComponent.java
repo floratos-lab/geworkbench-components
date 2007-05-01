@@ -77,7 +77,9 @@ public class MindyVisualComponent implements VisualPlugin {
                     }
                 }
             }
-            mindyPlugin.limitMarkers(selectedMarkers);
+            if (selectedMarkers != null) {
+                mindyPlugin.limitMarkers(selectedMarkers);
+            }
         } else {
             log.error("Dataset in this component is null, or selection sent was null");
         }
