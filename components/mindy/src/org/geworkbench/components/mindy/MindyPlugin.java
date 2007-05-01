@@ -151,8 +151,9 @@ public class MindyPlugin extends JPanel {
             final JCheckBox modulatorLimits = new JCheckBox("Limit To Top");
             modulatorLimits.setSelected(true);
             limitControls.add(modulatorLimits, BorderLayout.WEST);
-            final JSpinner modLimitValue = new JSpinner();
-            modLimitValue.setValue(DEFAULT_MODULATOR_LIMIT);
+            SpinnerNumberModel spinnerModel = new SpinnerNumberModel(DEFAULT_MODULATOR_LIMIT, 1, 1000, 1);
+            final JSpinner modLimitValue = new JSpinner(spinnerModel);
+//            modLimitValue.setValue(DEFAULT_MODULATOR_LIMIT);
             limitControls.add(modLimitValue, BorderLayout.EAST);
             limitPane.add(limitControls);
 
