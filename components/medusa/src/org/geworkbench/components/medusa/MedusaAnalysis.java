@@ -2,6 +2,8 @@ package org.geworkbench.components.medusa;
 
 import java.util.Map;
 
+import javax.swing.JOptionPane;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.analysis.AbstractGridAnalysis;
@@ -11,7 +13,7 @@ import org.geworkbench.bison.model.analysis.ClusteringAnalysis;
 /**
  * 
  * @author keshav
- * @version $Id: MedusaAnalysis.java,v 1.2 2007-05-01 19:02:47 keshav Exp $
+ * @version $Id: MedusaAnalysis.java,v 1.3 2007-05-01 19:37:17 keshav Exp $
  */
 public class MedusaAnalysis extends AbstractGridAnalysis implements
 		ClusteringAnalysis {
@@ -78,6 +80,16 @@ public class MedusaAnalysis extends AbstractGridAnalysis implements
 		double bound = params.getIntervalBound();
 
 		int boosting = params.getBoostingIterations();
+
+		int minGap = params.getMinGap();
+		int maxGap = params.getMaxGap();
+
+		if (minGap > maxGap) {
+			JOptionPane.showMessageDialog(null,
+					"Min gap cannot exceed max gap.", "Error",
+					JOptionPane.ERROR_MESSAGE);
+			throw new RuntimeException("Min gap cannot exceed max gap.");
+		}
 
 		log.info("executing ...");
 
