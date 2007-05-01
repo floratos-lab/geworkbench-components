@@ -295,21 +295,21 @@ public class NCBIBlastParser {
                         } //end of processing summary.
                         //System.out.println(line+ " " + hits.size());
                         index = 0;
-                        line = br.readLine();
-                        line = br.readLine();
-                        if (line == null) {
-                            return false;
-                        }
+//                        line = br.readLine();
+//                        line = br.readLine();
+//                        if (line == null) {
+//                            return false;
+//                        }
                         boolean endofResult = false;
-                        while (line != null && !line.trim().startsWith("<pre><script") &&
+                        while (line != null && !line.trim().startsWith("Database") &&
                                 !line.trim().startsWith(">")) {
                             line = br.readLine();
                         }
+
                         /* parsing detailed alignments Each has <PRE></PRE> */
-                        while (line.trim().startsWith("<pre><script") ||
-                                line.trim().startsWith(">")) {
+                        while (line!=null && line.trim().startsWith(">")|| line.trim().startsWith("Database")) {
                             //System.out.println("test5" + line);
-                            if (line.trim().startsWith("</pre></div>")) {
+                            if (line.trim().startsWith("Database")) {
                                 endofResult = true;
                                 break;
                             }
@@ -328,24 +328,16 @@ public class NCBIBlastParser {
                                 additionalDetail = true;
 
                             }
-                            //System.out.println("index"  + index + " " + hits.size());
-
-                            //get BlastObj hit for which alignment is for
-                            //System.out.println(index + " = index " + line);
+                              //get BlastObj hit for which alignment is for
                             each = (BlastObj) hits.get(index);
-
-                            if (count > 60) {
-                                //System.out.println(count);
-                            }
-                            //System.out.println(each.getName());
-                            //skip the beginning description
+                           //skip the beginning description
                             subject = "";
                             boolean getStartPoint = true;
                             subject = "";
                             int endPoint = 0;
                             while (!(line.trim().startsWith(">"))) {
 
-                                if (line.startsWith("</pre></div>")) {
+                                if (line.startsWith("</form>")) {
                                     //end of the useful information for one blast.
                                     endofResult = true;
                                     break;
@@ -486,9 +478,10 @@ public class NCBIBlastParser {
 
      public static void main(String[] args) {
 
-            BlastParser test = new BlastParser();
+            NCBIBlastParser test = new NCBIBlastParser();
         // test.filename = "C:\\Blast-1992809694.html";
          test.filename = "C:\\gforge\\geworkbench\\temp\\GEAW\\Blast1374003213.html";
+         test.filename = "C:\\gforge\\geworkbench\\temp\\GEAW\\Blast459848840.html";
             test.parseResults();
              }
 
