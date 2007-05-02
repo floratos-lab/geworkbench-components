@@ -5,7 +5,7 @@
     <output url="file://$MODULE_DIR$/classes" />
     <exclude-output />
     <content url="file://$MODULE_DIR$">
-      <sourceFolder url="file://$MODULE_DIR$/src/org/geworkbench/components/cytoscape" isTestSource="false" packagePrefix="org.geworkbench.components.cytoscape_v2_4" />
+      <sourceFolder url="file://$MODULE_DIR$/src/org/geworkbench/components/cytoscape_v2_4" isTestSource="false" packagePrefix="org.geworkbench.components.cytoscape_v2_4" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
@@ -432,7 +432,6 @@
         <SOURCES />
       </library>
     </orderEntry>
-    <orderEntry type="library" exported="" name="lib" level="application" />
     <orderEntry type="module" module-name="geworkbench" />
     <orderEntryProperties />
   </component>

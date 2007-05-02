@@ -1,6 +1,5 @@
 package org.geworkbench.components.cytoscape_v2_4;
 
-import cytoscape.view.*;
 import cytoscape.view.CytoscapeDesktop;
 import cytoscape.CytoscapeInit;
 
