@@ -1,18 +1,6 @@
 package org.geworkbench.components.cytoscape_v2_4;
 
 //import cytoscape.CytoscapeObj;
-import cytoscape.*;
-import cytoscape.visual.ui.VizMapBypassNetworkListener;
-import cytoscape.view.CyMenus;
-import cytoscape.view.NetworkPanel;
-import cytoscape.view.NetworkViewManager;
-import cytoscape.view.CyHelpBroker;
-import cytoscape.view.cytopanels.BiModalJSplitPane;
-
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 
 
 /**
