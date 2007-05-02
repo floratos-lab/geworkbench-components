@@ -4,16 +4,19 @@ import java.util.Map;
 
 import javax.swing.JOptionPane;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.analysis.AbstractGridAnalysis;
 import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
 import org.geworkbench.bison.model.analysis.ClusteringAnalysis;
 
+import edu.columbia.ccls.medusa.MedusaLoader;
+
 /**
  * 
  * @author keshav
- * @version $Id: MedusaAnalysis.java,v 1.4 2007-05-01 21:01:11 keshav Exp $
+ * @version $Id: MedusaAnalysis.java,v 1.5 2007-05-02 19:51:55 keshav Exp $
  */
 public class MedusaAnalysis extends AbstractGridAnalysis implements
 		ClusteringAnalysis {
@@ -103,8 +106,22 @@ public class MedusaAnalysis extends AbstractGridAnalysis implements
 			}
 		}
 
-		log.info("executing ...");
+		// log.info(MedusaLoader.getHelpMessage());
 
+		// String medusaArgs = "-iter=" + boosting + " -maxkmer=" + maxKmer
+		// + " -minkmer=" + minKmer;
+		// String[] args = StringUtils.split(medusaArgs, " ");
+		// String[] args = { "-iter=" + boosting };
+
+		String[] args = { "-i=C:/Documents and Settings/keshav/My Documents/downloads/dataset/dataset/config.xml" };
+		
+		try {
+			MedusaLoader.main(args);
+		} catch (Exception e) {
+			throw new RuntimeException("Error running medusa: " + e);
+		}
+
+		log.info("here");
 		return null;
 	}
 
