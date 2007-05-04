@@ -27,7 +27,7 @@ import com.jgoodies.forms.layout.FormLayout;
 /**
  * 
  * @author keshav
- * @version $Id: MedusaParamPanel.java,v 1.8 2007-05-01 21:01:11 keshav Exp $
+ * @version $Id: MedusaParamPanel.java,v 1.9 2007-05-04 20:46:47 keshav Exp $
  */
 public class MedusaParamPanel extends AbstractSaveableParameterPanel implements
 		Serializable {
@@ -60,7 +60,9 @@ public class MedusaParamPanel extends AbstractSaveableParameterPanel implements
 	/* features */
 	private JButton loadFeaturesButton = new JButton("Load Features");
 
-	private String featuresListFile = new String("data/test.txt");
+	String featuresFile = "dataset/small_yeast/yeast_test.fasta";
+
+	private String featuresListFile = new String(featuresFile);
 
 	/* regulators */
 	private String REGULATOR_LIST = "Specify (csv)";
@@ -108,7 +110,7 @@ public class MedusaParamPanel extends AbstractSaveableParameterPanel implements
 			.valueOf(intervalBound));
 
 	/* boosting iterations */
-	private int boostingIterations = 0;
+	private int boostingIterations = 10;
 
 	private JTextField boostingIterationsTextField = new JTextField(String
 			.valueOf(boostingIterations));
@@ -124,7 +126,7 @@ public class MedusaParamPanel extends AbstractSaveableParameterPanel implements
 	private JTextField minKmerTextField = new JTextField();
 
 	/* max kmers */
-	private int maxKmer = 7;
+	private int maxKmer = 5;
 
 	private JTextField maxKmerTextField = new JTextField();
 
@@ -135,13 +137,15 @@ public class MedusaParamPanel extends AbstractSaveableParameterPanel implements
 
 	private JTextField dimerMinGapTextField = new JTextField(minGap);
 
-	private int maxGap = 2;
+	private int maxGap = 3;
 
 	private JTextField dimerMaxGapTextField = new JTextField(maxGap);
 
 	private boolean usingDimers = false;
 
 	/* reverse compliment */
+	private boolean reverseComplement = false;
+
 	private JComboBox reverseComplementCombo = new JComboBox(new String[] {
 			TRUE, FALSE });
 
@@ -619,8 +623,105 @@ public class MedusaParamPanel extends AbstractSaveableParameterPanel implements
 		return agg;
 	}
 
+	public int getPssmLength() {
+		return pssmLength;
+	}
+
 	public boolean isUsingDimers() {
 		return usingDimers;
+	}
+
+	public String getRegulatorsFile() {
+		return regulatorsFile;
+	}
+
+	public String getTargetsFile() {
+		return targetsFile;
+	}
+
+	public boolean isReverseComplement() {
+		return reverseComplement;
+	}
+
+	public String getFeaturesFile() {
+		return featuresFile;
+	}
+
+	public void setAggTextField(JTextField aggTextField) {
+		this.aggTextField = aggTextField;
+	}
+
+	public void setAllArraysCheckBox(JCheckBox allArraysCheckBox) {
+		this.allArraysCheckBox = allArraysCheckBox;
+	}
+
+	public void setDimersCombo(JComboBox dimersCombo) {
+		this.dimersCombo = dimersCombo;
+	}
+
+	public void setIntervalBaseTextField(JTextField intervalBaseTextField) {
+		this.intervalBaseTextField = intervalBaseTextField;
+	}
+
+	public void setIntervalBoundTextField(JTextField intervalBoundTextField) {
+		this.intervalBoundTextField = intervalBoundTextField;
+	}
+
+	public void setPssmLengthTextField(JTextField pssmLengthTextField) {
+		this.pssmLengthTextField = pssmLengthTextField;
+	}
+
+	public void setRegulatorCombo(JComboBox regulatorCombo) {
+		this.regulatorCombo = regulatorCombo;
+	}
+
+	public void setRegulatorTextField(JTextField regulatorTextField) {
+		this.regulatorTextField = regulatorTextField;
+	}
+
+	public void setReverseComplementCombo(JComboBox reverseComplementCombo) {
+		this.reverseComplementCombo = reverseComplementCombo;
+	}
+
+	public void setTargetCombo(JComboBox targetCombo) {
+		this.targetCombo = targetCombo;
+	}
+
+	public void setTargetTextField(JTextField targetTextField) {
+		this.targetTextField = targetTextField;
+	}
+
+	public void setRegulatorsFile(String regulatorsFile) {
+		this.regulatorsFile = regulatorsFile;
+	}
+
+	public void setTargetsFile(String targetsFile) {
+		this.targetsFile = targetsFile;
+	}
+
+	public void setMaxKmerTextField(JTextField maxKmerTextField) {
+		this.maxKmerTextField = maxKmerTextField;
+	}
+
+	public void setMinKmerTextField(JTextField minKmerTextField) {
+		this.minKmerTextField = minKmerTextField;
+	}
+
+	public void setBoostingIterationsTextField(
+			JTextField boostingIterationsTextField) {
+		this.boostingIterationsTextField = boostingIterationsTextField;
+	}
+
+	public void setDimerMaxGapTextField(JTextField dimerMaxGapTextField) {
+		this.dimerMaxGapTextField = dimerMaxGapTextField;
+	}
+
+	public void setDimerMinGapTextField(JTextField dimerMinGapTextField) {
+		this.dimerMinGapTextField = dimerMinGapTextField;
+	}
+
+	public void setFeaturesFile(String featuresFile) {
+		this.featuresFile = featuresFile;
 	}
 
 }
