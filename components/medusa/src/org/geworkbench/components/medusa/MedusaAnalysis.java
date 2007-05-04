@@ -16,7 +16,7 @@ import edu.columbia.ccls.medusa.MedusaLoader;
 /**
  * 
  * @author keshav
- * @version $Id: MedusaAnalysis.java,v 1.5 2007-05-02 19:51:55 keshav Exp $
+ * @version $Id: MedusaAnalysis.java,v 1.6 2007-05-04 16:52:24 keshav Exp $
  */
 public class MedusaAnalysis extends AbstractGridAnalysis implements
 		ClusteringAnalysis {
@@ -113,15 +113,14 @@ public class MedusaAnalysis extends AbstractGridAnalysis implements
 		// String[] args = StringUtils.split(medusaArgs, " ");
 		// String[] args = { "-iter=" + boosting };
 
-		String[] args = { "-i=C:/Documents and Settings/keshav/My Documents/downloads/dataset/dataset/config.xml" };
-		
+		String[] args = { "-i=dataset/config.xml" };
+
 		try {
 			MedusaLoader.main(args);
 		} catch (Exception e) {
 			throw new RuntimeException("Error running medusa: " + e);
 		}
 
-		log.info("here");
 		return null;
 	}
 
