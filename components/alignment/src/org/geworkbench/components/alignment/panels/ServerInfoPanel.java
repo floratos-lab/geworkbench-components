@@ -260,6 +260,8 @@ public class ServerInfoPanel extends JPanel {
     void Refresh_actionPerformed(ActionEvent e) {
         if (jRadioButton1.isSelected()) {
             retriveServerInfo();
+        }else{
+            jRadioButton2_actionPerformed(e); 
         }
     }
 
@@ -405,8 +407,8 @@ public class ServerInfoPanel extends JPanel {
 
     public void jRadioButton2_actionPerformed(ActionEvent e) {
 
-        jServerUptimeTextField.setText("October 15, 2006");
-        jServerVersionTextField.setText("Blast 2.2.15");
+        jServerUptimeTextField.setText("March 25, 2007");
+        jServerVersionTextField.setText("Blast 2.2.16");
         jqueuedTextField.setText("N/A");
         jAvailProcessorTextField.setText("N/A");
         jTotalProcessor.setText("N/A");

@@ -486,6 +486,19 @@ public class RemoteBlast {
         if (data.indexOf("src=\"/blast/images") > -1) {
             data = data.replaceAll("src=\"/blast/images", "src=\"http://www.ncbi.nlm.nih.gov/blast/images");
         }
+         if (data.indexOf("href=\"/blast/") > -1) {
+            data = data.replaceAll("href=\"/blast/", "href=\"http://www.ncbi.nlm.nih.gov/blast/");
+        }
+         if (data.indexOf("type=\"checkbox\"") > -1) {
+            data = data.replaceAll("type=\"checkbox\"", "type=\"hidden\"");
+        }
+            if (data.indexOf("type=\"button\"") > -1) {
+            data = data.replaceAll("type=\"button\"", "type=\"hidden\"");
+        }
+        if (data.indexOf("type=button") > -1) {
+            data = data.replaceAll("type=button", "type=\"hidden\"");
+        }
+
         return data;
     }
 

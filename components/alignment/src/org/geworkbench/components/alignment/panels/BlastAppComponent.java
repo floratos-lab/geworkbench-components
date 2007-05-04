@@ -1016,10 +1016,10 @@ import org.geworkbench.util.session.SoapClient;
         
         /*********Code Implement By Anh Vu***************
         *********Contact: vietanh.vu@m4x.org************/
-        jTabbedPane1.add(jTabbedBlatPane, "BLAT");
+       // jTabbedPane1.add(jTabbedBlatPane, "BLAT");
         /*********End Code*******************************/
         
-        jTabbedPane1.add(jHMMPane, "HMM");
+        //jTabbedPane1.add(jHMMPane, "HMM");
         jScrollPane2.getViewport().add(jList2, null);
 
         subSeqPanel3.add(jLabel13, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0
@@ -1041,7 +1041,7 @@ import org.geworkbench.util.session.SoapClient;
         subSeqPanel3.add(jLabel14, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
                 , GridBagConstraints.WEST, GridBagConstraints.NONE,
                 new Insets(5, 0, 0, 0), 0, 10));
-        jTabbedPane1.add(jOtherAlgorithemPane, "Other Algorithms");
+        //jTabbedPane1.add(jOtherAlgorithemPane, "Other Algorithms");
         jHMMPane.add(progressBarPanel3,
                      new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
                                             , GridBagConstraints.CENTER,
