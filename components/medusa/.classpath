@@ -3,11 +3,11 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="test"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="Perseus.jar"/>
 	<classpathentry kind="lib" path="lib/colt.jar"/>
 	<classpathentry kind="lib" path="lib/jaxen.jar"/>
 	<classpathentry kind="lib" path="lib/concurrent.jar"/>
 	<classpathentry kind="lib" path="lib/xstream.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/geworkbench-core"/>
+	<classpathentry kind="lib" path="lib/Perseus.jar"/>
 	<classpathentry kind="output" path="classes"/>
 </classpath>
