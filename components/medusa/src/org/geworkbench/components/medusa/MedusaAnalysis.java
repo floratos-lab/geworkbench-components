@@ -16,7 +16,7 @@ import edu.columbia.ccls.medusa.MedusaLoader;
 /**
  * 
  * @author keshav
- * @version $Id: MedusaAnalysis.java,v 1.6 2007-05-04 16:52:24 keshav Exp $
+ * @version $Id: MedusaAnalysis.java,v 1.7 2007-05-04 20:46:29 keshav Exp $
  */
 public class MedusaAnalysis extends AbstractGridAnalysis implements
 		ClusteringAnalysis {
@@ -78,6 +78,10 @@ public class MedusaAnalysis extends AbstractGridAnalysis implements
 	public AlgorithmExecutionResults execute(Object input) {
 		MedusaParamPanel params = (MedusaParamPanel) aspp;
 
+		String sequenceFile = params.getFeaturesFile();
+
+		String fileLabels = "dataset/small_yeast/yeast_test_labels";
+
 		double base = params.getIntervalBase();
 
 		double bound = params.getIntervalBound();
@@ -94,6 +98,12 @@ public class MedusaAnalysis extends AbstractGridAnalysis implements
 			throw new RuntimeException("Min kmer cannot exceed max kmer.");
 		}
 
+		String baseArgs = "-fasta=" + sequenceFile + " -fileLabels="
+				+ fileLabels + " -iter=" + boosting + " -maxkmer=" + maxKmer
+				+ " -minkmer=" + minKmer;
+
+		StringBuilder s = new StringBuilder(baseArgs);
+
 		if (params.isUsingDimers()) {
 			int minGap = params.getMinGap();
 			int maxGap = params.getMaxGap();
@@ -104,16 +114,14 @@ public class MedusaAnalysis extends AbstractGridAnalysis implements
 						JOptionPane.ERROR_MESSAGE);
 				throw new RuntimeException("Min gap cannot exceed max gap.");
 			}
+
+			s.append(" -dimers=" + 'T');
+			s.append(" -mingap=" + minGap);
+			s.append(" -maxgap=" + maxGap);
 		}
 
-		// log.info(MedusaLoader.getHelpMessage());
-
-		// String medusaArgs = "-iter=" + boosting + " -maxkmer=" + maxKmer
-		// + " -minkmer=" + minKmer;
-		// String[] args = StringUtils.split(medusaArgs, " ");
-		// String[] args = { "-iter=" + boosting };
-
 		String[] args = { "-i=dataset/config.xml" };
+		// String[] args = StringUtils.split(s.toString(), " ");
 
 		try {
 			MedusaLoader.main(args);
@@ -122,6 +130,14 @@ public class MedusaAnalysis extends AbstractGridAnalysis implements
 		}
 
 		return null;
+	}
+
+	/**
+	 * 
+	 * 
+	 */
+	public void printhelp() {
+		log.info(MedusaLoader.getHelpMessage());
 	}
 
 }
