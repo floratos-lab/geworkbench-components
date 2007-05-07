@@ -18,8 +18,10 @@ import giny.view.GraphViewChangeListener;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
+import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.AnnotationParser;
 import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
+import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.engine.config.MenuListener;
 import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.engine.management.AcceptTypes;
@@ -32,6 +34,8 @@ import org.geworkbench.util.pathwaydecoder.mutualinformation.AdjacencyMatrix;
 import org.geworkbench.util.pathwaydecoder.mutualinformation.AdjacencyMatrixDataSet;
 import org.geworkbench.util.pathwaydecoder.mutualinformation.IAdjacencyMatrix;
 import org.apache.commons.cli.*;
+import org.apache.commons.collections15.MultiMap;
+import org.apache.commons.collections15.multimap.MultiHashMap;
 import phoebe.PNodeView;
 import phoebe.event.PSelectionHandler;
 
@@ -49,6 +53,7 @@ import java.io.IOException;
 
 import yfiles.YFilesLayoutPlugin;
 import yfiles.OrganicLayout;
+import ding.view.DNodeView;
 
 /**
  * <p>Title: Bioworks</p>
@@ -93,7 +98,9 @@ public class CytoscapeWidget implements VisualPlugin, MenuListener, CyInitParams
 
     // mapping for genewaysNetwork, in which each geneId if mapped to
     // corresponding swissprot Id
-    private HashMap genewaysGeneidNameMap = new HashMap();
+    protected HashMap genewaysGeneidNameMap = new HashMap();
+    protected MultiMap<String,Integer> swissprotIdToMarkerIdMap = new MultiHashMap<String, Integer>();
+
 
 
     public CytoscapeWidget() {
@@ -783,7 +790,7 @@ public class CytoscapeWidget implements VisualPlugin, MenuListener, CyInitParams
         organiclayout.actionPerformed(null);
         Cytoscape.getCurrentNetworkView().applyVizmapper(interactionsVisualStyle);
         Cytoscape.getCurrentNetworkView().fitContent();
-        
+
     }
 
 
@@ -803,9 +810,20 @@ public class CytoscapeWidget implements VisualPlugin, MenuListener, CyInitParams
             java.util.List nodes = Cytoscape.getCurrentNetworkView().getSelectedNodes();
             DSPanel selectedMarkers = new CSPanel("Selected Genes", "Cytoscape");
             for (int i = 0; i < nodes.size(); i++) {
-                PNodeView pnode = (PNodeView) nodes.get(i);
+                DNodeView pnode = (DNodeView) nodes.get(i);
                 Node node = pnode.getNode();
                 if (node instanceof CyNode) {
+                    String id = node.getIdentifier();
+                    //System.out.println("id = "+id);
+                    Collection<Integer> markerIds = swissprotIdToMarkerIdMap.get(id);
+                    if (markerIds != null) {
+                        for(Integer markerId : markerIds){
+                            selectedMarkers.add(maSet.getMarkers().get(markerId));
+                        }
+                        //System.out.println("MATCHED MARKERS 1 :::::::: "+matchedMarkers.size());
+                        //markers1.addAll(matchedMarkers);
+                    }
+
                     //int serial = ((Integer) Cytoscape.getCurrentNetworkView().getNetwork().getNodeAttributeValue((CyNode) node, "Serial")).intValue();
                     //selectedMarkers.add(maSet.getMarkers().get(serial));
                 }
@@ -830,6 +848,7 @@ public class CytoscapeWidget implements VisualPlugin, MenuListener, CyInitParams
         if (dataSet instanceof AdjacencyMatrixDataSet) {
             adjSet = (AdjacencyMatrixDataSet) dataSet;
             maSet = adjSet.getMatrix().getMicroarraySet();
+            swissprotIdToMarkerIdMap = getSwissProtToMarkerIDMapping(maSet);
             boolean found = false;
             String foundID = null;
             if (!dataSetIDs.contains(adjSet.getID())) {
@@ -886,11 +905,11 @@ public class CytoscapeWidget implements VisualPlugin, MenuListener, CyInitParams
         // 3) FINISH event
         if (maSet != null) {
             view = Cytoscape.createNetworkView(cytoNetwork, maSet.getLabel());
-            /*view.addGraphViewChangeListener(new GraphViewChangeListener() {
+            view.addGraphViewChangeListener(new GraphViewChangeListener() {
                 public void graphViewChanged(GraphViewChangeEvent graphViewChangeEvent) {
                     cyNetWorkView_graphViewChanged(graphViewChangeEvent);
                 }
-            });*/
+            });
         }
     }
 
@@ -1021,6 +1040,27 @@ public class CytoscapeWidget implements VisualPlugin, MenuListener, CyInitParams
         });
     }
 
+    public MultiMap<String, Integer> getSwissProtToMarkerIDMapping(DSMicroarraySet microarraySet) {
+        MultiHashMap<String,Integer> map = new MultiHashMap<String, Integer>();
+        DSItemList<DSGeneMarker> markers = microarraySet.getMarkers();
+        int index = 0;
+        for (DSGeneMarker marker : markers) {
+            if(marker != null && marker.getLabel() != null){
+                //System.out.println("marker.getLabel ===== "+marker.getLabel());
+                try{
+                    Set<String> swissProtIDs = AnnotationParser.getSwissProtIDs(marker.getLabel());
+                    for (String s : swissProtIDs) {
+                        map.put(s, new Integer(index));
+                    }
+                    index++;
+                }catch(Exception e){
+                   // System.out.println("Caught Exception while getting swissProtId from AnnotationParser...");
+                    continue;
+                }
+            }
+        }
+        return map;
+    }
 
     /*public class CyWindowProxy implements CyWindow{
         public CyWindowProxy() {}
