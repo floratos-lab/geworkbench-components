@@ -18,7 +18,7 @@
 
     <mapID target="min.value.norm" url="ThresholdNormalizer.htm"/>
 
-    <mapID target="mis.val.cal.norm" url="MisValCalNormalizer.htm"/>
+    <mapID target="mis.val.cal.norm" url="MisValCal Normalizer.htm"/>
 
     <mapID target="Housekeeping" url="Housekeeping.HTML"/>
 
