@@ -8,7 +8,7 @@ import junit.framework.TestCase;
 /**
  * 
  * @author keshav
- * @version $Id: MedusaAnalysisTest.java,v 1.2 2007-05-04 20:47:05 keshav Exp $
+ * @version $Id: MedusaAnalysisTest.java,v 1.3 2007-05-08 18:16:08 keshav Exp $
  */
 public class MedusaAnalysisTest extends TestCase {
 	MedusaParamPanel panel = null;
@@ -38,7 +38,7 @@ public class MedusaAnalysisTest extends TestCase {
 		panel.setMaxKmerTextField(maxKmer);
 
 		JComboBox dimersCombo = new JComboBox(new String[] { "No", "Yes" });
-		dimersCombo.setSelectedIndex(1);
+		// dimersCombo.setSelectedIndex(0);
 		panel.setDimersCombo(dimersCombo);
 
 		JTextField minGap = new JTextField();
@@ -57,9 +57,13 @@ public class MedusaAnalysisTest extends TestCase {
 		pssm.setText(String.valueOf(18));
 		panel.setPssmLengthTextField(pssm);
 
+		JTextField aggTextField = new JTextField();
+		aggTextField.setText(String.valueOf(5));
+		panel.setAggTextField(aggTextField);
+
 		JComboBox reverseComplementCombo = new JComboBox(new String[] { "True",
 				"False" });
-		reverseComplementCombo.setSelectedIndex(0);
+		// reverseComplementCombo.setSelectedIndex(0);
 		panel.setReverseComplementCombo(reverseComplementCombo);
 
 		analysis.setDefaultPanel(panel);
