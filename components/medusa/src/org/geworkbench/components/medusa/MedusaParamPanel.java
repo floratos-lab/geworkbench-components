@@ -27,7 +27,7 @@ import com.jgoodies.forms.layout.FormLayout;
 /**
  * 
  * @author keshav
- * @version $Id: MedusaParamPanel.java,v 1.9 2007-05-04 20:46:47 keshav Exp $
+ * @version $Id: MedusaParamPanel.java,v 1.10 2007-05-08 20:29:41 keshav Exp $
  */
 public class MedusaParamPanel extends AbstractSaveableParameterPanel implements
 		Serializable {
@@ -110,7 +110,7 @@ public class MedusaParamPanel extends AbstractSaveableParameterPanel implements
 			.valueOf(intervalBound));
 
 	/* boosting iterations */
-	private int boostingIterations = 10;
+	private int boostingIterations = 500;
 
 	private JTextField boostingIterationsTextField = new JTextField(String
 			.valueOf(boostingIterations));
@@ -126,20 +126,20 @@ public class MedusaParamPanel extends AbstractSaveableParameterPanel implements
 	private JTextField minKmerTextField = new JTextField();
 
 	/* max kmers */
-	private int maxKmer = 5;
+	private int maxKmer = 7;
 
 	private JTextField maxKmerTextField = new JTextField();
 
 	/* dimers */
 	private JComboBox dimersCombo = new JComboBox(new String[] { NO, YES });
 
-	private int minGap = 0;
+	private int minGap = 3;
 
-	private JTextField dimerMinGapTextField = new JTextField(minGap);
+	private JTextField dimerMinGapTextField = new JTextField();
 
-	private int maxGap = 3;
+	private int maxGap = 7;
 
-	private JTextField dimerMaxGapTextField = new JTextField(maxGap);
+	private JTextField dimerMaxGapTextField = new JTextField();
 
 	private boolean usingDimers = false;
 
@@ -150,12 +150,12 @@ public class MedusaParamPanel extends AbstractSaveableParameterPanel implements
 			TRUE, FALSE });
 
 	/* pssm length */
-	private int pssmLength = 5;
+	private int pssmLength = 17;
 
 	private JTextField pssmLengthTextField = new JTextField(pssmLength);
 
 	/* agglomerations per round */
-	private int agg = 5;
+	private int agg = 20;
 
 	private JTextField aggTextField = new JTextField(agg);
 
@@ -239,9 +239,11 @@ public class MedusaParamPanel extends AbstractSaveableParameterPanel implements
 		secondaryBuilder.nextRow();
 
 		/* dimer gaps */
+		dimerMinGapTextField.setText(String.valueOf(minGap));
 		secondaryBuilder.append("Dimer Min Gap", dimerMinGapTextField);
 		secondaryBuilder.nextRow();
 
+		dimerMaxGapTextField.setText(String.valueOf(maxGap));
 		secondaryBuilder.append("Dimer Max Gap", dimerMaxGapTextField);
 		secondaryBuilder.nextRow();
 
@@ -250,10 +252,12 @@ public class MedusaParamPanel extends AbstractSaveableParameterPanel implements
 		secondaryBuilder.nextRow();
 
 		/* pssm length */
+		pssmLengthTextField.setText(String.valueOf(pssmLength));
 		secondaryBuilder.append("Max PSSM Length", pssmLengthTextField);
 		secondaryBuilder.nextRow();
 
 		/* agglomerations per round */
+		aggTextField.setText(String.valueOf(agg));
 		secondaryBuilder.append("Agglomerations Per Round", aggTextField);
 		secondaryBuilder.nextRow();
 
