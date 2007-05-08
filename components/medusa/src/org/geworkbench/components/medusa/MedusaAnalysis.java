@@ -1,9 +1,11 @@
 package org.geworkbench.components.medusa;
 
+import java.io.File;
 import java.util.Map;
 
 import javax.swing.JOptionPane;
 
+import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -16,7 +18,7 @@ import edu.columbia.ccls.medusa.MedusaLoader;
 /**
  * 
  * @author keshav
- * @version $Id: MedusaAnalysis.java,v 1.7 2007-05-04 20:46:29 keshav Exp $
+ * @version $Id: MedusaAnalysis.java,v 1.8 2007-05-08 18:15:47 keshav Exp $
  */
 public class MedusaAnalysis extends AbstractGridAnalysis implements
 		ClusteringAnalysis {
@@ -78,15 +80,10 @@ public class MedusaAnalysis extends AbstractGridAnalysis implements
 	public AlgorithmExecutionResults execute(Object input) {
 		MedusaParamPanel params = (MedusaParamPanel) aspp;
 
-		String sequenceFile = params.getFeaturesFile();
-
+		/* input section of config file */
 		String fileLabels = "dataset/small_yeast/yeast_test_labels";
 
-		double base = params.getIntervalBase();
-
-		double bound = params.getIntervalBound();
-
-		int boosting = params.getBoostingIterations();
+		String sequenceFile = params.getFeaturesFile();
 
 		int minKmer = params.getMinKmer();
 		int maxKmer = params.getMaxKmer();
@@ -98,12 +95,17 @@ public class MedusaAnalysis extends AbstractGridAnalysis implements
 			throw new RuntimeException("Min kmer cannot exceed max kmer.");
 		}
 
-		String baseArgs = "-fasta=" + sequenceFile + " -fileLabels="
-				+ fileLabels + " -iter=" + boosting + " -maxkmer=" + maxKmer
-				+ " -minkmer=" + minKmer;
+		double base = params.getIntervalBase();
+
+		double bound = params.getIntervalBound();
+
+		String baseArgs = " -filelabels=" + fileLabels + " -fasta="
+				+ sequenceFile + " -mbtype=iterative" + " -lbounds=0"
+				+ " -ubounds=0" + " -maxkmer=" + maxKmer + " -minkmer="
+				+ minKmer;
 
 		StringBuilder s = new StringBuilder(baseArgs);
-
+		// the have dimers_max_gap, dimers_smallest, dimers_largest
 		if (params.isUsingDimers()) {
 			int minGap = params.getMinGap();
 			int maxGap = params.getMaxGap();
@@ -115,17 +117,63 @@ public class MedusaAnalysis extends AbstractGridAnalysis implements
 				throw new RuntimeException("Min gap cannot exceed max gap.");
 			}
 
-			s.append(" -dimers=" + 'T');
+			s.append(" -dimers=T");
 			s.append(" -mingap=" + minGap);
 			s.append(" -maxgap=" + maxGap);
 		}
 
-		String[] args = { "-i=dataset/config.xml" };
-		// String[] args = StringUtils.split(s.toString(), " ");
+		else {
+			s.append(" -dimers=F");
+		}
+
+		// window_size
+		// min_motif_count_per_window
+
+		/* parameters */
+		s.append(" -stumpsonly=F");
+		int iter = params.getBoostingIterations();
+		s.append(" -iter=" + iter);
+		// is_corrected
+		s.append(" -hotype=random");
+		s.append(" -hopercent=10");
+		// holdout_experiments
+		// holdout_genes
+		// holdout_matrix
+		// pssms
+		int pssmLength = params.getPssmLength();
+		s.append(" -maxpssm=" + pssmLength);
+
+		int agg = params.getAgg();
+		s.append(" -clustersize=" + agg);
+
+		if (params.isReverseComplement()) {
+			s.append(" -revcompsame=T");
+		} else {
+			s.append(" -revcompsame=F");
+		}
+
+		s.append(" -fewesttrim=0");
+		s.append(" -mosttrim=0");
+		s.append(" -reportagglom=F");
+
+		/* output */
+		String rand = RandomStringUtils.randomAlphabetic(5);
+		String outputDirPath = "dataset/output";
+		File outputDir = new File(outputDirPath);
+		if (!outputDir.exists())
+			outputDir.mkdir();
+
+		s.append(" -direxpt=" + outputDirPath);
+		s.append(" -runname=" + rand);
+
+		// String[] args = { "-i=dataset/config.xml" };
+		String[] args = StringUtils.split(s.toString(), " ");
 
 		try {
+			log.info("Running MEDUSA with: " + s.toString());
 			MedusaLoader.main(args);
 		} catch (Exception e) {
+			e.printStackTrace();
 			throw new RuntimeException("Error running medusa: " + e);
 		}
 
