@@ -18,7 +18,7 @@ import edu.columbia.ccls.medusa.MedusaLoader;
 /**
  * 
  * @author keshav
- * @version $Id: MedusaAnalysis.java,v 1.8 2007-05-08 18:15:47 keshav Exp $
+ * @version $Id: MedusaAnalysis.java,v 1.9 2007-05-08 20:30:13 keshav Exp $
  */
 public class MedusaAnalysis extends AbstractGridAnalysis implements
 		ClusteringAnalysis {
@@ -158,16 +158,20 @@ public class MedusaAnalysis extends AbstractGridAnalysis implements
 
 		/* output */
 		String rand = RandomStringUtils.randomAlphabetic(5);
-		String outputDirPath = "dataset/output";
+		String outputDirPath = "/temp/medusa/dataset/output";
 		File outputDir = new File(outputDirPath);
-		if (!outputDir.exists())
-			outputDir.mkdir();
+
+		boolean success = false;
+		if (!outputDir.exists()) {
+			success = outputDir.mkdirs();
+			log.info("created dir? " + success);
+		}
 
 		s.append(" -direxpt=" + outputDirPath);
 		s.append(" -runname=" + rand);
 
-		// String[] args = { "-i=dataset/config.xml" };
-		String[] args = StringUtils.split(s.toString(), " ");
+		String[] args = { "-i=dataset/config.xml" };
+		// String[] args = StringUtils.split(s.toString(), " ");
 
 		try {
 			log.info("Running MEDUSA with: " + s.toString());
