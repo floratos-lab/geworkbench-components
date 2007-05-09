@@ -6,6 +6,8 @@ import org.apache.commons.logging.LogFactory;
 import javax.swing.table.DefaultTableModel;
 import java.util.List;
 
+import edu.columbia.c2b2.evidenceinegration.Evidence;
+
 /**
  * @author mhall
  */
