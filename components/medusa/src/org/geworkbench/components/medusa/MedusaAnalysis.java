@@ -18,14 +18,14 @@ import edu.columbia.ccls.medusa.MedusaLoader;
 /**
  * 
  * @author keshav
- * @version $Id: MedusaAnalysis.java,v 1.10 2007-05-09 16:31:25 keshav Exp $
+ * @version $Id: MedusaAnalysis.java,v 1.11 2007-05-09 19:40:06 keshav Exp $
  */
 public class MedusaAnalysis extends AbstractGridAnalysis implements
 		ClusteringAnalysis {
 
 	private Log log = LogFactory.getLog(this.getClass());
 
-	private String iFile = null;
+	private StringBuilder s = null;
 
 	/**
 	 * 
@@ -82,6 +82,35 @@ public class MedusaAnalysis extends AbstractGridAnalysis implements
 	public AlgorithmExecutionResults execute(Object input) {
 		MedusaParamPanel params = (MedusaParamPanel) aspp;
 
+		String configFile = params.getConfigFilePath();
+		if (!StringUtils.isEmpty(configFile)) {
+			s = new StringBuilder();
+			s.append("-i=" + configFile);
+			// String[] args = { "-i=" + iFile };
+			// String[] args = { "-i=data/medusa/dataset/config.xml" };
+		} else {
+			getParameters(params);
+		}
+
+		String[] args = StringUtils.split(s.toString(), " ");
+
+		try {
+			log.info("Running MEDUSA with: " + s.toString());
+			MedusaLoader.main(args);
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new RuntimeException("Error running medusa: " + e);
+		}
+
+		return null;
+	}
+
+	/**
+	 * Read the parameters from the parameters panel.
+	 * 
+	 * @param params
+	 */
+	private void getParameters(MedusaParamPanel params) {
 		/* input section of config file */
 		String fileLabels = "dataset/small_yeast/yeast_test_labels";
 
@@ -106,7 +135,7 @@ public class MedusaAnalysis extends AbstractGridAnalysis implements
 				+ " -ubounds=0" + " -maxkmer=" + maxKmer + " -minkmer="
 				+ minKmer;
 
-		StringBuilder s = new StringBuilder(baseArgs);
+		s = new StringBuilder(baseArgs);
 		// the have dimers_max_gap, dimers_smallest, dimers_largest
 		if (params.isUsingDimers()) {
 			int minGap = params.getMinGap();
@@ -171,20 +200,6 @@ public class MedusaAnalysis extends AbstractGridAnalysis implements
 
 		s.append(" -direxpt=" + outputDirPath);
 		s.append(" -runname=" + rand);
-
-		String[] args = { "-i=" + iFile };
-		// String[] args = { "-i=data/medusa/dataset/config.xml" };
-		// String[] args = StringUtils.split(s.toString(), " ");
-
-		try {
-			log.info("Running MEDUSA with: " + s.toString());
-			MedusaLoader.main(args);
-		} catch (Exception e) {
-			e.printStackTrace();
-			throw new RuntimeException("Error running medusa: " + e);
-		}
-
-		return null;
 	}
 
 	/**
@@ -193,15 +208,6 @@ public class MedusaAnalysis extends AbstractGridAnalysis implements
 	 */
 	public void printhelp() {
 		log.info(MedusaLoader.getHelpMessage());
-	}
-
-	/**
-	 * 
-	 * @param file
-	 */
-	public void setIFile(String file) {
-		// TODO remove me. Using this in MedusaAnalysisTest.
-		iFile = file;
 	}
 
 }

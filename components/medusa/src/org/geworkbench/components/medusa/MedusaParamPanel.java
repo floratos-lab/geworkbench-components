@@ -17,6 +17,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.analysis.AbstractSaveableParameterPanel;
@@ -27,7 +28,7 @@ import com.jgoodies.forms.layout.FormLayout;
 /**
  * 
  * @author keshav
- * @version $Id: MedusaParamPanel.java,v 1.10 2007-05-08 20:29:41 keshav Exp $
+ * @version $Id: MedusaParamPanel.java,v 1.11 2007-05-09 19:40:06 keshav Exp $
  */
 public class MedusaParamPanel extends AbstractSaveableParameterPanel implements
 		Serializable {
@@ -57,10 +58,14 @@ public class MedusaParamPanel extends AbstractSaveableParameterPanel implements
 
 	/* MAIN PANEL */
 
+	private JButton loadConfigFileButton = new JButton("Load Config File");
+
+	private String configFilePath = "data/medusa/dataset/config.xml";
+
 	/* features */
 	private JButton loadFeaturesButton = new JButton("Load Features");
 
-	String featuresFile = "dataset/small_yeast/yeast_test.fasta";
+	private String featuresFile = "dataset/small_yeast/yeast_test.fasta";
 
 	private String featuresListFile = new String(featuresFile);
 
@@ -95,7 +100,7 @@ public class MedusaParamPanel extends AbstractSaveableParameterPanel implements
 
 	private JButton loadTargetsButton = new JButton("Load Targets");
 
-	private String targetsFile = new String("data/targets.txt");
+	private String targetsFile = new String("data/medusa/dataset/targets.txt");
 
 	/* discretization interval */
 
@@ -186,6 +191,10 @@ public class MedusaParamPanel extends AbstractSaveableParameterPanel implements
 		DefaultFormBuilder mainBuilder = new DefaultFormBuilder(layout);
 		mainBuilder.setDefaultDialogBorder();
 		mainBuilder.appendSeparator("MEDUSA Main Paramaters");
+
+		/* use config file */
+		mainBuilder.append("Configuration File", loadConfigFileButton);
+		mainBuilder.nextRow();
 
 		/* features */
 		mainBuilder.append("Features File (FASTA)", loadFeaturesButton);
@@ -278,6 +287,34 @@ public class MedusaParamPanel extends AbstractSaveableParameterPanel implements
 	private void addListeners() {
 
 		/* PRIMARY */
+
+		/* config file */
+		// button listener
+		loadConfigFileButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent actionEvent) {
+				StringBuilder geneListBuilder = new StringBuilder();
+
+				File iFile = new File(configFilePath);
+				JFileChooser chooser = new JFileChooser(iFile.getParent());
+				int retVal = chooser.showOpenDialog(MedusaParamPanel.this);
+
+				if (retVal == JFileChooser.APPROVE_OPTION) {
+					configFilePath = chooser.getSelectedFile().getPath();
+					log.info("configuration file: " + configFilePath);
+
+					// while (!StringUtils.isEmpty(configFilePath)) {
+					//
+					// geneListBuilder.append(target + ", ");
+					// target = reader.readLine();
+					//					}
+
+				} else {
+					log.debug("cancelled ... ");
+				}
+
+			}
+		});
+
 		/* features */
 		// button listener
 		loadFeaturesButton.addActionListener(new ActionListener() {
@@ -726,6 +763,14 @@ public class MedusaParamPanel extends AbstractSaveableParameterPanel implements
 
 	public void setFeaturesFile(String featuresFile) {
 		this.featuresFile = featuresFile;
+	}
+
+	public String getConfigFilePath() {
+		return this.configFilePath;
+	}
+
+	public void setConfigFilePath(String configFilePath) {
+		this.configFilePath = configFilePath;
 	}
 
 }
