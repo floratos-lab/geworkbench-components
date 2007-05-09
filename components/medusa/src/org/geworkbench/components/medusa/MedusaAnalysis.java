@@ -18,12 +18,14 @@ import edu.columbia.ccls.medusa.MedusaLoader;
 /**
  * 
  * @author keshav
- * @version $Id: MedusaAnalysis.java,v 1.9 2007-05-08 20:30:13 keshav Exp $
+ * @version $Id: MedusaAnalysis.java,v 1.10 2007-05-09 16:31:25 keshav Exp $
  */
 public class MedusaAnalysis extends AbstractGridAnalysis implements
 		ClusteringAnalysis {
 
 	private Log log = LogFactory.getLog(this.getClass());
+
+	private String iFile = null;
 
 	/**
 	 * 
@@ -170,7 +172,8 @@ public class MedusaAnalysis extends AbstractGridAnalysis implements
 		s.append(" -direxpt=" + outputDirPath);
 		s.append(" -runname=" + rand);
 
-		String[] args = { "-i=dataset/config.xml" };
+		String[] args = { "-i=" + iFile };
+		// String[] args = { "-i=data/medusa/dataset/config.xml" };
 		// String[] args = StringUtils.split(s.toString(), " ");
 
 		try {
@@ -190,6 +193,15 @@ public class MedusaAnalysis extends AbstractGridAnalysis implements
 	 */
 	public void printhelp() {
 		log.info(MedusaLoader.getHelpMessage());
+	}
+
+	/**
+	 * 
+	 * @param file
+	 */
+	public void setIFile(String file) {
+		// TODO remove me. Using this in MedusaAnalysisTest.
+		iFile = file;
 	}
 
 }
