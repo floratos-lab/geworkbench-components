@@ -8,7 +8,7 @@ import junit.framework.TestCase;
 /**
  * 
  * @author keshav
- * @version $Id: MedusaAnalysisTest.java,v 1.3 2007-05-08 18:16:08 keshav Exp $
+ * @version $Id: MedusaAnalysisTest.java,v 1.4 2007-05-09 16:16:01 keshav Exp $
  */
 public class MedusaAnalysisTest extends TestCase {
 	MedusaParamPanel panel = null;
@@ -27,7 +27,7 @@ public class MedusaAnalysisTest extends TestCase {
 	 * 
 	 */
 	public void testExecute() {
-		panel.setFeaturesFile("dataset/small_yeast/yeast_test.fasta");
+		panel.setFeaturesFile("data/test/dataset/small_yeast/yeast_test.fasta");
 
 		JTextField minKmer = new JTextField();
 		minKmer.setText(String.valueOf(3));
