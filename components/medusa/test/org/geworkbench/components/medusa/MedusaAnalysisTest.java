@@ -8,7 +8,7 @@ import junit.framework.TestCase;
 /**
  * 
  * @author keshav
- * @version $Id: MedusaAnalysisTest.java,v 1.4 2007-05-09 16:16:01 keshav Exp $
+ * @version $Id: MedusaAnalysisTest.java,v 1.5 2007-05-09 16:31:57 keshav Exp $
  */
 public class MedusaAnalysisTest extends TestCase {
 	MedusaParamPanel panel = null;
@@ -67,6 +67,7 @@ public class MedusaAnalysisTest extends TestCase {
 		panel.setReverseComplementCombo(reverseComplementCombo);
 
 		analysis.setDefaultPanel(panel);
+		analysis.setIFile("data/test/dataset/config.xml");
 		analysis.execute(null);
 		// analysis.printhelp();
 	}

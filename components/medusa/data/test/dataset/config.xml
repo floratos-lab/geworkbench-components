@@ -2,10 +2,10 @@
     verbose="true"
     file_state="">
     <input
-        file_labels="dataset/small_yeast/yeast_test.labels">
+        file_labels="data/test/dataset/small_yeast/yeast_test.labels">
         <fasta_files>
             <file
-                file_fasta="dataset/small_yeast/yeast_test.fasta"
+                file_fasta="data/test/dataset/small_yeast/yeast_test.fasta"
                 motif_type="iterative"
                 lbound="0"
                 ubound="0"
@@ -39,7 +39,7 @@
 	/>
     <output
             continuous_write="true"
-            dir_experiment="dataset/output"
+            dir_experiment="data/test/dataset/output"
             run_name="run1"
             file_rules="rules.xml"
 	/>
