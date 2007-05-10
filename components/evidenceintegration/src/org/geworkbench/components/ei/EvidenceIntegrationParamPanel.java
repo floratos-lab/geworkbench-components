@@ -33,8 +33,10 @@ public class EvidenceIntegrationParamPanel extends AbstractSaveableParameterPane
     private ArrayList<Evidence> loadedPriors;
     private PriorTableModel loadedModel;
     private JXTable loadedTable;
+    private HashMap<Integer, String> goldStandardSources;
 
     public EvidenceIntegrationParamPanel(HashMap<Integer, String> goldStandardSources) {
+        this.goldStandardSources = goldStandardSources;
         this.setLayout(new BorderLayout());
         this.setPreferredSize(new Dimension(0, 100));
 
@@ -71,7 +73,11 @@ public class EvidenceIntegrationParamPanel extends AbstractSaveableParameterPane
             tablePanel.add(label, BorderLayout.NORTH);
 
             predefinedPriors = new ArrayList<Evidence>();
-            predefinedPriors.add(new Evidence("Predefined 1", null));
+            for (Map.Entry<Integer, String> gsSource : goldStandardSources.entrySet()) {
+                Evidence source = new Evidence(gsSource.getValue());
+                source.setSourceID(gsSource.getKey());
+                predefinedPriors.add(source);
+            }
             predefinedModel = new PriorTableModel(predefinedPriors);
             predefTable = new JXTable(predefinedModel);
             setBooleanRenderers(predefTable);
@@ -86,7 +92,7 @@ public class EvidenceIntegrationParamPanel extends AbstractSaveableParameterPane
             tablePanel.add(label, BorderLayout.NORTH);
 
             loadedPriors = new ArrayList<Evidence>();
-            loadedPriors.add(new Evidence("Loaded 1", null));
+//            loadedPriors.add(new Evidence("Loaded 1", null));
             loadedModel = new PriorTableModel(loadedPriors);
             loadedTable = new JXTable(loadedModel);
             setBooleanRenderers(loadedTable);
@@ -143,7 +149,12 @@ public class EvidenceIntegrationParamPanel extends AbstractSaveableParameterPane
     }
 
     public List<Integer> getSelectedGoldStandards() {
-        //todo
-        return null;  //To change body of created methods use File | Settings | File Templates.
+        ArrayList<Integer> enabledGS = new ArrayList<Integer>();
+        for (Evidence goldStandard : predefinedPriors) {
+            if (goldStandard.isEnabled()) {
+                enabledGS.add(goldStandard.getSourceID());
+            }
+        }
+        return enabledGS;
     }
 }
