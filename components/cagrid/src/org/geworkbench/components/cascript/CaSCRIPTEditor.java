@@ -58,9 +58,14 @@ public class CaSCRIPTEditor implements VisualPlugin {
             "HierarchicalClustering:ExecuteRequest", "HierClusterModule",
             "datatype DSHierClusterDataSet cluster = cagrid.doClustering(<DSMicroarraySet>, \"Average\", \"Both\", \"Euclidean\", <url>);\n"
             );
+    private OperationInfo somClusterOperation = new OperationInfo(null, "execute", "SomClustering:ExecuteResponse",
+            "SomClustering:ExecuteRequest", "SomClusterModule",
+            "datatype DSSOMClusterDataSet cluster = cagrid.doSOMClustering(<DSMicroarraySet>, 0.8, 3, 3, 0, 4000, 3.0, <url>);\n"
+            );
 
     {
         paramModuleMap.put(hierClusterOperation.getParameters(), hierClusterOperation);
+        paramModuleMap.put(somClusterOperation.getParameters(), somClusterOperation);
     }
 
     HashMap<String, String> urlToDescription = new HashMap<String, String>();
