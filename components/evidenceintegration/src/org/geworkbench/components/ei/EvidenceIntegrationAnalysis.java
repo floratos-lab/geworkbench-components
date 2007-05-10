@@ -60,7 +60,6 @@ public class EvidenceIntegrationAnalysis extends AbstractAnalysis implements Clu
 //        }
         List<Evidence> selectedEvidence = eiParamPanel.getSelectedEvidence();
         List<Integer> selectedGoldStandards = eiParamPanel.getSelectedGoldStandards();
-        selectedGoldStandards.add(1);
         log.debug("Evidence selected: ");
         for (Evidence evidence : selectedEvidence) {
             log.debug("\t" + evidence.getName());
