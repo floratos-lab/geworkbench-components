@@ -9,14 +9,17 @@ import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.engine.management.AcceptTypes;
 import org.geworkbench.engine.management.Subscribe;
+import org.geworkbench.engine.management.Publish;
 import org.geworkbench.events.ProjectEvent;
 import org.geworkbench.events.GeneSelectorEvent;
+import org.geworkbench.events.ImageSnapshotEvent;
 import org.geworkbench.util.pathwaydecoder.mutualinformation.MindyDataSet;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.logging.Log;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Iterator;
 
@@ -49,7 +52,7 @@ public class MindyVisualComponent implements VisualPlugin {
             if (dataSet != data) {
                 dataSet = ((MindyDataSet) data);
                 plugin.removeAll();
-                mindyPlugin = new MindyPlugin(dataSet.getData());
+                mindyPlugin = new MindyPlugin(dataSet.getData(), this);
                 mindyPlugin.limitMarkers(selectedMarkers);
                 plugin.add(mindyPlugin, BorderLayout.CENTER);
                 plugin.revalidate();
@@ -85,5 +88,14 @@ public class MindyVisualComponent implements VisualPlugin {
         }
     }
 
+    @Publish public ImageSnapshotEvent createImageSnapshot(Component heatmap) {
+        Dimension panelSize = heatmap.getSize();
+        BufferedImage image = new BufferedImage(panelSize.width, panelSize.height, BufferedImage.TYPE_INT_RGB);
+        Graphics g = image.getGraphics();
+        heatmap.print(g);
+        ImageIcon icon = new ImageIcon(image, "MINDY Heat Map");
+        org.geworkbench.events.ImageSnapshotEvent event = new org.geworkbench.events.ImageSnapshotEvent("MINDY Heat Map", icon, org.geworkbench.events.ImageSnapshotEvent.Action.SAVE);
+        return event;
+    }
 
 }

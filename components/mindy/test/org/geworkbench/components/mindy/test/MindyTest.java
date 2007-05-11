@@ -52,7 +52,7 @@ public class MindyTest extends TestCase {
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
         }
 
-        MindyPlugin mindy = new MindyPlugin(loadedData);
+        MindyPlugin mindy = new MindyPlugin(loadedData, null);
         mindy.limitMarkers(limitList);
 
         try {
