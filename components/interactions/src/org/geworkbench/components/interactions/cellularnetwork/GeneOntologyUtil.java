@@ -8,6 +8,7 @@ import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.A
 import java.util.Set;
 import java.util.HashSet;
 import java.util.TreeMap;
+import java.util.List;
 
 /**
  * Created by IntelliJ IDEA.
@@ -88,12 +89,12 @@ public class GeneOntologyUtil {
         return set;
     }
 
-    public TreeMap<String, Set<GOTerm>> getAllGoTerms(DSGeneMarker dsGeneMarker, String catagory) {
+    public TreeMap<String, List<GOTerm>> getAllGoTerms(DSGeneMarker dsGeneMarker, String catagory) {
         String geneId = dsGeneMarker.getLabel();
         String[] goTerms = AnnotationParser.getInfo(geneId, catagory);
 
         Set<GOTerm> set = new HashSet<GOTerm>();
-        TreeMap<String, Set<GOTerm>> treeMap = new TreeMap<String, Set<GOTerm>>();
+        TreeMap<String, List<GOTerm>> treeMap = new TreeMap<String, List<GOTerm>>();
         if (goTerms != null) {
 
             for (String goTerm : goTerms) {
@@ -104,7 +105,7 @@ public class GeneOntologyUtil {
                         Integer goId = new Integer(goIdStr);
                         if (goId != null) {
                             //set.addAll(tree.getAncestors(goId));
-                            treeMap.put(goTerm, tree.getAncestors(goId));
+                            treeMap.put(goTerm, tree.getAncestorsTreeNodes(goId));
                         }
                     }
                 } catch (NumberFormatException ne) {
