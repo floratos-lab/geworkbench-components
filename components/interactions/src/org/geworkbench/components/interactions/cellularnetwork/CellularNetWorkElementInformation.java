@@ -7,6 +7,7 @@ import org.geworkbench.bison.datastructure.bioobjects.markers.goterms.GOTerm;
 import java.util.ArrayList;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.List;
 
 /**
  * Created by IntelliJ IDEA.
@@ -38,34 +39,34 @@ public class CellularNetWorkElementInformation {
     private static int binNumber;
     private boolean isDirty;
 
-    public TreeMap<String, Set<GOTerm>> getTreeMapForComponent() {
+    public TreeMap<String, List<GOTerm>> getTreeMapForComponent() {
         return treeMapForComponent;
     }
 
-    public void setTreeMapForComponent(TreeMap<String, Set<GOTerm>> treeMapForComponent) {
+    public void setTreeMapForComponent(TreeMap<String, List<GOTerm>> treeMapForComponent) {
         this.treeMapForComponent = treeMapForComponent;
     }
 
-    public TreeMap<String, Set<GOTerm>> getTreeMapForFunction() {
+    public TreeMap<String, List<GOTerm>> getTreeMapForFunction() {
         return treeMapForFunction;
     }
 
-    public void setTreeMapForFunction(TreeMap<String, Set<GOTerm>> treeMapForFunction) {
+    public void setTreeMapForFunction(TreeMap<String, List<GOTerm>> treeMapForFunction) {
         this.treeMapForFunction = treeMapForFunction;
     }
 
-    public TreeMap<String, Set<GOTerm>> getTreeMapForProcess() {
+    public TreeMap<String, List<GOTerm>> getTreeMapForProcess() {
         return treeMapForProcess;
     }
 
-    public void setTreeMapForProcess(TreeMap<String, Set<GOTerm>> treeMapForProcess) {
+    public void setTreeMapForProcess(TreeMap<String, List<GOTerm>> treeMapForProcess) {
         this.treeMapForProcess = treeMapForProcess;
     }
 
     //For go terms
-   private TreeMap<String, Set<GOTerm>> treeMapForComponent;
-    private TreeMap<String, Set<GOTerm>> treeMapForFunction;
-    private TreeMap<String, Set<GOTerm>> treeMapForProcess;
+   private TreeMap<String, List<GOTerm>> treeMapForComponent;
+    private TreeMap<String, List<GOTerm>> treeMapForFunction;
+    private TreeMap<String, List<GOTerm>> treeMapForProcess;
 
     public CellularNetWorkElementInformation(int ppInteractionNum, int pdInteractionNum, boolean includePPInteraction, boolean includePDInteraction, DSGeneMarker dSGeneMarker, String goInfoStr, String geneType) {
         this.ppInteractionNum = ppInteractionNum;
@@ -317,7 +318,7 @@ public class CellularNetWorkElementInformation {
 
     public boolean equals(Object obj){
         if(obj instanceof CellularNetWorkElementInformation){
-            return dSGeneMarker.getGeneName().equals(((CellularNetWorkElementInformation)obj).getdSGeneMarker().getGeneName());
+            return dSGeneMarker.getGeneName().equals(((CellularNetWorkElementInformation)obj).getdSGeneMarker().getGeneName())&&dSGeneMarker.getLabel().equals(((CellularNetWorkElementInformation)obj).getdSGeneMarker().getLabel());
         }else{
             return false;
         }

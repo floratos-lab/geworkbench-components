@@ -39,6 +39,7 @@ import org.jfree.ui.RectangleInsets;
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeSelectionModel;
+import javax.swing.tree.TreePath;
 import javax.swing.border.Border;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.TableModelEvent;
@@ -53,6 +54,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.*;
 import java.util.*;
+import java.util.List;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 
@@ -73,6 +75,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane impl
     private static String[] columnLabels = new String[]{INCLUDEPDLABEL, INCLUDEPPLABEL, MARKERLABEL, GENELABEL, GENETYPELABEL, GOTERMCOLUMN, PDNUMBERLABEL, PPNUMBERLABEL};
     private static TableColumn[] tableColumns;
     private boolean cancelAction = false;
+
     /**
      * Creates new form Interactions
      */
@@ -165,7 +168,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane impl
      * @param jMenu
      * @param treeMap
      */
-    private void addGoTermMenuItem(JMenu jMenu, TreeMap<String, Set<GOTerm>> treeMap) {
+    private void addGoTermMenuItem(JMenu jMenu, TreeMap<String, List<GOTerm>> treeMap) {
 
         if (treeMap != null && treeMap.size() > 0) {
             Object[] array = treeMap.keySet().toArray();
@@ -173,7 +176,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane impl
             for (int i = 0; i < array.length; i++) {
                 jMenuItems[i] = new JMenuItem((String) array[i]);
                 jMenu.add(jMenuItems[i]);
-                final Set<GOTerm> set = treeMap.get(array[i]);
+                final List<GOTerm> set = treeMap.get(array[i]);
                 jMenuItems[i].addActionListener(new ActionListener() {
                     public void actionPerformed(ActionEvent e) {
                         displayGoTree(set);
@@ -191,7 +194,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane impl
      * @param set
      * @return
      */
-    private DefaultMutableTreeNode createNodes(Set<GOTerm> set) {
+    private DefaultMutableTreeNode createNodes(List<GOTerm> set) {
         Object[] array = set.toArray();
         DefaultMutableTreeNode node = null;
         if (array != null && array.length > 0) {
@@ -216,7 +219,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane impl
      *
      * @param set
      */
-    private void displayGoTree(Set<GOTerm> set) {
+    private void displayGoTree(List<GOTerm> set) {
         Frame frame = JOptionPane.getFrameForComponent(this);
         goDialog = new JDialog(frame, "Display Preference", true);
 
@@ -224,6 +227,10 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane impl
         JTree tree = new JTree(createNodes(set));
         tree.getSelectionModel().setSelectionMode
                 (TreeSelectionModel.SINGLE_TREE_SELECTION);
+        DefaultMutableTreeNode node = new DefaultMutableTreeNode(set.get(set.size() - 1));
+        // Make sure the last node is selected.
+        tree.scrollPathToVisible(new TreePath(node));
+        tree.setSelectionPath(new TreePath(node.getPath()));
 
         //Create the scroll pane and add the tree to it.
         JScrollPane treeView = new JScrollPane(tree);
@@ -338,7 +345,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane impl
             }
         });
 
-        jScrollPane2.setViewportView(selectedGenesList);
+        //jScrollPane2.setViewportView(selectedGenesList);
 
         addButton.setText(">>");
         addButton.setToolTipText("Add to selection");
@@ -557,7 +564,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane impl
         dialog.setMinimumSize(new Dimension(100, 100));
         dialog.setPreferredSize(new Dimension(300, 300));
         dialog.pack();
-         dialog.setLocationRelativeTo(null);
+        dialog.setLocationRelativeTo(null);
 
     }// </editor-fold>                        
 
@@ -996,9 +1003,9 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane impl
         }
     }
 
-     private void cancelTheAction(ActionEvent e) {
-      cancelAction = true;
-     }
+    private void cancelTheAction(ActionEvent e) {
+        cancelAction = true;
+    }
 
 
     private void previewSelectionsHandler(ActionEvent e) {
@@ -1014,7 +1021,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane impl
                         updateProgressBar(((double) retrievedQueryNumber) / hits.size(), "Querying the Knowledge Base...");
                         cellularNetWorkElementInformation.setDirty(false);
                         DSGeneMarker marker = cellularNetWorkElementInformation.getdSGeneMarker();
-                        if(cancelAction){
+                        if (cancelAction) {
                             break;
                         }
                         if (marker != null && marker.getGeneId() != -1) {
@@ -1023,13 +1030,13 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane impl
                             cellularNetWorkElementInformation.setInteractionDetails(interactionDetails);
                         }
                     }
-                    if(!cancelAction){
-                    updateProgressBar(1, "Query is finished.");
-                    drawPlot(createCollection(0, 1, 1, true), "Throttle Graph");
-                    throttlePanel.repaint();
+                    if (!cancelAction) {
+                        updateProgressBar(1, "Query is finished.");
+                        drawPlot(createCollection(0, 1, 1, true), "Throttle Graph");
+                        throttlePanel.repaint();
 
-                    }else{
-                      updateProgressBar(1, "Stopped");
+                    } else {
+                        updateProgressBar(1, "Stopped");
                     }
                     previewTableModel.fireTableDataChanged();
                     detailTable.revalidate();
@@ -1291,7 +1298,8 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane impl
 
                         //  setForeground(Color.red);
                         // setForeground(list.getSelectionForeground());
-                        setText("<html><font color=RED><i>" + "Unknown" + "</i></font></html>");
+                       // setText("<html><font color=RED><i>" + "Unknown" + "</i></font></html>");
+                        setText("<html><font><i>" + "Unknown" + "</i></font></html>");
                         setToolTipText("Please push the Refresh button to retrieve related information.");
                         if (unselectedBorder == null) {
                             unselectedBorder = BorderFactory.createMatteBorder(2, 5, 2, 5,
@@ -1447,8 +1455,9 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane impl
         if (panel != null) {
             allGenes.clear();
             for (DSGeneMarker marker : panel) {
-                if (!selectedGenes.contains(marker))
+                if (!selectedGenes.contains(marker)){
                     allGenes.add(marker);
+                }
             }
             activeMarkersTableModel.fireTableDataChanged();
             Vector<DSGeneMarker> temp = new Vector<DSGeneMarker>();
@@ -1456,12 +1465,18 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane impl
                 if (!panel.contains(marker))
                     temp.add(marker);
             }
-            for (DSGeneMarker marker : temp)
+            for (DSGeneMarker marker : temp){
                 selectedGenes.remove(marker);
+            }
             allGeneList.setModel(new DefaultListModel());
             allGeneList.setModel(allGeneModel);
             selectedGenesList.setModel(new DefaultListModel());
             selectedGenesList.setModel(selectedGenesModel);
+
+        }else{
+//          allGenes.clear();
+//          hits.clear();
+//            repaint();
         }
         repaint();
     }
