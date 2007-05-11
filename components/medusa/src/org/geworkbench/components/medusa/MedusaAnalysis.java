@@ -24,7 +24,7 @@ import edu.columbia.ccls.medusa.MedusaLoader;
 /**
  * 
  * @author keshav
- * @version $Id: MedusaAnalysis.java,v 1.12 2007-05-11 17:00:16 keshav Exp $
+ * @version $Id: MedusaAnalysis.java,v 1.13 2007-05-11 20:16:41 keshav Exp $
  */
 public class MedusaAnalysis extends AbstractGridAnalysis implements
 		ClusteringAnalysis {
@@ -89,13 +89,13 @@ public class MedusaAnalysis extends AbstractGridAnalysis implements
 		MedusaParamPanel params = (MedusaParamPanel) aspp;
 
 		String configFile = params.getConfigFilePath();
-		// TODO add back in
-		// if (!StringUtils.isEmpty(configFile)) {
-		// s = new StringBuilder();
-		// s.append("-i=" + configFile);
-		// } else {
-		getParameters(input, params);
-		// }
+		// TODO change how this is done
+		if (!StringUtils.isEmpty(configFile)) {
+			s = new StringBuilder();
+			s.append("-i=" + configFile);
+		} else {
+			getParameters(input, params);
+		}
 
 		String[] args = StringUtils.split(s.toString(), " ");
 
@@ -117,7 +117,6 @@ public class MedusaAnalysis extends AbstractGridAnalysis implements
 	 */
 	private void getParameters(Object input, MedusaParamPanel params) {
 		/* input section of config file */
-		// String fileLabels = "dataset/small_yeast/yeast_test_labels";
 		String sequenceFile = params.getFeaturesFile();
 
 		int minKmer = params.getMinKmer();
@@ -142,7 +141,6 @@ public class MedusaAnalysis extends AbstractGridAnalysis implements
 		}
 
 		String fileLabels = "data/medusa/dataset/test.labels";
-		// String test = inputData.get;
 		MedusaHelper.writeMedusaLabelsFile(inputData, fileLabels, params
 				.getRegulators(), params.getTargets());
 
@@ -152,7 +150,7 @@ public class MedusaAnalysis extends AbstractGridAnalysis implements
 				+ minKmer;
 
 		s = new StringBuilder(baseArgs);
-		// the have dimers_max_gap, dimers_smallest, dimers_largest
+		// medusa group has dimers_max_gap, dimers_smallest, dimers_largest
 		if (params.isUsingDimers()) {
 			int minGap = params.getMinGap();
 			int maxGap = params.getMaxGap();
@@ -203,6 +201,10 @@ public class MedusaAnalysis extends AbstractGridAnalysis implements
 		s.append(" -mosttrim=0");
 		s.append(" -reportagglom=F");
 
+		getOutput();
+	}
+
+	private void getOutput() {
 		/* output */
 		String rand = RandomStringUtils.randomAlphabetic(5);
 		String outputDirPath = "/temp/medusa/dataset/output";
