@@ -28,12 +28,12 @@ public class MindyParamPanel extends AbstractSaveableParameterPanel implements S
 
     private JTextField modulatorList = new JTextField("");
     private JTextField dpiAnnotationList = new JTextField("");
-    private JTextField setFraction = new JTextField("35");
-    private JTextField subsetMIThreshold = new JTextField("-1");
-    private JTextField subsetPValue = new JTextField("-1");
-    private JTextField dpiTolerance = new JTextField("0.1");
-    private JTextField fullsetMIThreshold = new JTextField("-1");
-    private JTextField fullsetPValue = new JTextField("-1");
+    private JSpinner setFraction = new JSpinner(new SpinnerNumberModel(35, 1, 50, 1));
+    private JSpinner subsetMIThreshold = new JSpinner(new SpinnerNumberModel(0d, 0d, 1d, 0.1d));
+    private JSpinner subsetPValue = new JSpinner(new SpinnerNumberModel(0d, 0d, 1d, 0.1d));
+    private JSpinner dpiTolerance = new JSpinner(new SpinnerNumberModel(0.1d, 0d, 1d, 0.1d));
+    private JSpinner fullsetMIThreshold = new JSpinner(new SpinnerNumberModel(0d, 0d, 1d, 0.1d));
+    private JSpinner fullsetPValue = new JSpinner(new SpinnerNumberModel(0d, 0d, 1d, 0.1d));
     private JTextField transcriptionFactor = new JTextField("1973_s_at");
     private String modulatorFile = "data/mindy/candidate_modulator.lst";
     private String dpiAnnotationFile = "data/mindy/transcription_factor.lst";
@@ -138,27 +138,27 @@ public class MindyParamPanel extends AbstractSaveableParameterPanel implements S
     }
 
     public int getSetFraction() {
-        return Integer.valueOf(setFraction.getText());
+        return ((Number) setFraction.getModel().getValue()).intValue();
     }
 
     public float getSubsetMIThreshold() {
-        return Float.valueOf(subsetMIThreshold.getText());
+        return ((Number) subsetMIThreshold.getModel().getValue()).floatValue();
     }
 
     public float getSubsetPValueThreshold() {
-        return Float.valueOf(subsetPValue.getText());
+        return ((Number) subsetPValue.getModel().getValue()).floatValue();
     }
 
     public float getDPITolerance() {
-        return Float.valueOf(dpiTolerance.getText());
+        return ((Number) dpiTolerance.getModel().getValue()).floatValue();
     }
 
     public float getFullSetMIThreshold() {
-        return Float.valueOf(fullsetMIThreshold.getText());
+        return ((Number) fullsetMIThreshold.getModel().getValue()).floatValue();
     }
 
     public float getFullsetPValueThreshold() {
-        return Float.valueOf(fullsetPValue.getText());
+        return ((Number) fullsetPValue.getModel().getValue()).floatValue();
     }
 
     public String getTranscriptionFactor() {
