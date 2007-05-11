@@ -166,8 +166,8 @@ public class MindyPlugin extends JPanel {
             final JCheckBox scoreCheck = new JCheckBox("Score View");
             tableOptionsPane.add(scoreCheck);
 
-            final ColorGradient gradient = new ColorGradient(Color.black, Color.yellow);
-            gradient.addColorPoint(Color.red, 0f);
+            final ColorGradient gradient = new ColorGradient(Color.blue, Color.red);
+            gradient.addColorPoint(Color.white, 0f);
 
             aggregateModel = new AggregateTableModel(mindyData);
             aggregateModel.setModLimit(DEFAULT_MODULATOR_LIMIT);
@@ -177,7 +177,11 @@ public class MindyPlugin extends JPanel {
                     Component component = super.prepareRenderer(tableCellRenderer, row, col);
                     if (colorCheck.isSelected() && col > 1) {
                         float score = aggregateModel.getScoreAt(row, col);
-                        component.setBackground(gradient.getColor(score));
+                        if (scoreCheck.isSelected()) {
+                            component.setBackground(gradient.getColor(score));
+                        } else {
+                            component.setBackground(gradient.getColor(Math.signum(score) * 1));
+                        }
                     }
                     return component;
                 }
