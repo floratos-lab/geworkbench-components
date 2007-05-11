@@ -8,6 +8,8 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.Arrays;
+import java.util.List;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -28,7 +30,7 @@ import com.jgoodies.forms.layout.FormLayout;
 /**
  * 
  * @author keshav
- * @version $Id: MedusaParamPanel.java,v 1.11 2007-05-09 19:40:06 keshav Exp $
+ * @version $Id: MedusaParamPanel.java,v 1.12 2007-05-11 17:00:16 keshav Exp $
  */
 public class MedusaParamPanel extends AbstractSaveableParameterPanel implements
 		Serializable {
@@ -306,7 +308,7 @@ public class MedusaParamPanel extends AbstractSaveableParameterPanel implements
 					//
 					// geneListBuilder.append(target + ", ");
 					// target = reader.readLine();
-					//					}
+					// }
 
 				} else {
 					log.debug("cancelled ... ");
@@ -675,9 +677,41 @@ public class MedusaParamPanel extends AbstractSaveableParameterPanel implements
 	public String getRegulatorsFile() {
 		return regulatorsFile;
 	}
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public List getRegulators() {
+		String reg = this.regulatorTextField.getText();
+		String[] regulators = StringUtils.split(reg, ",");
+		int i = 0;
+		for (String regulator : regulators) {
+			regulators[i] = StringUtils.strip(regulator);
+			i++;
+		}
+
+		return Arrays.asList(regulators);
+	}
 
 	public String getTargetsFile() {
 		return targetsFile;
+	}
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public List getTargets() {
+		String tar = this.targetTextField.getText();
+		String[] targets = StringUtils.split(tar, ",");
+		int i = 0;
+		for (String target : targets) {
+			targets[i] = StringUtils.strip(target);
+			i++;
+		}
+
+		return Arrays.asList(targets);
 	}
 
 	public boolean isReverseComplement() {
@@ -772,5 +806,4 @@ public class MedusaParamPanel extends AbstractSaveableParameterPanel implements
 	public void setConfigFilePath(String configFilePath) {
 		this.configFilePath = configFilePath;
 	}
-
 }

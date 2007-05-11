@@ -10,6 +10,12 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.analysis.AbstractGridAnalysis;
+import org.geworkbench.bison.datastructure.biocollections.views.CSMicroarraySetView;
+import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
+import org.geworkbench.bison.datastructure.bioobjects.markers.CSGeneMarker;
+import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
+import org.geworkbench.bison.datastructure.bioobjects.microarray.CSMicroarray;
+import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
 import org.geworkbench.bison.model.analysis.ClusteringAnalysis;
 
@@ -18,7 +24,7 @@ import edu.columbia.ccls.medusa.MedusaLoader;
 /**
  * 
  * @author keshav
- * @version $Id: MedusaAnalysis.java,v 1.11 2007-05-09 19:40:06 keshav Exp $
+ * @version $Id: MedusaAnalysis.java,v 1.12 2007-05-11 17:00:16 keshav Exp $
  */
 public class MedusaAnalysis extends AbstractGridAnalysis implements
 		ClusteringAnalysis {
@@ -83,14 +89,13 @@ public class MedusaAnalysis extends AbstractGridAnalysis implements
 		MedusaParamPanel params = (MedusaParamPanel) aspp;
 
 		String configFile = params.getConfigFilePath();
-		if (!StringUtils.isEmpty(configFile)) {
-			s = new StringBuilder();
-			s.append("-i=" + configFile);
-			// String[] args = { "-i=" + iFile };
-			// String[] args = { "-i=data/medusa/dataset/config.xml" };
-		} else {
-			getParameters(params);
-		}
+		// TODO add back in
+		// if (!StringUtils.isEmpty(configFile)) {
+		// s = new StringBuilder();
+		// s.append("-i=" + configFile);
+		// } else {
+		getParameters(input, params);
+		// }
 
 		String[] args = StringUtils.split(s.toString(), " ");
 
@@ -110,10 +115,9 @@ public class MedusaAnalysis extends AbstractGridAnalysis implements
 	 * 
 	 * @param params
 	 */
-	private void getParameters(MedusaParamPanel params) {
+	private void getParameters(Object input, MedusaParamPanel params) {
 		/* input section of config file */
-		String fileLabels = "dataset/small_yeast/yeast_test_labels";
-
+		// String fileLabels = "dataset/small_yeast/yeast_test_labels";
 		String sequenceFile = params.getFeaturesFile();
 
 		int minKmer = params.getMinKmer();
@@ -129,6 +133,18 @@ public class MedusaAnalysis extends AbstractGridAnalysis implements
 		double base = params.getIntervalBase();
 
 		double bound = params.getIntervalBound();
+
+		DSMicroarraySetView<DSGeneMarker, DSMicroarray> inputData = null;
+		if (input instanceof DSMicroarraySetView) {
+			inputData = (CSMicroarraySetView<DSGeneMarker, DSMicroarray>) input;
+			DiscretizationUtil discretizationUtil = new DiscretizationUtil();
+			inputData = discretizationUtil.discretize(inputData, base, bound);
+		}
+
+		String fileLabels = "data/medusa/dataset/test.labels";
+		// String test = inputData.get;
+		MedusaHelper.writeMedusaLabelsFile(inputData, fileLabels, params
+				.getRegulators(), params.getTargets());
 
 		String baseArgs = " -filelabels=" + fileLabels + " -fasta="
 				+ sequenceFile + " -mbtype=iterative" + " -lbounds=0"
