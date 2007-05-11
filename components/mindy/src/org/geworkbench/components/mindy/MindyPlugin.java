@@ -9,6 +9,7 @@ import javax.swing.table.*;
 import java.util.*;
 import java.util.List;
 import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 
@@ -22,6 +23,8 @@ import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMutableMarkerValue;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.util.pathwaydecoder.mutualinformation.MindyData;
+import org.geworkbench.engine.management.Publish;
+import org.geworkbench.events.ImageSnapshotEvent;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.math.stat.descriptive.SummaryStatistics;
@@ -59,7 +62,7 @@ public class MindyPlugin extends JPanel {
     // Contains the state of selections passed in from the marker panel and overrides via All Markers checkboxes
     private MarkerLimitState globalSelectionState = new MarkerLimitState();
 
-    public MindyPlugin(MindyData data) {
+    public MindyPlugin(MindyData data, final MindyVisualComponent visualPlugin) {
         this.mindyData = data;
 //        log.debug("Doing mean variance...");
 //        logNormalize(data.getArraySet());
@@ -348,9 +351,16 @@ public class MindyPlugin extends JPanel {
                     rebuildHeatMap();
                 }
             });
+            JButton screenshotButton = new JButton("Take Screenshot");
+            screenshotButton.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent actionEvent) {
+                    visualPlugin.createImageSnapshot(heatMapScrollPane.getViewport().getComponent(0));
+                }
+            });
             modulatorPane.add(modFilterField);
             modulatorPane.add(modListScrollPane);
             modulatorPane.add(refreshButton);
+            modulatorPane.add(screenshotButton);
 
             JXTaskPaneContainer taskContainer = new JXTaskPaneContainer();
             taskContainer.add(transFacPane);
