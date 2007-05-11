@@ -20,6 +20,7 @@ import org.systemsbiology.util.InvalidInputException;
 
 import javax.swing.*;
 import javax.swing.text.StyledEditorKit;
+import javax.swing.text.DefaultFormatter;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.layout.*;
@@ -69,10 +70,13 @@ public abstract class GPTrainingPanel extends AbstractTrainingPanel
         DefaultFormBuilder builder = new DefaultFormBuilder(layout);
         builder.setDefaultDialogBorder();
 
-        protocol = new JFormattedTextField("");
-        host = new JFormattedTextField("");
-        port = new JFormattedTextField("");
-        username = new JFormattedTextField("");
+        DefaultFormatter defaultFormatter = new DefaultFormatter();
+        defaultFormatter.setOverwriteMode(false);
+
+        protocol = new JFormattedTextField(defaultFormatter);
+        host = new JFormattedTextField(defaultFormatter);
+        port = new JFormattedTextField(defaultFormatter);
+        username = new JFormattedTextField(defaultFormatter);
 
         resetGPConfigParameters();
 
