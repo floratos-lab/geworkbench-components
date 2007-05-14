@@ -21,6 +21,7 @@ import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 
 /**
+ * A test class for DiscretizationUtil.
  * 
  * @author keshav
  * @version $Id: DiscretizationUtilTest.java,v 1.1 2007/05/11 17:00:33 keshav
@@ -61,7 +62,7 @@ public class DiscretizationUtilTest extends TestCase {
 	}
 
 	/**
-	 * 
+	 * Tests the discretize method.
 	 * 
 	 */
 	public void testDiscretize() {
