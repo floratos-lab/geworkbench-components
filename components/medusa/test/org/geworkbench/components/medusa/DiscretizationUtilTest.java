@@ -7,6 +7,8 @@ import java.util.Random;
 import junit.framework.TestCase;
 
 import org.apache.commons.lang.RandomStringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.CSMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.views.CSMicroarraySetView;
@@ -21,11 +23,13 @@ import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 /**
  * 
  * @author keshav
- * @version $Id: DiscretizationUtilTest.java,v 1.1 2007-05-11 17:00:33 keshav Exp $
+ * @version $Id: DiscretizationUtilTest.java,v 1.1 2007/05/11 17:00:33 keshav
+ *          Exp $
  */
 public class DiscretizationUtilTest extends TestCase {
+	private Log log = LogFactory.getLog(this.getClass());
 
-	int numElements = 10;
+	int numElements = 2;
 
 	float data[][] = new float[numElements][numElements];
 
@@ -51,6 +55,7 @@ public class DiscretizationUtilTest extends TestCase {
 			for (int j = 0; j < numElements; j++) {
 				// data[i][j] = r.nextFloat();
 				data[i][j] = i + j + 1;
+				log.info("data[" + i + "][" + j + "] = " + data[i][j]);
 			}
 		}
 	}
@@ -84,6 +89,7 @@ public class DiscretizationUtilTest extends TestCase {
 			geneMarker.setGeneId(i);
 			geneMarker.setGeneName("gene_name_" + i);
 			geneMarker.setLabel("gene_label_" + i);
+			geneMarker.setSerial(i);
 			markerPanel.add(geneMarker);
 		}
 
@@ -92,21 +98,33 @@ public class DiscretizationUtilTest extends TestCase {
 		view.useMarkerPanel(true);
 		view.setMarkerPanel(markerPanel);
 
+		log.info("base: " + base + ", bound: " + bound);
 		discreteView = discreteUtil.discretize(view, base, bound);
 
 		assertNotNull(discreteView);
 
-		List<String> regulatorNames = new ArrayList<String>();
-		List<String> targetNames = new ArrayList<String>();
-		for (int i = 0; i < numElements; i++) {
-			DSGeneMarker geneMarker = (DSGeneMarker) markerPanel.get(i);
-			regulatorNames.add(geneMarker.getLabel());
-			targetNames.add(geneMarker.getLabel());
+		for (int i = 0; i < markerPanel.size(); i++) {
+			DSGeneMarker obj = (CSGeneMarker) markerPanel.get(i);
+			double[] row = discreteView.getRow(obj);
+			// double[] row2 = discreteView.getRow(i);
+			for (int j = 0; j < row.length; j++) {
+				double val = row[j];
+				log.info("discrete[" + i + "][" + j + "] = " + val);
+			}
+
 		}
-		MedusaHelper.writeMedusaLabelsFile(discreteView,
-				"data/test/dataset/output/"
-						+ RandomStringUtils.randomAlphabetic(5) + ".labels",
-				regulatorNames, targetNames);
+
+		// List<String> regulatorNames = new ArrayList<String>();
+		// List<String> targetNames = new ArrayList<String>();
+		// for (int i = 0; i < numElements; i++) {
+		// DSGeneMarker geneMarker = (DSGeneMarker) markerPanel.get(i);
+		// regulatorNames.add(geneMarker.getLabel());
+		// targetNames.add(geneMarker.getLabel());
+		// }
+		// MedusaHelper.writeMedusaLabelsFile(discreteView,
+		// "data/test/dataset/output/"
+		// + RandomStringUtils.randomAlphabetic(5) + ".labels",
+		// regulatorNames, targetNames);
 
 	}
 }
