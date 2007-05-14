@@ -10,7 +10,7 @@ import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMutableMarker
 /**
  * 
  * @author keshav
- * @version $Id: DiscretizationUtil.java,v 1.1 2007-05-11 17:00:16 keshav Exp $
+ * @version $Id: DiscretizationUtil.java,v 1.2 2007-05-14 14:43:11 keshav Exp $
  */
 public class DiscretizationUtil {
 
@@ -67,11 +67,13 @@ public class DiscretizationUtil {
 	public float[] discretize(float[] data, double base, double bound) {
 		float[] discreteData = new float[data.length];
 
+		double pinterval = base + bound;
+
+		double ninterval = base - bound;
+
 		for (int i = 0; i < discreteData.length; i++) {
 
 			float val = data[i];
-			double pinterval = base + bound;
-			double ninterval = base - bound;
 			if ((ninterval) <= val && val <= (pinterval)) {
 				discreteData[i] = 0;
 			} else if (val < ninterval) {
