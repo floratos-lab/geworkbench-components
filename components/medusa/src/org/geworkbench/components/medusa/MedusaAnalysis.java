@@ -26,7 +26,7 @@ import edu.columbia.ccls.medusa.MedusaLoader;
 /**
  * 
  * @author keshav
- * @version $Id: MedusaAnalysis.java,v 1.15 2007-05-14 14:43:37 keshav Exp $
+ * @version $Id: MedusaAnalysis.java,v 1.16 2007-05-14 16:34:09 keshav Exp $
  */
 public class MedusaAnalysis extends AbstractGridAnalysis implements
 		ClusteringAnalysis {
@@ -36,6 +36,8 @@ public class MedusaAnalysis extends AbstractGridAnalysis implements
 	private StringBuilder s = null;
 
 	String fileLabels = "data/medusa/dataset/test.labels";
+
+	List<String> regulators = null;
 
 	/**
 	 * 
@@ -148,15 +150,16 @@ public class MedusaAnalysis extends AbstractGridAnalysis implements
 	}
 
 	/**
+	 * Returns a List of marker labels to be used as the regulators.
 	 * 
 	 * @param params
 	 * @param microarraySetView
 	 * @param regulators
-	 * @return
+	 * @return {@link List}
 	 */
 	private List<String> getRegulators(MedusaParamPanel params,
 			DSMicroarraySetView<DSGeneMarker, DSMicroarray> microarraySetView) {
-		List<String> regulators = null;
+		regulators = null;
 		if (params.isUseSelectedAsRegulators()) {
 			regulators = new ArrayList<String>();
 			DSItemList<DSGeneMarker> selectedMarkers = microarraySetView
@@ -186,11 +189,12 @@ public class MedusaAnalysis extends AbstractGridAnalysis implements
 	}
 
 	/**
+	 * Returns a list of the marker labels to be used as targets.
 	 * 
 	 * @param params
 	 * @param microarraySetView
 	 * @param regulators
-	 * @return
+	 * @return {@link List}
 	 */
 	private List<String> getTargets(MedusaParamPanel params,
 			DSMicroarraySetView<DSGeneMarker, DSMicroarray> microarraySetView) {
@@ -204,10 +208,9 @@ public class MedusaAnalysis extends AbstractGridAnalysis implements
 				targets.add(marker.getLabel());
 				log.debug("added: " + marker.getLabel());
 			}
-			// TODO must remove the regulators
-			// for (String regulator: regulators){
-			// targets.re
-			// }
+			for (String regulatorLabel : regulators) {
+				targets.remove(regulatorLabel);
+			}
 		}
 
 		else if (!StringUtils.isEmpty(params.getTargetsFile())) {
