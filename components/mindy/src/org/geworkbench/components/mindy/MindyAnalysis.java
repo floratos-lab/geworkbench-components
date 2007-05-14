@@ -16,9 +16,11 @@ import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
 import org.geworkbench.bison.model.analysis.ClusteringAnalysis;
 import org.geworkbench.engine.management.Publish;
+import org.geworkbench.engine.management.Subscribe;
 import org.geworkbench.util.pathwaydecoder.mutualinformation.MindyDataSet;
 import org.geworkbench.util.pathwaydecoder.mutualinformation.MindyData;
 import org.geworkbench.builtin.projects.ProjectPanel;
+import org.geworkbench.events.GeneSelectorEvent;
 
 import java.io.File;
 import java.io.IOException;
@@ -43,10 +45,12 @@ public class MindyAnalysis extends AbstractAnalysis implements ClusteringAnalysi
     Log log = LogFactory.getLog(this.getClass());
 
     private static final String TEMP_DIR = "temporary.files.directory";
+    private MindyParamPanel paramPanel;
 
     public MindyAnalysis() {
         setLabel("MINDY");
-        setDefaultPanel(new MindyParamPanel());
+        paramPanel = new MindyParamPanel();
+        setDefaultPanel(paramPanel);
     }
 
     // not used
@@ -195,6 +199,14 @@ public class MindyAnalysis extends AbstractAnalysis implements ClusteringAnalysi
 
         return microarraySet;
     }
+
+    @Subscribe public void receive(GeneSelectorEvent e, Object source) {
+        DSGeneMarker marker = e.getGenericMarker(); // GeneselectorEvent can be a panel event therefore won't work here,
+        if (marker != null) { //so added this check point--xuegong
+            paramPanel.setTranscriptionFactor(marker.getLabel());
+        }
+    }
+
 
     @Publish
     public MindyDataSet publishMatrixReduceSet(MindyDataSet data) {
