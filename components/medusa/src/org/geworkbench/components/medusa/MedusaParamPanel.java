@@ -30,7 +30,7 @@ import com.jgoodies.forms.layout.FormLayout;
 /**
  * 
  * @author keshav
- * @version $Id: MedusaParamPanel.java,v 1.12 2007-05-11 17:00:16 keshav Exp $
+ * @version $Id: MedusaParamPanel.java,v 1.13 2007-05-14 16:34:24 keshav Exp $
  */
 public class MedusaParamPanel extends AbstractSaveableParameterPanel implements
 		Serializable {
@@ -79,6 +79,8 @@ public class MedusaParamPanel extends AbstractSaveableParameterPanel implements
 	private JComboBox regulatorCombo = new JComboBox(new String[] {
 			REGULATOR_ACTIVATED, REGULATOR_LIST });
 
+	private boolean useSelectedAsRegulators = true;
+
 	private String DEFAULT_REGULATOR_LIST = null;
 
 	private JTextField regulatorTextField = new JTextField(
@@ -91,10 +93,12 @@ public class MedusaParamPanel extends AbstractSaveableParameterPanel implements
 	/* targets */
 	private String TARGET_LIST = "Specify (csv)";
 
-	private String TARGET_ALL = "Activated Markers";
+	private String TARGET_ALL = "Use All";
 
 	private JComboBox targetCombo = new JComboBox(new String[] { TARGET_ALL,
 			TARGET_LIST });
+
+	private boolean useSelectedAsTargets = true;
 
 	private String DEFAULT_TARGET_LIST = null;
 
@@ -178,9 +182,6 @@ public class MedusaParamPanel extends AbstractSaveableParameterPanel implements
 		this.loadRegulatorsButton.setEnabled(false);
 		this.targetTextField.setEnabled(false);
 		this.loadTargetsButton.setEnabled(false);
-		// this.intervalBaseTextField.setEnabled(false);
-		// this.intervalBoundTextField.setEnabled(false);
-
 		this.dimerMinGapTextField.setEnabled(false);
 		this.dimerMaxGapTextField.setEnabled(false);
 
@@ -370,9 +371,11 @@ public class MedusaParamPanel extends AbstractSaveableParameterPanel implements
 				if (REGULATOR_ACTIVATED.equals(selectedItem)) {
 					regulatorTextField.setEnabled(false);
 					loadRegulatorsButton.setEnabled(false);
+					useSelectedAsRegulators = true;
 				} else {
 					regulatorTextField.setEnabled(true);
 					loadRegulatorsButton.setEnabled(true);
+					useSelectedAsRegulators = false;
 				}
 			}
 		});
@@ -485,6 +488,7 @@ public class MedusaParamPanel extends AbstractSaveableParameterPanel implements
 		});
 	}
 
+	/* accessors */
 	/**
 	 * 
 	 * @return
@@ -674,44 +678,59 @@ public class MedusaParamPanel extends AbstractSaveableParameterPanel implements
 		return usingDimers;
 	}
 
-	public String getRegulatorsFile() {
-		return regulatorsFile;
-	}
-	
 	/**
 	 * 
 	 * @return
 	 */
-	public List getRegulators() {
-		String reg = this.regulatorTextField.getText();
-		String[] regulators = StringUtils.split(reg, ",");
-		int i = 0;
-		for (String regulator : regulators) {
-			regulators[i] = StringUtils.strip(regulator);
-			i++;
-		}
+	public boolean isUseSelectedAsRegulators() {
+		return useSelectedAsRegulators;
+	}
 
-		return Arrays.asList(regulators);
+	public String getRegulatorsFile() {
+		return regulatorsFile;
+	}
+
+	/**
+	 * 
+	 * @return
+	 */
+	public JTextField getRegulatorTextField() {
+		return regulatorTextField;
 	}
 
 	public String getTargetsFile() {
 		return targetsFile;
 	}
-	
+
 	/**
 	 * 
 	 * @return
 	 */
 	public List getTargets() {
-		String tar = this.targetTextField.getText();
-		String[] targets = StringUtils.split(tar, ",");
-		int i = 0;
-		for (String target : targets) {
-			targets[i] = StringUtils.strip(target);
-			i++;
+		String[] targets = null;
+		if (isUseAllAsTargets()) {
+			// TODO add
+		} else if (!StringUtils.isEmpty(getTargetsFile())) {
+			String tar = this.targetTextField.getText();
+			targets = StringUtils.split(tar, ",");
+			int i = 0;
+			for (String target : targets) {
+				targets[i] = StringUtils.strip(target);
+				i++;
+			}
+		} else {
+			// TODO load csv and extract the
 		}
 
 		return Arrays.asList(targets);
+	}
+
+	/**
+	 * 
+	 * @return
+	 */
+	public boolean isUseAllAsTargets() {
+		return useSelectedAsTargets;
 	}
 
 	public boolean isReverseComplement() {
@@ -722,6 +741,11 @@ public class MedusaParamPanel extends AbstractSaveableParameterPanel implements
 		return featuresFile;
 	}
 
+	public String getConfigFilePath() {
+		return this.configFilePath;
+	}
+
+	/* mutators */
 	public void setAggTextField(JTextField aggTextField) {
 		this.aggTextField = aggTextField;
 	}
@@ -746,10 +770,6 @@ public class MedusaParamPanel extends AbstractSaveableParameterPanel implements
 		this.pssmLengthTextField = pssmLengthTextField;
 	}
 
-	public void setRegulatorCombo(JComboBox regulatorCombo) {
-		this.regulatorCombo = regulatorCombo;
-	}
-
 	public void setRegulatorTextField(JTextField regulatorTextField) {
 		this.regulatorTextField = regulatorTextField;
 	}
@@ -760,31 +780,6 @@ public class MedusaParamPanel extends AbstractSaveableParameterPanel implements
 
 	public void setTargetCombo(JComboBox targetCombo) {
 		this.targetCombo = targetCombo;
-	}
-
-	public void setTargetTextField(JTextField targetTextField) {
-		this.targetTextField = targetTextField;
-	}
-
-	public void setRegulatorsFile(String regulatorsFile) {
-		this.regulatorsFile = regulatorsFile;
-	}
-
-	public void setTargetsFile(String targetsFile) {
-		this.targetsFile = targetsFile;
-	}
-
-	public void setMaxKmerTextField(JTextField maxKmerTextField) {
-		this.maxKmerTextField = maxKmerTextField;
-	}
-
-	public void setMinKmerTextField(JTextField minKmerTextField) {
-		this.minKmerTextField = minKmerTextField;
-	}
-
-	public void setBoostingIterationsTextField(
-			JTextField boostingIterationsTextField) {
-		this.boostingIterationsTextField = boostingIterationsTextField;
 	}
 
 	public void setDimerMaxGapTextField(JTextField dimerMaxGapTextField) {
@@ -799,11 +794,11 @@ public class MedusaParamPanel extends AbstractSaveableParameterPanel implements
 		this.featuresFile = featuresFile;
 	}
 
-	public String getConfigFilePath() {
-		return this.configFilePath;
-	}
-
 	public void setConfigFilePath(String configFilePath) {
 		this.configFilePath = configFilePath;
+	}
+
+	public JTextField getTargetTextField() {
+		return targetTextField;
 	}
 }
