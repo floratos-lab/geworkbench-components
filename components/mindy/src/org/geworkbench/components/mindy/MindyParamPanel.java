@@ -133,6 +133,10 @@ public class MindyParamPanel extends AbstractSaveableParameterPanel implements S
         });
     }
 
+    public void setTranscriptionFactor(String label) {
+        transcriptionFactor.setText(label);
+    }
+
     public String getCandidateModulatorsFile() {
         return candidateModulatorsFile;
     }
