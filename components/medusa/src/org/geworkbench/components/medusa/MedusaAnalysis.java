@@ -26,7 +26,7 @@ import edu.columbia.ccls.medusa.MedusaLoader;
 /**
  * 
  * @author keshav
- * @version $Id: MedusaAnalysis.java,v 1.16 2007-05-14 16:34:09 keshav Exp $
+ * @version $Id: MedusaAnalysis.java,v 1.17 2007-05-14 19:10:09 keshav Exp $
  */
 public class MedusaAnalysis extends AbstractGridAnalysis implements
 		ClusteringAnalysis {
@@ -35,7 +35,7 @@ public class MedusaAnalysis extends AbstractGridAnalysis implements
 
 	private StringBuilder s = null;
 
-	String fileLabels = "data/medusa/dataset/test.labels";
+	String fileLabels = "data/medusa/dataset/web100_test.labels";
 
 	List<String> regulators = null;
 
