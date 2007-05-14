@@ -8,14 +8,13 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
-import org.geworkbench.bison.datastructure.bioobjects.markers.CSExpressionMarker;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 
 /**
  * 
  * @author keshav
- * @version $Id: MedusaHelper.java,v 1.3 2007-05-14 16:34:09 keshav Exp $
+ * @version $Id: MedusaHelper.java,v 1.4 2007-05-14 16:34:44 keshav Exp $
  */
 public class MedusaHelper {
 
