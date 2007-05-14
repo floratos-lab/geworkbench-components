@@ -107,9 +107,15 @@ public class AracneAnalysis extends AbstractGridAnalysis implements ClusteringAn
             }
 
             ArrayList<String> hubGeneList = params.getHubGeneList();
-            for (String gene : hubGeneList) {
-                log.debug("Adding hub gene: " + gene);
+            for (String modGene : hubGeneList) {
+                DSGeneMarker marker = mSetView.markers().get(modGene);
+                if (marker == null) {
+                    log.info("Couldn't find marker " + modGene + " specified as hub gene in microarray set.");
+                    JOptionPane.showMessageDialog(null, "Couldn't find marker " + modGene + " specified as hub gene in microarray set.");
+                    return null;
+                }
             }
+
             p.setSubnet(new Vector<String>(hubGeneList));
 //            p.setHub(params.getHubGeneString());
         }
