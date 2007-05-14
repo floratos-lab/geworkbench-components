@@ -98,6 +98,14 @@ public class DiscretizationUtilTest extends TestCase {
 		view.setMicroarraySet(microarraySet);
 		view.useMarkerPanel(true);
 		view.setMarkerPanel(markerPanel);
+		// FIXME not sure why the # markers is 0. The MedusaHelper works fine
+		// from within geworkbench,
+		// but for some reason this test does not add the markers to the
+		// microarraySet (view).
+		// That is, you will not see anything in the .labels file written from
+		// this test.
+		// Again, this works fine from within the app.
+		log.debug("size: " + view.allMarkers().size());
 
 		log.info("base: " + base + ", bound: " + bound);
 		discreteView = discreteUtil.discretize(view, base, bound);
