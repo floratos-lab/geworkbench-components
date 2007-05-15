@@ -8,7 +8,7 @@ import junit.framework.TestCase;
  * GUI tests for the {@link MedusaPlugin}.
  * 
  * @author keshav
- * @version $Id: MedusaPluginTest.java,v 1.1 2007-05-15 18:27:38 keshav Exp $
+ * @version $Id: MedusaPluginTest.java,v 1.2 2007-05-15 19:55:49 keshav Exp $
  */
 public class MedusaPluginTest extends TestCase {
 
@@ -23,7 +23,7 @@ public class MedusaPluginTest extends TestCase {
 	 */
 	@Override
 	protected void setUp() {
-		medusaData = new MedusaData();
+		medusaData = new MedusaData(null, null, null);
 		medusaPlugin = new MedusaPlugin(medusaData);
 	}
 
@@ -38,6 +38,12 @@ public class MedusaPluginTest extends TestCase {
 		dialog.pack();
 		dialog.setModal(true);
 		dialog.setVisible(true);
+
+		/*
+		 * Doesn't do anything. This test serves the purpose of testing the
+		 * plugin layout.
+		 */
+		assertNotNull(dialog);
 
 	}
 
