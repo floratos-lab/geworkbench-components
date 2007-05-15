@@ -26,7 +26,7 @@ import edu.columbia.ccls.medusa.MedusaLoader;
 /**
  * 
  * @author keshav
- * @version $Id: MedusaAnalysis.java,v 1.17 2007-05-14 19:10:09 keshav Exp $
+ * @version $Id: MedusaAnalysis.java,v 1.18 2007-05-15 18:27:38 keshav Exp $
  */
 public class MedusaAnalysis extends AbstractGridAnalysis implements
 		ClusteringAnalysis {
@@ -128,7 +128,12 @@ public class MedusaAnalysis extends AbstractGridAnalysis implements
 			throw new RuntimeException("Error running medusa: " + e);
 		}
 
-		return null;
+		MedusaData medusaData = null;
+		MedusaDataSet dataSet = new MedusaDataSet(microarraySetView
+				.getMicroarraySet(), "MEDUSA Results", medusaData, null);
+
+		return new AlgorithmExecutionResults(true, "MEDUSA Results Loaded.",
+				dataSet);
 	}
 
 	/**
