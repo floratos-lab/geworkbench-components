@@ -1,5 +1,6 @@
 package org.geworkbench.components.medusa;
 
+import java.io.Serializable;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
@@ -9,9 +10,9 @@ import org.geworkbench.bison.datastructure.biocollections.microarrays.CSMicroarr
 /**
  * 
  * @author keshav
- * @version $Id: MedusaData.java,v 1.2 2007-05-15 19:56:29 keshav Exp $
+ * @version $Id: MedusaData.java,v 1.3 2007-05-15 20:38:37 keshav Exp $
  */
-public class MedusaData {
+public class MedusaData implements Serializable {
 	private Log log = LogFactory.getLog(this.getClass());
 
 	private CSMicroarraySet arraySet;
