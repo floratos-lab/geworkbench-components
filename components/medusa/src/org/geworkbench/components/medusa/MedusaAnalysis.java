@@ -26,7 +26,7 @@ import edu.columbia.ccls.medusa.MedusaLoader;
 /**
  * 
  * @author keshav
- * @version $Id: MedusaAnalysis.java,v 1.18 2007-05-15 18:27:38 keshav Exp $
+ * @version $Id: MedusaAnalysis.java,v 1.19 2007-05-15 19:16:23 keshav Exp $
  */
 public class MedusaAnalysis extends AbstractGridAnalysis implements
 		ClusteringAnalysis {
@@ -128,6 +128,7 @@ public class MedusaAnalysis extends AbstractGridAnalysis implements
 			throw new RuntimeException("Error running medusa: " + e);
 		}
 
+		// TODO use the RuleBean to take a list of rule files.
 		MedusaData medusaData = null;
 		MedusaDataSet dataSet = new MedusaDataSet(microarraySetView
 				.getMicroarraySet(), "MEDUSA Results", medusaData, null);
