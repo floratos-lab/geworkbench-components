@@ -5,12 +5,10 @@ import java.awt.BorderLayout;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 
-import org.geworkbench.components.medusa.colormosaic.ColorMosaicImage;
-
 /**
  * 
  * @author keshav
- * @version $Id: MedusaPlugin.java,v 1.2 2007-05-15 20:39:04 keshav Exp $
+ * @version $Id: MedusaPlugin.java,v 1.3 2007-05-15 20:39:27 keshav Exp $
  */
 public class MedusaPlugin extends JPanel {
 
