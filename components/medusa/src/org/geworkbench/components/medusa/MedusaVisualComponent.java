@@ -24,7 +24,7 @@ import org.geworkbench.events.ProjectEvent;
 /**
  * 
  * @author keshav
- * @version $Id: MedusaVisualComponent.java,v 1.1 2007-05-15 18:27:38 keshav Exp $
+ * @version $Id: MedusaVisualComponent.java,v 1.2 2007-05-15 19:17:07 keshav Exp $
  */
 @AcceptTypes(MedusaDataSet.class)
 public class MedusaVisualComponent implements VisualPlugin {
@@ -63,33 +63,34 @@ public class MedusaVisualComponent implements VisualPlugin {
 		}
 	}
 
-	@Subscribe
-	public void receive(GeneSelectorEvent e, Object source) {
-		if (dataSet != null && e.getPanel() != null) {
-			DSMicroarraySetView<DSGeneMarker, DSMicroarray> maView = new CSMicroarraySetView<DSGeneMarker, DSMicroarray>(
-					dataSet.getData().getArraySet());
-			maView.setMarkerPanel(e.getPanel());
-			maView.useMarkerPanel(true);
-			if (maView.getMarkerPanel().activeSubset().size() == 0) {
-				selectedMarkers = null;
-			} else {
-				DSItemList<DSGeneMarker> uniqueMarkers = maView
-						.getUniqueMarkers();
-				if (uniqueMarkers.size() > 0) {
-					selectedMarkers = new ArrayList<DSGeneMarker>();
-					for (Iterator<DSGeneMarker> iterator = uniqueMarkers
-							.iterator(); iterator.hasNext();) {
-						DSGeneMarker marker = iterator.next();
-						log.debug("Selected " + marker.getShortName());
-						selectedMarkers.add(marker);
-					}
-				}
-			}
-			// medusaPlugin.limitMarkers(selectedMarkers);
-		} else {
-			log
-					.error("Dataset in this component is null, or selection sent was null");
-		}
-	}
+	// @Subscribe
+	// public void receive(GeneSelectorEvent e, Object source) {
+	// if (dataSet != null && e.getPanel() != null) {
+	// DSMicroarraySetView<DSGeneMarker, DSMicroarray> maView = new
+	// CSMicroarraySetView<DSGeneMarker, DSMicroarray>(
+	// dataSet.getData().getArraySet());
+	// maView.setMarkerPanel(e.getPanel());
+	// maView.useMarkerPanel(true);
+	// if (maView.getMarkerPanel().activeSubset().size() == 0) {
+	// selectedMarkers = null;
+	// } else {
+	// DSItemList<DSGeneMarker> uniqueMarkers = maView
+	// .getUniqueMarkers();
+	// if (uniqueMarkers.size() > 0) {
+	// selectedMarkers = new ArrayList<DSGeneMarker>();
+	// for (Iterator<DSGeneMarker> iterator = uniqueMarkers
+	// .iterator(); iterator.hasNext();) {
+	// DSGeneMarker marker = iterator.next();
+	// log.debug("Selected " + marker.getShortName());
+	// selectedMarkers.add(marker);
+	// }
+	// }
+	// }
+	// // medusaPlugin.limitMarkers(selectedMarkers);
+	// } else {
+	// log
+	// .error("Dataset in this component is null, or selection sent was null");
+	// }
+	// }
 
 }
