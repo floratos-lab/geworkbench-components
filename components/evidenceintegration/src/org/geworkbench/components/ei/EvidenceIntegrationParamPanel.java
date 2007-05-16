@@ -9,13 +9,16 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import javax.swing.*;
-import java.io.Serializable;
+import java.io.*;
 import java.awt.*;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
 import java.util.*;
 import java.util.List;
 
 import com.solarmetric.ide.ui.CheckboxCellRenderer;
 import edu.columbia.c2b2.evidenceinegration.Evidence;
+import edu.columbia.c2b2.evidenceinegration.Edge;
 
 /**
  * @author mhall
@@ -44,7 +47,7 @@ public class EvidenceIntegrationParamPanel extends AbstractSaveableParameterPane
 
         {
             JPanel tablePanel = new JPanel(new BorderLayout());
-            JLabel label = new JLabel("Clues");
+            JLabel label = new JLabel("Evidence");
             tablePanel.add(label, BorderLayout.NORTH);
 
             evidenceSet = new ArrayList<Evidence>();
@@ -59,8 +62,20 @@ public class EvidenceIntegrationParamPanel extends AbstractSaveableParameterPane
             JScrollPane evidenceScrollPane = new JScrollPane(evidenceTable);
             tablePanel.add(evidenceScrollPane, BorderLayout.CENTER);
 
-            JButton loadPrior = new JButton("Load");
-            tablePanel.add(loadPrior, BorderLayout.SOUTH);
+            JButton loadEvidenceButton = new JButton("Load");
+            tablePanel.add(loadEvidenceButton, BorderLayout.SOUTH);
+            loadEvidenceButton.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent actionEvent) {
+                    try {
+                        Evidence evidence = loadEvidenceFromFile();
+                        if (evidence != null) {
+                            addEvidence(evidence);
+                        }
+                    } catch (IOException e) {
+                        log.error(e);
+                    }
+                }
+            });
 
             tablesContainer.add(tablePanel);
         }
@@ -69,7 +84,7 @@ public class EvidenceIntegrationParamPanel extends AbstractSaveableParameterPane
 
         {
             JPanel tablePanel = new JPanel(new BorderLayout());
-            JLabel label = new JLabel("Predefined Priors");
+            JLabel label = new JLabel("Predefined Gold Standards");
             tablePanel.add(label, BorderLayout.NORTH);
 
             predefinedPriors = new ArrayList<Evidence>();
@@ -88,7 +103,7 @@ public class EvidenceIntegrationParamPanel extends AbstractSaveableParameterPane
 
         {
             JPanel tablePanel = new JPanel(new BorderLayout());
-            JLabel label = new JLabel("Loaded Priors");
+            JLabel label = new JLabel("Loaded Gold Standards");
             tablePanel.add(label, BorderLayout.NORTH);
 
             loadedPriors = new ArrayList<Evidence>();
@@ -113,6 +128,30 @@ public class EvidenceIntegrationParamPanel extends AbstractSaveableParameterPane
         // Something in workbench is overriding these renderers
         table.setDefaultEditor(Boolean.class, new DefaultCellEditor(new JCheckBox()));
         table.setDefaultRenderer(Boolean.class, new CheckboxCellRenderer());
+        table.setDefaultEditor(Integer.class, new DefaultCellEditor(new JTextField()));
+        table.setDefaultRenderer(Integer.class, new JXTable.NumberRenderer());
+    }
+
+    private Evidence loadEvidenceFromFile() throws IOException {
+        JFileChooser chooser = new JFileChooser("/Users/mhall/code/geworkbench/data");
+//        chooser.setCurrentDirectory(new File(lwd));
+        chooser.showOpenDialog(this);
+        File file = chooser.getSelectedFile();
+        if (file != null) {
+            BufferedReader reader = new BufferedReader(new FileReader(file));
+            Evidence evidence = new Evidence(file.getName());
+            evidence.setLoadedFromFile(true);
+            String line = reader.readLine();
+            while (line != null) {
+                if (!line.startsWith(">")) {
+                    String[] splits = line.split("\t");
+                    evidence.addEdge(Integer.parseInt(splits[0]), Integer.parseInt(splits[1]), Float.parseFloat(splits[2]));
+                }
+                line = reader.readLine();
+            }
+            return evidence;
+        }
+        return null;
     }
 
 
@@ -127,7 +166,12 @@ public class EvidenceIntegrationParamPanel extends AbstractSaveableParameterPane
 */
 
     public void clearEvidence() {
-        evidenceSet.clear();
+        for (Evidence evidence : evidenceSet) {
+            if (!evidence.isLoadedFromFile()) {
+                evidenceSet.remove(evidence);
+            }
+        }
+//        evidenceSet.clear();
         setBooleanRenderers(evidenceTable);
 //        evidenceTableModel.fireTableDataChanged();
     }

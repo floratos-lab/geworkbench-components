@@ -73,7 +73,12 @@ public class EvidenceTableModel extends DefaultTableModel {
         if (columnIndex == 0) {
             evidenceSet.get(rowIndex).setEnabled((Boolean) aValue);
         } else if (columnIndex == 2) {
-            evidenceSet.get(rowIndex).setBins((Integer) aValue);
+            if (aValue instanceof String) {
+                int bins = Integer.parseInt((String) aValue);
+                evidenceSet.get(rowIndex).setBins(bins);
+            } else {
+                evidenceSet.get(rowIndex).setBins((Integer) aValue);
+            }
         }
     }
 
