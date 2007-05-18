@@ -84,6 +84,7 @@ public class DiscretizationUtilTest extends TestCase {
 			microarraySet.add(microarray);
 		}
 
+		List<DSGeneMarker> targets = new ArrayList<DSGeneMarker>();
 		DSPanel markerPanel = view.getMarkerPanel();
 		for (int i = 0; i < numElements; i++) {
 			DSGeneMarker geneMarker = new CSGeneMarker();
@@ -92,6 +93,7 @@ public class DiscretizationUtilTest extends TestCase {
 			geneMarker.setLabel("gene_label_" + i);
 			geneMarker.setSerial(i);
 			markerPanel.add(geneMarker);
+			targets.add(geneMarker);
 		}
 
 		/* order here is important for marker labels */
@@ -114,8 +116,8 @@ public class DiscretizationUtilTest extends TestCase {
 
 		for (int i = 0; i < markerPanel.size(); i++) {
 			DSGeneMarker obj = (CSGeneMarker) markerPanel.get(i);
-			double[] row = discreteView.getRow(obj);
-			// double[] row2 = discreteView.getRow(i);
+			//double[] row = discreteView.getRow(obj);
+			double[] row = discreteView.getRow(i);
 			for (int j = 0; j < row.length; j++) {
 				double val = row[j];
 				log.info("discrete[" + i + "][" + j + "] = " + val);
@@ -124,18 +126,14 @@ public class DiscretizationUtilTest extends TestCase {
 		}
 
 		/* this tests writing out the labels file */
-		List<String> regulatorNames = new ArrayList<String>();
+		List<DSGeneMarker> regulatorNames = new ArrayList<DSGeneMarker>();
 		DSGeneMarker geneMarker = (DSGeneMarker) markerPanel.get(0);
-		regulatorNames.add(geneMarker.getLabel());
-
-		List<String> targetNames = new ArrayList<String>();
-		DSGeneMarker targetMarker = (DSGeneMarker) markerPanel.get(1);
-		targetNames.add(targetMarker.getLabel());
+		regulatorNames.add(geneMarker);
 
 		MedusaHelper.writeMedusaLabelsFile(discreteView,
 				"data/test/dataset/output/"
 						+ RandomStringUtils.randomAlphabetic(5) + ".labels",
-				regulatorNames, targetNames);
+				regulatorNames, targets);
 
 	}
 }
