@@ -1019,15 +1019,17 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane impl
                     for (CellularNetWorkElementInformation cellularNetWorkElementInformation : hits) {
                         retrievedQueryNumber++;
                         updateProgressBar(((double) retrievedQueryNumber) / hits.size(), "Querying the Knowledge Base...");
-                        cellularNetWorkElementInformation.setDirty(false);
+
                         DSGeneMarker marker = cellularNetWorkElementInformation.getdSGeneMarker();
                         if (cancelAction) {
                             break;
                         }
-                        if (marker != null && marker.getGeneId() != -1) {
+
+                        if (marker != null && marker.getGeneId() != -1 && cellularNetWorkElementInformation.isDirty()) {
                             BigDecimal id = new BigDecimal(marker.getGeneId());
                             ArrayList<InteractionDetail> interactionDetails = interactionsConnection.getPairWiseInteraction(id);
                             cellularNetWorkElementInformation.setInteractionDetails(interactionDetails);
+                            cellularNetWorkElementInformation.setDirty(false);
                         }
                     }
                     if (!cancelAction) {
@@ -1452,26 +1454,32 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane impl
     @Subscribe
     public void receive(GeneSelectorEvent gse, Object source) {
         DSPanel<DSGeneMarker> panel = gse.getPanel();
+       // System.out.println("IN cnb " + panel + new Date()        );
+
         if (panel != null) {
+            if(panel.size()==0){
+
+                allGenes.clear();
+                selectedGenes.clear();
+                hits.clear();
+            }
             allGenes.clear();
             for (DSGeneMarker marker : panel) {
-                if (!selectedGenes.contains(marker)){
+              //  System.out.println("For " + marker.getShortName() + selectedGenes.contains(marker) + selectedGenes.size());
+                if (!includeMarker(marker, hits)&&! allGenes.contains(marker)){
                     allGenes.add(marker);
                 }
             }
+
             activeMarkersTableModel.fireTableDataChanged();
             Vector<DSGeneMarker> temp = new Vector<DSGeneMarker>();
-            for (DSGeneMarker marker : selectedGenes) {
-                if (!panel.contains(marker))
-                    temp.add(marker);
-            }
-            for (DSGeneMarker marker : temp){
-                selectedGenes.remove(marker);
-            }
+            checkSelectedTableWithNewDataSet(panel);
+
             allGeneList.setModel(new DefaultListModel());
             allGeneList.setModel(allGeneModel);
             selectedGenesList.setModel(new DefaultListModel());
             selectedGenesList.setModel(selectedGenesModel);
+
 
         }else{
 //          allGenes.clear();
@@ -1479,6 +1487,39 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane impl
 //            repaint();
         }
         repaint();
+    }
+
+
+      private  boolean checkSelectedTableWithNewDataSet(  DSPanel<DSGeneMarker> panel) {
+          if(hits==null){
+              return false;
+          }
+          Vector<CellularNetWorkElementInformation> willRemoved = new Vector<CellularNetWorkElementInformation>();
+         for (CellularNetWorkElementInformation cellularNetWorkElementInformation : hits){
+
+          DSGeneMarker marker = cellularNetWorkElementInformation.getdSGeneMarker();
+          if(!panel.contains(marker)) {
+            willRemoved.add(cellularNetWorkElementInformation);
+          }
+
+        }
+          if(willRemoved.size()>0)
+          for(CellularNetWorkElementInformation cellularNetWorkElementInformation: willRemoved){
+              hits.remove(cellularNetWorkElementInformation);
+          }
+          return true;
+      }
+
+    private boolean includeMarker(DSGeneMarker marker, Vector<CellularNetWorkElementInformation>  vector){
+        if(vector==null || vector.size()==0){
+            return false;
+        }
+        for (CellularNetWorkElementInformation cellularNetWorkElementInformation : vector){
+          if(cellularNetWorkElementInformation != null && cellularNetWorkElementInformation.getdSGeneMarker().equals(marker)){
+              return true;
+          }
+        }
+                        return false;
     }
 
     @Subscribe
