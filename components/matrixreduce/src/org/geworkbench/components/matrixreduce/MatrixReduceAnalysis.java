@@ -28,7 +28,7 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
-
+import java.util.Enumeration;
 /**
  * @author John Watkinson
  * @author keshav
@@ -133,7 +133,7 @@ public class MatrixReduceAnalysis extends AbstractAnalysis implements Clustering
                             "-max_m=" + maxMotif,
                             "-o=" + tempDir.getAbsolutePath()
                     };
-            log.warn("invoking MatrixREDUCE with: " + args);
+            log.warn("invoking MatrixREDUCE with: " + args.toString());
 
             // invoking MatrixREDUCE.exe
             Process process = null;
@@ -144,12 +144,17 @@ public class MatrixReduceAnalysis extends AbstractAnalysis implements Clustering
             boolean completed = false;
 
             try {
-
-                // FIXME refactor to construct query from params from the MatrixReduceParamPanel.
+            	// FIXME refactor to construct query from params from the MatrixReduceParamPanel.
                 ProcessBuilder builder = new ProcessBuilder(args);
                 Map<String, String> env = builder.environment();
                 env.clear();
-                env.put("Path", "components\\matrixreduce\\lib");
+ 
+                //env.put("Path", "components\\matrixreduce\\lib");
+                java.util.Properties props = (java.util.Properties) System.getProperties();
+                env.put("Path", props.getProperty("components.dir") + "\\matrixreduce\\lib");
+                Runtime.getRuntime();
+
+
                 process = builder.start();
                 final Process proc = process;
                 pb.addObserver(new Observer() {
