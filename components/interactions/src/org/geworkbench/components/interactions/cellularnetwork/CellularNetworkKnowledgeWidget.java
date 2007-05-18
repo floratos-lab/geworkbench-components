@@ -1300,7 +1300,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane impl
 
                         //  setForeground(Color.red);
                         // setForeground(list.getSelectionForeground());
-                       // setText("<html><font color=RED><i>" + "Unknown" + "</i></font></html>");
+                        // setText("<html><font color=RED><i>" + "Unknown" + "</i></font></html>");
                         setText("<html><font><i>" + "Unknown" + "</i></font></html>");
                         setToolTipText("Please push the Refresh button to retrieve related information.");
                         if (unselectedBorder == null) {
@@ -1341,7 +1341,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane impl
 
                         //setForeground(Color.red);
                         // setForeground(list.getSelectionForeground());
-                        setText("<html><font color=red><b>" + color + "<b></font></html>");
+                        setText("<html><font color=blue><b>" + color + "<b></font></html>");
                         if (unselectedBorder == null) {
                             unselectedBorder = BorderFactory.createMatteBorder(2, 5, 2, 5,
                                     table.getBackground());
@@ -1414,7 +1414,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane impl
 
                         setForeground(Color.black);
                         // setForeground(list.getSelectionForeground());
-                        setText("<html><font color=RED><b>" + color + "<b></font></html>");
+                        setText("<html><font color=blue><b>" + color + "<b></font></html>");
                         if (unselectedBorder == null) {
                             unselectedBorder = BorderFactory.createMatteBorder(2, 5, 2, 5,
                                     table.getBackground());
@@ -1454,10 +1454,10 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane impl
     @Subscribe
     public void receive(GeneSelectorEvent gse, Object source) {
         DSPanel<DSGeneMarker> panel = gse.getPanel();
-       // System.out.println("IN cnb " + panel + new Date()        );
+        // System.out.println("IN cnb " + panel + new Date()        );
 
         if (panel != null) {
-            if(panel.size()==0){
+            if (panel.size() == 0) {
 
                 allGenes.clear();
                 selectedGenes.clear();
@@ -1465,8 +1465,8 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane impl
             }
             allGenes.clear();
             for (DSGeneMarker marker : panel) {
-              //  System.out.println("For " + marker.getShortName() + selectedGenes.contains(marker) + selectedGenes.size());
-                if (!includeMarker(marker, hits)&&! allGenes.contains(marker)){
+                //  System.out.println("For " + marker.getShortName() + selectedGenes.contains(marker) + selectedGenes.size());
+                if (!includeMarker(marker, hits) && ! allGenes.contains(marker)) {
                     allGenes.add(marker);
                 }
             }
@@ -1481,7 +1481,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane impl
             selectedGenesList.setModel(selectedGenesModel);
 
 
-        }else{
+        } else {
 //          allGenes.clear();
 //          hits.clear();
 //            repaint();
@@ -1490,36 +1490,37 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane impl
     }
 
 
-      private  boolean checkSelectedTableWithNewDataSet(  DSPanel<DSGeneMarker> panel) {
-          if(hits==null){
-              return false;
-          }
-          Vector<CellularNetWorkElementInformation> willRemoved = new Vector<CellularNetWorkElementInformation>();
-         for (CellularNetWorkElementInformation cellularNetWorkElementInformation : hits){
-
-          DSGeneMarker marker = cellularNetWorkElementInformation.getdSGeneMarker();
-          if(!panel.contains(marker)) {
-            willRemoved.add(cellularNetWorkElementInformation);
-          }
-
-        }
-          if(willRemoved.size()>0)
-          for(CellularNetWorkElementInformation cellularNetWorkElementInformation: willRemoved){
-              hits.remove(cellularNetWorkElementInformation);
-          }
-          return true;
-      }
-
-    private boolean includeMarker(DSGeneMarker marker, Vector<CellularNetWorkElementInformation>  vector){
-        if(vector==null || vector.size()==0){
+    private boolean checkSelectedTableWithNewDataSet(DSPanel<DSGeneMarker> panel) {
+        if (hits == null) {
             return false;
         }
-        for (CellularNetWorkElementInformation cellularNetWorkElementInformation : vector){
-          if(cellularNetWorkElementInformation != null && cellularNetWorkElementInformation.getdSGeneMarker().equals(marker)){
-              return true;
-          }
+        Vector<CellularNetWorkElementInformation> willRemoved = new Vector<CellularNetWorkElementInformation>();
+        for (CellularNetWorkElementInformation cellularNetWorkElementInformation : hits) {
+
+            DSGeneMarker marker = cellularNetWorkElementInformation.getdSGeneMarker();
+            if (!panel.contains(marker)) {
+                willRemoved.add(cellularNetWorkElementInformation);
+            }
+
         }
-                        return false;
+        if (willRemoved.size() > 0)
+            for (CellularNetWorkElementInformation cellularNetWorkElementInformation : willRemoved) {
+                hits.remove(cellularNetWorkElementInformation);
+            }
+        return true;
+    }
+
+    private boolean includeMarker(DSGeneMarker marker, Vector<CellularNetWorkElementInformation>  vector) {
+        if (vector == null || vector.size() == 0) {
+            return false;
+        }
+        for (CellularNetWorkElementInformation cellularNetWorkElementInformation : vector) {
+            if (cellularNetWorkElementInformation != null && cellularNetWorkElementInformation.getdSGeneMarker().equals(marker))
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Subscribe
