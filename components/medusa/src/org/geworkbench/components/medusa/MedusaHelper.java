@@ -14,7 +14,7 @@ import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 /**
  * 
  * @author keshav
- * @version $Id: MedusaHelper.java,v 1.4 2007-05-14 16:34:44 keshav Exp $
+ * @version $Id: MedusaHelper.java,v 1.5 2007-05-18 21:33:48 keshav Exp $
  */
 public class MedusaHelper {
 
@@ -24,7 +24,7 @@ public class MedusaHelper {
 
 	public static boolean writeMedusaLabelsFile(
 			DSMicroarraySetView microarraySetView, String filename,
-			List<String> regulatorNames, List<String> targetNames) {
+			List<DSGeneMarker> regulators, List<DSGeneMarker> targets) {
 
 		BufferedWriter out = null;
 		boolean pass = true;
@@ -41,9 +41,9 @@ public class MedusaHelper {
 				if (data == null)
 					continue;
 
-				if (regulatorNames.contains(marker.getLabel())) {
+				if (regulators.contains(marker)) {
 					out.write('R');
-				} else if (targetNames.contains(marker.getLabel())) {
+				} else if (targets.contains(marker)) {
 					out.write('T');
 				} else {
 					log.info("Marker " + marker.getLabel()
