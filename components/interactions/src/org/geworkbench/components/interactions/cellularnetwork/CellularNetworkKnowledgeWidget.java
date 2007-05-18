@@ -276,6 +276,11 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane impl
         thresholdLabel = new JLabel("Threshold");
         thresholdTextField = new JTextField(".00", 4);
         thresholdTextField.setMaximumSize(new Dimension(20, 20));
+        thresholdTextField.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                jThresholdTextField_actionPerformed(e);
+            }
+        });
         thresholdSlider = new JSlider();
         thresholdSlider.setValue(0);
         thresholdSlider.setMinimum(0);
@@ -652,6 +657,30 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane impl
     }
 
     /**
+     * Respond to the change of the Threshold Text field.
+     *
+     * @param e
+     */
+    public void jThresholdTextField_actionPerformed(ActionEvent e) {
+        double newvalue = 0;
+        try {
+            newvalue = new Double(thresholdTextField.getText().trim());
+        } catch (NumberFormatException e1) {
+            JOptionPane.showMessageDialog(null, "The input is not a number.", "Please check your input.", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        XYPlot plot = this.chart.getXYPlot();
+        double newSliderValue = newvalue * (CellularNetWorkElementInformation.getBinNumber() - 1);
+        thresholdSlider.setValue((int) newSliderValue);
+        plot.setDomainCrosshairValue(newvalue);
+        for (CellularNetWorkElementInformation cellularNetWorkElementInformation : hits) {
+            cellularNetWorkElementInformation.setThreshold(newvalue);
+        }
+        previewTableModel.fireTableDataChanged();
+        detailTable.revalidate();
+    }
+
+    /**
      * Respond to display the table perference. Make the selection dialog visible.
      *
      * @param e
@@ -1009,6 +1038,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane impl
 
 
     private void previewSelectionsHandler(ActionEvent e) {
+        refreshButton.setEnabled(false);
         cancelAction = false;
         Runnable r = new Runnable() {
             public void run() {
@@ -1042,6 +1072,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane impl
                     }
                     previewTableModel.fireTableDataChanged();
                     detailTable.revalidate();
+                    refreshButton.setEnabled(true);
 
                 } catch (Exception e) {
                 }
