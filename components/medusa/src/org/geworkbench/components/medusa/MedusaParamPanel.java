@@ -8,8 +8,6 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.Arrays;
-import java.util.List;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -19,7 +17,6 @@ import javax.swing.JOptionPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.analysis.AbstractSaveableParameterPanel;
@@ -30,7 +27,7 @@ import com.jgoodies.forms.layout.FormLayout;
 /**
  * 
  * @author keshav
- * @version $Id: MedusaParamPanel.java,v 1.13 2007-05-14 16:34:24 keshav Exp $
+ * @version $Id: MedusaParamPanel.java,v 1.14 2007-05-18 21:33:48 keshav Exp $
  */
 public class MedusaParamPanel extends AbstractSaveableParameterPanel implements
 		Serializable {
@@ -110,12 +107,12 @@ public class MedusaParamPanel extends AbstractSaveableParameterPanel implements
 
 	/* discretization interval */
 
-	private double intervalBase = 0;
+	private double intervalBase = 30;
 
 	private JTextField intervalBaseTextField = new JTextField(String
 			.valueOf(intervalBase));
 
-	private double intervalBound = 0;
+	private double intervalBound = 4;
 
 	private JTextField intervalBoundTextField = new JTextField(String
 			.valueOf(intervalBound));
@@ -700,29 +697,6 @@ public class MedusaParamPanel extends AbstractSaveableParameterPanel implements
 
 	public String getTargetsFile() {
 		return targetsFile;
-	}
-
-	/**
-	 * 
-	 * @return
-	 */
-	public List getTargets() {
-		String[] targets = null;
-		if (isUseAllAsTargets()) {
-			// TODO add
-		} else if (!StringUtils.isEmpty(getTargetsFile())) {
-			String tar = this.targetTextField.getText();
-			targets = StringUtils.split(tar, ",");
-			int i = 0;
-			for (String target : targets) {
-				targets[i] = StringUtils.strip(target);
-				i++;
-			}
-		} else {
-			// TODO load csv and extract the
-		}
-
-		return Arrays.asList(targets);
 	}
 
 	/**

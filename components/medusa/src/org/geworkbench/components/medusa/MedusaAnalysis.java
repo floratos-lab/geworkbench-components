@@ -2,7 +2,6 @@ package org.geworkbench.components.medusa;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -26,7 +25,7 @@ import edu.columbia.ccls.medusa.MedusaLoader;
 /**
  * 
  * @author keshav
- * @version $Id: MedusaAnalysis.java,v 1.19 2007-05-15 19:16:23 keshav Exp $
+ * @version $Id: MedusaAnalysis.java,v 1.20 2007-05-18 21:33:48 keshav Exp $
  */
 public class MedusaAnalysis extends AbstractGridAnalysis implements
 		ClusteringAnalysis {
@@ -37,7 +36,9 @@ public class MedusaAnalysis extends AbstractGridAnalysis implements
 
 	String fileLabels = "data/medusa/dataset/web100_test.labels";
 
-	List<String> regulators = null;
+	List<DSGeneMarker> regulators = null;
+
+	List<DSGeneMarker> targets = null;
 
 	/**
 	 * 
@@ -129,7 +130,9 @@ public class MedusaAnalysis extends AbstractGridAnalysis implements
 		}
 
 		// TODO use the RuleBean to take a list of rule files.
-		MedusaData medusaData = null;
+		targets = getTargets(params, microarraySetView);
+		MedusaData medusaData = new MedusaData(discretizedInput
+				.getMicroarraySet(), regulators, targets);
 		MedusaDataSet dataSet = new MedusaDataSet(microarraySetView
 				.getMicroarraySet(), "MEDUSA Results", medusaData, null);
 
@@ -144,12 +147,12 @@ public class MedusaAnalysis extends AbstractGridAnalysis implements
 	 * @param params
 	 */
 	private void createLabelsFile(Object input, MedusaParamPanel params) {
-
+		// TODO move me to the MedusaHelper
 		DSMicroarraySetView<DSGeneMarker, DSMicroarray> microarraySetView = (CSMicroarraySetView<DSGeneMarker, DSMicroarray>) input;
 
-		List<String> regulators = getRegulators(params, microarraySetView);
+		List<DSGeneMarker> regulators = getRegulators(params, microarraySetView);
 
-		List<String> targets = getTargets(params, microarraySetView);
+		List<DSGeneMarker> targets = getTargets(params, microarraySetView);
 
 		MedusaHelper.writeMedusaLabelsFile(microarraySetView, fileLabels,
 				regulators, targets);
@@ -163,30 +166,31 @@ public class MedusaAnalysis extends AbstractGridAnalysis implements
 	 * @param regulators
 	 * @return {@link List}
 	 */
-	private List<String> getRegulators(MedusaParamPanel params,
+	private List<DSGeneMarker> getRegulators(MedusaParamPanel params,
 			DSMicroarraySetView<DSGeneMarker, DSMicroarray> microarraySetView) {
 		regulators = null;
 		if (params.isUseSelectedAsRegulators()) {
-			regulators = new ArrayList<String>();
+			regulators = new ArrayList<DSGeneMarker>();
 			DSItemList<DSGeneMarker> selectedMarkers = microarraySetView
 					.getUniqueMarkers();
 			for (int i = 0; i < selectedMarkers.size(); i++) {
 				DSGeneMarker marker = selectedMarkers.get(i);
-				regulators.add(marker.getLabel());
+				regulators.add(marker);
 				log.debug("added: " + marker.getLabel());
 			}
 		}
 
-		else if (!StringUtils.isEmpty(params.getRegulatorsFile())) {
-			String regulatorText = params.getRegulatorTextField().getText();
-			String[] regs = StringUtils.split(regulatorText, ",");
-			int i = 0;
-			for (String reg : regs) {
-				regs[i] = StringUtils.strip(reg);
-				i++;
-			}
-			regulators = Arrays.asList(regs);
-		}
+		// TODO deal with case of manually entering retulators
+		// else if (!StringUtils.isEmpty(params.getRegulatorsFile())) {
+		// String regulatorText = params.getRegulatorTextField().getText();
+		// String[] regs = StringUtils.split(regulatorText, ",");
+		// int i = 0;
+		// for (String reg : regs) {
+		// regs[i] = StringUtils.strip(reg);
+		// i++;
+		// }
+		// regulators = Arrays.asList(regs);
+		// }
 
 		else {
 			// TODO load csv and extract the
@@ -202,33 +206,34 @@ public class MedusaAnalysis extends AbstractGridAnalysis implements
 	 * @param regulators
 	 * @return {@link List}
 	 */
-	private List<String> getTargets(MedusaParamPanel params,
+	private List<DSGeneMarker> getTargets(MedusaParamPanel params,
 			DSMicroarraySetView<DSGeneMarker, DSMicroarray> microarraySetView) {
-		List<String> targets = null;
+		List<DSGeneMarker> targets = null;
 		if (params.isUseAllAsTargets()) {
-			targets = new ArrayList<String>();
+			targets = new ArrayList<DSGeneMarker>();
 			DSItemList<DSGeneMarker> allMarkers = microarraySetView
 					.allMarkers();
 			for (int i = 0; i < allMarkers.size(); i++) {
 				DSGeneMarker marker = allMarkers.get(i);
-				targets.add(marker.getLabel());
+				targets.add(marker);
 				log.debug("added: " + marker.getLabel());
 			}
-			for (String regulatorLabel : regulators) {
-				targets.remove(regulatorLabel);
+			for (DSGeneMarker marker : regulators) {
+				targets.remove(marker);
 			}
 		}
 
-		else if (!StringUtils.isEmpty(params.getTargetsFile())) {
-			String targetText = params.getTargetTextField().getText();
-			String[] targs = StringUtils.split(targetText, ",");
-			int i = 0;
-			for (String tar : targs) {
-				targs[i] = StringUtils.strip(tar);
-				i++;
-			}
-			targets = Arrays.asList(targs);
-		}
+		// TODO deal with this case
+		// else if (!StringUtils.isEmpty(params.getTargetsFile())) {
+		// String targetText = params.getTargetTextField().getText();
+		// String[] targs = StringUtils.split(targetText, ",");
+		// int i = 0;
+		// for (String tar : targs) {
+		// targs[i] = StringUtils.strip(tar);
+		// i++;
+		// }
+		// targets = Arrays.asList(targs);
+		// }
 
 		else {
 			// TODO load csv and extract the
