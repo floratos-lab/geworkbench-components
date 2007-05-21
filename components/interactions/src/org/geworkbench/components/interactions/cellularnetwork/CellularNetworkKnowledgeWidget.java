@@ -48,10 +48,7 @@ import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableColumn;
 import javax.xml.rpc.ServiceException;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.event.*;
 import java.awt.*;
 import java.util.*;
 import java.util.List;
@@ -278,9 +275,15 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane impl
         thresholdTextField.setMaximumSize(new Dimension(20, 20));
         thresholdTextField.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                jThresholdTextField_actionPerformed(e);
+                jThresholdTextField_actionPerformed();
             }
         });
+         thresholdTextField.addFocusListener(new FocusAdapter() {
+           public void focusLost(FocusEvent e) {
+                jThresholdTextField_actionPerformed();
+
+           }} );
+
         thresholdSlider = new JSlider();
         thresholdSlider.setValue(0);
         thresholdSlider.setMinimum(0);
@@ -661,7 +664,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane impl
      *
      * @param e
      */
-    public void jThresholdTextField_actionPerformed(ActionEvent e) {
+    public void jThresholdTextField_actionPerformed() {
         double newvalue = 0;
         try {
             newvalue = new Double(thresholdTextField.getText().trim());
