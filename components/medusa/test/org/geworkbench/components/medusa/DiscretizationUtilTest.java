@@ -126,14 +126,14 @@ public class DiscretizationUtilTest extends TestCase {
 		}
 
 		/* this tests writing out the labels file */
-		List<DSGeneMarker> regulatorNames = new ArrayList<DSGeneMarker>();
+		List<DSGeneMarker> regulators = new ArrayList<DSGeneMarker>();
 		DSGeneMarker geneMarker = (DSGeneMarker) markerPanel.get(0);
-		regulatorNames.add(geneMarker);
+		regulators.add(geneMarker);
 
 		MedusaHelper.writeMedusaLabelsFile(discreteView,
 				"data/test/dataset/output/"
 						+ RandomStringUtils.randomAlphabetic(5) + ".labels",
-				regulatorNames, targets);
+				regulators, targets);
 
 	}
 }
