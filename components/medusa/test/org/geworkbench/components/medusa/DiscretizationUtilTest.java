@@ -48,8 +48,6 @@ public class DiscretizationUtilTest extends TestCase {
 	 */
 	@Override
 	protected void setUp() {
-		Random r = new Random();
-
 		discreteUtil = new DiscretizationUtil();
 
 		for (int i = 0; i < numElements; i++) {
@@ -116,7 +114,7 @@ public class DiscretizationUtilTest extends TestCase {
 
 		for (int i = 0; i < markerPanel.size(); i++) {
 			DSGeneMarker obj = (CSGeneMarker) markerPanel.get(i);
-			//double[] row = discreteView.getRow(obj);
+			// double[] row = discreteView.getRow(obj);
 			double[] row = discreteView.getRow(i);
 			for (int j = 0; j < row.length; j++) {
 				double val = row[j];
@@ -130,9 +128,8 @@ public class DiscretizationUtilTest extends TestCase {
 		DSGeneMarker geneMarker = (DSGeneMarker) markerPanel.get(0);
 		regulators.add(geneMarker);
 
-		MedusaHelper.writeMedusaLabelsFile(discreteView,
-				"data/test/dataset/output/"
-						+ RandomStringUtils.randomAlphabetic(5) + ".labels",
+		MedusaHelper.writeMedusaLabelsFile(discreteView, "data/test/dataset/"
+				+ RandomStringUtils.randomAlphabetic(5) + ".labels",
 				regulators, targets);
 
 	}
