@@ -25,7 +25,7 @@ import edu.columbia.ccls.medusa.MedusaLoader;
 /**
  * 
  * @author keshav
- * @version $Id: MedusaAnalysis.java,v 1.20 2007-05-18 21:33:48 keshav Exp $
+ * @version $Id: MedusaAnalysis.java,v 1.21 2007-05-22 01:39:04 keshav Exp $
  */
 public class MedusaAnalysis extends AbstractGridAnalysis implements
 		ClusteringAnalysis {
@@ -105,6 +105,9 @@ public class MedusaAnalysis extends AbstractGridAnalysis implements
 						.getIntervalBound());
 
 		// create labels file
+		if (StringUtils.isEmpty(params.getLabelsFilePath()))
+			params.setLabelsFilePath(this.fileLabels);
+
 		createLabelsFile(discretizedInput, params);
 
 		/* PHASE 2 - either read config file or read parameters */
@@ -154,7 +157,7 @@ public class MedusaAnalysis extends AbstractGridAnalysis implements
 
 		List<DSGeneMarker> targets = getTargets(params, microarraySetView);
 
-		MedusaHelper.writeMedusaLabelsFile(microarraySetView, fileLabels,
+		MedusaHelper.writeMedusaLabelsFile(microarraySetView, params.getLabelsFilePath(),
 				regulators, targets);
 	}
 
@@ -271,10 +274,10 @@ public class MedusaAnalysis extends AbstractGridAnalysis implements
 			inputData = discretizationUtil.discretize(inputData, base, bound);
 		}
 
-		String baseArgs = " -filelabels=" + fileLabels + " -fasta="
-				+ sequenceFile + " -mbtype=iterative" + " -lbounds=0"
-				+ " -ubounds=0" + " -maxkmer=" + maxKmer + " -minkmer="
-				+ minKmer;
+		String baseArgs = " -filelabels=" + params.getLabelsFilePath()
+				+ " -fasta=" + sequenceFile + " -mbtype=iterative"
+				+ " -lbounds=0" + " -ubounds=0" + " -maxkmer=" + maxKmer
+				+ " -minkmer=" + minKmer;
 
 		s = new StringBuilder(baseArgs);
 		// medusa group has dimers_max_gap, dimers_smallest, dimers_largest
