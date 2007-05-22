@@ -1,81 +1,122 @@
 package org.geworkbench.components.medusa;
 
-import javax.swing.JComboBox;
-import javax.swing.JTextField;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 
 import junit.framework.TestCase;
+
+import org.apache.commons.lang.RandomStringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.geworkbench.bison.datastructure.biocollections.microarrays.CSMicroarraySet;
+import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
+import org.geworkbench.bison.datastructure.biocollections.views.CSMicroarraySetView;
+import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
+import org.geworkbench.bison.datastructure.bioobjects.markers.CSGeneMarker;
+import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
+import org.geworkbench.bison.datastructure.bioobjects.microarray.CSExpressionMarkerValue;
+import org.geworkbench.bison.datastructure.bioobjects.microarray.CSMicroarray;
+import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
+import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 
 /**
  * 
  * @author keshav
- * @version $Id: MedusaAnalysisTest.java,v 1.6 2007-05-09 19:40:31 keshav Exp $
+ * @version $Id: MedusaAnalysisTest.java,v 1.7 2007-05-22 02:35:44 keshav Exp $
  */
 public class MedusaAnalysisTest extends TestCase {
+
+	/*
+	 * FIXME This test will fail without first running DiscretizationUtilTest
+	 * since the generated labels file from this test does not have targets. The
+	 * labels file generated from DiscretizationUtilTest does have both
+	 * regulators and targets. As a result of this, you should first run the
+	 * DircretizationUtilTest, then this test. NOTE: The .labels file generated
+	 * from this test is not used. Instead, the labels file used is the one from
+	 * DiscretizationUtilTest.
+	 */
+	private Log log = LogFactory.getLog(this.getClass());
+
 	MedusaParamPanel panel = null;
 
 	MedusaAnalysis analysis = null;
+
+	int numElements = 2;
+
+	float data[][] = new float[numElements][numElements];
+
+	DSMicroarraySetView view = null;
 
 	@Override
 	protected void setUp() {
 		panel = new MedusaParamPanel();
 		analysis = new MedusaAnalysis();
 		analysis.setLabel("MEDUSA");
+
+		Random r = new Random();
+
+		// discreteUtil = new DiscretizationUtil();
+
+		for (int i = 0; i < numElements; i++) {
+			for (int j = 0; j < numElements; j++) {
+				// data[i][j] = r.nextFloat();
+				data[i][j] = i + j + 1;
+				log.info("data[" + i + "][" + j + "] = " + data[i][j]);
+			}
+		}
+
+		view = new CSMicroarraySetView<DSGeneMarker, DSMicroarray>();
+		DSMicroarraySet microarraySet = new CSMicroarraySet<DSMicroarray>();
+		microarraySet.setLabel(this.getClass().getName());
+
+		// DSItemList markers = view.markers();
+
+		for (int i = 0; i < numElements; i++) {
+			DSMicroarray microarray = new CSMicroarray(numElements);
+			microarray.setLabel("Microarray " + i);
+			for (int j = 0; j < numElements; j++) {
+				CSExpressionMarkerValue markerVal = new CSExpressionMarkerValue(
+						data[i][j]);
+
+				microarray.setMarkerValue(j, markerVal);
+			}
+			microarraySet.add(microarray);
+		}
+
+		DSPanel markerPanel = view.getMarkerPanel();
+		for (int i = 0; i < numElements; i++) {
+			DSGeneMarker geneMarker = new CSGeneMarker();
+			geneMarker.setGeneId(i);
+			geneMarker.setGeneName("gene_name_" + i);
+			geneMarker.setLabel("gene_label_" + i);
+			geneMarker.setSerial(i);
+			markerPanel.add(geneMarker);
+		}
+
+		List<DSGeneMarker> regulators = new ArrayList<DSGeneMarker>();
+		DSGeneMarker geneMarker = (DSGeneMarker) markerPanel.get(0);
+		regulators.add(geneMarker);
+
+		List<DSGeneMarker> targets = new ArrayList<DSGeneMarker>();
+		DSGeneMarker targetMarker = (DSGeneMarker) markerPanel.get(1);
+		targets.add(targetMarker);
+
+		/* order here is important for marker labels */
+		view.setMicroarraySet(microarraySet);
+		view.useMarkerPanel(true);
+		view.setMarkerPanel(markerPanel);
 	}
 
+	/**
+	 * 
+	 * 
+	 */
 	public void testExecuteUsingConfigFile() {
 		panel.setConfigFilePath("data/test/dataset/config.xml");
+		panel.setLabelsFilePath("data/test/dataset/"
+				+ RandomStringUtils.randomAlphabetic(5) + ".labels");
 		analysis.setDefaultPanel(panel);
-		analysis.execute(null);
+		analysis.execute(view);
 	}
-
-	// /**
-	// *
-	// *
-	// */
-	// public void testExecute() {
-	//
-	// panel.setFeaturesFile("data/test/dataset/small_yeast/yeast_test.fasta");
-	//
-	// JTextField minKmer = new JTextField();
-	// minKmer.setText(String.valueOf(3));
-	// panel.setMinKmerTextField(minKmer);
-	//
-	// JTextField maxKmer = new JTextField();
-	// maxKmer.setText(String.valueOf(5));
-	// panel.setMaxKmerTextField(maxKmer);
-	//
-	// JComboBox dimersCombo = new JComboBox(new String[] { "No", "Yes" });
-	// // dimersCombo.setSelectedIndex(0);
-	// panel.setDimersCombo(dimersCombo);
-	//
-	// JTextField minGap = new JTextField();
-	// minGap.setText(String.valueOf(0));
-	// panel.setDimerMinGapTextField(minGap);
-	//
-	// JTextField maxGap = new JTextField();
-	// maxGap.setText(String.valueOf(3));
-	// panel.setDimerMaxGapTextField(maxGap);
-	//
-	// JTextField iter = new JTextField();
-	// iter.setText(String.valueOf(10));
-	// panel.setBoostingIterationsTextField(iter);
-	//
-	// JTextField pssm = new JTextField();
-	// pssm.setText(String.valueOf(18));
-	// panel.setPssmLengthTextField(pssm);
-	//
-	// JTextField aggTextField = new JTextField();
-	// aggTextField.setText(String.valueOf(5));
-	// panel.setAggTextField(aggTextField);
-	//
-	// JComboBox reverseComplementCombo = new JComboBox(new String[] { "True",
-	// "False" });
-	// // reverseComplementCombo.setSelectedIndex(0);
-	// panel.setReverseComplementCombo(reverseComplementCombo);
-	//
-	// analysis.setDefaultPanel(panel);
-	// analysis.execute(null);
-	// // analysis.printhelp();
-	// }
-
 }
