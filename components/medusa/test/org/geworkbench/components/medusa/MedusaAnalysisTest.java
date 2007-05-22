@@ -23,7 +23,7 @@ import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 /**
  * 
  * @author keshav
- * @version $Id: MedusaAnalysisTest.java,v 1.8 2007-05-22 02:39:06 keshav Exp $
+ * @version $Id: MedusaAnalysisTest.java,v 1.9 2007-05-22 02:43:29 keshav Exp $
  */
 public class MedusaAnalysisTest extends TestCase {
 
@@ -116,7 +116,7 @@ public class MedusaAnalysisTest extends TestCase {
 	public void testExecuteUsingConfigFile() {
 		panel.setConfigFilePath("data/test/dataset/config.xml");
 		panel.setLabelsFilePath("data/test/dataset/"
-				+ RandomStringUtils.randomAlphabetic(5) + ".labels");
+				+ RandomStringUtils.randomAlphabetic(5) + "_test.labels");
 		analysis.setDefaultPanel(panel);
 		analysis.execute(view);
 	}
