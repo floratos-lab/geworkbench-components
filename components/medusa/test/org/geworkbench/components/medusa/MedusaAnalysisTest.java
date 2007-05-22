@@ -23,7 +23,7 @@ import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 /**
  * 
  * @author keshav
- * @version $Id: MedusaAnalysisTest.java,v 1.10 2007-05-22 03:02:46 keshav Exp $
+ * @version $Id: MedusaAnalysisTest.java,v 1.11 2007-05-22 03:03:35 keshav Exp $
  */
 public class MedusaAnalysisTest extends TestCase {
 
@@ -35,8 +35,10 @@ public class MedusaAnalysisTest extends TestCase {
 	 * DircretizationUtilTest, then this test. NOTE: The .labels file generated
 	 * from this test is not used. Instead, the labels file used is the one from
 	 * DiscretizationUtilTest. Also, make sure you set the MedusaHelper to use
-	 * the method view.markers() instead of view.allMarkers(). <p> Actually,
-	 * this test will still fail with:
+	 * the method view.markers() instead of view.allMarkers().
+	 * 
+	 * 
+	 * Actually, this test will still fail with:
 	 * 
 	 * Can't rip an array of length <= 0 at
 	 * edu.columbia.ccls.utilities.ArrayUtils.ripIntArray(Unknown Source) at
