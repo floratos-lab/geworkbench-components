@@ -23,7 +23,7 @@ import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 /**
  * 
  * @author keshav
- * @version $Id: MedusaAnalysisTest.java,v 1.7 2007-05-22 02:35:44 keshav Exp $
+ * @version $Id: MedusaAnalysisTest.java,v 1.8 2007-05-22 02:39:06 keshav Exp $
  */
 public class MedusaAnalysisTest extends TestCase {
 
@@ -34,7 +34,8 @@ public class MedusaAnalysisTest extends TestCase {
 	 * regulators and targets. As a result of this, you should first run the
 	 * DircretizationUtilTest, then this test. NOTE: The .labels file generated
 	 * from this test is not used. Instead, the labels file used is the one from
-	 * DiscretizationUtilTest.
+	 * DiscretizationUtilTest. Also, make sure you set the MedusaHelper to use
+	 * the method view.markers() instead of view.allMarkers().
 	 */
 	private Log log = LogFactory.getLog(this.getClass());
 
