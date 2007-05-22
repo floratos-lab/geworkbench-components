@@ -89,8 +89,7 @@ public class DiscretizationUtilTest extends TestCase {
 			geneMarker.setGeneId(i);
 			geneMarker.setGeneName("gene_name_" + i);
 			geneMarker.setLabel("gene_label_" + i);
-			geneMarker.setSerial(i);
-			markerPanel.add(geneMarker);
+			markerPanel.add(i, geneMarker);
 			targets.add(geneMarker);
 		}
 
@@ -105,23 +104,16 @@ public class DiscretizationUtilTest extends TestCase {
 		// That is, you will not see anything in the .labels file written from
 		// this test.
 		// Again, this works fine from within the app.
-		log.debug("size: " + view.allMarkers().size());
+		// If you change this to view.markers().size in teh MedusaHelper, this
+		// works but we cannot do that for geworkench specific reasons.
+		log.debug("marker panel size: " + view.allMarkers().size());
 
 		log.info("base: " + base + ", bound: " + bound);
 		discreteView = discreteUtil.discretize(view, base, bound);
 
 		assertNotNull(discreteView);
 
-		for (int i = 0; i < markerPanel.size(); i++) {
-			DSGeneMarker obj = (CSGeneMarker) markerPanel.get(i);
-			// double[] row = discreteView.getRow(obj);
-			double[] row = discreteView.getRow(i);
-			for (int j = 0; j < row.length; j++) {
-				double val = row[j];
-				log.info("discrete[" + i + "][" + j + "] = " + val);
-			}
-
-		}
+		printDiscrete(markerPanel);
 
 		/* this tests writing out the labels file */
 		List<DSGeneMarker> regulators = new ArrayList<DSGeneMarker>();
@@ -132,5 +124,18 @@ public class DiscretizationUtilTest extends TestCase {
 				+ RandomStringUtils.randomAlphabetic(5) + ".labels",
 				regulators, targets);
 
+	}
+
+	private void printDiscrete(DSPanel markerPanel) {
+		for (int i = 0; i < markerPanel.size(); i++) {
+			DSGeneMarker obj = (CSGeneMarker) markerPanel.get(i);
+			// double[] row = discreteView.getRow(obj);
+			double[] row = discreteView.getRow(i);
+			for (int j = 0; j < row.length; j++) {
+				double val = row[j];
+				log.info("discrete[" + i + "][" + j + "] = " + val);
+			}
+
+		}
 	}
 }
