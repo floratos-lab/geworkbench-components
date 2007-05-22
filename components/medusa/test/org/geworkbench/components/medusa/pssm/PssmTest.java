@@ -17,9 +17,9 @@ import edu.columbia.ccls.medusa.io.SerializedRule;
  * rule files, generating consensue sequences, etc.
  * 
  * @author keshav
- * @version $Id: RulesBeanTest.java,v 1.1 2007-05-22 04:42:49 keshav Exp $
+ * @version $Id: PssmTest.java,v 1.1 2007-05-22 04:49:15 keshav Exp $
  */
-public class RulesBeanTest extends TestCase {
+public class PssmTest extends TestCase {
 	private Log log = LogFactory.getLog(this.getClass());
 
 	RuleParser parser = null;
