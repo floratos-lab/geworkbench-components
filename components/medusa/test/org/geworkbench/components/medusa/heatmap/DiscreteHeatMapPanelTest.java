@@ -12,8 +12,12 @@ import junit.framework.TestCase;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.layout.FormLayout;
-import com.jgoodies.forms.layout.RowSpec;
 
+/**
+ * 
+ * @author keshav
+ * @version $Id: DiscreteHeatMapPanelTest.java,v 1.2 2007-05-22 00:13:07 keshav Exp $
+ */
 public class DiscreteHeatMapPanelTest extends TestCase {
 
 	int numElements = 6;
