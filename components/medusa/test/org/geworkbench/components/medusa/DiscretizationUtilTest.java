@@ -97,15 +97,15 @@ public class DiscretizationUtilTest extends TestCase {
 		view.setMicroarraySet(microarraySet);
 		view.useMarkerPanel(true);
 		view.setMarkerPanel(markerPanel);
-		// FIXME not sure why the # markers is 0. The MedusaHelper works fine
-		// from within geworkbench,
-		// but for some reason this test does not add the markers to the
-		// microarraySet (view).
-		// That is, you will not see anything in the .labels file written from
-		// this test.
-		// Again, this works fine from within the app.
-		// If you change this to view.markers().size in teh MedusaHelper, this
-		// works but we cannot do that for geworkench specific reasons.
+		/*
+		 * FIXME not sure why the # markers is 0. The MedusaHelper works fine
+		 * from within geworkbench, but for some reason this test does not add
+		 * the markers to the microarraySet (view). That is, you will not see
+		 * anything in the .labels file written from this test. Again, this
+		 * works fine from within the app. If you change this to
+		 * view.markers().size in teh MedusaHelper, this works but we cannot do
+		 * that for geworkench specific reasons.
+		 */
 		log.debug("marker panel size: " + view.allMarkers().size());
 
 		log.info("base: " + base + ", bound: " + bound);
@@ -120,9 +120,11 @@ public class DiscretizationUtilTest extends TestCase {
 		DSGeneMarker geneMarker = (DSGeneMarker) markerPanel.get(0);
 		regulators.add(geneMarker);
 
-		MedusaHelper.writeMedusaLabelsFile(discreteView, "data/test/dataset/"
-				+ RandomStringUtils.randomAlphabetic(5) + ".labels",
-				regulators, targets);
+		// MedusaHelper.writeMedusaLabelsFile(discreteView, "data/test/dataset/"
+		// + RandomStringUtils.randomAlphabetic(5) + ".labels",
+		// regulators, targets);
+		MedusaHelper.writeMedusaLabelsFile(discreteView,
+				"data/test/dataset/web100_test.labels", regulators, targets);
 
 	}
 
