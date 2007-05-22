@@ -10,6 +10,11 @@ import java.util.List;
 import javax.swing.JCheckBox;
 import javax.swing.JPanel;
 
+/**
+ * 
+ * @author keshav
+ * @version $Id: DiscreteHeatMapPanel.java,v 1.2 2007-05-22 00:13:18 keshav Exp $
+ */
 public class DiscreteHeatMapPanel extends JPanel {
 
 	/**
