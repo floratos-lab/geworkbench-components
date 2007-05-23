@@ -70,7 +70,7 @@ public class EvidenceIntegrationVisualization implements VisualPlugin {
 
                 for (Map.Entry<Integer, XYSeriesCollection> gsEntry : gsPlotData.entrySet()) {
                     // Draw graphs for each Gold Standard set
-                    JFreeChart ch = ChartFactory.createXYLineChart("GS #"+gsEntry.getKey(), // Title
+                    JFreeChart ch = ChartFactory.createXYLineChart(dataSet.getGoldStandardSources().get(gsEntry.getKey()), // Title
                             "Bin #", // X-Axis label
                             "Value", // Y-Axis label
                             gsEntry.getValue(), // Dataset

@@ -7,6 +7,7 @@ import org.geworkbench.util.pathwaydecoder.mutualinformation.MindyData;
 
 import java.io.File;
 import java.util.List;
+import java.util.Map;
 
 import edu.columbia.c2b2.evidenceinegration.Evidence;
 
@@ -17,11 +18,13 @@ public class EvidenceIntegrationDataSet extends CSAncillaryDataSet implements DS
     private static final long serialVersionUID = -6835973287728524201L;
     private List<Evidence> evidence;
     private String filename;
+    private Map<Integer, String> goldStandardSources;
 
-    public EvidenceIntegrationDataSet(DSDataSet parent, String label, List<Evidence> evidence, String filename) {
+    public EvidenceIntegrationDataSet(DSDataSet parent, String label, List<Evidence> evidence, String filename, Map<Integer, String> goldStandardSources) {
         super(parent, label);
         this.evidence = evidence;
         this.filename = filename;
+        this.goldStandardSources = goldStandardSources;
     }
 
     public File getDataSetFile() {
@@ -49,5 +52,12 @@ public class EvidenceIntegrationDataSet extends CSAncillaryDataSet implements DS
         this.filename = filename;
     }
 
+    public Map<Integer, String> getGoldStandardSources() {
+        return goldStandardSources;
+    }
+
+    public void setGoldStandardSources(Map<Integer, String> goldStandardSources) {
+        this.goldStandardSources = goldStandardSources;
+    }
 }
 

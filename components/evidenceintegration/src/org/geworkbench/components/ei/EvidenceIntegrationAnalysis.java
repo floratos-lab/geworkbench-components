@@ -5,17 +5,18 @@ import org.geworkbench.bison.model.analysis.ClusteringAnalysis;
 import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
-import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.CSExprMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
 import org.geworkbench.bison.datastructure.biocollections.views.CSMicroarraySetView;
-import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.DSAncillaryDataSet;
 import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.engine.management.Subscribe;
+import org.geworkbench.engine.management.Publish;
 import org.geworkbench.builtin.projects.*;
 import org.geworkbench.util.pathwaydecoder.mutualinformation.AdjacencyMatrixDataSet;
 import org.geworkbench.util.pathwaydecoder.mutualinformation.AdjacencyMatrix;
+import org.geworkbench.events.AdjacencyMatrixEvent;
+import org.geworkbench.events.ProjectNodeAddedEvent;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -26,6 +27,8 @@ import java.util.List;
 
 import edu.columbia.c2b2.evidenceinegration.Evidence;
 import edu.columbia.c2b2.evidenceinegration.EvidenceIntegration;
+
+import javax.swing.*;
 
 /**
  * @author mhall
@@ -65,10 +68,17 @@ public class EvidenceIntegrationAnalysis extends AbstractAnalysis implements Clu
             log.debug("\t" + evidence.getName());
         }
 
-        eiEngine.doIntegration(selectedEvidence, selectedGoldStandards);
+        EIThread eiThread = new EIThread(mSetView, selectedEvidence, selectedGoldStandards);
+
+        EIProgress progress = new EIProgress(eiThread);
+        eiThread.setProgressWindow(progress);
+        progress.setVisible(true);
+
+//        eiEngine.doIntegration(selectedEvidence, selectedGoldStandards);
 //        DSMicroarraySet<DSMicroarray> mSet = ((DSMicroarraySetView) input).getMicroarraySet();
-        EvidenceIntegrationDataSet dataset = new EvidenceIntegrationDataSet(mSetView.getMicroarraySet(), "Evidence Integration Results", selectedEvidence, "Unknown");
-        return new AlgorithmExecutionResults(true, "Evidence Integration Completed", dataset);
+//        EvidenceIntegrationDataSet dataset = new EvidenceIntegrationDataSet(mSetView.getMicroarraySet(), "Evidence Integration Results", selectedEvidence, "Unknown");
+
+        return new AlgorithmExecutionResults(true, "Evidence Integration In Progress", null);
     }
 
     @Subscribe
@@ -126,6 +136,49 @@ public class EvidenceIntegrationAnalysis extends AbstractAnalysis implements Clu
             }
         }
         return evidence;
+    }
+
+    @Publish
+    public ProjectNodeAddedEvent publishProjectNodeAddedEvent(ProjectNodeAddedEvent event) {
+        return event;
+    }
+
+    class EIThread extends Thread {
+        List<Evidence> selectedEvidence;
+        List<Integer> selectedGoldStandards;
+        private EIProgress progressWindow;
+        private DSMicroarraySetView<DSGeneMarker, DSMicroarray> mSetView;
+
+        public EIThread(DSMicroarraySetView<DSGeneMarker, DSMicroarray> mSetView, List<Evidence> selectedEvidence, List<Integer> selectedGoldStandards) {
+            this.mSetView = mSetView;
+            this.selectedEvidence = selectedEvidence;
+            this.selectedGoldStandards = selectedGoldStandards;
+        }
+
+        public void run() {
+            log.debug("Running Evidence Integration in worker thread.");
+            eiEngine.doIntegration(selectedEvidence, selectedGoldStandards);
+            log.debug("Done running Evidence Integration in worker thread.");
+            progressWindow.setVisible(false);
+
+            EvidenceIntegrationDataSet dataset = new EvidenceIntegrationDataSet(mSetView.getMicroarraySet(), "Evidence Integration Results", selectedEvidence, "Unknown", eiEngine.getGoldStandardSources());
+
+//            ProjectPanel.addToHistory(dataSet, "Generated with ARACNE run with paramters: " + p.getParamterDescription());
+
+            publishProjectNodeAddedEvent(new ProjectNodeAddedEvent("Evidence Integration Results", null, dataset));
+
+//        publishAdjacencyMatrixEvent(new AdjacencyMatrixEvent(convert(weightedGraph, mSetView), "ARACNE Set",
+//                -1, 2, 0.5f, AdjacencyMatrixEvent.Action.RECEIVE));
+        }
+
+        public EIProgress getProgressWindow() {
+            return progressWindow;
+        }
+
+        public void setProgressWindow(EIProgress progressWindow) {
+            this.progressWindow = progressWindow;
+        }
+
     }
 
 }
