@@ -18,7 +18,7 @@ import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 /**
  * 
  * @author keshav
- * @version $Id: MedusaHelper.java,v 1.8 2007-05-23 16:49:56 keshav Exp $
+ * @version $Id: MedusaHelper.java,v 1.9 2007-05-23 17:31:22 keshav Exp $
  */
 public class MedusaHelper {
 
@@ -188,7 +188,7 @@ public class MedusaHelper {
 
 			score = score + Math.log(val);
 
-			log.info("score: " + score);
+			log.debug("score: " + score);
 		}
 
 		return score;

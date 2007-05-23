@@ -13,7 +13,7 @@ import javax.swing.JPanel;
 /**
  * 
  * @author keshav
- * @version $Id: DiscreteHeatMapPanel.java,v 1.1 2007-05-23 16:02:38 keshav Exp $
+ * @version $Id: DiscreteHeatMapPanel.java,v 1.2 2007-05-23 17:31:22 keshav Exp $
  */
 public class DiscreteHeatMapPanel extends JPanel {
 
@@ -22,19 +22,19 @@ public class DiscreteHeatMapPanel extends JPanel {
 	 */
 	private static final long serialVersionUID = 1L;
 
-	double max = 0;
+	private double max = 0;
 
-	double medium = 0;
+	private double medium = 0;
 
-	double min = 0;
+	private double min = 0;
 
-	double[] row = null;
+	private double[] row = null;
 
-	double[][] matrix = null;
+	private double[][] matrix = null;
 
-	List<String> names = null;
+	private List<String> names = null;
 
-	boolean showLabels = false;
+	private boolean showLabels = false;
 
 	public DiscreteHeatMapPanel(double[][] matrix, double max, double medium,
 			double min, List<String> names, boolean showLabels) {
@@ -50,11 +50,17 @@ public class DiscreteHeatMapPanel extends JPanel {
 
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see javax.swing.JComponent#paintComponent(java.awt.Graphics)
+	 */
 	public void paintComponent(Graphics g) {
 		clear(g);
 
 		Graphics2D g2d = (Graphics2D) g;
 
+		// TODO abstract me into a DiscreteHeatMap
 		int y = 15;
 		for (int h = 0; h < matrix.length; h++) {
 			JCheckBox checkBox = new JCheckBox();
@@ -86,6 +92,10 @@ public class DiscreteHeatMapPanel extends JPanel {
 		}
 	}
 
+	/**
+	 * 
+	 * @param g
+	 */
 	protected void clear(Graphics g) {
 		super.paintComponent(g);
 	}
