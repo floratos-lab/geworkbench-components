@@ -17,7 +17,7 @@ import edu.columbia.ccls.medusa.io.SerializedRule;
  * rule files, generating consensue sequences, etc.
  * 
  * @author keshav
- * @version $Id: PssmTest.java,v 1.2 2007-05-23 16:49:07 keshav Exp $
+ * @version $Id: PssmTest.java,v 1.3 2007-05-23 21:27:54 keshav Exp $
  */
 public class PssmTest extends TestCase {
 	private Log log = LogFactory.getLog(this.getClass());
@@ -75,7 +75,11 @@ public class PssmTest extends TestCase {
 		assertEquals(2, srules.size());
 	}
 
-	public void testIsPssmHit() {
+	/**
+	 * Tests if the pssm hits the upstream sequence of a target.
+	 * 
+	 */
+	public void testIsHitByPssm() {
 
 		boolean fail = false;
 		SerializedRule srule = null;
@@ -88,8 +92,9 @@ public class PssmTest extends TestCase {
 			assertFalse(fail);
 		}
 
-		boolean isHit = MedusaHelper.isPssmHit(srule.getPssm(), srule
-				.getPssmThreshold());
+		String targetLabel = null;
+		boolean isHit = MedusaHelper.isHitByPssm(srule.getPssm(), srule
+				.getPssmThreshold(), targetLabel);
 		assertFalse(isHit);
 
 	}

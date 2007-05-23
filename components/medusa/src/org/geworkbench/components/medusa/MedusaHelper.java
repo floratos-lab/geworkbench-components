@@ -4,6 +4,8 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,13 +20,15 @@ import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 /**
  * 
  * @author keshav
- * @version $Id: MedusaHelper.java,v 1.9 2007-05-23 17:31:22 keshav Exp $
+ * @version $Id: MedusaHelper.java,v 1.10 2007-05-23 21:28:38 keshav Exp $
  */
 public class MedusaHelper {
 
 	private static Log log = LogFactory.getLog(MedusaHelper.class);
 
 	private static final String TAB_SEPARATOR = "\t";
+
+	private static final Map<Integer, Character> nucleotideCache = new HashMap<Integer, Character>();
 
 	/**
 	 * Creates a labels file.
@@ -157,73 +161,58 @@ public class MedusaHelper {
 	}
 
 	/**
-	 * Generate the for the optimal pssm represented by this data score.
+	 * Given the label of a target, returns true if the consensus sequence
+	 * "hits" the sequence of this target. The concensus sequence is created
+	 * internally from the pssm data. This method does not tell you where the
+	 * hit occured, but just that it has occured.
 	 * 
-	 * @param data
-	 * @return double
+	 * @param pssm
+	 *            The pssm data for a given (generated) rule
+	 * @param targetLabel
+	 * @return boolean
 	 */
-	public static double generateScore(double[][] data) {
+	public static boolean isHitByPssm(double[][] pssm, double threshold,
+			String targetLabel) {
+
+		int[] numericSequence = null;
+
 		double score = 0;
-		for (int j = 0; j < data[0].length; j++) {
 
-			String currentLetter = null;
+		threshold = Math.log(threshold);
 
-			double aVal = data[0][j];
-			double cVal = data[1][j];
-			double gVal = data[2][j];
-			double tVal = data[3][j];
+		String concensusSequence = generateConsensusSequence(pssm);
 
-			Map<String, Double> dataMap = new LinkedHashMap<String, Double>();
-			dataMap.put("A", aVal);
-			dataMap.put("C", cVal);
-			dataMap.put("G", gVal);
-			dataMap.put("T", tVal);
+		// Map<String, int[]> targetSequenceMap = clazz.getSequences
+		// Collection keys = targetSequenceMap.keyset();
+		// for (String key: keys){
+		// numericSequence = targetSequenceMap.get(key);
+		// }
+		//
 
-			dataMap = sortMapByValueDecreasing(dataMap);
-
-			/* gets the best score for this column */
-			currentLetter = dataMap.keySet().iterator().next();
-
-			double val = dataMap.get(currentLetter);
-
-			score = score + Math.log(val);
-
-			log.debug("score: " + score);
-		}
-
-		return score;
-	}
-
-	/**
-	 * Print the data from the PSSM matrix.
-	 * 
-	 * @param data
-	 */
-	private void printData(double[][] data) {
-		for (int i = 0; i < data.length; i++) {
-			for (int j = 0; j < data[i].length; j++) {
-				log.info("[" + i + "][" + j + "] = " + data[i][j]);
+		for (int i = 0; i < numericSequence.length; i++) {
+			int start = i;
+			int end = i + (concensusSequence.length());
+			int[] windowSequence = new int[end - start];
+			int k = 0;
+			for (int j = start; j < end; j++) {
+				windowSequence[k] = numericSequence[j];
+				k++;
 			}
+
+			for (int l = 0; l < windowSequence.length; l++) {
+				int numericNucleotide = windowSequence[l];
+
+				double val = pssm[numericNucleotide][l];
+				score = score + Math.log(val);
+
+				if (isHit(score, threshold))
+					return true;
+
+			}
+
 		}
-	}
 
-	/**
-	 * Returns true if the score represents a hit, else false.
-	 * 
-	 * Both the data and pssmThreshold are the raw vales as per the rule_N.xml
-	 * file and are internally transformed accordingly.
-	 * 
-	 * @param data
-	 * @param pssmThreshold
-	 * @return
-	 */
-	public static boolean isPssmHit(double[][] data, double pssmThreshold) {
-
-		double score = generateScore(data);
-
-		pssmThreshold = Math.log(pssmThreshold);
-
-		return isHit(score, pssmThreshold);
+		return false;
 	}
 
 	/**
@@ -243,5 +232,29 @@ public class MedusaHelper {
 
 		return hit;
 
+	}
+
+	/**
+	 * 
+	 * 
+	 */
+	private static void initNucleotideCache() {
+		nucleotideCache.put(0, 'A');
+		nucleotideCache.put(1, 'C');
+		nucleotideCache.put(2, 'C');
+		nucleotideCache.put(3, 'T');
+	}
+
+	/**
+	 * Print the data from the PSSM matrix.
+	 * 
+	 * @param data
+	 */
+	private void printData(double[][] data) {
+		for (int i = 0; i < data.length; i++) {
+			for (int j = 0; j < data[i].length; j++) {
+				log.info("[" + i + "][" + j + "] = " + data[i][j]);
+			}
+		}
 	}
 }
