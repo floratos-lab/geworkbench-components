@@ -18,7 +18,7 @@ import com.jgoodies.forms.layout.FormLayout;
 /**
  * 
  * @author keshav
- * @version $Id: MedusaPlugin.java,v 1.5 2007-05-22 00:08:13 keshav Exp $
+ * @version $Id: MedusaPlugin.java,v 1.6 2007-05-23 14:40:31 keshav Exp $
  */
 public class MedusaPlugin extends JPanel {
 
@@ -88,17 +88,20 @@ public class MedusaPlugin extends JPanel {
 
 		motifPanel.setLayout(new GridLayout(2, 3));
 
+		/* dummy panel at position 0,0 of the grid */
 		JPanel dummyPanel = new JPanel();
 		motifPanel.add(dummyPanel);
 
+		/* regulator heat map at postion 0,1 */
 		DiscreteHeatMapPanel regulatorHeatMap = new DiscreteHeatMapPanel(
 				regulatorMatrix, 1, 0, -1, regulatorNames, true);
 		motifPanel.add(regulatorHeatMap);
 
-		FormLayout layout = new FormLayout("pref,60dlu", // columns
+		/* regulator labels at position 0,2 */
+		FormLayout regulatorLabelLayout = new FormLayout("pref,60dlu", // columns
 				"5dlu"); // add rows dynamically
 		DefaultFormBuilder regulatorLabelBuilder = new DefaultFormBuilder(
-				layout);
+				regulatorLabelLayout);
 		regulatorLabelBuilder.nextRow();
 
 		for (String name : regulatorNames) {
@@ -116,12 +119,26 @@ public class MedusaPlugin extends JPanel {
 		motifPanel.add(heatMap2);
 		// END PSSM
 
+		/* target heat map at postion 1,1 */
 		DiscreteHeatMapPanel targetHeatMap = new DiscreteHeatMapPanel(
 				targetMatrix, 1, 0, -1, targetNames, true);
 		motifPanel.add(targetHeatMap);
 
-		JPanel dummyPanel3 = new JPanel();
-		motifPanel.add(dummyPanel3);
+		/* target labels at position 0,2 */
+		FormLayout targetLabelLayout = new FormLayout("pref,60dlu", // columns
+				"5dlu"); // add rows dynamically
+		DefaultFormBuilder targetLabelBuilder = new DefaultFormBuilder(
+				targetLabelLayout);
+		targetLabelBuilder.nextRow();
+
+		for (String name : targetNames) {
+			JCheckBox checkBox = new JCheckBox();
+			checkBox.setText(name);
+			checkBox.setSelected(true);
+			targetLabelBuilder.append(checkBox);
+			targetLabelBuilder.appendRow("10dlu");
+		}
+		motifPanel.add(targetLabelBuilder.getPanel());
 
 		tabbedPane.add("Motif", motifPanel);
 
