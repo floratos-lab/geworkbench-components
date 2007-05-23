@@ -1,0 +1,51 @@
+/*
+  The Broad Institute
+  SOFTWARE COPYRIGHT NOTICE AGREEMENT
+  This software and its documentation are copyright (2003-2007) by the
+  Broad Institute/Massachusetts Institute of Technology. All rights are
+  reserved.
+
+  This software is supplied without any warranty or guaranteed support
+  whatsoever. Neither the Broad Institute nor MIT can be responsible for its
+  use, misuse, or functionality.
+*/
+package org.geworkbench.components.gpmodule_v3_0.classification.wv;
+
+import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
+import org.geworkbench.components.gpmodule_v3_0.classification.PredictionModel;
+import org.geworkbench.components.gpmodule_v3_0.classification.GPClassifier;
+import org.genepattern.webservice.Parameter;
+
+import java.io.*;
+import java.util.List;
+import java.util.ArrayList;
+
+/**
+ * @author Marc-Danie Nazaire
+ */
+public class WVClassifier extends GPClassifier {
+    PredictionModel predModel;
+
+    public WVClassifier(DSDataSet parent, String label, String[] classifications, PredictionModel model, List featureNames)
+    {
+        super(parent, label, classifications);
+        this.predModel = model;
+        this.featureNames = featureNames;
+    }
+
+    public int classify(float[] data)
+    {
+        File testData = createTestGCTFile("WVTest_Data", data);
+        File testCLSData = createTestCLSFile("WVTest_Cls");
+
+        List parameters = new ArrayList();
+        parameters.add(new Parameter("saved.model.filename", predModel.getPredModelFile().getAbsolutePath()));
+        parameters.add(new Parameter("test.filename", testData.getAbsolutePath()));
+        parameters.add(new Parameter("test.class.filename", testCLSData.getAbsolutePath()));
+        parameters.add(new Parameter("pred.results.file", predModel.getPredModelFile().getName() + "_pred"));
+
+        File predFile = runPredictor("WeightedVoting", (Parameter[])parameters.toArray(new Parameter[0]));
+
+        return (getPredictedClass(predFile).equals("Control") ? 1 : 0);
+    }
+}
