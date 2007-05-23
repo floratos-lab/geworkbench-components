@@ -18,7 +18,7 @@ import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 /**
  * 
  * @author keshav
- * @version $Id: MedusaHelper.java,v 1.6 2007-05-22 04:46:46 keshav Exp $
+ * @version $Id: MedusaHelper.java,v 1.7 2007-05-23 16:49:26 keshav Exp $
  */
 public class MedusaHelper {
 
@@ -92,7 +92,6 @@ public class MedusaHelper {
 	public static String generateConsensusSequence(double[][] data) {
 		StringBuffer sequence = new StringBuffer();
 
-		// for (int i = 0; i < data.length; i++) {
 		for (int j = 0; j < data[0].length; j++) {
 
 			String currentLetter = null;
@@ -131,7 +130,7 @@ public class MedusaHelper {
 	 * Sort the map by value in decreasing order.
 	 * 
 	 * @param dataMap
-	 * @return
+	 * @return Map
 	 */
 	private static Map<String, Double> sortMapByValueDecreasing(
 			Map<String, Double> dataMap) {
@@ -158,6 +157,44 @@ public class MedusaHelper {
 	}
 
 	/**
+	 * Generate the for the optimal pssm represented by this data score.
+	 * 
+	 * @param data
+	 * @return double
+	 */
+	public static double generateScore(double[][] data) {
+		double score = 0;
+		for (int j = 0; j < data[0].length; j++) {
+
+			String currentLetter = null;
+
+			double aVal = data[0][j];
+			double cVal = data[1][j];
+			double gVal = data[2][j];
+			double tVal = data[3][j];
+
+			Map<String, Double> dataMap = new LinkedHashMap<String, Double>();
+			dataMap.put("A", aVal);
+			dataMap.put("C", cVal);
+			dataMap.put("G", gVal);
+			dataMap.put("T", tVal);
+
+			dataMap = sortMapByValueDecreasing(dataMap);
+
+			/* gets the best score for this column */
+			currentLetter = dataMap.keySet().iterator().next();
+
+			double val = dataMap.get(currentLetter);
+
+			score = score + Math.log(val);
+
+			log.info("score: " + score);
+		}
+
+		return score;
+	}
+
+	/**
 	 * Print the data from the PSSM matrix.
 	 * 
 	 * @param data
@@ -168,5 +205,43 @@ public class MedusaHelper {
 				log.info("[" + i + "][" + j + "] = " + data[i][j]);
 			}
 		}
+	}
+
+	/**
+	 * Returns true if the score represents a hit, else false.
+	 * 
+	 * Both the data and pssmThreshold are the raw vales as per the rule_N.xml
+	 * file and are internally transformed accordingly.
+	 * 
+	 * @param data
+	 * @param pssmThreshold
+	 * @return
+	 */
+	public static boolean isPssmHit(double[][] data, double pssmThreshold) {
+
+		double score = generateScore(data);
+
+		pssmThreshold = Math.log(pssmThreshold);
+
+		return isHit(score, pssmThreshold);
+	}
+
+	/**
+	 * Checks if the score represents a "hit".
+	 * 
+	 * If score is > threshold, hit, else miss.
+	 * 
+	 * @param score
+	 * @param threshold
+	 * @return boolean
+	 */
+	private static boolean isHit(double score, double threshold) {
+		boolean hit = false;
+
+		if (score >= threshold)
+			hit = true;
+
+		return hit;
+
 	}
 }
