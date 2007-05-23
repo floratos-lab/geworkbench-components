@@ -4,6 +4,7 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -19,7 +20,7 @@ import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 /**
  * 
  * @author keshav
- * @version $Id: MedusaHelper.java,v 1.12 2007-05-23 21:41:25 keshav Exp $
+ * @version $Id: MedusaHelper.java,v 1.13 2007-05-23 22:04:05 keshav Exp $
  */
 public class MedusaHelper {
 
@@ -183,13 +184,41 @@ public class MedusaHelper {
 
 		// TODO get from Leslie team
 		// Map<String, int[]> targetSequenceMap = clazz.getSequences
-		// Collection keys = targetSequenceMap.keyset();
-		// for (String key: keys){
-		// numericSequence = targetSequenceMap.get(key);
-		// }
-		//
+		// TODO remove this test
+		// test
+		Map<String, int[]> targetSequenceMap = new HashMap<String, int[]>();
+		int[] s = new int[21];
+		s[0] = 0;
+		s[1] = 2;
+		s[2] = 2;
+		s[3] = 1;
+		s[4] = 1;
+		s[5] = 3;
+		s[6] = 1;
+		s[7] = 1;
+		s[8] = 2;
+		s[9] = 2;
+		s[10] = 1;
+		s[11] = 1;
+		s[12] = 3;
+		s[13] = 1;
+		s[14] = 1;
+		s[15] = 3;
+		s[16] = 3;
+		s[17] = 2;
+		s[18] = 0;
+		s[19] = 2;
+		s[20] = 0;
+		targetSequenceMap.put("007_at", s);
+		// end test
 
-		for (int i = 0; i < numericSequence.length; i++) {
+		Collection<String> keys = targetSequenceMap.keySet();
+		for (String key : keys) {
+			numericSequence = targetSequenceMap.get(key);
+		}
+
+		int boundary = numericSequence.length - concensusSequence.length() + 1;
+		for (int i = 0; i < boundary; i++) {
 			int start = i;
 			int end = i + (concensusSequence.length());
 			int[] windowSequence = new int[end - start];
@@ -204,7 +233,6 @@ public class MedusaHelper {
 
 				double val = pssm[numericNucleotide][l];
 				score = score + Math.log(val);
-
 			}
 
 			if (isHit(score, threshold))
