@@ -17,7 +17,7 @@ import edu.columbia.ccls.medusa.io.SerializedRule;
  * rule files, generating consensue sequences, etc.
  * 
  * @author keshav
- * @version $Id: PssmTest.java,v 1.1 2007-05-22 04:49:15 keshav Exp $
+ * @version $Id: PssmTest.java,v 1.2 2007-05-23 16:49:07 keshav Exp $
  */
 public class PssmTest extends TestCase {
 	private Log log = LogFactory.getLog(this.getClass());
@@ -25,6 +25,8 @@ public class PssmTest extends TestCase {
 	RuleParser parser = null;
 
 	String rulesPath = "data/test/dataset/pssm/rules/";
+
+	String rulesFile = "rule_0.xml";
 
 	@Override
 	protected void setUp() throws Exception {
@@ -39,7 +41,7 @@ public class PssmTest extends TestCase {
 		boolean fail = false;
 		SerializedRule srule = null;
 		try {
-			srule = RuleParser.read(rulesPath + "rule_0.xml");
+			srule = RuleParser.read(rulesPath + rulesFile);
 		} catch (IOException e) {
 			fail = true;
 			e.printStackTrace();
@@ -71,5 +73,24 @@ public class PssmTest extends TestCase {
 		}
 
 		assertEquals(2, srules.size());
+	}
+
+	public void testIsPssmHit() {
+
+		boolean fail = false;
+		SerializedRule srule = null;
+		try {
+			srule = RuleParser.read(rulesPath + rulesFile);
+		} catch (IOException e) {
+			fail = true;
+			e.printStackTrace();
+		} finally {
+			assertFalse(fail);
+		}
+
+		boolean isHit = MedusaHelper.isPssmHit(srule.getPssm(), srule
+				.getPssmThreshold());
+		assertFalse(isHit);
+
 	}
 }
