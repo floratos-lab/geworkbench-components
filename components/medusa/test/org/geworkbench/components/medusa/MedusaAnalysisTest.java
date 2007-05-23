@@ -19,11 +19,12 @@ import org.geworkbench.bison.datastructure.bioobjects.microarray.CSExpressionMar
 import org.geworkbench.bison.datastructure.bioobjects.microarray.CSMicroarray;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
+import org.geworkbench.components.medusa.gui.MedusaParamPanel;
 
 /**
  * 
  * @author keshav
- * @version $Id: MedusaAnalysisTest.java,v 1.11 2007-05-22 03:03:35 keshav Exp $
+ * @version $Id: MedusaAnalysisTest.java,v 1.12 2007-05-23 16:03:38 keshav Exp $
  */
 public class MedusaAnalysisTest extends TestCase {
 

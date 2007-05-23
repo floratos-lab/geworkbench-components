@@ -17,12 +17,13 @@ import org.geworkbench.bison.datastructure.bioobjects.microarray.CSExpressionMar
 import org.geworkbench.bison.datastructure.bioobjects.microarray.CSMicroarray;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
+import org.geworkbench.components.medusa.gui.MedusaPlugin;
 
 /**
  * GUI tests for the {@link MedusaPlugin}.
  * 
  * @author keshav
- * @version $Id: MedusaPluginTest.java,v 1.3 2007-05-18 21:35:53 keshav Exp $
+ * @version $Id: MedusaPluginTest.java,v 1.4 2007-05-23 16:03:38 keshav Exp $
  */
 public class MedusaPluginTest extends TestCase {
 
