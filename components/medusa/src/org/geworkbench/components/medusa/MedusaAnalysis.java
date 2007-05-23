@@ -19,13 +19,14 @@ import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
 import org.geworkbench.bison.model.analysis.ClusteringAnalysis;
+import org.geworkbench.components.medusa.gui.MedusaParamPanel;
 
 import edu.columbia.ccls.medusa.MedusaLoader;
 
 /**
  * 
  * @author keshav
- * @version $Id: MedusaAnalysis.java,v 1.21 2007-05-22 01:39:04 keshav Exp $
+ * @version $Id: MedusaAnalysis.java,v 1.22 2007-05-23 16:03:18 keshav Exp $
  */
 public class MedusaAnalysis extends AbstractGridAnalysis implements
 		ClusteringAnalysis {
