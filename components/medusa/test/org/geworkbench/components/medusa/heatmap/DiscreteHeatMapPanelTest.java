@@ -8,6 +8,8 @@ import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import javax.swing.JPanel;
 
+import org.geworkbench.components.medusa.gui.DiscreteHeatMapPanel;
+
 import junit.framework.TestCase;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
@@ -16,7 +18,7 @@ import com.jgoodies.forms.layout.FormLayout;
 /**
  * 
  * @author keshav
- * @version $Id: DiscreteHeatMapPanelTest.java,v 1.2 2007-05-22 00:13:07 keshav Exp $
+ * @version $Id: DiscreteHeatMapPanelTest.java,v 1.3 2007-05-23 16:03:38 keshav Exp $
  */
 public class DiscreteHeatMapPanelTest extends TestCase {
 
