@@ -7,7 +7,7 @@ import junit.framework.TestCase;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.geworkbench.components.medusa.MedusaHelper;
+import org.geworkbench.components.medusa.MedusaUtil;
 
 import edu.columbia.ccls.medusa.io.RuleParser;
 import edu.columbia.ccls.medusa.io.SerializedRule;
@@ -17,7 +17,7 @@ import edu.columbia.ccls.medusa.io.SerializedRule;
  * rule files, generating consensue sequences, etc.
  * 
  * @author keshav
- * @version $Id: PssmTest.java,v 1.3 2007-05-23 21:27:54 keshav Exp $
+ * @version $Id: PssmTest.java,v 1.4 2007-05-23 22:06:03 keshav Exp $
  */
 public class PssmTest extends TestCase {
 	private Log log = LogFactory.getLog(this.getClass());
@@ -53,7 +53,7 @@ public class PssmTest extends TestCase {
 
 		// MedusaHelper.printData(data);
 
-		MedusaHelper.generateConsensusSequence(data);
+		MedusaUtil.generateConsensusSequence(data);
 	}
 
 	/**
@@ -93,7 +93,7 @@ public class PssmTest extends TestCase {
 		}
 
 		String targetLabel = null;
-		boolean isHit = MedusaHelper.isHitByPssm(srule.getPssm(), srule
+		boolean isHit = MedusaUtil.isHitByPssm(srule.getPssm(), srule
 				.getPssmThreshold(), targetLabel);
 		assertFalse(isHit);
 

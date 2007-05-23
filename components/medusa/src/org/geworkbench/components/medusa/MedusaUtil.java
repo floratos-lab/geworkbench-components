@@ -20,11 +20,11 @@ import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 /**
  * 
  * @author keshav
- * @version $Id: MedusaHelper.java,v 1.13 2007-05-23 22:04:05 keshav Exp $
+ * @version $Id: MedusaUtil.java,v 1.1 2007-05-23 22:05:33 keshav Exp $
  */
-public class MedusaHelper {
+public class MedusaUtil {
 
-	private static Log log = LogFactory.getLog(MedusaHelper.class);
+	private static Log log = LogFactory.getLog(MedusaUtil.class);
 
 	private static final String TAB_SEPARATOR = "\t";
 
@@ -123,7 +123,7 @@ public class MedusaHelper {
 			sequence.append(currentLetter);
 		}
 
-		log.info("Returning sequence from " + MedusaHelper.class + ": "
+		log.info("Returning sequence from " + MedusaUtil.class + ": "
 				+ sequence);
 
 		return sequence.toString();

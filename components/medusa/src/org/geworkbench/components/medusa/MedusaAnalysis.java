@@ -26,7 +26,7 @@ import edu.columbia.ccls.medusa.MedusaLoader;
 /**
  * 
  * @author keshav
- * @version $Id: MedusaAnalysis.java,v 1.22 2007-05-23 16:03:18 keshav Exp $
+ * @version $Id: MedusaAnalysis.java,v 1.23 2007-05-23 22:05:34 keshav Exp $
  */
 public class MedusaAnalysis extends AbstractGridAnalysis implements
 		ClusteringAnalysis {
@@ -158,7 +158,7 @@ public class MedusaAnalysis extends AbstractGridAnalysis implements
 
 		List<DSGeneMarker> targets = getTargets(params, microarraySetView);
 
-		MedusaHelper.writeMedusaLabelsFile(microarraySetView, params.getLabelsFilePath(),
+		MedusaUtil.writeMedusaLabelsFile(microarraySetView, params.getLabelsFilePath(),
 				regulators, targets);
 	}
 

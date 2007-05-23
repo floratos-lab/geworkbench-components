@@ -123,7 +123,7 @@ public class DiscretizationUtilTest extends TestCase {
 		// MedusaHelper.writeMedusaLabelsFile(discreteView, "data/test/dataset/"
 		// + RandomStringUtils.randomAlphabetic(5) + ".labels",
 		// regulators, targets);
-		MedusaHelper.writeMedusaLabelsFile(discreteView,
+		MedusaUtil.writeMedusaLabelsFile(discreteView,
 				"data/test/dataset/web100_test.labels", regulators, targets);
 
 	}
