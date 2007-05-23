@@ -18,7 +18,7 @@ import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 /**
  * 
  * @author keshav
- * @version $Id: MedusaHelper.java,v 1.7 2007-05-23 16:49:26 keshav Exp $
+ * @version $Id: MedusaHelper.java,v 1.8 2007-05-23 16:49:56 keshav Exp $
  */
 public class MedusaHelper {
 
@@ -229,7 +229,7 @@ public class MedusaHelper {
 	/**
 	 * Checks if the score represents a "hit".
 	 * 
-	 * If score is > threshold, hit, else miss.
+	 * If score is >= threshold, hit, else miss.
 	 * 
 	 * @param score
 	 * @param threshold
