@@ -7,7 +7,6 @@ import java.awt.geom.Rectangle2D;
 import java.io.IOException;
 import java.util.List;
 
-import javax.swing.JCheckBox;
 import javax.swing.JPanel;
 
 import org.geworkbench.components.medusa.MedusaHelper;
@@ -18,7 +17,8 @@ import edu.columbia.ccls.medusa.io.SerializedRule;
 /**
  * 
  * @author keshav
- * @version $Id: DiscreteHitOrMissHeatMapPanel.java,v 1.1 2007-05-23 17:31:22 keshav Exp $
+ * @version $Id: DiscreteHitOrMissHeatMapPanel.java,v 1.1 2007/05/23 17:31:22
+ *          keshav Exp $
  */
 public class DiscreteHitOrMissHeatMapPanel extends JPanel {
 
@@ -33,21 +33,24 @@ public class DiscreteHitOrMissHeatMapPanel extends JPanel {
 
 	private int length = 0;
 
+	private List<String> targetNames = null;
+
 	/**
 	 * 
 	 * @param rulePath
 	 * @param ruleFiles
-	 * @param length
-	 *            Num rows in the data matrix.
+	 * @param targetNames
 	 */
 	public DiscreteHitOrMissHeatMapPanel(String rulePath,
-			List<String> ruleFiles, int length) {
-
-		this.length = length;
+			List<String> ruleFiles, List<String> targetNames) {
 
 		this.rulePath = rulePath;
 
 		this.ruleFiles = ruleFiles;
+
+		this.targetNames = targetNames;
+
+		this.length = targetNames.size();
 
 	}
 
@@ -63,7 +66,7 @@ public class DiscreteHitOrMissHeatMapPanel extends JPanel {
 
 		// TODO abstract me into a DiscreteHitOrMissHeatMap
 		int x = 15;
-		for (int i = 0; i < length; i++) {
+		for (String targetName : targetNames) {
 			int y = 15;
 			for (String ruleFile : ruleFiles) {
 				SerializedRule srule = null;
@@ -73,8 +76,11 @@ public class DiscreteHitOrMissHeatMapPanel extends JPanel {
 					e.printStackTrace();
 				}
 
-				boolean isHit = MedusaHelper.isPssmHit(srule.getPssm(), srule
-						.getPssmThreshold());
+				String consensus = MedusaHelper.generateConsensusSequence(srule
+						.getPssm());
+
+				boolean isHit = MedusaHelper.isHitByPssm(srule.getPssm(), srule
+						.getPssmThreshold(), targetName);
 
 				Rectangle2D.Double rect = new Rectangle2D.Double(x, y, 15, 15);
 				if (isHit)

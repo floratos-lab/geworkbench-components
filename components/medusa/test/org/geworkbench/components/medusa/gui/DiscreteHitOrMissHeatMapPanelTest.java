@@ -1,15 +1,9 @@
 package org.geworkbench.components.medusa.gui;
 
-import java.awt.GridLayout;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.JCheckBox;
 import javax.swing.JDialog;
-import javax.swing.JPanel;
-
-import com.jgoodies.forms.builder.DefaultFormBuilder;
-import com.jgoodies.forms.layout.FormLayout;
 
 import junit.framework.TestCase;
 
@@ -27,7 +21,7 @@ public class DiscreteHitOrMissHeatMapPanelTest extends TestCase {
 
 	private String rulesPath = "data/test/dataset/pssm/rules/";
 
-	private List<String> rulesFiles = new ArrayList();
+	private List<String> rulesFiles = null;
 
 	@Override
 	protected void setUp() {
@@ -57,8 +51,11 @@ public class DiscreteHitOrMissHeatMapPanelTest extends TestCase {
 			names.add(String.valueOf(i));
 		}
 
+		new ArrayList();
 		String rulesFile0 = "rule_0.xml";
 		rulesFiles.add(rulesFile0);
+		String rulesFile1 = "rule_1.xml";
+		rulesFiles.add(rulesFile1);
 	}
 
 	public void testDrawDiscreteHitOrMissHeatMapPanel() {
@@ -66,7 +63,7 @@ public class DiscreteHitOrMissHeatMapPanelTest extends TestCase {
 		// dialog.setLayout(new GridLayout(2, 3));
 
 		DiscreteHitOrMissHeatMapPanel heatMap = new DiscreteHitOrMissHeatMapPanel(
-				rulesPath, rulesFiles, matrix.length);
+				rulesPath, rulesFiles, names);
 
 		dialog.add(heatMap);
 
