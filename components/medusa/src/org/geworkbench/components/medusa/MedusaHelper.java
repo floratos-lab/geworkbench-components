@@ -4,7 +4,6 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -20,7 +19,7 @@ import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 /**
  * 
  * @author keshav
- * @version $Id: MedusaHelper.java,v 1.10 2007-05-23 21:28:38 keshav Exp $
+ * @version $Id: MedusaHelper.java,v 1.11 2007-05-23 21:40:56 keshav Exp $
  */
 public class MedusaHelper {
 
@@ -205,10 +204,10 @@ public class MedusaHelper {
 				double val = pssm[numericNucleotide][l];
 				score = score + Math.log(val);
 
-				if (isHit(score, threshold))
-					return true;
-
 			}
+
+			if (isHit(score, threshold))
+				return true;
 
 		}
 
