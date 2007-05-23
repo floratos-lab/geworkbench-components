@@ -1,4 +1,4 @@
-package org.geworkbench.components.medusa.heatmap;
+package org.geworkbench.components.medusa.gui;
 
 import java.awt.GridLayout;
 import java.util.ArrayList;
@@ -18,7 +18,7 @@ import com.jgoodies.forms.layout.FormLayout;
 /**
  * 
  * @author keshav
- * @version $Id: DiscreteHeatMapPanelTest.java,v 1.3 2007-05-23 16:03:38 keshav Exp $
+ * @version $Id: DiscreteHeatMapPanelTest.java,v 1.1 2007-05-23 16:13:05 keshav Exp $
  */
 public class DiscreteHeatMapPanelTest extends TestCase {
 
