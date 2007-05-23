@@ -19,7 +19,7 @@ import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 /**
  * 
  * @author keshav
- * @version $Id: MedusaHelper.java,v 1.11 2007-05-23 21:40:56 keshav Exp $
+ * @version $Id: MedusaHelper.java,v 1.12 2007-05-23 21:41:25 keshav Exp $
  */
 public class MedusaHelper {
 
@@ -181,6 +181,7 @@ public class MedusaHelper {
 
 		String concensusSequence = generateConsensusSequence(pssm);
 
+		// TODO get from Leslie team
 		// Map<String, int[]> targetSequenceMap = clazz.getSequences
 		// Collection keys = targetSequenceMap.keyset();
 		// for (String key: keys){
