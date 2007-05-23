@@ -9,7 +9,7 @@ import java.util.List;
 
 import javax.swing.JPanel;
 
-import org.geworkbench.components.medusa.MedusaHelper;
+import org.geworkbench.components.medusa.MedusaUtil;
 
 import edu.columbia.ccls.medusa.io.RuleParser;
 import edu.columbia.ccls.medusa.io.SerializedRule;
@@ -76,10 +76,10 @@ public class DiscreteHitOrMissHeatMapPanel extends JPanel {
 					e.printStackTrace();
 				}
 
-				String consensus = MedusaHelper.generateConsensusSequence(srule
+				String consensus = MedusaUtil.generateConsensusSequence(srule
 						.getPssm());
 
-				boolean isHit = MedusaHelper.isHitByPssm(srule.getPssm(), srule
+				boolean isHit = MedusaUtil.isHitByPssm(srule.getPssm(), srule
 						.getPssmThreshold(), targetName);
 
 				Rectangle2D.Double rect = new Rectangle2D.Double(x, y, 15, 15);
