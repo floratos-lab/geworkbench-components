@@ -166,10 +166,14 @@ public class EvidenceIntegrationParamPanel extends AbstractSaveableParameterPane
 */
 
     public void clearEvidence() {
+        ArrayList<Evidence> toRemove = new ArrayList<Evidence>();
         for (Evidence evidence : evidenceSet) {
             if (!evidence.isLoadedFromFile()) {
-                evidenceSet.remove(evidence);
+                toRemove.add(evidence);
             }
+        }
+        for (Evidence evidence : toRemove) {
+            evidenceSet.remove(evidence);
         }
 //        evidenceSet.clear();
         setBooleanRenderers(evidenceTable);
