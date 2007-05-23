@@ -58,9 +58,12 @@ public class DiscreteHitOrMissHeatMapPanelTest extends TestCase {
 		rulesFiles.add(rulesFile1);
 	}
 
+	/**
+	 * 
+	 * 
+	 */
 	public void testDrawDiscreteHitOrMissHeatMapPanel() {
 		JDialog dialog = new JDialog();
-		// dialog.setLayout(new GridLayout(2, 3));
 
 		DiscreteHitOrMissHeatMapPanel heatMap = new DiscreteHitOrMissHeatMapPanel(
 				rulesPath, rulesFiles, names);
