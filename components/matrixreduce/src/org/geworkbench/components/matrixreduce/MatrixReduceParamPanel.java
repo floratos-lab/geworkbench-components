@@ -11,7 +11,7 @@ import java.awt.event.ActionEvent;
 
 import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.forms.builder.DefaultFormBuilder;
-
+import com.jgoodies.forms.layout.CellConstraints;
 /**
  * @author John Watkinson
  *
@@ -33,6 +33,7 @@ MatrixREDUCE -sequence=../sequences/Y5_600_Bst.fa \
 	-max_iteration=1000000 \
 	-num_print=50 \
 	-expression=../data/Spellman1998Alpha
+	
     */
     private JFormattedTextField dyadLength = new JFormattedTextField(3);
     private JFormattedTextField pValue = new JFormattedTextField(0.001);
@@ -46,35 +47,57 @@ MatrixREDUCE -sequence=../sequences/Y5_600_Bst.fa \
     private JFormattedTextField maxIteration = new JFormattedTextField(10);
     private JButton sequenceButton = new JButton("Load...");
     private String sequenceFile = new String("data/Y5_600_Bst.fa");
+	private JLabel filename = new JLabel();
 
     public MatrixReduceParamPanel() {
-        this.setLayout(new BorderLayout());
+        this.setLayout(new GridBagLayout());
+        GridBagConstraints c = new GridBagConstraints();
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.anchor = GridBagConstraints.FIRST_LINE_START;
+        c.gridx =0; c.gridy=0;
+    	filename.setText(sequenceFile);
+    	
+        FormLayout layout0 = new FormLayout(
+      		"right:max(40dlu;pref), 3dlu, right:max(40dlu;pref)",
+        	"");
+        DefaultFormBuilder builder0 = new DefaultFormBuilder(layout0);
+      	builder0.setDefaultDialogBorder();
+      	builder0.appendSeparator("Sequence File");
+      	builder0.append(sequenceButton);
+      	builder0.append(filename);
+
+      	this.add(builder0.getPanel(),c);
+        
         FormLayout layout = new FormLayout(
-                "right:max(40dlu;pref), 3dlu, 40dlu, 7dlu, right:max(40dlu;pref), 3dlu, 40dlu, 7dlu",
-                "");
+        	"right:max(40dlu;pref), 3dlu, 40dlu, 7dlu, right:max(40dlu;pref), 3dlu, 40dlu, 7dlu, right:50dlu",
+        	"");
         DefaultFormBuilder builder = new DefaultFormBuilder(layout);
         builder.setDefaultDialogBorder();
-        builder.appendSeparator("Sequence File");
-        builder.append(sequenceButton);
-        builder.nextRow();
         builder.appendSeparator("Parameters");
         builder.append("Dyad Length", dyadLength);
         builder.append("P Value", pValue);
+        builder.nextRow();
         builder.append("Min Counts", minCounts);
         builder.append("Flank", flank);
+        builder.nextRow();
         builder.append("Min Gap", minGap);
         builder.append("Max Gap", maxGap);
+        builder.nextRow();
         builder.append("Num Print", numPrint);
         builder.append("Single Strand", singleStrand);
+        builder.nextRow();
         builder.append("Max Motif", maxMotif);
         builder.append("Max Iterations", maxIteration);
-        this.add(builder.getPanel());
+        c.weightx = 0.5;
+        c.gridx =0; c.gridy=1;
+        this.add(builder.getPanel(),c);
         sequenceButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 File file = new File(sequenceFile);
                 JFileChooser chooser = new JFileChooser(file.getParentFile());
                 chooser.showOpenDialog(MatrixReduceParamPanel.this);
                 sequenceFile = chooser.getSelectedFile().getPath();
+            	filename.setText(sequenceFile);
             }
         });
     }
