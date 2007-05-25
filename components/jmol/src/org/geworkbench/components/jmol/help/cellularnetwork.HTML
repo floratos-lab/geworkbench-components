@@ -25,21 +25,21 @@
     <p>This help section describes accessing protein interaction data residing in the Cellular Network Knowledge Base (CNKB). The CNKB is a repository of interactions between pairs of proteins (these interactions can be either computationally or experimentally derived). Both direct, physical interactions can be captured as well as indirect transcriptional relationships (where an interaction is between a transcription factor and its gene target). Each pairwise interaction has an associated confidence indicator (a value between 0 and 1) reflecting the strength of the underlying data, whether experimental or computational.</p> 
     <p>The Cellular Network visualization is composed of the following three sections:</p> 
     <p><b>1. </b><b>Activated Marker List: </b></p> 
-    <p><b>. </b>Marker Name: The marker name appears Italized to indicate interaction information has not been retrieved and <b>bold face</b> indicates the interaction information has been retrieved.</p> 
-    <p><b>. </b>Gene Name: This is corresponding to the marker, if known; empty otherwise.</p> 
-    <p><b>. </b>Gene Type (derived from the GO annotation): </p> 
-    <p> . TF : Transcription Factor</p> 
-    <p> . K: Kinase</p> 
-    <p> . P: Phosphatase</p> 
+    <p>Marker Name: The marker name appears Italized to indicate interaction information has not been retrieved and <b>bold face</b> indicates the interaction information has been retrieved.</p> 
+    <p>Gene Name: This is corresponding to the marker, if known; empty otherwise.</p> 
+    <p>Gene Type (derived from the GO annotation): </p> 
+    <p> &#12290; TF : Transcription Factor</p> 
+    <p> &#12290; K: Kinase</p> 
+    <p> &#12290; P: Phosphatase</p> 
     <p><b>2. </b><b>Selected Marker List: </b>Lists the subset of activated markers selected from the Activated Marker List.</p> 
     <p><b>3. </b><b>Throttle Graph: </b>Clicking on P<b>review </b>maps the interactions selected. The graph allows users to throttle (for the genes in the Selected Markers table) which interactions to work with using as a criterion the interactions&#8217; confidence indicator</p> 
-    <p><img width="554" height="369" src="CNKB_help_files/image001.jpg"></p> 
-    <p>Retrieve CNKB the interaction sets</p> 
+    <p><img width="554" height="369" src="cellularnetwork_files/image001.png"></p> 
+    <h3>Retrieve CNKB interaction sets</h3> 
     <p>1. Create an active marker set in the Selection Area of the application (lower left pane). The Activated Marker List is updated to reflect the markers set.</p> 
     <p><b>2. </b>Select one or more markers from the <b>Activated Markers List</b> by double clicking on Marker rows. The Selected Marker List is updated to reflect the markers selected from the <b>Activated Markers List. </b></p> 
     <p>3. Indicate interactions of interest using the checkboxes on each row or the &#8216;All Protein &#8211; DNA&#8217;, &#8216;All Protein-Protein&#8217; checkboxes. <b>Display Preference</b> is used to control how many of the columns listed above they want visible within the Selected Markers List.</p> 
     <p>4. Click <b>Refresh</b>. </p> 
-    <p>. <b>Selected Markers List</b>: The system retrieves from CNKB the interaction sets for all genes in the Selected Markers list. The system updates &#8220;#of Prot-Prot&#8221; and &#8220;# of Prot-DNA&#8221; columns within the Selected Markers table. The numbers are computed as described in the <a href="#SelectedMarkersUpdate">relevant portion</a> of section. </p> 
+    <p>. <b>Selected Markers List</b>: The system retrieves from CNKB the interaction sets for all genes in the Selected Markers list. The system updates &#8220;#of Prot-Prot&#8221; and &#8220;# of Prot-DNA&#8221; columns within the Selected Markers table. </p> 
     <p>. <b>Throttle Graph:</b> Users can select a value for the X-axis by using either the graph slider or Threshold box. Modifying the values of X- axis updated the contents of the Selected Markers table &#8220;Prot-Prot #&#8221; and &#8220;Prot-DNA&#8221; columns.</p> 
     <p>5. Click <b>Create Network</b>. The system builds an adjacency matrix comprising those interactions that were used to compute the contents of non-grayed out cells of the &#8220;Prot-Prot #&#8221; and &#8220;Prot-DNA&#8221; columns in the Selected Markers table. The adjacency matrix is placed in the Project Folders component under its parent microarray dataset and can be viewed in the Cytoscape visualization.</p>
 
