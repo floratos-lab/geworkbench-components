@@ -18,7 +18,7 @@ import com.jgoodies.forms.layout.FormLayout;
 /**
  * 
  * @author keshav
- * @version $Id: MedusaPlugin.java,v 1.1 2007-05-23 16:02:38 keshav Exp $
+ * @version $Id: MedusaPlugin.java,v 1.2 2007-05-30 21:17:57 keshav Exp $
  */
 public class MedusaPlugin extends JPanel {
 
@@ -29,6 +29,12 @@ public class MedusaPlugin extends JPanel {
 
 	private MedusaData medusaData = null;
 
+	private String path = "temp/medusa/dataset/output/run1/";
+
+	private String rulesPath = path + "rules/";
+
+	private List<String> rulesFiles = null;
+
 	public MedusaPlugin(MedusaData medusaData) {
 		super();
 		this.medusaData = medusaData;
@@ -37,9 +43,6 @@ public class MedusaPlugin extends JPanel {
 
 		JPanel motifPanel = new JPanel();
 
-		// MedusaHeatMap heatMap = new MedusaHeatMap(Color.gray, Color.gray,
-		// medusaData);
-		// motifPanel.add(heatMap);
 		int i = 0;
 		List<DSGeneMarker> targets = medusaData.getTargets();
 
@@ -59,22 +62,6 @@ public class MedusaPlugin extends JPanel {
 			regulatorMatrix[j] = data;
 			j++;
 		}
-
-		// int j = 0;
-		// DoubleMatrixNamed namedMatrix = new
-		// DenseDoubleMatrix2DNamed(rawMatrix);
-		// for (DSGeneMarker target : targets) {
-		// namedMatrix.addRowName(target.getLabel(), j);
-		// j++;
-		// }
-		//
-		// for (int k = 0; i < rawMatrix[0].length; k++) {
-		// namedMatrix.addColumnName(String.valueOf(k), k);
-		// }
-
-		// ColorMatrix colorMatrix = new ColorMatrix(namedMatrix);
-		// JMatrixDisplay matrixDisplay = new JMatrixDisplay(colorMatrix);
-		// motifPanel.add(matrixDisplay);
 
 		List<String> targetNames = new ArrayList<String>();
 		for (DSGeneMarker marker : targets) {
@@ -113,10 +100,13 @@ public class MedusaPlugin extends JPanel {
 		}
 		motifPanel.add(regulatorLabelBuilder.getPanel());
 
-		// PUT PSSM HERE
-		DiscreteHeatMapPanel heatMap2 = new DiscreteHeatMapPanel(targetMatrix,
-				1, 0, -1, targetNames, false);
-		motifPanel.add(heatMap2);
+		// PUT HIT OR MISS PSSM HERE
+		this.rulesFiles = new ArrayList<String>();
+		rulesFiles.add("rule_0.xml");
+		rulesFiles.add("rule_1.xml");
+		DiscreteHitOrMissHeatMapPanel hitOrMissPanel = new DiscreteHitOrMissHeatMapPanel(
+				rulesPath, rulesFiles, targetNames, path);
+		motifPanel.add(hitOrMissPanel);
 		// END PSSM
 
 		/* target heat map at postion 1,1 */

@@ -17,10 +17,12 @@ import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetV
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 
+import edu.columbia.ccls.medusa.io.MedusaReader;
+
 /**
  * 
  * @author keshav
- * @version $Id: MedusaUtil.java,v 1.1 2007-05-23 22:05:33 keshav Exp $
+ * @version $Id: MedusaUtil.java,v 1.2 2007-05-30 21:17:57 keshav Exp $
  */
 public class MedusaUtil {
 
@@ -172,9 +174,7 @@ public class MedusaUtil {
 	 * @return boolean
 	 */
 	public static boolean isHitByPssm(double[][] pssm, double threshold,
-			String targetLabel) {
-
-		int[] numericSequence = null;
+			String targetLabel, String sequencePath) {
 
 		double score = 0;
 
@@ -182,40 +182,9 @@ public class MedusaUtil {
 
 		String concensusSequence = generateConsensusSequence(pssm);
 
-		// TODO get from Leslie team
-		// Map<String, int[]> targetSequenceMap = clazz.getSequences
-		// TODO remove this test
-		// test
-		Map<String, int[]> targetSequenceMap = new HashMap<String, int[]>();
-		int[] s = new int[21];
-		s[0] = 0;
-		s[1] = 2;
-		s[2] = 2;
-		s[3] = 1;
-		s[4] = 1;
-		s[5] = 3;
-		s[6] = 1;
-		s[7] = 1;
-		s[8] = 2;
-		s[9] = 2;
-		s[10] = 1;
-		s[11] = 1;
-		s[12] = 3;
-		s[13] = 1;
-		s[14] = 1;
-		s[15] = 3;
-		s[16] = 3;
-		s[17] = 2;
-		s[18] = 0;
-		s[19] = 2;
-		s[20] = 0;
-		targetSequenceMap.put("007_at", s);
-		// end test
-
-		Collection<String> keys = targetSequenceMap.keySet();
-		for (String key : keys) {
-			numericSequence = targetSequenceMap.get(key);
-		}
+		Map<String, int[]> targetSequenceMap = MedusaUtil
+				.getSequences(sequencePath);
+		int[] numericSequence = targetSequenceMap.get(targetLabel);
 
 		int boundary = numericSequence.length - concensusSequence.length() + 1;
 		for (int i = 0; i < boundary; i++) {
@@ -229,7 +198,8 @@ public class MedusaUtil {
 			}
 
 			for (int l = 0; l < windowSequence.length; l++) {
-				int numericNucleotide = windowSequence[l];
+				// -1 since Leslie index starts at 1
+				int numericNucleotide = windowSequence[l] - 1;
 
 				double val = pssm[numericNucleotide][l];
 				score = score + Math.log(val);
@@ -284,5 +254,21 @@ public class MedusaUtil {
 				log.info("[" + i + "][" + j + "] = " + data[i][j]);
 			}
 		}
+	}
+
+	/**
+	 * Returns the sequences used in the medusa run.
+	 * 
+	 * @param sequencePath
+	 * @return Map<String, int[]>
+	 */
+	public static Map<String, int[]> getSequences(String sequencePath) {
+
+		MedusaReader medusaReader = new MedusaReader();
+
+		Map<String, int[]> targetSequenceMap = medusaReader
+				.getCleanFasta(sequencePath);
+
+		return targetSequenceMap;
 	}
 }
