@@ -31,6 +31,8 @@ public class DiscreteHitOrMissHeatMapPanel extends JPanel {
 
 	private List<String> ruleFiles = null;
 
+	private String sequencePath = null;
+
 	private int length = 0;
 
 	private List<String> targetNames = null;
@@ -42,16 +44,18 @@ public class DiscreteHitOrMissHeatMapPanel extends JPanel {
 	 * @param targetNames
 	 */
 	public DiscreteHitOrMissHeatMapPanel(String rulePath,
-			List<String> ruleFiles, List<String> targetNames) {
+			List<String> ruleFiles, List<String> targetNames,
+			String sequencePath) {
 
 		this.rulePath = rulePath;
 
 		this.ruleFiles = ruleFiles;
 
+		this.sequencePath = sequencePath;
+
 		this.targetNames = targetNames;
 
 		this.length = targetNames.size();
-
 	}
 
 	/*
@@ -76,17 +80,15 @@ public class DiscreteHitOrMissHeatMapPanel extends JPanel {
 					e.printStackTrace();
 				}
 
-				String consensus = MedusaUtil.generateConsensusSequence(srule
-						.getPssm());
-
 				boolean isHit = MedusaUtil.isHitByPssm(srule.getPssm(), srule
-						.getPssmThreshold(), targetName);
+						.getPssmThreshold(), targetName, sequencePath);
 
 				Rectangle2D.Double rect = new Rectangle2D.Double(x, y, 15, 15);
 				if (isHit)
 					g2d.setColor(Color.blue);
-				// else
-				// g2d.setColor(Color.black);
+				else
+					g2d.setColor(Color.black);
+
 				g2d.fill(rect);
 				y = y + 15;
 
