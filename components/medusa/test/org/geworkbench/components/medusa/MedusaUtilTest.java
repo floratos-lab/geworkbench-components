@@ -1,4 +1,4 @@
-package org.geworkbench.components.medusa.pssm;
+package org.geworkbench.components.medusa;
 
 import java.io.IOException;
 import java.util.List;
@@ -13,13 +13,13 @@ import edu.columbia.ccls.medusa.io.RuleParser;
 import edu.columbia.ccls.medusa.io.SerializedRule;
 
 /**
- * Tests for pssm related "stuff", such as reading (previously generated) MEDUSA
- * rule files, generating consensue sequences, etc.
+ * Tests the medusa utility such as reading (previously generated) MEDUSA rule
+ * files, generating consensue sequences, etc.
  * 
  * @author keshav
- * @version $Id: PssmTest.java,v 1.4 2007-05-23 22:06:03 keshav Exp $
+ * @version $Id: MedusaUtilTest.java,v 1.1 2007-05-30 21:17:35 keshav Exp $
  */
-public class PssmTest extends TestCase {
+public class MedusaUtilTest extends TestCase {
 	private Log log = LogFactory.getLog(this.getClass());
 
 	RuleParser parser = null;
@@ -27,6 +27,8 @@ public class PssmTest extends TestCase {
 	String rulesPath = "data/test/dataset/pssm/rules/";
 
 	String rulesFile = "rule_0.xml";
+
+	String sequencePath = "data/test/dataset/output/run1";
 
 	@Override
 	protected void setUp() throws Exception {
@@ -94,7 +96,7 @@ public class PssmTest extends TestCase {
 
 		String targetLabel = null;
 		boolean isHit = MedusaUtil.isHitByPssm(srule.getPssm(), srule
-				.getPssmThreshold(), targetLabel);
+				.getPssmThreshold(), targetLabel, sequencePath);
 		assertFalse(isHit);
 
 	}
