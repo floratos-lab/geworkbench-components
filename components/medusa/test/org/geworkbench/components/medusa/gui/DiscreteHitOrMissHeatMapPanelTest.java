@@ -23,6 +23,8 @@ public class DiscreteHitOrMissHeatMapPanelTest extends TestCase {
 
 	private List<String> rulesFiles = null;
 
+	private String sequencePath = "data/test/dataset/output/run1";
+
 	@Override
 	protected void setUp() {
 		row0 = new double[numElements];
@@ -66,7 +68,7 @@ public class DiscreteHitOrMissHeatMapPanelTest extends TestCase {
 		JDialog dialog = new JDialog();
 
 		DiscreteHitOrMissHeatMapPanel heatMap = new DiscreteHitOrMissHeatMapPanel(
-				rulesPath, rulesFiles, names);
+				rulesPath, rulesFiles, names, sequencePath);
 
 		dialog.add(heatMap);
 
