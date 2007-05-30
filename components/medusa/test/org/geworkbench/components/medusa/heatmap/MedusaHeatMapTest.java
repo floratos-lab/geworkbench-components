@@ -14,13 +14,12 @@ import org.geworkbench.bison.datastructure.bioobjects.microarray.CSMicroarray;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.components.medusa.MedusaData;
-import org.geworkbench.components.medusa.heatmap.MedusaHeatMap;
 
 /**
  * A test class for the MedusaHeatMap.
  * 
  * @author keshav
- * @version $Id: MedusaHeatMapTest.java,v 1.1 2007-05-30 21:17:35 keshav Exp $
+ * @version $Id: MedusaHeatMapTest.java,v 1.2 2007-05-30 21:19:51 keshav Exp $
  */
 public class MedusaHeatMapTest extends TestCase {
 
