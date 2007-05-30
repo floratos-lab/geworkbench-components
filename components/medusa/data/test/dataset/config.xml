@@ -23,6 +23,7 @@
     </input>
     <parameters
             stumps_only="false"
+            save_features="true"
             iterations="2"
             is_corrected="false"
             holdout_type="random"
