@@ -22,7 +22,7 @@ import edu.columbia.ccls.medusa.io.SerializedRule;
 /**
  * 
  * @author keshav
- * @version $Id: MedusaUtil.java,v 1.8 2007-05-31 19:09:39 keshav Exp $
+ * @version $Id: MedusaUtil.java,v 1.9 2007-05-31 20:05:56 keshav Exp $
  */
 public class MedusaUtil {
 
@@ -198,7 +198,7 @@ public class MedusaUtil {
 
 		double score = 0;
 
-		threshold = Math.log(threshold);
+		// threshold = Math.log(threshold);
 
 		Map<String, int[]> targetSequenceMap = MedusaUtil
 				.getSequences(sequencePath);
@@ -216,11 +216,12 @@ public class MedusaUtil {
 			}
 
 			for (int l = 0; l < windowSequence.length; l++) {
-				// -1 since Leslie index starts at 1
+				/*-1 since Leslie index starts at 1*/
 				int numericNucleotide = windowSequence[l] - 1;
 
 				double val = pssm[numericNucleotide][l];
-				score = score + Math.log(val);
+				// score = score + Math.log(val);
+				score = score + val;
 			}
 
 			if (isHit(score, threshold))
