@@ -22,7 +22,7 @@ import edu.columbia.ccls.medusa.io.SerializedRule;
 /**
  * 
  * @author keshav
- * @version $Id: MedusaUtil.java,v 1.6 2007-05-31 17:46:37 keshav Exp $
+ * @version $Id: MedusaUtil.java,v 1.7 2007-05-31 18:19:10 keshav Exp $
  */
 public class MedusaUtil {
 
@@ -158,10 +158,11 @@ public class MedusaUtil {
 	}
 
 	/**
-	 * Given the label of a target, returns true if the consensus sequence
-	 * "hits" the sequence of this target. The concensus sequence is created
-	 * internally from the pssm data. This method does not tell you where the
-	 * hit occured, but just that it has occured.
+	 * Given the label of a target, returns true if the consensus sequence,
+	 * which is generated from the supplied pssm, "hits" the sequence of this
+	 * target. The concensus sequence is created internally from the pssm data.
+	 * This method does not tell you where the hit occured, but just that it has
+	 * occured.
 	 * 
 	 * @param pssm
 	 *            The pssm data for a given (generated) rule
@@ -171,20 +172,42 @@ public class MedusaUtil {
 	public static boolean isHitByPssm(double[][] pssm, double threshold,
 			String targetLabel, String sequencePath) {
 
+		String concensusSequence = generateConsensusSequence(pssm);
+
+		return isHitByConsensusSequence(concensusSequence, pssm, threshold,
+				targetLabel, sequencePath);
+
+	}
+
+	/**
+	 * Given the label of a target, returns true if the consensus sequence
+	 * "hits" the sequence of this target. The concensus sequence is created
+	 * internally from the pssm data. This method does not tell you where the
+	 * hit occured, but just that it has occured.
+	 * 
+	 * @param consensusSequence
+	 * @param pssm
+	 * @param threshold
+	 * @param targetLabel
+	 * @param sequencePath
+	 * @return
+	 */
+	public static boolean isHitByConsensusSequence(String consensusSequence,
+			double[][] pssm, double threshold, String targetLabel,
+			String sequencePath) {
+
 		double score = 0;
 
 		threshold = Math.log(threshold);
-
-		String concensusSequence = generateConsensusSequence(pssm);
 
 		Map<String, int[]> targetSequenceMap = MedusaUtil
 				.getSequences(sequencePath);
 		int[] numericSequence = targetSequenceMap.get(targetLabel);
 
-		int boundary = numericSequence.length - concensusSequence.length() + 1;
+		int boundary = numericSequence.length - consensusSequence.length() + 1;
 		for (int i = 0; i < boundary; i++) {
 			int start = i;
-			int end = i + (concensusSequence.length());
+			int end = i + (consensusSequence.length());
 			int[] windowSequence = new int[end - start];
 			int k = 0;
 			for (int j = start; j < end; j++) {
@@ -206,6 +229,7 @@ public class MedusaUtil {
 		}
 
 		return false;
+
 	}
 
 	/**
@@ -270,18 +294,20 @@ public class MedusaUtil {
 		boolean[][] hitOrMissMatrix = new boolean[targetNames.size()][srules
 				.size()];
 
-		int i = 0;
-		for (String targetName : targetNames) {
-			int j = 0;
-			for (SerializedRule srule : srules) {
+		int col = 0;
+		for (SerializedRule srule : srules) {
+			String consensusSequence = generateConsensusSequence(srule
+					.getPssm());
 
-				boolean isHit = MedusaUtil.isHitByPssm(srule.getPssm(), srule
-						.getPssmThreshold(), targetName, sequencePath);
-
-				hitOrMissMatrix[i][j] = isHit;
-				j++;
+			int row = 0;
+			for (String targetName : targetNames) {
+				boolean isHit = MedusaUtil.isHitByConsensusSequence(
+						consensusSequence, srule.getPssm(), srule
+								.getPssmThreshold(), targetName, sequencePath);
+				hitOrMissMatrix[row][col] = isHit;
+				row++;
 			}
-			i++;
+			col++;
 		}
 
 		return hitOrMissMatrix;
