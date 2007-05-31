@@ -11,9 +11,15 @@ import javax.swing.JCheckBox;
 import javax.swing.JPanel;
 
 /**
+ * Creates a discrete heat map panel with the supplied max, medium, and min
+ * values.
+ * <p>
+ * The color scheme has been predefined as max=Color.red, medium=Color.black,
+ * min=Color.green.
+ * 
  * 
  * @author keshav
- * @version $Id: DiscreteHeatMapPanel.java,v 1.2 2007-05-23 17:31:22 keshav Exp $
+ * @version $Id: DiscreteHeatMapPanel.java,v 1.3 2007-05-31 16:41:21 keshav Exp $
  */
 public class DiscreteHeatMapPanel extends JPanel {
 
