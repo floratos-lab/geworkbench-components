@@ -22,7 +22,7 @@ import edu.columbia.ccls.medusa.io.SerializedRule;
 /**
  * 
  * @author keshav
- * @version $Id: MedusaUtil.java,v 1.7 2007-05-31 18:19:10 keshav Exp $
+ * @version $Id: MedusaUtil.java,v 1.8 2007-05-31 19:09:39 keshav Exp $
  */
 public class MedusaUtil {
 
@@ -298,12 +298,13 @@ public class MedusaUtil {
 		for (SerializedRule srule : srules) {
 			String consensusSequence = generateConsensusSequence(srule
 					.getPssm());
+			double threshold = srule.getPssmThreshold();
 
 			int row = 0;
 			for (String targetName : targetNames) {
 				boolean isHit = MedusaUtil.isHitByConsensusSequence(
-						consensusSequence, srule.getPssm(), srule
-								.getPssmThreshold(), targetName, sequencePath);
+						consensusSequence, srule.getPssm(), threshold,
+						targetName, sequencePath);
 				hitOrMissMatrix[row][col] = isHit;
 				row++;
 			}
