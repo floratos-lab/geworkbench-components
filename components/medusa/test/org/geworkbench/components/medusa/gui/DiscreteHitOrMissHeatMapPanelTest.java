@@ -23,7 +23,7 @@ public class DiscreteHitOrMissHeatMapPanelTest extends TestCase {
 
 	private List<String> rulesFiles = null;
 
-	private String sequencePath = "data/test/dataset/output/run1";
+	private String sequencePath = "data/test/dataset/pssm/run1";
 
 	@Override
 	protected void setUp() {
@@ -53,7 +53,7 @@ public class DiscreteHitOrMissHeatMapPanelTest extends TestCase {
 			names.add(String.valueOf(i));
 		}
 
-		new ArrayList();
+		rulesFiles = new ArrayList();
 		String rulesFile0 = "rule_0.xml";
 		rulesFiles.add(rulesFile0);
 		String rulesFile1 = "rule_1.xml";
