@@ -37,6 +37,10 @@ public class DiscreteHitOrMissHeatMapPanel extends JPanel {
 
 	private List<String> targetNames = null;
 
+	private boolean[][] hitOrMissMatrix = null;
+
+	private boolean painted = false;
+
 	/**
 	 * 
 	 * @param rulePath
@@ -64,36 +68,73 @@ public class DiscreteHitOrMissHeatMapPanel extends JPanel {
 	 * @see javax.swing.JComponent#paintComponent(java.awt.Graphics)
 	 */
 	public void paintComponent(Graphics g) {
+
 		clear(g);
 
 		Graphics2D g2d = (Graphics2D) g;
 
-		// TODO abstract me into a DiscreteHitOrMissHeatMap
-		int row = 15;
-		for (String targetName : targetNames) {
-			int col = 15;
-			for (String ruleFile : ruleFiles) {
-				SerializedRule srule = null;
-				try {
-					srule = RuleParser.read(rulePath + ruleFile);
-				} catch (IOException e) {
-					e.printStackTrace();
+		if (!painted) {
+			painted = true;
+
+			hitOrMissMatrix = new boolean[targetNames.size()][ruleFiles.size()];
+
+			// TODO abstract me into a DiscreteHitOrMissHeatMap
+			int i = 0;
+			int row = 15;
+			for (String targetName : targetNames) {
+				int j = 0;
+				int col = 15;
+				for (String ruleFile : ruleFiles) {
+					SerializedRule srule = null;
+					try {
+						srule = RuleParser.read(rulePath + ruleFile);
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+
+					boolean isHit = MedusaUtil.isHitByPssm(srule.getPssm(),
+							srule.getPssmThreshold(), targetName, sequencePath);
+
+					hitOrMissMatrix[i][j] = isHit;
+
+					Rectangle2D.Double rect = new Rectangle2D.Double(col, row,
+							15, 15);
+					if (isHit)
+						g2d.setColor(Color.blue);
+					else
+						g2d.setColor(Color.black);
+
+					g2d.fill(rect);
+
+					j++;
+					col = col + 15;
+
 				}
-
-				boolean isHit = MedusaUtil.isHitByPssm(srule.getPssm(), srule
-						.getPssmThreshold(), targetName, sequencePath);
-
-				Rectangle2D.Double rect = new Rectangle2D.Double(col, row, 15, 15);
-				if (isHit)
-					g2d.setColor(Color.blue);
-				else
-					g2d.setColor(Color.black);
-
-				g2d.fill(rect);
-				col = col + 15;
-
+				i++;
+				row = row + 15;
 			}
-			row = row + 15;
+		}
+
+		else {
+			int row = 15;
+			for (int i = 0; i < targetNames.size(); i++) {
+				int col = 15;
+				for (int j = 0; j < ruleFiles.size(); j++) {
+					boolean isHit = hitOrMissMatrix[i][j];
+
+					Rectangle2D.Double rect = new Rectangle2D.Double(col, row,
+							15, 15);
+					if (isHit)
+						g2d.setColor(Color.blue);
+					else
+						g2d.setColor(Color.black);
+
+					g2d.fill(rect);
+					col = col + 15;
+				}
+				row = row + 15;
+			}
+
 		}
 	}
 
@@ -102,7 +143,7 @@ public class DiscreteHitOrMissHeatMapPanel extends JPanel {
 	 * @param g
 	 */
 	protected void clear(Graphics g) {
-		//super.paintComponent(g);
+		super.paintComponent(g);
 	}
 
 }
