@@ -4,7 +4,6 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -18,11 +17,13 @@ import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 
 import edu.columbia.ccls.medusa.io.MedusaReader;
+import edu.columbia.ccls.medusa.io.RuleParser;
+import edu.columbia.ccls.medusa.io.SerializedRule;
 
 /**
  * 
  * @author keshav
- * @version $Id: MedusaUtil.java,v 1.3 2007-05-31 14:30:59 keshav Exp $
+ * @version $Id: MedusaUtil.java,v 1.4 2007-05-31 16:32:37 keshav Exp $
  */
 public class MedusaUtil {
 
@@ -137,12 +138,12 @@ public class MedusaUtil {
 	 */
 	private static Map<String, Double> sortMapByValueDecreasing(
 			Map<String, Double> dataMap) {
-		List<String> mapKeys = new ArrayList(dataMap.keySet());
-		List<Double> mapValues = new ArrayList(dataMap.values());
+		List<String> mapKeys = new ArrayList<String>(dataMap.keySet());
+		List<Double> mapValues = new ArrayList<Double>(dataMap.values());
 
 		dataMap.clear();
 
-		TreeSet sortedSet = new TreeSet(mapValues);
+		TreeSet<Double> sortedSet = new TreeSet<Double>(mapValues);
 
 		Object[] sortedArray = sortedSet.toArray();
 
@@ -267,5 +268,43 @@ public class MedusaUtil {
 				.getCleanFasta(sequencePath);
 
 		return targetSequenceMap;
+	}
+
+	/**
+	 * Initializes the matrix of booleans which shows if the consensus sequences
+	 * has a hit or miss anywhere along the upstream region of gene target.
+	 * 
+	 * @param targetNames
+	 * @param ruleFiles
+	 * @param rulePath
+	 * @param sequencePath
+	 * @return
+	 */
+	public static boolean[][] generateHitOrMissMatrix(List<String> targetNames,
+			List<String> ruleFiles, String rulePath, String sequencePath) {
+		boolean[][] hitOrMissMatrix = new boolean[targetNames.size()][ruleFiles
+				.size()];
+		int i = 0;
+		for (String targetName : targetNames) {
+			int j = 0;
+			for (String ruleFile : ruleFiles) {
+				SerializedRule srule = null;
+				try {
+					srule = RuleParser.read(rulePath + ruleFile);
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+
+				boolean isHit = MedusaUtil.isHitByPssm(srule.getPssm(), srule
+						.getPssmThreshold(), targetName, sequencePath);
+
+				hitOrMissMatrix[i][j] = isHit;
+
+				j++;
+			}
+			i++;
+		}
+
+		return hitOrMissMatrix;
 	}
 }

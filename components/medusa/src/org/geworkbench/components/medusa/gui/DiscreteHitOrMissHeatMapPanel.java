@@ -4,15 +4,11 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.geom.Rectangle2D;
-import java.io.IOException;
 import java.util.List;
 
 import javax.swing.JPanel;
 
 import org.geworkbench.components.medusa.MedusaUtil;
-
-import edu.columbia.ccls.medusa.io.RuleParser;
-import edu.columbia.ccls.medusa.io.SerializedRule;
 
 /**
  * 
@@ -33,13 +29,9 @@ public class DiscreteHitOrMissHeatMapPanel extends JPanel {
 
 	private String sequencePath = null;
 
-	private int length = 0;
-
 	private List<String> targetNames = null;
 
 	private boolean[][] hitOrMissMatrix = null;
-
-	private boolean painted = false;
 
 	/**
 	 * 
@@ -59,7 +51,8 @@ public class DiscreteHitOrMissHeatMapPanel extends JPanel {
 
 		this.targetNames = targetNames;
 
-		this.length = targetNames.size();
+		hitOrMissMatrix = MedusaUtil.generateHitOrMissMatrix(targetNames,
+				ruleFiles, rulePath, sequencePath);
 	}
 
 	/*
@@ -73,68 +66,23 @@ public class DiscreteHitOrMissHeatMapPanel extends JPanel {
 
 		Graphics2D g2d = (Graphics2D) g;
 
-		if (!painted) {
-			painted = true;
+		int row = 15;
+		for (int i = 0; i < targetNames.size(); i++) {
+			int col = 15;
+			for (int j = 0; j < ruleFiles.size(); j++) {
+				boolean isHit = hitOrMissMatrix[i][j];
 
-			hitOrMissMatrix = new boolean[targetNames.size()][ruleFiles.size()];
+				Rectangle2D.Double rect = new Rectangle2D.Double(col, row, 15,
+						15);
+				if (isHit)
+					g2d.setColor(Color.blue);
+				else
+					g2d.setColor(Color.black);
 
-			// TODO abstract me into a DiscreteHitOrMissHeatMap
-			int i = 0;
-			int row = 15;
-			for (String targetName : targetNames) {
-				int j = 0;
-				int col = 15;
-				for (String ruleFile : ruleFiles) {
-					SerializedRule srule = null;
-					try {
-						srule = RuleParser.read(rulePath + ruleFile);
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
-
-					boolean isHit = MedusaUtil.isHitByPssm(srule.getPssm(),
-							srule.getPssmThreshold(), targetName, sequencePath);
-
-					hitOrMissMatrix[i][j] = isHit;
-
-					Rectangle2D.Double rect = new Rectangle2D.Double(col, row,
-							15, 15);
-					if (isHit)
-						g2d.setColor(Color.blue);
-					else
-						g2d.setColor(Color.black);
-
-					g2d.fill(rect);
-
-					j++;
-					col = col + 15;
-
-				}
-				i++;
-				row = row + 15;
+				g2d.fill(rect);
+				col = col + 15;
 			}
-		}
-
-		else {
-			int row = 15;
-			for (int i = 0; i < targetNames.size(); i++) {
-				int col = 15;
-				for (int j = 0; j < ruleFiles.size(); j++) {
-					boolean isHit = hitOrMissMatrix[i][j];
-
-					Rectangle2D.Double rect = new Rectangle2D.Double(col, row,
-							15, 15);
-					if (isHit)
-						g2d.setColor(Color.blue);
-					else
-						g2d.setColor(Color.black);
-
-					g2d.fill(rect);
-					col = col + 15;
-				}
-				row = row + 15;
-			}
-
+			row = row + 15;
 		}
 	}
 
