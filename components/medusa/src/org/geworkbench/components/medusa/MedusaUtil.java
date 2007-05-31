@@ -22,7 +22,7 @@ import edu.columbia.ccls.medusa.io.SerializedRule;
 /**
  * 
  * @author keshav
- * @version $Id: MedusaUtil.java,v 1.5 2007-05-31 16:57:30 keshav Exp $
+ * @version $Id: MedusaUtil.java,v 1.6 2007-05-31 17:46:37 keshav Exp $
  */
 public class MedusaUtil {
 
@@ -261,36 +261,50 @@ public class MedusaUtil {
 	 * has a hit or miss anywhere along the upstream region of gene target.
 	 * 
 	 * @param targetNames
-	 * @param ruleFiles
-	 * @param rulePath
+	 * @param srules
 	 * @param sequencePath
 	 * @return
 	 */
 	public static boolean[][] generateHitOrMissMatrix(List<String> targetNames,
-			List<String> ruleFiles, String rulePath, String sequencePath) {
-		boolean[][] hitOrMissMatrix = new boolean[targetNames.size()][ruleFiles
+			List<SerializedRule> srules, String sequencePath) {
+		boolean[][] hitOrMissMatrix = new boolean[targetNames.size()][srules
 				.size()];
+
 		int i = 0;
 		for (String targetName : targetNames) {
 			int j = 0;
-			for (String ruleFile : ruleFiles) {
-				SerializedRule srule = null;
-				try {
-					srule = RuleParser.read(rulePath + ruleFile);
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
+			for (SerializedRule srule : srules) {
 
 				boolean isHit = MedusaUtil.isHitByPssm(srule.getPssm(), srule
 						.getPssmThreshold(), targetName, sequencePath);
 
 				hitOrMissMatrix[i][j] = isHit;
-
 				j++;
 			}
 			i++;
 		}
 
 		return hitOrMissMatrix;
+	}
+
+	/**
+	 * 
+	 * @param ruleFiles
+	 * @param rulePath
+	 * @return
+	 */
+	public static ArrayList<SerializedRule> getSerializedRules(
+			List<String> ruleFiles, String rulePath) {
+		ArrayList<SerializedRule> srules = new ArrayList<SerializedRule>();
+		for (String ruleFile : ruleFiles) {
+			SerializedRule srule = null;
+			try {
+				srule = RuleParser.read(rulePath + ruleFile);
+				srules.add(srule);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		return srules;
 	}
 }
