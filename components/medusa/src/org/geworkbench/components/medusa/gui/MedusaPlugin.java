@@ -16,9 +16,10 @@ import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.layout.FormLayout;
 
 /**
+ * This plugin sets the layout for the MEDUSA visualization.
  * 
  * @author keshav
- * @version $Id: MedusaPlugin.java,v 1.2 2007-05-30 21:17:57 keshav Exp $
+ * @version $Id: MedusaPlugin.java,v 1.3 2007-05-31 16:10:34 keshav Exp $
  */
 public class MedusaPlugin extends JPanel {
 
