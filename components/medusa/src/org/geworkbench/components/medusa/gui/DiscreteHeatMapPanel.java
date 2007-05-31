@@ -19,7 +19,7 @@ import javax.swing.JPanel;
  * 
  * 
  * @author keshav
- * @version $Id: DiscreteHeatMapPanel.java,v 1.3 2007-05-31 16:41:21 keshav Exp $
+ * @version $Id: DiscreteHeatMapPanel.java,v 1.4 2007-05-31 16:41:45 keshav Exp $
  */
 public class DiscreteHeatMapPanel extends JPanel {
 
@@ -42,6 +42,15 @@ public class DiscreteHeatMapPanel extends JPanel {
 
 	private boolean showLabels = false;
 
+	/**
+	 * 
+	 * @param matrix
+	 * @param max
+	 * @param medium
+	 * @param min
+	 * @param names
+	 * @param showLabels
+	 */
 	public DiscreteHeatMapPanel(double[][] matrix, double max, double medium,
 			double min, List<String> names, boolean showLabels) {
 
