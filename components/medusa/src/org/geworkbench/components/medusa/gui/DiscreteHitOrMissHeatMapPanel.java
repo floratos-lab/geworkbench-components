@@ -69,9 +69,9 @@ public class DiscreteHitOrMissHeatMapPanel extends JPanel {
 		Graphics2D g2d = (Graphics2D) g;
 
 		// TODO abstract me into a DiscreteHitOrMissHeatMap
-		int x = 15;
+		int row = 15;
 		for (String targetName : targetNames) {
-			int y = 15;
+			int col = 15;
 			for (String ruleFile : ruleFiles) {
 				SerializedRule srule = null;
 				try {
@@ -83,17 +83,17 @@ public class DiscreteHitOrMissHeatMapPanel extends JPanel {
 				boolean isHit = MedusaUtil.isHitByPssm(srule.getPssm(), srule
 						.getPssmThreshold(), targetName, sequencePath);
 
-				Rectangle2D.Double rect = new Rectangle2D.Double(x, y, 15, 15);
+				Rectangle2D.Double rect = new Rectangle2D.Double(col, row, 15, 15);
 				if (isHit)
 					g2d.setColor(Color.blue);
 				else
 					g2d.setColor(Color.black);
 
 				g2d.fill(rect);
-				y = y + 15;
+				col = col + 15;
 
 			}
-			x = x + 15;
+			row = row + 15;
 		}
 	}
 
@@ -102,7 +102,7 @@ public class DiscreteHitOrMissHeatMapPanel extends JPanel {
 	 * @param g
 	 */
 	protected void clear(Graphics g) {
-		super.paintComponent(g);
+		//super.paintComponent(g);
 	}
 
 }

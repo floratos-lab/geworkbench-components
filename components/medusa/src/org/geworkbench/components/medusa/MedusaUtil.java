@@ -22,7 +22,7 @@ import edu.columbia.ccls.medusa.io.MedusaReader;
 /**
  * 
  * @author keshav
- * @version $Id: MedusaUtil.java,v 1.2 2007-05-30 21:17:57 keshav Exp $
+ * @version $Id: MedusaUtil.java,v 1.3 2007-05-31 14:30:59 keshav Exp $
  */
 public class MedusaUtil {
 
@@ -124,9 +124,6 @@ public class MedusaUtil {
 
 			sequence.append(currentLetter);
 		}
-
-		log.info("Returning sequence from " + MedusaUtil.class + ": "
-				+ sequence);
 
 		return sequence.toString();
 
