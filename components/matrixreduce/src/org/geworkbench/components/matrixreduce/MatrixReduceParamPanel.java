@@ -83,9 +83,9 @@ MatrixREDUCE -sequence=../sequences/Y5_600_Bst.fa \
         builder.append("Min Gap", minGap);
         builder.append("Max Gap", maxGap);
         builder.nextRow();
-        builder.append("Num Print", numPrint);
-        builder.append("Single Strand", singleStrand);
-        builder.nextRow();
+        //builder.append("Num Print", numPrint);
+        //builder.append("Single Strand", singleStrand);
+        //builder.nextRow();
         builder.append("Max Motif", maxMotif);
         builder.append("Max Iterations", maxIteration);
         c.weightx = 0.5;
