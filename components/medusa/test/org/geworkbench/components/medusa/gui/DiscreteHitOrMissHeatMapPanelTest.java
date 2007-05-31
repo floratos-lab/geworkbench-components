@@ -50,7 +50,7 @@ public class DiscreteHitOrMissHeatMapPanelTest extends TestCase {
 
 		names = new ArrayList<String>();
 		for (int i = 0; i < numElements; i++) {
-			names.add(String.valueOf(i));
+			names.add("gene_label_" + i);
 		}
 
 		rulesFiles = new ArrayList();
