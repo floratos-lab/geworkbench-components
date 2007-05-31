@@ -4,11 +4,14 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.geom.Rectangle2D;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JPanel;
 
 import org.geworkbench.components.medusa.MedusaUtil;
+
+import edu.columbia.ccls.medusa.io.SerializedRule;
 
 /**
  * 
@@ -51,8 +54,11 @@ public class DiscreteHitOrMissHeatMapPanel extends JPanel {
 
 		this.targetNames = targetNames;
 
+		ArrayList<SerializedRule> srules = MedusaUtil.getSerializedRules(
+				ruleFiles, rulePath);
+
 		hitOrMissMatrix = MedusaUtil.generateHitOrMissMatrix(targetNames,
-				ruleFiles, rulePath, sequencePath);
+				srules, sequencePath);
 	}
 
 	/*
