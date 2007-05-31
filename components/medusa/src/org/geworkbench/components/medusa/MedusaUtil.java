@@ -4,7 +4,6 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,15 +22,13 @@ import edu.columbia.ccls.medusa.io.SerializedRule;
 /**
  * 
  * @author keshav
- * @version $Id: MedusaUtil.java,v 1.4 2007-05-31 16:32:37 keshav Exp $
+ * @version $Id: MedusaUtil.java,v 1.5 2007-05-31 16:57:30 keshav Exp $
  */
 public class MedusaUtil {
 
 	private static Log log = LogFactory.getLog(MedusaUtil.class);
 
 	private static final String TAB_SEPARATOR = "\t";
-
-	private static final Map<Integer, Character> nucleotideCache = new HashMap<Integer, Character>();
 
 	/**
 	 * Creates a labels file.
@@ -228,17 +225,6 @@ public class MedusaUtil {
 
 		return hit;
 
-	}
-
-	/**
-	 * 
-	 * 
-	 */
-	private static void initNucleotideCache() {
-		nucleotideCache.put(0, 'A');
-		nucleotideCache.put(1, 'C');
-		nucleotideCache.put(2, 'C');
-		nucleotideCache.put(3, 'T');
 	}
 
 	/**
