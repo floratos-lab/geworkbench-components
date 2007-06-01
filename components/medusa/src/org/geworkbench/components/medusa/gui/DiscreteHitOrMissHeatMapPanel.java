@@ -120,7 +120,7 @@ public class DiscreteHitOrMissHeatMapPanel extends JPanel {
 	 *            The (incremental) column where the text should be drawn.
 	 */
 	private void drawColumnNames(String label, Graphics2D g2d, int row, int lcol) {
-
+		// TODO move method into a "gui util" class
 		AffineTransform fontAT = new AffineTransform();
 
 		/* slant text backwards */
