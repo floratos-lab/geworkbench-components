@@ -19,7 +19,7 @@ import com.jgoodies.forms.layout.FormLayout;
  * This plugin sets the layout for the MEDUSA visualization.
  * 
  * @author keshav
- * @version $Id: MedusaPlugin.java,v 1.3 2007-05-31 16:10:34 keshav Exp $
+ * @version $Id: MedusaPlugin.java,v 1.4 2007-06-01 13:51:30 keshav Exp $
  */
 public class MedusaPlugin extends JPanel {
 
@@ -101,14 +101,14 @@ public class MedusaPlugin extends JPanel {
 		}
 		motifPanel.add(regulatorLabelBuilder.getPanel());
 
-		// PUT HIT OR MISS PSSM HERE
+		/* discrete hit or miss heat map */
 		this.rulesFiles = new ArrayList<String>();
-		rulesFiles.add("rule_0.xml");
-		rulesFiles.add("rule_1.xml");
+		for (int k = 0; k < 5; k++) {
+			rulesFiles.add("rule_" + k + ".xml");
+		}
 		DiscreteHitOrMissHeatMapPanel hitOrMissPanel = new DiscreteHitOrMissHeatMapPanel(
 				rulesPath, rulesFiles, targetNames, path);
 		motifPanel.add(hitOrMissPanel);
-		// END PSSM
 
 		/* target heat map at postion 1,1 */
 		DiscreteHeatMapPanel targetHeatMap = new DiscreteHeatMapPanel(
