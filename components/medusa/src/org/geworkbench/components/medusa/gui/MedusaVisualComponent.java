@@ -17,9 +17,11 @@ import org.geworkbench.engine.management.Subscribe;
 import org.geworkbench.events.ProjectEvent;
 
 /**
+ * The visual component for MEDUSA. When receiving a project event, the
+ * {@link MedusaPlugin} is created and added.
  * 
  * @author keshav
- * @version $Id: MedusaVisualComponent.java,v 1.1 2007-05-23 16:02:38 keshav Exp $
+ * @version $Id: MedusaVisualComponent.java,v 1.2 2007-06-01 18:28:58 keshav Exp $
  */
 @AcceptTypes(MedusaDataSet.class)
 public class MedusaVisualComponent implements VisualPlugin {
@@ -33,14 +35,28 @@ public class MedusaVisualComponent implements VisualPlugin {
 
 	private ArrayList<DSGeneMarker> selectedMarkers;
 
+	/**
+	 * 
+	 * 
+	 */
 	public MedusaVisualComponent() {
 		plugin = new JPanel(new BorderLayout());
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.geworkbench.engine.config.VisualPlugin#getComponent()
+	 */
 	public Component getComponent() {
 		return plugin;
 	}
 
+	/**
+	 * 
+	 * @param projectEvent
+	 * @param source
+	 */
 	@Subscribe
 	public void receive(ProjectEvent projectEvent, Object source) {
 		log.debug("MEDUSA received project event.");
