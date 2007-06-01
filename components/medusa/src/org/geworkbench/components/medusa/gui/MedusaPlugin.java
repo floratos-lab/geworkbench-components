@@ -19,7 +19,7 @@ import com.jgoodies.forms.layout.FormLayout;
  * This plugin sets the layout for the MEDUSA visualization.
  * 
  * @author keshav
- * @version $Id: MedusaPlugin.java,v 1.4 2007-06-01 13:51:30 keshav Exp $
+ * @version $Id: MedusaPlugin.java,v 1.5 2007-06-01 19:36:53 keshav Exp $
  */
 public class MedusaPlugin extends JPanel {
 
@@ -112,12 +112,12 @@ public class MedusaPlugin extends JPanel {
 
 		/* target heat map at postion 1,1 */
 		DiscreteHeatMapPanel targetHeatMap = new DiscreteHeatMapPanel(
-				targetMatrix, 1, 0, -1, targetNames, true);
+				targetMatrix, 1, 0, -1, targetNames, true, 120);
 		motifPanel.add(targetHeatMap);
 
-		/* target labels at position 0,2 */
+		/* target labels at position 1,2 */
 		FormLayout targetLabelLayout = new FormLayout("pref,60dlu", // columns
-				"5dlu"); // add rows dynamically
+				"75dlu"); // add rows dynamically
 		DefaultFormBuilder targetLabelBuilder = new DefaultFormBuilder(
 				targetLabelLayout);
 		targetLabelBuilder.nextRow();
