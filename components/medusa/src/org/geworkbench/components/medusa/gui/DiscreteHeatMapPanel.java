@@ -19,7 +19,7 @@ import javax.swing.JPanel;
  * 
  * 
  * @author keshav
- * @version $Id: DiscreteHeatMapPanel.java,v 1.4 2007-05-31 16:41:45 keshav Exp $
+ * @version $Id: DiscreteHeatMapPanel.java,v 1.5 2007-06-01 19:31:59 keshav Exp $
  */
 public class DiscreteHeatMapPanel extends JPanel {
 
@@ -42,6 +42,8 @@ public class DiscreteHeatMapPanel extends JPanel {
 
 	private boolean showLabels = false;
 
+	private int colLabelPadding = 0;
+
 	/**
 	 * 
 	 * @param matrix
@@ -49,10 +51,27 @@ public class DiscreteHeatMapPanel extends JPanel {
 	 * @param medium
 	 * @param min
 	 * @param names
-	 * @param showLabels
+	 * @param showRowLabels
 	 */
 	public DiscreteHeatMapPanel(double[][] matrix, double max, double medium,
-			double min, List<String> names, boolean showLabels) {
+			double min, List<String> names, boolean showRowLabels) {
+
+		this(matrix, max, medium, min, names, showRowLabels, 15);
+
+	}
+
+	/**
+	 * 
+	 * @param matrix
+	 * @param max
+	 * @param medium
+	 * @param min
+	 * @param names
+	 * @param showRowLabels
+	 */
+	public DiscreteHeatMapPanel(double[][] matrix, double max, double medium,
+			double min, List<String> names, boolean showRowLabels,
+			int colLabelPadding) {
 
 		this.setLayout(new GridBagLayout());
 		this.matrix = matrix;
@@ -61,7 +80,8 @@ public class DiscreteHeatMapPanel extends JPanel {
 		this.medium = medium;
 		this.min = min;
 		this.names = names;
-		this.showLabels = showLabels;
+		this.showLabels = showRowLabels;
+		this.colLabelPadding = colLabelPadding;
 
 	}
 
@@ -76,7 +96,7 @@ public class DiscreteHeatMapPanel extends JPanel {
 		Graphics2D g2d = (Graphics2D) g;
 
 		// TODO abstract me into a DiscreteHeatMap
-		int y = 15;
+		int y = colLabelPadding;
 		for (int h = 0; h < matrix.length; h++) {
 			JCheckBox checkBox = new JCheckBox();
 			checkBox.setText(names.get(h));
@@ -100,7 +120,6 @@ public class DiscreteHeatMapPanel extends JPanel {
 
 			y = y + 15;
 			if (showLabels) {
-				// this.add(checkBox);
 				g2d.setColor(Color.black);
 				g2d.drawString(names.get(h), x, y);
 			}
