@@ -1,8 +1,12 @@
 package org.geworkbench.components.medusa.gui;
 
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.font.FontRenderContext;
+import java.awt.font.TextLayout;
+import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.List;
@@ -34,6 +38,8 @@ public class DiscreteHitOrMissHeatMapPanel extends JPanel {
 
 	private List<String> targetNames = null;
 
+	private ArrayList<SerializedRule> srules = null;
+
 	private boolean[][] hitOrMissMatrix = null;
 
 	/**
@@ -54,8 +60,7 @@ public class DiscreteHitOrMissHeatMapPanel extends JPanel {
 
 		this.targetNames = targetNames;
 
-		ArrayList<SerializedRule> srules = MedusaUtil.getSerializedRules(
-				ruleFiles, rulePath);
+		srules = MedusaUtil.getSerializedRules(ruleFiles, rulePath);
 
 		hitOrMissMatrix = MedusaUtil.generateHitOrMissMatrix(targetNames,
 				srules, sequencePath);
@@ -71,6 +76,28 @@ public class DiscreteHitOrMissHeatMapPanel extends JPanel {
 		clear(g);
 
 		Graphics2D g2d = (Graphics2D) g;
+
+		int lcol = 25;
+		int lrow = 15;
+		for (SerializedRule srule : srules) {
+
+			String sequence = MedusaUtil.generateConsensusSequence(srule
+					.getPssm());
+
+			AffineTransform fontAT = new AffineTransform();
+
+			/* slant text backwards */
+			// fontAT.shear(0.2, 0.0);
+			/* counter-clockwise 90 degrees */
+			fontAT.setToRotation(Math.PI * 3.0f / 2.0f);
+
+			FontRenderContext frc = g2d.getFontRenderContext();
+			Font font = new Font("Ariel", Font.PLAIN, 10);
+			Font theDerivedFont = font.deriveFont(fontAT);
+			TextLayout tstring = new TextLayout(sequence, theDerivedFont, frc);
+			tstring.draw(g2d, lcol, lrow);
+			lcol = lcol + 15;
+		}
 
 		int row = 15;
 		for (int i = 0; i < targetNames.size(); i++) {
