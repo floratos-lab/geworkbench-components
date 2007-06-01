@@ -13,6 +13,8 @@ import java.util.List;
 
 import javax.swing.JPanel;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.geworkbench.components.medusa.MedusaUtil;
 
 import edu.columbia.ccls.medusa.io.SerializedRule;
@@ -29,6 +31,8 @@ public class DiscreteHitOrMissHeatMapPanel extends JPanel {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
+
+	private Log log = LogFactory.getLog(this.getClass());
 
 	private String rulePath = null;
 
@@ -77,29 +81,16 @@ public class DiscreteHitOrMissHeatMapPanel extends JPanel {
 
 		Graphics2D g2d = (Graphics2D) g;
 
+		int row = 120;
 		int lcol = 25;
-		int lrow = 15;
 		for (SerializedRule srule : srules) {
 
 			String sequence = MedusaUtil.generateConsensusSequence(srule
 					.getPssm());
-
-			AffineTransform fontAT = new AffineTransform();
-
-			/* slant text backwards */
-			// fontAT.shear(0.2, 0.0);
-			/* counter-clockwise 90 degrees */
-			fontAT.setToRotation(Math.PI * 3.0f / 2.0f);
-
-			FontRenderContext frc = g2d.getFontRenderContext();
-			Font font = new Font("Ariel", Font.PLAIN, 10);
-			Font theDerivedFont = font.deriveFont(fontAT);
-			TextLayout tstring = new TextLayout(sequence, theDerivedFont, frc);
-			tstring.draw(g2d, lcol, lrow);
+			drawColumnNames(sequence, g2d, row, lcol);
 			lcol = lcol + 15;
 		}
 
-		int row = 15;
 		for (int i = 0; i < targetNames.size(); i++) {
 			int col = 15;
 			for (int j = 0; j < ruleFiles.size(); j++) {
@@ -117,6 +108,32 @@ public class DiscreteHitOrMissHeatMapPanel extends JPanel {
 			}
 			row = row + 15;
 		}
+	}
+
+	/**
+	 * @param label
+	 *            The String to draw.
+	 * @param g2d
+	 * @param row
+	 *            The row from where to draw the text.
+	 * @param lcol
+	 *            The (incremental) column where the text should be drawn.
+	 */
+	private void drawColumnNames(String label, Graphics2D g2d, int row, int lcol) {
+
+		AffineTransform fontAT = new AffineTransform();
+
+		/* slant text backwards */
+		// fontAT.shear(0.2, 0.0);
+		/* counter-clockwise 90 degrees */
+		fontAT.setToRotation(Math.PI * 3.0f / 2.0f);
+		Font font = new Font("Helvetica", Font.ITALIC, 12);
+		Font theDerivedFont = font.deriveFont(fontAT);
+
+		FontRenderContext frc = g2d.getFontRenderContext();
+		TextLayout tstring = new TextLayout(label, theDerivedFont, frc);
+
+		tstring.draw(g2d, lcol, row);
 	}
 
 	/**
