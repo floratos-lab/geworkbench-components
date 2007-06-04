@@ -10,6 +10,7 @@ import org.geworkbench.bison.util.StringUtils;
 import org.geworkbench.builtin.projects.LoadData;
 import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.engine.management.AcceptTypes;
+import org.geworkbench.engine.management.Publish;
 import org.geworkbench.engine.management.Subscribe;
 import org.geworkbench.events.ProjectEvent;
 
@@ -22,6 +23,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -64,7 +66,8 @@ public class MatrixReduceViewer implements VisualPlugin {
     private String filterSequence = null;
     private double threshold = 0.0;
     private JLabel psamLabel;
-
+    private JList sequenceList;
+    
     private class ListModel extends AbstractListModel {
         public int getSize() {
             if (selectedSequences == null) {
@@ -92,7 +95,7 @@ public class MatrixReduceViewer implements VisualPlugin {
         public String getColumnName(int column) {
             switch (column) {
                 case 0:
-                    return "Select";
+                    return "Select"; 
                 case 1:
                     return "Consensus Sequence";
                 case 2:
@@ -270,7 +273,7 @@ public class MatrixReduceViewer implements VisualPlugin {
 
         //// Sequence Tab
         sequenceModel = new ListModel();
-        JList sequenceList = new JList(sequenceModel);
+        sequenceList = new JList(sequenceModel);
         sequenceList.getInsets().set(4, 4, 4, 4);
         sequenceList.setCellRenderer(new DefaultListCellRenderer() {
             public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
@@ -333,7 +336,11 @@ public class MatrixReduceViewer implements VisualPlugin {
             }
         });
         JButton imageSnapshotButton = new JButton("Take Snapshot");
-        // imageSnapshotButton.addActionListener(new );
+        imageSnapshotButton.addActionListener(new ActionListener(){
+        	public void actionPerformed(ActionEvent e) {
+        		createImageSnapshot();
+        	}
+        });
         builder.appendSeparator("Direction");
         builder.append("", forwardButton);
         builder.append("", backwardsButton);
@@ -355,6 +362,34 @@ public class MatrixReduceViewer implements VisualPlugin {
 
     }
 
+/*    public void createImageSnapshot(){
+    	System.out.println("blaa;dlfjk");
+    	SequenceGraph sg = graphs.get(selectedSequences.get(0));
+    	java.awt.Dimension dim = sg.getMaximumSize();
+    	System.out.print( dim.height);
+    	for (int i = 0; i < selectedSequences.size(); i++){
+    		
+    	}
+*/
+    @Publish 
+    public org.geworkbench.events.ImageSnapshotEvent createImageSnapshot(){
+    	org.geworkbench.events.ImageSnapshotEvent event = null;
+    	try{
+    		BufferedImage image = new BufferedImage(sequenceList.getWidth(),sequenceList.getHeight(),
+                                                BufferedImage.TYPE_INT_RGB);
+    		Graphics g = image.getGraphics();
+    		sequenceList.print(g);
+        	ImageIcon icon = new ImageIcon(image, "MatrixReduce");
+        	event = new org.geworkbench.
+                events.ImageSnapshotEvent("MatrixReduce Snapshot", icon,
+                                          org.geworkbench.events.
+                                          ImageSnapshotEvent.Action.SAVE);
+        }catch(Error e){
+        	JOptionPane.showMessageDialog(this.getComponent(), "Sorry, out of memory...");
+        }
+        return event;
+    }
+    
     private void exportPSAMs(Set<DSPositionSpecificAffintyMatrix> psams) {
         // Pop up a file chooser
         String dir = LoadData.getLastDataDirectory();
