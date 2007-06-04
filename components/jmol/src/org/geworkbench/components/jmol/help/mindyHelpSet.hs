@@ -6,18 +6,18 @@
 <?TestTarget The help set file for the project tree component.?>
 <helpset version="1.0">
 	<!-- title -->
-	<title>Aracne</title>
+	<title>MINDY</title>
 	<!-- maps -->
 	<maps>
 		<homeID>overview</homeID>
-		<mapref location="aracne.jhm"/>
+		<mapref location="mindy.jhm"/>
 	</maps>
 	<!-- views -->
 	<view>
 		<name>TOC</name>
-		<label>Aracne</label>
+		<label>JMOL</label>
 		<type>javax.help.TOCView</type>
-		<data>aracnetoc.xml</data>
+		<data>jmoltoc.xml</data>
 	</view>
 </helpset>
 
