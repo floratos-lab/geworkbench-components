@@ -10,14 +10,14 @@
 	<!-- maps -->
 	<maps>
 		<homeID>overview</homeID>
-		<mapref location="aracen.jhm"/>
+		<mapref location="aracne.jhm"/>
 	</maps>
 	<!-- views -->
 	<view>
 		<name>TOC</name>
-		<label>JMOL</label>
+		<label>Aracne</label>
 		<type>javax.help.TOCView</type>
-		<data>jmoltoc.xml</data>
+		<data>aracnetoc.xml</data>
 	</view>
 </helpset>
 
