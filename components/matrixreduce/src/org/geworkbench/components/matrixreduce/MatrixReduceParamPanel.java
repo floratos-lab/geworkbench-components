@@ -3,6 +3,7 @@ package org.geworkbench.components.matrixreduce;
 import org.geworkbench.analysis.AbstractSaveableParameterPanel;
 
 import javax.swing.*;
+
 import java.io.Serializable;
 import java.io.File;
 import java.awt.*;
@@ -81,7 +82,9 @@ MatrixREDUCE -sequence=../sequences/Y5_600_Bst.fa \
         builder.append("Flank", flank);
         builder.nextRow();
         builder.append("Min Gap", minGap);
+        minGap.setInputVerifier(new minGapVerifier());
         builder.append("Max Gap", maxGap);
+        maxGap.setInputVerifier(new minGapVerifier());
         builder.nextRow();
         //builder.append("Num Print", numPrint);
         //builder.append("Single Strand", singleStrand);
@@ -90,6 +93,27 @@ MatrixREDUCE -sequence=../sequences/Y5_600_Bst.fa \
         builder.append("Max Iterations", maxIteration);
         c.weightx = 0.5;
         c.gridx =0; c.gridy=1;
+ 
+        rangeVerifierInt rvMC = new rangeVerifierInt();
+        rvMC.setrange(1,100000);
+        minCounts.setInputVerifier(rvMC);
+        rangeVerifierInt rvF = new rangeVerifierInt();
+        rvF.setrange(0,10);
+        flank.setInputVerifier(rvF);
+        rangeVerifierInt rvMM = new rangeVerifierInt();
+        rvMM.setrange(0,20);
+        maxMotif.setInputVerifier(rvMM);
+        rangeVerifierInt rvMI = new rangeVerifierInt();
+        rvMI.setrange(0,6000);
+        maxIteration.setInputVerifier(rvMI);
+        rangeVerifier rvPV = new rangeVerifier();
+        rvPV.setrange(0.0,1.0);
+        pValue.setInputVerifier(rvPV);
+        rangeVerifierInt rvDL = new rangeVerifierInt();
+        rvDL.setrange(2,5);
+        dyadLength.setInputVerifier(rvDL);
+
+        
         this.add(builder.getPanel(),c);
         sequenceButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -101,6 +125,102 @@ MatrixREDUCE -sequence=../sequences/Y5_600_Bst.fa \
             }
         });
     }
+    
+    
+   public class rangeVerifier extends InputVerifier {
+    	double min, max;
+    	public void setrange(double mi, double ma){
+    		min = mi;
+    		max = ma;
+    	}
+        public boolean verify(JComponent input) {
+            if (input instanceof JFormattedTextField) {
+                JFormattedTextField ftf = (JFormattedTextField)input;
+                javax.swing.JFormattedTextField.AbstractFormatter formatter = ftf.getFormatter();
+                if (formatter != null) {
+                    try {
+                    	String str = ftf.getText();
+                    	double val = Double.parseDouble(str);
+                         if( min<= val && val <= max){
+                        	 return true;
+                         }
+                         JOptionPane.showMessageDialog(minGap.getParent(), "value should be between " + Double.toString(min) 
+                        		 + " and " + Double.toString(max));
+                         return false;
+                     } catch (java.lang.Exception pe) {
+                    	 JOptionPane.showMessageDialog(minGap.getParent(), "values need to be numerical");
+                    	 return false;
+                    }
+                 }
+             }
+             return true;
+         }
+         public boolean shouldYieldFocus(JComponent input) {
+             return verify(input);
+         }
+     }
+    public class rangeVerifierInt extends InputVerifier {
+    	int min, max;
+    	public void setrange(int mi, int ma){
+    		min = mi;
+    		max = ma;
+    	}
+        public boolean verify(JComponent input) {
+            if (input instanceof JFormattedTextField) {
+                JFormattedTextField ftf = (JFormattedTextField)input;
+                javax.swing.JFormattedTextField.AbstractFormatter formatter = ftf.getFormatter();
+                if (formatter != null) {
+                    try {
+                    	String str = ftf.getText();
+                    	int val = Integer.parseInt(str);
+                         if( min<= val && val <= max){
+                        	 return true;
+                         }
+                         JOptionPane.showMessageDialog(minGap.getParent(), "value should be between " + Integer.toString(min) 
+                        		 + " and " + Integer.toString(max));
+                         return false;
+                     } catch (java.lang.Exception pe) {
+                    	 JOptionPane.showMessageDialog(minGap.getParent(), "values need to be integers");
+                    	 return false;
+                    }
+                 }
+             }
+             return true;
+         }
+         public boolean shouldYieldFocus(JComponent input) {
+             return verify(input);
+         }
+     }
+
+    public class minGapVerifier extends InputVerifier {
+        public boolean verify(JComponent input) {
+            if (input instanceof JFormattedTextField) {
+                JFormattedTextField ftf = (JFormattedTextField)input;
+                javax.swing.JFormattedTextField.AbstractFormatter formatter = ftf.getFormatter();
+                if (formatter != null) {
+                    try {
+                         if(Integer.parseInt( minGap.getText()) <= 
+                        	 Integer.parseInt( maxGap.getText()) &&
+                        	 Integer.parseInt( minGap.getText()) >=0 &&
+                        	 Integer.parseInt( minGap.getText()) <=10 &&
+                        	 Integer.parseInt( maxGap.getText()) >=0 &&
+                        	 Integer.parseInt( maxGap.getText()) <=10){
+                        	 return true;
+                         }
+                         JOptionPane.showMessageDialog(minGap.getParent(), "min Gap should be smaller than MaxGap \nand between 0 and 10");
+                         return false;
+                     } catch (java.lang.Exception pe) {
+                    	 JOptionPane.showMessageDialog(minGap.getParent(), "values need to be integers");
+                    	 return false;
+                    }
+                 }
+             }
+             return true;
+         }
+         public boolean shouldYieldFocus(JComponent input) {
+             return verify(input);
+         }
+     }
 
     public int getDyadLength() {
         return ((Number) dyadLength.getValue()).intValue();
