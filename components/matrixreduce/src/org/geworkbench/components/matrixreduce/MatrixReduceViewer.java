@@ -347,7 +347,7 @@ public class MatrixReduceViewer implements VisualPlugin {
         builder.append("", bothButton);
         builder.appendSeparator("Filtering");
         builder.append("Threshold", thresholdField);
-        builder.append("Sequence Search", searchField);
+        builder.append("Sequence Name", searchField);
         builder.append("", filterButton);
         builder.appendSeparator("Image Snapshot");
         builder.append("", imageSnapshotButton);
@@ -448,7 +448,15 @@ public class MatrixReduceViewer implements VisualPlugin {
         if (filterSequence == null) {
             seqFilter.addAll(sequences.keySet());
         } else {
-            filterSequence = filterSequence.toUpperCase();
+        	filterSequence = filterSequence.toUpperCase();
+        	for (int i = 0; i < sequences.size(); i++) {
+        		String s = sequences.get(i);
+        		if (s.toUpperCase().contains(filterSequence)){
+        			seqFilter.add(sequences.get(i));
+        		}
+        	}
+/* This code is for searching if a sequence is provided instead of a name...
+ *            filterSequence = filterSequence.toUpperCase();
             String reverseSequence = StringUtils.reverseString(filterSequence);
             for (int i = 0; i < sequences.size(); i++) {
                 String s = sequences.get(sequences.get(i));
@@ -456,7 +464,8 @@ public class MatrixReduceViewer implements VisualPlugin {
                     seqFilter.add(sequences.get(i));
                 }
             }
-        }
+*/
+        	}
         // 2) Filter by threshold
         for (int i = 0; i < sequences.size(); i++) {
             String key = sequences.get(i);
