@@ -45,7 +45,7 @@ public class MindyParamPanel extends AbstractSaveableParameterPanel implements S
                 "");
         DefaultFormBuilder builder = new DefaultFormBuilder(layout);
         builder.setDefaultDialogBorder();
-        builder.appendSeparator("MINDY Paramaters");
+        builder.appendSeparator("MINDY Parameters");
         builder.append("Conditional Gene List", modulatorList, 3);
         builder.append(loadModulatorsFile);
 
