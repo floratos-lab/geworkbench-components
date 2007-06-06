@@ -137,9 +137,16 @@ public class MindyAnalysis extends AbstractAnalysis implements ClusteringAnalysi
         log.info("Running MINDY analysis.");
         float setFraction = params.getSetFraction() / 100f;
         paramDesc += "Set Fraction: " + setFraction + "\n";
-        MindyResults results = mindy.runMindy(convert(mSet), new Marker(params.getTranscriptionFactor()), modulators,
+        MindyResults results=null;
+        try{
+        results = mindy.runMindy(convert(mSet), new Marker(params.getTranscriptionFactor()), modulators,
                 dpiAnnots, fullSetMI, fullSetThreshold, subsetMI, subsetThreshold,
                 setFraction, params.getDPITolerance());
+        } catch (Exception e){
+        	System.out.println(e.getMessage() + "\n" + e.toString());
+        	JOptionPane.showMessageDialog(paramPanel.getParent(), "something strange happened...");
+        	return null;
+        }
         log.info("MINDY analysis complete.");
         List<MindyData.MindyResultRow> dataRows = new ArrayList<MindyData.MindyResultRow>();
         for (MindyResults.MindyResultForTarget result : results) {
