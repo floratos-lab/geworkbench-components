@@ -6,18 +6,18 @@
 <?TestTarget The help set file for the project tree component.?>
 <helpset version="1.0">
 	<!-- title -->
-	<title>JMOL</title>
+	<title>Cellular NetWork</title>
 	<!-- maps -->
 	<maps>
 		<homeID>overview</homeID>
-		<mapref location="jmol.jhm"/>
+		<mapref location="cellular.jhm"/>
 	</maps>
 	<!-- views -->
 	<view>
 		<name>TOC</name>
-		<label>JMOL</label>
+		<label>Cellular NetWork</label>
 		<type>javax.help.TOCView</type>
-		<data>jmoltoc.xml</data>
+		<data>cellulartoc.xml</data>
 	</view>
 </helpset>
 
