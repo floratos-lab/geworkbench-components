@@ -6,11 +6,11 @@
 <?TestTarget The help set file for the project tree component.?>
 <helpset version="1.0">
 	<!-- title -->
-	<title>MINDY</title>
+	<title>JMOL</title>
 	<!-- maps -->
 	<maps>
 		<homeID>overview</homeID>
-		<mapref location="mindy.jhm"/>
+		<mapref location="jmol.jhm"/>
 	</maps>
 	<!-- views -->
 	<view>
