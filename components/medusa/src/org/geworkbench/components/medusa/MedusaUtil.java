@@ -14,6 +14,12 @@ import org.apache.commons.logging.LogFactory;
 import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
+import org.ginkgo.labs.reader.XmlReader;
+import org.ginkgo.labs.reader.XmlWriter;
+import org.w3c.dom.Document;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 import edu.columbia.ccls.medusa.io.MedusaReader;
 import edu.columbia.ccls.medusa.io.RuleParser;
@@ -22,7 +28,7 @@ import edu.columbia.ccls.medusa.io.SerializedRule;
 /**
  * 
  * @author keshav
- * @version $Id: MedusaUtil.java,v 1.9 2007-05-31 20:05:56 keshav Exp $
+ * @version $Id: MedusaUtil.java,v 1.10 2007-06-12 20:15:25 keshav Exp $
  */
 public class MedusaUtil {
 
@@ -334,5 +340,33 @@ public class MedusaUtil {
 			}
 		}
 		return srules;
+	}
+
+	/**
+	 * Updates the config file with new parameters.
+	 * @param configFile
+	 * @param outFile If null, the configFile is overwritten.
+	 */
+	public static void changeConfigXml(String configFile, String outFile) {
+		// FIXME make generic
+		Document doc = XmlReader.readXmlFile(configFile);
+
+		NodeList paramNodes = doc.getElementsByTagName("parameters");
+		Node paramNode = paramNodes.item(0);
+		NamedNodeMap paramNodeMap = paramNode.getAttributes();
+		Node iterationsNode = paramNodeMap.getNamedItem("iterations");
+		String iterationsVal = iterationsNode.getNodeValue();
+		log.debug("current iterations val: " + iterationsVal);
+
+		/* change value */
+		String newIterationsVal = "5";
+		log.debug("new iterations val: " + iterationsVal);
+		iterationsNode.setNodeValue(newIterationsVal);
+		
+		if (outFile == null)
+			outFile = configFile;
+			
+		XmlWriter.writeXml(doc, outFile);
+
 	}
 }
