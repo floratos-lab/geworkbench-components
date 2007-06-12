@@ -28,7 +28,7 @@ import edu.columbia.ccls.medusa.io.SerializedRule;
 /**
  * 
  * @author keshav
- * @version $Id: MedusaUtil.java,v 1.10 2007-06-12 20:15:25 keshav Exp $
+ * @version $Id: MedusaUtil.java,v 1.11 2007-06-12 20:17:01 keshav Exp $
  */
 public class MedusaUtil {
 
@@ -347,7 +347,7 @@ public class MedusaUtil {
 	 * @param configFile
 	 * @param outFile If null, the configFile is overwritten.
 	 */
-	public static void changeConfigXml(String configFile, String outFile) {
+	public static void updateConfigXml(String configFile, String outFile) {
 		// FIXME make generic
 		Document doc = XmlReader.readXmlFile(configFile);
 
