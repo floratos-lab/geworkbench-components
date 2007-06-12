@@ -22,7 +22,7 @@ import edu.columbia.ccls.medusa.io.SerializedRule;
  * files, generating consensue sequences, etc.
  * 
  * @author keshav
- * @version $Id: MedusaUtilTest.java,v 1.2 2007-06-12 19:49:20 keshav Exp $
+ * @version $Id: MedusaUtilTest.java,v 1.3 2007-06-12 19:50:10 keshav Exp $
  */
 public class MedusaUtilTest extends TestCase {
 	private Log log = LogFactory.getLog(this.getClass());
@@ -34,6 +34,8 @@ public class MedusaUtilTest extends TestCase {
 	String rulesFile = "rule_0.xml";
 
 	String sequencePath = "data/test/dataset/output/run1";
+
+	private Document doc = null;
 
 	@Override
 	protected void setUp() throws Exception {
@@ -105,8 +107,6 @@ public class MedusaUtilTest extends TestCase {
 		assertFalse(isHit);
 
 	}
-
-	Document doc = null;
 
 	/**
 	 * 
