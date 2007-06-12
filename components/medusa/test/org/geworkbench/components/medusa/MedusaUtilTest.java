@@ -7,12 +7,7 @@ import junit.framework.TestCase;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.ginkgo.labs.reader.XmlReader;
-import org.ginkgo.labs.reader.XmlWriter;
 import org.w3c.dom.Document;
-import org.w3c.dom.NamedNodeMap;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
 import edu.columbia.ccls.medusa.io.RuleParser;
 import edu.columbia.ccls.medusa.io.SerializedRule;
@@ -22,7 +17,7 @@ import edu.columbia.ccls.medusa.io.SerializedRule;
  * files, generating consensue sequences, etc.
  * 
  * @author keshav
- * @version $Id: MedusaUtilTest.java,v 1.3 2007-06-12 19:50:10 keshav Exp $
+ * @version $Id: MedusaUtilTest.java,v 1.4 2007-06-12 20:14:57 keshav Exp $
  */
 public class MedusaUtilTest extends TestCase {
 	private Log log = LogFactory.getLog(this.getClass());
@@ -113,23 +108,7 @@ public class MedusaUtilTest extends TestCase {
 	 * 
 	 */
 	public void testChangeConfigXml() {
-
-		doc = XmlReader.readXmlFile("data/test/dataset/config.xml");
-		assertNotNull(doc);
-
-		NodeList paramNodes = doc.getElementsByTagName("parameters");
-		Node paramNode = paramNodes.item(0);
-		NamedNodeMap paramNodeMap = paramNode.getAttributes();
-		Node iterationsNode = paramNodeMap.getNamedItem("iterations");
-		String iterationsVal = iterationsNode.getNodeValue();
-		log.debug("current iterations val: " + iterationsVal);
-
-		/* change value */
-		String newIterationsVal = "10";
-		log.debug("new iterations val: " + iterationsVal);
-		iterationsNode.setNodeValue(newIterationsVal);
-
-		Document hackedDoc = doc;
-		XmlWriter.writeXml(hackedDoc);
+		MedusaUtil.changeConfigXml("data/test/dataset/config.xml",
+				"data/test/dataset/config_hacked.xml");
 	}
 }
