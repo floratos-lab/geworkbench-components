@@ -398,7 +398,7 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 		// Stores the dispay names of the available analyses.
 		String[] names = new String[availableAnalyses.length];
 		for (int i = 0; i < availableAnalyses.length; i++) {
-			names[i] = availableAnalyses[i].getLabel();
+			names[i] = ComponentRegistry.getRegistry().getDescriptorForPlugin(availableAnalyses[i]).getLabel();
 			if (log.isDebugEnabled())
 				if (availableAnalyses[i] instanceof AbstractGridAnalysis) {
 					log.info("Analysis: " + availableAnalyses[i]
