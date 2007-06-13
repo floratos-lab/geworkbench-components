@@ -28,7 +28,7 @@ import edu.columbia.ccls.medusa.io.SerializedRule;
 /**
  * 
  * @author keshav
- * @version $Id: MedusaUtil.java,v 1.11 2007-06-12 20:17:01 keshav Exp $
+ * @version $Id: MedusaUtil.java,v 1.12 2007-06-13 15:20:20 keshav Exp $
  */
 public class MedusaUtil {
 
@@ -344,11 +344,13 @@ public class MedusaUtil {
 
 	/**
 	 * Updates the config file with new parameters.
+	 * 
 	 * @param configFile
-	 * @param outFile If null, the configFile is overwritten.
+	 * @param outFile
+	 *            If null, the configFile is overwritten.
 	 */
-	public static void updateConfigXml(String configFile, String outFile) {
-		// FIXME make generic
+	public static void updateConfigXml(String configFile, String outFile,
+			MedusaCommand command) {
 		Document doc = XmlReader.readXmlFile(configFile);
 
 		NodeList paramNodes = doc.getElementsByTagName("parameters");
@@ -358,14 +360,14 @@ public class MedusaUtil {
 		String iterationsVal = iterationsNode.getNodeValue();
 		log.debug("current iterations val: " + iterationsVal);
 
-		/* change value */
-		String newIterationsVal = "5";
+		/* iterations */
+		String newIterationsVal = String.valueOf(command.getIter());
 		log.debug("new iterations val: " + iterationsVal);
 		iterationsNode.setNodeValue(newIterationsVal);
-		
+
 		if (outFile == null)
 			outFile = configFile;
-			
+
 		XmlWriter.writeXml(doc, outFile);
 
 	}

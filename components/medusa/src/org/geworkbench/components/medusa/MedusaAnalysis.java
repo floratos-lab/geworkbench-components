@@ -1,13 +1,11 @@
 package org.geworkbench.components.medusa;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 import javax.swing.JOptionPane;
 
-import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -26,7 +24,7 @@ import edu.columbia.ccls.medusa.MedusaLoader;
 /**
  * 
  * @author keshav
- * @version $Id: MedusaAnalysis.java,v 1.23 2007-05-23 22:05:34 keshav Exp $
+ * @version $Id: MedusaAnalysis.java,v 1.24 2007-06-13 15:20:20 keshav Exp $
  */
 public class MedusaAnalysis extends AbstractGridAnalysis implements
 		ClusteringAnalysis {
@@ -37,9 +35,9 @@ public class MedusaAnalysis extends AbstractGridAnalysis implements
 
 	String fileLabels = "data/medusa/dataset/web100_test.labels";
 
-	List<DSGeneMarker> regulators = null;
+	private List<DSGeneMarker> regulators = null;
 
-	List<DSGeneMarker> targets = null;
+	private List<DSGeneMarker> targets = null;
 
 	/**
 	 * 
@@ -99,6 +97,7 @@ public class MedusaAnalysis extends AbstractGridAnalysis implements
 		DSMicroarraySetView<DSGeneMarker, DSMicroarray> microarraySetView = (CSMicroarraySetView<DSGeneMarker, DSMicroarray>) input;
 
 		/* PHASE 1 - create the labels file */
+
 		// discretize
 		DiscretizationUtil discretizationUtil = new DiscretizationUtil();
 		DSMicroarraySetView<DSGeneMarker, DSMicroarray> discretizedInput = discretizationUtil
@@ -112,15 +111,15 @@ public class MedusaAnalysis extends AbstractGridAnalysis implements
 		createLabelsFile(discretizedInput, params);
 
 		/* PHASE 2 - either read config file or read parameters */
-		// read config file or user parameters
 		String configFile = params.getConfigFilePath();
-		// TODO change how this is done
-		if (!StringUtils.isEmpty(configFile)) {
-			s = new StringBuilder();
-			s.append("-i=" + configFile);
-		} else {
-			getParameters(input, params);
-		}
+
+		String updatedConfig = "data/medusa/dataset/config_hacked.xml";
+
+		// FIXME there is an issue with the params
+		MedusaCommand command = getParameters(input, params);
+		MedusaUtil.updateConfigXml(configFile, updatedConfig, command);
+		s = new StringBuilder();
+		s.append("-i=" + updatedConfig);
 
 		String[] args = StringUtils.split(s.toString(), " ");
 
@@ -136,7 +135,7 @@ public class MedusaAnalysis extends AbstractGridAnalysis implements
 		// TODO use the RuleBean to take a list of rule files.
 		targets = getTargets(params, microarraySetView);
 		MedusaData medusaData = new MedusaData(discretizedInput
-				.getMicroarraySet(), regulators, targets);
+				.getMicroarraySet(), regulators, targets, command);
 		MedusaDataSet dataSet = new MedusaDataSet(microarraySetView
 				.getMicroarraySet(), "MEDUSA Results", medusaData, null);
 
@@ -158,8 +157,8 @@ public class MedusaAnalysis extends AbstractGridAnalysis implements
 
 		List<DSGeneMarker> targets = getTargets(params, microarraySetView);
 
-		MedusaUtil.writeMedusaLabelsFile(microarraySetView, params.getLabelsFilePath(),
-				regulators, targets);
+		MedusaUtil.writeMedusaLabelsFile(microarraySetView, params
+				.getLabelsFilePath(), regulators, targets);
 	}
 
 	/**
@@ -250,105 +249,59 @@ public class MedusaAnalysis extends AbstractGridAnalysis implements
 	 * 
 	 * @param params
 	 */
-	private void getParameters(Object input, MedusaParamPanel params) {
+	private MedusaCommand getParameters(Object input, MedusaParamPanel params) {
+
+		MedusaCommand command = new MedusaCommand();
+
 		/* input section of config file */
 		String sequenceFile = params.getFeaturesFile();
 
-		int minKmer = params.getMinKmer();
-		int maxKmer = params.getMaxKmer();
+		command.setMinKer(params.getMinKmer());
 
-		if (minKmer > maxKmer) {
+		command.setMaxKer(params.getMaxKmer());
+
+		if (params.getMinKmer() > params.getMaxKmer()) {
 			JOptionPane.showMessageDialog(null,
 					"Min kmer cannot exceed max kmer.", "Error",
 					JOptionPane.ERROR_MESSAGE);
 			throw new RuntimeException("Min kmer cannot exceed max kmer.");
 		}
 
-		double base = params.getIntervalBase();
+		command.setBase(params.getIntervalBase());
 
-		double bound = params.getIntervalBound();
+		command.setBound(params.getIntervalBound());
 
-		DSMicroarraySetView<DSGeneMarker, DSMicroarray> inputData = null;
-		if (input instanceof DSMicroarraySetView) {
-			inputData = (CSMicroarraySetView<DSGeneMarker, DSMicroarray>) input;
-			DiscretizationUtil discretizationUtil = new DiscretizationUtil();
-			inputData = discretizationUtil.discretize(inputData, base, bound);
-		}
-
-		String baseArgs = " -filelabels=" + params.getLabelsFilePath()
-				+ " -fasta=" + sequenceFile + " -mbtype=iterative"
-				+ " -lbounds=0" + " -ubounds=0" + " -maxkmer=" + maxKmer
-				+ " -minkmer=" + minKmer;
-
-		s = new StringBuilder(baseArgs);
 		// medusa group has dimers_max_gap, dimers_smallest, dimers_largest
 		if (params.isUsingDimers()) {
-			int minGap = params.getMinGap();
-			int maxGap = params.getMaxGap();
+			command.setMinGap(params.getMinGap());
+			command.setMaxGap(params.getMaxGap());
 
-			if (minGap > maxGap) {
+			if (params.getMinGap() > params.getMaxGap()) {
 				JOptionPane.showMessageDialog(null,
 						"Min gap cannot exceed max gap.", "Error",
 						JOptionPane.ERROR_MESSAGE);
 				throw new RuntimeException("Min gap cannot exceed max gap.");
 			}
-
-			s.append(" -dimers=T");
-			s.append(" -mingap=" + minGap);
-			s.append(" -maxgap=" + maxGap);
 		}
 
 		else {
-			s.append(" -dimers=F");
+			// s.append(" -dimers=F");
 		}
-
-		// window_size
-		// min_motif_count_per_window
 
 		/* parameters */
-		s.append(" -stumpsonly=F");
-		int iter = params.getBoostingIterations();
-		s.append(" -iter=" + iter);
-		// is_corrected
-		s.append(" -hotype=random");
-		s.append(" -hopercent=10");
-		// holdout_experiments
-		// holdout_genes
-		// holdout_matrix
-		// pssms
-		int pssmLength = params.getPssmLength();
-		s.append(" -maxpssm=" + pssmLength);
+		command.setIter(params.getBoostingIterations());
 
-		int agg = params.getAgg();
-		s.append(" -clustersize=" + agg);
+		command.setPssmLength(params.getPssmLength());
+
+		command.setAgg(params.getAgg());
 
 		if (params.isReverseComplement()) {
-			s.append(" -revcompsame=T");
+			// s.append(" -revcompsame=T");
 		} else {
-			s.append(" -revcompsame=F");
+			// s.append(" -revcompsame=F");
 		}
 
-		s.append(" -fewesttrim=0");
-		s.append(" -mosttrim=0");
-		s.append(" -reportagglom=F");
-
-		getOutput();
-	}
-
-	private void getOutput() {
-		/* output */
-		String rand = RandomStringUtils.randomAlphabetic(5);
-		String outputDirPath = "/temp/medusa/dataset/output";
-		File outputDir = new File(outputDirPath);
-
-		boolean success = false;
-		if (!outputDir.exists()) {
-			success = outputDir.mkdirs();
-			log.info("created dir? " + success);
-		}
-
-		s.append(" -direxpt=" + outputDirPath);
-		s.append(" -runname=" + rand);
+		return command;
 	}
 
 	/**
