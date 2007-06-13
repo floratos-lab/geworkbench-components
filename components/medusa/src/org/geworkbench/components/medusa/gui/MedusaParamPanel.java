@@ -27,7 +27,7 @@ import com.jgoodies.forms.layout.FormLayout;
 /**
  * 
  * @author keshav
- * @version $Id: MedusaParamPanel.java,v 1.1 2007-05-23 16:02:38 keshav Exp $
+ * @version $Id: MedusaParamPanel.java,v 1.2 2007-06-13 15:20:30 keshav Exp $
  */
 public class MedusaParamPanel extends AbstractSaveableParameterPanel implements
 		Serializable {
@@ -60,7 +60,7 @@ public class MedusaParamPanel extends AbstractSaveableParameterPanel implements
 	private JButton loadConfigFileButton = new JButton("Load Config File");
 
 	private String configFilePath = "data/medusa/dataset/config.xml";
-	
+
 	private String labelsFilePath = "data/medusa/dataset/web100_test.labels";
 
 	/* features */
@@ -120,7 +120,7 @@ public class MedusaParamPanel extends AbstractSaveableParameterPanel implements
 			.valueOf(intervalBound));
 
 	/* boosting iterations */
-	private int boostingIterations = 500;
+	private int boostingIterations = 5;
 
 	private JTextField boostingIterationsTextField = new JTextField(String
 			.valueOf(boostingIterations));
