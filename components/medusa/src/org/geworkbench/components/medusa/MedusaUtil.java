@@ -26,9 +26,12 @@ import edu.columbia.ccls.medusa.io.RuleParser;
 import edu.columbia.ccls.medusa.io.SerializedRule;
 
 /**
+ * This utility is specific to medusa, and is responsible for medusa related
+ * tasks such as creating a medusa labels file, generating concensus sequences,
+ * updating the configuration file, etc.
  * 
  * @author keshav
- * @version $Id: MedusaUtil.java,v 1.12 2007-06-13 15:20:20 keshav Exp $
+ * @version $Id: MedusaUtil.java,v 1.13 2007-06-13 15:23:31 keshav Exp $
  */
 public class MedusaUtil {
 
