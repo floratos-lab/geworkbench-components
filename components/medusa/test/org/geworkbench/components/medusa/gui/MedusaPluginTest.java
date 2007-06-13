@@ -17,13 +17,14 @@ import org.geworkbench.bison.datastructure.bioobjects.microarray.CSExpressionMar
 import org.geworkbench.bison.datastructure.bioobjects.microarray.CSMicroarray;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
+import org.geworkbench.components.medusa.MedusaCommand;
 import org.geworkbench.components.medusa.MedusaData;
 
 /**
  * GUI tests for the {@link MedusaPlugin}.
  * 
  * @author keshav
- * @version $Id: MedusaPluginTest.java,v 1.1 2007-05-23 16:13:05 keshav Exp $
+ * @version $Id: MedusaPluginTest.java,v 1.2 2007-06-13 15:20:42 keshav Exp $
  */
 public class MedusaPluginTest extends TestCase {
 
@@ -36,6 +37,8 @@ public class MedusaPluginTest extends TestCase {
 	float data[][] = new float[numElements][numElements];
 
 	private List<DSGeneMarker> targets = null;
+
+	private MedusaCommand medusaCommand = null;
 
 	/*
 	 * (non-Javadoc)
@@ -83,7 +86,8 @@ public class MedusaPluginTest extends TestCase {
 		view.setMarkerPanel(markerPanel);
 
 		/* pack medusa data */
-		medusaData = new MedusaData(microarraySet, null, targets);
+		medusaCommand = new MedusaCommand();
+		medusaData = new MedusaData(microarraySet, null, targets, medusaCommand);
 
 		/* create visual plugin */
 		medusaPlugin = new MedusaPlugin(medusaData);

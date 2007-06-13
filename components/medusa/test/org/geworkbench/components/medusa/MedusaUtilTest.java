@@ -17,7 +17,7 @@ import edu.columbia.ccls.medusa.io.SerializedRule;
  * files, generating consensue sequences, etc.
  * 
  * @author keshav
- * @version $Id: MedusaUtilTest.java,v 1.5 2007-06-12 20:17:01 keshav Exp $
+ * @version $Id: MedusaUtilTest.java,v 1.6 2007-06-13 15:20:42 keshav Exp $
  */
 public class MedusaUtilTest extends TestCase {
 	private Log log = LogFactory.getLog(this.getClass());
@@ -108,7 +108,8 @@ public class MedusaUtilTest extends TestCase {
 	 * 
 	 */
 	public void testChangeConfigXml() {
+		MedusaCommand medusaCommand = new MedusaCommand();
 		MedusaUtil.updateConfigXml("data/test/dataset/config.xml",
-				"data/test/dataset/config_hacked.xml");
+				"data/test/dataset/config_hacked.xml", medusaCommand);
 	}
 }
