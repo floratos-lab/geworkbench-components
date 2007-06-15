@@ -27,7 +27,7 @@ import com.jgoodies.forms.layout.FormLayout;
 /**
  * 
  * @author keshav
- * @version $Id: MedusaParamPanel.java,v 1.4 2007-06-15 22:21:16 keshav Exp $
+ * @version $Id: MedusaParamPanel.java,v 1.5 2007-06-15 22:23:14 keshav Exp $
  */
 public class MedusaParamPanel extends AbstractSaveableParameterPanel implements
 		Serializable {
@@ -678,7 +678,7 @@ public class MedusaParamPanel extends AbstractSaveableParameterPanel implements
 		return reverseComplement;
 	}
 
-	public String getFeaturesFile() {
+	public String getFeaturesFilePath() {
 		return this.featuresFilePath;
 	}
 
