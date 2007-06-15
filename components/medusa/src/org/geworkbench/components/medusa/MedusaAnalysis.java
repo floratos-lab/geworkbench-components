@@ -24,7 +24,7 @@ import edu.columbia.ccls.medusa.MedusaLoader;
 /**
  * 
  * @author keshav
- * @version $Id: MedusaAnalysis.java,v 1.24 2007-06-13 15:20:20 keshav Exp $
+ * @version $Id: MedusaAnalysis.java,v 1.25 2007-06-15 15:41:48 keshav Exp $
  */
 public class MedusaAnalysis extends AbstractGridAnalysis implements
 		ClusteringAnalysis {
@@ -96,6 +96,9 @@ public class MedusaAnalysis extends AbstractGridAnalysis implements
 
 		DSMicroarraySetView<DSGeneMarker, DSMicroarray> microarraySetView = (CSMicroarraySetView<DSGeneMarker, DSMicroarray>) input;
 
+		/* cleanup other runs */
+		MedusaUtil.deleteRunDir();
+
 		/* PHASE 1 - create the labels file */
 
 		// discretize
@@ -115,7 +118,6 @@ public class MedusaAnalysis extends AbstractGridAnalysis implements
 
 		String updatedConfig = "data/medusa/dataset/config_hacked.xml";
 
-		// FIXME there is an issue with the params
 		MedusaCommand command = getParameters(input, params);
 		MedusaUtil.updateConfigXml(configFile, updatedConfig, command);
 		s = new StringBuilder();
