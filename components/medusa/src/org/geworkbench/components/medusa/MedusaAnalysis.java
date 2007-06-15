@@ -18,13 +18,15 @@ import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
 import org.geworkbench.bison.model.analysis.ClusteringAnalysis;
 import org.geworkbench.components.medusa.gui.MedusaParamPanel;
+import org.geworkbench.util.ProgressBar;
+import org.geworkbench.util.Util;
 
 import edu.columbia.ccls.medusa.MedusaLoader;
 
 /**
  * 
  * @author keshav
- * @version $Id: MedusaAnalysis.java,v 1.25 2007-06-15 15:41:48 keshav Exp $
+ * @version $Id: MedusaAnalysis.java,v 1.26 2007-06-15 16:40:13 keshav Exp $
  */
 public class MedusaAnalysis extends AbstractGridAnalysis implements
 		ClusteringAnalysis {
@@ -96,10 +98,14 @@ public class MedusaAnalysis extends AbstractGridAnalysis implements
 
 		DSMicroarraySetView<DSGeneMarker, DSMicroarray> microarraySetView = (CSMicroarraySetView<DSGeneMarker, DSMicroarray>) input;
 
+		ProgressBar pBar = Util.createProgressBar("Medusa");
+		pBar.setMessage("Running Medusa");
+		pBar.start();
+
 		/* cleanup other runs */
 		MedusaUtil.deleteRunDir();
 
-		/* PHASE 1 - create the labels file */
+		/* PHASE 1 - discretize and create the labels file */
 
 		// discretize
 		DiscretizationUtil discretizationUtil = new DiscretizationUtil();
@@ -113,7 +119,7 @@ public class MedusaAnalysis extends AbstractGridAnalysis implements
 
 		createLabelsFile(discretizedInput, params);
 
-		/* PHASE 2 - either read config file or read parameters */
+		/* PHASE 2 - either read config file and update with user parameters */
 		String configFile = params.getConfigFilePath();
 
 		String updatedConfig = "data/medusa/dataset/config_hacked.xml";
@@ -127,7 +133,7 @@ public class MedusaAnalysis extends AbstractGridAnalysis implements
 
 		/* PHASE 3 - run MEDUSA */
 		try {
-			log.info("Running MEDUSA with: " + s.toString());
+			log.info("Running Medusa with: " + s.toString());
 			MedusaLoader.main(args);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -141,6 +147,7 @@ public class MedusaAnalysis extends AbstractGridAnalysis implements
 		MedusaDataSet dataSet = new MedusaDataSet(microarraySetView
 				.getMicroarraySet(), "MEDUSA Results", medusaData, null);
 
+		pBar.stop();
 		return new AlgorithmExecutionResults(true, "MEDUSA Results Loaded.",
 				dataSet);
 	}
