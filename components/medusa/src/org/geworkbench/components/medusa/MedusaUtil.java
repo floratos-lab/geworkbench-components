@@ -1,9 +1,11 @@
 package org.geworkbench.components.medusa;
 
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -16,6 +18,7 @@ import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.ginkgo.labs.reader.XmlReader;
 import org.ginkgo.labs.reader.XmlWriter;
+import org.ginkgo.labs.util.FileTools;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -31,7 +34,7 @@ import edu.columbia.ccls.medusa.io.SerializedRule;
  * updating the configuration file, etc.
  * 
  * @author keshav
- * @version $Id: MedusaUtil.java,v 1.13 2007-06-13 15:23:31 keshav Exp $
+ * @version $Id: MedusaUtil.java,v 1.14 2007-06-15 15:42:24 keshav Exp $
  */
 public class MedusaUtil {
 
@@ -229,8 +232,10 @@ public class MedusaUtil {
 				int numericNucleotide = windowSequence[l] - 1;
 
 				double val = pssm[numericNucleotide][l];
-				// score = score + Math.log(val);
-				score = score + val;
+				// FIXME Don't hardcode 0.25. Get the Perseus jar which has
+				// these values
+				score = score + (Math.log(val) - Math.log(0.25));
+				// score = score + val;
 			}
 
 			if (isHit(score, threshold))
@@ -373,5 +378,44 @@ public class MedusaUtil {
 
 		XmlWriter.writeXml(doc, outFile);
 
+	}
+
+	/**
+	 * Deletes the medusa run.
+	 * 
+	 */
+	public static void deleteRunDir() {
+		File runDir = new File("temp/medusa/dataset/output/run1/");
+
+		if (runDir.exists()) {
+			Collection dirFiles = FileTools.listDirectoryFiles(runDir);
+			FileTools.deleteFiles(dirFiles);
+
+			// delete rules files
+			File rulesDir = new File("temp/medusa/dataset/output/run1/rules/");
+			Collection rulesFiles = FileTools.listDirectoryFiles(rulesDir);
+			FileTools.deleteFiles(rulesFiles);
+
+			// delete data
+			File dataDir = new File(
+					"temp/medusa/dataset/output/run1/state/data/");
+			Collection dataFiles = FileTools.listDirectoryFiles(dataDir);
+			FileTools.deleteFiles(dataFiles);
+			FileTools.deleteDir(dataDir);
+
+			// delete features
+			File featuresDir = new File(
+					"temp/medusa/dataset/output/run1/state/features/");
+			Collection featuresFiles = FileTools
+					.listDirectoryFiles(featuresDir);
+			FileTools.deleteFiles(featuresFiles);
+			FileTools.deleteDir(featuresDir);
+
+			File stateDir = new File("temp/medusa/dataset/output/run1/state/");
+			FileTools.deleteDir(stateDir);
+
+			FileTools.deleteDir(runDir);
+		}
+		log.error("Directory " + runDir + " does not exist.");
 	}
 }
