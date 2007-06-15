@@ -27,7 +27,7 @@ import com.jgoodies.forms.layout.FormLayout;
 /**
  * 
  * @author keshav
- * @version $Id: MedusaParamPanel.java,v 1.2 2007-06-13 15:20:30 keshav Exp $
+ * @version $Id: MedusaParamPanel.java,v 1.3 2007-06-15 19:52:19 keshav Exp $
  */
 public class MedusaParamPanel extends AbstractSaveableParameterPanel implements
 		Serializable {
@@ -56,8 +56,6 @@ public class MedusaParamPanel extends AbstractSaveableParameterPanel implements
 	private JTabbedPane parametersTabbedPane = new JTabbedPane();
 
 	/* MAIN PANEL */
-
-	private JButton loadConfigFileButton = new JButton("Load Config File");
 
 	private String configFilePath = "data/medusa/dataset/config.xml";
 
@@ -194,10 +192,6 @@ public class MedusaParamPanel extends AbstractSaveableParameterPanel implements
 		mainBuilder.setDefaultDialogBorder();
 		mainBuilder.appendSeparator("MEDUSA Main Paramaters");
 
-		/* use config file */
-		mainBuilder.append("Configuration File", loadConfigFileButton);
-		mainBuilder.nextRow();
-
 		/* features */
 		mainBuilder.append("Features File (FASTA)", loadFeaturesButton);
 		mainBuilder.nextRow();
@@ -289,33 +283,6 @@ public class MedusaParamPanel extends AbstractSaveableParameterPanel implements
 	private void addListeners() {
 
 		/* PRIMARY */
-
-		/* config file */
-		// button listener
-		loadConfigFileButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent actionEvent) {
-				StringBuilder geneListBuilder = new StringBuilder();
-
-				File iFile = new File(configFilePath);
-				JFileChooser chooser = new JFileChooser(iFile.getParent());
-				int retVal = chooser.showOpenDialog(MedusaParamPanel.this);
-
-				if (retVal == JFileChooser.APPROVE_OPTION) {
-					configFilePath = chooser.getSelectedFile().getPath();
-					log.info("configuration file: " + configFilePath);
-
-					// while (!StringUtils.isEmpty(configFilePath)) {
-					//
-					// geneListBuilder.append(target + ", ");
-					// target = reader.readLine();
-					// }
-
-				} else {
-					log.debug("cancelled ... ");
-				}
-
-			}
-		});
 
 		/* features */
 		// button listener
