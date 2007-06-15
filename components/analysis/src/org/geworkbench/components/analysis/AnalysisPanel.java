@@ -654,12 +654,14 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 	 * @return boolean
 	 */
 	private boolean isGridAnalysis() {
-		ButtonGroup gridSelectionButtonGroup = jGridServicePanel
-				.getButtonGroup();
+		if (jGridServicePanel != null) {
+			ButtonGroup gridSelectionButtonGroup = jGridServicePanel
+					.getButtonGroup();
 
-		ButtonModel bm = gridSelectionButtonGroup.getSelection();
-		if (StringUtils.equals(bm.getActionCommand(), "Grid")) {
-			return true;
+			ButtonModel bm = gridSelectionButtonGroup.getSelection();
+			if (StringUtils.equals(bm.getActionCommand(), "Grid")) {
+				return true;
+			}
 		}
 
 		return false;
