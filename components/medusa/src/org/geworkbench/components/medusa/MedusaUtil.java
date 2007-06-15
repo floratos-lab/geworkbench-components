@@ -34,7 +34,7 @@ import edu.columbia.ccls.medusa.io.SerializedRule;
  * updating the configuration file, etc.
  * 
  * @author keshav
- * @version $Id: MedusaUtil.java,v 1.14 2007-06-15 15:42:24 keshav Exp $
+ * @version $Id: MedusaUtil.java,v 1.15 2007-06-15 22:20:58 keshav Exp $
  */
 public class MedusaUtil {
 
@@ -361,22 +361,34 @@ public class MedusaUtil {
 			MedusaCommand command) {
 		Document doc = XmlReader.readXmlFile(configFile);
 
-		NodeList paramNodes = doc.getElementsByTagName("parameters");
-		Node paramNode = paramNodes.item(0);
-		NamedNodeMap paramNodeMap = paramNode.getAttributes();
-		Node iterationsNode = paramNodeMap.getNamedItem("iterations");
-		String iterationsVal = iterationsNode.getNodeValue();
-		log.debug("current iterations val: " + iterationsVal);
+		updateXmlNode(doc, "parameters", "iterations", String.valueOf(command
+				.getIter()));
 
-		/* iterations */
-		String newIterationsVal = String.valueOf(command.getIter());
-		log.debug("new iterations val: " + iterationsVal);
-		iterationsNode.setNodeValue(newIterationsVal);
+		updateXmlNode(doc, "file", "file_fasta", command.getFeaturesFile());
 
 		if (outFile == null)
 			outFile = configFile;
 
 		XmlWriter.writeXml(doc, outFile);
+
+	}
+
+	/**
+	 * 
+	 * @param doc
+	 * @param targetElement
+	 * @param targetAttribute
+	 * @param newAttributeVal
+	 */
+	private static void updateXmlNode(Document doc, String targetElement,
+			String targetAttribute, String newAttributeVal) {
+		// TODO move me to base stuff
+		NodeList nodes = doc.getElementsByTagName(targetElement);
+		Node node = nodes.item(0);
+		NamedNodeMap nodeMap = node.getAttributes();
+		/* fasta file */
+		Node fastaFileNode = nodeMap.getNamedItem(targetAttribute);
+		fastaFileNode.setNodeValue(newAttributeVal);
 
 	}
 
