@@ -27,7 +27,7 @@ import com.jgoodies.forms.layout.FormLayout;
 /**
  * 
  * @author keshav
- * @version $Id: MedusaParamPanel.java,v 1.3 2007-06-15 19:52:19 keshav Exp $
+ * @version $Id: MedusaParamPanel.java,v 1.4 2007-06-15 22:21:16 keshav Exp $
  */
 public class MedusaParamPanel extends AbstractSaveableParameterPanel implements
 		Serializable {
@@ -64,9 +64,9 @@ public class MedusaParamPanel extends AbstractSaveableParameterPanel implements
 	/* features */
 	private JButton loadFeaturesButton = new JButton("Load Features");
 
-	private String featuresFile = "dataset/small_yeast/yeast_test.fasta";
+	private String defaultFeaturesFile = "data/medusa/dataset/web100_test.fasta";
 
-	private String featuresListFile = new String(featuresFile);
+	private String featuresFilePath = defaultFeaturesFile;
 
 	/* regulators */
 	private String REGULATOR_LIST = "Specify (csv)";
@@ -288,19 +288,20 @@ public class MedusaParamPanel extends AbstractSaveableParameterPanel implements
 		// button listener
 		loadFeaturesButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent actionEvent) {
-				StringBuilder geneListBuilder = new StringBuilder();
+				// StringBuilder geneListBuilder = new StringBuilder();
 				try {
-					File targetFile = new File(featuresListFile);
-					JFileChooser chooser = new JFileChooser(targetFile
+					File featuresFile = new File(defaultFeaturesFile);
+					JFileChooser chooser = new JFileChooser(featuresFile
 							.getParent());
 					int retVal = chooser.showOpenDialog(MedusaParamPanel.this);
 
 					if (retVal == JFileChooser.APPROVE_OPTION) {
-						featuresListFile = chooser.getSelectedFile().getPath();
+						featuresFilePath = chooser.getSelectedFile().getPath();
 
 						BufferedReader reader = new BufferedReader(
-								new FileReader(featuresListFile));
+								new FileReader(featuresFilePath));
 						String target = reader.readLine();
+						reader.close();
 
 						if (!target.startsWith(FASTA_PREFIX)) {
 							JOptionPane.showMessageDialog(null,
@@ -308,11 +309,10 @@ public class MedusaParamPanel extends AbstractSaveableParameterPanel implements
 									JOptionPane.ERROR_MESSAGE);
 						}
 
-						while (target != null && !"".equals(target)) {
-
-							geneListBuilder.append(target + ", ");
-							target = reader.readLine();
-						}
+						// while (!StringUtils.isEmpty(target)) {
+						// geneListBuilder.append(target + ", ");
+						// target = reader.readLine();
+						// }
 
 						// String geneString = geneListBuilder.toString();
 						// featuresList.setText(geneString.substring(0,
@@ -320,11 +320,9 @@ public class MedusaParamPanel extends AbstractSaveableParameterPanel implements
 					} else {
 						log.debug("cancelled ... ");
 					}
-
 				} catch (IOException e) {
 					log.error(e);
 				}
-
 			}
 		});
 
@@ -681,11 +679,15 @@ public class MedusaParamPanel extends AbstractSaveableParameterPanel implements
 	}
 
 	public String getFeaturesFile() {
-		return featuresFile;
+		return this.featuresFilePath;
 	}
 
 	public String getConfigFilePath() {
 		return this.configFilePath;
+	}
+
+	public void setConfigFilePath(String configFilePath) {
+		this.configFilePath = configFilePath;
 	}
 
 	/* mutators */
@@ -731,14 +733,6 @@ public class MedusaParamPanel extends AbstractSaveableParameterPanel implements
 
 	public void setDimerMinGapTextField(JTextField dimerMinGapTextField) {
 		this.dimerMinGapTextField = dimerMinGapTextField;
-	}
-
-	public void setFeaturesFile(String featuresFile) {
-		this.featuresFile = featuresFile;
-	}
-
-	public void setConfigFilePath(String configFilePath) {
-		this.configFilePath = configFilePath;
 	}
 
 	public JTextField getTargetTextField() {
