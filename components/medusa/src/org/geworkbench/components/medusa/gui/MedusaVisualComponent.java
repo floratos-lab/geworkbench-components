@@ -15,13 +15,15 @@ import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.engine.management.AcceptTypes;
 import org.geworkbench.engine.management.Subscribe;
 import org.geworkbench.events.ProjectEvent;
+import org.geworkbench.util.ProgressBar;
+import org.geworkbench.util.Util;
 
 /**
  * The visual component for MEDUSA. When receiving a project event, the
  * {@link MedusaPlugin} is created and added.
  * 
  * @author keshav
- * @version $Id: MedusaVisualComponent.java,v 1.2 2007-06-01 18:28:58 keshav Exp $
+ * @version $Id: MedusaVisualComponent.java,v 1.3 2007-06-15 16:52:42 keshav Exp $
  */
 @AcceptTypes(MedusaDataSet.class)
 public class MedusaVisualComponent implements VisualPlugin {
@@ -62,6 +64,9 @@ public class MedusaVisualComponent implements VisualPlugin {
 		log.debug("MEDUSA received project event.");
 		DSDataSet data = projectEvent.getDataSet();
 		if ((data != null) && (data instanceof MedusaDataSet)) {
+			ProgressBar pBar = Util.createProgressBar("Medusa Analysis");
+			pBar.setMessage("Rendering images");
+			pBar.start();
 			if (dataSet != data) {
 				dataSet = ((MedusaDataSet) data);
 				plugin.removeAll();
@@ -71,6 +76,7 @@ public class MedusaVisualComponent implements VisualPlugin {
 				plugin.revalidate();
 				plugin.repaint();
 			}
+			pBar.stop();
 		}
 	}
 
