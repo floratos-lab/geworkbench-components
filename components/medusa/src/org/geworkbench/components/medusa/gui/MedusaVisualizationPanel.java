@@ -19,9 +19,9 @@ import com.jgoodies.forms.layout.FormLayout;
  * This plugin sets the layout for the MEDUSA visualization.
  * 
  * @author keshav
- * @version $Id: MedusaPlugin.java,v 1.8 2007-06-15 17:10:46 keshav Exp $
+ * @version $Id: MedusaVisualizationPanel.java,v 1.1 2007-06-15 17:12:31 keshav Exp $
  */
-public class MedusaPlugin extends JPanel {
+public class MedusaVisualizationPanel extends JPanel {
 
 	/**
 	 * 
@@ -36,7 +36,7 @@ public class MedusaPlugin extends JPanel {
 
 	private List<String> rulesFiles = null;
 
-	public MedusaPlugin(MedusaData medusaData) {
+	public MedusaVisualizationPanel(MedusaData medusaData) {
 		super();
 		this.medusaData = medusaData;
 
