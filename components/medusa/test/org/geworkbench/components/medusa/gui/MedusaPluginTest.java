@@ -21,16 +21,16 @@ import org.geworkbench.components.medusa.MedusaCommand;
 import org.geworkbench.components.medusa.MedusaData;
 
 /**
- * GUI tests for the {@link MedusaPlugin}.
+ * GUI tests for the {@link MedusaVisualizationPanel}.
  * 
  * @author keshav
- * @version $Id: MedusaPluginTest.java,v 1.2 2007-06-13 15:20:42 keshav Exp $
+ * @version $Id: MedusaPluginTest.java,v 1.3 2007-06-15 17:12:31 keshav Exp $
  */
 public class MedusaPluginTest extends TestCase {
 
 	MedusaData medusaData = null;
 
-	MedusaPlugin medusaPlugin = null;
+	MedusaVisualizationPanel medusaPlugin = null;
 
 	int numElements = 5;
 
@@ -90,7 +90,7 @@ public class MedusaPluginTest extends TestCase {
 		medusaData = new MedusaData(microarraySet, null, targets, medusaCommand);
 
 		/* create visual plugin */
-		medusaPlugin = new MedusaPlugin(medusaData);
+		medusaPlugin = new MedusaVisualizationPanel(medusaData);
 
 	}
 
