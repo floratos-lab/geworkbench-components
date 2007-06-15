@@ -26,7 +26,7 @@ import edu.columbia.ccls.medusa.MedusaLoader;
 /**
  * 
  * @author keshav
- * @version $Id: MedusaAnalysis.java,v 1.26 2007-06-15 16:40:13 keshav Exp $
+ * @version $Id: MedusaAnalysis.java,v 1.27 2007-06-15 16:52:42 keshav Exp $
  */
 public class MedusaAnalysis extends AbstractGridAnalysis implements
 		ClusteringAnalysis {
@@ -98,7 +98,7 @@ public class MedusaAnalysis extends AbstractGridAnalysis implements
 
 		DSMicroarraySetView<DSGeneMarker, DSMicroarray> microarraySetView = (CSMicroarraySetView<DSGeneMarker, DSMicroarray>) input;
 
-		ProgressBar pBar = Util.createProgressBar("Medusa");
+		ProgressBar pBar = Util.createProgressBar("Medusa Analysis");
 		pBar.setMessage("Running Medusa");
 		pBar.start();
 
