@@ -6,9 +6,11 @@ package org.geworkbench.components.medusa;
  * web, etc.).
  * 
  * @author keshav
- * @version $Id: MedusaCommand.java,v 1.1 2007-06-13 15:20:20 keshav Exp $
+ * @version $Id: MedusaCommand.java,v 1.2 2007-06-15 22:20:58 keshav Exp $
  */
 public class MedusaCommand {
+
+	private String featuresFile = null;
 
 	private int minKer = 0;
 
@@ -162,6 +164,22 @@ public class MedusaCommand {
 	 */
 	public void setMinKer(int minKer) {
 		this.minKer = minKer;
+	}
+
+	/**
+	 * 
+	 * @param featuresFile
+	 */
+	public void setFeaturesFile(String featuresFile) {
+		this.featuresFile = featuresFile;
+	}
+
+	/**
+	 * 
+	 * @return
+	 */
+	public String getFeaturesFile() {
+		return featuresFile;
 	}
 
 }

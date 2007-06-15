@@ -26,7 +26,7 @@ import edu.columbia.ccls.medusa.MedusaLoader;
 /**
  * 
  * @author keshav
- * @version $Id: MedusaAnalysis.java,v 1.27 2007-06-15 16:52:42 keshav Exp $
+ * @version $Id: MedusaAnalysis.java,v 1.28 2007-06-15 22:20:58 keshav Exp $
  */
 public class MedusaAnalysis extends AbstractGridAnalysis implements
 		ClusteringAnalysis {
@@ -263,7 +263,7 @@ public class MedusaAnalysis extends AbstractGridAnalysis implements
 		MedusaCommand command = new MedusaCommand();
 
 		/* input section of config file */
-		String sequenceFile = params.getFeaturesFile();
+		command.setFeaturesFile(params.getFeaturesFile());
 
 		command.setMinKer(params.getMinKmer());
 
