@@ -8,9 +8,10 @@ import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMutableMarkerValue;
 
 /**
+ * Creates a discretized matrix of data from the original dataset.
  * 
  * @author keshav
- * @version $Id: DiscretizationUtil.java,v 1.2 2007-05-14 14:43:11 keshav Exp $
+ * @version $Id: DiscretizationUtil.java,v 1.3 2007-06-19 21:10:45 keshav Exp $
  */
 public class DiscretizationUtil {
 
@@ -28,9 +29,6 @@ public class DiscretizationUtil {
 
 		/* extract microarray info from DSMicroarraySet */
 		int numArrays = microarraySetView.size();
-
-		/* extract marker info from DSMicroarraySet */
-		int numMarkers = ((DSMicroarray) microarraySet.get(0)).getMarkerNo();
 
 		for (int i = 0; i < numArrays; i++) {
 			/* geworkbench array */
@@ -58,6 +56,13 @@ public class DiscretizationUtil {
 	}
 
 	/**
+	 * Creates a dircretized array of data from the original data.
+	 * <p>
+	 * If data[i] < base - bound, discreteData[i] = -1
+	 * <p>
+	 * If data[i] > base + bound, discreteData[i] = 1.
+	 * <p>
+	 * If base - bound <= data[i] < base + bound, discreteData[i] = 0.
 	 * 
 	 * @param data
 	 * @param base
