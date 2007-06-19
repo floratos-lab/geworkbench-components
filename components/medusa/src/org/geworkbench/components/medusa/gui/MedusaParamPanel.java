@@ -27,7 +27,7 @@ import com.jgoodies.forms.layout.FormLayout;
 /**
  * 
  * @author keshav
- * @version $Id: MedusaParamPanel.java,v 1.5 2007-06-15 22:23:14 keshav Exp $
+ * @version $Id: MedusaParamPanel.java,v 1.6 2007-06-19 16:33:21 keshav Exp $
  */
 public class MedusaParamPanel extends AbstractSaveableParameterPanel implements
 		Serializable {
@@ -293,7 +293,7 @@ public class MedusaParamPanel extends AbstractSaveableParameterPanel implements
 					File featuresFile = new File(defaultFeaturesFile);
 					JFileChooser chooser = new JFileChooser(featuresFile
 							.getParent());
-					int retVal = chooser.showOpenDialog(MedusaParamPanel.this);
+					int retVal = chooser.showOpenDialog(null);
 
 					if (retVal == JFileChooser.APPROVE_OPTION) {
 						featuresFilePath = chooser.getSelectedFile().getPath();
