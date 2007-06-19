@@ -29,7 +29,7 @@ import com.jgoodies.forms.layout.FormLayout;
 /**
  * 
  * @author keshav
- * @version $Id: MedusaParamPanel.java,v 1.7 2007-06-19 18:18:33 keshav Exp $
+ * @version $Id: MedusaParamPanel.java,v 1.8 2007-06-19 18:31:49 keshav Exp $
  */
 public class MedusaParamPanel extends AbstractSaveableParameterPanel implements
 		Serializable {
@@ -342,7 +342,8 @@ public class MedusaParamPanel extends AbstractSaveableParameterPanel implements
 					File regulatorsFile = new File(regulatorsFilePath);
 					JFileChooser chooser = new JFileChooser(regulatorsFile
 							.getParent());
-					// null centers dialog
+
+					// null used to center dialog
 					int retVal = chooser.showOpenDialog(null);
 
 					if (retVal == JFileChooser.APPROVE_OPTION) {
