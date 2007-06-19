@@ -29,7 +29,7 @@ import com.jgoodies.forms.layout.FormLayout;
 /**
  * 
  * @author keshav
- * @version $Id: MedusaParamPanel.java,v 1.8 2007-06-19 18:31:49 keshav Exp $
+ * @version $Id: MedusaParamPanel.java,v 1.9 2007-06-19 20:56:31 keshav Exp $
  */
 public class MedusaParamPanel extends AbstractSaveableParameterPanel implements
 		Serializable {
@@ -95,7 +95,7 @@ public class MedusaParamPanel extends AbstractSaveableParameterPanel implements
 	private JComboBox targetCombo = new JComboBox(new String[] { TARGET_ALL,
 			TARGET_LIST });
 
-	private boolean useSelectedAsTargets = true;
+	private boolean useAllAsTargets = true;
 
 	private String DEFAULT_TARGET_LIST = null;
 
@@ -103,7 +103,8 @@ public class MedusaParamPanel extends AbstractSaveableParameterPanel implements
 
 	private JButton loadTargetsButton = new JButton("Load Targets");
 
-	private String targetsFile = new String("data/medusa/dataset/targets.txt");
+	private String targetsFilePath = new String(
+			"data/medusa/dataset/targets.txt");
 
 	/* discretization interval */
 
@@ -385,39 +386,41 @@ public class MedusaParamPanel extends AbstractSaveableParameterPanel implements
 				if (TARGET_ALL.equals(selectedItem)) {
 					targetTextField.setEnabled(false);
 					loadTargetsButton.setEnabled(false);
+					useAllAsTargets = true;
 				} else {
 					targetTextField.setEnabled(true);
 					loadTargetsButton.setEnabled(true);
+					useAllAsTargets = false;
 				}
 			}
 		});
 		// button listener
 		loadTargetsButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent actionEvent) {
-				// targetGenes = new ArrayList<String>();
-				StringBuilder geneListBuilder = new StringBuilder();
+				StringBuilder targetListBuilder = new StringBuilder();
 				try {
-					File targetFile = new File(targetsFile);
+					File targetFile = new File(targetsFilePath);
 					JFileChooser chooser = new JFileChooser(targetFile
 							.getParent());
-					int retVal = chooser.showOpenDialog(MedusaParamPanel.this);
+					int retVal = chooser.showOpenDialog(null);
 
 					if (retVal == JFileChooser.APPROVE_OPTION) {
-						targetsFile = chooser.getSelectedFile().getPath();
+						targetsFilePath = chooser.getSelectedFile().getPath();
 
 						BufferedReader reader = new BufferedReader(
-								new FileReader(targetsFile));
-						String target = reader.readLine();
-						while (target != null && !"".equals(target)) {
-							// targetGenes.add(target);
-							geneListBuilder.append(target + ", ");
-							target = reader.readLine();
+								new FileReader(targetsFilePath));
+						String tar = reader.readLine();
+						while (!StringUtils.isEmpty(tar)) {
+							targetListBuilder.append(tar + ", ");
+							tar = reader.readLine();
 						}
 
-						String geneString = geneListBuilder.toString();
-						targetTextField.setText(geneString.substring(0,
-								geneString.length() - 2));
-					} else {
+						String targetString = targetListBuilder.toString();
+						targetTextField.setText(targetString.substring(0,
+								targetString.length() - 2));
+					}
+
+					else {
 						log.debug("cancelled ... ");
 					}
 
@@ -658,8 +661,8 @@ public class MedusaParamPanel extends AbstractSaveableParameterPanel implements
 		return regulatorTextField;
 	}
 
-	public String getTargetsFile() {
-		return targetsFile;
+	public String getTargetsFilePath() {
+		return targetsFilePath;
 	}
 
 	/**
@@ -667,7 +670,7 @@ public class MedusaParamPanel extends AbstractSaveableParameterPanel implements
 	 * @return
 	 */
 	public boolean isUseAllAsTargets() {
-		return useSelectedAsTargets;
+		return useAllAsTargets;
 	}
 
 	public boolean isReverseComplement() {
