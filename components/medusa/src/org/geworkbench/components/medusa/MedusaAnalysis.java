@@ -26,7 +26,7 @@ import edu.columbia.ccls.medusa.MedusaLoader;
 /**
  * 
  * @author keshav
- * @version $Id: MedusaAnalysis.java,v 1.29 2007-06-15 22:23:14 keshav Exp $
+ * @version $Id: MedusaAnalysis.java,v 1.30 2007-06-19 18:19:17 keshav Exp $
  */
 public class MedusaAnalysis extends AbstractGridAnalysis implements
 		ClusteringAnalysis {
@@ -113,7 +113,7 @@ public class MedusaAnalysis extends AbstractGridAnalysis implements
 				.discretize(microarraySetView, params.getIntervalBase(), params
 						.getIntervalBound());
 
-		// create labels file
+		// create labels file (and get targets & regulators)
 		if (StringUtils.isEmpty(params.getLabelsFilePath()))
 			params.setLabelsFilePath(this.fileLabels);
 
@@ -171,7 +171,7 @@ public class MedusaAnalysis extends AbstractGridAnalysis implements
 	}
 
 	/**
-	 * Returns a List of marker labels to be used as the regulators.
+	 * Returns a List of markers to be used as the regulators.
 	 * 
 	 * @param params
 	 * @param microarraySetView
@@ -180,33 +180,35 @@ public class MedusaAnalysis extends AbstractGridAnalysis implements
 	 */
 	private List<DSGeneMarker> getRegulators(MedusaParamPanel params,
 			DSMicroarraySetView<DSGeneMarker, DSMicroarray> microarraySetView) {
-		regulators = null;
+
+		regulators = new ArrayList<DSGeneMarker>();
+
+		DSGeneMarker marker = null;
+
+		/* check if we should just use selected */
 		if (params.isUseSelectedAsRegulators()) {
-			regulators = new ArrayList<DSGeneMarker>();
 			DSItemList<DSGeneMarker> selectedMarkers = microarraySetView
 					.getUniqueMarkers();
 			for (int i = 0; i < selectedMarkers.size(); i++) {
-				DSGeneMarker marker = selectedMarkers.get(i);
+				marker = selectedMarkers.get(i);
 				regulators.add(marker);
 				log.debug("added: " + marker.getLabel());
 			}
 		}
 
-		// TODO deal with case of manually entering retulators
-		// else if (!StringUtils.isEmpty(params.getRegulatorsFile())) {
-		// String regulatorText = params.getRegulatorTextField().getText();
-		// String[] regs = StringUtils.split(regulatorText, ",");
-		// int i = 0;
-		// for (String reg : regs) {
-		// regs[i] = StringUtils.strip(reg);
-		// i++;
-		// }
-		// regulators = Arrays.asList(regs);
-		// }
-
-		else {
-			// TODO load csv and extract the
+		/* else use either csv file or text field */
+		else if (!StringUtils.isEmpty(params.getRegulatorsFilePath())) {
+			String regulatorText = params.getRegulatorTextField().getText();
+			String[] regs = StringUtils.split(regulatorText, ",");
+			// DSItemList<DSGeneMarker> itemList = microarraySetView.markers();
+			DSItemList<DSGeneMarker> itemList = microarraySetView.allMarkers();
+			for (String reg : regs) {
+				reg = StringUtils.trim(reg);
+				marker = itemList.get(reg);
+				regulators.add(marker);
+			}
 		}
+
 		return regulators;
 	}
 
