@@ -34,7 +34,7 @@ import edu.columbia.ccls.medusa.io.SerializedRule;
  * updating the configuration file, etc.
  * 
  * @author keshav
- * @version $Id: MedusaUtil.java,v 1.15 2007-06-15 22:20:58 keshav Exp $
+ * @version $Id: MedusaUtil.java,v 1.16 2007-06-19 20:56:11 keshav Exp $
  */
 public class MedusaUtil {
 
@@ -75,7 +75,7 @@ public class MedusaUtil {
 				} else if (targets.contains(marker)) {
 					out.write('T');
 				} else {
-					log.info("Marker " + marker.getLabel()
+					log.debug("Marker " + marker.getLabel()
 							+ " neither regulator nor target ... skipping.");
 					continue;
 				}
