@@ -17,9 +17,11 @@ import javax.swing.JOptionPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.analysis.AbstractSaveableParameterPanel;
+import org.ginkgo.labs.util.FileTools;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.layout.FormLayout;
@@ -27,7 +29,7 @@ import com.jgoodies.forms.layout.FormLayout;
 /**
  * 
  * @author keshav
- * @version $Id: MedusaParamPanel.java,v 1.6 2007-06-19 16:33:21 keshav Exp $
+ * @version $Id: MedusaParamPanel.java,v 1.7 2007-06-19 18:18:33 keshav Exp $
  */
 public class MedusaParamPanel extends AbstractSaveableParameterPanel implements
 		Serializable {
@@ -35,8 +37,6 @@ public class MedusaParamPanel extends AbstractSaveableParameterPanel implements
 	private static final String NUMERIC_VALUES_ONLY = "Numeric values only (make sure fields are not empty).";
 
 	private static final String CANNOT_BE_NEGATIVE = "cannot be negative.";
-
-	private static final String FASTA_PREFIX = ">";
 
 	private Log log = LogFactory.getLog(MedusaParamPanel.class);
 
@@ -85,7 +85,7 @@ public class MedusaParamPanel extends AbstractSaveableParameterPanel implements
 
 	private JButton loadRegulatorsButton = new JButton("Load Regulators");
 
-	private String regulatorsFile = new String("data/regulators.txt");
+	private String regulatorsFilePath = new String("data/regulators.txt");
 
 	/* targets */
 	private String TARGET_LIST = "Specify (csv)";
@@ -300,23 +300,13 @@ public class MedusaParamPanel extends AbstractSaveableParameterPanel implements
 
 						BufferedReader reader = new BufferedReader(
 								new FileReader(featuresFilePath));
-						String target = reader.readLine();
-						reader.close();
 
-						if (!target.startsWith(FASTA_PREFIX)) {
+						if (!FileTools.isFasta(reader)) {
 							JOptionPane.showMessageDialog(null,
 									"Not in FASTA format.", "Error",
 									JOptionPane.ERROR_MESSAGE);
 						}
 
-						// while (!StringUtils.isEmpty(target)) {
-						// geneListBuilder.append(target + ", ");
-						// target = reader.readLine();
-						// }
-
-						// String geneString = geneListBuilder.toString();
-						// featuresList.setText(geneString.substring(0,
-						// geneString.length() - 2));
 					} else {
 						log.debug("cancelled ... ");
 					}
@@ -347,26 +337,31 @@ public class MedusaParamPanel extends AbstractSaveableParameterPanel implements
 		// button listener
 		loadRegulatorsButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent actionEvent) {
-				StringBuilder geneListBuilder = new StringBuilder();
+				StringBuilder regulatorListBuilder = new StringBuilder();
 				try {
-					File hubFile = new File(regulatorsFile);
-					JFileChooser chooser = new JFileChooser(hubFile.getParent());
-					int retVal = chooser.showOpenDialog(MedusaParamPanel.this);
+					File regulatorsFile = new File(regulatorsFilePath);
+					JFileChooser chooser = new JFileChooser(regulatorsFile
+							.getParent());
+					// null centers dialog
+					int retVal = chooser.showOpenDialog(null);
 
 					if (retVal == JFileChooser.APPROVE_OPTION) {
-						regulatorsFile = chooser.getSelectedFile().getPath();
+						regulatorsFilePath = chooser.getSelectedFile()
+								.getPath();
 
 						BufferedReader reader = new BufferedReader(
-								new FileReader(regulatorsFile));
-						String hub = reader.readLine();
-						while (hub != null && !"".equals(hub)) {
-							geneListBuilder.append(hub + ", ");
-							hub = reader.readLine();
+								new FileReader(regulatorsFilePath));
+
+						String reg = reader.readLine();
+						while (!StringUtils.isEmpty(reg)) {
+							regulatorListBuilder.append(reg + ", ");
+							reg = reader.readLine();
 						}
 
-						String geneString = geneListBuilder.toString();
-						regulatorTextField.setText(geneString.substring(0,
-								geneString.length() - 2));
+						String regulatorString = regulatorListBuilder
+								.toString();
+						regulatorTextField.setText(regulatorString.substring(0,
+								regulatorString.length() - 2));
 					}
 
 					else {
@@ -650,8 +645,8 @@ public class MedusaParamPanel extends AbstractSaveableParameterPanel implements
 		return useSelectedAsRegulators;
 	}
 
-	public String getRegulatorsFile() {
-		return regulatorsFile;
+	public String getRegulatorsFilePath() {
+		return regulatorsFilePath;
 	}
 
 	/**
