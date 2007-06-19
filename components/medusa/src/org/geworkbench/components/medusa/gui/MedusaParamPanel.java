@@ -29,7 +29,7 @@ import com.jgoodies.forms.layout.FormLayout;
 /**
  * 
  * @author keshav
- * @version $Id: MedusaParamPanel.java,v 1.9 2007-06-19 20:56:31 keshav Exp $
+ * @version $Id: MedusaParamPanel.java,v 1.10 2007-06-19 21:36:26 keshav Exp $
  */
 public class MedusaParamPanel extends AbstractSaveableParameterPanel implements
 		Serializable {
@@ -641,10 +641,6 @@ public class MedusaParamPanel extends AbstractSaveableParameterPanel implements
 		return usingDimers;
 	}
 
-	/**
-	 * 
-	 * @return
-	 */
 	public boolean isUseSelectedAsRegulators() {
 		return useSelectedAsRegulators;
 	}
@@ -653,10 +649,6 @@ public class MedusaParamPanel extends AbstractSaveableParameterPanel implements
 		return regulatorsFilePath;
 	}
 
-	/**
-	 * 
-	 * @return
-	 */
 	public JTextField getRegulatorTextField() {
 		return regulatorTextField;
 	}
@@ -665,10 +657,6 @@ public class MedusaParamPanel extends AbstractSaveableParameterPanel implements
 		return targetsFilePath;
 	}
 
-	/**
-	 * 
-	 * @return
-	 */
 	public boolean isUseAllAsTargets() {
 		return useAllAsTargets;
 	}
@@ -689,13 +677,13 @@ public class MedusaParamPanel extends AbstractSaveableParameterPanel implements
 		this.configFilePath = configFilePath;
 	}
 
+	public boolean isAllArrays() {
+		return this.allArraysCheckBox.isSelected();
+	}
+
 	/* mutators */
 	public void setAggTextField(JTextField aggTextField) {
 		this.aggTextField = aggTextField;
-	}
-
-	public void setAllArraysCheckBox(JCheckBox allArraysCheckBox) {
-		this.allArraysCheckBox = allArraysCheckBox;
 	}
 
 	public void setDimersCombo(JComboBox dimersCombo) {
