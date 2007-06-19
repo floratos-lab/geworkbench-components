@@ -26,7 +26,7 @@ import edu.columbia.ccls.medusa.MedusaLoader;
 /**
  * 
  * @author keshav
- * @version $Id: MedusaAnalysis.java,v 1.32 2007-06-19 18:49:37 keshav Exp $
+ * @version $Id: MedusaAnalysis.java,v 1.33 2007-06-19 20:57:10 keshav Exp $
  */
 public class MedusaAnalysis extends AbstractGridAnalysis implements
 		ClusteringAnalysis {
@@ -196,10 +196,9 @@ public class MedusaAnalysis extends AbstractGridAnalysis implements
 		}
 
 		/* else use either csv file or text field */
-		else if (!StringUtils.isEmpty(params.getRegulatorsFilePath())) {
+		else {
 			String regulatorText = params.getRegulatorTextField().getText();
 			String[] regs = StringUtils.split(regulatorText, ",");
-			// DSItemList<DSGeneMarker> itemList = microarraySetView.markers();
 			DSItemList<DSGeneMarker> itemList = microarraySetView.allMarkers();
 			for (String reg : regs) {
 				reg = StringUtils.trim(reg);
@@ -221,37 +220,76 @@ public class MedusaAnalysis extends AbstractGridAnalysis implements
 	 */
 	private List<DSGeneMarker> getTargets(MedusaParamPanel params,
 			DSMicroarraySetView<DSGeneMarker, DSMicroarray> microarraySetView) {
-		List<DSGeneMarker> targets = null;
+
+		List<DSGeneMarker> targets = new ArrayList<DSGeneMarker>();
+
+		DSGeneMarker marker = null;
+
 		if (params.isUseAllAsTargets()) {
-			targets = new ArrayList<DSGeneMarker>();
+
 			DSItemList<DSGeneMarker> allMarkers = microarraySetView
 					.allMarkers();
 			for (int i = 0; i < allMarkers.size(); i++) {
-				DSGeneMarker marker = allMarkers.get(i);
+				marker = allMarkers.get(i);
 				targets.add(marker);
 				log.debug("added: " + marker.getLabel());
 			}
-			for (DSGeneMarker marker : regulators) {
-				targets.remove(marker);
+		}
+
+		/* else use either csv file or text field */
+		else {
+			String targetText = params.getTargetTextField().getText();
+			String[] targs = StringUtils.split(targetText, ",");
+			DSItemList<DSGeneMarker> itemList = microarraySetView.allMarkers();
+			for (String tar : targs) {
+				tar = StringUtils.trim(tar);
+				marker = itemList.get(tar);
+				targets.add(marker);
 			}
 		}
 
-		// TODO deal with this case
-		// else if (!StringUtils.isEmpty(params.getTargetsFile())) {
-		// String targetText = params.getTargetTextField().getText();
-		// String[] targs = StringUtils.split(targetText, ",");
-		// int i = 0;
-		// for (String tar : targs) {
-		// targs[i] = StringUtils.strip(tar);
-		// i++;
-		// }
-		// targets = Arrays.asList(targs);
-		// }
+		removeDuplicateTargetsAndRegulators(params, microarraySetView, targets);
+
+		return targets;
+	}
+
+	/**
+	 * If a marker has been selected as BOTH a target and regulator, it will be
+	 * removed from the larger list. That is, if there are more targets, the
+	 * marker will be removed from the list of targets. If there are more
+	 * regulators, the marker will be removed frm the list of regulators.
+	 * 
+	 * @param params
+	 * @param microarraySetView
+	 * @param targets
+	 */
+	private void removeDuplicateTargetsAndRegulators(MedusaParamPanel params,
+			DSMicroarraySetView<DSGeneMarker, DSMicroarray> microarraySetView,
+			List<DSGeneMarker> targets) {
+		if (regulators == null)
+			regulators = this.getRegulators(params, microarraySetView);
+
+		if (regulators.size() >= targets.size()) {
+			for (DSGeneMarker m : targets) {
+				log
+						.debug("Marker "
+								+ m.getLabel()
+								+ " has been selected as both a target and regultator.  Since there are "
+								+ "more regulators than targets, will remove this from the current list of targets.");
+				regulators.remove(m);
+			}
+		}
 
 		else {
-			// TODO load csv and extract the
+			for (DSGeneMarker m : regulators) {
+				log
+						.debug("Marker "
+								+ m.getLabel()
+								+ " has been selected as both a target and regultator.  Since there are "
+								+ "more targets than regulators, will remove this from the current list of targets.");
+				targets.remove(m);
+			}
 		}
-		return targets;
 	}
 
 	/**
