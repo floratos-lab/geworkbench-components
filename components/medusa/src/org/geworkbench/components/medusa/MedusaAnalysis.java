@@ -26,7 +26,7 @@ import edu.columbia.ccls.medusa.MedusaLoader;
 /**
  * 
  * @author keshav
- * @version $Id: MedusaAnalysis.java,v 1.31 2007-06-19 18:31:49 keshav Exp $
+ * @version $Id: MedusaAnalysis.java,v 1.32 2007-06-19 18:49:37 keshav Exp $
  */
 public class MedusaAnalysis extends AbstractGridAnalysis implements
 		ClusteringAnalysis {
@@ -141,7 +141,6 @@ public class MedusaAnalysis extends AbstractGridAnalysis implements
 			throw new RuntimeException("Error running medusa: " + e);
 		}
 
-		targets = getTargets(params, microarraySetView);
 		MedusaData medusaData = new MedusaData(discretizedInput
 				.getMicroarraySet(), regulators, targets, command);
 		MedusaDataSet dataSet = new MedusaDataSet(microarraySetView
@@ -162,9 +161,9 @@ public class MedusaAnalysis extends AbstractGridAnalysis implements
 		// TODO move me to the MedusaHelper
 		DSMicroarraySetView<DSGeneMarker, DSMicroarray> microarraySetView = (CSMicroarraySetView<DSGeneMarker, DSMicroarray>) input;
 
-		List<DSGeneMarker> regulators = getRegulators(params, microarraySetView);
+		regulators = getRegulators(params, microarraySetView);
 
-		List<DSGeneMarker> targets = getTargets(params, microarraySetView);
+		targets = getTargets(params, microarraySetView);
 
 		MedusaUtil.writeMedusaLabelsFile(microarraySetView, params
 				.getLabelsFilePath(), regulators, targets);
@@ -181,7 +180,7 @@ public class MedusaAnalysis extends AbstractGridAnalysis implements
 	private List<DSGeneMarker> getRegulators(MedusaParamPanel params,
 			DSMicroarraySetView<DSGeneMarker, DSMicroarray> microarraySetView) {
 
-		regulators = new ArrayList<DSGeneMarker>();
+		List<DSGeneMarker> regulators = new ArrayList<DSGeneMarker>();
 
 		DSGeneMarker marker = null;
 
