@@ -26,7 +26,7 @@ import edu.columbia.ccls.medusa.MedusaLoader;
 /**
  * 
  * @author keshav
- * @version $Id: MedusaAnalysis.java,v 1.30 2007-06-19 18:19:17 keshav Exp $
+ * @version $Id: MedusaAnalysis.java,v 1.31 2007-06-19 18:31:49 keshav Exp $
  */
 public class MedusaAnalysis extends AbstractGridAnalysis implements
 		ClusteringAnalysis {
@@ -35,6 +35,7 @@ public class MedusaAnalysis extends AbstractGridAnalysis implements
 
 	private StringBuilder s = null;
 
+	// TODO change name to inputdataset.labels
 	String fileLabels = "data/medusa/dataset/web100_test.labels";
 
 	private List<DSGeneMarker> regulators = null;
@@ -140,7 +141,6 @@ public class MedusaAnalysis extends AbstractGridAnalysis implements
 			throw new RuntimeException("Error running medusa: " + e);
 		}
 
-		// TODO use the RuleBean to take a list of rule files.
 		targets = getTargets(params, microarraySetView);
 		MedusaData medusaData = new MedusaData(discretizedInput
 				.getMicroarraySet(), regulators, targets, command);
