@@ -2,13 +2,19 @@ package org.geworkbench.components.medusa.gui;
 
 import java.awt.BorderLayout;
 import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.JCheckBox;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.components.medusa.MedusaData;
 
@@ -19,16 +25,17 @@ import com.jgoodies.forms.layout.FormLayout;
  * This plugin sets the layout for the MEDUSA visualization.
  * 
  * @author keshav
- * @version $Id: MedusaVisualizationPanel.java,v 1.1 2007-06-15 17:12:31 keshav Exp $
+ * @version $Id: MedusaVisualizationPanel.java,v 1.1 2007/06/15 17:12:31 keshav
+ *          Exp $
  */
 public class MedusaVisualizationPanel extends JPanel {
+
+	private Log log = LogFactory.getLog(MedusaVisualizationPanel.class);
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-
-	private MedusaData medusaData = null;
 
 	private String path = "temp/medusa/dataset/output/run1/";
 
@@ -36,9 +43,16 @@ public class MedusaVisualizationPanel extends JPanel {
 
 	private List<String> rulesFiles = null;
 
+	private Map<String, DSGeneMarker> selectedMarkerMap = null;
+
+	/**
+	 * 
+	 * @param medusaData
+	 */
 	public MedusaVisualizationPanel(MedusaData medusaData) {
 		super();
-		this.medusaData = medusaData;
+
+		final MedusaData mData = medusaData;
 
 		JTabbedPane tabbedPane = new JTabbedPane();
 
@@ -48,6 +62,8 @@ public class MedusaVisualizationPanel extends JPanel {
 		List<DSGeneMarker> targets = medusaData.getTargets();
 
 		List<DSGeneMarker> regulators = medusaData.getRegulators();
+
+		selectedMarkerMap = initSelectedMarkerMap(targets, regulators);
 
 		double[][] targetMatrix = new double[targets.size()][];
 		for (DSGeneMarker target : targets) {
@@ -93,7 +109,24 @@ public class MedusaVisualizationPanel extends JPanel {
 		regulatorLabelBuilder.nextRow();
 
 		for (String name : regulatorNames) {
-			JCheckBox checkBox = new JCheckBox();
+			final JCheckBox checkBox = new JCheckBox();
+			checkBox.addActionListener(new ActionListener() {
+
+				public void actionPerformed(ActionEvent e) {
+					log.info("Regulator " + e.getActionCommand()
+							+ " is selected? " + checkBox.isSelected());
+
+					String markerLabel = e.getActionCommand();
+
+					DSGeneMarker reg = selectedMarkerMap.get(markerLabel);
+
+					if (checkBox.isSelected())
+						selectedMarkerMap.put(markerLabel, reg);
+
+					else
+						selectedMarkerMap.remove(markerLabel);
+				}
+			});
 			checkBox.setText(name);
 			checkBox.setSelected(true);
 			regulatorLabelBuilder.append(checkBox);
@@ -124,7 +157,23 @@ public class MedusaVisualizationPanel extends JPanel {
 		targetLabelBuilder.nextRow();
 
 		for (String name : targetNames) {
-			JCheckBox checkBox = new JCheckBox();
+			final JCheckBox checkBox = new JCheckBox();
+			checkBox.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					log.info("Target " + e.getActionCommand()
+							+ " is selected? " + checkBox.isSelected());
+
+					String markerLabel = e.getActionCommand();
+
+					DSGeneMarker target = selectedMarkerMap.get(markerLabel);
+
+					if (checkBox.isSelected())
+						selectedMarkerMap.put(markerLabel, target);
+
+					else
+						selectedMarkerMap.remove(markerLabel);
+				}
+			});
 			checkBox.setText(name);
 			checkBox.setSelected(true);
 			targetLabelBuilder.append(checkBox);
@@ -147,5 +196,23 @@ public class MedusaVisualizationPanel extends JPanel {
 		add(tabbedPane, BorderLayout.CENTER);
 		this.revalidate();
 
+	}
+
+	/**
+	 * 
+	 * @param targets
+	 * @param regulators
+	 * @return
+	 */
+	private Map<String, DSGeneMarker> initSelectedMarkerMap(
+			List<DSGeneMarker> targets, List<DSGeneMarker> regulators) {
+		Map<String, DSGeneMarker> selectedMarkerMap = new HashMap<String, DSGeneMarker>();
+		for (DSGeneMarker reg : regulators) {
+			selectedMarkerMap.put(reg.getLabel(), reg);
+		}
+		for (DSGeneMarker tar : targets) {
+			selectedMarkerMap.put(tar.getLabel(), tar);
+		}
+		return selectedMarkerMap;
 	}
 }
