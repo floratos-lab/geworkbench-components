@@ -26,7 +26,7 @@ import edu.columbia.ccls.medusa.MedusaLoader;
 /**
  * 
  * @author keshav
- * @version $Id: MedusaAnalysis.java,v 1.33 2007-06-19 20:57:10 keshav Exp $
+ * @version $Id: MedusaAnalysis.java,v 1.34 2007-06-20 16:59:35 keshav Exp $
  */
 public class MedusaAnalysis extends AbstractGridAnalysis implements
 		ClusteringAnalysis {
@@ -321,6 +321,7 @@ public class MedusaAnalysis extends AbstractGridAnalysis implements
 
 		// medusa group has dimers_max_gap, dimers_smallest, dimers_largest
 		if (params.isUsingDimers()) {
+			command.setUsingDimers(true);
 			command.setMinGap(params.getMinGap());
 			command.setMaxGap(params.getMaxGap());
 
@@ -333,7 +334,13 @@ public class MedusaAnalysis extends AbstractGridAnalysis implements
 		}
 
 		else {
-			// s.append(" -dimers=F");
+			command.setUsingDimers(false);
+		}
+
+		if (params.isReverseComplement()) {
+			command.setReverseComplement(true);
+		} else {
+			command.setReverseComplement(false);
 		}
 
 		/* parameters */

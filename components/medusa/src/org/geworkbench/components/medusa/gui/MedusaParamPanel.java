@@ -29,7 +29,7 @@ import com.jgoodies.forms.layout.FormLayout;
 /**
  * 
  * @author keshav
- * @version $Id: MedusaParamPanel.java,v 1.10 2007-06-19 21:36:26 keshav Exp $
+ * @version $Id: MedusaParamPanel.java,v 1.11 2007-06-20 16:59:35 keshav Exp $
  */
 public class MedusaParamPanel extends AbstractSaveableParameterPanel implements
 		Serializable {
@@ -634,6 +634,14 @@ public class MedusaParamPanel extends AbstractSaveableParameterPanel implements
 	}
 
 	public int getPssmLength() {
+		try {
+			pssmLength = Integer.valueOf(pssmLengthTextField.getText());
+		} catch (NumberFormatException nfe) {
+			JOptionPane.showMessageDialog(null, NUMERIC_VALUES_ONLY, "Error",
+					JOptionPane.ERROR_MESSAGE);
+			throw new RuntimeException(nfe.getMessage());
+		}
+
 		return pssmLength;
 	}
 
