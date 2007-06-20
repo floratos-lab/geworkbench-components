@@ -13,18 +13,17 @@ import java.awt.image.BufferedImage;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 
-import org.jdesktop.swingx.JXTable;
-import org.jdesktop.swingx.JXTaskPane;
-import org.jdesktop.swingx.JXTaskPaneContainer;
-import org.jdesktop.swingx.decorator.*;
 import org.jdesktop.swingx.autocomplete.AutoCompleteDecorator;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMutableMarkerValue;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
+import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
+import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.util.pathwaydecoder.mutualinformation.MindyData;
 import org.geworkbench.engine.management.Publish;
 import org.geworkbench.events.ImageSnapshotEvent;
+import org.geworkbench.events.SubpanelChangedEvent;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.math.stat.descriptive.SummaryStatistics;
@@ -39,25 +38,27 @@ public class MindyPlugin extends JPanel {
 
     static Log log = LogFactory.getLog(MindyPlugin.class);
 
-    private enum ModulatorSort {Aggregate, Enhancing, Negative;}
-
     private static final int DEFAULT_MODULATOR_LIMIT = 10;
+	private static final String NUM_MOD_SELECTED_LABEL = "Modulators Selected: ";
+    private static enum ModulatorSort {Aggregate, Enhancing, Negative;}
 
     private AggregateTableModel aggregateModel;
     private ModulatorTargetModel modTargetModel;
     private ModulatorModel modulatorModel;
 
-    private JCheckBox selectionEnabledCheckBox;
+    private JCheckBox selectionEnabledCheckBox, selectionEnabledCheckBoxTarget;
     private JList heatMapModNameList;
 
     private JScrollPane heatMapScrollPane;
     private List<DSGeneMarker> modulators;
     private List<DSGeneMarker> transFactors;
     private MindyData mindyData;
-    private JXTable listTable;
-    private JCheckBox selectAllModsCheckBox;
-    private JCheckBox selectAllTargetsCheckBox;
-    private JButton addToSetButton;
+    private JTable listTable, targetTable;
+    private JCheckBox selectAll, selectAllModsCheckBox, selectAllModsCheckBoxTarget;
+    private JCheckBox selectAllTargetsCheckBox, selectAllTargetsCheckBoxTarget;
+//    private JCheckBox allMarkersCheckBoxes[] = new JCheckBox[3];
+    private JButton addToSetButton /*list tab*/, addToSetButtonTarget, addToSetButtonMod;
+    private JLabel numModSelectedInModTab, numModSelectedInTableTab, numModSelectedInListTab;
 
     // Contains the state of selections passed in from the marker panel and overrides via All Markers checkboxes
     private MarkerLimitState globalSelectionState = new MarkerLimitState();
@@ -74,60 +75,77 @@ public class MindyPlugin extends JPanel {
         JTabbedPane tabs = new JTabbedPane();
         {
             // Modulator Table
-
-            JPanel panel = new JPanel(new BorderLayout());
+            JPanel panel = new JPanel(new BorderLayout(10, 10));
 
             modulatorModel = new ModulatorModel(mindyData);
-            final JXTable table = new JXTable(modulatorModel);
+            final JTable table = new JTable(modulatorModel){
+                public Component prepareRenderer(TableCellRenderer renderer,
+                        int rowIndex, int vColIndex) {
+                		Component c = super.prepareRenderer(renderer, rowIndex, vColIndex);
+                		if (rowIndex % 2 == 0 && !isCellSelected(rowIndex, vColIndex)) {
+                			c.setBackground(new Color(237, 237, 237));
+                		} else {
+                			// If not shaded, match the table's background
+                			c.setBackground(getBackground());
+                		}
+                		return c;
+                }
+            };         
 
             JScrollPane scrollPane = new JScrollPane(table);
-            table.setHorizontalScrollEnabled(true);
+            scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
             restoreBooleanRenderers(table);
-//            table.setPreferredScrollableViewportSize(new Dimension(500, 70));
-//            table.setColumnControlVisible(true);
             table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-            table.setHighlighters(new HighlighterPipeline(new Highlighter[]{AlternateRowHighlighter.genericGrey}));
             DefaultTableCellRenderer renderer = new DefaultTableCellRenderer();
             renderer.setHorizontalAlignment(DefaultTableCellRenderer.CENTER);
             table.getColumnModel().getColumn(5).setCellRenderer(renderer);
-//            table.getColumnModel().getColumn(5).setHeaderRenderer(renderer);
-            table.packTable(DEFAULT_MODULATOR_LIMIT);
-
+            table.getColumnModel().getColumn(0).setMaxWidth(15);
 
             panel.add(scrollPane, BorderLayout.CENTER);
+            
+            numModSelectedInModTab = new JLabel(NUM_MOD_SELECTED_LABEL + 0);
+            addToSetButtonMod = new JButton("Add To Set");
+            addToSetButtonMod.addActionListener(new ActionListener() {
+            	public void actionPerformed(ActionEvent actionEvent){
+            		ModulatorModel model = (ModulatorModel) table.getModel();
+            		List<DSGeneMarker> selections = model.getSelectedModulators();
+            		if(selections.size() > 0) addToSet(selections);
+            	}
+            });
 
-            JXTaskPane markerSetPane = new JXTaskPane();
-            markerSetPane.setTitle("List Selections");
-            final JCheckBox selectAll = new JCheckBox("Select All");
+            JLabel ll = new JLabel("List Selections  ", SwingConstants.LEFT);
+            ll.setFont(new Font(ll.getFont().getName(), Font.BOLD, 12));
+            ll.setForeground(Color.BLUE);
+            selectAll = new JCheckBox("Select All");
             selectAll.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent actionEvent) {
                     ModulatorModel model = (ModulatorModel) table.getModel();
                     model.selectAllModulators(selectAll.isSelected());
                     table.repaint();
+                    numModSelectedInModTab.setText(NUM_MOD_SELECTED_LABEL + model.getNumberOfModulatorsSelected());
+                    numModSelectedInModTab.repaint();
                 }
             });
-
-            markerSetPane.add(selectAll);
-
-            JXTaskPane markerPanelOverride = new JXTaskPane();
-            markerPanelOverride.setTitle("Marker Panel Override");
-            final JCheckBox allMarkersCheckBox = makeAllMarkersCheckBox();
-            markerPanelOverride.add(allMarkersCheckBox);
-
-            JXTaskPaneContainer taskContainer = new JXTaskPaneContainer();
-            taskContainer.add(markerSetPane);
-            taskContainer.add(markerPanelOverride);
-            panel.add(taskContainer, BorderLayout.WEST);
+            
+            JPanel taskContainer = new JPanel(new GridLayout(4, 1, 10, 10));
+            taskContainer.add(ll);
+            taskContainer.add(selectAll);
+            taskContainer.add(numModSelectedInModTab);
+            taskContainer.add(addToSetButtonMod);
+            JPanel p = new JPanel(new BorderLayout());
+            p.add(taskContainer, BorderLayout.NORTH);
+            panel.add(p, BorderLayout.WEST);
 
             tabs.add("Modulator", panel);
         }
 
         {
             // Modulator / Target Table
-            Panel panel = new Panel(new BorderLayout());
+            Panel panel = new Panel(new BorderLayout(10, 10));
 
-            JXTaskPane sortPane = new JXTaskPane();
-            sortPane.setTitle("Sorting");
+            JLabel ls = new JLabel("Sorting", SwingConstants.LEFT);
+            ls.setFont(new Font(ls.getFont().getName(), Font.BOLD, 12));
+            ls.setForeground(Color.BLUE);
             JComboBox sortOptions = new JComboBox();
             sortOptions.addItem(ModulatorSort.Aggregate);
             sortOptions.addItem(ModulatorSort.Enhancing);
@@ -148,26 +166,30 @@ public class MindyPlugin extends JPanel {
                     }
                 }
             });
-            sortPane.add(sortOptions);
+            sortOptions.setEnabled(true);
 
-            JXTaskPane limitPane = new JXTaskPane();
             Panel limitControls = new Panel(new BorderLayout());
-            limitPane.setTitle("Modulator Limits");
+            JLabel lm = new JLabel("Modulator Limits", SwingConstants.LEFT);
+            lm.setFont(new Font(lm.getFont().getName(), Font.BOLD, 12));
+            lm.setForeground(Color.BLUE);
             final JCheckBox modulatorLimits = new JCheckBox("Limit To Top");
             modulatorLimits.setSelected(true);
             limitControls.add(modulatorLimits, BorderLayout.WEST);
             SpinnerNumberModel spinnerModel = new SpinnerNumberModel(DEFAULT_MODULATOR_LIMIT, 1, 1000, 1);
             final JSpinner modLimitValue = new JSpinner(spinnerModel);
-//            modLimitValue.setValue(DEFAULT_MODULATOR_LIMIT);
             limitControls.add(modLimitValue, BorderLayout.EAST);
-            limitPane.add(limitControls);
 
-            JXTaskPane tableOptionsPane = new JXTaskPane();
-            tableOptionsPane.setTitle("Display Options");
+            JLabel ld = new JLabel("Display Options", SwingConstants.LEFT);
+            ld.setFont(new Font(ld.getFont().getName(), Font.BOLD, 12));
+            ld.setForeground(Color.BLUE);
             final JCheckBox colorCheck = new JCheckBox("Color View");
-            tableOptionsPane.add(colorCheck);
             final JCheckBox scoreCheck = new JCheckBox("Score View");
-            tableOptionsPane.add(scoreCheck);
+            
+            JLabel lmp = new JLabel("Marker Panel Override  ", SwingConstants.LEFT);
+            lmp.setFont(new Font(lmp.getFont().getName(), Font.BOLD, 12));
+            lmp.setForeground(Color.BLUE);
+            final JCheckBox allMarkersCheckBox = makeAllMarkersCheckBox();
+//            MindyPlugin.this.allMarkersCheckBoxes[0] = allMarkersCheckBox;
 
             final ColorGradient gradient = new ColorGradient(Color.blue, Color.red);
             gradient.addColorPoint(Color.white, 0f);
@@ -175,10 +197,10 @@ public class MindyPlugin extends JPanel {
             aggregateModel = new AggregateTableModel(mindyData);
             aggregateModel.setModLimit(DEFAULT_MODULATOR_LIMIT);
             aggregateModel.setModulatorsLimited(modulatorLimits.isSelected());
-            final JXTable table = new JXTable(aggregateModel) {
+            targetTable = new JTable(aggregateModel){
                 public Component prepareRenderer(TableCellRenderer tableCellRenderer, int row, int col) {
                     Component component = super.prepareRenderer(tableCellRenderer, row, col);
-                    if (colorCheck.isSelected() && col > 1) {
+                    if (colorCheck.isSelected() && col > 1) {  // broken??
                         float score = aggregateModel.getScoreAt(row, col);
                         if (scoreCheck.isSelected()) {
                             component.setBackground(gradient.getColor(score));
@@ -186,26 +208,34 @@ public class MindyPlugin extends JPanel {
                             component.setBackground(gradient.getColor(Math.signum(score) * 1));
                         }
                     }
+               		if (row % 2 == 0 && !isCellSelected(row, col)) {
+            			component.setBackground(new Color(237, 237, 237));
+            		} else {
+            			// If not shaded, match the table's background
+            			component.setBackground(getBackground());
+            		}
                     return component;
                 }
             };
-            table.setAutoCreateColumnsFromModel(true);
-            JScrollPane scrollPane = new JScrollPane(table);
-            table.setHorizontalScrollEnabled(true);
-            restoreBooleanRenderers(table);
+            targetTable.setAutoCreateColumnsFromModel(true);
+            JScrollPane scrollPane = new JScrollPane(targetTable);
+            scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+            restoreBooleanRenderers(targetTable);
+            targetTable.getColumnModel().getColumn(0).setMaxWidth(15);
+            targetTable.getColumnModel().getColumn(0).setWidth(15);
 
             colorCheck.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent actionEvent) {
-                    table.invalidate();
-                    table.repaint();
+                	targetTable.invalidate();
+                	targetTable.repaint();
                 }
             });
 
             scoreCheck.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent actionEvent) {
                     aggregateModel.setScoreView(scoreCheck.isSelected());
-                    table.invalidate();
-                    table.repaint();
+                    targetTable.invalidate();
+                    targetTable.repaint();
                 }
             });
 
@@ -214,33 +244,75 @@ public class MindyPlugin extends JPanel {
                     Integer modLimit = (Integer) modLimitValue.getValue();
                     log.debug("Limiting modulators displayed to top " + modLimit);
                     boolean selected = modulatorLimits.isSelected();
-                    limitModulators(modLimit, selected, table);
+                    limitModulators(modLimit, selected, targetTable);
                 }
             });
 
             modLimitValue.addChangeListener(new ChangeListener() {
                 public void stateChanged(ChangeEvent changeEvent) {
                     if (modulatorLimits.isSelected()) {
-                        limitModulators((Integer) modLimitValue.getValue(), true, table);
+                        limitModulators((Integer) modLimitValue.getValue(), true, targetTable);
                     }
                 }
             });
+            
+            selectionEnabledCheckBoxTarget = new JCheckBox("Enable Selection");
+            selectionEnabledCheckBoxTarget.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent actionEvent) {
+                    boolean selected = selectionEnabledCheckBoxTarget.isSelected();
+                    log.debug("Setting test box visibility to " + selected);
+                    setTargetCheckboxesVisibility(selected);
+                    setTargetControlVisibility(selected);
+                    setTargetTableViewOptions();
+                }
+            });
+            
+            selectAllModsCheckBoxTarget = new JCheckBox("Select All Modulators");
+            selectAllModsCheckBoxTarget.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent actionEvent) {
+                	System.out.println("select all modulators");
+                    //ModulatorTargetModel model = (ModulatorTargetModel) listTable.getModel();
+                    //model.selectAllModulators(selectAllModsCheckBox.isSelected());
+                }
+            });
+            selectAllTargetsCheckBoxTarget = new JCheckBox("Select All Targets");
+            selectAllTargetsCheckBoxTarget.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent actionEvent) {
+                	AggregateTableModel model = (AggregateTableModel) targetTable.getModel();
+                	model.selectAllTargets(selectAllTargetsCheckBoxTarget.isSelected());
+                }
+            });
 
-//            TableColumnModel columnModel = table.getColumnModel();
-//            TableColumn column = columnModel.getColumn(2);
-//            column.setCellRenderer(new ScoreColorRenderer(mindyData));
+            addToSetButtonTarget = new JButton("Add To Set");
+            addToSetButtonTarget.addActionListener(new ActionListener() {
+            	public void actionPerformed(ActionEvent actionEvent){
+            		//addToSet();
+            	}
+            });
+            setTargetControlVisibility(false);
 
-            table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-            table.setHighlighters(new HighlighterPipeline(new Highlighter[]{AlternateRowHighlighter.genericGrey}));
+            targetTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
-            table.packAll();
             panel.add(scrollPane, BorderLayout.CENTER);
 
-            JXTaskPaneContainer taskContainer = new JXTaskPaneContainer();
-            taskContainer.add(sortPane);
-            taskContainer.add(limitPane);
-            taskContainer.add(tableOptionsPane);
-            panel.add(taskContainer, BorderLayout.WEST);
+            JPanel taskContainer = new JPanel();
+            taskContainer.setLayout(new GridLayout(13, 1, 10, 10));
+            taskContainer.add(ls);
+            taskContainer.add(sortOptions);
+            taskContainer.add(lm);
+            taskContainer.add(limitControls);
+            taskContainer.add(ld);
+            taskContainer.add(colorCheck);
+            taskContainer.add(scoreCheck);
+            taskContainer.add(lmp);
+            taskContainer.add(selectionEnabledCheckBoxTarget);
+            taskContainer.add(selectAllModsCheckBoxTarget);
+            taskContainer.add(selectAllTargetsCheckBoxTarget);
+            taskContainer.add(addToSetButtonTarget);
+            taskContainer.add(allMarkersCheckBox);
+            JPanel p = new JPanel(new BorderLayout());
+            p.add(taskContainer, BorderLayout.NORTH);
+            panel.add(p, BorderLayout.WEST);
 
             tabs.add("Table", panel);
         }
@@ -248,26 +320,33 @@ public class MindyPlugin extends JPanel {
         {
             // Modulator / Target list
 
-            JPanel panel = new JPanel(new BorderLayout());
+            JPanel panel = new JPanel(new BorderLayout(10, 10));
 
-            JXTaskPane markerSetPane = new JXTaskPane();
-            markerSetPane.setTitle("List Selections");
+            JLabel l = new JLabel("Marker Set", SwingConstants.LEFT);
+            l.setFont(new Font(l.getFont().getName(), Font.BOLD, 12));
+            l.setForeground(Color.BLUE);
 
             modTargetModel = new ModulatorTargetModel(mindyData);
-            listTable = new JXTable(modTargetModel);
+            listTable = new JTable(modTargetModel){
+                public Component prepareRenderer(TableCellRenderer renderer,
+                        int rowIndex, int vColIndex) {
+                		Component c = super.prepareRenderer(renderer, rowIndex, vColIndex);
+                		if (rowIndex % 2 == 0 && !isCellSelected(rowIndex, vColIndex)) {
+                			c.setBackground(new Color(237, 237, 237));
+                		} else {
+                			// If not shaded, match the table's background
+                			c.setBackground(getBackground());
+                		}
+                		return c;
+                }
+            };
             listTable.setBackground(new Color(245, 245, 245));
-//            ModulatorHighlighter modulatorHighlighter = new ModulatorHighlighter();
-//            modulatorHighlighter.setBackground(new Color(233, 233, 233));
-//            Highlighter[] highlighters = new Highlighter[]{modulatorHighlighter};
-//            listTable.setHighlighters(new HighlighterPipeline(highlighters));
-            listTable.setHighlighters(new HighlighterPipeline(new Highlighter[]{AlternateRowHighlighter.genericGrey}));
             JScrollPane scrollPane = new JScrollPane(listTable);
             listTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
             restoreBooleanRenderers(listTable);
 
             selectionEnabledCheckBox = new JCheckBox("Enable Selection");
-            markerSetPane.add(selectionEnabledCheckBox);
             selectionEnabledCheckBox.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent actionEvent) {
                     boolean selected = selectionEnabledCheckBox.isSelected();
@@ -281,7 +360,6 @@ public class MindyPlugin extends JPanel {
             setListTableViewOptions();
 
             selectAllModsCheckBox = new JCheckBox("Select All Modulators");
-            markerSetPane.add(selectAllModsCheckBox);
             selectAllModsCheckBox.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent actionEvent) {
                     ModulatorTargetModel model = (ModulatorTargetModel) listTable.getModel();
@@ -289,7 +367,6 @@ public class MindyPlugin extends JPanel {
                 }
             });
             selectAllTargetsCheckBox = new JCheckBox("Select All Targets");
-            markerSetPane.add(selectAllTargetsCheckBox);
             selectAllTargetsCheckBox.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent actionEvent) {
                     ModulatorTargetModel model = (ModulatorTargetModel) listTable.getModel();
@@ -298,17 +375,30 @@ public class MindyPlugin extends JPanel {
             });
 
             addToSetButton = new JButton("Add To Set");
-            markerSetPane.add(addToSetButton);
+            addToSetButton.addActionListener(new ActionListener() {
+            	public void actionPerformed(ActionEvent actionEvent){
+            		ModulatorTargetModel model = (ModulatorTargetModel) listTable.getModel();
+            		addToSet(model.getUniqueSelectedMarkers());
+            	}
+            });
             setListControlVisibility(false);
 
-            JXTaskPane markerPanelOverride = new JXTaskPane();
-            markerPanelOverride.setTitle("Marker Panel Override");
-            final JCheckBox allMarkers = makeAllMarkersCheckBox();
-            markerPanelOverride.add(allMarkers);
+            l = new JLabel("Marker Panel Override", SwingConstants.LEFT);
+            l.setFont(new Font(l.getFont().getName(), Font.BOLD, 12));
+            l.setForeground(Color.BLUE);
+            final JCheckBox allMarkersCheckBox = makeAllMarkersCheckBox();
+//            MindyPlugin.this.allMarkersCheckBoxes[1] = allMarkersCheckBox;
 
-            JXTaskPaneContainer taskContainer = new JXTaskPaneContainer();
-            taskContainer.add(markerSetPane);
-//            taskContainer.add(markerPanelOverride);
+            JPanel p = new JPanel(new GridLayout(6, 1, 10, 10));
+            p.add(l);
+            p.add(selectionEnabledCheckBox);
+            p.add(selectAllModsCheckBox);
+            p.add(selectAllTargetsCheckBox);
+            p.add(addToSetButton);
+            p.add(allMarkersCheckBox);
+            JPanel taskContainer = new JPanel();
+            taskContainer.setLayout(new BorderLayout(10, 10));
+            taskContainer.add(p, BorderLayout.NORTH);
             panel.add(taskContainer, BorderLayout.WEST);
 
             panel.add(scrollPane, BorderLayout.CENTER);
@@ -319,7 +409,7 @@ public class MindyPlugin extends JPanel {
         {
             // Heat Map
 
-            JPanel panel = new JPanel(new BorderLayout());
+            JPanel panel = new JPanel(new BorderLayout(10, 10));
             // This is modulator just to give us something to generate the heat map with upon first running
             DSGeneMarker modulator = modulators.iterator().next();
             transFactors = mindyData.getTranscriptionFactors(modulator);
@@ -327,16 +417,28 @@ public class MindyPlugin extends JPanel {
             heatMapScrollPane = new JScrollPane(heatmap);
             panel.add(heatMapScrollPane, BorderLayout.CENTER);
 
-            JXTaskPane transFacPane = new JXTaskPane();
-            transFacPane.setTitle("Transcription Factor");
+            JPanel transFacPane = new JPanel(new BorderLayout());
+            JLabel l = new JLabel("Transcription Factor", SwingConstants.LEFT);
+            l.setFont(new Font(l.getFont().getName(), Font.BOLD, 12));
+            l.setForeground(Color.BLUE);
+            transFacPane.add(l, BorderLayout.NORTH);
             JLabel transFactorName = new JLabel(mindyData.getTranscriptionFactor().getShortName());
             transFacPane.add(transFactorName);
 
-            JXTaskPane modulatorPane = new JXTaskPane();
-            JTextField modFilterField = new JTextField();
-//            modulatorPane.setExpanded(false);
-            modulatorPane.setTitle("Modulators");
+            JPanel modulatorPane = new JPanel(new BorderLayout());
+            JTextField modFilterField = new JTextField(15);
+            l = new JLabel("Modulators", SwingConstants.LEFT);
+            l.setFont(new Font(l.getFont().getName(), Font.BOLD, 12));
+            l.setForeground(Color.BLUE);
+            modulatorPane.add(l, BorderLayout.NORTH);
+            JLabel lmp = new JLabel("Marker Panel Override  ", SwingConstants.LEFT);
+            lmp.setFont(new Font(lmp.getFont().getName(), Font.BOLD, 12));
+            lmp.setForeground(Color.BLUE);
+            final JCheckBox allMarkersCheckBox = makeAllMarkersCheckBox();
+//            MindyPlugin.this.allMarkersCheckBoxes[2] = allMarkersCheckBox;
+            
             heatMapModNameList = new JList();
+            heatMapModNameList.setFixedCellWidth(12);
             JScrollPane modListScrollPane = new JScrollPane(heatMapModNameList);
             heatMapModNameList.setModel(new ModulatorListModel());
             heatMapModNameList.addListSelectionListener(new ListSelectionListener() {
@@ -345,26 +447,33 @@ public class MindyPlugin extends JPanel {
                 }
             });
             AutoCompleteDecorator.decorate(heatMapModNameList, modFilterField);
-            JButton refreshButton = new JButton("Refresh HeatMap");
+            JButton refreshButton = new JButton("  Refresh HeatMap  ");
             refreshButton.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent actionEvent) {
                     rebuildHeatMap();
                 }
             });
-            JButton screenshotButton = new JButton("Take Screenshot");
+            JButton screenshotButton = new JButton("  Take Screenshot  ");
             screenshotButton.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent actionEvent) {
                     visualPlugin.createImageSnapshot(heatMapScrollPane.getViewport().getComponent(0));
                 }
             });
-            modulatorPane.add(modFilterField);
-            modulatorPane.add(modListScrollPane);
-            modulatorPane.add(refreshButton);
-            modulatorPane.add(screenshotButton);
+            JPanel p = new JPanel(new BorderLayout(10, 10));
+            p.add(modFilterField, BorderLayout.NORTH);
+            p.add(modListScrollPane, BorderLayout.CENTER);
+            JPanel ps = new JPanel(new GridLayout(4, 1));
+            ps.add(refreshButton);
+            ps.add(screenshotButton);
+            ps.add(lmp);
+            ps.add(allMarkersCheckBox);
+            p.add(ps, BorderLayout.SOUTH);
+            modulatorPane.add(p, BorderLayout.CENTER);
 
-            JXTaskPaneContainer taskContainer = new JXTaskPaneContainer();
-            taskContainer.add(transFacPane);
-            taskContainer.add(modulatorPane);
+            JPanel taskContainer = new JPanel();
+            taskContainer.setLayout(new BorderLayout(10, 10));
+            taskContainer.add(transFacPane, BorderLayout.NORTH);
+            taskContainer.add(modulatorPane, BorderLayout.CENTER);
             JScrollPane modTransScroll = new JScrollPane(taskContainer);
             panel.add(modTransScroll, BorderLayout.WEST);
             tabs.add("Heat Map", panel);
@@ -374,11 +483,12 @@ public class MindyPlugin extends JPanel {
         add(tabs, BorderLayout.CENTER);
     }
 
-    private void limitModulators(Integer modLimit, boolean selected, JXTable table) {
+    private void limitModulators(Integer modLimit, boolean selected, JTable table){
         aggregateModel.setModLimit(modLimit);
         aggregateModel.setModulatorsLimited(selected);
         aggregateModel.fireTableStructureChanged();
-        table.packAll();
+        table.getColumnModel().getColumn(0).setMaxWidth(15);
+        table.getColumnModel().getColumn(0).setWidth(15);
         table.repaint();
     }
 
@@ -397,8 +507,7 @@ public class MindyPlugin extends JPanel {
         }
     }
 
-    private void restoreBooleanRenderers(JXTable table) {
-        // Something in workbench is overriding these renderers
+    private void restoreBooleanRenderers(JTable table){
         table.setDefaultEditor(Boolean.class, new DefaultCellEditor(new JCheckBox()));
         table.setDefaultRenderer(Boolean.class, new CheckboxCellRenderer());
     }
@@ -418,11 +527,19 @@ public class MindyPlugin extends JPanel {
     private void setListTableViewOptions() {
         boolean selected = selectionEnabledCheckBox.isSelected();
         if (selected) {
-            listTable.getColumnExt(0).setMaxWidth(20);
-            listTable.getColumnExt(2).setMaxWidth(20);
+        	listTable.getColumnModel().getColumn(0).setMaxWidth(15);
+        	listTable.getColumnModel().getColumn(2).setMaxWidth(15);
         }
         setListCheckboxesVisibility(selected);
-        listTable.packAll();
+    }
+    
+    private void setTargetTableViewOptions() {
+        boolean selected = selectionEnabledCheckBox.isSelected();
+        if (selected) {
+        	targetTable.getColumnModel().getColumn(0).setMaxWidth(15);
+        	targetTable.getColumnModel().getColumn(2).setMaxWidth(15);
+        }
+        setTargetCheckboxesVisibility(selected);
     }
 
     private void markerMeanVariance(DSMicroarraySet microarraySet) {
@@ -470,16 +587,47 @@ public class MindyPlugin extends JPanel {
     }
 
     private void setListCheckboxesVisibility(boolean show) {
-        listTable.getColumnExt(" ").setVisible(show);
-        listTable.getColumnExt("  ").setVisible(show);
-        listTable.packAll();
+    	if(show){
+    		listTable.getColumn(" ").setMaxWidth(15);
+    		listTable.getColumn("  ").setMaxWidth(15);
+    		listTable.getColumn(" ").setMinWidth(15);
+    		listTable.getColumn("  ").setMinWidth(15);
+    		listTable.getColumn(" ").setWidth(15);
+    		listTable.getColumn("  ").setWidth(15);
+    	} else {
+    		listTable.getColumn(" ").setMaxWidth(0);
+    		listTable.getColumn("  ").setMaxWidth(0);
+    		listTable.getColumn(" ").setMinWidth(0);
+    		listTable.getColumn("  ").setMinWidth(0);
+    		listTable.getColumn(" ").setWidth(0);
+    		listTable.getColumn("  ").setWidth(0);
+    	}
         listTable.repaint();
+    }
+    
+    private void setTargetCheckboxesVisibility(boolean show){
+    	if(show){
+    		targetTable.getColumn(" ").setMaxWidth(15);
+    		targetTable.getColumn(" ").setMinWidth(15);
+    		targetTable.getColumn(" ").setWidth(15);
+    	} else {
+    		targetTable.getColumn(" ").setMaxWidth(0);
+    		targetTable.getColumn(" ").setMinWidth(0);
+    		targetTable.getColumn(" ").setWidth(0);
+    	}
+    	targetTable.repaint();
     }
 
     private void setListControlVisibility(boolean show) {
         selectAllModsCheckBox.setEnabled(show);
         selectAllTargetsCheckBox.setEnabled(show);
         addToSetButton.setEnabled(show);
+    }
+    
+    private void setTargetControlVisibility(boolean show) {
+        selectAllModsCheckBoxTarget.setEnabled(show);
+        selectAllTargetsCheckBoxTarget.setEnabled(show);
+        addToSetButtonTarget.setEnabled(show);
     }
 
     private void setHeatMap(ModulatorHeatMap heatMap) {
@@ -498,9 +646,43 @@ public class MindyPlugin extends JPanel {
 
     private void setAllMarkersOverride(boolean allMarkers) {
         globalSelectionState.allMarkerOverride = allMarkers;
+        // gui
+        /*
+        for(int i = 0; i < allMarkersCheckBoxes.length; i++){
+        	allMarkersCheckBoxes[i].setSelected(globalSelectionState.allMarkerOverride);
+        }   */
+        // data model
         aggregateModel.fireTableStructureChanged();
         modTargetModel.fireTableDataChanged();
         modulatorModel.fireTableDataChanged();
+    }
+    
+    private void addToSet(List<DSGeneMarker> selections){
+    	String tmpLabel = JOptionPane.showInputDialog("Set Label:", "");
+    	if (tmpLabel == null || tmpLabel.equals("")) 
+          return;
+    	else {
+    		//debug statements
+    		System.out.println("add to set with label: "+ tmpLabel);
+    		for(int i = 0; i < selections.size(); i++){
+    			System.out.println("\t" + ((DSGeneMarker) selections.get(i)).getShortName(ModulatorHeatMap.MAX_MARKER_NAME_CHARS));
+    		}
+    		
+    		DSPanel<DSGeneMarker> selectedMarkers = new CSPanel<DSGeneMarker>(tmpLabel, tmpLabel);
+    		for(int i = 0; i < selections.size(); i++){
+    			if(selections.get(i) instanceof DSGeneMarker){
+    				selectedMarkers.add((DSGeneMarker) selections.get(i));
+    			}
+    		}
+    		selectedMarkers.setActive(true);
+            publishSubpanelChangedEvent(new SubpanelChangedEvent(DSGeneMarker.class, selectedMarkers, SubpanelChangedEvent.SET_CONTENTS));
+            System.out.println("published subpanel change event");
+    	}
+    }
+    
+    @Publish 
+    public org.geworkbench.events.SubpanelChangedEvent publishSubpanelChangedEvent(org.geworkbench.events.SubpanelChangedEvent event) {
+        return event;
     }
 
     /**
@@ -512,8 +694,8 @@ public class MindyPlugin extends JPanel {
         private boolean[] enabled;
         private List<DSGeneMarker> modulators;
         private List<DSGeneMarker> limitedModulators = new ArrayList<DSGeneMarker>();
-        private MindyData mindyData;
-        private String[] columnNames = new String[]{"", "Modulator", " M# ", " M+ ", " M- ", " Mode ", "Modulator Description"};
+        private MindyData mindyData; 
+        private String[] columnNames = new String[]{" ", "Modulator", " M# ", " M+ ", " M- ", " Mode ", "Modulator Description"};
 
         public ModulatorModel(MindyData mindyData) {
             modulators = new ArrayList<DSGeneMarker>();
@@ -614,6 +796,12 @@ public class MindyPlugin extends JPanel {
         public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
             if (columnIndex == 0) {
                 enableModulator(rowIndex, (Boolean) aValue);
+                if (this.getNumberOfModulatorsSelected() == enabled.length)
+                	selectAll.setSelected(true);
+                else 
+                	selectAll.setSelected(false);
+                numModSelectedInModTab.setText(MindyPlugin.NUM_MOD_SELECTED_LABEL + this.getNumberOfModulatorsSelected());
+                numModSelectedInModTab.repaint();
             }
         }
 
@@ -652,6 +840,24 @@ public class MindyPlugin extends JPanel {
                 model.refresh();
             }
         }
+        
+        public int getNumberOfModulatorsSelected(){
+        	int result = 0;
+        	for(int i = 0; i < enabled.length; i++){
+        		if(enabled[i] == true) result++;
+        	}
+        	return result;
+        }
+        
+        public List<DSGeneMarker> getSelectedModulators(){
+        	List<DSGeneMarker> result = new ArrayList<DSGeneMarker>();
+        	for(int i = 0; i < enabled.length; i++){
+        		if(enabled[i] == true){
+        			result.add(this.getModulatorForIndex(i));
+        		}
+        	}
+        	return result;
+        }
 
     }
 
@@ -660,6 +866,7 @@ public class MindyPlugin extends JPanel {
         private static final int EXTRA_COLS = 2;
 
         private boolean[] checkedTargets;
+        private boolean[] checkedModulators;
         private List<DSGeneMarker> allModulators;
         private List<DSGeneMarker> enabledModulators;
         private List<DSGeneMarker> activeTargets;
@@ -716,6 +923,9 @@ public class MindyPlugin extends JPanel {
 
         public void setEnabledModulators(List<DSGeneMarker> enabledModulators) {
             this.enabledModulators = enabledModulators;
+            this.checkedModulators = new boolean[this.enabledModulators.size()];
+            System.out.println("setEnabledModulators():checkedModulators.length=" + this.checkedModulators.length);
+            repaint();
         }
 
         public List<DSGeneMarker> getCheckedTargets() {
@@ -773,23 +983,34 @@ public class MindyPlugin extends JPanel {
             }
             return activeTargets.size();
         }
-
+        
         public Class<?> getColumnClass(int i) {
             if (i == 0) {
+            	return Boolean.class;
+            } else if (i == 1) {                
                 return String.class;
-            } else if (i == 1) {
-                return Boolean.class;
             } else {
                 return Float.class;
             }
         }
 
         public Object getValueAt(int row, int col) {
-            if (col == 0) {
+        	if ((col == 0) && (row == 0))
+        		return "";
+        	else if ((col == 0) && (row > 0)) {
+            	return checkedTargets[row - 1];
+            } else if((col > 0) && (row == 0)) {
+            	if((checkedModulators != null) && (checkedModulators.length > 0)){
+            		System.out.println("getValueAt():checkedModulators.length=" + this.checkedModulators.length);
+            		//return checkedModulators[col - 1];
+            		return 1;
+            	} else {
+            		System.out.println("getValueAt():empty");
+            		return 0;
+            	}
+            } else if ((col == 1) && (row > 0)) {                
                 return activeTargets.get(row).getShortName(ModulatorHeatMap.MAX_MARKER_NAME_CHARS);
-            } else if (col == 1) {
-                return checkedTargets[row];
-            } else {
+            } else if(row > 0){
                 float score = mindyData.getScore(enabledModulators.get(col - EXTRA_COLS), mindyData.getTranscriptionFactor(), activeTargets.get(row));
                 if (score != 0) {
                     if (scoreView) {
@@ -801,6 +1022,7 @@ public class MindyPlugin extends JPanel {
                     return score;
                 }
             }
+        	return "";
         }
 
         public float getScoreAt(int row, int col) {
@@ -809,8 +1031,10 @@ public class MindyPlugin extends JPanel {
         }
 
         public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
-            if (columnIndex == 1) {
+            if ((columnIndex == 0) && (rowIndex > 0)) {
                 checkedTargets[rowIndex] = (Boolean) aValue;
+                
+                // ch1524 -- need to remove table tab/list tab coupling
                 if (checkedTargets[rowIndex]) {
                     DSGeneMarker mod = activeTargets.get(rowIndex);
                     modTargetModel.enableTarget(mod);
@@ -819,13 +1043,16 @@ public class MindyPlugin extends JPanel {
                     modTargetModel.disableTarget(mod);
                 }
             }
+            if ((rowIndex == 0) && (columnIndex > 0)){
+            	checkedModulators[rowIndex] = (Boolean) aValue;
+            }
         }
 
         public String getColumnName(int col) {
             if (col == 0) {
-                return "Target";
+            	return " ";
             } else if (col == 1) {
-                return " ";
+                return "Target";
             } else {
                 DSGeneMarker mod = enabledModulators.get(col - EXTRA_COLS);
                 String colName =  mod.getShortName();
@@ -843,6 +1070,13 @@ public class MindyPlugin extends JPanel {
         public void resortModulators() {
             Collections.sort(enabledModulators, new ModulatorStatComparator(mindyData, modulatorSortMethod));
             fireTableStructureChanged();
+        }
+        
+        private void selectAllTargets(boolean select){
+        	for (int i = 0; i < checkedTargets.length; i++) {
+        		checkedTargets[i] = select;
+            }
+            targetTable.repaint();
         }
 
     }
@@ -962,7 +1196,7 @@ public class MindyPlugin extends JPanel {
         }
 
         public boolean isCellEditable(int rowIndex, int columnIndex) {
-            if (columnIndex == 0) {
+            if ((columnIndex == 0) ||(columnIndex == 2)) {
                 return true;
             } else {
                 return false;
@@ -998,9 +1232,21 @@ public class MindyPlugin extends JPanel {
 
         public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
             if (columnIndex == 0) {
-                modChecks[rowIndex] = (Boolean) aValue;
+            	String marker = rows.get(rowIndex).getModulator().getShortName(ModulatorHeatMap.MAX_MARKER_NAME_CHARS).trim();
+            	for(int i = 0; i < rows.size(); i++){
+            		if(marker.equals(rows.get(i).getModulator().getShortName(ModulatorHeatMap.MAX_MARKER_NAME_CHARS).trim())){
+            			modChecks[i] = (Boolean) aValue;
+            		}
+            	}
+            	listTable.repaint();
             } else if (columnIndex == 2) {
-                targetChecks[rowIndex] = (Boolean) aValue;
+            	String marker = rows.get(rowIndex).getTarget().getShortName(ModulatorHeatMap.MAX_MARKER_NAME_CHARS).trim();
+            	for(int i = 0; i < rows.size(); i++){
+            		if(marker.equals(rows.get(i).getTarget().getShortName(ModulatorHeatMap.MAX_MARKER_NAME_CHARS).trim())){
+            			targetChecks[i] = (Boolean) aValue;
+            		}
+            	}
+            	listTable.repaint();
             }
         }
 
@@ -1020,6 +1266,43 @@ public class MindyPlugin extends JPanel {
                 targetChecks[i] = select;
             }
             listTable.repaint();
+        }
+        
+        public List<DSGeneMarker> getSelectedModulators(){
+        	List<DSGeneMarker> result = new ArrayList<DSGeneMarker>();
+        	for(int i = 0; i < modChecks.length; i++){
+        		if(modChecks[i] == true){
+        			DSGeneMarker m = rows.get(i).getModulator();
+        			if(!result.contains(m)) result.add(m);
+        		}
+        	}
+        	return result;
+        }
+        
+        public List<DSGeneMarker> getSelectedTargets(){
+        	List<DSGeneMarker> result = new ArrayList<DSGeneMarker>();
+        	for(int i = 0; i < targetChecks.length; i++){
+        		if(targetChecks[i] == true){
+        			DSGeneMarker m = rows.get(i).getTarget();
+        			if(!result.contains(m)) result.add(m);
+        		}
+        	}
+        	return result;
+        }
+        
+        public List<DSGeneMarker> getUniqueSelectedMarkers(){
+        	List<DSGeneMarker> result = new ArrayList<DSGeneMarker>();
+        	List<DSGeneMarker> mods = this.getSelectedModulators();
+        	List<DSGeneMarker> targets = this.getSelectedTargets();
+        	for(int i = 0; i < mods.size(); i++){
+        		DSGeneMarker m = (DSGeneMarker) mods.get(i);
+        		if(!result.contains(m)) result.add(m);
+        	}
+        	for(int i = 0; i < targets.size(); i++){
+        		DSGeneMarker m = (DSGeneMarker) targets.get(i);
+        		if(!result.contains(m)) result.add(m);
+        	}
+        	return result;
         }
 
     }
@@ -1064,6 +1347,7 @@ public class MindyPlugin extends JPanel {
     /**
      * This doesn't quite work, but it's close.
      */
+    /*
     private class ModulatorHighlighter extends ConditionalHighlighter {
 
         private boolean useBackground = false;
@@ -1113,4 +1397,5 @@ public class MindyPlugin extends JPanel {
             return useBackground;
         }
     }
+    */
 }
