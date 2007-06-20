@@ -6,7 +6,7 @@ package org.geworkbench.components.medusa;
  * web, etc.).
  * 
  * @author keshav
- * @version $Id: MedusaCommand.java,v 1.2 2007-06-15 22:20:58 keshav Exp $
+ * @version $Id: MedusaCommand.java,v 1.3 2007-06-20 16:59:35 keshav Exp $
  */
 public class MedusaCommand {
 
@@ -24,11 +24,23 @@ public class MedusaCommand {
 
 	private int maxGap = 0;
 
+	private boolean usingDimers = true;
+
 	private int iter = 0;
 
 	private int pssmLength = 0;
 
 	private int agg = 0;
+
+	private boolean reverseComplement = true;
+
+	/**
+	 * 
+	 * @return
+	 */
+	public int getAgg() {
+		return this.agg;
+	}
 
 	/**
 	 * 
@@ -100,6 +112,22 @@ public class MedusaCommand {
 	 */
 	public void setMinGap(int minGap) {
 		this.minGap = minGap;
+	}
+
+	/**
+	 * 
+	 * @return
+	 */
+	public boolean isUsingDimers() {
+		return this.usingDimers;
+	}
+
+	/**
+	 * 
+	 * @param usingDimers
+	 */
+	public void setUsingDimers(boolean usingDimers) {
+		this.usingDimers = usingDimers;
 	}
 
 	/**
@@ -180,6 +208,14 @@ public class MedusaCommand {
 	 */
 	public String getFeaturesFile() {
 		return featuresFile;
+	}
+
+	public boolean isReverseComplement() {
+		return reverseComplement;
+	}
+
+	public void setReverseComplement(boolean reverseComplement) {
+		this.reverseComplement = reverseComplement;
 	}
 
 }

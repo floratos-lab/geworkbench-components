@@ -34,7 +34,7 @@ import edu.columbia.ccls.medusa.io.SerializedRule;
  * updating the configuration file, etc.
  * 
  * @author keshav
- * @version $Id: MedusaUtil.java,v 1.16 2007-06-19 20:56:11 keshav Exp $
+ * @version $Id: MedusaUtil.java,v 1.17 2007-06-20 16:59:35 keshav Exp $
  */
 public class MedusaUtil {
 
@@ -365,6 +365,43 @@ public class MedusaUtil {
 				.getIter()));
 
 		updateXmlNode(doc, "file", "file_fasta", command.getFeaturesFile());
+
+		updateXmlNode(doc, "file", "kmers_smallest", String.valueOf(command
+				.getMinKer()));
+
+		updateXmlNode(doc, "file", "kmers_largest", String.valueOf(command
+				.getMaxKer()));
+
+		if (command.isUsingDimers()) {
+			updateXmlNode(doc, "file", "dimers_allowed", String.valueOf(true));
+			updateXmlNode(doc, "file", "dimers_maximum_gap", String
+					.valueOf(command.getMaxGap()));
+			// TODO In the default config file, there is no
+			// dimers_minimum_gap. Also,
+			// I have left the dimers_largest and dimers_smallest as the
+			// defaults since
+			// they are not in the use case.
+		}
+
+		else {
+			updateXmlNode(doc, "file", "dimers_allowed", String.valueOf(false));
+		}
+
+		if (command.isReverseComplement()) {
+			updateXmlNode(doc, "parameters",
+					"reverse_complement_matches_complement", String
+							.valueOf(true));
+		} else {
+			updateXmlNode(doc, "parameters",
+					"reverse_complement_matches_complement", String
+							.valueOf(false));
+		}
+
+		updateXmlNode(doc, "parameters", "pssms_maximum_length", String
+				.valueOf(command.getPssmLength()));
+
+		updateXmlNode(doc, "parameters", "pssms_number_to_agglomerate", String
+				.valueOf(command.getAgg()));
 
 		if (outFile == null)
 			outFile = configFile;
