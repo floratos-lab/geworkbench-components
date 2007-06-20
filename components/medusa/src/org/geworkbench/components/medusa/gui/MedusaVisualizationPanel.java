@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
@@ -45,6 +46,9 @@ public class MedusaVisualizationPanel extends JPanel {
 
 	private Map<String, DSGeneMarker> selectedMarkerMap = null;
 
+	private JButton addSelectionsToSetButton = new JButton();
+	private String addToSetButtonLabel = "Add To Set ";
+
 	/**
 	 * 
 	 * @param medusaData
@@ -64,6 +68,8 @@ public class MedusaVisualizationPanel extends JPanel {
 		List<DSGeneMarker> regulators = medusaData.getRegulators();
 
 		selectedMarkerMap = initSelectedMarkerMap(targets, regulators);
+		addSelectionsToSetButton.setText(addToSetButtonLabel + "["
+				+ selectedMarkerMap.size() + "]");
 
 		double[][] targetMatrix = new double[targets.size()][];
 		for (DSGeneMarker target : targets) {
@@ -90,11 +96,11 @@ public class MedusaVisualizationPanel extends JPanel {
 			regulatorNames.add(marker.getLabel());
 		}
 
-		motifPanel.setLayout(new GridLayout(2, 3));
+		motifPanel.setLayout(new GridLayout(3, 3));
 
 		/* dummy panel at position 0,0 of the grid */
-		JPanel dummyPanel = new JPanel();
-		motifPanel.add(dummyPanel);
+		JPanel dummyPanel0 = new JPanel();
+		motifPanel.add(dummyPanel0);
 
 		/* regulator heat map at postion 0,1 */
 		DiscreteHeatMapPanel regulatorHeatMap = new DiscreteHeatMapPanel(
@@ -120,11 +126,17 @@ public class MedusaVisualizationPanel extends JPanel {
 
 					DSGeneMarker reg = selectedMarkerMap.get(markerLabel);
 
-					if (checkBox.isSelected())
+					if (checkBox.isSelected()) {
 						selectedMarkerMap.put(markerLabel, reg);
+						addSelectionsToSetButton.setText(addToSetButtonLabel
+								+ "[" + selectedMarkerMap.size() + "]");
+					}
 
-					else
+					else {
 						selectedMarkerMap.remove(markerLabel);
+						addSelectionsToSetButton.setText(addToSetButtonLabel
+								+ "[" + selectedMarkerMap.size() + "]");
+					}
 				}
 			});
 			checkBox.setText(name);
@@ -167,11 +179,15 @@ public class MedusaVisualizationPanel extends JPanel {
 
 					DSGeneMarker target = selectedMarkerMap.get(markerLabel);
 
-					if (checkBox.isSelected())
+					if (checkBox.isSelected()) {
 						selectedMarkerMap.put(markerLabel, target);
-
-					else
+						addSelectionsToSetButton.setText(addToSetButtonLabel
+								+ "[" + selectedMarkerMap.size() + "]");
+					} else {
 						selectedMarkerMap.remove(markerLabel);
+						addSelectionsToSetButton.setText(addToSetButtonLabel
+								+ "[" + selectedMarkerMap.size() + "]");
+					}
 				}
 			});
 			checkBox.setText(name);
@@ -180,6 +196,35 @@ public class MedusaVisualizationPanel extends JPanel {
 			targetLabelBuilder.appendRow("10dlu");
 		}
 		motifPanel.add(targetLabelBuilder.getPanel());
+
+		/* dummy panels so we can align the buttons (below) */
+		JPanel dummyPanel1 = new JPanel();
+		motifPanel.add(dummyPanel1);
+
+		JPanel dummyPanel2 = new JPanel();
+		motifPanel.add(dummyPanel2);
+
+		/* add buttons at 3,3 */
+		FormLayout buttonLayout = new FormLayout("pref,60dlu"); // columns
+		// "75dlu"); // add rows dynamically
+		DefaultFormBuilder buttonBuilder = new DefaultFormBuilder(buttonLayout);
+		addSelectionsToSetButton.setText("Add To Set " + "["
+				+ selectedMarkerMap.size() + "]");
+		buttonBuilder.append(addSelectionsToSetButton);
+
+		addSelectionsToSetButton.addActionListener(new ActionListener() {
+
+			/*
+			 * (non-Javadoc)
+			 * 
+			 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
+			 */
+			public void actionPerformed(ActionEvent e) {
+				// add all values in selected selectedMarkerMap
+			}
+		});
+
+		motifPanel.add(buttonBuilder.getPanel());
 
 		// TODO add back in
 		// JScrollPane scrollPane = new JScrollPane(motifPanel,
