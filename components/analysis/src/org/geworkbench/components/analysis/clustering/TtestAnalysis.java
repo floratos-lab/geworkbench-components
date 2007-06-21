@@ -9,14 +9,17 @@ import org.geworkbench.bison.annotation.DSAnnotationContextManager;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
+import org.geworkbench.bison.datastructure.biocollections.views.CSMicroarraySetView;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.CSSignificanceResultSet;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
+import org.geworkbench.bison.datastructure.bioobjects.microarray.DSSignificanceResultSet;
 import org.geworkbench.bison.datastructure.complex.panels.CSAnnotPanel;
 import org.geworkbench.bison.datastructure.complex.panels.DSAnnotatedPanel;
 import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
 import org.geworkbench.bison.model.analysis.ClusteringAnalysis;
 import org.geworkbench.engine.management.Publish;
+import org.geworkbench.engine.management.Script;
 import org.geworkbench.events.SubpanelChangedEvent;
 import org.geworkbench.util.Combinations;
 import org.geworkbench.util.ProgressBar;
@@ -56,7 +59,8 @@ public class TtestAnalysis extends AbstractAnalysis implements ClusteringAnalysi
     private float factor;
     private boolean absolute;
     private float[][] expMatrix;
-
+    //THe following result is used for caSCRIPT only.
+    CSSignificanceResultSet<DSGeneMarker> the_sigSet;
     boolean hierarchical_tree;
     int method_linkage;
     boolean calculate_genes;
@@ -111,7 +115,18 @@ public class TtestAnalysis extends AbstractAnalysis implements ClusteringAnalysi
         return localAnalysisType;
     }
 
-    public AlgorithmExecutionResults execute(Object input) {
+   @Script
+     public DSSignificanceResultSet runTtest(Object input) {
+
+       if(input instanceof  DSMicroarraySet){
+           CSMicroarraySetView csMicroarraySetView = new CSMicroarraySetView((DSMicroarraySet) input);
+           execute(csMicroarraySetView);
+       }
+        
+       return the_sigSet;
+   }
+
+   public AlgorithmExecutionResults execute(Object input) {
         reset();
         if (input == null) {
             return new AlgorithmExecutionResults(false, "Invalid input.", null);
@@ -238,6 +253,7 @@ public class TtestAnalysis extends AbstractAnalysis implements ClusteringAnalysi
                         classSets[1].toArray(new String[0]),
                         alpha
                 );
+                the_sigSet = sigSet;
                 Hashtable result = (Hashtable) results.getResults();
                 float[][] pValuesMatrix = (float[][]) result.get("pValues");
                 for (int i = 0; i < pValuesMatrix.length; i++) {
@@ -317,7 +333,7 @@ public class TtestAnalysis extends AbstractAnalysis implements ClusteringAnalysi
                     classSets[1].toArray(new String[0]),
                     alpha
             );
-
+              the_sigSet = sigSet;
             for (int i = 0; i < pValuesVector.size(); i++) {
                 pValuesMatrix[i][0] = ((Float) (pValuesVector.get(i))).floatValue();
                 sigSet.setSignificance(data.markers().get(i), pValuesMatrix[i][0]);

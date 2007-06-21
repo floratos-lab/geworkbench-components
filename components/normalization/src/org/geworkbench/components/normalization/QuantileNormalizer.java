@@ -6,6 +6,7 @@ import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMutableMarkerValue;
 import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
 import org.geworkbench.bison.model.analysis.NormalizingAnalysis;
+import org.geworkbench.engine.management.Script;
 
 import java.util.Arrays;
 import java.util.Comparator;
@@ -188,6 +189,11 @@ public class QuantileNormalizer extends AbstractAnalysis implements NormalizingA
         return (nonMissing != 0 ? sumOfValues / nonMissing : 0);
     }
 
+     @Script
+     public void normalize(Object input, String avgtype) {
+        ((QuantileNormalizerPanel) aspp).setAveragingType(avgtype);
+        execute(input);
+    }
 
     static class MarkerValueComparator<T extends DSMutableMarkerValue> implements Comparator<T>{
         public int compare(T v1, T v2){

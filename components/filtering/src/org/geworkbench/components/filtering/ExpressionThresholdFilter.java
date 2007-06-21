@@ -7,6 +7,7 @@ import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMutableMarkerValue;
 import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
 import org.geworkbench.bison.model.analysis.FilteringAnalysis;
+import org.geworkbench.engine.management.Script;
 
 /**
  * <p>Copyright: Copyright (c) 2003</p>
@@ -93,5 +94,17 @@ public class ExpressionThresholdFilter extends AbstractAnalysis implements Filte
         return false;
     }
 
+    @Script
+    public boolean filter(DSMicroarraySet input, int the_minValue, int the_maxValue, String type){
+        minValue = the_minValue;
+        maxValue = the_maxValue;
+        if(type.equalsIgnoreCase("Inside range")){
+            rangeOption = INSIDE_RANGE;
+        }else{
+            rangeOption = OUTSIDE_RANGE;
+        }
+        execute(input);
+        return true;
+    }
 }
 

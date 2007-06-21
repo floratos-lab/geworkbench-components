@@ -9,9 +9,11 @@ import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
 import org.geworkbench.bison.model.analysis.FilteringAnalysis;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMutableMarkerValue;
 import org.geworkbench.engine.management.Script;
 import org.geworkbench.engine.management.Documentation;
@@ -31,16 +33,22 @@ import org.geworkbench.events.FilteringEvent;
  */
 public class MissingValuesFilter extends AbstractAnalysis implements FilteringAnalysis {
     int maxMissingMicroarrays;
-    
+
     public MissingValuesFilter() {
         setLabel("Missing values filter");
         setDefaultPanel(new MissingValuesFilterPanel());
     }
-    
+
     public int getAnalysisType() {
         return MISSING_VALUES_FILTER_TYPE;
     }
-    
+
+    @Script
+    public void filter(Object input, int maxMissingMicoarraysValue) {
+        ((MissingValuesFilterPanel) aspp).settMaxMissingArrays(maxMissingMicoarraysValue);
+        execute(input);
+    }
+
     public AlgorithmExecutionResults execute(Object input) {
         if (input == null)
             return new AlgorithmExecutionResults(false, "Invalid input.", null);
@@ -93,7 +101,7 @@ public class MissingValuesFilter extends AbstractAnalysis implements FilteringAn
          */
         return new AlgorithmExecutionResults(true, "No errors", input);
     }
-    
+
     /**
      * Check if the <code>index</code>-th marker in the microarrays set
      * <code>maSet</code> is missing in more than <code>maxAllowed</code>
@@ -108,7 +116,7 @@ public class MissingValuesFilter extends AbstractAnalysis implements FilteringAn
      *         <code>maxAllowed</code> microarrays (or Markers). <code>false</code> otherwise.
      */
     private boolean isMissing(DSMicroarraySet<DSMicroarray> maSet, int index, int maxAllowed, boolean rowMajor) {
-        if (rowMajor){
+        if (rowMajor) {
             int arrayCount = maSet.size();
             DSMarkerValue markerValue = null;
             int numMissing = 0;
@@ -116,7 +124,7 @@ public class MissingValuesFilter extends AbstractAnalysis implements FilteringAn
                 markerValue = maSet.get(i).getMarkerValue(index);
                 if (markerValue.isMissing())
                     ++numMissing;
-            }            
+            }
             if (numMissing > maxAllowed)
                 return true;
         } else {
@@ -127,42 +135,44 @@ public class MissingValuesFilter extends AbstractAnalysis implements FilteringAn
                 markerValue = maSet.get(index).getMarkerValue(i);
                 if (markerValue.isMissing())
                     ++numMissing;
-            }            
+            }
             if (numMissing > maxAllowed)
                 return true;
         }
         return false;
     }
-    
+
     public String getType() {
         return "Missing Values Filter";
     }
-    
+
     /**
      * Method removes either Markers or Microarrays from a dataset.
-     * @param maSet the input Microarray Set
-     * @param maxMissing The threshold number of microarrays (or Markers) that should have missing 
+     *
+     * @param data      the input Microarray Set
+     * @param maxMissing The threshold number of microarrays (or Markers) that should have missing
      *                   values for a particular marker (or microarray) to be removed
-     * @param rowMajor Specifies if removal is based on Markers or Microarrays. A 
-     *        <code>true</code> would remove markers across all arrays. A 
-     *        <code>false</code> value removes microarrays from the dataset.
+     * @param rowMajor   Specifies if removal is based on Markers or Microarrays. A
+     *                   <code>true</code> would remove markers across all arrays. A
+     *                   <code>false</code> value removes microarrays from the dataset.
      */
     @Documentation("<html><BODY BGCOLOR=\"white\"><A NAME=\"filter(, int, boolean)\">" +
-                   "<!-- --></A><br><H3>filter</H3><br><PRE><DD>Method removes either " +
-                   "Markers or Microarrays from a dataset.<P><DD><DL><DT><B>Parameters:" +
-                   "</B><DD><B><CODE>maSet</CODE></B> - the input Microarray Set<DD>" +
-                   "<B><CODE>maxMissing</CODE></B> - The threshold number of microarrays (or Markers) " +
-                   "that <br>should have missing values for a particular marker (or microarray) to be removed.<DD>" +
-                   "<B><CODE>rowMajor</CODE></B> - Specifies if removal is based on Markers or Microarrays." +
-                   " A <code>true</code> would remove markers across all arrays.<br> A <code>false</code> " +
-                   "value removes microarrays from the dataset.</DL></DD></DL></BODY></html>")
-    @Script public void filter(DSDataSet data, int maxMissing, boolean rowMajor){
+            "<!-- --></A><br><H3>filter</H3><br><PRE><DD>Method removes either " +
+            "Markers or Microarrays from a dataset.<P><DD><DL><DT><B>Parameters:" +
+            "</B><DD><B><CODE>maSet</CODE></B> - the input Microarray Set<DD>" +
+            "<B><CODE>maxMissing</CODE></B> - The threshold number of microarrays (or Markers) " +
+            "that <br>should have missing values for a particular marker (or microarray) to be removed.<DD>" +
+            "<B><CODE>rowMajor</CODE></B> - Specifies if removal is based on Markers or Microarrays." +
+            " A <code>true</code> would remove markers across all arrays.<br> A <code>false</code> " +
+            "value removes microarrays from the dataset.</DL></DD></DL></BODY></html>")
+    @Script
+    public void filter(DSDataSet data, int maxMissing, boolean rowMajor) {
         DSMicroarraySet<DSMicroarray> maSet = null;
         if (data instanceof DSMicroarraySet)
-             maSet = (DSMicroarraySet<DSMicroarray>)data;
+            maSet = (DSMicroarraySet<DSMicroarray>) data;
         else
             return;
-        if (rowMajor){
+        if (rowMajor) {
             int arrayCount = maSet.size();
             int markerCount = maSet.getMarkers().size();
             List<Integer> removeList = new ArrayList<Integer>();
@@ -210,11 +220,12 @@ public class MissingValuesFilter extends AbstractAnalysis implements FilteringAn
             publishFilteringEvent(new FilteringEvent(maSet, maSet, getLabel() + "@Script filter: maxMissing = " + maxMissing + ", rowMajor = " + rowMajor));
         }
     }
-    
+
     /**
      * Method to filter dataset so that it contains a maximum specified number of arrays.
      * A shuffle <code>java.util.Collections.shuffle()</code> is performed before removing arrays having index larger than the size needed.
      * If the dataset contains less than the specified number of arrays, the method terminates
+     *
      * @param data the input dataset to be filtered
      * @param size the maximum size to which the dataset needs to be pruned
      */
@@ -224,27 +235,29 @@ public class MissingValuesFilter extends AbstractAnalysis implements FilteringAn
             "If the dataset contains less than the specified number of arrays, the method terminates<P>" +
             "<DD><DL><DT><B>Parameters:</B><DD><CODE>data</CODE> - the input dataset to be filtered<DD><CODE>size</CODE>" +
             " - the maximum size to which the dataset needs to be pruned</DL></DD></DL></BODY></html>")
-    @Script public void prune(DSDataSet data, int size){
+    @Script
+    public void prune(DSDataSet data, int size) {
         DSMicroarraySet<DSMicroarray> maSet = null;
         if (data instanceof DSMicroarraySet)
-             maSet = (DSMicroarraySet<DSMicroarray>)data;
+            maSet = (DSMicroarraySet<DSMicroarray>) data;
         else
             return;
-        if (maSet.size() > size){
+        if (maSet.size() > size) {
             Collections.shuffle(maSet);
             int count = 0;
-            for (DSMicroarray array : maSet){
+            for (DSMicroarray array : maSet) {
                 array.setSerial(count++);
             }
             int initialSize = maSet.size();
-            for (int i = initialSize - 1; i >= size; i--){
+            for (int i = initialSize - 1; i >= size; i--) {
                 maSet.remove(i);
             }
             publishFilteringEvent(new FilteringEvent(maSet, maSet, getLabel() + "@Script prune: size = " + size));
         }
     }
-    
-    @Publish public FilteringEvent publishFilteringEvent(FilteringEvent event) {
+
+    @Publish
+    public FilteringEvent publishFilteringEvent(FilteringEvent event) {
         return event;
     }
 }

@@ -71,7 +71,7 @@ public class AlgorithmMatcher {
     /**
      * translate to real paramters used by GeneMatcher2.
      *
-     * @param aString String
+     * @param  algoTitle
      * @return String
      */
     public static String translate(String algoTitle) {

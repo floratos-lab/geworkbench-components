@@ -24,6 +24,7 @@ import org.geworkbench.components.alignment.client.HMMDataSet;
 import org.geworkbench.components.alignment.grid.CreateGridServiceDialog;
 import org.geworkbench.engine.management.AcceptTypes;
 import org.geworkbench.engine.management.Publish;
+import org.geworkbench.engine.management.Script;
 import org.geworkbench.events.MicroarraySetViewEvent;
 import org.geworkbench.events.ProjectNodeAddedEvent;
 import org.geworkbench.util.session.SoapClient;
@@ -1253,26 +1254,31 @@ import org.geworkbench.util.session.SoapClient;
         blastAppComponent = appComponent;
 
     }
-
-    public void setFastaFile(CSSequenceSet sd) {
+   @Script
+   public void setSequences(CSSequenceSet sd) {
         fastaFile = sd;
-        int endPoint = 0;
-        if (sd != null) {
-
-            endPoint = sd.getMaxLength();
-            jendPointField.setText(new Integer(endPoint).toString());
-            jendPointField1.setText(new Integer(endPoint).toString());
-            jendPointField3.setText(new Integer(endPoint).toString());
-
-            String[] model = AlgorithmMatcher.translateToPrograms(
-                    sd.isDNA());
-            jProgramBox.setModel(new DefaultComboBoxModel(model));
-
-        }
 
     }
 
 
+     @Script
+   public void setParameters(String database, String program) {
+          jProgramBox.setSelectedItem(program);
+         ListModel listModel = jDBList.getModel();
+         for(int i=0; i<listModel.getSize(); i++){
+             String databaseNames = (String)listModel.getElementAt(i);
+                  if (databaseNames.startsWith(database)){
+                      jDBList.setSelectedValue(databaseNames, true);
+                      return;
+                  }
+     }
+
+        // processNCBIParameters();
+    }
+     @Script
+   public void runBlast() {
+         processNCBIParameters();
+    }
     public void setStopButtonPushed(boolean stopButtonPushed) {
         this.stopButtonPushed = stopButtonPushed;
     }
@@ -1346,6 +1352,7 @@ import org.geworkbench.util.session.SoapClient;
      * @return ParameterSetting
      */
     public ParameterSetting collectParameters() {
+        System.out.println("jdblist" + jDBList.getModel().getSize());
         ParameterSetting ps = new ParameterSetting();
         String dbName = (String) jDBList.getSelectedValue();
         String programName = (String) jProgramBox.getSelectedItem();
@@ -1625,7 +1632,12 @@ import org.geworkbench.util.session.SoapClient;
         return sCommandLine;
     }
     /*********End Code*******************************/   
-    
+
+
+
+
+
+
     public void retriveAlgoParameters() {
 
         if (jTabbedPane1.getSelectedIndex() == this.SW) {
@@ -1835,7 +1847,7 @@ import org.geworkbench.util.session.SoapClient;
     }
 
     protected void fireModelChangedEvent(MicroarraySetViewEvent event) {
-        setFastaFile(activeSequenceDB);
+        setSequences(activeSequenceDB);
     }
 
     void stopBlastAction() {
