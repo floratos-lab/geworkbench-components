@@ -115,18 +115,32 @@ public class TtestAnalysis extends AbstractAnalysis implements ClusteringAnalysi
         return localAnalysisType;
     }
 
-   @Script
-     public DSSignificanceResultSet runTtest(Object input) {
+    @Script
+    public DSSignificanceResultSet runTtest(Object input) {
 
-       if(input instanceof  DSMicroarraySet){
-           CSMicroarraySetView csMicroarraySetView = new CSMicroarraySetView((DSMicroarraySet) input);
-           execute(csMicroarraySetView);
-       }
-        
-       return the_sigSet;
-   }
+        if (input instanceof DSMicroarraySet) {
+            CSMicroarraySetView csMicroarraySetView = new CSMicroarraySetView((DSMicroarraySet) input);
+            execute(csMicroarraySetView);
+        }
 
-   public AlgorithmExecutionResults execute(Object input) {
+        return the_sigSet;
+    }
+
+    @Script
+    public DSSignificanceResultSet runTtest(Object input, double alpha, String variancesLevel, String pvalueBase, String significanceMethod) {
+        ((TtestAnalysisPanel) aspp).setAlpha(alpha);
+        ((TtestAnalysisPanel) aspp).setSignificanceMethod(significanceMethod);
+        ((TtestAnalysisPanel) aspp).setUseWalch(variancesLevel);
+        ((TtestAnalysisPanel) aspp).setPValuesDistribution(pvalueBase);
+        if (input instanceof DSMicroarraySet) {
+            CSMicroarraySetView csMicroarraySetView = new CSMicroarraySetView((DSMicroarraySet) input);
+            execute(csMicroarraySetView);
+        }
+
+        return the_sigSet;
+    }
+
+    public AlgorithmExecutionResults execute(Object input) {
         reset();
         if (input == null) {
             return new AlgorithmExecutionResults(false, "Invalid input.", null);
@@ -171,7 +185,7 @@ public class TtestAnalysis extends AbstractAnalysis implements ClusteringAnalysi
                     if ((labels.length == 0) && allArrays) {
                         groupAssignments[i] = TtestAnalysisPanel.GROUP_B;
                         tTestDesign = TtestAnalysisPanel.BETWEEN_SUBJECTS;
-                        hasGroupB = true;                        
+                        hasGroupB = true;
                     }
                     for (String label : labels) {
                         if (context.isLabelActive(label) || allArrays) {
@@ -333,7 +347,7 @@ public class TtestAnalysis extends AbstractAnalysis implements ClusteringAnalysi
                     classSets[1].toArray(new String[0]),
                     alpha
             );
-              the_sigSet = sigSet;
+            the_sigSet = sigSet;
             for (int i = 0; i < pValuesVector.size(); i++) {
                 pValuesMatrix[i][0] = ((Float) (pValuesVector.get(i))).floatValue();
                 sigSet.setSignificance(data.markers().get(i), pValuesMatrix[i][0]);
@@ -414,7 +428,8 @@ public class TtestAnalysis extends AbstractAnalysis implements ClusteringAnalysi
         return null;
     }
 
-    @Publish public org.geworkbench.events.SubpanelChangedEvent publishSubpanelChangedEvent
+    @Publish
+    public org.geworkbench.events.SubpanelChangedEvent publishSubpanelChangedEvent
             (org.geworkbench.events.SubpanelChangedEvent
                     event) {
         return event;
@@ -503,8 +518,7 @@ public class TtestAnalysis extends AbstractAnalysis implements ClusteringAnalysi
 
                 int permCounter = 0;
 
-                while (org.geworkbench.util.Combinations.enumerateCombinations(usedExptsArray.length, numGroupAValues, combArray))
-                {
+                while (org.geworkbench.util.Combinations.enumerateCombinations(usedExptsArray.length, numGroupAValues, combArray)) {
 
                     int[] notInCombArray = new int[numGroupBValues];
                     int notCombCounter = 0;
@@ -1329,8 +1343,7 @@ public class TtestAnalysis extends AbstractAnalysis implements ClusteringAnalysi
         Vector nonSigGenes = new Vector();
         pValuesVector = new Vector();
         if (!isPermut) {
-            if ((significanceMethod == TtestAnalysisPanel.JUST_ALPHA) || (significanceMethod == TtestAnalysisPanel.STD_BONFERRONI))
-            {
+            if ((significanceMethod == TtestAnalysisPanel.JUST_ALPHA) || (significanceMethod == TtestAnalysisPanel.STD_BONFERRONI)) {
                 for (int i = 0; i < numGenes; i++) {
                     if (isSigOneClass(i)) {
                         sigGenes.add(new Integer(i));
@@ -1382,8 +1395,7 @@ public class TtestAnalysis extends AbstractAnalysis implements ClusteringAnalysi
             }
         } else {
             if (useAllCombs) {
-                if ((significanceMethod == TtestAnalysisPanel.JUST_ALPHA) || (significanceMethod == TtestAnalysisPanel.STD_BONFERRONI))
-                {
+                if ((significanceMethod == TtestAnalysisPanel.JUST_ALPHA) || (significanceMethod == TtestAnalysisPanel.STD_BONFERRONI)) {
                     for (int i = 0; i < numGenes; i++) {
                         if (significanceMethod == TtestAnalysisPanel.JUST_ALPHA) {
                             float currentProb = getAllCombsOneClassProb(i);
@@ -1443,8 +1455,7 @@ public class TtestAnalysis extends AbstractAnalysis implements ClusteringAnalysi
                     }
                 }
             } else {
-                if ((significanceMethod == TtestAnalysisPanel.JUST_ALPHA) || (significanceMethod == TtestAnalysisPanel.STD_BONFERRONI))
-                {
+                if ((significanceMethod == TtestAnalysisPanel.JUST_ALPHA) || (significanceMethod == TtestAnalysisPanel.STD_BONFERRONI)) {
                     for (int i = 0; i < numGenes; i++) {
                         float currentProb = getSomeCombsOneClassProb(i);
                         pValuesVector.add(new Float(currentProb));
@@ -1899,8 +1910,7 @@ public class TtestAnalysis extends AbstractAnalysis implements ClusteringAnalysi
         Vector sigGenes = new Vector();
         Vector nonSigGenes = new Vector();
 
-        if ((significanceMethod == TtestAnalysisPanel.JUST_ALPHA) || (significanceMethod == TtestAnalysisPanel.STD_BONFERRONI))
-        {
+        if ((significanceMethod == TtestAnalysisPanel.JUST_ALPHA) || (significanceMethod == TtestAnalysisPanel.STD_BONFERRONI)) {
             sigGenes = new Vector();
             nonSigGenes = new Vector();
             for (int i = 0; i < numGenes; i++) {
@@ -2025,8 +2035,7 @@ public class TtestAnalysis extends AbstractAnalysis implements ClusteringAnalysi
         Vector sigGenes = new Vector();
         Vector nonSigGenes = new Vector();
 
-        if ((significanceMethod == TtestAnalysisPanel.JUST_ALPHA) || (significanceMethod == TtestAnalysisPanel.STD_BONFERRONI))
-        {
+        if ((significanceMethod == TtestAnalysisPanel.JUST_ALPHA) || (significanceMethod == TtestAnalysisPanel.STD_BONFERRONI)) {
             sigGenes = new Vector();
             nonSigGenes = new Vector();
             for (int i = 0; i < numGenes; i++) {
