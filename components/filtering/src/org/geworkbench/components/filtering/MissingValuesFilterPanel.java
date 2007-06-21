@@ -72,6 +72,17 @@ public class MissingValuesFilterPanel extends AbstractSaveableParameterPanel imp
     }
 
     /**
+        * Set the user-specifed maximum number of microarrays that a marker is allowed
+        * to have a missing value so that it does not get filtered out.
+        *
+        *
+        */
+       public void settMaxMissingArrays(int newValue) {
+            maxMissingValue.setValue(newValue);
+       }
+
+
+    /**
      * Overrides the method from <code>AbstractSaveableParameterPanel</code>.
      * Provides an error message if the designated number of microarrays is a
      * negative number.

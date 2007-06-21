@@ -159,11 +159,11 @@ public class GenePanel extends SelectorPanel<DSGeneMarker> {
 
     /**
      * Utility to save a panel to the filesystem as CSV.
-     * <p>
+     * <p/>
      * Format:
-     * <p>
+     * <p/>
      * File name (without .CSV extension) is the name of the panel.
-     * <p>
+     * <p/>
      * Rows of the file contains the label of markers, in order. Only the first column is used.
      *
      * @param filename filename to which the current panel is to be saved.
@@ -257,32 +257,79 @@ public class GenePanel extends SelectorPanel<DSGeneMarker> {
     /**
      * Called when a single marker is selected by a component.
      */
-    @Subscribe public void receive(MarkerSelectedEvent event, Object source) {
+    @Subscribe
+    public void receive(MarkerSelectedEvent event, Object source) {
         JList list = itemAutoList.getList();
         int index = itemList.indexOf(event.getMarker());
         list.setSelectedIndex(index);
         list.scrollRectToVisible(list.getCellBounds(index, index));
     }
 
-    @Publish public SubpanelChangedEvent publishSubpanelChangedEvent(SubpanelChangedEvent event) {
+    @Publish
+    public SubpanelChangedEvent publishSubpanelChangedEvent(SubpanelChangedEvent event) {
         return event;
     }
 
-    @Publish public GeneSelectorEvent publishGeneSelectorEvent(GeneSelectorEvent event) {
+    @Publish
+    public GeneSelectorEvent publishGeneSelectorEvent(GeneSelectorEvent event) {
         return event;
     }
 
     protected void publishSingleSelectionEvent(DSGeneMarker item) {
         publishGeneSelectorEvent(new GeneSelectorEvent(item));
     }
-    
-    @Script public void setDataSet(DSDataSet dataSet) {
+
+    @Script
+    public void setDataSet(DSDataSet dataSet) {
         processDataSet(dataSet);
     }
 
     @Script
-    public void createPanel(int a, int b, boolean c) {
-        // todo implement
+    public DSPanel createPanels(String label, int[] positions) {
+        // Ensure loaded file has unique name
+        Set<String> nameSet = new HashSet<String>();
+        int n = context.getNumberOfLabels();
+        for (int i = 0; i < n; i++) {
+            nameSet.add(context.getLabel(i));
+        }
+        label = Util.getUniqueName(label, nameSet);
+        DSPanel<DSGeneMarker> panel = new CSPanel<DSGeneMarker>(label);
+        for (int position : positions) {
+            DSGeneMarker marker = itemList.get(position);
+            if (marker != null) {
+                panel.add(marker);
+            }
+        }
+
+        addPanel(panel); //redundancy between broadcast and script
+        panel.setActive(true);
+        publishGeneSelectorEvent(new GeneSelectorEvent(panel));
+        return panel;
+    }
+
+    @Script
+    public DSPanel createPanel(String label, int position) {
+        // Ensure loaded file has unique name
+        Set<String> nameSet = new HashSet<String>();
+        int n = context.getNumberOfLabels();
+        for (int i = 0; i < n; i++) {
+            nameSet.add(context.getLabel(i));
+        }
+        label = Util.getUniqueName(label, nameSet);
+        DSPanel<DSGeneMarker> panel = new CSPanel<DSGeneMarker>(label);
+        DSGeneMarker marker = itemList.get(position);
+        if (marker != null) {
+            panel.add(marker);
+        }
+        try {
+            addPanel(panel); //redundancy between broadcast and script
+
+        } catch (IndexOutOfBoundsException e) {
+
+        }
+        panel.setActive(true);
+        publishGeneSelectorEvent(new GeneSelectorEvent(panel));
+        return panel;
     }
 
     @Script
@@ -291,7 +338,7 @@ public class GenePanel extends SelectorPanel<DSGeneMarker> {
         panel.setActive(true);
         addPanel(panel); //redundancy between broadcast and script
         publishGeneSelectorEvent(new GeneSelectorEvent(panel));
-        
+
         return panel;
     }
 }

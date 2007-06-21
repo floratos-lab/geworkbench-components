@@ -93,6 +93,19 @@ public class QuantileNormalizerPanel extends AbstractSaveableParameterPanel impl
             return MissingValueNormalizer.MICROARRAY_MEAN;
     }
 
+    public void setAveragingType(String type){
+        if(type==null){
+            return;
+        }
+        if(type.equalsIgnoreCase(MARKER_OPTION)){
+         averagingTypeSelection.setSelectedItem(MARKER_OPTION);
+        }
+        if(type.equalsIgnoreCase(MICROARRAY_OPTION)){
+         averagingTypeSelection.setSelectedItem(MICROARRAY_OPTION);
+        }
+    };
+
+
     private void writeObject(java.io.ObjectOutputStream out) throws IOException {
         out.defaultWriteObject();
     }

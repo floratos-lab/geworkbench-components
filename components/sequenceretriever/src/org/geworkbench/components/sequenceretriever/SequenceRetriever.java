@@ -23,6 +23,7 @@ import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.engine.management.AcceptTypes;
 import org.geworkbench.engine.management.Publish;
 import org.geworkbench.engine.management.Subscribe;
+import org.geworkbench.engine.management.Script;
 import org.geworkbench.events.GeneSelectorEvent;
 import org.geworkbench.events.ProjectNodeAddedEvent;
 
@@ -83,13 +84,13 @@ public class SequenceRetriever implements VisualPlugin {
     Vector tfNameSet;
     //Map the marker name with associated sequence name.
     private TreeMap<String, ArrayList<String>> retrievedDNASequences = new TreeMap<String, ArrayList<String>>();
-//       //Map the sequence name with the sequence display
+    //       //Map the sequence name with the sequence display
     private HashMap<String, RetrievedSequenceView> retrievedDNAMap = new HashMap<String, RetrievedSequenceView>();
 
     private TreeMap<String, ArrayList<String>> currentRetrievedSequences = new TreeMap<String, ArrayList<String>>();
     //Map the sequence name with the sequence display
     private HashMap<String, RetrievedSequenceView> currentRetrievedMap = new HashMap<String, RetrievedSequenceView>();
-//Map the marker name with associated sequence name.
+    //Map the marker name with associated sequence name.
     private TreeMap<String, ArrayList<String>> retrievedProteinSequences = new TreeMap<String, ArrayList<String>>();
     //Map the sequence name with the sequence display
     private HashMap<String, RetrievedSequenceView> retrievedProteinMap = new HashMap<String, RetrievedSequenceView>();
@@ -544,26 +545,26 @@ public class SequenceRetriever implements VisualPlugin {
                 if (sequence != null) {
                     RetrievedSequenceView retrievedSequenceView = currentRetrievedMap.get(sequence.toString());
                     if (retrievedSequenceView.isIncluded()) {
-                        selectedSequenceDB.addASequence((DSSequence)sequence);
+                        selectedSequenceDB.addASequence((DSSequence) sequence);
                     }
                 }
             }
-                if (selectedSequenceDB.size() > 0) {
-                    String fileName = this.getRandomFileName();
-                    selectedSequenceDB.writeToFile(fileName);
-                    String label = JOptionPane.showInputDialog(
-                            "Please enter a name for the dataset");
-                    if (label != null) {
-                        selectedSequenceDB.setLabel(label);
-                        selectedSequenceDB.parseMarkers();
-                        ProjectNodeAddedEvent event = new ProjectNodeAddedEvent(
-                                "message", selectedSequenceDB, null);
-                        publishProjectNodeAddedEvent(event);
-                    }
-                } else {
-                    JOptionPane.showMessageDialog(null,
-                            "Please select at least one sequence.");
+            if (selectedSequenceDB.size() > 0) {
+                String fileName = this.getRandomFileName();
+                selectedSequenceDB.writeToFile(fileName);
+                String label = JOptionPane.showInputDialog(
+                        "Please enter a name for the dataset");
+                if (label != null) {
+                    selectedSequenceDB.setLabel(label);
+                    selectedSequenceDB.parseMarkers();
+                    ProjectNodeAddedEvent event = new ProjectNodeAddedEvent(
+                            "message", selectedSequenceDB, null);
+                    publishProjectNodeAddedEvent(event);
                 }
+            } else {
+                JOptionPane.showMessageDialog(null,
+                        "Please select at least one sequence.");
+            }
         }
     }
 
@@ -591,6 +592,43 @@ public class SequenceRetriever implements VisualPlugin {
                 retrievedDNASequences.put(marker.toString(), values);
             }
         }
+    }
+
+    @Script
+    public DSSequenceSet getSequences(DSPanel markers, String type, String serverName) {
+        CSSequenceSet sequenceSet = new CSSequenceSet();
+        if (type.equalsIgnoreCase(DNAVIEW)) {
+            jComboCategory.setSelectedItem(DNAVIEW);
+            model.setValue(1000);
+            model1.setValue(1000);
+        } else {
+            jComboCategory.setSelectedItem(PROTEINVIEW);
+        }
+       System.out.println("SCRIPT in SR" + markers.size());
+        if (markers != null && markers.size() > 0) {
+
+            Vector selectedList = new Vector();
+            for (Object o : markers) {
+                selectedList.add(o);
+            }
+            getSequences(selectedList);
+        }
+        if (type.equalsIgnoreCase(DNAVIEW)) {
+            return dnaSequenceDB;
+        } else {
+            return proteinSequenceDB;
+        }
+    }
+
+    @Script
+    public DSSequenceSet getSequenceSet(DSPanel markers, String type, String serverName) {
+        CSSequenceSet sequenceSet = new CSSequenceSet();
+
+
+        sequenceSet.readFASTAFile(new File("data/histoall.fa"));
+        return sequenceSet;
+
+
     }
 
     void getSequences(Vector selectedList) {

@@ -4,9 +4,15 @@ import org.geworkbench.bison.annotation.DSAnnotationContext;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
+import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
+import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
+import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
 import org.geworkbench.engine.management.Publish;
+import org.geworkbench.engine.management.Script;
 import org.geworkbench.events.PhenotypeSelectorEvent;
 import org.geworkbench.events.SingleMicroarrayEvent;
+import org.geworkbench.events.GeneSelectorEvent;
+import org.geworkbench.util.Util;
 
 import javax.swing.*;
 import javax.swing.tree.TreePath;
@@ -14,6 +20,8 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
+import java.util.Set;
+import java.util.HashSet;
 
 /**
  * @author John Watkinson
@@ -164,6 +172,72 @@ public class PhenotypePanel extends SelectorPanel<DSMicroarray> {
         }
     }
 
+    @Script
+     public void addToPanel(DSPanel panel, int position){
+         DSMicroarray marker = itemList.get(position);
+        if (marker != null) {
+            panel.add(marker);
+        }
+          addPanel(panel);
+    }
+
+    @Script
+     public void removeFromPanel(DSPanel panel, int position){
+         DSMicroarray marker = itemList.get(position);
+        if (marker != null) {
+            panel.remove(marker);
+        }
+        addPanel(panel);
+    }
+
+    @Script
+    public DSPanel createPanel(String label, int position) {
+        // Ensure loaded file has unique name
+        Set<String> nameSet = new HashSet<String>();
+        int n = context.getNumberOfLabels();
+        for (int i = 0; i < n; i++) {
+            nameSet.add(context.getLabel(i));
+        }
+        label = Util.getUniqueName(label, nameSet);
+        DSPanel<DSMicroarray> panel = new CSPanel<DSMicroarray>(label);
+        DSMicroarray marker = itemList.get(position);
+        if (marker != null) {
+            panel.add(marker);
+        }
+
+        addPanel(panel); //redundancy between broadcast and script
+        panel.setActive(true);
+        System.out.println("at create label " + label);
+        //assignClassToLabel(label, label.substring(0, 4));
+        try{
+            Thread.sleep(2000);
+        }                      catch(Exception e){
+            e.printStackTrace();
+        }
+        //  publishGeneSelectorEvent(new GeneSelectorEvent(panel));
+        return panel;
+    }
+
+
+    @Script
+    public boolean assignClassToLabel(String label, String classname) {
+        for (String classLabel : CLASSES) {
+            if (classLabel.startsWith(classname)) {
+                try{
+                context.assignClassToLabel(label, classLabel);
+                // Notify model
+                treeModel.fireLabelChanged(label);
+                throwLabelEvent();
+                }catch (NullPointerException nuE){
+                   // nuE.printStackTrace();
+                }
+                return true;
+            }
+        }
+        System.out.println("No matched label found, the non-matched label is " + label + " " + classname);
+        return false;
+    }
+
     protected void throwLabelEvent() {
         PhenotypeSelectorEvent event = new PhenotypeSelectorEvent(context.getLabelTree(), set);
         publishPhenotypeSelectorEvent(event);
@@ -174,11 +248,13 @@ public class PhenotypePanel extends SelectorPanel<DSMicroarray> {
         publishSingleMicroarrayEvent(event);
     }
 
-    @Publish public PhenotypeSelectorEvent publishPhenotypeSelectorEvent(PhenotypeSelectorEvent event) {
+    @Publish
+    public PhenotypeSelectorEvent publishPhenotypeSelectorEvent(PhenotypeSelectorEvent event) {
         return event;
     }
 
-    @Publish public SingleMicroarrayEvent publishSingleMicroarrayEvent(SingleMicroarrayEvent event) {
+    @Publish
+    public SingleMicroarrayEvent publishSingleMicroarrayEvent(SingleMicroarrayEvent event) {
         return event;
     }
 

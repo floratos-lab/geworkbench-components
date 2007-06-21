@@ -302,6 +302,7 @@ public abstract class SelectorPanel<T extends DSSequential> implements VisualPlu
         });
     }
 
+
     protected void panelTreeClicked(final MouseEvent e) {
         TreePath path = panelTree.getPathForLocation(e.getX(), e.getY());
         if (path != null) {
@@ -447,6 +448,10 @@ public abstract class SelectorPanel<T extends DSSequential> implements VisualPlu
             }
         }
     }
+
+
+
+
 
     protected void clearSelectionPressed() {
         context.clearItemsFromLabel(SELECTION_LABEL);

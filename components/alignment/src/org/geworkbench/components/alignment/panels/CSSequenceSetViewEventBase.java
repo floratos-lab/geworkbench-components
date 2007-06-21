@@ -122,6 +122,8 @@ public class CSSequenceSetViewEventBase implements VisualPlugin {
     }
 
 
+
+    
     protected void refreshMaSetView() {
         getDataSetView();
         fireModelChangedEvent(null);
