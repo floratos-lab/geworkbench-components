@@ -24,6 +24,7 @@ import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.engine.config.PluginDescriptor;
 import org.geworkbench.engine.management.ComponentRegistry;
 import org.geworkbench.engine.management.Documentation;
+import org.geworkbench.engine.properties.PropertiesManager;
 import org.geworkbench.util.PropertiesMonitor;
 import org.geworkbench.components.cagrid.CaGridPanel;
 import org.apache.commons.logging.Log;
@@ -87,7 +88,7 @@ public class CaSCRIPTEditor implements VisualPlugin {
     String scriptText = "", partScript = "";
     int caretPlace = -1;
     String eoln = System.getProperty("line.separator");
-
+       String LASTDIR = "lastdir";
     JTabbedPane rightTabs = new JTabbedPane();
 
     BorderLayout borderLayout1 = new BorderLayout();
@@ -533,23 +534,30 @@ public class CaSCRIPTEditor implements VisualPlugin {
         return params.toString();
     }
 
-    void open_actionPerformed(ActionEvent e){
-        JFileChooser fc = new JFileChooser(PropertiesMonitor.getPropertiesMonitor().getDefPath());
-        String scriptFilename = null;
-        FileFilter filter = new CaSCRIPTFileFilter();
-        fc.setFileFilter(filter);
-        fc.setDialogTitle("Open Script");
-        String extension = ((CaSCRIPTFileFilter) filter).getExtension();
-        int choice = fc.showOpenDialog(null);
-        if (choice == JFileChooser.APPROVE_OPTION) {
-            scriptFilename = fc.getSelectedFile().getAbsolutePath();
-            if (!scriptFilename.endsWith(extension)) {
-                scriptFilename += extension;
+  void open_actionPerformed(ActionEvent e) {
+        String lastdir = ".";
+        try {
+            lastdir = PropertiesManager.getInstance().getProperty(getClass(), LASTDIR, "Default Value");
+
+            JFileChooser fc = new JFileChooser(lastdir);
+            String scriptFilename = null;
+            FileFilter filter = new CaSCRIPTFileFilter();
+            fc.setFileFilter(filter);
+            fc.setDialogTitle("Open Script");
+            String extension = ((CaSCRIPTFileFilter) filter).getExtension();
+            int choice = fc.showOpenDialog(null);
+            if (choice == JFileChooser.APPROVE_OPTION) {
+                lastdir = fc.getSelectedFile().getParentFile().getAbsolutePath();
+                PropertiesManager.getInstance().setProperty(getClass(), LASTDIR, lastdir);
+                scriptFilename = fc.getSelectedFile().getAbsolutePath();
+                if (!scriptFilename.endsWith(extension)) {
+                    scriptFilename += extension;
+                }
+                processFile(new File(scriptFilename));
             }
-            processFile(new File(scriptFilename));
+        } catch (Exception er) {
         }
     }
-
     void processFile(File file){
         try {
             FileReader reader = new FileReader(file);
