@@ -200,20 +200,20 @@ public class MindyPlugin extends JPanel {
             targetTable = new JTable(aggregateModel){
                 public Component prepareRenderer(TableCellRenderer tableCellRenderer, int row, int col) {
                     Component component = super.prepareRenderer(tableCellRenderer, row, col);
-                    if (colorCheck.isSelected() && col > 1) {  // broken??
-                        float score = aggregateModel.getScoreAt(row, col);
-                        if (scoreCheck.isSelected()) {
-                            component.setBackground(gradient.getColor(score));
-                        } else {
-                            component.setBackground(gradient.getColor(Math.signum(score) * 1));
-                        }
-                    }
                		if (row % 2 == 0 && !isCellSelected(row, col)) {
             			component.setBackground(new Color(237, 237, 237));
             		} else {
             			// If not shaded, match the table's background
             			component.setBackground(getBackground());
             		}
+               		if (colorCheck.isSelected() && col > 1) {  
+                        float score = aggregateModel.getScoreAt(row, col);
+                        if(score != 0){
+                            component.setBackground(gradient.getColor(score));
+                            //display red/blue only
+                            //component.setBackground(gradient.getColor(Math.signum(score) * 1));
+                        }
+                    }
                     return component;
                 }
             };
@@ -223,6 +223,8 @@ public class MindyPlugin extends JPanel {
             restoreBooleanRenderers(targetTable);
             targetTable.getColumnModel().getColumn(0).setMaxWidth(15);
             targetTable.getColumnModel().getColumn(0).setWidth(15);
+            targetTable.getColumnModel().getColumn(0).setPreferredWidth(15);
+            
 
             colorCheck.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent actionEvent) {
@@ -860,6 +862,8 @@ public class MindyPlugin extends JPanel {
         }
 
     }
+    
+    
 
     private class AggregateTableModel extends DefaultTableModel {
 
@@ -996,18 +1000,11 @@ public class MindyPlugin extends JPanel {
 
         public Object getValueAt(int row, int col) {
         	if ((col == 0) && (row == 0))
-        		return "";
+        		return null;
         	else if ((col == 0) && (row > 0)) {
             	return checkedTargets[row - 1];
-            } else if((col > 0) && (row == 0)) {
-            	if((checkedModulators != null) && (checkedModulators.length > 0)){
-            		System.out.println("getValueAt():checkedModulators.length=" + this.checkedModulators.length);
-            		//return checkedModulators[col - 1];
-            		return 1;
-            	} else {
-            		System.out.println("getValueAt():empty");
-            		return 0;
-            	}
+            } else if((col > 1) && (row == 0)) {
+            	return null;
             } else if ((col == 1) && (row > 0)) {                
                 return activeTargets.get(row).getShortName(ModulatorHeatMap.MAX_MARKER_NAME_CHARS);
             } else if(row > 0){
@@ -1022,7 +1019,7 @@ public class MindyPlugin extends JPanel {
                     return score;
                 }
             }
-        	return "";
+        	return null;
         }
 
         public float getScoreAt(int row, int col) {
