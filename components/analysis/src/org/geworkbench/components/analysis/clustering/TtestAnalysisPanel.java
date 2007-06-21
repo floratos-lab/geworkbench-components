@@ -200,6 +200,36 @@ public class TtestAnalysisPanel extends AbstractSaveableParameterPanel implement
             return Double.parseDouble(alpha.getText());
     }
 
+    public void setAlpha(double alphaValue){
+        alpha.setValue(alphaValue);
+    }
+
+     public void setPValuesDistribution(String value){
+       if(value.startsWith("t-dist")){
+           pvaluesByTDistribution.setSelected(true);
+       }else{
+           pvaluesByPerm.setSelected(true);
+       }
+    }
+    public void setSignificanceMethod(String value){
+        if(value.startsWith("noCorrection")){
+            noCorrection.setSelected(true);
+        }
+         if(value.startsWith("Bonferroni")){
+           bonferroni.setSelected(true);
+        }
+        if(value.startsWith("adjustedBonferroni")){
+           adjustedBonferroni.setSelected(true);
+        }
+    }
+    public void setUseWalch(String methods){
+        if(methods.startsWith("Welch")){
+            welch.setSelected(true);
+        }else{
+          equalVariances.setSelected(true);   
+        }
+    }
+
     public int getSignificanceMethod() {
         if (noCorrection.isSelected())
             return JUST_ALPHA;
