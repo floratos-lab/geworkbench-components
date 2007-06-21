@@ -180,8 +180,7 @@ public class BlastAlgorithm extends BWAbstractAlgorithm implements SoapClientIn 
                             if (blastAppComponent != null && !blastAppComponent.isStopButtonPushed() && !stopRequested)
                             {
                                 updateStatus("For sequence " + sequence +
-                                        ", time since submission is : " +
-                                        blast.getWaitingTime());
+                                        ",  the blast job is running. ");
                                 Thread.sleep(this.TIMEGAP);
                             } else {
                                 return;
