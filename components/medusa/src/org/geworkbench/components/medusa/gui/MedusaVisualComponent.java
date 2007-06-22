@@ -23,7 +23,7 @@ import org.geworkbench.util.Util;
  * {@link MedusaVisualizationPanel} is created and added.
  * 
  * @author keshav
- * @version $Id: MedusaVisualComponent.java,v 1.5 2007-06-22 15:21:54 keshav Exp $
+ * @version $Id: MedusaVisualComponent.java,v 1.6 2007-06-22 15:35:12 keshav Exp $
  */
 @AcceptTypes(MedusaDataSet.class)
 public class MedusaVisualComponent implements VisualPlugin {
@@ -31,7 +31,7 @@ public class MedusaVisualComponent implements VisualPlugin {
 
 	private MedusaDataSet dataSet;
 
-	private JPanel plugin;
+	private JPanel component;
 
 	private MedusaVisualizationPanel medusaVisualizationPanel;
 
@@ -42,7 +42,7 @@ public class MedusaVisualComponent implements VisualPlugin {
 	 * 
 	 */
 	public MedusaVisualComponent() {
-		plugin = new JPanel(new BorderLayout());
+		component = new JPanel(new BorderLayout());
 	}
 
 	/*
@@ -51,7 +51,7 @@ public class MedusaVisualComponent implements VisualPlugin {
 	 * @see org.geworkbench.engine.config.VisualPlugin#getComponent()
 	 */
 	public Component getComponent() {
-		return plugin;
+		return component;
 	}
 
 	/**
@@ -69,12 +69,12 @@ public class MedusaVisualComponent implements VisualPlugin {
 			pBar.start();
 			if (dataSet != data) {
 				dataSet = ((MedusaDataSet) data);
-				plugin.removeAll();
+				component.removeAll();
 				medusaVisualizationPanel = new MedusaVisualizationPanel(dataSet.getData());
 				// medusaPlugin.limitMarkers(selectedMarkers);
-				plugin.add(medusaVisualizationPanel, BorderLayout.CENTER);
-				plugin.revalidate();
-				plugin.repaint();
+				component.add(medusaVisualizationPanel, BorderLayout.CENTER);
+				component.revalidate();
+				component.repaint();
 			}
 			pBar.stop();
 		}
