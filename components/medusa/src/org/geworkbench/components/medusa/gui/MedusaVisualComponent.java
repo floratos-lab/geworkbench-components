@@ -23,7 +23,7 @@ import org.geworkbench.util.Util;
  * {@link MedusaVisualizationPanel} is created and added.
  * 
  * @author keshav
- * @version $Id: MedusaVisualComponent.java,v 1.4 2007-06-15 17:12:31 keshav Exp $
+ * @version $Id: MedusaVisualComponent.java,v 1.5 2007-06-22 15:21:54 keshav Exp $
  */
 @AcceptTypes(MedusaDataSet.class)
 public class MedusaVisualComponent implements VisualPlugin {
@@ -33,7 +33,7 @@ public class MedusaVisualComponent implements VisualPlugin {
 
 	private JPanel plugin;
 
-	private MedusaVisualizationPanel medusaPlugin;
+	private MedusaVisualizationPanel medusaVisualizationPanel;
 
 	private ArrayList<DSGeneMarker> selectedMarkers;
 
@@ -70,9 +70,9 @@ public class MedusaVisualComponent implements VisualPlugin {
 			if (dataSet != data) {
 				dataSet = ((MedusaDataSet) data);
 				plugin.removeAll();
-				medusaPlugin = new MedusaVisualizationPanel(dataSet.getData());
+				medusaVisualizationPanel = new MedusaVisualizationPanel(dataSet.getData());
 				// medusaPlugin.limitMarkers(selectedMarkers);
-				plugin.add(medusaPlugin, BorderLayout.CENTER);
+				plugin.add(medusaVisualizationPanel, BorderLayout.CENTER);
 				plugin.revalidate();
 				plugin.repaint();
 			}
