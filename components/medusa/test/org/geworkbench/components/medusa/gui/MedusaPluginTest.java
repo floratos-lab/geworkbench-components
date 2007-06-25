@@ -24,13 +24,15 @@ import org.geworkbench.components.medusa.MedusaData;
  * GUI tests for the {@link MedusaVisualizationPanel}.
  * 
  * @author keshav
- * @version $Id: MedusaPluginTest.java,v 1.3 2007-06-15 17:12:31 keshav Exp $
+ * @version $Id: MedusaPluginTest.java,v 1.4 2007-06-25 17:10:31 keshav Exp $
  */
 public class MedusaPluginTest extends TestCase {
 
+	MedusaVisualComponent visualComponent = new MedusaVisualComponent();
+
 	MedusaData medusaData = null;
 
-	MedusaVisualizationPanel medusaPlugin = null;
+	MedusaVisualizationPanel medusaVisualizationPanel = null;
 
 	int numElements = 5;
 
@@ -90,7 +92,8 @@ public class MedusaPluginTest extends TestCase {
 		medusaData = new MedusaData(microarraySet, null, targets, medusaCommand);
 
 		/* create visual plugin */
-		medusaPlugin = new MedusaVisualizationPanel(medusaData);
+		medusaVisualizationPanel = new MedusaVisualizationPanel(
+				visualComponent, medusaData);
 
 	}
 
@@ -101,7 +104,7 @@ public class MedusaPluginTest extends TestCase {
 	public void testMedusaPluginLayout() {
 
 		JDialog dialog = new JDialog();
-		dialog.add(medusaPlugin);
+		dialog.add(medusaVisualizationPanel);
 		dialog.pack();
 		dialog.setModal(true);
 		dialog.setVisible(true);
