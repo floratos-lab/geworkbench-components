@@ -52,6 +52,8 @@ public class MedusaVisualizationPanel extends JPanel {
 
 	private JButton addSelectionsToSetButton = new JButton();
 	private String addToSetButtonLabel = "Add To Set ";
+	private JButton exportMotifsButton = new JButton();
+	private JButton imageSnapshotButton = new JButton();
 
 	/**
 	 * 
@@ -76,6 +78,11 @@ public class MedusaVisualizationPanel extends JPanel {
 		addSelectionsToSetButton.setText(addToSetButtonLabel + "["
 				+ selectedMarkerMap.size() + "]");
 		addSelectionsToSetButton.setToolTipText(addToSetButtonLabel);
+
+		exportMotifsButton.setText("Export Motifs");
+		exportMotifsButton.setToolTipText("Export motifs discovered by Medusa");
+		imageSnapshotButton.setText("Image Snapshot");
+		imageSnapshotButton.setToolTipText("Image snapshot");
 
 		double[][] targetMatrix = new double[targets.size()][];
 		for (DSGeneMarker target : targets) {
@@ -211,12 +218,10 @@ public class MedusaVisualizationPanel extends JPanel {
 		motifPanel.add(dummyPanel2);
 
 		/* add buttons at 3,3 */
-		FormLayout buttonLayout = new FormLayout("pref,60dlu"); // columns
-		// "75dlu"); // add rows dynamically
-		DefaultFormBuilder buttonBuilder = new DefaultFormBuilder(buttonLayout);
-		addSelectionsToSetButton.setText("Add To Set " + "["
-				+ selectedMarkerMap.size() + "]");
-		buttonBuilder.append(addSelectionsToSetButton);
+		JPanel buttonPanel = new JPanel();
+		buttonPanel.add(imageSnapshotButton);
+		buttonPanel.add(exportMotifsButton);
+		buttonPanel.add(addSelectionsToSetButton);
 
 		addSelectionsToSetButton.addActionListener(new ActionListener() {
 
@@ -239,7 +244,7 @@ public class MedusaVisualizationPanel extends JPanel {
 			}
 		});
 
-		motifPanel.add(buttonBuilder.getPanel());
+		motifPanel.add(buttonPanel);
 
 		// TODO add back in
 		// JScrollPane scrollPane = new JScrollPane(motifPanel,
