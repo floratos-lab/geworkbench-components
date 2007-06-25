@@ -5,6 +5,7 @@ import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -17,7 +18,10 @@ import javax.swing.JTabbedPane;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
+import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
+import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.components.medusa.MedusaData;
+import org.geworkbench.events.SubpanelChangedEvent;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.layout.FormLayout;
@@ -53,10 +57,11 @@ public class MedusaVisualizationPanel extends JPanel {
 	 * 
 	 * @param medusaData
 	 */
-	public MedusaVisualizationPanel(MedusaData medusaData) {
+	public MedusaVisualizationPanel(
+			MedusaVisualComponent medusaVisualComponent, MedusaData medusaData) {
 		super();
 
-		final MedusaData mData = medusaData;
+		final MedusaVisualComponent visualComponent = medusaVisualComponent;
 
 		JTabbedPane tabbedPane = new JTabbedPane();
 
@@ -70,6 +75,7 @@ public class MedusaVisualizationPanel extends JPanel {
 		selectedMarkerMap = initSelectedMarkerMap(targets, regulators);
 		addSelectionsToSetButton.setText(addToSetButtonLabel + "["
 				+ selectedMarkerMap.size() + "]");
+		addSelectionsToSetButton.setToolTipText(addToSetButtonLabel);
 
 		double[][] targetMatrix = new double[targets.size()][];
 		for (DSGeneMarker target : targets) {
@@ -221,6 +227,15 @@ public class MedusaVisualizationPanel extends JPanel {
 			 */
 			public void actionPerformed(ActionEvent e) {
 				// add all values in selected selectedMarkerMap
+				Collection<DSGeneMarker> selectedMarkers = selectedMarkerMap
+						.values();
+				DSPanel<DSGeneMarker> panel = new CSPanel<DSGeneMarker>();
+				panel.addAll(selectedMarkers);
+				visualComponent
+						.publishSubpanelChangedEvent(new SubpanelChangedEvent(
+								DSGeneMarker.class, panel,
+								org.geworkbench.events.SubpanelChangedEvent.NEW));
+
 			}
 		});
 

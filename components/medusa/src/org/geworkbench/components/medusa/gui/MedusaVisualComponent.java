@@ -13,8 +13,10 @@ import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.components.medusa.MedusaDataSet;
 import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.engine.management.AcceptTypes;
+import org.geworkbench.engine.management.Publish;
 import org.geworkbench.engine.management.Subscribe;
 import org.geworkbench.events.ProjectEvent;
+import org.geworkbench.events.SubpanelChangedEvent;
 import org.geworkbench.util.ProgressBar;
 import org.geworkbench.util.Util;
 
@@ -23,7 +25,7 @@ import org.geworkbench.util.Util;
  * {@link MedusaVisualizationPanel} is created and added.
  * 
  * @author keshav
- * @version $Id: MedusaVisualComponent.java,v 1.6 2007-06-22 15:35:12 keshav Exp $
+ * @version $Id: MedusaVisualComponent.java,v 1.7 2007-06-25 17:10:39 keshav Exp $
  */
 @AcceptTypes(MedusaDataSet.class)
 public class MedusaVisualComponent implements VisualPlugin {
@@ -70,7 +72,8 @@ public class MedusaVisualComponent implements VisualPlugin {
 			if (dataSet != data) {
 				dataSet = ((MedusaDataSet) data);
 				component.removeAll();
-				medusaVisualizationPanel = new MedusaVisualizationPanel(dataSet.getData());
+				medusaVisualizationPanel = new MedusaVisualizationPanel(this,
+						dataSet.getData());
 				// medusaPlugin.limitMarkers(selectedMarkers);
 				component.add(medusaVisualizationPanel, BorderLayout.CENTER);
 				component.revalidate();
@@ -109,5 +112,15 @@ public class MedusaVisualComponent implements VisualPlugin {
 	// .error("Dataset in this component is null, or selection sent was null");
 	// }
 	// }
+
+	/**
+	 * @param event
+	 * @return SubpanelChangedEvent
+	 */
+	@Publish
+	public SubpanelChangedEvent publishSubpanelChangedEvent(
+			org.geworkbench.events.SubpanelChangedEvent event) {
+		return event;
+	}
 
 }
