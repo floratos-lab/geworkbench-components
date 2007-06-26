@@ -159,7 +159,7 @@ public class MedusaVisualizationPanel extends JPanel {
 		}
 		motifPanel.add(regulatorLabelBuilder.getPanel());
 
-		/* discrete hit or miss heat map */
+		/* discrete hit or miss heat map at 1,0 */
 		this.rulesFiles = new ArrayList<String>();
 
 		for (int k = 0; k < medusaData.getMedusaCommand().getIter(); k++) {
@@ -210,14 +210,11 @@ public class MedusaVisualizationPanel extends JPanel {
 		}
 		motifPanel.add(targetLabelBuilder.getPanel());
 
-		/* dummy panels so we can align the buttons (below) */
+		/* dummy panel at 2,0 so we can align the buttons (below) */
 		JPanel dummyPanel1 = new JPanel();
 		motifPanel.add(dummyPanel1);
 
-		JPanel dummyPanel2 = new JPanel();
-		motifPanel.add(dummyPanel2);
-
-		/* add buttons at 3,3 */
+		/* add buttons at 2,1 */
 		JPanel buttonPanel = new JPanel();
 		buttonPanel.add(imageSnapshotButton);
 		buttonPanel.add(exportMotifsButton);
