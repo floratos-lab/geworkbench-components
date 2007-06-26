@@ -20,13 +20,14 @@ import org.geworkbench.bison.model.analysis.ClusteringAnalysis;
 import org.geworkbench.components.medusa.gui.MedusaParamPanel;
 import org.geworkbench.util.ProgressBar;
 import org.geworkbench.util.Util;
+import org.ginkgo.labs.util.FileTools;
 
 import edu.columbia.ccls.medusa.MedusaLoader;
 
 /**
  * 
  * @author keshav
- * @version $Id: MedusaAnalysis.java,v 1.34 2007-06-20 16:59:35 keshav Exp $
+ * @version $Id: MedusaAnalysis.java,v 1.35 2007-06-26 15:50:06 keshav Exp $
  */
 public class MedusaAnalysis extends AbstractGridAnalysis implements
 		ClusteringAnalysis {
@@ -102,6 +103,9 @@ public class MedusaAnalysis extends AbstractGridAnalysis implements
 		ProgressBar pBar = Util.createProgressBar("Medusa Analysis");
 		pBar.setMessage("Running Medusa");
 		pBar.start();
+
+		/* create output dir */
+		FileTools.createDir("temp/medusa/dataset/output");
 
 		/* cleanup other runs */
 		MedusaUtil.deleteRunDir();
