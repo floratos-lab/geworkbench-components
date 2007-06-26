@@ -223,6 +223,19 @@ public class MedusaVisualizationPanel extends JPanel {
 		buttonPanel.add(exportMotifsButton);
 		buttonPanel.add(addSelectionsToSetButton);
 
+		imageSnapshotButton.addActionListener(new ActionListener() {
+
+			/*
+			 * (non-Javadoc)
+			 * 
+			 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
+			 */
+			public void actionPerformed(ActionEvent e) {
+				visualComponent.publishImageSnapshot();
+			}
+
+		});
+
 		addSelectionsToSetButton.addActionListener(new ActionListener() {
 
 			/*

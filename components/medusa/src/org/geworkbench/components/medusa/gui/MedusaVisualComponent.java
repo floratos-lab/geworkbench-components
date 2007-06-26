@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.util.ArrayList;
 
+import javax.swing.ImageIcon;
 import javax.swing.JPanel;
 
 import org.apache.commons.logging.Log;
@@ -15,6 +16,7 @@ import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.engine.management.AcceptTypes;
 import org.geworkbench.engine.management.Publish;
 import org.geworkbench.engine.management.Subscribe;
+import org.geworkbench.events.ImageSnapshotEvent;
 import org.geworkbench.events.ProjectEvent;
 import org.geworkbench.events.SubpanelChangedEvent;
 import org.geworkbench.util.ProgressBar;
@@ -25,7 +27,7 @@ import org.geworkbench.util.Util;
  * {@link MedusaVisualizationPanel} is created and added.
  * 
  * @author keshav
- * @version $Id: MedusaVisualComponent.java,v 1.7 2007-06-25 17:10:39 keshav Exp $
+ * @version $Id: MedusaVisualComponent.java,v 1.8 2007-06-26 15:05:15 keshav Exp $
  */
 @AcceptTypes(MedusaDataSet.class)
 public class MedusaVisualComponent implements VisualPlugin {
@@ -120,6 +122,26 @@ public class MedusaVisualComponent implements VisualPlugin {
 	@Publish
 	public SubpanelChangedEvent publishSubpanelChangedEvent(
 			org.geworkbench.events.SubpanelChangedEvent event) {
+		return event;
+	}
+
+	/**
+	 * 
+	 * @return {@link ImageSnapshotEvent}
+	 */
+	@Publish
+	public org.geworkbench.events.ImageSnapshotEvent publishImageSnapshot() {
+		// Dimension panelSize = graph.getSize();
+		// BufferedImage image = new BufferedImage(panelSize.width,
+		// panelSize.height,
+		// BufferedImage.TYPE_INT_RGB);
+		// Graphics g = image.getGraphics();
+		// graph.paint(g);
+		// ImageIcon icon = new ImageIcon(image, "EVD Plot");
+		ImageIcon icon = new ImageIcon("Medusa");
+		org.geworkbench.events.ImageSnapshotEvent event = new org.geworkbench.events.ImageSnapshotEvent(
+				"Medusa Snapshot", icon,
+				org.geworkbench.events.ImageSnapshotEvent.Action.SAVE);
 		return event;
 	}
 
