@@ -48,6 +48,7 @@ public class MedusaVisualizationPanel extends JPanel {
 
 	private List<String> rulesFiles = null;
 
+	private Map<String, DSGeneMarker> dirtySelectedMarkerMap = null;
 	private Map<String, DSGeneMarker> selectedMarkerMap = null;
 
 	private JButton addSelectionsToSetButton = new JButton();
@@ -74,9 +75,10 @@ public class MedusaVisualizationPanel extends JPanel {
 
 		List<DSGeneMarker> regulators = medusaData.getRegulators();
 
-		selectedMarkerMap = initSelectedMarkerMap(targets, regulators);
+		initSelectedMarkerMap(targets, regulators);
+
 		addSelectionsToSetButton.setText(addToSetButtonLabel + "["
-				+ selectedMarkerMap.size() + "]");
+				+ dirtySelectedMarkerMap.size() + "]");
 		addSelectionsToSetButton.setToolTipText(addToSetButtonLabel);
 
 		exportMotifsButton.setText("Export Motifs");
@@ -140,15 +142,15 @@ public class MedusaVisualizationPanel extends JPanel {
 					DSGeneMarker reg = selectedMarkerMap.get(markerLabel);
 
 					if (checkBox.isSelected()) {
-						selectedMarkerMap.put(markerLabel, reg);
+						dirtySelectedMarkerMap.put(markerLabel, reg);
 						addSelectionsToSetButton.setText(addToSetButtonLabel
-								+ "[" + selectedMarkerMap.size() + "]");
+								+ "[" + dirtySelectedMarkerMap.size() + "]");
 					}
 
 					else {
-						selectedMarkerMap.remove(markerLabel);
+						dirtySelectedMarkerMap.remove(markerLabel);
 						addSelectionsToSetButton.setText(addToSetButtonLabel
-								+ "[" + selectedMarkerMap.size() + "]");
+								+ "[" + dirtySelectedMarkerMap.size() + "]");
 					}
 				}
 			});
@@ -193,13 +195,13 @@ public class MedusaVisualizationPanel extends JPanel {
 					DSGeneMarker target = selectedMarkerMap.get(markerLabel);
 
 					if (checkBox.isSelected()) {
-						selectedMarkerMap.put(markerLabel, target);
+						dirtySelectedMarkerMap.put(markerLabel, target);
 						addSelectionsToSetButton.setText(addToSetButtonLabel
-								+ "[" + selectedMarkerMap.size() + "]");
+								+ "[" + dirtySelectedMarkerMap.size() + "]");
 					} else {
-						selectedMarkerMap.remove(markerLabel);
+						dirtySelectedMarkerMap.remove(markerLabel);
 						addSelectionsToSetButton.setText(addToSetButtonLabel
-								+ "[" + selectedMarkerMap.size() + "]");
+								+ "[" + dirtySelectedMarkerMap.size() + "]");
 					}
 				}
 			});
@@ -242,7 +244,7 @@ public class MedusaVisualizationPanel extends JPanel {
 			 */
 			public void actionPerformed(ActionEvent e) {
 				// add all values in selected selectedMarkerMap
-				Collection<DSGeneMarker> selectedMarkers = selectedMarkerMap
+				Collection<DSGeneMarker> selectedMarkers = dirtySelectedMarkerMap
 						.values();
 				DSPanel<DSGeneMarker> panel = new CSPanel<DSGeneMarker>();
 				panel.addAll(selectedMarkers);
@@ -279,15 +281,18 @@ public class MedusaVisualizationPanel extends JPanel {
 	 * @param regulators
 	 * @return
 	 */
-	private Map<String, DSGeneMarker> initSelectedMarkerMap(
-			List<DSGeneMarker> targets, List<DSGeneMarker> regulators) {
-		Map<String, DSGeneMarker> selectedMarkerMap = new HashMap<String, DSGeneMarker>();
+	private void initSelectedMarkerMap(List<DSGeneMarker> targets,
+			List<DSGeneMarker> regulators) {
+
+		dirtySelectedMarkerMap = new HashMap<String, DSGeneMarker>();
+		selectedMarkerMap = new HashMap<String, DSGeneMarker>();
 		for (DSGeneMarker reg : regulators) {
+			dirtySelectedMarkerMap.put(reg.getLabel(), reg);
 			selectedMarkerMap.put(reg.getLabel(), reg);
 		}
 		for (DSGeneMarker tar : targets) {
+			dirtySelectedMarkerMap.put(tar.getLabel(), tar);
 			selectedMarkerMap.put(tar.getLabel(), tar);
 		}
-		return selectedMarkerMap;
 	}
 }
