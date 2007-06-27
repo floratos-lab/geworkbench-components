@@ -10,10 +10,9 @@ import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.engine.management.AcceptTypes;
 import org.geworkbench.engine.management.Subscribe;
 import org.geworkbench.engine.management.Publish;
-import org.geworkbench.events.ProjectEvent;
-import org.geworkbench.events.GeneSelectorEvent;
-import org.geworkbench.events.ImageSnapshotEvent;
+import org.geworkbench.events.*;
 import org.geworkbench.util.pathwaydecoder.mutualinformation.MindyDataSet;
+import org.geworkbench.bison.datastructure.complex.panels.*;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.logging.Log;
 
@@ -35,10 +34,12 @@ public class MindyVisualComponent implements VisualPlugin {
     private JPanel plugin;
     private MindyPlugin mindyPlugin;
     private ArrayList<DSGeneMarker> selectedMarkers;
+    private DSPanel<DSGeneMarker> selectorPanel;
 
     public MindyVisualComponent() {
         // Just a place holder
         plugin = new JPanel(new BorderLayout());
+        selectorPanel = null;
     }
 
     public Component getComponent() {
@@ -63,7 +64,9 @@ public class MindyVisualComponent implements VisualPlugin {
 
     @Subscribe
     public void receive(GeneSelectorEvent e, Object source) {
-        if (dataSet != null && e.getPanel() != null) {
+        if (dataSet != null) {
+        	if(e.getPanel() != null) this.selectorPanel = e.getPanel();
+        	else log.error("Received Gene Selector Event: Selection panel sent was null");
             DSMicroarraySetView<DSGeneMarker, DSMicroarray> maView = new CSMicroarraySetView<DSGeneMarker, DSMicroarray>(dataSet.getData().getArraySet());
             maView.setMarkerPanel(e.getPanel());
             maView.useMarkerPanel(true);
@@ -78,14 +81,20 @@ public class MindyVisualComponent implements VisualPlugin {
                         log.debug("Selected " + marker.getShortName());
                         selectedMarkers.add(marker);
                     }
-                }
+                }            	
             }
             if (selectedMarkers != null) {
                 mindyPlugin.limitMarkers(selectedMarkers);
+            } else {
+            	mindyPlugin.limitMarkers(null);
             }
         } else {
-            log.error("Dataset in this component is null, or selection sent was null");
+        	log.error("Received Gene Selector Event: Dataset in this component is null");
         }
+    }
+
+    @Publish public SubpanelChangedEvent publishSubpanelChangedEvent(SubpanelChangedEvent e){
+    	return e;
     }
 
     @Publish public ImageSnapshotEvent createImageSnapshot(Component heatmap) {
@@ -97,5 +106,12 @@ public class MindyVisualComponent implements VisualPlugin {
         org.geworkbench.events.ImageSnapshotEvent event = new org.geworkbench.events.ImageSnapshotEvent("MINDY Heat Map", icon, org.geworkbench.events.ImageSnapshotEvent.Action.SAVE);
         return event;
     }
+    
+    DSPanel getSelectorPanel(){
+    	return this.selectorPanel;
+    }
 
+    ArrayList<DSGeneMarker> getSelectedMarkers(){
+    	return this.selectedMarkers;
+    }
 }
