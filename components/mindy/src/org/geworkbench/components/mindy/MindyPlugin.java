@@ -144,12 +144,18 @@ public class MindyPlugin extends JPanel {
             JLabel ls = new JLabel("Sorting", SwingConstants.LEFT);
             ls.setFont(new Font(ls.getFont().getName(), Font.BOLD, 12));
             ls.setForeground(Color.BLUE);
+            
             JComboBox sortOptions = new JComboBox();
+            sortOptions.setEnabled(true);
+            
             sortOptions.addItem(ModulatorSort.Aggregate);
             sortOptions.addItem(ModulatorSort.Enhancing);
             sortOptions.addItem(ModulatorSort.Negative);
+           
             sortOptions.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent actionEvent) {
+                	System.out.println("combo box action!!");
+                	
                     JComboBox cb = (JComboBox) actionEvent.getSource();
                     ModulatorSort selected = (ModulatorSort) cb.getSelectedItem();
                     if (selected == ModulatorSort.Aggregate) {
@@ -164,7 +170,6 @@ public class MindyPlugin extends JPanel {
                     }
                 }
             });
-            sortOptions.setEnabled(true);
 
             Panel limitControls = new Panel(new BorderLayout());
             JLabel lm = new JLabel("Modulator Limits", SwingConstants.LEFT);
@@ -296,12 +301,16 @@ public class MindyPlugin extends JPanel {
             allMarkersCheckBox.addActionListener(new ActionListener(){
             	public void actionPerformed(ActionEvent actionEvent){
             		if(allMarkersCheckBox.isSelected()){
+            			selectAllTargetsCheckBoxTarget.setSelected(false);
+            			selectionEnabledCheckBoxTarget.setText(ENABLE_SELECTION + " [0]");
             			aggregateModel.showAllMarkers();
             		} else {
             			if((aggregateModel.limitedTargets == null) || (aggregateModel.limitedTargets.size() <= 0)){
             	        		JOptionPane.showMessageDialog(null, "No marker set has been selected.", WARNING, JOptionPane.WARNING_MESSAGE);
             	        		allMarkersCheckBox.setSelected(true);
             	        } else {
+            	        	selectAllTargetsCheckBoxTarget.setSelected(false);
+            	        	selectionEnabledCheckBoxTarget.setText(ENABLE_SELECTION + " [0]");
             	        	aggregateModel.showLimitedMarkers();
             	        }
             		}
@@ -1205,7 +1214,7 @@ public class MindyPlugin extends JPanel {
             if (!this.allMarkersOn) {
             	recalcActiveTargets();
                 fireTableDataChanged();
-                setListTableViewOptions();
+                //setTargetTableViewOptions();
                 repaint();
             }
         }
@@ -1216,7 +1225,7 @@ public class MindyPlugin extends JPanel {
         	allMarkersOn = false;
     		recalcActiveTargets();
         	fireTableDataChanged();
-            setListTableViewOptions();
+        	//setTargetTableViewOptions();
             repaint();
         }
         
@@ -1226,7 +1235,7 @@ public class MindyPlugin extends JPanel {
         	allMarkersOn = true;
         	recalcActiveTargets();
         	fireTableDataChanged();
-            setListTableViewOptions();
+        	//setTargetTableViewOptions();
             repaint();
         }
 
@@ -1755,7 +1764,7 @@ public class MindyPlugin extends JPanel {
     /**
      * For table sorting purposes
      * @author ch2514
-     * @version $Id: MindyPlugin.java,v 1.18 2007-06-28 18:28:19 hungc Exp $
+     * @version $Id: MindyPlugin.java,v 1.19 2007-06-28 23:25:46 hungc Exp $
      */
     private class ColumnHeaderListener extends MouseAdapter {
         public void mouseClicked(MouseEvent evt) {
@@ -1822,7 +1831,7 @@ public class MindyPlugin extends JPanel {
     /**
      * This comparator is used to sort vectors of data
      * @author ch2514
-     * @version $Id: MindyPlugin.java,v 1.18 2007-06-28 18:28:19 hungc Exp $
+     * @version $Id: MindyPlugin.java,v 1.19 2007-06-28 23:25:46 hungc Exp $
      */ 
     public class ColumnSorter implements Comparator {
         int colIndex;
