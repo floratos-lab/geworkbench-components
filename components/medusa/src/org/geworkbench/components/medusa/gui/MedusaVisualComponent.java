@@ -2,9 +2,13 @@ package org.geworkbench.components.medusa.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.Graphics;
+import java.awt.Image;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
 import javax.swing.ImageIcon;
+import javax.swing.JComponent;
 import javax.swing.JPanel;
 
 import org.apache.commons.logging.Log;
@@ -27,7 +31,7 @@ import org.geworkbench.util.Util;
  * {@link MedusaVisualizationPanel} is created and added.
  * 
  * @author keshav
- * @version $Id: MedusaVisualComponent.java,v 1.8 2007-06-26 15:05:15 keshav Exp $
+ * @version $Id: MedusaVisualComponent.java,v 1.9 2007-06-28 14:46:15 keshav Exp $
  */
 @AcceptTypes(MedusaDataSet.class)
 public class MedusaVisualComponent implements VisualPlugin {
@@ -85,37 +89,10 @@ public class MedusaVisualComponent implements VisualPlugin {
 		}
 	}
 
-	// @Subscribe
-	// public void receive(GeneSelectorEvent e, Object source) {
-	// if (dataSet != null && e.getPanel() != null) {
-	// DSMicroarraySetView<DSGeneMarker, DSMicroarray> maView = new
-	// CSMicroarraySetView<DSGeneMarker, DSMicroarray>(
-	// dataSet.getData().getArraySet());
-	// maView.setMarkerPanel(e.getPanel());
-	// maView.useMarkerPanel(true);
-	// if (maView.getMarkerPanel().activeSubset().size() == 0) {
-	// selectedMarkers = null;
-	// } else {
-	// DSItemList<DSGeneMarker> uniqueMarkers = maView
-	// .getUniqueMarkers();
-	// if (uniqueMarkers.size() > 0) {
-	// selectedMarkers = new ArrayList<DSGeneMarker>();
-	// for (Iterator<DSGeneMarker> iterator = uniqueMarkers
-	// .iterator(); iterator.hasNext();) {
-	// DSGeneMarker marker = iterator.next();
-	// log.debug("Selected " + marker.getShortName());
-	// selectedMarkers.add(marker);
-	// }
-	// }
-	// }
-	// // medusaPlugin.limitMarkers(selectedMarkers);
-	// } else {
-	// log
-	// .error("Dataset in this component is null, or selection sent was null");
-	// }
-	// }
-
 	/**
+	 * Publish a subpanel changed event. An example is creating a selection set
+	 * when an "Add to set" button is clicked.
+	 * 
 	 * @param event
 	 * @return SubpanelChangedEvent
 	 */
@@ -126,19 +103,31 @@ public class MedusaVisualComponent implements VisualPlugin {
 	}
 
 	/**
+	 * Publish a snapshot. When taking an image snapshot, the {@link Image} is
+	 * first created from the {@link JComponent} of interest. The
+	 * {@link Graphics} context is then retrieved from the {@link Image} to
+	 * allow off-screen painting to occur.
 	 * 
 	 * @return {@link ImageSnapshotEvent}
 	 */
 	@Publish
 	public org.geworkbench.events.ImageSnapshotEvent publishImageSnapshot() {
-		// Dimension panelSize = graph.getSize();
-		// BufferedImage image = new BufferedImage(panelSize.width,
-		// panelSize.height,
-		// BufferedImage.TYPE_INT_RGB);
-		// Graphics g = image.getGraphics();
-		// graph.paint(g);
-		// ImageIcon icon = new ImageIcon(image, "EVD Plot");
-		ImageIcon icon = new ImageIcon("Medusa");
+		Image image = null;
+		try {
+			/* set up the image width, height, and type */
+			image = new BufferedImage(medusaVisualizationPanel.getWidth(),
+					medusaVisualizationPanel.getHeight(),
+					BufferedImage.TYPE_INT_RGB);
+			/*
+			 * get the Graphics context from the image so we can paint it off
+			 * screen
+			 */
+			Graphics g = image.getGraphics();
+			medusaVisualizationPanel.paint(g);
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+		ImageIcon icon = new ImageIcon(image, "Medusa");
 		org.geworkbench.events.ImageSnapshotEvent event = new org.geworkbench.events.ImageSnapshotEvent(
 				"Medusa Snapshot", icon,
 				org.geworkbench.events.ImageSnapshotEvent.Action.SAVE);
