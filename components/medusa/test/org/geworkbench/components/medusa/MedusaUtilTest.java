@@ -1,7 +1,9 @@
 package org.geworkbench.components.medusa;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import junit.framework.TestCase;
 
@@ -17,7 +19,7 @@ import edu.columbia.ccls.medusa.io.SerializedRule;
  * files, generating consensue sequences, etc.
  * 
  * @author keshav
- * @version $Id: MedusaUtilTest.java,v 1.6 2007-06-13 15:20:42 keshav Exp $
+ * @version $Id: MedusaUtilTest.java,v 1.7 2007-06-28 17:55:27 keshav Exp $
  */
 public class MedusaUtilTest extends TestCase {
 	private Log log = LogFactory.getLog(this.getClass());
@@ -104,12 +106,29 @@ public class MedusaUtilTest extends TestCase {
 	}
 
 	/**
-	 * 
+	 * Tests making changes to the config file.
 	 * 
 	 */
 	public void testChangeConfigXml() {
 		MedusaCommand medusaCommand = new MedusaCommand();
 		MedusaUtil.updateConfigXml("data/test/dataset/config.xml",
 				"data/test/dataset/config_hacked.xml", medusaCommand);
+	}
+
+	/**
+	 * Writes the PSSM to a file.
+	 * 
+	 */
+	public void testWritePssmToFile() {
+		List<String> rulesFilesList = new ArrayList<String>();
+		rulesFilesList.add(rulesFile);
+
+		ArrayList<SerializedRule> srules = MedusaUtil.getSerializedRules(
+				rulesFilesList, rulesPath);
+
+		Random r = new Random();
+		String filename = "pssm_" + r.nextLong();
+		MedusaUtil.writePssmToFile(filename, srules);
+
 	}
 }
