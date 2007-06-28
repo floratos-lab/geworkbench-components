@@ -4,13 +4,16 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.TreeSet;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
@@ -34,7 +37,7 @@ import edu.columbia.ccls.medusa.io.SerializedRule;
  * updating the configuration file, etc.
  * 
  * @author keshav
- * @version $Id: MedusaUtil.java,v 1.17 2007-06-20 16:59:35 keshav Exp $
+ * @version $Id: MedusaUtil.java,v 1.18 2007-06-28 17:55:43 keshav Exp $
  */
 public class MedusaUtil {
 
@@ -466,5 +469,53 @@ public class MedusaUtil {
 			FileTools.deleteDir(runDir);
 		}
 		log.error("Directory " + runDir + " does not exist.");
+	}
+
+	public static void writePssmToFile(String filename,
+			List<SerializedRule> srules) {
+
+		if (StringUtils.isEmpty(filename)) {
+			Random r = new Random();
+			filename = "temp/medusa/dataset/output/pssm_" + r.nextLong();
+		}
+
+		File file = new File(filename);
+		Writer out;
+		try {
+			out = new BufferedWriter(new FileWriter(file));
+
+			for (SerializedRule srule : srules) {
+				/* write out comment */
+				out.write(FileTools.HASH_MARK);
+				out.write(FileTools.SPACE);
+				// out.write("the comment");
+				out.write(FileTools.NEWLINE);
+				out.write(FileTools.FASTA_PREFIX);
+
+				/* write out name and description of pssm */
+				out.write("PSSM Name: ");
+				out.write(FileTools.TAB);
+				out.write("PSSM Description: ");
+				out.write(FileTools.NEWLINE);
+
+				/* write out each pssm */
+
+				double[][] pssm = srule.getPssm();
+				for (int i = 0; i < pssm.length; i++) {
+					for (int j = 0; j < pssm[i].length; j++) {
+						out.write(String.valueOf(pssm[i][j]));
+						if (j < pssm[i].length - 1)
+							out.write(FileTools.TAB);
+						else
+							out.write(FileTools.NEWLINE);
+					}
+				}
+			}
+			out.close();
+		} catch (IOException e) {
+			throw new RuntimeException(
+					"Error writing out pssm to file.  Exception is: " + e);
+		}
+
 	}
 }
