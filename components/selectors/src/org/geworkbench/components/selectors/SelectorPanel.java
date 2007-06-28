@@ -35,10 +35,7 @@ import java.awt.print.PrinterException;
 import java.awt.print.PrinterJob;
 import java.lang.reflect.Array;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
+import java.util.*;
 
 /**
  * @author John Watkinson
@@ -75,6 +72,11 @@ public abstract class SelectorPanel<T extends DSSequential> implements VisualPlu
     protected JPopupMenu rootPopup = new JPopupMenu();
     protected JPopupMenu itemPopup = new JPopupMenu();
     protected JMenuItem removeFromPanelItem = new JMenuItem("Remove from Set");
+    protected JPopupMenu combinePopup = new JPopupMenu();
+    protected JMenuItem combineMenuItem = new JMenu("Combine");
+    protected JMenuItem unionPanelItem = new JMenuItem("Union");
+    protected JMenuItem intersectionPanelItem = new JMenuItem("Intersection");
+    protected JMenuItem xorPanelItem = new JMenuItem("Xor");
     protected JPanel lowerPanel = new JPanel();
     protected JComboBox contextSelector;
     protected JButton newContextButton;
@@ -125,7 +127,8 @@ public abstract class SelectorPanel<T extends DSSequential> implements VisualPlu
         // labelPanel.add(bypassCheckbox);
         lowerPanel.add(labelPanel);
         lowerPanel.add(contextPanel);
-        lowerPanel.add(new JScrollPane(panelTree));
+        JScrollPane panelTreePane = new JScrollPane(panelTree);
+        lowerPanel.add(panelTreePane);
         JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, itemAutoList, lowerPanel);
         splitPane.setDividerSize(3);
         splitPane.setResizeWeight(0.65);
@@ -140,6 +143,9 @@ public abstract class SelectorPanel<T extends DSSequential> implements VisualPlu
         treePopup.add(deactivatePanelItem);
         treePopup.add(deletePanelItem);
         treePopup.add(printPanelItem);
+        combineMenuItem.add(unionPanelItem);
+        combineMenuItem.add(intersectionPanelItem);
+        combineMenuItem.add(xorPanelItem);
 
         // Removing the "Export" popup item, until we decide what the export
         // functionlity is, if anything (since there is also a "Save" option.
@@ -148,8 +154,31 @@ public abstract class SelectorPanel<T extends DSSequential> implements VisualPlu
         treePopup.add(visualPropertiesItem);
         // todo - move to a new gui setup
         itemPopup.add(removeFromPanelItem);
+        combinePopup.add(combineMenuItem);
         // Add behaviors
         menuListeners = new HashMap<String, ActionListener>();
+        panelTreePane.getViewport().getView().addMouseListener(new MouseAdapter(){
+            @Override public void mouseClicked(MouseEvent e){
+                if ((e.isMetaDown()) && (e.getClickCount() == 1))
+                    combinePopup.show(e.getComponent(), e.getX(), e.getY());
+            }
+            /*@Override public void mousePressed(MouseEvent e){
+                System.out.println("Mouse Pressed !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+            }
+            @Override public void mouseReleased(MouseEvent e){
+
+            }*/
+            /*@Override public void mouseEntered(MouseEvent e){
+                System.out.println("Mouse Entered !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+            }
+            @Override public void mouseExited(MouseEvent e){
+            }*/
+        });
+        /*lowerPanel.addMouseListener(new MouseAdapter(){
+            @Override public void mouseClicked(MouseEvent e){
+                System.out.println("Hellloooo !!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+            }
+        });*/
         panelTree.addMouseListener(new MouseAdapter() {
             @Override public void mouseClicked(MouseEvent e) {
                 panelTreeClicked(e);
@@ -223,6 +252,24 @@ public abstract class SelectorPanel<T extends DSSequential> implements VisualPlu
                 createNewContext();
             }
         });
+        ActionListener unionActionListener = new ActionListener(){
+            public void actionPerformed(ActionEvent e){
+                findUnion();
+            }
+        };
+        unionPanelItem.addActionListener(unionActionListener);
+        ActionListener intersectionActionListener = new ActionListener(){
+            public void actionPerformed(ActionEvent e){
+                findIntersection();
+            }
+        };
+        intersectionPanelItem.addActionListener(intersectionActionListener);
+        ActionListener xorActionListener = new ActionListener(){
+            public void actionPerformed(ActionEvent e){
+                findXor();
+            }
+        };
+        xorPanelItem.addActionListener(xorActionListener);
     }
 
     protected String getLabelForPath(TreePath path) {
@@ -350,6 +397,143 @@ public abstract class SelectorPanel<T extends DSSequential> implements VisualPlu
             panelTree.clearSelection();
         }
     }
+
+    protected void findUnion() {
+        HashMap unionOfItems = new HashMap();
+        ArrayList selectedLabels = findActiveLabels();
+        if(selectedLabels.size()>1){
+            String label = JOptionPane.showInputDialog("Set Label:", "");
+            if (label == null || label.length() < 1) {
+                return;
+            } else {
+                for(int i=0;i<selectedLabels.size();i++){
+                    String nextLabel = (String)selectedLabels.get(i);
+                    CSPanel csPanel = (CSPanel)context.getItemsWithLabel(nextLabel);
+                    for(int j=0;j<csPanel.size();j++){
+                        T nextItem = panelType.cast(csPanel.get(j));
+                        unionOfItems.put(nextItem.getLabel(),nextItem);
+                    }
+                }
+                addCombinedPanel(unionOfItems, label, "union");
+            }
+        }else{
+            JOptionPane.showMessageDialog(null, "Please select more than one sets for this operation", "", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+    }
+
+    protected void findIntersection() {
+        HashMap intersectOfItems = new HashMap();
+        HashMap tempIntersectOfItems = new HashMap();
+
+        ArrayList selectedLabels = findActiveLabels();
+        if(selectedLabels.size()>1){
+            String label = JOptionPane.showInputDialog("Set Label:", "");
+            if (label == null || label.length() < 1) {
+                return;
+            } else {
+                int count = 0;
+                for(int i=0;i<selectedLabels.size();i++){
+                    String nextLabel = (String)selectedLabels.get(i);
+                    count++;
+                    if(count==1){ // add everything from the first set into temp intersect hashmap
+                        CSPanel csPanel = (CSPanel)context.getItemsWithLabel(nextLabel);
+                        for(int j=0;j<csPanel.size();j++){
+                            T nextItem = panelType.cast(csPanel.get(j));
+                            intersectOfItems.put(nextItem.getLabel(),nextItem);
+                        }
+                    }else{
+                        tempIntersectOfItems = new HashMap();
+                        tempIntersectOfItems.putAll(intersectOfItems);
+                        intersectOfItems = new HashMap();
+                        CSPanel csPanel = (CSPanel)context.getItemsWithLabel(nextLabel);
+                        for(int j=0;j<csPanel.size();j++){
+                            T nextItem = panelType.cast(csPanel.get(j));
+                            if(tempIntersectOfItems.containsKey(nextItem.getLabel()))
+                                intersectOfItems.put(nextItem.getLabel(),nextItem);
+                        }
+                    }
+                }
+                addCombinedPanel(intersectOfItems,label,"intersection");
+            }
+        }else{
+            JOptionPane.showMessageDialog(null, "Please select more than one sets for this operation", "", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+    }
+
+    protected void findXor() {
+        HashMap allItems = new HashMap();
+        HashMap countOfItems = new HashMap();
+        HashMap xorOfItems = new HashMap();
+        ArrayList selectedLabels = findActiveLabels();
+
+        if(selectedLabels.size()>1){
+            String label = JOptionPane.showInputDialog("Set Label:", "");
+            if (label == null || label.length()<1) {
+                return;
+            } else {
+                for(int i=0;i<selectedLabels.size();i++){
+                    String nextLabel = (String)selectedLabels.get(i);
+                    CSPanel csPanel = (CSPanel)context.getItemsWithLabel(nextLabel);
+                    for(int j=0;j<csPanel.size();j++){
+                        T nextItem = panelType.cast(csPanel.get(j));
+                        if(allItems.containsKey(nextItem.getLabel())){
+                            int currCount = (Integer)countOfItems.get(nextItem.getLabel());
+                            countOfItems.put(nextItem.getLabel(), new Integer(currCount+1));
+                        }else{
+                            allItems.put(nextItem.getLabel(),nextItem);
+                            countOfItems.put(nextItem.getLabel(), new Integer(1));
+                        }
+                    }
+                }
+                Set entrySet1 = countOfItems.entrySet();
+                for (Iterator itr=entrySet1.iterator();itr.hasNext();) {
+                    Map.Entry me = (Map.Entry)itr.next();
+                    String nextKey = (String)me.getKey();
+                    Integer nextValue = (Integer)me.getValue();
+                    if(nextValue.intValue() == 1)
+                        xorOfItems.put(nextKey, allItems.get(nextKey));
+                }
+                addCombinedPanel(xorOfItems, label, "xor");
+            }
+        }else{
+            JOptionPane.showMessageDialog(null, "Please select more than one sets for this operation", "", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+    }
+
+    private ArrayList findActiveLabels() {
+        ArrayList selectedLabels = new ArrayList();
+        int numberOfLabels = context.getNumberOfLabels();
+        for(int i=0;i<numberOfLabels;i++){
+            String nextLabel = context.getLabel(i);
+            if(context.isLabelActive(nextLabel)){
+                selectedLabels.add(nextLabel);
+            }
+        }
+        return selectedLabels;
+    }
+
+    private void addCombinedPanel(HashMap combinedItems, String label, String combineSet) {
+        if(combinedItems.size() == 0){
+            JOptionPane.showMessageDialog(null, "The size of the "+combineSet+"-set is zero", "", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        if (context.indexOfLabel(label) == -1) {
+            addPanel(new CSPanel<T>(label));
+        }
+        Set entrySet = combinedItems.entrySet();
+        for (Iterator itr=entrySet.iterator();itr.hasNext();) {
+            Map.Entry me = (Map.Entry)itr.next();
+            T item = (T)me.getValue();
+            context.labelItem(item, label);
+        }
+        panelTree.scrollPathToVisible(new TreePath(new Object[]{context, label}));
+        treeModel.fireLabelItemsChanged(label);
+        throwLabelEvent();
+    }
+
 
     protected void labelClicked(MouseEvent e, TreePath path, String label) {
         // No-op
