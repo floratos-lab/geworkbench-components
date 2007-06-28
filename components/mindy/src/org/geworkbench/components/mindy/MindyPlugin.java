@@ -145,6 +145,7 @@ public class MindyPlugin extends JPanel {
             ls.setFont(new Font(ls.getFont().getName(), Font.BOLD, 12));
             ls.setForeground(Color.BLUE);
             
+            /*
             JComboBox sortOptions = new JComboBox();
             sortOptions.setEnabled(true);
             
@@ -170,6 +171,24 @@ public class MindyPlugin extends JPanel {
                     }
                 }
             });
+            */
+            
+            JRadioButton sortOptionsAggregate = new JRadioButton("Aggregate");
+            JRadioButton sortOptionsEnhancing = new JRadioButton("Enhancing");
+            JRadioButton sortOptionsNegative = new JRadioButton("Negative");            
+            ButtonGroup sortGroup = new ButtonGroup();
+            sortGroup.add(sortOptionsAggregate);
+            sortGroup.add(sortOptionsEnhancing);
+            sortGroup.add(sortOptionsNegative);
+            ActionListener sortAction = new ActionListener(){
+            	public void actionPerformed(ActionEvent actionEvent){
+            		System.out.println("clicked [" + actionEvent.getActionCommand() + "]");
+            	}
+            };
+            sortOptionsAggregate.addActionListener(sortAction);
+            sortOptionsEnhancing.addActionListener(sortAction);
+            sortOptionsNegative.addActionListener(sortAction);           
+            
 
             Panel limitControls = new Panel(new BorderLayout());
             JLabel lm = new JLabel("Modulator Limits", SwingConstants.LEFT);
@@ -220,7 +239,9 @@ public class MindyPlugin extends JPanel {
                     return component;
                 }
             };
-            //targetTable.setAutoCreateColumnsFromModel(true);
+            
+            targetTable.setAutoCreateColumnsFromModel(true);
+            //targetTable.setAutoCreateColumnsFromModel(false);
             JScrollPane scrollPane = new JScrollPane(targetTable);
             scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
             restoreBooleanRenderers(targetTable);
@@ -324,9 +345,11 @@ public class MindyPlugin extends JPanel {
             panel.add(scrollPane, BorderLayout.CENTER);
 
             JPanel taskContainer = new JPanel();
-            taskContainer.setLayout(new GridLayout(13, 1, 10, 10));
+            taskContainer.setLayout(new GridLayout(15, 1, 10, 10));
             taskContainer.add(ls);
-            taskContainer.add(sortOptions);
+            taskContainer.add(sortOptionsAggregate);
+            taskContainer.add(sortOptionsEnhancing);
+            taskContainer.add(sortOptionsNegative);
             taskContainer.add(lm);
             taskContainer.add(limitControls);
             taskContainer.add(ld);
@@ -1764,7 +1787,7 @@ public class MindyPlugin extends JPanel {
     /**
      * For table sorting purposes
      * @author ch2514
-     * @version $Id: MindyPlugin.java,v 1.19 2007-06-28 23:25:46 hungc Exp $
+     * @version $Id: MindyPlugin.java,v 1.20 2007-06-28 23:45:38 hungc Exp $
      */
     private class ColumnHeaderListener extends MouseAdapter {
         public void mouseClicked(MouseEvent evt) {
@@ -1831,7 +1854,7 @@ public class MindyPlugin extends JPanel {
     /**
      * This comparator is used to sort vectors of data
      * @author ch2514
-     * @version $Id: MindyPlugin.java,v 1.19 2007-06-28 23:25:46 hungc Exp $
+     * @version $Id: MindyPlugin.java,v 1.20 2007-06-28 23:45:38 hungc Exp $
      */ 
     public class ColumnSorter implements Comparator {
         int colIndex;
