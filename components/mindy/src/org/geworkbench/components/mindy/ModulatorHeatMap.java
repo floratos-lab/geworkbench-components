@@ -45,6 +45,7 @@ public class ModulatorHeatMap extends JPanel {
     private float[][] sortedValues;
     private java.util.List<MindyData.MindyResultRow> targetRows;
     private float[] sortedModValues;
+    private boolean allMarkersOn = true;
 
     public ModulatorHeatMap(DSGeneMarker modulator, DSGeneMarker transcriptionFactor, MindyData mindyData, List<DSGeneMarker> targetLimits) {
         this.maSet = mindyData.getArraySet();
@@ -299,5 +300,13 @@ public class ModulatorHeatMap extends JPanel {
 
     public Dimension getMinimumSize() {
         return getPreferredSize();
+    }
+    
+    public boolean getAllMarkersOn(){
+    	return this.allMarkersOn;
+    }
+    
+    public void setAllMarkersOn(boolean b){
+    	this.allMarkersOn = b;
     }
 }
