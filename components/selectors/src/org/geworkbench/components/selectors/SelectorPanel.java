@@ -72,7 +72,7 @@ public abstract class SelectorPanel<T extends DSSequential> implements VisualPlu
     protected JPopupMenu rootPopup = new JPopupMenu();
     protected JPopupMenu itemPopup = new JPopupMenu();
     protected JMenuItem removeFromPanelItem = new JMenuItem("Remove from Set");
-    protected JPopupMenu combinePopup = new JPopupMenu();
+    //protected JPopupMenu combinePopup = new JPopupMenu();
     protected JMenuItem combineMenuItem = new JMenu("Combine");
     protected JMenuItem unionPanelItem = new JMenuItem("Union");
     protected JMenuItem intersectionPanelItem = new JMenuItem("Intersection");
@@ -142,10 +142,11 @@ public abstract class SelectorPanel<T extends DSSequential> implements VisualPlu
         treePopup.add(activatePanelItem);
         treePopup.add(deactivatePanelItem);
         treePopup.add(deletePanelItem);
-        treePopup.add(printPanelItem);
         combineMenuItem.add(unionPanelItem);
         combineMenuItem.add(intersectionPanelItem);
         combineMenuItem.add(xorPanelItem);
+        treePopup.add(combineMenuItem);
+        treePopup.add(printPanelItem);
 
         // Removing the "Export" popup item, until we decide what the export
         // functionlity is, if anything (since there is also a "Save" option.
@@ -154,31 +155,9 @@ public abstract class SelectorPanel<T extends DSSequential> implements VisualPlu
         treePopup.add(visualPropertiesItem);
         // todo - move to a new gui setup
         itemPopup.add(removeFromPanelItem);
-        combinePopup.add(combineMenuItem);
+        //combinePopup.add(combineMenuItem);
         // Add behaviors
         menuListeners = new HashMap<String, ActionListener>();
-        panelTreePane.getViewport().getView().addMouseListener(new MouseAdapter(){
-            @Override public void mouseClicked(MouseEvent e){
-                if ((e.isMetaDown()) && (e.getClickCount() == 1))
-                    combinePopup.show(e.getComponent(), e.getX(), e.getY());
-            }
-            /*@Override public void mousePressed(MouseEvent e){
-                System.out.println("Mouse Pressed !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-            }
-            @Override public void mouseReleased(MouseEvent e){
-
-            }*/
-            /*@Override public void mouseEntered(MouseEvent e){
-                System.out.println("Mouse Entered !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-            }
-            @Override public void mouseExited(MouseEvent e){
-            }*/
-        });
-        /*lowerPanel.addMouseListener(new MouseAdapter(){
-            @Override public void mouseClicked(MouseEvent e){
-                System.out.println("Hellloooo !!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-            }
-        });*/
         panelTree.addMouseListener(new MouseAdapter() {
             @Override public void mouseClicked(MouseEvent e) {
                 panelTreeClicked(e);
@@ -400,14 +379,14 @@ public abstract class SelectorPanel<T extends DSSequential> implements VisualPlu
 
     protected void findUnion() {
         HashMap unionOfItems = new HashMap();
-        ArrayList selectedLabels = findActiveLabels();
-        if(selectedLabels.size()>1){
+        String[] selectedLabels = getSelectedTreesFromTree();
+        if(selectedLabels.length>1){
             String label = JOptionPane.showInputDialog("Set Label:", "");
             if (label == null || label.length() < 1) {
                 return;
             } else {
-                for(int i=0;i<selectedLabels.size();i++){
-                    String nextLabel = (String)selectedLabels.get(i);
+                for(int i=0;i<selectedLabels.length;i++){
+                    String nextLabel = selectedLabels[i];
                     CSPanel csPanel = (CSPanel)context.getItemsWithLabel(nextLabel);
                     for(int j=0;j<csPanel.size();j++){
                         T nextItem = panelType.cast(csPanel.get(j));
@@ -426,15 +405,15 @@ public abstract class SelectorPanel<T extends DSSequential> implements VisualPlu
         HashMap intersectOfItems = new HashMap();
         HashMap tempIntersectOfItems = new HashMap();
 
-        ArrayList selectedLabels = findActiveLabels();
-        if(selectedLabels.size()>1){
+        String[] selectedLabels = getSelectedTreesFromTree();
+        if(selectedLabels.length>1){
             String label = JOptionPane.showInputDialog("Set Label:", "");
             if (label == null || label.length() < 1) {
                 return;
             } else {
                 int count = 0;
-                for(int i=0;i<selectedLabels.size();i++){
-                    String nextLabel = (String)selectedLabels.get(i);
+                for(int i=0;i<selectedLabels.length;i++){
+                    String nextLabel = selectedLabels[i];
                     count++;
                     if(count==1){ // add everything from the first set into temp intersect hashmap
                         CSPanel csPanel = (CSPanel)context.getItemsWithLabel(nextLabel);
@@ -466,15 +445,15 @@ public abstract class SelectorPanel<T extends DSSequential> implements VisualPlu
         HashMap allItems = new HashMap();
         HashMap countOfItems = new HashMap();
         HashMap xorOfItems = new HashMap();
-        ArrayList selectedLabels = findActiveLabels();
+        String[] selectedLabels = getSelectedTreesFromTree();
 
-        if(selectedLabels.size()>1){
+        if(selectedLabels.length>1){
             String label = JOptionPane.showInputDialog("Set Label:", "");
             if (label == null || label.length()<1) {
                 return;
             } else {
-                for(int i=0;i<selectedLabels.size();i++){
-                    String nextLabel = (String)selectedLabels.get(i);
+                for(int i=0;i<selectedLabels.length;i++){
+                    String nextLabel = selectedLabels[i];
                     CSPanel csPanel = (CSPanel)context.getItemsWithLabel(nextLabel);
                     for(int j=0;j<csPanel.size();j++){
                         T nextItem = panelType.cast(csPanel.get(j));
