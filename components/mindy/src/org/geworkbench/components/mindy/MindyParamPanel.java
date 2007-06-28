@@ -1,6 +1,8 @@
 package org.geworkbench.components.mindy;
 
 import org.geworkbench.analysis.AbstractSaveableParameterPanel;
+//import org.geworkbench.components.clustering.HierClustPanel;
+//import org.geworkbench.components.clustering.HierClustPanel.SerializedInstance;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -190,6 +192,90 @@ public class MindyParamPanel extends AbstractSaveableParameterPanel implements S
             }
         }
         return geneList;
+    }
+    
+    private static class SerializedInstance implements Serializable {
+    	private String modulators;
+        private String annotations;
+        private String tf;
+        
+        private Object fraction;
+        private Object subsetmithreshold;
+        private Object subsetpvalue;
+        private Object dpitolerance;
+        private Object fullsetmithreshold;
+        private Object fullsetpvalue;
+
+        public SerializedInstance(String modulators
+        		, String annotations
+        		, String tf
+        		, Object fraction
+        		, Object subsetmithreshold
+        		, Object subsetpvalue
+        		, Object dpitolerance
+        		, Object fullsetmithreshold
+        		, Object fullsetpvalue
+        		) {
+            this.modulators = modulators;
+            this.annotations = annotations;
+            this.tf = tf;
+            
+            this.fraction = fraction;
+            this.subsetmithreshold = subsetmithreshold;
+            this.subsetpvalue = subsetpvalue;
+            this.dpitolerance = dpitolerance;
+            this.fullsetmithreshold = fullsetmithreshold;
+            this.fullsetpvalue = fullsetpvalue;
+        }
+
+        Object readResolve() throws ObjectStreamException {
+            MindyParamPanel panel = new MindyParamPanel();
+            panel.modulatorList.setText(this.modulators);
+            panel.dpiAnnotationList.setText(this.annotations);
+            panel.transcriptionFactor.setText(this.tf);
+            panel.setFraction.setValue(this.fraction);
+            panel.subsetMIThreshold.setValue(this.subsetmithreshold);
+            panel.subsetPValue.setValue(this.subsetpvalue);
+            panel.dpiTolerance.setValue(this.dpitolerance);
+            panel.fullsetMIThreshold.setValue(this.fullsetmithreshold);
+            panel.fullsetPValue.setValue(this.fullsetpvalue);            
+            return panel;
+        }
+    }
+
+    Object writeReplace() throws ObjectStreamException {
+        return new SerializedInstance(this.modulatorList.getText()
+        		, this.dpiAnnotationList.getText()
+        		, this.transcriptionFactor.getText()
+        		, this.setFraction.getValue()
+        		, this.subsetMIThreshold.getValue()
+        		, this.subsetPValue.getValue()
+        		, this.dpiTolerance.getValue()
+        		, this.fullsetMIThreshold.getValue()
+        		, this.fullsetPValue.getValue()
+        		);
+    }
+    
+    /**
+     * {@link java.io.Serializable} method
+     *
+     * @param out <code>ObjectOutputStream</code>
+     * @throws IOException
+     */
+    private void writeObject(java.io.ObjectOutputStream out) throws IOException {
+        out.defaultWriteObject();
+    }
+
+    /**
+     * {@link java.io.Serializable} method
+     *
+     * @param in <code>ObjectInputStream</code>
+     * @throws IOException
+     * @throws ClassNotFoundException
+     */
+    private void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
+        in.defaultReadObject();
+        revalidate();
     }
 
 }
