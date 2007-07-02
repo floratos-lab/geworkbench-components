@@ -3,6 +3,7 @@ package org.geworkbench.components.mindy;
 import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.table.*;
+import javax.swing.border.*;
 import java.util.*;
 import java.util.List;
 import java.awt.*;
@@ -132,7 +133,9 @@ public class MindyPlugin extends JPanel {
             taskContainer.add(addToSetButtonMod);
             JPanel p = new JPanel(new BorderLayout());
             p.add(taskContainer, BorderLayout.NORTH);
-            panel.add(p, BorderLayout.WEST);
+            JScrollPane sp = new JScrollPane(p);
+            sp.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+            panel.add(sp, BorderLayout.WEST);
 
             tabs.add("Modulator", panel);
         }
@@ -158,15 +161,12 @@ public class MindyPlugin extends JPanel {
             		String selected = actionEvent.getActionCommand().toString();
             		if (selected.equals("Aggregate")) {
                         log.debug("Setting sort to Aggregate");
-                        System.out.println("Setting sort to Aggregate");
                         aggregateModel.setModulatorSortMethod(ModulatorSort.Aggregate);
                     } else if (selected.equals("Enhancing")) {
                         log.debug("Setting sort to Enhancing");
-                        System.out.println("Setting sort to Enhancing");
                         aggregateModel.setModulatorSortMethod(ModulatorSort.Enhancing);
                     } else {
                         log.debug("Setting sort to Negative");
-                        System.out.println("Setting sort to Negative");
                         aggregateModel.setModulatorSortMethod(ModulatorSort.Negative);
                     }
             	}
@@ -185,7 +185,7 @@ public class MindyPlugin extends JPanel {
             limitControls.add(modulatorLimits, BorderLayout.WEST);
             SpinnerNumberModel spinnerModel = new SpinnerNumberModel(DEFAULT_MODULATOR_LIMIT, 1, 1000, 1);
             final JSpinner modLimitValue = new JSpinner(spinnerModel);
-            limitControls.add(modLimitValue, BorderLayout.EAST);
+            limitControls.add(modLimitValue, BorderLayout.CENTER);
 
             JLabel ld = new JLabel("Display Options", SwingConstants.LEFT);
             ld.setFont(new Font(ld.getFont().getName(), Font.BOLD, 12));
@@ -225,6 +225,7 @@ public class MindyPlugin extends JPanel {
                     return component;
                 }
             };
+            targetTable.getTableHeader().setDefaultRenderer(new CheckBoxRenderer());
             targetTable.addMouseListener(new ColumnHeaderListener());
             targetTable.setAutoCreateColumnsFromModel(true);
             //targetTable.setAutoCreateColumnsFromModel(false);
@@ -349,7 +350,9 @@ public class MindyPlugin extends JPanel {
             taskContainer.add(allMarkersCheckBox);
             JPanel p = new JPanel(new BorderLayout());
             p.add(taskContainer, BorderLayout.NORTH);
-            panel.add(p, BorderLayout.WEST);
+            JScrollPane sp = new JScrollPane(p);
+            sp.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+            panel.add(sp, BorderLayout.WEST);
 
             tabs.add("Table", panel);
         }
@@ -460,7 +463,9 @@ public class MindyPlugin extends JPanel {
             JPanel taskContainer = new JPanel();
             taskContainer.setLayout(new BorderLayout(10, 10));
             taskContainer.add(p, BorderLayout.NORTH);
-            panel.add(taskContainer, BorderLayout.WEST);
+            JScrollPane sp = new JScrollPane(taskContainer);
+            sp.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+            panel.add(sp, BorderLayout.WEST);
 
             panel.add(scrollPane, BorderLayout.CENTER);
 
@@ -560,6 +565,7 @@ public class MindyPlugin extends JPanel {
             taskContainer.add(transFacPane, BorderLayout.NORTH);
             taskContainer.add(modulatorPane, BorderLayout.CENTER);
             JScrollPane modTransScroll = new JScrollPane(taskContainer);
+            modTransScroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
             panel.add(modTransScroll, BorderLayout.WEST);
             tabs.add("Heat Map", panel);
         }
@@ -1059,6 +1065,9 @@ public class MindyPlugin extends JPanel {
         	if(col == 4){
         		QuickSortDSGeneMarkerList.quicksort(mindyData, a, QuickSortDSGeneMarkerList.M_MINUS, ascending);        		
         	}
+        	if(col == 5){
+        		
+        	}
         	if(col == 6){
         		QuickSortDSGeneMarkerList.quicksort(mindyData, a, QuickSortDSGeneMarkerList.DESCRIPTION, ascending);        		
         	}
@@ -1067,11 +1076,53 @@ public class MindyPlugin extends JPanel {
         		limitedModulators = mods;
         	else
         		modulators = mods;
+        	enabled = new boolean[modulators.size()];
+        	numModSelectedInModTab.setText(NUM_MOD_SELECTED_LABEL + "0");
+        	numModSelectedInModTab.repaint();
+        	selectAll.setSelected(false);
     		fireTableStructureChanged();
         }
     }
     
-    
+    private class CheckBoxRenderer extends DefaultTableCellRenderer {
+    	 
+        public Component getTableCellRendererComponent(JTable table, 
+                                                       Object value,
+                                                       boolean isSelected, 
+                                                       boolean hasFocus,
+                                                       int row, 
+                                                       int column) {
+        	Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+        	Object o = table.getModel();
+        	if(o instanceof AggregateTableModel){
+        		Border loweredetched = BorderFactory.createEtchedBorder(EtchedBorder.LOWERED);
+	        	if(column == 0){ 
+	        		JPanel blank = new JPanel();
+	        		JLabel blankLabel = new JLabel(" ");
+	        		blankLabel.setBackground(c.getBackground());
+	        		blank.setBorder(loweredetched);
+	        		blank.add(blankLabel);
+	        		blank.setSize((int) blank.getSize().getWidth(), 50);
+	        		return blank;
+	        	} else {
+		            JCheckBox jbc = new JCheckBox();
+		            jbc.setEnabled(true);
+		            jbc.addActionListener(new ColumnHeaderListener());
+		            JLabel jl = new JLabel(((AggregateTableModel) o).getColumnName(column));
+		            jl.setBackground(c.getBackground());
+		            JPanel p = new JPanel(new BorderLayout());
+		            p.setBorder(loweredetched);
+		            p.add(jbc, BorderLayout.WEST);
+		            p.add(jl, BorderLayout.CENTER);
+		            p.setSize((int) p.getSize().getWidth(), 50);
+		            p.addMouseListener(new ColumnHeaderListener());
+		            return p;
+	        	}
+        	}
+        	return c;
+        }
+    }
+
 
     private class AggregateTableModel extends DefaultTableModel {
 
@@ -1563,7 +1614,33 @@ public class MindyPlugin extends JPanel {
 	            this.selectAllTargets(false);
             }
         }
-
+        
+        private void redistributeRows(List<DSGeneMarker> targets){
+        	rows.clear();            
+            if(this.allMarkersOn){
+            	for(DSGeneMarker m: this.enabledModulators){
+            		for(int i = 0; i < targets.size(); i++){
+            			rows.add(mindyData.getRow(m, mindyData.getTranscriptionFactor(), (DSGeneMarker) targets.get(i)));
+            		}
+            	} 
+            	modChecks = new boolean[rows.size()];
+	            targetChecks = new boolean[rows.size()];
+	            this.selectAllModulators(false);
+	            this.selectAllTargets(false);
+            } else {
+            	for(DSGeneMarker m: this.limitedModulators){
+            		for(int i = 0; i < targets.size(); i++){
+            			rows.add(mindyData.getRow(m, mindyData.getTranscriptionFactor(), (DSGeneMarker) targets.get(i)));
+            		}
+            	} 
+            	modChecks = new boolean[rows.size()];
+	            targetChecks = new boolean[rows.size()];
+	            this.selectAllModulators(false);
+	            this.selectAllTargets(false);
+            }
+        	
+        }
+        
         public int getColumnCount() {
             return columnNames.length;
         }
@@ -1782,21 +1859,32 @@ public class MindyPlugin extends JPanel {
         			this.enabledModulators = QuickSortDSGeneMarkerList.arrayToList(a);
         		else 
         			this.limitedModulators = QuickSortDSGeneMarkerList.arrayToList(a);
+        		this.recalculateRows();
         	}
         	if(col == 3){
         		List<DSGeneMarker> mods = this.enabledTargets;
         		if(!this.allMarkersOn) mods = this.limitedTargets;
         		DSGeneMarker[] a = QuickSortDSGeneMarkerList.listToArray(mods);
         		QuickSortDSGeneMarkerList.quicksort(mindyData, a, QuickSortDSGeneMarkerList.SHORT_NAME, ascending);
-        		if(this.allMarkersOn)
+        		if(this.allMarkersOn){
         			this.enabledTargets = QuickSortDSGeneMarkerList.arrayToList(a);
-        		else
+        			this.redistributeRows(this.enabledTargets);
+        		} else {
         			this.limitedTargets = QuickSortDSGeneMarkerList.arrayToList(a);
-        	}
-        	if(col > 3){
-        		// not working yet -- ch2514
-        	}
-        	this.recalculateRows();
+        			this.redistributeRows(this.limitedTargets);
+        		}
+           	}
+        	if(col == 4){
+        		ArrayList<MindyData.MindyResultRow> mindyRows = rows;
+        		MindyData.MindyResultRow[] tmpRowArray = QuickSortMindyRows.listToArray(mindyRows);
+        		QuickSortMindyRows.quicksort(mindyData, tmpRowArray, QuickSortMindyRows.SCORE, ascending);
+        		mindyRows = QuickSortMindyRows.arrayToList(tmpRowArray);
+        		rows = mindyRows;
+        		modChecks = new boolean[rows.size()];
+	            targetChecks = new boolean[rows.size()];
+	            this.selectAllModulators(false);
+	            this.selectAllTargets(false);
+        	}        	
         	fireTableStructureChanged();
         }
 
@@ -1841,11 +1929,14 @@ public class MindyPlugin extends JPanel {
     /**
      * For table sorting purposes
      * @author ch2514
-     * @version $Id: MindyPlugin.java,v 1.21 2007-06-29 21:02:33 hungc Exp $
+     * @version $Id: MindyPlugin.java,v 1.22 2007-07-02 21:46:31 hungc Exp $
      */
-    private class ColumnHeaderListener extends MouseAdapter {
+    private class ColumnHeaderListener extends MouseAdapter implements ActionListener {
+    	public void actionPerformed(ActionEvent actionEvt){
+    		System.out.println("Action Event!!  Clicked a checkbox!! from event object[" + actionEvt.getSource().getClass().getName() + "]");
+    	}
         public void mouseClicked(MouseEvent evt) {
-        	System.out.println("mouse event!");
+        	System.out.println("Mouse Event!!  Clicked a checkbox!! from event object[" + evt.getSource().getClass().getName() + "]");
             JTable table = ((JTableHeader)evt.getSource()).getTable();
             TableColumnModel colModel = table.getColumnModel();
             TableModel model = table.getModel();
@@ -1880,7 +1971,6 @@ public class MindyPlugin extends JPanel {
             
             // sorting
             if(model instanceof ModulatorModel){
-            	System.out.println("mod table sort");
             	ModulatorModel mm = (ModulatorModel) model;
             	boolean[] states = mm.getAscendSortStates();
             	if(mColIndex < states.length){
@@ -1891,7 +1981,6 @@ public class MindyPlugin extends JPanel {
             	
             }
             if(model instanceof AggregateTableModel){
-            	System.out.println("target table sort");
             	AggregateTableModel atm = (AggregateTableModel) model;
             	boolean[] states = atm.getAscendSortStates();
             	if(mColIndex < states.length){
@@ -1901,7 +1990,6 @@ public class MindyPlugin extends JPanel {
     			}
             }
             if(model instanceof ModulatorTargetModel){   
-            	System.out.println("list table sort");
             	ModulatorTargetModel mtm = (ModulatorTargetModel) model;
             	boolean[] states = mtm.getAscendSortStates();
             	if(mColIndex < states.length){
@@ -1971,9 +2059,6 @@ public class MindyPlugin extends JPanel {
 }
 
 class QuickSortDSGeneMarkerList {
-    private static long comparisons = 0;
-    private static long exchanges   = 0;
-    
     // modes
     public static final int SHORT_NAME = 1;
     public static final int M_POUND = 2;
@@ -1994,7 +2079,6 @@ class QuickSortDSGeneMarkerList {
     *  main modifications in less()
     ***********************************************************************/
     public static void quicksort(MindyData md, DSGeneMarker[] a, int mode, boolean ascending) {
-    	System.out.println("quicksort()::a.length=" + a.length + "ascending=" + ascending);
     	QuickSortDSGeneMarkerList.md = md;
     	QuickSortDSGeneMarkerList.mode = mode;
     	QuickSortDSGeneMarkerList.ascending = ascending;
@@ -2034,7 +2118,6 @@ class QuickSortDSGeneMarkerList {
     private static int partition(DSGeneMarker[] a, int left, int right) {
         int i = left - 1;
         int j = right;
-        System.out.println("a.length=" + a.length + ", left=" + left + ", right=" + right + ", i=" + i + ", j=" + j);
         while (true) {
             while (less(a[++i], a[right]))      	// find item on left to swap
                 if(i == right) break;               // a[right] acts as sentinel
@@ -2049,8 +2132,6 @@ class QuickSortDSGeneMarkerList {
 
     // is x < y ?
     private static boolean less(DSGeneMarker x, DSGeneMarker y) {
-    	System.out.println("less() begins");
-        comparisons++;
         boolean result = false;
         switch(mode){
         case SHORT_NAME:
@@ -2081,16 +2162,13 @@ class QuickSortDSGeneMarkerList {
         }
         
         if(!ascending){
-        	System.out.println("descending less() ends");
         	return !result;
         }
-        System.out.println("ascending less() ends");
         return result;
     }
 
     // exchange a[i] and a[j]
     private static void exch(DSGeneMarker[] a, int i, int j) {
-        exchanges++;
         DSGeneMarker swap = a[i];
         a[i] = a[j];
         a[j] = swap;
@@ -2118,6 +2196,122 @@ class QuickSortDSGeneMarkerList {
     	String s = "{";
     	for(int k = 0; k < list.size(); k++){
     		s += ((DSGeneMarker) list.get(k)).getShortName() + " ";
+    	}
+    	s += "}";
+    	return s;
+    }
+}
+
+class QuickSortMindyRows {
+    public static final int SCORE = 1;
+    public static final int MODE = 2;
+    
+    private static MindyData md;
+    private static int mode;
+    private static boolean ascending;
+    
+    private static MindyData.MindyResultRow[] a;
+    
+    public static void quicksort(MindyData md, MindyData.MindyResultRow[] a, int mode, boolean ascending) {
+    	QuickSortMindyRows.md = md;
+    	QuickSortMindyRows.mode = mode;
+    	QuickSortMindyRows.ascending = ascending;
+    	
+        shuffle(a);                        // to guard against worst-case
+        quicksort(a, 0, a.length - 1);
+    }
+    
+    public static void quicksort(MindyData.MindyResultRow[] a, int left, int right) {
+        if (right <= left) return;
+        int i = partition(a, left, right);
+        quicksort(a, left, i-1);
+        quicksort(a, i+1, right);
+    }
+    
+    public static MindyData.MindyResultRow[] listToArray(List<MindyData.MindyResultRow> list){
+    	MindyData.MindyResultRow[] result = new MindyData.MindyResultRow[list.size()];
+    	for(int k = 0; k < list.size(); k++){
+    		result[k] = (MindyData.MindyResultRow) list.get(k);
+    	}
+    	return result;
+    }
+    
+    public static ArrayList<MindyData.MindyResultRow> arrayToList(MindyData.MindyResultRow[] array){
+    	ArrayList<MindyData.MindyResultRow> result = new ArrayList<MindyData.MindyResultRow>(array.length);
+    	for(int k = 0; k < array.length; k++){
+    		result.add(array[k]);
+    	}
+    	return result;
+    }
+
+    private static int partition(MindyData.MindyResultRow[] a, int left, int right) {
+        int i = left - 1;
+        int j = right;
+        while (true) {
+            while (less(a[++i], a[right]))      	// find item on left to swap
+                if(i == right) break;               // a[right] acts as sentinel
+            while (less(a[right], a[--j]))      	// find item on right to swap
+                if (j == left) break;           	// don't go out-of-bounds
+            if (i >= j) break;                  	// check if pointers cross
+            exch(a, i, j);                      	// swap two elements into place
+        }
+        exch(a, i, right);                      	// swap with partition element
+        return i;
+    }
+
+    // is x < y ?
+    private static boolean less(MindyData.MindyResultRow x, MindyData.MindyResultRow y) {
+        boolean result = false;
+        switch(mode){
+        case SCORE:
+        	if(x.getScore() < y.getScore())
+        		result = true;
+        	break;
+        case MODE:
+        	
+        	break;
+        }
+        
+        if(!ascending){
+        	return !result;
+        }
+        return result;
+    }
+
+    // exchange a[i] and a[j]
+    private static void exch(MindyData.MindyResultRow[] a, int i, int j) {
+    	MindyData.MindyResultRow swap = a[i];
+        a[i] = a[j];
+        a[j] = swap;
+    }
+
+    // shuffle the array a
+    private static void shuffle(MindyData.MindyResultRow[] a) {
+        int N = a.length;
+        for (int i = 0; i < N; i++) {
+            int r = i + (int) (Math.random() * (N-i));   // between i and N-1
+            exch(a, i, r);
+        }
+    }
+    
+    public static String printArray(MindyData.MindyResultRow[] array){
+    	String s = "[";
+    	for(int k = 0; k < array.length; k++){
+    		s += "modulator=" + array[k].getModulator().getShortName() 
+    						+ ", target=" + array[k].getTarget().getShortName() 
+    						+ ", score=" + array[k].getScore() + "\n";
+    	}
+    	s += "]";
+    	return s;
+    }
+    
+    public static String printList(List<MindyData.MindyResultRow> list){
+    	String s = "{";
+    	for(int k = 0; k < list.size(); k++){
+    		MindyData.MindyResultRow r = (MindyData.MindyResultRow) list.get(k);
+    		s += "modulator=" + r.getModulator().getShortName()
+				    		+ ", target=" + r.getTarget().getShortName() 
+							+ ", score=" + r.getScore() + "\n";
     	}
     	s += "}";
     	return s;
