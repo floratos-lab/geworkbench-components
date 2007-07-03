@@ -1066,7 +1066,7 @@ public class MindyPlugin extends JPanel {
         		QuickSortDSGeneMarkerList.quicksort(mindyData, a, QuickSortDSGeneMarkerList.M_MINUS, ascending);        		
         	}
         	if(col == 5){
-        		
+        		QuickSortDSGeneMarkerList.quicksort(mindyData, a, QuickSortDSGeneMarkerList.MODE, ascending);
         	}
         	if(col == 6){
         		QuickSortDSGeneMarkerList.quicksort(mindyData, a, QuickSortDSGeneMarkerList.DESCRIPTION, ascending);        		
@@ -1929,7 +1929,7 @@ public class MindyPlugin extends JPanel {
     /**
      * For table sorting purposes
      * @author ch2514
-     * @version $Id: MindyPlugin.java,v 1.22 2007-07-02 21:46:31 hungc Exp $
+     * @version $Id: MindyPlugin.java,v 1.23 2007-07-03 13:30:13 hungc Exp $
      */
     private class ColumnHeaderListener extends MouseAdapter implements ActionListener {
     	public void actionPerformed(ActionEvent actionEvt){
@@ -2066,6 +2066,7 @@ class QuickSortDSGeneMarkerList {
     public static final int M_MINUS = 4;
     public static final int DESCRIPTION = 5;
     public static final int SCORE = 6;
+    public static final int MODE = 7;
     
     private static MindyData md;
     private static int mode;
@@ -2159,6 +2160,22 @@ class QuickSortDSGeneMarkerList {
         		if(md.getScore(modulator, md.getTranscriptionFactor(), x) < md.getScore(modulator, md.getTranscriptionFactor(), y))
         			result = true;
         	break;
+        case MODE:
+        	int xmover = md.getStatistics(x).getMover();
+        	int xmunder = md.getStatistics(x).getMunder();
+        	int ymover = md.getStatistics(y).getMover();
+        	int ymunder = md.getStatistics(y).getMunder();
+        	int xmode = 0;
+        	int ymode = 0;
+        	if(xmover > xmunder) xmode = 1;
+        	else if(xmover < xmunder) xmode = -1;
+        	else xmode = 0;
+        	if(ymover > ymunder) ymode = 1;
+        	else if(ymover < ymunder) ymode = -1;
+        	else ymode = 0;        	
+        	if(xmode < ymode)
+        		result = true;
+        	break;
         }
         
         if(!ascending){
@@ -2204,7 +2221,6 @@ class QuickSortDSGeneMarkerList {
 
 class QuickSortMindyRows {
     public static final int SCORE = 1;
-    public static final int MODE = 2;
     
     private static MindyData md;
     private static int mode;
@@ -2266,9 +2282,6 @@ class QuickSortMindyRows {
         case SCORE:
         	if(x.getScore() < y.getScore())
         		result = true;
-        	break;
-        case MODE:
-        	
         	break;
         }
         
