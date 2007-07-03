@@ -14,6 +14,7 @@ import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarr
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.util.pathwaydecoder.mutualinformation.MindyData;
+import org.geworkbench.bison.util.colorcontext.*;
 
 /**
  * @author mhall
@@ -46,10 +47,12 @@ public class ModulatorHeatMap extends JPanel {
     private java.util.List<MindyData.MindyResultRow> targetRows;
     private float[] sortedModValues;
     private boolean allMarkersOn = true;
+    private ColorContext colorContext = null;
 
     public ModulatorHeatMap(DSGeneMarker modulator, DSGeneMarker transcriptionFactor, MindyData mindyData, List<DSGeneMarker> targetLimits) {
         this.maSet = mindyData.getArraySet();
         List<DSGeneMarker> markers = mindyData.getTargets(modulator, transcriptionFactor);
+        this.colorContext = (ColorContext) maSet.getObject(ColorContext.class);
 
         // Extract and sort set based on modulator
         sortedValues = new float[maSet.size()][];
@@ -65,7 +68,7 @@ public class ModulatorHeatMap extends JPanel {
         for (int i = 0; i < sortedValues.length; i++) {
             sortedModValues[i] = sortedValues[i][modSerial];
         }
-//        sortArrays(new ArrayIndexComparator(modulator.getSerial(), true));
+        // sortArrays(new ArrayIndexComparator(modulator.getSerial(), true));
         // Sort half sets based on trans factor
         ArrayList<float[]> firstHalf = new ArrayList<float[]>();
         ArrayList<float[]> secondHalf = new ArrayList<float[]>();
@@ -162,7 +165,8 @@ public class ModulatorHeatMap extends JPanel {
         float modCellWidth = barWidth / (float) numArrays;
         for (int i = 0; i < numArrays; i++) {
             int x = (int) (modBarStartX + (i * modCellWidth));
-            Color cellColor = getColorForScore(sortedModValues[i]);
+            //Color cellColor = getColorForScore(sortedModValues[i]);
+            Color cellColor = colorContext.getMarkerValueColor(((DSMicroarray) maSet.get(i)).getMarkerValue(modulator), modulator, 1.0f);         
             g.setColor(cellColor);
             g.fillRect(x, modBarTopY, (int) (modCellWidth + 1), BAR_HEIGHT);
         }
@@ -247,7 +251,8 @@ public class ModulatorHeatMap extends JPanel {
             } else {
                 startX = (int) (getWidth() - SPACER_SIDE - expressionBarWidth + ((i - halfArrays) * cellWidth));
             }
-            Color expressionColor = getColorForScore(thisValue);
+            //Color expressionColor = getColorForScore(thisValue);
+            Color expressionColor = colorContext.getMarkerValueColor(((DSMicroarray) maSet.get(i)).getMarkerValue(markerToPaint), markerToPaint, 1.0f);
             g.setColor(expressionColor);
             g.fillRect(startX, y, (int) (cellWidth + 1), BAR_HEIGHT);
         }

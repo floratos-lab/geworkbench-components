@@ -17,6 +17,7 @@ import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarr
 import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.util.pathwaydecoder.mutualinformation.MindyData;
+import org.geworkbench.bison.util.colorcontext.*;
 import org.geworkbench.events.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -55,6 +56,7 @@ public class MindyPlugin extends JPanel {
     private JCheckBox selectAllTargetsCheckBox, selectAllTargetsCheckBoxTarget;
     private JButton addToSetButton /*list tab*/, addToSetButtonTarget, addToSetButtonMod;
     private JLabel numModSelectedInModTab, numModSelectedInTableTab, numModSelectedInListTab;
+    private ColorContext colorContext = null;
 
     // Contains the state of selections passed in from the marker panel and overrides via All Markers checkboxes
     private MarkerLimitState globalSelectionState = new MarkerLimitState();
@@ -66,6 +68,7 @@ public class MindyPlugin extends JPanel {
 //        markerMeanVariance(data.getArraySet());
 //        log.debug("Done.");
         modulators = mindyData.getModulators();
+        this.colorContext = (ColorContext) mindyData.getArraySet().getObject(ColorContext.class);
 
 
         JTabbedPane tabs = new JTabbedPane();
@@ -217,7 +220,10 @@ public class MindyPlugin extends JPanel {
                		if (colorCheck.isSelected() && col > 1) {  
                         float score = aggregateModel.getScoreAt(row, col);
                         if(score != 0){
+                        	//ch2514 -- change to use ColorContext??
+                        	//Color cellColor = colorContext.getMarkerValueColor(((DSMicroarray) mindyData.getArraySet().get(i)).getMarkerValue(modulator), modulator, 1.0f);
                             component.setBackground(gradient.getColor(score));
+                        	//component.setBackground(cellColor);
                             //display red/blue only
                             //component.setBackground(gradient.getColor(Math.signum(score) * 1));
                         }
@@ -1929,7 +1935,7 @@ public class MindyPlugin extends JPanel {
     /**
      * For table sorting purposes
      * @author ch2514
-     * @version $Id: MindyPlugin.java,v 1.23 2007-07-03 13:30:13 hungc Exp $
+     * @version $Id: MindyPlugin.java,v 1.24 2007-07-03 20:33:20 hungc Exp $
      */
     private class ColumnHeaderListener extends MouseAdapter implements ActionListener {
     	public void actionPerformed(ActionEvent actionEvt){
