@@ -52,7 +52,7 @@ public class MindyPlugin extends JPanel {
     private List<DSGeneMarker> transFactors;
     private MindyData mindyData;
     private JTable modTable, listTable, targetTable;
-    private JCheckBox selectAll, selectAllModsCheckBox, selectAllModsCheckBoxTarget;
+    private JCheckBox selectAll /*list tab*/, selectAllModsCheckBox, selectAllModsCheckBoxTarget;
     private JCheckBox selectAllTargetsCheckBox, selectAllTargetsCheckBoxTarget;
     private JButton addToSetButton /*list tab*/, addToSetButtonTarget, addToSetButtonMod;
     private JLabel numModSelectedInModTab, numModSelectedInTableTab, numModSelectedInListTab;
@@ -179,14 +179,14 @@ public class MindyPlugin extends JPanel {
             showSymbol.addActionListener(new ActionListener(){
             	public void actionPerformed(ActionEvent actionEvent){
             		aggregateModel.setShowProbeName(false);
-            		aggregateModel.fireTableDataChanged();
+            		aggregateModel.fireTableStructureChanged();
             	}
             });
             JRadioButton showProbeName = new JRadioButton("Probe Name");
             showProbeName.addActionListener(new ActionListener(){
             	public void actionPerformed(ActionEvent actionEvent){
             		aggregateModel.setShowProbeName(true);
-            		aggregateModel.fireTableDataChanged();
+            		aggregateModel.fireTableStructureChanged();;
             	}
             });
             ButtonGroup displayGroup = new ButtonGroup();
@@ -2140,7 +2140,7 @@ public class MindyPlugin extends JPanel {
     /**
      * For table sorting purposes
      * @author ch2514
-     * @version $Id: MindyPlugin.java,v 1.25 2007-07-05 19:38:34 hungc Exp $
+     * @version $Id: MindyPlugin.java,v 1.26 2007-07-05 19:52:16 hungc Exp $
      */
     private class ColumnHeaderListener extends MouseAdapter implements ActionListener {
     	public void actionPerformed(ActionEvent actionEvt){
