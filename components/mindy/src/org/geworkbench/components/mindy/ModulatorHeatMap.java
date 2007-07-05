@@ -46,8 +46,11 @@ public class ModulatorHeatMap extends JPanel {
     private float[][] sortedValues;
     private java.util.List<MindyData.MindyResultRow> targetRows;
     private float[] sortedModValues;
+    
     private boolean allMarkersOn = true;
     private ColorContext colorContext = null;
+    private List<DSMicroarray> sortedPerMod = null;
+    private List<DSMicroarray> sortedPerModPerTF = null;
 
     public ModulatorHeatMap(DSGeneMarker modulator, DSGeneMarker transcriptionFactor, MindyData mindyData, List<DSGeneMarker> targetLimits) {
         this.maSet = mindyData.getArraySet();
@@ -69,6 +72,14 @@ public class ModulatorHeatMap extends JPanel {
             sortedModValues[i] = sortedValues[i][modSerial];
         }
         // sortArrays(new ArrayIndexComparator(modulator.getSerial(), true));
+        // ch2514
+        sortedPerMod = new ArrayList<DSMicroarray>(maSet.size());
+        for(int i = 0; i < maSet.size(); i++){
+        	sortedPerMod.add((DSMicroarray) maSet.get(i)); 
+        }
+        Collections.sort(sortedPerMod, new MicroarrayMarkerPositionComparator(modSerial, true));
+        
+        
         // Sort half sets based on trans factor
         ArrayList<float[]> firstHalf = new ArrayList<float[]>();
         ArrayList<float[]> secondHalf = new ArrayList<float[]>();
@@ -93,7 +104,30 @@ public class ModulatorHeatMap extends JPanel {
             sortedValues[count] = values;
             count++;
         }
-
+        // ch2514
+        ArrayList<DSMicroarray> half1 = new ArrayList<DSMicroarray>();
+        ArrayList<DSMicroarray> half2 = new ArrayList<DSMicroarray>();        
+        count = 0;
+        for(DSMicroarray ma : sortedPerMod){
+        	if(count < sortedPerMod.size()/2){
+        		half1.add(ma);
+        	} else {
+        		half2.add(ma);
+        	}
+        }
+        Collections.sort(half1, new MicroarrayMarkerPositionComparator(transcriptionFactor.getSerial(), true));
+        Collections.sort(half2, new MicroarrayMarkerPositionComparator(transcriptionFactor.getSerial(), true));     
+        half1.trimToSize();
+        half2.trimToSize();
+        sortedPerModPerTF = new ArrayList<DSMicroarray>(sortedPerMod.size());
+        for(int i = 0; i < half1.size(); i++){
+        	this.sortedPerModPerTF.add((DSMicroarray) half1.get(i));
+        }
+        for(int i = 0; i < half2.size(); i++){
+        	this.sortedPerModPerTF.add((DSMicroarray) half2.get(i));
+        }
+        
+        
         this.modulator = modulator;
         this.transcriptionFactor = transcriptionFactor;
         this.mindyData = mindyData;
@@ -166,7 +200,7 @@ public class ModulatorHeatMap extends JPanel {
         for (int i = 0; i < numArrays; i++) {
             int x = (int) (modBarStartX + (i * modCellWidth));
             //Color cellColor = getColorForScore(sortedModValues[i]);
-            Color cellColor = colorContext.getMarkerValueColor(((DSMicroarray) maSet.get(i)).getMarkerValue(modulator), modulator, 1.0f);         
+            Color cellColor = colorContext.getMarkerValueColor(((DSMicroarray) this.sortedPerMod.get(i)).getMarkerValue(modulator), modulator, 1.0f);         
             g.setColor(cellColor);
             g.fillRect(x, modBarTopY, (int) (modCellWidth + 1), BAR_HEIGHT);
         }
@@ -252,7 +286,7 @@ public class ModulatorHeatMap extends JPanel {
                 startX = (int) (getWidth() - SPACER_SIDE - expressionBarWidth + ((i - halfArrays) * cellWidth));
             }
             //Color expressionColor = getColorForScore(thisValue);
-            Color expressionColor = colorContext.getMarkerValueColor(((DSMicroarray) maSet.get(i)).getMarkerValue(markerToPaint), markerToPaint, 1.0f);
+            Color expressionColor = colorContext.getMarkerValueColor(((DSMicroarray) this.sortedPerModPerTF.get(i)).getMarkerValue(markerToPaint), markerToPaint, 1.0f);
             g.setColor(expressionColor);
             g.fillRect(startX, y, (int) (cellWidth + 1), BAR_HEIGHT);
         }
