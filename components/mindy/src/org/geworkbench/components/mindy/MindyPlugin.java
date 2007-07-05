@@ -129,7 +129,32 @@ public class MindyPlugin extends JPanel {
                 }
             });
             
-            JPanel taskContainer = new JPanel(new GridLayout(4, 1, 10, 10));
+            JLabel dl = new JLabel("Marker Display  ", SwingConstants.LEFT);
+            dl.setFont(new Font(dl.getFont().getName(), Font.BOLD, 12));
+            dl.setForeground(Color.BLUE);
+            JRadioButton showSymbol = new JRadioButton("Symbol");
+            showSymbol.addActionListener(new ActionListener(){
+            	public void actionPerformed(ActionEvent actionEvent){
+            		modulatorModel.setShowProbeName(false);
+            		modulatorModel.fireTableDataChanged();
+            	}
+            });
+            JRadioButton showProbeName = new JRadioButton("Probe Name");
+            showProbeName.addActionListener(new ActionListener(){
+            	public void actionPerformed(ActionEvent actionEvent){
+            		modulatorModel.setShowProbeName(true);
+            		modulatorModel.fireTableDataChanged();
+            	}
+            });
+            ButtonGroup displayGroup = new ButtonGroup();
+            displayGroup.add(showSymbol);
+            displayGroup.add(showProbeName);
+            showProbeName.setSelected(true);
+            
+            JPanel taskContainer = new JPanel(new GridLayout(7, 1, 10, 10));
+            taskContainer.add(dl);
+            taskContainer.add(showProbeName);
+            taskContainer.add(showSymbol);
             taskContainer.add(ll);
             taskContainer.add(selectAll);
             taskContainer.add(numModSelectedInModTab);
@@ -146,6 +171,28 @@ public class MindyPlugin extends JPanel {
         {
             // Modulator / Target Table
             Panel panel = new Panel(new BorderLayout(10, 10));
+            
+            JLabel dl = new JLabel("Marker Display  ", SwingConstants.LEFT);
+            dl.setFont(new Font(dl.getFont().getName(), Font.BOLD, 12));
+            dl.setForeground(Color.BLUE);
+            JRadioButton showSymbol = new JRadioButton("Symbol");
+            showSymbol.addActionListener(new ActionListener(){
+            	public void actionPerformed(ActionEvent actionEvent){
+            		aggregateModel.setShowProbeName(false);
+            		aggregateModel.fireTableDataChanged();
+            	}
+            });
+            JRadioButton showProbeName = new JRadioButton("Probe Name");
+            showProbeName.addActionListener(new ActionListener(){
+            	public void actionPerformed(ActionEvent actionEvent){
+            		aggregateModel.setShowProbeName(true);
+            		aggregateModel.fireTableDataChanged();
+            	}
+            });
+            ButtonGroup displayGroup = new ButtonGroup();
+            displayGroup.add(showSymbol);
+            displayGroup.add(showProbeName);
+            showProbeName.setSelected(true);
 
             JLabel ls = new JLabel("Sorting", SwingConstants.LEFT);
             ls.setFont(new Font(ls.getFont().getName(), Font.BOLD, 12));
@@ -338,7 +385,10 @@ public class MindyPlugin extends JPanel {
             panel.add(scrollPane, BorderLayout.CENTER);
 
             JPanel taskContainer = new JPanel();
-            taskContainer.setLayout(new GridLayout(15, 1, 10, 10));
+            taskContainer.setLayout(new GridLayout(18, 1, 10, 10));
+            taskContainer.add(dl);
+            taskContainer.add(showProbeName);
+            taskContainer.add(showSymbol);
             taskContainer.add(ls);
             taskContainer.add(sortOptionsAggregate);
             taskContainer.add(sortOptionsEnhancing);
@@ -367,6 +417,28 @@ public class MindyPlugin extends JPanel {
             // Modulator / Target list
 
             JPanel panel = new JPanel(new BorderLayout(10, 10));
+            
+            JLabel dl = new JLabel("Marker Display  ", SwingConstants.LEFT);
+            dl.setFont(new Font(dl.getFont().getName(), Font.BOLD, 12));
+            dl.setForeground(Color.BLUE);
+            JRadioButton showSymbol = new JRadioButton("Symbol");
+            showSymbol.addActionListener(new ActionListener(){
+            	public void actionPerformed(ActionEvent actionEvent){
+            		modTargetModel.setShowProbeName(false);
+            		modTargetModel.fireTableDataChanged();
+            	}
+            });
+            JRadioButton showProbeName = new JRadioButton("Probe Name");
+            showProbeName.addActionListener(new ActionListener(){
+            	public void actionPerformed(ActionEvent actionEvent){
+            		modTargetModel.setShowProbeName(true);
+            		modTargetModel.fireTableDataChanged();
+            	}
+            });
+            ButtonGroup displayGroup = new ButtonGroup();
+            displayGroup.add(showSymbol);
+            displayGroup.add(showProbeName);
+            showProbeName.setSelected(true);
 
             JLabel l = new JLabel("Marker Set", SwingConstants.LEFT);
             l.setFont(new Font(l.getFont().getName(), Font.BOLD, 12));
@@ -459,7 +531,10 @@ public class MindyPlugin extends JPanel {
             	}
             });
 
-            JPanel p = new JPanel(new GridLayout(6, 1, 10, 10));
+            JPanel p = new JPanel(new GridLayout(9, 1, 10, 10));
+            p.add(dl);
+            p.add(showProbeName);
+            p.add(showSymbol);
             p.add(l);
             p.add(selectionEnabledCheckBox);
             p.add(selectAllModsCheckBox);
@@ -494,7 +569,8 @@ public class MindyPlugin extends JPanel {
             l.setFont(new Font(l.getFont().getName(), Font.BOLD, 12));
             l.setForeground(Color.BLUE);
             transFacPane.add(l, BorderLayout.NORTH);
-            JLabel transFactorName = new JLabel(mindyData.getTranscriptionFactor().getShortName());
+            //JLabel transFactorName = new JLabel(mindyData.getTranscriptionFactor().getShortName());
+            JLabel transFactorName = new JLabel(heatmap.getMarkerDisplayName(mindyData.getTranscriptionFactor()));
             transFacPane.add(transFactorName);
 
             JPanel modulatorPane = new JPanel(new BorderLayout());
@@ -555,6 +631,68 @@ public class MindyPlugin extends JPanel {
             	}
             });
             
+            JLabel dl = new JLabel("Marker Display  ", SwingConstants.LEFT);
+            dl.setFont(new Font(dl.getFont().getName(), Font.BOLD, 12));
+            dl.setForeground(Color.BLUE);
+            JRadioButton showSymbol = new JRadioButton("Symbol");
+            showSymbol.addActionListener(new ActionListener(){
+            	public void actionPerformed(ActionEvent actionEvent){
+            		heatmap.setShowProbeName(false);
+            		heatmap.setAllMarkersOn(allMarkersCheckBox.isSelected());
+            		if(allMarkersCheckBox.isSelected()){
+            			rebuildHeatMap(null);
+            		} else {
+            			if((visualPlugin.getSelectedMarkers() == null) || (visualPlugin.getSelectedMarkers().size() <= 0)){
+            				JOptionPane.showMessageDialog(null, "No marker set has been selected.", WARNING, JOptionPane.WARNING_MESSAGE);
+        	        		allMarkersCheckBox.setSelected(true);
+        	        		heatmap.setAllMarkersOn(true);
+            			} else {        
+            				if((modTargetModel.getEnabledModulators() == null) || (modTargetModel.getEnabledModulators().size() <= 0)){
+            					JOptionPane.showMessageDialog(null, "No modulator(s) enabled!", WARNING, JOptionPane.WARNING_MESSAGE);
+            					allMarkersCheckBox.setSelected(true);
+            					heatmap.setAllMarkersOn(true);
+            				} else {
+            					rebuildHeatMap(visualPlugin.getSelectedMarkers());
+            				}
+            			}
+            		}
+            	}
+            });
+            JRadioButton showProbeName = new JRadioButton("Probe Name");
+            showProbeName.addActionListener(new ActionListener(){
+            	public void actionPerformed(ActionEvent actionEvent){
+            		heatmap.setShowProbeName(true);
+            		heatmap.setAllMarkersOn(allMarkersCheckBox.isSelected());
+            		if(allMarkersCheckBox.isSelected()){
+            			rebuildHeatMap(null);
+            		} else {
+            			if((visualPlugin.getSelectedMarkers() == null) || (visualPlugin.getSelectedMarkers().size() <= 0)){
+            				JOptionPane.showMessageDialog(null, "No marker set has been selected.", WARNING, JOptionPane.WARNING_MESSAGE);
+        	        		allMarkersCheckBox.setSelected(true);
+        	        		heatmap.setAllMarkersOn(true);
+            			} else {        
+            				if((modTargetModel.getEnabledModulators() == null) || (modTargetModel.getEnabledModulators().size() <= 0)){
+            					JOptionPane.showMessageDialog(null, "No modulator(s) enabled!", WARNING, JOptionPane.WARNING_MESSAGE);
+            					allMarkersCheckBox.setSelected(true);
+            					heatmap.setAllMarkersOn(true);
+            				} else {
+            					rebuildHeatMap(visualPlugin.getSelectedMarkers());
+            				}
+            			}
+            		}
+            	}
+            });
+            ButtonGroup displayGroup = new ButtonGroup();
+            displayGroup.add(showSymbol);
+            displayGroup.add(showProbeName);
+            showProbeName.setSelected(true);
+            
+            
+            JPanel displayPane = new JPanel(new GridLayout(4, 1));
+            displayPane.add(dl);
+            displayPane.add(showProbeName);
+            displayPane.add(showSymbol);
+
             JPanel p = new JPanel(new BorderLayout(10, 10));
             p.add(modFilterField, BorderLayout.NORTH);
             p.add(modListScrollPane, BorderLayout.CENTER);
@@ -570,7 +708,12 @@ public class MindyPlugin extends JPanel {
             taskContainer.setLayout(new BorderLayout(10, 10));
             taskContainer.add(transFacPane, BorderLayout.NORTH);
             taskContainer.add(modulatorPane, BorderLayout.CENTER);
-            JScrollPane modTransScroll = new JScrollPane(taskContainer);
+            
+            JPanel outterTaskContainer = new JPanel(new BorderLayout(10, 10));
+            outterTaskContainer.add(displayPane, BorderLayout.NORTH);
+            outterTaskContainer.add(taskContainer, BorderLayout.CENTER);
+            
+            JScrollPane modTransScroll = new JScrollPane(outterTaskContainer);
             modTransScroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
             panel.add(modTransScroll, BorderLayout.WEST);
             tabs.add("Heat Map", panel);
@@ -592,7 +735,9 @@ public class MindyPlugin extends JPanel {
     private void rebuildHeatMap(List<DSGeneMarker> targetLimits) {
         int selectedIndex = heatMapModNameList.getSelectedIndex();
         DSGeneMarker modMarker;
-        if(modTargetModel.getEnabledModulators() == null){
+        if((modTargetModel.getEnabledModulators() == null) 
+        		|| (modTargetModel.getEnabledModulators().size() <= 0)
+        		){
         	JOptionPane.showMessageDialog(this, "No modulators selected.", WARNING, JOptionPane.WARNING_MESSAGE);
         	return;
         }
@@ -605,11 +750,17 @@ public class MindyPlugin extends JPanel {
         if (modMarker != null) {
         	if(targetLimits != null){
         		log.debug("Rebuilding heat map with limited markers");
-        		setHeatMap(new ModulatorHeatMap(modMarker, mindyData.getTranscriptionFactor(), mindyData, targetLimits));
+        		boolean b = heatmap.isShowProbeName();
+        		heatmap = new ModulatorHeatMap(modMarker, mindyData.getTranscriptionFactor(), mindyData, targetLimits);
+        		heatmap.setShowProbeName(b);
+        		setHeatMap(heatmap);
         	} else {
 	            log.debug("Rebuilding heat map.");
 	            //setHeatMap(new ModulatorHeatMap(modMarker, mindyData.getTranscriptionFactor(), mindyData, aggregateModel.getCheckedTargets()));
-	            setHeatMap(new ModulatorHeatMap(modMarker, mindyData.getTranscriptionFactor(), mindyData, null));
+	            boolean b = heatmap.isShowProbeName();
+	            heatmap = new ModulatorHeatMap(modMarker, mindyData.getTranscriptionFactor(), mindyData, null);
+	            heatmap.setShowProbeName(b);
+	            setHeatMap(heatmap);
         	}
         }
     }
@@ -741,12 +892,30 @@ public class MindyPlugin extends JPanel {
         modTargetModel.limitMarkers(markers);
         
         // heat map
-        if((!heatmap.getAllMarkersOn())
+        if((!heatmap.isAllMarkersOn())
         		&& (markers != null)
         		&& (markers.size() > 0)
         		){
         	rebuildHeatMap(markers);
         }
+    }
+    
+    public String getMarkerDisplayName(TableModel model, DSGeneMarker marker){
+    	String result = marker.getGeneName();
+    	boolean showProbeName = false;
+    	if(model instanceof ModulatorModel){
+    		showProbeName = ((ModulatorModel) model).isShowProbeName();
+    	}
+    	if(model instanceof AggregateTableModel){
+    		showProbeName = ((AggregateTableModel) model).isShowProbeName();
+    	}
+    	if(model instanceof ModulatorTargetModel){
+    		showProbeName = ((ModulatorTargetModel) model).isShowProbeName();
+    	}
+    	if(showProbeName){
+    		result = marker.getLabel();
+    	}
+    	return result;
     }
 
     private void setAllMarkersOverride(boolean allMarkers) {
@@ -871,6 +1040,7 @@ public class MindyPlugin extends JPanel {
         private MindyData mindyData; 
         private String[] columnNames = new String[]{" ", "Modulator", " M# ", " M+ ", " M- ", " Mode ", "Modulator Description"};
         private boolean[] ascendSortStates;
+        private boolean showProbeName = true;
 
         public ModulatorModel(MindyData mindyData) {
             modulators = new ArrayList<DSGeneMarker>();
@@ -949,7 +1119,8 @@ public class MindyPlugin extends JPanel {
             if (columnIndex == 0) {
                 return enabled[rowIndex];
             } else if (columnIndex == 1) {
-                return mod.getShortName(ModulatorHeatMap.MAX_MARKER_NAME_CHARS);
+                //return mod.getShortName(ModulatorHeatMap.MAX_MARKER_NAME_CHARS);
+            	return getMarkerDisplayName(this, mod);
             } else if (columnIndex == 2) {
                 return mindyData.getStatistics(mod).getCount();
             } else if (columnIndex == 3) {
@@ -1088,6 +1259,14 @@ public class MindyPlugin extends JPanel {
         	selectAll.setSelected(false);
     		fireTableStructureChanged();
         }
+        
+        public boolean isShowProbeName(){
+        	return this.showProbeName;
+        }
+        
+        public void setShowProbeName(boolean showProbeName){
+        	this.showProbeName = showProbeName;
+        }
     }
     
     private class CheckBoxRenderer extends DefaultTableCellRenderer {
@@ -1147,6 +1326,7 @@ public class MindyPlugin extends JPanel {
         private ModulatorSort modulatorSortMethod = ModulatorSort.Aggregate;
         private boolean allMarkersOn = true;
         private boolean[] ascendSortStates;
+        private boolean showProbeName = true;
 
         public AggregateTableModel(MindyData mindyData) {
             this.checkedTargets = new boolean[mindyData.getData().size()];
@@ -1366,7 +1546,8 @@ public class MindyPlugin extends JPanel {
         
         public Object getValueAt(int row, int col) {
             if (col == 1) {
-                return activeTargets.get(row).getShortName(ModulatorHeatMap.MAX_MARKER_NAME_CHARS);
+                //return activeTargets.get(row).getShortName(ModulatorHeatMap.MAX_MARKER_NAME_CHARS);
+            	return getMarkerDisplayName(this, (DSGeneMarker) activeTargets.get(row));
             } else if (col == 0) {
                 return checkedTargets[row];
             } else {
@@ -1411,7 +1592,8 @@ public class MindyPlugin extends JPanel {
                 return "Target";
             } else {
                 DSGeneMarker mod = enabledModulators.get(col - EXTRA_COLS);
-                String colName =  mod.getShortName();
+                //String colName =  mod.getShortName();
+                String colName = getMarkerDisplayName(this, mod);
                 if (modulatorSortMethod == ModulatorSort.Aggregate) {
                     colName += " (M# " + mindyData.getStatistics(mod).getCount() + ")";
                 } else if (modulatorSortMethod == ModulatorSort.Enhancing) {
@@ -1471,6 +1653,14 @@ public class MindyPlugin extends JPanel {
         	this.ascendSortStates = b;
         }
         
+        public boolean isShowProbeName(){
+        	return this.showProbeName;
+        }
+        
+        public void setShowProbeName(boolean showProbeName){
+        	this.showProbeName = showProbeName;
+        }
+        
         private void selectAllTargets(boolean select){
         	for (int i = 0; i < checkedTargets.length; i++) {
         		checkedTargets[i] = select;
@@ -1521,6 +1711,7 @@ public class MindyPlugin extends JPanel {
         private ArrayList<MindyData.MindyResultRow> rows = new ArrayList<MindyData.MindyResultRow>();
         private boolean[] ascendSortStates;
         private boolean allMarkersOn = true;
+        private boolean showProbeName = true;
 
         public ModulatorTargetModel(MindyData mindyData) {
             this.modChecks = new boolean[mindyData.getData().size()];
@@ -1733,11 +1924,13 @@ public class MindyPlugin extends JPanel {
             if (columnIndex == 0) {
             	return modChecks[rowIndex];
             } else if (columnIndex == 1) {
-                return rows.get(rowIndex).getModulator().getShortName(ModulatorHeatMap.MAX_MARKER_NAME_CHARS);
+                //return rows.get(rowIndex).getModulator().getShortName(ModulatorHeatMap.MAX_MARKER_NAME_CHARS);
+            	return getMarkerDisplayName(this, rows.get(rowIndex).getModulator());
             } else if (columnIndex == 2) {
                 return targetChecks[rowIndex];
             } else if (columnIndex == 3) {
-                return rows.get(rowIndex).getTarget().getShortName(ModulatorHeatMap.MAX_MARKER_NAME_CHARS);
+                //return rows.get(rowIndex).getTarget().getShortName(ModulatorHeatMap.MAX_MARKER_NAME_CHARS);
+                return getMarkerDisplayName(this, rows.get(rowIndex).getTarget());
             } else if (columnIndex == 4) {
                 return rows.get(rowIndex).getScore();
             } else {
@@ -1748,17 +1941,20 @@ public class MindyPlugin extends JPanel {
 
         public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
             if (columnIndex == 0) {
-            	String marker = rows.get(rowIndex).getModulator().getShortName(ModulatorHeatMap.MAX_MARKER_NAME_CHARS).trim();
+            	//String marker = rows.get(rowIndex).getModulator().getShortName(ModulatorHeatMap.MAX_MARKER_NAME_CHARS).trim();
+            	String marker = getMarkerDisplayName(this, rows.get(rowIndex).getModulator());
             	for(int i = 0; i < rows.size(); i++){
-            		if(marker.equals(rows.get(i).getModulator().getShortName(ModulatorHeatMap.MAX_MARKER_NAME_CHARS).trim())){
+            		//if(marker.equals(rows.get(i).getModulator().getShortName(ModulatorHeatMap.MAX_MARKER_NAME_CHARS).trim())){
+            		if(marker.equals(getMarkerDisplayName(this, rows.get(i).getModulator()).trim())){
             			modChecks[i] = (Boolean) aValue;
             		}
             	}
             	listTable.repaint();
             } else if (columnIndex == 2) {
-            	String marker = rows.get(rowIndex).getTarget().getShortName(ModulatorHeatMap.MAX_MARKER_NAME_CHARS).trim();
+            	//String marker = rows.get(rowIndex).getTarget().getShortName(ModulatorHeatMap.MAX_MARKER_NAME_CHARS).trim();
+            	String marker = getMarkerDisplayName(this, rows.get(rowIndex).getTarget()).trim();
             	for(int i = 0; i < rows.size(); i++){
-            		if(marker.equals(rows.get(i).getTarget().getShortName(ModulatorHeatMap.MAX_MARKER_NAME_CHARS).trim())){
+            		if(marker.equals(getMarkerDisplayName(this, rows.get(i).getTarget()).trim())){
             			targetChecks[i] = (Boolean) aValue;
             		}
             	}
@@ -1893,6 +2089,14 @@ public class MindyPlugin extends JPanel {
         	}        	
         	fireTableStructureChanged();
         }
+        
+        public boolean isShowProbeName(){
+        	return this.showProbeName;
+        }
+        
+        public void setShowProbeName(boolean showProbeName){
+        	this.showProbeName = showProbeName;
+        }
 
     }
 
@@ -1916,7 +2120,8 @@ public class MindyPlugin extends JPanel {
         }
 
         public Object getElementAt(int i) {
-            return modTargetModel.getEnabledModulators().get(i).getShortName(ModulatorHeatMap.MAX_MARKER_NAME_CHARS);
+            //return modTargetModel.getEnabledModulators().get(i).getShortName(ModulatorHeatMap.MAX_MARKER_NAME_CHARS);
+        	return getMarkerDisplayName(modTargetModel, modTargetModel.getEnabledModulators().get(i));
         }
 
         public void refresh() {
@@ -1935,7 +2140,7 @@ public class MindyPlugin extends JPanel {
     /**
      * For table sorting purposes
      * @author ch2514
-     * @version $Id: MindyPlugin.java,v 1.24 2007-07-03 20:33:20 hungc Exp $
+     * @version $Id: MindyPlugin.java,v 1.25 2007-07-05 19:38:34 hungc Exp $
      */
     private class ColumnHeaderListener extends MouseAdapter implements ActionListener {
     	public void actionPerformed(ActionEvent actionEvt){
