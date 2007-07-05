@@ -70,7 +70,10 @@ public class MindyVisualComponent implements VisualPlugin {
             DSMicroarraySetView<DSGeneMarker, DSMicroarray> maView = new CSMicroarraySetView<DSGeneMarker, DSMicroarray>(dataSet.getData().getArraySet());
             maView.setMarkerPanel(e.getPanel());
             maView.useMarkerPanel(true);
-            if (maView.getMarkerPanel().activeSubset().size() == 0) {
+            if((maView.getMarkerPanel() != null) 
+            		&& (maView.getMarkerPanel().activeSubset() != null) 
+            		&& (maView.getMarkerPanel().activeSubset().size() == 0)
+            		) {
                 selectedMarkers = null;
             } else {
                 DSItemList<DSGeneMarker> uniqueMarkers = maView.getUniqueMarkers();

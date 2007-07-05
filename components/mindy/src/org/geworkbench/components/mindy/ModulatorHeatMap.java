@@ -4,6 +4,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import javax.swing.*;
+import javax.swing.table.TableModel;
+
 import java.awt.*;
 import java.awt.geom.Rectangle2D;
 import java.awt.font.FontRenderContext;
@@ -15,6 +17,11 @@ import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.util.pathwaydecoder.mutualinformation.MindyData;
 import org.geworkbench.bison.util.colorcontext.*;
+/*
+import org.geworkbench.components.mindy.MindyPlugin.AggregateTableModel;
+import org.geworkbench.components.mindy.MindyPlugin.ModulatorModel;
+import org.geworkbench.components.mindy.MindyPlugin.ModulatorTargetModel;
+*/
 
 /**
  * @author mhall
@@ -51,6 +58,8 @@ public class ModulatorHeatMap extends JPanel {
     private ColorContext colorContext = null;
     private List<DSMicroarray> sortedPerMod = null;
     private List<DSMicroarray> sortedPerModPerTF = null;
+    
+    private boolean showProbeName = true;
 
     public ModulatorHeatMap(DSGeneMarker modulator, DSGeneMarker transcriptionFactor, MindyData mindyData, List<DSGeneMarker> targetLimits) {
         this.maSet = mindyData.getArraySet();
@@ -138,7 +147,8 @@ public class ModulatorHeatMap extends JPanel {
 
         FontRenderContext context = new FontRenderContext(null, true, false);
         for (DSGeneMarker marker : markers) {
-            String shortName = marker.getShortName(ModulatorHeatMap.MAX_MARKER_NAME_CHARS);
+            //String shortName = marker.getShortName(ModulatorHeatMap.MAX_MARKER_NAME_CHARS);
+        	String shortName = this.getMarkerDisplayName(marker);
             Rectangle2D bounds = BASE_FONT.getStringBounds(shortName, context);
             if (bounds.getWidth() > maxGeneNameWidth) {
                 maxGeneNameWidth = (int) bounds.getWidth() + 1;
@@ -183,7 +193,8 @@ public class ModulatorHeatMap extends JPanel {
         // Paint the modulator expression bar
         g.setColor(COLOR_TEXT);
         FontMetrics metrics = g.getFontMetrics();
-        String modulatorName = modulator.getShortName();
+        //String modulatorName = modulator.getShortName();
+        String modulatorName = this.getMarkerDisplayName(modulator);
         int modNameWidth = metrics.stringWidth(modulatorName + "+");
         g.drawString(modulatorName.trim()+"-", SPACER_SIDE, SPACER_TOP);
         g.drawString(modulatorName.trim()+"+", (int) (getWidth() - modNameWidth - SPACER_SIDE + 1), SPACER_TOP);
@@ -233,7 +244,8 @@ public class ModulatorHeatMap extends JPanel {
 
         // TransFac headers
         g.setColor(COLOR_TEXT);
-        String transFacName = transcriptionFactor.getShortName().trim();
+        //String transFacName = transcriptionFactor.getShortName().trim();
+        String transFacName = this.getMarkerDisplayName(transcriptionFactor).trim();
         int transFacNameWidth = metrics.stringWidth(transFacName + "+");
         // Left Side
         g.drawString(transFacName + "-", SPACER_SIDE, transFacStartY);
@@ -259,7 +271,8 @@ public class ModulatorHeatMap extends JPanel {
                 MindyData.MindyResultRow mindyRow = targetRows.get(i);
                 DSGeneMarker target = mindyRow.getTarget();
                 paintExpressionBar(cellWidth, expressionBarWidth, g, targetCurrY, target);
-                String targetName = target.getShortName(ModulatorHeatMap.MAX_MARKER_NAME_CHARS);
+                //String targetName = target.getShortName(ModulatorHeatMap.MAX_MARKER_NAME_CHARS);
+                String targetName = this.getMarkerDisplayName(target);
 
                 int targetNameWidth = metrics.stringWidth(targetName);
                 g.setColor(COLOR_TEXT);
@@ -341,11 +354,27 @@ public class ModulatorHeatMap extends JPanel {
         return getPreferredSize();
     }
     
-    public boolean getAllMarkersOn(){
+    public boolean isAllMarkersOn(){
     	return this.allMarkersOn;
     }
     
     public void setAllMarkersOn(boolean b){
     	this.allMarkersOn = b;
+    }
+    
+    public boolean isShowProbeName(){
+    	return this.showProbeName;
+    }
+    
+    public void setShowProbeName(boolean showProbeName){
+    	this.showProbeName = showProbeName;
+    }
+    
+    public String getMarkerDisplayName(DSGeneMarker marker){
+    	String result = marker.getGeneName();
+    	if(this.showProbeName){
+    		result = marker.getLabel();
+    	}
+    	return result;
     }
 }
