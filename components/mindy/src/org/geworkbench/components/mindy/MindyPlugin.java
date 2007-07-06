@@ -338,7 +338,6 @@ public class MindyPlugin extends JPanel {
             selectAllModsCheckBoxTarget = new JCheckBox("Select All Modulators");
             selectAllModsCheckBoxTarget.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent actionEvent) {
-                	System.out.println("selected all mods check box:" + selectAllModsCheckBoxTarget.isSelected());
                 	AggregateTableModel model = (AggregateTableModel) targetTable.getModel();
                     model.selectAllModulators(selectAllModsCheckBoxTarget.isSelected());
                     selectionEnabledCheckBoxTarget.setText(ENABLE_SELECTION + " [" + model.getUniqueCheckedTargetsAndModulators().size() + "]");
@@ -1574,6 +1573,11 @@ public class MindyPlugin extends JPanel {
             
             selectionEnabledCheckBoxTarget.setText(MindyPlugin.ENABLE_SELECTION + " [" +  this.getUniqueCheckedTargetsAndModulators().size() + "]");
             selectionEnabledCheckBoxTarget.repaint();
+            
+        	if(this.getCheckedTargets().size() == this.getActiveTargets().size())
+        		selectAllTargetsCheckBoxTarget.setSelected(true);
+        	else
+        		selectAllTargetsCheckBoxTarget.setSelected(false);
         }
 
         public String getColumnName(int col) {
@@ -2145,7 +2149,7 @@ public class MindyPlugin extends JPanel {
     /**
      * For table sorting purposes
      * @author ch2514
-     * @version $Id: MindyPlugin.java,v 1.27 2007-07-06 13:45:15 hungc Exp $
+     * @version $Id: MindyPlugin.java,v 1.28 2007-07-06 13:55:47 hungc Exp $
      */
     private class ColumnHeaderListener extends MouseAdapter {
         public void mouseClicked(MouseEvent evt) {
@@ -2207,6 +2211,12 @@ public class MindyPlugin extends JPanel {
                 		cb.setSelected(atm.getModulatorCheckBoxState(mColIndex));
                 		atm.fireTableStructureChanged();
                 		selectionEnabledCheckBoxTarget.setText(ENABLE_SELECTION + " [" + atm.getUniqueCheckedTargetsAndModulators().size() + "]");
+                		selectionEnabledCheckBoxTarget.repaint();
+                        
+                    	if(atm.getCheckedModulators().size() == atm.getEnabledModulators().size())
+                    		selectAllModsCheckBoxTarget.setSelected(true);
+                    	else
+                    		selectAllModsCheckBoxTarget.setSelected(false);
                 	}         
                 	if(mColIndex >= atm.getNumberOfModulatorCheckBoxes())
                 		log.error("check box index [" + mColIndex + "] not in check box state");
