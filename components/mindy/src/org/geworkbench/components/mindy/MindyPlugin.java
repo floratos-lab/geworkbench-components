@@ -221,6 +221,7 @@ public class MindyPlugin extends JPanel {
                         log.debug("Setting sort to Negative");
                         aggregateModel.setModulatorSortMethod(ModulatorSort.Negative);
                     }
+            		MindyPlugin.this.clearAllTargetTableModulatorSelections();
             	}
             };
             sortOptionsAggregate.addActionListener(sortAction);
@@ -359,7 +360,8 @@ public class MindyPlugin extends JPanel {
             addToSetButtonTarget = new JButton("Add To Set");
             addToSetButtonTarget.addActionListener(new ActionListener() {
             	public void actionPerformed(ActionEvent actionEvent){
-                	MindyPlugin.this.addToSet(((AggregateTableModel) targetTable.getModel()).getUniqueCheckedTargetsAndModulators(), visualPlugin);                	
+            		AggregateTableModel atm = (AggregateTableModel) targetTable.getModel();
+                	addToSet(atm.getUniqueCheckedTargetsAndModulators(), visualPlugin);                	
             	}
             });
             
@@ -730,10 +732,19 @@ public class MindyPlugin extends JPanel {
     private void limitModulators(Integer modLimit, boolean selected, JTable table){
         aggregateModel.setModLimit(modLimit);
         aggregateModel.setModulatorsLimited(selected);
+        aggregateModel.clearModulatorSelections();
         aggregateModel.fireTableStructureChanged();
         table.getColumnModel().getColumn(0).setMaxWidth(15);
         table.getColumnModel().getColumn(0).setWidth(15);
         table.repaint();
+        this.clearAllTargetTableModulatorSelections();
+    }
+    
+    private void clearAllTargetTableModulatorSelections(){
+        selectAllModsCheckBoxTarget.setSelected(false);
+        selectAllModsCheckBoxTarget.repaint();
+        selectionEnabledCheckBoxTarget.setText(ENABLE_SELECTION + " [" + aggregateModel.getUniqueCheckedTargetsAndModulators().size() + "]");
+        selectionEnabledCheckBoxTarget.repaint();
     }
 
     private void rebuildHeatMap(List<DSGeneMarker> targetLimits) {
@@ -955,6 +966,8 @@ public class MindyPlugin extends JPanel {
     				&& ((visualPlugin.getSelectedMarkers() == null) || (visualPlugin.getSelectedMarkers().size() <= 0))
     				){
         		log.error("Plugin does not have a viable selector panel/marker set.");
+        		//int r = JOptionPane.showConfirmDialog(this, "No marker set has been selected.  Create a new one?", "No Marker Set Selected", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
+        		//System.out.println("r=" + r);
         		// Create a subpanel anyway
         		subpanel = new CSPanel<DSGeneMarker>();
     			subpanel.setLabel(tmpLabel);
@@ -1602,6 +1615,13 @@ public class MindyPlugin extends JPanel {
 
         public void resortModulators() {
             Collections.sort(enabledModulators, new ModulatorStatComparator(mindyData, modulatorSortMethod));
+            this.clearModulatorSelections();
+            fireTableStructureChanged();
+        }
+        
+        public void clearModulatorSelections(){
+        	for(int i = 0; i < this.checkedModulators.length; i++)
+            	this.checkedModulators[i] = false;
             fireTableStructureChanged();
         }
         
@@ -1678,7 +1698,10 @@ public class MindyPlugin extends JPanel {
         }
         
         private void selectAllModulators(boolean select){
-        	for(int i = 0; i < checkedModulators.length; i++){
+        	int top = checkedModulators.length;
+        	if((this.modulatorsLimited) && ((this.modLimit + this.EXTRA_COLS) < top))
+        		top = this.modLimit + this.EXTRA_COLS;
+        	for(int i = 0; i < top; i++){
         		checkedModulators[i] = select;
         	}
         	this.fireTableStructureChanged();
@@ -2149,7 +2172,7 @@ public class MindyPlugin extends JPanel {
     /**
      * For table sorting purposes
      * @author ch2514
-     * @version $Id: MindyPlugin.java,v 1.28 2007-07-06 13:55:47 hungc Exp $
+     * @version $Id: MindyPlugin.java,v 1.29 2007-07-06 15:24:45 hungc Exp $
      */
     private class ColumnHeaderListener extends MouseAdapter {
         public void mouseClicked(MouseEvent evt) {
