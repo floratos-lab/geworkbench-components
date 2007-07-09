@@ -1608,7 +1608,8 @@ public class MindyPlugin extends JPanel {
         }
 
         public float getScoreAt(int row, int col) {
-            float score = mindyData.getScore(allModulators.get(col - EXTRA_COLS), mindyData.getTranscriptionFactor(), activeTargets.get(row));
+            //float score = mindyData.getScore(allModulators.get(col - EXTRA_COLS), mindyData.getTranscriptionFactor(), activeTargets.get(row));
+        	float score = mindyData.getScore(enabledModulators.get(col - EXTRA_COLS), mindyData.getTranscriptionFactor(), activeTargets.get(row));
             return score;
         }
 
@@ -2203,7 +2204,7 @@ public class MindyPlugin extends JPanel {
     /**
      * For table sorting purposes
      * @author ch2514
-     * @version $Id: MindyPlugin.java,v 1.35 2007-07-09 20:01:59 hungc Exp $
+     * @version $Id: MindyPlugin.java,v 1.36 2007-07-09 20:28:24 hungc Exp $
      */
     private class ColumnHeaderListener extends MouseAdapter {
         public void mouseClicked(MouseEvent evt) {
