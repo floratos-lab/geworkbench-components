@@ -610,11 +610,6 @@ public class MindyPlugin extends JPanel {
             JScrollPane modListScrollPane = new JScrollPane(heatMapModNameList);
             heatMapModNameList.setModel(new ModulatorListModel());
             heatMapModNameList.setSelectedIndex(0);
-            heatMapModNameList.addListSelectionListener(new ListSelectionListener() {
-                public void valueChanged(ListSelectionEvent listSelectionEvent) {
-                    rebuildHeatMap(null);
-                }
-            });
             
             JButton screenshotButton = new JButton("  Take Screenshot  ");
             screenshotButton.addActionListener(new ActionListener() {
@@ -646,6 +641,28 @@ public class MindyPlugin extends JPanel {
             			}
             		}
             	}
+            });
+            
+            heatMapModNameList.addListSelectionListener(new ListSelectionListener() {
+                public void valueChanged(ListSelectionEvent listSelectionEvent) {
+                	if(allMarkersCheckBox.isSelected()){
+            			rebuildHeatMap(null);
+            		} else {
+            			if((visualPlugin.getSelectedMarkers() == null) || (visualPlugin.getSelectedMarkers().size() <= 0)){
+            				JOptionPane.showMessageDialog(null, "No marker set has been selected.", WARNING, JOptionPane.WARNING_MESSAGE);
+        	        		allMarkersCheckBox.setSelected(true);
+        	        		heatmap.setAllMarkersOn(true);
+            			} else {        
+            				if((modTargetModel.getEnabledModulators() == null) || (modTargetModel.getEnabledModulators().size() <= 0)){
+            					JOptionPane.showMessageDialog(null, "No modulator(s) enabled!", WARNING, JOptionPane.WARNING_MESSAGE);
+            					allMarkersCheckBox.setSelected(true);
+            					heatmap.setAllMarkersOn(true);
+            				} else {
+            					rebuildHeatMap(visualPlugin.getSelectedMarkers());
+            				}
+            			}
+            		}
+                }
             });
             
             AutoCompleteDecorator.decorate(heatMapModNameList, modFilterField);
@@ -2186,7 +2203,7 @@ public class MindyPlugin extends JPanel {
     /**
      * For table sorting purposes
      * @author ch2514
-     * @version $Id: MindyPlugin.java,v 1.34 2007-07-09 19:33:22 hungc Exp $
+     * @version $Id: MindyPlugin.java,v 1.35 2007-07-09 20:01:59 hungc Exp $
      */
     private class ColumnHeaderListener extends MouseAdapter {
         public void mouseClicked(MouseEvent evt) {
