@@ -465,7 +465,6 @@ public class MindyPlugin extends JPanel {
                 		return c;
                 }
             };
-            listTable.setBackground(new Color(245, 245, 245));
             JScrollPane scrollPane = new JScrollPane(listTable);
             listTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
             listTable.setAutoCreateColumnsFromModel(false);
@@ -2199,7 +2198,7 @@ public class MindyPlugin extends JPanel {
     /**
      * For table sorting purposes
      * @author ch2514
-     * @version $Id: MindyPlugin.java,v 1.31 2007-07-09 16:23:18 hungc Exp $
+     * @version $Id: MindyPlugin.java,v 1.32 2007-07-09 16:31:51 hungc Exp $
      */
     private class ColumnHeaderListener extends MouseAdapter {
         public void mouseClicked(MouseEvent evt) {
