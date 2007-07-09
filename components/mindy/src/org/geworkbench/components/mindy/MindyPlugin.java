@@ -481,6 +481,11 @@ public class MindyPlugin extends JPanel {
                     setListCheckboxesVisibility(selected);
                     setListControlVisibility(selected);
                     setListTableViewOptions();
+                    if(!selected){
+                    	modTargetModel.selectAllModulators(selected);
+                    	modTargetModel.selectAllTargets(selected);
+                    	modTargetModel.fireTableDataChanged();
+                    }
                 }
             });
 
@@ -2194,7 +2199,7 @@ public class MindyPlugin extends JPanel {
     /**
      * For table sorting purposes
      * @author ch2514
-     * @version $Id: MindyPlugin.java,v 1.30 2007-07-06 16:21:10 hungc Exp $
+     * @version $Id: MindyPlugin.java,v 1.31 2007-07-09 16:23:18 hungc Exp $
      */
     private class ColumnHeaderListener extends MouseAdapter {
         public void mouseClicked(MouseEvent evt) {
