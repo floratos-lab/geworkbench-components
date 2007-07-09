@@ -335,7 +335,7 @@ public class MindyPlugin extends JPanel {
                     setTargetTableViewOptions();
                 }
             });
-            selectionEnabledCheckBoxTarget.setSelected(false);
+            
             
             selectAllModsCheckBoxTarget = new JCheckBox("Select All Modulators");
             selectAllModsCheckBoxTarget.addActionListener(new ActionListener() {
@@ -345,18 +345,17 @@ public class MindyPlugin extends JPanel {
                     selectionEnabledCheckBoxTarget.setText(ENABLE_SELECTION + " [" + model.getUniqueCheckedTargetsAndModulators().size() + "]");
                 }
             });
+            
+            
             selectAllTargetsCheckBoxTarget = new JCheckBox("Select All Targets");
             selectAllTargetsCheckBoxTarget.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent actionEvent) {
                 	AggregateTableModel model = (AggregateTableModel) targetTable.getModel();
                 	model.selectAllTargets(selectAllTargetsCheckBoxTarget.isSelected());
-                	//if(selectAllTargetsCheckBoxTarget.isSelected()){
                 		selectionEnabledCheckBoxTarget.setText(ENABLE_SELECTION + " [" + model.getUniqueCheckedTargetsAndModulators().size() + "]");
-                	//} else {
-                		//selectionEnabledCheckBoxTarget.setText(ENABLE_SELECTION + " [0]");
-                	//}
-                }
+                	}
             });
+            
 
             addToSetButtonTarget = new JButton("Add To Set");
             addToSetButtonTarget.addActionListener(new ActionListener() {
@@ -365,6 +364,7 @@ public class MindyPlugin extends JPanel {
                 	addToSet(atm.getUniqueCheckedTargetsAndModulators(), visualPlugin);                	
             	}
             });
+            
             
             allMarkersCheckBox.addActionListener(new ActionListener(){
             	public void actionPerformed(ActionEvent actionEvent){
@@ -385,9 +385,16 @@ public class MindyPlugin extends JPanel {
             	}
             });
             
+            setTargetCheckboxesVisibility(false);
             setTargetControlVisibility(false);
-
+            setTargetTableViewOptions();
             targetTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+            targetTable.repaint();
+            
+            selectionEnabledCheckBoxTarget.setSelected(true);
+            selectAllModsCheckBoxTarget.setEnabled(true);
+            selectAllTargetsCheckBoxTarget.setEnabled(true);
+            addToSetButtonTarget.setEnabled(true);
 
             panel.add(scrollPane, BorderLayout.CENTER);
 
@@ -518,7 +525,7 @@ public class MindyPlugin extends JPanel {
             		addToSet(model.getUniqueSelectedMarkers(), visualPlugin);
             	}
             });
-            setListControlVisibility(false);
+            setListControlVisibility(true);
 
             l = new JLabel("Marker Panel Override", SwingConstants.LEFT);
             l.setFont(new Font(l.getFont().getName(), Font.BOLD, 12));
@@ -541,6 +548,11 @@ public class MindyPlugin extends JPanel {
             		}
             	}
             });
+            
+            selectionEnabledCheckBox.setSelected(true);
+            selectAllModsCheckBox.setEnabled(true);
+            selectAllTargetsCheckBox.setEnabled(true);
+            addToSetButton.setEnabled(true);
 
             JPanel p = new JPanel(new GridLayout(9, 1, 10, 10));
             p.add(dl);
@@ -745,8 +757,6 @@ public class MindyPlugin extends JPanel {
         aggregateModel.clearModulatorSelections();
         MindyPlugin.this.setTargetCheckboxesVisibility(selectionEnabledCheckBoxTarget.isSelected());
         aggregateModel.fireTableStructureChanged();
-        //table.getColumnModel().getColumn(0).setMaxWidth(15);
-        //table.getColumnModel().getColumn(0).setWidth(15);
         table.repaint();
         this.clearAllTargetTableModulatorSelections();
     }
@@ -807,9 +817,11 @@ public class MindyPlugin extends JPanel {
     }
     
     private void setTargetTableViewOptions() {
-        boolean selected = selectionEnabledCheckBox.isSelected();
+        boolean selected = selectionEnabledCheckBoxTarget.isSelected();
         if (selected) {
         	targetTable.getColumnModel().getColumn(0).setMaxWidth(15);
+        } else {
+        	targetTable.getColumnModel().getColumn(0).setMaxWidth(0);
         }
         setTargetCheckboxesVisibility(selected);
     }
@@ -2198,7 +2210,7 @@ public class MindyPlugin extends JPanel {
     /**
      * For table sorting purposes
      * @author ch2514
-     * @version $Id: MindyPlugin.java,v 1.32 2007-07-09 16:31:51 hungc Exp $
+     * @version $Id: MindyPlugin.java,v 1.33 2007-07-09 17:08:12 hungc Exp $
      */
     private class ColumnHeaderListener extends MouseAdapter {
         public void mouseClicked(MouseEvent evt) {
