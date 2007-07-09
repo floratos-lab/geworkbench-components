@@ -76,15 +76,19 @@ public class MindyVisualComponent implements VisualPlugin {
             		) {
                 selectedMarkers = null;
             } else {
-                DSItemList<DSGeneMarker> uniqueMarkers = maView.getUniqueMarkers();
-                if (uniqueMarkers.size() > 0) {
-                    selectedMarkers = new ArrayList<DSGeneMarker>();
-                    for (Iterator<DSGeneMarker> iterator = uniqueMarkers.iterator(); iterator.hasNext();) {
-                        DSGeneMarker marker = iterator.next();
-                        log.debug("Selected " + marker.getShortName());
-                        selectedMarkers.add(marker);
-                    }
-                }            	
+            	if((maView != null) 
+            			&& (maView.getUniqueMarkers() != null)
+            			){
+	                DSItemList<DSGeneMarker> uniqueMarkers = maView.getUniqueMarkers();
+	                if (uniqueMarkers.size() > 0) {
+	                    selectedMarkers = new ArrayList<DSGeneMarker>();
+	                    for (Iterator<DSGeneMarker> iterator = uniqueMarkers.iterator(); iterator.hasNext();) {
+	                        DSGeneMarker marker = iterator.next();
+	                        log.debug("Selected " + marker.getShortName());
+	                        selectedMarkers.add(marker);
+	                    }
+	                }
+            	}
             }
             if (selectedMarkers != null) {
                 mindyPlugin.limitMarkers(selectedMarkers);
