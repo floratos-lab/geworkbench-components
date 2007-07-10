@@ -1283,26 +1283,24 @@ public class MindyPlugin extends JPanel {
         	List<DSGeneMarker> mods = this.modulators;
         	if (!globalSelectionState.allMarkerOverride) 
         		mods = this.limitedModulators;
-        	DSGeneMarker[] a = QuickSortDSGeneMarkerList.listToArray(mods);
-        	if(col == 1){
-        		QuickSortDSGeneMarkerList.quicksort(mindyData, a, QuickSortDSGeneMarkerList.SHORT_NAME, ascending);    	
+        	if(col == 1){   	
+        		Collections.sort(mods, new GeneMarkerListComparator(mindyData, GeneMarkerListComparator.SHORT_NAME, ascending));
         	}
-        	if(col == 2){
-        		QuickSortDSGeneMarkerList.quicksort(mindyData, a, QuickSortDSGeneMarkerList.M_POUND, ascending);        		
+        	if(col == 2){  
+        		Collections.sort(mods, new GeneMarkerListComparator(mindyData, GeneMarkerListComparator.M_POUND, ascending));
         	}
-        	if(col == 3){
-        		QuickSortDSGeneMarkerList.quicksort(mindyData, a, QuickSortDSGeneMarkerList.M_PLUS, ascending);        		
+        	if(col == 3){    
+        		Collections.sort(mods, new GeneMarkerListComparator(mindyData, GeneMarkerListComparator.M_PLUS, ascending));
         	}
-        	if(col == 4){
-        		QuickSortDSGeneMarkerList.quicksort(mindyData, a, QuickSortDSGeneMarkerList.M_MINUS, ascending);        		
+        	if(col == 4){     
+        		Collections.sort(mods, new GeneMarkerListComparator(mindyData, GeneMarkerListComparator.M_MINUS, ascending));
         	}
         	if(col == 5){
-        		QuickSortDSGeneMarkerList.quicksort(mindyData, a, QuickSortDSGeneMarkerList.MODE, ascending);
+        		Collections.sort(mods, new GeneMarkerListComparator(mindyData, GeneMarkerListComparator.MODE, ascending));
         	}
-        	if(col == 6){
-        		QuickSortDSGeneMarkerList.quicksort(mindyData, a, QuickSortDSGeneMarkerList.DESCRIPTION, ascending);        		
+        	if(col == 6){       
+        		Collections.sort(mods, new GeneMarkerListComparator(mindyData, GeneMarkerListComparator.DESCRIPTION, ascending));
         	}
-        	mods = QuickSortDSGeneMarkerList.arrayToList(a);
         	if (!globalSelectionState.allMarkerOverride)
         		limitedModulators = mods;
         	else
@@ -1665,13 +1663,11 @@ public class MindyPlugin extends JPanel {
         public void sort(int col, boolean ascending){
         	if(col == 0)
         		return;
-        	DSGeneMarker[] a = QuickSortDSGeneMarkerList.listToArray(this.activeTargets);
         	if(col == 1){
-        		QuickSortDSGeneMarkerList.quicksort(mindyData, a, QuickSortDSGeneMarkerList.SHORT_NAME, ascending);
-        	} else {
-        		QuickSortDSGeneMarkerList.quicksort(mindyData, enabledModulators.get(col - EXTRA_COLS), a, QuickSortDSGeneMarkerList.SCORE, ascending);      
-        	}
-        	this.activeTargets = QuickSortDSGeneMarkerList.arrayToList(a);    
+        		Collections.sort(this.activeTargets, new GeneMarkerListComparator(mindyData, GeneMarkerListComparator.SHORT_NAME, ascending));
+        	} else {   
+        		Collections.sort(this.activeTargets, new GeneMarkerListComparator(mindyData, enabledModulators.get(col - EXTRA_COLS), GeneMarkerListComparator.SCORE, ascending));
+        	}  
         	fireTableStructureChanged();
         	MindyPlugin.this.setTargetCheckboxesVisibility(selectionEnabledCheckBoxTarget.isSelected());
         }
@@ -2118,35 +2114,31 @@ public class MindyPlugin extends JPanel {
         public void sort(int col, boolean ascending){
         	if((col == 0) || (col == 2)) return;
         	if(col == 1){
-        		List<DSGeneMarker> mods = this.enabledModulators;
-        		if(!this.allMarkersOn) mods = this.limitedModulators;
-        		DSGeneMarker[] a = QuickSortDSGeneMarkerList.listToArray(mods);
-        		QuickSortDSGeneMarkerList.quicksort(mindyData, a, QuickSortDSGeneMarkerList.SHORT_NAME, ascending);
-        		if(this.allMarkersOn)
-        			this.enabledModulators = QuickSortDSGeneMarkerList.arrayToList(a);
-        		else 
-        			this.limitedModulators = QuickSortDSGeneMarkerList.arrayToList(a);
+        		ArrayList<DSGeneMarker> mods = this.enabledModulators;
+        		if(!this.allMarkersOn) mods = (ArrayList) this.limitedModulators;
+        		Collections.sort(mods, new GeneMarkerListComparator(mindyData, GeneMarkerListComparator.SHORT_NAME, ascending));
+        		
+        		if(this.allMarkersOn){
+        			this.enabledModulators = mods;
+        		} else {
+        			this.limitedModulators = mods;
+        		}
         		this.recalculateRows();
         	}
         	if(col == 3){
-        		List<DSGeneMarker> mods = this.enabledTargets;
+        		ArrayList<DSGeneMarker> mods = this.enabledTargets;
         		if(!this.allMarkersOn) mods = this.limitedTargets;
-        		DSGeneMarker[] a = QuickSortDSGeneMarkerList.listToArray(mods);
-        		QuickSortDSGeneMarkerList.quicksort(mindyData, a, QuickSortDSGeneMarkerList.SHORT_NAME, ascending);
+        		Collections.sort(mods, new GeneMarkerListComparator(mindyData, GeneMarkerListComparator.SHORT_NAME, ascending));
         		if(this.allMarkersOn){
-        			this.enabledTargets = QuickSortDSGeneMarkerList.arrayToList(a);
+        			this.enabledTargets = mods;
         			this.redistributeRows(this.enabledTargets);
         		} else {
-        			this.limitedTargets = QuickSortDSGeneMarkerList.arrayToList(a);
+        			this.limitedTargets = mods;
         			this.redistributeRows(this.limitedTargets);
         		}
            	}
         	if(col == 4){
-        		ArrayList<MindyData.MindyResultRow> mindyRows = rows;
-        		MindyData.MindyResultRow[] tmpRowArray = QuickSortMindyRows.listToArray(mindyRows);
-        		QuickSortMindyRows.quicksort(mindyData, tmpRowArray, QuickSortMindyRows.SCORE, ascending);
-        		mindyRows = QuickSortMindyRows.arrayToList(tmpRowArray);
-        		rows = mindyRows;
+        		Collections.sort(rows, new MindyRowComparator(mindyData, MindyRowComparator.SCORE, ascending));
         		modChecks = new boolean[rows.size()];
 	            targetChecks = new boolean[rows.size()];
 	            this.selectAllModulators(false);
@@ -2204,7 +2196,7 @@ public class MindyPlugin extends JPanel {
     /**
      * For table sorting purposes
      * @author ch2514
-     * @version $Id: MindyPlugin.java,v 1.36 2007-07-09 20:28:24 hungc Exp $
+     * @version $Id: MindyPlugin.java,v 1.37 2007-07-10 15:08:58 hungc Exp $
      */
     private class ColumnHeaderListener extends MouseAdapter {
         public void mouseClicked(MouseEvent evt) {
@@ -2300,280 +2292,5 @@ public class MindyPlugin extends JPanel {
             	}
             }
         }
-    }
-}
-
-class QuickSortDSGeneMarkerList {
-    // modes
-    public static final int SHORT_NAME = 1;
-    public static final int M_POUND = 2;
-    public static final int M_PLUS = 3;
-    public static final int M_MINUS = 4;
-    public static final int DESCRIPTION = 5;
-    public static final int SCORE = 6;
-    public static final int MODE = 7;
-    
-    private static MindyData md;
-    private static int mode;
-    private static boolean ascending;
-    private static DSGeneMarker modulator;
-    
-    private static DSGeneMarker[] a;
-
-   /***********************************************************************
-    *  based on quicksort code from Sedgewick 7.1, 7.2.
-    *  main modifications in less()
-    ***********************************************************************/
-    public static void quicksort(MindyData md, DSGeneMarker[] a, int mode, boolean ascending) {
-    	QuickSortDSGeneMarkerList.md = md;
-    	QuickSortDSGeneMarkerList.mode = mode;
-    	QuickSortDSGeneMarkerList.ascending = ascending;
-    	
-        shuffle(a);                        // to guard against worst-case
-        quicksort(a, 0, a.length - 1);
-    }
-    
-    public static void quicksort(MindyData md, DSGeneMarker modulator, DSGeneMarker[] a, int mode, boolean ascending) {
-    	QuickSortDSGeneMarkerList.modulator = modulator;
-    	quicksort(md, a, mode, ascending);
-    }
-    
-    public static void quicksort(DSGeneMarker[] a, int left, int right) {
-        if (right <= left) return;
-        int i = partition(a, left, right);
-        quicksort(a, left, i-1);
-        quicksort(a, i+1, right);
-    }
-    
-    public static DSGeneMarker[] listToArray(List<DSGeneMarker> list){
-    	DSGeneMarker[] result = new DSGeneMarker[list.size()];
-    	for(int k = 0; k < list.size(); k++){
-    		result[k] = (DSGeneMarker) list.get(k);
-    	}
-    	return result;
-    }
-    
-    public static ArrayList<DSGeneMarker> arrayToList(DSGeneMarker[] array){
-    	ArrayList<DSGeneMarker> result = new ArrayList<DSGeneMarker>(array.length);
-    	for(int k = 0; k < array.length; k++){
-    		result.add(array[k]);
-    	}
-    	return result;
-    }
-
-    private static int partition(DSGeneMarker[] a, int left, int right) {
-        int i = left - 1;
-        int j = right;
-        while (true) {
-            while (less(a[++i], a[right]))      	// find item on left to swap
-                if(i == right) break;               // a[right] acts as sentinel
-            while (less(a[right], a[--j]))      	// find item on right to swap
-                if (j == left) break;           	// don't go out-of-bounds
-            if (i >= j) break;                  	// check if pointers cross
-            exch(a, i, j);                      	// swap two elements into place
-        }
-        exch(a, i, right);                      	// swap with partition element
-        return i;
-    }
-
-    // is x < y ?
-    private static boolean less(DSGeneMarker x, DSGeneMarker y) {
-        boolean result = false;
-        switch(mode){
-        case SHORT_NAME:
-        	if(x.getShortName().compareTo(y.getShortName()) < 0)
-        		result = true;
-        	break;
-        case M_POUND:
-        	if(md.getStatistics(x).getCount() < md.getStatistics(y).getCount())
-        		result = true;
-        	break;
-        case M_PLUS:
-        	if(md.getStatistics(x).getMover() < md.getStatistics(y).getMover())
-        		result = true;
-        	break;
-        case M_MINUS:
-        	if(md.getStatistics(x).getMunder() < md.getStatistics(y).getMunder())
-        		result = true;
-        	break;
-        case DESCRIPTION:
-        	if(x.getDescription().compareTo(y.getDescription()) < 0)
-        		result = true;
-        	break;
-        case SCORE:
-        	if(modulator != null){
-        		if(md.getScore(modulator, md.getTranscriptionFactor(), x) < md.getScore(modulator, md.getTranscriptionFactor(), y)){
-        			result = true;
-        		}
-        	}
-        	break;
-        case MODE:
-        	int xmover = md.getStatistics(x).getMover();
-        	int xmunder = md.getStatistics(x).getMunder();
-        	int ymover = md.getStatistics(y).getMover();
-        	int ymunder = md.getStatistics(y).getMunder();
-        	int xmode = 0;
-        	int ymode = 0;
-        	if(xmover > xmunder) xmode = 1;
-        	else if(xmover < xmunder) xmode = -1;
-        	else xmode = 0;
-        	if(ymover > ymunder) ymode = 1;
-        	else if(ymover < ymunder) ymode = -1;
-        	else ymode = 0;        	
-        	if(xmode < ymode)
-        		result = true;
-        	break;
-        }
-        
-        if(!ascending){
-        	return !result;
-        }
-        return result;
-    }
-
-    // exchange a[i] and a[j]
-    private static void exch(DSGeneMarker[] a, int i, int j) {
-        DSGeneMarker swap = a[i];
-        a[i] = a[j];
-        a[j] = swap;
-    }
-
-    // shuffle the array a
-    private static void shuffle(DSGeneMarker[] a) {
-        int N = a.length;
-        for (int i = 0; i < N; i++) {
-            int r = i + (int) (Math.random() * (N-i));   // between i and N-1
-            exch(a, i, r);
-        }
-    }
-    
-    public static String printArray(DSGeneMarker[] array){
-    	String s = "[";
-    	for(int k = 0; k < array.length; k++){
-    		s += array[k].getShortName() + " ";
-    	}
-    	s += "]";
-    	return s;
-    }
-    
-    public static String printList(List<DSGeneMarker> list){
-    	String s = "{";
-    	for(int k = 0; k < list.size(); k++){
-    		s += ((DSGeneMarker) list.get(k)).getShortName() + " ";
-    	}
-    	s += "}";
-    	return s;
-    }
-}
-
-class QuickSortMindyRows {
-    public static final int SCORE = 1;
-    
-    private static MindyData md;
-    private static int mode;
-    private static boolean ascending;
-    
-    private static MindyData.MindyResultRow[] a;
-    
-    public static void quicksort(MindyData md, MindyData.MindyResultRow[] a, int mode, boolean ascending) {
-    	QuickSortMindyRows.md = md;
-    	QuickSortMindyRows.mode = mode;
-    	QuickSortMindyRows.ascending = ascending;
-    	
-        shuffle(a);                        // to guard against worst-case
-        quicksort(a, 0, a.length - 1);
-    }
-    
-    public static void quicksort(MindyData.MindyResultRow[] a, int left, int right) {
-        if (right <= left) return;
-        int i = partition(a, left, right);
-        quicksort(a, left, i-1);
-        quicksort(a, i+1, right);
-    }
-    
-    public static MindyData.MindyResultRow[] listToArray(List<MindyData.MindyResultRow> list){
-    	MindyData.MindyResultRow[] result = new MindyData.MindyResultRow[list.size()];
-    	for(int k = 0; k < list.size(); k++){
-    		result[k] = (MindyData.MindyResultRow) list.get(k);
-    	}
-    	return result;
-    }
-    
-    public static ArrayList<MindyData.MindyResultRow> arrayToList(MindyData.MindyResultRow[] array){
-    	ArrayList<MindyData.MindyResultRow> result = new ArrayList<MindyData.MindyResultRow>(array.length);
-    	for(int k = 0; k < array.length; k++){
-    		result.add(array[k]);
-    	}
-    	return result;
-    }
-
-    private static int partition(MindyData.MindyResultRow[] a, int left, int right) {
-        int i = left - 1;
-        int j = right;
-        while (true) {
-            while (less(a[++i], a[right]))      	// find item on left to swap
-                if(i == right) break;               // a[right] acts as sentinel
-            while (less(a[right], a[--j]))      	// find item on right to swap
-                if (j == left) break;           	// don't go out-of-bounds
-            if (i >= j) break;                  	// check if pointers cross
-            exch(a, i, j);                      	// swap two elements into place
-        }
-        exch(a, i, right);                      	// swap with partition element
-        return i;
-    }
-
-    // is x < y ?
-    private static boolean less(MindyData.MindyResultRow x, MindyData.MindyResultRow y) {
-        boolean result = false;
-        switch(mode){
-        case SCORE:
-        	if(x.getScore() < y.getScore())
-        		result = true;
-        	break;
-        }
-        
-        if(!ascending){
-        	return !result;
-        }
-        return result;
-    }
-
-    // exchange a[i] and a[j]
-    private static void exch(MindyData.MindyResultRow[] a, int i, int j) {
-    	MindyData.MindyResultRow swap = a[i];
-        a[i] = a[j];
-        a[j] = swap;
-    }
-
-    // shuffle the array a
-    private static void shuffle(MindyData.MindyResultRow[] a) {
-        int N = a.length;
-        for (int i = 0; i < N; i++) {
-            int r = i + (int) (Math.random() * (N-i));   // between i and N-1
-            exch(a, i, r);
-        }
-    }
-    
-    public static String printArray(MindyData.MindyResultRow[] array){
-    	String s = "[";
-    	for(int k = 0; k < array.length; k++){
-    		s += "modulator=" + array[k].getModulator().getShortName() 
-    						+ ", target=" + array[k].getTarget().getShortName() 
-    						+ ", score=" + array[k].getScore() + "\n";
-    	}
-    	s += "]";
-    	return s;
-    }
-    
-    public static String printList(List<MindyData.MindyResultRow> list){
-    	String s = "{";
-    	for(int k = 0; k < list.size(); k++){
-    		MindyData.MindyResultRow r = (MindyData.MindyResultRow) list.get(k);
-    		s += "modulator=" + r.getModulator().getShortName()
-				    		+ ", target=" + r.getTarget().getShortName() 
-							+ ", score=" + r.getScore() + "\n";
-    	}
-    	s += "}";
-    	return s;
     }
 }
