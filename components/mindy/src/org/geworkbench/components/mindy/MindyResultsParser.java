@@ -9,10 +9,19 @@ import java.util.List;
 import java.util.ArrayList;
 
 /**
+ * For reading in data file and creating Mindy Data.
  * @author mhall
+ * @version $ID$
  */
 public class MindyResultsParser {
 
+	/**
+	 * Reads in results file (data) to create Mindy Data.
+	 * @param maSet - microarray set
+	 * @param resultsFile - data file
+	 * @return - Data formatted for MINDY a la MindyData class.
+	 * @throws IOException
+	 */
     public static MindyData parseResults(CSMicroarraySet maSet, File resultsFile) throws IOException {
         List<MindyData.MindyResultRow> rows = new ArrayList<MindyData.MindyResultRow>();
         BufferedReader in = new BufferedReader(new FileReader(resultsFile));

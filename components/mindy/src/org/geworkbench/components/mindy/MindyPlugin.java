@@ -21,6 +21,9 @@ import com.solarmetric.ide.ui.CheckboxCellRenderer;
 
 /**
  * @author mhall
+ * @ch2514
+ * 
+ * @version $Id: MindyPlugin.java,v 1.39 2007-07-10 20:03:17 hungc Exp $
  */
 @SuppressWarnings("serial")
 public class MindyPlugin extends JPanel {
@@ -2128,7 +2131,7 @@ public class MindyPlugin extends JPanel {
     /**
      * For table sorting purposes
      * @author ch2514
-     * @version $Id: MindyPlugin.java,v 1.38 2007-07-10 16:44:33 hungc Exp $
+     * @version $Id: MindyPlugin.java,v 1.39 2007-07-10 20:03:17 hungc Exp $
      */
     private class ColumnHeaderListener extends MouseAdapter {
         public void mouseClicked(MouseEvent evt) {

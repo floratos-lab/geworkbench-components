@@ -17,7 +17,11 @@ import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 
 /**
+ * MINDY analysis GUI.  Allows the user to enter parameters to analyze.
+ * 
  * @author mhall
+ * @author ch2514
+ * @version $ID$
  */
 @SuppressWarnings("serial")
 public class MindyParamPanel extends AbstractSaveableParameterPanel implements Serializable {
@@ -41,6 +45,11 @@ public class MindyParamPanel extends AbstractSaveableParameterPanel implements S
     private String modulatorFile = "data/mindy/candidate_modulator.lst";
     private String dpiAnnotationFile = "data/mindy/transcription_factor.lst";
 
+    /**
+     * Constructor.
+     * Creates the parameter panel GUI.
+     *
+     */
     public MindyParamPanel() {
         this.setLayout(new BorderLayout());
         FormLayout layout = new FormLayout(
@@ -136,48 +145,92 @@ public class MindyParamPanel extends AbstractSaveableParameterPanel implements S
         });
     }
 
+    /**
+     * Sets the transcription factor
+     * @param label
+     */
     public void setTranscriptionFactor(String label) {
         transcriptionFactor.setText(label);
     }
 
+    /**
+     * Gets the candidate modulator file name.
+     * @return candidate modulator file name.
+     */
     public String getCandidateModulatorsFile() {
         return candidateModulatorsFile;
     }
 
+    /**
+     * Gets the set fraction.
+     * @return the set fraction
+     */
     public int getSetFraction() {
         return ((Number) setFraction.getModel().getValue()).intValue();
     }
 
+    /**
+     * Gets the subset MI threshold.
+     * @return the subset MI threshold
+     */
     public float getSubsetMIThreshold() {
         return ((Number) subsetMIThreshold.getModel().getValue()).floatValue();
     }
 
+    /**
+     * Gets the subset P value threshold.
+     * @return the subset P value threshold
+     */
     public float getSubsetPValueThreshold() {
         return ((Number) subsetPValue.getModel().getValue()).floatValue();
     }
 
+    /**
+     * Gets the DPI tolerance.
+     * @return the DPI tolerance
+     */
     public float getDPITolerance() {
         return ((Number) dpiTolerance.getModel().getValue()).floatValue();
     }
 
+    /**
+     * Gets the full set P value threshold.
+     * @return the full set P value threshold
+     */
     public float getFullSetMIThreshold() {
         return ((Number) fullsetMIThreshold.getModel().getValue()).floatValue();
     }
 
+    /**
+     * Gets the full set MI threshold.
+     * @return the full set MI threshold
+     */
     public float getFullsetPValueThreshold() {
         return ((Number) fullsetPValue.getModel().getValue()).floatValue();
     }
 
+    /**
+     * Gets the transcription factor.
+     * @return the transcription factor
+     */
     public String getTranscriptionFactor() {
         return transcriptionFactor.getText();
     }
 
+    /**
+     * Gets the modulator gene list.
+     * @return the modulator gene list
+     */
     public ArrayList<String> getModulatorGeneList() {
         String geneString = modulatorList.getText();
         ArrayList<String> geneList = breakStringIntoGenes(geneString);
         return geneList;
     }
 
+    /**
+     * Gets the DPI annotated gene list.
+     * @return the DPI annotated gene list
+     */
     public ArrayList<String> getDPIAnnotatedGeneList() {
         String geneString = dpiAnnotationList.getText();
         ArrayList<String> geneList = breakStringIntoGenes(geneString);
@@ -195,6 +248,7 @@ public class MindyParamPanel extends AbstractSaveableParameterPanel implements S
         return geneList;
     }
     
+    // For framework serialization process
     private static class SerializedInstance implements Serializable {
     	private String modulators;
         private String annotations;

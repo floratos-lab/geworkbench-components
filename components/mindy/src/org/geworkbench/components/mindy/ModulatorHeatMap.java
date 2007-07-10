@@ -17,7 +17,10 @@ import org.geworkbench.util.pathwaydecoder.mutualinformation.MindyData;
 import org.geworkbench.bison.util.colorcontext.*;
 
 /**
+ * Creates a heat map of selected modulator, transcription factor, and targets.
+ * 
  * @author mhall
+ * @version $ID$
  */
 @SuppressWarnings("serial")
 public class ModulatorHeatMap extends JPanel {
@@ -55,6 +58,12 @@ public class ModulatorHeatMap extends JPanel {
     
     private boolean showProbeName = true;
 
+    /**
+     * @param modulator - MINDY modulator
+     * @param transcriptionFactor - MINDY transcription factor
+     * @param mindyData - MINDY data
+     * @param targetLimits - list of targets
+     */
     public ModulatorHeatMap(DSGeneMarker modulator, DSGeneMarker transcriptionFactor, MindyData mindyData, List<DSGeneMarker> targetLimits) {
         this.maSet = mindyData.getArraySet();
         List<DSGeneMarker> markers = mindyData.getTargets(modulator, transcriptionFactor);
@@ -161,14 +170,27 @@ public class ModulatorHeatMap extends JPanel {
         invalidate();
     }
 
+    /**
+     * Paint the heat map graphics object.
+     * @param graphics - the graphics object representing the heat map.
+     */
     public void paint(Graphics graphics) {
         doPaint(graphics, false);
     }
 
+    /**
+     * Print the heat map graphics object.
+     * @param graphics - the graphics object representing the heat map.
+     */
     public void print(Graphics graphics) {
         doPaint(graphics, true);
     }
 
+    /**
+     * Paint the heat map graphics object.
+     * @param graphics - the graphics object representing the heat map.
+     * @param print - true if this graphics object is to be printed.
+     */
     public void doPaint(Graphics graphics, boolean print) {
         super.paint(graphics);
 
@@ -269,12 +291,7 @@ public class ModulatorHeatMap extends JPanel {
         }
     }
 
-    public Color getColorForScore(float thisValue) {
-        Color expressionColor = gradient.getColor(2 * ((thisValue - minValue) / valueRange) - 1);
-        return expressionColor;
-    }
-
-    /**
+    /*
      * Find's the min and max expression values for the modulator, trans factor and targets
      */
     private void findMaxValues() {
@@ -304,6 +321,10 @@ public class ModulatorHeatMap extends JPanel {
         }
     }
 
+    /**
+     * Get the preferred size of the heat map.
+     * @return A Dimension object representing the preferred size of the heat map.
+     */
     public Dimension getPreferredSize() {
         int preferredWidth = (int) ((PREFERRED_CELL_WIDTH * sortedValues.length) * 1.5 + (2 * SPACER_SIDE));
         if (preferredWidth < 3 * maxGeneNameWidth) {
@@ -314,26 +335,55 @@ public class ModulatorHeatMap extends JPanel {
         return new Dimension(preferredWidth, preferredHeight);
     }
 
+    /**
+     * Get the minimum size of the heat map.
+     * @return A Dimension object representing the minimum size of the heat map.
+     */
     public Dimension getMinimumSize() {
         return getPreferredSize();
     }
     
+    /**
+     * Check to see if the heat map should display all target markers.
+     * @return If true, the heat map should display all target markers.  
+     * If not, the heat map displays only target markers specified in user selected marker sets.
+     */
     public boolean isAllMarkersOn(){
     	return this.allMarkersOn;
     }
     
+    /**
+     * Specify whether or not the heat map should display all target markers.
+     * @param b - if true, the heat map should display all target markers.  
+     * If not, the heat map displays only target markers specified in user selected marker sets.
+     */
     public void setAllMarkersOn(boolean b){
     	this.allMarkersOn = b;
     }
     
+    /**
+     * Check to see if the heat map should display probe names or gene names.
+     * @return If true, the heat map displays probe names.  
+     * If not, the map displays gene names.
+     */
     public boolean isShowProbeName(){
     	return this.showProbeName;
     }
     
+    /**
+     * Specify whether or not the heat map should display probe names or gene names.
+     * @param showProbeName - if true, the heat map displays probe names.  
+     * If not, the map displays gene names.
+     */
     public void setShowProbeName(boolean showProbeName){
     	this.showProbeName = showProbeName;
     }
     
+    /**
+     * Specifies the marker name (probe name vs. gene name) to display on the heat map.
+     * @param marker - gene marker
+     * @return The marker name (probe vs. gene) to display on the heat map.
+     */
     public String getMarkerDisplayName(DSGeneMarker marker){
     	String result = marker.getGeneName();
     	if(this.showProbeName){

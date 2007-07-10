@@ -24,6 +24,8 @@ import java.util.Iterator;
 
 /**
  * @author mhall
+ * @author ch2514
+ * @version $ID$
  */
 @AcceptTypes(MindyDataSet.class)
 public class MindyVisualComponent implements VisualPlugin {
@@ -36,16 +38,30 @@ public class MindyVisualComponent implements VisualPlugin {
     private ArrayList<DSGeneMarker> selectedMarkers;
     private DSPanel<DSGeneMarker> selectorPanel;
 
+    /**
+     * Constructor.
+     * Includes a place holder for a MINDY result view (i.e. class MindyPlugin).
+     *
+     */
     public MindyVisualComponent() {
         // Just a place holder
         plugin = new JPanel(new BorderLayout());
         selectorPanel = null;
     }
 
+    /**
+     * @return The MINDY result view component (of class MindyPlugin)
+     */
     public Component getComponent() {
         return plugin;
     }
 
+    /**
+     * Receives the general ProjectEvent from the framework.
+     * Creates MINDY's data set based on data from the ProjectEvent.
+     * @param projectEvent 
+     * @param source - source of the ProjectEvent
+     */
     @Subscribe public void receive(ProjectEvent projectEvent, Object source) {
         log.debug("MINDY received project event.");
         DSDataSet data = projectEvent.getDataSet();
@@ -62,6 +78,12 @@ public class MindyVisualComponent implements VisualPlugin {
         }
     }
 
+    /**
+     * Receives GeneSelectorEvent from the framework.
+     * Extracts markers in the selected marker sets from the Selector Panel.
+     * @param e - GeneSelectorEvent
+     * @param source - source of the GeneSelectorEvent
+     */
     @SuppressWarnings("unchecked")
     @Subscribe
     public void receive(GeneSelectorEvent e, Object source) {
@@ -101,10 +123,21 @@ public class MindyVisualComponent implements VisualPlugin {
         }
     }
 
+    /**
+     * Publish SubpanelChangedEvent to the framework to add selected markers to the marker set(s)
+     * on the Selector Panel.
+     * @param e - SubpanelChangedEvent
+     * @return
+     */
     @Publish public SubpanelChangedEvent publishSubpanelChangedEvent(SubpanelChangedEvent e){
     	return e;
     }
 
+    /**
+     * Publish ImageSnapshotEvent to the framework to capture an image of the heat map.
+     * @param heatmap - MINDY's heat map panel
+     * @return ImageSnapshotEvent
+     */
     @Publish public ImageSnapshotEvent createImageSnapshot(Component heatmap) {
         Dimension panelSize = heatmap.getSize();
         BufferedImage image = new BufferedImage(panelSize.width, panelSize.height, BufferedImage.TYPE_INT_RGB);
