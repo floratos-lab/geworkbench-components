@@ -37,7 +37,7 @@ import edu.columbia.ccls.medusa.io.SerializedRule;
  * updating the configuration file, etc.
  * 
  * @author keshav
- * @version $Id: MedusaUtil.java,v 1.18 2007-06-28 17:55:43 keshav Exp $
+ * @version $Id: MedusaUtil.java,v 1.19 2007-07-10 17:24:03 keshav Exp $
  */
 public class MedusaUtil {
 
@@ -471,12 +471,22 @@ public class MedusaUtil {
 		log.error("Directory " + runDir + " does not exist.");
 	}
 
+	/**
+	 * 
+	 * @param filename
+	 *            If filename is null, the default path is used for the output
+	 *            PSSM file. This is
+	 *            temp/medusa/dataset/output/pssm_random.nextLong().
+	 * @param srules
+	 *            The rules from the run. This contains the discovered pssms.
+	 */
 	public static void writePssmToFile(String filename,
 			List<SerializedRule> srules) {
 
 		if (StringUtils.isEmpty(filename)) {
 			Random r = new Random();
-			filename = "temp/medusa/dataset/output/pssm_" + r.nextLong();
+			filename = "temp/medusa/dataset/output/pssm_"
+					+ Math.abs(r.nextLong());
 		}
 
 		File file = new File(filename);

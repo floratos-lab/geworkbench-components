@@ -19,7 +19,7 @@ import edu.columbia.ccls.medusa.io.SerializedRule;
  * files, generating consensue sequences, etc.
  * 
  * @author keshav
- * @version $Id: MedusaUtilTest.java,v 1.8 2007-06-28 17:57:53 keshav Exp $
+ * @version $Id: MedusaUtilTest.java,v 1.9 2007-07-10 17:25:22 keshav Exp $
  */
 public class MedusaUtilTest extends TestCase {
 	private Log log = LogFactory.getLog(this.getClass());
@@ -127,7 +127,7 @@ public class MedusaUtilTest extends TestCase {
 				rulesFilesList, rulesPath);
 
 		Random r = new Random();
-		String filename = "data/test/dataset/pssm_" + r.nextLong();
+		String filename = "data/test/dataset/pssm_" + Math.abs(r.nextLong());
 		MedusaUtil.writePssmToFile(filename, srules);
 
 	}
