@@ -21,10 +21,13 @@ import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.components.medusa.MedusaData;
+import org.geworkbench.components.medusa.MedusaUtil;
 import org.geworkbench.events.SubpanelChangedEvent;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.layout.FormLayout;
+
+import edu.columbia.ccls.medusa.io.SerializedRule;
 
 /**
  * This plugin sets the layout for the MEDUSA visualization.
@@ -42,7 +45,8 @@ public class MedusaVisualizationPanel extends JPanel {
 	 */
 	private static final long serialVersionUID = 1L;
 
-	private String path = "temp/medusa/dataset/output/run1/";
+	private String defaultPath = "temp/medusa/dataset/output/";
+	private String path = defaultPath + "run1/";
 
 	private String rulesPath = path + "rules/";
 
@@ -231,6 +235,23 @@ public class MedusaVisualizationPanel extends JPanel {
 			 */
 			public void actionPerformed(ActionEvent e) {
 				visualComponent.publishImageSnapshot();
+			}
+
+		});
+
+		exportMotifsButton.addActionListener(new ActionListener() {
+
+			/*
+			 * (non-Javadoc)
+			 * 
+			 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
+			 */
+			public void actionPerformed(ActionEvent e) {
+				ArrayList<SerializedRule> srules = MedusaUtil
+						.getSerializedRules(rulesFiles, rulesPath);
+
+				visualComponent.exportMotifs(srules);
+
 			}
 
 		});
