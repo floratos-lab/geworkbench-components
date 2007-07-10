@@ -12,9 +12,15 @@ import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 /**
  * 
  * @author keshav
- * @version $Id: MedusaData.java,v 1.5 2007-06-13 15:20:20 keshav Exp $
+ * @version $Id: MedusaData.java,v 1.6 2007-07-10 20:09:56 keshav Exp $
  */
 public class MedusaData implements Serializable {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	private Log log = LogFactory.getLog(this.getClass());
 
 	private DSMicroarraySet arraySet;
