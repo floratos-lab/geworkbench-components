@@ -6,6 +6,7 @@ import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.ImageIcon;
 import javax.swing.JComponent;
@@ -16,6 +17,7 @@ import org.apache.commons.logging.LogFactory;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.components.medusa.MedusaDataSet;
+import org.geworkbench.components.medusa.MedusaUtil;
 import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.engine.management.AcceptTypes;
 import org.geworkbench.engine.management.Publish;
@@ -26,12 +28,14 @@ import org.geworkbench.events.SubpanelChangedEvent;
 import org.geworkbench.util.ProgressBar;
 import org.geworkbench.util.Util;
 
+import edu.columbia.ccls.medusa.io.SerializedRule;
+
 /**
  * The visual component for MEDUSA. When receiving a project event, the
  * {@link MedusaVisualizationPanel} is created and added.
  * 
  * @author keshav
- * @version $Id: MedusaVisualComponent.java,v 1.9 2007-06-28 14:46:15 keshav Exp $
+ * @version $Id: MedusaVisualComponent.java,v 1.10 2007-07-10 17:24:34 keshav Exp $
  */
 @AcceptTypes(MedusaDataSet.class)
 public class MedusaVisualComponent implements VisualPlugin {
@@ -132,6 +136,14 @@ public class MedusaVisualComponent implements VisualPlugin {
 				"Medusa Snapshot", icon,
 				org.geworkbench.events.ImageSnapshotEvent.Action.SAVE);
 		return event;
+	}
+
+	/**
+	 * Export motifs.
+	 */
+	public void exportMotifs(List<SerializedRule> srules) {
+		// FIXME allowing a null param for now, but I don't like it
+		MedusaUtil.writePssmToFile(null, srules);
 	}
 
 }
