@@ -62,6 +62,7 @@ public class MindyVisualComponent implements VisualPlugin {
         }
     }
 
+    @SuppressWarnings("unchecked")
     @Subscribe
     public void receive(GeneSelectorEvent e, Object source) {
         if (dataSet != null) {

@@ -4,8 +4,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import javax.swing.*;
-import javax.swing.table.TableModel;
-
 import java.awt.*;
 import java.awt.geom.Rectangle2D;
 import java.awt.font.FontRenderContext;
@@ -17,15 +15,11 @@ import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.util.pathwaydecoder.mutualinformation.MindyData;
 import org.geworkbench.bison.util.colorcontext.*;
-/*
-import org.geworkbench.components.mindy.MindyPlugin.AggregateTableModel;
-import org.geworkbench.components.mindy.MindyPlugin.ModulatorModel;
-import org.geworkbench.components.mindy.MindyPlugin.ModulatorTargetModel;
-*/
 
 /**
  * @author mhall
  */
+@SuppressWarnings("serial")
 public class ModulatorHeatMap extends JPanel {
 
     private static Log log = LogFactory.getLog(ModulatorHeatMap.class);
@@ -80,8 +74,6 @@ public class ModulatorHeatMap extends JPanel {
         for (int i = 0; i < sortedValues.length; i++) {
             sortedModValues[i] = sortedValues[i][modSerial];
         }
-        // sortArrays(new ArrayIndexComparator(modulator.getSerial(), true));
-        // ch2514
         sortedPerMod = new ArrayList<DSMicroarray>(maSet.size());
         for(int i = 0; i < maSet.size(); i++){
         	sortedPerMod.add((DSMicroarray) maSet.get(i)); 
@@ -113,7 +105,7 @@ public class ModulatorHeatMap extends JPanel {
             sortedValues[count] = values;
             count++;
         }
-        // ch2514
+        // For sorting colors to display via ColorContext (trans factor)
         ArrayList<DSMicroarray> half1 = new ArrayList<DSMicroarray>();
         ArrayList<DSMicroarray> half2 = new ArrayList<DSMicroarray>();        
         count = 0;
@@ -147,7 +139,6 @@ public class ModulatorHeatMap extends JPanel {
 
         FontRenderContext context = new FontRenderContext(null, true, false);
         for (DSGeneMarker marker : markers) {
-            //String shortName = marker.getShortName(ModulatorHeatMap.MAX_MARKER_NAME_CHARS);
         	String shortName = this.getMarkerDisplayName(marker);
             Rectangle2D bounds = BASE_FONT.getStringBounds(shortName, context);
             if (bounds.getWidth() > maxGeneNameWidth) {
@@ -188,12 +179,9 @@ public class ModulatorHeatMap extends JPanel {
 
         g.setBackground(Color.WHITE);
 
-        int modulatorIndex = modulator.getSerial();
-
         // Paint the modulator expression bar
         g.setColor(COLOR_TEXT);
         FontMetrics metrics = g.getFontMetrics();
-        //String modulatorName = modulator.getShortName();
         String modulatorName = this.getMarkerDisplayName(modulator);
         int modNameWidth = metrics.stringWidth(modulatorName + "+");
         g.drawString(modulatorName.trim()+"-", SPACER_SIDE, SPACER_TOP);
@@ -201,36 +189,16 @@ public class ModulatorHeatMap extends JPanel {
         int modBarTopY = SPACER_TOP + metrics.getDescent() + 1;
         int modBarStartX = SPACER_TOP;
         int modBarEndX = getWidth() - SPACER_TOP;
-        int n = gradient.getNumberOfColorPoints();
         int barWidth = modBarEndX - modBarStartX;
-        float px = modBarStartX;
-        float lastX = modBarStartX;
-        ColorGradient.ColorPoint lastPoint = null;
         int numArrays = sortedValues.length;
         float modCellWidth = barWidth / (float) numArrays;
         for (int i = 0; i < numArrays; i++) {
             int x = (int) (modBarStartX + (i * modCellWidth));
-            //Color cellColor = getColorForScore(sortedModValues[i]);
             Color cellColor = colorContext.getMarkerValueColor(((DSMicroarray) this.sortedPerMod.get(i)).getMarkerValue(modulator), modulator, 1.0f);         
             g.setColor(cellColor);
             g.fillRect(x, modBarTopY, (int) (modCellWidth + 1), BAR_HEIGHT);
         }
 
-/*
-        for (int i = 0; i < n; i++) {
-            ColorGradient.ColorPoint cPoint = gradient.getColorPoint(i);
-            if (lastPoint != null) {
-                float width = barWidth * (cPoint.getPoint() - lastPoint.getPoint()) / 2;
-                px += width;
-                GradientPaint paint = new GradientPaint(lastX, modBarTopY, lastPoint.getColor(), px, modBarTopY, cPoint.getColor());
-                g.setPaint(paint);
-//                g.setColor(Color.RED);
-                g.fill(new Rectangle2D.Double(lastX, modBarTopY, width, BAR_HEIGHT));
-            }
-            lastPoint = cPoint;
-            lastX = px;
-        }
-*/
         g.setColor(Color.GRAY);
         g.drawRect(modBarStartX, modBarTopY, barWidth, BAR_HEIGHT);
 
@@ -244,7 +212,6 @@ public class ModulatorHeatMap extends JPanel {
 
         // TransFac headers
         g.setColor(COLOR_TEXT);
-        //String transFacName = transcriptionFactor.getShortName().trim();
         String transFacName = this.getMarkerDisplayName(transcriptionFactor).trim();
         int transFacNameWidth = metrics.stringWidth(transFacName + "+");
         // Left Side
@@ -271,7 +238,6 @@ public class ModulatorHeatMap extends JPanel {
                 MindyData.MindyResultRow mindyRow = targetRows.get(i);
                 DSGeneMarker target = mindyRow.getTarget();
                 paintExpressionBar(cellWidth, expressionBarWidth, g, targetCurrY, target);
-                //String targetName = target.getShortName(ModulatorHeatMap.MAX_MARKER_NAME_CHARS);
                 String targetName = this.getMarkerDisplayName(target);
 
                 int targetNameWidth = metrics.stringWidth(targetName);
@@ -291,14 +257,12 @@ public class ModulatorHeatMap extends JPanel {
     private void paintExpressionBar(float cellWidth, float expressionBarWidth, Graphics2D g, int y, DSGeneMarker markerToPaint) {
         int halfArrays = sortedValues.length / 2;
         for (int i = 0; i < sortedValues.length; i++) {
-            float thisValue = (float) sortedValues[i][markerToPaint.getSerial()];
             int startX;
             if (i < halfArrays) {
                 startX = SPACER_SIDE + (int) (i * cellWidth);
             } else {
                 startX = (int) (getWidth() - SPACER_SIDE - expressionBarWidth + ((i - halfArrays) * cellWidth));
             }
-            //Color expressionColor = getColorForScore(thisValue);
             Color expressionColor = colorContext.getMarkerValueColor(((DSMicroarray) this.sortedPerModPerTF.get(i)).getMarkerValue(markerToPaint), markerToPaint, 1.0f);
             g.setColor(expressionColor);
             g.fillRect(startX, y, (int) (cellWidth + 1), BAR_HEIGHT);

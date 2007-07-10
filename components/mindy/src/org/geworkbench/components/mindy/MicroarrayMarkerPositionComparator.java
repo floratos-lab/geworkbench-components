@@ -2,7 +2,6 @@ package org.geworkbench.components.mindy;
 
 import java.util.*;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.*;
-import org.geworkbench.bison.datastructure.biocollections.microarrays.*;
 
 public class MicroarrayMarkerPositionComparator implements Comparator<DSMicroarray> {
 	private int markerPosition;

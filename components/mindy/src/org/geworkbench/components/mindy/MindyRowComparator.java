@@ -9,12 +9,10 @@ public class MindyRowComparator implements Comparator<MindyData.MindyResultRow> 
 	public static final int SCORE = 1;
     
 	// variable
-    private MindyData md;
     private int mode;
     private boolean ascending;
     
-    public MindyRowComparator(MindyData md, int mode, boolean ascending){
-    	this.md = md;
+    public MindyRowComparator(int mode, boolean ascending){
     	this.mode = mode;
     	this.ascending = ascending;
     }
