@@ -17,7 +17,9 @@ public class MindyResultsParser {
         List<MindyData.MindyResultRow> rows = new ArrayList<MindyData.MindyResultRow>();
         BufferedReader in = new BufferedReader(new FileReader(resultsFile));
 
-        String header = in.readLine();
+        //read in the header 
+        in.readLine();
+        
         String line = in.readLine();
         while (line != null) {
             String[] tokens = line.split("\t");

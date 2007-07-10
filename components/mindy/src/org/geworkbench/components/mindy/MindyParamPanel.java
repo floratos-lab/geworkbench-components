@@ -19,6 +19,7 @@ import com.jgoodies.forms.builder.DefaultFormBuilder;
 /**
  * @author mhall
  */
+@SuppressWarnings("serial")
 public class MindyParamPanel extends AbstractSaveableParameterPanel implements Serializable {
 
     static Log log = LogFactory.getLog(MindyParamPanel.class);
