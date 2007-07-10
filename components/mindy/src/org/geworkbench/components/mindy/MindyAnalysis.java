@@ -147,6 +147,7 @@ public class MindyAnalysis extends AbstractAnalysis implements ClusteringAnalysi
             DSGeneMarker target = markers.get(result.getTarget().getName());
             for (MindyResults.MindyResultForTarget.ModulatorSpecificResult specificResult : result) {
                 DSGeneMarker mod = markers.get(specificResult.getModulator().getName());
+                //The score is calculated as the difference between low - high mutual information
                 dataRows.add(new MindyData.MindyResultRow(mod, transFac, target, specificResult.getScore(), 0f));
             }
         }
