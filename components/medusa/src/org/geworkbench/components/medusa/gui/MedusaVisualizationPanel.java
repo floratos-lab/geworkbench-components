@@ -13,6 +13,7 @@ import java.util.Map;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JPanel;
+import javax.swing.JRadioButton;
 import javax.swing.JTabbedPane;
 
 import org.apache.commons.logging.Log;
@@ -23,6 +24,7 @@ import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.components.medusa.MedusaData;
 import org.geworkbench.components.medusa.MedusaUtil;
 import org.geworkbench.events.SubpanelChangedEvent;
+import org.ginkgo.labs.gui.SwingUtil;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.layout.FormLayout;
@@ -72,6 +74,7 @@ public class MedusaVisualizationPanel extends JPanel {
 
 		JTabbedPane tabbedPane = new JTabbedPane();
 
+		/* MOTIF PANEL */
 		JPanel motifPanel = new JPanel();
 
 		int i = 0;
@@ -287,7 +290,39 @@ public class MedusaVisualizationPanel extends JPanel {
 		// tabbedPane.add("Motif", scrollPane);
 		tabbedPane.add("Motif", motifPanel);
 
+		/* PSSM PANEL */
 		JPanel pssmPanel = new JPanel();
+		pssmPanel.setLayout(new GridLayout(4, 1));
+
+		JPanel logoPanel = new JPanel();
+		pssmPanel.add(logoPanel);
+
+		JPanel transFacButtonPanel = new JPanel();
+		List<JRadioButton> buttons = SwingUtil.createRadioButtonGroup("JASPAR",
+				"Custom");
+		for (JRadioButton b : buttons) {
+			transFacButtonPanel.add(b);
+		}
+
+		JButton loadTransFacButton = SwingUtil
+				.createButton("Load TF",
+						"Load file containing new transcription factors to add to the TF listing.");
+		transFacButtonPanel.add(loadTransFacButton);
+		pssmPanel.add(transFacButtonPanel);
+
+		// add search results table
+
+		JPanel pssmButtonPanel = new JPanel();
+		JButton exportButton = SwingUtil.createButton("Export",
+				"Export search results to file in PSSM file format.");
+		pssmButtonPanel.add(exportButton);
+
+		JButton searchButton = SwingUtil.createButton("Search",
+				"Executes a database search.");
+		pssmButtonPanel.add(searchButton);
+
+		pssmPanel.add(pssmButtonPanel);
+
 		tabbedPane.add("PSSM", pssmPanel);
 
 		setLayout(new BorderLayout());
