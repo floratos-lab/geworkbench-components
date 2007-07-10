@@ -20,10 +20,12 @@ import org.apache.commons.logging.LogFactory;
 import com.solarmetric.ide.ui.CheckboxCellRenderer;
 
 /**
+ * MINDY result view main GUI class
+ * 
  * @author mhall
  * @ch2514
  * 
- * @version $Id: MindyPlugin.java,v 1.40 2007-07-10 20:18:01 hungc Exp $
+ * @version $Id: MindyPlugin.java,v 1.41 2007-07-10 21:09:53 hungc Exp $
  */
 @SuppressWarnings("serial")
 public class MindyPlugin extends JPanel {
@@ -59,6 +61,11 @@ public class MindyPlugin extends JPanel {
     // Contains the state of selections passed in from the marker panel and overrides via All Markers checkboxes
     private MarkerLimitState globalSelectionState = new MarkerLimitState();
 
+    /**
+     * 
+     * @param data
+     * @param visualPlugin
+     */
     @SuppressWarnings("serial")
     public MindyPlugin(MindyData data, final MindyVisualComponent visualPlugin) {
         this.mindyData = data;
@@ -885,6 +892,10 @@ public class MindyPlugin extends JPanel {
         heatMapScrollPane.repaint();
     }
 
+    /**
+     * 
+     * @param markers
+     */
     public void limitMarkers(List<DSGeneMarker> markers) {
         globalSelectionState.globalUserSelection = markers;
         // modulators tab
@@ -905,6 +916,12 @@ public class MindyPlugin extends JPanel {
         }
     }
     
+    /**
+     * 
+     * @param model
+     * @param marker
+     * @return
+     */
     public String getMarkerDisplayName(TableModel model, DSGeneMarker marker){
     	String result = marker.getGeneName();
     	boolean showProbeName = false;
@@ -1621,7 +1638,13 @@ public class MindyPlugin extends JPanel {
         	} else {   
         		Collections.sort(this.activeTargets, new GeneMarkerListComparator(mindyData, enabledModulators.get(col - AggregateTableModel.EXTRA_COLS), GeneMarkerListComparator.SCORE, ascending));
         	}  
+        	for(int i = 0; i < this.checkedTargets.length; i++){
+        		this.checkedTargets[i] = false;
+        	}
         	fireTableStructureChanged();
+        	selectionEnabledCheckBoxTarget.setText(ENABLE_SELECTION + " [" + aggregateModel.getUniqueCheckedTargetsAndModulators().size() + "]");
+        	selectionEnabledCheckBoxTarget.repaint();
+        	selectAllTargetsCheckBoxTarget.setSelected(false);
         	MindyPlugin.this.setTargetCheckboxesVisibility(selectionEnabledCheckBoxTarget.isSelected());
         }
         
@@ -2136,7 +2159,7 @@ public class MindyPlugin extends JPanel {
     /**
      * For table sorting purposes
      * @author ch2514
-     * @version $Id: MindyPlugin.java,v 1.40 2007-07-10 20:18:01 hungc Exp $
+     * @version $Id: MindyPlugin.java,v 1.41 2007-07-10 21:09:53 hungc Exp $
      */
     private class ColumnHeaderListener extends MouseAdapter {
         public void mouseClicked(MouseEvent evt) {
