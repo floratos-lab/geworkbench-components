@@ -25,7 +25,7 @@ import com.solarmetric.ide.ui.CheckboxCellRenderer;
  * @author mhall
  * @ch2514
  * 
- * @version $Id: MindyPlugin.java,v 1.41 2007-07-10 21:09:53 hungc Exp $
+ * @version $Id: MindyPlugin.java,v 1.42 2007-07-11 17:34:38 hungc Exp $
  */
 @SuppressWarnings("serial")
 public class MindyPlugin extends JPanel {
@@ -62,9 +62,10 @@ public class MindyPlugin extends JPanel {
     private MarkerLimitState globalSelectionState = new MarkerLimitState();
 
     /**
+     * Constructor.
      * 
-     * @param data
-     * @param visualPlugin
+     * @param data - MINDY data
+     * @param visualPlugin - MINDY component (the class the implements the VisualPlugin interface)
      */
     @SuppressWarnings("serial")
     public MindyPlugin(MindyData data, final MindyVisualComponent visualPlugin) {
@@ -893,8 +894,9 @@ public class MindyPlugin extends JPanel {
     }
 
     /**
+     * Callback method for the MINDY result view GUI when the user changes marker set selections in the Selection Panel.
      * 
-     * @param markers
+     * @param - list of selected markers
      */
     public void limitMarkers(List<DSGeneMarker> markers) {
         globalSelectionState.globalUserSelection = markers;
@@ -917,10 +919,12 @@ public class MindyPlugin extends JPanel {
     }
     
     /**
+     * Specifies the marker name (probe name vs. gene name) 
+     * to display on the table (modulator, targets, or list).
      * 
-     * @param model
-     * @param marker
-     * @return
+     * @param model - table data model of the table displaying marker names
+     * @param marker - gene marker
+     * @return The marker name (probe vs. gene) to display on the heat map.
      */
     public String getMarkerDisplayName(TableModel model, DSGeneMarker marker){
     	String result = marker.getGeneName();
@@ -940,7 +944,7 @@ public class MindyPlugin extends JPanel {
     	return result;
     }
     
-    public JCheckBox[] getHeaderCheckBoxes(){
+    private JCheckBox[] getHeaderCheckBoxes(){
     	return this.boxes;
     }
     
@@ -1046,11 +1050,15 @@ public class MindyPlugin extends JPanel {
     	}
     }
     
-    
-    /**
-     * Models and support classes follow
-     */
+     //Models and support classes follow
 
+    /**
+     * Modulator table data model.
+     * 
+     * @author mhall
+     * @author ch2514
+     * @version $Id: MindyPlugin.java,v 1.42 2007-07-11 17:34:38 hungc Exp $
+     */
     private class ModulatorModel extends DefaultTableModel {
 
         private boolean[] enabled;
@@ -1061,6 +1069,11 @@ public class MindyPlugin extends JPanel {
         private boolean[] ascendSortStates;
         private boolean showProbeName = true;
 
+        /**
+         * Constructor.
+         * 
+         * @param mindyData - MINDY data
+         */
         public ModulatorModel(MindyData mindyData) {
             modulators = new ArrayList<DSGeneMarker>();
             for (Map.Entry<DSGeneMarker, MindyData.ModulatorStatistics> entry : mindyData.getAllModulatorStatistics().entrySet())
@@ -1074,6 +1087,11 @@ public class MindyPlugin extends JPanel {
             	this.ascendSortStates[i] = true;
         }
 
+        /**
+         * Callback method for the modulator table when the user changes marker set selections in the Selection Panel.
+         * 
+         * @param - list of selected markers
+         */
         public void limitMarkers(List<DSGeneMarker> limitList) {
             if (limitList == null) {
                 limitedModulators = null;
@@ -1093,10 +1111,19 @@ public class MindyPlugin extends JPanel {
             }
         }
 
+        /**
+         * Get the number of columns in the modulator table.
+         * @return the number of columns in the modulator table
+         */
         public int getColumnCount() {
             return columnNames.length;
         }
 
+        /**
+         * Get the number of rows on the modulator table.
+         * 
+         * @return number of rows on the table
+         */
         public int getRowCount() {
             if (globalSelectionState.allMarkerOverride) {
                 if (enabled == null) {
@@ -1112,6 +1139,13 @@ public class MindyPlugin extends JPanel {
             }
         }
 
+        /**
+         * Whether or not the specified modulator table cell is editable.
+         * 
+         * @param rowIndex - row index of the table cell
+         * @prarm columnIndex - column index of the table cell
+         * @return true if the table cell is editable, and false otherwise
+         */
         public boolean isCellEditable(int rowIndex, int columnIndex) {
             if (columnIndex == 0) {
                 return true;
@@ -1120,6 +1154,12 @@ public class MindyPlugin extends JPanel {
             }
         }
 
+        /**
+         * Get the class object representing the specified table column.
+         * 
+         * @param columnIndex - column index
+         * @return the class object representing the table column
+         */
         @SuppressWarnings("unchecked")
         public Class getColumnClass(int columnIndex) {
             if (columnIndex == 0) {
@@ -1133,6 +1173,13 @@ public class MindyPlugin extends JPanel {
             }
         }
 
+        /**
+         * Get the values of modulator table cells.
+         * 
+         * @param rowIndex - row index of the cell
+         * @param columnIndex - column index of the cell
+         * @return the value object of specified table cell
+         */
         public Object getValueAt(int rowIndex, int columnIndex) {
             DSGeneMarker mod;
             mod = getModulatorForIndex(rowIndex);
@@ -1162,6 +1209,13 @@ public class MindyPlugin extends JPanel {
             }
         }
 
+        /**
+         * Set values of modulator table cells.
+         * 
+         * @param aValue - value of the cell
+         * @param rowIndex - row index of the cell
+         * @param columnIndex - column index of the cell
+         */
         public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
             if (columnIndex == 0) {
                 enableModulator(rowIndex, (Boolean) aValue);
@@ -1184,18 +1238,39 @@ public class MindyPlugin extends JPanel {
             return mod;
         }
 
+        /**
+         * Get the column name of the specified column index.
+         * 
+         * @param columnIndex - index of the column
+         * @return name of the column
+         */
         public String getColumnName(int columnIndex) {
             return columnNames[columnIndex];
         }
         
+        /**
+         * Get the sorting states (ascending or descending) of each column in the modulator table.
+         * 
+         * @return a list of sorting states (ascending = true, descending = false)
+         */
         public boolean[] getAscendSortStates(){
         	return this.ascendSortStates;
         }
         
+        /**
+         * Set the sorting states (ascending or descending) of each column in the modulator table.
+         * 
+         * @param states - a list of sorting states (ascending = true, descending = false)
+         */
         public void setAscendSortStates(boolean[] states){
         	this.ascendSortStates = states;
         }
 
+        /**
+         * Select all modulators on the modulator table.
+         * 
+         * @param selected - true to select all modulators on the table, and false otherwise
+         */
         public void selectAllModulators(boolean selected) {
             for (int i = 0; i < enabled.length; i++) {
                 enableModulator(i, selected);
@@ -1226,6 +1301,11 @@ public class MindyPlugin extends JPanel {
             }
         }
         
+        /**
+         * Get the number of modulator that has been selected.
+         * 
+         * @return number of modulator selected
+         */
         public int getNumberOfModulatorsSelected(){
         	int result = 0;
         	for(int i = 0; i < enabled.length; i++){
@@ -1234,6 +1314,11 @@ public class MindyPlugin extends JPanel {
         	return result;
         }
         
+        /**
+         * Get the list of user selected modulators.
+         * 
+         * @return the list of selected modulators
+         */
         public List<DSGeneMarker> getSelectedModulators(){
         	List<DSGeneMarker> result = new ArrayList<DSGeneMarker>();
         	for(int i = 0; i < enabled.length; i++){
@@ -1244,6 +1329,12 @@ public class MindyPlugin extends JPanel {
         	return result;
         }
         
+        /**
+         * Handles table column sorting for the modulator table.
+         * @param col - the column index of the column to sort
+         * @param ascending - if true, sort the column in ascending order.  
+         * Otherwise, sort in descending order.
+         */
         public void sort(int col, boolean ascending){
         	if(col == 0) return;
         	List<DSGeneMarker> mods = this.modulators;
@@ -1283,16 +1374,43 @@ public class MindyPlugin extends JPanel {
     		
         }
         
+        /**
+         * Check to see if the modulator table should display probe names or gene names.
+         * @return If true, the modulator table displays probe names.  
+         * If not, the modulator table displays gene names.
+         */
         public boolean isShowProbeName(){
         	return this.showProbeName;
         }
         
+        /**
+         * Specify whether or not the modulator table should display probe names or gene names.
+         * @param showProbeName - if true, the modulator table displays probe names.  
+         * If not, the modulator table displays gene names.
+         */
         public void setShowProbeName(boolean showProbeName){
         	this.showProbeName = showProbeName;
         }
     }
     
+    /**
+     * For rendering modulator checkboxes on the targets table column headers.
+     * 
+     * @author ch2514
+     * @version $Id: MindyPlugin.java,v 1.42 2007-07-11 17:34:38 hungc Exp $
+     */
     private class CheckBoxRenderer extends DefaultTableCellRenderer {
+    	/**
+    	 * Specifies how to render targets table column headers.
+    	 * 
+    	 * @param table - targets table
+    	 * @param value - the value of the cell to be rendered
+    	 * @param isSelected - true if the cell is to be rendered with the selection highlighted; otherwise false
+    	 * @param hasFocus - true if the header cell has focus, and false otherwise
+    	 * @param row - the row index of the cell being drawn. When drawing the header, the value of row is -1
+    	 * @param column - the column index of the cell being drawn
+    	 * @return 
+    	 */
         public Component getTableCellRendererComponent(JTable table, 
                                                        Object value,
                                                        boolean isSelected, 
@@ -1343,7 +1461,13 @@ public class MindyPlugin extends JPanel {
         }
     }
 
-
+    /**
+     * Table data model for the targets table.
+     * 
+     * @author mhall
+     * @author ch2514
+     * @version $Id: MindyPlugin.java,v 1.42 2007-07-11 17:34:38 hungc Exp $
+     */
     private class AggregateTableModel extends DefaultTableModel {
 
         private static final int EXTRA_COLS = 2;
@@ -1363,6 +1487,10 @@ public class MindyPlugin extends JPanel {
         private boolean[] ascendSortStates;
         private boolean showProbeName = true;
 
+        /**
+         * Constructor.
+         * @param mindyData
+         */
         public AggregateTableModel(MindyData mindyData) {
             this.checkedTargets = new boolean[mindyData.getData().size()];
             this.mindyData = mindyData;
@@ -1373,43 +1501,93 @@ public class MindyPlugin extends JPanel {
             this.checkedModulators = new boolean[this.allModulators.size() + AggregateTableModel.EXTRA_COLS];
         }
 
+        /**
+         * Whether the targets table shows the actual scores or just -1, 0, and 1.
+         * @return true if the table is to show the actual scores, and false otherwise
+         */
         public boolean isScoreView() {
             return scoreView;
         }
 
+        /**
+         * Set shether the targets table shows the actual scores or just -1, 0, and 1.
+         * @param scoreView - true if the table is to show the actual scores, and false otherwise
+         */
         public void setScoreView(boolean scoreView) {
             this.scoreView = scoreView;
         }
 
+        /**
+         * Get the modulator sort methods for targets table.
+         * 
+         * @return the ModulatorSort object representing the sorting scheme for the table columns
+         */
         public ModulatorSort getModulatorSortMethod() {
             return modulatorSortMethod;
         }
 
+        /**
+         * Set the sort scheme for modulators in the targets table.
+         * 
+         * @param modulatorSortMethod - ModulatorSort object that specifies how to sort table columns
+         */
         public void setModulatorSortMethod(ModulatorSort modulatorSortMethod) {
             this.modulatorSortMethod = modulatorSortMethod;
             resortModulators();
         }
 
+        /**
+         * Whether or not to display only the top modulator(s) in the targets table.
+         * 
+         * @return true if to limit display to the specified number of 
+         * top modulator(s), and false otherwise.
+         */
         public boolean isModulatorsLimited() {
             return modulatorsLimited;
         }
 
+        /**
+         * Set whether or not to display only the top modulator(s) in the targets table.
+         * 
+         * @param modulatorsLimited - true if to limit display to the specified number of 
+         * top modulator(s), and false otherwise.
+         */
         public void setModulatorsLimited(boolean modulatorsLimited) {
             this.modulatorsLimited = modulatorsLimited;
         }
 
+        /**
+         * Get the number of top modulator(s) to display in the targets table.
+         * 
+         * @return number of top modulator(s) to display
+         */
         public int getModLimit() {
             return modLimit;
         }
 
+        /**
+         * Set the number of top modulator(s) to display in the targets table.
+         * 
+         * @param modLimit - number of top modulator(s) to display
+         */
         public void setModLimit(int modLimit) {
             this.modLimit = modLimit;
         }
 
+        /**
+         * Get the list of enabled modulators.
+         * 
+         * @return list of enabled modulators
+         */
         public List<DSGeneMarker> getEnabledModulators() {
             return enabledModulators;
         }
 
+        /**
+         * Set the list of enabled modulators.
+         * 
+         * @param enabledModulators - list of enabled modulators
+         */
         public void setEnabledModulators(List<DSGeneMarker> enabledModulators) {
             this.enabledModulators = enabledModulators;
             this.checkedModulators = new boolean[this.enabledModulators.size() + AggregateTableModel.EXTRA_COLS];
@@ -1418,6 +1596,11 @@ public class MindyPlugin extends JPanel {
             repaint();
         }
 
+        /**
+         * Get the list of selected targets.
+         * 
+         * @return list of selected targets
+         */
         public List<DSGeneMarker> getCheckedTargets() {
             ArrayList<DSGeneMarker> result = new ArrayList<DSGeneMarker>(checkedTargets.length);
             for (int i = 0; i < checkedTargets.length; i++) {
@@ -1429,6 +1612,11 @@ public class MindyPlugin extends JPanel {
             return result;
         }
         
+        /**
+         * Get the list of selected modulators.
+         * 
+         * @return list of selected modulators
+         */
         public List<DSGeneMarker> getCheckedModulators(){
         	ArrayList<DSGeneMarker> result = new ArrayList<DSGeneMarker>(checkedModulators.length);
         	for(int i = AggregateTableModel.EXTRA_COLS; i < checkedModulators.length; i++){
@@ -1440,6 +1628,11 @@ public class MindyPlugin extends JPanel {
         	return result;
         }
 
+        /**
+         * Enable the specified modulator.
+         * 
+         * @param mod - the modulator to enable
+         */
         public void enableModulator(DSGeneMarker mod) {
             if (!enabledModulators.contains(mod)) {
                 enabledModulators.add(mod);
@@ -1450,6 +1643,11 @@ public class MindyPlugin extends JPanel {
             }
         }
 
+        /**
+         * Disable the specified modulator.
+         * 
+         * @param mod - the modulator to disable
+         */
         public void disableModulator(DSGeneMarker mod) {
             enabledModulators.remove(mod);
             recalcActiveTargets();
@@ -1492,6 +1690,10 @@ public class MindyPlugin extends JPanel {
             MindyPlugin.this.setTargetCheckboxesVisibility(selectionEnabledCheckBoxTarget.isSelected());
         }
 
+        /**
+         * Get the number of columns in the targets table.
+         * @return the number of columns in the targets table
+         */
         public int getColumnCount() {
             // Number of allModulators plus target name and checkbox column
             if (!modulatorsLimited) {
@@ -1503,6 +1705,11 @@ public class MindyPlugin extends JPanel {
         
         // called from MindyVisualComponent
         // i.e. when SelectionPanel changes marker set selections via GeneSelectorEvent
+        /**
+         * Callback method for the targets table when the user changes marker set selections in the Selection Panel.
+         * 
+         * @param - list of selected markers
+         */
         public void limitMarkers(List<DSGeneMarker> limitList) {
             if (limitList == null) {
                 limitedTargets = null;
@@ -1523,6 +1730,10 @@ public class MindyPlugin extends JPanel {
         }
         
         // called from "All Markers" checkbox
+        /**
+         * Show only the markers selected in the marker sets on the Selector Panel.
+         * Applies only to the targets table.
+         */
         public void showLimitedMarkers(){
         	allMarkersOn = false;
     		recalcActiveTargets();
@@ -1532,6 +1743,10 @@ public class MindyPlugin extends JPanel {
         }
         
         // called from "All Markers" checkbox
+        /**
+         * Show all markers.
+         * Applies only to the targets table.
+         */
         public void showAllMarkers(){
         	allMarkersOn = true;
         	recalcActiveTargets();
@@ -1540,6 +1755,11 @@ public class MindyPlugin extends JPanel {
             repaint();
         }
 
+        /**
+         * Get the number of rows on the targets table.
+         * 
+         * @return number of rows on the table
+         */
         public int getRowCount() {
             if (activeTargets == null) {
                 return 0;
@@ -1547,6 +1767,12 @@ public class MindyPlugin extends JPanel {
             return activeTargets.size();
         }
         
+        /**
+         * Get the class object representing the specified table column.
+         * 
+         * @param columnIndex - column index
+         * @return the class object representing the table column
+         */
         public Class<?> getColumnClass(int i) {
             if (i == 0) {
             	return Boolean.class;
@@ -1557,6 +1783,13 @@ public class MindyPlugin extends JPanel {
             }
         }
         
+        /**
+         * Get the values of targets table cells.
+         * 
+         * @param rowIndex - row index of the cell
+         * @param columnIndex - column index of the cell
+         * @return the value object of specified table cell
+         */
         public Object getValueAt(int row, int col) {
             if (col == 1) {
             	return getMarkerDisplayName(this, (DSGeneMarker) activeTargets.get(row));
@@ -1576,11 +1809,25 @@ public class MindyPlugin extends JPanel {
             }
         }
 
+        /**
+         * Get the score of a specified targets table cell.
+         * 
+         * @param row - row index of the table cell
+         * @param col - col index of the table cell
+         * @return the score of the modulator and target
+         */
         public float getScoreAt(int row, int col) {
         	float score = mindyData.getScore(enabledModulators.get(col - AggregateTableModel.EXTRA_COLS), mindyData.getTranscriptionFactor(), activeTargets.get(row));
             return score;
         }
 
+        /**
+         * Set values of targets table cells.
+         * 
+         * @param aValue - value of the cell
+         * @param rowIndex - row index of the cell
+         * @param columnIndex - column index of the cell
+         */
         public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
         	if (columnIndex == 0) 
                 checkedTargets[rowIndex] = (Boolean) aValue;
@@ -1597,6 +1844,11 @@ public class MindyPlugin extends JPanel {
             targetTable.repaint();
         }
 
+        /**
+         * Get the specified table column name.
+         * 
+         * @param col - column index
+         */
         public String getColumnName(int col) {
             if (col == 0) {
             	return " ";
@@ -1616,6 +1868,9 @@ public class MindyPlugin extends JPanel {
             }
         }
 
+        /**
+         * Sorts the columns on the targets table based on modulator stat (M#, M+. M-) selection.
+         */
         public void resortModulators() {
             Collections.sort(enabledModulators, new ModulatorStatComparator(mindyData, modulatorSortMethod));
             this.clearModulatorSelections();
@@ -1623,6 +1878,9 @@ public class MindyPlugin extends JPanel {
             MindyPlugin.this.setTargetCheckboxesVisibility(selectionEnabledCheckBoxTarget.isSelected());
         }
         
+        /**
+         * Clear all modulator selection from the targets table.
+         */
         public void clearModulatorSelections(){
         	for(int i = 0; i < this.checkedModulators.length; i++)
             	this.checkedModulators[i] = false;
@@ -1630,6 +1888,12 @@ public class MindyPlugin extends JPanel {
         	MindyPlugin.this.setTargetCheckboxesVisibility(selectionEnabledCheckBoxTarget.isSelected());
         }
         
+        /**
+         * Handles table column sorting for the targets table.
+         * @param col - the column index of the column to sort
+         * @param ascending - if true, sort the column in ascending order.  
+         * Otherwise, sort in descending order.
+         */
         public void sort(int col, boolean ascending){
         	if(col == 0)
         		return;
@@ -1648,6 +1912,11 @@ public class MindyPlugin extends JPanel {
         	MindyPlugin.this.setTargetCheckboxesVisibility(selectionEnabledCheckBoxTarget.isSelected());
         }
         
+        /**
+         * The union of selected modulators and targets from the targets table.
+         * 
+         * @return the list of selected markers
+         */
         public List<DSGeneMarker> getUniqueCheckedTargetsAndModulators(){
         	ArrayList<DSGeneMarker> result = new ArrayList<DSGeneMarker>(this.getCheckedTargets().size()+ this.getEnabledModulators().size());
         	for(int i = 0; i < this.getCheckedTargets().size(); i++){
@@ -1664,38 +1933,89 @@ public class MindyPlugin extends JPanel {
         	return result;
         }
         
+        /**
+         * Get the total number of markers (modulators and targets) selected in the targets table.
+         * 
+         * @return the total number of markers selected
+         */
         public int getNumberOfMarkersSelected(){
         	return this.getUniqueCheckedTargetsAndModulators().size();
         }
         
+        /**
+         * Get the list of active targets.
+         * 
+         * @return list of active targets
+         */
         public List<DSGeneMarker> getActiveTargets(){
         	return activeTargets;
         }
         
+        /**
+         * Get the sorting states (ascending or descending) of each column in the targets table.
+         * 
+         * @return a list of sorting states (ascending = true, descending = false)
+         */
         public boolean[] getAscendSortStates(){
         	return this.ascendSortStates;
         }
         
+        /**
+         * Set the sorting states (ascending or descending) of each column in the targets table.
+         * 
+         * @param b - a list of sorting states (ascending = true, descending = false)
+         */
         public void setAscendSortStates(boolean[] b){
         	this.ascendSortStates = b;
         }
         
+        /**
+         * Check to see if the targets table should display probe names or gene names.
+         * 
+         * @return If true, the targets table displays probe names.  
+         * If not, the targets table displays gene names.
+         */
         public boolean isShowProbeName(){
         	return this.showProbeName;
         }
         
+        /**
+         * Specify whether or not the targets table should display probe names or gene names.
+         * 
+         * @param showProbeName - if true, the targets table displays probe names.  
+         * If not, the targets table displays gene names.
+         */
         public void setShowProbeName(boolean showProbeName){
         	this.showProbeName = showProbeName;
         }
         
+        /**
+         * Whether or not the modulator from the specified colum index is selected.
+         * 
+         * @param index - table column index
+         * @return true if the modulator represented by the column is selected, 
+         * and false otherwise
+         */
         public boolean getModulatorCheckBoxState(int index){
         	return this.checkedModulators[index];
         }
         
+        /**
+         * Set the modulator checkbox for the specified targets table column header.
+         * 
+         * @param index - column index of the interested header
+         * @param b - true if the modulator at the specified index is selected,
+         * and false otherwise
+         */
         public void setModulatorCheckBoxState(int index, boolean b){
         	this.checkedModulators[index] = b;
         }
         
+        /**
+         * Get the number of modulator checkboxes from the table column headers.
+         * 
+         * @return the number of modulator checkboxes from the table column headers
+         */
         public int getNumberOfModulatorCheckBoxes(){
         	return this.checkedModulators.length;
         }
@@ -1720,16 +2040,38 @@ public class MindyPlugin extends JPanel {
         }
     }
 
+    /**
+     * Compare M#, M+, or M- of two gene markers (for sorting).
+     * 
+     * @author mhall
+     * @version $Id: MindyPlugin.java,v 1.42 2007-07-11 17:34:38 hungc Exp $
+     */
     private class ModulatorStatComparator implements Comparator<DSGeneMarker> {
 
         private MindyData data;
         private ModulatorSort sortType;
 
+        /**
+         * Constructor.
+         * 
+         * @param data - MINDY data
+         * @param sortType - specifies whether to sort by M#, M+, or M-
+         */
         public ModulatorStatComparator(MindyData data, ModulatorSort sortType) {
             this.data = data;
             this.sortType = sortType;
         }
 
+        /**
+         * Compare two gene markers based on M#, M+, or M-.
+         * The choice is determined by sort type specified in the constructor.
+         * 
+         * @param dsGeneMarker - the first gene marker to be compared
+	     * @param dsGeneMarker1 - the second gene marker to be compared
+	     * @return A negative integer if the first gene marker precedes the second.
+	     * Zero if the two markers are the same.  
+	     * A positive integer if the second marker precedes the first.
+         */
         public int compare(DSGeneMarker dsGeneMarker, DSGeneMarker dsGeneMarker1) {
             if (sortType == ModulatorSort.Aggregate) {
                 return data.getStatistics(dsGeneMarker1).getCount() - data.getStatistics(dsGeneMarker).getCount();
@@ -1742,6 +2084,13 @@ public class MindyPlugin extends JPanel {
 
     }
 
+    /**
+     * Table data model for the list table.
+     * 
+     * @author mhall
+     * @author ch2514
+     * @version $Id: MindyPlugin.java,v 1.42 2007-07-11 17:34:38 hungc Exp $
+     */
     private class ModulatorTargetModel extends DefaultTableModel {
 
         private boolean[] modChecks;
@@ -1757,6 +2106,11 @@ public class MindyPlugin extends JPanel {
         private boolean allMarkersOn = true;
         private boolean showProbeName = true;
 
+        /**
+         * Constructor.
+         * 
+         * @param mindyData - data for the MINDY component
+         */
         public ModulatorTargetModel(MindyData mindyData) {
             this.modChecks = new boolean[mindyData.getData().size()];
             this.targetChecks = new boolean[mindyData.getData().size()];
@@ -1766,22 +2120,42 @@ public class MindyPlugin extends JPanel {
             	this.ascendSortStates[i] = true;
         }
 
+        /**
+         * Get the enabled modulators.
+         * @return a list of enabled modulators
+         */
         public ArrayList<DSGeneMarker> getEnabledModulators() {
             return enabledModulators;
         }
 
+        /**
+         * Set the list of enabled modulators.
+         * @param enabledModulators - list of enabled modulators
+         */
         public void setEnabledModulators(ArrayList<DSGeneMarker> enabledModulators) {
             this.enabledModulators = enabledModulators;
         }
 
+        /**
+         * Get a list of enabled targets.
+         * @return a list of enabled targets.
+         */
         public ArrayList<DSGeneMarker> getEnabledTargets() {
             return enabledTargets;
         }
 
+        /**
+         * Set the list of enabled targets.
+         * @param enabledTargets - list of enabled targets
+         */
         public void setEnabledTargets(ArrayList<DSGeneMarker> enabledTargets) {
             this.enabledTargets = enabledTargets;
         }
 
+        /**
+         * Enable a specified modulator
+         * @param mod - the modulator to enable
+         */
         public void enableModulator(DSGeneMarker mod) {
             if (!enabledModulators.contains(mod)) {
                 enabledModulators.add(mod);
@@ -1792,6 +2166,10 @@ public class MindyPlugin extends JPanel {
             }
         }
 
+        /**
+         * Disable a specified modulator
+         * @param mod - the modulator to disable
+         */
         public void disableModulator(DSGeneMarker mod) {
             enabledModulators.remove(mod);
             recalculateRows();
@@ -1800,6 +2178,10 @@ public class MindyPlugin extends JPanel {
             repaint();
         }
 
+        /**
+         * Enable a specified target
+         * @param target - the target to enable
+         */
         public void enableTarget(DSGeneMarker target) {
             if (!enabledTargets.contains(target)) {
                 enabledTargets.add(target);
@@ -1810,6 +2192,10 @@ public class MindyPlugin extends JPanel {
             }
         }
 
+        /**
+         * Disable a specified target
+         * @param target - the target to disable
+         */
         public void disableTarget(DSGeneMarker target) {
             enabledTargets.remove(target);
             recalculateRows();
@@ -1882,12 +2268,21 @@ public class MindyPlugin extends JPanel {
         	
         }
         
+        /**
+         * Get the number of columns in the list table.
+         * @return the number of columns in the list table
+         */
         public int getColumnCount() {
             return columnNames.length;
         }
         
         // called from MindyVisualComponent
         // i.e. when SelectionPanel changes marker set selections via GeneSelectorEvent
+        /**
+         * Callback method for the list table when the user changes marker set selections in the Selection Panel.
+         * 
+         * @param - list of selected markers
+         */
         public void limitMarkers(List<DSGeneMarker> limitList) {
             if (limitList == null) {
                 limitedModulators = null;
@@ -1915,6 +2310,10 @@ public class MindyPlugin extends JPanel {
         }
         
         // called from "All Markers" checkbox
+        /**
+         * Show only the markers selected in the marker sets on the Selector Panel.
+         * Applies only to the list table.
+         */
         public void showLimitedMarkers(){
         	allMarkersOn = false;
         	recalculateRows();
@@ -1924,6 +2323,10 @@ public class MindyPlugin extends JPanel {
         }
         
         // called from "All Markers" checkbox
+        /**
+         * Show all markers.
+         * Applies only to the list table.
+         */
         public void showAllMarkers(){
         	allMarkersOn = true;
         	recalculateRows();
@@ -1932,6 +2335,11 @@ public class MindyPlugin extends JPanel {
             repaint();
         }
 
+        /**
+         * Get the number of rows on the list table.
+         * 
+         * @return number of rows on the table
+         */
         public int getRowCount() {
         	if ((this.allMarkersOn) ||(globalSelectionState.allMarkerOverride)){
 	            if (modChecks == null) {
@@ -1944,6 +2352,13 @@ public class MindyPlugin extends JPanel {
             }
         }
 
+        /**
+         * Whether or not the specified list table cell is editable.
+         * 
+         * @param rowIndex - row index of the table cell
+         * @prarm columnIndex - column index of the table cell
+         * @return true if the table cell is editable, and false otherwise
+         */
         public boolean isCellEditable(int rowIndex, int columnIndex) {
             if ((columnIndex == 0) ||(columnIndex == 2)) {
                 return true;
@@ -1952,6 +2367,12 @@ public class MindyPlugin extends JPanel {
             }
         }
 
+        /**
+         * Get the class object representing the specified table column.
+         * 
+         * @param columnIndex - column index
+         * @return the class object representing the table column
+         */
         @SuppressWarnings("unchecked")
         public Class getColumnClass(int columnIndex) {
             if (columnIndex == 0 || columnIndex == 2) {
@@ -1963,6 +2384,13 @@ public class MindyPlugin extends JPanel {
             }
         }
 
+        /**
+         * Get the values of list table cells.
+         * 
+         * @param rowIndex - row index of the cell
+         * @param columnIndex - column index of the cell
+         * @return the value object of specified table cell
+         */
         public Object getValueAt(int rowIndex, int columnIndex) {
             if (columnIndex == 0) {
             	return modChecks[rowIndex];
@@ -1980,6 +2408,13 @@ public class MindyPlugin extends JPanel {
             }
         }
 
+        /**
+         * Set values of list table cells.
+         * 
+         * @param aValue - value of the cell
+         * @param rowIndex - row index of the cell
+         * @param columnIndex - column index of the cell
+         */
         public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
             if (columnIndex == 0) {
             	String marker = getMarkerDisplayName(this, rows.get(rowIndex).getModulator());
@@ -2012,6 +2447,12 @@ public class MindyPlugin extends JPanel {
         		selectAllTargetsCheckBox.setSelected(false);        	
         }
 
+        /**
+         * Get the column name of the specified column index.
+         * 
+         * @param columnIndex - index of the column
+         * @return name of the column
+         */
         public String getColumnName(int columnIndex) {
             return columnNames[columnIndex];
         }
@@ -2028,10 +2469,19 @@ public class MindyPlugin extends JPanel {
             listTable.repaint();
         }
         
+        /**
+         * Get the sorting states (ascending or descending) of each column in the list table.
+         * 
+         * @return a list of sorting states (ascending = true, descending = false)
+         */
         public boolean[] getAscendSortStates(){
         	return this.ascendSortStates;
         }
-        
+        /**
+         * Set the sorting states (ascending or descending) of each column in the list table.
+         * 
+         * @param states - a list of sorting states (ascending = true, descending = false)
+         */
         public void setAscendSortStates(boolean[] states){
         	this.ascendSortStates = states;
         }
@@ -2048,6 +2498,10 @@ public class MindyPlugin extends JPanel {
             listTable.repaint();
         }
         
+        /**
+         * Get the list of user selected modulators.
+         * @return the list of selected modulators
+         */
         public List<DSGeneMarker> getSelectedModulators(){
         	ArrayList<DSGeneMarker> result = new ArrayList<DSGeneMarker>();
         	for(int i = 0; i < modChecks.length; i++){
@@ -2060,6 +2514,10 @@ public class MindyPlugin extends JPanel {
         	return result;
         }
         
+        /**
+         * Get the list of user selected targets.
+         * @return the list of selected targets
+         */
         public List<DSGeneMarker> getSelectedTargets(){
         	ArrayList<DSGeneMarker> result = new ArrayList<DSGeneMarker>();
         	for(int i = 0; i < targetChecks.length; i++){
@@ -2072,6 +2530,10 @@ public class MindyPlugin extends JPanel {
         	return result;
         }
         
+        /**
+         * Get the union of selected modulators and targets for the list table.
+         * @return the union of selected modulators and targets
+         */
         public List<DSGeneMarker> getUniqueSelectedMarkers(){
         	ArrayList<DSGeneMarker> result = new ArrayList<DSGeneMarker>();
         	List<DSGeneMarker> mods = this.getSelectedModulators();
@@ -2088,6 +2550,12 @@ public class MindyPlugin extends JPanel {
         	return result;
         }
         
+        /**
+         * Handles table column sorting for the list table.
+         * @param col - the column index of the column to sort
+         * @param ascending - if true, sort the column in ascending order.  
+         * Otherwise, sort in descending order.
+         */
         public void sort(int col, boolean ascending){
         	if((col == 0) || (col == 2)) return;
         	if(col == 1){
@@ -2124,25 +2592,54 @@ public class MindyPlugin extends JPanel {
         	fireTableStructureChanged();
         }
         
+        /**
+         * Check to see if the list table should display probe names or gene names.
+         * @return If true, the list table displays probe names.  
+         * If not, the list table displays gene names.
+         */
         public boolean isShowProbeName(){
         	return this.showProbeName;
         }
         
+        /**
+         * Specify whether or not the list table should display probe names or gene names.
+         * @param showProbeName - if true, the list table displays probe names.  
+         * If not, the list table displays gene names.
+         */
         public void setShowProbeName(boolean showProbeName){
         	this.showProbeName = showProbeName;
         }
 
     }
     
+    /**
+     * Heat map data model.
+     * 
+     * @author mhall
+     * @version $Id: MindyPlugin.java,v 1.42 2007-07-11 17:34:38 hungc Exp $
+     */
     private class ModulatorListModel extends AbstractListModel {
+    	/**
+    	 * Get the number of enabled modulators.
+    	 * @return number of enabled modulators
+    	 */
         public int getSize() {
             return modTargetModel.getEnabledModulators().size();
         }
 
+        /**
+         * Get the modulator specified by the index.
+         * 
+         * @param i - index
+         * @return Modulator marker name of the enabled modulators in the heat map as specified by index i.
+         */
         public Object getElementAt(int i) {
         	return getMarkerDisplayName(modTargetModel, modTargetModel.getEnabledModulators().get(i));
         }
 
+        /**
+         * Refreshes the data model.
+         */
         public void refresh() {
             fireContentsChanged(this, 0, getSize());
         }
@@ -2150,18 +2647,34 @@ public class MindyPlugin extends JPanel {
 
     /**
      * State of selections and overrides for the entire component
+     * 
+     * @author mhall
+     * @version $ID$
      */
     private class MarkerLimitState {
+    	/**
+    	 * Represents the markers in the marker sets selected by the user.
+    	 */
         public List<DSGeneMarker> globalUserSelection = new ArrayList<DSGeneMarker>();
+        /**
+         * Whether the user has made a global "All Markers On" selection
+         */
         public boolean allMarkerOverride = true;
     }
  
     /**
-     * For table sorting purposes
+     * Handles column sorting in MINDY tables.
+     * Also handles modulator selection for the targets table.
+     * 
      * @author ch2514
-     * @version $Id: MindyPlugin.java,v 1.41 2007-07-10 21:09:53 hungc Exp $
+     * @version $Id: MindyPlugin.java,v 1.42 2007-07-11 17:34:38 hungc Exp $
      */
     private class ColumnHeaderListener extends MouseAdapter {
+    	/**
+    	 * Handles mouse clicks on table column headers.
+    	 * 
+    	 * @param evt - MouseEvent
+    	 */
         public void mouseClicked(MouseEvent evt) {
             JTable table = ((JTableHeader)evt.getSource()).getTable();
             TableColumnModel colModel = table.getColumnModel();
