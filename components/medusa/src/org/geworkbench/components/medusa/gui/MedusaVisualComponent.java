@@ -5,7 +5,6 @@ import java.awt.Component;
 import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.ImageIcon;
@@ -15,7 +14,6 @@ import javax.swing.JPanel;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
-import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.components.medusa.MedusaDataSet;
 import org.geworkbench.components.medusa.MedusaUtil;
 import org.geworkbench.engine.config.VisualPlugin;
@@ -35,7 +33,8 @@ import edu.columbia.ccls.medusa.io.SerializedRule;
  * {@link MedusaVisualizationPanel} is created and added.
  * 
  * @author keshav
- * @version $Id: MedusaVisualComponent.java,v 1.10 2007-07-10 17:24:34 keshav Exp $
+ * @version $Id: MedusaVisualComponent.java,v 1.10 2007/07/10 17:24:34 keshav
+ *          Exp $
  */
 @AcceptTypes(MedusaDataSet.class)
 public class MedusaVisualComponent implements VisualPlugin {
@@ -47,7 +46,8 @@ public class MedusaVisualComponent implements VisualPlugin {
 
 	private MedusaVisualizationPanel medusaVisualizationPanel;
 
-	private ArrayList<DSGeneMarker> selectedMarkers;
+	public static final int IMAGE_HEIGHT = 200;
+	public static final int IMAGE_WIDTH = 400;
 
 	/**
 	 * 
