@@ -1,17 +1,21 @@
 package org.geworkbench.components.medusa.gui;
 
 import java.awt.BorderLayout;
+import java.awt.Graphics2D;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JTabbedPane;
@@ -25,9 +29,11 @@ import org.geworkbench.components.medusa.MedusaData;
 import org.geworkbench.components.medusa.MedusaUtil;
 import org.geworkbench.events.SubpanelChangedEvent;
 import org.ginkgo.labs.gui.SwingUtil;
+import org.ginkgo.labs.psam.PsamUtil;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.layout.FormLayout;
+import com.larvalabs.chart.PSAMPlot;
 
 import edu.columbia.ccls.medusa.io.SerializedRule;
 
@@ -295,6 +301,36 @@ public class MedusaVisualizationPanel extends JPanel {
 		pssmPanel.setLayout(new GridLayout(4, 1));
 
 		JPanel logoPanel = new JPanel();
+
+		// FIXME a test ... refactor to somewhere else
+		ArrayList<SerializedRule> srules = MedusaUtil.getSerializedRules(
+				rulesFiles, rulesPath);
+
+		double[][] scores = null;
+		for (SerializedRule srule : srules) {
+			scores = srule.getPssm();
+			break;
+		}
+
+		PSAMPlot psamPlot = new PSAMPlot(PsamUtil.convertScoresToWeights(
+				scores, true));
+		psamPlot.setMaintainProportions(false);
+		psamPlot.setAxisDensityScale(4);
+		psamPlot.setAxisLabelScale(3);
+		// psamPlot.setAxisTitleScale(3);
+		BufferedImage image = new BufferedImage(
+				MedusaVisualComponent.IMAGE_WIDTH,
+				MedusaVisualComponent.IMAGE_HEIGHT, BufferedImage.TYPE_INT_RGB);
+		Graphics2D graphics = (Graphics2D) image.getGraphics();
+		psamPlot.layoutChart(MedusaVisualComponent.IMAGE_WIDTH,
+				MedusaVisualComponent.IMAGE_HEIGHT, graphics
+						.getFontRenderContext());
+		psamPlot.paint(graphics);
+		ImageIcon psamImage = new ImageIcon(image);
+
+		logoPanel.add(new JLabel(psamImage));
+		// end test
+
 		pssmPanel.add(logoPanel);
 
 		JPanel transFacButtonPanel = new JPanel();
