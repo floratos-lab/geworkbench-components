@@ -502,7 +502,8 @@ public abstract class SelectorPanel<T extends DSSequential> implements VisualPlu
         if (context.indexOfLabel(label) == -1) {
             addPanel(new CSPanel<T>(label));
         }
-        Set entrySet = combinedItems.entrySet();
+        Map sortedMap = new TreeMap(combinedItems);
+        Set entrySet = sortedMap.entrySet();
         for (Iterator itr=entrySet.iterator();itr.hasNext();) {
             Map.Entry me = (Map.Entry)itr.next();
             T item = (T)me.getValue();
