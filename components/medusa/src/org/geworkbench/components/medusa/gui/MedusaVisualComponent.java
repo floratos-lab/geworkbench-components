@@ -46,8 +46,8 @@ public class MedusaVisualComponent implements VisualPlugin {
 
 	private MedusaVisualizationPanel medusaVisualizationPanel;
 
-	public static final int IMAGE_HEIGHT = 200;
-	public static final int IMAGE_WIDTH = 400;
+	public static final int IMAGE_HEIGHT = 300;
+	public static final int IMAGE_WIDTH = 675;
 
 	/**
 	 * 
