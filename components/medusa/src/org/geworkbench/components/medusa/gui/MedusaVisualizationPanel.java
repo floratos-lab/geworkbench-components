@@ -18,7 +18,11 @@ import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
+import javax.swing.JScrollBar;
+import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
+import javax.swing.JTable;
+import javax.swing.table.TableColumn;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -67,6 +71,7 @@ public class MedusaVisualizationPanel extends JPanel {
 	private String addToSetButtonLabel = "Add To Set ";
 	private JButton exportMotifsButton = new JButton();
 	private JButton imageSnapshotButton = new JButton();
+	private static final int COLUMN_WIDTH = 80;
 
 	/**
 	 * 
@@ -298,26 +303,23 @@ public class MedusaVisualizationPanel extends JPanel {
 
 		/* PSSM PANEL */
 		JPanel pssmPanel = new JPanel();
-		pssmPanel.setLayout(new GridLayout(4, 1));
+		// pssmPanel.setLayout(new GridLayout(4, 1));
 
-		JPanel logoPanel = new JPanel();
-
-		// FIXME a test ... refactor to somewhere else
 		ArrayList<SerializedRule> srules = MedusaUtil.getSerializedRules(
 				rulesFiles, rulesPath);
 
-		double[][] scores = null;
-		for (SerializedRule srule : srules) {
-			scores = srule.getPssm();
-			break;
-		}
+		SerializedRule srule = srules.iterator().next();
 
-		PSAMPlot psamPlot = new PSAMPlot(PsamUtil.convertScoresToWeights(
-				scores, true));
+		// FIXME a test ... refactor to somewhere else
+		DefaultFormBuilder builder = new DefaultFormBuilder(new FormLayout(
+				"left:default", // columns
+				""));// rows added dynamically
+
+		PSAMPlot psamPlot = new PSAMPlot(PsamUtil.convertScoresToWeights(srule
+				.getPssm(), true));
 		psamPlot.setMaintainProportions(false);
 		psamPlot.setAxisDensityScale(4);
 		psamPlot.setAxisLabelScale(3);
-		// psamPlot.setAxisTitleScale(3);
 		BufferedImage image = new BufferedImage(
 				MedusaVisualComponent.IMAGE_WIDTH,
 				MedusaVisualComponent.IMAGE_HEIGHT, BufferedImage.TYPE_INT_RGB);
@@ -328,10 +330,25 @@ public class MedusaVisualizationPanel extends JPanel {
 		psamPlot.paint(graphics);
 		ImageIcon psamImage = new ImageIcon(image);
 
-		logoPanel.add(new JLabel(psamImage));
-		// end test
+		/* add the image as a label */
+		builder.append(new JLabel(psamImage));
 
-		pssmPanel.add(logoPanel);
+		/* add the table */
+		JTable pssmTable = PsamUtil.createPssmTable(srule.getPssm(),
+				"Nucleotides");
+
+		TableColumn column = null;
+		for (int k = 0; k < 5; k++) {
+			column = pssmTable.getColumnModel().getColumn(k);
+			if (k > 0) {
+				column.setPreferredWidth(COLUMN_WIDTH);
+			}
+		}
+		pssmTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+		JScrollPane scrollPane = new JScrollPane(pssmTable);
+		scrollPane.setVerticalScrollBar(new JScrollBar());
+
+		builder.append(scrollPane);
 
 		JPanel transFacButtonPanel = new JPanel();
 		List<JRadioButton> buttons = SwingUtil.createRadioButtonGroup("JASPAR",
@@ -344,7 +361,7 @@ public class MedusaVisualizationPanel extends JPanel {
 				.createButton("Load TF",
 						"Load file containing new transcription factors to add to the TF listing.");
 		transFacButtonPanel.add(loadTransFacButton);
-		pssmPanel.add(transFacButtonPanel);
+		builder.append(transFacButtonPanel);
 
 		// add search results table
 
@@ -357,7 +374,9 @@ public class MedusaVisualizationPanel extends JPanel {
 				"Executes a database search.");
 		pssmButtonPanel.add(searchButton);
 
-		pssmPanel.add(pssmButtonPanel);
+		builder.append(pssmButtonPanel);
+
+		pssmPanel.add(builder.getPanel());
 
 		tabbedPane.add("PSSM", pssmPanel);
 
@@ -365,6 +384,36 @@ public class MedusaVisualizationPanel extends JPanel {
 		add(tabbedPane, BorderLayout.CENTER);
 		this.revalidate();
 
+	}
+
+	/**
+	 * 
+	 * @param scores
+	 * @return JTable
+	 */
+	public static JTable createPssmTable(double[][] scores, String topLeftLabel) {
+		// TODO move to PsamUtil
+		int numCols = scores[0].length + 1;
+		String[] colNames = new String[numCols];
+
+		colNames[0] = topLeftLabel;
+		for (int k = 1; k < numCols; k++) {
+			colNames[k] = String.valueOf(k);
+		}
+
+		Object[][] scoresAsObjects = new Object[PsamUtil.NUM_NUCLEOTIDES][numCols];
+		scoresAsObjects[0][0] = PsamUtil.A;
+		scoresAsObjects[1][0] = PsamUtil.C;
+		scoresAsObjects[2][0] = PsamUtil.G;
+		scoresAsObjects[3][0] = PsamUtil.T;
+
+		for (int k = 0; k < scores.length; k++) {
+			for (int l = 1; l < scores[k].length; l++) {
+				scoresAsObjects[k][l] = scores[k][l - 1];
+			}
+		}
+		JTable pssmTable = new JTable(scoresAsObjects, colNames);
+		return pssmTable;
 	}
 
 	/**
