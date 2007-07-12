@@ -401,36 +401,6 @@ public class MedusaVisualizationPanel extends JPanel {
 
 	/**
 	 * 
-	 * @param scores
-	 * @return JTable
-	 */
-	public static JTable createPssmTable(double[][] scores, String topLeftLabel) {
-		// TODO move to PsamUtil
-		int numCols = scores[0].length + 1;
-		String[] colNames = new String[numCols];
-
-		colNames[0] = topLeftLabel;
-		for (int k = 1; k < numCols; k++) {
-			colNames[k] = String.valueOf(k);
-		}
-
-		Object[][] scoresAsObjects = new Object[PsamUtil.NUM_NUCLEOTIDES][numCols];
-		scoresAsObjects[0][0] = PsamUtil.A;
-		scoresAsObjects[1][0] = PsamUtil.C;
-		scoresAsObjects[2][0] = PsamUtil.G;
-		scoresAsObjects[3][0] = PsamUtil.T;
-
-		for (int k = 0; k < scores.length; k++) {
-			for (int l = 1; l < scores[k].length; l++) {
-				scoresAsObjects[k][l] = scores[k][l - 1];
-			}
-		}
-		JTable pssmTable = new JTable(scoresAsObjects, colNames);
-		return pssmTable;
-	}
-
-	/**
-	 * 
 	 * @param targets
 	 * @param regulators
 	 * @return
