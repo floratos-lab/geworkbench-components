@@ -14,6 +14,8 @@ import javax.swing.JRadioButton;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.JViewport;
+import javax.swing.ScrollPaneConstants;
 import javax.swing.table.TableColumn;
 
 import junit.framework.TestCase;
@@ -33,7 +35,7 @@ import edu.columbia.ccls.medusa.io.SerializedRule;
  * here.
  * 
  * @author keshav
- * @version $Id: LogoPanelTest.java,v 1.1 2007-07-12 20:44:08 keshav Exp $
+ * @version $Id: LogoPanelTest.java,v 1.2 2007-07-12 21:12:56 keshav Exp $
  */
 public class LogoPanelTest extends TestCase {
 
@@ -78,6 +80,14 @@ public class LogoPanelTest extends TestCase {
 		JDialog pssmPanel = new JDialog();
 
 		// the main logic
+		JScrollPane mainScrollPane = new JScrollPane();
+
+		mainScrollPane
+				.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
+
+		mainScrollPane
+				.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+
 		DefaultFormBuilder builder = new DefaultFormBuilder(new FormLayout(
 				"left:default", // columns
 				""));// rows added dynamically
@@ -143,7 +153,9 @@ public class LogoPanelTest extends TestCase {
 
 		builder.append(pssmButtonPanel);
 
-		pssmPanel.add(builder.getPanel());
+		mainScrollPane.setViewportView(builder.getPanel());
+
+		pssmPanel.add(mainScrollPane);
 
 		// end the main logic
 

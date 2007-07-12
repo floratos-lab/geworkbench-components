@@ -22,6 +22,7 @@ import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
+import javax.swing.ScrollPaneConstants;
 import javax.swing.table.TableColumn;
 
 import org.apache.commons.logging.Log;
@@ -311,6 +312,14 @@ public class MedusaVisualizationPanel extends JPanel {
 		SerializedRule srule = srules.iterator().next();
 
 		// FIXME a test ... refactor to somewhere else
+		// the main logic
+		JScrollPane mainScrollPane = new JScrollPane();
+
+		mainScrollPane
+				.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
+		mainScrollPane
+				.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+
 		DefaultFormBuilder builder = new DefaultFormBuilder(new FormLayout(
 				"left:default", // columns
 				""));// rows added dynamically
@@ -376,7 +385,11 @@ public class MedusaVisualizationPanel extends JPanel {
 
 		builder.append(pssmButtonPanel);
 
-		pssmPanel.add(builder.getPanel());
+		mainScrollPane.setViewportView(builder.getPanel());
+
+		pssmPanel.add(mainScrollPane);
+
+		// end the main logic
 
 		tabbedPane.add("PSSM", pssmPanel);
 
