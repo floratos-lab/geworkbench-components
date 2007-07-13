@@ -41,6 +41,6 @@ public class MindyResultsParser {
 
             line = in.readLine();
         }
-        return new MindyData(maSet, rows);
+        return new MindyData(maSet, rows, 0);
     }
 }

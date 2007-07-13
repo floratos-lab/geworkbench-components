@@ -20,6 +20,7 @@ import org.geworkbench.bison.util.colorcontext.*;
  * Creates a heat map of selected modulator, transcription factor, and targets.
  * 
  * @author mhall
+ * @author ch2514
  * @version $ID$
  */
 @SuppressWarnings("serial")
@@ -47,100 +48,79 @@ public class ModulatorHeatMap extends JPanel {
     private float minValue;
     private float valueRange;
     private int maxGeneNameWidth = -1;
-    private float[][] sortedValues;
     private java.util.List<MindyData.MindyResultRow> targetRows;
-    private float[] sortedModValues;
     
     private boolean allMarkersOn = true;
     private ColorContext colorContext = null;
-    private List<DSMicroarray> sortedPerMod = null;
-    private List<DSMicroarray> sortedPerModPerTF = null;
+    private ArrayList<DSMicroarray> sortedPerMod = null;
+    private ArrayList<DSMicroarray> sortedPerTFForDisplay = null;
     
     private boolean showProbeName = true;
 
     /**
+     * Constructor.
+     * 
      * @param modulator - MINDY modulator
      * @param transcriptionFactor - MINDY transcription factor
      * @param mindyData - MINDY data
      * @param targetLimits - list of targets
      */
+    @SuppressWarnings("unchecked")
     public ModulatorHeatMap(DSGeneMarker modulator, DSGeneMarker transcriptionFactor, MindyData mindyData, List<DSGeneMarker> targetLimits) {
         this.maSet = mindyData.getArraySet();
         List<DSGeneMarker> markers = mindyData.getTargets(modulator, transcriptionFactor);
         this.colorContext = (ColorContext) maSet.getObject(ColorContext.class);
-
-        // Extract and sort set based on modulator
-        sortedValues = new float[maSet.size()][];
-        for (int i = 0; i < maSet.size(); i++) {
-            float[] array = ((DSMicroarray) maSet.get(i)).getRawMarkerData();
-            sortedValues[i] = new float[array.length];
-            System.arraycopy(array, 0, sortedValues[i], 0, array.length);
-        }
-
-        int modSerial = modulator.getSerial();
-        Arrays.sort(sortedValues, new ArrayIndexComparator(modSerial, true));
-        sortedModValues = new float[sortedValues.length];
-        for (int i = 0; i < sortedValues.length; i++) {
-            sortedModValues[i] = sortedValues[i][modSerial];
-        }
-        sortedPerMod = new ArrayList<DSMicroarray>(maSet.size());
-        for(int i = 0; i < maSet.size(); i++){
-        	sortedPerMod.add((DSMicroarray) maSet.get(i)); 
-        }
-        Collections.sort(sortedPerMod, new MicroarrayMarkerPositionComparator(modSerial, true));
-        
-        
-        // Sort half sets based on trans factor
-        ArrayList<float[]> firstHalf = new ArrayList<float[]>();
-        ArrayList<float[]> secondHalf = new ArrayList<float[]>();
-        int count = 0;
-        for (float[] values : sortedValues) {
-            if (count < sortedValues.length / 2) {
-                firstHalf.add(values);
-            } else {
-                secondHalf.add(values);
-            }
-            count++;
-        }
-        Collections.sort(firstHalf, new ArrayIndexComparator(transcriptionFactor.getSerial(), true));
-        Collections.sort(secondHalf, new ArrayIndexComparator(transcriptionFactor.getSerial(), true));
-
-        count = 0;
-        for (float[] values : firstHalf) {
-            sortedValues[count] = values;
-            count++;
-        }
-        for (float[] values : secondHalf) {
-            sortedValues[count] = values;
-            count++;
-        }
-        // For sorting colors to display via ColorContext (trans factor)
-        ArrayList<DSMicroarray> half1 = new ArrayList<DSMicroarray>();
-        ArrayList<DSMicroarray> half2 = new ArrayList<DSMicroarray>();        
-        count = 0;
-        for(DSMicroarray ma : sortedPerMod){
-        	if(count < sortedPerMod.size()/2){
-        		half1.add(ma);
-        	} else {
-        		half2.add(ma);
-        	}
-        }
-        Collections.sort(half1, new MicroarrayMarkerPositionComparator(transcriptionFactor.getSerial(), true));
-        Collections.sort(half2, new MicroarrayMarkerPositionComparator(transcriptionFactor.getSerial(), true));     
-        half1.trimToSize();
-        half2.trimToSize();
-        sortedPerModPerTF = new ArrayList<DSMicroarray>(sortedPerMod.size());
-        for(int i = 0; i < half1.size(); i++){
-        	this.sortedPerModPerTF.add((DSMicroarray) half1.get(i));
-        }
-        for(int i = 0; i < half2.size(); i++){
-        	this.sortedPerModPerTF.add((DSMicroarray) half2.get(i));
-        }
-        
         
         this.modulator = modulator;
         this.transcriptionFactor = transcriptionFactor;
         this.mindyData = mindyData;
+        
+        // Extract and sort set based on modulator
+        sortedPerMod = new ArrayList<DSMicroarray>(maSet.size());
+        for(int i = 0; i < maSet.size(); i++){
+        	sortedPerMod.add((DSMicroarray) maSet.get(i)); 
+        }
+        Collections.sort(sortedPerMod, new MicroarrayMarkerPositionComparator(modulator.getSerial(), true));
+        
+        
+        // Sort half sets based on trans factor
+        ArrayList<DSMicroarray> sortedPerTF = (ArrayList) sortedPerMod.clone();
+        Collections.sort(sortedPerTF, new MicroarrayMarkerPositionComparator(transcriptionFactor.getSerial(), true));
+       
+        // For sorting colors to display via ColorContext (trans factor)
+        ArrayList<DSMicroarray> half1 = new ArrayList<DSMicroarray>();
+        ArrayList<DSMicroarray> half2 = new ArrayList<DSMicroarray>();        
+        int count = 0;
+        int size = sortedPerTF.size()/2;
+        // For odd number of arrays, cut out the array in the middle (i.e. the overlapping array)
+        // -1 means even number of arrays
+        int oddNumberCutout = -1;
+        if((sortedPerTF.size() % 2) != 0){
+        	oddNumberCutout = (int) sortedPerTF.size()/2;
+        }
+        for(DSMicroarray ma : sortedPerTF){
+        	if(count < size){
+        		if(count != oddNumberCutout) half1.add(ma);
+        	} else {
+        		if(count != oddNumberCutout) half2.add(ma);
+        	}
+        	count++;
+        }
+        half1.trimToSize();
+        half2.trimToSize();
+        sortedPerTFForDisplay = new ArrayList<DSMicroarray>(sortedPerTF.size());
+        int stopIndex = (int) (half1.size() * this.mindyData.getSetFraction() * 2);
+        if(stopIndex > half1.size()) stopIndex = half1.size();
+        for(int i = 0; i < stopIndex; i++){
+        	this.sortedPerTFForDisplay.add((DSMicroarray) half1.get(i));
+        }
+        int startIndex = half2.size() - ((int) (half2.size() * this.mindyData.getSetFraction() * 2));
+        if(startIndex < 0) startIndex = 0;
+        for(int i = startIndex; i < half2.size(); i++){
+        	this.sortedPerTFForDisplay.add((DSMicroarray) half2.get(i));
+        }
+        this.sortedPerTFForDisplay.trimToSize();
+
         limitTargets(targetLimits);
 
         gradient = new ColorGradient(Color.blue, Color.red);
@@ -212,7 +192,7 @@ public class ModulatorHeatMap extends JPanel {
         int modBarStartX = SPACER_TOP;
         int modBarEndX = getWidth() - SPACER_TOP;
         int barWidth = modBarEndX - modBarStartX;
-        int numArrays = sortedValues.length;
+        int numArrays = this.sortedPerMod.size();
         float modCellWidth = barWidth / (float) numArrays;
         for (int i = 0; i < numArrays; i++) {
             int x = (int) (modBarStartX + (i * modCellWidth));
@@ -227,7 +207,7 @@ public class ModulatorHeatMap extends JPanel {
 
         // Some variables useful for the next two sections of painting
         float expressionBarWidth = (getWidth() - (2 * SPACER_SIDE) - (2 * SPACER_SIDE + maxGeneNameWidth)) / 2f;
-        float cellWidth = expressionBarWidth / (sortedValues.length / 2f);
+        float cellWidth = expressionBarWidth / (this.sortedPerTFForDisplay.size() / 2f);
         int transFacStartY = modBarTopY + BAR_HEIGHT + SPACER_TOP;
 
         // Paint the two transcription factor gradients
@@ -277,15 +257,15 @@ public class ModulatorHeatMap extends JPanel {
     }
 
     private void paintExpressionBar(float cellWidth, float expressionBarWidth, Graphics2D g, int y, DSGeneMarker markerToPaint) {
-        int halfArrays = sortedValues.length / 2;
-        for (int i = 0; i < sortedValues.length; i++) {
+        int halfArrays = this.sortedPerTFForDisplay.size() / 2;
+        for (int i = 0; i < this.sortedPerTFForDisplay.size(); i++) {
             int startX;
             if (i < halfArrays) {
                 startX = SPACER_SIDE + (int) (i * cellWidth);
             } else {
                 startX = (int) (getWidth() - SPACER_SIDE - expressionBarWidth + ((i - halfArrays) * cellWidth));
             }
-            Color expressionColor = colorContext.getMarkerValueColor(((DSMicroarray) this.sortedPerModPerTF.get(i)).getMarkerValue(markerToPaint), markerToPaint, 1.0f);
+            Color expressionColor = colorContext.getMarkerValueColor(((DSMicroarray) this.sortedPerTFForDisplay.get(i)).getMarkerValue(markerToPaint), markerToPaint, 1.0f);
             g.setColor(expressionColor);
             g.fillRect(startX, y, (int) (cellWidth + 1), BAR_HEIGHT);
         }
@@ -310,8 +290,8 @@ public class ModulatorHeatMap extends JPanel {
     }
 
     private void findMinMaxForMarker(int index) {
-        for (int i = 0; i < sortedValues.length; i++) {
-            float value = sortedValues[i][index];
+    	for (int i = 0; i < this.sortedPerMod.size(); i++) {
+    		float value = ((DSMicroarray) this.sortedPerMod.get(i)).getRawMarkerData()[index];
             if (value > maxValue) {
                 maxValue = value;
             }
@@ -326,7 +306,7 @@ public class ModulatorHeatMap extends JPanel {
      * @return A Dimension object representing the preferred size of the heat map.
      */
     public Dimension getPreferredSize() {
-        int preferredWidth = (int) ((PREFERRED_CELL_WIDTH * sortedValues.length) * 1.5 + (2 * SPACER_SIDE));
+    	int preferredWidth = (int) ((PREFERRED_CELL_WIDTH * this.sortedPerMod.size()) * 1.5 + (2 * SPACER_SIDE));
         if (preferredWidth < 3 * maxGeneNameWidth) {
             // This means there are probably a small number of arrays, so the calculated width is going to be small
             preferredWidth = 3 * maxGeneNameWidth + (2 * SPACER_SIDE);

@@ -143,8 +143,8 @@ public class MindyAnalysis extends AbstractAnalysis implements ClusteringAnalysi
                 dpiAnnots, fullSetMI, fullSetThreshold, subsetMI, subsetThreshold,
                 setFraction, params.getDPITolerance());
         } catch (Exception e){
-        	System.out.println(e.getMessage() + "\n" + e.toString());
-        	JOptionPane.showMessageDialog(paramPanel.getParent(), "something strange happened...");
+        	log.error("Cannot analyze data.", e);
+        	JOptionPane.showMessageDialog(paramPanel.getParent(), "Cannot analyze data.", "MINDY Analyze Error", JOptionPane.WARNING_MESSAGE);
         	return null;
         }
         log.info("MINDY analysis complete.");
@@ -158,7 +158,7 @@ public class MindyAnalysis extends AbstractAnalysis implements ClusteringAnalysi
             }
         }
 
-        MindyData loadedData = new MindyData((CSMicroarraySet) mSet, dataRows);
+        MindyData loadedData = new MindyData((CSMicroarraySet) mSet, dataRows, setFraction);
         log.info("Done converting MINDY results.");
 
 
