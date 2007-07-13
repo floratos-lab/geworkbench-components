@@ -35,7 +35,7 @@ public class MindyParamPanel extends AbstractSaveableParameterPanel implements S
 
     private JTextField modulatorList = new JTextField("");
     private JTextField dpiAnnotationList = new JTextField("");
-    private JSpinner setFraction = new JSpinner(new SpinnerNumberModel(35, 1, 50, 1));
+    private JSpinner setFraction = new JSpinner(new SpinnerNumberModel(35, 1, 49, 1));
     private JSpinner subsetMIThreshold = new JSpinner(new SpinnerNumberModel(0d, 0d, 1d, 0.1d));
     private JSpinner subsetPValue = new JSpinner(new SpinnerNumberModel(0d, 0d, 1d, 0.1d));
     private JSpinner dpiTolerance = new JSpinner(new SpinnerNumberModel(0.1d, 0d, 1d, 0.1d));
