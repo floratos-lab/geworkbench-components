@@ -25,7 +25,7 @@ import com.solarmetric.ide.ui.CheckboxCellRenderer;
  * @author mhall
  * @ch2514
  * 
- * @version $Id: MindyPlugin.java,v 1.43 2007-07-13 20:18:33 hungc Exp $
+ * @version $Id: MindyPlugin.java,v 1.44 2007-07-17 15:17:50 hungc Exp $
  */
 @SuppressWarnings("serial")
 public class MindyPlugin extends JPanel {
@@ -78,8 +78,6 @@ public class MindyPlugin extends JPanel {
         tabs = new JTabbedPane();
         {
             // Modulator Table
-            JPanel panel = new JPanel(new BorderLayout(10, 10));
-
             modulatorModel = new ModulatorModel(mindyData);
             modTable = new JTable(modulatorModel){
                 public Component prepareRenderer(TableCellRenderer renderer,
@@ -105,10 +103,7 @@ public class MindyPlugin extends JPanel {
             modTable.getColumnModel().getColumn(0).setMaxWidth(15);
             modTable.setAutoCreateColumnsFromModel(false);
             modTable.getTableHeader().addMouseListener(new ColumnHeaderListener());
-            
-
-            panel.add(scrollPane, BorderLayout.CENTER);
-            
+                        
             numModSelectedInModTab = new JLabel(NUM_MOD_SELECTED_LABEL + 0);
             addToSetButtonMod = new JButton("Add To Set");
             addToSetButtonMod.addActionListener(new ActionListener() {
@@ -167,14 +162,17 @@ public class MindyPlugin extends JPanel {
             p.add(taskContainer, BorderLayout.NORTH);
             JScrollPane sp = new JScrollPane(p);
             sp.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-            panel.add(sp, BorderLayout.WEST);
+            
+            JSplitPane panel = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, sp, scrollPane);
+            panel.setResizeWeight(0.055);
+            panel.setOneTouchExpandable(false);
+            panel.setContinuousLayout(true);
 
             tabs.add("Modulator", panel);
         }
 
         {
             // Modulator / Target Table
-            Panel panel = new Panel(new BorderLayout(10, 10));
             
             JLabel dl = new JLabel("Marker Display  ", SwingConstants.LEFT);
             dl.setFont(new Font(dl.getFont().getName(), Font.BOLD, 12));
@@ -402,8 +400,6 @@ public class MindyPlugin extends JPanel {
             selectAllTargetsCheckBoxTarget.setEnabled(true);
             addToSetButtonTarget.setEnabled(true);
 
-            panel.add(scrollPane, BorderLayout.CENTER);
-
             JPanel taskContainer = new JPanel();
             taskContainer.setLayout(new GridLayout(18, 1, 10, 10));
             taskContainer.add(dl);
@@ -428,15 +424,17 @@ public class MindyPlugin extends JPanel {
             p.add(taskContainer, BorderLayout.NORTH);
             JScrollPane sp = new JScrollPane(p);
             sp.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-            panel.add(sp, BorderLayout.WEST);
+            
+            JSplitPane panel = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, sp, scrollPane);
+            panel.setResizeWeight(0.055);
+            panel.setOneTouchExpandable(false);
+            panel.setContinuousLayout(true);
 
             tabs.add("Table", panel);
         }
 
         {
             // Modulator / Target list
-
-            JPanel panel = new JPanel(new BorderLayout(10, 10));
             
             JLabel dl = new JLabel("Marker Display  ", SwingConstants.LEFT);
             dl.setFont(new Font(dl.getFont().getName(), Font.BOLD, 12));
@@ -575,9 +573,11 @@ public class MindyPlugin extends JPanel {
             taskContainer.add(p, BorderLayout.NORTH);
             JScrollPane sp = new JScrollPane(taskContainer);
             sp.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-            panel.add(sp, BorderLayout.WEST);
-
-            panel.add(scrollPane, BorderLayout.CENTER);
+            
+            JSplitPane panel = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, sp, scrollPane);
+            panel.setResizeWeight(0.055);
+            panel.setOneTouchExpandable(false);
+            panel.setContinuousLayout(true);
 
             tabs.add("List", panel);
         }
@@ -585,13 +585,11 @@ public class MindyPlugin extends JPanel {
         {
             // Heat Map
 
-            JPanel panel = new JPanel(new BorderLayout(10, 10));
             // This is modulator just to give us something to generate the heat map with upon first running
             DSGeneMarker modulator = modulators.iterator().next();
             transFactors = mindyData.getTranscriptionFactors(modulator);
             heatmap = new ModulatorHeatMap(modulator, transFactors.iterator().next(), mindyData, null);
             heatMapScrollPane = new JScrollPane(heatmap);
-            panel.add(heatMapScrollPane, BorderLayout.CENTER);
 
             JPanel transFacPane = new JPanel(new BorderLayout());
             JLabel l = new JLabel("Transcription Factor", SwingConstants.LEFT);
@@ -765,7 +763,12 @@ public class MindyPlugin extends JPanel {
             
             JScrollPane modTransScroll = new JScrollPane(outterTaskContainer);
             modTransScroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-            panel.add(modTransScroll, BorderLayout.WEST);
+            
+            JSplitPane panel = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, modTransScroll, heatMapScrollPane);
+            panel.setResizeWeight(0.055);
+            panel.setOneTouchExpandable(false);
+            panel.setContinuousLayout(true);
+            
             tabs.add("Heat Map", panel);
         }
 
@@ -1061,7 +1064,7 @@ public class MindyPlugin extends JPanel {
      * 
      * @author mhall
      * @author ch2514
-     * @version $Id: MindyPlugin.java,v 1.43 2007-07-13 20:18:33 hungc Exp $
+     * @version $Id: MindyPlugin.java,v 1.44 2007-07-17 15:17:50 hungc Exp $
      */
     private class ModulatorModel extends DefaultTableModel {
 
@@ -1405,7 +1408,7 @@ public class MindyPlugin extends JPanel {
      * For rendering modulator checkboxes on the targets table column headers.
      * 
      * @author ch2514
-     * @version $Id: MindyPlugin.java,v 1.43 2007-07-13 20:18:33 hungc Exp $
+     * @version $Id: MindyPlugin.java,v 1.44 2007-07-17 15:17:50 hungc Exp $
      */
     private class CheckBoxRenderer extends DefaultTableCellRenderer {
     	/**
@@ -1474,7 +1477,7 @@ public class MindyPlugin extends JPanel {
      * 
      * @author mhall
      * @author ch2514
-     * @version $Id: MindyPlugin.java,v 1.43 2007-07-13 20:18:33 hungc Exp $
+     * @version $Id: MindyPlugin.java,v 1.44 2007-07-17 15:17:50 hungc Exp $
      */
     private class AggregateTableModel extends DefaultTableModel {
 
@@ -2052,7 +2055,7 @@ public class MindyPlugin extends JPanel {
      * Compare M#, M+, or M- of two gene markers (for sorting).
      * 
      * @author mhall
-     * @version $Id: MindyPlugin.java,v 1.43 2007-07-13 20:18:33 hungc Exp $
+     * @version $Id: MindyPlugin.java,v 1.44 2007-07-17 15:17:50 hungc Exp $
      */
     private class ModulatorStatComparator implements Comparator<DSGeneMarker> {
 
@@ -2097,7 +2100,7 @@ public class MindyPlugin extends JPanel {
      * 
      * @author mhall
      * @author ch2514
-     * @version $Id: MindyPlugin.java,v 1.43 2007-07-13 20:18:33 hungc Exp $
+     * @version $Id: MindyPlugin.java,v 1.44 2007-07-17 15:17:50 hungc Exp $
      */
     private class ModulatorTargetModel extends DefaultTableModel {
 
@@ -2624,7 +2627,7 @@ public class MindyPlugin extends JPanel {
      * Heat map data model.
      * 
      * @author mhall
-     * @version $Id: MindyPlugin.java,v 1.43 2007-07-13 20:18:33 hungc Exp $
+     * @version $Id: MindyPlugin.java,v 1.44 2007-07-17 15:17:50 hungc Exp $
      */
     private class ModulatorListModel extends AbstractListModel {
     	/**
@@ -2675,7 +2678,7 @@ public class MindyPlugin extends JPanel {
      * Also handles modulator selection for the targets table.
      * 
      * @author ch2514
-     * @version $Id: MindyPlugin.java,v 1.43 2007-07-13 20:18:33 hungc Exp $
+     * @version $Id: MindyPlugin.java,v 1.44 2007-07-17 15:17:50 hungc Exp $
      */
     private class ColumnHeaderListener extends MouseAdapter {
     	/**
