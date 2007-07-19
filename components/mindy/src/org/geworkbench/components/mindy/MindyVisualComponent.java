@@ -99,18 +99,22 @@ public class MindyVisualComponent implements VisualPlugin {
             		) {
                 selectedMarkers = null;
             } else {
-            	if((maView != null) 
-            			&& (maView.getUniqueMarkers() != null)
-            			){
-	                DSItemList<DSGeneMarker> uniqueMarkers = maView.getUniqueMarkers();
-	                if (uniqueMarkers.size() > 0) {
-	                    selectedMarkers = new ArrayList<DSGeneMarker>();
-	                    for (Iterator<DSGeneMarker> iterator = uniqueMarkers.iterator(); iterator.hasNext();) {
-	                        DSGeneMarker marker = iterator.next();
-	                        log.debug("Selected " + marker.getShortName());
-	                        selectedMarkers.add(marker);
-	                    }
-	                }
+            	try{
+	            	if((maView != null) 
+	            			&& (maView.getUniqueMarkers() != null)
+	            			){
+		                DSItemList<DSGeneMarker> uniqueMarkers = maView.getUniqueMarkers();
+		                if (uniqueMarkers.size() > 0) {
+		                    selectedMarkers = new ArrayList<DSGeneMarker>();
+		                    for (Iterator<DSGeneMarker> iterator = uniqueMarkers.iterator(); iterator.hasNext();) {
+		                        DSGeneMarker marker = iterator.next();
+		                        log.debug("Selected " + marker.getShortName());
+		                        selectedMarkers.add(marker);
+		                    }
+		                }
+	            	}
+            	} catch (NullPointerException npe) {
+            		log.error("WARNING: Gene Selector Event contained no marker data.");
             	}
             }
             if (selectedMarkers != null) {
