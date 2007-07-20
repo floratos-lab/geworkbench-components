@@ -85,6 +85,7 @@ public class ModulatorHeatMap extends JPanel {
         
         // Sort half sets based on trans factor
         ArrayList<DSMicroarray> sortedPerTF = (ArrayList) sortedPerMod.clone();
+        
         Collections.sort(sortedPerTF, new MicroarrayMarkerPositionComparator(transcriptionFactor.getSerial(), true));
        
         // For sorting colors to display via ColorContext (trans factor)
@@ -109,12 +110,12 @@ public class ModulatorHeatMap extends JPanel {
         half1.trimToSize();
         half2.trimToSize();
         sortedPerTFForDisplay = new ArrayList<DSMicroarray>(sortedPerTF.size());
-        int stopIndex = (int) (half1.size() * this.mindyData.getSetFraction() * 2);
+        int stopIndex = (int) Math.round(half1.size() * this.mindyData.getSetFraction() * 2);
         if(stopIndex > half1.size()) stopIndex = half1.size();
         for(int i = 0; i < stopIndex; i++){
         	this.sortedPerTFForDisplay.add((DSMicroarray) half1.get(i));
         }
-        int startIndex = half2.size() - ((int) (half2.size() * this.mindyData.getSetFraction() * 2));
+        int startIndex = half2.size() - ((int) Math.round(half2.size() * this.mindyData.getSetFraction() * 2));
         if(startIndex < 0) startIndex = 0;
         for(int i = startIndex; i < half2.size(); i++){
         	this.sortedPerTFForDisplay.add((DSMicroarray) half2.get(i));
