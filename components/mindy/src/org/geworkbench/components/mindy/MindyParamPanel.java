@@ -1,8 +1,6 @@
 package org.geworkbench.components.mindy;
 
 import org.geworkbench.analysis.AbstractSaveableParameterPanel;
-//import org.geworkbench.components.clustering.HierClustPanel;
-//import org.geworkbench.components.clustering.HierClustPanel.SerializedInstance;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -32,18 +30,23 @@ public class MindyParamPanel extends AbstractSaveableParameterPanel implements S
     private JButton loadModulatorsFile = new JButton("Load");
     private JButton loadDPIAnnotationFile = new JButton("Load");
     private String candidateModulatorsFile = new String("data/mindy/candidateModulators.txt");
+    private String modulatorFile = "data/mindy/candidate_modulator.lst";
+    private String dpiAnnotationFile = "data/mindy/transcription_factor.lst";
 
     private JTextField modulatorList = new JTextField("");
     private JTextField dpiAnnotationList = new JTextField("");
     private JSpinner setFraction = new JSpinner(new SpinnerNumberModel(35, 1, 49, 1));
     private JSpinner subsetMIThreshold = new JSpinner(new SpinnerNumberModel(0d, 0d, 1d, 0.1d));
-    private JSpinner subsetPValue = new JSpinner(new SpinnerNumberModel(0d, 0d, 1d, 0.1d));
+    private JSpinner subsetPValue = new JSpinner(new SpinnerNumberModel(1d, 0d, 1d, 0.1d));
     private JSpinner dpiTolerance = new JSpinner(new SpinnerNumberModel(0.1d, 0d, 1d, 0.1d));
     private JSpinner fullsetMIThreshold = new JSpinner(new SpinnerNumberModel(0d, 0d, 1d, 0.1d));
-    private JSpinner fullsetPValue = new JSpinner(new SpinnerNumberModel(0d, 0d, 1d, 0.1d));
+    private JSpinner fullsetPValue = new JSpinner(new SpinnerNumberModel(1d, 0d, 1d, 0.1d));
     private JTextField transcriptionFactor = new JTextField("1973_s_at");
-    private String modulatorFile = "data/mindy/candidate_modulator.lst";
-    private String dpiAnnotationFile = "data/mindy/transcription_factor.lst";
+    private JRadioButton subsetMIThresholdButton = new JRadioButton("Conditional Mutual Info.  ");
+    private JRadioButton subsetPValueButton = new JRadioButton("Conditional P-Value      ");
+    private JRadioButton fullsetMIThresholdButton = new JRadioButton("Unconditional Mutual Info.");
+    private JRadioButton fullsetPValueButton = new JRadioButton("Unconditional P-Value  ");
+
 
     /**
      * Constructor.
@@ -65,18 +68,62 @@ public class MindyParamPanel extends AbstractSaveableParameterPanel implements S
         builder.append(loadDPIAnnotationFile);
 
         builder.append("Hub Gene", transcriptionFactor);
-        builder.append("Conditional Mutual Info.", subsetMIThreshold);
-        builder.append("Sample per Condition (%)", setFraction);
-        builder.append("Conditional P-Value", subsetPValue);
-        builder.append("DPI Tolerance", dpiTolerance);
-        builder.append("Unconditional Mutual Info.", fullsetMIThreshold);
-        builder.append("Unconditional P-Value", fullsetPValue);
+        builder.append(subsetMIThresholdButton, subsetMIThreshold);
+        
+        builder.append("Sample per Condition (%)", setFraction);   
+        builder.append(subsetPValueButton, subsetPValue);
+        
+        builder.append("DPI Tolerance", dpiTolerance);        
+        builder.append(fullsetMIThresholdButton, fullsetMIThreshold);
+        
+        builder.append("", new JLabel(""));  
+        builder.append(fullsetPValueButton, fullsetPValue); 
+
         builder.nextRow();
         this.add(builder.getPanel());
+        
+        ButtonGroup cond = new ButtonGroup();
+        cond.add(subsetMIThresholdButton);
+        cond.add(subsetPValueButton);
+        subsetMIThreshold.setEnabled(false);
+        subsetPValue.setEnabled(false);     
+        
+        subsetMIThresholdButton.addActionListener(new ActionListener(){
+        	public void actionPerformed(ActionEvent actionEvent){
+        		subsetMIThreshold.setEnabled(true);
+                subsetPValue.setEnabled(false);
+        	}
+        });
+        
+        subsetPValueButton.addActionListener(new ActionListener(){
+        	public void actionPerformed(ActionEvent actionEvent){
+        		subsetMIThreshold.setEnabled(false);
+                subsetPValue.setEnabled(true);
+        	}
+        });
+        
+        ButtonGroup uncond = new ButtonGroup();
+        uncond.add(fullsetMIThresholdButton);
+        uncond.add(fullsetPValueButton);
+        fullsetMIThreshold.setEnabled(false);
+        fullsetPValue.setEnabled(false);
+        
+        fullsetMIThresholdButton.addActionListener(new ActionListener(){
+        	public void actionPerformed(ActionEvent actionEvent){
+        		fullsetMIThreshold.setEnabled(true);
+        		fullsetPValue.setEnabled(false);
+        	}
+        });
+        
+        fullsetPValueButton.addActionListener(new ActionListener(){
+        	public void actionPerformed(ActionEvent actionEvent){
+        		fullsetMIThreshold.setEnabled(false);
+        		fullsetPValue.setEnabled(true);
+        	}
+        });
 
         loadModulatorsFile.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent actionEvent) {
-//                hubGenes = new ArrayList<String>();
                 StringBuilder geneListBuilder = new StringBuilder();
                 try {
                     File hubFile = new File(modulatorFile);
@@ -88,7 +135,6 @@ public class MindyParamPanel extends AbstractSaveableParameterPanel implements S
                         BufferedReader reader = new BufferedReader(new FileReader(modulatorFile));
                         String hub = reader.readLine();
                         while (hub != null && !"".equals(hub)) {
-                        //                        hubGenes.add(hub);
                             geneListBuilder.append(hub + ", ");
                             hub = reader.readLine();
                         }
@@ -106,7 +152,6 @@ public class MindyParamPanel extends AbstractSaveableParameterPanel implements S
 
         loadDPIAnnotationFile.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent actionEvent) {
-//                hubGenes = new ArrayList<String>();
                 StringBuilder geneListBuilder = new StringBuilder();
                 try {
                     File hubFile = new File(dpiAnnotationFile);
@@ -118,7 +163,6 @@ public class MindyParamPanel extends AbstractSaveableParameterPanel implements S
                         BufferedReader reader = new BufferedReader(new FileReader(dpiAnnotationFile));
                         String hub = reader.readLine();
                         while (hub != null && !"".equals(hub)) {
-                        //                        hubGenes.add(hub);
                             geneListBuilder.append(hub + ", ");
                             hub = reader.readLine();
                         }
