@@ -85,8 +85,10 @@ public class MindyParamPanel extends AbstractSaveableParameterPanel implements S
         ButtonGroup cond = new ButtonGroup();
         cond.add(subsetMIThresholdButton);
         cond.add(subsetPValueButton);
-        subsetMIThreshold.setEnabled(false);
-        subsetPValue.setEnabled(false);     
+        subsetMIThresholdButton.setSelected(true);
+        subsetMIThreshold.setEnabled(true);
+        subsetPValue.setEnabled(false);    
+        
         
         subsetMIThresholdButton.addActionListener(new ActionListener(){
         	public void actionPerformed(ActionEvent actionEvent){
@@ -105,8 +107,10 @@ public class MindyParamPanel extends AbstractSaveableParameterPanel implements S
         ButtonGroup uncond = new ButtonGroup();
         uncond.add(fullsetMIThresholdButton);
         uncond.add(fullsetPValueButton);
-        fullsetMIThreshold.setEnabled(false);
+        fullsetMIThresholdButton.setSelected(true);
+        fullsetMIThreshold.setEnabled(true);
         fullsetPValue.setEnabled(false);
+        
         
         fullsetMIThresholdButton.addActionListener(new ActionListener(){
         	public void actionPerformed(ActionEvent actionEvent){
