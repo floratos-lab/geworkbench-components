@@ -25,7 +25,7 @@ import com.solarmetric.ide.ui.CheckboxCellRenderer;
  * @author mhall
  * @ch2514
  * 
- * @version $Id: MindyPlugin.java,v 1.45 2007-07-20 16:17:33 hungc Exp $
+ * @version $Id: MindyPlugin.java,v 1.46 2007-07-24 21:04:49 hungc Exp $
  */
 @SuppressWarnings("serial")
 public class MindyPlugin extends JPanel {
@@ -250,7 +250,7 @@ public class MindyPlugin extends JPanel {
             final JCheckBox colorCheck = new JCheckBox("Color View");
             final JCheckBox scoreCheck = new JCheckBox("Score View");
             
-            JLabel lmp = new JLabel("Marker Panel Override  ", SwingConstants.LEFT);
+            JLabel lmp = new JLabel("Marker Override  ", SwingConstants.LEFT);
             lmp.setFont(new Font(lmp.getFont().getName(), Font.BOLD, 12));
             lmp.setForeground(Color.BLUE);
             targetAllMarkersCheckBox = new JCheckBox("All Markers");
@@ -532,7 +532,7 @@ public class MindyPlugin extends JPanel {
             });
             setListControlVisibility(true);
 
-            l = new JLabel("Marker Panel Override", SwingConstants.LEFT);
+            l = new JLabel("Marker Override", SwingConstants.LEFT);
             l.setFont(new Font(l.getFont().getName(), Font.BOLD, 12));
             l.setForeground(Color.BLUE);
             listAllMarkersCheckBox = new JCheckBox("All Markers"); 
@@ -606,9 +606,6 @@ public class MindyPlugin extends JPanel {
             l.setFont(new Font(l.getFont().getName(), Font.BOLD, 12));
             l.setForeground(Color.BLUE);
             modulatorPane.add(l, BorderLayout.NORTH);
-            JLabel lmp = new JLabel("Marker Panel Override  ", SwingConstants.LEFT);
-            lmp.setFont(new Font(lmp.getFont().getName(), Font.BOLD, 12));
-            lmp.setForeground(Color.BLUE);
                         
             heatMapModNameList = new JList();
             heatMapModNameList.setFixedCellWidth(12);
@@ -753,10 +750,9 @@ public class MindyPlugin extends JPanel {
             JPanel p = new JPanel(new BorderLayout(10, 10));
             p.add(modFilterField, BorderLayout.NORTH);
             p.add(modListScrollPane, BorderLayout.CENTER);
-            JPanel ps = new JPanel(new GridLayout(4, 1));
+            JPanel ps = new JPanel(new GridLayout(3, 1));
             ps.add(refreshButton);
             ps.add(screenshotButton);
-            ps.add(lmp);
             ps.add(heatmapAllMarkersCheckBox);
             p.add(ps, BorderLayout.SOUTH);
             modulatorPane.add(p, BorderLayout.CENTER);
@@ -785,6 +781,7 @@ public class MindyPlugin extends JPanel {
         add(tabs, BorderLayout.CENTER);
         tabs.setEnabledAt(1, false);
         tabs.setEnabledAt(2, false);
+        tabs.setEnabledAt(3, false);
     }
 
     private void limitModulators(Integer modLimit, boolean selected, JTable table){
@@ -1090,7 +1087,7 @@ public class MindyPlugin extends JPanel {
      * 
      * @author mhall
      * @author ch2514
-     * @version $Id: MindyPlugin.java,v 1.45 2007-07-20 16:17:33 hungc Exp $
+     * @version $Id: MindyPlugin.java,v 1.46 2007-07-24 21:04:49 hungc Exp $
      */
     private class ModulatorModel extends DefaultTableModel {
 
@@ -1325,16 +1322,20 @@ public class MindyPlugin extends JPanel {
             } else {
                 aggregateModel.disableModulator(mod);
                 modTargetModel.disableModulator(mod);
-                List<DSGeneMarker> t = aggregateModel.getActiveTargets();
                 ModulatorListModel model = (ModulatorListModel) heatMapModNameList.getModel();
                 model.refresh();
             }
             if(this.getNumberOfModulatorsSelected() > 0){
             	tabs.setEnabledAt(1, true);
             	tabs.setEnabledAt(2, true);
+            	tabs.setEnabledAt(3, true);
+            	
+            	rebuildHeatMap(heatmap.getTargetLimits());
+            	
             } else {
             	tabs.setEnabledAt(1, false);
             	tabs.setEnabledAt(2, false);
+            	tabs.setEnabledAt(3, false);
             }
         }
         
@@ -1434,7 +1435,7 @@ public class MindyPlugin extends JPanel {
      * For rendering modulator checkboxes on the targets table column headers.
      * 
      * @author ch2514
-     * @version $Id: MindyPlugin.java,v 1.45 2007-07-20 16:17:33 hungc Exp $
+     * @version $Id: MindyPlugin.java,v 1.46 2007-07-24 21:04:49 hungc Exp $
      */
     private class CheckBoxRenderer extends DefaultTableCellRenderer {
     	/**
@@ -1503,7 +1504,7 @@ public class MindyPlugin extends JPanel {
      * 
      * @author mhall
      * @author ch2514
-     * @version $Id: MindyPlugin.java,v 1.45 2007-07-20 16:17:33 hungc Exp $
+     * @version $Id: MindyPlugin.java,v 1.46 2007-07-24 21:04:49 hungc Exp $
      */
     private class AggregateTableModel extends DefaultTableModel {
 
@@ -2081,7 +2082,7 @@ public class MindyPlugin extends JPanel {
      * Compare M#, M+, or M- of two gene markers (for sorting).
      * 
      * @author mhall
-     * @version $Id: MindyPlugin.java,v 1.45 2007-07-20 16:17:33 hungc Exp $
+     * @version $Id: MindyPlugin.java,v 1.46 2007-07-24 21:04:49 hungc Exp $
      */
     private class ModulatorStatComparator implements Comparator<DSGeneMarker> {
 
@@ -2126,7 +2127,7 @@ public class MindyPlugin extends JPanel {
      * 
      * @author mhall
      * @author ch2514
-     * @version $Id: MindyPlugin.java,v 1.45 2007-07-20 16:17:33 hungc Exp $
+     * @version $Id: MindyPlugin.java,v 1.46 2007-07-24 21:04:49 hungc Exp $
      */
     private class ModulatorTargetModel extends DefaultTableModel {
 
@@ -2653,7 +2654,7 @@ public class MindyPlugin extends JPanel {
      * Heat map data model.
      * 
      * @author mhall
-     * @version $Id: MindyPlugin.java,v 1.45 2007-07-20 16:17:33 hungc Exp $
+     * @version $Id: MindyPlugin.java,v 1.46 2007-07-24 21:04:49 hungc Exp $
      */
     private class ModulatorListModel extends AbstractListModel {
     	/**
@@ -2704,7 +2705,7 @@ public class MindyPlugin extends JPanel {
      * Also handles modulator selection for the targets table.
      * 
      * @author ch2514
-     * @version $Id: MindyPlugin.java,v 1.45 2007-07-20 16:17:33 hungc Exp $
+     * @version $Id: MindyPlugin.java,v 1.46 2007-07-24 21:04:49 hungc Exp $
      */
     private class ColumnHeaderListener extends MouseAdapter {
     	/**

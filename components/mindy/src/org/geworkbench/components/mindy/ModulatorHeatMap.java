@@ -49,6 +49,7 @@ public class ModulatorHeatMap extends JPanel {
     private float valueRange;
     private int maxGeneNameWidth = -1;
     private java.util.List<MindyData.MindyResultRow> targetRows;
+    private List<DSGeneMarker> targetLimits;
     
     private boolean allMarkersOn = true;
     private ColorContext colorContext = null;
@@ -85,8 +86,6 @@ public class ModulatorHeatMap extends JPanel {
         
         // Sort half sets based on trans factor
         ArrayList<DSMicroarray> sortedPerTF = (ArrayList) sortedPerMod.clone();
-        
-        Collections.sort(sortedPerTF, new MicroarrayMarkerPositionComparator(transcriptionFactor.getSerial(), true));
        
         // For sorting colors to display via ColorContext (trans factor)
         ArrayList<DSMicroarray> half1 = new ArrayList<DSMicroarray>();
@@ -121,6 +120,7 @@ public class ModulatorHeatMap extends JPanel {
         	this.sortedPerTFForDisplay.add((DSMicroarray) half2.get(i));
         }
         this.sortedPerTFForDisplay.trimToSize();
+        Collections.sort(sortedPerTFForDisplay, new MicroarrayMarkerPositionComparator(transcriptionFactor.getSerial(), true));
 
         limitTargets(targetLimits);
 
@@ -143,8 +143,10 @@ public class ModulatorHeatMap extends JPanel {
 
     private void limitTargets(List<DSGeneMarker> targetLimits) {
         if (targetLimits != null) {
+        	this.targetLimits = targetLimits;
             targetRows = mindyData.getRows(modulator, transcriptionFactor, targetLimits);
         } else {
+        	this.targetLimits = null;
             targetRows = mindyData.getRows(modulator, transcriptionFactor);
         }
         findMaxValues();
@@ -371,5 +373,14 @@ public class ModulatorHeatMap extends JPanel {
     		result = marker.getLabel();
     	}
     	return result;
+    }
+    
+    /**
+     * Get the list of limited targets currently displaying on this heat map.
+     * 
+     * @return list of limited targets.  If all markers are shown, return null.
+     */
+    public List<DSGeneMarker> getTargetLimits(){
+    	return this.targetLimits;
     }
 }
