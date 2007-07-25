@@ -54,7 +54,7 @@ public class ModulatorHeatMap extends JPanel {
     private boolean allMarkersOn = true;
     private ColorContext colorContext = null;
     private ArrayList<DSMicroarray> sortedPerMod = null;
-    private ArrayList<DSMicroarray> sortedPerTFForDisplay = null;
+    private ArrayList<DSMicroarray> sortedPerTF = null;
     
     private boolean showProbeName = true;
 
@@ -81,46 +81,52 @@ public class ModulatorHeatMap extends JPanel {
         for(int i = 0; i < maSet.size(); i++){
         	sortedPerMod.add((DSMicroarray) maSet.get(i)); 
         }
+        sortedPerMod.trimToSize();
         Collections.sort(sortedPerMod, new MicroarrayMarkerPositionComparator(modulator.getSerial(), true));
         
         
         // Sort half sets based on trans factor
-        ArrayList<DSMicroarray> sortedPerTF = (ArrayList) sortedPerMod.clone();
-       
-        // For sorting colors to display via ColorContext (trans factor)
-        ArrayList<DSMicroarray> half1 = new ArrayList<DSMicroarray>();
-        ArrayList<DSMicroarray> half2 = new ArrayList<DSMicroarray>();        
-        int count = 0;
-        int size = sortedPerTF.size()/2;
+        int size = sortedPerMod.size()/2;
         // For odd number of arrays, cut out the array in the middle (i.e. the overlapping array)
         // -1 means even number of arrays
         int oddNumberCutout = -1;
-        if((sortedPerTF.size() % 2) != 0){
-        	oddNumberCutout = (int) sortedPerTF.size()/2;
+        if((sortedPerMod.size() % 2) != 0){
+        	oddNumberCutout = (int) sortedPerMod.size()/2;
         }
-        for(DSMicroarray ma : sortedPerTF){
+        // stop index for the L- array
+        int stopIndex = (int) Math.round(size * this.mindyData.getSetFraction() * 2);
+        if(stopIndex > size) stopIndex = size;
+        // start index for the L+ array 
+        int startIndex = sortedPerMod.size() - ((int) Math.round(size * this.mindyData.getSetFraction() * 2));
+        if(startIndex < 0) startIndex = 0;
+        ArrayList<DSMicroarray> half1 = new ArrayList<DSMicroarray>(stopIndex);
+        ArrayList<DSMicroarray> half2 = new ArrayList<DSMicroarray>(stopIndex); 
+        int count = 0;
+        for(DSMicroarray ma : sortedPerMod){
         	if(count < size){
-        		if(count != oddNumberCutout) half1.add(ma);
+        		if((count != oddNumberCutout) && (count < stopIndex)){
+        			half1.add(ma);
+        		}
         	} else {
-        		if(count != oddNumberCutout) half2.add(ma);
+        		if((count != oddNumberCutout) && (count >= startIndex)){
+        			half2.add(ma);
+        		}
         	}
         	count++;
         }
         half1.trimToSize();
         half2.trimToSize();
-        sortedPerTFForDisplay = new ArrayList<DSMicroarray>(sortedPerTF.size());
-        int stopIndex = (int) Math.round(half1.size() * this.mindyData.getSetFraction() * 2);
-        if(stopIndex > half1.size()) stopIndex = half1.size();
-        for(int i = 0; i < stopIndex; i++){
-        	this.sortedPerTFForDisplay.add((DSMicroarray) half1.get(i));
+        Collections.sort(half1, new MicroarrayMarkerPositionComparator(transcriptionFactor.getSerial(), true));
+        Collections.sort(half2, new MicroarrayMarkerPositionComparator(transcriptionFactor.getSerial(), true));
+        
+        sortedPerTF = new ArrayList<DSMicroarray>(half1.size() + half2.size());
+        for(int i = 0; i < half1.size(); i++){
+        	this.sortedPerTF.add((DSMicroarray) half1.get(i));
         }
-        int startIndex = half2.size() - ((int) Math.round(half2.size() * this.mindyData.getSetFraction() * 2));
-        if(startIndex < 0) startIndex = 0;
-        for(int i = startIndex; i < half2.size(); i++){
-        	this.sortedPerTFForDisplay.add((DSMicroarray) half2.get(i));
+        for(int i = 0; i < half2.size(); i++){
+        	this.sortedPerTF.add((DSMicroarray) half2.get(i));
         }
-        this.sortedPerTFForDisplay.trimToSize();
-        Collections.sort(sortedPerTFForDisplay, new MicroarrayMarkerPositionComparator(transcriptionFactor.getSerial(), true));
+        this.sortedPerTF.trimToSize();
 
         limitTargets(targetLimits);
 
@@ -210,7 +216,7 @@ public class ModulatorHeatMap extends JPanel {
 
         // Some variables useful for the next two sections of painting
         float expressionBarWidth = (getWidth() - (2 * SPACER_SIDE) - (2 * SPACER_SIDE + maxGeneNameWidth)) / 2f;
-        float cellWidth = expressionBarWidth / (this.sortedPerTFForDisplay.size() / 2f);
+        float cellWidth = expressionBarWidth / (this.sortedPerTF.size() / 2f);
         int transFacStartY = modBarTopY + BAR_HEIGHT + SPACER_TOP;
 
         // Paint the two transcription factor gradients
@@ -260,15 +266,15 @@ public class ModulatorHeatMap extends JPanel {
     }
 
     private void paintExpressionBar(float cellWidth, float expressionBarWidth, Graphics2D g, int y, DSGeneMarker markerToPaint) {
-        int halfArrays = this.sortedPerTFForDisplay.size() / 2;
-        for (int i = 0; i < this.sortedPerTFForDisplay.size(); i++) {
+        int halfArrays = this.sortedPerTF.size() / 2;
+        for (int i = 0; i < this.sortedPerTF.size(); i++) {
             int startX;
             if (i < halfArrays) {
                 startX = SPACER_SIDE + (int) (i * cellWidth);
             } else {
                 startX = (int) (getWidth() - SPACER_SIDE - expressionBarWidth + ((i - halfArrays) * cellWidth));
             }
-            Color expressionColor = colorContext.getMarkerValueColor(((DSMicroarray) this.sortedPerTFForDisplay.get(i)).getMarkerValue(markerToPaint), markerToPaint, 1.0f);
+            Color expressionColor = colorContext.getMarkerValueColor(((DSMicroarray) this.sortedPerTF.get(i)).getMarkerValue(markerToPaint), markerToPaint, 1.0f);
             g.setColor(expressionColor);
             g.fillRect(startX, y, (int) (cellWidth + 1), BAR_HEIGHT);
         }
