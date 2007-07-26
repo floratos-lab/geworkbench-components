@@ -141,9 +141,9 @@ public class MedusaVisualComponent implements VisualPlugin {
 	/**
 	 * Export motifs.
 	 */
-	public void exportMotifs(List<SerializedRule> srules) {
+	public void exportMotifs(List<SerializedRule> srules, String filePath) {
 		// FIXME allowing a null param for now, but I don't like it
-		MedusaUtil.writePssmToFile(null, srules);
+		MedusaUtil.writePssmToFile(filePath, srules);
 	}
 
 }

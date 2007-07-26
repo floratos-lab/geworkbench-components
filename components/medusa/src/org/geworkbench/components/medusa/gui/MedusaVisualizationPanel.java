@@ -1,8 +1,6 @@
 package org.geworkbench.components.medusa.gui;
 
-import java.awt.BorderLayout;
-import java.awt.Graphics2D;
-import java.awt.GridLayout;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
@@ -11,18 +9,9 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.io.File;
 
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JRadioButton;
-import javax.swing.JScrollBar;
-import javax.swing.JScrollPane;
-import javax.swing.JTabbedPane;
-import javax.swing.JTable;
-import javax.swing.ScrollPaneConstants;
+import javax.swing.*;
 import javax.swing.table.TableColumn;
 
 import org.apache.commons.logging.Log;
@@ -44,7 +33,7 @@ import edu.columbia.ccls.medusa.io.SerializedRule;
 
 /**
  * This plugin sets the layout for the MEDUSA visualization.
- * 
+ *
  * @author keshav
  * @version $Id: MedusaVisualizationPanel.java,v 1.1 2007/06/15 17:12:31 keshav
  *          Exp $
@@ -54,7 +43,7 @@ public class MedusaVisualizationPanel extends JPanel {
 	private Log log = LogFactory.getLog(MedusaVisualizationPanel.class);
 
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = 1L;
 
@@ -75,7 +64,7 @@ public class MedusaVisualizationPanel extends JPanel {
 	private static final int COLUMN_WIDTH = 80;
 
 	/**
-	 * 
+	 *
 	 * @param medusaData
 	 */
 	public MedusaVisualizationPanel(
@@ -139,9 +128,10 @@ public class MedusaVisualizationPanel extends JPanel {
 		/* regulator heat map at postion 0,1 */
 		DiscreteHeatMapPanel regulatorHeatMap = new DiscreteHeatMapPanel(
 				regulatorMatrix, 1, 0, -1, regulatorNames, true);
-		motifPanel.add(regulatorHeatMap);
+		//motifPanel.add(regulatorHeatMap);
+        regulatorHeatMap.setPreferredSize(new Dimension(200,100));
 
-		/* regulator labels at position 0,2 */
+        /* regulator labels at position 0,2 */
 		FormLayout regulatorLabelLayout = new FormLayout("pref,60dlu", // columns
 				"5dlu"); // add rows dynamically
 		DefaultFormBuilder regulatorLabelBuilder = new DefaultFormBuilder(
@@ -178,9 +168,20 @@ public class MedusaVisualizationPanel extends JPanel {
 			regulatorLabelBuilder.append(checkBox);
 			regulatorLabelBuilder.appendRow("10dlu");
 		}
-		motifPanel.add(regulatorLabelBuilder.getPanel());
+		//motifPanel.add(regulatorLabelBuilder.getPanel());
+        JPanel regulatorHeatPanel = new JPanel(new BorderLayout());
+        regulatorHeatPanel.add(regulatorHeatMap, BorderLayout.WEST);
+        regulatorHeatPanel.add(regulatorLabelBuilder.getPanel(), BorderLayout.EAST);
 
-		/* discrete hit or miss heat map at 1,0 */
+        JScrollPane regulatorHeatScrollPane1 = new JScrollPane();
+        regulatorHeatScrollPane1.setPreferredSize(new Dimension(100,200));
+        regulatorHeatScrollPane1.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        regulatorHeatScrollPane1.getViewport().add(regulatorHeatPanel);
+        regulatorHeatScrollPane1.setVisible(true);
+        motifPanel.add(regulatorHeatScrollPane1);
+        motifPanel.add(new JPanel());
+
+        /* discrete hit or miss heat map at 1,0 */
 		this.rulesFiles = new ArrayList<String>();
 
 		for (int k = 0; k < medusaData.getMedusaCommand().getIter(); k++) {
@@ -193,7 +194,8 @@ public class MedusaVisualizationPanel extends JPanel {
 		/* target heat map at postion 1,1 */
 		DiscreteHeatMapPanel targetHeatMap = new DiscreteHeatMapPanel(
 				targetMatrix, 1, 0, -1, targetNames, true, 120);
-		motifPanel.add(targetHeatMap);
+		//motifPanel.add(targetHeatMap);
+        targetHeatMap.setPreferredSize(new Dimension(200,100));
 
 		/* target labels at position 1,2 */
 		FormLayout targetLabelLayout = new FormLayout("pref,60dlu", // columns
@@ -229,7 +231,19 @@ public class MedusaVisualizationPanel extends JPanel {
 			targetLabelBuilder.append(checkBox);
 			targetLabelBuilder.appendRow("10dlu");
 		}
-		motifPanel.add(targetLabelBuilder.getPanel());
+		//motifPanel.add(targetLabelBuilder.getPanel());
+        JPanel targetHeatPanel = new JPanel(new BorderLayout());
+        targetHeatPanel.add(targetHeatMap, BorderLayout.WEST);
+        targetHeatPanel.add(targetLabelBuilder.getPanel(), BorderLayout.EAST);
+
+        JScrollPane targetHeatScrollPane = new JScrollPane();
+        //scrollPane1.setLayout(new BorderLayout());
+        targetHeatScrollPane.setPreferredSize(new Dimension(100,200));
+        targetHeatScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        targetHeatScrollPane.getViewport().add(targetHeatPanel);
+        targetHeatScrollPane.setVisible(true);
+        motifPanel.add(targetHeatScrollPane);
+        motifPanel.add(new JPanel());
 
 		/* dummy panel at 2,0 so we can align the buttons (below) */
 		JPanel dummyPanel1 = new JPanel();
@@ -245,7 +259,7 @@ public class MedusaVisualizationPanel extends JPanel {
 
 			/*
 			 * (non-Javadoc)
-			 * 
+			 *
 			 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
 			 */
 			public void actionPerformed(ActionEvent e) {
@@ -258,14 +272,20 @@ public class MedusaVisualizationPanel extends JPanel {
 
 			/*
 			 * (non-Javadoc)
-			 * 
+			 *
 			 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
 			 */
 			public void actionPerformed(ActionEvent e) {
 				ArrayList<SerializedRule> srules = MedusaUtil
 						.getSerializedRules(rulesFiles, rulesPath);
 
-				visualComponent.exportMotifs(srules);
+                JFileChooser chooser = new JFileChooser();
+                chooser.setCurrentDirectory(new File("."));
+
+                chooser.showSaveDialog(MedusaVisualizationPanel.this);
+                File chosenFile = chooser.getSelectedFile();
+
+                visualComponent.exportMotifs(srules, chosenFile.getAbsolutePath());
 
 			}
 
@@ -275,7 +295,7 @@ public class MedusaVisualizationPanel extends JPanel {
 
 			/*
 			 * (non-Javadoc)
-			 * 
+			 *
 			 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
 			 */
 			public void actionPerformed(ActionEvent e) {
