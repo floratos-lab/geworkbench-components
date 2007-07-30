@@ -1,6 +1,7 @@
 package org.geworkbench.components.mindy;
 
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
+import org.geworkbench.bison.datastructure.biocollections.microarrays.CSExprMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
 import org.geworkbench.bison.datastructure.biocollections.views.CSMicroarraySetView;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
@@ -70,7 +71,19 @@ public class MindyVisualComponent implements VisualPlugin {
                 dataSet = ((MindyDataSet) data);
                 plugin.removeAll();
                 mindyPlugin = new MindyPlugin(dataSet.getData(), this);
-                mindyPlugin.limitMarkers(selectedMarkers);
+                
+                DSMicroarraySetView<DSGeneMarker, DSMicroarray> maView = new CSMicroarraySetView<DSGeneMarker, DSMicroarray>(dataSet.getData().getArraySet());
+                DSItemList<DSGeneMarker> uniqueMarkers = maView.getUniqueMarkers();
+                if (uniqueMarkers.size() > 0) {
+                    selectedMarkers = new ArrayList<DSGeneMarker>();
+                    for (Iterator<DSGeneMarker> iterator = uniqueMarkers.iterator(); iterator.hasNext();) {
+                        DSGeneMarker marker = iterator.next();
+                        log.debug("Selected " + marker.getShortName());
+                        selectedMarkers.add(marker);
+                    }
+                }
+                mindyPlugin.limitMarkers(selectedMarkers);                
+               
                 plugin.add(mindyPlugin, BorderLayout.CENTER);
                 plugin.revalidate();
                 plugin.repaint();

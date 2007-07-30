@@ -51,7 +51,6 @@ public class ModulatorHeatMap extends JPanel {
     private java.util.List<MindyData.MindyResultRow> targetRows;
     private List<DSGeneMarker> targetLimits;
     
-    private boolean allMarkersOn = true;
     private ColorContext colorContext = null;
     private ArrayList<DSMicroarray> sortedPerMod = null;
     private ArrayList<DSMicroarray> sortedPerTF = null;
@@ -333,24 +332,6 @@ public class ModulatorHeatMap extends JPanel {
     }
     
     /**
-     * Check to see if the heat map should display all target markers.
-     * @return If true, the heat map should display all target markers.  
-     * If not, the heat map displays only target markers specified in user selected marker sets.
-     */
-    public boolean isAllMarkersOn(){
-    	return this.allMarkersOn;
-    }
-    
-    /**
-     * Specify whether or not the heat map should display all target markers.
-     * @param b - if true, the heat map should display all target markers.  
-     * If not, the heat map displays only target markers specified in user selected marker sets.
-     */
-    public void setAllMarkersOn(boolean b){
-    	this.allMarkersOn = b;
-    }
-    
-    /**
      * Check to see if the heat map should display probe names or gene names.
      * @return If true, the heat map displays probe names.  
      * If not, the map displays gene names.
@@ -388,5 +369,9 @@ public class ModulatorHeatMap extends JPanel {
      */
     public List<DSGeneMarker> getTargetLimits(){
     	return this.targetLimits;
+    }
+    
+    public void setTargetLimits(List<DSGeneMarker> targetLimits){
+    	this.targetLimits = targetLimits;
     }
 }
