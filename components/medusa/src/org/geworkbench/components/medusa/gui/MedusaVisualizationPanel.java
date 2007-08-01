@@ -1,19 +1,8 @@
 package org.geworkbench.components.medusa.gui;
 
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.image.BufferedImage;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.io.File;
-
-import javax.swing.*;
-import javax.swing.table.TableColumn;
-
+import com.jgoodies.forms.builder.DefaultFormBuilder;
+import com.jgoodies.forms.layout.FormLayout;
+import edu.columbia.ccls.medusa.io.SerializedRule;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
@@ -22,14 +11,14 @@ import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.components.medusa.MedusaData;
 import org.geworkbench.components.medusa.MedusaUtil;
 import org.geworkbench.events.SubpanelChangedEvent;
-import org.ginkgo.labs.gui.SwingUtil;
-import org.ginkgo.labs.psam.PsamUtil;
 
-import com.jgoodies.forms.builder.DefaultFormBuilder;
-import com.jgoodies.forms.layout.FormLayout;
-import com.larvalabs.chart.PSAMPlot;
-
-import edu.columbia.ccls.medusa.io.SerializedRule;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.File;
+import java.util.*;
+import java.util.List;
 
 /**
  * This plugin sets the layout for the MEDUSA visualization.
@@ -119,11 +108,11 @@ public class MedusaVisualizationPanel extends JPanel {
 			regulatorNames.add(marker.getLabel());
 		}
 
-		motifPanel.setLayout(new GridLayout(3, 3));
+		motifPanel.setLayout(new GridLayout(3, 2));
 
 		/* dummy panel at position 0,0 of the grid */
 		JPanel dummyPanel0 = new JPanel();
-		motifPanel.add(dummyPanel0);
+		motifPanel.add(new JScrollPane());
 
 		/* regulator heat map at postion 0,1 */
 		DiscreteHeatMapPanel regulatorHeatMap = new DiscreteHeatMapPanel(
@@ -173,13 +162,13 @@ public class MedusaVisualizationPanel extends JPanel {
         regulatorHeatPanel.add(regulatorHeatMap, BorderLayout.WEST);
         regulatorHeatPanel.add(regulatorLabelBuilder.getPanel(), BorderLayout.EAST);
 
-        JScrollPane regulatorHeatScrollPane1 = new JScrollPane();
-        regulatorHeatScrollPane1.setPreferredSize(new Dimension(100,200));
-        regulatorHeatScrollPane1.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-        regulatorHeatScrollPane1.getViewport().add(regulatorHeatPanel);
-        regulatorHeatScrollPane1.setVisible(true);
-        motifPanel.add(regulatorHeatScrollPane1);
-        motifPanel.add(new JPanel());
+        JScrollPane regulatorHeatScrollPane = new JScrollPane();
+        regulatorHeatScrollPane.setPreferredSize(new Dimension(100,200));
+        regulatorHeatScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        regulatorHeatScrollPane.getViewport().add(regulatorHeatPanel);
+        regulatorHeatScrollPane.setVisible(true);
+        motifPanel.add(regulatorHeatScrollPane);
+        //motifPanel.add(new JPanel());
 
         /* discrete hit or miss heat map at 1,0 */
 		this.rulesFiles = new ArrayList<String>();
@@ -189,9 +178,17 @@ public class MedusaVisualizationPanel extends JPanel {
 		}
 		DiscreteHitOrMissHeatMapPanel hitOrMissPanel = new DiscreteHitOrMissHeatMapPanel(
 				rulesPath, rulesFiles, targetNames, path);
-		motifPanel.add(hitOrMissPanel);
+		//motifPanel.add(hitOrMissPanel);
+        hitOrMissPanel.setPreferredSize(new Dimension(200,100));
+        hitOrMissPanel.setParentPanel(tabbedPane);
+        JScrollPane hitOrMissScrollPane = new JScrollPane();
+        hitOrMissScrollPane.setPreferredSize(new Dimension(100,200));
+        hitOrMissScrollPane.getViewport().add(hitOrMissPanel);
+        hitOrMissScrollPane.setVisible(true);
+        motifPanel.add(hitOrMissScrollPane);
 
-		/* target heat map at postion 1,1 */
+
+        /* target heat map at postion 1,1 */
 		DiscreteHeatMapPanel targetHeatMap = new DiscreteHeatMapPanel(
 				targetMatrix, 1, 0, -1, targetNames, true, 120);
 		//motifPanel.add(targetHeatMap);
@@ -243,7 +240,7 @@ public class MedusaVisualizationPanel extends JPanel {
         targetHeatScrollPane.getViewport().add(targetHeatPanel);
         targetHeatScrollPane.setVisible(true);
         motifPanel.add(targetHeatScrollPane);
-        motifPanel.add(new JPanel());
+        //motifPanel.add(new JPanel());
 
 		/* dummy panel at 2,0 so we can align the buttons (below) */
 		JPanel dummyPanel1 = new JPanel();
@@ -314,104 +311,7 @@ public class MedusaVisualizationPanel extends JPanel {
 
 		motifPanel.add(buttonPanel);
 
-		// TODO add back in
-		// JScrollPane scrollPane = new JScrollPane(motifPanel,
-		// ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS,
-		// ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-
-		// tabbedPane.add("Motif", scrollPane);
 		tabbedPane.add("Motif", motifPanel);
-
-		/* PSSM PANEL */
-		JPanel pssmPanel = new JPanel();
-		// pssmPanel.setLayout(new GridLayout(4, 1));
-
-		ArrayList<SerializedRule> srules = MedusaUtil.getSerializedRules(
-				rulesFiles, rulesPath);
-
-		SerializedRule srule = srules.iterator().next();
-
-		// FIXME a test ... refactor to somewhere else
-		// the main logic
-		JScrollPane mainScrollPane = new JScrollPane();
-
-		mainScrollPane
-				.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
-		mainScrollPane
-				.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
-
-		DefaultFormBuilder builder = new DefaultFormBuilder(new FormLayout(
-				"left:default", // columns
-				""));// rows added dynamically
-
-		PSAMPlot psamPlot = new PSAMPlot(PsamUtil.convertScoresToWeights(srule
-				.getPssm(), true));
-		psamPlot.setMaintainProportions(false);
-		psamPlot.setAxisDensityScale(4);
-		psamPlot.setAxisLabelScale(3);
-		BufferedImage image = new BufferedImage(
-				MedusaVisualComponent.IMAGE_WIDTH,
-				MedusaVisualComponent.IMAGE_HEIGHT, BufferedImage.TYPE_INT_RGB);
-		Graphics2D graphics = (Graphics2D) image.getGraphics();
-		psamPlot.layoutChart(MedusaVisualComponent.IMAGE_WIDTH,
-				MedusaVisualComponent.IMAGE_HEIGHT, graphics
-						.getFontRenderContext());
-		psamPlot.paint(graphics);
-		ImageIcon psamImage = new ImageIcon(image);
-
-		/* add the image as a label */
-		builder.append(new JLabel(psamImage));
-
-		/* add the table */
-		JTable pssmTable = PsamUtil.createPssmTable(srule.getPssm(),
-				"Nucleotides");
-
-		TableColumn column = null;
-		for (int k = 0; k < 5; k++) {
-			column = pssmTable.getColumnModel().getColumn(k);
-			if (k > 0) {
-				column.setPreferredWidth(COLUMN_WIDTH);
-			}
-		}
-		pssmTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-		JScrollPane scrollPane = new JScrollPane(pssmTable);
-		scrollPane.setVerticalScrollBar(new JScrollBar());
-
-		builder.append(scrollPane);
-
-		JPanel transFacButtonPanel = new JPanel();
-		List<JRadioButton> buttons = SwingUtil.createRadioButtonGroup("JASPAR",
-				"Custom");
-		for (JRadioButton b : buttons) {
-			transFacButtonPanel.add(b);
-		}
-
-		JButton loadTransFacButton = SwingUtil
-				.createButton("Load TF",
-						"Load file containing new transcription factors to add to the TF listing.");
-		transFacButtonPanel.add(loadTransFacButton);
-		builder.append(transFacButtonPanel);
-
-		// add search results table
-
-		JPanel pssmButtonPanel = new JPanel();
-		JButton exportButton = SwingUtil.createButton("Export",
-				"Export search results to file in PSSM file format.");
-		pssmButtonPanel.add(exportButton);
-
-		JButton searchButton = SwingUtil.createButton("Search",
-				"Executes a database search.");
-		pssmButtonPanel.add(searchButton);
-
-		builder.append(pssmButtonPanel);
-
-		mainScrollPane.setViewportView(builder.getPanel());
-
-		pssmPanel.add(mainScrollPane);
-
-		// end the main logic
-
-		tabbedPane.add("PSSM", pssmPanel);
 
 		setLayout(new BorderLayout());
 		add(tabbedPane, BorderLayout.CENTER);
