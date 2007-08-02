@@ -124,6 +124,10 @@ public class MedusaVisualizationPanel extends JPanel {
 
 		motifPanel.setLayout(new GridLayout(3, 2));
 
+		/* dummy panel at position 0,0 of the grid */
+		JPanel dummyPanel0 = new JPanel();
+		motifPanel.add(new JScrollPane());
+
 		/* regulator heat map at postion 0,1 */
 		DiscreteHeatMapPanel regulatorHeatMap = new DiscreteHeatMapPanel(
 				regulatorMatrix, 1, 0, -1, regulatorNames, true);
