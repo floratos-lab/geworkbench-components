@@ -6,6 +6,8 @@ import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetV
 import org.geworkbench.bison.datastructure.biocollections.views.CSMicroarraySetView;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
+import org.geworkbench.builtin.projects.ProjectSelection;
+import org.geworkbench.builtin.projects.ProjectTreeNode;
 import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.engine.management.AcceptTypes;
@@ -14,14 +16,14 @@ import org.geworkbench.engine.management.Publish;
 import org.geworkbench.events.*;
 import org.geworkbench.util.pathwaydecoder.mutualinformation.MindyDataSet;
 import org.geworkbench.bison.datastructure.complex.panels.*;
+import org.geworkbench.builtin.projects.ProjectPanel;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.logging.Log;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.*;
 
 /**
  * @author mhall
@@ -30,7 +32,6 @@ import java.util.Iterator;
  */
 @AcceptTypes(MindyDataSet.class)
 public class MindyVisualComponent implements VisualPlugin {
-
     static Log log = LogFactory.getLog(MindyVisualComponent.class);
 
     private MindyDataSet dataSet;
@@ -38,6 +39,7 @@ public class MindyVisualComponent implements VisualPlugin {
     private MindyPlugin mindyPlugin;
     private ArrayList<DSGeneMarker> selectedMarkers;
     private DSPanel<DSGeneMarker> selectorPanel;
+    private Hashtable<ProjectTreeNode, MindyPlugin> ht;
 
     /**
      * Constructor.
@@ -46,6 +48,7 @@ public class MindyVisualComponent implements VisualPlugin {
      */
     public MindyVisualComponent() {
         // Just a place holder
+    	ht = new Hashtable();
         plugin = new JPanel(new BorderLayout());
         selectorPanel = null;
     }
@@ -65,29 +68,41 @@ public class MindyVisualComponent implements VisualPlugin {
      */
     @Subscribe public void receive(ProjectEvent projectEvent, Object source) {
         log.debug("MINDY received project event.");
+        plugin.removeAll();
         DSDataSet data = projectEvent.getDataSet();
+        ProjectTreeNode node = ((ProjectPanel) source).getSelection().getSelectedNode();
         if ((data != null) && (data instanceof MindyDataSet)) {
-            if (dataSet != data) {
-                dataSet = ((MindyDataSet) data);
-                plugin.removeAll();
-                mindyPlugin = new MindyPlugin(dataSet.getData(), this);
-                
-                DSMicroarraySetView<DSGeneMarker, DSMicroarray> maView = new CSMicroarraySetView<DSGeneMarker, DSMicroarray>(dataSet.getData().getArraySet());
-                DSItemList<DSGeneMarker> uniqueMarkers = maView.getUniqueMarkers();
-                if (uniqueMarkers.size() > 0) {
-                    selectedMarkers = new ArrayList<DSGeneMarker>();
-                    for (Iterator<DSGeneMarker> iterator = uniqueMarkers.iterator(); iterator.hasNext();) {
-                        DSGeneMarker marker = iterator.next();
-                        log.debug("Selected " + marker.getShortName());
-                        selectedMarkers.add(marker);
+        	// Check to see if the hashtable has a mindy plugin associated with the selected project tree node
+        	if(ht.containsKey(node)){
+        		// if so, set mindyPlugin to the one stored in the hashtable
+        		mindyPlugin = (MindyPlugin) ht.get(node);
+        	} else {
+        		// if not, create a brand new mindyPlugin, add to the hashtable (with key=selected project tree node)
+                if (dataSet != data) {
+                    dataSet = ((MindyDataSet) data);                    
+                    mindyPlugin = new MindyPlugin(dataSet.getData(), this);
+                    // Register the mindy plugin with our hashtable for keeping track
+                	ht.put(node, mindyPlugin);
+                	
+                	// Incorporate selections from marker set selection panel
+                	DSMicroarraySetView<DSGeneMarker, DSMicroarray> maView = new CSMicroarraySetView<DSGeneMarker, DSMicroarray>(dataSet.getData().getArraySet());
+                    DSItemList<DSGeneMarker> uniqueMarkers = maView.getUniqueMarkers();
+                    if (uniqueMarkers.size() > 0) {
+                        selectedMarkers = new ArrayList<DSGeneMarker>();
+                        for (Iterator<DSGeneMarker> iterator = uniqueMarkers.iterator(); iterator.hasNext();) {
+                            DSGeneMarker marker = iterator.next();
+                            log.debug("Selected " + marker.getShortName());
+                            selectedMarkers.add(marker);
+                        }
                     }
+                    mindyPlugin.limitMarkers(selectedMarkers);      
+                    plugin.revalidate();
                 }
-                mindyPlugin.limitMarkers(selectedMarkers);                
-               
-                plugin.add(mindyPlugin, BorderLayout.CENTER);
-                plugin.revalidate();
-                plugin.repaint();
-            }
+        	}     
+            
+            // Display the plugin
+            plugin.add(mindyPlugin, BorderLayout.CENTER);
+            plugin.repaint();
         }
     }
 
@@ -102,7 +117,7 @@ public class MindyVisualComponent implements VisualPlugin {
     public void receive(GeneSelectorEvent e, Object source) {
         if (dataSet != null) {
         	if(e.getPanel() != null) this.selectorPanel = e.getPanel();
-        	else log.error("Received Gene Selector Event: Selection panel sent was null");
+        	else log.warn("Received Gene Selector Event: Selection panel sent was null");
             DSMicroarraySetView<DSGeneMarker, DSMicroarray> maView = new CSMicroarraySetView<DSGeneMarker, DSMicroarray>(dataSet.getData().getArraySet());
             maView.setMarkerPanel(e.getPanel());
             maView.useMarkerPanel(true);
@@ -127,16 +142,21 @@ public class MindyVisualComponent implements VisualPlugin {
 		                }
 	            	}
             	} catch (NullPointerException npe) {
-            		log.error("WARNING: Gene Selector Event contained no marker data.");
+            		log.warn("Gene Selector Event contained no marker data.");
             	}
             }
-            if (selectedMarkers != null) {
-                mindyPlugin.limitMarkers(selectedMarkers);
+            Iterator it = ht.values().iterator();
+            if (selectedMarkers != null) {            	
+            	while(it.hasNext()){
+            		((MindyPlugin) it.next()).limitMarkers(selectedMarkers);
+            	}
             } else {
-            	mindyPlugin.limitMarkers(null);
+            	while(it.hasNext()){
+            		((MindyPlugin) it.next()).limitMarkers(null);
+            	}
             }
         } else {
-        	log.error("Received Gene Selector Event: Dataset in this component is null");
+        	log.warn("Received Gene Selector Event: Dataset in this component is null");
         }
     }
 
