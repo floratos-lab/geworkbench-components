@@ -96,12 +96,13 @@ public class MindyVisualComponent implements VisualPlugin {
                         }
                     }
                     mindyPlugin.limitMarkers(selectedMarkers);      
-                    plugin.revalidate();
+                    //plugin.revalidate();
                 }
         	}     
             
             // Display the plugin
             plugin.add(mindyPlugin, BorderLayout.CENTER);
+            plugin.revalidate();
             plugin.repaint();
         }
     }
