@@ -19,6 +19,7 @@ import org.geworkbench.bison.datastructure.complex.panels.*;
 import org.geworkbench.builtin.projects.ProjectPanel;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.logging.Log;
+import org.apache.commons.math.stat.regression.*;
 
 import javax.swing.*;
 import java.awt.*;
@@ -39,7 +40,7 @@ public class MindyVisualComponent implements VisualPlugin {
     private MindyPlugin mindyPlugin;
     private ArrayList<DSGeneMarker> selectedMarkers;
     private DSPanel<DSGeneMarker> selectorPanel;
-    private Hashtable<ProjectTreeNode, MindyPlugin> ht;
+    private HashMap<ProjectTreeNode, MindyPlugin> ht;
 
     /**
      * Constructor.
@@ -48,7 +49,7 @@ public class MindyVisualComponent implements VisualPlugin {
      */
     public MindyVisualComponent() {
         // Just a place holder
-    	ht = new Hashtable();
+    	ht = new HashMap<ProjectTreeNode, MindyPlugin>(5);
         plugin = new JPanel(new BorderLayout());
         selectorPanel = null;
     }
@@ -95,8 +96,7 @@ public class MindyVisualComponent implements VisualPlugin {
                             selectedMarkers.add(marker);
                         }
                     }
-                    mindyPlugin.limitMarkers(selectedMarkers);      
-                    //plugin.revalidate();
+                    mindyPlugin.limitMarkers(selectedMarkers);    
                 }
         	}     
             
