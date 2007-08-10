@@ -149,7 +149,8 @@ public class MindyVisualComponent implements VisualPlugin {
             Iterator it = ht.values().iterator();
             if (selectedMarkers != null) {            	
             	while(it.hasNext()){
-            		((MindyPlugin) it.next()).limitMarkers(selectedMarkers);
+            		MindyPlugin mp = (MindyPlugin) it.next();
+            		mp.limitMarkers(selectedMarkers);
             	}
             } else {
             	while(it.hasNext()){
