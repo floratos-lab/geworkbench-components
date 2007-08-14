@@ -1,12 +1,10 @@
 package org.geworkbench.components.mindy;
 
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
-import org.geworkbench.bison.datastructure.biocollections.microarrays.CSExprMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
 import org.geworkbench.bison.datastructure.biocollections.views.CSMicroarraySetView;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
-import org.geworkbench.builtin.projects.ProjectSelection;
 import org.geworkbench.builtin.projects.ProjectTreeNode;
 import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.engine.config.VisualPlugin;
@@ -14,17 +12,17 @@ import org.geworkbench.engine.management.AcceptTypes;
 import org.geworkbench.engine.management.Subscribe;
 import org.geworkbench.engine.management.Publish;
 import org.geworkbench.events.*;
-import org.geworkbench.util.pathwaydecoder.mutualinformation.MindyDataSet;
+import org.geworkbench.util.pathwaydecoder.mutualinformation.*;
 import org.geworkbench.bison.datastructure.complex.panels.*;
 import org.geworkbench.builtin.projects.ProjectPanel;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.logging.Log;
-import org.apache.commons.math.stat.regression.*;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.*;
+import java.util.List;
 
 /**
  * @author mhall
@@ -80,8 +78,16 @@ public class MindyVisualComponent implements VisualPlugin {
         	} else {
         		// if not, create a brand new mindyPlugin, add to the hashtable (with key=selected project tree node)
                 if (dataSet != data) {
-                    dataSet = ((MindyDataSet) data);                    
-                    mindyPlugin = new MindyPlugin(dataSet.getData(), this);
+                    dataSet = ((MindyDataSet) data);      
+                    // Sort via |M+ - M-| i.e. Math.abs(mindy score)
+                    // Take largest 100 out of the results
+                    MindyData mindyData = dataSet.getData();
+                    Collections.sort(mindyData.getData(), new MindyRowComparator(MindyRowComparator.DELTA_I, false));
+                    List<MindyData.MindyResultRow> mindyRows = mindyData.getData().subList(0, 100);
+                    mindyData.setData(mindyRows);                    
+                    
+                    // Then pass into mindy plugin
+                    mindyPlugin = new MindyPlugin(mindyData, this);
                     // Register the mindy plugin with our hashtable for keeping track
                 	ht.put(node, mindyPlugin);
                 	
@@ -118,7 +124,7 @@ public class MindyVisualComponent implements VisualPlugin {
     public void receive(GeneSelectorEvent e, Object source) {
         if (dataSet != null) {
         	if(e.getPanel() != null) this.selectorPanel = e.getPanel();
-        	else log.warn("Received Gene Selector Event: Selection panel sent was null");
+        	else log.debug("Received Gene Selector Event: Selection panel sent was null");
             DSMicroarraySetView<DSGeneMarker, DSMicroarray> maView = new CSMicroarraySetView<DSGeneMarker, DSMicroarray>(dataSet.getData().getArraySet());
             maView.setMarkerPanel(e.getPanel());
             maView.useMarkerPanel(true);
@@ -143,14 +149,13 @@ public class MindyVisualComponent implements VisualPlugin {
 		                }
 	            	}
             	} catch (NullPointerException npe) {
-            		log.warn("Gene Selector Event contained no marker data.");
+            		log.debug("Gene Selector Event contained no marker data.");
             	}
             }
             Iterator it = ht.values().iterator();
             if (selectedMarkers != null) {            	
             	while(it.hasNext()){
-            		MindyPlugin mp = (MindyPlugin) it.next();
-            		mp.limitMarkers(selectedMarkers);
+            		((MindyPlugin) it.next()).limitMarkers(selectedMarkers);
             	}
             } else {
             	while(it.hasNext()){
@@ -158,7 +163,7 @@ public class MindyVisualComponent implements VisualPlugin {
             	}
             }
         } else {
-        	log.warn("Received Gene Selector Event: Dataset in this component is null");
+        	log.debug("Received Gene Selector Event: Dataset in this component is null");
         }
     }
 

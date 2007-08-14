@@ -15,6 +15,7 @@ import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.util.pathwaydecoder.mutualinformation.MindyData;
 import org.geworkbench.bison.util.colorcontext.*;
+import org.apache.commons.math.stat.regression.*;
 
 /**
  * Creates a heat map of selected modulator, transcription factor, and targets.
@@ -81,7 +82,9 @@ public class ModulatorHeatMap extends JPanel {
         	sortedPerMod.add((DSMicroarray) maSet.get(i)); 
         }
         sortedPerMod.trimToSize();
-        Collections.sort(sortedPerMod, new MicroarrayMarkerPositionComparator(modulator.getSerial(), true));
+        Collections.sort(sortedPerMod, new MicroarrayMarkerPositionComparator(modulator.getSerial()
+        		, MicroarrayMarkerPositionComparator.EXPRESSION_VALUE
+        		,  true));
         
         
         // Sort half sets based on trans factor
@@ -115,8 +118,12 @@ public class ModulatorHeatMap extends JPanel {
         }
         half1.trimToSize();
         half2.trimToSize();
-        Collections.sort(half1, new MicroarrayMarkerPositionComparator(transcriptionFactor.getSerial(), true));
-        Collections.sort(half2, new MicroarrayMarkerPositionComparator(transcriptionFactor.getSerial(), true));
+        Collections.sort(half1, new MicroarrayMarkerPositionComparator(transcriptionFactor.getSerial()
+        		, MicroarrayMarkerPositionComparator.EXPRESSION_VALUE
+        		, true));
+        Collections.sort(half2, new MicroarrayMarkerPositionComparator(transcriptionFactor.getSerial()
+        		, MicroarrayMarkerPositionComparator.EXPRESSION_VALUE
+        		, true));
         
         sortedPerTF = new ArrayList<DSMicroarray>(half1.size() + half2.size());
         for(int i = 0; i < half1.size(); i++){
@@ -127,7 +134,8 @@ public class ModulatorHeatMap extends JPanel {
         }
         this.sortedPerTF.trimToSize();
 
-        limitTargets(targetLimits);
+        limitTargets(targetLimits);        
+        sortByPearson();        
 
         gradient = new ColorGradient(Color.blue, Color.red);
         gradient.addColorPoint(Color.white, 0f);
@@ -156,6 +164,18 @@ public class ModulatorHeatMap extends JPanel {
         }
         findMaxValues();
         invalidate();
+    }
+    
+    private void sortByPearson(){
+    	SimpleRegression sr;
+    	for(MindyData.MindyResultRow r: targetRows){
+    		sr = new SimpleRegression();
+    		for(DSMicroarray ma: this.sortedPerTF){
+    			sr.addData(ma.getMarkerValue(r.getTarget()).getValue(), ma.getMarkerValue(this.transcriptionFactor).getValue());    			
+    		}
+    		r.setCorrelation(sr.getR());    		
+    	}
+    	Collections.sort(targetRows, new MindyRowComparator(MindyRowComparator.PEARSON_CORRELATION, true));
     }
 
     /**

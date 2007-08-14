@@ -6,10 +6,13 @@ import org.geworkbench.bison.datastructure.bioobjects.microarray.*;
 /**
  * Compare marker positions in microarrays (for sorting microarrays)
  * @author ch2514
- * @version $Id: MicroarrayMarkerPositionComparator.java,v 1.3 2007-07-10 17:54:12 hungc Exp $
+ * @version $Id: MicroarrayMarkerPositionComparator.java,v 1.4 2007-08-14 19:53:23 hungc Exp $
  */
 public class MicroarrayMarkerPositionComparator implements Comparator<DSMicroarray> {
+	public static final int EXPRESSION_VALUE = 1;
+	
 	private int markerPosition;
+	private int mode;
 	private boolean ascending;
 
 	/**
@@ -17,8 +20,9 @@ public class MicroarrayMarkerPositionComparator implements Comparator<DSMicroarr
 	 * @param ascending - (for sorting).  If true, the microarrys is sorted in
 	 * ascending order based on the marker position.
 	 */
-	public MicroarrayMarkerPositionComparator(int markerPosition, boolean ascending){
+	public MicroarrayMarkerPositionComparator(int markerPosition, int mode, boolean ascending){
 		this.markerPosition = markerPosition;
+		this.mode = mode;
 		this.ascending = ascending;
 	}
 
@@ -35,10 +39,14 @@ public class MicroarrayMarkerPositionComparator implements Comparator<DSMicroarr
 	 * 	
 	 */
 	public int compare(DSMicroarray ma1, DSMicroarray ma2) {
-		if(ascending){
-			return Float.compare(ma1.getRawMarkerData()[markerPosition], ma2.getRawMarkerData()[markerPosition]);
-		} else {
-			return Float.compare(ma2.getRawMarkerData()[markerPosition], ma1.getRawMarkerData()[markerPosition]);
+		switch(mode){
+        case EXPRESSION_VALUE:
+			if(ascending){
+				return Float.compare(ma1.getRawMarkerData()[markerPosition], ma2.getRawMarkerData()[markerPosition]);
+			} else {
+				return Float.compare(ma2.getRawMarkerData()[markerPosition], ma1.getRawMarkerData()[markerPosition]);
+			}		
 		}
+		return 0;
 	}
 }
