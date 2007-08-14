@@ -162,7 +162,8 @@ public class MindyAnalysis extends AbstractAnalysis implements ClusteringAnalysi
         log.info("Running MINDY analysis.");
         MindyResults results=null;
         try{
-        results = mindy.runMindy(convert(mSet), new Marker(params.getTranscriptionFactor()), modulators,
+        	// need to put up a progress bar
+        	results = mindy.runMindy(convert(mSet), new Marker(params.getTranscriptionFactor()), modulators,
                 dpiAnnots, fullSetMI, fullSetThreshold, subsetMI, subsetThreshold,
                 setFraction, params.getDPITolerance());
         } catch (Exception e){

@@ -7,13 +7,15 @@ import org.geworkbench.util.pathwaydecoder.mutualinformation.MindyData;
 /**
  * Compare two MINDY result rows (for sorting).
  * @author ch2514
- * @version $Id: MindyRowComparator.java,v 1.3 2007-07-10 17:54:22 hungc Exp $
+ * @version $Id: MindyRowComparator.java,v 1.4 2007-08-14 19:53:23 hungc Exp $
  */
 public class MindyRowComparator implements Comparator<MindyData.MindyResultRow> {
 	/**
 	 * Sorting mode - compare MINDY result rows based on their scores. 
 	 */
 	public static final int SCORE = 1;
+	public static final int DELTA_I = 2;
+	public static final int PEARSON_CORRELATION = 3;
     
 	// variable
     private int mode;
@@ -28,7 +30,7 @@ public class MindyRowComparator implements Comparator<MindyData.MindyResultRow> 
     	this.mode = mode;
     	this.ascending = ascending;
     }
-
+    
     /**
      * Compares two MINDY result rows based on the mode specified in the constructor.
      * This method is for Collections sorting to call.
@@ -46,6 +48,16 @@ public class MindyRowComparator implements Comparator<MindyData.MindyResultRow> 
         		return Float.compare(x.getScore(), y.getScore());
         	else
         		return Float.compare(y.getScore(), x.getScore());
+        case DELTA_I:
+        	if(ascending)
+        		return Float.compare(Math.abs(x.getScore()), Math.abs(y.getScore()));
+        	else 
+        		return Float.compare(Math.abs(y.getScore()), Math.abs(x.getScore()));
+        case PEARSON_CORRELATION:
+        	if(ascending)
+        		return Double.compare(x.getCorrelation(), y.getCorrelation());
+        	else
+        		return Double.compare(y.getCorrelation(), x.getCorrelation());
         }
 		return 0;
 	}
