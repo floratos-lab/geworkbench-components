@@ -13,13 +13,20 @@ import org.geworkbench.engine.management.Subscribe;
 import org.geworkbench.engine.management.Publish;
 import org.geworkbench.events.*;
 import org.geworkbench.util.pathwaydecoder.mutualinformation.*;
+import org.geworkbench.util.threading.SwingWorker;
 import org.geworkbench.bison.datastructure.complex.panels.*;
 import org.geworkbench.builtin.projects.ProjectPanel;
+import org.geworkbench.components.mindy.MindyAnalysis.Task;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.logging.Log;
 
 import javax.swing.*;
+
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
 import java.util.*;
 import java.util.List;
@@ -39,6 +46,11 @@ public class MindyVisualComponent implements VisualPlugin {
     private ArrayList<DSGeneMarker> selectedMarkers;
     private DSPanel<DSGeneMarker> selectorPanel;
     private HashMap<ProjectTreeNode, MindyPlugin> ht;
+    
+    private JDialog dialog;
+    private JProgressBar progressBar;
+    private JButton cancelButton;
+    private Task task;
 
     /**
      * Constructor.
@@ -78,31 +90,20 @@ public class MindyVisualComponent implements VisualPlugin {
         	} else {
         		// if not, create a brand new mindyPlugin, add to the hashtable (with key=selected project tree node)
                 if (dataSet != data) {
-                    dataSet = ((MindyDataSet) data);      
-                    // Sort via |M+ - M-| i.e. Math.abs(mindy score)
-                    // Take largest 100 out of the results
-                    MindyData mindyData = dataSet.getData();
-                    Collections.sort(mindyData.getData(), new MindyRowComparator(MindyRowComparator.DELTA_I, false));
-                    List<MindyData.MindyResultRow> mindyRows = mindyData.getData().subList(0, 100);
-                    mindyData.setData(mindyRows);                    
+                    dataSet = ((MindyDataSet) data);   
                     
-                    // Then pass into mindy plugin
-                    mindyPlugin = new MindyPlugin(mindyData, this);
+                    // Create mindy gui and display an indeterminate progress bar in the foreground
+                    createProgressBarDialog();
+                    task = new Task(this);
+                    task.execute();     
+                    dialog.setVisible(true);
+                    
                     // Register the mindy plugin with our hashtable for keeping track
-                	ht.put(node, mindyPlugin);
-                	
-                	// Incorporate selections from marker set selection panel
-                	DSMicroarraySetView<DSGeneMarker, DSMicroarray> maView = new CSMicroarraySetView<DSGeneMarker, DSMicroarray>(dataSet.getData().getArraySet());
-                    DSItemList<DSGeneMarker> uniqueMarkers = maView.getUniqueMarkers();
-                    if (uniqueMarkers.size() > 0) {
-                        selectedMarkers = new ArrayList<DSGeneMarker>();
-                        for (Iterator<DSGeneMarker> iterator = uniqueMarkers.iterator(); iterator.hasNext();) {
-                            DSGeneMarker marker = iterator.next();
-                            log.debug("Selected " + marker.getShortName());
-                            selectedMarkers.add(marker);
-                        }
-                    }
-                    mindyPlugin.limitMarkers(selectedMarkers);    
+                	if(mindyPlugin != null) ht.put(node, mindyPlugin);
+                	else {
+                		log.error("Failed to create MINDY plugin for project node: " + node);
+                		return;
+                	}      
                 }
         	}     
             
@@ -198,5 +199,91 @@ public class MindyVisualComponent implements VisualPlugin {
 
     ArrayList<DSGeneMarker> getSelectedMarkers(){
     	return this.selectedMarkers;
+    }
+    
+    private void createProgressBarDialog(){
+    	// lay the groundwork for the progress bar dialog
+        dialog = new JDialog();
+        progressBar = new JProgressBar();
+        cancelButton = new JButton("Cancel");
+        dialog.setLayout(new BorderLayout());
+        dialog.setModal(true);
+        dialog.setTitle("MINDY GUI processing.");
+        dialog.setSize(300, 50);
+        dialog.setLocation((int) (dialog.getToolkit().getScreenSize().getWidth() - dialog.getWidth()) / 2, (int) (dialog.getToolkit().getScreenSize().getHeight() - dialog.getHeight()) / 2);
+        progressBar.setIndeterminate(true);
+        dialog.add(progressBar, BorderLayout.CENTER);
+        dialog.add(cancelButton, BorderLayout.EAST);
+        
+        cancelButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent actionEvent) {
+            	if((task != null) && (!task.isCancelled()) && (!task.isDone())) {
+            		task.cancel(true);
+            		log.warn("Cancelling Mindy GUI.");
+            	}
+            	dialog.setVisible(false);
+            	dialog.dispose();            	
+            }
+        });
+
+        dialog.addWindowListener(new WindowAdapter() {
+            public void windowClosing(WindowEvent windowEvent) {
+            	if((task != null) && (!task.isCancelled()) && (!task.isDone())){
+            		task.cancel(true);
+            		log.warn("Cancelling Mindy GUI.");
+            	}
+            }
+        });
+    }
+    
+    class Task extends SwingWorker<MindyPlugin, Void> {
+    	private MindyPlugin mplugin;
+    	private MindyVisualComponent vp;
+    	
+    	public Task(MindyVisualComponent vp){
+    		this.vp = vp;
+    	}
+    	
+    	public MindyPlugin doInBackground(){
+    		log.info("Creating MINDY GUI.");
+    		// Sort via |M+ - M-| i.e. Math.abs(mindy score)
+            // Take largest 100 out of the results
+            MindyData mindyData = dataSet.getData();
+            Collections.sort(mindyData.getData(), new MindyRowComparator(MindyRowComparator.DELTA_I, false));
+            List<MindyData.MindyResultRow> mindyRows = mindyData.getData().subList(0, 100);
+            mindyData.setData(mindyRows);                    
+            
+            // Then pass into mindy plugin
+            mplugin = new MindyPlugin(mindyData, vp);
+            
+            // Incorporate selections from marker set selection panel
+        	DSMicroarraySetView<DSGeneMarker, DSMicroarray> maView = new CSMicroarraySetView<DSGeneMarker, DSMicroarray>(dataSet.getData().getArraySet());
+            DSItemList<DSGeneMarker> uniqueMarkers = maView.getUniqueMarkers();
+            if (uniqueMarkers.size() > 0) {
+                selectedMarkers = new ArrayList<DSGeneMarker>();
+                for (Iterator<DSGeneMarker> iterator = uniqueMarkers.iterator(); iterator.hasNext();) {
+                    DSGeneMarker marker = iterator.next();
+                    log.debug("Selected " + marker.getShortName());
+                    selectedMarkers.add(marker);
+                }
+            }
+            mplugin.limitMarkers(selectedMarkers);
+    		
+    		return mplugin;
+    	}
+    	
+    	public void done(){
+    		if(!this.isCancelled()){
+	    		try{
+	    			mindyPlugin = get();    			
+	    			log.debug("Transferring mindy plugin back to event thread.");
+	    		} catch (Exception e) {
+	    			log.error("Exception in finishing up worker thread that is creating the new MINDY GUI: " + e.getMessage());
+	    		}
+    		}
+    		dialog.setVisible(false);
+    		dialog.dispose();
+    		log.debug("Closing progress bar dialog.");
+    	}
     }
 }

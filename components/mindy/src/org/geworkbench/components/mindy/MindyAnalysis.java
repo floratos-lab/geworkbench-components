@@ -17,7 +17,13 @@ import org.geworkbench.util.pathwaydecoder.mutualinformation.MindyDataSet;
 import org.geworkbench.util.pathwaydecoder.mutualinformation.MindyData;
 import org.geworkbench.builtin.projects.ProjectPanel;
 import org.geworkbench.events.GeneSelectorEvent;
+import org.geworkbench.util.threading.*;
 
+import java.awt.BorderLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,6 +38,7 @@ import javax.swing.*;
 
 /**
  * @author Matt Hall
+ * @author ch2514
  * @version $ID$
  */
 @SuppressWarnings("serial")
@@ -39,6 +46,11 @@ public class MindyAnalysis extends AbstractAnalysis implements ClusteringAnalysi
     Log log = LogFactory.getLog(this.getClass());
 
     private MindyParamPanel paramPanel;
+    private JDialog dialog;
+    private JProgressBar progressBar;
+    private JButton cancelButton;
+    private Task task;
+    private MindyDataSet mindyDataSet;
 
     /**
      * Constructor.
@@ -158,51 +170,69 @@ public class MindyAnalysis extends AbstractAnalysis implements ClusteringAnalysi
         	return null;
         }
         
+        // run Mindy algorithm in the background
+        // and display an indeterminate progress bar in the foreground
+        createProgressBarDialog();
+        task = new Task(mindy
+    			, params
+    			, mSet
+    			, modulators
+    			, dpiAnnots
+    			, fullSetMI
+    			, fullSetThreshold
+    			, subsetMI
+    			, subsetThreshold
+    			, setFraction
+    			, transFac);        
+        task.execute();     
+        dialog.setVisible(true);        
         
-        log.info("Running MINDY analysis.");
-        MindyResults results=null;
-        try{
-        	// need to put up a progress bar
-        	results = mindy.runMindy(convert(mSet), new Marker(params.getTranscriptionFactor()), modulators,
-                dpiAnnots, fullSetMI, fullSetThreshold, subsetMI, subsetThreshold,
-                setFraction, params.getDPITolerance());
-        } catch (Exception e){
-        	log.error("Cannot analyze data.", e);
+        if(this.mindyDataSet != null){
+	        ProjectPanel.addToHistory(this.mindyDataSet, paramDesc);
+	        return new AlgorithmExecutionResults(true, "MINDY Results Loaded.", this.mindyDataSet);
+        } else {
         	JOptionPane.showMessageDialog(paramPanel.getParent(), "Cannot analyze data.", "MINDY Analyze Error", JOptionPane.WARNING_MESSAGE);
         	return null;
         }
-        log.info("MINDY analysis complete.");
-        List<MindyData.MindyResultRow> dataRows = new ArrayList<MindyData.MindyResultRow>();
-        for (MindyResults.MindyResultForTarget result : results) {
-            DSItemList<DSGeneMarker> markers = mSet.getMarkers();
-            DSGeneMarker target = markers.get(result.getTarget().getName());
-            for (MindyResults.MindyResultForTarget.ModulatorSpecificResult specificResult : result) {
-                DSGeneMarker mod = markers.get(specificResult.getModulator().getName());
-                dataRows.add(new MindyData.MindyResultRow(mod, transFac, target, specificResult.getScore(), 0f));
+
+    }
+    
+    private void createProgressBarDialog(){
+    	// lay the groundwork for the progress bar dialog
+        dialog = new JDialog();
+        progressBar = new JProgressBar();
+        cancelButton = new JButton("Cancel");
+        dialog.setLayout(new BorderLayout());
+        dialog.setModal(true);
+        dialog.setTitle("MINDY Process Running");
+        dialog.setSize(300, 50);
+        dialog.setLocation((int) (dialog.getToolkit().getScreenSize().getWidth() - dialog.getWidth()) / 2, (int) (dialog.getToolkit().getScreenSize().getHeight() - dialog.getHeight()) / 2);
+        progressBar.setIndeterminate(true);
+        dialog.add(progressBar, BorderLayout.CENTER);
+        dialog.add(cancelButton, BorderLayout.EAST);
+        
+        cancelButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent actionEvent) {
+            	if((task != null) && (!task.isCancelled()) && (!task.isDone())) {
+            		task.cancel(true);
+            		log.info("Cancelling Mindy Analysis");
+            	}
+            	dialog.setVisible(false);
+            	dialog.dispose();            	
             }
-        }
+        });
 
-        MindyData loadedData = new MindyData((CSMicroarraySet) mSet, dataRows, setFraction);
-        log.info("Done converting MINDY results.");
-
-
-        MindyDataSet dataSet = new MindyDataSet(mSet, "MINDY Results", loadedData, params.getCandidateModulatorsFile());
-        ProjectPanel.addToHistory(dataSet, paramDesc);
-        return new AlgorithmExecutionResults(true, "MINDY Results Loaded.", dataSet);
-
+        dialog.addWindowListener(new WindowAdapter() {
+            public void windowClosing(WindowEvent windowEvent) {
+            	if((task != null) && (!task.isCancelled()) && (!task.isDone())){
+            		task.cancel(true);
+            		log.info("Cancelling Mindy Analysis");
+            	}
+            }
+        });
     }
 
-    private MicroarraySet convert(DSMicroarraySet<DSMicroarray> inSet) {
-        MarkerSet markers = new MarkerSet();
-        for (DSGeneMarker marker : inSet.getMarkers()) {
-            markers.addMarker(new Marker(marker.getLabel()));
-        }
-        MicroarraySet returnSet = new MicroarraySet(inSet.getDataSetName(), "ID", "ChipType", markers);
-        for (DSMicroarray microarray : inSet) {
-            returnSet.addMicroarray(new Microarray(microarray.getLabel(), microarray.getRawMarkerData()));
-        }
-        return returnSet;
-    }
+    
 
     /**
      * Receives GeneSelectorEvents from the framework (i.e. the Selector Panel)
@@ -224,5 +254,129 @@ public class MindyAnalysis extends AbstractAnalysis implements ClusteringAnalysi
     @Publish
     public MindyDataSet publishMatrixReduceSet(MindyDataSet data) {
         return data;
+    }
+    
+    /**
+     * The swing worker class that runs Mindy analysis in the background.
+     * @author ch2514
+     * @version $Id: MindyAnalysis.java,v 1.16 2007-08-15 18:45:40 hungc Exp $
+     */
+    class Task extends SwingWorker<MindyDataSet, Void> {
+    	private Mindy mindy;
+    	private MindyParamPanel params;
+    	private DSMicroarraySet<DSMicroarray> mSet;
+    	private ArrayList<Marker> modulators;
+    	private ArrayList<Marker> dpiAnnots;
+    	private boolean fullSetMI;
+    	private float fullSetThreshold;
+    	private boolean subsetMI;
+    	private float subsetThreshold;
+    	private float setFraction;
+    	private DSGeneMarker transFac;
+    	
+    	/**
+    	 * Constructor.
+    	 * Takes in all the arguments required to run the mindy algorithm.
+    	 * 
+    	 * @param mindy
+    	 * @param params
+    	 * @param mSet
+    	 * @param modulators
+    	 * @param dpiAnnots
+    	 * @param fullSetMI
+    	 * @param fullSetThreshold
+    	 * @param subsetMI
+    	 * @param subsetThreshold
+    	 * @param setFraction
+    	 * @param transFac
+    	 */
+    	public Task(Mindy mindy
+    			, MindyParamPanel params
+    			, DSMicroarraySet<DSMicroarray> mSet
+    			, ArrayList<Marker> modulators
+    			, ArrayList<Marker> dpiAnnots
+    			, boolean fullSetMI
+    			, float fullSetThreshold
+    			, boolean subsetMI
+    			, float subsetThreshold
+    			, float setFraction
+    			, DSGeneMarker transFac
+    			){
+    		this.mindy = mindy;
+    		this.params = params;
+    		this.mSet = mSet;
+    		this.modulators = modulators;
+    		this.dpiAnnots = dpiAnnots;
+    		this.fullSetMI = fullSetMI;
+    		this.fullSetThreshold = fullSetThreshold;
+    		this.subsetMI = subsetMI;
+    		this.subsetThreshold = subsetThreshold;
+    		this.setFraction = setFraction;
+    		this.transFac = transFac;
+    	}
+    	
+    	/**
+    	 * Runs Mindy analysis.
+    	 * @return a mindy data set.  If the analysis fails, returns null.
+    	 */
+    	public MindyDataSet doInBackground(){
+    		log.info("Running MINDY analysis.");
+            MindyResults results=null;
+            try{
+            	results = mindy.runMindy(convert(mSet), new Marker(params.getTranscriptionFactor()), modulators,
+                    dpiAnnots, fullSetMI, fullSetThreshold, subsetMI, subsetThreshold,
+                    setFraction, params.getDPITolerance());
+            } catch (Exception e){
+            	log.error("Cannot analyze data.", e);            	
+            	return null;
+            }            
+            log.info("MINDY analysis complete.  Converting Mindy results.");
+            List<MindyData.MindyResultRow> dataRows = new ArrayList<MindyData.MindyResultRow>();
+            for (MindyResults.MindyResultForTarget result : results) {
+                DSItemList<DSGeneMarker> markers = mSet.getMarkers();
+                DSGeneMarker target = markers.get(result.getTarget().getName());
+                for (MindyResults.MindyResultForTarget.ModulatorSpecificResult specificResult : result) {
+                    DSGeneMarker mod = markers.get(specificResult.getModulator().getName());
+                    dataRows.add(new MindyData.MindyResultRow(mod, transFac, target, specificResult.getScore(), 0f));
+                }
+            }
+
+            MindyData loadedData = new MindyData((CSMicroarraySet) mSet, dataRows, setFraction);
+            MindyDataSet dataSet = new MindyDataSet(mSet, "MINDY Results", loadedData, params.getCandidateModulatorsFile());
+            log.info("Done converting MINDY results.");
+            
+            return dataSet;
+    	}
+    	
+    	/**
+    	 * When the mindy analysis finishes, transfer the resulting mindy
+    	 * data set back to the mindy analysis panel on the event thread.
+    	 * Also disposes the progress bar dialog box.
+    	 */
+    	public void done(){
+    		if(!this.isCancelled()){
+	    		try{
+	    			mindyDataSet = get();    			
+	    			log.debug("Transferring mindy data set back to event thread.");
+	    		} catch (Exception e) {
+	    			log.error("Exception in finishing up worker thread that called MINDY: " + e.getMessage());
+	    		}
+    		}
+    		dialog.setVisible(false);
+    		dialog.dispose();
+    		log.debug("Closing progress bar dialog.");
+    	}
+    	
+    	private MicroarraySet convert(DSMicroarraySet<DSMicroarray> inSet) {
+            MarkerSet markers = new MarkerSet();
+            for (DSGeneMarker marker : inSet.getMarkers()) {
+                markers.addMarker(new Marker(marker.getLabel()));
+            }
+            MicroarraySet returnSet = new MicroarraySet(inSet.getDataSetName(), "ID", "ChipType", markers);
+            for (DSMicroarray microarray : inSet) {
+                returnSet.addMicroarray(new Microarray(microarray.getLabel(), microarray.getRawMarkerData()));
+            }
+            return returnSet;
+        }
     }
 }
