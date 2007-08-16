@@ -16,11 +16,14 @@ import org.geworkbench.util.pathwaydecoder.mutualinformation.*;
 import org.geworkbench.util.threading.SwingWorker;
 import org.geworkbench.bison.datastructure.complex.panels.*;
 import org.geworkbench.builtin.projects.ProjectPanel;
-import org.geworkbench.components.mindy.MindyAnalysis.Task;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.logging.Log;
 
-import javax.swing.*;
+import javax.swing.JDialog;
+import javax.swing.JButton;
+import javax.swing.JProgressBar;
+import javax.swing.JPanel;
+import javax.swing.ImageIcon;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;

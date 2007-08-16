@@ -34,7 +34,10 @@ import wb.data.Microarray;
 import wb.data.MarkerSet;
 import wb.data.Marker;
 
-import javax.swing.*;
+import javax.swing.JDialog;
+import javax.swing.JButton;
+import javax.swing.JProgressBar;
+import javax.swing.JOptionPane;
 
 /**
  * @author Matt Hall
@@ -259,7 +262,7 @@ public class MindyAnalysis extends AbstractAnalysis implements ClusteringAnalysi
     /**
      * The swing worker class that runs Mindy analysis in the background.
      * @author ch2514
-     * @version $Id: MindyAnalysis.java,v 1.16 2007-08-15 18:45:40 hungc Exp $
+     * @version $Id: MindyAnalysis.java,v 1.17 2007-08-16 19:30:00 hungc Exp $
      */
     class Task extends SwingWorker<MindyDataSet, Void> {
     	private Mindy mindy;
