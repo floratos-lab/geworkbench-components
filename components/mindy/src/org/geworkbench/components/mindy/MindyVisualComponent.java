@@ -103,13 +103,13 @@ public class MindyVisualComponent implements VisualPlugin {
                 	else {
                 		log.error("Failed to create MINDY plugin for project node: " + node);
                 		return;
-                	}      
+                	}  
                 }
         	}     
             
-            // Display the plugin
-            plugin.add(mindyPlugin, BorderLayout.CENTER);
-            plugin.revalidate();
+            // Display the plugin  
+        	plugin.add(mindyPlugin, BorderLayout.CENTER); 
+        	plugin.revalidate();
             plugin.repaint();
         }
     }
@@ -249,8 +249,9 @@ public class MindyVisualComponent implements VisualPlugin {
     		// Sort via |M+ - M-| i.e. Math.abs(mindy score)
             // Take largest 100 out of the results
             MindyData mindyData = dataSet.getData();
-            Collections.sort(mindyData.getData(), new MindyRowComparator(MindyRowComparator.DELTA_I, false));
-            List<MindyData.MindyResultRow> mindyRows = mindyData.getData().subList(0, 100);
+            Collections.sort(mindyData.getData(), new MindyRowComparator(MindyRowComparator.DELTA_I, false));            
+            List<MindyData.MindyResultRow> mindyRows = mindyData.getData();
+            if(mindyRows.size() > 100) mindyRows = mindyData.getData().subList(0, 100);
             mindyData.setData(mindyRows);                    
             
             // Then pass into mindy plugin
