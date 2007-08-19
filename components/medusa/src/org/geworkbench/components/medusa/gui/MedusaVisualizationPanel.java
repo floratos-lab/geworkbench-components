@@ -35,7 +35,7 @@ import edu.columbia.ccls.medusa.io.SerializedRule;
 
 /**
  * This plugin sets the layout for the MEDUSA visualization.
- * 
+ *
  * @author keshav
  * @version $Id: MedusaVisualizationPanel.java,v 1.1 2007/06/15 17:12:31 keshav
  *          Exp $
@@ -45,7 +45,7 @@ public class MedusaVisualizationPanel extends JPanel {
 	private Log log = LogFactory.getLog(MedusaVisualizationPanel.class);
 
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = 1L;
 
@@ -67,7 +67,7 @@ public class MedusaVisualizationPanel extends JPanel {
 	// private static final int COLUMN_WIDTH = 80;
 
 	/**
-	 * 
+	 *
 	 * @param medusaData
 	 */
 	public MedusaVisualizationPanel(
@@ -272,7 +272,7 @@ public class MedusaVisualizationPanel extends JPanel {
 
 			/*
 			 * (non-Javadoc)
-			 * 
+			 *
 			 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
 			 */
 			public void actionPerformed(ActionEvent e) {
@@ -285,7 +285,7 @@ public class MedusaVisualizationPanel extends JPanel {
 
 			/*
 			 * (non-Javadoc)
-			 * 
+			 *
 			 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
 			 */
 			public void actionPerformed(ActionEvent e) {
@@ -295,12 +295,13 @@ public class MedusaVisualizationPanel extends JPanel {
 				JFileChooser chooser = new JFileChooser();
 				chooser.setCurrentDirectory(new File("."));
 
-				chooser.showSaveDialog(MedusaVisualizationPanel.this);
-				File chosenFile = chooser.getSelectedFile();
+				int returnVal = chooser.showSaveDialog(MedusaVisualizationPanel.this);
+                if(returnVal == JFileChooser.APPROVE_OPTION) {
+                    File chosenFile = chooser.getSelectedFile();
 
-				visualComponent.exportMotifs(srules, chosenFile
-						.getAbsolutePath());
-
+                    visualComponent.exportMotifs(srules, chosenFile
+                            .getAbsolutePath());
+                }
 			}
 
 		});
@@ -309,7 +310,7 @@ public class MedusaVisualizationPanel extends JPanel {
 
 			/*
 			 * (non-Javadoc)
-			 * 
+			 *
 			 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
 			 */
 			@SuppressWarnings("unchecked")
