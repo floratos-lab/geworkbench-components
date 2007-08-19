@@ -1,17 +1,7 @@
 package org.geworkbench.components.medusa;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.Writer;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.TreeSet;
+import java.io.*;
+import java.util.*;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -19,6 +9,7 @@ import org.apache.commons.logging.LogFactory;
 import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
+import org.geworkbench.components.medusa.gui.TFInfoBean;
 import org.ginkgo.labs.reader.XmlReader;
 import org.ginkgo.labs.reader.XmlWriter;
 import org.ginkgo.labs.util.FileTools;
@@ -37,7 +28,7 @@ import edu.columbia.ccls.medusa.io.SerializedRule;
  * updating the configuration file, etc.
  * 
  * @author keshav
- * @version $Id: MedusaUtil.java,v 1.19 2007-07-10 17:24:03 keshav Exp $
+ * @version $Id: MedusaUtil.java,v 1.20 2007-08-19 18:08:10 kk2457 Exp $
  */
 public class MedusaUtil {
 
@@ -528,4 +519,216 @@ public class MedusaUtil {
 		}
 
 	}
+
+
+    public static List readPssmFromFile(String filePath){
+        ArrayList TFInfoBeanArr = new ArrayList();
+        try {
+            BufferedReader br = new BufferedReader(new FileReader(new File(filePath)));
+            String nextLine = null;
+            String nextName = null, nextDescr = null;
+            StringTokenizer strTok = null;
+            double nextPssm[][];
+            while((nextLine = br.readLine()) != null){
+                //nextLine = br.readLine();
+                if(nextLine.trim().startsWith(">")){
+                    nextPssm = new double[4][];
+                    int index = nextLine.indexOf(' ');
+                    if(index == -1){
+                        nextName = nextLine;
+                        nextDescr = "";
+                    }
+                    else{
+                        nextName = nextLine.substring(0,index);
+                        if(index != nextLine.length()-1)
+                            nextDescr = nextLine.substring(index+1, nextLine.length());
+                        else
+                            nextDescr = "";
+                    }
+                    for(int i=0; i<4; i++){
+                        if((nextLine = br.readLine()) == null)
+                            break;
+                        strTok = new StringTokenizer(nextLine,"\t");
+                        /*if(strTok.countTokens() <= 1){
+                            strTok = new StringTokenizer(nextLine," ");
+                            if(strTok.countTokens() != 4){
+                                System.out.println("The PSSM: "+nextName+" in the loaded file is not in correct format !!");
+                                break;
+                            }
+                        }*/
+                        int j = 0;
+                        nextPssm[i] = new double[strTok.countTokens()];
+                        while(strTok.hasMoreTokens())
+                            nextPssm[i][j++] = Double.parseDouble(strTok.nextToken());
+                    }
+                    TFInfoBean nextTF = new TFInfoBean();
+                    nextTF.setName(nextName.replace(">",""));
+                    nextTF.setDescription(nextDescr);
+                    nextTF.setPssm(nextPssm);
+                    nextTF.setSource(filePath);
+                    TFInfoBeanArr.add(nextTF);
+                }
+            }
+            br.close();
+        } catch (FileNotFoundException e) {
+            System.out.println("File could not be found !!");
+            return null;
+        } catch (IOException e) {
+            System.out.println("I/O Exception !!");
+            return null;
+        }
+
+        return TFInfoBeanArr;
+    }
+
+
+    public static List readPssmFromJASPARFile(String filePath){
+        ArrayList TFInfoBeanArr = new ArrayList();
+        try {
+            BufferedReader br = new BufferedReader(new FileReader(new File(filePath)));
+            String nextLine = null;
+            StringTokenizer strTok = null;
+            double nextPssm[][];
+            int i = 0;
+            ArrayList A = new ArrayList(), C = new ArrayList(), G = new ArrayList(), T = new ArrayList();
+            String prevTF = "", nextTF;
+            String nextNuc = "";
+            int nextPos = -1;
+            double nextVal = 0.0;
+            while((nextLine = br.readLine()) != null){
+                strTok = new StringTokenizer(nextLine, "\t");
+                if(strTok.countTokens() != 4)
+                    continue;
+                i++;
+                nextTF = strTok.nextToken();
+                nextNuc = strTok.nextToken();
+                nextPos = Integer.parseInt(strTok.nextToken());
+                nextVal = Double.parseDouble(strTok.nextToken());
+
+                if(i == 1 || !nextTF.equals(prevTF)){
+                    if(i != 1){
+                        // create new Bean and add into array
+                        TFInfoBean nextBean = new TFInfoBean();
+                        nextBean.setName(prevTF);
+                        nextBean.setSource(filePath);
+                        nextPssm = new double[4][];
+
+                        nextPssm[0] = new double[A.size()];
+                        int j=0;
+                        for(Iterator itr=A.iterator();itr.hasNext();){
+                            Double val = (Double)itr.next();
+                            nextPssm[0][j++] = val.doubleValue();
+                        }
+                        nextPssm[1] = new double[C.size()];
+                        j=0;
+                        for(Iterator itr=C.iterator();itr.hasNext();){
+                            Double val = (Double)itr.next();
+                            nextPssm[1][j++] = val.doubleValue();
+                        }
+                        nextPssm[2] = new double[G.size()];
+                        j=0;
+                        for(Iterator itr=G.iterator();itr.hasNext();){
+                            Double val = (Double)itr.next();
+                            nextPssm[2][j++] = val.doubleValue();
+                        }
+                        nextPssm[3] = new double[T.size()];
+                        j=0;
+                        for(Iterator itr=T.iterator();itr.hasNext();){
+                            Double val = (Double)itr.next();
+                            nextPssm[3][j++] = val.doubleValue();
+                        }
+                        nextBean.setPssm(nextPssm);
+                        TFInfoBeanArr.add(nextBean);
+                        A = new ArrayList();
+                        C = new ArrayList();
+                        G = new ArrayList();
+                        T = new ArrayList();
+                    }
+                }
+                if(nextNuc.equals("A"))
+                    A.add(new Double(nextVal));
+                if(nextNuc.equals("C"))
+                    C.add(new Double(nextVal));
+                if(nextNuc.equals("G"))
+                    G.add(new Double(nextVal));
+                if(nextNuc.equals("T"))
+                    T.add(new Double(nextVal));
+                prevTF = nextTF;
+            }
+            // adding the last read TF in the array
+            if(i>1){
+                TFInfoBean nextBean = new TFInfoBean();
+                nextBean.setName(prevTF);
+                nextBean.setSource(filePath);
+                nextPssm = new double[4][];
+
+                nextPssm[0] = new double[A.size()];
+                int j=0;
+                for(Iterator itr=A.iterator();itr.hasNext();){
+                    Double val = (Double)itr.next();
+                    nextPssm[0][j++] = val.doubleValue();
+                }
+                nextPssm[1] = new double[C.size()];
+                j=0;
+                for(Iterator itr=C.iterator();itr.hasNext();){
+                    Double val = (Double)itr.next();
+                    nextPssm[1][j++] = val.doubleValue();
+                }
+                nextPssm[2] = new double[G.size()];
+                j=0;
+                for(Iterator itr=G.iterator();itr.hasNext();){
+                    Double val = (Double)itr.next();
+                    nextPssm[2][j++] = val.doubleValue();
+                }
+                nextPssm[3] = new double[T.size()];
+                j=0;
+                for(Iterator itr=T.iterator();itr.hasNext();){
+                    Double val = (Double)itr.next();
+                    nextPssm[3][j++] = val.doubleValue();
+                }
+                nextBean.setPssm(nextPssm);
+                TFInfoBeanArr.add(nextBean);
+            }
+
+            br.close();
+        } catch (FileNotFoundException e) {
+            System.out.println("File could not be found !!");
+            return null;
+        } catch (IOException e) {
+            System.out.println("I/O Exception !!");
+            return null;
+        }
+
+        return TFInfoBeanArr;
+    }
+
+
+    public static boolean writeMatchedPSSMsToFile(List TFInfoBeanList, File file){
+        try {
+            BufferedWriter out = new BufferedWriter(new FileWriter(file));
+            for(Iterator itr=TFInfoBeanList.iterator();itr.hasNext();){
+                TFInfoBean nextBean = (TFInfoBean)itr.next();
+                out.write(">"+nextBean.getName());
+                if(nextBean.getDescription() != null && !nextBean.getDescription().equals("null"))
+                    out.write(" "+nextBean.getDescription());
+                out.newLine();
+                double pssm[][] = nextBean.getPssm();
+                for(int i = 0; i < pssm.length; i++ ){
+                    for(int j = 0; j < pssm[i].length; j++){
+                        if(j==0)
+                            out.write("\t"+String.valueOf(pssm[i][j]));
+                        else
+                            out.write(String.valueOf(pssm[i][j]));
+                    }
+                    out.newLine();
+                }
+            }
+            out.flush();
+            out.close();
+        } catch (IOException e) {
+            return false;
+        }
+        return true;
+    }
+
 }
