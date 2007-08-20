@@ -391,7 +391,7 @@ public class DiscreteHitOrMissHeatMapPanel extends JPanel implements
                 double[] backgroundPercents = {0.25, 0.25,0.25,0.25};
                 JensenShannonDivergence jd = new JensenShannonDivergence(backgroundPercents, 17);
                 for(Iterator itr=TFInfoBeanArr.iterator();itr.hasNext();){
-                    TFInfoBean nextBean = (TFInfoBean)itr.next();
+                    TranscriptionFactorInfoBean nextBean = (TranscriptionFactorInfoBean)itr.next();
                     double[] distance = jd.getDistance(rule.getPssm(), nextBean.getPssm());
                     nextBean.setDistance(distance[0]);
                     if(distance[0] < thresholdDistance)
@@ -401,7 +401,7 @@ public class DiscreteHitOrMissHeatMapPanel extends JPanel implements
                     public int getColumnCount() { return 3; }
                     public int getRowCount() { return matchedTFInfoBeanArr.size();}
                     public Object getValueAt(int row, int col) {
-                        TFInfoBean infoBean = (TFInfoBean)matchedTFInfoBeanArr.get(row);
+                        TranscriptionFactorInfoBean infoBean = (TranscriptionFactorInfoBean)matchedTFInfoBeanArr.get(row);
                         if(col==0)
                             return infoBean.getName();
                         if(col==1)
