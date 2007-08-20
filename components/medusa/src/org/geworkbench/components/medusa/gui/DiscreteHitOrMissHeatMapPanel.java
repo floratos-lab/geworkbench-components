@@ -305,7 +305,7 @@ public class DiscreteHitOrMissHeatMapPanel extends JPanel implements
         pssmTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
         JScrollPane scrollPane = new JScrollPane(pssmTable);
         scrollPane
-                .setPreferredSize(new Dimension(psamImage.getIconWidth(), 190));
+                .setPreferredSize(new Dimension(psamImage.getIconWidth(), 120));
 
         builder.append(scrollPane);
 
@@ -390,12 +390,18 @@ public class DiscreteHitOrMissHeatMapPanel extends JPanel implements
                 matchedTFInfoBeanArr.clear();
                 double[] backgroundPercents = {0.25, 0.25,0.25,0.25};
                 JensenShannonDivergence jd = new JensenShannonDivergence(backgroundPercents, 17);
+                boolean foundMatchedPSSM = false;
                 for(Iterator itr=TFInfoBeanArr.iterator();itr.hasNext();){
                     TranscriptionFactorInfoBean nextBean = (TranscriptionFactorInfoBean)itr.next();
                     double[] distance = jd.getDistance(rule.getPssm(), nextBean.getPssm());
                     nextBean.setDistance(distance[0]);
-                    if(distance[0] < thresholdDistance)
+                    if(distance[0] < thresholdDistance){
                         matchedTFInfoBeanArr.add(nextBean);
+                        foundMatchedPSSM = true;
+                    }
+                }
+                if(!foundMatchedPSSM){
+                    JOptionPane.showMessageDialog(null, "No PSSM satisfied the maximum threshold criteria", "zero search results", JOptionPane.INFORMATION_MESSAGE);
                 }
                 TableModel dataModel = new AbstractTableModel(){
                     public int getColumnCount() { return 3; }
@@ -425,6 +431,7 @@ public class DiscreteHitOrMissHeatMapPanel extends JPanel implements
                 if(matchedTFInfoBeanArr.size() > 0){
                     exportButton.setEnabled(true);
                 }
+                pssmPanel.revalidate();
             }
         });
 

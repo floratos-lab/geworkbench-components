@@ -29,7 +29,7 @@ import com.jgoodies.forms.layout.FormLayout;
 /**
  * 
  * @author keshav
- * @version $Id: MedusaParamPanel.java,v 1.11 2007-06-20 16:59:35 keshav Exp $
+ * @version $Id: MedusaParamPanel.java,v 1.12 2007-08-20 17:02:40 kk2457 Exp $
  */
 public class MedusaParamPanel extends AbstractSaveableParameterPanel implements
 		Serializable {
@@ -218,7 +218,7 @@ public class MedusaParamPanel extends AbstractSaveableParameterPanel implements
 		mainBuilder.nextRow();
 
 		/* all arrays */
-		mainBuilder.append("All Arrays", allArraysCheckBox);
+		//mainBuilder.append("All Arrays", allArraysCheckBox);
 
 		/* SECONDARY PANEL */
 
