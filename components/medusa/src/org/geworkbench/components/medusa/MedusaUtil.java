@@ -9,7 +9,7 @@ import org.apache.commons.logging.LogFactory;
 import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
-import org.geworkbench.components.medusa.gui.TFInfoBean;
+import org.geworkbench.components.medusa.gui.TranscriptionFactorInfoBean;
 import org.ginkgo.labs.reader.XmlReader;
 import org.ginkgo.labs.reader.XmlWriter;
 import org.ginkgo.labs.util.FileTools;
@@ -28,7 +28,7 @@ import edu.columbia.ccls.medusa.io.SerializedRule;
  * updating the configuration file, etc.
  * 
  * @author keshav
- * @version $Id: MedusaUtil.java,v 1.20 2007-08-19 18:08:10 kk2457 Exp $
+ * @version $Id: MedusaUtil.java,v 1.21 2007-08-20 15:35:55 keshav Exp $
  */
 public class MedusaUtil {
 
@@ -561,7 +561,7 @@ public class MedusaUtil {
                         while(strTok.hasMoreTokens())
                             nextPssm[i][j++] = Double.parseDouble(strTok.nextToken());
                     }
-                    TFInfoBean nextTF = new TFInfoBean();
+                    TranscriptionFactorInfoBean nextTF = new TranscriptionFactorInfoBean();
                     nextTF.setName(nextName.replace(">",""));
                     nextTF.setDescription(nextDescr);
                     nextTF.setPssm(nextPssm);
@@ -608,7 +608,7 @@ public class MedusaUtil {
                 if(i == 1 || !nextTF.equals(prevTF)){
                     if(i != 1){
                         // create new Bean and add into array
-                        TFInfoBean nextBean = new TFInfoBean();
+                        TranscriptionFactorInfoBean nextBean = new TranscriptionFactorInfoBean();
                         nextBean.setName(prevTF);
                         nextBean.setSource(filePath);
                         nextPssm = new double[4][];
@@ -657,7 +657,7 @@ public class MedusaUtil {
             }
             // adding the last read TF in the array
             if(i>1){
-                TFInfoBean nextBean = new TFInfoBean();
+                TranscriptionFactorInfoBean nextBean = new TranscriptionFactorInfoBean();
                 nextBean.setName(prevTF);
                 nextBean.setSource(filePath);
                 nextPssm = new double[4][];
@@ -707,7 +707,7 @@ public class MedusaUtil {
         try {
             BufferedWriter out = new BufferedWriter(new FileWriter(file));
             for(Iterator itr=TFInfoBeanList.iterator();itr.hasNext();){
-                TFInfoBean nextBean = (TFInfoBean)itr.next();
+                TranscriptionFactorInfoBean nextBean = (TranscriptionFactorInfoBean)itr.next();
                 out.write(">"+nextBean.getName());
                 if(nextBean.getDescription() != null && !nextBean.getDescription().equals("null"))
                     out.write(" "+nextBean.getDescription());
