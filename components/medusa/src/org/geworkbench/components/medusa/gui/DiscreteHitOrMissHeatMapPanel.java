@@ -238,18 +238,12 @@ public class DiscreteHitOrMissHeatMapPanel extends JPanel implements
     }
 
     public void mouseClicked(MouseEvent e) {
-        System.out
-                .println("In HitOrMissHeatPanel: MOUSE CLICKED. MOUSE CLICKED. RUN RUN !!");
         // TODO: implement this... open new PSSM Tab
         for (Iterator itr = rectRule.iterator(); itr.hasNext();) {
             // getPreferredSize();
             RectangleRule rectangleRule = (RectangleRule) itr.next();
             if (rectangleRule.rect.contains(e.getX(), e.getY())) {
                 parentPanel.remove(pssmPanel);
-                System.out.println("Inside : "
-                        + MedusaUtil
-                                .generateConsensusSequence(rectangleRule.rule
-                                        .getPssm()));
                 addTab(rectangleRule.rule);
                 break;
             }
