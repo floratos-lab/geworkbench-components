@@ -354,7 +354,7 @@ public class DiscreteHitOrMissHeatMapPanel extends JPanel implements
                 if(returnVal == JFileChooser.APPROVE_OPTION) {
                     File chosenFile = chooser.getSelectedFile();
                     if(buttons.get(0).isSelected()){
-                        List loadedBeans = MedusaUtil.readPssmFromJASPARFile(chosenFile.getAbsolutePath());
+                        List loadedBeans = MedusaUtil.readPssmFromJasperFile(chosenFile.getAbsolutePath());
                         if(loadedBeans == null){
                             JOptionPane.showMessageDialog(null, "File could not be loaded.", "I/O Error", JOptionPane.ERROR_MESSAGE);
                             return;
@@ -436,7 +436,7 @@ public class DiscreteHitOrMissHeatMapPanel extends JPanel implements
                 int returnVal = chooser.showSaveDialog(DiscreteHitOrMissHeatMapPanel.this);
                 if(returnVal == JFileChooser.APPROVE_OPTION) {
                     File chosenFile = chooser.getSelectedFile();
-                    boolean success = MedusaUtil.writeMatchedPSSMToFile(matchedTFInfoBeanArr, chosenFile);
+                    boolean success = MedusaUtil.writeMatchedPssmsToFile(matchedTFInfoBeanArr, chosenFile);
                     if(!success)
                         JOptionPane.showMessageDialog(null, "Could not write the PSSMs to the file", "I/O Error !", JOptionPane.ERROR_MESSAGE);
                 }

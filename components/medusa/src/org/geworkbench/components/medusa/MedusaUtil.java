@@ -28,7 +28,7 @@ import edu.columbia.ccls.medusa.io.SerializedRule;
  * updating the configuration file, etc.
  * 
  * @author keshav
- * @version $Id: MedusaUtil.java,v 1.22 2007-08-20 15:52:09 keshav Exp $
+ * @version $Id: MedusaUtil.java,v 1.23 2007-08-20 15:54:54 keshav Exp $
  */
 public class MedusaUtil {
 
@@ -593,7 +593,7 @@ public class MedusaUtil {
 	 * @param file
 	 * @return
 	 */
-	public static boolean writeMatchedPSSMToFile(List TFInfoBeanList, File file) {
+	public static boolean writeMatchedPssmsToFile(List TFInfoBeanList, File file) {
 		try {
 			BufferedWriter out = new BufferedWriter(new FileWriter(file));
 			for (Iterator itr = TFInfoBeanList.iterator(); itr.hasNext();) {
@@ -629,7 +629,7 @@ public class MedusaUtil {
 	 * @param filePath
 	 * @return {@link List}
 	 */
-	public static List readPssmFromJASPARFile(String filePath) {
+	public static List readPssmFromJasperFile(String filePath) {
 		ArrayList TFInfoBeanArr = new ArrayList();
 		try {
 			BufferedReader br = new BufferedReader(new FileReader(new File(
