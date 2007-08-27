@@ -12,12 +12,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JFileChooser;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTabbedPane;
+import javax.swing.*;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -132,7 +127,7 @@ public class MedusaVisualizationPanel extends JPanel {
 		DiscreteHeatMapPanel regulatorHeatMap = new DiscreteHeatMapPanel(
 				regulatorMatrix, 1, 0, -1, regulatorNames, true);
 		// motifPanel.add(regulatorHeatMap);
-		regulatorHeatMap.setPreferredSize(new Dimension(200, 100));
+		regulatorHeatMap.setPreferredSize(new Dimension(regulatorMatrix[0].length*15, regulatorMatrix.length*15));
 
 		/* regulator labels at position 0,2 */
 		FormLayout regulatorLabelLayout = new FormLayout("pref,60dlu", // columns
@@ -172,15 +167,26 @@ public class MedusaVisualizationPanel extends JPanel {
 			regulatorLabelBuilder.appendRow("10dlu");
 		}
 
+        JPanel regulatorHeatPanel = new JPanel();
+        regulatorHeatPanel.setLayout(new BoxLayout(regulatorHeatPanel, BoxLayout.X_AXIS));
+        regulatorHeatPanel.add(regulatorHeatMap);
+        regulatorHeatPanel.setPreferredSize(regulatorHeatMap.getPreferredSize());
+        JPanel dummyPanel1 = new JPanel();
+        dummyPanel1.setPreferredSize(new Dimension(10, 100));
+        regulatorHeatPanel.add(dummyPanel1);
+        regulatorHeatPanel.add(regulatorLabelBuilder.getPanel());
+
+/*
 		JPanel regulatorHeatPanel = new JPanel(new BorderLayout());
 		regulatorHeatPanel.add(regulatorHeatMap, BorderLayout.WEST);
 		regulatorHeatPanel.add(regulatorLabelBuilder.getPanel(),
 				BorderLayout.EAST);
+*/
 
 		JScrollPane regulatorHeatScrollPane = new JScrollPane();
 		regulatorHeatScrollPane.setPreferredSize(new Dimension(100, 200));
-		regulatorHeatScrollPane
-				.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+		/*regulatorHeatScrollPane
+				.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);*/
 		regulatorHeatScrollPane.getViewport().add(regulatorHeatPanel);
 		regulatorHeatScrollPane.setVisible(true);
 		motifPanel.add(regulatorHeatScrollPane);
@@ -207,7 +213,7 @@ public class MedusaVisualizationPanel extends JPanel {
 		DiscreteHeatMapPanel targetHeatMap = new DiscreteHeatMapPanel(
 				targetMatrix, 1, 0, -1, targetNames, true, 120);
 		// motifPanel.add(targetHeatMap);
-		targetHeatMap.setPreferredSize(new Dimension(200, 100));
+		targetHeatMap.setPreferredSize(new Dimension(targetMatrix[0].length*15, targetMatrix.length*15));
 
 		/* target labels at position 1,2 */
 		FormLayout targetLabelLayout = new FormLayout("pref,60dlu", // columns
@@ -245,22 +251,27 @@ public class MedusaVisualizationPanel extends JPanel {
 		}
 		// motifPanel.add(targetLabelBuilder.getPanel());
 		JPanel targetHeatPanel = new JPanel(new BorderLayout());
-		targetHeatPanel.add(targetHeatMap, BorderLayout.WEST);
-		targetHeatPanel.add(targetLabelBuilder.getPanel(), BorderLayout.EAST);
+        targetHeatPanel.setLayout(new BoxLayout(targetHeatPanel, BoxLayout.X_AXIS));
+        targetHeatPanel.add(targetHeatMap);
+        targetHeatPanel.setPreferredSize(targetHeatMap.getPreferredSize());
+        JPanel dummyPanel2 = new JPanel();
+        dummyPanel2.setPreferredSize(new Dimension(10, 100));
+        targetHeatPanel.add(dummyPanel2);
+		targetHeatPanel.add(targetLabelBuilder.getPanel());
 
 		JScrollPane targetHeatScrollPane = new JScrollPane();
 		// scrollPane1.setLayout(new BorderLayout());
 		targetHeatScrollPane.setPreferredSize(new Dimension(100, 200));
-		targetHeatScrollPane
-				.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+		/*targetHeatScrollPane
+				.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);*/
 		targetHeatScrollPane.getViewport().add(targetHeatPanel);
 		targetHeatScrollPane.setVisible(true);
 		motifPanel.add(targetHeatScrollPane);
 		// motifPanel.add(new JPanel());
 
 		/* dummy panel at 2,0 so we can align the buttons (below) */
-		JPanel dummyPanel1 = new JPanel();
-		motifPanel.add(dummyPanel1);
+		JPanel dummyPanel11 = new JPanel();
+		motifPanel.add(dummyPanel11);
 
 		/* add buttons at 2,1 */
 		JPanel buttonPanel = new JPanel();
