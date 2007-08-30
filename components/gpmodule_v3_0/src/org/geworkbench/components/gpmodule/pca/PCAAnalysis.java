@@ -69,12 +69,6 @@ public class PCAAnalysis extends GPAnalysis
         return new AlgorithmExecutionResults(true, "PCA", pcaDataSet);
     }
 
-    public List<FloatMatrix> extractMatrices(List files)
-    {
-
-        return null;
-    }
-
     @Publish
     public ProjectNodeAddedEvent publishProjectNodeAddedEvent(ProjectNodeAddedEvent event) 
     {
