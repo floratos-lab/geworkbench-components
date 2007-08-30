@@ -17,8 +17,12 @@ import org.genepattern.io.OdfParser;
 import org.genepattern.io.IOdfHandler;
 
 import javax.swing.*;
+import javax.swing.text.PlainDocument;
 import java.io.FileInputStream;
 import java.util.List;
+import java.util.HashMap;
+import java.util.ArrayList;
+import java.text.DecimalFormat;
 
 /**
  * @author: Marc-Danie Nazaire
@@ -28,12 +32,18 @@ public class PCAData
     private FloatMatrix S_matrix;
     private FloatMatrix T_matrix;
     private FloatMatrix U_matrix;
+    private int numPCs;
+    private HashMap eigenValues;
+    private HashMap percentVar;
+    private HashMap eigenVectors;
 
     public PCAData(List files)
     {
         try
         {
             initMatrices(files);
+            extractPCAValuesViewerResults();
+            extractEigenVectorResults();
         }
         catch(Exception e)
         {
@@ -49,25 +59,68 @@ public class PCAData
             float[][] data = odfObject.getData();
 
             if(file.contains("s.odf"))
-            {
                 S_matrix = new FloatMatrix(data);
-                System.out.println("S_matrix: " + data.length);
-            }
             if(file.contains("t.odf"))
+            {
                 T_matrix = new FloatMatrix(data);
+                System.out.println("T_matrix: " + data.length);
+            }
             if(file.contains("u.odf"))
                 U_matrix = new FloatMatrix(data);
         }
+    }
 
-        ValuesViewer v = new ValuesViewer(S_matrix);
-        v.getContentComponent().setVisible(true);
+    private void extractPCAValuesViewerResults() throws Exception
+    {
+        ValuesViewer valuesViewerPanel = new ValuesViewer(S_matrix);
+        eigenValues = new HashMap();
+        percentVar = new HashMap();
 
-        JPanel panel = new JPanel();
-        panel.add(v.getContentComponent());
-        panel.setVisible(true);
+        JTextArea content = (JTextArea)valuesViewerPanel.getContentComponent();
+        String textData = content.getText();
 
-        System.out.println("v content1: " +  ((JTextArea)v.getContentComponent()).getColumns());
-        System.out.println("/n v content2: " +  ((JTextArea)v.getContentComponent()).getText());
+        int prinCompIndex = textData.lastIndexOf("Principal Component");
+
+        String[] numPCsLine = textData.substring(prinCompIndex, textData.indexOf("\t", prinCompIndex)).split(" ");
+        numPCs = Integer.parseInt(numPCsLine[2]);
+
+        PlainDocument document = (PlainDocument)content.getDocument();
+        for(int i = 0; i < numPCs; i++)
+        {
+            int start = document.getDefaultRootElement().getElement(i).getStartOffset();
+            int length = document.getDefaultRootElement().getElement(i).getEndOffset() - start;
+
+            String line = document.getText(start, length);
+            String[] lineSplit = line.split("\t");
+
+            Integer id = new Integer(Integer.parseInt(lineSplit[0].substring(lineSplit[0].lastIndexOf(" ")+1, lineSplit[0].length())));
+            Double eigenValue = Double.valueOf(lineSplit[1]);
+            String var = String.valueOf(Double.parseDouble(lineSplit[2].replace("%", "")) + "%");
+
+            eigenValues.put(id, eigenValue);
+            percentVar.put(id, var);
+
+            System.out.println("element " + i + ":" + id + " " + eigenValue + " " + var);
+        }
+    }
+
+    private void extractEigenVectorResults() throws Exception
+    {
+        DecimalFormat decimalFormat = new DecimalFormat();
+        decimalFormat.setMaximumFractionDigits(2);
+        decimalFormat.setMinimumFractionDigits(2);
+        eigenVectors = new HashMap();
+
+        for(int c = 0; c < T_matrix.getColumnDimension(); c++)
+        {
+            List eigenVector = new ArrayList();
+            for(int r = 0; r < T_matrix.getRowDimension(); r++)
+            {
+                eigenVector.add(decimalFormat.format(T_matrix.get(r, c)));
+            }
+
+            eigenVectors.put(new Integer(c+1), eigenVector);
+        }
     }
 
     private class OdfObject
@@ -142,5 +195,25 @@ public class PCAData
                         
             data[row][column] = Float.valueOf(d).floatValue();
         }
+    }
+
+    public int getNumPCs()
+    {
+        return numPCs;
+    }
+
+    public HashMap getEigenValues()
+    {
+        return eigenValues;
+    }
+
+    public HashMap getPercentVars()
+    {
+        return percentVar;
+    }
+
+    public HashMap getEigenVectors()
+    {
+        return eigenVectors;
     }
 }
