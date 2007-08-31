@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<projectDescription>
+	<name>netboost</name>
+	<comment></comment>
+	<projects>
+	</projects>
+	<buildSpec>
+		<buildCommand>
+			<name>org.eclipse.jdt.core.javabuilder</name>
+			<arguments>
+			</arguments>
+		</buildCommand>
+	</buildSpec>
+	<natures>
+		<nature>org.eclipse.jdt.core.javanature</nature>
+	</natures>
+	<linkedResources>
+		<link>
+			<name>test/netboost_traintestloss.txt</name>
+			<type>1</type>
+			<location>C:/project/netboost/netboost_v1.3/generated_data/netboost_traintestloss.txt</location>
+		</link>
+		<link>
+			<name>test/classscores_target.txt</name>
+			<type>1</type>
+			<location>C:/project/netboost/netboost_v1.3/generated_data/classscores_target.txt</location>
+		</link>
+		<link>
+			<name>test/confusion.txt</name>
+			<type>1</type>
+			<location>C:/project/netboost/netboost_v1.3/generated_data/confusion.txt</location>
+		</link>
+	</linkedResources>
+</projectDescription>
