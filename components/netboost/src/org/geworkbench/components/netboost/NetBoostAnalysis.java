@@ -42,7 +42,7 @@ import org.geworkbench.components.parsers.EdgeListFileFormat;
 /**
  * NetBoost Analysis
  * @author ch2514
- * @version $Id: NetBoostAnalysis.java,v 1.1 2007-08-31 16:05:59 hungc Exp $
+ * @version $Id: NetBoostAnalysis.java,v 1.2 2007-08-31 20:44:35 hungc Exp $
  */
 
 public class NetBoostAnalysis extends AbstractGridAnalysis implements ClusteringAnalysis {
@@ -106,11 +106,8 @@ public class NetBoostAnalysis extends AbstractGridAnalysis implements Clustering
 	}
 
 	public AlgorithmExecutionResults execute(Object input){
-		
-		
-		
 		// checking input object
-		System.out.println("\tchecking input obj");
+		log.debug("checking input obj");
 		if (input == null) {
 			return new AlgorithmExecutionResults(false, "Invalid input: No data", null);
 		} 
@@ -120,12 +117,11 @@ public class NetBoostAnalysis extends AbstractGridAnalysis implements Clustering
             log.debug("Input dataset is an edge list.");  
             el = (EdgeListDataSet) input;
             
-            // checking file extension 
-    		
-    		System.out.println("\tchecking file ext");
+            // checking file extension     		
+            log.debug("checking file ext");
     		boolean correctExt = false;
-    		String filename = el.getFilename();
-    		System.out.println("\tfilename=" + filename);
+    		String filename = el.getFilename().trim();
+    		log.debug("filename=" + filename);
     		for(String ext: EdgeListFileFormat.EDGE_LIST_FILE_EXTENSIONS){
     			if(filename.endsWith(ext)) {
     				correctExt = true;
@@ -140,6 +136,7 @@ public class NetBoostAnalysis extends AbstractGridAnalysis implements Clustering
     				}
     			}
     		}
+    		log.debug("correctExt=" + correctExt);
     		if(!correctExt){
     			return new AlgorithmExecutionResults(false, "Invalid input: Only .txt and .adj edge list files are valid inputs.", null);
     		}           
@@ -207,15 +204,6 @@ public class NetBoostAnalysis extends AbstractGridAnalysis implements Clustering
     @Subscribe 
     public void receive(ProjectEvent projectEvent, Object source) {
     	log.debug("NetBoost Analysis received project event.");
-    	/*
-    	Object o = ((ProjectPanel) source).getSelection().getSelectedNode();
-    	if(o instanceof DataSetNode){
-	    	node = (DataSetNode) o;
-	    	System.out.println("NetBoost Analysis received data node: " + node.dataFile.getLabel() 
-	    			+ ", dataSetName=" + node.dataFile.getDataSetName()
-	    			+ ", fileName=" + node.getFileName()
-	    			);
-    	}  	*/
     }
     
     private void createProgressBarDialog(){
@@ -237,7 +225,6 @@ public class NetBoostAnalysis extends AbstractGridAnalysis implements Clustering
             	if((task != null) && (!task.isCancelled()) && (!task.isDone())) {
             		task.cancel(true);
             		log.info("Cancelling NetBoost Analysis");
-            		System.out.println("\tCancelling NetBoost Analysis.");
             	}
             	dialog.setVisible(false);
             	dialog.dispose();            	
@@ -249,7 +236,6 @@ public class NetBoostAnalysis extends AbstractGridAnalysis implements Clustering
             	if((task != null) && (!task.isCancelled()) && (!task.isDone())){
             		task.cancel(true);
             		log.info("Cancelling NetBoost Analysis");
-            		System.out.println("\tCancelling NetBoost Analysis.");
             	}
             }
         });
@@ -258,7 +244,7 @@ public class NetBoostAnalysis extends AbstractGridAnalysis implements Clustering
     /**
      * The swing worker class that runs NetBoost analysis in the background.
      * @author ch2514
-     * @version $Id: NetBoostAnalysis.java,v 1.1 2007-08-31 16:05:59 hungc Exp $
+     * @version $Id: NetBoostAnalysis.java,v 1.2 2007-08-31 20:44:35 hungc Exp $
      */
     class Task extends SwingWorker<NetBoostDataSet, Void> {
     	String filename;
@@ -286,7 +272,7 @@ public class NetBoostAnalysis extends AbstractGridAnalysis implements Clustering
             	results = true;
             	
             } catch (Exception e){
-            	log.error("Cannot analyze data.", e);            	
+            	log.warn("Analyze process interrupted.");            	
             	return null;
             }            
             log.info("NetBoost analysis complete.  Converting NetBoost results.");
@@ -314,7 +300,7 @@ public class NetBoostAnalysis extends AbstractGridAnalysis implements Clustering
 	    			log.error("Exception in finishing up worker thread that called NetBoost: " + e.getMessage());
 	    		}
     		} else {
-    			System.out.println("\tNetBoost task cancelled.");
+    			log.debug("NetBoost task cancelled.");
     		}
     		dialog.setVisible(false);
     		dialog.dispose();
