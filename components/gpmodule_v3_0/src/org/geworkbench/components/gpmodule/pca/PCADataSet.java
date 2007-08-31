@@ -40,4 +40,9 @@ public class PCADataSet extends CSAncillaryDataSet implements DSAncillaryDataSet
     {
         // no-op
     }
+
+    public PCAData getData()
+    {
+        return pcaData;
+    }
 }
