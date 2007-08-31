@@ -22,14 +22,14 @@ import org.geworkbench.util.pathwaydecoder.mutualinformation.*;
 /**
  * NetBoost Plugin
  * @author ch2514
- * @version $Id: NetBoostPlugin.java,v 1.1 2007-08-31 16:05:59 hungc Exp $
+ * @version $Id: NetBoostPlugin.java,v 1.2 2007-08-31 21:16:00 hungc Exp $
  */
 
 public class NetBoostPlugin extends JPanel {
 	// variable
 	private static Log log = LogFactory.getLog(NetBoostPlugin.class);
 	
-	private static final String BOOST_ITERATION_LEGEND = "Net Boost";
+	private static final String BOOST_ITERATION_TITLE = "Net Boost";
 	private static final String BOOST_ITERATION_X_LABEL = "Boosting Iterations";
 	private static final String BOOST_ITERATION_Y_LABEL = "Losses";
 	private static final String SCORES_TABLE_TITLE = "Scores";
@@ -49,9 +49,9 @@ public class NetBoostPlugin extends JPanel {
 	ScoresModel scoresModel;
 	ConfusionModel confusedModel;
 	
-	public NetBoostPlugin(NetBoostData data, NetBoostVisualComponent visualPlugin){		
+	public NetBoostPlugin(NetBoostDataSet data, NetBoostVisualComponent visualPlugin){		
 		final NetBoostVisualComponent vp = visualPlugin;
-		this.nbdata = data;
+		this.nbdata = data.getData();
 		
 		// init internal panels
 		JPanel leftPanel = new JPanel(new BorderLayout());
@@ -67,7 +67,7 @@ public class NetBoostPlugin extends JPanel {
 		
 		// boost iteration chart
 		iterDataSet = new DefaultTableXYDataset();
-		iterChart = ChartFactory.createXYLineChart(BOOST_ITERATION_LEGEND
+		iterChart = ChartFactory.createXYLineChart(BOOST_ITERATION_TITLE //+ "(" + data.getFilename() + ")"
 				, BOOST_ITERATION_Y_LABEL, BOOST_ITERATION_X_LABEL
 				, new IterDataSet().getDataSet(), PlotOrientation.VERTICAL
 				, true, true, false);
