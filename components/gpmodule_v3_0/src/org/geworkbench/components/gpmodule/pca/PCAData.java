@@ -61,10 +61,7 @@ public class PCAData
             if(file.contains("s.odf"))
                 S_matrix = new FloatMatrix(data);
             if(file.contains("t.odf"))
-            {
                 T_matrix = new FloatMatrix(data);
-                System.out.println("T_matrix: " + data.length);
-            }
             if(file.contains("u.odf"))
                 U_matrix = new FloatMatrix(data);
         }
@@ -215,5 +212,10 @@ public class PCAData
     public HashMap getEigenVectors()
     {
         return eigenVectors;
+    }
+
+    public FloatMatrix getUMatrix()
+    {
+        return U_matrix;
     }
 }
