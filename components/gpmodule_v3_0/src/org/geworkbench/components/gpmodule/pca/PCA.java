@@ -2,7 +2,9 @@ package org.geworkbench.components.gpmodule.pca;
 
 import org.geworkbench.engine.management.AcceptTypes;
 import org.geworkbench.engine.management.Subscribe;
+import org.geworkbench.engine.management.Publish;
 import org.geworkbench.events.ProjectEvent;
+import org.geworkbench.events.ProjectNodeAddedEvent;
 import org.geworkbench.util.microarrayutils.MicroarrayViewEventBase;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.CSExprMicroarraySet;
@@ -14,6 +16,7 @@ import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.jfree.data.xy.XYSeries;
 import org.tigr.microarray.mev.cluster.gui.impl.pca.Content3D;
+import org.tigr.microarray.mev.cluster.gui.impl.pca.PCA2DViewer;
 import org.tigr.microarray.mev.cluster.gui.Experiment;
 import org.tigr.microarray.mev.MultipleArrayData;
 import org.tigr.microarray.mev.SlideData;
@@ -37,94 +40,155 @@ import java.util.List;
 public class PCA extends MicroarrayViewEventBase
 {
     private JTabbedPane tabbedPane;
-    private JScrollPane resultsPanel;
-    private JTable resultsTable;
+    private JSplitPane compPanel;
+    private JTable compResultsTable;
+    private JSplitPane compGraphPanel;
+    private JSplitPane projPanel;
+    private JTable projResultsTable;
+    private JScrollPane projGraphPanel;
+   // private JTable projTablePanel;
+    //private JTable resultsTable;
+
+
     private JTextField perVar;
-    private JSplitPane componentsPane;
-    private JSplitPane pcaPanel;
+    //private JSplitPane pcaPanel;
     private JButton createButton;
+    private JButton clearPlotButton;
 
     private PCAData pcaData;
-    private DSDataSet dataSet;
+    private DSDataSet dataSet; 
 
     public PCA()
     {
-        pcaPanel = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
-        pcaPanel.setOneTouchExpandable(true);
-
         tabbedPane = new JTabbedPane();
 
-        resultsPanel = new JScrollPane();
-        tabbedPane.addTab("Components", resultsPanel);
-        tabbedPane.setSelectedComponent(resultsPanel);
+        compPanel = new JSplitPane();
+        compPanel.setOneTouchExpandable(true);
+        compPanel.setDividerLocation(200);
 
-        tabbedPane.addTab("Projection", null);
+        tabbedPane.addTab("Components", compPanel);
+        tabbedPane.setSelectedComponent(compPanel);
+
+        projPanel = new JSplitPane();
+        projPanel.setOneTouchExpandable(true);
+        projPanel.setDividerLocation(200);
+
+        tabbedPane.addTab("Projection", projPanel);
         tabbedPane.addChangeListener( new PCAChangeListener());
 
-        pcaPanel.setLeftComponent(tabbedPane);
+        compGraphPanel = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
+        compGraphPanel.setOneTouchExpandable(true);
+        compGraphPanel.setDividerSize(8);
+        compGraphPanel.setDividerLocation(0.6);
 
-        componentsPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
-        componentsPane.setOneTouchExpandable(true);
-        componentsPane.setDividerSize(8);
-        componentsPane.setDividerLocation(0.6);
+        compResultsTable = new JTable();
+        compResultsTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 
-        pcaPanel.setRightComponent(componentsPane);
-             
         perVar = new JTextField();
         perVar.setMaximumSize(new Dimension(80, 100));
-
-        jToolBar3.remove(chkAllArrays);
-        jToolBar3.remove(chkAllMarkers);
-
-        jToolBar3.add(new JLabel("% Var"));
-        jToolBar3.add(perVar);
-        jToolBar3.addSeparator();
 
         createButton = new JButton("Create MA Set");
         createButton.addActionListener(new ActionListener()
         {
             public void actionPerformed(ActionEvent event)
             {
-                System.out.println("Event action: " + event.getActionCommand());    
+                int[] pcs = compResultsTable.getSelectedRows();
+
+                CSExprMicroarraySet pcDataSet = new CSExprMicroarraySet();
+                pcDataSet.readFromFile(dataSet.getFile());
+                pcDataSet.setLabel("PCA_" + dataSet.getFile().getName());
+                pcDataSet.clear();
+                for(int i = 0; i < pcs.length; i++)
+                {
+                    pcDataSet.add((DSMicroarray)dataSet.get(i));
+                }
+
+                publishProjectNodeAddedEvent(new ProjectNodeAddedEvent("PCA_" + dataSet.getDataSetName(), pcDataSet, null));
+                System.out.println("Event action: " + event.getActionCommand());
             }
         });
 
-        plotButton.addActionListener(new ActionListener()
-        {
-            public void actionPerformed(ActionEvent event)
-            {
-                buildPlot(resultsTable.getSelectedRows());
-            }
-        });
-
-        resultsTable = new JTable();
-        resultsTable.setColumnSelectionAllowed(false);
-
-        resultsTable.getSelectionModel().addListSelectionListener( new ListSelectionListener()
+        compResultsTable.getSelectionModel().addListSelectionListener( new ListSelectionListener()
         {
             public void valueChanged(ListSelectionEvent event)
             {
-                int[] selectedRows = resultsTable.getSelectedRows();
+                int[] selectedRows = compResultsTable.getSelectedRows();
 
                 double sum = 0;
 
                 for(int i = 0; i < selectedRows.length; i++)
                 {
-                    String value = ((String)resultsTable.getValueAt(selectedRows[i], 2)).replace("%", "");
+                    String value = ((String)compResultsTable.getValueAt(selectedRows[i], 2)).replace("%", "");
+                    sum += Double.parseDouble(value);
+                }
+
+                perVar.setText(String.valueOf(sum));
+                buildComponentsPanel(selectedRows);
+            }
+        });
+       
+        projGraphPanel = new JScrollPane();
+
+        plotButton.setEnabled(false);
+        plotButton.addActionListener(new ActionListener()
+        {
+            public void actionPerformed(ActionEvent event)
+            {
+                buildPlot(projResultsTable.getSelectedRows());
+            }
+        });
+
+        clearPlotButton = new JButton("Clear Plot");
+        clearPlotButton.addActionListener(new ActionListener()
+        {
+            public void actionPerformed(ActionEvent event)
+            {
+                projResultsTable.clearSelection();
+                projGraphPanel.removeAll();
+                projGraphPanel.repaint();
+            }
+        });
+
+        projResultsTable = new JTable();
+        projResultsTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+        projResultsTable.setColumnSelectionAllowed(false);
+
+        projResultsTable.getSelectionModel().addListSelectionListener( new ListSelectionListener()
+        {
+            public void valueChanged(ListSelectionEvent event)
+            {
+                int[] selectedRows = projResultsTable.getSelectedRows();
+
+                double sum = 0;
+
+                for(int i = 0; i < selectedRows.length; i++)
+                {
+                    String value = ((String)projResultsTable.getValueAt(selectedRows[i], 2)).replace("%", "");
                     sum += Double.parseDouble(value);
                 }
 
                 perVar.setText(String.valueOf(sum));
 
-                if(tabbedPane.getTitleAt(tabbedPane.getSelectedIndex()).equals("Components"))
+                if(selectedRows.length == 4)
                 {
-                    buildComponentsPanel(selectedRows);
+                    projResultsTable.removeRowSelectionInterval(selectedRows[0], selectedRows[0]);
                 }
+
+                if(selectedRows.length >=2)
+                {
+                    plotButton.setEnabled(true);
+                }
+                else
+                    plotButton.setEnabled(false);
+
             }
         });
 
-        pcaPanel.setDividerLocation(190);
-        mainPanel.add(pcaPanel, BorderLayout.CENTER);
+        jToolBar3.remove(chkAllArrays);
+        jToolBar3.remove(chkAllMarkers);
+        buildJToolBar3();
+
+        mainPanel.add(tabbedPane, BorderLayout.CENTER);
     }
     /**
      * The component for the GUI engine.
@@ -149,11 +213,15 @@ public class PCA extends MicroarrayViewEventBase
             tableModel.setValueAt(percentVars.get(Integer.valueOf(i)), i-1, 2);
         }
 
-        resultsTable.removeAll();
-        resultsTable.setModel(tableModel);
-        resultsTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+        compResultsTable.removeAll();
+        compResultsTable.setModel(tableModel);
+        compPanel.setDividerLocation(200);
+        compPanel.setLeftComponent(new JScrollPane(compResultsTable));
 
-        resultsPanel.setViewportView(resultsTable);
+        projResultsTable.removeAll();
+        projResultsTable.setModel(tableModel);       
+        projPanel.setDividerLocation(200);
+        projPanel.setLeftComponent(new JScrollPane(projResultsTable));
     }
 
     private void buildEigenVectorsTable(int[] pComp)
@@ -180,7 +248,7 @@ public class PCA extends MicroarrayViewEventBase
         eigenVectorsTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 
         JScrollPane scrollPane = new JScrollPane(eigenVectorsTable);
-        componentsPane.setBottomComponent(scrollPane);
+        compGraphPanel.setBottomComponent(scrollPane);
     }
 
     public void buildGraph(int[] pComp)
@@ -208,7 +276,7 @@ public class PCA extends MicroarrayViewEventBase
         JScrollPane scrollPane = new JScrollPane(panel);
         scrollPane.setMinimumSize(new Dimension(420, 270));
 
-        componentsPane.setTopComponent(scrollPane);
+        compGraphPanel.setTopComponent(scrollPane);
     }
 
     private void buildPlot(int[] pComp)
@@ -246,38 +314,48 @@ public class PCA extends MicroarrayViewEventBase
         org.tigr.microarray.mev.cluster.gui.Experiment experiment =
                 new org.tigr.microarray.mev.cluster.gui.Experiment(fm, column);
 
-        MultipleArrayData multipleArrayData = new MultipleArrayData();            
+        MultipleArrayData multipleArrayData = new MultipleArrayData();           
         multipleArrayData.setExperimentColors(colors);
         multipleArrayData.setExperimentColorIndices(column);
         multipleArrayData.setFeaturesList(featuresList);
 
-
-        JScrollPane pane = null;
         int xAxis, yAxis, zAxis;
+        xAxis = pComp[0];
+        yAxis = pComp[1];
         if(pComp.length == 3)
         {
-            xAxis = pComp[0];
-            yAxis = pComp[1];
+
             zAxis = pComp[2];
 
             PCAContent3D content = new PCAContent3D(3, pcaData.getUMatrix(), experiment, false, xAxis, yAxis, zAxis);
             content.setData(multipleArrayData);
-            content.setPointSize(1);
+            content.setPointSize((float)0.9);
             content.setShowSpheres(true);
             content.draw();
 
             content.setMaximumSize(new Dimension(400, 280));
-            pane = new JScrollPane(content);
+            projGraphPanel.setViewportView(content);
         }
-               
-        pcaPanel.setRightComponent(pane);
-        pcaPanel.setDividerLocation(190);
+        else
+        {
+            PCA2DViewer  pca2DViewer = new PCA2DViewer(experiment, pcaData.getUMatrix(), true, xAxis, yAxis);
+            pca2DViewer.setData(multipleArrayData);
+            projGraphPanel.setViewportView(pca2DViewer.getContentComponent());
+        }
+
+        projGraphPanel.repaint();
+        projPanel.setRightComponent(projGraphPanel);
+        projPanel.setDividerLocation(200);
+        projPanel.repaint();
     }
 
     private void buildComponentsPanel(int[] pComp)
     {
         buildEigenVectorsTable(pComp);
         buildGraph(pComp);
+
+        compPanel.setDividerLocation(200);
+        compPanel.setRightComponent(compGraphPanel);
     }
 
     @Subscribe
@@ -292,6 +370,26 @@ public class PCA extends MicroarrayViewEventBase
         }
     }
 
+    private void buildJToolBar3()
+    {
+        jToolBar3.removeAll();
+
+        jToolBar3.add(new JLabel("% Var"));
+        jToolBar3.add(perVar);
+        jToolBar3.addSeparator();
+
+        int viewIndex = tabbedPane.getSelectedIndex();
+        if(tabbedPane.getTitleAt(viewIndex).equals("Projection"))
+        {
+            jToolBar3.add(plotButton);
+            jToolBar3.addSeparator();
+            jToolBar3.add(clearPlotButton);
+        }
+        else
+            jToolBar3.add(createButton);
+
+        jToolBar3.repaint();
+    }
 
     private class PCAChangeListener implements ChangeListener
     {
@@ -307,37 +405,23 @@ public class PCA extends MicroarrayViewEventBase
 
                 if(pane.getTitleAt(index).equals("Projection"))
                 {
-                    jToolBar3.remove(createButton);
-                    jToolBar3.add(plotButton);
-
-                    int compIndex = tabbedPane.indexOfTab("Components");
-                    tabbedPane.setComponentAt(compIndex, new JPanel());
-                    tabbedPane.setComponentAt(pane.getSelectedIndex(), resultsPanel);
-                   
-                    if(resultsTable.getSelectedRows().length != 0)
-                    {
-                        buildPlot(resultsTable.getSelectedRows());
-                    }
+                    buildJToolBar3();
                 }
                 else
                 {
-                    jToolBar3.remove(plotButton);
-                    jToolBar3.add(createButton);                  
-
-                    int projIndex = tabbedPane.indexOfTab("Projection");
-                    tabbedPane.setComponentAt(projIndex, new JPanel());
-                    tabbedPane.setComponentAt(pane.getSelectedIndex(), resultsPanel);
-
-                    if(resultsTable.getSelectedRows().length != 0)
-                    {
-                        buildComponentsPanel(resultsTable.getSelectedRows());
-                    }
+                    buildJToolBar3();
                 }
             }
         }
     }
 
-    private class PCAContent3D extends Content3D 
+    @Publish
+    public ProjectNodeAddedEvent publishProjectNodeAddedEvent(ProjectNodeAddedEvent event)
+    {
+        return event;
+    }
+
+    private class PCAContent3D extends Content3D
     {
         public PCAContent3D(int mode, org.tigr.util.FloatMatrix floatMatrix, Experiment experiment, boolean view)
         {
