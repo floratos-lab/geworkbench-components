@@ -20,7 +20,8 @@ public class InteractionsConnectionImpl implements INTERACTIONS {
     private double confidenceValue = 0d;
     private String isModulated = null;
     private BigDecimal id = null;
-    public static String INTERACTIONDATABASEURL = "jdbc:mysql://afdev:3306/CNKB?autoReconnect=true";
+   // public static String INTERACTIONDATABASEURL = "jdbc:mysql://afdev:3306/CNKB?autoReconnect=true";
+   public static String INTERACTIONDATABASEURL = "jdbc:mysql://afdev:3306/cellnet_kbase?autoReconnect=true";
 
     private Connection conn = null;
     private Statement statement = null;
