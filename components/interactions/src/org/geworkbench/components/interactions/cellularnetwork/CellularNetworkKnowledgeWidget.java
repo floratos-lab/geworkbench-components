@@ -662,7 +662,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane impl
     /**
      * Respond to the change of the Threshold Text field.
      *
-     * @param e
+     * @param
      */
     public void jThresholdTextField_actionPerformed() {
         double newvalue = 0;
