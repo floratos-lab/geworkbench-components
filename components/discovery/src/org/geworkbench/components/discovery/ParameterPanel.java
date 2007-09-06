@@ -189,8 +189,8 @@ public class ParameterPanel extends JPanel {
         jMinSupportBox.setInputVerifier(new RegularExpressionVerifier("0?\\.?(\\d){1,9}(%)?"));
         //Advanced Panel
         jMatrixBox.addItem("BLOSUM50");
+        jMatrixBox.addItem("BLOSUM62");
         jMatrixBox.addItem("BLOSUM100");
-        jMatrixBox.addItem("BLOSUM150");
         jMatrixBox.setSelectedIndex(0);
         AdvancedPane.setLayout(jAdvancedgridBL);
         jCountSeqBox.setSelected(false);
