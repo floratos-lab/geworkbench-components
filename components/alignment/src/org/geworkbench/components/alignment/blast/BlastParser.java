@@ -241,7 +241,11 @@ public class BlastParser {
                                                 intValue()
                                                 );
                                     }
-                                    each.setEvalue(strA[2]);
+                                    if(strA[2]!=null ){
+                                        String[] s = strA[2].split("<");
+                                       each.setEvalue(s[0]); 
+                                    }
+
 
                                     hits.add(each);
                                 }

@@ -280,7 +280,10 @@ public class NCBIBlastParser {
                                                 intValue()
                                         );
                                     }
-                                    each.setEvalue(strA[2]);
+                                    if (strA[2] != null) {
+                                        String[] s = strA[2].split("<");
+                                        each.setEvalue(s[0]);
+                                    }
 
                                     hits.add(each);
                                 }
@@ -307,7 +310,7 @@ public class NCBIBlastParser {
                         }
 
                         /* parsing detailed alignments Each has <PRE></PRE> */
-                        while (line!=null && line.trim().startsWith(">")|| line.trim().startsWith("Database")) {
+                        while (line != null && line.trim().startsWith(">") || line.trim().startsWith("Database")) {
                             //System.out.println("test5" + line);
                             if (line.trim().startsWith("Database")) {
                                 endofResult = true;
@@ -328,9 +331,9 @@ public class NCBIBlastParser {
                                 additionalDetail = true;
 
                             }
-                              //get BlastObj hit for which alignment is for
+                            //get BlastObj hit for which alignment is for
                             each = (BlastObj) hits.get(index);
-                           //skip the beginning description
+                            //skip the beginning description
                             subject = "";
                             boolean getStartPoint = true;
                             subject = "";
@@ -436,7 +439,7 @@ public class NCBIBlastParser {
             //System.exit(1);
         } catch (IOException e) {
             System.out.println("NCBIBLASTParser + IOException!");
-             e.printStackTrace();
+            e.printStackTrace();
             return false;
         } catch (Exception e) {
 
@@ -476,14 +479,14 @@ public class NCBIBlastParser {
         return "Total hits for all sequences are " + totalHitCount + ".";
     }
 
-     public static void main(String[] args) {
+    public static void main(String[] args) {
 
-            NCBIBlastParser test = new NCBIBlastParser();
+        NCBIBlastParser test = new NCBIBlastParser();
         // test.filename = "C:\\Blast-1992809694.html";
-         test.filename = "C:\\gforge\\geworkbench\\temp\\GEAW\\Blast1374003213.html";
-         test.filename = "C:\\gforge\\geworkbench\\temp\\GEAW\\Blast459848840.html";
-            test.parseResults();
-             }
+        test.filename = "C:\\gforge\\geworkbench\\temp\\GEAW\\Blast1374003213.html";
+        test.filename = "C:\\gforge\\geworkbench\\temp\\GEAW\\Blast459848840.html";
+        test.parseResults();
+    }
 
 
 }
