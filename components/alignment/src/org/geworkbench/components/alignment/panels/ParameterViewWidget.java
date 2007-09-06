@@ -209,7 +209,7 @@ public class ParameterViewWidget extends JPanel {
         jMatrixBox.addItem("blosum50");
         jMatrixBox.addItem("blosum62");
         jMatrixBox.addItem("blosum100");
-        jMatrixBox.addItem("blosum150");
+     
         jDBList.setToolTipText("Select a database");
         jDBList.setVerifyInputWhenFocusTarget(true);
         jDBList.setVisibleRowCount(1);
