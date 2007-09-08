@@ -34,13 +34,10 @@ import javax.swing.event.ChangeListener;
 import javax.swing.event.ChangeEvent;
 import javax.swing.table.TableModel;
 import javax.swing.table.DefaultTableModel;
-import javax.media.j3d.Canvas3D;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
-import java.awt.event.MouseMotionListener;
-import java.awt.event.MouseEvent;
 import java.util.*;
 import java.util.List;
 
@@ -258,9 +255,6 @@ public class PCA extends MicroarrayViewEventBase
 
     private void buildResultsTable()
     {
-        //compGraphPanel.removeAll();
-        //projGraphPanel.removeAll();
-
         String[] columnNames = {"Id", "Eigen Value", "% Var"};
         TableModel tableModel = new DefaultTableModel(columnNames, pcaData.getNumPCs());
 
@@ -434,31 +428,15 @@ public class PCA extends MicroarrayViewEventBase
             zAxis = pComp[2];
 
             PCAContent3D content = new PCAContent3D(1, u_Matrix, experiment, true, xAxis, yAxis, zAxis);
-            content.getComponent(0).addMouseMotionListener(new MouseMotionListener()
-            {
-                public void mouseDragged(MouseEvent event)
-                {
-                }
-
-                public void mouseMoved(MouseEvent event)
-                {
-                    Canvas3D canvas = (Canvas3D)event.getSource();
-                    System.out.println("PCA3DContent: mouse location" + canvas.getLocation());
-                }
-            });
-
             content.setData(multipleArrayData);
             content.setPointSize((float)0.97);
             content.setShowSpheres(true);
             content.setSelection(true);
             content.setSelectedPointSize((float)1.7);
             content.draw();
-
-            // content.setMaximumSize(new Dimension(400, 280));
-            //content.getComponent(0).setMinimumSize(new Dimension(130, 100));
-            //content.getComponent(0).setMaximumSize(new Dimension(130, 100));
+          
             projGraphPanel.setViewportView(content);
-            //projGraphPanel.getViewport().setViewSize(new Dimension(110, 100));
+
         }
         else
         {
@@ -529,8 +507,6 @@ public class PCA extends MicroarrayViewEventBase
             if(event.getSource() instanceof JTabbedPane)
             {
                 JTabbedPane pane = (JTabbedPane)event.getSource();
-
-                int index = pane.getSelectedIndex();
 
                 buildJToolBar3();
             }
