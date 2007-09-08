@@ -11,6 +11,8 @@ import org.geworkbench.bison.datastructure.biocollections.microarrays.CSExprMicr
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.CSMarkerValue;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
+import org.geworkbench.bison.annotation.CSAnnotationContextManager;
+import org.geworkbench.bison.annotation.DSAnnotationContext;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
@@ -21,7 +23,6 @@ import org.tigr.microarray.mev.cluster.gui.impl.pca.Content3D;
 import org.tigr.microarray.mev.cluster.gui.impl.pca.PCA2DViewer;
 import org.tigr.microarray.mev.cluster.gui.Experiment;
 import org.tigr.microarray.mev.cluster.gui.IData;
-import org.tigr.microarray.mev.SlideData;
 import org.tigr.microarray.mev.ISlideData;
 import org.tigr.microarray.mev.ISlideDataElement;
 import org.tigr.util.FloatMatrix;
@@ -33,10 +34,13 @@ import javax.swing.event.ChangeListener;
 import javax.swing.event.ChangeEvent;
 import javax.swing.table.TableModel;
 import javax.swing.table.DefaultTableModel;
+import javax.media.j3d.Canvas3D;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import java.awt.event.MouseMotionListener;
+import java.awt.event.MouseEvent;
 import java.util.*;
 import java.util.List;
 
@@ -57,7 +61,9 @@ public class PCA extends MicroarrayViewEventBase
     private JButton imageSnapshotButton;
 
     private PCAData pcaData;
-    private DSDataSet dataSet; 
+    private DSDataSet dataSet;
+
+    private JScrollPane mainScrollPane = new JScrollPane();
 
     public PCA()
     {
@@ -84,7 +90,9 @@ public class PCA extends MicroarrayViewEventBase
         compPanel.setRightComponent(compGraphPanel);
 
         compResultsTable = new JTable();
+        compResultsTable.setColumnSelectionAllowed(false);
         compResultsTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+        compPanel.setLeftComponent(compResultsTable);
 
         perVar = new JTextField();
         perVar.setMaximumSize(new Dimension(80, 100));
@@ -106,32 +114,41 @@ public class PCA extends MicroarrayViewEventBase
                 }
 
                 publishProjectNodeAddedEvent(new ProjectNodeAddedEvent("PCA_" + dataSet.getDataSetName(), pcDataSet, null));
-                System.out.println("Event action: " + event.getActionCommand());
             }
         });
 
+        compResultsTable.setRowSelectionAllowed(true);
         compResultsTable.getSelectionModel().addListSelectionListener( new ListSelectionListener()
         {
             public void valueChanged(ListSelectionEvent event)
             {
-                int[] selectedRows = compResultsTable.getSelectedRows();
-
-                double sum = 0;
-
-                for(int i = 0; i < selectedRows.length; i++)
+                if(!event.getValueIsAdjusting())
                 {
-                    String value = ((String)compResultsTable.getValueAt(selectedRows[i], 2)).replace("%", "");
-                    sum += Double.parseDouble(value);
-                }
+                    int[] selectedRows = compResultsTable.getSelectedRows();
 
-                perVar.setText(String.valueOf(sum));
-                buildComponentsPanel(selectedRows);
+                    if(selectedRows.length == 0)
+                    {
+                        compResultsTable.getSelectionModel().setAnchorSelectionIndex(-1);
+                        compResultsTable.getSelectionModel().setLeadSelectionIndex(-1);
+                        compGraphPanel.removeAll();
+                        return;
+                    }
+                    double sum = 0;
+
+                    for(int i = 0; i < selectedRows.length; i++)
+                    {
+                        String value = ((String)compResultsTable.getValueAt(selectedRows[i], 2)).replace("%", "");
+                        sum += Double.parseDouble(value);
+                    }
+
+                    perVar.setText(String.valueOf(sum));
+                    buildComponentsPanel(selectedRows);
+                }
             }
         });
        
         projGraphPanel = new JScrollPane();
         projPanel.setRightComponent(projGraphPanel);
-
         plotButton.setEnabled(false);
         plotButton.addActionListener(new ActionListener()
         {
@@ -148,6 +165,7 @@ public class PCA extends MicroarrayViewEventBase
             {
                 projResultsTable.clearSelection();
                 projGraphPanel.getViewport().removeAll();
+                projGraphPanel.repaint();
             }
         });
 
@@ -177,6 +195,7 @@ public class PCA extends MicroarrayViewEventBase
         projResultsTable = new JTable();
         projResultsTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
         projResultsTable.setColumnSelectionAllowed(false);
+        projPanel.setLeftComponent(projResultsTable);
 
         projResultsTable.getSelectionModel().addListSelectionListener( new ListSelectionListener()
         {
@@ -226,17 +245,22 @@ public class PCA extends MicroarrayViewEventBase
         buildJToolBar3();
 
         mainPanel.add(tabbedPane, BorderLayout.CENTER);
+
+        mainScrollPane.setViewportView(mainPanel);
     }
     /**
      * The component for the GUI engine.
      */
     public Component getComponent()
     {
-        return mainPanel;
+        return mainScrollPane;
     }
 
     private void buildResultsTable()
-    {       
+    {
+        //compGraphPanel.removeAll();
+        //projGraphPanel.removeAll();
+
         String[] columnNames = {"Id", "Eigen Value", "% Var"};
         TableModel tableModel = new DefaultTableModel(columnNames, pcaData.getNumPCs());
 
@@ -309,6 +333,9 @@ public class PCA extends MicroarrayViewEventBase
 
         JFreeChart lineGraph = ChartFactory.createXYLineChart
                 (null, null, null, xySeriesCollection, PlotOrientation.VERTICAL, true, true, false);
+        //XYLineAndShapeRenderer renderer = (XYLineAndShapeRenderer)((XYPlot)lineGraph.getPlot()).getRenderer();
+        //renderer.setBaseShapesVisible(true);
+        
         ChartPanel panel = new ChartPanel(lineGraph);
         JScrollPane scrollPane = new JScrollPane(panel);
         scrollPane.setMinimumSize(new Dimension(420, 270));
@@ -343,6 +370,8 @@ public class PCA extends MicroarrayViewEventBase
         FloatMatrix expFM  = new FloatMatrix(markerList.size(), pcaData.getNumPCs());
 
         ArrayList featuresList = new ArrayList();
+        Map markerSet = new HashMap();
+        DSAnnotationContext<DSGeneMarker> context = CSAnnotationContextManager.getInstance().getCurrentContext(maSet.getMarkerVector());
         for(int i=0; i < expFM.getColumnDimension(); i++)
         {
             DSMicroarray array = maSet.get(i);
@@ -356,24 +385,35 @@ public class PCA extends MicroarrayViewEventBase
                 if(onlyActivatedMarkers)
                 {
                     u_Matrix.set(j, i, pcaData.getUMatrix().get(maSet.getMarkers().indexOf(marker), i));
+                    
+                    String[] label = context.getLabelsForItem(marker);
+                    if(i == 0)
+                    {
+                        for(int l =0 ;l < label.length; l++)
+                        {
+                            Set list = (Set)markerSet.get(label[l]);
+                            if(list == null)
+                                list = new HashSet();
+
+                            list.add(marker.getLabel());
+
+                            markerSet.put(label[l], list);
+                        }
+                    }
                 }
 
                 if(i == 0)
                 {
-                    SlideData slideData = new SlideData();
-                    slideData.setSlideDataName(marker.getLabel());
-                    featuresList.add(slideData);
+                    featuresList.add(marker.getLabel());
                 }
             }
         }
     
 
         int[] column = new int[expFM.getColumnDimension()];
-        //Color[] colors = new Color[column.length];
         ArrayList colors = new ArrayList();
         for(int i=0; i < column.length; i ++ )
         {
-            //colors[i] = Color.RED;
             colors.add(Color.RED);
             column[i] = i;
         }
@@ -381,10 +421,10 @@ public class PCA extends MicroarrayViewEventBase
         org.tigr.microarray.mev.cluster.gui.Experiment experiment =
                 new org.tigr.microarray.mev.cluster.gui.Experiment(expFM, column);
 
-        PCIData multipleArrayData = new PCIData(experiment);
-        multipleArrayData.setFeaturesList(featuresList);
+        PCIData multipleArrayData = new PCIData(experiment, featuresList);
         multipleArrayData.setExperimentColors(colors);
         multipleArrayData.setExperimentColorIndices(column);
+        multipleArrayData.setClusters(markerSet);
         
         int xAxis, yAxis, zAxis;
         xAxis = pComp[0];
@@ -393,18 +433,36 @@ public class PCA extends MicroarrayViewEventBase
         {
             zAxis = pComp[2];
 
-            PCAContent3D content = new PCAContent3D(1, u_Matrix, experiment, false, xAxis, yAxis, zAxis);
+            PCAContent3D content = new PCAContent3D(1, u_Matrix, experiment, true, xAxis, yAxis, zAxis);
+            content.getComponent(0).addMouseMotionListener(new MouseMotionListener()
+            {
+                public void mouseDragged(MouseEvent event)
+                {
+                }
+
+                public void mouseMoved(MouseEvent event)
+                {
+                    Canvas3D canvas = (Canvas3D)event.getSource();
+                    System.out.println("PCA3DContent: mouse location" + canvas.getLocation());
+                }
+            });
+
             content.setData(multipleArrayData);
-            content.setPointSize((float)0.95);
+            content.setPointSize((float)0.97);
             content.setShowSpheres(true);
+            content.setSelection(true);
+            content.setSelectedPointSize((float)1.7);
             content.draw();
 
-            content.setMaximumSize(new Dimension(400, 280));
+            // content.setMaximumSize(new Dimension(400, 280));
+            //content.getComponent(0).setMinimumSize(new Dimension(130, 100));
+            //content.getComponent(0).setMaximumSize(new Dimension(130, 100));
             projGraphPanel.setViewportView(content);
+            //projGraphPanel.getViewport().setViewSize(new Dimension(110, 100));
         }
         else
         {
-            PCA2DViewer  pca2DViewer = new PCA2DViewer(experiment, u_Matrix, false, xAxis, yAxis);
+            PCA2DViewer  pca2DViewer = new PCA2DViewer(experiment, u_Matrix, true, xAxis, yAxis);
             pca2DViewer.setData(multipleArrayData);
             pca2DViewer.getContentComponent().repaint();
             projGraphPanel.setViewportView(pca2DViewer.getContentComponent());
@@ -434,6 +492,7 @@ public class PCA extends MicroarrayViewEventBase
             PCADataSet pcaDataSet = ((PCADataSet)e.getDataSet());
             pcaData = pcaDataSet.getData();
             dataSet = pcaDataSet.getParentDataSet();
+
             buildResultsTable();
         }
     }
@@ -452,9 +511,9 @@ public class PCA extends MicroarrayViewEventBase
             jToolBar3.add(plotButton);
             jToolBar3.addSeparator();
             jToolBar3.add(clearPlotButton);
-            jToolBar3.addSeparator(new Dimension(80, 10));
+            jToolBar3.addSeparator(new Dimension(75, 0));
             jToolBar3.add(imageSnapshotButton);
-            jToolBar3.addSeparator(new Dimension(270, 10));
+            jToolBar3.addSeparator(new Dimension(450, 0));
             jToolBar3.add(chkAllMarkers);
         }
         else
@@ -467,22 +526,13 @@ public class PCA extends MicroarrayViewEventBase
     {
         public void stateChanged(ChangeEvent event)
         {
-            System.out.println("State change: " + event.getSource());
-
             if(event.getSource() instanceof JTabbedPane)
             {
                 JTabbedPane pane = (JTabbedPane)event.getSource();
 
                 int index = pane.getSelectedIndex();
 
-                if(pane.getTitleAt(index).equals("Projection"))
-                {
-                    buildJToolBar3();
-                }
-                else
-                {
-                    buildJToolBar3();
-                }
+                buildJToolBar3();
             }
         }
     }
@@ -519,442 +569,498 @@ public class PCA extends MicroarrayViewEventBase
         }
     }
 
-    private class PCIData implements IData {
+    private class PCIData implements IData
+    {
 
-            private ArrayList featuresList = new ArrayList();
-            private ArrayList indicesList  = new ArrayList(); // array of int[]'s
+        private ArrayList featuresList = new ArrayList();
+        private ArrayList indicesList  = new ArrayList(); // array of int[]'s
 
-            private int[] colorIndices;
-            private ArrayList experimentColors = new ArrayList(); //array of experiment colors
-            private int [] experimentColorIndices;
+        private ArrayList probeColors = new ArrayList(); // array of probe colors
+        private int[] probeColorIndices;
+        private ArrayList experimentColors = new ArrayList(); //array of experiment colors
+        private int [] experimentColorIndices;
 
-            private Experiment experiment = null;
-            private Map markerClusters;
+        private Experiment experiment = null;
+        private Map clusters;
+        private Map clusterColors;
 
-            public PCIData(Experiment experiment)
-            {
-                this.experiment = experiment;
-            }
+        private final Color DEFAULT_COLOR = Color.RED;
 
-            /**
-            * Returns the experiment data (ratio values).
-            * @see Experiment
-            */
-           public Experiment getExperiment()
-           {
-                return experiment;
-           }
 
-           /**
-            * Returns the experiment data (ratio values) without application of cutoffs.
-            * @see Experiment
-            */
-           public Experiment getFullExperiment()
-           {
-               return null;
-           }
-
-           /**
-            * Returns count of features.
-            */
-           public int getFeaturesCount()
-           {
-               return featuresList.size();
-           }
-
-
-            /**
-            * Sets the features.
-            */
-           public void setFeaturesList(ArrayList featuresList)
-           {
-               this.featuresList = featuresList;
-           }
-
-           /**
-            * Returns size of features.
-            */
-           public int getFeaturesSize()
-           {
-               return featuresList.size();
-           }
-
-           /**
-            * Retruns the indicated feature
-            */
-           public ISlideData getFeature(int index)
-           {
-               return null;
-           }
-
-           /**
-            * Returns the indicated ISlideDataElement
-            */
-           public ISlideDataElement getSlideDataElement(int row, int col)
-           {
-                return null;
-           }
-
-           /**
-            * Returns the integer identifying the type of input data
-            */
-           public int getDataType()
-           {
-               return -1;
-           }
-
-           /**
-            * Returns CY3 value.
-            */
-           public float getCY3(int column, int row)
-           {
-               return -1;
-           }
-
-           /**
-            * Returns CY5 value.
-            */
-           public float getCY5(int column, int row)
-           {
-               return -1;
-           }
-
-           /**
-            * Returns max CY3 value.
-            */
-           public float getMaxCY3()
-           {
-               return -1;
-           }
-
-           /**
-            * Returns max CY5 value.
-            */
-           public float getMaxCY5()
-           {
-               return -1;
-           }
-
-           /**
-            * Returns ratio value.
-            */
-           public float getRatio(int column, int row, int logState)
-           {
-               return -1;
-           }
-
-           /**
-            * Returns min ratio value.
-            */
-           public float getMinRatio()
-           {
-               return -1;
-           }
-
-           /**
-            * Returns max ratio value
-            */
-           public float getMaxRatio()
-           {
-               return -1;
-           }
-
-           /**
-            * Returns feature name.
-            */
-           public String getSampleName(int column)
-           {
-               return null;
-           }
-
-           /**
-            * Returns the slected sample annotation
-            */
-           public String getSampleAnnotation(int column, String key)
-           {
-               return null;
-           }
-
-           /**
-            * Returns full feature name.
-            */
-           public String getFullSampleName(int column)
-           {
-               return null;
-           }
-
-           /**
-            * Sets the experiment label index for the collection of features
-            */
-           public void setSampleLabelKey(String key)
-           {
-
-           }
-
-           /**
-            * Returns an element attribute.
-            */
-           public String getElementAttribute(int row, int attr)
-           {
-               return null;
-           }
-
-           /**
-            * Returns a probe column in micro array.
-            */
-           public int getProbeColumn(int column, int row)
-           {
-               return -1;
-           }
-
-           /**
-            * Returns a probe row in micro array.
-            */
-           public int getProbeRow(int column, int row)
-           {
-               return -1;
-           }
-
-           /**
-            * Returns a gene unique id.
-            */
-           public String getUniqueId(int row)
-           {
-               return null;
-           }
-
-           /**
-            * Returns a gene name.
-            */
-           public String getGeneName(int row)
-           {
-               return null;
-           }
-
-           /**
-            *Returns all the annotation fields
-            */
-
-           public String[] getFieldNames()
-           {
-               return null;
-           }
-
-           /**
-            *Returns all annotation field names associated with the loaded samples
-            */
-           public Vector getSampleAnnotationFieldNames()
-           {
-               return null;
-           }
-
-           /**
-            * Returns sorted indices for specified column.
-            */
-           public int[] getSortedIndices(int column)
-           {
-               return null;
-           }
-
-           /**
-            * Returns array of published colors.
-            */
-           public Color[] getColors()
-           {
-               return null;
-           }
-
-           /**
-            * Delete all the published colors.
-            */
-           public void deleteColors()
-           {
-
-           }
-
-           /**
-            * Returns public color by specified row.
-            */
-           public Color getProbeColor(int row)
-           {
-               return null;
-           }
-
-           /**
-            * Sets public color for specified rows.
-            */
-           public void setProbesColor(int[] rows, Color color)
-           {
-
-           }
-
-           /**
-            * Returns index of the public color for specified row.
-            */
-           public int getProbeColorIndex(int row)
-           {
-               return -1;
-           }
-
-           /**
-            * Returns probe color indices
-            */
-           public int[] getColorIndices()
-           {
-               return null;
-           }
-
-           /**
-            * Returns count of rows which have public color index equals to colorIndex.
-            */
-           public int getColoredProbesCount(int colorIndex)
-           {
-               return -1;
-           }
-
-           /**
-            * Delete all the published experiment colors.
-            */
-           public void deleteExperimentColors()
-           {
-
-           }
-
-           public void setExperimentColors(ArrayList colors)
-           {
-                this.experimentColors = colors;   
-           }
-           /**
-            * Returns color for specified column data
-            */
-           public Color getExperimentColor(int col)
-           {
-
-                if(experimentColors == null)
-                    return null;
-
-                // return (Color)experimentColors.get(col);
-
-               Random rand = new Random(12345);
-                Color c = new Color(rand.nextInt(256), rand.nextInt(256), rand.nextInt(256));
-
-               return c;
-           }
-
-           /**
-            * Sets color for specified experiment indices
-            */
-           public void setExperimentColor(int [] indices, Color color)
-           {
-
-           }
-
-           /**
-            * Returns index of the public experiment color for specified row.
-            */
-           public int getExperimentColorIndex(int row)
-           {
-               return -1;
-           }
-
-            public void setExperimentColorIndices(int[] eci)
-            {
-                experimentColorIndices = eci;
-            }
-
-           /**
-            * Returns experiment color indices
-            */
-           public int[] getExperimentColorIndices()
-           {
-               return null;
-           }
-
-           /**
-            * Returns count of rows which have public color index equals to colorIndex.
-            */
-           public int getColoredExperimentsCount(int colorIndex)
-           {
-               return -1;
-           }
-
-           /**
-            * Returns array of published colors.
-            */
-           public Color[] getExperimentColors()
-           {
-               return null;
-           }
-
-           /**
-            * Returns an annotation array for the provided indices based on annotation key
-            */
-           public String [] getAnnotationList(String fieldName, int [] indices)
-           {
-               return null;
-           }
-
-           /**
-            * Returns true if loaded intensities are known to be median
-            */
-           public boolean areMedianIntensities()
-           {
-               return false;
-           }
-
-           /**
-            * Sets median intensity flag
-            */
-           public void setMedianIntensities(boolean areMedians)
-           {
-
-           }
-
-           /**
-            * Returns size of features.
-            */
-           public int getFeaturesSize(int chromosome)
-           {
-               return -1;
-           }
-
-           /**
-            * Returns CY3 value.
-            */
-           public float getCY3(int column, int row, int chromosome)
-           {
-               return -1;
-           }
-
-           /**
-            * Returns CY5 value.
-            */
-           public float getCY5(int column, int row, int chromosome)
-           {
-               return -1;
-           }
-
-           /**
-            * Returns an element attribute.
-            */
-           public String getElementAttribute(int row, int attr, int chromosome)
-           {
-               return null;
-           }
-
-           public float getValue(int experiment, int clone, int chromosome)
-           {
-               return -1;
-           }
-
-           public ArrayList getFeaturesList()
-           {
-               return null;
-           }
-
-        public void setMarkerClusters(Map map)
+        public PCIData(Experiment experiment, ArrayList featuresList)
         {
-            this.markerClusters = map;
+            this.experiment = experiment;
+            this.featuresList = featuresList;
+        }
+
+        /**
+        * Returns the experiment data (ratio values).
+        * @see Experiment
+        */
+        public Experiment getExperiment()
+        {
+            return experiment;
+        }
+
+        /**
+         * Returns the experiment data (ratio values) without application of cutoffs.
+         * @see Experiment
+         */
+        public Experiment getFullExperiment()
+        {
+            return null;
+        }
+
+        /**
+         * Returns count of features.
+        */
+        public int getFeaturesCount()
+        {
+            return featuresList.size();
+        }
+
+        /**
+         * Sets the features.
+         */
+        public void setFeaturesList(ArrayList featuresList)
+        {
+            this.featuresList = featuresList;
+        }
+
+        /**
+         * Returns size of features.
+         */
+        public int getFeaturesSize()
+        {
+            return featuresList.size();
+        }
+
+        /**
+         * Retruns the indicated feature
+         */
+        public ISlideData getFeature(int index)
+        {
+            return null;
+        }
+
+        /**
+         * Returns the indicated ISlideDataElement
+         */
+        public ISlideDataElement getSlideDataElement(int row, int col)
+        {
+            return null;
+        }
+
+        /**
+         * Returns the integer identifying the type of input data
+         */
+        public int getDataType()
+        {
+            return -1;
+        }
+
+        /**
+         * Returns CY3 value.
+         */
+        public float getCY3(int column, int row)
+        {
+            return -1;
+        }
+
+        /**
+         * Returns CY5 value.
+         */
+        public float getCY5(int column, int row)
+        {
+            return -1;
+        }
+
+        /**
+         * Returns max CY3 value.
+         */
+        public float getMaxCY3()
+        {
+            return -1;
+        }
+
+        /**
+         * Returns max CY5 value.
+         */
+        public float getMaxCY5()
+        {
+            return -1;
+        }
+
+        /**
+         * Returns ratio value.
+         */
+        public float getRatio(int column, int row, int logState)
+        {
+            return -1;
+        }
+
+        /**
+         * Returns min ratio value.
+         */
+        public float getMinRatio()
+        {
+            return -1;
+        }
+
+        /**
+         * Returns max ratio value
+         */
+        public float getMaxRatio()
+        {
+            return -1;
+        }
+
+        /**
+         * Returns feature name.
+         */
+        public String getSampleName(int column)
+        {
+            return null;
+        }
+
+        /**
+         * Returns the slected sample annotation
+        */
+        public String getSampleAnnotation(int column, String key)
+        {
+            return null;
+        }
+
+        /**
+         * Returns full feature name.
+         */
+        public String getFullSampleName(int column)
+        {
+            return null;
+        }
+
+        /**
+         * Sets the experiment label index for the collection of features
+         */
+        public void setSampleLabelKey(String key)
+        {
+
+        }
+
+        /**
+         * Returns an element attribute.
+         */
+        public String getElementAttribute(int row, int attr)
+        {
+            return (String)featuresList.get(row);
+        }
+
+        /**
+         * Returns a probe column in micro array.
+         */
+        public int getProbeColumn(int column, int row)
+        {
+            return -1;
+        }
+
+        /**
+         * Returns a probe row in micro array.
+         */
+        public int getProbeRow(int column, int row)
+        {
+            return -1;
+        }
+
+        /**
+         * Returns a gene unique id.
+         */
+        public String getUniqueId(int row)
+        {
+            return null;
+        }
+
+        /**
+         * Returns a gene name.
+         */
+        public String getGeneName(int row)
+        {
+            return (String)featuresList.get(row);
+        }
+
+        /**
+         *Returns all the annotation fields
+         */
+        public String[] getFieldNames()
+        {
+            return null;
+        }
+
+        /**
+         *Returns all annotation field names associated with the loaded samples
+         */
+        public Vector getSampleAnnotationFieldNames()
+        {
+            return null;
+        }
+
+        /**
+         * Returns sorted indices for specified column.
+         */
+        public int[] getSortedIndices(int column)
+        {
+            return null;
+        }
+
+        /**
+         * Returns array of published colors.
+         */
+        public Color[] getColors()
+        {
+            return null;
+        }
+
+        /**
+         * Delete all the published colors.
+         */
+        public void deleteColors()
+        {
+
+        }
+
+        /**
+         * Returns public color by specified row.
+         */
+        public Color getProbeColor(int row)
+        {
+            Color color = null;
+            if(clusters != null && featuresList != null)
+            {
+                String probeName = (String)featuresList.get(row);
+
+                Iterator it = clusters.keySet().iterator();
+                while(it.hasNext())
+                {
+                    String cluster = (String)it.next();
+                    Set items = (Set)clusters.get(cluster);
+
+                    if(items.contains(probeName))
+                    {
+                        if(color == null)
+                            color = (Color)clusterColors.get(cluster);
+                        else
+                            color = DEFAULT_COLOR;
+                    }
+                }
+            }
+
+            if(color == null)
+                color = DEFAULT_COLOR;
+
+            return color;
+        }
+
+        /**
+         * Sets public color for specified rows.
+         */
+        public void setProbesColor(int[] rows, Color color)
+        {
+
+        }
+
+        /**
+         * Returns index of the public color for specified row.
+         */
+        public int getProbeColorIndex(int row)
+        {
+            return -1;
+        }
+
+        public void setColorIndices(int[] eci)
+        {
+            probeColorIndices = eci;
+        }
+
+        /**
+         * Returns probe color indices
+         */
+        public int[] getColorIndices()
+        {
+            return probeColorIndices;
+        }
+
+        /**
+         * Returns count of rows which have public color index equals to colorIndex.
+         */
+        public int getColoredProbesCount(int colorIndex)
+        {
+            return -1;
+        }
+
+        /**
+         * Delete all the published experiment colors.
+         */
+        public void deleteExperimentColors()
+        {
+
+        }
+
+        public void setExperimentColors(ArrayList colors)
+        {
+            this.experimentColors = colors;
+        }
+
+        /**
+         * Returns color for specified column data
+         */
+        public Color getExperimentColor(int col)
+        {
+
+            if(experimentColors == null)
+                return null;
+
+            // return (Color)experimentColors.get(col);
+
+            Random rand = new Random(12345);
+            Color c = new Color(rand.nextInt(256), rand.nextInt(256), rand.nextInt(256));
+
+            return c;
+        }
+
+        /**
+         * Sets color for specified experiment indices
+         */
+        public void setExperimentColor(int [] indices, Color color)
+        {
+
+        }
+
+        /**
+         * Returns index of the public experiment color for specified row.
+         */
+        public int getExperimentColorIndex(int row)
+        {
+            return -1;
+        }
+
+        public void setExperimentColorIndices(int[] eci)
+        {
+            experimentColorIndices = eci;
+        }
+
+        /**
+         * Returns experiment color indices
+         */
+        public int[] getExperimentColorIndices()
+        {
+            return experimentColorIndices;
+        }
+
+        /**
+         * Returns count of rows which have public color index equals to colorIndex.
+         */
+        public int getColoredExperimentsCount(int colorIndex)
+        {
+            return -1;
+        }
+
+        /**
+         * Returns array of published colors.
+         */
+        public Color[] getExperimentColors()
+        {
+            return null;
+        }
+
+        /**
+         * Returns an annotation array for the provided indices based on annotation key
+         */
+        public String [] getAnnotationList(String fieldName, int [] indices)
+        {
+            return null;
+        }
+
+        /**
+         * Returns true if loaded intensities are known to be median
+         */
+        public boolean areMedianIntensities()
+        {
+            return false;
+        }
+
+        /**
+         * Sets median intensity flag
+         */
+        public void setMedianIntensities(boolean areMedians)
+        {
+
+        }
+
+        /**
+         * Returns size of features.
+         */
+        public int getFeaturesSize(int chromosome)
+        {
+            return -1;
+        }
+
+        /**
+         * Returns CY3 value.
+         */
+        public float getCY3(int column, int row, int chromosome)
+        {
+            return -1;
+        }
+
+        /**
+         * Returns CY5 value.
+         */
+        public float getCY5(int column, int row, int chromosome)
+        {
+            return -1;
+        }
+
+        /**
+         * Returns an element attribute.
+         */
+        public String getElementAttribute(int row, int attr, int chromosome)
+        {
+            return null;
+        }
+
+        public float getValue(int experiment, int clone, int chromosome)
+        {
+            return -1;
+        }
+
+        public ArrayList getFeaturesList()
+        {
+            return null;
+        }
+
+        public void setClusters(Map clusters)
+        {
+            this.clusters = clusters;
+
+            Random rand = new Random(12345);
+
+            clusterColors = new HashMap();
+            Iterator it = clusters.keySet().iterator();
+            while(it.hasNext())
+            {
+                String clusterName = (String)it.next();
+                Color c =  new Color(rand.nextInt(256), rand.nextInt(256), rand.nextInt(256));
+                while(c == Color.RED || c == Color.WHITE)
+                {
+                    c = new Color(rand.nextInt(256), rand.nextInt(256), rand.nextInt(256));
+                }
+                
+                clusterColors.put(clusterName, c);
+            }
+        }
+
+        public Map getClusters(Map clusters)
+        {
+            return clusters;
         }
     }
 }

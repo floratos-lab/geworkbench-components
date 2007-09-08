@@ -44,7 +44,7 @@ public class PCAAnalysisPanel extends GPAnalysisPanel
     {
         clusterBy = new JComboBox();
         clusterBy.addItem("rows");
-        clusterBy.addItem("columns");
+        //clusterBy.addItem("columns");
 
         FormLayout formLayout = new FormLayout("right:max(80dlu;pref), 7dlu,  max(70dlu;pref), 7dlu, max(70dlu;pref)");
 
