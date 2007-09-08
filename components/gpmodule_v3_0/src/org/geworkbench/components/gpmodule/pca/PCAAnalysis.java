@@ -13,19 +13,15 @@ package org.geworkbench.components.gpmodule.pca;
 
 import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
 import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
-import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.CSAncillaryDataSet;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
-import org.geworkbench.bison.annotation.DSAnnotationContext;
-import org.geworkbench.bison.annotation.CSAnnotationContextManager;
 import org.geworkbench.engine.management.Publish;
 import org.geworkbench.events.ProjectNodeAddedEvent;
 import org.geworkbench.components.gpmodule.GPAnalysis;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.genepattern.webservice.Parameter;
-import org.tigr.util.FloatMatrix;
 
 import java.util.List;
 import java.util.ArrayList;
@@ -49,12 +45,8 @@ public class PCAAnalysis extends GPAnalysis
     {
         assert (input instanceof DSMicroarraySetView);
         DSMicroarraySetView<DSGeneMarker, DSMicroarray> view = (DSMicroarraySetView<DSGeneMarker, DSMicroarray>) input;
-
-        DSMicroarraySet maSet = view.getMicroarraySet();
         
         String gctFileName = createGCTFile("pcaDataset", view.markers(), view.items()).getAbsolutePath();
-
-        DSAnnotationContext<DSMicroarray> context = CSAnnotationContextManager.getInstance().getCurrentContext(maSet);
 
         List parameters = new ArrayList();
 
@@ -63,10 +55,15 @@ public class PCAAnalysis extends GPAnalysis
 
         List results = runAnalysis("PCA", (Parameter[])parameters.toArray(new Parameter[0]), panel.getPassword());        
 
+        if(results == null)
+        {
+            return new AlgorithmExecutionResults(false, "PCA Results", null);
+        }
+        
         PCAData pcaData = new PCAData(results);
-        CSAncillaryDataSet pcaDataSet = new PCADataSet(view.getDataSet(), "PCA", pcaData);
-       
-        return new AlgorithmExecutionResults(true, "PCA", pcaDataSet);
+        CSAncillaryDataSet pcaDataSet = new PCADataSet(view.getDataSet(), "PCA Results", pcaData);
+
+        return new AlgorithmExecutionResults(true, "PCA Results", pcaDataSet);
     }
 
     @Publish
