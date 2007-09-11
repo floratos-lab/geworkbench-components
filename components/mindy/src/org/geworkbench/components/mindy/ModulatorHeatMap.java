@@ -11,6 +11,7 @@ import java.util.*;
 import java.util.List;
 
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
+import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMutableMarkerValue;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.util.pathwaydecoder.mutualinformation.MindyData;
@@ -28,6 +29,10 @@ import org.apache.commons.math.stat.regression.*;
 public class ModulatorHeatMap extends JPanel {
 
     private static Log log = LogFactory.getLog(ModulatorHeatMap.class);
+    
+    private static final String LEFT_LABEL = "Lowest ";
+    private static final String RIGHT_LABEL = "Highest ";
+    private static final String PERCENT = "%";
 
     private static final int SPACER_TOP = 20;
     private static final int SPACER_SIDE = 20;
@@ -42,19 +47,17 @@ public class ModulatorHeatMap extends JPanel {
     private DSMicroarraySet maSet;
     private DSGeneMarker modulator;
     private DSGeneMarker transcriptionFactor;
+    private float setFractionPercent;
     private MindyData mindyData;
 
-    private ColorGradient gradient;
-    private float maxValue;
-    private float minValue;
-    private float valueRange;
     private int maxGeneNameWidth = -1;
     private java.util.List<MindyData.MindyResultRow> targetRows;
     private List<DSGeneMarker> targetLimits;
     
     private ColorContext colorContext = null;
     private ArrayList<DSMicroarray> sortedPerMod = null;
-    private ArrayList<DSMicroarray> sortedPerTF = null;
+    private ArrayList<DSMicroarray> half1 = null;
+    private ArrayList<DSMicroarray> half2 = null;
     
     private boolean showProbeName = true;
 
@@ -68,13 +71,15 @@ public class ModulatorHeatMap extends JPanel {
      */
     @SuppressWarnings("unchecked")
     public ModulatorHeatMap(DSGeneMarker modulator, DSGeneMarker transcriptionFactor, MindyData mindyData, List<DSGeneMarker> targetLimits) {
-        this.maSet = mindyData.getArraySet();
+    	//system.out.println("\tModulatorHeatMap::constructor::start::" + System.currentTimeMillis());
+    	this.maSet = mindyData.getArraySet();
         List<DSGeneMarker> markers = mindyData.getTargets(modulator, transcriptionFactor);
         this.colorContext = (ColorContext) maSet.getObject(ColorContext.class);
         
         this.modulator = modulator;
         this.transcriptionFactor = transcriptionFactor;
         this.mindyData = mindyData;
+        this.setFractionPercent = mindyData.getSetFraction() * 100;
         
         // Extract and sort set based on modulator
         sortedPerMod = new ArrayList<DSMicroarray>(maSet.size());
@@ -82,10 +87,11 @@ public class ModulatorHeatMap extends JPanel {
         	sortedPerMod.add((DSMicroarray) maSet.get(i)); 
         }
         sortedPerMod.trimToSize();
+        //system.out.println("\t\t\tsorting per mod::start::" + System.currentTimeMillis());
         Collections.sort(sortedPerMod, new MicroarrayMarkerPositionComparator(modulator.getSerial()
         		, MicroarrayMarkerPositionComparator.EXPRESSION_VALUE
         		,  true));
-        
+        //system.out.println("\t\t\tsorting per mod::end::" + System.currentTimeMillis());
         
         // Sort half sets based on trans factor
         int size = sortedPerMod.size()/2;
@@ -101,8 +107,8 @@ public class ModulatorHeatMap extends JPanel {
         // start index for the L+ array 
         int startIndex = sortedPerMod.size() - ((int) Math.round(size * this.mindyData.getSetFraction() * 2));
         if(startIndex < 0) startIndex = 0;
-        ArrayList<DSMicroarray> half1 = new ArrayList<DSMicroarray>(stopIndex);
-        ArrayList<DSMicroarray> half2 = new ArrayList<DSMicroarray>(stopIndex); 
+        half1 = new ArrayList<DSMicroarray>(stopIndex);
+        half2 = new ArrayList<DSMicroarray>(stopIndex); 
         int count = 0;
         for(DSMicroarray ma : sortedPerMod){
         	if(count < size){
@@ -118,28 +124,20 @@ public class ModulatorHeatMap extends JPanel {
         }
         half1.trimToSize();
         half2.trimToSize();
+        //system.out.println("\t\t\tsorting per tf::1::start::" + System.currentTimeMillis());
         Collections.sort(half1, new MicroarrayMarkerPositionComparator(transcriptionFactor.getSerial()
         		, MicroarrayMarkerPositionComparator.EXPRESSION_VALUE
         		, true));
+        //system.out.println("\t\t\tsorting per tf::1::end::" + System.currentTimeMillis());
+        //system.out.println("\t\t\tsorting per tf::2::start::" + System.currentTimeMillis());
         Collections.sort(half2, new MicroarrayMarkerPositionComparator(transcriptionFactor.getSerial()
         		, MicroarrayMarkerPositionComparator.EXPRESSION_VALUE
         		, true));
-        
-        sortedPerTF = new ArrayList<DSMicroarray>(half1.size() + half2.size());
-        for(int i = 0; i < half1.size(); i++){
-        	this.sortedPerTF.add((DSMicroarray) half1.get(i));
-        }
-        for(int i = 0; i < half2.size(); i++){
-        	this.sortedPerTF.add((DSMicroarray) half2.get(i));
-        }
-        this.sortedPerTF.trimToSize();
-
+        //system.out.println("\t\t\tsorting per tf::2::end::" + System.currentTimeMillis());
         limitTargets(targetLimits);        
-        sortByPearson();        
+        sortByPearson();   
 
-        gradient = new ColorGradient(Color.blue, Color.red);
-        gradient.addColorPoint(Color.white, 0f);
-
+        //system.out.println("\t\trender context calc::start::" + System.currentTimeMillis());
         FontRenderContext context = new FontRenderContext(null, true, false);
         for (DSGeneMarker marker : markers) {
         	String shortName = this.getMarkerDisplayName(marker);
@@ -148,34 +146,45 @@ public class ModulatorHeatMap extends JPanel {
                 maxGeneNameWidth = (int) bounds.getWidth() + 1;
             }
         }
+        //system.out.println("\t\trender context calc::end::" + System.currentTimeMillis());
         log.debug("Max gene name width: " + maxGeneNameWidth);
 
         this.setBackground(Color.white);
         this.setOpaque(true);
+        //system.out.println("\tModulatorHeatMap::constructor::end::" + System.currentTimeMillis());
     }
 
     private void limitTargets(List<DSGeneMarker> targetLimits) {
+    	
+    	//system.out.println("\t\t\tlimitTargets()::start::" + System.currentTimeMillis());
         if (targetLimits != null) {
+        	//system.out.println("\t\t\tlimitTargets()::targetLimits=" + targetLimits.size());
         	this.targetLimits = targetLimits;
             targetRows = mindyData.getRows(modulator, transcriptionFactor, targetLimits);
         } else {
+        	//system.out.println("\t\t\tlimitTargets()::targetLimits=null");
         	this.targetLimits = null;
             targetRows = mindyData.getRows(modulator, transcriptionFactor);
         }
-        findMaxValues();
+        //system.out.println("\t\t\tlimitTargets()::end" + System.currentTimeMillis());
         invalidate();
     }
     
     private void sortByPearson(){
     	SimpleRegression sr;
+    	//system.out.println("\t\t\tpearson::start::" + System.currentTimeMillis());
     	for(MindyData.MindyResultRow r: targetRows){
     		sr = new SimpleRegression();
-    		for(DSMicroarray ma: this.sortedPerTF){
+    		for(DSMicroarray ma: this.half1){
+    			sr.addData(ma.getMarkerValue(r.getTarget()).getValue(), ma.getMarkerValue(this.transcriptionFactor).getValue());    			
+    		}
+    		for(DSMicroarray ma: this.half2){
     			sr.addData(ma.getMarkerValue(r.getTarget()).getValue(), ma.getMarkerValue(this.transcriptionFactor).getValue());    			
     		}
     		r.setCorrelation(sr.getR());    		
     	}
     	Collections.sort(targetRows, new MindyRowComparator(MindyRowComparator.PEARSON_CORRELATION, true));
+    	//system.out.println("\t\t\tpearson::end::" + System.currentTimeMillis());
     }
 
     /**
@@ -209,55 +218,70 @@ public class ModulatorHeatMap extends JPanel {
 
         g.setBackground(Color.WHITE);
 
-        // Paint the modulator expression bar
+        // Draw the modulator expression line
         g.setColor(COLOR_TEXT);
         FontMetrics metrics = g.getFontMetrics();
         String modulatorName = this.getMarkerDisplayName(modulator);
-        int modNameWidth = metrics.stringWidth(modulatorName + "+");
-        g.drawString(modulatorName.trim()+"-", SPACER_SIDE, SPACER_TOP);
-        g.drawString(modulatorName.trim()+"+", (int) (getWidth() - modNameWidth - SPACER_SIDE + 1), SPACER_TOP);
+        int modNameWidth = metrics.stringWidth(modulatorName);
+        g.drawString(modulatorName, (getWidth() / 2) - (modNameWidth / 2), SPACER_TOP);
         int modBarTopY = SPACER_TOP + metrics.getDescent() + 1;
         int modBarStartX = SPACER_TOP;
         int modBarEndX = getWidth() - SPACER_TOP;
         int barWidth = modBarEndX - modBarStartX;
-        int numArrays = this.sortedPerMod.size();
-        float modCellWidth = barWidth / (float) numArrays;
-        for (int i = 0; i < numArrays; i++) {
-            int x = (int) (modBarStartX + (i * modCellWidth));
-            Color cellColor = colorContext.getMarkerValueColor(((DSMicroarray) this.sortedPerMod.get(i)).getMarkerValue(modulator), modulator, 1.0f);         
-            g.setColor(cellColor);
-            g.fillRect(x, modBarTopY, (int) (modCellWidth + 1), BAR_HEIGHT);
-        }
-
-        g.setColor(Color.GRAY);
-        g.drawRect(modBarStartX, modBarTopY, barWidth, BAR_HEIGHT);
-
 
         // Some variables useful for the next two sections of painting
         float expressionBarWidth = (getWidth() - (2 * SPACER_SIDE) - (2 * SPACER_SIDE + maxGeneNameWidth)) / 2f;
-        float cellWidth = expressionBarWidth / (this.sortedPerTF.size() / 2f);
+        float cellWidth = expressionBarWidth / ((this.half1.size() + this.half2.size()) / 2f);
         int transFacStartY = modBarTopY + BAR_HEIGHT + SPACER_TOP;
 
-        // Paint the two transcription factor gradients
-
+        // Draw the two transcription factor gradients
         // TransFac headers
         g.setColor(COLOR_TEXT);
         String transFacName = this.getMarkerDisplayName(transcriptionFactor).trim();
-        int transFacNameWidth = metrics.stringWidth(transFacName + "+");
-        // Left Side
-        g.drawString(transFacName + "-", SPACER_SIDE, transFacStartY);
-        g.drawString(transFacName + "+", SPACER_SIDE + expressionBarWidth - transFacNameWidth + 1, transFacStartY);
-        // Right Side
-        g.drawString(transFacName + "-", getWidth() - SPACER_SIDE - expressionBarWidth, transFacStartY);
-        g.drawString(transFacName + "+", getWidth() - SPACER_SIDE - transFacNameWidth + 1, transFacStartY);
+        int transFacNameWidth = metrics.stringWidth(transFacName);
+        // Left Side (marker name)
+        g.drawString(transFacName, SPACER_SIDE + (expressionBarWidth - transFacNameWidth)/2 + 1, transFacStartY);        
+        // Right Side (marker name)
+        g.drawString(transFacName
+        		, Math.round((getWidth() - SPACER_SIDE - expressionBarWidth - 1) 
+                		+ (expressionBarWidth + 1)/2 - transFacNameWidth/2)        		
+        		, transFacStartY);
+        
         int transFacBarY = transFacStartY + metrics.getDescent() + 1;
 
-        paintExpressionBar(cellWidth, expressionBarWidth, g, transFacBarY, transcriptionFactor);
-        // Outlines for trans fac gradients
-        g.setColor(Color.GRAY);
-        g.drawRect(SPACER_SIDE, transFacBarY, (int) expressionBarWidth, BAR_HEIGHT);
-        g.drawRect((int) (getWidth() - SPACER_SIDE - expressionBarWidth - 1), transFacBarY, (int) (expressionBarWidth + 1), BAR_HEIGHT);
-
+        // Drawing line under modulator name
+        int x1 = Math.round(SPACER_SIDE + (expressionBarWidth - transFacNameWidth)/2 + 1 + transFacNameWidth/2);
+        int y1 = modBarTopY;
+        int x2 = Math.round(
+        		(getWidth() - SPACER_SIDE - expressionBarWidth - 1) 
+        		+ (expressionBarWidth + 1)/2
+        		);
+        int y2 = y1 + transFacBarY/4;
+        g.setColor(COLOR_TEXT);
+        g.drawLine(x1, y1, x2, y1);		// top line
+        g.drawLine(x1, y1, x1, y2);		// left vertical line
+        g.drawLine(x2, y1, x2, y2);		// right vertical line
+        
+        // Label two ends of the line
+        g.drawString(LEFT_LABEL + this.setFractionPercent + PERCENT, x1, SPACER_TOP);
+        String s = RIGHT_LABEL + this.setFractionPercent+ PERCENT;
+        g.drawString(s, x2 - metrics.stringWidth(s), SPACER_TOP);
+        
+        // Outlines for trans fac gradients (the triangles)
+        g.setColor(COLOR_TEXT);
+        int xx1 = SPACER_SIDE;
+        int yy1 = transFacBarY;
+        int xx2 = xx1 + (int) expressionBarWidth;
+        int yy2 = yy1 + BAR_HEIGHT;
+        g.drawLine(xx1, yy2, xx2, yy1);				// left triangle:	diagonal
+        g.drawLine(xx2, yy1, xx2, yy2);				//					vertical
+        g.drawLine(xx1, yy2, xx2, yy2);				//					horizontal
+        xx1 = (int) (getWidth() - SPACER_SIDE - expressionBarWidth - 1);
+        xx2 = xx1 + (int) (expressionBarWidth + 1);
+        g.drawLine(xx1, yy2, xx2, yy1);				// right triangle:	diagonal
+        g.drawLine(xx2, yy1, xx2, yy2);				//					vertical
+        g.drawLine(xx1, yy2, xx2, yy2);				//					horizontal
+        
         // Draw the target's expression values
         int targetStartY = transFacBarY + BAR_HEIGHT + 5;
         int targetCurrY = targetStartY;
@@ -285,47 +309,20 @@ public class ModulatorHeatMap extends JPanel {
     }
 
     private void paintExpressionBar(float cellWidth, float expressionBarWidth, Graphics2D g, int y, DSGeneMarker markerToPaint) {
-        int halfArrays = this.sortedPerTF.size() / 2;
-        for (int i = 0; i < this.sortedPerTF.size(); i++) {
+    	int size = this.half1.size() + this.half2.size();
+        int halfArrays = size / 2;
+        for (int i = 0; i < size; i++) {
             int startX;
+            DSMutableMarkerValue value = null;
             if (i < halfArrays) {
                 startX = SPACER_SIDE + (int) (i * cellWidth);
+                value = ((DSMicroarray) this.half1.get(i)).getMarkerValue(markerToPaint);
             } else {
                 startX = (int) (getWidth() - SPACER_SIDE - expressionBarWidth + ((i - halfArrays) * cellWidth));
+                value = ((DSMicroarray) this.half2.get(i - halfArrays)).getMarkerValue(markerToPaint);
             }
-            Color expressionColor = colorContext.getMarkerValueColor(((DSMicroarray) this.sortedPerTF.get(i)).getMarkerValue(markerToPaint), markerToPaint, 1.0f);
-            g.setColor(expressionColor);
+            g.setColor(colorContext.getMarkerValueColor(value, markerToPaint, 1.0f));
             g.fillRect(startX, y, (int) (cellWidth + 1), BAR_HEIGHT);
-        }
-    }
-
-    /*
-     * Find's the min and max expression values for the modulator, trans factor and targets
-     */
-    private void findMaxValues() {
-        maxValue = Float.NEGATIVE_INFINITY;
-        minValue = Float.POSITIVE_INFINITY;
-        for (MindyData.MindyResultRow mindyResultRow : targetRows) {
-            findMinMaxForMarker(mindyResultRow.getTarget().getSerial());
-        }
-        findMinMaxForMarker(modulator.getSerial());
-        findMinMaxForMarker(transcriptionFactor.getSerial());
-        if (maxValue == minValue) {
-            // Avoid div by zero in this degenerate case
-            maxValue += 1e-9f;
-        }
-        valueRange = maxValue - minValue;
-    }
-
-    private void findMinMaxForMarker(int index) {
-    	for (int i = 0; i < this.sortedPerMod.size(); i++) {
-    		float value = ((DSMicroarray) this.sortedPerMod.get(i)).getRawMarkerData()[index];
-            if (value > maxValue) {
-                maxValue = value;
-            }
-            if (value < minValue) {
-                minValue = value;
-            }
         }
     }
 

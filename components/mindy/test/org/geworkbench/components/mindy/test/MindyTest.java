@@ -53,7 +53,9 @@ public class MindyTest extends TestCase {
         }
 
         MindyPlugin mindy = new MindyPlugin(loadedData, null);
+        System.out.println("MindyTest.main()");
         mindy.limitMarkers(limitList);
+        
 
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());

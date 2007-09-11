@@ -262,7 +262,7 @@ public class MindyAnalysis extends AbstractAnalysis implements ClusteringAnalysi
     /**
      * The swing worker class that runs Mindy analysis in the background.
      * @author ch2514
-     * @version $Id: MindyAnalysis.java,v 1.17 2007-08-16 19:30:00 hungc Exp $
+     * @version $Id: MindyAnalysis.java,v 1.18 2007-09-11 16:24:03 hungc Exp $
      */
     class Task extends SwingWorker<MindyDataSet, Void> {
     	private Mindy mindy;
@@ -326,14 +326,17 @@ public class MindyAnalysis extends AbstractAnalysis implements ClusteringAnalysi
     		log.info("Running MINDY analysis.");
             MindyResults results=null;
             try{
+            	//system.out.println("\trunMindy()::Start::" + System.currentTimeMillis());
             	results = mindy.runMindy(convert(mSet), new Marker(params.getTranscriptionFactor()), modulators,
                     dpiAnnots, fullSetMI, fullSetThreshold, subsetMI, subsetThreshold,
                     setFraction, params.getDPITolerance());
+            	//system.out.println("\trunMindy()::End::" + System.currentTimeMillis());
             } catch (Exception e){
             	log.error("Cannot analyze data.", e);            	
             	return null;
             }            
             log.info("MINDY analysis complete.  Converting Mindy results.");
+            //system.out.println("\trunMindy()::Convert results Start::" + System.currentTimeMillis());
             List<MindyData.MindyResultRow> dataRows = new ArrayList<MindyData.MindyResultRow>();
             for (MindyResults.MindyResultForTarget result : results) {
                 DSItemList<DSGeneMarker> markers = mSet.getMarkers();
@@ -346,6 +349,7 @@ public class MindyAnalysis extends AbstractAnalysis implements ClusteringAnalysi
 
             MindyData loadedData = new MindyData((CSMicroarraySet) mSet, dataRows, setFraction);
             MindyDataSet dataSet = new MindyDataSet(mSet, "MINDY Results", loadedData, params.getCandidateModulatorsFile());
+            //system.out.println("\trunMindy()::Convert results End::" + System.currentTimeMillis());
             log.info("Done converting MINDY results.");
             
             return dataSet;

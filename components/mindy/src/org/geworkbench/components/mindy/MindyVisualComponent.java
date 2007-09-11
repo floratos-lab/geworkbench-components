@@ -65,6 +65,7 @@ public class MindyVisualComponent implements VisualPlugin {
     	ht = new HashMap<ProjectTreeNode, MindyPlugin>(5);
         plugin = new JPanel(new BorderLayout());
         selectorPanel = null;
+        selectedMarkers = null;
     }
 
     /**
@@ -135,7 +136,7 @@ public class MindyVisualComponent implements VisualPlugin {
             if((maView.getMarkerPanel() != null) 
             		&& (maView.getMarkerPanel().activeSubset() != null) 
             		&& (maView.getMarkerPanel().activeSubset().size() == 0)
-            		) {
+            		) {            	
                 selectedMarkers = null;
             } else {
             	try{
@@ -144,7 +145,7 @@ public class MindyVisualComponent implements VisualPlugin {
 	            			){
 		                DSItemList<DSGeneMarker> uniqueMarkers = maView.getUniqueMarkers();
 		                if (uniqueMarkers.size() > 0) {
-		                    selectedMarkers = new ArrayList<DSGeneMarker>();
+		                    selectedMarkers = new ArrayList<DSGeneMarker>(uniqueMarkers.size());
 		                    for (Iterator<DSGeneMarker> iterator = uniqueMarkers.iterator(); iterator.hasNext();) {
 		                        DSGeneMarker marker = iterator.next();
 		                        log.debug("Selected " + marker.getShortName());
@@ -156,13 +157,16 @@ public class MindyVisualComponent implements VisualPlugin {
             		log.debug("Gene Selector Event contained no marker data.");
             	}
             }
+            
             Iterator it = ht.values().iterator();
-            if (selectedMarkers != null) {            	
+            if (selectedMarkers != null) {    
             	while(it.hasNext()){
+            		//system.out.println("received gene selector event::calling limitMarkers");
             		((MindyPlugin) it.next()).limitMarkers(selectedMarkers);
             	}
             } else {
             	while(it.hasNext()){
+            		//system.out.println("received gene selector event::calling limitMarkers with null");
             		((MindyPlugin) it.next()).limitMarkers(null);
             	}
             }
@@ -254,25 +258,44 @@ public class MindyVisualComponent implements VisualPlugin {
             MindyData mindyData = dataSet.getData();
             Collections.sort(mindyData.getData(), new MindyRowComparator(MindyRowComparator.DELTA_I, false));            
             List<MindyData.MindyResultRow> mindyRows = mindyData.getData();
-            if(mindyRows.size() > 100) mindyRows = mindyData.getData().subList(0, 100);
+            //if(mindyRows.size() > 100) mindyRows = mindyData.getData().subList(0, 100);
             mindyData.setData(mindyRows);                    
             
             // Then pass into mindy plugin
             mplugin = new MindyPlugin(mindyData, vp);
             
             // Incorporate selections from marker set selection panel
+            /*
         	DSMicroarraySetView<DSGeneMarker, DSMicroarray> maView = new CSMicroarraySetView<DSGeneMarker, DSMicroarray>(dataSet.getData().getArraySet());
             DSItemList<DSGeneMarker> uniqueMarkers = maView.getUniqueMarkers();
+            
             if (uniqueMarkers.size() > 0) {
-                selectedMarkers = new ArrayList<DSGeneMarker>();
+                selectedMarkers = new ArrayList<DSGeneMarker>(uniqueMarkers.size());
                 for (Iterator<DSGeneMarker> iterator = uniqueMarkers.iterator(); iterator.hasNext();) {
                     DSGeneMarker marker = iterator.next();
                     log.debug("Selected " + marker.getShortName());
                     selectedMarkers.add(marker);
                 }
             }
-            mplugin.limitMarkers(selectedMarkers);
-    		
+            //system.out.println("VP::doInBackground()::");
+            if(uniqueMarkers != null){
+            	//system.out.println("uniqueMarkers=" + uniqueMarkers.size());
+            	if(selectedMarkers != null){
+            		//system.out.println("selected markers=" + selectedMarkers.size());
+            	} else {
+            		//system.out.println("selected markers=null");
+            	}
+            } else {
+            	//system.out.println("uniqueMarkers=null");
+            	if(selectedMarkers != null){
+            		//system.out.println("selected markers=" + selectedMarkers.size());
+            	} else {
+            		//system.out.println("selected markers=null");
+            	}
+            }
+            mplugin.limitMarkers(selectedMarkers); 
+            */
+            
     		return mplugin;
     	}
     	
