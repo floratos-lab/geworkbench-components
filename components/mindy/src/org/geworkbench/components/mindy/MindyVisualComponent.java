@@ -305,7 +305,7 @@ public class MindyVisualComponent implements VisualPlugin {
 	    			mindyPlugin = get();    			
 	    			log.debug("Transferring mindy plugin back to event thread.");
 	    		} catch (Exception e) {
-	    			log.error("Exception in finishing up worker thread that is creating the new MINDY GUI: " + e.getMessage());
+	    			log.error("Exception in finishing up worker thread that is creating the new MINDY GUI: " + e.getMessage(), e);
 	    		}
     		}
     		dialog.setVisible(false);

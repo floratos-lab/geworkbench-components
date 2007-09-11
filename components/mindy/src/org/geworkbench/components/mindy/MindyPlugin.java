@@ -25,7 +25,7 @@ import com.solarmetric.ide.ui.CheckboxCellRenderer;
  * @author mhall
  * @ch2514
  * 
- * @version $Id: MindyPlugin.java,v 1.51 2007-09-11 16:24:03 hungc Exp $
+ * @version $Id: MindyPlugin.java,v 1.52 2007-09-11 21:05:11 hungc Exp $
  */
 @SuppressWarnings("serial")
 public class MindyPlugin extends JPanel {
@@ -1133,7 +1133,7 @@ public class MindyPlugin extends JPanel {
 	 * 
 	 * @author mhall
 	 * @author ch2514
-	 * @version $Id: MindyPlugin.java,v 1.51 2007-09-11 16:24:03 hungc Exp $
+	 * @version $Id: MindyPlugin.java,v 1.52 2007-09-11 21:05:11 hungc Exp $
 	 */
 	private class ModulatorModel extends DefaultTableModel {
 
@@ -1485,7 +1485,7 @@ public class MindyPlugin extends JPanel {
 			ArrayList<DSGeneMarker> mods = this.modulators;
 			if (col == 1) {
 				Collections.sort(mods, new GeneMarkerListComparator(mindyData,
-						GeneMarkerListComparator.SHORT_NAME, ascending));
+						GeneMarkerListComparator.SHORT_NAME, ascending));				
 			}
 			if (col == 2) {
 				Collections.sort(mods, new GeneMarkerListComparator(mindyData,
@@ -1554,7 +1554,7 @@ public class MindyPlugin extends JPanel {
 	 * For rendering modulator checkboxes on the targets table column headers.
 	 * 
 	 * @author ch2514
-	 * @version $Id: MindyPlugin.java,v 1.51 2007-09-11 16:24:03 hungc Exp $
+	 * @version $Id: MindyPlugin.java,v 1.52 2007-09-11 21:05:11 hungc Exp $
 	 */
 	private class CheckBoxRenderer extends DefaultTableCellRenderer {
 		/**
@@ -1637,7 +1637,7 @@ public class MindyPlugin extends JPanel {
 	 * 
 	 * @author mhall
 	 * @author ch2514
-	 * @version $Id: MindyPlugin.java,v 1.51 2007-09-11 16:24:03 hungc Exp $
+	 * @version $Id: MindyPlugin.java,v 1.52 2007-09-11 21:05:11 hungc Exp $
 	 */
 	private class AggregateTableModel extends DefaultTableModel {
 
@@ -2443,7 +2443,7 @@ public class MindyPlugin extends JPanel {
 	 * Compare M#, M+, or M- of two gene markers (for sorting).
 	 * 
 	 * @author mhall
-	 * @version $Id: MindyPlugin.java,v 1.51 2007-09-11 16:24:03 hungc Exp $
+	 * @version $Id: MindyPlugin.java,v 1.52 2007-09-11 21:05:11 hungc Exp $
 	 */
 	private class ModulatorStatComparator implements Comparator<DSGeneMarker> {
 
@@ -2495,7 +2495,7 @@ public class MindyPlugin extends JPanel {
 	 * 
 	 * @author mhall
 	 * @author ch2514
-	 * @version $Id: MindyPlugin.java,v 1.51 2007-09-11 16:24:03 hungc Exp $
+	 * @version $Id: MindyPlugin.java,v 1.52 2007-09-11 21:05:11 hungc Exp $
 	 */
 	private class ModulatorTargetModel extends DefaultTableModel {
 
@@ -3141,16 +3141,16 @@ public class MindyPlugin extends JPanel {
 			if ((col == 0) || (col == 2))
 				return;
 			if (col == 1) {
-				//system.out.println("\tModulatorTargetModel::sort()::mods::start::" + System.currentTimeMillis());
+				//System.out.println("\tModulatorTargetModel::sort()::mods::start::" + System.currentTimeMillis());
 				Collections.sort(rows, new MindyRowComparator(MindyRowComparator.MODULATOR, ascending));
 				this.rememberSelections();
-				//system.out.println("\tModulatorTargetModel::sort()::mods::end::" + System.currentTimeMillis());
+				//System.out.println("\tModulatorTargetModel::sort()::mods::end::" + System.currentTimeMillis());
 			}
 			if (col == 3) {
-				//system.out.println("\tModulatorTargetModel::sort()::targets::start::" + System.currentTimeMillis());
+				//System.out.println("\tModulatorTargetModel::sort()::targets::start::" + System.currentTimeMillis());
 				Collections.sort(rows, new MindyRowComparator(MindyRowComparator.TARGET, ascending));
 				this.rememberSelections();
-				//system.out.println("\tModulatorTargetModel::sort()::targets::end::" + System.currentTimeMillis());
+				//System.out.println("\tModulatorTargetModel::sort()::targets::end::" + System.currentTimeMillis());
 			}
 			if (col == 4) {
 				Collections.sort(rows, new MindyRowComparator(MindyRowComparator.SCORE, ascending));
@@ -3187,7 +3187,7 @@ public class MindyPlugin extends JPanel {
 	 * Heat map data model.
 	 * 
 	 * @author mhall
-	 * @version $Id: MindyPlugin.java,v 1.51 2007-09-11 16:24:03 hungc Exp $
+	 * @version $Id: MindyPlugin.java,v 1.52 2007-09-11 21:05:11 hungc Exp $
 	 */
 	private class ModulatorListModel extends AbstractListModel {
 		/**
@@ -3242,7 +3242,7 @@ public class MindyPlugin extends JPanel {
 	 * for the targets table.
 	 * 
 	 * @author ch2514
-	 * @version $Id: MindyPlugin.java,v 1.51 2007-09-11 16:24:03 hungc Exp $
+	 * @version $Id: MindyPlugin.java,v 1.52 2007-09-11 21:05:11 hungc Exp $
 	 */
 	private class ColumnHeaderListener extends MouseAdapter {
 		/**
