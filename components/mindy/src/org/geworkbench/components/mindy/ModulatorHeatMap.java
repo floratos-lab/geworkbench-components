@@ -172,8 +172,9 @@ public class ModulatorHeatMap extends JPanel {
     
     private void sortByPearson(){
     	SimpleRegression sr;
-    	//system.out.println("\t\t\tpearson::start::" + System.currentTimeMillis());
+    	//System.out.println("\t\t\tpearson::start::" + System.currentTimeMillis());
     	for(MindyData.MindyResultRow r: targetRows){
+    		//System.out.println("\t\t\tpearson::start regression::" + System.currentTimeMillis());
     		sr = new SimpleRegression();
     		for(DSMicroarray ma: this.half1){
     			sr.addData(ma.getMarkerValue(r.getTarget()).getValue(), ma.getMarkerValue(this.transcriptionFactor).getValue());    			
@@ -181,10 +182,13 @@ public class ModulatorHeatMap extends JPanel {
     		for(DSMicroarray ma: this.half2){
     			sr.addData(ma.getMarkerValue(r.getTarget()).getValue(), ma.getMarkerValue(this.transcriptionFactor).getValue());    			
     		}
-    		r.setCorrelation(sr.getR());    		
+    		//System.out.println("\t\t\tpearson::start correlation calc::" + System.currentTimeMillis());
+    		r.setCorrelation(sr.getR());   
+    		//System.out.println("\t\t\tpearson::finish correlation calc::" + System.currentTimeMillis());
     	}
+    	//System.out.println("\t\t\tpearson::start sort::" + System.currentTimeMillis());
     	Collections.sort(targetRows, new MindyRowComparator(MindyRowComparator.PEARSON_CORRELATION, true));
-    	//system.out.println("\t\t\tpearson::end::" + System.currentTimeMillis());
+    	//System.out.println("\t\t\tpearson::end::" + System.currentTimeMillis());
     }
 
     /**
