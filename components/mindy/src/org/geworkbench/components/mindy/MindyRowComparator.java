@@ -7,7 +7,7 @@ import org.geworkbench.util.pathwaydecoder.mutualinformation.MindyData;
 /**
  * Compare two MINDY result rows (for sorting).
  * @author ch2514
- * @version $Id: MindyRowComparator.java,v 1.4 2007-08-14 19:53:23 hungc Exp $
+ * @version $Id: MindyRowComparator.java,v 1.5 2007-09-11 16:24:03 hungc Exp $
  */
 public class MindyRowComparator implements Comparator<MindyData.MindyResultRow> {
 	/**
@@ -16,6 +16,8 @@ public class MindyRowComparator implements Comparator<MindyData.MindyResultRow> 
 	public static final int SCORE = 1;
 	public static final int DELTA_I = 2;
 	public static final int PEARSON_CORRELATION = 3;
+	public static final int MODULATOR = 4;
+	public static final int TARGET = 5;
     
 	// variable
     private int mode;
@@ -58,6 +60,16 @@ public class MindyRowComparator implements Comparator<MindyData.MindyResultRow> 
         		return Double.compare(x.getCorrelation(), y.getCorrelation());
         	else
         		return Double.compare(y.getCorrelation(), x.getCorrelation());
+        case MODULATOR:
+        	if(ascending)
+        		return x.getModulator().getShortName().compareTo(y.getModulator().getShortName());
+        	else
+        		return y.getModulator().getShortName().compareTo(x.getModulator().getShortName());
+        case TARGET:
+        	if(ascending)
+        		return x.getTarget().getShortName().compareTo(y.getTarget().getShortName());
+        	else
+        		return y.getTarget().getShortName().compareTo(x.getTarget().getShortName());
         }
 		return 0;
 	}
