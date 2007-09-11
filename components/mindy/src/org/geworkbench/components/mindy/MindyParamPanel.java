@@ -61,13 +61,13 @@ public class MindyParamPanel extends AbstractSaveableParameterPanel implements S
         DefaultFormBuilder builder = new DefaultFormBuilder(layout);
         builder.setDefaultDialogBorder();
         builder.appendSeparator("MINDY Parameters");
-        builder.append("Conditional Gene List", modulatorList, 3);
+        builder.append("Candidate Modulators", modulatorList, 3);
         builder.append(loadModulatorsFile);
 
-        builder.append("DPI Annotation List", dpiAnnotationList, 3);
+        builder.append("DPI Transcription Factors", dpiAnnotationList, 3);
         builder.append(loadDPIAnnotationFile);
 
-        builder.append("Hub Gene", transcriptionFactor);
+        builder.append("Transcription Factor", transcriptionFactor);
         builder.append(subsetMIThresholdButton, subsetMIThreshold);
         
         builder.append("Sample per Condition (%)", setFraction);   
