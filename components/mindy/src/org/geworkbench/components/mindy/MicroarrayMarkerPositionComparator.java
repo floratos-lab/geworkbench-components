@@ -6,7 +6,7 @@ import org.geworkbench.bison.datastructure.bioobjects.microarray.*;
 /**
  * Compare marker positions in microarrays (for sorting microarrays)
  * @author ch2514
- * @version $Id: MicroarrayMarkerPositionComparator.java,v 1.4 2007-08-14 19:53:23 hungc Exp $
+ * @version $Id: MicroarrayMarkerPositionComparator.java,v 1.5 2007-09-13 20:20:46 hungc Exp $
  */
 public class MicroarrayMarkerPositionComparator implements Comparator<DSMicroarray> {
 	public static final int EXPRESSION_VALUE = 1;
@@ -39,12 +39,14 @@ public class MicroarrayMarkerPositionComparator implements Comparator<DSMicroarr
 	 * 	
 	 */
 	public int compare(DSMicroarray ma1, DSMicroarray ma2) {
+		float[] ma1RawData = ma1.getRawMarkerData();
+		float[] ma2RawData = ma2.getRawMarkerData();
 		switch(mode){
         case EXPRESSION_VALUE:
 			if(ascending){
-				return Float.compare(ma1.getRawMarkerData()[markerPosition], ma2.getRawMarkerData()[markerPosition]);
+				return Float.compare(ma1RawData[markerPosition], ma2RawData[markerPosition]);
 			} else {
-				return Float.compare(ma2.getRawMarkerData()[markerPosition], ma1.getRawMarkerData()[markerPosition]);
+				return Float.compare(ma2RawData[markerPosition], ma1RawData[markerPosition]);
 			}		
 		}
 		return 0;

@@ -71,7 +71,7 @@ public class ModulatorHeatMap extends JPanel {
      */
     @SuppressWarnings("unchecked")
     public ModulatorHeatMap(DSGeneMarker modulator, DSGeneMarker transcriptionFactor, MindyData mindyData, List<DSGeneMarker> targetLimits) {
-    	//system.out.println("\tModulatorHeatMap::constructor::start::" + System.currentTimeMillis());
+    	
     	this.maSet = mindyData.getArraySet();
         List<DSGeneMarker> markers = mindyData.getTargets(modulator, transcriptionFactor);
         this.colorContext = (ColorContext) maSet.getObject(ColorContext.class);
@@ -81,17 +81,11 @@ public class ModulatorHeatMap extends JPanel {
         this.mindyData = mindyData;
         this.setFractionPercent = mindyData.getSetFraction() * 100;
         
-        // Extract and sort set based on modulator
-        sortedPerMod = new ArrayList<DSMicroarray>(maSet.size());
-        for(int i = 0; i < maSet.size(); i++){
-        	sortedPerMod.add((DSMicroarray) maSet.get(i)); 
-        }
-        sortedPerMod.trimToSize();
-        //system.out.println("\t\t\tsorting per mod::start::" + System.currentTimeMillis());
+        // Extract and sort set based on modulator        
+        sortedPerMod = mindyData.getArraySetAsList();
         Collections.sort(sortedPerMod, new MicroarrayMarkerPositionComparator(modulator.getSerial()
         		, MicroarrayMarkerPositionComparator.EXPRESSION_VALUE
         		,  true));
-        //system.out.println("\t\t\tsorting per mod::end::" + System.currentTimeMillis());
         
         // Sort half sets based on trans factor
         int size = sortedPerMod.size()/2;
@@ -124,20 +118,15 @@ public class ModulatorHeatMap extends JPanel {
         }
         half1.trimToSize();
         half2.trimToSize();
-        //system.out.println("\t\t\tsorting per tf::1::start::" + System.currentTimeMillis());
         Collections.sort(half1, new MicroarrayMarkerPositionComparator(transcriptionFactor.getSerial()
         		, MicroarrayMarkerPositionComparator.EXPRESSION_VALUE
         		, true));
-        //system.out.println("\t\t\tsorting per tf::1::end::" + System.currentTimeMillis());
-        //system.out.println("\t\t\tsorting per tf::2::start::" + System.currentTimeMillis());
         Collections.sort(half2, new MicroarrayMarkerPositionComparator(transcriptionFactor.getSerial()
         		, MicroarrayMarkerPositionComparator.EXPRESSION_VALUE
         		, true));
-        //system.out.println("\t\t\tsorting per tf::2::end::" + System.currentTimeMillis());
         limitTargets(targetLimits);        
-        sortByPearson();   
+        Collections.sort(targetRows, new MindyRowComparator(MindyRowComparator.PEARSON_CORRELATION, true));  
 
-        //system.out.println("\t\trender context calc::start::" + System.currentTimeMillis());
         FontRenderContext context = new FontRenderContext(null, true, false);
         for (DSGeneMarker marker : markers) {
         	String shortName = this.getMarkerDisplayName(marker);
@@ -146,12 +135,11 @@ public class ModulatorHeatMap extends JPanel {
                 maxGeneNameWidth = (int) bounds.getWidth() + 1;
             }
         }
-        //system.out.println("\t\trender context calc::end::" + System.currentTimeMillis());
         log.debug("Max gene name width: " + maxGeneNameWidth);
 
         this.setBackground(Color.white);
         this.setOpaque(true);
-        //system.out.println("\tModulatorHeatMap::constructor::end::" + System.currentTimeMillis());
+        
     }
 
     private void limitTargets(List<DSGeneMarker> targetLimits) {
@@ -168,27 +156,6 @@ public class ModulatorHeatMap extends JPanel {
         }
         //system.out.println("\t\t\tlimitTargets()::end" + System.currentTimeMillis());
         invalidate();
-    }
-    
-    private void sortByPearson(){
-    	SimpleRegression sr;
-    	//System.out.println("\t\t\tpearson::start::" + System.currentTimeMillis());
-    	for(MindyData.MindyResultRow r: targetRows){
-    		//System.out.println("\t\t\tpearson::start regression::" + System.currentTimeMillis());
-    		sr = new SimpleRegression();
-    		for(DSMicroarray ma: this.half1){
-    			sr.addData(ma.getMarkerValue(r.getTarget()).getValue(), ma.getMarkerValue(this.transcriptionFactor).getValue());    			
-    		}
-    		for(DSMicroarray ma: this.half2){
-    			sr.addData(ma.getMarkerValue(r.getTarget()).getValue(), ma.getMarkerValue(this.transcriptionFactor).getValue());    			
-    		}
-    		//System.out.println("\t\t\tpearson::start correlation calc::" + System.currentTimeMillis());
-    		r.setCorrelation(sr.getR());   
-    		//System.out.println("\t\t\tpearson::finish correlation calc::" + System.currentTimeMillis());
-    	}
-    	//System.out.println("\t\t\tpearson::start sort::" + System.currentTimeMillis());
-    	Collections.sort(targetRows, new MindyRowComparator(MindyRowComparator.PEARSON_CORRELATION, true));
-    	//System.out.println("\t\t\tpearson::end::" + System.currentTimeMillis());
     }
 
     /**
@@ -309,7 +276,7 @@ public class ModulatorHeatMap extends JPanel {
         g.setColor(Color.GRAY);
         g.drawRect(SPACER_SIDE, targetStartY, (int) expressionBarWidth, targetCurrY - targetStartY);
         g.drawRect((int) (getWidth() - SPACER_SIDE - expressionBarWidth - 1), targetStartY, (int) (expressionBarWidth + 1), targetCurrY - targetStartY);
-
+        
     }
 
     private void paintExpressionBar(float cellWidth, float expressionBarWidth, Graphics2D g, int y, DSGeneMarker markerToPaint) {
