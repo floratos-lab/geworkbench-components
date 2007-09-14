@@ -36,11 +36,13 @@ public class PCAData
     private HashMap eigenValues;
     private HashMap percentVar;
     private HashMap eigenVectors;
+    private String clusterBy;
 
-    public PCAData(List files)
+    public PCAData(List files, String clusterBy)
     {
         try
         {
+            this.clusterBy = clusterBy;
             initMatrices(files);
             extractPCAValuesViewerResults();
             extractEigenVectorResults();
@@ -217,5 +219,10 @@ public class PCAData
     public FloatMatrix getUMatrix()
     {
         return U_matrix;
+    }
+
+    public String getClusterBy()
+    {
+        return clusterBy;
     }
 }
