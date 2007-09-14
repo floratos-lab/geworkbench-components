@@ -25,6 +25,7 @@ import org.genepattern.webservice.Parameter;
 
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Iterator;
 
 /**
  * @author: Marc-Danie Nazaire
@@ -45,22 +46,54 @@ public class PCAAnalysis extends GPAnalysis
     {
         assert (input instanceof DSMicroarraySetView);
         DSMicroarraySetView<DSGeneMarker, DSMicroarray> view = (DSMicroarraySetView<DSGeneMarker, DSMicroarray>) input;
-        
+
         String gctFileName = createGCTFile("pcaDataset", view.markers(), view.items()).getAbsolutePath();
+
+        if(((PCAAnalysisPanel)panel).getClusterBy().equals("genes"))
+        {
+            List parameters = new ArrayList();
+
+            parameters.add(new Parameter("input.filename", gctFileName));
+
+            List results = runAnalysis("TransposeDataset", (Parameter[])parameters.toArray(new Parameter[0]), panel.getPassword());
+
+            if(results == null)
+            {
+                return new AlgorithmExecutionResults(false, "An error occurred when running PCA", null);
+            }
+
+            for(Object file : results)
+            {
+                if(((String)file).contains(".gct"))
+                    gctFileName = (String)file;
+            }
+        }
 
         List parameters = new ArrayList();
 
         parameters.add(new Parameter("input.filename", gctFileName));
-        parameters.add(new Parameter("cluster.by", ((PCAAnalysisPanel)panel).getClusterBy()));
+
+        parameters.add(new Parameter("cluster.by", "rows"));
 
         List results = runAnalysis("PCA", (Parameter[])parameters.toArray(new Parameter[0]), panel.getPassword());        
 
         if(results == null)
         {
-            return new AlgorithmExecutionResults(false, "PCA Results", null);
+            return new AlgorithmExecutionResults(false, "An error occurred when running PCA", null);
+        }
+
+
+        Iterator it = results.iterator();
+        while(it.hasNext())
+        {
+            String file = (String)it.next();
+            if(!file.contains(".odf"))
+            {
+                it.remove();
+            }
         }
         
-        PCAData pcaData = new PCAData(results);
+        PCAData pcaData = new PCAData(results, ((PCAAnalysisPanel)panel).getClusterBy());
         CSAncillaryDataSet pcaDataSet = new PCADataSet(view.getDataSet(), "PCA Results", pcaData);
 
         return new AlgorithmExecutionResults(true, "PCA Results", pcaDataSet);

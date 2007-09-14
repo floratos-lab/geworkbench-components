@@ -43,8 +43,8 @@ public class PCAAnalysisPanel extends GPAnalysisPanel
     public void initParameterPanel()
     {
         clusterBy = new JComboBox();
-        clusterBy.addItem("rows");
-        //clusterBy.addItem("columns");
+        clusterBy.addItem("genes");
+        clusterBy.addItem("experiments");
 
         FormLayout formLayout = new FormLayout("right:max(80dlu;pref), 7dlu,  max(70dlu;pref), 7dlu, max(70dlu;pref)");
 
@@ -54,7 +54,7 @@ public class PCAAnalysisPanel extends GPAnalysisPanel
         builder.appendSeparator("Principal Components Analysis parameters");
         builder.nextLine();
 
-        builder.append("cluster by", clusterBy);
+        builder.append("variables", clusterBy);
 
         parameterPanel.add(builder.getPanel(), BorderLayout.LINE_START);
     }
