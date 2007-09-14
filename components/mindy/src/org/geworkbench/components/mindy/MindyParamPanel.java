@@ -37,12 +37,11 @@ public class MindyParamPanel extends AbstractSaveableParameterPanel implements S
     public static final String MI = "Mutual Info";
     public static final String NONE = "None";
     public static final String BONFERRONI = "Bonferroni";
-    public static final String FALSE = "False";
-    public static final String DISC_RATE = "Discovery Rate";
+    public static final String FALSE_DISC_RATE = "False Discovery Rate";
     
     private static final String[] CONDITIONAL_UNCONDITIONAL = {P_VALUE, MI};
     private static final String[] CONDITIONAL_UNCONDITIONAL_DEFAULT_VALUES = {"1e-2", "0"};
-    private static final String[] CORRECTIONS = {NONE, BONFERRONI, FALSE, DISC_RATE};
+    private static final String[] CORRECTIONS = {NONE, BONFERRONI, FALSE_DISC_RATE};
     private static final String DEFAULT_THRESHOLD_TYPE = CONDITIONAL_UNCONDITIONAL[0];
     private static final String DEFAULT_THRESHOLD_VALUE = CONDITIONAL_UNCONDITIONAL_DEFAULT_VALUES[0];
 
@@ -429,12 +428,16 @@ public class MindyParamPanel extends AbstractSaveableParameterPanel implements S
             panel.dpiAnnotationList.setText(this.annotations);
             panel.transcriptionFactor.setText(this.tf);
             panel.setFraction.setValue(this.fraction);
-            panel.conditionalCombo.setSelectedIndex(this.conditionalType);
+            if((this.conditionalType >= 0) && (this.conditionalType < panel.conditionalCombo.getModel().getSize()))
+            	panel.conditionalCombo.setSelectedIndex(this.conditionalType);
             panel.conditional.setText(this.conditionalValue);
-            panel.conditionalCorrection.setSelectedIndex(this.conditionalCorrection);
-            panel.unconditionalCombo.setSelectedIndex(this.unconditionalType);
+            if((this.conditionalCorrection >= 0) && (this.conditionalCorrection < panel.conditionalCorrection.getModel().getSize()))
+            	panel.conditionalCorrection.setSelectedIndex(this.conditionalCorrection);
+            if((this.unconditionalType >= 0) && (this.unconditionalType < panel.unconditionalCombo.getModel().getSize()))
+            	panel.unconditionalCombo.setSelectedIndex(this.unconditionalType);
             panel.unconditional.setText(this.unconditionalValue);
-            panel.unconditionalCorrection.setSelectedIndex(this.unconditionalCorrection);
+            if((this.unconditionalCorrection >= 0) && (this.unconditionalCorrection < panel.unconditionalCorrection.getModel().getSize()))
+            	panel.unconditionalCorrection.setSelectedIndex(this.unconditionalCorrection);
             panel.dpiAnnotationList.setText(this.dpitargets);
             panel.dpiTolerance.setValue(this.dpitolerance);            
             
