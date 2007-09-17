@@ -189,7 +189,7 @@ public class PCA extends MicroarrayViewEventBase
             {
                 Component component = projGraphPanel.getViewport().getComponent(0);
 
-                BufferedImage graphImage = null; //new BufferedImage(component.getWidth(), component.getHeight(), BufferedImage.TYPE_INT_RGB);
+                BufferedImage graphImage = null;
                 if(component instanceof ChartPanel)
                 {
                     graphImage = ((ChartPanel)component).getChart().createBufferedImage(component.getWidth(), component.getHeight());
@@ -295,19 +295,13 @@ public class PCA extends MicroarrayViewEventBase
             tableModel.setValueAt(percentVars.get(Integer.valueOf(i)), i-1, 2);
         }
 
-        compResultsTable.removeAll();
         compResultsTable.setModel(tableModel);
         compPanel.setLeftComponent(new JScrollPane(compResultsTable));
-        compPanel.setRightComponent(new JPanel());
         compPanel.setDividerLocation(200);
 
-        projResultsTable.removeAll();
         projResultsTable.setModel(tableModel);
-        projPanel.setDividerLocation(200);
         projPanel.setLeftComponent(new JScrollPane(projResultsTable));
-        projPanel.setRightComponent(new JPanel());
-
-        tabbedPane.setSelectedComponent(compPanel);
+        projPanel.setDividerLocation(200); 
     }
 
     private void buildEigenVectorsTable(int[] pComp)
@@ -584,9 +578,7 @@ public class PCA extends MicroarrayViewEventBase
         
         projPanel.setRightComponent(projGraphPanel);
         projPanel.setDividerLocation(200);
-        projPanel.repaint();
-
-        System.out.println("Activated Markers: " + super.activatedMarkers);
+       // projPanel.repaint();
     }
 
     private void buildComponentsPanel(int[] pComp)
