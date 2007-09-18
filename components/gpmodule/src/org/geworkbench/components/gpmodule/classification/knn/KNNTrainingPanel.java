@@ -313,14 +313,31 @@ public class KNNTrainingPanel extends GPTrainingPanel {
         else if(!useFeatureFileMethod() && getNumFeatures() > getActiveMarkers().size())
             return new ParamValidationResults(false, "num features cannot be greater than \nnumber of activated markers: "
                     + getActiveMarkers().size());
-        else if(useMinStdDev() && getMinStdDev() == null)
-            return new ParamValidationResults(false, "min std dev not provided");
-        else if(useMinStdDev() && Double.parseDouble(getMinStdDev()) <= 0)
-            return new ParamValidationResults(false, "min std dev must be greater than 0");
+        else if(useMinStdDev())
+        {
+            if(getMinStdDev() == null || getMinStdDev().equals(""))
+                return new ParamValidationResults(false, "no value given for min std dev");
+
+            double m;
+            try
+            {
+                m = Double.parseDouble(getMinStdDev());
+
+                if(m <= 0)
+                    return new ParamValidationResults(false, "min std dev must be greater than 0");
+            }
+            catch(NumberFormatException ne)
+            {
+                return new ParamValidationResults(false, "Invalid min std dev: " + getMinStdDev());
+            }
+
+             if(m <= 0)
+                    return new ParamValidationResults(false, "min std dev must be greater than 0");
+        }
         else if(getNumNeighbors() <= 0)
             return new ParamValidationResults(false, "num neighbors must be greater than 0");
-        else
-            return new ParamValidationResults(true, "KNN Parameter validations passed");
+
+        return new ParamValidationResults(true, "KNN Parameter validations passed");
     }
 
     private void featureFileLoadHandler()

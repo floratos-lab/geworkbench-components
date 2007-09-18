@@ -9,13 +9,13 @@
   whatsoever. Neither the Broad Institute nor MIT can be responsible for its
   use, misuse, or functionality.
 */
-package org.geworkbench.components.gpmodule_v3_0.classification.knn;
+package org.geworkbench.components.gpmodule.classification.knn;
 
 import org.geworkbench.bison.algorithm.classification.CSClassifier;
 import org.geworkbench.bison.model.analysis.ParamValidationResults;
 import org.geworkbench.util.ClassifierException;
 import org.geworkbench.builtin.projects.LoadData;
-import org.geworkbench.components.gpmodule_v3_0.classification.GPTrainingPanel;
+import org.geworkbench.components.gpmodule.classification.GPTrainingPanel;
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.layout.ColumnSpec;
 import com.jgoodies.forms.layout.FormLayout;
@@ -313,14 +313,31 @@ public class KNNTrainingPanel extends GPTrainingPanel {
         else if(!useFeatureFileMethod() && getNumFeatures() > getActiveMarkers().size())
             return new ParamValidationResults(false, "num features cannot be greater than \nnumber of activated markers: "
                     + getActiveMarkers().size());
-        else if(useMinStdDev() && getMinStdDev() == null)
-            return new ParamValidationResults(false, "min std dev not provided");
-        else if(useMinStdDev() && Double.parseDouble(getMinStdDev()) <= 0)
-            return new ParamValidationResults(false, "min std dev must be greater than 0");
+        else if(useMinStdDev())
+        {
+            if(getMinStdDev() == null || getMinStdDev().equals(""))
+                return new ParamValidationResults(false, "no value given for min std dev");
+
+            double m;
+            try
+            {
+                m = Double.parseDouble(getMinStdDev());
+
+                if(m <= 0)
+                    return new ParamValidationResults(false, "min std dev must be greater than 0");
+            }
+            catch(NumberFormatException ne)
+            {
+                return new ParamValidationResults(false, "Invalid min std dev: " + getMinStdDev());
+            }
+
+             if(m <= 0)
+                    return new ParamValidationResults(false, "min std dev must be greater than 0");
+        }
         else if(getNumNeighbors() <= 0)
             return new ParamValidationResults(false, "num neighbors must be greater than 0");
-        else
-            return new ParamValidationResults(true, "KNN Parameter validations passed");
+
+        return new ParamValidationResults(true, "KNN Parameter validations passed");
     }
 
     private void featureFileLoadHandler()
