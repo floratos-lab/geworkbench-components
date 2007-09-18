@@ -272,6 +272,24 @@ public class PCA extends MicroarrayViewEventBase
         mainScrollPane = new JScrollPane();
         mainScrollPane.setViewportView(mainPanel);
     }
+
+    /*
+     * check if Java 3D is available
+     */
+    private boolean hasJ3D()
+    {
+        try
+        { // test for a Java 3D class
+            Class.forName("com.sun.j3d.utils.universe.SimpleUniverse");
+            return true;
+        }
+        catch(ClassNotFoundException e)
+        {
+            System.err.println("Java 3D not installed");
+                return false;
+        }
+    }
+
     /**
      * The component for the GUI engine.
      */
@@ -450,6 +468,12 @@ public class PCA extends MicroarrayViewEventBase
 
         if(pComp.length == 3)
         {
+            if(!hasJ3D())
+            {
+                JOptionPane.showMessageDialog(null, "Java 3D not installed");
+                return;
+            }
+            
             int pc1 = pComp[0]+1;
             int pc2 = pComp[1]+1;
             int pc3 = pComp[2]+1;
