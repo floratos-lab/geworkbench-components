@@ -103,8 +103,8 @@ public class GenePanel extends SelectorPanel<DSGeneMarker> {
     private JMenuItem exportPanelItem = new JMenuItem("Export");
 
     private void saveButtonPressed(TreePath path) {
-        String label = getLabelForPath(path);
-        if (label != null) {
+        String[] labels = getSelectedTreesFromTree();
+        if (labels != null && labels.length > 0) {
             JFileChooser fc = new JFileChooser(".");
             FileFilter filter = new MarkerPanelSetFileFilter();
             fc.setFileFilter(filter);
@@ -124,8 +124,7 @@ public class GenePanel extends SelectorPanel<DSGeneMarker> {
                     }
                 }
                 if (confirmed) {
-                    DSPanel<DSGeneMarker> panel = context.getItemsWithLabel(label);
-                    serializePanel(filename, panel);
+                    serializePanel(filename, labels);
                 }
             }
         }
@@ -168,15 +167,18 @@ public class GenePanel extends SelectorPanel<DSGeneMarker> {
      *
      * @param filename filename to which the current panel is to be saved.
      */
-    private void serializePanel(String filename, DSPanel<DSGeneMarker> panel) {
+    private void serializePanel(String filename, String[] labels) {
         FileWriter fileWriter = null;
         try {
             fileWriter = new FileWriter(filename);
             CSVPrinter out = new CSVPrinter(fileWriter);
-            if (panel != null && panel.size() > 0) {
-                for (int i = 0; i < panel.size(); i++) {
-                    DSGeneMarker marker = panel.get(i);
-                    out.println(marker.getLabel());
+            for(int i = 0; i < labels.length; i++){
+                DSPanel<DSGeneMarker> panel = context.getItemsWithLabel(labels[i]);
+                if (panel != null && panel.size() > 0) {
+                    for (int j = 0; j < panel.size(); j++) {
+                        DSGeneMarker marker = panel.get(j);
+                        out.println(marker.getLabel());
+                    }
                 }
             }
         } catch (IOException e) {
