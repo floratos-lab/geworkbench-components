@@ -97,12 +97,18 @@ public class PCA extends MicroarrayViewEventBase
         compPanel.setRightComponent(compGraphPanel);
 
         compResultsTable = new JTable();
+        compResultsTable.setMinimumSize(new Dimension(200, 400));
+        compResultsTable.setMaximumSize(new Dimension(200, 400));
+        compResultsTable.setPreferredSize(new Dimension(200, 400));
         compResultsTable.setColumnSelectionAllowed(false);
+        compResultsTable.setRowSelectionAllowed(true);
         compResultsTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
         compPanel.setLeftComponent(compResultsTable);
 
         perVar = new JTextField();
-        perVar.setMaximumSize(new Dimension(80, 100));
+        perVar.setMaximumSize(new Dimension(80, 25));
+        perVar.setMinimumSize(new Dimension(80, 25));
+        perVar.setPreferredSize(new Dimension(80, 25));
 
         createButton = new JButton("Create MA Set");
         createButton.addActionListener(new ActionListener()
@@ -206,8 +212,12 @@ public class PCA extends MicroarrayViewEventBase
         });
 
         projResultsTable = new JTable();
+        projResultsTable.setMinimumSize(new Dimension(200, 400));
+        projResultsTable.setMaximumSize(new Dimension(200, 400));
+        projResultsTable.setPreferredSize(new Dimension(200, 400));
         projResultsTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
         projResultsTable.setColumnSelectionAllowed(false);
+        projResultsTable.setRowSelectionAllowed(true);
         projPanel.setLeftComponent(projResultsTable);
 
         projResultsTable.getSelectionModel().addListSelectionListener( new ListSelectionListener()
@@ -301,7 +311,12 @@ public class PCA extends MicroarrayViewEventBase
     private void buildResultsTable()
     {
         String[] columnNames = {"Id", "Eigen Value", "% Var"};
-        TableModel tableModel = new DefaultTableModel(columnNames, pcaData.getNumPCs());
+        TableModel tableModel = new DefaultTableModel(columnNames, pcaData.getNumPCs()){
+            public boolean isCellEditable(int rowIndex, int columnIndex)
+            {
+                return false;
+            }
+        };
 
         for(int i=1; i <= pcaData.getNumPCs(); i++)
         {
@@ -315,11 +330,12 @@ public class PCA extends MicroarrayViewEventBase
 
         compResultsTable.setModel(tableModel);
         compPanel.setLeftComponent(new JScrollPane(compResultsTable));
-        compPanel.setDividerLocation(200);
+        compPanel.setDividerLocation(compResultsTable.getWidth());
 
         projResultsTable.setModel(tableModel);
+        projGraphPanel.getViewport().removeAll();
         projPanel.setLeftComponent(new JScrollPane(projResultsTable));
-        projPanel.setDividerLocation(200); 
+        projPanel.setDividerLocation(projResultsTable.getWidth());
     }
 
     private void buildEigenVectorsTable(int[] pComp)
