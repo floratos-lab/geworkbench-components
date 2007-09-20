@@ -393,7 +393,7 @@ public class PCA extends MicroarrayViewEventBase
         compGraphPanel.setDividerLocation(0.5);
 
         Dimension minSize = new Dimension();
-        minSize.setSize(Math.max(eigenVectorsTable.getMinimumSize().getWidth(), compPanel.getPreferredSize().getWidth()), compGraphPanel.getDividerLocation());
+        minSize.setSize(Math.max(eigenVectorsTable.getPreferredSize().getWidth(), compPanel.getPreferredSize().getWidth()), compGraphPanel.getDividerLocation());
 
         eigenVectorsTable.setPreferredSize(minSize);
     }
