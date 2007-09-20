@@ -9,13 +9,13 @@
   whatsoever. Neither the Broad Institute nor MIT can be responsible for its
   use, misuse, or functionality.
 */
-package org.geworkbench.components.gpmodule_v3_0.classification.wv;
+package org.geworkbench.components.gpmodule.classification.wv;
 
 import org.geworkbench.util.ClassifierException;
 import org.geworkbench.bison.algorithm.classification.CSClassifier;
 import org.geworkbench.bison.model.analysis.ParamValidationResults;
 import org.geworkbench.builtin.projects.LoadData;
-import org.geworkbench.components.gpmodule_v3_0.classification.GPTrainingPanel;
+import org.geworkbench.components.gpmodule.classification.GPTrainingPanel;
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.layout.ColumnSpec;
 import com.jgoodies.forms.layout.FormLayout;
