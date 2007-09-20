@@ -75,17 +75,21 @@ public class PCA extends MicroarrayViewEventBase
     public PCA()
     {
         tabbedPane = new JTabbedPane();
+        mainScrollPane = new JScrollPane();
+        tabbedPane.setMinimumSize(mainScrollPane.getSize());
+        tabbedPane.setMaximumSize(mainScrollPane.getSize());
+        tabbedPane.setPreferredSize(mainScrollPane.getSize());
 
         compPanel = new JSplitPane();
         compPanel.setOneTouchExpandable(true);
-        compPanel.setDividerLocation(200);
+        compPanel.setDividerLocation(0.2);
 
         tabbedPane.addTab("Components", compPanel);
         tabbedPane.setSelectedComponent(compPanel);
 
         projPanel = new JSplitPane();
         projPanel.setOneTouchExpandable(true);
-        projPanel.setDividerLocation(200);
+        projPanel.setDividerLocation(0.2);
 
         tabbedPane.addTab("Projection", projPanel);
         tabbedPane.addChangeListener( new PCAChangeListener());
@@ -93,24 +97,22 @@ public class PCA extends MicroarrayViewEventBase
         compGraphPanel = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
         compGraphPanel.setOneTouchExpandable(true);
         compGraphPanel.setDividerSize(8);
-        compGraphPanel.setDividerLocation(0.6);
+        compGraphPanel.setDividerLocation(0.25);
         compPanel.setRightComponent(compGraphPanel);
 
         compResultsTable = new JTable();
-        compResultsTable.setMinimumSize(new Dimension(200, 400));
-        compResultsTable.setMaximumSize(new Dimension(200, 400));
-        compResultsTable.setPreferredSize(new Dimension(200, 400));
         compResultsTable.setColumnSelectionAllowed(false);
         compResultsTable.setRowSelectionAllowed(true);
         compResultsTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
         compPanel.setLeftComponent(compResultsTable);
 
         perVar = new JTextField();
-        perVar.setMaximumSize(new Dimension(80, 25));
-        perVar.setMinimumSize(new Dimension(80, 25));
-        perVar.setPreferredSize(new Dimension(80, 25));
+        perVar.setMaximumSize(new Dimension(75, 25));
+        perVar.setMinimumSize(new Dimension(75, 25));
+        perVar.setPreferredSize(new Dimension(75, 25));
 
         createButton = new JButton("Create MA Set");
+        createButton.setEnabled(false);
         createButton.addActionListener(new ActionListener()
         {
             public void actionPerformed(ActionEvent event)
@@ -150,6 +152,8 @@ public class PCA extends MicroarrayViewEventBase
                         compResultsTable.getSelectionModel().setAnchorSelectionIndex(-1);
                         compResultsTable.getSelectionModel().setLeadSelectionIndex(-1);
                         compGraphPanel.removeAll();
+
+                        createButton.setEnabled(false);
                         return;
                     }
                     double sum = 0;
@@ -161,6 +165,7 @@ public class PCA extends MicroarrayViewEventBase
                     }
 
                     perVar.setText(String.valueOf(sum));
+                    createButton.setEnabled(true);
                     buildComponentsPanel(selectedRows);
                 }
             }
@@ -174,10 +179,13 @@ public class PCA extends MicroarrayViewEventBase
             public void actionPerformed(ActionEvent event)
             {
                 buildPlot(projResultsTable.getSelectedRows());
+                clearPlotButton.setEnabled(true);
+                imageSnapshotButton.setEnabled(true);
             }
         });
 
         clearPlotButton = new JButton("Clear Plot");
+        clearPlotButton.setEnabled(false);
         clearPlotButton.addActionListener(new ActionListener()
         {
             public void actionPerformed(ActionEvent event)
@@ -185,10 +193,15 @@ public class PCA extends MicroarrayViewEventBase
                 projResultsTable.clearSelection();
                 projGraphPanel.getViewport().removeAll();
                 projGraphPanel.repaint();
+
+                plotButton.setEnabled(false);
+                clearPlotButton.setEnabled(false);
+                imageSnapshotButton.setEnabled(false);
             }
         });
 
         imageSnapshotButton = new JButton("Image Snapshot");
+        imageSnapshotButton.setEnabled(false);
         imageSnapshotButton.addActionListener(new ActionListener()
         {
             public void actionPerformed(ActionEvent event)
@@ -212,9 +225,6 @@ public class PCA extends MicroarrayViewEventBase
         });
 
         projResultsTable = new JTable();
-        projResultsTable.setMinimumSize(new Dimension(200, 400));
-        projResultsTable.setMaximumSize(new Dimension(200, 400));
-        projResultsTable.setPreferredSize(new Dimension(200, 400));
         projResultsTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
         projResultsTable.setColumnSelectionAllowed(false);
         projResultsTable.setRowSelectionAllowed(true);
@@ -279,7 +289,6 @@ public class PCA extends MicroarrayViewEventBase
 
         mainPanel.add(tabbedPane, BorderLayout.CENTER);
 
-        mainScrollPane = new JScrollPane();
         mainScrollPane.setViewportView(mainPanel);
     }
 
@@ -329,13 +338,23 @@ public class PCA extends MicroarrayViewEventBase
         }
 
         compResultsTable.setModel(tableModel);
-        compPanel.setLeftComponent(new JScrollPane(compResultsTable));
-        compPanel.setDividerLocation(compResultsTable.getWidth());
+        JScrollPane compPane = new JScrollPane();
+        compPane.setViewportView(compResultsTable);
+        compPanel.setLeftComponent(compPane);
+        compPanel.setDividerLocation(0.25);
+
+        Dimension minSize = new Dimension();
+        minSize.setSize(compPanel.getDividerLocation(), Math.max(compResultsTable.getMinimumSize().getHeight(), compPanel.getSize().getHeight()));
+        compResultsTable.setPreferredSize(minSize);
 
         projResultsTable.setModel(tableModel);
+        JScrollPane projPane = new JScrollPane();
+        projPane.setViewportView(projResultsTable);
+
         projGraphPanel.getViewport().removeAll();
-        projPanel.setLeftComponent(new JScrollPane(projResultsTable));
-        projPanel.setDividerLocation(projResultsTable.getWidth());
+        projPanel.setLeftComponent(projPane);
+        projPanel.setDividerLocation(0.25);
+        projResultsTable.setPreferredSize(minSize);
     }
 
     private void buildEigenVectorsTable(int[] pComp)
@@ -367,8 +386,16 @@ public class PCA extends MicroarrayViewEventBase
         eigenVectorsTable.setModel(tableModel);
         eigenVectorsTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 
-        JScrollPane scrollPane = new JScrollPane(eigenVectorsTable);
+        JScrollPane scrollPane = new JScrollPane();
+        scrollPane.setViewportView(eigenVectorsTable);
+
         compGraphPanel.setBottomComponent(scrollPane);
+        compGraphPanel.setDividerLocation(0.5);
+
+        Dimension minSize = new Dimension();
+        minSize.setSize(Math.max(eigenVectorsTable.getMinimumSize().getWidth(), compPanel.getPreferredSize().getWidth()), compGraphPanel.getDividerLocation());
+
+        eigenVectorsTable.setPreferredSize(minSize);
     }
 
     public void buildGraph(int[] pComp)
@@ -395,8 +422,8 @@ public class PCA extends MicroarrayViewEventBase
         
         ChartPanel panel = new ChartPanel(lineGraph);
         JScrollPane scrollPane = new JScrollPane(panel);
-        scrollPane.setMinimumSize(new Dimension(420, 270));
 
+        compGraphPanel.setDividerLocation(0.5);
         compGraphPanel.setTopComponent(scrollPane);
     }
 
@@ -464,7 +491,7 @@ public class PCA extends MicroarrayViewEventBase
                 DSMicroarray array = (DSMicroarray)activatedArrays.get(i);
                 String[] label = context.getLabelsForItem(array);
 
-                if(label != null & label.length > 0)
+                if(label != null && label.length > 0)
                 {
                     Set set = (Set)dataLabelGroups.get(label[0]);
                     if(set == null)
@@ -617,8 +644,7 @@ public class PCA extends MicroarrayViewEventBase
         }
         
         projPanel.setRightComponent(projGraphPanel);
-        projPanel.setDividerLocation(200);
-       // projPanel.repaint();
+        projPanel.setDividerLocation(0.25);
     }
 
     private void buildComponentsPanel(int[] pComp)
@@ -626,7 +652,7 @@ public class PCA extends MicroarrayViewEventBase
         buildEigenVectorsTable(pComp);
         buildGraph(pComp);
 
-        compPanel.setDividerLocation(200);
+        compPanel.setDividerLocation(0.25);
         compPanel.setRightComponent(compGraphPanel);
     }
 
@@ -657,9 +683,9 @@ public class PCA extends MicroarrayViewEventBase
             jToolBar3.add(plotButton);
             jToolBar3.addSeparator();
             jToolBar3.add(clearPlotButton);
-            jToolBar3.addSeparator(new Dimension(75, 0));
+            jToolBar3.addSeparator(new Dimension(34, 0));
             jToolBar3.add(imageSnapshotButton);
-            jToolBar3.addSeparator(new Dimension(450, 0));
+            jToolBar3.add(Box.createHorizontalGlue());
 
             if(pcaData.getClusterBy().equals("genes"))
             {
