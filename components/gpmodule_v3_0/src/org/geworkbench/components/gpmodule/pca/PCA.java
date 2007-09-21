@@ -3,10 +3,7 @@ package org.geworkbench.components.gpmodule.pca;
 import org.geworkbench.engine.management.AcceptTypes;
 import org.geworkbench.engine.management.Subscribe;
 import org.geworkbench.engine.management.Publish;
-import org.geworkbench.events.ProjectEvent;
-import org.geworkbench.events.ProjectNodeAddedEvent;
-import org.geworkbench.events.PhenotypeSelectedEvent;
-import org.geworkbench.events.MarkerSelectedEvent;
+import org.geworkbench.events.*;
 import org.geworkbench.util.microarrayutils.MicroarrayViewEventBase;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.CSExprMicroarraySet;
@@ -32,8 +29,7 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.ChangeEvent;
-import javax.swing.table.TableModel;
-import javax.swing.table.DefaultTableModel;
+import javax.swing.table.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.awt.event.ActionListener;
@@ -101,9 +97,11 @@ public class PCA extends MicroarrayViewEventBase
         compPanel.setRightComponent(compGraphPanel);
 
         compResultsTable = new JTable();
+        Dimension minSize = new Dimension();
+                minSize.setSize(compPanel.getDividerLocation(), Math.max(compResultsTable.getMinimumSize().getHeight(), compPanel.getSize().getHeight()));
         compResultsTable.setColumnSelectionAllowed(false);
         compResultsTable.setRowSelectionAllowed(true);
-        compResultsTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+        compResultsTable.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
         compPanel.setLeftComponent(compResultsTable);
 
         perVar = new JTextField();
@@ -225,7 +223,7 @@ public class PCA extends MicroarrayViewEventBase
         });
 
         projResultsTable = new JTable();
-        projResultsTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+        projResultsTable.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
         projResultsTable.setColumnSelectionAllowed(false);
         projResultsTable.setRowSelectionAllowed(true);
         projPanel.setLeftComponent(projResultsTable);
@@ -256,7 +254,11 @@ public class PCA extends MicroarrayViewEventBase
                     plotButton.setEnabled(true);
                 }
                 else
+                {
                     plotButton.setEnabled(false);
+                    clearPlotButton.setEnabled(false);
+                    imageSnapshotButton.setEnabled(false);
+                }
 
             }
         });
@@ -319,6 +321,9 @@ public class PCA extends MicroarrayViewEventBase
 
     private void buildResultsTable()
     {
+        compPanel.remove(compResultsTable);
+        projPanel.remove(projResultsTable);
+
         String[] columnNames = {"Id", "Eigen Value", "% Var"};
         TableModel tableModel = new DefaultTableModel(columnNames, pcaData.getNumPCs()){
             public boolean isCellEditable(int rowIndex, int columnIndex)
@@ -336,7 +341,7 @@ public class PCA extends MicroarrayViewEventBase
             Map percentVars = pcaData.getPercentVars();
             tableModel.setValueAt(percentVars.get(Integer.valueOf(i)), i-1, 2);
         }
-
+       
         compResultsTable.setModel(tableModel);
         JScrollPane compPane = new JScrollPane();
         compPane.setViewportView(compResultsTable);
@@ -345,7 +350,7 @@ public class PCA extends MicroarrayViewEventBase
 
         Dimension minSize = new Dimension();
         minSize.setSize(compPanel.getDividerLocation(), Math.max(compResultsTable.getMinimumSize().getHeight(), compPanel.getSize().getHeight()));
-        compResultsTable.setPreferredSize(minSize);
+        compResultsTable.setPreferredSize(minSize);       
 
         projResultsTable.setModel(tableModel);
         JScrollPane projPane = new JScrollPane();
@@ -366,8 +371,14 @@ public class PCA extends MicroarrayViewEventBase
         }
 
         JTable eigenVectorsTable = new JTable();
-        DefaultTableModel tableModel = new DefaultTableModel();
-
+        DefaultTableModel tableModel = new DefaultTableModel()
+        {
+            public boolean isCellEditable(int rowIndex, int columnIndex)
+            {
+                return false;
+            }
+        };
+        
         Map map = pcaData.getEigenVectors();
         tableModel.setColumnCount(((List)map.values().iterator().next()).size());
         for(int i = 0; i < pComp.length; i++)
@@ -380,7 +391,7 @@ public class PCA extends MicroarrayViewEventBase
 
         Vector columnNames = new Vector();
         columnNames.addAll((Vector)tableModel.getDataVector().get(0));
-        Collections.fill(columnNames, "");
+        Collections.fill(columnNames, " ");
 
         tableModel.setColumnIdentifiers(columnNames);
         eigenVectorsTable.setModel(tableModel);
@@ -658,7 +669,10 @@ public class PCA extends MicroarrayViewEventBase
 
     @Subscribe
     public void receive(ProjectEvent e, Object source)
-    {        
+    {
+        compPanel.setVisible(false);
+        projPanel.setVisible(false);
+
         if(e.getDataSet() instanceof PCADataSet)
         {
             PCADataSet pcaDataSet = ((PCADataSet)e.getDataSet());
@@ -666,6 +680,8 @@ public class PCA extends MicroarrayViewEventBase
             dataSet = pcaDataSet.getParentDataSet();
 
             buildResultsTable();
+            compPanel.setVisible(true);
+            projPanel.setVisible(true);
         }
     }
 
