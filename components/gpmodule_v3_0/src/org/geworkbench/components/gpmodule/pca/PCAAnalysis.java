@@ -87,7 +87,7 @@ public class PCAAnalysis extends GPAnalysis
         {
             getContentPane().setLayout(new BoxLayout(getContentPane(), BoxLayout.PAGE_AXIS));
             setTitle("PCA Progress");
-            setSize(200, 120);
+            setSize(220, 120);
             setLocation((int)(getToolkit().getScreenSize().getWidth() - getWidth()) / 2, (int) (getToolkit().getScreenSize().getHeight() - getHeight()) / 2);
 
             progressBar.setStringPainted(true);
@@ -96,7 +96,7 @@ public class PCAAnalysis extends GPAnalysis
             add(progressBar);
 
             add(Box.createVerticalGlue());
-            add(Box.createRigidArea(new Dimension(60, 0)));
+            add(Box.createRigidArea(new Dimension(70, 0)));
             add(cancelButton);
             add(Box.createVerticalGlue());
 
