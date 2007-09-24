@@ -1,4 +1,3 @@
-
 package org.geworkbench.components.gpmodule;
 
 import org.geworkbench.analysis.AbstractAnalysis;
@@ -122,12 +121,9 @@ public abstract class GPAnalysis extends AbstractAnalysis implements ClusteringA
             resultFiles = new ArrayList();
             for(int i = 0; i < outputFiles.length; i++)
             {
-                if(outputFiles[i].indexOf(".odf") != -1)
-                {
-                    File resultFile = analysisResult.downloadFile(outputFiles[i], System.getProperty("temporary.files.directory"));
+                File resultFile = analysisResult.downloadFile(outputFiles[i], System.getProperty("temporary.files.directory"));
                     //resultFile.deleteOnExit();
-                    resultFiles.add(resultFile.getAbsolutePath());
-                }
+                resultFiles.add(resultFile.getAbsolutePath());               
             }
 
             // remove job from GenePattern server
