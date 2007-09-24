@@ -13,31 +13,38 @@ package org.geworkbench.components.gpmodule.pca;
 
 import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
 import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
-import org.geworkbench.bison.datastructure.biocollections.CSAncillaryDataSet;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.engine.management.Publish;
 import org.geworkbench.events.ProjectNodeAddedEvent;
 import org.geworkbench.components.gpmodule.GPAnalysis;
+import org.geworkbench.builtin.projects.ProjectPanel;
+import org.geworkbench.util.threading.SwingWorker;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.genepattern.webservice.Parameter;
 
+import javax.swing.*;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.awt.*;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
 
 /**
  * @author: Marc-Danie Nazaire
  */
 public class PCAAnalysis extends GPAnalysis
 {
-    static Log log = LogFactory.getLog(PCAAnalysis.class);
+    private static Log log = LogFactory.getLog(PCAAnalysis.class);
+    private PCAProgress progress = new PCAProgress();
+    private PCADataSet pcaDataSet;
+    private Task task;
 
     public PCAAnalysis()
     {
         setLabel("PCA Analysis");
-
         panel = new PCAAnalysisPanel();
         setDefaultPanel(panel);
     }
@@ -47,61 +54,177 @@ public class PCAAnalysis extends GPAnalysis
         assert (input instanceof DSMicroarraySetView);
         DSMicroarraySetView<DSGeneMarker, DSMicroarray> view = (DSMicroarraySetView<DSGeneMarker, DSMicroarray>) input;
 
-        String gctFileName = createGCTFile("pcaDataset", view.markers(), view.items()).getAbsolutePath();
+        task = new Task(view);
+        task.run();
 
-        if(((PCAAnalysisPanel)panel).getClusterBy().equals("genes"))
+        while(!task.isDone()){}
+
+        if(task.isCancelled())
         {
-            List parameters = new ArrayList();
-
-            parameters.add(new Parameter("input.filename", gctFileName));
-
-            List results = runAnalysis("TransposeDataset", (Parameter[])parameters.toArray(new Parameter[0]), panel.getPassword());
-
-            if(results == null)
-            {
-                return new AlgorithmExecutionResults(false, "An error occurred when running PCA", null);
-            }
-
-            for(Object file : results)
-            {
-                if(((String)file).contains(".gct"))
-                    gctFileName = (String)file;
-            }
+            return null;
         }
-
-        List parameters = new ArrayList();
-
-        parameters.add(new Parameter("input.filename", gctFileName));
-
-        parameters.add(new Parameter("cluster.by", "rows"));
-
-        List results = runAnalysis("PCA", (Parameter[])parameters.toArray(new Parameter[0]), panel.getPassword());        
-
-        if(results == null)
+        else if(pcaDataSet == null)
         {
             return new AlgorithmExecutionResults(false, "An error occurred when running PCA", null);
         }
+        else
+            return new AlgorithmExecutionResults(true, "PCA Results", pcaDataSet);
 
-
-        Iterator it = results.iterator();
-        while(it.hasNext())
-        {
-            String file = (String)it.next();
-            if(!file.contains(".odf"))
-            {
-                it.remove();
-            }
-        }
-        
-        PCAData pcaData = new PCAData(results, ((PCAAnalysisPanel)panel).getClusterBy());
-        CSAncillaryDataSet pcaDataSet = new PCADataSet(view.getDataSet(), "PCA Results", pcaData);
-
-        return new AlgorithmExecutionResults(true, "PCA Results", pcaDataSet);
     }
 
     @Publish
     public ProjectNodeAddedEvent publishProjectNodeAddedEvent(ProjectNodeAddedEvent event) 
     {
         return event;
+    }
+
+    private class PCAProgress extends JDialog
+    {
+        private JButton cancelButton = new JButton("Cancel");
+        private JProgressBar progressBar = new JProgressBar(0, 100);
+
+        public PCAProgress()
+        {
+            getContentPane().setLayout(new BoxLayout(getContentPane(), BoxLayout.PAGE_AXIS));
+            setTitle("PCA Progress");
+            setSize(200, 120);
+            setLocation((int)(getToolkit().getScreenSize().getWidth() - getWidth()) / 2, (int) (getToolkit().getScreenSize().getHeight() - getHeight()) / 2);
+
+            progressBar.setStringPainted(true);
+
+            add(Box.createRigidArea(new Dimension(0, 25)));
+            add(progressBar);
+
+            add(Box.createVerticalGlue());
+            add(Box.createRigidArea(new Dimension(60, 0)));
+            add(cancelButton);
+            add(Box.createVerticalGlue());
+
+            cancelButton.addActionListener( new ActionListener()
+            {
+                public void actionPerformed(ActionEvent event)
+                {
+                    if((task != null) && (!task.isCancelled()) && (!task.isDone()))
+                    {
+            		    task.cancel(true);
+            		    log.info("Cancelling PCA Analysis");
+            	    }
+                }
+            });
+        }
+
+        public void setProgress(int value)
+        {
+            progressBar.setValue(value);
+        }      
+    }
+
+    private class Task extends SwingWorker<PCADataSet, Void>
+    {
+        DSMicroarraySetView<DSGeneMarker, DSMicroarray> view;
+        public Task(DSMicroarraySetView<DSGeneMarker, DSMicroarray> view)
+        {
+            this.view = view;
+        }
+
+        public PCADataSet doInBackground()
+        {
+            progress.setProgress(0);
+            progress.setVisible(true);
+
+            String gctFileName = createGCTFile("pcaDataset", view.markers(), view.items()).getAbsolutePath();
+            progress.setProgress(20);
+
+            if(((PCAAnalysisPanel)panel).getVariables().equals("genes"))
+            {
+                List parameters = new ArrayList();
+
+                parameters.add(new Parameter("input.filename", gctFileName));
+
+                List results = runAnalysis("TransposeDataset", (Parameter[])parameters.toArray(new Parameter[0]), panel.getPassword());
+                progress.setProgress(30);
+
+                if(results == null)
+                {
+                    return null;
+                }
+
+                for(Object file : results)
+                {
+                    if(((String)file).contains(".gct"))
+                        gctFileName = (String)file;
+                }
+            }
+
+            progress.setProgress(40);
+            List parameters = new ArrayList();
+
+            parameters.add(new Parameter("input.filename", gctFileName));
+
+            parameters.add(new Parameter("cluster.by", "rows"));
+
+            progress.setProgress(50);
+
+            List results = runAnalysis("PCA", (Parameter[])parameters.toArray(new Parameter[0]), panel.getPassword());
+
+            progress.setProgress(60);
+
+            if(results == null)
+            {
+                 return null;
+            }
+
+            progress.setProgress(70);
+            Iterator it = results.iterator();
+            while(it.hasNext())
+            {
+                String file = (String)it.next();
+                if(!file.contains(".odf"))
+                {
+                    it.remove();
+                }
+            }
+
+            progress.setProgress(80);
+
+            if(results.size() == 0)
+            {
+                return null;
+            }
+
+            PCAData pcaData = new PCAData(results, ((PCAAnalysisPanel)panel).getVariables());
+
+            PCADataSet pcaDataSet = new PCADataSet(view.getDataSet(), "PCA Results", pcaData);
+
+            progress.setProgress(90);
+            String history = "Generated by PCA run with parameters: \n" + "variables: " + ((PCAAnalysisPanel)panel).getVariables();
+
+            ProjectPanel.addToHistory(pcaDataSet, history);
+
+            progress.setProgress(100);
+
+            log.info("Done running PCA. " + System.currentTimeMillis());
+            return pcaDataSet;
+        }
+
+        public void done()
+        {
+            if(!this.isCancelled())
+            {
+                try
+                {
+                    pcaDataSet = get();
+                    log.debug("Transferring PCA data set back to event thread.");
+                }
+                catch (Exception e)
+                {
+                    log.error("Exception in finishing up worker thread that called PCA: " + e.getMessage(), e);
+                }
+            }
+
+            progress.setVisible(false);
+            progress.dispose();
+            log.debug("Closing PCA progress bar.");
+        }
     }
 }
