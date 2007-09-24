@@ -135,10 +135,7 @@ public class PCA extends MicroarrayViewEventBase
                     if(selectedRows.length == 0)
                     {
                         reset();
-                        //compResultsTable.getSelectionModel().setAnchorSelectionIndex(-1);
-                        //compResultsTable.getSelectionModel().setLeadSelectionIndex(-1);
-                        //compGraphPanel = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
-
+                        
                         createButton.setEnabled(false);
                         return;
                     }
@@ -272,8 +269,6 @@ public class PCA extends MicroarrayViewEventBase
         });
 
         onlyActivatedMarkers = false;
-
-        buildJToolBar3();
     }
 
     private void reset()
@@ -449,7 +444,7 @@ public class PCA extends MicroarrayViewEventBase
         FloatMatrix u_Matrix = null;
         dataLabelGroups = new HashMap();
 
-        if(pcaData.getClusterBy().equals("genes"))
+        if(pcaData.getVariables().equals("genes"))
         {
             for(int i = 0; i < maSet.size(); i++)
             {
@@ -464,7 +459,7 @@ public class PCA extends MicroarrayViewEventBase
             }
         }
 
-        if(pcaData.getClusterBy().equals("experiments") && onlyActivatedMarkers)
+        if(pcaData.getVariables().equals("experiments") && onlyActivatedMarkers)
         {
             if(activatedMarkers == null || activatedMarkers.size() == 0)
             {
@@ -491,7 +486,7 @@ public class PCA extends MicroarrayViewEventBase
                 }
             }
         }
-        else if(pcaData.getClusterBy().equals("genes") && onlyActivatedArrays)
+        else if(pcaData.getVariables().equals("genes") && onlyActivatedArrays)
         {
             if(activatedArrays == null || activatedArrays.size() == 0)
             {
@@ -563,11 +558,10 @@ public class PCA extends MicroarrayViewEventBase
             pcaContent3D.setXAxisLabel("Prin. Comp. " + pc1);
             pcaContent3D.setYAxisLabel("Prin. Comp. " + pc2);
             pcaContent3D.setZAxisLabel("Prin. Comp. " + pc3);
-
-            pcaContent3D.getComponent(0).addMouseListener(new PCA3DMouseListener());
+           
             pcaContent3D.updateScene();
+            pcaContent3D.getComponent(0).addMouseListener(new PCA3DMouseListener());
             projGraphPanel.setViewportView(pcaContent3D);
-
         }
         else
         {
@@ -705,7 +699,7 @@ public class PCA extends MicroarrayViewEventBase
             jToolBar3.add(imageSnapshotButton);
             jToolBar3.add(Box.createHorizontalGlue());
 
-            if(pcaData.getClusterBy().equals("genes"))
+            if(pcaData.getVariables().equals("genes"))
             {
                 chkAllArrays.setSelected(true);
                 onlyActivatedMarkers = false;
@@ -742,7 +736,7 @@ public class PCA extends MicroarrayViewEventBase
             String label = pcaContent3D.getSelectedPoint();
             if(label == null)
                 return;
-            if(pcaData.getClusterBy().equals("genes"))
+            if(pcaData.getVariables().equals("genes"))
             {
                 DSMicroarray microarray = ((CSExprMicroarraySet)dataSet).getMicroarrayWithId(label);
                 if (microarray != null)
@@ -820,7 +814,7 @@ public class PCA extends MicroarrayViewEventBase
 
                 String label = (String)it.next();
 
-                if(pcaData.getClusterBy().equals("genes"))
+                if(pcaData.getVariables().equals("genes"))
                 {
                     DSMicroarray microarray = ((CSExprMicroarraySet)dataSet).getMicroarrayWithId(label);
                     if (microarray != null)

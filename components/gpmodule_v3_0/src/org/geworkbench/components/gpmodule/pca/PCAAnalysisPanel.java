@@ -24,7 +24,7 @@ import java.awt.*;
  */
 public class PCAAnalysisPanel extends GPAnalysisPanel
 {
-    private JComboBox clusterBy;
+    private JComboBox variables;
     
     public PCAAnalysisPanel()
      {
@@ -42,9 +42,9 @@ public class PCAAnalysisPanel extends GPAnalysisPanel
 
     public void initParameterPanel()
     {
-        clusterBy = new JComboBox();
-        clusterBy.addItem("genes");
-        clusterBy.addItem("experiments");
+        variables = new JComboBox();
+        variables.addItem("genes");
+        variables.addItem("experiments");
 
         FormLayout formLayout = new FormLayout("right:max(80dlu;pref), 7dlu,  max(70dlu;pref), 7dlu, max(70dlu;pref)");
 
@@ -54,14 +54,14 @@ public class PCAAnalysisPanel extends GPAnalysisPanel
         builder.appendSeparator("Principal Components Analysis parameters");
         builder.nextLine();
 
-        builder.append("variables", clusterBy);
+        builder.append("variables", variables);
 
         parameterPanel.add(builder.getPanel(), BorderLayout.LINE_START);
     }
 
-    public String getClusterBy()
+    public String getVariables()
     {
-        return (String)clusterBy.getSelectedItem();
+        return (String) variables.getSelectedItem();
     }
 
     protected String getParamDescriptionFile()

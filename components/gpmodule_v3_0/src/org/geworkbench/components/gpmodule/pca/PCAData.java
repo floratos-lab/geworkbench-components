@@ -36,13 +36,13 @@ public class PCAData
     private HashMap eigenValues;
     private HashMap percentVar;
     private HashMap eigenVectors;
-    private String clusterBy;
+    private String variables;
 
-    public PCAData(List files, String clusterBy)
+    public PCAData(List files, String variables)
     {
         try
         {
-            this.clusterBy = clusterBy;
+            this.variables = variables;
             initMatrices(files);
             extractPCAValuesViewerResults();
             extractEigenVectorResults();
@@ -98,8 +98,6 @@ public class PCAData
 
             eigenValues.put(id, eigenValue);
             percentVar.put(id, var);
-
-            System.out.println("element " + i + ":" + id + " " + eigenValue + " " + var);
         }
     }
 
@@ -221,8 +219,8 @@ public class PCAData
         return U_matrix;
     }
 
-    public String getClusterBy()
+    public String getVariables()
     {
-        return clusterBy;
+        return variables;
     }
 }
