@@ -28,17 +28,22 @@ import org.geworkbench.builtin.projects.ProjectPanel;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYDataset;
+import org.jfree.data.xy.XYDataItem;
 import org.jfree.data.general.SeriesException;
 import org.jfree.data.Range;
-import org.jfree.chart.*;
+
 import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.renderer.xy.StandardXYItemRenderer;
+import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.chart.labels.StandardXYToolTipGenerator;
+import org.jfree.chart.labels.XYToolTipGenerator;
 import org.jfree.chart.entity.ChartEntity;
 import org.jfree.chart.entity.XYItemEntity;
 import org.jfree.chart.annotations.XYLineAnnotation;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
+import org.jfree.chart.*;
+import org.jfree.ui.RectangleInsets;
 
 import javax.swing.*;
 import javax.swing.event.ListSelectionListener;
@@ -144,6 +149,8 @@ public class GenericDisplayPanel extends JPanel {
     private JLabel thresholdLabel;
     private DecimalFormat myFormatter = new DecimalFormat("0.00");
     private double currentThresholdValue = 0;
+    private Integer currentGSNumber;
+    private String currentTargetGSName;
     JSplitPane mainPanel = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
 
     /**
@@ -166,8 +173,13 @@ public class GenericDisplayPanel extends JPanel {
 
     }
 
+    /**
+     * Construct a specific plot type display panel.
+     * @param type
+     * @param newEvidence
+     * @param newGoldSMap
+     */
     public GenericDisplayPanel(PlotType type, List newEvidence, Map<Integer, String> newGoldSMap) {
-        //goldSMap = newGoldSMap;
         currentType = type;
         goldStrArrayList = new ArrayList();
         currentGoldSMap = newGoldSMap;
@@ -194,6 +206,9 @@ public class GenericDisplayPanel extends JPanel {
         init();
     }
 
+    /**
+     * Main GUI building block.
+     */
     public void init() {
         //// Create empty chart groups
         chartGroups = new EnumMap<PlotType, ChartGroup>(PlotType.class);
@@ -226,12 +241,10 @@ public class GenericDisplayPanel extends JPanel {
         goldListPanel.setLayout(new BorderLayout());
         goldListPanel.add(goldLabel, BorderLayout.NORTH);
         goldListPanel.add(goldStrList, BorderLayout.CENTER);
-
         performancePanel.add(evidenceListPanel);
         performancePanel.add(goldListPanel);
         JPanel checkboxPanel = new JPanel();
         checkboxPanel.setLayout(new BoxLayout(checkboxPanel, BoxLayout.X_AXIS));
-        //westPanel.add(checkboxPanel, BorderLayout.SOUTH);
         allArraysCheckBox = new JCheckBox("All Arrays", false);
         checkboxPanel.add(allArraysCheckBox);
         checkboxPanel.add(Box.createHorizontalStrut(10));
@@ -251,25 +264,20 @@ public class GenericDisplayPanel extends JPanel {
         bottomChartPanel.setLayout(new BoxLayout(bottomChartPanel, BoxLayout.X_AXIS));
         chartPanel.add(topChartPanel);
         chartPanel.add(bottomChartPanel);
-        //setChartBackgroundColor(chart);
         rightPanel.add(chartPanel, BorderLayout.CENTER);
-        //  rightPanel.add(plugin, BorderLayout.CENTER);
         JPanel bottomSpacingPanel = new JPanel();
         bottomSpacingPanel.setLayout(new BoxLayout(bottomSpacingPanel, BoxLayout.Y_AXIS));
         bottomSpacingPanel.add(Box.createVerticalStrut(6));
         JPanel bottomPanel = new JPanel();
         JToolBar thresholdPanel = new JToolBar();
-
-        bottomPanel.setLayout(new BoxLayout(bottomPanel, BoxLayout.X_AXIS));
+          bottomPanel.setLayout(new BoxLayout(bottomPanel, BoxLayout.X_AXIS));
         createMatrixtButton = new JButton("Create Matrix");
         createMatrixtButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 createMatrix();
             }
         });
-        // bottomPanel.add(referenceLineCheckBox);
-
-        if (currentType != null && currentType.equals(PlotType.PERF)) {
+           if (currentType != null && currentType.equals(PlotType.PERF)) {
             bottomPanel.add(Box.createHorizontalStrut(60));
             // bottomPanel.add(slopeLabel);
             bottomPanel.add(Box.createHorizontalStrut(5));
@@ -351,30 +359,7 @@ public class GenericDisplayPanel extends JPanel {
                 // goldStrList.getList().clearSelection();
             }
         });
-        // Change over the charts when the user switches between microarray and marker.
-//        tabbedPane.addChangeListener(new ChangeListener() {
-//            public void stateChanged(ChangeEvent e) {
-//                if (tabbedPane.getSelectedIndex() == TAB_ARRAY) {
-//                    packChartPanel(PlotType.PERF);
-//                    allArraysCheckBox.setEnabled(false);
-//                    allMarkersCheckBox.setEnabled(true);
-//                } else {
-//                    packChartPanel(PlotType.ROC);
-//                    allArraysCheckBox.setEnabled(true);
-//                    allMarkersCheckBox.setEnabled(false);
-//                }
-//                ChartGroup group = chartGroups.get(getActivePlotType());
-//                if (group.referenceLineEnabled) {
-//                    referenceLineCheckBox.setSelected(true);
-//                    slopeField.setEnabled(true);
-//                } else {
-//                    referenceLineCheckBox.setSelected(false);
-//                    slopeField.setEnabled(false);
-//                }
-//                slopeField.setText("" + group.slope);
-//            }
-//        });
-        // Popup action for putting an item ono the x-axis
+
         xAxisItem.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 setNewXAxis(popupType, popupIndex);
@@ -449,17 +434,18 @@ public class GenericDisplayPanel extends JPanel {
 
         String s = myFormatter.format(lowValue);
         thresholdTextField.setText(s);
-
+        if (applyThresholdFilter()) {
+            updateROCCharts();
+        }
+        ;
 
     }
 
-    private void getCurrentThreshold() {
+    private double getCurrentThreshold() {
         int value = thresholdSlider.getValue();
         double maxValue = thresholdSlider.getMaximum();
         currentThresholdValue = (double) value / 100;
-
-        //String s = myFormatter.format(lowValue);
-        //thresholdTextField.setText(s);
+        return currentThresholdValue;
     }
 
     /**
@@ -478,30 +464,14 @@ public class GenericDisplayPanel extends JPanel {
 
         double newSliderValue = newvalue * 100;
         thresholdSlider.setValue((int) newSliderValue);
+        thresholdSlider_stateChanged(null);
 
-    }
-
-    private void slopeFieldChanged() {
-        String text = slopeField.getText();
-        ChartGroup group = chartGroups.get(getActivePlotType());
-        double newSlope;
-        try {
-            newSlope = Double.parseDouble(text);
-            if (newSlope <= 0) {
-                throw new NumberFormatException();
-            }
-            group.slope = newSlope;
-            slopeChanged(group);
-        } catch (NumberFormatException nfe) {
-            // Switch back to old slope
-            slopeField.setText("" + group.slope);
-        }
     }
 
     /**
      * Adds the appropriate chart panels to the component.
-     * Call this whenever charts are added or removed, or the view is switched between microarray and marker.
-     * Charts are layed out in a single row (1 or 2 charts) or two rows (3 to 6 charts).
+     * Call this whenever charts are added or removed.
+     * Charts are layed out in a single row (1 or 2 charts) or two rows (3 to 6 charts) depends on currentMAXIMUM varible.
      *
      * @param type the type of charts to display.
      */
@@ -580,26 +550,6 @@ public class GenericDisplayPanel extends JPanel {
         }
     }
 
-    private void slopeChanged(ChartGroup group) {
-        // Change annotations on all charts in this chart group
-        XYLineAnnotation newAnnotation;
-        if (group.referenceLineEnabled) {
-            newAnnotation = getXYLineAnnotation(group.slope);
-        } else {
-            newAnnotation = null;
-        }
-        for (int i = 0; i < group.charts.size(); i++) {
-            Chart chart = group.charts.get(i);
-            XYPlot plot = chart.panel.getChart().getXYPlot();
-            if (group.lineAnnotation != null) {
-                plot.removeAnnotation(group.lineAnnotation);
-            }
-            if (newAnnotation != null) {
-                plot.addAnnotation(newAnnotation);
-            }
-        }
-        group.lineAnnotation = newAnnotation;
-    }
 
     /**
      * Called when an item is clicked in either the microarray or marker list.
@@ -626,7 +576,7 @@ public class GenericDisplayPanel extends JPanel {
                 break;
             }
         }
-        updateCharts(type);
+        //updateCharts(type);//removed by xz.
         if (chartRemoved) {
             packChartPanel(type);
         }
@@ -637,13 +587,8 @@ public class GenericDisplayPanel extends JPanel {
         }
     }
 
-    private void createNewCharts() {
-
-    }
-
-
     /**
-     * Called when an item is clicked in either the microarray or marker list.
+     * Called when an item is clicked in either the Evidence or Gold Standard list.
      *
      * @param type  the type of item clicked.
      * @param index the index of the item.
@@ -662,10 +607,6 @@ public class GenericDisplayPanel extends JPanel {
          * reset the charts.
          */
 
-        //update selections.
-
-//        if (group.xIndex == -1) {
-//            // This item goes on the x-axis.
         group.xIndex = -1;
         if (listType.equals(ListType.GOLD)) {
 
@@ -690,8 +631,7 @@ public class GenericDisplayPanel extends JPanel {
         }
         Object[] selectedIndices = currentSelectedGoldStrs.toArray();
         for (Object selectedGoldStr : selectedIndices) {
-            //currentSelectedGoldStrs.add(goldStrArrayList.get(selectedGoldStr));
-            Chart attributes;
+                  Chart attributes;
             if (group.charts.size() == currentMaximumCharts) {
                 attributes = group.charts.remove(0);
             } else {
@@ -716,9 +656,6 @@ public class GenericDisplayPanel extends JPanel {
                 attributes.panel.setChart(chart);
             }
         }
-
-//Don't use it anymore.
-
         packChartPanel(type);
         this.revalidate();
         this.repaint();
@@ -733,33 +670,6 @@ public class GenericDisplayPanel extends JPanel {
 
     private PlotType getActivePlotType() {
         return currentType;
-    }
-
-    /**
-     * Call this to update the data of all charts of a specific type.
-     *
-     * @param type the type of charts to update.
-     */
-    private void updateCharts(PlotType type) {
-        ChartGroup group = chartGroups.get(type);
-        for (int i = 0; i < group.charts.size(); i++) {
-            Chart chart = group.charts.get(i);
-            if (type == PlotType.PERF) {
-                chart.panel.setChart(createMicroarrayChart(group.xIndex, chart.index, chart.chartData));
-            } else {
-                chart.panel.setChart(createGeneChart(group.xIndex, chart.index, chart.chartData));
-            }
-        }
-    }
-
-    /**
-     * Makes the chart fit in with the background color of the application.
-     */
-    private void setChartBackgroundColor(JFreeChart chart) {
-        Color c = UIManager.getColor("Panel.background");
-        if (c != null) {
-            chart.setBackgroundPaint(c);
-        }
     }
 
     /**
@@ -823,7 +733,7 @@ public class GenericDisplayPanel extends JPanel {
             // markerPanel = e.getPanel().activeSubset();
             goldStrModel.refresh();
         }
-        updateCharts(PlotType.PERF);
+        //updateCharts(PlotType.PERF); removed by xz
     }
 
     /**
@@ -842,7 +752,7 @@ public class GenericDisplayPanel extends JPanel {
             evidenceModel.refresh();
             // All marker charts must be updated
         }
-        updateCharts(PlotType.ROC);
+        //  updateCharts(PlotType.ROC);  removed by xz.
     }
 
     /**
@@ -857,10 +767,7 @@ public class GenericDisplayPanel extends JPanel {
             dataSetView = new CSMicroarraySetView<DSGeneMarker, DSMicroarray>();
             goldStrModel.refresh();
             evidenceModel.refresh();
-//            makeDefaultMarkerList();
-//            makeDefaultMicroArrayList();
-//            tabbedPane.invalidate();
-        } else {
+         } else {
             ProjectSelection selection = ((ProjectPanel) source).getSelection();
             DSDataSet dataFile = selection.getDataSet();
             if (dataFile != null && dataFile instanceof DSMicroarraySet) {
@@ -1107,328 +1014,262 @@ public class GenericDisplayPanel extends JPanel {
 
             for (Map.Entry<Integer, XYSeriesCollection> gsEntry : gsPlotData.entrySet()) {
                 // Draw graphs for each Gold Standard set
-               // if (targetGSName.toString().equals(gsEntry.getKey())) {
-                    ch = ChartFactory.createXYLineChart(targetGSName.toString(),
-                            "Bin",
-                            "Value", // Y-Axis label
-                            gsEntry.getValue(), // Dataset
-                            PlotOrientation.VERTICAL, true, // Show legend
-                            true, true);
-
-                    return ch;
-               // }
-                //  plugin.add(chartPanel);   //Disabled by xz.
-
-            }
-        } else {
-            //ROC curve
-            int num = 0;
-            XYSeriesCollection gsSeries = new XYSeriesCollection();
-            for (Map.Entry<Integer, String> gsEntry : currentGoldSMap.entrySet()) {
-                Integer currentGSIndex = gsEntry.getKey();
-                for (Evidence evidence : listEvidences) {
-                    XYSeries series = new ROCComputation().getXYSeries(MINIUMGAP, evidence, currentGSIndex);
-                    gsSeries.addSeries(series);
-                }
-                gsPlotData.put(currentGSIndex, gsSeries);
-            }
-
-            applyThresholdFilter(listEvidences, targetGSName.toString());
-            for (Map.Entry<Integer, XYSeriesCollection> gsEntry : gsPlotData.entrySet()) {
-                // Draw graphs for each Gold Standard set
-                //ch = ChartFactory.createXYLineChart(dataSet.getGoldStandardSources().get(gsEntry.getKey()), // Title
-                ch = ChartFactory.createXYLineChart(targetGSName.toString(), // Title
-
-                        "pp", // X-Axis label
-                        "np", // Y-Axis label
+                // if (targetGSName.toString().equals(gsEntry.getKey())) {
+                ch = ChartFactory.createXYLineChart(targetGSName.toString(),
+                        "Bin",
+                        "Value", // Y-Axis label
                         gsEntry.getValue(), // Dataset
                         PlotOrientation.VERTICAL, true, // Show legend
                         true, true);
 
+// NOW DO SOME OPTIONAL CUSTOMISATION OF THE CHART...
+                ch.setBackgroundPaint(Color.white);
+
+                // get a reference to the plot for further customisation...
+                XYPlot newPlot = (XYPlot) ch.getPlot();
+                Color c = UIManager.getColor("Panel.background");
+                if (c != null) {
+                    newPlot.setBackgroundPaint(c);
+                } else {
+                    c = Color.white;
+                }
+                newPlot.setBackgroundPaint(c);
+ //               newPlot.setAxisOffset(new RectangleInsets(1.0, 1.0, 1.0, 1.0));
+//                newPlot.setDomainGridlinePaint(Color.white);
+//                newPlot.setRangeGridlinePaint(Color.white);
+                newPlot.setDomainCrosshairVisible(true);
+                newPlot.setDomainCrosshairLockedOnData(true);
+                //Set up fixed ranges.
+                //        ValueAxis xaxis = new NumberAxis();
+                //        xaxis.setRange(minValue, maxValue);
+                //        newPlot.setRangeAxis(xaxis);
+                XYLineAndShapeRenderer renderer = (XYLineAndShapeRenderer) newPlot.
+                        getRenderer();
+             //  renderer.setShapesVisible(true);
+                //renderer.setShapesFilled(true);
+                boolean isToolTipEnabled = true;
+                if (isToolTipEnabled) {
+
+                    renderer.setToolTipGenerator(new XYToolTipGenerator() {
+
+
+                        public String generateToolTip(XYDataset dataset, int series,
+                                                      int item) {
+                            String resultStr = "";
+                            Object[] result = new Object[3];
+                            double currentValue = MINIUMGAP * item + currentThresholdValue;
+                            String label = "";
+                            double x = dataset.getXValue(series, item);
+                            if (Double.isNaN(x) && dataset.getX(series, item) == null) {
+                                return resultStr;
+                            }
+
+                            double y = dataset.getYValue(series, item);
+                            if (Double.isNaN(y) && dataset.getX(series, item) == null) {
+                                return resultStr;
+                            }
+                            String xStr = myFormatter.format(x);
+                            String yStr = myFormatter.format(y);
+                            return resultStr = label + "(" + xStr + ", " +
+                                    yStr + ")";
+                        }
+                    });
+                }
+                renderer.setSeriesLinesVisible(0, true);
+                for (int i = 1; i < newPlot.getDatasetCount(); i++) {
+                    renderer.setSeriesLinesVisible(i, true);
+                }
+
+                //base color & shape
+                // renderer.setSeriesPaint(0, baseColor);
+                //        renderer.setSeriesShape(0, baseShape);
+
+
+                newPlot.setRenderer(renderer);
+
+
                 return ch;
+            }
+
+            //End of PER curve.
+        } else {
+            //ROC curve
+
+            XYSeriesCollection gsSeries = new XYSeriesCollection();
+            for (Map.Entry<Integer, String> gsEntry : currentGoldSMap.entrySet()) {
+                Integer currentGSIndex = gsEntry.getKey();
+                String gsName = currentGoldSMap.get(currentGSIndex);
+                if (gsName.equalsIgnoreCase(targetGSName.toString())) {
+                    currentGSNumber = currentGSIndex;
+                    currentTargetGSName = gsName;
+                    for (Evidence evidence : listEvidences) {
+                        XYSeries series = new ROCComputation().getXYSeries(MINIUMGAP, evidence, currentGSIndex);
+                        gsSeries.addSeries(series);
+                    }
+                    gsPlotData.put(currentGSIndex, gsSeries);
+                }
 
             }
+            //  applyThresholdFilter(listEvidences, targetGSName.toString())
+
+            if (applyThresholdFilter()) {
+                return createROCChart();
+            }
         }
-
-        //Below is just for testing, random data will be generated.
-
-//
-//        if (plotType.equals(PlotType.PERF)) {
-//            int num = 0;
-//            for (Object o : listEvidences) {
-//                XYSeriesCollection gsSeries = new XYSeriesCollection();
-//                XYSeries series = new XYSeries("" + o);
-//                for (int i = 0; i < 100; i++) {
-//                    series.add(i, Math.random() * 100);
-//                }
-//                gsSeries.addSeries(series);
-//                gsPlotData.put(num++, gsSeries);
-//            }
-//
-//            for (Map.Entry<Integer, XYSeriesCollection> gsEntry : gsPlotData.entrySet()) {
-//                // Draw graphs for each Gold Standard set
-//                //ch = ChartFactory.createXYLineChart(dataSet.getGoldStandardSources().get(gsEntry.getKey()), // Title
-//                ch = ChartFactory.createXYLineChart(targetGSName.toString(), // Title
-//
-//                        "Bin #", // X-Axis label
-//                        "Value", // Y-Axis label
-//                        gsEntry.getValue(), // Dataset
-//                        PlotOrientation.VERTICAL, true, // Show legend
-//                        true, true);
-//                //ChartPanel chartPanel = new ChartPanel(ch);
-//                //plugin.add(chartPanel);
-//            }
-//
-//        } else {
-//            //ROC curve
-//            int num = 0;
-//            for (Object o : listEvidences) {
-//                XYSeriesCollection gsSeries = new XYSeriesCollection();
-//                XYSeries series = new XYSeries("" + o);
-//                for (int i = 0; i < 100; i++) {
-//                    series.add(i, Math.random() * 100);
-//                }
-//                gsSeries.addSeries(series);
-//                gsPlotData.put(num++, gsSeries);
-//            }
-//
-//            for (Map.Entry<Integer, XYSeriesCollection> gsEntry : gsPlotData.entrySet()) {
-//                // Draw graphs for each Gold Standard set
-//                //ch = ChartFactory.createXYLineChart(dataSet.getGoldStandardSources().get(gsEntry.getKey()), // Title
-//                ch = ChartFactory.createXYLineChart(targetGSName.toString(), // Title
-//
-//                        "Bin #", // X-Axis label
-//                        "Value", // Y-Axis label
-//                        gsEntry.getValue(), // Dataset
-//                        PlotOrientation.VERTICAL, true, // Show legend
-//                        true, true);
-//                //ChartPanel chartPanel = new ChartPanel(ch);
-//                //plugin.add(chartPanel);
-//            }
-//
-//        }
-
         return ch;
 
     }
 
-    private boolean applyThresholdFilter(List<Evidence> listEvidences, String targetGS) {
+    private boolean applyThresholdFilter() {
         getCurrentThreshold();
-        int startPoint = (int)(currentThresholdValue/MINIUMGAP);
-        int endPoint = (int)(1/MINIUMGAP);
+        gsPlotDataFilteredWithThreshold = new HashMap<Integer, XYSeriesCollection>();
+        int startPoint = (int) (currentThresholdValue / MINIUMGAP);
+        int endPoint = (int) (1 / MINIUMGAP) -1;
         Integer goldStandardID = 0;
-         for (Evidence evidence : listEvidences) {
-                Map<Integer, Map<Integer, Float>> binPerformance = evidence.getBinPerformance();
-                for (Map.Entry<Integer, Map<Integer, Float>> gsValues : binPerformance.entrySet()) {
-                    goldStandardID = gsValues.getKey();
-                    String gsName = currentGoldSMap.get(goldStandardID);
-                    if(gsName.equalsIgnoreCase(targetGS)){
-                        break;
-                    }
+        XYSeriesCollection gsSeries = gsPlotData.get(currentGSNumber);
+        if (gsSeries == null) {
+            return false;
+
+        }
+        XYSeriesCollection currrentGsSeries = new XYSeriesCollection();
+        for (Object series : gsSeries.getSeries()) {
+            if (series instanceof XYSeries) {
+                try {
+                    XYSeries xySeries = ((XYSeries) series).createCopy(startPoint, endPoint);
+                    currrentGsSeries.addSeries(xySeries);
+                } catch (CloneNotSupportedException e) {
+                    return false;
                 }
-                    XYSeriesCollection gsSeries = gsPlotData.get(goldStandardID);
-                    if (gsSeries == null) {
-                       return false;
-
-                    }
-                   for(Object series: gsSeries.getSeries()){
-                        if(series instanceof XYSeries){
-                           // series.createCopy(startPoint, endPoint);
-                        }
-                   }
-
-                   }
-
-      return true;
+            }
+        }
+        gsPlotDataFilteredWithThreshold.put(goldStandardID, currrentGsSeries);
+        return true;
     }
 
-    private JFreeChart createMicroarrayChart(int exp1, int exp2, ChartData chartData) throws SeriesException {
-//        XYSeriesCollection plots = new XYSeriesCollection();
-//        ArrayList seriesList = new ArrayList();
-//        ArrayList<PanelVisualProperties> propertiesList = new ArrayList<PanelVisualProperties>();
-//        PanelVisualPropertiesManager propertiesManager = PanelVisualPropertiesManager.getInstance();
-//        boolean showAll = allMarkersCheckBox.isSelected();
-//        DSMicroarraySet<DSMicroarray> maSet = (DSMicroarraySet) dataSetView.getDataSet();
-//        boolean rankPlot = rankStatisticsCheckbox.isSelected();
-//        HashMap map = new HashMap();
-//        int numMarkers = maSet.getMarkers().size();
-//        // First put all the gene pairs in the xyValues array
-//        RankSorter[] xyValues = new RankSorter[numMarkers];
-//        ArrayList<ArrayList<RankSorter>> xyPoints = new ArrayList<ArrayList<org.geworkbench.util.pathwaydecoder.RankSorter>>();
-//        DSMicroarray ma1 = maSet.get(exp1);
-//        DSMicroarray ma2 = maSet.get(exp2);
-//        for (int i = 0; i < numMarkers; i++) {
-//            xyValues[i] = new RankSorter();
-//            xyValues[i].x = ma1.getMarkerValue(i).getValue();
-//            xyValues[i].y = ma2.getMarkerValue(i).getValue();
-//            xyValues[i].id = i;
-//            map.put(new Integer(i), xyValues[i]);
-//        }
-//        boolean panelsSelected = (dataSetView.getMarkerPanel().size() > 0) && (dataSetView.getMarkerPanel().getLabel().compareToIgnoreCase("Unsupervised") != 0) && (dataSetView.getMarkerPanel().panels().size() > 0);
-//        if (dataSetView.getMarkerPanel().activeSubset().size() == 0) {
-//            panelsSelected = false;
-//            showAll = true;
-//        }
-//        if (rankPlot && !showAll) {
-//            // Must first activate all valid points
-//            if ((dataSetView.getMarkerPanel().size() > 0) && (dataSetView.getMarkerPanel().panels().size() > 0)) {
-//                for (int pId = 0; pId < dataSetView.getMarkerPanel().panels().size(); pId++) {
-//                    DSPanel<DSGeneMarker> panel = dataSetView.getMarkerPanel().panels().get(pId);
-//                    int itemNo = panel.size();
-//                    if (itemNo > 0) {
-//                        for (int i = 0; i < itemNo; i++) {
-//                            int serial = panel.get(i).getSerial();
-//                            xyValues[serial].setActive(true);
-//                        }
-//                    }
-//                }
-//            }
-//        }
-//
-//        // Perform rank sorting if required
-//        int rank = 0;
-//        /*
-//        Arrays.sort(xyValues, RankSorter.SORT_Y);
-//        for (int j = 1; j < xyValues.length; j++) {
-//            if (rankPlot) {
-//                if (xyValues[j].y == xyValues[j - 1].y) {
-//                    xyValues[j - 1].y += Math.random() * 0.1 - 0.05;
-//                }
-//            }
-//        }
-//        */
-//        Arrays.sort(xyValues, RankSorter.SORT_Y);
-//        for (int j = 0; j < xyValues.length; j++) {
-//            if (showAll || xyValues[j].isActive() || xyValues[j].isFiltered()) {
-//                xyValues[j].iy = rank++;
-//            }
-//        }
-//        double maxY = xyValues[xyValues.length - 1].y;
-//
-//        rank = 0;
-//        /*
-//        Arrays.sort(xyValues, RankSorter.SORT_X);
-//        for (int j = 1; j < xyValues.length; j++) {
-//            if (rankPlot) {
-//                if (xyValues[j].x == xyValues[j - 1].x) {
-//                    xyValues[j - 1].x += Math.random() * 0.1 - 0.05;
-//                }
-//            }
-//        }
-//        */
-//        Arrays.sort(xyValues, RankSorter.SORT_X);
-//        for (int j = 0; j < xyValues.length; j++) {
-//            if (showAll || xyValues[j].isActive() || xyValues[j].isFiltered()) {
-//                xyValues[j].ix = rank++;
-//            }
-//        }
-//        double maxX = xyValues[xyValues.length - 1].x;
-//
-//        int panelIndex = 0;
-//        boolean panelsUsed = false;
-//        // If gene panels have been selected
-//        if (panelsSelected) {
-//            panelsUsed = true;
-//            for (int pId = 0; pId < dataSetView.getMarkerPanel().panels().size(); pId++) {
-//                ArrayList<org.geworkbench.util.pathwaydecoder.RankSorter> list = new ArrayList<RankSorter>();
-//                DSPanel<DSGeneMarker> panel = dataSetView.getMarkerPanel().panels().get(pId);
-//                int itemNo = panel.size();
-//                if (panel.isActive() && itemNo > 0) {
-//                    panelIndex++;
-//                    XYSeries series = new XYSeries(panel.getLabel());
-//                    for (int i = 0; i < itemNo; i++) {
-//                        int serial = panel.get(i).getSerial();
-//                        RankSorter xy = (RankSorter) map.get(new Integer(serial));
-//                        xy.setPlotted();
-//                        list.add(xy);
-//                        double x = 0;
-//                        double y = 0;
-//                        if (rankPlot) {
-//                            x = xy.ix;
-//                            y = xy.iy;
-//                            series.add(x, y);
-//                        } else {
-//                            //if ( (x < 4000) && (y < 4000)) {
-//                            x = xy.x;
-//                            y = xy.y;
-//                            series.add(x, y);
-//                            //}
-//                        }
-//                    }
-//                    //plots.addSeries(series);
-//                    seriesList.add(series);
-//                    PanelVisualProperties properties = propertiesManager.getVisualProperties(panel);
-//                    if (properties == null) {
-//                        properties = propertiesManager.getDefaultVisualProperties(panelIndex);
-//                    }
-//                    propertiesList.add(properties);
-//                    Collections.sort(list, RankSorter.SORT_X);
-//                    xyPoints.add(list);
-//                }
-//            }
-//        }
-//        // finally if all the others must be shown as well
-//        if (showAll) {
-//            ArrayList<RankSorter> list = new ArrayList<org.geworkbench.util.pathwaydecoder.RankSorter>();
-//            XYSeries series = new XYSeries(panelsUsed ? "Other" : "All");
-//            for (int serial = 0; serial < xyValues.length; serial++) {
-//                if (!xyValues[serial].isPlotted()) {
-//                    list.add(xyValues[serial]);
-//                    double x = 0;
-//                    double y = 0;
-//                    if (rankPlot) {
-//                        x = xyValues[serial].ix;
-//                        y = xyValues[serial].iy;
-//                        series.add(x, y);
-//                    } else {
-//                        //if ( (x < 4000) && (y < 4000)) {
-//                        x = xyValues[serial].x;
-//                        y = xyValues[serial].y;
-//                        series.add(x, y);
-//                        //}
-//                    }
-//                }
-//            }
-//            xyPoints.add(0, list);
-//            plots.addSeries(series);
-//        }
-//        for (int i = 0; i < seriesList.size(); i++) {
-//            XYSeries series = (XYSeries) seriesList.get(i);
-//            plots.addSeries(series);
-//        }
-//        String label1 = "";
-//        String label2 = "";
-//        label1 = ma1.getLabel();
-//        label2 = ma2.getLabel();
-//        JFreeChart mainChart = ChartFactory.createScatterPlot("", label1, label2, plots, PlotOrientation.VERTICAL, true, true, false); // Title, (, // X-Axis label,  Y-Axis label,  Dataset,  Show legend
-//        XYLineAnnotation annotation = chartGroups.get(PlotType.PERF).lineAnnotation;
-//        if (annotation != null) {
-//            mainChart.getXYPlot().addAnnotation(annotation);
-//        }
-//        chartData.setXyPoints(xyPoints);
-//        StandardXYToolTipGenerator tooltips = new MicroarrayXYToolTip(chartData);
-//        StandardXYItemRenderer renderer = new StandardXYItemRenderer(StandardXYItemRenderer.SHAPES, tooltips);
-//        for (int i = 0; i < propertiesList.size(); i++) {
-//            PanelVisualProperties panelVisualProperties = propertiesList.get(i);
-//            // Note: "i+1" because we skip the default 'other' series.
-//            int index = showAll ? i + 1 : i;
-//            renderer.setSeriesPaint(index, panelVisualProperties.getColor());
-//            renderer.setSeriesShape(index, panelVisualProperties.getShape());
-//        }
-//        mainChart.getXYPlot().setRenderer(renderer);
-//        //BufferedImage image = mainChart.createBufferedImage(width, height);
-//        //return image;
-//        return mainChart;
+    private boolean updateROCCharts() {
+        PlotType type = PlotType.ROC;
+        JFreeChart chart = createROCChart();
+        if (chart != null) {
+            ChartGroup group = chartGroups.get(type);
+            Chart attributes;
+            if (group.charts.size() == currentMaximumCharts) {
+                attributes = group.charts.remove(0);
+            } else {
+                // Otherwise, create a new one.
+                attributes = new Chart();
+
+            }
+            if (attributes.panel == null) {
+                attributes.panel = new ChartPanel(chart);
+                //attributes.panel.addChartMouseListener(new GeneChartMouseListener(attributes.chartData));
+            } else {
+                attributes.panel.setChart(chart);
+            }
+
+            group.charts.add(attributes);
+            packChartPanel(type);
+            this.revalidate();
+            this.repaint();
+            return true;
+        }
+        return false;
+    }
+
+    private JFreeChart createROCChart() {
+        if (gsPlotDataFilteredWithThreshold == null) {
+            return null;
+        }
+        for (Map.Entry<Integer, XYSeriesCollection> gsEntry : gsPlotDataFilteredWithThreshold.entrySet()) {
+            JFreeChart chart = ChartFactory.createXYLineChart(currentTargetGSName, // Title
+
+                    "pp", // X-Axis label
+                    "np", // Y-Axis label
+                    gsEntry.getValue(), // Dataset
+                    PlotOrientation.VERTICAL, true, // Show legend
+                    true, true);
+// NOW DO SOME OPTIONAL CUSTOMISATION OF THE CHART...
+            chart.setBackgroundPaint(Color.white);
+
+            // get a reference to the plot for further customisation...
+            XYPlot newPlot = (XYPlot) chart.getPlot();
+            Color c = UIManager.getColor("Panel.background");
+            if (c != null) {
+                newPlot.setBackgroundPaint(c);
+            } else {
+                c = Color.white;
+            }
+            newPlot.setBackgroundPaint(c);
+            newPlot.setAxisOffset(new RectangleInsets(5.0, 5.0, 5.0, 5.0));
+            newPlot.setDomainGridlinePaint(Color.white);
+            newPlot.setRangeGridlinePaint(Color.white);
+            newPlot.setDomainCrosshairVisible(true);
+            newPlot.setDomainCrosshairLockedOnData(true);
+            //Set up fixed ranges.
+            //        ValueAxis xaxis = new NumberAxis();
+            //        xaxis.setRange(minValue, maxValue);
+            //        newPlot.setRangeAxis(xaxis);
+            XYLineAndShapeRenderer renderer = (XYLineAndShapeRenderer) newPlot.
+                    getRenderer();
+            renderer.setShapesVisible(true);
+            renderer.setShapesFilled(true);
+            boolean isToolTipEnabled = true;
+            if (isToolTipEnabled) {
+
+                renderer.setToolTipGenerator(new XYToolTipGenerator() {
+
+
+                    public String generateToolTip(XYDataset dataset, int series,
+                                                  int item) {
+                        String resultStr = "";
+                        Object[] result = new Object[3];
+                        double currentValue = MINIUMGAP * item + currentThresholdValue;
+                        String label = "Threshold: " + myFormatter.format(currentValue);
+                        double x = dataset.getXValue(series, item);
+                        if (Double.isNaN(x) && dataset.getX(series, item) == null) {
+                            return resultStr;
+                        }
+
+                        double y = dataset.getYValue(series, item);
+                        if (Double.isNaN(y) && dataset.getX(series, item) == null) {
+                            return resultStr;
+                        }
+                        String xStr = myFormatter.format(x);
+                        String yStr = myFormatter.format(y);
+                        return resultStr = label + ": (" + xStr + ", " +
+                                yStr + ")";
+                    }
+                });
+            }
+            renderer.setSeriesLinesVisible(0, true);
+            for (int i = 1; i < newPlot.getDatasetCount(); i++) {
+                renderer.setSeriesLinesVisible(i, true);
+            }
+
+            //base color & shape
+            // renderer.setSeriesPaint(0, baseColor);
+            //        renderer.setSeriesShape(0, baseShape);
+
+
+            newPlot.setRenderer(renderer);
+
+
+            return chart;
+        }
         return null;
     }
 
+
     @Publish
-    public org.geworkbench.events.MarkerSelectedEvent publishMarkerSelectedEvent(MarkerSelectedEvent event) {
+    public org.geworkbench.events.MarkerSelectedEvent publishMarkerSelectedEvent
+            (MarkerSelectedEvent
+                    event) {
         return event;
     }
 
     @Publish
-    public PhenotypeSelectedEvent publishPhenotypeSelectedEvent(PhenotypeSelectedEvent event) {
+    public PhenotypeSelectedEvent publishPhenotypeSelectedEvent
+            (PhenotypeSelectedEvent
+                    event) {
         return event;
     }
 
@@ -1556,7 +1397,6 @@ public class GenericDisplayPanel extends JPanel {
         }
     }
 
-
     /**
      * The marker JAutoList type.
      */
@@ -1608,7 +1448,6 @@ public class GenericDisplayPanel extends JPanel {
 
     }
 
-
     /**
      * Struct for the objects associated with a chart.
      */
@@ -1638,10 +1477,9 @@ public class GenericDisplayPanel extends JPanel {
         public XYLineAnnotation lineAnnotation = getXYLineAnnotation(slope);
     }
 //removed by xz.
-    /**
-     * Cell rendered for the lists that handles the special selection conditions.
-     */
-
+/**
+ * Cell rendered for the lists that handles the special selection conditions.
+ */
 
     /**
      * Responsible for handling microarray selection in a gene scatter plot.
