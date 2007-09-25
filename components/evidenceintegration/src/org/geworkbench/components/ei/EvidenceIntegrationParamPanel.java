@@ -1,6 +1,8 @@
 package org.geworkbench.components.ei;
 
 import org.geworkbench.analysis.AbstractSaveableParameterPanel;
+import org.geworkbench.util.PropertiesMonitor;
+import org.geworkbench.engine.properties.PropertiesManager;
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.decorator.HighlighterPipeline;
 import org.jdesktop.swingx.decorator.Highlighter;
@@ -9,6 +11,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import javax.swing.*;
+import javax.swing.filechooser.*;
 import java.io.*;
 import java.awt.*;
 import java.awt.event.ActionListener;
@@ -31,18 +34,67 @@ public class EvidenceIntegrationParamPanel extends AbstractSaveableParameterPane
     private EvidenceTableModel evidenceTableModel;
     private JXTable evidenceTable;
     private ArrayList<Evidence> predefinedPriors;
+    String LASTDIR = "lastdir";
     private PriorTableModel predefinedModel;
     private JXTable predefTable;
     private ArrayList<Evidence> loadedPriors;
     private PriorTableModel loadedModel;
     private JXTable loadedTable;
     private HashMap<Integer, String> goldStandardSources;
+    private ArrayList<JCheckBox> arrayList = new ArrayList<JCheckBox>();
+    private ArrayList<Integer> evidenceCandidates = new ArrayList<Integer>();
 
     public EvidenceIntegrationParamPanel(HashMap<Integer, String> goldStandardSources) {
         this.goldStandardSources = goldStandardSources;
         this.setLayout(new BorderLayout());
         this.setPreferredSize(new Dimension(0, 100));
 
+
+        final JPanel mainDialogPanel = new JPanel();
+        JCheckBox[] jCheckBoxes = new JCheckBox[10];
+        GridLayout gridLayout1 = new GridLayout();
+        GridBagLayout gridBagLayout1 = new GridBagLayout();
+        final JPanel jCenterPanel = new JPanel();
+        final JPanel jSouthPanel = new JPanel();
+        GridLayout gridLayout2 = new GridLayout();
+        JButton removeButton = new JButton();
+        JButton cancelButton = new JButton("Cancel");
+        BorderLayout borderLayout1 = new BorderLayout();
+        Frame frame = JOptionPane.getFrameForComponent(this);
+
+        final JDialog dialog = new JDialog(frame, "Please select which envidence to remove.", false);
+        JDialog goDialog = new JDialog();
+        removeButton.setText("Remove");
+        removeButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                if (arrayList != null && arrayList.size() > 0) {
+                    for (JCheckBox jCheckBox : arrayList) {
+                        if (jCheckBox.isSelected()) {
+                            for (Evidence evidence : evidenceSet) {
+
+                            }
+                        }
+                    }
+                    int size = arrayList.size() - 1;
+                    for (int i = size; i >= 0; i--) {
+                        Evidence evidence = evidenceSet.get(i);
+                        if (arrayList.get(i).isSelected() && evidence.getName().equalsIgnoreCase(arrayList.get(i).getText())) {
+                            evidenceSet.remove(evidence);
+                        }
+                    }
+
+                }
+                dialog.setVisible(false);
+                evidenceTableModel.fireTableDataChanged();
+            }
+        });
+        cancelButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                dialog.setVisible(false);
+            }
+        });
+        jSouthPanel.add(removeButton);
+        jSouthPanel.add(cancelButton);
         JPanel tablesContainer = new JPanel(new GridLayout(1, 2));
 
         {
@@ -63,7 +115,12 @@ public class EvidenceIntegrationParamPanel extends AbstractSaveableParameterPane
             tablePanel.add(evidenceScrollPane, BorderLayout.CENTER);
 
             JButton loadEvidenceButton = new JButton("Load");
-            tablePanel.add(loadEvidenceButton, BorderLayout.SOUTH);
+            JButton removeEvidenceButton = new JButton("Remove");
+            removeEvidenceButton.setToolTipText("Delete Selected Evidences.");
+            JPanel lowPanel = new JPanel();
+            lowPanel.add(loadEvidenceButton);
+            lowPanel.add(removeEvidenceButton);
+            tablePanel.add(lowPanel, BorderLayout.SOUTH);
             loadEvidenceButton.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent actionEvent) {
                     try {
@@ -76,7 +133,50 @@ public class EvidenceIntegrationParamPanel extends AbstractSaveableParameterPane
                     }
                 }
             });
+            removeEvidenceButton.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent actionEvent) {
+                    int canRemovedEvidenceNumber = 0;
+                    int currentEvidenceNumber = 0;
+                    arrayList = new ArrayList<JCheckBox>();
+                    for (Evidence evidence : evidenceSet) {
 
+                        if (evidence.isLoadedFromFile()) {
+                            canRemovedEvidenceNumber++;
+                            arrayList.add(new JCheckBox(evidence.getName()));
+                            evidenceCandidates.add(currentEvidenceNumber);
+                        }
+                        currentEvidenceNumber++;
+                    }
+
+
+                    jCenterPanel.removeAll();
+                    GridLayout gridLayout2 = new GridLayout(canRemovedEvidenceNumber, 1);
+                    jCenterPanel.setLayout(gridLayout2);
+
+
+                    for (JCheckBox jcheckbox : arrayList) {
+                        jcheckbox.setPreferredSize(new Dimension(60, 22));
+                        jCenterPanel.add(jcheckbox);
+
+                    }
+                    JPanel labelPanel = new JPanel();
+                    JLabel jLabel = new JLabel("<html><b>Please Select the Evidence(s) to remove</b></html>");
+                    labelPanel.add(jLabel);
+                    mainDialogPanel.removeAll();
+                    mainDialogPanel.setLayout(new BorderLayout());
+                    mainDialogPanel.add(labelPanel, BorderLayout.NORTH);
+                    mainDialogPanel.add(jCenterPanel, java.awt.BorderLayout.CENTER);
+                    mainDialogPanel.add(jSouthPanel, java.awt.BorderLayout.SOUTH);
+                    dialog.getContentPane().add(mainDialogPanel);
+                    dialog.setMinimumSize(new Dimension(100, 100));
+                    dialog.setPreferredSize(new Dimension(300, 300));
+                    dialog.pack();
+                    dialog.setLocationRelativeTo(null);
+                    dialog.setVisible(true);
+                    int[] seleInts = evidenceTable.getSelectedRows();
+                    evidenceTableModel.fireTableDataChanged();
+                }
+            });
             tablesContainer.add(tablePanel);
         }
 
@@ -85,6 +185,7 @@ public class EvidenceIntegrationParamPanel extends AbstractSaveableParameterPane
         {
             JPanel tablePanel = new JPanel(new BorderLayout());
             JLabel label = new JLabel("Predefined Gold Standards");
+            //label.setText("<html><font color=blue><B>Predefined Gold Standards </b></font></html>");
             tablePanel.add(label, BorderLayout.NORTH);
 
             predefinedPriors = new ArrayList<Evidence>();
@@ -107,15 +208,51 @@ public class EvidenceIntegrationParamPanel extends AbstractSaveableParameterPane
             tablePanel.add(label, BorderLayout.NORTH);
 
             loadedPriors = new ArrayList<Evidence>();
-//            loadedPriors.add(new Evidence("Loaded 1", null));
+            loadedPriors.add(new Evidence("Loaded 1", null));
             loadedModel = new PriorTableModel(loadedPriors);
             loadedTable = new JXTable(loadedModel);
             setBooleanRenderers(loadedTable);
             JScrollPane loadedScrollPane = new JScrollPane(loadedTable);
             tablePanel.add(loadedScrollPane, BorderLayout.CENTER);
-
+            JButton removePrior = new JButton("Remove");
             JButton loadPrior = new JButton("Load");
-            tablePanel.add(loadPrior, BorderLayout.SOUTH);
+            JPanel lowPanel = new JPanel();
+            lowPanel.add(loadPrior);
+            lowPanel.add(removePrior);
+            loadPrior.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent actionEvent) {
+                    try {
+                        Evidence evidence = loadGoldStrandardsFromFile();
+                        if (evidence != null) {
+                            loadedPriors.add(evidence);
+                            setBooleanRenderers(loadedTable);
+//        evidenceTableModel.fireTableDataChanged();
+                        }
+                    } catch (IOException e) {
+                        log.error(e);
+                    }
+                }
+            });
+            removePrior.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent actionEvent) {
+
+                    int[] seleInts = evidenceTable.getSelectedRows();
+                    if (seleInts == null || seleInts.length > 0) {
+                        JOptionPane.showConfirmDialog(null, "Error", "Please select at least one evidence to remove.", JOptionPane.ERROR_MESSAGE);
+                        return;
+                    }
+                    for (int i = seleInts.length; i < 1; i--) {
+                        Evidence evidence = evidenceSet.get(seleInts[i - 1]);
+                        removeEvidence(evidence);
+                    }
+
+                    evidenceTableModel.fireTableDataChanged();
+
+                }
+            });
+
+            tablePanel.add(lowPanel, BorderLayout.SOUTH);
+
             priorContainer.add(tablePanel);
         }
 
@@ -133,7 +270,51 @@ public class EvidenceIntegrationParamPanel extends AbstractSaveableParameterPane
     }
 
     private Evidence loadEvidenceFromFile() throws IOException {
-        JFileChooser chooser = new JFileChooser("/Users/mhall/code/geworkbench/data");
+
+        try {
+            String lastdir;
+
+            lastdir = PropertiesManager.getInstance().getProperty(getClass(), LASTDIR, "Default Value");
+            if (lastdir == null) {
+                lastdir = ".";
+            }
+            JFileChooser fc = new JFileChooser(lastdir);
+            int choice = fc.showOpenDialog(null);
+            if (choice == JFileChooser.APPROVE_OPTION) {
+                lastdir = fc.getSelectedFile().getParentFile().getAbsolutePath();
+                PropertiesManager.getInstance().setProperty(getClass(), LASTDIR, lastdir);
+            }
+            File file = fc.getSelectedFile();
+            if (file != null) {
+                BufferedReader reader = new BufferedReader(new FileReader(file));
+                Evidence evidence = new Evidence(file.getName());
+                evidence.setLoadedFromFile(true);
+                String line = reader.readLine();
+                while (line != null) {
+                    if (!line.startsWith(">")) {
+                        String[] splits = line.split("\t");
+
+                        try {
+                            evidence.addEdge(Integer.parseInt(splits[0].trim()), Integer.parseInt(splits[1].trim()), Float.parseFloat(splits[2].trim()));
+                        } catch (NumberFormatException e) {
+                            JOptionPane.showConfirmDialog(null, "There is a problem to parse the file, the line cannot be parsed correctly: " + line);
+                            return null;
+                        }
+                    }
+                    line = reader.readLine();
+                }
+                return evidence;
+            }
+
+        } catch (Exception er) {
+        }
+
+
+        return null;
+    }
+
+    private Evidence loadGoldStrandardsFromFile() throws IOException {
+        JFileChooser chooser = new JFileChooser(".");
 //        chooser.setCurrentDirectory(new File(lwd));
         chooser.showOpenDialog(this);
         File file = chooser.getSelectedFile();
@@ -153,8 +334,6 @@ public class EvidenceIntegrationParamPanel extends AbstractSaveableParameterPane
         }
         return null;
     }
-
-
 /*
     public static void main(String[] args) {
         JFrame frame = new JFrame();
@@ -184,6 +363,14 @@ public class EvidenceIntegrationParamPanel extends AbstractSaveableParameterPane
         evidenceSet.add(evidence);
         setBooleanRenderers(evidenceTable);
 //        evidenceTableModel.fireTableDataChanged();
+    }
+
+    public void removeEvidence(Evidence evidence) {
+        if (evidence != null) {
+            evidenceSet.remove(evidence);
+            //setBooleanRenderers(evidenceTable);
+            evidenceTableModel.fireTableDataChanged();
+        }
     }
 
     public List<Evidence> getSelectedEvidence() {

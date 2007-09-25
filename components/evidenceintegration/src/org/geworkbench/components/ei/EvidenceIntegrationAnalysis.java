@@ -1,6 +1,7 @@
 package org.geworkbench.components.ei;
 
 import org.geworkbench.analysis.AbstractAnalysis;
+import org.geworkbench.analysis.AbstractGridAnalysis;
 import org.geworkbench.bison.model.analysis.ClusteringAnalysis;
 import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
@@ -33,11 +34,12 @@ import javax.swing.*;
 /**
  * @author mhall
  */
-public class EvidenceIntegrationAnalysis extends AbstractAnalysis implements ClusteringAnalysis {
+public class EvidenceIntegrationAnalysis extends AbstractGridAnalysis implements ClusteringAnalysis {
 
     public static final String DB_URL = "jdbc:mysql://afdev:3306/evidence_integration";
     public static final String DB_USERNAME = "matt";
     public static final String DB_PASSWORD = "matthall";
+    private final String analysisName = "ei";
 
     EvidenceIntegration eiEngine = new EvidenceIntegration(DB_URL, DB_USERNAME, DB_PASSWORD);
 
@@ -56,6 +58,18 @@ public class EvidenceIntegrationAnalysis extends AbstractAnalysis implements Clu
         return AbstractAnalysis.ZERO_TYPE;
     }
 
+    public  Map<String, Object> getBisonParameters(){
+        return null;
+    };
+
+    	/*
+	 * (non-Javadoc)
+	 * @see org.geworkbench.analysis.AbstractGridAnalysis#getAnalysisName()
+	 */
+	@Override
+	public String getAnalysisName() {
+		return analysisName;
+	}
     public AlgorithmExecutionResults execute(Object input) {
 //        if (input instanceof DSMicroarraySetView) {
 //            log.debug("Input dataset is microarray type.");
