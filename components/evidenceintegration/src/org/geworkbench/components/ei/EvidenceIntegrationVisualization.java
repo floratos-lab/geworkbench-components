@@ -18,11 +18,12 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.ArrayList;
 
 import edu.columbia.c2b2.evidenceinegration.Evidence;
 
 /**
- * @author mhall
+ * @author mhall, xiaoqing zhang
  */
 @AcceptTypes(EvidenceIntegrationDataSet.class)
 public class EvidenceIntegrationVisualization implements VisualPlugin {
@@ -40,13 +41,26 @@ public class EvidenceIntegrationVisualization implements VisualPlugin {
         return plugin;
     }
 
-    @Subscribe public void receive(ProjectEvent projectEvent, Object source) {
+    @Subscribe
+    public void receive(ProjectEvent projectEvent, Object source) {
         log.debug("MINDY received project event.");
         DSDataSet data = projectEvent.getDataSet();
         if ((data != null) && (data instanceof EvidenceIntegrationDataSet)) {
             if (dataSet != data) {
                 dataSet = ((EvidenceIntegrationDataSet) data);
                 plugin.removeAll();
+                java.util.List arrayList = dataSet.getEvidence();
+                Map<Integer, String> goldStandardSources = dataSet.getGoldStandardSources();
+                GenericDisplayPanel performancePanel = new GenericDisplayPanel(GenericDisplayPanel.PlotType.PERF, arrayList, goldStandardSources);
+
+                GenericDisplayPanel rocPanel = new GenericDisplayPanel(GenericDisplayPanel.PlotType.ROC, arrayList, goldStandardSources);
+                rocPanel.setCurrentMaximumCharts(1);
+                performancePanel.setCurrentMaximumCharts(4);
+                JTabbedPane tabbedPane = new JTabbedPane();
+                tabbedPane.add("Performance Graphs", performancePanel);
+                tabbedPane.add("ROC Graph", rocPanel);
+                plugin.setLayout(new BorderLayout());
+                plugin.add(tabbedPane, BorderLayout.CENTER);
 
                 HashMap<Integer, XYSeriesCollection> gsPlotData = new HashMap<Integer, XYSeriesCollection>();
 
@@ -77,13 +91,16 @@ public class EvidenceIntegrationVisualization implements VisualPlugin {
                             PlotOrientation.VERTICAL, false, // Show legend
                             true, true);
                     ChartPanel chartPanel = new ChartPanel(ch);
-                    plugin.add(chartPanel);
+                  //  plugin.add(chartPanel);   //Disabled by xz.
+                    
                 }
 
-//                ch.getXYPlot().setRenderer(renderer);
+                //ch.getXYPlot().setRenderer(renderer);
 
                 plugin.revalidate();
                 plugin.repaint();
+            } else {
+                //redraw? xz.
             }
         }
     }
