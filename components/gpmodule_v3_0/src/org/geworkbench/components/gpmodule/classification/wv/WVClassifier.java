@@ -9,11 +9,11 @@
   whatsoever. Neither the Broad Institute nor MIT can be responsible for its
   use, misuse, or functionality.
 */
-package org.geworkbench.components.gpmodule_v3_0.classification.wv;
+package org.geworkbench.components.gpmodule.classification.wv;
 
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
-import org.geworkbench.components.gpmodule_v3_0.classification.PredictionModel;
-import org.geworkbench.components.gpmodule_v3_0.classification.GPClassifier;
+import org.geworkbench.components.gpmodule.classification.PredictionModel;
+import org.geworkbench.components.gpmodule.classification.GPClassifier;
 import org.genepattern.webservice.Parameter;
 
 import java.io.*;

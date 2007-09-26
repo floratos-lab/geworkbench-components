@@ -9,10 +9,10 @@
   whatsoever. Neither the Broad Institute nor MIT can be responsible for its
   use, misuse, or functionality.
 */
-package org.geworkbench.components.gpmodule_v3_0.classification.knn;
+package org.geworkbench.components.gpmodule.classification.knn;
 
-import org.geworkbench.components.gpmodule_v3_0.classification.GPTraining;
-import org.geworkbench.components.gpmodule_v3_0.classification.PredictionModel;
+import org.geworkbench.components.gpmodule.classification.GPTraining;
+import org.geworkbench.components.gpmodule.classification.PredictionModel;
 import org.geworkbench.bison.algorithm.classification.CSClassifier;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
