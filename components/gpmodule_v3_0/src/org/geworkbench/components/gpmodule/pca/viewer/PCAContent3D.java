@@ -7,15 +7,13 @@ package org.geworkbench.components.gpmodule.pca.viewer;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.GraphicsConfiguration;
 import java.awt.image.BufferedImage;
+import java.awt.Panel;
 
 import javax.media.j3d.*;
-
-import javax.swing.JPanel;
 
 import javax.vecmath.Color3f;
 import javax.vecmath.Point3d;
@@ -39,7 +37,7 @@ import java.util.*;
 /**
  * @author: Marc-Danie Nazaire
  */
-public class PCAContent3D extends JPanel
+public class PCAContent3D extends Panel
 {
     private SimpleUniverse universe;
     private Canvas3D onScreenCanvas;
@@ -69,8 +67,8 @@ public class PCAContent3D extends JPanel
     {
     	this.xyzPoints = xyzPoints;
 
+        initScales(xyzPoints);
         setLayout(new BorderLayout());
-        setPreferredSize(new Dimension(10, 10));
         GraphicsConfiguration config = SimpleUniverse.getPreferredConfiguration();
         this.onScreenCanvas = new Canvas3D(config);
         this.universe = new SimpleUniverse(onScreenCanvas);
@@ -142,6 +140,22 @@ public class PCAContent3D extends JPanel
         scaleAxisZ = dimZ;
     }
 
+
+    /**
+     * Sets scales according to U-matrix values.
+     */
+    private void initScales(List xyzPoint)
+    {
+        float max = 0f;
+        final int rows = xyzPoint.size();
+        for (int i = rows; --i >= 0;)
+        {
+            max = Math.max(max, Math.max(Math.max(Math.abs(((XYZData)xyzPoints.get(i)).getX()), Math.abs(((XYZData)xyzPoints.get(i)).getY())), Math.abs(((XYZData)xyzPoints.get(i)).getZ())));
+        }
+
+        setScale(max, max, max);
+    }
+
     public float getMaxValue()
     {
         return Math.max(scaleAxisX, Math.max(scaleAxisY, scaleAxisZ));
@@ -185,14 +199,6 @@ public class PCAContent3D extends JPanel
         }
         this.scene = createSceneGraph(onScreenCanvas, spinTransform);
         universe.addBranchGraph(scene);
-    }
-
-    /**
-     * Creates a branch group with specified canvas.
-     */
-    private BranchGroup createSceneGraph(Canvas3D canvas)
-    {
-        return createSceneGraph(canvas, null);
     }
 
     /**
@@ -431,7 +437,7 @@ public class PCAContent3D extends JPanel
         float factorY = 3f/scaleAxisY;
         float factorZ = 3f/scaleAxisZ;
 
- 		Font3D font = new Font3D(new Font("TestFont", Font.BOLD, (int)(Math.round(getPointSize()))), new FontExtrusion());
+ 		Font3D font = new Font3D(new Font("TestFont", Font.BOLD, (Math.round(getPointSize()))), new FontExtrusion());
         Font origFont = font.getFont();
 
         FontMetrics fMet = onScreenCanvas.getFontMetrics(origFont);
@@ -465,7 +471,7 @@ public class PCAContent3D extends JPanel
             z = data.getZ();
             tempGroup = new TransformGroup(fontTransform);
             text = "";
-            text3d = new Text3D(font, text, new Point3f(x*factorX*10f+getPointSize(), (float)(y*factorY*10f - (float)ascent/2f), z*factorZ*10f));
+            text3d = new Text3D(font, text, new Point3f(x*factorX*10f+getPointSize(), (y*factorY*10f - (float)ascent/2f), z*factorZ*10f));
             text3d.setCapability(Text3D.ALLOW_STRING_WRITE);
             text3d.setCapability(Text3D.ALLOW_STRING_READ);
             text3d.setUserData(data.getLabel() + " : " + "[" + x + ", " + y + ", " + z + "]");
@@ -720,7 +726,7 @@ public class PCAContent3D extends JPanel
 
    			 Sphere m_Shape3D = (Sphere)result;
 
-			if(m_Shape3D.getUserData() != null && m_Shape3D.getCapability(Shape3D.ALLOW_APPEARANCE_WRITE) == true)
+			if(m_Shape3D.getUserData() != null && m_Shape3D.getCapability(Shape3D.ALLOW_APPEARANCE_WRITE))
 			{
 				if(buttonPress)
                 {
