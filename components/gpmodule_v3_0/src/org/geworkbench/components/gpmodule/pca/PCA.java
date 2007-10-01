@@ -55,7 +55,7 @@ public class PCA extends MicroarrayViewEventBase
     private JSplitPane compGraphPanel;
     private JSplitPane projPanel;
     private JTable projResultsTable;
-    private JScrollPane projGraphPanel;
+    private Component projGraphPanel;
     private JTextField perVar;
     private JButton createButton;
     private JButton clearPlotButton;
@@ -71,6 +71,7 @@ public class PCA extends MicroarrayViewEventBase
     public PCA()
     {
         tabbedPane = new JTabbedPane();
+        
         mainScrollPane = new JScrollPane();
         tabbedPane.setMinimumSize(mainScrollPane.getSize());
         tabbedPane.setMaximumSize(mainScrollPane.getSize());
@@ -85,9 +86,9 @@ public class PCA extends MicroarrayViewEventBase
 
         projPanel = new JSplitPane();
         tabbedPane.addTab("Projection", projPanel);
-        tabbedPane.addChangeListener( new PCAChangeListener());
+        tabbedPane.addChangeListener( new PCAChangeListener(tabbedPane.getSelectedIndex()));
 
-        projGraphPanel = new JScrollPane();
+        projGraphPanel = new Container();
         projPanel.setRightComponent(projGraphPanel);
 
         perVar = new JTextField();
@@ -172,8 +173,14 @@ public class PCA extends MicroarrayViewEventBase
             public void actionPerformed(ActionEvent event)
             {
                 projResultsTable.clearSelection();
-                projGraphPanel.getViewport().removeAll();
-                projGraphPanel.repaint();
+
+                if(projGraphPanel instanceof JScrollPane)
+                {
+                    ((JScrollPane)projGraphPanel).getViewport().removeAll();
+                    projGraphPanel.repaint();
+                }
+                else
+                    ((ScrollPane)projGraphPanel).removeAll();
 
                 plotButton.setEnabled(false);
                 clearPlotButton.setEnabled(false);
@@ -187,7 +194,13 @@ public class PCA extends MicroarrayViewEventBase
         {
             public void actionPerformed(ActionEvent event)
             {
-                Component component = projGraphPanel.getViewport().getComponent(0);
+                Component component;
+                if(projGraphPanel instanceof JScrollPane)
+                {
+                    component = ((JScrollPane)projGraphPanel).getViewport().getComponent(0);
+                }
+                else
+                    component = ((ScrollPane)projGraphPanel).getComponent(0);
 
                 BufferedImage graphImage = null;
                 if(component instanceof ChartPanel)
@@ -239,8 +252,6 @@ public class PCA extends MicroarrayViewEventBase
                 else
                 {
                     plotButton.setEnabled(false);
-                    clearPlotButton.setEnabled(false);
-                    imageSnapshotButton.setEnabled(false);
                 }
 
             }
@@ -269,12 +280,12 @@ public class PCA extends MicroarrayViewEventBase
         });
 
         onlyActivatedMarkers = false;
+        
+        buildJToolBar3();
     }
 
     private void reset()
     {
-        tabbedPane.addChangeListener( new PCAChangeListener());
-
         compGraphPanel = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
         compGraphPanel.setOneTouchExpandable(true);
         compGraphPanel.setDividerLocation(0.5);
@@ -283,7 +294,14 @@ public class PCA extends MicroarrayViewEventBase
         compPanel.setLeftComponent(compResultsTable);
         compPanel.setRightComponent(compGraphPanel);
 
-        projGraphPanel.getViewport().removeAll();
+         if(projGraphPanel instanceof JScrollPane)
+         {
+            ((JScrollPane)projGraphPanel).getViewport().removeAll();
+         }
+
+         if(projGraphPanel instanceof ScrollPane)
+            ((ScrollPane)projGraphPanel).removeAll();
+
         projResultsTable.removeAll();
         projPanel.setLeftComponent(projResultsTable);
         projPanel.setRightComponent(projGraphPanel);
@@ -561,7 +579,11 @@ public class PCA extends MicroarrayViewEventBase
            
             pcaContent3D.updateScene();
             pcaContent3D.getComponent(0).addMouseListener(new PCA3DMouseListener());
-            projGraphPanel.setViewportView(pcaContent3D);
+
+            projGraphPanel = new ScrollPane(ScrollPane.SCROLLBARS_AS_NEEDED);
+            
+            ((ScrollPane)projGraphPanel).add(pcaContent3D);
+            projPanel.setRightComponent(projGraphPanel);
         }
         else
         {
@@ -649,10 +671,12 @@ public class PCA extends MicroarrayViewEventBase
 
             ChartPanel panel = new ChartPanel(graph);
             panel.addChartMouseListener(new PCAChartMouseListener());
-            projGraphPanel.setViewportView(panel);
+
+            projGraphPanel = new JScrollPane();
+            ((JScrollPane)projGraphPanel).setViewportView(panel);
+            projPanel.setRightComponent(projGraphPanel);
         }
-        
-        projPanel.setRightComponent(projGraphPanel);
+
         projPanel.setDividerLocation(0.25);
     }
 
@@ -720,11 +744,22 @@ public class PCA extends MicroarrayViewEventBase
 
     private class PCAChangeListener implements ChangeListener
     {
+        int lastSelectedIndex;
+
+        public PCAChangeListener(int lastSelectedIndex)
+        {
+            this.lastSelectedIndex = lastSelectedIndex;
+        }
+
         public void stateChanged(ChangeEvent event)
         {
             if(event.getSource() instanceof JTabbedPane)
             {
-                buildJToolBar3();
+                if(lastSelectedIndex != tabbedPane.getSelectedIndex())
+                {
+                    buildJToolBar3();
+                    lastSelectedIndex = tabbedPane.getSelectedIndex();
+                }
             }
         }
     }
