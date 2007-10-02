@@ -136,7 +136,8 @@ public class PCA extends MicroarrayViewEventBase
                     if(selectedRows.length == 0)
                     {
                         reset();
-                        
+
+                        perVar.setText("");
                         createButton.setEnabled(false);
                         return;
                     }
