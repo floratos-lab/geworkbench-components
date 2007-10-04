@@ -1,7 +1,6 @@
 package org.geworkbench.components.cagrid;
 
 
-
 import org.geworkbench.bison.datastructure.biocollections.sequences.DSSequenceSet;
 import org.geworkbench.bison.datastructure.biocollections.sequences.CSSequenceSet;
 import org.geworkbench.bison.datastructure.biocollections.DSCollection;
@@ -99,10 +98,10 @@ public class GenetegrateViewWidget extends JPanel {
     private static final String SWISSMODEL = "SWISSMODEL";
     private static final String ESYPRED = "ESYPRED";
     private static final String PUDGE = "PUDGE";
-   // private static final String PUDGEURL = "http://156.111.188.2:8080/wsrf/services/cagrid/PUDGEDEMO";
-//private static final String PUDGEURL = "http://156.145.29.52:8080/wsrf/services/cagrid/HelloPUDGE";
-//private static final String PUDGEURL = "http://156.145.29.52:8080/wsrf/services/cagrid/HelloPUDGE";
-private static final String PUDGEURL = "http://156.111.188.2:8080/wsrf/services/cagrid/HelloPUDGE";
+    // private static final String PUDGEURL = "http://156.111.188.2:8080/wsrf/services/cagrid/PUDGEDEMO";
+    //private static final String PUDGEURL = "http://156.145.29.52:8080/wsrf/services/cagrid/HelloPUDGE";
+    //private static final String PUDGEURL = "http://156.145.29.52:8080/wsrf/services/cagrid/HelloPUDGE";
+    private static final String PUDGEURL = "http://156.111.188.2:8080/wsrf/services/cagrid/HelloPUDGE";
 
     private JTextField jSequenceSummaryTextField = new JTextField();
     private boolean isLineView = true; //true is for LineView.
@@ -419,8 +418,6 @@ private static final String PUDGEURL = "http://156.111.188.2:8080/wsrf/services/
     public void invokeFunction() {
         isNormal = true;
         preProcess();
-
-
         Runnable r = new Runnable() {
             public void run() {
                 try {
@@ -445,7 +442,7 @@ private static final String PUDGEURL = "http://156.111.188.2:8080/wsrf/services/
         }
         tempFolder = System.getProperties().getProperty(
                 "temporary.files.directory");
-        inputFileNames = new String[ activeSequenceDB.size()];
+        inputFileNames = new String[activeSequenceDB.size()];
         for (int i = 0; i < activeSequenceDB.size(); i++) {
             DSSequence seq = activeSequenceDB.getSequence(i);
             String fastaFilename = activeSequenceDB.getFile().getName();
@@ -500,7 +497,6 @@ private static final String PUDGEURL = "http://156.111.188.2:8080/wsrf/services/
             inputParameters[1] = inputfilename;
             String progressInfo = "";
             String outputfilename = "";
-            // String inputfilename = activeSequenceDB.getFile().getName();
             int dot = inputfilename.lastIndexOf('.');
             if (inputfilename.charAt(dot - 2) == '_')
                 outputfilename = inputfilename.substring(0, dot - 2) + "." + inputParameters[0].toLowerCase();
@@ -512,12 +508,12 @@ private static final String PUDGEURL = "http://156.111.188.2:8080/wsrf/services/
             file = new File(file.getName());
             boolean finished = false;
             while (!finished) {
-                   if (isStopped) {
-                        isStopped = false;
-                        break;
-                    }
+                if (isStopped) {
+                    isStopped = false;
+                    break;
+                }
                 if (!functionName.equalsIgnoreCase(PUDGE)) {
-                  //  progressInfo = genetegrate.demos.sendRequest(inputParameters);
+                    //  progressInfo = genetegrate.demos.sendRequest(inputParameters);
 
                     if (isStopped) {
                         isStopped = false;
@@ -545,43 +541,42 @@ private static final String PUDGEURL = "http://156.111.188.2:8080/wsrf/services/
                     }
 
                 } else {
-                   DSSequence seq = activeSequenceDB.getSequence(sequenceCount);
+                    DSSequence seq = activeSequenceDB.getSequence(sequenceCount);
                     String jobID = null;
                     try {
                         HelloPUDGEClient pudgedemoClient = new HelloPUDGEClient(PUDGEURL);
                         jobID = pudgedemoClient.submitQuery(seq.getLabel(), seq.getSequence());
-                        updateProgressBar(true, "For" + seq.getLabel() +  " Job ID is " + jobID);
-                       // pudgedemoClient.saveResultToFile(file.getAbsolutePath(), jobID);
-                        
+                        updateProgressBar(true, "For " + seq.getLabel() + " Job ID is " + jobID);
+                        PrintWriter out = null;
 
-  
-        PrintWriter out = null;
+                        try {
+                            boolean isDone = pudgedemoClient.isJobDone(jobID);
+                            while (!isDone) {
+                                Thread.sleep(30000);
+                                isDone = pudgedemoClient.isJobDone(jobID);
+                            }
+                            finished = true;
+                            out = new PrintWriter(new FileOutputStream(file.getAbsolutePath()));
+                            out.println("#Result from PUDGE");
+                            String output = pudgedemoClient.getOutput(jobID);
+                            if (output == null) {
+                                return;
+                            }
+                            String[] lines = output.split("\\|");
+                            for (String line : lines) {
+                                out.println(line);
+                            }
 
-        try {
-            while (!(new Boolean(pudgedemoClient.isJobDone(jobID)).booleanValue())) {
-                Thread.sleep(2000);
-            }
-            out = new PrintWriter(new FileOutputStream(file.getAbsolutePath()));
-            out.println("#Result from PUDGE");
-            String output = pudgedemoClient.getOutput(jobID);
-            if(output==null){
-                      return;
-            }
-            String[] lines = output.split("\\|");
-            for(String line: lines){
-               out.println(line);
-            }
+                            out.flush();
+                            out.close();
 
-            out.flush();
-            out.close();
+                        } catch (Exception e) {
+                            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+                            return;
+                        }
 
-        } catch (Exception e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-            return;
-        }
-    
 
-				updateProgressBar(false, "Job ID " + jobID + " is finished.");
+                        updateProgressBar(false, "Job ID " + jobID + " is finished.");
                     } catch (URI.MalformedURIException e) {
                         e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
                     } catch (RemoteException e) {
