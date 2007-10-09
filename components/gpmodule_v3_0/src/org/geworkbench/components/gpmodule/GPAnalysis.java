@@ -98,7 +98,7 @@ public abstract class GPAnalysis extends AbstractAnalysis implements ClusteringA
         return gctFile;
     }
 
-    public List runAnalysis(String analysisName, Parameter[] parameters, String password)
+    public List runAnalysis(String analysisName, Parameter[] parameters, String password) throws Exception
     {
         List resultFiles = null;
         try
@@ -122,7 +122,7 @@ public abstract class GPAnalysis extends AbstractAnalysis implements ClusteringA
             for(int i = 0; i < outputFiles.length; i++)
             {
                 File resultFile = analysisResult.downloadFile(outputFiles[i], System.getProperty("temporary.files.directory"));
-                    //resultFile.deleteOnExit();
+                resultFile.deleteOnExit();
                 resultFiles.add(resultFile.getAbsolutePath());               
             }
 
@@ -132,13 +132,9 @@ public abstract class GPAnalysis extends AbstractAnalysis implements ClusteringA
         }
         catch(WebServiceException we)
         {
-             we.printStackTrace();
-             JOptionPane.showMessageDialog(panel, "Could not connect to GenePattern server");
-        }
-        catch(Exception e)
-        {
-           e.printStackTrace();
-           JOptionPane.showMessageDialog(panel, "Error downloading data");
+            if(we.getMessage().contains("ConnectException"))
+                JOptionPane.showMessageDialog(panel, "Could not connect to GenePattern server");
+            throw we;
         }
 
         return resultFiles;
