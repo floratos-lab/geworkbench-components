@@ -123,7 +123,17 @@ public class PCA extends MicroarrayViewEventBase
             }
         });
 
-        compResultsTable = new JTable();
+        compResultsTable = new JTable()
+        {
+            public boolean getScrollableTracksViewportHeight()
+            {
+                Component parent = getParent();
+                if(parent instanceof JViewport)
+                   return parent.getHeight() > getPreferredSize().height;
+
+                return false;
+            }
+        };
         compResultsTable.setRowSelectionAllowed(true);
         compResultsTable.getSelectionModel().addListSelectionListener( new ListSelectionListener()
         {
@@ -219,7 +229,18 @@ public class PCA extends MicroarrayViewEventBase
             }
         });
 
-        projResultsTable = new JTable();
+        projResultsTable = new JTable()
+        {
+            public boolean getScrollableTracksViewportHeight()
+            {
+                Component parent = getParent();
+                if(parent instanceof JViewport)
+                   return parent.getHeight() > getPreferredSize().height;
+
+                return false;
+            }
+        };
+        
         projResultsTable.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
         projResultsTable.setColumnSelectionAllowed(false);
         projResultsTable.setRowSelectionAllowed(true);
@@ -325,8 +346,17 @@ public class PCA extends MicroarrayViewEventBase
     private boolean hasJ3D()
     {
         try
-        { // test for a Java 3D class
+        {
+            // test for a Java 3D class
             Class.forName("com.sun.j3d.utils.universe.SimpleUniverse");
+            Class.forName("javax.media.j3d.VirtualUniverse");
+            Class.forName("javax.vecmath.Vector3d");
+
+            Map vuMap = javax.media.j3d.VirtualUniverse.getProperties();
+            System.out.println("Vendor: " + vuMap.get("j3d.vendor"));
+            System.out.println("Vendor version: " + vuMap.get("j3d.version"));
+            System.out.println("Renderer: " + vuMap.get("j3d.renderer"));
+
             return true;
         }
         catch(ClassNotFoundException e)
@@ -365,19 +395,15 @@ public class PCA extends MicroarrayViewEventBase
         }
        
         compResultsTable.setModel(tableModel);
-        JScrollPane compPane = new JScrollPane();       
+        JScrollPane compPane = new JScrollPane();
+        compPane.setViewportView(compResultsTable);
         compPanel.setLeftComponent(compPane);
         compPanel.setDividerLocation(0.25);
-        Dimension minSize = new Dimension();
-        minSize.setSize(compPanel.getDividerLocation(), Math.max(compResultsTable.getMinimumSize().getHeight(), compPanel.getSize().getHeight()));
-        compResultsTable.setPreferredSize(minSize);        
-        compPane.setViewportView(compResultsTable);
-
+       
         projResultsTable.setModel(tableModel);
         JScrollPane projPane = new JScrollPane();
         projPane.setViewportView(projResultsTable);
         projPanel.setDividerLocation(0.25);
-        projResultsTable.setPreferredSize(minSize);
         projPanel.setLeftComponent(projPane);
     }
 
@@ -389,7 +415,18 @@ public class PCA extends MicroarrayViewEventBase
             return;
         }
 
-        JTable eigenVectorsTable = new JTable();
+        JTable eigenVectorsTable = new JTable()
+        {
+            public boolean getScrollableTracksViewportHeight()
+            {
+                Component parent = getParent();
+                if(parent instanceof JViewport)
+                   return parent.getHeight() > getPreferredSize().height;
+
+                return false;
+            }
+        };
+
         DefaultTableModel tableModel = new DefaultTableModel()
         {
             public boolean isCellEditable(int rowIndex, int columnIndex)
@@ -399,12 +436,14 @@ public class PCA extends MicroarrayViewEventBase
         };
         
         Map map = pcaData.getEigenVectors();
-        tableModel.setColumnCount(((List)map.values().iterator().next()).size());
+        tableModel.setColumnCount(((List)map.values().iterator().next()).size()+1);
         for(int i = 0; i < pComp.length; i++)
         {
             int pc = pComp[i]+1;
-            List eigenVector = new ArrayList((List)map.get(new Integer(pc)));
-            eigenVector.add(0, "Comp " + pc);
+            List eigenVector = new ArrayList();
+            eigenVector.add(0, "Prin. Comp. " + pc);
+            eigenVector.addAll((List)map.get(new Integer(pc)));
+
             tableModel.addRow(new Vector(eigenVector));
         }
 
@@ -420,10 +459,6 @@ public class PCA extends MicroarrayViewEventBase
         compGraphPanel.setBottomComponent(scrollPane);
         compGraphPanel.setDividerLocation(0.5);
 
-        Dimension minSize = new Dimension();
-        minSize.setSize(Math.max(eigenVectorsTable.getPreferredSize().getWidth(), compPanel.getPreferredSize().getWidth()), compGraphPanel.getDividerLocation());
-
-        eigenVectorsTable.setPreferredSize(minSize);
         scrollPane.setViewportView(eigenVectorsTable);
     }
 
@@ -538,6 +573,7 @@ public class PCA extends MicroarrayViewEventBase
 
         u_Matrix = pcaData.getUMatrix();
 
+        // build 3D projection plot
         if(pComp.length == 3)
         {
             if(!hasJ3D())
@@ -586,7 +622,7 @@ public class PCA extends MicroarrayViewEventBase
             ((ScrollPane)projGraphPanel).add(pcaContent3D);
             projPanel.setRightComponent(projGraphPanel);
         }
-        else
+        else  //build 2D Projection plot
         {
             int pc1 = pComp[0]+1;
 
@@ -675,7 +711,7 @@ public class PCA extends MicroarrayViewEventBase
 
             projGraphPanel = new JScrollPane();
             ((JScrollPane)projGraphPanel).setViewportView(panel);
-            projPanel.setRightComponent(projGraphPanel);
+            projPanel.setRightComponent(projGraphPanel); 
         }
 
         projPanel.setDividerLocation(0.25);
