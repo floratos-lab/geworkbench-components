@@ -41,7 +41,7 @@ public class StandAloneWindow {
             garrayList.put(new Integer(i++), s);
         }
 
-        GenericDisplayPanel performancePanel = new GenericDisplayPanel(GenericDisplayPanel.PlotType.PERF, arrayList, garrayList);
+        GenericDisplayPanel performancePanel = new GenericDisplayPanel(null, GenericDisplayPanel.PlotType.PERF, arrayList, garrayList);
 
 //
 //           evidentNames = new String[]{"e4", "e5", "e3"};
@@ -57,7 +57,7 @@ public class StandAloneWindow {
 //        for(String s: evidentNames){
 //            garrayList.put(new Integer(i++), s);
 //        }
-         GenericDisplayPanel rocPanel = new GenericDisplayPanel(GenericDisplayPanel.PlotType.ROC, arrayList, garrayList);
+         GenericDisplayPanel rocPanel = new GenericDisplayPanel(null, GenericDisplayPanel.PlotType.ROC, arrayList, garrayList);
          rocPanel.setCurrentMaximumCharts(1);
         performancePanel.setCurrentMaximumCharts(4);
         JTabbedPane tabbedPane = new JTabbedPane();

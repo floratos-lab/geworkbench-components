@@ -2,8 +2,10 @@ package org.geworkbench.components.ei;
 
 import org.geworkbench.engine.management.AcceptTypes;
 import org.geworkbench.engine.management.Subscribe;
+import org.geworkbench.engine.management.Publish;
 import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.events.ProjectEvent;
+import org.geworkbench.events.ImageSnapshotEvent;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -16,6 +18,7 @@ import org.jfree.data.xy.XYSeries;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.ArrayList;
@@ -51,9 +54,9 @@ public class EvidenceIntegrationVisualization implements VisualPlugin {
                 plugin.removeAll();
                 java.util.List arrayList = dataSet.getEvidence();
                 Map<Integer, String> goldStandardSources = dataSet.getGoldStandardSources();
-                GenericDisplayPanel performancePanel = new GenericDisplayPanel(GenericDisplayPanel.PlotType.PERF, arrayList, goldStandardSources);
+                GenericDisplayPanel performancePanel = new GenericDisplayPanel(this, GenericDisplayPanel.PlotType.PERF, arrayList, goldStandardSources);
 
-                GenericDisplayPanel rocPanel = new GenericDisplayPanel(GenericDisplayPanel.PlotType.ROC, arrayList, goldStandardSources);
+                GenericDisplayPanel rocPanel = new GenericDisplayPanel(this, GenericDisplayPanel.PlotType.ROC, arrayList, goldStandardSources);
                 rocPanel.setCurrentMaximumCharts(1);
                 performancePanel.setCurrentMaximumCharts(4);
                 JTabbedPane tabbedPane = new JTabbedPane();
@@ -104,5 +107,16 @@ public class EvidenceIntegrationVisualization implements VisualPlugin {
             }
         }
     }
+
+    @Publish
+        public ImageSnapshotEvent createImageSnapshot(ImageSnapshotEvent event) {
+                 return  event;
+       }
+
+       @Publish
+       public ImageSnapshotEvent createMatrix( ImageSnapshotEvent event){
+              return event;
+       }
+
 
 }

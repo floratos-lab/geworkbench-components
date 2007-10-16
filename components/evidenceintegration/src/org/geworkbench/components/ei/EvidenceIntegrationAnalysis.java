@@ -39,7 +39,7 @@ public class EvidenceIntegrationAnalysis extends AbstractGridAnalysis implements
     public static final String DB_URL = "jdbc:mysql://afdev:3306/evidence_integration";
     public static final String DB_USERNAME = "matt";
     public static final String DB_PASSWORD = "matthall";
-    private final String analysisName = "ei";
+    private final String analysisName = "EvidenceIntegration";
 
     EvidenceIntegration eiEngine = new EvidenceIntegration(DB_URL, DB_USERNAME, DB_PASSWORD);
 
@@ -49,7 +49,7 @@ public class EvidenceIntegrationAnalysis extends AbstractGridAnalysis implements
     private EvidenceIntegrationParamPanel eiParamPanel;
 
     public EvidenceIntegrationAnalysis() {
-        setLabel("Evidence Integration");
+        setLabel("EvidenceIntegration");
         eiParamPanel = new EvidenceIntegrationParamPanel(eiEngine.getGoldStandardSources());
         setDefaultPanel(eiParamPanel);
     }
@@ -58,18 +58,21 @@ public class EvidenceIntegrationAnalysis extends AbstractGridAnalysis implements
         return AbstractAnalysis.ZERO_TYPE;
     }
 
-    public  Map<String, Object> getBisonParameters(){
+    public Map<String, Object> getBisonParameters() {
         return null;
-    };
+    }
 
-    	/*
-	 * (non-Javadoc)
-	 * @see org.geworkbench.analysis.AbstractGridAnalysis#getAnalysisName()
-	 */
-	@Override
-	public String getAnalysisName() {
-		return analysisName;
-	}
+    ;
+
+    /*
+      * (non-Javadoc)
+      * @see org.geworkbench.analysis.AbstractGridAnalysis#getAnalysisName()
+      */
+    @Override
+    public String getAnalysisName() {
+        return analysisName;
+    }
+
     public AlgorithmExecutionResults execute(Object input) {
 //        if (input instanceof DSMicroarraySetView) {
 //            log.debug("Input dataset is microarray type.");
@@ -77,12 +80,18 @@ public class EvidenceIntegrationAnalysis extends AbstractGridAnalysis implements
 //        }
         List<Evidence> selectedEvidence = eiParamPanel.getSelectedEvidence();
         List<Integer> selectedGoldStandards = eiParamPanel.getSelectedGoldStandards();
+        List<Evidence> selectedUserDefinedGoldStandards = eiParamPanel.getSelectedUserDefinedGoldStandards();
         log.debug("Evidence selected: ");
         for (Evidence evidence : selectedEvidence) {
             log.debug("\t" + evidence.getName());
         }
 
-        EIThread eiThread = new EIThread(mSetView, selectedEvidence, selectedGoldStandards);
+        EIThread eiThread = null;
+        if (selectedUserDefinedGoldStandards == null || selectedUserDefinedGoldStandards.size() < 1) {
+            eiThread = new EIThread(mSetView, selectedEvidence, selectedGoldStandards);
+        } else {
+            eiThread = new EIThread(mSetView, selectedEvidence, selectedGoldStandards, selectedUserDefinedGoldStandards);
+        }
 
         EIProgress progress = new EIProgress(eiThread);
         eiThread.setProgressWindow(progress);
@@ -97,7 +106,7 @@ public class EvidenceIntegrationAnalysis extends AbstractGridAnalysis implements
 
     @Subscribe
     public void receive(org.geworkbench.events.ProjectEvent projectEvent, Object source) {
-        log.error("Got project event.");
+        //log.error("Got project event.");
         if (projectEvent.getMessage().equals(org.geworkbench.events.ProjectEvent.CLEARED)) {
 //            setMArraySet(null);
         }
@@ -160,10 +169,18 @@ public class EvidenceIntegrationAnalysis extends AbstractGridAnalysis implements
     class EIThread extends Thread {
         List<Evidence> selectedEvidence;
         List<Integer> selectedGoldStandards;
+        List<Evidence> selectedUserDefinedGoldStandards;
         private EIProgress progressWindow;
         private DSMicroarraySetView<DSGeneMarker, DSMicroarray> mSetView;
 
-        public EIThread(DSMicroarraySetView<DSGeneMarker, DSMicroarray> mSetView, List<Evidence> selectedEvidence, List<Integer> selectedGoldStandards) {
+        public EIThread(DSMicroarraySetView<DSGeneMarker, DSMicroarray> mSetView, List<Evidence> selectedEvidence, List<Integer> selectedGoldStandards,  List<Evidence> selectedUserDefinedGoldStandards) {
+            this.mSetView = mSetView;
+            this.selectedEvidence = selectedEvidence;
+            this.selectedGoldStandards = selectedGoldStandards;
+            this.selectedUserDefinedGoldStandards = selectedUserDefinedGoldStandards;
+        }
+
+         public EIThread(DSMicroarraySetView<DSGeneMarker, DSMicroarray> mSetView, List<Evidence> selectedEvidence, List<Integer> selectedGoldStandards) {
             this.mSetView = mSetView;
             this.selectedEvidence = selectedEvidence;
             this.selectedGoldStandards = selectedGoldStandards;

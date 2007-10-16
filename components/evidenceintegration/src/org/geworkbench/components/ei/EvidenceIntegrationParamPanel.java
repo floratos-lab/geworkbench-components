@@ -54,7 +54,8 @@ public class EvidenceIntegrationParamPanel extends AbstractSaveableParameterPane
         JCheckBox[] jCheckBoxes = new JCheckBox[10];
         GridLayout gridLayout1 = new GridLayout();
         GridBagLayout gridBagLayout1 = new GridBagLayout();
-        final JPanel jCenterPanel = new JPanel();
+        //final JPanel jCenterPanel = new JPanel();
+        final JToolBar jCenterPanel = new JToolBar(JToolBar.VERTICAL);
         final JPanel jSouthPanel = new JPanel();
         GridLayout gridLayout2 = new GridLayout();
         JButton removeButton = new JButton();
@@ -116,7 +117,7 @@ public class EvidenceIntegrationParamPanel extends AbstractSaveableParameterPane
 
             JButton loadEvidenceButton = new JButton("Load");
             JButton removeEvidenceButton = new JButton("Remove");
-            removeEvidenceButton.setToolTipText("Delete Selected Evidences.");
+            removeEvidenceButton.setToolTipText("Click to Remove Evidences.");
             JPanel lowPanel = new JPanel();
             lowPanel.add(loadEvidenceButton);
             lowPanel.add(removeEvidenceButton);
@@ -150,8 +151,9 @@ public class EvidenceIntegrationParamPanel extends AbstractSaveableParameterPane
 
 
                     jCenterPanel.removeAll();
-                    GridLayout gridLayout2 = new GridLayout(canRemovedEvidenceNumber, 1);
-                    jCenterPanel.setLayout(gridLayout2);
+
+//                    GridLayout gridLayout2 = new GridLayout(canRemovedEvidenceNumber, 1);
+//                    jCenterPanel.setLayout(gridLayout2);
 
 
                     for (JCheckBox jcheckbox : arrayList) {
@@ -169,9 +171,9 @@ public class EvidenceIntegrationParamPanel extends AbstractSaveableParameterPane
                     mainDialogPanel.add(jSouthPanel, java.awt.BorderLayout.SOUTH);
                     dialog.getContentPane().add(mainDialogPanel);
                     dialog.setMinimumSize(new Dimension(100, 100));
-                    dialog.setPreferredSize(new Dimension(300, 300));
+                    dialog.setPreferredSize(new Dimension(250, 200));
                     dialog.pack();
-                    dialog.setLocationRelativeTo(null);
+                    dialog.setLocationRelativeTo(evidenceTable);
                     dialog.setVisible(true);
                     int[] seleInts = evidenceTable.getSelectedRows();
                     evidenceTableModel.fireTableDataChanged();
@@ -208,7 +210,7 @@ public class EvidenceIntegrationParamPanel extends AbstractSaveableParameterPane
             tablePanel.add(label, BorderLayout.NORTH);
 
             loadedPriors = new ArrayList<Evidence>();
-            loadedPriors.add(new Evidence("Loaded 1", null));
+            //loadedPriors.add(new Evidence("Loaded 1", null));
             loadedModel = new PriorTableModel(loadedPriors);
             loadedTable = new JXTable(loadedModel);
             setBooleanRenderers(loadedTable);
@@ -236,17 +238,16 @@ public class EvidenceIntegrationParamPanel extends AbstractSaveableParameterPane
             removePrior.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent actionEvent) {
 
-                    int[] seleInts = evidenceTable.getSelectedRows();
-                    if (seleInts == null || seleInts.length > 0) {
+                    int[] seleInts = loadedTable.getSelectedRows();
+                    if (seleInts == null || seleInts.length <= 0) {
                         JOptionPane.showConfirmDialog(null, "Error", "Please select at least one evidence to remove.", JOptionPane.ERROR_MESSAGE);
                         return;
                     }
-                    for (int i = seleInts.length; i < 1; i--) {
-                        Evidence evidence = evidenceSet.get(seleInts[i - 1]);
+                    for (int i = seleInts.length; i >= 1; i--) {
+                        Evidence evidence = loadedPriors.get(seleInts[i - 1]);
                         removeEvidence(evidence);
                     }
-
-                    evidenceTableModel.fireTableDataChanged();
+                    loadedModel.fireTableDataChanged();
 
                 }
             });
@@ -367,9 +368,9 @@ public class EvidenceIntegrationParamPanel extends AbstractSaveableParameterPane
 
     public void removeEvidence(Evidence evidence) {
         if (evidence != null) {
-            evidenceSet.remove(evidence);
+            loadedPriors.remove(evidence);
             //setBooleanRenderers(evidenceTable);
-            evidenceTableModel.fireTableDataChanged();
+            loadedModel.fireTableDataChanged();
         }
     }
 
@@ -388,6 +389,15 @@ public class EvidenceIntegrationParamPanel extends AbstractSaveableParameterPane
         for (Evidence goldStandard : predefinedPriors) {
             if (goldStandard.isEnabled()) {
                 enabledGS.add(goldStandard.getSourceID());
+            }
+        }
+        return enabledGS;
+    }
+     public List<Evidence> getSelectedUserDefinedGoldStandards() {
+        ArrayList<Evidence> enabledGS = new ArrayList<Evidence>();
+        for (Evidence goldStandard : loadedPriors) {
+            if (goldStandard.isEnabled()) {
+               enabledGS.add(goldStandard);
             }
         }
         return enabledGS;
