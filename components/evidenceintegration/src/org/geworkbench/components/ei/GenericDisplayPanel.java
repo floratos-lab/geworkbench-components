@@ -71,7 +71,7 @@ import edu.columbia.c2b2.evidenceinegration.Edge;
 public class GenericDisplayPanel extends JPanel {
     static Log log = LogFactory.getLog(EvidenceIntegrationVisualizationPlugin.class);
 
-
+    private EvidenceIntegrationVisualization evidenceIntegrationVisualization;
     private EvidenceIntegrationDataSet dataSet;
     private List evidencesStringList;
     //private Map<Integer, String> goldStrArrayList;
@@ -179,7 +179,8 @@ public class GenericDisplayPanel extends JPanel {
      * @param newEvidence
      * @param newGoldSMap
      */
-    public GenericDisplayPanel(PlotType type, List newEvidence, Map<Integer, String> newGoldSMap) {
+    public GenericDisplayPanel(EvidenceIntegrationVisualization evidenceIntegrationVisualization, PlotType type, List newEvidence, Map<Integer, String> newGoldSMap) {
+        this.evidenceIntegrationVisualization = evidenceIntegrationVisualization;
         currentType = type;
         goldStrArrayList = new ArrayList();
         currentGoldSMap = newGoldSMap;
@@ -194,7 +195,7 @@ public class GenericDisplayPanel extends JPanel {
     }
 
     public GenericDisplayPanel(List newEvidence, Map<Integer, String> newGoldSMap) {
-        this(PlotType.PERF, newEvidence, newGoldSMap);
+        this(null, PlotType.PERF, newEvidence, newGoldSMap);
 
     }
 
@@ -691,14 +692,14 @@ public class GenericDisplayPanel extends JPanel {
     }
 
     @Publish
-    public ImageSnapshotEvent createImageSnapshot() {
+    public void createImageSnapshot() {
         Dimension panelSize = chartPanel.getSize();
         BufferedImage image = new BufferedImage(panelSize.width, panelSize.height, BufferedImage.TYPE_INT_RGB);
         Graphics g = image.getGraphics();
         chartPanel.paint(g);
         ImageIcon icon = new ImageIcon(image, "Evidence Integration");
         org.geworkbench.events.ImageSnapshotEvent event = new org.geworkbench.events.ImageSnapshotEvent("Scatter Plot Snapshot", icon, org.geworkbench.events.ImageSnapshotEvent.Action.SAVE);
-        return event;
+        evidenceIntegrationVisualization.createImageSnapshot(event);
     }
 
     @Publish
@@ -709,7 +710,8 @@ public class GenericDisplayPanel extends JPanel {
         chartPanel.paint(g);
         ImageIcon icon = new ImageIcon(image, "Evidence Integration");
         org.geworkbench.events.ImageSnapshotEvent event = new org.geworkbench.events.ImageSnapshotEvent("Scatter Plot Snapshot", icon, org.geworkbench.events.ImageSnapshotEvent.Action.SAVE);
-        return event;
+        evidenceIntegrationVisualization.createImageSnapshot(event);
+        return event; 
     }
 
     /**
