@@ -35,7 +35,7 @@ import edu.columbia.geworkbench.cagrid.microarray.MicroarraySet;
  * Used to execute grid services.
  * 
  * @author keshav
- * @version $Id: GridServiceRunner.java,v 1.3 2007-04-16 20:26:58 keshav Exp $
+ * @version $Id: GridServiceRunner.java,v 1.4 2007-10-17 18:40:57 xiaoqing Exp $
  */
 public class GridServiceRunner {
 	private static Log log = LogFactory.getLog(GridServiceRunner.class);
@@ -46,13 +46,17 @@ public class GridServiceRunner {
 
 	private static final String ARACNE_NAME = "Aracne";
 
-	private static final String GRID_ANALYSIS = "Grid Analysis";
+    private static final String EI_NAME = "EvidenceIntegration";
+
+    private static final String GRID_ANALYSIS = "Grid Analysis";
 
 	private static final String HIERARCHICAL_CLUSTERING_GRID = "Hierarchical Clustering (Grid)";
 
 	private static final String SOM_CLUSTERING_GRID = "Som Clustering (Grid)";
 
-	private static final String ARACNE_GRID = "Aracne (Grid)";
+    private static final String EI_GRID = "Evidence Integration (Grid)";
+
+    private static final String ARACNE_GRID = "Aracne (Grid)";
 
 	private static final String STATML = "Statml";
 
@@ -70,8 +74,9 @@ public class GridServiceRunner {
 		servicesCache.add(HIERARCHICAL_NAME);
 		servicesCache.add(SOM_NAME);
 		servicesCache.add(ARACNE_NAME);
+        servicesCache.add(EI_NAME);
 
-	}
+    }
 
 	/**
 	 * 
@@ -207,6 +212,29 @@ public class GridServiceRunner {
 						pBar.stop();
 					}
 
+				} else if (analysisName.equalsIgnoreCase(EI_NAME)) {
+
+
+					try {
+						pBar.setMessage("Running " + EI_GRID);
+						pBar.start();
+						pBar.reset();
+						SomClusteringClient client = new SomClusteringClient(
+								url);
+
+					} catch (Exception e) {
+						throw new RuntimeException(e);
+					} finally {
+						pBar.stop();
+					}
+//					if (somCluster != null) {
+//						// convert grid to bison hierarchical cluster
+//						CSSOMClusterDataSet dataSet = cagridBisonConverter
+//								.createBisonSomClustering(somCluster, maSetView);
+//						event = new ProjectNodeAddedEvent(SOM_CLUSTERING_GRID,
+//								null, dataSet);
+//
+//					}
 				}
 
 				return event;
