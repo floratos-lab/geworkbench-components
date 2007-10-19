@@ -572,7 +572,7 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 							if (!StringUtils.isEmpty(url)) {
 								GridServiceRunner gridRunner = new GridServiceRunner();
 								ProjectNodeAddedEvent event = gridRunner
-										.executeGridAnalysis(url, maSetView,
+										.executeGridAnalysis(url, maSetView, refOtherSet,
 												selectedAnalysis);
 								log.info("event is " + event);
 								if (event != null) {
