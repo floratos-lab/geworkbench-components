@@ -1,51 +1,29 @@
 package org.geworkbench.components.netboost;
 
-
-import java.awt.BorderLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.swing.JButton;
-import javax.swing.JDialog;
-import javax.swing.JOptionPane;
-import javax.swing.JProgressBar;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.geworkbench.engine.management.Publish;
-import org.geworkbench.engine.management.Subscribe;
-import org.geworkbench.events.AdjacencyMatrixEvent;
-import org.geworkbench.events.ProjectEvent;
-import org.geworkbench.events.ProjectNodeAddedEvent;
 import org.geworkbench.analysis.AbstractAnalysis;
 import org.geworkbench.analysis.AbstractGridAnalysis;
-import org.geworkbench.bison.datastructure.biocollections.microarrays.CSMicroarraySet;
-import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
-import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
-import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
-import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
-import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
 import org.geworkbench.bison.model.analysis.ClusteringAnalysis;
-import org.geworkbench.builtin.projects.ProjectPanel;
-import org.geworkbench.components.netboost.NetBoostParamPanel;
-import org.geworkbench.util.pathwaydecoder.mutualinformation.*;
-import org.geworkbench.util.threading.*;
-import org.geworkbench.bison.datastructure.biocollections.*;
-import org.geworkbench.builtin.projects.DataSetNode;
-import org.geworkbench.components.parsers.EdgeListFileFormat;
+import org.geworkbench.engine.management.Subscribe;
+import org.geworkbench.events.ProjectEvent;
 
 /**
  * NetBoost Analysis
  * @author ch2514
- * @version $Id: NetBoostAnalysis.java,v 1.2 2007-08-31 20:44:35 hungc Exp $
+ * @version $Id: NetBoostAnalysis.java,v 1.3 2007-10-19 00:28:45 hungc Exp $
  */
 
 public class NetBoostAnalysis extends AbstractGridAnalysis implements ClusteringAnalysis {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	// variable
 	private Log log = LogFactory.getLog(this.getClass());
 	
@@ -64,22 +42,11 @@ public class NetBoostAnalysis extends AbstractGridAnalysis implements Clustering
 	private int localAnalysisType;
 	private final String analysisName = "NetBoost";
 	private NetBoostParamPanel paramPanel;
-	private String paramDesc;
-	private EdgeListDataSet el;
-	private NetBoostDataSet netboostDataSet;
-	
-	private JDialog dialog;
-    private JProgressBar progressBar;
-    private JButton cancelButton;
-    private Task task;
-    
-    private boolean hasData = false;
 	
 	public NetBoostAnalysis(){
-		this.localAnalysisType = AbstractAnalysis.ZERO_TYPE;
-		setLabel("NetBoost Analysis");
+		this.localAnalysisType = AbstractAnalysis.NETBOOST_TYPE;
+		setLabel("NetBoostAnalysis");
 		paramPanel = new NetBoostParamPanel();
-		paramDesc = "";
 		setDefaultPanel(paramPanel);
 	}
 	
@@ -106,81 +73,11 @@ public class NetBoostAnalysis extends AbstractGridAnalysis implements Clustering
 	}
 
 	public AlgorithmExecutionResults execute(Object input){
-		// checking input object
-		log.debug("checking input obj");
-		if (input == null) {
-			return new AlgorithmExecutionResults(false, "Invalid input: No data", null);
-		} 
-		AlgorithmExecutionResults result = null;
-		
-		if (input instanceof EdgeListDataSet) {
-            log.debug("Input dataset is an edge list.");  
-            el = (EdgeListDataSet) input;
-            
-            // checking file extension     		
-            log.debug("checking file ext");
-    		boolean correctExt = false;
-    		String filename = el.getFilename().trim();
-    		log.debug("filename=" + filename);
-    		for(String ext: EdgeListFileFormat.EDGE_LIST_FILE_EXTENSIONS){
-    			if(filename.endsWith(ext)) {
-    				correctExt = true;
-    				break;
-    			}
-    		}
-    		if(!correctExt){
-    			for(String ext: EdgeListFileFormat.ADJACENCY_MATRIX_FILE_EXTENSIONS){
-    				if(filename.endsWith(ext)) {
-    					correctExt = true;
-    					break;
-    				}
-    			}
-    		}
-    		log.debug("correctExt=" + correctExt);
-    		if(!correctExt){
-    			return new AlgorithmExecutionResults(false, "Invalid input: Only .txt and .adj edge list files are valid inputs.", null);
-    		}           
-                        
-        } else {
-        	return new AlgorithmExecutionResults(false, "Invalid input: Only edge list files are valid inputs.", null);
-        }
-		
-		// run NetBoost algorithm in the background
-        // and display an indeterminate progress bar in the foreground
-        createProgressBarDialog();
-        task = new Task(el.getFilename());        
-        task.execute();     
-        dialog.setVisible(true);        
-        
-        if(hasData){
-        	Map bison = this.getBisonParameters();
-        	paramDesc += "\nNETBOOST\ntraining example: " + bison.get(NetBoostAnalysis.TRAINING_EX) + "\n"
-        		+ "boosting iteration: " + bison.get(NetBoostAnalysis.BOOST_ITER) + "\n"
-        		+ "subgraph counting method: " + bison.get(NetBoostAnalysis.SUBGRAPH_COUNT) + "\n"
-        		+ "cross-validation folds: " + bison.get(NetBoostAnalysis.CROSS_VALID) + "\n"
-        		+ NetBoostAnalysis.LPA + ": " + bison.get(NetBoostAnalysis.LPA) + "\n"
-        		+ NetBoostAnalysis.RDG + ": " + bison.get(NetBoostAnalysis.RDG) + "\n"
-        		+ NetBoostAnalysis.RDS + ": " + bison.get(NetBoostAnalysis.RDS) + "\n"
-        		+ NetBoostAnalysis.DMC + ": " + bison.get(NetBoostAnalysis.DMC) + "\n"
-        		+ NetBoostAnalysis.AGV + ": " + bison.get(NetBoostAnalysis.AGV) + "\n"
-        		+ NetBoostAnalysis.SMW + ": " + bison.get(NetBoostAnalysis.SMW) + "\n"
-        		+ NetBoostAnalysis.DMR + ": " + bison.get(NetBoostAnalysis.DMR)        	
-        		;
-	        ProjectPanel.addToHistory(new CSDataSet(), paramDesc);
-	        log.info(paramDesc);
-	        
-	        // temporary		
-	        if(this.netboostDataSet != null){
-		        ProjectPanel.addToHistory(this.netboostDataSet, paramDesc);
-		        return new AlgorithmExecutionResults(true, "NetBoost results", this.netboostDataSet);
-	        } else {
-	        	JOptionPane.showMessageDialog(paramPanel.getParent(), "Cannot analyze NetBoost data.", "NetBoost Analyze Error", JOptionPane.WARNING_MESSAGE);
-	        	return null;
-	        }
-        } else {
-        	JOptionPane.showMessageDialog(paramPanel.getParent(), "Cannot analyze NetBoost data.", "NetBoost Analyze Error", JOptionPane.WARNING_MESSAGE);
-        	return null;
-        }
+		// inform the user that only remote service is available
+		return new AlgorithmExecutionResults(false
+				, "Net Boost does not have a local algorithm service.  Please choose \"Grid\" on the Net Boost analysis panel."
+				, null
+				);
 	}
 	
 	public int getAnalysisType(){
@@ -195,118 +92,9 @@ public class NetBoostAnalysis extends AbstractGridAnalysis implements Clustering
 	public String getType() {
 		return this.analysisName;
 	}
-	
-    @Publish
-    public ProjectEvent publishProjectEvent(ProjectEvent event) {
-        return event;
-    }
     
     @Subscribe 
     public void receive(ProjectEvent projectEvent, Object source) {
     	log.debug("NetBoost Analysis received project event.");
-    }
-    
-    private void createProgressBarDialog(){
-    	// lay the groundwork for the progress bar dialog
-        dialog = new JDialog();
-        progressBar = new JProgressBar();
-        cancelButton = new JButton("Cancel");
-        dialog.setLayout(new BorderLayout());
-        dialog.setModal(true);
-        dialog.setTitle("NetBoost Process Running");
-        dialog.setSize(300, 50);
-        dialog.setLocation((int) (dialog.getToolkit().getScreenSize().getWidth() - dialog.getWidth()) / 2, (int) (dialog.getToolkit().getScreenSize().getHeight() - dialog.getHeight()) / 2);
-        progressBar.setIndeterminate(true);
-        dialog.add(progressBar, BorderLayout.CENTER);
-        dialog.add(cancelButton, BorderLayout.EAST);
-        
-        cancelButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent actionEvent) {
-            	if((task != null) && (!task.isCancelled()) && (!task.isDone())) {
-            		task.cancel(true);
-            		log.info("Cancelling NetBoost Analysis");
-            	}
-            	dialog.setVisible(false);
-            	dialog.dispose();            	
-            }
-        });
-
-        dialog.addWindowListener(new WindowAdapter() {
-            public void windowClosing(WindowEvent windowEvent) {
-            	if((task != null) && (!task.isCancelled()) && (!task.isDone())){
-            		task.cancel(true);
-            		log.info("Cancelling NetBoost Analysis");
-            	}
-            }
-        });
-    }
-    
-    /**
-     * The swing worker class that runs NetBoost analysis in the background.
-     * @author ch2514
-     * @version $Id: NetBoostAnalysis.java,v 1.2 2007-08-31 20:44:35 hungc Exp $
-     */
-    class Task extends SwingWorker<NetBoostDataSet, Void> {
-    	String filename;
-    	
-    	/**
-    	 * Constructor.
-    	 * Takes in all the arguments required to run the NetBoost algorithm.
-    	 * 
-    	 */
-    	public Task(String filename){
-    		this.filename = filename;
-    	}
-    	
-    	/**
-    	 * Runs NetBoost analysis.
-    	 * @return a mindy data set.  If the analysis fails, returns null.
-    	 */
-    	public NetBoostDataSet doInBackground(){
-    		log.info("Running NetBoost analysis.");
-    		boolean results = false;
-    		
-            try{
-            	// temporary
-            	Thread.sleep((long) (10000 * Math.random()));
-            	results = true;
-            	
-            } catch (Exception e){
-            	log.warn("Analyze process interrupted.");            	
-            	return null;
-            }            
-            log.info("NetBoost analysis complete.  Converting NetBoost results.");
-            
-            NetBoostData loadedData = new NetBoostData();
-            NetBoostDataSet dataSet = new NetBoostDataSet(null, "NetBoost Results", loadedData, this.filename);
-            log.info("Done converting NetBoost results.");
-            
-            return dataSet;
-    	}
-    	
-    	/**
-    	 * When the NetBoost analysis finishes, transfer the resulting NetBoost
-    	 * data set back to the NetBoost analysis panel on the event thread.
-    	 * Also disposes the progress bar dialog box.
-    	 */
-    	public void done(){
-    		if(!this.isCancelled()){
-	    		try{
-	    			netboostDataSet = get(); 
-	    			hasData = true;
-	    			log.debug("Transferring mindy data set back to event thread.");   
-	    		} catch (Exception e) {
-	    			hasData = false;
-	    			log.error("Exception in finishing up worker thread that called NetBoost: " + e.getMessage());
-	    		}
-    		} else {
-    			log.debug("NetBoost task cancelled.");
-    		}
-    		dialog.setVisible(false);
-    		dialog.dispose();
-    		log.debug("Closing progress bar dialog.");
-    	}
-    	
-    }
-	
+    }	
 }

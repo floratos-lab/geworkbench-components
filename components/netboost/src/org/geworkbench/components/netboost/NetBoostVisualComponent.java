@@ -2,16 +2,13 @@ package org.geworkbench.components.netboost;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.util.HashMap;
-
 import javax.swing.ImageIcon;
 import javax.swing.JPanel;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
-import org.geworkbench.builtin.projects.ProjectPanel;
-import org.geworkbench.builtin.projects.ProjectTreeNode;
+
 import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.engine.management.AcceptTypes;
 import org.geworkbench.engine.management.Publish;
@@ -19,10 +16,15 @@ import org.geworkbench.engine.management.Subscribe;
 import org.geworkbench.events.*;
 import org.geworkbench.util.pathwaydecoder.mutualinformation.*;
 
+//keeping this around at the moment...
+//import java.util.HashMap;
+//import org.geworkbench.builtin.projects.ProjectPanel;
+//import org.geworkbench.builtin.projects.ProjectTreeNode;
+
 /**
  * NetBoost Component
  * @author ch2514
- * @version $Id: NetBoostVisualComponent.java,v 1.2 2007-08-31 21:16:00 hungc Exp $
+ * @version $Id: NetBoostVisualComponent.java,v 1.3 2007-10-19 00:28:45 hungc Exp $
  */
 @AcceptTypes(NetBoostDataSet.class)
 public class NetBoostVisualComponent extends JPanel implements VisualPlugin {
@@ -31,10 +33,10 @@ public class NetBoostVisualComponent extends JPanel implements VisualPlugin {
 	
 	private JPanel plugin;
     private NetBoostPlugin netboostPlugin;
-    private HashMap<ProjectTreeNode, NetBoostPlugin> ht;
+    //private HashMap<ProjectTreeNode, NetBoostPlugin> ht;	// keeping this around at the moment...
 	
 	public NetBoostVisualComponent(){
-		ht = new HashMap<ProjectTreeNode, NetBoostPlugin>(5);
+		//ht = new HashMap<ProjectTreeNode, NetBoostPlugin>(5);	// keeping this around at the moment...
 		plugin = new JPanel(new BorderLayout());
 	}
 
@@ -46,27 +48,12 @@ public class NetBoostVisualComponent extends JPanel implements VisualPlugin {
     @Subscribe 
     public void receive(ProjectEvent projectEvent, Object source) {    	
         log.debug("NetBoost received project event.");
-        
         DSDataSet data = projectEvent.getDataSet();
-        ProjectTreeNode node = ((ProjectPanel) source).getSelection().getSelectedNode();
-        
-        if ((data != null) && (data instanceof NetBoostDataSet)) {
-        	// Check to see if the hashtable has a mindy plugin associated with the selected project tree node
-        	if(ht.containsKey(node)){
-        		// if so, set netboostPlugin to the one stored in the hashtable
-        		netboostPlugin = (NetBoostPlugin) ht.get(node);
-        		this.paintPlugin();
-        	} else {
-        		// if not, create a brand new netboostPlugin, add to the hashtable (with key=selected project tree node)
-        		NetBoostDataSet nbdata = (NetBoostDataSet) data;
-            	if(!nbdata.getData().isEmpty()) {
-            		netboostPlugin = new NetBoostPlugin(nbdata, this);
-            		ht.put(node, netboostPlugin);
-            		this.paintPlugin();
-            	}        		
-        	}
-        	
-        }  
+        if((data != null) && (data instanceof NetBoostDataSet)){
+	    	NetBoostDataSet nbdata = (NetBoostDataSet) data;
+	    	netboostPlugin = new NetBoostPlugin(nbdata, this);
+	    	this.paintPlugin();
+    	}
     }
     
     @Publish 
@@ -80,6 +67,26 @@ public class NetBoostVisualComponent extends JPanel implements VisualPlugin {
         return event;
     }
     
+    /*  keeping this around at the moment ...
+    private void initPlugin(DSDataSet data, ProjectTreeNode node){
+    	if ((data != null) && (data instanceof NetBoostDataSet)) {
+        	// Check to see if the hashtable has a mindy plugin associated with the selected project tree node
+        	if(ht.containsKey(node)){
+        		// if so, set netboostPlugin to the one stored in the hashtable
+        		netboostPlugin = (NetBoostPlugin) ht.get(node);
+        		this.paintPlugin();
+        	} else {
+        		// if not, create a brand new netboostPlugin, add to the hashtable (with key=selected project tree node)
+        		NetBoostDataSet nbdata = (NetBoostDataSet) data;
+            	if(!nbdata.getData().isEmpty()) {
+            		netboostPlugin = new NetBoostPlugin(nbdata, this);
+            		ht.put(node, netboostPlugin);
+            		this.paintPlugin();
+            	}        		
+        	}        	
+        }  
+    }*/
+    
     private void paintPlugin(){
     	plugin.removeAll();  
     	
@@ -88,4 +95,5 @@ public class NetBoostVisualComponent extends JPanel implements VisualPlugin {
     	plugin.revalidate();
         plugin.repaint();
     }
+    
 }
