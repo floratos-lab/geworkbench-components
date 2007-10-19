@@ -8,21 +8,19 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.*;
 import javax.swing.table.*;
-import java.io.*;
-import java.util.*;
 
 import org.jfree.chart.*;
 import org.jfree.chart.plot.*;
 import org.jfree.data.xy.*;
 import org.jfree.chart.axis.*;
 
-import org.geworkbench.engine.config.VisualPlugin;
+//import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.util.pathwaydecoder.mutualinformation.*;
 
 /**
  * NetBoost Plugin
  * @author ch2514
- * @version $Id: NetBoostPlugin.java,v 1.2 2007-08-31 21:16:00 hungc Exp $
+ * @version $Id: NetBoostPlugin.java,v 1.3 2007-10-19 00:28:45 hungc Exp $
  */
 
 public class NetBoostPlugin extends JPanel {
@@ -105,7 +103,6 @@ public class NetBoostPlugin extends JPanel {
 		
 		// confusion matrix
 		JLabel confusedTitle = new JLabel(CONFUSION_MATRIX_TITLE, SwingConstants.LEADING);
-		JLabel confusedY = new JLabel(CONFUSION_MATRIX_Y_LABEL, SwingConstants.CENTER);
 		JLabel confusedX = new JLabel(CONFUSION_MATRIX_X_LABEL, SwingConstants.CENTER);
 		confusedTitle.setFont(new Font("Arial", Font.BOLD, 12));
 		confusedModel = new ConfusionModel();
@@ -131,19 +128,28 @@ public class NetBoostPlugin extends JPanel {
 	private class IterDataSet {
 		private static final String TEST_LOSS = "Test Loss";
 		private static final String TRAIN_LOSS = "Train Loss";
-		private static final String BOUND = "Bound";
-		private static final String BIAS = "Bias";
+		//need to keep these around at the moment...
+		//private static final String BOUND = "Bound";
+		//private static final String BIAS = "Bias";
 		
 		private XYSeriesCollection dataset;
-		private XYSeries testLossSeries, trainLossSeries, boundSeries, biasSeries;
+		private XYSeries testLossSeries, trainLossSeries;
+		//, boundSeries, biasSeries;	// need to keep these around at the moment...
 		
 		public IterDataSet(){
 			testLossSeries = new XYSeries(TEST_LOSS);
 			trainLossSeries = new XYSeries(TRAIN_LOSS);
-			boundSeries = new XYSeries(BOUND);
-			biasSeries = new XYSeries(BIAS);
+			//boundSeries = new XYSeries(BOUND);
+			//biasSeries = new XYSeries(BIAS);
 			
-			nbdata.fillIterChartData(testLossSeries, trainLossSeries);
+			double[][] tl = nbdata.getTestLoss();
+			for(int i = 0; i < tl.length; i++){
+				testLossSeries.add(tl[i][0], tl[i][1]);
+			}
+			tl = nbdata.getTrainLoss();
+			for(int i = 0; i < tl.length; i++){
+				trainLossSeries.add(tl[i][0], tl[i][1]);
+			}
 			
 			dataset = new XYSeriesCollection();
 	        dataset.addSeries(testLossSeries);
@@ -160,20 +166,18 @@ public class NetBoostPlugin extends JPanel {
 	
 	private class ScoresModel extends AbstractTableModel {
 		private String[] columnNames = {SCORES_TABLE_MODEL, SCORES_TABLE_DATA};
-	    private String[] models = {"LPA", "RDG", "RDS", "DMC", "AGV", "SMW", "DMR"};
+	    private String[] models = nbdata.getModels();
 	    private double[] scores = nbdata.getScores();
 	    private double[] variances = nbdata.getVariances();
 	    
-	    public ScoresModel(){
-	    	models = nbdata.getModels();
-	    }
+	    public ScoresModel(){ }
 	    
 	    public int getColumnCount() {
 	        return 2;
 	    }
 
 	    public int getRowCount() {
-	        return 7;
+	        return models.length;
 	    }
 
 	    public String getColumnName(int col) {
@@ -200,11 +204,15 @@ public class NetBoostPlugin extends JPanel {
 	}
 	
 	private class ConfusionModel extends AbstractTableModel {
-		private String[] columnNames = {CONFUSION_MATRIX_Y_LABEL, "LPA", "RDG", "RDS", "DMC", "AGV", "SMW", "DMR"};
-		private String[] rowNames = {"LPA", "RDG", "RDS", "DMC", "AGV", "SMW", "DMR"};
+		private String[] columnNames = new String[nbdata.getModels().length + 1];
+		private String[] rowNames = nbdata.getModels();
 		private double[][] data;
 		
 		public ConfusionModel(){
+			columnNames[0] = CONFUSION_MATRIX_Y_LABEL;
+			for(int i = 1; i < columnNames.length; i++){
+				columnNames[i] = nbdata.getModels()[i - 1];
+			}
 			data = nbdata.getConfusedData();
 			String[] s = nbdata.getModels();
 			if((s != null) && (s.length > 0)){
@@ -218,11 +226,11 @@ public class NetBoostPlugin extends JPanel {
 		}
 		
 		public int getColumnCount() {
-	        return 8;
+	        return columnNames.length;
 	    }
 
 	    public int getRowCount() {
-	        return 7;
+	        return rowNames.length;
 	    }
 
 	    public String getColumnName(int col) {

@@ -176,6 +176,15 @@ public class NetBoostParamPanel extends AbstractSaveableParameterPanel
 		smwBox = new JCheckBox("SMW");
 		dmrBox = new JCheckBox("DMR");
 		
+		lpaBox.setSelected(true);
+		rdgBox.setSelected(true);
+		rdsBox.setSelected(true);
+		dmcBox.setSelected(true);
+		agvBox.setSelected(true);
+		smwBox.setSelected(true);
+		dmrBox.setSelected(true);
+		
+		
 		FormLayout layout = new FormLayout(
                 "left:max(100dlu;pref), 4dlu, 150dlu, 150dlu",
                 "");
