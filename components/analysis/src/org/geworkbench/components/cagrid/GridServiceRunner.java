@@ -4,10 +4,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import javax.swing.JOptionPane;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.analysis.AbstractAnalysis;
 import org.geworkbench.analysis.AbstractGridAnalysis;
+import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
@@ -17,6 +20,7 @@ import org.geworkbench.events.ProjectNodeAddedEvent;
 import org.geworkbench.util.ProgressBar;
 import org.geworkbench.util.Util;
 import org.geworkbench.util.pathwaydecoder.mutualinformation.AdjacencyMatrixDataSet;
+import org.geworkbench.util.pathwaydecoder.mutualinformation.NetBoostDataSet;
 
 import edu.columbia.geworkbench.cagrid.aracne.AdjacencyMatrix;
 import edu.columbia.geworkbench.cagrid.aracne.AracneParameter;
@@ -29,13 +33,14 @@ import edu.columbia.geworkbench.cagrid.cluster.som.SomCluster;
 import edu.columbia.geworkbench.cagrid.cluster.som.SomClusteringParameter;
 import edu.columbia.geworkbench.cagrid.converter.CagridBisonConverter;
 import edu.columbia.geworkbench.cagrid.microarray.MicroarraySet;
+import edu.columbia.geworkbench.cagrid.netboost.client.*;
 
 /**
  * 
  * Used to execute grid services.
  * 
  * @author keshav
- * @version $Id: GridServiceRunner.java,v 1.4 2007-10-17 18:40:57 xiaoqing Exp $
+ * @version $Id: GridServiceRunner.java,v 1.5 2007-10-19 00:23:58 hungc Exp $
  */
 public class GridServiceRunner {
 	private static Log log = LogFactory.getLog(GridServiceRunner.class);
@@ -61,6 +66,10 @@ public class GridServiceRunner {
 	private static final String STATML = "Statml";
 
 	private static final String MAGE = "Mage";
+	
+	private static final String NETBOOST = "NetBoost";
+	
+	private static final String NETBOOST_GRID = "NetBoost (Grid)";
 
 	private CagridBisonConverter cagridBisonConverter = null;
 
@@ -74,8 +83,8 @@ public class GridServiceRunner {
 		servicesCache.add(HIERARCHICAL_NAME);
 		servicesCache.add(SOM_NAME);
 		servicesCache.add(ARACNE_NAME);
-        servicesCache.add(EI_NAME);
-
+        servicesCache.add(EI_NAME);        
+		servicesCache.add(NETBOOST);
     }
 
 	/**
@@ -87,9 +96,12 @@ public class GridServiceRunner {
 	 */
 	public ProjectNodeAddedEvent executeGridAnalysis(String url,
 			DSMicroarraySetView<DSGeneMarker, DSMicroarray> maSetView,
+			DSDataSet refOtherSet,
 			AbstractAnalysis selectedAnalysis) {
 
-		MicroarraySet gridSet = CagridBisonConverter
+		MicroarraySet gridSet = null;
+		
+		if(maSetView != null) gridSet = CagridBisonConverter
 				.convertFromBisonToCagridMicroarray(maSetView);
 
 		cagridBisonConverter = new CagridBisonConverter();
@@ -235,6 +247,91 @@ public class GridServiceRunner {
 //								null, dataSet);
 //
 //					}
+				}
+				
+				else if (analysisName.equalsIgnoreCase(NETBOOST)){
+					log.info("Initiating NetBoost grid service...: " + System.currentTimeMillis());	
+					
+					// Compiling parameter descriptions
+					types.NetBoostParameters netboostParameters = cagridBisonConverter
+					.convertNetBoostBisonToCagridParameter(refOtherSet, bisonParameters);
+
+					if (netboostParameters == null)
+						return null;
+		
+					types.NetBoostResults results = null;
+					try {
+						pBar.setMessage("Running " + NETBOOST_GRID);
+						pBar.start();
+						pBar.reset();
+						
+						NetBoostClient client = new NetBoostClient(url);
+						results = client.execute(netboostParameters);
+						if (results != null) {
+							if(results.getErrorMessage().trim().equals("")){
+								// printing out results to debug log
+								log.debug("NetBoostClient:results::");
+								System.out.println("classscore:\n" + results.getClassScoreTarget());
+								System.out.println("confusion matrix:\n" + results.getConfusion());
+								System.out.println("traintestloss:\n" + results.getTrainTestLoss());								
+								
+								// convert results to netboost data set
+								NetBoostDataSet dataSet = cagridBisonConverter
+										.createNetBoostDataSet(bisonParameters, results, refOtherSet);
+															
+								// param desc for data set history
+								StringBuilder paramDesc = new StringBuilder();
+								paramDesc.append("Training Example: ");
+								paramDesc.append(bisonParameters.get("trainingExample"));
+								paramDesc.append("\n");
+								paramDesc.append("Boosting Iterations: ");
+								paramDesc.append(bisonParameters.get("boostingIteration"));
+								paramDesc.append("\n");
+								paramDesc.append("Subgraph Counting Method: ");
+								paramDesc.append(bisonParameters.get("subgraphCounting"));
+								paramDesc.append("\n");
+								paramDesc.append("Cross-validation Folds: ");
+								paramDesc.append(bisonParameters.get("crossValidationFolds"));
+								paramDesc.append("\nModels: ");
+								if(((Boolean) bisonParameters.get("lpa")).booleanValue())
+									paramDesc.append("LPA  ");
+								if(((Boolean) bisonParameters.get("rdg")).booleanValue())
+									paramDesc.append("RDG  ");
+								if(((Boolean) bisonParameters.get("rds")).booleanValue())
+									paramDesc.append("RDS  ");
+								if(((Boolean) bisonParameters.get("dmc")).booleanValue())
+									paramDesc.append("DMC  ");
+								if(((Boolean) bisonParameters.get("agv")).booleanValue())
+									paramDesc.append("AGV  ");
+								if(((Boolean) bisonParameters.get("smw")).booleanValue())
+									paramDesc.append("SMW  ");
+								if(((Boolean) bisonParameters.get("dmr")).booleanValue())
+									paramDesc.append("DMR  ");
+								log.info("===NetBoost Parameter Description===\n" + paramDesc.toString());
+								System.out.println("===NetBoostData===\n" + dataSet.getData().toString());
+								
+								// broadcast to framework
+								org.geworkbench.builtin.projects.ProjectPanel.addToHistory(dataSet, paramDesc.toString());
+								event = new ProjectNodeAddedEvent(NETBOOST_GRID, null, dataSet);
+							} else {
+								log.error("No result from grid service: " + results.getErrorMessage());
+								JOptionPane.showMessageDialog(null, NETBOOST_GRID,
+										"No result from NetBoost (Grid) remote service: " + results.getErrorMessage()
+										, JOptionPane.ERROR_MESSAGE);
+							}
+						} else {
+							log.error("No result from grid service");
+							JOptionPane.showMessageDialog(null, "No result from NetBoost (Grid) remote service."
+									, NETBOOST_GRID, JOptionPane.ERROR_MESSAGE);
+						}
+					} catch (Exception e) {
+						JOptionPane.showMessageDialog(null, "No results from NetBoost (Grid): " + e.getMessage()
+								, NETBOOST_GRID, JOptionPane.ERROR_MESSAGE);
+						throw new RuntimeException("Error executing " + NETBOOST_GRID + e);
+					} finally {
+						pBar.stop();						
+						log.info("NetBoost grid service is done: " + System.currentTimeMillis());
+					}
 				}
 
 				return event;
