@@ -2,10 +2,12 @@ package edu.columbia.geworkbench.cagrid.converter;
 
 import java.util.Map;
 import java.util.Set;
+import java.math.*;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.CSMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.views.CSMicroarraySetView;
@@ -29,6 +31,11 @@ import org.geworkbench.bison.model.clusters.MicroarrayHierCluster;
 import org.geworkbench.bison.model.clusters.SOMCluster;
 import org.geworkbench.engine.management.Script;
 import org.geworkbench.util.pathwaydecoder.mutualinformation.AdjacencyMatrixDataSet;
+import org.geworkbench.util.pathwaydecoder.mutualinformation.EdgeListDataSet;
+import org.geworkbench.util.pathwaydecoder.mutualinformation.EdgeList;
+import org.geworkbench.util.pathwaydecoder.mutualinformation.Edge;
+import org.geworkbench.util.pathwaydecoder.mutualinformation.NetBoostDataSet;
+import org.geworkbench.util.pathwaydecoder.mutualinformation.NetBoostData;
 import org.ginkgo.labs.converter.BasicConverter;
 
 import edu.columbia.geworkbench.cagrid.aracne.AdjacencyMatrix;
@@ -55,7 +62,7 @@ import edu.duke.cabig.rproteomics.model.statml.Scalar;
  * set types.
  * 
  * @author keshav
- * @version $Id: CagridBisonConverter.java,v 1.8 2007-04-12 22:07:44 keshav Exp $
+ * @version $Id: CagridBisonConverter.java,v 1.9 2007-10-19 00:01:04 hungc Exp $
  */
 public class CagridBisonConverter {
 	private static final String HIERARCHICAL_CLUSTERING_NAME = "Hierarchical Clustering";
@@ -81,6 +88,8 @@ public class CagridBisonConverter {
 	private static final String AVERAGE = "Average";
 
 	private static final String SINGLE = "Single";
+	
+	private static final String NETBOOST = "NetBoost";
 
 	private static Log log = LogFactory.getLog(CagridBisonConverter.class);
 
@@ -98,7 +107,8 @@ public class CagridBisonConverter {
 
 		/* extract microarray info from DSMicroarraySet */
 		int numArrays = microarraySetView.size();
-		String microarraySetName = microarraySet.getDataSetName();
+		String microarraySetName = "";
+		if(microarraySet != null) microarraySetName = microarraySet.getDataSetName();
 
 		Microarray[] gridMicroarrays = new Microarray[numArrays];
 		for (int i = 0; i < numArrays; i++) {
@@ -117,7 +127,8 @@ public class CagridBisonConverter {
 		}
 
 		/* extract marker info from DSMicroarraySet */
-		int numMarkers = ((DSMicroarray) microarraySet.get(0)).getMarkerNo();
+		int numMarkers = 0;
+		if(microarraySet != null) numMarkers = ((DSMicroarray) microarraySet.get(0)).getMarkerNo();
 
 		Marker[] gridMarkers = new Marker[numMarkers];
 		int i = 0;
@@ -508,6 +519,23 @@ public class CagridBisonConverter {
 		return adjacencyMatrixDataSet;
 
 	}
+	
+	public NetBoostDataSet createNetBoostDataSet(Map<String, Object> bisonParams, types.NetBoostResults results, DSDataSet refOtherSet){
+		if(results.getErrorMessage().trim().equals("")){					
+			NetBoostDataSet ds = new NetBoostDataSet(null
+					, "NetBoost Results (Grid)"
+					, new NetBoostData(results.getClassScoreTarget()
+						, results.getConfusion()
+						, results.getTrainTestLoss())
+					, ((EdgeListDataSet) refOtherSet).getFilename()
+					);
+			return ds;	
+		} else {
+			log.warn("Grid analysis results contained the following error(s): " + results.getErrorMessage());
+			return null;
+		}
+		
+	}
 
 	// FIXME refactor this cagrid parameter handling from parameters panel
 	/**
@@ -628,5 +656,86 @@ public class CagridBisonConverter {
 
 		}
 		return aracneParameter;
+	}
+	
+	public types.NetBoostParameters convertNetBoostBisonToCagridParameter(DSDataSet refOtherSet, Map<String, Object> bisonParameters){
+		final String WALK = "w";
+		final String SUBGRAPH = "s";
+		
+	    String selectedModels = null;
+	    String subgraphCounting = null;
+	    BigInteger[] trainingEx = new BigInteger[1];
+	    BigInteger[] boostingIter = new BigInteger[1];
+	    BigInteger[] crossValidFolds = new BigInteger[1];
+	    
+	    String errMsg = "";		
+	    
+	    // edge list
+	    StringBuilder sb = new StringBuilder();
+	    EdgeList el = ((EdgeListDataSet) refOtherSet).getData();
+	    for(int i = 0; i < el.size(); i++){
+	    	Edge e = el.getEdge(i);
+	    	sb.append("\t");
+	    	sb.append(e.getStartNode());
+	    	sb.append("\t");
+	    	sb.append(e.getEndNode());
+	    	sb.append("\n");
+	    }
+	    
+	    // selected models
+	    selectedModels = "";
+	    if(((Boolean) bisonParameters.get("lpa")).booleanValue()) selectedModels += "LPA,";	    
+	    if(((Boolean) bisonParameters.get("rdg")).booleanValue()) selectedModels += "RDG,";
+	    if(((Boolean) bisonParameters.get("rds")).booleanValue()) selectedModels += "RDS,";
+	    if(((Boolean) bisonParameters.get("dmc")).booleanValue()) selectedModels += "DMC,";
+	    if(((Boolean) bisonParameters.get("agv")).booleanValue()) selectedModels += "AGV,";
+	    if(((Boolean) bisonParameters.get("smw")).booleanValue()) selectedModels += "SMW,";
+	    if(((Boolean) bisonParameters.get("dmr")).booleanValue()) selectedModels += "DMR";	    
+	    
+	    // main parameters
+	    if(((String) bisonParameters.get("subgraphCounting")).toLowerCase().indexOf("walk") >= 0){
+	    	subgraphCounting = WALK;
+	    } else {
+	    	subgraphCounting = SUBGRAPH;
+	    }	    
+	    trainingEx[0] = new BigInteger(((Integer) bisonParameters.get("trainingExample")).toString());
+	    boostingIter[0] = new BigInteger(((Integer) bisonParameters.get("boostingIteration")).toString());
+	    crossValidFolds[0] = new BigInteger(((Integer) bisonParameters.get("crossValidationFolds")).toString());
+	    
+	    // error checking
+		if(el == null)
+			errMsg += ":No edge list.";
+		
+		if((selectedModels == null) || (selectedModels.trim().equals("")))
+			errMsg += ":No selected models";
+		
+		if((subgraphCounting == null) || subgraphCounting.trim().equals("") 
+				|| (!subgraphCounting.trim().equalsIgnoreCase(WALK) && !subgraphCounting.trim().equalsIgnoreCase(SUBGRAPH)))
+			errMsg += ":No or invalid subgraph counting method.";
+		
+		if((trainingEx == null) || (trainingEx[0] == null))
+			errMsg += ":No training examples.";
+		
+		if((boostingIter == null) || (boostingIter[0] == null))
+			errMsg += ":No boosting iterations.";
+		
+		if((crossValidFolds == null) || (crossValidFolds[0] == null))
+			errMsg += ":No cross validation folds.";
+		
+		if(!errMsg.trim().equals("")){
+			log.warn("Encountered errors when converting netboost bison parameters to cagrid parameters" + errMsg);
+			return null;
+		}
+		
+		// creating parameters
+		types.NetBoostParameters params = new types.NetBoostParameters(
+				  boostingIter
+				  , crossValidFolds
+				  , sb.toString()
+				  , selectedModels
+				  , subgraphCounting  // w = walk, s = subgraphs
+				  , trainingEx
+				  );		
+		return params;
 	}
 }
