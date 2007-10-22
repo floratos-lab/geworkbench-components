@@ -685,7 +685,7 @@ public class PCAContent3D extends Panel
     	super.processStimulus(criteria);
 
     	if(!buttonPress && mevent != null)
-      		updateScene(mevent.getPoint().x, mevent.getPoint().x);
+      		updateScene(mevent.getPoint().x, mevent.getPoint().y);
   	}
 
   	/**
@@ -703,8 +703,11 @@ public class PCAContent3D extends Panel
             if(lastSelectedShape != null)
 				lastSelectedShape.setAppearance(lastSelectedShapeAppearance);
 
-			pickCanvas.setShapeLocation(mevent);
-            //pickCanvas.setTolerance((float)6.0);
+            if(lastShowedText != null)
+                  lastShowedText.setString("");
+
+            pickCanvas.setShapeLocation(mevent);
+            pickCanvas.setTolerance((float)4.0);
 
             PickResult[] results = pickCanvas.pickAllSorted();
 
@@ -754,10 +757,6 @@ public class PCAContent3D extends Panel
                 }
                 else
                 {
-                    if(lastShowedText != null)
-
-                    lastShowedText.setString("");
-
                     Text3D text = (Text3D)pointLabelMap.get(m_Shape3D.getUserData());
                     text.setString((String)text.getUserData());
                     lastShowedText = text;
