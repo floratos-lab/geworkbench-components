@@ -79,5 +79,7 @@
 	<classpathentry kind="lib" path="lib/wss4j.jar"/>
 	<classpathentry kind="lib" path="lib/xmlsec.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/geworkbench-core"/>
+	<classpathentry kind="lib" path="lib/NetBoost-client.jar"/>
+	<classpathentry kind="lib" path="lib/NetBoost-stubs.jar"/>
 	<classpathentry kind="output" path="classes"/>
 </classpath>
