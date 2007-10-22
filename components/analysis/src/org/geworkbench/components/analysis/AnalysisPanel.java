@@ -21,7 +21,6 @@ import javax.swing.JTabbedPane;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import javax.swing.DefaultListModel;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
