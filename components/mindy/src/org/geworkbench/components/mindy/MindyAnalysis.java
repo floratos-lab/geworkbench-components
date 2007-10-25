@@ -90,7 +90,7 @@ public class MindyAnalysis extends AbstractAnalysis implements ClusteringAnalysi
         if(inputSetView.useItemPanel())
         	arraySet = inputSetView.getItemPanel();
         if(inputSetView.useMarkerPanel())
-        	markerSet = inputSetView.getMarkerPanel();    
+        	markerSet = inputSetView.getMarkerPanel();   
         
         // Mindy parameter validation always returns true 
         // (the method is not overrode from AbstractAnalysis)
@@ -301,7 +301,7 @@ public class MindyAnalysis extends AbstractAnalysis implements ClusteringAnalysi
     /**
      * The swing worker class that runs Mindy analysis in the background.
      * @author ch2514
-     * @version $Id: MindyAnalysis.java,v 1.21 2007-09-17 19:11:05 hungc Exp $
+     * @version $Id: MindyAnalysis.java,v 1.22 2007-10-25 20:00:17 hungc Exp $
      */
     class Task extends SwingWorker<MindyDataSet, Void> {
     	private Mindy mindy;
@@ -382,6 +382,7 @@ public class MindyAnalysis extends AbstractAnalysis implements ClusteringAnalysi
             	return null;
             }            
             log.info("MINDY analysis complete.  Converting Mindy results. " + System.currentTimeMillis());
+            
             List<MindyData.MindyResultRow> dataRows = new ArrayList<MindyData.MindyResultRow>();
             Collator myCollator = Collator.getInstance();            
             for (MindyResults.MindyResultForTarget result : results) {
@@ -392,8 +393,12 @@ public class MindyAnalysis extends AbstractAnalysis implements ClusteringAnalysi
                     dataRows.add(new MindyData.MindyResultRow(mod, transFac, target, specificResult.getScore(), 0f, myCollator.getCollationKey(mod.getShortName()), myCollator.getCollationKey(target.getShortName())));
                 }
             }
-            
+            if(dataRows.size() <= 0) return null;
             MindyData loadedData = new MindyData((CSMicroarraySet) mSet, dataRows, setFraction);
+            
+            // Bonferroni correction -- if option selected
+            
+            // FDR correction -- if option selected
             
             // Pearson correlation
             ArrayList<DSMicroarray> maList = loadedData.getArraySetAsList();
@@ -433,7 +438,7 @@ public class MindyAnalysis extends AbstractAnalysis implements ClusteringAnalysi
     	
     	private MicroarraySet convert(DSMicroarraySet<DSMicroarray> inSet, DSPanel arraySet, DSPanel markerSet) {    		
             MarkerSet markers = new MarkerSet();
-            if(markerSet != null){
+            if((markerSet != null) && (markerSet.size() > 0)){
             	int size = markerSet.size();
             	for (int i = 0; i < size; i++) {
 	                markers.addMarker(new Marker(((DSGeneMarker) markerSet.get(i)).getLabel()));
@@ -445,7 +450,7 @@ public class MindyAnalysis extends AbstractAnalysis implements ClusteringAnalysi
             }           
             
             MicroarraySet returnSet = new MicroarraySet(inSet.getDataSetName(), "ID", "ChipType", markers);
-            if(arraySet != null){
+            if((arraySet != null) && (arraySet.size() > 0)){
             	int size = arraySet.size();
             	for (int i = 0; i < size; i++) {
             		DSMicroarray ma = (DSMicroarray) arraySet.get(i);
