@@ -2,7 +2,7 @@ package org.geworkbench.components.sequenceretriever;
 
 import org.geworkbench.bison.datastructure.bioobjects.sequence.DSSequence;
 import org.geworkbench.bison.datastructure.bioobjects.sequence.CSSequence;
-import org.geworkbench.bison.datastructure.complex.pattern.sequence.DSSeqRegistration;
+import org.geworkbench.bison.datastructure.complex.pattern.sequence.CSSeqRegistration;
 import org.geworkbench.bison.datastructure.complex.pattern.DSMatchedPattern;
 import org.geworkbench.bison.datastructure.biocollections.DSCollection;
 import org.geworkbench.bison.datastructure.biocollections.sequences.DSSequenceSet;
@@ -44,8 +44,7 @@ public class SingleSequenceViewPanel extends JPanel {
     private String displayInfo = "";
 
 
-    DSCollection<DSMatchedPattern<DSSequence,
-            DSSeqRegistration>> selectedPatterns = null;
+    DSCollection<DSMatchedPattern<DSSequence, CSSeqRegistration>> selectedPatterns = null;
     DSSequenceSet sequenceDB = null;
     HashMap<CSSequence,
             PatternSequenceDisplayUtil> sequencePatternmatches;
@@ -247,7 +246,7 @@ public class SingleSequenceViewPanel extends JPanel {
                             if (patternsPerSequence != null &&
                                     patternsPerSequence.size() > 0) {
                                 for (PatternLocations pl : patternsPerSequence) {
-                                    DSSeqRegistration reg = pl.getRegistration();
+                                    CSSeqRegistration reg = pl.getRegistration();
                                     if (reg != null) {
 
                                         if (pl.getPatternType().equals(
@@ -360,7 +359,7 @@ public class SingleSequenceViewPanel extends JPanel {
                         if (patternsPerSequence != null &&
                                 patternsPerSequence.size() > 0) {
                             for (PatternLocations pl : patternsPerSequence) {
-                                DSSeqRegistration reg = pl.getRegistration();
+                                CSSeqRegistration reg = pl.getRegistration();
                                 if (reg != null) {
 
                                     if (pl.getPatternType().equals(
@@ -434,7 +433,7 @@ public class SingleSequenceViewPanel extends JPanel {
                         if (patternsPerSequence != null &&
                                 patternsPerSequence.size() > 0) {
                             for (PatternLocations pl : patternsPerSequence) {
-                                DSSeqRegistration reg = pl.getRegistration();
+                                CSSeqRegistration reg = pl.getRegistration();
                                 if (reg != null) {
                                     if (pl.getPatternType().equals(
                                             PatternLocations.DEFAULTTYPE)) {
@@ -1201,7 +1200,7 @@ public class SingleSequenceViewPanel extends JPanel {
                 if (patternsPerSequence != null &&
                         patternsPerSequence.size() > 0) {
                     for (PatternLocations pl : patternsPerSequence) {
-                        DSSeqRegistration reg = pl.getRegistration();
+                        CSSeqRegistration reg = pl.getRegistration();
                         if (reg != null && reg.x1 <= off && reg.x2 >= off) {
                             int x1 = reg.x1 + 1;
                             int x2 = reg.x2 + 1;

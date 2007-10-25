@@ -12,14 +12,14 @@ import org.geworkbench.bison.datastructure.biocollections.sequences.DSSequenceSe
 import org.geworkbench.bison.datastructure.bioobjects.sequence.DSSequence;
 import org.geworkbench.bison.datastructure.complex.pattern.*;
 import org.geworkbench.bison.datastructure.complex.pattern.sequence.CSSeqCmplxRegistration;
-import org.geworkbench.bison.datastructure.complex.pattern.sequence.DSSeqRegistration;
+import org.geworkbench.bison.datastructure.complex.pattern.sequence.CSSeqRegistration;
 import org.geworkbench.util.RandomSequenceGenerator;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class CSMultiSeqPattern extends CSMatchedPattern<DSSequence, DSSeqRegistration> implements DSMatchedPattern<DSSequence, DSSeqRegistration>, DSPattern<DSSequence, DSSeqRegistration> {
+public class CSMultiSeqPattern extends CSMatchedPattern<DSSequence, CSSeqRegistration> implements DSMatchedPattern<DSSequence, CSSeqRegistration>, DSPattern<DSSequence, CSSeqRegistration> {
     static HashMap primeNumberPattern = new HashMap();
     DSSequenceSet seqDB = null;
     PatternKey patternKey; // each pattern is represented as a int array
@@ -29,7 +29,7 @@ public class CSMultiSeqPattern extends CSMatchedPattern<DSSequence, DSSeqRegistr
         return patternKey;
     }
 
-    public void setSupport_set(ArrayList<DSPatternMatch<DSSequence, DSSeqRegistration>> matches) {
+    public void setSupport_set(ArrayList<DSPatternMatch<DSSequence, CSSeqRegistration>> matches) {
         this.matches = matches;
     }
 
@@ -43,7 +43,7 @@ public class CSMultiSeqPattern extends CSMatchedPattern<DSSequence, DSSeqRegistr
         this.isMaximal = true;
     }
 
-    public CSMultiSeqPattern(PatternKey patternKey, List<DSPatternMatch<DSSequence, DSSeqRegistration>> newMatches) {
+    public CSMultiSeqPattern(PatternKey patternKey, List<DSPatternMatch<DSSequence, CSSeqRegistration>> newMatches) {
         this.pattern = this;
         this.patternKey = patternKey;
         this.isMaximal = true;
@@ -69,7 +69,7 @@ public class CSMultiSeqPattern extends CSMatchedPattern<DSSequence, DSSeqRegistr
     }
 
     public CSMultiSeqPattern merge(CSMultiSeqPattern other_pattern, int window_length, int J0) {
-        List<DSPatternMatch<DSSequence, DSSeqRegistration>> new_support_set = combineSupportSets(other_pattern.matches, window_length);
+        List<DSPatternMatch<DSSequence, CSSeqRegistration>> new_support_set = combineSupportSets(other_pattern.matches, window_length);
         // new pattern must have a support larger thatn J0 to be added into the hashtable
         if (new_support_set.size() >= J0) {
             CSMultiSeqPattern new_pattern = new CSMultiSeqPattern(patternKey.mergePattern(other_pattern.patternKey), new_support_set);
@@ -88,14 +88,14 @@ public class CSMultiSeqPattern extends CSMatchedPattern<DSSequence, DSSeqRegistr
     }
 
     // combine two support sets, all supports have same length
-    private List<DSPatternMatch<DSSequence, DSSeqRegistration>> combineSupportSets(List<DSPatternMatch<DSSequence, DSSeqRegistration>> other_support_set, int window_length) {
-        List<DSPatternMatch<DSSequence, DSSeqRegistration>> new_support_set = new ArrayList<DSPatternMatch<DSSequence, DSSeqRegistration>>();
+    private List<DSPatternMatch<DSSequence, CSSeqRegistration>> combineSupportSets(List<DSPatternMatch<DSSequence, CSSeqRegistration>> other_support_set, int window_length) {
+        List<DSPatternMatch<DSSequence, CSSeqRegistration>> new_support_set = new ArrayList<DSPatternMatch<DSSequence, CSSeqRegistration>>();
         for (int i = 0; i < matches.size(); i++) {
-            DSPatternMatch<DSSequence, DSSeqRegistration> match1 = matches.get(i);
+            DSPatternMatch<DSSequence, CSSeqRegistration> match1 = matches.get(i);
             DSSequence seq1 = match1.getObject();
             ArrayList<Integer> off1 = ((CSSeqCmplxRegistration) matches.get(i).getRegistration()).offsets;
             for (int j = 0; j < other_support_set.size(); j++) {
-                DSPatternMatch<DSSequence, DSSeqRegistration> match2 = other_support_set.get(j);
+                DSPatternMatch<DSSequence, CSSeqRegistration> match2 = other_support_set.get(j);
                 DSSequence seq2 = match2.getObject();
                 ArrayList<Integer> off2 = ((CSSeqCmplxRegistration) match2.getRegistration()).offsets;
                 // check whether the support is still in range
@@ -112,7 +112,7 @@ public class CSMultiSeqPattern extends CSMatchedPattern<DSSequence, DSSeqRegistr
                             }
                         }
                         if (!found) {
-                            CSPatternMatch<DSSequence, DSSeqRegistration> match = new CSPatternMatch<DSSequence, DSSeqRegistration>(seq1);
+                            CSPatternMatch<DSSequence, CSSeqRegistration> match = new CSPatternMatch<DSSequence, CSSeqRegistration>(seq1);
                             CSSeqCmplxRegistration reg = new CSSeqCmplxRegistration();
                             reg.offsets = new_support;
                             match.setRegistration(reg);
@@ -131,8 +131,8 @@ public class CSMultiSeqPattern extends CSMatchedPattern<DSSequence, DSSeqRegistr
 
     public boolean isSelfCombinable(int window_length) {
         for (int i = 0; i < matches.size() - 1; i++) {
-            DSPatternMatch<DSSequence, DSSeqRegistration> match1 = matches.get(i);
-            DSPatternMatch<DSSequence, DSSeqRegistration> match2 = matches.get(i + 1);
+            DSPatternMatch<DSSequence, CSSeqRegistration> match1 = matches.get(i);
+            DSPatternMatch<DSSequence, CSSeqRegistration> match2 = matches.get(i + 1);
 
             ArrayList<Integer> off1 = ((CSSeqCmplxRegistration) match1.getRegistration()).offsets;
             ArrayList<Integer> off2 = ((CSSeqCmplxRegistration) match2.getRegistration()).offsets;
@@ -147,7 +147,7 @@ public class CSMultiSeqPattern extends CSMatchedPattern<DSSequence, DSSeqRegistr
         return false;
     }
 
-    private static boolean isInRange(DSPatternMatch<DSSequence, DSSeqRegistration> s1, DSPatternMatch<DSSequence, DSSeqRegistration> s2, int window_length) {
+    private static boolean isInRange(DSPatternMatch<DSSequence, CSSeqRegistration> s1, DSPatternMatch<DSSequence, CSSeqRegistration> s2, int window_length) {
         if (s1.getObject() != s2.getObject()) {
             return false; // must be on the same sequence
         }
@@ -194,7 +194,7 @@ public class CSMultiSeqPattern extends CSMatchedPattern<DSSequence, DSSeqRegistr
         return new_support;
     }
 
-    public List<DSPatternMatch<DSSequence, DSSeqRegistration>> match(DSSequence seqDB, double p) {
+    public List<DSPatternMatch<DSSequence, CSSeqRegistration>> match(DSSequence seqDB, double p) {
         /** @todo to be implemented */
         return null;
     }
@@ -202,7 +202,7 @@ public class CSMultiSeqPattern extends CSMatchedPattern<DSSequence, DSSeqRegistr
     /**
      * @todo to be implemented
      */
-    public DSSeqRegistration match(DSSequence seqDB) {
+    public CSSeqRegistration match(DSSequence seqDB) {
         return null;
     }
 
@@ -212,15 +212,15 @@ public class CSMultiSeqPattern extends CSMatchedPattern<DSSequence, DSSeqRegistr
      * @param object Object
      * @return IGetPatternMatchCollection
      */
-    public List<DSPatternMatch<DSSequence, DSSeqRegistration>> match(DSCollection<DSSequence> seqDB) {
-        List<DSPatternMatch<DSSequence, DSSeqRegistration>> col = new ArrayList<DSPatternMatch<DSSequence, DSSeqRegistration>>();
+    public List<DSPatternMatch<DSSequence, CSSeqRegistration>> match(DSCollection<DSSequence> seqDB) {
+        List<DSPatternMatch<DSSequence, CSSeqRegistration>> col = new ArrayList<DSPatternMatch<DSSequence, CSSeqRegistration>>();
         for (int locusId = 0; locusId < matches.size(); locusId++) {
-            DSPatternMatch<DSSequence, DSSeqRegistration> match1 = matches.get(locusId);
+            DSPatternMatch<DSSequence, CSSeqRegistration> match1 = matches.get(locusId);
             ArrayList<Integer> off = ((CSSeqCmplxRegistration) match1.getRegistration()).offsets;
             int offset = off.get(0);
             int ty = Math.abs(off.get(off.size() - 1) - off.get(1)); //this still got problem. we need to know the length of the last module.
             DSSequence seq = match1.getObject();
-            DSPatternMatch<DSSequence, DSSeqRegistration> sm = new CSPatternMatch<DSSequence, DSSeqRegistration>(seq);
+            DSPatternMatch<DSSequence, CSSeqRegistration> sm = new CSPatternMatch<DSSequence, CSSeqRegistration>(seq);
             CSSeqCmplxRegistration reg = new CSSeqCmplxRegistration();
             reg.x1 = offset;
             reg.x2 = offset + ty;
@@ -239,7 +239,7 @@ public class CSMultiSeqPattern extends CSMatchedPattern<DSSequence, DSSeqRegistr
         return patternKey.toString();
     }
 
-    public String toString(DSSequence seq, DSSeqRegistration r) {
+    public String toString(DSSequence seq, CSSeqRegistration r) {
         return toString();
     }
 

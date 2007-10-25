@@ -9,7 +9,7 @@ import org.geworkbench.bison.datastructure.biocollections.sequences.DSSequenceSe
 import org.geworkbench.bison.datastructure.bioobjects.sequence.DSSequence;
 import org.geworkbench.bison.datastructure.complex.pattern.DSMatchedPattern;
 import org.geworkbench.bison.datastructure.complex.pattern.SoapParmsDataSet;
-import org.geworkbench.bison.datastructure.complex.pattern.sequence.DSSeqRegistration;
+import org.geworkbench.bison.datastructure.complex.pattern.sequence.CSSeqRegistration;
 import org.geworkbench.builtin.projects.ProjectPanel;
 import org.geworkbench.builtin.projects.ProjectSelection;
 import org.geworkbench.components.discovery.view.PatternNode;
@@ -415,7 +415,7 @@ import java.util.ArrayList;
           patterns = new Pattern[0];
              }
          */
-        DSCollection<DSMatchedPattern<DSSequence, DSSeqRegistration>> patternMatches = new Collection<DSMatchedPattern<DSSequence, DSSeqRegistration>>();
+        DSCollection<DSMatchedPattern<DSSequence, CSSeqRegistration>> patternMatches = new Collection<DSMatchedPattern<DSSequence, CSSeqRegistration>>();
         if (table != null) {
             org.geworkbench.util.patterns.PatternTableModel model = (org.geworkbench.util.patterns.PatternTableModel) (table).getModel();
             int[] rows = table.getSelectedRows();
@@ -461,7 +461,7 @@ import java.util.ArrayList;
                 }
             }
             if (patternList.size() > 0) {
-                DSCollection<DSMatchedPattern<DSSequence, DSSeqRegistration>> patternMatches = new Collection<DSMatchedPattern<DSSequence, DSSeqRegistration>>();
+                DSCollection<DSMatchedPattern<DSSequence, CSSeqRegistration>> patternMatches = new Collection<DSMatchedPattern<DSSequence, CSSeqRegistration>>();
                 patternMatches.addAll(patternList);
                 SequenceDiscoveryTableEvent e = new SequenceDiscoveryTableEvent(patternMatches);
                 publishSequenceDiscoveryTableEvent(e);

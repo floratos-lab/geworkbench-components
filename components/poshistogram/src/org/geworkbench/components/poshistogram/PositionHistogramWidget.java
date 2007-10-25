@@ -6,7 +6,7 @@ import org.geworkbench.bison.datastructure.biocollections.sequences.DSSequenceSe
 import org.geworkbench.bison.datastructure.bioobjects.sequence.DSSequence;
 import org.geworkbench.bison.datastructure.complex.pattern.DSMatchedPattern;
 import org.geworkbench.bison.datastructure.complex.pattern.sequence.DSMatchedSeqPattern;
-import org.geworkbench.bison.datastructure.complex.pattern.sequence.DSSeqRegistration;
+import org.geworkbench.bison.datastructure.complex.pattern.sequence.CSSeqRegistration;
 import org.geworkbench.events.SequenceDiscoveryTableEvent;
 import org.geworkbench.util.patterns.CSMatchedSeqPattern;
 import org.geworkbench.util.patterns.FlexiblePattern;
@@ -40,10 +40,9 @@ public class PositionHistogramWidget extends JPanel {
     //JPanel jPanel1 = new JPanel();
     //private ArrayList patterns = new ArrayList();
 
-    private DSCollection<DSMatchedPattern<DSSequence,
-            DSSeqRegistration>>
+    private DSCollection<DSMatchedPattern<DSSequence, CSSeqRegistration>>
             patterns = new Collection<DSMatchedPattern<DSSequence,
-            DSSeqRegistration>>();
+            CSSeqRegistration>>();
 
 
     private JLabel lblChart = new JLabel();
@@ -378,8 +377,7 @@ public class PositionHistogramWidget extends JPanel {
 //        }
 //    }
 
-    public void setPatterns(DSCollection<DSMatchedPattern<DSSequence,
-            DSSeqRegistration>> matches) {
+    public void setPatterns(DSCollection<DSMatchedPattern<DSSequence, CSSeqRegistration>> matches) {
         patterns.clear();
         for (int i = 0; i < matches.size(); i++) {
             patterns.add(matches.get(i));

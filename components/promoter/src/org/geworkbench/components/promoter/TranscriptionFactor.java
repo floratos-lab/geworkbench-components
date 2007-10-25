@@ -10,9 +10,9 @@ import org.geworkbench.bison.datastructure.biocollections.sequences.DSSequenceSe
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.sequence.DSSequence;
 import org.geworkbench.bison.datastructure.complex.pattern.*;
-import org.geworkbench.bison.datastructure.complex.pattern.sequence.DSSeqRegistration;
+import org.geworkbench.bison.datastructure.complex.pattern.sequence.CSSeqRegistration;
 
-public class TranscriptionFactor implements DSPattern<DSSequence, DSSeqRegistration> {
+public class TranscriptionFactor implements DSPattern<DSSequence, CSSeqRegistration> {
     //need to contain binding site matrix and realted  Generic Marker
     private Matrix matrix = null;
     private String name;
@@ -63,9 +63,9 @@ public class TranscriptionFactor implements DSPattern<DSSequence, DSSeqRegistrat
     public TranscriptionFactor() {
     }
 
-    public List<DSPatternMatch<DSSequence, DSSeqRegistration>> match(DSSequence sequence, double pValue) {
+    public List<DSPatternMatch<DSSequence, CSSeqRegistration>> match(DSSequence sequence, double pValue) {
         //The pvalue is ignored here
-        List<DSPatternMatch<DSSequence, DSSeqRegistration>> matches = new ArrayList<DSPatternMatch<DSSequence, DSSeqRegistration>>();
+        List<DSPatternMatch<DSSequence, CSSeqRegistration>> matches = new ArrayList<DSPatternMatch<DSSequence, CSSeqRegistration>>();
         if (sequence.isDNA()) {
             for (int offset = 0; offset < sequence.length() - matrix.getLength() + 1; offset++) {
                 double score = matrix.score(sequence, offset);
@@ -82,7 +82,7 @@ public class TranscriptionFactor implements DSPattern<DSSequence, DSSeqRegistrat
     /**
      * @todo to be implemented
      */
-    public DSSeqRegistration match(DSSequence seqDB) {
+    public CSSeqRegistration match(DSSequence seqDB) {
         return null;
     }
 
@@ -105,9 +105,9 @@ public class TranscriptionFactor implements DSPattern<DSSequence, DSSeqRegistrat
      * @todo add something that tells the direction of a match
      * match
      */
-    public List<DSPatternMatch<DSSequence, DSSeqRegistration>> match(DSCollection<DSSequence> seqDB) {
+    public List<DSPatternMatch<DSSequence, CSSeqRegistration>> match(DSCollection<DSSequence> seqDB) {
         //Pattern matches = new  PatternImpl();
-        List<DSPatternMatch<DSSequence, DSSeqRegistration>> matches = new ArrayList<DSPatternMatch<DSSequence, DSSeqRegistration>>();
+        List<DSPatternMatch<DSSequence, CSSeqRegistration>> matches = new ArrayList<DSPatternMatch<DSSequence, CSSeqRegistration>>();
         for (int k = 0; k < seqDB.size(); k++) {
             DSSequence seq = seqDB.get(k);
             if (seq.isDNA()) {
@@ -124,9 +124,9 @@ public class TranscriptionFactor implements DSPattern<DSSequence, DSSeqRegistrat
         return matches;
     }
 
-    public List<DSPatternMatch<DSSequence, DSSeqRegistration>> progressiveMatch(Object object, ProgressMonitor progressMonitor, int start) {
+    public List<DSPatternMatch<DSSequence, CSSeqRegistration>> progressiveMatch(Object object, ProgressMonitor progressMonitor, int start) {
         DSSequenceSet seqdb = (DSSequenceSet) object;
-        List<DSPatternMatch<DSSequence, DSSeqRegistration>> matches = new ArrayList<DSPatternMatch<DSSequence, DSSeqRegistration>>();
+        List<DSPatternMatch<DSSequence, CSSeqRegistration>> matches = new ArrayList<DSPatternMatch<DSSequence, CSSeqRegistration>>();
         //Pattern matches = new PatternImpl();
 
         for (int k = 0; k < seqdb.getSequenceNo(); k++) {
@@ -172,10 +172,10 @@ public class TranscriptionFactor implements DSPattern<DSSequence, DSSeqRegistrat
     //    return matches;
     //  }
 
-    private void evaluate(List<DSPatternMatch<DSSequence, DSSeqRegistration>> matches, int offset, double q, DSSequence sequence, int strand) {
+    private void evaluate(List<DSPatternMatch<DSSequence, CSSeqRegistration>> matches, int offset, double q, DSSequence sequence, int strand) {
         if (q >= threshold) {
-            CSPatternMatch<DSSequence, DSSeqRegistration> one = new CSPatternMatch<DSSequence, DSSeqRegistration>(sequence);
-            DSSeqRegistration reg = new DSSeqRegistration();
+            CSPatternMatch<DSSequence, CSSeqRegistration> one = new CSPatternMatch<DSSequence, CSSeqRegistration>(sequence);
+            CSSeqRegistration reg = new CSSeqRegistration();
             reg.x1 = offset;
             reg.x2 = offset + matrix.getLength();
             reg.strand = strand;
@@ -194,7 +194,7 @@ public class TranscriptionFactor implements DSPattern<DSSequence, DSSeqRegistrat
         return name;
     }
 
-    public String toString(DSSequence sequence, DSSeqRegistration reg) {
+    public String toString(DSSequence sequence, CSSeqRegistration reg) {
         return "TF" + sequence.getLabel() + ": " + reg.toString();
     }
 }

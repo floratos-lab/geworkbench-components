@@ -6,7 +6,7 @@ import org.geworkbench.bison.datastructure.biocollections.sequences.DSSequenceSe
 import org.geworkbench.bison.datastructure.bioobjects.sequence.DSSequence;
 import org.geworkbench.bison.datastructure.complex.pattern.DSPattern;
 import org.geworkbench.bison.datastructure.complex.pattern.DSPatternMatch;
-import org.geworkbench.bison.datastructure.complex.pattern.sequence.DSSeqRegistration;
+import org.geworkbench.bison.datastructure.complex.pattern.sequence.CSSeqRegistration;
 import org.geworkbench.util.patterns.CSMatchedSeqPattern;
 import org.geworkbench.util.patterns.PatternOfflet;
 import javax.swing.*;
@@ -38,7 +38,7 @@ public class SequenceDisplayPanel extends JPanel {
     boolean isDiscovery = false;
     double scale = 1.0;
     int maxLen = 1;
-    ArrayList<DSPattern<DSSequence, DSSeqRegistration>> selectedPatterns = new ArrayList<DSPattern<DSSequence, DSSeqRegistration>>();
+    ArrayList<DSPattern<DSSequence, CSSeqRegistration>> selectedPatterns = new ArrayList<DSPattern<DSSequence, CSSeqRegistration>>();
     org.geworkbench.bison.datastructure.complex.pattern.sequence.DSMatchedSeqPattern[] patterns = null;
     DSSequence selected = null;
     DSSequenceSet sequenceDB = new CSSequenceSet();
@@ -89,7 +89,7 @@ public class SequenceDisplayPanel extends JPanel {
         repaint();
     }
 
-    public void addAPattern(DSPattern<DSSequence, DSSeqRegistration> pattern) {
+    public void addAPattern(DSPattern<DSSequence, CSSeqRegistration> pattern) {
         Graphics g = this.getGraphics();
         JViewport scroller = (JViewport) this.getParent();
         Rectangle r = new Rectangle();
@@ -97,7 +97,7 @@ public class SequenceDisplayPanel extends JPanel {
 
         for (int seqId = 0; seqId < sequenceDB.getSequenceNo(); seqId++) { // can be used to match to whole DB
             Annotable as = (Annotable) sequenceDB.getSequence(seqId);
-            List<DSPatternMatch<DSSequence, DSSeqRegistration>> matches = (List<DSPatternMatch<DSSequence, DSSeqRegistration>>) as.get(pattern);
+            List<DSPatternMatch<DSSequence, CSSeqRegistration>> matches = (List<DSPatternMatch<DSSequence, CSSeqRegistration>>) as.get(pattern);
             if (matches == null) { //if it dosen't have current match
                 matches = pattern.match(sequenceDB.getSequence(seqId), 1.0);
                 as.set(pattern, matches);
@@ -172,12 +172,12 @@ public class SequenceDisplayPanel extends JPanel {
             // patterns from promoter matching
             if (selectedPatterns != null) {
                 for (int row = 0; row < selectedPatterns.size(); row++) {
-                    DSPattern<DSSequence, DSSeqRegistration> pattern = selectedPatterns.get(row);
+                    DSPattern<DSSequence, CSSeqRegistration> pattern = selectedPatterns.get(row);
 
                     if (pattern != null) {
                         for (int seqId = 0; seqId < seqNo; seqId++) { // can be used to match to whole DB
                             Annotable as = (Annotable) sequenceDB.getSequence(seqId);
-                            List<DSPatternMatch<DSSequence, DSSeqRegistration>> matches = (List<DSPatternMatch<DSSequence, DSSeqRegistration>>) as.get(pattern);
+                            List<DSPatternMatch<DSSequence, CSSeqRegistration>> matches = (List<DSPatternMatch<DSSequence, CSSeqRegistration>>) as.get(pattern);
                             if (matches != null) {
                                 drawPattern(g, seqId, matches, r, org.geworkbench.util.patterns.PatternOperations.getPatternColor(pattern.hashCode()));
                             }
@@ -256,13 +256,13 @@ public class SequenceDisplayPanel extends JPanel {
             if (selectedPatterns != null) {
 
                 for (int row = 0; row < selectedPatterns.size(); row++) {
-                    DSPattern<DSSequence, DSSeqRegistration> pattern = selectedPatterns.get(row);
+                    DSPattern<DSSequence, CSSeqRegistration> pattern = selectedPatterns.get(row);
 
                     if (pattern != null) {
-                        DSCollection<DSPatternMatch<DSSequence, DSSeqRegistration>> matches = (DSCollection<DSPatternMatch<DSSequence, DSSeqRegistration>>) ((Annotable) selected).get(pattern);
+                        DSCollection<DSPatternMatch<DSSequence, CSSeqRegistration>> matches = (DSCollection<DSPatternMatch<DSSequence, CSSeqRegistration>>) ((Annotable) selected).get(pattern);
                         if (matches != null) {
-                            for (DSPatternMatch<DSSequence, DSSeqRegistration> match : matches) {
-                                DSSeqRegistration reg = match.getRegistration();
+                            for (DSPatternMatch<DSSequence, CSSeqRegistration> match : matches) {
+                                CSSeqRegistration reg = match.getRegistration();
                                 //              System.out.println(selected.getSequence().substring(im.getOffset(),im.getOffset()+im.getLength()));
                                 int MTwidth = (int) (reg.length() * xscale);
                                 g.setColor(org.geworkbench.util.patterns.PatternOperations.getPatternColor(pattern.hashCode()));
@@ -294,11 +294,11 @@ public class SequenceDisplayPanel extends JPanel {
      * @param matches IGetPatternMatchCollection
      * @param r       Rectangle
      */
-    private boolean drawPattern(Graphics g, int seqId, List<DSPatternMatch<DSSequence, DSSeqRegistration>> matches, Rectangle r, Color color) {
+    private boolean drawPattern(Graphics g, int seqId, List<DSPatternMatch<DSSequence, CSSeqRegistration>> matches, Rectangle r, Color color) {
         if (matches != null) {
             for (int i = 0; i < matches.size(); i++) {
-                DSPatternMatch<DSSequence, DSSeqRegistration> match = matches.get(i);
-                DSSeqRegistration reg = match.getRegistration();
+                DSPatternMatch<DSSequence, CSSeqRegistration> match = matches.get(i);
+                CSSeqRegistration reg = match.getRegistration();
                 int y = yOff + seqId * yStep;
                 if (y > r.y) {
                     if (y > r.y + r.height) {
@@ -378,12 +378,12 @@ public class SequenceDisplayPanel extends JPanel {
 
                 String match = "";
                 for (int row = 0; row < selectedPatterns.size(); row++) {
-                    DSPattern<DSSequence, DSSeqRegistration> pattern = selectedPatterns.get(row);
-                    DSCollection<DSPatternMatch<DSSequence, DSSeqRegistration>> matches = (DSCollection<DSPatternMatch<DSSequence, DSSeqRegistration>>) as.get(pattern);
+                    DSPattern<DSSequence, CSSeqRegistration> pattern = selectedPatterns.get(row);
+                    DSCollection<DSPatternMatch<DSSequence, CSSeqRegistration>> matches = (DSCollection<DSPatternMatch<DSSequence, CSSeqRegistration>>) as.get(pattern);
                     if (matches != null) {
                         match += pattern.toString() + "\n";
-                        for (DSPatternMatch<DSSequence, DSSeqRegistration> aMatch : matches) {
-                            DSSeqRegistration reg = aMatch.getRegistration();
+                        for (DSPatternMatch<DSSequence, CSSeqRegistration> aMatch : matches) {
+                            CSSeqRegistration reg = aMatch.getRegistration();
                             match += reg.x1 + "\t" + reg.length() + "\t score:" + aMatch.getPValue() + "\t";
                         }
 
@@ -468,12 +468,12 @@ public class SequenceDisplayPanel extends JPanel {
             if (selectedPatterns != null) {
 
                 for (int row = 0; row < selectedPatterns.size(); row++) {
-                    DSPattern<DSSequence, DSSeqRegistration> pattern = selectedPatterns.get(row);
+                    DSPattern<DSSequence, CSSeqRegistration> pattern = selectedPatterns.get(row);
                     if (pattern != null) {
-                        DSCollection<DSPatternMatch<DSSequence, DSSeqRegistration>> matches = (DSCollection<DSPatternMatch<DSSequence, DSSeqRegistration>>) ((Annotable) selected).get(pattern);
+                        DSCollection<DSPatternMatch<DSSequence, CSSeqRegistration>> matches = (DSCollection<DSPatternMatch<DSSequence, CSSeqRegistration>>) ((Annotable) selected).get(pattern);
                         if (matches != null) {
-                            for (DSPatternMatch<DSSequence, DSSeqRegistration> match : matches) {
-                                DSSeqRegistration reg = match.getRegistration();
+                            for (DSPatternMatch<DSSequence, CSSeqRegistration> match : matches) {
+                                CSSeqRegistration reg = match.getRegistration();
                                 int MTwidth = (int) (reg.length() * xscale);
 
                                 int ycoord = yOff + (int) ((reg.x1 / cols - 1) * yscale) - 5;
@@ -518,11 +518,11 @@ public class SequenceDisplayPanel extends JPanel {
         if (as != null) {
             String display = "";
             for (int row = 0; row < selectedPatterns.size(); row++) {
-                DSPattern<DSSequence, DSSeqRegistration> pattern = selectedPatterns.get(row);
-                DSCollection<DSPatternMatch<DSSequence, DSSeqRegistration>> matches = (DSCollection<DSPatternMatch<DSSequence, DSSeqRegistration>>) as.get(pattern);
+                DSPattern<DSSequence, CSSeqRegistration> pattern = selectedPatterns.get(row);
+                DSCollection<DSPatternMatch<DSSequence, CSSeqRegistration>> matches = (DSCollection<DSPatternMatch<DSSequence, CSSeqRegistration>>) as.get(pattern);
                 if (matches != null) {
-                    for (DSPatternMatch<DSSequence, DSSeqRegistration> match : matches) {
-                        DSSeqRegistration reg = match.getRegistration();
+                    for (DSPatternMatch<DSSequence, CSSeqRegistration> match : matches) {
+                        CSSeqRegistration reg = match.getRegistration();
                         if ((x > reg.x1) && (x < reg.x2)) {
                             display = "Pattern:" + pattern + " " + "possible hit per 1 kb:" + ((TranscriptionFactor) pattern).getMatrix().getRandom();
                             displayInfo(display);

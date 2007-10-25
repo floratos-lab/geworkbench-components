@@ -8,7 +8,7 @@ import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.bioobjects.sequence.CSSequence;
 import org.geworkbench.bison.datastructure.bioobjects.sequence.DSSequence;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
-import org.geworkbench.bison.datastructure.complex.pattern.sequence.DSSeqRegistration;
+import org.geworkbench.bison.datastructure.complex.pattern.sequence.CSSeqRegistration;
 import org.geworkbench.bison.datastructure.complex.pattern.sequence.DSMatchedSeqPattern;
 import org.geworkbench.bison.datastructure.complex.pattern.DSMatchedPattern;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
@@ -79,10 +79,9 @@ public class GenetegrateViewWidget extends JPanel {
     private JProgressBar serviceProgressBar = new JProgressBar();
     protected SequenceViewWidgetPanel seqViewWPanel = new
             SequenceViewWidgetPanel();
-    public DSCollection<DSMatchedPattern<DSSequence,
-            DSSeqRegistration>>
+    public DSCollection<DSMatchedPattern<DSSequence, CSSeqRegistration>>
             selectedPatterns = new Collection<DSMatchedPattern<DSSequence,
-            DSSeqRegistration>>();
+            CSSeqRegistration>>();
     public JToolBar jToolBar1 = new JToolBar();
     private JToggleButton showAllBtn = new JToggleButton();
     private JCheckBox jAllSequenceCheckBox = new JCheckBox();
@@ -704,8 +703,7 @@ public class GenetegrateViewWidget extends JPanel {
     }
 
 
-    public void setPatterns(DSCollection<DSMatchedPattern<DSSequence,
-            DSSeqRegistration>> matches) {
+    public void setPatterns(DSCollection<DSMatchedPattern<DSSequence, CSSeqRegistration>> matches) {
         selectedPatterns.clear();
         for (int i = 0; i < matches.size(); i++) {
             selectedPatterns.add(matches.get(i));
@@ -919,15 +917,15 @@ public class GenetegrateViewWidget extends JPanel {
                         if (patternsPerSequence != null &&
                                 patternsPerSequence.size() > 0) {
                             for (PatternLocations pl : patternsPerSequence) {
-                                DSSeqRegistration registration = pl.
+                                CSSeqRegistration registration = pl.
                                         getRegistration();
                                 if (registration != null) {
                                     Rectangle2D r = fm.getStringBounds(seqAscii,
                                             g);
                                     double scale = (r.getWidth() + 3) /
                                             (double) (seqAscii.length());
-                                    DSSeqRegistration seqReg = (
-                                            DSSeqRegistration) registration;
+                                    CSSeqRegistration seqReg = (
+                                            CSSeqRegistration) registration;
                                     int patLength = pl.getAscii().length();
                                     int dx = seqReg.x1;
                                     double x1 = (dx - startPoint) * scale +
