@@ -1,7 +1,7 @@
 package org.geworkbench.components.promoter.modulediscovery;
 
 import org.geworkbench.bison.datastructure.complex.pattern.DSPatternMatch;
-import org.geworkbench.bison.datastructure.complex.pattern.sequence.DSSeqRegistration;
+import org.geworkbench.bison.datastructure.complex.pattern.sequence.CSSeqRegistration;
 
 import java.util.Comparator;
 
@@ -38,12 +38,12 @@ public class PatternMatchComparator implements Comparator {
     public int compare(Object o1, Object o2) {
 //        DSSeqPatternMatch m1 = (DSSeqPatternMatch) o1;
 //        DSSeqPatternMatch m2 = (DSSeqPatternMatch) o2;
-//        DSSeqRegistration reg1 = m1.getRegistration();
-//        DSSeqRegistration reg2 = m2.getRegistration();
+//        CSSeqRegistration reg1 = m1.getRegistration();
+//        CSSeqRegistration reg2 = m2.getRegistration();
         DSPatternMatch m1 = (DSPatternMatch) o1;
         DSPatternMatch m2 = (DSPatternMatch) o2;
-        DSSeqRegistration reg1 =(DSSeqRegistration) m1.getRegistration();
-        DSSeqRegistration reg2 =(DSSeqRegistration) m2.getRegistration();
+        CSSeqRegistration reg1 =(CSSeqRegistration) m1.getRegistration();
+        CSSeqRegistration reg2 =(CSSeqRegistration) m2.getRegistration();
 
         if (reg1.x1 > reg2.x1)
             return 1;

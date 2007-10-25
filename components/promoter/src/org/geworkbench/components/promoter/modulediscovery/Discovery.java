@@ -13,7 +13,7 @@ import org.geworkbench.bison.datastructure.complex.pattern.DSMatchedPattern;
 import org.geworkbench.bison.datastructure.complex.pattern.DSPattern;
 import org.geworkbench.bison.datastructure.complex.pattern.DSPatternMatch;
 import org.geworkbench.bison.datastructure.complex.pattern.sequence.CSSeqCmplxRegistration;
-import org.geworkbench.bison.datastructure.complex.pattern.sequence.DSSeqRegistration;
+import org.geworkbench.bison.datastructure.complex.pattern.sequence.CSSeqRegistration;
 
 import java.io.*;
 import java.util.*;
@@ -95,10 +95,7 @@ public class Discovery {
     }
 
     public static void discover(DSSequenceSet sequenceDB,
-                                Hashtable<DSPattern<DSSequence,
-                                DSSeqRegistration>,
-                                List<DSPatternMatch<DSSequence,
-                                DSSeqRegistration>>> patternMatch, int minOccur,
+                                Hashtable<DSPattern<DSSequence, CSSeqRegistration>, List<DSPatternMatch<DSSequence, CSSeqRegistration>>> patternMatch, int minOccur,
                                 int winSize, Hashtable patternPrime) {
 
         //        System.out.println("numberOfSeq = " + sfr.getNumberOfSeq());
@@ -205,9 +202,7 @@ public class Discovery {
     /* Input file reader                                                          */
     /*============================================================================*/
     private static void load(DSSequenceSet seqDB, String infile, Hashtable motifTB,
-                             Hashtable<DSPattern<DSSequence, DSSeqRegistration>,
-                             DSCollection<DSMatchedPattern<DSSequence,
-                             DSSeqRegistration>>> patternTB, int winSize,
+                             Hashtable<DSPattern<DSSequence, CSSeqRegistration>, DSCollection<DSMatchedPattern<DSSequence, CSSeqRegistration>>> patternTB, int winSize,
                              int minOccur) throws FileNotFoundException,
             IOException {
 
@@ -285,23 +280,21 @@ public class Discovery {
     }
 
     private static void load(DSSequenceSet sequenceDB, Hashtable keyPrime,
-                             Hashtable<DSPattern<DSSequence, DSSeqRegistration>,
-                             List<DSPatternMatch<DSSequence,
-                             DSSeqRegistration>>> patternMatch,
+                             Hashtable<DSPattern<DSSequence, CSSeqRegistration>, List<DSPatternMatch<DSSequence, CSSeqRegistration>>> patternMatch,
                              Hashtable motifTB, Hashtable patternTB,
                              int winSize, int minOccur) {
         for (int k = 0; k < sequenceDB.getSequenceNo(); k++) {
             Vector sortedMatches = new Vector();
             Hashtable<DSPatternMatch, DSPattern<DSSequence,
-                    DSSeqRegistration>>
+                    CSSeqRegistration>>
                     lookup = new Hashtable<DSPatternMatch, DSPattern<DSSequence,
-                             DSSeqRegistration>>();
+                             CSSeqRegistration>>();
             for (DSPattern pattern : patternMatch.keySet()) {
                 List<DSPatternMatch<DSSequence,
-                        DSSeqRegistration>> matches = patternMatch.get(pattern);
+                        CSSeqRegistration>> matches = patternMatch.get(pattern);
                 for (int i = 0; i < matches.size(); i++) {
                     DSPatternMatch<DSSequence,
-                            DSSeqRegistration> match = matches.get(i);
+                            CSSeqRegistration> match = matches.get(i);
                     DSSequence sequence = match.getObject();
                     if (sequence.getSerial() == k) {
                         sortedMatches.add(match);
@@ -319,20 +312,20 @@ public class Discovery {
             Arrays.sort(sortedMatchArray, new PatternMatchComparator());
             for (int i = 0; i < sortedMatchArray.length; i++) {
 //                DSSeqPatternMatch m1 = (DSSeqPatternMatch) sortedMatchArray[i];
-//                DSSeqRegistration reg = m1.getRegistration();
+//                CSSeqRegistration reg = m1.getRegistration();
                 DSPatternMatch m1 = (DSPatternMatch) sortedMatchArray[i];
-DSSeqRegistration reg = (DSSeqRegistration)m1.getRegistration();
+CSSeqRegistration reg = (CSSeqRegistration)m1.getRegistration();
 
                 int n = 1;
                 while (n + i < sortedMatchArray.length) {
                     int k2 = i + n++;
 //                    DSSeqPatternMatch m2 = (DSSeqPatternMatch) sortedMatchArray[
 //                                           k2];
-//                    DSSeqRegistration reg2 = m2.getRegistration();
+//                    CSSeqRegistration reg2 = m2.getRegistration();
 
                     DSPatternMatch m2 = (DSPatternMatch) sortedMatchArray[
                                             k2];
-                   DSSeqRegistration reg2 = (DSSeqRegistration)m2.getRegistration();
+                   CSSeqRegistration reg2 = (CSSeqRegistration)m2.getRegistration();
 
                     if ((reg2.x1 - reg.x1) < winSize) {
                         if (reg.x2 <= reg2.x1) { //no overlap
@@ -413,9 +406,9 @@ DSSeqRegistration reg = (DSSeqRegistration)m1.getRegistration();
         PatternKey pattern_key = new PatternKey(comb);
         int[] support = {m1[0], m1[2], m2[2]};
         CSPatternMatch<DSSequence,
-                DSSeqRegistration>
+                CSSeqRegistration>
                 match = new CSPatternMatch<DSSequence,
-                        DSSeqRegistration>(seqDB.get(m1[0]));
+                        CSSeqRegistration>(seqDB.get(m1[0]));
         CSSeqCmplxRegistration reg = new CSSeqCmplxRegistration();
         reg.offsets.add(m1[2]);
         reg.offsets.add(m2[2]);

@@ -11,7 +11,6 @@ import java.util.List;
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.*;
-import org.biojava.bio.gui.DistributionLogo;
 import org.geworkbench.bison.datastructure.biocollections.DSCollection;
 import org.geworkbench.bison.datastructure.biocollections.sequences.
         CSSequenceSet;
@@ -23,7 +22,7 @@ import org.geworkbench.bison.datastructure.bioobjects.sequence.DSSequence;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.bison.datastructure.complex.pattern.*;
 import org.geworkbench.bison.datastructure.complex.pattern.sequence.
-        DSSeqRegistration;
+        CSSeqRegistration;
 import org.geworkbench.components.promoter.modulediscovery.*;
 import org.geworkbench.events.GeneSelectorEvent;
 import org.geworkbench.events.SequenceDiscoveryTableEvent;
@@ -153,22 +152,18 @@ public class PromoterViewPanel extends JPanel {
     private ArrayList<DSPattern> promoterPatterns = new ArrayList<DSPattern>();
     HashMap<DSPattern,
             Display> seqPatternDisplay = new HashMap<DSPattern, Display>();
-    Hashtable<DSPattern<DSSequence, DSSeqRegistration>,
-            List<DSPatternMatch<DSSequence,
-            DSSeqRegistration>>>
+    Hashtable<DSPattern<DSSequence, CSSeqRegistration>, List<DSPatternMatch<DSSequence, CSSeqRegistration>>>
             seqPatternMatches = new Hashtable<DSPattern<DSSequence,
-                                DSSeqRegistration>,
+                                CSSeqRegistration>,
                                 List<DSPatternMatch<DSSequence,
-                                DSSeqRegistration>>>();
+                                CSSeqRegistration>>>();
     HashMap<DSPattern,
             Display> promoterPatternDisplay = new HashMap<DSPattern, Display>();
-    Hashtable<DSPattern<DSSequence, DSSeqRegistration>,
-            List<DSPatternMatch<DSSequence,
-            DSSeqRegistration>>>
+    Hashtable<DSPattern<DSSequence, CSSeqRegistration>, List<DSPatternMatch<DSSequence, CSSeqRegistration>>>
             promoterPatternMatches = new Hashtable<DSPattern<DSSequence,
-                                     DSSeqRegistration>,
+                                     CSSeqRegistration>,
                                      List<DSPatternMatch<DSSequence,
-                                     DSSeqRegistration>>>();
+                                     CSSeqRegistration>>>();
     private final static int SEQUENCE = 2;
     private final static int LOGO = 0;
     private final static int PARAMETERS = 1;
@@ -863,9 +858,9 @@ public class PromoterViewPanel extends JPanel {
 //           promoterPatternDisplay = new HashMap<DSPattern, Display>();
 //
 //            promoterPatternMatches = new Hashtable<DSPattern<DSSequence,
-//                                     DSSeqRegistration>,
+//                                     CSSeqRegistration>,
 //                                     List<DSPatternMatch<DSSequence,
-//                                     DSSeqRegistration>>>();
+//                                     CSSeqRegistration>>>();
 
 
 
@@ -1038,12 +1033,12 @@ public class PromoterViewPanel extends JPanel {
                             if (patternsPerSequence != null &&
                                 patternsPerSequence.size() > 0) {
                                 for (PatternLocations pl : patternsPerSequence) {
-                                    DSSeqRegistration registration = pl.
+                                    CSSeqRegistration registration = pl.
                                             getRegistration();
                                     if (registration != null) {
 
-                                        DSSeqRegistration seqReg = (
-                                                DSSeqRegistration) registration;
+                                        CSSeqRegistration seqReg = (
+                                                CSSeqRegistration) registration;
                                         bw.write(pl.getAscii() + tab);
                                         if (seqReg.strand == 0){
                                             bw.write(seqReg.x1 + 1 + tab);
@@ -1361,9 +1356,9 @@ public class PromoterViewPanel extends JPanel {
                             // strand.
                             int partialLength = 0;
                             List<DSPatternMatch<DSSequence,
-                                    DSSeqRegistration>>
+                                    CSSeqRegistration>>
                                     matches = new ArrayList<DSPatternMatch<
-                                              DSSequence, DSSeqRegistration>>();
+                                              DSSequence, CSSeqRegistration>>();
                             for (int seqId = 0; seqId < sequenceDB.size();
                                              seqId++) {
                                 double progress = (double) seqId /
@@ -1404,7 +1399,7 @@ public class PromoterViewPanel extends JPanel {
                                         }
                                     }
                                     List<DSPatternMatch<DSSequence,
-                                            DSSeqRegistration>>
+                                            CSSeqRegistration>>
                                             seqMatches = pattern.match(seq,
                                             1.0);
                                     if (seqMatches.size() > 0) {
@@ -1420,8 +1415,7 @@ public class PromoterViewPanel extends JPanel {
                                               "Discovery: " +
                                               pattern.getName());
                             if (matches != null) {
-                                for (DSPatternMatch<DSSequence,
-                                     DSSeqRegistration> match : matches) {
+                                for (DSPatternMatch<DSSequence, CSSeqRegistration> match : matches) {
                                     if (match.getRegistration().strand == 0) {
                                         msActual.match5primeNo++;
                                     }
@@ -1590,7 +1584,7 @@ public class PromoterViewPanel extends JPanel {
         /** @todo Fix patterns */
         //clear previously selected discovered patterns
         Vector<DSPattern> tobedeleted = new Vector<DSPattern>(seqPatterns);
-//        for (DSPattern<DSSequence, DSSeqRegistration> pattern : seqDisPanel.getPatternMatches().keySet()) {
+//        for (DSPattern<DSSequence, CSSeqRegistration> pattern : seqDisPanel.getPatternMatches().keySet()) {
 //            tobedeleted.add(pattern);
 //        }
         for (int i = 0; i < tobedeleted.size(); i++) {
@@ -1602,23 +1596,22 @@ public class PromoterViewPanel extends JPanel {
         //add the new patterns into seqPatterns
         seqPatterns.clear();
         DSCollection<DSMatchedPattern<DSSequence,
-                DSSeqRegistration>> patterns = e.getPatternMatchCollection();
+                CSSeqRegistration>> patterns = e.getPatternMatchCollection();
         seqPatterns = new ArrayList(e.getPatternMatchCollection());
-        for (DSMatchedPattern<DSSequence,
-             DSSeqRegistration> pattern : patterns) {
+        for (DSMatchedPattern<DSSequence, CSSeqRegistration> pattern : patterns) {
             //IGetPatternMatchCollection im = gp.match(sequenceDB);
             Display dis = new Display();
             dis.setColor(PatternOperations.getPatternColor(pattern.hashCode()));
             dis.setHeight(0.9);
             dis.setShape(Display.OVAL);
-            DSPattern<DSSequence, DSSeqRegistration> p = pattern.getPattern();
+            DSPattern<DSSequence, CSSeqRegistration> p = pattern.getPattern();
             //set the associated sequenceDB to current sequenceDB.
             if (pattern instanceof CSMatchedSeqPattern) {
                 ((CSMatchedSeqPattern) pattern).setSeqDB(sequenceDB);
             }
 
             List<DSPatternMatch<DSSequence,
-                    DSSeqRegistration>> matches = pattern.matches();
+                    CSSeqRegistration>> matches = pattern.matches();
             seqPatternDisplay.put(p, dis);
             seqPatternMatches.put(p, matches);
 
@@ -1681,9 +1674,9 @@ public class PromoterViewPanel extends JPanel {
         }
         Thread t = new Thread() {
             public void run() {
-                Hashtable<DSPattern<DSSequence, DSSeqRegistration>,
+                Hashtable<DSPattern<DSSequence, CSSeqRegistration>,
                         List<DSPatternMatch<DSSequence,
-                        DSSeqRegistration>>>
+                        CSSeqRegistration>>>
                         matchesTable = seqDisPanel.getPatternMatches();
                 Hashtable patternPrime = new Hashtable();
                 Integer n = new Integer(1);
@@ -1771,20 +1764,19 @@ public class PromoterViewPanel extends JPanel {
     void moduleListSelection_action(ListSelectionEvent e) {
         //clear existing composite patterns
         Vector<DSPattern<DSSequence,
-                DSSeqRegistration>>
+                CSSeqRegistration>>
                 tobedeleted = new Vector<DSPattern<DSSequence,
-                              DSSeqRegistration>>();
-        Hashtable<DSPattern<DSSequence, DSSeqRegistration>,
+                              CSSeqRegistration>>();
+        Hashtable<DSPattern<DSSequence, CSSeqRegistration>,
                 List<DSPatternMatch<DSSequence,
-                DSSeqRegistration>>>
+                CSSeqRegistration>>>
                 matches = seqDisPanel.getPatternMatches();
-        for (DSPattern<DSSequence,
-             DSSeqRegistration> pattern : matches.keySet()) {
+        for (DSPattern<DSSequence, CSSeqRegistration> pattern : matches.keySet()) {
             if (pattern.getClass().isAssignableFrom(CSMultiSeqPattern.class)) {
                 tobedeleted.add(pattern);
             }
         }
-        for (DSPattern<DSSequence, DSSeqRegistration> pattern : tobedeleted) {
+        for (DSPattern<DSSequence, CSSeqRegistration> pattern : tobedeleted) {
             seqDisPanel.removePattern(pattern);
         }
 
@@ -1792,26 +1784,26 @@ public class PromoterViewPanel extends JPanel {
         Object[] modules = moduleList.getSelectedValues();
         for (int i = 0; i < modules.length; i++) {
             PatternDisplay<DSSequence,
-                    DSSeqRegistration> pd = (PatternDisplay) modules[i];
+                    CSSeqRegistration> pd = (PatternDisplay) modules[i];
             Object pdPattern = pd.getPt();
             if (pdPattern instanceof CSMultiSeqPattern) {
                 CSMultiSeqPattern compPatt = (CSMultiSeqPattern) pdPattern;
                 List<DSPatternMatch<DSSequence,
-                        DSSeqRegistration>> pc = compPatt.match(sequenceDB);
+                        CSSeqRegistration>> pc = compPatt.match(sequenceDB);
                 for (int k = 0; k < pc.size(); k++) {
                     DSPatternMatch<DSSequence,
-                            DSSeqRegistration> pm = pc.get(k);
+                            CSSeqRegistration> pm = pc.get(k);
                     int lastsub = pm.getRegistration().x2;
                     DSPattern[] patterns = ((CSMultiSeqPattern) pd.getPt()).
                                            getPatternKey().subpatterns;
                     for (int m = 0; m < patterns.length; m++) {
                         List<DSPatternMatch<DSSequence,
-                                DSSeqRegistration>>
+                                CSSeqRegistration>>
                                 p = seqDisPanel.
                                     getPatternMatches().get(patterns[m]);
                         for (int n = 0; n < p.size(); n++) {
                             DSPatternMatch<DSSequence,
-                                    DSSeqRegistration> ma = p.get(n);
+                                    CSSeqRegistration> ma = p.get(n);
                             if (ma.getRegistration().x2 == lastsub) {
                                 pm.getRegistration().x2 = ma.
                                         getRegistration().
@@ -1822,7 +1814,7 @@ public class PromoterViewPanel extends JPanel {
                     }
                 }
                 DSPattern<DSSequence,
-                        DSSeqRegistration> patternMatch = pd.getPt();
+                        CSSeqRegistration> patternMatch = pd.getPt();
                 seqDisPanel.addAPattern(patternMatch, pd.getDis(), pc);
             }
         }

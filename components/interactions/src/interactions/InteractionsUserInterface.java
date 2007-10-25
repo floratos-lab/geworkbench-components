@@ -50,6 +50,7 @@ import org.geworkbench.bison.datastructure.complex.panels.CSItemList;
  * @author manjunath at genomecenter dot columbia dot edu
  */
 @AcceptTypes({DSMicroarraySet.class})
+@SuppressWarnings({"deprecation", "unchecked"})
 public class InteractionsUserInterface extends javax.swing.JScrollPane implements VisualPlugin {
 
     /**
