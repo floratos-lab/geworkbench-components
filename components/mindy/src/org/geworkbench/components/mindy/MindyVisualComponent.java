@@ -158,19 +158,13 @@ public class MindyVisualComponent implements VisualPlugin {
 		                if (uniqueMarkers.size() > 0) {
 		                	selectedMarkers = (List<DSGeneMarker>) uniqueMarkers;
 		                	this.prevStateMarkers = this.currentStateMarkers;
-		                	this.currentStateMarkers = selectedMarkers.size();		                	
-		                	/*
-		                    selectedMarkers = new ArrayList<DSGeneMarker>(uniqueMarkers.size());
-		                    for (Iterator<DSGeneMarker> iterator = uniqueMarkers.iterator(); iterator.hasNext();) {
-		                        DSGeneMarker marker = iterator.next();
-		                        log.debug("Selected " + marker.getShortName());
-		                        selectedMarkers.add(marker);
-		                    }
-		                    */
+		                	this.currentStateMarkers = selectedMarkers.size();	
 		                }
 	            	}
             	} catch (NullPointerException npe) {
-            		npe.printStackTrace();
+            		selectedMarkers = null;
+                    this.prevStateMarkers = this.currentStateMarkers;
+                    this.currentStateMarkers = this.maxMarkers;
             		log.debug("Gene Selector Event contained no marker data.");
             	}
             }          
@@ -179,7 +173,7 @@ public class MindyVisualComponent implements VisualPlugin {
             Iterator it = ht.values().iterator();
             if (selectedMarkers != null) {    
             	while(it.hasNext()){
-            		log.debug("***received gene selector event::calling limitMarkers");
+            		log.debug("***received gene selector event::calling limitMarkers: " + selectedMarkers.size());
             		((MindyPlugin) it.next()).limitMarkers(selectedMarkers);
             	}
             } else {            	
@@ -290,36 +284,6 @@ public class MindyVisualComponent implements VisualPlugin {
             maxMarkers = uniqueMarkers.size();
             currentStateMarkers = maxMarkers;            
             maView.useMarkerPanel(true);
-            
-            // ch2514 -- Do we need this check??
-            /*
-            if (uniqueMarkers.size() > 0) {
-                selectedMarkers = new ArrayList<DSGeneMarker>(uniqueMarkers.size());
-                for (Iterator<DSGeneMarker> iterator = uniqueMarkers.iterator(); iterator.hasNext();) {
-                    DSGeneMarker marker = iterator.next();
-                    log.debug("Selected " + marker.getShortName());
-                    selectedMarkers.add(marker);
-                }
-            }
-            //system.out.println("VP::doInBackground()::");
-            if(uniqueMarkers != null){
-            	//system.out.println("uniqueMarkers=" + uniqueMarkers.size());
-            	if(selectedMarkers != null){
-            		//system.out.println("selected markers=" + selectedMarkers.size());
-            	} else {
-            		//system.out.println("selected markers=null");
-            	}
-            } else {
-            	//system.out.println("uniqueMarkers=null");
-            	if(selectedMarkers != null){
-            		//system.out.println("selected markers=" + selectedMarkers.size());
-            	} else {
-            		//system.out.println("selected markers=null");
-            	}
-            }
-            mplugin.limitMarkers(selectedMarkers); 
-            */
-            
     		return mplugin;
     	}
     	
