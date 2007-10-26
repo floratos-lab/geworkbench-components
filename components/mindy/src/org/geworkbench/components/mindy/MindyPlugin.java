@@ -26,7 +26,7 @@ import com.solarmetric.ide.ui.CheckboxCellRenderer;
  * @author mhall
  * @ch2514
  * 
- * @version $Id: MindyPlugin.java,v 1.55 2007-10-26 17:16:38 hungc Exp $
+ * @version $Id: MindyPlugin.java,v 1.56 2007-10-26 21:27:49 hungc Exp $
  */
 @SuppressWarnings("serial")
 public class MindyPlugin extends JPanel {
@@ -1118,13 +1118,13 @@ public class MindyPlugin extends JPanel {
 	 * 
 	 * @author mhall
 	 * @author ch2514
-	 * @version $Id: MindyPlugin.java,v 1.55 2007-10-26 17:16:38 hungc Exp $
+	 * @version $Id: MindyPlugin.java,v 1.56 2007-10-26 21:27:49 hungc Exp $
 	 */
 	private class ModulatorModel extends DefaultTableModel {
 
 		private boolean[] enabled;
 		private ArrayList<DSGeneMarker> modulators;
-		private ArrayList<DSGeneMarker> limitedModulators;
+		private List<DSGeneMarker> limitedModulators;
 		private ArrayList<DSGeneMarker> selectedModulators;
 		private MindyData mindyData;
 		private String[] columnNames = new String[] { " ", "Modulator", " M# ",
@@ -1166,12 +1166,14 @@ public class MindyPlugin extends JPanel {
 				limitedModulators = null;
 				log.debug("Cleared modulator limits.");
 			} else {
+				/*
 				limitedModulators = new ArrayList<DSGeneMarker>();
 				for (DSGeneMarker marker : limitList) {
 					if (modulators.contains(marker)) {
 						limitedModulators.add(marker);
 					}
-				}
+				}*/
+				limitedModulators = limitList;
 				log.debug("Limited modulators table to "
 						+ limitedModulators.size() + " mods.");
 				this.enabled = new boolean[modulators.size()];
@@ -1559,7 +1561,7 @@ public class MindyPlugin extends JPanel {
 	 * For rendering modulator checkboxes on the targets table column headers.
 	 * 
 	 * @author ch2514
-	 * @version $Id: MindyPlugin.java,v 1.55 2007-10-26 17:16:38 hungc Exp $
+	 * @version $Id: MindyPlugin.java,v 1.56 2007-10-26 21:27:49 hungc Exp $
 	 */
 	private class CheckBoxRenderer extends DefaultTableCellRenderer {
 		/**
@@ -1642,7 +1644,7 @@ public class MindyPlugin extends JPanel {
 	 * 
 	 * @author mhall
 	 * @author ch2514
-	 * @version $Id: MindyPlugin.java,v 1.55 2007-10-26 17:16:38 hungc Exp $
+	 * @version $Id: MindyPlugin.java,v 1.56 2007-10-26 21:27:49 hungc Exp $
 	 */
 	private class AggregateTableModel extends DefaultTableModel {
 
@@ -1653,7 +1655,7 @@ public class MindyPlugin extends JPanel {
 		private List<DSGeneMarker> allModulators;
 		private List<DSGeneMarker> enabledModulators;
 		private List<DSGeneMarker> activeTargets;
-		private ArrayList<DSGeneMarker> limitedTargets;
+		private List<DSGeneMarker> limitedTargets;
 		private List<DSGeneMarker> selectedTargets;
 		private List<DSGeneMarker> selectedModulators;
 		private MindyData mindyData;
@@ -1920,10 +1922,12 @@ public class MindyPlugin extends JPanel {
 				limitedTargets = null;
 				log.debug("Cleared modulator and target limits.");
 			} else {
+				/*
 				limitedTargets = new ArrayList<DSGeneMarker>();
 				for (DSGeneMarker marker : limitList) {
 					limitedTargets.add(marker);
-				}
+				}*/
+				limitedTargets = limitList;
 				log.debug("Limited list table to " + limitedTargets.size()
 						+ " targets.");
 			}
@@ -2451,7 +2455,7 @@ public class MindyPlugin extends JPanel {
 	 * Compare M#, M+, or M- of two gene markers (for sorting).
 	 * 
 	 * @author mhall
-	 * @version $Id: MindyPlugin.java,v 1.55 2007-10-26 17:16:38 hungc Exp $
+	 * @version $Id: MindyPlugin.java,v 1.56 2007-10-26 21:27:49 hungc Exp $
 	 */
 	private class ModulatorStatComparator implements Comparator<DSGeneMarker> {
 
@@ -2503,7 +2507,7 @@ public class MindyPlugin extends JPanel {
 	 * 
 	 * @author mhall
 	 * @author ch2514
-	 * @version $Id: MindyPlugin.java,v 1.55 2007-10-26 17:16:38 hungc Exp $
+	 * @version $Id: MindyPlugin.java,v 1.56 2007-10-26 21:27:49 hungc Exp $
 	 */
 	private class ModulatorTargetModel extends DefaultTableModel {
 
@@ -2511,8 +2515,8 @@ public class MindyPlugin extends JPanel {
 		private boolean[] targetChecks;
 		private ArrayList<DSGeneMarker> enabledModulators;
 		private ArrayList<DSGeneMarker> enabledTargets;
-		private ArrayList<DSGeneMarker> limitedModulators;
-		private ArrayList<DSGeneMarker> limitedTargets;
+		private List<DSGeneMarker> limitedModulators;
+		private List<DSGeneMarker> limitedTargets;
 		private ArrayList<DSGeneMarker> selectedModulators;
 		private ArrayList<DSGeneMarker> selectedTargets;
 		private MindyData mindyData;
@@ -2706,9 +2710,11 @@ public class MindyPlugin extends JPanel {
 				this.checkSelectedMarkers(true);
 				log.debug("Cleared modulator and target limits.");
 			} else {
+				
 				limitedModulators = new ArrayList<DSGeneMarker>();
 				limitedTargets = new ArrayList<DSGeneMarker>();
 				limMarkers = true;
+				
 				for (DSGeneMarker marker : limitList) {
 					if (enabledModulators.contains(marker)) {
 						limitedModulators.add(marker);
@@ -2807,7 +2813,8 @@ public class MindyPlugin extends JPanel {
 
 		public void redrawTable() {
 			recalculateRows();
-			fireTableStructureChanged();
+			//fireTableStructureChanged();
+			fireTableDataChanged();
 			setListTableViewOptions();
 		}
 
@@ -3199,7 +3206,7 @@ public class MindyPlugin extends JPanel {
 	 * Heat map data model.
 	 * 
 	 * @author mhall
-	 * @version $Id: MindyPlugin.java,v 1.55 2007-10-26 17:16:38 hungc Exp $
+	 * @version $Id: MindyPlugin.java,v 1.56 2007-10-26 21:27:49 hungc Exp $
 	 */
 	private class ModulatorListModel extends AbstractListModel {
 		/**
@@ -3254,7 +3261,7 @@ public class MindyPlugin extends JPanel {
 	 * for the targets table.
 	 * 
 	 * @author ch2514
-	 * @version $Id: MindyPlugin.java,v 1.55 2007-10-26 17:16:38 hungc Exp $
+	 * @version $Id: MindyPlugin.java,v 1.56 2007-10-26 21:27:49 hungc Exp $
 	 */
 	private class ColumnHeaderListener extends MouseAdapter {
 		/**
