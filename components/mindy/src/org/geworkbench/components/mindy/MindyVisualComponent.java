@@ -179,12 +179,12 @@ public class MindyVisualComponent implements VisualPlugin {
             Iterator it = ht.values().iterator();
             if (selectedMarkers != null) {    
             	while(it.hasNext()){
-            		System.out.println("***received gene selector event::calling limitMarkers");
+            		log.debug("***received gene selector event::calling limitMarkers");
             		((MindyPlugin) it.next()).limitMarkers(selectedMarkers);
             	}
             } else {            	
             	while(it.hasNext()){
-            		System.out.println("***received gene selector event::calling limitMarkers with null");
+            		log.debug("***received gene selector event::calling limitMarkers with null");
             		((MindyPlugin) it.next()).limitMarkers(null);
             	}
             }

@@ -71,7 +71,7 @@ public class ModulatorHeatMap extends JPanel {
      */
     @SuppressWarnings("unchecked")
     public ModulatorHeatMap(DSGeneMarker modulator, DSGeneMarker transcriptionFactor, MindyData mindyData, List<DSGeneMarker> targetLimits) {
-    	//system.out.println("\tHeatMap::constructor::start::" + System.currentTimeMillis());
+    	log.debug("\tHeatMap::constructor::start::" + System.currentTimeMillis());
     	this.maSet = mindyData.getArraySet();
         List<DSGeneMarker> markers = mindyData.getTargets(modulator, transcriptionFactor);
         this.colorContext = (ColorContext) maSet.getObject(ColorContext.class);
@@ -139,22 +139,17 @@ public class ModulatorHeatMap extends JPanel {
 
         this.setBackground(Color.white);
         this.setOpaque(true);
-        //system.out.println("\tHeatMap::constructor::end::" + System.currentTimeMillis());
+        log.debug("\tHeatMap::constructor::end::" + System.currentTimeMillis());
     }
 
     private void limitTargets(List<DSGeneMarker> targetLimits) {
-    	
-    	////system.out.println("\t\t\tlimitTargets()::start::" + System.currentTimeMillis());
         if (targetLimits != null) {
-        	////system.out.println("\t\t\tlimitTargets()::targetLimits=" + targetLimits.size());
         	this.targetLimits = targetLimits;
             targetRows = mindyData.getRows(modulator, transcriptionFactor, targetLimits);
         } else {
-        	////system.out.println("\t\t\tlimitTargets()::targetLimits=null");
         	this.targetLimits = null;
             targetRows = mindyData.getRows(modulator, transcriptionFactor);
         }
-        ////system.out.println("\t\t\tlimitTargets()::end" + System.currentTimeMillis());
         invalidate();
     }
 
