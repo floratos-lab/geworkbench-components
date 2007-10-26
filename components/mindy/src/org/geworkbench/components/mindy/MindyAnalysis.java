@@ -17,6 +17,7 @@ import org.geworkbench.engine.management.Publish;
 import org.geworkbench.engine.management.Subscribe;
 import org.geworkbench.util.pathwaydecoder.mutualinformation.MindyDataSet;
 import org.geworkbench.util.pathwaydecoder.mutualinformation.MindyData;
+import org.geworkbench.util.pathwaydecoder.mutualinformation.MindyGeneMarker;
 import org.geworkbench.builtin.projects.ProjectPanel;
 import org.geworkbench.events.GeneSelectorEvent;
 import org.geworkbench.util.threading.*;
@@ -28,6 +29,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.HashMap;
 import java.text.Collator;
 
 import edu.columbia.c2b2.mindy.Mindy;
@@ -301,7 +303,7 @@ public class MindyAnalysis extends AbstractAnalysis implements ClusteringAnalysi
     /**
      * The swing worker class that runs Mindy analysis in the background.
      * @author ch2514
-     * @version $Id: MindyAnalysis.java,v 1.22 2007-10-25 20:00:17 hungc Exp $
+     * @version $Id: MindyAnalysis.java,v 1.23 2007-10-26 17:02:20 hungc Exp $
      */
     class Task extends SwingWorker<MindyDataSet, Void> {
     	private Mindy mindy;
@@ -384,17 +386,25 @@ public class MindyAnalysis extends AbstractAnalysis implements ClusteringAnalysi
             log.info("MINDY analysis complete.  Converting Mindy results. " + System.currentTimeMillis());
             
             List<MindyData.MindyResultRow> dataRows = new ArrayList<MindyData.MindyResultRow>();
-            Collator myCollator = Collator.getInstance();            
+            Collator myCollator = Collator.getInstance();      
+            HashMap<DSGeneMarker, MindyGeneMarker> mindyMap = new HashMap<DSGeneMarker, MindyGeneMarker>();
             for (MindyResults.MindyResultForTarget result : results) {
                 DSItemList<DSGeneMarker> markers = mSet.getMarkers();
                 DSGeneMarker target = markers.get(result.getTarget().getName());
+                if(!mindyMap.containsKey(target)){
+                	mindyMap.put(target, new MindyGeneMarker(target, myCollator.getCollationKey(target.getShortName()), myCollator.getCollationKey(target.getDescription())));
+                }
                 for (MindyResults.MindyResultForTarget.ModulatorSpecificResult specificResult : result) {
                     DSGeneMarker mod = markers.get(specificResult.getModulator().getName());
+                    if(!mindyMap.containsKey(mod)){
+                    	mindyMap.put(mod, new MindyGeneMarker(mod, myCollator.getCollationKey(mod.getShortName()), myCollator.getCollationKey(mod.getDescription())));
+                    }
                     dataRows.add(new MindyData.MindyResultRow(mod, transFac, target, specificResult.getScore(), 0f, myCollator.getCollationKey(mod.getShortName()), myCollator.getCollationKey(target.getShortName())));
                 }
             }
             if(dataRows.size() <= 0) return null;
             MindyData loadedData = new MindyData((CSMicroarraySet) mSet, dataRows, setFraction);
+            loadedData.setMindyMap(mindyMap);
             
             // Bonferroni correction -- if option selected
             

@@ -46,7 +46,7 @@ public class MindyVisualComponent implements VisualPlugin {
     private MindyDataSet dataSet;
     private JPanel plugin;
     private MindyPlugin mindyPlugin;
-    private ArrayList<DSGeneMarker> selectedMarkers;
+    private List<DSGeneMarker> selectedMarkers;
     private DSPanel<DSGeneMarker> selectorPanel;
     private HashMap<ProjectTreeNode, MindyPlugin> ht;
     
@@ -54,6 +54,10 @@ public class MindyVisualComponent implements VisualPlugin {
     private JProgressBar progressBar;
     private JButton cancelButton;
     private Task task;
+    
+    private int prevStateMarkers = -1;
+    private int currentStateMarkers = -1;
+    private int maxMarkers = -1;
 
     /**
      * Constructor.
@@ -128,9 +132,12 @@ public class MindyVisualComponent implements VisualPlugin {
     @Subscribe
     public void receive(GeneSelectorEvent e, Object source) {
         if (dataSet != null) {
-        	if(e.getPanel() != null) this.selectorPanel = e.getPanel();
-        	else log.debug("Received Gene Selector Event: Selection panel sent was null");
-            DSMicroarraySetView<DSGeneMarker, DSMicroarray> maView = new CSMicroarraySetView<DSGeneMarker, DSMicroarray>(dataSet.getData().getArraySet());
+        	if(e.getPanel() != null) 
+        		this.selectorPanel = e.getPanel();
+        	else 
+        		log.debug("Received Gene Selector Event: Selection panel sent was null");
+        	
+        	DSMicroarraySetView<DSGeneMarker, DSMicroarray> maView = new CSMicroarraySetView<DSGeneMarker, DSMicroarray>(dataSet.getData().getArraySet());
             maView.setMarkerPanel(e.getPanel());
             maView.useMarkerPanel(true);
             if((maView.getMarkerPanel() != null) 
@@ -138,6 +145,10 @@ public class MindyVisualComponent implements VisualPlugin {
             		&& (maView.getMarkerPanel().activeSubset().size() == 0)
             		) {            	
                 selectedMarkers = null;
+                this.prevStateMarkers = this.currentStateMarkers;
+                this.currentStateMarkers = this.maxMarkers;
+                if(this.currentStateMarkers == this.prevStateMarkers)
+                	return;
             } else {
             	try{
 	            	if((maView != null) 
@@ -145,28 +156,35 @@ public class MindyVisualComponent implements VisualPlugin {
 	            			){
 		                DSItemList<DSGeneMarker> uniqueMarkers = maView.getUniqueMarkers();
 		                if (uniqueMarkers.size() > 0) {
+		                	selectedMarkers = (List<DSGeneMarker>) uniqueMarkers;
+		                	this.prevStateMarkers = this.currentStateMarkers;
+		                	this.currentStateMarkers = selectedMarkers.size();		                	
+		                	/*
 		                    selectedMarkers = new ArrayList<DSGeneMarker>(uniqueMarkers.size());
 		                    for (Iterator<DSGeneMarker> iterator = uniqueMarkers.iterator(); iterator.hasNext();) {
 		                        DSGeneMarker marker = iterator.next();
 		                        log.debug("Selected " + marker.getShortName());
 		                        selectedMarkers.add(marker);
 		                    }
+		                    */
 		                }
 	            	}
             	} catch (NullPointerException npe) {
+            		npe.printStackTrace();
             		log.debug("Gene Selector Event contained no marker data.");
             	}
-            }
+            }          
+            
             
             Iterator it = ht.values().iterator();
             if (selectedMarkers != null) {    
             	while(it.hasNext()){
-            		//system.out.println("received gene selector event::calling limitMarkers");
+            		System.out.println("***received gene selector event::calling limitMarkers");
             		((MindyPlugin) it.next()).limitMarkers(selectedMarkers);
             	}
-            } else {
+            } else {            	
             	while(it.hasNext()){
-            		//system.out.println("received gene selector event::calling limitMarkers with null");
+            		System.out.println("***received gene selector event::calling limitMarkers with null");
             		((MindyPlugin) it.next()).limitMarkers(null);
             	}
             }
@@ -204,7 +222,7 @@ public class MindyVisualComponent implements VisualPlugin {
     	return this.selectorPanel;
     }
 
-    ArrayList<DSGeneMarker> getSelectedMarkers(){
+    List<DSGeneMarker> getSelectedMarkers(){
     	return this.selectedMarkers;
     }
     
@@ -252,23 +270,29 @@ public class MindyVisualComponent implements VisualPlugin {
     	}
     	
     	public MindyPlugin doInBackground(){
-    		log.info("Creating MINDY GUI.");
-    		// Sort via |M+ - M-| i.e. Math.abs(mindy score)
-            // Take largest 100 out of the results
+    		log.info("Creating MINDY GUI.");  		
+            
             MindyData mindyData = dataSet.getData();
-            //Collections.sort(mindyData.getData(), new MindyRowComparator(MindyRowComparator.DELTA_I, false));            
+            // The following sort no longer required -- keeping it in case the use case changes again....
+            	// Sort via |M+ - M-| i.e. Math.abs(mindy score)
+            	// Take largest 100 out of the results
+            	//Collections.sort(mindyData.getData(), new MindyRowComparator(MindyRowComparator.DELTA_I, false));            
             List<MindyData.MindyResultRow> mindyRows = mindyData.getData();
-            //if(mindyRows.size() > 100) mindyRows = mindyData.getData().subList(0, 100);
             mindyData.setData(mindyRows);                    
             
             // Then pass into mindy plugin
             mplugin = new MindyPlugin(mindyData, vp);
             
             // Incorporate selections from marker set selection panel
-            /*
+            
         	DSMicroarraySetView<DSGeneMarker, DSMicroarray> maView = new CSMicroarraySetView<DSGeneMarker, DSMicroarray>(dataSet.getData().getArraySet());
             DSItemList<DSGeneMarker> uniqueMarkers = maView.getUniqueMarkers();
+            maxMarkers = uniqueMarkers.size();
+            currentStateMarkers = maxMarkers;            
+            maView.useMarkerPanel(true);
             
+            // ch2514 -- Do we need this check??
+            /*
             if (uniqueMarkers.size() > 0) {
                 selectedMarkers = new ArrayList<DSGeneMarker>(uniqueMarkers.size());
                 for (Iterator<DSGeneMarker> iterator = uniqueMarkers.iterator(); iterator.hasNext();) {

@@ -14,6 +14,7 @@ import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.util.pathwaydecoder.mutualinformation.MindyData;
+import org.geworkbench.util.pathwaydecoder.mutualinformation.MindyGeneMarker;
 import org.geworkbench.events.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -25,7 +26,7 @@ import com.solarmetric.ide.ui.CheckboxCellRenderer;
  * @author mhall
  * @ch2514
  * 
- * @version $Id: MindyPlugin.java,v 1.53 2007-09-13 20:20:46 hungc Exp $
+ * @version $Id: MindyPlugin.java,v 1.54 2007-10-26 17:02:20 hungc Exp $
  */
 @SuppressWarnings("serial")
 public class MindyPlugin extends JPanel {
@@ -84,6 +85,7 @@ public class MindyPlugin extends JPanel {
 	 */
 	@SuppressWarnings("serial")
 	public MindyPlugin(MindyData data, final MindyVisualComponent visualPlugin) {
+		//system.out.println("\tMindyPlugin::constructor::start::" + System.currentTimeMillis());
 		this.mindyData = data;
 		modulators = mindyData.getModulators();
 
@@ -463,8 +465,7 @@ public class MindyPlugin extends JPanel {
 			JPanel p = new JPanel(new BorderLayout());
 			p.add(taskContainer, BorderLayout.NORTH);
 			JScrollPane sp = new JScrollPane(p);
-			sp
-					.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+			sp.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 
 			JSplitPane panel = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, sp,
 					scrollPane);
@@ -686,20 +687,15 @@ public class MindyPlugin extends JPanel {
 				}
 			});
 
-			heatMapModNameList
-					.addListSelectionListener(new ListSelectionListener() {
+			heatMapModNameList.addListSelectionListener(new ListSelectionListener() {
 						public void valueChanged(
 								ListSelectionEvent listSelectionEvent) {
 							if (heatmapAllMarkersCheckBox.isSelected()) {
 								rebuildHeatMap(null);
 								//system.out.println("\t\tMindyPlugin::constructor::heatmap tab::3::called MindyPlugin::rebuildHeatMap()");
 							} else {
-								//system.out.println("\t\tMindyPlugin::constructor::heatmap tab::4::calling MindyPlugin::rebuildHeatMap()");
-								
-								rebuildHeatMap(visualPlugin
-										.getSelectedMarkers());
+								rebuildHeatMap(visualPlugin.getSelectedMarkers());
 								//system.out.println("\t\tMindyPlugin::constructor::heatmap tab::4::called MindyPlugin::rebuildHeatMap()");
-								
 							}
 						}
 					});
@@ -795,6 +791,7 @@ public class MindyPlugin extends JPanel {
 		tabs.setEnabledAt(1, false);
 		tabs.setEnabledAt(2, false);
 		tabs.setEnabledAt(3, false);
+		//system.out.println("\tMindyPlugin::constructor::end::" + System.currentTimeMillis());
 	}
 
 	private void limitModulators(Integer modLimit, boolean selected,
@@ -823,8 +820,7 @@ public class MindyPlugin extends JPanel {
 			return;
 		}
 		if ((selectedIndex > 0) && (selectedIndex < modTargetModel.getEnabledModulators().size())){
-			modMarker = modTargetModel.getEnabledModulators()
-					.get(selectedIndex);
+			modMarker = modTargetModel.getEnabledModulators().get(selectedIndex);
 		} else {
 			modMarker = modTargetModel.getEnabledModulators().get(0);
 			heatMapModNameList.setSelectedIndex(0);
@@ -834,15 +830,13 @@ public class MindyPlugin extends JPanel {
 			if (targetLimits != null) {
 				log.debug("Rebuilding heat map with limited markers");
 				boolean b = heatmap.isShowProbeName();
-				heatmap = new ModulatorHeatMap(modMarker, mindyData
-						.getTranscriptionFactor(), mindyData, targetLimits);
+				heatmap = new ModulatorHeatMap(modMarker, mindyData.getTranscriptionFactor(), mindyData, targetLimits);
 				heatmap.setShowProbeName(b);
 				setHeatMap(heatmap);
 			} else {
 				log.debug("Rebuilding heat map.");
 				boolean b = heatmap.isShowProbeName();
-				heatmap = new ModulatorHeatMap(modMarker, mindyData
-						.getTranscriptionFactor(), mindyData, null);
+				heatmap = new ModulatorHeatMap(modMarker, mindyData.getTranscriptionFactor(), mindyData, null);
 				heatmap.setShowProbeName(b);
 				setHeatMap(heatmap);
 			}
@@ -851,8 +845,7 @@ public class MindyPlugin extends JPanel {
 	}
 
 	private void restoreBooleanRenderers(JTable table) {
-		table.setDefaultEditor(Boolean.class, new DefaultCellEditor(
-				new JCheckBox()));
+		table.setDefaultEditor(Boolean.class, new DefaultCellEditor(new JCheckBox()));
 		table.setDefaultRenderer(Boolean.class, new CheckboxCellRenderer());
 	}
 
@@ -929,7 +922,8 @@ public class MindyPlugin extends JPanel {
 	 *            list of selected markers
 	 */
 	public void limitMarkers(List<DSGeneMarker> markers) {
-		//system.out.println("MindyPlugin::limitMarkers()");
+		setCursor(hourglassCursor);
+		////system.out.println("MindyPlugin::limitMarkers()");
 		// modulator table tab
 		modulatorModel.limitMarkers(markers);
 
@@ -940,13 +934,15 @@ public class MindyPlugin extends JPanel {
 		modTargetModel.limitMarkers(markers);
 
 		// heat map
-		if ((!heatmapAllMarkersCheckBox.isSelected()) && (markers != null)
+		if ((!heatmapAllMarkersCheckBox.isSelected()) 
+				&& (markers != null)
 				&& (markers.size() > 0)) {
 			heatmap.setTargetLimits(markers);
 			rebuildHeatMap(markers);
 		} else {
 			rebuildHeatMap(null);
 		}
+		setCursor(normalCursor);
 	}
 	
 	public void rememberTableSelections(){
@@ -1133,7 +1129,7 @@ public class MindyPlugin extends JPanel {
 	 * 
 	 * @author mhall
 	 * @author ch2514
-	 * @version $Id: MindyPlugin.java,v 1.53 2007-09-13 20:20:46 hungc Exp $
+	 * @version $Id: MindyPlugin.java,v 1.54 2007-10-26 17:02:20 hungc Exp $
 	 */
 	private class ModulatorModel extends DefaultTableModel {
 
@@ -1201,9 +1197,9 @@ public class MindyPlugin extends JPanel {
 		
 		void rememberSelections() {
 			enabled = new boolean[modulators.size()];
-			for (int i = 0; i < modulators.size(); i++) {
-				if (this.selectedModulators
-						.contains(modulators.get(i)))
+			int size = modulators.size();
+			for (int i = 0; i < size; i++) {
+				if (this.selectedModulators.contains(modulators.get(i)))
 					enabled[i] = true;
 				else
 					enabled[i] = false;
@@ -1388,6 +1384,7 @@ public class MindyPlugin extends JPanel {
 		 *            otherwise
 		 */
 		public void selectAllModulators(boolean selected) {
+			//system.out.println("\t\tmod model::selectAllModulators::start::" + System.currentTimeMillis());
 			for (int i = 0; i < enabled.length; i++) {
 				enabled[i] = selected;
 			}
@@ -1410,7 +1407,6 @@ public class MindyPlugin extends JPanel {
 				tabs.setEnabledAt(1, true);
 				tabs.setEnabledAt(2, true);
 				tabs.setEnabledAt(3, true);
-				//rebuildHeatMap(heatmap.getTargetLimits());
 			} else {
 				this.selectedModulators.clear();
 
@@ -1419,9 +1415,11 @@ public class MindyPlugin extends JPanel {
 				tabs.setEnabledAt(3, false);
 			}
 			this.fireTableDataChanged();
+			//system.out.println("\t\tmod model::selectAllModulators::end::" + System.currentTimeMillis());
 		}
 
-		private void enableModulator(int rowIndex, boolean enable) {			
+		private void enableModulator(int rowIndex, boolean enable) {	
+			//system.out.println("\t\tmod model::enableModulator::start::" + System.currentTimeMillis());
 			enabled[rowIndex] = enable;
 			DSGeneMarker mod = getModulatorForIndex(rowIndex);
 			if (enabled[rowIndex]) {
@@ -1444,12 +1442,12 @@ public class MindyPlugin extends JPanel {
 				tabs.setEnabledAt(1, true);
 				tabs.setEnabledAt(2, true);
 				tabs.setEnabledAt(3, true);
-				//rebuildHeatMap(heatmap.getTargetLimits());
 			} else {
 				tabs.setEnabledAt(1, false);
 				tabs.setEnabledAt(2, false);
 				tabs.setEnabledAt(3, false);
-			}			
+			}	
+			//system.out.println("\t\tmod model::enableModulator::end::" + System.currentTimeMillis());
 		}
 
 		/**
@@ -1480,13 +1478,16 @@ public class MindyPlugin extends JPanel {
 		 *            sort in descending order.
 		 */
 		public void sort(int col, boolean ascending) {
+			System.out.println("\t\tmod model::sort::start::" + System.currentTimeMillis());
 			if (col == 0)
 				return;
 			ArrayList<DSGeneMarker> mods = this.modulators;
 			if (col == 1) {
 				setCursor(hourglassCursor);
-				Collections.sort(mods, new GeneMarkerListComparator(mindyData,
-						GeneMarkerListComparator.SHORT_NAME, ascending));	
+				ArrayList<MindyGeneMarker> mindyMods = mindyData.convertToMindyGeneMarker(mods);
+				Collections.sort(mindyMods, new MindyMarkerListComparator(
+						MindyMarkerListComparator.SHORT_NAME, ascending));	
+				mods = mindyData.convertToDSGeneMarker(mindyMods);
 				setCursor(normalCursor);
 			}
 			if (col == 2) {
@@ -1514,8 +1515,10 @@ public class MindyPlugin extends JPanel {
 			}
 			if (col == 6) {
 				setCursor(hourglassCursor);
-				Collections.sort(mods, new GeneMarkerListComparator(mindyData,
-						GeneMarkerListComparator.DESCRIPTION, ascending));
+				ArrayList<MindyGeneMarker> mindyMods = mindyData.convertToMindyGeneMarker(mods);
+				Collections.sort(mindyMods, new MindyMarkerListComparator(
+						MindyMarkerListComparator.DESCRIPTION, ascending));
+				mods = mindyData.convertToDSGeneMarker(mindyMods);
 				setCursor(normalCursor);
 			}
 
@@ -1535,6 +1538,7 @@ public class MindyPlugin extends JPanel {
 				selectAll.setSelected(false);
 
 			fireTableStructureChanged();
+			System.out.println("\t\tmod model::sort::end::" + System.currentTimeMillis());
 		}
 
 		/**
@@ -1565,7 +1569,7 @@ public class MindyPlugin extends JPanel {
 	 * For rendering modulator checkboxes on the targets table column headers.
 	 * 
 	 * @author ch2514
-	 * @version $Id: MindyPlugin.java,v 1.53 2007-09-13 20:20:46 hungc Exp $
+	 * @version $Id: MindyPlugin.java,v 1.54 2007-10-26 17:02:20 hungc Exp $
 	 */
 	private class CheckBoxRenderer extends DefaultTableCellRenderer {
 		/**
@@ -1648,7 +1652,7 @@ public class MindyPlugin extends JPanel {
 	 * 
 	 * @author mhall
 	 * @author ch2514
-	 * @version $Id: MindyPlugin.java,v 1.53 2007-09-13 20:20:46 hungc Exp $
+	 * @version $Id: MindyPlugin.java,v 1.54 2007-10-26 17:02:20 hungc Exp $
 	 */
 	private class AggregateTableModel extends DefaultTableModel {
 
@@ -1922,7 +1926,7 @@ public class MindyPlugin extends JPanel {
 		 *            list of selected markers
 		 */
 		public void limitMarkers(List<DSGeneMarker> limitList) {
-			//system.out.println("aggtabmodel::limitMarkers()");
+			////system.out.println("aggtabmodel::limitMarkers()");
 			if (limitList == null) {
 				limitedTargets = null;
 				log.debug("Cleared modulator and target limits.");
@@ -1950,7 +1954,7 @@ public class MindyPlugin extends JPanel {
 		 * Panel. Applies only to the targets table.
 		 */
 		public void showLimitedMarkers() {
-			//system.out.println("aggtabmodel::showlimitMarkers()");
+			////system.out.println("aggtabmodel::showlimitMarkers()");
 			redrawTable();
 			this.checkSelectedMarkers(false);
 		}
@@ -1960,7 +1964,7 @@ public class MindyPlugin extends JPanel {
 		 * Show all markers. Applies only to the targets table.
 		 */
 		public void showAllMarkers() {
-			//system.out.println("aggtabmodel::showAllMarkers()");
+			////system.out.println("aggtabmodel::showAllMarkers()");
 			redrawTable();
 			this.checkSelectedMarkers(true);
 		}
@@ -2224,11 +2228,14 @@ public class MindyPlugin extends JPanel {
 		 *            sort in descending order.
 		 */
 		public void sort(int col, boolean ascending) {
+			System.out.println("\t\table model::sort::start::" + System.currentTimeMillis());
 			if (col == 0)
 				return;
 			if (col == 1) {
 				setCursor(hourglassCursor);
-				Collections.sort(this.activeTargets, new GeneMarkerListComparator(mindyData, GeneMarkerListComparator.SHORT_NAME,ascending));
+				ArrayList<MindyGeneMarker> mindyTargets = mindyData.convertToMindyGeneMarker(this.activeTargets);
+				Collections.sort(mindyTargets, new MindyMarkerListComparator(MindyMarkerListComparator.SHORT_NAME,ascending));
+				this.activeTargets = mindyData.convertToDSGeneMarker(mindyTargets);
 				setCursor(normalCursor);
 			} else {
 				setCursor(hourglassCursor);
@@ -2247,6 +2254,7 @@ public class MindyPlugin extends JPanel {
 					+ " [" + aggregateModel.getNumberOfMarkersSelected() + "]");
 			selectAllTargetsCheckBoxTarget.setSelected(false);
 			MindyPlugin.this.setTargetCheckboxesVisibility(selectionEnabledCheckBoxTarget.isSelected());
+			System.out.println("\t\table model::sort::end::" + System.currentTimeMillis());
 		}
 
 		/**
@@ -2456,7 +2464,7 @@ public class MindyPlugin extends JPanel {
 	 * Compare M#, M+, or M- of two gene markers (for sorting).
 	 * 
 	 * @author mhall
-	 * @version $Id: MindyPlugin.java,v 1.53 2007-09-13 20:20:46 hungc Exp $
+	 * @version $Id: MindyPlugin.java,v 1.54 2007-10-26 17:02:20 hungc Exp $
 	 */
 	private class ModulatorStatComparator implements Comparator<DSGeneMarker> {
 
@@ -2508,7 +2516,7 @@ public class MindyPlugin extends JPanel {
 	 * 
 	 * @author mhall
 	 * @author ch2514
-	 * @version $Id: MindyPlugin.java,v 1.53 2007-09-13 20:20:46 hungc Exp $
+	 * @version $Id: MindyPlugin.java,v 1.54 2007-10-26 17:02:20 hungc Exp $
 	 */
 	private class ModulatorTargetModel extends DefaultTableModel {
 
@@ -3150,7 +3158,8 @@ public class MindyPlugin extends JPanel {
 		 *            if true, sort the column in ascending order. Otherwise,
 		 *            sort in descending order.
 		 */
-		public void sort(int col, boolean ascending) {			
+		public void sort(int col, boolean ascending) {		
+			System.out.println("\t\tlist model::sort::start::" + System.currentTimeMillis());
 			if ((col == 0) || (col == 2))
 				return;
 			if (col == 1) {
@@ -3172,6 +3181,7 @@ public class MindyPlugin extends JPanel {
 				setCursor(normalCursor);
 			}
 			fireTableStructureChanged();
+			System.out.println("\t\tlist model::sort::end::" + System.currentTimeMillis());
 		}
 
 		/**
@@ -3202,7 +3212,7 @@ public class MindyPlugin extends JPanel {
 	 * Heat map data model.
 	 * 
 	 * @author mhall
-	 * @version $Id: MindyPlugin.java,v 1.53 2007-09-13 20:20:46 hungc Exp $
+	 * @version $Id: MindyPlugin.java,v 1.54 2007-10-26 17:02:20 hungc Exp $
 	 */
 	private class ModulatorListModel extends AbstractListModel {
 		/**
@@ -3257,7 +3267,7 @@ public class MindyPlugin extends JPanel {
 	 * for the targets table.
 	 * 
 	 * @author ch2514
-	 * @version $Id: MindyPlugin.java,v 1.53 2007-09-13 20:20:46 hungc Exp $
+	 * @version $Id: MindyPlugin.java,v 1.54 2007-10-26 17:02:20 hungc Exp $
 	 */
 	private class ColumnHeaderListener extends MouseAdapter {
 		/**

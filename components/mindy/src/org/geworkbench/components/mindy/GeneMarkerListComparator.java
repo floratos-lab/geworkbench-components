@@ -7,37 +7,29 @@ import org.geworkbench.util.pathwaydecoder.mutualinformation.MindyData;
 /**
  * Compare two gene markers (for sorting).
  * @author ch2514
- * @version $Id: GeneMarkerListComparator.java,v 1.2 2007-07-10 17:54:02 hungc Exp $
+ * @version $Id: GeneMarkerListComparator.java,v 1.3 2007-10-26 17:02:20 hungc Exp $
  */
 public class GeneMarkerListComparator implements Comparator<DSGeneMarker> {
 	/**
-	 * Sorting mode - compare two gene markers based on their short names.
-	 */
-    public static final int SHORT_NAME = 1;
-    /**
      * Sorting mode - compare two gene markers based on their M# stat.
      */
-    public static final int M_POUND = 2;
+    public static final int M_POUND = 1;
     /**
      * Sorting mode - compare two gene markers based on their M+ stat.
      */
-    public static final int M_PLUS = 3;
+    public static final int M_PLUS = 2;
     /**
      * Sorting mode - compare two gene markers based on their M- stat.
      */
-    public static final int M_MINUS = 4;
-    /**
-     * Sorting mode - compare two gene markers based on their descriptions.
-     */
-    public static final int DESCRIPTION = 5;
+    public static final int M_MINUS = 3;
     /**
      * Sorting mode - compare two gene markers based on their scores.
      */
-    public static final int SCORE = 6;
+    public static final int SCORE = 4;
     /**
      * Sorting mode - compare two gene markers based on their modes.
      */
-    public static final int MODE = 7;
+    public static final int MODE = 5;
     
     // variables
     private MindyData md;
@@ -81,11 +73,6 @@ public class GeneMarkerListComparator implements Comparator<DSGeneMarker> {
 	 */
 	public int compare(DSGeneMarker x, DSGeneMarker y) {
         switch(mode){
-        case SHORT_NAME:
-        	if(ascending)
-        		return x.getShortName().compareTo(y.getShortName());
-        	else
-        		return y.getShortName().compareTo(x.getShortName());
         case M_POUND:
         	if(ascending)
         		return new Integer(md.getStatistics(x).getCount()).compareTo(new Integer(md.getStatistics(y).getCount()));
@@ -101,11 +88,6 @@ public class GeneMarkerListComparator implements Comparator<DSGeneMarker> {
         		return new Integer(md.getStatistics(x).getMunder()).compareTo(new Integer(md.getStatistics(y).getMunder()));
         	else
         		return new Integer(md.getStatistics(y).getMunder()).compareTo(new Integer(md.getStatistics(x).getMunder()));
-        case DESCRIPTION:
-        	if(ascending)
-        		return x.getDescription().compareTo(y.getDescription());
-        	else
-        		return y.getDescription().compareTo(x.getDescription());
         case SCORE:
         	if(modulator != null){
         		if(ascending)
