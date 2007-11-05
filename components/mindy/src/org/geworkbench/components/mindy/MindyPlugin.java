@@ -26,7 +26,7 @@ import com.solarmetric.ide.ui.CheckboxCellRenderer;
  * @author mhall
  * @ch2514
  * 
- * @version $Id: MindyPlugin.java,v 1.56 2007-10-26 21:27:49 hungc Exp $
+ * @version $Id: MindyPlugin.java,v 1.57 2007-11-05 22:39:00 hungc Exp $
  */
 @SuppressWarnings("serial")
 public class MindyPlugin extends JPanel {
@@ -685,13 +685,22 @@ public class MindyPlugin extends JPanel {
 				}
 			});
 
+			
 			heatMapModNameList.addListSelectionListener(new ListSelectionListener() {
+						// this is to compensate for a bug? in JList
+						// valueChanged() get called 2x with 1 mouse click....
+						int clickCount = 0;
 						public void valueChanged(
 								ListSelectionEvent listSelectionEvent) {
-							if (heatmapAllMarkersCheckBox.isSelected()) {
-								rebuildHeatMap(null);
+							clickCount++;
+							if(clickCount < 2){
+								if (heatmapAllMarkersCheckBox.isSelected()) {
+									rebuildHeatMap(null);
+								} else {
+									rebuildHeatMap(visualPlugin.getSelectedMarkers());
+								}
 							} else {
-								rebuildHeatMap(visualPlugin.getSelectedMarkers());
+								clickCount = 0;
 							}
 						}
 					});
@@ -1118,7 +1127,7 @@ public class MindyPlugin extends JPanel {
 	 * 
 	 * @author mhall
 	 * @author ch2514
-	 * @version $Id: MindyPlugin.java,v 1.56 2007-10-26 21:27:49 hungc Exp $
+	 * @version $Id: MindyPlugin.java,v 1.57 2007-11-05 22:39:00 hungc Exp $
 	 */
 	private class ModulatorModel extends DefaultTableModel {
 
@@ -1561,7 +1570,7 @@ public class MindyPlugin extends JPanel {
 	 * For rendering modulator checkboxes on the targets table column headers.
 	 * 
 	 * @author ch2514
-	 * @version $Id: MindyPlugin.java,v 1.56 2007-10-26 21:27:49 hungc Exp $
+	 * @version $Id: MindyPlugin.java,v 1.57 2007-11-05 22:39:00 hungc Exp $
 	 */
 	private class CheckBoxRenderer extends DefaultTableCellRenderer {
 		/**
@@ -1644,7 +1653,7 @@ public class MindyPlugin extends JPanel {
 	 * 
 	 * @author mhall
 	 * @author ch2514
-	 * @version $Id: MindyPlugin.java,v 1.56 2007-10-26 21:27:49 hungc Exp $
+	 * @version $Id: MindyPlugin.java,v 1.57 2007-11-05 22:39:00 hungc Exp $
 	 */
 	private class AggregateTableModel extends DefaultTableModel {
 
@@ -1922,11 +1931,6 @@ public class MindyPlugin extends JPanel {
 				limitedTargets = null;
 				log.debug("Cleared modulator and target limits.");
 			} else {
-				/*
-				limitedTargets = new ArrayList<DSGeneMarker>();
-				for (DSGeneMarker marker : limitList) {
-					limitedTargets.add(marker);
-				}*/
 				limitedTargets = limitList;
 				log.debug("Limited list table to " + limitedTargets.size()
 						+ " targets.");
@@ -2455,7 +2459,7 @@ public class MindyPlugin extends JPanel {
 	 * Compare M#, M+, or M- of two gene markers (for sorting).
 	 * 
 	 * @author mhall
-	 * @version $Id: MindyPlugin.java,v 1.56 2007-10-26 21:27:49 hungc Exp $
+	 * @version $Id: MindyPlugin.java,v 1.57 2007-11-05 22:39:00 hungc Exp $
 	 */
 	private class ModulatorStatComparator implements Comparator<DSGeneMarker> {
 
@@ -2507,7 +2511,7 @@ public class MindyPlugin extends JPanel {
 	 * 
 	 * @author mhall
 	 * @author ch2514
-	 * @version $Id: MindyPlugin.java,v 1.56 2007-10-26 21:27:49 hungc Exp $
+	 * @version $Id: MindyPlugin.java,v 1.57 2007-11-05 22:39:00 hungc Exp $
 	 */
 	private class ModulatorTargetModel extends DefaultTableModel {
 
@@ -3206,7 +3210,7 @@ public class MindyPlugin extends JPanel {
 	 * Heat map data model.
 	 * 
 	 * @author mhall
-	 * @version $Id: MindyPlugin.java,v 1.56 2007-10-26 21:27:49 hungc Exp $
+	 * @version $Id: MindyPlugin.java,v 1.57 2007-11-05 22:39:00 hungc Exp $
 	 */
 	private class ModulatorListModel extends AbstractListModel {
 		/**
@@ -3261,7 +3265,7 @@ public class MindyPlugin extends JPanel {
 	 * for the targets table.
 	 * 
 	 * @author ch2514
-	 * @version $Id: MindyPlugin.java,v 1.56 2007-10-26 21:27:49 hungc Exp $
+	 * @version $Id: MindyPlugin.java,v 1.57 2007-11-05 22:39:00 hungc Exp $
 	 */
 	private class ColumnHeaderListener extends MouseAdapter {
 		/**
