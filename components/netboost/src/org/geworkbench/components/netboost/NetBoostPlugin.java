@@ -7,7 +7,9 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.*;
+import javax.swing.filechooser.FileFilter;
 import javax.swing.table.*;
+import java.io.*;
 
 import org.jfree.chart.*;
 import org.jfree.chart.plot.*;
@@ -15,12 +17,14 @@ import org.jfree.data.xy.*;
 import org.jfree.chart.axis.*;
 
 //import org.geworkbench.engine.config.VisualPlugin;
+import org.geworkbench.builtin.projects.ProjectPanel.ImageFileFilter;
+import org.geworkbench.builtin.projects.ProjectPanel.TIFFFileFilter;
 import org.geworkbench.util.pathwaydecoder.mutualinformation.*;
 
 /**
  * NetBoost Plugin
  * @author ch2514
- * @version $Id: NetBoostPlugin.java,v 1.3 2007-10-19 00:28:45 hungc Exp $
+ * @version $Id: NetBoostPlugin.java,v 1.4 2007-11-05 20:22:34 hungc Exp $
  */
 
 public class NetBoostPlugin extends JPanel {
@@ -39,7 +43,7 @@ public class NetBoostPlugin extends JPanel {
 	
 	JFreeChart iterChart;
 	ChartPanel iterChartPanel;
-	JButton imageSnapshotButton;
+	JButton imageSnapshotButton, csvExportButton;
 	JTable scoresTable, confusionMatrix;
 	
 	NetBoostData nbdata;
@@ -84,8 +88,15 @@ public class NetBoostPlugin extends JPanel {
 				vp.createImageSnapshot(iterChartPanel);
 			}
 		});
+		csvExportButton = new JButton("  Export to CSV  ");
+		csvExportButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent actionEvent) {
+				exportToCSV();
+			}
+		});
 
 		leftBottomPanel.add(imageSnapshotButton);
+		leftBottomPanel.add(csvExportButton);
 		leftPanel.add(iterChartPanel, BorderLayout.CENTER);
 		leftPanel.add(leftBottomPanel, BorderLayout.SOUTH);
 		
@@ -124,6 +135,89 @@ public class NetBoostPlugin extends JPanel {
 				, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED).getViewport().add(leftPanel));
 		this.add(rightPanel);
 	}
+	
+	private String convertToCSV(){
+		StringBuilder scores = new StringBuilder("Scores\nModel,Score +/- Variance\n");
+		StringBuilder confused = new StringBuilder();
+		
+		// scores
+		for(int i = 0; i < scoresModel.models.length; i++){
+			scores.append(scoresModel.models[i]);
+			scores.append(",");
+			scores.append(scoresModel.scores[i]);
+			scores.append(" +/- ");
+			scores.append(scoresModel.variances[i]);
+			scores.append("\n");
+		}
+		
+		// confusion matrix
+		StringBuilder headings = new StringBuilder();
+		for(int i = 0; i < confusedModel.rowNames.length; i++){
+			headings.append(",");
+			headings.append(confusedModel.rowNames[i]);
+			confused.append(confusedModel.rowNames[i]);
+			for(int j = 0; j < confusedModel.data[i].length; j++){
+				confused.append(",");
+				confused.append(confusedModel.data[i][j]);
+				confused.append("%");
+			}
+			confused.append("\n");
+		}
+		headings.append("\n");
+		confused.insert(0, headings.toString());
+		confused.insert(0, "Confusion Matrix\n");
+		
+		return scores.toString() + "\n\n" + confused.toString();
+	}
+	
+	private void exportToCSV(){
+		File currentDir = new File(".");
+		JFileChooser fc = new JFileChooser(currentDir);
+		NetBoostFileFilter nbFilter = new NetBoostFileFilter();
+        fc.setFileFilter(nbFilter);
+        int choice = fc.showOpenDialog(this);
+        String nbFilename = null;
+        if (choice == JFileChooser.APPROVE_OPTION) {
+            nbFilename = fc.getSelectedFile().getAbsolutePath();
+            if(!nbFilename.endsWith("." + nbFilter.getExtension())){
+            	nbFilename += "." + nbFilter.getExtension();
+            }  
+            PrintWriter pw = null;
+            String s = convertToCSV();
+            log.debug("Writing to file [" + nbFilename + "]\n" + s);
+            try{
+            	pw = new PrintWriter(new FileOutputStream(nbFilename, true));
+            	pw.println(s);
+            	log.info("Wrote NetBoost results to file: " + nbFilename);
+            } catch (Exception e){
+            	log.error("Cannot export NetBoost charts to csv: " + e.getMessage());
+            } finally {
+            	if(pw != null)
+            		pw.close();
+            }
+        }
+	}
+
+    private class NetBoostFileFilter extends FileFilter {
+        public String getDescription() {
+            return "NetBoost Files";
+        }
+
+        public boolean accept(File f) {
+            String name = f.getName();
+            boolean nbFile = name.endsWith("csv") || name.endsWith("CSV");
+            if (f.isDirectory() || nbFile) {
+                return true;
+            }
+
+            return false;
+        }
+
+        public String getExtension() {
+            return "csv";
+        }
+
+    }
 	
 	private class IterDataSet {
 		private static final String TEST_LOSS = "Test Loss";
@@ -199,6 +293,12 @@ public class NetBoostPlugin extends JPanel {
 	    
 	    public void setValueAt(Object value, int row, int col) {
 	        // do nothing for now       
+	    }
+	    
+	    public String toString(){
+	    	String result = "";
+	    	
+	    	return result;
 	    }
 	    
 	}
