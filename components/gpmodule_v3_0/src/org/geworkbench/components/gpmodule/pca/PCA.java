@@ -454,6 +454,7 @@ public class PCA extends MicroarrayViewEventBase
         tableModel.setColumnIdentifiers(columnNames);
         eigenVectorsTable.setModel(tableModel);
         eigenVectorsTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+        eigenVectorsTable.getColumnModel().getColumn(0).setPreferredWidth(100);
 
         JScrollPane scrollPane = new JScrollPane();
         compGraphPanel.setBottomComponent(scrollPane);
@@ -475,7 +476,9 @@ public class PCA extends MicroarrayViewEventBase
             XYSeries xySeries = new XYSeries("Prin. Comp. " + pc);
             for(int n = 0; n < eigenVector.size(); n++)
             {
-                xySeries.add(n+1, Double.parseDouble((String)eigenVector.get(n)));
+                String ev = (String)eigenVector.get(n);
+                ev = ev.replaceAll(",", "");
+                xySeries.add(n+1, Double.parseDouble(ev));
             }
 
             xySeriesCollection.addSeries(xySeries);
