@@ -501,7 +501,7 @@ public class PCA extends MicroarrayViewEventBase
         FloatMatrix u_Matrix = null;
         dataLabelGroups = new HashMap();
 
-        if(pcaData.getVariables().equals("genes"))
+        if(pcaData.getVariables().equals("experiments"))
         {
             for(int i = 0; i < maSet.size(); i++)
             {
@@ -664,15 +664,7 @@ public class PCA extends MicroarrayViewEventBase
             graph.getXYPlot().getRangeAxis().setTickMarksVisible(true);
             graph.getXYPlot().getRangeAxis().setTickMarkPaint(Color.BLACK);          
 
-            Range domainRange = graph.getXYPlot().getDomainAxis().getRange();
-            double maxDomainRange = Math.max(Math.abs(domainRange.getLowerBound()), domainRange.getUpperBound());
-            graph.getXYPlot().getDomainAxis().setLowerBound(-maxDomainRange);
-            graph.getXYPlot().getDomainAxis().setUpperBound(maxDomainRange);
-
-            Range range = graph.getXYPlot().getRangeAxis().getRange();
-            double maxRange = Math.max(Math.abs(range.getLowerBound()), range.getUpperBound());
-            graph.getXYPlot().getRangeAxis().setLowerBound(-maxRange);
-            graph.getXYPlot().getRangeAxis().setUpperBound(maxRange);
+           set2DPlotBounds(graph, true, true);
 
             graph.getXYPlot().addRangeMarker(new ValueMarker(0.0, Color.BLACK, new BasicStroke((float)1.4)));
             graph.getXYPlot().addDomainMarker(new ValueMarker(0.0, Color.BLACK, new BasicStroke((float)1.4)));
@@ -709,7 +701,27 @@ public class PCA extends MicroarrayViewEventBase
                 }
             });
 
-            ChartPanel panel = new ChartPanel(graph);
+            ChartPanel panel = new ChartPanel(graph)
+            {
+                public void restoreAutoBounds()
+                {
+                    super.restoreAutoBounds();
+                    set2DPlotBounds(getChart(), true, true);
+                }
+
+                public void restoreAutoDomainBounds()
+                {
+                    super.restoreAutoDomainBounds();
+                    set2DPlotBounds(getChart(), true, false);
+                }
+
+                public void restoreAutoRangeBounds()
+                {
+                    super.restoreAutoRangeBounds();
+                    set2DPlotBounds(getChart(), false, true);
+                }
+            };
+
             panel.addChartMouseListener(new PCAChartMouseListener());
 
             projGraphPanel = new JScrollPane();
@@ -718,6 +730,25 @@ public class PCA extends MicroarrayViewEventBase
         }
 
         projPanel.setDividerLocation(0.25);
+    }
+
+    private void set2DPlotBounds(JFreeChart chart, boolean setDomain, boolean setRange)
+    {
+         if(setDomain)
+         {
+             Range domainRange = chart.getXYPlot().getDomainAxis().getRange();
+            double maxDomainRange = Math.max(Math.abs(domainRange.getLowerBound()), domainRange.getUpperBound());
+            chart.getXYPlot().getDomainAxis().setLowerBound(-maxDomainRange);
+            chart.getXYPlot().getDomainAxis().setUpperBound(maxDomainRange);
+         }
+
+        if(setRange)
+        {
+            Range range =  chart.getXYPlot().getRangeAxis().getRange();
+            double maxRange = Math.max(Math.abs(range.getLowerBound()), range.getUpperBound());
+            chart.getXYPlot().getRangeAxis().setLowerBound(-maxRange);
+            chart.getXYPlot().getRangeAxis().setUpperBound(maxRange);
+        }
     }
 
     private void buildComponentsPanel(int[] pComp)
