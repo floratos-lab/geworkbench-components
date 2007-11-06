@@ -155,6 +155,8 @@ public class PCAAnalysis extends GPAnalysis
             String gctFileName = createGCTFile("pcaDataset", view.markers(), view.items()).getAbsolutePath();
             progress.setProgress(20);
 
+            String clusterBy = "columns";
+
             if(((PCAAnalysisPanel)panel).getVariables().equals("genes"))
             {
                 List parameters = new ArrayList();
@@ -181,7 +183,7 @@ public class PCAAnalysis extends GPAnalysis
 
             parameters.add(new Parameter("input.filename", gctFileName));
 
-            parameters.add(new Parameter("cluster.by", "rows"));
+            parameters.add(new Parameter("cluster.by", clusterBy));
 
             progress.setProgress(50);
 
