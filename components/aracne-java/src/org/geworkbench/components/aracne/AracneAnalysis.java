@@ -326,4 +326,10 @@ public class AracneAnalysis extends AbstractGridAnalysis implements ClusteringAn
 	public String getAnalysisName() {
 		return analysisName;
 	}
+
+	@Override
+	public Class getBisonReturnType() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }
