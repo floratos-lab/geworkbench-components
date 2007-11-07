@@ -212,4 +212,10 @@ public class EvidenceIntegrationAnalysis extends AbstractGridAnalysis implements
 
     }
 
+	@Override
+	public Class getBisonReturnType() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

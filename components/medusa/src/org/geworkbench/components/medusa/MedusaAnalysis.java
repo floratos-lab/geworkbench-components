@@ -27,7 +27,7 @@ import edu.columbia.ccls.medusa.MedusaLoader;
 /**
  * 
  * @author keshav
- * @version $Id: MedusaAnalysis.java,v 1.35 2007-06-26 15:50:06 keshav Exp $
+ * @version $Id: MedusaAnalysis.java,v 1.36 2007-11-07 15:57:17 bjagla Exp $
  */
 public class MedusaAnalysis extends AbstractGridAnalysis implements
 		ClusteringAnalysis {
@@ -369,6 +369,12 @@ public class MedusaAnalysis extends AbstractGridAnalysis implements
 	 */
 	public void printhelp() {
 		log.info(MedusaLoader.getHelpMessage());
+	}
+
+	@Override
+	public Class getBisonReturnType() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }
