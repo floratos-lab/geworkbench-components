@@ -15,7 +15,7 @@ import org.geworkbench.events.ProjectEvent;
 /**
  * NetBoost Analysis
  * @author ch2514
- * @version $Id: NetBoostAnalysis.java,v 1.3 2007-10-19 00:28:45 hungc Exp $
+ * @version $Id: NetBoostAnalysis.java,v 1.4 2007-11-07 15:57:17 bjagla Exp $
  */
 
 public class NetBoostAnalysis extends AbstractGridAnalysis implements ClusteringAnalysis {
@@ -96,5 +96,11 @@ public class NetBoostAnalysis extends AbstractGridAnalysis implements Clustering
     @Subscribe 
     public void receive(ProjectEvent projectEvent, Object source) {
     	log.debug("NetBoost Analysis received project event.");
-    }	
+    }
+
+	@Override
+	public Class getBisonReturnType() {
+		// TODO Auto-generated method stub
+		return null;
+	}	
 }
