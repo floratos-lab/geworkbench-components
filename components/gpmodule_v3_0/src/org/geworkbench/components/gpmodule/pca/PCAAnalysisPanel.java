@@ -46,17 +46,23 @@ public class PCAAnalysisPanel extends GPAnalysisPanel
         variables.addItem("genes");
         variables.addItem("experiments");
 
-        FormLayout formLayout = new FormLayout("right:max(80dlu;pref), 7dlu,  max(70dlu;pref), 7dlu, max(70dlu;pref)");
-
-        DefaultFormBuilder builder = new DefaultFormBuilder(formLayout);
+         FormLayout layout = new FormLayout(
+                    "right:max(80dlu;pref), 7dlu,  max(70dlu;pref), 7dlu, max(95dlu;pref),7dlu, max(70dlu;pref)",
+                    "");
+        DefaultFormBuilder builder = new DefaultFormBuilder(layout);
         builder.setDefaultDialogBorder();
 
-        builder.appendSeparator("Principal Components Analysis parameters");
+        builder.appendSeparator("Principal Components Analysis Parameters");
         builder.nextLine();
 
         builder.append("variables", variables);
 
-        parameterPanel.add(builder.getPanel(), BorderLayout.LINE_START);
+        // add the GenePattern logo
+        builder.setColumn(7);
+        builder.add(getGPLogo());
+        builder.nextRow();
+
+        parameterPanel.add(builder.getPanel(), BorderLayout.WEST);
     }
 
     public String getVariables()
