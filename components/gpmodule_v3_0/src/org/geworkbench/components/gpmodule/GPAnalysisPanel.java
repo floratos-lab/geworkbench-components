@@ -28,10 +28,11 @@ public abstract class GPAnalysisPanel extends AbstractSaveableParameterPanel {
 
     public GPAnalysisPanel(ParameterPanel panel, String label)
     {
-       gpTabbedPane = new JTabbedPane();
-       gpConfigPanel = new GPConfigPanel();
-       gpHelpPanel = new GPHelpPanel(label, getParamDescriptionFile(), getDescriptionFile()); 
-       parameterPanel = panel;
+        gpTabbedPane = new JTabbedPane();
+        gpConfigPanel = new GPConfigPanel();
+        gpHelpPanel = new GPHelpPanel(label, getParamDescriptionFile(), getDescriptionFile());
+        parameterPanel = panel;
+        parameterPanel.setLayout(new BorderLayout());
     }
 
     protected abstract void initParameterPanel();
