@@ -31,7 +31,7 @@ import org.geworkbench.engine.management.Subscribe;
 /**
  * 
  * @author keshav
- * @version $Id: GenspaceLogger.java,v 1.1 2007-11-16 21:17:26 keshav Exp $
+ * @version $Id: GenspaceLogger.java,v 1.2 2007-11-26 18:40:13 keshav Exp $
  */
 public class GenspaceLogger {
 
@@ -115,7 +115,7 @@ public class GenspaceLogger {
 		for (Class clazz : hier) {
 			StringBuffer buf = new StringBuffer();
 			buf.append(clazz.getName());
-			buf.append("Logger");
+			buf.append("Handler");
 
 			Class clazzToInstantiate = null;
 			try {
