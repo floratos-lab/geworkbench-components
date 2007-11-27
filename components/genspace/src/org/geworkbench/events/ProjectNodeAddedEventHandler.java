@@ -23,6 +23,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 /**
+ * A handler to handle the {@link ProjectNodeAddedEvent}.
  * 
  * @author keshav
  * @version $Id: ProjectNodeAddedEventHandler.java,v 1.1 2007/11/26 18:40:13
