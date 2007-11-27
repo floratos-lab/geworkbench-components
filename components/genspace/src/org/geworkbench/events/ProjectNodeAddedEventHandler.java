@@ -28,13 +28,34 @@ import org.apache.commons.logging.LogFactory;
  * @version $Id: ProjectNodeAddedEventHandler.java,v 1.1 2007/11/26 18:40:13
  *          keshav Exp $
  */
-public class ProjectNodeAddedEventHandler {
+public class ProjectNodeAddedEventHandler implements EventHandler {
 
 	private Log log = LogFactory.getLog(this.getClass());
 
+	private Object event = null;
+
+	private Object source = null;
+
+	/**
+	 * 
+	 * @param event
+	 * @param source
+	 */
 	public ProjectNodeAddedEventHandler(Object event, Object source) {
 
-		// do something
+		this.event = event;
+
+		this.source = source;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.geworkbench.events.EventHandler#log()
+	 */
+	public void log() {
+		log.info("Logging information for " + this.getClass().getName());
+
 	}
 
 }
