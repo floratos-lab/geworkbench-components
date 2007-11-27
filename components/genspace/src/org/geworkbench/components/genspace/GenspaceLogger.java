@@ -27,11 +27,12 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.engine.management.Subscribe;
+import org.geworkbench.events.EventHandler;
 
 /**
  * 
  * @author keshav
- * @version $Id: GenspaceLogger.java,v 1.3 2007-11-27 17:03:36 keshav Exp $
+ * @version $Id: GenspaceLogger.java,v 1.4 2007-11-27 17:24:07 keshav Exp $
  */
 public class GenspaceLogger {
 
@@ -62,10 +63,11 @@ public class GenspaceLogger {
 
 			traverseEventHierarchy(clazz);
 
-			Object logger = createLoggerForEvent(event, source);
+			EventHandler logger = createLoggerForEvent(event, source);
 
 			if (logger != null) {
-				// logger.log(event, source);
+				logger.log();
+				// TODO add other EventHandler method calls here
 			}
 
 		} else {
@@ -108,9 +110,9 @@ public class GenspaceLogger {
 	 * @param source
 	 * @throws Exception
 	 */
-	private Object createLoggerForEvent(Object event, Object source) {
-		// FIXME create a Logger interface and return this.
-		Object logger = null;
+	private EventHandler createLoggerForEvent(Object event, Object source) {
+
+		EventHandler logger = null;
 
 		for (Class clazz : hier) {
 			StringBuffer buf = new StringBuffer();
@@ -129,7 +131,7 @@ public class GenspaceLogger {
 
 				Object[] parameters = { event, source };
 
-				logger = constructor.newInstance(parameters);
+				logger = (EventHandler) constructor.newInstance(parameters);
 
 				/* if you reach here, instantiation was successful */
 				log.info("Successfully instantiated event handler: "
