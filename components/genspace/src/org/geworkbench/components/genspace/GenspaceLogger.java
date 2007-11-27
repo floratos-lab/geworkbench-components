@@ -31,7 +31,7 @@ import org.geworkbench.engine.management.Subscribe;
 /**
  * 
  * @author keshav
- * @version $Id: GenspaceLogger.java,v 1.2 2007-11-26 18:40:13 keshav Exp $
+ * @version $Id: GenspaceLogger.java,v 1.3 2007-11-27 17:03:36 keshav Exp $
  */
 public class GenspaceLogger {
 
@@ -131,11 +131,20 @@ public class GenspaceLogger {
 
 				logger = constructor.newInstance(parameters);
 
+				/* if you reach here, instantiation was successful */
+				log.info("Successfully instantiated event handler: "
+						+ buf.toString());
+
+				log.info("Type of event: " + event.getClass().getName());
+
+				log.info("Source of event: " + source.getClass().getName());
+
 				break;
 
 			} catch (Exception e) {
 				// e.printStackTrace();
-				log.warn("Cannot instantiate logger of type: " + buf.toString()
+				log.debug("Cannot instantiate event handler of type: "
+						+ buf.toString()
 						+ ".  Will attempt to instantiate super class.");
 				continue;
 			}

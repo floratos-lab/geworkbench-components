@@ -17,7 +17,7 @@
  *
  */
 
-package org.geworkbench.components.genspace.handler;
+package org.geworkbench.events;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -25,7 +25,8 @@ import org.apache.commons.logging.LogFactory;
 /**
  * 
  * @author keshav
- * @version $Id: ProjectNodeAddedEventHandler.java,v 1.1 2007-11-26 18:40:13 keshav Exp $
+ * @version $Id: ProjectNodeAddedEventHandler.java,v 1.1 2007/11/26 18:40:13
+ *          keshav Exp $
  */
 public class ProjectNodeAddedEventHandler {
 
@@ -33,10 +34,7 @@ public class ProjectNodeAddedEventHandler {
 
 	public ProjectNodeAddedEventHandler(Object event, Object source) {
 
-		log.info("event: " + event);
-
-		log.info("source: " + source);
-
+		// do something
 	}
 
 }
