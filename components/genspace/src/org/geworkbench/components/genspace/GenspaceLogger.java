@@ -30,9 +30,10 @@ import org.geworkbench.engine.management.Subscribe;
 import org.geworkbench.events.EventHandler;
 
 /**
+ * Captures all events with an associated {@link EventHandler} defined.
  * 
  * @author keshav
- * @version $Id: GenspaceLogger.java,v 1.4 2007-11-27 17:24:07 keshav Exp $
+ * @version $Id: GenspaceLogger.java,v 1.5 2007-11-27 17:26:28 keshav Exp $
  */
 public class GenspaceLogger {
 

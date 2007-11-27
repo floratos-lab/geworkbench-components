@@ -20,9 +20,11 @@
 package org.geworkbench.events;
 
 /**
+ * Event handlers, such as {@link ProjectNodeAddedEventHandler} should implement
+ * this class.
  * 
  * @author keshav
- * @version $Id: EventHandler.java,v 1.1 2007-11-27 17:24:07 keshav Exp $
+ * @version $Id: EventHandler.java,v 1.2 2007-11-27 17:26:28 keshav Exp $
  */
 public interface EventHandler {
 
