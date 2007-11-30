@@ -604,7 +604,7 @@ public class SequenceRetriever implements VisualPlugin {
         } else {
             jComboCategory.setSelectedItem(PROTEINVIEW);
         }
-       System.out.println("SCRIPT in SR" + markers.size());
+
         if (markers != null && markers.size() > 0) {
 
             Vector selectedList = new Vector();
@@ -614,10 +614,16 @@ public class SequenceRetriever implements VisualPlugin {
             getSequences(selectedList);
         }
         if (type.equalsIgnoreCase(DNAVIEW)) {
-            return dnaSequenceDB;
+            sequenceSet = dnaSequenceDB;
         } else {
-            return proteinSequenceDB;
+            sequenceSet = proteinSequenceDB;
         }
+        if (sequenceSet != null) {
+            if (sequenceSet.getLabel() == null) {
+                sequenceSet.setLabel("retrievedFrom" + serverName);
+            }
+        }
+        return sequenceSet;
     }
 
     @Script
