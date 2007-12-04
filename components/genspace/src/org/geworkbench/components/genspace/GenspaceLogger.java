@@ -33,7 +33,7 @@ import org.geworkbench.events.EventHandler;
  * Captures all events with an associated {@link EventHandler} defined.
  * 
  * @author keshav
- * @version $Id: GenspaceLogger.java,v 1.5 2007-11-27 17:26:28 keshav Exp $
+ * @version $Id: GenspaceLogger.java,v 1.6 2007-12-04 19:08:52 sheths Exp $
  */
 public class GenspaceLogger {
 
@@ -115,9 +115,10 @@ public class GenspaceLogger {
 
 		EventHandler logger = null;
 
-		for (Class clazz : hier) {
+		//for (Class clazz : hier) {
 			StringBuffer buf = new StringBuffer();
-			buf.append(clazz.getName());
+			//buf.append(clazz.getName());
+			buf.append("org.geworkbench.components.genspace.Object");
 			buf.append("Handler");
 
 			Class clazzToInstantiate = null;
@@ -142,16 +143,14 @@ public class GenspaceLogger {
 
 				log.info("Source of event: " + source.getClass().getName());
 
-				break;
+				//break;
 
 			} catch (Exception e) {
 				// e.printStackTrace();
-				log.debug("Cannot instantiate event handler of type: "
-						+ buf.toString()
-						+ ".  Will attempt to instantiate super class.");
-				continue;
+				log.debug("Cannot instantiate event handler of type: " + buf.toString()	+ ".  Will attempt to instantiate super class.");
+				//continue;
 			}
-		}
+		//}
 		return logger;
 	}
 }
