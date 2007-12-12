@@ -42,6 +42,7 @@ import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.engine.management.AcceptTypes;
 import org.geworkbench.engine.management.ComponentRegistry;
 import org.geworkbench.engine.management.Publish;
+import org.geworkbench.events.AnalysisInvokedEvent;
 import org.geworkbench.events.ProjectNodeAddedEvent;
 import org.geworkbench.events.SubpanelChangedEvent;
 import org.geworkbench.util.microarrayutils.MicroarrayViewEventBase;
@@ -553,6 +554,9 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 		if (selectedAnalysis == null || ((refMASet == null) && (refOtherSet == null)) ) {
 			return;
 		} 
+		
+		AnalysisInvokedEvent event = new AnalysisInvokedEvent(selectedAnalysis.getLabel());
+		publishAnalysisInvokedEvent(event);
 
 		ParamValidationResults pvr = selectedAnalysis.validateParameters();
 		if (!pvr.isValid()) {
@@ -651,6 +655,11 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 	@Publish
 	public ProjectNodeAddedEvent publishProjectNodeAddedEvent(
 			ProjectNodeAddedEvent event) {
+		return event;
+	}
+	
+	@Publish
+	public AnalysisInvokedEvent publishAnalysisInvokedEvent(AnalysisInvokedEvent event) {
 		return event;
 	}
 
