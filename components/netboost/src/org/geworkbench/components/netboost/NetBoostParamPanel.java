@@ -26,6 +26,8 @@ public class NetBoostParamPanel extends AbstractSaveableParameterPanel
 
 	static Log log = LogFactory.getLog(NetBoostParamPanel.class);
 	private static final String[] methods = {"8 Step Walk", "7 Edges"};
+	private static String[] modelNames = null;
+	private static String[] modelDescs = null;
 	
 	private JTabbedPane tabs;
 	
@@ -36,50 +38,27 @@ public class NetBoostParamPanel extends AbstractSaveableParameterPanel
 	private JSpinner crossValidSpinner;
 	
 	// secondary panel
-	private JCheckBox lpaBox;
-	private JCheckBox rdgBox;
-	private JCheckBox rdsBox;
-	private JCheckBox dmcBox;
-	private JCheckBox agvBox;
-	private JCheckBox smwBox;
-	private JCheckBox dmrBox;
+	private JCheckBox[] modelBoxes;
+	private JLabel[] modelLabels;
 	
 	private static class SerialInstance implements Serializable {
 		private Object trainingEx;
 		private Object boostingIter;
 		private Object subgraphCounting;
 		private Object crossValid;
-		private Boolean lpa;
-		private Boolean rdg;
-		private Boolean rds;
-		private Boolean dmc;
-		private Boolean agv;
-		private Boolean smw;
-		private Boolean dmr;
+		private boolean[] modelSelections;
 		
 		public SerialInstance(Object trainingEx
 				, Object boostingIter
 				, Object subgraphCounting
 				, Object crossValid
-				, Boolean lpa
-				, Boolean rdg
-				, Boolean rds
-				, Boolean dmc
-				, Boolean agv
-				, Boolean smw
-				, Boolean dmr
+				, boolean[] modelSelections
 				){
 			this.trainingEx = trainingEx;
 			this.boostingIter = boostingIter;
 			this.crossValid = crossValid;
 			this.subgraphCounting = subgraphCounting;
-			this.lpa = lpa;
-			this.rdg = rdg;
-			this.rds = rds;
-			this.dmc = dmc;
-			this.agv = agv;
-			this.smw = smw;
-			this.dmr = dmr;
+			this.modelSelections = modelSelections;
 		}
 		
 		Object readResolve() throws ObjectStreamException {
@@ -88,13 +67,24 @@ public class NetBoostParamPanel extends AbstractSaveableParameterPanel
 			result.boostingIterSpinner.setValue(this.boostingIter);
 			result.crossValidSpinner.setValue(this.crossValid);
 			result.subgraphCountingCombo.setSelectedItem(this.subgraphCounting);
-			result.lpaBox.setSelected(this.lpa.booleanValue());
-			result.rdgBox.setSelected(this.rdg.booleanValue());
-			result.rdsBox.setSelected(this.rds.booleanValue());
-			result.dmcBox.setSelected(this.dmc.booleanValue());
-			result.agvBox.setSelected(this.agv.booleanValue());
-			result.smwBox.setSelected(this.smw.booleanValue());
-			result.dmrBox.setSelected(this.dmr.booleanValue());
+			
+			int numBooleans = this.modelSelections.length;
+			int numBoxes = result.modelBoxes.length;
+			
+			if(numBooleans >= numBoxes){
+				if(numBooleans > numBoxes)
+					log.warn("Number of saved model selections is greater than number of model choices.");
+				for(int i = 0; i < numBoxes; i++){
+					result.modelBoxes[i].setSelected(this.modelSelections[i]);
+				}
+			} else if(numBooleans < numBoxes){
+				log.warn("Number of saved model selections less than number of model choices.");
+			} else {
+				log.warn("Number of saved model selections does not match number of model choices.");
+				for(int i = 0; i < numBoxes; i++){
+					result.modelBoxes[i].setSelected(true);
+				}
+			}
 			return result;
 		}
 	}
@@ -104,19 +94,15 @@ public class NetBoostParamPanel extends AbstractSaveableParameterPanel
 			, this.boostingIterSpinner.getValue()
 			, this.subgraphCountingCombo.getSelectedItem()
 			, this.crossValidSpinner.getValue()
-			, new Boolean(this.lpaBox.isSelected())
-			, new Boolean(this.rdgBox.isSelected())
-			, new Boolean(this.rdsBox.isSelected())
-			, new Boolean(this.dmcBox.isSelected())
-			, new Boolean(this.agvBox.isSelected())
-			, new Boolean(this.smwBox.isSelected())
-			, new Boolean(this.dmrBox.isSelected())
+			, this.getSelectedModels()
 			);
 	}
 	
 	public NetBoostParamPanel(){		
 		super();
         try {
+        	this.modelNames = NetBoostAnalysis.getModelNames();
+        	this.modelDescs = NetBoostAnalysis.getModelDescriptions();
             init();
         } catch (Exception e) {
         	e.printStackTrace();
@@ -168,21 +154,22 @@ public class NetBoostParamPanel extends AbstractSaveableParameterPanel
 		m.setFont(new Font("Arial", Font.BOLD, 12));
 		JLabel d = new JLabel("Description");
 		d.setFont(new Font("Arial", Font.BOLD, 12));
-		lpaBox = new JCheckBox("LPA");
-		rdgBox = new JCheckBox("RDG");
-		rdsBox = new JCheckBox("RDS");
-		dmcBox = new JCheckBox("DMC");
-		agvBox = new JCheckBox("AGV");
-		smwBox = new JCheckBox("SMW");
-		dmrBox = new JCheckBox("DMR");
 		
-		lpaBox.setSelected(true);
-		rdgBox.setSelected(true);
-		rdsBox.setSelected(true);
-		dmcBox.setSelected(true);
-		agvBox.setSelected(true);
-		smwBox.setSelected(true);
-		dmrBox.setSelected(true);
+		// assumes the number of model names == number of model descriptions
+		// should already be checked at the analysis panel level when it reads in the properties file
+		modelBoxes = new JCheckBox[modelNames.length];
+		modelLabels = new JLabel[modelNames.length];
+		int numDescs = 0;
+		if(modelDescs != null)
+			numDescs = modelDescs.length;
+		for(int i = 0; i < modelNames.length; i++){
+			modelBoxes[i] = new JCheckBox(modelNames[i]);
+			modelBoxes[i].setSelected(true);
+			if(i < numDescs)
+				modelLabels[i] = new JLabel(modelDescs[i]);
+			else
+				modelLabels[i] = new JLabel(" ");
+		}
 		
 		
 		FormLayout layout = new FormLayout(
@@ -198,20 +185,12 @@ public class NetBoostParamPanel extends AbstractSaveableParameterPanel
         builder.append(m, d);
         builder.nextLine();
         
-        builder.append(lpaBox, new JLabel("Linear Preferential Attachment"));
-        builder.nextLine();
-        builder.append(rdgBox, new JLabel("Random Growing Networks"));
-        builder.nextLine();
-        builder.append(rdsBox, new JLabel("Random Static Network"));
-        builder.nextLine();
-        builder.append(dmcBox, new JLabel("Random Growing Networks"));
-        builder.nextLine();
-        builder.append(agvBox, new JLabel("Aging Vertex"));
-        builder.nextLine();
-        builder.append(smwBox, new JLabel("Small World"));
-        builder.nextLine();
-        builder.append(dmrBox, new JLabel("Random Mutations"));
-        builder.nextLine();
+        // assumes the number of model names == number of model descriptions
+		// should already be checked at the analysis panel level when it reads in the properties file
+        for(int i = 0; i < modelBoxes.length; i++){
+	        builder.append(modelBoxes[i], modelLabels[i]);
+	        builder.nextLine();
+        }
         
         result.add(builder.getPanel());
 		return result;
@@ -233,32 +212,15 @@ public class NetBoostParamPanel extends AbstractSaveableParameterPanel
 		return new Integer(this.crossValidSpinner.getValue().toString()).intValue();
 	}
 	
-	public boolean getLPA(){
-		return this.lpaBox.isSelected();
-	}
-	
-	public boolean getRDG(){
-		return this.rdgBox.isSelected();
-	}
-	
-	public boolean getRDS(){
-		return this.rdsBox.isSelected();
-	}
-	
-	public boolean getDMC(){
-		return this.dmcBox.isSelected();
-	}
-	
-	public boolean getAGV(){
-		return this.agvBox.isSelected();
-	}
-	
-	public boolean getSMW(){
-		return this.smwBox.isSelected();
-	}
-	
-	public boolean getDMR(){
-		return this.dmrBox.isSelected();
+	boolean[] getSelectedModels(){
+		boolean[] result = new boolean[modelNames.length];
+		for(int i = 0; i < modelBoxes.length; i++){
+			if(modelBoxes[i].isSelected())
+				result[i] = true;
+			else 
+				result[i] = false;
+		}
+		return result;
 	}
 	
 	/**
