@@ -15,7 +15,7 @@ import org.geworkbench.util.Util;
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 
 import edu.columbia.geworkbench.cagrid.discovery.client.DiscoveryServiceUtil;
-import gov.nih.nci.cagrid.discovery.MetadataUtils;
+import gov.nih.nci.cagrid.metadata.MetadataUtils;
 import gov.nih.nci.cagrid.metadata.ServiceMetadata;
 
 /**
