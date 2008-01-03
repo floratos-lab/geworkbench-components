@@ -608,6 +608,9 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 								List<Serializable> serviceParameterList = new ArrayList<Serializable>();
 
 								serviceParameterList.add(maSetView);
+								if (refOtherSet != null) { // added for analysis that do not take in microarray data set
+									serviceParameterList.add(refOtherSet);
+								}
 								serviceParameterList
 										.add((Serializable) (((AbstractGridAnalysis) selectedAnalysis)
 												.getBisonParameters()));
@@ -643,7 +646,7 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 							if ((maSetView != null) && (refMASet != null)) {
 								results = selectedAnalysis.execute(maSetView);
 							}
-							if (refOtherSet != null) {
+							if (refOtherSet != null) { // added for analysis that do not take in microarray data set
 								results = selectedAnalysis.execute(refOtherSet);
 							}
 						}
