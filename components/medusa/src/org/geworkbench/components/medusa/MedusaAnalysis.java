@@ -1,5 +1,6 @@
 package org.geworkbench.components.medusa;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -27,7 +28,7 @@ import edu.columbia.ccls.medusa.MedusaLoader;
 /**
  * 
  * @author keshav
- * @version $Id: MedusaAnalysis.java,v 1.36 2007-11-07 15:57:17 bjagla Exp $
+ * @version $Id: MedusaAnalysis.java,v 1.37 2008-01-03 19:28:20 keshav Exp $
  */
 public class MedusaAnalysis extends AbstractGridAnalysis implements
 		ClusteringAnalysis {
@@ -74,7 +75,7 @@ public class MedusaAnalysis extends AbstractGridAnalysis implements
 	 * @see org.geworkbench.analysis.AbstractGridAnalysis#getBisonParameters()
 	 */
 	@Override
-	public Map<String, Object> getBisonParameters() {
+	public Map<Serializable, Serializable> getBisonParameters() {
 		// TODO Auto-generated method stub
 		return null;
 	}

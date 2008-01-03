@@ -1,7 +1,7 @@
 package org.geworkbench.components.cagrid.gui;
 
 import edu.columbia.geworkbench.cagrid.discovery.client.DiscoveryServiceUtil;
-import gov.nih.nci.cagrid.discovery.MetadataUtils;
+import gov.nih.nci.cagrid.metadata.MetadataUtils;
 import gov.nih.nci.cagrid.metadata.ServiceMetadata;
 
 import java.awt.event.ActionEvent;

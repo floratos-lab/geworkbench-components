@@ -6,7 +6,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import gov.nih.nci.cagrid.discovery.MetadataUtils;
+import gov.nih.nci.cagrid.metadata.MetadataUtils;
 import gov.nih.nci.cagrid.metadata.ServiceMetadata;
 import gov.nih.nci.cagrid.metadata.ServiceMetadataHostingResearchCenter;
 import gov.nih.nci.cagrid.metadata.ServiceMetadataServiceDescription;
@@ -26,7 +26,7 @@ import gov.nih.nci.cagrid.metadata.service.ServiceServiceContextCollection;
 /**
  * 
  * @author keshav
- * @version $Id: DiscoveryServiceUtil.java,v 1.3 2007-04-03 05:04:57 keshav Exp $
+ * @version $Id: DiscoveryServiceUtil.java,v 1.4 2008-01-03 19:27:27 keshav Exp $
  */
 public class DiscoveryServiceUtil {
 	private static final String NOT_AVAILABLE = "unavailable";

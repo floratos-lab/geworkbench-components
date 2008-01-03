@@ -29,13 +29,13 @@ import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.layout.FormLayout;
 
 import edu.columbia.geworkbench.cagrid.discovery.client.DiscoveryServiceUtil;
-import gov.nih.nci.cagrid.discovery.MetadataUtils;
+import gov.nih.nci.cagrid.metadata.MetadataUtils;
 import gov.nih.nci.cagrid.metadata.ServiceMetadata;
 
 /**
  * 
  * @author keshav
- * @version $Id: CaGridGuiTest.java,v 1.8 2007-04-03 05:05:50 keshav Exp $
+ * @version $Id: CaGridGuiTest.java,v 1.9 2008-01-03 19:27:27 keshav Exp $
  */
 public class CaGridGuiTest extends TestCase {
 
