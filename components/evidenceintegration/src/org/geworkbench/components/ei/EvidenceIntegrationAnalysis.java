@@ -1,35 +1,36 @@
 package org.geworkbench.components.ei;
 
-import org.geworkbench.analysis.AbstractAnalysis;
-import org.geworkbench.analysis.AbstractGridAnalysis;
-import org.geworkbench.bison.model.analysis.ClusteringAnalysis;
-import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
-import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
-import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
-import org.geworkbench.bison.datastructure.biocollections.microarrays.CSExprMicroarraySet;
-import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
-import org.geworkbench.bison.datastructure.biocollections.views.CSMicroarraySetView;
-import org.geworkbench.bison.datastructure.biocollections.DSAncillaryDataSet;
-import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
-import org.geworkbench.engine.management.Subscribe;
-import org.geworkbench.engine.management.Publish;
-import org.geworkbench.builtin.projects.*;
-import org.geworkbench.util.pathwaydecoder.mutualinformation.AdjacencyMatrixDataSet;
-import org.geworkbench.util.pathwaydecoder.mutualinformation.AdjacencyMatrix;
-import org.geworkbench.events.AdjacencyMatrixEvent;
-import org.geworkbench.events.ProjectNodeAddedEvent;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
+import java.io.Serializable;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.geworkbench.analysis.AbstractAnalysis;
+import org.geworkbench.analysis.AbstractGridAnalysis;
+import org.geworkbench.bison.datastructure.biocollections.DSAncillaryDataSet;
+import org.geworkbench.bison.datastructure.biocollections.microarrays.CSExprMicroarraySet;
+import org.geworkbench.bison.datastructure.biocollections.views.CSMicroarraySetView;
+import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
+import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
+import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
+import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
+import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
+import org.geworkbench.bison.model.analysis.ClusteringAnalysis;
+import org.geworkbench.builtin.projects.DataSetNode;
+import org.geworkbench.builtin.projects.DataSetSubNode;
+import org.geworkbench.builtin.projects.ProjectPanel;
+import org.geworkbench.builtin.projects.ProjectSelection;
+import org.geworkbench.engine.management.Publish;
+import org.geworkbench.engine.management.Subscribe;
+import org.geworkbench.events.ProjectNodeAddedEvent;
+import org.geworkbench.util.pathwaydecoder.mutualinformation.AdjacencyMatrix;
+import org.geworkbench.util.pathwaydecoder.mutualinformation.AdjacencyMatrixDataSet;
 
 import edu.columbia.c2b2.evidenceinegration.Evidence;
 import edu.columbia.c2b2.evidenceinegration.EvidenceIntegration;
-
-import javax.swing.*;
 
 /**
  * @author mhall
@@ -58,7 +59,7 @@ public class EvidenceIntegrationAnalysis extends AbstractGridAnalysis implements
         return AbstractAnalysis.ZERO_TYPE;
     }
 
-    public Map<String, Object> getBisonParameters() {
+    public Map<Serializable, Serializable> getBisonParameters() {
         return null;
     }
 
