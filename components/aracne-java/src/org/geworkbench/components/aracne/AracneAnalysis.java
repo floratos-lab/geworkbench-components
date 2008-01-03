@@ -1,5 +1,6 @@
 package org.geworkbench.components.aracne;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -288,10 +289,10 @@ public class AracneAnalysis extends AbstractGridAnalysis implements ClusteringAn
     }
     
     @Override
-	public Map<String, Object> getBisonParameters() {
+	public Map<Serializable, Serializable> getBisonParameters() {
 		log.debug("Reading bison parameters");
 
-		Map<String, Object> bisonParameters = new HashMap<String, Object>();
+		Map<Serializable, Serializable> bisonParameters = new HashMap<Serializable, Serializable>();
 		AracneParamPanel paramPanel = (AracneParamPanel) this.aspp;
 
 		if (paramPanel.isDPIToleranceSpecified()) {
