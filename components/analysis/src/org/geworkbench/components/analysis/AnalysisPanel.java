@@ -88,7 +88,7 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 	private Log log = LogFactory.getLog(this.getClass());
 
 	// FIXME this needs to be read in
-	private final String dispatcherUrl = "http://156.145.29.64:8080/wsrf/services/cagrid/Dispatcher";
+	private final String dispatcherUrl = "http://cagridnode.c2b2.columbia.edu:8080/wsrf/services/cagrid/Dispatcher";
 
 	/**
 	 * The underlying GUI panel for the clustering component
@@ -608,7 +608,11 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 								List<Serializable> serviceParameterList = new ArrayList<Serializable>();
 
 								serviceParameterList.add(maSetView);
-								if (refOtherSet != null) { // added for analysis that do not take in microarray data set
+								if (refOtherSet != null) { // added for
+															// analysis that do
+															// not take in
+															// microarray data
+															// set
 									serviceParameterList.add(refOtherSet);
 								}
 								serviceParameterList
@@ -646,7 +650,9 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 							if ((maSetView != null) && (refMASet != null)) {
 								results = selectedAnalysis.execute(maSetView);
 							}
-							if (refOtherSet != null) { // added for analysis that do not take in microarray data set
+							if (refOtherSet != null) { // added for analysis
+														// that do not take in
+														// microarray data set
 								results = selectedAnalysis.execute(refOtherSet);
 							}
 						}
