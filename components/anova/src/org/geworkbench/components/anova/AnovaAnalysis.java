@@ -1,66 +1,54 @@
 package org.geworkbench.components.anova;
 
-import org.apache.commons.math.MathException;
-import org.apache.commons.math.stat.inference.TTest;
-import org.apache.commons.math.stat.inference.TTestImpl;
+import java.io.Serializable;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
+import javax.swing.JOptionPane;
+
 import org.geworkbench.analysis.AbstractAnalysis;
-import org.geworkbench.bison.model.analysis.ClusteringAnalysis;
-import JSci.maths.statistics.TDistribution;
-import org.geworkbench.analysis.AbstractAnalysis;
-import org.geworkbench.bison.annotation.CSAnnotationContext;
+import org.geworkbench.analysis.AbstractGridAnalysis;
 import org.geworkbench.bison.annotation.CSAnnotationContextManager;
 import org.geworkbench.bison.annotation.DSAnnotationContext;
 import org.geworkbench.bison.annotation.DSAnnotationContextManager;
-import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
-import org.geworkbench.bison.datastructure.biocollections.views.CSMicroarraySetView;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
+import org.geworkbench.bison.datastructure.bioobjects.microarray.CSAnovaResultSet;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.CSSignificanceResultSet;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMutableMarkerValue;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSSignificanceResultSet;
 import org.geworkbench.bison.datastructure.complex.panels.CSAnnotPanel;
-import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
 import org.geworkbench.bison.datastructure.complex.panels.DSAnnotatedPanel;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
 import org.geworkbench.bison.model.analysis.ClusteringAnalysis;
-import org.geworkbench.engine.management.Publish;
-import org.geworkbench.engine.management.Script;
-import org.geworkbench.engine.management.Subscribe;
-import org.geworkbench.events.ProjectNodeAddedEvent;
-import org.geworkbench.events.SubpanelChangedEvent;
-import org.geworkbench.util.Combinations;
-import org.geworkbench.util.ProgressBar;
-import org.geworkbench.util.QSort;
-
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Hashtable;
-import java.util.Random;
-import java.util.Set;
-import java.util.Vector;
-import java.util.Iterator;
-import org.geworkbench.bison.datastructure.complex.panels.*;
 import org.geworkbench.builtin.projects.ProjectPanel;
+import org.geworkbench.components.anova.gui.AnovaAnalysisPanel;
+import org.geworkbench.engine.management.Publish;
+import org.geworkbench.events.SubpanelChangedEvent;
 import org.tigr.microarray.mev.cluster.algorithm.AlgorithmData;
 import org.tigr.microarray.mev.cluster.algorithm.AlgorithmException;
 import org.tigr.microarray.mev.cluster.algorithm.impl.OneWayANOVA;
 import org.tigr.microarray.mev.cluster.gui.impl.owa.OneWayANOVAInitBox;
 import org.tigr.util.FloatMatrix;
-import org.geworkbench.bison.datastructure.bioobjects.microarray.CSAnovaResultSet;
-import org.geworkbench.bison.datastructure.bioobjects.microarray.DSAnovaResultSet;
-import org.geworkbench.components.anova.gui.AnovaAnalysisPanel;
 
-import edu.columbia.geworkbench.cagrid.anova.*;
-import javax.swing.JOptionPane;
+import edu.columbia.geworkbench.cagrid.anova.AnovaResult;
+import edu.columbia.geworkbench.cagrid.anova.FalseDiscoveryRateControl;
+import edu.columbia.geworkbench.cagrid.anova.PValueEstimation;
 /**
  * @author yc2480
  * @version $id$
  */
-public class AnovaAnalysis extends AbstractAnalysis implements ClusteringAnalysis{
-    private int localAnalysisType;
+public class AnovaAnalysis extends AbstractGridAnalysis implements ClusteringAnalysis{
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
+	private int localAnalysisType;
 
     int[] groupAssignments; //used for MeV's ANOVA algorithm. [3 3 2 2 2 4 4 4 4] means first two microarrays belongs to same group, and microarray 3,4,5 belongs to same group, and last four microarrays belongs to same group.  
     double pvalueth=0.05; //p-value threshold. Fixme: this should get from user input, but we don't have that GUI in use case yet.
@@ -78,10 +66,11 @@ public class AnovaAnalysis extends AbstractAnalysis implements ClusteringAnalysi
         return localAnalysisType;
     }
     
+    @SuppressWarnings("unchecked")
     public AlgorithmExecutionResults execute(Object input) {
         assert (input instanceof DSMicroarraySetView);
         DSMicroarraySetView<DSGeneMarker, DSMicroarray> view = (DSMicroarraySetView<DSGeneMarker, DSMicroarray>) input;
-        DSMicroarraySet maSet = view.getMicroarraySet();
+        DSMicroarraySet<DSMicroarray> maSet = view.getMicroarraySet();
 
         if (!isLogNormalized(maSet)){
         	Object[] options = {"Proceed",
@@ -165,7 +154,6 @@ public class AnovaAnalysis extends AbstractAnalysis implements ClusteringAnalysi
                 GroupAndMarkerString+=labelA+"\n";
                 
                 if (panelA.isActive()){
-//we already calculated this number                	numSelectedGroups++;
                     int aSize = panelA.size();
                     for (int aIndex = 0; aIndex < aSize; aIndex++) {		//for each array in this group
                     	GroupAndMarkerString+="\t"+panelA.get(aIndex)+"\n";	//put member of each group into history
@@ -184,8 +172,6 @@ public class AnovaAnalysis extends AbstractAnalysis implements ClusteringAnalysi
                 int aSize = panelA.size();
                 for (int aIndex = 0; aIndex < aSize; aIndex++) {//for each array in this group
                 	for (int k = 0; k < numGenes; k++) {//for each marker
-//                		double[] a = new double[aSize];
-//                        a[aIndex] = panelA.get(aIndex).getMarkerValue(k).getValue();
                         A[k][globleArrayIndex]=(float)panelA.get(aIndex).getMarkerValue(k).getValue();
 //                        System.out.println(labelA+Integer.toString(i)+","+Integer.toString(k)+"+"+Integer.toString(aIndex));
                     }
@@ -429,4 +415,22 @@ end of human readable version*/
         }
         return((maxValue - minValue) < 100); //if the range of the values is small enough, we guess it's lognormalized. 
     }
+
+	@Override
+	public String getAnalysisName() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Map<Serializable, Serializable> getBisonParameters() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Class getBisonReturnType() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }
