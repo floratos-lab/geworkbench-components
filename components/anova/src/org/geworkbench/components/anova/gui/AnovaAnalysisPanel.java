@@ -1,117 +1,48 @@
 package org.geworkbench.components.anova.gui;
 
-import org.geworkbench.analysis.AbstractSaveableParameterPanel;
-import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
-import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
-import org.geworkbench.bison.datastructure.biocollections.microarrays.CSExprMicroarraySet;
-import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.AnnotationParser;
-import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
-import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
-import org.geworkbench.bison.datastructure.bioobjects.microarray.CSMicroarray;
-import org.geworkbench.bison.datastructure.bioobjects.microarray.CSExpressionMarkerValue;
-import org.geworkbench.bison.datastructure.bioobjects.microarray.DSSignificanceResultSet;
-import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
-import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
-import org.geworkbench.bison.annotation.DSAnnotationContext;
-import org.geworkbench.bison.annotation.CSAnnotationContextManager;
-import org.geworkbench.bison.annotation.CSAnnotationContext;
-import org.geworkbench.bison.datastructure.bioobjects.markers.goterms.GeneOntologyTree;
-import org.geworkbench.bison.datastructure.bioobjects.markers.goterms.GoMapping;
-import org.geworkbench.bison.datastructure.bioobjects.markers.goterms.GOTerm;
-import org.geworkbench.engine.config.VisualPlugin;
-import org.geworkbench.engine.management.AcceptTypes;
-import org.geworkbench.engine.management.Subscribe;
-import org.geworkbench.engine.properties.PropertiesManager;
-import org.geworkbench.events.ProjectEvent;
-import org.apache.commons.math.stat.descriptive.SummaryStatistics;
-import org.apache.commons.math.stat.descriptive.SummaryStatisticsImpl;
-
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
-import java.util.*;
-import java.util.List;
-import java.io.IOException;
-import java.awt.event.KeyEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
-import java.awt.Event;
 import java.awt.BorderLayout;
-import javax.swing.KeyStroke;
-import javax.swing.JPanel;
-import javax.swing.JMenuItem;
-import javax.swing.JMenuBar;
-import javax.swing.JMenu;
-import javax.swing.JDialog;
-import javax.swing.JFrame;
-import javax.swing.JInternalFrame;
-import javax.swing.JTree;
-import javax.swing.JLabel;
-import javax.swing.JCheckBox;
-import javax.swing.JTextArea;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
-import javax.swing.JList;
-import javax.swing.DefaultListModel;
-import org.geworkbench.util.ProgressBar;
-import org.geworkbench.util.Util;
-
-import org.geworkbench.bison.datastructure.bioobjects.microarray.DSSignificanceResultSet;
-
-import org.tigr.microarray.mev.ISlideDataElement;
-import org.tigr.microarray.mev.MultipleArrayData;
-import org.tigr.microarray.mev.SlideDataElement;
-import org.tigr.microarray.mev.cluster.algorithm.AlgorithmData;
-import org.tigr.util.FloatMatrix;
-import org.tigr.microarray.mev.cluster.algorithm.impl.OneWayANOVA;
-import org.tigr.microarray.mev.cluster.algorithm.AlgorithmException;
-
-import com.jgoodies.forms.builder.DefaultFormBuilder;
-import com.jgoodies.forms.layout.FormLayout;
-
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.awt.CardLayout;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Graphics;
+import java.io.IOException;
 import java.io.ObjectStreamException;
 import java.io.Serializable;
+import java.util.Vector;
 
-import java.awt.event.KeyEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
-import java.awt.Event;
-import java.awt.BorderLayout;
-import javax.swing.KeyStroke;
-import javax.swing.JPanel;
-import javax.swing.JMenuItem;
-import javax.swing.JMenuBar;
-import javax.swing.JMenu;
-import javax.swing.JDialog;
-import javax.swing.JFrame;
-import javax.swing.JTabbedPane;
+import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
-import java.awt.CardLayout;
-import javax.swing.JButton;
-import java.awt.GridLayout;
-import javax.swing.JLabel;
-import java.awt.FlowLayout;
-import javax.swing.JSlider;
-import javax.swing.JProgressBar;
+import javax.swing.ButtonGroup;
 import javax.swing.JComboBox;
-import javax.swing.JTextField;
-import javax.swing.JOptionPane;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.JPanel;
 import javax.swing.JRadioButton;
+import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
+import javax.swing.JTabbedPane;
+import javax.swing.JTable;
+import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.border.Border;
-import javax.swing.BorderFactory;
 import javax.swing.plaf.basic.BasicSeparatorUI;
-import java.awt.Dimension;
-import java.awt.Graphics;
-import javax.swing.JComponent;
-import javax.swing.ButtonGroup;
 import javax.swing.table.DefaultTableModel;
 
-import edu.columbia.geworkbench.cagrid.anova.*;
+import org.geworkbench.analysis.AbstractSaveableParameterPanel;
+import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
+import org.geworkbench.bison.datastructure.biocollections.microarrays.CSExprMicroarraySet;
+import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
+import org.geworkbench.engine.config.VisualPlugin;
+import org.geworkbench.engine.management.Subscribe;
+import org.geworkbench.events.ProjectEvent;
+
+import edu.columbia.geworkbench.cagrid.anova.AnovaParameter;
+import edu.columbia.geworkbench.cagrid.anova.FalseDiscoveryRateControl;
+import edu.columbia.geworkbench.cagrid.anova.PValueEstimation;
 /**
  * @author yc2480
  * @version $id$
@@ -233,8 +164,9 @@ public class AnovaAnalysisPanel extends AbstractSaveableParameterPanel implement
 	private JTabbedPane getJTabbedPane() {
 		if (jTabbedPane == null) {
 			jTabbedPane = new JTabbedPane();
-			jTabbedPane.addTab("Parameters", null, getParamPanel(), null);
-			jTabbedPane.addTab("Service", null, getServicePanel(), null);
+//			jTabbedPane.addTab("Parameters", null, getParamPanel(), null);
+//			jTabbedPane.addTab("Service", null, getServicePanel(), null);
+			//these two tabs should belongs to parent.
 		}
 		return jTabbedPane;
 	}
@@ -871,7 +803,8 @@ public class AnovaAnalysisPanel extends AbstractSaveableParameterPanel implement
 	 */
 	private void initialize() {
 		this.setLayout(new BorderLayout());
-		this.add(getJTabbedPane(), BorderLayout.CENTER);
+//		this.add(getJTabbedPane(), BorderLayout.CENTER);
+		this.add(getParamPanel(), BorderLayout.CENTER);
 		//setup some default values.
 		anovaParameter.setPValueEstimation(PValueEstimation.fdistribution);
 		anovaParameter.setFalseDiscoveryRateControl(FalseDiscoveryRateControl.alpha);
