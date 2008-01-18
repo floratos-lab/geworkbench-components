@@ -14,5 +14,7 @@
 	<classpathentry kind="lib" path="lib/axis.jar"/>
 	<classpathentry kind="lib" path="lib/axis-url.jar"/>
 	<classpathentry kind="lib" path="lib/mev-gui-impl.jar"/>
+	<classpathentry kind="lib" path="/tabular/lib/binding-1.0.jar"/>
+	<classpathentry kind="lib" path="/tabular/lib/mev-gui-support.jar"/>
 	<classpathentry kind="output" path="classes"/>
 </classpath>

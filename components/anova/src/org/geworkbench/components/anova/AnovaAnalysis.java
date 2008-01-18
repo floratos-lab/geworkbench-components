@@ -1,6 +1,7 @@
 package org.geworkbench.components.anova;
 
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -25,6 +26,7 @@ import org.geworkbench.bison.datastructure.complex.panels.DSAnnotatedPanel;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
 import org.geworkbench.bison.model.analysis.ClusteringAnalysis;
+import org.geworkbench.bison.model.clusters.CSHierClusterDataSet;
 import org.geworkbench.builtin.projects.ProjectPanel;
 import org.geworkbench.components.anova.gui.AnovaAnalysisPanel;
 import org.geworkbench.engine.management.Publish;
@@ -425,12 +427,17 @@ end of human readable version*/
 	@Override
 	public Map<Serializable, Serializable> getBisonParameters() {
 		// TODO Auto-generated method stub
-		return null;
+		Map<Serializable, Serializable> parameterMap = new HashMap<Serializable, Serializable>();
+		//put every parameters you need for execute(String encodedInput) in AnovaClient.java
+		//microarray data already been added before these parameters in AnalysisPanel.java
+		//I'll need to put group information and anovaParameters.
+		//parameterMap.put(key, value);
+		return parameterMap;
 	}
 
 	@Override
 	public Class getBisonReturnType() {
 		// TODO Auto-generated method stub
-		return null;
+		return CSAnovaResultSet.class;
 	}
 }
