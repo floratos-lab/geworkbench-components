@@ -10,7 +10,7 @@ import java.util.*;
 
 import gov.nih.nci.cabio.domain.Gene;
 import gov.nih.nci.system.applicationservice.ApplicationService;
-import gov.nih.nci.system.applicationservice.ApplicationServiceProvider;
+import gov.nih.nci.system.client.ApplicationServiceProvider;
 import gov.nih.nci.system.applicationservice.ApplicationException;
 
 /**
@@ -90,16 +90,23 @@ public class GeneAnnotationImpl implements GeneAnnotation {
         description = "Unknown";
         locusLinkId = "-1";
 
+        Gene g = new Gene();
+        g.setId(gene.getId());
+
         gov.nih.nci.cabio.domain.Pathway pathway = new gov.nih.nci.cabio.domain.Pathway();
         Set genes = new HashSet();
-        genes.add(gene);
+        genes.add(g);
         pathway.setGeneCollection(genes);
-        ApplicationService appService = ApplicationServiceProvider.getApplicationService();
+        
         try {
-            List<gov.nih.nci.cabio.domain.Pathway> pways = appService.search(
+        	ApplicationService appService = ApplicationServiceProvider.getApplicationService();
+            List pways = appService.search(
                     "gov.nih.nci.cabio.domain.Pathway", pathway);
             pathways = PathwayImpl.toArray(pways);
         } catch (ApplicationException e) {
+            log.error(e);
+        }
+        catch (Exception e) {
             log.error(e);
         }
 
