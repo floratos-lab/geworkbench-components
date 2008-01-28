@@ -343,29 +343,30 @@ public class PCA extends MicroarrayViewEventBase
     /*
      * check if Java 3D is available
      */
-    private boolean hasJ3D()
+    private boolean hasJava3D()
     {
-        try
+		try
         {
-            // test for a Java 3D class
-            Class.forName("com.sun.j3d.utils.universe.SimpleUniverse");
-            Class.forName("javax.media.j3d.VirtualUniverse");
-            Class.forName("javax.vecmath.Vector3d");
+			ClassLoader classLoader = ClassLoader.getSystemClassLoader();
+			classLoader.loadClass("com.sun.j3d.utils.universe.SimpleUniverse");
+			Package p = Package.getPackage("javax.media.j3d");
 
-            Map vuMap = javax.media.j3d.VirtualUniverse.getProperties();
-            System.out.println("Vendor: " + vuMap.get("j3d.vendor"));
-            System.out.println("Vendor version: " + vuMap.get("j3d.version"));
-            System.out.println("Renderer: " + vuMap.get("j3d.renderer"));
-
-            return true;
+            if(p != null)
+            {
+                Map vuMap = javax.media.j3d.VirtualUniverse.getProperties();
+                System.out.println("Vendor: " + vuMap.get("j3d.vendor"));
+                System.out.println("Vendor version: " + vuMap.get("j3d.version"));
+                System.out.println("Renderer: " + vuMap.get("j3d.renderer"));
+                return true;
+			}
         }
-        catch(ClassNotFoundException e)
+        catch(Exception e)
         {
-            System.err.println("Java 3D not installed");
-                return false;
-        }
+			return false;
+		}
+
+        return false;
     }
-
     /**
      * The component for the GUI engine.
      */
@@ -579,7 +580,7 @@ public class PCA extends MicroarrayViewEventBase
         // build 3D projection plot
         if(pComp.length == 3)
         {
-            if(!hasJ3D())
+            if(!hasJava3D())
             {
                 JOptionPane.showMessageDialog(null, "Java 3D not installed");
                 return;
