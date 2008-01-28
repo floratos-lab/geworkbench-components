@@ -4,10 +4,10 @@ import gov.nih.nci.cabio.domain.Gene;
 import gov.nih.nci.cabio.domain.GenericReporter;
 import gov.nih.nci.cabio.domain.Pathway;
 import gov.nih.nci.system.applicationservice.ApplicationException;
-import gov.nih.nci.system.applicationservice.ApplicationService;
-import gov.nih.nci.system.applicationservice.ApplicationServiceProvider;
-
+import gov.nih.nci.system.applicationservice.ApplicationService; 
+import gov.nih.nci.system.client.ApplicationServiceProvider;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
@@ -28,8 +28,22 @@ import org.apache.commons.logging.LogFactory;
 public class GeneSearchCriteriaImpl implements GeneSearchCriteria {
 	static Log log = LogFactory.getLog(GeneSearchCriteriaImpl.class);
 
-	ApplicationService appService = ApplicationServiceProvider
-			.getApplicationService();
+		 
+	ApplicationService appService;
+	
+	
+	/**
+     * Default Constructor
+     */
+    public GeneSearchCriteriaImpl() {
+    	
+       try{
+    	   appService = ApplicationServiceProvider.getApplicationService();
+       }catch( Exception e) {
+           log.error(e);
+       }
+    
+    }
 
 	/**
 	 * Sets a BioCarta identifier to be a Search criterion
@@ -42,8 +56,10 @@ public class GeneSearchCriteriaImpl implements GeneSearchCriteria {
 		gene.setSymbol(bcid);
 		// gene.setClusterId(Long.parseLong(bcid));
 		try {
-			List<Gene> results = appService.search(Gene.class, gene);
+			
+			List results = appService.search(Gene.class, gene); 		
 			return GeneAnnotationImpl.toUniqueArray(results);
+			
 		} catch (ApplicationException e) {
 			log.error(e);
 			return null;
@@ -62,8 +78,10 @@ public class GeneSearchCriteriaImpl implements GeneSearchCriteria {
 		gene.setSymbol(name);
 
 		try {
-			List<Gene> results = appService.search(Gene.class, gene);
+		 
+			List results = appService.search(Gene.class, gene);			
 			return GeneAnnotationImpl.toUniqueArray(results);
+			
 		} catch (ApplicationException e) {
 			log.error(e);
 			return null;
@@ -75,8 +93,10 @@ public class GeneSearchCriteriaImpl implements GeneSearchCriteria {
 		reporter.setName(probeId);
 
 		try {
-			List<Gene> results = appService.search(Gene.class, reporter);
+			 
+			List results = appService.search(Gene.class, reporter);			 
 			return GeneAnnotationImpl.toUniqueArray(results);
+			
 		} catch (ApplicationException e) {
 			log.error(e);
 			return null;
@@ -89,13 +109,13 @@ public class GeneSearchCriteriaImpl implements GeneSearchCriteria {
 		searchPathway.setName(pathway.getPathwayName());
 
 		try {
-			List<Pathway> results = appService.search(Pathway.class,
-					searchPathway);
+		 
+			List results = appService.search(Pathway.class, searchPathway);			 
 			if (results.size() > 1) {
 				log.warn("Found more than 1 pathway for "
 						+ pathway.getPathwayName());
 			}
-			Pathway resultPathway = results.get(0);
+			Pathway resultPathway = (Pathway)results.get(0);
 
 			return GeneAnnotationImpl.toUniqueArray(new ArrayList(resultPathway
 					.getGeneCollection()));
