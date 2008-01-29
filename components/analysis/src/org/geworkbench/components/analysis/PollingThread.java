@@ -2,7 +2,7 @@ package org.geworkbench.components.analysis;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
+import org.geworkbench.bison.datastructure.biocollections.DSAncillaryDataSet;
 import org.geworkbench.events.ProjectNodeCompletedEvent;
 import org.ginkgo.labs.ws.GridEndpointReferenceType;
 
@@ -12,7 +12,7 @@ import edu.columbia.geworkbench.cagrid.dispatcher.client.DispatcherClient;
  * A thread that handles remote service polling.
  * 
  * @author keshav
- * @version $Id: PollingThread.java,v 1.2 2008-01-03 19:27:27 keshav Exp $
+ * @version $Id: PollingThread.java,v 1.3 2008-01-29 18:09:48 chiangy Exp $
  */
 public class PollingThread extends Thread {
 
@@ -44,11 +44,11 @@ public class PollingThread extends Thread {
 			}
 			ProjectNodeCompletedEvent completedEvent = new ProjectNodeCompletedEvent(
 					"Analysis Completed", gridEPR);
-			if(result != null && (result instanceof String) && result.equals("null")){
+			if (result != null && (result instanceof String)
+					&& result.equals("null")) {
 				completedEvent.setDataSet(null);
-			}else if(result != null)
-				completedEvent.setDataSet((DSDataSet) result);
-				
+			} else if (result != null)
+				completedEvent.setAncillaryDataSet((DSAncillaryDataSet) result);
 			panel.publishProjectNodeCompletedEvent(completedEvent);
 		} catch (Exception e) {
 			log
