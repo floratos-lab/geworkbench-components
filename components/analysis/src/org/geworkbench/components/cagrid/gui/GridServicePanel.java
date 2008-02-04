@@ -15,6 +15,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.border.BevelBorder;
 
@@ -30,7 +31,7 @@ import com.jgoodies.forms.layout.FormLayout;
 /**
  * 
  * @author keshav
- * @version $Id: GridServicePanel.java,v 1.27 2008-01-31 18:12:52 chiangy Exp $
+ * @version $Id: GridServicePanel.java,v 1.28 2008-02-04 22:55:04 chiangy Exp $
  */
 public class GridServicePanel extends JPanel {
 	private Log log = LogFactory.getLog(this.getClass());
@@ -46,6 +47,11 @@ public class GridServicePanel extends JPanel {
 	Collection<String> analysisSet = new HashSet<String>();
 
 	GridServicesButtonListener gridServicesButtonListener;
+
+	/**
+	 * Visual Widget
+	 */
+	private JSplitPane jSplitPane1 = new JSplitPane();
 
 	/**
 	 * 
@@ -136,10 +142,14 @@ public class GridServicePanel extends JPanel {
 		/* add A, B, and C to the main (this) */
 		this.add(indexServiceBuilder.getPanel(), BorderLayout.NORTH);
 
-		this.add(urlServiceBuilderScrollPane);
-
-		this.add(indexServiceSelectionButtonListener
-				.getServiceDetailsBuilderScrollPane(), BorderLayout.SOUTH);
+		/* add a split between B and C */
+		jSplitPane1 = new JSplitPane();
+		jSplitPane1.setOrientation(JSplitPane.VERTICAL_SPLIT);
+		this.add(jSplitPane1, BorderLayout.CENTER);
+		
+		jSplitPane1.add(indexServiceSelectionButtonListener.getServiceDetailsBuilderScrollPane(), JSplitPane.BOTTOM);
+		jSplitPane1.add(urlServiceBuilderScrollPane, JSplitPane.TOP);
+		
 		this.revalidate();
 	}
 
