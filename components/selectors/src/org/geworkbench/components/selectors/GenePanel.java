@@ -253,8 +253,8 @@ public class GenePanel extends SelectorPanel<DSGeneMarker> {
             setItemList(items);
             return true;
         }
-        setItemList(dataSet);
-        return true;
+       
+        return false;
     }
 
     /**
