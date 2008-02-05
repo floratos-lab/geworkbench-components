@@ -61,6 +61,7 @@ public class TabularDataViewer extends AbstractSaveableParameterPanel implements
 	private boolean mean=true;
 	private boolean std=true;
 	private String[] header;
+	private DispPref DP=null; //Panel for "Display Preference", make it global so it won't popup multiple times.  
 	
 	public TabularDataViewer() {
 		this.setLayout(new BorderLayout());
@@ -73,7 +74,14 @@ public class TabularDataViewer extends AbstractSaveableParameterPanel implements
 		
 		PrefButton.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent e) {
-				DispPref DP=new DispPref();
+				if (DP==null){
+					DP=new DispPref();
+				}else{
+					DP.popup.setVisible(true);
+					DP.popup.toFront();
+					DP.popup.requestFocus();
+					DP.popup.requestFocusInWindow();
+				}
 		    }
 		});
 		
@@ -422,7 +430,7 @@ public class TabularDataViewer extends AbstractSaveableParameterPanel implements
 	/* This is a JDialog box which shows the options for user to check or uncheck.
 	 * When user check a checkbox, preferences variables will be changed and refreshTableViewer will be called to redraw the table.
 	 */ 
-	private class DispPref extends JDialog{
+	private class DispPref{
         /**
 		 * 
 		 */
@@ -432,6 +440,8 @@ public class TabularDataViewer extends AbstractSaveableParameterPanel implements
         JCheckBox bA;
         JCheckBox bM;
         JCheckBox bS;
+        public JDialog popup=null; 
+        
 		public DispPref(){
 //			System.out.println("Preference button pressed."); // TODO Auto-generated Event stub actionPerformed()
 			FormLayout layout = new FormLayout("right:max(80dlu;pref), 3dlu, max(70dlu;pref), 3dlu, max(70dlu;pref), 3dlu, max(70dlu;pref)","");
@@ -520,11 +530,15 @@ public class TabularDataViewer extends AbstractSaveableParameterPanel implements
 	        builder.append(new JLabel());
 	        builder.append(bM);
 	        builder.append(bS);
-	        JDialog popup=new JDialog();
-	        popup.setTitle("Display Preference");
-	        popup.add(builder.getPanel());
-	        popup.pack();
-	        popup.setVisible(true);
+	        if (popup==null){
+		        popup=new JDialog();
+		        popup.setTitle("Display Preference");
+		        popup.add(builder.getPanel());
+		        popup.pack();
+		        popup.setVisible(true);
+	        }else{
+	        	System.out.println("This shouldn't happen, since if the popup already there, this Display Preference panel should be called again.");
+	        }
 		}
 	}
     private class ToggleChangeListener implements PropertyChangeListener {
