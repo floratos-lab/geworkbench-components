@@ -26,7 +26,7 @@ import org.geworkbench.engine.management.AcceptTypes;
 import org.geworkbench.engine.management.Subscribe;
 import org.geworkbench.events.ProjectEvent;
 import org.geworkbench.util.ProgressBar;
-import org.tigr.microarray.mev.cluster.gui.helpers.TableViewer;
+//import org.tigr.microarray.mev.cluster.gui.helpers.TableViewer;
 
 import com.jgoodies.binding.adapter.BasicComponentFactory;
 import com.jgoodies.binding.beans.BeanAdapter;
@@ -312,7 +312,8 @@ public class TabularDataViewer extends AbstractSaveableParameterPanel implements
 		for (int cx = 0; cx < result2DArray[0].length; cx++) {
 			fieldIndex=0;
 			A[cx][fieldIndex++] = ((DSGeneMarker)anovaResultSet.getSignificantMarkers().get(cx)).getShortName();
-			if (pVal){A[cx][fieldIndex++] = result2DArray[0][cx];};
+			if (pVal){A[cx][fieldIndex++] = new Float(result2DArray[0][cx]);};
+			//TODO: change float to Float object
 			if (adjPVal){A[cx][fieldIndex++] = result2DArray[1][cx];};
 			if (fStat){A[cx][fieldIndex++] = result2DArray[2][cx];};
 			for (int gc=0;gc<groupNum;gc++){
