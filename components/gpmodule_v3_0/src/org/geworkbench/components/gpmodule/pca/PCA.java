@@ -580,9 +580,9 @@ public class PCA extends MicroarrayViewEventBase
         // build 3D projection plot
         if(pComp.length == 3)
         {
-            if(hasJava3D())
+            if(!hasJava3D())
             {
-                JOptionPane.showMessageDialog(null, "Java 3D is not installed. " +
+                JOptionPane.showMessageDialog(null, "Java3D is not installed. " +
                         "\nPlease install Java3D and restart geWorkbench. " +
                         "\nFor details about downloading and installing Java3D go to https://java3d.dev.java.net");
                 return;
