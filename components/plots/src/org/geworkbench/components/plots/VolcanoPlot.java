@@ -228,16 +228,25 @@ public class VolcanoPlot implements VisualPlugin {
                     dataSetView.setMicroarraySet(set);
                 }
             } else if (dataFile instanceof DSSignificanceResultSet) {
-                significance = (DSSignificanceResultSet<DSGeneMarker>) dataFile;
-                DSMicroarraySet<DSMicroarray> set = significance.getParentDataSet();
-                Boolean userOverride = userOverrideMap.get(set);
-                if (userOverride != null) {
-                    isLogNormalized = userOverride;
-                    logCheckbox.setSelected(isLogNormalized);
-                } else {
-                    guessLogNormalized(set);
-                }
-                generateChart();
+            	if ((significance==null)||(significance.getLabels(DSSignificanceResultSet.CONTROL)==null)||(significance.getLabels(DSSignificanceResultSet.CASE)==null)){
+            		//since there are no control or no case, volcanoplot will not work, then we skip this one.
+            		//and we should show some messages for user.
+            		JLabel msg=new JLabel(
+            				"<html>Due to this result has more then two groups, or miss one of Control and Case groups,<br>"+
+            				"this result can not be shown in this version of Volcano Plot.</html>");
+            		mainPanel.add(msg, BorderLayout.NORTH);
+            	}else{
+	                significance = (DSSignificanceResultSet<DSGeneMarker>) dataFile;
+	                DSMicroarraySet<DSMicroarray> set = significance.getParentDataSet();
+	                Boolean userOverride = userOverrideMap.get(set);
+	                if (userOverride != null) {
+	                    isLogNormalized = userOverride;
+	                    logCheckbox.setSelected(isLogNormalized);
+	                } else {
+	                    guessLogNormalized(set);
+	                }
+	                generateChart();
+            	}
             }
         }
     }
