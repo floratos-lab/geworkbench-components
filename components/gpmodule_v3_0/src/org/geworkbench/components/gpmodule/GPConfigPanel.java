@@ -174,7 +174,7 @@ public class GPConfigPanel extends JPanel
                 validateInput();
                 String protocolInput = (String)protocol.getValue();
                 String hostInput = (String)host.getValue();
-                int portInput = ((Integer)port.getValue()).intValue();
+                int portInput = (Integer.valueOf((String)port.getValue())).intValue();
                 String userNameInput = (String)username.getValue();
 
                 URL gpServer = new URL(protocolInput, hostInput , portInput, "");
@@ -208,7 +208,7 @@ public class GPConfigPanel extends JPanel
         {
             throw new InvalidInputException("Host must be provided");
         }
-        else if(port.getValue() == null || ((Integer)port.getValue()).intValue() == -1)
+        else if(port.getValue() == null || (Integer.valueOf((String)port.getValue())).intValue() == -1)
         {
             throw new InvalidInputException("Port must be provided");
         }
