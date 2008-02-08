@@ -92,6 +92,7 @@ public class PCA extends MicroarrayViewEventBase
         projPanel.setRightComponent(projGraphPanel);
 
         perVar = new JTextField();
+        perVar.setEditable(false);
         perVar.setMaximumSize(new Dimension(75, 25));
         perVar.setMinimumSize(new Dimension(75, 25));
         perVar.setPreferredSize(new Dimension(75, 25));
