@@ -1,0 +1,60 @@
+<html>
+
+
+
+<head>
+
+<meta http-equiv="Content-Language" content="en-us">
+
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+
+<meta name="GENERATOR" content="Microsoft FrontPage 4.0">
+
+<meta name="ProgId" content="FrontPage.Editor.Document">
+
+<title>User Comments</title>
+
+<link rel="stylesheet" type="text/css" href="ncicb.css">
+
+</head>
+  <h3>ANOVA</h3> 
+    <p>The ANOVA (ANalysis of VAriance) algorithm is used to determine whether any significant difference in the means exist in a dataset composed of more than two groups of experimental results. The implementation of ANOVA being used is taken from a distribution of MeV (<a href="http://www.tm4.org/mev.html">http://www.tm4.org/mev.html</a> ). This help topic describes <a href="#_Run_ANOVA">executing ANOVA analysis</a> and <a href="#_View_ANOVA_Results">viewing the results.</a></p> 
+    <h3><a name="_Run_ANOVA"></a>Run ANOVA</h3> 
+    <p>1. Load expression file into a project folder that has been log transformed. </p> 
+    <p>2. In the selection area (lower left), activate three or more array groups.</p> 
+    <p>3. In the analysis pane (lower right), select ANOVA analysis from the analysis list.</p> 
+    <p>4. Populate the <a href="#_Parameter">parameters</a> used for this analysis method.</p> 
+    <p>5. Select the location to run the analysis (local or Grid) in the service subtab.</p> 
+    <p>6. Click on Analyze. If successful, the project window is updated to reflect the result node (a child node of the input dataset The Dataset history captures the analysis parameters. </p> 
+    <h3><a name="_Parameter"></a>Parameters</h3> 
+    <p><img border="0" width="553" height="313" src="anova_help_files/image001.jpg"></p> 
+    <p><a name="_View_ANOVA_Results"></a><b>P-Value Estimation:</b></p> 
+    <p>F-Distribution: The F-distribution arises from the ratio of the variances of two normally distributed statistics (chi-squared distributions). </p> 
+    <p>Permutation: This selection requires the number of permutations. The default value is 100.</p> 
+    <p><b>False Discovery Rate:</b> The p-value can be used directly as a cutoff for determining significant genes, or it can be corrected.</p> 
+    <p>Just Alpha: This includes no corrections.</p> 
+    <p>Standard Bonferroni: The cutoff value (alpha) is divided by the number of tests (genes) before being compared with the p-values).</p> 
+    <p>Adjusted Bonferroni: This presumably implements the Holm-Bonferroni correction. For each successive P-value in an ordered list of P-values, the divisor for alpha is decremented by one and then the result compared with the P-value. The effect is to slightly reduce the stringency of the Bonferroni correction.</p> 
+    <p>Westfall-Young Step Down: This applies to p-values based on Permutations. </p> 
+    <p><b>False Discovery Control </b>(enabled when Permutation is selected in the P-Value Estimation). The user must select the false discoveries in terms of either</p> 
+    <p>&#183; The number of false significant genes should not exceed (integer), or</p> 
+    <p>&#183; The proportion of false significant genes should not exceed.</p> 
+    <h3>View ANOVA Results</h3> 
+    <p>Click on the ANOVA result node in the project panel. The ANOVA visualization will display a <a href="#_Tab_View">tabbed display</a> and the <a href="#_Color_Mosaic">Color Mosaic view</a>.</p> 
+    <h3><a name="_Color_Mosaic"></a>Color Mosaic</h3> 
+    <p>In this view, a color spectrum is used to indicate the relative magnitudes of the measurements. The arrays (columns) are grouped by input group membership, i.e. group 1, group 2 etc. Each row corresponds to a marker, and markers display is ordered by p-value ascending order (from most significant to least significant). This visualization is described in detail in the Color Mosaic Help and Tutorials. </p> 
+        <p><img border="0" width="553" height="313" src="anova_help_files/image002.jpg"></p>
+    <h3><a name="_Tab_View"></a>Tabular View</h3> 
+    <p> This Visual Area component displays a read only spreadsheet view of the significant genes sorted by p-value in ascending order (from most significant to least significant). </p> 
+    <p>Note: </p> 
+    <p>&#183; You can resize columns by using the mouse to drag column headings.</p> 
+    <p>&#183; You can also reorder columns in the details pane by using a mouse to drag a column heading to the left or right of its original position. As you drag a column, highlighting between the column headings indicates the new position of the column. </p> 
+    <p>&#183; To sort by a specific column, double click on the column header to sort ascending and then click again to sort in descending order</p> 
+    <p>&#183; <b>Display Preference</b>: Display Preference button to modify the visible columns<b>.</b></p> 
+    <p>&#183; <b>Export:</b> Click on Export in the lower left of the visualization to export this table in .csv format. The export file will contain only the columns displayed.</p>
+</ul>
+</body>
+
+
+
+</html>
