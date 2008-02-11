@@ -11,8 +11,10 @@ import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarr
 import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.CSSignificanceResultSet;
+import org.geworkbench.bison.datastructure.bioobjects.microarray.CSTTestResultSet;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSSignificanceResultSet;
+import org.geworkbench.bison.datastructure.bioobjects.microarray.DSTTestResultSet;
 import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
@@ -70,90 +72,95 @@ public class MultiTTestAnalysis extends AbstractAnalysis implements ClusteringAn
 
     public AlgorithmExecutionResults execute(Object input) {
         assert (input instanceof DSMicroarraySetView);
-        DSMicroarraySetView<DSGeneMarker, DSMicroarray> view = (DSMicroarraySetView<DSGeneMarker, DSMicroarray>) input;
-        DSMicroarraySet maSet = view.getMicroarraySet();
-        TTest tTest = new TTestImpl();
-        // Get params
-        Set<String> labelSet = panel.getLabels();
-        double alpha = panel.getPValue();
-        int m = labelSet.size();
-        if (m < 2) {
-            return new AlgorithmExecutionResults(false, "At least two panels must be selected for comparison.", null);
+        try{
+	        DSMicroarraySetView<DSGeneMarker, DSMicroarray> view = (DSMicroarraySetView<DSGeneMarker, DSMicroarray>) input;
+	        DSMicroarraySet maSet = view.getMicroarraySet();
+	        TTest tTest = new TTestImpl();
+	        // Get params
+	        Set<String> labelSet = panel.getLabels();
+	        double alpha = panel.getPValue();
+	        int m = labelSet.size();
+	        if (m < 2) {
+	            return new AlgorithmExecutionResults(false, "At least two panels must be selected for comparison.", null);
+	        }
+	        // todo - check that all selected panels have at least two elements
+	        int numTests = m * (m - 1) / 2;
+	        DSAnnotationContext<DSMicroarray> context = CSAnnotationContextManager.getInstance().getCurrentContext(maSet);
+	        String[] labels = labelSet.toArray(new String[m]);
+	        int n = view.markers().size();
+	        double[][] pValues = new double[n][numTests];
+	        int testIndex = 0;
+	        // Create panels and significant result sets to store results
+	        DSPanel<DSGeneMarker>[] panels = new DSPanel[numTests];
+	        DSSignificanceResultSet<DSGeneMarker>[] sigSets = new DSSignificanceResultSet[numTests];
+	        // todo - use a F-test to filter genes prior to finding significant genes with Holm t Test
+	        // Run tests
+	        try {
+	            for (int i = 0; i < m; i++) {
+	                String labelA = labels[i];
+	                DSPanel<DSMicroarray> panelA = context.getItemsWithLabel(labelA);
+	                int aSize = panelA.size();
+	                for (int j = i + 1; j < m; j++) {
+	                    String labelB = labels[j];
+	                    DSPanel<DSMicroarray> panelB = context.getItemsWithLabel(labelB);
+	                    int bSize = panelB.size();
+	                    for (int k = 0; k < n; k++) {
+	                        double[] a = new double[aSize];
+	                        for (int aIndex = 0; aIndex < aSize; aIndex++) {
+	                            a[aIndex] = panelA.get(aIndex).getMarkerValue(k).getValue();
+	                        }
+	                        double[] b = new double[bSize];
+	                        for (int bIndex = 0; bIndex < bSize; bIndex++) {
+	                            b[bIndex] = panelB.get(bIndex).getMarkerValue(k).getValue();
+	                        }
+	                        pValues[k][testIndex] = tTest.tTest(a, b);
+	                    }
+	                    String label = labelA + " vs. " + labelB;
+	                    panels[testIndex] = new CSPanel<DSGeneMarker>(label);
+	                    sigSets[testIndex] = new CSTTestResultSet<DSGeneMarker>(
+	                            maSet,
+	                            label,
+	                            new String[] {labelA},
+	                            new String[] {labelB},
+	                            alpha);
+	                    testIndex++;
+	                }
+	            }
+	            // Sort each set of pValues and then use Holm method to compute significance
+	            for (int i = 0; i < n; i++) {
+	                Indexable[] indices = new Indexable[numTests];
+	                for (int j = 0; j < numTests; j++) {
+	                    indices[j] = new Indexable(pValues[i], j);
+	                }
+	                Arrays.sort(indices);
+	                for (int j = 0; j < numTests; j++) {
+	                    int index = indices[j].index;
+	                    double pValue = pValues[i][index];
+	                    pValue = pValue * (numTests - j);
+	                    // Is this a critical p-Value?
+	                    if (pValue < alpha) {
+	                        DSGeneMarker marker = view.markers().get(i);
+	                        panels[index].add(marker);
+	                        sigSets[index].setSignificance(marker, pValue);
+	                    } else {
+	                        // Consider no more tests after the first one fails
+	                        break;
+	                    }
+	                }
+	            }
+	            // Add panels and sigsets
+	            for (int i = 0; i < numTests; i++) {
+	                sigSets[i].sortMarkersBySignificance();                
+	                publishSubpanelChangedEvent(new SubpanelChangedEvent<DSGeneMarker>(DSGeneMarker.class, panels[i], SubpanelChangedEvent.NEW));
+	                publishProjectNodeAddedEvent(new ProjectNodeAddedEvent("Analysis Result", null, sigSets[i]));
+	            }
+	        } catch (MathException me) {
+	            me.printStackTrace();
+	        }
+        }catch (ClassCastException cce){
+        	return null;
         }
-        // todo - check that all selected panels have at least two elements
-        int numTests = m * (m - 1) / 2;
-        DSAnnotationContext<DSMicroarray> context = CSAnnotationContextManager.getInstance().getCurrentContext(maSet);
-        String[] labels = labelSet.toArray(new String[m]);
-        int n = view.markers().size();
-        double[][] pValues = new double[n][numTests];
-        int testIndex = 0;
-        // Create panels and significant result sets to store results
-        DSPanel<DSGeneMarker>[] panels = new DSPanel[numTests];
-        DSSignificanceResultSet<DSGeneMarker>[] sigSets = new DSSignificanceResultSet[numTests];
-        // todo - use a F-test to filter genes prior to finding significant genes with Holm t Test
-        // Run tests
-        try {
-            for (int i = 0; i < m; i++) {
-                String labelA = labels[i];
-                DSPanel<DSMicroarray> panelA = context.getItemsWithLabel(labelA);
-                int aSize = panelA.size();
-                for (int j = i + 1; j < m; j++) {
-                    String labelB = labels[j];
-                    DSPanel<DSMicroarray> panelB = context.getItemsWithLabel(labelB);
-                    int bSize = panelB.size();
-                    for (int k = 0; k < n; k++) {
-                        double[] a = new double[aSize];
-                        for (int aIndex = 0; aIndex < aSize; aIndex++) {
-                            a[aIndex] = panelA.get(aIndex).getMarkerValue(k).getValue();
-                        }
-                        double[] b = new double[bSize];
-                        for (int bIndex = 0; bIndex < bSize; bIndex++) {
-                            b[bIndex] = panelB.get(bIndex).getMarkerValue(k).getValue();
-                        }
-                        pValues[k][testIndex] = tTest.tTest(a, b);
-                    }
-                    String label = labelA + " vs. " + labelB;
-                    panels[testIndex] = new CSPanel<DSGeneMarker>(label);
-                    sigSets[testIndex] = new CSSignificanceResultSet<DSGeneMarker>(
-                            maSet,
-                            label,
-                            new String[] {labelA},
-                            new String[] {labelB},
-                            alpha);
-                    testIndex++;
-                }
-            }
-            // Sort each set of pValues and then use Holm method to compute significance
-            for (int i = 0; i < n; i++) {
-                Indexable[] indices = new Indexable[numTests];
-                for (int j = 0; j < numTests; j++) {
-                    indices[j] = new Indexable(pValues[i], j);
-                }
-                Arrays.sort(indices);
-                for (int j = 0; j < numTests; j++) {
-                    int index = indices[j].index;
-                    double pValue = pValues[i][index];
-                    pValue = pValue * (numTests - j);
-                    // Is this a critical p-Value?
-                    if (pValue < alpha) {
-                        DSGeneMarker marker = view.markers().get(i);
-                        panels[index].add(marker);
-                        sigSets[index].setSignificance(marker, pValue);
-                    } else {
-                        // Consider no more tests after the first one fails
-                        break;
-                    }
-                }
-            }
-            // Add panels and sigsets
-            for (int i = 0; i < numTests; i++) {
-                sigSets[i].sortMarkersBySignificance();                
-                publishSubpanelChangedEvent(new SubpanelChangedEvent<DSGeneMarker>(DSGeneMarker.class, panels[i], SubpanelChangedEvent.NEW));
-                publishProjectNodeAddedEvent(new ProjectNodeAddedEvent("Analysis Result", null, sigSets[i]));
-            }
-        } catch (MathException me) {
-            me.printStackTrace();
-        }
+
         // todo
         return null;
     }
