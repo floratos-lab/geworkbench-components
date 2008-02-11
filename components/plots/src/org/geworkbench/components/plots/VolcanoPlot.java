@@ -11,9 +11,11 @@ import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarr
 import org.geworkbench.bison.datastructure.biocollections.views.CSMicroarraySetView;
 import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
+import org.geworkbench.bison.datastructure.bioobjects.microarray.CSTTestResultSet;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMutableMarkerValue;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSSignificanceResultSet;
+import org.geworkbench.bison.datastructure.bioobjects.microarray.DSTTestResultSet;
 import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.engine.config.VisualPlugin;
@@ -48,7 +50,8 @@ import java.util.List;
  *
  * @author Matt Hall, John Watkinson
  */
-@AcceptTypes({DSSignificanceResultSet.class})
+//@AcceptTypes({DSSignificanceResultSet.class})
+@AcceptTypes({DSTTestResultSet.class})
 public class VolcanoPlot implements VisualPlugin {
 
     static Log log = LogFactory.getLog(VolcanoPlot.class);
@@ -227,8 +230,9 @@ public class VolcanoPlot implements VisualPlugin {
                 if (dataSetView.getDataSet() != set) {
                     dataSetView.setMicroarraySet(set);
                 }
-            } else if (dataFile instanceof DSSignificanceResultSet) {
-            	if ((significance==null)||(significance.getLabels(DSSignificanceResultSet.CONTROL)==null)||(significance.getLabels(DSSignificanceResultSet.CASE)==null)){
+            } else if (dataFile instanceof CSTTestResultSet) {
+/*            	
+            	if ((significance==null)||(significance.getLabels(DSTTestResultSet.CONTROL)==null)||(significance.getLabels(DSTTestResultSet.CASE)==null)){
             		//since there are no control or no case, volcanoplot will not work, then we skip this one.
             		//and we should show some messages for user.
             		JLabel msg=new JLabel(
@@ -236,7 +240,8 @@ public class VolcanoPlot implements VisualPlugin {
             				"this result can not be shown in this version of Volcano Plot.</html>");
             		mainPanel.add(msg, BorderLayout.NORTH);
             	}else{
-	                significance = (DSSignificanceResultSet<DSGeneMarker>) dataFile;
+*/            	
+	                significance = (CSTTestResultSet<DSGeneMarker>) dataFile;
 	                DSMicroarraySet<DSMicroarray> set = significance.getParentDataSet();
 	                Boolean userOverride = userOverrideMap.get(set);
 	                if (userOverride != null) {
@@ -246,15 +251,15 @@ public class VolcanoPlot implements VisualPlugin {
 	                    guessLogNormalized(set);
 	                }
 	                generateChart();
-            	}
+//            	}
             }
         }
     }
 
     private void generateChart() {
         DSMicroarraySet<DSMicroarray> set = significance.getParentDataSet();
-        String[] caseLabels = significance.getLabels(DSSignificanceResultSet.CASE);
-        String[] controlLabels = significance.getLabels(DSSignificanceResultSet.CONTROL);
+        String[] caseLabels = significance.getLabels(DSTTestResultSet.CASE);
+        String[] controlLabels = significance.getLabels(DSTTestResultSet.CONTROL);
         DSAnnotationContext<DSMicroarray> context = CSAnnotationContextManager.getInstance().getCurrentContext(set);
         DSPanel<DSMicroarray> casePanel = new CSPanel<DSMicroarray>("Case");
         for (int i = 0; i < caseLabels.length; i++) {

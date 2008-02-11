@@ -650,8 +650,7 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 						} else {
 							if ((maSetView != null) && (refMASet != null)) {
 								results = selectedAnalysis.execute(maSetView);
-							}
-							if (refOtherSet != null) { // added for analysis
+							}else if (refOtherSet != null) { // added for analysis
 														// that do not take in
 														// microarray data set
 								results = selectedAnalysis.execute(refOtherSet);

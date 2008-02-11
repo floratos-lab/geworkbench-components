@@ -12,8 +12,10 @@ import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetV
 import org.geworkbench.bison.datastructure.biocollections.views.CSMicroarraySetView;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.CSSignificanceResultSet;
+import org.geworkbench.bison.datastructure.bioobjects.microarray.CSTTestResultSet;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSSignificanceResultSet;
+import org.geworkbench.bison.datastructure.bioobjects.microarray.DSTTestResultSet;
 import org.geworkbench.bison.datastructure.complex.panels.CSAnnotPanel;
 import org.geworkbench.bison.datastructure.complex.panels.DSAnnotatedPanel;
 import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
@@ -60,7 +62,7 @@ public class TtestAnalysis extends AbstractAnalysis implements ClusteringAnalysi
     private boolean absolute;
     private float[][] expMatrix;
     //THe following result is used for caSCRIPT only.
-    CSSignificanceResultSet<DSGeneMarker> the_sigSet;
+    DSSignificanceResultSet<DSGeneMarker> the_sigSet;
     boolean hierarchical_tree;
     int method_linkage;
     boolean calculate_genes;
@@ -260,7 +262,7 @@ public class TtestAnalysis extends AbstractAnalysis implements ClusteringAnalysi
                 } else if (significanceMethod == TtestAnalysisPanel.MAX_T) {
                     results = executeMaxT();
                 }
-                CSSignificanceResultSet<DSGeneMarker> sigSet = new CSSignificanceResultSet<DSGeneMarker>(
+                DSSignificanceResultSet<DSGeneMarker> sigSet = new CSTTestResultSet<DSGeneMarker>(
                         maSet,
                         "T-Test",
                         classSets[0].toArray(new String[0]),
@@ -340,7 +342,7 @@ public class TtestAnalysis extends AbstractAnalysis implements ClusteringAnalysi
                 }
             }
 
-            CSSignificanceResultSet<DSGeneMarker> sigSet = new CSSignificanceResultSet<DSGeneMarker>(
+            DSSignificanceResultSet<DSGeneMarker> sigSet = new CSTTestResultSet<DSGeneMarker>(
                     maSet,
                     "T-Test",
                     classSets[0].toArray(new String[0]),
