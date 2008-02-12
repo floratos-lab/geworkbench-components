@@ -353,14 +353,6 @@ public class AracneAnalysis extends AbstractGridAnalysis implements ClusteringAn
             if (params.getHubGeneList() == null || params.getHubGeneList().size() == 0) {
                 return new ParamValidationResults(false, "You did not load any genes as hub markers.");
             }
-
-            ArrayList<String> hubGeneList = params.getHubGeneList();
-            for (String modGene : hubGeneList) {
-                DSGeneMarker marker = mSetView.markers().get(modGene);
-                if (marker == null) {
-                    return new ParamValidationResults(false, "Couldn't find marker " + modGene + " specified as hub gene in microarray set.");
-                }
-            }
         }
         if (params.isThresholdMI()) {
         	try{
