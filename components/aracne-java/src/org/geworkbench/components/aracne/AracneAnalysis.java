@@ -25,6 +25,7 @@ import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
 import org.geworkbench.bison.model.analysis.ClusteringAnalysis;
+import org.geworkbench.bison.model.analysis.ParamValidationResults;
 import org.geworkbench.builtin.projects.ProjectPanel;
 import org.geworkbench.engine.management.Publish;
 import org.geworkbench.events.AdjacencyMatrixEvent;
@@ -319,18 +320,32 @@ public class AracneAnalysis extends AbstractGridAnalysis implements ClusteringAn
     @Override
 	public Map<Serializable, Serializable> getBisonParameters() {
 		log.debug("Reading bison parameters");
-
 		Map<Serializable, Serializable> bisonParameters = new HashMap<Serializable, Serializable>();
 		AracneParamPanel paramPanel = (AracneParamPanel) this.aspp;
 
-		if (paramPanel.isDPIToleranceSpecified()) {
-			float dpiTolerence = paramPanel.getDPITolerance();
-			bisonParameters.put("dpi", dpiTolerence);
-		}
-		if (paramPanel.isKernelWidthSpecified()) {
-			float kernelWidth = paramPanel.getKernelWidth();
-			bisonParameters.put("kernel", kernelWidth);
-		}
+        if (paramPanel.isDPIToleranceSpecified()) {
+        	try{
+	        	if ((paramPanel.getDPITolerance()!=Float.NaN)&&(0<=paramPanel.getDPITolerance())&&(paramPanel.getDPITolerance()<=1)){
+					float dpiTolerence = paramPanel.getDPITolerance();
+	        		bisonParameters.put("dpi", dpiTolerence);
+	        	}else
+	        		throw new IllegalArgumentException("DPI Tolerance should between 0.0 and 1.0");
+        	}catch(NumberFormatException nfe){
+        		throw new IllegalArgumentException("DPI Tolerance should be a float number between 0.0 and 1.0.");        		
+        	};
+        }
+		
+        if (paramPanel.isKernelWidthSpecified()) {
+        	try{
+	        	if ((0<=paramPanel.getKernelWidth())&&(paramPanel.getKernelWidth()<=1)){
+					float kernelWidth = paramPanel.getKernelWidth();
+					bisonParameters.put("kernel", kernelWidth);
+	        	}else
+	        		throw new IllegalArgumentException("Kernel Width should between 0.0 and 1.0");
+        	}catch(NumberFormatException nfe){
+        		throw new IllegalArgumentException("Kernel Width should be a float number between 0.0 and 1.0.");        		
+        	};
+        }
 
 		// TODO allow user to enter many markers or a file of markers
 		// String hubMarkersFile = paramPanel.getHubMarkersFile();
@@ -341,8 +356,15 @@ public class AracneAnalysis extends AbstractGridAnalysis implements ClusteringAn
 			hubGene = genes[0];
 		bisonParameters.put("hub", hubGene);
 
-		float threshold = paramPanel.getThreshold();
-		bisonParameters.put("threshold", threshold);
+    	try{
+    		if ((0<=paramPanel.getThreshold())&&(paramPanel.getThreshold()<=1)){
+	    		float threshold = paramPanel.getThreshold();
+	    		bisonParameters.put("threshold", threshold);
+    		}else
+    			throw new IllegalArgumentException("Threshold P-Value should between 0.0 and 1.0.");
+    	}catch(NumberFormatException nfe){
+    		throw new IllegalArgumentException("Threshold P-Value should be a float number between 0.0 and 1.0.");        		
+    	};
 
 		return bisonParameters;
 	}
