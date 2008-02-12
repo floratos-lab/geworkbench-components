@@ -85,16 +85,18 @@ public class AnovaAnalysis extends AbstractGridAnalysis implements
 		DSMicroarraySetView<DSGeneMarker, DSMicroarray> view = (DSMicroarraySetView<DSGeneMarker, DSMicroarray>) input;
 		DSMicroarraySet<DSMicroarray> maSet = view.getMicroarraySet();
 
+/*		
 		// testing how to access view
-		DSItemList itemptest = view.getItemPanel();
-		DSItemList itemtest = view.items();
+		//DSItemList itemptest = view.getItemPanel();
+		//DSItemList itemtest = view.items();
 		// above two lines are equal.
 		Iterator groups = view.items().iterator(); // microarrays
 		while (groups.hasNext()) {
 			DSMicroarray temp = (DSMicroarray) groups.next();
 			temp.toString();
 		}
-		Object test = view.items();
+		//Object test = view.items();
+		assert (view.items() instanceof DSPanel);
 		DSItemList paneltest = ((DSPanel) view.items()).panels();
 		Iterator groups2 = paneltest.iterator(); // groups
 		while (groups2.hasNext()) {
@@ -106,10 +108,9 @@ public class AnovaAnalysis extends AbstractGridAnalysis implements
 				System.out.println(temp2.toString());
 			}
 		}
-
 		DSItemList markertest = view.markers();
-		;
 		// end testing
+*/
 
 		if (!isLogNormalized(maSet)) {
 			Object[] options = { "Proceed", "Cancel" };
