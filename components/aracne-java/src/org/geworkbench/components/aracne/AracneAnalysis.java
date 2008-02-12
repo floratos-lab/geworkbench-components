@@ -122,43 +122,15 @@ public class AracneAnalysis extends AbstractGridAnalysis implements ClusteringAn
 //            p.setHub(params.getHubGeneString());
         }
         if (params.isThresholdMI()) {
-        	try{
-	        	if ((0<=params.getThreshold())&&(params.getThreshold()<=1))
-	        		p.setThreshold(params.getThreshold());
-	        	else
-	        		return new AlgorithmExecutionResults(false,"Threshold Mutual Info. should between 0.0 and 1.0", null);
-        	}catch(NumberFormatException nfe){
-        		return new AlgorithmExecutionResults(false,"Threshold Mutual Info. should be a float number between 0.0 and 1.0.", null);        		
-        	};
+            p.setThreshold(params.getThreshold());
         } else {
-        	try{
-	        	if ((0<=params.getThreshold())&&(params.getThreshold()<=1))
-	        		p.setPvalue(params.getThreshold());
-	        	else
-	        		return new AlgorithmExecutionResults(false,"Threshold P-Value should between 0.0 and 1.0", null);
-        	}catch(NumberFormatException nfe){
-        		return new AlgorithmExecutionResults(false,"Threshold P-Value should be a float number between 0.0 and 1.0.", null);        		
-        	};
+            p.setPvalue(params.getThreshold());
         }
         if (params.isKernelWidthSpecified()) {
-        	try{
-	        	if ((0<=params.getKernelWidth())&&(params.getKernelWidth()<=1))
-	        		p.setSigma(params.getKernelWidth());
-	        	else
-	        		return new AlgorithmExecutionResults(false,"Kernel Width should between 0.0 and 1.0", null);
-        	}catch(NumberFormatException nfe){
-        		return new AlgorithmExecutionResults(false,"Kernel Width should be a float number between 0.0 and 1.0.", null);        		
-        	};
+            p.setSigma(params.getKernelWidth());
         }
         if (params.isDPIToleranceSpecified()) {
-        	try{
-	        	if ((params.getDPITolerance()!=Float.NaN)&&(0<=params.getDPITolerance())&&(params.getDPITolerance()<=1))
-	        		p.setEps(params.getDPITolerance());
-	        	else
-	        		return new AlgorithmExecutionResults(false,"DPI Tolerance should between 0.0 and 1.0", null);
-        	}catch(NumberFormatException nfe){
-        		return new AlgorithmExecutionResults(false,"DPI Tolerance should be a float number between 0.0 and 1.0.", null);        		
-        	};
+            p.setEps(params.getDPITolerance());
         }
         if (params.isTargetListSpecified()) {
             if (params.getTargetGenes() == null || params.getTargetGenes().size() == 0) {
@@ -320,32 +292,18 @@ public class AracneAnalysis extends AbstractGridAnalysis implements ClusteringAn
     @Override
 	public Map<Serializable, Serializable> getBisonParameters() {
 		log.debug("Reading bison parameters");
+
 		Map<Serializable, Serializable> bisonParameters = new HashMap<Serializable, Serializable>();
 		AracneParamPanel paramPanel = (AracneParamPanel) this.aspp;
 
-        if (paramPanel.isDPIToleranceSpecified()) {
-        	try{
-	        	if ((paramPanel.getDPITolerance()!=Float.NaN)&&(0<=paramPanel.getDPITolerance())&&(paramPanel.getDPITolerance()<=1)){
-					float dpiTolerence = paramPanel.getDPITolerance();
-	        		bisonParameters.put("dpi", dpiTolerence);
-	        	}else
-	        		throw new IllegalArgumentException("DPI Tolerance should between 0.0 and 1.0");
-        	}catch(NumberFormatException nfe){
-        		throw new IllegalArgumentException("DPI Tolerance should be a float number between 0.0 and 1.0.");        		
-        	};
-        }
-		
-        if (paramPanel.isKernelWidthSpecified()) {
-        	try{
-	        	if ((0<=paramPanel.getKernelWidth())&&(paramPanel.getKernelWidth()<=1)){
-					float kernelWidth = paramPanel.getKernelWidth();
-					bisonParameters.put("kernel", kernelWidth);
-	        	}else
-	        		throw new IllegalArgumentException("Kernel Width should between 0.0 and 1.0");
-        	}catch(NumberFormatException nfe){
-        		throw new IllegalArgumentException("Kernel Width should be a float number between 0.0 and 1.0.");        		
-        	};
-        }
+		if (paramPanel.isDPIToleranceSpecified()) {
+			float dpiTolerence = paramPanel.getDPITolerance();
+			bisonParameters.put("dpi", dpiTolerence);
+		}
+		if (paramPanel.isKernelWidthSpecified()) {
+			float kernelWidth = paramPanel.getKernelWidth();
+			bisonParameters.put("kernel", kernelWidth);
+		}
 
 		// TODO allow user to enter many markers or a file of markers
 		// String hubMarkersFile = paramPanel.getHubMarkersFile();
@@ -356,15 +314,8 @@ public class AracneAnalysis extends AbstractGridAnalysis implements ClusteringAn
 			hubGene = genes[0];
 		bisonParameters.put("hub", hubGene);
 
-    	try{
-    		if ((0<=paramPanel.getThreshold())&&(paramPanel.getThreshold()<=1)){
-	    		float threshold = paramPanel.getThreshold();
-	    		bisonParameters.put("threshold", threshold);
-    		}else
-    			throw new IllegalArgumentException("Threshold P-Value should between 0.0 and 1.0.");
-    	}catch(NumberFormatException nfe){
-    		throw new IllegalArgumentException("Threshold P-Value should be a float number between 0.0 and 1.0.");        		
-    	};
+		float threshold = paramPanel.getThreshold();
+		bisonParameters.put("threshold", threshold);
 
 		return bisonParameters;
 	}
@@ -383,4 +334,74 @@ public class AracneAnalysis extends AbstractGridAnalysis implements ClusteringAn
 		// TODO Auto-generated method stub
 		return null;
 	}
+	
+	/**
+	 * Validates the user-entered parameter values.
+	 */
+	@Override
+	public ParamValidationResults validateParameters() {
+		// Delegates the validation to the panel.
+
+		if (aspp == null)
+			return new ParamValidationResults(true, null);
+
+		// Use this to get params
+        AracneParamPanel params = (AracneParamPanel) aspp;
+
+        final Parameter p = new Parameter();
+        if (params.isHubListSpecified()) {
+            if (params.getHubGeneList() == null || params.getHubGeneList().size() == 0) {
+                return new ParamValidationResults(false, "You did not load any genes as hub markers.");
+            }
+
+            ArrayList<String> hubGeneList = params.getHubGeneList();
+            for (String modGene : hubGeneList) {
+                DSGeneMarker marker = mSetView.markers().get(modGene);
+                if (marker == null) {
+                    return new ParamValidationResults(false, "Couldn't find marker " + modGene + " specified as hub gene in microarray set.");
+                }
+            }
+        }
+        if (params.isThresholdMI()) {
+        	try{
+	        	if ((0<=params.getThreshold())&&(params.getThreshold()<=1)){}
+	        	else
+	        		return new ParamValidationResults(false, "Threshold Mutual Info. should between 0.0 and 1.0");
+        	}catch(NumberFormatException nfe){
+        		return new ParamValidationResults(false, "Threshold Mutual Info. should be a float number between 0.0 and 1.0.");
+        	};
+        } else {
+        	try{
+	        	if ((0<=params.getThreshold())&&(params.getThreshold()<=1)){}
+	        	else
+	        		return new ParamValidationResults(false, "Threshold P-Value should between 0.0 and 1.0");
+        	}catch(NumberFormatException nfe){
+        		return new ParamValidationResults(false, "Threshold P-Value should be a float number between 0.0 and 1.0.");
+        	};
+        }
+        if (params.isKernelWidthSpecified()) {
+        	try{
+	        	if ((0<=params.getKernelWidth())&&(params.getKernelWidth()<=1)){}
+	        	else
+	        		return new ParamValidationResults(false, "Kernel Width should between 0.0 and 1.0");
+        	}catch(NumberFormatException nfe){
+        		return new ParamValidationResults(false, "Kernel Width should be a float number between 0.0 and 1.0.");
+        	};
+        }
+        if (params.isDPIToleranceSpecified()) {
+        	try{
+	        	if ((params.getDPITolerance()!=Float.NaN)&&(0<=params.getDPITolerance())&&(params.getDPITolerance()<=1)){}
+	        	else
+	        		return new ParamValidationResults(false, "DPI Tolerance should between 0.0 and 1.0");
+        	}catch(NumberFormatException nfe){
+        		return new ParamValidationResults(false, "DPI Tolerance should be a float number between 0.0 and 1.0.");
+        	};
+        }
+        if (params.isTargetListSpecified()) {
+            if (params.getTargetGenes() == null || params.getTargetGenes().size() == 0) {
+        		return new ParamValidationResults(false, "You did not load any target genes.");
+            }
+        }
+		return new ParamValidationResults(true, null);
+	}	
 }
