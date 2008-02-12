@@ -660,6 +660,9 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 								results = selectedAnalysis.execute(refOtherSet);
 							}
 						}
+					} catch (IllegalArgumentException iae) {
+						JOptionPane.showMessageDialog(null, iae.getMessage(),
+								"Parameter Validation Error", JOptionPane.ERROR_MESSAGE);
 					} catch (Exception e) {
 						e.printStackTrace();
 					} finally {
