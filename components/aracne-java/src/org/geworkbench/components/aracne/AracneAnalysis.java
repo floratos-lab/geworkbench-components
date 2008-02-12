@@ -121,15 +121,43 @@ public class AracneAnalysis extends AbstractGridAnalysis implements ClusteringAn
 //            p.setHub(params.getHubGeneString());
         }
         if (params.isThresholdMI()) {
-            p.setThreshold(params.getThreshold());
+        	try{
+	        	if ((0<=params.getThreshold())&&(params.getThreshold()<=1))
+	        		p.setThreshold(params.getThreshold());
+	        	else
+	        		return new AlgorithmExecutionResults(false,"Threshold Mutual Info. should between 0.0 and 1.0", null);
+        	}catch(NumberFormatException nfe){
+        		return new AlgorithmExecutionResults(false,"Threshold Mutual Info. should be a float number between 0.0 and 1.0.", null);        		
+        	};
         } else {
-            p.setPvalue(params.getThreshold());
+        	try{
+	        	if ((0<=params.getThreshold())&&(params.getThreshold()<=1))
+	        		p.setPvalue(params.getThreshold());
+	        	else
+	        		return new AlgorithmExecutionResults(false,"Threshold P-Value should between 0.0 and 1.0", null);
+        	}catch(NumberFormatException nfe){
+        		return new AlgorithmExecutionResults(false,"Threshold P-Value should be a float number between 0.0 and 1.0.", null);        		
+        	};
         }
         if (params.isKernelWidthSpecified()) {
-            p.setSigma(params.getKernelWidth());
+        	try{
+	        	if ((0<=params.getKernelWidth())&&(params.getKernelWidth()<=1))
+	        		p.setSigma(params.getKernelWidth());
+	        	else
+	        		return new AlgorithmExecutionResults(false,"Kernel Width should between 0.0 and 1.0", null);
+        	}catch(NumberFormatException nfe){
+        		return new AlgorithmExecutionResults(false,"Kernel Width should be a float number between 0.0 and 1.0.", null);        		
+        	};
         }
         if (params.isDPIToleranceSpecified()) {
-            p.setEps(params.getDPITolerance());
+        	try{
+	        	if ((params.getDPITolerance()!=Float.NaN)&&(0<=params.getDPITolerance())&&(params.getDPITolerance()<=1))
+	        		p.setEps(params.getDPITolerance());
+	        	else
+	        		return new AlgorithmExecutionResults(false,"DPI Tolerance should between 0.0 and 1.0", null);
+        	}catch(NumberFormatException nfe){
+        		return new AlgorithmExecutionResults(false,"DPI Tolerance should be a float number between 0.0 and 1.0.", null);        		
+        	};
         }
         if (params.isTargetListSpecified()) {
             if (params.getTargetGenes() == null || params.getTargetGenes().size() == 0) {
