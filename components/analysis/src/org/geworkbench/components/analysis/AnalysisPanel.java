@@ -88,7 +88,7 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 	private Log log = LogFactory.getLog(this.getClass());
 
 	// FIXME this needs to be read from configure file
-	private final String dispatcherUrl = "http://156.145.29.181:8080/wsrf/services/cagrid/Dispatcher";
+	private final String dispatcherUrl = "http://cagridnode.c2b2.columbia.edu:8080/wsrf/services/cagrid/Dispatcher";
 
 	/**
 	 * The underlying GUI panel for the clustering component
@@ -540,7 +540,10 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 			jAnalysisTabbedPane.addTab("Services", jGridServicePanel);
 		} else {
 			jAnalysisTabbedPane.remove(jGridServicePanel);
-			jGridServicePanel=null; // this is just a quick fix for bug 0001174, Quick fix made user input service information every time. Should have a better implementation. 
+			jGridServicePanel = null; // TODO this is just a quick fix for bug
+										// 0001174, Quick fix made user input
+										// service information every time.
+										// Should have a better implementation.
 		}
 	}
 
@@ -610,10 +613,10 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 
 								serviceParameterList.add(maSetView);
 								if (refOtherSet != null) { // added for
-															// analysis that do
-															// not take in
-															// microarray data
-															// set
+									// analysis that do
+									// not take in
+									// microarray data
+									// set
 									serviceParameterList.add(refOtherSet);
 								}
 								serviceParameterList
@@ -650,9 +653,10 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 						} else {
 							if ((maSetView != null) && (refMASet != null)) {
 								results = selectedAnalysis.execute(maSetView);
-							}else if (refOtherSet != null) { // added for analysis
-														// that do not take in
-														// microarray data set
+							} else if (refOtherSet != null) { // added for
+																// analysis
+								// that do not take in
+								// microarray data set
 								results = selectedAnalysis.execute(refOtherSet);
 							}
 						}
@@ -844,7 +848,9 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 	 * @return boolean
 	 */
 	private boolean isGridAnalysis() {
-		//TODO: use this to check if it's a grid analysis or not is wrong. it cause bug 0001174 in Mantis. Quick fix made user input service information every time. Should have a better implementation. 
+		// TODO: use this to check if it's a grid analysis or not is wrong. it
+		// cause bug 0001174 in Mantis. Quick fix made user input service
+		// information every time. Should have a better implementation.
 		if (jGridServicePanel != null) {
 			ButtonGroup gridSelectionButtonGroup = jGridServicePanel
 					.getButtonGroup();
