@@ -18,7 +18,7 @@
 
 		<homeID>overview</homeID>
 
-		<mapref location="anoveMap.jhm"/>
+		<mapref location="anova.jhm"/>
 
 	</maps>
 
