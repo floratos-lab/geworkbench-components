@@ -584,7 +584,7 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 		}
 
 		AnalysisInvokedEvent event = new AnalysisInvokedEvent(selectedAnalysis
-				.getLabel());
+				.getLabel(), maSetView.getDataSet().getLabel());
 		publishAnalysisInvokedEvent(event);
 
 		ParamValidationResults pvr = selectedAnalysis.validateParameters();
