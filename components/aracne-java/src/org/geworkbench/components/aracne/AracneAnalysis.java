@@ -2,7 +2,9 @@ package org.geworkbench.components.aracne;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
@@ -11,10 +13,13 @@ import javax.swing.JOptionPane;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.exolab.castor.util.Iterator;
 import org.geworkbench.analysis.AbstractAnalysis;
 import org.geworkbench.analysis.AbstractGridAnalysis;
+import org.geworkbench.bison.annotation.CSAnnotationContextManager;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.CSMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
+import org.geworkbench.bison.datastructure.biocollections.views.CSMicroarraySetView;
 import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
 import org.geworkbench.bison.datastructure.bioobjects.markers.CSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
@@ -22,6 +27,7 @@ import org.geworkbench.bison.datastructure.bioobjects.microarray.CSExpressionMar
 import org.geworkbench.bison.datastructure.bioobjects.microarray.CSMicroarray;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMarkerValue;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
+import org.geworkbench.bison.datastructure.complex.panels.CSItemList;
 import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
 import org.geworkbench.bison.model.analysis.ClusteringAnalysis;
@@ -141,6 +147,7 @@ public class AracneAnalysis extends AbstractGridAnalysis implements ClusteringAn
         }
         if (adjMatrix != null) {
             p.setPrecomputedAdjacencies(convert(adjMatrix, mSetView));
+//            filterByAdjMatrix(adjMatrix, mSetView);
         }
 
 //        AracneWorker aracneWorker = new AracneWorker(mSetView, p);
@@ -152,6 +159,24 @@ public class AracneAnalysis extends AbstractGridAnalysis implements ClusteringAn
 
         return new AlgorithmExecutionResults(true, "ARACNE in progress.", null);
 
+    }
+
+    private DSMicroarraySetView<DSGeneMarker, DSMicroarray> filterByAdjMatrix(AdjacencyMatrixDataSet adjMatrix, DSMicroarraySetView<DSGeneMarker, DSMicroarray> mSet){
+        AdjacencyMatrix matrix = adjMatrix.getMatrix();
+        DSMicroarraySetView newView=new CSMicroarraySetView(mSet.getMicroarraySet());
+        newView.setMarkerPanel(mSet.getMarkerPanel());
+        newView.getMarkerPanel().addAll(mSet.getMarkerPanel());
+        newView.setItemPanel(mSet.getItemPanel());
+        DSItemList<DSGeneMarker> markers = mSet.markers();
+        DSItemList<DSGeneMarker> markers2 = newView.markers();
+        DSItemList<DSGeneMarker> retainSet=new CSItemList<DSGeneMarker>();
+        HashMap<Integer, HashMap<Integer, Float>> geneRows = matrix.getGeneRows();
+        for (Map.Entry<Integer, HashMap<Integer, Float>> entry : geneRows.entrySet()) {
+            DSGeneMarker gene1 = markers.get(entry.getKey());
+            retainSet.add(gene1);
+        }
+        markers2.retainAll(retainSet);
+        return newView;    	
     }
 
     private WeightedGraph convert(AdjacencyMatrixDataSet adjMatrix, DSMicroarraySetView<DSGeneMarker, DSMicroarray> mSet) {
@@ -314,7 +339,9 @@ public class AracneAnalysis extends AbstractGridAnalysis implements ClusteringAn
 			hubGene = genes[0];
 		bisonParameters.put("hub", hubGene);
 
-		float threshold = paramPanel.getThreshold();
+   		bisonParameters.put("isMI", paramPanel.isThresholdMI());		
+
+   		float threshold = paramPanel.getThreshold();
 		bisonParameters.put("threshold", threshold);
 
 		return bisonParameters;
