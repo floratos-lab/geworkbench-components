@@ -5,41 +5,65 @@ import java.lang.reflect.Method;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.ojb.otm.lock.ObjectLock;
 
 /**
  * A handler used to log events.
  * 
- * @author seth
- * @version $Id: ObjectHandler.java,v 1.2 2007-12-11 19:51:10 keshav Exp $
+ * @author sheths
+ * @version $Id: ObjectHandler.java,v 1.3 2008-02-15 23:40:03 sheths Exp $
  */
 public class ObjectHandler {
 
 	private Log log = LogFactory.getLog(this.getClass());
+	private String host = "beach.cs.columbia.edu";
+	private int port = 12346;
+	private int frequency = 2;
+	private static int count = 0;
 
 	public ObjectHandler(Object event, Object source) {
-		log.info("\n***GenSpace Logger****");
-		log.info("\nEvent Name: " + event.getClass().getName());
+		
+		if (event.getClass().getName().equals("org.geworkbench.events.AnalysisInvokedEvent")) {
+			
+			Method methods[] = event.getClass().getDeclaredMethods();
 
-		/*
-		 * if
-		 * (event.getClass().getName().equals("org.geworkbench.events.ProjectEvent")) {
-		 * Method methods[] = event.getClass().getMethods(); for (Method m :
-		 * methods) { } }
-		 */
-		Field fields[] = event.getClass().getDeclaredFields();
-		for (Field f : fields) {
-			log.info("Field: " + f.getName());
+			String analysisName = "";
+			String dataSetName = "";
+			String username;
+			boolean genspace = genspaceLogin.isLoggedIn;
+			
+			if (genspace) {
+				username = genspaceLogin.genspaceLogin;
+			} else {
+				username = System.getProperty("user.name");
+			}
+			
+			for (Method m : methods) {
+				try {
+					if (m.getName().equals("getAnalysisName")) {
+						analysisName = m.invoke(event).toString();
+					}
+					else if (m.getName().equals("getDataSetName")) {
+						dataSetName = m.invoke(event).toString();
+					}
+				}
+				catch (Exception e) {
+					log.info("Could not call this method");
+				}
+			}
+			
+			ObjectLogger o = new ObjectLogger(analysisName, dataSetName, username, genspace);
+			
+			count++;
+			if (count%frequency == 0) {
+				XmlClient x = new XmlClient(host, port);
+				boolean success = x.readAndSendFile("geworkbench_log.xml");
+
+				if (success == true) {
+					System.out.println("file sent succesfully");
+					o.deleteFile();
+				}
+			}	
 		}
-		Method methods[] = event.getClass().getDeclaredMethods();
-		for (Method m : methods) {
-			log.info("Method: " + m.getName());
-		}
-		/*
-		 * System.out.println("\nSource Name: " + source.getClass().getName());
-		 * fields = source.getClass().getDeclaredFields(); for(Field f : fields) {
-		 * System.out.println("Field: " + f.getName()); } methods =
-		 * source.getClass().getDeclaredMethods(); for(Method m: methods) {
-		 * System.out.println("Method: " + m.getName()); }
-		 */
 	}
 }
