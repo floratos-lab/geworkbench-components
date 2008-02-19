@@ -20,7 +20,7 @@
   <h3>ANOVA</h3> 
     <p>The ANOVA (ANalysis of VAriance) algorithm is used to determine whether any significant difference in the means exist in a dataset composed of more than two groups of experimental results. The implementation of ANOVA being used is taken from a distribution of MeV (<a href="http://www.tm4.org/mev.html">http://www.tm4.org/mev.html</a> ). This help topic describes <a href="#_Run_ANOVA">executing ANOVA analysis</a> and <a href="#_View_ANOVA_Results">viewing the results.</a></p> 
     <h3><a name="_Run_ANOVA"></a>Run ANOVA</h3> 
-    <p>1. Load expression file into a project folder that has been log transformed. </p> 
+    <p>1. Load or select an expression file (.exp) that has been log transformed. </p> 
     <p>2. In the selection area (lower left), activate three or more array groups.</p> 
     <p>3. In the analysis pane (lower right), select ANOVA analysis from the analysis list.</p> 
     <p>4. Populate the <a href="#_Parameter">parameters</a> used for this analysis method.</p> 
@@ -28,7 +28,7 @@
     <p>6. Click on Analyze. If successful, the project window is updated to reflect the result node (a child node of the input dataset The Dataset history captures the analysis parameters. </p> 
     <h3><a name="_Parameter"></a>Parameters</h3> 
     <p><img border="0" width="553" height="313" src="anova_files/image001.jpg"></p> 
-    <p><a name="_View_ANOVA_Results"></a><b>P-Value Estimation:</b></p> 
+    <p><b>P-Value Estimation:</b></p> 
     <p>F-Distribution: The F-distribution arises from the ratio of the variances of two normally distributed statistics (chi-squared distributions). </p> 
     <p>Permutation: This selection requires the number of permutations. The default value is 100.</p> 
     <p><b>False Discovery Rate:</b> The p-value can be used directly as a cutoff for determining significant genes, or it can be corrected.</p> 
@@ -39,7 +39,7 @@
     <p><b>False Discovery Control </b>(enabled when Permutation is selected in the P-Value Estimation). The user must select the false discoveries in terms of either</p> 
     <p>&#183; The number of false significant genes should not exceed (integer), or</p> 
     <p>&#183; The proportion of false significant genes should not exceed.</p> 
-    <h3>View ANOVA Results</h3> 
+    <h3><a name="_View_ANOVA_Results"></a>View ANOVA Results</h3> 
     <p>Click on the ANOVA result node in the project panel. The ANOVA visualization will display a <a href="#_Tab_View">tabbed display</a> and the <a href="#_Color_Mosaic">Color Mosaic view</a>.</p> 
     <h3><a name="_Color_Mosaic"></a>Color Mosaic</h3> 
     <p>In this view, a color spectrum is used to indicate the relative magnitudes of the measurements. The arrays (columns) are grouped by input group membership, i.e. group 1, group 2 etc. Each row corresponds to a marker, and markers display is ordered by p-value ascending order (from most significant to least significant). This visualization is described in detail in the Color Mosaic Help and Tutorials. </p> 
