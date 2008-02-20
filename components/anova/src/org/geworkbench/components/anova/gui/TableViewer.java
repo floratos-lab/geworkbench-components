@@ -5,6 +5,7 @@ package org.geworkbench.components.anova.gui;
 
 /**
  * @author yc2480
+ * @version $Id: TableViewer.java,v 1.2 2008-02-20 15:40:30 keshav Exp $
  * 
  */
 import java.awt.Color;
@@ -315,7 +316,11 @@ public class TableViewer extends JPanel {
 			c.setBackground(Color.white);
 			return c;
 		}
-
+		
+		/*
+		 * (non-Javadoc)
+		 * @see javax.swing.table.DefaultTableCellRenderer#setValue(java.lang.Object)
+		 */
 		public void setValue(Object value) {
 			if ((value != null) && (value instanceof Number)) {
 				if (((Number) value).doubleValue() < 0.1)
@@ -326,7 +331,12 @@ public class TableViewer extends JPanel {
 			super.setValue(value);
 		}
 	}
-
+	
+	/**
+	 * 
+	 * @author yc2480
+	 *
+	 */
 	public class TableHeaderMouseListener extends MouseAdapter {
 
 		public void mouseClicked(MouseEvent evt) {
