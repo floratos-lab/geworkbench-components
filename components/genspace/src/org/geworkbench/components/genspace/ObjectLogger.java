@@ -51,12 +51,15 @@ public class ObjectLogger {
 	}
 	
 	void deleteFile() {
+		
+		//TODO: Stupid hack... file.delete() doesn't seem to work on windows... find a better way to do this!
 		try {
 			File f = new File("geworkbench_log.xml");
-			f.delete();
+			FileWriter fw = new FileWriter(f, false);
+			fw.close();
 		} 
 		catch (Exception e) {
-			//TODO: Does nothing for now
+			e.printStackTrace();
 		}
 	}
 }
