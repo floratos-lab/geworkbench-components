@@ -38,7 +38,7 @@ import com.jgoodies.forms.layout.FormLayout;
  * This is an example geWorkbench component.
  * 
  * @author Mark Chiang
- * @version $id$
+ * @version $Id: TabularDataViewer.java,v 1.4 2008-02-20 15:40:30 keshav Exp $
  */
 // This annotation lists the data set types that this component accepts.
 // The component will only appear when a data set of the appropriate type is

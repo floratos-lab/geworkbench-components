@@ -3,12 +3,13 @@ package org.geworkbench.components.anova;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
 import javax.swing.JOptionPane;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.geworkbench.analysis.AbstractAnalysis;
 import org.geworkbench.analysis.AbstractGridAnalysis;
 import org.geworkbench.bison.annotation.CSAnnotationContextManager;
@@ -24,7 +25,6 @@ import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMutableMarker
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSSignificanceResultSet;
 import org.geworkbench.bison.datastructure.complex.panels.CSAnnotPanel;
 import org.geworkbench.bison.datastructure.complex.panels.DSAnnotatedPanel;
-import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
 import org.geworkbench.bison.model.analysis.ClusteringAnalysis;
@@ -44,7 +44,7 @@ import edu.columbia.geworkbench.cagrid.anova.PValueEstimation;
 
 /**
  * @author yc2480
- * @version $id$
+ * @version $Id: AnovaAnalysis.java,v 1.6 2008-02-20 15:40:30 keshav Exp $
  */
 public class AnovaAnalysis extends AbstractGridAnalysis implements
 		ClusteringAnalysis {
@@ -52,6 +52,8 @@ public class AnovaAnalysis extends AbstractGridAnalysis implements
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
+	
+	private Log log = LogFactory.getLog(this.getClass());
 	private final String analysisName = "Anova";
 	private int localAnalysisType;
 
@@ -74,11 +76,19 @@ public class AnovaAnalysis extends AbstractGridAnalysis implements
 		setLabel("Anova Analysis");
 		setDefaultPanel(anovaAnalysisPanel);
 	}
-
+	
+	/*
+	 * (non-Javadoc)
+	 * @see org.geworkbench.analysis.AbstractAnalysis#getAnalysisType()
+	 */
 	public int getAnalysisType() {
 		return localAnalysisType;
 	}
-
+	
+	/*
+	 * (non-Javadoc)
+	 * @see org.geworkbench.bison.model.analysis.Analysis#execute(java.lang.Object)
+	 */
 	@SuppressWarnings("unchecked")
 	public AlgorithmExecutionResults execute(Object input) {
 		assert (input instanceof DSMicroarraySetView);
@@ -145,7 +155,8 @@ public class AnovaAnalysis extends AbstractGridAnalysis implements
 				.getInstance();
 		DSAnnotationContext<DSMicroarray> context = manager
 				.getCurrentContext(maSet);
-
+		
+		//TODO - are these unused? if so, we should remove them
 		int numGroups = 0;
 		int numLabels = 0;
 		int numGenes = 0;
@@ -165,7 +176,7 @@ public class AnovaAnalysis extends AbstractGridAnalysis implements
 				numSelectedGroups++;
 				labelSet.add(label);
 			}
-			// System.out.println(label);
+			// log.debug(label);
 		}
 
 		numSelectedGroups = labelSet.size();
@@ -177,7 +188,7 @@ public class AnovaAnalysis extends AbstractGridAnalysis implements
 		String[] labels = labelSet.toArray(new String[numSelectedGroups]);
 		String[] labels1 = new String[0];
 		numGenes = view.markers().size();
-		// System.out.println("NumGenes:"+numGenes);
+		// log.debug("NumGenes:"+numGenes);
 		// Create panels and significant result sets to store results
 		DSSignificanceResultSet<DSGeneMarker> sigSet = new CSSignificanceResultSet<DSGeneMarker>(
 				maSet, "Anova Analysis", labels1, labels, pvalueth);
@@ -236,7 +247,7 @@ public class AnovaAnalysis extends AbstractGridAnalysis implements
 				for (int k = 0; k < numGenes; k++) {// for each marker
 					A[k][globleArrayIndex] = (float) panelA.get(aIndex)
 							.getMarkerValue(k).getValue();
-					// System.out.println(labelA+Integer.toString(i)+","+Integer.toString(k)+"+"+Integer.toString(aIndex));
+					// log.debug(labelA+Integer.toString(i)+","+Integer.toString(k)+"+"+Integer.toString(aIndex));
 				}
 				groupAssignments[globleArrayIndex] = i + 1;
 				globleArrayIndex++;
@@ -256,7 +267,7 @@ public class AnovaAnalysis extends AbstractGridAnalysis implements
 						String
 								.valueOf(anovaAnalysisPanel.anovaParameter
 										.getPValueEstimation() == PValueEstimation.permutation));
-		// System.out.println("usePerms:"+String.valueOf(anovaAnalysisPanel.anovaParameter.getPValueEstimation()==PValueEstimation.permutation));
+		// log.debug("usePerms:"+String.valueOf(anovaAnalysisPanel.anovaParameter.getPValueEstimation()==PValueEstimation.permutation));
 
 		if (anovaAnalysisPanel.anovaParameter.getPValueEstimation() == PValueEstimation.fdistribution) {
 
@@ -264,7 +275,7 @@ public class AnovaAnalysis extends AbstractGridAnalysis implements
 			data.addParam("numPerms", String
 					.valueOf(anovaAnalysisPanel.anovaParameter
 							.getPermutationsNumber()));
-			// System.out.println("numPerms:"+String.valueOf(anovaAnalysisPanel.anovaParameter.getPermutationsNumber()));
+			// log.debug("numPerms:"+String.valueOf(anovaAnalysisPanel.anovaParameter.getPermutationsNumber()));
 			if (anovaAnalysisPanel.anovaParameter
 					.getFalseDiscoveryRateControl() == FalseDiscoveryRateControl.number) {
 				data.addParam("falseNum", String.valueOf((new Float(
@@ -284,7 +295,7 @@ public class AnovaAnalysis extends AbstractGridAnalysis implements
 					.println("This shouldn't happen! I don't understand that PValueEstimation");
 		}
 
-		// System.out.println(anovaAnalysisPanel.anovaParameter.getFalseDiscoveryRateControl());
+		// log.debug(anovaAnalysisPanel.anovaParameter.getFalseDiscoveryRateControl());
 		if (anovaAnalysisPanel.anovaParameter.getFalseDiscoveryRateControl() == FalseDiscoveryRateControl.adjbonferroni) {
 			data.addParam("correction-method", String
 					.valueOf(OneWayANOVAInitBox.ADJ_BONFERRONI));
@@ -298,19 +309,19 @@ public class AnovaAnalysis extends AbstractGridAnalysis implements
 					.valueOf(OneWayANOVAInitBox.JUST_ALPHA));
 		} else if (anovaAnalysisPanel.anovaParameter
 				.getFalseDiscoveryRateControl() == FalseDiscoveryRateControl.westfallyoung) {
-			System.out.println("don't know what to do with WestFallYoung yet.");
+			log.debug("don't know what to do with WestFallYoung yet.");
 			data.addParam("correction-method", String
 					.valueOf(OneWayANOVAInitBox.MAX_T));
 		} else if (anovaAnalysisPanel.anovaParameter
 				.getFalseDiscoveryRateControl() == FalseDiscoveryRateControl.number) {
 			// it seems if it use false discovery control, it disregards false
 			// discovery rate
-			System.out.println("don't know what to do with FDC yet.");
+			log.debug("don't know what to do with FDC yet.");
 			data.addParam("correction-method", String
 					.valueOf(OneWayANOVAInitBox.FALSE_NUM));
 		} else if (anovaAnalysisPanel.anovaParameter
 				.getFalseDiscoveryRateControl() == FalseDiscoveryRateControl.proportion) {
-			System.out.println("don't know what to do with FDC yet.");
+			log.debug("don't know what to do with FDC yet.");
 			data.addParam("correction-method", String
 					.valueOf(OneWayANOVAInitBox.FALSE_PROP));
 		} else {
@@ -383,7 +394,7 @@ public class AnovaAnalysis extends AbstractGridAnalysis implements
 							view.markers().get(i).getLabel());
 					// if you don't want the whole label, you can use
 					// getShortName() to only get it's id.
-					// System.out.println(view.markers().get(i).getShortName());
+					// log.debug(view.markers().get(i).getShortName());
 					panelSignificant.add(item, new Float(apFM.A[i][0]));
 					sigSet.setSignificance(item, (double) apFM.A[i][0]);
 					anovaResult.setPVals(significantMarkerIndex, pFM.A[i][0]);
@@ -408,12 +419,12 @@ public class AnovaAnalysis extends AbstractGridAnalysis implements
 				// System.out.print(view.markers().get(i).getLabel()+"\tp-value:
 				// "+new Float(pFM.A[i][0])+"\tadj-p-value: "+new
 				// Float(apFM.A[i][0])+"\tf-value: "+new Float(fFM.A[i][0]));
-				// System.out.println();
+				// log.debug();
 			}
 			publishSubpanelChangedEvent(new SubpanelChangedEvent(
 					DSGeneMarker.class, panelSignificant,
 					SubpanelChangedEvent.NEW));
-			// System.out.println(result.toString());
+			// log.debug(result.toString());
 		} catch (AlgorithmException AE) {
 			AE.printStackTrace();
 		}
@@ -440,7 +451,12 @@ public class AnovaAnalysis extends AbstractGridAnalysis implements
 				"Anova Analysis", anovaResultSet);
 		return results;
 	}
-
+	
+	/**
+	 * 
+	 * @param anovaResult
+	 * @return
+	 */
 	private double[][] anovaResult2result2DArray(AnovaResult anovaResult) {
 		int arrayHeight = anovaResult.getPVals().length;
 		int arrayWidth = anovaResult.getGroupNames().length * 2 + 3; // each
@@ -483,13 +499,24 @@ public class AnovaAnalysis extends AbstractGridAnalysis implements
 
 		return result2DArray;
 	}
-
+	
+	/**
+	 * 
+	 * @param event
+	 * @return
+	 */
 	@Publish
+	@SuppressWarnings("unchecked")
 	public org.geworkbench.events.SubpanelChangedEvent publishSubpanelChangedEvent(
 			org.geworkbench.events.SubpanelChangedEvent event) {
 		return event;
 	}
-
+	
+	/**
+	 * 
+	 * @param data
+	 * @return
+	 */
 	private String generateHistoryString(AlgorithmData data) {
 		String histStr = "";
 		// Header
@@ -524,7 +551,7 @@ public class AnovaAnalysis extends AbstractGridAnalysis implements
 		 * if(anovaAnalysisPanel.anovaParameter.getFalseDiscoveryRateControl()==FalseDiscoveryRateControl.number){
 		 * histStr+="FALSE_NUM"; }else
 		 * if(anovaAnalysisPanel.anovaParameter.getFalseDiscoveryRateControl()==FalseDiscoveryRateControl.proportion){
-		 * histStr+="FALSE_PROP"; }else{ System.out.println("This shouldn't
+		 * histStr+="FALSE_PROP"; }else{ log.debug("This shouldn't
 		 * happen! I don't understand that selection. It should be one of
 		 * following: Alpha, Boferroni, Adj-Bonferroni, WestfallYoung, FalseNum,
 		 * FalseProp."); } histStr+="\n"; end of human readable version
@@ -535,7 +562,12 @@ public class AnovaAnalysis extends AbstractGridAnalysis implements
 
 		return histStr;
 	}
-
+	
+	/**
+	 * 
+	 * @param set
+	 * @return
+	 */
 	private boolean isLogNormalized(DSMicroarraySet<DSMicroarray> set) {
 		double minValue = Double.POSITIVE_INFINITY;
 		double maxValue = Double.NEGATIVE_INFINITY;
@@ -556,12 +588,20 @@ public class AnovaAnalysis extends AbstractGridAnalysis implements
 												// small enough, we guess it's
 												// lognormalized.
 	}
-
+	
+	/*
+	 * (non-Javadoc)
+	 * @see org.geworkbench.analysis.AbstractGridAnalysis#getAnalysisName()
+	 */
 	@Override
 	public String getAnalysisName() {
 		return analysisName;
 	}
-
+	
+	/*
+	 * (non-Javadoc)
+	 * @see org.geworkbench.analysis.AbstractGridAnalysis#getBisonParameters()
+	 */
 	@Override
 	public Map<Serializable, Serializable> getBisonParameters() {
 		Map<Serializable, Serializable> parameterMap = new HashMap<Serializable, Serializable>();
@@ -574,8 +614,13 @@ public class AnovaAnalysis extends AbstractGridAnalysis implements
 		parameterMap.put("anovaParameter", anovaAnalysisPanel.anovaParameter);
 		return parameterMap;
 	}
-
+	
+	/*
+	 * (non-Javadoc)
+	 * @see org.geworkbench.analysis.AbstractGridAnalysis#getBisonReturnType()
+	 */
 	@Override
+	@SuppressWarnings("unchecked")
 	public Class getBisonReturnType() {
 		return CSAnovaResultSet.class;
 	}

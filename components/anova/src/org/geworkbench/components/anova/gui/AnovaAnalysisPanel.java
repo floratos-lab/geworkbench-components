@@ -36,9 +36,8 @@ import edu.columbia.geworkbench.cagrid.anova.PValueEstimation;
 
 /**
  * @author yc2480
- * @version $id$
+ * @version $Id: AnovaAnalysisPanel.java,v 1.4 2008-02-20 15:40:30 keshav Exp $
  */
-
 public class AnovaAnalysisPanel extends AbstractSaveableParameterPanel
 		implements Serializable {
 
@@ -809,17 +808,33 @@ public class AnovaAnalysisPanel extends AbstractSaveableParameterPanel
 			return panel;
 		}
 	}
-
+	
+	/**
+	 * 
+	 * @return
+	 * @throws ObjectStreamException
+	 */
 	Object writeReplace() throws ObjectStreamException {
 		// we rewrite the writeReplace so when serialization, only
 		// anovaParameter been stored.
 		return new SerializedInstance(this.anovaParameter);
 	}
-
+	
+	/**
+	 * 
+	 * @param out
+	 * @throws IOException
+	 */
 	private void writeObject(java.io.ObjectOutputStream out) throws IOException {
 		out.defaultWriteObject();
 	}
-
+	
+	/**
+	 * 
+	 * @param in
+	 * @throws IOException
+	 * @throws ClassNotFoundException
+	 */
 	private void readObject(java.io.ObjectInputStream in) throws IOException,
 			ClassNotFoundException {
 		in.defaultReadObject();
