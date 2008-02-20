@@ -39,7 +39,9 @@ public class JmolComponent extends JPanel implements VisualPlugin {
                     "H  0.76923955 -0.59357141 0.0\n" +
                     "H -0.76923955 -0.59357141 0.0\n";
 
-    final static String strScript = "delay; move 360 0 0 0 0 0 0 0 4;";
+    final static String strScript = //"delay; move 360 0 0 0 0 0 0 0 4;";
+	"wireframe off; spacefill off; cartoons; color structure;";
+
     private JmolPanel jmolPanel;
 
     public JmolComponent() {
@@ -88,7 +90,7 @@ public class JmolComponent extends JPanel implements VisualPlugin {
                 return;
             }
             viewer.openStringInline(new String(fileBytes));
-//            viewer.evalString(strScript);
+            viewer.evalString(strScript);
 //
 //            revalidate();
             repaint();
