@@ -407,8 +407,8 @@ public class ServerInfoPanel extends JPanel {
 
     public void jRadioButton2_actionPerformed(ActionEvent e) {
 
-        jServerUptimeTextField.setText("August 26, 2007");
-        jServerVersionTextField.setText("Blast 2.2.17");
+        jServerUptimeTextField.setText("February 03, 2008");
+        jServerVersionTextField.setText("Blast 2.2.18");
         jqueuedTextField.setText("N/A");
         jAvailProcessorTextField.setText("N/A");
         jTotalProcessor.setText("N/A");
