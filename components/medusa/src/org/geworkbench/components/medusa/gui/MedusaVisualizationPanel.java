@@ -269,6 +269,8 @@ public class MedusaVisualizationPanel extends JPanel {
 		motifPanel.add(targetHeatScrollPane);
 		// motifPanel.add(new JPanel());
 
+		regulatorHeatScrollPane.getHorizontalScrollBar().setModel(targetHeatScrollPane.getHorizontalScrollBar().getModel());
+		
 		/* dummy panel at 2,0 so we can align the buttons (below) */
 		JPanel dummyPanel11 = new JPanel();
 		motifPanel.add(dummyPanel11);
