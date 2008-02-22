@@ -313,54 +313,6 @@ public class AracneAnalysis extends AbstractGridAnalysis implements ClusteringAn
         }
 
     }
-    
-    @Override
-	public Map<Serializable, Serializable> getBisonParameters() {
-		log.debug("Reading bison parameters");
-
-		Map<Serializable, Serializable> bisonParameters = new HashMap<Serializable, Serializable>();
-		AracneParamPanel paramPanel = (AracneParamPanel) this.aspp;
-
-		if (paramPanel.isDPIToleranceSpecified()) {
-			float dpiTolerence = paramPanel.getDPITolerance();
-			bisonParameters.put("dpi", dpiTolerence);
-		}
-		if (paramPanel.isKernelWidthSpecified()) {
-			float kernelWidth = paramPanel.getKernelWidth();
-			bisonParameters.put("kernel", kernelWidth);
-		}
-
-		// TODO allow user to enter many markers or a file of markers
-		// String hubMarkersFile = paramPanel.getHubMarkersFile();
-		// ArrayList<String> hubGeneList = paramPanel.getHubGeneList();
-		String hubGene = paramPanel.getHubGeneString();
-		String[] genes = StringUtils.split(hubGene, COMMA_SEP);
-		if (genes.length > 1)
-			hubGene = genes[0];
-		bisonParameters.put("hub", hubGene);
-
-   		bisonParameters.put("isMI", paramPanel.isThresholdMI());		
-
-   		float threshold = paramPanel.getThreshold();
-		bisonParameters.put("threshold", threshold);
-
-		return bisonParameters;
-	}
-    
-    /*
-	 * (non-Javadoc)
-	 * @see org.geworkbench.analysis.AbstractGridAnalysis#getAnalysisName()
-	 */
-	@Override
-	public String getAnalysisName() {
-		return analysisName;
-	}
-
-	@Override
-	public Class getBisonReturnType() {
-		// TODO Auto-generated method stub
-		return null;
-	}
 	
 	/**
 	 * Validates the user-entered parameter values.
@@ -422,5 +374,78 @@ public class AracneAnalysis extends AbstractGridAnalysis implements ClusteringAn
             }
         }
 		return new ParamValidationResults(true, null);
+	}
+	
+	/*
+     * (non-Javadoc)
+     * @see org.geworkbench.analysis.AbstractGridAnalysis#getBisonParameters()
+     */
+    @Override
+	protected Map<Serializable, Serializable> getBisonParameters() {
+		log.debug("Reading bison parameters");
+
+		Map<Serializable, Serializable> bisonParameters = new HashMap<Serializable, Serializable>();
+		AracneParamPanel paramPanel = (AracneParamPanel) this.aspp;
+
+		if (paramPanel.isDPIToleranceSpecified()) {
+			float dpiTolerence = paramPanel.getDPITolerance();
+			bisonParameters.put("dpi", dpiTolerence);
+		}
+		if (paramPanel.isKernelWidthSpecified()) {
+			float kernelWidth = paramPanel.getKernelWidth();
+			bisonParameters.put("kernel", kernelWidth);
+		}
+
+		// TODO allow user to enter many markers or a file of markers
+		// String hubMarkersFile = paramPanel.getHubMarkersFile();
+		// ArrayList<String> hubGeneList = paramPanel.getHubGeneList();
+		String hubGene = paramPanel.getHubGeneString();
+		String[] genes = StringUtils.split(hubGene, COMMA_SEP);
+		if (genes.length > 1)
+			hubGene = genes[0];
+		bisonParameters.put("hub", hubGene);
+
+   		bisonParameters.put("isMI", paramPanel.isThresholdMI());		
+
+   		float threshold = paramPanel.getThreshold();
+		bisonParameters.put("threshold", threshold);
+
+		return bisonParameters;
+	}
+    
+    /*
+	 * (non-Javadoc)
+	 * @see org.geworkbench.analysis.AbstractGridAnalysis#getAnalysisName()
+	 */
+	@Override
+	public String getAnalysisName() {
+		return analysisName;
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see org.geworkbench.analysis.AbstractGridAnalysis#getBisonReturnType()
+	 */
+	@Override
+	public Class getBisonReturnType() {
+		return AdjacencyMatrix.class;
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see org.geworkbench.analysis.AbstractGridAnalysis#useMicroarraySetView()
+	 */
+	@Override
+	protected boolean useMicroarraySetView() {
+		return true;
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see org.geworkbench.analysis.AbstractGridAnalysis#useOtherDataSet()
+	 */
+	@Override
+	protected boolean useOtherDataSet() {
+		return false;
 	}	
 }
