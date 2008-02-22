@@ -541,9 +541,9 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 		} else {
 			jAnalysisTabbedPane.remove(jGridServicePanel);
 			jGridServicePanel = null; // TODO this is just a quick fix for bug
-										// 0001174, Quick fix made user input
-										// service information every time.
-										// Should have a better implementation.
+			// 0001174, Quick fix made user input
+			// service information every time.
+			// Should have a better implementation.
 		}
 	}
 
@@ -609,19 +609,11 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 							String url = getServiceUrl();
 							if (!StringUtils.isEmpty(url)) {
 
-								List<Serializable> serviceParameterList = new ArrayList<Serializable>();
+								AbstractGridAnalysis selectedGridAnalysis = (AbstractGridAnalysis) selectedAnalysis;
 
-								serviceParameterList.add(maSetView);
-								if (refOtherSet != null) { // added for
-									// analysis that do
-									// not take in
-									// microarray data
-									// set
-									serviceParameterList.add(refOtherSet);
-								}
-								serviceParameterList
-										.add((Serializable) (((AbstractGridAnalysis) selectedAnalysis)
-												.getBisonParameters()));
+								List<Serializable> serviceParameterList = ((AbstractGridAnalysis) selectedGridAnalysis)
+										.handleBisonInputs(maSetView,
+												refOtherSet);
 
 								DispatcherClient dispatcherClient = new DispatcherClient(
 										dispatcherUrl);
@@ -630,12 +622,12 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 										.submit(
 												serviceParameterList,
 												url,
-												((AbstractGridAnalysis) selectedAnalysis)
+												((AbstractGridAnalysis) selectedGridAnalysis)
 														.getBisonReturnType());
 
 								ProjectNodePendingEvent pendingEvent = new ProjectNodePendingEvent(
 										"Analysis Pending", gridEpr);
-								pendingEvent.setDescription(selectedAnalysis
+								pendingEvent.setDescription(selectedGridAnalysis
 										.getLabel()
 										+ " (pending)");
 								log.info("event is " + pendingEvent);
@@ -654,7 +646,7 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 							if ((maSetView != null) && (refMASet != null)) {
 								results = selectedAnalysis.execute(maSetView);
 							} else if (refOtherSet != null) { // added for
-																// analysis
+								// analysis
 								// that do not take in
 								// microarray data set
 								results = selectedAnalysis.execute(refOtherSet);
