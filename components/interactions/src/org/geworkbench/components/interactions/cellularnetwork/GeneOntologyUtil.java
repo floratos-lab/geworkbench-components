@@ -47,6 +47,7 @@ public class GeneOntologyUtil {
                 String goIdStr = goTerm.split("/")[0].trim();
                 if (!goIdStr.equalsIgnoreCase("---")) {
                     int goId = new Integer(goIdStr);
+                    if(tree.getTerm(goId)!=null)
                     set.add(tree.getTerm(goId));
                 }
             }
