@@ -54,7 +54,7 @@ public class PCAAnalysis extends GPAnalysis
     {
         assert (input instanceof DSMicroarraySetView);
         DSMicroarraySetView<DSGeneMarker, DSMicroarray> view = (DSMicroarraySetView<DSGeneMarker, DSMicroarray>) input;
-
+        
         task = new Task(view);
         progress.setVisible(true);
         task.execute();
@@ -155,7 +155,7 @@ public class PCAAnalysis extends GPAnalysis
             String gctFileName = createGCTFile("pcaDataset", view.markers(), view.items()).getAbsolutePath();
             progress.setProgress(20);
 
-            String clusterBy = "columns";
+            String clusterBy = "rows";
 
             if(((PCAAnalysisPanel)panel).getVariables().equals("genes"))
             {
