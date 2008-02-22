@@ -19,7 +19,7 @@ import org.geworkbench.events.ProjectEvent;
  * NetBoost Analysis
  * 
  * @author ch2514
- * @version $Id: NetBoostAnalysis.java,v 1.6 2008-01-03 20:30:20 keshav Exp $
+ * @version $Id: NetBoostAnalysis.java,v 1.7 2008-02-22 17:47:05 keshav Exp $
  */
 
 public class NetBoostAnalysis extends AbstractGridAnalysis implements
@@ -86,7 +86,7 @@ public class NetBoostAnalysis extends AbstractGridAnalysis implements
 	 * 
 	 * @see org.geworkbench.analysis.AbstractGridAnalysis#getBisonParameters()
 	 */
-	public Map<Serializable, Serializable> getBisonParameters() {
+	protected Map<Serializable, Serializable> getBisonParameters() {
 		Map<Serializable, Serializable> parameterMap = new HashMap<Serializable, Serializable>();
 
 		parameterMap.put(TRAINING_EX, new Integer(((NetBoostParamPanel) aspp)
@@ -288,5 +288,23 @@ public class NetBoostAnalysis extends AbstractGridAnalysis implements
 			log.error("Cannot load netboost model properties file: "
 					+ e.getMessage() + ": using default list of models", e);
 		}
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see org.geworkbench.analysis.AbstractGridAnalysis#useMicroarraySetView()
+	 */
+	@Override
+	protected boolean useMicroarraySetView() {
+		return false;
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see org.geworkbench.analysis.AbstractGridAnalysis#useOtherDataSet()
+	 */
+	@Override
+	protected boolean useOtherDataSet() {
+		return true;
 	}
 }

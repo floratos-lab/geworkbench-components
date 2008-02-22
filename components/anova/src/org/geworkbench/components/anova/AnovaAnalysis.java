@@ -44,7 +44,7 @@ import edu.columbia.geworkbench.cagrid.anova.PValueEstimation;
 
 /**
  * @author yc2480
- * @version $Id: AnovaAnalysis.java,v 1.6 2008-02-20 15:40:30 keshav Exp $
+ * @version $Id: AnovaAnalysis.java,v 1.7 2008-02-22 17:47:04 keshav Exp $
  */
 public class AnovaAnalysis extends AbstractGridAnalysis implements
 		ClusteringAnalysis {
@@ -603,7 +603,7 @@ public class AnovaAnalysis extends AbstractGridAnalysis implements
 	 * @see org.geworkbench.analysis.AbstractGridAnalysis#getBisonParameters()
 	 */
 	@Override
-	public Map<Serializable, Serializable> getBisonParameters() {
+	protected Map<Serializable, Serializable> getBisonParameters() {
 		Map<Serializable, Serializable> parameterMap = new HashMap<Serializable, Serializable>();
 		// put every parameters you need for execute(String encodedInput) in
 		// AnovaClient.java
@@ -623,5 +623,23 @@ public class AnovaAnalysis extends AbstractGridAnalysis implements
 	@SuppressWarnings("unchecked")
 	public Class getBisonReturnType() {
 		return CSAnovaResultSet.class;
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see org.geworkbench.analysis.AbstractGridAnalysis#useMicroarraySetView()
+	 */
+	@Override
+	protected boolean useMicroarraySetView() {
+		return true;
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see org.geworkbench.analysis.AbstractGridAnalysis#useOtherDataSet()
+	 */
+	@Override
+	protected boolean useOtherDataSet() {
+		return false;
 	}
 }

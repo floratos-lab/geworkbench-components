@@ -28,7 +28,7 @@ import edu.columbia.ccls.medusa.MedusaLoader;
 /**
  * 
  * @author keshav
- * @version $Id: MedusaAnalysis.java,v 1.37 2008-01-03 19:28:20 keshav Exp $
+ * @version $Id: MedusaAnalysis.java,v 1.38 2008-02-22 17:47:06 keshav Exp $
  */
 public class MedusaAnalysis extends AbstractGridAnalysis implements
 		ClusteringAnalysis {
@@ -75,7 +75,7 @@ public class MedusaAnalysis extends AbstractGridAnalysis implements
 	 * @see org.geworkbench.analysis.AbstractGridAnalysis#getBisonParameters()
 	 */
 	@Override
-	public Map<Serializable, Serializable> getBisonParameters() {
+	protected Map<Serializable, Serializable> getBisonParameters() {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -376,6 +376,16 @@ public class MedusaAnalysis extends AbstractGridAnalysis implements
 	public Class getBisonReturnType() {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	protected boolean useMicroarraySetView() {
+		return true;
+	}
+
+	@Override
+	protected boolean useOtherDataSet() {
+		return false;
 	}
 
 }
