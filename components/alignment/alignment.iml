@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module version="4" relativePaths="true" type="JAVA_MODULE">
   <component name="ModuleRootManager" />
-  <component name="NewModuleRootManager">
+  <component name="NewModuleRootManager" inherit-compiler-output="false">
     <output url="file://$MODULE_DIR$/classes" />
     <exclude-output />
     <exclude-exploded />
@@ -47,7 +47,7 @@
       </library>
     </orderEntry>
     <orderEntry type="library" name="base" level="project" />
-    <orderEntry type="module" module-name="geworkbench" />
+    <orderEntry type="module" module-name="geworkbench" exported="" />
     <orderEntry type="library" name="lib" level="application" />
     <orderEntry type="module-library">
       <library>
@@ -62,6 +62,24 @@
       <library>
         <CLASSES>
           <root url="jar://$MODULE_DIR$/lib/ogsa.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/lib/polgara.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/../../lib/jbcl.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />

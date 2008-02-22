@@ -322,7 +322,7 @@ public class AlgorithmMatcher {
 
                     }
                 }
-                cmd += "&EXPECT=" + ps.getExpect() + "&HITLIST_SZE=500&AUTO_FORMAT=Semiauto&CDD_SEARCH=on&SHOW_OVERVIEW=on&SERVICE=plain\r\n\r\n";
+                cmd += "&EXPECT=" + ps.getExpect() + "&HITLIST_SZE=50&AUTO_FORMAT=Semiauto&CDD_SEARCH=on&SHOW_OVERVIEW=on&SERVICE=plain\r\n\r\n";
 
             }
 
