@@ -212,11 +212,33 @@ public class EvidenceIntegrationAnalysis extends AbstractGridAnalysis implements
         }
 
     }
-
+    
+    /*
+     * (non-Javadoc)
+     * @see org.geworkbench.analysis.AbstractGridAnalysis#getBisonReturnType()
+     */
 	@Override
 	public Class getBisonReturnType() {
 		// TODO Auto-generated method stub
 		return null;
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see org.geworkbench.analysis.AbstractGridAnalysis#useMicroarraySetView()
+	 */
+	@Override
+	protected boolean useMicroarraySetView() {
+		return true;
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see org.geworkbench.analysis.AbstractGridAnalysis#useOtherDataSet()
+	 */
+	@Override
+	protected boolean useOtherDataSet() {
+		return false;
 	}
 
 }
