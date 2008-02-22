@@ -1374,6 +1374,7 @@ import org.geworkbench.util.session.SoapClient;
 
         boolean lowComplexFilterOn = lowComplexFilterBox.isSelected();
         boolean humanRepeatFilterOn = humanRepeatFilter.isSelected();
+        boolean maskLowCaseOn = maskLowCaseBox.isSelected();
         String expectString = (String) jExpectBox.getSelectedItem();
         double expectValue = 10;
         if (expectString != null) {
@@ -1404,6 +1405,7 @@ import org.geworkbench.util.session.SoapClient;
         ps.setExpect(expectValue);
         ps.setLowComplexityFilterOn(lowComplexFilterOn);
         ps.setHumanRepeatFilterOn(humanRepeatFilterOn);
+        ps.setMaskLowCase(maskLowCaseOn);
         ps.setMatrix((String) jMatrixBox.getSelectedItem());
         if (startValue <= 1 && endValue >= fastaFile.getMaxLength()) {
             //just use whole sequence. No end to reset.
