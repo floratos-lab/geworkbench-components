@@ -137,13 +137,12 @@ public class PCA extends MicroarrayViewEventBase
                     {
                         array.setLabel("PC " + (pcs[pc]+1));
                         CSExpressionMarkerValue markerValue = new CSExpressionMarkerValue();
+                        markerValue.setMissing(false);
                         markerValue.setValue(uMatrix.get(r, pcs[pc]));
 
                         if(pcaData.getVariables().equals("experiments"))
                         {
-                            CSExpressionMarker marker = new CSExpressionMarker(r);
-                            marker.setLabel(((CSExprMicroarraySet)dataSet).getMarkers().get(r).getLabel());
-                            marker.setDescription(((CSExprMicroarraySet)dataSet).getMarkers().get(r).getDescription());
+                            DSGeneMarker marker = ((CSExprMicroarraySet)dataSet).getMarkers().get(r);
                             markerVector.add(marker);
                         }
                         else
@@ -820,7 +819,7 @@ public class PCA extends MicroarrayViewEventBase
         {
             ProjectSelection selection = ((ProjectPanel) source).getSelection();
             DSDataSet dataSet2 = selection.getDataSet();
-            dataSetView.setDataSet(dataSet2);
+            //dataSetView.setDataSet(dataSet2);
 
             PCADataSet pcaDataSet = ((PCADataSet)e.getDataSet());
             pcaData = pcaDataSet.getData();
