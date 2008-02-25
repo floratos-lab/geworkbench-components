@@ -146,6 +146,9 @@ public class PCAAnalysis extends GPAnalysis
         public Task(DSMicroarraySetView<DSGeneMarker, DSMicroarray> view)
         {
             this.view = view;
+
+            this.view.useItemPanel(false);
+            this.view.useMarkerPanel(false);
         }
 
         public PCADataSet doInBackground()
