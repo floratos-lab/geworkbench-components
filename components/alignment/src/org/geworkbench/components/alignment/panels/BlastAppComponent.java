@@ -1407,6 +1407,7 @@ import org.geworkbench.util.session.SoapClient;
         ps.setHumanRepeatFilterOn(humanRepeatFilterOn);
         ps.setMaskLowCase(maskLowCaseOn);
         ps.setMatrix((String) jMatrixBox.getSelectedItem());
+        ps.setMaskLookupTable(maskLookupOnlyBox.isSelected());
         if (startValue <= 1 && endValue >= fastaFile.getMaxLength()) {
             //just use whole sequence. No end to reset.
 
@@ -1508,6 +1509,7 @@ import org.geworkbench.util.session.SoapClient;
         ps.setStringSortOutput((String) jComboBoxSortOutput.getSelectedItem());
         ps.setBooleanFeelLucky(jCheckBoxLucky.isSelected()); 
         ps.setBooleanOpenInBrowser(jCheckBoxOpenInBrowser.isSelected());
+       
         return ps;
     }
     
