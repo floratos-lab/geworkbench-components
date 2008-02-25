@@ -5,16 +5,20 @@ import org.geworkbench.engine.management.Subscribe;
 import org.geworkbench.engine.management.Publish;
 import org.geworkbench.events.*;
 import org.geworkbench.util.microarrayutils.MicroarrayViewEventBase;
+import org.geworkbench.util.visualproperties.PanelVisualProperties;
+import org.geworkbench.util.visualproperties.PanelVisualPropertiesManager;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.CSMarkerVector;
-import org.geworkbench.bison.datastructure.biocollections.views.CSMicroarraySetView;
-import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.CSExprMicroarraySet;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.*;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.markers.CSExpressionMarker;
+import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
+import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
+import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
 import org.geworkbench.bison.annotation.CSAnnotationContextManager;
 import org.geworkbench.bison.annotation.DSAnnotationContext;
+import org.geworkbench.bison.util.colorcontext.ColorContext;
 import org.jfree.chart.*;
 import org.jfree.chart.entity.XYItemEntity;
 import org.jfree.chart.entity.ChartEntity;
@@ -125,7 +129,7 @@ public class PCA extends MicroarrayViewEventBase
 
                 CSExprMicroarraySet pcDataSet = new CSExprMicroarraySet();
                 pcDataSet.setLabel("PCA_" + dataSet.getFile().getName());
-                pcDataSet.clear();
+                 pcDataSet.addObject(ColorContext.class, dataSet.getObject(ColorContext.class));
 
                 FloatMatrix uMatrix = pcaData.getUMatrix();
                 int numRows = uMatrix.getRowDimension();
@@ -325,6 +329,9 @@ public class PCA extends MicroarrayViewEventBase
         jToolBar3.remove(chkAllArrays);
         jToolBar3.remove(chkAllMarkers);
 
+        onlyActivatedMarkers = true;
+        onlyActivatedArrays = true;
+
         chkAllArrays.addActionListener( new ActionListener()
         {
             public void actionPerformed(ActionEvent event)
@@ -344,8 +351,6 @@ public class PCA extends MicroarrayViewEventBase
                     buildPlot(plottedComps);
             }
         });
-
-        onlyActivatedMarkers = false;
         
         buildJToolBar3();
     }
@@ -518,6 +523,37 @@ public class PCA extends MicroarrayViewEventBase
         scrollPane.setViewportView(eigenVectorsTable);
     }
 
+
+    private HashMap createClusterColorMap(boolean markers)
+    {
+        HashMap colorMap = new HashMap();
+
+        DSItemList panels;
+        if(markers)
+        {
+            panels = getDataSetView().getMarkerPanel().panels();
+        }
+        else
+        {
+            panels = getDataSetView().getItemPanel().panels();
+        }
+
+        if(panels == null)
+            return null;
+
+       PanelVisualPropertiesManager manager = PanelVisualPropertiesManager.getInstance();
+       for(int i = 0; i < panels.size(); i++)
+       {
+            DSPanel mp = (DSPanel)panels.get(i);
+
+            PanelVisualProperties visualProperties = manager.getVisualProperties(mp);
+
+            colorMap.put(mp.getLabel(), visualProperties.getColor());
+       }
+
+        return colorMap;
+    }
+
     public void buildGraph(int[] pComp)
     {
         XYSeriesCollection xySeriesCollection = new XYSeriesCollection();
@@ -571,13 +607,9 @@ public class PCA extends MicroarrayViewEventBase
             }
         }
 
-        if(pcaData.getVariables().equals("experiments") && onlyActivatedMarkers)
+        if(pcaData.getVariables().equals("experiments") && onlyActivatedMarkers
+                && activatedMarkers != null && activatedMarkers.size() > 0 )
         {
-            if(activatedMarkers == null || activatedMarkers.size() == 0)
-            {
-                return;
-            }
-
             DSAnnotationContext<DSGeneMarker> context = CSAnnotationContextManager.getInstance().getCurrentContext(maSet.getMarkerVector());
 
             for(int i =0; i < activatedMarkers.size(); i++)
@@ -597,13 +629,9 @@ public class PCA extends MicroarrayViewEventBase
                 }
             }
         }
-        else if(pcaData.getVariables().equals("genes") && onlyActivatedArrays)
+        else if(pcaData.getVariables().equals("genes") && onlyActivatedArrays
+                 && activatedArrays != null && activatedArrays.size() > 0)
         {
-            if(activatedArrays == null || activatedArrays.size() == 0)
-            {
-                return;
-            }
-
             DSAnnotationContext<DSMicroarray> context = CSAnnotationContextManager.getInstance().getCurrentContext(maSet);
 
             for(int i =0; i < activatedArrays.size(); i++)
@@ -668,6 +696,8 @@ public class PCA extends MicroarrayViewEventBase
             }
 
             pcaContent3D = new PCAContent3D(data);
+
+           // pcaContent3D.setClusterColors(createClusterColorMap(!pcaData.getVariables().equals("genes")));
             pcaContent3D.setPointSize((float)1.4);
             pcaContent3D.setXAxisLabel("Prin. Comp. " + pc1);
             pcaContent3D.setYAxisLabel("Prin. Comp. " + pc2);
@@ -726,7 +756,6 @@ public class PCA extends MicroarrayViewEventBase
             graph.getXYPlot().addDomainMarker(new ValueMarker(0.0, Color.BLACK, new BasicStroke((float)1.4)));
 
             graph.getXYPlot().setDomainGridlinesVisible(false);
-
             graph.getXYPlot().getRenderer().setToolTipGenerator( new StandardXYToolTipGenerator()
             {
                 public String generateToolTip(XYDataset data, int series, int item)
@@ -825,14 +854,9 @@ public class PCA extends MicroarrayViewEventBase
     {
         if(e.getDataSet() instanceof PCADataSet)
         {
-            //ProjectSelection selection = ((ProjectPanel) source).getSelection();
-            //DSDataSet dataSet2 = selection.getDataSet();
-            //dataSetView.setDataSet(dataSet2);
-
             PCADataSet pcaDataSet = ((PCADataSet)e.getDataSet());
             pcaData = pcaDataSet.getData();
             dataSet = pcaDataSet.getParentDataSet();
-            //dataSetView.setDataSet(dataSet);
 
             reset();
             buildResultsTable();
@@ -840,6 +864,55 @@ public class PCA extends MicroarrayViewEventBase
         else
             reset();
     }
+
+    /**
+    * geneSelectorAction
+   *
+   * @param e
+     *            GeneSelectorEvent
+    */
+    @Subscribe
+     @SuppressWarnings("unchecked")
+     public void receive(GeneSelectorEvent e, Object source)
+    {
+        log.debug("Source object " + source);
+
+        markers = e.getPanel();
+        activatedMarkers = new CSPanel();
+        if (markers != null && markers.size() > 0)
+        {
+            for (int j = 0; j < markers.panels().size(); j++)
+            {
+                DSPanel<DSGeneMarker> mrk = markers.panels().get(j);
+                if (mrk.isActive())
+                {
+                    for (int i = 0; i < mrk.size(); i++)
+                        activatedMarkers.add(mrk.get(i));
+                }
+            }
+        }
+
+        refreshMaSetView();
+
+        if(plottedComps != null)
+            buildPlot(plottedComps);
+    }
+
+    public void receive(PhenotypeSelectorEvent e, Object source)
+    {
+         log.debug("Source object " + source);
+       
+        DSPanel arrays  = e.getTaggedItemSetTree();
+        if(arrays != null)
+        {
+            activatedArrays = arrays;
+
+            refreshMaSetView();
+
+            if(plottedComps != null)
+                buildPlot(plottedComps);
+        }
+    }    
 
     private void buildJToolBar3()
     {
@@ -1005,8 +1078,7 @@ public class PCA extends MicroarrayViewEventBase
                 }
             }
         }
-
-
+        
         public void chartMouseMoved(ChartMouseEvent event)
         {
             // No-op
