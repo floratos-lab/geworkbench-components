@@ -47,6 +47,7 @@ public class ParameterSetting {
          * Whether use NCBI Blast Server
          */
         private boolean useNCBI = false;
+        private boolean maskLookupTable = false;
         private String wordsize = "11";
         private String gapCost;
         /**
@@ -178,4 +179,18 @@ public class ParameterSetting {
 
     private void jbInit() throws Exception {
     }
+
+	/**
+	 * @return the maskLookupTable
+	 */
+	public boolean isMaskLookupTable() {
+		return maskLookupTable;
+	}
+
+	/**
+	 * @param maskLookupTable the maskLookupTable to set
+	 */
+	public void setMaskLookupTable(boolean maskLookupTable) {
+		this.maskLookupTable = maskLookupTable;
+	}
 }

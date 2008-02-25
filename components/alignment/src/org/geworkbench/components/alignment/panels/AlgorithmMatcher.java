@@ -299,7 +299,12 @@ public class AlgorithmMatcher {
                 if (ps.isHumanRepeatFilterOn()) {
                     cmd += "&FILTER=R";
                 }
+                
                 if (ps.isMaskLowCase()) {
+                    cmd += "&LCASE_MASK=yes";
+                }
+                
+                if (ps.isMaskLookupTable()) {
                     cmd += "&FILTER=m";
                 }
                 if (!ps.getMatrix().startsWith("dna")) {
