@@ -42,8 +42,6 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseEvent;
 
 import org.geworkbench.components.gpmodule.pca.viewer.PCAContent3D;
-import org.geworkbench.builtin.projects.ProjectSelection;
-import org.geworkbench.builtin.projects.ProjectPanel;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -77,7 +75,10 @@ public class PCA extends MicroarrayViewEventBase
     private Map dataLabelGroups;
     private PCAContent3D pcaContent3D;
 
-    private DSMicroarraySetView<DSGeneMarker, DSMicroarray> dataSetView = new CSMicroarraySetView<DSGeneMarker, DSMicroarray>();
+    // principal components currently plotted
+    private int[] plottedComps;
+
+    //private DSMicroarraySetView<DSGeneMarker, DSMicroarray> dataSetView = new CSMicroarraySetView<DSGeneMarker, DSMicroarray>();
 
     public PCA()
     {
@@ -212,7 +213,8 @@ public class PCA extends MicroarrayViewEventBase
         {
             public void actionPerformed(ActionEvent event)
             {
-                buildPlot(projResultsTable.getSelectedRows());
+                plottedComps = projResultsTable.getSelectedRows();
+                buildPlot(plottedComps);
                 clearPlotButton.setEnabled(true);
                 imageSnapshotButton.setEnabled(true);
             }
@@ -225,6 +227,7 @@ public class PCA extends MicroarrayViewEventBase
             public void actionPerformed(ActionEvent event)
             {
                 projResultsTable.clearSelection();
+                plottedComps = null;
 
                 if(projGraphPanel instanceof JScrollPane)
                 {
@@ -319,9 +322,6 @@ public class PCA extends MicroarrayViewEventBase
             }
         });
 
-        onlyActivatedMarkers = false;
-        onlyActivatedArrays = false;
-
         jToolBar3.remove(chkAllArrays);
         jToolBar3.remove(chkAllMarkers);
 
@@ -329,7 +329,9 @@ public class PCA extends MicroarrayViewEventBase
         {
             public void actionPerformed(ActionEvent event)
             {
-                onlyActivatedMarkers = !chkAllArrays.isSelected();
+                onlyActivatedArrays = !chkAllArrays.isSelected();
+                if(plottedComps != null && plottedComps.length >0)
+                    buildPlot(plottedComps);
             }
         });
 
@@ -338,6 +340,8 @@ public class PCA extends MicroarrayViewEventBase
             public void actionPerformed(ActionEvent event)
             {
                 onlyActivatedMarkers = !chkAllMarkers.isSelected();
+                if(plottedComps != null && plottedComps.length >0)
+                    buildPlot(plottedComps);
             }
         });
 
@@ -550,7 +554,7 @@ public class PCA extends MicroarrayViewEventBase
         CSExprMicroarraySet maSet = (CSExprMicroarraySet)dataSet;
         List dataLabelList = new ArrayList();
         FloatMatrix u_Matrix = null;
-        dataLabelGroups = new HashMap();
+        HashMap dataLabelGps = new HashMap();
 
         if(pcaData.getVariables().equals("genes"))
         {
@@ -571,7 +575,6 @@ public class PCA extends MicroarrayViewEventBase
         {
             if(activatedMarkers == null || activatedMarkers.size() == 0)
             {
-                JOptionPane.showMessageDialog(mainPanel, "No markers selected");
                 return;
             }
 
@@ -584,13 +587,13 @@ public class PCA extends MicroarrayViewEventBase
 
                 if(label != null && label.length > 0)
                 {
-                    Set set = (Set)dataLabelGroups.get(label[0]);
+                    Set set = (Set)dataLabelGps.get(label[0]);
                     if(set == null)
                         set = new LinkedHashSet();
 
                     set.add(marker.getLabel());
 
-                    dataLabelGroups.put(label[0], set);
+                    dataLabelGps.put(label[0], set);
                 }
             }
         }
@@ -598,11 +601,10 @@ public class PCA extends MicroarrayViewEventBase
         {
             if(activatedArrays == null || activatedArrays.size() == 0)
             {
-                JOptionPane.showMessageDialog(mainPanel, "No arrays selected");
                 return;
             }
 
-             DSAnnotationContext<DSMicroarray> context = CSAnnotationContextManager.getInstance().getCurrentContext(maSet);
+            DSAnnotationContext<DSMicroarray> context = CSAnnotationContextManager.getInstance().getCurrentContext(maSet);
 
             for(int i =0; i < activatedArrays.size(); i++)
             {
@@ -611,21 +613,22 @@ public class PCA extends MicroarrayViewEventBase
 
                 if(label != null && label.length > 0)
                 {
-                    Set set = (Set)dataLabelGroups.get(label[0]);
+                    Set set = (Set)dataLabelGps.get(label[0]);
                     if(set == null)
                         set = new LinkedHashSet();
                     set.add(array.getLabel());
 
-                    dataLabelGroups.put(label[0], set);
+                    dataLabelGps.put(label[0], set);
                 }
             }
         }
         else
         {
-            dataLabelGroups.put("group 1", new LinkedHashSet(dataLabelList));
+            dataLabelGps.put("group 1", new LinkedHashSet(dataLabelList));
         }
 
         u_Matrix = pcaData.getUMatrix();
+        dataLabelGroups = new HashMap(dataLabelGps);
 
         // build 3D projection plot
         if(pComp.length == 3)
@@ -637,7 +640,7 @@ public class PCA extends MicroarrayViewEventBase
                         "\nFor details about downloading and installing Java3D go to https://java3d.dev.java.net");
                 return;
             }
-            
+
             int pc1 = pComp[0]+1;
             int pc2 = pComp[1]+1;
             int pc3 = pComp[2]+1;
@@ -681,8 +684,8 @@ public class PCA extends MicroarrayViewEventBase
         else  //build 2D Projection plot
         {
             int pc1 = pComp[0]+1;
-
             int pc2 = pComp[1]+1;
+
             JFreeChart graph = ChartFactory.createScatterPlot
                        ("2D Projection", "Prin. Comp. " + pc1, "Prin. Comp. " + pc2, null, PlotOrientation.VERTICAL, true, false, false);
 
@@ -695,7 +698,7 @@ public class PCA extends MicroarrayViewEventBase
                 String group = (String)it.next();
                 XYSeries xySeries = new XYSeries("", false, true);                
 
-                if(dataGroups.size() > 1)
+                if(!group.equals("group 1"))
                     xySeries.setKey(group);
 
                 Set labels = (Set)dataLabelGroups.get(group);
@@ -734,6 +737,11 @@ public class PCA extends MicroarrayViewEventBase
                     if(key.equals(""))
                         key = "group 1";
                     Set labels = (Set)dataLabelGroups.get(key);
+
+                    if(labels == null)
+                    {
+                        return "";    
+                    }
 
                     Iterator it = labels.iterator();
                     int i = 0;
@@ -817,13 +825,14 @@ public class PCA extends MicroarrayViewEventBase
     {
         if(e.getDataSet() instanceof PCADataSet)
         {
-            ProjectSelection selection = ((ProjectPanel) source).getSelection();
-            DSDataSet dataSet2 = selection.getDataSet();
+            //ProjectSelection selection = ((ProjectPanel) source).getSelection();
+            //DSDataSet dataSet2 = selection.getDataSet();
             //dataSetView.setDataSet(dataSet2);
 
             PCADataSet pcaDataSet = ((PCADataSet)e.getDataSet());
             pcaData = pcaDataSet.getData();
             dataSet = pcaDataSet.getParentDataSet();
+            //dataSetView.setDataSet(dataSet);
 
             reset();
             buildResultsTable();
@@ -852,13 +861,13 @@ public class PCA extends MicroarrayViewEventBase
 
             if(pcaData.getVariables().equals("genes"))
             {
-                chkAllArrays.setSelected(true);
+                chkAllArrays.setSelected(false);
                 onlyActivatedMarkers = false;
                 jToolBar3.add(chkAllArrays);
             }
             else
             {
-                chkAllMarkers.setSelected(true);
+                chkAllMarkers.setSelected(false);
                 onlyActivatedArrays = false;
                 jToolBar3.add(chkAllMarkers);
             }
