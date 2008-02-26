@@ -363,13 +363,7 @@ public class PCA extends MicroarrayViewEventBase
         compPanel.setLeftComponent(compResultsTable);
         compPanel.setRightComponent(compGraphPanel);
 
-         if(projGraphPanel instanceof JScrollPane)
-         {
-            ((JScrollPane)projGraphPanel).getViewport().removeAll();
-         }
-
-         if(projGraphPanel instanceof ScrollPane)
-            ((ScrollPane)projGraphPanel).removeAll();
+        clearPlotButton.doClick();
 
         projResultsTable.removeAll();
         projPanel.setLeftComponent(projResultsTable);
@@ -384,7 +378,7 @@ public class PCA extends MicroarrayViewEventBase
 
         mainPanel.add(tabbedPane, BorderLayout.CENTER);
 
-        mainScrollPane.setViewportView(mainPanel);    
+        mainScrollPane.setViewportView(mainPanel);
     }
 
     /*
