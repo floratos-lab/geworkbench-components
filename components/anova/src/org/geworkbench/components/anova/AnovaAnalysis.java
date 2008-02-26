@@ -32,6 +32,7 @@ import org.geworkbench.builtin.projects.ProjectPanel;
 import org.geworkbench.components.anova.gui.AnovaAnalysisPanel;
 import org.geworkbench.engine.management.Publish;
 import org.geworkbench.events.SubpanelChangedEvent;
+import org.geworkbench.util.ProgressBar;
 import org.tigr.microarray.mev.cluster.algorithm.AlgorithmData;
 import org.tigr.microarray.mev.cluster.algorithm.AlgorithmException;
 import org.tigr.microarray.mev.cluster.algorithm.impl.OneWayANOVA;
@@ -44,7 +45,7 @@ import edu.columbia.geworkbench.cagrid.anova.PValueEstimation;
 
 /**
  * @author yc2480
- * @version $Id: AnovaAnalysis.java,v 1.7 2008-02-22 17:47:04 keshav Exp $
+ * @version $Id: AnovaAnalysis.java,v 1.8 2008-02-26 21:52:52 chiangy Exp $
  */
 public class AnovaAnalysis extends AbstractGridAnalysis implements
 		ClusteringAnalysis {
@@ -149,6 +150,15 @@ public class AnovaAnalysis extends AbstractGridAnalysis implements
 
 		// Get params
 		// pvalueth=0.05; //p-value threshold
+		pvalueth = anovaAnalysisPanel.pValueThreshold;
+		if ((pvalueth<0)||(pvalueth>1)){
+			JOptionPane.showMessageDialog(null,
+					"P-Value threshold should be a float number between 0.0 and 1.0.",
+					"Please try again.",
+					JOptionPane.INFORMATION_MESSAGE);
+			return null;
+		}
+		
 		Set<String> labelSet = new HashSet<String>();
 
 		DSAnnotationContextManager manager = CSAnnotationContextManager
@@ -287,8 +297,7 @@ public class AnovaAnalysis extends AbstractGridAnalysis implements
 						.valueOf(anovaAnalysisPanel.anovaParameter
 								.getFalseSignificantGenesLimit()));
 			} else {
-				System.out
-						.println("This shouldn't happen! FalseDiscoveryRateControl should be either number or proportion");
+				//user didn't select these two (which need to pass extra parameters), so we don't need to do a thing.
 			}
 		} else {
 			System.out
@@ -339,6 +348,13 @@ public class AnovaAnalysis extends AbstractGridAnalysis implements
 														// type.
 
 		OneWayANOVA OWA = new OneWayANOVA();
+
+		ProgressBar pb=null;
+        pb = ProgressBar.create(ProgressBar.INDETERMINATE_TYPE);
+        pb.setTitle("Anova Analysis");
+        pb.setMessage("Calculating Anova, please wait...");
+        pb.start();
+		
 		try {
 			AlgorithmData result = OWA.execute(data);
 			// get p-values in result
@@ -428,6 +444,7 @@ public class AnovaAnalysis extends AbstractGridAnalysis implements
 		} catch (AlgorithmException AE) {
 			AE.printStackTrace();
 		}
+        pb.stop();				
 		// add to Dataset History
 		ProjectPanel.addToHistory(sigSet, generateHistoryString(data));
 
@@ -526,6 +543,7 @@ public class AnovaAnalysis extends AbstractGridAnalysis implements
 		histStr += "P Value estimation: ";
 		if (anovaAnalysisPanel.anovaParameter.getPValueEstimation() == PValueEstimation.permutation) {
 			histStr += "Permutation\n";
+			histStr += "Permutation#: "+ anovaAnalysisPanel.anovaParameter.getPermutationsNumber() +"\n";
 		} else {
 			histStr += "F-Distribution\n";
 		}

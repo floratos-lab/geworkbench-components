@@ -17,11 +17,13 @@ import javax.swing.ButtonGroup;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JSeparator;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
 import javax.swing.plaf.basic.BasicSeparatorUI;
 
@@ -36,7 +38,7 @@ import edu.columbia.geworkbench.cagrid.anova.PValueEstimation;
 
 /**
  * @author yc2480
- * @version $Id: AnovaAnalysisPanel.java,v 1.4 2008-02-20 15:40:30 keshav Exp $
+ * @version $Id: AnovaAnalysisPanel.java,v 1.5 2008-02-26 21:52:52 chiangy Exp $
  */
 public class AnovaAnalysisPanel extends AbstractSaveableParameterPanel
 		implements Serializable {
@@ -47,6 +49,10 @@ public class AnovaAnalysisPanel extends AbstractSaveableParameterPanel
 	private Log log = LogFactory.getLog(this.getClass());
 
 	public AnovaParameter anovaParameter = new AnovaParameter();
+	public double pValueThreshold = 0.05; // TODO: this is just a quick fix
+	// for Aris's Friday demo. Should be
+	// removed after using our new UML
+	// model.
 
 	/***************************************************************************
 	 * copy paste the GUI code from VE start from here.
@@ -118,6 +124,12 @@ public class AnovaAnalysisPanel extends AbstractSaveableParameterPanel
 
 	private JTextField jTextFieldPFSG = null;
 
+	private JPanel jPanelPValueThreshold = null;
+
+	private JTextField jTextFieldPValueThreshold = null;
+
+	private JLabel jLabelPValueThreshold = null;
+
 	/**
 	 * This method initializes jPanel
 	 * 
@@ -145,7 +157,7 @@ public class AnovaAnalysisPanel extends AbstractSaveableParameterPanel
 			jPanelPValueEst = new JPanel();
 			jPanelPValueEst.setLayout(new BorderLayout());
 			jPanelPValueEst.setName("jPanelPValueEst");
-			jPanelPValueEst.setPreferredSize(new java.awt.Dimension(127, 60));
+			jPanelPValueEst.setPreferredSize(new java.awt.Dimension(127, 90));
 			jPanelPValueEst.add(getJPanelPValueEstTitle(),
 					java.awt.BorderLayout.NORTH);
 			jPanelPValueEst.add(getJPanelPValueParam(),
@@ -219,9 +231,11 @@ public class AnovaAnalysisPanel extends AbstractSaveableParameterPanel
 	private JPanel getJPanelPValueParam() {
 		if (jPanelPValueParam == null) {
 			jPanelPValueParam = new JPanel();
-			jPanelPValueParam.setLayout(new CardLayout());
-			jPanelPValueParam.setPreferredSize(new java.awt.Dimension(280, 30));
-			jPanelPValueParam.add(getJPanel7(), getJPanel7().getName());
+			jPanelPValueParam.setLayout(new BoxLayout(getJPanelPValueParam(),
+					BoxLayout.Y_AXIS));
+			jPanelPValueParam.setPreferredSize(new java.awt.Dimension(280, 60));
+			jPanelPValueParam.add(getJPanel7(), null);
+			jPanelPValueParam.add(getJPanelPValueThreshold(), null);
 		}
 		return jPanelPValueParam;
 	}
@@ -705,6 +719,74 @@ public class AnovaAnalysisPanel extends AbstractSaveableParameterPanel
 		return jTextFieldPFSG;
 	}
 
+	/**
+	 * This method initializes jPanelPValueThreshold
+	 * 
+	 * @return javax.swing.JPanel
+	 */
+	private JPanel getJPanelPValueThreshold() {
+		if (jPanelPValueThreshold == null) {
+			jLabelPValueThreshold = new JLabel();
+			jLabelPValueThreshold.setText("P-Value Threshold");
+			jLabelPValueThreshold.setFont(new java.awt.Font("Dialog",
+					java.awt.Font.PLAIN, 12));
+			jLabelPValueThreshold.setToolTipText("");
+			FlowLayout flowLayout3 = new FlowLayout();
+			flowLayout3.setAlignment(java.awt.FlowLayout.LEFT);
+			jPanelPValueThreshold = new JPanel();
+			jPanelPValueThreshold.setLayout(flowLayout3);
+			jPanelPValueThreshold.setName("jPanelPValueThreshold");
+			jPanelPValueThreshold.add(jLabelPValueThreshold, null);
+			jPanelPValueThreshold.add(getjTextFieldPValueThreshold(), null);
+		}
+		return jPanelPValueThreshold;
+	}
+
+	/**
+	 * This method initializes jTextFieldPValueThreshold
+	 * 
+	 * @return javax.swing.JTextField
+	 */
+	private JTextField getjTextFieldPValueThreshold() {
+		if (jTextFieldPValueThreshold == null) {
+			jTextFieldPValueThreshold = new JTextField();
+			jTextFieldPValueThreshold.setText("0.05");
+			jTextFieldPValueThreshold.setColumns(5);
+			jTextFieldPValueThreshold
+					.setToolTipText("This should be a float number between 0.0 and 1.0. After ANOVA analysis, only Markers have p-value less then this number will be returned.");
+			jTextFieldPValueThreshold
+					.addCaretListener(new javax.swing.event.CaretListener() {
+						public void caretUpdate(javax.swing.event.CaretEvent e) {
+							log.debug("P-value threshold changed to:"
+									+ jTextFieldPValueThreshold.getText());
+							if (jTextFieldPValueThreshold.getText().equals("")) {
+								// caused by update through program
+							} else {
+								try {
+									pValueThreshold = (Double
+											.valueOf(jTextFieldPValueThreshold
+													.getText()));
+								} catch (NumberFormatException nfe) {
+
+									JOptionPane.showMessageDialog(null,
+											jTextFieldPValueThreshold
+													.getToolTipText(),
+											"Please try again.",
+											JOptionPane.INFORMATION_MESSAGE);
+									SwingUtilities.invokeLater(new Runnable() {
+										public void run() {
+											jTextFieldPValueThreshold
+													.setText("0.05");
+										}
+									});
+								}
+							}
+						}
+					});
+		}
+		return jTextFieldPValueThreshold;
+	}
+
 	/***************************************************************************
 	 * copy paste the GUI code from VE till here.
 	 */
@@ -808,7 +890,7 @@ public class AnovaAnalysisPanel extends AbstractSaveableParameterPanel
 			return panel;
 		}
 	}
-	
+
 	/**
 	 * 
 	 * @return
@@ -819,7 +901,7 @@ public class AnovaAnalysisPanel extends AbstractSaveableParameterPanel
 		// anovaParameter been stored.
 		return new SerializedInstance(this.anovaParameter);
 	}
-	
+
 	/**
 	 * 
 	 * @param out
@@ -828,7 +910,7 @@ public class AnovaAnalysisPanel extends AbstractSaveableParameterPanel
 	private void writeObject(java.io.ObjectOutputStream out) throws IOException {
 		out.defaultWriteObject();
 	}
-	
+
 	/**
 	 * 
 	 * @param in
