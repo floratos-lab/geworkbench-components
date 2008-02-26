@@ -19,6 +19,7 @@ import javax.vecmath.Color3f;
 import javax.vecmath.Point3d;
 import javax.vecmath.Point3f;
 import javax.vecmath.Vector3d;
+import javax.swing.*;
 
 import com.sun.j3d.utils.geometry.Cone;
 import com.sun.j3d.utils.geometry.Cylinder;
@@ -34,11 +35,15 @@ import com.sun.j3d.utils.picking.PickResult;
 
 import java.util.*;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 /**
  * @author: Marc-Danie Nazaire
  */
 public class PCAContent3D extends Panel
 {
+     private static Log log = LogFactory.getLog(PCAContent3D.class);
     private SimpleUniverse universe;
     private Canvas3D onScreenCanvas;
     private Canvas3D offScreenCanvas;
@@ -56,37 +61,50 @@ public class PCAContent3D extends Panel
     private String yAxisLabel = "Y";
     private String zAxisLabel = "Z";
     private Map clusterColorMap = new HashMap();
+    private Map clusterColors;
     private Map pointLabelMap = new HashMap();
     private String selectedPoint;
-
 
     /**
      * Constructs a PCAContent3D object
      */
     public PCAContent3D(List xyzPoints)
     {
-    	this.xyzPoints = xyzPoints;
+        try
+        {
+            this.xyzPoints = xyzPoints;
 
-        initScales(xyzPoints);
-        setLayout(new BorderLayout());
-        GraphicsConfiguration config = SimpleUniverse.getPreferredConfiguration();
-        this.onScreenCanvas = new Canvas3D(config);
-        this.universe = new SimpleUniverse(onScreenCanvas);
-        universe.getViewingPlatform().setNominalViewingTransform();
+            initScales(xyzPoints);
+            setLayout(new BorderLayout());
+            GraphicsConfiguration config = SimpleUniverse.getPreferredConfiguration();
+            this.onScreenCanvas = new Canvas3D(config);
+            this.universe = new SimpleUniverse(onScreenCanvas);
+            universe.getViewingPlatform().setNominalViewingTransform();
 
-        offScreenCanvas = new Canvas3D(config, true);
-        Screen3D sOn = onScreenCanvas.getScreen3D();
-        Screen3D sOff = offScreenCanvas.getScreen3D();
-        sOff.setSize(sOn.getSize());
-        sOff.setPhysicalScreenWidth(sOn.getPhysicalScreenWidth());
-        sOff.setPhysicalScreenHeight(sOn.getPhysicalScreenHeight());
-        // attach the offscreen canvas to the view
-        universe.getViewer().getView().addCanvas3D(offScreenCanvas);
+            offScreenCanvas = new Canvas3D(config, true);
+            Screen3D sOn = onScreenCanvas.getScreen3D();
+            Screen3D sOff = offScreenCanvas.getScreen3D();
+            sOff.setSize(sOn.getSize());
+            sOff.setPhysicalScreenWidth(sOn.getPhysicalScreenWidth());
+            sOff.setPhysicalScreenHeight(sOn.getPhysicalScreenHeight());
+            // attach the offscreen canvas to the view
+            universe.getViewer().getView().addCanvas3D(offScreenCanvas);
 
-
-        add(onScreenCanvas, BorderLayout.CENTER);
+            add(onScreenCanvas, BorderLayout.CENTER);
+            universe.getViewer().getView().setFieldOfView(1.1);
+        }
+        catch(Exception e)
+        {
+            JOptionPane.showMessageDialog(null, "An error occured while creating 3D projection plot");
+            log.error(e);
+        }
     }
 
+    public Canvas3D getCanvas()
+    {
+        return onScreenCanvas; 
+    }
+    
     public String getSelectedPoint()
     {
         return selectedPoint;
@@ -142,19 +160,27 @@ public class PCAContent3D extends Panel
 
 
     /**
-     * Sets scales according to U-matrix values.
-     */
+        * Sets scales according to U-matrix values.
+        * @param xyzPoint a list of XYZData objects (3D coordinates)
+        */
     private void initScales(List xyzPoint)
     {
-        float max = 0f;
-        final int rows = xyzPoint.size();
-        for (int i = rows; --i >= 0;)
-        {
-            max = Math.max(max, Math.max(Math.max(Math.abs(((XYZData)xyzPoints.get(i)).getX()), Math.abs(((XYZData)xyzPoints.get(i)).getY())), Math.abs(((XYZData)xyzPoints.get(i)).getZ())));
-        }
+       float maxX = 0f;
+       float maxY = 0f;
+       float maxZ = 0f;
+       final int rows = xyzPoint.size();
+       for (int i = rows; --i >= 0;) {
+           maxX = Math.max(maxX, Math.abs(((XYZData) xyzPoints.get(i)).getX()));
+           maxY = Math.max(maxY, Math.abs(((XYZData) xyzPoints.get(i)).getY()));
+           maxZ = Math.max(maxZ, Math.abs(((XYZData) xyzPoints.get(i)).getZ()));
+       }
 
-        setScale(max, max, max);
+       maxX = (float) (Math.ceil(((double) maxX / 5))) * 5 + 5;
+       maxY = (float) (Math.ceil(((double) maxY / 5))) * 5 + 5;
+       maxZ = (float) (Math.ceil(((double) maxZ / 5))) * 5 + 5;
+       setScale(maxX, maxY, maxZ);
     }
+
 
     public float getMaxValue()
     {
@@ -184,7 +210,8 @@ public class PCAContent3D extends Panel
     /**
      * Resets spin coordinaties.
      */
-    public void reset() {
+    public void reset()
+    {
         spinGroup.setTransform(new Transform3D());
     }
 
@@ -358,6 +385,11 @@ public class PCAContent3D extends Panel
         return appearance;
     }
 
+
+    public void setClusterColors(HashMap clusterColors)
+    {
+        this.clusterColors = clusterColors;
+    }
     /**
      * Creates a spheres transform group.
      */
@@ -377,7 +409,6 @@ public class PCAContent3D extends Panel
         TransformGroup sphere;
         double x, y, z;
 
-        Random rand = new Random(12345);
         for (int i=0; i< xyzPoints.size(); i++)
         {
         	XYZData data = (XYZData)xyzPoints.get(i);
@@ -389,9 +420,7 @@ public class PCAContent3D extends Panel
             {
             	if(clusterColorMap.get(data.getCluster()) == null)
             	{
-            		Color c = new Color(rand.nextInt(256), rand.nextInt(256), rand.nextInt(256));
-					while(c == Color.RED || c == Color.GREEN)
-						c = new Color(rand.nextInt(256), rand.nextInt(256), rand.nextInt(256));
+            		Color c = (Color)clusterColors.get(data.getCluster());
 
 					Appearance cAppearance = createSphereAppearance(new Color3f(c));
 					clusterColorMap.put(data.getCluster(), cAppearance);
@@ -405,7 +434,8 @@ public class PCAContent3D extends Panel
             sphere = new TransformGroup(transform);
 
             Sphere shape = null;
-            if(data.getCluster() != null)
+
+            if(data.getCluster() != null && !data.getLabel().equals(selectedPoint))
                 shape = new Sphere(getPointSize()/20f, (Appearance)clusterColorMap.get(data.getCluster()));       
             else
                 shape = new Sphere(getPointSize()/20f, sAppearance);
@@ -415,7 +445,7 @@ public class PCAContent3D extends Panel
             shape.getShape().setCapability(Shape3D.ALLOW_APPEARANCE_READ);
             shape.setUserData(data.getLabel());
             shape.getShape().setUserData(data.getLabel());
-
+            
             sphere.addChild(shape);
 
             spheres.addChild(sphere);
@@ -502,7 +532,6 @@ public class PCAContent3D extends Panel
 
         color3f = new Color3f(0.5f, 0.5f, 0.5f);
         axisFontMaterial = new Material(color3f, blackColor, color3f, whiteColor, 100f);
-
 
         axisFontMaterial.setLightingEnable(true);
         Appearance axisFontAppearance = new Appearance();
@@ -763,35 +792,6 @@ public class PCAContent3D extends Panel
                 }
             }
         }
-
-        /*else
-      	{
-            if(lastShowedText != null) 
-                lastShowedText.setString("");
-
-            pickCanvas.setShapeLocation(mevent);
-            pickCanvas.setTolerance((float)20.0);
-
-            PickResult[] results = pickCanvas.pickAllSorted();
-            if(results == null)
-				return;
-
-            Text3D result = null;
-            for(int i =0; i < results.length; i++)
-            {
-                if( ((Shape3D)results[i].getObject()).getGeometry() instanceof Text3D)
-                {
-                    result = (Text3D)((Shape3D)results[i].getObject()).getGeometry();
-                    break;
-                }
-            }
-
-            if(result == null || result.getCapability(Text3D.ALLOW_STRING_WRITE) == false)
-		        return;
-
-            result.setString((String)result.getUserData());
-            lastShowedText = result;
-        }  */
     }
  }
 }

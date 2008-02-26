@@ -82,8 +82,6 @@ public class PCA extends MicroarrayViewEventBase
     // principal components currently plotted
     private int[] plottedComps;
 
-    //private DSMicroarraySetView<DSGeneMarker, DSMicroarray> dataSetView = new CSMicroarraySetView<DSGeneMarker, DSMicroarray>();
-
     public PCA()
     {
         tabbedPane = new JTabbedPane();
@@ -123,7 +121,7 @@ public class PCA extends MicroarrayViewEventBase
 
                 if(pcs.length == 0)
                 {
-                    JOptionPane.showMessageDialog(null, "No principal components selected");
+                    JOptionPane.showMessageDialog(null, "Cannot create microarray set: No principal components selected");
                     return;
                 }
 
@@ -218,7 +216,7 @@ public class PCA extends MicroarrayViewEventBase
             public void actionPerformed(ActionEvent event)
             {
                 plottedComps = projResultsTable.getSelectedRows();
-                buildPlot(plottedComps);
+                buildProjectionPlot(plottedComps);
                 clearPlotButton.setEnabled(true);
                 imageSnapshotButton.setEnabled(true);
             }
@@ -338,7 +336,7 @@ public class PCA extends MicroarrayViewEventBase
             {
                 onlyActivatedArrays = !chkAllArrays.isSelected();
                 if(plottedComps != null && plottedComps.length >0)
-                    buildPlot(plottedComps);
+                    buildProjectionPlot(plottedComps);
             }
         });
 
@@ -348,7 +346,7 @@ public class PCA extends MicroarrayViewEventBase
             {
                 onlyActivatedMarkers = !chkAllMarkers.isSelected();
                 if(plottedComps != null && plottedComps.length >0)
-                    buildPlot(plottedComps);
+                    buildProjectionPlot(plottedComps);
             }
         });
         
@@ -523,38 +521,47 @@ public class PCA extends MicroarrayViewEventBase
         scrollPane.setViewportView(eigenVectorsTable);
     }
 
-
-    private HashMap createClusterColorMap(boolean markers)
+    private HashMap createClusterColorMap(boolean useMarkers)
     {
         HashMap colorMap = new HashMap();
 
         DSItemList panels;
-        if(markers)
+        if(!useMarkers && activatedArrays != null)
         {
-            panels = getDataSetView().getMarkerPanel().panels();
+            panels = activatedArrays.panels();
         }
         else
         {
-            panels = getDataSetView().getItemPanel().panels();
+            panels = markers.panels();
         }
 
-        if(panels == null)
+        PanelVisualPropertiesManager manager = PanelVisualPropertiesManager.getInstance();
+        colorMap.put("group 1", manager.getDefaultVisualProperties(0).getColor());
+
+        if(panels == null || panels.size() == 0)
             return null;
 
-       PanelVisualPropertiesManager manager = PanelVisualPropertiesManager.getInstance();
-       for(int i = 0; i < panels.size(); i++)
+       for(int i = 1; i < panels.size(); i++)
        {
-            DSPanel mp = (DSPanel)panels.get(i);
+            DSPanel dp = (DSPanel)panels.get(i);
+            if(dp.size() == 0 || !dp.isActive())
+            {
+                continue;
+            }
 
-            PanelVisualProperties visualProperties = manager.getVisualProperties(mp);
-
-            colorMap.put(mp.getLabel(), visualProperties.getColor());
-       }
+            PanelVisualProperties visualProperties = manager.getVisualProperties(dp);
+             if (visualProperties == null)
+             {
+                visualProperties = manager.getDefaultVisualProperties(i);
+             }
+           
+            colorMap.put(dp.getLabel(), visualProperties.getColor());
+        }
 
         return colorMap;
     }
 
-    public void buildGraph(int[] pComp)
+    public void buildEigenvectorGraph(int[] pComp)
     {
         XYSeriesCollection xySeriesCollection = new XYSeriesCollection();
 
@@ -585,12 +592,13 @@ public class PCA extends MicroarrayViewEventBase
         compGraphPanel.setDividerLocation(0.5);
     }
 
-    private void buildPlot(int[] pComp)
+    private void buildProjectionPlot(int[] pComp)
     {
         CSExprMicroarraySet maSet = (CSExprMicroarraySet)dataSet;
         List dataLabelList = new ArrayList();
         FloatMatrix u_Matrix = null;
         HashMap dataLabelGps = new HashMap();
+        HashMap clusterColors = createClusterColorMap(pcaData.getVariables().equals("experiments"));
 
         if(pcaData.getVariables().equals("genes"))
         {
@@ -696,8 +704,8 @@ public class PCA extends MicroarrayViewEventBase
             }
 
             pcaContent3D = new PCAContent3D(data);
-
-           // pcaContent3D.setClusterColors(createClusterColorMap(!pcaData.getVariables().equals("genes")));
+           
+            pcaContent3D.setClusterColors(clusterColors);
             pcaContent3D.setPointSize((float)1.4);
             pcaContent3D.setXAxisLabel("Prin. Comp. " + pc1);
             pcaContent3D.setYAxisLabel("Prin. Comp. " + pc2);
@@ -715,21 +723,29 @@ public class PCA extends MicroarrayViewEventBase
         {
             int pc1 = pComp[0]+1;
             int pc2 = pComp[1]+1;
-
+                    
             JFreeChart graph = ChartFactory.createScatterPlot
-                       ("2D Projection", "Prin. Comp. " + pc1, "Prin. Comp. " + pc2, null, PlotOrientation.VERTICAL, true, false, false);
+                                  ("2D Projection", "Prin. Comp. " + pc1, "Prin. Comp. " + pc2, null, PlotOrientation.VERTICAL, true, false, false);
 
-            XYSeriesCollection xySeriesCollection = new XYSeriesCollection();
+             XYSeriesCollection xySeriesCollection = new XYSeriesCollection();
+            graph.getXYPlot().setDataset(xySeriesCollection);
 
             Set dataGroups = dataLabelGroups.keySet();
             Iterator it = dataGroups.iterator();
+            int series =0;
             while(it.hasNext())
             {
                 String group = (String)it.next();
                 XYSeries xySeries = new XYSeries("", false, true);                
 
                 if(!group.equals("group 1"))
+                {
                     xySeries.setKey(group);
+                }
+                
+                graph.getXYPlot().getRenderer().setSeriesPaint(series, (Color)clusterColors.get(group));
+                graph.getXYPlot().getRenderer().setSeriesShape(series,  graph.getXYPlot().getRenderer().getBaseShape());
+                series++;
 
                 Set labels = (Set)dataLabelGroups.get(group);
                 Iterator labelsIt = labels.iterator();
@@ -745,10 +761,9 @@ public class PCA extends MicroarrayViewEventBase
 
                 xySeriesCollection.addSeries(xySeries);
             }
-         
-            graph.getXYPlot().setDataset(xySeriesCollection);
+
             graph.getXYPlot().getRangeAxis().setTickMarksVisible(true);
-            graph.getXYPlot().getRangeAxis().setTickMarkPaint(Color.BLACK);          
+            graph.getXYPlot().getRangeAxis().setTickMarkPaint(Color.BLACK);
 
            set2DPlotBounds(graph, true, true);
 
@@ -843,7 +858,7 @@ public class PCA extends MicroarrayViewEventBase
     private void buildComponentsPanel(int[] pComp)
     {
         buildEigenVectorsTable(pComp);
-        buildGraph(pComp);
+        buildEigenvectorGraph(pComp);
 
         compPanel.setDividerLocation(0.25);
         compPanel.setRightComponent(compGraphPanel);
@@ -895,7 +910,7 @@ public class PCA extends MicroarrayViewEventBase
         refreshMaSetView();
 
         if(plottedComps != null)
-            buildPlot(plottedComps);
+            buildProjectionPlot(plottedComps);
     }
 
     public void receive(PhenotypeSelectorEvent e, Object source)
@@ -910,7 +925,7 @@ public class PCA extends MicroarrayViewEventBase
             refreshMaSetView();
 
             if(plottedComps != null)
-                buildPlot(plottedComps);
+                buildProjectionPlot(plottedComps);
         }
     }    
 
