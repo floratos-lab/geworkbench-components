@@ -995,7 +995,7 @@ public class PCA extends MicroarrayViewEventBase
             String label = pcaContent3D.getSelectedPoint();
             if(label == null)
                 return;
-            if(pcaData.getVariables().equals("experiments"))
+            if(pcaData.getVariables().equals("genes"))
             {
                 DSMicroarray microarray = ((CSExprMicroarraySet)dataSet).getMicroarrayWithId(label);
                 if (microarray != null)
