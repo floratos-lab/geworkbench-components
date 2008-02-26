@@ -913,6 +913,14 @@ public class PCA extends MicroarrayViewEventBase
             buildProjectionPlot(plottedComps);
     }
 
+     /**
+    * phenotypeSelectorAction
+   *
+   * @param e
+     *            PhenotypeSelectorEvent
+    */
+    @Subscribe
+    @SuppressWarnings("unchecked")
     public void receive(PhenotypeSelectorEvent e, Object source)
     {
          log.debug("Source object " + source);
