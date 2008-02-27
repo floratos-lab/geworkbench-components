@@ -146,9 +146,6 @@ public class PCAAnalysis extends GPAnalysis
         public Task(DSMicroarraySetView<DSGeneMarker, DSMicroarray> view)
         {
             this.view = view;
-
-            this.view.useItemPanel(false);
-            this.view.useMarkerPanel(false);
         }
 
         public PCADataSet doInBackground()
@@ -162,6 +159,7 @@ public class PCAAnalysis extends GPAnalysis
 
             if(((PCAAnalysisPanel)panel).getVariables().equals("genes"))
             {
+                view.useMarkerPanel(false);
                 List parameters = new ArrayList();
 
                 parameters.add(new Parameter("input.filename", gctFileName));
@@ -180,6 +178,8 @@ public class PCAAnalysis extends GPAnalysis
                         gctFileName = (String)file;
                 }
             }
+            else
+                   view.useItemPanel(false);
 
             progress.setProgress(40);
             List parameters = new ArrayList();
