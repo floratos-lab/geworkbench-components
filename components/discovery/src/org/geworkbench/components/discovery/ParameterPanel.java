@@ -11,6 +11,8 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.text.DecimalFormat;
 import java.util.Vector;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * <p>ParameterPanel</p>
@@ -23,7 +25,10 @@ import java.util.Vector;
  */
 
 public class ParameterPanel extends JPanel {
-    private JTabbedPane jTabbedPane1 = new JTabbedPane();
+    public static final String SUPPORT_OCCURANCES = "# Support Occurances";
+	public static final String SUPPORT_SEQUENCES = "# Support Sequences";
+	public static final String SUPPORT_PERCENT_1_100 = "Support Percent %(1-100)";
+	private JTabbedPane jTabbedPane1 = new JTabbedPane();
     private JPanel BasicPane = new JPanel();
     private JPanel AdvancedPane = new JPanel();
     private JPanel jGroupingPane = new JPanel();
@@ -43,7 +48,7 @@ public class ParameterPanel extends JPanel {
     private JLabel jMinPatternNoLabel = new JLabel();
 
     // Basic Panel
-    private JLabel jMinSupportLabel = new JLabel();
+    private  JComboBox jMinSupportMenu = new  JComboBox();
     private JLabel jMinTokensLabel = new JLabel();
     private JLabel jWindowLabel = new JLabel();
     private JLabel jMinWTokensLabel = new JLabel();
@@ -125,7 +130,9 @@ public class ParameterPanel extends JPanel {
     JTextField jMinClusterSizeBox = new JTextField();
     JCheckBox jUseHMMBox = new JCheckBox();
     GridBagLayout gridBagLayout3 = new GridBagLayout();
-
+    private String currentSupportMenuStr = SUPPORT_PERCENT_1_100;
+    private int maxSeqNumber; 
+    
     public ParameterPanel() {
         try {
             jbInit();
@@ -151,13 +158,18 @@ public class ParameterPanel extends JPanel {
         jMinWTokensLabel.setText("Density Tokens:");
         jMinWTokensLabel.setToolTipText("");
         this.setLayout(jborderLayout);
-        jMinSupportLabel.setText("Support:");
+        //jMinSupportMenu.setText("Support:");
+        jMinSupportMenu.addItem(SUPPORT_PERCENT_1_100);
+        jMinSupportMenu.addItem(SUPPORT_SEQUENCES);
+        jMinSupportMenu.addItem(SUPPORT_OCCURANCES);
+        jMinSupportMenu.setSelectedIndex(0);
+        jMinSupportMenu.addActionListener(new ParameterPanel_jSupportMenu_actionAdapter(this));
         jWindowLabel.setText("Density Window:");
         jMinTokensBox.setText("7");
         jWindowBox.setText("5");
         jMinWTokensBox.setText("4");
         jMinTokensLabel.setText("Min Tokens:");
-        jMinSupportBox.setText("70%");
+        jMinSupportBox.setText("70");
         jProfileHMMPane.setLayout(jProfileHMMGridBL);
         jProfileHMMPane.setBorder(border1);
         jProfileHMMPane.setMaximumSize(new Dimension(32767, 32767));
@@ -186,7 +198,8 @@ public class ParameterPanel extends JPanel {
         jMinTokensBox.setInputVerifier(new RegularExpressionVerifier("(\\d){1,9}"));
         jMinWTokensBox.setInputVerifier(new RegularExpressionVerifier("(\\d){1,9}"));
         jWindowBox.setInputVerifier(new RegularExpressionVerifier("(\\d){1,9}"));
-        jMinSupportBox.setInputVerifier(new RegularExpressionVerifier("0?\\.?(\\d){1,9}(%)?"));
+        //jMinSupportBox.setInputVerifier(new SupportVerifier("0?\\.?(\\d){1,9}(%)?"));
+        jMinSupportBox.setInputVerifier(new SupportVerifier("0?\\.?(\\d){1,9}(%)?"));
         //Advanced Panel
         jMatrixBox.addItem("BLOSUM50");
         jMatrixBox.addItem("BLOSUM62");
@@ -302,7 +315,7 @@ public class ParameterPanel extends JPanel {
         BasicPane.add(jMinSupportBox, new GridBagConstraints(1, 0, 1, 1, 0.7, 1.0, GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 4), 0, 0));
         BasicPane.add(jMinTokensBox, new GridBagConstraints(1, 1, 1, 1, 0.7, 1.0, GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 4), 0, 0));
         BasicPane.add(jWindowBox, new GridBagConstraints(1, 2, 1, 1, 0.7, 1.0, GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 4), 0, 0));
-        BasicPane.add(jMinSupportLabel, new GridBagConstraints(0, 0, 1, 1, 0.0, 1.0, GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2), 0, 0));
+        BasicPane.add(jMinSupportMenu, new GridBagConstraints(0, 0, 1, 1, 0.0, 1.0, GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2), 0, 0));
         BasicPane.add(jMinWTokensBox, new GridBagConstraints(1, 3, 1, 1, 0.7, 1.0, GridBagConstraints.EAST, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 4), 0, 0));
         BasicPane.add(jMinTokensLabel, new GridBagConstraints(0, 1, 1, 1, 0.0, 1.0, GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2), 0, 0));
         BasicPane.add(jWindowLabel, new GridBagConstraints(0, 2, 1, 1, 0.0, 1.0, GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2), 0, 0));
@@ -384,7 +397,21 @@ public class ParameterPanel extends JPanel {
         return (Integer.parseInt(jWindowBox.getText()));
     }
 
-    //Parsing ADVANCED Panel
+    /**
+	 * @return the maxSeqNumber
+	 */
+	public int getMaxSeqNumber() {
+		return maxSeqNumber;
+	}
+
+	/**
+	 * @param maxSeqNumber the maxSeqNumber to set
+	 */
+	public void setMaxSeqNumber(int maxSeqNumber) {
+		this.maxSeqNumber = maxSeqNumber;
+	}
+
+	//Parsing ADVANCED Panel
     public int getExactOnlySelected() {
         return (jExactOnlyBox.isSelected() ? 1 : 0);
     }
@@ -445,7 +472,22 @@ public class ParameterPanel extends JPanel {
         return (Integer.parseInt(jMinPatternNoBox.getText()));
     }
 
-    public boolean useHMM() {
+    /**
+	 * @return the currentSupportMenuStr
+	 */
+	public String getCurrentSupportMenuStr() {
+		return currentSupportMenuStr;
+	}
+
+	/**
+	 * @param currentSupportMenuStr the currentSupportMenuStr to set
+	 */
+	public void setCurrentSupportMenuStr(String currentSupportMenuStr) {
+		this.currentSupportMenuStr = currentSupportMenuStr;
+		
+	}
+
+	public boolean useHMM() {
         return jUseHMMBox.isSelected();
     }
 
@@ -461,14 +503,33 @@ public class ParameterPanel extends JPanel {
     public void setParameters(Parameters parms) {
         DecimalFormat format = new DecimalFormat("####.##");
         // Parsing the BASIC panel
-        if (parms.getMinPer100Support() > 0) {
+//        if (parms.getMinPer100Support() > 0) {
+//            String support = format.format(parms.getMinPer100Support() * 100);
+//            jMinSupportBox.setText(support + "%");
+//            jCountSeqBox.setSelected(true);
+//        } else {
+//            jMinSupportBox.setText(Integer.toString(parms.getMinSupport()));
+//        }
+        jMinSupportMenu.setSelectedItem(currentSupportMenuStr);
+        if (currentSupportMenuStr.equalsIgnoreCase(SUPPORT_PERCENT_1_100)) {
             String support = format.format(parms.getMinPer100Support() * 100);
-            jMinSupportBox.setText(support + "%");
+            jMinSupportBox.setText(support);
+            //jMinSupportMenu.setSelectedItem(SUPPORT_PERCENT_1_100);
             jCountSeqBox.setSelected(true);
-        } else {
-            jMinSupportBox.setText(Integer.toString(parms.getMinSupport()));
+        }else{
+        	jMinSupportBox.setText(format.format(parms.getMinSupport()));
+        	jCountSeqBox.setSelected((parms.getCountSeq() == 1) ? true : false);
         }
-        jCountSeqBox.setSelected((parms.getCountSeq() == 1) ? true : false);
+//        if (parms.getMinPer100Support() > 0) {
+//            String support = format.format(parms.getMinPer100Support() * 100);
+//            jMinSupportBox.setText(support);
+//            jMinSupportMenu.setSelectedItem(SUPPORT_PERCENT_1_100);
+//            jCountSeqBox.setSelected(true);
+//        } else {
+//            jMinSupportBox.setText(Integer.toString(parms.getMinSupport()));
+//            jMinSupportMenu.setSelectedItem(SUPPORT_SEQUENCES);
+//        }
+        //jCountSeqBox.setSelected((parms.getCountSeq() == 1) ? true : false);
 
         jMinTokensBox.setText(Integer.toString(parms.getMinTokens()));
         jWindowBox.setText(Integer.toString(parms.getWindow()));
@@ -532,9 +593,85 @@ public class ParameterPanel extends JPanel {
 
     void jConsRegionExtBox_actionPerformed(ActionEvent e) {
     }
+    void jSupportMenu_actionPerformed(ActionEvent e) {
+    	String selectedSupportStr = (String)jMinSupportMenu.getSelectedItem();
+    	System.out.println(selectedSupportStr);
+    	String minSupportStr = getMinSupport();
+    	if(!currentSupportMenuStr.equalsIgnoreCase(selectedSupportStr)){
+//    		if(currentSupportMenuStr.equalsIgnoreCase(SUPPORT_PERCENT_1_100)){
+//    			int minSupport =Math.min((int) (Math.ceil(Double.parseDouble(minSupportStr)/100 * maxSeqNumber)), maxSeqNumber);
+//    			jMinSupportBox.setText(new Integer(minSupport).toString());	
+//    		}else{
+//    			int minSupport =Math.min((int) (Math.ceil(Double.parseDouble(minSupportStr)/maxSeqNumber * 100)), 100);
+//    			jMinSupportBox.setText(new Integer(minSupport).toString());	
+//    		}
+    		jMinSupportBox.setText("");	
+    		this.revalidate();
+    		
+    	}
+    		currentSupportMenuStr = selectedSupportStr;
+    }
 
     //this class is used for the parametorPanel for verification of input.
     //It uses a regular expression for the verification
+    class SupportVerifier extends InputVerifier {
+        //TEXT_FIELD =  "^(\\S)(.){1,75}(\\S)$";
+        //NON_NEGATIVE_INTEGER_FIELD = "(\\d){1,9}";
+        //INTEGER_FIELD = "(-)?" + NON_NEGATIVE_INTEGER_FIELD;
+        //NON_NEGATIVE_FLOATING_POINT_FIELD ="(\\d){1,10}(.)?(\\d){1,10}";
+        //FLOATING_POINT_FIELD =  "(-)?" +NON_NEGATIVE_FLOATING_POINT_FIELD;
+        //NON_NEGATIVE_MONEY_FIELD =  "(\\d){1,15}(\\.(\\d){2})?";
+        //MONEY_FIELD =  "(-)?" + NON_NEGATIVE_MONEY_FIELD;
+        Pattern p = null;
+
+        public SupportVerifier(String regexp) {
+            p = Pattern.compile(regexp);
+        }
+
+        public boolean shouldYieldFocus(JComponent input) {
+            if (verify(input)) {
+                return true;
+            }
+            // According to the documentation, should yield focus is allowed to cause
+            // side effects.  So temporarily remove the input verifier on the text
+            // field.
+            input.setInputVerifier(null);
+            // Pop up the message dialog.
+            String message = "Data input is not valid, please check and input correct data ";
+            JOptionPane.showMessageDialog(null, message, "Invalid value", JOptionPane.WARNING_MESSAGE);
+
+            // Reinstall the input verifier.
+            input.setInputVerifier(this);
+            // Tell whomever called us that we don't want to yield focus.
+            return false;
+        }//endof shouldyieldfocus()
+
+        public boolean verify(JComponent input) {
+            JTextField tf = (JTextField) input;
+            Matcher m = p.matcher(tf.getText());
+            boolean match = m.matches();
+            if(!match){
+            	return match;
+            }
+            if(currentSupportMenuStr.equalsIgnoreCase(SUPPORT_PERCENT_1_100)){
+            	if(new Double(tf.getText().trim()).doubleValue()>100){
+            		return false;
+            	}
+            }
+            if(currentSupportMenuStr.equalsIgnoreCase(SUPPORT_SEQUENCES)){
+            	if(new Integer(tf.getText().trim()).intValue()> maxSeqNumber){
+            		return false;
+            	}
+            }
+            
+            //if (!match) {
+            //JOptionPane.showMessageDialog(null, "Eggs aren't supposed to be green.");
+            //}
+            return match;
+        }//endof verify()
+
+
+    }
 
 }
 
@@ -564,6 +701,17 @@ class ParameterPanel_jEntThreshBox_actionAdapter implements java.awt.event.Actio
     }
 }
 
+class ParameterPanel_jSupportMenu_actionAdapter implements java.awt.event.ActionListener {
+    ParameterPanel adaptee;
+
+    ParameterPanel_jSupportMenu_actionAdapter(ParameterPanel adaptee) {
+        this.adaptee = adaptee;
+    }
+
+    public void actionPerformed(ActionEvent e) {
+        adaptee.jSupportMenu_actionPerformed(e);
+    }
+}
 
 class ParameterPanel_jConsRegionExtBox_actionAdapter implements java.awt.event.ActionListener {
     ParameterPanel adaptee;
