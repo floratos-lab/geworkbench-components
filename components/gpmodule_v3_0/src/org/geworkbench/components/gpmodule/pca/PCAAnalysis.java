@@ -152,6 +152,13 @@ public class PCAAnalysis extends GPAnalysis
         {
             progress.setProgress(0);
 
+             if(((PCAAnalysisPanel)panel).getVariables().equals("genes"))
+            {
+                view.useItemPanel(false);
+            }
+            else
+                view.useMarkerPanel(false);
+
             String gctFileName = createGCTFile("pcaDataset", view.markers(), view.items()).getAbsolutePath();
             progress.setProgress(20);
 
@@ -159,7 +166,6 @@ public class PCAAnalysis extends GPAnalysis
 
             if(((PCAAnalysisPanel)panel).getVariables().equals("genes"))
             {
-                view.useMarkerPanel(false);
                 List parameters = new ArrayList();
 
                 parameters.add(new Parameter("input.filename", gctFileName));
@@ -178,8 +184,6 @@ public class PCAAnalysis extends GPAnalysis
                         gctFileName = (String)file;
                 }
             }
-            else
-                   view.useItemPanel(false);
 
             progress.setProgress(40);
             List parameters = new ArrayList();
