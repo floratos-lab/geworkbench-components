@@ -120,8 +120,27 @@ public class MedusaVisualizationPanel extends JPanel {
 		motifPanel.setLayout(new GridLayout(3, 2));
 
 		/* dummy panel at position 0,0 of the grid */
-		JPanel dummyPanel0 = new JPanel();
-		motifPanel.add(new JScrollPane());
+
+		/* discrete hit or miss heat map at 1,0 */
+		this.rulesFiles = new ArrayList<String>();
+
+		for (int k = 0; k < medusaData.getMedusaCommand().getIter(); k++) {
+			rulesFiles.add("rule_" + k + ".xml");
+		}
+		
+		DiscreteHitOrMissHeatMapNamePanel hitOrMissNamePanel = new DiscreteHitOrMissHeatMapNamePanel(
+				rulesPath, rulesFiles, targetNames, path);
+		// motifPanel.add(hitOrMissPanel);
+		hitOrMissNamePanel.setPreferredSize(new Dimension(200, 100));
+		hitOrMissNamePanel.setParentPanel(tabbedPane);
+		JScrollPane hitOrMissScrollNamePane = new JScrollPane();
+		hitOrMissScrollNamePane.setPreferredSize(new Dimension(100, 200));
+		hitOrMissScrollNamePane.getViewport().add(hitOrMissNamePanel);
+		hitOrMissScrollNamePane.setVisible(true);
+		motifPanel.add(hitOrMissScrollNamePane);
+		
+//		JPanel dummyPanel0 = new JPanel();
+//		motifPanel.add(new JScrollPane());
 
 		/* regulator heat map at postion 0,1 */
 		DiscreteHeatMapPanel regulatorHeatMap = new DiscreteHeatMapPanel(
@@ -192,26 +211,21 @@ public class MedusaVisualizationPanel extends JPanel {
 		motifPanel.add(regulatorHeatScrollPane);
 		// motifPanel.add(new JPanel());
 
-		/* discrete hit or miss heat map at 1,0 */
-		this.rulesFiles = new ArrayList<String>();
-
-		for (int k = 0; k < medusaData.getMedusaCommand().getIter(); k++) {
-			rulesFiles.add("rule_" + k + ".xml");
-		}
 		DiscreteHitOrMissHeatMapPanel hitOrMissPanel = new DiscreteHitOrMissHeatMapPanel(
 				rulesPath, rulesFiles, targetNames, path);
 		// motifPanel.add(hitOrMissPanel);
-		hitOrMissPanel.setPreferredSize(new Dimension(200, 100));
+		hitOrMissPanel.setPreferredSize(new Dimension(200, targetNames.size()*15));
 		hitOrMissPanel.setParentPanel(tabbedPane);
 		JScrollPane hitOrMissScrollPane = new JScrollPane();
 		hitOrMissScrollPane.setPreferredSize(new Dimension(100, 200));
 		hitOrMissScrollPane.getViewport().add(hitOrMissPanel);
 		hitOrMissScrollPane.setVisible(true);
+		hitOrMissScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);	//always activate this scroll bar, so 1,0 and 1,1 can sync without the differences of the scroll bar. 
 		motifPanel.add(hitOrMissScrollPane);
 
 		/* target heat map at postion 1,1 */
 		DiscreteHeatMapPanel targetHeatMap = new DiscreteHeatMapPanel(
-				targetMatrix, 1, 0, -1, targetNames, true, 120);
+				targetMatrix, 1, 0, -1, targetNames, true, 15);
 		// motifPanel.add(targetHeatMap);
 		targetHeatMap.setPreferredSize(new Dimension(targetMatrix[0].length*15, targetMatrix.length*15));
 
@@ -266,11 +280,11 @@ public class MedusaVisualizationPanel extends JPanel {
 				.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);*/
 		targetHeatScrollPane.getViewport().add(targetHeatPanel);
 		targetHeatScrollPane.setVisible(true);
+		targetHeatScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);	//always activate this scroll bar, so 1,0 and 1,1 can sync without the differences of the scroll bar.
 		motifPanel.add(targetHeatScrollPane);
 		// motifPanel.add(new JPanel());
-
 		regulatorHeatScrollPane.getHorizontalScrollBar().setModel(targetHeatScrollPane.getHorizontalScrollBar().getModel());
-		
+		targetHeatScrollPane.getVerticalScrollBar().setModel(hitOrMissScrollPane.getVerticalScrollBar().getModel());
 		/* dummy panel at 2,0 so we can align the buttons (below) */
 		JPanel dummyPanel11 = new JPanel();
 		motifPanel.add(dummyPanel11);
