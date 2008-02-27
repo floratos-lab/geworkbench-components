@@ -729,7 +729,7 @@ public class PCAContent3D extends Panel
    	{
     	if (!mevent.isAltDown())
     	{           
-            if(lastSelectedShape != null)
+            if(buttonPress && lastSelectedShape != null)
 				lastSelectedShape.setAppearance(lastSelectedShapeAppearance);
 
             if(lastShowedText != null)
@@ -778,6 +778,7 @@ public class PCAContent3D extends Panel
                         lastSelectedShapeAppearance = m_Shape3D.getAppearance();
 
                         m_Shape3D.setAppearance(app);
+                        m_Shape3D.getAppearance().setUserData(lastSelectedShapeAppearance);                        
                     }
                     else
                         m_Shape3D.setAppearance(lastSelectedShapeAppearance);
