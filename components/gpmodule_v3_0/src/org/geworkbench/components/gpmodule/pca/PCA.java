@@ -515,7 +515,7 @@ public class PCA extends MicroarrayViewEventBase
         scrollPane.setViewportView(eigenVectorsTable);
     }
 
-    private HashMap createClusterColorMap(boolean useMarkers)
+    private HashMap createClusterColorMap(boolean useMarkers, boolean includeShapes)
     {
         HashMap colorMap = new HashMap();
 
@@ -548,12 +548,18 @@ public class PCA extends MicroarrayViewEventBase
              {
                 visualProperties = manager.getDefaultVisualProperties(i);
              }
-           
-            colorMap.put(dp.getLabel(), visualProperties.getColor());
+
+            if(includeShapes)
+            {
+                colorMap.put(dp.getLabel(), visualProperties);
+            }
+            else
+                colorMap.put(dp.getLabel(), visualProperties.getColor());
         }
 
         return colorMap;
     }
+
 
     public void buildEigenvectorGraph(int[] pComp)
     {
@@ -592,7 +598,6 @@ public class PCA extends MicroarrayViewEventBase
         List dataLabelList = new ArrayList();
         FloatMatrix u_Matrix = null;
         HashMap dataLabelGps = new HashMap();
-        HashMap clusterColors = createClusterColorMap(pcaData.getVariables().equals("experiments"));
 
         if(pcaData.getVariables().equals("genes"))
         {
@@ -698,7 +703,8 @@ public class PCA extends MicroarrayViewEventBase
             }
 
             pcaContent3D = new PCAContent3D(data);
-           
+
+            HashMap clusterColors = createClusterColorMap(pcaData.getVariables().equals("experiments"), false);
             pcaContent3D.setClusterColors(clusterColors);
             pcaContent3D.setPointSize((float)1.4);
             pcaContent3D.setXAxisLabel("Prin. Comp. " + pc1);
@@ -736,9 +742,11 @@ public class PCA extends MicroarrayViewEventBase
                 {
                     xySeries.setKey(group);
                 }
-                
-                graph.getXYPlot().getRenderer().setSeriesPaint(series, (Color)clusterColors.get(group));
-                graph.getXYPlot().getRenderer().setSeriesShape(series,  graph.getXYPlot().getRenderer().getBaseShape());
+
+                HashMap clusterColors = createClusterColorMap(pcaData.getVariables().equals("experiments"), true);
+                PanelVisualProperties visualProperties = (PanelVisualProperties)clusterColors.get(group);
+                graph.getXYPlot().getRenderer().setSeriesPaint(series, visualProperties.getColor());
+                graph.getXYPlot().getRenderer().setSeriesShape(series,  visualProperties.getShape());
                 series++;
 
                 Set labels = (Set)dataLabelGroups.get(group);
