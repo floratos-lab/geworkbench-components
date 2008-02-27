@@ -46,7 +46,7 @@ import edu.columbia.geworkbench.cagrid.anova.PValueEstimation;
 
 /**
  * @author yc2480
- * @version $Id: AnovaAnalysis.java,v 1.9 2008-02-27 21:59:28 chiangy Exp $
+ * @version $Id: AnovaAnalysis.java,v 1.10 2008-02-27 22:33:29 chiangy Exp $
  */
 public class AnovaAnalysis extends AbstractGridAnalysis implements
 		ClusteringAnalysis {
@@ -218,6 +218,7 @@ public class AnovaAnalysis extends AbstractGridAnalysis implements
 									// put in array A
 		// int MicroarrayNum=view.getMicroarraySet().size();
 
+		ArrayList markerList=new ArrayList();
 		// calculating how many groups selected and arrays inside selected
 		// groups
 		for (int i = 0; i < numSelectedGroups; i++) {// for each groups
@@ -239,6 +240,11 @@ public class AnovaAnalysis extends AbstractGridAnalysis implements
 																				// group
 																				// into
 																				// history
+					if (markerList.contains(panelA.get(aIndex)))
+						return new AlgorithmExecutionResults(false,
+								"Same marker ("+panelA.get(aIndex)+") exists in multiple groups.", null);
+					else
+						markerList.add(panelA.get(aIndex));
 					globleArrayIndex++; // count total arrays in selected
 										// groups.
 				}
