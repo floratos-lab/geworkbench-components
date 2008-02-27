@@ -41,8 +41,8 @@ import edu.columbia.ccls.medusa.sequence.pssm.JensenShannonDivergence;
  * @version $Id: DiscreteHitOrMissHeatMapPanel.java,v 1.1 2007/05/23 17:31:22
  *          keshav Exp $
  */
-public class DiscreteHitOrMissHeatMapPanel extends JPanel implements
-        MouseListener, MouseMotionListener {
+public class DiscreteHitOrMissHeatMapNamePanel extends JPanel implements
+		MouseListener, MouseMotionListener {
 
     /**
      *
@@ -79,7 +79,7 @@ public class DiscreteHitOrMissHeatMapPanel extends JPanel implements
      * @param ruleFiles
      * @param targetNames
      */
-    public DiscreteHitOrMissHeatMapPanel(String rulePath,
+    public DiscreteHitOrMissHeatMapNamePanel(String rulePath,
                                          List<String> ruleFiles, List<String> targetNames,
                                          String sequencePath) {
 
@@ -114,33 +114,18 @@ public class DiscreteHitOrMissHeatMapPanel extends JPanel implements
 
         Graphics2D g2d = (Graphics2D) g;
 
-        int row = 15;
+        int row = this.getHeight()-20;
         int lcol = 25;
-
-        for (int i = 0; i < targetNames.size(); i++) {
-            int col = 15;
-            for (int j = 0; j < ruleFiles.size(); j++) {
-                boolean isHit = hitOrMissMatrix[i][j];
-
-                Rectangle2D.Double rect = new Rectangle2D.Double(col, row, 15,
-                        15);
-                if (isHit)
-                    g2d.setColor(Color.blue);
-                else
-                    g2d.setColor(Color.black);
-
-                g2d.fill(rect);
-                col = col + 15;
-            }
-            row = row + 15;
-        }
-        int x = 15, y = 120;
         for (SerializedRule srule : srules) {
-            Rectangle2D.Double rect = new Rectangle2D.Double(x, y, 15,
-                    15 * targetNames.size());
-            x += 15;
-            rectRule.add(new RectangleRule(rect, srule));
+
+            /*
+                * String sequence = MedusaUtil.generateConsensusSequence(srule
+                * .getPssm());
+                */
+            drawColumnNames(srule, g2d, row, lcol);
+            lcol = lcol + 15;
         }
+
     }
 
     /**
@@ -335,7 +320,7 @@ public class DiscreteHitOrMissHeatMapPanel extends JPanel implements
                 JFileChooser chooser = new JFileChooser();
                 chooser.setCurrentDirectory(new File("."));
 
-                int returnVal = chooser.showOpenDialog(DiscreteHitOrMissHeatMapPanel.this);
+                int returnVal = chooser.showOpenDialog(DiscreteHitOrMissHeatMapNamePanel.this);
                 if(returnVal == JFileChooser.APPROVE_OPTION) {
                     File chosenFile = chooser.getSelectedFile();
                     if(buttons.get(0).isSelected()){
@@ -425,7 +410,7 @@ public class DiscreteHitOrMissHeatMapPanel extends JPanel implements
                 JFileChooser chooser = new JFileChooser();
                 chooser.setCurrentDirectory(new File("."));
 
-                int returnVal = chooser.showSaveDialog(DiscreteHitOrMissHeatMapPanel.this);
+                int returnVal = chooser.showSaveDialog(DiscreteHitOrMissHeatMapNamePanel.this);
                 if(returnVal == JFileChooser.APPROVE_OPTION) {
                     File chosenFile = chooser.getSelectedFile();
                     boolean success = MedusaUtil.writeMatchedPssmsToFile(matchedTFInfoBeanArr, chosenFile);
