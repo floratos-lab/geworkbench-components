@@ -26,7 +26,7 @@ public class PatternNode {
     public String toString() {
         if (pattern != null) {
             if (pattern instanceof CSMatchedHMMOriginSeqPattern) {
-                CSMatchedHMMSeqPattern hmmPatOrigin = (CSMatchedHMMSeqPattern) pattern;
+                CSMatchedHMMOriginSeqPattern hmmPatOrigin = (CSMatchedHMMOriginSeqPattern) pattern;
                 return "HMM [" + hmmPatOrigin.ascii + "] SeqNo: " + hmmPatOrigin.getUniqueSupport() + " Supp: " + hmmPatOrigin.getSupport();
 
             } else {

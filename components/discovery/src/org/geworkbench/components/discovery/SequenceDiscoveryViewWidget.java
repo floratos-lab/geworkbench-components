@@ -279,6 +279,13 @@ public class SequenceDiscoveryViewWidget extends JPanel implements StatusChangeL
         firePropertyChange(TABLE_EVENT, null, null);
         selectAlgorithm(discoverySession);
     }
+    
+    public void setMinSupportTypeName(String currentMinSupportTypeName){
+    	//System.out.println("In SDVW: " + currentMinSupportTypeName);
+    	if(currentMinSupportTypeName!=null)
+    	parameterPanel.setCurrentSupportMenuStr(currentMinSupportTypeName);
+    };
+    
 
     private void selectAlgorithm(DiscoverySession discoverySession) {
 
@@ -328,6 +335,8 @@ public class SequenceDiscoveryViewWidget extends JPanel implements StatusChangeL
         //fire a parameter change to the application
         org.geworkbench.bison.datastructure.complex.pattern.Parameters pp;
         pp = ParameterTranslation.getParameterTranslation().translate(parms);
+        pp.setMinSupportType(parameterPanel.getCurrentSupportMenuStr());//To fix bug 849
+        
         SoapParmsDataSet pds = new SoapParmsDataSet(pp, "Pattern Discovery", getSequenceDB());
         String id = pds.getID();
         File resultFile = pds.getResultFile();
@@ -341,6 +350,7 @@ public class SequenceDiscoveryViewWidget extends JPanel implements StatusChangeL
         parms = p;
         //fire a parameter change to the application
         org.geworkbench.bison.datastructure.complex.pattern.Parameters pp = ParameterTranslation.getParameterTranslation().translate(parms);
+        pp.setMinSupportType(parameterPanel.getCurrentSupportMenuStr());//To fix bug 849
         SoapParmsDataSet pds = new SoapParmsDataSet(pp, "Pattern Discovery", getSequenceDB());
         String id = pds.getID();
         currentStubId = currentNodeID + id;
@@ -676,7 +686,7 @@ public class SequenceDiscoveryViewWidget extends JPanel implements StatusChangeL
     public synchronized void setSequenceDB(DSSequenceSet sDB, boolean withExistedPatternNode, String patternNodeID, Parameters p, File resultFile) {
         //reset the currentResultFile.
         currentResultFile = null;
-
+        parameterPanel.setMaxSeqNumber(sDB.size());
         if (resultFile != null) {
             currentResultFile = resultFile;
         }

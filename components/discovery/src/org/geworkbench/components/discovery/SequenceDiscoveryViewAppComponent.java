@@ -216,9 +216,11 @@ import java.util.ArrayList;
 
                         parms = ParameterTranslation.getParameterTranslation(). getParameters(((SoapParmsDataSet)ds).getParameters());
                        ;
+                       String currentMinSupportTypeName = ((SoapParmsDataSet)ds).getParameters().getMinSupportType();
                         subNodeID = ds.getID();
                         withSubNode = true;
                         resultFile = ((SoapParmsDataSet)ds).getResultFile();
+                        sDiscoveryViewWidget.setMinSupportTypeName(currentMinSupportTypeName);
                     }
                     sDiscoveryViewWidget.setSequenceDB((DSSequenceSet) df, withSubNode, subNodeID, parms, resultFile);
 
