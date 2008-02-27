@@ -1,6 +1,7 @@
 package org.geworkbench.components.anova;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -45,7 +46,7 @@ import edu.columbia.geworkbench.cagrid.anova.PValueEstimation;
 
 /**
  * @author yc2480
- * @version $Id: AnovaAnalysis.java,v 1.8 2008-02-26 21:52:52 chiangy Exp $
+ * @version $Id: AnovaAnalysis.java,v 1.9 2008-02-27 21:59:28 chiangy Exp $
  */
 public class AnovaAnalysis extends AbstractGridAnalysis implements
 		ClusteringAnalysis {
@@ -375,7 +376,15 @@ public class AnovaAnalysis extends AbstractGridAnalysis implements
 			}
 			;
 			int totalSignificantMarkerNum = significantMarkerIndex;
-
+			totalSignificantMarkerNum = result.getCluster("cluster").getNodeList().getNode(0).getFeaturesIndexes().length;
+			String[] significantMarkerNames = new String[totalSignificantMarkerNum];
+			significantMarkerIndex = 0;
+			for (int cx=0;cx<totalSignificantMarkerNum;cx++){
+				int i = result.getCluster("cluster").getNodeList().getNode(0).getFeaturesIndexes()[cx];
+				significantMarkerNames[significantMarkerIndex]=view.markers().get(i).getLabel();
+				significantMarkerIndex++;				
+			}
+/*
 			String[] significantMarkerNames = new String[totalSignificantMarkerNum];
 			significantMarkerIndex = 0;
 			for (int i = 0; i < apFM.getRowDimension(); i++) {
@@ -387,7 +396,7 @@ public class AnovaAnalysis extends AbstractGridAnalysis implements
 				;
 			}
 			;
-
+*/
 			// output f-value, p-value, adj-p-value, mean, std
 			anovaResult.setSignificantMarkerNames(significantMarkerNames);
 			anovaResult.setPVals(new float[totalSignificantMarkerNum]);
@@ -405,7 +414,18 @@ public class AnovaAnalysis extends AbstractGridAnalysis implements
 
 			significantMarkerIndex = 0;
 			for (int i = 0; i < apFM.getRowDimension(); i++) {
-				if (apFM.A[i][0] < pvalueth) {
+				//check if this marker exist in the significant cluster.
+				int[] aList = result.getCluster("cluster").getNodeList().getNode(0).getFeaturesIndexes();
+				boolean inTheList=false;
+				for (int cx=0;cx<aList.length;cx++){
+					if (aList[cx]==i){
+						inTheList=true;
+					}
+				}
+				//if this marker exist in the significant cluster, then it's significant.
+				if (inTheList){
+// following line only valid while not using permutation. If this fix works, following commneted line can be removed.
+//				if (apFM.A[i][0] < pvalueth) {
 					DSGeneMarker item = view.markers().get(
 							view.markers().get(i).getLabel());
 					// if you don't want the whole label, you can use
