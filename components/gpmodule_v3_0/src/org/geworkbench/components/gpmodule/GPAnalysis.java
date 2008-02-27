@@ -78,7 +78,7 @@ public abstract class GPAnalysis extends AbstractAnalysis implements ClusteringA
         try
         {
             gctFile = new File(fileName + ".gct");
-            //gctFile.deleteOnExit();
+            gctFile.deleteOnExit();
             os = new BufferedOutputStream(new FileOutputStream(gctFile));
             writer.write(data, os);
         }
@@ -110,10 +110,9 @@ public abstract class GPAnalysis extends AbstractAnalysis implements ClusteringA
 
             JobResult analysisResult = server.runAnalysis(analysisName, parameters);
 
-            System.out.println("Error occurred: " + analysisResult.hasStandardError());
             if(analysisResult.hasStandardError())
             {
-                JOptionPane.showMessageDialog(panel, "An error occurred");
+                JOptionPane.showMessageDialog(panel, "An error occurred while running analysis.");
             }
 
             String[] outputFiles = analysisResult.getOutputFileNames();
