@@ -38,7 +38,7 @@ import edu.columbia.geworkbench.cagrid.anova.PValueEstimation;
 
 /**
  * @author yc2480
- * @version $Id: AnovaAnalysisPanel.java,v 1.5 2008-02-26 21:52:52 chiangy Exp $
+ * @version $Id: AnovaAnalysisPanel.java,v 1.6 2008-02-27 21:38:44 chiangy Exp $
  */
 public class AnovaAnalysisPanel extends AbstractSaveableParameterPanel
 		implements Serializable {
@@ -338,7 +338,7 @@ public class AnovaAnalysisPanel extends AbstractSaveableParameterPanel
 		if (jPanel1 == null) {
 			jLabel1 = new JLabel();
 			jLabel1.setName("");
-			jLabel1.setText("False Discovery Rate");
+			jLabel1.setText("P-value Corrections");
 			jPanel1 = new JPanel();
 			jPanel1.setLayout(new BoxLayout(getJPanel1(), BoxLayout.X_AXIS));
 			jPanel1.setPreferredSize(new java.awt.Dimension(107, 36));
