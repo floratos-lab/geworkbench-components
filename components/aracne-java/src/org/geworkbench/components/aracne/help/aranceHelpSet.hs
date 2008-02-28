@@ -4,13 +4,13 @@
 
          "http://java.sun.com/products/javahelp/helpset_1_0.dtd">
 
-<?TestTarget The help set file for the ANove component.?>
+<?TestTarget The help set file for the ARACNE component.?>
 
 <helpset version="1.0">
 
 	<!-- title -->
 
-	<title>ANOVA</title>
+	<title>ARACNE</title>
 
 	<!-- maps -->
 
