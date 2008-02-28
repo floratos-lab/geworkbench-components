@@ -193,7 +193,6 @@ public class PCAContent3D extends Panel
      */
     public BufferedImage createImage()
     {
-//        ImageComponent2D buffer = new ImageComponent2D(ImageComponent.FORMAT_RGB, (BufferedImage)this.createImage(onScreenCanvas.getWidth(), onScreenCanvas.getHeight()));
         ImageComponent2D buffer = new ImageComponent2D(ImageComponent.FORMAT_RGB, (BufferedImage)java.awt.GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().getDefaultConfiguration().createCompatibleImage(onScreenCanvas.getWidth(), onScreenCanvas.getHeight()));
         offScreenCanvas.setOffScreenLocation(onScreenCanvas.getLocationOnScreen());
         offScreenCanvas.setOffScreenBuffer(buffer);
@@ -201,8 +200,6 @@ public class PCAContent3D extends Panel
         offScreenCanvas.waitForOffScreenRendering();
         BufferedImage offImage = offScreenCanvas.getOffScreenBuffer().getImage();
         BufferedImage image = new BufferedImage(offImage.getWidth(), offImage.getHeight(), BufferedImage.TYPE_3BYTE_BGR);
-        //BufferedImage image = (BufferedImage)this.createImage(offImage.getWidth(), offImage.getHeight());
-        //BufferedImage image = (BufferedImage)java.awt.GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().getDefaultConfiguration().createCompatibleImage(offImage.getWidth(), offImage.getHeight());
         image.setData(offImage.getData());
         return image;
     }
@@ -354,7 +351,6 @@ public class PCAContent3D extends Panel
         appearance.setLineAttributes(new LineAttributes(10, LineAttributes.PATTERN_SOLID, true));
         appearance.setMaterial(material);
         return new Cylinder(0.025f, 6f, appearance);
-        //return new Cylinder(0.025f, getMaxValue(), appearance);
     }
 
     /**
@@ -379,9 +375,12 @@ public class PCAContent3D extends Panel
     private Appearance createSphereAppearance(Color3f color)
     {
         Material material = new Material(color, this.blackColor, color, this.whiteColor, 100.0f);
-        material.setLightingEnable(true);
+        material.setCapability(Material.ALLOW_COMPONENT_READ);
+        //material.setLightingEnable(true);
+
         Appearance appearance = new Appearance();
         appearance.setMaterial(material);
+        appearance.setCapability(Appearance.ALLOW_MATERIAL_READ);
         return appearance;
     }
 
@@ -440,7 +439,8 @@ public class PCAContent3D extends Panel
             else
                 shape = new Sphere(getPointSize()/20f, sAppearance);
 
-            shape.getCapability(Shape3D.ALLOW_APPEARANCE_WRITE);
+            shape.setCapability(Shape3D.ALLOW_APPEARANCE_WRITE);
+	        shape.setCapability(Shape3D.ALLOW_APPEARANCE_READ);
             shape.getShape().setCapability(Shape3D.ALLOW_APPEARANCE_WRITE);
             shape.getShape().setCapability(Shape3D.ALLOW_APPEARANCE_READ);
             shape.setUserData(data.getLabel());
