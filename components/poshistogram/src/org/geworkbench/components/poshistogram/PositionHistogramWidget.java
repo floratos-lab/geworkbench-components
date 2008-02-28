@@ -53,17 +53,22 @@ public class PositionHistogramWidget extends JPanel {
     private JButton imageSnapshotButton = new JButton();
     private Component component1;
     private Component component2;
-    private JToggleButton jAbsRelBtn = new JToggleButton();
+    // mantis issue 0000792
+    //private JToggleButton jAbsRelBtn = new JToggleButton();
     private Component component3;
-    private JButton filterButton = new JButton();
-    private JToggleButton jAvgPeakBtn = new JToggleButton();
+    // mantis issue 0000792
+    //private JButton filterButton = new JButton();
+    // mantis issue 0000792
+    //private JToggleButton jAvgPeakBtn = new JToggleButton();
     private JButton pairsButton = new JButton();
-    private JTextField jFlexiSupportBox = new JTextField();
+    // mantis issue 0000792
+    //private JTextField jFlexiSupportBox = new JTextField();
     private JLabel jLabel1 = new JLabel();
     private Component component4;
     private Component component5;
     private JTextField jStepBox = new JTextField();
-    private JLabel jLabel2 = new JLabel();
+    // mantis issue 0000792
+    //private JLabel jLabel2 = new JLabel();
     private Component component6;
     private Component component7;
     private DSSequenceSet sequenceDB = null;
@@ -106,22 +111,25 @@ public class PositionHistogramWidget extends JPanel {
                 imageSnapshotAction(e);
             }
         });
-        jAbsRelBtn.setPreferredSize(new Dimension(80, 27));
-        jAbsRelBtn.setText("Abs/Rel");
-        filterButton.setPreferredSize(new Dimension(80, 27));
-        filterButton.setText("Filter");
+        // mantis issue 0000792
+        //jAbsRelBtn.setPreferredSize(new Dimension(80, 27));
+        //jAbsRelBtn.setText("Abs/Rel");
+        //filterButton.setPreferredSize(new Dimension(80, 27));
+        //filterButton.setText("Filter");
+        /*
         filterButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 filterAction(e);
             }
         });
+        
         jAvgPeakBtn.setPreferredSize(new Dimension(80, 27));
         jAvgPeakBtn.setText("Avg/Peak");
         jAvgPeakBtn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 jAvgPeakBtn_actionPerformed(e);
             }
-        });
+        });*/
         pairsButton.setToolTipText("");
         pairsButton.setText("Pairs");
         pairsButton.addActionListener(new java.awt.event.ActionListener() {
@@ -129,7 +137,8 @@ public class PositionHistogramWidget extends JPanel {
                 pairsAction(e);
             }
         });
-        jFlexiSupportBox.setText("100");
+        // mantis issue 0000792
+        //jFlexiSupportBox.setText("100");
         jLabel1.setText("Step:");
         jStepBox.setText("2");
         jStepBox.addActionListener(new java.awt.event.ActionListener() {
@@ -137,22 +146,27 @@ public class PositionHistogramWidget extends JPanel {
                 jStepBox_actionPerformed(e);
             }
         });
-        jLabel2.setText("flex thr.");
+        // mantis issue 0000792
+        //jLabel2.setText("flex thr.");
         this.add(lblChart, BorderLayout.CENTER);
         this.add(jToolBar1, BorderLayout.NORTH);
         jToolBar1.add(plotButton, null);
         jToolBar1.add(component1, null);
         jToolBar1.add(imageSnapshotButton, null);
         jToolBar1.add(component2, null);
-        jToolBar1.add(filterButton, null);
+        // mantis issue 0000792
+        //jToolBar1.add(filterButton, null);
         jToolBar1.add(component3, null);
-        jToolBar1.add(jAbsRelBtn, null);
-        jToolBar1.add(jAvgPeakBtn, null);
+        // mantis issue 0000792
+        //jToolBar1.add(jAbsRelBtn, null);
+        //jToolBar1.add(jAvgPeakBtn, null);
         // jToolBar1.add(pairsButton, null);
         jToolBar1.add(component7, null);
-        jToolBar1.add(jLabel2, null);
+        // mantis issue 0000792
+        //jToolBar1.add(jLabel2, null);
         jToolBar1.add(component6, null);
-        jToolBar1.add(jFlexiSupportBox, null);
+        // mantis issue 0000792
+        //jToolBar1.add(jFlexiSupportBox, null);
         jToolBar1.add(component5, null);
         jToolBar1.add(jLabel1, null);
         jToolBar1.add(component4, null);
@@ -173,7 +187,8 @@ public class PositionHistogramWidget extends JPanel {
         int step = Integer.parseInt(jStepBox.getText());
         int wind = 1;
         int maxBin = maxLen / step + 1;
-        boolean isAbs = !jAbsRelBtn.isSelected();
+        // mantis issue 0000792
+        //boolean isAbs = !jAbsRelBtn.isSelected();
         int factor = 1;
         XYSeriesCollection plots = new XYSeriesCollection();
         for (int rowId = 0; rowId < patterns.size(); rowId++) {
@@ -211,19 +226,20 @@ public class PositionHistogramWidget extends JPanel {
                 }
                 XYSeries series = new XYSeries(ascii);
                 for (int i = 0; i < maxBin * factor; i++) {
+                	/* mantis issue 0000792
                     if (isAbs) {
                         if (factor == 1) {
                             series.add((double) i * step, (double) yMean[i]);
                         } else {
                             series.add((double) ((i - maxBin) * step), (double) yMean[i]);
                         }
-                    } else {
+                    } else {*/
                         if (factor == 1) {
                             series.add((double) i * step, (double) yMean[i] / pat.getSupport());
                         } else {
                             series.add((double) ((i - maxBin) * step), (double) yMean[i] / pat.getSupport());
                         }
-                    }
+                    //}
                 }
                 plots.addSeries(series);
             }
@@ -262,7 +278,8 @@ public class PositionHistogramWidget extends JPanel {
         int rows = patterns.size();
         int maxLen = getMaxLength();
         int maxBin = maxLen / step + 1;
-        boolean isAverage = !jAvgPeakBtn.isSelected();
+        // mantis issue 0000792
+        //boolean isAverage = !jAvgPeakBtn.isSelected();
         int maxIdNo = 1;
         for (int i = 0; i < rows; i++) {
             DSMatchedSeqPattern pattern = (DSMatchedSeqPattern) patterns.get(i);
@@ -309,13 +326,14 @@ public class PositionHistogramWidget extends JPanel {
                 for (int j = 0; j < maxBin * factor; j++) {
                     double m0 = y[j] / idNo;
                     double p = (double) (m0 - mean) / (sdev + 0.000000001);
+                    /* mantis issue 0000792
                     if (isAverage) {
                         if (p > 0) {
                             zScore += p;
                         }
-                    } else {
+                    } else {*/
                         zScore = Math.max(zScore, p);
-                    }
+                    //}
                 }
                 pattern.setPValue(zScore);
             }
