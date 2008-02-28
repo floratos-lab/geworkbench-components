@@ -1,0 +1,51 @@
+<html>
+
+
+
+<head>
+
+<meta http-equiv="Content-Language" content="en-us">
+
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+
+<meta name="GENERATOR" content="Microsoft FrontPage 4.0">
+
+<meta name="ProgId" content="FrontPage.Editor.Document">
+
+<title>User Comments</title>
+
+<link rel="stylesheet" type="text/css" href="ncicb.css">
+
+</head>
+
+
+
+<body>
+    <h3>ARACNE</h3> 
+    <p>ARACNE (Algorithm for the Reconstruction of Accurate Cellular Networks) is an information-theoretic algorithm used to identify transcriptional interactions between gene products using microarray expression profile data and visualize the analysis results. ARACNE predicts potential functional associations among genes, or novel functions for uncharacterized genes, by identifying statistical dependencies between gene. This help topic describes <a href="#_Run_Aracne">executing ARACNE</a> and <a href="#_View_Arance_Results">viewing the results</a><a name="_Run_Aracne"></a> a matrix of candidate interactions, also called an adjacency matrix, which can be used for further network visualization and analysis.</p> 
+    <h3>Run ARACNE </h3> 
+    <p>1. A microarray set or adjacency matrix selected in the project folders area of geWorkbench.</p> 
+    <p>2. In the analysis pane (lower right), select ARACNE analysis from the analysis list.</p> 
+    <p>3. Populate the <a href="#_Parameters">parameters</a> used for this analysis method.</p> 
+    <p>4. Select the location to run the analysis (local or Grid) in the service subtab. </p> 
+    <p>5. Click on <b>Analyze</b>. If successful, the project window is updated to reflect the result node (a child node of the input dataset).  The Dataset history captures the analysis parameters. </p> 
+    <h3><a name="_Parameters"></a> Parameters</h3> 
+    <h3><img border="0" width="612" height="339" src="aracne_files/image001.png"></h3> 
+    <p>&#183; Hub Marker(s): This drop-down specifies the Hub Markers. </p> 
+    <p>&#183; All vs. All: MI values are computed for all pairs of eligible markers. </p> 
+    <p>&#183; List: Supports manually entering a list of comma separated marker ids (or loading the list from a CSV file by clicking <b>Load</b>).</p> 
+    <p>&#183; Threshold Type: This drop-down specifies the type of threshold to be used and assumes the values &#8220;Mutual Info&#8221; or &#8220;P-value&#8221;. This value is always a number between 0 and 1.</p> 
+    <p>&#183; Kernel width: The kernel width used for the computation of the MI values. This can be either inferred by the application (select Inferred) or entered explicitly by the user (select Specify).</p> 
+    <p>&#183; DPI Tolerance: If the &#8220;Do Not Apply&#8221; option is specified, no DPI is applied. If the &#8220;Apply&#8221; option is selected then the DPI is applied and the value (between 0 and 1) in the associated text box is used to determine the stringency level of the DPI application.</p> 
+    <p>&#183; DPI Target List: </p> 
+    <p>&#183; All Markers:  ARACNE will compute MI values between pairs of eligible markers. The &#8220;All Markers&#8221; checkbox determines which markers qualify as eligible. Specifically, if the &#8220;All Markers&#8221; checkbox is not selected then only activated markers are eligible to participate in MI computations; otherwise, all markers in the microarray set are eligible. </p> 
+    <p>&#183; All Arrays: If the &#8220;All Arrays&#8221; is not selected then only values from activated microarrays participate in the computation of the MI values. Otherwise values from all microarrays are used.</p> 
+    <h3><a name="_View_Arance_Results"></a>View Arance</h3> 
+    <h3><img border="0" width="855" height="551" src="aracne_files/image002.png"> </h3> 
+    <p>Execution of ARACNE generates an adjacency matrix which can be visualized and further explored in Cytoscape. A description of Cystoscape is located in the Cytoscape Tutorial and Help. </p>
+
+</body>
+
+
+
+</html>
