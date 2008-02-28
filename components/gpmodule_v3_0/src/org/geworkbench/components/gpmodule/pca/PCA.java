@@ -270,7 +270,7 @@ public class PCA extends MicroarrayViewEventBase
                 }
 
                 ImageIcon newIcon = new ImageIcon(graphImage, "PCA Image");
-                org.geworkbench.events.ImageSnapshotEvent imageEvent = new org.geworkbench.events.ImageSnapshotEvent("Color Mosaic View", newIcon, org.geworkbench.events.ImageSnapshotEvent.Action.SAVE);
+                org.geworkbench.events.ImageSnapshotEvent imageEvent = new org.geworkbench.events.ImageSnapshotEvent("PCA Image View", newIcon, org.geworkbench.events.ImageSnapshotEvent.Action.SAVE);
                 publishImageSnapshotEvent(imageEvent);
             }
         });
@@ -530,7 +530,7 @@ public class PCA extends MicroarrayViewEventBase
         }
 
         PanelVisualPropertiesManager manager = PanelVisualPropertiesManager.getInstance();
-        colorMap.put("group 1", manager.getDefaultVisualProperties(0).getColor());
+        colorMap.put("group 1", includeShapes ? manager.getDefaultVisualProperties(0): manager.getDefaultVisualProperties(0).getColor());
 
         if(panels == null || panels.size() == 0)
             return null;
