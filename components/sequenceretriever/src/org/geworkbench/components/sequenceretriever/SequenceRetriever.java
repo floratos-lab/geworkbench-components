@@ -300,7 +300,7 @@ public class SequenceRetriever implements VisualPlugin {
         jComboCategory.addActionListener(new java.awt.event.ActionListener() {
 
             public void actionPerformed(ActionEvent e) {
-                changeSeqeunceCategory();
+                changeSequenceCategory();
             }
         });
         jSourceCategory.addActionListener(new java.awt.event.ActionListener() {
@@ -369,7 +369,7 @@ public class SequenceRetriever implements VisualPlugin {
         return sequenceDB;
     }
 
-    private void changeSeqeunceCategory() {
+    private void changeSequenceCategory() {
 
         String sequenceType = (String) jComboCategory.getSelectedItem();
         currentView = sequenceType;
