@@ -7,7 +7,6 @@ import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Hashtable;
 import java.util.List;
@@ -168,6 +167,11 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 	/**
 	 * Visual Widget
 	 */
+	private JButton load = new JButton("Load Settings");
+
+	/**
+	 * Visual Widget
+	 */
 	private JPanel jPanel4 = new JPanel();
 
 	/**
@@ -271,6 +275,7 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 		jSplitPane1 = new JSplitPane();
 		save = new JButton("Save Settings");
 		delete = new JButton("Delete Settings");
+		load = new JButton("Load Settings");
 		jPanel4 = new JPanel();
 		currentParameterPanel = emptyParameterPanel;
 		buttons = new JPanel();
@@ -310,6 +315,12 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 		delete.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				delete_actionPerformed(e);
+			}
+
+		});
+		load.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				load_actionPerformed(e);
 			}
 
 		});
@@ -359,6 +370,8 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 		save.setPreferredSize(analyze.getPreferredSize());
 		delete.setPreferredSize(analyze.getPreferredSize());
 		delete.setEnabled(false);
+		load.setPreferredSize(analyze.getPreferredSize());
+		load.setEnabled(false);
 		FormLayout layout = new FormLayout("right:100dlu,10dlu", "");
 		DefaultFormBuilder builder = new DefaultFormBuilder(layout);
 		builder.setDefaultDialogBorder();
@@ -368,6 +381,7 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 		builder.append(save);
 		builder.nextLine();
 		builder.append(delete);
+		builder.append(load);
 
 		jParameterPanel.add(builder.getPanel(), BorderLayout.LINE_END);
 
@@ -500,6 +514,16 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 	}
 
 	/**
+	 * Load the selected saved parameter.
+	 * 
+	 * @param name -
+	 *            name of the saved parameter
+	 */
+	private void loadNamedParameter(String name) {
+		setParametersPanel(selectedAnalysis.getNamedParameterSetPanel(name));
+	}
+
+	/**
 	 * Listener invoked when a new analysis is selected from the displayed list
 	 * of analyses.
 	 * 
@@ -512,6 +536,7 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 			return;
 		}
 		delete.setEnabled(false);
+		load.setEnabled(false);
 		selectedAnalysis = availableAnalyses[pluginAnalyses.getSelectedIndex()];
 		// Set the parameters panel for the selected analysis.
 		ParameterPanel paramPanel = selectedAnalysis.getParameterPanel();
@@ -559,11 +584,13 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 	private void namedParameterSelection_action(ListSelectionEvent e) {
 		if (selectedAnalysis == null) {
 			delete.setEnabled(false);
+			load.setEnabled(false);
 			return;
 		}
 		int index = namedParameters.getSelectedIndex();
 		if (index != -1) {
 			delete.setEnabled(true);
+			load.setEnabled(true);
 			setParametersPanel(selectedAnalysis
 					.getNamedParameterSetPanel((String) namedParameters
 							.getModel().getElementAt(index)));
@@ -832,6 +859,23 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 			this.removeNamedParameter((String) this.namedParameters
 					.getSelectedValue());
 			this.delete.setEnabled(false);
+			this.load.setEnabled(false);
+		}
+	}
+
+	/**
+	 * Listener invoked when the "Load Settings" button is pressed
+	 * 
+	 * @param e -
+	 *            action event
+	 */
+	private void load_actionPerformed(ActionEvent e) {
+		if ((selectedAnalysis != null)
+				&& (this.namedParameters.getSelectedIndex() >= 0)) {
+			log.info("Loading saved parameters: "
+					+ (String) this.namedParameters.getSelectedValue());
+			this.loadNamedParameter((String) this.namedParameters
+					.getSelectedValue());
 		}
 	}
 
