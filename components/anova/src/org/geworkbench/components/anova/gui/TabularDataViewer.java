@@ -6,6 +6,7 @@ import java.awt.Panel;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
@@ -15,18 +16,17 @@ import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JTable;
+import javax.swing.filechooser.FileFilter;
 
 import org.geworkbench.analysis.AbstractSaveableParameterPanel;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSAnovaResultSet;
-import org.geworkbench.bison.datastructure.bioobjects.microarray.DSSignificanceResultSet;
 import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.engine.management.AcceptTypes;
 import org.geworkbench.engine.management.Subscribe;
 import org.geworkbench.events.ProjectEvent;
 import org.geworkbench.util.ProgressBar;
-//import org.tigr.microarray.mev.cluster.gui.helpers.TableViewer;
 
 import com.jgoodies.binding.adapter.BasicComponentFactory;
 import com.jgoodies.binding.beans.BeanAdapter;
@@ -38,7 +38,7 @@ import com.jgoodies.forms.layout.FormLayout;
  * This is an example geWorkbench component.
  * 
  * @author Mark Chiang
- * @version $Id: TabularDataViewer.java,v 1.4 2008-02-20 15:40:30 keshav Exp $
+ * @version $Id: TabularDataViewer.java,v 1.5 2008-02-29 17:19:32 chiangy Exp $
  */
 // This annotation lists the data set types that this component accepts.
 // The component will only appear when a data set of the appropriate type is
@@ -386,12 +386,24 @@ public class TabularDataViewer extends AbstractSaveableParameterPanel implements
 	 */
 	public void export(){
 		JFileChooser jFC=new JFileChooser();
-		int returnVal = jFC.showOpenDialog(this);
+
+		//We remove "all files" from filter, since we only allow CSV format
+		FileFilter ft = jFC.getAcceptAllFileFilter();
+		jFC.removeChoosableFileFilter(ft);
+		
+		TabularFileFilter filter = new TabularFileFilter();
+        jFC.setFileFilter(filter);
+        
+		int returnVal = jFC.showSaveDialog(this);
 	    if(returnVal == JFileChooser.APPROVE_OPTION) {
 //	    	System.out.println("You chose to open this file: " +jFC.getCurrentDirectory()+ "\\"+jFC.getSelectedFile().getName());
 		    try {
-		    	//FIXME: according to different OS, it will not always be "\\", sometimes will be "/"
-		        BufferedWriter out = new BufferedWriter(new FileWriter(jFC.getCurrentDirectory()+"\\"+jFC.getSelectedFile().getName()));
+				String tabFilename; 
+				tabFilename = jFC.getSelectedFile().getAbsolutePath();
+				if (!tabFilename.toLowerCase().endsWith("." + filter.getExtension().toLowerCase())) {
+					tabFilename += "." + filter.getExtension();
+				}
+		        BufferedWriter out = new BufferedWriter(new FileWriter(tabFilename));
 		        boolean newLine=true;
 		        //print the header
 		        
@@ -568,4 +580,25 @@ public class TabularDataViewer extends AbstractSaveableParameterPanel implements
             firePropertyChange(ENABLED_PROPERTY, oldValue, this.enabled);
         }
     }
+	private class TabularFileFilter extends FileFilter {
+		public String getDescription() {
+			return "CSV Files";
+		}
+
+		public boolean accept(File f) {
+			String name = f.getName();
+			boolean tabFile = name.endsWith("csv") || name.endsWith("CSV");
+			if (f.isDirectory() || tabFile) {
+				return true;
+			}
+
+			return false;
+		}
+
+		public String getExtension() {
+			return "csv";
+		}
+
+	}
+
 }
