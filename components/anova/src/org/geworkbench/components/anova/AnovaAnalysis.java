@@ -46,7 +46,7 @@ import edu.columbia.geworkbench.cagrid.anova.PValueEstimation;
 
 /**
  * @author yc2480
- * @version $Id: AnovaAnalysis.java,v 1.10 2008-02-27 22:33:29 chiangy Exp $
+ * @version $Id: AnovaAnalysis.java,v 1.11 2008-02-29 00:55:05 chiangy Exp $
  */
 public class AnovaAnalysis extends AbstractGridAnalysis implements
 		ClusteringAnalysis {
@@ -211,7 +211,9 @@ public class AnovaAnalysis extends AbstractGridAnalysis implements
 		// Run tests
 
 		AlgorithmData data = new AlgorithmData();
-
+		
+		data.addParam("alpha", String.valueOf(pvalueth));
+		
 		// FIXME - this is just a quick fix about the "Selection" Panel, should
 		// check how many been selected.
 		int globleArrayIndex = 0; // use as an index points to all microarrays
@@ -439,7 +441,7 @@ public class AnovaAnalysis extends AbstractGridAnalysis implements
 					// log.debug(view.markers().get(i).getShortName());
 					panelSignificant.add(item, new Float(apFM.A[i][0]));
 					sigSet.setSignificance(item, (double) apFM.A[i][0]);
-					anovaResult.setPVals(significantMarkerIndex, pFM.A[i][0]);
+					anovaResult.setPVals(significantMarkerIndex, apFM.A[i][0]);
 					anovaResult.setAdjPVals(significantMarkerIndex,
 							apFM.A[i][0]);
 					anovaResult.setFVals(significantMarkerIndex, fFM.A[i][0]);
