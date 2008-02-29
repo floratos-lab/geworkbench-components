@@ -1,0 +1,5 @@
+<component-descriptor xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="Descriptor Schema.xsd">
+    <component class="org.geworkbench.components.netboost.NetBoostAnalysis">
+        <online-help helpSet="org/geworkbench/components/netboost/help/netboostHelpSet.hs"/>
+    </component>
+</component-descriptor>
