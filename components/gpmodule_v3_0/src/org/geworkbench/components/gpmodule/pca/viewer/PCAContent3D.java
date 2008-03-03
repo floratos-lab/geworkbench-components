@@ -60,21 +60,23 @@ public class PCAContent3D extends Panel
     private String xAxisLabel = "X";
     private String yAxisLabel = "Y";
     private String zAxisLabel = "Z";
-    private Map clusterColorMap = new HashMap();
+    private Map clusterAppearanceMap = new HashMap();
     private Map clusterColors;
     private Map pointLabelMap = new HashMap();
     private String selectedPoint;
 
+    // controls which points are visible and not visible in plot
+    private Switch sphereSwitch;
+
+    ArrayList spheresList;
+
     /**
      * Constructs a PCAContent3D object
      */
-    public PCAContent3D(List xyzPoints)
+    public PCAContent3D()
     {
         try
         {
-            this.xyzPoints = xyzPoints;
-
-            initScales(xyzPoints);
             setLayout(new BorderLayout());
             GraphicsConfiguration config = SimpleUniverse.getPreferredConfiguration();
             this.onScreenCanvas = new Canvas3D(config);
@@ -89,7 +91,7 @@ public class PCAContent3D extends Panel
             sOff.setPhysicalScreenHeight(sOn.getPhysicalScreenHeight());
             // attach the offscreen canvas to the view
             universe.getViewer().getView().addCanvas3D(offScreenCanvas);
-
+                       
             add(onScreenCanvas, BorderLayout.CENTER);
             universe.getViewer().getView().setFieldOfView(1.1);
         }
@@ -98,6 +100,12 @@ public class PCAContent3D extends Panel
             JOptionPane.showMessageDialog(null, "An error occured while creating 3D projection plot");
             log.error(e);
         }
+    }
+
+    public void setData(List xyzPoints)
+    {
+        this.xyzPoints = xyzPoints;
+        initScales(xyzPoints);
     }
 
     public Canvas3D getCanvas()
@@ -221,8 +229,39 @@ public class PCAContent3D extends Panel
             spinGroup.getTransform(spinTransform);
             scene.detach();
         }
+
         this.scene = createSceneGraph(onScreenCanvas, spinTransform);
         universe.addBranchGraph(scene);
+    }
+
+    public void updatePoints()
+    {
+        BitSet bitSet = sphereSwitch.getChildMask();
+        for(int i =0; i < spheresList.size(); i++)
+        {
+           Sphere sp = (Sphere)spheresList.get(i);
+
+           PCAContent3D.XYZData data = (PCAContent3D.XYZData)xyzPoints.get(i);
+
+           if(data.getCluster() == null)
+           {
+               bitSet.set(i, false);
+               continue;
+           }
+
+            bitSet.set(i, true);
+           if(clusterAppearanceMap.get(data.getCluster()) == null)
+           {
+                Color c = (Color)clusterColors.get(data.getCluster());
+
+	            Appearance cAppearance = createSphereAppearance(new Color3f(c));
+			    clusterAppearanceMap.put(data.getCluster(), cAppearance);
+	        }
+
+            sp.setAppearance((Appearance)clusterAppearanceMap.get(data.getCluster()));     
+        }
+
+        sphereSwitch.setChildMask(bitSet);
     }
 
     /**
@@ -234,7 +273,7 @@ public class PCAContent3D extends Panel
         objRoot.setCapability(BranchGroup.ALLOW_DETACH);
         BoundingSphere bounds = new BoundingSphere(new Point3d(0.0,0.0,0.0), 100.0);
 
-        this.spinGroup = createCoordinateSystem(bounds);
+        this.spinGroup = createCoordinateSystem();
         if (spinTransform != null) {
             spinGroup.setTransform(spinTransform);
         }
@@ -279,7 +318,7 @@ public class PCAContent3D extends Panel
     /**
      * Creates a coordinate system transform group.
      */
-    private TransformGroup createCoordinateSystem(BoundingSphere bounds)
+    private TransformGroup createCoordinateSystem()
     {
         TransformGroup group = new TransformGroup();
         group.setCapability(TransformGroup.ALLOW_TRANSFORM_WRITE);
@@ -389,11 +428,19 @@ public class PCAContent3D extends Panel
     {
         this.clusterColors = clusterColors;
     }
+
     /**
      * Creates a spheres transform group.
      */
-    private TransformGroup createSpheres() {
-        TransformGroup spheres = new TransformGroup();
+    private Switch createSpheres()
+    {
+        spheresList = new ArrayList();
+        sphereSwitch = new Switch(Switch.CHILD_MASK);
+        sphereSwitch.setCapability(Switch.ALLOW_CHILDREN_READ);
+        sphereSwitch.setCapability(Switch.ALLOW_CHILDREN_WRITE);
+        sphereSwitch.setCapability(Switch.ALLOW_SWITCH_READ);
+        sphereSwitch.setCapability(Switch.ALLOW_SWITCH_WRITE);
+        BitSet bitSet = new BitSet();
 
         float factorX = 3f/scaleAxisX;
         float factorY = 3f/scaleAxisY;
@@ -410,19 +457,20 @@ public class PCAContent3D extends Panel
 
         for (int i=0; i< xyzPoints.size(); i++)
         {
-        	XYZData data = (XYZData)xyzPoints.get(i);
+            bitSet.set(i, true);
+            XYZData data = (XYZData)xyzPoints.get(i);
             x = data.getX();
             y = data.getY();
             z = data.getZ();
 
             if(data.getCluster() != null)
             {
-            	if(clusterColorMap.get(data.getCluster()) == null)
+            	if(clusterAppearanceMap.get(data.getCluster()) == null)
             	{
             		Color c = (Color)clusterColors.get(data.getCluster());
 
 					Appearance cAppearance = createSphereAppearance(new Color3f(c));
-					clusterColorMap.put(data.getCluster(), cAppearance);
+					clusterAppearanceMap.put(data.getCluster(), cAppearance);
 				}
 			}
 
@@ -434,8 +482,13 @@ public class PCAContent3D extends Panel
 
             Sphere shape = null;
 
-            if(data.getCluster() != null && !data.getLabel().equals(selectedPoint))
-                shape = new Sphere(getPointSize()/20f, (Appearance)clusterColorMap.get(data.getCluster()));       
+            if(data.getCluster() == null)
+            {
+                shape = new Sphere(getPointSize()/20f);
+                bitSet.set(i, false);
+            }
+            else if(data.getCluster() != null && !data.getLabel().equals(selectedPoint))
+                shape = new Sphere(getPointSize()/20f, (Appearance) clusterAppearanceMap.get(data.getCluster()));
             else
                 shape = new Sphere(getPointSize()/20f, sAppearance);
 
@@ -445,13 +498,15 @@ public class PCAContent3D extends Panel
             shape.getShape().setCapability(Shape3D.ALLOW_APPEARANCE_READ);
             shape.setUserData(data.getLabel());
             shape.getShape().setUserData(data.getLabel());
-            
-            sphere.addChild(shape);
 
-            spheres.addChild(sphere);
+            spheresList.add(shape);
+
+            sphere.addChild(shape);
+            sphereSwitch.addChild(sphere);
         }
 
-        return spheres;
+        sphereSwitch.setChildMask(bitSet);
+        return sphereSwitch;
     }
 
 
