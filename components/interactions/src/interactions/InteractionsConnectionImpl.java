@@ -56,12 +56,13 @@ public class InteractionsConnectionImpl implements INTERACTIONS {
                             INTERACTIONDATABASEURL, "xiaoqing", "zhangc2b2");
             statement = conn.createStatement();
 
-            boolean isFinished = statement.execute("SELECT * FROM pairwise_interaction where ms_id1=" + id1.toString());
+            boolean isFinished = statement.execute("SELECT * FROM pairwise_interaction where ms_id1=" + id1.toString() + " or ms_id2=" + id1.toString());
             int i = 0;
             if (isFinished) {
                 ResultSet rs = statement.getResultSet();
                 while (rs.next()) {
                     msid2 = rs.getBigDecimal("ms_id2");
+                    
                     confidenceValue = rs.getDouble("confidence_value");
                     isModulated = rs.getString("is_modulated");
                     interactionType = rs.getString("interaction_type");
