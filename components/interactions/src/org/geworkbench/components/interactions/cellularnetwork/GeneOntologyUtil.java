@@ -10,6 +10,8 @@ import java.util.HashSet;
 import java.util.TreeMap;
 import java.util.List;
 
+import javax.swing.JOptionPane;
+
 /**
  * Created by IntelliJ IDEA.
  * User: xiaoqing
@@ -29,9 +31,8 @@ public class GeneOntologyUtil {
 
     static {
         try {
-            tree = new GeneOntologyTree();
-            tree.parseOBOFile("data/gene_ontology.obo");
-
+            tree = new GeneOntologyTree().getInstance();
+            
         } catch (Exception x) {
             x.printStackTrace();
 
@@ -143,6 +144,10 @@ public class GeneOntologyUtil {
     public static GeneOntologyUtil getOntologyUtil() {
         if (geneOntologyUtil == null) {
             geneOntologyUtil = new GeneOntologyUtil();
+        }
+        if(tree==null){
+        	JOptionPane.showMessageDialog(null, "No Gene Ontology Tree information is available.", "Go Term Error", JOptionPane.ERROR_MESSAGE);
+            
         }
         return geneOntologyUtil;
     }
