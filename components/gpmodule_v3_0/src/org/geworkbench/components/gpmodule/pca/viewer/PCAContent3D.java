@@ -62,13 +62,13 @@ public class PCAContent3D extends Panel
     private String zAxisLabel = "Z";
     private Map clusterAppearanceMap = new HashMap();
     private Map clusterColors;
-    private Map pointLabelMap = new HashMap();
+    private Map pointTextMap = new HashMap();
     private String selectedPoint;
 
     // controls which points are visible and not visible in plot
     private Switch sphereSwitch;
 
-    ArrayList spheresList;
+    ArrayList spheresList = new ArrayList();
 
     /**
      * Constructs a PCAContent3D object
@@ -237,28 +237,33 @@ public class PCAContent3D extends Panel
     public void updatePoints()
     {
         BitSet bitSet = sphereSwitch.getChildMask();
-        for(int i =0; i < spheresList.size(); i++)
+        bitSet.set(0, spheresList.size(), false);
+
+        for(int i=0; i < xyzPoints.size(); i++)
         {
-           Sphere sp = (Sphere)spheresList.get(i);
+            PCAContent3D.XYZData data = (PCAContent3D.XYZData)xyzPoints.get(i);
 
-           PCAContent3D.XYZData data = (PCAContent3D.XYZData)xyzPoints.get(i);
+            if(data.getCluster() == null)
+                continue;
 
-           if(data.getCluster() == null)
-           {
-               bitSet.set(i, false);
-               continue;
-           }
-
-            bitSet.set(i, true);
-           if(clusterAppearanceMap.get(data.getCluster()) == null)
-           {
+            if(clusterAppearanceMap.get(data.getCluster()) == null)
+            {
                 Color c = (Color)clusterColors.get(data.getCluster());
 
 	            Appearance cAppearance = createSphereAppearance(new Color3f(c));
 			    clusterAppearanceMap.put(data.getCluster(), cAppearance);
 	        }
 
-            sp.setAppearance((Appearance)clusterAppearanceMap.get(data.getCluster()));     
+            int j=0;
+            Sphere sp = (Sphere)spheresList.get(j);
+            while(j < spheresList.size() && (sp != null && !sp.getUserData().equals(data.getLabel())))
+            {
+                j++;
+                sp = (Sphere)spheresList.get(j);            
+            }
+
+            sp.setAppearance((Appearance)clusterAppearanceMap.get(data.getCluster()));
+            bitSet.set(j, true);
         }
 
         sphereSwitch.setChildMask(bitSet);
@@ -500,7 +505,6 @@ public class PCAContent3D extends Panel
             shape.getShape().setUserData(data.getLabel());
 
             spheresList.add(shape);
-
             sphere.addChild(shape);
             sphereSwitch.addChild(sphere);
         }
@@ -568,7 +572,7 @@ public class PCAContent3D extends Panel
             tempGroup.addChild(shape3d);
             textGroup.addChild(tempGroup);
 
-            pointLabelMap.put(data.getLabel(), text3d);
+            pointTextMap.put(data.getLabel(), text3d);
         }
         return textGroup;
     }
@@ -842,7 +846,7 @@ public class PCAContent3D extends Panel
                 }
                 else
                 {
-                    Text3D text = (Text3D)pointLabelMap.get(m_Shape3D.getUserData());
+                    Text3D text = (Text3D) pointTextMap.get(m_Shape3D.getUserData());
                     text.setString((String)text.getUserData());
                     lastShowedText = text;
                 }
