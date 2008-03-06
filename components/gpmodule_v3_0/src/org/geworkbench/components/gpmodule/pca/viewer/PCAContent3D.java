@@ -77,6 +77,7 @@ public class PCAContent3D extends Panel
     {
         try
         {
+            Thread.setDefaultUncaughtExceptionHandler(new CustomExceptionHandler());
             setLayout(new BorderLayout());
             GraphicsConfiguration config = SimpleUniverse.getPreferredConfiguration();
             this.onScreenCanvas = new Canvas3D(config);
@@ -256,12 +257,16 @@ public class PCAContent3D extends Panel
 
             int j=0;
             Sphere sp = (Sphere)spheresList.get(j);
+
             while(j < spheresList.size() && (sp != null && !sp.getUserData().equals(data.getLabel())))
             {
                 j++;
                 sp = (Sphere)spheresList.get(j);            
             }
 
+            if(sp == null)
+                continue;
+            
             sp.setAppearance((Appearance)clusterAppearanceMap.get(data.getCluster()));
             bitSet.set(j, true);
         }
@@ -854,4 +859,22 @@ public class PCAContent3D extends Panel
         }
     }
  }
+
+    /**
+     * Handler that displays a dialog and exits when there's an uncaught exception
+     * in a J3D thread.
+     */
+    static class CustomExceptionHandler implements Thread.UncaughtExceptionHandler
+    {
+        public void uncaughtException(Thread t, Throwable e)
+        {
+            log.error(e);
+            if (t.getName().startsWith("J3D-")) {
+                JOptionPane.showMessageDialog(null,
+                        "A fatal exception occurred while running Java 3D",
+                        "Java 3D Error",
+                        JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }
 }
