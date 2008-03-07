@@ -640,68 +640,105 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
         submitNewSequences(e, true);
 
     }
+ // This class extends Thread
+    class AddNewSequenceThread extends Thread {
+        boolean isFullLength;
+    	// This method is called when the thread runs
+    	public AddNewSequenceThread(boolean fullLength){
+    		isFullLength = fullLength;
+    	}
+        public void run() {
+        	
+        	
+           
+        	CSSequenceSet db = new CSSequenceSet();
 
-    void submitNewSequences(ActionEvent e, boolean isFullLength) {
+            /**todo
+             * Old SoapClient need fastaFile name, so just create a temp fasta file here.
+             * Consider change SoapClient to Dataset directly for blast.
+             */
+            try {
 
-        CSSequenceSet db = new CSSequenceSet();
+                if (!foundAtLeastOneSelected()) {
+                    reportError("No hit is selected. Please choose at least one.");
+                    return;
+                }
+                
+                progressMonitor = new ProgressMonitor(detailedInfo,
+                        "Retrieving Sequences from NCBI...",
+                        "", 0, hits.size());
+            	int retrievedSequenceNum = 0;
+            	progressMonitor.setProgress(retrievedSequenceNum);
+                String tempString = "temp-" + RandomNumberGenerator.getID() +
+                                    ".fasta";
+                String tempFolder = System.getProperties().getProperty(
+                        "temporary.files.directory");
+                if (tempFolder == null) {
+                    tempFolder = ".";
+                }
+                File tempFile = new File(tempFolder + tempString);
+                PrintWriter out = new PrintWriter(new FileOutputStream(tempFile));
+                for (int i = 0; i < hits.size(); i++) {
+                    BlastObj hit = (BlastObj) hits.get(i);
+                    progressMonitor.setProgress(retrievedSequenceNum);
 
-        /**todo
-         * Old SoapClient need fastaFile name, so just create a temp fasta file here.
-         * Consider change SoapClient to Dataset directly for blast.
-         */
-        try {
+                	if (progressMonitor.isCanceled()) {
+                	 return;
+                	}
+                    if (hit.getInclude()) {
+                    	
+                    	retrievedSequenceNum++;
+                        CSSequence seq = null;
+                        if (isFullLength) {
 
-            if (!foundAtLeastOneSelected()) {
-                reportError("No hit is selected. Please choose at least one.");
-                return;
-            }
-            String tempString = "temp-" + RandomNumberGenerator.getID() +
-                                ".fasta";
-            String tempFolder = System.getProperties().getProperty(
-                    "temporary.files.directory");
-            if (tempFolder == null) {
-                tempFolder = ".";
-            }
-            File tempFile = new File(tempFolder + tempString);
-            PrintWriter out = new PrintWriter(new FileOutputStream(tempFile));
-            for (int i = 0; i < hits.size(); i++) {
-                BlastObj hit = (BlastObj) hits.get(i);
-                if (hit.getInclude()) {
+                            seq = hit.getWholeSeq();
+                        } else {
+                            seq = hit.getAlignedSeq();
 
-                    CSSequence seq = null;
-                    if (isFullLength) {
-
-                        seq = hit.getWholeSeq();
-                    } else {
-                        seq = hit.getAlignedSeq();
-
+                        }
+                        if(seq!=null){
+                        out.println(seq.getLabel());
+                        out.println(seq.getSequence());
+                        }
                     }
 
-                    out.println(seq.getLabel());
-                    out.println(seq.getSequence());
-
                 }
+                progressMonitor.close();
+                out.flush();
+                out.close();
+                db.setLabel("temp_Fasta_File");
+                db.readFASTAFile(tempFile);
 
+                org.geworkbench.events.ProjectNodeAddedEvent event = new org.
+                        geworkbench.events.ProjectNodeAddedEvent("message", db, null);
+                blastViewComponent.publishProjectNodeAddedEvent(event);
+            } catch (BlastDataOutOfBoundException be) {
+                String errorMessage = be.getMessage();
+                JOptionPane.showMessageDialog(null,
+                                              errorMessage,
+                                              "Error",
+                                              JOptionPane.WARNING_MESSAGE);
+
+            } catch (Exception ex) {
+                ex.printStackTrace();
             }
-            out.flush();
-            out.close();
-            db.setLabel("temp_Fasta_File");
-            db.readFASTAFile(tempFile);
 
-            org.geworkbench.events.ProjectNodeAddedEvent event = new org.
-                    geworkbench.events.ProjectNodeAddedEvent("message", db, null);
-            blastViewComponent.publishProjectNodeAddedEvent(event);
-        } catch (BlastDataOutOfBoundException be) {
-            String errorMessage = be.getMessage();
-            JOptionPane.showMessageDialog(null,
-                                          errorMessage,
-                                          "Error",
-                                          JOptionPane.WARNING_MESSAGE);
-
-        } catch (Exception ex) {
-            ex.printStackTrace();
         }
+    }
 
+ 
+private ProgressMonitor progressMonitor;
+  
+ 
+ 
+    
+    
+    void submitNewSequences(ActionEvent e, boolean isFullLength) {
+    	Thread thread = new AddNewSequenceThread(isFullLength){
+    		 
+    	};
+    	thread.start();
+        
     }
 
     void resetButton_actionPerformed(ActionEvent e) {

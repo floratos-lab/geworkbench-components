@@ -84,11 +84,7 @@ public class ServerInfoPanel extends JPanel {
         jRadioButton2.addActionListener(new
                 ServerInfoPanel_jRadioButton2_actionAdapter(this));
 
-        if (DEFAULTSERVERTYPE.equals(NCBI)) {
-            jRadioButton2.setSelected(true);
-        } else {
-            jRadioButton1.setSelected(true);
-        }
+       
         bottonGroup.add(jRadioButton1);
         bottonGroup.add(jRadioButton2);
         //remove grid button.
@@ -183,6 +179,12 @@ public class ServerInfoPanel extends JPanel {
         jToolBar1.add(Refresh);
         jPanel2.add(jToolBar1, java.awt.BorderLayout.NORTH);
         jPanel2.add(jPanel3, java.awt.BorderLayout.CENTER);
+        if (DEFAULTSERVERTYPE.equals(NCBI)) {
+            jRadioButton2.setSelected(true);
+            jRadioButton2_actionPerformed(null);
+        } else {
+            jRadioButton1.setSelected(true);
+        }
     }
 
     void Connect_actionPerformed(ActionEvent e) {
@@ -407,7 +409,7 @@ public class ServerInfoPanel extends JPanel {
 
     public void jRadioButton2_actionPerformed(ActionEvent e) {
 
-        jServerUptimeTextField.setText("February 03, 2008");
+        jServerUptimeTextField.setText("March 02, 2008");
         jServerVersionTextField.setText("Blast 2.2.18");
         jqueuedTextField.setText("N/A");
         jAvailProcessorTextField.setText("N/A");
