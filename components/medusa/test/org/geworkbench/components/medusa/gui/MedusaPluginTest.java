@@ -24,7 +24,7 @@ import org.geworkbench.components.medusa.MedusaData;
  * GUI tests for the {@link MedusaVisualizationPanel}.
  * 
  * @author keshav
- * @version $Id: MedusaPluginTest.java,v 1.4 2007-06-25 17:10:31 keshav Exp $
+ * @version $Id: MedusaPluginTest.java,v 1.5 2008-03-07 21:59:42 chiangy Exp $
  */
 public class MedusaPluginTest extends TestCase {
 
@@ -93,7 +93,7 @@ public class MedusaPluginTest extends TestCase {
 
 		/* create visual plugin */
 		medusaVisualizationPanel = new MedusaVisualizationPanel(
-				visualComponent, medusaData);
+				visualComponent, medusaData, "");
 
 	}
 
