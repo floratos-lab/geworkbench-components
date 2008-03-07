@@ -83,7 +83,7 @@ public class MedusaVisualComponent implements VisualPlugin {
 				dataSet = ((MedusaDataSet) data);
 				component.removeAll();
 				medusaVisualizationPanel = new MedusaVisualizationPanel(this,
-						dataSet.getData());
+						dataSet.getData(), dataSet.getPath());
 				// medusaPlugin.limitMarkers(selectedMarkers);
 				component.add(medusaVisualizationPanel, BorderLayout.CENTER);
 				component.revalidate();

@@ -11,7 +11,7 @@ import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMutableMarker
  * Creates a discretized matrix of data from the original dataset.
  * 
  * @author keshav
- * @version $Id: DiscretizationUtil.java,v 1.3 2007-06-19 21:10:45 keshav Exp $
+ * @version $Id: DiscretizationUtil.java,v 1.4 2008-03-07 17:14:25 chiangy Exp $
  */
 public class DiscretizationUtil {
 
@@ -49,7 +49,7 @@ public class DiscretizationUtil {
 				discreteMicroarray.setMarkerValue(j, markerValue);
 			}
 			microarraySet.setLabel(microarraySet.getLabel());
-			microarraySet.add(discreteMicroarray);
+//			microarraySet.add(discreteMicroarray);
 		}
 
 		return microarraySetView;

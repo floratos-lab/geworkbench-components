@@ -1,5 +1,9 @@
 package org.geworkbench.components.medusa;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,7 +32,7 @@ import edu.columbia.ccls.medusa.MedusaLoader;
 /**
  * 
  * @author keshav
- * @version $Id: MedusaAnalysis.java,v 1.38 2008-02-22 17:47:06 keshav Exp $
+ * @version $Id: MedusaAnalysis.java,v 1.39 2008-03-07 17:14:25 chiangy Exp $
  */
 public class MedusaAnalysis extends AbstractGridAnalysis implements
 		ClusteringAnalysis {
@@ -100,7 +104,26 @@ public class MedusaAnalysis extends AbstractGridAnalysis implements
 		MedusaParamPanel params = (MedusaParamPanel) aspp;
 
 		DSMicroarraySetView<DSGeneMarker, DSMicroarray> microarraySetView = (CSMicroarraySetView<DSGeneMarker, DSMicroarray>) input;
-
+		
+		//clone the microarraySetView, so we'll have new microarraySetView for each sessions.
+		DSMicroarraySetView<DSGeneMarker, DSMicroarray> newMicroarraySetView = null;
+		try{
+			byte[] encodedInput;
+			ByteArrayOutputStream bos = new ByteArrayOutputStream();
+			ObjectOutputStream oos = new ObjectOutputStream(bos);
+			oos.writeObject(input);
+			encodedInput = bos.toByteArray();
+			oos.flush();
+			oos.close();
+			bos.close();
+			ByteArrayInputStream bais = new ByteArrayInputStream(encodedInput);
+			ObjectInputStream ois = new ObjectInputStream(bais);
+			newMicroarraySetView = (DSMicroarraySetView<DSGeneMarker, DSMicroarray>) ois.readObject();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		// now we have a new microarraySetView.
+		
 		ProgressBar pBar = Util.createProgressBar("Medusa Analysis");
 		pBar.setMessage("Running Medusa");
 		pBar.start();
@@ -109,14 +132,15 @@ public class MedusaAnalysis extends AbstractGridAnalysis implements
 		FileTools.createDir("temp/medusa/dataset/output");
 
 		/* cleanup other runs */
-		MedusaUtil.deleteRunDir();
+		//TODO: we'll need to find a way to delete outputDir/ 
+//		MedusaUtil.deleteRunDir();
 
 		/* PHASE 1 - discretize and create the labels file */
 
 		// discretize
 		DiscretizationUtil discretizationUtil = new DiscretizationUtil();
 		DSMicroarraySetView<DSGeneMarker, DSMicroarray> discretizedInput = discretizationUtil
-				.discretize(microarraySetView, params.getIntervalBase(), params
+				.discretize(newMicroarraySetView, params.getIntervalBase(), params
 						.getIntervalBound());
 
 		// create labels file (and get targets & regulators)
@@ -131,7 +155,7 @@ public class MedusaAnalysis extends AbstractGridAnalysis implements
 		String updatedConfig = "data/medusa/dataset/config_hacked.xml";
 
 		MedusaCommand command = getParameters(input, params);
-		MedusaUtil.updateConfigXml(configFile, updatedConfig, command);
+		String outputDir = MedusaUtil.updateConfigXml(configFile, updatedConfig, command);
 		s = new StringBuilder();
 		s.append("-i=" + updatedConfig);
 
@@ -148,9 +172,10 @@ public class MedusaAnalysis extends AbstractGridAnalysis implements
 
 		MedusaData medusaData = new MedusaData(discretizedInput
 				.getMicroarraySet(), regulators, targets, command);
-		MedusaDataSet dataSet = new MedusaDataSet(microarraySetView
+		MedusaDataSet dataSet = new MedusaDataSet(newMicroarraySetView
 				.getMicroarraySet(), "MEDUSA Results", medusaData, null);
-
+		dataSet.setAbsPath(outputDir);
+		
 		pBar.stop();
 		return new AlgorithmExecutionResults(true, "MEDUSA Results Loaded.",
 				dataSet);
