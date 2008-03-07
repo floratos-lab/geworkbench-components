@@ -66,9 +66,11 @@ public class MedusaVisualizationPanel extends JPanel {
 	 * @param medusaData
 	 */
 	public MedusaVisualizationPanel(
-			MedusaVisualComponent medusaVisualComponent, MedusaData medusaData) {
+			MedusaVisualComponent medusaVisualComponent, MedusaData medusaData, String outputDir) {
 		super();
-
+		path = defaultPath + outputDir +"/";
+		rulesPath = path + "rules/";
+		
 		final MedusaVisualComponent visualComponent = medusaVisualComponent;
 
 		JTabbedPane tabbedPane = new JTabbedPane();
@@ -131,22 +133,23 @@ public class MedusaVisualizationPanel extends JPanel {
 		DiscreteHitOrMissHeatMapNamePanel hitOrMissNamePanel = new DiscreteHitOrMissHeatMapNamePanel(
 				rulesPath, rulesFiles, targetNames, path);
 		// motifPanel.add(hitOrMissPanel);
-		hitOrMissNamePanel.setPreferredSize(new Dimension(200, 100));
+		hitOrMissNamePanel.setPreferredSize(new Dimension(rulesFiles.size()*15+25, 200));
 		hitOrMissNamePanel.setParentPanel(tabbedPane);
 		JScrollPane hitOrMissScrollNamePane = new JScrollPane();
-		hitOrMissScrollNamePane.setPreferredSize(new Dimension(100, 200));
+		hitOrMissScrollNamePane.setPreferredSize(new Dimension(rulesFiles.size()*15+25, 200));
 		hitOrMissScrollNamePane.getViewport().add(hitOrMissNamePanel);
 		hitOrMissScrollNamePane.setVisible(true);
-		motifPanel.add(hitOrMissScrollNamePane);
+		motifPanel.add(hitOrMissScrollNamePane);	//0,0
 		
 //		JPanel dummyPanel0 = new JPanel();
 //		motifPanel.add(new JScrollPane());
 
 		/* regulator heat map at postion 0,1 */
 		DiscreteHeatMapPanel regulatorHeatMap = new DiscreteHeatMapPanel(
-				regulatorMatrix, 1, 0, -1, regulatorNames, true);
+				regulatorMatrix, 1, 0, -1, regulatorNames, false);
 		// motifPanel.add(regulatorHeatMap);
-		regulatorHeatMap.setPreferredSize(new Dimension(regulatorMatrix[0].length*15, regulatorMatrix.length*15));
+		//TODO width of regulatorHeatMap should be more accurate.
+		regulatorHeatMap.setPreferredSize(new Dimension(regulatorMatrix[0].length*15+25, regulatorMatrix.length*15+25));
 
 		/* regulator labels at position 0,2 */
 		FormLayout regulatorLabelLayout = new FormLayout("pref,60dlu", // columns
@@ -190,10 +193,10 @@ public class MedusaVisualizationPanel extends JPanel {
         regulatorHeatPanel.setLayout(new BoxLayout(regulatorHeatPanel, BoxLayout.X_AXIS));
         regulatorHeatPanel.add(regulatorHeatMap);
         regulatorHeatPanel.setPreferredSize(regulatorHeatMap.getPreferredSize());
-        JPanel dummyPanel1 = new JPanel();
-        dummyPanel1.setPreferredSize(new Dimension(10, 100));
-        regulatorHeatPanel.add(dummyPanel1);
-        regulatorHeatPanel.add(regulatorLabelBuilder.getPanel());
+//        JPanel dummyPanel1 = new JPanel();
+//        dummyPanel1.setPreferredSize(new Dimension(10, 100));
+//        regulatorHeatPanel.add(dummyPanel1);
+//        regulatorHeatPanel.add(regulatorLabelBuilder.getPanel());
 
 /*
 		JPanel regulatorHeatPanel = new JPanel(new BorderLayout());
@@ -203,35 +206,48 @@ public class MedusaVisualizationPanel extends JPanel {
 */
 
 		JScrollPane regulatorHeatScrollPane = new JScrollPane();
-		regulatorHeatScrollPane.setPreferredSize(new Dimension(100, 200));
+		regulatorHeatScrollPane.setPreferredSize(regulatorHeatPanel.getPreferredSize());
+//		regulatorHeatScrollPane.setPreferredSize(new Dimension(100, 200));
 		/*regulatorHeatScrollPane
 				.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);*/
 		regulatorHeatScrollPane.getViewport().add(regulatorHeatPanel);
 		regulatorHeatScrollPane.setVisible(true);
-		motifPanel.add(regulatorHeatScrollPane);
+		regulatorHeatScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);	//always activate this scroll bar, so 0,1 and 0,2 can sync without the differences of the scroll bar.
+		motifPanel.add(regulatorHeatScrollPane);	//0,1
+
+		JScrollPane regulatorCheckBoxScrollPane = new JScrollPane();
+		regulatorCheckBoxScrollPane.setPreferredSize(new Dimension(100, 200));
+		regulatorCheckBoxScrollPane.getViewport().add(regulatorLabelBuilder.getPanel());
+		regulatorCheckBoxScrollPane.setVisible(true);
+		regulatorCheckBoxScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);	//always activate this scroll bar, so 0,1 and 0,2 can sync without the differences of the scroll bar.
+		regulatorCheckBoxScrollPane.getVerticalScrollBar().setModel(regulatorHeatScrollPane.getVerticalScrollBar().getModel());
+		motifPanel.add(regulatorCheckBoxScrollPane);	//0,2
+		
+//		motifPanel.add(regulatorLabelBuilder.getPanel());
 		// motifPanel.add(new JPanel());
 
 		DiscreteHitOrMissHeatMapPanel hitOrMissPanel = new DiscreteHitOrMissHeatMapPanel(
 				rulesPath, rulesFiles, targetNames, path);
 		// motifPanel.add(hitOrMissPanel);
-		hitOrMissPanel.setPreferredSize(new Dimension(200, targetNames.size()*15));
+		hitOrMissPanel.setPreferredSize(new Dimension(rulesFiles.size()*15+25, targetMatrix.length*15+25));
 		hitOrMissPanel.setParentPanel(tabbedPane);
 		JScrollPane hitOrMissScrollPane = new JScrollPane();
-		hitOrMissScrollPane.setPreferredSize(new Dimension(100, 200));
+		hitOrMissScrollPane.setPreferredSize(new Dimension(rulesFiles.size()*15+25, targetMatrix.length*15+25));
 		hitOrMissScrollPane.getViewport().add(hitOrMissPanel);
 		hitOrMissScrollPane.setVisible(true);
 		hitOrMissScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);	//always activate this scroll bar, so 1,0 and 1,1 can sync without the differences of the scroll bar. 
-		motifPanel.add(hitOrMissScrollPane);
+		motifPanel.add(hitOrMissScrollPane);	//1,0
 
 		/* target heat map at postion 1,1 */
 		DiscreteHeatMapPanel targetHeatMap = new DiscreteHeatMapPanel(
-				targetMatrix, 1, 0, -1, targetNames, true, 15);
+				targetMatrix, 1, 0, -1, targetNames, false, 15);
 		// motifPanel.add(targetHeatMap);
-		targetHeatMap.setPreferredSize(new Dimension(targetMatrix[0].length*15, targetMatrix.length*15));
+		//TODO: width of targetHeatMap should be more accurate
+		targetHeatMap.setPreferredSize(new Dimension(regulatorMatrix[0].length*15+25, targetMatrix.length*15+25));
 
 		/* target labels at position 1,2 */
 		FormLayout targetLabelLayout = new FormLayout("pref,60dlu", // columns
-				"75dlu"); // add rows dynamically
+				"5dlu"); // add rows dynamically
 		DefaultFormBuilder targetLabelBuilder = new DefaultFormBuilder(
 				targetLabelLayout);
 		targetLabelBuilder.nextRow();
@@ -268,10 +284,10 @@ public class MedusaVisualizationPanel extends JPanel {
         targetHeatPanel.setLayout(new BoxLayout(targetHeatPanel, BoxLayout.X_AXIS));
         targetHeatPanel.add(targetHeatMap);
         targetHeatPanel.setPreferredSize(targetHeatMap.getPreferredSize());
-        JPanel dummyPanel2 = new JPanel();
-        dummyPanel2.setPreferredSize(new Dimension(10, 100));
-        targetHeatPanel.add(dummyPanel2);
-		targetHeatPanel.add(targetLabelBuilder.getPanel());
+//        JPanel dummyPanel2 = new JPanel();
+//        dummyPanel2.setPreferredSize(new Dimension(10, 100));
+//        targetHeatPanel.add(dummyPanel2);
+//		targetHeatPanel.add(targetLabelBuilder.getPanel());
 
 		JScrollPane targetHeatScrollPane = new JScrollPane();
 		// scrollPane1.setLayout(new BorderLayout());
@@ -281,8 +297,18 @@ public class MedusaVisualizationPanel extends JPanel {
 		targetHeatScrollPane.getViewport().add(targetHeatPanel);
 		targetHeatScrollPane.setVisible(true);
 		targetHeatScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);	//always activate this scroll bar, so 1,0 and 1,1 can sync without the differences of the scroll bar.
-		motifPanel.add(targetHeatScrollPane);
+		motifPanel.add(targetHeatScrollPane);	//1,1
+
+		JScrollPane targetCheckBoxScrollPane = new JScrollPane();
+		targetCheckBoxScrollPane.setPreferredSize(new Dimension(100, 200));
+		targetCheckBoxScrollPane.getViewport().add(targetLabelBuilder.getPanel());
+		targetCheckBoxScrollPane.setVisible(true);
+		targetCheckBoxScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);	//always activate this scroll bar, so 1,1 and 1,2 can sync without the differences of the scroll bar.
+		targetCheckBoxScrollPane.getVerticalScrollBar().setModel(hitOrMissScrollPane.getVerticalScrollBar().getModel());
+		motifPanel.add(targetCheckBoxScrollPane);	//1,2
+
 		// motifPanel.add(new JPanel());
+		hitOrMissScrollNamePane.getHorizontalScrollBar().setModel(hitOrMissScrollPane.getHorizontalScrollBar().getModel());
 		regulatorHeatScrollPane.getHorizontalScrollBar().setModel(targetHeatScrollPane.getHorizontalScrollBar().getModel());
 		targetHeatScrollPane.getVerticalScrollBar().setModel(hitOrMissScrollPane.getVerticalScrollBar().getModel());
 		/* dummy panel at 2,0 so we can align the buttons (below) */

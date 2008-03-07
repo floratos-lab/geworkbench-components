@@ -28,7 +28,7 @@ import edu.columbia.ccls.medusa.io.SerializedRule;
  * updating the configuration file, etc.
  * 
  * @author keshav
- * @version $Id: MedusaUtil.java,v 1.23 2007-08-20 15:54:54 keshav Exp $
+ * @version $Id: MedusaUtil.java,v 1.24 2008-03-07 17:14:25 chiangy Exp $
  */
 public class MedusaUtil {
 
@@ -350,8 +350,9 @@ public class MedusaUtil {
 	 * @param configFile
 	 * @param outFile
 	 *            If null, the configFile is overwritten.
+	 * @return directory for output
 	 */
-	public static void updateConfigXml(String configFile, String outFile,
+	public static String updateConfigXml(String configFile, String outFile,
 			MedusaCommand command) {
 		Document doc = XmlReader.readXmlFile(configFile);
 
@@ -397,11 +398,18 @@ public class MedusaUtil {
 		updateXmlNode(doc, "parameters", "pssms_number_to_agglomerate", String
 				.valueOf(command.getAgg()));
 
+		Date now = new Date();
+		long nowLong = now.getTime();
+		updateXmlNode(doc, "output", "run_name", "run_"+String
+				.valueOf(nowLong));
+		//TODO: if multiple session could be run at the same time, we could add a string of random number after nowLong.
+		
 		if (outFile == null)
 			outFile = configFile;
 
 		XmlWriter.writeXml(doc, outFile);
 
+		return "run_"+String.valueOf(nowLong);
 	}
 
 	/**
@@ -435,29 +443,43 @@ public class MedusaUtil {
 			FileTools.deleteFiles(dirFiles);
 
 			// delete rules files
+			try {
 			File rulesDir = new File("temp/medusa/dataset/output/run1/rules/");
 			Collection rulesFiles = FileTools.listDirectoryFiles(rulesDir);
 			FileTools.deleteFiles(rulesFiles);
-
+			}catch(IllegalArgumentException iAE){
+			}
 			// delete data
+			try{
 			File dataDir = new File(
 					"temp/medusa/dataset/output/run1/state/data/");
 			Collection dataFiles = FileTools.listDirectoryFiles(dataDir);
 			FileTools.deleteFiles(dataFiles);
 			FileTools.deleteDir(dataDir);
+			}catch(IllegalArgumentException iAE){
+			}
 
 			// delete features
+			try{
 			File featuresDir = new File(
 					"temp/medusa/dataset/output/run1/state/features/");
 			Collection featuresFiles = FileTools
 					.listDirectoryFiles(featuresDir);
 			FileTools.deleteFiles(featuresFiles);
 			FileTools.deleteDir(featuresDir);
+			}catch(IllegalArgumentException iAE){
+			}
 
+			try{
 			File stateDir = new File("temp/medusa/dataset/output/run1/state/");
 			FileTools.deleteDir(stateDir);
+			}catch(IllegalArgumentException iAE){
+			}
 
+			try{
 			FileTools.deleteDir(runDir);
+			}catch(IllegalArgumentException iAE){
+			}
 		}
 		log.error("Directory " + runDir + " does not exist.");
 	}

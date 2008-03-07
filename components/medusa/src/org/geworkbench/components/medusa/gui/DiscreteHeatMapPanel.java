@@ -19,7 +19,7 @@ import javax.swing.JPanel;
  * 
  * 
  * @author keshav
- * @version $Id: DiscreteHeatMapPanel.java,v 1.5 2007-06-01 19:31:59 keshav Exp $
+ * @version $Id: DiscreteHeatMapPanel.java,v 1.6 2008-03-07 17:14:25 chiangy Exp $
  */
 public class DiscreteHeatMapPanel extends JPanel {
 
@@ -43,6 +43,8 @@ public class DiscreteHeatMapPanel extends JPanel {
 	private boolean showLabels = false;
 
 	private int colLabelPadding = 0;
+	
+	private boolean[] discretizedColumn = null;
 
 	/**
 	 * 
@@ -82,7 +84,16 @@ public class DiscreteHeatMapPanel extends JPanel {
 		this.names = names;
 		this.showLabels = showRowLabels;
 		this.colLabelPadding = colLabelPadding;
-
+		discretizedColumn = new boolean[matrix[0].length];
+		for (int cx=0;cx<matrix[0].length;cx++){
+			discretizedColumn[cx]=true;
+			for (int cy=0;cy<matrix.length;cy++){
+				if ((matrix[cy][cx]==this.max)||(matrix[cy][cx]==this.min)||(matrix[cy][cx]==this.medium)){
+					//this probably is a discretized Column
+				}else
+					discretizedColumn[cx]=false;
+			}
+		}
 	}
 
 	/*
@@ -105,17 +116,19 @@ public class DiscreteHeatMapPanel extends JPanel {
 			int x = 15;
 			for (int i = 0; i < row.length; i++) {
 				Rectangle2D.Double rect = new Rectangle2D.Double(x, y, 15, 15);
-				if (row[i] == this.medium) {
-					g2d.setColor(Color.black);
-				} else if (row[i] == this.max) {
-					g2d.setColor(Color.red);
-				} else if (row[i] == this.min) {
-					g2d.setColor(Color.green);
-				} else {
-					continue;
+				if (discretizedColumn[i]){
+					if (row[i] == this.medium) {
+						g2d.setColor(Color.black);
+					} else if (row[i] == this.max) {
+						g2d.setColor(Color.red);
+					} else if (row[i] == this.min) {
+						g2d.setColor(Color.green);
+					} else {
+						continue;
+					}
+					g2d.fill(rect);
+					x = x + 15;
 				}
-				g2d.fill(rect);
-				x = x + 15;
 			}
 
 			y = y + 15;

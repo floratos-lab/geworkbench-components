@@ -115,10 +115,10 @@ public class DiscreteHitOrMissHeatMapPanel extends JPanel implements
         Graphics2D g2d = (Graphics2D) g;
 
         int row = 15;
-        int lcol = 25;
+        int col = 25;
 
         for (int i = 0; i < targetNames.size(); i++) {
-            int col = 15;
+            col = 15;
             for (int j = 0; j < ruleFiles.size(); j++) {
                 boolean isHit = hitOrMissMatrix[i][j];
 
@@ -134,7 +134,7 @@ public class DiscreteHitOrMissHeatMapPanel extends JPanel implements
             }
             row = row + 15;
         }
-        int x = 15, y = 120;
+        int x = 15, y = 15;
         for (SerializedRule srule : srules) {
             Rectangle2D.Double rect = new Rectangle2D.Double(x, y, 15,
                     15 * targetNames.size());
