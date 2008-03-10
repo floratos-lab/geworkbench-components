@@ -148,7 +148,7 @@ public class GPConfigPanel extends JPanel
         {
             protocol.setValue(gpServer.getProtocol());
             host.setValue(gpServer.getHost());
-            port.setValue(new Integer(gpServer.getPort()));
+            port.setValue(String.valueOf(gpServer.getPort()));
 
             if(passwordValue != null)
                 password.setText(passwordValue);
@@ -200,21 +200,29 @@ public class GPConfigPanel extends JPanel
 
     private void validateInput() throws InvalidInputException
     {
-        if(protocol.getValue() == null || ((String)protocol.getValue()).length() == 0)
+        try
         {
-            throw new InvalidInputException("Protocol must be provided");
+            if(protocol.getValue() == null || ((String)protocol.getValue()).length() == 0)
+            {
+                throw new InvalidInputException("Protocol must be provided");
+            }
+            else if(host.getValue() == null || ((String)host.getValue()).length() == 0)
+            {
+                throw new InvalidInputException("Host must be provided");
+            }
+            else if(port.getValue() == null || ((String)port.getValue()).matches("[^0-9+]") ||  Integer.valueOf((String)port.getValue()).intValue() == -1)
+            {
+                throw new InvalidInputException("Invalid port setting");
+            }
+            else if(username.getValue() == null || ((String)username.getValue()).length() == 0)
+            {
+                throw new InvalidInputException("Username must be provided");
+            }
         }
-        else if(host.getValue() == null || ((String)host.getValue()).length() == 0)
+        catch(NumberFormatException nf)
         {
-            throw new InvalidInputException("Host must be provided");
-        }
-        else if(port.getValue() == null || (Integer.valueOf((String)port.getValue())).intValue() == -1)
-        {
-            throw new InvalidInputException("Port must be provided");
-        }
-        else if(username.getValue() == null || ((String)username.getValue()).length() == 0)
-        {
-            throw new InvalidInputException("Username must be provided");
+            log.error(nf);
+            throw new InvalidInputException("Invalid server setting");
         }
     }
 
