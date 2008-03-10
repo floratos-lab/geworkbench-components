@@ -32,7 +32,7 @@ import edu.columbia.ccls.medusa.MedusaLoader;
 /**
  * 
  * @author keshav
- * @version $Id: MedusaAnalysis.java,v 1.39 2008-03-07 17:14:25 chiangy Exp $
+ * @version $Id: MedusaAnalysis.java,v 1.40 2008-03-10 19:50:39 chiangy Exp $
  */
 public class MedusaAnalysis extends AbstractGridAnalysis implements
 		ClusteringAnalysis {
@@ -153,8 +153,16 @@ public class MedusaAnalysis extends AbstractGridAnalysis implements
 		String configFile = params.getConfigFilePath();
 
 		String updatedConfig = "data/medusa/dataset/config_hacked.xml";
-
-		MedusaCommand command = getParameters(input, params);
+		
+		MedusaCommand command = new MedusaCommand();
+		try {
+			command = getParameters(input, params);
+		} catch (Exception e) {
+			pBar.stop();			
+			log.error(e);
+			return new AlgorithmExecutionResults(false,
+					"Medusa analysis canceled due to error occurred while examing parameters: "+e.getMessage(), e);
+		}
 		String outputDir = MedusaUtil.updateConfigXml(configFile, updatedConfig, command);
 		s = new StringBuilder();
 		s.append("-i=" + updatedConfig);
@@ -164,10 +172,26 @@ public class MedusaAnalysis extends AbstractGridAnalysis implements
 		/* PHASE 3 - run MEDUSA */
 		try {
 			log.info("Running Medusa with: " + s.toString());
-			MedusaLoader.main(args);
+			MedusaLoader.main(args);			
+		} catch (IllegalArgumentException iae) {
+			pBar.stop();
+			if (iae.getMessage().contains("MISSING FASTA ENTRY")){
+				log.error(iae);
+				return new AlgorithmExecutionResults(false,
+						"Please check your Features File, and make sure it contains following fasta entry.\n"+
+						"Error occurred while running MEDUSA: "+iae.getMessage(), iae);
+			}else{
+				log.error(iae);
+				return new AlgorithmExecutionResults(false,
+						"Error occurred while running MEDUSA: "+iae.getMessage(), iae);				
+			}
 		} catch (Exception e) {
-			e.printStackTrace();
-			throw new RuntimeException("Error running medusa: " + e);
+			pBar.stop();
+			log.error(e);
+			//e.printStackTrace();
+			//throw new RuntimeException("Error running medusa: " + e);
+			return new AlgorithmExecutionResults(false,
+					"Error occurred while running MEDUSA: "+e.getMessage(), e);
 		}
 
 		MedusaData medusaData = new MedusaData(discretizedInput
@@ -332,6 +356,12 @@ public class MedusaAnalysis extends AbstractGridAnalysis implements
 		MedusaCommand command = new MedusaCommand();
 
 		/* input section of config file */
+		if (params.getFeaturesFilePath() == ""){
+			JOptionPane.showMessageDialog(null,
+					"Features File has not been set yet.", "Error",
+					JOptionPane.ERROR_MESSAGE);
+			throw new RuntimeException("Features File has not been set yet.");
+		}
 		command.setFeaturesFile(params.getFeaturesFilePath());
 
 		command.setMinKer(params.getMinKmer());

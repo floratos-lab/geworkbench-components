@@ -13,6 +13,7 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
@@ -24,12 +25,13 @@ import org.geworkbench.analysis.AbstractSaveableParameterPanel;
 import org.ginkgo.labs.util.FileTools;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
+import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.FormLayout;
 
 /**
  * 
  * @author keshav
- * @version $Id: MedusaParamPanel.java,v 1.12 2007-08-20 17:02:40 kk2457 Exp $
+ * @version $Id: MedusaParamPanel.java,v 1.13 2008-03-10 19:50:38 chiangy Exp $
  */
 public class MedusaParamPanel extends AbstractSaveableParameterPanel implements
 		Serializable {
@@ -167,6 +169,8 @@ public class MedusaParamPanel extends AbstractSaveableParameterPanel implements
 	private int agg = 20;
 
 	private JTextField aggTextField = new JTextField(agg);
+	
+	private JLabel featuresFileName = new JLabel("default file loaded.");
 
 	/**
 	 * 
@@ -182,6 +186,8 @@ public class MedusaParamPanel extends AbstractSaveableParameterPanel implements
 		this.loadTargetsButton.setEnabled(false);
 		this.dimerMinGapTextField.setEnabled(false);
 		this.dimerMaxGapTextField.setEnabled(false);
+		this.featuresFileName.setEnabled(false);
+		this.featuresFileName.setToolTipText(featuresFilePath);
 
 		/* MAIN PANEL */
 
@@ -190,11 +196,14 @@ public class MedusaParamPanel extends AbstractSaveableParameterPanel implements
 				"");
 
 		DefaultFormBuilder mainBuilder = new DefaultFormBuilder(layout);
+		CellConstraints cc = new CellConstraints();
+		
 		mainBuilder.setDefaultDialogBorder();
-		mainBuilder.appendSeparator("MEDUSA Main Paramaters");
+		mainBuilder.appendSeparator("MEDUSA Main Parameters");
 
 		/* features */
 		mainBuilder.append("Features File (FASTA)", loadFeaturesButton);
+		mainBuilder.add(featuresFileName,cc.xyw(5, 3, 4));
 		mainBuilder.nextRow();
 
 		/* regulators */
@@ -302,12 +311,27 @@ public class MedusaParamPanel extends AbstractSaveableParameterPanel implements
 						BufferedReader reader = new BufferedReader(
 								new FileReader(featuresFilePath));
 
-						if (!FileTools.isFasta(reader)) {
+						try{
+							if (!FileTools.isFasta(reader)) {
+								log.warn("Not in FASTA format.");
+								JOptionPane.showMessageDialog(null,
+										"Not in FASTA format.", "Error",
+										JOptionPane.ERROR_MESSAGE);
+								featuresFileName.setText("no file loaded.");
+								featuresFileName.setToolTipText("");
+							}else{
+								//we'll use this file (stored in featuresFilePath) as features file
+								//we'll show this information to user
+								//featuresFileName.setText(chooser.getSelectedFile().getName()+" loaded.");
+								featuresFileName.setText(chooser.getSelectedFile().getName()+" loaded.");
+								featuresFileName.setToolTipText(featuresFilePath);
+							}
+						}catch (NullPointerException npe){
+							log.warn("Not in FASTA format. (Empty file?)");
 							JOptionPane.showMessageDialog(null,
-									"Not in FASTA format.", "Error",
-									JOptionPane.ERROR_MESSAGE);
+									"Not in FASTA format. (Empty file?)", "Error",
+									JOptionPane.ERROR_MESSAGE);							
 						}
-
 					} else {
 						log.debug("cancelled ... ");
 					}
