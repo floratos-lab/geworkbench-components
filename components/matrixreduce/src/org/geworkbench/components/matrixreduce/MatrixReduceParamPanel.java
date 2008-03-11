@@ -4,6 +4,7 @@ import org.geworkbench.analysis.AbstractSaveableParameterPanel;
 
 import javax.swing.*;
 
+import java.io.ObjectStreamException;
 import java.io.Serializable;
 import java.io.File;
 import java.awt.*;
@@ -265,5 +266,71 @@ MatrixREDUCE -sequence=../sequences/Y5_600_Bst.fa \
     public String getSequenceFile() {
         return sequenceFile;
     }
+    
+    // For framework serialization process
+    private static class SerializedInstance implements Serializable {
+    	private String dyadLength;
+	    private String pValue;
+	    private String minCounts;
+	    private String flank;
+	    private String minGap;
+	    private String maxGap;
+	    private boolean singleStrand;
+	    private String maxMotif;
+	    private String maxIteration;
+	    private String sequenceFile;
+	    
+    	public SerializedInstance(String dyadLength
+    			, String pValue
+    			, String minCounts
+    			, String flank
+    			, String minGap
+    			, String maxGap
+    			, boolean singleStrand
+    			, String maxMotif
+    			, String maxIteration
+    			, String sequenceFile 
+	    		){
+    		this.dyadLength = dyadLength;
+    		this.pValue = pValue;
+    		this.minCounts = minCounts;
+    		this.flank = flank;
+    		this.minGap = minGap;
+    		this.maxGap = maxGap;
+    		this.singleStrand = singleStrand;
+    		this.maxMotif = maxMotif;
+    		this.maxIteration = maxIteration;
+    		this.sequenceFile = sequenceFile;
+    	}
+    	
+    	Object readResolve() throws ObjectStreamException {
+    		MatrixReduceParamPanel panel = new MatrixReduceParamPanel();
+    		panel.dyadLength.setText(this.dyadLength);
+    		panel.pValue.setText(this.pValue);
+    		panel.minCounts.setText(this.minCounts);
+    		panel.flank.setText(this.flank);
+    		panel.minGap.setText(this.minGap);
+    		panel.maxGap.setText(this.maxGap);
+    		panel.singleStrand.setSelected(this.singleStrand);
+    		panel.maxMotif.setText(this.maxMotif);
+    		panel.maxIteration.setText(this.maxIteration);
+    		panel.sequenceFile = this.sequenceFile;
+    		return panel;
+    	} 
+    }
+    
+    Object writeReplace() throws ObjectStreamException {
+    	return new SerializedInstance(this.dyadLength.getText()
+	    	, this.pValue.getText()
+	    	, this.minCounts.getText()
+	    	, this.flank.getText()
+	    	, this.minGap.getText()
+	    	, this.maxGap.getText()
+	    	, this.singleStrand.isSelected()
+	    	, this.maxMotif.getText()
+	    	, this.maxIteration.getText()
+	    	, this.sequenceFile
+    		);
+	}
 
 }
