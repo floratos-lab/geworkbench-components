@@ -11,26 +11,32 @@
 */
 package org.geworkbench.components.gpmodule.pca;
 
-import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
-import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
-import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
-import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
-import org.geworkbench.engine.management.Publish;
-import org.geworkbench.events.ProjectNodeAddedEvent;
-import org.geworkbench.components.gpmodule.GPAnalysis;
-import org.geworkbench.builtin.projects.ProjectPanel;
-import org.geworkbench.util.threading.SwingWorker;
+import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JProgressBar;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.genepattern.webservice.Parameter;
-
-import javax.swing.*;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.awt.*;
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
+import org.geworkbench.bison.datastructure.biocollections.pca.PCADataSet;
+import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
+import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
+import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
+import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
+import org.geworkbench.builtin.projects.ProjectPanel;
+import org.geworkbench.components.gpmodule.GPAnalysis;
+import org.geworkbench.engine.management.Publish;
+import org.geworkbench.events.ProjectNodeAddedEvent;
+import org.geworkbench.util.threading.SwingWorker;
 
 /**
  * @author: Marc-Danie Nazaire
@@ -132,7 +138,8 @@ public class PCAAnalysis extends GPAnalysis
            result = super.runAnalysis(analysisName, parameters, password);
         }
         catch(Exception e)
-        {
+        {	
+        	e.printStackTrace();
             task.cancel(true);
             error = true;
         }
