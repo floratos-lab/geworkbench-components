@@ -144,8 +144,27 @@ public class MindyAnalysis extends AbstractAnalysis implements ClusteringAnalysi
         } else {
         	errMsgB.append("No modulator specified.\n");
         }
+        
+        paramDescB.append("Target list: ");
+        ArrayList<Marker> targets = new ArrayList<Marker>();
+        ArrayList<String> targetGeneList = params.getTargetGeneList();
+        if((targetGeneList != null) && (targetGeneList.size() > 0)){
+	        for (String modGene : targetGeneList) {
+	            DSGeneMarker marker = mSet.getMarkers().get(modGene);
+	            if (marker == null) {
+	            	errMsgB.append("Couldn't find marker ");
+	            	errMsgB.append(modGene);
+	            	errMsgB.append(" from tartet file in microarray set.\n");
+	            } else {
+	            	paramDescB.append(modGene);
+	            	paramDescB.append(" ");
+	            	targets.add(new Marker(modGene));
+	            }
+	        }	        
+        } 
+        paramDescB.append("\n");
 
-        paramDescB.append("DPI Annotated Genes: ");
+        paramDescB.append("DPI Target List: ");
         ArrayList<Marker> dpiAnnots = new ArrayList<Marker>();
         ArrayList<String> dpiAnnotList = params.getDPIAnnotatedGeneList();
         for (String modGene : dpiAnnotList) {
@@ -162,6 +181,9 @@ public class MindyAnalysis extends AbstractAnalysis implements ClusteringAnalysi
         }
         paramDescB.append("\n");
 
+        paramDescB.append("DPI Tolerance: ");
+        paramDescB.append(params.getDPITolerance());
+        paramDescB.append("\n");
         
         String transcriptionFactor = params.getTranscriptionFactor();
         DSGeneMarker transFac = mSet.getMarkers().get(transcriptionFactor);
@@ -180,24 +202,48 @@ public class MindyAnalysis extends AbstractAnalysis implements ClusteringAnalysi
         }
         
         boolean fullSetMI = false;
-        if(params.getUnconditional().trim().equals(params.MI)){
+        if(params.getUnconditional().trim().equals(MindyParamPanel.MI)){
         	fullSetMI = true;
         }
         float fullSetThreshold = params.getUnconditionalValue();
+        if((!fullSetMI) && (params.getUnconditionalCorrection().equals(MindyParamPanel.BONFERRONI))) {
+        	fullSetThreshold = fullSetThreshold/numMarkers;
+        }
         
         boolean subsetMI = false;
-        if(params.getConditional().trim().equals(params.MI)){
+        if(params.getConditional().trim().equals(MindyParamPanel.MI)){
         	subsetMI = true;
         }
         float subsetThreshold = params.getConditionalValue();
+        if((!subsetMI) && (params.getUnconditionalCorrection().equals(MindyParamPanel.BONFERRONI))) {
+        	subsetThreshold = subsetThreshold/numMarkers;
+        }
+        
+        paramDescB.append("Conditional:\t\t");
+        paramDescB.append(params.getConditional());
+        paramDescB.append(" at ");
+        paramDescB.append(params.getConditionalValue());
+        paramDescB.append("\tCorrection: ");
+        paramDescB.append(params.getConditionalCorrection());
+        paramDescB.append("\n");
+        
+        paramDescB.append("Unconditional:\t");
+        paramDescB.append(params.getUnconditional());
+        paramDescB.append(" at ");
+        paramDescB.append(params.getUnconditionalValue());
+        paramDescB.append("\tCorrection: ");
+        paramDescB.append(params.getUnconditionalCorrection());
+        paramDescB.append("\n");
         
         float setFraction = params.getSetFraction() / 100f;
-        paramDescB.append("Set Fraction: ");
+        paramDescB.append("Sample per Condition(%): ");
         paramDescB.append(setFraction);
         paramDescB.append("\n");
         if(Math.round(setFraction * 2 * numMarkers) < 2){
         	errMsgB.append("Not enough markers in the specified % sample.  MINDY requires at least 2 markers in the sample.\n");
         }
+        
+        
         
         // If parameters or inputs have errors, alert the user and return from execute()
         errMsgB.trimToSize();
@@ -303,7 +349,7 @@ public class MindyAnalysis extends AbstractAnalysis implements ClusteringAnalysi
     /**
      * The swing worker class that runs Mindy analysis in the background.
      * @author ch2514
-     * @version $Id: MindyAnalysis.java,v 1.23 2007-10-26 17:02:20 hungc Exp $
+     * @version $Id: MindyAnalysis.java,v 1.24 2008-03-11 15:52:54 hungc Exp $
      */
     class Task extends SwingWorker<MindyDataSet, Void> {
     	private Mindy mindy;
@@ -407,8 +453,6 @@ public class MindyAnalysis extends AbstractAnalysis implements ClusteringAnalysi
             loadedData.setMindyMap(mindyMap);
             
             // Bonferroni correction -- if option selected
-            
-            // FDR correction -- if option selected
             
             // Pearson correlation
             ArrayList<DSMicroarray> maList = loadedData.getArraySetAsList();
