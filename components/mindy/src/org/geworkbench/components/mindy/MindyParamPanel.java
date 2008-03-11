@@ -37,12 +37,10 @@ public class MindyParamPanel extends AbstractSaveableParameterPanel implements S
     public static final String MI = "Mutual Info";
     public static final String NONE = "None";
     public static final String BONFERRONI = "Bonferroni";
-    public static final String FALSE_DISC_RATE = "False Discovery Rate";
     
     private static final String[] CONDITIONAL_UNCONDITIONAL = {P_VALUE, MI};
     private static final String[] CONDITIONAL_UNCONDITIONAL_DEFAULT_VALUES = {"1e-2", "0"};
-    private static final String[] CORRECTIONS = {NONE, BONFERRONI, FALSE_DISC_RATE};
-    private static final String DEFAULT_THRESHOLD_TYPE = CONDITIONAL_UNCONDITIONAL[0];
+    private static final String[] CORRECTIONS = {NONE, BONFERRONI};
     private static final String DEFAULT_THRESHOLD_VALUE = CONDITIONAL_UNCONDITIONAL_DEFAULT_VALUES[0];
 
     private JButton loadModulatorsFile = new JButton("Load");
@@ -300,7 +298,7 @@ public class MindyParamPanel extends AbstractSaveableParameterPanel implements S
     }
     
     public String getConditional(){
-    	return CONDITIONAL_UNCONDITIONAL[this.conditionalCombo.getSelectedIndex()];
+    	return (String) this.conditionalCombo.getSelectedItem();
     }
     
     public float getConditionalValue(){
@@ -314,15 +312,15 @@ public class MindyParamPanel extends AbstractSaveableParameterPanel implements S
     }
     
     public String getConditionalCorrection(){
-    	return CORRECTIONS[this.conditionalCombo.getSelectedIndex()];
+    	return (String) this.conditionalCorrection.getSelectedItem();
     }
     
     public String getUnconditional(){
-    	return CONDITIONAL_UNCONDITIONAL[this.unconditionalCombo.getSelectedIndex()];
+    	return (String) this.unconditionalCombo.getSelectedItem();
     }
     
     public String getUnconditionalCorrection(){
-    	return CORRECTIONS[this.unconditionalCombo.getSelectedIndex()];
+    	return (String) this.unconditionalCorrection.getSelectedItem();
     }
 
     public float getUnconditionalValue(){
@@ -349,6 +347,16 @@ public class MindyParamPanel extends AbstractSaveableParameterPanel implements S
      */
     public ArrayList<String> getModulatorGeneList() {
         String geneString = modulatorList.getText();
+        ArrayList<String> geneList = breakStringIntoGenes(geneString);
+        return geneList;
+    }
+    
+    /**
+     * Gets the target gene list.
+     * @return the target gene list
+     */
+    public ArrayList<String> getTargetGeneList() {
+        String geneString = targetList.getText();
         ArrayList<String> geneList = breakStringIntoGenes(geneString);
         return geneList;
     }
