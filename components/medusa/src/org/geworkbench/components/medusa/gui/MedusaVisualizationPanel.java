@@ -58,6 +58,7 @@ public class MedusaVisualizationPanel extends JPanel {
 	private String addToSetButtonLabel = "Add To Set ";
 	private JButton exportMotifsButton = new JButton();
 	private JButton imageSnapshotButton = new JButton();
+	private JButton screenSnapshotButton = new JButton();
 
 	// private static final int COLUMN_WIDTH = 80;
 
@@ -93,6 +94,12 @@ public class MedusaVisualizationPanel extends JPanel {
 		exportMotifsButton.setToolTipText("Export motifs discovered by Medusa");
 		imageSnapshotButton.setText("Image Snapshot");
 		imageSnapshotButton.setToolTipText("Image snapshot");
+
+		screenSnapshotButton.setText("Screen Snapshot");
+		screenSnapshotButton.setToolTipText("Screen snapshot");
+		
+		//if you want to active screen snapshot function again, you can comment following line.
+		screenSnapshotButton.setVisible(false);
 
 		double[][] targetMatrix = new double[targets.size()][];
 		for (DSGeneMarker target : targets) {
@@ -318,6 +325,8 @@ public class MedusaVisualizationPanel extends JPanel {
 		/* add buttons at 2,1 */
 		JPanel buttonPanel = new JPanel();
 		buttonPanel.add(imageSnapshotButton);
+		buttonPanel.add(screenSnapshotButton);
+		
 		buttonPanel.add(exportMotifsButton);
 		buttonPanel.add(addSelectionsToSetButton);
 
@@ -330,6 +339,19 @@ public class MedusaVisualizationPanel extends JPanel {
 			 */
 			public void actionPerformed(ActionEvent e) {
 				visualComponent.publishImageSnapshot();
+			}
+
+		});
+
+		screenSnapshotButton.addActionListener(new ActionListener() {
+
+			/*
+			 * (non-Javadoc)
+			 *
+			 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
+			 */
+			public void actionPerformed(ActionEvent e) {
+				visualComponent.publishScreenSnapshot();
 			}
 
 		});

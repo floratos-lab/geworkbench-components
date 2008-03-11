@@ -1,7 +1,9 @@
 package org.geworkbench.components.medusa.gui;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
@@ -10,6 +12,12 @@ import java.util.List;
 import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTabbedPane;
+import javax.swing.JViewport;
+import javax.swing.ScrollPaneLayout;
+
+import net.eleritec.docking.defaults.DefaultDockingPort;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -115,7 +123,7 @@ public class MedusaVisualComponent implements VisualPlugin {
 	 * @return {@link ImageSnapshotEvent}
 	 */
 	@Publish
-	public org.geworkbench.events.ImageSnapshotEvent publishImageSnapshot() {
+	public org.geworkbench.events.ImageSnapshotEvent publishScreenSnapshot() {
 		Image image = null;
 		try {
 			/* set up the image width, height, and type */
@@ -128,6 +136,76 @@ public class MedusaVisualComponent implements VisualPlugin {
 			 */
 			Graphics g = image.getGraphics();
 			medusaVisualizationPanel.paint(g);
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+		ImageIcon icon = new ImageIcon(image, "Medusa");
+		org.geworkbench.events.ImageSnapshotEvent event = new org.geworkbench.events.ImageSnapshotEvent(
+				"Medusa Snapshot", icon,
+				org.geworkbench.events.ImageSnapshotEvent.Action.SAVE);
+		return event;
+	}
+
+	/**
+	 * Publish a snapshot. When taking an image snapshot, the {@link Image} is
+	 * first created from the {@link JComponent} of interest. The
+	 * {@link Graphics} context is then retrieved from the {@link Image} to
+	 * allow off-screen painting to occur.
+	 * 
+	 * @return {@link ImageSnapshotEvent}
+	 */
+	@Publish
+	public org.geworkbench.events.ImageSnapshotEvent publishImageSnapshot() {
+		Image image = null;
+		try {
+			/* set up the image width, height, and type */
+			JViewport viewPort0=((JViewport)((JScrollPane)((JPanel)((JTabbedPane)medusaVisualizationPanel.getComponent(0)).getComponent(0)).getComponent(0)).getComponent(0));
+			JViewport viewPort1=((JViewport)((JScrollPane)((JPanel)((JTabbedPane)medusaVisualizationPanel.getComponent(0)).getComponent(0)).getComponent(1)).getComponent(0));
+			JViewport viewPort2=((JViewport)((JScrollPane)((JPanel)((JTabbedPane)medusaVisualizationPanel.getComponent(0)).getComponent(0)).getComponent(2)).getComponent(0));
+			JViewport viewPort3=((JViewport)((JScrollPane)((JPanel)((JTabbedPane)medusaVisualizationPanel.getComponent(0)).getComponent(0)).getComponent(3)).getComponent(0));
+			JViewport viewPort4=((JViewport)((JScrollPane)((JPanel)((JTabbedPane)medusaVisualizationPanel.getComponent(0)).getComponent(0)).getComponent(4)).getComponent(0));
+			JViewport viewPort5=((JViewport)((JScrollPane)((JPanel)((JTabbedPane)medusaVisualizationPanel.getComponent(0)).getComponent(0)).getComponent(5)).getComponent(0));
+			image = new BufferedImage(viewPort3.getComponent(0).getWidth()+viewPort4.getComponent(0).getWidth()+viewPort5.getComponent(0).getWidth(),
+					viewPort1.getComponent(0).getHeight()+viewPort4.getComponent(0).getHeight(),
+					BufferedImage.TYPE_INT_RGB);
+			
+			/*
+			 * get the Graphics context from the image so we can paint it off
+			 * screen
+			 */
+			
+			
+			Graphics g = image.getGraphics();
+			Color tempColor=g.getColor();
+			g.setColor(this.getComponent().getBackground());
+			//g.fillRect(0, 0, viewPort3.getComponent(0).getWidth()+viewPort4.getComponent(0).getWidth()+viewPort5.getComponent(0).getWidth(), viewPort1.getComponent(0).getHeight()+viewPort4.getComponent(0).getHeight());
+			//for speed, above line changed to following line.
+			g.fillRect(0, 0, viewPort3.getComponent(0).getWidth(), viewPort1.getComponent(0).getHeight());
+			g.setColor(tempColor);
+			
+			Image bufImage0 = new BufferedImage(viewPort0.getComponent(0).getWidth(), viewPort0.getComponent(0).getHeight(), BufferedImage.TYPE_INT_RGB);
+			((JViewport)((JScrollPane)((JPanel)((JTabbedPane)medusaVisualizationPanel.getComponent(0)).getComponent(0)).getComponent(0)).getComponent(0)).paintComponents(bufImage0.getGraphics());
+			g.drawImage(bufImage0,0,0,viewPort0.getComponent(0).getWidth(),viewPort0.getComponent(0).getHeight(),this.getComponent());
+
+			Image bufImage1 = new BufferedImage(viewPort1.getComponent(0).getWidth(), viewPort1.getComponent(0).getHeight(), BufferedImage.TYPE_INT_RGB);
+			((JViewport)((JScrollPane)((JPanel)((JTabbedPane)medusaVisualizationPanel.getComponent(0)).getComponent(0)).getComponent(1)).getComponent(0)).paintComponents(bufImage1.getGraphics());
+			g.drawImage(bufImage1,viewPort0.getComponent(0).getWidth()-15,0,viewPort1.getComponent(0).getWidth(),viewPort1.getComponent(0).getHeight(),this.getComponent());
+
+			Image bufImage2 = new BufferedImage(viewPort2.getComponent(0).getWidth(), viewPort2.getComponent(0).getHeight(), BufferedImage.TYPE_INT_RGB);
+			((JViewport)((JScrollPane)((JPanel)((JTabbedPane)medusaVisualizationPanel.getComponent(0)).getComponent(0)).getComponent(2)).getComponent(0)).paintComponents(bufImage2.getGraphics());
+			g.drawImage(bufImage2,viewPort0.getComponent(0).getWidth()+viewPort1.getComponent(0).getWidth()-15,0,viewPort2.getComponent(0).getWidth(),viewPort2.getComponent(0).getHeight(),this.getComponent());
+
+			Image bufImage3 = new BufferedImage(viewPort3.getComponent(0).getWidth(), viewPort3.getComponent(0).getHeight(), BufferedImage.TYPE_INT_RGB);
+			((JViewport)((JScrollPane)((JPanel)((JTabbedPane)medusaVisualizationPanel.getComponent(0)).getComponent(0)).getComponent(3)).getComponent(0)).paintComponents(bufImage3.getGraphics());
+			g.drawImage(bufImage3,0,viewPort1.getComponent(0).getHeight(),viewPort3.getComponent(0).getWidth(),viewPort3.getComponent(0).getHeight(),this.getComponent());
+			
+			Image bufImage4 = new BufferedImage(viewPort4.getComponent(0).getWidth(), viewPort4.getComponent(0).getHeight(), BufferedImage.TYPE_INT_RGB);
+			((JViewport)((JScrollPane)((JPanel)((JTabbedPane)medusaVisualizationPanel.getComponent(0)).getComponent(0)).getComponent(4)).getComponent(0)).paintComponents(bufImage4.getGraphics());
+			g.drawImage(bufImage4,viewPort3.getComponent(0).getWidth(),viewPort1.getComponent(0).getHeight(),viewPort4.getComponent(0).getWidth(),viewPort4.getComponent(0).getHeight(),this.getComponent());
+
+			Image bufImage5 = new BufferedImage(viewPort5.getComponent(0).getWidth(), viewPort5.getComponent(0).getHeight(), BufferedImage.TYPE_INT_RGB);
+			((JViewport)((JScrollPane)((JPanel)((JTabbedPane)medusaVisualizationPanel.getComponent(0)).getComponent(0)).getComponent(5)).getComponent(0)).paintComponents(bufImage5.getGraphics());
+			g.drawImage(bufImage5,viewPort3.getComponent(0).getWidth()+viewPort4.getComponent(0).getWidth(),viewPort1.getComponent(0).getHeight(),viewPort5.getComponent(0).getWidth(),viewPort5.getComponent(0).getHeight(),this.getComponent());
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
