@@ -77,7 +77,7 @@ import org.jfree.ui.SortableTableModel;
  * that this gene's product participates in.
  * 
  * @author manjunath at genomecenter dot columbia dot edu
- * @version $Id: AnnotationsPanel.java,v 1.20 2007-01-23 18:58:24 keshav Exp $
+ * @version $Id: AnnotationsPanel.java,v 1.21 2008-03-12 19:38:40 xiaoqing Exp $
  * 
  * 
  */
@@ -529,10 +529,10 @@ public class AnnotationsPanel implements VisualPlugin {
                             DSItemList markers = maSet.getMarkers();
                             for (Iterator iterator = markers.iterator(); iterator.hasNext();) {
                                 DSGeneMarker marker = (DSGeneMarker) iterator.next();
-                                if (marker.getShortName().equals(geneAnnotation.getGeneSymbol())) {
+                                if (marker.getShortName().equalsIgnoreCase(geneAnnotation.getGeneSymbol())) {
                                     log.debug("Found " + geneAnnotation.getGeneSymbol() + " in set.");
                                     selectedMarkers.add(marker);
-                                    break;
+                                   // break; Disabled it because there may be mutiple markers for the same gene.
                                 }
                             }
                         }
