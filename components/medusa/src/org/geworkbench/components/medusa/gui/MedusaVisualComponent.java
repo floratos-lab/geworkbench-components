@@ -13,6 +13,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JViewport;
 import javax.swing.ScrollPaneLayout;
@@ -159,14 +160,14 @@ public class MedusaVisualComponent implements VisualPlugin {
 		Image image = null;
 		try {
 			/* set up the image width, height, and type */
-			JViewport viewPort0=((JViewport)((JScrollPane)((JPanel)((JTabbedPane)medusaVisualizationPanel.getComponent(0)).getComponent(0)).getComponent(0)).getComponent(0));
-			JViewport viewPort1=((JViewport)((JScrollPane)((JPanel)((JTabbedPane)medusaVisualizationPanel.getComponent(0)).getComponent(0)).getComponent(1)).getComponent(0));
-			JViewport viewPort2=((JViewport)((JScrollPane)((JPanel)((JTabbedPane)medusaVisualizationPanel.getComponent(0)).getComponent(0)).getComponent(2)).getComponent(0));
-			JViewport viewPort3=((JViewport)((JScrollPane)((JPanel)((JTabbedPane)medusaVisualizationPanel.getComponent(0)).getComponent(0)).getComponent(3)).getComponent(0));
-			JViewport viewPort4=((JViewport)((JScrollPane)((JPanel)((JTabbedPane)medusaVisualizationPanel.getComponent(0)).getComponent(0)).getComponent(4)).getComponent(0));
-			JViewport viewPort5=((JViewport)((JScrollPane)((JPanel)((JTabbedPane)medusaVisualizationPanel.getComponent(0)).getComponent(0)).getComponent(5)).getComponent(0));
+			JViewport viewPort0=((JViewport)((JScrollPane)((JSplitPane)((JSplitPane)((JSplitPane)((JPanel)((JTabbedPane)medusaVisualizationPanel.getComponent(0)).getComponent(0)).getComponent(0)).getComponent(1)).getComponent(1)).getComponent(1)).getComponent(0));
+			JViewport viewPort1=((JViewport)((JScrollPane)((JSplitPane)((JSplitPane)((JSplitPane)((JPanel)((JTabbedPane)medusaVisualizationPanel.getComponent(0)).getComponent(0)).getComponent(0)).getComponent(1)).getComponent(1)).getComponent(2)).getComponent(0));			
+			JViewport viewPort2=((JViewport)((JScrollPane)((JSplitPane)((JSplitPane)((JPanel)((JTabbedPane)medusaVisualizationPanel.getComponent(0)).getComponent(0)).getComponent(0)).getComponent(1)).getComponent(2)).getComponent(0));
+			JViewport viewPort3=((JViewport)((JScrollPane)((JSplitPane)((JSplitPane)((JSplitPane)((JPanel)((JTabbedPane)medusaVisualizationPanel.getComponent(0)).getComponent(0)).getComponent(0)).getComponent(2)).getComponent(1)).getComponent(1)).getComponent(0));
+			JViewport viewPort4=((JViewport)((JScrollPane)((JSplitPane)((JSplitPane)((JSplitPane)((JPanel)((JTabbedPane)medusaVisualizationPanel.getComponent(0)).getComponent(0)).getComponent(0)).getComponent(2)).getComponent(1)).getComponent(2)).getComponent(0));			
+			JViewport viewPort5=((JViewport)((JScrollPane)((JSplitPane)((JSplitPane)((JPanel)((JTabbedPane)medusaVisualizationPanel.getComponent(0)).getComponent(0)).getComponent(0)).getComponent(2)).getComponent(2)).getComponent(0));
 			image = new BufferedImage(viewPort3.getComponent(0).getWidth()+viewPort4.getComponent(0).getWidth()+viewPort5.getComponent(0).getWidth(),
-					viewPort1.getComponent(0).getHeight()+viewPort4.getComponent(0).getHeight(),
+					viewPort1.getComponent(0).getHeight()+viewPort4.getComponent(0).getHeight()+15,
 					BufferedImage.TYPE_INT_RGB);
 			
 			/*
@@ -180,32 +181,32 @@ public class MedusaVisualComponent implements VisualPlugin {
 			g.setColor(this.getComponent().getBackground());
 			//g.fillRect(0, 0, viewPort3.getComponent(0).getWidth()+viewPort4.getComponent(0).getWidth()+viewPort5.getComponent(0).getWidth(), viewPort1.getComponent(0).getHeight()+viewPort4.getComponent(0).getHeight());
 			//for speed, above line changed to following line.
-			g.fillRect(0, 0, viewPort3.getComponent(0).getWidth(), viewPort1.getComponent(0).getHeight());
+			g.fillRect(0, 0, viewPort3.getComponent(0).getWidth()+viewPort4.getComponent(0).getWidth()+viewPort5.getComponent(0).getWidth(), viewPort1.getComponent(0).getHeight()+15);
 			g.setColor(tempColor);
 			
 			Image bufImage0 = new BufferedImage(viewPort0.getComponent(0).getWidth(), viewPort0.getComponent(0).getHeight(), BufferedImage.TYPE_INT_RGB);
-			((JViewport)((JScrollPane)((JPanel)((JTabbedPane)medusaVisualizationPanel.getComponent(0)).getComponent(0)).getComponent(0)).getComponent(0)).paintComponents(bufImage0.getGraphics());
+			viewPort0.paintComponents(bufImage0.getGraphics());
 			g.drawImage(bufImage0,0,0,viewPort0.getComponent(0).getWidth(),viewPort0.getComponent(0).getHeight(),this.getComponent());
 
 			Image bufImage1 = new BufferedImage(viewPort1.getComponent(0).getWidth(), viewPort1.getComponent(0).getHeight(), BufferedImage.TYPE_INT_RGB);
-			((JViewport)((JScrollPane)((JPanel)((JTabbedPane)medusaVisualizationPanel.getComponent(0)).getComponent(0)).getComponent(1)).getComponent(0)).paintComponents(bufImage1.getGraphics());
-			g.drawImage(bufImage1,viewPort0.getComponent(0).getWidth()-15,0,viewPort1.getComponent(0).getWidth(),viewPort1.getComponent(0).getHeight(),this.getComponent());
+			viewPort1.paintComponents(bufImage1.getGraphics());
+			g.drawImage(bufImage1,viewPort0.getComponent(0).getWidth(),0,viewPort1.getComponent(0).getWidth(),viewPort1.getComponent(0).getHeight(),this.getComponent());
 
 			Image bufImage2 = new BufferedImage(viewPort2.getComponent(0).getWidth(), viewPort2.getComponent(0).getHeight(), BufferedImage.TYPE_INT_RGB);
-			((JViewport)((JScrollPane)((JPanel)((JTabbedPane)medusaVisualizationPanel.getComponent(0)).getComponent(0)).getComponent(2)).getComponent(0)).paintComponents(bufImage2.getGraphics());
-			g.drawImage(bufImage2,viewPort0.getComponent(0).getWidth()+viewPort1.getComponent(0).getWidth()-15,0,viewPort2.getComponent(0).getWidth(),viewPort2.getComponent(0).getHeight(),this.getComponent());
+			viewPort2.paintComponents(bufImage2.getGraphics());
+			g.drawImage(bufImage2,viewPort0.getComponent(0).getWidth()+viewPort1.getComponent(0).getWidth(),0,viewPort2.getComponent(0).getWidth(),viewPort2.getComponent(0).getHeight(),this.getComponent());
 
 			Image bufImage3 = new BufferedImage(viewPort3.getComponent(0).getWidth(), viewPort3.getComponent(0).getHeight(), BufferedImage.TYPE_INT_RGB);
-			((JViewport)((JScrollPane)((JPanel)((JTabbedPane)medusaVisualizationPanel.getComponent(0)).getComponent(0)).getComponent(3)).getComponent(0)).paintComponents(bufImage3.getGraphics());
-			g.drawImage(bufImage3,0,viewPort1.getComponent(0).getHeight(),viewPort3.getComponent(0).getWidth(),viewPort3.getComponent(0).getHeight(),this.getComponent());
+			viewPort3.paintComponents(bufImage3.getGraphics());
+			g.drawImage(bufImage3,0,viewPort1.getComponent(0).getHeight()+15,viewPort3.getComponent(0).getWidth(),viewPort3.getComponent(0).getHeight(),this.getComponent());
 			
 			Image bufImage4 = new BufferedImage(viewPort4.getComponent(0).getWidth(), viewPort4.getComponent(0).getHeight(), BufferedImage.TYPE_INT_RGB);
-			((JViewport)((JScrollPane)((JPanel)((JTabbedPane)medusaVisualizationPanel.getComponent(0)).getComponent(0)).getComponent(4)).getComponent(0)).paintComponents(bufImage4.getGraphics());
-			g.drawImage(bufImage4,viewPort3.getComponent(0).getWidth(),viewPort1.getComponent(0).getHeight(),viewPort4.getComponent(0).getWidth(),viewPort4.getComponent(0).getHeight(),this.getComponent());
+			viewPort4.paintComponents(bufImage4.getGraphics());
+			g.drawImage(bufImage4,viewPort3.getComponent(0).getWidth(),viewPort1.getComponent(0).getHeight()+15,viewPort4.getComponent(0).getWidth(),viewPort4.getComponent(0).getHeight(),this.getComponent());
 
 			Image bufImage5 = new BufferedImage(viewPort5.getComponent(0).getWidth(), viewPort5.getComponent(0).getHeight(), BufferedImage.TYPE_INT_RGB);
-			((JViewport)((JScrollPane)((JPanel)((JTabbedPane)medusaVisualizationPanel.getComponent(0)).getComponent(0)).getComponent(5)).getComponent(0)).paintComponents(bufImage5.getGraphics());
-			g.drawImage(bufImage5,viewPort3.getComponent(0).getWidth()+viewPort4.getComponent(0).getWidth(),viewPort1.getComponent(0).getHeight(),viewPort5.getComponent(0).getWidth(),viewPort5.getComponent(0).getHeight(),this.getComponent());
+			viewPort5.paintComponents(bufImage5.getGraphics());
+			g.drawImage(bufImage5,viewPort3.getComponent(0).getWidth()+viewPort4.getComponent(0).getWidth(),viewPort1.getComponent(0).getHeight()+15,viewPort5.getComponent(0).getWidth(),viewPort5.getComponent(0).getHeight(),this.getComponent());
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
