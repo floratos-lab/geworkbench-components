@@ -5,6 +5,7 @@ import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentEvent;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -78,7 +79,7 @@ public class MedusaVisualizationPanel extends JPanel {
 
 		/* MOTIF PANEL */
 		JPanel motifPanel = new JPanel();
-
+		motifPanel.setLayout(new BorderLayout());
 		int i = 0;
 		List<DSGeneMarker> targets = medusaData.getTargets();
 
@@ -126,7 +127,7 @@ public class MedusaVisualizationPanel extends JPanel {
 			regulatorNames.add(marker.getLabel());
 		}
 
-		motifPanel.setLayout(new GridLayout(3, 2));
+		//motifPanel.setLayout(new GridLayout(3, 2));
 
 		/* dummy panel at position 0,0 of the grid */
 
@@ -146,7 +147,7 @@ public class MedusaVisualizationPanel extends JPanel {
 		hitOrMissScrollNamePane.setPreferredSize(new Dimension(rulesFiles.size()*15+25, 200));
 		hitOrMissScrollNamePane.getViewport().add(hitOrMissNamePanel);
 		hitOrMissScrollNamePane.setVisible(true);
-		motifPanel.add(hitOrMissScrollNamePane);	//0,0
+		//motifPanel.add(hitOrMissScrollNamePane);	//0,0
 		
 //		JPanel dummyPanel0 = new JPanel();
 //		motifPanel.add(new JScrollPane());
@@ -220,7 +221,7 @@ public class MedusaVisualizationPanel extends JPanel {
 		regulatorHeatScrollPane.getViewport().add(regulatorHeatPanel);
 		regulatorHeatScrollPane.setVisible(true);
 		regulatorHeatScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);	//always activate this scroll bar, so 0,1 and 0,2 can sync without the differences of the scroll bar.
-		motifPanel.add(regulatorHeatScrollPane);	//0,1
+		//motifPanel.add(regulatorHeatScrollPane);	//0,1
 
 		JScrollPane regulatorCheckBoxScrollPane = new JScrollPane();
 		regulatorCheckBoxScrollPane.setPreferredSize(new Dimension(100, 200));
@@ -228,7 +229,7 @@ public class MedusaVisualizationPanel extends JPanel {
 		regulatorCheckBoxScrollPane.setVisible(true);
 		regulatorCheckBoxScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);	//always activate this scroll bar, so 0,1 and 0,2 can sync without the differences of the scroll bar.
 		regulatorCheckBoxScrollPane.getVerticalScrollBar().setModel(regulatorHeatScrollPane.getVerticalScrollBar().getModel());
-		motifPanel.add(regulatorCheckBoxScrollPane);	//0,2
+		//motifPanel.add(regulatorCheckBoxScrollPane);	//0,2
 		
 //		motifPanel.add(regulatorLabelBuilder.getPanel());
 		// motifPanel.add(new JPanel());
@@ -243,7 +244,7 @@ public class MedusaVisualizationPanel extends JPanel {
 		hitOrMissScrollPane.getViewport().add(hitOrMissPanel);
 		hitOrMissScrollPane.setVisible(true);
 		hitOrMissScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);	//always activate this scroll bar, so 1,0 and 1,1 can sync without the differences of the scroll bar. 
-		motifPanel.add(hitOrMissScrollPane);	//1,0
+		//motifPanel.add(hitOrMissScrollPane);	//1,0
 
 		/* target heat map at postion 1,1 */
 		DiscreteHeatMapPanel targetHeatMap = new DiscreteHeatMapPanel(
@@ -304,7 +305,7 @@ public class MedusaVisualizationPanel extends JPanel {
 		targetHeatScrollPane.getViewport().add(targetHeatPanel);
 		targetHeatScrollPane.setVisible(true);
 		targetHeatScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);	//always activate this scroll bar, so 1,0 and 1,1 can sync without the differences of the scroll bar.
-		motifPanel.add(targetHeatScrollPane);	//1,1
+		//motifPanel.add(targetHeatScrollPane);	//1,1
 
 		JScrollPane targetCheckBoxScrollPane = new JScrollPane();
 		targetCheckBoxScrollPane.setPreferredSize(new Dimension(100, 200));
@@ -312,7 +313,7 @@ public class MedusaVisualizationPanel extends JPanel {
 		targetCheckBoxScrollPane.setVisible(true);
 		targetCheckBoxScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);	//always activate this scroll bar, so 1,1 and 1,2 can sync without the differences of the scroll bar.
 		targetCheckBoxScrollPane.getVerticalScrollBar().setModel(hitOrMissScrollPane.getVerticalScrollBar().getModel());
-		motifPanel.add(targetCheckBoxScrollPane);	//1,2
+		//motifPanel.add(targetCheckBoxScrollPane);	//1,2
 
 		// motifPanel.add(new JPanel());
 		hitOrMissScrollNamePane.getHorizontalScrollBar().setModel(hitOrMissScrollPane.getHorizontalScrollBar().getModel());
@@ -320,7 +321,7 @@ public class MedusaVisualizationPanel extends JPanel {
 		targetHeatScrollPane.getVerticalScrollBar().setModel(hitOrMissScrollPane.getVerticalScrollBar().getModel());
 		/* dummy panel at 2,0 so we can align the buttons (below) */
 		JPanel dummyPanel11 = new JPanel();
-		motifPanel.add(dummyPanel11);
+		//motifPanel.add(dummyPanel11);
 
 		/* add buttons at 2,1 */
 		JPanel buttonPanel = new JPanel();
@@ -403,9 +404,75 @@ public class MedusaVisualizationPanel extends JPanel {
 			}
 		});
 
-		motifPanel.add(buttonPanel);
+		
+		final JSplitPane jSplitPane1 = new JSplitPane();
+		final JSplitPane jSplitPane2 = new JSplitPane();
+		final JSplitPane jSplitPane3 = new JSplitPane();
+		final JSplitPane jSplitPane4 = new JSplitPane();
 
-		tabbedPane.add("Motif", motifPanel);
+		jSplitPane3.setDividerLocation(200);
+		jSplitPane3.setDividerSize(3);
+		jSplitPane3.setLeftComponent(hitOrMissScrollNamePane);
+		jSplitPane3.setRightComponent(regulatorHeatScrollPane);
+		jSplitPane3.addComponentListener(new java.awt.event.ComponentListener() {
+			public void componentResized(java.awt.event.ComponentEvent e) {
+				jSplitPane2.setDividerLocation(jSplitPane1.getDividerLocation());
+			}
+			public void componentHidden(ComponentEvent e) {
+			}
+			public void componentMoved(ComponentEvent e) {
+			}
+			public void componentShown(ComponentEvent e) {
+			}
+		});
+		jSplitPane3.addPropertyChangeListener("lastDividerLocation",
+				new java.beans.PropertyChangeListener() {
+					public void propertyChange(java.beans.PropertyChangeEvent e) {
+						jSplitPane4.setDividerLocation(jSplitPane3.getDividerLocation());
+						System.out.println("propertyChange(lastDividerLocation)"); // TODO Auto-generated property Event stub "lastDividerLocation" 
+					}
+				});
+
+		jSplitPane4.setDividerLocation(200);
+		jSplitPane4.setLeftComponent(hitOrMissScrollPane);
+		jSplitPane4.setRightComponent(targetHeatScrollPane);
+		jSplitPane4.setDividerSize(3);
+		jSplitPane4.addPropertyChangeListener("lastDividerLocation",
+				new java.beans.PropertyChangeListener() {
+					public void propertyChange(java.beans.PropertyChangeEvent e) {
+						jSplitPane3.setDividerLocation(jSplitPane4.getDividerLocation());
+						System.out.println("propertyChange(lastDividerLocation)"); // TODO Auto-generated property Event stub "lastDividerLocation" 
+					}
+				});
+		jSplitPane4.addComponentListener(new java.awt.event.ComponentAdapter() {
+			public void componentResized(java.awt.event.ComponentEvent e) {
+				jSplitPane1.setDividerLocation(jSplitPane2.getDividerLocation());
+				System.out.println("componentResized()"); // TODO Auto-generated Event stub componentResized()
+			}
+		});
+
+		jSplitPane1.setDividerLocation(visualComponent.getComponent().getWidth()-200);
+		jSplitPane1.setDividerSize(3);
+		jSplitPane1.setLeftComponent(jSplitPane3);
+		jSplitPane1.setRightComponent(regulatorCheckBoxScrollPane);
+
+		jSplitPane2.setDividerLocation(visualComponent.getComponent().getWidth()-200);
+		jSplitPane2.setDividerSize(3);
+		jSplitPane2.setLeftComponent(jSplitPane4);
+		jSplitPane2.setRightComponent(targetCheckBoxScrollPane);
+
+		JSplitPane jSplitPane = new JSplitPane();
+		jSplitPane.setOrientation(javax.swing.JSplitPane.VERTICAL_SPLIT);
+		jSplitPane.setDividerSize(2);
+		jSplitPane.setDividerLocation(200);
+		jSplitPane.setTopComponent(jSplitPane1);
+		jSplitPane.setBottomComponent(jSplitPane2);
+		
+		motifPanel.add(jSplitPane,java.awt.BorderLayout.CENTER);
+		motifPanel.add(buttonPanel,java.awt.BorderLayout.SOUTH);
+
+		tabbedPane.add("Motif",motifPanel);
+		//tabbedPane.add("Motif", motifPanel);
 
 		setLayout(new BorderLayout());
 		add(tabbedPane, BorderLayout.CENTER);
