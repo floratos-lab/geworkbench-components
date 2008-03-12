@@ -2,6 +2,7 @@ package org.geworkbench.components.normalization;
 
 import org.geworkbench.analysis.AbstractAnalysis;
 import org.geworkbench.bison.datastructure.biocollections.CSMarkerVector;
+import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.CSMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.bioobjects.markers.CSGeneMarker;
@@ -12,6 +13,7 @@ import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMutableMarker
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
 import org.geworkbench.bison.model.analysis.NormalizingAnalysis;
+import org.geworkbench.engine.management.Subscribe;
 
 import javax.swing.*;
 import java.util.TreeSet;
@@ -44,11 +46,12 @@ public class HouseKeepingGeneNormalizer extends AbstractAnalysis implements
     double[] ch2fArray = null;
     double[] ch2bArray = null;
     boolean ignoreMissingValues = true;
-
+    DSMicroarraySet refMASet;
+    HouseKeepingGeneNormalizerPanel houseKeepingGeneNormalizerPanel = new HouseKeepingGeneNormalizerPanel();
 
     public HouseKeepingGeneNormalizer() {
         setLabel("HouseKeeping Genes Normalizer");
-        setDefaultPanel(new HouseKeepingGeneNormalizerPanel());
+        setDefaultPanel(houseKeepingGeneNormalizerPanel);
         try {
             jbInit();
         } catch (Exception ex) {
@@ -87,7 +90,7 @@ public class HouseKeepingGeneNormalizer extends AbstractAnalysis implements
         if (haveNonExistMarker) {
 
             int choice = JOptionPane.showConfirmDialog(null,
-                    "Some of the designated genes are not in the dataset. Proceed?  ",
+                    "Some of the designated genes are not in the dataset or have missing values. Proceed?  ",
                     "Warning",
                     JOptionPane.OK_CANCEL_OPTION);
 
@@ -244,7 +247,7 @@ public class HouseKeepingGeneNormalizer extends AbstractAnalysis implements
             for (int k = 0; k < arrayCount; k++) {
                 arrays[j][k] = maSet.getValue(csgMarker, k);
                 // DSMutableMarkerValue dsMutableMarkerValue = maSet.getValuesForName()
-                if (Double.isNaN(arrays[j][k])||arrays[j][k]==0) {
+                if (Double.isNaN(arrays[j][k]) || arrays[j][k] == 0) {
                     if (ignoreMissingValues) {
                         errorMessage.append(csgMarker.getLabel() + " ");
                         nonFoundGenes.add(csgMarker.getLabel());
@@ -298,8 +301,8 @@ public class HouseKeepingGeneNormalizer extends AbstractAnalysis implements
             DSMicroarray microarray = (DSMicroarray) (maSet.get(k));
 //            markerValue = (DSMutableMarkerValue) microarray.getMarkerValue(
 //                    csgMarker);
-             double newValue = maSet.getValue(csgMarker, k);
-             if (!Double.isNaN(newValue)) {
+            double newValue = maSet.getValue(csgMarker, k);
+            if (!Double.isNaN(newValue)) {
                 meanValue += newValue;
                 existingValues++;
             }
@@ -310,7 +313,7 @@ public class HouseKeepingGeneNormalizer extends AbstractAnalysis implements
             meanValue = meanValue / existingValues;
             for (int k = 0; k < arrayCount; k++) {
                 DSMicroarray microarray = (DSMicroarray) (maSet.get(k));
-                 markerValue = (DSMutableMarkerValue) microarray.getMarkerValue(
+                markerValue = (DSMutableMarkerValue) microarray.getMarkerValue(
                         csgMarker);
                 if (markerValue.isMissing()) {
                     markerValue.setMissing(false);
@@ -401,6 +404,34 @@ public class HouseKeepingGeneNormalizer extends AbstractAnalysis implements
 
         return true;
     }
+
+    /**
+     * receiveProjectSelection
+     *
+     * @param e ProjectEvent
+     */
+    @Subscribe
+    @SuppressWarnings("unchecked")
+    public void receive(org.geworkbench.events.ProjectEvent e, Object source) {
+
+        //log.debug("Source object " + source);
+
+        if (e.getMessage().equals(org.geworkbench.events.ProjectEvent.CLEARED)) {
+
+        } else {
+            DSDataSet dataSet = e.getDataSet();
+
+            if (dataSet instanceof DSMicroarraySet) {
+                if (refMASet == null) {
+                    refMASet = (DSMicroarraySet) dataSet;
+                } else if (refMASet != dataSet) {
+                    houseKeepingGeneNormalizerPanel.clearAllHightlightsPressed();
+                }
+
+            }
+        }
+    }
+
 
     /**
      * getRatioForGenepix

@@ -427,7 +427,7 @@ public class HouseKeepingGeneNormalizerPanel extends
         jPanel3.setLayout(boxLayout21);
         selectedGenesLabel.setText("Current Selected Genes");
         excludedGenesLabel.setText("Excluded HouseKeeping Genes");
-        clearButton.setText("Clear all");
+        clearButton.setText("Clear All");
         clearButton.addActionListener(new
                 HouseKeepingGeneNormalizerPanel_jButton5_actionAdapter(this));
         jPanel4.setLayout(borderLayout1);
@@ -657,7 +657,7 @@ public class HouseKeepingGeneNormalizerPanel extends
         updateLabel();
     }
 
-    private void clearAllHightlightsPressed() {
+ public  void clearAllHightlightsPressed() {
         if (highlightedMarkers != null) {
             highlightedMarkers.clear();
             updateLabel();
@@ -757,6 +757,7 @@ public class HouseKeepingGeneNormalizerPanel extends
     }
 
     public void jButton5_actionPerformed(ActionEvent e) {
+        moveAllHightlightsItemPressed();
         selectedModel.clear();
         markerModel.clear();
         updateLabel();
