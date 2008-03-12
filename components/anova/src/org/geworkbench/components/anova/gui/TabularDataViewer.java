@@ -38,7 +38,7 @@ import com.jgoodies.forms.layout.FormLayout;
  * This is an example geWorkbench component.
  * 
  * @author Mark Chiang
- * @version $Id: TabularDataViewer.java,v 1.5 2008-02-29 17:19:32 chiangy Exp $
+ * @version $Id: TabularDataViewer.java,v 1.6 2008-03-12 19:47:34 chiangy Exp $
  */
 // This annotation lists the data set types that this component accepts.
 // The component will only appear when a data set of the appropriate type is
@@ -309,7 +309,8 @@ public class TabularDataViewer extends AbstractSaveableParameterPanel implements
         //try a quicker version
         
         double[][] result2DArray=anovaResultSet.getResult2DArray();
-		for (int cx = 0; cx < result2DArray[0].length; cx++) {
+        int significantMarkerNumbers=anovaResultSet.getSignificantMarkers().size();
+		for (int cx = 0; cx < significantMarkerNumbers; cx++) {
 			fieldIndex=0;
 			A[cx][fieldIndex++] = ((DSGeneMarker)anovaResultSet.getSignificantMarkers().get(cx)).getShortName();
 			if (pVal){A[cx][fieldIndex++] = new Float(result2DArray[0][cx]);};
