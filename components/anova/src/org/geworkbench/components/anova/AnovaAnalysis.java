@@ -46,7 +46,7 @@ import edu.columbia.geworkbench.cagrid.anova.PValueEstimation;
 
 /**
  * @author yc2480
- * @version $Id: AnovaAnalysis.java,v 1.11 2008-02-29 00:55:05 chiangy Exp $
+ * @version $Id: AnovaAnalysis.java,v 1.12 2008-03-13 21:23:42 chiangy Exp $
  */
 public class AnovaAnalysis extends AbstractGridAnalysis implements
 		ClusteringAnalysis {
@@ -385,6 +385,7 @@ public class AnovaAnalysis extends AbstractGridAnalysis implements
 			;
 			int totalSignificantMarkerNum = significantMarkerIndex;
 			totalSignificantMarkerNum = result.getCluster("cluster").getNodeList().getNode(0).getFeaturesIndexes().length;
+			log.debug("totalSignificantMarkerNum: "+totalSignificantMarkerNum);
 			String[] significantMarkerNames = new String[totalSignificantMarkerNum];
 			significantMarkerIndex = 0;
 			for (int cx=0;cx<totalSignificantMarkerNum;cx++){
@@ -436,11 +437,20 @@ public class AnovaAnalysis extends AbstractGridAnalysis implements
 //				if (apFM.A[i][0] < pvalueth) {
 					DSGeneMarker item = view.markers().get(
 							view.markers().get(i).getLabel());
+					log.debug("SignificantMarker: "+view.markers().get(i).getLabel()+", with apFM: "+apFM.A[i][0]);
 					// if you don't want the whole label, you can use
 					// getShortName() to only get it's id.
 					// log.debug(view.markers().get(i).getShortName());
 					panelSignificant.add(item, new Float(apFM.A[i][0]));
-					sigSet.setSignificance(item, (double) apFM.A[i][0]);
+					double doubleSignificance=0;
+					if (apFM.A[i][0]==(float)pvalueth){//we'll have float and double compare issue in CSSifnificanceResultSet.setSignificance()
+						//manually set to pvalueth in double to fix bug 0001239 on Mantis
+						doubleSignificance = pvalueth-0.000000001; 
+						//minus a number which is less then float can store to let it unequals to pvalue threshold. (so we don't need to change CSSignificanceResultSet.setSignificance() to inclusive.)
+					}else{
+						doubleSignificance = (double) apFM.A[i][0];
+					}
+					sigSet.setSignificance(item, doubleSignificance);
 					anovaResult.setPVals(significantMarkerIndex, apFM.A[i][0]);
 					anovaResult.setAdjPVals(significantMarkerIndex,
 							apFM.A[i][0]);
@@ -483,8 +493,10 @@ public class AnovaAnalysis extends AbstractGridAnalysis implements
 				"Anova Analysis Result Set", labels, anovaResult
 						.getSignificantMarkerNames(),
 				anovaResult2result2DArray(anovaResult));
+		log.debug(anovaResult.getSignificantMarkerNames().length+"Markers added to anovaResultSet.");
 		anovaResultSet.getSignificantMarkers().addAll(
 				sigSet.getSignificantMarkers());
+		log.debug(sigSet.getSignificantMarkers().size()+"Markers added to anovaResultSet.getSignificantMarkers().");
 		anovaResultSet.sortMarkersBySignificance();
 		// anovaResultSet.setSignificance(item, (double)pFM.A[i][0]);
 		// anovaResultSet.sortMarkersBySignificance();
@@ -514,6 +526,7 @@ public class AnovaAnalysis extends AbstractGridAnalysis implements
 																		// adjpval
 																		// and
 																		// fval.
+		log.debug("result2DArray:"+arrayWidth+"*"+arrayHeight);
 		double[][] result2DArray = new double[arrayWidth][arrayHeight];
 		// fill p-values
 		for (int cx = 0; cx < arrayHeight; cx++) {
