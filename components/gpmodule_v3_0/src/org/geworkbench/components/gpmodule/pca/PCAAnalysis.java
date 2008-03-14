@@ -27,7 +27,8 @@ import javax.swing.JProgressBar;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.genepattern.webservice.Parameter;
-import org.geworkbench.bison.datastructure.biocollections.pca.PCADataSet;
+import org.geworkbench.bison.datastructure.biocollections.pca.CSPCADataSet;
+import org.geworkbench.bison.datastructure.biocollections.pca.DSPCADataSet;
 import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
@@ -45,7 +46,7 @@ public class PCAAnalysis extends GPAnalysis
 {
     private static Log log = LogFactory.getLog(PCAAnalysis.class);
     private PCAProgress progress = new PCAProgress();
-    private PCADataSet pcaDataSet;
+    private DSPCADataSet pcaDataSet;
     private Task task;
     private boolean error = false;
 
@@ -147,7 +148,7 @@ public class PCAAnalysis extends GPAnalysis
         return result;
     }
     
-    private class Task extends SwingWorker<PCADataSet, Void>
+    private class Task extends SwingWorker<CSPCADataSet, Void>
     {
         DSMicroarraySetView<DSGeneMarker, DSMicroarray> view;
         public Task(DSMicroarraySetView<DSGeneMarker, DSMicroarray> view)
@@ -155,7 +156,7 @@ public class PCAAnalysis extends GPAnalysis
             this.view = view;
         }
 
-        public PCADataSet doInBackground()
+        public CSPCADataSet doInBackground()
         {
             progress.setProgress(0);
 
@@ -231,7 +232,7 @@ public class PCAAnalysis extends GPAnalysis
 
             PCAData pcaData = new PCAData(results, ((PCAAnalysisPanel)panel).getVariables());
 
-            PCADataSet pcaDs = new PCADataSet(view.getDataSet(), "PCA Results", pcaData.getVariables(),
+            CSPCADataSet pcaDs = new CSPCADataSet(view.getDataSet(), "PCA Results", pcaData.getVariables(),
                     pcaData.getNumPCs(), pcaData.getUMatrix().getArray(), pcaData.getEigenValues(), pcaData.getEigenVectors(), pcaData.getPercentVars());
 
             progress.setProgress(90);

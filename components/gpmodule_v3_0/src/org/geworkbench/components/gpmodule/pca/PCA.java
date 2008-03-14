@@ -47,7 +47,7 @@ import org.geworkbench.bison.annotation.DSAnnotationContext;
 import org.geworkbench.bison.datastructure.biocollections.CSMarkerVector;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.CSExprMicroarraySet;
-import org.geworkbench.bison.datastructure.biocollections.pca.PCADataSet;
+import org.geworkbench.bison.datastructure.biocollections.pca.CSPCADataSet;
 import org.geworkbench.bison.datastructure.bioobjects.markers.CSExpressionMarker;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.CSExpressionMarkerValue;
@@ -91,7 +91,7 @@ import org.tigr.util.FloatMatrix;
  * @author: Marc-Danie Nazaire
  */
 
-@AcceptTypes({PCADataSet.class})
+@AcceptTypes({CSPCADataSet.class})
 public class PCA extends MicroarrayViewEventBase
 {
     private static Log log = LogFactory.getLog(PCA.class);
@@ -107,7 +107,7 @@ public class PCA extends MicroarrayViewEventBase
     private JButton clearPlotButton;
     private JButton imageSnapshotButton;
 
-    private PCADataSet pcaDataSet;
+    private CSPCADataSet pcaDataSet;
     private DSDataSet dataSet;
 
     private JScrollPane mainScrollPane;
@@ -936,9 +936,9 @@ public class PCA extends MicroarrayViewEventBase
     public void receive(ProjectEvent e, Object source)
     {
 
-        if(e.getDataSet() != null && e.getDataSet() instanceof PCADataSet)
+        if(e.getDataSet() != null && e.getDataSet() instanceof CSPCADataSet)
         {
-            pcaDataSet = ((PCADataSet)e.getDataSet());
+            pcaDataSet = ((CSPCADataSet)e.getDataSet());
             dataSet = pcaDataSet.getParentDataSet();
 
             reset();
