@@ -120,15 +120,15 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane impl
                                          final int columnIndex) {
         JPopupMenu contextMenu = new JPopupMenu();
         final CellularNetWorkElementInformation hit = hits.get(rowIndex);
-        JMenu copyMenu = new JMenu();
-        copyMenu.setText("Component");
+        JMenu componentMenu = new JMenu();
+        componentMenu.setText("Component");
         JMenu goFunctionMenu = new JMenu();
         goFunctionMenu.setText("Function");
         JMenu processMenu = new JMenu();
         processMenu.setText("Process");
         if (hit.getTreeMapForComponent() != null && hit.getTreeMapForComponent().size() > 0) {
-            addGoTermMenuItem(copyMenu, hit.getTreeMapForComponent());
-            contextMenu.add(copyMenu);
+            addGoTermMenuItem(componentMenu, hit.getTreeMapForComponent());
+            contextMenu.add(componentMenu);
         }
         if (hit.getTreeMapForFunction() != null && hit.getTreeMapForFunction().size() > 0) {
             addGoTermMenuItem(goFunctionMenu, hit.getTreeMapForFunction());
@@ -218,7 +218,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane impl
      */
     private void displayGoTree(List<GOTerm> set) {
         Frame frame = JOptionPane.getFrameForComponent(this);
-        goDialog = new JDialog(frame, "Display Preference", true);
+        goDialog = new JDialog(frame, "Display Gene Ontology Tree", true);
 
         //Create a tree that allows one selection at a time.
         JTree tree = new JTree(createNodes(set));
@@ -888,7 +888,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane impl
 
                         } else {
                             matrix.addDirectional(serial, serial2, "pd");
-                            matrix.addDirectional(serial2, serial, "pd");
+                             matrix.addDirectional(serial2, serial, "pd");
                         }
                     } else {
                         System.out.println("Marker " + interactionDetail.getdSGeneMarker2() + " does not exist at the dataset. ");
