@@ -12,6 +12,7 @@ public class InteractionsConnectionImpl implements INTERACTIONS {
 
     private String interactionType = null;
     private BigDecimal msid2 = null;
+  
     private String isReversible = null;
     private BigDecimal msid1 = null;
     private String source = null;
@@ -64,11 +65,12 @@ public class InteractionsConnectionImpl implements INTERACTIONS {
                             INTERACTIONDATABASEURL, "xiaoqing", "zhangc2b2");
             statement = conn.createStatement();
 
-            boolean isFinished = statement.execute("SELECT * FROM pairwise_interaction where ms_id1=" + id1.toString());
+            boolean isFinished = statement.execute("SELECT * FROM pairwise_interaction where ms_id1=" + id1.toString() + " or ms_id2=" + id1.toString() );
             int i = 0;
             if (isFinished) {
                 ResultSet rs = statement.getResultSet();
                 while (rs.next()) {
+                	msid1 = rs.getBigDecimal("ms_id1");
                     msid2 = rs.getBigDecimal("ms_id2");
                     confidenceValue = rs.getDouble("confidence_value");
                     isModulated = rs.getString("is_modulated");
@@ -83,7 +85,7 @@ public class InteractionsConnectionImpl implements INTERACTIONS {
                         interactionType = InteractionDetail.PROTEINDNAINTERACTION;
 
                     }
-                    InteractionDetail interactionDetail = new InteractionDetail(id1.toString(), msid2.toString(), confidenceValue, interactionType);
+                    InteractionDetail interactionDetail = new InteractionDetail(msid1.toString(), msid2.toString(), confidenceValue, interactionType);
                     arrayList.add(interactionDetail);
                 }
 

@@ -79,7 +79,9 @@ public class GeneOntologyUtil {
                     if (!goIdStr.equalsIgnoreCase("---")) {
                         Integer goId = new Integer(goIdStr);
                         if (goId != null) {
-                            set.addAll(tree.getAncestors(goId));
+                        	
+                        	Set<GOTerm> sets = tree.getAncestors(goId);
+                            set.addAll(sets);
                         }
                     }
                 } catch (NumberFormatException ne) {
@@ -147,8 +149,7 @@ public class GeneOntologyUtil {
         }
         if(tree==null){
         	JOptionPane.showMessageDialog(null, "No Gene Ontology Tree information is available.", "Go Term Error", JOptionPane.ERROR_MESSAGE);
-            
-        }
+                 }
         return geneOntologyUtil;
     }
 
