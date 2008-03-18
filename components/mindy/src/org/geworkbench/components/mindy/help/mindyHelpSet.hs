@@ -18,7 +18,7 @@
 
 		<homeID>overview</homeID>
 
-		<mapref location="MINDY.jhm"/>
+		<mapref location="mindy.jhm"/>
 
 	</maps>
 
