@@ -429,7 +429,7 @@ public class MedusaVisualizationPanel extends JPanel {
 				new java.beans.PropertyChangeListener() {
 					public void propertyChange(java.beans.PropertyChangeEvent e) {
 						jSplitPane4.setDividerLocation(jSplitPane3.getDividerLocation());
-						System.out.println("propertyChange(lastDividerLocation)"); // TODO Auto-generated property Event stub "lastDividerLocation" 
+//						System.out.println("propertyChange(lastDividerLocation)"); // TODO Auto-generated property Event stub "lastDividerLocation" 
 					}
 				});
 
@@ -441,13 +441,13 @@ public class MedusaVisualizationPanel extends JPanel {
 				new java.beans.PropertyChangeListener() {
 					public void propertyChange(java.beans.PropertyChangeEvent e) {
 						jSplitPane3.setDividerLocation(jSplitPane4.getDividerLocation());
-						System.out.println("propertyChange(lastDividerLocation)"); // TODO Auto-generated property Event stub "lastDividerLocation" 
+//						System.out.println("propertyChange(lastDividerLocation)"); // TODO Auto-generated property Event stub "lastDividerLocation" 
 					}
 				});
 		jSplitPane4.addComponentListener(new java.awt.event.ComponentAdapter() {
 			public void componentResized(java.awt.event.ComponentEvent e) {
 				jSplitPane1.setDividerLocation(jSplitPane2.getDividerLocation());
-				System.out.println("componentResized()"); // TODO Auto-generated Event stub componentResized()
+//				System.out.println("componentResized()"); // TODO Auto-generated Event stub componentResized()
 			}
 		});
 
