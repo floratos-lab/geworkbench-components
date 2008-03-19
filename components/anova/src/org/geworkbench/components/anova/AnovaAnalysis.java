@@ -46,7 +46,7 @@ import edu.columbia.geworkbench.cagrid.anova.PValueEstimation;
 
 /**
  * @author yc2480
- * @version $Id: AnovaAnalysis.java,v 1.12 2008-03-13 21:23:42 chiangy Exp $
+ * @version $Id: AnovaAnalysis.java,v 1.13 2008-03-19 18:04:26 chiangy Exp $
  */
 public class AnovaAnalysis extends AbstractGridAnalysis implements
 		ClusteringAnalysis {
@@ -151,7 +151,8 @@ public class AnovaAnalysis extends AbstractGridAnalysis implements
 
 		// Get params
 		// pvalueth=0.05; //p-value threshold
-		pvalueth = anovaAnalysisPanel.pValueThreshold;
+//		pvalueth = anovaAnalysisPanel.pValueThreshold;
+		pvalueth = anovaAnalysisPanel.anovaParameter.getPValueThreshold();
 		if ((pvalueth<0)||(pvalueth>1)){
 			JOptionPane.showMessageDialog(null,
 					"P-Value threshold should be a float number between 0.0 and 1.0.",
@@ -407,16 +408,16 @@ public class AnovaAnalysis extends AbstractGridAnalysis implements
 			;
 */
 			// output f-value, p-value, adj-p-value, mean, std
-			anovaResult.setSignificantMarkerNames(significantMarkerNames);
-			anovaResult.setPVals(new float[totalSignificantMarkerNum]);
-			anovaResult.setAllMeans(new float[totalSignificantMarkerNum
+			anovaResult.setSignificantMarkerNameCollection(significantMarkerNames);
+			anovaResult.setPValueCollection(new float[totalSignificantMarkerNum]);
+			anovaResult.setGroupMeanCollectionForAllMarkers(new float[totalSignificantMarkerNum
 					* mFM.getColumnDimension()]);
-			anovaResult.setAllStds(new float[totalSignificantMarkerNum
+			anovaResult.setGroupStandardDiviationCollectionForAllMarkers(new float[totalSignificantMarkerNum
 					* mFM.getColumnDimension()]);
-			anovaResult.setPVals(new float[totalSignificantMarkerNum]);
-			anovaResult.setAdjPVals(new float[totalSignificantMarkerNum]);
-			anovaResult.setFVals(new float[totalSignificantMarkerNum]);
-			anovaResult.setGroupNames(labels);
+			anovaResult.setPValueCollection(new float[totalSignificantMarkerNum]);
+			anovaResult.setAdjustedPValueCollection(new float[totalSignificantMarkerNum]);
+			anovaResult.setFValueCollection(new float[totalSignificantMarkerNum]);
+			anovaResult.setGroupNameCollection(labels);
 			DSAnnotatedPanel<DSGeneMarker, Float> panelSignificant = new CSAnnotPanel<DSGeneMarker, Float>(
 					"Significant Genes");
 			// FIXME: only put means&stds where pvalue<pvalueth
@@ -451,17 +452,17 @@ public class AnovaAnalysis extends AbstractGridAnalysis implements
 						doubleSignificance = (double) apFM.A[i][0];
 					}
 					sigSet.setSignificance(item, doubleSignificance);
-					anovaResult.setPVals(significantMarkerIndex, apFM.A[i][0]);
-					anovaResult.setAdjPVals(significantMarkerIndex,
+					anovaResult.setPValueCollection(significantMarkerIndex, apFM.A[i][0]);
+					anovaResult.setAdjustedPValueCollection(significantMarkerIndex,
 							apFM.A[i][0]);
-					anovaResult.setFVals(significantMarkerIndex, fFM.A[i][0]);
+					anovaResult.setFValueCollection(significantMarkerIndex, fFM.A[i][0]);
 					for (int j = 0; j < mFM.getColumnDimension(); j++) {
 						// System.out.print("\tmean:G"+j+":"+new
 						// Float(mFM.A[i][j]));
 						// System.out.print("±"+new Float(sFM.A[i][j]));
-						anovaResult.setAllMeans(j * totalSignificantMarkerNum
+						anovaResult.setGroupMeanCollectionForAllMarkers(j * totalSignificantMarkerNum
 								+ significantMarkerIndex, mFM.A[i][j]);
-						anovaResult.setAllStds(j * totalSignificantMarkerNum
+						anovaResult.setGroupStandardDiviationCollectionForAllMarkers(j * totalSignificantMarkerNum
 								+ significantMarkerIndex, sFM.A[i][j]);
 					}
 					significantMarkerIndex++;
@@ -490,10 +491,10 @@ public class AnovaAnalysis extends AbstractGridAnalysis implements
 		// AlgorithmExecutionResults results = new
 		// AlgorithmExecutionResults(true, "Anova Analysis", sigSet);
 		anovaResultSet = new CSAnovaResultSet(view,
-				"Anova Analysis Result Set", labels, anovaResult
-						.getSignificantMarkerNames(),
+				"Anova Analysis Result Set", labels, 
+				anovaResult.getSignificantMarkerNameCollection(),
 				anovaResult2result2DArray(anovaResult));
-		log.debug(anovaResult.getSignificantMarkerNames().length+"Markers added to anovaResultSet.");
+		log.debug(anovaResult.getSignificantMarkerNameCollection().length+"Markers added to anovaResultSet.");
 		anovaResultSet.getSignificantMarkers().addAll(
 				sigSet.getSignificantMarkers());
 		log.debug(sigSet.getSignificantMarkers().size()+"Markers added to anovaResultSet.getSignificantMarkers().");
@@ -515,8 +516,8 @@ public class AnovaAnalysis extends AbstractGridAnalysis implements
 	 * @return
 	 */
 	private double[][] anovaResult2result2DArray(AnovaResult anovaResult) {
-		int arrayHeight = anovaResult.getPVals().length;
-		int arrayWidth = anovaResult.getGroupNames().length * 2 + 3; // each
+		int arrayHeight = anovaResult.getPValueCollection().length;
+		int arrayWidth = anovaResult.getGroupNameCollection().length * 2 + 3; // each
 																		// group
 																		// needs
 																		// two
@@ -530,27 +531,27 @@ public class AnovaAnalysis extends AbstractGridAnalysis implements
 		double[][] result2DArray = new double[arrayWidth][arrayHeight];
 		// fill p-values
 		for (int cx = 0; cx < arrayHeight; cx++) {
-			result2DArray[0][cx] = anovaResult.getPVals()[cx];
+			result2DArray[0][cx] = anovaResult.getPValueCollection()[cx];
 		}
 		// fill adj-p-values
 		for (int cx = 0; cx < arrayHeight; cx++) {
-			result2DArray[1][cx] = anovaResult.getAdjPVals()[cx];
+			result2DArray[1][cx] = anovaResult.getAdjustedPValueCollection()[cx];
 		}
 		// fill f-values
 		for (int cx = 0; cx < arrayHeight; cx++) {
-			result2DArray[2][cx] = anovaResult.getFVals()[cx];
+			result2DArray[2][cx] = anovaResult.getFValueCollection()[cx];
 		}
 		// fill means
 		for (int cx = 0; cx < arrayHeight; cx++) {
-			for (int cy = 0; cy < anovaResult.getGroupNames().length; cy++) {
-				result2DArray[3 + cy * 2][cx] = anovaResult.getAllMeans()[cy
+			for (int cy = 0; cy < anovaResult.getGroupNameCollection().length; cy++) {
+				result2DArray[3 + cy * 2][cx] = anovaResult.getGroupMeanCollectionForAllMarkers()[cy
 						* arrayHeight + cx];
 			}
 		}
 		// fill stds
 		for (int cx = 0; cx < arrayHeight; cx++) {
-			for (int cy = 0; cy < anovaResult.getGroupNames().length; cy++) {
-				result2DArray[4 + cy * 2][cx] = anovaResult.getAllStds()[cy
+			for (int cy = 0; cy < anovaResult.getGroupNameCollection().length; cy++) {
+				result2DArray[4 + cy * 2][cx] = anovaResult.getGroupStandardDiviationCollectionForAllMarkers()[cy
 						* arrayHeight + cx];
 			}
 		}
@@ -590,7 +591,7 @@ public class AnovaAnalysis extends AbstractGridAnalysis implements
 		}
 		// P Value threshold
 		histStr += "P Value threshold: ";
-		histStr += pvalueth + "\n";
+		histStr += anovaAnalysisPanel.anovaParameter.getPValueThreshold() + "\n";
 
 		// Correction type
 		histStr += "correction-method: ";
