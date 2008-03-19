@@ -38,21 +38,20 @@ import edu.columbia.geworkbench.cagrid.anova.PValueEstimation;
 
 /**
  * @author yc2480
- * @version $Id: AnovaAnalysisPanel.java,v 1.6 2008-02-27 21:38:44 chiangy Exp $
+ * @version $Id: AnovaAnalysisPanel.java,v 1.7 2008-03-19 18:02:42 chiangy Exp $
  */
 public class AnovaAnalysisPanel extends AbstractSaveableParameterPanel
 		implements Serializable {
 
 	private int PermutationsNumberDefault = 100;
+	
+	private float PValueThresholdDefault = 0.05f;
+	
 	private String PermutationsNumberDefaultStr = Integer.valueOf(
 			PermutationsNumberDefault).toString();
 	private Log log = LogFactory.getLog(this.getClass());
 
 	public AnovaParameter anovaParameter = new AnovaParameter();
-	public double pValueThreshold = 0.05; // TODO: this is just a quick fix
-	// for Aris's Friday demo. Should be
-	// removed after using our new UML
-	// model.
 
 	/***************************************************************************
 	 * copy paste the GUI code from VE start from here.
@@ -750,7 +749,7 @@ public class AnovaAnalysisPanel extends AbstractSaveableParameterPanel
 	private JTextField getjTextFieldPValueThreshold() {
 		if (jTextFieldPValueThreshold == null) {
 			jTextFieldPValueThreshold = new JTextField();
-			jTextFieldPValueThreshold.setText("0.05");
+			jTextFieldPValueThreshold.setText(Float.toString(PValueThresholdDefault));
 			jTextFieldPValueThreshold.setColumns(5);
 			jTextFieldPValueThreshold
 					.setToolTipText("This should be a float number between 0.0 and 1.0. After ANOVA analysis, only Markers have p-value less then this number will be returned.");
@@ -763,7 +762,7 @@ public class AnovaAnalysisPanel extends AbstractSaveableParameterPanel
 								// caused by update through program
 							} else {
 								try {
-									pValueThreshold = (Double
+									anovaParameter.setPValueThreshold(Float
 											.valueOf(jTextFieldPValueThreshold
 													.getText()));
 								} catch (NumberFormatException nfe) {
@@ -821,6 +820,7 @@ public class AnovaAnalysisPanel extends AbstractSaveableParameterPanel
 				.setFalseDiscoveryRateControl(FalseDiscoveryRateControl.alpha);
 		anovaParameter.setPermutationsNumber(PermutationsNumberDefault);
 		anovaParameter.setFalseSignificantGenesLimit(10.0f);
+		anovaParameter.setPValueThreshold(PValueThresholdDefault);
 	}
 
 	/**
@@ -849,6 +849,7 @@ public class AnovaAnalysisPanel extends AbstractSaveableParameterPanel
 
 			// start translate anovaParameter to AnovaAnalysisPanel by
 			// manipulate GUI according to anovaParameter
+			panel.jTextFieldPValueThreshold.setText(Float.toString(anovaParameter.getPValueThreshold()));
 			if (anovaParameter.getPValueEstimation().equals(
 					PValueEstimation.permutation)) {
 				panel.jComboBoxPValueBasedOn.setSelectedItem("Permutations");
