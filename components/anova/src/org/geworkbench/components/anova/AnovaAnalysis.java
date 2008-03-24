@@ -46,7 +46,7 @@ import edu.columbia.geworkbench.cagrid.anova.PValueEstimation;
 
 /**
  * @author yc2480
- * @version $Id: AnovaAnalysis.java,v 1.13 2008-03-19 18:04:26 chiangy Exp $
+ * @version $Id: AnovaAnalysis.java,v 1.14 2008-03-24 17:17:05 chiangy Exp $
  */
 public class AnovaAnalysis extends AbstractGridAnalysis implements
 		ClusteringAnalysis {
@@ -67,7 +67,7 @@ public class AnovaAnalysis extends AbstractGridAnalysis implements
 	double pvalueth = 0.05; // p-value threshold. Fixme: this should get from
 							// user input, but we don't have that GUI in use
 							// case yet.
-	String GroupAndMarkerString; // store text output used in dataset
+	String GroupAndChipsString; // store text output used in dataset
 									// history. Will be refreshed each time
 									// execute() been called.
 
@@ -177,7 +177,7 @@ public class AnovaAnalysis extends AbstractGridAnalysis implements
 		int numSelectedGenes = 0;
 
 		String[] selectedGroupLabels;
-		GroupAndMarkerString = "";
+		GroupAndChipsString = "";
 
 		int nl = context.getNumberOfLabels();
 		numGroups = nl;
@@ -224,11 +224,12 @@ public class AnovaAnalysis extends AbstractGridAnalysis implements
 		ArrayList markerList=new ArrayList();
 		// calculating how many groups selected and arrays inside selected
 		// groups
+		GroupAndChipsString += numSelectedGroups + " groups analyzed:\n";
 		for (int i = 0; i < numSelectedGroups; i++) {// for each groups
 			String labelA = labels[i];
 			DSPanel<DSMicroarray> panelA = context.getItemsWithLabel(labelA);
 			// put group label into history
-			GroupAndMarkerString += labelA + "\n";
+			GroupAndChipsString += "\tGroup " + labelA + " (" + panelA.size() +" chips)"+":\n";;
 
 			if (panelA.isActive()) {
 				int aSize = panelA.size();
@@ -236,7 +237,7 @@ public class AnovaAnalysis extends AbstractGridAnalysis implements
 																	// array in
 																	// this
 																	// group
-					GroupAndMarkerString += "\t" + panelA.get(aIndex) + "\n"; // put
+					GroupAndChipsString += "\t\t" + panelA.get(aIndex) + "\n"; // put
 																				// member
 																				// of
 																				// each
@@ -485,7 +486,7 @@ public class AnovaAnalysis extends AbstractGridAnalysis implements
 		}
         pb.stop();				
 		// add to Dataset History
-		ProjectPanel.addToHistory(sigSet, generateHistoryString(data));
+		ProjectPanel.addToHistory(sigSet, generateHistoryString(view));
 
 		// sigSet.sortMarkersBySignificance();
 		// AlgorithmExecutionResults results = new
@@ -503,7 +504,7 @@ public class AnovaAnalysis extends AbstractGridAnalysis implements
 		// anovaResultSet.sortMarkersBySignificance();
 
 		// add to Dataset History
-		ProjectPanel.addToHistory(anovaResultSet, generateHistoryString(data));
+		ProjectPanel.addToHistory(anovaResultSet, generateHistoryString(view));
 
 		AlgorithmExecutionResults results = new AlgorithmExecutionResults(true,
 				"Anova Analysis", anovaResultSet);
@@ -576,7 +577,7 @@ public class AnovaAnalysis extends AbstractGridAnalysis implements
 	 * @param data
 	 * @return
 	 */
-	private String generateHistoryString(AlgorithmData data) {
+	private String generateHistoryString(DSMicroarraySetView<DSGeneMarker, DSMicroarray> view) {
 		String histStr = "";
 		// Header
 		histStr += "Generated with ANOVA run with parameters:\n";
@@ -618,7 +619,13 @@ public class AnovaAnalysis extends AbstractGridAnalysis implements
 		 */
 
 		// group names and markers
-		histStr += GroupAndMarkerString;
+		
+		histStr += GroupAndChipsString;
+		
+		histStr += view.markers().size() +" markers analyzed:\n";
+		for (DSGeneMarker marker : view.markers()){
+			histStr+="\t"+marker.getLabel()+"\n";
+		}
 
 		return histStr;
 	}
