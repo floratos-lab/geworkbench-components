@@ -773,13 +773,8 @@ public class PCA extends MicroarrayViewEventBase
                 pcaContent3D.getComponent(0).addMouseListener(new PCA3DMouseListener());
                 projGraphPanel = new ScrollPane(ScrollPane.SCROLLBARS_AS_NEEDED);
                 ((ScrollPane)projGraphPanel).add(pcaContent3D);
-                projPanel.setRightComponent(pcaContent3D);
+                projPanel.setRightComponent(projGraphPanel);
             }
-
-            projGraphPanel.invalidate();
-
-
-
         }
         else  //build 2D Projection plot
         {
