@@ -73,7 +73,7 @@ public class AracneAnalysis extends AbstractGridAnalysis implements ClusteringAn
     public AlgorithmExecutionResults execute(Object input) {
         log.debug("input: " + input);
         // Use this to get params
-        AracneParamPanel params = (AracneParamPanel) aspp;
+        AracneParamPanel params = (AracneParamPanel) aspp;        
         if (input instanceof DSMicroarraySetView) {
             log.debug("Input dataset is microarray type.");
             mSetView = (DSMicroarraySetView) input;
@@ -106,7 +106,7 @@ public class AracneAnalysis extends AbstractGridAnalysis implements ClusteringAn
 //        } catch (IOException e) {
 //            log.error(e);
 //        }
-
+        
         final Parameter p = new Parameter();
         if (params.isHubListSpecified()) {
             if (params.getHubGeneList() == null || params.getHubGeneList().size() == 0) {
@@ -276,7 +276,7 @@ public class AracneAnalysis extends AbstractGridAnalysis implements ClusteringAn
 
         public AracneThread(DSMicroarraySetView<DSGeneMarker, DSMicroarray> mSet, Parameter p) {
             this.mSetView = mSet;
-            this.p = p;
+            this.p = p;        
         }
 
         public void run() {
@@ -288,9 +288,21 @@ public class AracneAnalysis extends AbstractGridAnalysis implements ClusteringAn
 
             if (weightedGraph.getEdges().size() > 0) {
                 AdjacencyMatrixDataSet dataSet = new AdjacencyMatrixDataSet(convert(weightedGraph, mSetView.getMicroarraySet()), -1, 0, 1000,
-                        "Adjacency Matrix", "ARACNE Set", mSetView.getMicroarraySet());
-                ProjectPanel.addToHistory(dataSet, "Generated with ARACNE run with paramters: " + p.getParamterDescription());
-
+                        "Adjacency Matrix", "ARACNE Set", mSetView.getMicroarraySet());               
+                StringBuilder paramDescB = new StringBuilder("Generated with ARACNE run with data:\nArrays:\n");
+                for(DSMicroarray ma: this.mSetView.getMicroarraySet()) {
+                	paramDescB.append("\t");
+                	paramDescB.append(ma.getLabel());
+                	paramDescB.append("\n");
+                }
+                paramDescB.append("Markers:\n");
+                for(DSGeneMarker m: this.mSetView.markers()){
+                	paramDescB.append("\t");
+                	paramDescB.append(m.getShortName());
+                	paramDescB.append("\n");
+                }
+                paramDescB.append("\nGenerated with ARACNE run with paramters:\n");
+                ProjectPanel.addToHistory(dataSet, paramDescB.toString() + p.getParamterDescription());
                 publishProjectNodeAddedEvent(new ProjectNodeAddedEvent("Adjacency Matrix Added", null, dataSet));
 
 //        publishAdjacencyMatrixEvent(new AdjacencyMatrixEvent(convert(weightedGraph, mSetView), "ARACNE Set",
