@@ -301,8 +301,7 @@ public class AracneAnalysis extends AbstractGridAnalysis implements ClusteringAn
                 	paramDescB.append(m.getShortName());
                 	paramDescB.append("\n");
                 }
-                paramDescB.append("\nGenerated with ARACNE run with paramters:\n");
-                ProjectPanel.addToHistory(dataSet, paramDescB.toString() + p.getParamterDescription());
+                ProjectPanel.addToHistory(dataSet, "Generated with ARACNE run with paramters:\n" + p.getParamterDescription() + paramDescB.toString());
                 publishProjectNodeAddedEvent(new ProjectNodeAddedEvent("Adjacency Matrix Added", null, dataSet));
 
 //        publishAdjacencyMatrixEvent(new AdjacencyMatrixEvent(convert(weightedGraph, mSetView), "ARACNE Set",
