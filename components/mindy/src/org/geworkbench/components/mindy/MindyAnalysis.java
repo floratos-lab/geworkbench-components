@@ -59,6 +59,7 @@ public class MindyAnalysis extends AbstractAnalysis implements ClusteringAnalysi
     private JButton cancelButton;
     private Task task;
     private MindyDataSet mindyDataSet;
+    private DSMicroarraySetView<DSGeneMarker, DSMicroarray> inputSetView;
 
     /**
      * Constructor.
@@ -86,9 +87,9 @@ public class MindyAnalysis extends AbstractAnalysis implements ClusteringAnalysi
     @SuppressWarnings("unchecked")
     public AlgorithmExecutionResults execute(Object input) {
         log.debug("input: " + input);
-        DSMicroarraySetView inputSetView = (DSMicroarraySetView) input;
-        DSPanel arraySet = null;
-        DSPanel markerSet = null;
+        inputSetView = (DSMicroarraySetView) input;
+        DSPanel<DSMicroarray> arraySet = null;
+        DSPanel<DSGeneMarker> markerSet = null;
         if(inputSetView.useItemPanel())
         	arraySet = inputSetView.getItemPanel();
         if(inputSetView.useMarkerPanel())
@@ -242,8 +243,35 @@ public class MindyAnalysis extends AbstractAnalysis implements ClusteringAnalysi
         if(Math.round(setFraction * 2 * numMarkers) < 2){
         	errMsgB.append("Not enough markers in the specified % sample.  MINDY requires at least 2 markers in the sample.\n");
         }
-        
-        
+        paramDescB.append("Arrays:\n");
+        if((arraySet != null) && (arraySet.size() > 0)){
+        	for(DSMicroarray ma: arraySet) {
+            	paramDescB.append("\t");
+            	paramDescB.append(ma.getLabel());
+            	paramDescB.append("\n");
+            }
+        } else {
+        	for(DSMicroarray ma: inputSetView.getMicroarraySet()) {
+            	paramDescB.append("\t");
+            	paramDescB.append(ma.getLabel());
+            	paramDescB.append("\n");
+            }
+        }
+        paramDescB.append("Markers:\n");
+        if((markerSet != null) && (markerSet.size() > 0)){
+        	for(DSGeneMarker m: markerSet){
+            	paramDescB.append("\t");
+            	paramDescB.append(m.getShortName());
+            	paramDescB.append("\n");
+            }
+        	
+        } else {
+        	for(DSGeneMarker m: inputSetView.markers()){
+            	paramDescB.append("\t");
+            	paramDescB.append(m.getShortName());
+            	paramDescB.append("\n");
+            }
+        }
         
         // If parameters or inputs have errors, alert the user and return from execute()
         errMsgB.trimToSize();
@@ -349,7 +377,7 @@ public class MindyAnalysis extends AbstractAnalysis implements ClusteringAnalysi
     /**
      * The swing worker class that runs Mindy analysis in the background.
      * @author ch2514
-     * @version $Id: MindyAnalysis.java,v 1.24 2008-03-11 15:52:54 hungc Exp $
+     * @version $Id: MindyAnalysis.java,v 1.25 2008-03-28 20:36:17 hungc Exp $
      */
     class Task extends SwingWorker<MindyDataSet, Void> {
     	private Mindy mindy;
