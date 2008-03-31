@@ -1,12 +1,6 @@
 package org.geworkbench.components.gpmodule.pca;
 
-import java.awt.BasicStroke;
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Container;
-import java.awt.Dimension;
-import java.awt.ScrollPane;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
@@ -574,7 +568,7 @@ public class PCA extends MicroarrayViewEventBase
         if(panels == null || panels.size() == 0)
             return null;
 
-       for(int i = 1; i < panels.size(); i++)
+       for(int i = 0; i < panels.size(); i++)
        {
             DSPanel dp = (DSPanel)panels.get(i);
             if(dp.size() == 0 || !dp.isActive())
@@ -793,8 +787,7 @@ public class PCA extends MicroarrayViewEventBase
             while(it.hasNext())
             {
                 String group = (String)it.next();
-                XYSeries xySeries = new XYSeries("", false, true);                
-
+                XYSeries xySeries = new XYSeries("", false, true);
                 if(!group.equals("group 1"))
                 {
                     xySeries.setKey(group);
@@ -823,12 +816,15 @@ public class PCA extends MicroarrayViewEventBase
                 }
 
                 xySeriesCollection.addSeries(xySeries);
-            }
+            }           
 
             graph.getXYPlot().getRangeAxis().setTickMarksVisible(true);
             graph.getXYPlot().getRangeAxis().setTickMarkPaint(Color.BLACK);
 
-           set2DPlotBounds(graph, true, true);
+            graph.getXYPlot().getDomainAxis().setTickMarksVisible(true);
+            graph.getXYPlot().getDomainAxis().setTickMarkPaint(Color.BLACK);
+
+            set2DPlotBounds(graph, true, true);
 
             graph.getXYPlot().addRangeMarker(new ValueMarker(0.0, Color.BLACK, new BasicStroke((float)1.4)));
             graph.getXYPlot().addDomainMarker(new ValueMarker(0.0, Color.BLACK, new BasicStroke((float)1.4)));
@@ -901,18 +897,24 @@ public class PCA extends MicroarrayViewEventBase
 
     private void set2DPlotBounds(JFreeChart chart, boolean setDomain, boolean setRange)
     {
-         if(setDomain)
-         {
+        if(setDomain)
+        {
              Range domainRange = chart.getXYPlot().getDomainAxis().getRange();
-            double maxDomainRange = Math.max(Math.abs(domainRange.getLowerBound()), domainRange.getUpperBound());
-            chart.getXYPlot().getDomainAxis().setLowerBound(-maxDomainRange);
-            chart.getXYPlot().getDomainAxis().setUpperBound(maxDomainRange);
-         }
+             double maxDomainRange = Math.max(Math.abs(domainRange.getLowerBound()), domainRange.getUpperBound());
+
+             if(chart.getXYPlot().getDataset().getItemCount(0) == 1)
+                maxDomainRange = chart.getXYPlot().getDomainAxis().getStandardTickUnits().getCeilingTickUnit(maxDomainRange).getSize();
+             chart.getXYPlot().getDomainAxis().setLowerBound(-maxDomainRange);
+             chart.getXYPlot().getDomainAxis().setUpperBound(maxDomainRange);
+        }
 
         if(setRange)
         {
             Range range =  chart.getXYPlot().getRangeAxis().getRange();
             double maxRange = Math.max(Math.abs(range.getLowerBound()), range.getUpperBound());
+
+             if(chart.getXYPlot().getDataset().getItemCount(0) == 1)
+                maxRange = chart.getXYPlot().getRangeAxis().getStandardTickUnits().getCeilingTickUnit(maxRange).getSize();
             chart.getXYPlot().getRangeAxis().setLowerBound(-maxRange);
             chart.getXYPlot().getRangeAxis().setUpperBound(maxRange);
         }
