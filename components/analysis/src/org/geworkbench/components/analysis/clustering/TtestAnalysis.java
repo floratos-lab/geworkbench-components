@@ -72,7 +72,7 @@ public class TtestAnalysis extends AbstractAnalysis implements ClusteringAnalysi
     private int k;
 
     private int numGenes, numExps;
-    private double alpha;
+    private double alpha, criticalPValue;
     private int significanceMethod;
     private boolean isPermut, useWelchDf;
     int[] groupAssignments;
@@ -110,6 +110,7 @@ public class TtestAnalysis extends AbstractAnalysis implements ClusteringAnalysi
         currentP = currentT = 0.0d;
         oneClassMean = 0f;
         alpha = 0d;
+        criticalPValue = 0d;
         currentIndex = numGenes = numExps = tTestDesign = significanceMethod = 0;
     }
 
@@ -233,6 +234,7 @@ public class TtestAnalysis extends AbstractAnalysis implements ClusteringAnalysi
                 oneClassMean = ((TtestAnalysisPanel) aspp).getOneClassMean();
             }
             alpha = ((TtestAnalysisPanel) aspp).getAlpha();
+            criticalPValue = ((TtestAnalysisPanel) aspp).getAlpha();            
             significanceMethod = ((TtestAnalysisPanel) aspp).getSignificanceMethod();
             isPermut = ((TtestAnalysisPanel) aspp).isPermut();
             useWelchDf = ((TtestAnalysisPanel) aspp).useWelchDf();
@@ -267,7 +269,8 @@ public class TtestAnalysis extends AbstractAnalysis implements ClusteringAnalysi
                         "T-Test",
                         classSets[0].toArray(new String[0]),
                         classSets[1].toArray(new String[0]),
-                        alpha
+                        criticalPValue
+                        
                 );
                 the_sigSet = sigSet;
                 Hashtable result = (Hashtable) results.getResults();
@@ -347,13 +350,15 @@ public class TtestAnalysis extends AbstractAnalysis implements ClusteringAnalysi
                     "T-Test",
                     classSets[0].toArray(new String[0]),
                     classSets[1].toArray(new String[0]),
-                    alpha
+                    criticalPValue
+                    
             );
             the_sigSet = sigSet;
             for (int i = 0; i < pValuesVector.size(); i++) {
                 pValuesMatrix[i][0] = ((Float) (pValuesVector.get(i))).floatValue();
-                sigSet.setSignificance(data.markers().get(i), pValuesMatrix[i][0]);
+                sigSet.setMarker(data.markers().get(i), pValuesMatrix[i][0]);
             }
+            
             if (tTestDesign == TtestAnalysisPanel.BETWEEN_SUBJECTS) {
                 for (int i = 0; i < numGenes; i++) {
                     dfMatrix[i][0] = (float) (getDF(i));
@@ -365,7 +370,7 @@ public class TtestAnalysis extends AbstractAnalysis implements ClusteringAnalysi
                     oneClassSDsMatrix[i][0] = ((Float) (oneClassGeneSDsVector.get(i))).floatValue();
                 }
             }
-
+     
             float[][] meansAMatrix = new float[numGenes][1];
             float[][] meansBMatrix = new float[numGenes][1];
             float[][] sdAMatrix = new float[numGenes][1];
@@ -404,6 +409,7 @@ public class TtestAnalysis extends AbstractAnalysis implements ClusteringAnalysi
                     int index = ((Integer) clusters[0].get(i)).intValue();
                     DSGeneMarker item = data.markers().get(index);
                     panelSignificant.add(item, new Float(pValuesMatrix[index][0]));
+                    sigSet.addSigGenToPanel(item);
                 }
             }
             publishSubpanelChangedEvent(new SubpanelChangedEvent(DSGeneMarker.class, panelSignificant, SubpanelChangedEvent.NEW));
@@ -1340,7 +1346,7 @@ public class TtestAnalysis extends AbstractAnalysis implements ClusteringAnalysi
     }
 
     private Vector sortGenesForOneClassDesign
-            () {
+            () {    	    	 
         Vector sigGenes = new Vector();
         Vector nonSigGenes = new Vector();
         pValuesVector = new Vector();
@@ -1427,8 +1433,8 @@ public class TtestAnalysis extends AbstractAnalysis implements ClusteringAnalysi
                         pValuesVector.add(new Float(pValues[i]));
                     }
                     int denomAlpha = numGenes;
-                    double adjAlpha = alpha / (double) denomAlpha;
-
+                    double adjAlpha = alpha / (double) denomAlpha;                    
+                    
                     QSort sortPVals = new QSort(pValues);
                     float[] sortedPValues = sortPVals.getSorted();
                     int[] sortedIndices = sortPVals.getOrigIndx();
@@ -1453,7 +1459,7 @@ public class TtestAnalysis extends AbstractAnalysis implements ClusteringAnalysi
                                 System.out.println("Warning: denomAlpha = " + denomAlpha);
                             }
                         }
-                        adjAlpha = alpha / denomAlpha;
+                        adjAlpha = alpha / denomAlpha;                       
                     }
                 }
             } else {
@@ -1486,8 +1492,8 @@ public class TtestAnalysis extends AbstractAnalysis implements ClusteringAnalysi
                         pValuesVector.add(new Float(pValues[i]));
                     }
                     int denomAlpha = numGenes;
-                    double adjAlpha = alpha / (double) denomAlpha;
-
+                    double adjAlpha = alpha / (double) denomAlpha;                   
+                    
                     QSort sortPVals = new QSort(pValues);
                     float[] sortedPValues = sortPVals.getSorted();
                     int[] sortedIndices = sortPVals.getOrigIndx();
@@ -1512,7 +1518,7 @@ public class TtestAnalysis extends AbstractAnalysis implements ClusteringAnalysi
                                 System.out.println("Warning: denomAlpha = " + denomAlpha);
                             }
                         }
-                        adjAlpha = alpha / denomAlpha;
+                        adjAlpha = alpha / denomAlpha;                        
                     }
                 }
             }
@@ -1521,7 +1527,8 @@ public class TtestAnalysis extends AbstractAnalysis implements ClusteringAnalysi
         Vector sortedGenes = new Vector();
         sortedGenes.add(sigGenes);
         sortedGenes.add(nonSigGenes);
-
+       
+        
         return sortedGenes;
     }
 
@@ -1929,7 +1936,8 @@ public class TtestAnalysis extends AbstractAnalysis implements ClusteringAnalysi
                     tValuesVector.add(new Float(currentT));
                     pValuesVector.add(new Float(currentP));
                 }
-            }
+            }       
+            
         } else if (significanceMethod == TtestAnalysisPanel.ADJ_BONFERRONI) {
             sigGenes = new Vector();
             nonSigGenes = new Vector();
@@ -2001,7 +2009,7 @@ public class TtestAnalysis extends AbstractAnalysis implements ClusteringAnalysi
                 if (prob > 1) {
                     prob = 1;
                 }
-                adjAlpha = alpha / (double) denomAlpha;
+                adjAlpha = alpha / (double) denomAlpha;                
                 if (prob <= adjAlpha) {
                     sigGenes.add(new Integer(sortedUniqueIDs[0]));
                     sigTValues.add(new Float(sortedTValues[0]));
@@ -2023,12 +2031,14 @@ public class TtestAnalysis extends AbstractAnalysis implements ClusteringAnalysi
                 tValuesVector.add(new Float(tValuesArray[i]));
                 pValuesVector.add(new Float(pValuesArray[i]));
             }
+            
+            criticalPValue = adjAlpha;
         }
 
         Vector sortedGenes = new Vector();
         sortedGenes.add(sigGenes);
-        sortedGenes.add(nonSigGenes);
-
+        sortedGenes.add(nonSigGenes);       
+        
         return sortedGenes;
     }
 
@@ -2345,7 +2355,9 @@ public class TtestAnalysis extends AbstractAnalysis implements ClusteringAnalysi
             currentP = permutProb;
             if (permutProb <= criticalP) {
                 sig = true;
-            }
+            }            
+            criticalPValue = criticalP;
+            
             return sig;
         } else {
             int randomCounter = 0;
@@ -2666,6 +2678,7 @@ public class TtestAnalysis extends AbstractAnalysis implements ClusteringAnalysi
                     }
                 } else if (significanceMethod == TtestAnalysisPanel.STD_BONFERRONI) {
                     double thresh = alpha / (double) numGenes;
+                    criticalPValue = thresh;
                     if (prob <= thresh) {
                         sig = true;
                     } else {
