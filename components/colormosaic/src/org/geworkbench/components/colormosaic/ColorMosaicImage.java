@@ -478,8 +478,8 @@ public class ColorMosaicImage extends JPanel implements Scrollable {
         int y = e.getY();
         int expId = (x - gutter) * 1 / geneWidth;
         int geneId = getGeneId(e);
-        if (geneId < microarraySet.getMarkers().size()) {
-            DSGeneMarker marker = microarraySet.getMarkers().get(geneId);
+        if (geneId != -1 && geneId < microarraySet.getMarkers().size()) {            
+        	DSGeneMarker marker = microarraySet.getMarkers().get(geneId);
             MarkerSelectedEvent mse = new org.geworkbench.events.MarkerSelectedEvent(marker);
             parent.publishMarkerSelectedEvent(mse);
         }

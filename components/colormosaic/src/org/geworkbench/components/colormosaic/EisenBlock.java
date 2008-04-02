@@ -56,11 +56,14 @@ public class EisenBlock {
         if (dirty) {
             cache();
         }
-        if (pattern != null) {
-            if (showAllMarkers || (panel == null) || (panel.size() == 0)) {
-                return pattern.getPattern().markers().length;
+        if (pattern != null) {          
+            if (showAllMarkers ) {
+            	return pattern.getPattern().markers().length;
             } else {
-                return panel.size();
+               if (panel != null)
+            	 return panel.size();
+               else
+            	 return 0;
             }
         } else {
             if (showAllMarkers || (panel == null) || (panel.size() == 0)) {
