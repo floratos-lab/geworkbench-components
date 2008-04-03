@@ -34,7 +34,7 @@
     <h3>View MINDY Results</h3> 
     <h3><img border="0" width="553" height="284" src="MINDY_help_files/image002.jpg"></h3> 
     <p>1. Select the MINDY result node in the Project Folder. </p> 
-    <p>2. In the Modulator Tab, indicate the modulators of interest using the checkboxes or click on <b>Select All</b> to display all modulators in the Table, List,and Heat Map views. The <b>Modulators Selected</b> is updated to reflect the number of modulators selected. Only selected Modulators are displayed on the Table, List, Heat Map views. Additional actions include:</p> 
+    <p>2. In the Modulator Tab, indicate the modulators of interest using the checkboxes or click on <b>Select All</b> to display all modulators in the Table, List,and Heat Map views. The <b>Modulators Selected</b> is updated to reflect the number of modulators selected. Only selected Modulators are displayed on the Table, List and Heat Map views. Additional actions include:</p> 
     <p>&#183; <b><i>Marker Display: </i></b>Indicate marker display preferences.</p> 
     <p>&#183; <b><i>Sort:</i></b> Click on the column headers or use sort options available in the left pane. </p> 
     <p>&#183; <b><i>Add to Set: </i></b>Adds selected modulators to a Marker Set. You can select one or more Targets and/or Modulators, using the selection check boxes</p> 
@@ -42,21 +42,20 @@
     <p>3. Select from the various tabs to view the data in alternate formats. See <a href="#_Navigating_Mindy_Visualization">Navigating Mindy</a> for additional information on these data views.</p> 
     <h3>Navigating Mindy Visualization</h3> 
     <p>MINDY includes the following data views: <a href="#mod">Modulator</a>, <a href="#table">Table</a>, <a href="#list">List</a> and <a href="#heatmap">Heat Map</a>.</p> 
-    <p><a href="#mod"><b>Modulator</b></a>: This table-based view contains one row per modulator gene. Only modulators selected in this tab are included the other data views. The value of the Mode column for a modulator M is either &#8220;+&#8221;, &#8220;-&#8220; or null (0) depending on if M+ is larger, smaller or equal to M-. </p> 
-    <p><a href="#table"><b>Table</b></a>: The rows of the table represent target genes and the columns represent modulators. Additional actions include:</p> 
+    <p><a name="#mod"><b>Modulator</b></a>: This table-based view contains one row per modulator gene. Only modulators selected in this tab are included the other data views. The value of the Mode column for a modulator M is either &#8220;+&#8221;, &#8220;-&#8220; or null (0) depending on if M+ is larger, smaller or equal to M-. </p> 
+    <p><a name="#table"><b>Table</b></a>: The rows of the table represent target genes and the columns represent modulators. Additional actions include:</p> 
     <p><b><i>Marker Display: </i></b>Indicate marker display preferences.</p> 
     <p><b><i>Sorting: </i></b> Displays columns (modulators) from left to right in descending order by; Aggregate ( M#), Enhancing (M+) or Negative (M-).</p>  
     <p><b><i>Modulator Limits: </i></b>Activates the checkbox to limit the columns (modulators) display to a defined value. This selectionfilters the modulator display based upon the current display order.</p> 
     <p><b><i>Display Options: </i></b></p> 
-    <p><a>&#183; <b>Color View: </b></a>Enables a heat map display of each cell based on the value of the score. 1 is displayed as absolute blue; +1 is displayed as absolute red; 0:1 is mapped uniformly from white to shades of red; -1:0 is mapped uniformly from shades of blue to white.</p> 
+    <p>&#183; <b>Color View: </b>Enables a heat map display of each cell based on the value of the score. 1 is displayed as absolute blue; +1 is displayed as absolute red; 0:1 is mapped uniformly from white to shades of red; -1:0 is mapped uniformly from shades of blue to white.</p> 
     <p>&#183; <b>Score View:</b> Displays the discretized score values.</p> 
     <p><img border="0" width="483" height="505" src="MINDY_help_files/image003.jpg"></p> 
-    <p><b>List: </b> The table has three columns: Modulator, Target and Score.</p> 
-    <p>Additional actions include:</p> 
+    <p><b>List: </b> The table has three columns: Modulator, Target and Score. Additional actions include:</p> 
     <p><b><i>Marker Display:</b></i>Indicate marker display preferences.</p> 
     <p><b><i>Marker Override: </b></i>Marker selection preferences. As markers are selected, the number of markers selected is listed next to Enable Selection field.  This does not reflect the number of rows. </p> 
     <p><img border="0" width="572" height="333" src="MINDY_help_files/image004.gif"></p> 
-    <p><a href="#heatmap"><b>Heat Map:</b></a> The heat map contains two color mosaic panels. The rows correspond to target genes and arrays are ordered according to the expression of the TF gene (low to high). The left panel correspond to the L- arrays where the modulator is least expressed while the columns on the right panel to the L+ arrays where the modulator is most expressed. Additional actions include:</p> 
+    <p><a name="#heatmap"><b>Heat Map:</b></a> The heat map contains two color mosaic panels. The rows correspond to target genes and arrays are ordered according to the expression of the TF gene (low to high). The left panel correspond to the L- arrays where the modulator is least expressed while the columns on the right panel to the L+ arrays where the modulator is most expressed. Additional actions include:</p> 
     <p>&#183; <b><i>Marker Display:</b></i> Indicate marker display preferences.</p> 
     <p>&#183; <b><i>Transcription Factor:</b></i> Displays the TF entered in the Analysis parameters.</p> 
     <p>&#183; <b><i>Modulator: </b></i>Select a modulator from the &#8220;Selected Modulators&#8221; list to update the Heat Map display.</p> 
