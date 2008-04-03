@@ -148,6 +148,7 @@ public class AracneAnalysis extends AbstractGridAnalysis implements ClusteringAn
         if (adjMatrix != null) {
             p.setPrecomputedAdjacencies(convert(adjMatrix, mSetView));
 //            filterByAdjMatrix(adjMatrix, mSetView);
+            adjMatrix = null;
         }
 
 //        AracneWorker aracneWorker = new AracneWorker(mSetView, p);
