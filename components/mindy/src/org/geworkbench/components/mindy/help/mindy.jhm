@@ -7,7 +7,6 @@
 <map version="1.0">
 
 	<mapID target="overview" url="mindy.HTML"/>
-	<mapID target="mindy_nav" url="mindy_Nav.HTML"/>
 
 </map>
 
