@@ -568,8 +568,8 @@ public class PCA extends MicroarrayViewEventBase
         if(panels == null || panels.size() == 0)
             return null;
 
-       for(int i = 0; i < panels.size(); i++)
-       {
+        for(int i = 0; i < panels.size(); i++)
+        {
             DSPanel dp = (DSPanel)panels.get(i);
             if(dp.size() == 0 || !dp.isActive())
             {
@@ -660,14 +660,20 @@ public class PCA extends MicroarrayViewEventBase
 
                 if(label != null && label.length > 0)
                 {
-                    Set set = (Set)dataLabelGps.get(label[0]);
-                    if(set == null)
+                    for(int k = 0; k < label.length; k++)
+                    {
+                        if(!context.isLabelActive(label[k]))
+                            continue;
+
+                        Set set = (Set)dataLabelGps.get(label[k]);
+                        if(set == null)
                         set = new LinkedHashSet();
 
-                    set.add(marker.getLabel());
-                    group1List.remove(marker.getLabel());
+                        set.add(marker.getLabel());
+                        group1List.remove(marker.getLabel());
 
-                    dataLabelGps.put(label[0], set);
+                        dataLabelGps.put(label[k], set);
+                    }
                 }
             }
         }
@@ -778,12 +784,12 @@ public class PCA extends MicroarrayViewEventBase
             JFreeChart graph = ChartFactory.createScatterPlot
                                   ("2D Projection", "Prin. Comp. " + pc1, "Prin. Comp. " + pc2, null, PlotOrientation.VERTICAL, true, false, false);
 
-             XYSeriesCollection xySeriesCollection = new XYSeriesCollection();
+            XYSeriesCollection xySeriesCollection = new XYSeriesCollection();
             graph.getXYPlot().setDataset(xySeriesCollection);
 
             Set dataGroups = dataLabelGroups.keySet();
             Iterator it = dataGroups.iterator();
-            int series =0;
+            int series = 0;
             while(it.hasNext())
             {
                 String group = (String)it.next();
@@ -797,6 +803,7 @@ public class PCA extends MicroarrayViewEventBase
                 {
                     continue;   
                 }
+
                 HashMap clusterColors = createClusterColorMap(pcaDataSet.getVariables().equals("experiments"), true);
                 PanelVisualProperties visualProperties = (PanelVisualProperties)clusterColors.get(group);
                 graph.getXYPlot().getRenderer().setSeriesPaint(series, visualProperties.getColor());
