@@ -28,7 +28,7 @@
 
 		<name>TOC</name>
 
-		<label>MINDY</label>
+		<label>overview</label>
 
 		<type>javax.help.TOCView</type>
 
