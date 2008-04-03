@@ -670,13 +670,13 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 								log.error("Cannot execute with url:  " + url);
 							}
 						} else {
-							if ((maSetView != null) && (refMASet != null)) {
-								results = selectedAnalysis.execute(maSetView);
-							} else if (refOtherSet != null) { // added for
+							if (refOtherSet != null) { // added for
 								// analysis
 								// that do not take in
 								// microarray data set
 								results = selectedAnalysis.execute(refOtherSet);
+							}else if ((maSetView != null) && (refMASet != null)) {
+								results = selectedAnalysis.execute(maSetView);
 							}
 						}
 					} catch (Exception e) {
@@ -819,8 +819,8 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 	 */
 	private void save_actionPerformed(ActionEvent e) {
 		// Bring up a pop-up window for the user to enter the named to use.
-		// If the currently dispayed parameter already has a name associated
-		// with it, use that name in the pop-up, otherwise show somwthing like
+		// If the currently displayed parameter already has a name associated
+		// with it, use that name in the pop-up, otherwise show something like
 		// "New Parameter Setting Name".
 		int index = namedParameters.getSelectedIndex();
 		String namedParameter = null;

@@ -184,6 +184,10 @@ public class AracneAnalysis extends AbstractGridAnalysis implements ClusteringAn
         AdjacencyMatrix matrix = adjMatrix.getMatrix();
         HashMap<Integer, HashMap<Integer, Float>> geneRows = matrix.getGeneRows();
         DSItemList<DSGeneMarker> markers = mSet.markers();
+        for (DSGeneMarker marker:markers){
+        	System.out.println(marker.getLabel()+"added");
+        	graph.addEdge(marker.getLabel(),marker.getLabel(),0);
+        }        
         for (Map.Entry<Integer, HashMap<Integer, Float>> entry : geneRows.entrySet()) {
             DSGeneMarker gene1 = markers.get(entry.getKey());
             if (gene1 != null) {
@@ -191,7 +195,7 @@ public class AracneAnalysis extends AbstractGridAnalysis implements ClusteringAn
                 for (Map.Entry<Integer, Float> destEntry : destGenes.entrySet()) {
                     DSGeneMarker destGene = markers.get(destEntry.getKey());
                     if (destGene != null) {
-                        graph.addEdge(gene1.getShortName(), destGene.getShortName(), destEntry.getValue());
+                        graph.addEdge(gene1.getLabel(), destGene.getLabel(), destEntry.getValue());
                     } else {
                         log.debug("Gene with index "+destEntry.getKey()+" not found in selected genes, skipping.");
                     }
@@ -203,6 +207,8 @@ public class AracneAnalysis extends AbstractGridAnalysis implements ClusteringAn
         return graph;
     }
 
+    //This convert() has bug in it !!!
+    //TODO: Since Microarray.getValues() in workbook.jar will return all the marker values, we should filter out those inactive markers in DSMicroarraySetView before put into MicroarraySet  
     private MicroarraySet convert(DSMicroarraySetView<DSGeneMarker, DSMicroarray> inSet) {
         MarkerSet markers = new MarkerSet();
         for (DSGeneMarker marker : inSet.markers()) {
