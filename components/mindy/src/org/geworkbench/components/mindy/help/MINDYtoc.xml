@@ -4,7 +4,7 @@
 
 	<tocitem text="MINDY">
 
-		<tocitem target="MINDY" text="Overview"/>
+		<tocitem target="overview" text="Overview"/>
 
 	</tocitem>
 
