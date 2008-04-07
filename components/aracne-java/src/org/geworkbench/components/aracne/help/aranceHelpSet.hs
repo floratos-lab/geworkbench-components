@@ -28,7 +28,7 @@
 
 		<name>TOC</name>
 
-		<label>Arance</label>
+		<label>ARACNE</label>
 
 		<type>javax.help.TOCView</type>
 
