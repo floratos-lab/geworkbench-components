@@ -77,7 +77,7 @@ public class PCAAnalysis extends GPAnalysis
             if(error)
                 return null;
 
-            return new AlgorithmExecutionResults(false, "An error occurred when running PCA", null);
+            return new AlgorithmExecutionResults(false, "An error occurred when running PCA.", null);
         }
         else
             return new AlgorithmExecutionResults(true, "PCA Results", pcaDataSet);
@@ -136,7 +136,9 @@ public class PCAAnalysis extends GPAnalysis
         List result = null;
         try
         {
-           result = super.runAnalysis(analysisName, parameters, password);
+            result = super.runAnalysis(analysisName, parameters, password);
+            if(result == null)
+                error = true;
         }
         catch(Exception e)
         {	
@@ -160,8 +162,7 @@ public class PCAAnalysis extends GPAnalysis
         {
             progress.setProgress(0);
 
-            System.out.println("activated marker sets" + view.getMarkerPanel());
-             if(((PCAAnalysisPanel)panel).getVariables().equals("genes"))
+            if(((PCAAnalysisPanel)panel).getVariables().equals("genes"))
             {
                 view.useItemPanel(false);
             }

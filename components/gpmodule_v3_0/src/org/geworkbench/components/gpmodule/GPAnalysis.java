@@ -100,11 +100,23 @@ public abstract class GPAnalysis extends AbstractAnalysis implements ClusteringA
 
     public List runAnalysis(String analysisName, Parameter[] parameters, String password) throws Exception
     {
-        List resultFiles = null;
+        List resultFiles = new ArrayList();
+        String serverName = GPpropertiesManager.getProperty("gp.server");
+        String userName = GPpropertiesManager.getProperty("gp.user.name");
+
         try
         {
-            String serverName = GPpropertiesManager.getProperty("gp.server");
-            String userName = GPpropertiesManager.getProperty("gp.user.name");
+            if(serverName == null)
+            {
+                JOptionPane.showMessageDialog(panel, "Please set your GenePattern server settings.");
+                return null;
+            }
+
+            if(userName == null)
+            {
+                JOptionPane.showMessageDialog(panel, "Please set your GenePattern user name.");
+                return null;
+            }
 
             GPServer server = new GPServer(serverName, userName, password);
 
@@ -117,7 +129,6 @@ public abstract class GPAnalysis extends AbstractAnalysis implements ClusteringA
 
             String[] outputFiles = analysisResult.getOutputFileNames();
 
-            resultFiles = new ArrayList();
             for(int i = 0; i < outputFiles.length; i++)
             {
                 File resultFile = analysisResult.downloadFile(outputFiles[i], System.getProperty("temporary.files.directory"));
@@ -132,8 +143,18 @@ public abstract class GPAnalysis extends AbstractAnalysis implements ClusteringA
         catch(WebServiceException we)
         {
             if(we.getMessage().contains("ConnectException"))
-                JOptionPane.showMessageDialog(panel, "Could not connect to GenePattern server");
+                JOptionPane.showMessageDialog(panel, "Could not connect to the GenePattern server at " + serverName + ".\n Please verify the GenePattern server settings and that the GenePattern server is running.");
+            else if(we.getMessage().contains("not found on server"))
+                JOptionPane.showMessageDialog(panel, analysisName + " module was not found on the GenePattern server at " + serverName + ".");
+            else
+                JOptionPane.showMessageDialog(panel, "An error occurred while trying to connect to the GenePattern server " + serverName + ".\n Please verify the GenePattern server settings.");
+
             throw we;
+        }
+        catch(IOException io)
+        {
+            log.error(io);
+            JOptionPane.showMessageDialog(panel, "An error occurred while retrieving results from the GenePattern server.");
         }
 
         return resultFiles;
