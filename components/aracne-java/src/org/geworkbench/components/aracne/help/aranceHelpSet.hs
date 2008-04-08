@@ -18,7 +18,7 @@
 
 		<homeID>overview</homeID>
 
-		<mapref location="arance.jhm"/>
+		<mapref location="aracne.jhm"/>
 
 	</maps>
 
