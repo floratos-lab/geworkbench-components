@@ -20,9 +20,9 @@
 
 
 
-<body><h2>MINDY</h2> 
+<body><b><h3>MINDY </b></h3> 
     <p>The MINDY algorithm uses gene expression data in order to quantify modulation effects on the regulatory activity of a transcription factor gene (TF) of interest. The details of the MINDY algorithm are described in <i><a href="https://sharepoint.c2b2.columbia.edu/c2b2/geWorkbench%20v11/Use%20Cases/MINDY/Califano_JCB.pdf">MINDY: An Algorithm for the Genome-wide Discovery of Modulators of Transcriptional Interactions</a></i>. The general workflow includes 1) selection of modulator genes in the modulator panel, 2) defining (result) marker sets in the Table and List panel and displaying results for a single modulator and its targets in the Heat Map panel. This help topic describes executing <a href="#_Run_MINDY">MINDY analysis</a> and <a href="#_View_MINDY_Results">viewing the results.</a></p> 
-    <h3><img border="0" width="553" height="147" src="MINDY_help_files/image001.png"></h3> 
+    <h3><img border="0" width="971" height="353" src="MINDY_files/image001.png"></h3> 
     <h3><a name="#_Run_MINDY">Run MINDY Analysis</h3></a> 
     <p>1. Select a microarray set node in the Project Folder. </p> 
     <p>2. In the analysis pane (lower right of the application), select<b> MINDY Analysis</b>. </p> 
@@ -31,7 +31,7 @@
     <p>5. Populate the <b>Hub Gene</b> textbox to designate the TF gene by (1) typing the gene name or (2) in the Selection Area (lower left of the application) Marker Tab, click on the marker name corresponding to the TF .</p> 
     <p>6. In the Advanced Tab, accept the default values or update the parameter values by clicking the parameter textbox and typing a new value.</p> 
     <p>7. Click <b>Analyze</b>. If successful, the project window is updated to reflect the MINDY result node which is a child node of the input dataset. Please note that the Dataset History tab captures the analysis parameters. </p> 
-    <p><img border="0" width="942" height="341" src="MINDY_help_files/image002.png"></p> 
+    <p><img border="0" width="938" height="349" src="MINDY_files/image002.png"></p> 
 	<h3><a name="#_View_MINDY_Results">View MINDY Results</h3> </a>
     <p>1. Select the MINDY result node in the Project Folder. </p> 
     <p>2. In the Modulator Tab, indicate the modulators of interest using the checkboxes or click on <b>Select All</b> to display all modulators in the Table, List,and Heat Map views. The <b>Modulators Selected</b> is updated to reflect the number of modulators selected. Only selected Modulators are displayed on the Table, List and Heat Map views. Additional actions include:</p> 
@@ -42,19 +42,21 @@
     <p>3. Select from the various tabs to view the data in alternate formats. See <a href="#_Navigating_Mindy_Visualization">Navigating Mindy</a> for additional information on these data views.</p> 
     <h3><a name="#_Navigating_Mindy_Visualization">Navigating Mindy Visualization</h3></a> 
     <p>MINDY includes the following data views: <a href="#mod">Modulator</a>, <a href="#table">Table</a>, <a href="#list">List</a> and <a href="#heatmap">Heat Map</a>.</p> 
-    <p><a name="#mod"><b>Modulator</b></a>: This table-based view contains one row per modulator gene. Only modulators selected in this tab are included the other data views. The value of the Mode column for a modulator M is either &#8220;+&#8221;, &#8220;-&#8220; or null (0) depending on if M+ is larger, smaller or equal to M-. </p> 
-    <p><a name="#table"><b>Table</b></a>: The rows of the table represent target genes and the columns represent modulators. Additional actions include:</p> 
-    <p><b><i>Marker Display: </i></b>Indicate marker display preferences.</p> 
-    <p><b><i>Sorting: </i></b> Displays columns (modulators) from left to right in descending order by; Aggregate ( M#), Enhancing (M+) or Negative (M-).</p>  
-    <p><b><i>Modulator Limits: </i></b>Activates the checkbox to limit the columns (modulators) display to a defined value. This selection filters the modulator display based upon the current display order.</p> 
+    <p><img border="0" width="1016" height="331" src="MINDY_files/image003.png"></p> 
+	<p><a name="#mod"><b>Modulator</b></a>: This table-based view contains one row per modulator gene. Only modulators selected in this tab are included the other data views. The value of the Mode column for a modulator M is either &#8220;+&#8221;, &#8220;-&#8220; or null (0) depending on if M+ is larger, smaller or equal to M-. </p> 
+     <p><img border="0" width="1123" height="579" src="MINDY_files/image006.png"></p> 
+	<p><a name="#table"><b>Table</b></a>: The rows of the table represent target genes and the columns represent modulators. Additional actions include:</p> 
+    <p>&#183; <b><i>Marker Display: </i></b>Indicate marker display preferences for the Modulator column ( probe name or symbol).</p> 
+    <p>&#183; <b><i>Sorting: </i></b> Displays columns (modulators) from left to right in descending order by; Aggregate ( M#), Enhancing (M+) or Negative (M-).</p>  
+    <p>&#183; <b><i>Modulator Limits: </i></b>Activates the checkbox to limit the columns (modulators) display to a defined value. This selection filters the modulator display based upon the current display order.</p> 
     <p><b><i>Display Options: </i></b></p> 
     <p>&#183; <b>Color View:</b> Enables a heat map display of each cell based on the value of the score. 1 is displayed as absolute blue; +1 is displayed as absolute red; 0:1 is mapped uniformly from white to shades of red; -1:0 is mapped uniformly from shades of blue to white.</p> 
     <p>&#183; <b>Score View:</b> Displays the discretized score values.</p> 
-    <p><img border="0" width="483" height="505" src="MINDY_help_files/image003.png"></p> 
-    <p><b>List: </b> The table has three columns: Modulator, Target and Score. Additional actions include:</p> 
+    <p><img border="0" width="908" height="331" src="MINDY_files/image004.png"></p> 
+    <p><b><a name="#list">List:</a> </b> The table has three columns: Modulator, Target and Score. Additional actions include:</p> 
     <p><b><i>Marker Display:</b></i>Indicate marker display preferences for the Modulator column ( probe name or symbol).</p> 
     <p><b><i>Marker Override: </b></i>Marker selection preferences. As markers are selected, the number of markers selected is listed next to Enable Selection field.  This does not reflect the number of rows. </p> 
-    <p><img border="0" width="572" height="333" src="MINDY_help_files/image004.gif"></p> 
+    <p><img border="0" width="1123" height="331" src="MINDY_files/image005.png"></p> 
     <p><a name="#heatmap"><b>Heat Map:</b></a> The heat map contains two color mosaic panels. The rows correspond to target genes and arrays are ordered according to the expression of the TF gene (low to high). The left panel correspond to the L- arrays where the modulator is least expressed while the columns on the right panel to the L+ arrays where the modulator is most expressed. Additional actions include:</p> 
     <p>&#183; <b><i>Marker Display:</b></i> Indicate marker display preferences for the Modulator column ( probe name or symbol).</p> 
     <p>&#183; <b><i>Transcription Factor:</b></i> Displays the TF entered in the Mindy Analysis parameters.</p> 
