@@ -19,6 +19,7 @@ import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
 import org.geworkbench.bison.model.analysis.ClusteringAnalysis;
+import org.geworkbench.builtin.projects.ProjectPanel;
 import org.geworkbench.engine.management.Publish;
 import org.geworkbench.engine.management.Subscribe;
 import org.geworkbench.events.PhenotypeSelectorEvent;
@@ -26,18 +27,23 @@ import org.geworkbench.events.ProjectEvent;
 import org.geworkbench.events.ProjectNodeAddedEvent;
 import org.geworkbench.events.SubpanelChangedEvent;
 
+import java.io.Serializable;
 import java.util.Arrays;
+import java.util.Map;
 import java.util.Set;
 
 /**
  * @author John Watkinson
+ * @version $Id: MultiTTestAnalysis.java,v 1.5 2008-04-09 15:53:55 my2248 Exp $
  */
 public class MultiTTestAnalysis extends AbstractAnalysis implements ClusteringAnalysis {
-
-    private static class Indexable implements Comparable {
+	
+	private static class Indexable implements Comparable {
 
         private double[] data;
         private int index;
+        
+     
 
         public Indexable(double[] data, int index) {
             this.data = data;
@@ -87,14 +93,17 @@ public class MultiTTestAnalysis extends AbstractAnalysis implements ClusteringAn
 	        int numTests = m * (m - 1) / 2;
 	        DSAnnotationContext<DSMicroarray> context = CSAnnotationContextManager.getInstance().getCurrentContext(maSet);
 	        String[] labels = labelSet.toArray(new String[m]);
-	        int n = view.markers().size();
+	        int n = view.markers().size();	    
 	        double[][] pValues = new double[n][numTests];
 	        int testIndex = 0;
 	        // Create panels and significant result sets to store results
 	        DSPanel<DSGeneMarker>[] panels = new DSPanel[numTests];
 	        DSSignificanceResultSet<DSGeneMarker>[] sigSets = new DSSignificanceResultSet[numTests];
+	        String[] groupAndChipsStringSets = new String[numTests];
 	        // todo - use a F-test to filter genes prior to finding significant genes with Holm t Test
 	        // Run tests
+	        
+	        
 	        try {
 	            for (int i = 0; i < m; i++) {
 	                String labelA = labels[i];
@@ -123,6 +132,9 @@ public class MultiTTestAnalysis extends AbstractAnalysis implements ClusteringAn
 	                            new String[] {labelA},
 	                            new String[] {labelB},
 	                            alpha);
+	                    
+	                    groupAndChipsStringSets[testIndex] = label + "\n" + GenerateGroupAndChipsString(panelA) + GenerateGroupAndChipsString(panelB);
+	                    
 	                    testIndex++;
 	                }
 	            }
@@ -148,9 +160,17 @@ public class MultiTTestAnalysis extends AbstractAnalysis implements ClusteringAn
 	                    }
 	                }
 	            }
+	            
+	            
+	            String histHeader = this.GenerateHistoryHeader(alpha);
+	            String markerString = GenerateMarkerString(view);
 	            // Add panels and sigsets
 	            for (int i = 0; i < numTests; i++) {
-	                sigSets[i].sortMarkersBySignificance();                
+	                sigSets[i].sortMarkersBySignificance();               
+	                
+	             // add to Dataset History
+	        		ProjectPanel.addToHistory(sigSets[i], histHeader + groupAndChipsStringSets[i] + markerString);
+	                
 	                publishSubpanelChangedEvent(new SubpanelChangedEvent<DSGeneMarker>(DSGeneMarker.class, panels[i], SubpanelChangedEvent.NEW));
 	                publishProjectNodeAddedEvent(new ProjectNodeAddedEvent("Analysis Result", null, sigSets[i]));
 	            }
@@ -184,5 +204,45 @@ public class MultiTTestAnalysis extends AbstractAnalysis implements ClusteringAn
     @Publish public ProjectNodeAddedEvent publishProjectNodeAddedEvent(ProjectNodeAddedEvent event) {
         return event;
     }
-
+    
+     
+	private String GenerateHistoryHeader(double alpha) {
+		
+		String histStr = "";		 
+ 		// Header
+ 		histStr += "Multi t Test run with parameters:\n";
+ 		histStr += "----------------------------------------\n";
+ 		
+		histStr += "Critical P-Value: " +  alpha + "\n";
+		// group names and markers        
+		 
+		return histStr;
+	}
+    
+	private String GenerateGroupAndChipsString(DSPanel<DSMicroarray> panel)
+	{
+		String histStr = null;
+		
+		histStr = "\tGroup " + panel.getLabel() + " (" + panel.size() +" chips)"+":\n";;
+		 
+	    int aSize = panel.size();
+		for (int aIndex = 0; aIndex < aSize; aIndex++)    
+			histStr += "\t\t" + panel.get(aIndex) + "\n";   
+		 		
+		
+		return histStr;
+	}
+    
+	private String GenerateMarkerString(DSMicroarraySetView<DSGeneMarker, DSMicroarray> view)
+	{
+		String histStr = null;
+		
+		histStr = view.markers().size() +" markers analyzed:\n";
+		for (DSGeneMarker marker : view.markers()){
+			histStr+="\t"+marker.getLabel()+"\n";
+		}
+		 
+		return histStr;
+		
+	}
 }
