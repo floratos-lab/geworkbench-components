@@ -233,10 +233,8 @@ public class HierClusterDisplay extends JPanel {
                 for (int i = firstMarker; i < lastMarker; i++) {
                     DSGeneMarker stats = null;
 
-                    if (leafMarkers != null) {
-                        if (i < leafMarkers.length) {
-                            stats = ((MarkerHierCluster) leafMarkers[i]).getMarkerInfo();
-                        }
+                    if ((leafMarkers != null)&&(i < leafMarkers.length)) {
+                        stats = ((MarkerHierCluster) leafMarkers[i]).getMarkerInfo();
                     } else {
                         stats = microarraySet.markers().get(i);
                     }
@@ -249,7 +247,7 @@ public class HierClusterDisplay extends JPanel {
                     for (int j = 0; j < chipNo; j++) {
                         DSMicroarray mArray = null;
 
-                        if (leafArrays != null) {
+                        if ((leafArrays != null)&&(j < leafArrays.length)) {
                             mArray = ((MicroarrayHierCluster) leafArrays[j]).getMicroarray();
                         } else {
                             mArray = microarraySet.items().get(j);

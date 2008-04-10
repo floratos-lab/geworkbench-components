@@ -78,6 +78,12 @@ public class HierClusterViewWidget extends JPanel implements HierClusterModelEve
     public static String MULTIPLE_MARKER_SELECTED_PROPERTY = "HierarchicalClusterMultipleMarkerSelected";
 
     /**
+     * Property to signify that a Single Marker Selection originated from
+     * the <code>HierClusterViewWidget</code>
+     */
+    public static String MULTIPLE_ARRAY_SELECTED_PROPERTY = "HierarchicalClusterMultipleArraySelected";
+
+    /**
      * Use for drawing the marker values
      */
     private ColorContext markerColors = null;
@@ -720,6 +726,15 @@ public class HierClusterViewWidget extends JPanel implements HierClusterModelEve
 
             if (mInfos != null) {
                 firePropertyChange(MULTIPLE_MARKER_SELECTED_PROPERTY, null, mInfos);
+            }
+        }
+        if (selectedArrayCluster != null){
+            java.util.List<Cluster> leaves = selectedArrayCluster.getLeafChildren();        	
+            DSMicroarray[] mInfos = new DSMicroarray[leaves.size()];
+            for (int i = 0; i < leaves.size(); i++)
+                mInfos[i] = ((MicroarrayHierCluster) leaves.get(i)).getMicroarray();
+            if (mInfos != null) {
+                firePropertyChange(MULTIPLE_ARRAY_SELECTED_PROPERTY, null, mInfos);
             }
         }
     }

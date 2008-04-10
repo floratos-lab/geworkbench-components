@@ -492,7 +492,9 @@ public class HierClusterTree extends JPanel {
 
         g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.5f));
         g2d.setColor(Color.blue);
-        paintHighlight(g2d, clusterRoot, lastMouseX, lastMouseY);
+        if (clusterRoot != null){
+        	paintHighlight(g2d, clusterRoot, lastMouseX, lastMouseY);
+        }
 
         resizingMarker = false;
     }
