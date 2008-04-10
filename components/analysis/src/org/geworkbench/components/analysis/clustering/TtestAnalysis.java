@@ -18,8 +18,10 @@ import org.geworkbench.bison.datastructure.bioobjects.microarray.DSSignificanceR
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSTTestResultSet;
 import org.geworkbench.bison.datastructure.complex.panels.CSAnnotPanel;
 import org.geworkbench.bison.datastructure.complex.panels.DSAnnotatedPanel;
+import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
 import org.geworkbench.bison.model.analysis.ClusteringAnalysis;
+import org.geworkbench.builtin.projects.ProjectPanel;
 import org.geworkbench.engine.management.Publish;
 import org.geworkbench.engine.management.Script;
 import org.geworkbench.events.SubpanelChangedEvent;
@@ -245,6 +247,9 @@ public class TtestAnalysis extends AbstractAnalysis implements ClusteringAnalysi
             labels[0] = context.getLabelsForClass(CSAnnotationContext.CLASS_CASE);
             labels[1] = context.getLabelsForClass(CSAnnotationContext.CLASS_CONTROL);
             HashSet<String>[] classSets = new HashSet[2];
+            
+            String groupAndChipsString = "";           
+            
             for (int j = 0; j < 2; j++) {
                 String[] classLabels = labels[j];
                 classSets[j] = new HashSet<String>();
@@ -253,10 +258,17 @@ public class TtestAnalysis extends AbstractAnalysis implements ClusteringAnalysi
                     if (context.isLabelActive(label) || !data.useItemPanel()) {
 //                    if (context.isLabelActive(label)) {
                         classSets[j].add(label);
+                        groupAndChipsString += GenerateGroupAndChipsString(context.getItemsWithLabel(label));
                     }
                 }
             }
 
+            int totalSelectedGroup = classSets[0].size() + classSets[1].size();
+            String histHeader = GenerateHistoryHeader();
+            String histMarkerString = GenerateMarkerString(data);
+            groupAndChipsString = totalSelectedGroup + " groups analyzed:\n" + groupAndChipsString;
+            
+            
             if (significanceMethod == TtestAnalysisPanel.MIN_P || significanceMethod == TtestAnalysisPanel.MAX_T) {
                 AlgorithmExecutionResults results = null;
                 if (significanceMethod == TtestAnalysisPanel.MIN_P) {
@@ -279,6 +291,10 @@ public class TtestAnalysis extends AbstractAnalysis implements ClusteringAnalysi
                     sigSet.setSignificance(data.markers().get(i), pValuesMatrix[i][0]);
                 }
                 sigSet.sortMarkersBySignificance();
+                
+                //add data set history.
+                ProjectPanel.addToHistory(sigSet, histHeader+groupAndChipsString+histMarkerString);
+                
                 return new AlgorithmExecutionResults(true, "Ttest", sigSet);
             }
 
@@ -429,8 +445,12 @@ public class TtestAnalysis extends AbstractAnalysis implements ClusteringAnalysi
 //            result.put("oneClassMeansMatrix", oneClassMeansMatrix);
 //            result.put("oneClassSDsMatrix", oneClassSDsMatrix);
 
-            sigSet.sortMarkersBySignificance();
+            sigSet.sortMarkersBySignificance();           
             AlgorithmExecutionResults results = new AlgorithmExecutionResults(true, "Ttest", sigSet);
+           
+            //add data set history.
+            ProjectPanel.addToHistory(sigSet, histHeader+groupAndChipsString+histMarkerString);
+            
             return results;
         }
         return null;
@@ -2809,4 +2829,72 @@ public class TtestAnalysis extends AbstractAnalysis implements ClusteringAnalysi
         }
         return var;
     }
+    
+    private String GenerateHistoryHeader() {
+		
+		 String histStr = "";		 
+ 		 // Header
+ 		 histStr += "T Test run with the following parameters:\n";
+ 		 histStr += "----------------------------------------\n";
+ 				
+         if ( useWelchDf )
+        	 histStr += "Group Variances: Unequal(Welch approximation)" + "\n";
+         else
+        	 histStr += "Group Variances: Equal" + "\n";
+         
+         histStr += "P-Values Parameters:" + "\n";
+		 if ( isPermut )
+			 histStr += "\t" + "permutation is selected" + "\n";
+         else
+        	 histStr += "\t" + "t-distribution is selected" + "\n";
+		 if (useAllCombs)
+			 histStr += "\t" + "Use all permutations is selected" + "\n";
+		 else		
+		 {	 histStr += "\t" + "Randomly group experiments is selected" + "\n";
+		     histStr += "\t" + "#times: " + numCombs + "\n";
+		 }
+		 histStr += "\t" + "critical p-Value: " + alpha + "\n";
+		 
+		 if ( significanceMethod == TtestAnalysisPanel.JUST_ALPHA)
+			 histStr += "Alpha Corrections: Just alpha(no correction)" + "\n";
+		 else  if ( significanceMethod == TtestAnalysisPanel.STD_BONFERRONI)
+			 histStr += "Alpha Corrections: Standard Bonferroni" + "\n";
+		 else  if ( significanceMethod == TtestAnalysisPanel.ADJ_BONFERRONI)
+			 histStr += "Alpha Corrections: Ajusted Bonferroni" + "\n";
+		 else  if ( significanceMethod == TtestAnalysisPanel.MIN_P)
+			 histStr += "Alpha Corrections: minP" + "\n";
+		 else  if ( significanceMethod == TtestAnalysisPanel.MAX_T)
+			 histStr += "Alpha Corrections: maxT" + "\n";
+		
+		 
+		 return histStr;
+	}
+    
+    private String GenerateGroupAndChipsString(DSPanel<DSMicroarray> panel)
+	{
+		String histStr = null;
+		
+		histStr = "\tGroup " + panel.getLabel() + " (" + panel.size() +" chips)"+":\n";;
+		 
+	    int aSize = panel.size();
+		for (int aIndex = 0; aIndex < aSize; aIndex++)    
+			histStr += "\t\t" + panel.get(aIndex) + "\n";   
+		 		
+		
+		return histStr;
+	}
+    
+	private String GenerateMarkerString(DSMicroarraySetView<? extends DSGeneMarker, ? extends DSMicroarray> view)
+	{
+		String histStr = null;
+		
+		histStr = view.markers().size() +" markers analyzed:\n";
+		for (DSGeneMarker marker : view.markers()){
+			histStr+="\t"+marker.getLabel()+"\n";
+		}
+		 
+		return histStr;
+		
+	}
+    
 }
