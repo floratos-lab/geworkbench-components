@@ -248,16 +248,22 @@ public class TtestAnalysis extends AbstractAnalysis implements ClusteringAnalysi
             labels[1] = context.getLabelsForClass(CSAnnotationContext.CLASS_CONTROL);
             HashSet<String>[] classSets = new HashSet[2];
             
-            String groupAndChipsString = "";           
-            
+                    
+            String groupAndChipsString = "";
             for (int j = 0; j < 2; j++) {
                 String[] classLabels = labels[j];
                 classSets[j] = new HashSet<String>();
+                
+                if (j == 0 )
+                	 groupAndChipsString += "\t case group(s): \n";               
+                else  
+                     groupAndChipsString += "\t control group(s): \n";
+                
                 for (int i = 0; i < classLabels.length; i++) {
                     String label = classLabels[i];
                     if (context.isLabelActive(label) || !data.useItemPanel()) {
 //                    if (context.isLabelActive(label)) {
-                        classSets[j].add(label);
+                        classSets[j].add(label);   
                         groupAndChipsString += GenerateGroupAndChipsString(context.getItemsWithLabel(label));
                     }
                 }
@@ -266,6 +272,7 @@ public class TtestAnalysis extends AbstractAnalysis implements ClusteringAnalysi
             int totalSelectedGroup = classSets[0].size() + classSets[1].size();
             String histHeader = GenerateHistoryHeader();
             String histMarkerString = GenerateMarkerString(data);
+            
             groupAndChipsString = totalSelectedGroup + " groups analyzed:\n" + groupAndChipsString;
             
             
@@ -2874,7 +2881,7 @@ public class TtestAnalysis extends AbstractAnalysis implements ClusteringAnalysi
 	{
 		String histStr = null;
 		
-		histStr = "\tGroup " + panel.getLabel() + " (" + panel.size() +" chips)"+":\n";;
+		histStr = "\t     " + panel.getLabel() + " (" + panel.size() +" chips)"+":\n";;
 		 
 	    int aSize = panel.size();
 		for (int aIndex = 0; aIndex < aSize; aIndex++)    
