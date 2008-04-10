@@ -3,6 +3,7 @@ package org.geworkbench.components.hierarchicalclustering;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
+import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.bison.model.clusters.DSHierClusterDataSet;
@@ -147,6 +148,18 @@ public class HierClusterViewAppComponent implements VisualPlugin, MenuListener, 
             }
 
             publishSubpanelChangedEvent(new org.geworkbench.events.SubpanelChangedEvent(DSGeneMarker.class, clusterBranch, org.geworkbench.events.SubpanelChangedEvent.NEW));
+        } else if (propertyName.equals(HierClusterViewWidget.MULTIPLE_ARRAY_SELECTED_PROPERTY)) {
+            //            publishMultipleMarkerEvent(new MultipleMarkerEvent((DSItemList<DSGeneMarker>) event.getNewValue(), "HierarchicalClustering MarkerSelection"));
+
+            DSPanel<DSMicroarray> clusterBranch = new CSPanel<DSMicroarray>("Cluster Tree", "Dendrogram");
+
+            DSMicroarray[] mInfos = (DSMicroarray[]) event.getNewValue();
+
+            for (int i = 0; i < mInfos.length; i++) {
+                clusterBranch.add(mInfos[i]);
+            }
+
+            publishSubpanelChangedEvent(new org.geworkbench.events.SubpanelChangedEvent(DSMicroarray.class, clusterBranch, org.geworkbench.events.SubpanelChangedEvent.NEW));
         }
     }
 }

@@ -228,7 +228,7 @@ public class HierClusterLabels extends JPanel {
                 for (int j = 0; j < chipNo; j++) {
                     DSMicroarray mArray = null;
 
-                    if (leafArrays != null) {
+                    if ((leafArrays != null) && (currentArrayCluster!=null)) {
                         mArray = ((MicroarrayHierCluster) leafArrays[j]).getMicroarray();
                     } else {
                         mArray = microarraySet.get(j);
