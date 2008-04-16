@@ -60,6 +60,8 @@ import org.ginkgo.labs.ws.GridEndpointReferenceType;
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.layout.FormLayout;
 
+import org.geworkbench.components.analysis.clustering.*;
+
 import edu.columbia.geworkbench.cagrid.dispatcher.client.DispatcherClient;
 
 /**
@@ -545,6 +547,11 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 			setParametersPanel(paramPanel);
 			setNamedParameters(availableAnalyses[pluginAnalyses
 					.getSelectedIndex()].getNamesOfStoredParameterSets());
+			if ( paramPanel instanceof MultiTTestAnalysisPanel || paramPanel instanceof  TtestAnalysisPanel )
+		    	super.chkAllArrays.setVisible(false);			 
+			else
+				super.chkAllArrays.setVisible(true);
+			
 			save.setEnabled(true);
 		} else {
 			setParametersPanel(this.emptyParameterPanel);
