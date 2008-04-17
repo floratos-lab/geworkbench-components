@@ -3,6 +3,7 @@ package org.geworkbench.components.analysis;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -15,12 +16,15 @@ import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
 import javax.swing.ButtonModel;
 import javax.swing.JButton;
+import javax.swing.JDialog;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
+import javax.swing.JTextField;
+import javax.swing.JPasswordField;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -85,12 +89,17 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 	private static final String PARAMETERS = "Parameters";
 
 	private static final int ANALYSIS_TAB_COUNT = 1;
+	
+	private String USER_INFO_DELIMIETER = "==";
 
 	private Log log = LogFactory.getLog(this.getClass());
 
 	// FIXME this needs to be read from configure file
-	private final String dispatcherUrl = "http://cagridnode.c2b2.columbia.edu:8080/wsrf/services/cagrid/Dispatcher";
-
+	//private final String dispatcherUrl = "http://cagridnode.c2b2.columbia.edu:8080/wsrf/services/cagrid/Dispatcher";
+	private final String dispatcherUrl = "http://localhost:8080/wsrf/services/cagrid/Dispatcher";
+	
+	private String userInfo = null;
+	
 	/**
 	 * The underlying GUI panel for the clustering component
 	 */
@@ -636,6 +645,18 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 					try {
 						/* check if we are dealing with a grid analysis */
 						if (isGridAnalysis()) {
+							// ask for username and password
+							getUserInfo();
+							if(userInfo == null){
+								JOptionPane.showMessageDialog(null, "Please make sure you entered valid username and password",
+										"Invalid User Account", JOptionPane.ERROR_MESSAGE);
+								return;
+							}
+							if(userInfo.equals("")){
+								userInfo = null;
+								return;
+							}
+							
 							pBar = Util.createProgressBar("Grid Services",
 									"Submitting service request");
 							pBar.start();
@@ -648,6 +669,9 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 								List<Serializable> serviceParameterList = ((AbstractGridAnalysis) selectedGridAnalysis)
 										.handleBisonInputs(maSetView,
 												refOtherSet);
+								
+								// adding user info
+								serviceParameterList.add(userInfo);
 
 								DispatcherClient dispatcherClient = new DispatcherClient(
 										dispatcherUrl);
@@ -922,5 +946,61 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 
 		String url = bm.getActionCommand();
 		return url;
+	}
+	
+	private void getUserInfo(){
+		final JDialog userpasswdDialog = new JDialog();
+		log.debug("getting user info...");
+		
+		DefaultFormBuilder usernamePasswdPanelBuilder = new DefaultFormBuilder(
+				new FormLayout("right:35dlu"));
+
+		final JTextField usernameField = new JTextField(15);
+		final JPasswordField passwordField = new JPasswordField(15);
+
+		JPanel buttonPanel = new JPanel(new FlowLayout());
+		JButton okButton = new JButton("Ok");
+		okButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				String username = usernameField.getText();
+				String passwd = new String(passwordField.getPassword());
+				if(username.trim().equals("") || passwd.trim().equals("")){
+					userInfo = null;
+				} else {
+					userInfo = username + USER_INFO_DELIMIETER + passwd;
+				}
+				userpasswdDialog.dispose();				
+			}
+		});
+
+		JButton cancelButton = new JButton("Cancel");
+		cancelButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				userInfo = "";
+				userpasswdDialog.dispose();
+			}
+		});
+
+		/* add to button panel */
+		buttonPanel.add(okButton);
+		buttonPanel.add(cancelButton);
+
+		/* the builder */
+		usernamePasswdPanelBuilder.appendColumn("5dlu");
+		usernamePasswdPanelBuilder.appendColumn("45dlu");
+
+		usernamePasswdPanelBuilder.append("username", usernameField);
+		usernamePasswdPanelBuilder.append("password", passwordField);
+
+		JPanel indexServicePanel = new JPanel(new BorderLayout());
+		indexServicePanel.add(usernamePasswdPanelBuilder.getPanel());
+		indexServicePanel.add(buttonPanel, BorderLayout.SOUTH);
+		userpasswdDialog.add(indexServicePanel);
+		userpasswdDialog.setModal(true);
+		userpasswdDialog.pack();
+		Util.centerWindow(userpasswdDialog);
+		userpasswdDialog.setVisible(true);
+		
+		log.debug("got user info: " + userInfo);
 	}
 }
