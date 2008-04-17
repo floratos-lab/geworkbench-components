@@ -5,6 +5,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GridBagLayout;
 import java.awt.geom.Rectangle2D;
+import java.awt.image.BufferedImage;
 import java.util.List;
 
 import javax.swing.JCheckBox;
@@ -19,7 +20,7 @@ import javax.swing.JPanel;
  * 
  * 
  * @author keshav
- * @version $Id: DiscreteHeatMapPanel.java,v 1.6 2008-03-07 17:14:25 chiangy Exp $
+ * @version $Id: DiscreteHeatMapPanel.java,v 1.7 2008-04-17 19:11:31 chiangy Exp $
  */
 public class DiscreteHeatMapPanel extends JPanel {
 
@@ -101,42 +102,49 @@ public class DiscreteHeatMapPanel extends JPanel {
 	 * 
 	 * @see javax.swing.JComponent#paintComponent(java.awt.Graphics)
 	 */
+	BufferedImage offlineimage=null;
 	public void paintComponent(Graphics g) {
 		clear(g);
 
-		Graphics2D g2d = (Graphics2D) g;
-
-		// TODO abstract me into a DiscreteHeatMap
-		int y = colLabelPadding;
-		for (int h = 0; h < matrix.length; h++) {
-			JCheckBox checkBox = new JCheckBox();
-			checkBox.setText(names.get(h));
-
-			this.row = matrix[h];
-			int x = 15;
-			for (int i = 0; i < row.length; i++) {
-				Rectangle2D.Double rect = new Rectangle2D.Double(x, y, 15, 15);
-				if (discretizedColumn[i]){
-					if (row[i] == this.medium) {
-						g2d.setColor(Color.black);
-					} else if (row[i] == this.max) {
-						g2d.setColor(Color.red);
-					} else if (row[i] == this.min) {
-						g2d.setColor(Color.green);
-					} else {
-						continue;
+		if (offlineimage==null){ //first time
+			offlineimage = new BufferedImage(matrix[0].length*15, matrix.length*15, BufferedImage.TYPE_INT_RGB);
+	        Graphics2D offg = (Graphics2D) offlineimage.getGraphics();
+	        offg.setColor(this.getParent().getBackground());
+	        offg.fillRect(0,0,matrix[0].length*15, matrix.length*15);
+			// TODO abstract me into a DiscreteHeatMap
+			int y = colLabelPadding;
+			for (int h = 0; h < matrix.length; h++) {
+				JCheckBox checkBox = new JCheckBox();
+				checkBox.setText(names.get(h));
+	
+				this.row = matrix[h];
+				int x = 15;
+				for (int i = 0; i < row.length; i++) {
+					Rectangle2D.Double rect = new Rectangle2D.Double(x, y, 15, 15);
+					if (discretizedColumn[i]){
+						if (row[i] == this.medium) {
+							offg.setColor(Color.black);
+						} else if (row[i] == this.max) {
+							offg.setColor(Color.red);
+						} else if (row[i] == this.min) {
+							offg.setColor(Color.green);
+						} else {
+							continue;
+						}
+						offg.fill(rect);
+						x = x + 15;
 					}
-					g2d.fill(rect);
-					x = x + 15;
+				}
+	
+				y = y + 15;
+				if (showLabels) {
+					offg.setColor(Color.black);
+					offg.drawString(names.get(h), x, y);
 				}
 			}
-
-			y = y + 15;
-			if (showLabels) {
-				g2d.setColor(Color.black);
-				g2d.drawString(names.get(h), x, y);
-			}
 		}
+		Graphics2D g2d = (Graphics2D) g;
+		g2d.drawImage(offlineimage, null, 0, 0);
 	}
 
 	/**
