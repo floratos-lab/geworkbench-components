@@ -7,6 +7,7 @@ import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Hashtable;
@@ -49,6 +50,7 @@ import org.geworkbench.engine.management.AcceptTypes;
 import org.geworkbench.engine.management.ComponentRegistry;
 import org.geworkbench.engine.management.Publish;
 import org.geworkbench.engine.management.Subscribe;
+import org.geworkbench.engine.properties.PropertiesManager;
 import org.geworkbench.events.AnalysisInvokedEvent;
 import org.geworkbench.events.ProjectNodeAddedEvent;
 import org.geworkbench.events.ProjectNodeCompletedEvent;
@@ -87,6 +89,8 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 	private static final String SERVICE = "Service";
 
 	private static final String PARAMETERS = "Parameters";
+	
+	private static final String USER_INFO = "userinfo";
 
 	private static final int ANALYSIS_TAB_COUNT = 1;
 	
@@ -652,7 +656,7 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 										"Invalid User Account", JOptionPane.ERROR_MESSAGE);
 								return;
 							}
-							if(userInfo.equals("")){
+							if(StringUtils.isEmpty(userInfo)){
 								userInfo = null;
 								return;
 							}
@@ -968,6 +972,13 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 					userInfo = null;
 				} else {
 					userInfo = username + USER_INFO_DELIMIETER + passwd;
+					PropertiesManager properties = PropertiesManager.getInstance();
+					try {
+						properties.setProperty(this.getClass(), USER_INFO, String
+								.valueOf(userInfo));
+					} catch (IOException ioe) {
+						ioe.printStackTrace();
+					}
 				}
 				userpasswdDialog.dispose();				
 			}
@@ -991,6 +1002,21 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 
 		usernamePasswdPanelBuilder.append("username", usernameField);
 		usernamePasswdPanelBuilder.append("password", passwordField);
+		
+		PropertiesManager pm = PropertiesManager.getInstance();
+		String savedUserInfo = null;
+		try {
+			savedUserInfo = pm.getProperty(this.getClass(), USER_INFO, "");
+			if (!StringUtils.isEmpty(savedUserInfo)) {
+				String s[] = savedUserInfo.split(USER_INFO_DELIMIETER);
+				if(s.length >= 2){
+					usernameField.setText(s[0]);
+					passwordField.setText(s[1]);
+				}
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 
 		JPanel indexServicePanel = new JPanel(new BorderLayout());
 		indexServicePanel.add(usernamePasswdPanelBuilder.getPanel());
@@ -1000,7 +1026,6 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 		userpasswdDialog.pack();
 		Util.centerWindow(userpasswdDialog);
 		userpasswdDialog.setVisible(true);
-		
 		log.debug("got user info: " + userInfo);
 	}
 }
