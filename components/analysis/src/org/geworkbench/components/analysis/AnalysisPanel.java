@@ -98,10 +98,9 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 
 	private Log log = LogFactory.getLog(this.getClass());
 
-	// FIXME this needs to be read from configure file
-	//private final String dispatcherUrl = "http://cagridnode.c2b2.columbia.edu:8080/wsrf/services/cagrid/Dispatcher";
-	private final String dispatcherUrl = "http://localhost:8080/wsrf/services/cagrid/Dispatcher";
-	
+	final static String DISPATCHER_URL = "dispatcher.url";
+	private final String dispatcherUrl = System.getProperty(DISPATCHER_URL);
+
 	private String userInfo = null;
 	
 	/**
