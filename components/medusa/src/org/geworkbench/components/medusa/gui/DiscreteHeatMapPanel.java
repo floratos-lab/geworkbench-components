@@ -20,7 +20,7 @@ import javax.swing.JPanel;
  * 
  * 
  * @author keshav
- * @version $Id: DiscreteHeatMapPanel.java,v 1.7 2008-04-17 19:11:31 chiangy Exp $
+ * @version $Id: DiscreteHeatMapPanel.java,v 1.8 2008-04-21 16:48:47 chiangy Exp $
  */
 public class DiscreteHeatMapPanel extends JPanel {
 
@@ -105,12 +105,12 @@ public class DiscreteHeatMapPanel extends JPanel {
 	BufferedImage offlineimage=null;
 	public void paintComponent(Graphics g) {
 		clear(g);
-
+		int margins=15*2;
 		if (offlineimage==null){ //first time
-			offlineimage = new BufferedImage(matrix[0].length*15, matrix.length*15, BufferedImage.TYPE_INT_RGB);
+			offlineimage = new BufferedImage(matrix[0].length*15+margins, matrix.length*15+30, BufferedImage.TYPE_INT_RGB);
 	        Graphics2D offg = (Graphics2D) offlineimage.getGraphics();
 	        offg.setColor(this.getParent().getBackground());
-	        offg.fillRect(0,0,matrix[0].length*15, matrix.length*15);
+	        offg.fillRect(0,0,matrix[0].length*15+margins, matrix.length*15+margins);
 			// TODO abstract me into a DiscreteHeatMap
 			int y = colLabelPadding;
 			for (int h = 0; h < matrix.length; h++) {
