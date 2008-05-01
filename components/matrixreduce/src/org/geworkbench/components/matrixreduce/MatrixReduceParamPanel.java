@@ -1,55 +1,124 @@
 package org.geworkbench.components.matrixreduce;
 
+import org.apache.commons.lang.StringUtils;
 import org.geworkbench.analysis.AbstractSaveableParameterPanel;
+import org.geworkbench.engine.properties.PropertiesManager;
 
 import javax.swing.*;
 
+import java.io.IOException;
 import java.io.ObjectStreamException;
 import java.io.Serializable;
 import java.io.File;
 import java.awt.*;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 
 import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.forms.builder.DefaultFormBuilder;
-import com.jgoodies.forms.layout.CellConstraints;
 /**
  * @author John Watkinson
+ * @author ch2514
  *
  * todo - make serializable work
  */
 public class MatrixReduceParamPanel extends AbstractSaveableParameterPanel implements Serializable {
 
-
-    /* Example run
-MatrixREDUCE -sequence=../sequences/Y5_600_Bst.fa \
-	-output=May31 \
-	-p_value=0.001000 \
-	-dyad_length=3 \
-	-min_counts=5 \
-	-min_gap=0 \
-	-max_gap=4 \
-	-flank=0 \
-	-max_motif=20 \
-	-max_iteration=1000000 \
-	-num_print=50 \
-	-expression=../data/Spellman1998Alpha
+	static final String FILE_SPECIFY = "Please specify file";
+	static final String PATTERN_REQUIRED = "Please specify file or pattern";
+	static final String USE_SPECIFIED_PATTERN = "";
 	
-    */
-    private JFormattedTextField dyadLength = new JFormattedTextField(3);
+	private static final String[] TOPO_CHOICES = {"Specify pattern", "Load from file"};
+	private static final String[] STRAND_CHOICES = {"Auto-detect", "Leading", "Reverse", "Both"};
+	private static final int[] STRAND_NUMBERS = {0, 1, -1, 2};  // These numbers correspond to the choices above
+	
+	private static final String SEQUENCE_DATA_DIR = "sequence";
+	private static final String TOPOLOGY_DATA_DIR = "topology";
+	
+	private static final String DEFAULT_DATA_DIR = "data";
+	
     private JFormattedTextField pValue = new JFormattedTextField(0.001);
-    private JFormattedTextField minCounts = new JFormattedTextField(5);
-    private JFormattedTextField flank = new JFormattedTextField(0);
-    private JFormattedTextField minGap = new JFormattedTextField(0);
-    private JFormattedTextField maxGap = new JFormattedTextField(0);
-    private JFormattedTextField numPrint = new JFormattedTextField(50);
-    private JCheckBox singleStrand = new JCheckBox();
-    private JFormattedTextField maxMotif = new JFormattedTextField(10);
-    private JFormattedTextField maxIteration = new JFormattedTextField(10);
+    private JComboBox strandCombo = new JComboBox(STRAND_CHOICES);
+    private JFormattedTextField maxMotif = new JFormattedTextField(20);
     private JButton sequenceButton = new JButton("Load...");
-    private String sequenceFile = new String("data/Y5_600_Bst.fa");
+    private String sequenceFile = FILE_SPECIFY;
 	private JLabel filename = new JLabel();
+	private JComboBox topoCombo = new JComboBox(TOPO_CHOICES);
+	private JButton topoButton = new JButton("Load...");
+	private String topoFile = USE_SPECIFIED_PATTERN;
+	private JLabel topoFilename = new JLabel();
+	private JFormattedTextField topoPattern = new JFormattedTextField("N8");
+	private JCheckBox saveRunlog = new JCheckBox("Save run log");
+	
+	private String seqDir = DEFAULT_DATA_DIR;
+	private String topoDir = DEFAULT_DATA_DIR;
+	
+	private static class SerialInstance implements Serializable {
+		private String seqFile;
+		private Object topoChoice;
+		private Object topoPattern;
+		private String topoFile;
+		private Object pvalue;
+		private Object maxMotif;
+		private int strand;	// this is the combo selected index, not the strand value sent to the service
+		private boolean saveRunlog;
+		
+		public SerialInstance(String seqFile,
+			Object topoChoice,
+			Object topoPattern,
+			String topoFile,
+			Object pvalue,
+			Object maxMotif,
+			int strand,
+			boolean saveRunlog){
+			
+			this.seqFile = seqFile;
+			this.topoChoice = topoChoice;
+			this.topoPattern = topoPattern;
+			this.topoFile = topoFile;
+			this.pvalue = pvalue;
+			this.maxMotif = maxMotif;
+			this.strand = strand;	// this is the combo selected index, not the strand value sent to the service
+			this.saveRunlog = saveRunlog;
+		}
+		
+		Object readResolve() throws ObjectStreamException {
+			MatrixReduceParamPanel result = new MatrixReduceParamPanel();
+			result.sequenceFile = this.seqFile;
+			result.filename.setForeground(Color.BLACK);
+			if(this.seqFile.trim().equals(MatrixReduceParamPanel.FILE_SPECIFY))
+				result.filename.setForeground(Color.RED);
+			result.filename.setText(result.sequenceFile);
+			result.topoCombo.setSelectedItem(this.topoChoice);
+			result.topoPattern.setValue(this.topoPattern);
+			result.topoFile = this.topoFile;
+			result.topoFilename.setForeground(Color.BLACK);
+			if(this.topoFile.trim().equals(MatrixReduceParamPanel.FILE_SPECIFY))
+				result.topoFilename.setForeground(Color.RED);
+			result.topoFilename.setText(result.topoFile);
+			result.pValue.setValue(this.pvalue);
+			result.maxMotif.setValue(this.maxMotif);
+			// strand is the combo selected index, not the strand value sent to the service
+			result.strandCombo.setSelectedIndex(strand);	
+			result.saveRunlog.setSelected(this.saveRunlog);
+			return result;
+		}
+	}
+	
+	Object writeReplace() throws ObjectStreamException {
+		return new SerialInstance(this.getSequenceFile()
+				, this.getTopoChoice()
+				, this.topoPattern.getValue()
+				, this.getTopoFile()
+				, this.pValue.getValue()
+				, this.maxMotif.getValue()
+				, this.strandCombo.getSelectedIndex()
+				, this.saveRunlog.isSelected()
+			);
+	}
+
 
     public MatrixReduceParamPanel() {
         this.setLayout(new GridBagLayout());
@@ -57,76 +126,111 @@ MatrixREDUCE -sequence=../sequences/Y5_600_Bst.fa \
         c.fill = GridBagConstraints.HORIZONTAL;
         c.anchor = GridBagConstraints.FIRST_LINE_START;
         c.gridx =0; c.gridy=0;
-    	filename.setText(sequenceFile);
-    	
+        
+        readProperties();
+        filename.setForeground(Color.RED); 
+        filename.setText(sequenceFile);    
+        topoPattern.setColumns(5);
+        topoFilename.setText(topoFile);
+        topoButton.setEnabled(false);
+        saveRunlog.setSelected(false);
+        
         FormLayout layout0 = new FormLayout(
-      		"right:max(40dlu;pref), 3dlu, right:max(40dlu;pref)",
-        	"");
+            	"left:max(40dlu;pref), 3dlu, 70dlu, 7dlu, " +            	
+            	"right:max(40dlu;pref), 3dlu, 50dlu, 7dlu, " +
+            	"left:max(40dlu;pref), 3dlu, 250dlu, 7dlu, " +
+            	"right:20dlu",
+            	"");    	
         DefaultFormBuilder builder0 = new DefaultFormBuilder(layout0);
       	builder0.setDefaultDialogBorder();
-      	builder0.appendSeparator("Sequence File");
-      	builder0.append(sequenceButton);
-      	builder0.append(filename);
-
-      	this.add(builder0.getPanel(),c);
+      	builder0.appendSeparator("Files");
+      	builder0.append("Sequence");
+      	builder0.append(new JLabel("  "));
+      	builder0.append(new JLabel("  "));
+      	builder0.append(sequenceButton, filename);
+      	builder0.nextRow();
+      	builder0.append("Topological Pattern", topoCombo);
+      	builder0.append(topoPattern);
+      	builder0.append(topoButton, topoFilename);
+      	this.add(builder0.getPanel(),c);      	      	
         
-        FormLayout layout = new FormLayout(
-        	"right:max(40dlu;pref), 3dlu, 40dlu, 7dlu, right:max(40dlu;pref), 3dlu, 40dlu, 7dlu, right:50dlu",
-        	"");
+      	FormLayout layout = new FormLayout(
+            	"right:max(40dlu;pref), 3dlu, 40dlu, 7dlu, " +
+            	"right:max(40dlu;pref), 3dlu, 40dlu, 7dlu, " +
+            	"right:max(40dlu;pref), 3dlu, 60dlu, 7dlu, " +
+            	"right:max(40dlu;pref), 3dlu, 60dlu, 7dlu, " +
+            	"right:210dlu",
+            	"");
         DefaultFormBuilder builder = new DefaultFormBuilder(layout);
         builder.setDefaultDialogBorder();
         builder.appendSeparator("Parameters");
-        builder.append("Dyad Length", dyadLength);
         builder.append("P Value", pValue);
-        builder.nextRow();
-        builder.append("Min Counts", minCounts);
-        builder.append("Flank", flank);
-        builder.nextRow();
-        builder.append("Min Gap", minGap);
-        minGap.setInputVerifier(new minGapVerifier());
-        builder.append("Max Gap", maxGap);
-        maxGap.setInputVerifier(new minGapVerifier());
-        builder.nextRow();
-        //builder.append("Num Print", numPrint);
-        //builder.append("Single Strand", singleStrand);
-        //builder.nextRow();
         builder.append("Max Motif", maxMotif);
-        builder.append("Max Iterations", maxIteration);
+        builder.append("Strand", strandCombo);
+        builder.append("", saveRunlog);
         c.weightx = 0.5;
         c.gridx =0; c.gridy=1;
+        this.add(builder.getPanel(),c);
  
-        rangeVerifierInt rvMC = new rangeVerifierInt();
-        rvMC.setrange(1,100000);
-        minCounts.setInputVerifier(rvMC);
-        rangeVerifierInt rvF = new rangeVerifierInt();
-        rvF.setrange(0,10);
-        flank.setInputVerifier(rvF);
-        rangeVerifierInt rvMM = new rangeVerifierInt();
-        rvMM.setrange(0,20);
-        maxMotif.setInputVerifier(rvMM);
-        rangeVerifierInt rvMI = new rangeVerifierInt();
-        rvMI.setrange(0,6000);
-        maxIteration.setInputVerifier(rvMI);
         rangeVerifier rvPV = new rangeVerifier();
         rvPV.setrange(0.0,1.0);
         pValue.setInputVerifier(rvPV);
-        rangeVerifierInt rvDL = new rangeVerifierInt();
-        rvDL.setrange(2,5);
-        dyadLength.setInputVerifier(rvDL);
-
+        rangeVerifierInt rvMM = new rangeVerifierInt();
+        rvMM.setrange(0,20);
+        maxMotif.setInputVerifier(rvMM);
         
-        this.add(builder.getPanel(),c);
+        
         sequenceButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 File file = new File(sequenceFile);
-                JFileChooser chooser = new JFileChooser(file.getParentFile());
-                chooser.showOpenDialog(MatrixReduceParamPanel.this);
-                sequenceFile = chooser.getSelectedFile().getPath();
-            	filename.setText(sequenceFile);
+                JFileChooser chooser = new JFileChooser(seqDir);
+                int returnVal = chooser.showOpenDialog(MatrixReduceParamPanel.this);
+                if (returnVal == JFileChooser.APPROVE_OPTION) {
+	                sequenceFile = chooser.getSelectedFile().getPath();
+	                filename.setForeground(Color.BLACK);
+	            	filename.setText(sequenceFile);
+	            	seqDir = chooser.getSelectedFile().getParent();
+	            	saveProperties();
+                }
             }
         });
+        
+        topoButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                File file = new File(topoFile);
+                JFileChooser chooser = new JFileChooser(topoDir);
+                int returnVal = chooser.showOpenDialog(MatrixReduceParamPanel.this);
+                if (returnVal == JFileChooser.APPROVE_OPTION) {
+	                topoFile = chooser.getSelectedFile().getPath();
+	                topoFilename.setForeground(Color.BLACK);
+	            	topoFilename.setText(topoFile);
+	            	topoPattern.setText("");
+	            	topoDir = chooser.getSelectedFile().getParent();
+	            	saveProperties();
+                }
+            }
+        });
+        
+        topoCombo.addActionListener(new ActionListener() {
+        	public void actionPerformed(ActionEvent e) {
+        		if(((String) topoCombo.getSelectedItem()).equals(TOPO_CHOICES[0])){
+        			topoFile = "";
+        			topoFilename.setText(topoFile);
+        			topoButton.setEnabled(false);
+        			topoPattern.setEnabled(true);
+        		} else {
+        			topoButton.setEnabled(true);
+        			topoPattern.setText("");
+        			topoPattern.setEnabled(false);
+        			if(topoFile.trim().equals("")){
+        				topoFile = FILE_SPECIFY;
+        				topoFilename.setForeground(Color.RED);
+        				topoFilename.setText(topoFile);        				
+        			} 
+        		}
+        	}
+        });
     }
-    
     
    public class rangeVerifier extends InputVerifier {
     	double min, max;
@@ -145,11 +249,12 @@ MatrixREDUCE -sequence=../sequences/Y5_600_Bst.fa \
                          if( min<= val && val <= max){
                         	 return true;
                          }
-                         JOptionPane.showMessageDialog(minGap.getParent(), "value should be between " + Double.toString(min) 
+                         
+                         JOptionPane.showMessageDialog(MatrixReduceParamPanel.this.getParent(), "value should be between " + Double.toString(min) 
                         		 + " and " + Double.toString(max));
                          return false;
                      } catch (java.lang.Exception pe) {
-                    	 JOptionPane.showMessageDialog(minGap.getParent(), "values need to be numerical");
+                    	 JOptionPane.showMessageDialog(MatrixReduceParamPanel.this.getParent(), "values need to be numerical");
                     	 return false;
                     }
                  }
@@ -177,11 +282,11 @@ MatrixREDUCE -sequence=../sequences/Y5_600_Bst.fa \
                          if( min<= val && val <= max){
                         	 return true;
                          }
-                         JOptionPane.showMessageDialog(minGap.getParent(), "value should be between " + Integer.toString(min) 
+                         JOptionPane.showMessageDialog(MatrixReduceParamPanel.this.getParent(), "value should be between " + Integer.toString(min) 
                         		 + " and " + Integer.toString(max));
                          return false;
                      } catch (java.lang.Exception pe) {
-                    	 JOptionPane.showMessageDialog(minGap.getParent(), "values need to be integers");
+                    	 JOptionPane.showMessageDialog(MatrixReduceParamPanel.this.getParent(), "values need to be integers");
                     	 return false;
                     }
                  }
@@ -192,145 +297,100 @@ MatrixREDUCE -sequence=../sequences/Y5_600_Bst.fa \
              return verify(input);
          }
      }
-
-    public class minGapVerifier extends InputVerifier {
-        public boolean verify(JComponent input) {
-            if (input instanceof JFormattedTextField) {
-                JFormattedTextField ftf = (JFormattedTextField)input;
-                javax.swing.JFormattedTextField.AbstractFormatter formatter = ftf.getFormatter();
-                if (formatter != null) {
-                    try {
-                         if(Integer.parseInt( minGap.getText()) <= 
-                        	 Integer.parseInt( maxGap.getText()) &&
-                        	 Integer.parseInt( minGap.getText()) >=0 &&
-                        	 Integer.parseInt( minGap.getText()) <=10 &&
-                        	 Integer.parseInt( maxGap.getText()) >=0 &&
-                        	 Integer.parseInt( maxGap.getText()) <=10){
-                        	 return true;
-                         }
-                         JOptionPane.showMessageDialog(minGap.getParent(), "min Gap should be smaller than MaxGap \nand between 0 and 10");
-                         return false;
-                     } catch (java.lang.Exception pe) {
-                    	 JOptionPane.showMessageDialog(minGap.getParent(), "values need to be integers");
-                    	 return false;
-                    }
-                 }
-             }
-             return true;
-         }
-         public boolean shouldYieldFocus(JComponent input) {
-             return verify(input);
-         }
-     }
-
-    public int getDyadLength() {
-        return ((Number) dyadLength.getValue()).intValue();
-    }
 
     public double getPValue() {
         return ((Number) pValue.getValue()).doubleValue();
     }
 
-    public int getMinCounts() {
-        return ((Number) minCounts.getValue()).intValue();
-    }
-
-    public int getFlank() {
-        return ((Number) flank.getValue()).intValue();
-    }
-
-    public int getMinGap() {
-        return ((Number) minGap.getValue()).intValue();
-    }
-
-    public int getMaxGap() {
-        return ((Number) maxGap.getValue()).intValue();
-    }
-
-    public int getNumPrint() {
-        return ((Number) numPrint.getValue()).intValue();
-    }
-
-    public boolean isSingleStrand() {
-        return singleStrand.isSelected();
+    public int getStrand() {
+        return STRAND_NUMBERS[strandCombo.getSelectedIndex()];
     }
 
     public int getMaxMotif() {
         return ((Number) maxMotif.getValue()).intValue();
     }
 
-    public int getMaxIteration() {
-        return ((Number) maxIteration.getValue()).intValue();
-    }
-
     public String getSequenceFile() {
         return sequenceFile;
     }
     
-    // For framework serialization process
-    private static class SerializedInstance implements Serializable {
-    	private String dyadLength;
-	    private String pValue;
-	    private String minCounts;
-	    private String flank;
-	    private String minGap;
-	    private String maxGap;
-	    private boolean singleStrand;
-	    private String maxMotif;
-	    private String maxIteration;
-	    private String sequenceFile;
-	    
-    	public SerializedInstance(String dyadLength
-    			, String pValue
-    			, String minCounts
-    			, String flank
-    			, String minGap
-    			, String maxGap
-    			, boolean singleStrand
-    			, String maxMotif
-    			, String maxIteration
-    			, String sequenceFile 
-	    		){
-    		this.dyadLength = dyadLength;
-    		this.pValue = pValue;
-    		this.minCounts = minCounts;
-    		this.flank = flank;
-    		this.minGap = minGap;
-    		this.maxGap = maxGap;
-    		this.singleStrand = singleStrand;
-    		this.maxMotif = maxMotif;
-    		this.maxIteration = maxIteration;
-    		this.sequenceFile = sequenceFile;
-    	}
-    	
-    	Object readResolve() throws ObjectStreamException {
-    		MatrixReduceParamPanel panel = new MatrixReduceParamPanel();
-    		panel.dyadLength.setText(this.dyadLength);
-    		panel.pValue.setText(this.pValue);
-    		panel.minCounts.setText(this.minCounts);
-    		panel.flank.setText(this.flank);
-    		panel.minGap.setText(this.minGap);
-    		panel.maxGap.setText(this.maxGap);
-    		panel.singleStrand.setSelected(this.singleStrand);
-    		panel.maxMotif.setText(this.maxMotif);
-    		panel.maxIteration.setText(this.maxIteration);
-    		panel.sequenceFile = this.sequenceFile;
-    		return panel;
-    	} 
+    public Object getTopoChoice(){
+    	return topoCombo.getSelectedItem();
     }
     
-    Object writeReplace() throws ObjectStreamException {
-    	return new SerializedInstance(this.dyadLength.getText()
-	    	, this.pValue.getText()
-	    	, this.minCounts.getText()
-	    	, this.flank.getText()
-	    	, this.minGap.getText()
-	    	, this.maxGap.getText()
-	    	, this.singleStrand.isSelected()
-	    	, this.maxMotif.getText()
-	    	, this.maxIteration.getText()
-	    	, this.sequenceFile
-    		);
+    public String getTopoPattern() {
+    	return topoPattern.getText();
+    }
+    
+    public String getTopoFile(){
+    	return topoFile;
+    }
+    
+    public boolean saveRunLog(){
+    	return saveRunlog.isSelected();
+    }
+
+	/**
+	 * {@link java.io.Serializable} method
+	 * 
+	 * @param out
+	 *            <code>ObjectOutputStream</code>
+	 * @throws IOException
+	 */
+	private void writeObject(java.io.ObjectOutputStream out) throws IOException {
+		out.defaultWriteObject();
 	}
 
+	/**
+	 * {@link java.io.Serializable} method
+	 * 
+	 * @param in
+	 *            <code>ObjectInputStream</code>
+	 * @throws IOException
+	 * @throws ClassNotFoundException
+	 */
+	private void readObject(java.io.ObjectInputStream in) throws IOException,
+			ClassNotFoundException {
+		in.defaultReadObject();
+		revalidate();
+	}
+	
+	/**
+	 * 
+	 * 
+	 */
+	private void saveProperties() {
+
+		PropertiesManager properties = PropertiesManager.getInstance();
+		try {
+			properties.setProperty(this.getClass(), SEQUENCE_DATA_DIR, String
+					.valueOf(seqDir));
+			properties.setProperty(this.getClass(), TOPOLOGY_DATA_DIR, String
+					.valueOf(topoDir));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	/**
+	 * 
+	 * 
+	 */
+	private void readProperties() {
+		PropertiesManager pm = PropertiesManager.getInstance();
+		String savedSeqDir = null;
+		String savedTopoDir = null;
+		try {
+			savedSeqDir = pm.getProperty(this.getClass(), SEQUENCE_DATA_DIR, seqDir);
+			if (!StringUtils.isEmpty(savedSeqDir)) {
+				seqDir = savedSeqDir;
+			}
+			savedTopoDir = pm.getProperty(this.getClass(), TOPOLOGY_DATA_DIR, topoDir);
+			if (!StringUtils.isEmpty(savedTopoDir)) {
+				topoDir = savedTopoDir;
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 }
