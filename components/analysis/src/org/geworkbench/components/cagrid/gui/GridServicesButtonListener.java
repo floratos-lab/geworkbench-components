@@ -31,6 +31,8 @@ public class GridServicesButtonListener implements ActionListener {
 
 	IndexServiceLabelListener indexServiceLabelListener = null;
 
+	public DispatcherLabelListener dispatcherLabelListener = null;
+	
 	DefaultFormBuilder urlServiceBuilder = null;
 
 	String selectedAnalysisType = null;
@@ -46,10 +48,12 @@ public class GridServicesButtonListener implements ActionListener {
 	public GridServicesButtonListener(
 			IndexServiceSelectionButtonListener indexServiceSelectionButtonListener,
 			IndexServiceLabelListener indexServiceLabelListener,
+			DispatcherLabelListener dispatcherLabelListener,
 			DefaultFormBuilder urlServiceBuilder) {
 		super();
 		this.indexServiceSelectionButtonListener = indexServiceSelectionButtonListener;
 		this.indexServiceLabelListener = indexServiceLabelListener;
+		this.dispatcherLabelListener = dispatcherLabelListener;
 		this.urlServiceBuilder = urlServiceBuilder;
 		this.servicesButtonGroup = new ButtonGroup();
 	}

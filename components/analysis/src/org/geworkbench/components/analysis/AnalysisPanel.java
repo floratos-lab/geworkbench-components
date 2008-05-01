@@ -98,8 +98,9 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 
 	private Log log = LogFactory.getLog(this.getClass());
 
-	final static String DISPATCHER_URL = "dispatcher.url";
-	private final String dispatcherUrl = System.getProperty(DISPATCHER_URL);
+	final static String DISPATCHER_URL = "dispatcher.url";	//used to get dispatcher url from application.properties, used as default value.
+	private static final String GRID_HOST_KEY = "dispatcherURL";	//used to get dirpatcher url from PropertiesManager, used as user preference.
+	private String dispatcherUrl = System.getProperty(DISPATCHER_URL);
 
 	private String userInfo = null;
 	
@@ -676,6 +677,7 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 								// adding user info
 								serviceParameterList.add(userInfo);
 
+								dispatcherUrl = jGridServicePanel.dispatcherLabelListener.getHost();
 								DispatcherClient dispatcherClient = new DispatcherClient(
 										dispatcherUrl);
 
@@ -828,6 +830,18 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 			Object source) {
 		DispatcherClient dispatcherClient = null;
 		try {
+//			dispatcherUrl = jGridServicePanel.dispatcherLabelListener.getHost();
+			PropertiesManager pm = PropertiesManager.getInstance();
+			String savedHost = null;
+			try {
+				savedHost = pm.getProperty(this.getClass(), GRID_HOST_KEY, dispatcherUrl);
+				if (!StringUtils.isEmpty(savedHost)) {
+					dispatcherUrl = savedHost;
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			
 			dispatcherClient = new DispatcherClient(dispatcherUrl);
 		} catch (Exception e) {
 			e.printStackTrace();
