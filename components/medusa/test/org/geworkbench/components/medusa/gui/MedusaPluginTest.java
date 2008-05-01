@@ -24,7 +24,9 @@ import org.geworkbench.components.medusa.MedusaData;
  * GUI tests for the {@link MedusaVisualizationPanel}.
  * 
  * @author keshav
- * @version $Id: MedusaPluginTest.java,v 1.5 2008-03-07 21:59:42 chiangy Exp $
+ * @version $Id: MedusaPluginTest.java,v 1.6 2008-05-01 14:46:57 chiangy Exp $
+ * 
+ * TODO: this class is out-dated, should be removed.
  */
 public class MedusaPluginTest extends TestCase {
 
