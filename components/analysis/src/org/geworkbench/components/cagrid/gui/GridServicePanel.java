@@ -31,7 +31,7 @@ import com.jgoodies.forms.layout.FormLayout;
 /**
  * 
  * @author keshav
- * @version $Id: GridServicePanel.java,v 1.28 2008-02-04 22:55:04 chiangy Exp $
+ * @version $Id: GridServicePanel.java,v 1.29 2008-05-01 14:30:30 chiangy Exp $
  */
 public class GridServicePanel extends JPanel {
 	private Log log = LogFactory.getLog(this.getClass());
@@ -47,6 +47,8 @@ public class GridServicePanel extends JPanel {
 	Collection<String> analysisSet = new HashSet<String>();
 
 	GridServicesButtonListener gridServicesButtonListener;
+	
+	public DispatcherLabelListener dispatcherLabelListener = null;
 
 	/**
 	 * Visual Widget
@@ -73,6 +75,8 @@ public class GridServicePanel extends JPanel {
 		/* part A */
 		DefaultFormBuilder indexServiceBuilder = new DefaultFormBuilder(
 				new FormLayout(""));
+		indexServiceBuilder.appendColumn("right:pref");
+		indexServiceBuilder.appendColumn("10dlu");
 		indexServiceBuilder.appendColumn("right:pref");
 		indexServiceBuilder.appendColumn("10dlu");
 		indexServiceBuilder.appendColumn("right:pref");
@@ -118,6 +122,25 @@ public class GridServicePanel extends JPanel {
 		});
 		indexServiceBuilder.append(indexServiceLabel);
 
+		// dispatcher label
+		final JLabel dispatcherLabel = new JLabel(SwingUtil
+				.convertTextToHtml("Change Dispatcher"));
+		dispatcherLabel.setForeground(Color.BLUE);
+
+		// dispatcher label listener
+		dispatcherLabelListener = new DispatcherLabelListener(
+				dispatcherLabel);
+		dispatcherLabel.addMouseListener(dispatcherLabelListener);
+		dispatcherLabel.addMouseMotionListener(new MouseMotionAdapter() {
+
+			public void mouseMoved(MouseEvent e) {
+
+				dispatcherLabel.setCursor(new Cursor(Cursor.HAND_CURSOR));
+			}
+
+		});
+		indexServiceBuilder.append(dispatcherLabel);
+
 		// grid services button
 		JButton getServicesButton = indexServiceLabelListener
 				.getIndexServiceButton();
@@ -135,7 +158,7 @@ public class GridServicePanel extends JPanel {
 		final IndexServiceSelectionButtonListener indexServiceSelectionButtonListener = new IndexServiceSelectionButtonListener();
 
 		gridServicesButtonListener = new GridServicesButtonListener(
-				indexServiceSelectionButtonListener, indexServiceLabelListener,
+				indexServiceSelectionButtonListener, indexServiceLabelListener, dispatcherLabelListener,
 				urlServiceBuilder);
 		getServicesButton.addActionListener(gridServicesButtonListener);
 
