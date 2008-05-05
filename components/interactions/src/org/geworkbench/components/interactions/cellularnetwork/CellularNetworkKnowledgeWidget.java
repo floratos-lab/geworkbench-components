@@ -1531,11 +1531,18 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 						INCLUDEPDLABEL)) {
 
 					hit.setIncludePDInteraction((Boolean) value);
+					if(!(Boolean)value){
+						allProteinDNACheckbox.setSelected(false);
+					}
 				} else if (tableColumn.getHeaderValue().toString()
 						.equalsIgnoreCase(INCLUDEPPLABEL)) {
 					hit.setIncludePPInteraction((Boolean) value);
+					if(!(Boolean)value){
+						allProteinCheckbox.setSelected(false);
+					}
 				}
 				fireTableCellUpdated(row, col);
+				commandToolBar.repaint();
 				detailTable.repaint();
 			}
 
