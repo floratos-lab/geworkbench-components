@@ -4,6 +4,7 @@ import javax.swing.*;
 
 import org.geworkbench.util.sequences.GeneChromosomeMatcher;
 import org.geworkbench.bison.datastructure.bioobjects.sequence.CSSequence;
+import org.geworkbench.bison.util.SequenceUtils;
 
 import java.awt.*;
 import java.awt.event.MouseEvent;
@@ -129,7 +130,7 @@ public class RetrievedSequenceView extends JPanel {
 
             g.setColor(SEQUENCEBACKGROUDCOLOR);
             int y = HEIGHT - 10;
-            if (sequence.isDNA()) {
+            if (SequenceUtils.isValidDNASeqForBLAST(sequence)) {
 
                 g.drawLine(xOff, y, x, y);
                 g.drawLine(xOff, y - 10, xOff, y);

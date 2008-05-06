@@ -11,9 +11,10 @@ import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.sequence.DSSequence;
 import org.geworkbench.bison.datastructure.complex.pattern.*;
 import org.geworkbench.bison.datastructure.complex.pattern.sequence.CSSeqRegistration;
+import org.geworkbench.bison.util.SequenceUtils;
 
 public class TranscriptionFactor implements DSPattern<DSSequence, CSSeqRegistration> {
-    //need to contain binding site matrix and realted  Generic Marker
+    //need to contain binding site matrix and related  Generic Marker
     private Matrix matrix = null;
     private String name;
     private String jasparID;
@@ -66,7 +67,7 @@ public class TranscriptionFactor implements DSPattern<DSSequence, CSSeqRegistrat
     public List<DSPatternMatch<DSSequence, CSSeqRegistration>> match(DSSequence sequence, double pValue) {
         //The pvalue is ignored here
         List<DSPatternMatch<DSSequence, CSSeqRegistration>> matches = new ArrayList<DSPatternMatch<DSSequence, CSSeqRegistration>>();
-        if (sequence.isDNA()) {
+        if (SequenceUtils.isValidDNASeqForBLAST(sequence)) {
             for (int offset = 0; offset < sequence.length() - matrix.getLength() + 1; offset++) {
                 double score = matrix.score(sequence, offset);
                 double q = Math.exp(score);
@@ -110,7 +111,7 @@ public class TranscriptionFactor implements DSPattern<DSSequence, CSSeqRegistrat
         List<DSPatternMatch<DSSequence, CSSeqRegistration>> matches = new ArrayList<DSPatternMatch<DSSequence, CSSeqRegistration>>();
         for (int k = 0; k < seqDB.size(); k++) {
             DSSequence seq = seqDB.get(k);
-            if (seq.isDNA()) {
+            if (SequenceUtils.isValidDNASeqForBLAST(seq)) {
                 for (int offset = 1; offset < seq.length() - matrix.getLength() + 1; offset++) {
                     double score = matrix.score(seq, offset);
                     double q = Math.exp(score);
@@ -133,7 +134,7 @@ public class TranscriptionFactor implements DSPattern<DSSequence, CSSeqRegistrat
 
             progressMonitor.setProgress(start++);
             DSSequence seq = seqdb.getSequence(k);
-            if (seq.isDNA()) {
+            if (SequenceUtils.isValidDNASeqForBLAST(seq)) {
                 for (int offset = 1; offset < seq.length() - matrix.getLength() + 1; offset++) {
 
                     if (progressMonitor.isCanceled()) { //when user cancel this
