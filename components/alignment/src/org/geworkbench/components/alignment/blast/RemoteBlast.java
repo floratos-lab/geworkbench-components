@@ -224,10 +224,25 @@ public class RemoteBlast {
 
 				if (data.equals("<!--QBlastInfoBegin")) {
 					StringTokenizer st = new StringTokenizer(in.readLine(), " ");
-					String str = st.nextToken();
-					str = st.nextToken();
-					s.close();
-					return st.nextToken();
+					if(st.hasMoreTokens()) {
+						String str = st.nextToken(); // this should be the string "RID"
+						if(st.hasMoreTokens()) {
+							str = st.nextToken(); // this is the equal sign "="
+							s.close();
+							if(st.hasMoreTokens()) {
+								return st.nextToken(); // this is the actual RID that is returned
+							} else {
+								s.close();
+								return null;
+							}
+						} else {
+							s.close();
+							return null;
+						}
+					} else {
+						s.close();
+						return null;
+					}
 				}
 
 				if (data == null) {
@@ -286,10 +301,25 @@ public class RemoteBlast {
 				}
 				if (data.equals("<!--QBlastInfoBegin")) {
 					StringTokenizer st = new StringTokenizer(in.readLine(), " ");
-					String str = st.nextToken();
-					str = st.nextToken();
-					s.close();
-					return st.nextToken();
+					if(st.hasMoreTokens()) {
+						String str = st.nextToken(); // this should be the string "RID"
+						if(st.hasMoreTokens()) {
+							str = st.nextToken(); // this is the equal sign "="
+							s.close();
+							if(st.hasMoreTokens()) {
+								return st.nextToken(); // this is the actual RID that is returned
+							} else {
+								s.close();
+								return null;
+							}
+						} else {
+							s.close();
+							return null;
+						}
+					} else {
+						s.close();
+						return null;
+					}
 				}
 				// System.out.println(data);
 				if (data == null) {
