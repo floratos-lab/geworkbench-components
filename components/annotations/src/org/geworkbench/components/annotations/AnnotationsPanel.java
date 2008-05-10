@@ -3,13 +3,18 @@ package org.geworkbench.components.annotations;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Container;
 import java.awt.Cursor;
+import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.GridLayout;
 import java.awt.MouseInfo;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -17,14 +22,23 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Iterator;
+import java.util.HashMap;
 
+import javax.swing.Box;
+import javax.swing.DefaultListModel;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
+import javax.swing.JTabbedPane;
+import javax.swing.JTextField;
+import javax.swing.JToolBar;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 
@@ -47,6 +61,7 @@ import org.geworkbench.engine.management.Publish;
 import org.geworkbench.engine.management.Subscribe;
 import org.geworkbench.events.AnnotationsEvent;
 import org.geworkbench.events.GeneSelectorEvent;
+import org.geworkbench.events.ImageSnapshotEvent;
 import org.geworkbench.events.MarkerSelectedEvent;
 import org.geworkbench.events.ProjectEvent;
 import org.geworkbench.events.SubpanelChangedEvent;
@@ -56,6 +71,26 @@ import org.geworkbench.util.annotation.Pathway;
 import org.jfree.ui.SortableTable;
 import org.jfree.ui.SortableTableModel;
 
+import org.apache.batik.bridge.DefaultExternalResourceSecurity;
+import org.apache.batik.bridge.DefaultScriptSecurity;
+import org.apache.batik.bridge.ExternalResourceSecurity;
+import org.apache.batik.bridge.ScriptSecurity;
+import org.apache.batik.dom.svg.SAXSVGDocumentFactory;
+import org.apache.batik.swing.JSVGCanvas;
+import org.apache.batik.swing.svg.LinkActivationEvent;
+import org.apache.batik.swing.svg.LinkActivationListener;
+import org.apache.batik.swing.svg.SVGUserAgent;
+import org.apache.batik.util.ParsedURL;
+import org.apache.batik.util.XMLResourceDescriptor;
+import org.apache.batik.util.gui.JErrorPane;
+ 
+import org.w3c.dom.*;
+
+ 
+import java.io.StringReader;
+import java.util.Locale;
+
+import org.geworkbench.builtin.projects.DataSetNode;
 /**
  * <p>
  * Title: Bioworks
@@ -77,7 +112,7 @@ import org.jfree.ui.SortableTableModel;
  * that this gene's product participates in.
  * 
  * @author manjunath at genomecenter dot columbia dot edu
- * @version $Id: AnnotationsPanel.java,v 1.21 2008-03-12 19:38:40 xiaoqing Exp $
+ * @version $Id: AnnotationsPanel.java,v 1.22 2008-05-10 15:37:02 my2248 Exp $
  * 
  * 
  */
@@ -264,6 +299,14 @@ public class AnnotationsPanel implements VisualPlugin {
      * @throws Exception
      */
     private void jbInit() throws Exception {
+    	
+    	mainPanel.setLayout( new GridLayout());
+        mainPanel.add(jTabbedPane1);
+        jTabbedPane1.add("Annotations", annotationsPanel);
+        jTabbedPane1.add("Pathway", pathwayPanel);        
+        
+        jbInitPathways();       
+        
         annotationsPanel.setLayout(borderLayout1);
         showPanels.setHorizontalAlignment(SwingConstants.CENTER);
         showPanels.setText("Retrieve annotations");
@@ -287,7 +330,7 @@ public class AnnotationsPanel implements VisualPlugin {
         annotationsPanel.add(jScrollPane1, BorderLayout.CENTER);
         annotationsPanel.add(buttonPanel, BorderLayout.SOUTH);
         buttonPanel.add(showPanels);
-        buttonPanel.add(clearButton);
+        buttonPanel.add(clearButton);       
         model = new TableModel();
         table = new SortableTable(model);
         table.getColumnModel().getColumn(0).setHeaderValue("Marker");
@@ -338,7 +381,7 @@ public class AnnotationsPanel implements VisualPlugin {
      *         <code>AnnotationsPanel</code>
      */
     public Component getComponent() {
-        return annotationsPanel;
+        return mainPanel;
     }
 
     /**
@@ -490,7 +533,9 @@ public class AnnotationsPanel implements VisualPlugin {
         JMenuItem viewDiagram = new JMenuItem("View Diagram");
         viewDiagram.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent actionEvent) {
-                publishAnnotationsEvent(new AnnotationsEvent("Pathway Selected", pathwayData.pathway));
+                //publishAnnotationsEvent(new AnnotationsEvent("Pathway Selected", pathwayData.pathway));
+                receive(new AnnotationsEvent("Pathway Selected", pathwayData.pathway));
+            
             }
         });
         popup.add(viewDiagram);
@@ -612,6 +657,13 @@ public class AnnotationsPanel implements VisualPlugin {
     public MarkerSelectedEvent publishMarkerSelectedEvent(MarkerSelectedEvent event) {
         return event;
     }
+    
+    
+    
+    private JPanel mainPanel = new JPanel();
+    private JTabbedPane jTabbedPane1 = new JTabbedPane();  
+    
+    
 
     /**
      * The Visual Component on which the annotation results are shown
@@ -680,7 +732,478 @@ public class AnnotationsPanel implements VisualPlugin {
     public void receive(ProjectEvent e, Object source) {
         DSDataSet data = e.getDataSet();
         if (data != null && data instanceof DSMicroarraySet) {
-            maSet = (DSMicroarraySet) data;
+            maSet = (DSMicroarraySet) data;            
+        }
+        
+        
+        Object pathwayName = pathwayComboBox.getSelectedItem();
+    	if (pathwayName != null && !pathwayName.toString().trim().equals(""))
+    	{ 
+    	  	pathwayComboBox.setSelectedIndex(0);     		 
+            jTabbedPane1.setTitleAt(1,"Pathway");   	 
+    	 
+       }
+          
+    }
+    
+   
+    
+    
+    //****************************************************************
+    //The following code integrate Pathway component with Annotations
+    
+    
+    
+    /**
+     * Configures the Graphical User Interface and Listeners
+     *
+     * @throws Exception
+     */
+    private void jbInitPathways() throws Exception {
+    	 
+        pathwayPanel.setLayout(borderLayout2);         
+        pathwayPanel.add(jscrollPanePathway, BorderLayout.CENTER);
+        pathwayPanel.add(pathwayTool, BorderLayout.NORTH);
+         
+        pathwayComboBox.setMaximumSize(new Dimension(130, 25));
+        pathwayComboBox.setMinimumSize(new Dimension(130, 25));
+        pathwayComboBox.setPreferredSize(new Dimension(130, 25));
+        pathwayComboBox.insertItemAt(" ", 0);
+        pathwayComboBox.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+            	pathwayComboBox_actionPerformed(e);
+            }
+        });
+        
+        
+        clearDiagramButton.setForeground(Color.black);
+        clearDiagramButton.setToolTipText("");
+        clearDiagramButton.setFocusPainted(true);
+        clearDiagramButton.setText("Clear Diagram");
+        clearDiagramButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                clearDiagramButton_actionPerformed(e);
+            }
+        });
+        
+        clearHistButton.setForeground(Color.black);
+        clearHistButton.setToolTipText("");
+        clearHistButton.setFocusPainted(true);
+        clearHistButton.setText("Clear History");
+        clearHistButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+            	clearHistButton_actionPerformed(e);
+            }
+        });
+        
+        imagePathwayButton.setForeground(Color.black);
+        imagePathwayButton.setToolTipText("");
+        imagePathwayButton.setFocusPainted(true);
+        imagePathwayButton.setText("Image Pathway");
+        imagePathwayButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+            	createImageSnapshot();
+            }
+        });
+                
+        pathwayTool.add(pathwayComboBox, null);
+        pathwayTool.add(clearDiagramButton);
+        pathwayTool.add(clearHistButton);
+        pathwayTool.add(component1);
+        pathwayTool.add(imagePathwayButton);
+        
+        svgCanvas.addLinkActivationListener(new LinkActivationListener() {
+            public void linkActivated(LinkActivationEvent lae) {
+                svgCanvas_linkActivated(lae);
+            }
+
+        });
+        jscrollPanePathway.getViewport().add(svgCanvas, null);
+        
+        svgStringList = new HashMap<String, String>();
+        
+         
+        
+    }
+    
+    private void pathwayComboBox_actionPerformed(ActionEvent e) {
+       
+    	 
+    	Object pathwayName = pathwayComboBox.getSelectedItem();
+    	if (pathwayName != null && !pathwayName.toString().trim().equals(""))
+    	{    setSvg(svgStringList.get(pathwayName));
+    	    jTabbedPane1.setTitleAt(1, pathwayName.toString());
+    	}
+    	else
+    	{
+    		svgCanvas.setDocument(null);    	 
+    		svgCanvas.revalidate();
+            pathwayPanel.revalidate();
+            jTabbedPane1.setTitleAt(1,"Pathway");
+    	}
+    }
+    
+    private void clearDiagramButton_actionPerformed(ActionEvent e) {
+    	Object pathwayName = pathwayComboBox.getSelectedItem();
+    	if (pathwayName != null && !pathwayName.toString().trim().equals(""))
+    	{
+    		svgStringList.remove(pathwayName);    		 
+    		svgCanvas.setDocument(null);   	 
+    		pathwayComboBox.setSelectedIndex(0);  	
+    		pathwayComboBox.removeItem(pathwayName);    		 
+    		svgCanvas.revalidate();
+            pathwayPanel.revalidate();
+            jTabbedPane1.setTitleAt(1,"Pathway");
+              
+    	}
+    	
+    }
+    
+    private void clearHistButton_actionPerformed(ActionEvent e) {
+        
+    	pathwayComboBox.removeAllItems();
+    	pathwayComboBox.insertItemAt(" ", 0);
+    	svgStringList.clear();
+    	svgCanvas.setDocument(null);     
+		svgCanvas.revalidate();
+        pathwayPanel.revalidate();
+        jTabbedPane1.setTitleAt(1,"Pathway");
+        
+        
+    }
+
+    
+    @Publish public ImageSnapshotEvent createImageSnapshot() {
+    	Object pathwayName = pathwayComboBox.getSelectedItem();
+    	if (pathwayName != null && !pathwayName.toString().trim().equals(""))
+    	{
+    	   Dimension panelSize = svgCanvas.getSize();
+           BufferedImage image = new BufferedImage(panelSize.width, panelSize.height, BufferedImage.TYPE_INT_RGB);
+           Graphics g = image.getGraphics();
+           svgCanvas.paint(g);
+           ImageIcon icon = new ImageIcon(image, pathwayName.toString());
+           org.geworkbench.events.ImageSnapshotEvent event = new org.geworkbench.events.ImageSnapshotEvent(pathwayName.toString(), icon, org.geworkbench.events.ImageSnapshotEvent.Action.SAVE);
+           return event;
+        }
+    	else
+    		return null;
+    }
+
+    
+    
+    
+  
+
+    void addPathwayName(String pathwayName, String pathwayDiagram){
+    	 
+    	if (svgStringList.containsKey(pathwayName))
+    	{	
+    	    pathwayComboBox.removeItem(pathwayName); 
+    	}    	 
+    	svgStringList.put(pathwayName, pathwayDiagram);    	    	 
+    	pathwayComboBox.insertItemAt(pathwayName, 1);      
+    	pathwayComboBox.setSelectedIndex(1);
+    	pathwayComboBox.revalidate();
+        
+    }
+    
+
+    /**
+    * Interface <code>AnnotationsListener</code> method that received a
+    * selected <code>Pathway</code> to be shown in the <code>PathwayPanel</code>
+    * plugin.
+    *
+    * @param ae <code>AnnotationsEvent</code> that contains the
+    *           <code>Pathway</code> to be shown
+    */
+ 
+    public void receive(org.geworkbench.events.AnnotationsEvent ae){
+        
+        pathway = ae.getPathway();
+   
+        Runnable pway = new Runnable() {
+          public void run() {
+            org.geworkbench.util.ProgressBar pb = ProgressBar.create(ProgressBar.INDETERMINATE_TYPE);
+            pb.setTitle("Constructing SVG Pathway");
+            pb.setMessage("Creating Image..");
+            pb.start();
+            
+            addPathwayName(pathway.getPathwayName(), pathway.getPathwayDiagram());
+           
+            pb.stop(); 
+            pb.dispose();
+            Container parent = pathwayPanel.getParent();                
+            if (parent instanceof JTabbedPane)
+            {    ((JTabbedPane) parent).setSelectedComponent(pathwayPanel);
+               JTabbedPane p =  (JTabbedPane) parent;
+               p.setTitleAt(1, pathway.getPathwayName());
+            }
+         }
+        };
+    Thread t = new Thread(pway);
+    t.setPriority(Thread.MIN_PRIORITY);
+    t.start();
+   } 
+
+
+
+    private HashMap<String, String> svgStringList = null;   
+    
+    private JPanel pathwayPanel = new JPanel();   
+    private BorderLayout borderLayout2 = new BorderLayout();
+    JToolBar pathwayTool = new JToolBar();
+    JComboBox pathwayComboBox = new JComboBox();
+    JButton clearDiagramButton = new JButton();
+    JButton clearHistButton = new JButton();
+    JButton imagePathwayButton = new JButton();
+    
+    Component component1 = Box.createVerticalStrut(8);
+    
+    /**
+     * Visual Widget
+     */
+    private JScrollPane jscrollPanePathway = new JScrollPane();
+    private JTextField pathwayName = new JTextField();
+    
+    /**
+     * <code>Canvas</code> on which the Pathway SVG image is drawn
+     */
+    private JSVGCanvas svgCanvas = new JSVGCanvas(new UserAgent(), true, true);
+    private static final String CABIO_BASE_URL = "http://cabio.nci.nih.gov/";
+
+       
+    
+   
+    org.geworkbench.util.annotation.Pathway pathway = null;
+
+     
+    /**
+     * Wrapper method for setting the <code>SVGDocument</code> received
+     * from the <code>Pathway</code> objects obtained from a caBIO search
+     *
+     * @param svgString SVG document returned from a caBIO search as a String
+     */
+    private void setSvg(String svgString) {
+        if (svgString != null) {
+            StringReader reader = new StringReader(svgString);
+            Document document = null;
+            try {
+                String parser = XMLResourceDescriptor.getXMLParserClassName();
+                SAXSVGDocumentFactory f = new SAXSVGDocumentFactory(parser);
+                document = f.createDocument(null, reader);
+            } catch (IOException ex) {
+            }
+           
+            svgCanvas.setDocument(document);            
+            svgCanvas.revalidate();
+            pathwayPanel.revalidate();
+        } else {
+            JOptionPane.showMessageDialog(pathwayPanel, "No Pathway diagram obtained from caBIO", "Diagram missing", JOptionPane.INFORMATION_MESSAGE);
+        }
+
+    }
+
+    private void walk(Node node) {
+        int type = node.getNodeType();
+        switch (type) {
+            case Node.DOCUMENT_NODE: {
+                System.out.println("<?xml version=\"1.0\" encoding=\"" + "UTF-8" + "\"?>");
+                break;
+            }
+
+            case Node.ELEMENT_NODE: {
+                System.out.print('<' + node.getNodeName());
+                NamedNodeMap nnm = node.getAttributes();
+                if (nnm != null) {
+                    int len = nnm.getLength();
+                    Attr attr;
+                    for (int i = 0; i < len; i++) {
+                        attr = (Attr) nnm.item(i);
+                        System.out.print(" " + attr.getNodeName() + "=\"" + attr.getNodeValue() + "\"");
+                    }
+
+                }
+
+                System.out.print('>');
+                break;
+            }
+
+            case Node.ENTITY_REFERENCE_NODE: {
+                System.out.print('&' + node.getNodeName() + ';');
+                break;
+            }
+
+            case Node.CDATA_SECTION_NODE: {
+                System.out.print("<![CDATA[" + node.getNodeValue() + "]]>");
+                break;
+            }
+
+            case Node.TEXT_NODE: {
+                System.out.print(node.getNodeValue());
+                break;
+            }
+
+            case Node.PROCESSING_INSTRUCTION_NODE: {
+                System.out.print("<?" + node.getNodeName());
+                String data = node.getNodeValue();
+                if (data != null && data.length() > 0) {
+                    System.out.print(' ');
+                    System.out.print(data);
+                }
+
+                System.out.println("?>");
+                break;
+            }
+
+        }
+
+        for (Node child = node.getFirstChild(); child != null; child = child.getNextSibling()) {
+            walk(child);
+        }
+
+        if (type == Node.ELEMENT_NODE)
+            System.out.print("</" + node.getNodeName() + ">");
+    }
+
+    private void svgCanvas_linkActivated(LinkActivationEvent lae) {
+        String uri = CABIO_BASE_URL + lae.getReferencedURI();
+
+/*
+        int index = uri.indexOf("BCID");
+        String bcid = uri.substring(index + 5, uri.length());
+        GeneSearchCriteria criteria = new GeneSearchCriteriaImpl();
+        GeneAnnotation[] matchingGenes = criteria.searchByBCID(bcid);
+//        criteria.search();
+//        GeneAnnotation[] matchingGenes = criteria.getGeneAnnotations();
+        assert matchingGenes.length == 1 : "Search on BCID should return just 1 Gene";
+*/
+        try {
+            log.debug("Opening " + uri);
+            org.geworkbench.util.BrowserLauncher.openURL(uri);
+        } catch (IOException ioe) {
+            ioe.printStackTrace();
         }
     }
+
+    protected class UserAgent implements SVGUserAgent {
+        protected UserAgent() {
+        }
+
+        public void displayError(String message) {
+            JOptionPane pane = new JOptionPane(message, JOptionPane.ERROR_MESSAGE);
+            JDialog dialog = pane.createDialog(pathwayPanel, "ERROR");
+            dialog.setModal(false);
+            dialog.setVisible(true);
+        }
+
+        public void checkLoadExternalResource(ParsedURL resourceURL, ParsedURL docURL) {
+        }
+
+        public void checkLoadScript(String scriptType, ParsedURL scriptURL, ParsedURL docURL) {
+        }
+
+        public void displayError(Exception ex) {
+            JErrorPane pane = new JErrorPane(ex, JOptionPane.ERROR_MESSAGE);
+            JDialog dialog = pane.createDialog(pathwayPanel, "ERROR");
+            dialog.setModal(false);
+            dialog.setVisible(true);
+        }
+
+        public void displayMessage(String message) {
+        }
+
+        public String getAlternateStyleSheet() {
+            return "alternate";
+        }
+
+        public float getBolderFontWeight(float f) {
+            return 10f;
+        }
+
+        public String getDefaultFontFamily() {
+            return "Arial";
+        }
+
+        public ExternalResourceSecurity getExternalResourceSecurity(ParsedURL resourceURL, ParsedURL docURL) {
+            return new DefaultExternalResourceSecurity(resourceURL, docURL);
+        }
+
+        public float getLighterFontWeight(float f) {
+            return 8f;
+        }
+
+        public float getMediumFontSize() {
+            return 9f;
+        }
+
+        public float getPixelToMM() {
+            return 0.264583333333333333333f; // 96 dpi
+        }
+
+        public float getPixelUnitToMillimeter() {
+            return 0.264583333333333333333f; // 96 dpi
+        }
+
+        public ScriptSecurity getScriptSecurity(String scriptType, ParsedURL scriptURL, ParsedURL docURL) {
+            return new DefaultScriptSecurity(scriptType, scriptURL, docURL);
+        }
+
+        public String getLanguages() {
+            return Locale.getDefault().getLanguage();
+        }
+
+        public String getUserStyleSheetURI() {
+            return null;
+        }
+
+        public String getXMLParserClassName() {
+            return XMLResourceDescriptor.getXMLParserClassName();
+        }
+
+        public boolean isXMLParserValidating() {
+            return true;
+        }
+
+        public String getMedia() {
+            return "screen";
+        }
+
+        public void openLink(String uri, boolean newc) {
+        }
+
+        public void showAlert(String message) {
+        }
+
+        public boolean showConfirm(String message) {
+            return true;
+        }
+
+        public boolean supportExtension(String s) {
+            return false;
+        }
+
+        public String showPrompt(java.lang.String message) {
+            return "";
+        }
+
+        public String showPrompt(String message, String defaultValue) {
+            return "";
+        }
+
+        public void handleElement(Element elt, Object data) {
+        }
+        
+       
+
+    }
+
+    
+    
+    
+    
+    
+    
+    
+     
+    
 }
