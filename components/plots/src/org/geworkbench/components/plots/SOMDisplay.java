@@ -20,6 +20,7 @@ import org.geworkbench.engine.management.Publish;
 import org.geworkbench.engine.management.Subscribe;
 import org.geworkbench.events.MarkerSelectedEvent;
 import org.geworkbench.events.MultipleMarkerEvent;
+import org.geworkbench.events.PhenotypeSelectedEvent;
 import org.geworkbench.events.ProjectEvent;
 import org.geworkbench.util.ProgressBar;
 import org.jfree.chart.ChartFactory;
@@ -123,6 +124,11 @@ public class SOMDisplay implements VisualPlugin, MenuListener, PropertyChangeLis
     public org.geworkbench.events.MarkerSelectedEvent publishMarkerSelectedEvent(org.geworkbench.events.MarkerSelectedEvent event) {
         return event;
     }
+    
+    @Publish
+    public org.geworkbench.events.PhenotypeSelectedEvent publishPhenotypeSelectedEvent(org.geworkbench.events.PhenotypeSelectedEvent event) {
+        return event;
+    }
 
     @Publish public MultipleMarkerEvent publishMultipleMarkerEvent(MultipleMarkerEvent event) {
         return event;
@@ -140,10 +146,16 @@ public class SOMDisplay implements VisualPlugin, MenuListener, PropertyChangeLis
             ImageIcon icon = new ImageIcon((Image) newValue);
             icon.setDescription("SOM Cluster: " + mASet.getDataSet().getLabel());
             publishImageSnapshotEvent(new org.geworkbench.events.ImageSnapshotEvent("SOM Cluster ImageSnapshot", icon, org.geworkbench.events.ImageSnapshotEvent.Action.SAVE));
-        } else if (propertyName.equals(SOMPlot.SINGLE_MARKER_SELECTED_PROPERTY)) {
+        } else if (propertyName.equals(SOMPlot.SINGLE_MARKER_SELECTED_PROPERTY) && newValue instanceof DSGeneMarker) {
             MarkerSelectedEvent mse = new org.geworkbench.events.MarkerSelectedEvent((DSGeneMarker) newValue);
-            publishMarkerSelectedEvent(mse);
-        } else if (propertyName.equals(SOMPlot.MULTIPLE_MARKER_SELECTED_PROPERTY)) {
+            publishMarkerSelectedEvent(mse);				 
+			 
+        }else if (propertyName.equals(SOMPlot.SINGLE_MARKER_SELECTED_PROPERTY) && newValue instanceof DSMicroarray) {
+                    	 
+		    PhenotypeSelectedEvent pse = new PhenotypeSelectedEvent((DSMicroarray) newValue);
+			publishPhenotypeSelectedEvent(pse);
+			 
+        }else if (propertyName.equals(SOMPlot.MULTIPLE_MARKER_SELECTED_PROPERTY)) {
             DSPanel<DSGeneMarker> clusterGrid = new CSPanel<DSGeneMarker>("Cluster Grid", "SOM Display");
 
             DSItemList<DSGeneMarker> mInfos = (DSItemList<DSGeneMarker>) newValue;
