@@ -35,15 +35,11 @@ public class DispatcherLabelListener implements MouseListener {
 
 	private Log log = LogFactory.getLog(this.getClass());
 
-//	private int DEFAULT_PORT = 8080;
-
-	private String DEFAULT_HOST = "localhost";
-
 	private JDialog dispatcherDialog = null;
 
-	private String host = DEFAULT_HOST;
-
-//	private int port = DEFAULT_PORT;
+	final static String DISPATCHER_URL = "dispatcher.url";	//used to get dispatcher url from application.properties, used as default value.
+	
+	private String host = System.getProperty(DISPATCHER_URL);;
 
 	JLabel dispatcherLabel = null;
 
@@ -101,7 +97,7 @@ public class DispatcherLabelListener implements MouseListener {
 
 		/* the builder */
 		dispatcherPanelBuilder.appendColumn("5dlu");
-		dispatcherPanelBuilder.appendColumn("200dlu");
+		dispatcherPanelBuilder.appendColumn("250dlu");
 
 		dispatcherPanelBuilder.append("URL", hostField);
 //		dispatcherPanelBuilder.append("port", portField);
