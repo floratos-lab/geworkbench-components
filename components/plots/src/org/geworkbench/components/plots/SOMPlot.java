@@ -3,10 +3,17 @@ package org.geworkbench.components.plots;
 import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
+import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
 import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
+import org.geworkbench.bison.datastructure.complex.panels.DSPanel; 
 import org.jfree.chart.*;
+import org.jfree.chart.axis.SymbolAxis;
 import org.jfree.chart.entity.ChartEntity;
+import org.jfree.chart.entity.XYItemEntity;
+import org.jfree.chart.labels.SymbolicXYItemLabelGenerator;
 import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.chart.renderer.xy.StandardXYItemRenderer;
+import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 
@@ -15,6 +22,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
+import java.text.NumberFormat;
 
 /**
  * <p>Copyright: Copyright (c) 2005</p>
@@ -31,7 +39,7 @@ import java.awt.event.MouseEvent;
 public class SOMPlot extends ChartPanel {
 
     DSItemList<DSGeneMarker> markerStats;
-
+    DSMicroarraySetView<DSGeneMarker, DSMicroarray> maSetView;
     /**
      * Property used for conveying the origin of a <code>PropertyChange</code>
      * event for distinguishing messages from other components which throw
@@ -88,6 +96,7 @@ public class SOMPlot extends ChartPanel {
         }
         Thread t = new Thread() {
             public void run() {
+            	maSetView = chips;
                 markerStats = chips.markers();
                 XYSeriesCollection plots = new XYSeriesCollection();
                 int numGenes = (chips.markers().size() > 500) ? 500 : chips.markers().size();
@@ -103,18 +112,100 @@ public class SOMPlot extends ChartPanel {
                     }
                     plots.addSeries(series);
                 }
+                
+                ExpressionXYToolTip tooltipGenerator = null;
+
+                DSPanel<DSMicroarray> arrays = new CSPanel<DSMicroarray>("");
+				arrays.addAll(chips.items());
+				DSPanel<DSGeneMarker> genes = new CSPanel<DSGeneMarker>("");
+				genes.addAll(chips.markers());
+				
+				tooltipGenerator = new ExpressionXYToolTip();
+				tooltipGenerator.setCurrentGenes(genes, arrays);
+				 
+
+				StandardXYItemRenderer renderer = new StandardXYItemRenderer(
+						StandardXYItemRenderer.LINES, tooltipGenerator);
+				
                 JFreeChart chart = ChartFactory.createXYLineChart(null, // Title
                         "Experiment", // X-Axis label
                         "Value", // Y-Axis label
                         plots, // Dataset
                         PlotOrientation.VERTICAL, false, // Show legend
                         true, true);
+                
+                
+                
+				chart.getXYPlot().setRenderer(renderer);
+				
+                if (arrays != null) {
+					String[] alist;
+					alist = new String[arrays.size()];
+					for (int maCtr = 0; maCtr < arrays.size(); maCtr++)
+						alist[maCtr] = arrays.get(maCtr).getLabel();
+					chart.getXYPlot().setDomainAxis(
+							new SymbolAxis("Experiment", alist));
+					chart.getXYPlot().getDomainAxis().setVerticalTickLabels(
+							true);
+
+				}
+                              
                 setChart(chart);
             }
         };
         t.setPriority(Thread.MIN_PRIORITY);
         t.start();
     }
+    
+    
+    /**
+	 * Tool-tip renderer for gene charts.
+	 * 
+	 * @author unattributable
+	 */
+	private class ExpressionXYToolTip extends SymbolicXYItemLabelGenerator {
+
+		/**
+		 * @param data
+		 * @param series
+		 * @param item
+		 * @return String
+		 */
+
+		DSPanel<DSGeneMarker> markers = new CSPanel<DSGeneMarker>("");
+		DSPanel<DSMicroarray> arrays = new CSPanel<DSMicroarray>("");
+
+		public void setCurrentGenes(DSPanel<DSGeneMarker> markers,
+				DSPanel<DSMicroarray> arrays) {
+			this.markers = markers;
+			this.arrays = arrays;
+		}
+
+		public String generateToolTip(XYDataset data, int series, int item) {
+
+			String tooltip = "";
+
+			NumberFormat nf = NumberFormat.getInstance();
+			nf.setMaximumFractionDigits(2);
+
+			DSGeneMarker marker = markers.get(series);
+			DSMicroarray array = arrays.get(item);
+
+			if (marker != null) {
+				tooltip += marker.getLabel()+ ": (";
+			}
+			if (array != null) {
+				tooltip +=  array.getLabel() + ", ";
+			}
+
+			tooltip +=  nf.format(data.getYValue(series, item)) + ")";
+
+			return tooltip;
+
+		}
+	}
+
+    
 
     public DSItemList<DSGeneMarker> getMarkerInfo() {
         return markerStats;
@@ -122,12 +213,18 @@ public class SOMPlot extends ChartPanel {
 
     public void ancillaryMouseClickHandler(ChartMouseEvent cme) {
         ChartEntity entity = cme.getEntity();
-        if (entity != null && entity.getToolTipText() != null) {
-            String label = entity.getToolTipText().split(":")[0];
-            if (getMarkerInfo() != null) {
-                DSGeneMarker marker = getMarkerInfo().get(label);
-                firePropertyChange(SINGLE_MARKER_SELECTED_PROPERTY, null, marker);
-            }
+        if ((entity != null) && (entity instanceof XYItemEntity)) {
+			XYItemEntity xyEntity = (XYItemEntity) entity;
+			int series = xyEntity.getSeriesIndex();
+			int item = xyEntity.getItem();
+
+			DSMicroarray array = maSetView.items().get(item);
+			DSGeneMarker marker = maSetView.markers().get(series);
+            
+				 
+            firePropertyChange(SINGLE_MARKER_SELECTED_PROPERTY, null, array);
+            firePropertyChange(SINGLE_MARKER_SELECTED_PROPERTY, null, marker);
+             
         }
     }
 
