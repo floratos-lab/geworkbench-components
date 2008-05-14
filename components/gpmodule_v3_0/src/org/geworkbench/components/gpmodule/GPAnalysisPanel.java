@@ -68,9 +68,5 @@ public abstract class GPAnalysisPanel extends AbstractSaveableParameterPanel {
 
         return label;
    }   
-    
-    public GPConfigPanel getGPConfigPanel(){
-    	return this.gpConfigPanel;
-    }
 
 }

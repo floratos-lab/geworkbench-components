@@ -117,7 +117,7 @@ public class GPConfigPanel extends JPanel
         {
             public void componentShown(ComponentEvent event)
             {
-                //resetGPConfigParameters();
+                resetGPConfigParameters();
             }
 
             public void componentResized(ComponentEvent event){}
@@ -229,37 +229,5 @@ public class GPConfigPanel extends JPanel
     protected String getPassword()
     {
         return new String(password.getPassword());
-    }
-    
-    public String getProtocol(){
-    	return protocol.getText();
-    }
-    
-    public void setProtocol(String s){
-    	protocol.setText(s);
-    }
-    
-    public String getHost(){
-    	return host.getText();
-    }
-    
-    public void setHost(String s){
-    	host.setText(s);
-    }
-    
-    public String getPort(){
-    	return port.getText();
-    }
-    
-    public void setPort(String s){
-    	port.setText(s);
-    }
-    
-    public String getUserName(){
-    	return username.getText();
-    }
-    
-    public void setUserName(String s){
-    	username.setText(s);
     }
 }
