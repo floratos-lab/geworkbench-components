@@ -112,7 +112,7 @@ import org.geworkbench.builtin.projects.DataSetNode;
  * that this gene's product participates in.
  * 
  * @author manjunath at genomecenter dot columbia dot edu
- * @version $Id: AnnotationsPanel.java,v 1.22 2008-05-10 15:37:02 my2248 Exp $
+ * @version $Id: AnnotationsPanel.java,v 1.23 2008-05-14 17:45:57 my2248 Exp $
  * 
  * 
  */
@@ -799,7 +799,7 @@ public class AnnotationsPanel implements VisualPlugin {
         imagePathwayButton.setForeground(Color.black);
         imagePathwayButton.setToolTipText("");
         imagePathwayButton.setFocusPainted(true);
-        imagePathwayButton.setText("Image Pathway");
+        imagePathwayButton.setText("Image Snapshot");
         imagePathwayButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
             	createImageSnapshot();
