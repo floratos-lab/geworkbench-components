@@ -18,11 +18,13 @@ import org.geworkbench.components.gpmodule.GPAnalysisPanel;
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.ObjectStreamException;
+import java.io.Serializable;
 
 /**
  * @author: Marc-Danie Nazaire
  */
-public class PCAAnalysisPanel extends GPAnalysisPanel
+public class PCAAnalysisPanel extends GPAnalysisPanel implements Serializable 
 {
     private JComboBox variables;
     
@@ -63,11 +65,16 @@ public class PCAAnalysisPanel extends GPAnalysisPanel
         builder.nextRow();
 
         parameterPanel.add(builder.getPanel(), BorderLayout.WEST);
+        
     }
 
     public String getVariables()
     {
         return (String) variables.getSelectedItem();
+    }
+    
+    public void setVariables(String s){
+    	variables.setSelectedItem(s);
     }
 
     protected String getParamDescriptionFile()
@@ -78,5 +85,42 @@ public class PCAAnalysisPanel extends GPAnalysisPanel
     protected String getDescriptionFile()
     {
         return PCAAnalysisPanel.class.getResource("paramDesc.html").getPath();
+    }
+    
+    private static class SerialInstance implements Serializable {
+    	private String variables;
+    	private String protocol;
+    	private String host;
+    	private String port;
+    	private String username;
+    	
+    	public SerialInstance(String variables, String protocol, String host, String port
+    			, String username){
+    		this.variables = variables;
+    		this.protocol = protocol;
+    		this.host = host;
+    		this.port = port;
+    		this.username = username;
+    	}
+    	
+    	Object readResolve() throws ObjectStreamException {
+    		PCAAnalysisPanel result = new PCAAnalysisPanel();
+    		result.setVariables(this.variables);
+    		result.getGPConfigPanel().setProtocol(this.protocol);
+    		result.getGPConfigPanel().setHost(this.host);
+    		result.getGPConfigPanel().setPort(this.port);
+    		result.getGPConfigPanel().setUserName(this.username);    		
+    		return result;
+    	}
+    }
+    
+    Object writeReplace() throws ObjectStreamException {
+    	return new SerialInstance(
+    			getVariables()
+    			, this.getGPConfigPanel().getProtocol()
+    			, this.getGPConfigPanel().getHost()
+    			, this.getGPConfigPanel().getPort()
+    			, this.getGPConfigPanel().getUserName()
+    			);
     }
 }

@@ -25,7 +25,7 @@ public abstract class GPAnalysisPanel extends AbstractSaveableParameterPanel {
     private GPConfigPanel gpConfigPanel;
     private GPHelpPanel gpHelpPanel;
     protected ParameterPanel parameterPanel;
-
+    
     public GPAnalysisPanel(ParameterPanel panel, String label)
     {
         gpTabbedPane = new JTabbedPane();
@@ -67,5 +67,10 @@ public abstract class GPAnalysisPanel extends AbstractSaveableParameterPanel {
         label.setIcon(image);
 
         return label;
-   }
+   }   
+    
+    public GPConfigPanel getGPConfigPanel(){
+    	return this.gpConfigPanel;
+    }
+
 }
