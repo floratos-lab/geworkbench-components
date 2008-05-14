@@ -1,3 +1,22 @@
+/*
+ * The analysis project
+ * 
+ * Copyright (c) 2008 Columbia University
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
 package org.geworkbench.components.cagrid.gui;
 
 import java.awt.BorderLayout;
@@ -37,8 +56,13 @@ public class DispatcherLabelListener implements MouseListener {
 
 	private JDialog dispatcherDialog = null;
 
-	final static String DISPATCHER_URL = "dispatcher.url";	//used to get dispatcher url from application.properties, used as default value.
-	
+	final static String DISPATCHER_URL = "dispatcher.url"; // used to get
+															// dispatcher url
+															// from
+															// application.properties,
+															// used as default
+															// value.
+
 	private String host = System.getProperty(DISPATCHER_URL);;
 
 	JLabel dispatcherLabel = null;
@@ -48,7 +72,6 @@ public class DispatcherLabelListener implements MouseListener {
 	public DispatcherLabelListener(JLabel dispatcherLabel) {
 		super();
 		this.dispatcherLabel = dispatcherLabel;
-
 		dispatcherButton = new JButton("Grid Services");
 	}
 
@@ -68,13 +91,11 @@ public class DispatcherLabelListener implements MouseListener {
 		readProperties();
 
 		final JTextField hostField = new JTextField(host);
-//		final JTextField portField = new JTextField("" + port);
 
 		JPanel buttonPanel = new JPanel(new FlowLayout());
 		JButton okButton = new JButton("Ok");
 		okButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-//				port = Integer.parseInt(portField.getText());
 				host = hostField.getText();
 
 				saveProperties();
@@ -100,7 +121,6 @@ public class DispatcherLabelListener implements MouseListener {
 		dispatcherPanelBuilder.appendColumn("250dlu");
 
 		dispatcherPanelBuilder.append("URL", hostField);
-//		dispatcherPanelBuilder.append("port", portField);
 
 		JPanel dispatcherPanel = new JPanel(new BorderLayout());
 		dispatcherPanel.add(dispatcherPanelBuilder.getPanel());
