@@ -2,14 +2,13 @@ package org.geworkbench.components.alignment.blast;
 
 import java.io.*;
 import java.net.Socket;
+import java.net.URLDecoder;
 import java.net.UnknownHostException;
 import java.util.Date;
-import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.swing.JProgressBar;
-import javax.swing.JTextArea;
 
 import org.geworkbench.util.session.SoapClient;
 
@@ -17,7 +16,6 @@ import java.sql.DriverManager;
 import java.sql.Statement;
 import java.sql.Connection;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 
 /**
  * RemoteBlast is a class that implements submission of a protein sequence to
@@ -30,22 +28,12 @@ public class RemoteBlast {
 			+ "<IMG SRC=\"http://www.ncbi.nlm.nih.gov/blast/images/head_results.gif\"    WIDTH=\"600\" HEIGHT=\"45\" ALIGN=\"middle\">"
 			+ "<title>NCBI Blast Result</title><br><br>";
 
-	public RemoteBlast() {
-		try {
-			jbInit();
-		} catch (Exception ex) {
-			ex.printStackTrace();
-		}
-	}
-
 	/**
 	 * The protein sequence to submit to Blast.
 	 */
 	private String query;
 	private String waitingTime = "0";
 
-	private static String DEFAULTPROGRAM = "blastp";
-	private static String DEFAULTDBNAME = "nr";
 	/**
 	 * The default file name to write results out to.
 	 */
@@ -54,11 +42,7 @@ public class RemoteBlast {
 	 * The file name to write results out to.
 	 */
 	private String filename;
-	/**
-	 * The textArea belonging to the BlastInfo panel to send messages to for
-	 * informing the user of Blast status.
-	 */
-	private JTextArea textArea;
+
 	/**
 	 * The Conserved Domain RID#.
 	 */
@@ -90,7 +74,7 @@ public class RemoteBlast {
 	 */
 	private String cmdLine;
 	/**
-	 * The URL of the Blast result coresponds to one sequence. Don't use it in
+	 * The URL of the Blast result corresponds to one sequence. Don't use it in
 	 * the problem.
 	 */
 	private String resultURLString;
@@ -101,50 +85,28 @@ public class RemoteBlast {
 	private String programName;
 
 	/**
-	 * Creates a new RemoteBlast and sets query and textArea to the specified
-	 * String and JTextArea values. Also sets filename to the default file name.
+	 * Creates a new RemoteBlast and sets query to the specified String.
 	 * 
-	 * @param the
-	 *            JTextArea to set textArea with.
-	 * @param the
-	 *            String value to set query with.
+	 * @param query - the String value to set query with.
+	 * @param progressBar - the progress bar object
 	 */
-	public RemoteBlast(String query, JTextArea textArea) {
-		this.query = query;
-		this.filename = DEFAULT_FILENAME;
-		this.textArea = textArea;
-		this.CDD_rid = null;
-	}
-
 	public RemoteBlast(String query, JProgressBar progressBar) {
 		this.query = query;
 		this.filename = DEFAULT_FILENAME;
-		this.textArea = new JTextArea();
-		this.CDD_rid = null;
-	}
-
-	public RemoteBlast(String query, String filename) {
-		this.query = query;
-		this.filename = filename;
-		this.textArea = new JTextArea();
 		this.CDD_rid = null;
 	}
 
 	/**
-	 * Creates a new RemoteBlast and sets query, filenmae, and textArea to the
-	 * specified String and JTextArea values.
+	 * Creates a new RemoteBlast and sets query, filename.
 	 * 
 	 * @param the
 	 *            String value to set query with.
 	 * @param the
 	 *            String value to set filename with.
-	 * @param the
-	 *            JTextArea to set textArea with.
 	 */
-	public RemoteBlast(String query, String filename, JTextArea textArea) {
+	public RemoteBlast(String query, String filename) {
 		this.query = query;
 		this.filename = filename;
-		this.textArea = textArea;
 		this.CDD_rid = null;
 	}
 
@@ -166,6 +128,14 @@ public class RemoteBlast {
 	public String getCDD_rid() {
 		return CDD_rid;
 	}
+	
+	public static class NcbiResponseException extends Exception {
+		private static final long serialVersionUID = -1330692467559837833L;
+		
+		public NcbiResponseException(String msg) {
+			super(msg);
+		}
+	}
 
 	/**
 	 * Creates a socket connection to the NCBI Blast server and submits an HTTP
@@ -175,8 +145,11 @@ public class RemoteBlast {
 	 * 
 	 * @return a String representing the Blast RID # used to retrieve Blast
 	 *         results, <code>null</code> if not successful.
+	 * @throws NcbiResponseException when a error message instead of a valid RID is returned by NCBI Blast server
+	 * @throws IOException 
+	 * @throws UnknownHostException 
 	 */
-	public String submitBlast() {
+	public String submitBlast() throws NcbiResponseException, UnknownHostException, IOException {
 
 		String message = ""; /* HTTP GET message */
 
@@ -186,7 +159,7 @@ public class RemoteBlast {
 			message = SUBMITPREFIX + query + cmdLine;
 		}
 
-		try {
+//		try {
 
 			s = new Socket(Blast_SERVER, DEFAULT_PORT);
 
@@ -198,141 +171,75 @@ public class RemoteBlast {
 					.getInputStream());
 			BufferedReader in = new BufferedReader(inBytes);
 
-			// System.out.println("\n\nSending message: " + message + "\n");
-
 			// write String message to output stream as byte sequence.
 			out.writeBytes(message);
 
+//			StringBuffer sb = new StringBuffer();
 			// reads each incoming line until it finds the CDD and Blast RIDs.
-			while (true) {
-				String data = in.readLine();
-				// System.out.println(data);
-				if (CDD_rid == null && data != null) {
-					Matcher m1 = p1.matcher(data);
-					Matcher m2 = p2.matcher(data);
-					if (m1.find()) {
-						CDD_rid = m1.group(1);
-					}
-					if (m2.find()) {
-						CDD_rid = "none";
-
-					}
-				}
-				if (data == null) {
-					break;
-				}
-
-				if (data.equals("<!--QBlastInfoBegin")) {
-					StringTokenizer st = new StringTokenizer(in.readLine(), " ");
-					if(st.hasMoreTokens()) {
-						String str = st.nextToken(); // this should be the string "RID"
-						if(st.hasMoreTokens()) {
-							str = st.nextToken(); // this is the equal sign "="
-							s.close();
-							if(st.hasMoreTokens()) {
-								return st.nextToken(); // this is the actual RID that is returned
-							} else {
-								s.close();
-								return null;
-							}
-						} else {
-							s.close();
-							return null;
-						}
-					} else {
-						s.close();
-						return null;
-					}
-				}
-
-				if (data == null) {
-					break;
-				}
-			}
-		} catch (UnknownHostException e) {
-			System.out.println("Socket:" + e.getMessage());
-		} catch (EOFException e) {
-			System.out.println("EOF:" + e.getMessage());
-		} catch (IOException e) {
-			System.out.println("readline:" + e.getMessage());
-		}
-		return null;
-	}
-
-	/* end of submitBlast method */
-
-	public String submitBlast(String message) {
-
-		// String message; /* HTTP GET message */
-
-		Socket s = null;
-
-		try {
-
-			s = new Socket(Blast_SERVER, DEFAULT_PORT);
-
-			// create an output stream for sending message.
-			DataOutputStream out = new DataOutputStream(s.getOutputStream());
-
-			// create buffered reader stream for reading incoming byte stream.
-			InputStreamReader inBytes = new InputStreamReader(s
-					.getInputStream());
-			BufferedReader in = new BufferedReader(inBytes);
-
-			textArea.append("\n\nSending message: " + message + "\n");
-			// System.out.println(message);
-			// write String message to output stream as byte sequence.
-			out.writeBytes(message);
-
-			// reads each incoming line until it finds the CDD and Blast RIDs.
-			while (true) {
-				String data = in.readLine();
+			String line = in.readLine();
+			while(line!=null) {
+//				sb.append(line+"\n");
+				// get CDD_rid. this is done if CDD_rid is still null and doesn't affect the flow of getting RID
 				if (CDD_rid == null) {
-					Matcher m1 = p1.matcher(data);
-					Matcher m2 = p2.matcher(data);
+					Matcher m1 = p1.matcher(line);
+					Matcher m2 = p2.matcher(line);
 					if (m1.find()) {
 						CDD_rid = m1.group(1);
 					}
 					if (m2.find()) {
 						CDD_rid = "none";
-						System.out
-								.println("No.putative.conserved.domains.have.been.detected");
 					}
 				}
-				if (data.equals("<!--QBlastInfoBegin")) {
-					StringTokenizer st = new StringTokenizer(in.readLine(), " ");
-					if(st.hasMoreTokens()) {
-						String str = st.nextToken(); // this should be the string "RID"
-						if(st.hasMoreTokens()) {
-							str = st.nextToken(); // this is the equal sign "="
-							s.close();
-							if(st.hasMoreTokens()) {
-								return st.nextToken(); // this is the actual RID that is returned
-							} else {
-								s.close();
-								return null;
-							}
+				
+				// check error response.
+				final String marker = "var myncbi_cu = unescape('";
+				final int markerLength = marker.length();
+				int i1 = line.indexOf(marker);
+				int i2 = line.indexOf("');", i1+markerLength);
+				if(i1>=0 && i2>i1+markerLength) { // don't try to do this when the marker is not there
+//					System.out.println("BEGIN:\n"+java.net.URLDecoder.decode(line.substring(i1+markerLength, i2), "UTF-8") );
+//					System.out.println("END\n");
+					String requestUrlWithError = URLDecoder.decode(line.substring(i1+markerLength, i2), "UTF-8");
+					final String errorMarker = "&ERROR=";
+					final int errorMarkerLength = errorMarker.length();
+					int ind1 = requestUrlWithError.indexOf(errorMarker);
+					if(ind1>0) {
+						int ind2 = requestUrlWithError.indexOf("&EXPECT", ind1+errorMarkerLength);
+						String error = requestUrlWithError.substring(ind1+errorMarkerLength, ind2);
+						throw new NcbiResponseException(error.replace("+", " "));
+					}
+				}
+
+				// check RID
+				if (line.equals("<!--QBlastInfoBegin")) {
+					String nextLine = in.readLine();
+					if(nextLine!=null) { 
+						//nextLine = nextLine.trim();
+						String[] token = nextLine.trim().split(" ");
+						if(token.length<3) { // RID = ????
+							// return null;
+							// don't return here so we can further parse error message
 						} else {
 							s.close();
-							return null;
+							return token[2];
 						}
 					} else {
 						s.close();
 						return null;
 					}
 				}
-				// System.out.println(data);
-				if (data == null) {
-					break;
-				}
+
+				line = in.readLine();
 			}
-		} catch (UnknownHostException e) {
-			System.out.println("Socket:" + e.getMessage());
-		} catch (EOFException e) {
-			System.out.println("EOF:" + e.getMessage());
-		} catch (IOException e) {
-			System.out.println("readline:" + e.getMessage());
-		}
+//			System.out.println("**************\n"+sb);
+
+//		} catch (UnknownHostException e) {
+//			System.out.println("Socket:" + e.getMessage());
+//		} catch (EOFException e) {
+//			System.out.println("EOF:" + e.getMessage());
+//		} catch (IOException e) {
+//			System.out.println("readline:" + e.getMessage());
+//		}
 		return null;
 	}
 
@@ -391,7 +298,6 @@ public class RemoteBlast {
 
 		public void runMain(String message) {
 
-			String file;
 			Socket s;
 			try {
 				// create an output stream for writing to a file. appending
@@ -417,8 +323,6 @@ public class RemoteBlast {
 					InputStreamReader inBytes = new InputStreamReader(s
 							.getInputStream());
 					BufferedReader in = new BufferedReader(inBytes);
-
-					textArea.append(message + "\n");
 
 					// write String message to output stream as byte sequence.
 					out.writeBytes(message);
@@ -510,7 +414,7 @@ public class RemoteBlast {
 
 					s.close();
 				} // end of while (BlastnotDone).
-				textArea.append("Blast done! You can now display your results");
+
 				getBlastDone = true;
 				ps.close();
 			} catch (UnknownHostException e) {
@@ -635,7 +539,6 @@ public class RemoteBlast {
 	 */
 	public RemoteBlast(String aQuery) {
 		this.query = aQuery;
-		textArea = new JTextArea();
 		this.filename = DEFAULT_FILENAME;
 		this.CDD_rid = null;
 	}
@@ -679,8 +582,4 @@ public class RemoteBlast {
 	public String getProgamName() {
 		return programName;
 	}
-
-	private void jbInit() throws Exception {
-	}
-
 }

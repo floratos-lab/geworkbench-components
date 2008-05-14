@@ -1,8 +1,10 @@
 package org.geworkbench.components.alignment.client;
 
 import java.io.*;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.net.UnknownHostException;
 import java.util.Date;
 import java.util.StringTokenizer;
 
@@ -14,6 +16,7 @@ import org.geworkbench.bison.datastructure.bioobjects.sequence.CSAlignmentResult
 import org.geworkbench.bison.datastructure.bioobjects.sequence.CSSequence;
 import org.geworkbench.bison.util.RandomNumberGenerator;
 import org.geworkbench.components.alignment.blast.RemoteBlast;
+import org.geworkbench.components.alignment.blast.RemoteBlast.NcbiResponseException;
 import org.geworkbench.components.alignment.panels.*;
 import org.geworkbench.events.ProjectNodeAddedEvent;
 import org.geworkbench.util.session.SoapClient;
@@ -80,7 +83,7 @@ public class BlastAlgorithm extends BWAbstractAlgorithm implements SoapClientIn 
     }
 
     /**
-     * Update progess only with String information.
+     * Update progress only with String information.
      *
      * @param text String
      */
@@ -122,25 +125,23 @@ public class BlastAlgorithm extends BWAbstractAlgorithm implements SoapClientIn 
 
     public void execute() {
         DSAncillaryDataSet blastResult = null;
-        try {
+//        try {
             if (soapClient == null) {
                 try {
-                    Thread.sleep(this.SHORTTIMEGAP);
+                    Thread.sleep(SHORTTIMEGAP);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
             }
             //Begin process NCBI query.
             if (useNCBI) {
-                //display the NCBI URL but only parse the result saved locally.
-                String ncbiResultURLStr = null;
                 String tempFolder = System.getProperties().getProperty(
                         "temporary.files.directory");
                 if (tempFolder == null) {
                     tempFolder = ".";
 
                 }
-                //generate a new file name for the coming outputfile.
+                //generate a new file name for the coming output file.
                 String outputFile = tempFolder + "Blast" +
                         RandomNumberGenerator.getID() +
                         ".html";
@@ -149,8 +150,6 @@ public class BlastAlgorithm extends BWAbstractAlgorithm implements SoapClientIn 
                 CSSequenceSet activeSequenceDB = soapClient.getSequenceDB();
                 DSSequenceSet parentSequenceSet = soapClient.getParentSequenceDB();
 
-
-                int count = 0;
                 for (Object sequence : activeSequenceDB) {
                     updateStatus("Uploading sequence: " +
                             ((CSSequence) sequence));
@@ -158,7 +157,37 @@ public class BlastAlgorithm extends BWAbstractAlgorithm implements SoapClientIn 
                             getSequence(), outputFile);
 
                     blast.setCmdLine(AlgorithmMatcher.translateToCommandline(parameterSetting));
-                    String BLAST_rid = blast.submitBlast();
+                    String BLAST_rid = null;
+					try {
+						BLAST_rid = blast.submitBlast();
+					} catch (UnknownHostException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+                        if (blastAppComponent != null) {
+                            blastAppComponent.reportError("Sequence " + sequence + " cannot be blasted due to UnknownHostException.", "Error: UnknownHostException");
+
+                        }
+                        updateStatus(false, "NCBI Blast is stopped at " + new Date());
+                        return;
+					} catch (NcbiResponseException e1) {
+                        if (blastAppComponent != null) {
+                            blastAppComponent.reportError("Sequence " + sequence + " cannot be blasted due to NcbiResponseException:\n"
+                            		+e1.getMessage(), "Error: NcbiResponseException");
+
+                        }
+                        updateStatus(false, "NCBI Blast is stopped at " + new Date());
+                        return;
+					} catch (IOException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+                        if (blastAppComponent != null) {
+                            blastAppComponent.reportError("Sequence " + sequence + " cannot be blasted due to IOException.",
+                            		"Error: IOException");
+
+                        }
+                        updateStatus(false, "NCBI Blast is stopped at " + new Date());
+                        return;
+					}
                     if (BLAST_rid == null) {
                         if (blastAppComponent != null) {
                             blastAppComponent.reportError("Sequence " + sequence + " cannot be blasted, please check your parameters.", "Parameter Error");
@@ -174,14 +203,13 @@ public class BlastAlgorithm extends BWAbstractAlgorithm implements SoapClientIn 
                     updateStatus("The Request ID is : " + BLAST_rid);
 
                     blast.getBlast(BLAST_rid, "HTML");
-                    ncbiResultURLStr = blast.getResultURLString();
                     while (!blast.getBlastDone()) {
                         try {
                             if (blastAppComponent != null && !blastAppComponent.isStopButtonPushed() && !stopRequested)
                             {
                                 updateStatus("For sequence " + sequence +
                                         ",  the blast job is running. ");
-                                Thread.sleep(this.TIMEGAP);
+                                Thread.sleep(TIMEGAP);
                             } else {
                                 return;
                             }
@@ -226,7 +254,7 @@ public class BlastAlgorithm extends BWAbstractAlgorithm implements SoapClientIn 
                 blastResult = new CSAlignmentResultSet(
                         outputFile, activeSequenceDB.getFASTAFileName(),
                         activeSequenceDB, parentSequenceSet);
-                blastResult.setLabel(blastAppComponent.NCBILABEL);
+                blastResult.setLabel(BlastAppComponent.NCBILABEL);
                 ProjectNodeAddedEvent event =
                         new ProjectNodeAddedEvent(null, null,
                                 blastResult);
@@ -245,9 +273,9 @@ public class BlastAlgorithm extends BWAbstractAlgorithm implements SoapClientIn 
 
                         if (!soapClient.startRun(true)) {
                             //fail to connect or other problem.
-                            blastAppComponent.reportError(blastAppComponent.ERROR2, "Server unreachable");
-                            blastAppComponent.setBlastDisplayPanel(blastAppComponent.SERVER);
-                            blastAppComponent.blastFinished(blastAppComponent.ERROR1);
+                            blastAppComponent.reportError(BlastAppComponent.ERROR2, "Server unreachable");
+                            blastAppComponent.setBlastDisplayPanel(BlastAppComponent.SERVER);
+                            blastAppComponent.blastFinished(BlastAppComponent.ERROR1);
                             return;
                         }
                         htmlFile = ((SoapClient) soapClient).getOutputfile();
@@ -268,7 +296,7 @@ public class BlastAlgorithm extends BWAbstractAlgorithm implements SoapClientIn 
                         textFile = ((SoapClient) soapClient).getOutputfile();
                     }
                 } catch (Exception exce) {
-                    blastAppComponent.reportError(blastAppComponent.ERROR2, "Server unreachable");
+                    blastAppComponent.reportError(BlastAppComponent.ERROR2, "Server unreachable");
 
                 }
                 if (blastAppComponent != null) {
@@ -317,14 +345,16 @@ public class BlastAlgorithm extends BWAbstractAlgorithm implements SoapClientIn 
                         blastResult);
                 blastAppComponent.publishProjectNodeAddedEvent(event);
                 String output = client.submitRequest(inputFilename);
-                URL url = new URL(output);
+                URL url = null;
+				try {
+					url = new URL(output);
                 String filename = "C:\\" + url.getFile();
                 ((CSAlignmentResultSet) blastResult).setResultFile(filename);
                 jobFinished = true;
                 BrowserLauncher.openURL(output);
                 PrintWriter bw = new PrintWriter(new FileOutputStream(filename));
                 URLConnection urlCon = url.openConnection();
-                StringBuffer sb = new StringBuffer("");
+
                 String line = "";
                 BufferedReader br = new BufferedReader(
                         new InputStreamReader(urlCon.getInputStream()));
@@ -335,12 +365,21 @@ public class BlastAlgorithm extends BWAbstractAlgorithm implements SoapClientIn 
                 bw.close();
                 blastResult = new CSAlignmentResultSet(filename, inputFilename,
                         soapClient.getSequenceDB());
+				} catch (MalformedURLException e) {
+					System.out.println("MalformedURLException in the grid-enabled part of execute() in BlastAlgorithm: "+e.getMessage());
+					e.printStackTrace();
+				} catch (FileNotFoundException e) {
+					System.out.println("FileNotFoundException in the grid-enabled part of execute() in BlastAlgorithm: "+e.getMessage());
+					e.printStackTrace();
+				} catch (IOException e) {
+					System.out.println("IOException in the grid-enabled part of execute() in BlastAlgorithm: "+e.getMessage());
+					e.printStackTrace();
+				}
             }
-
-        } catch (Exception ex) {
-
-            ex.printStackTrace();
-        }
+//        } catch (Exception ex) {
+//
+//            ex.printStackTrace();
+//        }
 
     }
 
