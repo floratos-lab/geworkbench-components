@@ -142,7 +142,7 @@ public class SOMPlot extends ChartPanel {
 					String[] alist;
 					alist = new String[arrays.size()];
 					for (int maCtr = 0; maCtr < arrays.size(); maCtr++)
-						alist[maCtr] = arrays.get(maCtr).getLabel();
+						alist[maCtr] = arrays.get(maCtr).getLabel() + " ";
 					chart.getXYPlot().setDomainAxis(
 							new SymbolAxis("Experiment", alist));
 					chart.getXYPlot().getDomainAxis().setVerticalTickLabels(
