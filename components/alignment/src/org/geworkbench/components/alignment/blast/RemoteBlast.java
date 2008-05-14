@@ -1,6 +1,14 @@
 package org.geworkbench.components.alignment.blast;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.DataOutputStream;
+import java.io.EOFException;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintStream;
+import java.io.UnsupportedEncodingException;
 import java.net.Socket;
 import java.net.URLDecoder;
 import java.net.UnknownHostException;
@@ -8,21 +16,21 @@ import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.swing.JProgressBar;
-
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.geworkbench.util.session.SoapClient;
-
-import java.sql.DriverManager;
-import java.sql.Statement;
-import java.sql.Connection;
-import java.sql.ResultSet;
 
 /**
  * RemoteBlast is a class that implements submission of a protein sequence to
  * the NCBI BLAST server and retrieval of results with a BLAST RID #. It writes
  * retrieved results out to a file.
+ * 
+ * @author zji
+ * @version $Id: RemoteBlast.java,v 1.22 2008-05-14 21:04:49 jiz Exp $
  */
 public class RemoteBlast {
+	static Log LOG = LogFactory.getLog(RemoteBlast.class);
+
 	private final static String NCBIHEADER = "<HTML><HEAD><meta http-equiv=\"content-type\""
 			+ "content=\"text/html;charset=utf-8\" /></HEAD><BODY BGCOLOR=\"#FFFFFF\" LINK=\"#0000FF\" VLINK=\"#660099\" ALINK=\"#660099\">"
 			+ "<IMG SRC=\"http://www.ncbi.nlm.nih.gov/blast/images/head_results.gif\"    WIDTH=\"600\" HEIGHT=\"45\" ALIGN=\"middle\">"
@@ -57,7 +65,7 @@ public class RemoteBlast {
 	private final String Blast_SERVER = "www.ncbi.nlm.nih.gov";
 	/**
 	 * A flag indicating whether Blast results have been retrieve.
-	 * <code>true</code if Blast is done, <code>false</code if not.
+	 * <code>true</code> if Blast is done, <code>false</code> if not.
 	 */
 	private boolean getBlastDone = false;
 	/**
@@ -81,20 +89,6 @@ public class RemoteBlast {
 
 	private final String SUBMITPREFIX = "Put http://www.ncbi.nlm.nih.gov/blast/Blast.cgi?CMD=Put&QUERY=";
 	private final String RESULTPREFIX = "Get http://www.ncbi.nlm.nih.gov/blast/Blast.cgi?CMD=Get&FORMAT_TYPE=";
-	private String dbName;
-	private String programName;
-
-	/**
-	 * Creates a new RemoteBlast and sets query to the specified String.
-	 * 
-	 * @param query - the String value to set query with.
-	 * @param progressBar - the progress bar object
-	 */
-	public RemoteBlast(String query, JProgressBar progressBar) {
-		this.query = query;
-		this.filename = DEFAULT_FILENAME;
-		this.CDD_rid = null;
-	}
 
 	/**
 	 * Creates a new RemoteBlast and sets query, filename.
@@ -128,13 +122,61 @@ public class RemoteBlast {
 	public String getCDD_rid() {
 		return CDD_rid;
 	}
-	
+
+	/**
+	 * The exception when the response from NCBI is an error message instead of
+	 * normal response with RID.
+	 * 
+	 * @author zji
+	 * 
+	 */
 	public static class NcbiResponseException extends Exception {
 		private static final long serialVersionUID = -1330692467559837833L;
-		
+
 		public NcbiResponseException(String msg) {
 			super(msg);
 		}
+	}
+
+	/**
+	 * Get a substring between a given preceding substring and a given following
+	 * substring.
+	 * 
+	 * @param containing string
+	 * @param preceding string
+	 * @param following string
+	 * 
+	 * @return the substring or null if not found.
+	 */
+	private static String getWrappedSubtring(String containing,
+			String preceding, String following) {
+		int length = preceding.length();
+		int index1 = containing.indexOf(preceding);
+		int index2 = containing.indexOf(following, index1 + length);
+		if (index1 >= 0 && index2 > index1 + length)
+			return containing.substring(index1 + length, index2);
+		else
+			return null;
+	}
+
+	/**
+	 * Get the error message from one line of NCBI response.
+	 * 
+	 * @param line
+	 * @return the error message if the line contains one; otherwise return null
+	 * @throws UnsupportedEncodingException
+	 */
+	private static String getErrorMessage(String line)
+			throws UnsupportedEncodingException {
+		String urlString = getWrappedSubtring(line,
+				"var myncbi_cu = unescape('", "');");
+		if (urlString != null) {
+			String error = getWrappedSubtring(URLDecoder.decode(urlString, "UTF-8"),
+					"&ERROR=", "&EXPECT");
+			if (error != null)
+				return error.replace("+", " ");
+		}
+		return null;
 	}
 
 	/**
@@ -145,11 +187,14 @@ public class RemoteBlast {
 	 * 
 	 * @return a String representing the Blast RID # used to retrieve Blast
 	 *         results, <code>null</code> if not successful.
-	 * @throws NcbiResponseException when a error message instead of a valid RID is returned by NCBI Blast server
-	 * @throws IOException 
-	 * @throws UnknownHostException 
+	 * @throws NcbiResponseException
+	 *             when a error message instead of a valid RID is returned by
+	 *             NCBI Blast server
+	 * @throws IOException
+	 * @throws UnknownHostException
 	 */
-	public String submitBlast() throws NcbiResponseException, UnknownHostException, IOException {
+	public String submitBlast() throws NcbiResponseException,
+			UnknownHostException, IOException {
 
 		String message = ""; /* HTTP GET message */
 
@@ -159,87 +204,58 @@ public class RemoteBlast {
 			message = SUBMITPREFIX + query + cmdLine;
 		}
 
-//		try {
+		s = new Socket(Blast_SERVER, DEFAULT_PORT);
 
-			s = new Socket(Blast_SERVER, DEFAULT_PORT);
+		// create an output stream for sending message.
+		DataOutputStream out = new DataOutputStream(s.getOutputStream());
 
-			// create an output stream for sending message.
-			DataOutputStream out = new DataOutputStream(s.getOutputStream());
+		// create buffered reader stream for reading incoming byte stream.
+		InputStreamReader inBytes = new InputStreamReader(s.getInputStream());
+		BufferedReader in = new BufferedReader(inBytes);
 
-			// create buffered reader stream for reading incoming byte stream.
-			InputStreamReader inBytes = new InputStreamReader(s
-					.getInputStream());
-			BufferedReader in = new BufferedReader(inBytes);
+		// write String message to output stream as byte sequence.
+		out.writeBytes(message);
 
-			// write String message to output stream as byte sequence.
-			out.writeBytes(message);
-
-//			StringBuffer sb = new StringBuffer();
-			// reads each incoming line until it finds the CDD and Blast RIDs.
-			String line = in.readLine();
-			while(line!=null) {
-//				sb.append(line+"\n");
-				// get CDD_rid. this is done if CDD_rid is still null and doesn't affect the flow of getting RID
-				if (CDD_rid == null) {
-					Matcher m1 = p1.matcher(line);
-					Matcher m2 = p2.matcher(line);
-					if (m1.find()) {
-						CDD_rid = m1.group(1);
-					}
-					if (m2.find()) {
-						CDD_rid = "none";
-					}
+		// reads each incoming line until it finds the CDD and Blast RIDs.
+		String line = in.readLine();
+		while (line != null) {
+			// get CDD_rid. this is done if CDD_rid is still null and doesn't
+			// affect the flow of getting RID
+			if (CDD_rid == null) {
+				Matcher m1 = p1.matcher(line);
+				Matcher m2 = p2.matcher(line);
+				if (m1.find()) {
+					CDD_rid = m1.group(1);
 				}
-				
-				// check error response.
-				final String marker = "var myncbi_cu = unescape('";
-				final int markerLength = marker.length();
-				int i1 = line.indexOf(marker);
-				int i2 = line.indexOf("');", i1+markerLength);
-				if(i1>=0 && i2>i1+markerLength) { // don't try to do this when the marker is not there
-//					System.out.println("BEGIN:\n"+java.net.URLDecoder.decode(line.substring(i1+markerLength, i2), "UTF-8") );
-//					System.out.println("END\n");
-					String requestUrlWithError = URLDecoder.decode(line.substring(i1+markerLength, i2), "UTF-8");
-					final String errorMarker = "&ERROR=";
-					final int errorMarkerLength = errorMarker.length();
-					int ind1 = requestUrlWithError.indexOf(errorMarker);
-					if(ind1>0) {
-						int ind2 = requestUrlWithError.indexOf("&EXPECT", ind1+errorMarkerLength);
-						String error = requestUrlWithError.substring(ind1+errorMarkerLength, ind2);
-						throw new NcbiResponseException(error.replace("+", " "));
-					}
+				if (m2.find()) {
+					CDD_rid = "none";
 				}
-
-				// check RID
-				if (line.equals("<!--QBlastInfoBegin")) {
-					String nextLine = in.readLine();
-					if(nextLine!=null) { 
-						//nextLine = nextLine.trim();
-						String[] token = nextLine.trim().split(" ");
-						if(token.length<3) { // RID = ????
-							// return null;
-							// don't return here so we can further parse error message
-						} else {
-							s.close();
-							return token[2];
-						}
-					} else {
-						s.close();
-						return null;
-					}
-				}
-
-				line = in.readLine();
 			}
-//			System.out.println("**************\n"+sb);
 
-//		} catch (UnknownHostException e) {
-//			System.out.println("Socket:" + e.getMessage());
-//		} catch (EOFException e) {
-//			System.out.println("EOF:" + e.getMessage());
-//		} catch (IOException e) {
-//			System.out.println("readline:" + e.getMessage());
-//		}
+			// check error response.
+			String errorMessage = getErrorMessage(line);
+			if (errorMessage != null)
+				throw new NcbiResponseException(errorMessage);
+
+			final int TOKEN_NUMBER_IN_RID_STRING = 3; // RID = ????
+			// check RID
+			if (line.equals("<!--QBlastInfoBegin")) {
+				String nextLine = in.readLine();
+				if (nextLine != null) {
+					String[] token = nextLine.trim().split(" ");
+					if (token.length >= TOKEN_NUMBER_IN_RID_STRING) {
+						s.close();
+						return token[2];
+					} // don't return here so we can further parse error
+				} else {
+					s.close();
+					return null;
+				}
+			}
+
+			line = in.readLine();
+		}
+
 		return null;
 	}
 
@@ -250,21 +266,14 @@ public class RemoteBlast {
 	 * @param rid -
 	 *            String representing the Blast RID# to retrieve results for.
 	 */
-	public void getBlast(String rid) {
-		getBlastDone = false;
-		GetBlast bl = new GetBlast(rid);
-	}
-
 	public void getBlast(String rid, String format) {
 		getBlastDone = false;
 		String message = RESULTPREFIX + format + "&RID=" + rid + "\r\n\r\n";
 		resultURLString = "http://www.ncbi.nlm.nih.gov/blast/Blast.cgi?CMD=Get&FORMAT_TYPE="
 				+ format + "&RID=";
-		  System.out.println(new Date() + message);
-		GetBlast getBlast = new GetBlast(message);
-		// runMain(message);
-		// System.out.println(new Date() + "END");
-		// GetBlast bl = new GetBlast(rid, format);
+		LOG.info(new Date() + message);
+		BlastThread blastThread = new BlastThread(message);
+		blastThread.start();
 	}
 
 	/**
@@ -273,31 +282,14 @@ public class RemoteBlast {
 	 * from the NCBI Blast server with the Blast RID# via an HTTP request using
 	 * a Socket and writes results out to file.
 	 */
-	private class GetBlast extends Thread {
-
+	private class BlastThread extends Thread {
 		String message;
-		String file;
-		Socket s;
 
-		public GetBlast(String Blast_rid) {
+		public BlastThread(String Blast_rid) {
 			message = Blast_rid;
-			this.start();
-		}
-
-		public GetBlast(String Blast_rid, String format) {
-			message = RESULTPREFIX + format + "&RID=" + Blast_rid + "\r\n\r\n";
-
-			this.start();
 		}
 
 		public void run() {
-
-			runMain(message);
-
-		} // end of run().
-
-		public void runMain(String message) {
-
 			Socket s;
 			try {
 				// create an output stream for writing to a file. appending
@@ -306,7 +298,6 @@ public class RemoteBlast {
 						filename), true), true);
 
 				// print header.
-
 				ps.println(NCBIHEADER);
 
 				boolean BlastnotDone = false;
@@ -328,12 +319,10 @@ public class RemoteBlast {
 					out.writeBytes(message);
 
 					String data = in.readLine();
-					// System.out.println("IN HTML" + data );
 					boolean done = false;
 					boolean getWaitingTime = false;
 
 					while (data != null) {
-						// System.out.println("IN HTML" + data );
 						if (data.equals("\tStatus=WAITING")) {
 							done = false;
 						} else if (data.equals("\tStatus=READY")) {
@@ -343,7 +332,6 @@ public class RemoteBlast {
 							data = in.readLine();
 							data = in.readLine();
 							break;
-							// ps.println(data);
 						}
 						if (getWaitingTime) {
 							if (data == null) {
@@ -362,10 +350,9 @@ public class RemoteBlast {
 						data = in.readLine();
 					}
 					if (!done) {
-
 						Thread.sleep(SoapClient.TIMEGAP);
 					} else {
-						// todo Remove the new feature. WE need figure out a way
+						// TODO Remove the new feature. WE need figure out a way
 						// to download the images later.
 						boolean needRemoveNewFeature = false;
 						while (data != null) {
@@ -375,7 +362,7 @@ public class RemoteBlast {
 								debug = true;
 							}
 							if (debug) {
-								System.out.println("After 159: " + data);
+								LOG.debug("After 159: " + data);
 							}
 							data = updateImageLink(data);
 							if (data.trim().startsWith(
@@ -385,30 +372,10 @@ public class RemoteBlast {
 									"</center><hr></div><!--/#graphic-->")
 									&& needRemoveNewFeature) {
 								needRemoveNewFeature = false;
-								// data = in.readLine();
-								// ps.println(data);
-								// while (!data.trim().startsWith("<a
-								// href=\"http://www.ncbi.nlm.nih.gov/blast/treeview/blast_tree_view.cgi?"))
-								// {
-								// ps.println(data);
-								// data = in.readLine();
-								//
-								// }
-								// String newStr =
-								// "http://www.ncbi.nlm.nih.gov/blast/images/D.gif";
-								// if (data.indexOf("src=\"/blast/images") > -1)
-								// {
-								// data = data.replaceAll("src=\"/blast/images",
-								// "http://www.ncbi.nlm.nih.gov/blast/images");
-								// }
-								//
-								// ps.println(data);
 							} else if (!needRemoveNewFeature) {
-
 								ps.println(data);
 							}
 							data = in.readLine();
-							//System.out.println(data);
 						}
 					}
 
@@ -418,17 +385,17 @@ public class RemoteBlast {
 				getBlastDone = true;
 				ps.close();
 			} catch (UnknownHostException e) {
-				System.out.println("Socket:" + e.getMessage());
+				LOG.warn("Socket:" + e.getMessage());
 			} catch (EOFException e) {
-				System.out.println("EOF:" + e.getMessage());
+				LOG.warn("EOF:" + e.getMessage());
 			} catch (IOException e) {
-				System.out.println("readline:" + e.getMessage());
+				LOG.warn("readline:" + e.getMessage());
 			} catch (InterruptedException e) {
-				System.out.println("wait:" + e.getMessage());
+				LOG.warn("wait:" + e.getMessage());
 			}
 		} // end of run().
 
-	} // end of class GetBlast.
+	} // end of class BlastThread.
 
 	private String updateImageLink(String data) {
 		if (data.indexOf("SRC=\"/blast/images") > -1) {
@@ -464,73 +431,6 @@ public class RemoteBlast {
 		return data;
 	}
 
-	// public static void main(String[] args) {
-	// connectJDBC(args);
-	// String query =
-	// "MGARCPTRTLRARQPAHPRPPGTPRHHQRRPLPAASPTRHRSSRGRQIRARRPDRPGTRLRTGAAVDRQQPQHAPLRPLRLRSARADPRPQPGKPARRNPGHQRPRPRCRRPGAQQRPADRTLPADRSARHRVPAAPPAARPAHRRARQRRLRPARRPARPAGTRPLHDSRTRPAQLSGAADLRSDRRPATDRDHRQRRSPLLPAPCRRHHRTRRPPLPARIPPPVHSAAPHPPQQRGTRGNRGRPLLREPAQRHPSSRRRLRAPHRGRLPPGYRPAPQRGLPDHGHRRQDQRTHPRVPAGARGNGVAPTHGHPRMTSRRSHETPQGPDPRSPGAAPAYREAPPALTGRE";
-	// RemoteBlast test = new RemoteBlast(query);
-	// String message =
-	// "Put http://www.ncbi.nlm.nih.gov/blast/Blast.cgi?CMD=Put&QUERY=" +
-	// query +
-	// "&DATABASE=nr&PROGRAM=blastp&FILTER=L&GAPCOSTS=11%202&HITLIST_SZE=500&AUTO_FORMAT=Semiauto&CDD_SEARCH=on&SHOW_OVERVIEW=on&SERVICE=plain\r\n\r\n";
-	//
-	// String Blast_rid = test.submitBlast(message);
-	// String format = "HTML";
-	// test.getBlast(Blast_rid, format);
-	// format = "TEXT";
-	// System.out.println("START TEXT");
-	//
-	// //test.getBlast(Blast_rid, format);
-	// }
-
-	public static void connectJDBC(String args[]) {
-
-		try {
-			Statement stmt;
-
-			// Register the JDBC driver for MySQL.
-			Class.forName("com.mysql.jdbc.Driver");
-
-			// Define URL of database server for
-			// database named mysql on the localhost
-			// with the default port number 3306.
-			String url = "jdbc:mysql://genome-mysql.cse.ucsc.edu:3306/hg18";
-
-			// Get a connection to the database for a
-			// user named root with a blank password.
-			// This user is the default administrator
-			// having full privileges to do anything.
-			Connection con = DriverManager.getConnection(url, "genome", "");
-
-			// Display URL and connection information
-			System.out.println("URL: " + url);
-			System.out.println("Connection: " + con);
-
-			// Get a Statement object
-			stmt = con.createStatement();
-			boolean success = stmt
-					.execute("select * from knownGene where name = 'BC073913' ");
-			success = stmt
-					.execute("select * from knownGene where name = 'NM_010548'");
-			if (success) {
-				ResultSet rs = stmt.getResultSet();
-				while (rs.next()) {
-
-					// String s = rs.getString(1);
-					for (int i = 1; i < 10; i++) {
-						Object o = rs.getString(i);
-						System.out.println(o);
-					}
-				}
-				// Get the data from the row using the column name
-
-			}
-
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-
 	/**
 	 * RemoteBlast
 	 * 
@@ -541,10 +441,6 @@ public class RemoteBlast {
 		this.query = aQuery;
 		this.filename = DEFAULT_FILENAME;
 		this.CDD_rid = null;
-	}
-
-	public void setDbName(String dbName) {
-		this.dbName = dbName;
 	}
 
 	public void setWaitingTime(String waitingTime) {
@@ -559,14 +455,6 @@ public class RemoteBlast {
 		this.resultURLString = resultURLString;
 	}
 
-	public void setProgamName(String progamName) {
-		this.programName = progamName;
-	}
-
-	public String getDbName() {
-		return dbName;
-	}
-
 	public String getWaitingTime() {
 		return waitingTime;
 	}
@@ -579,7 +467,4 @@ public class RemoteBlast {
 		return resultURLString;
 	}
 
-	public String getProgamName() {
-		return programName;
-	}
 }
