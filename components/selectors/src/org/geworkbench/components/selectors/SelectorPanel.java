@@ -315,11 +315,7 @@ public abstract class SelectorPanel<T extends DSSequential> implements VisualPlu
 
     protected void addPanel(DSPanel<T> panel) {
         final String label = panel.getLabel();
-        context.addLabel(label);
-        for (int i = 0; i < panel.size(); i++) {
-            T t = panel.get(i);
-            context.labelItem(t, panel.getLabel());
-        }
+        context.labelItems(panel, label);
         final int index = treeModel.getIndexOfChild(context, label);
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
@@ -602,10 +598,11 @@ public abstract class SelectorPanel<T extends DSSequential> implements VisualPlu
                 if (context.indexOfLabel(label) == -1) {
                     addPanel(new CSPanel<T>(label));
                 }
-                for (int i = 0; i < items.length; i++) {
-                    T item = items[i];
-                    context.labelItem(item, label);
-                }
+                //for (int i = 0; i < items.length; i++) {
+                    //T item = items[i];
+                    //context.labelItem(item, label);
+                //}
+                context.labelItems(items, label);
                 panelTree.scrollPathToVisible(new TreePath(new Object[]{context, label}));
                 treeModel.fireLabelItemsChanged(label);
                 throwLabelEvent();
@@ -862,9 +859,7 @@ public abstract class SelectorPanel<T extends DSSequential> implements VisualPlu
                         foundPanel = true;
                         // Delete everything from the panel and re-add
                         context.clearItemsFromLabel(panelName);
-                        for (T marker : receivedPanel) {
-                            context.labelItem(marker, panelName);
-                        }
+                        context.labelItems(receivedPanel, panelName);
                         synchronized (treeModel) {
                             treeModel.fireLabelItemsChanged(panelName);
                         }
