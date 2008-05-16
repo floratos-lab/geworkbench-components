@@ -446,8 +446,9 @@ public class MatrixReduceAnalysis extends AbstractGridAnalysis implements
 				return new AlgorithmExecutionResults(false, "Cancelled", null);
 			}
 		} catch (Throwable e) {
-			log.error("Runtime error while running MatrixREDUCE", e);		
-			return new AlgorithmExecutionResults(false, "MatrixREDUCE cannot run: " + e.getMessage(), null);
+			log.error("Runtime error while running MatrixREDUCE", e);
+			return new AlgorithmExecutionResults(false,
+					"MatrixREDUCE cannot run: " + e.getMessage(), null);
 		}
 
 	}
@@ -564,7 +565,7 @@ public class MatrixReduceAnalysis extends AbstractGridAnalysis implements
 			} catch (Throwable t) {
 				exitVal = new Integer(-1);
 				log.error("Problems running MatrixREDUCE binary: "
-							+ t.getMessage());
+						+ t.getMessage());
 			}
 			return null;
 		}
