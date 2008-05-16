@@ -46,7 +46,7 @@ import edu.columbia.geworkbench.cagrid.anova.PValueEstimation;
 
 /**
  * @author yc2480
- * @version $Id: AnovaAnalysis.java,v 1.14 2008-03-24 17:17:05 chiangy Exp $
+ * @version $Id: AnovaAnalysis.java,v 1.15 2008-05-16 20:13:05 chiangy Exp $
  */
 public class AnovaAnalysis extends AbstractGridAnalysis implements
 		ClusteringAnalysis {
@@ -161,7 +161,7 @@ public class AnovaAnalysis extends AbstractGridAnalysis implements
 			return null;
 		}
 		
-		Set<String> labelSet = new HashSet<String>();
+		ArrayList<String> labelSet = new ArrayList<String>();
 
 		DSAnnotationContextManager manager = CSAnnotationContextManager
 				.getInstance();
