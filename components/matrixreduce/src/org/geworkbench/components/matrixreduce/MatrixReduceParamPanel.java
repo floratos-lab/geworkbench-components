@@ -136,9 +136,9 @@ public class MatrixReduceParamPanel extends AbstractSaveableParameterPanel imple
         saveRunlog.setSelected(false);
         
         FormLayout layout0 = new FormLayout(
-            	"left:max(40dlu;pref), 3dlu, 70dlu, 7dlu, " +            	
-            	"right:max(40dlu;pref), 3dlu, 50dlu, 7dlu, " +
-            	"left:max(40dlu;pref), 3dlu, 250dlu, 7dlu, " +
+        		"left:max(40dlu;pref), 3dlu, 70dlu, 7dlu, " +
+            	"right:max(40dlu;pref), 3dlu, 60dlu, 7dlu, " +
+            	"left:max(40dlu;pref), 3dlu, 60dlu, 7dlu, " +
             	"right:20dlu",
             	"");    	
         DefaultFormBuilder builder0 = new DefaultFormBuilder(layout0);
@@ -155,11 +155,11 @@ public class MatrixReduceParamPanel extends AbstractSaveableParameterPanel imple
       	this.add(builder0.getPanel(),c);      	      	
         
       	FormLayout layout = new FormLayout(
-            	"right:max(40dlu;pref), 3dlu, 40dlu, 7dlu, " +
+            	"left:max(40dlu;pref), 3dlu, 40dlu, 7dlu, " +
             	"right:max(40dlu;pref), 3dlu, 40dlu, 7dlu, " +
             	"right:max(40dlu;pref), 3dlu, 60dlu, 7dlu, " +
             	"right:max(40dlu;pref), 3dlu, 60dlu, 7dlu, " +
-            	"right:210dlu",
+            	"right:20dlu",
             	"");
         DefaultFormBuilder builder = new DefaultFormBuilder(layout);
         builder.setDefaultDialogBorder();
@@ -187,8 +187,10 @@ public class MatrixReduceParamPanel extends AbstractSaveableParameterPanel imple
                 int returnVal = chooser.showOpenDialog(MatrixReduceParamPanel.this);
                 if (returnVal == JFileChooser.APPROVE_OPTION) {
 	                sequenceFile = chooser.getSelectedFile().getPath();
+	                String sequenceFileName = chooser.getSelectedFile().getName();
 	                filename.setForeground(Color.BLACK);
-	            	filename.setText(sequenceFile);
+	            	filename.setText(sequenceFileName);
+	            	filename.setToolTipText(sequenceFile);
 	            	seqDir = chooser.getSelectedFile().getParent();
 	            	saveProperties();
                 }
@@ -202,8 +204,10 @@ public class MatrixReduceParamPanel extends AbstractSaveableParameterPanel imple
                 int returnVal = chooser.showOpenDialog(MatrixReduceParamPanel.this);
                 if (returnVal == JFileChooser.APPROVE_OPTION) {
 	                topoFile = chooser.getSelectedFile().getPath();
+	                String topoFileName = chooser.getSelectedFile().getName();
 	                topoFilename.setForeground(Color.BLACK);
-	            	topoFilename.setText(topoFile);
+	            	topoFilename.setText(topoFileName);
+	            	topoFilename.setToolTipText(topoFile);
 	            	topoPattern.setText("");
 	            	topoDir = chooser.getSelectedFile().getParent();
 	            	saveProperties();
