@@ -1,23 +1,31 @@
 package org.geworkbench.components.matrixreduce;
 
+import java.awt.Color;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.IOException;
+import java.io.ObjectStreamException;
+import java.io.Serializable;
+
+import javax.swing.InputVerifier;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
+import javax.swing.JComponent;
+import javax.swing.JFileChooser;
+import javax.swing.JFormattedTextField;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+
 import org.apache.commons.lang.StringUtils;
 import org.geworkbench.analysis.AbstractSaveableParameterPanel;
 import org.geworkbench.engine.properties.PropertiesManager;
 
-import javax.swing.*;
-
-import java.io.IOException;
-import java.io.ObjectStreamException;
-import java.io.Serializable;
-import java.io.File;
-import java.awt.*;
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
-
-import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.forms.builder.DefaultFormBuilder;
+import com.jgoodies.forms.layout.FormLayout;
 
 /**
  * @author John Watkinson
