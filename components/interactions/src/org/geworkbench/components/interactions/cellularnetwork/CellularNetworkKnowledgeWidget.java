@@ -21,6 +21,7 @@ import org.geworkbench.events.GeneSelectorEvent;
 import org.geworkbench.events.ProjectEvent;
 import org.apache.axis.EngineConfiguration;
 import org.apache.axis.configuration.BasicClientConfig;
+import org.apache.commons.collections15.set.ListOrderedSet;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -55,26 +56,43 @@ import java.util.List;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 /**
  * @author manjunath at genomecenter dot columbia dot edu, xiaoqing zhang
  */
 @AcceptTypes( { DSMicroarraySet.class })
 public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 		implements VisualPlugin {
+	private Log log = LogFactory.getLog(this.getClass());
+
 	private static String GOTERMCOLUMN = "GO Description";
+
 	private static String INCLUDEPDLABEL = "Include Protein-DNA";
+
 	private static final String ACTIVETABLE = "ACTIVETABLE";
+
 	private static final String DETAILTABLE = "DETAILTABLE";
+
 	private static String INCLUDEPPLABEL = "Include Protein-Protein";
+
 	private static String MARKERLABEL = "Marker";
+
 	private static String GENELABEL = "Gene";
+
 	private static String GENETYPELABEL = "Gene Type";
+
 	private static String PDNUMBERLABEL = "# of Protein-DNA Interactions";
+
 	private static String PPNUMBERLABEL = "# of Protein-Protein Interactions";
+
 	private static String[] columnLabels = new String[] { INCLUDEPDLABEL,
 			INCLUDEPPLABEL, MARKERLABEL, GENELABEL, GENETYPELABEL,
 			GOTERMCOLUMN, PDNUMBERLABEL, PPNUMBERLABEL };
+
 	private static TableColumn[] tableColumns;
+
 	private boolean cancelAction = false;
 
 	/**
@@ -587,8 +605,8 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 						} else {
 							int[] selectedRows = detailTable.getSelectedRows();
 							// display popup menu for row editing.
-							JPopupMenu contextMenu = createPopMenu(row,
-									mcol, selectedRows, DETAILTABLE);
+							JPopupMenu contextMenu = createPopMenu(row, mcol,
+									selectedRows, DETAILTABLE);
 							if (contextMenu != null
 									&& contextMenu.getComponentCount() > 0) {
 								contextMenu.show(detailTable, p.x, p.y);
@@ -1140,43 +1158,77 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 
 	// Variables declaration - do not modify//GEN-BEGIN:variables
 	private JButton addButton;
+
 	private JButton cancelButton;
+
 	private JList allGeneList;
+
 	private JButton refreshButton;
+
 	private JButton createNetWorkButton;
+
 	private JLabel jLabel1;
+
 	private JLabel jLabel2;
+
 	private JPanel jPanel1;
+
 	private JPanel jPanel2;
+
 	private JPanel throttlePanel;
+
 	private JFreeChart chart;
+
 	private ChartPanel graph;
+
 	private JScrollPane jScrollPane1;
+
 	private JScrollPane jScrollPane3;
+
 	private JScrollPane jScrollPane4;
+
 	private JTable detailTable;
+
 	private JButton removeButton;
+
 	private JButton displayPreferenceButton;
+
 	private JList selectedGenesList;
+
 	private JSplitPane topPane = new JSplitPane();
+
 	private JSplitPane upPanel = new JSplitPane();
+
 	private JTable activatedMarkerTable;
+
 	private JProgressBar jProgressBar1 = new JProgressBar();
+
 	private JToolBar progressDisplayBar;
+
 	private JToolBar commandToolBar;
+
 	private JToolBar graphToolBar;
+
 	private JLabel thresholdLabel;
+
 	private JLabel activeMarkersLabel;
+
 	private JTextField thresholdTextField;
+
 	private JSlider thresholdSlider;
+
 	private JCheckBox allProteinCheckbox;
+
 	private JCheckBox allProteinDNACheckbox;
+
 	private DecimalFormat myFormatter = new DecimalFormat("0.00");
+
 	// End of variables declaration//GEN-END:variables
 
 	// added by xz
 	private JCheckBox ppInteractions = new JCheckBox(
 			"Include  Protein-Protein Interactions");
+
 	private JCheckBox pdInteractions = new JCheckBox(
 			"Include Protein-DNA Interactions");
 
@@ -1185,15 +1237,21 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 	JCheckBox[] jCheckBoxes = new JCheckBox[columnLabels.length];
 
 	GridLayout gridLayout1 = new GridLayout();
+
 	GridBagLayout gridBagLayout1 = new GridBagLayout();
 
 	JPanel jCenterPanel = new JPanel();
+
 	JPanel jSouthPanel = new JPanel();
+
 	GridLayout gridLayout2 = new GridLayout();
+
 	JButton jButton1 = new JButton();
+
 	BorderLayout borderLayout1 = new BorderLayout();
 
 	JDialog dialog = new JDialog();
+
 	JDialog goDialog = new JDialog();
 
 	private void allGeneListHandler(MouseEvent evt) {
@@ -1531,13 +1589,13 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 						INCLUDEPDLABEL)) {
 
 					hit.setIncludePDInteraction((Boolean) value);
-					if(!(Boolean)value){
+					if (!(Boolean) value) {
 						allProteinDNACheckbox.setSelected(false);
 					}
 				} else if (tableColumn.getHeaderValue().toString()
 						.equalsIgnoreCase(INCLUDEPPLABEL)) {
 					hit.setIncludePPInteraction((Boolean) value);
-					if(!(Boolean)value){
+					if (!(Boolean) value) {
 						allProteinCheckbox.setSelected(false);
 					}
 				}
@@ -1551,7 +1609,9 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 
 	public class IntegerRenderer extends JLabel implements TableCellRenderer {
 		Border unselectedBorder = null;
+
 		Border selectedBorder = null;
+
 		boolean isBordered = true;
 
 		public IntegerRenderer(boolean isBordered) {
@@ -1657,7 +1717,9 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 
 	public class ColorRenderer extends JLabel implements TableCellRenderer {
 		Border unselectedBorder = null;
+
 		Border selectedBorder = null;
+
 		boolean isBordered = true;
 
 		public ColorRenderer(boolean isBordered) {
@@ -1742,8 +1804,11 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 	private INTERACTIONS interactionsService = null;
 
 	private Vector<DSGeneMarker> allGenes = new Vector<DSGeneMarker>();
+
 	private Vector<DSGeneMarker> selectedGenes = new Vector<DSGeneMarker>();
+
 	private Vector<BigDecimal> entrezIds = new Vector<BigDecimal>();
+
 	private Vector<String> geneNames;
 
 	{
@@ -1751,12 +1816,15 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 	}
 
 	private Vector<Vector<Object>> cachedPreviewData = new Vector<Vector<Object>>();
+
 	private Vector<CellularNetWorkElementInformation> hits = new Vector<CellularNetWorkElementInformation>();
 
 	private DSMicroarraySet dataset = null;
 
 	@Subscribe
 	public void receive(GeneSelectorEvent gse, Object source) {
+		log.debug("received GeneSelectorEvent::source="
+				+ source.getClass().getName());
 		DSPanel<DSGeneMarker> panel = gse.getPanel();
 		// System.out.println("IN cnb " + panel + new Date() );
 
@@ -1768,12 +1836,21 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 				hits.clear();
 			}
 			allGenes.clear();
+			ListOrderedSet<DSGeneMarker> orderedSet = new ListOrderedSet<DSGeneMarker>();
 			for (DSGeneMarker marker : panel) {
 				// System.out.println("For " + marker.getShortName() +
 				// selectedGenes.contains(marker) + selectedGenes.size());
-				if (!includeMarker(marker, hits) && !allGenes.contains(marker)) {
-					allGenes.add(marker);
+				if (!includeMarker(marker, hits) /*
+													 * &&
+													 * !allGenes.contains(marker)
+													 */) {
+					// allGenes.add(marker);
+					orderedSet.add(marker);
 				}
+			}
+			for (Iterator<DSGeneMarker> markerIter = orderedSet.iterator(); markerIter
+					.hasNext();) {
+				allGenes.add(markerIter.next());
 			}
 
 			activeMarkersTableModel.fireTableDataChanged();
@@ -1814,17 +1891,20 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 		return true;
 	}
 
-	private boolean includeMarker(DSGeneMarker marker,
-			Vector<CellularNetWorkElementInformation> vector) {
+	private boolean includeMarker(DSGeneMarker marker, Vector vector) {
 		if (vector == null || vector.size() == 0) {
 			return false;
 		}
-		for (CellularNetWorkElementInformation cellularNetWorkElementInformation : vector) {
-			if (cellularNetWorkElementInformation != null
-					&& cellularNetWorkElementInformation.getdSGeneMarker()
-							.equals(marker)) {
-				return true;
-			}
+		/*
+		 * for (CellularNetWorkElementInformation
+		 * cellularNetWorkElementInformation : vector) { if
+		 * (cellularNetWorkElementInformation != null &&
+		 * cellularNetWorkElementInformation.getdSGeneMarker() .equals(marker)) {
+		 * return true; }
+		 *  }
+		 */
+		if (java.util.Collections.binarySearch(vector, marker) >= 0) {
+			return true;
 		}
 		return false;
 	}
