@@ -1826,7 +1826,6 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 		log.debug("received GeneSelectorEvent::source="
 				+ source.getClass().getName());
 		DSPanel<DSGeneMarker> panel = gse.getPanel();
-		// System.out.println("IN cnb " + panel + new Date() );
 
 		if (panel != null) {
 			if (panel.size() == 0) {
@@ -1838,13 +1837,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 			allGenes.clear();
 			ListOrderedSet<DSGeneMarker> orderedSet = new ListOrderedSet<DSGeneMarker>();
 			for (DSGeneMarker marker : panel) {
-				// System.out.println("For " + marker.getShortName() +
-				// selectedGenes.contains(marker) + selectedGenes.size());
-				if (!includeMarker(marker, hits) /*
-													 * &&
-													 * !allGenes.contains(marker)
-													 */) {
-					// allGenes.add(marker);
+				if (!includeMarker(marker, hits)) {
 					orderedSet.add(marker);
 				}
 			}
@@ -1854,7 +1847,6 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 			}
 
 			activeMarkersTableModel.fireTableDataChanged();
-			Vector<DSGeneMarker> temp = new Vector<DSGeneMarker>();
 			checkSelectedTableWithNewDataSet(panel);
 
 			allGeneList.setModel(new DefaultListModel());
@@ -1862,11 +1854,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 			selectedGenesList.setModel(new DefaultListModel());
 			selectedGenesList.setModel(selectedGenesModel);
 
-		} else {
-			// allGenes.clear();
-			// hits.clear();
-			// repaint();
-		}
+		} 
 		repaint();
 	}
 
@@ -1895,14 +1883,6 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 		if (vector == null || vector.size() == 0) {
 			return false;
 		}
-		/*
-		 * for (CellularNetWorkElementInformation
-		 * cellularNetWorkElementInformation : vector) { if
-		 * (cellularNetWorkElementInformation != null &&
-		 * cellularNetWorkElementInformation.getdSGeneMarker() .equals(marker)) {
-		 * return true; }
-		 *  }
-		 */
 		if (java.util.Collections.binarySearch(vector, marker) >= 0) {
 			return true;
 		}
