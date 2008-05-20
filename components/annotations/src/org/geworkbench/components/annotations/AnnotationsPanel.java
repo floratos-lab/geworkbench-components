@@ -91,6 +91,7 @@ import java.io.StringReader;
 import java.util.Locale;
 
 import org.geworkbench.builtin.projects.DataSetNode;
+ 
 /**
  * <p>
  * Title: Bioworks
@@ -112,7 +113,7 @@ import org.geworkbench.builtin.projects.DataSetNode;
  * that this gene's product participates in.
  * 
  * @author manjunath at genomecenter dot columbia dot edu
- * @version $Id: AnnotationsPanel.java,v 1.23 2008-05-14 17:45:57 my2248 Exp $
+ * @version $Id: AnnotationsPanel.java,v 1.24 2008-05-20 15:00:14 my2248 Exp $
  * 
  * 
  */
@@ -370,6 +371,8 @@ public class AnnotationsPanel implements VisualPlugin {
             }
         });
         jScrollPane1.getViewport().add(table, null);
+        
+        annotationTableList = new HashMap<Integer, TableModel>();
     }
 
     /**
@@ -461,6 +464,7 @@ public class AnnotationsPanel implements VisualPlugin {
                     GeneData[] genes = geneData.toArray(new GeneData[0]);
                     PathwayData[] pathways = pathwayData.toArray(new PathwayData[0]);
                     model = new TableModel(markers, genes, pathways);
+                    annotationTableList.put(new Integer(maSet.hashCode()),  new TableModel(markers, genes, pathways));
                     table.setSortableModel(model);
                     table.getColumnModel().getColumn(0).setHeaderValue("Marker");
                     table.getColumnModel().getColumn(1).setHeaderValue("Gene");
@@ -487,6 +491,7 @@ public class AnnotationsPanel implements VisualPlugin {
         table.getColumnModel().getColumn(1).setHeaderValue("Gene");
         table.getColumnModel().getColumn(2).setHeaderValue("Pathway");
         table.getTableHeader().revalidate();
+        annotationTableList.put(new Integer(maSet.hashCode()),  new TableModel());
     }
 
     private void showPanels_actionPerformed(ActionEvent e) {
@@ -494,6 +499,7 @@ public class AnnotationsPanel implements VisualPlugin {
             JOptionPane.showMessageDialog(annotationsPanel, "Please activate marker panels to retrieve annotations.");
         }
         showAnnotation();
+        
     }
 
     private void activateMarker(MarkerData markerData) {
@@ -685,6 +691,8 @@ public class AnnotationsPanel implements VisualPlugin {
      */
     private SortableTable table;
     private TableModel model;
+    
+    private HashMap<Integer, TableModel> annotationTableList; 
 
     /**
      * Visual Widget
@@ -735,14 +743,68 @@ public class AnnotationsPanel implements VisualPlugin {
             maSet = (DSMicroarraySet) data;            
         }
         
+        int hashcode = maSet.hashCode();
         
-        Object pathwayName = pathwayComboBox.getSelectedItem();
-    	if (pathwayName != null && !pathwayName.toString().trim().equals(""))
-    	{ 
-    	  	pathwayComboBox.setSelectedIndex(0);     		 
-            jTabbedPane1.setTitleAt(1,"Pathway");   	 
+        if ( hashcode == oldHashCode)  
+        {
+        	//pathwayComboBox.setSelectedIndex(0);     		 
+           // jTabbedPane1.setTitleAt(1,"Pathway");
+        	return;
+        }
+        
+        if (annotationTableList.containsKey(new Integer(hashcode)))
+        {
+        	model = annotationTableList.get(new Integer(hashcode));
+        	table.setSortableModel(model);
+        	table.getColumnModel().getColumn(0).setHeaderValue("Marker");
+            table.getColumnModel().getColumn(1).setHeaderValue("Gene");
+            table.getColumnModel().getColumn(2).setHeaderValue("Pathway");
+            table.getTableHeader().revalidate();
+             
+        }           
+        else
+        {
+        	table.setSortableModel(new TableModel());
+        	table.getColumnModel().getColumn(0).setHeaderValue("Marker");
+            table.getColumnModel().getColumn(1).setHeaderValue("Gene");
+            table.getColumnModel().getColumn(2).setHeaderValue("Pathway");
+            table.getTableHeader().revalidate();
+            jTabbedPane1.setSelectedIndex(0);
+             
+        }
+         
+         
+    	  if (svgStringListMap.containsKey(new Integer(hashcode)))
+            svgStringList = svgStringListMap.get(new Integer(hashcode));
+    	  else
+    	  {
+    		  pathwayComboBox.removeAllItems();
+    		  pathwayComboBox.addItem(" ");
+    		  pathwayList.clear();
+    		  svgStringList.clear();
+    	  }
+    		  
+    	  if (pathwayListMap.containsKey(new Integer(hashcode)))
+    	  {
+    		  int selectIndex = pathwayComboItemSelectedMap.get(new Integer(hashcode));
+    		  pathwayList = pathwayListMap.get(new Integer(hashcode));
+    		  pathwayComboBox.removeAllItems();
+    		  pathwayComboBox.addItem(" ");
+    		  for (int i=pathwayList.size()-1; i>=0; i--)
+    			  pathwayComboBox.addItem(pathwayList.get(i));
+    		  pathwayComboBox.setSelectedIndex(selectIndex);
+    		  pathwayComboItemSelectedMap.put(new Integer(hashcode), new Integer(selectIndex));
+    		  pathwayComboBox.revalidate();
+    	  
+    	  } 	  
+    		
     	 
-       }
+    			  
+    	    //pathwayComboBox.setSelectedIndex(0);     		 
+            //jTabbedPane1.setTitleAt(1,"Pathway");   		 
+      
+    	
+    	    oldHashCode = maSet.hashCode();
           
     }
     
@@ -821,9 +883,11 @@ public class AnnotationsPanel implements VisualPlugin {
         jscrollPanePathway.getViewport().add(svgCanvas, null);
         
         svgStringList = new HashMap<String, String>();
-        
-         
-        
+        pathwayList = new ArrayList<String>();
+        svgStringListMap = new HashMap<Integer, HashMap<String, String>>();
+        pathwayListMap = new HashMap<Integer, ArrayList<String>>();
+        pathwayComboItemSelectedMap = new HashMap<Integer, Integer>();
+       // tabPanelSelectedMap = new HashMap<Integer, Integer>();
     }
     
     private void pathwayComboBox_actionPerformed(ActionEvent e) {
@@ -841,13 +905,19 @@ public class AnnotationsPanel implements VisualPlugin {
             pathwayPanel.revalidate();
             jTabbedPane1.setTitleAt(1,"Pathway");
     	}
+     
+    	Integer index = new Integer(pathwayComboBox.getSelectedIndex());     
+    	pathwayComboItemSelectedMap.put(new Integer(maSet.hashCode()), index);
     }
     
     private void clearDiagramButton_actionPerformed(ActionEvent e) {
     	Object pathwayName = pathwayComboBox.getSelectedItem();
     	if (pathwayName != null && !pathwayName.toString().trim().equals(""))
     	{
-    		svgStringList.remove(pathwayName);    		 
+    		svgStringList.remove(pathwayName);
+    		svgStringListMap.put(new Integer(maSet.hashCode()), (HashMap<String, String>)svgStringList.clone());
+    		pathwayList.remove(pathwayName);
+    		pathwayListMap.put(new Integer(maSet.hashCode()), (ArrayList<String>)pathwayList.clone());
     		svgCanvas.setDocument(null);   	 
     		pathwayComboBox.setSelectedIndex(0);  	
     		pathwayComboBox.removeItem(pathwayName);    		 
@@ -857,6 +927,8 @@ public class AnnotationsPanel implements VisualPlugin {
               
     	}
     	
+    	pathwayComboItemSelectedMap.put(new Integer(maSet.hashCode()), new Integer(pathwayComboBox.getSelectedIndex()));
+    	
     }
     
     private void clearHistButton_actionPerformed(ActionEvent e) {
@@ -864,12 +936,15 @@ public class AnnotationsPanel implements VisualPlugin {
     	pathwayComboBox.removeAllItems();
     	pathwayComboBox.insertItemAt(" ", 0);
     	svgStringList.clear();
+    	svgStringListMap.put(new Integer(maSet.hashCode()), (HashMap<String, String>)svgStringList.clone());
+		pathwayList.clear();
+		pathwayListMap.put(new Integer(maSet.hashCode()), (ArrayList<String>)pathwayList.clone());
     	svgCanvas.setDocument(null);     
 		svgCanvas.revalidate();
         pathwayPanel.revalidate();
         jTabbedPane1.setTitleAt(1,"Pathway");
         
-        
+        pathwayComboItemSelectedMap.put(new Integer(maSet.hashCode()), new Integer(pathwayComboBox.getSelectedIndex()));
     }
 
     
@@ -899,11 +974,18 @@ public class AnnotationsPanel implements VisualPlugin {
     	if (svgStringList.containsKey(pathwayName))
     	{	
     	    pathwayComboBox.removeItem(pathwayName); 
+    	    pathwayList.remove(pathwayName);
     	}    	 
-    	svgStringList.put(pathwayName, pathwayDiagram);    	    	 
+    	svgStringList.put(pathwayName, pathwayDiagram);
+    	
+    	svgStringListMap.put(new Integer(maSet.hashCode()), (HashMap<String, String>)svgStringList.clone());
+		pathwayList.add(pathwayName);
+		pathwayListMap.put(new Integer(maSet.hashCode()), (ArrayList<String>)pathwayList.clone());
+    	
     	pathwayComboBox.insertItemAt(pathwayName, 1);      
     	pathwayComboBox.setSelectedIndex(1);
     	pathwayComboBox.revalidate();
+    	
         
     }
     
@@ -948,6 +1030,14 @@ public class AnnotationsPanel implements VisualPlugin {
 
 
     private HashMap<String, String> svgStringList = null;   
+    private HashMap<Integer, HashMap<String, String>> svgStringListMap = null;
+    private ArrayList<String> pathwayList = null;
+    private HashMap<Integer, ArrayList<String>> pathwayListMap = null;   
+    private HashMap<Integer,Integer> tabPanelSelectedMap = null;
+    private HashMap<Integer,Integer> pathwayComboItemSelectedMap = null;
+    
+    private int oldHashCode = 0;
+    
     
     private JPanel pathwayPanel = new JPanel();   
     private BorderLayout borderLayout2 = new BorderLayout();
@@ -996,7 +1086,7 @@ public class AnnotationsPanel implements VisualPlugin {
            
             svgCanvas.setDocument(document);            
             svgCanvas.revalidate();
-            pathwayPanel.revalidate();
+            pathwayPanel.revalidate(); 
         } else {
             JOptionPane.showMessageDialog(pathwayPanel, "No Pathway diagram obtained from caBIO", "Diagram missing", JOptionPane.INFORMATION_MESSAGE);
         }
