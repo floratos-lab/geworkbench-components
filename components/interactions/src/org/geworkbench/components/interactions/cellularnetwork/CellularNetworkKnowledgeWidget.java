@@ -95,6 +95,8 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 
 	private boolean cancelAction = false;
 
+	//public static final int THRESHOLD = 5000;
+
 	/**
 	 * Creates new form Interactions
 	 */
@@ -1836,16 +1838,25 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 			}
 			allGenes.clear();
 			ListOrderedSet<DSGeneMarker> orderedSet = new ListOrderedSet<DSGeneMarker>();
-			for (DSGeneMarker marker : panel) {
-				if (!includeMarker(marker, hits)) {
+
+			if (hits != null && hits.size() > 0) {
+				for (DSGeneMarker marker : panel) {
 					orderedSet.add(marker);
 				}
-			}
-			for (Iterator<DSGeneMarker> markerIter = orderedSet.iterator(); markerIter
-					.hasNext();) {
-				allGenes.add(markerIter.next());
-			}
+				updateAllMarkersList(orderedSet, hits);
+				//				 
+				// for (DSGeneMarker marker : panel) {
+				// if (!includeMarker(marker, hits)) {
+				// orderedSet.add(marker);
+				// }
+				// }
+				//
+				// for (Iterator<DSGeneMarker> markerIter = orderedSet
+				// .iterator(); markerIter.hasNext();) {
+				// allGenes.add(markerIter.next());
+				// }
 
+			}
 			activeMarkersTableModel.fireTableDataChanged();
 			checkSelectedTableWithNewDataSet(panel);
 
@@ -1854,7 +1865,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 			selectedGenesList.setModel(new DefaultListModel());
 			selectedGenesList.setModel(selectedGenesModel);
 
-		} 
+		}
 		repaint();
 	}
 
@@ -1879,15 +1890,41 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 		return true;
 	}
 
-	private boolean includeMarker(DSGeneMarker marker, Vector vector) {
-		if (vector == null || vector.size() == 0) {
-			return false;
+	private void updateAllMarkersList(ListOrderedSet<DSGeneMarker> orderedSet,
+			Vector<CellularNetWorkElementInformation> vector) {
+		if (vector != null && orderedSet != null) {
+			for (CellularNetWorkElementInformation cellularNetWorkElementInformation : vector) {
+				if (cellularNetWorkElementInformation != null) {
+					DSGeneMarker gene = cellularNetWorkElementInformation
+							.getdSGeneMarker();
+					if (orderedSet.contains(gene)) {
+						orderedSet.remove(gene);
+					}
+				}
+			}
+			for (Iterator<DSGeneMarker> markerIter = orderedSet.iterator(); markerIter
+					.hasNext();) {
+				allGenes.add(markerIter.next());
+			}
 		}
-		if (java.util.Collections.binarySearch(vector, marker) >= 0) {
-			return true;
-		}
-		return false;
 	}
+
+	// private boolean includeMarker(DSGeneMarker marker,
+	// Vector<CellularNetWorkElementInformation> vector) {
+	//
+	// // if (java.util.Collections.binarySearch(vector, marker) >= 0) {
+	// // return true;
+	// // }
+	// for (CellularNetWorkElementInformation cellularNetWorkElementInformation
+	// : vector) {
+	// if (cellularNetWorkElementInformation != null
+	// && cellularNetWorkElementInformation.getdSGeneMarker()
+	// .equals(marker)) {
+	// return true;
+	// }
+	// }
+	// return false;
+	// }
 
 	@Subscribe
 	public void receive(ProjectEvent pe, Object source) {
