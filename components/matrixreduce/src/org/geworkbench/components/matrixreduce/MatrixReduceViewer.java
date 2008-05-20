@@ -99,11 +99,12 @@ public class MatrixReduceViewer implements VisualPlugin {
                 case 1:
                     return "Consensus Sequence";
                 case 2:
-                    return "Experiment Name";
-                case 3:
-                    return "Seed Sequence";
+                    return "Experiment Name";                
+                //case 3:
                 default:
-                    return "P-Value";
+                    return "Seed Sequence";
+                //default:
+                    //return "P-Value";
             }
         }
 
@@ -119,7 +120,8 @@ public class MatrixReduceViewer implements VisualPlugin {
             if (dataSet == null) {
                 return 0;
             } else {
-                return 5;
+                //return 5;
+            	return 4;
             }
         }
 
@@ -136,10 +138,11 @@ public class MatrixReduceViewer implements VisualPlugin {
                     }
                 case 2:
                     return psam.getExperiment();
-                case 3:
-                    return psam.getSeedSequence();
+                //case 3:
                 default:
-                    return psam.getPValue();
+                    return psam.getSeedSequence();
+                //default:
+                    //return psam.getPValue();
             }
         }
 
