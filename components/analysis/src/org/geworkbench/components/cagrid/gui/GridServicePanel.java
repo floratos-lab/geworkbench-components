@@ -31,7 +31,7 @@ import com.jgoodies.forms.layout.FormLayout;
 /**
  * 
  * @author keshav
- * @version $Id: GridServicePanel.java,v 1.29 2008-05-01 14:30:30 chiangy Exp $
+ * @version $Id: GridServicePanel.java,v 1.30 2008-05-21 22:00:47 hungc Exp $
  */
 public class GridServicePanel extends JPanel {
 	private Log log = LogFactory.getLog(this.getClass());
@@ -47,7 +47,7 @@ public class GridServicePanel extends JPanel {
 	Collection<String> analysisSet = new HashSet<String>();
 
 	GridServicesButtonListener gridServicesButtonListener;
-	
+
 	public DispatcherLabelListener dispatcherLabelListener = null;
 
 	/**
@@ -71,6 +71,7 @@ public class GridServicePanel extends JPanel {
 		analysisSet.add("EIGrid");
 		analysisSet.add("NetBoost");
 		analysisSet.add("Anova");
+		analysisSet.add("MatrixREDUCE");
 
 		/* part A */
 		DefaultFormBuilder indexServiceBuilder = new DefaultFormBuilder(
@@ -128,8 +129,7 @@ public class GridServicePanel extends JPanel {
 		dispatcherLabel.setForeground(Color.BLUE);
 
 		// dispatcher label listener
-		dispatcherLabelListener = new DispatcherLabelListener(
-				dispatcherLabel);
+		dispatcherLabelListener = new DispatcherLabelListener(dispatcherLabel);
 		dispatcherLabel.addMouseListener(dispatcherLabelListener);
 		dispatcherLabel.addMouseMotionListener(new MouseMotionAdapter() {
 
@@ -158,8 +158,8 @@ public class GridServicePanel extends JPanel {
 		final IndexServiceSelectionButtonListener indexServiceSelectionButtonListener = new IndexServiceSelectionButtonListener();
 
 		gridServicesButtonListener = new GridServicesButtonListener(
-				indexServiceSelectionButtonListener, indexServiceLabelListener, dispatcherLabelListener,
-				urlServiceBuilder);
+				indexServiceSelectionButtonListener, indexServiceLabelListener,
+				dispatcherLabelListener, urlServiceBuilder);
 		getServicesButton.addActionListener(gridServicesButtonListener);
 
 		/* add A, B, and C to the main (this) */
@@ -169,10 +169,11 @@ public class GridServicePanel extends JPanel {
 		jSplitPane1 = new JSplitPane();
 		jSplitPane1.setOrientation(JSplitPane.VERTICAL_SPLIT);
 		this.add(jSplitPane1, BorderLayout.CENTER);
-		
-		jSplitPane1.add(indexServiceSelectionButtonListener.getServiceDetailsBuilderScrollPane(), JSplitPane.BOTTOM);
+
+		jSplitPane1.add(indexServiceSelectionButtonListener
+				.getServiceDetailsBuilderScrollPane(), JSplitPane.BOTTOM);
 		jSplitPane1.add(urlServiceBuilderScrollPane, JSplitPane.TOP);
-		
+
 		this.revalidate();
 	}
 
