@@ -111,7 +111,7 @@ public class MatrixReduceAnalysis extends AbstractGridAnalysis implements
 	private Integer exitVal = new Integer(-1);
 
 	public MatrixReduceAnalysis() {
-		setLabel("Matrix Reduce");
+		setLabel("MatrixREDUCE");
 		setDefaultPanel(new MatrixReduceParamPanel());
 		params = (MatrixReduceParamPanel) aspp;
 	}
