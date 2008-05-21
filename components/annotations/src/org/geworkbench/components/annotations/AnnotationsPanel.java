@@ -24,8 +24,7 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.HashMap;
 
-import javax.swing.Box;
-import javax.swing.DefaultListModel;
+import javax.swing.Box; 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -89,8 +88,7 @@ import org.w3c.dom.*;
  
 import java.io.StringReader;
 import java.util.Locale;
-
-import org.geworkbench.builtin.projects.DataSetNode;
+ 
  
 /**
  * <p>
@@ -113,7 +111,7 @@ import org.geworkbench.builtin.projects.DataSetNode;
  * that this gene's product participates in.
  * 
  * @author manjunath at genomecenter dot columbia dot edu
- * @version $Id: AnnotationsPanel.java,v 1.24 2008-05-20 15:00:14 my2248 Exp $
+ * @version $Id: AnnotationsPanel.java,v 1.25 2008-05-21 20:51:27 my2248 Exp $
  * 
  * 
  */
@@ -299,8 +297,8 @@ public class AnnotationsPanel implements VisualPlugin {
      *
      * @throws Exception
      */
-    private void jbInit() throws Exception {
-    	
+    private void jbInit() throws Exception {    	
+    	 
     	mainPanel.setLayout( new GridLayout());
         mainPanel.add(jTabbedPane1);
         jTabbedPane1.add("Annotations", annotationsPanel);
@@ -539,7 +537,7 @@ public class AnnotationsPanel implements VisualPlugin {
         JMenuItem viewDiagram = new JMenuItem("View Diagram");
         viewDiagram.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent actionEvent) {
-                //publishAnnotationsEvent(new AnnotationsEvent("Pathway Selected", pathwayData.pathway));
+                publishAnnotationsEvent(new AnnotationsEvent("Pathway Selected", pathwayData.pathway));
                 receive(new AnnotationsEvent("Pathway Selected", pathwayData.pathway));
             
             }
@@ -745,12 +743,18 @@ public class AnnotationsPanel implements VisualPlugin {
         
         int hashcode = maSet.hashCode();
         
-        if ( hashcode == oldHashCode)  
+        if ( hashcode == oldHashCode || oldHashCode == 0)  
         {
         	//pathwayComboBox.setSelectedIndex(0);     		 
            // jTabbedPane1.setTitleAt(1,"Pathway");
+        	oldHashCode = hashcode;
         	return;
         }
+        
+        pathwayComboItemSelectedMap.put(new Integer(oldHashCode), new Integer(pathwayComboBox.getSelectedIndex()));
+        svgStringListMap.put(new Integer(oldHashCode), (HashMap<String, String>)svgStringList.clone());
+        pathwayListMap.put(new Integer(oldHashCode), (ArrayList<String>)pathwayList.clone());
+        tabPanelSelectedMap.put(new Integer(oldHashCode), jTabbedPane1.getSelectedIndex());
         
         if (annotationTableList.containsKey(new Integer(hashcode)))
         {
@@ -786,24 +790,29 @@ public class AnnotationsPanel implements VisualPlugin {
     		  
     	  if (pathwayListMap.containsKey(new Integer(hashcode)))
     	  {
-    		  int selectIndex = pathwayComboItemSelectedMap.get(new Integer(hashcode));
-    		  pathwayList = pathwayListMap.get(new Integer(hashcode));
+    		  int selectIndex = pathwayComboItemSelectedMap.get(new Integer(hashcode));    		   
+    		  
+              pathwayList = pathwayListMap.get(new Integer(hashcode));
     		  pathwayComboBox.removeAllItems();
     		  pathwayComboBox.addItem(" ");
     		  for (int i=pathwayList.size()-1; i>=0; i--)
-    			  pathwayComboBox.addItem(pathwayList.get(i));
-    		  pathwayComboBox.setSelectedIndex(selectIndex);
-    		  pathwayComboItemSelectedMap.put(new Integer(hashcode), new Integer(selectIndex));
-    		  pathwayComboBox.revalidate();
+    			  pathwayComboBox.addItem(pathwayList.get(i));    		  
+    		  pathwayComboBox.setSelectedIndex(selectIndex);    		 
+    		  pathwayComboBox.revalidate();    
+    	  
     	  
     	  } 	  
     		
-    	 
-    			  
+    	  if (tabPanelSelectedMap.containsKey(new Integer(hashcode)))
+    	  {
+    		  jTabbedPane1.setSelectedIndex(tabPanelSelectedMap.get(new Integer(hashcode)));
+    	  }
+    	  else
+    		  jTabbedPane1.setSelectedIndex(0);
     	    //pathwayComboBox.setSelectedIndex(0);     		 
             //jTabbedPane1.setTitleAt(1,"Pathway");   		 
       
-    	
+    	    
     	    oldHashCode = maSet.hashCode();
           
     }
@@ -887,7 +896,7 @@ public class AnnotationsPanel implements VisualPlugin {
         svgStringListMap = new HashMap<Integer, HashMap<String, String>>();
         pathwayListMap = new HashMap<Integer, ArrayList<String>>();
         pathwayComboItemSelectedMap = new HashMap<Integer, Integer>();
-       // tabPanelSelectedMap = new HashMap<Integer, Integer>();
+        tabPanelSelectedMap = new HashMap<Integer, Integer>();
     }
     
     private void pathwayComboBox_actionPerformed(ActionEvent e) {
@@ -904,20 +913,16 @@ public class AnnotationsPanel implements VisualPlugin {
     		svgCanvas.revalidate();
             pathwayPanel.revalidate();
             jTabbedPane1.setTitleAt(1,"Pathway");
-    	}
-     
-    	Integer index = new Integer(pathwayComboBox.getSelectedIndex());     
-    	pathwayComboItemSelectedMap.put(new Integer(maSet.hashCode()), index);
+    	}     
+    	 
     }
     
     private void clearDiagramButton_actionPerformed(ActionEvent e) {
     	Object pathwayName = pathwayComboBox.getSelectedItem();
     	if (pathwayName != null && !pathwayName.toString().trim().equals(""))
     	{
-    		svgStringList.remove(pathwayName);
-    		svgStringListMap.put(new Integer(maSet.hashCode()), (HashMap<String, String>)svgStringList.clone());
-    		pathwayList.remove(pathwayName);
-    		pathwayListMap.put(new Integer(maSet.hashCode()), (ArrayList<String>)pathwayList.clone());
+    		svgStringList.remove(pathwayName);    	 
+    		pathwayList.remove(pathwayName);    		 
     		svgCanvas.setDocument(null);   	 
     		pathwayComboBox.setSelectedIndex(0);  	
     		pathwayComboBox.removeItem(pathwayName);    		 
@@ -925,9 +930,8 @@ public class AnnotationsPanel implements VisualPlugin {
             pathwayPanel.revalidate();
             jTabbedPane1.setTitleAt(1,"Pathway");
               
-    	}
-    	
-    	pathwayComboItemSelectedMap.put(new Integer(maSet.hashCode()), new Integer(pathwayComboBox.getSelectedIndex()));
+    	}  	
+    	 
     	
     }
     
@@ -935,16 +939,12 @@ public class AnnotationsPanel implements VisualPlugin {
         
     	pathwayComboBox.removeAllItems();
     	pathwayComboBox.insertItemAt(" ", 0);
-    	svgStringList.clear();
-    	svgStringListMap.put(new Integer(maSet.hashCode()), (HashMap<String, String>)svgStringList.clone());
-		pathwayList.clear();
-		pathwayListMap.put(new Integer(maSet.hashCode()), (ArrayList<String>)pathwayList.clone());
+    	svgStringList.clear();    	 
+		pathwayList.clear();		 
     	svgCanvas.setDocument(null);     
 		svgCanvas.revalidate();
         pathwayPanel.revalidate();
-        jTabbedPane1.setTitleAt(1,"Pathway");
-        
-        pathwayComboItemSelectedMap.put(new Integer(maSet.hashCode()), new Integer(pathwayComboBox.getSelectedIndex()));
+        jTabbedPane1.setTitleAt(1,"Pathway");    
     }
 
     
@@ -976,12 +976,8 @@ public class AnnotationsPanel implements VisualPlugin {
     	    pathwayComboBox.removeItem(pathwayName); 
     	    pathwayList.remove(pathwayName);
     	}    	 
-    	svgStringList.put(pathwayName, pathwayDiagram);
-    	
-    	svgStringListMap.put(new Integer(maSet.hashCode()), (HashMap<String, String>)svgStringList.clone());
-		pathwayList.add(pathwayName);
-		pathwayListMap.put(new Integer(maSet.hashCode()), (ArrayList<String>)pathwayList.clone());
-    	
+    	svgStringList.put(pathwayName, pathwayDiagram);      	 
+		pathwayList.add(pathwayName);	    	
     	pathwayComboBox.insertItemAt(pathwayName, 1);      
     	pathwayComboBox.setSelectedIndex(1);
     	pathwayComboBox.revalidate();
@@ -1035,6 +1031,8 @@ public class AnnotationsPanel implements VisualPlugin {
     private HashMap<Integer, ArrayList<String>> pathwayListMap = null;   
     private HashMap<Integer,Integer> tabPanelSelectedMap = null;
     private HashMap<Integer,Integer> pathwayComboItemSelectedMap = null;
+    
+    
     
     private int oldHashCode = 0;
     
