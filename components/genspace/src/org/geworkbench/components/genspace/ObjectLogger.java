@@ -17,7 +17,7 @@ public class ObjectLogger {
 
 	private Log log = LogFactory.getLog(this.getClass());
 
-	public ObjectLogger(String analysisName, String dataSetName, String username, boolean genspace) {
+	public ObjectLogger(String analysisName, String dataSetName, String transactionId, String username, boolean genspace) {
 		try {
 			File f = new File("geworkbench_log.xml");
 			
@@ -29,6 +29,7 @@ public class ObjectLogger {
 			fw.write("\n\t\t<host name=\""+ InetAddress.getLocalHost().getHostName() + "\"/>");
 			fw.write("\n\t\t<analysis name=\""+ analysisName + "\"/>");
 			fw.write("\n\t\t<dataset name=\""+ dataSetName + "\"/>");
+			fw.write("\n\t\t<transaction id=\""+ transactionId + "\"/>");
 			fw.write("\n\t\t<time>");
 			
 			Calendar c = Calendar.getInstance();
