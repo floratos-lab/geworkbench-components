@@ -110,6 +110,8 @@ public class MatrixReduceAnalysis extends AbstractGridAnalysis implements
 
 	private Integer exitVal = new Integer(-1);
 
+	private DSMatrixReduceSet dataSet = null;
+
 	public MatrixReduceAnalysis() {
 		setLabel("MatrixREDUCE");
 		setDefaultPanel(new MatrixReduceParamPanel());
@@ -372,8 +374,7 @@ public class MatrixReduceAnalysis extends AbstractGridAnalysis implements
 					}
 				}
 
-				DSMatrixReduceSet dataSet = new CSMatrixReduceSet(mSet,
-						"MatrixREDUCE Results");
+				dataSet = new CSMatrixReduceSet(mSet, "MatrixREDUCE Results");
 
 				log.debug("calling mr.getResults()");
 				try {
@@ -436,14 +437,23 @@ public class MatrixReduceAnalysis extends AbstractGridAnalysis implements
 				if (params.saveRunLog()) {
 					log.info("Saving run log to project history.");
 					if (!StringUtils.isEmpty(mr.stderr))
-						ProjectPanel.addToHistory(dataSet, mr.stderr
-								.substring(mr.stderr.indexOf("\n")));
+						ProjectPanel.addToHistory(dataSet, StringUtils.replace(
+								StringUtils.replace(mr.stderr
+										.substring(mr.stderr.indexOf("\n")),
+										TOPOLOGY_FILE_NAME, params
+												.getTopoFile()),
+								SEQUENCE_FILE_NAME, params.getSequenceFile()));
 					else
 						ProjectPanel.addToHistory(dataSet, mr.stdout);
 				}
 				return new AlgorithmExecutionResults(true, "Completed", dataSet);
 			} else {
-				return new AlgorithmExecutionResults(false, "Cancelled", null);
+				return new AlgorithmExecutionResults(false, StringUtils
+						.replace(StringUtils.replace(mr.stderr
+								.substring(mr.stderr.indexOf("\n")),
+								TOPOLOGY_FILE_NAME, params.getTopoFile()),
+								SEQUENCE_FILE_NAME, params.getSequenceFile()),
+						null);
 			}
 		} catch (Throwable e) {
 			log.error("Runtime error while running MatrixREDUCE", e);
@@ -456,8 +466,6 @@ public class MatrixReduceAnalysis extends AbstractGridAnalysis implements
 	public static void writePSAM(DSPositionSpecificAffintyMatrix psam,
 			PrintWriter out) throws IOException {
 		out.println(psam.getSeedSequence() + " # " + psam.getExperiment());
-		out.println("" + psam.getPValue() + " # p-value");
-		out.println("" + psam.getBonferroni() + " # bonferroni");
 		if (psam.isTrailingStrand()) {
 			out.println("1 # derived from trailing strand");
 		} else {
