@@ -30,6 +30,9 @@ public abstract class GPAnalysisPanel extends AbstractSaveableParameterPanel {
     {
         gpTabbedPane = new JTabbedPane();
         gpConfigPanel = new GPConfigPanel();
+        gpConfigPanel.setPreferredSize(getPreferredSize());
+        gpConfigPanel.setMinimumSize(getPreferredSize());
+        gpConfigPanel.setMaximumSize(getPreferredSize());
         gpHelpPanel = new GPHelpPanel(label, getParamDescriptionFile(), getDescriptionFile());
         parameterPanel = panel;
         parameterPanel.setLayout(new BorderLayout());
