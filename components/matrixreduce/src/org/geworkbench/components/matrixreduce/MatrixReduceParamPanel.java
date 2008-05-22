@@ -9,6 +9,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.ObjectStreamException;
 import java.io.Serializable;
+import java.text.DecimalFormat;
 
 import javax.swing.InputVerifier;
 import javax.swing.JButton;
@@ -19,6 +20,7 @@ import javax.swing.JFileChooser;
 import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.text.NumberFormatter;
 
 import org.apache.commons.lang.StringUtils;
 import org.geworkbench.analysis.AbstractSaveableParameterPanel;
@@ -49,11 +51,12 @@ public class MatrixReduceParamPanel extends AbstractSaveableParameterPanel
 			"Reverse", "Both" };
 
 	private static final int[] STRAND_NUMBERS = { 0, 1, -1, 2 }; // These
-																	// numbers
-																	// correspond
-																	// to the
-																	// choices
-																	// above
+
+	// numbers
+	// correspond
+	// to the
+	// choices
+	// above
 
 	private static final String SEQUENCE_DATA_DIR = "sequence";
 
@@ -61,7 +64,8 @@ public class MatrixReduceParamPanel extends AbstractSaveableParameterPanel
 
 	private static final String DEFAULT_DATA_DIR = "data";
 
-	private JFormattedTextField pValue = new JFormattedTextField(0.001);
+	private JFormattedTextField pValue = new JFormattedTextField(
+			new NumberFormatter(new DecimalFormat("#.##################")));
 
 	private JComboBox strandCombo = new JComboBox(STRAND_CHOICES);
 
@@ -103,7 +107,8 @@ public class MatrixReduceParamPanel extends AbstractSaveableParameterPanel
 		private Object maxMotif;
 
 		private int strand; // this is the combo selected index, not the strand
-							// value sent to the service
+
+		// value sent to the service
 
 		private boolean saveRunlog;
 
@@ -118,7 +123,7 @@ public class MatrixReduceParamPanel extends AbstractSaveableParameterPanel
 			this.pvalue = pvalue;
 			this.maxMotif = maxMotif;
 			this.strand = strand; // this is the combo selected index, not the
-									// strand value sent to the service
+			// strand value sent to the service
 			this.saveRunlog = saveRunlog;
 		}
 
@@ -208,6 +213,7 @@ public class MatrixReduceParamPanel extends AbstractSaveableParameterPanel
 
 		rangeVerifier rvPV = new rangeVerifier();
 		rvPV.setrange(0.0, 1.0);
+		pValue.setText("0.001");
 		pValue.setInputVerifier(rvPV);
 		rangeVerifierInt rvMM = new rangeVerifierInt();
 		rvMM.setrange(0, 20);
