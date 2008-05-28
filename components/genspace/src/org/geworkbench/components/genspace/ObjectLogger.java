@@ -60,7 +60,8 @@ public class ObjectLogger {
 			fw.close();
 		} 
 		catch (Exception e) {
-			e.printStackTrace();
+		    // don't complain if something happens here
+		    //e.printStackTrace();
 		}
 	}
 }

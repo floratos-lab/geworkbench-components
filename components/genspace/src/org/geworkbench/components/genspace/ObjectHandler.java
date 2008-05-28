@@ -12,13 +12,13 @@ import org.apache.ojb.otm.lock.ObjectLock;
  * A handler used to log events.
  * 
  * @author sheths
- * @version $Id: ObjectHandler.java,v 1.4 2008-05-21 23:37:21 sheths Exp $
+ * @version $Id: ObjectHandler.java,v 1.5 2008-05-28 03:06:19 sheths Exp $
  */
 public class ObjectHandler {
 
 	private Log log = LogFactory.getLog(this.getClass());
-	private String host = "localhost";
-	private int port = 1200;
+	private String host = "vesey.cs.columbia.edu";
+	private int port = 12346;
 	private int frequency = 2;
 	private static int count = 0;
 	private static String lastRunDataSetName = "";
@@ -38,6 +38,9 @@ public class ObjectHandler {
 				String analysisName = "";
 				String dataSetName = "";
 				String username;
+
+				/*
+				  // change this when we start using genSpace logins
 				boolean genspace = genspaceLogin.isLoggedIn;
 
 				if (genspace) {
@@ -45,6 +48,11 @@ public class ObjectHandler {
 				} else {
 					username = System.getProperty("user.name");
 				}
+				*/
+
+				// this is temporary
+				boolean genspace = false; // for now they are NOT logged in
+				username = System.getProperty("user.name"); // so use the system name
 
 				for (Method m : methods) {
 					try {
