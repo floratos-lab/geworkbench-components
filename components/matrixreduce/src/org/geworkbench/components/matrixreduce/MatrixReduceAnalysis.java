@@ -19,6 +19,7 @@ import java.io.PrintWriter;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Observer;
 
@@ -32,7 +33,9 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.bussemakerlab.MatrixREDUCE.XML.BasePair;
+import org.bussemakerlab.MatrixREDUCE.XML.Experiment;
 import org.bussemakerlab.MatrixREDUCE.XML.Psam;
+import org.bussemakerlab.MatrixREDUCE.XML.Slope;
 import org.bussemakerlab.MatrixREDUCE.engine.MatrixREDUCE;
 import org.geworkbench.analysis.AbstractAnalysis;
 import org.geworkbench.analysis.AbstractGridAnalysis;
@@ -41,8 +44,10 @@ import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetV
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
+import org.geworkbench.bison.datastructure.complex.pattern.matrix.CSMatrixReduceExperiment;
 import org.geworkbench.bison.datastructure.complex.pattern.matrix.CSMatrixReduceSet;
 import org.geworkbench.bison.datastructure.complex.pattern.matrix.CSPositionSpecificAffinityMatrix;
+import org.geworkbench.bison.datastructure.complex.pattern.matrix.DSMatrixReduceExperiment;
 import org.geworkbench.bison.datastructure.complex.pattern.matrix.DSMatrixReduceSet;
 import org.geworkbench.bison.datastructure.complex.pattern.matrix.DSPositionSpecificAffintyMatrix;
 import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
@@ -76,11 +81,7 @@ public class MatrixReduceAnalysis extends AbstractGridAnalysis implements
 
 	public static final String[] NUCLEOTIDES_SMALL = { "a", "c", "g", "t" };
 
-	public static final String EXPERIMENT = "based on experiment:";
-
-	public static final String PVALUE = "p_value=";
-
-	public static final String PCUTOFF = "p-cutoff";
+	public static final String DELIMITER = "#";
 
 	public static final String DYNAMIC_DIRECTION = "dynamic";
 
@@ -345,7 +346,7 @@ public class MatrixReduceAnalysis extends AbstractGridAnalysis implements
 
 			if (exitVal.intValue() == 0) {
 
-				// Parse FASTA sequence data
+				// Sequences: Parse FASTA sequence data
 				File fastaFile = new File(sequenceFile);
 
 				ListOrderedMap<String, String> sequenceMap = new ListOrderedMap<String, String>();
@@ -384,13 +385,49 @@ public class MatrixReduceAnalysis extends AbstractGridAnalysis implements
 					log.error("Cannot get results from MatrixREDUCE run.", mre);
 				}
 
+				// Experiments
 				ArrayList<Psam> psams = mr.mrRes.Results.getPsam();
+				log.info("mr.mrRes.Results.getPsam().size()=" + psams.size());
+				ArrayList<Experiment> exps = mr.mrRes.Results.getExperiment();
+				ListOrderedMap<String, List<DSMatrixReduceExperiment>> expMap = new ListOrderedMap<String, List<DSMatrixReduceExperiment>>();
+				HashMap<String, DSMatrixReduceExperiment> tempMap = new HashMap<String, DSMatrixReduceExperiment>(
+						exps.size());
+				for (int i = 0; i < psams.size(); i++) {
+					expMap
+							.put("" + psams.get(i).get_psam_id(),
+									new ArrayList<DSMatrixReduceExperiment>(
+											exps.size()));
+				}
+				for (int i = 0; i < exps.size(); i++) {					
+					Experiment experiment = exps.get(i);
+					ArrayList<Slope> slopes = exps.get(i).getMultivariateFit()
+							.getSlope();
+					for (int j = 0; j < slopes.size(); j++) {
+						DSMatrixReduceExperiment exp = new CSMatrixReduceExperiment();
+						Slope slope = slopes.get(j);
+						exp.setID("" + experiment.get_expt_id());
+						exp.setLabel(experiment.get_description().trim());
+						tempMap.put(exp.getLabel(), exp);
+						exp.setPsamId("" + slope.psam_id);
+						exp.setCoeff(slope.get_coeff());
+						exp.setPValue(slope.get_p_value());
+						exp.setTValue(slope.get_t_value());
+						expMap.get(exp.getPsamId()).add(exp);
+					}					
+				}
+
+				// PSAMs
 				for (int i = 0; i < psams.size(); i++) {
 					DSPositionSpecificAffintyMatrix psam = new CSPositionSpecificAffinityMatrix();
-
+					psam.setID("" + psams.get(i).get_psam_id());
 					psam.setExperiment(psams.get(i)
-							.get_experiment_description());
-					psam.setPValue(pval);
+							.get_experiment_description().trim());
+					DSMatrixReduceExperiment bestExp = tempMap.get(psam
+							.getExperiment());
+					psam.setExperimentID(bestExp.getID());
+					psam.setPValue(bestExp.getPValue());
+					psam.setTValue(bestExp.getTValue());
+					psam.setCoeff(bestExp.getCoeff());
 					if (psams.get(i).get_directionality().toLowerCase()
 							.indexOf(DYNAMIC_DIRECTION) >= 0) {
 						psam.setTrailingStrand(true);
@@ -434,6 +471,8 @@ public class MatrixReduceAnalysis extends AbstractGridAnalysis implements
 					dataSet.add(psam);
 				}
 				dataSet.setSequences(sequenceMap);
+				dataSet.setMatrixReduceExperiments(expMap);
+				tempMap = null;
 				if (params.saveRunLog()) {
 					log.info("Saving run log to project history.");
 					if (!StringUtils.isEmpty(mr.stderr))

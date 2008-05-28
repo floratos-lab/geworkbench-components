@@ -365,7 +365,7 @@ public class MatrixReduceParamPanel extends AbstractSaveableParameterPanel
 	}
 
 	public double getPValue() {
-		return ((Number) pValue.getValue()).doubleValue();
+		return Double.parseDouble(pValue.getText());
 	}
 
 	public int getStrand() {
