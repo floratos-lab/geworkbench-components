@@ -407,8 +407,8 @@ public class MatrixReduceAnalysis extends AbstractGridAnalysis implements
 						Slope slope = slopes.get(j);
 						exp.setID("" + experiment.get_expt_id());
 						exp.setLabel(experiment.get_description().trim());
-						tempMap.put(exp.getLabel(), exp);
 						exp.setPsamId("" + slope.psam_id);
+						tempMap.put(exp.getLabel()+ "#" + exp.getPsamId(), exp);						
 						exp.setCoeff(slope.get_coeff());
 						exp.setPValue(slope.get_p_value());
 						exp.setTValue(slope.get_t_value());
@@ -423,7 +423,7 @@ public class MatrixReduceAnalysis extends AbstractGridAnalysis implements
 					psam.setExperiment(psams.get(i)
 							.get_experiment_description().trim());
 					DSMatrixReduceExperiment bestExp = tempMap.get(psam
-							.getExperiment());
+							.getExperiment() + "#" + psam.getID());
 					psam.setExperimentID(bestExp.getID());
 					psam.setPValue(bestExp.getPValue());
 					psam.setTValue(bestExp.getTValue());
