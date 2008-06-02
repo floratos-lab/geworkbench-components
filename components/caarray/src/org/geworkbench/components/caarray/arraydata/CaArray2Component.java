@@ -184,7 +184,7 @@ public class CaArray2Component implements VisualPlugin {
 									maSet2.setLabel(experimentName);
 									event.setPopulated(true);
 									if (!merge) {
-										maSet.setLabel(experimentName + "_"
+										maSet2.setLabel(experimentName + "_"
 												+ hybridzations[i]);
 										org.geworkbench.events.ProjectNodeAddedEvent pevent = new org.geworkbench.events.ProjectNodeAddedEvent(
 												"message", maSet2, null);
@@ -342,7 +342,7 @@ public class CaArray2Component implements VisualPlugin {
 									maSet2.setLabel(experimentName);
 									event.setPopulated(true);
 									if (!merge) {
-										maSet.setLabel(experimentName + "_"
+										maSet2.setLabel(experimentName + "_"
 												+ hybridzations[i]);
 										org.geworkbench.events.ProjectNodeAddedEvent pevent = new org.geworkbench.events.ProjectNodeAddedEvent(
 												"message", maSet2, null);
