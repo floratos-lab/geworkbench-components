@@ -1,12 +1,35 @@
 package org.geworkbench.components.selectors;
 
-import com.Ostermiller.util.CSVPrinter;
-import com.Ostermiller.util.ExcelCSVParser;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.HashSet;
+import java.util.Set;
+
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JFileChooser;
+import javax.swing.JList;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.filechooser.FileFilter;
+import javax.swing.tree.TreePath;
+
+import org.geworkbench.bison.annotation.DSAnnotationContext;
+import org.geworkbench.bison.datastructure.biocollections.DSAncillaryDataSet;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.sequences.DSSequenceSet;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
+import org.geworkbench.bison.datastructure.bioobjects.microarray.DSSignificanceResultSet;
+import org.geworkbench.bison.datastructure.complex.panels.CSAnnotPanel;
 import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
+import org.geworkbench.bison.datastructure.complex.panels.DSAnnotatedPanel;
 import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.engine.management.Publish;
@@ -17,17 +40,8 @@ import org.geworkbench.events.MarkerSelectedEvent;
 import org.geworkbench.events.SubpanelChangedEvent;
 import org.geworkbench.util.Util;
 
-import javax.swing.*;
-import javax.swing.filechooser.FileFilter;
-import javax.swing.tree.TreePath;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.HashSet;
-import java.util.Set;
+import com.Ostermiller.util.CSVPrinter;
+import com.Ostermiller.util.ExcelCSVParser;
 
 /**
  * A panel that handles the creation and management of gene panels, as well as
@@ -369,4 +383,41 @@ public class GenePanel extends SelectorPanel<DSGeneMarker> {
 
 		return panel;
 	}
+	
+	@Subscribe
+	public void receive(
+			org.geworkbench.events.ProjectNodePostCompletedEvent pnce,
+			Object source) {
+		DSAncillaryDataSet result = pnce.getAncillaryDataSet();
+
+		if ((result != null) && (result instanceof DSSignificanceResultSet)) {
+			DSAnnotatedPanel<DSGeneMarker, Float> panelSignificant = new CSAnnotPanel<DSGeneMarker, Float>(
+					"Significant Genes");
+			DSSignificanceResultSet temp = (DSSignificanceResultSet<DSGeneMarker>) result;
+			DSPanel<DSGeneMarker> temp2 = temp.getSignificantMarkers();
+			for (DSGeneMarker named : temp2) {
+				panelSignificant.add(named);
+
+			}
+
+			//in order to change the context without changing the focused node, we do following:
+			//1. save current context, 2. change to the one need modify, 3. change back to current context.
+			
+			//save current context
+			DSAnnotationContext currentContext = context; 
+			//change to the one need modify
+            dataSetChanged(pnce.getAncillaryDataSet().getParentDataSet());
+			addPanel(panelSignificant);
+			//FIXME: I don't know why event driven won't work. I use method call instead above, for now.			
+			/*			
+						publishSubpanelChangedEvent(new SubpanelChangedEvent(
+								DSGeneMarker.class, panelSignificant,
+								SubpanelChangedEvent.NEW));
+			*/				
+			//change it back
+            context = currentContext;
+            
+		}
+	}
+
 }
