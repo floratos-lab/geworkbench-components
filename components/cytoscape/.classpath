@@ -6,5 +6,8 @@
 	<classpathentry kind="lib" path="lib/layout.jar"/>
 	<classpathentry kind="lib" path="lib/yLayouts.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/geworkbench-core"/>
+	<classpathentry kind="lib" path="lib/geneways60test.jar"/>
+	<classpathentry kind="lib" path="lib/cutenet.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/cutenet"/>
 	<classpathentry kind="output" path="classes"/>
 </classpath>
