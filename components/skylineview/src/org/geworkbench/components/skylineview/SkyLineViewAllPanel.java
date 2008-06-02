@@ -18,6 +18,11 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Vector;
+/*
+jalview is used for multiple sequence alignment 
+Clamp, M., Cuff, J., Searle, S. M. and Barton, G. J. (2004),
+"The Jalview Java Alignment Editor," Bioinformatics, 20, 426-7
+ */
 import jalview.gui.*;
 import jalview.bin.*;
 
@@ -29,13 +34,6 @@ import jalview.bin.*;
     private JScrollPane jScrollPane = new JScrollPane();
     private Border border = jScrollPane.getBorder();
     private String title = "";
-    //FIXME: got rootdir from input parameter outdir in SkylinePanel by subscribe/publish event with outdir
-    //FIXME: go back to .hit has problem in 10. query end
-    //FIXME: .hit doesn't have the last cell
-    //FIXME: handle qw status of the submitted job, don't resubmit during qw
-    //FIXME: Jmol display each model's pdb file
-    //FIXME: jtable necessary file, ps file inside window
-    //    private String rootdir = "/razor/5/users/mw2518/nesg/test/";
     private String rootdir = "http://156.111.188.2:8090/SkyLineData/output";
     private String resultdir = "";
     private String pname = "";

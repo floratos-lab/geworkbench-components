@@ -32,7 +32,11 @@ import java.awt.event.ActionListener;
 import java.util.*;
 import java.net.*;
 import javax.swing.event.*;
-
+/*
+jalview is used for multiple sequence alignment 
+Clamp, M., Cuff, J., Searle, S. M. and Barton, G. J. (2004),
+"The Jalview Java Alignment Editor," Bioinformatics, 20, 426-7
+ */
 import jalview.gui.*;
 import jalview.bin.*;
 
