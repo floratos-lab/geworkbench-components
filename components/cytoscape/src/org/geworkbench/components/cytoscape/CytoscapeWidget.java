@@ -1,22 +1,30 @@
 package org.geworkbench.components.cytoscape;
 
-import com.jgoodies.plaf.FontSizeHints;
-import com.jgoodies.plaf.Options;
-import cytoscape.*;
-import cytoscape.Cytoscape;
-import cytoscape.data.Semantics;
-import cytoscape.data.servers.BioDataServer;
-import cytoscape.view.CyMenus;
-import cytoscape.view.CyNetworkView;
-import cytoscape.view.CyWindow;
-import cytoscape.view.GraphViewController;
-import cytoscape.visual.VisualMappingManager;
-import cytoscape.visual.VisualStyle;
-import cytoscape.visual.ui.VizMapUI;
 import giny.model.Node;
 import giny.view.GraphView;
 import giny.view.GraphViewChangeEvent;
 import giny.view.GraphViewChangeListener;
+
+import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.Container;
+import java.awt.Dimension;
+import java.awt.event.ActionListener;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Properties;
+import java.util.Set;
+import java.util.Vector;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import javax.swing.JFrame;
+import javax.swing.JMenuBar;
+import javax.swing.UIManager;
+
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
@@ -33,19 +41,31 @@ import org.geworkbench.util.Util;
 import org.geworkbench.util.pathwaydecoder.mutualinformation.AdjacencyMatrix;
 import org.geworkbench.util.pathwaydecoder.mutualinformation.AdjacencyMatrixDataSet;
 import org.geworkbench.util.pathwaydecoder.mutualinformation.IAdjacencyMatrix;
+
 import phoebe.PNodeView;
 import phoebe.event.PSelectionHandler;
 import yfiles.OrganicLayout;
 import yfiles.YFilesLayoutPlugin;
 
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.ActionListener;
-import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
-import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import com.jgoodies.plaf.FontSizeHints;
+import com.jgoodies.plaf.Options;
+
+import cytoscape.CyEdge;
+import cytoscape.CyNetwork;
+import cytoscape.CyNode;
+import cytoscape.Cytoscape;
+import cytoscape.CytoscapeConfig;
+import cytoscape.CytoscapeObj;
+import cytoscape.CytoscapeVersion;
+import cytoscape.data.Semantics;
+import cytoscape.data.servers.BioDataServer;
+import cytoscape.view.CyMenus;
+import cytoscape.view.CyNetworkView;
+import cytoscape.view.CyWindow;
+import cytoscape.view.GraphViewController;
+import cytoscape.visual.VisualMappingManager;
+import cytoscape.visual.VisualStyle;
+import cytoscape.visual.ui.VizMapUI;
 
 /**
  * <p>Title: Bioworks</p>
@@ -494,7 +514,7 @@ public class CytoscapeWidget implements VisualPlugin, MenuListener {
         // 1) RECEIVE event
         String name = adjSet.getNetworkName();
         String tmpname = adjSet.getMatrix().getLabel();
-        if (tmpname != null) {
+        if ((tmpname != null) && (!name.contains(tmpname))) {
             name = tmpname + " [" + name + "]";
         }
         Set networks = Cytoscape.getNetworkSet();
@@ -573,6 +593,7 @@ public class CytoscapeWidget implements VisualPlugin, MenuListener {
                 Cytoscape.getCurrentNetworkView().fitContent();
             }
             break;
+/*            
             case DRAW_GENEWAYS_COMPLETE_NETWORK: {
                 // System.out.println("drawNetwork from cytoscapeWidget");
                 if (ae.getNetworkFocus() == -1) {
@@ -588,6 +609,7 @@ public class CytoscapeWidget implements VisualPlugin, MenuListener {
                 Cytoscape.getCurrentNetworkView().fitContent();
             }
             break;
+*/            
             case FINISH: {
                 if (maSet != null) {
                     view = Cytoscape.createNetworkView(cytoNetwork, maSet.getLabel());
