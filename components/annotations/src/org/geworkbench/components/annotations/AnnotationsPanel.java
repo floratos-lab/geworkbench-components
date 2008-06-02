@@ -111,7 +111,7 @@ import java.util.Locale;
  * that this gene's product participates in.
  * 
  * @author manjunath at genomecenter dot columbia dot edu
- * @version $Id: AnnotationsPanel.java,v 1.25 2008-05-21 20:51:27 my2248 Exp $
+ * @version $Id: AnnotationsPanel.java,v 1.26 2008-06-02 20:29:00 my2248 Exp $
  * 
  * 
  */
@@ -743,7 +743,7 @@ public class AnnotationsPanel implements VisualPlugin {
         
         int hashcode = maSet.hashCode();
         
-        if ( hashcode == oldHashCode || oldHashCode == 0)  
+        if (oldHashCode == 0)  
         {
         	//pathwayComboBox.setSelectedIndex(0);     		 
            // jTabbedPane1.setTitleAt(1,"Pathway");
@@ -1082,7 +1082,12 @@ public class AnnotationsPanel implements VisualPlugin {
             } catch (IOException ex) {
             }
            
-            svgCanvas.setDocument(document);            
+            svgCanvas.setDocument(document); 
+            if (svgCanvas.getGraphics() != null)
+     	    {
+    	      svgCanvas.resetRenderingTransform();   	    
+    	      
+     	    }
             svgCanvas.revalidate();
             pathwayPanel.revalidate(); 
         } else {
