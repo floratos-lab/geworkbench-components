@@ -342,9 +342,13 @@ public class StandAloneCaArrayClientWrapper {
 			int port, String username, String password, String type,
 			String value) throws Exception {
 
-		String savedFilename = tmpDir + url + "_" + port + "_" + username + "_"
+		String savedFilename = tmpDir + url + "_" + port + "_"  
 				+ type + "_" + value + ".txt";
 
+		if (username != null) {
+			savedFilename = tmpDir + url + "_" + port + "_" + username + "_"
+			+ type + "_" + value + ".txt";
+		}
 		String cmdline = prefixCMD + FILTERINFO + " " + savedFilename + " "
 				+ url + " " + port + " " + type + " " + value;
 		if (username != null)
