@@ -381,6 +381,19 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
                 displayMosaic();
             } else {
                 clearMosaic();
+            } 
+            if(jAllMarkers.isSelected() || ((colorMosaicImage.getPanel() != null) && (colorMosaicImage.getPanel().size() > 0))){        
+            	colorMosaicImage.showAllMarkers(jAllMarkers.isSelected());
+            }
+            if(jAllMArrays.isSelected() || ((colorMosaicImage.getMArrayPanel() != null) && (colorMosaicImage.getMArrayPanel().size() > 0))){
+            	colorMosaicImage.showAllMArrays(jAllMArrays.isSelected());
+            	
+            }
+            if(!jAllMarkers.isSelected() && ((colorMosaicImage.getPanel() == null) || (colorMosaicImage.getPanel().size() <= 0))){
+            	colorMosaicImage.showAllMarkers(true);
+            }            
+            if(!jAllMArrays.isSelected() && ((colorMosaicImage.getMArrayPanel() == null) || (colorMosaicImage.getMArrayPanel().size() <= 0))){
+            	colorMosaicImage.showAllMArrays(true);
             }
             revalidate();
         }
@@ -485,14 +498,32 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
         }
     }
 
-    void jAllMArrays_actionPerformed(ActionEvent e) {
-        colorMosaicImage.showAllMArrays(jAllMArrays.isSelected());
+    void jAllMArrays_actionPerformed(ActionEvent e) {        
+        if(!jAllMArrays.isSelected() && ((colorMosaicImage.getMArrayPanel() == null) || (colorMosaicImage.getMArrayPanel().size() <= 0))){
+        	colorMosaicImage.showAllMArrays(true);
+        } else {
+        	colorMosaicImage.showAllMArrays(jAllMArrays.isSelected());
+        }
+        if(!jAllMarkers.isSelected() && ((colorMosaicImage.getPanel() == null) || (colorMosaicImage.getPanel().size() <= 0))){
+        	colorMosaicImage.showAllMarkers(true);
+        } else {
+        	colorMosaicImage.showAllMarkers(jAllMarkers.isSelected());
+        }
         colRuler.revalidate();
         mainPanel.repaint();
     }
 
-    void jAllMarkers_actionPerformed(ActionEvent e) {
-        colorMosaicImage.showAllMarkers(jAllMarkers.isSelected());
+    void jAllMarkers_actionPerformed(ActionEvent e) {        
+        if(!jAllMarkers.isSelected() && ((colorMosaicImage.getPanel() == null) || (colorMosaicImage.getPanel().size() <= 0))){
+        	colorMosaicImage.showAllMarkers(true);
+        } else {
+        	colorMosaicImage.showAllMarkers(jAllMarkers.isSelected());
+        }
+        if(!jAllMArrays.isSelected() && ((colorMosaicImage.getMArrayPanel() == null) || (colorMosaicImage.getMArrayPanel().size() <= 0))){
+        	colorMosaicImage.showAllMArrays(true);
+        } else {
+        	colorMosaicImage.showAllMArrays(jAllMArrays.isSelected());
+        }
         rowRuler.revalidate();
         mainPanel.repaint();
     }
@@ -585,7 +616,8 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
             return;
         }
         DSPanel<DSBioObject> pl = e.getTaggedItemSetTree();
-        setMicroarrayPanel((DSPanel) pl);
+        setMicroarrayPanel((DSPanel) pl);    
+        jHideMaskedBtn_actionPerformed(null); 
     }
 
     @Subscribe public void receive(GeneSelectorEvent e, Object source) {
@@ -599,7 +631,7 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
                 colorMosaicImage.pValueWidth = 18;
                 colorMosaicImage.isPrintPValue = true;
                 setMarkerPanel(panel);
-                jHideMaskedBtn_actionPerformed(null);
+                jHideMaskedBtn_actionPerformed(null);        
                 return;
                 //                }
                 //                else {
@@ -609,7 +641,7 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
                 //                }
             }
             setMarkerPanel(panel);
-        }
+        } 
     }
 
     @Publish public MarkerSelectedEvent publishMarkerSelectedEvent
