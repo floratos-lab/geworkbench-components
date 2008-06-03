@@ -39,7 +39,7 @@ import edu.columbia.geworkbench.cagrid.anova.PValueEstimation;
 
 /**
  * @author yc2480
- * @version $Id: AnovaAnalysisPanel.java,v 1.8 2008-06-02 21:53:31 chiangy Exp $
+ * @version $Id: AnovaAnalysisPanel.java,v 1.9 2008-06-03 18:45:15 chiangy Exp $
  */
 public class AnovaAnalysisPanel extends AbstractSaveableParameterPanel
 		implements Serializable {
@@ -948,29 +948,16 @@ public class AnovaAnalysisPanel extends AbstractSaveableParameterPanel
 				+ "\n";
 
 		// Correction type
-		histStr += "correction-method: ";
+		histStr += "Correction-method: ";
 		histStr += anovaAnalysisPanel.anovaParameter
 				.getFalseDiscoveryRateControl().toString()
 				+ "\n";
-		/*
-		 * you can change line above to human readable version below if
-		 * (anovaAnalysisPanel.anovaParameter.getFalseDiscoveryRateControl()==FalseDiscoveryRateControl.adjbonferroni){
-		 * histStr+="ADJ_BONFERRONI"; }else
-		 * if(anovaAnalysisPanel.anovaParameter.getFalseDiscoveryRateControl()==FalseDiscoveryRateControl.bonferroni){
-		 * histStr+="STD_BONFERRONI"; }else
-		 * if(anovaAnalysisPanel.anovaParameter.getFalseDiscoveryRateControl()==FalseDiscoveryRateControl.alpha){
-		 * histStr+="JUST_ALPHA"; }else
-		 * if(anovaAnalysisPanel.anovaParameter.getFalseDiscoveryRateControl()==FalseDiscoveryRateControl.westfallyoung){
-		 * histStr+="WestFallYoung"; }else
-		 * if(anovaAnalysisPanel.anovaParameter.getFalseDiscoveryRateControl()==FalseDiscoveryRateControl.number){
-		 * histStr+="FALSE_NUM"; }else
-		 * if(anovaAnalysisPanel.anovaParameter.getFalseDiscoveryRateControl()==FalseDiscoveryRateControl.proportion){
-		 * histStr+="FALSE_PROP"; }else{ log.debug("This shouldn't happen! I
-		 * don't understand that selection. It should be one of following:
-		 * Alpha, Boferroni, Adj-Bonferroni, WestfallYoung, FalseNum,
-		 * FalseProp."); } histStr+="\n"; end of human readable version
-		 */
-
+		if (anovaAnalysisPanel.anovaParameter.getFalseDiscoveryRateControl()==FalseDiscoveryRateControl.number){
+			histStr += "\tFalse Significant Genes limits: "+ anovaAnalysisPanel.anovaParameter.getFalseSignificantGenesLimit().intValue()+"\n";
+		}else if(anovaAnalysisPanel.anovaParameter.getFalseDiscoveryRateControl()==FalseDiscoveryRateControl.proportion){
+			histStr += "\tFalse Significant Genes proportion limits: "+anovaAnalysisPanel.anovaParameter.getFalseSignificantGenesLimit()+"\n";
+		}
+		
 		return histStr;
 	}
 
