@@ -71,6 +71,8 @@ public class CaArray2Component implements VisualPlugin {
 	protected static final int JNDI_PORT = 8080;
 	protected static final int GRID_SERVICE_PORT = 8080;
 	private boolean useExternalCaArray = true;
+	private String cancelledConnectionInfo = null;
+	private boolean isCancelled = false;
 
 	// private static CaArraySearchService searchService;
 
@@ -81,13 +83,27 @@ public class CaArray2Component implements VisualPlugin {
 	 */
 	@Subscribe
 	public void receive(CaArrayRequestEvent ce, Object source) {
+		System.out.println("Get The EVent");
 		if (ce == null) {
 			return;
 		}
+
 		String url = ce.getUrl();
 		int port = ce.getPort();
 		String username = ce.getUsername();
 		String password = ce.getPassword();
+
+		if (ce.getRequestItem().equalsIgnoreCase(CaArrayRequestEvent.CANCEL)) {
+			cancelledConnectionInfo = url + port;
+			if (username != null && username.length() > 0) {
+				cancelledConnectionInfo = cancelledConnectionInfo + username
+						+ password;
+			}
+			isCancelled = true;
+			return;
+		} else {
+			isCancelled = false;
+		}
 
 		if (!useExternalCaArray) {// below is the default handle the event
 			// when integration works.
@@ -243,7 +259,11 @@ public class CaArray2Component implements VisualPlugin {
 			}
 		} else {
 			// below is to invoke external Java process to call caArray server.
- 
+			String currentConnectionInfo = url + port;
+			if (username != null && username.length() > 0) {
+				currentConnectionInfo = currentConnectionInfo + username
+						+ password;
+			}
 			try {
 
 				if (ce.getRequestItem().equalsIgnoreCase(
@@ -274,6 +294,12 @@ public class CaArray2Component implements VisualPlugin {
 										+ url + ":" + port);
 					}
 
+					if (isCancelled
+							&& cancelledConnectionInfo != null
+							&& cancelledConnectionInfo
+									.equalsIgnoreCase(currentConnectionInfo)) {
+						return;
+					}
 					publishCaArrayEvent(event);
 				} else {
 					// For BioAssay detail, another kind of request.
@@ -290,17 +316,6 @@ public class CaArray2Component implements VisualPlugin {
 						if (qType == null) {
 							qType = "CHPSignal";
 						}
-						// CaArrayServer server = null;//new CaArrayServer(url,
-						// port);
-						// if (username == null || username.trim().length() ==
-						// 0) {
-						// server.connect();// disable a user login.
-						// } else {
-						// server.connect(username, password);
-						// }
-						// //CaArraySearchService searchService =
-						// server.getSearchService();
-
 						CSExprMicroarraySet maSet = externalDataSetDownloadClient
 								.getDataSet(url, port, username, password,
 										hybridzations[0], qType);
@@ -314,7 +329,15 @@ public class CaArray2Component implements VisualPlugin {
 								ProjectPanel.addToHistory(maSet,
 										"Get from CaArray Server " + url + ":"
 												+ port + ".");
+
+								if (isCancelled
+										&& cancelledConnectionInfo != null
+										&& cancelledConnectionInfo
+												.equalsIgnoreCase(currentConnectionInfo)) {
+									return;
+								}
 								publishProjectNodeAddedEvent(pevent);
+
 							}
 						}
 
@@ -331,6 +354,12 @@ public class CaArray2Component implements VisualPlugin {
 						}
 						if (hybridzations.length > 1) {
 							for (int i = 1; i < hybridzations.length; i++) {
+								if (isCancelled
+										&& cancelledConnectionInfo != null
+										&& cancelledConnectionInfo
+												.equalsIgnoreCase(currentConnectionInfo)) {
+									return;
+								}
 								CSExprMicroarraySet maSet2 = externalDataSetDownloadClient
 										.getDataSet(url, port, username,
 												password, hybridzations[i],
@@ -342,6 +371,7 @@ public class CaArray2Component implements VisualPlugin {
 									maSet2.setLabel(experimentName);
 									event.setPopulated(true);
 									if (!merge) {
+
 										maSet2.setLabel(experimentName + "_"
 												+ hybridzations[i]);
 										org.geworkbench.events.ProjectNodeAddedEvent pevent = new org.geworkbench.events.ProjectNodeAddedEvent(
@@ -362,10 +392,22 @@ public class CaArray2Component implements VisualPlugin {
 									"message", totalSet, null);
 							totalSet.setLabel(experimentName + "_"
 									+ hybridzations.length + "_merged");
+							if (isCancelled
+									&& cancelledConnectionInfo != null
+									&& cancelledConnectionInfo
+											.equalsIgnoreCase(currentConnectionInfo)) {
+								return;
+							}
 							publishProjectNodeAddedEvent(pevent);
 						}
 						event.setDataSet(totalSet);
 						event.setInfoType(CaArrayEvent.BIOASSAY);
+						if (isCancelled
+								&& cancelledConnectionInfo != null
+								&& cancelledConnectionInfo
+										.equalsIgnoreCase(currentConnectionInfo)) {
+							return;
+						}
 						publishCaArrayEvent(event);
 
 					}
@@ -376,6 +418,12 @@ public class CaArray2Component implements VisualPlugin {
 				event.setPopulated(false);
 				event.setSucceed(false);
 				se.printStackTrace();
+				if (isCancelled
+						&& cancelledConnectionInfo != null
+						&& cancelledConnectionInfo
+								.equalsIgnoreCase(currentConnectionInfo)) {
+					return;
+				}
 				publishCaArrayEvent(event);
 				event.setErrorMessage("Cannot connect to the server at " + url
 						+ ":" + port);
@@ -386,6 +434,12 @@ public class CaArray2Component implements VisualPlugin {
 
 				event
 						.setErrorMessage("Either username or password is incorrect. Please check your login credentials. ");
+				if (isCancelled
+						&& cancelledConnectionInfo != null
+						&& cancelledConnectionInfo
+								.equalsIgnoreCase(currentConnectionInfo)) {
+					return;
+				}
 				publishCaArrayEvent(event);
 
 			}
@@ -411,7 +465,6 @@ public class CaArray2Component implements VisualPlugin {
 	@Subscribe
 	public void receive(CaArrayQueryEvent ce, Object source) {
 
-		 
 		try {
 			if (ce != null
 					&& ce.getInfoType().equalsIgnoreCase(
@@ -421,22 +474,23 @@ public class CaArray2Component implements VisualPlugin {
 				String[] listCritiria = ce.getQueries();
 				String username = ce.getUsername();
 				String password = ce.getPassword();
-			
+
 				TreeMap<String, Set<String>> treeMap = null;
-				if(useExternalCaArray){
-					treeMap = externalDataSetDownloadClient.
-					 lookupTypeValues(url, port, username, password, listCritiria);
-				}else{
+				if (useExternalCaArray) {
+					treeMap = externalDataSetDownloadClient.lookupTypeValues(
+							url, port, username, password, listCritiria);
+				} else {
 					CaArrayServer server = new CaArrayServer(url, port);
 					if (username == null || username.trim().length() == 0) {
 						server.connect();// enable a user login.
 					} else {
 						server.connect(username, password);
 					}
-					CaArraySearchService searchService = server.getSearchService();
+					CaArraySearchService searchService = server
+							.getSearchService();
 					DataRetrievalRequest request = new DataRetrievalRequest();
-				 treeMap = CaArrayQueryClient.
-						 lookupTypeValues(searchService, request, listCritiria);
+					treeMap = CaArrayQueryClient.lookupTypeValues(
+							searchService, request, listCritiria);
 				}
 				CaArrayQueryResultEvent event = new CaArrayQueryResultEvent(
 						null, url, port, ce.getUsername(), ce.getPassword());
@@ -488,16 +542,16 @@ public class CaArray2Component implements VisualPlugin {
 		return event;
 	}
 
-//	/**
-//	 * 
-//	 * @param pe
-//	 * @param source
-//	 */
-//	@Subscribe
-//	public void receive(ProjectEvent pe, Object source) {
-//		log.debug("Source: " + source.toString() + "; ProjectEvent: "
-//				+ pe.toString());
-//	}
+	// /**
+	// *
+	// * @param pe
+	// * @param source
+	// */
+	// @Subscribe
+	// public void receive(ProjectEvent pe, Object source) {
+	// log.debug("Source: " + source.toString() + "; ProjectEvent: "
+	// + pe.toString());
+	// }
 
 	/**
 	 * 
@@ -533,7 +587,6 @@ public class CaArray2Component implements VisualPlugin {
 	public void saveButtonPressed() {
 		CaArray2Component.main(null);
 	}
-
 
 	/**
 	 * THe method to grab the data from caArray server with defined
@@ -764,7 +817,7 @@ public class CaArray2Component implements VisualPlugin {
 			exps = dataClient.lookupExperiments(searchService, request,
 					SERVER_NAME, JNDI_PORT, "", "");
 			System.out.println(exps.length);
- 
+
 		} catch (ServerConnectionException e) {
 			mlog.error("Server connection exception: " + e);
 			e.printStackTrace();
