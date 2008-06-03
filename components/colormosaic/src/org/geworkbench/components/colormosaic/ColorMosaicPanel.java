@@ -234,14 +234,14 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
         });
 
         jScrollPane.getViewport().setBackground(Color.white);
-        jAllMArrays.setSelected(true);
+        jAllMArrays.setSelected(false);
         jAllMArrays.setText("All arrays");
         jAllMArrays.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 jAllMArrays_actionPerformed(e);
             }
         });
-        jAllMarkers.setSelected(true);
+        jAllMarkers.setSelected(false);
         jAllMarkers.setText("All Markers");
         jAllMarkers.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(ActionEvent e) {
