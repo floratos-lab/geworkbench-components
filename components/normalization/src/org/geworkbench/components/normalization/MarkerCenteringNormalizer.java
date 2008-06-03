@@ -72,10 +72,11 @@ public class MarkerCenteringNormalizer extends AbstractAnalysis implements Norma
         // Go over each marker and compute that marker's "center" point from all
         // its values across all microarrays in the set. Then, substract this
         // cetner point from all that marker's values.
+      
         for (int i = 0; i < markerCount; i++) {
             profile = getProfile(maSet, i);
-            Arrays.sort(profile);
-            meanMedian = (meanMedianType == MEAN ? getMean(profile) : profile[profile.length / 2]);
+            Arrays.sort(profile);              
+            meanMedian = (meanMedianType == MEAN ? getMean(profile) : getMedian(profile));
             // Calculate the post-mean/median subtraction minimum & maximum values.
             for (int j = 0; j < profile.length; ++j)
                 profile[j] -= meanMedian;
@@ -154,6 +155,33 @@ public class MarkerCenteringNormalizer extends AbstractAnalysis implements Norma
             sum /= profile.length;
         return (double) sum;
     }
+    
+    /*
+    * @param profile
+    * @return
+    */
+   private double getMedian(double[] profile) {
+       if (profile == null)
+           return 0.0;
+       int  modVal = 0; 
+       double median = 0.0d;
+       
+       modVal = profile.length % 2;
+       
+       if ( modVal == 0 )
+       {
+    	  median = profile[profile.length / 2 - 1] + profile[profile.length / 2 ];
+    	  median = median / 2;
+    	   
+       }
+       else if ( modVal == 1 )
+    	   median =  profile[profile.length / 2];
+       
+       return median;
+   }
+   
+    
+    
 
 }
 
