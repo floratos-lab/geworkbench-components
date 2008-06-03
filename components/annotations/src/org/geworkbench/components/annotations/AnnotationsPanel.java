@@ -111,7 +111,7 @@ import java.util.Locale;
  * that this gene's product participates in.
  * 
  * @author manjunath at genomecenter dot columbia dot edu
- * @version $Id: AnnotationsPanel.java,v 1.26 2008-06-02 20:29:00 my2248 Exp $
+ * @version $Id: AnnotationsPanel.java,v 1.27 2008-06-03 15:39:19 my2248 Exp $
  * 
  * 
  */
@@ -909,7 +909,12 @@ public class AnnotationsPanel implements VisualPlugin {
     	}
     	else
     	{
-    		svgCanvas.setDocument(null);    	 
+    	    try{
+    		svgCanvas.setDocument(null);
+    	    }catch(IllegalStateException ex)
+    	    {
+    	    	//do nothing 
+    	    }
     		svgCanvas.revalidate();
             pathwayPanel.revalidate();
             jTabbedPane1.setTitleAt(1,"Pathway");
@@ -923,7 +928,7 @@ public class AnnotationsPanel implements VisualPlugin {
     	{
     		svgStringList.remove(pathwayName);    	 
     		pathwayList.remove(pathwayName);    		 
-    		svgCanvas.setDocument(null);   	 
+    		//svgCanvas.setDocument(null);   	 
     		pathwayComboBox.setSelectedIndex(0);  	
     		pathwayComboBox.removeItem(pathwayName);    		 
     		svgCanvas.revalidate();
@@ -940,8 +945,13 @@ public class AnnotationsPanel implements VisualPlugin {
     	pathwayComboBox.removeAllItems();
     	pathwayComboBox.insertItemAt(" ", 0);
     	svgStringList.clear();    	 
-		pathwayList.clear();		 
-    	svgCanvas.setDocument(null);     
+		pathwayList.clear();
+		try{
+    	svgCanvas.setDocument(null); 
+		}catch(IllegalStateException ex)
+	    {
+	    	//do nothing 
+	    }
 		svgCanvas.revalidate();
         pathwayPanel.revalidate();
         jTabbedPane1.setTitleAt(1,"Pathway");    
@@ -1085,8 +1095,14 @@ public class AnnotationsPanel implements VisualPlugin {
             svgCanvas.setDocument(document); 
             if (svgCanvas.getGraphics() != null)
      	    {
+              try
+              {
     	      svgCanvas.resetRenderingTransform();   	    
-    	      
+              }
+              catch(IllegalStateException ex)
+      	      {
+      	    	//do nothing 
+      	      }
      	    }
             svgCanvas.revalidate();
             pathwayPanel.revalidate(); 
