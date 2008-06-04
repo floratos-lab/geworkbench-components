@@ -273,6 +273,7 @@ public class GenePanel extends SelectorPanel<DSGeneMarker> {
 		}
 		return panel;
 	}
+
 	@SuppressWarnings("unchecked")
 	protected boolean dataSetChanged(DSDataSet dataSet) {
 		DSItemList items;
@@ -383,7 +384,7 @@ public class GenePanel extends SelectorPanel<DSGeneMarker> {
 
 		return panel;
 	}
-	
+
 	@Subscribe
 	public void receive(
 			org.geworkbench.events.ProjectNodePostCompletedEvent pnce,
@@ -391,32 +392,44 @@ public class GenePanel extends SelectorPanel<DSGeneMarker> {
 		DSAncillaryDataSet result = pnce.getAncillaryDataSet();
 
 		if ((result != null) && (result instanceof DSSignificanceResultSet)) {
+			// if it's a significance result set, we put all markers to a newly
+			// created Annotated Panel.
 			DSAnnotatedPanel<DSGeneMarker, Float> panelSignificant = new CSAnnotPanel<DSGeneMarker, Float>(
 					"Significant Genes");
 			DSSignificanceResultSet temp = (DSSignificanceResultSet<DSGeneMarker>) result;
 			DSPanel<DSGeneMarker> temp2 = temp.getSignificantMarkers();
 			for (DSGeneMarker named : temp2) {
 				panelSignificant.add(named);
-
 			}
 
-			//in order to change the context without changing the focused node, we do following:
-			//1. save current context, 2. change to the one need modify, 3. change back to current context.
-			
-			//save current context
-			DSAnnotationContext currentContext = context; 
-			//change to the one need modify
-            dataSetChanged(pnce.getAncillaryDataSet().getParentDataSet());
-			addPanel(panelSignificant);
-			//FIXME: I don't know why event driven won't work. I use method call instead above, for now.			
-			/*			
-						publishSubpanelChangedEvent(new SubpanelChangedEvent(
-								DSGeneMarker.class, panelSignificant,
-								SubpanelChangedEvent.NEW));
-			*/				
-			//change it back
-            context = currentContext;
-            
+			// then, put that newly created Annotated Panel to GenePanel.
+
+			/*
+			 * in order to change the context without changing the focused node,
+			 * we do following: 1. save current context, 2. change to the one
+			 * need modify, 3. change back to current context.
+			 */
+
+			// 1. save current context
+			DSAnnotationContext currentContext = context;
+			// 2. change to the one need modify
+			dataSetChanged(pnce.getAncillaryDataSet().getParentDataSet());
+
+			publishSubpanelChangedEvent(new SubpanelChangedEvent(
+					DSGeneMarker.class, panelSignificant,
+					SubpanelChangedEvent.NEW));
+			/*
+			 * our geWorkbench will not publish event to ourself (ex: in this
+			 * case, we want it to be received in our parent - selectorPanel) so we
+			 * still need to call the receive() manually
+			 */
+			this.receive(new SubpanelChangedEvent(
+					DSGeneMarker.class, panelSignificant,
+					SubpanelChangedEvent.NEW), this);
+
+			// 3. change it back
+			context = currentContext;
+
 		}
 	}
 
