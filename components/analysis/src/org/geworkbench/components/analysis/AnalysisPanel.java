@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Hashtable;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.swing.BorderFactory;
@@ -38,7 +39,9 @@ import org.geworkbench.analysis.AbstractGridAnalysis;
 import org.geworkbench.analysis.AbstractSaveableParameterPanel;
 import org.geworkbench.bison.datastructure.biocollections.DSAncillaryDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
+import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
+import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
 import org.geworkbench.bison.model.analysis.ClusteringAnalysis;
@@ -693,6 +696,13 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 								pendingEvent.setDescription(selectedGridAnalysis
 										.getLabel()
 										+ " (pending)");
+
+								//generate history
+								String history = "";
+								history += selectedAnalysis.createHistory();
+								history += generateHistoryString(maSetView);
+								pendingEvent.setHistory(history);
+										
 								log.info("event is " + pendingEvent);
 
 								publishProjectNodePendingEvent(pendingEvent);
@@ -1041,4 +1051,35 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 		userpasswdDialog.setVisible(true);
 		log.debug("got user info: " + userInfo);
 	}
+	
+	//TODO: this probably should get from DSMicroarraySetView.toString()
+    public String generateHistoryString(DSMicroarraySetView maSetView){
+    	String ans="";
+
+    	ans+="=The MicroarraySetView used for analysis contains following data=\n";
+    	//generate text for microarrays/groups
+		assert (maSetView.items() instanceof DSPanel);
+		DSItemList paneltest = ((DSPanel) maSetView.items()).panels();
+		Iterator groups2 = paneltest.iterator(); // groups
+    	ans+="==Microarray Sets ["+paneltest.size()+"]==\n";
+		while (groups2.hasNext()) {
+			DSPanel temp = (DSPanel) groups2.next();
+			ans+="\t"+temp.toString()+"\n";
+			Iterator groups3 = temp.iterator(); // microarrays in the group
+			while (groups3.hasNext()) {
+				Object temp2 = groups3.next();
+				ans+="\t\t"+temp2.toString()+"\n";
+			}
+		}
+    	
+    	//generate text for markers
+    	DSItemList<DSGeneMarker> markers = maSetView.markers();
+    	ans+="==Used Markers ["+markers.size()+"]==\n";
+    	for (Iterator iterator = markers.iterator(); iterator.hasNext();) {
+    		DSGeneMarker marker = (DSGeneMarker) iterator.next();
+			ans+="\t"+marker.getLabel()+"\n";
+		}
+    	ans+="=End of MicroarraySetView data=";
+    	return ans;
+    }
 }
