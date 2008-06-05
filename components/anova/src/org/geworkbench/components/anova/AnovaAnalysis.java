@@ -35,7 +35,9 @@ import org.geworkbench.engine.management.Publish;
 import org.geworkbench.events.SubpanelChangedEvent;
 import org.geworkbench.util.ProgressBar;
 import org.tigr.microarray.mev.cluster.algorithm.AlgorithmData;
+import org.tigr.microarray.mev.cluster.algorithm.AlgorithmEvent;
 import org.tigr.microarray.mev.cluster.algorithm.AlgorithmException;
+import org.tigr.microarray.mev.cluster.algorithm.AlgorithmListener;
 import org.tigr.microarray.mev.cluster.algorithm.impl.OneWayANOVA;
 import org.tigr.microarray.mev.cluster.gui.impl.owa.OneWayANOVAInitBox;
 import org.tigr.util.FloatMatrix;
@@ -46,7 +48,7 @@ import edu.columbia.geworkbench.cagrid.anova.PValueEstimation;
 
 /**
  * @author yc2480
- * @version $Id: AnovaAnalysis.java,v 1.15 2008-05-16 20:13:05 chiangy Exp $
+ * @version $Id: AnovaAnalysis.java,v 1.16 2008-06-05 20:07:52 chiangy Exp $
  */
 public class AnovaAnalysis extends AbstractGridAnalysis implements
 		ClusteringAnalysis {
@@ -360,13 +362,17 @@ public class AnovaAnalysis extends AbstractGridAnalysis implements
 
 		OneWayANOVA OWA = new OneWayANOVA();
 
-		ProgressBar pb=null;
-        pb = ProgressBar.create(ProgressBar.INDETERMINATE_TYPE);
+		final ProgressBar pb = ProgressBar.create(ProgressBar.INDETERMINATE_TYPE);
         pb.setTitle("Anova Analysis");
         pb.setMessage("Calculating Anova, please wait...");
         pb.start();
 		
 		try {
+			OWA.addAlgorithmListener(new AlgorithmListener(){
+				public void valueChanged(AlgorithmEvent event){
+					pb.setMessage(event.getDescription());
+				}
+			});
 			AlgorithmData result = OWA.execute(data);
 			// get p-values in result
 			FloatMatrix pFM = result.getMatrix("rawPValues");
