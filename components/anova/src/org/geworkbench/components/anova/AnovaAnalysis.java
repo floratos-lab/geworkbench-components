@@ -1,10 +1,14 @@
 package org.geworkbench.components.anova;
 
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Observable;
+import java.util.Observer;
 import java.util.Set;
 
 import javax.swing.JOptionPane;
@@ -34,6 +38,7 @@ import org.geworkbench.components.anova.gui.AnovaAnalysisPanel;
 import org.geworkbench.engine.management.Publish;
 import org.geworkbench.events.SubpanelChangedEvent;
 import org.geworkbench.util.ProgressBar;
+import org.tigr.microarray.mev.cluster.algorithm.AbortException;
 import org.tigr.microarray.mev.cluster.algorithm.AlgorithmData;
 import org.tigr.microarray.mev.cluster.algorithm.AlgorithmEvent;
 import org.tigr.microarray.mev.cluster.algorithm.AlgorithmException;
@@ -48,7 +53,7 @@ import edu.columbia.geworkbench.cagrid.anova.PValueEstimation;
 
 /**
  * @author yc2480
- * @version $Id: AnovaAnalysis.java,v 1.16 2008-06-05 20:07:52 chiangy Exp $
+ * @version $Id: AnovaAnalysis.java,v 1.17 2008-06-06 20:02:51 chiangy Exp $
  */
 public class AnovaAnalysis extends AbstractGridAnalysis implements
 		ClusteringAnalysis {
@@ -368,11 +373,27 @@ public class AnovaAnalysis extends AbstractGridAnalysis implements
         pb.start();
 		
 		try {
+			//show detail message to user, so user know it's running.
 			OWA.addAlgorithmListener(new AlgorithmListener(){
 				public void valueChanged(AlgorithmEvent event){
 					pb.setMessage(event.getDescription());
 				}
 			});
+
+			//when user close the ProgressBar, call OWA.abort();
+			class AbortObserver implements Observer{
+				OneWayANOVA OWA=null;;
+				public AbortObserver(OneWayANOVA OWA){
+					this.OWA = OWA;
+				}
+				public void update(Observable o, Object arg) {
+					OWA.abort();
+				}				
+			};
+			AbortObserver abortObserver=new AbortObserver(OWA);   
+			pb.addObserver(abortObserver);
+			
+			// execute the OneWayAnova algorithm
 			AlgorithmData result = OWA.execute(data);
 			// get p-values in result
 			FloatMatrix pFM = result.getMatrix("rawPValues");
@@ -487,6 +508,9 @@ public class AnovaAnalysis extends AbstractGridAnalysis implements
 					DSGeneMarker.class, panelSignificant,
 					SubpanelChangedEvent.NEW));
 			// log.debug(result.toString());
+		} catch (AbortException AE){
+			return new AlgorithmExecutionResults(false,
+					"Analysis Aborted.", null);
 		} catch (AlgorithmException AE) {
 			AE.printStackTrace();
 		}
