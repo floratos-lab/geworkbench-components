@@ -166,13 +166,28 @@ public class MicroarrayCenteringNormalizer extends AbstractAnalysis implements N
      * @param profile
      * @return
      */
+   
+    
     private double getMedian(double[] profile) {
-        if (profile == null || profile.length == 0)
+        if (profile == null)
             return 0.0;
-
-        Arrays.sort(profile);
-        return profile[profile.length/2];
+        int  modVal = 0; 
+        double median = 0.0d;
+        
+        modVal = profile.length % 2;
+        
+        if ( modVal == 0 )
+        {
+     	  median = profile[profile.length / 2 - 1] + profile[profile.length / 2 ];
+     	  median = median / 2;
+     	   
+        }
+        else if ( modVal == 1 )
+     	   median =  profile[profile.length / 2];
+        
+        return median;
     }
+    
 
 }
 
