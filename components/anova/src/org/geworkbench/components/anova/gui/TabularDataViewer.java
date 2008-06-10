@@ -15,6 +15,7 @@ import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.JTable;
 import javax.swing.filechooser.FileFilter;
 
@@ -38,7 +39,7 @@ import com.jgoodies.forms.layout.FormLayout;
  * This is an example geWorkbench component.
  * 
  * @author Mark Chiang
- * @version $Id: TabularDataViewer.java,v 1.6 2008-03-12 19:47:34 chiangy Exp $
+ * @version $Id: TabularDataViewer.java,v 1.7 2008-06-10 20:50:23 chiangy Exp $
  */
 // This annotation lists the data set types that this component accepts.
 // The component will only appear when a data set of the appropriate type is
@@ -66,7 +67,8 @@ public class TabularDataViewer extends AbstractSaveableParameterPanel implements
 	public TabularDataViewer() {
 		this.setLayout(new BorderLayout());
 		//add a space on top and add a button "Display Preference" on the right.
-		Panel panelDispPref = new Panel();
+		JPanel panelDispPref = new JPanel();
+		panelDispPref.setLayout(new BorderLayout());
 		add(panelDispPref,java.awt.BorderLayout.NORTH);
 		JButton PrefButton = new JButton("Display Preference");
 		panelDispPref.setLayout(new BorderLayout());
@@ -134,7 +136,8 @@ public class TabularDataViewer extends AbstractSaveableParameterPanel implements
 		}
 		
 		//export panel
-		Panel panelExport = new Panel();
+		JPanel panelExport = new JPanel();
+		panelExport.setLayout(new BorderLayout());
 		add(panelExport,java.awt.BorderLayout.SOUTH);
 		JButton exportButton = new JButton("Export");
 		panelExport.setLayout(new BorderLayout());
