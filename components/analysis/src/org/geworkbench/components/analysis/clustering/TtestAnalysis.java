@@ -244,7 +244,7 @@ public class TtestAnalysis extends AbstractAnalysis implements
 				 */
 				return new AlgorithmExecutionResults(
 						false,
-						"Please activate at least one set of arrays for \"case\", and one SET of arrays for \"control\".",
+						"Please activate at least one set of arrays for \"case\", and one set of arrays for \"control\".",
 						null);
 			}
 			if (!hasGroupA) {
