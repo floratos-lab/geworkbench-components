@@ -292,6 +292,7 @@ public class AracneAnalysis extends AbstractGridAnalysis implements ClusteringAn
             weightedGraph = Aracne.run(convert(mSetView), p);
             log.debug("Done running ARACNE in worker thread.");
             progressWindow.setVisible(false);
+            progressWindow.dispose();
 
             if (weightedGraph.getEdges().size() > 0) {
                 AdjacencyMatrixDataSet dataSet = new AdjacencyMatrixDataSet(convert(weightedGraph, mSetView.getMicroarraySet()), -1, 0, 1000,
