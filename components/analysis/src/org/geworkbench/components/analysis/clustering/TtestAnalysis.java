@@ -67,7 +67,7 @@ public class TtestAnalysis extends AbstractAnalysis implements
 	private int localAnalysisType;
 
 	private boolean stop = false;
-//	private ProgressBar pb = null;
+	// private ProgressBar pb = null;
 	private int function;
 	private float factor;
 	private boolean absolute;
@@ -101,7 +101,6 @@ public class TtestAnalysis extends AbstractAnalysis implements
 	Vector nonSigPValues = new Vector();
 	Vector tValuesVector = new Vector();
 	Vector pValuesVector = new Vector();
-	
 
 	public TtestAnalysis() {
 		localAnalysisType = AbstractAnalysis.TTEST_TYPE;
@@ -180,27 +179,18 @@ public class TtestAnalysis extends AbstractAnalysis implements
 		pbTtest = ProgressBarT.create(ProgressBarT.BOUNDED_TYPE);
 		pbTtest.addObserver(this);
 		pbTtest.setTitle("T Test Analysis");
-		pbTtest.setBounds(new ProgressBarT.IncrementModel(0,markers, 0, markers, 1));
+		pbTtest.setBounds(new ProgressBarT.IncrementModel(0, markers, 0,
+				markers, 1));
 		pbTtest.setMessage("Constructing ... " + markers + " variables");
-/*		
-		pbTtest.start();
-		this.stopAlgorithm = false;
-		expMatrix = new float[markers][arrays];
-		pbTtest.setType(ProgressBarT.BOUNDED_TYPE);
-		for (int i = 0; i < markers; i++) {
-			if (!this.stopAlgorithm) {
-				for (int j = 0; j < arrays; j++) {
-					// expMatrix[i][j] =
-					// (float)data.items().get(j).getMarkerValue(i).getValue();
-					expMatrix[i][j] = (float) data.getValue(i, j);
-				}
-				pbTtest.update();
-			} else {
-				pbTtest.dispose();
-				return null;
-			}
-		}
-		*/
+		/*
+		 * pbTtest.start(); this.stopAlgorithm = false; expMatrix = new
+		 * float[markers][arrays]; pbTtest.setType(ProgressBarT.BOUNDED_TYPE);
+		 * for (int i = 0; i < markers; i++) { if (!this.stopAlgorithm) { for
+		 * (int j = 0; j < arrays; j++) { // expMatrix[i][j] = //
+		 * (float)data.items().get(j).getMarkerValue(i).getValue();
+		 * expMatrix[i][j] = (float) data.getValue(i, j); } pbTtest.update(); }
+		 * else { pbTtest.dispose(); return null; } }
+		 */
 		pbTtest.setType(ProgressBarT.INDETERMINATE_TYPE);
 		groupAssignments = new int[arrays];
 		// .getObject();
@@ -247,37 +237,51 @@ public class TtestAnalysis extends AbstractAnalysis implements
 			}
 			if (!(hasGroupA || hasGroupB)) {
 				pbTtest.dispose();
+				/*
+				 * return new AlgorithmExecutionResults( false, "Please specify
+				 * at least one \"case\" microarray and one \"control\"
+				 * microarray.", null);
+				 */
 				return new AlgorithmExecutionResults(
 						false,
-						"Please specify at least one \"case\" microarray and one \"control\" microarray.",
+						"Please activate at least one SET of arrays for \"case\", and one SET of arrays for \"control\".",
 						null);
 			}
 			if (!hasGroupA) {
 				pbTtest.dispose();
+				/*
+				 * return new AlgorithmExecutionResults(false, "Please specify
+				 * at least one \"case\" microarray.", null);
+				 */
 				return new AlgorithmExecutionResults(false,
-						"Please specify at least one \"case\" microarray.",
+						"Please activate at least one SET of arrays for \"case\".",
 						null);
 			}
 			if (!hasGroupB) {
 				pbTtest.dispose();
+				/*
+				 * return new AlgorithmExecutionResults(false, "Please specify
+				 * at least one \"control\" microarray.", null);
+				 */
 				return new AlgorithmExecutionResults(false,
-						"Please specify at least one \"control\" microarray.",
+						"Please activate at least one SET of arrays for \"control\".",
 						null);
 			}
-			
+
 			/*
 			 * the calculations moved below checking input arguments.
 			 */
-			
+
 			pbTtest = ProgressBarT.create(ProgressBarT.BOUNDED_TYPE);
 			pbTtest.addObserver(this);
 			pbTtest.setTitle("T Test Analysis");
-			pbTtest.setBounds(new ProgressBarT.IncrementModel(0,markers, 0, markers, 1));
+			pbTtest.setBounds(new ProgressBarT.IncrementModel(0, markers, 0,
+					markers, 1));
 			pbTtest.setMessage("Constructing ... " + markers + " variables");
 			pbTtest.start();
 			this.stopAlgorithm = false;
 			expMatrix = new float[markers][arrays];
-			pbTtest.setType(ProgressBarT.BOUNDED_TYPE);			
+			pbTtest.setType(ProgressBarT.BOUNDED_TYPE);
 			for (int i = 0; i < markers; i++) {
 				if (!this.stopAlgorithm) {
 					for (int j = 0; j < arrays; j++) {
@@ -292,9 +296,9 @@ public class TtestAnalysis extends AbstractAnalysis implements
 				}
 			}
 			pbTtest.setType(ProgressBarT.INDETERMINATE_TYPE);
-			
-			/////////////////////////////////////////////////////////			
-			
+
+			// ///////////////////////////////////////////////////////
+
 			function = ((TtestAnalysisPanel) aspp).getDistanceFunction();
 			factor = ((TtestAnalysisPanel) aspp).getDistanceFactor();
 			absolute = ((TtestAnalysisPanel) aspp).isDistanceAbsolute();
@@ -548,7 +552,7 @@ public class TtestAnalysis extends AbstractAnalysis implements
 			// add data set history.
 			ProjectPanel.addToHistory(sigSet, histHeader + groupAndChipsString
 					+ histMarkerString);
-			
+
 			pbTtest.dispose();
 			if (this.stopAlgorithm) {
 				return null;
