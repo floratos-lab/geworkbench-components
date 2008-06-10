@@ -244,7 +244,7 @@ public class TtestAnalysis extends AbstractAnalysis implements
 				 */
 				return new AlgorithmExecutionResults(
 						false,
-						"Please activate at least one SET of arrays for \"case\", and one SET of arrays for \"control\".",
+						"Please activate at least one set of arrays for \"case\", and one SET of arrays for \"control\".",
 						null);
 			}
 			if (!hasGroupA) {
@@ -254,7 +254,7 @@ public class TtestAnalysis extends AbstractAnalysis implements
 				 * at least one \"case\" microarray.", null);
 				 */
 				return new AlgorithmExecutionResults(false,
-						"Please activate at least one SET of arrays for \"case\".",
+						"Please activate at least one set of arrays for \"case\".",
 						null);
 			}
 			if (!hasGroupB) {
@@ -264,7 +264,7 @@ public class TtestAnalysis extends AbstractAnalysis implements
 				 * at least one \"control\" microarray.", null);
 				 */
 				return new AlgorithmExecutionResults(false,
-						"Please activate at least one SET of arrays for \"control\".",
+						"Please activate at least one set of arrays for \"control\".",
 						null);
 			}
 
