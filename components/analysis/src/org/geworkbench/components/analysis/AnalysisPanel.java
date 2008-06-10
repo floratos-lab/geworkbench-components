@@ -1058,20 +1058,24 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 
     	ans+="=The MicroarraySetView used for analysis contains following data=\n";
     	//generate text for microarrays/groups
-		assert (maSetView.items() instanceof DSPanel);
-		DSItemList paneltest = ((DSPanel) maSetView.items()).panels();
-		Iterator groups2 = paneltest.iterator(); // groups
-    	ans+="==Microarray Sets ["+paneltest.size()+"]==\n";
-		while (groups2.hasNext()) {
-			DSPanel temp = (DSPanel) groups2.next();
-			ans+="\t"+temp.toString()+"\n";
-			Iterator groups3 = temp.iterator(); // microarrays in the group
-			while (groups3.hasNext()) {
-				Object temp2 = groups3.next();
-				ans+="\t\t"+temp2.toString()+"\n";
+    	try{
+	    	assert (maSetView.items() instanceof DSPanel);
+			DSItemList paneltest = ((DSPanel) maSetView.items()).panels();
+			Iterator groups2 = paneltest.iterator(); // groups
+	    	ans+="==Microarray Sets ["+paneltest.size()+"]==\n";
+			while (groups2.hasNext()) {
+				DSPanel temp = (DSPanel) groups2.next();
+				ans+="\t"+temp.toString()+"\n";
+				Iterator groups3 = temp.iterator(); // microarrays in the group
+				while (groups3.hasNext()) {
+					Object temp2 = groups3.next();
+					ans+="\t\t"+temp2.toString()+"\n";
+				}
 			}
-		}
-    	
+    	}catch (ClassCastException cce){
+    		//it's not a DSPanel, we generate nothing for panel part
+    		//PS:when no microarray set has been selected in gene panel, we will also get this exception
+    	}
     	//generate text for markers
     	DSItemList<DSGeneMarker> markers = maSetView.markers();
     	ans+="==Used Markers ["+markers.size()+"]==\n";
