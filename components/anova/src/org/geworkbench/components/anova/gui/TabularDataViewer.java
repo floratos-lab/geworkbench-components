@@ -39,7 +39,7 @@ import com.jgoodies.forms.layout.FormLayout;
  * This is an example geWorkbench component.
  * 
  * @author Mark Chiang
- * @version $Id: TabularDataViewer.java,v 1.7 2008-06-10 20:50:23 chiangy Exp $
+ * @version $Id: TabularDataViewer.java,v 1.8 2008-06-11 17:28:16 chiangy Exp $
  */
 // This annotation lists the data set types that this component accepts.
 // The component will only appear when a data set of the appropriate type is
@@ -232,7 +232,6 @@ public class TabularDataViewer extends AbstractSaveableParameterPanel implements
 		if (dataSet instanceof DSAnovaResultSet) {
 			anovaResultSet = (DSAnovaResultSet) dataSet;
 			refreshTableViewer();
-			
 /*			
 			System.out.println(anovaResultSet.getLabels(0));
 			int groupNum=anovaResultSet.getLabels(0).length;
@@ -283,6 +282,8 @@ public class TabularDataViewer extends AbstractSaveableParameterPanel implements
 	 * 
 	 */
 	private void refreshTableViewer(){
+		//since this procedure only take very short time to finish even for large dataset, I set useProgressBar to false for now.
+		boolean useProgressBar=true;	
 		int groupNum=anovaResultSet.getLabels(0).length;
 		int meanStdStartAtIndex=1+(fStat?1:0)+(pVal?1:0)+(adjPVal?1:0);
 		header=new String[meanStdStartAtIndex+groupNum*((mean?1:0)+(std?1:0))];
@@ -303,12 +304,13 @@ public class TabularDataViewer extends AbstractSaveableParameterPanel implements
 //		System.out.println(anovaResultSet.getResult2DArray()[0].length);
 		Object[][] A = new Object[anovaResultSet.getSignificantMarkers().size()][header.length];
 		ProgressBar pb=null;
-        pb = ProgressBar.create(ProgressBar.BOUNDED_TYPE);
-        pb.setTitle("Refreshing Table");
-        pb.reset();
-        pb.updateTo(0);
-        pb.start();
-
+		if (useProgressBar){
+	        pb = ProgressBar.create(ProgressBar.BOUNDED_TYPE);
+	        pb.setTitle("Refreshing Table");
+	        pb.reset();
+	        pb.updateTo(0);
+	        pb.start();
+		}
         //try a quicker version
         
         double[][] result2DArray=anovaResultSet.getResult2DArray();
@@ -330,8 +332,10 @@ public class TabularDataViewer extends AbstractSaveableParameterPanel implements
 //					A[cx][meanStdStartAtIndex+gc*((mean?1:0)+(std?1:0))+(mean?1:0)]=anovaResultSet.getDeviation(aMarker, anovaResultSet.getLabels(0)[gc]);
 				}
 			}
-			pb.setMessage(cx+"/"+result2DArray[0].length+" finished...");
-			pb.updateTo(cx*100/result2DArray[0].length);
+			if (useProgressBar){
+				pb.setMessage(cx+"/"+result2DArray[0].length+" finished...");
+				pb.updateTo(cx*100/result2DArray[0].length);
+			}
 			Thread.yield();
 		}
 /*
@@ -365,8 +369,6 @@ public class TabularDataViewer extends AbstractSaveableParameterPanel implements
 			Thread.yield();
 		}
 */		
-		pb.stop();
-		pb.dispose();
 		if (TV == null) {
 			TV = new TableViewer(header, A);
 			//TODO: according to total number of columns, software choose one of the following. 
@@ -383,6 +385,10 @@ public class TabularDataViewer extends AbstractSaveableParameterPanel implements
 			add(TV,java.awt.BorderLayout.CENTER);
 			TV.updateUI();
 		}		
+		if (useProgressBar){
+			pb.stop();
+			pb.dispose();
+		}
 	}
 
 	/* This function popup a file chooser and save the table as a CSV file using that file name
