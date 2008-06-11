@@ -9,6 +9,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Hashtable;
 import java.util.Iterator;
@@ -106,6 +107,8 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 	private String dispatcherUrl = System.getProperty(DISPATCHER_URL);
 
 	private String userInfo = null;
+	
+	private List<Thread> threadList=new ArrayList();
 	
 	/**
 	 * The underlying GUI panel for the clustering component
@@ -710,6 +713,7 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 								PollingThread pollingThread = new PollingThread(
 										getAnalysisPanel(), gridEpr,
 										dispatcherClient);
+								threadList.add(pollingThread);
 								pollingThread.start();
 
 							} else {
@@ -863,6 +867,7 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 
 			PollingThread pollingThread = new PollingThread(getAnalysisPanel(),
 					gridEpr, dispatcherClient);
+			threadList.add(pollingThread);
 			pollingThread.start();
 
 		}
@@ -1086,4 +1091,14 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
     	ans+="=End of MicroarraySetView data=";
     	return ans;
     }
+
+    @Subscribe 
+	public void receive(org.geworkbench.events.PendingNodeCancelledEvent e, Object source){
+    	for (Iterator iterator = threadList.iterator(); iterator.hasNext();) {
+    		PollingThread element = (PollingThread) iterator.next();
+			if (element.getGridEPR()==e.getGridEpr()){
+				element.cancel();
+			}
+		}
+	}
 }

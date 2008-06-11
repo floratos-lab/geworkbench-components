@@ -5,6 +5,8 @@ import javax.swing.JOptionPane;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.bison.datastructure.biocollections.DSAncillaryDataSet;
+import org.geworkbench.engine.management.Subscribe;
+import org.geworkbench.events.PendingNodeCancelledEvent;
 import org.geworkbench.events.ProjectNodeCompletedEvent;
 import org.ginkgo.labs.ws.GridEndpointReferenceType;
 
@@ -14,7 +16,7 @@ import edu.columbia.geworkbench.cagrid.dispatcher.client.DispatcherClient;
  * A thread that handles remote service polling.
  * 
  * @author keshav
- * @version $Id: PollingThread.java,v 1.5 2008-04-24 21:04:10 chiangy Exp $
+ * @version $Id: PollingThread.java,v 1.6 2008-06-11 21:11:59 chiangy Exp $
  */
 public class PollingThread extends Thread {
 
@@ -26,6 +28,8 @@ public class PollingThread extends Thread {
 
 	private DispatcherClient dispatcherClient = null;
 
+	private boolean cancelled = false;
+	
 	public PollingThread(AnalysisPanel panel,
 			GridEndpointReferenceType gridEPR, DispatcherClient dispatcherClient) {
 
@@ -43,6 +47,7 @@ public class PollingThread extends Thread {
 			while (result == null) {
 				log.debug("polling");
 				Thread.sleep(10000);
+				if (cancelled) return;
 				result = dispatcherClient.getResults(gridEPR);
 			}
 			ProjectNodeCompletedEvent completedEvent = new ProjectNodeCompletedEvent(
@@ -70,5 +75,12 @@ public class PollingThread extends Thread {
 			e.printStackTrace();
 		}
 
+	}
+	public void cancel(){
+		cancelled = true;
+	}
+	
+	public GridEndpointReferenceType getGridEPR(){
+		return gridEPR;
 	}
 }
