@@ -39,7 +39,7 @@ import com.jgoodies.forms.layout.FormLayout;
  * This is an example geWorkbench component.
  * 
  * @author Mark Chiang
- * @version $Id: TabularDataViewer.java,v 1.8 2008-06-11 17:28:16 chiangy Exp $
+ * @version $Id: TabularDataViewer.java,v 1.9 2008-06-11 17:29:37 chiangy Exp $
  */
 // This annotation lists the data set types that this component accepts.
 // The component will only appear when a data set of the appropriate type is
@@ -283,7 +283,7 @@ public class TabularDataViewer extends AbstractSaveableParameterPanel implements
 	 */
 	private void refreshTableViewer(){
 		//since this procedure only take very short time to finish even for large dataset, I set useProgressBar to false for now.
-		boolean useProgressBar=true;	
+		boolean useProgressBar=false;	
 		int groupNum=anovaResultSet.getLabels(0).length;
 		int meanStdStartAtIndex=1+(fStat?1:0)+(pVal?1:0)+(adjPVal?1:0);
 		header=new String[meanStdStartAtIndex+groupNum*((mean?1:0)+(std?1:0))];
