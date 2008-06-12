@@ -188,11 +188,9 @@ public class HierClusterLabels extends JPanel {
      */
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-
-        if (resizingMarker) {
-            setSizes(clusterRoot);
-        }
-
+       
+        width = 100;
+        
         try {
             if (microarraySet != null) {
                 Graphics2D ig = null;
@@ -240,8 +238,12 @@ public class HierClusterLabels extends JPanel {
                     if (name == null) {
                         name = "Undefined";
                     }
-
+                    
+                    if( (name.length()/10 + 1)*50 > width)
+                    	width = (name.length()/10 + 1)*50;
+                    
                     g.drawString(name, -width, leftOffset + yRatio);
+                     
                 }
 
                 ((Graphics2D) g).setTransform(saveAt);
@@ -269,7 +271,9 @@ public class HierClusterLabels extends JPanel {
                         if (name == null) {
                             name = "Undefined";
                         }
-
+                        if( (name.length()/10 + 1)*50 > width)
+                        	width = (name.length()/10 + 1)*50;
+                        
                         ig.drawString(name, -width, leftOffset + yRatio);
                     }
 
@@ -279,6 +283,10 @@ public class HierClusterLabels extends JPanel {
         } catch (NullPointerException npe) {
             npe.printStackTrace();
             log.error(npe);
+        }
+        
+        if (resizingMarker) {
+            setSizes(clusterRoot);
         }
     }
 
@@ -335,8 +343,7 @@ public class HierClusterLabels extends JPanel {
             } else {
                 maxHeight = microarraySet.items().size() * HierClusterDisplay.geneWidth;
             }
-
-            width = 100;
+             
             geneWidth = HierClusterDisplay.geneWidth;
             setPreferredSize(new Dimension(this.getParent().getWidth(), width));
             setSize(new Dimension(this.getParent().getWidth(), width));
