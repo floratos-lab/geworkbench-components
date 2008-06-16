@@ -14,6 +14,7 @@ public class GenSpaceLogPreferences extends JPanel implements VisualPlugin, Acti
 	JPanel radioPanel, saveReset;
 	JButton save, reset;
 	static final String PROPERTY_KEY = "genSpace_logging_preferences"; // the key in the properties file
+	int preference; // the logging preference
 	
 	public GenSpaceLogPreferences()
 	{	
@@ -45,6 +46,7 @@ public class GenSpaceLogPreferences extends JPanel implements VisualPlugin, Acti
 
        		// set the logging level
        		ObjectHandler.setLogStatus(Integer.parseInt(pref));
+       		preference = Integer.parseInt(pref);
         } 
         catch (Exception e) { }		
 
@@ -58,7 +60,7 @@ public class GenSpaceLogPreferences extends JPanel implements VisualPlugin, Acti
 		
 		log = new JRadioButton("Log my analysis events");
 		log.setActionCommand("0");
-		logAnon = new JRadioButton("Log my analysis events anonymously", true);
+		logAnon = new JRadioButton("Log my analysis events anonymously");
 		logAnon.setActionCommand("1");
 		noLog = new JRadioButton("Do not log my analysis events");
 		noLog.setActionCommand("2");
@@ -72,6 +74,9 @@ public class GenSpaceLogPreferences extends JPanel implements VisualPlugin, Acti
 		group.add(logAnon);
 		group.add(noLog);
 		
+		log.addActionListener(this);
+		logAnon.addActionListener(this);
+		noLog.addActionListener(this);
 		save.addActionListener(this);
 		reset.addActionListener(this);
 		
@@ -86,6 +91,17 @@ public class GenSpaceLogPreferences extends JPanel implements VisualPlugin, Acti
         radioPanel.add(saveReset);
         
         add(radioPanel);
+        
+        if (preference == 0) {
+			log.setSelected(true);
+		} 
+        else if (preference == 1) {
+			logAnon.setSelected(true);
+		} 
+        else if (preference == 2) {
+			noLog.setSelected(true);
+		}
+        save.setEnabled(false);
 	}
 	
 	
@@ -93,7 +109,9 @@ public class GenSpaceLogPreferences extends JPanel implements VisualPlugin, Acti
     {
     	if (e.getSource() == save) {
     		//System.out.println("Save pressed with " + group.getSelection().getActionCommand());
-    		ObjectHandler.setLogStatus(Integer.parseInt(group.getSelection().getActionCommand()));
+    		preference = Integer.parseInt(group.getSelection().getActionCommand());
+    		ObjectHandler.setLogStatus(preference);
+    		save.setEnabled(false);
     		// write it to the properties file
     		try
     		{
@@ -106,6 +124,31 @@ public class GenSpaceLogPreferences extends JPanel implements VisualPlugin, Acti
     	else if (e.getSource() == reset) {
     		//System.out.println("Reset pressed");
     		logAnon.setSelected(true);
+    		save.setEnabled(true);
+    	}
+    	else if (e.getSource() == log) {
+    		if (preference == 0) {
+    			save.setEnabled(false);
+    		}
+    		else {
+    			save.setEnabled(true);
+    		}
+    	}
+    	else if (e.getSource() == logAnon) {
+    		if (preference == 1) {
+    			save.setEnabled(false);
+    		}
+    		else {
+    			save.setEnabled(true);
+    		}
+    	}
+    	else if (e.getSource() == noLog) {
+    		if (preference == 2) {
+    			save.setEnabled(false);
+    		}
+    		else {
+    			save.setEnabled(true);
+    		}
     	}
     }
     
