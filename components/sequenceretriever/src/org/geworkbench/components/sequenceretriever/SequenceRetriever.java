@@ -145,12 +145,6 @@ public class SequenceRetriever implements VisualPlugin {
 
 	Vector tfNameSet;
 
-	// Map the marker name with associated sequence name.
-	private TreeMap<String, ArrayList<String>> retrievedDNASequences = new TreeMap<String, ArrayList<String>>();
-
-	// //Map the sequence name with the sequence display
-	private HashMap<String, RetrievedSequenceView> retrievedDNAMap = new HashMap<String, RetrievedSequenceView>();
-
 	private TreeMap<String, ArrayList<String>> currentRetrievedSequences = new TreeMap<String, ArrayList<String>>();
 
 	// Map the sequence name with the sequence display
@@ -161,6 +155,24 @@ public class SequenceRetriever implements VisualPlugin {
 
 	// Map the sequence name with the sequence display
 	private HashMap<String, RetrievedSequenceView> retrievedProteinMap = new HashMap<String, RetrievedSequenceView>();
+
+	// Map the marker name with associated sequence name.
+	private TreeMap<String, ArrayList<String>> retrievedDNASequences = new TreeMap<String, ArrayList<String>>();
+
+	// //Map the sequence name with the sequence display
+	private HashMap<String, RetrievedSequenceView> retrievedDNAMap = new HashMap<String, RetrievedSequenceView>();
+
+	// Map the marker name with associated sequence name.
+	private TreeMap<String, ArrayList<String>> cachedRetrievedProteinSequences = new TreeMap<String, ArrayList<String>>();
+
+	// Map the sequence name with the sequence display
+	private HashMap<String, RetrievedSequenceView> cachedRetrievedProteinMap = new HashMap<String, RetrievedSequenceView>();
+
+	// Map the marker name with associated sequence name.
+	private TreeMap<String, ArrayList<String>> cachedRetrievedDNASequences = new TreeMap<String, ArrayList<String>>();
+
+	// //Map the sequence name with the sequence display
+	private HashMap<String, RetrievedSequenceView> cachedRetrievedDNAMap = new HashMap<String, RetrievedSequenceView>();
 
 	// Layouts,Panels and Panes
 	private JPanel main = new JPanel();
@@ -951,10 +963,25 @@ public class SequenceRetriever implements VisualPlugin {
 			sequenceDB = dnaSequenceDB;
 			currentRetrievedMap = retrievedDNAMap;
 			currentRetrievedSequences = retrievedDNASequences;
+			if (cachedRetrievedDNAMap == null) {
+				cachedRetrievedDNAMap = currentRetrievedMap;
+				cachedRetrievedDNASequences = retrievedDNASequences;
+			} else {
+				cachedRetrievedDNAMap.putAll(currentRetrievedMap);
+				cachedRetrievedDNASequences.putAll(currentRetrievedSequences);
+			}
 		} else {
 			sequenceDB = proteinSequenceDB;
 			currentRetrievedMap = retrievedProteinMap;
 			currentRetrievedSequences = retrievedProteinSequences;
+			if (cachedRetrievedProteinMap == null) {
+				cachedRetrievedProteinMap = currentRetrievedMap;
+				cachedRetrievedProteinSequences = retrievedDNASequences;
+			} else {
+				cachedRetrievedProteinMap.putAll(currentRetrievedMap);
+				cachedRetrievedProteinSequences
+						.putAll(currentRetrievedSequences);
+			}
 		}
 		sequenceDB.parseMarkers();
 		String fileName = this.getRandomFileName();
@@ -1065,20 +1092,34 @@ public class SequenceRetriever implements VisualPlugin {
 						.hasNext();) {
 					DSGeneMarker mrk = markerIter.next();
 					ls2.addElement(mrk);
-					ArrayList<String> values = currentRetrievedSequences
-							.get(mrk.toString());
+					ArrayList<String> values = null;
+					if (currentView.equalsIgnoreCase(DNAVIEW)) {
+						values = cachedRetrievedDNASequences
+								.get(mrk.toString());
+					} else {
+						values = cachedRetrievedProteinSequences.get(mrk
+								.toString());
+					}
+
 					if (values != null) {
 						for (String key : values) {
 							RetrievedSequenceView retrievedSequenceView = currentRetrievedMap
 									.get(key);
 
-							DSSequence sequence = retrievedSequenceView
-									.getSequence();
-							if (retrievedSequenceView != null
-									&& sequence != null) {
-								tempMap.put(key, retrievedSequenceView);
-								tempSequenceDB.addASequence(sequence);
-
+							if (currentView.equalsIgnoreCase(DNAVIEW)) {
+								retrievedSequenceView = cachedRetrievedDNAMap
+										.get(key);
+							} else {
+								retrievedSequenceView = cachedRetrievedProteinMap
+										.get(key);
+							}
+							if (retrievedSequenceView != null) {
+								DSSequence sequence = retrievedSequenceView
+										.getSequence();
+								if (sequence != null) {
+									tempMap.put(key, retrievedSequenceView);
+									tempSequenceDB.addASequence(sequence);
+ 								}
 							}
 
 						}
@@ -1115,7 +1156,7 @@ public class SequenceRetriever implements VisualPlugin {
 				updateDisplay(sequenceDB, currentRetrievedMap);
 				markers = activeMarkers;
 				//
-				if(!atLeastOneActive){
+				if (!atLeastOneActive) {
 					updateDisplay(null, null);
 				}
 				log.debug("Active markers / markers: " + activeMarkers.size()
