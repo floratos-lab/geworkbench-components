@@ -9,7 +9,10 @@ import org.geworkbench.bison.annotation.DSAnnotationContextManager;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 
 import javax.swing.*;
+
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.io.ObjectStreamException;
 import java.io.Serializable;
@@ -37,6 +40,10 @@ public class MultiTTestAnalysisPanel extends AbstractSaveableParameterPanel impl
 
     private ArrayList<JCheckBox> checkBoxes = new ArrayList<JCheckBox>();
 
+    JCheckBox logCheckbox;    
+    private boolean useroverride = false;
+    
+    
     private static class SerializedInstance implements Serializable {
 
         private Number pValue;
@@ -68,6 +75,15 @@ public class MultiTTestAnalysisPanel extends AbstractSaveableParameterPanel impl
     private void jbInit() throws Exception {
         pValue = new JFormattedTextField(DEFAULT_P_VALUE);
         setLayout(new BorderLayout());
+        
+        logCheckbox = logCheckbox = new JCheckBox("Analyzed data was log2-transformed", false);
+        logCheckbox.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+            	useroverride = true;                              
+                 
+            }
+        });
+        
         rebuildForm();
     }
 
@@ -84,7 +100,10 @@ public class MultiTTestAnalysisPanel extends AbstractSaveableParameterPanel impl
         builder.appendSeparator("Multi t Test Parameters");
 
         builder.append("Critical P-Value", pValue);
-        builder.nextLine();
+        builder.nextLine();       
+        builder.append("", logCheckbox);
+        
+        builder.nextLine();       
 
         builder.appendSeparator("Compare Panels");
 
@@ -142,6 +161,17 @@ public class MultiTTestAnalysisPanel extends AbstractSaveableParameterPanel impl
     public void setMaSet(DSMicroarraySet maSet) {
         this.maSet = maSet;
     }
+    
+    public boolean isUseroverride()
+    {
+    	return this.useroverride;
+    }
+    
+    public boolean isLogNormalized() {         
+    	return logCheckbox.isSelected();
+    }
+    
+    
 
 }
 

@@ -15,7 +15,10 @@ import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarr
 import org.geworkbench.bison.datastructure.biocollections.views.CSMicroarraySetView;
 import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
+import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMutableMarkerValue;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.CSTTestResultSet;
+import org.geworkbench.bison.datastructure.bioobjects.microarray.DSTTestResultSet;
+import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSSignificanceResultSet;
 import org.geworkbench.bison.datastructure.complex.panels.CSAnnotPanel;
@@ -91,6 +94,9 @@ public class TtestAnalysis extends AbstractAnalysis implements
 	boolean useAllCombs;
 	int tTestDesign;
 	float oneClassMean = 0.0f;
+	
+	boolean useroverride = false;
+    boolean isLogNormalized = false;    
 
 	double currentP = 0.0f;
 	double currentT = 0.0f;
@@ -123,6 +129,8 @@ public class TtestAnalysis extends AbstractAnalysis implements
 		alpha = 0d;
 		criticalPValue = 0d;
 		currentIndex = numGenes = numExps = tTestDesign = significanceMethod = 0;
+		useroverride = false;
+        isLogNormalized = false;
 	}
 
 	public int getAnalysisType() {
@@ -310,7 +318,10 @@ public class TtestAnalysis extends AbstractAnalysis implements
 			calculate_experiments = ((TtestAnalysisPanel) aspp)
 					.calculateExperiments();
 
-			numGenes = data.markers().size();
+			useroverride = ((TtestAnalysisPanel) aspp).isUseroverride();
+	        isLogNormalized = ((TtestAnalysisPanel) aspp).isLogNormalized();
+			
+	        numGenes = data.markers().size();
 			numExps = data.items().size();
 
 			if (tTestDesign == TtestAnalysisPanel.ONE_CLASS) {
@@ -354,7 +365,7 @@ public class TtestAnalysis extends AbstractAnalysis implements
 			}
 
 			int totalSelectedGroup = classSets[0].size() + classSets[1].size();
-			String histHeader = GenerateHistoryHeader();
+			String histHeader = null;
 			String histMarkerString = GenerateMarkerString(data);
 
 			groupAndChipsString = totalSelectedGroup + " groups analyzed:\n"
@@ -381,11 +392,14 @@ public class TtestAnalysis extends AbstractAnalysis implements
 							pValuesMatrix[i][0]);
 				}
 				sigSet.sortMarkersBySignificance();
-
+				
+				
+				setFoldChnage (maSet, sigSet);
 				// add data set history.
+				histHeader = GenerateHistoryHeader();
 				ProjectPanel.addToHistory(sigSet, histHeader
 						+ groupAndChipsString + histMarkerString);
-
+				     
 				return new AlgorithmExecutionResults(true, "Ttest", sigSet);
 			}
 
@@ -548,10 +562,12 @@ public class TtestAnalysis extends AbstractAnalysis implements
 			sigSet.sortMarkersBySignificance();
 			AlgorithmExecutionResults results = new AlgorithmExecutionResults(
 					true, "Ttest", sigSet);
-
+			setFoldChnage (maSet, sigSet); 
 			// add data set history.
+			histHeader = GenerateHistoryHeader();
 			ProjectPanel.addToHistory(sigSet, histHeader + groupAndChipsString
 					+ histMarkerString);
+			 
 
 			pbTtest.dispose();
 			if (this.stopAlgorithm) {
@@ -2967,7 +2983,17 @@ public class TtestAnalysis extends AbstractAnalysis implements
 			histStr += "\t" + "#times: " + numCombs + "\n";
 		}
 		histStr += "\t" + "critical p-Value: " + alpha + "\n";
-
+		
+		if ( useroverride == true)
+			histStr += "\t" + "user override: true \n";
+		else
+			histStr += "\t" + "user override: false \n";
+		
+		if ( isLogNormalized == true)
+			histStr += "\t" + "isLogNormalized: true \n";
+		else
+			histStr += "\t" + "isLogNormalized: false \n";
+		
 		if (significanceMethod == TtestAnalysisPanel.JUST_ALPHA)
 			histStr += "Alpha Corrections: Just alpha(no correction)" + "\n";
 		else if (significanceMethod == TtestAnalysisPanel.STD_BONFERRONI)
@@ -2978,6 +3004,8 @@ public class TtestAnalysis extends AbstractAnalysis implements
 			histStr += "Alpha Corrections: minP" + "\n";
 		else if (significanceMethod == TtestAnalysisPanel.MAX_T)
 			histStr += "Alpha Corrections: maxT" + "\n";
+		
+		
 
 		return histStr;
 	}
@@ -3008,5 +3036,132 @@ public class TtestAnalysis extends AbstractAnalysis implements
 		return histStr;
 
 	}
+	
+	private void setFoldChnage(DSMicroarraySet<DSMicroarray> set, DSSignificanceResultSet<DSGeneMarker> resultSet)
+	{
+		            
+             if (useroverride == false)             
+                 guessLogNormalized(set);
+            
+             
+             String[] caseLabels = resultSet.getLabels(DSTTestResultSet.CASE);
+             String[] controlLabels = resultSet.getLabels(DSTTestResultSet.CONTROL);
+             DSAnnotationContext<DSMicroarray> context = CSAnnotationContextManager.getInstance().getCurrentContext(set);
+             DSPanel<DSMicroarray> casePanel = new CSPanel<DSMicroarray>("Case");
+             for (int i = 0; i < caseLabels.length; i++) {
+                 String label = caseLabels[i];
+                 casePanel.addAll(context.getItemsWithLabel(label));
+             }
+             casePanel.setActive(true);
+             DSPanel<DSMicroarray> controlPanel = new CSPanel<DSMicroarray>("Control");
+             for (int i = 0; i < controlLabels.length; i++) {
+                 String label = controlLabels[i];
+                 controlPanel.addAll(context.getItemsWithLabel(label));
+             }
+             casePanel.setActive(true);
+             
+             
+             int numMarkers = resultSet.getSignificantMarkers().size();
+             
+             double minValue = Double.MAX_VALUE;
+             for (int i = 0; i < numMarkers; i++) {
+            	 DSGeneMarker marker = resultSet.getSignificantMarkers().get(i);
+                 for (DSMicroarray microarray : casePanel) {
+                     if (microarray.getMarkerValue(marker).getValue() < minValue) {
+                         minValue = microarray.getMarkerValue(marker).getValue();
+                     }
+                 }
+
+                 for (DSMicroarray microarray : controlPanel) {
+                     if (microarray.getMarkerValue(marker).getValue() < minValue) {
+                         minValue = microarray.getMarkerValue(marker).getValue();
+                     }
+                 }
+                 
+             }
+
+             if (minValue < 0) {
+                 // Minimum value adjust to get us above 0 values
+                 minValue = Math.abs(minValue) + 1;
+             } else {
+                 minValue = 0;
+             }
+
+             
+             
+             for (int i = 0; i < numMarkers; i++) {
+                     
+            	    DSGeneMarker marker = resultSet.getSignificantMarkers().get(i);
+                     // Calculate fold change
+                     double caseMean = 0;
+                     for (DSMicroarray microarray : casePanel) {
+                         caseMean += microarray.getMarkerValue(marker).getValue();
+                     }
+                     caseMean = caseMean / casePanel.size() + minValue;
+
+                     double controlMean = 0;
+                     for (DSMicroarray microarray : controlPanel) {
+                         controlMean += microarray.getMarkerValue(marker).getValue();
+                     }
+                     controlMean = controlMean / controlPanel.size() + minValue;
+
+                     double sigValue = resultSet.getSignificance(marker);
+                     
+                     String isLogNormalizedStr ="";
+                     double fold_change = 0;
+                     double ratio =0;
+                     if (!isLogNormalized) {
+                         ratio = caseMean / controlMean;
+                         if (ratio < 0) {
+                             
+                        	 fold_change = -Math.log(-ratio) / Math.log(2.0);
+                         } else {
+                        	 fold_change = Math.log(ratio) / Math.log(2.0);
+                         }
+                         isLogNormalizedStr = "false";
+                     } else {;
+                    	 fold_change = caseMean - controlMean;
+                    	 isLogNormalizedStr = "true";
+                     }
+                     
+                     System.out.println("isLogNormalized: " + isLogNormalizedStr);
+                     System.out.println("Marker: " + marker.getLabel() + " " + marker.getGeneName());
+                     System.out.println("sigValue: " + sigValue);
+                     System.out.println("caseMean: " + caseMean);
+                     System.out.println("controlMean: " + controlMean);
+                     System.out.println("ratio: " + ratio);
+                     System.out.println("minValue: " + minValue);
+                     System.out.println("fold_change: " + fold_change + "\n");
+                     
+                     
+                     resultSet.setFoldChange(marker, fold_change);
+                     
+                 }
+		  
+	}
+	 
+	private void guessLogNormalized(DSMicroarraySet<DSMicroarray> set) {
+	        double minValue = Double.POSITIVE_INFINITY;
+	        double maxValue = Double.NEGATIVE_INFINITY;
+	        for (DSMicroarray microarray : set) {
+	            DSMutableMarkerValue[] values = microarray.getMarkerValues();
+	            double v;
+	            for (DSMutableMarkerValue value : values) {
+	                v = value.getValue();
+	                if (v < minValue) {
+	                    minValue = v;
+	                }
+	                if (v > maxValue) {
+	                    maxValue = v;
+	                }
+	            }
+	        }
+	        if (maxValue - minValue < 100) {
+	            isLogNormalized = true;
+	        } else {
+	            isLogNormalized = false;
+	        }
+	         
+	    }
 
 }

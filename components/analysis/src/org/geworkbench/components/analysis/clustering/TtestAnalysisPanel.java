@@ -5,7 +5,10 @@ import com.jgoodies.forms.layout.FormLayout;
 import org.geworkbench.analysis.AbstractSaveableParameterPanel;
 
 import javax.swing.*;
+
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.ObjectStreamException;
 import java.io.Serializable;
 import java.text.DecimalFormat;
@@ -77,6 +80,11 @@ public class TtestAnalysisPanel extends AbstractSaveableParameterPanel implement
     JLabel jLabel5 = new JLabel();
     BorderLayout borderLayout3 = new BorderLayout();
     BorderLayout borderLayout5 = new BorderLayout();
+    
+    JCheckBox logCheckbox;
+    
+    private boolean useroverride = false;
+    
 
     private static class SerialInstance implements Serializable {
         private boolean welch;
@@ -92,6 +100,7 @@ public class TtestAnalysisPanel extends AbstractSaveableParameterPanel implement
         private boolean adjustedBonferroni;
         private boolean stepdownMinP;
         private boolean stepdownMaxT;
+      
 
         public SerialInstance(boolean welch, boolean equalGroup, boolean pvaluesByT, boolean pvaluesByPerm, boolean randomlyGroup, Number groupTimes, boolean useAllPerms, Number alpha, boolean justAlpha, boolean bonferroni, boolean adjustedBonferroni, boolean stepdownMinP, boolean stepdownMaxT) {
             this.welch = welch;
@@ -263,6 +272,16 @@ public class TtestAnalysisPanel extends AbstractSaveableParameterPanel implement
     public boolean useAllCombs() {
         return allPerms.isSelected();
     }
+    
+    public boolean isUseroverride()
+    {
+    	return this.useroverride;
+    }
+    
+    public boolean isLogNormalized() {         
+    	return logCheckbox.isSelected();
+    }
+    
 
     public int[] getGroupAssignments() {
         return new int[1];
@@ -343,26 +362,17 @@ public class TtestAnalysisPanel extends AbstractSaveableParameterPanel implement
 //        this.setPreferredSize(new Dimension(451, 154));
         this.add(jTabbedPane1, BorderLayout.CENTER);
 
-        // Degree of freedom pane
-        jTabbedPane1.add(jPanel1, "Degree of freedom");
-//        jPanel1.add(jPanel4, BorderLayout.CENTER);
-        {
-            FormLayout layout = new FormLayout(
-                    "right:max(40dlu;pref), 3dlu, pref",
-                    "");
-            DefaultFormBuilder builder = new DefaultFormBuilder(layout);
-            builder.setDefaultDialogBorder();
-
-            builder.appendSeparator("Group Variances");
-
-            builder.append("", welch);
-            builder.append("", equalVariances);
-            jPanel1.add(builder.getPanel(), BorderLayout.CENTER);
-
-        }
-
+      
 //        jPanel4.add(welch, null);
 //        jPanel4.add(equalVariances, null);
+        
+        logCheckbox = logCheckbox = new JCheckBox("Analyzed data was log2-transformed", false);
+        logCheckbox.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+            	useroverride = true;                              
+                 
+            }
+        });
 
         // P-Value pane
         jTabbedPane1.add(jPanel2, "P-Value Parameters");
@@ -389,7 +399,7 @@ public class TtestAnalysisPanel extends AbstractSaveableParameterPanel implement
             builder.append("", new JLabel(""));
             builder.append("", allPerms);
             builder.nextLine();
-
+            builder.append("", logCheckbox);
             jPanel2.add(builder.getPanel(), BorderLayout.CENTER);
         }
 
@@ -453,6 +463,27 @@ public class TtestAnalysisPanel extends AbstractSaveableParameterPanel implement
             jPanel3.add(builder.getPanel(), BorderLayout.CENTER);
 
         }
+        
+        
+        // Degree of freedom pane
+        jTabbedPane1.add(jPanel1, "Degree of freedom");
+//        jPanel1.add(jPanel4, BorderLayout.CENTER);
+        {
+            FormLayout layout = new FormLayout(
+                    "right:max(40dlu;pref), 3dlu, pref",
+                    "");
+            DefaultFormBuilder builder = new DefaultFormBuilder(layout);
+            builder.setDefaultDialogBorder();
+
+            builder.appendSeparator("Group Variances");
+
+            builder.append("", welch);
+            builder.append("", equalVariances);
+            jPanel1.add(builder.getPanel(), BorderLayout.CENTER);
+
+        }
+
+        
 
 /*
         jPanel8.add(noCorrection, null);
