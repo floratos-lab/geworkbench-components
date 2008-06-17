@@ -34,7 +34,7 @@ import org.geworkbench.util.ProgressBarT;
 
 /**
  * @author John Watkinson
- * @version $Id: MultiTTestAnalysis.java,v 1.7 2008-06-17 17:39:41 my2248 Exp $
+ * @version $Id: MultiTTestAnalysis.java,v 1.8 2008-06-17 19:14:05 my2248 Exp $
  */
 public class MultiTTestAnalysis extends AbstractAnalysis implements
 		ClusteringAnalysis {
@@ -410,17 +410,8 @@ public class MultiTTestAnalysis extends AbstractAnalysis implements
                      } else {;
                     	 fold_change = caseMean - controlMean;
                     	 isLogNormalizedStr = "true";
-                     }
-                     
-                     System.out.println("isLogNormalized: " + isLogNormalizedStr);
-                     System.out.println("Marker: " + marker.getLabel() + " " + marker.getGeneName());
-                     System.out.println("sigValue: " + sigValue);
-                     System.out.println("caseMean: " + caseMean);
-                     System.out.println("controlMean: " + controlMean);
-                     System.out.println("ratio: " + ratio);
-                     System.out.println("minValue: " + minValue);
-                     System.out.println("fold_change: " + fold_change + "\n");
-                     
+                     }          
+                                
                      
                      resultSet.setFoldChange(marker, fold_change);
                      
