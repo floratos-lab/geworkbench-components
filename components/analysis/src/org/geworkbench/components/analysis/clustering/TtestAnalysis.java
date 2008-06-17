@@ -3123,16 +3123,7 @@ public class TtestAnalysis extends AbstractAnalysis implements
                     	 fold_change = caseMean - controlMean;
                     	 isLogNormalizedStr = "true";
                      }
-                     
-                     System.out.println("isLogNormalized: " + isLogNormalizedStr);
-                     System.out.println("Marker: " + marker.getLabel() + " " + marker.getGeneName());
-                     System.out.println("sigValue: " + sigValue);
-                     System.out.println("caseMean: " + caseMean);
-                     System.out.println("controlMean: " + controlMean);
-                     System.out.println("ratio: " + ratio);
-                     System.out.println("minValue: " + minValue);
-                     System.out.println("fold_change: " + fold_change + "\n");
-                     
+                                          
                      
                      resultSet.setFoldChange(marker, fold_change);
                      
