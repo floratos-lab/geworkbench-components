@@ -1036,6 +1036,7 @@ public class SequenceRetriever implements VisualPlugin {
 		markers = e.getPanel();
 		activeMarkers = new CSPanel();
 		if (markers != null) {
+			log.debug(markers.size() + " " + markers.isActive());
 			TreeSet oldList = new TreeSet();
 			if (ls2.size() > 0) {
 				for (Object o : ls2.toArray()) {
@@ -1043,6 +1044,7 @@ public class SequenceRetriever implements VisualPlugin {
 				}
 			}
 			ls2.clear();
+			boolean atLeastOneActive = false;
 			if (markers.size() > 0) {
 				CSSequenceSet tempSequenceDB = new CSSequenceSet();
 				HashMap tempMap = new HashMap<String, RetrievedSequenceView>();
@@ -1051,6 +1053,7 @@ public class SequenceRetriever implements VisualPlugin {
 				for (int j = 0; j < markers.panels().size(); j++) {
 					DSPanel<DSGeneMarker> mrk = markers.panels().get(j);
 					if (mrk.isActive()) {
+						atLeastOneActive = true;
 						for (int i = 0; i < mrk.size(); i++) {
 							orderedSet.add(mrk.get(i));
 							activeMarkers.add(mrk.get(i));
@@ -1112,8 +1115,13 @@ public class SequenceRetriever implements VisualPlugin {
 				updateDisplay(sequenceDB, currentRetrievedMap);
 				markers = activeMarkers;
 				//
+				if(!atLeastOneActive){
+					updateDisplay(null, null);
+				}
 				log.debug("Active markers / markers: " + activeMarkers.size()
 						+ " / " + markers.size());
+			} else {
+				updateDisplay(null, null);
 			}
 		}
 	}
