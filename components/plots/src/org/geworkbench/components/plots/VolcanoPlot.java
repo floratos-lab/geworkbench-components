@@ -10,6 +10,7 @@ import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.views.CSMicroarraySetView;
 import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
+import org.geworkbench.bison.datastructure.biocollections.DSAncillaryDataSet;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.CSTTestResultSet;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
@@ -24,6 +25,8 @@ import org.geworkbench.engine.management.Publish;
 import org.geworkbench.engine.management.Subscribe;
 import org.geworkbench.events.ImageSnapshotEvent;
 import org.geworkbench.events.MarkerSelectedEvent;
+import org.geworkbench.events.ProjectNodeAddedEvent;
+import org.geworkbench.events.ProjectNodeAddedPostEvent;
 import org.geworkbench.events.ProjectEvent;
 import org.geworkbench.util.BusySwingWorker;
 import org.jfree.chart.*;
@@ -38,9 +41,7 @@ import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 
 import javax.swing.*;
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.*; 
 import java.text.DecimalFormat;
 import java.util.*;
 import java.util.List;
@@ -139,10 +140,7 @@ public class VolcanoPlot implements VisualPlugin {
      * The dataset that holds the microarrayset and panels.
      */
     private DSMicroarraySetView<DSGeneMarker, DSMicroarray> dataSetView = new CSMicroarraySetView<DSGeneMarker, DSMicroarray>();
-
-    private boolean isLogNormalized = false;
-
-    private JCheckBox logCheckbox;
+    
 
     /**
      * The significance results we're plotting
@@ -156,19 +154,8 @@ public class VolcanoPlot implements VisualPlugin {
         parentPanel = new JPanel(new BorderLayout());
         mainPanel = new JPanel(new BorderLayout());
         parentPanel.add(mainPanel, BorderLayout.CENTER);
-        JPanel lowerPanel = new JPanel(new FlowLayout());
-        logCheckbox = new JCheckBox("Analyzed data was log2-transformed", false);
-        lowerPanel.add(logCheckbox);
-        parentPanel.add(lowerPanel, BorderLayout.SOUTH);
-        logCheckbox.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                if ((significance != null) && (dataSetView != null)) {
-                    userOverrideMap.put(significance.getParentDataSet(), logCheckbox.isSelected());
-                    isLogNormalized = logCheckbox.isSelected();
-                    generateChart();
-                }
-            }
-        });
+        
+       
     }
 
     @Publish public ImageSnapshotEvent createImageSnapshot() {
@@ -189,30 +176,8 @@ public class VolcanoPlot implements VisualPlugin {
     public Component getComponent() {
         return parentPanel;
     }
-
-    private void guessLogNormalized(DSMicroarraySet<DSMicroarray> set) {
-        double minValue = Double.POSITIVE_INFINITY;
-        double maxValue = Double.NEGATIVE_INFINITY;
-        for (DSMicroarray microarray : set) {
-            DSMutableMarkerValue[] values = microarray.getMarkerValues();
-            double v;
-            for (DSMutableMarkerValue value : values) {
-                v = value.getValue();
-                if (v < minValue) {
-                    minValue = v;
-                }
-                if (v > maxValue) {
-                    maxValue = v;
-                }
-            }
-        }
-        if (maxValue - minValue < 100) {
-            isLogNormalized = true;
-        } else {
-            isLogNormalized = false;
-        }
-        logCheckbox.setSelected(isLogNormalized);
-    }
+    
+    
 
     /**
      * Receives a project event.
@@ -243,13 +208,8 @@ public class VolcanoPlot implements VisualPlugin {
 */            	
 	                significance = (CSTTestResultSet<DSGeneMarker>) dataFile;
 	                DSMicroarraySet<DSMicroarray> set = significance.getParentDataSet();
-	                Boolean userOverride = userOverrideMap.get(set);
-	                if (userOverride != null) {
-	                    isLogNormalized = userOverride;
-	                    logCheckbox.setSelected(isLogNormalized);
-	                } else {
-	                    guessLogNormalized(set);
-	                }
+	                	              
+	                
 	                generateChart();
 //            	}
             }
@@ -323,6 +283,8 @@ public class VolcanoPlot implements VisualPlugin {
             BusySwingWorker worker,
             MarkerXYToolTipGenerator toolTipGenerator
     ) throws SeriesException {
+    	
+    	 
         DSAnnotationContextManager manager = CSAnnotationContextManager.getInstance();
         DSAnnotationContext<DSMicroarray> context = manager.getCurrentContext(dataSetView.getDataSet());
         XYSeriesCollection plots = new XYSeriesCollection();
@@ -339,32 +301,8 @@ public class VolcanoPlot implements VisualPlugin {
         DSPanel<DSMicroarray> casePanel = dataSetView.getItemPanel().panels().get(1);
 
         // First pass to determine negative value correction amount
-        double minValue = Double.MAX_VALUE;
-        for (int i = 0; i < numMarkers; i++) {
-            DSGeneMarker marker = dataSetView.getMarkerPanel().get(i);
-            for (DSMicroarray microarray : casePanel) {
-                if (microarray.getMarkerValue(marker).getValue() < minValue) {
-                    minValue = microarray.getMarkerValue(marker).getValue();
-                }
-            }
-
-            for (DSMicroarray microarray : controlPanel) {
-                if (microarray.getMarkerValue(marker).getValue() < minValue) {
-                    minValue = microarray.getMarkerValue(marker).getValue();
-                }
-            }
-            if (worker != null) {
-                worker.setCurrentProgress(i);
-            }
-        }
-
-        if (minValue < 0) {
-            // Minimum value adjust to get us above 0 values
-            minValue = Math.abs(minValue) + 1;
-        } else {
-            minValue = 0;
-        }
-
+               
+        
         XYSeries series = new XYSeries("All");
         List<Integer> underflowLocations = new ArrayList<Integer>();
         double validMinSigValue = Double.MAX_VALUE;
@@ -373,20 +311,10 @@ public class VolcanoPlot implements VisualPlugin {
         double maxPlotValue = Double.MIN_VALUE;
         for (int i = 0; i < numMarkers; i++) {
             DSGeneMarker marker = dataSetView.getMarkerPanel().get(i);
-            // Calculate fold change
-            double caseMean = 0;
-            for (DSMicroarray microarray : casePanel) {
-                caseMean += microarray.getMarkerValue(marker).getValue();
-            }
-            caseMean = caseMean / casePanel.size() + minValue;
-
-            double controlMean = 0;
-            for (DSMicroarray microarray : controlPanel) {
-                controlMean += microarray.getMarkerValue(marker).getValue();
-            }
-            controlMean = controlMean / controlPanel.size() + minValue;
+            
 
             double sigValue = significance.getSignificance(marker);
+            
             if (sigValue <= 0) {
                 log.debug("Significance less than or equal to 0, (" + sigValue + ") setting to 1 for the moment.");
                 sigValue = 1;
@@ -398,19 +326,10 @@ public class VolcanoPlot implements VisualPlugin {
                     validMaxSigValue = sigValue;
                 }
             }
-
-            double xVal = 0;
-            if (!isLogNormalized) {
-                double ratio = caseMean / controlMean;
-                if (ratio < 0) {
-                    log.debug("Should not get a negative ratio, but got one.");
-                    xVal = -Math.log(-ratio) / Math.log(2.0);
-                } else {
-                    xVal = Math.log(ratio) / Math.log(2.0);
-                }
-            } else {
-                xVal = caseMean - controlMean;
-            }
+            
+             
+            double xVal = significance.getFoldChange(marker);
+                       
             if (!Double.isNaN(xVal) && !Double.isInfinite(xVal)) {
 //                log.debug("xVal = " + caseMean + " / " + controlMean);
                 double yVal = -Math.log10(sigValue);
@@ -422,6 +341,8 @@ public class VolcanoPlot implements VisualPlugin {
                 if (plotVal > maxPlotValue) {
                     maxPlotValue = plotVal;
                 }
+                
+                
 
                 series.add(xVal, yVal);
                 toolTipGenerator.addMarkerAndStats(marker, xVal, sigValue);
@@ -456,6 +377,8 @@ public class VolcanoPlot implements VisualPlugin {
         mainChart.getXYPlot().setRenderer(new VolcanoRenderer(plots, minPlotValue, maxPlotValue, toolTipGenerator));
         //BufferedImage image = mainChart.createBufferedImage(width, height);
         //return image;
+               
+        
         return mainChart;
     }
 
@@ -481,5 +404,6 @@ public class VolcanoPlot implements VisualPlugin {
 
     }
 
+   
 
 }

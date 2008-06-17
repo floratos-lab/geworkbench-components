@@ -18,6 +18,9 @@ import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSSignificanceResultSet;
 import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
+import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMutableMarkerValue; 
+import org.geworkbench.bison.datastructure.bioobjects.microarray.DSTTestResultSet; 
+import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
 import org.geworkbench.bison.model.analysis.ClusteringAnalysis;
 import org.geworkbench.builtin.projects.ProjectPanel;
@@ -31,7 +34,7 @@ import org.geworkbench.util.ProgressBarT;
 
 /**
  * @author John Watkinson
- * @version $Id: MultiTTestAnalysis.java,v 1.6 2008-06-06 13:46:14 borovtsovd Exp $
+ * @version $Id: MultiTTestAnalysis.java,v 1.7 2008-06-17 17:39:41 my2248 Exp $
  */
 public class MultiTTestAnalysis extends AbstractAnalysis implements
 		ClusteringAnalysis {
@@ -68,6 +71,8 @@ public class MultiTTestAnalysis extends AbstractAnalysis implements
 	}
 
 	private MultiTTestAnalysisPanel panel;
+	boolean useroverride = false;
+    boolean isLogNormalized = false;
 
 	public MultiTTestAnalysis() {
 		setLabel("Multi t Test Analysis");
@@ -90,6 +95,9 @@ public class MultiTTestAnalysis extends AbstractAnalysis implements
 			// Get params
 			Set<String> labelSet = panel.getLabels();
 			double alpha = panel.getPValue();
+			useroverride = panel.isUseroverride();
+	        isLogNormalized = panel.isLogNormalized();
+		        
 			int m = labelSet.size();
 			if (m < 2) {
 				return new AlgorithmExecutionResults(false,
@@ -197,9 +205,14 @@ public class MultiTTestAnalysis extends AbstractAnalysis implements
 					}
 				}
 
+				if (useroverride == false)             
+	                 guessLogNormalized(maSet);
+				
 				String histHeader = this.GenerateHistoryHeader(alpha);
 				String markerString = GenerateMarkerString(view);
 				// Add panels and sigsets
+				
+				
 				for (int i = 0; i < numTests; i++) {
 					if (!this.stopAlgorithm) {
 						sigSets[i].sortMarkersBySignificance();
@@ -207,7 +220,9 @@ public class MultiTTestAnalysis extends AbstractAnalysis implements
 						// add to Dataset History
 						ProjectPanel.addToHistory(sigSets[i], histHeader
 								+ groupAndChipsStringSets[i] + markerString);
-
+						
+						setFoldChnage (maSet, sigSets[i]);     
+						
 						publishSubpanelChangedEvent(new SubpanelChangedEvent<DSGeneMarker>(
 								DSGeneMarker.class, panels[i],
 								SubpanelChangedEvent.NEW));
@@ -271,6 +286,17 @@ public class MultiTTestAnalysis extends AbstractAnalysis implements
 		histStr += "----------------------------------------\n";
 
 		histStr += "Critical P-Value: " + alpha + "\n";
+		
+		if ( useroverride == true)
+			histStr += "\t" + "user override: true \n";
+		else
+			histStr += "\t" + "user override: false \n";
+		
+		if ( isLogNormalized == true)
+			histStr += "\t" + "isLogNormalized: true \n";
+		else
+			histStr += "\t" + "isLogNormalized: false \n";
+		
 		// group names and markers
 
 		return histStr;
@@ -302,4 +328,128 @@ public class MultiTTestAnalysis extends AbstractAnalysis implements
 		return histStr;
 
 	}
+	
+	private void setFoldChnage(DSMicroarraySet<DSMicroarray> set, DSSignificanceResultSet<DSGeneMarker> resultSet)
+	{ 
+                      
+             String[] caseLabels = resultSet.getLabels(DSTTestResultSet.CASE);
+             String[] controlLabels = resultSet.getLabels(DSTTestResultSet.CONTROL);
+             DSAnnotationContext<DSMicroarray> context = CSAnnotationContextManager.getInstance().getCurrentContext(set);
+             DSPanel<DSMicroarray> casePanel = new CSPanel<DSMicroarray>("Case");
+             for (int i = 0; i < caseLabels.length; i++) {
+                 String label = caseLabels[i];
+                 casePanel.addAll(context.getItemsWithLabel(label));
+             }
+             casePanel.setActive(true);
+             DSPanel<DSMicroarray> controlPanel = new CSPanel<DSMicroarray>("Control");
+             for (int i = 0; i < controlLabels.length; i++) {
+                 String label = controlLabels[i];
+                 controlPanel.addAll(context.getItemsWithLabel(label));
+             }
+             casePanel.setActive(true);
+             
+             
+             int numMarkers = resultSet.getSignificantMarkers().size();
+             
+             double minValue = Double.MAX_VALUE;
+             for (int i = 0; i < numMarkers; i++) {
+            	 DSGeneMarker marker = resultSet.getSignificantMarkers().get(i);
+                 for (DSMicroarray microarray : casePanel) {
+                     if (microarray.getMarkerValue(marker).getValue() < minValue) {
+                         minValue = microarray.getMarkerValue(marker).getValue();
+                     }
+                 }
+
+                 for (DSMicroarray microarray : controlPanel) {
+                     if (microarray.getMarkerValue(marker).getValue() < minValue) {
+                         minValue = microarray.getMarkerValue(marker).getValue();
+                     }
+                 }
+                 
+             }
+
+             if (minValue < 0) {
+                 // Minimum value adjust to get us above 0 values
+                 minValue = Math.abs(minValue) + 1;
+             } else {
+                 minValue = 0;
+             }
+
+             
+             
+             for (int i = 0; i < numMarkers; i++) {
+                     
+            	    DSGeneMarker marker = resultSet.getSignificantMarkers().get(i);
+                     // Calculate fold change
+                     double caseMean = 0;
+                     for (DSMicroarray microarray : casePanel) {
+                         caseMean += microarray.getMarkerValue(marker).getValue();
+                     }
+                     caseMean = caseMean / casePanel.size() + minValue;
+
+                     double controlMean = 0;
+                     for (DSMicroarray microarray : controlPanel) {
+                         controlMean += microarray.getMarkerValue(marker).getValue();
+                     }
+                     controlMean = controlMean / controlPanel.size() + minValue;
+
+                     double sigValue = resultSet.getSignificance(marker);
+                     
+                     String isLogNormalizedStr ="";
+                     double fold_change = 0;
+                     double ratio =0;
+                     if (!isLogNormalized) {
+                         ratio = caseMean / controlMean;
+                         if (ratio < 0) {
+                             
+                        	 fold_change = -Math.log(-ratio) / Math.log(2.0);
+                         } else {
+                        	 fold_change = Math.log(ratio) / Math.log(2.0);
+                         }
+                         isLogNormalizedStr = "false";
+                     } else {;
+                    	 fold_change = caseMean - controlMean;
+                    	 isLogNormalizedStr = "true";
+                     }
+                     
+                     System.out.println("isLogNormalized: " + isLogNormalizedStr);
+                     System.out.println("Marker: " + marker.getLabel() + " " + marker.getGeneName());
+                     System.out.println("sigValue: " + sigValue);
+                     System.out.println("caseMean: " + caseMean);
+                     System.out.println("controlMean: " + controlMean);
+                     System.out.println("ratio: " + ratio);
+                     System.out.println("minValue: " + minValue);
+                     System.out.println("fold_change: " + fold_change + "\n");
+                     
+                     
+                     resultSet.setFoldChange(marker, fold_change);
+                     
+                 }
+		  
+	}
+	 
+	private void guessLogNormalized(DSMicroarraySet<DSMicroarray> set) {
+	        double minValue = Double.POSITIVE_INFINITY;
+	        double maxValue = Double.NEGATIVE_INFINITY;
+	        for (DSMicroarray microarray : set) {
+	            DSMutableMarkerValue[] values = microarray.getMarkerValues();
+	            double v;
+	            for (DSMutableMarkerValue value : values) {
+	                v = value.getValue();
+	                if (v < minValue) {
+	                    minValue = v;
+	                }
+	                if (v > maxValue) {
+	                    maxValue = v;
+	                }
+	            }
+	        }
+	        if (maxValue - minValue < 100) {
+	            isLogNormalized = true;
+	        } else {
+	            isLogNormalized = false;
+	        }
+	         
+	    }
+
 }
