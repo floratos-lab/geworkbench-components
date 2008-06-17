@@ -9,12 +9,10 @@ import org.geworkbench.bison.annotation.DSAnnotationContextManager;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.views.CSMicroarraySetView;
-import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
-import org.geworkbench.bison.datastructure.biocollections.DSAncillaryDataSet;
+import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView; 
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.CSTTestResultSet;
-import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
-import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMutableMarkerValue;
+import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray; 
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSSignificanceResultSet;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSTTestResultSet;
 import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
@@ -24,9 +22,7 @@ import org.geworkbench.engine.management.AcceptTypes;
 import org.geworkbench.engine.management.Publish;
 import org.geworkbench.engine.management.Subscribe;
 import org.geworkbench.events.ImageSnapshotEvent;
-import org.geworkbench.events.MarkerSelectedEvent;
-import org.geworkbench.events.ProjectNodeAddedEvent;
-import org.geworkbench.events.ProjectNodeAddedPostEvent;
+import org.geworkbench.events.MarkerSelectedEvent; 
 import org.geworkbench.events.ProjectEvent;
 import org.geworkbench.util.BusySwingWorker;
 import org.jfree.chart.*;
@@ -50,6 +46,7 @@ import java.util.List;
  * Volcano plot.
  *
  * @author Matt Hall, John Watkinson
+ * @version $Id: VolcanoPlot.java,v 1.11 2008-06-17 18:19:59 my2248 Exp $
  */
 //@AcceptTypes({DSSignificanceResultSet.class})
 @AcceptTypes({DSTTestResultSet.class})
