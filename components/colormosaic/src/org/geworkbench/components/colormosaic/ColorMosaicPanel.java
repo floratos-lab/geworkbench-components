@@ -6,6 +6,7 @@ import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.bioobjects.DSBioObject;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
+import org.geworkbench.bison.datastructure.bioobjects.microarray.CSTTestResultSet;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSSignificanceResultSet;
 import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
@@ -65,6 +66,7 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
     private JLabel jLabel2 = new JLabel();
     private JSlider jIntensitySlider = new JSlider();
     private JLabel jLabel5 = new JLabel();
+    private JButton exportButton = new JButton("Export Data");
     private JToggleButton jTogglePrintDescription = new JToggleButton("Label", true);
     private JToggleButton jTogglePrintRatio = new JToggleButton("Ratio", true);
     private JToggleButton jTogglePrintAccession = new JToggleButton("Accession", false);
@@ -78,7 +80,8 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
     private HashMap listeners = new HashMap();
 
     private boolean significanceMode = false;
-
+    DSSignificanceResultSet<DSGeneMarker> significance = null;
+    
     private static final int GENE_HEIGHT = 10;
     private static final int GENE_WIDTH = 20;
 
@@ -180,6 +183,8 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
         listeners.put("File.Print", listener);
         jTogglePrintDescription.addActionListener(listener);
 
+        
+        
         jTogglePrintRatio.setMaximumSize(new Dimension(50, 25));
         jTogglePrintRatio.setMinimumSize(new Dimension(50, 25));
         jTogglePrintRatio.setPreferredSize(new Dimension(50, 25));
@@ -241,6 +246,15 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
                 jAllMArrays_actionPerformed(e);
             }
         });
+        
+        exportButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                if (significance != null && significance instanceof CSTTestResultSet) {
+                ((CSTTestResultSet)significance).saveDataToCSVFile();                     
+                }
+            }
+        });
+        
         jAllMarkers.setSelected(false);
         jAllMarkers.setText("All Markers");
         jAllMarkers.addActionListener(new java.awt.event.ActionListener() {
@@ -255,8 +269,9 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
 //        jToolBar1.add(jToggleButton1, null);
         jToolBar1.add(jHideMaskedBtn, null);
 //        jToolBar1.add(jTogglePrintRatio, null);
-        jToolBar1.add(jTogglePrintAccession, null);
+        jToolBar1.add(jTogglePrintAccession, null);        
         jToolBar1.add(jTogglePrintDescription, null);
+        jToolBar1.add(exportButton, null);
         jToolBar1.add(jAllMArrays, null);
         jToolBar1.add(jAllMarkers, null);
         mainPanel.add(jScrollPane, BorderLayout.CENTER);
@@ -547,6 +562,7 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
             } else if (dataFile instanceof DSSignificanceResultSet) {
                 significanceMode = true;
                 DSSignificanceResultSet sigSet = (DSSignificanceResultSet) dataFile;
+                significance = sigSet;
                 DSMicroarraySet set = sigSet.getParentDataSet();
                 if (colorMosaicImage.getChips() != set) {
                     colorMosaicImage.setChips(set);

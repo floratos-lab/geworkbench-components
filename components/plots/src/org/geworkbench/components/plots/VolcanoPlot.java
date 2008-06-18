@@ -38,6 +38,8 @@ import org.jfree.data.xy.XYSeriesCollection;
 
 import javax.swing.*;
 import java.awt.*; 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.text.DecimalFormat;
 import java.util.*;
 import java.util.List;
@@ -46,7 +48,7 @@ import java.util.List;
  * Volcano plot.
  *
  * @author Matt Hall, John Watkinson
- * @version $Id: VolcanoPlot.java,v 1.11 2008-06-17 18:19:59 my2248 Exp $
+ * @version $Id: VolcanoPlot.java,v 1.12 2008-06-18 17:15:31 my2248 Exp $
  */
 //@AcceptTypes({DSSignificanceResultSet.class})
 @AcceptTypes({DSTTestResultSet.class})
@@ -82,7 +84,7 @@ public class VolcanoPlot implements VisualPlugin {
         private SortedSet<MarkerAndStats> markers;
         private List<MarkerAndStats> markerList;
         private DSSignificanceResultSet<DSGeneMarker> sigSet;
-
+               
         public MarkerXYToolTipGenerator(DSSignificanceResultSet<DSGeneMarker> sigSet) {
             this.sigSet = sigSet;
             markers = new TreeSet<MarkerAndStats>();
@@ -138,6 +140,7 @@ public class VolcanoPlot implements VisualPlugin {
      */
     private DSMicroarraySetView<DSGeneMarker, DSMicroarray> dataSetView = new CSMicroarraySetView<DSGeneMarker, DSMicroarray>();
     
+    private JButton exportButton;  
 
     /**
      * The significance results we're plotting
@@ -152,6 +155,17 @@ public class VolcanoPlot implements VisualPlugin {
         mainPanel = new JPanel(new BorderLayout());
         parentPanel.add(mainPanel, BorderLayout.CENTER);
         
+        JPanel lowerPanel = new JPanel(new FlowLayout());
+        exportButton = new JButton("Export Data");
+        lowerPanel.add(exportButton);
+        parentPanel.add(lowerPanel, BorderLayout.SOUTH);
+        exportButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                if (significance != null && significance instanceof CSTTestResultSet) {
+                ((CSTTestResultSet)significance).saveDataToCSVFile();                     
+                }
+            }
+        });
        
     }
 
