@@ -48,7 +48,7 @@ import java.util.List;
  * Volcano plot.
  *
  * @author Matt Hall, John Watkinson
- * @version $Id: VolcanoPlot.java,v 1.12 2008-06-18 17:15:31 my2248 Exp $
+ * @version $Id: VolcanoPlot.java,v 1.13 2008-06-19 14:57:17 my2248 Exp $
  */
 //@AcceptTypes({DSSignificanceResultSet.class})
 @AcceptTypes({DSTTestResultSet.class})
@@ -81,13 +81,16 @@ public class VolcanoPlot implements VisualPlugin {
             }
         }
 
-        private SortedSet<MarkerAndStats> markers;
+        //private SortedSet<MarkerAndStats> markers;
+        private List<MarkerAndStats> markers;
         private List<MarkerAndStats> markerList;
         private DSSignificanceResultSet<DSGeneMarker> sigSet;
                
         public MarkerXYToolTipGenerator(DSSignificanceResultSet<DSGeneMarker> sigSet) {
             this.sigSet = sigSet;
-            markers = new TreeSet<MarkerAndStats>();
+            //markers = new TreeSet<MarkerAndStats>();
+            markers = new ArrayList<MarkerAndStats>();
+            java.util.Collections.sort(markers);
         }
 
         public void chartMouseClicked(ChartMouseEvent event) {
@@ -118,6 +121,8 @@ public class VolcanoPlot implements VisualPlugin {
             String result = "Unknown: ";
             DecimalFormat df = new DecimalFormat("0.###E0");
 
+            if ( item > markerList.size()-1 )
+            	return result;
             MarkerAndStats markerStats = markerList.get(item);
             if (markerStats != null) {
                 result = markerStats.marker.getLabel() + " (" + markerStats.marker.getGeneName() + "): " + df.format(markerStats.pValue);
