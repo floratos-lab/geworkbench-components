@@ -111,7 +111,7 @@ import java.util.Locale;
  * that this gene's product participates in.
  * 
  * @author manjunath at genomecenter dot columbia dot edu
- * @version $Id: AnnotationsPanel.java,v 1.27 2008-06-03 15:39:19 my2248 Exp $
+ * @version $Id: AnnotationsPanel.java,v 1.28 2008-06-19 19:53:03 my2248 Exp $
  * 
  * 
  */
@@ -737,11 +737,13 @@ public class AnnotationsPanel implements VisualPlugin {
     @Subscribe
     public void receive(ProjectEvent e, Object source) {
         DSDataSet data = e.getDataSet();
+        int hashcode = 0;
         if (data != null && data instanceof DSMicroarraySet) {
             maSet = (DSMicroarraySet) data;            
+            hashcode = maSet.hashCode();
         }
         
-        int hashcode = maSet.hashCode();
+       
         
         if (oldHashCode == 0)  
         {
