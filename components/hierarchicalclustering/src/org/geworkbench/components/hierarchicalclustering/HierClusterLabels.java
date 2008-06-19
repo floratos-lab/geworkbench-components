@@ -181,6 +181,8 @@ public class HierClusterLabels extends JPanel {
         }
     }
 
+    
+    
     /**
      * <code>JComponent</code> method used to render this component
      *
@@ -189,7 +191,9 @@ public class HierClusterLabels extends JPanel {
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
        
+        //default value
         width = 100;
+        
         
         try {
             if (microarraySet != null) {
@@ -223,6 +227,25 @@ public class HierClusterLabels extends JPanel {
                 AffineTransform saveAt = ((Graphics2D) g).getTransform();
                 ((Graphics2D) g).transform(at);
 
+                //calculate the max length for width
+                for (int j = 0; j < chipNo; j++) {
+                    DSMicroarray mArray = null;
+                    if ((leafArrays != null) && (currentArrayCluster!=null)) {
+                        mArray = ((MicroarrayHierCluster) leafArrays[j]).getMicroarray();
+                    } else {
+                        mArray = microarraySet.get(j);
+                    }                  
+                    String name = mArray.getLabel();
+                    if (name != null) {                   
+                       if( (name.length()/10 + 1)*50 > width)
+                    	  width = (name.length()/10 + 1)*50;
+                    }
+                     
+                }
+                
+                
+                
+                
                 for (int j = 0; j < chipNo; j++) {
                     DSMicroarray mArray = null;
 
@@ -237,13 +260,10 @@ public class HierClusterLabels extends JPanel {
 
                     if (name == null) {
                         name = "Undefined";
-                    }
-                    
-                    if( (name.length()/10 + 1)*50 > width)
-                    	width = (name.length()/10 + 1)*50;
+                    }                     
                     
                     g.drawString(name, -width, leftOffset + yRatio);
-                     
+                    
                 }
 
                 ((Graphics2D) g).setTransform(saveAt);
@@ -271,9 +291,7 @@ public class HierClusterLabels extends JPanel {
                         if (name == null) {
                             name = "Undefined";
                         }
-                        if( (name.length()/10 + 1)*50 > width)
-                        	width = (name.length()/10 + 1)*50;
-                        
+                                                
                         ig.drawString(name, -width, leftOffset + yRatio);
                     }
 
