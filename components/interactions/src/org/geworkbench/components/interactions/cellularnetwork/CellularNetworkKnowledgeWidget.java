@@ -95,7 +95,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 
 	private boolean cancelAction = false;
 
-	//public static final int THRESHOLD = 5000;
+	// public static final int THRESHOLD = 5000;
 
 	/**
 	 * Creates new form Interactions
@@ -1839,24 +1839,11 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 			allGenes.clear();
 			ListOrderedSet<DSGeneMarker> orderedSet = new ListOrderedSet<DSGeneMarker>();
 
-			if (hits != null && hits.size() > 0) {
-				for (DSGeneMarker marker : panel) {
-					orderedSet.add(marker);
-				}
-				updateAllMarkersList(orderedSet, hits);
-				//				 
-				// for (DSGeneMarker marker : panel) {
-				// if (!includeMarker(marker, hits)) {
-				// orderedSet.add(marker);
-				// }
-				// }
-				//
-				// for (Iterator<DSGeneMarker> markerIter = orderedSet
-				// .iterator(); markerIter.hasNext();) {
-				// allGenes.add(markerIter.next());
-				// }
-
+			for (DSGeneMarker marker : panel) {
+				orderedSet.add(marker);
 			}
+			updateAllMarkersList(orderedSet, hits);
+
 			activeMarkersTableModel.fireTableDataChanged();
 			checkSelectedTableWithNewDataSet(panel);
 
@@ -1892,7 +1879,8 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 
 	private void updateAllMarkersList(ListOrderedSet<DSGeneMarker> orderedSet,
 			Vector<CellularNetWorkElementInformation> vector) {
-		if (vector != null && orderedSet != null) {
+		if (vector != null && orderedSet != null && vector.size() > 0
+				&& orderedSet.size() > 0) {
 			for (CellularNetWorkElementInformation cellularNetWorkElementInformation : vector) {
 				if (cellularNetWorkElementInformation != null) {
 					DSGeneMarker gene = cellularNetWorkElementInformation
@@ -1902,10 +1890,11 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 					}
 				}
 			}
-			for (Iterator<DSGeneMarker> markerIter = orderedSet.iterator(); markerIter
-					.hasNext();) {
-				allGenes.add(markerIter.next());
-			}
+
+		}
+		for (Iterator<DSGeneMarker> markerIter = orderedSet.iterator(); markerIter
+				.hasNext();) {
+			allGenes.add(markerIter.next());
 		}
 	}
 
