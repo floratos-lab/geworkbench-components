@@ -279,13 +279,14 @@ public class TtestAnalysis extends AbstractAnalysis implements
 			/*
 			 * the calculations moved below checking input arguments.
 			 */
-
+/*
 			pbTtest = ProgressBarT.create(ProgressBarT.BOUNDED_TYPE);
 			pbTtest.addObserver(this);
 			pbTtest.setTitle("T Test Analysis");
 			pbTtest.setBounds(new ProgressBarT.IncrementModel(0, markers, 0,
 					markers, 1));
 			pbTtest.setMessage("Constructing ... " + markers + " variables");
+*/
 			pbTtest.start();
 			this.stopAlgorithm = false;
 			expMatrix = new float[markers][arrays];
@@ -399,7 +400,7 @@ public class TtestAnalysis extends AbstractAnalysis implements
 				histHeader = GenerateHistoryHeader();
 				ProjectPanel.addToHistory(sigSet, histHeader
 						+ groupAndChipsString + histMarkerString);
-				     
+				pbTtest.dispose();     
 				return new AlgorithmExecutionResults(true, "Ttest", sigSet);
 			}
 
