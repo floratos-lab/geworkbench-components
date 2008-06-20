@@ -239,6 +239,7 @@ public abstract class AbstractSequenceDiscoveryAlgorithm implements org.geworkbe
     }
 
     public void setSequenceInputData(DSSequenceSet sequenceInputData) {
+    	//System.out.println("IN ASDAlgo: " + sequenceInputData.size());
         this.sequenceInputData = sequenceInputData;
     }
 }

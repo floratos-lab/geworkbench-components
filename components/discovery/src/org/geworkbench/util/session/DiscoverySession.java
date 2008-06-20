@@ -87,6 +87,8 @@ public class DiscoverySession {
                 init(sessionName, database, databaseName, connection, userName);
 
                 //Now we actually create the session on the server
+                //Question: How the result will be retrieved?
+                
                 int sessionId = createSession(userId, sessionName, sType);
                 setLogToken(userId, sessionId);
             } catch (RemoteException exp) {
@@ -503,7 +505,7 @@ public class DiscoverySession {
 
     public  boolean translateToNewPattern(CSMatchedSeqPattern csMatchedSeqPattern, ArrayOfSOAPOffsetHolder arrayOfSOAPOffsetHolder){
         SOAPOffset[] values = arrayOfSOAPOffsetHolder.value;
-        PatternOfflet[] patternOfflets = new PatternOfflet[values.length];
+//        PatternOfflet[] patternOfflets = new PatternOfflet[values.length];
         ArrayList<PatternOfflet> arrayList = new ArrayList<PatternOfflet>();
         for (int i=0; i<values.length; i++){
             PatternOfflet patternOfflet = new PatternOfflet(values[i].getDx(), values[i].getToken());
@@ -630,7 +632,7 @@ public class DiscoverySession {
                 IntHolder hPatIncluded = new IntHolder();
                 IntHolder hPatExcluded = new IntHolder();
                 HMMPatternHolder hmmPat = new HMMPatternHolder();
-                  System.out.println(path + " path = " + patHolder + logToken);
+                //  System.out.println(path + " path = " + patHolder + logToken);
                 // soapPort.getPatternNode(logToken, path, 0, patHolder,
                 //   patIncluded, patExcluded);
                 soapPort.getPatternNode(logToken, path, 0, patHolder, hmmPat, hPatIncluded, hPatExcluded, patIncluded, patExcluded);
@@ -642,7 +644,7 @@ public class DiscoverySession {
                 }
 
                 org.geworkbench.util.patterns.CSMatchedSeqPattern pattern = new CSMatchedSeqPattern(database);
-                System.out.println(patHolder + " patholder, value =" + patHolder.value);
+                //System.out.println(patHolder + " patholder, value =" + patHolder.value);
 
                 pattern.idNo = new IntHolder(patHolder.value.getIdNo());
                 pattern.seqNo = new IntHolder(patHolder.value.getSeqNo());
