@@ -406,10 +406,12 @@ public class AracneAnalysis extends AbstractGridAnalysis implements ClusteringAn
 		Map<Serializable, Serializable> bisonParameters = new HashMap<Serializable, Serializable>();
 		AracneParamPanel paramPanel = (AracneParamPanel) this.aspp;
 
+		bisonParameters.put("isDPISpecified", paramPanel.isDPIToleranceSpecified());
 		if (paramPanel.isDPIToleranceSpecified()) {
 			float dpiTolerence = paramPanel.getDPITolerance();
 			bisonParameters.put("dpi", dpiTolerence);
 		}
+		bisonParameters.put("isKernelWidthSpecified", paramPanel.isKernelWidthSpecified());
 		if (paramPanel.isKernelWidthSpecified()) {
 			float kernelWidth = paramPanel.getKernelWidth();
 			bisonParameters.put("kernel", kernelWidth);
@@ -419,19 +421,40 @@ public class AracneAnalysis extends AbstractGridAnalysis implements ClusteringAn
 		// String hubMarkersFile = paramPanel.getHubMarkersFile();
 		// ArrayList<String> hubGeneList = paramPanel.getHubGeneList();
 		String hubGene = paramPanel.getHubGeneString();
-		String[] genes = StringUtils.split(hubGene, COMMA_SEP);
-		if (genes.length > 1)
-			hubGene = genes[0];
-		bisonParameters.put("hub", hubGene);
+		//String[] genes = StringUtils.split(hubGene, COMMA_SEP);
+		//if (genes.length > 1)
+			//hubGene = genes[0];
+		bisonParameters.put("isHubListSpecified", paramPanel.isHubListSpecified());
+		if (paramPanel.isHubListSpecified())
+			bisonParameters.put("hub", hubGene);
+		else
+			bisonParameters.put("hub", "");
+		
+		ArrayList<String> targetGeneList = paramPanel.getTargetGenes();
+		String targetGene="";
+		boolean isFirst=true;
+		for (java.util.Iterator<String> iterator = targetGeneList.iterator(); iterator.hasNext();) {
+			if (isFirst)
+				isFirst=false;
+			else
+				targetGene += ",";
+			String gene = (String) iterator.next();
+			targetGene += gene;
+		}
+		bisonParameters.put("isTargetListSpecified", paramPanel.isTargetListSpecified());
+		if (paramPanel.isTargetListSpecified())
+			bisonParameters.put("target", targetGene);
+		else
+			bisonParameters.put("target", "");
 
-   		bisonParameters.put("isMI", paramPanel.isThresholdMI());		
+		bisonParameters.put("isMI", paramPanel.isThresholdMI());		
 
    		float threshold = paramPanel.getThreshold();
 		bisonParameters.put("threshold", threshold);
 
 		return bisonParameters;
 	}
-    
+
     /*
 	 * (non-Javadoc)
 	 * @see org.geworkbench.analysis.AbstractGridAnalysis#getAnalysisName()
