@@ -1025,7 +1025,7 @@ public class PromoterViewPanel extends JPanel {
 
                         for (CSSequence sequence : keySet) {
                             bw.write(sequence.getLabel());
-                            bw.write(tab);
+                            bw.newLine();
                             PatternSequenceDisplayUtil pu = tfPatterns.get(
                                     sequence);
                             TreeSet<PatternLocations>
@@ -1047,6 +1047,8 @@ public class PromoterViewPanel extends JPanel {
                                             bw.write(seqReg.x2 + 1 + tab);
                                             bw.write(seqReg.x1 + 1 + tab);
                                         }
+                                        bw.newLine();
+                                        
                                     }
                                 }
                             }
