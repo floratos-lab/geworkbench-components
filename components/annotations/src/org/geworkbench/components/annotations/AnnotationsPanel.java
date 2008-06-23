@@ -1,5 +1,7 @@
 package org.geworkbench.components.annotations;
 
+import java.util.Observable;
+import java.util.Observer; 
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -111,14 +113,15 @@ import java.util.Locale;
  * that this gene's product participates in.
  * 
  * @author manjunath at genomecenter dot columbia dot edu
- * @version $Id: AnnotationsPanel.java,v 1.28 2008-06-19 19:53:03 my2248 Exp $
+ * @version $Id: AnnotationsPanel.java,v 1.29 2008-06-23 15:30:22 my2248 Exp $
  * 
  * 
  */
 @AcceptTypes({DSMicroarraySet.class})
-public class AnnotationsPanel implements VisualPlugin {
+public class AnnotationsPanel implements VisualPlugin, Observer{
     static Log log = LogFactory.getLog(AnnotationsPanel.class);
-
+    private boolean stopAlgorithm =false;
+    
     private class TableModel extends SortableTableModel {
 
         public static final int COL_MARKER = 0;
@@ -291,6 +294,11 @@ public class AnnotationsPanel implements VisualPlugin {
         }
 
     }
+    
+    public AnnotationsPanel getAnnotationsPanel()
+    {
+    	return this;
+    }
 
     /**
      * Configures the Graphical User Interface and Listeners
@@ -402,16 +410,96 @@ public class AnnotationsPanel implements VisualPlugin {
         pathways = new Pathway[0];
         try {
             Runnable query = new Runnable() {
-                public void run() {
-                    ProgressBar pb = ProgressBar.create(ProgressBar.INDETERMINATE_TYPE);
+            	private ProgressBar pb = null;
+            	private ArrayList<MarkerData> markerData = null;
+            	private ArrayList<GeneData> geneData = null;
+            	private ArrayList<PathwayData> pathwayData = null;
+            	public void run() {
+                    pb = ProgressBar.create(ProgressBar.INDETERMINATE_TYPE);
+                    pb.addObserver(getAnnotationsPanel());
                     pb.setMessage("Connecting to server...");
-                    ArrayList<MarkerData> markerData = new ArrayList<MarkerData>();
-                    ArrayList<GeneData> geneData = new ArrayList<GeneData>();
-                    ArrayList<PathwayData> pathwayData = new ArrayList<PathwayData>();
+                    markerData = new ArrayList<MarkerData>();
+                    geneData = new ArrayList<GeneData>();
+                    pathwayData = new ArrayList<PathwayData>();
                     if (selectedMarkerInfo != null) {
                         pb.setTitle("Querying caBIO..");
                         pb.start();
-                        int index = 0;
+                       
+                        
+                        Thread retrieveThread = new Thread(new Runnable() {
+                            public void run() {
+                            	int index = 0;                       
+                                for (int i = 0; i < selectedMarkerInfo.size(); i++) {
+                                    String geneName = selectedMarkerInfo.get(i).getGeneName();
+                                    String probeLabel = selectedMarkerInfo.get(i).getLabel();
+                                    GeneAnnotation[] annotations;
+                                    if ("".equals(geneName) || geneName.equals(probeLabel)) {
+//                                        useGeneName = false;
+                                        annotations = criteria.searchByProbeId(probeLabel);
+                                    } else {
+                                        annotations = criteria.searchByName(geneName);
+                                    }
+
+                                    pb.setMessage("Getting Marker Annotation and Pathways: " + selectedMarkerInfo.get(i).getLabel());
+                                    MarkerData marker = new MarkerData(selectedMarkerInfo.get(i));
+//                                    GeneAnnotation[] annotations = criteria.searchByName();
+                                    if (annotations.length > 0) {
+                                        for (int j = 0; j < annotations.length; j++) {
+                                            Pathway[] pways = annotations[j].getPathways();
+                                            Pathway[] temp = new Pathway[pathways.length + pways.length];
+                                            System.arraycopy(pathways, 0, temp, 0, pathways.length);
+                                            System.arraycopy(pways, 0, temp, pathways.length, pways.length);
+                                            pathways = temp;
+                                            //geneAnnotation +=
+                                            //  "<table width=\"90%\" border=\"1\" cellspacing=\"0\" "
+                                            //+ "cellpadding=\"2\"><tr valign=\"top\">";
+                                            GeneData gene = new GeneData(annotations[j].getGeneName(), annotations[j]);
+                                            if (pways.length > 0) {
+                                                for (int k = 0; k < pways.length; k++) {
+                                                    pathwayData.add(new PathwayData(pways[k].getPathwayName(), pways[k]));
+                                                    geneData.add(gene);
+                                                    markerData.add(marker);
+                                                }
+                                            } else {
+                                                pathwayData.add(new PathwayData("", null));
+                                                geneData.add(gene);
+                                                markerData.add(marker);
+                                            }
+                                        }
+                                    } else {
+                                        pathwayData.add(new PathwayData("", null));
+                                        geneData.add(new GeneData("", null));
+                                        markerData.add(marker);
+                                    }
+                                }
+                            }
+                        });
+                        
+                        retrieveThread.start();
+                        
+                        while (retrieveThread.isAlive())
+                        {
+                            try
+                            {
+                              if (stopAlgorithm == true)
+                              {
+                            	  stopAlgorithm(retrieveThread, pb);
+                            	  return;
+                              }
+                        	  Thread.sleep(5);
+                            }
+                            catch(Exception exp)
+                        	{}
+                        }
+                        
+                        
+                        pb.stop();
+                        pb.dispose();
+
+                        
+                        
+                        
+                        /*int index = 0;                       
                         for (int i = 0; i < selectedMarkerInfo.size(); i++) {
                             String geneName = selectedMarkerInfo.get(i).getGeneName();
                             String probeLabel = selectedMarkerInfo.get(i).getLabel();
@@ -454,9 +542,10 @@ public class AnnotationsPanel implements VisualPlugin {
                                 geneData.add(new GeneData("", null));
                                 markerData.add(marker);
                             }
-                        }
+                        }*/
                         pb.stop();
-                        pb.dispose();
+                        pb.dispose();                       
+                        
                     }
                     MarkerData[] markers = markerData.toArray(new MarkerData[0]);
                     GeneData[] genes = geneData.toArray(new GeneData[0]);
@@ -549,7 +638,9 @@ public class AnnotationsPanel implements VisualPlugin {
             public void actionPerformed(ActionEvent actionEvent) {
 
                 Thread thread = new Thread(new Runnable() {
-                    public void run() {
+                	
+                	private GeneAnnotation[] genesInPathway = null;
+                	public void run() {
 
                         String tmpSetLabel = JOptionPane.showInputDialog("Panel Set Label:", pathwayData.pathway.getPathwayName());
                         // String tmpLabel = JOptionPane.showInputDialog("Set Label:", "");
@@ -562,12 +653,36 @@ public class AnnotationsPanel implements VisualPlugin {
                         }
 
                         ProgressBar pb = ProgressBar.create(ProgressBar.INDETERMINATE_TYPE);
+                        pb.addObserver(getAnnotationsPanel());
                         pb.setTitle("Genes For Pathway");
                         pb.setMessage("Retrieving from server...");
                         pb.start();
 
-                        GeneAnnotation[] genesInPathway = criteria.getGenesInPathway(pathwayData.pathway);
-
+                        //genesInPathway = criteria.getGenesInPathway(pathwayData.pathway);
+                        Thread getGenesInPathwayThread = new Thread(new Runnable() {
+                            public void run() {
+                                genesInPathway = criteria.getGenesInPathway(pathwayData.pathway);
+                            }
+                        });
+                        
+                        getGenesInPathwayThread.start();
+                        
+                        while (getGenesInPathwayThread.isAlive())
+                        {
+                            try
+                            {
+                              if (stopAlgorithm == true)
+                              {
+                            	  stopAlgorithm(getGenesInPathwayThread, pb);
+                            	  return;
+                              }
+                        	  Thread.sleep(5);
+                            }
+                            catch(Exception exp)
+                        	{}
+                        }
+                        
+                        
                         pb.stop();
                         pb.dispose();
 
@@ -602,6 +717,8 @@ public class AnnotationsPanel implements VisualPlugin {
             public void actionPerformed(ActionEvent actionEvent) {
 
                 Thread thread = new Thread(new Runnable() {
+                	
+                	private GeneAnnotation[] genesInPathway = null;
                     public void run() {
                         JFileChooser chooser = new JFileChooser(pathwayData.pathway.getPathwayName() + ".csv");
                         ExampleFilter filter = new ExampleFilter();
@@ -612,12 +729,34 @@ public class AnnotationsPanel implements VisualPlugin {
                         if (returnVal == JFileChooser.APPROVE_OPTION) {
                             try {
                                 ProgressBar pb = ProgressBar.create(ProgressBar.INDETERMINATE_TYPE);
+                                pb.addObserver(getAnnotationsPanel());
                                 pb.setTitle("Genes For Pathway");
                                 pb.setMessage("Retrieving from server...");
                                 pb.start();
-
-                                GeneAnnotation[] genesInPathway = criteria.getGenesInPathway(pathwayData.pathway);
-
+                                Thread getGenesInPathwayThread = new Thread(new Runnable() {
+                                    public void run() {
+                                    	 genesInPathway = criteria.getGenesInPathway(pathwayData.pathway);
+                                    }
+                                });
+                                
+                                getGenesInPathwayThread.start();
+                                
+                                while (getGenesInPathwayThread.isAlive())
+                                {
+                                    try
+                                    {
+                                      if (stopAlgorithm == true)
+                                      {
+                                    	  stopAlgorithm(getGenesInPathwayThread, pb);
+                                    	  return;
+                                      }
+                                	  Thread.sleep(5);
+                                    }
+                                    catch(Exception exp)
+                                	{}
+                                }
+                                //GeneAnnotation[] genesInPathway = criteria.getGenesInPathway(pathwayData.pathway);
+                           
                                 pb.stop();
                                 pb.dispose();
 
@@ -1010,18 +1149,22 @@ public class AnnotationsPanel implements VisualPlugin {
     public void receive(org.geworkbench.events.AnnotationsEvent ae){
         
         pathway = ae.getPathway();
-   
+        
         Runnable pway = new Runnable() {
-          public void run() {
-            org.geworkbench.util.ProgressBar pb = ProgressBar.create(ProgressBar.INDETERMINATE_TYPE);
+          
+        	private String pathwayName = null;
+        	private String pathwayDiagram = null;
+        	public void run() {
+            org.geworkbench.util.ProgressBar pb = ProgressBar.create(ProgressBar.INDETERMINATE_TYPE);             
             pb.setTitle("Constructing SVG Pathway");
             pb.setMessage("Creating Image..");
-            pb.start();
+            pb.start();           
             
             addPathwayName(pathway.getPathwayName(), pathway.getPathwayDiagram());
            
             pb.stop(); 
-            pb.dispose();
+            pb.dispose();            
+          
             Container parent = pathwayPanel.getParent();                
             if (parent instanceof JTabbedPane)
             {    ((JTabbedPane) parent).setSelectedComponent(pathwayPanel);
@@ -1310,6 +1453,21 @@ public class AnnotationsPanel implements VisualPlugin {
 
     
     
+    public void stopAlgorithm(Thread td, ProgressBar pb) {
+		stopAlgorithm = false;
+		td.interrupt();
+		pb.stop();
+        pb.dispose(); 
+	 
+	}
+    
+    /**
+	 * @param o
+	 * @param arg
+	 */
+	public void update(Observable o, Object arg) {
+		stopAlgorithm = true;		 
+    }
     
     
     
