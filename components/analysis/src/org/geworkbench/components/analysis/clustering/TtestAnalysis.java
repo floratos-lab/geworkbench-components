@@ -304,7 +304,7 @@ public class TtestAnalysis extends AbstractAnalysis implements
 					return null;
 				}
 			}
-			pbTtest.dispose();
+//			pbTtest.dispose();
 //			pbTtest.setType(ProgressBarT.INDETERMINATE_TYPE);
 
 			// ///////////////////////////////////////////////////////
