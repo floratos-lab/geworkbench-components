@@ -18,7 +18,10 @@ import org.geworkbench.events.ImageSnapshotEvent;
 @AcceptTypes({CSSequenceSet.class, SoapParmsDataSet.class}) public class PromoterView implements VisualPlugin {
 
     PromoterViewPanel main = new PromoterViewPanel();
-
+    private final int SEQUENCE = 3;
+	private final int NONSEQUENCE = 4;
+	private int currentStatus = NONSEQUENCE;
+	
     public PromoterView() {
 
         try {
@@ -50,7 +53,8 @@ import org.geworkbench.events.ImageSnapshotEvent;
      * @param e GeneSelectorEvent
      */
     @Subscribe public void receive(org.geworkbench.events.GeneSelectorEvent e, Object publisher) {
-        main.receive(e);
+        if(currentStatus==SEQUENCE)
+    	main.receive(e);
     }
 
     /**
@@ -63,7 +67,11 @@ import org.geworkbench.events.ImageSnapshotEvent;
             DSDataSet dataFile = selection.getDataSet();
             if (dataFile instanceof DSSequenceSet) {
                 main.setSequenceDB((DSSequenceSet) dataFile);
+                currentStatus = SEQUENCE;
+            }else{
+            	currentStatus = NONSEQUENCE;
             }
+            
     }
 
     /**
