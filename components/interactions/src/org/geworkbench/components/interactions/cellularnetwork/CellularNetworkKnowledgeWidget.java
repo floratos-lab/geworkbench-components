@@ -1,63 +1,107 @@
 package org.geworkbench.components.interactions.cellularnetwork;
 
-import org.geworkbench.engine.management.Subscribe;
-import org.geworkbench.engine.management.Publish;
-import org.geworkbench.engine.management.AcceptTypes;
-import org.geworkbench.engine.config.VisualPlugin;
-import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
-import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
-import org.geworkbench.bison.datastructure.bioobjects.markers.CSGeneMarker;
-import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
-import org.geworkbench.bison.datastructure.bioobjects.markers.goterms.GOTerm;
-import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.AnnotationParser;
-import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
-import org.geworkbench.bison.datastructure.complex.panels.CSItemList;
-import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
-import org.geworkbench.util.pathwaydecoder.mutualinformation.AdjacencyMatrix;
-import org.geworkbench.util.pathwaydecoder.mutualinformation.AdjacencyMatrixDataSet;
-import org.geworkbench.events.ProjectNodeAddedEvent;
-import org.geworkbench.events.AdjacencyMatrixEvent;
-import org.geworkbench.events.GeneSelectorEvent;
-import org.geworkbench.events.ProjectEvent;
-import org.apache.axis.EngineConfiguration;
-import org.apache.axis.configuration.BasicClientConfig;
-import org.apache.commons.collections15.set.ListOrderedSet;
-import org.jfree.chart.ChartFactory;
-import org.jfree.chart.ChartPanel;
-import org.jfree.chart.JFreeChart;
-import org.jfree.chart.labels.XYToolTipGenerator;
-import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
-import org.jfree.chart.axis.NumberAxis;
-import org.jfree.chart.axis.ValueAxis;
-import org.jfree.chart.plot.PlotOrientation;
-import org.jfree.chart.plot.XYPlot;
-import org.jfree.data.xy.XYSeriesCollection;
-import org.jfree.data.xy.XYSeries;
-import org.jfree.data.xy.XYDataset;
-import org.jfree.data.Range;
-import org.jfree.ui.RectangleInsets;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.Frame;
+import java.awt.GridBagLayout;
+import java.awt.GridLayout;
+import java.awt.Point;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.math.BigDecimal;
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.Vector;
 
-import javax.swing.*;
-import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.TreeSelectionModel;
-import javax.swing.tree.TreePath;
+import javax.swing.AbstractListModel;
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.CellEditor;
+import javax.swing.DefaultListModel;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JDialog;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JMenu;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
+import javax.swing.JProgressBar;
+import javax.swing.JScrollPane;
+import javax.swing.JSlider;
+import javax.swing.JSplitPane;
+import javax.swing.JTable;
+import javax.swing.JTextField;
+import javax.swing.JToolBar;
+import javax.swing.JTree;
+import javax.swing.ListModel;
+import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
 import javax.swing.border.Border;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.TableModelEvent;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
-import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableColumn;
+import javax.swing.table.TableColumnModel;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.TreePath;
+import javax.swing.tree.TreeSelectionModel;
 import javax.xml.rpc.ServiceException;
-import java.awt.event.*;
-import java.awt.*;
-import java.util.*;
-import java.util.List;
-import java.math.BigDecimal;
-import java.text.DecimalFormat;
 
+import org.apache.axis.EngineConfiguration;
+import org.apache.axis.configuration.BasicClientConfig;
+import org.apache.commons.collections15.set.ListOrderedSet;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
+import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
+import org.geworkbench.bison.datastructure.bioobjects.markers.CSGeneMarker;
+import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
+import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.AnnotationParser;
+import org.geworkbench.bison.datastructure.bioobjects.markers.goterms.GOTerm;
+import org.geworkbench.bison.datastructure.complex.panels.CSItemList;
+import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
+import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
+import org.geworkbench.engine.config.VisualPlugin;
+import org.geworkbench.engine.management.AcceptTypes;
+import org.geworkbench.engine.management.Publish;
+import org.geworkbench.engine.management.Subscribe;
+import org.geworkbench.events.AdjacencyMatrixEvent;
+import org.geworkbench.events.GeneSelectorEvent;
+import org.geworkbench.events.ProjectEvent;
+import org.geworkbench.events.ProjectNodeAddedEvent;
+import org.geworkbench.util.pathwaydecoder.mutualinformation.AdjacencyMatrix;
+import org.geworkbench.util.pathwaydecoder.mutualinformation.AdjacencyMatrixDataSet;
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.axis.NumberAxis;
+import org.jfree.chart.axis.ValueAxis;
+import org.jfree.chart.labels.XYToolTipGenerator;
+import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.chart.plot.XYPlot;
+import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
+import org.jfree.data.Range;
+import org.jfree.data.xy.XYDataset;
+import org.jfree.data.xy.XYSeries;
+import org.jfree.data.xy.XYSeriesCollection;
+import org.jfree.ui.RectangleInsets;
 
 /**
  * @author manjunath at genomecenter dot columbia dot edu, xiaoqing zhang
@@ -1416,20 +1460,24 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 
 	DefaultTableModel activeMarkersTableModel = new DefaultTableModel() {
 
+		@Override
 		public boolean isCellEditable(int r, int c) {
 			return false;
 		}
 
+		@Override
 		public int getColumnCount() {
 			return 3;
 		}
 
+		@Override
 		public int getRowCount() {
 			if (allGenes != null)
 				return allGenes.size();
 			return 0;
 		}
 
+		@Override
 		public String getColumnName(int index) {
 			switch (index) {
 			case 0:
@@ -1444,6 +1492,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 			}
 		}
 
+		@Override
 		synchronized public Object getValueAt(int row, int column) {
 			Thread.currentThread().setContextClassLoader(
 					CellularNetworkKnowledgeWidget.this.getClass()
@@ -1493,16 +1542,19 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 	{
 		previewTableModel = new DefaultTableModel() {
 
+			@Override
 			public int getColumnCount() {
 				return 8;
 			}
 
+			@Override
 			public int getRowCount() {
 				if (hits != null)
 					return hits.size();
 				return 0;
 			}
 
+			@Override
 			public String getColumnName(int index) {
 				switch (index) {
 				case 0:
@@ -1527,6 +1579,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 			}
 
 			/* get the Object data to be displayed at (row, col) in table */
+			@Override
 			public Object getValueAt(int row, int col) {
 
 				CellularNetWorkElementInformation hit = hits.get(row);
@@ -1554,6 +1607,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 			}
 
 			/* returns the Class type of the column c */
+			@Override
 			public Class getColumnClass(int c) {
 				if (getValueAt(0, c) != null) {
 					return getValueAt(0, c).getClass();
@@ -1565,6 +1619,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 			 * returns if the cell is editable; returns false for all cells in
 			 * columns except column 6
 			 */
+			@Override
 			public boolean isCellEditable(int row, int col) {
 				// Note that the data/cell address is constant,
 				// no matter where the cell appears onscreen.
@@ -1583,6 +1638,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 			 * detect change in cell at (row, col); set cell to value; update
 			 * the table
 			 */
+			@Override
 			public void setValueAt(Object value, int row, int col) {
 				CellularNetWorkElementInformation hit = hits.get(row);
 				TableColumn tableColumn = detailTable.getColumnModel()
@@ -1827,8 +1883,21 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 	public void receive(GeneSelectorEvent gse, Object source) {
 		log.debug("received GeneSelectorEvent::source="
 				+ source.getClass().getName());
-		DSPanel<DSGeneMarker> panel = gse.getPanel();
+		final DSPanel<DSGeneMarker> panel = gse.getPanel();
+		final Runnable processEventThread = new Runnable() {
+			public void run() {
 
+				processData(panel);
+			}
+		};
+		Thread t = new Thread(processEventThread);
+		t.setPriority(t.MAX_PRIORITY);
+		t.start();
+		log.debug("end GeneSelectorEvent at CNKW");
+	}
+
+	synchronized void processData(DSPanel<DSGeneMarker> panel) {
+		log.debug("start processData" );
 		if (panel != null) {
 			if (panel.size() == 0) {
 
@@ -1854,6 +1923,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 
 		}
 		repaint();
+		log.debug("end processData" );
 	}
 
 	private boolean checkSelectedTableWithNewDataSet(DSPanel<DSGeneMarker> panel) {
