@@ -113,7 +113,7 @@ import java.util.Locale;
  * that this gene's product participates in.
  * 
  * @author manjunath at genomecenter dot columbia dot edu
- * @version $Id: AnnotationsPanel.java,v 1.29 2008-06-23 15:30:22 my2248 Exp $
+ * @version $Id: AnnotationsPanel.java,v 1.30 2008-06-24 15:47:36 my2248 Exp $
  * 
  * 
  */
@@ -879,9 +879,12 @@ public class AnnotationsPanel implements VisualPlugin, Observer{
         int hashcode = 0;
         if (data != null && data instanceof DSMicroarraySet) {
             maSet = (DSMicroarraySet) data;            
-            hashcode = maSet.hashCode();
+            
         }
         
+        if ( maSet != null )
+        	hashcode = maSet.hashCode();
+        	
        
         
         if (oldHashCode == 0)  
@@ -953,7 +956,7 @@ public class AnnotationsPanel implements VisualPlugin, Observer{
     	    //pathwayComboBox.setSelectedIndex(0);     		 
             //jTabbedPane1.setTitleAt(1,"Pathway");   		 
       
-    	    
+    	    if ( maSet != null)
     	    oldHashCode = maSet.hashCode();
           
     }
