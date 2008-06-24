@@ -683,7 +683,7 @@ public class TtestAnalysis extends AbstractAnalysis implements
 				int numGroupBValues = usedExptsArray.length - numGroupAValues;
 
 				int permCounter = 0;
-				int arrayLen = numCombs;
+
 				while (org.geworkbench.util.Combinations.enumerateCombinations(
 						usedExptsArray.length, numGroupAValues, combArray)) {
 
@@ -707,14 +707,15 @@ public class TtestAnalysis extends AbstractAnalysis implements
 					float[][] permutedMatrix = getPermutedMatrix(expMatrix,
 							permutedExpts);
 					double[] currentPermTValues = getTwoClassUnpairedTValues(permutedMatrix);
-					
+/*					
 					if(permCounter == arrayLen){
 						arrayLen += 10;
 						double[][] uMatrixTemp = new double[numGenes][arrayLen];
 						arrayCopyLocal(uMatrix, uMatrixTemp);
 						uMatrix = uMatrixTemp;
 					}
-					
+*/
+					if(permCounter == numCombs) break;
 					if (Double
 							.isNaN(currentPermTValues[descGeneIndices[numGenes - 1]])) {
 						uMatrix[numGenes - 1][permCounter] = Double.NEGATIVE_INFINITY;
@@ -1054,18 +1055,20 @@ public class TtestAnalysis extends AbstractAnalysis implements
 				int numGroupBValues = usedExptsArray.length - numGroupAValues;
 
 				int permCounter = 0;
-				int arrayLen = numCombs;
+
 				
 				while (Combinations.enumerateCombinations(
 						usedExptsArray.length, numGroupAValues, combArray)) {
-					
+/*					
 					if(permCounter == arrayLen){
 						arrayLen += 10;
 						double[][] origTMatrixTemp = new double[numGenes][arrayLen];
 						arrayCopyLocal(origTMatrix, origTMatrixTemp);
 						origTMatrix = origTMatrixTemp;
 					}
-
+*/
+					if(permCounter == numCombs) break;
+					
 					int[] notInCombArray = new int[numGroupBValues];
 					int notCombCounter = 0;
 
