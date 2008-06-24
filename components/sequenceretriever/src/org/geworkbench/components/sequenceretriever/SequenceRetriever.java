@@ -1,5 +1,6 @@
 package org.geworkbench.components.sequenceretriever;
 
+
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -1061,6 +1062,31 @@ public class SequenceRetriever implements VisualPlugin {
 		log.debug("received GeneSelectorEvent::source="
 				+ publisher.getClass().getName());
 		markers = e.getPanel();
+		final Runnable processEventThread = new Runnable() {
+			public void run() {
+				 processEvent();
+			}
+		};
+
+		Thread t = new Thread(processEventThread);
+		t.setPriority(t.MAX_PRIORITY);
+		t.start();
+		log.debug("end GeneSelectorEvent::source="
+				+ publisher.getClass().getName());
+
+	}
+
+	/**
+	 * geneSelectorAction
+	 * 
+	 * @param e
+	 *            GeneSelectorEvent
+	 */
+	 
+	public void processEvent() {
+		// log.debug("process GeneSelectorEvent::source="
+		// + publisher.getClass().getName());
+
 		activeMarkers = new CSPanel();
 		if (markers != null) {
 			log.debug(markers.size() + " " + markers.isActive());
@@ -1119,7 +1145,7 @@ public class SequenceRetriever implements VisualPlugin {
 								if (sequence != null) {
 									tempMap.put(key, retrievedSequenceView);
 									tempSequenceDB.addASequence(sequence);
- 								}
+								}
 							}
 
 						}

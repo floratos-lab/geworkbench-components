@@ -22,6 +22,7 @@ import org.geworkbench.events.MicroarraySetViewEvent;
 import org.geworkbench.events.SequenceDiscoveryTableEvent;
 
 import javax.swing.*;
+
 import java.util.HashMap;
 import java.util.TreeSet;
 import java.awt.event.*;
@@ -56,7 +57,7 @@ public class RetrievedSequencesPanel extends JPanel {
     public HashMap<CSSequence,
             PatternSequenceDisplayUtil> patternLocationsMatches;
 
-
+    private boolean cleaned = false;
     //Layouts
     private BorderLayout borderLayout2 = new BorderLayout();
     private DSSequence selectedSequence = null;
@@ -237,6 +238,9 @@ public class RetrievedSequencesPanel extends JPanel {
     }
 
     public void setDisplaySequenceDB(DSSequenceSet displaySequenceDB) {
+    	if(displaySequenceDB!=null ){
+    		cleaned = false;
+    	}
         this.displaySequenceDB = displaySequenceDB;
         getDataSetView();
     }
@@ -346,16 +350,20 @@ public class RetrievedSequencesPanel extends JPanel {
         repaint();
     }
 
-    public void updateBottomPanel() {
-
-        // DSSequence selectedSequence = seqViewWPanel.getSelectedSequence();
-        if (selectedSequence == null) {
+    private boolean processEvent(){
+    	 // DSSequence selectedSequence = seqViewWPanel.getSelectedSequence();
+        if(cleaned){
+        	return true;
+        }
+    	
+    	if (selectedSequence == null) {
             Graphics g = sequencedetailPanel.getGraphics();
             if (g != null) {
                 g.clearRect(0, 0, sequencedetailPanel.getWidth(),
                         sequencedetailPanel.getHeight());
             }
-            return;
+            cleaned = true;
+            return true;
         }
         if (goLeft) {
             if (xStartPoint - GAP > 0) {
@@ -374,9 +382,28 @@ public class RetrievedSequencesPanel extends JPanel {
         sequencedetailPanel.repaint();
         prevSeqDx = xStartPoint;
         sequencedetailPanel.setOpaque(false);
+        return true;
 
     }
+    
+    public void updateBottomPanel() {
 
+    	final Runnable processEventThread = new Runnable() {
+			public void run() {
+				 processEvent();
+			}
+		};
+
+		Thread t = new Thread(processEventThread);
+		t.setPriority(t.MAX_PRIORITY);
+ 		t.start();
+		 
+		//SwingUtilities.invokeLater(t);
+       
+    }
+
+    
+    
 
     void updateDetailPanel(int newPosition) {
         // seqViewWPanel.this_mouseClicked(e);
