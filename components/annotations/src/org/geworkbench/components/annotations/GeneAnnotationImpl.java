@@ -69,7 +69,10 @@ public class GeneAnnotationImpl implements GeneAnnotation {
     private String organism = null;
     private static final String HUMAN_ABBREV = "Hs";
     private static final String MOUSE_ABBREV = "Mm";
-    private String symbol;
+    
+    private String symbol; 
+    
+    public static boolean stopAlgorithm = false;
 
     /**
      * Default Constructor
@@ -229,6 +232,11 @@ public class GeneAnnotationImpl implements GeneAnnotation {
     public static GeneAnnotation[] toUniqueArray(List<gov.nih.nci.cabio.domain.Gene> geneList) {
         Set<GeneAnnotation> uniqueGenes = new HashSet<GeneAnnotation>();
         for (int i = 0; i < geneList.size(); i++) {
+        	if ( stopAlgorithm == true )
+        	{        		 
+        		stopAlgorithm = false;
+        		return null;
+        	}
         	Gene g = geneList.get(i);
         	if((g != null) && (g.getSymbol() != null)){
 	            uniqueGenes.add(new GeneAnnotationImpl(g));
