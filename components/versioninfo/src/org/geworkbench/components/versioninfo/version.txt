@@ -1,5 +1,5 @@
 #Version Information:
-#Wednesday March 21 16:59:28 EDT 2007
-version=Version 1.0
-buildTime=Wednesday March 21 13\:59\:28 EDT 2007
-build=5
+#Thursday June 26 13:59:28 EDT 2008
+version=Version 1.5
+buildTime=Thursday June 26 13\:59\:28 EDT 2008
+build=0
