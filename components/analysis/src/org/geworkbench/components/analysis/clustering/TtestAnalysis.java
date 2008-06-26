@@ -5,6 +5,8 @@ import java.util.Hashtable;
 import java.util.Random;
 import java.util.Vector;
 
+import javax.swing.JOptionPane;
+
 import org.geworkbench.analysis.AbstractAnalysis;
 import org.geworkbench.bison.annotation.CSAnnotationContext;
 import org.geworkbench.bison.annotation.CSAnnotationContextManager;
@@ -31,7 +33,7 @@ import org.geworkbench.engine.management.Publish;
 import org.geworkbench.engine.management.Script;
 import org.geworkbench.events.SubpanelChangedEvent;
 import org.geworkbench.util.Combinations;
-import org.geworkbench.util.ProgressBarT;
+import org.geworkbench.util.ProgressBar;
 import org.geworkbench.util.QSort;
 
 import JSci.maths.statistics.TDistribution;
@@ -57,6 +59,8 @@ import JSci.maths.statistics.TDistribution;
  * <p>
  * &nbsp;&nbsp;&nbsp; org.tigr.microarray.mev.cluster.algorithm.impl
  */
+
+
 
 @SuppressWarnings("unchecked")
 public class TtestAnalysis extends AbstractAnalysis implements
@@ -107,6 +111,10 @@ public class TtestAnalysis extends AbstractAnalysis implements
 	Vector nonSigPValues = new Vector();
 	Vector tValuesVector = new Vector();
 	Vector pValuesVector = new Vector();
+	
+	
+	private TtestAnalysisPanel tTestAnalysisPanel = new TtestAnalysisPanel();
+
 
 	public TtestAnalysis() {
 		localAnalysisType = AbstractAnalysis.TTEST_TYPE;
@@ -166,7 +174,7 @@ public class TtestAnalysis extends AbstractAnalysis implements
 	}
 
 	public AlgorithmExecutionResults execute(Object input) {
-		ProgressBarT pbTtest = null;
+		ProgressBar pbTtest = null;
 		reset();
 		if (input == null) {
 			return new AlgorithmExecutionResults(false, "Invalid input.", null);
@@ -184,12 +192,14 @@ public class TtestAnalysis extends AbstractAnalysis implements
 		int markers = data.markers().size();
 		int arrays = data.items().size();
 
-		pbTtest = ProgressBarT.create(ProgressBarT.BOUNDED_TYPE);
+		pbTtest = ProgressBar.create(ProgressBar.BOUNDED_TYPE);
 		pbTtest.addObserver(this);
 		pbTtest.setTitle("T Test Analysis");
-		pbTtest.setBounds(new ProgressBarT.IncrementModel(0, markers, 0,
+		pbTtest.setBounds(new ProgressBar.IncrementModel(0, markers, 0,
 				markers, 1));
 		pbTtest.setMessage("Constructing ... " + markers + " variables");
+		pbTtest.start();
+		this.stopAlgorithm = false;
 		/*
 		 * pbTtest.start(); this.stopAlgorithm = false; expMatrix = new
 		 * float[markers][arrays]; pbTtest.setType(ProgressBarT.BOUNDED_TYPE);
@@ -214,6 +224,7 @@ public class TtestAnalysis extends AbstractAnalysis implements
 			boolean hasGroupA = false;
 			boolean hasGroupB = false;
 			for (int i = 0; i < arrays; i++) {
+				if (this.stopAlgorithm) {pbTtest.dispose(); return null;}
 				DSMicroarray ma = data.items().get(i);
 				if (ma instanceof DSMicroarray) {
 					// DSPanel panel = selCriterion.panels().get(ma);
@@ -287,22 +298,18 @@ public class TtestAnalysis extends AbstractAnalysis implements
 					markers, 1));
 			pbTtest.setMessage("Constructing ... " + markers + " variables");
 */
-			pbTtest.start();
-			this.stopAlgorithm = false;
+//			pbTtest.start();
+//			this.stopAlgorithm = false;
 			expMatrix = new float[markers][arrays];
-			pbTtest.setType(ProgressBarT.BOUNDED_TYPE);
+//			pbTtest.setType(ProgressBar.BOUNDED_TYPE);
 			for (int i = 0; i < markers; i++) {
-				if (!this.stopAlgorithm) {
+				if (this.stopAlgorithm) {pbTtest.dispose(); return null;}
 					for (int j = 0; j < arrays; j++) {
 						// expMatrix[i][j] =
 						// (float)data.items().get(j).getMarkerValue(i).getValue();
 						expMatrix[i][j] = (float) data.getValue(i, j);
 					}
 					pbTtest.update();
-				} else {
-					pbTtest.dispose();
-					return null;
-				}
 			}
 //			pbTtest.dispose();
 //			pbTtest.setType(ProgressBarT.INDETERMINATE_TYPE);
@@ -377,9 +384,11 @@ public class TtestAnalysis extends AbstractAnalysis implements
 					|| significanceMethod == TtestAnalysisPanel.MAX_T) {
 				AlgorithmExecutionResults results = null;
 				if (significanceMethod == TtestAnalysisPanel.MIN_P) {
-					results = executeMinP();
+					results = executeMinP(pbTtest);
+					if (null == results) {pbTtest.dispose(); return null;}
 				} else if (significanceMethod == TtestAnalysisPanel.MAX_T) {
-					results = executeMaxT();
+					results = executeMaxT(pbTtest);
+					if (null == results) {pbTtest.dispose(); return null;}
 				}
 				DSSignificanceResultSet<DSGeneMarker> sigSet = new CSTTestResultSet<DSGeneMarker>(
 						maSet, "T-Test", classSets[0].toArray(new String[0]),
@@ -390,6 +399,7 @@ public class TtestAnalysis extends AbstractAnalysis implements
 				Hashtable result = (Hashtable) results.getResults();
 				float[][] pValuesMatrix = (float[][]) result.get("pValues");
 				for (int i = 0; i < pValuesMatrix.length; i++) {
+					if (this.stopAlgorithm) {pbTtest.dispose(); return null;}
 					sigSet.setSignificance(data.markers().get(i),
 							pValuesMatrix[i][0]);
 				}
@@ -408,12 +418,15 @@ public class TtestAnalysis extends AbstractAnalysis implements
 			Vector clusterVector = new Vector();
 			if (tTestDesign == TtestAnalysisPanel.BETWEEN_SUBJECTS) {
 				if (isPermut) {
-					clusterVector = sortGenesByPermutationSignificance();
+					clusterVector = sortGenesByPermutationSignificance(pbTtest);
+					if (null == clusterVector) {pbTtest.dispose(); return null;}
 				} else {
-					clusterVector = sortGenesBySignificance();
+					clusterVector = sortGenesBySignificance(pbTtest);
+					if (null == clusterVector) {pbTtest.dispose(); return null;}
 				}
 			} else if (tTestDesign == TtestAnalysisPanel.ONE_CLASS) {
-				clusterVector = sortGenesForOneClassDesign();
+				clusterVector = sortGenesForOneClassDesign(pbTtest);
+				if (null == clusterVector) {pbTtest.dispose(); return null;}
 			}
 
 			k = clusterVector.size();
@@ -421,12 +434,14 @@ public class TtestAnalysis extends AbstractAnalysis implements
 			float[][] isSigMatrix = new float[numGenes][1];
 
 			for (int i = 0; i < isSigMatrix.length; i++) {
+				if (this.stopAlgorithm) {pbTtest.dispose(); return null;}
 				isSigMatrix[i][0] = 0.0f;
 			}
 
 			Vector sigGenes = (Vector) (clusterVector.get(0));
 
 			for (int i = 0; i < sigGenes.size(); i++) {
+				if (this.stopAlgorithm) {pbTtest.dispose(); return null;}
 				int currentGene = ((Integer) (sigGenes.get(i))).intValue();
 				isSigMatrix[currentGene][0] = 1.0f;
 			}
@@ -440,6 +455,7 @@ public class TtestAnalysis extends AbstractAnalysis implements
 				oneClassDFVector = new Vector();
 
 				for (int i = 0; i < numGenes; i++) {
+					if (this.stopAlgorithm) {pbTtest.dispose(); return null;}
 					float[] currentGeneValues = getOneClassGeneValues(i);
 					float currentOneClassT = (float) getOneClassTValue(currentGeneValues);
 					tValuesVector.add(new Float(currentOneClassT));
@@ -450,6 +466,7 @@ public class TtestAnalysis extends AbstractAnalysis implements
 					float currentOneClassSD = (float) (Math
 							.sqrt(getVar(currentGeneValues)));
 					oneClassGeneSDsVector.add(new Float(currentOneClassSD));
+
 				}
 			}
 
@@ -461,11 +478,13 @@ public class TtestAnalysis extends AbstractAnalysis implements
 
 			if (tTestDesign == TtestAnalysisPanel.BETWEEN_SUBJECTS) {
 				for (int i = 0; i < tValuesVector.size(); i++) {
+					if (this.stopAlgorithm) {pbTtest.dispose(); return null;}
 					tValuesMatrix[i][0] = Math.abs(((Float) (tValuesVector
 							.get(i))).floatValue());
 				}
 			} else if (tTestDesign == TtestAnalysisPanel.ONE_CLASS) {
 				for (int i = 0; i < tValuesVector.size(); i++) {
+					if (this.stopAlgorithm) {pbTtest.dispose(); return null;}
 					tValuesMatrix[i][0] = ((Float) (tValuesVector.get(i)))
 							.floatValue();
 				}
@@ -478,6 +497,7 @@ public class TtestAnalysis extends AbstractAnalysis implements
 			);
 			the_sigSet = sigSet;
 			for (int i = 0; i < pValuesVector.size(); i++) {
+				if (this.stopAlgorithm) {pbTtest.dispose(); return null;}
 				pValuesMatrix[i][0] = ((Float) (pValuesVector.get(i)))
 						.floatValue();
 				sigSet.setMarker(data.markers().get(i), pValuesMatrix[i][0]);
@@ -485,10 +505,12 @@ public class TtestAnalysis extends AbstractAnalysis implements
 
 			if (tTestDesign == TtestAnalysisPanel.BETWEEN_SUBJECTS) {
 				for (int i = 0; i < numGenes; i++) {
+					if (this.stopAlgorithm) {pbTtest.dispose(); return null;}
 					dfMatrix[i][0] = (float) (getDF(i));
 				}
 			} else if (tTestDesign == TtestAnalysisPanel.ONE_CLASS) {
 				for (int i = 0; i < numGenes; i++) {
+					if (this.stopAlgorithm) {pbTtest.dispose(); return null;}
 					dfMatrix[i][0] = ((Float) (oneClassDFVector.get(i)))
 							.floatValue();
 					oneClassMeansMatrix[i][0] = ((Float) (oneClassGeneMeansVector
@@ -511,6 +533,7 @@ public class TtestAnalysis extends AbstractAnalysis implements
 				float[] sdB = (float[]) (meansAndSDs.get(3));
 
 				for (int i = 0; i < numGenes; i++) {
+					if (this.stopAlgorithm) {pbTtest.dispose(); return null;}
 					meansAMatrix[i][0] = meansA[i];
 					meansBMatrix[i][0] = meansB[i];
 					sdAMatrix[i][0] = sdA[i];
@@ -521,6 +544,7 @@ public class TtestAnalysis extends AbstractAnalysis implements
 			clusters = new Vector[k];
 
 			for (int i = 0; i < k; i++) {
+				if (this.stopAlgorithm) {pbTtest.dispose(); return null;}
 				clusters[i] = (Vector) (clusterVector.get(i));
 			}
 
@@ -534,6 +558,7 @@ public class TtestAnalysis extends AbstractAnalysis implements
 
 			if (clusters.length == 2) {
 				for (int i = 0; i < clusters[0].size(); i++) {
+					if (this.stopAlgorithm) {pbTtest.dispose(); return null;}
 					int index = ((Integer) clusters[0].get(i)).intValue();
 					DSGeneMarker item = data.markers().get(index);
 					panelSignificant.add(item, new Float(
@@ -588,14 +613,8 @@ public class TtestAnalysis extends AbstractAnalysis implements
 		return event;
 	}
 	
-	public void arrayCopyLocal(double[][] sourceArray, double[][] copyArray) {
-		for (int i = 0; i < sourceArray.length; i++) {
-			System.arraycopy(sourceArray[i], 0, copyArray[i], 0,
-					sourceArray[i].length);
-		}
-	}
 	
-	public AlgorithmExecutionResults executeMaxT() {
+	public AlgorithmExecutionResults executeMaxT(ProgressBar pbTtest) {
 		double[] origTValues = new double[numGenes];
 		double[] descTValues = new double[numGenes];
 		int[] descGeneIndices = new int[numGenes];
@@ -604,6 +623,7 @@ public class TtestAnalysis extends AbstractAnalysis implements
 		double[][] uMatrix = new double[numGenes][numCombs];
 		if (tTestDesign == TtestAnalysisPanel.BETWEEN_SUBJECTS) {
 			for (int i = 0; i < numGenes; i++) {
+				if (this.stopAlgorithm) {pbTtest.dispose(); return null;}
 				origTValues[i] = Math.abs(getTValue(i));
 			}
 
@@ -614,10 +634,12 @@ public class TtestAnalysis extends AbstractAnalysis implements
 
 			if (!useAllCombs) {
 				for (int i = 0; i < numCombs; i++) {
+					if (this.stopAlgorithm) {pbTtest.dispose(); return null;}
 					int[] permutedExpts = new int[1];
 					Vector validExpts = new Vector();
 
 					for (int j = 0; j < groupAssignments.length; j++) {
+						if (this.stopAlgorithm) {pbTtest.dispose(); return null;}
 						if (groupAssignments[j] != TtestAnalysisPanel.NEITHER_GROUP) {
 							validExpts.add(new Integer(j));
 						}
@@ -625,6 +647,7 @@ public class TtestAnalysis extends AbstractAnalysis implements
 
 					int[] validArray = new int[validExpts.size()];
 					for (int j = 0; j < validArray.length; j++) {
+						if (this.stopAlgorithm) {pbTtest.dispose(); return null;}
 						validArray[j] = ((Integer) (validExpts.get(j)))
 								.intValue();
 					}
@@ -642,6 +665,7 @@ public class TtestAnalysis extends AbstractAnalysis implements
 					}
 
 					for (int j = numGenes - 2; j >= 0; j--) {
+						if (this.stopAlgorithm) {pbTtest.dispose(); return null;}
 						if (Double
 								.isNaN(currentPermTValues[descGeneIndices[j]])) {
 							uMatrix[j][i] = uMatrix[j + 1][i];
@@ -656,11 +680,13 @@ public class TtestAnalysis extends AbstractAnalysis implements
 				int[] permutedExpts = new int[numExps];
 
 				for (int i = 0; i < numExps; i++) {
+					if (this.stopAlgorithm) {pbTtest.dispose(); return null;}
 					permutedExpts[i] = i;
 				}
 				Vector usedExptsVector = new Vector();
 				int numGroupAValues = 0;
 				for (int i = 0; i < groupAssignments.length; i++) {
+					if (this.stopAlgorithm) {pbTtest.dispose(); return null;}
 					if (groupAssignments[i] != TtestAnalysisPanel.NEITHER_GROUP) {
 						usedExptsVector.add(new Integer(i));
 					}
@@ -671,26 +697,75 @@ public class TtestAnalysis extends AbstractAnalysis implements
 				int[] usedExptsArray = new int[usedExptsVector.size()];
 
 				for (int i = 0; i < usedExptsArray.length; i++) {
+					if (this.stopAlgorithm) {pbTtest.dispose(); return null;}
 					usedExptsArray[i] = ((Integer) (usedExptsVector.get(i)))
 							.intValue();
 				}
 
 				int[] combArray = new int[numGroupAValues];
 				for (int i = 0; i < combArray.length; i++) {
+					if (this.stopAlgorithm) {pbTtest.dispose(); return null;}
 					combArray[i] = -1;
 				}
 
 				int numGroupBValues = usedExptsArray.length - numGroupAValues;
 
 				int permCounter = 0;
+				int iterationCounter = 0;
 
 				while (org.geworkbench.util.Combinations.enumerateCombinations(
 						usedExptsArray.length, numGroupAValues, combArray)) {
+					if (this.stopAlgorithm) {pbTtest.dispose(); return null;}
+					iterationCounter++;
+				}
+				
+				if (iterationCounter > numCombs) {
+					// if(iterationCounter > 100000){
+					// iterationCounter = 100000;
+					// warning message with confirmation.
 
+					String message = "The number of specified permutations is "
+							+ numCombs
+							+ " but based on chosen option of all permutations\n\n"
+							+ "\t\tthe real number of permutations will be "
+							+ iterationCounter
+							+ ".\n\n"
+							+ "\t\tIf You choose to proceed the run time of the analysis will be longer then You expect!";
+					Object[] options = { "Proceed", "Cancel" };
+					int n = JOptionPane.showOptionDialog(tTestAnalysisPanel
+							.getTopLevelAncestor(), message,
+							"Log Transformation", JOptionPane.YES_NO_OPTION,
+							JOptionPane.QUESTION_MESSAGE, null, // do not use a
+							// custom Icon
+							options, // the titles of buttons
+							options[0]); // default button title
+					if (n == 1) { // n==1 means canceled
+						pbTtest.dispose();
+						return null;
+					}
+
+					// }
+					double[][] uMatrixTemp = new double[numGenes][iterationCounter];
+					uMatrix = uMatrixTemp;
+					// System.out.println("Num of iterations are
+					// |"+iterationCounter+" num of combinations are
+					// |"+numCombs+"|");
+				}
+				for (int i = 0; i < combArray.length; i++) {
+					combArray[i] = -1;
+				}
+				permCounter = 0;
+				while (org.geworkbench.util.Combinations.enumerateCombinations(
+						usedExptsArray.length, numGroupAValues, combArray)) {
+					if (this.stopAlgorithm) {pbTtest.dispose(); return null;}
+
+					if(permCounter == iterationCounter) break;
+					
 					int[] notInCombArray = new int[numGroupBValues];
 					int notCombCounter = 0;
 
 					for (int i = 0; i < usedExptsArray.length; i++) {
+						if (this.stopAlgorithm) {pbTtest.dispose(); return null;}
 						if (!belongsInArray(i, combArray)) {
 							notInCombArray[notCombCounter] = i;
 							notCombCounter++;
@@ -698,24 +773,20 @@ public class TtestAnalysis extends AbstractAnalysis implements
 					}
 
 					for (int i = 0; i < combArray.length; i++) {
+						if (this.stopAlgorithm) {pbTtest.dispose(); return null;}
 						permutedExpts[usedExptsArray[i]] = usedExptsArray[combArray[i]];
 					}
 					for (int i = 0; i < notInCombArray.length; i++) {
+						if (this.stopAlgorithm) {pbTtest.dispose(); return null;}
 						permutedExpts[usedExptsArray[combArray.length + i]] = usedExptsArray[notInCombArray[i]];
 					}
 
 					float[][] permutedMatrix = getPermutedMatrix(expMatrix,
 							permutedExpts);
 					double[] currentPermTValues = getTwoClassUnpairedTValues(permutedMatrix);
-/*					
-					if(permCounter == arrayLen){
-						arrayLen += 10;
-						double[][] uMatrixTemp = new double[numGenes][arrayLen];
-						arrayCopyLocal(uMatrix, uMatrixTemp);
-						uMatrix = uMatrixTemp;
-					}
-*/
-					if(permCounter == numCombs) break;
+					
+
+		
 					if (Double
 							.isNaN(currentPermTValues[descGeneIndices[numGenes - 1]])) {
 						uMatrix[numGenes - 1][permCounter] = Double.NEGATIVE_INFINITY;
@@ -724,6 +795,7 @@ public class TtestAnalysis extends AbstractAnalysis implements
 					}
 
 					for (int j = numGenes - 2; j >= 0; j--) {
+						if (this.stopAlgorithm) {pbTtest.dispose(); return null;}
 						if (Double
 								.isNaN(currentPermTValues[descGeneIndices[j]])) {
 							uMatrix[j][permCounter] = uMatrix[j + 1][permCounter];
@@ -733,12 +805,15 @@ public class TtestAnalysis extends AbstractAnalysis implements
 									currentPermTValues[descGeneIndices[j]]);
 						}
 					}
-
+	
 					permCounter++;
 				}
+			
+//				System.out.println("Number of loops are |"+permCounter+"|");
 			}
 		} else if (tTestDesign == TtestAnalysisPanel.ONE_CLASS) {
 			for (int i = 0; i < numGenes; i++) {
+				if (this.stopAlgorithm) {pbTtest.dispose(); return null;}
 				origTValues[i] = Math.abs(getOneClassTValue(i));
 			}
 
@@ -757,6 +832,7 @@ public class TtestAnalysis extends AbstractAnalysis implements
 				}
 
 				for (int i = 0; i < numCombs; i++) {
+					if (this.stopAlgorithm) {pbTtest.dispose(); return null;}
 
 					Vector validExpts = new Vector();
 
@@ -768,6 +844,7 @@ public class TtestAnalysis extends AbstractAnalysis implements
 
 					int[] validArray = new int[validExpts.size()];
 					for (int j = 0; j < validArray.length; j++) {
+						if (this.stopAlgorithm) {pbTtest.dispose(); return null;}
 						validArray[j] = ((Integer) (validExpts.get(j)))
 								.intValue();
 					}
@@ -787,6 +864,7 @@ public class TtestAnalysis extends AbstractAnalysis implements
 					}
 
 					for (int j = numGenes - 2; j >= 0; j--) {
+						if (this.stopAlgorithm) {pbTtest.dispose(); return null;}
 						if (Double
 								.isNaN(currentPermTValues[descGeneIndices[j]])) {
 							uMatrix[j][i] = uMatrix[j + 1][i];
@@ -798,7 +876,7 @@ public class TtestAnalysis extends AbstractAnalysis implements
 				}
 			} else {
 				for (int i = 0; i < numCombs; i++) {
-
+					if (this.stopAlgorithm) {pbTtest.dispose(); return null;}
 					Vector validExpts = new Vector();
 					for (int j = 0; j < groupAssignments.length; j++) {
 						if (groupAssignments[j] == 1) {
@@ -808,6 +886,7 @@ public class TtestAnalysis extends AbstractAnalysis implements
 
 					int[] validArray = new int[validExpts.size()];
 					for (int j = 0; j < validArray.length; j++) {
+						if (this.stopAlgorithm) {pbTtest.dispose(); return null;}
 						validArray[j] = ((Integer) (validExpts.get(j)))
 								.intValue();
 					}
@@ -827,6 +906,7 @@ public class TtestAnalysis extends AbstractAnalysis implements
 					}
 
 					for (int j = numGenes - 2; j >= 0; j--) {
+						if (this.stopAlgorithm) {pbTtest.dispose(); return null;}
 						if (Double
 								.isNaN(currentPermTValues[descGeneIndices[j]])) {
 							uMatrix[j][i] = uMatrix[j + 1][i];
@@ -842,8 +922,10 @@ public class TtestAnalysis extends AbstractAnalysis implements
 		adjPValues = new double[numGenes];
 
 		for (int i = 0; i < numGenes; i++) {
+			if (this.stopAlgorithm) {pbTtest.dispose(); return null;}
 			int pCounter = 0;
 			for (int j = 0; j < numCombs; j++) {
+				if (this.stopAlgorithm) {pbTtest.dispose(); return null;}
 				if (uMatrix[i][j] >= descTValues[i]) {
 					pCounter++;
 				}
@@ -854,12 +936,14 @@ public class TtestAnalysis extends AbstractAnalysis implements
 
 		int NaNPCounter = 0;
 		for (int i = 0; i < numGenes; i++) {
+			if (this.stopAlgorithm) {pbTtest.dispose(); return null;}
 			if (Double.isNaN(origTValues[i])) {
 				adjPValues[i] = Double.NaN;
 				NaNPCounter++;
 			}
 		}
 		for (int i = 1; i < numGenes - NaNPCounter; i++) {
+			if (this.stopAlgorithm) {pbTtest.dispose(); return null;}
 			adjPValues[descGeneIndices[i]] = Math.max(
 					adjPValues[descGeneIndices[i]],
 					adjPValues[descGeneIndices[i - 1]]);
@@ -869,6 +953,7 @@ public class TtestAnalysis extends AbstractAnalysis implements
 		Vector sigGenes = new Vector();
 		Vector nonSigGenes = new Vector();
 		for (int i = 0; i < numGenes; i++) {
+			if (this.stopAlgorithm) {pbTtest.dispose(); return null;}
 			if (Double.isNaN(adjPValues[i])) {
 				nonSigGenes.add(new Integer(i));
 			} else if ((float) adjPValues[i] <= alpha) {
@@ -886,12 +971,14 @@ public class TtestAnalysis extends AbstractAnalysis implements
 		float[][] isSigMatrix = new float[numGenes][1];
 
 		for (int i = 0; i < isSigMatrix.length; i++) {
+			if (this.stopAlgorithm) {pbTtest.dispose(); return null;}
 			isSigMatrix[i][0] = 0.0f;
 		}
 
 		// Vector sigGenes = (Vector)(clusterVector.get(0));
 
 		for (int i = 0; i < sigGenes.size(); i++) {
+			if (this.stopAlgorithm) {pbTtest.dispose(); return null;}
 			int currentGene = ((Integer) (sigGenes.get(i))).intValue();
 			isSigMatrix[currentGene][0] = 1.0f;
 		}
@@ -909,6 +996,7 @@ public class TtestAnalysis extends AbstractAnalysis implements
 
 		if (tTestDesign == TtestAnalysisPanel.BETWEEN_SUBJECTS) {
 			for (int i = 0; i < numGenes; i++) {
+				if (this.stopAlgorithm) {pbTtest.dispose(); return null;}
 				tValuesMatrix[i][0] = (float) (origTValues[i]);
 				pValuesMatrix[i][0] = (float) (adjPValues[i]);
 				dfMatrix[i][0] = (float) (getDF(i));
@@ -920,6 +1008,7 @@ public class TtestAnalysis extends AbstractAnalysis implements
 			float[] sdB = (float[]) (meansAndSDs.get(3));
 
 			for (int i = 0; i < numGenes; i++) {
+				if (this.stopAlgorithm) {pbTtest.dispose(); return null;}
 				meansAMatrix[i][0] = meansA[i];
 				meansBMatrix[i][0] = meansB[i];
 				sdAMatrix[i][0] = sdA[i];
@@ -927,6 +1016,7 @@ public class TtestAnalysis extends AbstractAnalysis implements
 			}
 		} else if (tTestDesign == TtestAnalysisPanel.ONE_CLASS) {
 			for (int i = 0; i < numGenes; i++) {
+				if (this.stopAlgorithm) {pbTtest.dispose(); return null;}
 				float[] currentGeneValues = getOneClassGeneValues(i);
 				tValuesMatrix[i][0] = (float) (origTValues[i]);
 				pValuesMatrix[i][0] = (float) (adjPValues[i]);
@@ -940,6 +1030,7 @@ public class TtestAnalysis extends AbstractAnalysis implements
 		clusters = new Vector[k];
 
 		for (int i = 0; i < k; i++) {
+			if (this.stopAlgorithm) {pbTtest.dispose(); return null;}
 			clusters[i] = (Vector) (clusterVector.get(i));
 		}
 
@@ -966,7 +1057,7 @@ public class TtestAnalysis extends AbstractAnalysis implements
 		return results;
 	}
 
-	public AlgorithmExecutionResults executeMinP() {
+	public AlgorithmExecutionResults executeMinP(ProgressBar pbTtest) {
 		double[] origTValues = new double[numGenes];
 		double[] rawPValues = new double[numGenes];
 		double[] adjPValues = new double[numGenes];
@@ -978,16 +1069,18 @@ public class TtestAnalysis extends AbstractAnalysis implements
 		int[] sortedRawPValueIndices = new int[1];
 
 		for (int i = 0; i < numCombs; i++) {
+			if (this.stopAlgorithm) {pbTtest.dispose(); return null;}
 			qMatrix[numGenes][i] = 1.0d;
 		}
 
 		if (tTestDesign == TtestAnalysisPanel.BETWEEN_SUBJECTS) {
 			for (int i = 0; i < numGenes; i++) {
+				if (this.stopAlgorithm) {pbTtest.dispose(); return null;}
 				origTValues[i] = Math.abs(getTValue(i));
 			}
 			if (!useAllCombs) {
 				for (int i = 0; i < numCombs; i++) {
-
+					if (this.stopAlgorithm) {pbTtest.dispose(); return null;}
 					int[] permutedExpts = new int[1];
 					Vector validExpts = new Vector();
 
@@ -999,6 +1092,7 @@ public class TtestAnalysis extends AbstractAnalysis implements
 
 					int[] validArray = new int[validExpts.size()];
 					for (int j = 0; j < validArray.length; j++) {
+						if (this.stopAlgorithm) {pbTtest.dispose(); return null;}
 						validArray[j] = ((Integer) (validExpts.get(j)))
 								.intValue();
 					}
@@ -1020,6 +1114,7 @@ public class TtestAnalysis extends AbstractAnalysis implements
 							permutedExpts);
 					double[] currentPermTValues = getTwoClassUnpairedTValues(permutedMatrix);
 					for (int j = 0; j < numGenes; j++) {
+						if (this.stopAlgorithm) {pbTtest.dispose(); return null;}
 						origTMatrix[j][i] = currentPermTValues[j];
 					}
 				}
@@ -1027,12 +1122,14 @@ public class TtestAnalysis extends AbstractAnalysis implements
 				int[] permutedExpts = new int[numExps];
 
 				for (int i = 0; i < numExps; i++) {
+					if (this.stopAlgorithm) {pbTtest.dispose(); return null;}
 					permutedExpts[i] = i;
 				}
 
 				Vector usedExptsVector = new Vector();
 				int numGroupAValues = 0;
 				for (int i = 0; i < groupAssignments.length; i++) {
+					if (this.stopAlgorithm) {pbTtest.dispose(); return null;}
 					if (groupAssignments[i] != TtestAnalysisPanel.NEITHER_GROUP) {
 						usedExptsVector.add(new Integer(i));
 					}
@@ -1043,12 +1140,14 @@ public class TtestAnalysis extends AbstractAnalysis implements
 				int[] usedExptsArray = new int[usedExptsVector.size()];
 
 				for (int i = 0; i < usedExptsArray.length; i++) {
+					if (this.stopAlgorithm) {pbTtest.dispose(); return null;}
 					usedExptsArray[i] = ((Integer) (usedExptsVector.get(i)))
 							.intValue();
 				}
 
 				int[] combArray = new int[numGroupAValues];
 				for (int i = 0; i < combArray.length; i++) {
+					if (this.stopAlgorithm) {pbTtest.dispose(); return null;}
 					combArray[i] = -1;
 				}
 
@@ -1056,18 +1155,57 @@ public class TtestAnalysis extends AbstractAnalysis implements
 
 				int permCounter = 0;
 
-				
+				int iterationCounter = 0;
+
+				while (org.geworkbench.util.Combinations.enumerateCombinations(
+						usedExptsArray.length, numGroupAValues, combArray)) {
+					if (this.stopAlgorithm) {
+						pbTtest.dispose();
+						return null;
+					}
+					iterationCounter++;
+				}
+
+				if (iterationCounter > numCombs) {
+					// if(iterationCounter > 100000){
+					// iterationCounter = 100000;
+					// warning message with confirmation.
+					String message = "The number of specified permutations is "
+							+ numCombs
+							+ " but based on chosen option of all permutations\n\n"
+							+ "\t\tthe real number of permutations will be "
+							+ iterationCounter
+							+ ".\n\n"
+							+ "\t\tIf You choose to proceed the run time of the analysis will be longer then You expect!";
+					Object[] options = { "Proceed", "Cancel" };
+					int n = JOptionPane.showOptionDialog(tTestAnalysisPanel
+							.getTopLevelAncestor(), message,
+							"Log Transformation", JOptionPane.YES_NO_OPTION,
+							JOptionPane.QUESTION_MESSAGE, null, // do not use a
+							// custom Icon
+							options, // the titles of buttons
+							options[0]); // default button title
+					if (n == 1) { // n==1 means canceled
+						pbTtest.dispose();
+						return null;
+					}
+					// }
+					double[][] uMatrixTemp = new double[numGenes][iterationCounter];
+					origTMatrix = uMatrixTemp;
+					// System.out.println("Num of iterations are
+					// |"+iterationCounter+" num of combinations are
+					// |"+numCombs+"|");
+				}
+				for (int i = 0; i < combArray.length; i++) {
+					combArray[i] = -1;
+				}
+				permCounter = 0;
+
 				while (Combinations.enumerateCombinations(
 						usedExptsArray.length, numGroupAValues, combArray)) {
-/*					
-					if(permCounter == arrayLen){
-						arrayLen += 10;
-						double[][] origTMatrixTemp = new double[numGenes][arrayLen];
-						arrayCopyLocal(origTMatrix, origTMatrixTemp);
-						origTMatrix = origTMatrixTemp;
-					}
-*/
-					if(permCounter == numCombs) break;
+
+					if (this.stopAlgorithm) {pbTtest.dispose(); return null;}
+					if(permCounter == iterationCounter) break;
 					
 					int[] notInCombArray = new int[numGroupBValues];
 					int notCombCounter = 0;
@@ -1098,6 +1236,7 @@ public class TtestAnalysis extends AbstractAnalysis implements
 			}
 
 			for (int i = 0; i < numGenes; i++) {
+				if (this.stopAlgorithm) {pbTtest.dispose(); return null;}
 				double currentTValue = (double) getTValue(i);
 				if (Double.isNaN(currentTValue)) {
 					rawPValues[i] = Double.NaN;
@@ -1117,12 +1256,14 @@ public class TtestAnalysis extends AbstractAnalysis implements
 			sortedRawPValueIndices = sortRawPValues.getOrigIndx();
 
 			for (int i = 0; i < numGenes; i++) {
+				if (this.stopAlgorithm) {pbTtest.dispose(); return null;}
 				for (int j = 0; j < numCombs; j++) {
 					sortedTMatrix[i][j] = origTMatrix[sortedRawPValueIndices[i]][j];
 				}
 			}
 		} else if (tTestDesign == TtestAnalysisPanel.ONE_CLASS) {
 			for (int i = 0; i < numGenes; i++) {
+				if (this.stopAlgorithm) {pbTtest.dispose(); return null;}
 				origTValues[i] = Math.abs(getOneClassTValue(i));
 			}
 			if (!useAllCombs) {
@@ -1135,7 +1276,7 @@ public class TtestAnalysis extends AbstractAnalysis implements
 				}
 
 				for (int i = 0; i < numCombs; i++) {
-
+					if (this.stopAlgorithm) {pbTtest.dispose(); return null;}
 					Vector validExpts = new Vector();
 
 					for (int j = 0; j < groupAssignments.length; j++) {
@@ -1162,7 +1303,7 @@ public class TtestAnalysis extends AbstractAnalysis implements
 				}
 			} else {
 				for (int i = 0; i < numCombs; i++) {
-
+					if (this.stopAlgorithm) {pbTtest.dispose(); return null;}
 					Vector validExpts = new Vector();
 					for (int j = 0; j < groupAssignments.length; j++) {
 						if (groupAssignments[j] == 1) {
@@ -1189,6 +1330,7 @@ public class TtestAnalysis extends AbstractAnalysis implements
 			}
 
 			for (int i = 0; i < numGenes; i++) {
+				if (this.stopAlgorithm) {pbTtest.dispose(); return null;}
 				double currentTValue = (double) getOneClassTValue(i);
 				if (Double.isNaN(currentTValue)) {
 					rawPValues[i] = Double.NaN;
@@ -1209,6 +1351,7 @@ public class TtestAnalysis extends AbstractAnalysis implements
 			sortedRawPValueIndices = sortRawPValues.getOrigIndx();
 
 			for (int i = 0; i < numGenes; i++) {
+				if (this.stopAlgorithm) {pbTtest.dispose(); return null;}
 				for (int j = 0; j < numCombs; j++) {
 					sortedTMatrix[i][j] = origTMatrix[sortedRawPValueIndices[i]][j];
 				}
@@ -1219,6 +1362,7 @@ public class TtestAnalysis extends AbstractAnalysis implements
 
 		int currentGeneCounter = 0;
 		for (int i = numGenes - 1; i >= 0; i--) {
+			if (this.stopAlgorithm) {pbTtest.dispose(); return null;}
 			double[] currentGeneTVals = new double[numCombs];
 			for (int j = 0; j < numCombs; j++) {
 				currentGeneTVals[j] = sortedTMatrix[i][j];
@@ -1250,11 +1394,13 @@ public class TtestAnalysis extends AbstractAnalysis implements
 		}
 
 		for (int i = 1; i < sortedAdjPValues.length; i++) {
+			if (this.stopAlgorithm) {pbTtest.dispose(); return null;}
 			sortedAdjPValues[i] = Math.max(sortedAdjPValues[i - 1],
 					sortedAdjPValues[i]);
 		}
 
 		for (int i = 0; i < sortedAdjPValues.length; i++) {
+			if (this.stopAlgorithm) {pbTtest.dispose(); return null;}
 			adjPValues[i] = sortedAdjPValues[sortedRawPValueIndices[i]];
 			if (Double.isNaN(rawPValues[i])) {
 				adjPValues[i] = Double.NaN;
@@ -1265,6 +1411,7 @@ public class TtestAnalysis extends AbstractAnalysis implements
 		Vector sigGenes = new Vector();
 		Vector nonSigGenes = new Vector();
 		for (int i = 0; i < numGenes; i++) {
+			if (this.stopAlgorithm) {pbTtest.dispose(); return null;}
 			if (Double.isNaN(adjPValues[i])) {
 				nonSigGenes.add(new Integer(i));
 			} else if ((float) adjPValues[i] <= alpha) {
@@ -1282,10 +1429,12 @@ public class TtestAnalysis extends AbstractAnalysis implements
 		float[][] isSigMatrix = new float[numGenes][1];
 
 		for (int i = 0; i < isSigMatrix.length; i++) {
+			if (this.stopAlgorithm) {pbTtest.dispose(); return null;}
 			isSigMatrix[i][0] = 0.0f;
 		}
 
 		for (int i = 0; i < sigGenes.size(); i++) {
+			if (this.stopAlgorithm) {pbTtest.dispose(); return null;}
 			int currentGene = ((Integer) (sigGenes.get(i))).intValue();
 			isSigMatrix[currentGene][0] = 1.0f;
 		}
@@ -1313,6 +1462,7 @@ public class TtestAnalysis extends AbstractAnalysis implements
 			float[] sdB = (float[]) (meansAndSDs.get(3));
 
 			for (int i = 0; i < numGenes; i++) {
+				if (this.stopAlgorithm) {pbTtest.dispose(); return null;}
 				meansAMatrix[i][0] = meansA[i];
 				meansBMatrix[i][0] = meansB[i];
 				sdAMatrix[i][0] = sdA[i];
@@ -1320,6 +1470,7 @@ public class TtestAnalysis extends AbstractAnalysis implements
 			}
 		} else if (tTestDesign == TtestAnalysisPanel.ONE_CLASS) {
 			for (int i = 0; i < numGenes; i++) {
+				if (this.stopAlgorithm) {pbTtest.dispose(); return null;}
 				float[] currentGeneValues = getOneClassGeneValues(i);
 				tValuesMatrix[i][0] = (float) (origTValues[i]);
 				pValuesMatrix[i][0] = (float) (adjPValues[i]);
@@ -1333,6 +1484,7 @@ public class TtestAnalysis extends AbstractAnalysis implements
 		clusters = new Vector[k];
 
 		for (int i = 0; i < k; i++) {
+			if (this.stopAlgorithm) {pbTtest.dispose(); return null;}
 			clusters[i] = (Vector) (clusterVector.get(i));
 		}
 
@@ -1555,7 +1707,7 @@ public class TtestAnalysis extends AbstractAnalysis implements
 				/ (float) (validN - 1));
 	}
 
-	private Vector sortGenesForOneClassDesign() {
+	private Vector sortGenesForOneClassDesign(ProgressBar pbTtest) {
 		Vector sigGenes = new Vector();
 		Vector nonSigGenes = new Vector();
 		pValuesVector = new Vector();
@@ -1563,6 +1715,7 @@ public class TtestAnalysis extends AbstractAnalysis implements
 			if ((significanceMethod == TtestAnalysisPanel.JUST_ALPHA)
 					|| (significanceMethod == TtestAnalysisPanel.STD_BONFERRONI)) {
 				for (int i = 0; i < numGenes; i++) {
+					if (this.stopAlgorithm) {pbTtest.dispose(); return null;}
 					if (isSigOneClass(i)) {
 						sigGenes.add(new Integer(i));
 					} else {
@@ -1572,6 +1725,7 @@ public class TtestAnalysis extends AbstractAnalysis implements
 			} else if (significanceMethod == TtestAnalysisPanel.ADJ_BONFERRONI) {
 				float[] pValues = new float[numGenes];
 				for (int i = 0; i < numGenes; i++) {
+					if (this.stopAlgorithm) {pbTtest.dispose(); return null;}
 					float[] currentGeneValues = getOneClassGeneValues(i);
 					float currentOneClassT = (float) getOneClassTValue(currentGeneValues);
 					float currentOneClassDF = (float) getOneClassDFValue(currentGeneValues);
@@ -1581,6 +1735,7 @@ public class TtestAnalysis extends AbstractAnalysis implements
 				}
 
 				for (int i = 0; i < pValues.length; i++) {
+					if (this.stopAlgorithm) {pbTtest.dispose(); return null;}
 					pValuesVector.add(new Float(pValues[i]));
 				}
 				int denomAlpha = numGenes;
@@ -1591,6 +1746,7 @@ public class TtestAnalysis extends AbstractAnalysis implements
 				int[] sortedIndices = sortPVals.getOrigIndx();
 
 				for (int i = (sortedPValues.length - 1); i >= 0; i--) {
+					if (this.stopAlgorithm) {pbTtest.dispose(); return null;}
 					if (sortedPValues[i] <= adjAlpha) {
 						sigGenes.add(new Integer(sortedIndices[i]));
 					} else {
@@ -1619,6 +1775,7 @@ public class TtestAnalysis extends AbstractAnalysis implements
 				if ((significanceMethod == TtestAnalysisPanel.JUST_ALPHA)
 						|| (significanceMethod == TtestAnalysisPanel.STD_BONFERRONI)) {
 					for (int i = 0; i < numGenes; i++) {
+						if (this.stopAlgorithm) {pbTtest.dispose(); return null;}
 						if (significanceMethod == TtestAnalysisPanel.JUST_ALPHA) {
 							float currentProb = getAllCombsOneClassProb(i);
 							pValuesVector.add(new Float(currentProb));
@@ -1641,9 +1798,11 @@ public class TtestAnalysis extends AbstractAnalysis implements
 				} else if (significanceMethod == TtestAnalysisPanel.ADJ_BONFERRONI) {
 					float[] pValues = new float[numGenes];
 					for (int i = 0; i < numGenes; i++) {
+						if (this.stopAlgorithm) {pbTtest.dispose(); return null;}
 						pValues[i] = getAllCombsOneClassProb(i);
 					}
 					for (int i = 0; i < pValues.length; i++) {
+						if (this.stopAlgorithm) {pbTtest.dispose(); return null;}
 						pValuesVector.add(new Float(pValues[i]));
 					}
 					int denomAlpha = numGenes;
@@ -1654,6 +1813,7 @@ public class TtestAnalysis extends AbstractAnalysis implements
 					int[] sortedIndices = sortPVals.getOrigIndx();
 
 					for (int i = (sortedPValues.length - 1); i >= 0; i--) {
+						if (this.stopAlgorithm) {pbTtest.dispose(); return null;}
 						if (sortedPValues[i] <= adjAlpha) {
 							sigGenes.add(new Integer(sortedIndices[i]));
 						} else {
@@ -1682,6 +1842,7 @@ public class TtestAnalysis extends AbstractAnalysis implements
 				if ((significanceMethod == TtestAnalysisPanel.JUST_ALPHA)
 						|| (significanceMethod == TtestAnalysisPanel.STD_BONFERRONI)) {
 					for (int i = 0; i < numGenes; i++) {
+						if (this.stopAlgorithm) {pbTtest.dispose(); return null;}
 						float currentProb = getSomeCombsOneClassProb(i);
 						pValuesVector.add(new Float(currentProb));
 
@@ -1703,9 +1864,11 @@ public class TtestAnalysis extends AbstractAnalysis implements
 				} else if (significanceMethod == TtestAnalysisPanel.ADJ_BONFERRONI) {
 					float[] pValues = new float[numGenes];
 					for (int i = 0; i < numGenes; i++) {
+						if (this.stopAlgorithm) {pbTtest.dispose(); return null;}
 						pValues[i] = getSomeCombsOneClassProb(i);
 					}
 					for (int i = 0; i < pValues.length; i++) {
+						if (this.stopAlgorithm) {pbTtest.dispose(); return null;}
 						pValuesVector.add(new Float(pValues[i]));
 					}
 					int denomAlpha = numGenes;
@@ -1716,6 +1879,7 @@ public class TtestAnalysis extends AbstractAnalysis implements
 					int[] sortedIndices = sortPVals.getOrigIndx();
 
 					for (int i = (sortedPValues.length - 1); i >= 0; i--) {
+						if (this.stopAlgorithm) {pbTtest.dispose(); return null;}
 						if (sortedPValues[i] <= adjAlpha) {
 							sigGenes.add(new Integer(sortedIndices[i]));
 						} else {
@@ -2100,7 +2264,7 @@ public class TtestAnalysis extends AbstractAnalysis implements
 		return (float) prob;
 	}
 
-	private Vector sortGenesBySignificance() {
+	private Vector sortGenesBySignificance(ProgressBar pbTtest) {
 		Vector sigGenes = new Vector();
 		Vector nonSigGenes = new Vector();
 
@@ -2109,6 +2273,7 @@ public class TtestAnalysis extends AbstractAnalysis implements
 			sigGenes = new Vector();
 			nonSigGenes = new Vector();
 			for (int i = 0; i < numGenes; i++) {
+				if (this.stopAlgorithm) {pbTtest.dispose(); return null;}
 				if (isSignificant(i)) {
 					sigGenes.add(new Integer(i));
 					sigTValues.add(new Float(currentT));
@@ -2129,6 +2294,7 @@ public class TtestAnalysis extends AbstractAnalysis implements
 			nonSigGenes = new Vector();
 			float[] tValues = new float[numGenes];
 			for (int i = 0; i < numGenes; i++) {
+				if (this.stopAlgorithm) {pbTtest.dispose(); return null;}
 				tValues[i] = Math.abs(getTValue(i));
 			}
 
@@ -2145,6 +2311,7 @@ public class TtestAnalysis extends AbstractAnalysis implements
 			double[] pValuesArray = new double[numGenes];
 
 			for (int i = (sortedTValues.length - 1); i > 0; i--) {
+				if (this.stopAlgorithm) {pbTtest.dispose(); return null;}
 				dF = getDF(sortedUniqueIDs[i]);
 				if ((Float.isNaN(sortedTValues[i]))
 						|| (Float.isNaN((new Integer(dF)).floatValue()))
@@ -2219,6 +2386,7 @@ public class TtestAnalysis extends AbstractAnalysis implements
 			pValuesVector = new Vector();
 
 			for (int i = 0; i < tValuesArray.length; i++) {
+				if (this.stopAlgorithm) {pbTtest.dispose(); return null;}
 				tValuesVector.add(new Float(tValuesArray[i]));
 				pValuesVector.add(new Float(pValuesArray[i]));
 			}
@@ -2233,7 +2401,7 @@ public class TtestAnalysis extends AbstractAnalysis implements
 		return sortedGenes;
 	}
 
-	private Vector sortGenesByPermutationSignificance() {
+	private Vector sortGenesByPermutationSignificance(ProgressBar pbTtest) {
 		Vector sigGenes = new Vector();
 		Vector nonSigGenes = new Vector();
 
@@ -2242,6 +2410,7 @@ public class TtestAnalysis extends AbstractAnalysis implements
 			sigGenes = new Vector();
 			nonSigGenes = new Vector();
 			for (int i = 0; i < numGenes; i++) {
+				if (this.stopAlgorithm) {pbTtest.dispose(); return null;}
 				if (isSignificantByPermutation(i)) {
 					sigGenes.add(new Integer(i));
 					sigTValues.add(new Float(currentT));
@@ -2276,6 +2445,7 @@ public class TtestAnalysis extends AbstractAnalysis implements
 			double[] pValuesArray = new double[numGenes];
 
 			for (int i = (sortedTValues.length - 1); i > 0; i--) {
+				if (this.stopAlgorithm) {pbTtest.dispose(); return null;}
 				if (Float.isNaN(sortedTValues[i])) {
 					nonSigGenes.add(new Integer(sortedUniqueIDs[i]));
 					nonSigTValues.add(new Float(sortedTValues[i]));
@@ -2336,6 +2506,7 @@ public class TtestAnalysis extends AbstractAnalysis implements
 			pValuesVector = new Vector();
 
 			for (int i = 0; i < tValuesArray.length; i++) {
+				if (this.stopAlgorithm) {pbTtest.dispose(); return null;}
 				tValuesVector.add(new Float(tValuesArray[i]));
 				pValuesVector.add(new Float(pValuesArray[i]));
 			}
