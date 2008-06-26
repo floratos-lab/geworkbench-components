@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Observer;
+import java.util.Observable;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -57,6 +58,7 @@ import org.geworkbench.builtin.projects.ProjectPanel;
 import org.geworkbench.engine.management.Publish;
 import org.geworkbench.util.Util;
 import org.geworkbench.util.threading.SwingWorker;
+import org.geworkbench.util.ProgressBar;
 
 import com.larvalabs.chart.PSAMPlot;
 
@@ -69,7 +71,7 @@ public class MatrixReduceAnalysis extends AbstractGridAnalysis implements
 		ClusteringAnalysis, Observer {
 	Log log = LogFactory.getLog(this.getClass());
 
-	private static final String TEMP_DIR = "temporary.files.directory";
+	private static final String TEMP_DIR = System.getProperty("temporary.files.directory");
 
 	private static final String MICROARRAY_SET_FILE_NAME = "microarraySet.tsv";
 
@@ -98,18 +100,12 @@ public class MatrixReduceAnalysis extends AbstractGridAnalysis implements
 	private final String analysisName = "MatrixREDUCE";
 
 	MatrixReduceParamPanel params = null;
-
-	private JDialog dialog;
-
-	private JProgressBar progressBar;
-
-	private JButton cancelButton;
-
-	private Task task;
+	
+	private ProgressBar progressBar = null;
 
 	private MatrixREDUCE mr;
 
-	private Integer exitVal = new Integer(-1);
+	private int exitVal = -1;
 
 	private DSMatrixReduceSet dataSet = null;
 
@@ -254,15 +250,28 @@ public class MatrixReduceAnalysis extends AbstractGridAnalysis implements
 	}
 
 	public AlgorithmExecutionResults execute(Object input) {
+		if (input == null) {
+			return new AlgorithmExecutionResults(false, "Invalid input.", null);
+		}
 		try {
 			DSMicroarraySet<DSMicroarray> mSet = ((DSMicroarraySetView) input)
 					.getMicroarraySet();
+			progressBar = ProgressBar.create(ProgressBar.INDETERMINATE_TYPE);
+			progressBar.addObserver(this);
+			progressBar.setTitle("MatrixREDUCE");
+			progressBar.setMessage("Processing Data Source");
+			progressBar.start();
 			// Write set out to tab-delimited format
 			String tempDirParent = System.getProperty(TEMP_DIR);
 			String tempDirName = "mr" + System.currentTimeMillis();
 			File tempDir = new File(tempDirParent, tempDirName);
 			tempDir.mkdirs();
 			File microarrayFile = new File(MICROARRAY_SET_FILE_NAME);
+			if (stopAlgorithm) {
+				stopAlgorithm = false;
+				progressBar.stop();
+				return null;
+			}
 			// Write out microarray data
 			PrintWriter out = new PrintWriter(new BufferedWriter(
 					new FileWriter(microarrayFile)));
@@ -285,6 +294,12 @@ public class MatrixReduceAnalysis extends AbstractGridAnalysis implements
 				out.println();
 			}
 			out.close();
+			
+			if (stopAlgorithm) {
+				stopAlgorithm = false;
+				progressBar.stop();
+				return null;
+			}
 
 			// Copy sequence file in to temp dir
 			File sequenceSource = new File(params.getSequenceFile());
@@ -302,6 +317,12 @@ public class MatrixReduceAnalysis extends AbstractGridAnalysis implements
 				Util.copyFile(new FileInputStream(topoSource), topoFileTemp);
 			}
 
+			if (stopAlgorithm) {
+				stopAlgorithm = false;
+				progressBar.stop();
+				return null;
+			}
+			
 			// get params and construct query
 			float pval = (float) params.getPValue();
 			int maxMotif = params.getMaxMotif();
@@ -335,17 +356,29 @@ public class MatrixReduceAnalysis extends AbstractGridAnalysis implements
 			for (int i = 0; i < newArgs.length; i++) {
 				NEWARGS += newArgs[i] + " ";
 			}
-
+			
+			if (stopAlgorithm) {
+				stopAlgorithm = false;
+				progressBar.stop();
+				return null;
+			}
 			log.info("Running ./FitModel " + NEWARGS);
-
+			progressBar.setMessage("Running FitModel");
 			mr = new MatrixREDUCE(newArgs);
-			createProgressBarDialog();
-			task = new Task();
-			task.execute();
-			dialog.setVisible(true);
+			exitVal = mr.run();
+			log.info("Exit Value: " + exitVal + "\n");
+			log.info("STDOUT: " + mr.stdout);
+			log.info("STDERR: " + mr.stderr);
+			
+			if (stopAlgorithm) {
+				stopAlgorithm = false;
+				progressBar.stop();
+				return null;
+			}
 
-			if (exitVal.intValue() == 0) {
+			if (exitVal == 0) {
 
+				progressBar.setMessage("Constructing sequence data for display");
 				// Sequences: Parse FASTA sequence data
 				File fastaFile = new File(sequenceFile);
 
@@ -376,13 +409,26 @@ public class MatrixReduceAnalysis extends AbstractGridAnalysis implements
 				}
 
 				dataSet = new CSMatrixReduceSet(mSet, "MatrixREDUCE Results");
-
+				
+				if (stopAlgorithm) {
+					stopAlgorithm = false;
+					progressBar.stop();
+					return null;
+				}
+				
+				progressBar.setMessage("Creating PSAMs");
 				log.debug("calling mr.getResults()");
 				try {
 					mr.getResults();
 					log.debug("called mr.getResults()");
 				} catch (Exception mre) {
 					log.error("Cannot get results from MatrixREDUCE run.", mre);
+				}
+				
+				if (stopAlgorithm) {
+					stopAlgorithm = false;
+					progressBar.stop();
+					return null;
 				}
 
 				// Experiments
@@ -414,6 +460,12 @@ public class MatrixReduceAnalysis extends AbstractGridAnalysis implements
 						exp.setTValue(slope.get_t_value());
 						expMap.get(exp.getPsamId()).add(exp);
 					}					
+				}
+				
+				if (stopAlgorithm) {
+					stopAlgorithm = false;
+					progressBar.stop();
+					return null;
 				}
 
 				// PSAMs
@@ -473,8 +525,16 @@ public class MatrixReduceAnalysis extends AbstractGridAnalysis implements
 				dataSet.setSequences(sequenceMap);
 				dataSet.setMatrixReduceExperiments(expMap);
 				tempMap = null;
+				
+				if (stopAlgorithm) {
+					stopAlgorithm = false;
+					progressBar.stop();
+					return null;
+				}
+								
 				if (params.saveRunLog()) {
 					log.info("Saving run log to project history.");
+					progressBar.setMessage("Saving Run Log");
 					if (!StringUtils.isEmpty(mr.stderr))
 						ProjectPanel.addToHistory(dataSet, StringUtils.replace(
 								StringUtils.replace(mr.stderr
@@ -485,17 +545,19 @@ public class MatrixReduceAnalysis extends AbstractGridAnalysis implements
 					else
 						ProjectPanel.addToHistory(dataSet, mr.stdout);
 				}
+				progressBar.stop();
 				return new AlgorithmExecutionResults(true, "Completed", dataSet);
 			} else {
+				progressBar.stop();
 				return new AlgorithmExecutionResults(false, StringUtils
-						.replace(StringUtils.replace(mr.stderr
-								.substring(mr.stderr.indexOf("\n")),
+						.replace(StringUtils.replace(mr.stderr,
 								TOPOLOGY_FILE_NAME, params.getTopoFile()),
 								SEQUENCE_FILE_NAME, params.getSequenceFile()),
 						null);
 			}
 		} catch (Throwable e) {
 			log.error("Runtime error while running MatrixREDUCE", e);
+			progressBar.stop();
 			return new AlgorithmExecutionResults(false,
 					"MatrixREDUCE cannot run: " + e.getMessage(), null);
 		}
@@ -554,85 +616,5 @@ public class MatrixReduceAnalysis extends AbstractGridAnalysis implements
 	@Override
 	protected boolean useOtherDataSet() {
 		return false;
-	}
-
-	private void createProgressBarDialog() {
-		// lay the groundwork for the progress bar dialog
-		dialog = new JDialog();
-		progressBar = new JProgressBar();
-		cancelButton = new JButton("Cancel");
-		dialog.setLayout(new BorderLayout());
-		dialog.setModal(true);
-		dialog.setTitle("MatrixREDUCE Process Running");
-		dialog.setSize(300, 50);
-		dialog.setLocation((int) (dialog.getToolkit().getScreenSize()
-				.getWidth() - dialog.getWidth()) / 2,
-				(int) (dialog.getToolkit().getScreenSize().getHeight() - dialog
-						.getHeight()) / 2);
-		progressBar.setIndeterminate(true);
-		dialog.add(progressBar, BorderLayout.CENTER);
-		dialog.add(cancelButton, BorderLayout.EAST);
-
-		cancelButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent actionEvent) {
-				if ((task != null) && (!task.isCancelled()) && (!task.isDone())) {
-					exitVal = new Integer(-1);
-					task.cancel(true);
-					log.info("Cancelling MatrixREDUCE Analysis");
-				}
-				dialog.setVisible(false);
-				dialog.dispose();
-			}
-		});
-
-		dialog.addWindowListener(new WindowAdapter() {
-			public void windowClosing(WindowEvent windowEvent) {
-				if ((task != null) && (!task.isCancelled()) && (!task.isDone())) {
-					exitVal = new Integer(-1);
-					task.cancel(true);
-					log.info("Cancelling MatrixREDUCE Analysis");
-				}
-			}
-		});
-	}
-
-	class Task extends SwingWorker<Integer, Void> {
-		public Task() {
-
-		}
-
-		public Integer doInBackground() {
-			log.info("Running MatrixREDUCE analysis.");
-			try {
-				int exit = mr.run();
-				log.info("Exit Value: " + exitVal.intValue() + "\n");
-				log.info("STDOUT: " + mr.stdout);
-				log.info("STDERR: " + mr.stderr);
-				return new Integer(exit);
-			} catch (Throwable t) {
-				exitVal = new Integer(-1);
-				log.error("Problems running MatrixREDUCE binary: "
-						+ t.getMessage());
-			}
-			return null;
-		}
-
-		public void done() {
-			if (!this.isCancelled()) {
-				try {
-					exitVal = get();
-					log
-							.debug("Transferring MatrixREDUCE  back to event thread.");
-				} catch (Exception e) {
-					exitVal = new Integer(-1);
-					log.error(
-							"Exception in finishing up worker thread that called MatrixREDUCE: "
-									+ e.getMessage(), e);
-				}
-			}
-			dialog.setVisible(false);
-			dialog.dispose();
-			log.debug("Closing progress bar dialog.");
-		}
 	}
 }
