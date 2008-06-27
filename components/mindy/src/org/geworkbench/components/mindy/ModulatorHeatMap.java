@@ -59,7 +59,7 @@ public class ModulatorHeatMap extends JPanel {
     private ArrayList<DSMicroarray> half1 = null;
     private ArrayList<DSMicroarray> half2 = null;
     
-    private boolean showProbeName = true;
+    private boolean showProbeName = false;
 
     /**
      * Constructor.
@@ -71,6 +71,7 @@ public class ModulatorHeatMap extends JPanel {
      */
     @SuppressWarnings("unchecked")
     public ModulatorHeatMap(DSGeneMarker modulator, DSGeneMarker transcriptionFactor, MindyData mindyData, List<DSGeneMarker> targetLimits) {
+    	this.showProbeName = !mindyData.isAnnotated();
     	log.debug("\tHeatMap::constructor::start::" + System.currentTimeMillis());
     	this.maSet = mindyData.getArraySet();
         List<DSGeneMarker> markers = mindyData.getTargets(modulator, transcriptionFactor);
