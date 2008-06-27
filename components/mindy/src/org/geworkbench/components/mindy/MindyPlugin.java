@@ -26,7 +26,7 @@ import com.solarmetric.ide.ui.CheckboxCellRenderer;
  * @author mhall
  * @ch2514
  * 
- * @version $Id: MindyPlugin.java,v 1.59 2008-05-23 18:50:28 hungc Exp $
+ * @version $Id: MindyPlugin.java,v 1.60 2008-06-27 21:57:24 hungc Exp $
  */
 @SuppressWarnings("serial")
 public class MindyPlugin extends JPanel {
@@ -185,12 +185,15 @@ public class MindyPlugin extends JPanel {
 			ButtonGroup displayGroup = new ButtonGroup();
 			displayGroup.add(modShowSymbol);
 			displayGroup.add(modShowProbeName);
-			modShowProbeName.setSelected(true);
+			if(this.mindyData.isAnnotated())
+				modShowSymbol.setSelected(true);
+			else 
+				modShowProbeName.setSelected(true);
 
 			JPanel taskContainer = new JPanel(new GridLayout(7, 1, 10, 10));
 			taskContainer.add(dl);
-			taskContainer.add(modShowProbeName);
 			taskContainer.add(modShowSymbol);
+			taskContainer.add(modShowProbeName);			
 			taskContainer.add(ll);
 			taskContainer.add(selectAll);
 			taskContainer.add(numModSelectedInModTab);
@@ -238,7 +241,10 @@ public class MindyPlugin extends JPanel {
 			ButtonGroup displayGroup = new ButtonGroup();
 			displayGroup.add(showSymbol);
 			displayGroup.add(showProbeName);
-			showProbeName.setSelected(true);
+			if(this.mindyData.isAnnotated())
+				showSymbol.setSelected(true);
+			else 
+				showProbeName.setSelected(true);
 
 			JLabel ls = new JLabel("Sorting", SwingConstants.LEFT);
 			ls.setFont(new Font(ls.getFont().getName(), Font.BOLD, 12));
@@ -476,8 +482,8 @@ public class MindyPlugin extends JPanel {
 			JPanel taskContainer = new JPanel();
 			taskContainer.setLayout(new GridLayout(18, 1, 10, 10));
 			taskContainer.add(dl);
-			taskContainer.add(showProbeName);
 			taskContainer.add(showSymbol);
+			taskContainer.add(showProbeName);			
 			taskContainer.add(ls);
 			taskContainer.add(sortOptionsAggregate);
 			taskContainer.add(sortOptionsEnhancing);
@@ -530,7 +536,10 @@ public class MindyPlugin extends JPanel {
 			ButtonGroup displayGroup = new ButtonGroup();
 			displayGroup.add(showSymbol);
 			displayGroup.add(showProbeName);
-			showProbeName.setSelected(true);
+			if(this.mindyData.isAnnotated())
+				showSymbol.setSelected(true);
+			else 
+				showProbeName.setSelected(true);
 
 			JLabel l = new JLabel("Marker Set", SwingConstants.LEFT);
 			l.setFont(new Font(l.getFont().getName(), Font.BOLD, 12));
@@ -639,8 +648,8 @@ public class MindyPlugin extends JPanel {
 
 			JPanel p = new JPanel(new GridLayout(9, 1, 10, 10));
 			p.add(dl);
-			p.add(showProbeName);
 			p.add(showSymbol);
+			p.add(showProbeName);			
 			p.add(l);
 			p.add(selectionEnabledCheckBox);
 			p.add(selectAllModsCheckBox);
@@ -778,12 +787,15 @@ public class MindyPlugin extends JPanel {
 			ButtonGroup displayGroup = new ButtonGroup();
 			displayGroup.add(showSymbol);
 			displayGroup.add(showProbeName);
-			showProbeName.setSelected(true);
+			if(this.mindyData.isAnnotated())
+				showSymbol.setSelected(true);
+			else 
+				showProbeName.setSelected(true);
 
 			JPanel displayPane = new JPanel(new GridLayout(4, 1));
 			displayPane.add(dl);
-			displayPane.add(showProbeName);
 			displayPane.add(showSymbol);
+			displayPane.add(showProbeName);			
 
 			JPanel p = new JPanel(new BorderLayout(10, 10));
 			p.add(modFilterField, BorderLayout.NORTH);
@@ -1164,7 +1176,7 @@ public class MindyPlugin extends JPanel {
 	 * 
 	 * @author mhall
 	 * @author ch2514
-	 * @version $Id: MindyPlugin.java,v 1.59 2008-05-23 18:50:28 hungc Exp $
+	 * @version $Id: MindyPlugin.java,v 1.60 2008-06-27 21:57:24 hungc Exp $
 	 */
 	private class ModulatorModel extends DefaultTableModel {
 
@@ -1183,7 +1195,7 @@ public class MindyPlugin extends JPanel {
 
 		private boolean[] ascendSortStates;
 
-		private boolean showProbeName = true;
+		private boolean showProbeName = false;
 
 		/**
 		 * Constructor.
@@ -1192,6 +1204,7 @@ public class MindyPlugin extends JPanel {
 		 *            MINDY data
 		 */
 		public ModulatorModel(MindyData mindyData) {
+			this.showProbeName = !mindyData.isAnnotated();
 			modulators = new ArrayList<DSGeneMarker>();
 			for (Map.Entry<DSGeneMarker, MindyData.ModulatorStatistics> entry : mindyData
 					.getAllModulatorStatistics().entrySet()) {
@@ -1635,7 +1648,7 @@ public class MindyPlugin extends JPanel {
 	 * For rendering modulator checkboxes on the targets table column headers.
 	 * 
 	 * @author ch2514
-	 * @version $Id: MindyPlugin.java,v 1.59 2008-05-23 18:50:28 hungc Exp $
+	 * @version $Id: MindyPlugin.java,v 1.60 2008-06-27 21:57:24 hungc Exp $
 	 */
 	private class CheckBoxRenderer extends DefaultTableCellRenderer {
 		/**
@@ -1718,7 +1731,7 @@ public class MindyPlugin extends JPanel {
 	 * 
 	 * @author mhall
 	 * @author ch2514
-	 * @version $Id: MindyPlugin.java,v 1.59 2008-05-23 18:50:28 hungc Exp $
+	 * @version $Id: MindyPlugin.java,v 1.60 2008-06-27 21:57:24 hungc Exp $
 	 */
 	private class AggregateTableModel extends DefaultTableModel {
 
@@ -1752,7 +1765,7 @@ public class MindyPlugin extends JPanel {
 
 		private boolean[] ascendSortStates;
 
-		private boolean showProbeName = true;
+		private boolean showProbeName = false;
 
 		/**
 		 * Constructor.
@@ -1760,6 +1773,7 @@ public class MindyPlugin extends JPanel {
 		 * @param mindyData
 		 */
 		public AggregateTableModel(MindyData mindyData) {
+			this.showProbeName = !mindyData.isAnnotated();
 			this.checkedTargets = new boolean[mindyData.getData().size()];
 			this.mindyData = mindyData;
 			allModulators = mindyData.getModulators();
@@ -2578,7 +2592,7 @@ public class MindyPlugin extends JPanel {
 	 * Compare M#, M+, or M- of two gene markers (for sorting).
 	 * 
 	 * @author mhall
-	 * @version $Id: MindyPlugin.java,v 1.59 2008-05-23 18:50:28 hungc Exp $
+	 * @version $Id: MindyPlugin.java,v 1.60 2008-06-27 21:57:24 hungc Exp $
 	 */
 	private class ModulatorStatComparator implements Comparator<DSGeneMarker> {
 
@@ -2631,7 +2645,7 @@ public class MindyPlugin extends JPanel {
 	 * 
 	 * @author mhall
 	 * @author ch2514
-	 * @version $Id: MindyPlugin.java,v 1.59 2008-05-23 18:50:28 hungc Exp $
+	 * @version $Id: MindyPlugin.java,v 1.60 2008-06-27 21:57:24 hungc Exp $
 	 */
 	private class ModulatorTargetModel extends DefaultTableModel {
 
@@ -2660,7 +2674,7 @@ public class MindyPlugin extends JPanel {
 
 		private boolean[] ascendSortStates;
 
-		private boolean showProbeName = true;
+		private boolean showProbeName = false;
 
 		private boolean limMarkers = false;
 
@@ -2671,6 +2685,7 @@ public class MindyPlugin extends JPanel {
 		 *            data for the MINDY component
 		 */
 		public ModulatorTargetModel(MindyData mindyData) {
+			this.showProbeName = !mindyData.isAnnotated();
 			this.modChecks = new boolean[mindyData.getData().size()];
 			this.targetChecks = new boolean[mindyData.getData().size()];
 			enabledModulators = new ArrayList<DSGeneMarker>(mindyData.getData()
@@ -3364,7 +3379,7 @@ public class MindyPlugin extends JPanel {
 	 * Heat map data model.
 	 * 
 	 * @author mhall
-	 * @version $Id: MindyPlugin.java,v 1.59 2008-05-23 18:50:28 hungc Exp $
+	 * @version $Id: MindyPlugin.java,v 1.60 2008-06-27 21:57:24 hungc Exp $
 	 */
 	private class ModulatorListModel extends AbstractListModel {
 		/**
@@ -3420,7 +3435,7 @@ public class MindyPlugin extends JPanel {
 	 * for the targets table.
 	 * 
 	 * @author ch2514
-	 * @version $Id: MindyPlugin.java,v 1.59 2008-05-23 18:50:28 hungc Exp $
+	 * @version $Id: MindyPlugin.java,v 1.60 2008-06-27 21:57:24 hungc Exp $
 	 */
 	private class ColumnHeaderListener extends MouseAdapter {
 		/**

@@ -7,6 +7,7 @@ import java.util.List;
 
 import javax.swing.JOptionPane;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.math.stat.regression.SimpleRegression;
@@ -303,17 +304,20 @@ public class MindyAnalysis extends AbstractAnalysis implements ClusteringAnalysi
     	
     	progressBar.setMessage("Processing MINDY Results");
         
+    	int numWithSymbols = 0;
         List<MindyData.MindyResultRow> dataRows = new ArrayList<MindyData.MindyResultRow>();
         Collator myCollator = Collator.getInstance();      
         HashMap<DSGeneMarker, MindyGeneMarker> mindyMap = new HashMap<DSGeneMarker, MindyGeneMarker>();
         for (MindyResults.MindyResultForTarget result : results) {
             DSItemList<DSGeneMarker> markers = mSet.getMarkers();
             DSGeneMarker target = markers.get(result.getTarget().getName());
+            if(!StringUtils.isEmpty(target.getGeneName())) numWithSymbols++;
             if(!mindyMap.containsKey(target)){
             	mindyMap.put(target, new MindyGeneMarker(target, myCollator.getCollationKey(target.getShortName()), myCollator.getCollationKey(target.getDescription())));
             }
             for (MindyResults.MindyResultForTarget.ModulatorSpecificResult specificResult : result) {
                 DSGeneMarker mod = markers.get(specificResult.getModulator().getName());
+                if(!StringUtils.isEmpty(mod.getGeneName())) numWithSymbols++;
                 if(!mindyMap.containsKey(mod)){
                 	mindyMap.put(mod, new MindyGeneMarker(mod, myCollator.getCollationKey(mod.getShortName()), myCollator.getCollationKey(mod.getDescription())));
                 }
@@ -349,7 +353,7 @@ public class MindyAnalysis extends AbstractAnalysis implements ClusteringAnalysi
 			progressBar.stop();
 			return null;
 		}
-        
+        if(numWithSymbols > 0) loadedData.setAnnotated(true);
         mindyDataSet = new MindyDataSet(mSet, "MINDY Results", loadedData, params.getCandidateModulatorsFile());
         log.info("Done converting MINDY results.");
                 
