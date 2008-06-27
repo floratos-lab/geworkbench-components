@@ -156,7 +156,7 @@ public class AracneAnalysis extends AbstractGridAnalysis implements ClusteringAn
 
         AracneProgress progress = new AracneProgress(aracneThread);
         aracneThread.setProgressWindow(progress);
-        progress.setVisible(true);
+        progress.startProgress();
 
         return new AlgorithmExecutionResults(true, "ARACNE in progress.", null);
 
@@ -291,8 +291,7 @@ public class AracneAnalysis extends AbstractGridAnalysis implements ClusteringAn
             p.setSuppressFileWriting(true);
             weightedGraph = Aracne.run(convert(mSetView), p);
             log.debug("Done running ARACNE in worker thread.");
-            progressWindow.setVisible(false);
-            progressWindow.dispose();
+            progressWindow.stopProgress();
 
             if (weightedGraph.getEdges().size() > 0) {
                 AdjacencyMatrixDataSet dataSet = new AdjacencyMatrixDataSet(convert(weightedGraph, mSetView.getMicroarraySet()), -1, 0, 1000,
