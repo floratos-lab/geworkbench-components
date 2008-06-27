@@ -1,32 +1,27 @@
 /*
-  The Broad Institute
-  SOFTWARE COPYRIGHT NOTICE AGREEMENT
-  This software and its documentation are copyright (2003-2007) by the
-  Broad Institute/Massachusetts Institute of Technology. All rights are
-  reserved.
+ The Broad Institute
+ SOFTWARE COPYRIGHT NOTICE AGREEMENT
+ This software and its documentation are copyright (2003-2007) by the
+ Broad Institute/Massachusetts Institute of Technology. All rights are
+ reserved.
 
-  This software is supplied without any warranty or guaranteed support
-  whatsoever. Neither the Broad Institute nor MIT can be responsible for its
-  use, misuse, or functionality.
-*/
+ This software is supplied without any warranty or guaranteed support
+ whatsoever. Neither the Broad Institute nor MIT can be responsible for its
+ use, misuse, or functionality.
+ */
 package org.geworkbench.components.gpmodule.pca;
 
-import java.awt.Dimension;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.JButton;
-import javax.swing.JDialog;
-import javax.swing.JProgressBar;
+import java.util.Observer;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.genepattern.webservice.Parameter;
+import org.geworkbench.bison.annotation.CSAnnotationContext;
+import org.geworkbench.bison.annotation.CSAnnotationContextManager;
+import org.geworkbench.bison.annotation.DSAnnotationContext;
 import org.geworkbench.bison.datastructure.biocollections.pca.CSPCADataSet;
 import org.geworkbench.bison.datastructure.biocollections.pca.DSPCADataSet;
 import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
@@ -35,330 +30,298 @@ import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
-import org.geworkbench.bison.annotation.CSAnnotationContextManager;
-import org.geworkbench.bison.annotation.DSAnnotationContext;
-import org.geworkbench.bison.annotation.CSAnnotationContext;
 import org.geworkbench.builtin.projects.ProjectPanel;
 import org.geworkbench.components.gpmodule.GPAnalysis;
 import org.geworkbench.engine.management.Publish;
 import org.geworkbench.events.ProjectNodeAddedEvent;
+import org.geworkbench.util.ProgressBar;
 import org.geworkbench.util.threading.SwingWorker;
 
 /**
  * @author: Marc-Danie Nazaire
  */
-public class PCAAnalysis extends GPAnalysis
-{
-    private static Log log = LogFactory.getLog(PCAAnalysis.class);
-    private PCAProgress progress = new PCAProgress();
-    private DSPCADataSet pcaDataSet;
-    private Task task;
-    private boolean error = false;
+public class PCAAnalysis extends GPAnalysis {
+	private static Log log = LogFactory.getLog(PCAAnalysis.class);
 
-    public PCAAnalysis()
-    {
-        setLabel("PCA Analysis");
-        panel = new PCAAnalysisPanel();
-        setDefaultPanel(panel);
-    }
+	private PCAProgress progress = new PCAProgress();
 
-    public AlgorithmExecutionResults execute(Object input)
-    {
-        assert (input instanceof DSMicroarraySetView);
-        DSMicroarraySetView<DSGeneMarker, DSMicroarray> view = (DSMicroarraySetView<DSGeneMarker, DSMicroarray>) input;
-        
-        task = new Task(view);
-        progress.setVisible(true);
-        task.execute();
-        
-        while(!task.isDone()){}
+	private DSPCADataSet pcaDataSet;
 
-        if(task.isCancelled())
-        {
-            return null;
-        }
-        else if(pcaDataSet == null)
-        {
-            if(error)
-                return null;
+	private Task task;
 
-            return new AlgorithmExecutionResults(false, "An error occurred when running PCA.", null);
-        }
-        else
-            return new AlgorithmExecutionResults(true, "PCA Results", pcaDataSet);
+	private boolean error = false;
 
-    }
+	public PCAAnalysis() {
+		setLabel("PCA Analysis");
+		panel = new PCAAnalysisPanel();
+		setDefaultPanel(panel);
+	}
 
-    @Publish
-    public ProjectNodeAddedEvent publishProjectNodeAddedEvent(ProjectNodeAddedEvent event) 
-    {
-        return event;
-    }
+	public AlgorithmExecutionResults execute(Object input) {
+		assert (input instanceof DSMicroarraySetView);
+		DSMicroarraySetView<DSGeneMarker, DSMicroarray> view = (DSMicroarraySetView<DSGeneMarker, DSMicroarray>) input;
 
-    private class PCAProgress extends JDialog
-    {
-        private JButton cancelButton = new JButton("Cancel");
-        private JProgressBar progressBar = new JProgressBar(0, 100);
+		task = new Task(view);
+		progress.startProgress();
+		task.execute();
 
-        public PCAProgress()
-        {
-            getContentPane().setLayout(new BoxLayout(getContentPane(), BoxLayout.PAGE_AXIS));
-            setTitle("PCA Progress");
-            setSize(220, 120);
-            setLocation((int)(getToolkit().getScreenSize().getWidth() - getWidth()) / 2, (int) (getToolkit().getScreenSize().getHeight() - getHeight()) / 2);
+		while (!task.isDone()) {
+		}
 
-            progressBar.setStringPainted(true);
+		if (task.isCancelled()) {
+			return null;
+		} else if (pcaDataSet == null) {
+			if (error)
+				return null;
 
-            add(Box.createRigidArea(new Dimension(0, 25)));
-            add(progressBar);
+			return new AlgorithmExecutionResults(false,
+					"An error occurred when running PCA.", null);
+		} else
+			return new AlgorithmExecutionResults(true, "PCA Results",
+					pcaDataSet);
 
-            add(Box.createVerticalGlue());
-            add(Box.createRigidArea(new Dimension(70, 0)));
-            add(cancelButton);
-            add(Box.createVerticalGlue());
+	}
 
-            cancelButton.addActionListener( new ActionListener()
-            {
-                public void actionPerformed(ActionEvent event)
-                {
-                    if((task != null) && (!task.isCancelled()) && (!task.isDone()))
-                    {
-            		    task.cancel(true);
-            		    log.info("Cancelling PCA Analysis");
-            	    }
-                }
-            });
-        }
+	@Publish
+	public ProjectNodeAddedEvent publishProjectNodeAddedEvent(
+			ProjectNodeAddedEvent event) {
+		return event;
+	}
 
-        public void setProgress(int value)
-        {
-            progressBar.setValue(value);
-        }      
-    }
+	private class PCAProgress implements Observer {
+		private ProgressBar pb = ProgressBar
+				.create(ProgressBar.INDETERMINATE_TYPE);
 
-    public List runAnalysis(String analysisName, Parameter[] parameters, String password)
-    {
-        List result = null;
-        try
-        {
-            result = super.runAnalysis(analysisName, parameters, password);
-            if(result == null)
-                error = true;
-        }
-        catch(Exception e)
-        {	
-        	e.printStackTrace();
-            task.cancel(true);
-            error = true;
-        }
+		public PCAProgress() {
+			pb.addObserver(this);
+			pb.setTitle("PCA Progress");
+		}
 
-        return result;
-    }
-    
-    private class Task extends SwingWorker<CSPCADataSet, Void>
-    {
-        DSMicroarraySetView<DSGeneMarker, DSMicroarray> view;
-        public Task(DSMicroarraySetView<DSGeneMarker, DSMicroarray> view)
-        {
-            this.view = view;
-        }
+		public void setProgress(int value) {
+			pb.setMessage("" + value);
+		}
 
-        public CSPCADataSet doInBackground()
-        {
-            progress.setProgress(0);
-            String history = generateHistoryString(view);
+		public void startProgress() {
+			pb.start();
+		}
 
-            if(((PCAAnalysisPanel)panel).getVariables().equals("genes"))
-            {
-                view.useItemPanel(false);
-            }
-            else
-                view.useMarkerPanel(false);
+		public void stopProgress() {
+			pb.stop();
+		}
 
-            String gctFileName = createGCTFile("pcaDataset", view.markers(), view.items()).getAbsolutePath();
-            progress.setProgress(20);
+		public void update(java.util.Observable ob, Object o) {
+			if ((task != null) && (!task.isCancelled()) && (!task.isDone())) {
+				task.cancel(true);
+				log.info("Cancelling PCA Analysis");
+			}
+		}
+	}
 
-            String clusterBy = "rows";
+	public List runAnalysis(String analysisName, Parameter[] parameters,
+			String password) {
+		List result = null;
+		try {
+			result = super.runAnalysis(analysisName, parameters, password);
+			if (result == null)
+				error = true;
+		} catch (Exception e) {
+			e.printStackTrace();
+			task.cancel(true);
+			error = true;
+		}
 
-            //Modification for doing PCA analysis using the standard instead of the shortcut method
-            if(((PCAAnalysisPanel)panel).getVariables().equals("genes"))
-            {
-                List parameters = new ArrayList();
+		return result;
+	}
 
-                parameters.add(new Parameter("input.filename", gctFileName));
+	private class Task extends SwingWorker<CSPCADataSet, Void> {
+		DSMicroarraySetView<DSGeneMarker, DSMicroarray> view;
 
-                List results = runAnalysis("TransposeDataset", (Parameter[])parameters.toArray(new Parameter[0]), panel.getPassword());
-                progress.setProgress(30);
+		public Task(DSMicroarraySetView<DSGeneMarker, DSMicroarray> view) {
+			this.view = view;
+		}
 
-                if(results == null)
-                {
-                    return null;
-                }
+		public CSPCADataSet doInBackground() {
+			progress.setProgress(0);
+			String history = generateHistoryString(view);
 
-                for(Object file : results)
-                {
-                    if(((String)file).contains(".gct"))
-                        gctFileName = (String)file;
-                }
-            }
+			if (((PCAAnalysisPanel) panel).getVariables().equals("genes")) {
+				view.useItemPanel(false);
+			} else
+				view.useMarkerPanel(false);
 
-            progress.setProgress(40);
-            List parameters = new ArrayList();
+			String gctFileName = createGCTFile("pcaDataset", view.markers(),
+					view.items()).getAbsolutePath();
+			progress.setProgress(20);
 
-            parameters.add(new Parameter("input.filename", gctFileName));
+			String clusterBy = "rows";
 
-            parameters.add(new Parameter("cluster.by", clusterBy));
+			// Modification for doing PCA analysis using the standard instead of
+			// the shortcut method
+			if (((PCAAnalysisPanel) panel).getVariables().equals("genes")) {
+				List parameters = new ArrayList();
 
-            progress.setProgress(50);
+				parameters.add(new Parameter("input.filename", gctFileName));
 
-            List results = runAnalysis("PCA", (Parameter[])parameters.toArray(new Parameter[0]), panel.getPassword());
+				List results = runAnalysis("TransposeDataset",
+						(Parameter[]) parameters.toArray(new Parameter[0]),
+						panel.getPassword());
+				progress.setProgress(30);
 
-            progress.setProgress(60);
+				if (results == null) {
+					return null;
+				}
 
-            if(results == null)
-            {
-                return null;
-            }
+				for (Object file : results) {
+					if (((String) file).contains(".gct"))
+						gctFileName = (String) file;
+				}
+			}
 
-            progress.setProgress(70);
-            Iterator it = results.iterator();
-            while(it.hasNext())
-            {
-                String file = (String)it.next();
-                if(!file.contains(".odf"))
-                {
-                    it.remove();
-                }
-            }
+			progress.setProgress(40);
+			List parameters = new ArrayList();
 
-            progress.setProgress(80);
+			parameters.add(new Parameter("input.filename", gctFileName));
 
-            if(results.size() == 0)
-            {
-                return null;
-            }
+			parameters.add(new Parameter("cluster.by", clusterBy));
 
-            PCAData pcaData = new PCAData(results, ((PCAAnalysisPanel)panel).getVariables());
+			progress.setProgress(50);
 
-            CSPCADataSet pcaDs = new CSPCADataSet(view.getDataSet(), "PCA Results", pcaData.getVariables(),
-                    pcaData.getNumPCs(), pcaData.getUMatrix().getArray(), pcaData.getEigenValues(), pcaData.getEigenVectors(), pcaData.getPercentVars());
+			List results = runAnalysis("PCA", (Parameter[]) parameters
+					.toArray(new Parameter[0]), panel.getPassword());
 
-            progress.setProgress(90);
+			progress.setProgress(60);
 
-            ProjectPanel.addToHistory(pcaDs, history);
+			if (results == null) {
+				return null;
+			}
 
-            progress.setProgress(100);
+			progress.setProgress(70);
+			Iterator it = results.iterator();
+			while (it.hasNext()) {
+				String file = (String) it.next();
+				if (!file.contains(".odf")) {
+					it.remove();
+				}
+			}
 
-            log.info("Done running PCA. " + System.currentTimeMillis());
+			progress.setProgress(80);
 
-            pcaDataSet = pcaDs;
-            
-            return pcaDs;
-        }
+			if (results.size() == 0) {
+				return null;
+			}
 
-        public void done()
-        {
-            if(!this.isCancelled())
-            {
-                try
-                {
-                    log.debug("Transferring PCA data set back to event thread.");
-                }
-                catch (Exception e)
-                {
-                    log.error("Exception in finishing up worker thread that called PCA: " + e.getMessage(), e);
-                }
-            }
+			PCAData pcaData = new PCAData(results, ((PCAAnalysisPanel) panel)
+					.getVariables());
 
-            progress.setVisible(false);
-            progress.dispose();
-            log.debug("Closing PCA progress bar.");
-        }
-    }
+			CSPCADataSet pcaDs = new CSPCADataSet(view.getDataSet(),
+					"PCA Results", pcaData.getVariables(), pcaData.getNumPCs(),
+					pcaData.getUMatrix().getArray(), pcaData.getEigenValues(),
+					pcaData.getEigenVectors(), pcaData.getPercentVars());
 
-    private String generateHistoryString(DSMicroarraySetView<DSGeneMarker, DSMicroarray> view)
-    {
-        String history = "";
+			progress.setProgress(90);
 
-        history = "Generated by PCA run with parameters: \n";
-        history += "----------------------------------------\n";
-        history += "variables: " + ((PCAAnalysisPanel)panel).getVariables() + "\n";
+			ProjectPanel.addToHistory(pcaDs, history);
 
-        if(view.useMarkerPanel() && !(view.getMarkerPanel().size() == 0))
-        {
-            DSAnnotationContext<DSGeneMarker> context = CSAnnotationContextManager.getInstance().getCurrentContext(view.getMicroarraySet().getMarkers());
+			progress.setProgress(100);
 
+			log.info("Done running PCA. " + System.currentTimeMillis());
 
-            DSPanel<DSGeneMarker> mp = context.getActiveItems();
-            DSItemList panels = mp.panels();
+			pcaDataSet = pcaDs;
 
-            if(!((DSPanel)panels.get(CSAnnotationContext.SELECTION)).isActive())
-            {
-                panels.remove(panels.get(CSAnnotationContext.SELECTION));
-            }
+			return pcaDs;
+		}
 
-            history += "\n" + panels.size() + " marker sets activated: \n";
+		public void done() {
+			if (!this.isCancelled()) {
+				try {
+					log
+							.debug("Transferring PCA data set back to event thread.");
+				} catch (Exception e) {
+					log.error(
+							"Exception in finishing up worker thread that called PCA: "
+									+ e.getMessage(), e);
+				}
+			}
+			progress.stopProgress();
+			log.debug("Closing PCA progress bar.");
+		}
+	}
 
+	private String generateHistoryString(
+			DSMicroarraySetView<DSGeneMarker, DSMicroarray> view) {
+		String history = "";
 
-            for(int i = 0; i < panels.size(); i++)
-            {
-                DSPanel<DSGeneMarker> panel = (DSPanel)panels.get(i);
-                history += "\t Set " + panel.getLabel() + " (" + panel.size() + " markers):" + "\n";
+		history = "Generated by PCA run with parameters: \n";
+		history += "----------------------------------------\n";
+		history += "variables: " + ((PCAAnalysisPanel) panel).getVariables()
+				+ "\n";
 
-                for (DSGeneMarker marker : panel)
-                {
-                    history +="\t\t" + marker.getLabel() + "\n";
-                }
-            }
-        }
-        else
-        {
-            history += view.markers().size() + " markers analyzed:\n";
-            for (DSGeneMarker marker : view.markers())
-            {
-			    history +="\t" + marker.getLabel() + "\n";
-		    }
-        }
+		if (view.useMarkerPanel() && !(view.getMarkerPanel().size() == 0)) {
+			DSAnnotationContext<DSGeneMarker> context = CSAnnotationContextManager
+					.getInstance().getCurrentContext(
+							view.getMicroarraySet().getMarkers());
 
-        if(view.useItemPanel() && !(view.getItemPanel().size() == 0))
-        {
-            CSAnnotationContextManager manager = CSAnnotationContextManager.getInstance();
-		    CSAnnotationContext<DSMicroarray> context = (CSAnnotationContext)manager
-		        .getCurrentContext(view.getMicroarraySet());
+			DSPanel<DSGeneMarker> mp = context.getActiveItems();
+			DSItemList panels = mp.panels();
 
-            DSPanel<DSMicroarray> ap = context.getActiveItems();
-            DSItemList panels = ap.panels();
+			if (!((DSPanel) panels.get(CSAnnotationContext.SELECTION))
+					.isActive()) {
+				panels.remove(panels.get(CSAnnotationContext.SELECTION));
+			}
 
-            if(!((DSPanel)panels.get(CSAnnotationContext.SELECTION)).isActive())
-            {
-                panels.remove(panels.get(CSAnnotationContext.SELECTION));
-            }
+			history += "\n" + panels.size() + " marker sets activated: \n";
 
-            history += "\n" + panels.size() + " array sets activated: \n";
+			for (int i = 0; i < panels.size(); i++) {
+				DSPanel<DSGeneMarker> panel = (DSPanel) panels.get(i);
+				history += "\t Set " + panel.getLabel() + " (" + panel.size()
+						+ " markers):" + "\n";
 
+				for (DSGeneMarker marker : panel) {
+					history += "\t\t" + marker.getLabel() + "\n";
+				}
+			}
+		} else {
+			history += view.markers().size() + " markers analyzed:\n";
+			for (DSGeneMarker marker : view.markers()) {
+				history += "\t" + marker.getLabel() + "\n";
+			}
+		}
 
-            for(int i = 0; i < panels.size(); i++)
-            {
-                DSPanel<DSMicroarray> panel = (DSPanel)panels.get(i);
-                
-                history += "\t Set " + panel.getLabel() + " (" + panel.size() + " arrays):" + "\n";
+		if (view.useItemPanel() && !(view.getItemPanel().size() == 0)) {
+			CSAnnotationContextManager manager = CSAnnotationContextManager
+					.getInstance();
+			CSAnnotationContext<DSMicroarray> context = (CSAnnotationContext) manager
+					.getCurrentContext(view.getMicroarraySet());
 
-                for (DSMicroarray array : panel)
-                {
-                    history +="\t\t" + array.getLabel() + "\n";
-                }
-            }
-        }
+			DSPanel<DSMicroarray> ap = context.getActiveItems();
+			DSItemList panels = ap.panels();
 
-        else
-        {
-            history += view.items().size() + " arrays analyzed:\n";
-            for (DSMicroarray array : view.items())
-            {
-                history +="\t" + array.getLabel() + "\n";
-            }
-        }
+			if (!((DSPanel) panels.get(CSAnnotationContext.SELECTION))
+					.isActive()) {
+				panels.remove(panels.get(CSAnnotationContext.SELECTION));
+			}
 
-        return history;
-    }
+			history += "\n" + panels.size() + " array sets activated: \n";
+
+			for (int i = 0; i < panels.size(); i++) {
+				DSPanel<DSMicroarray> panel = (DSPanel) panels.get(i);
+
+				history += "\t Set " + panel.getLabel() + " (" + panel.size()
+						+ " arrays):" + "\n";
+
+				for (DSMicroarray array : panel) {
+					history += "\t\t" + array.getLabel() + "\n";
+				}
+			}
+		}
+
+		else {
+			history += view.items().size() + " arrays analyzed:\n";
+			for (DSMicroarray array : view.items()) {
+				history += "\t" + array.getLabel() + "\n";
+			}
+		}
+
+		return history;
+	}
 }
