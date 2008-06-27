@@ -1,48 +1,40 @@
 package org.geworkbench.components.mindy;
 
+import java.text.Collator;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
+import javax.swing.JOptionPane;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.math.stat.regression.SimpleRegression;
 import org.geworkbench.analysis.AbstractAnalysis;
-import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.CSMicroarraySet;
+import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
-import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
+import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
 import org.geworkbench.bison.model.analysis.ClusteringAnalysis;
+import org.geworkbench.builtin.projects.ProjectPanel;
 import org.geworkbench.engine.management.Publish;
 import org.geworkbench.engine.management.Subscribe;
-import org.geworkbench.util.pathwaydecoder.mutualinformation.MindyDataSet;
-import org.geworkbench.util.pathwaydecoder.mutualinformation.MindyData;
-import org.geworkbench.util.pathwaydecoder.mutualinformation.MindyGeneMarker;
-import org.geworkbench.builtin.projects.ProjectPanel;
 import org.geworkbench.events.GeneSelectorEvent;
-import org.geworkbench.util.threading.*;
+import org.geworkbench.util.ProgressBar;
+import org.geworkbench.util.pathwaydecoder.mutualinformation.MindyData;
+import org.geworkbench.util.pathwaydecoder.mutualinformation.MindyDataSet;
+import org.geworkbench.util.pathwaydecoder.mutualinformation.MindyGeneMarker;
 
-import java.awt.BorderLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.HashMap;
-import java.text.Collator;
-
+import wb.data.Marker;
+import wb.data.MarkerSet;
+import wb.data.Microarray;
+import wb.data.MicroarraySet;
 import edu.columbia.c2b2.mindy.Mindy;
 import edu.columbia.c2b2.mindy.MindyResults;
-import wb.data.MicroarraySet;
-import wb.data.Microarray;
-import wb.data.MarkerSet;
-import wb.data.Marker;
-
-import javax.swing.JDialog;
-import javax.swing.JButton;
-import javax.swing.JProgressBar;
-import javax.swing.JOptionPane;
 
 /**
  * @author Matt Hall
@@ -54,12 +46,11 @@ public class MindyAnalysis extends AbstractAnalysis implements ClusteringAnalysi
     Log log = LogFactory.getLog(this.getClass());
 
     private MindyParamPanel paramPanel;
-    private JDialog dialog;
-    private JProgressBar progressBar;
-    private JButton cancelButton;
-    private Task task;
     private MindyDataSet mindyDataSet;
     private DSMicroarraySetView<DSGeneMarker, DSMicroarray> inputSetView;
+    
+    private ProgressBar progressBar = null;
+    MindyResults results=null;
 
     /**
      * Constructor.
@@ -86,6 +77,9 @@ public class MindyAnalysis extends AbstractAnalysis implements ClusteringAnalysi
      */
     @SuppressWarnings("unchecked")
     public AlgorithmExecutionResults execute(Object input) {
+    	if (input == null) {
+			return new AlgorithmExecutionResults(false, "Invalid input.", null);
+		}
         log.debug("input: " + input);
         inputSetView = (DSMicroarraySetView) input;
         DSPanel<DSMicroarray> arraySet = null;
@@ -102,7 +96,12 @@ public class MindyAnalysis extends AbstractAnalysis implements ClusteringAnalysi
         // The eventual error message dialog (if there are errors)
         // would look the same as the one created by the analysis panel      
         
-        
+        progressBar = ProgressBar.create(ProgressBar.INDETERMINATE_TYPE);
+		progressBar.addObserver(this);
+		progressBar.setTitle("MINDY");
+		progressBar.setMessage("Processing Parameters");
+		progressBar.start();
+		
         // Use this to get params
         MindyParamPanel params = (MindyParamPanel) aspp;
         DSMicroarraySet<DSMicroarray> mSet = inputSetView.getMicroarraySet();
@@ -281,76 +280,91 @@ public class MindyAnalysis extends AbstractAnalysis implements ClusteringAnalysi
 	        JOptionPane.showMessageDialog(null, s, "Parameter and Input Validation Error", JOptionPane.ERROR_MESSAGE);
 	        return null;
         }        
+        
+        if (stopAlgorithm) {
+			stopAlgorithm = false;
+			progressBar.stop();
+			return null;
+		}
                 
-        
-        // otherwise
-        // run Mindy algorithm in the background
-        // and display an indeterminate progress bar in the foreground
-        createProgressBarDialog();
+        log.info("Running MINDY algorithm...");
+        progressBar.setMessage("Running MINDY Algorithm");
         Mindy mindy = new Mindy();
-        task = new Task(mindy
-    			, params
-    			, mSet
-    			, arraySet
-    			, markerSet
-    			, modulators
-    			, dpiAnnots
-    			, fullSetMI
-    			, fullSetThreshold
-    			, subsetMI
-    			, subsetThreshold
-    			, setFraction
-    			, transFac);        
-        task.execute();     
-        dialog.setVisible(true);        
+    	results = mindy.runMindy(convert(mSet, arraySet, markerSet), new Marker(params.getTranscriptionFactor()), modulators,
+            dpiAnnots, fullSetMI, fullSetThreshold, subsetMI, subsetThreshold,
+            setFraction, params.getDPITolerance());
+    	log.info("MINDY analysis complete.  Converting Mindy results.");
+    	
+    	if (stopAlgorithm) {
+			stopAlgorithm = false;
+			progressBar.stop();
+			return null;
+		}
+    	
+    	progressBar.setMessage("Processing MINDY Results");
         
+        List<MindyData.MindyResultRow> dataRows = new ArrayList<MindyData.MindyResultRow>();
+        Collator myCollator = Collator.getInstance();      
+        HashMap<DSGeneMarker, MindyGeneMarker> mindyMap = new HashMap<DSGeneMarker, MindyGeneMarker>();
+        for (MindyResults.MindyResultForTarget result : results) {
+            DSItemList<DSGeneMarker> markers = mSet.getMarkers();
+            DSGeneMarker target = markers.get(result.getTarget().getName());
+            if(!mindyMap.containsKey(target)){
+            	mindyMap.put(target, new MindyGeneMarker(target, myCollator.getCollationKey(target.getShortName()), myCollator.getCollationKey(target.getDescription())));
+            }
+            for (MindyResults.MindyResultForTarget.ModulatorSpecificResult specificResult : result) {
+                DSGeneMarker mod = markers.get(specificResult.getModulator().getName());
+                if(!mindyMap.containsKey(mod)){
+                	mindyMap.put(mod, new MindyGeneMarker(mod, myCollator.getCollationKey(mod.getShortName()), myCollator.getCollationKey(mod.getDescription())));
+                }
+                dataRows.add(new MindyData.MindyResultRow(mod, transFac, target, specificResult.getScore(), 0f, myCollator.getCollationKey(mod.getShortName()), myCollator.getCollationKey(target.getShortName())));
+            }
+        }
+        
+        if (stopAlgorithm) {
+			stopAlgorithm = false;
+			progressBar.stop();
+			return null;
+		}
+        
+        if(dataRows.size() <= 0) return null;
+        MindyData loadedData = new MindyData((CSMicroarraySet) mSet, dataRows, setFraction);
+        loadedData.setMindyMap(mindyMap);
+        
+        // Bonferroni correction -- if option selected
+        
+        // Pearson correlation
+        ArrayList<DSMicroarray> maList = loadedData.getArraySetAsList();
+        SimpleRegression sr;
+        for(MindyData.MindyResultRow r: dataRows){
+    		sr = new SimpleRegression();
+    		for(DSMicroarray ma: maList){
+    			sr.addData(ma.getMarkerValue(r.getTarget()).getValue(), ma.getMarkerValue(r.getTranscriptionFactor()).getValue());    			
+    		}
+    		r.setCorrelation(sr.getR());   
+    	}
+        
+        if (stopAlgorithm) {
+			stopAlgorithm = false;
+			progressBar.stop();
+			return null;
+		}
+        
+        mindyDataSet = new MindyDataSet(mSet, "MINDY Results", loadedData, params.getCandidateModulatorsFile());
+        log.info("Done converting MINDY results.");
+                
         s = paramDescB.toString();
         if(this.mindyDataSet != null){
         	log.info(s);
 	        ProjectPanel.addToHistory(this.mindyDataSet, s);
+	        progressBar.stop();
 	        return new AlgorithmExecutionResults(true, "MINDY Results Loaded.", this.mindyDataSet);
         } else {
         	JOptionPane.showMessageDialog(paramPanel.getParent(), "Cannot analyze data.", "MINDY Analyze Error", JOptionPane.WARNING_MESSAGE);
+        	progressBar.stop();
         	return null;
         }
     }
-    
-    private void createProgressBarDialog(){
-    	// lay the groundwork for the progress bar dialog
-        dialog = new JDialog();
-        progressBar = new JProgressBar();
-        cancelButton = new JButton("Cancel");
-        dialog.setLayout(new BorderLayout());
-        dialog.setModal(true);
-        dialog.setTitle("MINDY Process Running");
-        dialog.setSize(300, 50);
-        dialog.setLocation((int) (dialog.getToolkit().getScreenSize().getWidth() - dialog.getWidth()) / 2, (int) (dialog.getToolkit().getScreenSize().getHeight() - dialog.getHeight()) / 2);
-        progressBar.setIndeterminate(true);
-        dialog.add(progressBar, BorderLayout.CENTER);
-        dialog.add(cancelButton, BorderLayout.EAST);
-        
-        cancelButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent actionEvent) {
-            	if((task != null) && (!task.isCancelled()) && (!task.isDone())) {
-            		task.cancel(true);
-            		log.info("Cancelling Mindy Analysis");
-            	}
-            	dialog.setVisible(false);
-            	dialog.dispose();            	
-            }
-        });
-
-        dialog.addWindowListener(new WindowAdapter() {
-            public void windowClosing(WindowEvent windowEvent) {
-            	if((task != null) && (!task.isCancelled()) && (!task.isDone())){
-            		task.cancel(true);
-            		log.info("Cancelling Mindy Analysis");
-            	}
-            }
-        });
-    }
-
-    
 
     /**
      * Receives GeneSelectorEvents from the framework (i.e. the Selector Panel)
@@ -374,178 +388,33 @@ public class MindyAnalysis extends AbstractAnalysis implements ClusteringAnalysi
         return data;
     }
     
-    /**
-     * The swing worker class that runs Mindy analysis in the background.
-     * @author ch2514
-     * @version $Id: MindyAnalysis.java,v 1.25 2008-03-28 20:36:17 hungc Exp $
-     */
-    class Task extends SwingWorker<MindyDataSet, Void> {
-    	private Mindy mindy;
-    	private MindyParamPanel params;
-    	private DSMicroarraySet<DSMicroarray> mSet;
-    	private DSPanel arraySet;
-    	private DSPanel markerSet;
-    	private ArrayList<Marker> modulators;
-    	private ArrayList<Marker> dpiAnnots;
-    	private boolean fullSetMI;
-    	private float fullSetThreshold;
-    	private boolean subsetMI;
-    	private float subsetThreshold;
-    	private float setFraction;
-    	private DSGeneMarker transFac;
-    	
-    	/**
-    	 * Constructor.
-    	 * Takes in all the arguments required to run the mindy algorithm.
-    	 * 
-    	 * @param mindy
-    	 * @param params
-    	 * @param mSet
-    	 * @param modulators
-    	 * @param dpiAnnots
-    	 * @param fullSetMI
-    	 * @param fullSetThreshold
-    	 * @param subsetMI
-    	 * @param subsetThreshold
-    	 * @param setFraction
-    	 * @param transFac
-    	 */
-    	public Task(Mindy mindy
-    			, MindyParamPanel params
-    			, DSMicroarraySet<DSMicroarray> mSet
-    			, DSPanel arraySet
-    			, DSPanel markerSet
-    			, ArrayList<Marker> modulators
-    			, ArrayList<Marker> dpiAnnots
-    			, boolean fullSetMI
-    			, float fullSetThreshold
-    			, boolean subsetMI
-    			, float subsetThreshold
-    			, float setFraction
-    			, DSGeneMarker transFac
-    			){
-    		this.mindy = mindy;
-    		this.params = params;
-    		this.mSet = mSet;
-    		this.arraySet = arraySet;
-    		this.markerSet = markerSet;
-    		this.modulators = modulators;
-    		this.dpiAnnots = dpiAnnots;
-    		this.fullSetMI = fullSetMI;
-    		this.fullSetThreshold = fullSetThreshold;
-    		this.subsetMI = subsetMI;
-    		this.subsetThreshold = subsetThreshold;
-    		this.setFraction = setFraction;
-    		this.transFac = transFac;
-    	}
-    	
-    	/**
-    	 * Runs Mindy analysis.
-    	 * @return a mindy data set.  If the analysis fails, returns null.
-    	 */
-    	public MindyDataSet doInBackground(){
-    		log.info("Running MINDY analysis.");
-    		
-            MindyResults results=null;
-            try{
-            	log.info("Running MINDY algorithm. " + System.currentTimeMillis());
-            	results = mindy.runMindy(convert(mSet, arraySet, markerSet), new Marker(params.getTranscriptionFactor()), modulators,
-                    dpiAnnots, fullSetMI, fullSetThreshold, subsetMI, subsetThreshold,
-                    setFraction, params.getDPITolerance());
-            	log.info("Finished running MINDY algorithm. " + System.currentTimeMillis());
-            } catch (Exception e){
-            	log.error("Cannot analyze data.", e);            	
-            	return null;
-            }            
-            log.info("MINDY analysis complete.  Converting Mindy results. " + System.currentTimeMillis());
-            
-            List<MindyData.MindyResultRow> dataRows = new ArrayList<MindyData.MindyResultRow>();
-            Collator myCollator = Collator.getInstance();      
-            HashMap<DSGeneMarker, MindyGeneMarker> mindyMap = new HashMap<DSGeneMarker, MindyGeneMarker>();
-            for (MindyResults.MindyResultForTarget result : results) {
-                DSItemList<DSGeneMarker> markers = mSet.getMarkers();
-                DSGeneMarker target = markers.get(result.getTarget().getName());
-                if(!mindyMap.containsKey(target)){
-                	mindyMap.put(target, new MindyGeneMarker(target, myCollator.getCollationKey(target.getShortName()), myCollator.getCollationKey(target.getDescription())));
-                }
-                for (MindyResults.MindyResultForTarget.ModulatorSpecificResult specificResult : result) {
-                    DSGeneMarker mod = markers.get(specificResult.getModulator().getName());
-                    if(!mindyMap.containsKey(mod)){
-                    	mindyMap.put(mod, new MindyGeneMarker(mod, myCollator.getCollationKey(mod.getShortName()), myCollator.getCollationKey(mod.getDescription())));
-                    }
-                    dataRows.add(new MindyData.MindyResultRow(mod, transFac, target, specificResult.getScore(), 0f, myCollator.getCollationKey(mod.getShortName()), myCollator.getCollationKey(target.getShortName())));
-                }
+	private MicroarraySet convert(DSMicroarraySet<DSMicroarray> inSet, DSPanel arraySet, DSPanel markerSet) {    		
+        MarkerSet markers = new MarkerSet();
+        if((markerSet != null) && (markerSet.size() > 0)){
+        	int size = markerSet.size();
+        	for (int i = 0; i < size; i++) {
+                markers.addMarker(new Marker(((DSGeneMarker) markerSet.get(i)).getLabel()));
             }
-            if(dataRows.size() <= 0) return null;
-            MindyData loadedData = new MindyData((CSMicroarraySet) mSet, dataRows, setFraction);
-            loadedData.setMindyMap(mindyMap);
-            
-            // Bonferroni correction -- if option selected
-            
-            // Pearson correlation
-            ArrayList<DSMicroarray> maList = loadedData.getArraySetAsList();
-            SimpleRegression sr;
-            for(MindyData.MindyResultRow r: dataRows){
-        		sr = new SimpleRegression();
-        		for(DSMicroarray ma: maList){
-        			sr.addData(ma.getMarkerValue(r.getTarget()).getValue(), ma.getMarkerValue(r.getTranscriptionFactor()).getValue());    			
-        		}
-        		r.setCorrelation(sr.getR());   
-        	}
-            
-            MindyDataSet dataSet = new MindyDataSet(mSet, "MINDY Results", loadedData, params.getCandidateModulatorsFile());
-            log.info("Done converting MINDY results. " + System.currentTimeMillis());
-            
-            return dataSet;
-    	}
-    	
-    	/**
-    	 * When the mindy analysis finishes, transfer the resulting mindy
-    	 * data set back to the mindy analysis panel on the event thread.
-    	 * Also disposes the progress bar dialog box.
-    	 */
-    	public void done(){
-    		if(!this.isCancelled()){
-	    		try{
-	    			mindyDataSet = get();    			
-	    			log.debug("Transferring mindy data set back to event thread.");
-	    		} catch (Exception e) {
-	    			log.error("Exception in finishing up worker thread that called MINDY: " + e.getMessage(), e);
-	    		}
-    		}
-    		dialog.setVisible(false);
-    		dialog.dispose();
-    		log.debug("Closing progress bar dialog.");
-    	}
-    	
-    	private MicroarraySet convert(DSMicroarraySet<DSMicroarray> inSet, DSPanel arraySet, DSPanel markerSet) {    		
-            MarkerSet markers = new MarkerSet();
-            if((markerSet != null) && (markerSet.size() > 0)){
-            	int size = markerSet.size();
-            	for (int i = 0; i < size; i++) {
-	                markers.addMarker(new Marker(((DSGeneMarker) markerSet.get(i)).getLabel()));
-	            }
-            } else {
-	            for (DSGeneMarker marker : inSet.getMarkers()) {
-	                markers.addMarker(new Marker(marker.getLabel()));
-	            }
-            }           
-            
-            MicroarraySet returnSet = new MicroarraySet(inSet.getDataSetName(), "ID", "ChipType", markers);
-            if((arraySet != null) && (arraySet.size() > 0)){
-            	int size = arraySet.size();
-            	for (int i = 0; i < size; i++) {
-            		DSMicroarray ma = (DSMicroarray) arraySet.get(i);
-            		returnSet.addMicroarray(new Microarray(ma.getLabel(), ma.getRawMarkerData())
-            		);
-	            }
-            } else {
-	            for (DSMicroarray microarray : inSet) {
-	                returnSet.addMicroarray(new Microarray(microarray.getLabel(), microarray.getRawMarkerData()));
-	            }
+        } else {
+            for (DSGeneMarker marker : inSet.getMarkers()) {
+                markers.addMarker(new Marker(marker.getLabel()));
             }
-            
-            return returnSet;
+        }           
+        
+        MicroarraySet returnSet = new MicroarraySet(inSet.getDataSetName(), "ID", "ChipType", markers);
+        if((arraySet != null) && (arraySet.size() > 0)){
+        	int size = arraySet.size();
+        	for (int i = 0; i < size; i++) {
+        		DSMicroarray ma = (DSMicroarray) arraySet.get(i);
+        		returnSet.addMicroarray(new Microarray(ma.getLabel(), ma.getRawMarkerData())
+        		);
+            }
+        } else {
+            for (DSMicroarray microarray : inSet) {
+                returnSet.addMicroarray(new Microarray(microarray.getLabel(), microarray.getRawMarkerData()));
+            }
         }
+        
+        return returnSet;
     }
 }
