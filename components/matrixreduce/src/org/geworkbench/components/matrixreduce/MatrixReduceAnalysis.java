@@ -262,8 +262,8 @@ public class MatrixReduceAnalysis extends AbstractGridAnalysis implements
 			progressBar.setMessage("Processing Data Source");
 			progressBar.start();
 			// Write set out to tab-delimited format
-			String tempDirParent = System.getProperty(TEMP_DIR);
-			String tempDirName = "mr" + System.currentTimeMillis();
+			String tempDirParent = TEMP_DIR;
+			String tempDirName = "mr";
 			File tempDir = new File(tempDirParent, tempDirName);
 			tempDir.mkdirs();
 			File microarrayFile = new File(MICROARRAY_SET_FILE_NAME);
@@ -433,7 +433,7 @@ public class MatrixReduceAnalysis extends AbstractGridAnalysis implements
 
 				// Experiments
 				ArrayList<Psam> psams = mr.mrRes.Results.getPsam();
-				log.info("mr.mrRes.Results.getPsam().size()=" + psams.size());
+				log.debug("mr.mrRes.Results.getPsam().size()=" + psams.size());
 				ArrayList<Experiment> exps = mr.mrRes.Results.getExperiment();
 				ListOrderedMap<String, List<DSMatrixReduceExperiment>> expMap = new ListOrderedMap<String, List<DSMatrixReduceExperiment>>();
 				HashMap<String, DSMatrixReduceExperiment> tempMap = new HashMap<String, DSMatrixReduceExperiment>(
@@ -616,5 +616,11 @@ public class MatrixReduceAnalysis extends AbstractGridAnalysis implements
 	@Override
 	protected boolean useOtherDataSet() {
 		return false;
+	}
+	
+	public void update(java.util.Observable ob, Object o) {
+		log.warn("Cancelling MatrixREDUCE Analysis.");
+		stopAlgorithm = true;
+		if(mr != null) mr.destroy();
 	}
 }
