@@ -42,7 +42,7 @@ public class AracneProgress implements Observer {
     public void update(java.util.Observable ob, Object o) {
 		log.debug("initiated close");
 		aracneThread.stop();
-		log.warn("Cancelling Mindy GUI.");
+		log.warn("Cancelling ARACNE Analysis.");
 		
 		stopProgress();
 	}
