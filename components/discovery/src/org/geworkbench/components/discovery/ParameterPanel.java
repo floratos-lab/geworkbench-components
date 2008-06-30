@@ -795,7 +795,7 @@ public class ParameterPanel extends JPanel {
 			}
 			if (currentSupportMenuStr.equalsIgnoreCase(SUPPORT_PERCENT_1_100)) {
 				String currentSupportStr = tf.getText().trim();
-				if (currentSupportStr != null) {
+				if (currentSupportStr == null) {
 					return false;
 				}
 				if (currentSupportStr.endsWith("%")) {
