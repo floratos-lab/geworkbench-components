@@ -108,6 +108,8 @@ public class MatrixReduceAnalysis extends AbstractGridAnalysis implements
 	private int exitVal = -1;
 
 	private DSMatrixReduceSet dataSet = null;
+	
+	private File tempDir = null;
 
 	public MatrixReduceAnalysis() {
 		setLabel("MatrixREDUCE");
@@ -264,7 +266,7 @@ public class MatrixReduceAnalysis extends AbstractGridAnalysis implements
 			// Write set out to tab-delimited format
 			String tempDirParent = TEMP_DIR;
 			String tempDirName = "mr";
-			File tempDir = new File(tempDirParent, tempDirName);
+			tempDir = new File(tempDirParent, tempDirName);
 			tempDir.mkdirs();
 			File microarrayFile = new File(MICROARRAY_SET_FILE_NAME);
 			if (stopAlgorithm) {
@@ -548,11 +550,24 @@ public class MatrixReduceAnalysis extends AbstractGridAnalysis implements
 				progressBar.stop();
 				return new AlgorithmExecutionResults(true, "Completed", dataSet);
 			} else {
+				//TODO:
+				if(tempDir == null){
+					tempDir = new File(tempDirParent, tempDirName);
+					tempDir.mkdirs();
+				} 
+				String slash = "/";
+				if(System.getProperty("os.name").toLowerCase().indexOf("window") >= 0) slash = "\\";
+				String errLogFileName = tempDir.getAbsolutePath() + slash + "MatrixREDUCE_ErrorLog.txt";
+				PrintWriter errout = new PrintWriter(new BufferedWriter(
+						new FileWriter(errLogFileName)), true);
+				String errMsg = StringUtils
+				.replace(StringUtils.replace(mr.stderr,
+						TOPOLOGY_FILE_NAME, params.getTopoFile()),
+						SEQUENCE_FILE_NAME, params.getSequenceFile());
+				errout.println(errMsg);
+				errout.close();
 				progressBar.stop();
-				return new AlgorithmExecutionResults(false, StringUtils
-						.replace(StringUtils.replace(mr.stderr,
-								TOPOLOGY_FILE_NAME, params.getTopoFile()),
-								SEQUENCE_FILE_NAME, params.getSequenceFile()),
+				return new AlgorithmExecutionResults(false, "MatrixREDUCE run error:  see " + errLogFileName,
 						null);
 			}
 		} catch (Throwable e) {
