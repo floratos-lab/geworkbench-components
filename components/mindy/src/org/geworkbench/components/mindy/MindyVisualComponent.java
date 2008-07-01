@@ -283,14 +283,7 @@ public class MindyVisualComponent implements VisualPlugin, java.util.Observer {
 			log.info("Creating MINDY GUI.");
 
 			MindyData mindyData = dataSet.getData();
-			// The following sort no longer required -- keeping it in case the
-			// use case changes again....
-			// Sort via |M+ - M-| i.e. Math.abs(mindy score)
-			// Take largest 100 out of the results
-			// Collections.sort(mindyData.getData(), new
-			// MindyRowComparator(MindyRowComparator.DELTA_I, false));
 			List<MindyData.MindyResultRow> mindyRows = mindyData.getData();
-			mindyData.setData(mindyRows);
 
 			// Then pass into mindy plugin
 			mplugin = new MindyPlugin(mindyData, vp);
