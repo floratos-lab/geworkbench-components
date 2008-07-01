@@ -366,7 +366,7 @@ public class TtestAnalysisPanel extends AbstractSaveableParameterPanel implement
 //        jPanel4.add(welch, null);
 //        jPanel4.add(equalVariances, null);
         
-        logCheckbox = logCheckbox = new JCheckBox("Analyzed data was log2-transformed", false);
+        logCheckbox = logCheckbox = new JCheckBox("Data is log2-transformed", false);
         logCheckbox.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
             	useroverride = true;                              

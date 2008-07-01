@@ -76,7 +76,7 @@ public class MultiTTestAnalysisPanel extends AbstractSaveableParameterPanel impl
         pValue = new JFormattedTextField(DEFAULT_P_VALUE);
         setLayout(new BorderLayout());
         
-        logCheckbox = logCheckbox = new JCheckBox("Analyzed data was log2-transformed", false);
+        logCheckbox = logCheckbox = new JCheckBox("Data is log2-transformed", false);
         logCheckbox.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
             	useroverride = true;                              
