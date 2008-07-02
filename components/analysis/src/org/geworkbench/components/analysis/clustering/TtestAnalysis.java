@@ -192,12 +192,15 @@ public class TtestAnalysis extends AbstractAnalysis implements
 		int markers = data.markers().size();
 		int arrays = data.items().size();
 
-		pbTtest = ProgressBar.create(ProgressBar.BOUNDED_TYPE);
+//		pbTtest = ProgressBar.create(ProgressBar.BOUNDED_TYPE);
+		pbTtest = ProgressBar.create(ProgressBar.INDETERMINATE_TYPE);
 		pbTtest.addObserver(this);
 		pbTtest.setTitle("T Test Analysis");
 		pbTtest.setBounds(new ProgressBar.IncrementModel(0, markers, 0,
 				markers, 1));
-		pbTtest.setMessage("Constructing ... " + markers + " variables");
+//		pbTtest.setMessage("Constructing ... " + markers + " variables");
+//		pbTtest.setMessage("Analyzing in a process…");
+		pbTtest.setMessage("Calculating TTest, please wait...");
 		pbTtest.start();
 		this.stopAlgorithm = false;
 		/*
@@ -309,7 +312,7 @@ public class TtestAnalysis extends AbstractAnalysis implements
 						// (float)data.items().get(j).getMarkerValue(i).getValue();
 						expMatrix[i][j] = (float) data.getValue(i, j);
 					}
-					pbTtest.update();
+//					pbTtest.update();
 			}
 //			pbTtest.dispose();
 //			pbTtest.setType(ProgressBarT.INDETERMINATE_TYPE);
