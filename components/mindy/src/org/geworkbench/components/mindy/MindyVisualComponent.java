@@ -25,6 +25,7 @@ import org.geworkbench.builtin.projects.ProjectPanel;
 import org.geworkbench.builtin.projects.ProjectTreeNode;
 import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.engine.management.AcceptTypes;
+import org.geworkbench.engine.management.Asynchronous;
 import org.geworkbench.engine.management.Publish;
 import org.geworkbench.engine.management.Subscribe;
 import org.geworkbench.events.GeneSelectorEvent;
@@ -59,13 +60,13 @@ public class MindyVisualComponent implements VisualPlugin, java.util.Observer {
 
 	private ProgressBar progressBar = null;
 
-	private Task task;
-
 	private int prevStateMarkers = -1;
 
 	private int currentStateMarkers = -1;
 
 	private int maxMarkers = -1;
+
+	private boolean stopDrawing = false;
 
 	/**
 	 * Constructor. Includes a place holder for a MINDY result view (i.e. class
@@ -95,25 +96,30 @@ public class MindyVisualComponent implements VisualPlugin, java.util.Observer {
 	 * @param source -
 	 *            source of the ProjectEvent
 	 */
-	@Subscribe
+	@Subscribe(Asynchronous.class)
 	public void receive(ProjectEvent projectEvent, Object source) {
 		log.debug("MINDY received project event.");
 		plugin.removeAll();
 		DSDataSet data = projectEvent.getDataSet();
 		ProjectTreeNode node = ((ProjectPanel) source).getSelection()
 				.getSelectedNode();
+		log.debug("event is from node [" + node.toString() + "]");
 		if ((data != null) && (data instanceof MindyDataSet)) {
 			// Check to see if the hashtable has a mindy plugin associated with
 			// the selected project tree node
 			if (ht.containsKey(node)) {
 				// if so, set mindyPlugin to the one stored in the hashtable
 				mindyPlugin = (MindyPlugin) ht.get(node);
+				log.debug("plugin already exists for node ["
+						+ node.toString() + "]");
 			} else {
 				// if not, create a brand new mindyPlugin, add to the hashtable
 				// (with key=selected project tree node)
 				if (dataSet != data) {
 					dataSet = ((MindyDataSet) data);
 
+					log.debug("Creating new mindy plugin for node ["
+							+ node.toString() + "]");
 					// Create mindy gui and display an indeterminate progress
 					// bar in the foreground
 					progressBar = ProgressBar
@@ -121,10 +127,27 @@ public class MindyVisualComponent implements VisualPlugin, java.util.Observer {
 					progressBar.addObserver(this);
 					progressBar.setTitle("MINDY");
 					progressBar.setMessage("Creating Display");
-
-					task = new Task(this);
-					task.execute();
 					progressBar.start();
+
+					MindyData mindyData = dataSet.getData();
+					// List<MindyData.MindyResultRow> mindyRows =
+					// mindyData.getData();
+					mindyPlugin = new MindyPlugin(mindyData, this);
+
+					// Incorporate selections from marker set selection panel
+					DSMicroarraySetView<DSGeneMarker, DSMicroarray> maView = new CSMicroarraySetView<DSGeneMarker, DSMicroarray>(
+							dataSet.getData().getArraySet());
+					DSItemList<DSGeneMarker> uniqueMarkers = maView
+							.getUniqueMarkers();
+					if (stopDrawing) {
+						stopDrawing = false;
+						progressBar.stop();
+						log.warn("Cancelling Mindy GUI.");
+						return;
+					}
+					maxMarkers = uniqueMarkers.size();
+					currentStateMarkers = maxMarkers;
+					maView.useMarkerPanel(true);
 
 					// Register the mindy plugin with our hashtable for keeping
 					// track
@@ -136,11 +159,18 @@ public class MindyVisualComponent implements VisualPlugin, java.util.Observer {
 										+ node);
 						return;
 					}
+					if (stopDrawing) {
+						stopDrawing = false;
+						progressBar.stop();
+						log.warn("Cancelling Mindy GUI.");
+						return;
+					}
 				}
-			}
 
+			}
 			// Display the plugin
 			plugin.add(mindyPlugin, BorderLayout.CENTER);
+			progressBar.stop();
 			plugin.revalidate();
 			plugin.repaint();
 		}
@@ -156,7 +186,7 @@ public class MindyVisualComponent implements VisualPlugin, java.util.Observer {
 	 *            source of the GeneSelectorEvent
 	 */
 	@SuppressWarnings("unchecked")
-	@Subscribe
+	@Subscribe(Asynchronous.class)
 	public void receive(GeneSelectorEvent e, Object source) {
 		if (dataSet != null) {
 			if (e.getPanel() != null)
@@ -263,57 +293,7 @@ public class MindyVisualComponent implements VisualPlugin, java.util.Observer {
 
 	public void update(java.util.Observable ob, Object o) {
 		log.debug("initiated close");
-		if ((task != null) && (!task.isCancelled()) && (!task.isDone())) {
-			task.cancel(true);
-			log.warn("Cancelling Mindy GUI.");
-		}
+		stopDrawing = true;
 		progressBar.stop();
-	}
-
-	class Task extends SwingWorker<MindyPlugin, Void> {
-		private MindyPlugin mplugin;
-
-		private MindyVisualComponent vp;
-
-		public Task(MindyVisualComponent vp) {
-			this.vp = vp;
-		}
-
-		public MindyPlugin doInBackground() {
-			log.info("Creating MINDY GUI.");
-
-			MindyData mindyData = dataSet.getData();
-			List<MindyData.MindyResultRow> mindyRows = mindyData.getData();
-
-			// Then pass into mindy plugin
-			mplugin = new MindyPlugin(mindyData, vp);
-
-			// Incorporate selections from marker set selection panel
-			DSMicroarraySetView<DSGeneMarker, DSMicroarray> maView = new CSMicroarraySetView<DSGeneMarker, DSMicroarray>(
-					dataSet.getData().getArraySet());
-			DSItemList<DSGeneMarker> uniqueMarkers = maView.getUniqueMarkers();
-			maxMarkers = uniqueMarkers.size();
-			currentStateMarkers = maxMarkers;
-			maView.useMarkerPanel(true);
-			return mplugin;
-		}
-
-		public void done() {
-			if (!this.isCancelled()) {
-				try {
-					mindyPlugin = get();
-					plugin.add(mindyPlugin, BorderLayout.CENTER);
-					log
-							.debug("Transferring mindy plugin back to event thread.");
-				} catch (Exception e) {
-					log.error(
-							"Exception in finishing up worker thread that is creating the new MINDY GUI: "
-									+ e.getMessage(), e);
-				}
-			}
-			progressBar.stop();			
-			plugin.revalidate();
-			plugin.repaint();
-		}
 	}
 }
