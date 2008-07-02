@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Observer;
 
 import javax.swing.JOptionPane;
 
@@ -27,6 +28,7 @@ import org.geworkbench.builtin.projects.ProjectPanel;
 import org.geworkbench.engine.management.Publish;
 import org.geworkbench.engine.management.Subscribe;
 import org.geworkbench.events.GeneSelectorEvent;
+import org.geworkbench.events.ProjectNodeAddedEvent;
 import org.geworkbench.util.ProgressBar;
 import org.geworkbench.util.pathwaydecoder.mutualinformation.MindyData;
 import org.geworkbench.util.pathwaydecoder.mutualinformation.MindyDataSet;
@@ -59,9 +61,8 @@ public class MindyAnalysis extends AbstractGridAnalysis implements ClusteringAna
     MindyResults results=null;
 
     /**
-     * Constructor.
-     * Creates MINDY parameter panel.
-     */
+	 * Constructor. Creates MINDY parameter panel.
+	 */
     public MindyAnalysis() {
         setLabel("MINDY");
         paramPanel = new MindyParamPanel();
@@ -76,11 +77,13 @@ public class MindyAnalysis extends AbstractGridAnalysis implements ClusteringAna
     
 
     /**
-     * The execute method the framework calls to analyze parameters and create MINDY results.
-     * 
-     * @param input - microarray set data coming from the framework
-     * @return analysis algorithm results
-     */
+	 * The execute method the framework calls to analyze parameters and create
+	 * MINDY results.
+	 * 
+	 * @param input -
+	 *            microarray set data coming from the framework
+	 * @return analysis algorithm results
+	 */
     @SuppressWarnings("unchecked")
     public AlgorithmExecutionResults execute(Object input) {
     	if (input == null) {
@@ -95,13 +98,14 @@ public class MindyAnalysis extends AbstractGridAnalysis implements ClusteringAna
         if(inputSetView.useMarkerPanel())
         	markerSet = inputSetView.getMarkerPanel();   
         
-        // Mindy parameter validation always returns true 
+        // Mindy parameter validation always returns true
         // (the method is not overrode from AbstractAnalysis)
-        // so we can enter the execute() method and capture 
+        // so we can enter the execute() method and capture
         // both parameter and input errors.
         // The eventual error message dialog (if there are errors)
-        // would look the same as the one created by the analysis panel      
+        // would look the same as the one created by the analysis panel
         
+        stopAlgorithm = false;
         progressBar = ProgressBar.create(ProgressBar.INDETERMINATE_TYPE);
 		progressBar.addObserver(this);
 		progressBar.setTitle("MINDY");
@@ -278,117 +282,50 @@ public class MindyAnalysis extends AbstractGridAnalysis implements ClusteringAna
             }
         }
         
-        // If parameters or inputs have errors, alert the user and return from execute()
+        // If parameters or inputs have errors, alert the user and return from
+		// execute()
         errMsgB.trimToSize();
         String s = errMsgB.toString();
         if(!s.equals("")){
         	log.info(errMsgB.toString());
 	        JOptionPane.showMessageDialog(null, s, "Parameter and Input Validation Error", JOptionPane.ERROR_MESSAGE);
+	        progressBar.stop();
 	        return null;
         }        
         
         if (stopAlgorithm) {
 			stopAlgorithm = false;
 			progressBar.stop();
+			log.warn("Cancelling Mindy Analysis.");	
 			return null;
 		}
-                
-        log.info("Running MINDY algorithm...");
         progressBar.setMessage("Running MINDY Algorithm");
-        Mindy mindy = new Mindy();
-    	results = mindy.runMindy(convert(mSet, arraySet, markerSet), new Marker(params.getTranscriptionFactor()), modulators,
-            dpiAnnots, fullSetMI, fullSetThreshold, subsetMI, subsetThreshold,
-            setFraction, params.getDPITolerance());
-    	log.info("MINDY analysis complete.  Converting Mindy results.");
-    	
-    	if (stopAlgorithm) {
-			stopAlgorithm = false;
-			progressBar.stop();
-			return null;
-		}
-    	
-    	progressBar.setMessage("Processing MINDY Results");
-        
-    	int numWithSymbols = 0;
-        List<MindyData.MindyResultRow> dataRows = new ArrayList<MindyData.MindyResultRow>();
-        Collator myCollator = Collator.getInstance();      
-        HashMap<DSGeneMarker, MindyGeneMarker> mindyMap = new HashMap<DSGeneMarker, MindyGeneMarker>();
-        for (MindyResults.MindyResultForTarget result : results) {
-            DSItemList<DSGeneMarker> markers = mSet.getMarkers();
-            DSGeneMarker target = markers.get(result.getTarget().getName());
-            if(!StringUtils.isEmpty(target.getGeneName())) numWithSymbols++;
-            if(!mindyMap.containsKey(target)){
-            	mindyMap.put(target, new MindyGeneMarker(target, myCollator.getCollationKey(target.getShortName()), myCollator.getCollationKey(target.getDescription())));
-            }
-            for (MindyResults.MindyResultForTarget.ModulatorSpecificResult specificResult : result) {
-                DSGeneMarker mod = markers.get(specificResult.getModulator().getName());
-                if(!StringUtils.isEmpty(mod.getGeneName())) numWithSymbols++;
-                if(!mindyMap.containsKey(mod)){
-                	mindyMap.put(mod, new MindyGeneMarker(mod, myCollator.getCollationKey(mod.getShortName()), myCollator.getCollationKey(mod.getDescription())));
-                }
-                dataRows.add(new MindyData.MindyResultRow(mod, transFac, target, specificResult.getScore(), 0f, myCollator.getCollationKey(mod.getShortName()), myCollator.getCollationKey(target.getShortName())));
-            }
-        }
-        
-        if (stopAlgorithm) {
-			stopAlgorithm = false;
-			progressBar.stop();
-			return null;
-		}
-        
-        if(dataRows.size() <= 0) return null;
-        MindyData loadedData = new MindyData((CSMicroarraySet) mSet, dataRows, setFraction);
-        loadedData.setMindyMap(mindyMap);
-        
-        // Bonferroni correction -- if option selected
-        
-        // Pearson correlation
-        ArrayList<DSMicroarray> maList = loadedData.getArraySetAsList();
-        SimpleRegression sr;
-        for(MindyData.MindyResultRow r: dataRows){
-    		sr = new SimpleRegression();
-    		for(DSMicroarray ma: maList){
-    			sr.addData(ma.getMarkerValue(r.getTarget()).getValue(), ma.getMarkerValue(r.getTranscriptionFactor()).getValue());    			
-    		}
-    		r.setCorrelation(sr.getR());   
-    	}
-        
-        if (stopAlgorithm) {
-			stopAlgorithm = false;
-			progressBar.stop();
-			return null;
-		}
-        if(numWithSymbols > 0) loadedData.setAnnotated(true);
-        mindyDataSet = new MindyDataSet(mSet, "MINDY Results", loadedData, params.getCandidateModulatorsFile());
-        log.info("Done converting MINDY results.");
-                
-        s = paramDescB.toString();
-        if(this.mindyDataSet != null){
-        	log.info(s);
-	        ProjectPanel.addToHistory(this.mindyDataSet, s);
-	        progressBar.stop();
-	        return new AlgorithmExecutionResults(true, "MINDY Results Loaded.", this.mindyDataSet);
-        } else {
-        	JOptionPane.showMessageDialog(paramPanel.getParent(), "Cannot analyze data.", "MINDY Analyze Error", JOptionPane.WARNING_MESSAGE);
-        	progressBar.stop();
-        	return null;
-        }
+        MindyThread mt = new MindyThread(mSet, convert(mSet, arraySet, markerSet), transFac, new Marker(params.getTranscriptionFactor()), modulators,
+                dpiAnnots, fullSetMI, fullSetThreshold, subsetMI, subsetThreshold,
+                setFraction, params.getDPITolerance(), paramDescB.toString(), params.getCandidateModulatorsFile());
+        progressBar.addObserver(mt);
+        mt.start();     
+        return new AlgorithmExecutionResults(true, "MINDY in progress.", null);
     }
 
     /**
-     * Receives GeneSelectorEvents from the framework (i.e. the Selector Panel)
-     * @param e
-     * @param source
-     */
+	 * Receives GeneSelectorEvents from the framework (i.e. the Selector Panel)
+	 * 
+	 * @param e
+	 * @param source
+	 */
     @Subscribe public void receive(GeneSelectorEvent e, Object source) {
-        DSGeneMarker marker = e.getGenericMarker(); // GeneselectorEvent can be a panel event therefore won't work here,
-        if (marker != null) { //so added this check point--xuegong
+        DSGeneMarker marker = e.getGenericMarker(); // GeneselectorEvent can be
+													// a panel event therefore
+													// won't work here,
+        if (marker != null) { // so added this check point--xuegong
             paramPanel.setTranscriptionFactor(marker.getLabel());
         }
     }
 
 	/**
 	 * Publish MINDY data to the framework.
+	 * 
 	 * @param data
 	 * @return
 	 */
@@ -426,7 +363,134 @@ public class MindyAnalysis extends AbstractGridAnalysis implements ClusteringAna
         
         return returnSet;
     }
+	
+	@Publish
+    public ProjectNodeAddedEvent publishProjectNodeAddedEvent(ProjectNodeAddedEvent event) {
+        return event;
+    }
+	
+	class MindyThread extends Thread implements Observer{
+		DSMicroarraySet<DSMicroarray> mSet;
+		MicroarraySet convertedMaSet;
+		DSGeneMarker transFac;
+		Marker tf;
+		ArrayList<Marker> modulators;
+		ArrayList<Marker> dpiAnnots;
+		boolean fullSetMI;
+		float fullSetThreshold;
+		boolean subsetMI;
+		float subsetThreshold;
+		float setFraction;
+		float dpiTolerance;
+		String paramDesc;
+		String candidateModFile;
+		
+		public MindyThread(DSMicroarraySet<DSMicroarray> mSet
+				, MicroarraySet convertedMaSet
+				, DSGeneMarker transFac
+				, Marker tf
+				, ArrayList<Marker> modulators
+				, ArrayList<Marker> dpiAnnots
+				, boolean fullSetMI
+				, float fullSetThreshold
+				, boolean subsetMI
+				, float subsetThreshold
+				, float setFraction
+				, float dpiTolerance
+				, String paramDesc
+				, String candidateModFile
+				){
+			this.mSet = mSet;
+			this.convertedMaSet = convertedMaSet;
+			this.transFac = transFac;
+			this.tf = tf;
+			this.modulators = modulators;
+			this.dpiAnnots = dpiAnnots;
+			this.fullSetMI = fullSetMI;
+			this.fullSetThreshold = fullSetThreshold;
+			this.subsetMI = subsetMI;
+			this.subsetThreshold = subsetThreshold;
+			this.setFraction = setFraction;
+			this.dpiTolerance = dpiTolerance;
+			this.paramDesc = paramDesc;
+			this.candidateModFile = candidateModFile;
+		}
+		
+		public void run(){
+			log.debug("Running MINDY algorithm...");
+			Mindy mindy = new Mindy();
+			results = mindy.runMindy(convertedMaSet, tf, modulators,
+		            dpiAnnots, fullSetMI, fullSetThreshold, subsetMI, subsetThreshold,
+		            setFraction, dpiTolerance);
+	    	log.debug("Finished running MINDY algorithm.");
+	    	
+	    	progressBar.setMessage("Processing MINDY Results");
+	        
+	    	int numWithSymbols = 0;
+	        List<MindyData.MindyResultRow> dataRows = new ArrayList<MindyData.MindyResultRow>();
+	        Collator myCollator = Collator.getInstance();      
+	        HashMap<DSGeneMarker, MindyGeneMarker> mindyMap = new HashMap<DSGeneMarker, MindyGeneMarker>();
+	        for (MindyResults.MindyResultForTarget result : results) {
+	            DSItemList<DSGeneMarker> markers = mSet.getMarkers();
+	            DSGeneMarker target = markers.get(result.getTarget().getName());
+	            if(!StringUtils.isEmpty(target.getGeneName())) numWithSymbols++;
+	            if(!mindyMap.containsKey(target)){
+	            	mindyMap.put(target, new MindyGeneMarker(target, myCollator.getCollationKey(target.getShortName()), myCollator.getCollationKey(target.getDescription())));
+	            }
+	            for (MindyResults.MindyResultForTarget.ModulatorSpecificResult specificResult : result) {
+	                DSGeneMarker mod = markers.get(specificResult.getModulator().getName());
+	                if(!StringUtils.isEmpty(mod.getGeneName())) numWithSymbols++;
+	                if(!mindyMap.containsKey(mod)){
+	                	mindyMap.put(mod, new MindyGeneMarker(mod, myCollator.getCollationKey(mod.getShortName()), myCollator.getCollationKey(mod.getDescription())));
+	                }
+	                dataRows.add(new MindyData.MindyResultRow(mod, transFac, target, specificResult.getScore(), 0f, myCollator.getCollationKey(mod.getShortName()), myCollator.getCollationKey(target.getShortName())));
+	            }
+	        }
+	        
+	        if(dataRows.size() <= 0){
+	        	progressBar.stop();
+	        	log.warn("MINDY obtained no results.");
+	        	JOptionPane.showMessageDialog(paramPanel.getParent(), "MINDY obtained no results.", "MINDY Analyze Error", JOptionPane.WARNING_MESSAGE);        	
+	        	return;
+	        }
+	        MindyData loadedData = new MindyData((CSMicroarraySet) mSet, dataRows, setFraction);
+	        loadedData.setMindyMap(mindyMap);
+	        
+	        // Pearson correlation
+	        ArrayList<DSMicroarray> maList = loadedData.getArraySetAsList();
+	        SimpleRegression sr;
+	        for(MindyData.MindyResultRow r: dataRows){
+	    		sr = new SimpleRegression();
+	    		for(DSMicroarray ma: maList){
+	    			sr.addData(ma.getMarkerValue(r.getTarget()).getValue(), ma.getMarkerValue(r.getTranscriptionFactor()).getValue());    			
+	    		}
+	    		r.setCorrelation(sr.getR());   
+	    	}
 
+	        if(numWithSymbols > 0) loadedData.setAnnotated(true);
+	        mindyDataSet = new MindyDataSet(mSet, "MINDY Results", loadedData, candidateModFile);
+	        log.info("Done converting MINDY results.");
+	                
+	        if(mindyDataSet != null){
+	        	log.info(paramDesc);
+		        ProjectPanel.addToHistory(mindyDataSet, paramDesc);
+		        progressBar.stop();
+		        publishProjectNodeAddedEvent(new ProjectNodeAddedEvent("Mindy Result Added", null, mindyDataSet));
+	        } else {
+	        	JOptionPane.showMessageDialog(paramPanel.getParent(), "Cannot analyze data.", "MINDY Analyze Error", JOptionPane.WARNING_MESSAGE);
+	        	log.warn("MINDY Analyze Error: Cannot analyze data.");
+	        }
+	    	
+	    	progressBar.stop();
+		}
+		
+		public void update(java.util.Observable ob, Object o) {
+				log.debug("initiated close");
+				log.warn("Cancelling Mindy Analysis.");	
+				this.stop();
+		}
+	}
+	
 	// the following methods implemented for AbstractGridAnalysis
 	@Override
 	public String getAnalysisName() {
