@@ -1,5 +1,5 @@
 #Version Information:
 #Thursday July 03 12:19:48 EDT 2008
 version=Version 1.5
-buildTime=Thursday July 03 12\:519\:48 EDT 2008
+buildTime=Thursday July 03 12\:19\:48 EDT 2008
 build=0
