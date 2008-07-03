@@ -130,8 +130,6 @@ public class MindyVisualComponent implements VisualPlugin, java.util.Observer {
 					progressBar.start();
 
 					MindyData mindyData = dataSet.getData();
-					// List<MindyData.MindyResultRow> mindyRows =
-					// mindyData.getData();
 					mindyPlugin = new MindyPlugin(mindyData, this);
 
 					// Incorporate selections from marker set selection panel
@@ -188,6 +186,7 @@ public class MindyVisualComponent implements VisualPlugin, java.util.Observer {
 	@SuppressWarnings("unchecked")
 	@Subscribe(Asynchronous.class)
 	public void receive(GeneSelectorEvent e, Object source) {
+		log.debug("***Received gene selector event ");
 		if (dataSet != null) {
 			if (e.getPanel() != null)
 				this.selectorPanel = e.getPanel();
