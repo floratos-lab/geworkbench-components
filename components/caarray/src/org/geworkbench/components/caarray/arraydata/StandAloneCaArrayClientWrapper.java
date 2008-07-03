@@ -159,6 +159,8 @@ public class StandAloneCaArrayClientWrapper {
 
 				}
 				CLASSPATH += ".";
+				//Fix classpath with space
+				CLASSPATH = "\"" + CLASSPATH  + "\"";
 				prefixCMD = jkdLocation
 						+ '/'
 						+ "bin"
@@ -231,7 +233,7 @@ public class StandAloneCaArrayClientWrapper {
 	 * @throws Exception
 	 */
 	public boolean isFailed(String resultFilename) throws Exception {
-		 
+
 		File exceptionFile = new File(resultFilename + "."
 				+ StandAloneCaArrayClientExec.ServerConnectionException);
 		if (exceptionFile.exists()) {
@@ -342,12 +344,12 @@ public class StandAloneCaArrayClientWrapper {
 			int port, String username, String password, String type,
 			String value) throws Exception {
 
-		String savedFilename = tmpDir + url + "_" + port + "_"  
-				+ type + "_" + value + ".txt";
+		String savedFilename = tmpDir + url + "_" + port + "_" + type + "_"
+				+ value + ".txt";
 
 		if (username != null) {
 			savedFilename = tmpDir + url + "_" + port + "_" + username + "_"
-			+ type + "_" + value + ".txt";
+					+ type + "_" + value + ".txt";
 		}
 		String cmdline = prefixCMD + FILTERINFO + " " + savedFilename + " "
 				+ url + " " + port + " " + type + " " + value;
@@ -563,8 +565,8 @@ public class StandAloneCaArrayClientWrapper {
 
 		public void run() {
 			try {
-//				System.out.println(new Date()
-//						+ " at the thread. start the job: " + cmdline);
+				// System.out.println(new Date()
+				// + " at the thread. start the job: " + cmdline);
 
 				// cmdline = "perl /razor/0/common/pudge/scr/psub.pl
 				// 2resub.cfg";
@@ -589,7 +591,7 @@ public class StandAloneCaArrayClientWrapper {
 
 				// any error???
 				int exitVal = proc.waitFor();
-				//System.out.println("ExitValue: " + exitVal);
+				System.out.println("ExitValue: " + exitVal);
 				fos.flush();
 				fos.close();
 				if (proc.waitFor() != 0) {
@@ -597,7 +599,7 @@ public class StandAloneCaArrayClientWrapper {
 				}
 				File f = new File(inputFilename + ".over");
 				f.createNewFile();
-				
+
 			}
 
 			catch (Exception e) {
@@ -654,7 +656,7 @@ public class StandAloneCaArrayClientWrapper {
 					if (pw != null) {
 						pw.println(line);
 					}
-					//System.out.println(type + ">" + line);
+					// System.out.println(type + ">" + line);
 					//
 					// if (line.trim().indexOf("P") > -1) {
 					// currentJobFolderName = line.substring(
