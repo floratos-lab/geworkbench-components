@@ -70,8 +70,8 @@ public class ModulatorHeatMap extends JPanel {
      * @param targetLimits - list of targets
      */
     @SuppressWarnings("unchecked")
-    public ModulatorHeatMap(DSGeneMarker modulator, DSGeneMarker transcriptionFactor, MindyData mindyData, List<DSGeneMarker> targetLimits) {
-    	this.showProbeName = !mindyData.isAnnotated();
+    public ModulatorHeatMap(DSGeneMarker modulator, DSGeneMarker transcriptionFactor, MindyData mindyData, List<DSGeneMarker> targetLimits, boolean showProbeName) {
+    	this.showProbeName = showProbeName;
     	log.debug("\tHeatMap::constructor::start::" + System.currentTimeMillis());
     	this.maSet = mindyData.getArraySet();
         List<DSGeneMarker> markers = mindyData.getTargets(modulator, transcriptionFactor);
