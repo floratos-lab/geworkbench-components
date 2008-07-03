@@ -155,7 +155,7 @@ public class VersionInfoDialog
 
     private void jbInit() throws Exception {
 
-        this.setTitle("caWorkbench Version Info");
+        this.setTitle("geWorkbench Version Info");
         setResizable(false);
 
         this.getContentPane().setLayout(new BoxLayout(this.getContentPane(), BoxLayout.PAGE_AXIS));
@@ -168,7 +168,7 @@ public class VersionInfoDialog
 //            FormLayout layout = new FormLayout("right:570dlu,10dlu", "");
             DefaultFormBuilder builder = new DefaultFormBuilder(layout);
             builder.setDefaultDialogBorder();
-            builder.appendSeparator("caWorkBench Core");
+            builder.appendSeparator("geWorkbench Core");
             builder.nextLine();
             builder.append(new JLabel("geWorkbench"));
             builder.nextLine();
