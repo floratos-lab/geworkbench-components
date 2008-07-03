@@ -1,23 +1,71 @@
 package org.geworkbench.components.mindy;
 
-import javax.swing.*;
-import javax.swing.event.*;
-import javax.swing.table.*;
-import javax.swing.border.*;
-import java.util.*;
-import java.util.List;
-import java.awt.*;
-import java.awt.event.*;
+import static org.geworkbench.components.mindy.MindyPlugin.log;
 
-import org.jdesktop.swingx.autocomplete.AutoCompleteDecorator;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Cursor;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.GridLayout;
+import java.awt.Panel;
+import java.awt.Rectangle;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+
+import javax.swing.AbstractListModel;
+import javax.swing.BorderFactory;
+import javax.swing.ButtonGroup;
+import javax.swing.DefaultCellEditor;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JRadioButton;
+import javax.swing.JScrollPane;
+import javax.swing.JSpinner;
+import javax.swing.JSplitPane;
+import javax.swing.JTabbedPane;
+import javax.swing.JTable;
+import javax.swing.JTextField;
+import javax.swing.ListSelectionModel;
+import javax.swing.ScrollPaneConstants;
+import javax.swing.SpinnerNumberModel;
+import javax.swing.SwingConstants;
+import javax.swing.border.Border;
+import javax.swing.border.EtchedBorder;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.JTableHeader;
+import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableColumnModel;
+import javax.swing.table.TableModel;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
+import org.geworkbench.events.SubpanelChangedEvent;
 import org.geworkbench.util.pathwaydecoder.mutualinformation.MindyData;
 import org.geworkbench.util.pathwaydecoder.mutualinformation.MindyGeneMarker;
-import org.geworkbench.events.*;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.geworkbench.util.pathwaydecoder.mutualinformation.MindyData.MindyResultRow;
+import org.jdesktop.swingx.autocomplete.AutoCompleteDecorator;
+
 import com.solarmetric.ide.ui.CheckboxCellRenderer;
 
 /**
@@ -26,7 +74,7 @@ import com.solarmetric.ide.ui.CheckboxCellRenderer;
  * @author mhall
  * @ch2514
  * 
- * @version $Id: MindyPlugin.java,v 1.61 2008-06-27 22:43:08 hungc Exp $
+ * @version $Id: MindyPlugin.java,v 1.62 2008-07-03 04:07:09 hungc Exp $
  */
 @SuppressWarnings("serial")
 public class MindyPlugin extends JPanel {
@@ -185,15 +233,15 @@ public class MindyPlugin extends JPanel {
 			ButtonGroup displayGroup = new ButtonGroup();
 			displayGroup.add(modShowSymbol);
 			displayGroup.add(modShowProbeName);
-			if(this.mindyData.isAnnotated())
+			if (this.mindyData.isAnnotated())
 				modShowSymbol.setSelected(true);
-			else 
+			else
 				modShowProbeName.setSelected(true);
 
 			JPanel taskContainer = new JPanel(new GridLayout(7, 1, 10, 10));
 			taskContainer.add(dl);
 			taskContainer.add(modShowSymbol);
-			taskContainer.add(modShowProbeName);			
+			taskContainer.add(modShowProbeName);
 			taskContainer.add(ll);
 			taskContainer.add(selectAll);
 			taskContainer.add(numModSelectedInModTab);
@@ -209,7 +257,9 @@ public class MindyPlugin extends JPanel {
 			panel.setResizeWeight(0.055);
 			panel.setOneTouchExpandable(false);
 			panel.setContinuousLayout(true);
-			((ModulatorModel) modTable.getModel()).sort(2, true);  // default sort by M#
+			((ModulatorModel) modTable.getModel()).sort(2, true); // default
+																	// sort by
+																	// M#
 
 			tabs.add("Modulator", panel);
 		}
@@ -242,9 +292,9 @@ public class MindyPlugin extends JPanel {
 			ButtonGroup displayGroup = new ButtonGroup();
 			displayGroup.add(showSymbol);
 			displayGroup.add(showProbeName);
-			if(this.mindyData.isAnnotated())
+			if (this.mindyData.isAnnotated())
 				showSymbol.setSelected(true);
-			else 
+			else
 				showProbeName.setSelected(true);
 
 			JLabel ls = new JLabel("Sorting", SwingConstants.LEFT);
@@ -484,7 +534,7 @@ public class MindyPlugin extends JPanel {
 			taskContainer.setLayout(new GridLayout(18, 1, 10, 10));
 			taskContainer.add(dl);
 			taskContainer.add(showSymbol);
-			taskContainer.add(showProbeName);			
+			taskContainer.add(showProbeName);
 			taskContainer.add(ls);
 			taskContainer.add(sortOptionsAggregate);
 			taskContainer.add(sortOptionsEnhancing);
@@ -537,9 +587,9 @@ public class MindyPlugin extends JPanel {
 			ButtonGroup displayGroup = new ButtonGroup();
 			displayGroup.add(showSymbol);
 			displayGroup.add(showProbeName);
-			if(this.mindyData.isAnnotated())
+			if (this.mindyData.isAnnotated())
 				showSymbol.setSelected(true);
-			else 
+			else
 				showProbeName.setSelected(true);
 
 			JLabel l = new JLabel("Marker Set", SwingConstants.LEFT);
@@ -650,7 +700,7 @@ public class MindyPlugin extends JPanel {
 			JPanel p = new JPanel(new GridLayout(9, 1, 10, 10));
 			p.add(dl);
 			p.add(showSymbol);
-			p.add(showProbeName);			
+			p.add(showProbeName);
 			p.add(l);
 			p.add(selectionEnabledCheckBox);
 			p.add(selectAllModsCheckBox);
@@ -788,15 +838,15 @@ public class MindyPlugin extends JPanel {
 			ButtonGroup displayGroup = new ButtonGroup();
 			displayGroup.add(showSymbol);
 			displayGroup.add(showProbeName);
-			if(this.mindyData.isAnnotated())
+			if (this.mindyData.isAnnotated())
 				showSymbol.setSelected(true);
-			else 
+			else
 				showProbeName.setSelected(true);
 
 			JPanel displayPane = new JPanel(new GridLayout(4, 1));
 			displayPane.add(dl);
 			displayPane.add(showSymbol);
-			displayPane.add(showProbeName);			
+			displayPane.add(showProbeName);
 
 			JPanel p = new JPanel(new BorderLayout(10, 10));
 			p.add(modFilterField, BorderLayout.NORTH);
@@ -1177,7 +1227,7 @@ public class MindyPlugin extends JPanel {
 	 * 
 	 * @author mhall
 	 * @author ch2514
-	 * @version $Id: MindyPlugin.java,v 1.61 2008-06-27 22:43:08 hungc Exp $
+	 * @version $Id: MindyPlugin.java,v 1.62 2008-07-03 04:07:09 hungc Exp $
 	 */
 	private class ModulatorModel extends DefaultTableModel {
 
@@ -1499,7 +1549,7 @@ public class MindyPlugin extends JPanel {
 								.getActiveTargets()).clone());
 				// the line above does not redraw table!
 				modTargetModel.enableModulator(mod); // also redraws the
-														// table
+				// table
 				ModulatorListModel model = (ModulatorListModel) heatMapModNameList
 						.getModel();
 				model.refresh();
@@ -1649,7 +1699,7 @@ public class MindyPlugin extends JPanel {
 	 * For rendering modulator checkboxes on the targets table column headers.
 	 * 
 	 * @author ch2514
-	 * @version $Id: MindyPlugin.java,v 1.61 2008-06-27 22:43:08 hungc Exp $
+	 * @version $Id: MindyPlugin.java,v 1.62 2008-07-03 04:07:09 hungc Exp $
 	 */
 	private class CheckBoxRenderer extends DefaultTableCellRenderer {
 		/**
@@ -1732,7 +1782,7 @@ public class MindyPlugin extends JPanel {
 	 * 
 	 * @author mhall
 	 * @author ch2514
-	 * @version $Id: MindyPlugin.java,v 1.61 2008-06-27 22:43:08 hungc Exp $
+	 * @version $Id: MindyPlugin.java,v 1.62 2008-07-03 04:07:09 hungc Exp $
 	 */
 	private class AggregateTableModel extends DefaultTableModel {
 
@@ -1974,6 +2024,20 @@ public class MindyPlugin extends JPanel {
 								mindyData.getTranscriptionFactor());
 					}
 				}
+				// yank out the rows with all zero scores in all columns
+				for (int i = 0; i < activeTargets.size(); i++) {
+					float tally = 0;
+					for (int j = 0; j < enabledModulators.size(); j++) {
+						tally += mindyData.getScore(enabledModulators
+								.get(j), mindyData.getTranscriptionFactor(),
+								activeTargets.get(i));
+					}
+					if(tally == 0){
+						activeTargets.remove(i);
+						i--;
+					}
+				}
+
 				checkedTargets = new boolean[activeTargets.size()];
 				for (int i = 0; i < checkedTargets.length; i++) {
 					if (this.selectedTargets
@@ -2593,7 +2657,7 @@ public class MindyPlugin extends JPanel {
 	 * Compare M#, M+, or M- of two gene markers (for sorting).
 	 * 
 	 * @author mhall
-	 * @version $Id: MindyPlugin.java,v 1.61 2008-06-27 22:43:08 hungc Exp $
+	 * @version $Id: MindyPlugin.java,v 1.62 2008-07-03 04:07:09 hungc Exp $
 	 */
 	private class ModulatorStatComparator implements Comparator<DSGeneMarker> {
 
@@ -2646,7 +2710,7 @@ public class MindyPlugin extends JPanel {
 	 * 
 	 * @author mhall
 	 * @author ch2514
-	 * @version $Id: MindyPlugin.java,v 1.61 2008-06-27 22:43:08 hungc Exp $
+	 * @version $Id: MindyPlugin.java,v 1.62 2008-07-03 04:07:09 hungc Exp $
 	 */
 	private class ModulatorTargetModel extends DefaultTableModel {
 
@@ -2821,6 +2885,13 @@ public class MindyPlugin extends JPanel {
 									.getTranscriptionFactor()));
 						}
 					}
+				}
+			}
+			for (int i = 0; i < rows.size(); i++) {
+				MindyResultRow r = rows.get(i);
+				if ((r != null) && (r.getScore() == 0)) {
+					rows.remove(i);
+					i--;
 				}
 			}
 			this.rememberSelections();
@@ -3380,7 +3451,7 @@ public class MindyPlugin extends JPanel {
 	 * Heat map data model.
 	 * 
 	 * @author mhall
-	 * @version $Id: MindyPlugin.java,v 1.61 2008-06-27 22:43:08 hungc Exp $
+	 * @version $Id: MindyPlugin.java,v 1.62 2008-07-03 04:07:09 hungc Exp $
 	 */
 	private class ModulatorListModel extends AbstractListModel {
 		/**
@@ -3436,7 +3507,7 @@ public class MindyPlugin extends JPanel {
 	 * for the targets table.
 	 * 
 	 * @author ch2514
-	 * @version $Id: MindyPlugin.java,v 1.61 2008-06-27 22:43:08 hungc Exp $
+	 * @version $Id: MindyPlugin.java,v 1.62 2008-07-03 04:07:09 hungc Exp $
 	 */
 	private class ColumnHeaderListener extends MouseAdapter {
 		/**
