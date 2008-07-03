@@ -74,7 +74,7 @@ import com.solarmetric.ide.ui.CheckboxCellRenderer;
  * @author mhall
  * @ch2514
  * 
- * @version $Id: MindyPlugin.java,v 1.64 2008-07-03 06:30:56 hungc Exp $
+ * @version $Id: MindyPlugin.java,v 1.65 2008-07-03 16:21:22 hungc Exp $
  */
 @SuppressWarnings("serial")
 public class MindyPlugin extends JPanel {
@@ -738,12 +738,13 @@ public class MindyPlugin extends JPanel {
 			l.setFont(new Font(l.getFont().getName(), Font.BOLD, 12));
 			l.setForeground(Color.BLUE);
 			transFacPane.add(l, BorderLayout.NORTH);
-			JLabel transFactorName = new JLabel(heatmap
+			final JLabel transFactorName = new JLabel(heatmap
 					.getMarkerDisplayName(mindyData.getTranscriptionFactor()));
 			transFacPane.add(transFactorName);
 
 			JPanel modulatorPane = new JPanel(new BorderLayout());
-			JTextField modFilterField = new JTextField(15);
+			final JTextField modFilterField = new JTextField(15);
+			modFilterField.setEditable(false);
 			l = new JLabel("Modulators", SwingConstants.LEFT);
 			l.setFont(new Font(l.getFont().getName(), Font.BOLD, 12));
 			l.setForeground(Color.BLUE);
@@ -753,7 +754,6 @@ public class MindyPlugin extends JPanel {
 			heatMapModNameList.setFixedCellWidth(12);
 			JScrollPane modListScrollPane = new JScrollPane(heatMapModNameList);
 			heatMapModNameList.setModel(new ModulatorListModel());
-			heatMapModNameList.setSelectedIndex(0);
 
 			JButton screenshotButton = new JButton("  Image Snapshot  ");
 			screenshotButton.addActionListener(new ActionListener() {
@@ -785,6 +785,7 @@ public class MindyPlugin extends JPanel {
 								ListSelectionEvent listSelectionEvent) {
 							clickCount++;
 							if (clickCount < 2) {
+								modFilterField.setText(heatMapModNameList.getSelectedValue().toString());
 								if (heatmapAllMarkersCheckBox.isSelected()) {
 									rebuildHeatMap(null);
 								} else {
@@ -797,11 +798,12 @@ public class MindyPlugin extends JPanel {
 						}
 					});
 
-			AutoCompleteDecorator.decorate(heatMapModNameList, modFilterField);
+
 			JButton refreshButton = new JButton("  Refresh HeatMap  ");
 			refreshButton.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent actionEvent) {
 					heatMapModNameList.setSelectedIndex(0);
+					modFilterField.setText(heatMapModNameList.getSelectedValue().toString());
 					if (heatmapAllMarkersCheckBox.isSelected()) {
 						rebuildHeatMap(null);
 					} else {
@@ -815,18 +817,23 @@ public class MindyPlugin extends JPanel {
 			dl.setForeground(Color.BLUE);
 			JRadioButton showSymbol = new JRadioButton("Symbol");
 			showSymbol.addActionListener(new ActionListener() {
-				public void actionPerformed(ActionEvent actionEvent) {
+				public void actionPerformed(ActionEvent actionEvent) {										
 					int orig = heatMapModNameList.getSelectedIndex();
 					ModulatorListModel m = (ModulatorListModel) heatMapModNameList.getModel();					
 					m.setShowProbeName(false);
 					m.refresh();
 					heatMapModNameList.setSelectedIndex(orig);
+					Object selectedO = heatMapModNameList.getSelectedValue();
+					if(selectedO == null)
+						heatMapModNameList.setSelectedIndex(0);
+					modFilterField.setText(heatMapModNameList.getSelectedValue().toString());
 					heatmap.setShowProbeName(false);
 					if (heatmapAllMarkersCheckBox.isSelected()) {
 						rebuildHeatMap(null);
 					} else {
 						rebuildHeatMap(visualPlugin.getSelectedMarkers());
 					}
+					transFactorName.setText(heatmap.getMarkerDisplayName(mindyData.getTranscriptionFactor()));
 				}
 			});
 			JRadioButton showProbeName = new JRadioButton("Probe Name");
@@ -837,12 +844,17 @@ public class MindyPlugin extends JPanel {
 					m.setShowProbeName(true);
 					m.refresh();
 					heatMapModNameList.setSelectedIndex(orig);
+					Object selectedO = heatMapModNameList.getSelectedValue();
+					if(selectedO == null)
+						heatMapModNameList.setSelectedIndex(0);
+					modFilterField.setText(heatMapModNameList.getSelectedValue().toString());
 					heatmap.setShowProbeName(true);
 					if (heatmapAllMarkersCheckBox.isSelected()) {
 						rebuildHeatMap(null);
 					} else {
 						rebuildHeatMap(visualPlugin.getSelectedMarkers());
 					}
+					transFactorName.setText(heatmap.getMarkerDisplayName(mindyData.getTranscriptionFactor()));
 				}
 			});
 			ButtonGroup displayGroup = new ButtonGroup();
@@ -1239,7 +1251,7 @@ public class MindyPlugin extends JPanel {
 	 * 
 	 * @author mhall
 	 * @author ch2514
-	 * @version $Id: MindyPlugin.java,v 1.64 2008-07-03 06:30:56 hungc Exp $
+	 * @version $Id: MindyPlugin.java,v 1.65 2008-07-03 16:21:22 hungc Exp $
 	 */
 	private class ModulatorModel extends DefaultTableModel {
 
@@ -1711,7 +1723,7 @@ public class MindyPlugin extends JPanel {
 	 * For rendering modulator checkboxes on the targets table column headers.
 	 * 
 	 * @author ch2514
-	 * @version $Id: MindyPlugin.java,v 1.64 2008-07-03 06:30:56 hungc Exp $
+	 * @version $Id: MindyPlugin.java,v 1.65 2008-07-03 16:21:22 hungc Exp $
 	 */
 	private class CheckBoxRenderer extends DefaultTableCellRenderer {
 		/**
@@ -1794,7 +1806,7 @@ public class MindyPlugin extends JPanel {
 	 * 
 	 * @author mhall
 	 * @author ch2514
-	 * @version $Id: MindyPlugin.java,v 1.64 2008-07-03 06:30:56 hungc Exp $
+	 * @version $Id: MindyPlugin.java,v 1.65 2008-07-03 16:21:22 hungc Exp $
 	 */
 	private class AggregateTableModel extends DefaultTableModel {
 
@@ -2669,7 +2681,7 @@ public class MindyPlugin extends JPanel {
 	 * Compare M#, M+, or M- of two gene markers (for sorting).
 	 * 
 	 * @author mhall
-	 * @version $Id: MindyPlugin.java,v 1.64 2008-07-03 06:30:56 hungc Exp $
+	 * @version $Id: MindyPlugin.java,v 1.65 2008-07-03 16:21:22 hungc Exp $
 	 */
 	private class ModulatorStatComparator implements Comparator<DSGeneMarker> {
 
@@ -2722,7 +2734,7 @@ public class MindyPlugin extends JPanel {
 	 * 
 	 * @author mhall
 	 * @author ch2514
-	 * @version $Id: MindyPlugin.java,v 1.64 2008-07-03 06:30:56 hungc Exp $
+	 * @version $Id: MindyPlugin.java,v 1.65 2008-07-03 16:21:22 hungc Exp $
 	 */
 	private class ModulatorTargetModel extends DefaultTableModel {
 
@@ -3463,7 +3475,7 @@ public class MindyPlugin extends JPanel {
 	 * Heat map data model.
 	 * 
 	 * @author mhall
-	 * @version $Id: MindyPlugin.java,v 1.64 2008-07-03 06:30:56 hungc Exp $
+	 * @version $Id: MindyPlugin.java,v 1.65 2008-07-03 16:21:22 hungc Exp $
 	 */
 	private class ModulatorListModel extends AbstractListModel {
 		private boolean showProbeName = false;
@@ -3538,7 +3550,7 @@ public class MindyPlugin extends JPanel {
 	 * for the targets table.
 	 * 
 	 * @author ch2514
-	 * @version $Id: MindyPlugin.java,v 1.64 2008-07-03 06:30:56 hungc Exp $
+	 * @version $Id: MindyPlugin.java,v 1.65 2008-07-03 16:21:22 hungc Exp $
 	 */
 	private class ColumnHeaderListener extends MouseAdapter {
 		/**
