@@ -13,6 +13,8 @@ import java.awt.Panel;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.AdjustmentEvent;
+import java.awt.event.AdjustmentListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
@@ -74,7 +76,7 @@ import com.solarmetric.ide.ui.CheckboxCellRenderer;
  * @author mhall
  * @ch2514
  * 
- * @version $Id: MindyPlugin.java,v 1.66 2008-07-03 21:58:06 hungc Exp $
+ * @version $Id: MindyPlugin.java,v 1.67 2008-07-03 22:39:54 hungc Exp $
  */
 @SuppressWarnings("serial")
 public class MindyPlugin extends JPanel {
@@ -732,6 +734,16 @@ public class MindyPlugin extends JPanel {
 			heatmap = new ModulatorHeatMap(modulator, transFactors.iterator()
 					.next(), mindyData, null, !mindyData.isAnnotated());
 			heatMapScrollPane = new JScrollPane(heatmap);
+		    AdjustmentListener scrollBarListener = new AdjustmentListener() {
+		        public void adjustmentValueChanged(AdjustmentEvent e) {
+		        	if (!e.getValueIsAdjusting()) {
+		        		heatmap.revalidate();
+		        		heatmap.repaint();
+		            }
+		        }
+		    };
+			heatMapScrollPane.getHorizontalScrollBar().addAdjustmentListener(scrollBarListener);
+			heatMapScrollPane.getVerticalScrollBar().addAdjustmentListener(scrollBarListener);
 
 			JPanel transFacPane = new JPanel(new BorderLayout());
 			JLabel l = new JLabel("Transcription Factor", SwingConstants.LEFT);
@@ -1251,7 +1263,7 @@ public class MindyPlugin extends JPanel {
 	 * 
 	 * @author mhall
 	 * @author ch2514
-	 * @version $Id: MindyPlugin.java,v 1.66 2008-07-03 21:58:06 hungc Exp $
+	 * @version $Id: MindyPlugin.java,v 1.67 2008-07-03 22:39:54 hungc Exp $
 	 */
 	private class ModulatorModel extends DefaultTableModel {
 
@@ -1723,7 +1735,7 @@ public class MindyPlugin extends JPanel {
 	 * For rendering modulator checkboxes on the targets table column headers.
 	 * 
 	 * @author ch2514
-	 * @version $Id: MindyPlugin.java,v 1.66 2008-07-03 21:58:06 hungc Exp $
+	 * @version $Id: MindyPlugin.java,v 1.67 2008-07-03 22:39:54 hungc Exp $
 	 */
 	private class CheckBoxRenderer extends DefaultTableCellRenderer {
 		/**
@@ -1806,7 +1818,7 @@ public class MindyPlugin extends JPanel {
 	 * 
 	 * @author mhall
 	 * @author ch2514
-	 * @version $Id: MindyPlugin.java,v 1.66 2008-07-03 21:58:06 hungc Exp $
+	 * @version $Id: MindyPlugin.java,v 1.67 2008-07-03 22:39:54 hungc Exp $
 	 */
 	private class AggregateTableModel extends DefaultTableModel {
 
@@ -2681,7 +2693,7 @@ public class MindyPlugin extends JPanel {
 	 * Compare M#, M+, or M- of two gene markers (for sorting).
 	 * 
 	 * @author mhall
-	 * @version $Id: MindyPlugin.java,v 1.66 2008-07-03 21:58:06 hungc Exp $
+	 * @version $Id: MindyPlugin.java,v 1.67 2008-07-03 22:39:54 hungc Exp $
 	 */
 	private class ModulatorStatComparator implements Comparator<DSGeneMarker> {
 
@@ -2734,7 +2746,7 @@ public class MindyPlugin extends JPanel {
 	 * 
 	 * @author mhall
 	 * @author ch2514
-	 * @version $Id: MindyPlugin.java,v 1.66 2008-07-03 21:58:06 hungc Exp $
+	 * @version $Id: MindyPlugin.java,v 1.67 2008-07-03 22:39:54 hungc Exp $
 	 */
 	private class ModulatorTargetModel extends DefaultTableModel {
 
@@ -3472,7 +3484,7 @@ public class MindyPlugin extends JPanel {
 	 * Heat map data model.
 	 * 
 	 * @author mhall
-	 * @version $Id: MindyPlugin.java,v 1.66 2008-07-03 21:58:06 hungc Exp $
+	 * @version $Id: MindyPlugin.java,v 1.67 2008-07-03 22:39:54 hungc Exp $
 	 */
 	private class ModulatorListModel extends AbstractListModel {
 		private boolean showProbeName = false;
@@ -3547,7 +3559,7 @@ public class MindyPlugin extends JPanel {
 	 * for the targets table.
 	 * 
 	 * @author ch2514
-	 * @version $Id: MindyPlugin.java,v 1.66 2008-07-03 21:58:06 hungc Exp $
+	 * @version $Id: MindyPlugin.java,v 1.67 2008-07-03 22:39:54 hungc Exp $
 	 */
 	private class ColumnHeaderListener extends MouseAdapter {
 		/**
