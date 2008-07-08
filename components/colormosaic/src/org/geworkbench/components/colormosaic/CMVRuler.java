@@ -316,45 +316,57 @@ public class CMVRuler extends JComponent {
             width = SIZE * scale;
         } else {
             int clusterNo = colorMosaicImage.getClusterNo();
-            boolean isGrouped = false;
+			boolean isGrouped = false;
 
-            //System.out.println("Cluster: " + clusterNo);
-            width = 0;
+			//System.out.println("Cluster: " + clusterNo);
+			width = 0;
 
-            if (clusterNo > 0) {
-                int geneId = 0;
-                setFont(scale);
+			if (clusterNo > 0) {
+				int geneId = 0;
+				setFont(scale);
 
-                EisenBlock[] cluster = colorMosaicImage.getClusters();
+				EisenBlock[] cluster = colorMosaicImage.getClusters();
+				if (null != cluster) {
+					for (int i = 0; i < clusterNo; i++) {
+						if (null != cluster[i]) {
+							DSPanel<DSGeneMarker> gm = cluster[i].getPanel();
 
-                for (int i = 0; i < clusterNo; i++) {
-                    DSPanel<DSGeneMarker> gm = cluster[i].getPanel();
+							if (!cluster[i].showAllMarkers && (gm != null)) {
+								for (int j = 0; j < gm.panels().size(); j++) {
+									DSPanel gg = gm.panels().get(j);
 
-                    if (!cluster[i].showAllMarkers && (gm != null)) {
-                        for (int j = 0; j < gm.panels().size(); j++) {
-                            DSPanel gg = gm.panels().get(j);
+									if (gg.isActive()) {
+										int firstGene = geneId;
+										int lastGene = geneId + gg.size();
 
-                            if (gg.isActive()) {
-                                int firstGene = geneId;
-                                int lastGene = geneId + gg.size();
+										if (lastGene > firstGene) {
+											isGrouped = true;
 
-                                if (lastGene > firstGene) {
-                                    isGrouped = true;
-
-                                    Rectangle2D rect = labelFont.getStringBounds(new StringCharacterIterator(gg.getLabel()), 0, gg.getLabel().length(), ((Graphics2D) getGraphics()).getFontRenderContext());
-                                    width = Math.max(width, rect.getWidth());
-                                    geneId = lastGene;
-                                }
-                            }
-                        }
-                    }
-                }
-
-                if (isGrouped) {
-                    width += (5.0 * 2.5 * scale);
-                }
-            }
-        }
+											Rectangle2D rect = labelFont
+													.getStringBounds(
+															new StringCharacterIterator(
+																	gg
+																			.getLabel()),
+															0,
+															gg.getLabel()
+																	.length(),
+															((Graphics2D) getGraphics())
+																	.getFontRenderContext());
+											width = Math.max(width, rect
+													.getWidth());
+											geneId = lastGene;
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+				if (isGrouped) {
+					width += (5.0 * 2.5 * scale);
+				}
+			}
+		}
 
         setPreferredSize(new Dimension((int) width, colorMosaicImage.getRequiredHeight()));
     }
