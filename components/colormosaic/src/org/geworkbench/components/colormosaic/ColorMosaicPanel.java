@@ -93,6 +93,7 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
         }
     }
 
+    @SuppressWarnings("unchecked")
     void setChips(DSMicroarraySet chips) {
         if (chips != null) {
             colorMosaicImage.setChips(chips);
@@ -100,10 +101,12 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
         }
     }
 
+    @SuppressWarnings("unchecked")
     void setSignificance(DSSignificanceResultSet sigSet) {
         colorMosaicImage.setSignificanceResultSet(sigSet);
     }
 
+    @SuppressWarnings("unchecked")
     private void jbInit() throws Exception {
         mainPanel.setBackground(Color.WHITE);
         colRuler.setPreferredWidth(1000);
@@ -334,6 +337,7 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
         revalidate();
     }
 
+    @SuppressWarnings("unchecked")
     void addPatterns(Collection patterns) throws ArrayIndexOutOfBoundsException {
         Iterator it = patterns.iterator();
         while (it.hasNext()) {
@@ -418,6 +422,7 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
         colorMosaicImage.clearPatterns();
     }
 
+    @SuppressWarnings("unchecked")
     private void displayMosaic() {
         colorMosaicImage.clearPatterns();
         DSMicroarraySet<DSMicroarray> mArraySet = colorMosaicImage.getGeneChips();
@@ -485,10 +490,12 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
         return "Color Mosaic";
     }
 
+    @SuppressWarnings("unchecked")
     public void notifyMAChange(DSMicroarraySet microarraySet) {
         setChips(microarraySet);
     }
 
+    @SuppressWarnings("unchecked")
     public void notifyComponent(Object subscriber, Class anInterface) {
         colorMosaicImage.notifyComponent(subscriber, anInterface);
     }
@@ -547,6 +554,7 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
         return mainPanel;
     }
 
+    @SuppressWarnings("unchecked")
     @Subscribe public void receive(ProjectEvent projectEvent, Object source) {
         DSDataSet dataFile = projectEvent.getDataSet();
         significanceMode = false;
@@ -558,6 +566,12 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
                 if (colorMosaicImage.getChips() != set) {
                     setChips(set);
                     colorMosaicImage.clearSignificanceResultSet();
+                } else{
+//                	significanceMode = false;
+                	colorMosaicImage.clearSignificanceResultSet();
+                    jAllMarkers.setSelected(true);
+                    colorMosaicImage.showAllMarkers(jAllMarkers.isSelected());
+                    jAllMarkers.setEnabled(false);
                 }
             } else if (dataFile instanceof DSSignificanceResultSet) {
                 significanceMode = true;
@@ -581,6 +595,7 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
                         }
                     }
                 }
+       /* */        
                 setMicroarrayPanel(phenoPanel);
                 // Markers
                 CSPanel<DSGeneMarker> genePanel = new CSPanel<DSGeneMarker>("Markers");
@@ -594,7 +609,8 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
                 colorMosaicImage.showAllMarkers(jAllMarkers.isSelected());
                 jHideMaskedBtn.setSelected(true);
                 jAllMArrays.setEnabled(false);
-                jAllMarkers.setEnabled(false);
+               jAllMarkers.setEnabled(false);
+       /*    */
                 setSignificance(sigSet);
                 revalidate();
                 displayMosaic();
@@ -627,6 +643,7 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
         }
     }
 
+    @SuppressWarnings("unchecked")
     @Subscribe public void receive(PhenotypeSelectorEvent e, Object source) {
         if (significanceMode) {
             return;
@@ -658,8 +675,8 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
             }
             setMarkerPanel(panel);
         } 
-    }
-
+    }   
+    
     @Publish public MarkerSelectedEvent publishMarkerSelectedEvent
             (MarkerSelectedEvent
                     event) {
