@@ -9,6 +9,8 @@ import java.io.*;
 import java.awt.*;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 
 import com.jgoodies.forms.layout.FormLayout;
@@ -49,6 +51,10 @@ public class AracneParamPanel extends AbstractSaveableParameterPanel implements 
     private JButton loadTargetsButton = new JButton("Load Targets");
 
     private String targetListFile = new String("data/targets.txt");
+    
+    // Add two new parameters for "hardening" ARACNE. They are adapted from perl script instead of Java implementation.
+    private JFormattedTextField bootstrapField = new JFormattedTextField("1");
+    private JTextField pThresholdField = new JTextField("1.e-6");
 
     public AracneParamPanel() {
         this.setLayout(new BorderLayout());
@@ -59,6 +65,8 @@ public class AracneParamPanel extends AbstractSaveableParameterPanel implements 
         dpiTolerance.setEnabled(false);
         targetList.setEnabled(false);
         loadTargetsButton.setEnabled(false);
+        
+        pThresholdField.setEnabled(false);
 
         FormLayout layout = new FormLayout(
                 "right:max(40dlu;pref), 3dlu, 60dlu, 3dlu, 90dlu, 3dlu, 40dlu, 7dlu",
@@ -81,6 +89,9 @@ public class AracneParamPanel extends AbstractSaveableParameterPanel implements 
 
         builder.append("DPI Target List", targetCheckbox);
         builder.append(targetList, loadTargetsButton);
+        
+        builder.append("Bootstrap number", bootstrapField);
+        builder.append("Consensus threshold", pThresholdField);
 
         hubCombo.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -188,6 +199,33 @@ public class AracneParamPanel extends AbstractSaveableParameterPanel implements 
             }
         });
 
+        bootstrapField.addKeyListener(new KeyAdapter() {
+
+        	public void keyReleased(KeyEvent e) {
+        		if(bootstrapField.getText().trim().equals("1"))
+        			pThresholdField.setEnabled(false);
+        		else
+        			pThresholdField.setEnabled(true);
+			}
+        	
+        });
+
+        /*
+         * this listener is triggered by bootstrapField losing the focus
+         * another possible way is to listen whenever a key is typed - with its pro (easier to wake pThresholField) 
+         * and con (more checkings; higher level so not depending platform as keyReleased)
+         */
+//        bootstrapField.addPropertyChangeListener("value", new PropertyChangeListener() {
+//
+//			public void propertyChange(PropertyChangeEvent evt) {
+//        		if(bootstrapField.getText().trim().equals("1"))
+//        			pThresholdField.setEnabled(false);
+//        		else
+//        			pThresholdField.setEnabled(true);
+//			}
+//        
+//        });
+
 //        builder.append("Full Set Kernel Width", fullsetKernelWidth);
 //        builder.append("Full Set Mi Threshold", fullsetMIThreshold);
 //        builder.append("Candidate Modulators", loadResultsButton);
@@ -271,4 +309,25 @@ public class AracneParamPanel extends AbstractSaveableParameterPanel implements 
         return targetListFile;
     }
 
+    public double getConsensusThreshold() {
+    	double p = 0;
+    	try {
+    		p = Double.parseDouble(pThresholdField.getText());
+    	} catch (NumberFormatException e) {
+    		log.warn("[Exception] Consensus threhold field is not a proper number: "+e.getMessage());
+    		// the caller of this method has to handle the case that 0 is returned, which is not a valid value
+    	}
+    	return p;
+    }
+    
+    public int getBootstrapNumber() {
+    	int b = 0;
+    	try {
+    		b = Integer.parseInt(bootstrapField.getText());
+    	} catch (NumberFormatException e) {
+    		log.warn("[Exception] Bootstrap number field is not a proper number: "+e.getMessage());
+    		// the caller of this method has to handle the case that 0 is returned, which is not a valid value
+    	}
+    	return b;
+    }
 }
