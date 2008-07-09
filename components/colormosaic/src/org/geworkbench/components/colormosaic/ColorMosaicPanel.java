@@ -568,10 +568,15 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
                     colorMosaicImage.clearSignificanceResultSet();
                 } else{
                 	colorMosaicImage.clearSignificanceResultSet();
-                	colorMosaicImage.showAllMarkers(jAllMarkers.isSelected());
-                    jAllMarkers.setEnabled(true);
-                    colorMosaicImage.showAllMArrays(jAllMArrays.isSelected());
+       //             jAllMArrays.setSelected(true);
+       //             colorMosaicImage.showAllMArrays(jAllMArrays.isSelected());
+                    colorMosaicImage.showAllMArrays(true); 
+      //              jAllMarkers.setSelected(false);
+       //             colorMosaicImage.showAllMarkers(jAllMarkers.isSelected());
+                    colorMosaicImage.showAllMarkers(true);
+      //              jHideMaskedBtn.setSelected(true);
                     jAllMArrays.setEnabled(true);
+                   jAllMarkers.setEnabled(true);
                     
                 }
             } else if (dataFile instanceof DSSignificanceResultSet) {
