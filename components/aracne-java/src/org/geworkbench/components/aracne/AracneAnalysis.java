@@ -151,8 +151,13 @@ public class AracneAnalysis extends AbstractGridAnalysis implements ClusteringAn
             adjMatrix = null;
         }
 
+        // this validation duplicated what is done in public ParamValidationResults validateParameters()
+        int bs = params.getBootstrapNumber();
+        double pt = params.getConsensusThreshold();
+        if (bs<=0 || pt<=0 || pt>1) return null;
+        
 //        AracneWorker aracneWorker = new AracneWorker(mSetView, p);
-        AracneThread aracneThread = new AracneThread(mSetView, p);
+        AracneThread aracneThread = new AracneThread(mSetView, p, bs, pt);
 
         AracneProgress progress = new AracneProgress(aracneThread);
         aracneThread.setProgressWindow(progress);
@@ -280,16 +285,22 @@ public class AracneAnalysis extends AbstractGridAnalysis implements ClusteringAn
         private AracneProgress progressWindow;
         private DSMicroarraySetView<DSGeneMarker, DSMicroarray> mSetView;
         private Parameter p;
+        
+        private int bootstrapNumber;
+        private double pThreshold;
 
-        public AracneThread(DSMicroarraySetView<DSGeneMarker, DSMicroarray> mSet, Parameter p) {
+        public AracneThread(DSMicroarraySetView<DSGeneMarker, DSMicroarray> mSet, Parameter p, int bootstrapNumber, double pThreshold) {
             this.mSetView = mSet;
-            this.p = p;        
+            this.p = p;
+            
+            this.bootstrapNumber = bootstrapNumber;
+            this.pThreshold = pThreshold;
         }
 
         public void run() {
             log.debug("Running ARACNE in worker thread.");
             p.setSuppressFileWriting(true);
-            weightedGraph = Aracne.run(convert(mSetView), p);
+            weightedGraph = HardenedAracne.run(convert(mSetView), p, bootstrapNumber, pThreshold);
             log.debug("Done running ARACNE in worker thread.");
             progressWindow.stopProgress();
 
@@ -390,6 +401,12 @@ public class AracneAnalysis extends AbstractGridAnalysis implements ClusteringAn
             if (params.getTargetGenes() == null || params.getTargetGenes().size() == 0) {
         		return new ParamValidationResults(false, "You did not load any target genes.");
             }
+        }
+        if (params.getBootstrapNumber()<=0 ) {
+       		return new ParamValidationResults(false, "Bootstrap number is not valid.");
+        }
+        if (params.getConsensusThreshold()<=0 || params.getConsensusThreshold()>1) {
+       		return new ParamValidationResults(false, "Consensus threshold is not valid.");
         }
 		return new ParamValidationResults(true, null);
 	}
