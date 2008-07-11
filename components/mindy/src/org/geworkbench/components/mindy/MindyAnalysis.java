@@ -169,7 +169,7 @@ public class MindyAnalysis extends AbstractGridAnalysis implements
 				if (marker == null) {
 					errMsgB.append("Couldn't find marker ");
 					errMsgB.append(modGene);
-					errMsgB.append(" from tartet file in microarray set.\n");
+					errMsgB.append(" from target file in microarray set.\n");
 				} else {
 					paramDescB.append(modGene);
 					paramDescB.append(" ");
@@ -299,10 +299,10 @@ public class MindyAnalysis extends AbstractGridAnalysis implements
 		String s = errMsgB.toString();
 		if (!s.equals("")) {
 			log.info(errMsgB.toString());
+			progressBar.stop();
 			JOptionPane.showMessageDialog(null, s,
 					"Parameter and Input Validation Error",
-					JOptionPane.ERROR_MESSAGE);
-			progressBar.stop();
+					JOptionPane.ERROR_MESSAGE);			
 			return null;
 		}
 
