@@ -1,7 +1,5 @@
 package org.geworkbench.components.mindy;
 
-import static org.geworkbench.components.mindy.MindyPlugin.log;
-
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -76,13 +74,19 @@ import com.solarmetric.ide.ui.CheckboxCellRenderer;
  * @author mhall
  * @ch2514
  * 
- * @version $Id: MindyPlugin.java,v 1.68 2008-07-11 16:25:26 hungc Exp $
+ * @version $Id: MindyPlugin.java,v 1.69 2008-07-11 21:09:16 hungc Exp $
  */
 @SuppressWarnings("serial")
 public class MindyPlugin extends JPanel {
 	static Log log = LogFactory.getLog(MindyPlugin.class);
 
 	private static final int DEFAULT_MODULATOR_LIMIT = 10;
+	
+	private static final int MIN_CHECKBOX_WIDTH = 10;
+	
+	private static final int MIN_MARKER_NAME_WIDTH = 200;
+	
+	private static final int MIN_SCORE_WIDTH = 66;
 
 	private static final String NUM_MOD_SELECTED_LABEL = "Modulators Selected: ";
 
@@ -132,6 +136,8 @@ public class MindyPlugin extends JPanel {
 	private JLabel numModSelectedInModTab;
 
 	private JCheckBox[] boxes;
+	
+	private JScrollPane scrollPane;
 
 	private Cursor hourglassCursor = new Cursor(Cursor.WAIT_CURSOR);
 
@@ -334,7 +340,7 @@ public class MindyPlugin extends JPanel {
 			sortOptionsNegative.addActionListener(sortAction);
 			sortOptionsAggregate.setSelected(true);
 
-			Panel limitControls = new Panel(new BorderLayout());
+			JPanel limitControls = new JPanel(new BorderLayout());
 			JLabel lm = new JLabel("Modulator Limits", SwingConstants.LEFT);
 			lm.setFont(new Font(lm.getFont().getName(), Font.BOLD, 12));
 			lm.setForeground(Color.BLUE);
@@ -399,7 +405,7 @@ public class MindyPlugin extends JPanel {
 			targetTable.getTableHeader().addMouseListener(
 					new ColumnHeaderListener());
 			targetTable.setAutoCreateColumnsFromModel(true);
-			JScrollPane scrollPane = new JScrollPane(targetTable);
+			scrollPane = new JScrollPane(targetTable);
 			scrollPane
 					.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 			restoreBooleanRenderers(targetTable);
@@ -525,7 +531,7 @@ public class MindyPlugin extends JPanel {
 				}
 			});
 
-			targetTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+			targetTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);			
 
 			selectionEnabledCheckBoxTarget.setSelected(true);
 			selectAllModsCheckBoxTarget.setEnabled(true);
@@ -1263,7 +1269,7 @@ public class MindyPlugin extends JPanel {
 	 * 
 	 * @author mhall
 	 * @author ch2514
-	 * @version $Id: MindyPlugin.java,v 1.68 2008-07-11 16:25:26 hungc Exp $
+	 * @version $Id: MindyPlugin.java,v 1.69 2008-07-11 21:09:16 hungc Exp $
 	 */
 	private class ModulatorModel extends DefaultTableModel {
 
@@ -1539,7 +1545,8 @@ public class MindyPlugin extends JPanel {
 				// set selected mods to aggregate table model
 				aggregateModel
 						.setEnabledModulators((ArrayList<DSGeneMarker>) this.modulators
-								.clone());
+								.clone());			
+				
 
 				// set selected mods and targets to modular target model
 				modTargetModel
@@ -1735,7 +1742,7 @@ public class MindyPlugin extends JPanel {
 	 * For rendering modulator checkboxes on the targets table column headers.
 	 * 
 	 * @author ch2514
-	 * @version $Id: MindyPlugin.java,v 1.68 2008-07-11 16:25:26 hungc Exp $
+	 * @version $Id: MindyPlugin.java,v 1.69 2008-07-11 21:09:16 hungc Exp $
 	 */
 	private class CheckBoxRenderer extends DefaultTableCellRenderer {
 		/**
@@ -1770,12 +1777,13 @@ public class MindyPlugin extends JPanel {
 				boxes = new JCheckBox[table.getColumnCount()];
 				if (column == 0) {
 					JPanel blank = new JPanel();
-					JLabel blankLabel = new JLabel(" ");
+					JLabel blankLabel = new JLabel("  ");
 					blankLabel.setBackground(c.getBackground());
 					blank.setBorder(loweredetched);
 					blank.add(blankLabel);
 					blank.setMaximumSize(new Dimension((int) blank.getSize()
 							.getWidth(), 10));
+					table.getColumnModel().getColumn(column).setMinWidth(MIN_CHECKBOX_WIDTH);
 					return blank;
 				} else if (column == 1) {
 					JLabel jl = new JLabel(atm.getColumnName(column),
@@ -1786,8 +1794,15 @@ public class MindyPlugin extends JPanel {
 					blank.add(jl);
 					blank.setMaximumSize(new Dimension((int) blank.getSize()
 							.getWidth(), 10));
+					table.getColumnModel().getColumn(column).setMinWidth(MIN_MARKER_NAME_WIDTH);
 					return blank;
 				} else if (column < boxes.length) {
+					int w = MIN_CHECKBOX_WIDTH + MIN_MARKER_NAME_WIDTH + boxes.length * MIN_SCORE_WIDTH;
+					if(w > scrollPane.getWidth()){
+						table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+					} else {
+						table.setAutoResizeMode(JTable.AUTO_RESIZE_SUBSEQUENT_COLUMNS);
+					}
 					boxes[column] = new JCheckBox();
 					boxes[column].setEnabled(true);
 					if (column < atm.getNumberOfModulatorCheckBoxes())
@@ -1818,7 +1833,7 @@ public class MindyPlugin extends JPanel {
 	 * 
 	 * @author mhall
 	 * @author ch2514
-	 * @version $Id: MindyPlugin.java,v 1.68 2008-07-11 16:25:26 hungc Exp $
+	 * @version $Id: MindyPlugin.java,v 1.69 2008-07-11 21:09:16 hungc Exp $
 	 */
 	private class AggregateTableModel extends DefaultTableModel {
 
@@ -2114,12 +2129,13 @@ public class MindyPlugin extends JPanel {
 		public int getColumnCount() {
 			// Number of allModulators plus target name and checkbox column
 			if (!modulatorsLimited) {
-				return enabledModulators.size()
-						+ AggregateTableModel.EXTRA_COLS;
+				int r = enabledModulators.size() + AggregateTableModel.EXTRA_COLS;
+				return r;
 			} else {
-				return Math.min(modLimit + AggregateTableModel.EXTRA_COLS,
+				int r = Math.min(modLimit + AggregateTableModel.EXTRA_COLS,
 						enabledModulators.size()
-								+ AggregateTableModel.EXTRA_COLS);
+						+ AggregateTableModel.EXTRA_COLS);
+				return r;
 			}
 		}
 
@@ -2693,7 +2709,7 @@ public class MindyPlugin extends JPanel {
 	 * Compare M#, M+, or M- of two gene markers (for sorting).
 	 * 
 	 * @author mhall
-	 * @version $Id: MindyPlugin.java,v 1.68 2008-07-11 16:25:26 hungc Exp $
+	 * @version $Id: MindyPlugin.java,v 1.69 2008-07-11 21:09:16 hungc Exp $
 	 */
 	private class ModulatorStatComparator implements Comparator<DSGeneMarker> {
 
@@ -2746,7 +2762,7 @@ public class MindyPlugin extends JPanel {
 	 * 
 	 * @author mhall
 	 * @author ch2514
-	 * @version $Id: MindyPlugin.java,v 1.68 2008-07-11 16:25:26 hungc Exp $
+	 * @version $Id: MindyPlugin.java,v 1.69 2008-07-11 21:09:16 hungc Exp $
 	 */
 	private class ModulatorTargetModel extends DefaultTableModel {
 
@@ -3484,7 +3500,7 @@ public class MindyPlugin extends JPanel {
 	 * Heat map data model.
 	 * 
 	 * @author mhall
-	 * @version $Id: MindyPlugin.java,v 1.68 2008-07-11 16:25:26 hungc Exp $
+	 * @version $Id: MindyPlugin.java,v 1.69 2008-07-11 21:09:16 hungc Exp $
 	 */
 	private class ModulatorListModel extends AbstractListModel {
 		private boolean showProbeName = false;
@@ -3559,7 +3575,7 @@ public class MindyPlugin extends JPanel {
 	 * for the targets table.
 	 * 
 	 * @author ch2514
-	 * @version $Id: MindyPlugin.java,v 1.68 2008-07-11 16:25:26 hungc Exp $
+	 * @version $Id: MindyPlugin.java,v 1.69 2008-07-11 21:09:16 hungc Exp $
 	 */
 	private class ColumnHeaderListener extends MouseAdapter {
 		/**
