@@ -48,7 +48,7 @@ import java.util.List;
  * Volcano plot.
  *
  * @author Matt Hall, John Watkinson
- * @version $Id: VolcanoPlot.java,v 1.13 2008-06-19 14:57:17 my2248 Exp $
+ * @version $Id: VolcanoPlot.java,v 1.14 2008-07-14 20:09:54 my2248 Exp $
  */
 //@AcceptTypes({DSSignificanceResultSet.class})
 @AcceptTypes({DSTTestResultSet.class})
@@ -81,16 +81,13 @@ public class VolcanoPlot implements VisualPlugin {
             }
         }
 
-        //private SortedSet<MarkerAndStats> markers;
-        private List<MarkerAndStats> markers;
+        private SortedSet<MarkerAndStats> markers;         
         private List<MarkerAndStats> markerList;
         private DSSignificanceResultSet<DSGeneMarker> sigSet;
                
         public MarkerXYToolTipGenerator(DSSignificanceResultSet<DSGeneMarker> sigSet) {
             this.sigSet = sigSet;
-            //markers = new TreeSet<MarkerAndStats>();
-            markers = new ArrayList<MarkerAndStats>();
-            java.util.Collections.sort(markers);
+            markers = new TreeSet<MarkerAndStats>();            
         }
 
         public void chartMouseClicked(ChartMouseEvent event) {
@@ -125,7 +122,7 @@ public class VolcanoPlot implements VisualPlugin {
             	return result;
             MarkerAndStats markerStats = markerList.get(item);
             if (markerStats != null) {
-                result = markerStats.marker.getLabel() + " (" + markerStats.marker.getGeneName() + "): " + df.format(markerStats.pValue);
+                result = markerStats.marker.getLabel() + " (" + markerStats.marker.getGeneName() + "): " + df.format(markerStats.fold) + "/" + df.format(markerStats.pValue);
             }
             return result;
         }
