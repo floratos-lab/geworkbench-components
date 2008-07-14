@@ -468,6 +468,11 @@ public class AracneAnalysis extends AbstractGridAnalysis implements ClusteringAn
    		float threshold = paramPanel.getThreshold();
 		bisonParameters.put("threshold", threshold);
 
+		int bootstrapNumber = paramPanel.getBootstrapNumber();
+		bisonParameters.put("bootstrapNumber", bootstrapNumber);
+   		double consensusThreshold = paramPanel.getConsensusThreshold();
+		bisonParameters.put("consensusThreshold", consensusThreshold);
+
 		return bisonParameters;
 	}
 
