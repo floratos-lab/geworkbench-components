@@ -30,7 +30,7 @@ public class MarkUsAnalysis extends AbstractAnalysis implements ProteinAnnotatio
     double h, e;
     MarkUsConfigPanel mcp;
     //    public static String remote_root = "/nfs/apollo/2/c2b2/server_data/www/skyline/markus/apache-tomcat-6.0.14/webapps/ROOT/MarkUsData";
-    public static String remote_root = "/razor/5/users/mw2518/apache-tomcat-6.0.14/webapps/ROOT/MarkUsData";
+    public static String remote_root = "/razor/3/markuswb/apache-tomcat-6.0.14/webapps/ROOT/MarkUsData";
     public static String qsubjob = remote_root+"/test.qsub";
     private static final String skylineinfile = remote_root+"/test.cfg";
     private static final String remotepdbdir = remote_root+"/PDB/";
