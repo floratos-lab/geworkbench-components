@@ -121,7 +121,11 @@ public class TtestAnalysis extends AbstractAnalysis implements
 		setLabel("T Test Analysis");
 		setDefaultPanel(new TtestAnalysisPanel());
 	}
-
+	public TtestAnalysis(TtestAnalysisPanel panel) {
+		localAnalysisType = AbstractAnalysis.TTEST_TYPE;
+		setLabel("T Test Analysis");
+		setDefaultPanel(panel);
+	}
 	private void reset() {
 		sigTValues.clear();
 		sigPValues.clear();
@@ -174,6 +178,10 @@ public class TtestAnalysis extends AbstractAnalysis implements
 	}
 
 	public AlgorithmExecutionResults execute(Object input) {
+		return calculate(input, false);
+	}
+
+	protected AlgorithmExecutionResults calculate(Object input, boolean calledFromOtherComponent){
 		ProgressBar pbTtest = null;
 		reset();
 		if (input == null) {
@@ -401,10 +409,12 @@ public class TtestAnalysis extends AbstractAnalysis implements
 				the_sigSet = sigSet;
 				Hashtable result = (Hashtable) results.getResults();
 				float[][] pValuesMatrix = (float[][]) result.get("pValues");
+				float[][] tValuesMatrix = (float[][]) result.get("tValues");
 				for (int i = 0; i < pValuesMatrix.length; i++) {
 					if (this.stopAlgorithm) {pbTtest.dispose(); return null;}
 					sigSet.setSignificance(data.markers().get(i),
 							pValuesMatrix[i][0]);
+					sigSet.setTValue(data.markers().get(i), tValuesMatrix[i][0]);
 				}
 				sigSet.sortMarkersBySignificance();
 				
@@ -504,6 +514,7 @@ public class TtestAnalysis extends AbstractAnalysis implements
 				pValuesMatrix[i][0] = ((Float) (pValuesVector.get(i)))
 						.floatValue();
 				sigSet.setMarker(data.markers().get(i), pValuesMatrix[i][0]);
+				sigSet.setTValue(data.markers().get(i), tValuesMatrix[i][0]);
 			}
 
 			if (tTestDesign == TtestAnalysisPanel.BETWEEN_SUBJECTS) {
@@ -569,9 +580,12 @@ public class TtestAnalysis extends AbstractAnalysis implements
 					sigSet.addSigGenToPanel(item);
 				}
 			}
-			publishSubpanelChangedEvent(new SubpanelChangedEvent(
-					DSGeneMarker.class, panelSignificant,
-					SubpanelChangedEvent.NEW));
+			if (!calledFromOtherComponent){
+				publishSubpanelChangedEvent(new SubpanelChangedEvent(
+						DSGeneMarker.class, panelSignificant,
+						SubpanelChangedEvent.NEW));
+			}
+			
 			// result.put("Significant Genes", panelSignificant);
 			//
 			// result.put("number-of-clusters",
@@ -595,9 +609,10 @@ public class TtestAnalysis extends AbstractAnalysis implements
 			setFoldChnage (maSet, sigSet); 
 			// add data set history.
 			histHeader = GenerateHistoryHeader();
-			ProjectPanel.addToHistory(sigSet, histHeader + groupAndChipsString
-					+ histMarkerString);
-			 
+			if (!calledFromOtherComponent){
+				ProjectPanel.addToHistory(sigSet, histHeader + groupAndChipsString
+						+ histMarkerString);
+			}			 
 
 			pbTtest.dispose();
 			if (this.stopAlgorithm) {
@@ -3160,7 +3175,7 @@ public class TtestAnalysis extends AbstractAnalysis implements
 		return var;
 	}
 
-	private String GenerateHistoryHeader() {
+	protected String GenerateHistoryHeader() {
 
 		String histStr = "";
 		// Header
@@ -3225,7 +3240,7 @@ public class TtestAnalysis extends AbstractAnalysis implements
 		return histStr;
 	}
 
-	private String GenerateMarkerString(
+	protected String GenerateMarkerString(
 			DSMicroarraySetView<? extends DSGeneMarker, ? extends DSMicroarray> view) {
 		String histStr = null;
 
