@@ -1,22 +1,31 @@
 package org.geworkbench.components.mindy;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import javax.swing.*;
-import java.awt.*;
-import java.awt.geom.Rectangle2D;
+import java.awt.Color;
+import java.awt.Cursor;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.FontMetrics;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Rectangle;
+import java.awt.RenderingHints;
 import java.awt.font.FontRenderContext;
-import java.util.*;
+import java.awt.geom.Rectangle2D;
+import java.awt.image.BufferedImage;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
+import javax.swing.JPanel;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
-import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMutableMarkerValue;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
+import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMutableMarkerValue;
+import org.geworkbench.bison.util.colorcontext.ColorContext;
 import org.geworkbench.util.pathwaydecoder.mutualinformation.MindyData;
-import org.geworkbench.bison.util.colorcontext.*;
-import org.apache.commons.math.stat.regression.*;
 
 /**
  * Creates a heat map of selected modulator, transcription factor, and targets.
@@ -60,6 +69,12 @@ public class ModulatorHeatMap extends JPanel {
     private ArrayList<DSMicroarray> half2 = null;
     
     private boolean showProbeName = false;
+    private Graphics2D g;
+    private BufferedImage offscreen;    
+    private Dimension dim;
+    
+    private Cursor hourglassCursor = new Cursor(Cursor.WAIT_CURSOR);
+	private Cursor normalCursor = new Cursor(Cursor.DEFAULT_CURSOR);
 
     /**
      * Constructor.
@@ -71,8 +86,10 @@ public class ModulatorHeatMap extends JPanel {
      */
     @SuppressWarnings("unchecked")
     public ModulatorHeatMap(DSGeneMarker modulator, DSGeneMarker transcriptionFactor, MindyData mindyData, List<DSGeneMarker> targetLimits, boolean showProbeName) {
+    	log.debug("\tHeatMap::constructor::start...");
+    	//setCursor(hourglassCursor);
     	this.showProbeName = showProbeName;
-    	log.debug("\tHeatMap::constructor::start::" + System.currentTimeMillis());
+    	
     	this.maSet = mindyData.getArraySet();
         List<DSGeneMarker> markers = mindyData.getTargets(modulator, transcriptionFactor);
         this.colorContext = (ColorContext) maSet.getObject(ColorContext.class);
@@ -140,7 +157,11 @@ public class ModulatorHeatMap extends JPanel {
 
         this.setBackground(Color.white);
         this.setOpaque(true);
-        log.debug("\tHeatMap::constructor::end::" + System.currentTimeMillis());
+        this.setIgnoreRepaint(true);
+        
+        //setCursor(normalCursor);
+        
+        log.debug("\tHeatMap::constructor::end.");
     }
 
     private void limitTargets(List<DSGeneMarker> targetLimits) {
@@ -159,7 +180,11 @@ public class ModulatorHeatMap extends JPanel {
      * @param graphics - the graphics object representing the heat map.
      */
     public void paint(Graphics graphics) {
-        doPaint(graphics, false);
+        doPaint(graphics);
+    }
+    
+    public void update(Graphics g){
+    	paint(g);
     }
 
     /**
@@ -167,7 +192,7 @@ public class ModulatorHeatMap extends JPanel {
      * @param graphics - the graphics object representing the heat map.
      */
     public void print(Graphics graphics) {
-        doPaint(graphics, true);
+        doPaint(graphics);
     }
 
     /**
@@ -175,104 +200,114 @@ public class ModulatorHeatMap extends JPanel {
      * @param graphics - the graphics object representing the heat map.
      * @param print - true if this graphics object is to be printed.
      */
-    public void doPaint(Graphics graphics, boolean print) {
-        super.paint(graphics);
-
-        Graphics2D g = (Graphics2D) graphics;
-        Rectangle clip = g.getClipBounds();
-        g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-        g.setFont(BASE_FONT);
-
-        g.setBackground(Color.WHITE);
-
-        // Draw the modulator expression line
-        g.setColor(COLOR_TEXT);
-        FontMetrics metrics = g.getFontMetrics();
-        String modulatorName = this.getMarkerDisplayName(modulator);
-        int modNameWidth = metrics.stringWidth(modulatorName);
-        g.drawString(modulatorName, (getWidth() / 2) - (modNameWidth / 2), SPACER_TOP);
-        int modBarTopY = SPACER_TOP + metrics.getDescent() + 1;
-        int modBarStartX = SPACER_TOP;
-        int modBarEndX = getWidth() - SPACER_TOP;
-        int barWidth = modBarEndX - modBarStartX;
-
-        // Some variables useful for the next two sections of painting
-        float expressionBarWidth = (getWidth() - (2 * SPACER_SIDE) - (2 * SPACER_SIDE + maxGeneNameWidth)) / 2f;
-        float cellWidth = expressionBarWidth / ((this.half1.size() + this.half2.size()) / 2f);
-        int transFacStartY = modBarTopY + BAR_HEIGHT + SPACER_TOP;
-
-        // Draw the two transcription factor gradients
-        // TransFac headers
-        g.setColor(COLOR_TEXT);
-        String transFacName = this.getMarkerDisplayName(transcriptionFactor).trim();
-        int transFacNameWidth = metrics.stringWidth(transFacName);
-        // Left Side (marker name)
-        g.drawString(transFacName, SPACER_SIDE + (expressionBarWidth - transFacNameWidth)/2 + 1, transFacStartY);        
-        // Right Side (marker name)
-        g.drawString(transFacName
-        		, Math.round((getWidth() - SPACER_SIDE - expressionBarWidth - 1) 
-                		+ (expressionBarWidth + 1)/2 - transFacNameWidth/2)        		
-        		, transFacStartY);
-        
-        int transFacBarY = transFacStartY + metrics.getDescent() + 1;
-
-        // Drawing line under modulator name
-        int x1 = Math.round(SPACER_SIDE + (expressionBarWidth - transFacNameWidth)/2 + 1 + transFacNameWidth/2);
-        int y1 = modBarTopY;
-        int x2 = Math.round(
-        		(getWidth() - SPACER_SIDE - expressionBarWidth - 1) 
-        		+ (expressionBarWidth + 1)/2
-        		);
-        int y2 = y1 + transFacBarY/4;
-        g.setColor(COLOR_TEXT);
-        g.drawLine(x1, y1, x2, y1);		// top line
-        g.drawLine(x1, y1, x1, y2);		// left vertical line
-        g.drawLine(x2, y1, x2, y2);		// right vertical line
-        
-        // Label two ends of the line
-        g.drawString(LEFT_LABEL + this.setFractionPercent + PERCENT, x1, SPACER_TOP);
-        String s = RIGHT_LABEL + this.setFractionPercent+ PERCENT;
-        g.drawString(s, x2 - metrics.stringWidth(s), SPACER_TOP);
-        
-        // Outlines for trans fac gradients (the triangles)
-        g.setColor(COLOR_TEXT);
-        int xx1 = SPACER_SIDE;
-        int yy1 = transFacBarY;
-        int xx2 = xx1 + (int) expressionBarWidth;
-        int yy2 = yy1 + BAR_HEIGHT;
-        g.drawLine(xx1, yy2, xx2, yy1);				// left triangle:	diagonal
-        g.drawLine(xx2, yy1, xx2, yy2);				//					vertical
-        g.drawLine(xx1, yy2, xx2, yy2);				//					horizontal
-        xx1 = (int) (getWidth() - SPACER_SIDE - expressionBarWidth - 1);
-        xx2 = xx1 + (int) (expressionBarWidth + 1);
-        g.drawLine(xx1, yy2, xx2, yy1);				// right triangle:	diagonal
-        g.drawLine(xx2, yy1, xx2, yy2);				//					vertical
-        g.drawLine(xx1, yy2, xx2, yy2);				//					horizontal
-        
-        // Draw the target's expression values
-        int targetStartY = transFacBarY + BAR_HEIGHT + 5;
-        int targetCurrY = targetStartY;
-
-        for (int i = 0; i < targetRows.size(); i++) {
-            // Only paint clipping area unless this is a print request
-            if (print || (targetCurrY > clip.y - 10 && targetCurrY < clip.y + clip.height + 10)) {
-                MindyData.MindyResultRow mindyRow = targetRows.get(i);
-                DSGeneMarker target = mindyRow.getTarget();
-                paintExpressionBar(cellWidth, expressionBarWidth, g, targetCurrY, target);
-                String targetName = this.getMarkerDisplayName(target);
-
-                int targetNameWidth = metrics.stringWidth(targetName);
-                g.setColor(COLOR_TEXT);
-
-                g.drawString(targetName, (getWidth() / 2) - (targetNameWidth / 2), targetCurrY + BAR_HEIGHT - 1);
-            }
-            targetCurrY += BAR_HEIGHT;
-        }
-        // Outlines for target gradients
-        g.setColor(Color.GRAY);
-        g.drawRect(SPACER_SIDE, targetStartY, (int) expressionBarWidth, targetCurrY - targetStartY);
-        g.drawRect((int) (getWidth() - SPACER_SIDE - expressionBarWidth - 1), targetStartY, (int) (expressionBarWidth + 1), targetCurrY - targetStartY);
-        
+    public void doPaint(Graphics graphics) {
+    	log.debug("\t\tdoPaint()::start...");
+    	dim = getSize();
+    	int w = (int) dim.getWidth();
+    	int h = (int) dim.getHeight();
+    	if((offscreen == null) && (w > 0) && (h > 0)){
+    		//setCursor(hourglassCursor);
+    		log.debug("\t\t\tbuffer processing...");	    	
+	    	offscreen = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);   
+	    	g = (Graphics2D) offscreen.getGraphics();
+	    	
+	        g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+	        g.setFont(BASE_FONT);
+	        g.setColor(Color.WHITE);
+	        g.fillRect(0, 0, w, (int) h);
+	
+	        // Draw the modulator expression line
+	        log.debug("\t\t\tdrawing modular expression line...");
+	        g.setColor(COLOR_TEXT);
+	        FontMetrics metrics = g.getFontMetrics();
+	        String modulatorName = this.getMarkerDisplayName(modulator);
+	        int modNameWidth = metrics.stringWidth(modulatorName);
+	        g.drawString(modulatorName, (getWidth() / 2) - (modNameWidth / 2), SPACER_TOP);
+	        int modBarTopY = SPACER_TOP + metrics.getDescent() + 1;
+	
+	        // Some variables useful for the next two sections of painting
+	        log.debug("\t\t\tpainting prep...");
+	        float expressionBarWidth = (getWidth() - (2 * SPACER_SIDE) - (2 * SPACER_SIDE + maxGeneNameWidth)) / 2f;
+	        float cellWidth = expressionBarWidth / ((this.half1.size() + this.half2.size()) / 2f);
+	        int transFacStartY = modBarTopY + BAR_HEIGHT + SPACER_TOP;
+	
+	        // Draw the two transcription factor gradients
+	        // TransFac headers
+	        log.debug("\t\t\tdrawing tf...");
+	        g.setColor(COLOR_TEXT);
+	        String transFacName = this.getMarkerDisplayName(transcriptionFactor).trim();
+	        int transFacNameWidth = metrics.stringWidth(transFacName);
+	        // Left Side (marker name)
+	        g.drawString(transFacName, SPACER_SIDE + (expressionBarWidth - transFacNameWidth)/2 + 1, transFacStartY);        
+	        // Right Side (marker name)
+	        g.drawString(transFacName
+	        		, Math.round((getWidth() - SPACER_SIDE - expressionBarWidth - 1) 
+	                		+ (expressionBarWidth + 1)/2 - transFacNameWidth/2)        		
+	        		, transFacStartY);
+	        
+	        int transFacBarY = transFacStartY + metrics.getDescent() + 1;
+	
+	        // Drawing line under modulator name
+	        log.debug("\t\t\tdrawing line under mod name...");
+	        int x1 = Math.round(SPACER_SIDE + (expressionBarWidth - transFacNameWidth)/2 + 1 + transFacNameWidth/2);
+	        int y1 = modBarTopY;
+	        int x2 = Math.round(
+	        		(getWidth() - SPACER_SIDE - expressionBarWidth - 1) 
+	        		+ (expressionBarWidth + 1)/2
+	        		);
+	        int y2 = y1 + transFacBarY/4;
+	        g.setColor(COLOR_TEXT);
+	        g.drawLine(x1, y1, x2, y1);		// top line
+	        g.drawLine(x1, y1, x1, y2);		// left vertical line
+	        g.drawLine(x2, y1, x2, y2);		// right vertical line
+	        
+	        // Label two ends of the line
+	        g.drawString(LEFT_LABEL + this.setFractionPercent + PERCENT, x1, SPACER_TOP);
+	        String s = RIGHT_LABEL + this.setFractionPercent+ PERCENT;
+	        g.drawString(s, x2 - metrics.stringWidth(s), SPACER_TOP);
+	        
+	        // Outlines for trans fac gradients (the triangles)
+	        log.debug("\t\t\tdrawing triangles...");
+	        g.setColor(COLOR_TEXT);
+	        int xx1 = SPACER_SIDE;
+	        int yy1 = transFacBarY;
+	        int xx2 = xx1 + (int) expressionBarWidth;
+	        int yy2 = yy1 + BAR_HEIGHT;
+	        g.drawLine(xx1, yy2, xx2, yy1);				// left triangle:	diagonal
+	        g.drawLine(xx2, yy1, xx2, yy2);				//					vertical
+	        g.drawLine(xx1, yy2, xx2, yy2);				//					horizontal
+	        xx1 = (int) (getWidth() - SPACER_SIDE - expressionBarWidth - 1);
+	        xx2 = xx1 + (int) (expressionBarWidth + 1);
+	        g.drawLine(xx1, yy2, xx2, yy1);				// right triangle:	diagonal
+	        g.drawLine(xx2, yy1, xx2, yy2);				//					vertical
+	        g.drawLine(xx1, yy2, xx2, yy2);				//					horizontal
+	        
+	        // Draw the target's expression values
+	        int targetStartY = transFacBarY + BAR_HEIGHT + 5;
+	        int targetCurrY = targetStartY;
+	
+	        log.debug("\t\t\tloop start...");
+	        for (int i = 0; i < targetRows.size(); i++) {
+	            MindyData.MindyResultRow mindyRow = targetRows.get(i);
+	            DSGeneMarker target = mindyRow.getTarget();
+	            paintExpressionBar(cellWidth, expressionBarWidth, g, targetCurrY, target);
+	            String targetName = this.getMarkerDisplayName(target);
+	
+	            int targetNameWidth = metrics.stringWidth(targetName);
+	            g.setColor(COLOR_TEXT);
+	
+	            g.drawString(targetName, (getWidth() / 2) - (targetNameWidth / 2), targetCurrY + BAR_HEIGHT - 1);
+	            targetCurrY += BAR_HEIGHT;
+	        }
+	        log.debug("\t\t\tloop end.");
+	        // Outlines for target gradients
+	        g.setColor(Color.GRAY);
+	        g.drawRect(SPACER_SIDE, targetStartY, (int) expressionBarWidth, targetCurrY - targetStartY);
+	        g.drawRect((int) (getWidth() - SPACER_SIDE - expressionBarWidth - 1), targetStartY, (int) (expressionBarWidth + 1), targetCurrY - targetStartY);
+    	}
+        graphics.drawImage(offscreen, 0, 0, this);        
+        //setCursor(normalCursor);
+        log.debug("\t\tdoPaint()::end.");
     }
 
     private void paintExpressionBar(float cellWidth, float expressionBarWidth, Graphics2D g, int y, DSGeneMarker markerToPaint) {
