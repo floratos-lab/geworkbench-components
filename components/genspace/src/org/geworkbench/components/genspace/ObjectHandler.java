@@ -12,7 +12,7 @@ import org.apache.ojb.otm.lock.ObjectLock;
  * A handler used to log events.
  * 
  * @author sheths
- * @version $Id: ObjectHandler.java,v 1.5 2008-05-28 03:06:19 sheths Exp $
+ * @version $Id: ObjectHandler.java,v 1.6 2008-07-18 23:53:41 sheths Exp $
  */
 public class ObjectHandler {
 
@@ -69,11 +69,11 @@ public class ObjectHandler {
 				incrementTransactionId(dataSetName);
 				ObjectLogger o = null;
 				if (logStatus == 0) {
-					System.out.println("Logging");
+					log.debug("genspace - Logging");
 					o = new ObjectLogger(analysisName, dataSetName,
 							lastTransactionId, username, genspace);
 				} else if (logStatus == 1) {
-					System.out.println("Logging anonymously");
+					log.debug("genspace - Logging anonymously");
 					o = new ObjectLogger(analysisName, dataSetName,
 							lastTransactionId, "anonymous", false);
 				}
@@ -84,7 +84,9 @@ public class ObjectHandler {
 					boolean success = x.readAndSendFile("geworkbench_log.xml");
 
 					if (success == true) {
-						//System.out.println("file sent succesfully");
+						log.info("");
+						log.info("genspace - log file sent succesfully to the server");
+						log.info("");
 						o.deleteFile();
 					}
 				}
