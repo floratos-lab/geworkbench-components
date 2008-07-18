@@ -10,6 +10,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import javax.swing.ImageIcon;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 import org.apache.commons.logging.Log;
@@ -270,16 +271,23 @@ public class MindyVisualComponent implements VisualPlugin, java.util.Observer {
 	 */
 	@Publish
 	public ImageSnapshotEvent createImageSnapshot(Component heatmap) {
-		Dimension panelSize = heatmap.getSize();
-		BufferedImage image = new BufferedImage(panelSize.width,
-				panelSize.height, BufferedImage.TYPE_INT_RGB);
-		Graphics g = image.getGraphics();
-		heatmap.print(g);
-		ImageIcon icon = new ImageIcon(image, "MINDY Heat Map");
-		org.geworkbench.events.ImageSnapshotEvent event = new org.geworkbench.events.ImageSnapshotEvent(
-				"MINDY Heat Map", icon,
-				org.geworkbench.events.ImageSnapshotEvent.Action.SAVE);
-		return event;
+		try{
+			Dimension panelSize = heatmap.getSize();
+			BufferedImage image = new BufferedImage(panelSize.width,
+					panelSize.height, BufferedImage.TYPE_INT_RGB);
+			Graphics g = image.getGraphics();
+			heatmap.print(g);
+			ImageIcon icon = new ImageIcon(image, "MINDY Heat Map");
+			org.geworkbench.events.ImageSnapshotEvent event = new org.geworkbench.events.ImageSnapshotEvent(
+					"MINDY Heat Map", icon,
+					org.geworkbench.events.ImageSnapshotEvent.Action.SAVE);
+			return event;
+		} catch (OutOfMemoryError err){
+			JOptionPane.showMessageDialog(null, "There is not enough memory for this operation.",
+					"Warning", JOptionPane.WARNING_MESSAGE);
+			log.error("Not enough memory for image snapshot:" + err.getMessage());
+			return null;
+		}
 	}
 
 	DSPanel getSelectorPanel() {
