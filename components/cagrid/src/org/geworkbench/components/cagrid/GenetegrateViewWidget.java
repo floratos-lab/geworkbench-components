@@ -131,6 +131,7 @@ public class GenetegrateViewWidget extends JPanel {
 	private static int GAPSECOND = 60000;
 	private boolean isNormal = true;
 	private boolean isStopped = false;
+	private boolean normalEnding = true;
 
 	public GenetegrateViewWidget(
 			GenetegrateViewAppComponent _genetegrateViewAppComponent) {
@@ -499,6 +500,7 @@ public class GenetegrateViewWidget extends JPanel {
 	}
 
 	public void runPDBGeneratingFunction() {
+		normalEnding = true;
 		String functionName = (String) functionViewComboBox.getSelectedItem();
 		if (inputFileNames == null || inputFileNames.length == 0) {
 			JOptionPane.showMessageDialog(null, "No sequence is activated.",
@@ -583,60 +585,90 @@ public class GenetegrateViewWidget extends JPanel {
 
 						PrintWriter out = null;
 
-						try {
-							Thread.sleep(1000);
-							String existedJob = checkCache(pudgedemoClient, seq);
-							if (existedJob != null) {
-								jobID = existedJob;
-							}
-							boolean isDone = pudgedemoClient.isJobDone(jobID);
-							while (!isDone) {
-								Thread.sleep(20000);
-								isDone = pudgedemoClient.isJobDone(jobID);
-							}
-							finished = true;
-							out = new PrintWriter(new FileOutputStream(file
-									.getAbsolutePath()));
-							out.println("#Result from PUDGE");
-							String output = pudgedemoClient.getOutput(jobID);
+						// try {
+						Thread.sleep(1000);
+						String existedJob = checkCache(pudgedemoClient, seq);
+						if (existedJob != null) {
+							jobID = existedJob;
+						}
+						boolean isDone = pudgedemoClient.isJobDone(jobID);
+						while (!isDone) {
+							Thread.sleep(20000);
+							isDone = pudgedemoClient.isJobDone(jobID);
+						}
+						finished = true;
+						out = new PrintWriter(new FileOutputStream(file
+								.getAbsolutePath()));
+						out.println("#Result from PUDGE");
+						String output = pudgedemoClient.getOutput(jobID);
 
-							if (output == null) {
-								return;
-							}
-							String[] lines = output.split("\\|");
-							for (String line : lines) {
-								out.println(line);
-							}
-
-							out.flush();
-							out.close();
-
-						} catch (Exception e) {
-							e.printStackTrace(); // To change body of catch
-							// statement use File |
-							// Settings | File
-							// Templates.
+						if (output == null) {
 							return;
 						}
+						String[] lines = output.split("\\|");
+						for (String line : lines) {
+							out.println(line);
+						}
+
+						out.flush();
+						out.close();
+
+						// }catch(java.net.SocketException se){
+						// se.printStackTrace();
+						// normalEnding = false;
+						// JOptionPane.showMessageDialog(null, "Error: " +
+						// se.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+						//
+						// }
+						// catch (Exception e) {
+						// e.printStackTrace();
+						// normalEnding = false;
+						// JOptionPane.showMessageDialog(null, "Error: " +
+						// e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+						// return;
+						// }
 
 						updateProgressBar(false, "Job ID " + jobID
 								+ " is finished.");
 					} catch (URI.MalformedURIException e) {
-						e.printStackTrace(); // To change body of catch
-						// statement use File | Settings
-						// | File Templates.
+						finished = true;
+						normalEnding = false;
+						e.printStackTrace();
+						JOptionPane.showMessageDialog(null, "URI Error: "
+								+ e.getMessage(), "Error",
+								JOptionPane.ERROR_MESSAGE);
 					} catch (RemoteException e) {
-						e.printStackTrace(); // To change body of catch
-						// statement use File | Settings
-						// | File Templates.
+						finished = true;
+						normalEnding = false;
+						e.printStackTrace();
+						JOptionPane.showMessageDialog(null, "Connection Error, please see the detail below:\n "
+								+ e.getMessage(), "Error",
+								JOptionPane.ERROR_MESSAGE);
+						updateProgressBar(false,
+						"The job cannot be submitted to the server.");
+
+					} catch (java.net.SocketException se) {
+						finished = true;
+						se.printStackTrace();
+						normalEnding = false;
+						JOptionPane.showMessageDialog(null,  
+								 se.getMessage(), "Error",
+								JOptionPane.ERROR_MESSAGE);
+						updateProgressBar(false,
+								"The job cannot be submitted to the server.");
 					} catch (Exception e) {
-						e.printStackTrace(); // To change body of catch
-						// statement use File | Settings
-						// | File Templates.
+						finished = true;
+						normalEnding = false;
+						e.printStackTrace();
+						JOptionPane.showMessageDialog(null, "Exception "
+								+ e.getMessage(), "Error",
+								JOptionPane.ERROR_MESSAGE);
+
 					}
 				}
 
 			}
+
 			postProcess(file.getAbsolutePath());
 		}
 	}
@@ -684,11 +716,18 @@ public class GenetegrateViewWidget extends JPanel {
 	public void postProcess(String outputFilename) {
 		postProcess();
 		// serviceProgressBar.setString("The job is done at " + new Date());
-		File pdbFile = PDBFileGenerator.generatePDBFileFromSwissModel(new File(
-				outputFilename));
-		new File(outputFilename).delete();
-		if (pdbFile.exists()) {
-			genetegrateViewAppComponent.publishPDBDataSet(pdbFile);
+		if (normalEnding) {
+			File pdbFile = PDBFileGenerator
+					.generatePDBFileFromSwissModel(new File(outputFilename));
+			new File(outputFilename).delete();
+			if (pdbFile.exists() && pdbFile.length() > 10) {
+				genetegrateViewAppComponent.publishPDBDataSet(pdbFile);
+			} else {
+				JOptionPane.showMessageDialog(null,
+						"Error: No model can be generated by the program.",
+						"Error", JOptionPane.ERROR_MESSAGE);
+
+			}
 		}
 		isNormal = true;
 	}
