@@ -3,6 +3,7 @@ package org.geworkbench.components.genspace;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Calendar;
+import java.util.Random;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -12,7 +13,7 @@ import org.apache.ojb.otm.lock.ObjectLock;
  * A handler used to log events.
  * 
  * @author sheths
- * @version $Id: ObjectHandler.java,v 1.6 2008-07-18 23:53:41 sheths Exp $
+ * @version $Id: ObjectHandler.java,v 1.7 2008-07-19 00:33:15 sheths Exp $
  */
 public class ObjectHandler {
 
@@ -38,7 +39,7 @@ public class ObjectHandler {
 				String analysisName = "";
 				String dataSetName = "";
 				String username;
-
+				
 				/*
 				  // change this when we start using genSpace logins
 				boolean genspace = genspaceLogin.isLoggedIn;
@@ -114,10 +115,13 @@ public class ObjectHandler {
 		}
 	}
 
+	/**
+	 * This method generates a new random transaction id
+	 * Changed from the incrementing id to randomly generating a new one - just incrementing creates duplicates
+	 */
 	private void incrementTransactionId() {
-		String last = lastTransactionId;
-		int i = Integer.parseInt(last);
-		i++;
+		Random r = new Random();
+		int i = Math.abs(r.nextInt());
 		Integer j = new Integer(i);
 		lastTransactionId = j.toString();
 	}
