@@ -37,7 +37,7 @@ import org.geworkbench.util.pathwaydecoder.mutualinformation.AdjacencyMatrixData
 
 /**
  * @author yc2480
- * @version $Id: MasterRegulatorAnalysis.java,v 1.1 2008-07-16 21:34:50 chiangy Exp $
+ * @version $Id: MasterRegulatorAnalysis.java,v 1.2 2008-07-21 23:54:39 chiangy Exp $
  */
 public class MasterRegulatorAnalysis extends AbstractAnalysis implements
 		ClusteringAnalysis {
@@ -62,13 +62,26 @@ public class MasterRegulatorAnalysis extends AbstractAnalysis implements
 
 	public AlgorithmExecutionResults execute(Object input) {
 		// read input data, dataset view, dataset, etc.
-		assert (input instanceof DSMicroarraySetView);
+		if (!(input instanceof DSMicroarraySetView)){
+			return new AlgorithmExecutionResults(false,
+					"Input dataset for MRA analysis should be a MicroarraySet.\n"+
+					"But you selected a "+input.getClass().getName(), null);
+		};
 		DSMicroarraySetView<DSGeneMarker, DSMicroarray> view = (DSMicroarraySetView<DSGeneMarker, DSMicroarray>) input;
 		DSMicroarraySet<DSMicroarray> maSet = view.getMicroarraySet();
 		AdjacencyMatrixDataSet amSet = mraAnalysisPanel.getAdjMatrixDataSet();
+		if (amSet==null || amSet.getMatrix()==null){
+			return new AlgorithmExecutionResults(false,
+					"Network (Adjacency Matrix) has not been loaded yet.", null);
+		};		
 		String correction = mraAnalysisPanel.getCorrection();
 		//double pValue = mraAnalysisPanel.getPValue();
 		String transcriptionFactorsStr = mraAnalysisPanel.getTranscriptionFactor();
+		if (transcriptionFactorsStr.equals("")){
+			return new AlgorithmExecutionResults(false,
+					"Transcription Factor has not been entered yet.", 
+					null);
+		};
 		TtestAnalysisPanel tTestAnalysisPanel = mraAnalysisPanel.getTTestPanel();
 		TtestAnalysis tTestAnalysis= new TtestAnalysis(tTestAnalysisPanel);
 		String historyStr ="";
@@ -116,13 +129,20 @@ public class MasterRegulatorAnalysis extends AbstractAnalysis implements
 			String markerName = st.nextToken();
 			try{
 				DSGeneMarker marker = maSet.getMarkers().get(markerName);
-				transcriptionFactors.add(marker);
+				if (marker!=null)
+					transcriptionFactors.add(marker);
 			}catch(Exception e){
 				log.info("We can not find marker " + markerName + " in our MicroarraySet.");
 			}
 		}
 		log.info("We got "+transcriptionFactors.size()+" transcription factors");
 		
+		if (transcriptionFactors.size()==0){
+			return new AlgorithmExecutionResults(false,
+					"Sorry, but in the Microarray Set, I can not find the Transcription Factors you entered.", 
+					null);
+		}
+			
 		//y = size of significantMarkers
 		int y = tTestResultSet.getSignificantMarkers().size();
 		//x = size of markers
