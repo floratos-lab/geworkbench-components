@@ -70,6 +70,7 @@ public class MasterRegulatorPanel extends AbstractSaveableParameterPanel
 		builder.appendSeparator("Network");
 		builder.append("Load Network");
 		JComboBox networkFrom = createNetworkFromComboBox();
+		networkFrom.setSelectedIndex(1);	//preselect "From File"
 		//JComboBox networkMatrix = createNetworkMatrixComboBox();
 		builder.append(networkFrom);
 		networkMatrix.setEnabled(false);
@@ -81,6 +82,7 @@ public class MasterRegulatorPanel extends AbstractSaveableParameterPanel
 		
 		builder.append("Transcription Factors");
 		JComboBox tfFrom = createTFFromComboBox();
+		tfFrom.setSelectedIndex(1);			//preselect "From File"
 		//JComboBox tfGroups = createGroupsComboBox();
 		builder.append(tfFrom);
 		tfGroups.setEnabled(false);
