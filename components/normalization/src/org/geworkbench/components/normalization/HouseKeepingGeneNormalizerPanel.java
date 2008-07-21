@@ -52,7 +52,7 @@ public class HouseKeepingGeneNormalizerPanel extends
     JLabel excludedGenesLabel = new JLabel();
     JButton clearButton = new JButton();
     BorderLayout borderLayout1 = new BorderLayout();
-    DSPanel<DSGeneMarker> panel;
+    DSPanel<DSGeneMarker> panel;   
     DSPanel<DSGeneMarker> markerPanel;
     DefaultListModel selectedModel = new DefaultListModel();
     DefaultListModel markerModel = new DefaultListModel();
@@ -60,7 +60,7 @@ public class HouseKeepingGeneNormalizerPanel extends
     JButton loadButton = new JButton();
     JList jList2 = new JList(selectedModel);
     JList jList1 = new JList(markerModel); //(DefaultListModel) jList1.getListModel();
-
+   
     JButton saveButton = new JButton();
 
     JPanel jPanel2 = new JPanel();
@@ -127,6 +127,7 @@ public class HouseKeepingGeneNormalizerPanel extends
     Object writeReplace() throws ObjectStreamException {
         return new SerializedInstance(markerModel, selectedModel);
     }
+       
 
     public HouseKeepingGeneNormalizerPanel() {
         try {
@@ -707,6 +708,25 @@ public class HouseKeepingGeneNormalizerPanel extends
         return markerPanel;
     }
 
+    public String getParamDetail() {        
+       String paramDetail = "Excluded Genes:\n"; 
+       for (Enumeration en = markerModel.elements(); en.hasMoreElements();) {
+                 
+           paramDetail +=  en.nextElement().toString() +"\n";
+       }
+       paramDetail += "Included Genes:\n"; 
+       
+       for (Enumeration en = selectedModel.elements(); en.hasMoreElements();) {
+            
+    	   paramDetail +=  en.nextElement().toString() +"\n";
+       }
+       
+       paramDetail += "How to handle missing value: " + missingValuesCombo.getSelectedItem().toString() +"\n";
+       
+       return paramDetail ;
+    }
+    
+    
     public DSPanel getPanel() {
         updatePanel();
 
