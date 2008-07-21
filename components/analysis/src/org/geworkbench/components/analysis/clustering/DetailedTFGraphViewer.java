@@ -7,20 +7,24 @@ import java.util.HashMap;
 
 import javax.swing.JPanel;
 
+import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
+import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMasterRagulatorResultSet;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSSignificanceResultSet;
 import org.geworkbench.bison.datastructure.complex.panels.CSItemList;
 import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
+import org.apache.commons.math.stat.regression.SimpleRegression;
 
 public class DetailedTFGraphViewer extends JPanel {
 	DSMasterRagulatorResultSet mraResultSet;
 	DSGeneMarker tfA;
-	DSItemList targetGenes;
+	DSItemList<DSGeneMarker> targetGenes;
 	DSSignificanceResultSet<DSGeneMarker> sigSet;
 	int numberOfSigMarkers;
 	HashMap<Integer,DSGeneMarker> Rank2GeneMap;
 	HashMap<DSGeneMarker, Integer> Gene2RankMap;
+	double pValue = 1;
 	public void setTFA(DSMasterRagulatorResultSet mraResultSet, DSGeneMarker tfA){
 		this.mraResultSet = mraResultSet;
 		this.tfA = tfA;
@@ -42,6 +46,11 @@ public class DetailedTFGraphViewer extends JPanel {
 			Gene2RankMap.put(((DSGeneMarker)sigSet.getSignificantMarkers().get(cx)),new Integer(cx));
 		}
 	}
+	
+	public void setPValueFilter(double pValue){
+		this.pValue = pValue;
+		repaint();
+	};
 	
 	public void paintComponent(Graphics g){
 		super.paintComponent(g);
@@ -75,7 +84,25 @@ public class DetailedTFGraphViewer extends JPanel {
 				DSItemList genesInTargetList = mraResultSet.getGenesInTargetList(tfA);
 				for (int cx = 0; cx < genesInTargetList.size(); cx++){
 					if (Gene2RankMap.get(genesInTargetList.get(cx)).intValue()==i){
-						g.drawLine(center, 0, center, height*2/3);
+						if(mraResultSet.getPValueOf(tfA, ((DSGeneMarker)genesInTargetList.get(cx)))<pValue){
+							SimpleRegression SR = new SimpleRegression();
+							DSMicroarraySet maSet = mraResultSet.getMicroarraySet();
+							DSGeneMarker marker = (DSGeneMarker)genesInTargetList.get(cx);
+							double[] arrayData1 = maSet.getRow(tfA);
+							double[] arrayData2 = maSet.getRow(marker);
+							double[][] arrayData = new double[2][arrayData1.length];
+							arrayData[0]=arrayData1;
+							arrayData[1]=arrayData2;
+							SR.addData(arrayData);
+							Color save = g.getColor();
+							if (SR.getR()>=0){
+								g.setColor(Color.BLACK);
+							}else{
+								g.setColor(Color.ORANGE);
+							}
+							g.drawLine(center, 0, center, height*2/3);
+							g.setColor(save);
+						}
 					}
 				}
 			}
