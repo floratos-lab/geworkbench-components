@@ -4,6 +4,8 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.BufferedReader;
@@ -224,7 +226,7 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin{
 					"Target List of "+detailedTFGraphViewer.tfA.getLabel());
 					
 					for (DSGeneMarker marker : MRAResultSet.getGenesInTargetList(detailedTFGraphViewer.tfA)){
-						if (MRAResultSet.getPValueOf(detailedTFGraphViewer.tfA, marker)<0.00002)
+						if (MRAResultSet.getPValueOf(detailedTFGraphViewer.tfA, marker)<Double.valueOf(pValueHolder.getValue().toString()))
 							panelSignificant.add(marker, new Float(MRAResultSet.getPValueOf(detailedTFGraphViewer.tfA, marker)));
 					}
 					publishSubpanelChangedEvent(new SubpanelChangedEvent(
@@ -269,20 +271,47 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin{
 						SwingUtilities.invokeLater(new Runnable() {
 							public void run() {
 								pValueTextField.setText("1.00");
+								pValueHolder.setValue("1.00");
 							}
 						});
 						JOptionPane.showMessageDialog(null,
 								"P-Value should be a float point number",
 								"Invalide P-Value",
-								JOptionPane.INFORMATION_MESSAGE);								
+								JOptionPane.INFORMATION_MESSAGE);
+						return;
 	            	}
 	            	pValueHolder.setValue(pValueTextField.getText());
 	            	updateSelectedTF(MRAResultSet, detailedTFGraphViewer.tfA, tv2);
-	            	tv2.updateUI();
+//	            	tv2.updateUI();
+	            	detailedTFGraphViewer.setPValueFilter(Double.valueOf(pValueTextField.getText()));
 	            }
 	        };
 	        pValueTextField.addActionListener(pValueActionListener);
-	        
+	        pValueTextField.addFocusListener(new FocusListener(){
+				public void focusGained(FocusEvent arg0) {
+				}
+				public void focusLost(FocusEvent arg0) {
+	            	try{
+	            		double pValue = Double.valueOf(pValueTextField.getText());
+	            	}catch(Exception e){
+						SwingUtilities.invokeLater(new Runnable() {
+							public void run() {
+								pValueTextField.setText("1.00");
+								pValueHolder.setValue("1.00");
+							}
+						});
+						JOptionPane.showMessageDialog(null,
+								"P-Value should be a float point number",
+								"Invalide P-Value",
+								JOptionPane.INFORMATION_MESSAGE);
+						return;
+	            	}
+	            	pValueHolder.setValue(pValueTextField.getText());
+	            	updateSelectedTF(MRAResultSet, detailedTFGraphViewer.tfA, tv2);
+//	            	tv2.updateUI();
+	            	detailedTFGraphViewer.setPValueFilter(Double.valueOf(pValueTextField.getText()));	
+				}
+	        });
 	        /*
 	         * following code has some bug and makes it recursively accords. 
 	         */
