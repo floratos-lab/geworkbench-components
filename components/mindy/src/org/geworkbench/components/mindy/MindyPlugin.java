@@ -73,7 +73,7 @@ import com.solarmetric.ide.ui.CheckboxCellRenderer;
  * @author mhall
  * @ch2514
  * 
- * @version $Id: MindyPlugin.java,v 1.71 2008-07-17 18:33:53 hungc Exp $
+ * @version $Id: MindyPlugin.java,v 1.72 2008-07-21 20:14:28 hungc Exp $
  */
 @SuppressWarnings("serial")
 public class MindyPlugin extends JPanel {
@@ -746,7 +746,7 @@ public class MindyPlugin extends JPanel {
 			DSGeneMarker modulator = modulators.iterator().next();
 			transFactors = mindyData.getTranscriptionFactors(modulator);
 			heatmap = new ModulatorHeatMap(modulator, transFactors.iterator()
-					.next(), mindyData, null, !mindyData.isAnnotated());
+					.next(), mindyData, null, !mindyData.isAnnotated());			
 			heatMapScrollPane = new JScrollPane(heatmap);
 		    AdjustmentListener scrollBarListener = new AdjustmentListener() {
 		        public void adjustmentValueChanged(AdjustmentEvent e) {
@@ -1088,7 +1088,6 @@ public class MindyPlugin extends JPanel {
 			modMarker = modTargetModel.getEnabledModulators().get(0);
 			heatMapModNameList.setSelectedIndex(0);
 		}
-		
 		if (modMarker != null) {
 			if (targetLimits != null) {
 				log.debug("Rebuilding heat map with limited markers");
@@ -1395,7 +1394,7 @@ public class MindyPlugin extends JPanel {
 	 * 
 	 * @author mhall
 	 * @author ch2514
-	 * @version $Id: MindyPlugin.java,v 1.71 2008-07-17 18:33:53 hungc Exp $
+	 * @version $Id: MindyPlugin.java,v 1.72 2008-07-21 20:14:28 hungc Exp $
 	 */
 	private class ModulatorModel extends DefaultTableModel {
 
@@ -1868,7 +1867,7 @@ public class MindyPlugin extends JPanel {
 	 * For rendering modulator checkboxes on the targets table column headers.
 	 * 
 	 * @author ch2514
-	 * @version $Id: MindyPlugin.java,v 1.71 2008-07-17 18:33:53 hungc Exp $
+	 * @version $Id: MindyPlugin.java,v 1.72 2008-07-21 20:14:28 hungc Exp $
 	 */
 	private class CheckBoxRenderer extends DefaultTableCellRenderer {
 		/**
@@ -1959,7 +1958,7 @@ public class MindyPlugin extends JPanel {
 	 * 
 	 * @author mhall
 	 * @author ch2514
-	 * @version $Id: MindyPlugin.java,v 1.71 2008-07-17 18:33:53 hungc Exp $
+	 * @version $Id: MindyPlugin.java,v 1.72 2008-07-21 20:14:28 hungc Exp $
 	 */
 	private class AggregateTableModel extends DefaultTableModel {
 
@@ -2469,17 +2468,17 @@ public class MindyPlugin extends JPanel {
 			if (columnIndex == 0) {
 				boolean select = (Boolean) aValue;
 				checkedTargets[rowIndex] = select;
-
-				if (select) {
-					if (!this.selectedTargets.contains(this.activeTargets
-							.get(rowIndex))) {
-						this.selectedTargets.add(this.activeTargets
-								.get(rowIndex));
-					}
+				DSGeneMarker m = this.activeTargets.get(rowIndex);
+				if (select) {					
+					if (!this.selectedTargets.contains(m)) {
+						this.selectedTargets.add(m);
+					}										
 				} else {
-					this.selectedTargets.remove(this.activeTargets
-							.get(rowIndex));
+					this.selectedTargets.remove(m);
 				}
+				int modColToSelect = this.enabledModulators.indexOf(m);
+				if(modColToSelect >= 0)
+					this.setModulatorCheckBoxState(modColToSelect + AggregateTableModel.EXTRA_COLS, select);
 			}
 
 			selectionEnabledCheckBoxTarget.setText(MindyPlugin.ENABLE_SELECTION
@@ -2835,7 +2834,7 @@ public class MindyPlugin extends JPanel {
 	 * Compare M#, M+, or M- of two gene markers (for sorting).
 	 * 
 	 * @author mhall
-	 * @version $Id: MindyPlugin.java,v 1.71 2008-07-17 18:33:53 hungc Exp $
+	 * @version $Id: MindyPlugin.java,v 1.72 2008-07-21 20:14:28 hungc Exp $
 	 */
 	private class ModulatorStatComparator implements Comparator<DSGeneMarker> {
 
@@ -2888,7 +2887,7 @@ public class MindyPlugin extends JPanel {
 	 * 
 	 * @author mhall
 	 * @author ch2514
-	 * @version $Id: MindyPlugin.java,v 1.71 2008-07-17 18:33:53 hungc Exp $
+	 * @version $Id: MindyPlugin.java,v 1.72 2008-07-21 20:14:28 hungc Exp $
 	 */
 	private class ModulatorTargetModel extends DefaultTableModel {
 
@@ -3626,7 +3625,7 @@ public class MindyPlugin extends JPanel {
 	 * Heat map data model.
 	 * 
 	 * @author mhall
-	 * @version $Id: MindyPlugin.java,v 1.71 2008-07-17 18:33:53 hungc Exp $
+	 * @version $Id: MindyPlugin.java,v 1.72 2008-07-21 20:14:28 hungc Exp $
 	 */
 	private class ModulatorListModel extends AbstractListModel {
 		private boolean showProbeName = false;
@@ -3701,7 +3700,7 @@ public class MindyPlugin extends JPanel {
 	 * for the targets table.
 	 * 
 	 * @author ch2514
-	 * @version $Id: MindyPlugin.java,v 1.71 2008-07-17 18:33:53 hungc Exp $
+	 * @version $Id: MindyPlugin.java,v 1.72 2008-07-21 20:14:28 hungc Exp $
 	 */
 	private class ColumnHeaderListener extends MouseAdapter {
 		/**
@@ -3771,11 +3770,19 @@ public class MindyPlugin extends JPanel {
 						atm.setModulatorCheckBoxState(mColIndex, !tmp);
 						cb
 								.setSelected(atm
-										.getModulatorCheckBoxState(mColIndex));
+										.getModulatorCheckBoxState(mColIndex));						
 						atm.fireTableStructureChanged();
+						DSGeneMarker m = atm.enabledModulators.get(mColIndex - atm.EXTRA_COLS);
+						int tRowIndex = atm.activeTargets.indexOf(m); 
+						if(tRowIndex >= 0){
+							atm.setValueAt(!tmp, tRowIndex, 0);
+							atm.fireTableDataChanged();
+						}
+						
+						
 						selectionEnabledCheckBoxTarget.setText(ENABLE_SELECTION
 								+ " " + atm.getNumberOfMarkersSelected());
-
+						
 						if (atm.getCheckedModulators().size() == atm
 								.getEnabledModulators().size())
 							selectAllModsCheckBoxTarget.setSelected(true);
