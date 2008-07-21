@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 import org.apache.commons.logging.Log;
@@ -75,6 +76,8 @@ public class ModulatorHeatMap extends JPanel {
     
     private Cursor hourglassCursor = new Cursor(Cursor.WAIT_CURSOR);
 	private Cursor normalCursor = new Cursor(Cursor.DEFAULT_CURSOR);
+	
+	private boolean doNotPaint = false;
 
     /**
      * Constructor.
@@ -180,11 +183,13 @@ public class ModulatorHeatMap extends JPanel {
      * @param graphics - the graphics object representing the heat map.
      */
     public void paint(Graphics graphics) {
-        doPaint(graphics);
+    	if(!doNotPaint)
+    		doPaint(graphics);
     }
     
     public void update(Graphics g){
-    	paint(g);
+    	if(!doNotPaint)
+    		paint(g);
     }
 
     /**
@@ -207,14 +212,22 @@ public class ModulatorHeatMap extends JPanel {
     	int h = (int) dim.getHeight();
     	if((offscreen == null) && (w > 0) && (h > 0)){
     		//setCursor(hourglassCursor);
-    		log.debug("\t\t\tbuffer processing...");	    	
-	    	offscreen = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);   
-	    	g = (Graphics2D) offscreen.getGraphics();
-	    	
-	        g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-	        g.setFont(BASE_FONT);
-	        g.setColor(Color.WHITE);
-	        g.fillRect(0, 0, w, (int) h);
+    		log.debug("\t\t\tbuffer processing...");	
+    		try{
+		    	offscreen = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);   
+		    	g = (Graphics2D) offscreen.getGraphics();
+		    	
+		        g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+		        g.setFont(BASE_FONT);
+		        g.setColor(Color.WHITE);
+		        g.fillRect(0, 0, w, (int) h);    		
+    		} catch (OutOfMemoryError err){
+    			JOptionPane.showMessageDialog(null, "There is not enough memory to display the heatmap.",
+    					"Warning", JOptionPane.WARNING_MESSAGE);
+    			log.error("Not enough memory to display the heatmap:" + err.getMessage());
+    			doNotPaint = true;
+    		}
+    			
 	
 	        // Draw the modulator expression line
 	        log.debug("\t\t\tdrawing modular expression line...");
