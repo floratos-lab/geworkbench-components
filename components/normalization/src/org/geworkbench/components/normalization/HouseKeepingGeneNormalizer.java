@@ -13,6 +13,7 @@ import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMutableMarker
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
 import org.geworkbench.bison.model.analysis.NormalizingAnalysis;
+import org.geworkbench.builtin.projects.ProjectPanel;
 import org.geworkbench.engine.management.Subscribe;
 
 import javax.swing.*;
@@ -30,6 +31,9 @@ import java.util.Vector;
  * Normalization the expression values based on the assumption that the expression level of housekeeping genes
  * are constant in different experiments.
  */
+
+
+
 public class HouseKeepingGeneNormalizer extends AbstractAnalysis implements
         NormalizingAnalysis {
 
@@ -129,6 +133,9 @@ public class HouseKeepingGeneNormalizer extends AbstractAnalysis implements
             }
 
         }
+       
+        ProjectPanel.addHistoryDetail(maSet,((HouseKeepingGeneNormalizerPanel) aspp).getParamDetail());
+        
         return new AlgorithmExecutionResults(true, "No errors", input);
     }
 
