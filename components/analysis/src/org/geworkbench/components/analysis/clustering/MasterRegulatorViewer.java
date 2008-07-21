@@ -117,7 +117,7 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin{
 			JButton exportAllButton = new JButton("Export all");
 			exportAllButton.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					double threshold = 0.00002;
+					double threshold = Double.valueOf(pValueHolder.getValue().toString());
 					int n = JOptionPane.showConfirmDialog(
 						    null,
 						    "Would you like to use threshold when exporting genes?",
