@@ -442,6 +442,7 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin{
 		double pValue = Double.valueOf(pValueHolder.getValue().toString());
 		int records = 0;
 		int filterCounter=0;
+		if (tfA==null) return;
 		if (usePValue){
 			DSItemList<DSGeneMarker> genesInTargetList = mraResultSet.getGenesInTargetList(tfA);
 			for (Iterator<DSGeneMarker> iterator = genesInTargetList.iterator(); iterator
