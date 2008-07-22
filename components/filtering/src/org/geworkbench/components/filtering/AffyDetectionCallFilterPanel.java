@@ -96,8 +96,8 @@ public class AffyDetectionCallFilterPanel extends AbstractSaveableParameterPanel
         //Put the check boxes in a column in a panel
         JPanel buttonContainer = new JPanel(new GridLayout(0, 1));
         buttonContainer.add(presentButton);
-        buttonContainer.add(absentButton);
         buttonContainer.add(marginalButton);
+        buttonContainer.add(absentButton);
         // Set the button item selection listener.
         presentButton.addItemListener(this);
         absentButton.addItemListener(this);
