@@ -1,5 +1,6 @@
 package org.geworkbench.components.analysis.clustering;
 
+import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
@@ -28,6 +29,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.border.EtchedBorder;
@@ -85,7 +87,19 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin{
 		tv2.setNumerical(1,true);
 		tv2.setNumerical(2,true);
 		//tv.setTableModel(myTableModel);
-		FormLayout layout = new FormLayout("500dlu, pref:grow","20dlu, pref:grow, 100dlu");
+		
+		final JSplitPane jSplitPane1 = new JSplitPane();
+		final JSplitPane jSplitPane2 = new JSplitPane();
+
+		jSplitPane1.setOrientation(javax.swing.JSplitPane.VERTICAL_SPLIT);
+		jSplitPane1.setDividerSize(2);
+		jSplitPane1.setDividerLocation(400);
+		jSplitPane1.setTopComponent(jSplitPane2);
+		jSplitPane1.setBottomComponent(detailedTFGraphViewer);
+		jSplitPane2.setDividerLocation(600);
+		jSplitPane2.setDividerSize(3);
+
+		FormLayout layout = new FormLayout("500dlu:grow, pref","20dlu, pref:grow, 100dlu");
 		DefaultFormBuilder builder = new DefaultFormBuilder(layout);
 
 			FormLayout headerLayout = new FormLayout("60dlu, 6dlu, 60dlu, 30dlu, 90dlu, 6dlu, 90dlu, 200dlu, 90dlu","20dlu");
@@ -244,13 +258,14 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin{
 		builder.nextLine();
 		
 			//build the top-left panel
-			FormLayout summaryTFFormLayout = new FormLayout("pref:grow","20dlu, fill:pref:grow");
+			FormLayout summaryTFFormLayout = new FormLayout("pref:grow","20dlu, pref:grow");
 			DefaultFormBuilder summaryTFFormBuilder = new DefaultFormBuilder(summaryTFFormLayout);
 			summaryTFFormBuilder.nextLine();
-			summaryTFFormBuilder.add(tv);
+			summaryTFFormBuilder.add(tv,new CellConstraints("1,1,1,2,f,f"));
 			
-		builder.add(new JScrollPane(summaryTFFormBuilder.getPanel(),JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS));
-		builder.nextColumn();
+			jSplitPane2.setLeftComponent(new JScrollPane(summaryTFFormBuilder.getPanel(),JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS));
+//		builder.add(new JScrollPane(summaryTFFormBuilder.getPanel(),JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS));
+//		builder.nextColumn();
 		
 			//build the top-right panel
 			FormLayout detailTFFormLayout = new FormLayout("40dlu, 6dlu, 120dlu, pref:grow, 60dlu, 6dlu, 60dlu","20dlu, pref:grow");
@@ -344,16 +359,19 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin{
 	        detailTFFormBuilder.add(pValueTextField);
 			//detailTFFormBuilder.nextRow();
 			detailTFFormBuilder.nextLine();
-			detailTFFormBuilder.append(tv2,7);
+			detailTFFormBuilder.add(tv2,new CellConstraints("1,2,7,1,f,f"));
 
-//		builder.add(new JScrollPane(tv2,JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS));
-		builder.add(new JScrollPane(detailTFFormBuilder.getPanel(),JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS));
-		builder.nextLine();
+		jSplitPane2.setRightComponent(new JScrollPane(detailTFFormBuilder.getPanel(),JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS));
+		//builder.add(new JScrollPane(detailTFFormBuilder.getPanel(),JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS));
+		//builder.nextLine();
 		detailedTFGraphViewer.setPreferredSize(new Dimension(600,100));
+		detailedTFGraphViewer.setMinimumSize(new Dimension(50,50));
 		detailedTFGraphViewer.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED));
-		builder.append(new JScrollPane(detailedTFGraphViewer),2);
-		this.add(builder.getPanel());
-		
+		//builder.append(new JScrollPane(detailedTFGraphViewer),2);
+		builder.add(jSplitPane1,new CellConstraints("1,2,f,f"));
+
+		this.setLayout(new BorderLayout());
+		this.add(builder.getPanel(),BorderLayout.CENTER);
 		
 	}
 
