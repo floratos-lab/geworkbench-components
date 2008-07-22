@@ -1,5 +1,6 @@
 package org.geworkbench.components.analysis.clustering;
 
+import java.awt.BorderLayout;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.BufferedReader;
@@ -14,6 +15,7 @@ import java.util.Iterator;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
+import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.ListModel;
 
@@ -55,7 +57,7 @@ public class MasterRegulatorPanel extends AbstractSaveableParameterPanel
 	private ValueModel TFGeneList; //Marker 1, Marker 2...
 	private HashMap<String,AdjacencyMatrixDataSet> adjMatrix=new HashMap<String,AdjacencyMatrixDataSet>();
 	private DSMicroarraySet<DSMicroarray> maSet=null;
-	private TtestAnalysisPanel tTestPanel= new TtestAnalysisPanel();
+	private MRATtestPanel tTestPanel= new MRATtestPanel();
 	private JComboBox networkMatrix = createNetworkMatrixComboBox();
 	private JComboBox tfGroups = createGroupsComboBox();
 	private JButton loadNetworkButton=new JButton("Load");
@@ -131,7 +133,7 @@ public class MasterRegulatorPanel extends AbstractSaveableParameterPanel
 		builder.append(pValueTextField);
 		builder.nextLine();
 
-		builder.append("Multiple testing correction");
+//		builder.append("Multiple testing correction");
 		ArrayList<String> correctionComboBoxStrings = new ArrayList<String>();
 		correctionComboBoxStrings.add("No correction");
 		correctionComboBoxStrings.add("Standard Bonferroni");
@@ -140,15 +142,17 @@ public class MasterRegulatorPanel extends AbstractSaveableParameterPanel
         ComboBoxAdapter comboBoxAdapter = new ComboBoxAdapter(correctionComboBoxStrings, correctionHolder);
         JComboBox correctionComboBox = new JComboBox();
         correctionComboBox.setModel(comboBoxAdapter);
-        builder.append(correctionComboBox);
+//        builder.append(correctionComboBox);
 
         builder.nextLine();
-//        builder.nextRow();
-        
+        JTabbedPane jTabbedPane1 = new JTabbedPane();
+        jTabbedPane1.add(builder.getPanel(),"Main");
+        jTabbedPane1.add(tTestPanel,"T-test");
         //t-test panel
-        builder.appendSeparator("P-value parameters");
-        builder.append(tTestPanel,7);
-		this.add(builder.getPanel());
+//        builder.appendSeparator("P-value parameters");
+//        builder.append(tTestPanel,9);
+//		this.add(builder.getPanel());
+        this.add(jTabbedPane1,BorderLayout.CENTER);
 	}
 	public class LoadNetworkButtonListener implements java.awt.event.ActionListener{
 		private HashMap<String, AdjacencyMatrixDataSet> adjMatrixHolder;
