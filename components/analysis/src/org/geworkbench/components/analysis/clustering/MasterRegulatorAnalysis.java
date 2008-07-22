@@ -4,6 +4,7 @@ import java.awt.Component;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.StringTokenizer;
@@ -14,6 +15,10 @@ import javax.swing.tree.TreePath;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.analysis.AbstractAnalysis;
+import org.geworkbench.bison.annotation.CSAnnotationContext;
+import org.geworkbench.bison.annotation.CSAnnotationContextManager;
+import org.geworkbench.bison.annotation.DSAnnotationContext;
+import org.geworkbench.bison.annotation.DSAnnotationContextManager;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
@@ -37,7 +42,7 @@ import org.geworkbench.util.pathwaydecoder.mutualinformation.AdjacencyMatrixData
 
 /**
  * @author yc2480
- * @version $Id: MasterRegulatorAnalysis.java,v 1.2 2008-07-21 23:54:39 chiangy Exp $
+ * @version $Id: MasterRegulatorAnalysis.java,v 1.3 2008-07-22 21:23:51 chiangy Exp $
  */
 public class MasterRegulatorAnalysis extends AbstractAnalysis implements
 		ClusteringAnalysis {
@@ -84,9 +89,6 @@ public class MasterRegulatorAnalysis extends AbstractAnalysis implements
 		};
 		TtestAnalysisPanel tTestAnalysisPanel = mraAnalysisPanel.getTTestPanel();
 		TtestAnalysis tTestAnalysis= new TtestAnalysis(tTestAnalysisPanel);
-		String historyStr ="";
-		historyStr = tTestAnalysis.GenerateHistoryHeader();
-		historyStr = tTestAnalysis.GenerateMarkerString(view);
 		// validate data and parameters.
 		ParamValidationResults validation = validateParameters();
 		if (!validation.isValid()) {
@@ -203,8 +205,46 @@ public class MasterRegulatorAnalysis extends AbstractAnalysis implements
 		}
 		
 		// generate result
+		String historyStr ="";
+		historyStr += generateHistoryString(view);
 
-		historyStr = generateHistoryString(view)+historyStr;
+		historyStr += tTestAnalysis.GenerateHistoryHeader();		
+		historyStr += tTestAnalysis.GenerateMarkerString(view);
+
+		String groupAndChipsString = "Groups analyzed:\n";
+		{//generate group information
+			DSAnnotationContextManager manager = CSAnnotationContextManager
+			.getInstance();
+	DSAnnotationContext<DSMicroarray> context = manager
+			.getCurrentContext(maSet);
+			String[][] labels = new String[2][];
+			labels[0] = context
+					.getLabelsForClass(CSAnnotationContext.CLASS_CASE);
+			labels[1] = context
+					.getLabelsForClass(CSAnnotationContext.CLASS_CONTROL);
+			HashSet<String>[] classSets = new HashSet[2];
+			for (int j = 0; j < 2; j++) {
+				String[] classLabels = labels[j];
+				classSets[j] = new HashSet<String>();
+	
+				if (j == 0)
+					groupAndChipsString += "\t case group(s): \n";
+				else
+					groupAndChipsString += "\t control group(s): \n";
+	
+				for (int i = 0; i < classLabels.length; i++) {
+					String label = classLabels[i];
+					if (context.isLabelActive(label) || !view.useItemPanel()) {
+						// if (context.isLabelActive(label)) {
+						classSets[j].add(label);
+						groupAndChipsString += GenerateGroupAndChipsString(context
+								.getItemsWithLabel(label));
+					}
+				}
+			}
+		}
+		historyStr += groupAndChipsString;
+
 		ProjectPanel.addToHistory(mraResultSet, historyStr);
 
 		AlgorithmExecutionResults results = new AlgorithmExecutionResults(true,
@@ -234,12 +274,12 @@ public class MasterRegulatorAnalysis extends AbstractAnalysis implements
 		// Header
 		histStr += "Generated with MRA run with parameters:\n";
 		histStr += "----------------------------------------\n";
-		histStr += "Correction: " + mraAnalysisPanel.getCorrection() + "\n";
-		histStr += "P-Value: " + mraAnalysisPanel.getPValue() + "\n";
+//		histStr += "Correction: " + mraAnalysisPanel.getCorrection() + "\n";
+//		histStr += "P-Value: " + mraAnalysisPanel.getPValue() + "\n";
 		histStr += "Transcription Factor: " + mraAnalysisPanel.getTranscriptionFactor() + "\n";
 		histStr += "adjMatrix: "
 				+ mraAnalysisPanel.getAdjMatrixDataSet().getDataSetName()
-				+ "\n";
+				+ "\n\n\n";
 		return histStr;
 	}
 
@@ -282,5 +322,18 @@ public class MasterRegulatorAnalysis extends AbstractAnalysis implements
 			}
 		}
 	}
-	
+	private String GenerateGroupAndChipsString(DSPanel<DSMicroarray> panel) {
+		String histStr = null;
+
+		histStr = "\t     " + panel.getLabel() + " (" + panel.size()
+				+ " chips)" + ":\n";
+		;
+
+		int aSize = panel.size();
+		for (int aIndex = 0; aIndex < aSize; aIndex++)
+			histStr += "\t\t" + panel.get(aIndex) + "\n";
+
+		return histStr;
+	}
+
 }
