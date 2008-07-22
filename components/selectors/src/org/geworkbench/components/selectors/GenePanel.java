@@ -37,6 +37,7 @@ import org.geworkbench.engine.management.Script;
 import org.geworkbench.engine.management.Subscribe;
 import org.geworkbench.events.GeneSelectorEvent;
 import org.geworkbench.events.MarkerSelectedEvent;
+import org.geworkbench.events.ProjectEvent;
 import org.geworkbench.events.SubpanelChangedEvent;
 import org.geworkbench.util.Util;
 
@@ -276,7 +277,8 @@ public class GenePanel extends SelectorPanel<DSGeneMarker> {
 
 	@SuppressWarnings("unchecked")
 	protected boolean dataSetChanged(DSDataSet dataSet) {
-		DSItemList items;
+		DSItemList items = null;
+
 		if (dataSet instanceof DSMicroarraySet) {
 			DSMicroarraySet maSet = (DSMicroarraySet) dataSet;
 			items = maSet.getMarkers();
@@ -287,8 +289,54 @@ public class GenePanel extends SelectorPanel<DSGeneMarker> {
 			setItemList(items);
 			return true;
 		}
-
 		return false;
+	}
+
+	/**
+	 * A new method to update the selected Panel marker numbers after the
+	 * filtering.
+	 */
+	@SuppressWarnings("unchecked")
+	private void updateSelectedPanel() {
+		int childTotalNumber = context.getNumberOfLabels();
+		for (int i = 0; i < childTotalNumber; i++) {
+			String label = context.getLabel(i);
+			DSPanel panel = context.getItemsWithLabel(label);
+			DSPanel removedPanel = new CSPanel();
+			if (panel != null && panel.size() > 0) {
+				for (Object o : panel) {
+					if (!itemList.contains(o)) {
+						removedPanel.add(o);
+					}
+				}
+				for (Object o : removedPanel) {
+					panel.remove(o);
+				}
+			}
+			treeModel.fireLabelChanged(label);
+
+		}
+	}
+
+	/**
+	 * For receiving the results of applying a filter to a microarray set.
+	 * 
+	 * @param fe
+	 */
+	@Subscribe
+	public void receive(org.geworkbench.events.FilteringEvent fe, Object source) {
+		if (fe == null) {
+			return;
+		}
+		DSMicroarraySet sourceMA = fe.getOriginalMASet();
+		if (sourceMA == null) {
+			return;
+		}
+		if (fe.getInformation().startsWith("Missing")) {
+			updateSelectedPanel();
+
+			// repaint();
+		}
 	}
 
 	/**
@@ -420,12 +468,11 @@ public class GenePanel extends SelectorPanel<DSGeneMarker> {
 					SubpanelChangedEvent.NEW));
 			/*
 			 * our geWorkbench will not publish event to ourself (ex: in this
-			 * case, we want it to be received in our parent - selectorPanel) so we
-			 * still need to call the receive() manually
+			 * case, we want it to be received in our parent - selectorPanel) so
+			 * we still need to call the receive() manually
 			 */
-			this.receive(new SubpanelChangedEvent(
-					DSGeneMarker.class, panelSignificant,
-					SubpanelChangedEvent.NEW), this);
+			this.receive(new SubpanelChangedEvent(DSGeneMarker.class,
+					panelSignificant, SubpanelChangedEvent.NEW), this);
 
 			// 3. change it back
 			context = currentContext;
