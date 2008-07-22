@@ -222,6 +222,7 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin{
 			JButton addToSetButton = new JButton("Add to set");
 			addToSetButton.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(ActionEvent e) {
+					if (detailedTFGraphViewer.tfA==null) return;
 					DSAnnotatedPanel<DSGeneMarker, Float> panelSignificant = new CSAnnotPanel<DSGeneMarker, Float>(
 					"Target List of "+detailedTFGraphViewer.tfA.getLabel());
 					
