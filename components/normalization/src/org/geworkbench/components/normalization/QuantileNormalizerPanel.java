@@ -73,7 +73,7 @@ public class QuantileNormalizerPanel extends AbstractSaveableParameterPanel impl
 
         builder.appendSeparator("Quantile Parameters");
 
-        builder.append("Averaging method", averagingTypeSelection);
+        builder.append("Missing values averaging method", averagingTypeSelection);
         this.add(builder.getPanel(), BorderLayout.CENTER);
 
     }
