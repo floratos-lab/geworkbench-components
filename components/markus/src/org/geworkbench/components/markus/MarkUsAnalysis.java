@@ -81,6 +81,7 @@ public class MarkUsAnalysis extends AbstractAnalysis implements ProteinAnnotatio
 		//// test: for quick display of previous results without doing analysis
 		if (pdbname.equals("2pk7.pdb")) return new AlgorithmExecutionResults(true, "No errors", "MUS569");
 		else if (pdbname.equals("1e09.pdb")) return new AlgorithmExecutionResults(true, "No errors", "MUS580");
+		else if (pdbname.equals("input_txt_Q14994_8-83.pudge.pdb")) return new AlgorithmExecutionResults(true, "No errors", "MUS662");
 
 		//send file from local client to server
 		try{
