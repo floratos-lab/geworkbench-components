@@ -284,11 +284,13 @@ public class SkyLineComponent extends JPanel implements VisualPlugin {
      */
     @Subscribe public void receive(org.geworkbench.events.ProjectEvent pe, Object source) {
         DSDataSet dataSet = pe.getDataSet();
-	pname = dataSet.getLabel();
-	logfile = outdir+"/"+pname+"/ANALYSIS/"+pname+".log";
-	System.out.println("\ndataset is: "+dataSet);
 
         if (dataSet instanceof DSProteinStructure) {
+
+	    pname = dataSet.getLabel();
+	    logfile = outdir+"/"+pname+"/ANALYSIS/"+pname+".log";
+	    System.out.println("\ndataset is: "+dataSet);
+
             maSet = (DSProteinStructure) dataSet;
             reset();
 	    int logstat = check_log_stat(logfile);
