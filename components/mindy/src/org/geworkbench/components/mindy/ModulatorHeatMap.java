@@ -73,9 +73,6 @@ public class ModulatorHeatMap extends JPanel {
     private Graphics2D g;
     private BufferedImage offscreen;    
     private Dimension dim;
-    
-    private Cursor hourglassCursor = new Cursor(Cursor.WAIT_CURSOR);
-	private Cursor normalCursor = new Cursor(Cursor.DEFAULT_CURSOR);
 	
 	private boolean doNotPaint = false;
 
@@ -90,7 +87,6 @@ public class ModulatorHeatMap extends JPanel {
     @SuppressWarnings("unchecked")
     public ModulatorHeatMap(DSGeneMarker modulator, DSGeneMarker transcriptionFactor, MindyData mindyData, List<DSGeneMarker> targetLimits, boolean showProbeName) {
     	log.debug("\tHeatMap::constructor::start...");
-    	//setCursor(hourglassCursor);
     	this.showProbeName = showProbeName;
     	
     	this.maSet = mindyData.getArraySet();
@@ -161,9 +157,7 @@ public class ModulatorHeatMap extends JPanel {
         this.setBackground(Color.white);
         this.setOpaque(true);
         this.setIgnoreRepaint(true);
-        
-        //setCursor(normalCursor);
-        
+
         log.debug("\tHeatMap::constructor::end.");
     }
 
@@ -211,7 +205,6 @@ public class ModulatorHeatMap extends JPanel {
     	int w = (int) dim.getWidth();
     	int h = (int) dim.getHeight();
     	if((offscreen == null) && (w > 0) && (h > 0)){
-    		//setCursor(hourglassCursor);
     		log.debug("\t\t\tbuffer processing...");	
     		try{
 		    	offscreen = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);   
@@ -318,8 +311,13 @@ public class ModulatorHeatMap extends JPanel {
 	        g.drawRect(SPACER_SIDE, targetStartY, (int) expressionBarWidth, targetCurrY - targetStartY);
 	        g.drawRect((int) (getWidth() - SPACER_SIDE - expressionBarWidth - 1), targetStartY, (int) (expressionBarWidth + 1), targetCurrY - targetStartY);
     	}
-        graphics.drawImage(offscreen, 0, 0, this);        
-        //setCursor(normalCursor);
+        graphics.drawImage(offscreen, 0, 0, this);     
+        org.geworkbench.util.Cursor cursor = org.geworkbench.util.Cursor.getCursor();
+        java.awt.Component c = cursor.getAssociatedComponent();
+        if((cursor.getAssociatedComponent() != null) && cursor.isStarted() && !cursor.isFinished()){
+        	log.debug("***set finished flag");
+        	cursor.setFinished(true);
+        }
         log.debug("\t\tdoPaint()::end.");
     }
 
