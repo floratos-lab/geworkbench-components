@@ -99,7 +99,7 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin{
 		jSplitPane2.setDividerLocation(600);
 		jSplitPane2.setDividerSize(3);
 
-		FormLayout layout = new FormLayout("500dlu:grow, pref","20dlu, pref:grow, 100dlu");
+		FormLayout layout = new FormLayout("500dlu:grow, pref","20dlu, pref:grow");
 		DefaultFormBuilder builder = new DefaultFormBuilder(layout);
 
 			FormLayout headerLayout = new FormLayout("60dlu, 6dlu, 60dlu, 30dlu, 90dlu, 6dlu, 90dlu, 200dlu, 90dlu","20dlu");
@@ -384,8 +384,9 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin{
 		//builder.append(new JScrollPane(detailedTFGraphViewer),2);
 		builder.add(jSplitPane1,new CellConstraints("1,2,f,f"));
 
+		JScrollPane wholeWindowScrollPane = new JScrollPane(builder.getPanel());
 		this.setLayout(new BorderLayout());
-		this.add(builder.getPanel(),BorderLayout.CENTER);
+		this.add(wholeWindowScrollPane,BorderLayout.CENTER);
 	}
 
 	ChangeListener changeListener = new ChangeListener() {
