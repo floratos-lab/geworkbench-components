@@ -71,7 +71,7 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin{
 	String[] detailColumnNames = {"Genes in target list", "P-Value", "T-Test Value"};
 	DSMasterRagulatorResultSet<DSGeneMarker> MRAResultSet;
 	DetailedTFGraphViewer detailedTFGraphViewer;
-	boolean useSymbol = false;
+	boolean useSymbol = true;
 	private ValueModel pValueHolder = new ValueHolder("0.05");
 	private ValueModel tfAHolder = new ValueHolder(" ");	
 	public MasterRegulatorViewer(){
@@ -120,6 +120,7 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin{
 	        };
 	        ButtonGroup SymbolProbeSetGroup = new ButtonGroup();
  			JRadioButton showSymbolButton= new JRadioButton("Symbol");
+ 			showSymbolButton.setSelected(true); //default to Symbol
 			showSymbolButton.addActionListener(actionListener);
 			JRadioButton showProbeSetButton= new JRadioButton("Probe Set");
 			showProbeSetButton.addActionListener(actionListener);
@@ -283,6 +284,19 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin{
 	            public void actionPerformed(ActionEvent evt){
 	            	try{
 	            		double pValue = Double.valueOf(pValueTextField.getText());
+	            		if ((pValue<0)||(pValue>1)){
+							SwingUtilities.invokeLater(new Runnable() {
+								public void run() {
+									pValueTextField.setText("1.00");
+									pValueHolder.setValue("1.00");
+								}
+							});
+							JOptionPane.showMessageDialog(null,
+									"P-Value should be a float point number between 0.00 and 1.00",
+									"Invalid P-Value",
+									JOptionPane.INFORMATION_MESSAGE);
+							return;	            			
+	            		}
 	            	}catch(Exception e){
 						SwingUtilities.invokeLater(new Runnable() {
 							public void run() {
@@ -291,8 +305,8 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin{
 							}
 						});
 						JOptionPane.showMessageDialog(null,
-								"P-Value should be a float point number",
-								"Invalide P-Value",
+								"P-Value should be a float point number between 0.00 and 1.00",
+								"Invalid P-Value",
 								JOptionPane.INFORMATION_MESSAGE);
 						return;
 	            	}
@@ -372,7 +386,6 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin{
 
 		this.setLayout(new BorderLayout());
 		this.add(builder.getPanel(),BorderLayout.CENTER);
-		
 	}
 
 	ChangeListener changeListener = new ChangeListener() {
