@@ -215,7 +215,7 @@ public class MasterRegulatorPanel extends AbstractSaveableParameterPanel
 	private class TFFromListener implements PropertyChangeListener {
         public void propertyChange(PropertyChangeEvent evt) {
         	if (evt.getPropertyName()=="value")
-        		if (evt.getNewValue()=="From Groups"){
+        		if (evt.getNewValue()=="From Sets"){
         			tfGroups.setEnabled(true);
         			loadTFButton.setEnabled(false);
         			getGroups();
@@ -241,7 +241,7 @@ public class MasterRegulatorPanel extends AbstractSaveableParameterPanel
 	}
 	private JComboBox createTFFromComboBox(){
 		tfFromModel = new ArrayListModel<String>();
-		tfFromModel.add("From Groups");
+		tfFromModel.add("From Sets");
 		tfFromModel.add("From File");
 		TFFromListener tfFromListener= new TFFromListener();
 		SelectionInList<String> selectionInList=new SelectionInList((ListModel)tfFromModel);
