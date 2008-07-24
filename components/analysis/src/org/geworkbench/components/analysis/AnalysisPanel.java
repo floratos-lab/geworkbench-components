@@ -19,6 +19,7 @@ import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
 import javax.swing.ButtonModel;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
@@ -567,10 +568,10 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 			setNamedParameters(availableAnalyses[pluginAnalyses
 					.getSelectedIndex()].getNamesOfStoredParameterSets());
 			if ( paramPanel instanceof MultiTTestAnalysisPanel || paramPanel instanceof  TtestAnalysisPanel )
-		    	super.chkAllArrays.setVisible(false);			 
-			else
-				super.chkAllArrays.setVisible(true);
-			
+			 	super.chkAllArrays.setVisible(false);	
+			else			 
+				super.chkAllArrays.setVisible(true);				 
+						
 			save.setEnabled(true);
 		} else {
 			setParametersPanel(this.emptyParameterPanel);
@@ -578,7 +579,7 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 			// Since the analysis admits no parameters, there are no named
 			// parameter
 			// settings to show.
-			setNamedParameters(new String[0]);
+			setNamedParameters(new String[0]);			 
 		}
 
 		// keshav
@@ -631,6 +632,12 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 	 */
 	private void analyze_actionPerformed(ActionEvent e) {
 		maSetView = getDataSetView();
+		
+		if ( currentParameterPanel instanceof MultiTTestAnalysisPanel || currentParameterPanel instanceof  TtestAnalysisPanel )
+			onlyActivatedArrays = true;		 
+		else
+			onlyActivatedArrays = !chkAllArrays.isSelected();
+			
 		if (selectedAnalysis == null
 				|| ((refMASet == null) && (refOtherSet == null))) {
 			return;
