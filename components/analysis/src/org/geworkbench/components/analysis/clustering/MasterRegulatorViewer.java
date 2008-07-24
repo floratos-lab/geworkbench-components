@@ -510,7 +510,7 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin{
 			for (Iterator<DSGeneMarker> iterator = genesInTargetList.iterator(); iterator
 					.hasNext();) {
 				DSGeneMarker geneInTargetList = (DSGeneMarker) iterator.next();
-				if (mraResultSet.getPValueOf(tfA, geneInTargetList)<pValue)
+				if (mraResultSet.getPValueOf(tfA, geneInTargetList)<=pValue)
 					filterCounter++;
 			}
 			records=filterCounter;
@@ -522,13 +522,13 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin{
 		for (Iterator<DSGeneMarker> iterator = genesInTargetList.iterator(); iterator
 				.hasNext();) {
 			DSGeneMarker geneInTargetList = (DSGeneMarker) iterator.next();
-			if ((!usePValue) || (mraResultSet.getPValueOf(tfA, geneInTargetList)<pValue)){
+			if ((!usePValue) || (mraResultSet.getPValueOf(tfA, geneInTargetList)<=pValue)){
 				if (useSymbol)
 					data[cx][0]= geneInTargetList.getShortName();
 				else
 					data[cx][0]= geneInTargetList.getLabel();
 				data[cx][1]= mraResultSet.getPValueOf(tfA, geneInTargetList);
-				data[cx][2]= mraResultSet.getTTestValueOf(tfA, geneInTargetList);
+				data[cx][2]= mraResultSet.getSignificanceResultSet().getTValue(geneInTargetList);
 				cx++;
 			}
 		}
