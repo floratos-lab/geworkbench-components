@@ -7,6 +7,8 @@ import java.util.Vector;
 
 import javax.swing.JOptionPane;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.geworkbench.analysis.AbstractAnalysis;
 import org.geworkbench.bison.annotation.CSAnnotationContext;
 import org.geworkbench.bison.annotation.CSAnnotationContextManager;
@@ -72,7 +74,7 @@ public class TtestAnalysis extends AbstractAnalysis implements
 	private static final long serialVersionUID = 1L;
 
 	private int localAnalysisType;
-
+	private Log log = LogFactory.getLog(this.getClass());
 	private boolean stop = false;
 	// private ProgressBar pb = null;
 	private int function;
@@ -193,7 +195,7 @@ public class TtestAnalysis extends AbstractAnalysis implements
 		// DSMicroarray>)input;
 		DSMicroarraySetView<? extends DSGeneMarker, ? extends DSMicroarray> data = (DSMicroarraySetView) input;
 		boolean allArrays = !data.useItemPanel();
-		System.out.println("All arrays: " + allArrays);
+		log.info("All arrays: " + allArrays);
 		// data.useItemPanel(true);
 		// data.useMarkerPanel(true);
 
@@ -492,8 +494,8 @@ public class TtestAnalysis extends AbstractAnalysis implements
 			if (tTestDesign == TtestAnalysisPanel.BETWEEN_SUBJECTS) {
 				for (int i = 0; i < tValuesVector.size(); i++) {
 					if (this.stopAlgorithm) {pbTtest.dispose(); return null;}
-					tValuesMatrix[i][0] = Math.abs(((Float) (tValuesVector
-							.get(i))).floatValue());
+					tValuesMatrix[i][0] = ((Float) (tValuesVector
+							.get(i))).floatValue();
 				}
 			} else if (tTestDesign == TtestAnalysisPanel.ONE_CLASS) {
 				for (int i = 0; i < tValuesVector.size(); i++) {
@@ -515,6 +517,7 @@ public class TtestAnalysis extends AbstractAnalysis implements
 						.floatValue();
 				sigSet.setMarker(data.markers().get(i), pValuesMatrix[i][0]);
 				sigSet.setTValue(data.markers().get(i), tValuesMatrix[i][0]);
+				log.debug(data.markers().get(i).getLabel()+":"+pValuesMatrix[i][0]+","+tValuesMatrix[i][0]);
 			}
 
 			if (tTestDesign == TtestAnalysisPanel.BETWEEN_SUBJECTS) {
@@ -642,7 +645,7 @@ public class TtestAnalysis extends AbstractAnalysis implements
 		if (tTestDesign == TtestAnalysisPanel.BETWEEN_SUBJECTS) {
 			for (int i = 0; i < numGenes; i++) {
 				if (this.stopAlgorithm) {pbTtest.dispose(); return null;}
-				origTValues[i] = Math.abs(getTValue(i));
+				origTValues[i] = getTValue(i);
 			}
 
 			org.geworkbench.util.QSort sortDescTValues = new QSort(origTValues,
@@ -832,7 +835,7 @@ public class TtestAnalysis extends AbstractAnalysis implements
 		} else if (tTestDesign == TtestAnalysisPanel.ONE_CLASS) {
 			for (int i = 0; i < numGenes; i++) {
 				if (this.stopAlgorithm) {pbTtest.dispose(); return null;}
-				origTValues[i] = Math.abs(getOneClassTValue(i));
+				origTValues[i] = getOneClassTValue(i);
 			}
 
 			org.geworkbench.util.QSort sortDescTValues = new org.geworkbench.util.QSort(
@@ -1094,7 +1097,7 @@ public class TtestAnalysis extends AbstractAnalysis implements
 		if (tTestDesign == TtestAnalysisPanel.BETWEEN_SUBJECTS) {
 			for (int i = 0; i < numGenes; i++) {
 				if (this.stopAlgorithm) {pbTtest.dispose(); return null;}
-				origTValues[i] = Math.abs(getTValue(i));
+				origTValues[i] = getTValue(i);
 			}
 			if (!useAllCombs) {
 				for (int i = 0; i < numCombs; i++) {
@@ -1282,7 +1285,7 @@ public class TtestAnalysis extends AbstractAnalysis implements
 		} else if (tTestDesign == TtestAnalysisPanel.ONE_CLASS) {
 			for (int i = 0; i < numGenes; i++) {
 				if (this.stopAlgorithm) {pbTtest.dispose(); return null;}
-				origTValues[i] = Math.abs(getOneClassTValue(i));
+				origTValues[i] = getOneClassTValue(i);
 			}
 			if (!useAllCombs) {
 				boolean[] changeSign = new boolean[1];
@@ -1609,7 +1612,7 @@ public class TtestAnalysis extends AbstractAnalysis implements
 	private double[] getTwoClassUnpairedTValues(float[][] inputMatrix) {
 		double[] tValsFromMatrix = new double[numGenes];
 		for (int i = 0; i < numGenes; i++) {
-			tValsFromMatrix[i] = Math.abs(getTValue(i, inputMatrix));
+			tValsFromMatrix[i] = getTValue(i, inputMatrix);
 		}
 
 		return tValsFromMatrix;
@@ -1958,7 +1961,7 @@ public class TtestAnalysis extends AbstractAnalysis implements
 					randomizedGene[l] = origGeneValues[l];
 				}
 			}
-			double randTValue = Math.abs(getOneClassTValue(randomizedGene));
+			double randTValue = getOneClassTValue(randomizedGene);
 			if (randTValue > origOneClassT) {
 				exceedCount++;
 			}
@@ -2015,7 +2018,7 @@ public class TtestAnalysis extends AbstractAnalysis implements
 				}
 			}
 
-			double randTValue = Math.abs(getOneClassTValue(reducedRandGene));
+			double randTValue = getOneClassTValue(reducedRandGene);
 			if (randTValue > origOneClassT) {
 				exceedCount++;
 			}
@@ -2248,13 +2251,13 @@ public class TtestAnalysis extends AbstractAnalysis implements
 		}
 		double stdErr = stdDev / (Math.sqrt(validNum));
 		tValue = ((double) (mean - oneClassMean)) / stdErr;
-		return Math.abs(tValue);
+		return tValue;
 	}
 
 	double[] getOneClassTValues(float[][] inputMatrix) {
 		double[] tValsFromMatrix = new double[numGenes];
 		for (int i = 0; i < numGenes; i++) {
-			tValsFromMatrix[i] = Math.abs(getOneClassTValue(i, inputMatrix));
+			tValsFromMatrix[i] = getOneClassTValue(i, inputMatrix);
 		}
 
 		return tValsFromMatrix;
@@ -2313,7 +2316,7 @@ public class TtestAnalysis extends AbstractAnalysis implements
 			float[] tValues = new float[numGenes];
 			for (int i = 0; i < numGenes; i++) {
 				if (this.stopAlgorithm) {pbTtest.dispose(); return null;}
-				tValues[i] = Math.abs(getTValue(i));
+				tValues[i] = getTValue(i);
 			}
 
 			QSort sortTValues = new QSort(tValues);
@@ -2448,7 +2451,7 @@ public class TtestAnalysis extends AbstractAnalysis implements
 			nonSigGenes = new Vector();
 			float[] tValues = new float[numGenes];
 			for (int i = 0; i < numGenes; i++) {
-				tValues[i] = Math.abs(getTValue(i));
+				tValues[i] = getTValue(i);
 			}
 
 			QSort sortTValues = new QSort(tValues);
@@ -2576,7 +2579,7 @@ public class TtestAnalysis extends AbstractAnalysis implements
 			}
 		}
 
-		float tValue = Math.abs(calculateTValue(groupAValues, groupBValues));
+		float tValue = calculateTValue(groupAValues, groupBValues);
 		currentT = tValue;
 		double permutProb;
 		permutProb = 0;
@@ -2604,8 +2607,8 @@ public class TtestAnalysis extends AbstractAnalysis implements
 				for (int i = 0; i < notInCombArray.length; i++) {
 					resampGroupB[i] = geneValues[groupedExpts[notInCombArray[i]]];
 				}
-				float resampTValue = Math.abs(calculateTValue(resampGroupA,
-						resampGroupB));
+				float resampTValue = calculateTValue(resampGroupA,
+						resampGroupB);
 				if (tValue < resampTValue) {
 					permutProb++;
 				}
@@ -2619,8 +2622,8 @@ public class TtestAnalysis extends AbstractAnalysis implements
 			for (int i = 0; i < numCombs; i++) {
 				float[][] randomGroups = randomlyPermute(geneValues,
 						groupedExpts, groupAValues.length, groupBValues.length);
-				float randomizedTValue = Math.abs(calculateTValue(
-						randomGroups[0], randomGroups[1]));
+				float randomizedTValue = calculateTValue(
+						randomGroups[0], randomGroups[1]);
 				if (tValue < randomizedTValue) {
 					permutProb++;
 				}
@@ -2686,7 +2689,7 @@ public class TtestAnalysis extends AbstractAnalysis implements
 			return false;
 		}
 
-		float tValue = Math.abs(calculateTValue(groupAValues, groupBValues));
+		float tValue = calculateTValue(groupAValues, groupBValues);
 		currentT = tValue;
 		double permutProb, criticalP;
 		permutProb = 0;
@@ -2726,9 +2729,9 @@ public class TtestAnalysis extends AbstractAnalysis implements
 				for (int i = 0; i < notInCombArray.length; i++) {
 					resampGroupB[i] = geneValues[groupedExpts[notInCombArray[i]]];
 				}
-				float resampTValue = Math.abs(calculateTValue(resampGroupA,
-						resampGroupB));
-				if (tValue < resampTValue) {
+				float resampTValue = calculateTValue(resampGroupA,
+						resampGroupB);
+				if (Math.abs(tValue) < Math.abs(resampTValue)) {
 					permutProb++;
 				}
 				numCombsCounter++;
@@ -2748,9 +2751,9 @@ public class TtestAnalysis extends AbstractAnalysis implements
 			for (int i = 0; i < numCombs; i++) {
 				float[][] randomGroups = randomlyPermute(geneValues,
 						groupedExpts, groupAValues.length, groupBValues.length);
-				float randomizedTValue = Math.abs(calculateTValue(
-						randomGroups[0], randomGroups[1]));
-				if (tValue < randomizedTValue) {
+				float randomizedTValue = calculateTValue(
+						randomGroups[0], randomGroups[1]);
+				if (Math.abs(tValue) < Math.abs(randomizedTValue)) {
 					permutProb++;
 				}
 				randomCounter++;
@@ -3038,7 +3041,7 @@ public class TtestAnalysis extends AbstractAnalysis implements
 				double cumulP = tDist.cumulative(tValue);
 				prob = 2 * (1 - cumulP);
 				if (prob > 1) {
-					prob = 1;
+					prob = 2-prob;
 				}
 				currentP = prob;
 
@@ -3093,7 +3096,7 @@ public class TtestAnalysis extends AbstractAnalysis implements
 		float tValue = (float) ((meanA - meanB) / Math.sqrt((varA / kA)
 				+ (varB / kB)));
 
-		return Math.abs(tValue);
+		return tValue;
 	}
 
 	private int calculateDf(float[] groupA, float[] groupB) {
