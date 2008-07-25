@@ -725,6 +725,9 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 
 							} else {
 								log.error("Cannot execute with url:  " + url);
+								 JOptionPane.showMessageDialog(null, "Cannot execute grid analysis: Invalid URL specified.",
+						                 "Invalid grid URL Error",
+						                 JOptionPane.ERROR_MESSAGE);
 							}
 						} else {
 							if (refOtherSet != null) { // added for
