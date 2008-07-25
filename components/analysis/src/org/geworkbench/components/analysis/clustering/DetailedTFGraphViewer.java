@@ -93,16 +93,15 @@ public class DetailedTFGraphViewer extends JPanel {
 			}
 
 			// draw the lines for geneMarkers
-			int sectionWidth = width / numMarkers;
 			for (int i = 0; i < numMarkers; i++) {
 				int geneNum = i;
-				int left = sectionWidth * (geneNum);
-				int right = sectionWidth * (geneNum + 1);
-				int center = (left + right) / 2;
+				int center = (int) (width * (geneNum + 0.5) / numMarkers);
 				DSItemList genesInTargetList = mraResultSet
 						.getGenesInTargetList(tfA);
-				if (genesInTargetList == null)	//if user selected wrong TF, which doesn't have neighbors 
+				if (genesInTargetList == null){	//if user selected wrong TF, which doesn't have neighbors
+					System.out.println("Wrong TF");
 					continue;
+				}
 				for (int cx = 0; cx < genesInTargetList.size(); cx++) {
 					if (Gene2RankMap.get(genesInTargetList.get(cx)).intValue() == i) {
 						if (mraResultSet.getPValueOf(tfA,
