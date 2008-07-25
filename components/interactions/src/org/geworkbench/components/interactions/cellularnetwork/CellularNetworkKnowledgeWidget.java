@@ -103,6 +103,9 @@ import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.jfree.ui.RectangleInsets;
 
+import org.geworkbench.builtin.projects.ProjectPanel;
+
+
 /**
  * @author manjunath at genomecenter dot columbia dot edu, xiaoqing zhang
  */
@@ -1144,6 +1147,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 		matrix.setMicroarraySet(dataset);
 		int serial = 0;
 		boolean isEmpty = true;
+		String historyStr = "";
 		for (CellularNetWorkElementInformation cellularNetWorkElementInformation : hits) {
 			ArrayList<InteractionDetail> arrayList = cellularNetWorkElementInformation
 					.getSelectedInteractions();
@@ -1153,7 +1157,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 						eidc);
 				serial = copy.get(index).getSerial();
 				matrix.addGeneRow(serial);
-				int i = 0;
+				 
 
 				for (InteractionDetail interactionDetail : arrayList) {
 					DSGeneMarker marker = new CSGeneMarker();
@@ -1182,13 +1186,37 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 					}
 				}
 			}
-
+           
 			dataSet = new AdjacencyMatrixDataSet(matrix, serial, 0.5f, 2,
 					"Adjacency Matrix", dataset.getLabel(), dataset);
 
+			if (cellularNetWorkElementInformation.isIncludePDInteraction() == true || cellularNetWorkElementInformation.isIncludePPInteraction() == true)
+			{
+				historyStr += "           " + cellularNetWorkElementInformation.getdSGeneMarker().getLabel() + ": " ;
+				if (cellularNetWorkElementInformation.isIncludePDInteraction())
+				   historyStr += "Include Protein-DNA(true): ";
+				else
+				   historyStr += "Include Protein-DNA(false): ";
+				historyStr += cellularNetWorkElementInformation.getPdInteractionNum() + ", ";
+			    
+				if (cellularNetWorkElementInformation.isIncludePPInteraction())
+					   historyStr += "Include Protein-Protein(true): ";
+					else
+					   historyStr += "Include Protein-Protein(false): ";
+				historyStr += cellularNetWorkElementInformation.getPpInteractionNum() + "\n";
+				
+			}
+			 
+			
 		} // end for loop
+		
+		
+		 
 
 		if (dataSet != null && !isEmpty) {
+			
+			historyStr = "Cellular Network Parameters: \n" + "      Threshold: " + thresholdTextField.getText()+ "\n" + "      Selected Marker List: \n" + historyStr +"\n";  
+			ProjectPanel.addToHistory(dataSet, historyStr);
 			publishProjectNodeAddedEvent(new ProjectNodeAddedEvent(
 					"Adjacency Matrix Added", null, dataSet));
 			publishAdjacencyMatrixEvent(new AdjacencyMatrixEvent(matrix,
