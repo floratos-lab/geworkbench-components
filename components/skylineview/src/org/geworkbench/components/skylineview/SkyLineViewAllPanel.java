@@ -161,7 +161,16 @@ import jalview.bin.*;
 	try{
 	    displayLeverage("ANALYSIS");
 	}catch (Exception ae){
-	    //	    ae.printStackTrace();
+
+	    JTextArea textArea = new JTextArea("Cannot Read Results");
+	    textArea.setFont(new Font("Courier", Font.PLAIN, 16));
+	    jScrollPane.getViewport().add(textArea, null);
+	    jScrollPane.setBorder(
+				  BorderFactory.createCompoundBorder(
+								     BorderFactory.createCompoundBorder(
+													BorderFactory.createTitledBorder(title),
+													BorderFactory.createEmptyBorder(5, 5, 5, 5)),
+								     border));
 	    System.out.println("displayLeverage not connected error");
             JOptionPane.showMessageDialog(null, "Cannot connect to SkyLine webserver", "Show Results Error", JOptionPane.ERROR_MESSAGE);
 	}
@@ -220,7 +229,7 @@ import jalview.bin.*;
 			    data[j-1][colid] = ((String)data[j-1][colid]).concat(line);			    
 			}
 			else {
-			    line+="\t";
+			    line+="\t\t";
 			    data[j++] = line.split(coldatasplitter, maxhitcols);
 			}
 		    }
