@@ -101,6 +101,8 @@ public class DetailedTFGraphViewer extends JPanel {
 				int center = (left + right) / 2;
 				DSItemList genesInTargetList = mraResultSet
 						.getGenesInTargetList(tfA);
+				if (genesInTargetList == null)	//if user selected wrong TF, which doesn't have neighbors 
+					continue;
 				for (int cx = 0; cx < genesInTargetList.size(); cx++) {
 					if (Gene2RankMap.get(genesInTargetList.get(cx)).intValue() == i) {
 						if (mraResultSet.getPValueOf(tfA,
