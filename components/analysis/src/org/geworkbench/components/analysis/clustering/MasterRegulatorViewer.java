@@ -74,6 +74,7 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin{
 	boolean useSymbol = true;
 	private ValueModel pValueHolder = new ValueHolder("0.05");
 	private ValueModel tfAHolder = new ValueHolder(" ");	
+	JRadioButton currentSelectedRadioButton = null;
 	public MasterRegulatorViewer(){
 		
 		Object[][] data=new Object[1][1];
@@ -395,6 +396,8 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin{
 	        ButtonModel aModel = aButton.getModel();
 	        boolean selected = aModel.isSelected();
 	        JRadioButton jRadioButton = (JRadioButton)aButton;
+	        if (selected)
+	        	currentSelectedRadioButton = jRadioButton;	//save current selected one
 	        String GeneMarkerStr = jRadioButton.getName();
 	        log.debug(GeneMarkerStr+" selected : "+selected);
 	        //fire a TF selected event //but event won't deliver to itself.
@@ -412,19 +415,24 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin{
 		DSDataSet dataSet = event.getDataSet();
 		if (dataSet instanceof DSMasterRagulatorResultSet) {
 			MRAResultSet = (DSMasterRagulatorResultSet)dataSet;
+			currentSelectedRadioButton = null;
 			updateTable();
 			useSymbol = true;
 		}
 	}
 
 	private void updateTable(){
-		Object data[][] = new Object[MRAResultSet.getTFs().size()][5];
+		Object data[][] = new Object[MRAResultSet.getTFs().size()][4];
 		int cx=0;
 		ButtonGroup group1 = new ButtonGroup();
 		for (Iterator<DSGeneMarker> iterator = MRAResultSet.getTFs().iterator(); iterator
 				.hasNext();) {
 			DSGeneMarker tfA = (DSGeneMarker) iterator.next();
-			JRadioButton tfRadioButton = new JRadioButton();
+			JRadioButton tfRadioButton;
+			if ((currentSelectedRadioButton!=null) && (currentSelectedRadioButton.getName().equals(tfA.getLabel())))
+				tfRadioButton = currentSelectedRadioButton;
+			else
+				tfRadioButton = new JRadioButton();
 			tfRadioButton.setName(tfA.getLabel());
 			if (useSymbol)
 				tfRadioButton.setText(tfA.getShortName());
@@ -449,13 +457,45 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin{
 		detailedTFGraphViewer.updateUI();
 	}
 	private void showSymbol(){
+		DSGeneMarker currentTFA = detailedTFGraphViewer.tfA;
 		useSymbol = true;
 		updateTable();
+		/*	following things will never work, because the radiobuttons have been newly created.		
+		if (currentSelectedRadioButton!=null){
+			currentSelectedRadioButton.doClick();
+			currentSelectedRadioButton.setSelected(true);
+			currentSelectedRadioButton.getModel().setSelected(true);
+			currentSelectedRadioButton.getModel().setPressed(true);
+		}
+		 */
+		//so we re-use the previously selected radiobutton (so it will shown selected)
+		//and we tell other section to draw itself using currentTFA.
+        updateSelectedTF(MRAResultSet, currentTFA, tv2);
+        detailedTFGraphViewer.setTFA(MRAResultSet, currentTFA);
+        detailedTFGraphViewer.updateUI();
 	}
 
 	private void showProbeSet(){
+		DSGeneMarker currentTFA = detailedTFGraphViewer.tfA;
 		useSymbol = false;
 		updateTable();
+		/*	following things will never work, because the radiobuttons have been newly created.		
+		if (currentSelectedRadioButton!=null){
+			SwingUtilities.invokeLater(new Runnable() {
+				public void run() {
+					currentSelectedRadioButton.doClick();
+					currentSelectedRadioButton.setSelected(true);
+					currentSelectedRadioButton.getModel().setSelected(true);
+					currentSelectedRadioButton.getModel().setPressed(true);
+				}
+			});			
+		}
+		 */			
+		//so we re-use the previously selected radiobutton (so it will shown selected)
+		//and we tell other section to draw itself using currentTFA.
+        updateSelectedTF(MRAResultSet, currentTFA, tv2);
+        detailedTFGraphViewer.setTFA(MRAResultSet, currentTFA);
+        detailedTFGraphViewer.updateUI();
 	}
 /*
 	class MyTableModel extends AbstractTableModel {
