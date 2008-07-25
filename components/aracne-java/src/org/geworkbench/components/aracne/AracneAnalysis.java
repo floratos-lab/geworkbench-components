@@ -319,7 +319,8 @@ public class AracneAnalysis extends AbstractGridAnalysis implements ClusteringAn
                 	paramDescB.append(m.getShortName());
                 	paramDescB.append("\n");
                 }
-                ProjectPanel.addToHistory(dataSet, "Generated with ARACNE run with paramters:\n" + p.getParamterDescription() + paramDescB.toString());
+                ProjectPanel.addToHistory(dataSet, "Generated with ARACNE run with paramters:\n" + p.getParamterDescription() 
+                		+ hubMarkersDescription(p)+ paramDescB.toString());
                 publishProjectNodeAddedEvent(new ProjectNodeAddedEvent("Adjacency Matrix Added", null, dataSet));
 
 //        publishAdjacencyMatrixEvent(new AdjacencyMatrixEvent(convert(weightedGraph, mSetView), "ARACNE Set",
@@ -331,6 +332,17 @@ public class AracneAnalysis extends AbstractGridAnalysis implements ClusteringAn
                         "consider relaxing your thresholds.");
             }
 
+        }
+        
+        /* this is not included in Parameter's implement, which is outside this package */
+        private final String hubMarkersDescription(Parameter p) {
+        	StringBuilder builder = new StringBuilder();
+        	Vector<String> subnet = p.getSubnet();
+        	if(subnet.size()==0) return "";
+        	builder.append("[PARA] Hub markers: " + subnet.get(0));
+        	for(int i=1; i<subnet.size(); i++)builder.append(", " + subnet.get(i));
+        	builder.append("\n");
+        	return builder.toString();
         }
 
         public AracneProgress getProgressWindow() {
