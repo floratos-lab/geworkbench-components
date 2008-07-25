@@ -60,6 +60,7 @@ import jalview.bin.*;
     private JComboBox allmodels;// = new JComboBox();
     private Boolean finish = false;
     private int maxhitcols = 20;
+    private int lasti = 0;
     private static String strScript = "wireframe off; spacefill off; cartoons; color structure;";
 
     private static String energycols[] = {
@@ -235,14 +236,19 @@ import jalview.bin.*;
 	    ((HttpURLConnection)uc).getResponseCode() == 404)
 	    { return; }
 	BufferedReader in = new BufferedReader(new InputStreamReader(uc.getInputStream()));
-	String line; boolean start = false; int offset = 0;
+	String line; boolean start = false; int offset = 0, i = 0, pdbi = 0;
 	Vector<String> amfiles = new Vector<String>();
 	while((line = in.readLine()) != null) {
 	    if (start) {
 		if ((offset = line.indexOf("a href=\"")) > -1) {
 		    String subline = line.substring(offset+8, line.lastIndexOf("\""));
 		    String elem = subline.substring(subline.lastIndexOf("/")+1);
-		    if (!elem.endsWith("prosa")) {amfiles.addElement(elem);}
+		    if (!elem.endsWith("prosa")) 
+		    {
+			amfiles.addElement(elem); 
+			if (elem.endsWith("pdb"))  pdbi = i;
+			i++;
+		    }
 		}
 	    }
 	    else if (line.indexOf("Filename") > -1) {
@@ -255,12 +261,13 @@ import jalview.bin.*;
 	}
 
 	allmodels = new JComboBox(amfiles);
-	allmodels.setSelectedIndex(0);
+	allmodels.setSelectedIndex(lasti);
 	allmodels.addActionListener(this);
 
-	// initialize title with the first file of the model
+	// initialize title with the pdb file of the model
 	if (title.endsWith("Models")) {
-	    title = (String)amfiles.elementAt(0); 
+	    lasti = pdbi;
+	    title = (String)amfiles.elementAt(lasti); 
 	}
 	else {
 	title = (String)allmodels.getSelectedItem();
@@ -295,6 +302,7 @@ import jalview.bin.*;
 	//	JComboBox cb = (JComboBox)e.getSource();
 	//	title = (String)cb.getSelectedItem();
 	title = (String)allmodels.getSelectedItem();
+	lasti = allmodels.getSelectedIndex();
 	try{
 	    displayModelFileContent();
 	}catch(Exception ae){
