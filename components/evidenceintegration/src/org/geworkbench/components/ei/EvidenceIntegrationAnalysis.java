@@ -114,6 +114,10 @@ public class EvidenceIntegrationAnalysis extends AbstractGridAnalysis implements
 
         ProjectSelection selection = ((ProjectPanel) source).getSelection();
         DataSetNode dNode = selection.getSelectedDataSetNode();
+        if(dNode == null){
+        	log.warn("No data node selected.");
+        	return;
+        }
         if (dNode.dataFile instanceof CSExprMicroarraySet) {
             log.debug("Selected dataset is microarray type.");
             CSExprMicroarraySet dataFile = (CSExprMicroarraySet) dNode.dataFile;
