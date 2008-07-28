@@ -132,7 +132,14 @@ public class GenetegrateViewWidget extends JPanel {
 	private boolean isNormal = true;
 	private boolean isStopped = false;
 	private boolean normalEnding = true;
-
+	static HashMap<String, String> map = new HashMap<String, String>();
+	
+	static{
+		
+		map.put("gi|42544167", "P06978");
+		map.put("gi|46361980", "P06979");
+		map.put("gi|71774083", "P06980");
+	}
 	public GenetegrateViewWidget(
 			GenetegrateViewAppComponent _genetegrateViewAppComponent) {
 		genetegrateViewAppComponent = _genetegrateViewAppComponent;
@@ -590,6 +597,14 @@ public class GenetegrateViewWidget extends JPanel {
 						String existedJob = checkCache(pudgedemoClient, seq);
 						if (existedJob != null) {
 							jobID = existedJob;
+						}
+						//Hacked for Benrd's Demo
+						//existedJob = ""
+						
+						//System.out.println(map.size() + "MPA");
+						if(map.containsKey(seq.getLabel())){
+							jobID = map.get(seq.getLabel());
+							//System.out.println(map.size() + "get value" + jobID);
 						}
 						boolean isDone = pudgedemoClient.isJobDone(jobID);
 						while (!isDone) {
