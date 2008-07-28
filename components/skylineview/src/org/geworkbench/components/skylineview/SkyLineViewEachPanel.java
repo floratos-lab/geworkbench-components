@@ -261,7 +261,6 @@ import jalview.bin.*;
 	}
 
 	allmodels = new JComboBox(amfiles);
-	allmodels.setSelectedIndex(lasti);
 	allmodels.addActionListener(this);
 
 	// initialize title with the pdb file of the model
@@ -272,6 +271,7 @@ import jalview.bin.*;
 	else {
 	title = (String)allmodels.getSelectedItem();
 	}
+	allmodels.setSelectedIndex(lasti);
 
 	choose.removeAll();
 	choosefile.setFont(choosefile.getFont().deriveFont(Font.BOLD));
