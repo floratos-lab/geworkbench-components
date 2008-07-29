@@ -57,7 +57,7 @@ public class MindyAnalysis extends AbstractGridAnalysis implements
 	Log log = LogFactory.getLog(this.getClass());
 
 	private MindyParamPanel paramPanel;
-	
+
 	private DSDataSet data;
 
 	private MindyDataSet mindyDataSet;
@@ -308,7 +308,7 @@ public class MindyAnalysis extends AbstractGridAnalysis implements
 			progressBar.stop();
 			JOptionPane.showMessageDialog(null, s,
 					"Parameter and Input Validation Error",
-					JOptionPane.ERROR_MESSAGE);			
+					JOptionPane.ERROR_MESSAGE);
 			return null;
 		}
 
@@ -345,13 +345,13 @@ public class MindyAnalysis extends AbstractGridAnalysis implements
 			paramPanel.setTranscriptionFactor(marker.getLabel());
 		}
 	}
-	
+
 	@Subscribe
-	public void receive(ProjectEvent e, Object source){
+	public void receive(ProjectEvent e, Object source) {
 		data = e.getDataSet();
-		if((data != null) && (data instanceof DSMicroarraySet)){
+		if ((data != null) && (data instanceof DSMicroarraySet)) {
 			((MindyParamPanel) aspp).setDataSet(data);
-		} 
+		}
 	}
 
 	/**
@@ -528,8 +528,7 @@ public class MindyAnalysis extends AbstractGridAnalysis implements
 		}
 
 		private MicroarraySet convert(DSMicroarraySet<DSMicroarray> inSet,
-				DSPanel arraySet, DSPanel markerSet,
-				List<String> chosenTargets) {
+				DSPanel arraySet, DSPanel markerSet, List<String> chosenTargets) {
 			MarkerSet markers = new MarkerSet();
 			if ((markerSet != null) && (markerSet.size() > 0)) {
 				log.debug("Processing marker panel: size=" + markerSet.size());
@@ -541,7 +540,8 @@ public class MindyAnalysis extends AbstractGridAnalysis implements
 			}
 			log.debug("markers size (post panel)=" + markers.size());
 			if ((chosenTargets != null) && (chosenTargets.size() > 0)) {
-				log.debug("Processing chosen targets: size=" + chosenTargets.size());
+				log.debug("Processing chosen targets: size="
+						+ chosenTargets.size());
 				int size = chosenTargets.size();
 				List<String> alreadyIn = markers.getAllMarkerNames();
 				for (int i = 0; i < size; i++) {
@@ -577,12 +577,12 @@ public class MindyAnalysis extends AbstractGridAnalysis implements
 							.getLabel(), microarray.getRawMarkerData()));
 				}
 			}
-			
+
 			// debug only
-			if(log.isDebugEnabled()){
+			if (log.isDebugEnabled()) {
 				MarkerSet ms = returnSet.getMarkers();
 				log.debug("Markers in converted set:");
-				for(int i = 0; i < ms.size(); i++){
+				for (int i = 0; i < ms.size(); i++) {
 					log.debug("\t" + ms.getMarker(i).getName());
 				}
 			}
