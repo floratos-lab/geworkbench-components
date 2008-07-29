@@ -133,13 +133,14 @@ public class GenetegrateViewWidget extends JPanel {
 	private boolean isStopped = false;
 	private boolean normalEnding = true;
 	static HashMap<String, String> map = new HashMap<String, String>();
-	
-	static{
-		
+
+	static {
+
 		map.put("gi|42544167", "P06978");
 		map.put("gi|71774083", "P06979");
 		map.put("gi|46361980", "P06980");
 	}
+
 	public GenetegrateViewWidget(
 			GenetegrateViewAppComponent _genetegrateViewAppComponent) {
 		genetegrateViewAppComponent = _genetegrateViewAppComponent;
@@ -580,32 +581,37 @@ public class GenetegrateViewWidget extends JPanel {
 					try {
 						HelloPUDGEClient pudgedemoClient = new HelloPUDGEClient(
 								PUDGEURL);
-						jobID = pudgedemoClient.submitQuery(seq.getLabel(), seq
-								.getSequence());
-						// //updateProgressBar(true, "For " + seq.getLabel() + "
-						// Job ID is " + jobID);
-						Thread.sleep(500);
-						jobID = pudgedemoClient.submitQuery(seq.getLabel(), seq
-								.getSequence());
+						// Hacked for Benrd's Demo
+						// existedJob = ""
+
+						if (map.containsKey(seq.getLabel())) {
+							jobID = map.get(seq.getLabel());
+						} else {
+							jobID = pudgedemoClient.submitQuery(seq.getLabel(),
+									seq.getSequence());
+							 
+							updateProgressBar(true, "For Sequence "
+									+ seq.getLabel() + ", its Job ID is " + jobID);
+				 
+							Thread.sleep(1000);
+							String existedJob = checkCache(pudgedemoClient, seq);
+							if (existedJob != null) {
+								jobID = existedJob;
+							}else{
+								//resubmit your job.
+								jobID = pudgedemoClient.submitQuery(seq.getLabel(),
+										seq.getSequence());
+							}
+						}
 						updateProgressBar(true, "For Sequence "
 								+ seq.getLabel() + ", its Job ID is " + jobID);
 
+						// //updateProgressBar(true, "For " + seq.getLabel() + "
+						// Job ID is " + jobID);
+						Thread.sleep(500);
 						PrintWriter out = null;
 
-						// try {
-						Thread.sleep(1000);
-						String existedJob = checkCache(pudgedemoClient, seq);
-						if (existedJob != null) {
-							jobID = existedJob;
-						}
-						//Hacked for Benrd's Demo
-						//existedJob = ""
-						
-						//System.out.println(map.size() + "MPA");
-						if(map.containsKey(seq.getLabel())){
-							jobID = map.get(seq.getLabel());
-							//System.out.println(map.size() + "get value" + jobID);
-						}
+
 						boolean isDone = pudgedemoClient.isJobDone(jobID);
 						while (!isDone) {
 							Thread.sleep(20000);
@@ -656,19 +662,19 @@ public class GenetegrateViewWidget extends JPanel {
 						finished = true;
 						normalEnding = false;
 						e.printStackTrace();
-						JOptionPane.showMessageDialog(null, "Connection Error, please see the detail below:\n "
-								+ e.getMessage(), "Error",
+						JOptionPane.showMessageDialog(null,
+								"Connection Error, please see the detail below:\n "
+										+ e.getMessage(), "Error",
 								JOptionPane.ERROR_MESSAGE);
 						updateProgressBar(false,
-						"The job cannot be submitted to the server.");
+								"The job cannot be submitted to the server.");
 
 					} catch (java.net.SocketException se) {
 						finished = true;
 						se.printStackTrace();
 						normalEnding = false;
-						JOptionPane.showMessageDialog(null,  
-								 se.getMessage(), "Error",
-								JOptionPane.ERROR_MESSAGE);
+						JOptionPane.showMessageDialog(null, se.getMessage(),
+								"Error", JOptionPane.ERROR_MESSAGE);
 						updateProgressBar(false,
 								"The job cannot be submitted to the server.");
 					} catch (Exception e) {
