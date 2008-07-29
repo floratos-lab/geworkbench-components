@@ -15,6 +15,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.math.stat.regression.SimpleRegression;
 import org.geworkbench.analysis.AbstractGridAnalysis;
+import org.geworkbench.analysis.AbstractSaveableParameterPanel;
+import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.CSMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
@@ -28,6 +30,7 @@ import org.geworkbench.builtin.projects.ProjectPanel;
 import org.geworkbench.engine.management.Publish;
 import org.geworkbench.engine.management.Subscribe;
 import org.geworkbench.events.GeneSelectorEvent;
+import org.geworkbench.events.ProjectEvent;
 import org.geworkbench.events.ProjectNodeAddedEvent;
 import org.geworkbench.util.ProgressBar;
 import org.geworkbench.util.pathwaydecoder.mutualinformation.MindyData;
@@ -38,6 +41,7 @@ import wb.data.Marker;
 import wb.data.MarkerSet;
 import wb.data.Microarray;
 import wb.data.MicroarraySet;
+import affymetrix.calvin.data.DataSet;
 import edu.columbia.c2b2.mindy.Mindy;
 import edu.columbia.c2b2.mindy.MindyResults;
 
@@ -53,6 +57,8 @@ public class MindyAnalysis extends AbstractGridAnalysis implements
 	Log log = LogFactory.getLog(this.getClass());
 
 	private MindyParamPanel paramPanel;
+	
+	private DSDataSet data;
 
 	private MindyDataSet mindyDataSet;
 
@@ -338,6 +344,14 @@ public class MindyAnalysis extends AbstractGridAnalysis implements
 		if (marker != null) { // so added this check point--xuegong
 			paramPanel.setTranscriptionFactor(marker.getLabel());
 		}
+	}
+	
+	@Subscribe
+	public void receive(ProjectEvent e, Object source){
+		data = e.getDataSet();
+		if((data != null) && (data instanceof DSMicroarraySet)){
+			((MindyParamPanel) aspp).setDataSet(data);
+		} 
 	}
 
 	/**
