@@ -61,6 +61,10 @@ public class MindyParamPanel extends AbstractSaveableParameterPanel implements
 	private static final String[] CORRECTIONS = { NONE, BONFERRONI };
 
 	private static final String DEFAULT_THRESHOLD_VALUE = CONDITIONAL_UNCONDITIONAL_DEFAULT_VALUES[0];
+	
+	private static final int MAX_ERROR_MESSAGE_LENGTH = 100;
+	
+	private static final String DEFAULT_ERROR_MESSAGE_MARKER = "Please use a valid marker file.";
 
 	private JButton loadModulatorsFile = new JButton("Load");
 
@@ -183,11 +187,14 @@ public class MindyParamPanel extends AbstractSaveableParameterPanel implements
 								Cursor.getDefaultCursor());
 						if (valid)
 							modulatorList.setText(s);
-						else
-							JOptionPane.showMessageDialog(null, ValidationUtils
-									.getErrorMessage(),
+						else {
+							String msg = ValidationUtils.getErrorMessage();
+							if(msg.length() > MAX_ERROR_MESSAGE_LENGTH)
+								msg = DEFAULT_ERROR_MESSAGE_MARKER;
+							JOptionPane.showMessageDialog(null, msg,
 									"Parameter and Input Validation Error",
 									JOptionPane.ERROR_MESSAGE);
+						}
 					}
 
 				} catch (IOException e) {
@@ -226,11 +233,14 @@ public class MindyParamPanel extends AbstractSaveableParameterPanel implements
 								Cursor.getDefaultCursor());
 						if (valid)
 							targetList.setText(s);
-						else
-							JOptionPane.showMessageDialog(null, ValidationUtils
-									.getErrorMessage(),
+						else {
+							String msg = ValidationUtils.getErrorMessage();
+							if(msg.length() > MAX_ERROR_MESSAGE_LENGTH)
+								msg = DEFAULT_ERROR_MESSAGE_MARKER;
+							JOptionPane.showMessageDialog(null, msg,
 									"Parameter and Input Validation Error",
 									JOptionPane.ERROR_MESSAGE);
+						}
 					}
 
 				} catch (IOException e) {
@@ -345,11 +355,14 @@ public class MindyParamPanel extends AbstractSaveableParameterPanel implements
 								Cursor.getDefaultCursor());
 						if (valid)
 							dpiAnnotationList.setText(s);
-						else
-							JOptionPane.showMessageDialog(null, ValidationUtils
-									.getErrorMessage(),
+						else {
+							String msg = ValidationUtils.getErrorMessage();
+							if(msg.length() > MAX_ERROR_MESSAGE_LENGTH)
+								msg = DEFAULT_ERROR_MESSAGE_MARKER;
+							JOptionPane.showMessageDialog(null, msg,
 									"Parameter and Input Validation Error",
 									JOptionPane.ERROR_MESSAGE);
+						}
 					}
 
 				} catch (IOException e) {
