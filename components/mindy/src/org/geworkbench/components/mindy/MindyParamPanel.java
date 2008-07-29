@@ -1,25 +1,36 @@
 package org.geworkbench.components.mindy;
 
-import org.geworkbench.analysis.AbstractSaveableParameterPanel;
-import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
-import org.geworkbench.bison.model.analysis.ParamValidationResults;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import wb.data.Marker;
-
-import javax.swing.*;
-
-import java.io.*;
-import java.awt.*;
-import java.awt.event.ActionListener;
+import java.awt.BorderLayout;
+import java.awt.Cursor;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.ObjectStreamException;
+import java.io.Serializable;
 import java.util.ArrayList;
 
-import com.jgoodies.forms.layout.FormLayout;
-import com.jgoodies.forms.builder.DefaultFormBuilder;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JFileChooser;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JSpinner;
+import javax.swing.JTabbedPane;
+import javax.swing.JTextField;
+import javax.swing.SpinnerNumberModel;
 
-import edu.columbia.c2b2.mindy.Mindy;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.geworkbench.analysis.AbstractSaveableParameterPanel;
+import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
+import org.geworkbench.util.ValidationUtils;
+
+import com.jgoodies.forms.builder.DefaultFormBuilder;
+import com.jgoodies.forms.layout.FormLayout;
 
 /**
  * MINDY analysis GUI.  Allows the user to enter parameters to analyze.
@@ -65,6 +76,8 @@ public class MindyParamPanel extends AbstractSaveableParameterPanel implements S
     private JComboBox unconditionalCorrection = new JComboBox(CORRECTIONS);
     
     private JTabbedPane tabs;
+    
+    private DSDataSet dataSet;
     /**
      * Constructor.
      * Creates the parameter panel GUI.
@@ -78,6 +91,10 @@ public class MindyParamPanel extends AbstractSaveableParameterPanel implements S
         	e.printStackTrace();
             log.debug("Cannot initialize MINDY parameter panel.", e);
         }	        
+    }
+    
+    void setDataSet(DSDataSet ds){
+    	this.dataSet = ds;
     }
     
     private void init(){        	
@@ -125,7 +142,16 @@ public class MindyParamPanel extends AbstractSaveableParameterPanel implements S
                         }
 
                         String geneString = geneListBuilder.toString();
-                        modulatorList.setText(geneString.substring(0, geneString.length() - 2));
+                        String s = geneString.substring(0, geneString.length() - 2);
+                        MindyParamPanel.this.getParent().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+                        boolean valid = ValidationUtils.validateMicroarrayMarkers(dataSet, s);
+                        MindyParamPanel.this.getParent().setCursor(Cursor.getDefaultCursor());
+                        if(valid)
+                        	modulatorList.setText(s);
+                        else
+                        	JOptionPane.showMessageDialog(null, ValidationUtils.getErrorMessage(),
+                					"Parameter and Input Validation Error",
+                					JOptionPane.ERROR_MESSAGE);	
                     }
 
                 } catch (IOException e) {
@@ -151,9 +177,17 @@ public class MindyParamPanel extends AbstractSaveableParameterPanel implements S
                             geneListBuilder.append(line + ", ");
                             line = reader.readLine();
                         }
-
                         String geneString = geneListBuilder.toString();
-                        targetList.setText(geneString.substring(0, geneString.length() - 2));
+                        String s = geneString.substring(0, geneString.length() - 2);
+                        MindyParamPanel.this.getParent().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+                        boolean valid = ValidationUtils.validateMicroarrayMarkers(dataSet, s);
+                        MindyParamPanel.this.getParent().setCursor(Cursor.getDefaultCursor());
+                        if(valid)
+                        	targetList.setText(s);
+                        else
+                        	JOptionPane.showMessageDialog(null, ValidationUtils.getErrorMessage(),
+                					"Parameter and Input Validation Error",
+                					JOptionPane.ERROR_MESSAGE);	
                     }
 
                 } catch (IOException e) {
@@ -250,9 +284,17 @@ public class MindyParamPanel extends AbstractSaveableParameterPanel implements S
                             geneListBuilder.append(hub + ", ");
                             hub = reader.readLine();
                         }
-
                         String geneString = geneListBuilder.toString();
-                        dpiAnnotationList.setText(geneString.substring(0, geneString.length() - 2));
+                        String s = geneString.substring(0, geneString.length() - 2);
+                        MindyParamPanel.this.getParent().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+                        boolean valid = ValidationUtils.validateMicroarrayMarkers(dataSet, s);
+                        MindyParamPanel.this.getParent().setCursor(Cursor.getDefaultCursor());
+                        if(valid)
+                        	dpiAnnotationList.setText(s);
+                        else
+                        	JOptionPane.showMessageDialog(null, ValidationUtils.getErrorMessage(),
+                					"Parameter and Input Validation Error",
+                					JOptionPane.ERROR_MESSAGE);	
                     }
 
                 } catch (IOException e) {
