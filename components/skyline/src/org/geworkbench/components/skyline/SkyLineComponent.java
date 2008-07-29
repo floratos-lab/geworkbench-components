@@ -96,6 +96,7 @@ public class SkyLineComponent extends JPanel implements VisualPlugin {
     JScrollPane jScrollPane1 = new JScrollPane();
     JScrollPane jScrollPane3 = new JScrollPane();
     HashMap<String, String> thread4pdb = new HashMap<String, String>();
+    static final int maxlen_qname = 8;
 
     class MyRunnable implements Runnable
     {
@@ -526,6 +527,7 @@ public class SkyLineComponent extends JPanel implements VisualPlugin {
     private String get_qstat(String pname)
     {
 	String status = new String();
+	pname = pname.substring(0, maxlen_qname);
 	try{
 	    status = ((SkyLineAnalysis)selectedStructureAnalysis).getJobStatus(pname);
 	} catch (Exception ce) {
