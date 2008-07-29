@@ -49,6 +49,10 @@ import java.awt.event.ActionListener;
     // Contains the normalizers available to the user to choose from.
     // E.g., availableNormalizers[i].getLabel(), should give the display name
     // for an analysis.
+	private JSplitPane jSplitPane1 = new JSplitPane();
+	/**
+	 * Visual Widget
+	 */
     protected AbstractAnalysis[] availableNormalizers;
     /**
      * The currently selected microarray set.
@@ -69,6 +73,7 @@ import java.awt.event.ActionListener;
     BorderLayout borderLayout1 = new BorderLayout();
     JScrollPane jScrollPane2 = new JScrollPane();
     JPanel jPanel3 = new JPanel();
+    JPanel jPanelControl = new JPanel();
     BorderLayout borderLayout2 = new BorderLayout();
     BorderLayout borderLayout3 = new BorderLayout();
     GridLayout gridLayout1 = new GridLayout();
@@ -81,6 +86,7 @@ import java.awt.event.ActionListener;
     ParameterPanel currentParameterPanel = emptyParameterPanel;
     BorderLayout borderLayout4 = new BorderLayout();
     BorderLayout borderLayout5 = new BorderLayout();
+    BorderLayout borderLayout6 = new BorderLayout();
     JPanel jPanel1 = new JPanel();
     GridLayout gridLayout3 = new GridLayout();
     JScrollPane jScrollPane1 = new JScrollPane();
@@ -107,9 +113,14 @@ import java.awt.event.ActionListener;
     }
 
     private void jbInit() throws Exception {
-        jPanel4.setLayout(borderLayout4);
+    	jSplitPane1 = new JSplitPane();
+    	jSplitPane1.setOrientation(JSplitPane.VERTICAL_SPLIT);
+		jSplitPane1.setDividerSize(3);
+    	
+        jPanel4.setLayout(borderLayout5);
         normalizationPanel.setLayout(borderLayout2);
         jPanel3.setLayout(borderLayout3);
+        jPanelControl.setLayout(borderLayout4);
 //        buttons.setLayout(new BoxLayout(buttons, BoxLayout.X_AXIS));
 //        buttons.setPreferredSize(new Dimension(248, 60));
         gridLayout1.setColumns(2);
@@ -132,7 +143,8 @@ import java.awt.event.ActionListener;
         jPanel1.setLayout(gridLayout3);
         jPanel1.setMinimumSize(new Dimension(0, 0));
         jPanel1.setPreferredSize(new Dimension(50, 50));
-        jScrollPane1.setPreferredSize(new Dimension(248, 68));
+        jPanel1.setMaximumSize(new Dimension(50, 100));
+        jScrollPane1.setPreferredSize(new Dimension(248, 100));
         // Make sure that only one normalizer can be selected at a time;
         pluginNormalizers.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         pluginNormalizers.addListSelectionListener(new ListSelectionListener() {
@@ -154,8 +166,10 @@ import java.awt.event.ActionListener;
         namedParameters.setBorder(BorderFactory.createLineBorder(Color.black));
         normalizationPanel.add(jScrollPane2, BorderLayout.CENTER);
         jScrollPane2.getViewport().add(jPanel3, null);
-        currentParameterPanel.setLayout(borderLayout5);
-        jPanel3.add(jPanel4, BorderLayout.WEST);
+        jPanel3.add(jSplitPane1, BorderLayout.CENTER);
+        currentParameterPanel.setLayout(borderLayout6);
+        jSplitPane1.add(jPanelControl, JSplitPane.BOTTOM);
+        jPanelControl.add(jPanel4, BorderLayout.WEST);
         jPanel4.add(currentParameterPanel, BorderLayout.CENTER);
 //        buttons.add(Box.createHorizontalGlue());
 //        buttons.add(Box.createRigidArea(new Dimension(10, 0)));
@@ -173,9 +187,10 @@ import java.awt.event.ActionListener;
         builder.nextLine();
         builder.append(save);
 
-        jPanel3.add(builder.getPanel(), BorderLayout.EAST);
+        jPanelControl.add(builder.getPanel(), BorderLayout.EAST);
 
-        jPanel3.add(jPanel1, BorderLayout.NORTH);
+//        jPanel3.add(jPanel1, BorderLayout.NORTH);
+        jSplitPane1.add(jPanel1, JSplitPane.TOP);
         jPanel1.add(jScrollPane1, null);
         jPanel1.add(jScrollPane3, null);
         jScrollPane3.getViewport().add(namedParameters, null);
