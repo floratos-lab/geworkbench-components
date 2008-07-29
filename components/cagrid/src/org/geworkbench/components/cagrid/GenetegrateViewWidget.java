@@ -137,8 +137,8 @@ public class GenetegrateViewWidget extends JPanel {
 	static{
 		
 		map.put("gi|42544167", "P06978");
-		map.put("gi|46361980", "P06979");
-		map.put("gi|71774083", "P06980");
+		map.put("gi|71774083", "P06979");
+		map.put("gi|46361980", "P06980");
 	}
 	public GenetegrateViewWidget(
 			GenetegrateViewAppComponent _genetegrateViewAppComponent) {
