@@ -44,6 +44,12 @@ import java.awt.event.ActionListener;
      * file as <code>plugin</code> components and they are expected to have been
      * associated with the extension point <code>filters</code>.
      */
+    
+
+	private JSplitPane jSplitPane1 = new JSplitPane();
+	/**
+	 * Visual Widget
+	 */
     protected AbstractAnalysis[] availableFilters;
     /**
      * The currently selected microarray set.
@@ -60,10 +66,13 @@ import java.awt.event.ActionListener;
     /**
      * JList used to display named parameter settings for a selected filter.
      */
+
+
     protected JList namedParameters = new JList();
     BorderLayout borderLayout1 = new BorderLayout();
     JScrollPane jScrollPane2 = new JScrollPane();
     JPanel jPanel3 = new JPanel();
+    JPanel jPanelControl = new JPanel();
     BorderLayout borderLayout2 = new BorderLayout();
     BorderLayout borderLayout3 = new BorderLayout();
     JPanel buttons = new JPanel();
@@ -77,6 +86,7 @@ import java.awt.event.ActionListener;
     ParameterPanel currentParameterPanel = emptyParameterPanel;
     BorderLayout borderLayout4 = new BorderLayout();
     BorderLayout borderLayout5 = new BorderLayout();
+    BorderLayout borderLayout6 = new BorderLayout();
     JPanel jPanel1 = new JPanel();
     GridLayout gridLayout3 = new GridLayout();
     JScrollPane jScrollPane1 = new JScrollPane();
@@ -98,9 +108,14 @@ import java.awt.event.ActionListener;
     }
 
     private void jbInit() throws Exception {
-        jPanel4.setLayout(borderLayout4);
+    	jSplitPane1 = new JSplitPane();
+    	jSplitPane1.setOrientation(JSplitPane.VERTICAL_SPLIT);
+		jSplitPane1.setDividerSize(3);
+		
+        jPanel4.setLayout(borderLayout5);
         filteringPanel.setLayout(borderLayout2);
         jPanel3.setLayout(borderLayout3);
+        jPanelControl.setLayout(borderLayout4);
         buttons.setLayout(new BoxLayout(buttons, BoxLayout.X_AXIS));
         buttons.setPreferredSize(new Dimension(248, 60));
         gridLayout1.setColumns(2);
@@ -120,10 +135,11 @@ import java.awt.event.ActionListener;
             }
 
         });
+        jScrollPane1.setPreferredSize(new Dimension(248, 80));
         jPanel1.setLayout(gridLayout3);
         jPanel1.setMinimumSize(new Dimension(0, 0));
         jPanel1.setPreferredSize(new Dimension(50, 50));
-        jScrollPane1.setPreferredSize(new Dimension(248, 68));
+        jPanel1.setMaximumSize(new Dimension(50, 80));
         // Make sure that only one filter can be selected at a time;
         pluginFilters.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         pluginFilters.addListSelectionListener(new ListSelectionListener() {
@@ -145,21 +161,24 @@ import java.awt.event.ActionListener;
         namedParameters.setBorder(BorderFactory.createLineBorder(Color.black));
         filteringPanel.add(jScrollPane2, BorderLayout.CENTER);
         jScrollPane2.getViewport().add(jPanel3, null);
-        currentParameterPanel.setLayout(borderLayout5);
-        jPanel3.add(jPanel4, BorderLayout.WEST);
+        jPanel3.add(jSplitPane1, BorderLayout.CENTER);
+        currentParameterPanel.setLayout(borderLayout6);
+        jSplitPane1.add(jPanelControl, JSplitPane.BOTTOM);
+        jPanelControl.add(jPanel4, BorderLayout.WEST);
         jPanel4.add(currentParameterPanel, BorderLayout.CENTER);
         buttons.add(Box.createHorizontalGlue());
         buttons.add(Box.createRigidArea(new Dimension(10, 0)));
         buttons.add(Box.createRigidArea(new Dimension(10, 0)));
         buttons.add(save);
         buttons.add(analyze);
-        jPanel3.add(jPanel1, BorderLayout.NORTH);
+//        jPanel3.add(jPanel1, BorderLayout.NORTH);
+        jSplitPane1.add(jPanel1, JSplitPane.TOP);
         jPanel1.add(jScrollPane1, null);
         jPanel1.add(jScrollPane3, null);
         jScrollPane3.getViewport().add(namedParameters, null);
         jScrollPane1.getViewport().add(pluginFilters, null);
         buttons.add(Box.createRigidArea(new Dimension(10, 0)));
-        jPanel3.add(buttons, BorderLayout.EAST);
+        jPanelControl.add(buttons, BorderLayout.EAST);
     }
 
     /**
