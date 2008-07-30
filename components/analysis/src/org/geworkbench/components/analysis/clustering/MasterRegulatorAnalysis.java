@@ -42,7 +42,7 @@ import org.geworkbench.util.pathwaydecoder.mutualinformation.AdjacencyMatrixData
 
 /**
  * @author yc2480
- * @version $Id: MasterRegulatorAnalysis.java,v 1.3 2008-07-22 21:23:51 chiangy Exp $
+ * @version $Id: MasterRegulatorAnalysis.java,v 1.4 2008-07-30 11:44:17 bjagla Exp $
  */
 public class MasterRegulatorAnalysis extends AbstractAnalysis implements
 		ClusteringAnalysis {
@@ -119,8 +119,8 @@ public class MasterRegulatorAnalysis extends AbstractAnalysis implements
 			for (Iterator iterator2 = neighbors.keySet().iterator(); iterator2
 					.hasNext();) { // for each end node
 				Integer id2 = (Integer) iterator2.next();
-				log.info("Got an edge:("+id1+")"+maSet.getMarkers().get(id1).getLabel()
-						+ " - " + maSet.getMarkers().get(id2).getLabel());
+				//log.info("Got an edge:("+id1+")"+maSet.getMarkers().get(id1).getLabel()
+				//		+ " - " + maSet.getMarkers().get(id2).getLabel());
 			}
 		}
 
