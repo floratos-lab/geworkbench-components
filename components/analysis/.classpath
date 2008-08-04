@@ -42,5 +42,6 @@
 	<classpathentry kind="lib" path="lib/cog-tomcat.jar"/>
 	<classpathentry kind="lib" path="lib/cog-url.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/geworkbench-core"/>
+	<classpathentry kind="lib" path="lib/binding-2.0.4.jar"/>
 	<classpathentry kind="output" path="classes"/>
 </classpath>
