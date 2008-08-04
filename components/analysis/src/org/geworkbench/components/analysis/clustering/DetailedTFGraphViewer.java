@@ -13,6 +13,7 @@ import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMasterRagulatorResultSet;
+import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSSignificanceResultSet;
 import org.geworkbench.bison.datastructure.complex.panels.CSItemList;
 import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
@@ -25,8 +26,8 @@ public class DetailedTFGraphViewer extends JPanel {
 	DSMasterRagulatorResultSet mraResultSet;
 	DSGeneMarker tfA;
 	DSItemList<DSGeneMarker> targetGenes;
-	DSSignificanceResultSet<DSGeneMarker> sigSet;
-	int numberOfSigMarkers;
+	DSMicroarraySet<DSMicroarray> mSet;
+	int numberOfMarkers;
 	HashMap<Integer, DSGeneMarker> Rank2GeneMap;
 	HashMap<DSGeneMarker, Integer> Gene2RankMap;
 	double pValue = 1;
@@ -39,18 +40,18 @@ public class DetailedTFGraphViewer extends JPanel {
 		this.tfA = tfA;
 		targetGenes = new CSItemList();
 		if (mraResultSet != null) {
-			sigSet = mraResultSet.getSignificanceResultSet();
-			sigSet.sortMarkersBySignificance();
-			numberOfSigMarkers = sigSet.getSignificantMarkers().size();
+			mSet = mraResultSet.getMicroarraySet();
+			numberOfMarkers = mSet.size();
 		} else {
-			sigSet = null;
-			numberOfSigMarkers = 0;
+			mSet = null;
+			numberOfMarkers = 0;
 		}
 		numOfPositiveTValues = 0;
 		Hashtable<Double, DSGeneMarker> hash = new Hashtable();
-		for (int cx = 0; cx < numberOfSigMarkers; cx++) {
-			DSGeneMarker marker = (DSGeneMarker) sigSet.getSignificantMarkers().get(cx);
+		for (int cx = 0; cx < numberOfMarkers; cx++) {
+			DSGeneMarker marker = (DSGeneMarker) mSet.getMarkers().get(cx);
 			double tValue = mraResultSet.getSignificanceResultSet().getTValue(marker);
+			log.debug("t-value for "+marker.getShortName()+" is "+tValue+" (index "+cx+")");
 			hash.put(tValue,marker);
 			if (minTValue > tValue) minTValue = tValue;
 			if (maxTValue < tValue) maxTValue = tValue;
@@ -81,9 +82,9 @@ public class DetailedTFGraphViewer extends JPanel {
 		g.setColor(Color.red);
 		int width = this.getWidth();
 		int height = this.getHeight();
-		int numMarkers = numberOfSigMarkers;
+		int numMarkers = numberOfMarkers;
 		g.drawRect(0, 0, width, height);
-		if ((numberOfSigMarkers > 0) && (mraResultSet != null)) {
+		if ((numberOfMarkers > 0) && (mraResultSet != null)) {
 			// draw the color sections
 			for (int i = 0; i < numMarkers; i++) {
 				double tValue = mraResultSet.getSignificanceResultSet().getTValue(Rank2GeneMap.get(new Integer(i)));
