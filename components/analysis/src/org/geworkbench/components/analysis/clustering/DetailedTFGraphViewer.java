@@ -104,14 +104,13 @@ public class DetailedTFGraphViewer extends JPanel {
 					continue;
 				}
 				for (int cx = 0; cx < genesInTargetList.size(); cx++) {
-					if (Gene2RankMap.get(genesInTargetList.get(cx)).intValue() == i) {
-						if (mraResultSet.getPValueOf(tfA,
-								((DSGeneMarker) genesInTargetList.get(cx))) <= pValue) {
+					DSGeneMarker marker = (DSGeneMarker) genesInTargetList.get(cx);
+					Integer rank = Gene2RankMap.get(marker);
+					if (rank!=null && rank.intValue() == i) {
+						if (mraResultSet.getPValueOf(tfA, marker) <= pValue) {
 							SimpleRegression SR = new SimpleRegression();
 							DSMicroarraySet maSet = mraResultSet
 									.getMicroarraySet();
-							DSGeneMarker marker = (DSGeneMarker) genesInTargetList
-									.get(cx);
 							double[] arrayData1 = maSet.getRow(tfA);
 							double[] arrayData2 = maSet.getRow(marker);
 							double[][] arrayData = new double[2][arrayData1.length];
