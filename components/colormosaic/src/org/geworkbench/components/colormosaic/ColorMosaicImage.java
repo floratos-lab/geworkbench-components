@@ -9,8 +9,11 @@ import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMutableMarkerValue;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSSignificanceResultSet;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
+import org.geworkbench.bison.model.clusters.MarkerHierCluster;
+import org.geworkbench.bison.model.clusters.MicroarrayHierCluster;
 import org.geworkbench.bison.util.colorcontext.ColorContext;
 import org.geworkbench.events.MarkerSelectedEvent;
+import org.geworkbench.events.PhenotypeSelectedEvent;
 import org.geworkbench.util.associationdiscovery.cluster.CSMatchedMatrixPattern;
 
 import javax.swing.*;
@@ -80,6 +83,7 @@ public class ColorMosaicImage extends JPanel implements Scrollable {
     protected ColorMosaicPanel parent = null;
     protected boolean showAllMArrays = true;
     protected boolean showAllMarkers = true;
+    protected boolean showSignal = false;
     private DecimalFormat format = new DecimalFormat("0.#E00");
     private DSSignificanceResultSet<DSGeneMarker> significanceResultSet = null;
 
@@ -317,6 +321,14 @@ public class ColorMosaicImage extends JPanel implements Scrollable {
         microarraySet = chips;
         clearPatterns();
     }
+    
+    boolean getSignal(){
+    	return this.showSignal;
+    }
+    
+    void setSignal(boolean b){
+    	this.showSignal = b;
+    }
 
     public DSMicroarraySet<DSMicroarray> getChips() {
         return microarraySet;
@@ -399,6 +411,18 @@ public class ColorMosaicImage extends JPanel implements Scrollable {
         g.setColor(Color.black);
         g.drawLine(x, y + geneHeight - 1, x + width - 1, y + geneHeight - 1);
         g.drawLine(x + width - 1, y, x + width - 1, y + geneHeight - 1);
+        
+        if (showSignal) {        	
+            DSGeneMarker mInfo = microarraySet.getMarkers().get(geneId);
+            DSMicroarray marray = microarraySet.get(expId);
+
+            this.setToolTipText("<html>Chip: " + marray.getLabel() + "<br>" + "Marker: " + mInfo.getLabel() + "<br>" + "Signal: " + marray.getMarkerValue(mInfo).getValue() + "</html>");
+        } else {
+        	this.setToolTipText(null);
+        }
+        
+        this.revalidate();
+        this.repaint();
     }
 
     void this_mouseExited(MouseEvent e) {
@@ -482,6 +506,11 @@ public class ColorMosaicImage extends JPanel implements Scrollable {
         	DSGeneMarker marker = microarraySet.getMarkers().get(geneId);
             MarkerSelectedEvent mse = new org.geworkbench.events.MarkerSelectedEvent(marker);
             parent.publishMarkerSelectedEvent(mse);
+        }
+        if(expId != -1 && expId < microarraySet.size()){
+        	DSMicroarray microarray = microarraySet.get(expId);
+        	PhenotypeSelectedEvent pse = new PhenotypeSelectedEvent(microarray);
+            parent.publishPhenotypeSelectedEvent(pse);
         }
     }
 
