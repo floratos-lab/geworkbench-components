@@ -67,6 +67,7 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
     private JSlider jIntensitySlider = new JSlider();
     private JLabel jLabel5 = new JLabel();
     private JButton exportButton = new JButton("Export Data");
+    private JToggleButton jToolTipToggleButton = new JToggleButton();
     private JToggleButton jTogglePrintDescription = new JToggleButton("Label", true);
     private JToggleButton jTogglePrintRatio = new JToggleButton("Ratio", true);
     private JToggleButton jTogglePrintAccession = new JToggleButton("Accession", false);
@@ -81,6 +82,8 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
 
     private boolean significanceMode = false;
     DSSignificanceResultSet<DSGeneMarker> significance = null;
+
+    private boolean showSignal = false;
     
     private static final int GENE_HEIGHT = 10;
     private static final int GENE_WIDTH = 20;
@@ -140,6 +143,17 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
         jToggleButton1.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 jToggleButton1_actionPerformed(e);
+            }
+        });
+        
+        jToolTipToggleButton.setToolTipText("Toggle signal");
+        jToolTipToggleButton.setActionCommand("TOOL_TIP_TOGGLE");
+        jToolTipToggleButton.setSelected(false);
+        jToolTipToggleButton.setIcon(new ImageIcon(this.getClass().getResource("bulb_icon_grey.gif")));
+        jToolTipToggleButton.setSelectedIcon(new ImageIcon(this.getClass().getResource("bulb_icon_gold.gif")));
+        jToolTipToggleButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                jToolTipToggleButton_actionPerformed(e);
             }
         });
 
@@ -277,6 +291,7 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
         jToolBar1.add(exportButton, null);
         jToolBar1.add(jAllMArrays, null);
         jToolBar1.add(jAllMarkers, null);
+        jToolBar1.add(jToolTipToggleButton, null);
         mainPanel.add(jScrollPane, BorderLayout.CENTER);
         mainPanel.add(jPanel1, BorderLayout.SOUTH);
         jPanel1.add(jGeneWidthSlider, new GridBagConstraints(2, 1, 1, 1, 0.34, 0.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
@@ -553,6 +568,16 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
     public Component getComponent() {
         return mainPanel;
     }
+    
+    /**
+     * Handles selection/deselections of the ToolTip toggle button
+     *
+     * @param e <code>ActionEvent</code> forwarded by the listener
+     */
+    private void jToolTipToggleButton_actionPerformed(ActionEvent e) {
+        showSignal = jToolTipToggleButton.isSelected();
+        colorMosaicImage.setSignal(showSignal);
+    }
 
     @SuppressWarnings("unchecked")
     @Subscribe public void receive(ProjectEvent projectEvent, Object source) {
@@ -687,6 +712,12 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
             (MarkerSelectedEvent
                     event) {
         return event;
+    }
+    
+    @Publish public PhenotypeSelectedEvent publishPhenotypeSelectedEvent
+    		(PhenotypeSelectedEvent
+    				event) {
+    	return event;
     }
 
     public Image getColorMosaicAsImage
