@@ -41,7 +41,7 @@ public class DetailedTFGraphViewer extends JPanel {
 		targetGenes = new CSItemList();
 		if (mraResultSet != null) {
 			mSet = mraResultSet.getMicroarraySet();
-			numberOfMarkers = mSet.size();
+			numberOfMarkers = mSet.getMarkers().size();
 		} else {
 			mSet = null;
 			numberOfMarkers = 0;
