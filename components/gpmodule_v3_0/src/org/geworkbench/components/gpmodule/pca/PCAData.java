@@ -13,8 +13,8 @@ package org.geworkbench.components.gpmodule.pca;
 
 import org.tigr.util.FloatMatrix;
 import org.tigr.microarray.mev.cluster.gui.impl.pca.ValuesViewer;
-import org.genepattern.io.OdfParser;
-import org.genepattern.io.IOdfHandler;
+import org.genepattern.io.odf.OdfParser;
+import org.genepattern.io.odf.OdfHandler;
 
 import javax.swing.*;
 import javax.swing.text.PlainDocument;
@@ -122,7 +122,7 @@ public class PCAData
 
     private class OdfObject
     {
-        OdfHandler handler;
+        MyOdfHandler handler;
         public OdfObject(String file) throws Exception
         {
             FileInputStream fis = null;
@@ -130,7 +130,7 @@ public class PCAData
             {
                 fis = new FileInputStream(file);
                 OdfParser parser = new OdfParser();
-                handler = new OdfHandler();
+                handler = new MyOdfHandler();
                 parser.setHandler(handler);
                 parser.parse(fis);
             }
@@ -162,13 +162,13 @@ public class PCAData
 
     }
 
-    private class OdfHandler implements IOdfHandler
+    private class MyOdfHandler implements OdfHandler
     {
         int numRows;
         int numColumns;
         float[][] data = null;
 
-        public OdfHandler(){}
+        public MyOdfHandler(){}
 
         public void endHeader(){}
 

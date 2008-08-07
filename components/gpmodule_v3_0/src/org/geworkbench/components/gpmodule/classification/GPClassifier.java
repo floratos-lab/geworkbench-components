@@ -13,16 +13,17 @@ package org.geworkbench.components.gpmodule.classification;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.algorithm.classification.CSClassifier;
 import org.geworkbench.util.ClassifierException;
-import org.genepattern.data.expr.IExpressionData;
-import org.genepattern.data.expr.AbstractExpressionData;
-import org.genepattern.data.matrix.ClassVector;
-import org.genepattern.io.expr.gct.GctWriter;
-import org.genepattern.io.expr.cls.ClsWriter;
+import org.genepattern.io.gct.GctWriter;
+import org.genepattern.io.cls.ClsWriter;
 import org.genepattern.util.GPpropertiesManager;
-import org.genepattern.client.GPServer;
+import org.genepattern.client.GPClient;
 import org.genepattern.webservice.JobResult;
 import org.genepattern.webservice.Parameter;
 import org.genepattern.webservice.AnalysisWebServiceProxy;
+import org.genepattern.matrix.Dataset;
+import org.genepattern.matrix.AbstractDataset;
+import org.genepattern.matrix.ClassVector;
+import org.genepattern.matrix.DefaultClassVector;
 
 import javax.swing.*;
 import java.io.*;
@@ -51,7 +52,7 @@ public abstract class GPClassifier extends CSClassifier
     {
         File gctTestFile = null;
 
-        IExpressionData testData = new AbstractExpressionData()
+        Dataset testData = new AbstractDataset()
         {
             public double getValue(int row, int column)
             {
@@ -117,7 +118,7 @@ public abstract class GPClassifier extends CSClassifier
             clsOutputStream = new BufferedOutputStream(new FileOutputStream(testClsData));
 
             String[] classLabels = new String[]{"Control"};
-            ClassVector classVector = new ClassVector(classLabels);
+            ClassVector classVector = new DefaultClassVector(classLabels);
 
             ClsWriter writer = new ClsWriter();
             writer.write(classVector, clsOutputStream);
@@ -145,7 +146,7 @@ public abstract class GPClassifier extends CSClassifier
         {
             String serverName = GPpropertiesManager.getProperty("gp.server");
             String userName = GPpropertiesManager.getProperty("gp.user.name");
-            GPServer server = new GPServer(serverName, userName, password);
+            GPClient server = new GPClient(serverName, userName, password);
             
             JobResult analysisResult = server.runAnalysis(classifierName, parameters);
 
@@ -161,13 +162,21 @@ public abstract class GPClassifier extends CSClassifier
             }
 
             if(predFileName == null)
-                throw new ClassifierException("Error: Classifier model could not be generated");
+                throw new ClassifierException("Error: Classifier prediction model could not be generated");
 
-            predFile = analysisResult.downloadFile(predFileName, System.getProperty("temporary.files.directory"));
+            AnalysisWebServiceProxy analysisProxy = new AnalysisWebServiceProxy(serverName, userName, password);
+            String[] resultFiles = new String[1] ;
+            resultFiles[0] = predFileName;
+
+            File[] result = analysisProxy.getResultFiles(analysisResult.getJobNumber(), resultFiles, new File(System.getProperty("temporary.files.directory")), true);
+            if(result == null || result.length == 0)
+                throw new ClassifierException("Error: Could not retrieve classifier model from GenePattern");
+           
+            predFile = result[0];
             predFile.deleteOnExit();
 
             // remove job from GenePattern server
-            AnalysisWebServiceProxy analysisProxy = new AnalysisWebServiceProxy(serverName, userName, password);
+            analysisProxy = new AnalysisWebServiceProxy(server.getServer(), server.getUsername(), password);
             analysisProxy.purgeJob(analysisResult.getJobNumber());
         }
         catch(ClassifierException ce)

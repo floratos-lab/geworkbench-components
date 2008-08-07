@@ -19,7 +19,8 @@ import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.util.ClassifierException;
 import org.geworkbench.util.TrainingTask;
 import org.geworkbench.util.TrainingProgressListener;
-import org.genepattern.data.matrix.ClassVector;
+import org.genepattern.matrix.ClassVector;
+import org.genepattern.matrix.DefaultClassVector;
 import org.genepattern.webservice.Parameter;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.logging.Log;
@@ -88,7 +89,7 @@ public class WVTraining extends GPTraining implements TrainingTask
                     classLabels[i] = "Case";
             }
 
-            ClassVector classVec = new ClassVector(classLabels);
+            ClassVector classVec = new DefaultClassVector(classLabels);
             File clsData = createCLSFile("WV_Cls", classVec);
 
             List parameters = new ArrayList();

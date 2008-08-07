@@ -19,7 +19,8 @@ import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.util.ClassifierException;
 import org.geworkbench.util.TrainingTask;
 import org.geworkbench.util.TrainingProgressListener;
-import org.genepattern.data.matrix.ClassVector;
+import org.genepattern.matrix.ClassVector;
+import org.genepattern.matrix.DefaultClassVector;
 import org.genepattern.webservice.Parameter;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -106,7 +107,7 @@ public class KNNTraining extends GPTraining implements TrainingTask
                     classLabels[i] = "Case";
             }
 
-            ClassVector classVec = new ClassVector(classLabels);
+            ClassVector classVec = new DefaultClassVector(classLabels);
             File clsData = createCLSFile("KNN_Cls", classVec);
 
             int numNeighbors = knnPanel.getNumNeighbors();

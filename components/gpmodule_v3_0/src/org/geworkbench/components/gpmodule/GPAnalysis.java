@@ -5,11 +5,11 @@ import org.geworkbench.bison.model.analysis.ClusteringAnalysis;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
-import org.genepattern.data.expr.IExpressionData;
-import org.genepattern.data.expr.AbstractExpressionData;
-import org.genepattern.io.expr.gct.GctWriter;
+import org.genepattern.matrix.Dataset;
+import org.genepattern.matrix.AbstractDataset;
+import org.genepattern.io.gct.GctWriter;
 import org.genepattern.util.GPpropertiesManager;
-import org.genepattern.client.GPServer;
+import org.genepattern.client.GPClient;
 import org.genepattern.webservice.JobResult;
 import org.genepattern.webservice.AnalysisWebServiceProxy;
 import org.genepattern.webservice.WebServiceException;
@@ -21,6 +21,7 @@ import javax.swing.*;
 import java.io.*;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
  * @author: Marc-Danie Nazaire
@@ -35,7 +36,7 @@ public abstract class GPAnalysis extends AbstractAnalysis implements ClusteringA
     {
         File gctFile = null;
 
-        IExpressionData data = new AbstractExpressionData() {
+        Dataset data = new AbstractDataset() {
 
             public double getValue(int row, int column)
             {
@@ -118,7 +119,7 @@ public abstract class GPAnalysis extends AbstractAnalysis implements ClusteringA
                 return null;
             }
 
-            GPServer server = new GPServer(serverName, userName, password);
+            GPClient server = new GPClient(serverName, userName, password);
 
             JobResult analysisResult = server.runAnalysis(analysisName, parameters);
 
@@ -129,13 +130,19 @@ public abstract class GPAnalysis extends AbstractAnalysis implements ClusteringA
 
             String[] outputFiles = analysisResult.getOutputFileNames();
 
-            for(int i = 0; i < outputFiles.length; i++)
+            if(outputFiles != null && outputFiles.length > 0)
             {
-                File resultFile = analysisResult.downloadFile(outputFiles[i], System.getProperty("temporary.files.directory"));
-                resultFile.deleteOnExit();
-                resultFiles.add(resultFile.getAbsolutePath());               
-            }
+                AnalysisWebServiceProxy analysisProxy = new AnalysisWebServiceProxy(server.getServer(), server.getUsername(), password);
+                File[] results = analysisProxy.getResultFiles(analysisResult.getJobNumber(), outputFiles, new File(System.getProperty("temporary.files.directory")), true);
 
+                for(int i = 0; i < results.length; i++)
+                {
+                    resultFiles.add(results[i].getAbsolutePath());
+                }
+            }
+            else
+                resultFiles = null;
+            
             // remove job from GenePattern server
             AnalysisWebServiceProxy analysisProxy = new AnalysisWebServiceProxy(server.getServer(), server.getUsername(), password);
             analysisProxy.purgeJob(analysisResult.getJobNumber());
@@ -151,11 +158,11 @@ public abstract class GPAnalysis extends AbstractAnalysis implements ClusteringA
 
             throw we;
         }
-        catch(IOException io)
+        /*catch(IOException io)
         {
             log.error(io);
             JOptionPane.showMessageDialog(panel, "An error occurred while retrieving results from the GenePattern server.");
-        }
+        } */
 
         return resultFiles;
     }

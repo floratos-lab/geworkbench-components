@@ -11,12 +11,14 @@
 */
 package org.geworkbench.components.gpmodule.classification;
 
-import org.genepattern.data.expr.IExpressionData;
-import org.genepattern.data.expr.AbstractExpressionData;
-import org.genepattern.data.matrix.ClassVector;
-import org.genepattern.io.expr.gct.GctWriter;
-import org.genepattern.io.expr.cls.ClsWriter;
-import org.genepattern.client.GPServer;
+import org.genepattern.matrix.Dataset;
+//import org.genepattern.data.expr.AbstractExpressionData;
+import org.genepattern.matrix.ClassVector;
+import org.genepattern.matrix.AbstractDataset;
+import org.genepattern.io.gct.GctWriter;
+import org.genepattern.io.cls.ClsWriter;
+//import org.genepattern.client.GPServer;
+import org.genepattern.client.GPClient;
 import org.genepattern.webservice.JobResult;
 import org.genepattern.webservice.Parameter;
 import org.genepattern.webservice.AnalysisWebServiceProxy;
@@ -38,7 +40,7 @@ public abstract class GPTraining extends AbstractTraining
     protected File createGCTFile(String fileName, final List trainingSet, final List featureNames)
     {
         File gctFile = null;
-        IExpressionData data = new AbstractExpressionData() {
+        Dataset data = new AbstractDataset() {
 
             public double getValue(int row, int column)
             {
@@ -148,12 +150,9 @@ public abstract class GPTraining extends AbstractTraining
             String serverName = GPpropertiesManager.getProperty("gp.server");
             String userName = GPpropertiesManager.getProperty("gp.user.name");
             String password = ((GPTrainingPanel)this.panel).getPassword();
-            GPServer server = new GPServer(serverName, userName, password);            
+            GPClient server = new GPClient(serverName, userName, password);            
 
             JobResult analysisResult = server.runAnalysis(modelName, parameters);
-
-            System.out.println("Error occurred: " + analysisResult.hasStandardError());
-
             String[] outputFiles = analysisResult.getOutputFileNames();
 
             String modelFileName = null;
@@ -166,21 +165,34 @@ public abstract class GPTraining extends AbstractTraining
             if(modelFileName == null)
                 throw new ClassifierException("Error: Classifier model could not be generated");
 
+            //download model result file from server
+            AnalysisWebServiceProxy analysisProxy = new AnalysisWebServiceProxy(server.getServer(), server.getUsername(), password);
+            String[] resultFiles = new String[1] ;
+            resultFiles[0] = modelFileName;
+
+            File[] result = analysisProxy.getResultFiles(analysisResult.getJobNumber(), resultFiles, new File(System.getProperty("temporary.files.directory")), true);
+            if(result == null || result.length == 0)
+                throw new ClassifierException("Error: Could not retrieve classifier model from GenePattern");
+
             // save the model of the classifer
-            File modelFile = analysisResult.downloadFile(modelFileName, System.getProperty("temporary.files.directory"));
+            File modelFile =  result[0];
             modelFile.deleteOnExit();
 
             predModel = new PredictionModel(modelFile);
 
             // remove job from GenePattern server
-            AnalysisWebServiceProxy analysisProxy = new AnalysisWebServiceProxy(server.getServer(), server.getUsername(), password);
+            analysisProxy = new AnalysisWebServiceProxy(server.getServer(), server.getUsername(), password);
             analysisProxy.purgeJob(analysisResult.getJobNumber());
         }
         catch(WebServiceException we)
         {
              we.printStackTrace();
              throw new ClassifierException("Could not connect to GenePattern server");           
-        }   
+        }
+        catch(ClassifierException ce)
+        {
+            throw ce;
+        }
         catch(Exception e)
         {
             e.printStackTrace();

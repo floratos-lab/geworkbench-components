@@ -11,7 +11,8 @@
 */
 package org.geworkbench.components.gpmodule.classification;
 
-import org.genepattern.io.*;
+import org.genepattern.io.odf.*;
+import org.genepattern.io.ParseException;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -85,7 +86,7 @@ public class PredictionModel
 
     private class OdfObject
     {
-        OdfHandler handler;
+        MyOdfHandler handler;
         public OdfObject(String file) throws Exception
         {
             FileInputStream fis = null;
@@ -94,7 +95,7 @@ public class PredictionModel
                 fis = new FileInputStream(file);
                 OdfParser parser = new OdfParser();
 
-                handler = new OdfHandler();
+                handler = new MyOdfHandler();
                 parser.setHandler(handler);
                 parser.parse(fis);
             }
@@ -143,14 +144,14 @@ public class PredictionModel
 
     }
 
-    private class OdfHandler implements IOdfHandler
+    private class MyOdfHandler implements OdfHandler
     {
         HashMap keyValuePair;
         int numRows;
         int numColumns;
         String[][] data = null;
 
-        public OdfHandler()
+        public MyOdfHandler()
         {
             keyValuePair = new HashMap();
         }
