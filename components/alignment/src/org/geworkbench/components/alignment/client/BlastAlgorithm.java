@@ -22,9 +22,11 @@ import org.geworkbench.algorithms.BWAbstractAlgorithm;
 import org.geworkbench.bison.datastructure.biocollections.DSAncillaryDataSet;
 import org.geworkbench.bison.datastructure.biocollections.sequences.CSSequenceSet;
 import org.geworkbench.bison.datastructure.biocollections.sequences.DSSequenceSet;
+import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.sequence.CSAlignmentResultSet;
 import org.geworkbench.bison.datastructure.bioobjects.sequence.CSSequence;
 import org.geworkbench.bison.util.RandomNumberGenerator;
+import org.geworkbench.builtin.projects.ProjectPanel;
 import org.geworkbench.components.alignment.blast.RemoteBlast;
 import org.geworkbench.components.alignment.blast.RemoteBlast.NcbiResponseException;
 import org.geworkbench.components.alignment.panels.AlgorithmMatcher;
@@ -40,7 +42,7 @@ import org.globus.progtutorial.clients.BlastService.Client;
  * 
  * @author XZ
  * @author zji
- * @version $Id: BlastAlgorithm.java,v 1.29 2008-05-14 21:04:49 jiz Exp $
+ * @version $Id: BlastAlgorithm.java,v 1.30 2008-08-08 18:14:28 xiaoqing Exp $
  */
 public class BlastAlgorithm extends BWAbstractAlgorithm implements SoapClientIn {
 	static Log LOG = LogFactory.getLog(RemoteBlast.class);
@@ -71,7 +73,7 @@ public class BlastAlgorithm extends BWAbstractAlgorithm implements SoapClientIn 
 	private ParameterSetting parameterSetting;
 	private final static int TIMEGAP = 4000;
 	private final static int SHORTTIMEGAP = 50;
-
+	private final static String LINEBREAK = System.getProperty("line.separator");
 	public void setBlastAppComponent(BlastAppComponent _blastAppComponent) {
 		blastAppComponent = _blastAppComponent;
 	}
@@ -397,9 +399,41 @@ public class BlastAlgorithm extends BWAbstractAlgorithm implements SoapClientIn 
 		blastResult.setLabel(BlastAppComponent.NCBILABEL);
 		ProjectNodeAddedEvent event = new ProjectNodeAddedEvent(null, null,
 				blastResult);
+		String historyStr = generateHistoryStr(activeSequenceDB);
+		ProjectPanel.addToHistory(blastResult, historyStr);
+
 		if (blastAppComponent != null) {
 			blastAppComponent.publishProjectNodeAddedEvent(event);
 		}		
+	}
+
+	private String generateHistoryStr(CSSequenceSet<CSSequence> activeSequenceDB) {
+		String histStr = "";
+		if(parameterSetting!=null){
+			
+			// Header
+			histStr += "Blast run with the following parameters:\n";
+			histStr += "----------------------------------------\n\n";
+
+			 
+				histStr += "Database: " + parameterSetting.getDbName() + LINEBREAK;
+				histStr += "BLAST Program: " + parameterSetting.getProgramName() + LINEBREAK;
+				histStr += "Expect: " + parameterSetting.getExpect() + LINEBREAK;
+				histStr += "Matrix: " + parameterSetting.getMatrix() + LINEBREAK;
+				histStr += "Gap Cost: " + parameterSetting.getGapCost() + LINEBREAK;
+				histStr += "Word Size: " + parameterSetting.getWordsize() + LINEBREAK;
+				histStr += "Low Complexity Filter On: " + parameterSetting.isLowComplexityFilterOn() + LINEBREAK;
+				histStr += "Human Repeat Filter On: " + parameterSetting.isHumanRepeatFilterOn() + LINEBREAK;
+				histStr += "Mask Low Case: " + parameterSetting.isMaskLowCase() + LINEBREAK;
+				histStr += "Mask Lookup Table: " + parameterSetting.isMaskLookupTable() + LINEBREAK + LINEBREAK;
+				
+				histStr += "Number of Sequences: " + activeSequenceDB.size() + LINEBREAK;
+				for (CSSequence marker : activeSequenceDB) {
+					histStr += "\t" + marker.getLabel() + "\n";
+				}
+		}
+		// TODO Auto-generated method stub
+		return histStr;
 	}
 
 	/**
