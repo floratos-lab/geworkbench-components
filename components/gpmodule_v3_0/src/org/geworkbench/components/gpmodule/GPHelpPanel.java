@@ -37,9 +37,10 @@ public class GPHelpPanel extends JSplitPane
 
         initClassDescPanel();
         JButton classifierButton = new JButton(label);
-        classifierButton.setMinimumSize(new Dimension(145, 24));
-        classifierButton.setPreferredSize(new Dimension(145, 24));
-        classifierButton.setMaximumSize(new Dimension(145, 24));
+        classifierButton.setText("<html><center>" + label + "</center></html>");
+        classifierButton.setMinimumSize(new Dimension(145, 27));
+        classifierButton.setPreferredSize(new Dimension(145, 27));
+        classifierButton.setMaximumSize(new Dimension(145, 27));
         classifierButton.addActionListener( new ActionListener()
         {
             public void actionPerformed(ActionEvent event)
@@ -54,9 +55,9 @@ public class GPHelpPanel extends JSplitPane
 
         initParamDescPanel();
         JButton parameterButton = new JButton("Parameters");
-        parameterButton.setMinimumSize(new Dimension(145, 24));
-        parameterButton.setPreferredSize(new Dimension(145, 24));
-        parameterButton.setMaximumSize(new Dimension(145, 24));
+        parameterButton.setMinimumSize(new Dimension(145, 26));
+        parameterButton.setPreferredSize(new Dimension(145, 26));
+        parameterButton.setMaximumSize(new Dimension(145, 26));
         parameterButton.addActionListener( new ActionListener()
         {
             public void actionPerformed(ActionEvent event)
@@ -69,10 +70,11 @@ public class GPHelpPanel extends JSplitPane
         leftComponent.add(Box.createRigidArea(new Dimension(1,10)));
         leftComponent.add(parameterButton);
 
-        JButton genePatternButton = new JButton("GenePattern Website");
-        genePatternButton.setMinimumSize(new Dimension(145, 24));
-        genePatternButton.setPreferredSize(new Dimension(145, 24));
-        genePatternButton.setMaximumSize(new Dimension(145, 24));
+        JButton genePatternButton = new JButton();
+        genePatternButton.setText("<html><center>GenePattern Website</center></html>");
+        genePatternButton.setMinimumSize(new Dimension(145, 49));
+        genePatternButton.setPreferredSize(new Dimension(145, 49));
+        genePatternButton.setMaximumSize(new Dimension(145, 49));
         genePatternButton.addActionListener( new ActionListener()
         {
             public void actionPerformed(ActionEvent event)
@@ -88,10 +90,11 @@ public class GPHelpPanel extends JSplitPane
             }
         });
 
-        JButton gpDownloadButton = new JButton("Download GenePattern");
-        gpDownloadButton.setMinimumSize(new Dimension(145, 24));
-        gpDownloadButton.setPreferredSize(new Dimension(145, 24));
-        gpDownloadButton.setMaximumSize(new Dimension(145, 24));
+        JButton gpDownloadButton = new JButton();
+        gpDownloadButton.setText("<html><center>Download GenePattern</center></html>");
+        gpDownloadButton.setMinimumSize(new Dimension(145, 49));
+        gpDownloadButton.setPreferredSize(new Dimension(145, 49));
+        gpDownloadButton.setMaximumSize(new Dimension(145, 49));
         leftComponent.add(Box.createRigidArea(new Dimension(1, 10)));
         leftComponent.add(gpDownloadButton);
         gpDownloadButton.addActionListener( new ActionListener()
@@ -116,6 +119,8 @@ public class GPHelpPanel extends JSplitPane
         this.setDividerSize(10);
         this.setLeftComponent(leftComponent);
         this.setRightComponent(classDescPanel);
+
+        this.setBorder(BorderFactory.createEmptyBorder());
     }
 
     protected void initParamDescPanel()
