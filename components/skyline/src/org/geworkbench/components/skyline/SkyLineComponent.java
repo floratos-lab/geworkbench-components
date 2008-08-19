@@ -527,7 +527,7 @@ public class SkyLineComponent extends JPanel implements VisualPlugin {
     private String get_qstat(String pname)
     {
 	String status = new String();
-	pname = pname.substring(0, maxlen_qname);
+	if (pname.length() > maxlen_qname) pname = pname.substring(0, maxlen_qname);
 	try{
 	    status = ((SkyLineAnalysis)selectedStructureAnalysis).getJobStatus(pname);
 	} catch (Exception ce) {
