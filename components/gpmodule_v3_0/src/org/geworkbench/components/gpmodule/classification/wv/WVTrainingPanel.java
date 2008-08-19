@@ -194,29 +194,14 @@ public class WVTrainingPanel extends GPTrainingPanel {
         return(featureFileMethod.isSelected());
     }
 
-    private JLabel getGPLogo()
+    protected String getSummaryFile()
     {
-        java.net.URL imageURL = WVTrainingPanel.class.getResource("images/gp-logo.jpg");
-        ImageIcon image = new ImageIcon(imageURL);
-
-        JLabel label = new JLabel();
-        label.setIcon(image);
-
-        return label;
+        return WVTrainingPanel.class.getResource("help.html").getPath();
     }
 
-    protected File getDescriptionFile()
+    protected String getParamDescriptFile()
     {
-        File descriptFile = new File(WVTrainingPanel.class.getResource("help.html").getPath());
-
-        return descriptFile;
-    }
-
-    protected File getParamDescriptions()
-    {
-        File paramDescriptFile = new File(WVTrainingPanel.class.getResource("paramDesc.html").getPath());
-
-        return paramDescriptFile;
+        return WVTrainingPanel.class.getResource("paramDesc.html").getPath();
     }
     
     protected JPanel getParameterPanel()

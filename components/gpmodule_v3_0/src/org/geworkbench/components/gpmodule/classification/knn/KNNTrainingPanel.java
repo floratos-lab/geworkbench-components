@@ -233,29 +233,15 @@ public class KNNTrainingPanel extends GPTrainingPanel {
         return ((Integer)numNeighbors.getValue()).intValue();
     }
 
-    private JLabel getGPLogo()
+
+    protected String getSummaryFile()
     {
-        java.net.URL imageURL = KNNTrainingPanel.class.getResource("images/gp-logo.jpg");
-        ImageIcon image = new ImageIcon(imageURL);
-
-        JLabel label = new JLabel();
-        label.setIcon(image);
-
-        return label;
+        return KNNTrainingPanel.class.getResource("help.html").getPath();
     }
 
-    protected File getDescriptionFile()
+    protected String getParamDescriptFile()
     {
-        File descriptFile = new File(KNNTrainingPanel.class.getResource("help.html").getPath());
-
-        return descriptFile;
-    }
-
-    protected File getParamDescriptions()
-    {
-        File paramDescriptFile = new File(KNNTrainingPanel.class.getResource("paramDesc.html").getPath());
-
-        return paramDescriptFile;
+        return KNNTrainingPanel.class.getResource("paramDesc.html").getPath();
     }
 
     protected JPanel getParameterPanel()
