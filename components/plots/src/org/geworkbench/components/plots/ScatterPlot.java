@@ -1018,13 +1018,13 @@ public class ScatterPlot implements VisualPlugin {
             packChartPanel(PlotType.MARKER);
             updateCharts(PlotType.ARRAY);
             packChartPanel(PlotType.ARRAY);
-            tabbedPane.setSelectedIndex(TAB_ARRAY);
+            //tabbedPane.setSelectedIndex(TAB_ARRAY);
     	} else {
     		updateCharts(PlotType.ARRAY);
             packChartPanel(PlotType.ARRAY);
             updateCharts(PlotType.MARKER);
             packChartPanel(PlotType.MARKER);
-            tabbedPane.setSelectedIndex(TAB_MARKER);
+            //tabbedPane.setSelectedIndex(TAB_MARKER);
     	}    	
     	microarrayList.clearSelections();
         markerList.clearSelections();
