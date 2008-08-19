@@ -161,6 +161,24 @@ public class GPConfigPanel extends JPanel
             {
                 return new MyCellRenderer();
             }
+
+            public boolean getScrollableTracksViewportHeight()
+            {
+                Component parent = getParent();
+                if(parent instanceof JViewport)
+                    return parent.getHeight() > getPreferredSize().height;
+
+                return false;
+            }
+
+            public boolean getScrollableTracksViewportWidth()
+            {
+                Component parent = getParent();
+                if(parent instanceof JViewport)
+                    return parent.getWidth() > getPreferredSize().width;
+
+                return false;
+            }                                 
         };
 
         rebuildTable();
@@ -194,10 +212,13 @@ public class GPConfigPanel extends JPanel
         });
         modifyButton.setAlignmentX(Component.CENTER_ALIGNMENT);
 
+        JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
+        panel.add(tableScrollPane);
+        panel.add(Box.createRigidArea(new Dimension(2, 0)));
+        panel.add(modifyButton);
         this.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
-        this.add(tableScrollPane);
-        this.add(Box.createRigidArea(new Dimension(10, 0)));
-        this.add(modifyButton);    
+        this.add(panel);
     }
 
     private void showMessageDialog(String message)
@@ -301,7 +322,7 @@ public class GPConfigPanel extends JPanel
         serverSettingsTable.setCellSelectionEnabled(false);
         serverSettingsTable.getColumnModel().getColumn(0).setPreferredWidth(12);
         serverSettingsTable.getColumnModel().getColumn(0).setWidth(12);
-        serverSettingsTable.setRowHeight(18);
+        serverSettingsTable.setRowHeight(24);
     }
 
     private boolean testConfigSettings(String serverName, String userName, String password)
@@ -445,7 +466,7 @@ public class GPConfigPanel extends JPanel
         }
     }
 
-    protected String getPassword()
+    public String getPassword()
     {
         return new String(password.getPassword());
     }
