@@ -707,8 +707,14 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 										.getLabel()
 										+ " (pending)");
 
-								//generate history
+								//generate history for grid analysis
 								String history = "";
+								history += "Grid service information:\n";
+								ButtonModel bm = jGridServicePanel.getServicesButtonGroup().getSelection();
+								history += "\tIndex server host: "+jGridServicePanel.getHost();
+								history += ", port: "+jGridServicePanel.getPort()+"\n";
+								history += "\tDispatcher url: "+dispatcherUrl+"\n";
+								history += "\tService url: "+url+"\n\n";
 								history += selectedAnalysis.createHistory();
 								history += generateHistoryString(maSetView);
 								pendingEvent.setHistory(history);

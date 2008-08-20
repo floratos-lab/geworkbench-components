@@ -31,7 +31,7 @@ import com.jgoodies.forms.layout.FormLayout;
 /**
  * 
  * @author keshav
- * @version $Id: GridServicePanel.java,v 1.31 2008-07-03 17:33:52 jiz Exp $
+ * @version $Id: GridServicePanel.java,v 1.32 2008-08-20 18:23:04 chiangy Exp $
  */
 public class GridServicePanel extends JPanel {
 	private Log log = LogFactory.getLog(this.getClass());
@@ -234,5 +234,13 @@ public class GridServicePanel extends JPanel {
 	 */
 	public ButtonGroup getServicesButtonGroup() {
 		return gridServicesButtonListener.getServicesButtonGroup();
+	}
+	
+	public String getHost(){
+		return gridServicesButtonListener.getHost();
+	}
+	
+	public int getPort(){
+		return gridServicesButtonListener.getPort();
 	}
 }
