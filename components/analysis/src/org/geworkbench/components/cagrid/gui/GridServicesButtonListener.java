@@ -38,6 +38,9 @@ public class GridServicesButtonListener implements ActionListener {
 	String selectedAnalysisType = null;
 
 	ButtonGroup servicesButtonGroup = null;
+	
+	String host = "";
+	int port = 0;
 
 	/**
 	 * 
@@ -73,8 +76,8 @@ public class GridServicesButtonListener implements ActionListener {
 				pBar.start();
 				pBar.reset();
 
-				String host = indexServiceLabelListener.getHost();
-				int port = indexServiceLabelListener.getPort();
+				host = indexServiceLabelListener.getHost();
+				port = indexServiceLabelListener.getPort();
 				EndpointReferenceType[] services = null;
 				try {
 					services = DiscoveryServiceUtil.getServices(host, port,
@@ -161,5 +164,13 @@ public class GridServicesButtonListener implements ActionListener {
 	 */
 	public void setSelectedAnalysisType(String selectedAnalysisType) {
 		this.selectedAnalysisType = selectedAnalysisType;
+	}
+	
+	public String getHost(){
+		return host;
+	}
+	
+	public int getPort(){
+		return port;
 	}
 }
