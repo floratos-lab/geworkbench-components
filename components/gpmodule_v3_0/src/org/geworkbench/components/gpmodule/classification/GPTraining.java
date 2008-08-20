@@ -1,7 +1,7 @@
 /*
   The Broad Institute
   SOFTWARE COPYRIGHT NOTICE AGREEMENT
-  This software and its documentation are copyright (2003-2007) by the
+  This software and its documentation are copyright (2003-2008) by the
   Broad Institute/Massachusetts Institute of Technology. All rights are
   reserved.
 
@@ -12,18 +12,18 @@
 package org.geworkbench.components.gpmodule.classification;
 
 import org.genepattern.matrix.Dataset;
-//import org.genepattern.data.expr.AbstractExpressionData;
 import org.genepattern.matrix.ClassVector;
 import org.genepattern.matrix.AbstractDataset;
 import org.genepattern.io.gct.GctWriter;
 import org.genepattern.io.cls.ClsWriter;
-//import org.genepattern.client.GPServer;
+import org.genepattern.io.IOUtil;
 import org.genepattern.client.GPClient;
 import org.genepattern.webservice.JobResult;
 import org.genepattern.webservice.Parameter;
 import org.genepattern.webservice.AnalysisWebServiceProxy;
 import org.genepattern.webservice.WebServiceException;
 import org.genepattern.util.GPpropertiesManager;
+import org.genepattern.gui.UIUtil;
 import org.geworkbench.util.ClassifierException;
 import org.geworkbench.algorithms.AbstractTraining;
 
@@ -158,7 +158,8 @@ public abstract class GPTraining extends AbstractTraining
             String modelFileName = null;
             for(int i = 0; i < outputFiles.length; i++)
             {
-                if(outputFiles[i].indexOf(".odf") != -1)
+                String extension = IOUtil.getExtension(outputFiles[i]);
+                if(extension.equalsIgnoreCase("odf") || extension.equalsIgnoreCase("model"))
                     modelFileName = outputFiles[i];
             }
 
@@ -172,9 +173,9 @@ public abstract class GPTraining extends AbstractTraining
 
             File[] result = analysisProxy.getResultFiles(analysisResult.getJobNumber(), resultFiles, new File(System.getProperty("temporary.files.directory")), true);
             if(result == null || result.length == 0)
-                throw new ClassifierException("Error: Could not retrieve classifier model from GenePattern");
+                throw new ClassifierException("Error: Could not retrieve training model from GenePattern");
 
-            // save the model of the classifer
+            // save the model of the classifier
             File modelFile =  result[0];
             modelFile.deleteOnExit();
 
