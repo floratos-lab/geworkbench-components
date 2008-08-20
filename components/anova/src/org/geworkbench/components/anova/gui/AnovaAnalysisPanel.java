@@ -39,7 +39,7 @@ import edu.columbia.geworkbench.cagrid.anova.PValueEstimation;
 
 /**
  * @author yc2480
- * @version $Id: AnovaAnalysisPanel.java,v 1.9 2008-06-03 18:45:15 chiangy Exp $
+ * @version $Id: AnovaAnalysisPanel.java,v 1.10 2008-08-20 15:58:20 chiangy Exp $
  */
 public class AnovaAnalysisPanel extends AbstractSaveableParameterPanel
 		implements Serializable {
@@ -157,7 +157,6 @@ public class AnovaAnalysisPanel extends AbstractSaveableParameterPanel
 			jPanelPValueEst = new JPanel();
 			jPanelPValueEst.setLayout(new BorderLayout());
 			jPanelPValueEst.setName("jPanelPValueEst");
-			jPanelPValueEst.setPreferredSize(new java.awt.Dimension(127, 90));
 			jPanelPValueEst.add(getJPanelPValueEstTitle(),
 					java.awt.BorderLayout.NORTH);
 			jPanelPValueEst.add(getJPanelPValueParam(),
@@ -233,7 +232,6 @@ public class AnovaAnalysisPanel extends AbstractSaveableParameterPanel
 			jPanelPValueParam = new JPanel();
 			jPanelPValueParam.setLayout(new BoxLayout(getJPanelPValueParam(),
 					BoxLayout.Y_AXIS));
-			jPanelPValueParam.setPreferredSize(new java.awt.Dimension(280, 60));
 			jPanelPValueParam.add(getJPanel7(), null);
 			jPanelPValueParam.add(getJPanelPValueThreshold(), null);
 		}
@@ -311,7 +309,6 @@ public class AnovaAnalysisPanel extends AbstractSaveableParameterPanel
 		if (jTextField == null) {
 			jTextField = new JTextField();
 			jTextField.setText(PermutationsNumberDefaultStr);
-			jTextField.setPreferredSize(new java.awt.Dimension(40, 20));
 			jTextField.setEnabled(false);
 			jTextField.addCaretListener(new javax.swing.event.CaretListener() {
 				public void caretUpdate(javax.swing.event.CaretEvent e) {
@@ -341,7 +338,6 @@ public class AnovaAnalysisPanel extends AbstractSaveableParameterPanel
 			jLabel1.setText("P-value Corrections");
 			jPanel1 = new JPanel();
 			jPanel1.setLayout(new BoxLayout(getJPanel1(), BoxLayout.X_AXIS));
-			jPanel1.setPreferredSize(new java.awt.Dimension(107, 36));
 			jPanel1.add(jLabel1, null);
 			JSeparator Separator = new JSeparator(SwingConstants.HORIZONTAL);
 			Separator.setUI(new BasicSeparatorUI() {
@@ -516,7 +512,6 @@ public class AnovaAnalysisPanel extends AbstractSaveableParameterPanel
 			jLabel3.setText("False Discovery Control (permutations only)");
 			jPanel5 = new JPanel();
 			jPanel5.setLayout(new BoxLayout(getJPanel5(), BoxLayout.X_AXIS));
-			jPanel5.setPreferredSize(new java.awt.Dimension(107, 36));
 			jPanel5.add(jLabel3, null);
 		}
 		return jPanel5;
@@ -635,7 +630,6 @@ public class AnovaAnalysisPanel extends AbstractSaveableParameterPanel
 			FlowLayout flowLayout1 = new FlowLayout();
 			flowLayout1.setAlignment(java.awt.FlowLayout.LEFT);
 			jPanel = new JPanel();
-			jPanel.setPreferredSize(new java.awt.Dimension(383, 30));
 			jPanel.setLayout(flowLayout1);
 			jPanel.add(getJRadioButton4(), null);
 			jPanel.add(getJTextFieldNFSG(), null);
@@ -653,7 +647,6 @@ public class AnovaAnalysisPanel extends AbstractSaveableParameterPanel
 			FlowLayout flowLayout2 = new FlowLayout();
 			flowLayout2.setAlignment(java.awt.FlowLayout.LEFT);
 			jPanel8 = new JPanel();
-			jPanel8.setPreferredSize(new java.awt.Dimension(396, 30));
 			jPanel8.setLayout(flowLayout2);
 			jPanel8.add(getJRadioButton5(), null);
 			jPanel8.add(getJTextFieldPFSG(), null);
@@ -671,7 +664,6 @@ public class AnovaAnalysisPanel extends AbstractSaveableParameterPanel
 			jTextFieldNFSG = new JTextField();
 			jTextFieldNFSG.setText("10");
 			jTextFieldNFSG.setEnabled(false);
-			jTextFieldNFSG.setPreferredSize(new java.awt.Dimension(30, 20));
 			jTextFieldNFSG
 					.addCaretListener(new javax.swing.event.CaretListener() {
 						public void caretUpdate(javax.swing.event.CaretEvent e) {
@@ -700,7 +692,6 @@ public class AnovaAnalysisPanel extends AbstractSaveableParameterPanel
 			jTextFieldPFSG = new JTextField();
 			jTextFieldPFSG.setText("0.05");
 			jTextFieldPFSG.setEnabled(false);
-			jTextFieldPFSG.setPreferredSize(new java.awt.Dimension(30, 20));
 			jTextFieldPFSG
 					.addCaretListener(new javax.swing.event.CaretListener() {
 						public void caretUpdate(javax.swing.event.CaretEvent e) {
