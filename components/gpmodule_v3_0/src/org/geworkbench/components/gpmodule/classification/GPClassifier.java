@@ -139,9 +139,9 @@ public abstract class GPClassifier extends CSClassifier
         return testClsData;
     }
 
-    protected File runPredictor(String classifierName, Parameter[] parameters)
+    public PredictionResult runPredictor(String classifierName, Parameter[] parameters)
     {
-        File predFile = null;
+        PredictionResult predResult = null;
         try
         {
             String serverName = GPpropertiesManager.getProperty("gp.server");
@@ -172,9 +172,10 @@ public abstract class GPClassifier extends CSClassifier
             if(result == null || result.length == 0)
                 throw new ClassifierException("Error: Could not retrieve classifier model from GenePattern");
            
-            predFile = result[0];
+            File predFile = result[0];
             predFile.deleteOnExit();
 
+            predResult = new PredictionResult(predFile);
             // remove job from GenePattern server
             analysisProxy = new AnalysisWebServiceProxy(server.getServer(), server.getUsername(), password);
             analysisProxy.purgeJob(analysisResult.getJobNumber());
@@ -191,12 +192,12 @@ public abstract class GPClassifier extends CSClassifier
             e.printStackTrace();
         }
 
-        return predFile;
+        return predResult;
     }
 
-    protected String getPredictedClass(File predFile)
+    protected String getPredictedClass(PredictionResult result)
     {
-        String className = null;
+        /*String className = null;
         try
         {
             BufferedReader bufReader = new BufferedReader(new FileReader(predFile));
@@ -208,12 +209,18 @@ public abstract class GPClassifier extends CSClassifier
             }
 
             className = predLine.split("\t")[2];
+
+            System.out.println("Prediction class name: " + className);
         }
         catch(Exception e)
         {
             e.printStackTrace();
         }
 
-        return className;
+        return className;  */
+
+        int predClassIndx = result.getColumn("Predicted Class");
+
+        return result.getValueAt(0, predClassIndx);
     }
 }

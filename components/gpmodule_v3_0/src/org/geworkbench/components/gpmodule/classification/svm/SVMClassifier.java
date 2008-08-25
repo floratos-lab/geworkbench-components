@@ -13,22 +13,51 @@ package org.geworkbench.components.gpmodule.classification.svm;
 
 import org.geworkbench.components.gpmodule.classification.GPClassifier;
 import org.geworkbench.components.gpmodule.classification.PredictionModel;
+import org.geworkbench.components.gpmodule.classification.PredictionResult;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 
 import java.util.List;
+import java.util.ArrayList;
+import java.io.File;
 
 /**
  * @author Marc-Danie Nazaire
  */
 public class SVMClassifier extends GPClassifier
 {
-    public SVMClassifier(DSDataSet parent, String label, String[] classifications, PredictionModel predModel, List featureNames, List knnParams)
+    private PredictionModel model;
+    private PredictionResult trainPredResult;
+
+    public SVMClassifier(DSDataSet parent, String label, String[] classifications, PredictionModel model, List featureNames)
     {
         super(parent, label, classifications);
+        this.model = model;
+        this.featureNames = featureNames;
     }
     
     public int classify(float[] data)
     {
+        File testData = createTestGCTFile("SVMTest_Data", data);
+        File testCLSData = createTestCLSFile("SVMTest_Cls");
+
+        List parameters = new ArrayList();
+
+
         return -1;
+    }
+
+    public void setTrainPredResult(PredictionResult result)
+    {
+        trainPredResult = result;
+    }
+
+    public PredictionResult getTrainPredResult()
+    {
+        return trainPredResult;
+    }
+
+    public void classifierTestResult()
+    {
+
     }
 }

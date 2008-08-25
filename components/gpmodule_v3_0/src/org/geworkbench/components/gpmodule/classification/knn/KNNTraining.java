@@ -149,7 +149,9 @@ public class KNNTraining extends GPTraining implements TrainingTask
                 trainingProgressListener.stepUpdate("training classifier", 2);
 
             parameters.addAll(knnParams);
-            PredictionModel predModel = createModel("KNN", (Parameter[])parameters.toArray(new Parameter[0]));
+
+            File modelFile = trainData("KNN", (Parameter[])parameters.toArray(new Parameter[0]));
+            PredictionModel predModel = createModel(modelFile);
 
             knnClassifier = new KNNClassifier(null, "KNN Classifier", new String[]{"Positive", "Negative"}, predModel, featureNames, knnParams);
             knnClassifier.setPassword(((KNNTrainingPanel)panel).getPassword());

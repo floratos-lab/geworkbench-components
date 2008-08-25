@@ -14,6 +14,7 @@ package org.geworkbench.components.gpmodule.classification.wv;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.components.gpmodule.classification.PredictionModel;
 import org.geworkbench.components.gpmodule.classification.GPClassifier;
+import org.geworkbench.components.gpmodule.classification.PredictionResult;
 import org.genepattern.webservice.Parameter;
 
 import java.io.*;
@@ -44,8 +45,8 @@ public class WVClassifier extends GPClassifier {
         parameters.add(new Parameter("test.class.filename", testCLSData.getAbsolutePath()));
         parameters.add(new Parameter("pred.results.file", predModel.getPredModelFile().getName() + "_pred"));
 
-        File predFile = runPredictor("WeightedVoting", (Parameter[])parameters.toArray(new Parameter[0]));
+        PredictionResult predResult = runPredictor("WeightedVoting", (Parameter[])parameters.toArray(new Parameter[0]));
 
-        return (getPredictedClass(predFile).equals("Control") ? 1 : 0);
+        return (getPredictedClass(predResult).equals("Control") ? 1 : 0);
     }
 }

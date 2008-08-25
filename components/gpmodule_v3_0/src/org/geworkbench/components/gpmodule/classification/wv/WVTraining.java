@@ -122,7 +122,8 @@ public class WVTraining extends GPTraining implements TrainingTask
             if(trainingProgressListener != null)
                 trainingProgressListener.stepUpdate("training classifier", 2);
 
-            PredictionModel predModel = createModel("WeightedVoting", (Parameter[])parameters.toArray(new Parameter[0]));
+            File modelFile = trainData("WeightedVoting", (Parameter[])parameters.toArray(new Parameter[0]));
+            PredictionModel predModel = createModel(modelFile);
 
             wvClassifier = new WVClassifier(null, "WV Classifier", new String[]{"Positive", "Negative"}, predModel, featureNames);
             wvClassifier.setPassword(((WVTrainingPanel)panel).getPassword());

@@ -14,6 +14,7 @@ package org.geworkbench.components.gpmodule.classification.knn;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.components.gpmodule.classification.PredictionModel;
 import org.geworkbench.components.gpmodule.classification.GPClassifier;
+import org.geworkbench.components.gpmodule.classification.PredictionResult;
 import org.genepattern.webservice.Parameter;
 
 import java.io.File;
@@ -34,7 +35,6 @@ public class KNNClassifier extends GPClassifier {
         this.predModel = predModel;
         this.featureNames = featureNames;
         this.knnParameters = knnParams;
-        this.predModel = predModel;
     }
 
     public int classify(float[] data)
@@ -50,8 +50,8 @@ public class KNNClassifier extends GPClassifier {
         parameters.add(new Parameter("pred.results.file", predModel.getPredModelFile().getName() + "pred"));
         parameters.addAll(knnParameters);
 
-        File predFile = runPredictor("KNN", (Parameter[])parameters.toArray(new Parameter[0]));
+        PredictionResult predResult = runPredictor("KNN", (Parameter[])parameters.toArray(new Parameter[0]));
       
-        return (getPredictedClass(predFile).equals("Control") ? 1 : 0);
+        return (getPredictedClass(predResult).equals("Control") ? 1 : 0);
     }
 }
