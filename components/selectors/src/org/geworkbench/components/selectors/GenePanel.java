@@ -1,5 +1,7 @@
 package org.geworkbench.components.selectors;
 
+import java.awt.Color;
+import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -17,6 +19,7 @@ import javax.swing.JList;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JTree;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.tree.TreePath;
 
@@ -32,12 +35,13 @@ import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
 import org.geworkbench.bison.datastructure.complex.panels.DSAnnotatedPanel;
 import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
+import org.geworkbench.engine.management.Overflow;
 import org.geworkbench.engine.management.Publish;
 import org.geworkbench.engine.management.Script;
 import org.geworkbench.engine.management.Subscribe;
 import org.geworkbench.events.GeneSelectorEvent;
+import org.geworkbench.events.GeneTaggedEvent;
 import org.geworkbench.events.MarkerSelectedEvent;
-import org.geworkbench.events.ProjectEvent;
 import org.geworkbench.events.SubpanelChangedEvent;
 import org.geworkbench.util.Util;
 
@@ -51,6 +55,8 @@ import com.Ostermiller.util.ExcelCSVParser;
  * @author John Watkinson
  */
 public class GenePanel extends SelectorPanel<DSGeneMarker> {
+	private String taggedSelection = null; // tagged for cytoscape visualization
+	private boolean tagEventEnabled = true;
 
 	/**
 	 * <code>FileFilter</code> that is used by the <code>JFileChoose</code>
@@ -83,12 +89,25 @@ public class GenePanel extends SelectorPanel<DSGeneMarker> {
 
 	public GenePanel() {
 		super(DSGeneMarker.class, "Marker");
+		tagEventEnabled = true;
 		// Add gene panel specific menu items.
 		treePopup.add(savePanelItem);
+		treePopup.add(tagPanelItem);
 		rootPopup.add(loadPanelItem);
 		savePanelItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				saveButtonPressed(rightClickedPath);
+			}
+		});
+		tagPanelItem.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if (!tagEventEnabled) return; // to avoid event cycle
+				String selected = (String)panelTree.getSelectionPath().getLastPathComponent();
+				if(!selected.equals(taggedSelection)) {
+					taggedSelection = selected;
+					panelTree.repaint();
+					publishGeneTaggedEvent(new GeneTaggedEvent(context.getItemsWithLabel(taggedSelection)));
+				}
 			}
 		});
 		exportPanelItem.addActionListener(new ActionListener() {
@@ -113,11 +132,15 @@ public class GenePanel extends SelectorPanel<DSGeneMarker> {
 			}
 		});
 		lowerPanel.add(loadPanel);
+
+		taggedSelection = "Selection"; // default initial tagged selection
+		setTreeRenderer(new CustomizedRenderer());
 	}
 
 	private JMenuItem savePanelItem = new JMenuItem("Save");
 	private JMenuItem loadPanelItem = new JMenuItem("Load Set");
 	private JMenuItem exportPanelItem = new JMenuItem("Export");
+	private JMenuItem tagPanelItem = new JMenuItem("Tag for visualization");
 
 	private void saveButtonPressed(TreePath path) {
 		String[] labels = getSelectedTreesFromTree();
@@ -187,6 +210,10 @@ public class GenePanel extends SelectorPanel<DSGeneMarker> {
 		event = new GeneSelectorEvent(context.getLabelTree());
 		if (event != null) {
 			publishGeneSelectorEvent(event);
+		}
+
+		if (tagEventEnabled) {
+			publishGeneTaggedEvent(new GeneTaggedEvent(context.getItemsWithLabel(taggedSelection)));
 		}
 	}
 
@@ -362,6 +389,11 @@ public class GenePanel extends SelectorPanel<DSGeneMarker> {
 		return event;
 	}
 
+	@Publish
+	public GeneTaggedEvent publishGeneTaggedEvent(GeneTaggedEvent event) {
+		return event;
+	}
+
 	protected void publishSingleSelectionEvent(DSGeneMarker item) {
 		publishGeneSelectorEvent(new GeneSelectorEvent(item));
 	}
@@ -479,5 +511,35 @@ public class GenePanel extends SelectorPanel<DSGeneMarker> {
 
 		}
 	}
+
+	private class CustomizedRenderer extends SelectorTreeRenderer {
+        public CustomizedRenderer() {
+            super(GenePanel.this);
+        }
+
+        @Override
+        public Component getTreeCellRendererComponent(JTree tree, Object value, boolean selected, boolean expanded, boolean leaf, int row, boolean hasFocus) {
+            Component comp = super.getTreeCellRendererComponent(tree, value, selected, expanded, leaf, row, hasFocus);
+            if (value instanceof String) {
+            	if(value.equals(taggedSelection))
+            		cellLabel.setForeground(Color.BLUE);
+            }
+            return comp;
+        }
+    }
+
+	@Override
+	@Subscribe(Overflow.class)
+	public void receive(org.geworkbench.events.SubpanelChangedEvent spe,
+			Object source) {
+    	// the proxy produced by cglib is something like this
+    	//org.geworkbench.components.cytoscape.CytoscapeWidget$$EnhancerByCGLIB$$8bb8f936
+    	if(source.getClass().getName().startsWith("org.geworkbench.components.cytoscape.CytoscapeWidget")){
+    		tagEventEnabled = false; // to prevent event cycle between GenePanel and CytoscapeWidget
+    		spe.getPanel().setLabel(taggedSelection);
+    	}
+    	super.receive(spe, source);
+    	tagEventEnabled = true;
+    }
 
 }
