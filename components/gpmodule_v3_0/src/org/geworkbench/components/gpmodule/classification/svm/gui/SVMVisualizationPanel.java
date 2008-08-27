@@ -50,6 +50,9 @@ public class SVMVisualizationPanel extends JPanel
         testPanel = new JPanel(new BorderLayout());
         tabPanel.addTab("Test", testPanel);
 
+        if(svmClassifier.getTestPredResult() != null)
+            buildTestResultTable();
+        
         mainSplitPanel = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
 
         mainSplitPanel.setTopComponent(tabPanel);
@@ -91,9 +94,46 @@ public class SVMVisualizationPanel extends JPanel
         }
 
         table.setModel(tableModel);
-        table.setSortOrder(0, SortOrder.ASCENDING);
+        table.setSortOrder("Confidence", SortOrder.DESCENDING);
 
         JScrollPane scrollPane = new JScrollPane(table);
         trainPanel.add(scrollPane);
+    }
+
+    private void buildTestResultTable()
+    {
+        JXTable table = new JXTable();
+
+        table.addHighlighter(HighlighterFactory.createAlternateStriping());
+        table.setSortable(true);
+        table.setEditable(false);
+        table.setShowGrid(true);
+        table.setGridColor(Color.LIGHT_GRAY);
+
+        PredictionResult predResult = svmClassifier.getTestPredResult();
+
+        int sampleIndx = predResult.getColumn("Samples");
+        int pClassIndx = predResult.getColumn("Predicted Class");
+        int confIndx = predResult.getColumn("Confidence");
+
+        String[] columnNames = {"Array Name", "Predicted Class", "Confidence"};
+        DefaultTableModel tableModel = new DefaultTableModel();
+        tableModel.setColumnIdentifiers(columnNames);
+
+        for(int i =0 ; i < predResult.getNumRows(); i++)
+        {
+            Vector rowVector = new Vector();
+            rowVector.add(predResult.getValueAt(i, sampleIndx));
+            rowVector.add(predResult.getValueAt(i, pClassIndx));
+            rowVector.add(predResult.getValueAt(i, confIndx));
+
+            tableModel.addRow(rowVector);
+        }
+
+        table.setModel(tableModel);
+        table.setSortOrder("Confidence", SortOrder.DESCENDING);
+
+        JScrollPane scrollPane = new JScrollPane(table);
+        testPanel.add(scrollPane);
     }
 }

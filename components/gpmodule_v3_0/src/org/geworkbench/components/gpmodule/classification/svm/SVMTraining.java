@@ -16,6 +16,7 @@ import org.apache.commons.logging.LogFactory;
 import org.geworkbench.util.TrainingProgressListener;
 import org.geworkbench.util.TrainingTask;
 import org.geworkbench.util.ClassifierException;
+import org.geworkbench.util.ProgressBar;
 import org.geworkbench.components.gpmodule.classification.GPTraining;
 import org.geworkbench.components.gpmodule.classification.PredictionModel;
 import org.geworkbench.components.gpmodule.classification.PredictionResult;
@@ -116,7 +117,6 @@ public class SVMTraining extends GPTraining implements TrainingTask
             parameters[2] = new Parameter("model.output.file", ++modelCount + trainingData.getName());
 
             File modelFile = trainData("SVM", parameters);
-            //byte[] model = read(modelFile);
             PredictionModel model = new PredictionModel(modelFile);
 
             svmClassifier = new SVMClassifier(null, "SVM Classifier", new String[]{"Positive", "Negative"}, model, featureNames);
@@ -139,6 +139,23 @@ public class SVMTraining extends GPTraining implements TrainingTask
         }
 
         return svmClassifier;
+    }
+
+    public void runClassifier(DSPanel<DSMicroarray> testPanel, CSClassifier classifier)
+    {
+        ProgressBar progressBar;
+        progressBar = ProgressBar.create(ProgressBar.INDETERMINATE_TYPE);
+        progressBar.setTitle("Classification Progress");
+        progressBar.setAlwaysOnTop(true);
+        progressBar.showValues(false);
+
+        progressBar.start();
+
+        SVMClassifier svmClassifier = ((SVMClassifier)classifier);
+        svmClassifier.classify(testPanel);
+
+        progressBar.stop();
+
     }
 
     public boolean isCancelled()

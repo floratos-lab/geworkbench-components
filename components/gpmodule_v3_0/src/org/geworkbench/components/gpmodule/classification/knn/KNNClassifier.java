@@ -39,8 +39,11 @@ public class KNNClassifier extends GPClassifier {
 
     public int classify(float[] data)
     {
-        File testData = createTestGCTFile("KNNTest_Data", data);
-        File testCLSData = createTestCLSFile("KNNTest_Cls");
+        List dataset = new ArrayList();
+        dataset.add(data);
+
+        File testData = createTestGCTFile("KNNTest_Data", dataset);
+        File testCLSData = createTestCLSFile("KNNTest_Cls", dataset.size());
 
         List parameters = new ArrayList();
 

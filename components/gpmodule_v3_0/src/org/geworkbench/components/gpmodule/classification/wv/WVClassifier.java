@@ -36,8 +36,11 @@ public class WVClassifier extends GPClassifier {
 
     public int classify(float[] data)
     {
-        File testData = createTestGCTFile("WVTest_Data", data);
-        File testCLSData = createTestCLSFile("WVTest_Cls");
+        List dataset = new ArrayList();
+        dataset.add(data);
+
+        File testData = createTestGCTFile("WVTest_Data", dataset);
+        File testCLSData = createTestCLSFile("WVTest_Cls", dataset.size());
 
         List parameters = new ArrayList();
         parameters.add(new Parameter("saved.model.filename", predModel.getPredModelFile().getAbsolutePath()));
