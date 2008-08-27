@@ -26,6 +26,7 @@ import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
 import org.geworkbench.bison.model.analysis.ClusteringAnalysis;
+import org.geworkbench.bison.model.analysis.ParamValidationResults;
 import org.geworkbench.builtin.projects.ProjectPanel;
 import org.geworkbench.engine.management.Publish;
 import org.geworkbench.engine.management.Subscribe;
@@ -657,6 +658,68 @@ public class MindyAnalysis extends AbstractGridAnalysis implements
 	@Override
 	protected boolean useOtherDataSet() {
 		return false;
+	}
+
+	@Override
+	public ParamValidationResults validInputData(
+			DSMicroarraySetView<DSGeneMarker, DSMicroarray> maSetView,
+			DSDataSet refMASet) {
+		// TODO Auto-generated method stub
+		MindyParamPanel params = (MindyParamPanel) aspp;
+		DSMicroarraySet<DSMicroarray> mSet = inputSetView.getMicroarraySet();
+		int numMAs = mSet.size();
+		if (numMAs < 4) {
+			return new ParamValidationResults(false,"Not enough microarrays in the set.  MINDY requires at least 4 microarrays.\n");
+		}
+		int numMarkers = mSet.getMarkers().size();
+		if (numMarkers < 2) {
+			return new ParamValidationResults(false,"Not enough markers in the microarrays. (Need at least 2)\n");
+		}
+		ArrayList<Marker> modulators = new ArrayList<Marker>();
+		ArrayList<String> modulatorGeneList = params.getModulatorGeneList();
+		if ((modulatorGeneList != null) && (modulatorGeneList.size() > 0)) {
+			for (String modGene : modulatorGeneList) {
+				DSGeneMarker marker = mSet.getMarkers().get(modGene);
+				if (marker == null) {
+					return new ParamValidationResults(false,"Couldn't find marker "+modGene+" from modulator file in microarray set.\n");
+				}
+			}
+		} else {
+			return new ParamValidationResults(false,"No modulator specified.\n");
+		}
+		ArrayList<Marker> targets = new ArrayList<Marker>();
+		ArrayList<String> targetGeneList = params.getTargetGeneList();
+		if ((targetGeneList != null) && (targetGeneList.size() > 0)) {
+			for (String modGene : targetGeneList) {
+				DSGeneMarker marker = mSet.getMarkers().get(modGene);
+				if (marker == null) {
+					return new ParamValidationResults(false,"Couldn't find marker "+modGene+" from target file in microarray set.\n");
+				}
+			}
+		}
+		ArrayList<Marker> dpiAnnots = new ArrayList<Marker>();
+		ArrayList<String> dpiAnnotList = params.getDPIAnnotatedGeneList();
+		for (String modGene : dpiAnnotList) {
+			DSGeneMarker marker = mSet.getMarkers().get(modGene);
+			if (marker == null) {
+				return new ParamValidationResults(false,"Couldn't find marker "+modGene+" from DPI annotation file in microarray set.\n");
+			}
+		}
+		String transcriptionFactor = params.getTranscriptionFactor();
+		DSGeneMarker transFac = mSet.getMarkers().get(transcriptionFactor);
+		if (!transcriptionFactor.trim().equals("")) {
+			if (transFac == null) {
+				return new ParamValidationResults(false,"Specified hub marker ("+transcriptionFactor+") not found in loadad microarray set.\n");
+			}
+		} else {
+			return new ParamValidationResults(false,"No hub marker specified.\n");
+		}
+		float setFraction = params.getSetFraction() / 100f;
+		if (Math.round(setFraction * 2 * numMarkers) < 2) {
+			return new ParamValidationResults(false,"Not enough markers in the specified % sample.  MINDY requires at least 2 markers in the sample.\n");
+		}
+
+		return new ParamValidationResults(true,"No Error");
 	}
 
 }

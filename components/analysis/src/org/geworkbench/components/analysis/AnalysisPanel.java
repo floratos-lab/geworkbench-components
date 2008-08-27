@@ -19,16 +19,15 @@ import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
 import javax.swing.ButtonModel;
 import javax.swing.JButton;
-import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPasswordField;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
-import javax.swing.JPasswordField;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -49,6 +48,8 @@ import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
 import org.geworkbench.bison.model.analysis.ClusteringAnalysis;
 import org.geworkbench.bison.model.analysis.ParamValidationResults;
 import org.geworkbench.bison.model.analysis.ParameterPanel;
+import org.geworkbench.components.analysis.clustering.MultiTTestAnalysisPanel;
+import org.geworkbench.components.analysis.clustering.TtestAnalysisPanel;
 import org.geworkbench.components.cagrid.gui.GridServicePanel;
 import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.engine.management.AcceptTypes;
@@ -70,8 +71,6 @@ import org.ginkgo.labs.ws.GridEndpointReferenceType;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.layout.FormLayout;
-
-import org.geworkbench.components.analysis.clustering.*;
 
 import edu.columbia.geworkbench.cagrid.dispatcher.client.DispatcherClient;
 
@@ -643,9 +642,15 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 			return;
 		}
 
-		AnalysisInvokedEvent event = new AnalysisInvokedEvent(selectedAnalysis
-				.getLabel(), maSetView.getDataSet().getLabel());
-		publishAnalysisInvokedEvent(event);
+		if (refOtherSet != null) { // added for
+			AnalysisInvokedEvent event = new AnalysisInvokedEvent(selectedAnalysis
+					.getLabel(), "");
+			publishAnalysisInvokedEvent(event);
+		}else if ((maSetView != null) && (refMASet != null)) {
+			AnalysisInvokedEvent event = new AnalysisInvokedEvent(selectedAnalysis
+					.getLabel(), maSetView.getDataSet().getLabel());
+			publishAnalysisInvokedEvent(event);
+		}
 
 		ParamValidationResults pvr = selectedAnalysis.validateParameters();
 		if (!pvr.isValid()) {
@@ -662,6 +667,13 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 					try {
 						/* check if we are dealing with a grid analysis */
 						if (isGridAnalysis()) {
+							ParamValidationResults validResult = ((AbstractGridAnalysis)selectedAnalysis).validInputData(maSetView, refMASet);
+							if (!validResult.isValid()){
+								JOptionPane.showMessageDialog(null, validResult.getMessage(),
+						                 "Invalid Input Data",
+						                 JOptionPane.ERROR_MESSAGE);
+								return;
+							}
 							// ask for username and password
 							getUserInfo();
 							if(userInfo == null){
@@ -673,7 +685,6 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 								userInfo = null;
 								return;
 							}
-							
 							pBar = Util.createProgressBar("Grid Services",
 									"Submitting service request");
 							pBar.start();

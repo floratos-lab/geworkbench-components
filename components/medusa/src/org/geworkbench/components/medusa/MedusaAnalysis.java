@@ -15,6 +15,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.analysis.AbstractGridAnalysis;
+import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.views.CSMicroarraySetView;
 import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
@@ -22,6 +23,7 @@ import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
 import org.geworkbench.bison.model.analysis.ClusteringAnalysis;
+import org.geworkbench.bison.model.analysis.ParamValidationResults;
 import org.geworkbench.components.medusa.gui.MedusaParamPanel;
 import org.geworkbench.util.ProgressBar;
 import org.geworkbench.util.Util;
@@ -32,7 +34,7 @@ import edu.columbia.ccls.medusa.MedusaLoader;
 /**
  * 
  * @author keshav
- * @version $Id: MedusaAnalysis.java,v 1.40 2008-03-10 19:50:39 chiangy Exp $
+ * @version $Id: MedusaAnalysis.java,v 1.41 2008-08-27 18:33:12 chiangy Exp $
  */
 public class MedusaAnalysis extends AbstractGridAnalysis implements
 		ClusteringAnalysis {
@@ -441,6 +443,25 @@ public class MedusaAnalysis extends AbstractGridAnalysis implements
 	@Override
 	protected boolean useOtherDataSet() {
 		return false;
+	}
+
+	@Override
+	public ParamValidationResults validInputData(
+			DSMicroarraySetView<DSGeneMarker, DSMicroarray> maSetView,
+			DSDataSet refMASet) {
+		MedusaParamPanel params = (MedusaParamPanel) aspp;
+		if (params.getFeaturesFilePath() == ""){
+			return new ParamValidationResults(false,"Features File has not been set yet.");
+		}
+		if (params.getMinKmer() > params.getMaxKmer()) {
+			return new ParamValidationResults(false,"Min kmer cannot exceed max kmer.");
+		}
+		if (params.isUsingDimers()) {
+			if (params.getMinGap() > params.getMaxGap()) {
+				return new ParamValidationResults(false,"Min gap cannot exceed max gap.");
+			}
+		}
+		return new ParamValidationResults(true,"No Error");
 	}
 
 }

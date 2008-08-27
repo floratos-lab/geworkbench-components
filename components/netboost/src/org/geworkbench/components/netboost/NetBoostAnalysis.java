@@ -10,8 +10,13 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.analysis.AbstractAnalysis;
 import org.geworkbench.analysis.AbstractGridAnalysis;
+import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
+import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
+import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
+import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
 import org.geworkbench.bison.model.analysis.ClusteringAnalysis;
+import org.geworkbench.bison.model.analysis.ParamValidationResults;
 import org.geworkbench.engine.management.Subscribe;
 import org.geworkbench.events.ProjectEvent;
 
@@ -19,7 +24,7 @@ import org.geworkbench.events.ProjectEvent;
  * NetBoost Analysis
  * 
  * @author ch2514
- * @version $Id: NetBoostAnalysis.java,v 1.7 2008-02-22 17:47:05 keshav Exp $
+ * @version $Id: NetBoostAnalysis.java,v 1.8 2008-08-27 18:32:59 chiangy Exp $
  */
 
 public class NetBoostAnalysis extends AbstractGridAnalysis implements
@@ -306,5 +311,13 @@ public class NetBoostAnalysis extends AbstractGridAnalysis implements
 	@Override
 	protected boolean useOtherDataSet() {
 		return true;
+	}
+
+	@Override
+	public ParamValidationResults validInputData(
+			DSMicroarraySetView<DSGeneMarker, DSMicroarray> maSetView,
+			DSDataSet refMASet) {
+		// TODO Auto-generated method stub
+		return new ParamValidationResults(true,"No Checking");
 	}
 }

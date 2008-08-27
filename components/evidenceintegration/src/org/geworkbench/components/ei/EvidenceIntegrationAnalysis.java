@@ -11,6 +11,7 @@ import org.apache.commons.logging.LogFactory;
 import org.geworkbench.analysis.AbstractAnalysis;
 import org.geworkbench.analysis.AbstractGridAnalysis;
 import org.geworkbench.bison.datastructure.biocollections.DSAncillaryDataSet;
+import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.CSExprMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.views.CSMicroarraySetView;
 import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
@@ -19,6 +20,7 @@ import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
 import org.geworkbench.bison.model.analysis.ClusteringAnalysis;
+import org.geworkbench.bison.model.analysis.ParamValidationResults;
 import org.geworkbench.builtin.projects.DataSetNode;
 import org.geworkbench.builtin.projects.DataSetSubNode;
 import org.geworkbench.builtin.projects.ProjectPanel;
@@ -243,6 +245,14 @@ public class EvidenceIntegrationAnalysis extends AbstractGridAnalysis implements
 	@Override
 	protected boolean useOtherDataSet() {
 		return false;
+	}
+
+	@Override
+	public ParamValidationResults validInputData(
+			DSMicroarraySetView<DSGeneMarker, DSMicroarray> maSetView,
+			DSDataSet refMASet) {
+		// TODO Auto-generated method stub
+		return new ParamValidationResults(true,"Not Checked.");
 	}
 
 }

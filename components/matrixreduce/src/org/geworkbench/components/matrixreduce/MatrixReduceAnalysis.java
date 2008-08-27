@@ -40,6 +40,7 @@ import org.bussemakerlab.MatrixREDUCE.XML.Slope;
 import org.bussemakerlab.MatrixREDUCE.engine.MatrixREDUCE;
 import org.geworkbench.analysis.AbstractAnalysis;
 import org.geworkbench.analysis.AbstractGridAnalysis;
+import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
@@ -637,5 +638,13 @@ public class MatrixReduceAnalysis extends AbstractGridAnalysis implements
 		log.warn("Cancelling MatrixREDUCE Analysis.");
 		stopAlgorithm = true;
 		if(mr != null) mr.destroy();
+	}
+
+	@Override
+	public ParamValidationResults validInputData(
+			DSMicroarraySetView<DSGeneMarker, DSMicroarray> maSetView,
+			DSDataSet refMASet) {
+		// FIXME: we should do some checking before analysis.
+		return new ParamValidationResults(true,"Didn't check");
 	}
 }
