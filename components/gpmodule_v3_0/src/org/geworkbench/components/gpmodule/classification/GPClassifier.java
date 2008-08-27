@@ -28,6 +28,7 @@ import org.genepattern.matrix.DefaultClassVector;
 import javax.swing.*;
 import java.io.*;
 import java.util.List;
+import java.util.Arrays;
 
 /**
  * @author Marc-Danie Nazaire
@@ -48,7 +49,12 @@ public abstract class GPClassifier extends CSClassifier
         this.password = password;
     }
 
-    protected File createTestGCTFile(String fileName, final float[] data)
+    protected File createTestGCTFile(String fileName, final List trainingSet)
+    {
+        return createTestGCTFile(fileName, trainingSet, null);
+    }
+
+    protected File createTestGCTFile(String fileName, final List trainingSet, final List arrayNames)
     {
         File gctTestFile = null;
 
@@ -56,7 +62,7 @@ public abstract class GPClassifier extends CSClassifier
         {
             public double getValue(int row, int column)
             {
-                return data[row];
+                 return ((float[])trainingSet.get(column))[row];
             }
 
             public String getRowName(int row)
@@ -76,11 +82,16 @@ public abstract class GPClassifier extends CSClassifier
 
             public int getColumnCount()
             {
-                return 1;
+                return trainingSet.size();
             }
 
             public String getColumnName(int column)
             {
+                if(arrayNames != null && arrayNames.get(column) != null)
+                {
+                    return (String) arrayNames.get(column);
+                }
+
                 return ("Column " + column);
             }
 
@@ -106,7 +117,7 @@ public abstract class GPClassifier extends CSClassifier
         return gctTestFile;
     }
 
-    protected File createTestCLSFile(String fileName)
+    protected File createTestCLSFile(String fileName, int numArrays)
     {
         File testClsData = null;
         BufferedOutputStream clsOutputStream = null;
@@ -117,7 +128,9 @@ public abstract class GPClassifier extends CSClassifier
             testClsData.deleteOnExit();
             clsOutputStream = new BufferedOutputStream(new FileOutputStream(testClsData));
 
-            String[] classLabels = new String[]{"Control"};
+            String[] classLabels = new String[numArrays];
+            Arrays.fill(classLabels, "Control");
+            Arrays.fill(classLabels, 0, numArrays/2, "Case");
             ClassVector classVector = new DefaultClassVector(classLabels);
 
             ClsWriter writer = new ClsWriter();
@@ -197,28 +210,6 @@ public abstract class GPClassifier extends CSClassifier
 
     protected String getPredictedClass(PredictionResult result)
     {
-        /*String className = null;
-        try
-        {
-            BufferedReader bufReader = new BufferedReader(new FileReader(predFile));
-            String line = "";
-            String predLine = line;
-            while((line = bufReader.readLine()) != null)
-            {
-                predLine = line;
-            }
-
-            className = predLine.split("\t")[2];
-
-            System.out.println("Prediction class name: " + className);
-        }
-        catch(Exception e)
-        {
-            e.printStackTrace();
-        }
-
-        return className;  */
-
         int predClassIndx = result.getColumn("Predicted Class");
 
         return result.getValueAt(0, predClassIndx);
