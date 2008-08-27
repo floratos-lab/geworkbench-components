@@ -37,8 +37,11 @@ public class SVMClassifier extends GPClassifier
     
     public int classify(float[] data)
     {
-        File testData = createTestGCTFile("SVMTest_Data", data);
-        File testCLSData = createTestCLSFile("SVMTest_Cls");
+        List dataset = new ArrayList();
+        dataset.add(data);
+
+        File testData = createTestGCTFile("SVMTest_Data", dataset);
+        File testCLSData = createTestCLSFile("SVMTest_Cls", 1);
 
         List parameters = new ArrayList();
 
