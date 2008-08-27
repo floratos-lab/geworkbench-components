@@ -1,15 +1,11 @@
 package org.geworkbench.components.anova;
 
-import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
-import java.util.Set;
 
 import javax.swing.JOptionPane;
 
@@ -20,6 +16,7 @@ import org.geworkbench.analysis.AbstractGridAnalysis;
 import org.geworkbench.bison.annotation.CSAnnotationContextManager;
 import org.geworkbench.bison.annotation.DSAnnotationContext;
 import org.geworkbench.bison.annotation.DSAnnotationContextManager;
+import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
@@ -33,6 +30,7 @@ import org.geworkbench.bison.datastructure.complex.panels.DSAnnotatedPanel;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
 import org.geworkbench.bison.model.analysis.ClusteringAnalysis;
+import org.geworkbench.bison.model.analysis.ParamValidationResults;
 import org.geworkbench.builtin.projects.ProjectPanel;
 import org.geworkbench.components.anova.gui.AnovaAnalysisPanel;
 import org.geworkbench.engine.management.Publish;
@@ -53,7 +51,7 @@ import edu.columbia.geworkbench.cagrid.anova.PValueEstimation;
 
 /**
  * @author yc2480
- * @version $Id: AnovaAnalysis.java,v 1.17 2008-06-06 20:02:51 chiangy Exp $
+ * @version $Id: AnovaAnalysis.java,v 1.18 2008-08-27 18:33:11 chiangy Exp $
  */
 public class AnovaAnalysis extends AbstractGridAnalysis implements
 		ClusteringAnalysis {
@@ -738,5 +736,37 @@ public class AnovaAnalysis extends AbstractGridAnalysis implements
 	@Override
 	protected boolean useOtherDataSet() {
 		return false;
+	}
+
+	@Override
+	public ParamValidationResults validInputData(DSMicroarraySetView<DSGeneMarker, DSMicroarray> maSetView, DSDataSet refMASet) {
+		if (maSetView.getItemPanel().size()<3){
+			return new ParamValidationResults(false,"A minimum of 3 array groups must be activated.");
+		}
+		if (!isLogNormalized(maSetView.getMicroarraySet())) {
+			Object[] options = { "Proceed", "Cancel" };
+			int n = JOptionPane
+					.showOptionDialog(
+							anovaAnalysisPanel.getTopLevelAncestor(), // this
+																		// make
+																		// it
+																		// shown
+																		// in
+																		// the
+																		// center
+																		// of
+																		// our
+																		// software
+							"The input dataset must be log-transformed; please reenter log-transformed data to run this anlysis.\n\nClick proceed to override and continue the analysis with the input dataset selected.",
+							"Log Transformation", JOptionPane.YES_NO_OPTION,
+							JOptionPane.QUESTION_MESSAGE, null, // do not use a
+																// custom Icon
+							options, // the titles of buttons
+							options[0]); // default button title
+			if (n == 1) { // n==1 means canceled
+				return new ParamValidationResults(false,"Analysis canceled by user.");
+			}
+		}
+		return new ParamValidationResults(true,"No Error");
 	}
 }

@@ -2,21 +2,17 @@ package org.geworkbench.components.aracne;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
 import javax.swing.JOptionPane;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.exolab.castor.util.Iterator;
 import org.geworkbench.analysis.AbstractAnalysis;
 import org.geworkbench.analysis.AbstractGridAnalysis;
-import org.geworkbench.bison.annotation.CSAnnotationContextManager;
+import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.CSMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.views.CSMicroarraySetView;
@@ -45,7 +41,6 @@ import wb.data.Microarray;
 import wb.data.MicroarraySet;
 import wb.plugins.aracne.GraphEdge;
 import wb.plugins.aracne.WeightedGraph;
-import edu.columbia.c2b2.aracne.Aracne;
 import edu.columbia.c2b2.aracne.Parameter;
 
 /**
@@ -522,5 +517,23 @@ public class AracneAnalysis extends AbstractGridAnalysis implements ClusteringAn
 	@Override
 	protected boolean useOtherDataSet() {
 		return false;
+	}
+
+	@Override
+	public ParamValidationResults validInputData(DSMicroarraySetView<DSGeneMarker, DSMicroarray> maSetView,
+			DSDataSet refMASet) {
+		AracneParamPanel params = (AracneParamPanel) aspp;
+        if (params.isHubListSpecified()) {
+            ArrayList<String> hubGeneList = params.getHubGeneList();
+            for (String modGene : hubGeneList) {
+                DSGeneMarker marker = maSetView.markers().get(modGene);
+                if (marker == null) {
+                    log.info("Couldn't find marker " + modGene + " specified as hub gene in microarray set.");
+                    return new ParamValidationResults(false, "Couldn't find marker " + modGene + " specified as hub gene in microarray set.");
+                }
+            }
+        }
+
+		return new ParamValidationResults(true,"No Error");
 	}	
 }
