@@ -44,4 +44,9 @@ public class PredictionResult
     {
         return String.valueOf(odfObject.getValueAt(row, col));
     }
+
+    public int getNumRows()
+    {
+        return odfObject.getRowCount();
+    }
 }
