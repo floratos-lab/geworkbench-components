@@ -758,6 +758,7 @@ public class EVDPanel extends MicroarrayViewEventBase implements MenuListener {
 
         // change the auto tick unit selection to integer units only...
         NumberAxis rangeAxis = (NumberAxis) newPlot.getRangeAxis();
+        rangeAxis.setUpperBound(maxOccurrence());
         rangeAxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
 
         ValueAxis xAxis = newPlot.getDomainAxis();
@@ -1056,6 +1057,34 @@ public class EVDPanel extends MicroarrayViewEventBase implements MenuListener {
         }
     }
 
+    private int maxOccurrence(){ //though out all arrays
+        PanelVisualPropertiesManager propertiesManager =
+            PanelVisualPropertiesManager.getInstance();
+        int[] basketValues = new int[basketNum + 1];
+        XYSeries dataSeries = new XYSeries("Two-Sample TTest");
+        int maxIndex = 0;
+        int minIndex = 0;
+        int answer = 0; //maxOccurrence = max basketValues
+        if (maSetView.size() > 0) {
+            for (int pId = 0; pId < maSetView.items().size();
+                 pId++) {
+                DSMicroarray currentMicroarray = maSetView.items().get(pId);
+                hs = new HistogramPanel(basketNum);
+                hs.process(currentMicroarray, minValue, maxValue);
+                basketValues = hs.getBasketvalues();
+                maxIndex = basketNum;
+                minIndex = 0;
+                for (int i = minIndex; i <= maxIndex; i++) {
+                    if (basketValues[i] > 0) {
+                        if (basketValues[i] > answer)
+                        	answer = basketValues[i];
+                    }
+
+                }
+            }
+        }
+    	return answer;
+    }
 
 }
 
