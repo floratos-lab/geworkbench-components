@@ -1163,7 +1163,10 @@ public class ScatterPlot implements VisualPlugin {
             	limitMarkers = 0;
             	markerModel.refresh();
             	updateBothTabs();
-            }     		    		
+            }     		  
+    		if((e.getPanel().size() <= 0) && allMarkersCheckBox.isSelected()) {
+    			updateBothTabs();
+    		}
     	}     	
     }
 
@@ -1214,7 +1217,10 @@ public class ScatterPlot implements VisualPlugin {
             	limitArrays = 0;
             	microarrayModel.refresh();
             	updateBothTabs();
-            }                         
+            }    
+            if((activatedArrays != null) && (activatedArrays.size() <= 0) && allArraysCheckBox.isSelected()){
+            	updateBothTabs();
+            }
         }        
     }
 
