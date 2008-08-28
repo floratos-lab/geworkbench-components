@@ -101,6 +101,7 @@ public class EVDPanel extends MicroarrayViewEventBase implements MenuListener {
     private static int MAXBINNUM = 200;
     private static int RANGE = 2; //the left and right edge size beyound the min/max values.
     ChartPanel graph;
+    private int maxOccurrenceNum = 0;
 
     public EVDPanel() {
         try {
@@ -361,6 +362,7 @@ public class EVDPanel extends MicroarrayViewEventBase implements MenuListener {
         jLeftBoundarySlider.setValue(0);
         jRightBoundarySlider.setMaximum(basketNum + 1);
         jRightBoundarySlider.setValue(0);
+        maxOccurrenceNum = maxOccurrence();
         refresh();
     }
 
@@ -378,6 +380,7 @@ public class EVDPanel extends MicroarrayViewEventBase implements MenuListener {
 
 
         }
+        maxOccurrenceNum = maxOccurrence();
         refresh();
     }
 
@@ -758,7 +761,7 @@ public class EVDPanel extends MicroarrayViewEventBase implements MenuListener {
 
         // change the auto tick unit selection to integer units only...
         NumberAxis rangeAxis = (NumberAxis) newPlot.getRangeAxis();
-        rangeAxis.setUpperBound(maxOccurrence());
+        rangeAxis.setUpperBound(maxOccurrenceNum);
         rangeAxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
 
         ValueAxis xAxis = newPlot.getDomainAxis();
@@ -1058,13 +1061,13 @@ public class EVDPanel extends MicroarrayViewEventBase implements MenuListener {
     }
 
     private int maxOccurrence(){ //though out all arrays
-        PanelVisualPropertiesManager propertiesManager =
-            PanelVisualPropertiesManager.getInstance();
         int[] basketValues = new int[basketNum + 1];
-        XYSeries dataSeries = new XYSeries("Two-Sample TTest");
         int maxIndex = 0;
         int minIndex = 0;
         int answer = 0; //maxOccurrence = max basketValues
+        double max[] = getBoundaryValue();
+        double minValue = max[0];
+        double maxValue = max[1];
         if (maSetView.size() > 0) {
             for (int pId = 0; pId < maSetView.items().size();
                  pId++) {
