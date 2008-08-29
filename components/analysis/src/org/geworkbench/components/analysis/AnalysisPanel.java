@@ -39,6 +39,7 @@ import org.geworkbench.analysis.AbstractAnalysis;
 import org.geworkbench.analysis.AbstractGridAnalysis;
 import org.geworkbench.analysis.AbstractSaveableParameterPanel;
 import org.geworkbench.bison.datastructure.biocollections.DSAncillaryDataSet;
+import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
@@ -93,23 +94,37 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 	private static final String SERVICE = "Service";
 
 	private static final String PARAMETERS = "Parameters";
-	
+
 	private static final String USER_INFO = "userinfo";
 
 	private static final int ANALYSIS_TAB_COUNT = 1;
-	
+
 	private String USER_INFO_DELIMIETER = "==";
 
 	private Log log = LogFactory.getLog(this.getClass());
 
-	final static String DISPATCHER_URL = "dispatcher.url";	//used to get dispatcher url from application.properties, used as default value.
-	private static final String GRID_HOST_KEY = "dispatcherURL";	//used to get dirpatcher url from PropertiesManager, used as user preference.
+	final static String DISPATCHER_URL = "dispatcher.url"; // used to get
+															// dispatcher url
+															// from
+															// application.properties,
+															// used as default
+															// value.
+
+	private static final String GRID_HOST_KEY = "dispatcherURL"; // used to
+																	// get
+																	// dirpatcher
+																	// url from
+																	// PropertiesManager,
+																	// used as
+																	// user
+																	// preference.
+
 	private String dispatcherUrl = System.getProperty(DISPATCHER_URL);
 
 	private String userInfo = null;
-	
-	private List<Thread> threadList=new ArrayList();
-	
+
+	private List<Thread> threadList = new ArrayList();
+
 	/**
 	 * The underlying GUI panel for the clustering component
 	 */
@@ -566,11 +581,12 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 			setParametersPanel(paramPanel);
 			setNamedParameters(availableAnalyses[pluginAnalyses
 					.getSelectedIndex()].getNamesOfStoredParameterSets());
-			if ( paramPanel instanceof MultiTTestAnalysisPanel || paramPanel instanceof  TtestAnalysisPanel )
-			 	super.chkAllArrays.setVisible(false);	
-			else			 
-				super.chkAllArrays.setVisible(true);				 
-						
+			if (paramPanel instanceof MultiTTestAnalysisPanel
+					|| paramPanel instanceof TtestAnalysisPanel)
+				super.chkAllArrays.setVisible(false);
+			else
+				super.chkAllArrays.setVisible(true);
+
 			save.setEnabled(true);
 		} else {
 			setParametersPanel(this.emptyParameterPanel);
@@ -578,7 +594,7 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 			// Since the analysis admits no parameters, there are no named
 			// parameter
 			// settings to show.
-			setNamedParameters(new String[0]);			 
+			setNamedParameters(new String[0]);
 		}
 
 		// keshav
@@ -631,24 +647,26 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 	 */
 	private void analyze_actionPerformed(ActionEvent e) {
 		maSetView = getDataSetView();
-		
-		if ( currentParameterPanel instanceof MultiTTestAnalysisPanel || currentParameterPanel instanceof  TtestAnalysisPanel )
-			onlyActivatedArrays = true;		 
+
+		if (currentParameterPanel instanceof MultiTTestAnalysisPanel
+				|| currentParameterPanel instanceof TtestAnalysisPanel)
+			onlyActivatedArrays = true;
 		else
 			onlyActivatedArrays = !chkAllArrays.isSelected();
-			
+
 		if (selectedAnalysis == null
 				|| ((refMASet == null) && (refOtherSet == null))) {
 			return;
 		}
 
 		if (refOtherSet != null) { // added for
-			AnalysisInvokedEvent event = new AnalysisInvokedEvent(selectedAnalysis
-					.getLabel(), "");
+			AnalysisInvokedEvent event = new AnalysisInvokedEvent(
+					selectedAnalysis.getLabel(), "");
 			publishAnalysisInvokedEvent(event);
-		}else if ((maSetView != null) && (refMASet != null)) {
-			AnalysisInvokedEvent event = new AnalysisInvokedEvent(selectedAnalysis
-					.getLabel(), maSetView.getDataSet().getLabel());
+		} else if ((maSetView != null) && (refMASet != null)) {
+			AnalysisInvokedEvent event = new AnalysisInvokedEvent(
+					selectedAnalysis.getLabel(), maSetView.getDataSet()
+							.getLabel());
 			publishAnalysisInvokedEvent(event);
 		}
 
@@ -667,21 +685,26 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 					try {
 						/* check if we are dealing with a grid analysis */
 						if (isGridAnalysis()) {
-							ParamValidationResults validResult = ((AbstractGridAnalysis)selectedAnalysis).validInputData(maSetView, refMASet);
-							if (!validResult.isValid()){
-								JOptionPane.showMessageDialog(null, validResult.getMessage(),
-						                 "Invalid Input Data",
-						                 JOptionPane.ERROR_MESSAGE);
+							ParamValidationResults validResult = ((AbstractGridAnalysis) selectedAnalysis)
+									.validInputData(maSetView, refMASet);
+							if (!validResult.isValid()) {
+								JOptionPane.showMessageDialog(null, validResult
+										.getMessage(), "Invalid Input Data",
+										JOptionPane.ERROR_MESSAGE);
 								return;
 							}
 							// ask for username and password
 							getUserInfo();
-							if(userInfo == null){
-								JOptionPane.showMessageDialog(null, "Please make sure you entered valid username and password",
-										"Invalid User Account", JOptionPane.ERROR_MESSAGE);
+							if (userInfo == null) {
+								JOptionPane
+										.showMessageDialog(
+												null,
+												"Please make sure you entered valid username and password",
+												"Invalid User Account",
+												JOptionPane.ERROR_MESSAGE);
 								return;
 							}
-							if(StringUtils.isEmpty(userInfo)){
+							if (StringUtils.isEmpty(userInfo)) {
 								userInfo = null;
 								return;
 							}
@@ -697,11 +720,12 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 								List<Serializable> serviceParameterList = ((AbstractGridAnalysis) selectedGridAnalysis)
 										.handleBisonInputs(maSetView,
 												refOtherSet);
-								
+
 								// adding user info
 								serviceParameterList.add(userInfo);
 
-								dispatcherUrl = jGridServicePanel.dispatcherLabelListener.getHost();
+								dispatcherUrl = jGridServicePanel.dispatcherLabelListener
+										.getHost();
 								DispatcherClient dispatcherClient = new DispatcherClient(
 										dispatcherUrl);
 
@@ -714,22 +738,33 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 
 								ProjectNodePendingEvent pendingEvent = new ProjectNodePendingEvent(
 										"Analysis Pending", gridEpr);
-								pendingEvent.setDescription(selectedGridAnalysis
-										.getLabel()
-										+ " (pending)");
+								pendingEvent
+										.setDescription(selectedGridAnalysis
+												.getLabel()
+												+ " (pending)");
 
-								//generate history for grid analysis
+								// generate history for grid analysis
 								String history = "";
 								history += "Grid service information:\n";
-								ButtonModel bm = jGridServicePanel.getServicesButtonGroup().getSelection();
-								history += "\tIndex server host: "+jGridServicePanel.getHost();
-								history += ", port: "+jGridServicePanel.getPort()+"\n";
-								history += "\tDispatcher url: "+dispatcherUrl+"\n";
-								history += "\tService url: "+url+"\n\n";
+								ButtonModel bm = jGridServicePanel
+										.getServicesButtonGroup()
+										.getSelection();
+								history += "\tIndex server host: "
+										+ jGridServicePanel.getHost();
+								history += ", port: "
+										+ jGridServicePanel.getPort() + "\n";
+								history += "\tDispatcher url: " + dispatcherUrl
+										+ "\n";
+								history += "\tService url: " + url + "\n\n";
 								history += selectedAnalysis.createHistory();
-								history += generateHistoryString(maSetView);
+								if (refOtherSet != null)
+									history += generateHistoryString(refOtherSet);
+								else 
+									if ((maSetView != null) && (refMASet != null))
+										history += generateHistoryString(maSetView);
+								
 								pendingEvent.setHistory(history);
-										
+
 								log.info("event is " + pendingEvent);
 
 								publishProjectNodePendingEvent(pendingEvent);
@@ -742,9 +777,12 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 
 							} else {
 								log.error("Cannot execute with url:  " + url);
-								 JOptionPane.showMessageDialog(null, "Cannot execute grid analysis: Invalid URL specified.",
-						                 "Invalid grid URL Error",
-						                 JOptionPane.ERROR_MESSAGE);
+								JOptionPane
+										.showMessageDialog(
+												null,
+												"Cannot execute grid analysis: Invalid URL specified.",
+												"Invalid grid URL Error",
+												JOptionPane.ERROR_MESSAGE);
 							}
 						} else {
 							if (refOtherSet != null) { // added for
@@ -752,7 +790,8 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 								// that do not take in
 								// microarray data set
 								results = selectedAnalysis.execute(refOtherSet);
-							}else if ((maSetView != null) && (refMASet != null)) {
+							} else if ((maSetView != null)
+									&& (refMASet != null)) {
 								results = selectedAnalysis.execute(maSetView);
 							}
 						}
@@ -871,18 +910,20 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 			Object source) {
 		DispatcherClient dispatcherClient = null;
 		try {
-//			dispatcherUrl = jGridServicePanel.dispatcherLabelListener.getHost();
+			// dispatcherUrl =
+			// jGridServicePanel.dispatcherLabelListener.getHost();
 			PropertiesManager pm = PropertiesManager.getInstance();
 			String savedHost = null;
 			try {
-				savedHost = pm.getProperty(this.getClass(), GRID_HOST_KEY, dispatcherUrl);
+				savedHost = pm.getProperty(this.getClass(), GRID_HOST_KEY,
+						dispatcherUrl);
 				if (!StringUtils.isEmpty(savedHost)) {
 					dispatcherUrl = savedHost;
 				}
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-			
+
 			dispatcherClient = new DispatcherClient(dispatcherUrl);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -1006,11 +1047,11 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 		String url = bm.getActionCommand();
 		return url;
 	}
-	
-	private void getUserInfo(){
+
+	private void getUserInfo() {
 		final JDialog userpasswdDialog = new JDialog();
 		log.debug("getting user info...");
-		
+
 		DefaultFormBuilder usernamePasswdPanelBuilder = new DefaultFormBuilder(
 				new FormLayout("right:35dlu"));
 
@@ -1023,19 +1064,20 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 			public void actionPerformed(ActionEvent e) {
 				String username = usernameField.getText();
 				String passwd = new String(passwordField.getPassword());
-				if(username.trim().equals("") || passwd.trim().equals("")){
+				if (username.trim().equals("") || passwd.trim().equals("")) {
 					userInfo = null;
 				} else {
 					userInfo = username + USER_INFO_DELIMIETER + passwd;
-					PropertiesManager properties = PropertiesManager.getInstance();
+					PropertiesManager properties = PropertiesManager
+							.getInstance();
 					try {
-						properties.setProperty(this.getClass(), USER_INFO, String
-								.valueOf(userInfo));
+						properties.setProperty(this.getClass(), USER_INFO,
+								String.valueOf(userInfo));
 					} catch (IOException ioe) {
 						ioe.printStackTrace();
 					}
 				}
-				userpasswdDialog.dispose();				
+				userpasswdDialog.dispose();
 			}
 		});
 
@@ -1057,14 +1099,14 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 
 		usernamePasswdPanelBuilder.append("username", usernameField);
 		usernamePasswdPanelBuilder.append("password", passwordField);
-		
+
 		PropertiesManager pm = PropertiesManager.getInstance();
 		String savedUserInfo = null;
 		try {
 			savedUserInfo = pm.getProperty(this.getClass(), USER_INFO, "");
 			if (!StringUtils.isEmpty(savedUserInfo)) {
 				String s[] = savedUserInfo.split(USER_INFO_DELIMIETER);
-				if(s.length >= 2){
+				if (s.length >= 2) {
 					usernameField.setText(s[0]);
 					passwordField.setText(s[1]);
 				}
@@ -1083,47 +1125,64 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 		userpasswdDialog.setVisible(true);
 		log.debug("got user info: " + userInfo);
 	}
-	
-	//TODO: this probably should get from DSMicroarraySetView.toString()
-    public String generateHistoryString(DSMicroarraySetView maSetView){
-    	String ans="";
 
-    	ans+="=The MicroarraySetView used for analysis contains following data=\n";
-    	//generate text for microarrays/groups
-    	try{
-	    	assert (maSetView.items() instanceof DSPanel);
+	// TODO: this probably should get from DSMicroarraySetView.toString()
+	public String generateHistoryString(DSMicroarraySetView maSetView) {
+		String ans = "";
+
+		ans += "=The MicroarraySetView used for analysis contains following data=\n";
+		// generate text for microarrays/groups
+		try {
+			assert (maSetView.items() instanceof DSPanel);
 			DSItemList paneltest = ((DSPanel) maSetView.items()).panels();
 			Iterator groups2 = paneltest.iterator(); // groups
-	    	ans+="==Microarray Sets ["+paneltest.size()+"]==\n";
+			ans += "==Microarray Sets [" + paneltest.size() + "]==\n";
 			while (groups2.hasNext()) {
 				DSPanel temp = (DSPanel) groups2.next();
-				ans+="\t"+temp.toString()+"\n";
+				ans += "\t" + temp.toString() + "\n";
 				Iterator groups3 = temp.iterator(); // microarrays in the group
 				while (groups3.hasNext()) {
 					Object temp2 = groups3.next();
-					ans+="\t\t"+temp2.toString()+"\n";
+					ans += "\t\t" + temp2.toString() + "\n";
 				}
 			}
-    	}catch (ClassCastException cce){
-    		//it's not a DSPanel, we generate nothing for panel part
-    		//PS:when no microarray set has been selected in gene panel, we will also get this exception
-    	}
-    	//generate text for markers
-    	DSItemList<DSGeneMarker> markers = maSetView.markers();
-    	ans+="==Used Markers ["+markers.size()+"]==\n";
-    	for (Iterator iterator = markers.iterator(); iterator.hasNext();) {
-    		DSGeneMarker marker = (DSGeneMarker) iterator.next();
-			ans+="\t"+marker.getLabel()+"\n";
+		} catch (ClassCastException cce) {
+			// it's not a DSPanel, we generate nothing for panel part
+			// PS:when no microarray set has been selected in gene panel, we
+			// will also get this exception
 		}
-    	ans+="=End of MicroarraySetView data=";
-    	return ans;
-    }
+		// generate text for markers
+		DSItemList<DSGeneMarker> markers = maSetView.markers();
+		ans += "==Used Markers [" + markers.size() + "]==\n";
+		for (Iterator iterator = markers.iterator(); iterator.hasNext();) {
+			DSGeneMarker marker = (DSGeneMarker) iterator.next();
+			ans += "\t" + marker.getLabel() + "\n";
+		}
+		ans += "=End of MicroarraySetView data=";
+		return ans;
+	}
 
-    @Subscribe 
-	public void receive(org.geworkbench.events.PendingNodeCancelledEvent e, Object source){
-    	for (Iterator iterator = threadList.iterator(); iterator.hasNext();) {
-    		PollingThread element = (PollingThread) iterator.next();
-			if (element.getGridEPR()==e.getGridEpr()){
+	// TODO: probably need to be more specific....
+	public String generateHistoryString(DSDataSet dataset) {
+		if (dataset == null) {
+			return "No information on the data set.\n";
+		} else {
+			StringBuilder sb = new StringBuilder();
+			sb.append("The data set used for analysis is [ ");
+			sb.append(dataset.getDataSetName());
+			sb.append(" ] from file [ ");
+			sb.append(dataset.getPath());
+			sb.append(" ].\n");
+			return sb.toString();
+		}
+	}
+
+	@Subscribe
+	public void receive(org.geworkbench.events.PendingNodeCancelledEvent e,
+			Object source) {
+		for (Iterator iterator = threadList.iterator(); iterator.hasNext();) {
+			PollingThread element = (PollingThread) iterator.next();
+			if (element.getGridEPR() == e.getGridEpr()) {
 				element.cancel();
 			}
 		}
