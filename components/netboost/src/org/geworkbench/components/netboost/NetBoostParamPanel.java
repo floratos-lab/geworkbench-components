@@ -26,7 +26,7 @@ import com.jgoodies.forms.layout.FormLayout;
 /**
  * 
  * @author ch2514
- * @version $Id: NetBoostParamPanel.java,v 1.4 2008-01-03 20:32:23 keshav Exp $
+ * @version $Id: NetBoostParamPanel.java,v 1.5 2008-08-29 21:27:17 hungc Exp $
  */
 public class NetBoostParamPanel extends AbstractSaveableParameterPanel
 		implements Serializable {
@@ -351,6 +351,53 @@ public class NetBoostParamPanel extends AbstractSaveableParameterPanel
 			ClassNotFoundException {
 		in.defaultReadObject();
 		revalidate();
+	}
+	
+	@Override
+	public String toString() {
+		StringBuilder histStr = new StringBuilder("");
+		histStr.append("NetBoost parameters:\n");
+		histStr.append("----------------------------------------\n");
+		histStr.append("Training Examples: ");
+		histStr.append(getTrainingExamples());
+		histStr.append("\nBoosting Iterations: ");
+		histStr.append(getBoostingIterations());
+		histStr.append("\nSubgraph Counting Methods: ");
+		histStr.append(getSubgraphCountingMethods());
+		histStr.append("\nCross-Validation Folds: ");
+		histStr.append(getCrossValidationFolds());
+		histStr.append("\nSelected Models:\n");
+
+		boolean[] selectedModels = getSelectedModels();
+		
+		if ((modelNames != null) && (selectedModels != null)
+				&& (modelNames.length == selectedModels.length)) {
+			if ((modelDescs != null)
+					&& (modelDescs.length == modelNames.length)) {
+				for (int i = 0; i < selectedModels.length; i++) {
+					if (selectedModels[i]) {
+						histStr.append("\t");
+						histStr.append(modelNames[i]);
+						histStr.append(" (");
+						histStr.append(modelDescs[i]);
+						histStr.append(")\n");
+					}
+				}
+			} else {
+				for (int i = 0; i < selectedModels.length; i++) {
+					if (selectedModels[i]) {
+						histStr.append("\t");
+						histStr.append(modelNames[i]);
+						histStr.append("\n");
+					}
+				}
+			}
+			histStr.append("\n");
+		} else {
+			histStr.append("No model information.");
+		}
+
+		return histStr.toString();
 	}
 
 }
