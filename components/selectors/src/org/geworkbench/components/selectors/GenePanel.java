@@ -8,7 +8,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import javax.swing.Box;
@@ -124,11 +126,18 @@ public class GenePanel extends SelectorPanel<DSGeneMarker> {
 		JPanel loadPanel = new JPanel();
 		loadPanel.setLayout(new BoxLayout(loadPanel, BoxLayout.X_AXIS));
 		JButton loadButton = new JButton("Load Set");
+		JButton loadSymbolsButton = new JButton("Load By Symbols");
 		loadPanel.add(loadButton);
+		loadPanel.add(loadSymbolsButton);
 		loadPanel.add(Box.createHorizontalGlue());
 		loadButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				loadButtonPressed();
+			}
+		});
+		loadSymbolsButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				loadSymbols();
 			}
 		});
 		lowerPanel.add(loadPanel);
@@ -195,6 +204,25 @@ public class GenePanel extends SelectorPanel<DSGeneMarker> {
 		if (choice == JFileChooser.APPROVE_OPTION) {
 			lastDir = fc.getSelectedFile().getPath();
 			DSPanel<DSGeneMarker> panel = deserializePanel(fc.getSelectedFile());
+			addPanel(panel);
+			throwLabelEvent();
+		}
+	}
+	
+	/** action for load symbols button */
+	private void loadSymbols() {
+		JFileChooser fc = new JFileChooser(".");
+		javax.swing.filechooser.FileFilter filter = new MarkerPanelSetFileFilter();
+		fc.setFileFilter(filter);
+		fc.setDialogTitle("Open Symbols");
+		if (!lastDir.equals("")) {
+			fc.setCurrentDirectory(new File(lastDir));
+		}
+		int choice = fc.showOpenDialog(mainPanel.getParent());
+
+		if (choice == JFileChooser.APPROVE_OPTION) {
+			lastDir = fc.getSelectedFile().getPath();
+			DSPanel<DSGeneMarker> panel = getPanelFromSymbols(fc.getSelectedFile());
 			addPanel(panel);
 			throwLabelEvent();
 		}
@@ -302,6 +330,60 @@ public class GenePanel extends SelectorPanel<DSGeneMarker> {
 		return panel;
 	}
 
+	/**
+	 * Get DSPanel of gene marks based a file of symbols - gene names.
+	 * This is a feature requested in mantis issue 1477.
+	 * @param file
+	 * @return
+	 */
+	private DSPanel<DSGeneMarker> getPanelFromSymbols(final File file) {
+		FileInputStream inputStream = null;
+		String filename = file.getName();
+		if (filename.toLowerCase().endsWith(".csv")) {
+			filename = filename.substring(0, filename.length() - 4);
+		}
+		// Ensure loaded file has unique name
+		Set<String> nameSet = new HashSet<String>();
+		int n = context.getNumberOfLabels();
+		for (int i = 0; i < n; i++) {
+			nameSet.add(context.getLabel(i));
+		}
+		filename = Util.getUniqueName(filename, nameSet);
+		DSPanel<DSGeneMarker> panel = new CSPanel<DSGeneMarker>(filename);
+		
+		Map<String, String> name2label = new HashMap<String, String>();
+		for(DSGeneMarker marker: itemList) {
+			name2label.put(marker.getGeneName(), marker.getLabel());
+		}
+		try {
+			inputStream = new FileInputStream(file);
+			ExcelCSVParser parser = new ExcelCSVParser(inputStream);
+			String[][] data = parser.getAllValues();
+			for (int i = 0; i < data.length; i++) {
+				String[] line = data[i];
+				if (line.length > 0) {
+					String label = name2label.get(line[0]);
+					DSGeneMarker marker = itemList.get(label);
+					if (marker != null) {
+						panel.add(marker);
+					}
+				}
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			if (inputStream != null) {
+				try {
+					inputStream.close();
+				} catch (IOException e) {
+					// Lost cause
+				}
+			}
+		}
+		return panel;
+	}
+
+	
 	@SuppressWarnings("unchecked")
 	protected boolean dataSetChanged(DSDataSet dataSet) {
 		DSItemList items = null;
@@ -513,7 +595,9 @@ public class GenePanel extends SelectorPanel<DSGeneMarker> {
 	}
 
 	private class CustomizedRenderer extends SelectorTreeRenderer {
-        public CustomizedRenderer() {
+		private static final long serialVersionUID = -1175125397626147482L;
+
+		public CustomizedRenderer() {
             super(GenePanel.this);
         }
 
@@ -528,6 +612,7 @@ public class GenePanel extends SelectorPanel<DSGeneMarker> {
         }
     }
 
+	@SuppressWarnings("unchecked")
 	@Override
 	@Subscribe(Overflow.class)
 	public void receive(org.geworkbench.events.SubpanelChangedEvent spe,
