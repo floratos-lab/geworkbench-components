@@ -42,7 +42,7 @@ import org.jfree.data.xy.XYSeriesCollection;
  * NetBoost Plugin
  * 
  * @author ch2514
- * @version $Id: NetBoostPlugin.java,v 1.6 2008-08-29 21:54:23 hungc Exp $
+ * @version $Id: NetBoostPlugin.java,v 1.7 2008-08-29 22:12:06 hungc Exp $
  */
 
 public class NetBoostPlugin extends JPanel {
@@ -235,8 +235,10 @@ public class NetBoostPlugin extends JPanel {
 		headings.append("\n");
 		confused.insert(0, headings.toString());
 		confused.insert(0, "Confusion Matrix\n");
-
-		return scores.toString() + "\n\n" + confused.toString();
+		String s = confused.toString();
+		s = s.substring(0, s.length() - 1);
+		
+		return scores.toString() + "\n\n" + s;
 	}
 
 	/**
