@@ -88,7 +88,7 @@ import cytoscape.visual.VisualStyle;
  * 
  * @author manjunath
  * @author zji
- * @version $Id: CytoscapeWidget.java,v 1.23 2008-08-26 17:37:57 jiz Exp $
+ * @version $Id: CytoscapeWidget.java,v 1.24 2008-08-29 20:56:45 jiz Exp $
  */
 
 @AcceptTypes({AdjacencyMatrixDataSet.class})
@@ -630,7 +630,7 @@ public class CytoscapeWidget implements VisualPlugin, MenuListener {
 
     	List<String> selected = new ArrayList<String>();
     	for(DSGeneMarker m: panel) {
-    		selected.add(m.getLabel().trim().toUpperCase());
+    		selected.add(m.getShortName().trim().toUpperCase());
     	}
     	
     	Iterator<NodeView> iter = Cytoscape.getCurrentNetworkView().getNodeViewsIterator();
