@@ -2,6 +2,7 @@ package org.geworkbench.components.netboost;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
@@ -21,6 +22,7 @@ import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingConstants;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.table.AbstractTableModel;
+import javax.swing.table.TableCellRenderer;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -40,7 +42,7 @@ import org.jfree.data.xy.XYSeriesCollection;
  * NetBoost Plugin
  * 
  * @author ch2514
- * @version $Id: NetBoostPlugin.java,v 1.5 2008-01-03 20:35:04 keshav Exp $
+ * @version $Id: NetBoostPlugin.java,v 1.6 2008-08-29 21:54:23 hungc Exp $
  */
 
 public class NetBoostPlugin extends JPanel {
@@ -150,7 +152,17 @@ public class NetBoostPlugin extends JPanel {
 				SwingConstants.LEADING);
 		scoresTableTitle.setFont(new Font("Arial", Font.BOLD, 12));
 		scoresModel = new ScoresModel();
-		scoresTable = new JTable(scoresModel);
+		scoresTable = new JTable(scoresModel) {
+			public Component prepareRenderer(
+					TableCellRenderer tableCellRenderer, int row, int col) {
+				Component component = super.prepareRenderer(
+						tableCellRenderer, row, col);
+				if(row == 0){					
+					component.setFont(new Font(component.getFont().getFontName(), Font.BOLD, component.getFont().getSize()));
+				}				
+				return component;
+			}
+		};
 		scoresTable.setAutoCreateColumnsFromModel(false);
 
 		rightTopTablePanel.getViewport().add(scoresTable);
@@ -292,20 +304,20 @@ public class NetBoostPlugin extends JPanel {
 	 * 
 	 */
 	private class IterDataSet {
-		private static final String TEST_LOSS = "Test Loss";
+		// TODO: change test/train loss variable names...
+		// Beware that the train loss and test loss variable names are reversed
+		// in this class and NetBoostData class.
+		private static final String TEST_LOSS = "Train Loss";
 
-		private static final String TRAIN_LOSS = "Train Loss";
+		private static final String TRAIN_LOSS = "Test Loss";
 
-		// need to keep these around at the moment...
-		// private static final String BOUND = "Bound";
-		// private static final String BIAS = "Bias";
+		private static final String BOUND = "Bound";
+
+		private static final String BIAS = "Bias";
 
 		private XYSeriesCollection dataset;
 
-		private XYSeries testLossSeries, trainLossSeries;
-
-		// , boundSeries, biasSeries; // need to keep these around at the
-		// moment...
+		private XYSeries testLossSeries, trainLossSeries, boundSeries, biasSeries; 
 
 		/**
 		 * 
@@ -313,8 +325,8 @@ public class NetBoostPlugin extends JPanel {
 		public IterDataSet() {
 			testLossSeries = new XYSeries(TEST_LOSS);
 			trainLossSeries = new XYSeries(TRAIN_LOSS);
-			// boundSeries = new XYSeries(BOUND);
-			// biasSeries = new XYSeries(BIAS);
+			boundSeries = new XYSeries(BOUND);
+			biasSeries = new XYSeries(BIAS);
 
 			double[][] tl = nbdata.getTestLoss();
 			for (int i = 0; i < tl.length; i++) {
@@ -326,10 +338,10 @@ public class NetBoostPlugin extends JPanel {
 			}
 
 			dataset = new XYSeriesCollection();
-			dataset.addSeries(testLossSeries);
 			dataset.addSeries(trainLossSeries);
-			// dataset.addSeries(boundSeries);
-			// dataset.addSeries(biasSeries);
+			dataset.addSeries(boundSeries);
+			dataset.addSeries(testLossSeries);
+			dataset.addSeries(biasSeries);
 		}
 
 		/**
