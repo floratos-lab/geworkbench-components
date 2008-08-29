@@ -34,6 +34,7 @@ import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
+import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.data.xy.DefaultTableXYDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
@@ -42,7 +43,7 @@ import org.jfree.data.xy.XYSeriesCollection;
  * NetBoost Plugin
  * 
  * @author ch2514
- * @version $Id: NetBoostPlugin.java,v 1.7 2008-08-29 22:12:06 hungc Exp $
+ * @version $Id: NetBoostPlugin.java,v 1.8 2008-08-29 22:38:06 hungc Exp $
  */
 
 public class NetBoostPlugin extends JPanel {
@@ -121,6 +122,14 @@ public class NetBoostPlugin extends JPanel {
 				new IterDataSet().getDataSet(), PlotOrientation.VERTICAL, true,
 				true, false);
 		XYPlot plot = iterChart.getXYPlot();
+		final XYLineAndShapeRenderer renderer = new XYLineAndShapeRenderer();
+        renderer.setSeriesLinesVisible(0, true);
+        renderer.setSeriesLinesVisible(1, false);
+        renderer.setSeriesLinesVisible(2, true);
+        renderer.setSeriesShapesVisible(0, false);
+        renderer.setSeriesShapesVisible(1, false);
+        renderer.setSeriesShapesVisible(2, false);
+        plot.setRenderer(renderer);
 		NumberAxis domainAxis = new NumberAxis(BOOST_ITERATION_X_LABEL);
 		NumberAxis rangeAxis = new NumberAxis(BOOST_ITERATION_Y_LABEL);
 		plot.setDomainAxis(domainAxis);
@@ -313,13 +322,13 @@ public class NetBoostPlugin extends JPanel {
 
 		private static final String TRAIN_LOSS = "Test Loss";
 
-		private static final String BOUND = "Bound";
+		//private static final String BOUND = "Bound";
 
-		private static final String BIAS = "Bias";
+		//private static final String BIAS = "Bias";
 
 		private XYSeriesCollection dataset;
 
-		private XYSeries testLossSeries, trainLossSeries, boundSeries, biasSeries; 
+		private XYSeries testLossSeries, trainLossSeries/*, boundSeries, biasSeries*/; 
 
 		/**
 		 * 
@@ -327,8 +336,8 @@ public class NetBoostPlugin extends JPanel {
 		public IterDataSet() {
 			testLossSeries = new XYSeries(TEST_LOSS);
 			trainLossSeries = new XYSeries(TRAIN_LOSS);
-			boundSeries = new XYSeries(BOUND);
-			biasSeries = new XYSeries(BIAS);
+			//boundSeries = new XYSeries(BOUND);
+			//biasSeries = new XYSeries(BIAS);
 
 			double[][] tl = nbdata.getTestLoss();
 			for (int i = 0; i < tl.length; i++) {
@@ -341,9 +350,10 @@ public class NetBoostPlugin extends JPanel {
 
 			dataset = new XYSeriesCollection();
 			dataset.addSeries(trainLossSeries);
-			dataset.addSeries(boundSeries);
+			dataset.addSeries(new XYSeries("")); // need a better way to control line color!
+			//dataset.addSeries(boundSeries);
 			dataset.addSeries(testLossSeries);
-			dataset.addSeries(biasSeries);
+			//dataset.addSeries(biasSeries);
 		}
 
 		/**
