@@ -8,9 +8,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Map;
+import java.util.List;
 import java.util.Set;
 
 import javax.swing.Box;
@@ -351,10 +351,7 @@ public class GenePanel extends SelectorPanel<DSGeneMarker> {
 		filename = Util.getUniqueName(filename, nameSet);
 		DSPanel<DSGeneMarker> panel = new CSPanel<DSGeneMarker>(filename);
 		
-		Map<String, String> name2label = new HashMap<String, String>();
-		for(DSGeneMarker marker: itemList) {
-			name2label.put(marker.getGeneName(), marker.getLabel());
-		}
+		List<String> selectedNames = new ArrayList<String>();
 		try {
 			inputStream = new FileInputStream(file);
 			ExcelCSVParser parser = new ExcelCSVParser(inputStream);
@@ -362,11 +359,7 @@ public class GenePanel extends SelectorPanel<DSGeneMarker> {
 			for (int i = 0; i < data.length; i++) {
 				String[] line = data[i];
 				if (line.length > 0) {
-					String label = name2label.get(line[0]);
-					DSGeneMarker marker = itemList.get(label);
-					if (marker != null) {
-						panel.add(marker);
-					}
+					selectedNames.add(line[0]);
 				}
 			}
 		} catch (IOException e) {
@@ -380,6 +373,11 @@ public class GenePanel extends SelectorPanel<DSGeneMarker> {
 				}
 			}
 		}
+		for(DSGeneMarker marker: itemList) {
+			if(selectedNames.contains(marker.getGeneName()))
+				panel.add(marker);
+		}
+
 		return panel;
 	}
 
