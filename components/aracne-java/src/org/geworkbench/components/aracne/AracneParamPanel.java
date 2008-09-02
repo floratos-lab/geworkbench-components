@@ -1,10 +1,12 @@
 package org.geworkbench.components.aracne;
 
 import org.geworkbench.analysis.AbstractSaveableParameterPanel;
+import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import javax.swing.*;
+
 import java.io.*;
 import java.awt.*;
 import java.awt.event.ActionListener;
@@ -12,9 +14,12 @@ import java.awt.event.ActionEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
+import java.util.Vector;
 
 import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.forms.builder.DefaultFormBuilder;
+
+import edu.columbia.c2b2.aracne.Parameter;
 
 /**
  * @author mhall
@@ -330,4 +335,29 @@ public class AracneParamPanel extends AbstractSaveableParameterPanel implements 
     	}
     	return b;
     }
+	@Override
+	public String toString() {
+        final Parameter p = new Parameter();
+        AracneParamPanel params = this;
+        if (params.isHubListSpecified()) {
+            ArrayList<String> hubGeneList = params.getHubGeneList();
+            p.setSubnet(new Vector<String>(hubGeneList));
+        }
+        if (params.isThresholdMI()) {
+            p.setThreshold(params.getThreshold());
+        } else {
+            p.setPvalue(params.getThreshold());
+        }
+        if (params.isKernelWidthSpecified()) {
+            p.setSigma(params.getKernelWidth());
+        }
+        if (params.isDPIToleranceSpecified()) {
+            p.setEps(params.getDPITolerance());
+        }
+        if (params.isTargetListSpecified()) {
+            p.setTf_list(new Vector<String>(params.getTargetGenes()));
+        }
+        return p.getParamterDescription();
+		
+	}    
 }
