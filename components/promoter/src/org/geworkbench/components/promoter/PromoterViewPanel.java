@@ -1183,6 +1183,7 @@ public class PromoterViewPanel extends JPanel {
             //table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
             matrixDisplayPanel.add(new JScrollPane(table),
                                    BorderLayout.CENTER);
+            jInfoPanel.add(new JLabel(pattern.getName()));
             logoPanel.add(jInfoPanel, BorderLayout.NORTH);
             logoPanel.add(matrixDisplayPanel, BorderLayout.CENTER);
 
