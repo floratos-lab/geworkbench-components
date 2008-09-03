@@ -28,6 +28,7 @@ import javax.swing.event.ChangeEvent;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.awt.print.PageFormat;
@@ -79,7 +80,13 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
     private JCheckBox jAllMArrays = new JCheckBox();
     private JCheckBox jAllMarkers = new JCheckBox();
     private HashMap listeners = new HashMap();
-
+	protected JPopupMenu jCMMenu = new JPopupMenu();
+	protected JMenuItem jZoomInItem = new JMenuItem();
+	protected JMenuItem jZoomOutItem = new JMenuItem();
+	protected JMenuItem jPrintItem = new JMenuItem();
+	protected JMenuItem jSnapshotItem = new JMenuItem();
+	protected JMenuItem jExportItem = new JMenuItem();
+	
     private boolean significanceMode = false;
     DSSignificanceResultSet<DSGeneMarker> significance = null;
 
@@ -315,6 +322,72 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
         colorMosaicImage.setPrintDescription(jTogglePrintDescription.isSelected());
 //        colorMosaicImage = makeBlankColorMosaicImage(GENE_HEIGHT, GENE_WIDTH, jTogglePrintRatio.isSelected(),
 //                jTogglePrintAccession.isSelected(), jTogglePrintDescription.isSelected());
+    	
+    	colorMosaicImage.addMouseListener(new java.awt.event.MouseAdapter() {
+			public void mouseReleased(MouseEvent e) {
+				jCMMenu.show(colorMosaicImage, e.getX(), e.getY());
+			}
+		});
+    	jPrintItem.setText("Print...");
+    	ActionListener listenerPrint = new java.awt.event.ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				printBtn_actionPerformed(e);
+			}
+		};
+		jPrintItem.addActionListener(listenerPrint);
+    	jCMMenu.add(jPrintItem);
+
+    	jCMMenu.addSeparator();
+    	
+    	jZoomInItem.setText("Zoom In");
+    	ActionListener listenerZoomIn = new java.awt.event.ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				int h = ((Integer) jGeneHeightSlider.getValue()).intValue();
+				int w = ((Integer) jGeneWidthSlider.getValue()).intValue();
+				jGeneHeightSlider.setValue(h+1);
+				jGeneWidthSlider.setValue(w+1);
+			}
+		};
+		jZoomInItem.addActionListener(listenerZoomIn);
+    	jCMMenu.add(jZoomInItem);
+
+    	jZoomOutItem.setText("Zoom Out");
+    	ActionListener listenerZoomOut = new java.awt.event.ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				int h = ((Integer) jGeneHeightSlider.getValue()).intValue();
+				int w = ((Integer) jGeneWidthSlider.getValue()).intValue();
+				if (h>1)
+					jGeneHeightSlider.setValue(h-1);
+				if (w>1)
+					jGeneWidthSlider.setValue(w-1);
+			}
+		};
+		jZoomOutItem.addActionListener(listenerZoomOut);
+    	jCMMenu.add(jZoomOutItem);
+
+    	jCMMenu.addSeparator();
+    	
+    	jSnapshotItem.setText("Take Snapshot");
+    	ActionListener listenerjSnapshotItem = new java.awt.event.ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				createImageSnapshot();
+			}
+		};
+		jSnapshotItem.addActionListener(listenerjSnapshotItem);
+    	jCMMenu.add(jSnapshotItem);
+
+    	jExportItem.setText("Export significance value");
+    	ActionListener listenerExportItem = new java.awt.event.ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+                if (significance != null && significance instanceof CSTTestResultSet) {
+                    ((CSTTestResultSet)significance).saveDataToCSVFile();                     
+                }else
+        			JOptionPane.showMessageDialog(null, "No significance data to export. Please do this after you got significance data.",
+        					"Operation failed", JOptionPane.ERROR_MESSAGE);
+			}
+		};
+		jExportItem.addActionListener(listenerExportItem);
+    	jCMMenu.add(jExportItem);
     }
 
     public void revalidate() {
