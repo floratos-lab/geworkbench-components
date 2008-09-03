@@ -150,6 +150,13 @@ public class AffyDetectionCallFilterPanel extends AbstractSaveableParameterPanel
         in.defaultReadObject();
         revalidate();
     }
-
+    
+    @Override
+    public String toString(){
+    	return 
+    	"present: "+isPresentSelected()+"\n"+
+        "marginal: "+isMarginalSelected()+"\n"+
+        "absent: "+isAbsentSelected()+"\n";
+    }
 }
 
