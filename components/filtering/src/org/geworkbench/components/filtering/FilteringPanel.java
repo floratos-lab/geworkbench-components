@@ -360,7 +360,13 @@ import java.awt.event.ActionListener;
             // If everything was OK, notify interested application components with
             // the results of the normalization operation.
             DSMicroarraySet filteredData = (DSMicroarraySet) results.getResults();
-            publishFilteringEvent(new FilteringEvent(maSet, filteredData, selectedFilter.getLabel()));
+            String historyString = "";
+            if (selectedFilter.getLabel()!=null)
+            	historyString += selectedFilter.getLabel()+"\n";
+            if (selectedFilter.createHistory()!=null)	//to avoid printing null for panels didn't implement this method.
+            	historyString += selectedFilter.createHistory()+"\n";
+            historyString += "\n"; //to separate with next section (if any) 
+            publishFilteringEvent(new FilteringEvent(maSet, filteredData, historyString));
         }
 
     }
