@@ -10,11 +10,13 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.PrintWriter;
 
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -24,8 +26,10 @@ import javax.swing.filechooser.FileFilter;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableCellRenderer;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.geworkbench.engine.properties.PropertiesManager;
 import org.geworkbench.util.pathwaydecoder.mutualinformation.NetBoostData;
 import org.geworkbench.util.pathwaydecoder.mutualinformation.NetBoostDataSet;
 import org.jfree.chart.ChartFactory;
@@ -43,7 +47,7 @@ import org.jfree.data.xy.XYSeriesCollection;
  * NetBoost Plugin
  * 
  * @author ch2514
- * @version $Id: NetBoostPlugin.java,v 1.8 2008-08-29 22:38:06 hungc Exp $
+ * @version $Id: NetBoostPlugin.java,v 1.9 2008-09-04 21:46:53 hungc Exp $
  */
 
 public class NetBoostPlugin extends JPanel {
@@ -73,6 +77,10 @@ public class NetBoostPlugin extends JPanel {
 	private static final String CONFUSION_MATRIX_X_LABEL = "PREDICTIONS";
 
 	private static final String CONFUSION_MATRIX_Y_LABEL = "TRUTH";
+	
+	private static final String EXPORT_DIR = "export";
+	
+	private String exportDir = ".";
 
 	JFreeChart iterChart;
 
@@ -115,7 +123,6 @@ public class NetBoostPlugin extends JPanel {
 		JPanel rightBottomTitlePanel = new JPanel(new GridLayout(2, 1));
 
 		// boost iteration chart
-		iterDataSet = new DefaultTableXYDataset();
 		iterChart = ChartFactory.createXYLineChart(
 				BOOST_ITERATION_TITLE // + "(" + data.getFilename() + ")"
 				, BOOST_ITERATION_Y_LABEL, BOOST_ITERATION_X_LABEL,
@@ -207,6 +214,7 @@ public class NetBoostPlugin extends JPanel {
 				ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED)
 				.getViewport().add(leftPanel));
 		this.add(rightPanel);
+		readProperties();
 	}
 
 	/**
@@ -243,7 +251,7 @@ public class NetBoostPlugin extends JPanel {
 		}
 		headings.append("\n");
 		confused.insert(0, headings.toString());
-		confused.insert(0, "Confusion Matrix\n");
+		confused.insert(0, "Confusion Matrix");
 		String s = confused.toString();
 		s = s.substring(0, s.length() - 1);
 		
@@ -255,14 +263,15 @@ public class NetBoostPlugin extends JPanel {
 	 * 
 	 */
 	private void exportToCSV() {
-		File currentDir = new File(".");
-		JFileChooser fc = new JFileChooser(currentDir);
+		JFileChooser fc = new JFileChooser(exportDir);
 		NetBoostFileFilter nbFilter = new NetBoostFileFilter();
 		fc.setFileFilter(nbFilter);
-		int choice = fc.showOpenDialog(this);
+		int choice = fc.showDialog(this, "Export");
 		String nbFilename = null;
 		if (choice == JFileChooser.APPROVE_OPTION) {
 			nbFilename = fc.getSelectedFile().getAbsolutePath();
+			exportDir = fc.getSelectedFile().getParent();
+			saveProperties();
 			if (!nbFilename.endsWith("." + nbFilter.getExtension())) {
 				nbFilename += "." + nbFilter.getExtension();
 			}
@@ -270,16 +279,50 @@ public class NetBoostPlugin extends JPanel {
 			String s = convertToCSV();
 			log.debug("Writing to file [" + nbFilename + "]\n" + s);
 			try {
-				pw = new PrintWriter(new FileOutputStream(nbFilename, true));
+				pw = new PrintWriter(new FileOutputStream(nbFilename, false));
 				pw.println(s);
 				log.info("Wrote NetBoost results to file: " + nbFilename);
 			} catch (Exception e) {
-				log.error("Cannot export NetBoost charts to csv: "
-						+ e.getMessage());
+				String errMsg = "Cannot export NetBoost charts to csv: "
+					+ e.getMessage();
+				JOptionPane.showMessageDialog(null, errMsg, "NetBoost Error", JOptionPane.ERROR_MESSAGE);
+				log.error(errMsg);
 			} finally {
 				if (pw != null)
 					pw.close();
 			}
+		}
+	}
+	
+	/**
+	 * 
+	 * 
+	 */
+	private void saveProperties() {
+		PropertiesManager properties = PropertiesManager.getInstance();
+		try {
+			properties.setProperty(this.getClass(), EXPORT_DIR, String
+					.valueOf(exportDir));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	/**
+	 * 
+	 * 
+	 */
+	private void readProperties() {
+		PropertiesManager pm = PropertiesManager.getInstance();
+		String savedExportDir = null;
+		try {
+			savedExportDir = pm.getProperty(this.getClass(), EXPORT_DIR,
+					exportDir);
+			if (!StringUtils.isEmpty(savedExportDir)) {
+				exportDir = savedExportDir;
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 	}
 
