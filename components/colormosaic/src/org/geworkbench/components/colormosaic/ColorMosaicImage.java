@@ -1,5 +1,25 @@
 package org.geworkbench.components.colormosaic;
 
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Rectangle;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.font.FontRenderContext;
+import java.awt.geom.Rectangle2D;
+import java.text.DecimalFormat;
+
+import javax.swing.JMenuItem;
+import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
+import javax.swing.Scrollable;
+import javax.swing.SwingConstants;
+
 import org.geworkbench.bison.annotation.CSAnnotationContext;
 import org.geworkbench.bison.annotation.CSAnnotationContextManager;
 import org.geworkbench.bison.annotation.DSAnnotationContext;
@@ -9,21 +29,10 @@ import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMutableMarkerValue;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSSignificanceResultSet;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
-import org.geworkbench.bison.model.clusters.MarkerHierCluster;
-import org.geworkbench.bison.model.clusters.MicroarrayHierCluster;
 import org.geworkbench.bison.util.colorcontext.ColorContext;
 import org.geworkbench.events.MarkerSelectedEvent;
 import org.geworkbench.events.PhenotypeSelectedEvent;
 import org.geworkbench.util.associationdiscovery.cluster.CSMatchedMatrixPattern;
-
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseEvent;
-import java.awt.font.FontRenderContext;
-import java.awt.geom.Rectangle2D;
-import java.text.DecimalFormat;
 
 /**
  * <p>Title: Plug And Play</p>
@@ -412,11 +421,12 @@ public class ColorMosaicImage extends JPanel implements Scrollable {
         g.drawLine(x, y + geneHeight - 1, x + width - 1, y + geneHeight - 1);
         g.drawLine(x + width - 1, y, x + width - 1, y + geneHeight - 1);
         
-        if (showSignal) {        	
-            DSGeneMarker mInfo = microarraySet.getMarkers().get(geneId);
-            DSMicroarray marray = microarraySet.get(expId);
-
-            this.setToolTipText("<html>Chip: " + marray.getLabel() + "<br>" + "Marker: " + mInfo.getLabel() + "<br>" + "Signal: " + marray.getMarkerValue(mInfo).getValue() + "</html>");
+        if (showSignal) {  
+        	if ((geneId!=-1)&&(expId!=-1)){
+	            DSGeneMarker mInfo = microarraySet.getMarkers().get(geneId);
+	            DSMicroarray marray = microarraySet.get(expId);
+	            this.setToolTipText("<html>Chip: " + marray.getLabel() + "<br>" + "Marker: " + mInfo.getLabel() + "<br>" + "Signal: " + marray.getMarkerValue(mInfo).getValue() + "</html>");
+        	}
         } else {
         	this.setToolTipText(null);
         }
