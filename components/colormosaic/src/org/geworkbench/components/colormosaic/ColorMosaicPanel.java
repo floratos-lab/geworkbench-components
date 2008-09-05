@@ -324,8 +324,9 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
 //                jTogglePrintAccession.isSelected(), jTogglePrintDescription.isSelected());
     	
     	colorMosaicImage.addMouseListener(new java.awt.event.MouseAdapter() {
-			public void mouseReleased(MouseEvent e) {
-				jCMMenu.show(colorMosaicImage, e.getX(), e.getY());
+			public void mouseClicked(MouseEvent e) {
+				if (e.getButton()==MouseEvent.BUTTON3)
+					jCMMenu.show(colorMosaicImage, e.getX(), e.getY());
 			}
 		});
     	jPrintItem.setText("Print...");
