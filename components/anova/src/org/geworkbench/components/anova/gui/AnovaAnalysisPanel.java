@@ -31,6 +31,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.analysis.AbstractSaveableParameterPanel;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
+import org.geworkbench.bison.model.analysis.ParamValidationResults;
 import org.geworkbench.engine.config.VisualPlugin;
 
 import edu.columbia.geworkbench.cagrid.anova.AnovaParameter;
@@ -39,7 +40,7 @@ import edu.columbia.geworkbench.cagrid.anova.PValueEstimation;
 
 /**
  * @author yc2480
- * @version $Id: AnovaAnalysisPanel.java,v 1.10 2008-08-20 15:58:20 chiangy Exp $
+ * @version $Id: AnovaAnalysisPanel.java,v 1.11 2008-09-05 19:06:50 chiangy Exp $
  */
 public class AnovaAnalysisPanel extends AbstractSaveableParameterPanel
 		implements Serializable {
@@ -951,5 +952,15 @@ public class AnovaAnalysisPanel extends AbstractSaveableParameterPanel
 		
 		return histStr;
 	}
-
+	@Override
+	public ParamValidationResults validateParameters() {
+		if ((this.anovaParameter.getPValueThreshold()<0)||(this.anovaParameter.getPValueThreshold()>1)){
+			return new ParamValidationResults(false, "P-Value threshold should be a float number between 0.0 and 1.0.");
+		}else if (this.anovaParameter.getFalseDiscoveryRateControl().equals(FalseDiscoveryRateControl.proportion)){
+			if ((this.anovaParameter.getFalseSignificantGenesLimit()<0)||(this.anovaParameter.getFalseSignificantGenesLimit()>1)){
+				return new ParamValidationResults(false, "Proportion should be a float number between 0.0 and 1.0.");
+			}
+		}
+		return new ParamValidationResults(true, "No Error");
+    }
 }
