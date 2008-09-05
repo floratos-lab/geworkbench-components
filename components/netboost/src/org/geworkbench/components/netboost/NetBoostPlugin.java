@@ -47,7 +47,7 @@ import org.jfree.data.xy.XYSeriesCollection;
  * NetBoost Plugin
  * 
  * @author ch2514
- * @version $Id: NetBoostPlugin.java,v 1.9 2008-09-04 21:46:53 hungc Exp $
+ * @version $Id: NetBoostPlugin.java,v 1.10 2008-09-05 20:25:00 hungc Exp $
  */
 
 public class NetBoostPlugin extends JPanel {
@@ -77,9 +77,9 @@ public class NetBoostPlugin extends JPanel {
 	private static final String CONFUSION_MATRIX_X_LABEL = "PREDICTIONS";
 
 	private static final String CONFUSION_MATRIX_Y_LABEL = "TRUTH";
-	
+
 	private static final String EXPORT_DIR = "export";
-	
+
 	private String exportDir = ".";
 
 	JFreeChart iterChart;
@@ -130,13 +130,13 @@ public class NetBoostPlugin extends JPanel {
 				true, false);
 		XYPlot plot = iterChart.getXYPlot();
 		final XYLineAndShapeRenderer renderer = new XYLineAndShapeRenderer();
-        renderer.setSeriesLinesVisible(0, true);
-        renderer.setSeriesLinesVisible(1, false);
-        renderer.setSeriesLinesVisible(2, true);
-        renderer.setSeriesShapesVisible(0, false);
-        renderer.setSeriesShapesVisible(1, false);
-        renderer.setSeriesShapesVisible(2, false);
-        plot.setRenderer(renderer);
+		renderer.setSeriesLinesVisible(0, true);
+		renderer.setSeriesLinesVisible(1, false);
+		renderer.setSeriesLinesVisible(2, true);
+		renderer.setSeriesShapesVisible(0, false);
+		renderer.setSeriesShapesVisible(1, false);
+		renderer.setSeriesShapesVisible(2, false);
+		plot.setRenderer(renderer);
 		NumberAxis domainAxis = new NumberAxis(BOOST_ITERATION_X_LABEL);
 		NumberAxis rangeAxis = new NumberAxis(BOOST_ITERATION_Y_LABEL);
 		plot.setDomainAxis(domainAxis);
@@ -171,11 +171,13 @@ public class NetBoostPlugin extends JPanel {
 		scoresTable = new JTable(scoresModel) {
 			public Component prepareRenderer(
 					TableCellRenderer tableCellRenderer, int row, int col) {
-				Component component = super.prepareRenderer(
-						tableCellRenderer, row, col);
-				if(row == 0){					
-					component.setFont(new Font(component.getFont().getFontName(), Font.BOLD, component.getFont().getSize()));
-				}				
+				Component component = super.prepareRenderer(tableCellRenderer,
+						row, col);
+				if (row == 0) {
+					component.setFont(new Font(component.getFont()
+							.getFontName(), Font.BOLD, component.getFont()
+							.getSize()));
+				}
 				return component;
 			}
 		};
@@ -222,8 +224,10 @@ public class NetBoostPlugin extends JPanel {
 	 * @return
 	 */
 	private String convertToCSV() {
-		StringBuilder scores = new StringBuilder(
-				"Scores\nModel,Score +/- Variance\n");
+		StringBuilder scores = new StringBuilder("Scores");
+		scores.append(System.getProperty("line.separator"));
+		scores.append("Model,Score +/- Variance");
+		scores.append(System.getProperty("line.separator"));
 		StringBuilder confused = new StringBuilder();
 
 		// scores
@@ -233,7 +237,7 @@ public class NetBoostPlugin extends JPanel {
 			scores.append(scoresModel.scores[i]);
 			scores.append(" +/- ");
 			scores.append(scoresModel.variances[i]);
-			scores.append("\n");
+			scores.append(System.getProperty("line.separator"));
 		}
 
 		// confusion matrix
@@ -247,15 +251,16 @@ public class NetBoostPlugin extends JPanel {
 				confused.append(confusedModel.data[i][j]);
 				confused.append("%");
 			}
-			confused.append("\n");
+			confused.append(System.getProperty("line.separator"));
 		}
-		headings.append("\n");
+		headings.append(System.getProperty("line.separator"));
 		confused.insert(0, headings.toString());
 		confused.insert(0, "Confusion Matrix");
 		String s = confused.toString();
 		s = s.substring(0, s.length() - 1);
-		
-		return scores.toString() + "\n\n" + s;
+
+		return scores.toString() + System.getProperty("line.separator")
+				+ System.getProperty("line.separator") + s;
 	}
 
 	/**
@@ -272,6 +277,19 @@ public class NetBoostPlugin extends JPanel {
 			nbFilename = fc.getSelectedFile().getAbsolutePath();
 			exportDir = fc.getSelectedFile().getParent();
 			saveProperties();
+			if (new File(nbFilename).exists()) {
+				int overwrite = JOptionPane.showConfirmDialog(null,
+						"File [ " + nbFilename
+								+ " ] already exists.  Overwrite it?",
+						"Export", JOptionPane.YES_NO_OPTION,
+						JOptionPane.INFORMATION_MESSAGE);
+				if (overwrite == JOptionPane.NO_OPTION) {
+					JOptionPane.showMessageDialog(null,
+							"Please export again and choose another file.",
+							"Export", JOptionPane.INFORMATION_MESSAGE);
+					return;
+				}
+			}
 			if (!nbFilename.endsWith("." + nbFilter.getExtension())) {
 				nbFilename += "." + nbFilter.getExtension();
 			}
@@ -284,8 +302,9 @@ public class NetBoostPlugin extends JPanel {
 				log.info("Wrote NetBoost results to file: " + nbFilename);
 			} catch (Exception e) {
 				String errMsg = "Cannot export NetBoost charts to csv: "
-					+ e.getMessage();
-				JOptionPane.showMessageDialog(null, errMsg, "NetBoost Error", JOptionPane.ERROR_MESSAGE);
+						+ e.getMessage();
+				JOptionPane.showMessageDialog(null, errMsg, "NetBoost Error",
+						JOptionPane.ERROR_MESSAGE);
 				log.error(errMsg);
 			} finally {
 				if (pw != null)
@@ -293,7 +312,7 @@ public class NetBoostPlugin extends JPanel {
 			}
 		}
 	}
-	
+
 	/**
 	 * 
 	 * 
@@ -365,13 +384,14 @@ public class NetBoostPlugin extends JPanel {
 
 		private static final String TRAIN_LOSS = "Test Loss";
 
-		//private static final String BOUND = "Bound";
+		// private static final String BOUND = "Bound";
 
-		//private static final String BIAS = "Bias";
+		// private static final String BIAS = "Bias";
 
 		private XYSeriesCollection dataset;
 
-		private XYSeries testLossSeries, trainLossSeries/*, boundSeries, biasSeries*/; 
+		private XYSeries testLossSeries,
+				trainLossSeries/* , boundSeries, biasSeries */;
 
 		/**
 		 * 
@@ -379,8 +399,8 @@ public class NetBoostPlugin extends JPanel {
 		public IterDataSet() {
 			testLossSeries = new XYSeries(TEST_LOSS);
 			trainLossSeries = new XYSeries(TRAIN_LOSS);
-			//boundSeries = new XYSeries(BOUND);
-			//biasSeries = new XYSeries(BIAS);
+			// boundSeries = new XYSeries(BOUND);
+			// biasSeries = new XYSeries(BIAS);
 
 			double[][] tl = nbdata.getTestLoss();
 			for (int i = 0; i < tl.length; i++) {
@@ -393,10 +413,11 @@ public class NetBoostPlugin extends JPanel {
 
 			dataset = new XYSeriesCollection();
 			dataset.addSeries(trainLossSeries);
-			dataset.addSeries(new XYSeries("")); // need a better way to control line color!
-			//dataset.addSeries(boundSeries);
+			dataset.addSeries(new XYSeries("")); // need a better way to
+			// control line color!
+			// dataset.addSeries(boundSeries);
 			dataset.addSeries(testLossSeries);
-			//dataset.addSeries(biasSeries);
+			// dataset.addSeries(biasSeries);
 		}
 
 		/**
