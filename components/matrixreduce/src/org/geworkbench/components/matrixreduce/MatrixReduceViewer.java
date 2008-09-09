@@ -26,10 +26,12 @@ import javax.swing.AbstractListModel;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
+import javax.swing.ComboBoxModel;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
@@ -108,9 +110,11 @@ public class MatrixReduceViewer implements VisualPlugin {
 
 	private ListOrderedMap<String, String> sequences;
 
-	private ArrayList<String> selectedSequences;
+	private ArrayList<String> selectedSequences, consensusSequences;
 
 	private ListModel sequenceModel;
+
+	private ConsensusModel consensusModel;
 
 	private int maxSequenceLength = 1;
 
@@ -128,6 +132,8 @@ public class MatrixReduceViewer implements VisualPlugin {
 	private JLabel psamLabel;
 
 	private JList sequenceList;
+
+	private JComboBox psamList;
 
 	private class ListModel extends AbstractListModel {
 		public int getSize() {
@@ -150,6 +156,40 @@ public class MatrixReduceViewer implements VisualPlugin {
 			} else {
 				super.fireContentsChanged(this, 0, 0);
 			}
+		}
+	}
+
+	private class ConsensusModel extends AbstractListModel implements
+			ComboBoxModel {
+		String selection = null;
+
+		public int getSize() {
+			if (consensusSequences == null) {
+				return 0;
+			} else {
+				return consensusSequences.size();
+			}
+		}
+
+		public String getElementAt(int index) {
+			return consensusSequences.get(index);
+		}
+
+		public void fireContentsChanged() {
+			if (consensusSequences != null) {
+				super.fireContentsChanged(this, 0,
+						consensusSequences.size() - 1);
+			} else {
+				super.fireContentsChanged(this, 0, 0);
+			}
+		}
+
+		public void setSelectedItem(Object item) {
+			selection = (String) item;
+		}
+
+		public Object getSelectedItem() {
+			return selection;
 		}
 	}
 
@@ -350,7 +390,8 @@ public class MatrixReduceViewer implements VisualPlugin {
 		JButton exportAllButton = new JButton("Export All");
 		exportAllButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				exportPSAMs(new HashSet<DSPositionSpecificAffintyMatrix>(dataSet));
+				exportPSAMs(new HashSet<DSPositionSpecificAffintyMatrix>(
+						dataSet));
 			}
 		});
 		JButton exportSelectedButton = new JButton("Export Selected");
@@ -382,9 +423,6 @@ public class MatrixReduceViewer implements VisualPlugin {
 					public Component getTableCellRendererComponent(
 							JTable table, Object value, boolean isSelected,
 							boolean hasFocus, int row, int column) {
-						// JLabel label =
-						// (JLabel)super.getTableCellRendererComponent(table,
-						// value, isSelected, hasFocus, row, column);
 						imageLabel.setIcon((Icon) value);
 						return imageLabel;
 					}
@@ -393,15 +431,7 @@ public class MatrixReduceViewer implements VisualPlugin {
 			public void mouseClicked(MouseEvent e) {
 				int row = table.rowAtPoint(e.getPoint());
 				if (row != -1) {
-					currentPSAM = row;
-					expModel.fireTableDataChanged();
-					if (e.getClickCount() == 2) {
-						selectedPSAM = row;
-						updateGraphs();
-						doFilter();
-						sequenceModel.fireContentsChanged();
-						tabPane.setSelectedIndex(TAB_SEQUENCE);
-					}
+					changeSequenceGraphs(row, (e.getClickCount() == 2), true);
 				}
 			}
 		});
@@ -455,12 +485,26 @@ public class MatrixReduceViewer implements VisualPlugin {
 				JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
 				JScrollPane.HORIZONTAL_SCROLLBAR_NEVER), BorderLayout.CENTER);
 		JPanel controlPanel = new JPanel(new BorderLayout());
-		// controlPanel.setLayout(new BoxLayout(controlPanel,
-		// BoxLayout.Y_AXIS));
 		FormLayout layout = new FormLayout(
 				"right:max(40dlu;pref), 3dlu, 70dlu, 7dlu", "");
 		DefaultFormBuilder builder = new DefaultFormBuilder(layout);
 		builder.setDefaultDialogBorder();
+
+		consensusModel = new ConsensusModel();
+		psamList = new JComboBox(consensusModel);
+		psamList.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				// highlight table in the right row
+				currentPSAM = psamList.getSelectedIndex();
+				if (currentPSAM >= 0)
+					table.setRowSelectionInterval(currentPSAM, currentPSAM);
+				else
+					currentPSAM = 0;
+
+				// display appropriate psam in sequence tab
+				changeSequenceGraphs(currentPSAM, true, false);
+			}
+		});
 
 		ButtonGroup directionGroup = new ButtonGroup();
 		JRadioButton forwardButton = new JRadioButton("Forward");
@@ -511,6 +555,9 @@ public class MatrixReduceViewer implements VisualPlugin {
 				createImageSnapshot();
 			}
 		});
+
+		builder.appendSeparator("PSAM");
+		builder.append("Choose PSAM", psamList);
 		builder.appendSeparator("Direction");
 		builder.append("", forwardButton);
 		builder.append("", backwardsButton);
@@ -599,6 +646,19 @@ public class MatrixReduceViewer implements VisualPlugin {
 		}
 		doFilter();
 		sequencePanel.repaint();
+	}
+
+	private void changeSequenceGraphs(int row, boolean changePSAM, boolean switchToSequenceTab) {
+		currentPSAM = row;
+		expModel.fireTableDataChanged();
+		if (changePSAM) {
+			selectedPSAM = row;
+			updateGraphs();
+			doFilter();
+			sequenceModel.fireContentsChanged();
+			psamList.setSelectedIndex(row);
+			if(switchToSequenceTab) tabPane.setSelectedIndex(TAB_SEQUENCE);
+		}
 	}
 
 	public boolean isShowForward() {
@@ -702,6 +762,15 @@ public class MatrixReduceViewer implements VisualPlugin {
 			updateGraphs();
 			doFilter();
 			sequenceModel.fireContentsChanged();
+
+			consensusSequences = new ArrayList<String>(dataSet.size());
+			for (int i = 0; i < dataSet.size(); i++) {
+				consensusSequences.add(dataSet.get(i).getConsensusSequence());
+			}
+			if (consensusSequences.size() > 0) {
+				consensusModel.fireContentsChanged();
+				psamList.setSelectedIndex(0);
+			}
 		}
 	}
 
