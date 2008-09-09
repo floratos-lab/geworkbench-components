@@ -47,7 +47,7 @@ import org.jfree.data.xy.XYSeriesCollection;
  * NetBoost Plugin
  * 
  * @author ch2514
- * @version $Id: NetBoostPlugin.java,v 1.10 2008-09-05 20:25:00 hungc Exp $
+ * @version $Id: NetBoostPlugin.java,v 1.11 2008-09-09 14:03:42 hungc Exp $
  */
 
 public class NetBoostPlugin extends JPanel {
@@ -257,7 +257,7 @@ public class NetBoostPlugin extends JPanel {
 		confused.insert(0, headings.toString());
 		confused.insert(0, "Confusion Matrix");
 		String s = confused.toString();
-		s = s.substring(0, s.length() - 1);
+		s = s.substring(0, s.length() - 2);
 
 		return scores.toString() + System.getProperty("line.separator")
 				+ System.getProperty("line.separator") + s;
@@ -298,7 +298,7 @@ public class NetBoostPlugin extends JPanel {
 			log.debug("Writing to file [" + nbFilename + "]\n" + s);
 			try {
 				pw = new PrintWriter(new FileOutputStream(nbFilename, false));
-				pw.println(s);
+				pw.print(s);
 				log.info("Wrote NetBoost results to file: " + nbFilename);
 			} catch (Exception e) {
 				String errMsg = "Cannot export NetBoost charts to csv: "
