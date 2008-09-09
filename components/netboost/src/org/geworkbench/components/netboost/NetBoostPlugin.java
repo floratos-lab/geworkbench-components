@@ -47,7 +47,7 @@ import org.jfree.data.xy.XYSeriesCollection;
  * NetBoost Plugin
  * 
  * @author ch2514
- * @version $Id: NetBoostPlugin.java,v 1.11 2008-09-09 14:03:42 hungc Exp $
+ * @version $Id: NetBoostPlugin.java,v 1.12 2008-09-09 14:28:07 hungc Exp $
  */
 
 public class NetBoostPlugin extends JPanel {
@@ -256,9 +256,10 @@ public class NetBoostPlugin extends JPanel {
 		headings.append(System.getProperty("line.separator"));
 		confused.insert(0, headings.toString());
 		confused.insert(0, "Confusion Matrix");
+		confused.trimToSize();
 		String s = confused.toString();
-		s = s.substring(0, s.length() - 2);
-
+		
+		
 		return scores.toString() + System.getProperty("line.separator")
 				+ System.getProperty("line.separator") + s;
 	}
