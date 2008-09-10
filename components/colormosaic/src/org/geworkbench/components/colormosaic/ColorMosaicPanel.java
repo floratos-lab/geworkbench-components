@@ -1,5 +1,49 @@
 package org.geworkbench.components.colormosaic;
 
+import java.awt.BasicStroke;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Image;
+import java.awt.Insets;
+import java.awt.Rectangle;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.geom.AffineTransform;
+import java.awt.image.BufferedImage;
+import java.awt.print.PageFormat;
+import java.awt.print.Printable;
+import java.awt.print.PrinterException;
+import java.awt.print.PrinterJob;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Iterator;
+
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JSlider;
+import javax.swing.JSpinner;
+import javax.swing.JToggleButton;
+import javax.swing.JToolBar;
+import javax.swing.SpinnerNumberModel;
+import javax.swing.SwingConstants;
+import javax.swing.event.ChangeEvent;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.geworkbench.bison.annotation.CSAnnotationContextManager;
 import org.geworkbench.bison.annotation.DSAnnotationContext;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
@@ -9,7 +53,9 @@ import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.CSTTestResultSet;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSSignificanceResultSet;
+import org.geworkbench.bison.datastructure.complex.panels.CSItemList;
 import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
+import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.bison.datastructure.complex.pattern.CSPatternMatch;
 import org.geworkbench.bison.datastructure.complex.pattern.DSPatternMatch;
@@ -19,7 +65,12 @@ import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.engine.management.AcceptTypes;
 import org.geworkbench.engine.management.Publish;
 import org.geworkbench.engine.management.Subscribe;
-import org.geworkbench.events.*;
+import org.geworkbench.events.AssociationPanelEvent;
+import org.geworkbench.events.GeneSelectorEvent;
+import org.geworkbench.events.MarkerSelectedEvent;
+import org.geworkbench.events.PhenotypeSelectedEvent;
+import org.geworkbench.events.PhenotypeSelectorEvent;
+import org.geworkbench.events.ProjectEvent;
 import org.geworkbench.util.associationdiscovery.cluster.CSMatchedMatrixPattern;
 import org.geworkbench.util.associationdiscovery.cluster.CSMatrixPattern;
 
@@ -51,8 +102,9 @@ import java.util.Iterator;
 
 @AcceptTypes({DSMicroarraySet.class, DSSignificanceResultSet.class})
 public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
+	private static Log log = LogFactory.getLog(ColorMosaicPanel.class);
+	
     private JPanel mainPanel = new JPanel();
-    private BorderLayout borderLayout1 = new BorderLayout();
     private JToolBar jToolBar1 = new JToolBar();
     private JButton printBtn = new JButton();
     private JButton copyBtn = new JButton();
@@ -74,6 +126,7 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
     private JToggleButton jTogglePrintAccession = new JToggleButton("Accession", false);
     private JToggleButton jToggleButton2 = new JToggleButton("Pat");
     private JToggleButton jHideMaskedBtn = new JToggleButton("Display");
+    private JToggleButton jToggleSortButton = new JToggleButton("Sort");
     private BorderLayout borderLayout2 = new BorderLayout();
     private CMHRuler colRuler = new CMHRuler(colorMosaicImage);
     private CMVRuler rowRuler = new CMVRuler(colorMosaicImage);
@@ -89,6 +142,9 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
 	
     private boolean significanceMode = false;
     DSSignificanceResultSet<DSGeneMarker> significance = null;
+    private ArrayList<DSGeneMarker> sortedMarkers = new ArrayList<DSGeneMarker>();
+    private ArrayList<DSGeneMarker> unsortedMarkers = new ArrayList<DSGeneMarker>();
+    DSSignificanceResultSet sigSet = null;
 
     private boolean showSignal = false;
     
@@ -261,7 +317,17 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
                 jHideMaskedBtn_actionPerformed(e);
             }
         });
-
+        
+        jToggleSortButton.setMargin(new Insets(2, 3, 2, 3));
+        jToggleSortButton.setHorizontalTextPosition(SwingConstants.CENTER);
+        jToggleSortButton.setToolTipText("Sort by fold changes and t-values");
+        jToggleSortButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+            	jToggleSortButton_actionPerformed(e);
+            }
+        });
+        if(!significanceMode) jToggleSortButton.setEnabled(false);
+        
         jScrollPane.getViewport().setBackground(Color.white);
         jAllMArrays.setSelected(false);
         jAllMArrays.setText("All arrays");
@@ -298,7 +364,8 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
         jToolBar1.add(exportButton, null);
         jToolBar1.add(jAllMArrays, null);
         jToolBar1.add(jAllMarkers, null);
-        jToolBar1.add(jToolTipToggleButton, null);
+        jToolBar1.add(jToggleSortButton, null);
+        jToolBar1.add(jToolTipToggleButton, null);        
         mainPanel.add(jScrollPane, BorderLayout.CENTER);
         mainPanel.add(jPanel1, BorderLayout.SOUTH);
         jPanel1.add(jGeneWidthSlider, new GridBagConstraints(2, 1, 1, 1, 0.34, 0.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
@@ -506,6 +573,30 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
             revalidate();
         }
     }
+    
+    void jToggleSortButton_actionPerformed(ActionEvent e) {
+    	if (colorMosaicImage.isDisplayable() && significanceMode) {
+    		DSPanel<DSGeneMarker> mp = colorMosaicImage.getPanel();
+    		int markerNo = 0;
+    		mp.clear();
+    		if (jToggleSortButton.isSelected()){      	
+    			markerNo = sortedMarkers.size();
+    			for (int i = 0; i < markerNo; i++) {          				
+    				mp.add(i, sortedMarkers.get(i));    				
+                }
+    		} else {
+    			markerNo = unsortedMarkers.size();
+    			for (int i = 0; i < markerNo; i++) {   
+    				mp.add(i, unsortedMarkers.get(i));  
+                }
+    		}    		
+    		colorMosaicImage.setMarkerPanel(mp);
+    		if(jHideMaskedBtn.isSelected()){
+        		displayMosaic();
+        		revalidate();        		
+        	}
+    	}     	
+    }
 
     private void clearMosaic() {
         colorMosaicImage.clearPatterns();
@@ -523,10 +614,7 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
             for (int i = 0; i < markerNo; i++) {
                 matchedPattern.getPattern().markers()[i] = mArraySet.getMarkers().get(i);
             }
-            for (int i = 0; i < mArraySet.size(); i++) {
-                DSPatternMatch<DSMicroarray, DSPValue> match = new CSPatternMatch<DSMicroarray, DSPValue>(mArraySet.get(i));
-            }
-            colorMosaicImage.addPattern(matchedPattern);
+            colorMosaicImage.addPattern(matchedPattern);       
         }
     }
 
@@ -678,11 +766,14 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
                    jAllMarkers.setEnabled(true);
                     
                 }
-            } else if (dataFile instanceof DSSignificanceResultSet) {
+            } else if (dataFile instanceof DSSignificanceResultSet) {          
                 significanceMode = true;
-                DSSignificanceResultSet sigSet = (DSSignificanceResultSet) dataFile;
-                significance = sigSet;
-                DSMicroarraySet set = sigSet.getParentDataSet();
+                sigSet = (DSSignificanceResultSet) dataFile;                
+                significance = sigSet;         
+                DSMicroarraySet set = sigSet.getParentDataSet();             
+                jToggleSortButton.setEnabled(true);
+                                
+                // by default color mosaic displays unsorted markers
                 if (colorMosaicImage.getChips() != set) {
                     colorMosaicImage.setChips(set);
                 }
@@ -707,6 +798,7 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
                 sigSet.getSignificantMarkers().setActive(true);
                 genePanel.panels().add(sigSet.getSignificantMarkers());
                 setMarkerPanel(genePanel);
+                sortByTValue(genePanel);
                 // Force all arrays and all markers off
                 jAllMArrays.setSelected(false);
                 colorMosaicImage.showAllMArrays(jAllMArrays.isSelected());
@@ -848,6 +940,81 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
             (org.geworkbench.events.ImageSnapshotEvent
                     event) {
         return event;
+    }
+    
+    private class TValueComparator implements Comparator<DSGeneMarker> {
+    	DSSignificanceResultSet significantResultSet;
+    	
+    	public TValueComparator(DSSignificanceResultSet significantResultSet){
+    		this.significantResultSet = significantResultSet;
+    	}
+
+        public int compare(DSGeneMarker x, DSGeneMarker y) {        	
+        	double tX = significantResultSet.getTValue(x);
+            double tY = significantResultSet.getTValue(y);
+            if (tX > tY) {
+                return 1;
+            } else if (tX < tY) {
+                return -1;
+            } else {
+                return 0;
+            }
+        }
+  
+    }
+    
+    private void sortByTValue(DSItemList<DSGeneMarker> origMarkers){
+    	if(significanceMode){
+    		// create two marker lists: unsorted vs. sorted
+            for(DSGeneMarker m: origMarkers){
+            	unsortedMarkers.add(m);
+            	sortedMarkers.add(m);
+            }
+            
+            // sort first by fold changes
+            Collections.sort(sortedMarkers, new FoldChangesComparator(sigSet));        
+            
+            // break down the list of markers into positive, zero, and negative fold changes
+            ArrayList<DSGeneMarker> positiveFolds = new ArrayList<DSGeneMarker>();   
+            ArrayList<DSGeneMarker> zeroFolds = new ArrayList<DSGeneMarker>();
+            ArrayList<DSGeneMarker> negativeFolds = new ArrayList<DSGeneMarker>();
+            for(DSGeneMarker m: sortedMarkers){
+            	if(sigSet.getFoldChange(m) > 0) positiveFolds.add(m);
+            	if(sigSet.getFoldChange(m) == 0) zeroFolds.add(m);
+				if(sigSet.getFoldChange(m) < 0) negativeFolds.add(m);
+            }
+            
+            // sort by t-value all 3 folds lists
+            Collections.sort(positiveFolds, new TValueComparator(sigSet));
+            Collections.sort(zeroFolds, new TValueComparator(sigSet));
+            Collections.sort(negativeFolds, new TValueComparator(sigSet));
+            
+            // recombine 3 lists
+            sortedMarkers = positiveFolds;
+            for(DSGeneMarker m: zeroFolds) positiveFolds.add(m);
+            for(DSGeneMarker m: negativeFolds) positiveFolds.add(m);   
+    	}
+    }
+    
+    private class FoldChangesComparator implements Comparator<DSGeneMarker> {
+    	DSSignificanceResultSet significantResultSet;
+    	
+    	public FoldChangesComparator(DSSignificanceResultSet significantResultSet){
+    		this.significantResultSet = significantResultSet;
+    	}
+
+    	public int compare(DSGeneMarker x, DSGeneMarker y) { 
+            double foldX = significantResultSet.getFoldChange(x);
+            double foldY = significantResultSet.getFoldChange(y);
+            if (foldX > foldY) {
+                return 1;
+            } else if (foldX < foldY) {
+                return -1;
+            } else {
+                return 0;
+            }
+        }
+  
     }
 
 }
