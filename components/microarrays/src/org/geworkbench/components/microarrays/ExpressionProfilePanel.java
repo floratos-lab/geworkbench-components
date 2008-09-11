@@ -36,6 +36,7 @@ import org.geworkbench.events.MarkerSelectedEvent;
 import org.geworkbench.events.MicroarraySetViewEvent;
 import org.geworkbench.events.PhenotypeSelectedEvent;
 import org.geworkbench.util.BusySwingWorker;
+import org.geworkbench.util.ProgressBar;
 import org.geworkbench.util.microarrayutils.MicroarrayViewEventBase;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartMouseEvent;
@@ -57,7 +58,7 @@ import org.jfree.data.xy.XYSeriesCollection;
  * Analysis
  * 
  * @author Adam Margolin
- * @version $Id: ExpressionProfilePanel.java,v 1.12 2008-03-19 20:08:21 my2248 Exp $
+ * @version $Id: ExpressionProfilePanel.java,v 1.13 2008-09-11 21:24:27 chiangy Exp $
  * @see MenuListener, VisualPlugin
  * 
  */
@@ -159,6 +160,7 @@ public class ExpressionProfilePanel extends MicroarrayViewEventBase implements
 			setPlotRefresh(false);
 
 			BusySwingWorker worker = new BusySwingWorker() {
+				ProgressBar pb = null;
 				public Object construct() {
 					setBusy(graphPanel);
 					DSPanel<DSGeneMarker> genes = new CSPanel<DSGeneMarker>("");
@@ -166,7 +168,15 @@ public class ExpressionProfilePanel extends MicroarrayViewEventBase implements
 					DSPanel<DSMicroarray> arrays = new CSPanel<DSMicroarray>("");
 					arrays.addAll(maSetView.items());
 					XYSeriesCollection plots = new XYSeriesCollection();
-					int numGenes = (genes.size() > 500) ? 500 : genes.size();
+                    int numGenes = genes.size();
+                	
+            		pb = org.geworkbench.util.ProgressBar
+    					.create(org.geworkbench.util.ProgressBar.INDETERMINATE_TYPE);
+            		pb.setTitle("Expression Profile is creating chart");
+            		pb.setMessage("Drawing...");
+            		pb.setBounds(new org.geworkbench.util.ProgressBar.IncrementModel(0,
+            				numGenes, 0, numGenes, 1));
+            		pb.start();
 
 					for (int geneCtr = 0; geneCtr < numGenes; geneCtr++) {
 						XYSeries dataSeries = new XYSeries(genes.get(geneCtr)
@@ -181,6 +191,7 @@ public class ExpressionProfilePanel extends MicroarrayViewEventBase implements
 							}
 						}
 						plots.addSeries(dataSeries);
+						pb.update();
 					}
 
 					ExpressionXYToolTip tooltipGenerator = null;
@@ -227,6 +238,7 @@ public class ExpressionProfilePanel extends MicroarrayViewEventBase implements
 
 					graphPanel.revalidate();
 					graphPanel.repaint();
+                    pb.stop();
 
 				}
 
