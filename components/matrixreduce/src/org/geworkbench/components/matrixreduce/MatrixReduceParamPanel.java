@@ -371,6 +371,10 @@ public class MatrixReduceParamPanel extends AbstractSaveableParameterPanel
 	public int getStrand() {
 		return STRAND_NUMBERS[strandCombo.getSelectedIndex()];
 	}
+	
+	public String getStrandString() {
+		return STRAND_CHOICES[strandCombo.getSelectedIndex()];
+	}
 
 	public int getMaxMotif() {
 		return ((Number) maxMotif.getValue()).intValue();
@@ -460,5 +464,33 @@ public class MatrixReduceParamPanel extends AbstractSaveableParameterPanel
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	@Override
+	public String toString() {
+		StringBuilder histStr = new StringBuilder("");
+		histStr.append("MatrixREDUCE parameters:\n");
+		histStr.append("----------------------------------------\n");
+		histStr.append("Sequence File: ");
+		histStr.append(this.getSequenceFile());
+		histStr.append("\nTopological Pattern: ");
+		if((this.getTopoFile() == null) || (StringUtils.isEmpty(this.getTopoFile()))){
+			histStr.append(this.getTopoPattern());
+		} else {
+			histStr.append(this.getTopoFile());
+		}
+		histStr.append("\nP-Value: ");
+		histStr.append(this.getPValue());
+		histStr.append("\nMax Motif: ");
+		histStr.append(this.getMaxMotif());
+		histStr.append("\nStrand: ");
+		histStr.append(this.getStrandString());
+		histStr.append("\nSave run log? ");
+		if(this.saveRunLog())
+			histStr.append("Yes");
+		else
+			histStr.append("No");
+		
+		return histStr.toString();
 	}
 }
