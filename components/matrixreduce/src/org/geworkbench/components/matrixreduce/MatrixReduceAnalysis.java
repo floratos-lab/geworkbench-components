@@ -1,11 +1,6 @@
 package org.geworkbench.components.matrixreduce;
 
-import java.awt.BorderLayout;
 import java.awt.Graphics2D;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -22,12 +17,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Observer;
-import java.util.Observable;
 
 import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JDialog;
-import javax.swing.JProgressBar;
 
 import org.apache.commons.collections15.map.ListOrderedMap;
 import org.apache.commons.lang.StringUtils;
@@ -57,9 +48,10 @@ import org.geworkbench.bison.model.analysis.ClusteringAnalysis;
 import org.geworkbench.bison.model.analysis.ParamValidationResults;
 import org.geworkbench.builtin.projects.ProjectPanel;
 import org.geworkbench.engine.management.Publish;
-import org.geworkbench.util.Util;
-import org.geworkbench.util.threading.SwingWorker;
+import org.geworkbench.engine.management.Subscribe;
+import org.geworkbench.events.ProjectNodePostCompletedEvent;
 import org.geworkbench.util.ProgressBar;
+import org.geworkbench.util.Util;
 
 import com.larvalabs.chart.PSAMPlot;
 
@@ -543,7 +535,7 @@ public class MatrixReduceAnalysis extends AbstractGridAnalysis implements
 				if (params.saveRunLog()) {
 					log.info("Saving run log to project history.");
 					progressBar.setMessage("Saving Run Log");
-					if (!StringUtils.isEmpty(mr.stderr))
+					if (!StringUtils.isEmpty(mr.stderr)) {
 						ProjectPanel
 								.addToHistory(
 										dataSet,
@@ -562,13 +554,16 @@ public class MatrixReduceAnalysis extends AbstractGridAnalysis implements
 																SEQUENCE_FILE_NAME,
 																params
 																		.getSequenceFile()));
-					else
+						dataSet.setRunLog(mr.stderr);
+					} else {
 						ProjectPanel
 								.addToHistory(
 										dataSet,
 										params.toString()
 												+ "\n\n\nMatrixREDUCE Output:\n----------------------------------------\n"
 												+ mr.stdout);
+						dataSet.setRunLog(mr.stdout);
+					}
 				} else {
 					ProjectPanel.addToHistory(dataSet, params.toString());
 				}
@@ -673,5 +668,22 @@ public class MatrixReduceAnalysis extends AbstractGridAnalysis implements
 			DSDataSet refMASet) {
 		// FIXME: we should do some checking before analysis.
 		return new ParamValidationResults(true, "Didn't check");
+	}
+
+	@Subscribe
+	public void receive(ProjectNodePostCompletedEvent projectNodeCompleteEvent,
+			Object source) {
+		if(params.saveRunLog()){
+			DSDataSet data = projectNodeCompleteEvent.getAncillaryDataSet();
+			if ((data != null) && (data instanceof DSMatrixReduceSet)) {
+				String runlog = ((DSMatrixReduceSet) data).getRunLog();
+				if (!StringUtils.isEmpty(runlog)) {
+					log.info("Received run log from grid service.");
+					ProjectPanel.addToHistory(dataSet,
+							"\n\n\nMatrixREDUCE Output:\n----------------------------------------\n"
+									+ runlog);
+				}
+			}
+		}
 	}
 }
