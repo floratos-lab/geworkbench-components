@@ -72,7 +72,8 @@ public class MatrixReduceAnalysis extends AbstractGridAnalysis implements
 		ClusteringAnalysis, Observer {
 	Log log = LogFactory.getLog(this.getClass());
 
-	private static final String TEMP_DIR = System.getProperty("temporary.files.directory");
+	private static final String TEMP_DIR = System
+			.getProperty("temporary.files.directory");
 
 	private static final String MICROARRAY_SET_FILE_NAME = "microarraySet.tsv";
 
@@ -101,7 +102,7 @@ public class MatrixReduceAnalysis extends AbstractGridAnalysis implements
 	private final String analysisName = "MatrixREDUCE";
 
 	MatrixReduceParamPanel params = null;
-	
+
 	private ProgressBar progressBar = null;
 
 	private MatrixREDUCE mr;
@@ -109,7 +110,7 @@ public class MatrixReduceAnalysis extends AbstractGridAnalysis implements
 	private int exitVal = -1;
 
 	private DSMatrixReduceSet dataSet = null;
-	
+
 	private File tempDir = null;
 
 	public MatrixReduceAnalysis() {
@@ -297,7 +298,7 @@ public class MatrixReduceAnalysis extends AbstractGridAnalysis implements
 				out.println();
 			}
 			out.close();
-			
+
 			if (stopAlgorithm) {
 				stopAlgorithm = false;
 				progressBar.stop();
@@ -325,7 +326,7 @@ public class MatrixReduceAnalysis extends AbstractGridAnalysis implements
 				progressBar.stop();
 				return null;
 			}
-			
+
 			// get params and construct query
 			float pval = (float) params.getPValue();
 			int maxMotif = params.getMaxMotif();
@@ -359,7 +360,7 @@ public class MatrixReduceAnalysis extends AbstractGridAnalysis implements
 			for (int i = 0; i < newArgs.length; i++) {
 				NEWARGS += newArgs[i] + " ";
 			}
-			
+
 			if (stopAlgorithm) {
 				stopAlgorithm = false;
 				progressBar.stop();
@@ -372,7 +373,7 @@ public class MatrixReduceAnalysis extends AbstractGridAnalysis implements
 			log.info("Exit Value: " + exitVal + "\n");
 			log.info("STDOUT: " + mr.stdout);
 			log.info("STDERR: " + mr.stderr);
-			
+
 			if (stopAlgorithm) {
 				stopAlgorithm = false;
 				progressBar.stop();
@@ -381,7 +382,8 @@ public class MatrixReduceAnalysis extends AbstractGridAnalysis implements
 
 			if (exitVal == 0) {
 
-				progressBar.setMessage("Constructing sequence data for display");
+				progressBar
+						.setMessage("Constructing sequence data for display");
 				// Sequences: Parse FASTA sequence data
 				File fastaFile = new File(sequenceFile);
 
@@ -412,13 +414,13 @@ public class MatrixReduceAnalysis extends AbstractGridAnalysis implements
 				}
 
 				dataSet = new CSMatrixReduceSet(mSet, "MatrixREDUCE Results");
-				
+
 				if (stopAlgorithm) {
 					stopAlgorithm = false;
 					progressBar.stop();
 					return null;
 				}
-				
+
 				progressBar.setMessage("Creating PSAMs");
 				log.debug("calling mr.getResults()");
 				try {
@@ -427,7 +429,7 @@ public class MatrixReduceAnalysis extends AbstractGridAnalysis implements
 				} catch (Exception mre) {
 					log.error("Cannot get results from MatrixREDUCE run.", mre);
 				}
-				
+
 				if (stopAlgorithm) {
 					stopAlgorithm = false;
 					progressBar.stop();
@@ -447,7 +449,7 @@ public class MatrixReduceAnalysis extends AbstractGridAnalysis implements
 									new ArrayList<DSMatrixReduceExperiment>(
 											exps.size()));
 				}
-				for (int i = 0; i < exps.size(); i++) {					
+				for (int i = 0; i < exps.size(); i++) {
 					Experiment experiment = exps.get(i);
 					ArrayList<Slope> slopes = exps.get(i).getMultivariateFit()
 							.getSlope();
@@ -457,14 +459,16 @@ public class MatrixReduceAnalysis extends AbstractGridAnalysis implements
 						exp.setID("" + experiment.get_expt_id());
 						exp.setLabel(experiment.get_description().trim());
 						exp.setPsamId("" + slope.psam_id);
-						tempMap.put(exp.getLabel()+ "#" + exp.getPsamId(), exp);						
+						tempMap
+								.put(exp.getLabel() + "#" + exp.getPsamId(),
+										exp);
 						exp.setCoeff(slope.get_coeff());
 						exp.setPValue(slope.get_p_value());
 						exp.setTValue(slope.get_t_value());
 						expMap.get(exp.getPsamId()).add(exp);
-					}					
+					}
 				}
-				
+
 				if (stopAlgorithm) {
 					stopAlgorithm = false;
 					progressBar.stop();
@@ -478,7 +482,8 @@ public class MatrixReduceAnalysis extends AbstractGridAnalysis implements
 					psam.setExperiment(psams.get(i)
 							.get_experiment_description().trim());
 					DSMatrixReduceExperiment bestExp = tempMap.get(psam
-							.getExperiment() + "#" + psam.getID());
+							.getExperiment()
+							+ "#" + psam.getID());
 					psam.setExperimentID(bestExp.getID());
 					psam.setPValue(bestExp.getPValue());
 					psam.setTValue(bestExp.getTValue());
@@ -528,48 +533,69 @@ public class MatrixReduceAnalysis extends AbstractGridAnalysis implements
 				dataSet.setSequences(sequenceMap);
 				dataSet.setMatrixReduceExperiments(expMap);
 				tempMap = null;
-				
+
 				if (stopAlgorithm) {
 					stopAlgorithm = false;
 					progressBar.stop();
 					return null;
 				}
-								
+
 				if (params.saveRunLog()) {
 					log.info("Saving run log to project history.");
 					progressBar.setMessage("Saving Run Log");
 					if (!StringUtils.isEmpty(mr.stderr))
-						ProjectPanel.addToHistory(dataSet, StringUtils.replace(
-								StringUtils.replace(mr.stderr
-										.substring(mr.stderr.indexOf("\n")),
-										TOPOLOGY_FILE_NAME, params
-												.getTopoFile()),
-								SEQUENCE_FILE_NAME, params.getSequenceFile()));
+						ProjectPanel
+								.addToHistory(
+										dataSet,
+										params.toString()
+												+ "\n\n\nMatrixREDUCE Output:\n----------------------------------------\n"
+												+ StringUtils
+														.replace(
+																StringUtils
+																		.replace(
+																				mr.stderr
+																						.substring(mr.stderr
+																								.indexOf("\n")),
+																				TOPOLOGY_FILE_NAME,
+																				params
+																						.getTopoFile()),
+																SEQUENCE_FILE_NAME,
+																params
+																		.getSequenceFile()));
 					else
-						ProjectPanel.addToHistory(dataSet, mr.stdout);
+						ProjectPanel
+								.addToHistory(
+										dataSet,
+										params.toString()
+												+ "\n\n\nMatrixREDUCE Output:\n----------------------------------------\n"
+												+ mr.stdout);
+				} else {
+					ProjectPanel.addToHistory(dataSet, params.toString());
 				}
 				progressBar.stop();
 				return new AlgorithmExecutionResults(true, "Completed", dataSet);
 			} else {
-				//TODO:
-				if(tempDir == null){
+				// TODO:
+				if (tempDir == null) {
 					tempDir = new File(tempDirParent, tempDirName);
 					tempDir.mkdirs();
-				} 
+				}
 				String slash = "/";
-				if(System.getProperty("os.name").toLowerCase().indexOf("window") >= 0) slash = "\\";
-				String errLogFileName = tempDir.getAbsolutePath() + slash + "MatrixREDUCE_ErrorLog.txt";
+				if (System.getProperty("os.name").toLowerCase().indexOf(
+						"window") >= 0)
+					slash = "\\";
+				String errLogFileName = tempDir.getAbsolutePath() + slash
+						+ "MatrixREDUCE_ErrorLog.txt";
 				PrintWriter errout = new PrintWriter(new BufferedWriter(
 						new FileWriter(errLogFileName)), true);
-				String errMsg = StringUtils
-				.replace(StringUtils.replace(mr.stderr,
-						TOPOLOGY_FILE_NAME, params.getTopoFile()),
+				String errMsg = StringUtils.replace(StringUtils.replace(
+						mr.stderr, TOPOLOGY_FILE_NAME, params.getTopoFile()),
 						SEQUENCE_FILE_NAME, params.getSequenceFile());
 				errout.println(errMsg);
 				errout.close();
 				progressBar.stop();
-				return new AlgorithmExecutionResults(false, "MatrixREDUCE run error:  see " + errLogFileName,
-						null);
+				return new AlgorithmExecutionResults(false,
+						"MatrixREDUCE run error:  see " + errLogFileName, null);
 			}
 		} catch (Throwable e) {
 			log.error("Runtime error while running MatrixREDUCE", e);
@@ -633,11 +659,12 @@ public class MatrixReduceAnalysis extends AbstractGridAnalysis implements
 	protected boolean useOtherDataSet() {
 		return false;
 	}
-	
+
 	public void update(java.util.Observable ob, Object o) {
 		log.warn("Cancelling MatrixREDUCE Analysis.");
 		stopAlgorithm = true;
-		if(mr != null) mr.destroy();
+		if (mr != null)
+			mr.destroy();
 	}
 
 	@Override
@@ -645,6 +672,6 @@ public class MatrixReduceAnalysis extends AbstractGridAnalysis implements
 			DSMicroarraySetView<DSGeneMarker, DSMicroarray> maSetView,
 			DSDataSet refMASet) {
 		// FIXME: we should do some checking before analysis.
-		return new ParamValidationResults(true,"Didn't check");
+		return new ParamValidationResults(true, "Didn't check");
 	}
 }
