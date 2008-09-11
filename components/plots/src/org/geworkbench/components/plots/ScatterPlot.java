@@ -978,6 +978,13 @@ public class ScatterPlot implements VisualPlugin {
      */
     private void itemClicked(PlotType type, int index) {
         ChartGroup group = chartGroups.get(type);
+        if (type.name().equalsIgnoreCase("ARRAY")){
+            Object array = microarrayModel.getElementAt(index);
+            index = dataSetView.getDataSet().indexOf(array);        	        	
+        }else{
+            Object marker = markerModel.getElementAt(index);
+            index = dataSetView.allMarkers().indexOf(marker);        	
+        }
         if (group.xIndex == -1) {
             // This item goes on the x-axis.
             group.xIndex = index;
