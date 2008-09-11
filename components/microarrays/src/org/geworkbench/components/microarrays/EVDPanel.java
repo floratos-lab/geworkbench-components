@@ -420,6 +420,7 @@ public class EVDPanel extends MicroarrayViewEventBase implements MenuListener {
     public double[] getBoundaryValue() {
         double max = 0.0d;
         double min = 0.0d;
+        if (maSetView != null){
         DSMicroarraySet<DSMicroarray>
                 maSet = (DSMicroarraySet) maSetView.getDataSet();
         if (maSet != null && maSetView.markers() != null) {
@@ -436,6 +437,7 @@ public class EVDPanel extends MicroarrayViewEventBase implements MenuListener {
                     }
                 }
             }
+        }
         }
         double values[] = {min, max};
         lowValue = highValue = min;
@@ -1068,7 +1070,7 @@ public class EVDPanel extends MicroarrayViewEventBase implements MenuListener {
         double max[] = getBoundaryValue();
         double minValue = max[0];
         double maxValue = max[1];
-        if (maSetView.size() > 0) {
+        if ((maSetView != null) && (maSetView.size() > 0)) {
             for (int pId = 0; pId < maSetView.items().size();
                  pId++) {
                 DSMicroarray currentMicroarray = maSetView.items().get(pId);
