@@ -3,6 +3,7 @@ package org.geworkbench.components.anova;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
@@ -27,6 +28,7 @@ import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMutableMarker
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSSignificanceResultSet;
 import org.geworkbench.bison.datastructure.complex.panels.CSAnnotPanel;
 import org.geworkbench.bison.datastructure.complex.panels.DSAnnotatedPanel;
+import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
 import org.geworkbench.bison.model.analysis.ClusteringAnalysis;
@@ -51,7 +53,7 @@ import edu.columbia.geworkbench.cagrid.anova.PValueEstimation;
 
 /**
  * @author yc2480
- * @version $Id: AnovaAnalysis.java,v 1.18 2008-08-27 18:33:11 chiangy Exp $
+ * @version $Id: AnovaAnalysis.java,v 1.19 2008-09-11 17:59:40 chiangy Exp $
  */
 public class AnovaAnalysis extends AbstractGridAnalysis implements
 		ClusteringAnalysis {
@@ -740,9 +742,20 @@ public class AnovaAnalysis extends AbstractGridAnalysis implements
 
 	@Override
 	public ParamValidationResults validInputData(DSMicroarraySetView<DSGeneMarker, DSMicroarray> maSetView, DSDataSet refMASet) {
-		if (maSetView.getItemPanel().size()<3){
+		//check for minimum number of activated groups
+		DSItemList<DSPanel<DSMicroarray>> panels = maSetView.getItemPanel().panels();
+		Iterator<DSPanel<DSMicroarray>> groups = panels.iterator(); // groups
+		int numSelectedGroups = 0;
+		while (groups.hasNext()) { // for each group
+			DSPanel<DSMicroarray> panelA = groups.next();
+			if (panelA.isActive()) {
+				numSelectedGroups++;
+			}
+		}
+		if (numSelectedGroups<3){
 			return new ParamValidationResults(false,"A minimum of 3 array groups must be activated.");
 		}
+		//check for log normalization
 		if (!isLogNormalized(maSetView.getMicroarraySet())) {
 			Object[] options = { "Proceed", "Cancel" };
 			int n = JOptionPane
