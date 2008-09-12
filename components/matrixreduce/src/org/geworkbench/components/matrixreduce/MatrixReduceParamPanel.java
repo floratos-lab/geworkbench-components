@@ -491,6 +491,8 @@ public class MatrixReduceParamPanel extends AbstractSaveableParameterPanel
 		else
 			histStr.append("No");
 		
+		histStr.append("\n\n");
+		
 		return histStr.toString();
 	}
 }
