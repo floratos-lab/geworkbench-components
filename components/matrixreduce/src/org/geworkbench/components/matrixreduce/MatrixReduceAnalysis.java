@@ -540,7 +540,7 @@ public class MatrixReduceAnalysis extends AbstractGridAnalysis implements
 								.addToHistory(
 										dataSet,
 										params.toString()
-												+ "\n\n\nMatrixREDUCE Output:\n----------------------------------------\n"
+												+ "\nMatrixREDUCE Output:\n----------------------------------------\n"
 												+ StringUtils
 														.replace(
 																StringUtils
@@ -560,7 +560,7 @@ public class MatrixReduceAnalysis extends AbstractGridAnalysis implements
 								.addToHistory(
 										dataSet,
 										params.toString()
-												+ "\n\n\nMatrixREDUCE Output:\n----------------------------------------\n"
+												+ "\nMatrixREDUCE Output:\n----------------------------------------\n"
 												+ mr.stdout);
 						dataSet.setRunLog(mr.stdout);
 					}
@@ -679,8 +679,8 @@ public class MatrixReduceAnalysis extends AbstractGridAnalysis implements
 				String runlog = ((DSMatrixReduceSet) data).getRunLog();
 				if (!StringUtils.isEmpty(runlog)) {
 					log.info("Received run log from grid service.");
-					ProjectPanel.addToHistory(dataSet,
-							"\n\n\nMatrixREDUCE Output:\n----------------------------------------\n"
+					ProjectPanel.addToHistory(data,
+							"\nMatrixREDUCE Output:\n----------------------------------------\n"
 									+ runlog);
 				}
 			}
