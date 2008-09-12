@@ -30,6 +30,7 @@ import org.geworkbench.bison.model.analysis.ClusteringAnalysis;
 import org.geworkbench.bison.model.analysis.ParamValidationResults;
 import org.geworkbench.builtin.projects.ProjectPanel;
 import org.geworkbench.engine.management.Publish;
+import org.geworkbench.engine.management.Subscribe;
 import org.geworkbench.events.AdjacencyMatrixEvent;
 import org.geworkbench.events.ProjectNodeAddedEvent;
 import org.geworkbench.util.pathwaydecoder.mutualinformation.AdjacencyMatrix;
@@ -535,5 +536,18 @@ public class AracneAnalysis extends AbstractGridAnalysis implements ClusteringAn
         }
 
 		return new ParamValidationResults(true,"No Error");
-	}	
+	}
+	
+	@Subscribe
+	public void receive(org.geworkbench.events.ProjectEvent e,
+			Object source) {
+		DSDataSet dataSet = e.getDataSet();
+		if (dataSet instanceof AdjacencyMatrixDataSet) {
+			AracneParamPanel params = (AracneParamPanel) aspp;
+			params.adjMode((AdjacencyMatrixDataSet)dataSet);
+		}else if (dataSet instanceof DSMicroarraySet) {
+			AracneParamPanel params = (AracneParamPanel) aspp;
+			params.maMode();
+		}
+	}
 }

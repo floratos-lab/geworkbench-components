@@ -1,23 +1,32 @@
 package org.geworkbench.components.aracne;
 
-import org.geworkbench.analysis.AbstractSaveableParameterPanel;
-import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import javax.swing.*;
-
-import java.io.*;
-import java.awt.*;
-import java.awt.event.ActionListener;
+import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Vector;
 
-import com.jgoodies.forms.layout.FormLayout;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
+import javax.swing.JFileChooser;
+import javax.swing.JFormattedTextField;
+import javax.swing.JTextField;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.geworkbench.analysis.AbstractSaveableParameterPanel;
+import org.geworkbench.util.pathwaydecoder.mutualinformation.AdjacencyMatrixDataSet;
+
 import com.jgoodies.forms.builder.DefaultFormBuilder;
+import com.jgoodies.forms.layout.FormLayout;
 
 import edu.columbia.c2b2.aracne.Parameter;
 
@@ -359,5 +368,20 @@ public class AracneParamPanel extends AbstractSaveableParameterPanel implements 
         }
         return p.getParamterDescription();
 		
-	}    
+	}
+	
+	public void maMode(){	//switch to microarray analysis mode
+		hubCombo.setEnabled(true);
+		loadMarkersButton.setEnabled(true);
+		kernelCombo.setEnabled(true);
+		hubMarkerList.setEnabled(true);
+		kernelWidth.setEnabled(true);
+	}
+	public void adjMode(AdjacencyMatrixDataSet adjDataSet){	//switch to adj matrix mode, disable some parameters.
+		hubCombo.setEnabled(false);
+		loadMarkersButton.setEnabled(false);
+		kernelCombo.setEnabled(false);
+		hubMarkerList.setEnabled(false);
+		kernelWidth.setEnabled(false);
+	}
 }
