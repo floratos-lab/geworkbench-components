@@ -99,7 +99,7 @@ public class SOMPlot extends ChartPanel {
             	maSetView = chips;
                 markerStats = chips.markers();
                 XYSeriesCollection plots = new XYSeriesCollection();
-                int numGenes = (chips.markers().size() > 500) ? 500 : chips.markers().size();
+                int numGenes = chips.markers().size();
                 for (int geneCtr = 0; geneCtr < numGenes; geneCtr++) {
                     XYSeries series = new XYSeries(chips.markers().get(geneCtr).getLabel());
                     for (int maCtr = 0; maCtr < chips.size(); maCtr++) {
