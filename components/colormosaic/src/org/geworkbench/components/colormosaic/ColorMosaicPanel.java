@@ -776,6 +776,7 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
                 jToggleSortButton.setEnabled(true);
                                 
                 // by default color mosaic displays unsorted markers
+                jToggleSortButton.setSelected(false);
                 if (colorMosaicImage.getChips() != set) {
                     colorMosaicImage.setChips(set);
                 }
