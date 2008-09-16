@@ -584,16 +584,18 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
     			for (int i = 0; i < markerNo; i++) {          				
     				mp.add(i, sortedMarkers.get(i));    				
                 }
+    			printTValueAndPValue(mp, true);
     		} else {
     			markerNo = unsortedMarkers.size();
     			for (int i = 0; i < markerNo; i++) {   
     				mp.add(i, unsortedMarkers.get(i));  
-                }
+                }    			
+    			printTValueAndPValue(mp, false);
     		}    		
     		colorMosaicImage.setMarkerPanel(mp);
     		if(jHideMaskedBtn.isSelected()){
         		displayMosaic();
-        		revalidate();        		
+        		revalidate();        	        		
         	}
     	}     	
     }
@@ -966,6 +968,8 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
     private void sortByTValue(DSItemList<DSGeneMarker> origMarkers){
     	if(significanceMode){
     		// create two marker lists: unsorted vs. sorted
+    		unsortedMarkers.clear();
+    		sortedMarkers.clear();
             for(DSGeneMarker m: origMarkers){
             	unsortedMarkers.add(m);
             	sortedMarkers.add(m);
@@ -994,6 +998,34 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
             for(DSGeneMarker m: zeroFolds) positiveFolds.add(m);
             for(DSGeneMarker m: negativeFolds) positiveFolds.add(m);   
     	}
+    }
+    
+    private void printTValueAndPValue(DSPanel<DSGeneMarker> markersInUse, boolean sorted){
+    	StringBuilder sb = new StringBuilder();  	
+    	int noClusters = colorMosaicImage.getClusterNo();
+		EisenBlock[] clusters = colorMosaicImage.getClusters();
+    	
+    	for(DSGeneMarker m: markersInUse){
+    		sb.append(m.getShortName());
+    		sb.append("\t");
+    		sb.append(sigSet.getTValue(m));
+    		sb.append("\t\t");
+    		sb.append(sigSet.getSignificance(m));		
+    		sb.append("\n");
+    	}    	
+    	sb.trimToSize();
+    	
+    	StringBuilder headerSB = new StringBuilder();    	
+    	
+    	if(sorted)
+    		headerSB.append("Sorted markers:\n");
+    	else
+    		headerSB.append("Unsorted markers:\n");    	
+    	
+    	headerSB.append("marker\t\tt-value\t\tp-value\n");
+    	headerSB.trimToSize();
+    	
+    	log.debug(headerSB.toString() + sb.toString());
     }
     
     private class FoldChangesComparator implements Comparator<DSGeneMarker> {
