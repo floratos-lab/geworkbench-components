@@ -411,12 +411,12 @@ public class TtestAnalysis extends AbstractAnalysis implements
 				the_sigSet = sigSet;
 				Hashtable result = (Hashtable) results.getResults();
 				float[][] pValuesMatrix = (float[][]) result.get("pValues");
-				float[][] tValuesMatrix = (float[][]) result.get("tValues");
+				float[][] tValuesMatrix = (float[][]) result.get("tValues");				
 				for (int i = 0; i < pValuesMatrix.length; i++) {
 					if (this.stopAlgorithm) {pbTtest.dispose(); return null;}
 					sigSet.setSignificance(data.markers().get(i),
 							pValuesMatrix[i][0]);
-					sigSet.setTValue(data.markers().get(i), tValuesMatrix[i][0]);
+					sigSet.setTValue(data.markers().get(i), tValuesMatrix[i][0]);					
 				}
 				sigSet.sortMarkersBySignificance();
 				
@@ -427,6 +427,8 @@ public class TtestAnalysis extends AbstractAnalysis implements
 				ProjectPanel.addToHistory(sigSet, histHeader
 						+ groupAndChipsString + histMarkerString);
 				pbTtest.dispose();     
+				
+				
 				return new AlgorithmExecutionResults(true, "Ttest", sigSet);
 			}
 
@@ -511,13 +513,23 @@ public class TtestAnalysis extends AbstractAnalysis implements
 
 			);
 			the_sigSet = sigSet;
+			StringBuilder sb = new StringBuilder("DSSignificanceResultSet:\nmarker\tt-value\t\tp-value\n");
 			for (int i = 0; i < pValuesVector.size(); i++) {
 				if (this.stopAlgorithm) {pbTtest.dispose(); return null;}
 				pValuesMatrix[i][0] = ((Float) (pValuesVector.get(i)))
 						.floatValue();
 				sigSet.setMarker(data.markers().get(i), pValuesMatrix[i][0]);
 				sigSet.setTValue(data.markers().get(i), tValuesMatrix[i][0]);
-				log.debug(data.markers().get(i).getLabel()+":"+pValuesMatrix[i][0]+","+tValuesMatrix[i][0]);
+				// TODO: 
+				
+				DSGeneMarker m = data.markers().get(i);
+				sb.append(m.getShortName());
+				sb.append("\t");
+				sb.append(sigSet.getTValue(m));
+				sb.append("\t");
+				sb.append(sigSet.getSignificance(m));
+				sb.append("\n");
+				//log.debug(data.markers().get(i).getLabel()+":"+pValuesMatrix[i][0]+","+tValuesMatrix[i][0]);
 			}
 
 			if (tTestDesign == TtestAnalysisPanel.BETWEEN_SUBJECTS) {
@@ -607,6 +619,10 @@ public class TtestAnalysis extends AbstractAnalysis implements
 			// result.put("oneClassSDsMatrix", oneClassSDsMatrix);
 
 			sigSet.sortMarkersBySignificance();
+			
+			sb.trimToSize();
+			log.debug(sb.toString());
+			
 			AlgorithmExecutionResults results = new AlgorithmExecutionResults(
 					true, "Ttest", sigSet);
 			setFoldChnage (maSet, sigSet); 
