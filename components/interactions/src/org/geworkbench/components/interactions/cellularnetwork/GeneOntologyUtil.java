@@ -27,11 +27,11 @@ public class GeneOntologyUtil {
     private String TFGOTERMSTR = "3700";
     private String PHOSPATASEGOTERMSTR = "4721";
     private static GeneOntologyUtil geneOntologyUtil = new GeneOntologyUtil();
-    private static GeneOntologyTree tree = new GeneOntologyTree();
+    private static GeneOntologyTree tree;
 
     static {
         try {
-            tree = new GeneOntologyTree().getInstance();
+            tree = GeneOntologyTree.getInstance();
             
         } catch (Exception x) {
             x.printStackTrace();
