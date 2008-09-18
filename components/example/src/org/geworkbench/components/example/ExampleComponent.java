@@ -55,7 +55,7 @@ public class ExampleComponent extends JPanel implements VisualPlugin {
                 System.out.println("Worked.");
                 // Build up GO Term data
                 try {
-                    GeneOntologyTree tree = new GeneOntologyTree().getInstance();
+                    GeneOntologyTree tree = GeneOntologyTree.getInstance();
                     
                     GoMapping mapping = new GoMapping(tree, microarraySet);
                     String markerID = "YAR015W";
