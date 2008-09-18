@@ -124,7 +124,7 @@ public class ExampleComponent extends JPanel implements VisualPlugin {
         DSPanel<DSMicroarray> controlMicroararys = context.getActivatedItemsForClass(CSAnnotationContext.CLASS_CONTROL);
         //// GO Term stuff
         // These two lines are a bit of a hack right now-- we will probably load this in a standard way later
-        GeneOntologyTree tree = new GeneOntologyTree().getInstance();
+        GeneOntologyTree tree = GeneOntologyTree.getInstance();
         // Construct a mapping of the microarray set markers on to the tree
         GoMapping mapping = new GoMapping(tree, microarraySet);
         // Get all GO terms
