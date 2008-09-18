@@ -75,8 +75,6 @@ public class CQLQueryGenerator {
 					organismAttribute.setName("name");
 					organismAttribute.setValue(value);
 					organismAttribute.setPredicate(Predicate.EQUAL_TO);
-					organismAssociation.setAttribute(organismAttribute);
-					organismAssociation.setRoleName("manufacturer");
 					object.setAssociation(organismAssociation);
 				} else if (type
 						.equalsIgnoreCase(CaARRAYQueryPanel.CHIPPROVIDER)) {

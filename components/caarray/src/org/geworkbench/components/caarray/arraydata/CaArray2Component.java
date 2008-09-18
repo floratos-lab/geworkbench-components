@@ -67,7 +67,8 @@ public class CaArray2Component implements VisualPlugin {
 	private Log log = LogFactory.getLog(CaArray2Component.class);
 	private CaArrayQueryClient dataSetDownloadClient = new CaArrayQueryClient();
 	private StandAloneCaArrayClientWrapper externalDataSetDownloadClient = new StandAloneCaArrayClientWrapper();
-	protected static final String SERVER_NAME = "array.nci.nih.gov ";
+	//protected static final String SERVER_NAME = "array.nci.nih.gov ";
+	protected static final String SERVER_NAME = "array-stage.nci.nih.gov ";
 	protected static final int JNDI_PORT = 8080;
 	protected static final int GRID_SERVICE_PORT = 8080;
 	private boolean useExternalCaArray = true;
@@ -83,7 +84,7 @@ public class CaArray2Component implements VisualPlugin {
 	 */
 	@Subscribe
 	public void receive(CaArrayRequestEvent ce, Object source) {
-		System.out.println("Get The EVent");
+		
 		if (ce == null) {
 			return;
 		}
@@ -792,11 +793,14 @@ public class CaArray2Component implements VisualPlugin {
 			// TreeMap<String, Set<String>> treeMap = DataSetDownloadClient
 			// .lookupTypeValues(searchService, request, organism);
 			//
-			String username = "ZhangXi";
-			String password = "Xz0401!!";
+//			String username = "ZhangXi";
+//			String password = "Xz0401!!";
+// 			String username = "JaglaB";
+// 			String password = "Robo45$x";
 			CaArray2Experiment[] exps;
 			CaArrayQueryClient dataClient = new CaArrayQueryClient();
-			server.connect(username, password);
+			//server.connect(username, password);
+			server.connect();
 			searchService = server.getSearchService();
 			request = new DataRetrievalRequest();
 			StopWatch watch = new StopWatch();

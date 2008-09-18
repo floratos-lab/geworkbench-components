@@ -64,7 +64,7 @@ public class StandAloneCaArrayClientExec {
 		// TODO Auto-generated method stub
 		StandAloneCaArrayClientExec exec = new StandAloneCaArrayClientExec();
 		try {
-			 
+
 			if (args == null || args.length <= 1) {
 				args = new String[] { StandAloneCaArrayClientWrapper.TYPEVALUE,
 						"oddtype.txt" };
@@ -77,44 +77,44 @@ public class StandAloneCaArrayClientExec {
 				String username = null;
 				String password = null;
 				String resultFilename = args[1];
-				
+
 				if (args[0]
 						.equalsIgnoreCase(StandAloneCaArrayClientWrapper.EXPERIMENTINFO)) {
-					if(args.length>=6){
+					if (args.length >= 6) {
 						username = args[4];
 						password = args[5];
 					}
-					exec.lookupExperiments(url, port,
-							username, password, resultFilename);
+					exec.lookupExperiments(url, port, username, password,
+							resultFilename);
 					System.out.println("Ending lookup experiment. "
 							+ new Date());
 				} else if (args[0]
 						.equalsIgnoreCase(StandAloneCaArrayClientWrapper.HYB)) {
 					String hybridname = args[4];
 					String qType = args[5];
-					if(args.length>=8){
-					 	username = args[6];
+					if (args.length >= 8) {
+						username = args[6];
 						password = args[7];
 					}
-					exec.getDataSet(url, port, username,
-							password, hybridname, qType, resultFilename);
+					exec.getDataSet(url, port, username, password, hybridname,
+							qType, resultFilename);
 					System.out.println("Ending loading dataset" + new Date());
 				} else if (args[0]
 						.equalsIgnoreCase(StandAloneCaArrayClientWrapper.TYPEVALUE)) {
-					if(args.length>=6){
+					if (args.length >= 6) {
 						username = args[4];
 						password = args[5];
 					}
-					exec.lookupTypeValues(url, port, username,
-							password, CaARRAYQueryPanel.listContent, resultFilename);
+					exec.lookupTypeValues(url, port, username, password,
+							CaARRAYQueryPanel.listContent, resultFilename);
 					System.out.println("Ending loading type values"
 							+ new Date());
 				} else if (args[0]
 						.equalsIgnoreCase(StandAloneCaArrayClientWrapper.FILTERINFO)) {
 					String filtername = args[4];
 					String filterkey = args[5];
-					if(args.length>=8){
-					 	username = args[6];
+					if (args.length >= 8) {
+						username = args[6];
 						password = args[7];
 					}
 					exec.lookupExperimentsWithFilter(url, port, username,
@@ -133,7 +133,8 @@ public class StandAloneCaArrayClientExec {
 	private static TreeMap<String, String> experimentDesciptions = new TreeMap<String, String>(); // For
 	public static final String ServerConnectionException = "ServerConnectionException";
 	public static final String FailedLoginException = "FailedLoginException";
-	public static final String  Exception = "Exception";
+	public static final String Exception = "Exception";
+
 	private void handleException(Exception e, String[] args) {
 
 	}
@@ -155,7 +156,7 @@ public class StandAloneCaArrayClientExec {
 			String username, String password, String[] types,
 			String typeValueFileName) {
 		try {
-			 
+
 			CaArrayServer server = new CaArrayServer(url, port);
 			if (username == null || username.trim().length() == 0) {
 				server.connect();// enable a user login.
@@ -221,7 +222,7 @@ public class StandAloneCaArrayClientExec {
 			ObjectOutputStream outputStream = null;
 
 			try {
-				 
+
 				outputStream = new ObjectOutputStream(new FileOutputStream(
 						typeValueFileName));
 				outputStream.writeObject(tree);
@@ -250,42 +251,24 @@ public class StandAloneCaArrayClientExec {
 		return null;
 	}
 
-
-	public void processException(Exception e, String filename){
-		if (e instanceof gov.nih.nci.caarray.services.ServerConnectionException){
+	public void processException(Exception e, String filename) {
+		if (e instanceof gov.nih.nci.caarray.services.ServerConnectionException) {
 			createFile(filename, ServerConnectionException);
-		}else if (e instanceof FailedLoginException){
+		} else if (e instanceof FailedLoginException) {
 			createFile(filename, FailedLoginException);
-		}else{
+		} else {
 			createFile(filename, Exception);
 		}
 	}
-	
-	public void createFile(String filename, String extension){
-		try{
+
+	public void createFile(String filename, String extension) {
+		try {
 			File file = new File(filename + "." + extension);
 			file.createNewFile();
-		}catch(Exception e){
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
-	
-//	public CaArray2Experiment[] lookupExperiments(String url, int port,
-//			String username, String password, HashMap<String, String[]> filters)
-//			throws Exception {
-//		CaArrayServer server = new CaArrayServer(url, port);
-//		server.connect();
-//		String[] arrays = new String[filters.size()];
-//		arrays = filters.keySet().toArray(arrays);
-//		for (String key : arrays) {
-//			String[] values = filters.get(key);
-//			if (values != null && values.length > 0) {
-//				return lookupExperimentsWithFilter(url, port, key, values[0]);
-//			}
-//		}
-//		return null;
-//
-//	}
 
 	public CaArray2Experiment[] lookupExperimentsWithFilter(String url,
 			int port, String username, String password, String type,
@@ -304,15 +287,14 @@ public class StandAloneCaArrayClientExec {
 				server.connect(username, password);
 			}
 			CaArraySearchService service = server.getSearchService();
-			// CaArraySearchService service = server.getSearchService();
 			TreeMap<String, String[]> tree = new TreeMap<String, String[]>();
 			gov.nih.nci.cagrid.cqlquery.Object object = new gov.nih.nci.cagrid.cqlquery.Object();
 
 			CQLQuery query = CQLQueryGenerator.generateQuery(
 					CQLQueryGenerator.EXPERIMENT, type, value);
 			List list = service.search(query);
-
 			Vector<CaArray2Experiment> exps = new Vector<CaArray2Experiment>();
+
 			for (Object o : list) {
 				Experiment e = ((Experiment) o);
 				log.debug("Experiment : " + e.getTitle() + "| "
@@ -329,7 +311,6 @@ public class StandAloneCaArrayClientExec {
 						set.add(h.getName());
 					}
 					hybridizationValues = set.toArray(hybridizationValues);
-
 					Hybridization hybridization = (Hybridization) (service
 							.search(oneHybridization).get(0));
 					DataSet dataSet = getDataSet(service, hybridization);
@@ -344,8 +325,8 @@ public class StandAloneCaArrayClientExec {
 							j++;
 						}
 					}
-					CaArray2Experiment exp = new CaArray2Experiment(url, port);
 
+					CaArray2Experiment exp = new CaArray2Experiment(url, port);
 					exp.setName(e.getTitle());
 					exp.setDescription(e.getDescription());
 					exp.setHybridizations(hybridizationValues);
@@ -391,168 +372,106 @@ public class StandAloneCaArrayClientExec {
 
 	public void lookupExperiments(String url, int port, String username,
 			String password, String experimentFileName) {
-		 
+
 		CaArrayServer server = new CaArrayServer(url, port);
-		try{
-		if (username == null || username.trim().length() == 0) {
-			server.connect();// disable a user login.
-		} else {
-			server.connect(username, password);
-		}
-		CaArraySearchService service = server.getSearchService();
-		experimentDesciptions = new TreeMap<String, String>();
-		Vector<CaArray2Experiment> exps = new Vector<CaArray2Experiment>();
-
-		CQLQuery query = CQLQueryGenerator
-				.generateQuery(CQLQueryGenerator.EXPERIMENT);
-		List list = service.search(query);
-		for (Object o : list) {
-			Experiment e = ((Experiment) o);
-			System.out.println("get Exp: " + new Date());
-			Set<Hybridization> h1 = (((Experiment) o).getHybridizations());
-			if (h1.size() > 0) {
-				String[] hybridizationValues = new String[h1.size()];
-				TreeSet<String> set = new TreeSet<String>();
-				Hybridization oneHybridization = null;
-				for (Hybridization h : h1) {
-					oneHybridization = h;
-					set.add(h.getName());
-				}
-				hybridizationValues = set.toArray(hybridizationValues);
-				// below is to get the QuantitationType for each experiment.
-				Hybridization hybridization = (Hybridization) (service
-						.search(oneHybridization).get(0));
-				DataSet dataSet = getDataSet(service, hybridization);
-				String[] qTypes = null;
-				Set<String> sets = new TreeSet<String>();
-				if (dataSet != null) {
-					List<QuantitationType> qList = dataSet
-							.getQuantitationTypes();
-					for (QuantitationType qType : qList) {
-
-						Class typeClass = qType.getTypeClass();
-						// Retrieve the appropriate data depending on the type
-						// of the column.
-						if (typeClass != String.class
-								&& typeClass != Boolean.class) {
-							sets.add(qType.getName());
-						}
-					}
-					qTypes = new String[sets.size()];
-					qTypes = sets.toArray(qTypes);
-				}
-				CaArray2Experiment exp = new CaArray2Experiment(url, port);
-
-				exp.setName(e.getTitle());
-				exp.setDescription(e.getDescription());
-				exp.setHybridizations(hybridizationValues);
-				exp.setQuantitationTypes(qTypes);
-				exps.add(exp);
-				 
-			}
-		}
-
-		CaArray2Experiment[] experimentsArray = new CaArray2Experiment[exps
-				.size()];
-		// experimentsArray = exps.toArray(experimentsArray);
-		exps.toArray(experimentsArray);
-
-		ObjectOutputStream outputStream = null;
-
 		try {
-			System.out.println("File saved at"
-					+ new File(experimentFileName).getAbsolutePath());
-			// Construct the LineNumberReader object
-			outputStream = new ObjectOutputStream(new FileOutputStream(
-					experimentFileName));
-			outputStream.writeObject(exps.toArray(experimentsArray));
+			if (username == null || username.trim().length() == 0) {
+				server.connect();// disable a user login.
+			} else {
+				server.connect(username, password);
+			}
+			CaArraySearchService service = server.getSearchService();
+			experimentDesciptions = new TreeMap<String, String>();
+			Vector<CaArray2Experiment> exps = new Vector<CaArray2Experiment>();
 
-		} catch (FileNotFoundException ex) {
-			ex.printStackTrace();
-		} catch (IOException ex) {
-			ex.printStackTrace();
-		} finally {
-			// Close the ObjectOutputStream
-			try {
-				if (outputStream != null) {
-					outputStream.flush();
-					outputStream.close();
+			CQLQuery query = CQLQueryGenerator
+					.generateQuery(CQLQueryGenerator.EXPERIMENT);
+			List list = service.search(query);
+			for (Object o : list) {
+				Experiment e = ((Experiment) o);
+				System.out.println("get Exp: " + new Date());
+				Set<Hybridization> h1 = (((Experiment) o).getHybridizations());
+				if (h1.size() > 0) {
+					String[] hybridizationValues = new String[h1.size()];
+					TreeSet<String> set = new TreeSet<String>();
+					Hybridization oneHybridization = null;
+					for (Hybridization h : h1) {
+						oneHybridization = h;
+						set.add(h.getName());
+					}
+					hybridizationValues = set.toArray(hybridizationValues);
+					// below is to get the QuantitationType for each experiment.
+					Hybridization hybridization = (Hybridization) (service
+							.search(oneHybridization).get(0));
+					DataSet dataSet = getDataSet(service, hybridization);
+					String[] qTypes = null;
+					Set<String> sets = new TreeSet<String>();
+					if (dataSet != null) {
+						List<QuantitationType> qList = dataSet
+								.getQuantitationTypes();
+						for (QuantitationType qType : qList) {
+
+							Class typeClass = qType.getTypeClass();
+							// Retrieve the appropriate data depending on the
+							// type
+							// of the column.
+							if (typeClass != String.class
+									&& typeClass != Boolean.class) {
+								sets.add(qType.getName());
+							}
+						}
+						qTypes = new String[sets.size()];
+						qTypes = sets.toArray(qTypes);
+					}
+					CaArray2Experiment exp = new CaArray2Experiment(url, port);
+
+					exp.setName(e.getTitle());
+					exp.setDescription(e.getDescription());
+					exp.setHybridizations(hybridizationValues);
+					exp.setQuantitationTypes(qTypes);
+					exps.add(exp);
+
 				}
+			}
+
+			CaArray2Experiment[] experimentsArray = new CaArray2Experiment[exps
+					.size()];
+			// experimentsArray = exps.toArray(experimentsArray);
+			exps.toArray(experimentsArray);
+
+			ObjectOutputStream outputStream = null;
+
+			try {
+				System.out.println("File saved at"
+						+ new File(experimentFileName).getAbsolutePath());
+				// Construct the LineNumberReader object
+				outputStream = new ObjectOutputStream(new FileOutputStream(
+						experimentFileName));
+				outputStream.writeObject(exps.toArray(experimentsArray));
+
+			} catch (FileNotFoundException ex) {
+				ex.printStackTrace();
 			} catch (IOException ex) {
 				ex.printStackTrace();
+			} finally {
+				// Close the ObjectOutputStream
+				try {
+					if (outputStream != null) {
+						outputStream.flush();
+						outputStream.close();
+					}
+				} catch (IOException ex) {
+					ex.printStackTrace();
+				}
 			}
-		}
-		}catch (Exception e){
+		} catch (Exception e) {
 			e.printStackTrace();
 			processException(e, experimentFileName);
 		}
 		System.out.println("Ending the lookupExperiments " + new Date());
 
 	}
-
-//	public static CaArray2Experiment[] lookupExperimentsWithFilter(String url,
-//			int port, String type, String value) {
-//
-//		try {
-//			CaArrayServer server = new CaArrayServer(url, port);
-//			CaArraySearchService service = server.getSearchService();
-//			TreeMap<String, String[]> tree = new TreeMap<String, String[]>();
-//			gov.nih.nci.cagrid.cqlquery.Object object = new gov.nih.nci.cagrid.cqlquery.Object();
-//
-//			CQLQuery query = CQLQueryGenerator.generateQuery(
-//					CQLQueryGenerator.EXPERIMENT, type, value);
-//			List list = service.search(query);
-//
-//			Vector<CaArray2Experiment> exps = new Vector<CaArray2Experiment>();
-//			for (Object o : list) {
-//				Experiment e = ((Experiment) o);
-//
-//				Set<Hybridization> h1 = (((Experiment) o).getHybridizations());
-//
-//				if (h1.size() > 0) {
-//					String[] hybridizationValues = new String[h1.size()];
-//					int i = 0;
-//					Hybridization oneHybridization = null;
-//					TreeSet<String> set = new TreeSet<String>();
-//					for (Hybridization h : h1) {
-//						oneHybridization = h;
-//						set.add(h.getName());
-//					}
-//					hybridizationValues = set.toArray(hybridizationValues);
-//
-//					Hybridization hybridization = (Hybridization) (service
-//							.search(oneHybridization).get(0));
-//					DataSet dataSet = getDataSet(service, hybridization);
-//					String[] qTypes = null;
-//					if (dataSet != null) {
-//						List<QuantitationType> qList = dataSet
-//								.getQuantitationTypes();
-//						qTypes = new String[qList.size()];
-//						int j = 0;
-//						for (QuantitationType qu : qList) {
-//							qTypes[j] = qu.getName();
-//							j++;
-//						}
-//					}
-//					CaArray2Experiment exp = new CaArray2Experiment(url, port);
-//
-//					exp.setName(e.getTitle());
-//					exp.setDescription(e.getDescription());
-//					exp.setHybridizations(hybridizationValues);
-//					exp.setQuantitationTypes(qTypes);
-//					exps.add(exp);
-//
-//				}
-//			}
-//			CaArray2Experiment[] experimentsArray = new CaArray2Experiment[exps
-//					.size()];
-//			return exps.toArray(experimentsArray);
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//			 
-//		}
-//		return null;
-//	}
+ 
 
 	static DataSet getDataSet(CaArraySearchService service,
 			Hybridization hybridization) {
@@ -599,8 +518,6 @@ public class StandAloneCaArrayClientExec {
 			processException(e, outputFilename);
 		}
 		CaArraySearchService service = server.getSearchService();
-		Date date = new Date();
-		long startTime = date.getTime();
 		AbstractProbe[] markersArray;
 		Hybridization hybridization = new Hybridization();
 		hybridization.setName(hybridizationStr);
@@ -615,6 +532,7 @@ public class StandAloneCaArrayClientExec {
 		// If raw data doesn't exist, try to find derived data
 		Set<DerivedArrayData> derivedArrayDataSet = hybridization
 				.getDerivedDataCollection();
+		System.out.println("SSS For Rashimi, the totalDataset is " + derivedArrayDataSet.size());
 		for (DerivedArrayData derivedArrayData : derivedArrayDataSet) {
 			// Return the data set associated with the first derived data.
 			DerivedArrayData populatedArrayData = service.search(
@@ -654,10 +572,6 @@ public class StandAloneCaArrayClientExec {
 							float[] values = ((FloatColumn) populatedColumn)
 									.getValues();
 							long endTime = new Date().getTime();
-							System.out.println("For " + hybridizationStr
-									+ ", the total second to load is "
-									+ ((endTime - startTime) / 1000) + ".");
-
 							for (int i = 0; i < values.length; i++) {
 								doubleValues[i] = values[i];
 							}
@@ -666,10 +580,6 @@ public class StandAloneCaArrayClientExec {
 							int[] values = ((IntegerColumn) populatedColumn)
 									.getValues();
 							long endTime = new Date().getTime();
-							System.out.println("For " + hybridizationStr
-									+ ", the total second to load is "
-									+ ((endTime - startTime) / 1000) + ".");
-
 							for (int i = 0; i < values.length; i++) {
 								doubleValues[i] = values[i];
 							}
@@ -678,10 +588,6 @@ public class StandAloneCaArrayClientExec {
 							long[] values = ((LongColumn) populatedColumn)
 									.getValues();
 							long endTime = new Date().getTime();
-							System.out.println("For " + hybridizationStr
-									+ ", the total second to load is "
-									+ ((endTime - startTime) / 1000) + ".");
-
 							for (int i = 0; i < values.length; i++) {
 								doubleValues[i] = values[i];
 							}
@@ -690,10 +596,6 @@ public class StandAloneCaArrayClientExec {
 							doubleValues = ((DoubleColumn) populatedColumn)
 									.getValues();
 							long endTime = new Date().getTime();
-							System.out.println("For " + hybridizationStr
-									+ ", the total second to load is "
-									+ ((endTime - startTime) / 1000) + ".");
-
 						}
 
 						// write the marker names and values to a file.
@@ -938,6 +840,7 @@ public class StandAloneCaArrayClientExec {
 		// If raw data doesn't exist, try to find derived data
 		Set<DerivedArrayData> derivedArrayDataSet = hybridization
 				.getDerivedDataCollection();
+		System.out.println("For Rashimi, the totalDataset is " + derivedArrayDataSet.size());
 		for (DerivedArrayData derivedArrayData : derivedArrayDataSet) {
 			// Return the data set associated with the first derived data.
 			DerivedArrayData populatedArrayData = service.search(

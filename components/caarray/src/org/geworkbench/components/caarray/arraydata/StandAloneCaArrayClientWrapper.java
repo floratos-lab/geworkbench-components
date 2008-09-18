@@ -77,13 +77,15 @@ public class StandAloneCaArrayClientWrapper {
 
 	public static String FILESEP;
 
-	public static String CLASSPATH;
+	public static String CLASSPATH = "";
 
 	private static String systempDir = System
 			.getProperty("temporary.files.directory");
 
 	public final static String tmpDir;
+	
 
+	
 	/**
 	 * Get the valid experiment names and their associated properites.
 	 * 
@@ -103,6 +105,7 @@ public class StandAloneCaArrayClientWrapper {
 			systempDir = "temp" + File.separator + "GEAW" + File.separator;
 		}
 		tmpDir = systempDir;
+		String jkdLocation = System.getProperty("java.home");
 		File tempdir = new File(tmpDir);
 		if (!tempdir.exists()) {
 			tempdir.mkdir();
@@ -119,13 +122,21 @@ public class StandAloneCaArrayClientWrapper {
 				}
 			}
 			// Set up classpath.
-			String jkdLocation = System.getProperty("java.home");
+ 
+//			if(jkdLocation.lastIndexOf("1.6")>0){
+//				//caarray cannot work with 1.6
+//				//jkdLocation = System.getProperty("JAVA_HOME");
+//				
+//			}
 			PATHSEP = System.getProperty("path.separator");
 			FILESEP = System.getProperty("file.separator");
 			if (jkdLocation != null) {
+				//Below is a line specific for Eclipse, because the classes will not located under components folder.
+				if(System.getProperty("os.name").lastIndexOf("Window")>0){
 				CLASSPATH = "C:\\java\\apps\\eclipse_workspace\\caarray\\classes;";
+				}
 				String currentdir = System.getProperty("user.dir");
-				CLASSPATH = CLASSPATH + currentdir + FILESEP + "classes"
+				CLASSPATH = CLASSPATH + currentdir + PATHSEP + CLASSPATH + currentdir + FILESEP + "classes"
 						+ PATHSEP;
 				// Do libs
 				String dir = currentdir + FILESEP + "components" + FILESEP
@@ -168,7 +179,7 @@ public class StandAloneCaArrayClientWrapper {
 						+ "java -Xmx400M -classpath "
 						+ CLASSPATH
 						+ " org.geworkbench.components.caarray.arraydata.StandAloneCaArrayClientExec ";
-
+				System.out.println(prefixCMD + " prefixCMd");
 			}
 		} catch (Exception e) {
 
@@ -565,13 +576,13 @@ public class StandAloneCaArrayClientWrapper {
 
 		public void run() {
 			try {
-				// System.out.println(new Date()
-				// + " at the thread. start the job: " + cmdline);
+				  System.out.println(new Date()
+				  + " at the thread. The job: " + cmdline);
 
 				// cmdline = "perl /razor/0/common/pudge/scr/psub.pl
 				// 2resub.cfg";
 				Process p = Runtime.getRuntime().exec(cmdline);
-
+				
 				FileOutputStream fos = new FileOutputStream(
 						"caArrayExecLog.txt");
 				Runtime rt = Runtime.getRuntime();
@@ -591,7 +602,7 @@ public class StandAloneCaArrayClientWrapper {
 
 				// any error???
 				int exitVal = proc.waitFor();
-				System.out.println("ExitValue: " + exitVal);
+				System.out.println( "For cmdline " + cmdline + "\nExitValue: " + exitVal);
 				fos.flush();
 				fos.close();
 				if (proc.waitFor() != 0) {
