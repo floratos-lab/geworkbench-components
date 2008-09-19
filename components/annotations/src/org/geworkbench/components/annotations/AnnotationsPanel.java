@@ -113,7 +113,7 @@ import java.util.Locale;
  * that this gene's product participates in.
  * 
  * @author manjunath at genomecenter dot columbia dot edu
- * @version $Id: AnnotationsPanel.java,v 1.31 2008-06-25 03:38:47 my2248 Exp $
+ * @version $Id: AnnotationsPanel.java,v 1.32 2008-09-19 16:51:19 xiaoqing Exp $
  * 
  * 
  */
@@ -679,7 +679,12 @@ public class AnnotationsPanel implements VisualPlugin, Observer{
     }
 
     private void saveGenesInPathway(File selectedFile, GeneAnnotation[] genesInPathway) throws IOException {
-        FileWriter writer = new FileWriter(selectedFile);
+
+	String filename = selectedFile.getAbsolutePath();
+    	if(!filename.endsWith("csv")){
+    		filename += ".csv";
+    	}
+    	FileWriter writer = new FileWriter(filename); 
         for (int i = 0; i < genesInPathway.length; i++) {
             GeneAnnotation geneAnnotation = genesInPathway[i];
             writer.write(geneAnnotation.getGeneSymbol() + ", " + geneAnnotation.getGeneName() + "\n");
