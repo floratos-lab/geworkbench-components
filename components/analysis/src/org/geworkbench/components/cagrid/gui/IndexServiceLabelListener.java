@@ -38,7 +38,7 @@ public class IndexServiceLabelListener implements MouseListener {
 
 	private int DEFAULT_PORT = 8080;
 
-	private String DEFAULT_HOST = "localhost";
+	private String DEFAULT_HOST = "cagrid-index.nci.nih.gov";
 
 	private JDialog indexServiceDialog = null;
 
