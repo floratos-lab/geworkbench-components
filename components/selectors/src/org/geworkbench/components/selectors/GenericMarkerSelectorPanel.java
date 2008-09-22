@@ -550,18 +550,18 @@ public class GenericMarkerSelectorPanel implements VisualPlugin, MenuListener {
 
     void printItem_actionPerformed(ActionEvent e) {
         // Get a PrinterJob
-        PrinterJob job = PrinterJob.getPrinterJob();
-        // Ask user for page format (e.g., portrait/landscape)
-        PageFormat pf = job.pageDialog(job.defaultPage());
-        // Specify the Printable is an instance of
-        // PrintListingPainter; also provide given PageFormat
-        job.setPrintable(new PrintListingPainter(), pf);
-        // Print 1 copy
-        job.setCopies(1);
+        PrinterJob job = PrinterJob.getPrinterJob();        
         // Put up the dialog box
         if (job.printDialog()) {
             // Print the job if the user didn't cancel printing
             try {
+            	// Ask user for page format (e.g., portrait/landscape)
+                PageFormat pf = job.pageDialog(job.defaultPage());
+                // Specify the Printable is an instance of
+                // PrintListingPainter; also provide given PageFormat
+                job.setPrintable(new PrintListingPainter(), pf);
+                // Print 1 copy
+                job.setCopies(1);
                 job.print();
             } catch (Exception pe) {
                 pe.printStackTrace();
