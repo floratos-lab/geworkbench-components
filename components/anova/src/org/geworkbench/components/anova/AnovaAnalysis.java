@@ -53,7 +53,7 @@ import edu.columbia.geworkbench.cagrid.anova.PValueEstimation;
 
 /**
  * @author yc2480
- * @version $Id: AnovaAnalysis.java,v 1.19 2008-09-11 17:59:40 chiangy Exp $
+ * @version $Id: AnovaAnalysis.java,v 1.20 2008-09-23 19:50:09 chiangy Exp $
  */
 public class AnovaAnalysis extends AbstractGridAnalysis implements
 		ClusteringAnalysis {
@@ -65,7 +65,8 @@ public class AnovaAnalysis extends AbstractGridAnalysis implements
 	private Log log = LogFactory.getLog(this.getClass());
 	private final String analysisName = "Anova";
 	private int localAnalysisType;
-
+	private boolean unitTestMode = false;
+	
 	int[] groupAssignments; // used for MeV's ANOVA algorithm. [3 3 2 2 2 4 4 4
 							// 4] means first two microarrays belongs to same
 							// group, and microarray 3,4,5 belongs to same
@@ -366,16 +367,24 @@ public class AnovaAnalysis extends AbstractGridAnalysis implements
 														// type.
 
 		OneWayANOVA OWA = new OneWayANOVA();
-
-		final ProgressBar pb = ProgressBar.create(ProgressBar.INDETERMINATE_TYPE);
+		
+		ProgressBar tempPB = null;
+		if (unitTestMode){
+			
+		}else{
+			tempPB = ProgressBar.create(ProgressBar.INDETERMINATE_TYPE);
+		}
+		final ProgressBar pb = tempPB;
+		if (!unitTestMode){
         pb.setTitle("Anova Analysis");
         pb.setMessage("Calculating Anova, please wait...");
         pb.start();
-		
+		}
 		try {
 			//show detail message to user, so user know it's running.
 			OWA.addAlgorithmListener(new AlgorithmListener(){
 				public void valueChanged(AlgorithmEvent event){
+					if (!unitTestMode)
 					pb.setMessage(event.getDescription());
 				}
 			});
@@ -390,7 +399,8 @@ public class AnovaAnalysis extends AbstractGridAnalysis implements
 					OWA.abort();
 				}				
 			};
-			AbortObserver abortObserver=new AbortObserver(OWA);   
+			AbortObserver abortObserver=new AbortObserver(OWA);
+			if (!unitTestMode)
 			pb.addObserver(abortObserver);
 			
 			// execute the OneWayAnova algorithm
@@ -514,6 +524,7 @@ public class AnovaAnalysis extends AbstractGridAnalysis implements
 		} catch (AlgorithmException AE) {
 			AE.printStackTrace();
 		}
+		if (!unitTestMode)
         pb.stop();				
 		// add to Dataset History
 		ProjectPanel.addToHistory(sigSet, generateHistoryString(view));
@@ -750,6 +761,9 @@ public class AnovaAnalysis extends AbstractGridAnalysis implements
 			DSPanel<DSMicroarray> panelA = groups.next();
 			if (panelA.isActive()) {
 				numSelectedGroups++;
+				int aSize = panelA.size();
+				if (aSize<2) 
+					return new ParamValidationResults(false,"Each microarray group must contains at least 2 arrays.");
 			}
 		}
 		if (numSelectedGroups<3){
@@ -781,5 +795,14 @@ public class AnovaAnalysis extends AbstractGridAnalysis implements
 			}
 		}
 		return new ParamValidationResults(true,"No Error");
+	}
+	/*
+	 * When doing unit test, call this function first, 
+	 * (ex: in AnovaAnalysisTest.java, just before calling execute())
+	 * to disable the GUI (popups, dialogs, progress bar, etc)
+	 * Otherwise, we'll get java.awt.HeadlessException
+	 */
+	public void setUnitTestMode(){
+		unitTestMode = true;
 	}
 }
