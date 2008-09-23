@@ -234,6 +234,8 @@ public class MicroarrayPanel extends MicroarrayVisualizer implements
 			}
 		});
 		jMALabel.setEditable(false);
+		valueGradient.setMinimumSize(new Dimension(100, 50));
+		
 		mainPanel.add(jToolBar, BorderLayout.SOUTH);
 		jToolBar.setLayout(new BoxLayout(jToolBar, BoxLayout.X_AXIS));
 		jToolBar.add(jShowAllMArrays, null);
