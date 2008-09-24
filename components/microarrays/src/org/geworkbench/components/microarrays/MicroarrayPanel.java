@@ -233,8 +233,8 @@ public class MicroarrayPanel extends MicroarrayVisualizer implements
 				jShowAllMarkers_actionPerformed(e);
 			}
 		});
-		jMALabel.setEditable(false);
-		valueGradient.setMinimumSize(new Dimension(100, 50));
+		jMALabel.setEditable(false);		
+		jMALabel.setMinimumSize(new Dimension(40, 20));
 		
 		mainPanel.add(jToolBar, BorderLayout.SOUTH);
 		jToolBar.setLayout(new BoxLayout(jToolBar, BoxLayout.X_AXIS));
@@ -474,14 +474,18 @@ public class MicroarrayPanel extends MicroarrayVisualizer implements
 		}
 	}
 
-	private class MicroarrayColorGradient extends JComponent {
+	private class MicroarrayColorGradient extends JPanel {
 		private Color minColor, maxColor, centerColor;
+		private Dimension d = new Dimension(40, 20);
 
 		public MicroarrayColorGradient(Color minColor, Color centerColor,
 				Color maxColor) {
 			this.minColor = minColor;
 			this.maxColor = maxColor;
 			this.centerColor = centerColor;
+			this.setMaximumSize(d);
+			this.setPreferredSize(d);
+			this.setMinimumSize(d);
 		}
 
 		protected void paintComponent(Graphics g) {
