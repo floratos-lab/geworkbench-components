@@ -119,7 +119,7 @@ public class SVMTraining extends GPTraining implements TrainingTask
             File modelFile = trainData("SVM", parameters);
             PredictionModel model = new PredictionModel(modelFile);
 
-            svmClassifier = new SVMClassifier(null, "SVM Classifier", new String[]{"Positive", "Negative"}, model, featureNames);
+            svmClassifier = new SVMClassifier(svmPanel.getMaSet(), "SVM Classifier", new String[]{"Positive", "Negative"}, model, featureNames);
             svmClassifier.setPassword(((SVMTrainingPanel)panel).getPassword());
 
             //testclassifier on training data
@@ -155,7 +155,6 @@ public class SVMTraining extends GPTraining implements TrainingTask
         svmClassifier.classify(testPanel);
 
         progressBar.stop();
-
     }
 
     public boolean isCancelled()
@@ -170,5 +169,5 @@ public class SVMTraining extends GPTraining implements TrainingTask
         return null;
     }
 
-    public void setTrainingProgressListener(TrainingProgressListener trainingProgressListener){}    
+    public void setTrainingProgressListener(TrainingProgressListener trainingProgressListener){}
 }
