@@ -980,9 +980,11 @@ public class ScatterPlot implements VisualPlugin {
         ChartGroup group = chartGroups.get(type);
         if (type.name().equalsIgnoreCase("ARRAY")){
             Object array = microarrayModel.getElementAt(index);
+            if (array.getClass()!=String.class)
             index = dataSetView.getDataSet().indexOf(array);        	        	
         }else{
             Object marker = markerModel.getElementAt(index);
+            if (marker.getClass()!=String.class)
             index = dataSetView.allMarkers().indexOf(marker);        	
         }
         if (group.xIndex == -1) {
