@@ -18,8 +18,11 @@ import org.geworkbench.events.ProjectEvent;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.*;
 
 import org.geworkbench.components.gpmodule.classification.svm.SVMClassifier;
+import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
+import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -31,6 +34,7 @@ import org.apache.commons.logging.LogFactory;
 public class SVMVisualComponent implements VisualPlugin
 {
     private Log log = LogFactory.getLog(this.getClass());
+    public static SortedMap microarraySets = new TreeMap();
 
     private JPanel component;
     private SVMVisualizationPanel svmVPanel;
@@ -46,10 +50,62 @@ public class SVMVisualComponent implements VisualPlugin
     }
 
     @Subscribe
-    public void receive(ProjectEvent e, Object source)
+    public void receive(org.geworkbench.events.ProjectNodeAddedEvent e, Object source)
     {
-        log.debug("SVMVisualComponent received project event.");
-        if(e.getDataSet() != null && e.getDataSet() instanceof SVMClassifier)
+        System.out.println("SVMVisualComponent received project node added event.");
+        DSDataSet dataSet = e.getDataSet();
+
+        if (dataSet instanceof DSMicroarraySet)
+        {
+            microarraySets.put(dataSet.getDataSetName(), dataSet);
+		}
+    }
+
+    @Subscribe
+    public void receive(org.geworkbench.events.ProjectNodeRemovedEvent e, Object source)
+    {
+        System.out.println("SVMVisualComponent received project node removed event.");
+        DSDataSet dataSet = e.getDataSet();
+
+        if (dataSet instanceof DSMicroarraySet)
+        {
+            microarraySets.remove(dataSet.getDataSetName());
+		}
+	}
+
+    @Subscribe
+    public void receive(org.geworkbench.events.ProjectNodeRenamedEvent e, Object source)
+    {
+        System.out.println("SVMVisualComponent received project node renamed event.");
+        DSDataSet dataSet = e.getDataSet();
+
+        if (dataSet instanceof DSMicroarraySet)
+        {
+            String oldName = e.getOldName();
+            Iterator it = microarraySets.keySet().iterator();
+            while(it.hasNext())
+            {
+                String key = (String)it.next();
+                DSMicroarraySet microarraySet = (DSMicroarraySet)microarraySets.get(key);
+
+                if(oldName.equals(microarraySet.getDataSetName()))
+                {
+                    microarraySets.remove(microarraySet.getDataSetName());
+                    break;
+                }
+            }
+
+            microarraySets.put(dataSet.getDataSetName(),dataSet);
+		}
+	}
+
+    @Subscribe
+    public void receive(org.geworkbench.events.ProjectEvent e, Object source)
+    {
+        System.out.println("SVMVisualComponent received project event.");
+
+        DSDataSet dataSet = e.getDataSet();
+        if(dataSet != null && dataSet instanceof SVMClassifier)
         {
             component.removeAll();
 
@@ -61,5 +117,10 @@ public class SVMVisualComponent implements VisualPlugin
             component.revalidate();
 		    component.repaint();
         }
+
+        if (dataSet instanceof DSMicroarraySet)
+        {
+            microarraySets.put(dataSet.getDataSetName(),dataSet);
+		}
     }
 }
