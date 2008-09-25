@@ -978,19 +978,19 @@ public class ScatterPlot implements VisualPlugin {
      */
     private void itemClicked(PlotType type, int index) {
         ChartGroup group = chartGroups.get(type);
-        if (type.name().equalsIgnoreCase("ARRAY")){
-            Object array = microarrayModel.getElementAt(index);
-            if (array.getClass()!=String.class)
-            index = dataSetView.getDataSet().indexOf(array);        	        	
-        }else{
-            Object marker = markerModel.getElementAt(index);
-            if (marker.getClass()!=String.class)
-            index = dataSetView.allMarkers().indexOf(marker);        	
-        }
         if (group.xIndex == -1) {
             // This item goes on the x-axis.
             group.xIndex = index;
         } else {
+            if (type.name().equalsIgnoreCase("ARRAY")){
+                Object array = microarrayModel.getElementAt(index);
+                if (array.getClass()!=String.class)
+                index = dataSetView.getDataSet().indexOf(array);        	        	
+            }else{
+                Object marker = markerModel.getElementAt(index);
+                if (marker.getClass()!=String.class)
+                index = dataSetView.allMarkers().indexOf(marker);        	
+            }                    	
             if (index == group.xIndex) {
                 // Clicked on the x-axis item-- ignore.
             } else {
