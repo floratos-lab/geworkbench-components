@@ -54,6 +54,7 @@ import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetV
 import org.geworkbench.bison.datastructure.bioobjects.DSBioObject;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
+import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.builtin.projects.ProjectPanel;
 import org.geworkbench.builtin.projects.ProjectSelection;
@@ -982,15 +983,6 @@ public class ScatterPlot implements VisualPlugin {
             // This item goes on the x-axis.
             group.xIndex = index;
         } else {
-            if (type.name().equalsIgnoreCase("ARRAY")){
-                Object array = microarrayModel.getElementAt(index);
-                if (array.getClass()!=String.class)
-                index = dataSetView.getDataSet().indexOf(array);        	        	
-            }else{
-                Object marker = markerModel.getElementAt(index);
-                if (marker.getClass()!=String.class)
-                index = dataSetView.allMarkers().indexOf(marker);        	
-            }                    	
             if (index == group.xIndex) {
                 // Clicked on the x-axis item-- ignore.
             } else {
@@ -1296,12 +1288,17 @@ public class ScatterPlot implements VisualPlugin {
         // First put all the gene pairs in the xyValues array
         org.geworkbench.util.pathwaydecoder.RankSorter[] xyValues = new RankSorter[microarrayNo];
         ArrayList<ArrayList<RankSorter>> xyPoints = new ArrayList<ArrayList<org.geworkbench.util.pathwaydecoder.RankSorter>>();
+        DSItemList<DSGeneMarker> uniqueMarkers = dataSetView.getUniqueMarkers();
         for (int i = 0; i < microarrayNo; i++) {
             //            DSMicroarray ma = maSet.get(i);
             xyValues[i] = new org.geworkbench.util.pathwaydecoder.RankSorter();
-            xyValues[i].x = dataSetView.getMicroarraySet().getValue(marker1, i);
-            xyValues[i].y = dataSetView.getMicroarraySet().getValue(marker2, i);
-
+            if (dataSetView.useMarkerPanel()){
+            	xyValues[i].x = dataSetView.getMicroarraySet().getValue(uniqueMarkers.get(marker1), i); 
+            	xyValues[i].y = dataSetView.getMicroarraySet().getValue(uniqueMarkers.get(marker2), i);
+            }else{
+                xyValues[i].x = dataSetView.getMicroarraySet().getValue(marker1, i); 
+                xyValues[i].y = dataSetView.getMicroarraySet().getValue(marker2, i);            	
+            }
             xyValues[i].id = i;
             //            map.put(new Integer(i), xyValues[i]);
             map.put(new Integer(dataSetView.getMicroarraySet().get(i).getSerial()), xyValues[i]);
@@ -1440,8 +1437,13 @@ public class ScatterPlot implements VisualPlugin {
         }
         String label1 = "";
         String label2 = "";
+		if (dataSetView.useMarkerPanel()){
+        label1 = dataSetView.getUniqueMarkers().get(marker1).getLabel();
+        label2 = dataSetView.getUniqueMarkers().get(marker2).getLabel();
+        }else{
         label1 = maSet.getMarkers().get(marker1).getLabel();
         label2 = maSet.getMarkers().get(marker2).getLabel();
+        }        
         chartData.setXLabel(label1);
         chartData.setYLabel(label2);
         JFreeChart mainChart = ChartFactory.createScatterPlot("", label1, label2, plots, PlotOrientation.VERTICAL, true, true, false); // Title, (, // X-Axis label,  Y-Axis label,  Dataset,  Show legend
@@ -1482,8 +1484,15 @@ public class ScatterPlot implements VisualPlugin {
         // First put all the gene pairs in the xyValues array
         RankSorter[] xyValues = new RankSorter[numMarkers];
         ArrayList<ArrayList<RankSorter>> xyPoints = new ArrayList<ArrayList<org.geworkbench.util.pathwaydecoder.RankSorter>>();
-        DSMicroarray ma1 = maSet.get(exp1);
-        DSMicroarray ma2 = maSet.get(exp2);
+        DSMicroarray ma1 = null;
+        DSMicroarray ma2 = null;
+        if (dataSetView.useItemPanel()){
+        	ma1 = dataSetView.getItemPanel().get(exp1);
+        	ma2 = dataSetView.getItemPanel().get(exp2);
+        }else{
+        	ma1 = maSet.get(exp1);
+        	ma2 = maSet.get(exp2);
+        }
         for (int i = 0; i < numMarkers; i++) {
             xyValues[i] = new RankSorter();
             xyValues[i].x = ma1.getMarkerValue(i).getValue();
