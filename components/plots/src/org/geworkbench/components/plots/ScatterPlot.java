@@ -1,5 +1,50 @@
 package org.geworkbench.components.plots;
 
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import java.awt.event.MouseEvent;
+import java.awt.image.BufferedImage;
+import java.text.NumberFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.EnumMap;
+import java.util.HashMap;
+import java.util.Iterator;
+
+import javax.swing.AbstractListModel;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.DefaultListCellRenderer;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JMenuItem;
+import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
+import javax.swing.JSplitPane;
+import javax.swing.JTabbedPane;
+import javax.swing.JTextField;
+import javax.swing.ListSelectionModel;
+import javax.swing.UIManager;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+
+import org.apache.commons.lang.StringUtils;
 import org.geworkbench.bison.annotation.CSAnnotationContextManager;
 import org.geworkbench.bison.annotation.DSAnnotationContext;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
@@ -9,6 +54,7 @@ import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetV
 import org.geworkbench.bison.datastructure.bioobjects.DSBioObject;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
+import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.builtin.projects.ProjectPanel;
 import org.geworkbench.builtin.projects.ProjectSelection;
@@ -25,7 +71,11 @@ import org.geworkbench.util.PrintUtils;
 import org.geworkbench.util.pathwaydecoder.RankSorter;
 import org.geworkbench.util.visualproperties.PanelVisualProperties;
 import org.geworkbench.util.visualproperties.PanelVisualPropertiesManager;
-import org.jfree.chart.*;
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.ChartMouseEvent;
+import org.jfree.chart.ChartMouseListener;
+import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
 import org.jfree.chart.annotations.XYLineAnnotation;
 import org.jfree.chart.entity.ChartEntity;
 import org.jfree.chart.entity.XYItemEntity;
@@ -37,17 +87,6 @@ import org.jfree.data.general.SeriesException;
 import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
-
-import javax.swing.*;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
-import java.awt.*;
-import java.awt.event.*;
-import java.awt.image.BufferedImage;
-import java.text.NumberFormat;
-import java.util.*;
 
 /**
  * Scatter Plot component.
@@ -87,14 +126,33 @@ public class ScatterPlot implements VisualPlugin {
             if (dataSetView.getMicroarraySet() == null) {
                 return 0;
             }
-            return dataSetView.getMicroarraySet().getMarkers().size();
+            if(dataSetView.useMarkerPanel()){
+            	DSPanel<DSGeneMarker> mp = dataSetView.getMarkerPanel();
+            	if((mp != null) && (mp.size() > 0)) {      
+                	return mp.size();
+            	} else {
+            		return 0;
+            	}
+            } else {
+            	return dataSetView.getMicroarraySet().getMarkers().size();
+            }
+            
         }
 
         public Object getElementAt(int index) {
             if (dataSetView.getMicroarraySet() == null) {
                 return null;
             }
-            return dataSetView.getMicroarraySet().getMarkers().get(index);
+            if(dataSetView.useMarkerPanel()){
+            	DSPanel<DSGeneMarker> mp = dataSetView.getMarkerPanel();
+            	if((mp != null) && (mp.size() > 0) && (index < mp.size())) {      
+                	return mp.get(index);
+            	} else {
+            		return null;
+            	}
+            } else {
+            	return dataSetView.getMicroarraySet().getMarkers().get(index);
+            }
         }
 
         public DSGeneMarker getMarker(int index) {
@@ -108,7 +166,11 @@ public class ScatterPlot implements VisualPlugin {
             if (dataSetView.getMicroarraySet() == null) {
                 fireContentsChanged(this, 0, 0);
             } else {
-                fireContentsChanged(this, 0, dataSetView.getMicroarraySet().getMarkers().size());
+            	if(dataSetView.useMarkerPanel()) {
+            		fireContentsChanged(this, 0, dataSetView.getMarkerPanel().size() - 1);
+            	} else {
+            		fireContentsChanged(this, 0, dataSetView.getMicroarraySet().getMarkers().size() - 1);
+            	}
             }
         }
 
@@ -123,14 +185,32 @@ public class ScatterPlot implements VisualPlugin {
             if (dataSetView.getMicroarraySet() == null) {
                 return 0;
             }
-            return dataSetView.getMicroarraySet().size();
+            if(dataSetView.useItemPanel()){
+            	DSPanel<DSMicroarray> ap = dataSetView.getItemPanel();
+            	if((ap != null) && (ap.size() > 0)){
+            		return ap.size();
+            	} else {
+            		return 0;
+            	}
+            } else {
+            	return dataSetView.getMicroarraySet().size();
+            }            
         }
 
         public Object getElementAt(int index) {
             if (dataSetView.getMicroarraySet() == null) {
                 return null;
             }
-            return dataSetView.getMicroarraySet().get(index).getLabel();
+            if(dataSetView.useItemPanel()){
+            	DSPanel<DSMicroarray> ap = dataSetView.getItemPanel();
+            	if((ap != null) && (ap.size() > 0) && (index < ap.size())){
+            		return ap.get(index).getLabel();
+            	} else {
+            		return null;
+            	}
+            } else {
+            	return dataSetView.getMicroarraySet().get(index).getLabel();
+            }
         }
 
         public DSBioObject getMicroarray(int index) {
@@ -140,11 +220,15 @@ public class ScatterPlot implements VisualPlugin {
         /**
          * Indicates to the associated JList that the contents need to be redrawn.
          */
-        public void refresh() {
+        public void refresh() {        	
             if (dataSetView.getMicroarraySet() == null) {
                 fireContentsChanged(this, 0, 0);
             } else {
-                fireContentsChanged(this, 0, dataSetView.getMicroarraySet().size());
+            	if(dataSetView.useItemPanel()){
+            		fireContentsChanged(this, 0, dataSetView.getItemPanel().size() - 1);
+            	} else {
+            		fireContentsChanged(this, 0, dataSetView.getMicroarraySet().size() - 1);
+            	}
             }
         }
 
@@ -311,6 +395,8 @@ public class ScatterPlot implements VisualPlugin {
 
     private class ChartData {
         private ArrayList<ArrayList<org.geworkbench.util.pathwaydecoder.RankSorter>> xyPoints;
+        private String xLabel = "";
+        private String yLabel = "";
 
         public ChartData() {
         }
@@ -349,6 +435,22 @@ public class ScatterPlot implements VisualPlugin {
             ArrayList<RankSorter> list = xyPoints.get(series);
             RankSorter rs = (RankSorter) list.get(item);
             return rs;
+        }
+        
+        public String getXLabel(){
+        	return this.xLabel;
+        }
+        
+        public void setXLabel(String x){
+        	this.xLabel = x;
+        }
+        
+        public String getYLabel(){
+        	return this.yLabel;
+        }
+        
+        public void setYLabel(String y){
+        	this.yLabel = y;
         }
     }
 
@@ -406,13 +508,18 @@ public class ScatterPlot implements VisualPlugin {
             if (marker != null) {
                 org.geworkbench.util.pathwaydecoder.RankSorter rs = chartData.getRankSorter(series, item);
                 DSPanel<DSGeneMarker> panel = dataSetView.getMarkerPanel();
-                DSPanel value = panel.getPanel(marker);
-                if (value != null) {
-                    result = marker.getLabel() + ": " + value.getLabel() + " [" + rs.x + "," + rs.y + "]";
-                } else {
-                    result = marker.getLabel() + ": " + "No Panel, " + " [" + rs.x + "," + rs.y + "]";
+                try{
+	                DSPanel value = panel.getPanel(marker);
+	                if (value != null) {
+	                    result = marker.getLabel() + ": " + value.getLabel() + " [" + rs.x + "," + rs.y + "]";
+	                } else {
+	                    result = marker.getLabel() + ": " + "No Panel, " + " [" + rs.x + "," + rs.y + "]";
+	                }
+	                return result;
+                } catch (Exception e){
+                	result = marker.getLabel() + ": " + "No Panel, " + " [" + rs.x + "," + rs.y + "]";
+                	return result;
                 }
-                return result;
             } else {
                 return "";
             }
@@ -435,6 +542,10 @@ public class ScatterPlot implements VisualPlugin {
     private JPopupMenu popupMenu;
     private PlotType popupType;
     private int popupIndex;
+    private int limitMarkers = 0;
+    private int limitArrays = 0;
+    private boolean showAllMarkers = true;
+    private boolean showAllArrays = true;
 
     /**
      * The dataset that holds the microarrayset and panels.
@@ -534,26 +645,46 @@ public class ScatterPlot implements VisualPlugin {
         JMenuItem clearAllItem = new JMenuItem("Clear All", 'A');
         popupMenu.add(clearAllItem);
         //// Add behavior
+        // TODO: integrate new indexing scheme
         allMarkersCheckBox.addItemListener(new ItemListener() {
             public void itemStateChanged(ItemEvent e) {
                 if (e.getStateChange() == ItemEvent.DESELECTED) {
-                    dataSetView.useMarkerPanel(true);
+                	if((limitMarkers == 0) && (dataSetView.getMarkerPanel().size() > 0)){
+                		dataSetView.useMarkerPanel(true);
+                		showAllMarkers = false;
+                		limitMarkers = dataSetView.getMarkerPanel().size();
+                		markerModel.refresh();
+                	}
                 } else {
-                    dataSetView.useMarkerPanel(false);
-                }
-                updateCharts(PlotType.ARRAY);
-                // markerModel.refresh();
+                	if(limitMarkers > 0){
+                		dataSetView.useMarkerPanel(false);
+                		showAllMarkers = true;
+                		limitMarkers = 0;
+                		markerModel.refresh();
+                	}
+                }   
+                updateBothTabs();                
             }
         });
+        // TODO: integrate new indexing scheme
         allArraysCheckBox.addItemListener(new ItemListener() {
             public void itemStateChanged(ItemEvent e) {
                 if (e.getStateChange() == ItemEvent.DESELECTED) {
-                    dataSetView.useItemPanel(true);
+                	if((limitArrays == 0) && (dataSetView.getItemPanel().size() > 0)){
+                		dataSetView.useItemPanel(true);
+                		showAllArrays = false;
+                		limitArrays = dataSetView.getItemPanel().size();
+                		microarrayModel.refresh();
+                	}
                 } else {
-                    dataSetView.useItemPanel(false);
+                	if(limitArrays > 0){
+                		dataSetView.useItemPanel(false);
+                		showAllArrays = true;
+                		limitArrays = 0;
+                		microarrayModel.refresh();
+                	}
                 }
-                updateCharts(PlotType.MARKER);
-                // microarrayModel.refresh();
+                updateBothTabs(); 
             }
         });
         // Initially inactive
@@ -580,10 +711,12 @@ public class ScatterPlot implements VisualPlugin {
         tabbedPane.addChangeListener(new ChangeListener() {
             public void stateChanged(ChangeEvent e) {
                 if (tabbedPane.getSelectedIndex() == TAB_ARRAY) {
+                	updateCharts(PlotType.ARRAY);
                     packChartPanel(PlotType.ARRAY);
                     allArraysCheckBox.setEnabled(false);
                     allMarkersCheckBox.setEnabled(true);
                 } else {
+                	updateCharts(PlotType.MARKER);
                     packChartPanel(PlotType.MARKER);
                     allArraysCheckBox.setEnabled(true);
                     allMarkersCheckBox.setEnabled(false);
@@ -847,10 +980,21 @@ public class ScatterPlot implements VisualPlugin {
      * @param index the index of the item.
      */
     private void itemClicked(PlotType type, int index) {
-        ChartGroup group = chartGroups.get(type);
+    	ChartGroup group = chartGroups.get(type);
         if (group.xIndex == -1) {
             // This item goes on the x-axis.
-            group.xIndex = index;
+        	if (type == PlotType.ARRAY) {
+            	Object o = this.microarrayModel.getElementAt(index);
+        		if(o != null){
+        			group.xIndex = findMAIndex((String)o);
+        		}
+            } else {
+            	Object o = this.markerModel.getElementAt(index);
+        		if(o != null){
+        			group.xIndex = findMarkerIndex(((DSGeneMarker) o).getLabel());
+        		}
+            }
+            //group.xIndex = index;
         } else {
             if (index == group.xIndex) {
                 // Clicked on the x-axis item-- ignore.
@@ -867,13 +1011,21 @@ public class ScatterPlot implements VisualPlugin {
                         // Otherwise, create a new one.
                         attributes = new Chart();
                     }
-                    attributes.index = index;
+                    //attributes.index = index;
                     group.charts.add(attributes);
                     JFreeChart chart;
                     if (type == PlotType.ARRAY) {
-                        chart = createMicroarrayChart(group.xIndex, index, attributes.chartData);
+                    	Object o = this.microarrayModel.getElementAt(index);
+                		if(o != null){
+                			attributes.index = findMAIndex((String)o);
+                		}
+                        chart = createMicroarrayChart(group.xIndex, attributes.index, attributes.chartData);
                     } else {
-                        chart = createGeneChart(group.xIndex, index, attributes.chartData);
+                    	Object o = this.markerModel.getElementAt(index);
+                		if(o != null){
+                			attributes.index = findMarkerIndex(((DSGeneMarker) o).getLabel());
+                		}
+                        chart = createGeneChart(group.xIndex, attributes.index, attributes.chartData);
                     }
                     if (attributes.panel == null) {
                         attributes.panel = new ChartPanel(chart);
@@ -893,6 +1045,26 @@ public class ScatterPlot implements VisualPlugin {
                 packChartPanel(type);
             }
         }
+    }
+    
+    private void updateBothTabs(){
+    	// TODO: highlighting is not in sync
+    	//microarrayList.clearSelections();
+        //markerList.clearSelections();
+    	microarrayList.repaint();
+    	markerList.repaint();
+    	
+        if (tabbedPane.getSelectedIndex() == TAB_ARRAY) {
+        	updateCharts(PlotType.ARRAY);
+            packChartPanel(PlotType.ARRAY);
+            allArraysCheckBox.setEnabled(false);
+            allMarkersCheckBox.setEnabled(true);
+        } else {
+        	updateCharts(PlotType.MARKER);
+            packChartPanel(PlotType.MARKER);
+            allArraysCheckBox.setEnabled(true);
+            allMarkersCheckBox.setEnabled(false);
+        }        
     }
 
     private void clearAllCharts(PlotType type) {
@@ -925,6 +1097,127 @@ public class ScatterPlot implements VisualPlugin {
             }
         }
     }
+    
+    /*
+    private void updateChartIndices(PlotType type, boolean toSubset){
+    	ChartGroup group = chartGroups.get(type);        
+        if (type == PlotType.ARRAY) {
+        	if(toSubset){
+        		DSPanel<DSMicroarray> subsetMA = dataSetView.getItemPanel();
+        		if(group.charts.size() > 0){
+        			String xLabel = group.charts.get(0).chartData.getXLabel();
+        			int newIndex = indexOfMA(subsetMA, xLabel);        			
+        			if(newIndex >= 0){
+        				group.xIndex = newIndex;
+		        		for (int i = 0; i < group.charts.size(); i++) {
+		                    Chart chart = group.charts.get(i);	                    
+		                    String yLabel = chart.chartData.getYLabel();
+		                    newIndex = indexOfMA(subsetMA, yLabel);
+		                    if(newIndex >= 0) chart.index = newIndex;
+		                    else {
+		                    	group.charts.remove(chart);
+		                    	i--;
+		                    }
+		        		}
+        			} else {
+        				group.charts = new ArrayList<Chart>();
+        			}
+        		}
+        	} else {
+        		DSMicroarraySet<DSMicroarray> allMA = (DSMicroarraySet) dataSetView.getDataSet();
+        		if(group.charts.size() > 0){
+        			String xLabel = group.charts.get(0).chartData.getXLabel();
+        			int newIndex = indexOfMA(allMA, xLabel);        			
+        			if(newIndex >= 0){
+        				group.xIndex = newIndex;
+		        		for (int i = 0; i < group.charts.size(); i++) {
+		                    Chart chart = group.charts.get(i);	                    
+		                    String yLabel = chart.chartData.getYLabel();
+		                    newIndex = indexOfMA(allMA, yLabel);
+		                    if(newIndex >= 0) chart.index = newIndex;
+		                    else {
+		                    	group.charts.remove(chart);
+		                    	i--;
+		                    }
+		        		}
+        			} else {
+        				group.charts = new ArrayList<Chart>();
+        			}
+        		}
+        	}
+        } else {
+        	if(toSubset){
+        		DSPanel<DSGeneMarker> subsetMarkers = dataSetView.getMarkerPanel();
+        		if(group.charts.size() > 0){
+        			String xLabel = group.charts.get(0).chartData.getXLabel();
+        			int newIndex = indexOfMarker(subsetMarkers, xLabel);        			
+        			if(newIndex >= 0){
+        				group.xIndex = newIndex;
+		        		for (int i = 0; i < group.charts.size(); i++) {
+		                    Chart chart = group.charts.get(i);	                    
+		                    String yLabel = chart.chartData.getYLabel();
+		                    newIndex = indexOfMarker(subsetMarkers, yLabel);
+		                    if(newIndex >= 0) chart.index = newIndex;
+		                    else {
+		                    	group.charts.remove(chart);
+		                    	i--;
+		                    }
+		        		}
+        			} else {
+        				group.charts = new ArrayList<Chart>();
+        			}
+        		}
+        	} else {
+        		DSItemList<DSGeneMarker> allMarkers = dataSetView.getMicroarraySet().getMarkers();
+        		if(group.charts.size() > 0){
+        			String xLabel = group.charts.get(0).chartData.getXLabel();
+        			int newIndex = indexOfMarker(allMarkers, xLabel);        			
+        			if(newIndex >= 0){
+        				group.xIndex = newIndex;
+		        		for (int i = 0; i < group.charts.size(); i++) {
+		                    Chart chart = group.charts.get(i);	                    
+		                    String yLabel = chart.chartData.getYLabel();
+		                    newIndex = indexOfMarker(allMarkers, yLabel);
+		                    if(newIndex >= 0) chart.index = newIndex;
+		                    else {
+		                    	group.charts.remove(chart);
+		                    	i--;
+		                    }
+		        		}
+        			} else {
+        				group.charts = new ArrayList<Chart>();
+        			}
+        		}
+        	}
+        }        
+    }
+    
+    private int indexOfMarker(DSItemList<DSGeneMarker> markers, String label){
+    	for(int i = 0; i < markers.size(); i++){
+    		if(StringUtils.equals(markers.get(i).getShortName(), label)){
+    			return i;
+    		}
+    	}
+    	return -1;
+    }
+    
+    private int indexOfMA(DSPanel<DSMicroarray> ma, String label){
+    	for(int i = 0; i < ma.size(); i++){
+    		if(StringUtils.equals(ma.get(i).getLabel(), label)){
+    			return i;
+    		}
+    	}
+    	return -1;
+    }
+    
+    private int indexOfMA(DSMicroarraySet<DSMicroarray> maSet, String label){
+    	for(int i = 0; i < maSet.size(); i++){
+    		if(StringUtils.equals(maSet.get(i).getLabel(), label)){
+    			return i;
+    		}
+    	}
+    	return -1;
+    }*/
 
     /**
      * Makes the chart fit in with the background color of the application.
@@ -979,12 +1272,51 @@ public class ScatterPlot implements VisualPlugin {
      * @param source the source of the event (unused).
      */
     @Subscribe public void receive(org.geworkbench.events.GeneSelectorEvent e, Object source) {
-        if (e.getPanel() != null) {
-            dataSetView.setMarkerPanel(e.getPanel());
-            // markerPanel = e.getPanel().activeSubset();
-            markerModel.refresh();
-        }
-        updateCharts(PlotType.ARRAY);
+    	if(e.getPanel() != null){    		
+    		// TODO: Since the user selected subsets, first we need to remember which were the chosen markers in the markers tab before switching to the subset.
+    		
+    		if ((e.getPanel().size() > 0) && !allMarkersCheckBox.isSelected() && (limitMarkers != e.getPanel().size())){ 
+    			ChartGroup group = chartGroups.get(PlotType.MARKER);
+    			if(group.charts.size() > 0){
+    				ChartData cd = group.charts.get(0).chartData;
+    				String xlabel = cd.getXLabel();
+    				if(!isInMarkerPanel(e.getPanel(), xlabel)){
+            			clearAllCharts(PlotType.MARKER);
+            			group.xIndex = -1;
+            		} else {
+		            	for(int i = 0; i < group.charts.size(); i++){
+		            		cd = group.charts.get(i).chartData;
+		            		String ylabel = cd.getYLabel();
+		            		if(!isInMarkerPanel(e.getPanel(), ylabel)){
+		            			group.charts.remove(i);
+		            			i--;
+		            		}
+		            	}
+            		}
+    			}
+            	dataSetView.useMarkerPanel(true);
+            	showAllMarkers = false;
+                dataSetView.setMarkerPanel(e.getPanel());
+                limitMarkers = dataSetView.getMarkerPanel().size();
+                markerModel.refresh();
+                updateBothTabs();
+            } 
+    		if((e.getPanel().size() > 0) && allMarkersCheckBox.isSelected() && (limitMarkers != e.getPanel().size())){
+                dataSetView.setMarkerPanel(e.getPanel());
+                updateBothTabs();
+    		}
+    		if(((e.getPanel().size() <= 0) || allMarkersCheckBox.isSelected()) && (limitMarkers > 0)) {
+            	dataSetView.useMarkerPanel(false);
+            	showAllMarkers = true;
+            	dataSetView.setMarkerPanel(null);
+            	limitMarkers = 0;
+            	markerModel.refresh();
+            	updateBothTabs();
+            }     		  
+    		if((e.getPanel().size() <= 0) && allMarkersCheckBox.isSelected()) {
+    			updateBothTabs();
+    		}
+    	}     	
     }
 
     /**
@@ -994,15 +1326,53 @@ public class ScatterPlot implements VisualPlugin {
      * @param e      the event.
      * @param source the source of the event (unused).
      */
-    @Subscribe public void receive(org.geworkbench.events.PhenotypeSelectorEvent e, Object source) {
+    @Subscribe public void receive(org.geworkbench.events.PhenotypeSelectorEvent e, Object source) {   
         if (e.getTaggedItemSetTree() != null) {
-            DSPanel activatedArrays = e.getTaggedItemSetTree().activeSubset();
-            dataSetView.setItemPanel(activatedArrays);
-            // expPanel = e.getTaggedItemSetTree();
-            microarrayModel.refresh();
-            // All marker charts must be updated
-        }
-        updateCharts(PlotType.MARKER);
+    		// TODO: Since the user selected subsets, first we need to remember which were the chosen arrays in the arrays tab before switching to the subset.
+        	
+            DSPanel<DSMicroarray> activatedArrays = e.getTaggedItemSetTree().activeSubset();
+            if((activatedArrays != null) && (activatedArrays.size() > 0) && !allArraysCheckBox.isSelected() && (limitArrays != activatedArrays.size())){
+            	ChartGroup group = chartGroups.get(PlotType.ARRAY);
+    			if(group.charts.size() > 0){
+    				ChartData cd = group.charts.get(0).chartData;
+    				String xlabel = cd.getXLabel();
+    				if(!isInMicroarrayPanel(activatedArrays, xlabel)){
+            			clearAllCharts(PlotType.ARRAY);
+            			group.xIndex = -1;
+            		} else {
+		            	for(int i = 0; i < group.charts.size(); i++){
+		            		cd = group.charts.get(i).chartData;
+		            		String ylabel = cd.getYLabel();
+		            		if(!isInMicroarrayPanel(activatedArrays, ylabel)){
+		            			group.charts.remove(i);
+		            			i--;
+		            		}
+		            	}
+            		}
+    			}
+            	dataSetView.useItemPanel(true);
+            	showAllArrays = false;
+	            dataSetView.setItemPanel(activatedArrays);
+	            limitArrays = dataSetView.getItemPanel().size();
+	            microarrayModel.refresh();
+	            updateBothTabs();
+            } 
+            if((activatedArrays != null) && (activatedArrays.size() > 0) && allArraysCheckBox.isSelected() && (limitArrays != activatedArrays.size())){
+            	dataSetView.setItemPanel(activatedArrays);
+            	updateBothTabs();
+            }
+            if((((activatedArrays != null) && (activatedArrays.size() <= 0)) || allArraysCheckBox.isSelected()) && (limitArrays > 0)){
+            	dataSetView.useItemPanel(false);
+            	showAllArrays = true;
+            	dataSetView.setItemPanel(null);
+            	limitArrays = 0;
+            	microarrayModel.refresh();
+            	updateBothTabs();
+            }    
+            if((activatedArrays != null) && (activatedArrays.size() <= 0) && allArraysCheckBox.isSelected()){
+            	updateBothTabs();
+            }
+        }        
     }
 
     /**
@@ -1045,23 +1415,43 @@ public class ScatterPlot implements VisualPlugin {
             packChartPanel(getActivePlotType());
         }
     }
+    
+    private DSGeneMarker findMarker(String label){
+    	DSItemList<DSGeneMarker> markers = dataSetView.getMicroarraySet().getMarkers();
+    	for(DSGeneMarker m: markers){
+    		if(StringUtils.equals(m.getLabel().trim(), label.trim())){
+    			return m;
+    		}
+    	}
+    	return null;
+    }
+    
+    private int findMarkerIndex(String label){
+    	DSItemList<DSGeneMarker> markers = dataSetView.getMicroarraySet().getMarkers();
+    	for(int i = 0; i < markers.size(); i++){
+    		if(StringUtils.equals(markers.get(i).getLabel().trim(), label.trim())){
+    			return i;
+    		}
+    	}
+    	return -1;
+    }
 
     /**
      * @todo Merge this method with {@link #createMicroarrayChart(int, int, org.geworkbench.components.plots.ScatterPlot.ChartData)} .
      */
     private JFreeChart createGeneChart(int marker1, int marker2, ChartData chartData) throws SeriesException {
+    	DSGeneMarker currentXMarker = null;
+    	DSGeneMarker currentYMarker = null;
+    	if(!StringUtils.isEmpty(chartData.getXLabel())) currentXMarker = findMarker(chartData.getXLabel());
+    	if(!StringUtils.isEmpty(chartData.getYLabel())) currentXMarker = findMarker(chartData.getYLabel());
         XYSeriesCollection plots = new XYSeriesCollection();
         ArrayList seriesList = new ArrayList();
         ArrayList<PanelVisualProperties> propertiesList = new ArrayList<PanelVisualProperties>();
         PanelVisualPropertiesManager propertiesManager = PanelVisualPropertiesManager.getInstance();
-        boolean showAll = allArraysCheckBox.isSelected();
-        dataSetView.useItemPanel(!showAll);
-        dataSetView.useMarkerPanel(!allMarkersCheckBox.isSelected());
 
         DSMicroarraySet<DSMicroarray> maSet = (DSMicroarraySet) dataSetView.getDataSet();
         boolean rankPlot = rankStatisticsCheckbox.isSelected();
         HashMap map = new HashMap();
-        //        int microarrayNo = maSet.size();
         int microarrayNo = dataSetView.getMicroarraySet().size();
 
         // First put all the gene pairs in the xyValues array
@@ -1070,19 +1460,22 @@ public class ScatterPlot implements VisualPlugin {
         for (int i = 0; i < microarrayNo; i++) {
             //            DSMicroarray ma = maSet.get(i);
             xyValues[i] = new org.geworkbench.util.pathwaydecoder.RankSorter();
-            xyValues[i].x = dataSetView.getMicroarraySet().getValue(marker1, i);
-            xyValues[i].y = dataSetView.getMicroarraySet().getValue(marker2, i);
-
+            if (dataSetView.useMarkerPanel() && (currentXMarker != null) && (currentYMarker != null) ){
+            	xyValues[i].x = dataSetView.getMicroarraySet().getValue(currentXMarker, i);
+            	xyValues[i].y = dataSetView.getMicroarraySet().getValue(currentYMarker, i);
+            }else{
+                xyValues[i].x = dataSetView.getMicroarraySet().getValue(marker1, i); 
+                xyValues[i].y = dataSetView.getMicroarraySet().getValue(marker2, i);            	
+            }
             xyValues[i].id = i;
-            //            map.put(new Integer(i), xyValues[i]);
             map.put(new Integer(dataSetView.getMicroarraySet().get(i).getSerial()), xyValues[i]);
         }
-        boolean panelsSelected = (dataSetView.getItemPanel().size() > 0) && (dataSetView.getItemPanel().getLabel().compareToIgnoreCase("Unsupervised") != 0) && (dataSetView.getItemPanel().panels().size() > 0);
-        if (dataSetView.getItemPanel().activeSubset().size() == 0) {
+        boolean panelsSelected = (dataSetView.getItemPanel() != null) && (dataSetView.getItemPanel().size() > 0) && (dataSetView.getItemPanel().getLabel().compareToIgnoreCase("Unsupervised") != 0) && (dataSetView.getItemPanel().panels().size() > 0);
+        if ((dataSetView.getItemPanel() != null) && (dataSetView.getItemPanel().activeSubset().size() == 0)) {
             panelsSelected = false;
-            showAll = true;
+            showAllArrays = true;
         }
-        if (rankPlot && !showAll) {
+        if (rankPlot && !showAllArrays) {
             // Must first activate all valid points
             if (panelsSelected) {
                 for (int pId = 0; pId < dataSetView.getItemPanel().panels().size(); pId++) {
@@ -1112,7 +1505,7 @@ public class ScatterPlot implements VisualPlugin {
         */
         Arrays.sort(xyValues, RankSorter.SORT_Y);
         for (int j = 0; j < xyValues.length; j++) {
-            if (showAll || xyValues[j].isActive() || xyValues[j].isFiltered()) {
+            if (showAllArrays || xyValues[j].isActive() || xyValues[j].isFiltered()) {
                 xyValues[j].iy = rank++;
             }
         }
@@ -1132,7 +1525,7 @@ public class ScatterPlot implements VisualPlugin {
         
         Arrays.sort(xyValues, org.geworkbench.util.pathwaydecoder.RankSorter.SORT_X);
         for (int j = 0; j < xyValues.length; j++) {
-            if (showAll || xyValues[j].isActive() || xyValues[j].isFiltered()) {
+            if (showAllArrays || xyValues[j].isActive() || xyValues[j].isFiltered()) {
                 xyValues[j].ix = rank++;
             }
         }
@@ -1181,7 +1574,7 @@ public class ScatterPlot implements VisualPlugin {
             }
         }
         // finally if all the others must be shown as well
-        if (showAll) {
+        if (showAllArrays) {
             ArrayList<RankSorter> list = new ArrayList<org.geworkbench.util.pathwaydecoder.RankSorter>();
             XYSeries series = new XYSeries(panelsUsed ? "Other" : "All");
             for (int serial = 0; serial < xyValues.length; serial++) {
@@ -1211,8 +1604,15 @@ public class ScatterPlot implements VisualPlugin {
         }
         String label1 = "";
         String label2 = "";
-        label1 = maSet.getMarkers().get(marker1).getLabel();
-        label2 = maSet.getMarkers().get(marker2).getLabel();
+		if (dataSetView.useMarkerPanel() && (currentXMarker != null) && (currentYMarker != null)){
+			label1 = currentXMarker.getLabel();
+			label2 = currentYMarker.getLabel();
+        }else{
+        	label1 = maSet.getMarkers().get(marker1).getLabel();
+        	label2 = maSet.getMarkers().get(marker2).getLabel();
+        }        
+        chartData.setXLabel(label1);
+        chartData.setYLabel(label2);
         JFreeChart mainChart = ChartFactory.createScatterPlot("", label1, label2, plots, PlotOrientation.VERTICAL, true, true, false); // Title, (, // X-Axis label,  Y-Axis label,  Dataset,  Show legend
         XYLineAnnotation annotation = chartGroups.get(PlotType.MARKER).lineAnnotation;
         if (annotation != null) {
@@ -1224,26 +1624,47 @@ public class ScatterPlot implements VisualPlugin {
         for (int i = 0; i < propertiesList.size(); i++) {
             PanelVisualProperties panelVisualProperties = propertiesList.get(i);
             // Note: "i+1" because we skip the default 'other' series.
-            int index = showAll ? i + 1 : i;
+            int index = showAllArrays ? i + 1 : i;
             renderer.setSeriesPaint(index, panelVisualProperties.getColor());
             renderer.setSeriesShape(index, panelVisualProperties.getShape());
-
         }
         mainChart.getXYPlot().setRenderer(renderer);
         //BufferedImage image = mainChart.createBufferedImage(width, height);
         //return image;
         return mainChart;
     }
+    
+    private DSMicroarray findMA(String label){
+    	DSMicroarraySet<DSMicroarray> maSet = (DSMicroarraySet) dataSetView.getDataSet();
+    	for(DSMicroarray ma: maSet){
+    		if(StringUtils.equals(ma.getLabel(), label))
+    			return ma;
+    	}
+    	return null;
+    }
+    
+    private int findMAIndex(String label){
+    	DSMicroarraySet<DSMicroarray> maSet = (DSMicroarraySet) dataSetView.getDataSet();
+    	for(int i = 0; i < maSet.size(); i++){
+    		if(StringUtils.equals(maSet.get(i).getLabel(), label))
+    			return i;
+    	}
+    	return -1;
+    }
 
     /**
      * @todo Merge this method with {@link #createGeneChart(int, int, org.geworkbench.components.plots.ScatterPlot.ChartData)} .
      */
     private JFreeChart createMicroarrayChart(int exp1, int exp2, ChartData chartData) throws SeriesException {
+    	DSMicroarray ma1 = null;
+        DSMicroarray ma2 = null;
+        if(!StringUtils.isEmpty(chartData.getXLabel())) ma1 = findMA(chartData.getXLabel());
+        if(!StringUtils.isEmpty(chartData.getYLabel())) ma2 = findMA(chartData.getYLabel());
         XYSeriesCollection plots = new XYSeriesCollection();
         ArrayList seriesList = new ArrayList();
         ArrayList<PanelVisualProperties> propertiesList = new ArrayList<PanelVisualProperties>();
         PanelVisualPropertiesManager propertiesManager = PanelVisualPropertiesManager.getInstance();
-        boolean showAll = allMarkersCheckBox.isSelected();
+        //boolean showAll = allMarkersCheckBox.isSelected();
         DSMicroarraySet<DSMicroarray> maSet = (DSMicroarraySet) dataSetView.getDataSet();
         boolean rankPlot = rankStatisticsCheckbox.isSelected();
         HashMap map = new HashMap();
@@ -1251,8 +1672,8 @@ public class ScatterPlot implements VisualPlugin {
         // First put all the gene pairs in the xyValues array
         RankSorter[] xyValues = new RankSorter[numMarkers];
         ArrayList<ArrayList<RankSorter>> xyPoints = new ArrayList<ArrayList<org.geworkbench.util.pathwaydecoder.RankSorter>>();
-        DSMicroarray ma1 = maSet.get(exp1);
-        DSMicroarray ma2 = maSet.get(exp2);
+      	ma1 = maSet.get(exp1);
+        ma2 = maSet.get(exp2);
         for (int i = 0; i < numMarkers; i++) {
             xyValues[i] = new RankSorter();
             xyValues[i].x = ma1.getMarkerValue(i).getValue();
@@ -1260,12 +1681,12 @@ public class ScatterPlot implements VisualPlugin {
             xyValues[i].id = i;
             map.put(new Integer(i), xyValues[i]);
         }
-        boolean panelsSelected = (dataSetView.getMarkerPanel().size() > 0) && (dataSetView.getMarkerPanel().getLabel().compareToIgnoreCase("Unsupervised") != 0) && (dataSetView.getMarkerPanel().panels().size() > 0);
-        if (dataSetView.getMarkerPanel().activeSubset().size() == 0) {
+        boolean panelsSelected = (dataSetView.getMarkerPanel() != null) && (dataSetView.getMarkerPanel().size() > 0) && (dataSetView.getMarkerPanel().getLabel().compareToIgnoreCase("Unsupervised") != 0) && (dataSetView.getMarkerPanel().panels().size() > 0);
+        if ((dataSetView.getMarkerPanel() != null) && (dataSetView.getMarkerPanel().activeSubset().size() == 0)) {
             panelsSelected = false;
-            showAll = true;
+            showAllMarkers = true;
         }
-        if (rankPlot && !showAll) {
+        if (rankPlot && !showAllMarkers) {
             // Must first activate all valid points
             if ((dataSetView.getMarkerPanel().size() > 0) && (dataSetView.getMarkerPanel().panels().size() > 0)) {
                 for (int pId = 0; pId < dataSetView.getMarkerPanel().panels().size(); pId++) {
@@ -1295,7 +1716,7 @@ public class ScatterPlot implements VisualPlugin {
         */
         Arrays.sort(xyValues, RankSorter.SORT_Y);
         for (int j = 0; j < xyValues.length; j++) {
-            if (showAll || xyValues[j].isActive() || xyValues[j].isFiltered()) {
+            if (showAllMarkers || xyValues[j].isActive() || xyValues[j].isFiltered()) {
                 xyValues[j].iy = rank++;
             }
         }
@@ -1314,7 +1735,7 @@ public class ScatterPlot implements VisualPlugin {
         */
         Arrays.sort(xyValues, RankSorter.SORT_X);
         for (int j = 0; j < xyValues.length; j++) {
-            if (showAll || xyValues[j].isActive() || xyValues[j].isFiltered()) {
+            if (showAllMarkers || xyValues[j].isActive() || xyValues[j].isFiltered()) {
                 xyValues[j].ix = rank++;
             }
         }
@@ -1364,7 +1785,7 @@ public class ScatterPlot implements VisualPlugin {
             }
         }
         // finally if all the others must be shown as well
-        if (showAll) {
+        if (showAllMarkers) {
             ArrayList<RankSorter> list = new ArrayList<org.geworkbench.util.pathwaydecoder.RankSorter>();
             XYSeries series = new XYSeries(panelsUsed ? "Other" : "All");
             for (int serial = 0; serial < xyValues.length; serial++) {
@@ -1396,6 +1817,8 @@ public class ScatterPlot implements VisualPlugin {
         String label2 = "";
         label1 = ma1.getLabel();
         label2 = ma2.getLabel();
+        chartData.setXLabel(label1);
+        chartData.setYLabel(label2);
         JFreeChart mainChart = ChartFactory.createScatterPlot("", label1, label2, plots, PlotOrientation.VERTICAL, true, true, false); // Title, (, // X-Axis label,  Y-Axis label,  Dataset,  Show legend
         XYLineAnnotation annotation = chartGroups.get(PlotType.ARRAY).lineAnnotation;
         if (annotation != null) {
@@ -1407,7 +1830,7 @@ public class ScatterPlot implements VisualPlugin {
         for (int i = 0; i < propertiesList.size(); i++) {
             PanelVisualProperties panelVisualProperties = propertiesList.get(i);
             // Note: "i+1" because we skip the default 'other' series.
-            int index = showAll ? i + 1 : i;
+            int index = showAllMarkers ? i + 1 : i;
             renderer.setSeriesPaint(index, panelVisualProperties.getColor());
             renderer.setSeriesShape(index, panelVisualProperties.getShape());
         }
@@ -1423,6 +1846,22 @@ public class ScatterPlot implements VisualPlugin {
 
     @Publish public PhenotypeSelectedEvent publishPhenotypeSelectedEvent(PhenotypeSelectedEvent event) {
         return event;
+    }
+    
+    private boolean isInMicroarrayPanel(DSPanel<DSMicroarray> mas, String label){
+    	for(DSMicroarray ma: mas){
+    		if(StringUtils.equals(ma.getLabel().trim(), label.trim())) 
+    			return true;
+    	}
+    	return false;
+    }
+    
+    private boolean isInMarkerPanel(DSPanel<DSGeneMarker> markers, String label){
+    	for(DSGeneMarker m: markers){
+    		if(StringUtils.equals(m.getLabel().trim(), label.trim())) 
+    			return true;
+    	}
+    	return false;
     }
 
 }
