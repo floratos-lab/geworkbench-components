@@ -309,27 +309,31 @@ public class ScatterPlot implements VisualPlugin {
         @Override
         public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
             JLabel label = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);    //To change body of overridden methods use File | Settings | File Templates.
-            Chart chart;
+            String labelToMatch = label.getText().trim();
             ChartGroup group;
-            // See if there is chart for this item
             if (list == microarrayList.getList()) {
                 group = chartGroups.get(PlotType.ARRAY);
-                chart = getChartForTypeAndIndex(PlotType.ARRAY, index);
             } else {
                 group = chartGroups.get(PlotType.MARKER);
-                chart = getChartForTypeAndIndex(PlotType.MARKER, index);
             }
-            if (chart != null) {
-                // Color the label to indicate that there is a chart.
-                label.setBackground(Color.LIGHT_GRAY);
-            } else {
-                // Check for the cell being on the x-axis
-                if (group.xIndex == index) {
-                    // Color the label to indicate that it is on the x-axis of the chart.
+            if(group.charts.size() > 0){
+            	// Check for x-axis
+            	String xLabel = group.charts.get(0).chartData.getXLabel().trim();
+            	if(labelToMatch.trim().startsWith(xLabel)){
+            		// Color the label to indicate that it is on the x-axis of the chart.
                     label.setBackground(Color.BLACK);
                     label.setForeground(Color.WHITE);
-                }
-            }
+            	} else {            	
+	            	// Check for y-axis
+	            	for(Chart c: group.charts){
+	            		String yLabel = c.chartData.getYLabel().trim();
+	            		if(labelToMatch.trim().startsWith(yLabel)){
+	            			// Color the label to indicate that there is a chart.
+	                        label.setBackground(Color.LIGHT_GRAY);
+	            		}
+	            	}                   
+            	}
+            }               
             return label;
         }
     }
@@ -645,7 +649,6 @@ public class ScatterPlot implements VisualPlugin {
         JMenuItem clearAllItem = new JMenuItem("Clear All", 'A');
         popupMenu.add(clearAllItem);
         //// Add behavior
-        // TODO: integrate new indexing scheme
         allMarkersCheckBox.addItemListener(new ItemListener() {
             public void itemStateChanged(ItemEvent e) {
                 if (e.getStateChange() == ItemEvent.DESELECTED) {
@@ -666,7 +669,6 @@ public class ScatterPlot implements VisualPlugin {
                 updateBothTabs();                
             }
         });
-        // TODO: integrate new indexing scheme
         allArraysCheckBox.addItemListener(new ItemListener() {
             public void itemStateChanged(ItemEvent e) {
                 if (e.getStateChange() == ItemEvent.DESELECTED) {
@@ -1048,11 +1050,8 @@ public class ScatterPlot implements VisualPlugin {
     }
     
     private void updateBothTabs(){
-    	// TODO: highlighting is not in sync
-    	//microarrayList.clearSelections();
-        //markerList.clearSelections();
-    	microarrayList.repaint();
-    	markerList.repaint();
+    	microarrayList.clearSelections();
+        markerList.clearSelections();
     	
         if (tabbedPane.getSelectedIndex() == TAB_ARRAY) {
         	updateCharts(PlotType.ARRAY);
@@ -1097,127 +1096,6 @@ public class ScatterPlot implements VisualPlugin {
             }
         }
     }
-    
-    /*
-    private void updateChartIndices(PlotType type, boolean toSubset){
-    	ChartGroup group = chartGroups.get(type);        
-        if (type == PlotType.ARRAY) {
-        	if(toSubset){
-        		DSPanel<DSMicroarray> subsetMA = dataSetView.getItemPanel();
-        		if(group.charts.size() > 0){
-        			String xLabel = group.charts.get(0).chartData.getXLabel();
-        			int newIndex = indexOfMA(subsetMA, xLabel);        			
-        			if(newIndex >= 0){
-        				group.xIndex = newIndex;
-		        		for (int i = 0; i < group.charts.size(); i++) {
-		                    Chart chart = group.charts.get(i);	                    
-		                    String yLabel = chart.chartData.getYLabel();
-		                    newIndex = indexOfMA(subsetMA, yLabel);
-		                    if(newIndex >= 0) chart.index = newIndex;
-		                    else {
-		                    	group.charts.remove(chart);
-		                    	i--;
-		                    }
-		        		}
-        			} else {
-        				group.charts = new ArrayList<Chart>();
-        			}
-        		}
-        	} else {
-        		DSMicroarraySet<DSMicroarray> allMA = (DSMicroarraySet) dataSetView.getDataSet();
-        		if(group.charts.size() > 0){
-        			String xLabel = group.charts.get(0).chartData.getXLabel();
-        			int newIndex = indexOfMA(allMA, xLabel);        			
-        			if(newIndex >= 0){
-        				group.xIndex = newIndex;
-		        		for (int i = 0; i < group.charts.size(); i++) {
-		                    Chart chart = group.charts.get(i);	                    
-		                    String yLabel = chart.chartData.getYLabel();
-		                    newIndex = indexOfMA(allMA, yLabel);
-		                    if(newIndex >= 0) chart.index = newIndex;
-		                    else {
-		                    	group.charts.remove(chart);
-		                    	i--;
-		                    }
-		        		}
-        			} else {
-        				group.charts = new ArrayList<Chart>();
-        			}
-        		}
-        	}
-        } else {
-        	if(toSubset){
-        		DSPanel<DSGeneMarker> subsetMarkers = dataSetView.getMarkerPanel();
-        		if(group.charts.size() > 0){
-        			String xLabel = group.charts.get(0).chartData.getXLabel();
-        			int newIndex = indexOfMarker(subsetMarkers, xLabel);        			
-        			if(newIndex >= 0){
-        				group.xIndex = newIndex;
-		        		for (int i = 0; i < group.charts.size(); i++) {
-		                    Chart chart = group.charts.get(i);	                    
-		                    String yLabel = chart.chartData.getYLabel();
-		                    newIndex = indexOfMarker(subsetMarkers, yLabel);
-		                    if(newIndex >= 0) chart.index = newIndex;
-		                    else {
-		                    	group.charts.remove(chart);
-		                    	i--;
-		                    }
-		        		}
-        			} else {
-        				group.charts = new ArrayList<Chart>();
-        			}
-        		}
-        	} else {
-        		DSItemList<DSGeneMarker> allMarkers = dataSetView.getMicroarraySet().getMarkers();
-        		if(group.charts.size() > 0){
-        			String xLabel = group.charts.get(0).chartData.getXLabel();
-        			int newIndex = indexOfMarker(allMarkers, xLabel);        			
-        			if(newIndex >= 0){
-        				group.xIndex = newIndex;
-		        		for (int i = 0; i < group.charts.size(); i++) {
-		                    Chart chart = group.charts.get(i);	                    
-		                    String yLabel = chart.chartData.getYLabel();
-		                    newIndex = indexOfMarker(allMarkers, yLabel);
-		                    if(newIndex >= 0) chart.index = newIndex;
-		                    else {
-		                    	group.charts.remove(chart);
-		                    	i--;
-		                    }
-		        		}
-        			} else {
-        				group.charts = new ArrayList<Chart>();
-        			}
-        		}
-        	}
-        }        
-    }
-    
-    private int indexOfMarker(DSItemList<DSGeneMarker> markers, String label){
-    	for(int i = 0; i < markers.size(); i++){
-    		if(StringUtils.equals(markers.get(i).getShortName(), label)){
-    			return i;
-    		}
-    	}
-    	return -1;
-    }
-    
-    private int indexOfMA(DSPanel<DSMicroarray> ma, String label){
-    	for(int i = 0; i < ma.size(); i++){
-    		if(StringUtils.equals(ma.get(i).getLabel(), label)){
-    			return i;
-    		}
-    	}
-    	return -1;
-    }
-    
-    private int indexOfMA(DSMicroarraySet<DSMicroarray> maSet, String label){
-    	for(int i = 0; i < maSet.size(); i++){
-    		if(StringUtils.equals(maSet.get(i).getLabel(), label)){
-    			return i;
-    		}
-    	}
-    	return -1;
-    }*/
 
     /**
      * Makes the chart fit in with the background color of the application.
@@ -1273,8 +1151,6 @@ public class ScatterPlot implements VisualPlugin {
      */
     @Subscribe public void receive(org.geworkbench.events.GeneSelectorEvent e, Object source) {
     	if(e.getPanel() != null){    		
-    		// TODO: Since the user selected subsets, first we need to remember which were the chosen markers in the markers tab before switching to the subset.
-    		
     		if ((e.getPanel().size() > 0) && !allMarkersCheckBox.isSelected() && (limitMarkers != e.getPanel().size())){ 
     			ChartGroup group = chartGroups.get(PlotType.MARKER);
     			if(group.charts.size() > 0){
@@ -1328,9 +1204,7 @@ public class ScatterPlot implements VisualPlugin {
      */
     @Subscribe public void receive(org.geworkbench.events.PhenotypeSelectorEvent e, Object source) {   
         if (e.getTaggedItemSetTree() != null) {
-    		// TODO: Since the user selected subsets, first we need to remember which were the chosen arrays in the arrays tab before switching to the subset.
-        	
-            DSPanel<DSMicroarray> activatedArrays = e.getTaggedItemSetTree().activeSubset();
+    		DSPanel<DSMicroarray> activatedArrays = e.getTaggedItemSetTree().activeSubset();
             if((activatedArrays != null) && (activatedArrays.size() > 0) && !allArraysCheckBox.isSelected() && (limitArrays != activatedArrays.size())){
             	ChartGroup group = chartGroups.get(PlotType.ARRAY);
     			if(group.charts.size() > 0){
