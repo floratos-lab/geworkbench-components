@@ -93,9 +93,11 @@ public class GenePanel extends SelectorPanel<DSGeneMarker> {
 		super(DSGeneMarker.class, "Marker");
 		tagEventEnabled = true;
 		// Add gene panel specific menu items.
+		treePopup.insert(newPanelItem2, 4);
 		treePopup.add(savePanelItem);
 		treePopup.add(tagPanelItem);
 		rootPopup.add(loadPanelItem);
+		rootPopup.add(newPanelItem);
 		savePanelItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				saveButtonPressed(rightClickedPath);
@@ -120,6 +122,16 @@ public class GenePanel extends SelectorPanel<DSGeneMarker> {
 		loadPanelItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				loadButtonPressed();
+			}
+		});
+		newPanelItem.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				createNewSubset();
+			}
+		});
+		newPanelItem2.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				createNewSubset();
 			}
 		});
 		// Load button at bottom of component
@@ -150,6 +162,8 @@ public class GenePanel extends SelectorPanel<DSGeneMarker> {
 	private JMenuItem loadPanelItem = new JMenuItem("Load Set");
 	private JMenuItem exportPanelItem = new JMenuItem("Export");
 	private JMenuItem tagPanelItem = new JMenuItem("Tag for visualization");
+	private JMenuItem newPanelItem = new JMenuItem("New Set");
+	private JMenuItem newPanelItem2 = new JMenuItem("New Set");
 
 	private void saveButtonPressed(TreePath path) {
 		String[] labels = getSelectedTreesFromTree();
@@ -205,6 +219,22 @@ public class GenePanel extends SelectorPanel<DSGeneMarker> {
 			lastDir = fc.getSelectedFile().getPath();
 			DSPanel<DSGeneMarker> panel = deserializePanel(fc.getSelectedFile());
 			addPanel(panel);
+			throwLabelEvent();
+		}
+	}
+	
+	private void createNewSubset() {
+		String label = JOptionPane.showInputDialog("Set Label:",
+				"");
+		if (label == null) {
+			return;
+		} else {
+			if (context.indexOfLabel(label) == -1) {
+				addPanel(new CSPanel(label));
+			}
+			panelTree.scrollPathToVisible(new TreePath(new Object[] {
+					context, label }));
+			treeModel.fireLabelItemsChanged(label);
 			throwLabelEvent();
 		}
 	}
