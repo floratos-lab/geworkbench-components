@@ -652,7 +652,7 @@ public class ScatterPlot implements VisualPlugin {
         allMarkersCheckBox.addItemListener(new ItemListener() {
             public void itemStateChanged(ItemEvent e) {
                 if (e.getStateChange() == ItemEvent.DESELECTED) {
-                	if((limitMarkers == 0) && (dataSetView.getMarkerPanel().size() > 0)){
+                	if((limitMarkers == 0) && (dataSetView.getMarkerPanel() != null) && (dataSetView.getMarkerPanel().size() > 0)){
                 		dataSetView.useMarkerPanel(true);
                 		showAllMarkers = false;
                 		limitMarkers = dataSetView.getMarkerPanel().size();
