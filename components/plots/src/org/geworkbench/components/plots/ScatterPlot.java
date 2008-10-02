@@ -952,13 +952,32 @@ public class ScatterPlot implements VisualPlugin {
     }
 
     private void setNewXAxis(PlotType type, int xIndex) {
-        ChartGroup group = chartGroups.get(type);
-        group.xIndex = xIndex;
+    	String clickedLabel = "";
+    	ChartGroup group = chartGroups.get(type);
+    	if(type == PlotType.ARRAY){
+    		Object o = this.microarrayModel.getElementAt(xIndex);
+    		if(o != null){
+    			clickedLabel = (String) o;
+    		}
+    	} else {
+    		Object o = this.markerModel.getElementAt(xIndex);
+    		if(o != null){
+    			clickedLabel = ((DSGeneMarker) o).getLabel();
+    		}
+    	}
+    	if(StringUtils.isEmpty(clickedLabel)){
+    		return;
+    	}
+    	if(type == PlotType.ARRAY){
+    		group.xIndex = this.findMAIndex(clickedLabel);
+    	} else {
+    		group.xIndex = this.findMarkerIndex(clickedLabel);
+    	}
         Iterator<Chart> chartIterator = group.charts.iterator();
         boolean chartRemoved = false;
         while (chartIterator.hasNext()) {
             Chart chart = chartIterator.next();
-            if (chart.index == xIndex) {
+            if (chart.index == group.xIndex) {
                 chartIterator.remove();
                 chartRemoved = true;
                 break;
@@ -982,27 +1001,42 @@ public class ScatterPlot implements VisualPlugin {
      * @param index the index of the item.
      */
     private void itemClicked(PlotType type, int index) {
+    	String clickedLabel = "";
+    	if(type == PlotType.ARRAY){
+    		Object o = this.microarrayModel.getElementAt(index);
+    		if(o != null){
+    			clickedLabel = (String) o;
+    		}
+    	} else {
+    		Object o = this.markerModel.getElementAt(index);
+    		if(o != null){
+    			clickedLabel = ((DSGeneMarker) o).getLabel();
+    		}
+    	}
+    	if(StringUtils.isEmpty(clickedLabel)){
+    		return;
+    	}
     	ChartGroup group = chartGroups.get(type);
         if (group.xIndex == -1) {
             // This item goes on the x-axis.
         	if (type == PlotType.ARRAY) {
-            	Object o = this.microarrayModel.getElementAt(index);
-        		if(o != null){
-        			group.xIndex = findMAIndex((String)o);
-        		}
+        		group.xIndex = findMAIndex(clickedLabel);
             } else {
-            	Object o = this.markerModel.getElementAt(index);
-        		if(o != null){
-        			group.xIndex = findMarkerIndex(((DSGeneMarker) o).getLabel());
-        		}
+        		group.xIndex = findMarkerIndex(clickedLabel);
             }
-            //group.xIndex = index;
         } else {
-            if (index == group.xIndex) {
+        	int currentIndex = -1;
+        	if (type == PlotType.ARRAY) {
+        		currentIndex = findMAIndex(clickedLabel);
+            } else {
+            	currentIndex = findMarkerIndex(clickedLabel);
+            }
+            if ((currentIndex >= 0) && (currentIndex == group.xIndex)) {
                 // Clicked on the x-axis item-- ignore.
             } else {
                 // Is it already plotted on the y-axis?
-                Chart existing = getChartForTypeAndIndex(type, index);
+                Chart existing = null;
+                if(currentIndex >= 0) existing = getChartForTypeAndIndex(type, currentIndex);
                 if (existing == null) {
                     // Put item on the y-axis.
                     // Already reach maximum plots? Replace the oldest one.
@@ -1017,16 +1051,10 @@ public class ScatterPlot implements VisualPlugin {
                     group.charts.add(attributes);
                     JFreeChart chart;
                     if (type == PlotType.ARRAY) {
-                    	Object o = this.microarrayModel.getElementAt(index);
-                		if(o != null){
-                			attributes.index = findMAIndex((String)o);
-                		}
+                		attributes.index = findMAIndex(clickedLabel);
                         chart = createMicroarrayChart(group.xIndex, attributes.index, attributes.chartData);
                     } else {
-                    	Object o = this.markerModel.getElementAt(index);
-                		if(o != null){
-                			attributes.index = findMarkerIndex(((DSGeneMarker) o).getLabel());
-                		}
+                		attributes.index = findMarkerIndex(clickedLabel);
                         chart = createGeneChart(group.xIndex, attributes.index, attributes.chartData);
                     }
                     if (attributes.panel == null) {
