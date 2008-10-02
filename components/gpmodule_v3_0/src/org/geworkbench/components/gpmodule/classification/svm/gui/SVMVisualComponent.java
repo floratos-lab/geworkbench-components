@@ -14,6 +14,7 @@ package org.geworkbench.components.gpmodule.classification.svm.gui;
 import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.engine.management.AcceptTypes;
 import org.geworkbench.engine.management.Subscribe;
+import org.geworkbench.engine.management.Publish;
 import org.geworkbench.events.ProjectEvent;
 
 import javax.swing.*;
@@ -109,7 +110,7 @@ public class SVMVisualComponent implements VisualPlugin
         {
             component.removeAll();
 
-            svmVPanel = new SVMVisualizationPanel((SVMClassifier)e.getDataSet());
+            svmVPanel = new SVMVisualizationPanel((SVMClassifier)e.getDataSet(), this);
             svmVPanel.setBorder(BorderFactory.createEmptyBorder());
 
             component.add(svmVPanel);
@@ -123,4 +124,11 @@ public class SVMVisualComponent implements VisualPlugin
             microarraySets.put(dataSet.getDataSetName(),dataSet);
 		}
     }
+
+    @Publish
+    public org.geworkbench.events.SubpanelChangedEvent publishSubpanelChangedEvent(org.geworkbench.events.SubpanelChangedEvent event)
+    {
+        return event;
+    }
+
 }
