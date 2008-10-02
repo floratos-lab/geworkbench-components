@@ -231,6 +231,12 @@ public class GenePanel extends SelectorPanel<DSGeneMarker> {
 		} else {
 			if (context.indexOfLabel(label) == -1) {
 				addPanel(new CSPanel(label));
+			} else {
+				JOptionPane.showMessageDialog(null,
+					    "Label already in use.",
+					    "Warning",
+					    JOptionPane.WARNING_MESSAGE);
+				return;
 			}
 			panelTree.scrollPathToVisible(new TreePath(new Object[] {
 					context, label }));
