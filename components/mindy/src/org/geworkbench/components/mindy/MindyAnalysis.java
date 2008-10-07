@@ -28,6 +28,7 @@ import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
 import org.geworkbench.bison.model.analysis.ClusteringAnalysis;
 import org.geworkbench.bison.model.analysis.ParamValidationResults;
 import org.geworkbench.builtin.projects.ProjectPanel;
+import org.geworkbench.engine.management.Asynchronous;
 import org.geworkbench.engine.management.Publish;
 import org.geworkbench.engine.management.Subscribe;
 import org.geworkbench.events.GeneSelectorEvent;
@@ -246,7 +247,7 @@ public class MindyAnalysis extends AbstractGridAnalysis implements
 			subsetThreshold = subsetThreshold / numMarkers;
 		}
 
-		paramDescB.append("Conditional:\t\t");
+		paramDescB.append("Conditional (MINDY):\t");
 		paramDescB.append(params.getConditional());
 		paramDescB.append(" at ");
 		paramDescB.append(params.getConditionalValue());
@@ -254,7 +255,7 @@ public class MindyAnalysis extends AbstractGridAnalysis implements
 		paramDescB.append(params.getConditionalCorrection());
 		paramDescB.append("\n");
 
-		paramDescB.append("Unconditional:\t");
+		paramDescB.append("Unconditional (ARACNE):\t");
 		paramDescB.append(params.getUnconditional());
 		paramDescB.append(" at ");
 		paramDescB.append(params.getUnconditionalValue());
@@ -345,6 +346,12 @@ public class MindyAnalysis extends AbstractGridAnalysis implements
 		if (marker != null) { // so added this check point--xuegong
 			paramPanel.setTranscriptionFactor(marker.getLabel());
 		}
+
+		if (e.getPanel() != null)
+			paramPanel.setSelectorPanel(e.getPanel());
+		else
+			log
+					.debug("Received Gene Selector Event: Selection panel sent was null");
 	}
 
 	@Subscribe
@@ -721,5 +728,4 @@ public class MindyAnalysis extends AbstractGridAnalysis implements
 
 		return new ParamValidationResults(true,"No Error");
 	}
-
 }
