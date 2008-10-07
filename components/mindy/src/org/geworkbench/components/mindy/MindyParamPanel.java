@@ -12,6 +12,7 @@ import java.io.ObjectStreamException;
 import java.io.Serializable;
 import java.util.ArrayList;
 
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
@@ -23,10 +24,14 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.SpinnerNumberModel;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.analysis.AbstractSaveableParameterPanel;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
+import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
+import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
+import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.util.ValidationUtils;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
@@ -45,6 +50,12 @@ public class MindyParamPanel extends AbstractSaveableParameterPanel implements
 
 	static Log log = LogFactory.getLog(MindyParamPanel.class);
 
+	private static final String FROM_ALL = "All Markers";
+
+	private static final String FROM_FILE = "From File";
+
+	private static final String FROM_SETS = "From Set";
+
 	public static final String P_VALUE = "P-Value";
 
 	public static final String MI = "Mutual Info";
@@ -52,6 +63,13 @@ public class MindyParamPanel extends AbstractSaveableParameterPanel implements
 	public static final String NONE = "None";
 
 	public static final String BONFERRONI = "Bonferroni";
+
+	private static final String[] MOD_FROM = { FROM_FILE, FROM_SETS };
+
+	private static final String[] TARGET_FROM = { FROM_ALL, FROM_FILE,
+			FROM_SETS };
+
+	private static final String[] DEFAULT_SET = {" "};
 
 	private static final String[] CONDITIONAL_UNCONDITIONAL = { P_VALUE, MI };
 
@@ -61,9 +79,9 @@ public class MindyParamPanel extends AbstractSaveableParameterPanel implements
 	private static final String[] CORRECTIONS = { NONE, BONFERRONI };
 
 	private static final String DEFAULT_THRESHOLD_VALUE = CONDITIONAL_UNCONDITIONAL_DEFAULT_VALUES[0];
-	
+
 	private static final int MAX_ERROR_MESSAGE_LENGTH = 100;
-	
+
 	private static final String DEFAULT_ERROR_MESSAGE_MARKER = "Please use a valid marker file.";
 
 	private JButton loadModulatorsFile = new JButton("Load");
@@ -80,6 +98,16 @@ public class MindyParamPanel extends AbstractSaveableParameterPanel implements
 	private String targetFile = "data/mindy/candidate_target.lst";
 
 	private String dpiAnnotationFile = "data/mindy/transcription_factor.lst";
+
+	private JComboBox modulatorsFrom = new JComboBox(MOD_FROM);
+
+	private JComboBox modulatorsSets = new JComboBox(new DefaultComboBoxModel(
+			DEFAULT_SET));
+
+	private JComboBox targetsFrom = new JComboBox(TARGET_FROM);
+
+	private JComboBox targetsSets = new JComboBox(new DefaultComboBoxModel(
+			DEFAULT_SET));
 
 	private JTextField modulatorList = new JTextField("");
 
@@ -113,6 +141,8 @@ public class MindyParamPanel extends AbstractSaveableParameterPanel implements
 
 	private DSDataSet dataSet;
 
+	private static DSPanel<DSGeneMarker> selectorPanel;
+
 	/**
 	 * Constructor. Creates the parameter panel GUI.
 	 * 
@@ -140,22 +170,106 @@ public class MindyParamPanel extends AbstractSaveableParameterPanel implements
 	}
 
 	private JPanel initMainPanel() {
+		modulatorsFrom.setSelectedIndex(0);
+		modulatorsSets.setSelectedIndex(0);
+		modulatorsSets.setEditable(false);
+		modulatorsSets.setEnabled(false);
+		targetsFrom.setSelectedIndex(0);
+		targetsSets.setSelectedIndex(0);
+		targetsSets.setEditable(false);
+		targetsSets.setEnabled(false);
+		targetList.setEditable(false);
+		targetList.setEnabled(false);
+		loadTargetsFile.setEnabled(false);
+
 		JPanel result = new JPanel(new BorderLayout());
 		FormLayout layout = new FormLayout(
-				"right:max(40dlu;pref), 3dlu, 40dlu, 7dlu, right:max(40dlu;pref), 3dlu, 40dlu, 7dlu",
-				"");
+				"left:max(100dlu;pref), 10dlu, 100dlu, 10dlu, "
+						+ "100dlu, 10dlu, 100dlu, 10dlu, 100dlu", "");
 		DefaultFormBuilder builder = new DefaultFormBuilder(layout);
 		builder.setDefaultDialogBorder();
 		builder.appendSeparator("MINDY Main Parameters");
-		builder.append("Modulators List", modulatorList, 3);
+		builder.append("Modulators List");
+		builder.append(modulatorsFrom);
+		builder.append(modulatorsSets);
+		builder.append(modulatorList);
 		builder.append(loadModulatorsFile);
+		builder.nextLine();
 
-		builder.append("Target List", targetList, 3);
+		builder.append("Target List");
+		builder.append(targetsFrom);
+		builder.append(targetsSets);
+		builder.append(targetList);
 		builder.append(loadTargetsFile);
+		builder.nextLine();
 
 		builder.append("Hub Marker", transcriptionFactor);
-		builder.nextRow();
 		result.add(builder.getPanel());
+
+		modulatorsFrom.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent actionEvent) {
+				String selected = (String) modulatorsFrom.getSelectedItem();
+				if (StringUtils.equals(selected, FROM_FILE)) {
+					modulatorsSets.setSelectedIndex(0);
+					modulatorsSets.setEnabled(false);
+					modulatorList.setText("");
+					loadModulatorsFile.setEnabled(true);
+				} else {
+					modulatorsSets.setEnabled(true);
+					modulatorList.setText("");
+					loadModulatorsFile.setEnabled(false);
+				}
+			}
+		});
+
+		targetsFrom.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent actionEvent) {
+				String selected = (String) targetsFrom.getSelectedItem();
+				if (StringUtils.equals(selected, FROM_ALL)) {
+					targetsSets.setEnabled(false);
+					targetList.setText("");
+					targetList.setEditable(false);
+					targetList.setEnabled(false);
+					loadTargetsFile.setEnabled(false);
+				} else if (StringUtils.equals(selected, FROM_FILE)) {
+					targetsSets.setSelectedIndex(0);
+					targetsSets.setEnabled(false);
+					targetList.setText("");
+					targetList.setEditable(true);
+					targetList.setEnabled(true);
+					loadTargetsFile.setEnabled(true);
+				} else {
+					targetsSets.setEnabled(true);
+					targetList.setText("");
+					targetList.setEditable(true);
+					targetList.setEnabled(true);
+					loadTargetsFile.setEnabled(false);
+				}
+			}
+		});
+
+		modulatorsSets.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent actionEvent) {
+				String selectedLabel = (String) modulatorsSets
+						.getSelectedItem();
+				if (!StringUtils.isEmpty(selectedLabel))
+					if (!chooseMarkersFromSet(selectedLabel, modulatorList)) {
+						modulatorsSets.setSelectedIndex(0);
+						modulatorList.setText("");
+					}
+			}
+		});
+
+		targetsSets.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent actionEvent) {
+				String selectedLabel = (String) targetsSets.getSelectedItem();
+				if (!StringUtils.isEmpty(selectedLabel))
+					if (!chooseMarkersFromSet(selectedLabel, targetList)) {
+						targetsSets.setSelectedIndex(0);
+						targetList.setText("");
+					}
+			}
+		});
 
 		loadModulatorsFile.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent actionEvent) {
@@ -189,7 +303,7 @@ public class MindyParamPanel extends AbstractSaveableParameterPanel implements
 							modulatorList.setText(s);
 						else {
 							String msg = ValidationUtils.getErrorMessage();
-							if(msg.length() > MAX_ERROR_MESSAGE_LENGTH)
+							if (msg.length() > MAX_ERROR_MESSAGE_LENGTH)
 								msg = DEFAULT_ERROR_MESSAGE_MARKER;
 							JOptionPane.showMessageDialog(null, msg,
 									"Parameter and Input Validation Error",
@@ -235,7 +349,7 @@ public class MindyParamPanel extends AbstractSaveableParameterPanel implements
 							targetList.setText(s);
 						else {
 							String msg = ValidationUtils.getErrorMessage();
-							if(msg.length() > MAX_ERROR_MESSAGE_LENGTH)
+							if (msg.length() > MAX_ERROR_MESSAGE_LENGTH)
 								msg = DEFAULT_ERROR_MESSAGE_MARKER;
 							JOptionPane.showMessageDialog(null, msg,
 									"Parameter and Input Validation Error",
@@ -256,7 +370,7 @@ public class MindyParamPanel extends AbstractSaveableParameterPanel implements
 	private JPanel initAdvancedPanel() {
 		JPanel result = new JPanel(new BorderLayout());
 		FormLayout layout = new FormLayout(
-				"right:max(100dlu;pref), 3dlu, 40dlu, 7dlu, "
+				"left:max(100dlu;pref), 3dlu, 40dlu, 7dlu, "
 						+ "right:max(40dlu;pref), 3dlu, 40dlu, 7dlu, "
 						+ "right:max(100dlu;pref), 3dlu, 40dlu, 7dlu, "
 						+ "right:max(40dlu;pref), 3dlu, 40dlu, 7dlu", "");
@@ -268,12 +382,12 @@ public class MindyParamPanel extends AbstractSaveableParameterPanel implements
 		builder.append("", new JLabel(""));
 		builder.append("", new JLabel(""));
 
-		builder.append("Conditional", this.conditionalCombo, 3);
+		builder.append("Conditional (MINDY)", this.conditionalCombo, 3);
 		builder.append(this.conditional);
 		builder.append("Correction", this.conditionalCorrection, 3);
 		builder.append(new JLabel(""));
 
-		builder.append("Unconditional", this.unconditionalCombo, 3);
+		builder.append("Unconditional (ARACNE)", this.unconditionalCombo, 3);
 		builder.append(this.unconditional);
 		builder.append("Correction", this.unconditionalCorrection, 3);
 		builder.append(new JLabel(""));
@@ -357,7 +471,7 @@ public class MindyParamPanel extends AbstractSaveableParameterPanel implements
 							dpiAnnotationList.setText(s);
 						else {
 							String msg = ValidationUtils.getErrorMessage();
-							if(msg.length() > MAX_ERROR_MESSAGE_LENGTH)
+							if (msg.length() > MAX_ERROR_MESSAGE_LENGTH)
 								msg = DEFAULT_ERROR_MESSAGE_MARKER;
 							JOptionPane.showMessageDialog(null, msg,
 									"Parameter and Input Validation Error",
@@ -504,8 +618,86 @@ public class MindyParamPanel extends AbstractSaveableParameterPanel implements
 		return geneList;
 	}
 
+	void setSelectorPanel(DSPanel<DSGeneMarker> ap) {
+		String currentModSet = (String) modulatorsSets.getSelectedItem();
+		String currentTargetSet = (String) targetsSets.getSelectedItem();
+		selectorPanel = ap;
+		DefaultComboBoxModel modComboModel = (DefaultComboBoxModel) this.modulatorsSets
+				.getModel();
+		modComboModel.removeAllElements();
+		modComboModel.addElement(" ");
+		DefaultComboBoxModel targetComboModel = (DefaultComboBoxModel) this.targetsSets
+				.getModel();
+		targetComboModel.removeAllElements();
+		targetComboModel.addElement(" ");
+		for (DSPanel<DSGeneMarker> panel : selectorPanel.panels()) {
+			String label = panel.getLabel().trim();
+			modComboModel.addElement(label);
+			if (StringUtils.equals(label, currentModSet.trim()))
+				modComboModel.setSelectedItem(label);
+			targetComboModel.addElement(label);
+			if (StringUtils.equals(label, currentTargetSet.trim()))
+				targetComboModel.setSelectedItem(label);
+		}
+		/*
+		if (StringUtils.isEmpty((String) modComboModel.getSelectedItem())) {
+			this.modulatorList.setText("");
+		}
+		if (StringUtils.isEmpty((String) targetComboModel.getSelectedItem())) {
+			this.targetList.setText("");
+		}*/
+	}
+
+	private boolean chooseMarkersFromSet(String setLabel, JTextField toPopulate) {
+		if(selectorPanel == null) return false;
+		DSPanel<DSGeneMarker> selectedSet = null;
+		setLabel = setLabel.trim();
+		for (DSPanel<DSGeneMarker> panel : selectorPanel.panels()) {
+			if (StringUtils.equals(setLabel, panel.getLabel().trim())) {
+				selectedSet = panel;
+				break;
+			}
+		}
+		if (selectedSet != null) {
+			if (selectedSet.size() > 0) {
+				StringBuilder sb = new StringBuilder();
+				for (DSGeneMarker m : selectedSet) {
+					sb.append(m.getShortName());
+					sb.append(",");
+				}
+				sb.trimToSize();
+				sb.deleteCharAt(sb.length() - 1); // getting rid of last comma
+				toPopulate.setText(sb.toString());
+				return true;
+			} else {
+				JOptionPane.showMessageDialog(null, "Marker set, " + setLabel
+						+ ", is empty.", "Input Error",
+						JOptionPane.ERROR_MESSAGE);
+				return false;
+			}
+		}
+		return false;
+	}
+
+	private int getSubsetIndex(String subsetLabel) {
+		if(selectorPanel == null) return -1;
+		if (StringUtils.isEmpty(subsetLabel))
+			return -1;
+		DSItemList<DSPanel<DSGeneMarker>> panels = selectorPanel.panels();
+		for (int i = 0; i < panels.size(); i++) {
+			String label = panels.get(i).getLabel().trim();
+			if (StringUtils.equals(label, subsetLabel))
+				return i;
+		}
+		return -1;
+	}
+
 	// For framework serialization process
 	private static class SerializedInstance implements Serializable {
+		private int modulatorFromType, targetFromType;
+
+		private String modulatorSet, targetSet;
+
 		private String modulators;
 
 		private String targets;
@@ -532,14 +724,19 @@ public class MindyParamPanel extends AbstractSaveableParameterPanel implements
 
 		private Object dpitolerance;
 
-		public SerializedInstance(String modulators, String targets,
-				String annotations, String tf, Object fraction,
-				int conditionalType, String conditionalValue,
+		public SerializedInstance(String modulators, int modulatorFromType,
+				String modulatorSet, String targets, int targetFromType,
+				String targetSet, String annotations, String tf,
+				Object fraction, int conditionalType, String conditionalValue,
 				int conditionalCorrection, int unconditionalType,
 				String unconditionalValue, int unconditionalCorrection,
 				String dpitargets, Object dpitolerance) {
 			this.modulators = modulators;
+			this.modulatorFromType = modulatorFromType;
+			this.modulatorSet = modulatorSet;
 			this.targets = targets;
+			this.targetFromType = targetFromType;
+			this.targetSet = targetSet;
 			this.annotations = annotations;
 			this.tf = tf;
 			this.fraction = fraction;
@@ -554,9 +751,15 @@ public class MindyParamPanel extends AbstractSaveableParameterPanel implements
 		}
 
 		Object readResolve() throws ObjectStreamException {
-			MindyParamPanel panel = new MindyParamPanel();
+			MindyParamPanel panel = new MindyParamPanel();			
+			panel.setSelectorPanel(MindyParamPanel.selectorPanel);
+			panel.modulatorsFrom.setSelectedIndex(this.modulatorFromType);
+			panel.modulatorsSets.setSelectedIndex(panel.getSubsetIndex(this.modulatorSet) + 1);	
 			panel.modulatorList.setText(this.modulators);
-			panel.targetList.setText(this.targets);
+			panel.targetsFrom.setSelectedIndex(this.targetFromType);
+			panel.targetsSets.setSelectedIndex(panel.getSubsetIndex(this.targetSet) + 1);
+			panel.targetsSets.setSelectedItem(this.targetSet);			
+			panel.targetList.setText(this.targets);		
 			panel.dpiAnnotationList.setText(this.annotations);
 			panel.transcriptionFactor.setText(this.tf);
 			panel.setFraction.setValue(this.fraction);
@@ -590,15 +793,18 @@ public class MindyParamPanel extends AbstractSaveableParameterPanel implements
 
 	Object writeReplace() throws ObjectStreamException {
 		return new SerializedInstance(this.modulatorList.getText(),
-				this.targetList.getText(), this.dpiAnnotationList.getText(),
-				this.transcriptionFactor.getText(),
-				this.setFraction.getValue(), this.conditionalCombo
-						.getSelectedIndex(), this.conditional.getText(),
-				this.conditionalCorrection.getSelectedIndex(),
-				this.unconditionalCombo.getSelectedIndex(), this.unconditional
-						.getText(), this.unconditionalCorrection
-						.getSelectedIndex(), this.dpiAnnotationList.getText(),
-				this.dpiTolerance.getValue());
+				this.modulatorsFrom.getSelectedIndex(),
+				(String) this.modulatorsSets.getSelectedItem(), this.targetList
+						.getText(), this.targetsFrom.getSelectedIndex(),
+				(String) this.targetsSets.getSelectedItem(),
+				this.dpiAnnotationList.getText(), this.transcriptionFactor
+						.getText(), this.setFraction.getValue(),
+				this.conditionalCombo.getSelectedIndex(), this.conditional
+						.getText(), this.conditionalCorrection
+						.getSelectedIndex(), this.unconditionalCombo
+						.getSelectedIndex(), this.unconditional.getText(),
+				this.unconditionalCorrection.getSelectedIndex(),
+				this.dpiAnnotationList.getText(), this.dpiTolerance.getValue());
 	}
 
 	/**
