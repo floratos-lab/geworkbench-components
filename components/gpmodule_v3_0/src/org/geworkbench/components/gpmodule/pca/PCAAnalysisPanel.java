@@ -84,7 +84,7 @@ public class PCAAnalysisPanel extends GPAnalysisPanel implements Serializable
 
     protected String getDescriptionFile()
     {
-        return PCAAnalysisPanel.class.getResource("paramDesc.html").getPath();
+        return PCAAnalysisPanel.class.getResource("help.html").getPath();
     }
     
     private static class SerialInstance implements Serializable {
