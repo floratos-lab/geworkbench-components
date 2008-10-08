@@ -40,9 +40,13 @@ import org.geworkbench.analysis.AbstractGridAnalysis;
 import org.geworkbench.analysis.AbstractSaveableParameterPanel;
 import org.geworkbench.bison.datastructure.biocollections.DSAncillaryDataSet;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
+import org.geworkbench.bison.datastructure.biocollections.microarrays.CSExprMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
+import org.geworkbench.bison.datastructure.bioobjects.markers.CSExpressionMarker;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
+import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
+import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
 import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
@@ -742,13 +746,9 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 										.setDescription(selectedGridAnalysis
 												.getLabel()
 												+ " (pending)");
-
-								// generate history for grid analysis
+								/* generate history for grid analysis */
 								String history = "";
 								history += "Grid service information:\n";
-								ButtonModel bm = jGridServicePanel
-										.getServicesButtonGroup()
-										.getSelection();
 								history += "\tIndex server host: "
 										+ jGridServicePanel.getHost();
 								history += ", port: "
@@ -1126,37 +1126,68 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 		log.debug("got user info: " + userInfo);
 	}
 
-	// TODO: this probably should get from DSMicroarraySetView.toString()
+	/**
+	 * 
+	 * @param maSetView
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
 	public String generateHistoryString(DSMicroarraySetView maSetView) {
 		String ans = "";
 
-		ans += "=The MicroarraySetView used for analysis contains following data=\n";
+		//TODO: this probably should get from DSMicroarraySetView.toString()
+		
 		// generate text for microarrays/groups
+		ans += "=The MicroarraySetView used for analysis contains following data=\n";
 		try {
-			assert (maSetView.items() instanceof DSPanel);
-			DSItemList paneltest = ((DSPanel) maSetView.items()).panels();
-			Iterator groups2 = paneltest.iterator(); // groups
-			ans += "==Microarray Sets [" + paneltest.size() + "]==\n";
-			while (groups2.hasNext()) {
-				DSPanel temp = (DSPanel) groups2.next();
-				ans += "\t" + temp.toString() + "\n";
-				Iterator groups3 = temp.iterator(); // microarrays in the group
-				while (groups3.hasNext()) {
-					Object temp2 = groups3.next();
-					ans += "\t\t" + temp2.toString() + "\n";
+			log.debug("We got a "+maSetView.items().getClass().toString());
+			if (maSetView.items().getClass() == CSPanel.class){
+				log.debug("situation 1: microarraySets selected");
+				DSItemList paneltest = ((DSPanel) maSetView.items()).panels();
+				Iterator groups2 = paneltest.iterator(); // groups
+				ans += "==Microarray Sets [" + paneltest.size() + "]==\n";
+				while (groups2.hasNext()) {
+					DSPanel temp = (DSPanel) groups2.next();
+					ans += "\t" + temp.toString() + "\n";
+					Iterator groups3 = temp.iterator(); // microarrays in the group
+					while (groups3.hasNext()) {
+						Object temp2 = groups3.next();
+						ans += "\t\t" + temp2.toString() + "\n";
+					}
+				}
+			}else if (maSetView.items().getClass() == CSExprMicroarraySet.class){
+				log.debug("situation 2: microarraySets not selected");
+				CSExprMicroarraySet exprSet = (CSExprMicroarraySet)maSetView.items();
+				ans += "==Used Microarrays [" + exprSet.size() + "]==\n";
+				for (Iterator<DSMicroarray> iterator = exprSet.iterator(); iterator.hasNext();) {
+					DSMicroarray array = iterator.next();
+					ans += "\t"+ array.getLabel()+"\n";
 				}
 			}
+			ans += "==End of Microarray Sets==\n";
+			// generate text for markers
+			DSItemList paneltest = maSetView.getMarkerPanel();
+			if ((paneltest!=null) && (paneltest.size()>0)){
+				log.debug("situation 3: markers selected");
+				Iterator groups2 = paneltest.iterator(); // groups
+				ans += "==Used Markers [" + paneltest.size() + "]==\n";
+				while (groups2.hasNext()) {
+					CSExpressionMarker temp = (CSExpressionMarker) groups2.next();
+					ans += "\t" + temp.getLabel() + "\n";
+				}
+			}else{
+				log.debug("situation 4: no markers selected.");
+				DSItemList<DSGeneMarker> markers = maSetView.markers();
+				ans += "==Used Markers [" + markers.size() + "]==\n";
+				for (Iterator iterator = markers.iterator(); iterator.hasNext();) {
+					DSGeneMarker marker = (DSGeneMarker) iterator.next();
+					ans += "\t" + marker.getLabel() + "\n";
+				}
+			}
+			ans += "==End of Used Markers==\n";
 		} catch (ClassCastException cce) {
 			// it's not a DSPanel, we generate nothing for panel part
-			// PS:when no microarray set has been selected in gene panel, we
-			// will also get this exception
-		}
-		// generate text for markers
-		DSItemList<DSGeneMarker> markers = maSetView.markers();
-		ans += "==Used Markers [" + markers.size() + "]==\n";
-		for (Iterator iterator = markers.iterator(); iterator.hasNext();) {
-			DSGeneMarker marker = (DSGeneMarker) iterator.next();
-			ans += "\t" + marker.getLabel() + "\n";
+			log.error(cce);
 		}
 		ans += "=End of MicroarraySetView data=";
 		return ans;
