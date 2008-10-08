@@ -141,7 +141,7 @@ public class MindyParamPanel extends AbstractSaveableParameterPanel implements
 
 	private DSDataSet dataSet;
 
-	private static DSPanel<DSGeneMarker> selectorPanel;
+	private DSPanel<DSGeneMarker> selectorPanel;
 
 	/**
 	 * Constructor. Creates the parameter panel GUI.
@@ -618,15 +618,15 @@ public class MindyParamPanel extends AbstractSaveableParameterPanel implements
 		return geneList;
 	}
 
-	void setSelectorPanel(DSPanel<DSGeneMarker> ap) {
-		String currentModSet = (String) modulatorsSets.getSelectedItem();
-		String currentTargetSet = (String) targetsSets.getSelectedItem();
-		selectorPanel = ap;
-		DefaultComboBoxModel modComboModel = (DefaultComboBoxModel) this.modulatorsSets
+	void setSelectorPanel(MindyParamPanel aspp, DSPanel<DSGeneMarker> ap) {
+		String currentModSet = (String) aspp.modulatorsSets.getSelectedItem();
+		String currentTargetSet = (String) aspp.targetsSets.getSelectedItem();
+		aspp.selectorPanel = ap;
+		DefaultComboBoxModel modComboModel = (DefaultComboBoxModel) aspp.modulatorsSets
 				.getModel();
 		modComboModel.removeAllElements();
 		modComboModel.addElement(" ");
-		DefaultComboBoxModel targetComboModel = (DefaultComboBoxModel) this.targetsSets
+		DefaultComboBoxModel targetComboModel = (DefaultComboBoxModel) aspp.targetsSets
 				.getModel();
 		targetComboModel.removeAllElements();
 		targetComboModel.addElement(" ");
@@ -696,8 +696,6 @@ public class MindyParamPanel extends AbstractSaveableParameterPanel implements
 	private static class SerializedInstance implements Serializable {
 		private int modulatorFromType, targetFromType;
 
-		private String modulatorSet, targetSet;
-
 		private String modulators;
 
 		private String targets;
@@ -733,10 +731,8 @@ public class MindyParamPanel extends AbstractSaveableParameterPanel implements
 				String dpitargets, Object dpitolerance) {
 			this.modulators = modulators;
 			this.modulatorFromType = modulatorFromType;
-			this.modulatorSet = modulatorSet;
 			this.targets = targets;
 			this.targetFromType = targetFromType;
-			this.targetSet = targetSet;
 			this.annotations = annotations;
 			this.tf = tf;
 			this.fraction = fraction;
@@ -751,14 +747,10 @@ public class MindyParamPanel extends AbstractSaveableParameterPanel implements
 		}
 
 		Object readResolve() throws ObjectStreamException {
-			MindyParamPanel panel = new MindyParamPanel();			
-			panel.setSelectorPanel(MindyParamPanel.selectorPanel);
+			MindyParamPanel panel = new MindyParamPanel();	
 			panel.modulatorsFrom.setSelectedIndex(this.modulatorFromType);
-			panel.modulatorsSets.setSelectedIndex(panel.getSubsetIndex(this.modulatorSet) + 1);	
 			panel.modulatorList.setText(this.modulators);
 			panel.targetsFrom.setSelectedIndex(this.targetFromType);
-			panel.targetsSets.setSelectedIndex(panel.getSubsetIndex(this.targetSet) + 1);
-			panel.targetsSets.setSelectedItem(this.targetSet);			
 			panel.targetList.setText(this.targets);		
 			panel.dpiAnnotationList.setText(this.annotations);
 			panel.transcriptionFactor.setText(this.tf);

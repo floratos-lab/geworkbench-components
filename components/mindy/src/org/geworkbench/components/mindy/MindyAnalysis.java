@@ -27,6 +27,7 @@ import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
 import org.geworkbench.bison.model.analysis.ClusteringAnalysis;
 import org.geworkbench.bison.model.analysis.ParamValidationResults;
+import org.geworkbench.bison.model.analysis.ParameterPanel;
 import org.geworkbench.builtin.projects.ProjectPanel;
 import org.geworkbench.engine.management.Asynchronous;
 import org.geworkbench.engine.management.Publish;
@@ -70,12 +71,18 @@ public class MindyAnalysis extends AbstractGridAnalysis implements
 
 	private ProgressBar progressBar = null;
 
+	private DSPanel<DSGeneMarker> selectorPanel = null;
+
 	MindyResults results = null;
+	
+	private String instanceName = "";
+
 
 	/**
 	 * Constructor. Creates MINDY parameter panel.
 	 */
 	public MindyAnalysis() {
+		instanceName = "MindyAnalysis::" + System.currentTimeMillis();
 		setLabel("MINDY");
 		paramPanel = new MindyParamPanel();
 		setDefaultPanel(paramPanel);
@@ -84,6 +91,10 @@ public class MindyAnalysis extends AbstractGridAnalysis implements
 	// not used - required to implement from interface ClusteringAnalysis
 	public int getAnalysisType() {
 		return AbstractGridAnalysis.ZERO_TYPE;
+	}
+	
+	MindyParamPanel getCurrentParamPanel(){
+		return (MindyParamPanel) aspp;
 	}
 
 	/**
@@ -347,9 +358,10 @@ public class MindyAnalysis extends AbstractGridAnalysis implements
 			paramPanel.setTranscriptionFactor(marker.getLabel());
 		}
 
-		if (e.getPanel() != null)
-			paramPanel.setSelectorPanel(e.getPanel());
-		else
+		if (e.getPanel() != null) {
+			this.selectorPanel = e.getPanel();
+			((MindyParamPanel) aspp).setSelectorPanel(((MindyParamPanel) aspp), this.selectorPanel);			
+		} else
 			log
 					.debug("Received Gene Selector Event: Selection panel sent was null");
 	}
@@ -676,11 +688,13 @@ public class MindyAnalysis extends AbstractGridAnalysis implements
 		DSMicroarraySet<DSMicroarray> mSet = inputSetView.getMicroarraySet();
 		int numMAs = mSet.size();
 		if (numMAs < 4) {
-			return new ParamValidationResults(false,"Not enough microarrays in the set.  MINDY requires at least 4 microarrays.\n");
+			return new ParamValidationResults(false,
+					"Not enough microarrays in the set.  MINDY requires at least 4 microarrays.\n");
 		}
 		int numMarkers = mSet.getMarkers().size();
 		if (numMarkers < 2) {
-			return new ParamValidationResults(false,"Not enough markers in the microarrays. (Need at least 2)\n");
+			return new ParamValidationResults(false,
+					"Not enough markers in the microarrays. (Need at least 2)\n");
 		}
 		ArrayList<Marker> modulators = new ArrayList<Marker>();
 		ArrayList<String> modulatorGeneList = params.getModulatorGeneList();
@@ -688,11 +702,16 @@ public class MindyAnalysis extends AbstractGridAnalysis implements
 			for (String modGene : modulatorGeneList) {
 				DSGeneMarker marker = mSet.getMarkers().get(modGene);
 				if (marker == null) {
-					return new ParamValidationResults(false,"Couldn't find marker "+modGene+" from modulator file in microarray set.\n");
+					return new ParamValidationResults(
+							false,
+							"Couldn't find marker "
+									+ modGene
+									+ " from modulator file in microarray set.\n");
 				}
 			}
 		} else {
-			return new ParamValidationResults(false,"No modulator specified.\n");
+			return new ParamValidationResults(false,
+					"No modulator specified.\n");
 		}
 		ArrayList<Marker> targets = new ArrayList<Marker>();
 		ArrayList<String> targetGeneList = params.getTargetGeneList();
@@ -700,7 +719,9 @@ public class MindyAnalysis extends AbstractGridAnalysis implements
 			for (String modGene : targetGeneList) {
 				DSGeneMarker marker = mSet.getMarkers().get(modGene);
 				if (marker == null) {
-					return new ParamValidationResults(false,"Couldn't find marker "+modGene+" from target file in microarray set.\n");
+					return new ParamValidationResults(false,
+							"Couldn't find marker " + modGene
+									+ " from target file in microarray set.\n");
 				}
 			}
 		}
@@ -709,23 +730,44 @@ public class MindyAnalysis extends AbstractGridAnalysis implements
 		for (String modGene : dpiAnnotList) {
 			DSGeneMarker marker = mSet.getMarkers().get(modGene);
 			if (marker == null) {
-				return new ParamValidationResults(false,"Couldn't find marker "+modGene+" from DPI annotation file in microarray set.\n");
+				return new ParamValidationResults(
+						false,
+						"Couldn't find marker "
+								+ modGene
+								+ " from DPI annotation file in microarray set.\n");
 			}
 		}
 		String transcriptionFactor = params.getTranscriptionFactor();
 		DSGeneMarker transFac = mSet.getMarkers().get(transcriptionFactor);
 		if (!transcriptionFactor.trim().equals("")) {
 			if (transFac == null) {
-				return new ParamValidationResults(false,"Specified hub marker ("+transcriptionFactor+") not found in loadad microarray set.\n");
+				return new ParamValidationResults(false,
+						"Specified hub marker (" + transcriptionFactor
+								+ ") not found in loadad microarray set.\n");
 			}
 		} else {
-			return new ParamValidationResults(false,"No hub marker specified.\n");
+			return new ParamValidationResults(false,
+					"No hub marker specified.\n");
 		}
 		float setFraction = params.getSetFraction() / 100f;
 		if (Math.round(setFraction * 2 * numMarkers) < 2) {
-			return new ParamValidationResults(false,"Not enough markers in the specified % sample.  MINDY requires at least 2 markers in the sample.\n");
+			return new ParamValidationResults(
+					false,
+					"Not enough markers in the specified % sample.  MINDY requires at least 2 markers in the sample.\n");
 		}
 
-		return new ParamValidationResults(true,"No Error");
+		return new ParamValidationResults(true, "No Error");
+	}
+
+	// FIXME:
+	// Overriding the method from AbstractAnalysis class.
+	// The goal here is to get access to selector panel object that the
+	// MindyAnalysis class listens for.
+	// This is not the preferred way of doing things, but it suffices for now.
+	public ParameterPanel getNamedParameterSetPanel(String name) {
+		MindyParamPanel pp = (MindyParamPanel) super
+				.getNamedParameterSetPanel(name);
+		pp.setSelectorPanel(pp, this.selectorPanel);
+		return pp;
 	}
 }
