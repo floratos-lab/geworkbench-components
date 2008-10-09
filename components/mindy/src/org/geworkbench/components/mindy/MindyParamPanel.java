@@ -69,7 +69,7 @@ public class MindyParamPanel extends AbstractSaveableParameterPanel implements
 	private static final String[] TARGET_FROM = { FROM_ALL, FROM_FILE,
 			FROM_SETS };
 
-	private static final String[] DEFAULT_SET = {" "};
+	private static final String[] DEFAULT_SET = { " " };
 
 	private static final String[] CONDITIONAL_UNCONDITIONAL = { P_VALUE, MI };
 
@@ -619,6 +619,8 @@ public class MindyParamPanel extends AbstractSaveableParameterPanel implements
 	}
 
 	void setSelectorPanel(MindyParamPanel aspp, DSPanel<DSGeneMarker> ap) {
+		// everything is keyed off aspp to make sure the project panel, the
+		// selector panel, and the analysis panel are in synch.
 		String currentModSet = (String) aspp.modulatorsSets.getSelectedItem();
 		String currentTargetSet = (String) aspp.targetsSets.getSelectedItem();
 		aspp.selectorPanel = ap;
@@ -639,17 +641,11 @@ public class MindyParamPanel extends AbstractSaveableParameterPanel implements
 			if (StringUtils.equals(label, currentTargetSet.trim()))
 				targetComboModel.setSelectedItem(label);
 		}
-		/*
-		if (StringUtils.isEmpty((String) modComboModel.getSelectedItem())) {
-			this.modulatorList.setText("");
-		}
-		if (StringUtils.isEmpty((String) targetComboModel.getSelectedItem())) {
-			this.targetList.setText("");
-		}*/
 	}
 
 	private boolean chooseMarkersFromSet(String setLabel, JTextField toPopulate) {
-		if(selectorPanel == null) return false;
+		if (selectorPanel == null)
+			return false;
 		DSPanel<DSGeneMarker> selectedSet = null;
 		setLabel = setLabel.trim();
 		for (DSPanel<DSGeneMarker> panel : selectorPanel.panels()) {
@@ -677,19 +673,6 @@ public class MindyParamPanel extends AbstractSaveableParameterPanel implements
 			}
 		}
 		return false;
-	}
-
-	private int getSubsetIndex(String subsetLabel) {
-		if(selectorPanel == null) return -1;
-		if (StringUtils.isEmpty(subsetLabel))
-			return -1;
-		DSItemList<DSPanel<DSGeneMarker>> panels = selectorPanel.panels();
-		for (int i = 0; i < panels.size(); i++) {
-			String label = panels.get(i).getLabel().trim();
-			if (StringUtils.equals(label, subsetLabel))
-				return i;
-		}
-		return -1;
 	}
 
 	// For framework serialization process
@@ -747,11 +730,11 @@ public class MindyParamPanel extends AbstractSaveableParameterPanel implements
 		}
 
 		Object readResolve() throws ObjectStreamException {
-			MindyParamPanel panel = new MindyParamPanel();	
+			MindyParamPanel panel = new MindyParamPanel();
 			panel.modulatorsFrom.setSelectedIndex(this.modulatorFromType);
 			panel.modulatorList.setText(this.modulators);
 			panel.targetsFrom.setSelectedIndex(this.targetFromType);
-			panel.targetList.setText(this.targets);		
+			panel.targetList.setText(this.targets);
 			panel.dpiAnnotationList.setText(this.annotations);
 			panel.transcriptionFactor.setText(this.tf);
 			panel.setFraction.setValue(this.fraction);
