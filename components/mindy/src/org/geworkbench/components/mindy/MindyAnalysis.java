@@ -74,15 +74,12 @@ public class MindyAnalysis extends AbstractGridAnalysis implements
 	private DSPanel<DSGeneMarker> selectorPanel = null;
 
 	MindyResults results = null;
-	
-	private String instanceName = "";
 
 
 	/**
 	 * Constructor. Creates MINDY parameter panel.
 	 */
 	public MindyAnalysis() {
-		instanceName = "MindyAnalysis::" + System.currentTimeMillis();
 		setLabel("MINDY");
 		paramPanel = new MindyParamPanel();
 		setDefaultPanel(paramPanel);
@@ -767,6 +764,7 @@ public class MindyAnalysis extends AbstractGridAnalysis implements
 	public ParameterPanel getNamedParameterSetPanel(String name) {
 		MindyParamPanel pp = (MindyParamPanel) super
 				.getNamedParameterSetPanel(name);
+		// this is really bad...
 		pp.setSelectorPanel(pp, this.selectorPanel);
 		return pp;
 	}
