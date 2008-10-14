@@ -658,7 +658,7 @@ public class MindyParamPanel extends AbstractSaveableParameterPanel implements
 			if (selectedSet.size() > 0) {
 				StringBuilder sb = new StringBuilder();
 				for (DSGeneMarker m : selectedSet) {
-					sb.append(m.getShortName());
+					sb.append(m.getLabel());
 					sb.append(",");
 				}
 				sb.trimToSize();

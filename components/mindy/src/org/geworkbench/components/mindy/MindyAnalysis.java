@@ -297,14 +297,14 @@ public class MindyAnalysis extends AbstractGridAnalysis implements
 		if ((markerSet != null) && (markerSet.size() > 0)) {
 			for (DSGeneMarker m : markerSet) {
 				paramDescB.append("\t");
-				paramDescB.append(m.getShortName());
+				paramDescB.append(m.getLabel());
 				paramDescB.append("\n");
 			}
 
 		} else {
 			for (DSGeneMarker m : inputSetView.markers()) {
 				paramDescB.append("\t");
-				paramDescB.append(m.getShortName());
+				paramDescB.append(m.getLabel());
 				paramDescB.append("\n");
 			}
 		}
@@ -469,7 +469,7 @@ public class MindyAnalysis extends AbstractGridAnalysis implements
 					numWithSymbols++;
 				if (!mindyMap.containsKey(target)) {
 					mindyMap.put(target, new MindyGeneMarker(target, myCollator
-							.getCollationKey(target.getShortName()), myCollator
+							.getCollationKey(target.getLabel()), myCollator
 							.getCollationKey(target.getDescription())));
 				}
 				for (MindyResults.MindyResultForTarget.ModulatorSpecificResult specificResult : result) {
@@ -480,14 +480,14 @@ public class MindyAnalysis extends AbstractGridAnalysis implements
 					if (!mindyMap.containsKey(mod)) {
 						mindyMap
 								.put(mod, new MindyGeneMarker(mod, myCollator
-										.getCollationKey(mod.getShortName()),
+										.getCollationKey(mod.getLabel()),
 										myCollator.getCollationKey(mod
 												.getDescription())));
 					}
 					dataRows.add(new MindyData.MindyResultRow(mod, transFac,
 							target, specificResult.getScore(), 0f, myCollator
-									.getCollationKey(mod.getShortName()),
-							myCollator.getCollationKey(target.getShortName())));
+									.getCollationKey(mod.getLabel()),
+							myCollator.getCollationKey(target.getLabel())));
 				}
 			}
 
