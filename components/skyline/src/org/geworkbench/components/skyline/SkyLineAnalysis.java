@@ -45,7 +45,7 @@ public class SkyLineAnalysis extends AbstractAnalysis implements ProteinStructur
     private static final String skylineinfile = remote_root+"/test.cfg";
     private static final String remotepdbdir = remote_root+"/PDB/";
     private static final String remoteoutdir = remote_root+"/output/";
-    private static final String skylineweb = "http://156.111.188.2:8090/wsrf/services/cagrid/SkyLineWeb";
+    private static final String skylineweb = "http://156.145.238.15:8090/wsrf/services/cagrid/SkyLineWeb";
     public SkyLineWebClient client;
 
     public SkyLineAnalysis() {

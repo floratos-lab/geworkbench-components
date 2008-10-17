@@ -34,7 +34,7 @@ import jalview.bin.*;
     private JScrollPane jScrollPane = new JScrollPane();
     private Border border = jScrollPane.getBorder();
     private String title = "";
-    private String rootdir = "http://156.111.188.2:8090/SkyLineData/output";
+    private String rootdir = "http://156.145.238.15:8090/SkyLineData/output";
     private String resultdir = "";
     private String pname = "";
     private JComboBox allmodels;// = new JComboBox();
