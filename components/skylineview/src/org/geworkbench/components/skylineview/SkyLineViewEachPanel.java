@@ -52,7 +52,7 @@ import jalview.bin.*;
     private String title = "";
     private String modelname = "";
     //    private String rootdir = "/razor/5/users/mw2518/nesg/test/";
-    private String rootdir = "http://156.111.188.2:8090/SkyLineData/output";
+    private String rootdir = "http://156.145.238.15:8090/SkyLineData/output";
     private String resultdir = "";
     private String pname = "";
     private JLabel choosefile = new JLabel();
