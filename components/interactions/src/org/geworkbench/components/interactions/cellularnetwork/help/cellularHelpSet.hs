@@ -6,7 +6,7 @@
 <?TestTarget The help set file for the project tree component.?>
 <helpset version="1.0">
 	<!-- title -->
-	<title>Cellular NetWork</title>
+	<title>Cellular Network Knowledge Base</title>
 	<!-- maps -->
 	<maps>
 		<homeID>overview</homeID>
@@ -15,7 +15,7 @@
 	<!-- views -->
 	<view>
 		<name>TOC</name>
-		<label>Cellular NetWork</label>
+		<label>Cellular Network Knowledge Base</label>
 		<type>javax.help.TOCView</type>
 		<data>cellulartoc.xml</data>
 	</view>
