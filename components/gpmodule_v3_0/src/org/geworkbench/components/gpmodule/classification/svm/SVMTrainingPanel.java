@@ -85,7 +85,7 @@ public class SVMTrainingPanel extends GPTrainingPanel
 
     protected String getSummaryFile()
     {
-        return null;
+        return SVMTrainingPanel.class.getResource("help.html").getPath();
     }
 
     protected CSClassifier trainForValidation(java.util.List<float[]> trainingCaseData, java.util.List<float[]> trainingControlData) throws ClassifierException
