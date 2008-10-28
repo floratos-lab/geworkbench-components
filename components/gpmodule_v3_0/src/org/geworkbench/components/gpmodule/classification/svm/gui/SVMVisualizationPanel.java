@@ -23,17 +23,16 @@ import org.geworkbench.bison.annotation.DSAnnotationContext;
 import org.geworkbench.bison.annotation.CSAnnotationContext;
 
 import org.jdesktop.swingx.JXTable;
-import org.jdesktop.swingx.decorator.HighlighterFactory;
-import org.jdesktop.swingx.decorator.SortOrder;
-import org.jdesktop.swingx.decorator.FilterPipeline;
+
+import org.jdesktop.swingx.decorator.*;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.ChartPanel;
-import org.jfree.chart.title.TextTitle;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.jfree.data.xy.XYSeries;
+import org.genepattern.filter.IndexFilter;
 
 import javax.swing.*;
 import javax.swing.event.ChangeListener;
@@ -41,6 +40,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.text.Position;
 import javax.swing.tree.*;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.DefaultTableCellRenderer;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.*;
@@ -50,9 +50,11 @@ import java.text.DecimalFormat;
 /**
  * @author Marc-Danie Nazaire
  */
-public class SVMVisualizationPanel extends JPanel
+public class SVMVisualizationPanel extends JPanel implements ItemListener
 {
+    private SVMVisualComponent svmVisComp;
     private SVMClassifier svmClassifier;
+    private JTabbedPane tabPane;
     private JPanel trainResultPanel;
     private JPanel testResultPanel;
     private JPanel testDataPanel;
@@ -61,17 +63,16 @@ public class SVMVisualizationPanel extends JPanel
     private JComboBox maSetComboBox;
     private JTree maSetGroupTree;
     private JPanel graphPanel;
-    private JFreeChart rocCurveChart;
+    private JFreeChart curveChart;
     private JSplitPane testMainPanel;
     private static Map <String, List> testLabels = new HashMap();
     private SVMTreeModel treeModel;
+    private JXTable trainResultsTable;
     private JXTable testResultsTable;
     private JRadioButton caseRadioButton;
     private JRadioButton controlRadioButton;
     private JFormattedTextField confidenceThreshold = new JFormattedTextField(new DecimalFormat("0.00"));
-
-
-    private SVMVisualComponent svmVisComp;
+    private HashMap confidenceMap;
 
     public SVMVisualizationPanel(SVMClassifier svmClassifier, SVMVisualComponent svmVisComp)
     {
@@ -83,11 +84,11 @@ public class SVMVisualizationPanel extends JPanel
 
     public void jbInit()
     {
-        JTabbedPane tabPanel = new JTabbedPane();
+        tabPane = new JTabbedPane();
 
         trainResultPanel = new JPanel(new BorderLayout());
         buildTrainResultTable();
-        tabPanel.addTab("Train", trainResultPanel);
+        tabPane.addTab("Train", trainResultPanel);
 
         testMainPanel = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
         testMainPanel.setDividerSize(4);
@@ -95,7 +96,7 @@ public class SVMVisualizationPanel extends JPanel
         testMainPanel.setDividerLocation(0.25);
         testMainPanel.setResizeWeight(0.25);
 
-        tabPanel.addTab("Test", testMainPanel);
+        tabPane.addTab("Test", testMainPanel);
 
         testResultPanel = new JPanel(new BorderLayout());
         testMainPanel.setRightComponent(testResultPanel);
@@ -111,7 +112,7 @@ public class SVMVisualizationPanel extends JPanel
 
         testDataPanel = new JPanel();
         testDataPanel.setLayout(new BoxLayout(testDataPanel, BoxLayout.PAGE_AXIS));
-        testDataPanel.setBorder(BorderFactory.createEmptyBorder(10, 8, 20, 6));
+        testDataPanel.setBorder(BorderFactory.createEmptyBorder(7, 6, 12, 6));
         buildTestDataPanel();
 
         createMaSetToolBar = new JToolBar();
@@ -125,7 +126,7 @@ public class SVMVisualizationPanel extends JPanel
         mainSplitPanel.setDividerLocation(0.56);
         mainSplitPanel.setResizeWeight(0.56);
 
-        mainSplitPanel.setTopComponent(tabPanel);
+        mainSplitPanel.setTopComponent(tabPane);
 
         graphPanel = new JPanel(new BorderLayout());
         buildGraphPanel();
@@ -133,44 +134,70 @@ public class SVMVisualizationPanel extends JPanel
 
         setLayout(new BorderLayout());
         add(mainSplitPanel);
+
+        tabPane.addChangeListener(new ChangeListener()
+        {
+            public void stateChanged(ChangeEvent event)
+            {
+                applyConfidenceFilter();
+            }
+        });
     }
 
     private void buildTrainResultTable()
     {
-        JXTable table = new JXTable();
+        trainResultsTable = new JXTable();
 
-        table.addHighlighter(HighlighterFactory.createAlternateStriping());
-        table.setSortable(true);
-        table.setEditable(false);
-        table.setShowGrid(true);
-        table.setGridColor(Color.LIGHT_GRAY);
+        trainResultsTable.addHighlighter(HighlighterFactory.createAlternateStriping());
+        trainResultsTable.setSortable(true);
+        trainResultsTable.setEditable(false);
+        trainResultsTable.setShowGrid(true);
+        trainResultsTable.setGridColor(Color.LIGHT_GRAY);
 
         PredictionResult predResult = svmClassifier.getTrainPredResult();
 
         int sampleIndx = predResult.getColumn("Samples");
-        int rClassIndx = predResult.getColumn("True Class");
+        int tClassIndx = predResult.getColumn("True Class");
         int pClassIndx = predResult.getColumn("Predicted Class");
         int confIndx = predResult.getColumn("Confidence");
+        int corIndx = predResult.getColumn("Correct?");
 
-        String[] columnNames = {"Array Name", "Real Class", "Predicted Class", "Confidence"};
+
+        String[] columnNames = {"Array Name", "Real Class", "Predicted Class", "Confidence", "Correct?"};
         DefaultTableModel tableModel = new DefaultTableModel();
         tableModel.setColumnIdentifiers(columnNames);
+
+        java.net.URL imageURL1 = SVMVisualizationPanel.class.getResource("images/green_check_mark.gif");
+        ImageIcon correct_image = new ImageIcon(imageURL1);
+        
+        java.net.URL imageURL2 = SVMVisualizationPanel.class.getResource("images/xMark.gif");
+        ImageIcon incorrect_image = new ImageIcon(imageURL2);
+
 
         for(int i =0 ; i < predResult.getNumRows(); i++)
         {
             Vector rowVector = new Vector();
             rowVector.add(predResult.getValueAt(i, sampleIndx));
-            rowVector.add(predResult.getValueAt(i, rClassIndx));
+            rowVector.add(predResult.getValueAt(i, tClassIndx));
             rowVector.add(predResult.getValueAt(i, pClassIndx));
             rowVector.add(predResult.getValueAt(i, confIndx));
+
+            if(predResult.getValueAt(i, corIndx).equalsIgnoreCase("true"))
+            {
+                rowVector.add(correct_image);
+            }
+            else
+                rowVector.add(incorrect_image);
 
             tableModel.addRow(rowVector);
         }
 
-        table.setModel(tableModel);
-        table.setSortOrder("Confidence", SortOrder.DESCENDING);
+        trainResultsTable.setModel(tableModel);
+        trainResultsTable.getColumn("Correct?").setCellRenderer(new IconRenderer());
+        trainResultsTable.getColumn("Correct?").setMaxWidth(80);
+        trainResultsTable.setSortOrder("Confidence", SortOrder.DESCENDING);
 
-        JScrollPane scrollPane = new JScrollPane(table);
+        JScrollPane scrollPane = new JScrollPane(trainResultsTable);
         trainResultPanel.add(scrollPane);
     }
 
@@ -305,7 +332,7 @@ public class SVMVisualizationPanel extends JPanel
 
         maSetNodeComboBox = new JComboBox();
         maSetNodeComboBox.setAlignmentX(JComboBox.LEFT_ALIGNMENT);
-        maSetNodeComboBox.setMaximumSize(new Dimension(1000, maSetNodeComboBox.getMinimumSize().height));
+        maSetNodeComboBox.setMaximumSize(new Dimension(700, maSetNodeComboBox.getMinimumSize().height));
         maSetNodeComboBox.addItemListener(new ItemListener()
         {
             public void itemStateChanged(ItemEvent event)
@@ -383,8 +410,6 @@ public class SVMVisualizationPanel extends JPanel
                     TreePath path = maSetGroupTree.getNextMatch(labelItems.get(i), 0, Position.Bias.Forward);
                     maSetGroupTree.addSelectionPath(path);
                 }
-
-                System.out.println("Context: " + context.getName());
             }
         });
 
@@ -420,10 +445,12 @@ public class SVMVisualizationPanel extends JPanel
 
         scrollPane.setViewportView(maSetGroupTree);
         JPanel jPanel = new JPanel();
-        jPanel.setLayout(new BoxLayout(jPanel, BoxLayout.PAGE_AXIS));
-        jPanel.setMinimumSize(new Dimension(jPanel.getWidth(), 110));
         jPanel.setAlignmentX(JComboBox.LEFT_ALIGNMENT);
         jPanel.add(scrollPane);
+        jPanel.setLayout(new BoxLayout(jPanel, BoxLayout.PAGE_AXIS));
+        jPanel.setMinimumSize(new Dimension(jPanel.getMinimumSize().width, 150));
+        jPanel.setPreferredSize(new Dimension(jPanel.getPreferredSize().width, 150));
+        jPanel.setMaximumSize(new Dimension(jPanel.getMaximumSize().width, 150));
 
         JButton testButton = new JButton("Test");
         testButton.setMinimumSize(new Dimension(78, 35));
@@ -463,7 +490,6 @@ public class SVMVisualizationPanel extends JPanel
 
 
         jPanel.add(testButton);
-        jPanel.setBorder(BorderFactory.createLineBorder(Color.BLUE));
         testDataPanel.add(jPanel);
 
         testDataPanel.add(Box.createVerticalGlue());
@@ -482,60 +508,312 @@ public class SVMVisualizationPanel extends JPanel
         }
     }
 
+    public void itemStateChanged(ItemEvent event)
+    {
+        if(!(event.getSource() instanceof JCheckBox))
+            return;
+
+        JCheckBox checkbox = (JCheckBox) event.getSource();
+        int seriesIndex = curveChart.getXYPlot().getDataset().indexOf(checkbox.getText());
+
+        if (event.getStateChange() == ItemEvent.SELECTED)
+        {
+             curveChart.getXYPlot().getRenderer().setSeriesVisible(seriesIndex, true, true);
+        }
+        else
+        {
+            curveChart.getXYPlot().getRenderer().setSeriesVisible(seriesIndex, false, true);
+        }
+    }
+
     private void buildGraphPanel()
     {
-        graphPanel.setBorder(BorderFactory.createEmptyBorder(4, 5, 4, 12));
-        rocCurveChart = ChartFactory.createXYLineChart("ROC Curve", "confidence value",
-				"true positives/negatives ratio", null, PlotOrientation.VERTICAL, true, true, true);
+        curveChart = ChartFactory.createXYLineChart(null, "% unclassified arrays",
+				"performance", null, PlotOrientation.VERTICAL, false, true, true);
 
-        TextTitle title = rocCurveChart.getTitle();
-        title.setFont(rocCurveChart.getTitle().getFont().deriveFont(4));
-        rocCurveChart.setTitle(title);
+        curveChart.getXYPlot().getDomainAxis().setLabelFont(curveChart.getXYPlot().getDomainAxis().getLabelFont().deriveFont(7));
+        curveChart.getXYPlot().getRangeAxis().setLabelFont(curveChart.getXYPlot().getRangeAxis().getLabelFont().deriveFont(7));
 
-        rocCurveChart.getXYPlot().getDomainAxis().setLabelFont(rocCurveChart.getXYPlot().getDomainAxis().getLabelFont().deriveFont(7));
-        rocCurveChart.getXYPlot().getRangeAxis().setLabelFont(rocCurveChart.getXYPlot().getRangeAxis().getLabelFont().deriveFont(7));
+        // Set the range of unclassified arrays ratio axis to 0-1
+        curveChart.getXYPlot().getDomainAxis().setRange(0, 1);
+        curveChart.getXYPlot().getRangeAxis().setRange(0, 1);
 
-        // Set the range of confidence values axis to 0-1
-        rocCurveChart.getXYPlot().getDomainAxis().setRange(0, 1);
-        rocCurveChart.getXYPlot().setDomainCrosshairVisible(true);
+        curveChart.getXYPlot().setDomainCrosshairVisible(true);
 
-        ChartPanel chartPanel = new ChartPanel(rocCurveChart, true);
+        //Add plot data
+        curveChart.getXYPlot().setDataset(getPlotData());
+
+        curveChart.getXYPlot().getRenderer().setBaseSeriesVisible(false);
+
+        ChartPanel chartPanel = new ChartPanel(curveChart, true);
         graphPanel.add(chartPanel, BorderLayout.CENTER);
 
         JToolBar sliderToolBar = new JToolBar();
+        sliderToolBar.setFloatable(false);
+        sliderToolBar.setBorderPainted(false);
 
-        confidenceThreshold.setValue(0);
-        confidenceThreshold.setMinimumSize(new Dimension(70, 24));
-        confidenceThreshold.setPreferredSize(new Dimension(70, 24));
-        confidenceThreshold.setMaximumSize(new Dimension(70, 24));
-
-        sliderToolBar.add(Box.createRigidArea(new Dimension(3, 0)));
-        sliderToolBar.add(confidenceThreshold);
-        sliderToolBar.add(Box.createRigidArea(new Dimension(7, 0)));
-
-        JSlider slider = new JSlider(0, 100, 1);
-        slider.setPaintTicks(true);
-        slider.setMajorTickSpacing(10);
-        slider.setMinorTickSpacing(1);
-        slider.addChangeListener(new ChangeListener()
+        JSlider confSlider = new JSlider(1, 101, 1);
+        confSlider.setPaintTicks(true);
+        confSlider.setMajorTickSpacing(10);
+        confSlider.setMinorTickSpacing(1);
+        confSlider.addChangeListener(new ChangeListener()
         {
             public void stateChanged(ChangeEvent event)
             {
                 JSlider slider = (JSlider)event.getSource();
 
-                confidenceThreshold.setValue(0.01 * slider.getValue());
+                //confidenceThreshold.setValue((0.01 * slider.getValue()) - 0.01);
 
-                rocCurveChart.getXYPlot().setDomainCrosshairValue(Double.valueOf(confidenceThreshold.getText()));
-                rocCurveChart.fireChartChanged();
+                double sliderValue = (0.01 * slider.getValue()) - 0.01;
 
-                testResultsTable.setFilters(new FilterPipeline());
+                System.out.println("Slider value: " + sliderValue);
+
+                /*double value = 0;
+                for(int i = 0; i < curveChart.getXYPlot().getDataset().getItemCount(0); i++)
+                {
+                    if(sliderValue <= curveChart.getXYPlot().getDataset().getXValue(0, i))
+                    {
+                        value = curveChart.getXYPlot().getDataset().getXValue(0, i);
+                    }
+                    else
+                        break;
+                } */
+
+                double confidence= 0;
+                Set unclassified = confidenceMap.keySet();
+                Iterator unclIt = unclassified.iterator();
+                while(unclIt.hasNext())
+                {
+                    double value = (Double)unclIt.next();
+                    if(value > sliderValue)
+                        break;
+                    else
+                        confidence = (Double)confidenceMap.get(value);
+                }
+
+                confidenceThreshold.setValue(confidence);
+
+                curveChart.getXYPlot().setDomainCrosshairValue(sliderValue);
+                curveChart.fireChartChanged();
+
+                // Filter rows from current table whose confidence is less than the confidenceThreshold value
+                applyConfidenceFilter();
             }
         });
 
-        sliderToolBar.add(slider);
+        sliderToolBar.add(Box.createRigidArea(new Dimension(10, 0)));
+        sliderToolBar.add(confSlider);
 
-
+        sliderToolBar.add(Box.createRigidArea(new Dimension(20, 0)));
         graphPanel.add(sliderToolBar, BorderLayout.PAGE_END);
+
+        confidenceThreshold.setValue(0.0);
+        confidenceThreshold.setMinimumSize(new Dimension(50, 24));
+        confidenceThreshold.setPreferredSize(new Dimension(50, 24));
+        confidenceThreshold.setMaximumSize(new Dimension(50, 24));
+
+        JLabel confidenceLabel = new JLabel("Confidence Threshold:");
+        confidenceLabel.setFont(new JCheckBox().getFont().deriveFont(4));
+        sliderToolBar.add(confidenceLabel);
+        sliderToolBar.add(Box.createRigidArea(new Dimension(4, 0)));
+
+        sliderToolBar.add(confidenceThreshold);
+        sliderToolBar.add(Box.createRigidArea(new Dimension(5, 0)));
+
+        JToolBar plotSelectToolBar = new JToolBar();
+        plotSelectToolBar.setBorder(BorderFactory.createEmptyBorder(5, 5, 4, 5));
+        plotSelectToolBar.setLayout(new BoxLayout(plotSelectToolBar, BoxLayout.PAGE_AXIS));
+        plotSelectToolBar.setBorderPainted(false);
+
+        JPanel plotSelectionPanel = new JPanel();
+        GridLayout gridLayout = new GridLayout(3, 2);
+        plotSelectionPanel.setLayout(gridLayout);
+        plotSelectionPanel.setMinimumSize(new Dimension(160, 110));
+        plotSelectionPanel.setPreferredSize(new Dimension(160, 110));
+        plotSelectionPanel.setMaximumSize(new Dimension(160, 110));
+        plotSelectToolBar.add(plotSelectionPanel);
+
+        //add accuracy plot color selection
+        JCheckBox accuracyCheckBox = new JCheckBox("Accuracy");
+        accuracyCheckBox.setAlignmentX(JCheckBox.LEFT_ALIGNMENT);
+        accuracyCheckBox.addItemListener(this);
+        accuracyCheckBox.setSelected(true);
+
+        int seriesIndex = curveChart.getXYPlot().getDataset().indexOf(accuracyCheckBox.getText());
+        JButton accColorIcon = new JButton();
+        accColorIcon.setAlignmentX(JButton.LEFT_ALIGNMENT);
+        accColorIcon.setBorder(BorderFactory.createEmptyBorder());
+        accColorIcon.setIcon(new MyIcon((Color) curveChart.getXYPlot().getRenderer().getSeriesPaint(seriesIndex)));
+
+        plotSelectionPanel.add(accuracyCheckBox);
+        plotSelectionPanel.add(accColorIcon);
+
+        // Add sensitivity plot selection
+        JCheckBox sensitivityCheckBox = new JCheckBox("Sensitivity");
+        sensitivityCheckBox.setAlignmentX(JCheckBox.LEFT_ALIGNMENT);
+        sensitivityCheckBox.addItemListener(this);
+        sensitivityCheckBox.setSelected(true);
+
+        seriesIndex = curveChart.getXYPlot().getDataset().indexOf(sensitivityCheckBox.getText());
+        JButton sensColorIcon = new JButton();
+        sensColorIcon.setAlignmentX(JButton.LEFT_ALIGNMENT);
+        sensColorIcon.setBorder(BorderFactory.createEmptyBorder());
+        sensColorIcon.setIcon(new MyIcon((Color) curveChart.getXYPlot().getRenderer().getSeriesPaint(seriesIndex)));
+
+        plotSelectionPanel.add(sensitivityCheckBox);
+        plotSelectionPanel.add(sensColorIcon);
+
+        // Add specificity plot selection
+        JCheckBox specificityCheckBox = new JCheckBox("Specificity");
+        specificityCheckBox.setAlignmentX(JCheckBox.LEFT_ALIGNMENT);
+        specificityCheckBox.addItemListener(this);
+        specificityCheckBox.setSelected(true);
+
+        seriesIndex = curveChart.getXYPlot().getDataset().indexOf(specificityCheckBox.getText());
+        JButton specColorIcon = new JButton();
+        specColorIcon.setAlignmentX(JButton.LEFT_ALIGNMENT);
+        specColorIcon.setBorder(BorderFactory.createEmptyBorder());
+        specColorIcon.setIcon(new MyIcon((Color) curveChart.getXYPlot().getRenderer().getSeriesPaint(seriesIndex)));
+
+        plotSelectionPanel.add(specificityCheckBox);
+        plotSelectionPanel.add(specColorIcon);
+
+        graphPanel.add(plotSelectToolBar, BorderLayout.EAST);
+    }
+
+    private void applyConfidenceFilter()
+    {
+        JXTable currentTable = testResultsTable;
+        int confidenceIndex = 2;
+        if(tabPane.getTitleAt(tabPane.getSelectedIndex()).equalsIgnoreCase("Train"))
+        {
+            currentTable = trainResultsTable;
+            confidenceIndex = 3;
+        }
+
+        if(currentTable == null)
+            return;
+
+        currentTable.setFilters(null);
+        ArrayList list = new ArrayList();
+        boolean lessThan = false;
+        for(int r = 0; r < currentTable.getRowCount(); r++)
+        {
+            String confidence = (String)currentTable.getModel().getValueAt(r, confidenceIndex);
+            if(Double.valueOf(confidence).doubleValue() >= ((Double)confidenceThreshold.getValue()).doubleValue())
+            {
+                list.add(r);
+            }
+            else
+                lessThan = true;
+        }
+
+        if(list == null || lessThan == false)
+        {
+            return;
+        }
+
+        int[] indices = new int[list.size()];
+        for(int r = 0; r < indices.length; r++)
+        {
+            indices[r] = ((Integer)list.get(r)).intValue();
+        }
+
+        Filter[] filterArray = { new IndexFilter(indices) };
+	    FilterPipeline filters = new FilterPipeline(filterArray);
+
+        currentTable.setFilters(filters);
+    }
+
+    public XYDataset getPlotData()
+    {
+        confidenceMap = new HashMap();
+        XYSeriesCollection xySeriesCol = new XYSeriesCollection();
+
+        XYSeries accuracySeries = new XYSeries("Accuracy");
+        xySeriesCol.addSeries(accuracySeries);
+
+        XYSeries sensitivitySeries = new XYSeries("Sensitivity");
+        xySeriesCol.addSeries(sensitivitySeries);
+
+        XYSeries specificitySeries = new XYSeries("Specificity");
+        xySeriesCol.addSeries(specificitySeries);
+
+        int N = trainResultsTable.getRowCount();
+        double prevConfidence = Double.valueOf((String)trainResultsTable.getValueAt(0, 3));
+        for(int r = 1; r < N; r++)
+        {
+            double confidence = Double.valueOf((String)trainResultsTable.getValueAt(r, 3));
+            if(prevConfidence <= confidence)
+                continue;
+
+            int ppAndtp = 0;
+            int pnAndtn = 0;
+            int tp = 0;
+            int tn = 0;
+            double s_z = 0;
+
+            for(int r2 = 0; r2 < N; r2++)
+            {
+                double rowConfidence = Double.valueOf((String)trainResultsTable.getValueAt(r2, 3));
+                if(rowConfidence < confidence)
+                {
+                    continue;
+                }
+
+                s_z++;
+                if(trainResultsTable.getValueAt(r2, 1).equals("Case"))
+                {
+                    tp++;
+
+                    if(trainResultsTable.getValueAt(r2, 2).equals("Case"))
+                        ppAndtp++;
+                }
+
+                if(trainResultsTable.getValueAt(r2, 1).equals("Control"))
+                {
+                    tn++;
+
+                    if(trainResultsTable.getValueAt(r2, 2).equals("Control"))
+                        pnAndtn++;
+                }
+            }
+
+            prevConfidence = confidence;
+
+            double uncl = 1.0 - (s_z/N);
+            confidenceMap.put(uncl, confidence);
+
+            // Add to accuracy series
+            double acc = (ppAndtp + pnAndtn)/(tp+tn);
+
+            //System.out.println("uncl: " + uncl);
+            System.out.println("tp: " + tp);
+            System.out.println("s_z/N: " + (s_z/N));
+
+            accuracySeries.add(uncl, acc);
+
+            System.out.println("confidence: " + confidence);
+            System.out.println("uncl: " + uncl + "/n");
+
+            // Add to sensitivity series
+            if(tp != 0)
+            {
+                double sens = ppAndtp/tp;
+                sensitivitySeries.add(uncl, sens);
+            }
+
+            // Add to specificity series
+            if(tn != 0)
+            {
+                double spec = pnAndtn/tn;
+                specificitySeries.add(uncl, spec);
+            }
+        }
+
+        trainResultsTable.getModel();
+
+        return xySeriesCol;
     }
 
     private abstract class TestDataPanelActionListener implements ActionListener
@@ -596,6 +874,85 @@ public class SVMVisualizationPanel extends JPanel
             }
 
             return super.getTreeCellRendererComponent(tree, value, selected, expanded, leaf, row, hasFocus);
+        }
+    }
+
+    public static class IconRenderer extends DefaultTableCellRenderer
+    {
+        public IconRenderer()
+        {
+            super ();
+            setHorizontalAlignment(JLabel.CENTER);
+        }
+
+        @Override
+        public void setValue(Object value)
+        {
+            //setOpaque(false);
+            setIcon((value instanceof  Icon) ? (Icon) value : null);
+            //this.setBackground();
+        }
+
+
+      /*  public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column)
+        {
+
+            JLabel iconLabel = (JLabel)super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+            iconLabel.setMinimumSize(new Dimension(20, iconLabel.getMinimumSize().height));
+            iconLabel.setPreferredSize(new Dimension(20, iconLabel.getPreferredSize().height));
+            iconLabel.setMaximumSize(new Dimension(20, iconLabel.getMaximumSize().height));
+            iconLabel.setAlignmentX(JLabel.CENTER_ALIGNMENT);
+
+            JPanel panel = new JPanel();
+            panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
+            panel.add(iconLabel);
+            panel.setOpaque(false);
+            //panel.setBackground(Color.RED);//iconLabel.getBackground());
+
+            return panel;
+        } */
+    }
+
+    private class MyIcon implements Icon
+    {
+        private int width = 30;
+        private int height = 3;
+        private Color color;
+
+        public MyIcon(Color color)
+        {
+            this.color = color;
+        }
+
+        public void paintIcon(Component comp, Graphics g, int x, int y)
+        {
+            g.setColor(color);
+            g.fillRect(x, y, width, height);
+        }
+
+        public int getIconWidth()
+        {
+            return width;
+        }
+
+        public int getIconHeight()
+        {
+            return height;
+        }
+
+        public void setIconWidth(int width)
+        {
+            this.width = width;
+        }
+
+        public void setIconHeight(int height)
+        {
+            this.height = height;
+        }
+
+        public Color getColor()
+        {
+            return color;
         }
     }
 }
