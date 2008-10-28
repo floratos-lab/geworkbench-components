@@ -53,22 +53,26 @@ public class GPHelpPanel extends JSplitPane
         leftComponent.add(Box.createRigidArea(new Dimension(1, 8)));
         leftComponent.add(classifierButton);
 
-        initParamDescPanel();
-        JButton parameterButton = new JButton("Parameters");
-        parameterButton.setMinimumSize(new Dimension(145, 26));
-        parameterButton.setPreferredSize(new Dimension(145, 26));
-        parameterButton.setMaximumSize(new Dimension(145, 26));
-        parameterButton.addActionListener( new ActionListener()
+        if(this.paramDescFile != null)
         {
-            public void actionPerformed(ActionEvent event)
-            {
-                remove(getRightComponent());
-                setRightComponent(paramDescPanel);
-            }
-        });
+            initParamDescPanel();
 
-        leftComponent.add(Box.createRigidArea(new Dimension(1,10)));
-        leftComponent.add(parameterButton);
+            JButton parameterButton = new JButton("Parameters");
+            parameterButton.setMinimumSize(new Dimension(145, 26));
+            parameterButton.setPreferredSize(new Dimension(145, 26));
+            parameterButton.setMaximumSize(new Dimension(145, 26));
+            parameterButton.addActionListener( new ActionListener()
+            {
+                public void actionPerformed(ActionEvent event)
+                {
+                    remove(getRightComponent());
+                    setRightComponent(paramDescPanel);
+                }
+            });
+
+            leftComponent.add(Box.createRigidArea(new Dimension(1,10)));
+            leftComponent.add(parameterButton);
+        }
 
         JButton genePatternButton = new JButton();
         genePatternButton.setText("<html><center>GenePattern Website</center></html>");
@@ -95,6 +99,7 @@ public class GPHelpPanel extends JSplitPane
         gpDownloadButton.setMinimumSize(new Dimension(145, 49));
         gpDownloadButton.setPreferredSize(new Dimension(145, 49));
         gpDownloadButton.setMaximumSize(new Dimension(145, 49));
+
         leftComponent.add(Box.createRigidArea(new Dimension(1, 10)));
         leftComponent.add(gpDownloadButton);
         gpDownloadButton.addActionListener( new ActionListener()
