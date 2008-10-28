@@ -113,7 +113,7 @@ import java.util.Locale;
  * that this gene's product participates in.
  * 
  * @author manjunath at genomecenter dot columbia dot edu
- * @version $Id: AnnotationsPanel.java,v 1.32 2008-09-19 16:51:19 xiaoqing Exp $
+ * @version $Id: AnnotationsPanel.java,v 1.33 2008-10-28 16:55:18 keshav Exp $
  * 
  * 
  */
@@ -1121,7 +1121,7 @@ public class AnnotationsPanel implements VisualPlugin, Observer{
      * <code>Canvas</code> on which the Pathway SVG image is drawn
      */
     private JSVGCanvas svgCanvas = new JSVGCanvas(new UserAgent(), true, true);
-    private static final String CABIO_BASE_URL = "http://cabio.nci.nih.gov/";
+    private static final String CABIO_BASE_URL = "http://cmap.nci.nih.gov/";
 
        
     
@@ -1228,8 +1228,15 @@ public class AnnotationsPanel implements VisualPlugin, Observer{
             System.out.print("</" + node.getNodeName() + ">");
     }
 
+    private static final String URI_PREFIX = "/CMAP/";
     private void svgCanvas_linkActivated(LinkActivationEvent lae) {
-        String uri = CABIO_BASE_URL + lae.getReferencedURI();
+    	String referenceUri = lae.getReferencedURI();
+    	if(referenceUri.startsWith(URI_PREFIX)) {
+    		referenceUri = referenceUri.substring(URI_PREFIX.length());
+    	} else {
+    		log.warn("reference URI does not start with /CAMP/ as expected: "+referenceUri);
+    	}
+        String uri = CABIO_BASE_URL + referenceUri;
 
 /*
         int index = uri.indexOf("BCID");

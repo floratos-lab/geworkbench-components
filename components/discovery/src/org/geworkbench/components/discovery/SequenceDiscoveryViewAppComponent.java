@@ -24,6 +24,7 @@ import org.geworkbench.engine.management.Asynchronous;
 import org.geworkbench.engine.management.Publish;
 import org.geworkbench.engine.management.Subscribe;
 import org.geworkbench.events.GeneSelectorEvent;
+import org.geworkbench.events.HistoryEvent;
 import org.geworkbench.events.ProjectEvent;
 import org.geworkbench.events.SequenceDiscoveryTableEvent;
 import org.geworkbench.events.SessionConnectEvent;
@@ -631,4 +632,15 @@ public class SequenceDiscoveryViewAppComponent implements VisualPlugin,
 			}
 		} // end notify
 	}
+
+	/**
+	 * This method is used to trigger HistoryPanel to refresh.
+	 * @param event
+	 * @return
+	 */
+	@Publish
+	public HistoryEvent publishHistoryEvent(HistoryEvent event) {
+		return event;
+	}
+
 }

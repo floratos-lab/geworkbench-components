@@ -19,9 +19,6 @@ public class AnalyticalServiceDiscoveryClient extends DiscoveryClient {
 			.getLog(AnalyticalServiceDiscoveryClient.class);
 	protected static final String LOCALHOST_INDEX_SERVICE = "http://localhost:8080/wsrf/services/DefaultIndexService";
 
-	private static final String URL_PRE = "http://";
-	private static final String URL_POST = "/wsrf/services/DefaultIndexService";
-
 	private String url;
 
 	/**
@@ -40,16 +37,6 @@ public class AnalyticalServiceDiscoveryClient extends DiscoveryClient {
 			throws MalformedURIException {
 		super(indexURL);
 		this.url = indexURL;
-	}
-
-	/**
-	 * @param host
-	 * @param port
-	 * @throws MalformedURIException
-	 */
-	public AnalyticalServiceDiscoveryClient(String host, int port)
-			throws MalformedURIException {
-		this(URL_PRE + host + ":" + port + URL_POST);
 	}
 
 	/**

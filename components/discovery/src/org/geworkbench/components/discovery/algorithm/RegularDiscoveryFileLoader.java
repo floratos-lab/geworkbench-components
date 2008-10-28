@@ -59,8 +59,9 @@ public class RegularDiscoveryFileLoader extends AbstractSequenceDiscoveryAlgorit
 
     }
 
+    /* This class is not for loading file instead of getting results, so ProgressChangeEvent is always set to be initial.  */
     private void progressChange() {
-        fireProgressChanged(new ProgressChangeEvent(patternNumber));
+        fireProgressChanged(new ProgressChangeEvent(true, patternNumber));
     }
 
     protected void statusChangedListenerAdded() {

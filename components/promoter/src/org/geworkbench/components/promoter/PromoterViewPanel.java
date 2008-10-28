@@ -1608,10 +1608,6 @@ public class PromoterViewPanel extends JPanel {
             dis.setHeight(0.9);
             dis.setShape(Display.OVAL);
             DSPattern<DSSequence, CSSeqRegistration> p = pattern.getPattern();
-            //set the associated sequenceDB to current sequenceDB.
-            if (pattern instanceof CSMatchedSeqPattern) {
-                ((CSMatchedSeqPattern) pattern).setSeqDB(sequenceDB);
-            }
 
             List<DSPatternMatch<DSSequence,
                     CSSeqRegistration>> matches = pattern.matches();

@@ -495,11 +495,12 @@ public class ParameterPanel extends JPanel {
 				0.0, GridBagConstraints.WEST, GridBagConstraints.NONE,
 				new Insets(0, 0, 0, 0), 0, 0));
 		jTabbedPane1.add(BasicPane, "Basic");
-		jTabbedPane1.add(jHierarchicalPane, "Hierarchical");
+		// FIXME if the commented-out three tabs (hierarchical, profileHMM, grouping) are decided to be removed permanently, we should remove reference to the panes altogether
+		//jTabbedPane1.add(jHierarchicalPane, "Hierarchical");
 		jTabbedPane1.add(jExhaustivePane, "Exhaustive");
 		jTabbedPane1.add(jLimitsPane, "Limits");
-		jTabbedPane1.add(jProfileHMMPane, "ProfileHMM");
-		jTabbedPane1.add(jGroupingPane, "Grouping");
+		//jTabbedPane1.add(jProfileHMMPane, "ProfileHMM");
+		//jTabbedPane1.add(jGroupingPane, "Grouping");
 		jTabbedPane1.add(AdvancedPane, "Advanced");
 		this.add(jTabbedPane1, BorderLayout.NORTH);
 		jTabbedPane1.setSelectedIndex(0);

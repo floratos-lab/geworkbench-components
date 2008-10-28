@@ -1,31 +1,63 @@
 package org.geworkbench.components.discovery;
 
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.util.HashMap;
+
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JFileChooser;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JProgressBar;
+import javax.swing.JToolBar;
+import javax.swing.border.TitledBorder;
+
+import org.geworkbench.bison.datastructure.biocollections.DSAncillaryDataSet;
 import org.geworkbench.bison.datastructure.biocollections.sequences.CSSequenceSet;
 import org.geworkbench.bison.datastructure.biocollections.sequences.DSSequenceSet;
 import org.geworkbench.bison.datastructure.complex.pattern.SoapParmsDataSet;
-import org.geworkbench.components.discovery.algorithm.*;
+import org.geworkbench.builtin.projects.ProjectPanel;
+import org.geworkbench.components.discovery.algorithm.AbstractSequenceDiscoveryAlgorithm;
+import org.geworkbench.components.discovery.algorithm.AlgorithmStub;
+import org.geworkbench.components.discovery.algorithm.ExhaustiveDiscovery;
+import org.geworkbench.components.discovery.algorithm.HierarchicalDiscovery;
+import org.geworkbench.components.discovery.algorithm.HierarchicalDiscoveryFileLoader;
+import org.geworkbench.components.discovery.algorithm.RegularDiscovery;
+import org.geworkbench.components.discovery.algorithm.RegularDiscoveryFileLoader;
 import org.geworkbench.components.discovery.model.GenericModel;
 import org.geworkbench.components.discovery.model.PatternTableModelWrapper;
 import org.geworkbench.components.discovery.model.PatternTreeModel;
 import org.geworkbench.components.discovery.view.PatternTableView;
 import org.geworkbench.components.discovery.view.PatternTreeView;
+import org.geworkbench.events.HistoryEvent;
 import org.geworkbench.events.ProgressBarEvent;
+import org.geworkbench.events.ProgressChangeEvent;
+import org.geworkbench.events.ProjectEvent;
 import org.geworkbench.events.StatusBarEvent;
+import org.geworkbench.events.listeners.ProgressChangeListener;
 import org.geworkbench.events.listeners.StatusChangeListener;
 import org.geworkbench.util.AlgorithmSelectionPanel;
 import org.geworkbench.util.remote.SPLASHDefinition;
 import org.geworkbench.util.session.DiscoverySession;
-import polgara.soapPD_wsdl.Parameters;
 
-import javax.swing.*;
-import javax.swing.border.TitledBorder;
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
-import java.io.*;
-import java.util.HashMap;
+import polgara.soapPD_wsdl.Parameters;
 
 /**
  * <p>
@@ -53,7 +85,7 @@ import java.util.HashMap;
  */
 
 public class SequenceDiscoveryViewWidget extends JPanel implements
-		StatusChangeListener, PropertyChangeListener {
+		StatusChangeListener, PropertyChangeListener, ProgressChangeListener {
 
 	/**
 	 * 
@@ -232,7 +264,8 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 		jToolBar1.add(executeButton);
 		jToolBar1.add(stopButton);
 		jToolBar1.add(loadBttn);
-		jToolBar1.add(useglobus);
+		// remove globus option for geWorkbench 1.6 release
+		//jToolBar1.add(useglobus);
 		jToolBar1.add(progressBar);
 		panelView.add(jToolBar1, java.awt.BorderLayout.NORTH);
 	}
@@ -327,6 +360,7 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 
 	private void switchAlgo(String selectedAlgo,
 			AbstractSequenceDiscoveryAlgorithm algorithm, int viewId) {
+		algorithm.addProgressChangeListener(this);
 		String stubKey = getProjectFileId();
 		AlgorithmStub stub = getStub(stubKey);
 		setStubAlgoAndPanel(stub, algorithm, selectedAlgo);
@@ -336,6 +370,7 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 		initAndStart(stub, viewId);
 	}
 
+	private DSAncillaryDataSet resultData = null;
 	/**
 	 * Reads the parameters from the parameter panel.
 	 * 
@@ -359,27 +394,9 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 		String id = pds.getID();
 		File resultFile = pds.getResultFile();
 		currentStubId = currentNodeID + id;
+		resultData = pds;
 		firePropertyChange(PARAMETERS, null, pds);
 		return resultFile.getAbsolutePath();
-	}
-
-	private void readParameter(String type) {
-		Parameters p = parmsHandler.readParameter(parameterPanel,
-				getSequenceDB().getSequenceNo(), type);
-		parms = p;
-		// fire a parameter change to the application
-		org.geworkbench.bison.datastructure.complex.pattern.Parameters pp = ParameterTranslation
-				.getParameterTranslation().translate(parms);
-		pp.setMinSupportType(parameterPanel.getCurrentSupportMenuStr());// To
-																		// fix
-																		// bug
-																		// 849
-		SoapParmsDataSet pds = new SoapParmsDataSet(pp, "Pattern Discovery",
-				getSequenceDB());
-		String id = pds.getID();
-		currentStubId = currentNodeID + id;
-		// currentStubId+=id;
-		firePropertyChange(PARAMETERS, null, pds);
 	}
 
 	/**
@@ -974,6 +991,53 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 
 		// fire a clear table event
 		firePropertyChange(TABLE_EVENT, null, null);
+	}
+
+	/**
+	 * Handle the data history.
+	 */
+	public void progressChanged(ProgressChangeEvent evt) {
+		if (evt == null || evt.isInitial() ) {
+			return;
+		}
+		int patternFound = evt.getPatternFound();
+		String selectedAlgo = algoPanel.getSelectedAlgorithmName();
+		ProjectPanel.addToHistory(resultData, "Pattern Discovery"
+				+"\nAlgorithm type: "+selectedAlgo
+				+"\nParameters: \n"+parametersText()
+				+"\nNumber of patterns found: "+patternFound
+				);
+
+		// trigger the update of history panel
+		appComponent.publishHistoryEvent(new HistoryEvent(resultData));
+	}
+
+	private String parametersText() {
+		return 
+		   "   Compute P-value: "+parms.getComputePValue()
+		+"\n   Count of sequences: "+parms.getCountSeq()
+		+"\n   Exact: "+parms.getExact()
+		+"\n   Exact tokens: "+parms.getExactTokens()
+		+"\n   Grouping N: "+parms.getGroupingN()
+		+"\n   Grouping type: "+parms.getGroupingType()
+		+"\n   Input name: "+parms.getInputName()
+		+"\n   Max pattern number: "+parms.getMaxPatternNo()
+		+"\n   Max run time: "+parms.getMaxRunTime()
+		+"\n   Min pattern number: "+parms.getMinPatternNo()
+		+"\n   Min per 100 support: "+parms.getMinPer100Support()
+		+"\n   Min P-value: "+parms.getMinPValue()
+		+"\n   Min support: "+parms.getMinSupport()
+		+"\n   Min tokens: "+parms.getMinTokens()
+		+"\n   Min W tokens: "+parms.getMinWTokens()
+		+"\n   Output mode: "+parms.getOutputMode()
+		+"\n   Print details: "+parms.getPrintDetails()
+		+"\n   Similarity matrix: "+parms.getSimilarityMatrix()
+		+"\n   Similarity threshold: "+parms.getSimilarityThreshold()
+		+"\n   Sort mode: "+parms.getSortMode()
+		+"\n   Threshold ID: "+parms.getThreadId()
+		+"\n   Threshold number: "+parms.getThreadNo()
+		+"\n   Window: "+parms.getWindow()
+		;
 	}
 }
 

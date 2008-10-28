@@ -71,14 +71,16 @@ public class MindyParamPanel extends AbstractSaveableParameterPanel implements
 
 	private static final String[] DEFAULT_SET = { " " };
 
-	private static final String[] CONDITIONAL_UNCONDITIONAL = { P_VALUE, MI };
+	private static final String[] CONDITIONAL = { MI };
+	private static final String[] UNCONDITIONAL = { P_VALUE, MI };
 
-	private static final String[] CONDITIONAL_UNCONDITIONAL_DEFAULT_VALUES = {
+	private static final String[] CONDITIONAL_DEFAULT_VALUES = {
+			"0" };
+	private static final String[] UNCONDITIONAL_DEFAULT_VALUES = {
 			"1e-2", "0" };
 
 	private static final String[] CORRECTIONS = { NONE, BONFERRONI };
 
-	private static final String DEFAULT_THRESHOLD_VALUE = CONDITIONAL_UNCONDITIONAL_DEFAULT_VALUES[0];
 
 	private static final int MAX_ERROR_MESSAGE_LENGTH = 100;
 
@@ -124,14 +126,14 @@ public class MindyParamPanel extends AbstractSaveableParameterPanel implements
 			0d, 1d, 0.1d));
 
 	private JComboBox conditionalCombo = new JComboBox(
-			CONDITIONAL_UNCONDITIONAL);
+			CONDITIONAL);
 
 	private JComboBox unconditionalCombo = new JComboBox(
-			CONDITIONAL_UNCONDITIONAL);
+			UNCONDITIONAL);
 
-	private JTextField conditional = new JTextField(DEFAULT_THRESHOLD_VALUE);
+	private JTextField conditional = new JTextField(CONDITIONAL_DEFAULT_VALUES[0]);
 
-	private JTextField unconditional = new JTextField(DEFAULT_THRESHOLD_VALUE);
+	private JTextField unconditional = new JTextField(UNCONDITIONAL_DEFAULT_VALUES[0]);
 
 	private JComboBox conditionalCorrection = new JComboBox(CORRECTIONS);
 
@@ -411,11 +413,14 @@ public class MindyParamPanel extends AbstractSaveableParameterPanel implements
 		this.unconditionalCombo.setSelectedIndex(0);
 		this.unconditionalCorrection.setSelectedIndex(0);
 
+// Have to set this to default off.
+		conditionalCorrection.setEnabled(false);
+
 		this.conditionalCombo.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent actionEvent) {
 				conditional
 						.setText(""
-								+ CONDITIONAL_UNCONDITIONAL_DEFAULT_VALUES[conditionalCombo
+								+ CONDITIONAL_DEFAULT_VALUES[conditionalCombo
 										.getSelectedIndex()]);
 				if (getConditional().trim().equals(P_VALUE)) {
 					conditionalCorrection.setEnabled(true);
@@ -429,7 +434,7 @@ public class MindyParamPanel extends AbstractSaveableParameterPanel implements
 			public void actionPerformed(ActionEvent actionEvent) {
 				unconditional
 						.setText(""
-								+ CONDITIONAL_UNCONDITIONAL_DEFAULT_VALUES[unconditionalCombo
+								+ UNCONDITIONAL_DEFAULT_VALUES[unconditionalCombo
 										.getSelectedIndex()]);
 				if (getUnconditional().trim().equals(P_VALUE)) {
 					unconditionalCorrection.setEnabled(true);
@@ -531,7 +536,7 @@ public class MindyParamPanel extends AbstractSaveableParameterPanel implements
 
 	public float getConditionalValue() {
 		float result = new Double(
-				CONDITIONAL_UNCONDITIONAL_DEFAULT_VALUES[this.conditionalCombo
+				CONDITIONAL_DEFAULT_VALUES[this.conditionalCombo
 						.getSelectedIndex()]).floatValue();
 		try {
 			result = new Double(this.conditional.getText()).floatValue();
@@ -555,7 +560,7 @@ public class MindyParamPanel extends AbstractSaveableParameterPanel implements
 
 	public float getUnconditionalValue() {
 		float result = new Double(
-				CONDITIONAL_UNCONDITIONAL_DEFAULT_VALUES[this.unconditionalCombo
+				UNCONDITIONAL_DEFAULT_VALUES[this.unconditionalCombo
 						.getSelectedIndex()]).floatValue();
 		try {
 			result = new Double(this.unconditional.getText()).floatValue();

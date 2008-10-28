@@ -31,7 +31,7 @@ import com.jgoodies.forms.layout.FormLayout;
 /**
  * 
  * @author keshav
- * @version $Id: GridServicePanel.java,v 1.33 2008-09-11 03:42:52 hungc Exp $
+ * @version $Id: GridServicePanel.java,v 1.34 2008-10-28 16:55:18 keshav Exp $
  */
 public class GridServicePanel extends JPanel {
 	private Log log = LogFactory.getLog(this.getClass());
@@ -112,6 +112,7 @@ public class GridServicePanel extends JPanel {
 				.convertTextToHtml("Change Index Service"));
 		indexServiceLabel.setForeground(Color.BLUE);
 
+		//TODO: change indexServiceLabelListener here to new one.
 		// index service label listener
 		final IndexServiceLabelListener indexServiceLabelListener = new IndexServiceLabelListener(
 				indexServiceLabel);
@@ -238,11 +239,8 @@ public class GridServicePanel extends JPanel {
 		return gridServicesButtonListener.getServicesButtonGroup();
 	}
 	
-	public String getHost(){
-		return gridServicesButtonListener.getHost();
+	public String getIndexServerUrl(){
+		return gridServicesButtonListener.getIndexServerUrl();
 	}
 	
-	public int getPort(){
-		return gridServicesButtonListener.getPort();
-	}
 }

@@ -98,10 +98,16 @@ public class ColorMosaicImage extends JPanel implements Scrollable {
 
     private JPopupMenu popupMenu;
     private JMenuItem imageSnapshotItem;
-
+    private boolean enablePaint = true;
+    public void setEnablePaint(boolean b){
+    	enablePaint = b;
+    }
+    
     protected void paintComponent(Graphics g) {
-        super.paintComponent(g);
-        paint(g, DEFAULTRES, true);
+    	if (enablePaint){
+    		super.paintComponent(g);
+    		paint(g, DEFAULTRES, true);
+    	}
     }
 
     public void setSignificanceResultSet(DSSignificanceResultSet<DSGeneMarker> significanceResultSet) {

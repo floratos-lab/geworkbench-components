@@ -105,7 +105,7 @@ public final class RegularDiscovery extends ServerBaseDiscovery implements org.g
         //do last update
         update();
         //fire status change
-        fireStatusEvent();
+        fireStatusEvent(false);
     }
 
     /**
@@ -135,8 +135,8 @@ public final class RegularDiscovery extends ServerBaseDiscovery implements org.g
     /**
      * Report the number of patterns through a status event.
      */
-    private void fireStatusEvent() {
-        fireProgressChanged(new ProgressChangeEvent(discoveredPattern));
+    private void fireStatusEvent(boolean initial) {
+        fireProgressChanged(new ProgressChangeEvent(initial, discoveredPattern));
     }
 
     /**
@@ -210,7 +210,7 @@ public final class RegularDiscovery extends ServerBaseDiscovery implements org.g
 
     protected void statusChangedListenerAdded() {
         super.statusChangedListenerAdded();
-        fireStatusEvent();
+        fireStatusEvent(true);
         fireStatusBarEvent(statusBarMessage);
     }
 
