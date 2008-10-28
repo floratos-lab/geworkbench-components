@@ -1,5 +1,8 @@
 package edu.columbia.geworkbench.cagrid.discovery.client;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.apache.axis.message.addressing.AttributedURI;
 import org.apache.axis.message.addressing.EndpointReferenceType;
 import org.apache.commons.lang.StringUtils;
@@ -26,7 +29,7 @@ import gov.nih.nci.cagrid.metadata.service.ServiceServiceContextCollection;
 /**
  * 
  * @author keshav
- * @version $Id: DiscoveryServiceUtil.java,v 1.4 2008-01-03 19:27:27 keshav Exp $
+ * @version $Id: DiscoveryServiceUtil.java,v 1.5 2008-10-28 16:55:17 keshav Exp $
  */
 public class DiscoveryServiceUtil {
 	private static final String NOT_AVAILABLE = "unavailable";
@@ -42,18 +45,30 @@ public class DiscoveryServiceUtil {
 	 * @return
 	 * @throws Exception
 	 */
-	public static EndpointReferenceType[] getServices(String indexServiceHost,
-			int indexServicePort, String search) throws Exception {
+	public static EndpointReferenceType[] getServices(String indexServiceUrl, String dispatcherUrl,
+			String search) throws Exception {
 
 		EndpointReferenceType[] allServices = null;
 
 		AnalyticalServiceDiscoveryClient client = new AnalyticalServiceDiscoveryClient(
-				indexServiceHost, indexServicePort);
+				indexServiceUrl);
 
 		if (StringUtils.isEmpty(search)) {
 			allServices = client.getAllServices();
 		} else {
 			allServices = client.discoverServicesBySearchString(search);
+		}
+
+		Pattern myPattern = Pattern.compile("^http://.*(/.*)/wsrf/.*");
+		if ((dispatcherUrl.matches("^http://.*/(.*)/wsrf/.*"))&&(allServices !=null)){
+			Matcher matcher = myPattern.matcher(dispatcherUrl);
+			String insertStr = "";
+			if (matcher.matches())
+				insertStr = matcher.group(1);
+			for (int i=0; i<allServices.length; i++){
+				AttributedURI test = allServices[i].getAddress();
+				test.setPath(test.getPath().replaceAll("/wsrf/", insertStr+"/wsrf/"));
+			}
 		}
 		if (log.isInfoEnabled())
 			displayMetadata(allServices);

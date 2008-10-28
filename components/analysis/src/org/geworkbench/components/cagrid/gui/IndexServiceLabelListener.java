@@ -1,3 +1,22 @@
+/*
+ * The analysis project
+ * 
+ * Copyright (c) 2008 Columbia University
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
 package org.geworkbench.components.cagrid.gui;
 
 import java.awt.BorderLayout;
@@ -24,37 +43,35 @@ import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.layout.FormLayout;
 
 /**
- * 
- * @author keshav
- * @version $Id: IndexServiceLabelListener.java,v 1.1 2007/03/14 20:32:08 keshav
- *          Exp $
+ * copy and modified from DespatcherLabelListener.java originally written by Kiran
+ * @author yc2480
+ * @version $Id: IndexServiceLabelListener.java,v 1.10 2008-10-28 16:55:18 keshav Exp $
  */
 public class IndexServiceLabelListener implements MouseListener {
-	private static final String GRID_PORT_KEY = "gridPort";
 
-	private static final String GRID_HOST_KEY = "gridHost";
+	private static final String GRID_HOST_KEY = "indexServerURL";
 
 	private Log log = LogFactory.getLog(this.getClass());
 
-	private int DEFAULT_PORT = 8080;
+	private JDialog indexServerDialog = null;
 
-	private String DEFAULT_HOST = "cagrid-index.nci.nih.gov";
+	final static String INDEXSERVER_URL = "indexServer.url"; // used to get
+															// dispatcher url
+															// from
+															// application.properties,
+															// used as default
+															// value.
 
-	private JDialog indexServiceDialog = null;
+	private String host = System.getProperty(INDEXSERVER_URL);;
 
-	private String host = DEFAULT_HOST;
+	JLabel indexServerLabel = null;
 
-	private int port = DEFAULT_PORT;
+	JButton indexServerButton = null;
 
-	JLabel indexServiceLabel = null;
-
-	JButton indexServiceButton = null;
-
-	public IndexServiceLabelListener(JLabel indexServiceLabel) {
+	public IndexServiceLabelListener(JLabel indexServerLabel) {
 		super();
-		this.indexServiceLabel = indexServiceLabel;
-
-		indexServiceButton = new JButton("Grid Services");
+		this.indexServerLabel = indexServerLabel;
+		indexServerButton = new JButton("Grid Services");
 	}
 
 	/*
@@ -66,25 +83,23 @@ public class IndexServiceLabelListener implements MouseListener {
 		log.debug("changing url");
 
 		// TODO can you refactor a lot of this into a pattern? See GuiTest.
-		indexServiceDialog = new JDialog();
-		DefaultFormBuilder indexServicePanelBuilder = new DefaultFormBuilder(
+		indexServerDialog = new JDialog();
+		DefaultFormBuilder indexServerPanelBuilder = new DefaultFormBuilder(
 				new FormLayout("right:20dlu"));
 
 		readProperties();
 
 		final JTextField hostField = new JTextField(host);
-		final JTextField portField = new JTextField("" + port);
 
 		JPanel buttonPanel = new JPanel(new FlowLayout());
 		JButton okButton = new JButton("Ok");
 		okButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				port = Integer.parseInt(portField.getText());
 				host = hostField.getText();
 
 				saveProperties();
 
-				indexServiceDialog.dispose();
+				indexServerDialog.dispose();
 
 			}
 		});
@@ -92,7 +107,7 @@ public class IndexServiceLabelListener implements MouseListener {
 		JButton cancelButton = new JButton("Cancel");
 		cancelButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				indexServiceDialog.dispose();
+				indexServerDialog.dispose();
 			}
 		});
 
@@ -101,20 +116,19 @@ public class IndexServiceLabelListener implements MouseListener {
 		buttonPanel.add(cancelButton);
 
 		/* the builder */
-		indexServicePanelBuilder.appendColumn("5dlu");
-		indexServicePanelBuilder.appendColumn("45dlu");
+		indexServerPanelBuilder.appendColumn("5dlu");
+		indexServerPanelBuilder.appendColumn("250dlu");
 
-		indexServicePanelBuilder.append("host", hostField);
-		indexServicePanelBuilder.append("port", portField);
+		indexServerPanelBuilder.append("URL", hostField);
 
-		JPanel indexServicePanel = new JPanel(new BorderLayout());
-		indexServicePanel.add(indexServicePanelBuilder.getPanel());
-		indexServicePanel.add(buttonPanel, BorderLayout.SOUTH);
-		indexServiceDialog.add(indexServicePanel);
-		indexServiceDialog.setModal(true);
-		indexServiceDialog.pack();
-		Util.centerWindow(indexServiceDialog);
-		indexServiceDialog.setVisible(true);
+		JPanel indexServerPanel = new JPanel(new BorderLayout());
+		indexServerPanel.add(indexServerPanelBuilder.getPanel());
+		indexServerPanel.add(buttonPanel, BorderLayout.SOUTH);
+		indexServerDialog.add(indexServerPanel);
+		indexServerDialog.setModal(true);
+		indexServerDialog.pack();
+		Util.centerWindow(indexServerDialog);
+		indexServerDialog.setVisible(true);
 	}
 
 	/*
@@ -167,19 +181,10 @@ public class IndexServiceLabelListener implements MouseListener {
 	}
 
 	/**
-	 * 
-	 * @return int
-	 */
-	public int getPort() {
-		readProperties();
-		return port;
-	}
-
-	/**
 	 * @return JButton
 	 */
 	public JButton getIndexServiceButton() {
-		return indexServiceButton;
+		return indexServerButton;
 	}
 
 	/**
@@ -192,8 +197,6 @@ public class IndexServiceLabelListener implements MouseListener {
 		try {
 			properties.setProperty(this.getClass(), GRID_HOST_KEY, String
 					.valueOf(host));
-			properties.setProperty(this.getClass(), GRID_PORT_KEY, String
-					.valueOf(port));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -206,16 +209,10 @@ public class IndexServiceLabelListener implements MouseListener {
 	private void readProperties() {
 		PropertiesManager pm = PropertiesManager.getInstance();
 		String savedHost = null;
-		String savedPort = null;
 		try {
 			savedHost = pm.getProperty(this.getClass(), GRID_HOST_KEY, host);
 			if (!StringUtils.isEmpty(savedHost)) {
 				host = savedHost;
-			}
-			savedPort = pm.getProperty(this.getClass(), GRID_PORT_KEY, String
-					.valueOf(port));
-			if (!StringUtils.isEmpty(savedPort)) {
-				port = Integer.parseInt(savedPort);
 			}
 		} catch (IOException e) {
 			e.printStackTrace();

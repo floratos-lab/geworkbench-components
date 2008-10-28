@@ -324,6 +324,7 @@ public class HierClusterViewWidget extends JPanel implements HierClusterModelEve
      * @param hcme the new model wrapping the clustering data
      */
     public void hierClusterModelChange(HierClusterModelEvent hcme) {
+    	display.resetVariables();	//fix mantis #1578
         mASet = hcme.getMicroarraySet();
         originalMarkerCluster = selectedMarkerCluster = hcme.getMarkerCluster();
         originalArrayCluster = selectedArrayCluster = hcme.getMicroarrayCluster();

@@ -14,6 +14,7 @@ import java.awt.Insets;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.awt.print.PageFormat;
@@ -32,7 +33,10 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSlider;
 import javax.swing.JSpinner;
@@ -53,19 +57,17 @@ import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.CSTTestResultSet;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSSignificanceResultSet;
-import org.geworkbench.bison.datastructure.complex.panels.CSItemList;
 import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
 import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
-import org.geworkbench.bison.datastructure.complex.pattern.CSPatternMatch;
-import org.geworkbench.bison.datastructure.complex.pattern.DSPatternMatch;
-import org.geworkbench.bison.util.DSPValue;
 import org.geworkbench.engine.config.MenuListener;
 import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.engine.management.AcceptTypes;
 import org.geworkbench.engine.management.Publish;
 import org.geworkbench.engine.management.Subscribe;
 import org.geworkbench.events.AssociationPanelEvent;
+import org.geworkbench.events.CleanDataEvent;
+import org.geworkbench.events.DirtyDataEvent;
 import org.geworkbench.events.GeneSelectorEvent;
 import org.geworkbench.events.MarkerSelectedEvent;
 import org.geworkbench.events.PhenotypeSelectedEvent;
@@ -73,22 +75,6 @@ import org.geworkbench.events.PhenotypeSelectorEvent;
 import org.geworkbench.events.ProjectEvent;
 import org.geworkbench.util.associationdiscovery.cluster.CSMatchedMatrixPattern;
 import org.geworkbench.util.associationdiscovery.cluster.CSMatrixPattern;
-
-import javax.swing.*;
-import javax.swing.event.ChangeEvent;
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseEvent;
-import java.awt.geom.AffineTransform;
-import java.awt.image.BufferedImage;
-import java.awt.print.PageFormat;
-import java.awt.print.Printable;
-import java.awt.print.PrinterException;
-import java.awt.print.PrinterJob;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
 
 /**
  * <p>Title: Plug And Play</p>
@@ -150,6 +136,17 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
     
     private static final int GENE_HEIGHT = 10;
     private static final int GENE_WIDTH = 20;
+
+    @Subscribe 
+    public void receive(DirtyDataEvent event, Object from) {
+    	colorMosaicImage.setEnablePaint(false);
+    	rowRuler.setEnablePaint(false);
+    }
+    @Subscribe 
+    public void receive(CleanDataEvent event, Object from) {
+    	colorMosaicImage.setEnablePaint(true);
+    	rowRuler.setEnablePaint(true);
+    }
 
     public ColorMosaicPanel() {
         try {
@@ -632,7 +629,6 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
         }
 
     }
-
     public int print(Graphics g, PageFormat pf, int pi) throws PrinterException {
         int[] res = {600, 600, 3};
         Graphics2D g2 = (Graphics2D) g;
@@ -743,6 +739,7 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
         colorMosaicImage.setSignal(showSignal);
     }
 
+    
     @SuppressWarnings("unchecked")
     @Subscribe public void receive(ProjectEvent projectEvent, Object source) {
         DSDataSet dataFile = projectEvent.getDataSet();

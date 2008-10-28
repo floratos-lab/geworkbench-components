@@ -501,4 +501,17 @@ public class HierClusterDisplay extends JPanel {
             return markerInfo;
         }
     }
+	/**
+	 * detail see mantis #1578. 
+	 * Clear old variables. 
+	 * This method will be called in hierClusterModelChange() in HierClusterViewWidget.java 
+	 * when new data arrives.
+	 */
+	public void resetVariables() {
+		this.currentArrayCluster = null;
+		this.currentMarkerCluster = null;
+		this.leafArrays = null;
+		this.leafMarkers = null;
+		this.microarraySet = null;
+	}    
 }

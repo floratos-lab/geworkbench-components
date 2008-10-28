@@ -653,6 +653,7 @@ public class TtestAnalysis extends AbstractAnalysis implements
 	
 	public AlgorithmExecutionResults executeMaxT(ProgressBar pbTtest) {
 		double[] origTValues = new double[numGenes];
+		double[] absTValues = new double[numGenes];
 		double[] descTValues = new double[numGenes];
 		int[] descGeneIndices = new int[numGenes];
 		double[] adjPValues = new double[numGenes];
@@ -662,10 +663,12 @@ public class TtestAnalysis extends AbstractAnalysis implements
 			for (int i = 0; i < numGenes; i++) {
 				if (this.stopAlgorithm) {pbTtest.dispose(); return null;}
 				origTValues[i] = getTValue(i);
+				absTValues[i] = Math.abs(getTValue(i));
 			}
 
-			org.geworkbench.util.QSort sortDescTValues = new QSort(origTValues,
+			org.geworkbench.util.QSort sortDescTValues = new QSort(absTValues,
 					org.geworkbench.util.QSort.DESCENDING);
+			//FIXME: this descTValues is descAbsTValue, but probably we can delete it, seems no one use this variable.
 			descTValues = sortDescTValues.getSortedDouble();
 			descGeneIndices = sortDescTValues.getOrigIndx();
 
@@ -767,7 +770,7 @@ public class TtestAnalysis extends AbstractAnalysis implements
 							+ "\t\tthe real number of permutations will be "
 							+ iterationCounter
 							+ ".\n\n"
-							+ "\t\tIf You choose to proceed the run time of the analysis will be longer then You expect!";
+							+ "\t\tIf you choose to proceed the run time of the analysis will be longer then you expect!";
 					Object[] options = { "Proceed", "Cancel" };
 					int n = JOptionPane.showOptionDialog(tTestAnalysisPanel
 							.getTopLevelAncestor(), message,
@@ -948,8 +951,8 @@ public class TtestAnalysis extends AbstractAnalysis implements
 								.isNaN(currentPermTValues[descGeneIndices[j]])) {
 							uMatrix[j][i] = uMatrix[j + 1][i];
 						} else {
-							uMatrix[j][i] = Math.max(uMatrix[j + 1][i],
-									currentPermTValues[descGeneIndices[j]]);
+							uMatrix[j][i] = Math.max(Math.abs(uMatrix[j + 1][i]),
+									Math.abs(currentPermTValues[descGeneIndices[j]]));
 						}
 					}
 				}
@@ -963,7 +966,7 @@ public class TtestAnalysis extends AbstractAnalysis implements
 			int pCounter = 0;
 			for (int j = 0; j < numCombs; j++) {
 				if (this.stopAlgorithm) {pbTtest.dispose(); return null;}
-				if (uMatrix[i][j] >= descTValues[i]) {
+				if (Math.abs(uMatrix[i][j]) >= Math.abs(descTValues[i])) {
 					pCounter++;
 				}
 			}
@@ -2332,7 +2335,7 @@ public class TtestAnalysis extends AbstractAnalysis implements
 			float[] tValues = new float[numGenes];
 			for (int i = 0; i < numGenes; i++) {
 				if (this.stopAlgorithm) {pbTtest.dispose(); return null;}
-				tValues[i] = getTValue(i);
+				tValues[i] = Math.abs(getTValue(i));
 			}
 
 			QSort sortTValues = new QSort(tValues);
@@ -2467,7 +2470,7 @@ public class TtestAnalysis extends AbstractAnalysis implements
 			nonSigGenes = new Vector();
 			float[] tValues = new float[numGenes];
 			for (int i = 0; i < numGenes; i++) {
-				tValues[i] = getTValue(i);
+				tValues[i] = Math.abs(getTValue(i));
 			}
 
 			QSort sortTValues = new QSort(tValues);

@@ -349,6 +349,18 @@ import java.awt.event.ActionListener;
             // Bring up an error message
             JOptionPane.showMessageDialog(null, pvr.getMessage(), "Parameter Validation Error", JOptionPane.ERROR_MESSAGE);
         } else {
+        	final int PROCEED_OPTION = 0;
+        	Object[] options = { "Proceed", "Cancel" };
+			int n = JOptionPane.showOptionDialog(null,
+					"You're making changes to the data. \nDo you want to save the current workspace before the change takes place?\n"
+					+"If you want to save the workspace, please click cancel and then save it from the application menu.",
+					"Proceed to change?",
+					JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE,
+					null, // do not use a custom Icon
+					options, // the titles of buttons
+					options[0]); // default button title
+			if(n!=PROCEED_OPTION) return;
+			
             // Invoke the selected filter
             AlgorithmExecutionResults results = selectedFilter.execute(maSet);
             // If there were problems encountered, let the user know.

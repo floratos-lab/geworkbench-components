@@ -39,8 +39,7 @@ public class GridServicesButtonListener implements ActionListener {
 
 	ButtonGroup servicesButtonGroup = null;
 	
-	String host = "";
-	int port = 0;
+	String indexServerUrl = "";
 
 	/**
 	 * 
@@ -76,18 +75,17 @@ public class GridServicesButtonListener implements ActionListener {
 				pBar.start();
 				pBar.reset();
 
-				host = indexServiceLabelListener.getHost();
-				port = indexServiceLabelListener.getPort();
+				indexServerUrl = indexServiceLabelListener.getHost();
 				EndpointReferenceType[] services = null;
 				try {
-					services = DiscoveryServiceUtil.getServices(host, port,
+					services = DiscoveryServiceUtil.getServices(indexServerUrl,dispatcherLabelListener.getHost(),
 							selectedAnalysisType);
 				} catch (Exception e) {
 					// JDialog jdialog = new ErrorDialog("");
 					// jdialog.setVisible(true);
 					// Util.centerWindow(jdialog);
 					JOptionPane.showMessageDialog(null, "Cannot reach host "
-							+ host + ":" + port, "Error",
+							+ indexServerUrl, "Error",
 							JOptionPane.ERROR_MESSAGE);
 					e.printStackTrace();
 				}
@@ -166,11 +164,8 @@ public class GridServicesButtonListener implements ActionListener {
 		this.selectedAnalysisType = selectedAnalysisType;
 	}
 	
-	public String getHost(){
-		return host;
+	public String getIndexServerUrl(){
+		return indexServerUrl;
 	}
 	
-	public int getPort(){
-		return port;
-	}
 }

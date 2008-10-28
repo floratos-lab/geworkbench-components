@@ -38,7 +38,8 @@ public class CMVRuler extends JComponent {
     JMenuItem jMenuItem2 = new JMenuItem();
     JMenuItem jMenuItem3 = new JMenuItem();
     JMenuItem jMenuItem4 = new JMenuItem();
-
+    private boolean enablePaint = true;
+    
     public CMVRuler(ColorMosaicImage area) {
         colorMosaicImage = area;
 
@@ -80,6 +81,7 @@ public class CMVRuler extends JComponent {
     }
 
     protected void paintComponent(Graphics gGen) {
+    	if (enablePaint)
         paint(gGen, DEFAULTRES);
     }
 
@@ -341,7 +343,7 @@ public class CMVRuler extends JComponent {
 
 										if (lastGene > firstGene) {
 											isGrouped = true;
-
+											if (getGraphics()!=null){
 											Rectangle2D rect = labelFont
 													.getStringBounds(
 															new StringCharacterIterator(
@@ -354,6 +356,9 @@ public class CMVRuler extends JComponent {
 																	.getFontRenderContext());
 											width = Math.max(width, rect
 													.getWidth());
+											}else{
+												width = 0;
+											}
 											geneId = lastGene;
 										}
 									}
@@ -379,4 +384,8 @@ public class CMVRuler extends JComponent {
     public double getScaledWidth() {
         return width;
     }
+
+	public void setEnablePaint(boolean enablePaint) {
+		this.enablePaint = enablePaint;
+	}
 }

@@ -1,5 +1,4 @@
 #Version Information:
-#Thursday July 03 12:19:48 EDT 2008
-version=Version 1.5
-buildTime=Thursday July 03 12\:19\:48 EDT 2008
+version=Version 1.6
+buildTime=Friday October 24 02:45:59 EDT 2008
 build=0
