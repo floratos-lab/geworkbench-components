@@ -21,6 +21,7 @@ import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.annotation.CSAnnotationContextManager;
 import org.geworkbench.bison.annotation.DSAnnotationContext;
 import org.geworkbench.bison.annotation.CSAnnotationContext;
+import org.geworkbench.util.ProgressBar;
 
 import org.jdesktop.swingx.JXTable;
 
@@ -71,8 +72,8 @@ public class SVMVisualizationPanel extends JPanel implements ItemListener
     private JXTable testResultsTable;
     private JRadioButton caseRadioButton;
     private JRadioButton controlRadioButton;
-    private JFormattedTextField confidenceThreshold = new JFormattedTextField(new DecimalFormat("0.00"));
-    private HashMap confidenceMap;
+    private JFormattedTextField confidenceThreshold = new JFormattedTextField(new DecimalFormat("#.#######"));
+    private SortedMap confidenceMap;
 
     public SVMVisualizationPanel(SVMClassifier svmClassifier, SVMVisualComponent svmVisComp)
     {
@@ -123,8 +124,8 @@ public class SVMVisualizationPanel extends JPanel implements ItemListener
         testMainPanel.setLeftComponent(new JScrollPane(testDataPanel));
 
         JSplitPane mainSplitPanel = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
-        mainSplitPanel.setDividerLocation(0.56);
-        mainSplitPanel.setResizeWeight(0.56);
+        mainSplitPanel.setDividerLocation(0.50);
+        mainSplitPanel.setResizeWeight(0.50);
 
         mainSplitPanel.setTopComponent(tabPane);
 
@@ -139,7 +140,8 @@ public class SVMVisualizationPanel extends JPanel implements ItemListener
         {
             public void stateChanged(ChangeEvent event)
             {
-                applyConfidenceFilter();
+                if(confidenceThreshold.getValue() != null)
+                    applyConfidenceFilter();
             }
         });
     }
@@ -169,7 +171,7 @@ public class SVMVisualizationPanel extends JPanel implements ItemListener
 
         java.net.URL imageURL1 = SVMVisualizationPanel.class.getResource("images/green_check_mark.gif");
         ImageIcon correct_image = new ImageIcon(imageURL1);
-        
+
         java.net.URL imageURL2 = SVMVisualizationPanel.class.getResource("images/xMark.gif");
         ImageIcon incorrect_image = new ImageIcon(imageURL2);
 
@@ -194,7 +196,10 @@ public class SVMVisualizationPanel extends JPanel implements ItemListener
 
         trainResultsTable.setModel(tableModel);
         trainResultsTable.getColumn("Correct?").setCellRenderer(new IconRenderer());
-        trainResultsTable.getColumn("Correct?").setMaxWidth(80);
+        //trainResultsTable.getColumn("Correct?").setMaxWidth(80);
+        trainResultsTable.setFillsViewportHeight(true);
+        trainResultsTable.getColumn("Correct?").sizeWidthToFit();
+
         trainResultsTable.setSortOrder("Confidence", SortOrder.DESCENDING);
 
         JScrollPane scrollPane = new JScrollPane(trainResultsTable);
@@ -479,11 +484,24 @@ public class SVMVisualizationPanel extends JPanel implements ItemListener
                     labelNames.add(labels[i].getLastPathComponent());
                 }
 
+                //save labels that belong in context that are used to test the classifier
                 testLabels.put(context, labelNames);
 
                 manager.setCurrentContext(maSet, selectedContext);
                 svmClassifier.setParent(maSet);
+
+                ProgressBar progressBar;
+                progressBar = ProgressBar.create(ProgressBar.INDETERMINATE_TYPE);
+                progressBar.setTitle("Running classifier on test set");
+                progressBar.setAlwaysOnTop(true);
+                progressBar.showValues(false);
+
+                progressBar.start();
+
                 svmClassifier.classify(panel);
+
+                progressBar.stop();
+
                 buildTestResultTable();
             }
         });
@@ -552,7 +570,7 @@ public class SVMVisualizationPanel extends JPanel implements ItemListener
         sliderToolBar.setFloatable(false);
         sliderToolBar.setBorderPainted(false);
 
-        JSlider confSlider = new JSlider(1, 101, 1);
+        JSlider confSlider = new JSlider(1, 101);
         confSlider.setPaintTicks(true);
         confSlider.setMajorTickSpacing(10);
         confSlider.setMinorTickSpacing(1);
@@ -562,31 +580,18 @@ public class SVMVisualizationPanel extends JPanel implements ItemListener
             {
                 JSlider slider = (JSlider)event.getSource();
 
-                //confidenceThreshold.setValue((0.01 * slider.getValue()) - 0.01);
-
                 double sliderValue = (0.01 * slider.getValue()) - 0.01;
 
-                System.out.println("Slider value: " + sliderValue);
-
-                /*double value = 0;
-                for(int i = 0; i < curveChart.getXYPlot().getDataset().getItemCount(0); i++)
-                {
-                    if(sliderValue <= curveChart.getXYPlot().getDataset().getXValue(0, i))
-                    {
-                        value = curveChart.getXYPlot().getDataset().getXValue(0, i);
-                    }
-                    else
-                        break;
-                } */
-
-                double confidence= 0;
+                double confidence = 0;
                 Set unclassified = confidenceMap.keySet();
                 Iterator unclIt = unclassified.iterator();
                 while(unclIt.hasNext())
                 {
                     double value = (Double)unclIt.next();
                     if(value > sliderValue)
+                    {
                         break;
+                    }
                     else
                         confidence = (Double)confidenceMap.get(value);
                 }
@@ -607,10 +612,10 @@ public class SVMVisualizationPanel extends JPanel implements ItemListener
         sliderToolBar.add(Box.createRigidArea(new Dimension(20, 0)));
         graphPanel.add(sliderToolBar, BorderLayout.PAGE_END);
 
-        confidenceThreshold.setValue(0.0);
-        confidenceThreshold.setMinimumSize(new Dimension(50, 24));
-        confidenceThreshold.setPreferredSize(new Dimension(50, 24));
-        confidenceThreshold.setMaximumSize(new Dimension(50, 24));
+        confSlider.setValue(1);
+        confidenceThreshold.setMinimumSize(new Dimension(77, 24));
+        confidenceThreshold.setPreferredSize(new Dimension(77, 24));
+        confidenceThreshold.setMaximumSize(new Dimension(77, 24));
 
         JLabel confidenceLabel = new JLabel("Confidence Threshold:");
         confidenceLabel.setFont(new JCheckBox().getFont().deriveFont(4));
@@ -727,7 +732,7 @@ public class SVMVisualizationPanel extends JPanel implements ItemListener
 
     public XYDataset getPlotData()
     {
-        confidenceMap = new HashMap();
+        confidenceMap = new TreeMap();
         XYSeriesCollection xySeriesCol = new XYSeriesCollection();
 
         XYSeries accuracySeries = new XYSeries("Accuracy");
@@ -740,11 +745,11 @@ public class SVMVisualizationPanel extends JPanel implements ItemListener
         xySeriesCol.addSeries(specificitySeries);
 
         int N = trainResultsTable.getRowCount();
-        double prevConfidence = Double.valueOf((String)trainResultsTable.getValueAt(0, 3));
-        for(int r = 1; r < N; r++)
+        double prevConfidence = -1;
+        for(int r = 0; r < N; r++)
         {
             double confidence = Double.valueOf((String)trainResultsTable.getValueAt(r, 3));
-            if(prevConfidence <= confidence)
+            if(r != 0 && prevConfidence <= confidence)
                 continue;
 
             int ppAndtp = 0;
@@ -787,14 +792,7 @@ public class SVMVisualizationPanel extends JPanel implements ItemListener
             // Add to accuracy series
             double acc = (ppAndtp + pnAndtn)/(tp+tn);
 
-            //System.out.println("uncl: " + uncl);
-            System.out.println("tp: " + tp);
-            System.out.println("s_z/N: " + (s_z/N));
-
             accuracySeries.add(uncl, acc);
-
-            System.out.println("confidence: " + confidence);
-            System.out.println("uncl: " + uncl + "/n");
 
             // Add to sensitivity series
             if(tp != 0)
@@ -810,8 +808,6 @@ public class SVMVisualizationPanel extends JPanel implements ItemListener
                 specificitySeries.add(uncl, spec);
             }
         }
-
-        trainResultsTable.getModel();
 
         return xySeriesCol;
     }
@@ -888,29 +884,8 @@ public class SVMVisualizationPanel extends JPanel implements ItemListener
         @Override
         public void setValue(Object value)
         {
-            //setOpaque(false);
             setIcon((value instanceof  Icon) ? (Icon) value : null);
-            //this.setBackground();
         }
-
-
-      /*  public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column)
-        {
-
-            JLabel iconLabel = (JLabel)super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-            iconLabel.setMinimumSize(new Dimension(20, iconLabel.getMinimumSize().height));
-            iconLabel.setPreferredSize(new Dimension(20, iconLabel.getPreferredSize().height));
-            iconLabel.setMaximumSize(new Dimension(20, iconLabel.getMaximumSize().height));
-            iconLabel.setAlignmentX(JLabel.CENTER_ALIGNMENT);
-
-            JPanel panel = new JPanel();
-            panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
-            panel.add(iconLabel);
-            panel.setOpaque(false);
-            //panel.setBackground(Color.RED);//iconLabel.getBackground());
-
-            return panel;
-        } */
     }
 
     private class MyIcon implements Icon
