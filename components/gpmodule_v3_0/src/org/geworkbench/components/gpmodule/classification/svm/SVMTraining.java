@@ -123,15 +123,25 @@ public class SVMTraining extends GPTraining implements TrainingTask
             svmClassifier = new SVMClassifier(svmPanel.getMaSet(), "SVM Classifier", new String[]{"Positive", "Negative"}, model, featureNames);
             svmClassifier.setPassword(((SVMTrainingPanel)panel).getPassword());
 
-            //testclassifier on training data
+            //test classifier on training data
             parameters = new Parameter[4];
             parameters[0] = new Parameter("test.data.filename", trainingData.getAbsolutePath());
             parameters[1] = new Parameter("test.cls.filename", clsData.getAbsolutePath());
             parameters[2] = new Parameter("saved.model.filename", modelFile.getAbsolutePath());
             parameters[3] = new Parameter("pred.results.output.file", modelCount + trainingData.getName()+ "pred");
 
+            ProgressBar progressBar;
+            progressBar = ProgressBar.create(ProgressBar.INDETERMINATE_TYPE);
+            progressBar.setTitle("Running classifier on training data");
+            progressBar.setAlwaysOnTop(true);
+            progressBar.showValues(false);
+
+            progressBar.start();
+
             PredictionResult predResult = svmClassifier.runPredictor("SVM", parameters);
             svmClassifier.setTrainPredResult(predResult);
+
+            progressBar.stop();
         }
         catch(ClassifierException e)
         {
@@ -146,7 +156,7 @@ public class SVMTraining extends GPTraining implements TrainingTask
     {
         ProgressBar progressBar;
         progressBar = ProgressBar.create(ProgressBar.INDETERMINATE_TYPE);
-        progressBar.setTitle("Classification Progress");
+        progressBar.setTitle("Running classifier on test data");
         progressBar.setAlwaysOnTop(true);
         progressBar.showValues(false);
 
@@ -157,7 +167,7 @@ public class SVMTraining extends GPTraining implements TrainingTask
 
         progressBar.stop();
 
-        publishProjectNodeAddedEvent(new ProjectNodeAddedEvent(classifier.getLabel(), null, classifier));                    
+        publishProjectNodeAddedEvent(new ProjectNodeAddedEvent(classifier.getLabel(), null, classifier));
     }
 
     public boolean isCancelled()
