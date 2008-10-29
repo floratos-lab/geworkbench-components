@@ -28,6 +28,7 @@ import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.annotation.DSAnnotationContext;
 import org.geworkbench.bison.annotation.CSAnnotationContextManager;
 import org.geworkbench.bison.annotation.CSAnnotationContext;
+import org.geworkbench.events.ProjectNodeAddedEvent;
 import org.genepattern.matrix.ClassVector;
 import org.genepattern.matrix.DefaultClassVector;
 import org.genepattern.webservice.Parameter;
@@ -155,6 +156,8 @@ public class SVMTraining extends GPTraining implements TrainingTask
         svmClassifier.classify(testPanel);
 
         progressBar.stop();
+
+        publishProjectNodeAddedEvent(new ProjectNodeAddedEvent(classifier.getLabel(), null, classifier));                    
     }
 
     public boolean isCancelled()
