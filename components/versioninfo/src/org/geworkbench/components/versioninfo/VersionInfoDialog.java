@@ -1,284 +1,149 @@
 package org.geworkbench.components.versioninfo;
 
-/**
- * <p>Title: caWorkbench</p>
- *
- * <p>Description: Modular Application Framework for Gene Expession, Sequence
- * and Genotype Analysis</p>
- *
- * <p>Copyright: Copyright (c) 2003 -2004</p>
- *
- * <p>Company: Columbia University</p>
- *
- * @author not attributable
- * @version 3.0
- */
-
-import com.jgoodies.forms.builder.DefaultFormBuilder;
-import com.jgoodies.forms.layout.FormLayout;
-import org.geworkbench.engine.config.PluginDescriptor;
-import org.geworkbench.engine.management.ComponentRegistry;
-
-import javax.swing.*;
-import java.awt.*;
+import java.awt.AWTEvent;
+import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
-import java.io.*;
-import java.util.Collection;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.Properties;
 
-public class VersionInfoDialog
-    extends JDialog implements ActionListener {
-    /**
-     * VersionInfoDialog
-     */
-    public VersionInfoDialog() {
-        this(null);
-    }
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JLabel;
 
-    private static Properties properties = new Properties();
-    JButton button1 = new JButton();
-    JLabel imageControl1 = new JLabel();
-    ImageIcon imageIcon;
-    static String product = "geWorkbench";
-    static String version = "Version 1.0.";
-    static String buildTime = (new Date()).toString();
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
-    static String build = "1";
+import com.jgoodies.forms.builder.DefaultFormBuilder;
+import com.jgoodies.forms.layout.FormLayout;
 
-    public String comments = "A Open Platform for BioMedical Informatics.";
-    public static final String DEFAULTVERSIONFILE = "version.txt";
-    public static final String VERSIONFILEPATH = "temp";
-    private static String fullPath = VERSIONFILEPATH + File.separator +
-        DEFAULTVERSIONFILE;
+/**
+ * Class to display version information dialog.
+ * 
+ * @author not attributable
+ * @version $Id: VersionInfoDialog.java,v 1.11 2008-11-12 17:04:22 keshav Exp $
+ */
+public class VersionInfoDialog extends JDialog implements ActionListener {
+	private static final long serialVersionUID = 4152518674720567787L;
 
-    public VersionInfoDialog(Frame parent) {
-        super(parent);
+	static Log log = LogFactory.getLog(VersionInfoDialog.class);
 
-        enableEvents(AWTEvent.WINDOW_EVENT_MASK);
-        try {
-            readProperties(VersionInfoDialog.class.getResource("version.txt").
-                           openStream());
-        }
-        catch (IOException ex) {
-        }
-        //readProperties(fullPath);
-        version = properties.getProperty("version");
-        build = properties.getProperty("build");
-        buildTime = properties.getProperty("buildTime");
+	/**
+	 * VersionInfoDialog
+	 */
+	public VersionInfoDialog() {
+		this(null);
+	}
 
-        try {
-            jbInit();
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-        }
-        //imageControl1.setIcon(imageIcon);
-        pack();
+	private static Properties properties = new Properties();
+	private JButton okButton = new JButton();
 
-    }
+	private static String version = "Version 1.0";
+	private static String buildTime = (new Date()).toString();
 
-    /*
-     * Reads the version file into a properties object.
-     */
-    protected static void readProperties(String versionfileName) {
+	public VersionInfoDialog(Frame parent) {
+		super(parent);
 
-        try {
-            File initFile = new File(versionfileName);
-            if (initFile.canRead()) {
-                FileInputStream input = new FileInputStream(initFile);
-                properties.load(input);
-            }
-            else {
-            }
-        }
-        catch (IOException ex1) {
-            System.out.println("VersionInfo Error" + ex1.toString());
-        }
-    }
+		enableEvents(AWTEvent.WINDOW_EVENT_MASK);
 
-    /**
-     *  Write to a version.txt file with the current properties.
-     */
-    public synchronized static void writeProperties(String versionfileName) {
-        try {
-            FileOutputStream output = new FileOutputStream(new File(
-                versionfileName));
-            properties.store(output, "Version Information:");
-        }
-        catch (IOException ex2) {
-            System.out.println("Error: " + ex2);
-        }
-    }
+		try {
+			properties.load(VersionInfoDialog.class.getResource("version.txt")
+					.openStream());
+		} catch (IOException ex1) {
+			log.warn("VersionInfo reading error" + ex1.toString());
+		}
 
-    /**
-     *  Write to a version.txt file with the current properties.
-     */
-    public synchronized static void writeProperties(OutputStream output) {
-        try {
-            //FileOutputStream output = new FileOutputStream(new File(versionfileName));
-            properties.store(output, "Version Information:");
-        }
-        catch (IOException ex2) {
-            System.out.println("Error: " + ex2);
-        }
-    }
+		version = properties.getProperty("version");
+		buildTime = properties.getProperty("buildTime");
 
-    /**
-     * update the build number by 1.
-     */
-    private static void update() {
-        build = properties.getProperty("build");
-        try {
+		try {
+			jbInit();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		pack();
+	}
 
-            if (build != null) {
-                String[] items = build.split("_");
-                int newIntValue = new Integer(items[items.length - 1]).intValue() +
-                    1;
-                items[items.length - 1] = "" + newIntValue;
+	private void jbInit() throws Exception {
 
-                String newValue = "Build";
-                for (int i = 1; i < items.length; i++) {
-                    newValue = newValue + "_" + items[i];
-                }
-                properties.put("build", newValue);
-                properties.put("buildTime", buildTime);
-            }
-        }
-        catch (NumberFormatException e) {
-            e.printStackTrace();
-        }
-    }
+		setTitle("geWorkbench Version Info");
+		setResizable(false);
 
-    private void jbInit() throws Exception {
+		getContentPane().setLayout(
+				new BoxLayout(this.getContentPane(), BoxLayout.PAGE_AXIS));
 
-        this.setTitle("geWorkbench Version Info");
-        setResizable(false);
+		okButton.setText("OK");
+		okButton.addActionListener(this);
 
-        this.getContentPane().setLayout(new BoxLayout(this.getContentPane(), BoxLayout.PAGE_AXIS));
+		{
+			FormLayout layout = new FormLayout("right:270dlu,10dlu", "");
+			DefaultFormBuilder builder = new DefaultFormBuilder(layout);
+			builder.setDefaultDialogBorder();
+			builder.appendSeparator("geWorkbench Core");
+			builder.nextLine();
+			builder.append(new JLabel("geWorkbench"));
+			builder.nextLine();
+			builder.append(new JLabel(version));
+			builder.nextLine();
+			builder.append(new JLabel("Updated on " + buildTime));
 
-        button1.setText("Ok");
-        button1.addActionListener(this);
+			getContentPane().add(builder.getPanel(), null);
+		}
 
-        {
-            FormLayout layout = new FormLayout("right:270dlu,10dlu", "");
-//            FormLayout layout = new FormLayout("right:570dlu,10dlu", "");
-            DefaultFormBuilder builder = new DefaultFormBuilder(layout);
-            builder.setDefaultDialogBorder();
-            builder.appendSeparator("geWorkbench Core");
-            builder.nextLine();
-            builder.append(new JLabel("geWorkbench"));
-            builder.nextLine();
-            builder.append(new JLabel(version + "." + build));
-            builder.nextLine();
-            builder.append(new JLabel("Updated on " + buildTime));
+		{
+			FormLayout layout = new FormLayout("right:270dlu", "");
+			DefaultFormBuilder builder = new DefaultFormBuilder(layout);
+			builder.setDefaultDialogBorder();
+			builder.append(okButton);
 
-            this.getContentPane().add(builder.getPanel(), null);
-        }
+			getContentPane().add(builder.getPanel(), null);
+		}
+	}
 
+	protected void processWindowEvent(WindowEvent e) {
+		if (e.getID() == WindowEvent.WINDOW_CLOSING) {
+			dispose();
+		}
+		super.processWindowEvent(e);
+	}
 
-//        {
-//            // Loop through the components and add their info
-//
-//            FormLayout layout = new FormLayout("right:160dlu,10dlu,20dlu,5dlu,right:160dlu,10dlu,20dlu,5dlu,right:160dlu,10dlu,20dlu", "");
-//            DefaultFormBuilder builder = new DefaultFormBuilder(layout);
-//            builder.setDefaultDialogBorder();
-//
-//            builder.appendSeparator("Plugins / Components");
-//            Collection components = ComponentRegistry.getRegistry().getAllPluginDescriptors();
-//            int counter = 0;
-//            for (Iterator iterator = components.iterator(); iterator.hasNext();) {
-//                PluginDescriptor pluginDescriptor = (PluginDescriptor) iterator.next();
-//
-//                if (counter % 3 == 0) {
-//                    builder.nextLine();
-//                }
-//
-//                addPluginInfo(builder, pluginDescriptor);
-//                counter++;
-//
-////                builder.append(pluginDescriptor.getLabel(), new JLabel("v1.0"));
-////                builder.append("");
-////                builder.append("v1.0");
-//            }
-//
-//            this.getContentPane().add(builder.getPanel(), null);
-//        }
+	public void actionPerformed(ActionEvent e) {
+		if (e.getSource() == okButton) {
+			dispose();
+		}
+	}
 
-        {
-            // A bit of overkill for the OK button layout
-//            FormLayout layout = new FormLayout("right:570dlu", "");
-            FormLayout layout = new FormLayout("right:270dlu", "");
-            DefaultFormBuilder builder = new DefaultFormBuilder(layout);
-            builder.setDefaultDialogBorder();
-            builder.append(button1);
+	private static String VERSION_INFO_FILENAME = "src/org/geworkbench/components/versioninfo/version.txt";
+	/**
+	 * Run to build a update properties file for version and build time
+	 * information.
+	 * 
+	 * This method is used independent of the geWorkbench application.
+	 * 
+	 * @param string -
+	 *            args[0] should be the version number, e.g. "1.6.1"
+	 * 
+	 */
+	public static void main(String[] args) throws IOException {
+		if (args.length != 1) {
+			System.out
+					.println("VersionInfoCreator in invoked with wrong number of arguments.");
+			System.exit(1);
+		}
 
-            this.getContentPane().add(builder.getPanel(), null);
-        }
-    }
+		DateFormat df = new SimpleDateFormat("EEEE MMMM d hh:mm:ss zzz yyyy");
 
-    private void addPluginInfo(DefaultFormBuilder builder, PluginDescriptor pluginDescriptor) {
-        if (pluginDescriptor.isLoadedFromGear()) {
-            builder.append(pluginDescriptor.getLabel() + " (from GEAR)", new JLabel("v1.0"));
-        } else {
-            builder.append(pluginDescriptor.getLabel(), new JLabel("v1.0"));
-        }
-    }
-
-    protected void processWindowEvent(WindowEvent e) {
-        if (e.getID() == WindowEvent.WINDOW_CLOSING) {
-            cancel();
-        }
-        super.processWindowEvent(e);
-    }
-
-    void cancel() {
-        dispose();
-    }
-
-    public void actionPerformed(ActionEvent e) {
-        if (e.getSource() == button1) {
-            cancel();
-        }
-    }
-
-    /**
-     * main
-     *
-     * @param strings String[]
-     */
-    public static void main(String[] strings) throws IOException {
-        // VersionInfoDialog vid = new VersionInfoDialog();
-//
-//        URL url = VersionInfoDialog.class.getResource("version.txt");
-//        String s = url.toString();
-//        InputStream in = null;
-//        in = url.openStream();
-//        VersionInfoDialog.readProperties(in);
-        VersionInfoDialog.readProperties(fullPath);
-        VersionInfoDialog.update();
-        VersionInfoDialog.writeProperties(fullPath);
-        // VersionInfoDialog.writeProperties(new FileOutputStream(s));
-    }
-
-    /**
-     * readProperties
-     *
-     * @param in InputStream
-     */
-    public static void readProperties(InputStream in) {
-        try {
-
-            properties.load(in);
-
-        }
-        catch (IOException ex1) {
-            System.out.println("VersionInfo Error" + ex1.toString());
-        }
-
-    }
-
+		PrintWriter pw = new PrintWriter(new FileWriter(VERSION_INFO_FILENAME));
+		pw.println("#Version Information:");
+		pw.println("version=Version " + args[0]);
+		pw.println("buildTime=" + df.format(new java.util.Date()));
+		pw.close();
+	}
 }

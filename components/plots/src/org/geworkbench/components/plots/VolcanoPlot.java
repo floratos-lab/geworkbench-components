@@ -48,7 +48,7 @@ import java.util.List;
  * Volcano plot.
  *
  * @author Matt Hall, John Watkinson
- * @version $Id: VolcanoPlot.java,v 1.14 2008-07-14 20:09:54 my2248 Exp $
+ * @version $Id: VolcanoPlot.java,v 1.15 2008-11-12 17:04:22 keshav Exp $
  */
 //@AcceptTypes({DSSignificanceResultSet.class})
 @AcceptTypes({DSTTestResultSet.class})
@@ -328,17 +328,17 @@ public class VolcanoPlot implements VisualPlugin {
 
             double sigValue = significance.getSignificance(marker);
             
-            if (sigValue <= 0) {
-                log.debug("Significance less than or equal to 0, (" + sigValue + ") setting to 1 for the moment.");
-                sigValue = 1;
-            } else {
-                if (sigValue < validMinSigValue) {
-                    validMinSigValue = sigValue;
-                }
-                if (sigValue > validMaxSigValue) {
-                    validMaxSigValue = sigValue;
-                }
-            }
+            if (sigValue >= 0.0 && sigValue < 4.9E-45  ) {
+	  	        sigValue = 4.9E-45;
+            } 
+	        else if (sigValue < 0) {
+		        log.debug("Significance less than 0, (" + sigValue + ") setting to 1 for the moment.");
+		        sigValue = 1;
+		    }
+
+	    	if (sigValue < validMinSigValue) {
+	    		validMinSigValue = sigValue;
+	    	}
             
              
             double xVal = significance.getFoldChange(marker);
@@ -379,7 +379,7 @@ public class VolcanoPlot implements VisualPlugin {
         plots.addSeries(series);
 
 
-        JFreeChart mainChart = ChartFactory.createScatterPlot(significance.getLabel(), "Fold Change (Log-2 Difference)", "Neg. Log-10 Significance", plots, PlotOrientation.VERTICAL, false, true, false); // Title, (, // X-Axis label,  Y-Axis label,  Dataset,  Show legend
+        JFreeChart mainChart = ChartFactory.createScatterPlot(significance.getLabel(), "Fold Change (Log-2)", "Neg. Log-10 Significance", plots, PlotOrientation.VERTICAL, false, true, false); // Title, (, // X-Axis label,  Y-Axis label,  Dataset,  Show legend
         //        mainChart.getXYPlot().setDomainAxis(new LogarithmicAxis("Fold Change"));
         //        mainChart.getXYPlot().setRangeAxis(new LogarithmicAxis("Significance"));
         //        XYLineAnnotation annotation = chartGroup.get(PlotType.MARKER).lineAnnotation;

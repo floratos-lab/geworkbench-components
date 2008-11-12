@@ -1,18 +1,26 @@
 package org.geworkbench.components.interactions.cellularnetwork;
 
-import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import java.math.BigDecimal;
-import java.sql.*;
+import java.net.HttpURLConnection;
 import java.rmi.RemoteException;
-import java.util.Vector;
 import java.util.ArrayList;
 
-public class InteractionsConnectionImpl implements INTERACTIONS {
+import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 
-    private String interactionType = null;
+public class InteractionsConnectionImpl implements INTERACTIONS {
+	/**
+	 * Logger for this class
+	 */
+	private static final Log logger = LogFactory.getLog(InteractionsConnectionImpl.class);
+
+	private static final String UNSUPPORTED_OPERATION_MESSAGE = "unsupported operation";
+
+	private String interactionType = null;
     private BigDecimal msid2 = null;
-  
+
     private String isReversible = null;
     private BigDecimal msid1 = null;
     private String source = null;
@@ -21,32 +29,8 @@ public class InteractionsConnectionImpl implements INTERACTIONS {
     private double confidenceValue = 0d;
     private String isModulated = null;
     private BigDecimal id = null;
-   // public static String INTERACTIONDATABASEURL = "jdbc:mysql://afdev:3306/CNKB?autoReconnect=true";
-   public static String INTERACTIONDATABASEURL = "jdbc:mysql://afdev:3306/cellnet_kbase?autoReconnect=true";
-
-    private Connection conn = null;
-    private Statement statement = null;
-
-    static {
-        try {
-            Class.forName("com.mysql.jdbc.Driver");
-            //DriverManager.registerDriver(new oracle.jdbc.driver.OracleDriver());
-        } catch (Exception se) {
-            se.printStackTrace();
-        }
-    }
 
     public InteractionsConnectionImpl() {
-        try {
-            //conn = DriverManager.getConnection("jdbc:oracle:thin:@adora.cgc.cpmc.columbia.edu:1521:BIODB2", "interaction_ro", "linkt0cellnet");
-            Class.forName("com.mysql.jdbc.Driver");
-            conn =
-                    DriverManager.getConnection(
-                            INTERACTIONDATABASEURL, "xiaoqing", "zhangc2b2");
-            statement = conn.createStatement();
-        } catch (Exception se) {
-            se.printStackTrace();
-        }
     }
 
      public ArrayList<InteractionDetail> getPairWiseInteraction(DSGeneMarker marker) {
@@ -57,18 +41,16 @@ public class InteractionsConnectionImpl implements INTERACTIONS {
     public ArrayList<InteractionDetail> getPairWiseInteraction(BigDecimal id1) {
         ArrayList arrayList = new ArrayList<InteractionDetail>();
 
+        HttpURLConnection aConnection = null;
+		ResultSetlUtil rs = null;
+
         try {
+			String urlString = ResultSetlUtil.INTERACTIONS_SERVLET_URL;
+			aConnection = ResultSetlUtil.getConnection(urlString);
 
-            Class.forName("com.mysql.jdbc.Driver");
-            conn =
-                    DriverManager.getConnection(
-                            INTERACTIONDATABASEURL, "xiaoqing", "zhangc2b2");
-            statement = conn.createStatement();
-
-            boolean isFinished = statement.execute("SELECT * FROM pairwise_interaction where ms_id1=" + id1.toString() + " or ms_id2=" + id1.toString() );
-            int i = 0;
-            if (isFinished) {
-                ResultSet rs = statement.getResultSet();
+			String aSQL = "SELECT * FROM pairwise_interaction where ms_id1=" + id1.toString() + " or ms_id2=" + id1.toString();
+			 rs = ResultSetlUtil.executeQuery(aSQL, ResultSetlUtil.MYSQL,
+						aConnection);
                 while (rs.next()) {
                 	msid1 = rs.getBigDecimal("ms_id1");
                     msid2 = rs.getBigDecimal("ms_id2");
@@ -88,12 +70,13 @@ public class InteractionsConnectionImpl implements INTERACTIONS {
                     InteractionDetail interactionDetail = new InteractionDetail(msid1.toString(), msid2.toString(), confidenceValue, interactionType);
                     arrayList.add(interactionDetail);
                 }
+    			rs.close();
 
-
-            }
-            conn.close();
         } catch (Exception se) {
-            se.printStackTrace();
+			if (logger.isErrorEnabled()) {
+				logger.error("getPairWiseInteraction(BigDecimal) - ResultSetlUtil rs=" + rs); //$NON-NLS-1$
+			}
+			se.printStackTrace();
         }
         return arrayList;
     }
@@ -179,8 +162,9 @@ public class InteractionsConnectionImpl implements INTERACTIONS {
     }
 
     public void insert() throws java.rmi.RemoteException {
-        try {
-            conn = DriverManager.getConnection("jdbc:oracle:thin:@adora.cgc.cpmc.columbia.edu:1521:BIODB2", "interaction_ro", "linkt0cellnet");
+
+/*    	try {
+            conn = DriverManager.getConnection(JDBC_ORACLE_THIN, USER_INTERACTION_RO, PSWD_ORACKE_LINKT0CELLNET);
             statement = conn.createStatement();
             statement.executeUpdate("INSERT INTO PAIRWISE_INTERACTION" +
                     "(ms_id1, ms_id2, confidence, is_modulated, interaction_type, control_type, direction, is_reversible, source) " +
@@ -191,11 +175,15 @@ public class InteractionsConnectionImpl implements INTERACTIONS {
         } catch (SQLException se) {
             se.printStackTrace();
         }
+*/
+        throw new RuntimeException( UNSUPPORTED_OPERATION_MESSAGE );
+
     }
 
     public void retrieve() throws java.rmi.RemoteException {
-        try {
-            conn = DriverManager.getConnection("jdbc:oracle:thin:@adora.cgc.cpmc.columbia.edu:1521:BIODB2", "interaction_ro", "linkt0cellnet");
+
+/*        try {
+            conn = DriverManager.getConnection(JDBC_ORACLE_THIN, USER_INTERACTION_RO, PSWD_ORACKE_LINKT0CELLNET);
             statement = conn.createStatement();
             ResultSet rs = statement.executeQuery("SELECT * FROM PAIRWISE_INTERACTION where ms_id1=" + msid1.toString());
             if (rs.getRow() > 0) {
@@ -213,11 +201,14 @@ public class InteractionsConnectionImpl implements INTERACTIONS {
         } catch (SQLException se) {
             se.printStackTrace();
         }
+*/
+    	throw new RuntimeException( UNSUPPORTED_OPERATION_MESSAGE );
+
     }
 
     public String getCHROMOSOME() throws java.rmi.RemoteException {
-        try {
-            conn = DriverManager.getConnection("jdbc:oracle:thin:@adora.cgc.cpmc.columbia.edu:1521:BIODB2", "interaction_ro", "linkt0cellnet");
+/*        try {
+            conn = DriverManager.getConnection(JDBC_ORACLE_THIN, USER_INTERACTION_RO, PSWD_ORACKE_LINKT0CELLNET);
             statement = conn.createStatement();
             ResultSet rs = statement.executeQuery("select CHROMOSOME from (select CHROMOSOME, rownum rn from master_gene where rownum<" + (chromosomeId + 1) + ") where rn=" + chromosomeId);
             rs.next();
@@ -230,6 +221,10 @@ public class InteractionsConnectionImpl implements INTERACTIONS {
             se.printStackTrace();
         }
         return "";
+
+*/
+    	throw new RuntimeException( UNSUPPORTED_OPERATION_MESSAGE );
+
     }
 
     private int chromosomeId = 0;
@@ -239,8 +234,9 @@ public class InteractionsConnectionImpl implements INTERACTIONS {
     }
 
     public BigDecimal getGENECOUNT() throws java.rmi.RemoteException {
-        try {
-            conn = DriverManager.getConnection("jdbc:oracle:thin:@adora.cgc.cpmc.columbia.edu:1521:BIODB2", "interaction_ro", "linkt0cellnet");
+
+/*    	try {
+            conn = DriverManager.getConnection(JDBC_ORACLE_THIN, USER_INTERACTION_RO, PSWD_ORACKE_LINKT0CELLNET);
             statement = conn.createStatement();
             ResultSet rs = statement.executeQuery("SELECT count(*) FROM MASTER_GENE");
             rs.next();
@@ -255,13 +251,16 @@ public class InteractionsConnectionImpl implements INTERACTIONS {
         }
         System.out.println("ResultSet.getRow() == 0, impl 191");
         return new BigDecimal(0);
+*/
+        throw new RuntimeException( UNSUPPORTED_OPERATION_MESSAGE);
     }
 
     private int egIndex = 0;
 
     public BigDecimal getENTREZID() throws java.rmi.RemoteException {
-        try {
-            conn = DriverManager.getConnection("jdbc:oracle:thin:@adora.cgc.cpmc.columbia.edu:1521:BIODB2", "interaction_ro", "linkt0cellnet");
+
+/*        try {
+            conn = DriverManager.getConnection(JDBC_ORACLE_THIN, USER_INTERACTION_RO, PSWD_ORACKE_LINKT0CELLNET);
             statement = conn.createStatement();
             ResultSet rs = statement.executeQuery("select entrez_id from (select entrez_id, rownum rn from master_gene where rownum<" + (egIndex + 1) + ") where rn=" + egIndex);
             rs.next();
@@ -274,6 +273,9 @@ public class InteractionsConnectionImpl implements INTERACTIONS {
             se.printStackTrace();
         }
         return new BigDecimal(0);
+*/
+        throw new RuntimeException( UNSUPPORTED_OPERATION_MESSAGE);
+
     }
 
     public void setENTREZID(BigDecimal in0) throws java.rmi.RemoteException {
@@ -283,8 +285,9 @@ public class InteractionsConnectionImpl implements INTERACTIONS {
     private int taxonIndex = 0;
 
     public BigDecimal getTAXONID() throws java.rmi.RemoteException {
-        try {
-            conn = DriverManager.getConnection("jdbc:oracle:thin:@adora.cgc.cpmc.columbia.edu:1521:BIODB2", "interaction_ro", "linkt0cellnet");
+
+/*        try {
+            conn = DriverManager.getConnection(JDBC_ORACLE_THIN, USER_INTERACTION_RO, PSWD_ORACKE_LINKT0CELLNET);
             statement = conn.createStatement();
             ResultSet rs = statement.executeQuery("select taxon_id from (select taxon_id, rownum rn from master_gene where rownum<" + (taxonIndex + 1) + ") where rn=" + taxonIndex);
             rs.next();
@@ -297,6 +300,9 @@ public class InteractionsConnectionImpl implements INTERACTIONS {
             se.printStackTrace();
         }
         return new BigDecimal(0);
+*/
+        throw new RuntimeException( UNSUPPORTED_OPERATION_MESSAGE);
+
     }
 
     public void setTAXONID(BigDecimal in0) throws java.rmi.RemoteException {
@@ -306,8 +312,9 @@ public class InteractionsConnectionImpl implements INTERACTIONS {
     private int geneTypeIndex = 0;
 
     public String getGENETYPE() throws java.rmi.RemoteException {
-        try {
-            conn = DriverManager.getConnection("jdbc:oracle:thin:@adora.cgc.cpmc.columbia.edu:1521:BIODB2", "interaction_ro", "linkt0cellnet");
+
+/*        try {
+            conn = DriverManager.getConnection(JDBC_ORACLE_THIN, USER_INTERACTION_RO, PSWD_ORACKE_LINKT0CELLNET);
             statement = conn.createStatement();
             ResultSet rs = statement.executeQuery("select GENE_TYPE from (select GENE_TYPE, rownum rn from master_gene where rownum<" + (geneTypeIndex + 1) + ") where rn=" + geneTypeIndex);
             rs.next();
@@ -320,6 +327,9 @@ public class InteractionsConnectionImpl implements INTERACTIONS {
             se.printStackTrace();
         }
         return "";
+*/
+        throw new RuntimeException( UNSUPPORTED_OPERATION_MESSAGE);
+
     }
 
     public void setGENETYPE(String in0) throws java.rmi.RemoteException {
@@ -329,8 +339,9 @@ public class InteractionsConnectionImpl implements INTERACTIONS {
     private int geneSymbolIndex = 0;
 
     public String getGENESYMBOL() throws java.rmi.RemoteException {
-        try {
-            conn = DriverManager.getConnection("jdbc:oracle:thin:@adora.cgc.cpmc.columbia.edu:1521:BIODB2", "interaction_ro", "linkt0cellnet");
+
+/*        try {
+            conn = DriverManager.getConnection(JDBC_ORACLE_THIN, USER_INTERACTION_RO, PSWD_ORACKE_LINKT0CELLNET);
             statement = conn.createStatement();
             ResultSet rs = statement.executeQuery("select GENE_SYMBOL from (select GENE_SYMBOL, rownum rn from master_gene where rownum<" + (geneSymbolIndex + 1) + ") where rn=" + geneSymbolIndex);
             rs.next();
@@ -343,6 +354,9 @@ public class InteractionsConnectionImpl implements INTERACTIONS {
             se.printStackTrace();
         }
         return "";
+*/
+        throw new RuntimeException( UNSUPPORTED_OPERATION_MESSAGE);
+
     }
 
     public void setGENESYMBOL(String in0) throws java.rmi.RemoteException {
@@ -356,8 +370,9 @@ public class InteractionsConnectionImpl implements INTERACTIONS {
     private int locusTagIndex = 0;
 
     public String getLOCUSTAG() throws java.rmi.RemoteException {
-        try {
-            conn = DriverManager.getConnection("jdbc:oracle:thin:@adora.cgc.cpmc.columbia.edu:1521:BIODB2", "interaction_ro", "linkt0cellnet");
+
+/*        try {
+            conn = DriverManager.getConnection(JDBC_ORACLE_THIN, USER_INTERACTION_RO, PSWD_ORACKE_LINKT0CELLNET);
             statement = conn.createStatement();
             ResultSet rs = statement.executeQuery("select LOCUS_TAG from (select LOCUS_TAG, rownum rn from master_gene where rownum<" + (locusTagIndex + 1) + ") where rn=" + locusTagIndex);
             rs.next();
@@ -370,6 +385,9 @@ public class InteractionsConnectionImpl implements INTERACTIONS {
             se.printStackTrace();
         }
         return "";
+*/
+        throw new RuntimeException( UNSUPPORTED_OPERATION_MESSAGE);
+
     }
 
     public void setLOCUSTAG(String in0) throws java.rmi.RemoteException {
@@ -379,8 +397,9 @@ public class InteractionsConnectionImpl implements INTERACTIONS {
     private int descIndex = 0;
 
     public String getDESCRIPTION() throws java.rmi.RemoteException {
-        try {
-            conn = DriverManager.getConnection("jdbc:oracle:thin:@adora.cgc.cpmc.columbia.edu:1521:BIODB2", "interaction_ro", "linkt0cellnet");
+
+/*        try {
+            conn = DriverManager.getConnection(JDBC_ORACLE_THIN, USER_INTERACTION_RO, PSWD_ORACKE_LINKT0CELLNET);
             statement = conn.createStatement();
             ResultSet rs = statement.executeQuery("select DESCRIPTION from (select DESCRIPTION, rownum rn from master_gene where rownum<" + (descIndex + 1) + ") where rn=" + descIndex);
             rs.next();
@@ -393,6 +412,9 @@ public class InteractionsConnectionImpl implements INTERACTIONS {
             se.printStackTrace();
         }
         return "";
+*/
+        throw new RuntimeException( UNSUPPORTED_OPERATION_MESSAGE);
+
     }
 
     public void setDESCRIPTION(String in0) throws java.rmi.RemoteException {
@@ -400,9 +422,10 @@ public class InteractionsConnectionImpl implements INTERACTIONS {
     }
 
     public Object[] getGENEROW(BigDecimal in0) throws RemoteException {
-        int index = in0.intValue();
+
+/*    	int index = in0.intValue();
         try {
-            conn = DriverManager.getConnection("jdbc:oracle:thin:@adora.cgc.cpmc.columbia.edu:1521:BIODB2", "interaction_ro", "linkt0cellnet");
+            conn = DriverManager.getConnection(JDBC_ORACLE_THIN, USER_INTERACTION_RO, PSWD_ORACKE_LINKT0CELLNET);
             statement = conn.createStatement();
             ResultSet rs = statement.executeQuery("select ENTREZ_ID, TAXON_ID, GENE_TYPE, CHROMOSOME, GENE_SYMBOL, LOCUS_TAG, DESCRIPTION " +
                     "from (select ENTREZ_ID, TAXON_ID, GENE_TYPE, CHROMOSOME, GENE_SYMBOL, LOCUS_TAG, DESCRIPTION, rownum rn from master_gene " +
@@ -425,11 +448,15 @@ public class InteractionsConnectionImpl implements INTERACTIONS {
             se.printStackTrace();
         }
         return new Object[]{};
+*/
+        throw new RuntimeException( UNSUPPORTED_OPERATION_MESSAGE);
+
     }
 
     public BigDecimal getINTERACTIONCOUNT(BigDecimal in0, String in1) throws RemoteException {
-        try {
-            conn = DriverManager.getConnection("jdbc:oracle:thin:@adora.cgc.cpmc.columbia.edu:1521:BIODB2", "interaction_ro", "linkt0cellnet");
+
+/*    	try {
+            conn = DriverManager.getConnection(JDBC_ORACLE_THIN, USER_INTERACTION_RO, PSWD_ORACKE_LINKT0CELLNET);
             statement = conn.createStatement();
             ResultSet rs = statement.executeQuery("SELECT count(unique MS_ID2) FROM PAIRWISE_INTERACTION where MS_ID1=" + in0.intValue() +
                     " and (INTERACTION_TYPE=\'" + in1.toLowerCase() + "\' or INTERACTION_TYPE=\'" + in1.toUpperCase() + "\')");
@@ -448,12 +475,16 @@ public class InteractionsConnectionImpl implements INTERACTIONS {
             se.printStackTrace();
         }
         return new BigDecimal(0);
+*/
+        throw new RuntimeException( UNSUPPORTED_OPERATION_MESSAGE);
+
     }
 
     public Object[] getFIRSTNEIGHBORS(BigDecimal in0, String in1) throws RemoteException {
-        Vector<BigDecimal> neighbors = new Vector<BigDecimal>();
+
+/*    	Vector<BigDecimal> neighbors = new Vector<BigDecimal>();
         try {
-            conn = DriverManager.getConnection("jdbc:oracle:thin:@adora.cgc.cpmc.columbia.edu:1521:BIODB2", "interaction_ro", "linkt0cellnet");
+            conn = DriverManager.getConnection(JDBC_ORACLE_THIN, USER_INTERACTION_RO, PSWD_ORACKE_LINKT0CELLNET);
             statement = conn.createStatement();
             ResultSet rs = statement.executeQuery("SELECT MS_ID1 FROM PAIRWISE_INTERACTION where MS_ID2=" + in0.intValue() +
                     " and (INTERACTION_TYPE=\'" + in1.toLowerCase() + "\' or INTERACTION_TYPE=\'" + in1.toUpperCase() + "\')");
@@ -474,5 +505,8 @@ public class InteractionsConnectionImpl implements INTERACTIONS {
             se.printStackTrace();
         }
         return neighbors.toArray();
+*/
+        throw new RuntimeException( UNSUPPORTED_OPERATION_MESSAGE);
+
     }
 }
