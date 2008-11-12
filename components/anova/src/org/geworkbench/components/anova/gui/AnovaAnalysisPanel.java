@@ -40,7 +40,7 @@ import edu.columbia.geworkbench.cagrid.anova.PValueEstimation;
 
 /**
  * @author yc2480
- * @version $Id: AnovaAnalysisPanel.java,v 1.11 2008-09-05 19:06:50 chiangy Exp $
+ * @version $Id: AnovaAnalysisPanel.java,v 1.12 2008-11-12 19:36:28 chiangy Exp $
  */
 public class AnovaAnalysisPanel extends AbstractSaveableParameterPanel
 		implements Serializable {
@@ -272,16 +272,19 @@ public class AnovaAnalysisPanel extends AbstractSaveableParameterPanel
 								if (e.getItem().equals("Permutations")) {
 									if (jRadioButton4.isSelected()) {
 										jRadioButton.setSelected(true);
+										anovaParameter.setFalseDiscoveryRateControl(FalseDiscoveryRateControl.alpha);
 									}
 									;
 									jRadioButton4.setEnabled(false);
 									if (jRadioButton5.isSelected()) {
 										jRadioButton.setSelected(true);
+										anovaParameter.setFalseDiscoveryRateControl(FalseDiscoveryRateControl.alpha);
 									}
 									;
 									jRadioButton5.setEnabled(false);
 									if (jRadioButton3.isSelected()) {
 										jRadioButton.setSelected(true);
+										anovaParameter.setFalseDiscoveryRateControl(FalseDiscoveryRateControl.alpha);
 									}
 									;
 									jRadioButton3.setEnabled(false);
