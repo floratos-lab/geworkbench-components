@@ -1,4 +1,3 @@
 #Version Information:
-version=Version 1.6
-buildTime=Friday October 24 02:45:59 EDT 2008
-build=0
+version=Version 1.6.1
+buildTime=Friday November 7 22:22:58 EST 2008

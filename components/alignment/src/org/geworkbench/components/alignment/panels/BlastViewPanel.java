@@ -68,6 +68,7 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
     GridBagLayout gridBagLayout3 = new GridBagLayout();
     private CSSequenceSet sequenceDB;
     private ArrayList blastDataSet = new ArrayList();
+    private final double jSplitPane1DividerLocation = 0.5;
 
     public BlastViewPanel() {
         try {
@@ -227,9 +228,9 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
         summaryPanel.add(addAlignedButton);
 
         jSplitPane1.add(blastResult, JSplitPane.TOP);
-        jSplitPane1.add(detailedInfo, JSplitPane.BOTTOM);
         detailedInfo.add(jScrollPane1, BorderLayout.CENTER);
-        jSplitPane1.setDividerLocation(0.8);
+        jSplitPane1.add(detailedInfo, JSplitPane.BOTTOM);
+        jSplitPane1.setDividerLocation(jSplitPane1DividerLocation);
         jScrollPane1.getViewport().add(singleAlignmentArea, null);
 //        rightPanel.add(furtherProcess,
 //                       new GridBagConstraints(0, 1, 1, 1, 1.0, 1.0,
@@ -285,7 +286,7 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
          double propLoc = .8D;
         rightPanel.setDividerLocation(propLoc);
         rightPanel.setResizeWeight(0.95);
-        jSplitPane1.setDividerLocation(1-propLoc);
+        jSplitPane1.setDividerLocation(jSplitPane1DividerLocation);
         jSplitPane1.setResizeWeight(0.4);
         revalidate();
     }
