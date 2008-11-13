@@ -757,7 +757,7 @@ public abstract class SelectorPanel<T extends DSSequential> implements
 				}
 			}
 			VisualPropertiesDialog dialog = new VisualPropertiesDialog(null,
-					"Change Visual Properties", label, index);
+					"Change Visual Properties", panel, index);
 			dialog.pack();
 			dialog.setSize(600, 600);
 			dialog.setVisible(true);
