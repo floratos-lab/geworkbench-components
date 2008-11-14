@@ -26,6 +26,7 @@ import org.geworkbench.util.ProgressBar;
 import org.jdesktop.swingx.JXTable;
 
 import org.jdesktop.swingx.decorator.*;
+import org.jdesktop.swingx.decorator.SortOrder;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.ChartPanel;
