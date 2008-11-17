@@ -400,7 +400,11 @@ public class GPConfigPanel extends JPanel
                 validateInput();
                 String protocolInput = (String)protocol.getValue();
                 String hostInput = (String)host.getValue();
-                int portInput = (Integer.valueOf((String)port.getValue())).intValue();
+
+                int portInput = -1;
+                if(port.getValue() != null && ((String)port.getValue()).length() != 0)
+                    portInput = (Integer.valueOf((String)port.getValue())).intValue();
+
                 String userNameInput = (String)username.getValue();
                 passwordValue = String.valueOf(password.getPassword());
 
@@ -447,11 +451,8 @@ public class GPConfigPanel extends JPanel
             {
                 throw new InvalidInputException("Host must be provided");
             }
-            else if(port.getValue() == null || ((String)port.getValue()).length() == 0 || !((String)port.getValue()).matches("[0-9]+") ||  Integer.valueOf((String)port.getValue()).intValue() <= -1)
+            else if(port.getValue() != null && ((String)port.getValue()).length() != 0 && (!((String)port.getValue()).matches("[0-9]+") ||  Integer.valueOf((String)port.getValue()).intValue() <= -1))
             {
-                if(port == null || ((String)port.getValue()).length() == 0)
-                    throw new InvalidInputException("Port must be provided");
-
                 throw new InvalidInputException("Invalid port setting: " + port.getValue());
             }
             else if(username.getValue() == null || ((String)username.getValue()).length() == 0)
