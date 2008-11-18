@@ -28,7 +28,7 @@ import com.jgoodies.forms.layout.FormLayout;
  * Class to display version information dialog.
  * 
  * @author not attributable
- * @version $Id: VersionInfoDialog.java,v 1.11 2008-11-12 17:04:22 keshav Exp $
+ * @version $Id: VersionInfoDialog.java,v 1.12 2008-11-18 19:51:08 jiz Exp $
  */
 public class VersionInfoDialog extends JDialog implements ActionListener {
 	private static final long serialVersionUID = 4152518674720567787L;
@@ -120,7 +120,7 @@ public class VersionInfoDialog extends JDialog implements ActionListener {
 		}
 	}
 
-	private static String VERSION_INFO_FILENAME = "src/org/geworkbench/components/versioninfo/version.txt";
+	private static String VERSION_INFO_FILENAME = "version.txt";
 	/**
 	 * Run to build a update properties file for version and build time
 	 * information.
@@ -128,22 +128,30 @@ public class VersionInfoDialog extends JDialog implements ActionListener {
 	 * This method is used independent of the geWorkbench application.
 	 * 
 	 * @param string -
-	 *            args[0] should be the version number, e.g. "1.6.1"
+	 *            args[0] should be the version number, e.g. "1.6.1" args[1]
+	 *            should be the path to save the file e.g.
+	 *            "c:/java/apps/geworkbench_workspace2/geworkbench-core/componenents/versioninfo/org/geworkbench/components/versioninfo/";
 	 * 
 	 */
-	public static void main(String[] args) throws IOException {
-		if (args.length != 1) {
+	public static void main(String[] args) {
+		if (args.length != 2) {
 			System.out
-					.println("VersionInfoCreator in invoked with wrong number of arguments.");
+					.println("VersionInfoDialog is invoked with wrong number of arguments.");
 			System.exit(1);
 		}
 
-		DateFormat df = new SimpleDateFormat("EEEE MMMM d hh:mm:ss zzz yyyy");
+		DateFormat df = new SimpleDateFormat("EEEE MMMM d HH:mm:ss zzz yyyy");
 
-		PrintWriter pw = new PrintWriter(new FileWriter(VERSION_INFO_FILENAME));
-		pw.println("#Version Information:");
-		pw.println("version=Version " + args[0]);
-		pw.println("buildTime=" + df.format(new java.util.Date()));
-		pw.close();
+		try {
+			PrintWriter pw = new PrintWriter(new FileWriter(args[1]
+					+ VERSION_INFO_FILENAME));
+			pw.println("#Version Information:");
+			pw.println("version=Version " + args[0]);
+			pw.println("buildTime=" + df.format(new java.util.Date()));
+			pw.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+			System.exit(1); // make sure the building process will stop
+		}
 	}
 }
