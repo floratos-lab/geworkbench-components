@@ -65,8 +65,6 @@ public class MindyAnalysis extends AbstractGridAnalysis implements
 
 	private MindyDataSet mindyDataSet;
 
-	private DSMicroarraySetView<DSGeneMarker, DSMicroarray> inputSetView;
-
 	private final String analysisName = "Mindy";
 
 	private ProgressBar progressBar = null;
@@ -108,7 +106,7 @@ public class MindyAnalysis extends AbstractGridAnalysis implements
 			return new AlgorithmExecutionResults(false, "Invalid input.", null);
 		}
 		log.debug("input: " + input);
-		inputSetView = (DSMicroarraySetView) input;
+		DSMicroarraySetView<DSGeneMarker, DSMicroarray> inputSetView = (DSMicroarraySetView) input;
 		DSPanel<DSMicroarray> arraySet = null;
 		DSPanel<DSGeneMarker> markerSet = null;
 		if (inputSetView.useItemPanel())
@@ -682,8 +680,11 @@ public class MindyAnalysis extends AbstractGridAnalysis implements
 			DSDataSet refMASet) {
 		// TODO Auto-generated method stub
 		MindyParamPanel params = (MindyParamPanel) aspp;
-		DSMicroarraySet<DSMicroarray> mSet = inputSetView.getMicroarraySet();
+		DSMicroarraySet<DSMicroarray> mSet = null;
+		mSet = maSetView.getMicroarraySet();
 		int numMAs = mSet.size();
+		if (maSetView.useItemPanel())
+			numMAs = maSetView.getItemPanel().size();
 		if (numMAs < 4) {
 			return new ParamValidationResults(false,
 					"Not enough microarrays in the set.  MINDY requires at least 4 microarrays.\n");
