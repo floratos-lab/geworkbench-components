@@ -29,7 +29,7 @@ import gov.nih.nci.cagrid.metadata.service.ServiceServiceContextCollection;
 /**
  * 
  * @author keshav
- * @version $Id: DiscoveryServiceUtil.java,v 1.5 2008-10-28 16:55:17 keshav Exp $
+ * @version $Id: DiscoveryServiceUtil.java,v 1.6 2008-11-18 21:03:08 keshav Exp $
  */
 public class DiscoveryServiceUtil {
 	private static final String NOT_AVAILABLE = "unavailable";
@@ -59,17 +59,6 @@ public class DiscoveryServiceUtil {
 			allServices = client.discoverServicesBySearchString(search);
 		}
 
-		Pattern myPattern = Pattern.compile("^http://.*(/.*)/wsrf/.*");
-		if ((dispatcherUrl.matches("^http://.*/(.*)/wsrf/.*"))&&(allServices !=null)){
-			Matcher matcher = myPattern.matcher(dispatcherUrl);
-			String insertStr = "";
-			if (matcher.matches())
-				insertStr = matcher.group(1);
-			for (int i=0; i<allServices.length; i++){
-				AttributedURI test = allServices[i].getAddress();
-				test.setPath(test.getPath().replaceAll("/wsrf/", insertStr+"/wsrf/"));
-			}
-		}
 		if (log.isInfoEnabled())
 			displayMetadata(allServices);
 
