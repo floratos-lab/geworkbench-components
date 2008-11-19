@@ -59,9 +59,11 @@ public class SVMTrainingPanel extends GPTrainingPanel
 
     protected JPanel getParameterPanel()
     {
-         FormLayout layout = new FormLayout(
-                    "right:max(20dlu;pref), 7dlu,  max(70dlu;pref), 7dlu, max(70dlu;pref),7dlu, max(70dlu;pref)",
-                    "");
+        FormLayout layout = new FormLayout(
+         "right:max(140dlu;pref), " // 1st major colum
+            + "right:max(130dlu;pref)",        // 2nd major column
+         "");
+
         DefaultFormBuilder builder = new DefaultFormBuilder(layout);
         builder.setDefaultDialogBorder();
 
@@ -72,7 +74,7 @@ public class SVMTrainingPanel extends GPTrainingPanel
         builder.appendRow(new RowSpec("25dlu"));
       
         CellConstraints cc = new CellConstraints();
-        builder.add(getGPLogo(), cc.xy(7, builder.getRow()));
+        builder.add(getGPLogo(), cc.xy(2, builder.getRow()));
         builder.nextLine();
         
         return builder.getPanel();
