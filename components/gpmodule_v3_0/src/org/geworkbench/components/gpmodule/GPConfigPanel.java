@@ -17,6 +17,7 @@ import com.jgoodies.forms.builder.DefaultFormBuilder;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableColumn;
 import javax.swing.text.DefaultFormatter;
 import java.awt.*;
 import java.awt.event.ActionListener;
@@ -55,7 +56,7 @@ public class GPConfigPanel extends JPanel
 
     public GPConfigPanel()
     {
-        initGPConfigPanel();        
+        initGPConfigPanel();
     }
 
     public void initGPConfigPanel()
@@ -155,14 +156,10 @@ public class GPConfigPanel extends JPanel
             public void componentHidden(ComponentEvent event){}
         });
 
+        final MyCellRenderer myCellRenderer = new MyCellRenderer();
         serverSettingsTable = new JTable()
         {
-            public TableCellRenderer getCellRenderer(int row, int column)
-            {
-                return new MyCellRenderer();
-            }
-
-            public boolean getScrollableTracksViewportHeight()
+            public boolean get1ScrollableTracksViewportHeight()
             {
                 Component parent = getParent();
                 if(parent instanceof JViewport)
@@ -171,7 +168,7 @@ public class GPConfigPanel extends JPanel
                 return false;
             }
 
-            public boolean getScrollableTracksViewportWidth()
+            public boolean get1ScrollableTracksViewportWidth()
             {
                 Component parent = getParent();
                 if(parent instanceof JViewport)
@@ -180,10 +177,11 @@ public class GPConfigPanel extends JPanel
                 return false;
             }                                 
         };
+        serverSettingsTable.setDefaultRenderer(Object.class, myCellRenderer);
 
         rebuildTable();
-        JScrollPane tableScrollPane = new JScrollPane(serverSettingsTable);
-        tableScrollPane.setBackground(this.getBackground());
+        JScrollPane tableScrollPane = new JScrollPane();
+        tableScrollPane.setViewportView(serverSettingsTable);
 
         editSettingsFrame = new JFrame();
         JButton modifyButton = new JButton("Modify");
@@ -191,23 +189,29 @@ public class GPConfigPanel extends JPanel
         {
             public void actionPerformed(ActionEvent event)
             {
-                editSettingsFrame.setTitle("Edit GenePattern Server Settings");
-                editSettingsFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-                builder.getPanel().setVisible(true);
+                try
+                {
+                    editSettingsFrame.setTitle("Edit GenePattern Server Settings");
+                    editSettingsFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+                    builder.getPanel().setVisible(true);
 
-                editSettingsFrame.getContentPane().add(builder.getPanel());
-                editSettingsFrame.pack();
+                    editSettingsFrame.getContentPane().add(builder.getPanel());
+                    editSettingsFrame.pack();
                                        
-                // center on the screen
-                Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-	            editSettingsFrame.setLocation((screenSize.width - editSettingsFrame.getWidth()) / 2,
-                        (screenSize.height - editSettingsFrame.getHeight()) / 2);
+                    // center on the screen
+                    Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+	                editSettingsFrame.setLocation((screenSize.width - editSettingsFrame.getWidth()) / 2,
+                    (screenSize.height - editSettingsFrame.getHeight()) / 2);
 
-                editSettingsFrame.setAlwaysOnTop(true);
+                    editSettingsFrame.setAlwaysOnTop(true);
+                    editSettingsFrame.setVisible(true);
 
-                editSettingsFrame.setVisible(true);
-
-                editSettingsFrame.getContentPane().repaint();
+                    editSettingsFrame.getContentPane().repaint();
+                }
+                catch(Exception e)
+                {
+                    e.printStackTrace();
+                }
             }
         });
         modifyButton.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -218,7 +222,7 @@ public class GPConfigPanel extends JPanel
         panel.add(Box.createRigidArea(new Dimension(2, 0)));
         panel.add(modifyButton);
         this.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
-        this.add(panel);
+        this.add(panel);  
     }
 
     private void showMessageDialog(String message)
@@ -285,6 +289,7 @@ public class GPConfigPanel extends JPanel
         Vector portRow = new Vector();
         portRow.add("Port");
         portRow.add(port.getValue());
+
         portRow.add("The port specified for the server");
 
         Vector userNameRow = new Vector();
@@ -320,11 +325,30 @@ public class GPConfigPanel extends JPanel
         serverSettingsTable.setGridColor(Color.GRAY);
         serverSettingsTable.setVisible(true);
         serverSettingsTable.setCellSelectionEnabled(false);
-        serverSettingsTable.getColumnModel().getColumn(0).setPreferredWidth(12);
-        serverSettingsTable.getColumnModel().getColumn(0).setWidth(12);
-        serverSettingsTable.setRowHeight(24);
+        serverSettingsTable.getColumnModel().getColumn(0).setMaxWidth(70);
+        serverSettingsTable.setRowHeight(27);
+        fitContentsInTable(serverSettingsTable);
     }
 
+    private void fitContentsInTable(JTable table)
+    {
+        for(int c =0; c < table.getColumnCount(); c++)
+        {
+            TableColumn column = table.getColumnModel().getColumn(c);
+			int w = column.getWidth();
+			int n = table.getRowCount();
+			for (int i = 0; i < n; i ++)
+			{
+				TableCellRenderer r = table.getCellRenderer(i, c);
+				Component comp = r.getTableCellRendererComponent(
+						table, table.getValueAt(i, c), false, false, i, c);
+				w = Math.max(w, comp.getPreferredSize().width);
+			}
+            
+            column.setPreferredWidth(w);
+        }
+    }
+    
     private boolean testConfigSettings(String serverName, String userName, String password)
     {
         try
@@ -372,12 +396,20 @@ public class GPConfigPanel extends JPanel
 
         if(gpServer != null)
         {
+
             protocol.setValue(gpServer.getProtocol());
             host.setValue(gpServer.getHost());
-            port.setValue(String.valueOf(gpServer.getPort()));
 
+            if(gpServer.getPort() != -1)
+            {
+                port.setValue(String.valueOf(gpServer.getPort()));
+            }
+
+            
             if(passwordValue != null)
+            {
                 password.setText(passwordValue);
+            } 
         }
         else
         {
@@ -401,14 +433,17 @@ public class GPConfigPanel extends JPanel
                 String protocolInput = (String)protocol.getValue();
                 String hostInput = (String)host.getValue();
 
-                int portInput = -1;
-                if(port.getValue() != null && ((String)port.getValue()).length() != 0)
-                    portInput = (Integer.valueOf((String)port.getValue())).intValue();
-
                 String userNameInput = (String)username.getValue();
                 passwordValue = String.valueOf(password.getPassword());
 
-                URL gpServer = new URL(protocolInput, hostInput , portInput, "");
+                URL gpServer = null;
+                if(port.getValue() != null && ((String)port.getValue()).length() != 0)
+                {
+                    int portInput = (Integer.valueOf((String)port.getValue())).intValue();
+                    gpServer = new URL(protocolInput, hostInput , portInput, "");
+                }
+                else
+                    gpServer = new URL(protocolInput, hostInput , "");
 
                 boolean result = testConfigSettings(gpServer.toString(), userNameInput, passwordValue);
                 if(!result)
@@ -443,11 +478,11 @@ public class GPConfigPanel extends JPanel
     {
         try
         {
-            if(protocol.getValue() == null || ((String)protocol.getValue()).length() == 0)
+            if(protocol.getText() == null || ((String)protocol.getValue()).length() == 0)
             {
                 throw new InvalidInputException("Protocol must be provided");
             }
-            else if(host.getValue() == null || ((String)host.getValue()).length() == 0)
+            else if(host.getText() == null || ((String)host.getValue()).length() == 0)
             {
                 throw new InvalidInputException("Host must be provided");
             }
@@ -472,32 +507,33 @@ public class GPConfigPanel extends JPanel
         return new String(password.getPassword());
     }
 
-    private class MyCellRenderer extends JTextArea implements TableCellRenderer
+    private class MyCellRenderer extends JLabel implements TableCellRenderer
     {
-	    public MyCellRenderer() {
-	       setLineWrap(true);
-	       setWrapStyleWord(true);
+	    public MyCellRenderer()
+        {
+           setFont(new Font("TestFont", Font.PLAIN, 13));
+           setHorizontalTextPosition(JLabel.CENTER);
         }
-        public Color getBackground()
+
+        public Color get1Background()
         {
             if(getParent()!= null)
                 return getParent().getBackground();
 
             return  super.getBackground();
         }
+        
         public Component getTableCellRendererComponent(JTable table, Object
 	           value, boolean isSelected, boolean hasFocus, int row, int column)
         {
-            setText(value.toString());
-            setFont(new Font("TestFont", Font.PLAIN, 13));
-            setEditable(false);
-            setAlignmentX(JTable.BOTTOM_ALIGNMENT);
-            setSize(table.getColumnModel().getColumn(column).getWidth(),
-	               getPreferredSize().height);
-	        if(table.getRowHeight(row) != getPreferredSize().height) {
-	               table.setRowHeight(row, getPreferredSize().height);
-	        }
-	        return this;
+            if(value != null)
+            {
+                setText("<html>" + value.toString() + "</html>");
+            }
+            else
+                setText("");
+
+            return this;
 	    }
 	}
 }
