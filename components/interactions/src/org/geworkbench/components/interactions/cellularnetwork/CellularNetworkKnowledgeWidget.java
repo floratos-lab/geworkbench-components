@@ -78,6 +78,7 @@ import org.geworkbench.bison.datastructure.bioobjects.markers.goterms.GOTerm;
 import org.geworkbench.bison.datastructure.complex.panels.CSItemList;
 import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
+import org.geworkbench.builtin.projects.ProjectPanel;
 import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.engine.management.AcceptTypes;
 import org.geworkbench.engine.management.Publish;
@@ -93,6 +94,8 @@ import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.axis.ValueAxis;
+import org.jfree.chart.event.ChartProgressEvent;
+import org.jfree.chart.event.ChartProgressListener;
 import org.jfree.chart.labels.XYToolTipGenerator;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
@@ -102,9 +105,6 @@ import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.jfree.ui.RectangleInsets;
-
-import org.geworkbench.builtin.projects.ProjectPanel;
-
 
 /**
  * @author manjunath at genomecenter dot columbia dot edu, xiaoqing zhang
@@ -188,7 +188,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 	/**
 	 * Create a popup menu to display thge name of different Go Terms in 3
 	 * catagories.
-	 * 
+	 *
 	 * @param rowIndex
 	 * @param columnIndex
 	 * @return
@@ -317,7 +317,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 	/**
 	 * Create a popup menu to display thge name of different Go Terms in 3
 	 * catagories.
-	 * 
+	 *
 	 * @param rowIndex
 	 * @param columnIndex
 	 * @return
@@ -371,7 +371,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 
 	/**
 	 * Display a tree for a specific go term.
-	 * 
+	 *
 	 * @param jMenu
 	 * @param treeMap
 	 */
@@ -398,7 +398,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 
 	/**
 	 * Create a TreeNode from the Go Term data.
-	 * 
+	 *
 	 * @param set
 	 * @return
 	 */
@@ -424,7 +424,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 
 	/**
 	 * Display Go Tree.
-	 * 
+	 *
 	 * @param set
 	 */
 	private void displayGoTree(List<GOTerm> set) {
@@ -789,9 +789,9 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 				"# interactions", null, PlotOrientation.VERTICAL, true, true,
 				true); // Title, X-Axis label, Y-Axis label, Dataset, Show
 		// legend, show ToolTips
-
 		graph = new ChartPanel(chart, true);
 		XYPlot newPlot = (XYPlot) chart.getPlot();
+
 		// change the auto tick unit selection to integer units only...
 		NumberAxis rangeAxis = (NumberAxis) newPlot.getRangeAxis();
 		rangeAxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
@@ -848,7 +848,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 
 	/**
 	 * Generate the data to draw the curve.
-	 * 
+	 *
 	 * @param min
 	 * @param max
 	 * @param selectedId
@@ -915,7 +915,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 
 	/**
 	 * Respond to the select/unselect of Protein Protein interaction checkbox.
-	 * 
+	 *
 	 * @param e
 	 */
 	public void jProteinCheckBox_actionPerformed(ActionEvent e) {
@@ -943,7 +943,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 
 	/**
 	 * Respond to the change of the Threshold Text field.
-	 * 
+	 *
 	 * @param
 	 */
 	public void jThresholdTextField_actionPerformed() {
@@ -970,7 +970,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 	/**
 	 * Respond to display the table perference. Make the selection dialog
 	 * visible.
-	 * 
+	 *
 	 * @param e
 	 */
 	public void displayPreferenceButton_actionPerformed(ActionEvent e) {
@@ -1005,7 +1005,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 
 	/**
 	 * Create the plot for the throttle graph.
-	 * 
+	 *
 	 * @param plots
 	 * @param title
 	 */
@@ -1035,6 +1035,27 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 		newPlot.setRangeGridlinePaint(Color.white);
 		newPlot.setDomainCrosshairVisible(true);
 		newPlot.setDomainCrosshairLockedOnData(true);
+
+		chart.addProgressListener(new ChartProgressListener() {
+
+			public void chartProgress(ChartProgressEvent event) {
+				if (event.getType() == ChartProgressEvent.DRAWING_FINISHED) {
+					// set text field and slider
+					JFreeChart chart = event.getChart();
+					XYPlot plot = (XYPlot) chart.getPlot();
+					double aCrosshair = plot.getDomainCrosshairValue();
+
+					String s = myFormatter.format(aCrosshair);
+					thresholdTextField.setText(s);
+
+					double newSliderValue = aCrosshair
+							* (CellularNetWorkElementInformation.getBinNumber() - 1);
+					thresholdSlider.setValue((int) newSliderValue);
+				}
+			}
+
+		});
+
 		// Set up fixed ranges.
 		// ValueAxis xaxis = new NumberAxis();
 		// xaxis.setRange(minValue, maxValue);
@@ -1130,6 +1151,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 						jProgressBar1.setForeground(Color.RED);
 					}
 				} catch (Exception e) {
+					log.error("updateProgressBar() ", e); //$NON-NLS-1$
 				}
 			}
 		};
@@ -1157,7 +1179,6 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 						eidc);
 				serial = copy.get(index).getSerial();
 				matrix.addGeneRow(serial);
-				 
 
 				for (InteractionDetail interactionDetail : arrayList) {
 					DSGeneMarker marker = new CSGeneMarker();
@@ -1186,36 +1207,41 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 					}
 				}
 			}
-           
+
 			dataSet = new AdjacencyMatrixDataSet(matrix, serial, 0.5f, 2,
 					"Adjacency Matrix", dataset.getLabel(), dataset);
 
-			if (cellularNetWorkElementInformation.isIncludePDInteraction() == true || cellularNetWorkElementInformation.isIncludePPInteraction() == true)
-			{
-				historyStr += "           " + cellularNetWorkElementInformation.getdSGeneMarker().getLabel() + ": " ;
+			if (cellularNetWorkElementInformation.isIncludePDInteraction() == true
+					|| cellularNetWorkElementInformation
+							.isIncludePPInteraction() == true) {
+				historyStr += "           "
+						+ cellularNetWorkElementInformation.getdSGeneMarker()
+								.getLabel() + ": ";
 				if (cellularNetWorkElementInformation.isIncludePDInteraction())
-				   historyStr += "Include Protein-DNA(true): ";
+					historyStr += "Include Protein-DNA(true): ";
 				else
-				   historyStr += "Include Protein-DNA(false): ";
-				historyStr += cellularNetWorkElementInformation.getPdInteractionNum() + ", ";
-			    
+					historyStr += "Include Protein-DNA(false): ";
+				historyStr += cellularNetWorkElementInformation
+						.getPdInteractionNum()
+						+ ", ";
+
 				if (cellularNetWorkElementInformation.isIncludePPInteraction())
-					   historyStr += "Include Protein-Protein(true): ";
-					else
-					   historyStr += "Include Protein-Protein(false): ";
-				historyStr += cellularNetWorkElementInformation.getPpInteractionNum() + "\n";
-				
+					historyStr += "Include Protein-Protein(true): ";
+				else
+					historyStr += "Include Protein-Protein(false): ";
+				historyStr += cellularNetWorkElementInformation
+						.getPpInteractionNum()
+						+ "\n";
+
 			}
-			 
-			
+
 		} // end for loop
-		
-		
-		 
 
 		if (dataSet != null && !isEmpty) {
-			
-			historyStr = "Cellular Network Parameters: \n" + "      Threshold: " + thresholdTextField.getText()+ "\n" + "      Selected Marker List: \n" + historyStr +"\n";  
+
+			historyStr = "Cellular Network Parameters: \n"
+					+ "      Threshold: " + thresholdTextField.getText() + "\n"
+					+ "      Selected Marker List: \n" + historyStr + "\n";
 			ProjectPanel.addToHistory(dataSet, historyStr);
 			publishProjectNodeAddedEvent(new ProjectNodeAddedEvent(
 					"Adjacency Matrix Added", null, dataSet));
@@ -1442,6 +1468,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 					refreshButton.setEnabled(true);
 
 				} catch (Exception e) {
+					log.error("$Runnable.run()", e); //$NON-NLS-1$
 				}
 			}
 		};
@@ -1925,7 +1952,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 	}
 
 	synchronized void processData(DSPanel<DSGeneMarker> panel) {
-		log.debug("start processData" );
+		log.debug("start processData");
 		if (panel != null) {
 			if (panel.size() == 0) {
 
@@ -1951,7 +1978,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 
 		}
 		repaint();
-		log.debug("end processData" );
+		log.debug("end processData");
 	}
 
 	private boolean checkSelectedTableWithNewDataSet(DSPanel<DSGeneMarker> panel) {
