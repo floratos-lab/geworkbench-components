@@ -301,13 +301,14 @@ public class AracneAnalysis extends AbstractGridAnalysis implements
 						-1, 0, 1000, "Adjacency Matrix", "ARACNE Set", mSetView
 								.getMicroarraySet());
 				StringBuilder paramDescB = new StringBuilder(
-						"Generated with ARACNE run with data:\nArrays:\n");
+						"Generated with ARACNE run with data:\n"+this.mSetView.getMicroarraySet().size()+" Arrays:\n");
+				//FIXME: Observed a potential issue in following line, reported as Mantis #1635
 				for (DSMicroarray ma : this.mSetView.getMicroarraySet()) {
 					paramDescB.append("\t");
 					paramDescB.append(ma.getLabel());
 					paramDescB.append("\n");
 				}
-				paramDescB.append("Markers:\n");
+				paramDescB.append(""+this.mSetView.markers().size()+" Markers:\n");
 				for (DSGeneMarker m : this.mSetView.markers()) {
 					paramDescB.append("\t");
 					paramDescB.append(m.getShortName());
