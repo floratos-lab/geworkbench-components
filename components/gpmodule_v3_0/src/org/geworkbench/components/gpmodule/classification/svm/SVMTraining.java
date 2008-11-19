@@ -142,8 +142,6 @@ public class SVMTraining extends GPTraining implements TrainingTask
             svmClassifier.setTrainPredResult(predResult);
 
             progressBar.stop();
-
-            publishProjectNodeAddedEvent(new ProjectNodeAddedEvent(svmClassifier.getLabel(), null, svmClassifier));
         }
         catch(ClassifierException e)
         {
