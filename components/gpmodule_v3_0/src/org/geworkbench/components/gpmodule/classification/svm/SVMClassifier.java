@@ -41,18 +41,23 @@ public class SVMClassifier extends GPClassifier
         this.predModel = model;
         this.featureNames = featureNames;
     }
-    
+
     public int classify(float[] data)
     {
         List dataset = new ArrayList();
         dataset.add(data);
 
-        PredictionResult predResult = runPredictor("SVM", buildParametersList(dataset, null));
+        PredictionResult predResult = runPredictor("SVM", buildParametersList(dataset, null, null));
 
         return (getPredictedClass(predResult).equals("Control") ? 1 : 0);
     }
 
-    public void classify(DSPanel<DSMicroarray> panel)
+    public PredictionResult classify(DSPanel<DSMicroarray> panel)
+    {
+        return classify(panel, null);
+    }
+    
+    public PredictionResult classify(DSPanel<DSMicroarray> panel, String[] classLabels)
     {
         List arrayNames = new ArrayList();
 
@@ -67,14 +72,15 @@ public class SVMClassifier extends GPClassifier
             dataset.add(microarray.getRawMarkerData());
         }
 
-        PredictionResult predResult = runPredictor("SVM", buildParametersList(dataset, arrayNames));
-        testPredResult = predResult;
+        PredictionResult predResult = runPredictor("SVM", buildParametersList(dataset, arrayNames, classLabels));
+
+        return predResult;
     }
 
-    private Parameter[] buildParametersList(List data, List arrayNames)
+    private Parameter[] buildParametersList(List data, List arrayNames, String[] classLabels)
     {
         File testData = createTestGCTFile("SVMTest_Data", data, arrayNames);
-        File testCLSData = createTestCLSFile("SVMTest_Cls", data.size());
+        File testCLSData = createTestCLSFile("SVMTest_Cls", data.size(), classLabels);
 
         List parameters = new ArrayList();
 
@@ -96,6 +102,10 @@ public class SVMClassifier extends GPClassifier
         return trainPredResult;
     }
 
+    public void setTestPredResult(PredictionResult result)
+    {
+        testPredResult = result;
+    }
 
     public PredictionResult getTestPredResult()
     {

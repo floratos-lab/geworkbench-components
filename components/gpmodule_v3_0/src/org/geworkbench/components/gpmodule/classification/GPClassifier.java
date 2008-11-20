@@ -39,7 +39,7 @@ public abstract class GPClassifier extends CSClassifier
     private String password;
 
     protected GPClassifier(DSDataSet parent, String label, String[] classifications)
-    {       
+    {
         super(parent, label, classifications);
         password = null;
     }
@@ -119,6 +119,11 @@ public abstract class GPClassifier extends CSClassifier
 
     protected File createTestCLSFile(String fileName, int numArrays)
     {
+        return createTestCLSFile(fileName, numArrays, null);    
+    }
+
+    protected File createTestCLSFile(String fileName, int numArrays, String[] classLabels)
+    {
         File testClsData = null;
         BufferedOutputStream clsOutputStream = null;
 
@@ -128,9 +133,13 @@ public abstract class GPClassifier extends CSClassifier
             testClsData.deleteOnExit();
             clsOutputStream = new BufferedOutputStream(new FileOutputStream(testClsData));
 
-            String[] classLabels = new String[numArrays];
-            Arrays.fill(classLabels, "Control");
-            Arrays.fill(classLabels, 0, numArrays/2, "Case");
+            if(classLabels == null || classLabels.length < numArrays)
+            {
+                classLabels = new String[numArrays];
+                Arrays.fill(classLabels, 0, numArrays/2, "Control");
+                Arrays.fill(classLabels, numArrays/2, numArrays, "Case");
+            }
+
             ClassVector classVector = new DefaultClassVector(classLabels);
 
             ClsWriter writer = new ClsWriter();
@@ -160,7 +169,7 @@ public abstract class GPClassifier extends CSClassifier
             String serverName = GPpropertiesManager.getProperty("gp.server");
             String userName = GPpropertiesManager.getProperty("gp.user.name");
             GPClient server = new GPClient(serverName, userName, password);
-            
+
             JobResult analysisResult = server.runAnalysis(classifierName, parameters);
 
             System.out.println("Error occurred: " + analysisResult.hasStandardError());
@@ -184,7 +193,7 @@ public abstract class GPClassifier extends CSClassifier
             File[] result = analysisProxy.getResultFiles(analysisResult.getJobNumber(), resultFiles, new File(System.getProperty("temporary.files.directory")), true);
             if(result == null || result.length == 0)
                 throw new ClassifierException("Error: Could not retrieve classifier model from GenePattern");
-           
+
             File predFile = result[0];
             predFile.deleteOnExit();
 
@@ -200,7 +209,7 @@ public abstract class GPClassifier extends CSClassifier
         catch(Exception e)
         {
             if(e.getMessage().indexOf("Unknown user or invalid password") != -1)
-                JOptionPane.showMessageDialog(null, "Could not connect to GenePattern: " + e.getMessage());    
+                JOptionPane.showMessageDialog(null, "Could not connect to GenePattern: " + e.getMessage());
 
             e.printStackTrace();
         }

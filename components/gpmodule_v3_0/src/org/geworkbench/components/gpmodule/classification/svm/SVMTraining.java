@@ -23,6 +23,7 @@ import org.geworkbench.components.gpmodule.classification.PredictionResult;
 import org.geworkbench.bison.algorithm.classification.CSClassifier;
 import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
+import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.annotation.DSAnnotationContext;
@@ -36,6 +37,7 @@ import org.genepattern.webservice.Parameter;
 import javax.swing.*;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.io.File;
 
 
@@ -122,26 +124,6 @@ public class SVMTraining extends GPTraining implements TrainingTask
 
             svmClassifier = new SVMClassifier(svmPanel.getMaSet(), "SVM Classifier", new String[]{"Positive", "Negative"}, model, featureNames);
             svmClassifier.setPassword(((SVMTrainingPanel)panel).getPassword());
-
-            //test classifier on training data
-            parameters = new Parameter[4];
-            parameters[0] = new Parameter("test.data.filename", trainingData.getAbsolutePath());
-            parameters[1] = new Parameter("test.cls.filename", clsData.getAbsolutePath());
-            parameters[2] = new Parameter("saved.model.filename", modelFile.getAbsolutePath());
-            parameters[3] = new Parameter("pred.results.output.file", modelCount + trainingData.getName()+ "pred");
-
-            ProgressBar progressBar;
-            progressBar = ProgressBar.create(ProgressBar.INDETERMINATE_TYPE);
-            progressBar.setTitle("Running classifier on training data");
-            progressBar.setAlwaysOnTop(true);
-            progressBar.showValues(false);
-
-            progressBar.start();
-
-            PredictionResult predResult = svmClassifier.runPredictor("SVM", parameters);
-            svmClassifier.setTrainPredResult(predResult);
-
-            progressBar.stop();
         }
         catch(ClassifierException e)
         {
@@ -152,19 +134,44 @@ public class SVMTraining extends GPTraining implements TrainingTask
         return svmClassifier;
     }
 
-    public void runClassifier(DSPanel<DSMicroarray> testPanel, CSClassifier classifier)
+    public void runClassifier(DSPanel<DSMicroarray> casePanel, DSPanel<DSMicroarray> controlPanel, DSPanel<DSMicroarray> testPanel, CSClassifier classifier)
     {
         ProgressBar progressBar;
+        progressBar = ProgressBar.create(ProgressBar.INDETERMINATE_TYPE);
+        progressBar.setTitle("Running classifier on train data");
+        progressBar.setAlwaysOnTop(true);
+        progressBar.showValues(false);
+
+        progressBar.start();
+
+        DSPanel<DSMicroarray> trainPanel = new CSPanel();
+        trainPanel.addAll(controlPanel);
+        trainPanel.addAll(casePanel);
+        SVMClassifier svmClassifier = ((SVMClassifier)classifier);
+
+        String[] classLabels = new String[trainPanel.size()];
+        Arrays.fill(classLabels, 0, controlPanel.size(), "Control");
+        Arrays.fill(classLabels, controlPanel.size(), trainPanel.size(), "Case");
+
+        PredictionResult trainResult = svmClassifier.classify(trainPanel, classLabels);
+        svmClassifier.setTrainPredResult(trainResult);
+
+        progressBar.stop();
+
+        if(testPanel == null || testPanel.size() == 0)
+        {
+            publishProjectNodeAddedEvent(new ProjectNodeAddedEvent(classifier.getLabel(), null, classifier));
+            return;
+        }
+
         progressBar = ProgressBar.create(ProgressBar.INDETERMINATE_TYPE);
         progressBar.setTitle("Running classifier on test data");
         progressBar.setAlwaysOnTop(true);
         progressBar.showValues(false);
 
         progressBar.start();
-
-        SVMClassifier svmClassifier = ((SVMClassifier)classifier);
-        svmClassifier.classify(testPanel);
-
+        PredictionResult testResult = svmClassifier.classify(testPanel, null);
+        svmClassifier.setTestPredResult(testResult);
         progressBar.stop();
 
         publishProjectNodeAddedEvent(new ProjectNodeAddedEvent(classifier.getLabel(), null, classifier));
