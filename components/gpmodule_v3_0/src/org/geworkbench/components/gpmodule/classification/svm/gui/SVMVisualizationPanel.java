@@ -197,7 +197,6 @@ public class SVMVisualizationPanel extends JPanel implements ItemListener
 
         trainResultsTable.setModel(tableModel);
         trainResultsTable.getColumn("Correct?").setCellRenderer(new IconRenderer());
-        //trainResultsTable.getColumn("Correct?").setMaxWidth(80);
         trainResultsTable.setFillsViewportHeight(true);
         trainResultsTable.getColumn("Correct?").sizeWidthToFit();
 
@@ -747,9 +746,13 @@ public class SVMVisualizationPanel extends JPanel implements ItemListener
 
         int N = trainResultsTable.getRowCount();
         double prevConfidence = -1;
-        for(int r = 0; r < N; r++)
+        for(int r = 0; r < N+1; r++)
         {
-            double confidence = Double.valueOf((String)trainResultsTable.getValueAt(r, 3));
+            double confidence;
+            if(r == N)
+                confidence = 0;
+            else
+                confidence = Double.valueOf((String)trainResultsTable.getValueAt(r, 3));
             if(r != 0 && prevConfidence <= confidence)
                 continue;
 
