@@ -311,6 +311,8 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 	 *            ActionEvent
 	 */
 	private void executButton_actionPerformed(ActionEvent e) {
+		appComponent.updateDataSetView();
+		
 		// get a discoverySession for running the algo
 		String stubKey = getProjectFileId();
 		DiscoverySession discoverySession = getSession(stubKey);
