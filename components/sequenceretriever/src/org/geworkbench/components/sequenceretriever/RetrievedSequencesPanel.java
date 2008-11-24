@@ -1,63 +1,77 @@
 package org.geworkbench.components.sequenceretriever;
 
-import org.geworkbench.bison.datastructure.biocollections.sequences.DSSequenceSet;
-import org.geworkbench.bison.datastructure.biocollections.sequences.CSSequenceSet;
-import org.geworkbench.bison.datastructure.biocollections.DSCollection;
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.FontMetrics;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.InputMethodEvent;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionAdapter;
+import java.awt.geom.Rectangle2D;
+import java.beans.PropertyChangeEvent;
+import java.util.HashMap;
+import java.util.TreeSet;
+
+import javax.swing.BorderFactory;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextField;
+import javax.swing.JToggleButton;
+import javax.swing.JToolBar;
+
 import org.geworkbench.bison.datastructure.biocollections.Collection;
+import org.geworkbench.bison.datastructure.biocollections.DSCollection;
+import org.geworkbench.bison.datastructure.biocollections.sequences.CSSequenceSet;
+import org.geworkbench.bison.datastructure.biocollections.sequences.DSSequenceSet;
 import org.geworkbench.bison.datastructure.bioobjects.sequence.CSSequence;
 import org.geworkbench.bison.datastructure.bioobjects.sequence.DSSequence;
-import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
+import org.geworkbench.bison.datastructure.complex.pattern.DSMatchedPattern;
 import org.geworkbench.bison.datastructure.complex.pattern.sequence.CSSeqRegistration;
 import org.geworkbench.bison.datastructure.complex.pattern.sequence.DSMatchedSeqPattern;
-import org.geworkbench.bison.datastructure.complex.pattern.DSMatchedPattern;
-import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
-import org.geworkbench.util.patterns.PatternSequenceDisplayUtil;
-import org.geworkbench.util.patterns.CSMatchedSeqPattern;
-import org.geworkbench.util.patterns.PatternOperations;
-import org.geworkbench.util.patterns.PatternLocations;
-import org.geworkbench.util.sequences.SequenceViewWidgetPanel;
-import org.geworkbench.util.Util;
 import org.geworkbench.events.GeneSelectorEvent;
 import org.geworkbench.events.MicroarraySetViewEvent;
 import org.geworkbench.events.SequenceDiscoveryTableEvent;
-
-import javax.swing.*;
-
-import java.util.HashMap;
-import java.util.TreeSet;
-import java.awt.event.*;
-import java.awt.*;
-import java.awt.geom.Rectangle2D;
-import java.beans.PropertyChangeEvent;
+import org.geworkbench.util.Util;
+import org.geworkbench.util.patterns.CSMatchedSeqPattern;
+import org.geworkbench.util.patterns.PatternLocations;
+import org.geworkbench.util.patterns.PatternOperations;
+import org.geworkbench.util.patterns.PatternSequenceDisplayUtil;
+import org.geworkbench.util.sequences.SequenceViewWidgetPanel;
 
 /**
- * Created by IntelliJ IDEA.
- * User: xiaoqing
- * Date: Sep 1, 2006
- * Time: 12:06:25 PM
- * To change this template use File | Settings | File Templates.
+ * Originally created by IntelliJ IDEA.
+ * 
+ * @author xiaoqing
+ * @version $Id: RetrievedSequencesPanel.java,v 1.15 2008-11-24 21:37:12 jiz Exp $
  */
 
 /**
  * The main GUI class for sequence display panel.
  */
 
+@SuppressWarnings("unchecked")
 public class RetrievedSequencesPanel extends JPanel {
-    private HashMap listeners = new HashMap();
-    private ActionListener listener = null;
-    private final int xOff = 60;
-    private final int yOff = 20;
-    private final int xStep = 5;
-    private final int yStep = 14;
+	private static final long serialVersionUID = 430612435863058186L;
+	
     private int prevSeqId = -1;
     private int prevSeqDx = 0;
     private DSSequenceSet sequenceDB = new CSSequenceSet();
     private DSSequenceSet orgSequenceDB = new CSSequenceSet();
     private DSSequenceSet displaySequenceDB = new CSSequenceSet();
-    public HashMap<CSSequence,
+    private HashMap<CSSequence,
             PatternSequenceDisplayUtil> patternLocationsMatches;
 
-    private boolean cleaned = false;
     //Layouts
     private BorderLayout borderLayout2 = new BorderLayout();
     private DSSequence selectedSequence = null;
@@ -65,15 +79,17 @@ public class RetrievedSequencesPanel extends JPanel {
     private JDetailPanel sequencedetailPanel = new JDetailPanel();
     private JPanel bottomPanel = new JPanel();
     private JButton leftShiftButton = new JButton();
-    private JButton rightShiftButton = new JButton();
+    private JButton rightShiftButton = null;
     private JScrollPane seqScrollPane = new JScrollPane();
-    protected RetrievedSequenceDisplayPanel seqViewWPanel = new
+    
+    private RetrievedSequenceDisplayPanel seqViewWPanel = new
             RetrievedSequenceDisplayPanel();
-    protected SingleSequenceViewPanel oldViewPanel = new SingleSequenceViewPanel();
-    public DSCollection<DSMatchedPattern<DSSequence, CSSeqRegistration>>
+    private SingleSequenceViewPanel oldViewPanel = new SingleSequenceViewPanel();
+    private DSCollection<DSMatchedPattern<DSSequence, CSSeqRegistration>>
             selectedPatterns = new Collection<DSMatchedPattern<DSSequence,
             CSSeqRegistration>>();
-    public JToolBar jToolBar1 = new JToolBar();
+    private JToolBar jToolBar1 = new JToolBar();
+    
     private JToggleButton showAllBtn = new JToggleButton();
     private JCheckBox jAllSequenceCheckBox = new JCheckBox();
     private JLabel jViewLabel = new JLabel();
@@ -82,10 +98,11 @@ public class RetrievedSequencesPanel extends JPanel {
     private static final String FULLVIEW = "Full Sequence";
     private JTextField jSequenceSummaryTextField = new JTextField();
     private boolean isLineView = true; //true is for LineView.
-    protected CSSequenceSet activeSequenceDB = null;
-    protected boolean subsetMarkerOn = true;
-    protected DSPanel<? extends DSGeneMarker> activatedMarkers = null;
-    public static final String NONBASIC = "NONBASIC";
+    
+    private CSSequenceSet activeSequenceDB = null;
+    private boolean subsetMarkerOn = true;
+    private static final String NONBASIC = "NONBASIC";
+    
     private static final String LEFT = "left";
     private static final String RIGHT = "right";
     private boolean goLeft = false;
@@ -107,14 +124,10 @@ public class RetrievedSequencesPanel extends JPanel {
         sequencedetailPanel.setBorder(BorderFactory.createEtchedBorder());
         sequencedetailPanel.setMinimumSize(new Dimension(50, 40));
         sequencedetailPanel.setPreferredSize(new Dimension(60, 50));
-        //seqScrollPane.setBorder(BorderFactory.createEtchedBorder());
+
         seqViewWPanel.setRetrievedSequencesPanel(this);
         oldViewPanel.setRetrievedSequencesPanel(this);
-//        seqViewWPanel.addMouseListener(new java.awt.event.MouseAdapter() {
-//            public void mouseClicked(MouseEvent e) {
-//                jDisplayPanel_mouseClicked(e);
-//            }
-//        });
+
         oldViewPanel.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(MouseEvent e) {
                 joldViewPanel_mouseClicked(e);
@@ -193,9 +206,7 @@ public class RetrievedSequencesPanel extends JPanel {
         this.add(jToolBar1, BorderLayout.NORTH);
         jToolBar1.add(jViewLabel);
         jToolBar1.add(jViewComboBox);
-        //jToolBar1.add(jAllSequenceCheckBox);
-      //  jToolBar1.addSeparator();
-        //jToolBar1.add(jSequenceSummaryTextField);
+
         jViewComboBox.addItem(LINEVIEW);
         jViewComboBox.addItem(FULLVIEW);
         jViewComboBox.setSize(jViewComboBox.getPreferredSize());
@@ -238,9 +249,6 @@ public class RetrievedSequencesPanel extends JPanel {
     }
 
     public void setDisplaySequenceDB(DSSequenceSet displaySequenceDB) {
-    	if(displaySequenceDB!=null ){
-    		cleaned = false;
-    	}
         this.displaySequenceDB = displaySequenceDB;
         getDataSetView();
     }
@@ -282,11 +290,6 @@ public class RetrievedSequencesPanel extends JPanel {
      * @param e GeneSelectorEvent
      */
     public void sequenceDBUpdate(GeneSelectorEvent e) {
-        if (e.getPanel() != null && e.getPanel().size() > 0) {
-            activatedMarkers = e.getPanel().activeSubset();
-        } else {
-            activatedMarkers = null;
-        }
         getDataSetView();
     }
 
@@ -305,14 +308,6 @@ public class RetrievedSequencesPanel extends JPanel {
         subsetMarkerOn = !jAllSequenceCheckBox.isSelected();
         if (subsetMarkerOn) {
               activeSequenceDB = (CSSequenceSet) displaySequenceDB;
-//            if (displaySequenceDB != null &&
-//                    displaySequenceDB.size() > 0) {
-//                activeSequenceDB = (CSSequenceSet) displaySequenceDB;
-//
-//            } else if (orgSequenceDB != null) {
-//                activeSequenceDB = (CSSequenceSet) orgSequenceDB;
-//            }
-
         } else if (orgSequenceDB != null) {
             activeSequenceDB = (CSSequenceSet) orgSequenceDB;
         }
@@ -351,20 +346,11 @@ public class RetrievedSequencesPanel extends JPanel {
     }
 
     private boolean processEvent(){
-    	 // DSSequence selectedSequence = seqViewWPanel.getSelectedSequence();
-        if(cleaned){
-        	return true;
-        }
     	
     	if (selectedSequence == null) {
-            Graphics g = sequencedetailPanel.getGraphics();
-            if (g != null) {
-                g.clearRect(0, 0, sequencedetailPanel.getWidth(),
-                        sequencedetailPanel.getHeight());
-            }
-            cleaned = true;
             return true;
         }
+    	
         if (goLeft) {
             if (xStartPoint - GAP > 0) {
                 xStartPoint = xStartPoint >= GAP ? xStartPoint - GAP : 1;
@@ -386,7 +372,7 @@ public class RetrievedSequencesPanel extends JPanel {
 
     }
     
-    public void updateBottomPanel() {
+    private void updateBottomPanel() {
 
     	final Runnable processEventThread = new Runnable() {
 			public void run() {
@@ -395,7 +381,7 @@ public class RetrievedSequencesPanel extends JPanel {
 		};
 
 		Thread t = new Thread(processEventThread);
-		t.setPriority(t.MAX_PRIORITY);
+		t.setPriority(Thread.MAX_PRIORITY);
  		t.start();
 		 
 		//SwingUtilities.invokeLater(t);
@@ -429,19 +415,6 @@ public class RetrievedSequencesPanel extends JPanel {
         selectedSequence = oldViewPanel.getSelectedSequence();
         sequencedetailPanel.repaint();
         //updateBottomPanel(e);
-    }
-
-    private int getSeqId(int y) {
-        int seqId = (y - yOff) / yStep;
-        return seqId;
-    }
-
-    private int getSeqDx(int x) {
-        double scale = Math.min(5.0,
-                (double) (seqViewWPanel.getWidth() - 20 - xOff) /
-                        (double) displaySequenceDB.getMaxLength());
-        int seqDx = (int) ((double) (x - xOff) / scale);
-        return seqDx;
     }
 
     void showPatterns() {
@@ -481,7 +454,7 @@ public class RetrievedSequencesPanel extends JPanel {
         displaySequenceDB = db;
 
         getDataSetView();
-        //selectedPatterns = new ArrayList();
+
         if (sequenceDB != null) {
             seqViewWPanel.setMaxSeqLen(sequenceDB.getMaxLength());
             //      seqViewWPanel.initialize(null, db);
@@ -530,9 +503,6 @@ public class RetrievedSequencesPanel extends JPanel {
                 seqViewWPanel.setMaxSeqLen(sequenceDB.getMaxLength());
                 displaySequenceDB = sequenceDB;
                 seqViewWPanel.setShowAll(false);
-//                seqViewWPanel.initialize(selectedPatterns, sequenceDB,
-//                                         isLineView);
-
             }
 
             showAllBtn.setSelected(false);
@@ -599,7 +569,9 @@ public class RetrievedSequencesPanel extends JPanel {
     }
 
     private class JDetailPanel extends JPanel {
-        public void paintComponent(Graphics g) {
+		private static final long serialVersionUID = -9171605516043986751L;
+
+		public void paintComponent(Graphics g) {
             super.paintComponent(g);
             // DSSequence selectedSequence = seqViewWPanel.getSelectedSequence();
             if (selectedSequence == null) {
@@ -647,7 +619,7 @@ public class RetrievedSequencesPanel extends JPanel {
                 g.setFont(font);
                 if (sequence != null && (seqDx >= 0) &&
                         (seqDx < sequence.length())) {
-                    //turn anti alising on
+                    //turn anti-aliasing on
                     ((Graphics2D) g).setRenderingHint(RenderingHints.
                             KEY_ANTIALIASING,
                             RenderingHints.
