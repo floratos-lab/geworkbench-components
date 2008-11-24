@@ -1,6 +1,5 @@
 package org.geworkbench.components.sequenceretriever;
 
-
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -13,7 +12,6 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -21,10 +19,8 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.Vector;
 
-import javax.swing.AbstractListModel;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
-import javax.swing.ButtonGroup;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -46,8 +42,6 @@ import javax.swing.ListModel;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.event.ListSelectionEvent;
@@ -79,25 +73,38 @@ import org.geworkbench.events.ProjectNodeAddedEvent;
 import org.geworkbench.util.sequences.GeneChromosomeMatcher;
 
 /**
- * <p/> Widget to retrieve Promoter sequence from UCSC's DAS sequence server
- * </p>
- * <p/> Copyright: Copyright (c) 2003 - 2005
- * </p>
+ * Widget to retrieve Promoter sequence from UCSC's DAS sequence server.
  * 
  * @author Xuegong Wang
  * @author manjunath at genomecenter dot columbia dot edu
  * @author xiaoqing at genomecenter dot columbia dot edu
- * @version 3.0
+ * @version $Id: SequenceRetriever.java,v 1.56 2008-11-24 21:37:41 jiz Exp $
  */
 
+@SuppressWarnings("unchecked")
 @AcceptTypes( { DSMicroarraySet.class })
 public class SequenceRetriever implements VisualPlugin {
-
 	private Log log = LogFactory.getLog(SequenceRetriever.class);
 
-	DSPanel<DSGeneMarker> markers = null;
+	private static final String LOCAL = "Local";
+	private static final String UCSC = "UCSC";
+	private static final String EBI = "EBI";
+	
+	private String currentSource = LOCAL;
 
-	DSPanel<DSGeneMarker> activeMarkers = null;
+	private final static String NORMAL = "normal";
+	private final static String STOP = "stop";
+	private final static String CLEAR = "clear";
+	private final static String RUNNING = "running";
+	private final static String PROTEINVIEW = "Protein";
+	private final static String DNAVIEW = "DNA";
+
+	private String currentView = DNAVIEW;
+	private String status = NORMAL;
+
+	private DSPanel<DSGeneMarker> markers = null;
+
+	private DSPanel<DSGeneMarker> activeMarkers = null;
 
 	private CSSequenceSet sequenceDB = new CSSequenceSet<DSSequence>();
 
@@ -105,46 +112,11 @@ public class SequenceRetriever implements VisualPlugin {
 
 	private CSSequenceSet proteinSequenceDB = new CSSequenceSet<DSSequence>();
 
-	private CSSequenceSet selectedProteinSequences = new CSSequenceSet<DSSequence>();
-
 	private DSItemList markerList;
 
-	public static final String NOANNOTATION = "---";
+	private static final String NOANNOTATION = "---";
 
-	boolean selectedRegionChanged = false;
-
-	protected DSMicroarraySet<DSMicroarray> refMASet = null;
-
-	private final static String NORMAL = "normal";
-
-	private final static String STOP = "stop";
-
-	private final static String CLEAR = "clear";
-
-	private final static String RUNNING = "running";
-
-	private final static String PROTEINVIEW = "Protein";
-
-	private final static String DNAVIEW = "DNA";
-
-	public static final String LOCAL = "Local";
-
-	public static final String UCSC = "UCSC";
-
-	public static final String CABIO = "CABIO";
-
-	public static final String EBI = "EBI";
-
-	public String currentSource = LOCAL;
-
-	private String currentView = DNAVIEW;
-
-	private String status = NORMAL;
-
-	// selected results
-	Vector results = new Vector();
-
-	Vector tfNameSet;
+	private DSMicroarraySet<DSMicroarray> refMASet = null;
 
 	private TreeMap<String, ArrayList<String>> currentRetrievedSequences = new TreeMap<String, ArrayList<String>>();
 
@@ -178,106 +150,90 @@ public class SequenceRetriever implements VisualPlugin {
 	// Layouts,Panels and Panes
 	private JPanel main = new JPanel();
 
-	private BorderLayout borderLayout2 = new BorderLayout();
-
 	private JToolBar jToolbar2 = new JToolBar();
 
 	private JScrollPane seqScrollPane = new JScrollPane();
 
 	private RetrievedSequencesPanel seqDisPanel = new RetrievedSequencesPanel();
 
-	JPanel jPanel2 = new JPanel();
+	private JPanel jPanel2 = new JPanel();
 
-	public static String newline = System.getProperty("line.separator");
+	private SpinnerNumberModel model = new SpinnerNumberModel(1999, 1, 1999, 1);
 
-	SpinnerNumberModel model = new SpinnerNumberModel(1999, 1, 1999, 1);
+	private JSpinner beforeText = new JSpinner();
 
-	JSpinner beforeText = new JSpinner();
+	private SpinnerNumberModel model1 = new SpinnerNumberModel(2000, 1, 2000, 1);
 
-	SpinnerNumberModel model1 = new SpinnerNumberModel(2000, 1, 2000, 1);
+	private JSpinner afterText = new JSpinner();
 
-	JSpinner afterText = new JSpinner();
+	private JLabel jLabel1 = new JLabel();
 
-	JLabel jLabel1 = new JLabel();
+	private JLabel jLabel2 = new JLabel();
 
-	JLabel jLabel2 = new JLabel();
+	private JPopupMenu jpopMenu = new JPopupMenu();
 
-	JPopupMenu jpopMenu = new JPopupMenu();
+	private JMenuItem jClearUnselectedItem = new JMenuItem();
 
-	JMenuItem jActivateItem = new JMenuItem();
+	private JMenuItem jClearAllItem = new JMenuItem();
 
-	JMenuItem jDeactivateItem = new JMenuItem();
+	private JSplitPane rightPanel = new JSplitPane();
 
-	JMenuItem jDeleteItem = new JMenuItem();
+	private JPanel jPanel3 = new JPanel();
 
-	JMenuItem jClearUnselectedItem = new JMenuItem();
+	private GridLayout gridLayout1 = new GridLayout();
 
-	JMenuItem jClearAllItem = new JMenuItem();
+	private JButton jActivateBttn = new JButton();
 
-	JSplitPane rightPanel = new JSplitPane();
+	private JButton jButton2 = new JButton();
 
-	BorderLayout borderLayout1 = new BorderLayout();
+	private JButton stopButton = new JButton();
 
-	BorderLayout borderLayout3 = new BorderLayout();
+	private JButton clearButton = new JButton();
 
-	JPanel jPanel3 = new JPanel();
+	private JPanel jPanel1 = new JPanel();
 
-	GridLayout gridLayout1 = new GridLayout();
+	private JScrollPane jScrollPane2 = new JScrollPane();
 
-	JButton jActivateBttn = new JButton();
+	private JPanel jPanel4 = new JPanel();
 
-	JButton jButton2 = new JButton();
+	private BorderLayout borderLayout5 = new BorderLayout();
 
-	JButton stopButton = new JButton();
+	private JLabel jLabel4 = new JLabel();
 
-	JButton clearButton = new JButton();
+	private DefaultListModel ls1 = new DefaultListModel();
 
-	ButtonGroup sourceGroup = new ButtonGroup();
+	private DefaultListModel ls2 = new DefaultListModel();
 
-	JPanel jPanel1 = new JPanel();
+	private JList jSelectedList = new JList();
 
-	JScrollPane jScrollPane2 = new JScrollPane();
+	private JComboBox jComboCategory = new JComboBox();
 
-	JPanel jPanel4 = new JPanel();
+	private JComboBox jSourceCategory = new JComboBox();
 
-	BorderLayout borderLayout5 = new BorderLayout();
+	private JPanel jPanel6 = new JPanel();
 
-	JLabel jLabel4 = new JLabel();
+	private JProgressBar jProgressBar1 = new JProgressBar();
 
-	DefaultListModel ls1 = new DefaultListModel();
+	private GridLayout gridLayout2 = new GridLayout();
 
-	DefaultListModel ls2 = new DefaultListModel();
+	private JLabel jLabel6 = new JLabel();
 
-	JList jSelectedList = new JList();
+	private JTabbedPane tabPane = new JTabbedPane();
 
-	JComboBox jComboCategory = new JComboBox();
+	private JPanel markerPanel = new JPanel();
 
-	JComboBox jSourceCategory = new JComboBox();
-
-	JPanel jPanel6 = new JPanel();
-
-	JProgressBar jProgressBar1 = new JProgressBar();
-
-	GridLayout gridLayout2 = new GridLayout();
-
-	JLabel jLabel6 = new JLabel();
-
-	JTabbedPane tabPane = new JTabbedPane();
-
-	JPanel markerPanel = new JPanel();
-
-	FlowLayout flowLayout1 = new FlowLayout();
+	private FlowLayout flowLayout1 = new FlowLayout();
 
 	public SequenceRetriever() {
 		try {
 			jbInit();
-
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
 	}
 
-	class SequenceListRenderer extends JLabel implements ListCellRenderer {
+	private class SequenceListRenderer extends JLabel implements ListCellRenderer {
+		private static final long serialVersionUID = 1764773552579977347L;
 
 		public Component getListCellRendererComponent(JList list, Object value, // value
 				// to
@@ -307,6 +263,7 @@ public class SequenceRetriever implements VisualPlugin {
 		}
 	}
 
+	@SuppressWarnings("serial")
 	void jbInit() throws Exception {
 		// jProgressBar1.setForeground(Color.green);
 		jProgressBar1.setMinimumSize(new Dimension(10, 16));
@@ -325,7 +282,7 @@ public class SequenceRetriever implements VisualPlugin {
 		seqDisPanel.setMinimumSize(new Dimension(10, 10));
 		jPanel3.setBorder(null);
 
-		main.setLayout(borderLayout2);
+		main.setLayout(new BorderLayout());
 		jToolbar2.setBorder(BorderFactory.createEtchedBorder());
 		jToolbar2.setMinimumSize(new Dimension(20, 25));
 		jToolbar2.setPreferredSize(new Dimension(20, 25));
@@ -335,23 +292,15 @@ public class SequenceRetriever implements VisualPlugin {
 		seqScrollPane.setMinimumSize(new Dimension(24, 24));
 		seqScrollPane.setPreferredSize(new Dimension(250, 250));
 
-		jPanel2.setLayout(borderLayout1);
+		jPanel2.setLayout(new BorderLayout());
 		beforeText.setModel(model);
-		beforeText.addChangeListener(new ChangeListener() {
-			public void stateChanged(ChangeEvent e) {
-				text_actionPerformed(e);
-			}
-		});
 		beforeText.setSize(new Dimension(15, 10));
 		beforeText.setPreferredSize(new Dimension(15, 10));
+
 		afterText.setModel(model1);
-		afterText.addChangeListener(new ChangeListener() {
-			public void stateChanged(ChangeEvent e) {
-				text_actionPerformed(e);
-			}
-		});
 		afterText.setSize(new Dimension(15, 10));
 		afterText.setPreferredSize(new Dimension(15, 10));
+		
 		jLabel1.setToolTipText("Downstream");
 		jLabel1.setText("+");
 		jLabel2.setToolTipText("Upstream");
@@ -553,7 +502,7 @@ public class SequenceRetriever implements VisualPlugin {
 		}
 	}
 
-	void updateProgressBar(final double percent, final String text) {
+	private void updateProgressBar(final double percent, final String text) {
 		Runnable r = new Runnable() {
 			public void run() {
 				try {
@@ -606,13 +555,6 @@ public class SequenceRetriever implements VisualPlugin {
 		seqDisPanel.initialize();
 		jSelectedList.clearSelection();
 		jSelectedList.repaint();
-	}
-
-	private void handleMouseEvent(MouseEvent event) {
-		int index = jSelectedList.locationToIndex(event.getPoint());
-		if (index != -1) {
-			updateSelectedSequenceDB(index);
-		}
 	}
 
 	void jButton2_actionPerformed(ActionEvent e) {
@@ -692,10 +634,6 @@ public class SequenceRetriever implements VisualPlugin {
 						"Please select at least one sequence.");
 			}
 		}
-	}
-
-	void text_actionPerformed(ChangeEvent e) {
-		this.selectedRegionChanged = true;
 	}
 
 	private void getCachedDNASequences(DSGeneMarker marker) {
@@ -941,24 +879,6 @@ public class SequenceRetriever implements VisualPlugin {
 		}
 	}
 
-	private void postProcessSequences(CSSequenceSet sequences,
-			HashMap<String, RetrievedSequenceView> newMap) {
-		sequenceDB = sequences;
-		currentRetrievedMap = newMap;
-		String fileName = this.getRandomFileName();
-		if (sequences.getSequenceNo() == 0) {
-			JOptionPane.showMessageDialog(getComponent(),
-					"No sequences retrieved for selected markers");
-		}
-		if (sequenceDB.getSequenceNo() != 0) {
-			sequenceDB.writeToFile(fileName);
-			sequenceDB = new CSSequenceSet();
-			sequenceDB.readFASTAFile(new File(fileName));
-		}
-		updateDisplay(sequences, newMap);
-
-	}
-
 	private void postProcessSequences() {
 		if (currentView.equalsIgnoreCase(DNAVIEW)) {
 			sequenceDB = dnaSequenceDB;
@@ -997,10 +917,6 @@ public class SequenceRetriever implements VisualPlugin {
 		}
 		updateDisplay(sequenceDB, currentRetrievedMap);
 
-	}
-
-	private void updateDisplay(CSSequenceSet selectedSet) {
-		updateDisplay(selectedSet, currentRetrievedMap);
 	}
 
 	private void updateDisplay(CSSequenceSet selectedSet,
@@ -1069,7 +985,7 @@ public class SequenceRetriever implements VisualPlugin {
 		};
 
 		Thread t = new Thread(processEventThread);
-		t.setPriority(t.MAX_PRIORITY);
+		t.setPriority(Thread.MAX_PRIORITY);
 		t.start();
 		log.debug("end GeneSelectorEvent::source="
 				+ publisher.getClass().getName());
@@ -1229,6 +1145,7 @@ public class SequenceRetriever implements VisualPlugin {
 	}
 
 	private class TFListPanel extends JPanel {
+		private static final long serialVersionUID = 8681983607024585608L;
 
 		public static final String NEXT_BUTTON_TEXT = "Find";
 
@@ -1329,7 +1246,6 @@ public class SequenceRetriever implements VisualPlugin {
 
 			String text = searchField.getText().toLowerCase();
 			if (findNext(text)) {
-				boolean confirmed = true;
 				JOptionPane.showMessageDialog(this, "No marker can be found.");
 			} else {
 				boolean confirmed = false;
@@ -1389,7 +1305,6 @@ public class SequenceRetriever implements VisualPlugin {
 		 */
 		protected boolean findNext(String query) {
 			model.removeAllElements();
-			boolean found = false;
 			if (markerList != null) {
 				Object theOne = markerList.get(query);
 				if (theOne != null) {
@@ -1400,7 +1315,6 @@ public class SequenceRetriever implements VisualPlugin {
 					String element = o.toString().toLowerCase();
 					if (element.contains(query)) {
 						model.addElement(o);
-						found = true;
 					}
 				}
 			}
@@ -1506,70 +1420,4 @@ public class SequenceRetriever implements VisualPlugin {
 		}
 
 	}
-
-	/**
-	 * ListModel for the marker list.
-	 */
-	private class TFListModel extends AbstractListModel {
-
-		public int getSize() {
-			if (tfNameSet == null) {
-				return 0;
-			}
-			return tfNameSet.size();
-		}
-
-		public Object getElementAt(int index) {
-			if ((tfNameSet == null) || tfNameSet.size() <= index) {
-				return null;
-			} else {
-				return tfNameSet.get(index);
-			}
-		}
-
-		public void addElement(Object obj) {
-			if (!tfNameSet.contains(obj.toString())) {
-				tfNameSet.add(obj.toString());
-				Collections.sort(tfNameSet);
-				int index = tfNameSet.size();
-				fireIntervalAdded(this, index, index);
-
-			}
-
-		}
-
-		public Object remove(int index) {
-			Object rv = tfNameSet.get(index);
-			tfNameSet.remove(index);
-			fireIntervalRemoved(this, index, index);
-			return rv;
-		}
-
-		public Object getItem(int index) {
-			if ((tfNameSet == null) || tfNameSet.size() <= index) {
-				return null;
-			} else {
-				return tfNameSet.get(index);
-			}
-
-		}
-
-		/**
-		 * Indicates to the associated JList that the contents need to be
-		 * redrawn.
-		 */
-		public void refresh() {
-			if (tfNameSet == null) {
-				fireContentsChanged(this, 0, 0);
-			} else {
-				fireContentsChanged(this, 0, tfNameSet.size());
-			}
-		}
-
-		public void refreshItem(int index) {
-			fireContentsChanged(this, index, index);
-		}
-
-	}
-
 }
