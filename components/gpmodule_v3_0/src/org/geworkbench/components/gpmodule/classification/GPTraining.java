@@ -151,7 +151,7 @@ public abstract class GPTraining extends AbstractTraining
         return stat;
     }
 
-    protected File trainData(String classiferName, Parameter[] parameters) throws ClassifierException
+    protected File trainData(String classifierName, Parameter[] parameters) throws ClassifierException
     {
         File modelFile = null;
         try
@@ -161,7 +161,7 @@ public abstract class GPTraining extends AbstractTraining
             String password = ((GPTrainingPanel)this.panel).getPassword();
             GPClient server = new GPClient(serverName, userName, password);            
 
-            JobResult analysisResult = server.runAnalysis(classiferName, parameters);
+            JobResult analysisResult = server.runAnalysis(classifierName, parameters);
             String[] outputFiles = analysisResult.getOutputFileNames();
 
             String modelFileName = null;
@@ -194,7 +194,13 @@ public abstract class GPTraining extends AbstractTraining
         catch(WebServiceException we)
         {
              we.printStackTrace();
-             throw new ClassifierException("Could not connect to GenePattern server");           
+
+             if(we.getMessage().indexOf(classifierName + " not found on server") != -1)
+             {
+                throw new ClassifierException(classifierName + " module not found on  GenePattern server");        
+             }
+             else
+                throw new ClassifierException("Could not connect to GenePattern server");
         }
         catch(ClassifierException ce)
         {
@@ -203,7 +209,7 @@ public abstract class GPTraining extends AbstractTraining
         catch(Exception e)
         {
             e.printStackTrace();
-            throw new ClassifierException("Error creating " + classiferName + " model");
+            throw new ClassifierException("Error creating " + classifierName + " model");
         }
 
         return modelFile;
