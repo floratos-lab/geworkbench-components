@@ -30,6 +30,7 @@ import org.geworkbench.bison.annotation.DSAnnotationContext;
 import org.geworkbench.bison.annotation.CSAnnotationContextManager;
 import org.geworkbench.bison.annotation.CSAnnotationContext;
 import org.geworkbench.events.ProjectNodeAddedEvent;
+import org.geworkbench.builtin.projects.ProjectPanel;
 import org.genepattern.matrix.ClassVector;
 import org.genepattern.matrix.DefaultClassVector;
 import org.genepattern.webservice.Parameter;
@@ -139,7 +140,7 @@ public class SVMTraining extends GPTraining implements TrainingTask
         ProgressBar progressBar;
         progressBar = ProgressBar.create(ProgressBar.INDETERMINATE_TYPE);
         progressBar.setTitle("Running classifier on train data");
-        progressBar.setAlwaysOnTop(true);
+        progressBar.setAlwaysOnTop(false);
         progressBar.showValues(false);
 
         progressBar.start();
@@ -153,10 +154,23 @@ public class SVMTraining extends GPTraining implements TrainingTask
         Arrays.fill(classLabels, 0, controlPanel.size(), "Control");
         Arrays.fill(classLabels, controlPanel.size(), trainPanel.size(), "Case");
 
-        PredictionResult trainResult = svmClassifier.classify(trainPanel, classLabels);
-        svmClassifier.setTrainPredResult(trainResult);
+        PredictionResult trainResult = null;
+        try
+        {
+            trainResult = svmClassifier.classify(trainPanel, classLabels);
+            svmClassifier.setTrainPredResult(trainResult);
+        }
+        catch(Exception e)
+        {
+            log.error(e);
+        }
+        finally
+        {
+            progressBar.stop();
+        }
 
-        progressBar.stop();
+        if(trainResult == null)
+            return;
 
         if(testPanel == null || testPanel.size() == 0)
         {
@@ -166,13 +180,25 @@ public class SVMTraining extends GPTraining implements TrainingTask
 
         progressBar = ProgressBar.create(ProgressBar.INDETERMINATE_TYPE);
         progressBar.setTitle("Running classifier on test data");
-        progressBar.setAlwaysOnTop(true);
+        progressBar.setAlwaysOnTop(false);
         progressBar.showValues(false);
 
         progressBar.start();
-        PredictionResult testResult = svmClassifier.classify(testPanel, null);
-        svmClassifier.setTestPredResult(testResult);
-        progressBar.stop();
+
+        PredictionResult testResult = null;
+        try
+        {
+            testResult = svmClassifier.classify(testPanel, null);
+            svmClassifier.setTestPredResult(testResult);
+        }
+        catch(Exception e)
+        {
+            log.error(e);
+        }
+        finally
+        {
+            progressBar.stop();
+        }
 
         publishProjectNodeAddedEvent(new ProjectNodeAddedEvent(classifier.getLabel(), null, classifier));
     }
