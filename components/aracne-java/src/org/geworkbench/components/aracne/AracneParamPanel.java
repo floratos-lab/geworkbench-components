@@ -376,6 +376,13 @@ public class AracneParamPanel extends AbstractSaveableParameterPanel implements 
 		kernelCombo.setEnabled(true);
 		hubMarkerList.setEnabled(true);
 		kernelWidth.setEnabled(true);
+		
+		// fix bug 1591: caused by the side effect of fix for 956 (9/12/008) 
+        String selectedItem = (String) hubCombo.getSelectedItem();
+        if (HUB_ALL.equals(selectedItem)) {
+            hubMarkerList.setEnabled(false);
+        }
+
 	}
 	public void adjMode(AdjacencyMatrixDataSet adjDataSet){	//switch to adj matrix mode, disable some parameters.
 		hubCombo.setEnabled(false);
