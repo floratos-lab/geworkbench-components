@@ -284,6 +284,7 @@ import jalview.bin.*;
 	mainPanel.repaint();
 	mainPanel.add(choose, BorderLayout.PAGE_START);
 
+	/*remove redundant call to displayModelFileContent()
 	//display model file content
 	try{
 	    displayModelFileContent();
@@ -292,6 +293,7 @@ import jalview.bin.*;
 	    System.out.println("displayModelFileContent error");
             JOptionPane.showMessageDialog(null, "Cannot connect to SkyLine webserver", "Show Results Error", JOptionPane.ERROR_MESSAGE);
 	}
+	*/
     }
 
 
