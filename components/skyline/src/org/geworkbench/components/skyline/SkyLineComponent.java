@@ -40,7 +40,7 @@ public class SkyLineComponent extends JPanel implements VisualPlugin {
 
     private JLabel infoLabel;
     private String pname;
-    private String outdir = "http://156.111.188.2:8090/SkyLineData/output";
+    private String outdir = "http://156.145.238.15:8090/SkyLineData/output";
 //    private String pdboutdir = "/nfs/apollo/2/c2b2/server_data/www/skyline/apache-tomcat-6.0.14/webapps/ROOT/SkyLineData/output/";
     // String outdir = ((SkyLineConfigPanel)currentParameterPanel).getoutdirValue();
     private String logfile;
@@ -283,7 +283,7 @@ public class SkyLineComponent extends JPanel implements VisualPlugin {
      *
      * @param pe Project event cotnaining the newly selected protein structure.
      */
-    /* remove redundant thread for job status checking(already done in skylineview component)
+    // remove redundant thread for job status checking(already done in skylineview component)
     @Subscribe public void receive(org.geworkbench.events.ProjectEvent pe, Object source) {
         DSDataSet dataSet = pe.getDataSet();
 
@@ -295,15 +295,17 @@ public class SkyLineComponent extends JPanel implements VisualPlugin {
 
             maSet = (DSProteinStructure) dataSet;
             reset();
+	    /*
 	    int logstat = check_log_stat(logfile);
 	    System.out.println(logstat + " "+ logfile);
 	    if (logstat < 1 && thread4pdb.get(logfile) == null) {
 		Thread t = new Thread(new MyRunnable(logfile));
 		t.start();
 	    }
+	    */
         }
     }
-    */
+    
 
     /**
      * Queries the extension point <code>normalizers</code> within the
