@@ -68,6 +68,7 @@ public abstract class SelectorPanel<T extends DSSequential> implements
 	protected JMenuItem clearSelectionItem = new JMenuItem("Clear Selection");
 	protected JPopupMenu treePopup = new JPopupMenu();
 	protected JMenuItem renamePanelItem = new JMenuItem("Rename");
+	protected JMenuItem copyPanelItem = new JMenuItem("Copy");
 	protected JMenuItem activatePanelItem = new JMenuItem("Activate");
 	protected JMenuItem deactivatePanelItem = new JMenuItem("Deactivate");
 	protected JMenuItem deletePanelItem = new JMenuItem("Delete");
@@ -148,6 +149,7 @@ public abstract class SelectorPanel<T extends DSSequential> implements
 		itemListPopup.add(addToPanelItem);
 		itemListPopup.add(clearSelectionItem);
 		treePopup.add(renamePanelItem);
+		treePopup.add(copyPanelItem);
 		treePopup.add(activatePanelItem);
 		treePopup.add(deactivatePanelItem);
 		treePopup.add(deletePanelItem);
@@ -194,6 +196,13 @@ public abstract class SelectorPanel<T extends DSSequential> implements
 		};
 		renamePanelItem.addActionListener(renameListener);
 		menuListeners.put("Commands.Sets.Rename", renameListener);
+		ActionListener copyListener = new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				copyLabelPressed(rightClickedPath);
+			}
+		};
+		copyPanelItem.addActionListener(copyListener);
+		menuListeners.put("Commands.Sets.Copy", copyListener);
 		ActionListener activateListener = new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				activateOrDeactivateLabelPressed(true);
@@ -683,6 +692,37 @@ public abstract class SelectorPanel<T extends DSSequential> implements
 						treeModel.fireLabelChanged(newLabel);
 						throwLabelEvent();
 					}
+				}
+			}
+		}
+	}
+
+	protected void copyLabelPressed(TreePath path) {
+		String oldLabel = getLabelForPath(path);
+		
+		if (oldLabel != null) {
+			String newLabel = JOptionPane.showInputDialog("New Label:",
+					oldLabel);
+			if (newLabel != null) {
+				if (context.labelExists(newLabel)) {
+					JOptionPane.showMessageDialog(getComponent(),
+							"A set already exists with this name.");
+				} else {
+					context.addLabel(newLabel);
+
+					HashMap copyOfItems = new HashMap();
+					CSPanel csPanelSource = (CSPanel) context
+										.getItemsWithLabel(oldLabel);
+
+					for (int j = 0; j < csPanelSource.size(); j++) {
+						T nextItem = panelType.cast(csPanelSource.get(j));
+						copyOfItems.put(nextItem.getLabel(), nextItem);
+					}
+
+					addCombinedPanel(copyOfItems, newLabel, "copy");
+						
+					treeModel.fireTreeStructureChanged();
+					throwLabelEvent();
 				}
 			}
 		}
