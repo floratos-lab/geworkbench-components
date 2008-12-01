@@ -283,6 +283,7 @@ public class SkyLineComponent extends JPanel implements VisualPlugin {
      *
      * @param pe Project event cotnaining the newly selected protein structure.
      */
+    /* remove redundant thread for job status checking(already done in skylineview component)
     @Subscribe public void receive(org.geworkbench.events.ProjectEvent pe, Object source) {
         DSDataSet dataSet = pe.getDataSet();
 
@@ -302,6 +303,7 @@ public class SkyLineComponent extends JPanel implements VisualPlugin {
 	    }
         }
     }
+    */
 
     /**
      * Queries the extension point <code>normalizers</code> within the
