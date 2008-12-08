@@ -22,46 +22,50 @@
 
 <body>
     <h3>ARACNE</h3> 
-    <p>ARACNE (Algorithm for the Reconstruction of Accurate Cellular Networks) is an information-theoretic algorithm used to identify transcriptional interactions between gene products using microarray expression profile data and visualize the analysis results. ARACNE predicts potential functional associations among genes, or novel functions for uncharacterized genes, by identifying statistical dependencies between gene. This help topic describes <a href="#_Run_Aracne">executing ARACNE</a> and <a href="#_View_Arance_Results">viewing the results</a><a name="_Run_Aracne"></a> a matrix of candidate interactions, also called an adjacency matrix, which can be used for further network visualization and analysis.</p> 
+    <p>ARACNE (Algorithm for the Reconstruction of Accurate Cellular Networks) is an information-theoretic algorithm used to identify transcriptional interactions between gene products using microarray expression profile data. The resulting network is displayed using the Cytoscape component. ARACNE can be used to predict potential functional associations among genes, or to predict novel functions for uncharacterized genes, by identifying statistical dependencies between genes.  The results take the form of a matrix of candidate interactions, also called an adjacency matrix, which can be used for further network visualization and analysis. This help topic describes <a href="#_Run_Aracne">executing ARACNE</a> and <a href="#_View_Arance_Results">viewing the results</a>.</p>
+    <p>&nbsp;</p>
+    <p>ARACNE can perform  two separate calculations:</p>
+    <p>1.  <strong>Mutual Information</strong>: The mutual information (MI) of one or more marker's expression profile(s) is calculated against all other active markers.</p>
+    <p>2. <strong>Data Processing Inequality (DPI)</strong>: The DPI calculation (triangle inequality) is used to remove the weakest  interaction (edge) between any three markers. That is, if a MI value is available between each of three possible pairings of three markers, the weakest interaction of the three will be removed from the output. This has the intent of removing indirect interactions. For example, if A-&gt;B-&gt;C, the interaction A-&gt;C is indirect and would be removed. </p>
+    <p>Parameters described below allow one to incorporate a list of putative transcription factors and optimize the run to discover targets that they may regulate.</p>
+    <p><a name="_Run_Aracne"> </a></p>
     <h3>Run ARACNE </h3> 
-    <p>1. Load or select a microarray set or adjacency matrix  in the project folders area of geWorkbench.</p> 
+    <p>1. Load or select a microarray data set, or select an existing adjacency matrix  in the project folders area of geWorkbench.</p> 
     <p>2. In the analysis pane (lower right), select ARACNE analysis from the analysis list.</p> 
     <p>3. Populate the <a href="#_Parameters">parameters</a> used for this analysis method.</p> 
-    <p>4. Select the location to run the analysis (local or Grid) in the service subtab. </p> 
-    <p>5. Click on <b>Analyze</b>. If successful, the project window is updated to reflect the result node (a child node of the input dataset).  The Dataset history captures the analysis parameters. </p> 
+    <p>4. Select the location to run the analysis (local or Grid) in the service sub-tab. </p> 
+    <p>5. Click on <b>Analyze</b>. If successful, the resulting adjancency matrix is added to the Project Folders component as a child of its parent dataset.   The Dataset history captures the analysis parameters. </p> 
     <h3><a name="_Parameters"></a> Parameters</h3> 
     <h3><img src="aracne_files/T_ARACNE_parameters.png" width="736" height="351"></h3> 
     <ul>
-      <li><strong>Hub Marker(s)</strong>: Select for which pairs of gene markers to perform the ARACNE mutual information (MI) calculation.
+      <li><strong>Hub Marker(s)</strong>: Specifies  which  gene markers will be included in the the ARACNE mutual information (MI) calculation.
         <ul>
-          <li>&quot;All vs All&quot; comparison computes the mutual information for each gene expresion profile against all others,</li>
-          <li>&quot;List&quot; compares one or a list of expression profiles (these being called &quot;Hub Markers&quot;)  against all other expression profiles in the datast. Supports manually entering a list of comma separated marker ids (or loading the list from a CSV file by clicking <b>Load</b>).</li>
+          <li>&quot;All vs All&quot; comparison computes the mutual information for each marker's gene expression profile against all others,</li>
+          <li>&quot;List&quot; compares the members of a user-entered list of marker expression profiles (these being called &quot;Hub Markers&quot;)  against all other expression profiles in the datast. A comma-separated list of marker IDs can be typed directly into the component, or the list can be loaded from a CSV file by clicking <b>Load</b>.</li>
         </ul>
         <blockquote>
           <p align="left"><img src="aracne_files/T_ARACNE_parameters_List.png" width="429" height="86"></p>
         </blockquote>
       </li>
-      </ul>
+</ul>
     <p>&nbsp;</p>
     <ul>
-      <li><strong>Threshold Type</strong>: This drop-down specifies the type of threshold to be used and can take the values &#8220;Mutual Info&#8221; or &#8220;P-value&#8221;. This value is always a number between 0 and 1.</li>
-      <li><strong>Kernel width</strong>: The kernel width used for the computation of the MI values. This can be either inferred by the application (select Inferred) or entered explicitly by the user (select Specify).</li>
-      <li><strong>DPI Tolerance</strong>: 
+      <li><strong>Threshold Type</strong>: This drop-down specifies the type of threshold to be used and can take the values &#8220;Mutual Info&#8221; or &#8220;P-value&#8221;. The actual value entered into the adjacent text area is always a number between 0 and 1.</li>
+      <li><strong>Kernel width</strong>: The kernel width used for the computation of the MI values. The Kernel width is a scaling parameter used when fitting a Gaussian function to the data. This can be either inferred by the application (select Inferred) or entered explicitly by the user (select Specify).</li>
+      <li><strong>DPI Tolerance</strong>:  The Data Processing Inequality (triangle inequality) can be used to remove the weakest interaction of those between any three markers.  The tolerance setting is necessary due to the imprecision of the DPI calculation when using a finite amount of data.
         <ul>
           <li>If the &#8220;Do Not Apply&#8221; option is specified, no DPI is applied. </li>
           <li>If the &#8220;Apply&#8221; option is selected then the DPI is applied and the value (between 0 and 1) in the associated text box is used to determine the stringency level of the DPI application.</li>
         </ul>
       </li>
-      <li><strong>DPI Target List</strong>: You can add a list of known transcription factors here that are not to be eliminated during the DPI step. This allows you to overcome the effects of very tight transcriptional correlation between genes that are not involved in regulation, e.g. they may be involved in producting proteins for a macromolecular complex. </li>
-    </ul>
-    <ul>
+      <li><strong>DPI Target List</strong>: If the box is checked, the user selects and loads a file which specifies markers (which should be a list of one or more presumptive transcription factors) which will be given preferential treatment during the DPI edge-removal step. Edges originating from markers on this list will not be removed by edges originating from markers not on this list. This can compensate e.g. for the effects of very tight transcriptional correlation between genes that are not involved in regulation, e.g. they may be involved in producing proteins for a macromolecular complex. However, for DPI calculations where all three markers are members of the list, the weakest connecting edge may still be removed. </li>
       <li><strong>All Markers</strong>: checking this box overrides any activated set markers in the Markers component for inclusion in the pairwise MI calculations. If a marker set is activated, only the markers in the set will be used. In addition, if NO marker sets are activated, all markers will be used. </li>
       <li><strong>All Arrays</strong>: checking this box overrides any activated set arrays in the Arrays/Phenotypes component for inclusion in the MI calculations. If an array set is activated, only those arrays will be used. In addition, if NO array sets are activated, all arrays will be used. </li>
-</ul>
+    </ul>
     <h3>&nbsp;</h3>
     <h3>Bootstrapping</h3>
     <blockquote>
-      <p>Bootstrap analysis can be used to generate a more reliable estimate of statistical significance for the interactions. Please see Margolin et al. 2006, Nature Protocols, Vol 1, No. 2, pg. 663-672 for further details (full reference below). Briefly, repeated runs of ARACNE are made, with arrays drawn at random from the full dataset with replacement. The same number of arrays are drawn as are present in the original dataset. A permutation test is then used to obtain a null distribution, against which the statistical significance of support for each network edge connection (interaction) can be measured.</p>
+      <p>Bootstrap analysis can be used to generate a more reliable estimate of statistical significance for the interactions. Please see Margolin et al. 2006, Nature Protocols, Vol 1, No. 2, pg. 663-672 for further details (full reference below). Briefly, repeated runs of ARACNE are made, with arrays drawn at random from the full dataset with replacement. The same number of arrays is drawn each time as is present in the original dataset. A permutation test is then used to obtain a null distribution, against which the statistical significance of support for each network edge connection (interaction) can be measured.</p>
     </blockquote>
     <ul>
       <li><strong>Bootstrap number</strong>: Specifies the number of bootstrapping runs to perform. </li>
@@ -71,6 +75,14 @@
     <h3><a name="_View_Arance_Results"></a>View Arance</h3>
     <p>ARACNE produces as output an adjacency matrix. This contains the MI score for each pair of expression profiles compared. The Cytoscape component can be used to visualize and further manipulate the inferred connectivity data, included selecting sets of interesting genes and returning them to the Markers component as a new set. A description of Cystoscape is located in the Cytoscape Tutorial and Help.</p>
     <h3><img border="0" width="855" height="551" src="aracne_files/image002.png"> </h3>
+    <p>&nbsp;</p>
+    <h3>Selecting markers back into the Markers component in Cytoscape:</h3>
+    <p>&nbsp;</p>
+    <p>Using the mouse, left click and draw a box around markers of interest in the Cytoscape display. The enclosed markers will be highlighted in yellow. </p>
+    <p><img src="aracne_files/T_ARACNE_Cytoscape_selecting_nodes.png" width="362" height="332"></p>
+    <p>The highlighted markers will also be returned to the Markers component as follows:</p>
+    <p>1. By default, the highlighted markers are returned to the default &quot;Selection&quot; set. </p>
+    <p>2. Alternatively, any existing set can be &quot;tagged&quot; by right-clicking on it and selecting &quot;Tag for visualization&quot;. Any markers highlighted in Cytoscape will now be returned to the &quot;tagged&quot; set. </p>
     <p>&nbsp;</p>
     <h3>References</h3>
     <p>Margolin, A., Wang, K., Lim, W.K., Kustagi, M., Nemenman, I., and Califano, A. Reverse Engineering Cellular Networks. Nature Protocols (2006), Vol 1, No. 2, pgs. 663-672 </p>
