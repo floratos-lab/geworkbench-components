@@ -65,6 +65,7 @@ public class SVMVisualizationPanel extends JPanel implements ItemListener
     private JComboBox maSetComboBox;
     private JTree maSetGroupTree;
     private JPanel graphPanel;
+    private ChartPanel chartPanel;
     private JFreeChart curveChart;
     private JSplitPane testMainPanel;
     private static Map <String, List> testLabels = new HashMap();
@@ -75,6 +76,9 @@ public class SVMVisualizationPanel extends JPanel implements ItemListener
     private JRadioButton controlRadioButton;
     private JFormattedTextField confidenceThreshold = new JFormattedTextField(new DecimalFormat("#.#######"));
     private SortedMap confidenceMap;
+    private JCheckBox applyFilter = new JCheckBox("Apply filter");
+    private JSlider confSlider;
+
 
     public SVMVisualizationPanel(SVMClassifier svmClassifier, SVMVisualComponent svmVisComp)
     {
@@ -116,6 +120,17 @@ public class SVMVisualizationPanel extends JPanel implements ItemListener
         testDataPanel.setLayout(new BoxLayout(testDataPanel, BoxLayout.PAGE_AXIS));
         testDataPanel.setBorder(BorderFactory.createEmptyBorder(7, 6, 12, 6));
         buildTestDataPanel();
+        /*testDataPanel.addComponentListener(new ComponentListener()
+        {
+            public void componentShown(ComponentEvent event){}
+            public void componentHidden(ComponentEvent event){}
+            public void componentMoved(ComponentEvent event){}
+            public void componentResized(ComponentEvent event)
+            {
+                System.out.println("resized testdatapanel");
+            }
+        }); */
+
 
         createMaSetToolBar = new JToolBar();
         createMaSetToolBar.setLayout(new BoxLayout(createMaSetToolBar, BoxLayout.LINE_AXIS));
@@ -141,8 +156,10 @@ public class SVMVisualizationPanel extends JPanel implements ItemListener
         {
             public void stateChanged(ChangeEvent event)
             {
-                if(confidenceThreshold.getValue() != null)
+                if(confidenceThreshold.getValue() != null && applyFilter.isSelected())
+                {
                     applyConfidenceFilter();
+                }
             }
         });
     }
@@ -242,6 +259,29 @@ public class SVMVisualizationPanel extends JPanel implements ItemListener
 
     private void buildCreateMaSetToolBar()
     {
+        applyFilter.addActionListener(new ActionListener()
+        {
+            public void actionPerformed(ActionEvent event)
+            {
+                if(applyFilter.isSelected())
+                {
+                    applyConfidenceFilter();
+                    chartPanel.setEnabled(true);
+                    confSlider.setEnabled(true);                    
+                    confidenceThreshold.setEnabled(true);
+                }
+                else
+                {
+                    testResultsTable.setFilters(null);
+                    chartPanel.setEnabled(false);
+                    confSlider.setEnabled(false);
+                    confidenceThreshold.setEnabled(false);
+                }
+            }
+        });
+
+        createMaSetToolBar.add(applyFilter);
+
         caseRadioButton = new JRadioButton("Case");
         caseRadioButton.setAlignmentX(JRadioButton.LEFT_ALIGNMENT);
         caseRadioButton.setSelected(true);
@@ -365,8 +405,22 @@ public class SVMVisualizationPanel extends JPanel implements ItemListener
                         maSetComboBox.setSelectedItem(aContext.getName());
                     }
                 }
+
+                maSetNodeComboBox.setMaximumSize(maSetNodeComboBox.getPreferredSize());                
             }
         });
+
+        /*maSetNodeComboBox.addComponentListener(new ComponentListener()
+        {
+            public void componentShown(ComponentEvent event){}
+            public void componentHidden(ComponentEvent event){}
+            public void componentMoved(ComponentEvent event){}
+            public void componentResized(ComponentEvent event)
+            {
+                System.out.println("resized");
+                //maSetNodeComboBox.setSize(maSetNodeComboBox.getPreferredSize());                
+            }
+        });  */
 
         testDataPanel.add(maSetNodeComboBox);
         testDataPanel.add(Box.createRigidArea(new Dimension(0, 8)));
@@ -415,6 +469,7 @@ public class SVMVisualizationPanel extends JPanel implements ItemListener
                     TreePath path = maSetGroupTree.getNextMatch(labelItems.get(i), 0, Position.Bias.Forward);
                     maSetGroupTree.addSelectionPath(path);
                 }
+                maSetComboBox.setMaximumSize(maSetComboBox.getPreferredSize());                                
             }
         });
 
@@ -439,6 +494,8 @@ public class SVMVisualizationPanel extends JPanel implements ItemListener
                     super.addSelectionPath(path);
             }
         };
+        maSetGroupTree.setMaximumSize(maSetGroupTree.getPreferredSize());                                
+
 
         TreeSelectionModel selectionModel = maSetGroupTree.getSelectionModel();
         selectionModel.setSelectionMode(TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION);
@@ -453,9 +510,9 @@ public class SVMVisualizationPanel extends JPanel implements ItemListener
         jPanel.setAlignmentX(JComboBox.LEFT_ALIGNMENT);
         jPanel.add(scrollPane);
         jPanel.setLayout(new BoxLayout(jPanel, BoxLayout.PAGE_AXIS));
-        jPanel.setMinimumSize(new Dimension(jPanel.getMinimumSize().width, 150));
-        jPanel.setPreferredSize(new Dimension(jPanel.getPreferredSize().width, 150));
-        jPanel.setMaximumSize(new Dimension(jPanel.getMaximumSize().width, 150));
+        //jPanel.setMinimumSize(new Dimension(jPanel.getMinimumSize().width, 150));
+        //jPanel.setPreferredSize(new Dimension(jPanel.getPreferredSize().width, 150));
+        //jPanel.setMaximumSize(new Dimension(jPanel.getMaximumSize().width, 150));
 
         JButton testButton = new JButton("Test");
         testButton.setMinimumSize(new Dimension(78, 35));
@@ -563,17 +620,21 @@ public class SVMVisualizationPanel extends JPanel implements ItemListener
 
         curveChart.getXYPlot().getRenderer().setBaseSeriesVisible(false);
 
-        ChartPanel chartPanel = new ChartPanel(curveChart, true);
+        chartPanel = new ChartPanel(curveChart, true);
+        //chartPanel.setMouseZoomable(false);
+        chartPanel.setFocusable(true);
+
         graphPanel.add(chartPanel, BorderLayout.CENTER);
 
         JToolBar sliderToolBar = new JToolBar();
         sliderToolBar.setFloatable(false);
         sliderToolBar.setBorderPainted(false);
 
-        JSlider confSlider = new JSlider(1, 101);
+        confSlider = new JSlider(1, 101);
         confSlider.setPaintTicks(true);
         confSlider.setMajorTickSpacing(10);
         confSlider.setMinorTickSpacing(1);
+        confSlider.setEnabled(false);
         confSlider.addChangeListener(new ChangeListener()
         {
             public void stateChanged(ChangeEvent event)
@@ -616,6 +677,7 @@ public class SVMVisualizationPanel extends JPanel implements ItemListener
         confidenceThreshold.setMinimumSize(new Dimension(77, 24));
         confidenceThreshold.setPreferredSize(new Dimension(77, 24));
         confidenceThreshold.setMaximumSize(new Dimension(77, 24));
+        confidenceThreshold.setEnabled(false);
 
         JLabel confidenceLabel = new JLabel("Confidence Threshold:");
         confidenceLabel.setFont(new JCheckBox().getFont().deriveFont(4));
@@ -746,13 +808,9 @@ public class SVMVisualizationPanel extends JPanel implements ItemListener
 
         int N = trainResultsTable.getRowCount();
         double prevConfidence = -1;
-        for(int r = 0; r < N+1; r++)
+        for(int r = 0; r < N; r++)
         {
-            double confidence;
-            if(r == N)
-                confidence = 0;
-            else
-                confidence = Double.valueOf((String)trainResultsTable.getValueAt(r, 3));
+            double confidence = Double.valueOf((String)trainResultsTable.getValueAt(r, 3));
             if(r != 0 && prevConfidence <= confidence)
                 continue;
 
@@ -815,6 +873,7 @@ public class SVMVisualizationPanel extends JPanel implements ItemListener
 
         return xySeriesCol;
     }
+
 
     private abstract class TestDataPanelActionListener implements ActionListener
     {
