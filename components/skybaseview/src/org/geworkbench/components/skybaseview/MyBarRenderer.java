@@ -11,7 +11,7 @@ import org.jfree.data.category.CategoryDataset;
  * Customized Bar Renderer
  * 
  * @author mw2518
- * @version $Id
+ * @version $Id: MyBarRenderer.java,v 1.3 2008-12-09 22:21:23 wangm Exp $
  * 
  */
 public class MyBarRenderer extends BarRenderer {
