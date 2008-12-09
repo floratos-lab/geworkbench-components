@@ -13,16 +13,15 @@ import org.geworkbench.util.CorrelationDistance;
 import org.geworkbench.util.EuclideanDistance;
 import org.geworkbench.util.SpearmanRankDistance;
 
-//import java.io.File;
-
 /**
- * Confirms that {@link HierClustAnalysis} return the same results.
+ * Tests {@link HClustering}
  *
  * @author John Watkinson
  * @author Bernd Jagla
  * @author yc2480
+ * @version $Id: HClusteringTest.java,v 1.1 2008-12-09 17:10:20 keshav Exp $
  */
-public class HierarchicalClusteringTest extends TestCase {
+public class HClusteringTest extends TestCase {
 	//Examples for linkage testing, same as the file linkage_comparison.txt in System Test
 	double[][] data = { { -0.100001, 0 }, { -0.100002, 0 }, { 0.0100001, 0 },
 			{ 0.0100002, 0 }, { 0.0200001, 0 }, { 0.0200002, 0 },
@@ -62,7 +61,7 @@ public class HierarchicalClusteringTest extends TestCase {
 			"case3_1", "case3_2", //4 5
 			"case4_1", "case4_2" }; //6 7
 
-	public HierarchicalClusteringTest() {
+	public HClusteringTest() {
 		super();
 	}
 
@@ -725,7 +724,7 @@ public class HierarchicalClusteringTest extends TestCase {
 	 * @param String[]
 	 */
 	public static void main(String[] args) {
-		HierarchicalClusteringTest t = new HierarchicalClusteringTest();
+		HClusteringTest t = new HClusteringTest();
 		try {
 			t.testLinkageClustering1();
 			t.testLinkageClustering2();
