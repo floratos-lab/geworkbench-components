@@ -24,16 +24,16 @@ import org.geworkbench.util.session.SoapClient;
  * RemoteBlast is a class that implements submission of a protein sequence to
  * the NCBI BLAST server and retrieval of results with a BLAST RID #. It writes
  * retrieved results out to a file.
- * 
+ *
  * @author zji
- * @version $Id: RemoteBlast.java,v 1.22 2008-05-14 21:04:49 jiz Exp $
+ * @version $Id: RemoteBlast.java,v 1.23 2008-12-09 17:06:14 oshteynb Exp $
  */
 public class RemoteBlast {
 	static Log LOG = LogFactory.getLog(RemoteBlast.class);
 
 	private final static String NCBIHEADER = "<HTML><HEAD><meta http-equiv=\"content-type\""
 			+ "content=\"text/html;charset=utf-8\" /></HEAD><BODY BGCOLOR=\"#FFFFFF\" LINK=\"#0000FF\" VLINK=\"#660099\" ALINK=\"#660099\">"
-			+ "<IMG SRC=\"http://www.ncbi.nlm.nih.gov/blast/images/head_results.gif\"    WIDTH=\"600\" HEIGHT=\"45\" ALIGN=\"middle\">"
+			+ "<IMG SRC=\"http://blast.ncbi.nlm.nih.gov/images/head_results.gif\"    WIDTH=\"600\" HEIGHT=\"45\" ALIGN=\"middle\">"
 			+ "<title>NCBI Blast Result</title><br><br>";
 
 	/**
@@ -62,7 +62,7 @@ public class RemoteBlast {
 	/**
 	 * The default server address for the socket to connect to.
 	 */
-	private final String Blast_SERVER = "www.ncbi.nlm.nih.gov";
+	private final String Blast_SERVER = "blast.ncbi.nlm.nih.gov";
 	/**
 	 * A flag indicating whether Blast results have been retrieve.
 	 * <code>true</code> if Blast is done, <code>false</code> if not.
@@ -87,12 +87,12 @@ public class RemoteBlast {
 	 */
 	private String resultURLString;
 
-	private final String SUBMITPREFIX = "Put http://www.ncbi.nlm.nih.gov/blast/Blast.cgi?CMD=Put&QUERY=";
-	private final String RESULTPREFIX = "Get http://www.ncbi.nlm.nih.gov/blast/Blast.cgi?CMD=Get&FORMAT_TYPE=";
+	private final String SUBMITPREFIX = "Put http://blast.ncbi.nlm.nih.gov/Blast.cgi?CMD=Put&QUERY=";
+	private final String RESULTPREFIX = "Get http://blast.ncbi.nlm.nih.gov/Blast.cgi?CMD=Get&FORMAT_TYPE=";
 
 	/**
 	 * Creates a new RemoteBlast and sets query, filename.
-	 * 
+	 *
 	 * @param the
 	 *            String value to set query with.
 	 * @param the
@@ -107,7 +107,7 @@ public class RemoteBlast {
 	/**
 	 * Returns <code>true</code> if Blast is done, <code>false</code> if
 	 * not.
-	 * 
+	 *
 	 * @return getBlastDone - boolean that indicates if Blast is done.
 	 */
 	public boolean getBlastDone() {
@@ -116,7 +116,7 @@ public class RemoteBlast {
 
 	/**
 	 * Returns the Conserved Domain Search RID #.
-	 * 
+	 *
 	 * @return CDD_rid - the String representing the CDD RID #.
 	 */
 	public String getCDD_rid() {
@@ -126,9 +126,9 @@ public class RemoteBlast {
 	/**
 	 * The exception when the response from NCBI is an error message instead of
 	 * normal response with RID.
-	 * 
+	 *
 	 * @author zji
-	 * 
+	 *
 	 */
 	public static class NcbiResponseException extends Exception {
 		private static final long serialVersionUID = -1330692467559837833L;
@@ -141,11 +141,11 @@ public class RemoteBlast {
 	/**
 	 * Get a substring between a given preceding substring and a given following
 	 * substring.
-	 * 
+	 *
 	 * @param containing string
 	 * @param preceding string
 	 * @param following string
-	 * 
+	 *
 	 * @return the substring or null if not found.
 	 */
 	private static String getWrappedSubtring(String containing,
@@ -161,7 +161,7 @@ public class RemoteBlast {
 
 	/**
 	 * Get the error message from one line of NCBI response.
-	 * 
+	 *
 	 * @param line
 	 * @return the error message if the line contains one; otherwise return null
 	 * @throws UnsupportedEncodingException
@@ -184,7 +184,7 @@ public class RemoteBlast {
 	 * request to Blast with the query and parses out the Blast RID #. Also
 	 * initiates a Conserved Domain Search and parses out the resulting CDD RID #
 	 * used for retrieval of CDD Search results if domains found.
-	 * 
+	 *
 	 * @return a String representing the Blast RID # used to retrieve Blast
 	 *         results, <code>null</code> if not successful.
 	 * @throws NcbiResponseException
@@ -262,14 +262,14 @@ public class RemoteBlast {
 	/**
 	 * Sets getBlastDone to <code>false</code> indicating Blast is not done
 	 * yet and creates a new GetBlast with the specified String as a parameter.
-	 * 
+	 *
 	 * @param rid -
 	 *            String representing the Blast RID# to retrieve results for.
 	 */
 	public void getBlast(String rid, String format) {
 		getBlastDone = false;
 		String message = RESULTPREFIX + format + "&RID=" + rid + "\r\n\r\n";
-		resultURLString = "http://www.ncbi.nlm.nih.gov/blast/Blast.cgi?CMD=Get&FORMAT_TYPE="
+		resultURLString = "http://blast.ncbi.nlm.nih.gov/Blast.cgi?CMD=Get&FORMAT_TYPE="
 				+ format + "&RID=";
 		LOG.info(new Date() + message);
 		BlastThread blastThread = new BlastThread(message);
@@ -400,23 +400,23 @@ public class RemoteBlast {
 	private String updateImageLink(String data) {
 		if (data.indexOf("SRC=\"/blast/images") > -1) {
 			data = data.replaceAll("SRC=\"/blast/images",
-					"src=\"http://www.ncbi.nlm.nih.gov/blast/images");
+					"src=\"http://blast.ncbi.nlm.nih.gov/images");
 		}
 		if (data.indexOf("src=\"images") > -1) {
 			data = data.replaceAll("src=\"images",
-					"src=\"http://www.ncbi.nlm.nih.gov/blast/images");
+					"src=\"http://blast.ncbi.nlm.nih.gov/images");
 		}
 		if (data.indexOf("SRC=\"images") > -1) {
 			data = data.replaceAll("SRC=\"images",
-					"src=\"http://www.ncbi.nlm.nih.gov/blast/images");
+					"src=\"http://blast.ncbi.nlm.nih.gov/images");
 		}
 		if (data.indexOf("src=\"/blast/images") > -1) {
 			data = data.replaceAll("src=\"/blast/images",
-					"src=\"http://www.ncbi.nlm.nih.gov/blast/images");
+					"src=\"http://blast.ncbi.nlm.nih.gov/images");
 		}
 		if (data.indexOf("href=\"/blast/") > -1) {
 			data = data.replaceAll("href=\"/blast/",
-					"href=\"http://www.ncbi.nlm.nih.gov/blast/");
+					"href=\"http://blast.ncbi.nlm.nih.gov/");
 		}
 		if (data.indexOf("type=\"checkbox\"") > -1) {
 			data = data.replaceAll("type=\"checkbox\"", "type=\"hidden\"");
@@ -433,7 +433,7 @@ public class RemoteBlast {
 
 	/**
 	 * RemoteBlast
-	 * 
+	 *
 	 * @param aQuery
 	 *            String
 	 */

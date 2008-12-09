@@ -165,7 +165,7 @@ public class RemoteDots {
     String cmdl = "c:\\dots\\dots c:\\work\\dots\\test1.fa 1 500 c:\\Program Files\\dots\\dots\\test2.fa 1 500 c:\\Program Files\\dots\\test.out 5 20 5 1 1";
     Socket s = null;
     message =
-        "Put http://www.ncbi.nlm.nih.gov/blast/Blast.cgi?CMD=Put&QUERY="
+        "Put http://blast.ncbi.nlm.nih.gov/Blast.cgi?CMD=Put&QUERY="
         + queryX
         + queryX
         + "\n";
@@ -262,7 +262,7 @@ public class RemoteDots {
       s = null;
       //this.file = file;
       message =
-          "Get http://www.ncbi.nlm.nih.gov/blast/Blast.cgi?CMD=Get&FORMAT_TYPE=Text&RID="
+          "Get http://blast.ncbi.nlm.nih.gov/Blast.cgi?CMD=Get&FORMAT_TYPE=Text&RID="
           + Dots_rid
           + "\r\n\r\n";
       this.start();
