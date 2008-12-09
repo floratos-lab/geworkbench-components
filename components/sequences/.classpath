@@ -4,5 +4,11 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/geworkbench-core"/>
 	<classpathentry kind="lib" path="lib/genetegrateModified.jar"/>
+	<classpathentry kind="lib" path="lib/axis.jar"/>
+	<classpathentry kind="lib" path="lib/PUDGEDEMO-common.jar"/>
+	<classpathentry kind="lib" path="lib/PUDGEDEMO-service.jar"/>
+	<classpathentry kind="lib" path="lib/PUDGEDEMO-stubs.jar"/>
+	<classpathentry kind="lib" path="lib/PUDGE-client.jar"/>
+	<classpathentry kind="lib" path="lib/PUDGEDEMO-tests.jar"/>
 	<classpathentry kind="output" path="classes"/>
 </classpath>
