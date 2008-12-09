@@ -73,7 +73,7 @@ import org.openscience.jmol.ui.JmolPopupSwing;
  * Display SkyBase blast results in table, bar chart and jmol
  * 
  * @author mw2518
- * @version $Id
+ * @version $Id: SkyBaseViewer.java,v 1.3 2008-12-09 22:20:33 wangm Exp $
  * 
  */
 
