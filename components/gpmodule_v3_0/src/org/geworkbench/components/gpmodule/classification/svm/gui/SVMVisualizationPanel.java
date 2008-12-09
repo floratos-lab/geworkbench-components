@@ -72,6 +72,7 @@ public class SVMVisualizationPanel extends JPanel implements ItemListener
     private SVMTreeModel treeModel;
     private JXTable trainResultsTable;
     private JXTable testResultsTable;
+    private JButton createMaSetButton;
     private JRadioButton caseRadioButton;
     private JRadioButton controlRadioButton;
     private JFormattedTextField confidenceThreshold = new JFormattedTextField(new DecimalFormat("#.#######"));
@@ -107,13 +108,12 @@ public class SVMVisualizationPanel extends JPanel implements ItemListener
         testResultPanel = new JPanel(new BorderLayout());
         testMainPanel.setRightComponent(testResultPanel);
 
+        testResultsTable = new JXTable();
+        JScrollPane scrollPane = new JScrollPane(testResultsTable);
+        testResultPanel.add(scrollPane, BorderLayout.CENTER);
         if(svmClassifier.getTestPredResult() != null)
         {
-            testResultsTable = new JXTable();
-            buildTestResultTable();
-
-            JScrollPane scrollPane = new JScrollPane(testResultsTable);
-            testResultPanel.add(scrollPane, BorderLayout.CENTER);
+            buildTestResultTable(svmClassifier.getTestPredResult());
         }
 
         testDataPanel = new JPanel();
@@ -156,9 +156,37 @@ public class SVMVisualizationPanel extends JPanel implements ItemListener
         {
             public void stateChanged(ChangeEvent event)
             {
-                if(confidenceThreshold.getValue() != null && applyFilter.isSelected())
+                int selectedIndex = tabPane.getSelectedIndex();
+                if(tabPane.getTitleAt(selectedIndex).equals("Test"))
                 {
-                    applyConfidenceFilter();
+                    if(testResultsTable != null && testResultsTable.getRowCount() == 0)
+                    {
+                        controlRadioButton.setEnabled(false);
+                        caseRadioButton.setEnabled(false);
+                        createMaSetButton.setEnabled(false);
+                        applyFilter.setEnabled(false);
+                        confidenceThreshold.setEnabled(false);
+                        confSlider.setEnabled(false);
+                    }
+                    else if(confidenceThreshold.getValue() != null && applyFilter.isSelected())
+                    {
+                        applyConfidenceFilter();
+                    }
+                    else
+                    {
+                        controlRadioButton.setEnabled(true);
+                        caseRadioButton.setEnabled(true);
+                        createMaSetButton.setEnabled(true);
+                        applyFilter.setEnabled(true);
+                        confidenceThreshold.setEnabled(true);
+                        confSlider.setEnabled(true);
+                    }
+                }
+
+                else
+                {
+                    confidenceThreshold.setEnabled(true);
+                    confSlider.setEnabled(true);
                 }
             }
         });
@@ -223,15 +251,13 @@ public class SVMVisualizationPanel extends JPanel implements ItemListener
         trainResultPanel.add(scrollPane);
     }
 
-    private void buildTestResultTable()
+    private void buildTestResultTable(PredictionResult predResult)
     {
         testResultsTable.addHighlighter(HighlighterFactory.createAlternateStriping());
         testResultsTable.setSortable(true);
         testResultsTable.setEditable(false);
         testResultsTable.setShowGrid(true);
         testResultsTable.setGridColor(Color.LIGHT_GRAY);
-
-        PredictionResult predResult = svmClassifier.getTestPredResult();
 
         int sampleIndx = predResult.getColumn("Samples");
         int pClassIndx = predResult.getColumn("Predicted Class");
@@ -254,7 +280,7 @@ public class SVMVisualizationPanel extends JPanel implements ItemListener
         testResultsTable.setModel(tableModel);
         testResultsTable.setSortOrder("Confidence", SortOrder.DESCENDING);
 
-        testMainPanel.setRightComponent(testResultPanel);
+        testMainPanel.setRightComponent(testResultPanel);        
     }
 
     private void buildCreateMaSetToolBar()
@@ -267,7 +293,7 @@ public class SVMVisualizationPanel extends JPanel implements ItemListener
                 {
                     applyConfidenceFilter();
                     chartPanel.setEnabled(true);
-                    confSlider.setEnabled(true);                    
+                    confSlider.setEnabled(true);
                     confidenceThreshold.setEnabled(true);
                 }
                 else
@@ -276,6 +302,13 @@ public class SVMVisualizationPanel extends JPanel implements ItemListener
                     chartPanel.setEnabled(false);
                     confSlider.setEnabled(false);
                     confidenceThreshold.setEnabled(false);
+
+                    if(testResultsTable.getRowCount() > 0)
+                    {
+                        createMaSetButton.setEnabled(true);
+                        controlRadioButton.setEnabled(true);
+                        caseRadioButton.setEnabled(true);
+                    }
                 }
             }
         });
@@ -300,7 +333,7 @@ public class SVMVisualizationPanel extends JPanel implements ItemListener
 
         createMaSetToolBar.add(Box.createRigidArea(new Dimension(9, 0)));
 
-        JButton createMaSetButton = new JButton("Create MicroarraySet");
+        createMaSetButton = new JButton("Create MicroarraySet");
         createMaSetButton.setMinimumSize(new Dimension(128, 23));
         createMaSetButton.setPreferredSize(new Dimension(128, 23));
         createMaSetButton.setMaximumSize(new Dimension(128, 23));
@@ -555,11 +588,17 @@ public class SVMVisualizationPanel extends JPanel implements ItemListener
 
                 progressBar.start();
 
-                svmClassifier.classify(panel);
+                buildTestResultTable(svmClassifier.classify(panel));
 
                 progressBar.stop();
 
-                buildTestResultTable();
+                if(testResultsTable != null && testResultsTable.getRowCount() > 0)
+                {
+                    controlRadioButton.setEnabled(true);
+                    caseRadioButton.setEnabled(true);
+                    createMaSetButton.setEnabled(true);
+                    applyFilter.setEnabled(true);
+                }
             }
         });
 
@@ -634,7 +673,6 @@ public class SVMVisualizationPanel extends JPanel implements ItemListener
         confSlider.setPaintTicks(true);
         confSlider.setMajorTickSpacing(10);
         confSlider.setMinorTickSpacing(1);
-        confSlider.setEnabled(false);
         confSlider.addChangeListener(new ChangeListener()
         {
             public void stateChanged(ChangeEvent event)
@@ -674,10 +712,10 @@ public class SVMVisualizationPanel extends JPanel implements ItemListener
         graphPanel.add(sliderToolBar, BorderLayout.PAGE_END);
 
         confSlider.setValue(1);
+
         confidenceThreshold.setMinimumSize(new Dimension(77, 24));
         confidenceThreshold.setPreferredSize(new Dimension(77, 24));
         confidenceThreshold.setMaximumSize(new Dimension(77, 24));
-        confidenceThreshold.setEnabled(false);
 
         JLabel confidenceLabel = new JLabel("Confidence Threshold:");
         confidenceLabel.setFont(new JCheckBox().getFont().deriveFont(4));
@@ -790,6 +828,23 @@ public class SVMVisualizationPanel extends JPanel implements ItemListener
 	    FilterPipeline filters = new FilterPipeline(filterArray);
 
         currentTable.setFilters(filters);
+
+        if(tabPane.getTitleAt(tabPane.getSelectedIndex()).equalsIgnoreCase("Test"))
+        {
+            if(testResultsTable.getRowCount() == 0)
+
+            {
+                createMaSetButton.setEnabled(false);
+                controlRadioButton.setEnabled(false);
+                caseRadioButton.setEnabled(false);
+            }
+            else
+            {
+                createMaSetButton.setEnabled(true);
+                controlRadioButton.setEnabled(true);
+                caseRadioButton.setEnabled(true);
+            }
+        }
     }
 
     public XYDataset getPlotData()
