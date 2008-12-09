@@ -1,13 +1,35 @@
+<html>
+
+
+
+<head>
+
+<meta http-equiv="Content-Language" content="en-us">
+
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+
+<meta name="GENERATOR" content="Microsoft FrontPage 4.0">
+
+<meta name="ProgId" content="FrontPage.Editor.Document">
+
+<title>ARACNE</title>
+
+<link rel="stylesheet" type="text/css" href="ncicb.css">
+
+</head>
+
+<h3>ARACNE</h3> 
 <p>ARACNE (Algorithm for the Reconstruction of Accurate Cellular
-Networks) is an information-theoretic algorithm used to identify
-transcriptional interactions between gene products using microarray
-expression profile data. The resulting network is displayed using the
-Cytoscape component. ARACNE can be used to predict potential functional
-associations among genes, or to predict novel functions for
-uncharacterized genes, by identifying statistical dependencies between
-genes. The results take the form of a matrix of candidate interactions,
-also called an adjacency matrix, which can be used for further network
-visualization and analysis. </p><p>ARACNE can perform two separate calculations:
+  Networks) is an information-theoretic algorithm used to identify
+  transcriptional interactions between gene products using microarray
+  expression profile data. The resulting network is displayed using the
+  Cytoscape component. ARACNE can be used to predict potential functional
+  associations among genes, or to predict novel functions for
+  uncharacterized genes, by identifying statistical dependencies between
+  genes. The results take the form of a matrix of candidate interactions,
+  also called an adjacency matrix, which can be used for further network
+  visualization and analysis. </p>
+<p>ARACNE can perform two separate calculations:
 </p><p>1. <b>Mutual Information</b>: The mutual information (MI) of one or more marker's expression profile(s) is calculated against all other active markers.
 </p><p>2. <b>Data Processing Inequality (DPI)</b>: The DPI calculation
 (triangle inequality) is used to remove the weakest interaction (edge)
@@ -43,8 +65,8 @@ loaded from a CSV file by clicking <b>Load</b>.<blockquote><a href="http://wiki.
 </li></ul>
 </li></ul>
 <ul><li> <b>Threshold Type</b>: This drop-down specifies the type of
-threshold to be used and can take the values “Mutual Info” or
-“P-value”. The actual value entered into the adjacent text area is
+threshold to be used and can take the values &ldquo;Mutual Info&rdquo; or
+&ldquo;P-value&rdquo;. The actual value entered into the adjacent text area is
 always a number between 0 and 1.
 </li></ul>
 <ul><li> <b>Kernel width</b>: The kernel width used for the computation
@@ -62,8 +84,8 @@ can be used to remove the weakest interaction of those between any
 three markers. The DPI tolerance specifies the degree of sampling error
 to be accepted, as with a finite sample size an exact value MI can not
 be calculated.
-<ul><li> If the “Do Not Apply” option is specified, no DPI is applied.
-</li><li> If the “Apply” option is selected then the DPI is applied and
+<ul><li> If the &ldquo;Do Not Apply&rdquo; option is specified, no DPI is applied.
+</li><li> If the &ldquo;Apply&rdquo; option is selected then the DPI is applied and
 the value (between 0 and 1) in the associated text box is used to
 determine the stringency level of the DPI application.
 </li></ul>
