@@ -1,4 +1,4 @@
-package org.geworkbench.components.cluster;
+package org.geworkbench.components.hierarchicalclustering;
 
 import junit.framework.TestCase;
 
