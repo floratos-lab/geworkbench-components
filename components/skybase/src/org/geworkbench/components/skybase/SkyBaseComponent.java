@@ -69,8 +69,7 @@ public class SkyBaseComponent extends JPanel implements VisualPlugin
 
     private List<Thread> threadList=new ArrayList<Thread>();
     private static final String GRID_HOST_KEY = "web1DispatcherURL";
-    private static final String DISPATCHER_URL = "web1Dispatcher.url";
-    private String web1DispatcherUrl = System.getProperty(DISPATCHER_URL);
+    private String web1DispatcherUrl = "http://156.145.238.15:8070/wsrf/services/cagrid/Dispatcher";
     private static final String skybaseweb = "http://156.145.238.15:8070/wsrf/services/cagrid/SkyBaseWeb";
     private static final String username = "cagrid", passwd="cagrid123", USER_INFO_DELIMIETER="==";
 
