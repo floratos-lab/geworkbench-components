@@ -26,6 +26,8 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.geworkbench.analysis.AbstractGridAnalysis;
 import org.geworkbench.analysis.AbstractSaveableParameterPanel;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
@@ -52,12 +54,13 @@ import edu.columbia.geworkbench.cagrid.dispatcher.client.DispatcherClient;
  * skybase component: display homologous models in skybase for an input sequence
  * 
  * @author mw2518
- * @version $Id: SkyBaseComponent.java,v 1.3 2008-12-09 22:43:18 wangm Exp $
+ * @version $Id: SkyBaseComponent.java,v 1.4 2008-12-10 20:33:43 wangm Exp $
  *
  */
 
 @AcceptTypes( { CSSequenceSet.class })
 public class SkyBaseComponent extends JPanel implements VisualPlugin {
+	private Log log = LogFactory.getLog(this.getClass());
 	private static final long serialVersionUID = 1L;
 	protected JPanel skybaseparamPanel = new JPanel();
 	protected AbstractGridAnalysis[] availableSkyBaseAnalysis;
@@ -312,7 +315,7 @@ public class SkyBaseComponent extends JPanel implements VisualPlugin {
 	public void submit_actionPerformed(ActionEvent e) {
 
 		String userInfo = username + USER_INFO_DELIMIETER + passwd;
-		System.out.println(userInfo);
+		log.info(userInfo);
 		((SkyBaseAnalysis) selectedSkyBaseAnalysis).set_seqfile(seq);
 		try {
 			List<Serializable> serviceParameterList = selectedSkyBaseAnalysis

@@ -17,7 +17,7 @@ import com.jgoodies.forms.layout.FormLayout;
  * parameter panel for blast skybase
  * 
  * @author mw2518
- * @version $Id: SkyBaseConfigPanel.java,v 1.2 2008-12-09 22:43:18 wangm Exp $
+ * @version $Id: SkyBaseConfigPanel.java,v 1.3 2008-12-10 20:33:43 wangm Exp $
  * 
  */
 public class SkyBaseConfigPanel extends AbstractSaveableParameterPanel
@@ -29,6 +29,7 @@ public class SkyBaseConfigPanel extends AbstractSaveableParameterPanel
 	private int mincov = 75, minsid = 30, rphits = 10;
 
 	private static class SerializedInstance implements Serializable {
+		private static final long serialVersionUID = 1L;
 		private int mincov = 75, minsid = 30, rphits = 10;
 
 		public SerializedInstance(int mincov, int minsid, int rphits) {

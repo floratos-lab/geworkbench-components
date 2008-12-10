@@ -33,6 +33,8 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.AbstractTableModel;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.bioobjects.structure.DSProteinStructure;
 import org.geworkbench.engine.config.VisualPlugin;
@@ -59,11 +61,12 @@ import org.openscience.jmol.ui.JmolPopupSwing;
  * SkyLine result viewer for each homology model
  * 
  * @author mw2518
- * @version $Id: SkyLineViewEachPanel.java,v 1.7 2008-12-09 23:20:19 wangm Exp $
+ * @version $Id: SkyLineViewEachPanel.java,v 1.8 2008-12-10 20:35:55 wangm Exp $
  */
 @AcceptTypes( { DSProteinStructure.class })
 public class SkyLineViewEachPanel extends JPanel implements VisualPlugin,
 		ActionListener, ListSelectionListener {
+	private Log log = LogFactory.getLog(this.getClass());
 	private static final long serialVersionUID = 1L;
 	private DSProteinStructure proteinData;
 	private JPanel mainPanel = new JPanel(new BorderLayout());
@@ -139,7 +142,7 @@ public class SkyLineViewEachPanel extends JPanel implements VisualPlugin,
 				line = tmp;
 			}
 		} catch (Exception e) {
-			// e.printStackTrace();
+			e.printStackTrace();
 			System.out
 					.println("checkjobfinish not connected error: " + logfile);
 			JOptionPane.showMessageDialog(null,
@@ -242,15 +245,15 @@ public class SkyLineViewEachPanel extends JPanel implements VisualPlugin,
 				}
 				output += selections[i] + "/" + selectedValues[i] + " ";
 			}
-			System.out.println(output);
+			log.info(output);
 
 			modelname = selectedValues[0].toString();
 
 			try {
 				displayModelFiles();
 			} catch (Exception ae) {
-				// ae.printStackTrace();
-				System.out.println("displayModelFiles error");
+				ae.printStackTrace();
+				log.info("displayModelFiles error");
 				JOptionPane.showMessageDialog(null,
 						"Cannot connect to SkyLine webserver",
 						"Show Results Error", JOptionPane.ERROR_MESSAGE);
@@ -335,8 +338,8 @@ public class SkyLineViewEachPanel extends JPanel implements VisualPlugin,
 			try {
 				displayModelFileContent();
 			} catch (Exception ae) {
-				// ae.printStackTrace();
-				System.out.println("displayModelFileContent error");
+				ae.printStackTrace();
+				log.info("displayModelFileContent error");
 				JOptionPane.showMessageDialog(null,
 						"Cannot connect to SkyLine webserver",
 						"Show Results Error", JOptionPane.ERROR_MESSAGE);
@@ -364,8 +367,8 @@ public class SkyLineViewEachPanel extends JPanel implements VisualPlugin,
 			}
 			br.close();
 		} catch (Exception e) {
-			// e.printStackTrace();
-			System.out.println("getContent notconnected error: " + fname);
+			e.printStackTrace();
+			log.info("getContent notconnected error: " + fname);
 		}
 		return contents;
 	}
@@ -399,8 +402,8 @@ public class SkyLineViewEachPanel extends JPanel implements VisualPlugin,
 			}
 			br.close();
 		} catch (Exception e) {
-			// e.printStackTrace();
-			System.out.println("getData not connected error: " + fname);
+			e.printStackTrace();
+			log.info("getData not connected error: " + fname);
 			JOptionPane.showMessageDialog(null,
 					"Cannot connect to SkyLine webserver",
 					"Show Results Error", JOptionPane.ERROR_MESSAGE);
@@ -418,7 +421,7 @@ public class SkyLineViewEachPanel extends JPanel implements VisualPlugin,
 			int dot_offset = fname.lastIndexOf(".profile");
 			fname = fname.substring(0, dot_offset).concat(".energy");
 		}
-		System.out.println("display " + fname);
+		log.info("display " + fname);
 
 		// redraw .profile plot using jfree library
 		if (title.endsWith(".profile")) {
@@ -591,6 +594,7 @@ public class SkyLineViewEachPanel extends JPanel implements VisualPlugin,
 	}
 
 	public class PDBTableModel extends AbstractTableModel {
+		private static final long serialVersionUID = 1L;
 		private String[] columnNames;
 		private Object[][] data;
 

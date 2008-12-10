@@ -26,6 +26,8 @@ import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.geworkbench.analysis.AbstractAnalysis;
 import org.geworkbench.analysis.AbstractSaveableParameterPanel;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
@@ -49,10 +51,11 @@ import com.jgoodies.forms.layout.FormLayout;
  * This is skyline component for structure comparative modeling
  * 
  * @author mw2518
- * @version $Id: SkyLineComponent.java,v 1.7 2008-12-09 23:15:39 wangm Exp $
+ * @version $Id: SkyLineComponent.java,v 1.8 2008-12-10 20:35:05 wangm Exp $
  */
 @AcceptTypes( { DSProteinStructure.class })
 public class SkyLineComponent extends JPanel implements VisualPlugin {
+	private Log log = LogFactory.getLog(this.getClass());
 	private static final long serialVersionUID = 1L;
 	private JLabel infoLabel;
 	private String pname;
@@ -118,7 +121,7 @@ public class SkyLineComponent extends JPanel implements VisualPlugin {
 		}
 
 		public void run() {
-			System.out.println("runnable thread");
+			log.info("runnable thread");
 			boolean change = false;
 
 			while (check_log_stat(mylogfile) < 1) {
@@ -137,7 +140,7 @@ public class SkyLineComponent extends JPanel implements VisualPlugin {
 				return;
 
 			thread4pdb.put(mylogfile, new String("done"));
-			System.out.println("job finished " + mylogfile);
+			log.info("job finished " + mylogfile);
 			// updateBar(false);
 			String msg = "SkyLine results available";
 			publishStructureAnalysisEvent(new StructureAnalysisEvent(maSet,
@@ -275,15 +278,11 @@ public class SkyLineComponent extends JPanel implements VisualPlugin {
 
 			pname = dataSet.getLabel();
 			logfile = outdir + "/" + pname + "/ANALYSIS/" + pname + ".log";
-			System.out.println("\ndataset is: " + dataSet);
+			log.info("\ndataset is: " + dataSet);
 
 			maSet = (DSProteinStructure) dataSet;
 			reset();
-			/*
-			 * int logstat = check_log_stat(logfile); System.out.println(logstat + " "+
-			 * logfile); if (logstat < 1 && thread4pdb.get(logfile) == null) {
-			 * Thread t = new Thread(new MyRunnable(logfile)); t.start(); }
-			 */
+
 		}
 	}
 
@@ -568,7 +567,7 @@ public class SkyLineComponent extends JPanel implements VisualPlugin {
 		} catch (Exception ce) {
 			ce.printStackTrace();
 		}
-		System.out.println("getjobstatus for " + pname + ": " + status);
+		log.info("getjobstatus for " + pname + ": " + status);
 		if (status.length() > 0 && !status.equals("not connected")) {
 			status = "Job-ID  Priority  Job-Name  User  State  Submit/Start at   Queue  Master   ja-task-ID"
 					+ status;
