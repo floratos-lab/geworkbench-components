@@ -27,6 +27,8 @@ import javax.swing.JTextArea;
 import javax.swing.border.Border;
 import javax.swing.table.AbstractTableModel;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.bioobjects.structure.DSProteinStructure;
 import org.geworkbench.engine.config.VisualPlugin;
@@ -39,10 +41,11 @@ import org.geworkbench.events.StructureAnalysisEvent;
  * SkyLine result viewer for all homology models
  * 
  * @author mw2518
- * @version $Id: SkyLineViewAllPanel.java,v 1.5 2008-12-09 23:20:19 wangm Exp $
+ * @version $Id: SkyLineViewAllPanel.java,v 1.6 2008-12-10 20:35:55 wangm Exp $
  */
 @AcceptTypes( { DSProteinStructure.class })
 public class SkyLineViewAllPanel implements VisualPlugin, ActionListener {
+	private Log log = LogFactory.getLog(this.getClass());
 	private DSProteinStructure proteinData;
 	private JPanel mainPanel = new JPanel(new BorderLayout());
 	private JScrollPane jScrollPane = new JScrollPane();
@@ -64,7 +67,7 @@ public class SkyLineViewAllPanel implements VisualPlugin, ActionListener {
 			proteinData = (DSProteinStructure) dataset;
 			String htmlText = event.getAnalyzedStructure();
 			if (htmlText == "SkyLine results available") {
-				System.out.println("structure analysis event");
+				log.info("structure analysis event");
 				rootdir = event.getInformation();
 				showResults(proteinData);
 			}
@@ -76,7 +79,7 @@ public class SkyLineViewAllPanel implements VisualPlugin, ActionListener {
 		DSDataSet dataset = event.getDataSet();
 		if (dataset instanceof DSProteinStructure) {
 			proteinData = (DSProteinStructure) dataset;
-			System.out.println("project event");
+			log.info("project event");
 			showResults(proteinData);
 		}
 	}
@@ -110,8 +113,8 @@ public class SkyLineViewAllPanel implements VisualPlugin, ActionListener {
 				line = tmp;
 			}
 		} catch (Exception e) {
-			// e.printStackTrace();
-			System.out.println("checkJobFinish error: " + logfile);
+			e.printStackTrace();
+			log.info("checkJobFinish error: " + logfile);
 			JOptionPane.showMessageDialog(null,
 					"Cannot connect to SkyLine webserver",
 					"Show Results Error", JOptionPane.ERROR_MESSAGE);
@@ -163,7 +166,7 @@ public class SkyLineViewAllPanel implements VisualPlugin, ActionListener {
 		in.close();
 
 		// for (Enumeration e = amfiles.elements(); e.hasMoreElements();) {
-		// System.out.println(e.nextElement()); }
+		// log.info(e.nextElement()); }
 
 		allmodels = new JComboBox(amfiles);
 		allmodels.setSelectedIndex(j);
@@ -192,7 +195,7 @@ public class SkyLineViewAllPanel implements VisualPlugin, ActionListener {
 			try {
 				displayLeverage("ANALYSIS");
 			} catch (Exception ae) {
-
+				ae.printStackTrace();
 				JTextArea textArea = new JTextArea("Cannot Read Results");
 				textArea.setFont(new Font("Courier", Font.PLAIN, 16));
 				jScrollPane.getViewport().add(textArea, null);
@@ -200,7 +203,7 @@ public class SkyLineViewAllPanel implements VisualPlugin, ActionListener {
 						BorderFactory.createCompoundBorder(BorderFactory
 								.createTitledBorder(title), BorderFactory
 								.createEmptyBorder(5, 5, 5, 5)), border));
-				System.out.println("displayLeverage not connected error");
+				log.info("displayLeverage not connected error");
 				JOptionPane.showMessageDialog(null,
 						"Cannot connect to SkyLine webserver",
 						"Show Results Error", JOptionPane.ERROR_MESSAGE);
@@ -285,10 +288,7 @@ public class SkyLineViewAllPanel implements VisualPlugin, ActionListener {
 			if (hits == true) {
 				JTable table = new JTable(
 						new HitsTableModel(data, columnNames) {
-							public Dimension getPreferredScrollableViewportSize() {
-								return new Dimension(getColumnCount(),
-										getRowCount());
-							}
+							private static final long serialVersionUID = 1L;
 						});
 				table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);// ALL_COLUMNS);
 				// table sorter available on jdk1.6 or higher
@@ -297,9 +297,7 @@ public class SkyLineViewAllPanel implements VisualPlugin, ActionListener {
 			} else if (models == true) {
 				JTable table = new JTable(new ModelsTableModel(data,
 						columnNames) {
-					public Dimension getPreferredScrollableViewportSize() {
-						return new Dimension(getColumnCount(), getRowCount());
-					}
+					private static final long serialVersionUID = 1L;
 				});
 				table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);// ALL_COLUMNS);
 				// table sorter available on jdk1.6 or higher
@@ -368,6 +366,7 @@ public class SkyLineViewAllPanel implements VisualPlugin, ActionListener {
 	}
 
 	public class HitsTableModel extends AbstractTableModel {
+		private static final long serialVersionUID = 1L;
 		private String[] columnNames;
 		private Object[][] data;
 
@@ -413,6 +412,7 @@ public class SkyLineViewAllPanel implements VisualPlugin, ActionListener {
 	}
 
 	public class ModelsTableModel extends AbstractTableModel {
+		private static final long serialVersionUID = 1L;
 		private String[] columnNames;
 		private Object[][] data;
 

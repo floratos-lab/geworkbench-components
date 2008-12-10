@@ -10,6 +10,8 @@ import java.text.NumberFormat;
 import javax.swing.JComboBox;
 import javax.swing.JFormattedTextField;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.geworkbench.analysis.AbstractSaveableParameterPanel;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
@@ -19,11 +21,12 @@ import com.jgoodies.forms.layout.FormLayout;
  * Parameters panel used by the SkyLine
  * 
  * @author mw2518
- * @version $Id: SkyLineConfigPanel.java,v 1.2 2008-12-09 23:15:39 wangm Exp $
+ * @version $Id: SkyLineConfigPanel.java,v 1.3 2008-12-10 20:35:05 wangm Exp $
  * 
  */
 public class SkyLineConfigPanel extends AbstractSaveableParameterPanel
 		implements Serializable {
+	private Log log = LogFactory.getLog(this.getClass());
 	final String YES = "YES";
 	final String NO = "NO";
 	final String MIN_OPTION = "Minimum";
@@ -235,7 +238,7 @@ public class SkyLineConfigPanel extends AbstractSaveableParameterPanel
 	}
 
 	public String getchainValue() {
-		System.out.println("get chain value: " + chainEdit.getValue());
+		log.info("get chain value: " + chainEdit.getValue());
 		return (String) chainEdit.getValue();
 	}
 

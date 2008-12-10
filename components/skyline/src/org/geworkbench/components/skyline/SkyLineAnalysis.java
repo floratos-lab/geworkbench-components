@@ -13,6 +13,8 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.geworkbench.analysis.AbstractAnalysis;
 import org.geworkbench.bison.datastructure.bioobjects.structure.DSProteinStructure;
 import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
@@ -23,12 +25,13 @@ import org.geworkbench.bison.model.analysis.ProteinStructureAnalysis;
  * more) than a user designated Threshold X with the value X.
  * 
  * @author mw2518
- * @version $Id: SkyLineAnalysis.java,v 1.3 2008-12-09 23:15:39 wangm Exp $
+ * @version $Id: SkyLineAnalysis.java,v 1.4 2008-12-10 20:35:05 wangm Exp $
  * 
  */
 
 public class SkyLineAnalysis extends AbstractAnalysis implements
 		ProteinStructureAnalysis {
+	private Log log = LogFactory.getLog(this.getClass());
 	private static final long serialVersionUID = 1L;
 	// Static fields used to designate the available user option within the
 	// normalizer's parameters panel.
@@ -62,10 +65,11 @@ public class SkyLineAnalysis extends AbstractAnalysis implements
 		slp = new SkyLineConfigPanel();
 		setDefaultPanel(slp);
 		try {
-			System.out.println("skylineweb: " + skylineweb + "\n");
+			log.info("skylineweb: " + skylineweb + "\n");
 			client = new SkyLineWebClient(skylineweb);
 		} catch (Exception e) {
-			System.out.println("SkyLineWeb connection refused: " + skylineweb);
+			e.printStackTrace();
+			log.info("SkyLineWeb connection refused: " + skylineweb);
 		}
 	}
 
@@ -93,7 +97,8 @@ public class SkyLineAnalysis extends AbstractAnalysis implements
 		try {
 			client.sendFile("pdb", pdbname, pdbcontent);
 		} catch (Exception e) {
-			System.out.println("SkyLineWeb sendFile error: " + pdbname);
+			e.printStackTrace();
+			log.info("SkyLineWeb sendFile error: " + pdbname);
 		}
 
 		generate_skylineinput(remotepdbdir + pdbname);
@@ -102,9 +107,10 @@ public class SkyLineAnalysis extends AbstractAnalysis implements
 		String htmlText = new String();
 		try {
 			htmlText = client.submitJob(qsubjob);
-			System.out.println(htmlText);
+			log.info(htmlText);
 		} catch (Exception e) {
-			System.out.println("SkyLineWeb submitJob error: " + qsubjob);
+			e.printStackTrace();
+			log.info("SkyLineWeb submitJob error: " + qsubjob);
 			return new AlgorithmExecutionResults(false, "Job submission error",
 					"Job submission error");
 		}
@@ -120,7 +126,8 @@ public class SkyLineAnalysis extends AbstractAnalysis implements
 		try {
 			status = client.getJobStatus(pname);
 		} catch (Exception e) {
-			System.out.println("SkyLineWeb getJobStatus error: " + pname);
+			e.printStackTrace();
+			log.info("SkyLineWeb getJobStatus error: " + pname);
 			return "not connected";
 		}
 		return status;
@@ -157,7 +164,7 @@ public class SkyLineAnalysis extends AbstractAnalysis implements
 					if (pw != null) {
 						pw.println(line);
 					}
-					System.out.println(type + ">" + line);
+					log.info(type + ">" + line);
 				}
 				if (pw != null) {
 					pw.flush();
@@ -229,7 +236,8 @@ public class SkyLineAnalysis extends AbstractAnalysis implements
 			client.sendFile("cfg", "test.cfg", cfgcontent);
 
 		} catch (Exception e) {
-			System.out.println("SkyLineWeb sendFile error: test.cfg");
+			e.printStackTrace();
+			log.info("SkyLineWeb sendFile error: test.cfg");
 		}
 	}
 
@@ -293,7 +301,8 @@ public class SkyLineAnalysis extends AbstractAnalysis implements
 			client.sendFile("cfg", "test.qsub", aString);
 
 		} catch (Exception e) {
-			System.out.println("SkyLineWeb sendFile error: test.qsub");
+			e.printStackTrace();
+			log.info("SkyLineWeb sendFile error: test.qsub");
 		}
 	}
 

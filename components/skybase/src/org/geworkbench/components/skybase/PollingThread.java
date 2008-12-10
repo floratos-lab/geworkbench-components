@@ -14,7 +14,7 @@ import edu.columbia.geworkbench.cagrid.dispatcher.client.DispatcherClient;
  * A thread that handles remote service polling.
  * 
  * @author keshav
- * @version $Id: PollingThread.java,v 1.2 2008-12-09 22:43:18 wangm Exp $
+ * @version $Id: PollingThread.java,v 1.3 2008-12-10 20:33:43 wangm Exp $
  */
 public class PollingThread extends Thread {
 
@@ -76,6 +76,7 @@ public class PollingThread extends Thread {
 			}
 			panel.publishProjectNodeCompletedEvent(completedEvent);
 		} catch (Exception e) {
+			e.printStackTrace();
 			JOptionPane.showMessageDialog(null,
 					"Cannot connect to cagrid server",
 					"Cagrid Connection Failure", JOptionPane.ERROR_MESSAGE);

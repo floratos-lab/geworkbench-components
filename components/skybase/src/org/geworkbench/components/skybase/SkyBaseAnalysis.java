@@ -9,6 +9,8 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.geworkbench.analysis.AbstractGridAnalysis;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.sequences.DSSequenceSet;
@@ -25,11 +27,12 @@ import edu.columbia.geworkbench.cagrid.skybase.client.SkyBaseWebClient;
  * AbstractGridAnalysis for blast skybase on grid service on web1
  * 
  * @author mw2518
- * @version $Id: SkyBaseAnalysis.java,v 1.2 2008-12-09 22:43:18 wangm Exp $
+ * @version $Id: SkyBaseAnalysis.java,v 1.3 2008-12-10 20:33:43 wangm Exp $
  *
  */
 public class SkyBaseAnalysis extends AbstractGridAnalysis implements
 		ProteinDatabaseAnalysis {
+	private Log log = LogFactory.getLog(this.getClass());
 	private static final long serialVersionUID = 1L;
 	SkyBaseConfigPanel scp;
 	String seqname, seqfilename, seqcontent;
@@ -43,10 +46,11 @@ public class SkyBaseAnalysis extends AbstractGridAnalysis implements
 		scp = new SkyBaseConfigPanel();
 		setDefaultPanel(scp);
 		try {
-			System.out.println("skybaseweb: " + skybaseweb);
+			log.info("skybaseweb: " + skybaseweb);
 			client = new SkyBaseWebClient(skybaseweb);
 		} catch (Exception e) {
-			System.out.println("SkyBaseWeb connection refused: " + skybaseweb);
+			e.printStackTrace();
+			log.info("SkyBaseWeb connection refused: " + skybaseweb);
 		}
 	}
 
@@ -137,13 +141,13 @@ public class SkyBaseAnalysis extends AbstractGridAnalysis implements
 	public Map<Serializable, Serializable> getBisonParameters() {
 		Map<Serializable, Serializable> parameterMap = new HashMap<Serializable, Serializable>();
 
-		System.out.println("sendfileparam: " + seqname);
+		log.info("sendfileparam: " + seqname);
 		parameterMap.put("sendnameParameter", seqname);
 		parameterMap.put("sendcontentParameter", seqcontent);
 
 		String cfgcommand = scp.getmincovValue() + " " + scp.getminsidValue()
 				+ " " + scp.getrphitsValue();
-		System.out.println("blastskybaseparam: " + cfgcommand);
+		log.info("blastskybaseparam: " + cfgcommand);
 		parameterMap.put("skybaseParameter", cfgcommand);
 
 		return parameterMap;

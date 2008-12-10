@@ -33,6 +33,8 @@ import javax.swing.table.JTableHeader;
 import javax.swing.table.TableModel;
 
 import org.apache.commons.lang.NumberUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.bioobjects.structure.DSPrtDBResultSet;
 import org.geworkbench.engine.config.VisualPlugin;
@@ -73,12 +75,13 @@ import org.openscience.jmol.ui.JmolPopupSwing;
  * Display SkyBase blast results in table, bar chart and jmol
  * 
  * @author mw2518
- * @version $Id: SkyBaseViewer.java,v 1.3 2008-12-09 22:20:33 wangm Exp $
+ * @version $Id: SkyBaseViewer.java,v 1.4 2008-12-10 20:34:15 wangm Exp $
  * 
  */
 
 @AcceptTypes( { DSPrtDBResultSet.class })
 public class SkyBaseViewer implements VisualPlugin {
+	private Log log = LogFactory.getLog(this.getClass());
 	private JPanel mainPanel = new JPanel();
 	private JPanel jp = new JPanel(new BorderLayout());
 	private Border border = jp.getBorder();
@@ -198,8 +201,8 @@ public class SkyBaseViewer implements VisualPlugin {
 					cov[i] = string2double(toks[10], false);
 					pg[i] = string2double(toks[20], false);
 
-					System.out.println(mod[i] + ": " + pctid[i] + ": " + cov[i]
-							+ ": " + pg[i]);
+					log.info(mod[i] + ": " + pctid[i] + ": " + cov[i] + ": "
+							+ pg[i]);
 
 					// rank model quality by sorting models in groups with .1
 					// increment of pG:
@@ -491,7 +494,8 @@ public class SkyBaseViewer implements VisualPlugin {
 			}
 			br.close();
 		} catch (Exception e) {
-			System.out.println("getContent notconnected error: " + fname);
+			e.printStackTrace();
+			log.info("getContent notconnected error: " + fname);
 		}
 		return contents;
 	}
@@ -540,8 +544,8 @@ public class SkyBaseViewer implements VisualPlugin {
 	}
 
 	/*
-	 * model quality chart based on pG, template coverage, 
-	 * template-model sequence identity% and model rank
+	 * model quality chart based on pG, template coverage, template-model
+	 * sequence identity% and model rank
 	 */
 	private ChartPanel plot_model_quality(String[] mod, Double[] cov,
 			Double[] pg, Double[] pctid, Integer[] rank) {
@@ -667,7 +671,7 @@ public class SkyBaseViewer implements VisualPlugin {
 			else
 				r = Double.valueOf(s).doubleValue();
 		} else
-			System.out.println("Warning: " + s + " is not a number!");
+			log.info("Warning: " + s + " is not a number!");
 
 		if (pct == true)
 			r = r * 100;
