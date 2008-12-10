@@ -53,7 +53,7 @@ import edu.columbia.geworkbench.cagrid.anova.PValueEstimation;
 
 /**
  * @author yc2480
- * @version $Id: AnovaAnalysis.java,v 1.20 2008-09-23 19:50:09 chiangy Exp $
+ * @version $Id: AnovaAnalysis.java,v 1.21 2008-12-10 17:23:26 chiangy Exp $
  */
 public class AnovaAnalysis extends AbstractGridAnalysis implements
 		ClusteringAnalysis {
@@ -187,18 +187,16 @@ public class AnovaAnalysis extends AbstractGridAnalysis implements
 		String[] selectedGroupLabels;
 		GroupAndChipsString = "";
 
-		int nl = context.getNumberOfLabels();
-		numGroups = nl;
-		for (int i = 0; i < nl; i++) {
-			String label = context.getLabel(i);
-			DSPanel<DSMicroarray> panelA = context.getItemsWithLabel(label);
-			if (panelA.isActive()) {
-				numSelectedGroups++;
-				labelSet.add(label);
-			}
-			// log.debug(label);
-		}
-
+        DSItemList<DSPanel<DSMicroarray>> panels = view.getItemPanel().panels();
+        Iterator<DSPanel<DSMicroarray>> groups = panels.iterator(); // groups
+        while (groups.hasNext()) { // for each group
+            DSPanel<DSMicroarray> panelA = groups.next();
+            if (panelA.isActive()) {
+                numSelectedGroups++;
+                labelSet.add(panelA.getLabel());
+            }
+        }
+        
 		numSelectedGroups = labelSet.size();
 		if (numSelectedGroups < 3) {
 			return new AlgorithmExecutionResults(false,
