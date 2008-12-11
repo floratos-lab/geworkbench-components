@@ -16,7 +16,7 @@ import edu.columbia.geworkbench.cagrid.dispatcher.client.DispatcherClient;
  * A thread that handles remote service polling.
  * 
  * @author keshav
- * @version $Id: PollingThread.java,v 1.6 2008-06-11 21:11:59 chiangy Exp $
+ * @version $Id: PollingThread.java,v 1.7 2008-12-11 18:45:40 chiangy Exp $
  */
 public class PollingThread extends Thread {
 
@@ -48,7 +48,11 @@ public class PollingThread extends Thread {
 				log.debug("polling");
 				Thread.sleep(10000);
 				if (cancelled) return;
-				result = dispatcherClient.getResults(gridEPR);
+				try{
+					result = dispatcherClient.getResults(gridEPR);
+				}catch(Exception e){
+					result = e;
+				}
 			}
 			ProjectNodeCompletedEvent completedEvent = new ProjectNodeCompletedEvent(
 					"Analysis Completed", gridEPR);
