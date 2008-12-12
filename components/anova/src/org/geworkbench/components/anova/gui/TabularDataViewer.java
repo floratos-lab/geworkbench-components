@@ -39,7 +39,7 @@ import com.jgoodies.forms.layout.FormLayout;
  * This is an example geWorkbench component.
  * 
  * @author Mark Chiang
- * @version $Id: TabularDataViewer.java,v 1.9 2008-06-11 17:29:37 chiangy Exp $
+ * @version $Id: TabularDataViewer.java,v 1.10 2008-12-12 20:53:50 chiangy Exp $
  */
 // This annotation lists the data set types that this component accepts.
 // The component will only appear when a data set of the appropriate type is
@@ -414,40 +414,47 @@ public class TabularDataViewer extends AbstractSaveableParameterPanel implements
 					tabFilename += "." + filter.getExtension();
 				}
 		        BufferedWriter out = new BufferedWriter(new FileWriter(tabFilename));
-		        boolean newLine=true;
-		        //print the header
-		        
-		        
-		        for (int cx=0;cx<TV.getTable().getColumnCount();cx++){
-					if (newLine){
-						newLine=false;
-					}else{
-						out.write(",");
-					}
-					out.write("\""+TV.getTable().getColumnName(cx)+"\"");
-		        }
-				out.write("\n");
-				newLine=true;
-		        
-		        //print the table
-				for (int cx=0;cx<TV.getTable().getRowCount();cx++){
-					for (int cy=0;cy<TV.getTable().getColumnCount();cy++){
-						//TODO: I do csv as in AnnotationsPanel, but csv shouldn't do this way. Should have error checking and conversion.
-						if (newLine){
-							newLine=false;
-						}else{
-							out.write(",");
-						}
-						out.write("\""+TV.getTable().getValueAt(cx, cy)+"\"");
-					}
-					out.write("\n");
-					newLine=true;
-				}		        
+		        out.write(this.toCVS());
 		        out.close();
 		    } catch (IOException e) {
 		    	e.printStackTrace();
 		    }
 	    }
+	}
+	
+	public String toCVS(){
+		String answer = "";
+		
+        boolean newLine=true;
+        //print the header
+        
+        
+        for (int cx=0;cx<TV.getTable().getColumnCount();cx++){
+			if (newLine){
+				newLine=false;
+			}else{
+				answer += ",";
+			}
+			answer += "\""+TV.getTable().getColumnName(cx)+"\"";
+        }
+		answer += "\n";
+		newLine=true;
+        
+        //print the table
+		for (int cx=0;cx<TV.getTable().getRowCount();cx++){
+			for (int cy=0;cy<TV.getTable().getColumnCount();cy++){
+				//TODO: I do csv as in AnnotationsPanel, but csv shouldn't do this way. Should have error checking and conversion.
+				if (newLine){
+					newLine=false;
+				}else{
+					answer += ",";
+				}
+				answer += "\""+TV.getTable().getValueAt(cx, cy)+"\"";
+			}
+			answer += "\n";
+			newLine=true;
+		}		        
+		return answer;
 	}
 	
 	/* This is a JDialog box which shows the options for user to check or uncheck.
