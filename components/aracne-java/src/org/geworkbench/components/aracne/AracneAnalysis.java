@@ -167,7 +167,7 @@ public class AracneAnalysis extends AbstractGridAnalysis implements
 				.getGeneRows();
 		DSItemList<DSGeneMarker> markers = mSet.markers();
 		for (DSGeneMarker marker : markers) {
-			System.out.println(marker.getLabel() + "added");
+			log.debug(marker.getLabel() + "added");
 			graph.addEdge(marker.getLabel(), marker.getLabel(), 0);
 		}
 		for (Map.Entry<Integer, HashMap<Integer, Float>> entry : geneRows
@@ -214,8 +214,13 @@ public class AracneAnalysis extends AbstractGridAnalysis implements
 				markers);
 		DSItemList<DSMicroarray> arrays = inSet.items();
 		for (DSMicroarray microarray : arrays) {
+			float[] markerData=new float[markers.size()];
+			int i=0;
+			for (DSGeneMarker marker : inSet.markers()){
+				markerData[i++]=(float)microarray.getMarkerValue(marker).getValue();
+			}
 			returnSet.addMicroarray(new Microarray(microarray.getLabel(),
-					microarray.getRawMarkerData()));
+					markerData));
 		}
 		return returnSet;
 	}
