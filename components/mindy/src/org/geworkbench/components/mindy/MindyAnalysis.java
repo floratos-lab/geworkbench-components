@@ -87,7 +87,7 @@ public class MindyAnalysis extends AbstractGridAnalysis implements
 	public int getAnalysisType() {
 		return AbstractGridAnalysis.ZERO_TYPE;
 	}
-	
+
 	MindyParamPanel getCurrentParamPanel(){
 		return (MindyParamPanel) aspp;
 	}
@@ -95,7 +95,7 @@ public class MindyAnalysis extends AbstractGridAnalysis implements
 	/**
 	 * The execute method the framework calls to analyze parameters and create
 	 * MINDY results.
-	 * 
+	 *
 	 * @param input -
 	 *            microarray set data coming from the framework
 	 * @return analysis algorithm results
@@ -340,7 +340,7 @@ public class MindyAnalysis extends AbstractGridAnalysis implements
 
 	/**
 	 * Receives GeneSelectorEvents from the framework (i.e. the Selector Panel)
-	 * 
+	 *
 	 * @param e
 	 * @param source
 	 */
@@ -355,7 +355,7 @@ public class MindyAnalysis extends AbstractGridAnalysis implements
 
 		if (e.getPanel() != null) {
 			this.selectorPanel = e.getPanel();
-			((MindyParamPanel) aspp).setSelectorPanel(((MindyParamPanel) aspp), this.selectorPanel);			
+			((MindyParamPanel) aspp).setSelectorPanel(((MindyParamPanel) aspp), this.selectorPanel);
 		} else
 			log
 					.debug("Received Gene Selector Event: Selection panel sent was null");
@@ -371,7 +371,7 @@ public class MindyAnalysis extends AbstractGridAnalysis implements
 
 	/**
 	 * Publish MINDY data to the framework.
-	 * 
+	 *
 	 * @param data
 	 * @return
 	 */
@@ -683,8 +683,14 @@ public class MindyAnalysis extends AbstractGridAnalysis implements
 		DSMicroarraySet<DSMicroarray> mSet = null;
 		mSet = maSetView.getMicroarraySet();
 		int numMAs = mSet.size();
-		if (maSetView.useItemPanel())
-			numMAs = maSetView.getItemPanel().size();
+		if (maSetView.useItemPanel()){
+	        // if no selection get all arrays
+			int numMAsSelect = maSetView.getItemPanel().size();
+            if ( numMAsSelect != 0 ){
+            	numMAs = numMAsSelect;
+            }
+		}
+
 		if (numMAs < 4) {
 			return new ParamValidationResults(false,
 					"Not enough microarrays in the set.  MINDY requires at least 4 microarrays.\n");
