@@ -1,5 +1,11 @@
 package org.geworkbench.components.alignment.blast;
 
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.HttpStatus;
+import org.apache.commons.httpclient.cookie.CookiePolicy;
+import org.apache.commons.httpclient.methods.GetMethod;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.geworkbench.bison.datastructure.bioobjects.sequence.CSSequence;
 
 import java.io.BufferedReader;
@@ -15,7 +21,8 @@ import java.net.URL;
  * <code> BlastParser </code> class.
  */
 public class BlastObj {
-
+	private Log log = LogFactory.getLog(BlastObj.class);
+	
 	/**
 	 * The Databse ID of the protein sequence hit in this BlastObj.
 	 */
@@ -111,7 +118,6 @@ public class BlastObj {
 	private String identity;
 	private int startPoint;
 	private int alignmentLength;
-	private CSSequence wholeSeq;
 	private int endPoint;
 
 	/**
@@ -450,40 +456,56 @@ public class BlastObj {
 
 		if (retriveWholeSeq && seqURL != null) {
 			try {
-				InputStream uin = seqURL.openStream();
-				BufferedReader in = new BufferedReader(new InputStreamReader(
-						uin));
-				String line;
-				while ((line = in.readLine()) != null) {
+				HttpClient client = new HttpClient();
+				GetMethod method = new GetMethod(seqURL.toString());
+				method.getParams().setCookiePolicy(
+						CookiePolicy.BROWSER_COMPATIBILITY);
+				method.getParams().makeStrict();
 
-					if (line.startsWith("</form><pre>>")
-							|| line.trim().startsWith("</div></form><pre>>")
-							|| line.matches("</div></form><pre>>")
-							|| line.trim().startsWith(
-									"<pre><div class='recordbody'>>")) {
-						String[] str = line.split(">>");
-						int size = 0;
-						StringBuffer name = new StringBuffer();
-						String label = "";
-						if (str.length > 1) {
-							label = ">" + str[1] + "\n";
-						}
-						while ((line = in.readLine()) != null
-								&& !line.startsWith("</div>")
-								&& !line.startsWith("</pre>")) {
-							size += line.length();
-							if (size >= maxSize) {
-								throw new BlastDataOutOfBoundException(
-										"The sequence "
-												+ label
-												+ "  is too long to retrieve the whole sequence. The upper limit is "
-												+ maxSize + " bases.");
+				int statusCode = client.executeMethod(method);
+
+				if (statusCode == HttpStatus.SC_OK) {
+					InputStream stream = method.getResponseBodyAsStream();
+					BufferedReader in = new BufferedReader(
+							new InputStreamReader(stream));
+					String line;
+					while ((line = in.readLine()) != null) {
+
+						if (line.startsWith("</form><pre>>")
+								|| line.trim()
+										.startsWith("</div></form><pre>>")
+								|| line.matches("</div></form><pre>>")
+								|| line.trim().startsWith(
+										"<pre><div class='recordbody'>>")) {
+							String[] str = line.split(">>");
+							int size = 0;
+							StringBuffer name = new StringBuffer();
+							String label = "";
+							if (str.length > 1) {
+								label = ">" + str[1] + "\n";
 							}
-							name.append(line + "\n");
-						}
-						CSSequence seq = new CSSequence(label, name.toString());
-						return seq;
-					}
+							while ((line = in.readLine()) != null
+									&& !line.startsWith("</div>")
+									&& !line.startsWith("</pre>")) {
+								size += line.length();
+								if (size >= maxSize) {
+									throw new BlastDataOutOfBoundException(
+											"The sequence "
+													+ label
+													+ "  is too long to retrieve the whole sequence. The upper limit is "
+													+ maxSize + " bases.");
+								}
+								name.append(line + "\n");
+							}
+							CSSequence seq = new CSSequence(label, name
+									.toString());
+							return seq;
+						} // end of if
+					} // end of while
+				} else {
+					log.error("Unable to fetch default page, status code: "
+							+ statusCode);
+					return null;
 				}
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -533,10 +555,6 @@ public class BlastObj {
 
 	public void setAlignmentLength(int alignmentLength) {
 		this.alignmentLength = alignmentLength;
-	}
-
-	public void setWholeSeq(CSSequence wholeSeq) {
-		this.wholeSeq = wholeSeq;
 	}
 
 	public void setEndPoint(int endPoint) {
