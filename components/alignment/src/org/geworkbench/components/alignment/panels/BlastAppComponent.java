@@ -39,7 +39,7 @@ import org.geworkbench.util.session.SoapClient;
  * <p>Company: </p>
  *
  * @author not attributable
- * @version 1.0
+ * @version $Id: BlastAppComponent.java,v 1.30 2008-12-17 21:32:32 keshav Exp $
  */
 @SuppressWarnings("unchecked")
 @AcceptTypes( {CSSequenceSet.class})public class BlastAppComponent extends
