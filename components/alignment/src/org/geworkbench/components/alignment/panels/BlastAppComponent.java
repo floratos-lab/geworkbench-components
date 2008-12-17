@@ -41,6 +41,7 @@ import org.geworkbench.util.session.SoapClient;
  * @author not attributable
  * @version 1.0
  */
+@SuppressWarnings("unchecked")
 @AcceptTypes( {CSSequenceSet.class})public class BlastAppComponent extends
         CSSequenceSetViewEventBase {
 
@@ -635,8 +636,6 @@ import org.geworkbench.util.session.SoapClient;
                 //JComboBox jMatrixBox = new JComboBox();
         lowComplexFilterBox = new JCheckBox();
         jAdvancedPane = new JPanel();
-        JFileChooser jFileChooser1 = new JFileChooser();
-
         checkboxPanel = new JPanel();
         jDBList = new JList();
         blastButton = new JButton();
@@ -1203,7 +1202,6 @@ import org.geworkbench.util.session.SoapClient;
 
         // Get the new item
 
-        //System.out.println(newItem + "selected the program" + e.getActionCommand());
         String selectedProgramName = (String) cb.getSelectedItem();
         if (selectedProgramName != null) {
             jDBList = new JList(AlgorithmMatcher.translateToArray((String)
@@ -1352,7 +1350,6 @@ import org.geworkbench.util.session.SoapClient;
      * @return ParameterSetting
      */
     public ParameterSetting collectParameters() {
-        System.out.println("jdblist" + jDBList.getModel().getSize());
         ParameterSetting ps = new ParameterSetting();
         String dbName = (String) jDBList.getSelectedValue();
         String programName = (String) jProgramBox.getSelectedItem();
@@ -1531,9 +1528,6 @@ import org.geworkbench.util.session.SoapClient;
                 if (tempFolder == null) {
                     tempFolder = ".";
                 }
-                String outputFile = tempFolder + "Blat" +
-                                    RandomNumberGenerator.getID() +
-                                    ".html";
 
                 if (fastaFile == null) {
                     fastaFile = activeSequenceDB;
@@ -1644,13 +1638,13 @@ import org.geworkbench.util.session.SoapClient;
 
     public void retriveAlgoParameters() {
 
-        if (jTabbedPane1.getSelectedIndex() == this.SW) {
+        if (jTabbedPane1.getSelectedIndex() == BlastAppComponent.SW) {
             reportError("Sorry, the backend server is unreachable now!",
                         "No Available Server Error");
             return;
 
         }
-        if (jTabbedPane1.getSelectedIndex() == this.HMM) {
+        if (jTabbedPane1.getSelectedIndex() == BlastAppComponent.HMM) {
             reportError("Sorry, the backend server is unreachable now!",
                         "No Available Server Error");
             return;
@@ -1689,20 +1683,18 @@ import org.geworkbench.util.session.SoapClient;
 //
 //        }
 
-        if (jTabbedPane1.getSelectedIndex() == this.SW) {
+        if (jTabbedPane1.getSelectedIndex() == BlastAppComponent.SW) {
             reportError("Sorry, the backend server is unreachable now!",
                         "No Available Server Error");
             return;
 
         }
-        if (jTabbedPane1.getSelectedIndex() == this.HMM) {
+        if (jTabbedPane1.getSelectedIndex() == BlastAppComponent.HMM) {
             reportError("Sorry, the backend server is unreachable now!",
                         "No Available Server Error");
             return;
 
         }
-
-        //System.out.println("fasta file path: " + fastaFile);
 
         try {
 
@@ -1715,8 +1707,6 @@ import org.geworkbench.util.session.SoapClient;
             String outputFile = tempFolder + "Algo" +
                                 RandomNumberGenerator.getID() +
                                 ".html";
-            // System.out.println(outputFile + " outputfile");
-            //progressBar = new JProgressBar(0, 100);
 
             progressBar1.setForeground(Color.ORANGE);
             progressBar1.setBackground(Color.WHITE);
@@ -1790,10 +1780,9 @@ import org.geworkbench.util.session.SoapClient;
     }
 
     void blastButton_actionPerformed(ActionEvent e) {
-//        System.out.println("thenumber=" + jTabbedPane1.getSelectedIndex());
         stopButtonPushed = false;
-        if (jTabbedPane1.getSelectedIndex() == this.BLAST) {
-            jTabbedBlastPane.setSelectedIndex(this.MAIN);
+        if (jTabbedPane1.getSelectedIndex() == BlastAppComponent.BLAST) {
+            jTabbedBlastPane.setSelectedIndex(BlastAppComponent.MAIN);
             if (jServerInfoPane.getServerType() ==
                 ServerInfoPanel.COLUMBIA) {
                 parameterSetter = processParameters();
@@ -1802,7 +1791,7 @@ import org.geworkbench.util.session.SoapClient;
 
             }
         } 
-        else if (jTabbedPane1.getSelectedIndex() == this.BLAT){
+        else if (jTabbedPane1.getSelectedIndex() == BlastAppComponent.BLAT){
             if(jTabbedBlatPane.getSelectedIndex() == BLAT_SERVER)
                 parameterSetter = processBlatParameters();
             else{//Stand Alone Blat
@@ -1828,25 +1817,12 @@ import org.geworkbench.util.session.SoapClient;
     /*********End Code*******************************/ 
     
     public void setBlastDisplayPanel(int selectedPanel) {
-        if (selectedPanel == this.SERVER) {
-            jTabbedBlastPane.setSelectedIndex(this.SERVER);
+        if (selectedPanel == BlastAppComponent.SERVER) {
+            jTabbedBlastPane.setSelectedIndex(BlastAppComponent.SERVER);
 
         } else {
-            jTabbedBlastPane.setSelectedIndex(this.MAIN);
+            jTabbedBlastPane.setSelectedIndex(BlastAppComponent.MAIN);
         }
-
-    }
-
-    void blastButton1_actionPerformed(ActionEvent e) {
-        //System.out.println("run");
-        //retriveParameters();
-        //retriveAlgoParameters();
-
-    }
-
-    void blastButton2_actionPerformed(ActionEvent e) {
-        //System.out.println("stop");
-        //stopBlastAction();
 
     }
 
@@ -1856,9 +1832,9 @@ import org.geworkbench.util.session.SoapClient;
 
     void stopBlastAction() {
         stopButtonPushed = true;
-        if (this.jTabbedPane1.getSelectedIndex() == this.BLAST)
+        if (this.jTabbedPane1.getSelectedIndex() == BlastAppComponent.BLAST)
             blastFinished("Interrupted");
-        else if (this.jTabbedPane1.getSelectedIndex() == this.BLAT)
+        else if (this.jTabbedPane1.getSelectedIndex() == BlastAppComponent.BLAT)
             blatFinished("Interrupted");
         if (parameterSetter != null) {
 
@@ -1870,8 +1846,7 @@ import org.geworkbench.util.session.SoapClient;
     };
 
     void jButton1_actionPerformed(ActionEvent e) {
-        //System.out.println("jbutton1");
-        // retriveAlgoParameters();
+        
         blastFinished("OTHERS_Interrupted");
 
     }
@@ -2003,8 +1978,6 @@ import org.geworkbench.util.session.SoapClient;
             String outputFile = tempFolder + "Hmm" +
                                 RandomNumberGenerator.getID() +
                                 ".txt";
-            //System.out.println(outputFile + " outputfile");
-            //progressBar = new JProgressBar(0, 100);
 
             progressBar3.setForeground(Color.ORANGE);
             progressBar3.setBackground(Color.WHITE);
@@ -2467,7 +2440,7 @@ class BlastAppComponent_jButtonBrowse_actionAdapter implements java.awt.event.Ac
     public void actionPerformed(ActionEvent e){
         JFileChooser fc = new JFileChooser();
         fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);      
-        if (fc.showOpenDialog(null) == fc.APPROVE_OPTION){
+        if (fc.showOpenDialog(null) == JFileChooser.APPROVE_OPTION){
             File dir = fc.getSelectedFile();
             this.adaptee.jTextFieldSelectDatabase.setText(dir.getAbsolutePath());
         }
@@ -2483,7 +2456,6 @@ class BlastAppComponent_jButtonOpen_actionAdapter implements java.awt.event.Acti
         BrowserLauncher.openURL("file:///"+ this.adaptee.jTextFieldOutputFile.getText());
         }
         catch(Exception ex){
-            System.out.println("Some problems");
             ex.printStackTrace();
         }
     }
