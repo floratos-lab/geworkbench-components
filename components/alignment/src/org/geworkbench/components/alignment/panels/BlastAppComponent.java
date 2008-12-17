@@ -1,22 +1,51 @@
 package org.geworkbench.components.alignment.panels;
 
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.CardLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.DataOutputStream;
+import java.io.EOFException;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.Date;
 import java.util.StringTokenizer;
 
-import javax.swing.*;
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.DefaultComboBoxModel;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
+import javax.swing.JFileChooser;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JProgressBar;
+import javax.swing.JScrollPane;
+import javax.swing.JTabbedPane;
+import javax.swing.JTextField;
+import javax.swing.JToolBar;
+import javax.swing.ListModel;
+import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
 import javax.swing.border.TitledBorder;
 
-import com.borland.jbcl.layout.XYConstraints;
-import com.borland.jbcl.layout.XYLayout;
 import org.geworkbench.algorithms.BWAbstractAlgorithm;
-import org.geworkbench.bison.datastructure.biocollections.sequences.
-        CSSequenceSet;
+import org.geworkbench.bison.datastructure.biocollections.sequences.CSSequenceSet;
 import org.geworkbench.bison.util.RandomNumberGenerator;
 import org.geworkbench.components.alignment.client.BlastAlgorithm;
 import org.geworkbench.components.alignment.client.BlatAlgorithm;
@@ -29,20 +58,17 @@ import org.geworkbench.events.MicroarraySetViewEvent;
 import org.geworkbench.events.ProjectNodeAddedEvent;
 import org.geworkbench.util.session.SoapClient;
 
+import com.borland.jbcl.layout.XYConstraints;
+import com.borland.jbcl.layout.XYLayout;
+
 /**
- * <p>Title: </p>
- *
- * <p>Description: </p>
- *
- * <p>Copyright: Copyright (c) 2005</p>
- *
- * <p>Company: </p>
  *
  * @author not attributable
- * @version $Id: BlastAppComponent.java,v 1.30 2008-12-17 21:32:32 keshav Exp $
+ * @version $Id: BlastAppComponent.java,v 1.31 2008-12-17 22:31:03 jiz Exp $
  */
 @SuppressWarnings("unchecked")
-@AcceptTypes( {CSSequenceSet.class})public class BlastAppComponent extends
+@AcceptTypes( {CSSequenceSet.class})
+public class BlastAppComponent extends
         CSSequenceSetViewEventBase {
 
     JCheckBox pfpFilterBox = new JCheckBox();
@@ -256,7 +282,7 @@ import org.geworkbench.util.session.SoapClient;
     JLabel jWordsizeLabel = new JLabel();
     JComboBox jWordsizeBox = new JComboBox();
     ParameterSetter parameterSetter = new ParameterSetter();
-    CSSequenceSet fastaFile;
+	CSSequenceSet fastaFile;
     private BlastAppComponent blastAppComponent = null;
     JPanel subSeqPanel;
     JLabel jLabel1 = new JLabel();
@@ -808,18 +834,21 @@ import org.geworkbench.util.session.SoapClient;
         maskLookupOnlyBox.setSelected(false);
         expectLabel.setText("Matrix:");
         jMatrixBox.addItem("dna.mat");
-        jMatrixBox.setToolTipText("Select the Matrix.");
         jMatrixBox.setVerifyInputWhenFocusTarget(true);
         jMatrixBox.setSelectedIndex(0);
 
         jExpectBox.setSelectedIndex( -1);
         jExpectBox.setVerifyInputWhenFocusTarget(true);
-        jExpectBox.setToolTipText("Select the expect value here.");
         matrixLabel.setText("Expect:");
         jGapcostsBox.setVerifyInputWhenFocusTarget(true);
-        jGapcostsBox.setToolTipText("Select gap cost:");
-        jWordsizeBox.setToolTipText(
-                "Select the word size, default is 3 for blastp, 11 for blastn.");
+        
+        // update tooltip text
+        // based on information from http://blast.ncbi.nlm.nih.gov/Blast.cgi and http://www.ncbi.nlm.nih.gov/BLAST/matrix_info.html
+        jExpectBox.setToolTipText("Random background noise");
+        jWordsizeBox.setToolTipText("The length of the words governing the sensitivity");
+        jMatrixBox.setToolTipText("Assigns a score for aligning any possible pair of residues");
+        jGapcostsBox.setToolTipText("Score subtracted due to the gaps");
+        
         jWordsizeBox.addActionListener(new
                                        BlastAppComponent_jFrameShiftPaneltyBox_actionAdapter(this));
         blastxSettingPanel.setLayout(gridBagLayout2);
@@ -2006,14 +2035,10 @@ import org.geworkbench.util.session.SoapClient;
      * createGridDialog
      */
     public void createGridDialog() {
-
-        CreateGridServiceDialog csd = new CreateGridServiceDialog(null,
-                "grid service");
-
+        new CreateGridServiceDialog(null, "grid service");
     }
 
     void jButton6_actionPerformed(ActionEvent e) {
-        //loadFile();
         String textFile =
                 "C:\\FromOldCDisk\\cvsProject\\project\\BioWorks\\temp\\GEAW\\Hmm89547134.txt";
         String inputfile =
@@ -2137,10 +2162,10 @@ import org.geworkbench.util.session.SoapClient;
             if(files[i].isFile()){
                 String sDatabase = "\"" + files[i].getAbsolutePath() + "\"";
                 sCommandLine = sBlatCommandLine(sDatabase, sQuery, sOutput);
-                RunCommand runCommand = new RunCommand(sCommandLine);
+                new RunCommand(sCommandLine);
                 try{            
                     Runtime rt = Runtime.getRuntime();
-                    Process proc = rt.exec(sCommandLine);
+                    rt.exec(sCommandLine);
                 } catch (Throwable t){
                 t.printStackTrace();
                 }
@@ -2487,7 +2512,7 @@ class RunCommand extends Thread{
     public void run(){
         try{            
             Runtime rt = Runtime.getRuntime();
-            Process proc = rt.exec(sCommand);
+            rt.exec(sCommand);
         } catch (Throwable t){
             t.printStackTrace();
         }
