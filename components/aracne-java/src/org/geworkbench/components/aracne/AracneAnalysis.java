@@ -3,6 +3,7 @@ package org.geworkbench.components.aracne;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Vector;
 
@@ -13,11 +14,15 @@ import org.apache.commons.logging.LogFactory;
 import org.geworkbench.analysis.AbstractAnalysis;
 import org.geworkbench.analysis.AbstractGridAnalysis;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
+import org.geworkbench.bison.datastructure.biocollections.microarrays.CSExprMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
+import org.geworkbench.bison.datastructure.bioobjects.markers.CSExpressionMarker;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
+import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
 import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
+import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
 import org.geworkbench.bison.model.analysis.ClusteringAnalysis;
 import org.geworkbench.bison.model.analysis.ParamValidationResults;
@@ -306,19 +311,8 @@ public class AracneAnalysis extends AbstractGridAnalysis implements
 						-1, 0, 1000, "Adjacency Matrix", "ARACNE Set", mSetView
 								.getMicroarraySet());
 				StringBuilder paramDescB = new StringBuilder(
-						"Generated with ARACNE run with data:\n"+this.mSetView.getMicroarraySet().size()+" Arrays:\n");
-				//FIXME: Observed a potential issue in following line, reported as Mantis #1635
-				for (DSMicroarray ma : this.mSetView.getMicroarraySet()) {
-					paramDescB.append("\t");
-					paramDescB.append(ma.getLabel());
-					paramDescB.append("\n");
-				}
-				paramDescB.append(""+this.mSetView.markers().size()+" Markers:\n");
-				for (DSGeneMarker m : this.mSetView.markers()) {
-					paramDescB.append("\t");
-					paramDescB.append(m.getShortName());
-					paramDescB.append("\n");
-				}
+						"Generated with ARACNE run with data:\n");
+				paramDescB.append(generateHistoryString(this.mSetView));
 				ProjectPanel.addToHistory(dataSet,
 						"Generated with ARACNE run with paramters:\n"
 								+ p.getParamterDescription()
@@ -648,4 +642,67 @@ public class AracneAnalysis extends AbstractGridAnalysis implements
 				"The ARACNE run resulted in no adjacent genes, "
 						+ "consider relaxing your thresholds.");
 	}
+
+	@SuppressWarnings("unchecked")
+	public String generateHistoryString(DSMicroarraySetView maSetView) {
+		String ans = "";
+
+		//TODO: this probably should get from DSMicroarraySetView.toString()
+		
+		// generate text for microarrays/groups
+		ans += "=The MicroarraySetView used for analysis contains following data=\n";
+		try {
+			log.debug("We got a "+maSetView.items().getClass().toString());
+			if (maSetView.items().getClass() == CSPanel.class){
+				log.debug("situation 1: microarraySets selected");
+				DSItemList paneltest = ((DSPanel) maSetView.items()).panels();
+				Iterator groups2 = paneltest.iterator(); // groups
+				ans += "==Microarray Sets [" + paneltest.size() + "]==\n";
+				while (groups2.hasNext()) {
+					DSPanel temp = (DSPanel) groups2.next();
+					ans += "\t" + temp.toString() + "\n";
+					Iterator groups3 = temp.iterator(); // microarrays in the group
+					while (groups3.hasNext()) {
+						Object temp2 = groups3.next();
+						ans += "\t\t" + temp2.toString() + "\n";
+					}
+				}
+			}else if (maSetView.items().getClass() == CSExprMicroarraySet.class){
+				log.debug("situation 2: microarraySets not selected");
+				CSExprMicroarraySet exprSet = (CSExprMicroarraySet)maSetView.items();
+				ans += "==Used Microarrays [" + exprSet.size() + "]==\n";
+				for (Iterator<DSMicroarray> iterator = exprSet.iterator(); iterator.hasNext();) {
+					DSMicroarray array = iterator.next();
+					ans += "\t"+ array.getLabel()+"\n";
+				}
+			}
+			ans += "==End of Microarray Sets==\n";
+			// generate text for markers
+			DSItemList paneltest = maSetView.getMarkerPanel();
+			if ((paneltest!=null) && (paneltest.size()>0)){
+				log.debug("situation 3: markers selected");
+				Iterator groups2 = paneltest.iterator(); // groups
+				ans += "==Used Markers [" + paneltest.size() + "]==\n";
+				while (groups2.hasNext()) {
+					CSExpressionMarker temp = (CSExpressionMarker) groups2.next();
+					ans += "\t" + temp.getLabel() + "\n";
+				}
+			}else{
+				log.debug("situation 4: no markers selected.");
+				DSItemList<DSGeneMarker> markers = maSetView.markers();
+				ans += "==Used Markers [" + markers.size() + "]==\n";
+				for (Iterator iterator = markers.iterator(); iterator.hasNext();) {
+					DSGeneMarker marker = (DSGeneMarker) iterator.next();
+					ans += "\t" + marker.getLabel() + "\n";
+				}
+			}
+			ans += "==End of Used Markers==\n";
+		} catch (ClassCastException cce) {
+			// it's not a DSPanel, we generate nothing for panel part
+			log.error(cce);
+		}
+		ans += "=End of MicroarraySetView data=";
+		return ans;
+	}
+	
 }
