@@ -19,8 +19,6 @@ import gov.nih.nci.caarray.services.ServerConnectionException;
 import gov.nih.nci.caarray.services.search.CaArraySearchService;
 
 import java.awt.Component;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -28,10 +26,8 @@ import java.util.Set;
 import java.util.TreeMap;
 
 import javax.security.auth.login.FailedLoginException;
-import javax.swing.JButton;
 import javax.swing.JPanel;
 
-import org.apache.commons.lang.time.StopWatch;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.CSExprMicroarraySet;
@@ -43,7 +39,6 @@ import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMutableMarkerValue;
 import org.geworkbench.builtin.projects.ProjectPanel;
 import org.geworkbench.builtin.projects.remoteresources.carraydata.CaArray2Experiment;
-import org.geworkbench.builtin.projects.remoteresources.query.CaARRAYQueryPanel;
 import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.engine.management.AcceptTypes;
 import org.geworkbench.engine.management.Publish;
@@ -52,8 +47,8 @@ import org.geworkbench.events.CaArrayEvent;
 import org.geworkbench.events.CaArrayQueryEvent;
 import org.geworkbench.events.CaArrayQueryResultEvent;
 import org.geworkbench.events.CaArrayRequestEvent;
-import org.geworkbench.events.ProjectEvent;
 
+// FIXME cleaning up but no plan to commit yet
 /**
  * The wrapper class for CaArray Component.
  * 
@@ -67,15 +62,13 @@ public class CaArray2Component implements VisualPlugin {
 	private Log log = LogFactory.getLog(CaArray2Component.class);
 	private CaArrayQueryClient dataSetDownloadClient = new CaArrayQueryClient();
 	private StandAloneCaArrayClientWrapper externalDataSetDownloadClient = new StandAloneCaArrayClientWrapper();
-	//protected static final String SERVER_NAME = "array.nci.nih.gov ";
+
 	protected static final String SERVER_NAME = "array-stage.nci.nih.gov ";
 	protected static final int JNDI_PORT = 8080;
 	protected static final int GRID_SERVICE_PORT = 8080;
 	private boolean useExternalCaArray = true;
 	private String cancelledConnectionInfo = null;
 	private boolean isCancelled = false;
-
-	// private static CaArraySearchService searchService;
 
 	/**
 	 * 
@@ -465,6 +458,9 @@ public class CaArray2Component implements VisualPlugin {
 	 */
 	@Subscribe
 	public void receive(CaArrayQueryEvent ce, Object source) {
+		// FIXME: maybe anything about CaArrayQueryEvent should be removed
+		System.out.println("WARNING: CaArrayQueryEvent is never properly published. Then it is received here, something is wrong.");
+		System.exit(0);
 
 		try {
 			if (ce != null
@@ -543,17 +539,6 @@ public class CaArray2Component implements VisualPlugin {
 		return event;
 	}
 
-	// /**
-	// *
-	// * @param pe
-	// * @param source
-	// */
-	// @Subscribe
-	// public void receive(ProjectEvent pe, Object source) {
-	// log.debug("Source: " + source.toString() + "; ProjectEvent: "
-	// + pe.toString());
-	// }
-
 	/**
 	 * 
 	 * @param event
@@ -571,22 +556,10 @@ public class CaArray2Component implements VisualPlugin {
 	}
 
 	/**
-	 * Create a test GUI for this component. It should be disabled when it is
-	 * fully integrated into geWorkbench.
+	 * The constructor does not do much, but it has to be here to make Digester work.
 	 */
 	public CaArray2Component() {
 		mainPanel = new JPanel();
-		JButton startButton = new JButton("Start");
-		mainPanel.add(startButton);
-		startButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				saveButtonPressed();
-			}
-		});
-	}
-
-	public void saveButtonPressed() {
-		CaArray2Component.main(null);
 	}
 
 	/**
@@ -598,7 +571,7 @@ public class CaArray2Component implements VisualPlugin {
 	 * @param quantitationType
 	 * @return
 	 */
-	public CSExprMicroarraySet getDataSet(CaArraySearchService service,
+	private CSExprMicroarraySet getDataSet(CaArraySearchService service,
 			String hybridizationStr, String quantitationType) {
 		Date date = new Date();
 		long startTime = date.getTime();
@@ -648,7 +621,7 @@ public class CaArray2Component implements VisualPlugin {
 					QuantitationType qType = populatedColumn
 							.getQuantitationType();
 					if (qType.getName().equalsIgnoreCase(quantitationType)) {
-						Class typeClass = qType.getTypeClass();
+						Class<?> typeClass = qType.getTypeClass();
 						// Retrieve the appropriate data depending
 						// on the type of the column.
 						if (typeClass == Float.class) {
@@ -718,8 +691,7 @@ public class CaArray2Component implements VisualPlugin {
 	 * @param name
 	 * @return
 	 */
-
-	public CSExprMicroarraySet processDataToBISON(AbstractProbe[] markersArray,
+	private CSExprMicroarraySet processDataToBISON(AbstractProbe[] markersArray,
 			double[] values, String name) {
 		Date date = new Date();
 		long startTime = date.getTime();
@@ -729,7 +701,7 @@ public class CaArray2Component implements VisualPlugin {
 		CSExprMicroarraySet maSet = new CSExprMicroarraySet();
 		if (!maSet.initialized) {
 			maSet.initialize(0, markerNo);
-			// maSet.setCompatibilityLabel(bioAssayImpl.getIdentifier());
+
 			for (int z = 0; z < markerNo; z++) {
 
 				if (markersArray[z] != null) {
@@ -741,9 +713,6 @@ public class CaArray2Component implements VisualPlugin {
 							markersArray[z].getName());
 					maSet.getMarkers().get(z).setDescription(
 							markersArray[z].getName());
-					// Why annonation information are always null? xz.
-					// maSet.getMarkers().get(z).setDescription(
-					// markersArray[z].getAnnotation().getLsid());
 				} else {
 					log
 							.error("LogicalProbes have some null values. The location is "
@@ -767,72 +736,6 @@ public class CaArray2Component implements VisualPlugin {
 				+ ((endTime - startTime) / 1000) + ".");
 		maSet.setLabel("CaArray Data");
 		return maSet;
-	}
-
-	/**
-	 * Test method.
-	 * 
-	 * @param args
-	 */
-	public static void main(String[] args) {
-
-		Log mlog = LogFactory.getLog(CaArray2Component.class);
-		try {
-
-			CaArrayRequestEvent ce = new CaArrayRequestEvent(SERVER_NAME,
-					JNDI_PORT);
-			ce.setRequestItem(CaArrayRequestEvent.EXPERIMENT);
-			CaArrayServer server = new CaArrayServer(SERVER_NAME, JNDI_PORT);
-			// String user = "caarrayuser";
-			// String password = "caArray2!";
-			// server.connect(user, password);
-
-			CaArraySearchService searchService;// = server.getSearchService();
-			DataRetrievalRequest request = new DataRetrievalRequest();
-			// String[] organism = new String[] { "Organism" };
-			// TreeMap<String, Set<String>> treeMap = DataSetDownloadClient
-			// .lookupTypeValues(searchService, request, organism);
-			//
-//			String username = "ZhangXi";
-//			String password = "Xz0401!!";
-// 			String username = "JaglaB";
-// 			String password = "Robo45$x";
-			CaArray2Experiment[] exps;
-			CaArrayQueryClient dataClient = new CaArrayQueryClient();
-			//server.connect(username, password);
-			server.connect();
-			searchService = server.getSearchService();
-			request = new DataRetrievalRequest();
-			StopWatch watch = new StopWatch();
-			watch.start();
-			CaArrayQueryClient.lookupTypeValues(searchService, request,
-					CaARRAYQueryPanel.listContent);
-			watch.stop();
-			System.out.println("Get the valid query entries: "
-					+ watch.getTime());
-
-			exps = dataClient.lookupExperiments(searchService, request,
-					SERVER_NAME, JNDI_PORT, "", "");
-			System.out.println("With password, the length is " + exps.length);
-
-			server = new CaArrayServer(SERVER_NAME, JNDI_PORT);
-			server.connect();
-			searchService = server.getSearchService();
-			exps = dataClient.lookupExperiments(searchService, request,
-					SERVER_NAME, JNDI_PORT, "", "");
-			System.out.println(exps.length);
-
-		} catch (ServerConnectionException e) {
-			mlog.error("Server connection exception: " + e);
-			e.printStackTrace();
-		} catch (RuntimeException e) {
-			mlog.error("Runtime exception: " + e);
-			e.printStackTrace();
-		} catch (Throwable t) {
-			// Catches things like out-of-memory errors and logs them.
-			mlog.error("Throwable: " + t);
-			t.printStackTrace();
-		}
 	}
 
 	protected JPanel mainPanel;
