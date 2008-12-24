@@ -1,44 +1,29 @@
 package org.geworkbench.components.caarray.arraydata;
 
-import edu.georgetown.pir.Organism;
-import gov.nih.nci.caarray.domain.array.AbstractDesignElement;
-import gov.nih.nci.caarray.domain.array.AbstractProbe;
-import gov.nih.nci.caarray.domain.contact.Organization;
-import gov.nih.nci.caarray.domain.contact.Person;
-import gov.nih.nci.caarray.domain.data.AbstractDataColumn;
-import gov.nih.nci.caarray.domain.data.DataRetrievalRequest;
-import gov.nih.nci.caarray.domain.data.DataSet;
-import gov.nih.nci.caarray.domain.data.DerivedArrayData;
-import gov.nih.nci.caarray.domain.data.DesignElementList;
-import gov.nih.nci.caarray.domain.data.DoubleColumn;
-import gov.nih.nci.caarray.domain.data.FloatColumn;
-import gov.nih.nci.caarray.domain.data.HybridizationData;
-import gov.nih.nci.caarray.domain.data.IntegerColumn;
-import gov.nih.nci.caarray.domain.data.LongColumn;
-import gov.nih.nci.caarray.domain.data.QuantitationType;
-import gov.nih.nci.caarray.domain.hybridization.Hybridization;
-import gov.nih.nci.caarray.domain.project.Experiment;
-import gov.nih.nci.caarray.domain.project.ExperimentContact;
-import gov.nih.nci.caarray.domain.sample.AbstractBioMaterial;
-import gov.nih.nci.caarray.services.CaArrayServer;
 import gov.nih.nci.caarray.services.ServerConnectionException;
-import gov.nih.nci.caarray.services.search.CaArraySearchService;
-import gov.nih.nci.cagrid.cqlquery.CQLQuery;
 
-import java.io.*;
-
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.ObjectInput;
+import java.io.ObjectInputStream;
+import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.TreeSet;
-import java.util.Vector;
 
 import javax.security.auth.login.FailedLoginException;
 
-import org.apache.commons.lang.time.StopWatch;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.CSExprMicroarraySet;
@@ -47,59 +32,35 @@ import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.CSMicroarray;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMutableMarkerValue;
-import org.geworkbench.builtin.projects.ProjectPanel;
 import org.geworkbench.builtin.projects.remoteresources.carraydata.CaArray2Experiment;
-
 import org.geworkbench.engine.management.Publish;
 import org.geworkbench.events.CaArrayEvent;
 import org.geworkbench.events.CaArrayQueryResultEvent;
-import org.geworkbench.events.CaArrayRequestEvent;
 
+/**
+ * The class to invoke StandAloneCaArrayWrapper
+ * 
+ * @author xiaoqing
+ * @version $Id: StandAloneCaArrayClientWrapper.java,v 1.5 2008-12-24 21:45:41 jiz Exp $
+ * 
+ */
 public class StandAloneCaArrayClientWrapper {
+	private Log log = LogFactory.getLog(StandAloneCaArrayClientWrapper.class);
 
-	private CaArrayQueryClient cmdDataSetDownloadClient = new CaArrayQueryClient();
-
-	private Log log = LogFactory.getLog(CaArray2Component.class);
-
-	private static TreeMap<String, String> experimentDesciptions = new TreeMap<String, String>(); // For
-
+	// four types of queries
 	public final static String EXPERIMENTINFO = "experimentinfo";
-
 	public final static String FILTERINFO = "filterinfo";
-
 	public final static String HYB = "HYB";
-
 	public final static String TYPEVALUE = "TYPEVALUE";
 
-	public static String prefixCMD = null;
+	private static String prefixCMD = null;
+	private final static String tmpDir;
 
-	public static String PATHSEP;
-
-	public static String FILESEP;
-
-	public static String CLASSPATH = "";
-
-	private static String systempDir = System
-			.getProperty("temporary.files.directory");
-
-	public final static String tmpDir;
-	
-
-	
 	/**
-	 * Get the valid experiment names and their associated properites.
 	 * 
-	 * @param request
-	 * @param url
-	 * @param port
-	 * @param usesname
-	 * @param password
-	 * @return
-	 * @throws Exception
 	 */
-
 	static {
-		// Set up the env.
+		String systempDir = System.getProperty("temporary.files.directory");
 
 		if (systempDir == null) {
 			systempDir = "temp" + File.separator + "GEAW" + File.separator;
@@ -110,81 +71,55 @@ public class StandAloneCaArrayClientWrapper {
 		if (!tempdir.exists()) {
 			tempdir.mkdir();
 		}
-		try {
-			// remove previous session information.
-			File tmpDirF = new File(tmpDir);
-			String[] list = tmpDirF.list();
-			File tempfile;
-			for (int i = 0; i < list.length; i++) {
-				if (list[i].endsWith(".over") || list[i].endsWith("Exception")) {
-					tempfile = new File(tmpDirF, list[i]);
-					tempfile.delete();
-				}
+
+		// remove previous session information.
+		File tmpDirF = new File(tmpDir);
+		String[] list = tmpDirF.list();
+		File tempfile;
+		for (int i = 0; i < list.length; i++) {
+			if (list[i].endsWith(".over") || list[i].endsWith("Exception")) {
+				tempfile = new File(tmpDirF, list[i]);
+				tempfile.delete();
 			}
-			// Set up classpath.
- 
-//			if(jkdLocation.lastIndexOf("1.6")>0){
-//				//caarray cannot work with 1.6
-//				//jkdLocation = System.getProperty("JAVA_HOME");
-//				
-//			}
-			PATHSEP = System.getProperty("path.separator");
-			FILESEP = System.getProperty("file.separator");
-			if (jkdLocation != null) {
-				//Below is a line specific for Eclipse, because the classes will not located under components folder.
-				if(System.getProperty("os.name").lastIndexOf("Window")>0){
-				CLASSPATH = "C:\\java\\apps\\eclipse_workspace\\caarray\\classes;";
-				}
-				String currentdir = System.getProperty("user.dir");
-				CLASSPATH = CLASSPATH + currentdir + PATHSEP + CLASSPATH + currentdir + FILESEP + "classes"
-						+ PATHSEP;
-				// Do libs
-				String dir = currentdir + FILESEP + "components" + FILESEP
-						+ "caarray" + FILESEP;
-				CLASSPATH = CLASSPATH + dir + "classes" + PATHSEP;
-				String shortPath = "components" + FILESEP + "caarray" + FILESEP
-						+ "lib" + FILESEP;
-				File libdir = new File(dir + "lib");
-				if (libdir.exists()) {
-					File[] libFiles = libdir.listFiles();
-					for (int i = 0; i < libFiles.length; i++) {
-						File file = libFiles[i];
-						if (!file.isDirectory()) {
-							String name = file.getName().toLowerCase();
-							if (name.endsWith(".jar") || name.endsWith(".zip")
-									|| name.endsWith(".xsd")
-									|| name.endsWith(".xml")
-									|| name.endsWith(".dtd")
-									|| name.endsWith(".properties")
-									|| name.endsWith(".dll")) {
+		}
+		// Set up classpath.
 
-								// CLASSPATH = CLASSPATH +
-								// file.getAbsolutePath()
-								// + PATHSEP;
-								CLASSPATH = CLASSPATH + shortPath
-										+ file.getName() + PATHSEP;
+		String PATHSEP = System.getProperty("path.separator");
+		String FILESEP = System.getProperty("file.separator");
+		String CLASSPATH = "";
+		if (jkdLocation != null) {
+			String currentdir = System.getProperty("user.dir");
+			CLASSPATH = currentdir + PATHSEP + currentdir + FILESEP + "classes" + PATHSEP;
+			// Do libs
+			String dir = currentdir + FILESEP + "components" + FILESEP
+					+ "caarray" + FILESEP;
+			CLASSPATH = CLASSPATH + dir + "classes" + PATHSEP;
+			String shortPath = "components" + FILESEP + "caarray" + FILESEP
+					+ "lib" + FILESEP;
+			File libdir = new File(dir + "lib");
+			if (libdir.exists()) {
+				for (File file: libdir.listFiles()) {
+					if (!file.isDirectory()) {
+						String name = file.getName().toLowerCase();
+						if (name.endsWith(".jar") || name.endsWith(".zip")
+								|| name.endsWith(".xsd")
+								|| name.endsWith(".xml")
+								|| name.endsWith(".dtd")
+								|| name.endsWith(".properties")
+								|| name.endsWith(".dll")) {
 
-							}
+							CLASSPATH = CLASSPATH + shortPath + file.getName()
+									+ PATHSEP;
 						}
 					}
-
 				}
-				CLASSPATH += ".";
-				//Fix classpath with space
-				CLASSPATH = "\"" + CLASSPATH  + "\"";
-				prefixCMD = jkdLocation
-						+ '/'
-						+ "bin"
-						+ '/'
-						+ "java -Xmx400M -classpath "
-						+ CLASSPATH
-						+ " org.geworkbench.components.caarray.arraydata.StandAloneCaArrayClientExec ";
-				System.out.println(prefixCMD + " prefixCMd");
+
 			}
-		} catch (Exception e) {
-
+			CLASSPATH += ".";
+			prefixCMD = jkdLocation + "/bin/java -Xmx400M -classpath \""
+					+ CLASSPATH
+					+ "\" org.geworkbench.components.caarray.arraydata.StandAloneCaArrayClientExec ";
 		}
-
 	}
 
 	/**
@@ -196,6 +131,7 @@ public class StandAloneCaArrayClientWrapper {
 	 * @param type
 	 * @return
 	 */
+	@SuppressWarnings("unchecked")
 	public TreeMap<String, Set<String>> lookupTypeValues(String url, int port,
 			String username, String password, String[] types) throws Exception {
 
@@ -209,7 +145,7 @@ public class StandAloneCaArrayClientWrapper {
 				+ url + " " + port;
 		if (username != null)
 			cmdline = cmdline + " " + username + " " + password;
-		startJobThread(cmdline, savedFilename);
+		invokeStandAloneApp(cmdline, savedFilename);
 		TreeMap<String, Set<String>> tree = new TreeMap<String, Set<String>>();
 		if (isFailed(savedFilename)) {
 			return null;
@@ -217,8 +153,9 @@ public class StandAloneCaArrayClientWrapper {
 		try {
 			// use buffering
 
-			InputStream file = new FileInputStream(savedFilename);
-			InputStream buffer = new BufferedInputStream(file);
+			File file = new File(savedFilename);
+			InputStream buffer = new BufferedInputStream(new FileInputStream(
+					file));
 			ObjectInput input = new ObjectInputStream(buffer);
 			try {
 				// deserialize the List
@@ -227,6 +164,7 @@ public class StandAloneCaArrayClientWrapper {
 
 			} finally {
 				input.close();
+				file.delete();
 			}
 		} catch (ClassNotFoundException ex) {
 			ex.printStackTrace();
@@ -243,7 +181,7 @@ public class StandAloneCaArrayClientWrapper {
 	 * @return
 	 * @throws Exception
 	 */
-	public boolean isFailed(String resultFilename) throws Exception {
+	private boolean isFailed(String resultFilename) throws Exception {
 
 		File exceptionFile = new File(resultFilename + "."
 				+ StandAloneCaArrayClientExec.ServerConnectionException);
@@ -272,7 +210,7 @@ public class StandAloneCaArrayClientWrapper {
 	 * 
 	 * @param resultFilename
 	 */
-	public void cleanup(String resultFilename) {
+	private void cleanup(String resultFilename) {
 		File tmpDirF = new File(tmpDir);
 		String[] list = tmpDirF.list();
 		File tempfile;
@@ -296,7 +234,7 @@ public class StandAloneCaArrayClientWrapper {
 				+ url + " " + port;
 		if (username != null)
 			cmdline = cmdline + " " + username + " " + password;
-		startJobThread(cmdline, savedFilename);
+		invokeStandAloneApp(cmdline, savedFilename);
 		if (isFailed(savedFilename)) {
 			return null;
 		}
@@ -304,8 +242,9 @@ public class StandAloneCaArrayClientWrapper {
 		try {
 			// use buffering
 
-			InputStream file = new FileInputStream(savedFilename);
-			InputStream buffer = new BufferedInputStream(file);
+			File file = new File(savedFilename);
+			InputStream buffer = new BufferedInputStream(new FileInputStream(
+					file));
 			ObjectInput input = new ObjectInputStream(buffer);
 			try {
 				// deserialize the List
@@ -313,6 +252,7 @@ public class StandAloneCaArrayClientWrapper {
 
 			} finally {
 				input.close();
+				file.delete();
 			}
 		} catch (ClassNotFoundException ex) {
 			ex.printStackTrace();
@@ -321,17 +261,6 @@ public class StandAloneCaArrayClientWrapper {
 		}
 
 		return caArrayExperiments;
-	}
-
-	public boolean isJobFinished(String filename) {
-		try {
-			if (new File(filename).exists()) {
-				return true;
-			}
-			return false;
-		} catch (Exception e) {
-			return false;
-		}
 	}
 
 	public CaArray2Experiment[] lookupExperiments(String url, int port,
@@ -366,14 +295,15 @@ public class StandAloneCaArrayClientWrapper {
 				+ url + " " + port + " " + type + " " + value;
 		if (username != null)
 			cmdline = cmdline + " " + username + " " + password;
-		startJobThread(cmdline, savedFilename);
+		invokeStandAloneApp(cmdline, savedFilename);
 		CaArray2Experiment[] tree = null;
 		if (isFailed(savedFilename)) {
 			return null;
 		}
 		try {
-			InputStream file = new FileInputStream(savedFilename);
-			InputStream buffer = new BufferedInputStream(file);
+			File file = new File(savedFilename);
+			InputStream buffer = new BufferedInputStream(new FileInputStream(
+					file));
 			ObjectInput input = new ObjectInputStream(buffer);
 			try {
 				// deserialize the List
@@ -382,6 +312,7 @@ public class StandAloneCaArrayClientWrapper {
 
 			} finally {
 				input.close();
+				file.delete();
 			}
 			return tree;
 		} catch (ClassNotFoundException ex) {
@@ -391,27 +322,6 @@ public class StandAloneCaArrayClientWrapper {
 		}
 		return null;
 	}
-
-	// static DataSet getDataSet(CaArraySearchService service,
-	// Hybridization hybridization) {
-	// DataSet dataSet = null;
-	//
-	// // If raw data doesn't exist, try to find derived data
-	// Set<DerivedArrayData> derivedArrayDataSet = hybridization
-	// .getDerivedDataCollection();
-	// for (DerivedArrayData derivedArrayData : derivedArrayDataSet) {
-	// // Return the data set associated with the first derived data.
-	// DerivedArrayData populatedArrayData = service.search(
-	// derivedArrayData).get(0);
-	// dataSet = populatedArrayData.getDataSet();
-	// }
-	//
-	// if (dataSet == null) {
-	// return null;
-	// } else {
-	// return service.search(dataSet).get(0);
-	// }
-	// }
 
 	/**
 	 * 
@@ -429,22 +339,8 @@ public class StandAloneCaArrayClientWrapper {
 		return event;
 	}
 
-	private void startJobThread(String cmdline, String savedFilename) {
-		if (!isJobFinished(savedFilename + ".over")) {
-			JobThread jobThread = new JobThread(cmdline, savedFilename);
-			jobThread.start();
-		}
-		while (!isJobFinished(savedFilename + ".over")) {
-			try {
-				Thread.sleep(5000);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
-	}
-
 	/**
-	 * THe method to grab the data from caArray server with defined
+	 * The method to grab the data from caArray server with defined
 	 * Hybridization and QuantitationType. A BISON DataType will be returned.
 	 * 
 	 * @param service
@@ -465,7 +361,7 @@ public class StandAloneCaArrayClientWrapper {
 				+ " " + port + " " + hybridizationStr + " " + quantitationType;
 		if (username != null)
 			cmdline = cmdline + " " + username + " " + password;
-		startJobThread(cmdline, savedFilename);
+		invokeStandAloneApp(cmdline, savedFilename);
 		if (isFailed(savedFilename)) {
 			return null;
 		}
@@ -481,15 +377,17 @@ public class StandAloneCaArrayClientWrapper {
 	 * @return
 	 */
 
-	public CSExprMicroarraySet processDataToBISON(String filename, String name) {
+	private CSExprMicroarraySet processDataToBISON(String filename, String name) {
 
 		BufferedReader inputStream = null;
-		PrintWriter outputStream = null;
+
 		List<String> markerNames = new ArrayList<String>();
 		List<Double> valuesList = new ArrayList<Double>();
 
+		File file = null;
 		try {
-			inputStream = new BufferedReader(new FileReader(filename));
+			file = new File(filename);
+			inputStream = new BufferedReader(new FileReader(file));
 
 			String l;
 			while ((l = inputStream.readLine()) != null) {
@@ -508,6 +406,7 @@ public class StandAloneCaArrayClientWrapper {
 				if (inputStream != null) {
 					inputStream.close();
 				}
+				file.delete();
 
 			} catch (Exception e) {
 
@@ -532,7 +431,7 @@ public class StandAloneCaArrayClientWrapper {
 							DSGeneMarker.AFFY_TYPE);
 					maSet.getMarkers().get(z).setLabel(markerName);
 					maSet.getMarkers().get(z).setDescription(markerName);
-					// Why annonation information are always null? xz.
+					// Why annotation information are always null? xz.
 					// maSet.getMarkers().get(z).setDescription(
 					// markersArray[z].getAnnotation().getLsid());
 				} else {
@@ -553,73 +452,44 @@ public class StandAloneCaArrayClientWrapper {
 			maSet.add(microarray);
 		}
 		long endTime = new Date().getTime();
-		System.out.println("For " + name
+		log.debug("For " + name
 				+ ", the total second to convert it to BISON Data is "
 				+ ((endTime - startTime) / 1000) + ".");
 		maSet.setLabel("CaArray Data");
 		return maSet;
 	}
 
-	private class JobThread extends Thread {
-		private String cmdline;
-		private String inputFilename;
+	private void invokeStandAloneApp(String cmdline, String inputFilename)
+			throws IOException, InterruptedException {
+		log.debug(new Date() + " at the thread. The job: " + cmdline);
 
-		public JobThread() {
-		}
+		FileOutputStream fos = new FileOutputStream("caArrayExecLog.txt");
+		Runtime rt = Runtime.getRuntime();
+		Process proc = rt.exec(cmdline);
 
-		public JobThread(String cmd, String type) {
+		// any error message?
+		StreamGobbler errorGobbler = new StreamGobbler(proc.getErrorStream(),
+				"ERROR", fos, inputFilename);
 
-			cmdline = cmd;
-			inputFilename = type;
+		// any output?
+		StreamGobbler outputGobbler = new StreamGobbler(proc.getInputStream(),
+				"OUTPUT", fos, inputFilename);
 
-		}
+		// kick them off
+		errorGobbler.start();
+		outputGobbler.start();
 
-		public void run() {
-			try {
-				  System.out.println(new Date()
-				  + " at the thread. The job: " + cmdline);
-
-				// cmdline = "perl /razor/0/common/pudge/scr/psub.pl
-				// 2resub.cfg";
-				Process p = Runtime.getRuntime().exec(cmdline);
-				
-				FileOutputStream fos = new FileOutputStream(
-						"caArrayExecLog.txt");
-				Runtime rt = Runtime.getRuntime();
-				Process proc = rt.exec(cmdline);
-
-				// any error message?
-				StreamGobbler errorGobbler = new StreamGobbler(proc
-						.getErrorStream(), "ERROR", fos, inputFilename);
-
-				// any output?
-				StreamGobbler outputGobbler = new StreamGobbler(proc
-						.getInputStream(), "OUTPUT", fos, inputFilename);
-
-				// kick them off
-				errorGobbler.start();
-				outputGobbler.start();
-
-				// any error???
-				int exitVal = proc.waitFor();
-				System.out.println( "For cmdline " + cmdline + "\nExitValue: " + exitVal);
-				fos.flush();
-				fos.close();
-				if (proc.waitFor() != 0) {
-					System.err.println("exit value = " + proc.exitValue());
-				}
-				File f = new File(inputFilename + ".over");
-				f.createNewFile();
-
-			}
-
-			catch (Exception e) {
-				System.err.println(e);
-			}
+		// any error???
+		int exitVal = proc.waitFor();
+		log.debug("For cmdline " + cmdline + "\nExitValue: " + exitVal);
+		fos.flush();
+		fos.close();
+		if (proc.waitFor() != 0) {
+			log.warn("exit value = " + proc.exitValue());
 		}
 	}
 
-	class StreamGobbler extends Thread {
+	static private class StreamGobbler extends Thread {
 		InputStream is;
 		String type;
 		OutputStream os;
@@ -667,16 +537,6 @@ public class StandAloneCaArrayClientWrapper {
 					if (pw != null) {
 						pw.println(line);
 					}
-					// System.out.println(type + ">" + line);
-					//
-					// if (line.trim().indexOf("P") > -1) {
-					// currentJobFolderName = line.substring(
-					// line.indexOf("P"), line.indexOf("P") + 6);
-					// File fr = new File(inputname + "."
-					// + currentJobFolderName);
-					// fr.createNewFile();
-					// System.out.println("create filename>" + fr.getName());
-					// }
 				}
 				if (pw != null) {
 					pw.flush();
