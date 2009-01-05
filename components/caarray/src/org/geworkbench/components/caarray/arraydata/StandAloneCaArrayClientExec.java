@@ -47,7 +47,7 @@ import org.geworkbench.builtin.projects.remoteresources.query.CaARRAYQueryPanel;
  * This is invoked as a stand-alone application by StandAloneCaArrayClientWrapper.
  * 
  * @author xiaoqing
- * @version $Id: StandAloneCaArrayClientExec.java,v 1.3 2008-12-11 20:24:23 jiz Exp $
+ * @version $Id: StandAloneCaArrayClientExec.java,v 1.4 2009-01-05 17:37:19 jiz Exp $
  *
  */
 public class StandAloneCaArrayClientExec {
@@ -83,7 +83,7 @@ public class StandAloneCaArrayClientExec {
 			args = new String[] { StandAloneCaArrayClientWrapper.TYPEVALUE,
 					"oddtype.txt" };
 		}
-		System.out.println("In StandAloneCaArrayClientExec main. args="
+		log.debug("In StandAloneCaArrayClientExec main. args="
 				+ java.util.Arrays.toString(args));
 		if (args != null && args.length >= 4) {
 			String url = args[2];
@@ -99,7 +99,7 @@ public class StandAloneCaArrayClientExec {
 					password = args[5];
 				}
 				lookupExperiments(url, port, username, password, resultFilename);
-				System.out.println("Ending lookup experiment. " + new Date());
+				log.debug("Ending lookup experiment. " + new Date());
 			} else if (args[0]
 					.equalsIgnoreCase(StandAloneCaArrayClientWrapper.HYB)) {
 				String hybridname = args[4];
@@ -110,7 +110,7 @@ public class StandAloneCaArrayClientExec {
 				}
 				getDataSet(url, port, username, password, hybridname, qType,
 						resultFilename);
-				System.out.println("Ending loading dataset" + new Date());
+				log.debug("Ending loading dataset" + new Date());
 			} else if (args[0]
 					.equalsIgnoreCase(StandAloneCaArrayClientWrapper.TYPEVALUE)) {
 				if (args.length >= 6) {
@@ -119,7 +119,7 @@ public class StandAloneCaArrayClientExec {
 				}
 				lookupTypeValues(url, port, username, password,
 						CaARRAYQueryPanel.listContent, resultFilename);
-				System.out.println("Ending loading type values" + new Date());
+				log.debug("Ending loading type values" + new Date());
 			} else if (args[0]
 					.equalsIgnoreCase(StandAloneCaArrayClientWrapper.FILTERINFO)) {
 				String filtername = args[4];
@@ -130,7 +130,7 @@ public class StandAloneCaArrayClientExec {
 				}
 				lookupExperimentsWithFilter(url, port, username, password,
 						filtername, filterkey, args[1]);
-				System.out.println("Ending loading with filter" + new Date());
+				log.debug("Ending loading with filter" + new Date());
 			}
 		}
 	}
@@ -209,7 +209,7 @@ public class StandAloneCaArrayClientExec {
 				tree.put(type, values);
 			}
 			if (tree == null || tree.size() == 0) {
-				System.out.println("No tree is created."
+				log.debug("No tree is created."
 						+ new File(typeValueFileName).getAbsolutePath());
 				return;
 			}
@@ -275,7 +275,7 @@ public class StandAloneCaArrayClientExec {
 
 		try {
 
-			System.out.println("Beginning lookupExperimentsWithFilter");
+			log.debug("Beginning lookupExperimentsWithFilter");
 			CaArrayServer server = new CaArrayServer(url, port);
 			server.connect();
 			if (username == null || username.trim().length() == 0) {
@@ -334,7 +334,7 @@ public class StandAloneCaArrayClientExec {
 			ObjectOutputStream outputStream = null;
 
 			try {
-				System.out.println("File saved at"
+				log.debug("File saved at"
 						+ new File(savedFilename).getAbsolutePath());
 				// Construct the LineNumberReader object
 				outputStream = new ObjectOutputStream(new FileOutputStream(
@@ -386,7 +386,7 @@ public class StandAloneCaArrayClientExec {
 			log.debug("list size "+list.size()+" returned in "+(time1-time0)+" milliseconds");
 			for (Object o : list) {
 				Experiment e = ((Experiment) o);
-				System.out.println("get Exp: " + new Date());
+				log.debug("get Exp: " + new Date());
 				Set<Hybridization> h1 = (((Experiment) o).getHybridizations());
 
 				if (h1.size() > 0) {
@@ -442,7 +442,7 @@ public class StandAloneCaArrayClientExec {
 			ObjectOutputStream outputStream = null;
 
 			try {
-				System.out.println("File saved at"
+				log.debug("File saved at"
 						+ new File(experimentFileName).getAbsolutePath());
 				// Construct the LineNumberReader object
 				outputStream = new ObjectOutputStream(new FileOutputStream(
@@ -468,7 +468,7 @@ public class StandAloneCaArrayClientExec {
 			e.printStackTrace();
 			processException(e, experimentFileName);
 		}
-		System.out.println("Ending the lookupExperiments " + new Date());
+		log.debug("Ending the lookupExperiments " + new Date());
 
 	}
 
@@ -515,7 +515,7 @@ public class StandAloneCaArrayClientExec {
 	private static void getDataSet(String url, int port,
 			String username, String password, String hybridizationStr,
 			String quantitationType, String outputFilename) {
-		System.out.println("Running the getDataSet" + new Date());
+		log.debug("Running the getDataSet" + new Date());
 		CaArrayServer server = new CaArrayServer(url, port);
 		try {
 			if (username == null || username.trim().length() == 0) {
@@ -541,7 +541,7 @@ public class StandAloneCaArrayClientExec {
 		// If raw data doesn't exist, try to find derived data
 		Set<DerivedArrayData> derivedArrayDataSet = hybridization
 				.getDerivedDataCollection();
-		System.out.println("SSS For Rashimi, the totalDataset is "
+		log.debug("Size of the derivedArrayDataSet is "
 				+ derivedArrayDataSet.size());
 		for (DerivedArrayData derivedArrayData : derivedArrayDataSet) {
 			// Return the data set associated with the first derived data.
