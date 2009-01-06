@@ -458,9 +458,7 @@ public class CaArray2Component implements VisualPlugin {
 	 */
 	@Subscribe
 	public void receive(CaArrayQueryEvent ce, Object source) {
-		// FIXME: maybe anything about CaArrayQueryEvent should be removed
-		System.out.println("WARNING: CaArrayQueryEvent is never properly published. Then it is received here, something is wrong.");
-		System.exit(0);
+		log.debug("CaArrayQueryEvent is received.");
 
 		try {
 			if (ce != null
