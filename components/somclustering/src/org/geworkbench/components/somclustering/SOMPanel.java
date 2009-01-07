@@ -1,15 +1,24 @@
 package org.geworkbench.components.somclustering;
 
-import com.jgoodies.forms.builder.DefaultFormBuilder;
-import com.jgoodies.forms.layout.FormLayout;
-import org.geworkbench.analysis.AbstractSaveableParameterPanel;
-import org.geworkbench.bison.model.analysis.ParamValidationResults;
-
-import javax.swing.*;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.io.ObjectStreamException;
 import java.io.Serializable;
+
+import javax.swing.BorderFactory;
+import javax.swing.JComboBox;
+import javax.swing.JFormattedTextField;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+
+import org.geworkbench.analysis.AbstractSaveableParameterPanel;
+import org.geworkbench.bison.model.analysis.ParamValidationResults;
+
+import com.jgoodies.forms.builder.DefaultFormBuilder;
+import com.jgoodies.forms.layout.FormLayout;
 
 /**
  * <p>Copyright: Copyright (c) 2003</p>
@@ -156,12 +165,12 @@ public class SOMPanel extends AbstractSaveableParameterPanel implements Serializ
 //        gridLayout1.setColumns(4);
 //        gridLayout1.setRows(3);
         rowLabel.setBorder(BorderFactory.createEtchedBorder());
-        rowLabel.setText("Rows");
+        rowLabel.setText("Number of Rows");
         rows.setValue(new Integer(3));
         functionLabel.setBorder(BorderFactory.createEtchedBorder());
         functionLabel.setText("Function");
         columnLabel.setBorder(BorderFactory.createEtchedBorder());
-        columnLabel.setText("Colums");
+        columnLabel.setText("Number of Columns");
         columns.setValue(new Integer(3));
         iterationsLabel.setBorder(BorderFactory.createEtchedBorder());
         iterationsLabel.setText("Iterations");
@@ -170,13 +179,26 @@ public class SOMPanel extends AbstractSaveableParameterPanel implements Serializ
         radiusLabel.setToolTipText("");
         radiusLabel.setText("Radius");
         radius.setValue(new Float(3.0));
-        alphaLabel.setText("Alpha");
+        alphaLabel.setText("Learning rate (Alpha)");
         alphaLabel.setBorder(BorderFactory.createEtchedBorder());
         alpha.setValue(new Float(0.8));
         alpha.setBorder(BorderFactory.createEtchedBorder());
 //        this.add(jPanel1, BorderLayout.CENTER);
         function.addItem("Bubble");
         function.addItem("Gaussian");
+        function.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                JComboBox cb = (JComboBox) e.getSource();
+                String selectedItem = (String) cb.getSelectedItem();
+                if (selectedItem.equals("Bubble")) {
+                	radiusLabel.setEnabled(true);
+                	radius.setEnabled(true);
+                } else {
+                	radiusLabel.setEnabled(false);
+                	radius.setEnabled(false);
+                }
+            }
+        });
 
         FormLayout layout = new FormLayout(
                 "right:max(40dlu;pref), 3dlu, 70dlu, 7dlu, "
@@ -188,15 +210,15 @@ public class SOMPanel extends AbstractSaveableParameterPanel implements Serializ
 
         builder.appendSeparator("SOM Analysis Parameters");
 
-        builder.append("Rows", rows);
-        builder.append("Columns", columns);
+        builder.append("Number of Rows", rows);
+        builder.append("Number of Columns", columns);
         builder.nextLine();
 
         builder.append("Radius", radius);
         builder.append("Iterations", iterations);
         builder.nextLine();
 
-        builder.append("Alpha", alpha);
+        builder.append("Learning Rate (Alpha)", alpha);
         builder.append("Function", function);
         builder.nextLine();
 
