@@ -70,11 +70,11 @@ import com.solarmetric.ide.ui.CheckboxCellRenderer;
 
 /**
  * MINDY result view main GUI class
- * 
+ *
  * @author mhall
  * @ch2514
- * 
- * @version $Id: MindyPlugin.java,v 1.74 2008-07-23 21:39:57 hungc Exp $
+ *
+ * @version $Id: MindyPlugin.java,v 1.75 2009-01-09 21:01:00 oshteynb Exp $
  */
 @SuppressWarnings("serial")
 public class MindyPlugin extends JPanel {
@@ -112,7 +112,7 @@ public class MindyPlugin extends JPanel {
 
 	private JTabbedPane tabs;
 
-	private JCheckBox selectionEnabledCheckBox, selectionEnabledCheckBoxTarget;	
+	private JCheckBox selectionEnabledCheckBox, selectionEnabledCheckBoxTarget;
 
 	private JScrollPane heatMapScrollPane;
 
@@ -153,11 +153,11 @@ public class MindyPlugin extends JPanel {
 
 	// For heatmap image rendering cursor
 	private JCheckBox heatmapAllMarkersCheckBox = new JCheckBox("All Markers");;
-	
+
 	private JButton screenshotButton = new JButton("  Image Snapshot  ");;
 
 	private JButton refreshButton = new JButton("  Refresh HeatMap  ");;
-	
+
 	private JList heatMapModNameList = new JList();;
 
 	private JTextField modFilterField = new JTextField(15);;
@@ -165,12 +165,12 @@ public class MindyPlugin extends JPanel {
 	private JRadioButton showSymbol = new JRadioButton("Symbol");;
 
 	private JRadioButton showProbeName = new JRadioButton("Probe Name");;
-	
+
 	private JComponent[] cs = new JComponent[7];
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param data -
 	 *            MINDY data
 	 * @param visualPlugin -
@@ -185,7 +185,7 @@ public class MindyPlugin extends JPanel {
 		this.dataSize = mindyData.getData().size();
 		modulators = mindyData.getModulators();
 
-		// for heatmap image rendering cursor		
+		// for heatmap image rendering cursor
 		cs[0] = heatmapAllMarkersCheckBox;
 		cs[1] = screenshotButton;
 		cs[2] = refreshButton;
@@ -770,8 +770,19 @@ public class MindyPlugin extends JPanel {
 			// map with upon first running
 			DSGeneMarker modulator = modulators.iterator().next();
 			transFactors = mindyData.getTranscriptionFactors(modulator);
+
+			// bug 0001661,
+			// Heat Map will not display targets with zero score
+			List<DSGeneMarker> targetsNonZeroScore = new ArrayList<DSGeneMarker>();
+			List<MindyResultRow> resultRows = mindyData.getData();
+			for (MindyResultRow mindyResultRow : resultRows) {
+				if (mindyResultRow.getScore() != 0.0){
+					targetsNonZeroScore.add( mindyResultRow.getTarget());
+				}
+			}
+
 			heatmap = new ModulatorHeatMap(modulator, transFactors.iterator()
-					.next(), mindyData, null, !mindyData.isAnnotated());
+					.next(), mindyData, targetsNonZeroScore, !mindyData.isAnnotated());
 			heatMapScrollPane = new JScrollPane(heatmap);
 			AdjustmentListener scrollBarListener = new AdjustmentListener() {
 				public void adjustmentValueChanged(AdjustmentEvent e) {
@@ -795,24 +806,24 @@ public class MindyPlugin extends JPanel {
 					.getMarkerDisplayName(mindyData.getTranscriptionFactor()));
 			transFacPane.add(transFactorName);
 
-			JPanel modulatorPane = new JPanel(new BorderLayout());			
+			JPanel modulatorPane = new JPanel(new BorderLayout());
 			modFilterField.setEditable(false);
 			l = new JLabel("Modulators", SwingConstants.LEFT);
 			l.setFont(new Font(l.getFont().getName(), Font.BOLD, 12));
 			l.setForeground(Color.BLUE);
 			modulatorPane.add(l, BorderLayout.NORTH);
-			
+
 			heatMapModNameList.setFixedCellWidth(12);
 			JScrollPane modListScrollPane = new JScrollPane(heatMapModNameList);
 			heatMapModNameList.setModel(new ModulatorListModel());
-			
+
 			screenshotButton.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent actionEvent) {
 					visualPlugin.createImageSnapshot(heatMapScrollPane
 							.getViewport().getComponent(0));
 				}
 			});
-			
+
 			heatmapAllMarkersCheckBox.setSelected(false);
 			heatmapAllMarkersCheckBox.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent actionEvent) {
@@ -822,7 +833,7 @@ public class MindyPlugin extends JPanel {
 						return;
 					} else {
 						cursor.setAssociatedComponent(MindyPlugin.this);
-						cursor.linkCursorToComponents(cs);						
+						cursor.linkCursorToComponents(cs);
 					}
 					try{
 						cursor.start();
@@ -830,7 +841,7 @@ public class MindyPlugin extends JPanel {
 						log.warn(e.getMessage());
 						return;
 					}
-					if (heatmapAllMarkersCheckBox.isSelected()) {						
+					if (heatmapAllMarkersCheckBox.isSelected()) {
 						if (dataSize > DATA_SIZE_THRESHOLD) {
 							Graphics g = heatmap.getGraphics();
 							g.setColor(Color.WHITE);
@@ -888,7 +899,7 @@ public class MindyPlugin extends JPanel {
 								}
 								modFilterField.setText(heatMapModNameList
 										.getSelectedValue().toString());
-								if (heatmapAllMarkersCheckBox.isSelected()) {									
+								if (heatmapAllMarkersCheckBox.isSelected()) {
 									if (dataSize > DATA_SIZE_THRESHOLD) {
 										Graphics g = heatmap.getGraphics();
 										g.setColor(Color.WHITE);
@@ -1011,7 +1022,7 @@ public class MindyPlugin extends JPanel {
 						heatMapModNameList.setSelectedIndex(0);
 					modFilterField.setText(heatMapModNameList
 							.getSelectedValue().toString());
-					
+
 					if (heatmapAllMarkersCheckBox.isSelected()) {
 						if (dataSize > DATA_SIZE_THRESHOLD) {
 							Graphics g = heatmap.getGraphics();
@@ -1076,7 +1087,7 @@ public class MindyPlugin extends JPanel {
 						heatMapModNameList.setSelectedIndex(0);
 					modFilterField.setText(heatMapModNameList
 							.getSelectedValue().toString());
-					
+
 					if (heatmapAllMarkersCheckBox.isSelected()) {
 
 						if (dataSize > DATA_SIZE_THRESHOLD) {
@@ -1312,7 +1323,7 @@ public class MindyPlugin extends JPanel {
 	/**
 	 * Callback method for the MINDY result view GUI when the user changes
 	 * marker set selections in the Selection Panel.
-	 * 
+	 *
 	 * @param -
 	 *            list of selected markers
 	 */
@@ -1329,17 +1340,17 @@ public class MindyPlugin extends JPanel {
 		try{
 			// modulator table tab
 			modulatorModel.limitMarkers(markers);
-	
+
 			// target table tab
 			aggregateModel.limitMarkers(markers);
-	
+
 			// list table tab
 			modTargetModel.limitMarkers(markers);
 		} catch (Exception e){
 			log.warn(e.getMessage());
 		}
 		setCursor(normalCursor);
-		
+
 		// heat map
 		try{
 			cursor.start();
@@ -1370,7 +1381,7 @@ public class MindyPlugin extends JPanel {
 	/**
 	 * Specifies the marker name (probe name vs. gene name) to display on the
 	 * table (modulator, targets, or list).
-	 * 
+	 *
 	 * @param model -
 	 *            table data model of the table displaying marker names
 	 * @param marker -
@@ -1541,10 +1552,10 @@ public class MindyPlugin extends JPanel {
 
 	/**
 	 * Modulator table data model.
-	 * 
+	 *
 	 * @author mhall
 	 * @author ch2514
-	 * @version $Id: MindyPlugin.java,v 1.74 2008-07-23 21:39:57 hungc Exp $
+	 * @version $Id: MindyPlugin.java,v 1.75 2009-01-09 21:01:00 oshteynb Exp $
 	 */
 	private class ModulatorModel extends DefaultTableModel {
 
@@ -1567,7 +1578,7 @@ public class MindyPlugin extends JPanel {
 
 		/**
 		 * Constructor.
-		 * 
+		 *
 		 * @param mindyData -
 		 *            MINDY data
 		 */
@@ -1591,7 +1602,7 @@ public class MindyPlugin extends JPanel {
 		/**
 		 * Callback method for the modulator table when the user changes marker
 		 * set selections in the Selection Panel.
-		 * 
+		 *
 		 * @param -
 		 *            list of selected markers
 		 */
@@ -1632,7 +1643,7 @@ public class MindyPlugin extends JPanel {
 
 		/**
 		 * Get the number of columns in the modulator table.
-		 * 
+		 *
 		 * @return the number of columns in the modulator table
 		 */
 		public int getColumnCount() {
@@ -1641,7 +1652,7 @@ public class MindyPlugin extends JPanel {
 
 		/**
 		 * Get the number of rows on the modulator table.
-		 * 
+		 *
 		 * @return number of rows on the table
 		 */
 		public int getRowCount() {
@@ -1661,7 +1672,7 @@ public class MindyPlugin extends JPanel {
 
 		/**
 		 * Whether or not the specified modulator table cell is editable.
-		 * 
+		 *
 		 * @param rowIndex -
 		 *            row index of the table cell
 		 * @prarm columnIndex - column index of the table cell
@@ -1677,7 +1688,7 @@ public class MindyPlugin extends JPanel {
 
 		/**
 		 * Get the class object representing the specified table column.
-		 * 
+		 *
 		 * @param columnIndex -
 		 *            column index
 		 * @return the class object representing the table column
@@ -1698,7 +1709,7 @@ public class MindyPlugin extends JPanel {
 
 		/**
 		 * Get the values of modulator table cells.
-		 * 
+		 *
 		 * @param rowIndex -
 		 *            row index of the cell
 		 * @param columnIndex -
@@ -1735,7 +1746,7 @@ public class MindyPlugin extends JPanel {
 
 		/**
 		 * Set values of modulator table cells.
-		 * 
+		 *
 		 * @param aValue -
 		 *            value of the cell
 		 * @param rowIndex -
@@ -1768,7 +1779,7 @@ public class MindyPlugin extends JPanel {
 
 		/**
 		 * Get the column name of the specified column index.
-		 * 
+		 *
 		 * @param columnIndex -
 		 *            index of the column
 		 * @return name of the column
@@ -1780,7 +1791,7 @@ public class MindyPlugin extends JPanel {
 		/**
 		 * Get the sorting states (ascending or descending) of each column in
 		 * the modulator table.
-		 * 
+		 *
 		 * @return a list of sorting states (ascending = true, descending =
 		 *         false)
 		 */
@@ -1791,7 +1802,7 @@ public class MindyPlugin extends JPanel {
 		/**
 		 * Set the sorting states (ascending or descending) of each column in
 		 * the modulator table.
-		 * 
+		 *
 		 * @param states -
 		 *            a list of sorting states (ascending = true, descending =
 		 *            false)
@@ -1802,7 +1813,7 @@ public class MindyPlugin extends JPanel {
 
 		/**
 		 * Select all modulators on the modulator table.
-		 * 
+		 *
 		 * @param selected -
 		 *            true to select all modulators on the table, and false
 		 *            otherwise
@@ -1893,7 +1904,7 @@ public class MindyPlugin extends JPanel {
 
 		/**
 		 * Get the number of modulator that has been selected.
-		 * 
+		 *
 		 * @return number of modulator selected
 		 */
 		public int getNumberOfModulatorsSelected() {
@@ -1902,7 +1913,7 @@ public class MindyPlugin extends JPanel {
 
 		/**
 		 * Get the list of user selected modulators.
-		 * 
+		 *
 		 * @return the list of selected modulators
 		 */
 		public List<DSGeneMarker> getSelectedModulators() {
@@ -1911,7 +1922,7 @@ public class MindyPlugin extends JPanel {
 
 		/**
 		 * Handles table column sorting for the modulator table.
-		 * 
+		 *
 		 * @param col -
 		 *            the column index of the column to sort
 		 * @param ascending -
@@ -1991,7 +2002,7 @@ public class MindyPlugin extends JPanel {
 		/**
 		 * Check to see if the modulator table should display probe names or
 		 * gene names.
-		 * 
+		 *
 		 * @return If true, the modulator table displays probe names. If not,
 		 *         the modulator table displays gene names.
 		 */
@@ -2002,7 +2013,7 @@ public class MindyPlugin extends JPanel {
 		/**
 		 * Specify whether or not the modulator table should display probe names
 		 * or gene names.
-		 * 
+		 *
 		 * @param showProbeName -
 		 *            if true, the modulator table displays probe names. If not,
 		 *            the modulator table displays gene names.
@@ -2014,14 +2025,14 @@ public class MindyPlugin extends JPanel {
 
 	/**
 	 * For rendering modulator checkboxes on the targets table column headers.
-	 * 
+	 *
 	 * @author ch2514
-	 * @version $Id: MindyPlugin.java,v 1.74 2008-07-23 21:39:57 hungc Exp $
+	 * @version $Id: MindyPlugin.java,v 1.75 2009-01-09 21:01:00 oshteynb Exp $
 	 */
 	private class CheckBoxRenderer extends DefaultTableCellRenderer {
 		/**
 		 * Specifies how to render targets table column headers.
-		 * 
+		 *
 		 * @param table -
 		 *            targets table
 		 * @param value -
@@ -2108,10 +2119,10 @@ public class MindyPlugin extends JPanel {
 
 	/**
 	 * Table data model for the targets table.
-	 * 
+	 *
 	 * @author mhall
 	 * @author ch2514
-	 * @version $Id: MindyPlugin.java,v 1.74 2008-07-23 21:39:57 hungc Exp $
+	 * @version $Id: MindyPlugin.java,v 1.75 2009-01-09 21:01:00 oshteynb Exp $
 	 */
 	private class AggregateTableModel extends DefaultTableModel {
 
@@ -2149,7 +2160,7 @@ public class MindyPlugin extends JPanel {
 
 		/**
 		 * Constructor.
-		 * 
+		 *
 		 * @param mindyData
 		 */
 		public AggregateTableModel(MindyData mindyData) {
@@ -2170,7 +2181,7 @@ public class MindyPlugin extends JPanel {
 		/**
 		 * Whether the targets table shows the actual scores or just -1, 0, and
 		 * 1.
-		 * 
+		 *
 		 * @return true if the table is to show the actual scores, and false
 		 *         otherwise
 		 */
@@ -2181,7 +2192,7 @@ public class MindyPlugin extends JPanel {
 		/**
 		 * Set shether the targets table shows the actual scores or just -1, 0,
 		 * and 1.
-		 * 
+		 *
 		 * @param scoreView -
 		 *            true if the table is to show the actual scores, and false
 		 *            otherwise
@@ -2192,7 +2203,7 @@ public class MindyPlugin extends JPanel {
 
 		/**
 		 * Get the modulator sort methods for targets table.
-		 * 
+		 *
 		 * @return the ModulatorSort object representing the sorting scheme for
 		 *         the table columns
 		 */
@@ -2202,7 +2213,7 @@ public class MindyPlugin extends JPanel {
 
 		/**
 		 * Set the sort scheme for modulators in the targets table.
-		 * 
+		 *
 		 * @param modulatorSortMethod -
 		 *            ModulatorSort object that specifies how to sort table
 		 *            columns
@@ -2215,7 +2226,7 @@ public class MindyPlugin extends JPanel {
 		/**
 		 * Whether or not to display only the top modulator(s) in the targets
 		 * table.
-		 * 
+		 *
 		 * @return true if to limit display to the specified number of top
 		 *         modulator(s), and false otherwise.
 		 */
@@ -2226,7 +2237,7 @@ public class MindyPlugin extends JPanel {
 		/**
 		 * Set whether or not to display only the top modulator(s) in the
 		 * targets table.
-		 * 
+		 *
 		 * @param modulatorsLimited -
 		 *            true if to limit display to the specified number of top
 		 *            modulator(s), and false otherwise.
@@ -2237,7 +2248,7 @@ public class MindyPlugin extends JPanel {
 
 		/**
 		 * Get the number of top modulator(s) to display in the targets table.
-		 * 
+		 *
 		 * @return number of top modulator(s) to display
 		 */
 		public int getModLimit() {
@@ -2246,7 +2257,7 @@ public class MindyPlugin extends JPanel {
 
 		/**
 		 * Set the number of top modulator(s) to display in the targets table.
-		 * 
+		 *
 		 * @param modLimit -
 		 *            number of top modulator(s) to display
 		 */
@@ -2256,7 +2267,7 @@ public class MindyPlugin extends JPanel {
 
 		/**
 		 * Get the list of enabled modulators.
-		 * 
+		 *
 		 * @return list of enabled modulators
 		 */
 		public List<DSGeneMarker> getEnabledModulators() {
@@ -2265,7 +2276,7 @@ public class MindyPlugin extends JPanel {
 
 		/**
 		 * Set the list of enabled modulators.
-		 * 
+		 *
 		 * @param enabledModulators -
 		 *            list of enabled modulators
 		 */
@@ -2284,7 +2295,7 @@ public class MindyPlugin extends JPanel {
 
 		/**
 		 * Get the list of selected targets.
-		 * 
+		 *
 		 * @return list of selected targets
 		 */
 		public List<DSGeneMarker> getCheckedTargets() {
@@ -2293,7 +2304,7 @@ public class MindyPlugin extends JPanel {
 
 		/**
 		 * Get the list of selected modulators.
-		 * 
+		 *
 		 * @return list of selected modulators
 		 */
 		public List<DSGeneMarker> getCheckedModulators() {
@@ -2302,7 +2313,7 @@ public class MindyPlugin extends JPanel {
 
 		/**
 		 * Enable the specified modulator.
-		 * 
+		 *
 		 * @param mod -
 		 *            the modulator to enable
 		 */
@@ -2319,7 +2330,7 @@ public class MindyPlugin extends JPanel {
 
 		/**
 		 * Disable the specified modulator.
-		 * 
+		 *
 		 * @param mod -
 		 *            the modulator to disable
 		 */
@@ -2401,7 +2412,7 @@ public class MindyPlugin extends JPanel {
 
 		/**
 		 * Get the number of columns in the targets table.
-		 * 
+		 *
 		 * @return the number of columns in the targets table
 		 */
 		public int getColumnCount() {
@@ -2424,7 +2435,7 @@ public class MindyPlugin extends JPanel {
 		/**
 		 * Callback method for the targets table when the user changes marker
 		 * set selections in the Selection Panel.
-		 * 
+		 *
 		 * @param -
 		 *            list of selected markers
 		 */
@@ -2534,7 +2545,7 @@ public class MindyPlugin extends JPanel {
 
 		/**
 		 * Get the number of rows on the targets table.
-		 * 
+		 *
 		 * @return number of rows on the table
 		 */
 		public int getRowCount() {
@@ -2546,7 +2557,7 @@ public class MindyPlugin extends JPanel {
 
 		/**
 		 * Get the class object representing the specified table column.
-		 * 
+		 *
 		 * @param columnIndex -
 		 *            column index
 		 * @return the class object representing the table column
@@ -2563,7 +2574,7 @@ public class MindyPlugin extends JPanel {
 
 		/**
 		 * Get the values of targets table cells.
-		 * 
+		 *
 		 * @param rowIndex -
 		 *            row index of the cell
 		 * @param columnIndex -
@@ -2594,7 +2605,7 @@ public class MindyPlugin extends JPanel {
 
 		/**
 		 * Get the score of a specified targets table cell.
-		 * 
+		 *
 		 * @param row -
 		 *            row index of the table cell
 		 * @param col -
@@ -2610,7 +2621,7 @@ public class MindyPlugin extends JPanel {
 
 		/**
 		 * Set values of targets table cells.
-		 * 
+		 *
 		 * @param aValue -
 		 *            value of the cell
 		 * @param rowIndex -
@@ -2652,7 +2663,7 @@ public class MindyPlugin extends JPanel {
 
 		/**
 		 * Get the specified table column name.
-		 * 
+		 *
 		 * @param col -
 		 *            column index
 		 */
@@ -2725,7 +2736,7 @@ public class MindyPlugin extends JPanel {
 
 		/**
 		 * Handles table column sorting for the targets table.
-		 * 
+		 *
 		 * @param col -
 		 *            the column index of the column to sort
 		 * @param ascending -
@@ -2775,7 +2786,7 @@ public class MindyPlugin extends JPanel {
 
 		/**
 		 * The union of selected modulators and targets from the targets table.
-		 * 
+		 *
 		 * @return the list of selected markers
 		 */
 		public List<DSGeneMarker> getUniqueCheckedTargetsAndModulators() {
@@ -2813,7 +2824,7 @@ public class MindyPlugin extends JPanel {
 		/**
 		 * Get the total number of markers (modulators and targets) selected in
 		 * the targets table.
-		 * 
+		 *
 		 * @return the total number of markers selected
 		 */
 		public int getNumberOfMarkersSelected() {
@@ -2852,7 +2863,7 @@ public class MindyPlugin extends JPanel {
 
 		/**
 		 * Get the list of active targets.
-		 * 
+		 *
 		 * @return list of active targets
 		 */
 		public List<DSGeneMarker> getActiveTargets() {
@@ -2862,7 +2873,7 @@ public class MindyPlugin extends JPanel {
 		/**
 		 * Get the sorting states (ascending or descending) of each column in
 		 * the targets table.
-		 * 
+		 *
 		 * @return a list of sorting states (ascending = true, descending =
 		 *         false)
 		 */
@@ -2873,7 +2884,7 @@ public class MindyPlugin extends JPanel {
 		/**
 		 * Set the sorting states (ascending or descending) of each column in
 		 * the targets table.
-		 * 
+		 *
 		 * @param b -
 		 *            a list of sorting states (ascending = true, descending =
 		 *            false)
@@ -2885,7 +2896,7 @@ public class MindyPlugin extends JPanel {
 		/**
 		 * Check to see if the targets table should display probe names or gene
 		 * names.
-		 * 
+		 *
 		 * @return If true, the targets table displays probe names. If not, the
 		 *         targets table displays gene names.
 		 */
@@ -2896,7 +2907,7 @@ public class MindyPlugin extends JPanel {
 		/**
 		 * Specify whether or not the targets table should display probe names
 		 * or gene names.
-		 * 
+		 *
 		 * @param showProbeName -
 		 *            if true, the targets table displays probe names. If not,
 		 *            the targets table displays gene names.
@@ -2908,7 +2919,7 @@ public class MindyPlugin extends JPanel {
 		/**
 		 * Whether or not the modulator from the specified colum index is
 		 * selected.
-		 * 
+		 *
 		 * @param index -
 		 *            table column index
 		 * @return true if the modulator represented by the column is selected,
@@ -2921,7 +2932,7 @@ public class MindyPlugin extends JPanel {
 		/**
 		 * Set the modulator checkbox for the specified targets table column
 		 * header.
-		 * 
+		 *
 		 * @param index -
 		 *            column index of the interested header
 		 * @param b -
@@ -2944,7 +2955,7 @@ public class MindyPlugin extends JPanel {
 
 		/**
 		 * Get the number of modulator checkboxes from the table column headers.
-		 * 
+		 *
 		 * @return the number of modulator checkboxes from the table column
 		 *         headers
 		 */
@@ -2987,9 +2998,9 @@ public class MindyPlugin extends JPanel {
 
 	/**
 	 * Compare M#, M+, or M- of two gene markers (for sorting).
-	 * 
+	 *
 	 * @author mhall
-	 * @version $Id: MindyPlugin.java,v 1.74 2008-07-23 21:39:57 hungc Exp $
+	 * @version $Id: MindyPlugin.java,v 1.75 2009-01-09 21:01:00 oshteynb Exp $
 	 */
 	private class ModulatorStatComparator implements Comparator<DSGeneMarker> {
 
@@ -2999,7 +3010,7 @@ public class MindyPlugin extends JPanel {
 
 		/**
 		 * Constructor.
-		 * 
+		 *
 		 * @param data -
 		 *            MINDY data
 		 * @param sortType -
@@ -3013,7 +3024,7 @@ public class MindyPlugin extends JPanel {
 		/**
 		 * Compare two gene markers based on M#, M+, or M-. The choice is
 		 * determined by sort type specified in the constructor.
-		 * 
+		 *
 		 * @param dsGeneMarker -
 		 *            the first gene marker to be compared
 		 * @param dsGeneMarker1 -
@@ -3039,10 +3050,10 @@ public class MindyPlugin extends JPanel {
 
 	/**
 	 * Table data model for the list table.
-	 * 
+	 *
 	 * @author mhall
 	 * @author ch2514
-	 * @version $Id: MindyPlugin.java,v 1.74 2008-07-23 21:39:57 hungc Exp $
+	 * @version $Id: MindyPlugin.java,v 1.75 2009-01-09 21:01:00 oshteynb Exp $
 	 */
 	private class ModulatorTargetModel extends DefaultTableModel {
 
@@ -3077,7 +3088,7 @@ public class MindyPlugin extends JPanel {
 
 		/**
 		 * Constructor.
-		 * 
+		 *
 		 * @param mindyData -
 		 *            data for the MINDY component
 		 */
@@ -3106,7 +3117,7 @@ public class MindyPlugin extends JPanel {
 
 		/**
 		 * Get the enabled modulators.
-		 * 
+		 *
 		 * @return a list of enabled modulators
 		 */
 		public ArrayList<DSGeneMarker> getEnabledModulators() {
@@ -3115,7 +3126,7 @@ public class MindyPlugin extends JPanel {
 
 		/**
 		 * Set the list of enabled modulators.
-		 * 
+		 *
 		 * @param enabledModulators -
 		 *            list of enabled modulators
 		 */
@@ -3126,7 +3137,7 @@ public class MindyPlugin extends JPanel {
 
 		/**
 		 * Get a list of enabled targets.
-		 * 
+		 *
 		 * @return a list of enabled targets.
 		 */
 		public ArrayList<DSGeneMarker> getEnabledTargets() {
@@ -3135,7 +3146,7 @@ public class MindyPlugin extends JPanel {
 
 		/**
 		 * Set the list of enabled targets.
-		 * 
+		 *
 		 * @param enabledTargets -
 		 *            list of enabled targets
 		 */
@@ -3145,7 +3156,7 @@ public class MindyPlugin extends JPanel {
 
 		/**
 		 * Enable a specified modulator
-		 * 
+		 *
 		 * @param mod -
 		 *            the modulator to enable
 		 */
@@ -3158,7 +3169,7 @@ public class MindyPlugin extends JPanel {
 
 		/**
 		 * Disable a specified modulator
-		 * 
+		 *
 		 * @param mod -
 		 *            the modulator to disable
 		 */
@@ -3169,7 +3180,7 @@ public class MindyPlugin extends JPanel {
 
 		/**
 		 * Enable a specified target
-		 * 
+		 *
 		 * @param target -
 		 *            the target to enable
 		 */
@@ -3182,7 +3193,7 @@ public class MindyPlugin extends JPanel {
 
 		/**
 		 * Disable a specified target
-		 * 
+		 *
 		 * @param target -
 		 *            the target to disable
 		 */
@@ -3247,7 +3258,7 @@ public class MindyPlugin extends JPanel {
 
 		/**
 		 * Get the number of columns in the list table.
-		 * 
+		 *
 		 * @return the number of columns in the list table
 		 */
 		public int getColumnCount() {
@@ -3260,7 +3271,7 @@ public class MindyPlugin extends JPanel {
 		/**
 		 * Callback method for the list table when the user changes marker set
 		 * selections in the Selection Panel.
-		 * 
+		 *
 		 * @param -
 		 *            list of selected markers
 		 */
@@ -3379,7 +3390,7 @@ public class MindyPlugin extends JPanel {
 
 		/**
 		 * Get the number of rows on the list table.
-		 * 
+		 *
 		 * @return number of rows on the table
 		 */
 		public int getRowCount() {
@@ -3400,7 +3411,7 @@ public class MindyPlugin extends JPanel {
 
 		/**
 		 * Whether or not the specified list table cell is editable.
-		 * 
+		 *
 		 * @param rowIndex -
 		 *            row index of the table cell
 		 * @prarm columnIndex - column index of the table cell
@@ -3416,7 +3427,7 @@ public class MindyPlugin extends JPanel {
 
 		/**
 		 * Get the class object representing the specified table column.
-		 * 
+		 *
 		 * @param columnIndex -
 		 *            column index
 		 * @return the class object representing the table column
@@ -3434,7 +3445,7 @@ public class MindyPlugin extends JPanel {
 
 		/**
 		 * Get the values of list table cells.
-		 * 
+		 *
 		 * @param rowIndex -
 		 *            row index of the cell
 		 * @param columnIndex -
@@ -3462,7 +3473,7 @@ public class MindyPlugin extends JPanel {
 
 		/**
 		 * Set values of list table cells.
-		 * 
+		 *
 		 * @param aValue -
 		 *            value of the cell
 		 * @param rowIndex -
@@ -3557,7 +3568,7 @@ public class MindyPlugin extends JPanel {
 
 		/**
 		 * Get the column name of the specified column index.
-		 * 
+		 *
 		 * @param columnIndex -
 		 *            index of the column
 		 * @return name of the column
@@ -3585,7 +3596,7 @@ public class MindyPlugin extends JPanel {
 		/**
 		 * Get the sorting states (ascending or descending) of each column in
 		 * the list table.
-		 * 
+		 *
 		 * @return a list of sorting states (ascending = true, descending =
 		 *         false)
 		 */
@@ -3596,7 +3607,7 @@ public class MindyPlugin extends JPanel {
 		/**
 		 * Set the sorting states (ascending or descending) of each column in
 		 * the list table.
-		 * 
+		 *
 		 * @param states -
 		 *            a list of sorting states (ascending = true, descending =
 		 *            false)
@@ -3623,7 +3634,7 @@ public class MindyPlugin extends JPanel {
 
 		/**
 		 * Get the list of user selected modulators.
-		 * 
+		 *
 		 * @return the list of selected modulators
 		 */
 		public List<DSGeneMarker> getSelectedModulators() {
@@ -3632,7 +3643,7 @@ public class MindyPlugin extends JPanel {
 
 		/**
 		 * Get the list of user selected targets.
-		 * 
+		 *
 		 * @return the list of selected targets
 		 */
 		public List<DSGeneMarker> getSelectedTargets() {
@@ -3641,7 +3652,7 @@ public class MindyPlugin extends JPanel {
 
 		/**
 		 * Get the union of selected modulators and targets for the list table.
-		 * 
+		 *
 		 * @return the union of selected modulators and targets
 		 */
 		public List<DSGeneMarker> getUniqueSelectedMarkers() {
@@ -3714,7 +3725,7 @@ public class MindyPlugin extends JPanel {
 
 		/**
 		 * Handles table column sorting for the list table.
-		 * 
+		 *
 		 * @param col -
 		 *            the column index of the column to sort
 		 * @param ascending -
@@ -3755,7 +3766,7 @@ public class MindyPlugin extends JPanel {
 		/**
 		 * Check to see if the list table should display probe names or gene
 		 * names.
-		 * 
+		 *
 		 * @return If true, the list table displays probe names. If not, the
 		 *         list table displays gene names.
 		 */
@@ -3766,7 +3777,7 @@ public class MindyPlugin extends JPanel {
 		/**
 		 * Specify whether or not the list table should display probe names or
 		 * gene names.
-		 * 
+		 *
 		 * @param showProbeName -
 		 *            if true, the list table displays probe names. If not, the
 		 *            list table displays gene names.
@@ -3778,9 +3789,9 @@ public class MindyPlugin extends JPanel {
 
 	/**
 	 * Heat map data model.
-	 * 
+	 *
 	 * @author mhall
-	 * @version $Id: MindyPlugin.java,v 1.74 2008-07-23 21:39:57 hungc Exp $
+	 * @version $Id: MindyPlugin.java,v 1.75 2009-01-09 21:01:00 oshteynb Exp $
 	 */
 	private class ModulatorListModel extends AbstractListModel {
 		private boolean showProbeName = false;
@@ -3799,7 +3810,7 @@ public class MindyPlugin extends JPanel {
 
 		/**
 		 * Get the number of enabled modulators.
-		 * 
+		 *
 		 * @return number of enabled modulators
 		 */
 		public int getSize() {
@@ -3808,7 +3819,7 @@ public class MindyPlugin extends JPanel {
 
 		/**
 		 * Get the modulator specified by the index.
-		 * 
+		 *
 		 * @param i -
 		 *            index
 		 * @return Modulator marker name of the enabled modulators in the heat
@@ -3834,7 +3845,7 @@ public class MindyPlugin extends JPanel {
 
 	/**
 	 * State of selections and overrides for the entire component
-	 * 
+	 *
 	 * @author mhall
 	 * @version $ID$
 	 */
@@ -3853,14 +3864,14 @@ public class MindyPlugin extends JPanel {
 	/**
 	 * Handles column sorting in MINDY tables. Also handles modulator selection
 	 * for the targets table.
-	 * 
+	 *
 	 * @author ch2514
-	 * @version $Id: MindyPlugin.java,v 1.74 2008-07-23 21:39:57 hungc Exp $
+	 * @version $Id: MindyPlugin.java,v 1.75 2009-01-09 21:01:00 oshteynb Exp $
 	 */
 	private class ColumnHeaderListener extends MouseAdapter {
 		/**
 		 * Handles mouse clicks on table column headers.
-		 * 
+		 *
 		 * @param evt -
 		 *            MouseEvent
 		 */
