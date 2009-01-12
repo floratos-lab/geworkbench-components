@@ -1,27 +1,9 @@
 package org.geworkbench.components.caarray.arraydata;
 
-import gov.nih.nci.caarray.domain.array.AbstractDesignElement;
-import gov.nih.nci.caarray.domain.array.AbstractProbe;
-import gov.nih.nci.caarray.domain.data.AbstractDataColumn;
-import gov.nih.nci.caarray.domain.data.DataRetrievalRequest;
-import gov.nih.nci.caarray.domain.data.DataSet;
-import gov.nih.nci.caarray.domain.data.DerivedArrayData;
-import gov.nih.nci.caarray.domain.data.DesignElementList;
-import gov.nih.nci.caarray.domain.data.DoubleColumn;
-import gov.nih.nci.caarray.domain.data.FloatColumn;
-import gov.nih.nci.caarray.domain.data.HybridizationData;
-import gov.nih.nci.caarray.domain.data.IntegerColumn;
-import gov.nih.nci.caarray.domain.data.LongColumn;
-import gov.nih.nci.caarray.domain.data.QuantitationType;
-import gov.nih.nci.caarray.domain.hybridization.Hybridization;
-import gov.nih.nci.caarray.services.CaArrayServer;
 import gov.nih.nci.caarray.services.ServerConnectionException;
-import gov.nih.nci.caarray.services.search.CaArraySearchService;
 
 import java.awt.Component;
-import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Set;
 import java.util.TreeMap;
 
@@ -33,10 +15,6 @@ import org.apache.commons.logging.LogFactory;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.CSExprMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.sequences.CSSequenceSet;
-import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
-import org.geworkbench.bison.datastructure.bioobjects.microarray.CSMicroarray;
-import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
-import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMutableMarkerValue;
 import org.geworkbench.builtin.projects.ProjectPanel;
 import org.geworkbench.builtin.projects.remoteresources.carraydata.CaArray2Experiment;
 import org.geworkbench.engine.config.VisualPlugin;
@@ -59,7 +37,7 @@ import org.geworkbench.events.CaArrayRequestEvent;
 public class CaArray2Component implements VisualPlugin {
 
 	private Log log = LogFactory.getLog(CaArray2Component.class);
-	private CaArrayQueryClient dataSetDownloadClient = new CaArrayQueryClient();
+
 	private StandAloneCaArrayClientWrapper externalDataSetDownloadClient = new StandAloneCaArrayClientWrapper();
 
 	protected static final String SERVER_NAME = "array-stage.nci.nih.gov ";
@@ -385,182 +363,6 @@ public class CaArray2Component implements VisualPlugin {
 	 */
 	public CaArray2Component() {
 		mainPanel = new JPanel();
-	}
-
-	/**
-	 * THe method to grab the data from caArray server with defined
-	 * Hybridization and QuantitationType. A BISON DataType will be returned.
-	 * 
-	 * @param service
-	 * @param hybridizationStr
-	 * @param quantitationType
-	 * @return
-	 */
-	private CSExprMicroarraySet getDataSet(CaArraySearchService service,
-			String hybridizationStr, String quantitationType) {
-		Date date = new Date();
-		long startTime = date.getTime();
-		AbstractProbe[] markersArray;
-		Hybridization hybridization = new Hybridization();
-		hybridization.setName(hybridizationStr);
-		List<Hybridization> set = service.search(hybridization);
-		if (set == null || set.size() == 0) {
-			return null;
-		}
-
-		hybridization = service.search(hybridization).get(0);
-		DataSet dataSet = null;
-
-		// If raw data doesn't exist, try to find derived data
-		Set<DerivedArrayData> derivedArrayDataSet = hybridization
-				.getDerivedDataCollection();
-		for (DerivedArrayData derivedArrayData : derivedArrayDataSet) {
-			// Return the data set associated with the first derived data.
-			DerivedArrayData populatedArrayData = service.search(
-					derivedArrayData).get(0);
-			dataSet = populatedArrayData.getDataSet();
-			List<DataSet> dataSetList = service.search(dataSet);
-			DataSet data = dataSetList.get(0);
-			// Below is the code to get the names of each marker.
-
-			DesignElementList designElementList = data.getDesignElementList();
-			List<DesignElementList> designElementLists = service
-					.search(designElementList);
-			DesignElementList designElements = designElementLists.get(0);
-			List<AbstractDesignElement> list = designElements
-					.getDesignElements();
-			markersArray = new AbstractProbe[list.size()];
-			markersArray = list.toArray(markersArray);
-			// Add populate probe and get annotation later.
-
-			// Below is the code to get the values for the quantitationType.
-			for (HybridizationData oneHybData : data.getHybridizationDataList()) {
-				HybridizationData populatedHybData = service.search(oneHybData)
-						.get(0);
-				double[] doubleValues = new double[markersArray.length];
-				// Get each column in the HybridizationData.
-				for (AbstractDataColumn column : populatedHybData.getColumns()) {
-					AbstractDataColumn populatedColumn = service.search(column)
-							.get(0);
-					// Find the type of the column.
-					QuantitationType qType = populatedColumn
-							.getQuantitationType();
-					if (qType.getName().equalsIgnoreCase(quantitationType)) {
-						Class<?> typeClass = qType.getTypeClass();
-						// Retrieve the appropriate data depending
-						// on the type of the column.
-						if (typeClass == Float.class) {
-							float[] values = ((FloatColumn) populatedColumn)
-									.getValues();
-							long endTime = new Date().getTime();
-							System.out.println("For " + hybridizationStr
-									+ ", the total second to load is "
-									+ ((endTime - startTime) / 1000) + ".");
-
-							for (int i = 0; i < values.length; i++) {
-								doubleValues[i] = values[i];
-							}
-							return processDataToBISON(markersArray,
-									doubleValues, hybridizationStr);
-						} else if (typeClass == Integer.class) {
-							int[] values = ((IntegerColumn) populatedColumn)
-									.getValues();
-							long endTime = new Date().getTime();
-							System.out.println("For " + hybridizationStr
-									+ ", the total second to load is "
-									+ ((endTime - startTime) / 1000) + ".");
-
-							for (int i = 0; i < values.length; i++) {
-								doubleValues[i] = values[i];
-							}
-							return processDataToBISON(markersArray,
-									doubleValues, hybridizationStr);
-						} else if (typeClass == Long.class) {
-							long[] values = ((LongColumn) populatedColumn)
-									.getValues();
-							long endTime = new Date().getTime();
-							System.out.println("For " + hybridizationStr
-									+ ", the total second to load is "
-									+ ((endTime - startTime) / 1000) + ".");
-
-							for (int i = 0; i < values.length; i++) {
-								doubleValues[i] = values[i];
-							}
-							return processDataToBISON(markersArray,
-									doubleValues, hybridizationStr);
-						} else if (typeClass == Double.class) {
-							doubleValues = ((DoubleColumn) populatedColumn)
-									.getValues();
-							long endTime = new Date().getTime();
-							System.out.println("For " + hybridizationStr
-									+ ", the total second to load is "
-									+ ((endTime - startTime) / 1000) + ".");
-
-							return processDataToBISON(markersArray,
-									doubleValues, hybridizationStr);
-						}
-					}
-				}
-			}
-
-		}
-
-		return null;
-	}
-
-	/**
-	 * Translate the CaArray DataSet into BISON type.
-	 * 
-	 * @param markersArray
-	 * @param values
-	 * @param name
-	 * @return
-	 */
-	private CSExprMicroarraySet processDataToBISON(AbstractProbe[] markersArray,
-			double[] values, String name) {
-		Date date = new Date();
-		long startTime = date.getTime();
-
-		int markerNo = markersArray.length;
-		DSMicroarray microarray = null;
-		CSExprMicroarraySet maSet = new CSExprMicroarraySet();
-		if (!maSet.initialized) {
-			maSet.initialize(0, markerNo);
-
-			for (int z = 0; z < markerNo; z++) {
-
-				if (markersArray[z] != null) {
-					maSet.getMarkers().get(z).setGeneName(
-							markersArray[z].getName());
-					maSet.getMarkers().get(z).setDisPlayType(
-							DSGeneMarker.AFFY_TYPE);
-					maSet.getMarkers().get(z).setLabel(
-							markersArray[z].getName());
-					maSet.getMarkers().get(z).setDescription(
-							markersArray[z].getName());
-				} else {
-					log
-							.error("LogicalProbes have some null values. The location is "
-									+ z);
-				}
-			}
-		}
-		microarray = new CSMicroarray(0, markerNo, name, null, null, true,
-				DSMicroarraySet.geneExpType);
-		microarray.setLabel(name);
-		for (int i = 0; i < markerNo; i++) {
-			((DSMutableMarkerValue) microarray.getMarkerValue(i))
-					.setValue(((Double) values[i]).doubleValue());
-		}
-		if (maSet != null && microarray != null) {
-			maSet.add(microarray);
-		}
-		long endTime = new Date().getTime();
-		System.out.println("For " + name
-				+ ", the total second to convert it to BISON Data is "
-				+ ((endTime - startTime) / 1000) + ".");
-		maSet.setLabel("CaArray Data");
-		return maSet;
 	}
 
 	protected JPanel mainPanel;
