@@ -30,7 +30,7 @@ import org.geworkbench.util.pathwaydecoder.mutualinformation.MindyData;
 
 /**
  * Creates a heat map of selected modulator, transcription factor, and targets.
- * 
+ *
  * @author mhall
  * @author ch2514
  * @version $ID$
@@ -39,7 +39,7 @@ import org.geworkbench.util.pathwaydecoder.mutualinformation.MindyData;
 public class ModulatorHeatMap extends JPanel {
 
     private static Log log = LogFactory.getLog(ModulatorHeatMap.class);
-    
+
     private static final String LEFT_LABEL = "Lowest ";
     private static final String RIGHT_LABEL = "Highest ";
     private static final String PERCENT = "%";
@@ -63,22 +63,22 @@ public class ModulatorHeatMap extends JPanel {
     private int maxGeneNameWidth = -1;
     private java.util.List<MindyData.MindyResultRow> targetRows;
     private List<DSGeneMarker> targetLimits;
-    
+
     private ColorContext colorContext = null;
     private ArrayList<DSMicroarray> sortedPerMod = null;
     private ArrayList<DSMicroarray> half1 = null;
     private ArrayList<DSMicroarray> half2 = null;
-    
+
     private boolean showProbeName = false;
     private Graphics2D g;
-    private BufferedImage offscreen;    
+    private BufferedImage offscreen;
     private Dimension dim;
-	
+
 	private boolean doNotPaint = false;
 
     /**
      * Constructor.
-     * 
+     *
      * @param modulator - MINDY modulator
      * @param transcriptionFactor - MINDY transcription factor
      * @param mindyData - MINDY data
@@ -88,22 +88,22 @@ public class ModulatorHeatMap extends JPanel {
     public ModulatorHeatMap(DSGeneMarker modulator, DSGeneMarker transcriptionFactor, MindyData mindyData, List<DSGeneMarker> targetLimits, boolean showProbeName) {
     	log.debug("\tHeatMap::constructor::start...");
     	this.showProbeName = showProbeName;
-    	
+
     	this.maSet = mindyData.getArraySet();
         List<DSGeneMarker> markers = mindyData.getTargets(modulator, transcriptionFactor);
         this.colorContext = (ColorContext) maSet.getObject(ColorContext.class);
-        
+
         this.modulator = modulator;
         this.transcriptionFactor = transcriptionFactor;
         this.mindyData = mindyData;
         this.setFractionPercent = mindyData.getSetFraction() * 100;
-        
-        // Extract and sort set based on modulator        
+
+        // Extract and sort set based on modulator
         sortedPerMod = mindyData.getArraySetAsList();
         Collections.sort(sortedPerMod, new MicroarrayMarkerPositionComparator(modulator.getSerial()
         		, MicroarrayMarkerPositionComparator.EXPRESSION_VALUE
         		,  true));
-        
+
         // Sort half sets based on trans factor
         int size = sortedPerMod.size()/2;
         // For odd number of arrays, cut out the array in the middle (i.e. the overlapping array)
@@ -115,11 +115,11 @@ public class ModulatorHeatMap extends JPanel {
         // stop index for the L- array
         int stopIndex = (int) Math.round(size * this.mindyData.getSetFraction() * 2);
         if(stopIndex > size) stopIndex = size;
-        // start index for the L+ array 
+        // start index for the L+ array
         int startIndex = sortedPerMod.size() - ((int) Math.round(size * this.mindyData.getSetFraction() * 2));
         if(startIndex < 0) startIndex = 0;
         half1 = new ArrayList<DSMicroarray>(stopIndex);
-        half2 = new ArrayList<DSMicroarray>(stopIndex); 
+        half2 = new ArrayList<DSMicroarray>(stopIndex);
         int count = 0;
         for(DSMicroarray ma : sortedPerMod){
         	if(count < size){
@@ -141,8 +141,8 @@ public class ModulatorHeatMap extends JPanel {
         Collections.sort(half2, new MicroarrayMarkerPositionComparator(transcriptionFactor.getSerial()
         		, MicroarrayMarkerPositionComparator.EXPRESSION_VALUE
         		, true));
-        limitTargets(targetLimits);        
-        Collections.sort(targetRows, new MindyRowComparator(MindyRowComparator.PEARSON_CORRELATION, true));  
+        limitTargets(targetLimits);
+        Collections.sort(targetRows, new MindyRowComparator(MindyRowComparator.PEARSON_CORRELATION, false));
 
         FontRenderContext context = new FontRenderContext(null, true, false);
         for (DSGeneMarker marker : markers) {
@@ -180,7 +180,7 @@ public class ModulatorHeatMap extends JPanel {
     	if(!doNotPaint)
     		doPaint(graphics);
     }
-    
+
     public void update(Graphics g){
     	if(!doNotPaint)
     		paint(g);
@@ -205,23 +205,23 @@ public class ModulatorHeatMap extends JPanel {
     	int w = (int) dim.getWidth();
     	int h = (int) dim.getHeight();
     	if((offscreen == null) && (w > 0) && (h > 0)){
-    		log.debug("\t\t\tbuffer processing...");	
+    		log.debug("\t\t\tbuffer processing...");
     		try{
-		    	offscreen = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);   
+		    	offscreen = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
 		    	g = (Graphics2D) offscreen.getGraphics();
-		    	
+
 		        g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 		        g.setFont(BASE_FONT);
 		        g.setColor(Color.WHITE);
-		        g.fillRect(0, 0, w, (int) h);    		
+		        g.fillRect(0, 0, w, (int) h);
     		} catch (OutOfMemoryError err){
     			JOptionPane.showMessageDialog(null, "There is not enough memory to display the heatmap.",
     					"Warning", JOptionPane.WARNING_MESSAGE);
     			log.error("Not enough memory to display the heatmap:" + err.getMessage());
     			doNotPaint = true;
     		}
-    			
-	
+
+
 	        // Draw the modulator expression line
 	        log.debug("\t\t\tdrawing modular expression line...");
 	        g.setColor(COLOR_TEXT);
@@ -230,13 +230,13 @@ public class ModulatorHeatMap extends JPanel {
 	        int modNameWidth = metrics.stringWidth(modulatorName);
 	        g.drawString(modulatorName, (getWidth() / 2) - (modNameWidth / 2), SPACER_TOP);
 	        int modBarTopY = SPACER_TOP + metrics.getDescent() + 1;
-	
+
 	        // Some variables useful for the next two sections of painting
 	        log.debug("\t\t\tpainting prep...");
 	        float expressionBarWidth = (getWidth() - (2 * SPACER_SIDE) - (2 * SPACER_SIDE + maxGeneNameWidth)) / 2f;
 	        float cellWidth = expressionBarWidth / ((this.half1.size() + this.half2.size()) / 2f);
 	        int transFacStartY = modBarTopY + BAR_HEIGHT + SPACER_TOP;
-	
+
 	        // Draw the two transcription factor gradients
 	        // TransFac headers
 	        log.debug("\t\t\tdrawing tf...");
@@ -244,21 +244,21 @@ public class ModulatorHeatMap extends JPanel {
 	        String transFacName = this.getMarkerDisplayName(transcriptionFactor).trim();
 	        int transFacNameWidth = metrics.stringWidth(transFacName);
 	        // Left Side (marker name)
-	        g.drawString(transFacName, SPACER_SIDE + (expressionBarWidth - transFacNameWidth)/2 + 1, transFacStartY);        
+	        g.drawString(transFacName, SPACER_SIDE + (expressionBarWidth - transFacNameWidth)/2 + 1, transFacStartY);
 	        // Right Side (marker name)
 	        g.drawString(transFacName
-	        		, Math.round((getWidth() - SPACER_SIDE - expressionBarWidth - 1) 
-	                		+ (expressionBarWidth + 1)/2 - transFacNameWidth/2)        		
+	        		, Math.round((getWidth() - SPACER_SIDE - expressionBarWidth - 1)
+	                		+ (expressionBarWidth + 1)/2 - transFacNameWidth/2)
 	        		, transFacStartY);
-	        
+
 	        int transFacBarY = transFacStartY + metrics.getDescent() + 1;
-	
+
 	        // Drawing line under modulator name
 	        log.debug("\t\t\tdrawing line under mod name...");
 	        int x1 = Math.round(SPACER_SIDE + (expressionBarWidth - transFacNameWidth)/2 + 1 + transFacNameWidth/2);
 	        int y1 = modBarTopY;
 	        int x2 = Math.round(
-	        		(getWidth() - SPACER_SIDE - expressionBarWidth - 1) 
+	        		(getWidth() - SPACER_SIDE - expressionBarWidth - 1)
 	        		+ (expressionBarWidth + 1)/2
 	        		);
 	        int y2 = y1 + transFacBarY/4;
@@ -266,12 +266,12 @@ public class ModulatorHeatMap extends JPanel {
 	        g.drawLine(x1, y1, x2, y1);		// top line
 	        g.drawLine(x1, y1, x1, y2);		// left vertical line
 	        g.drawLine(x2, y1, x2, y2);		// right vertical line
-	        
+
 	        // Label two ends of the line
 	        g.drawString(LEFT_LABEL + this.setFractionPercent + PERCENT, x1, SPACER_TOP);
 	        String s = RIGHT_LABEL + this.setFractionPercent+ PERCENT;
 	        g.drawString(s, x2 - metrics.stringWidth(s), SPACER_TOP);
-	        
+
 	        // Outlines for trans fac gradients (the triangles)
 	        log.debug("\t\t\tdrawing triangles...");
 	        g.setColor(COLOR_TEXT);
@@ -287,21 +287,21 @@ public class ModulatorHeatMap extends JPanel {
 	        g.drawLine(xx1, yy2, xx2, yy1);				// right triangle:	diagonal
 	        g.drawLine(xx2, yy1, xx2, yy2);				//					vertical
 	        g.drawLine(xx1, yy2, xx2, yy2);				//					horizontal
-	        
+
 	        // Draw the target's expression values
 	        int targetStartY = transFacBarY + BAR_HEIGHT + 5;
 	        int targetCurrY = targetStartY;
-	
+
 	        log.debug("\t\t\tloop start...");
 	        for (int i = 0; i < targetRows.size(); i++) {
 	            MindyData.MindyResultRow mindyRow = targetRows.get(i);
 	            DSGeneMarker target = mindyRow.getTarget();
 	            paintExpressionBar(cellWidth, expressionBarWidth, g, targetCurrY, target);
 	            String targetName = this.getMarkerDisplayName(target);
-	
+
 	            int targetNameWidth = metrics.stringWidth(targetName);
 	            g.setColor(COLOR_TEXT);
-	
+
 	            g.drawString(targetName, (getWidth() / 2) - (targetNameWidth / 2), targetCurrY + BAR_HEIGHT - 1);
 	            targetCurrY += BAR_HEIGHT;
 	        }
@@ -311,7 +311,7 @@ public class ModulatorHeatMap extends JPanel {
 	        g.drawRect(SPACER_SIDE, targetStartY, (int) expressionBarWidth, targetCurrY - targetStartY);
 	        g.drawRect((int) (getWidth() - SPACER_SIDE - expressionBarWidth - 1), targetStartY, (int) (expressionBarWidth + 1), targetCurrY - targetStartY);
     	}
-        graphics.drawImage(offscreen, 0, 0, this);     
+        graphics.drawImage(offscreen, 0, 0, this);
         org.geworkbench.util.Cursor cursor = org.geworkbench.util.Cursor.getCursor();
         java.awt.Component c = cursor.getAssociatedComponent();
         if((cursor.getAssociatedComponent() != null) && cursor.isStarted() && !cursor.isFinished()){
@@ -360,25 +360,25 @@ public class ModulatorHeatMap extends JPanel {
     public Dimension getMinimumSize() {
         return getPreferredSize();
     }
-    
+
     /**
      * Check to see if the heat map should display probe names or gene names.
-     * @return If true, the heat map displays probe names.  
+     * @return If true, the heat map displays probe names.
      * If not, the map displays gene names.
      */
     public boolean isShowProbeName(){
     	return this.showProbeName;
     }
-    
+
     /**
      * Specify whether or not the heat map should display probe names or gene names.
-     * @param showProbeName - if true, the heat map displays probe names.  
+     * @param showProbeName - if true, the heat map displays probe names.
      * If not, the map displays gene names.
      */
     public void setShowProbeName(boolean showProbeName){
     	this.showProbeName = showProbeName;
     }
-    
+
     /**
      * Specifies the marker name (probe name vs. gene name) to display on the heat map.
      * @param marker - gene marker
@@ -391,16 +391,16 @@ public class ModulatorHeatMap extends JPanel {
     	}
     	return result;
     }
-    
+
     /**
      * Get the list of limited targets currently displaying on this heat map.
-     * 
+     *
      * @return list of limited targets.  If all markers are shown, return null.
      */
     public List<DSGeneMarker> getTargetLimits(){
     	return this.targetLimits;
     }
-    
+
     public void setTargetLimits(List<DSGeneMarker> targetLimits){
     	this.targetLimits = targetLimits;
     }
