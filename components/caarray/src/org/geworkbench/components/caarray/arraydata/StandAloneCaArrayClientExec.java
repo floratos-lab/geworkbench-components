@@ -47,7 +47,7 @@ import org.geworkbench.builtin.projects.remoteresources.query.CaARRAYQueryPanel;
  * This is invoked as a stand-alone application by StandAloneCaArrayClientWrapper.
  * 
  * @author xiaoqing
- * @version $Id: StandAloneCaArrayClientExec.java,v 1.5 2009-01-08 16:45:09 jiz Exp $
+ * @version $Id: StandAloneCaArrayClientExec.java,v 1.6 2009-01-12 17:44:52 jiz Exp $
  *
  */
 public class StandAloneCaArrayClientExec {
@@ -329,13 +329,17 @@ public class StandAloneCaArrayClientExec {
 				} // end of checking h1.size() > 0
 			}
 			
+			CaArray2Experiment[] experimentsArray = new CaArray2Experiment[exps
+					.size()];
 			ObjectOutputStream outputStream = null;
+
 			try {
 				log.debug("File saved at"
 						+ new File(savedFilename).getAbsolutePath());
+				// Construct the LineNumberReader object
 				outputStream = new ObjectOutputStream(new FileOutputStream(
 						savedFilename));
-				outputStream.writeObject(exps.toArray());
+				outputStream.writeObject(exps.toArray(experimentsArray));
 
 			} catch (FileNotFoundException ex) {
 				ex.printStackTrace();
@@ -431,13 +435,19 @@ public class StandAloneCaArrayClientExec {
 				} // end of checking h1.size() > 0
 			}
 
+			CaArray2Experiment[] experimentsArray = new CaArray2Experiment[exps
+					.size()];
+			exps.toArray(experimentsArray);
+
 			ObjectOutputStream outputStream = null;
+
 			try {
 				log.debug("File saved at"
 						+ new File(experimentFileName).getAbsolutePath());
+				// Construct the LineNumberReader object
 				outputStream = new ObjectOutputStream(new FileOutputStream(
 						experimentFileName));
-				outputStream.writeObject(exps.toArray());
+				outputStream.writeObject(exps.toArray(experimentsArray));
 
 			} catch (FileNotFoundException ex) {
 				ex.printStackTrace();

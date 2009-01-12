@@ -48,7 +48,6 @@ import org.geworkbench.events.CaArrayQueryEvent;
 import org.geworkbench.events.CaArrayQueryResultEvent;
 import org.geworkbench.events.CaArrayRequestEvent;
 
-// FIXME cleaning up but no plan to commit yet
 /**
  * The wrapper class for CaArray Component.
  * 
@@ -66,7 +65,7 @@ public class CaArray2Component implements VisualPlugin {
 	protected static final String SERVER_NAME = "array-stage.nci.nih.gov ";
 	protected static final int JNDI_PORT = 8080;
 	protected static final int GRID_SERVICE_PORT = 8080;
-	private boolean useExternalCaArray = true;
+
 	private String cancelledConnectionInfo = null;
 	private boolean isCancelled = false;
 
@@ -99,293 +98,75 @@ public class CaArray2Component implements VisualPlugin {
 			isCancelled = false;
 		}
 
-		if (!useExternalCaArray) {// below is the default handle the event
-			// when integration works.
-			try {
+		// below is to invoke external Java process to call caArray server.
+		String currentConnectionInfo = url + port;
+		if (username != null && username.length() > 0) {
+			currentConnectionInfo = currentConnectionInfo + username + password;
+		}
+		try {
 
-				CaArrayServer server = new CaArrayServer(url, port);
-				if (username == null || username.trim().length() == 0) {
-					server.connect();// disable a user login.
-				} else {
-					server.connect(username, password);
-				}
-				CaArraySearchService searchService = server.getSearchService();
+			if (ce.getRequestItem().equalsIgnoreCase(
+					CaArrayRequestEvent.EXPERIMENT)) {
 
-				if (ce.getRequestItem().equalsIgnoreCase(
-						CaArrayRequestEvent.EXPERIMENT)) {
-
-					// TreeMap<String, String[]> treeMap = null;
-					CaArrayEvent event = new CaArrayEvent(url, port);
-					// TreeMap<String, String> desTreeMap = null;
-					CaArray2Experiment[] exps = null;
-					DataRetrievalRequest request = new DataRetrievalRequest();
-					if (ce.isUseFilterCrit()) {
-						HashMap<String, String[]> filters = ce.getFilterCrit();
-						if (filters != null) {
-							exps = dataSetDownloadClient.lookupExperiments(
-									searchService, url, port, username,
-									password, filters);
-						}
-					} else {
-						exps = dataSetDownloadClient.lookupExperiments(
-								searchService, request, url, port, username,
-								password);
-					}
-					if (exps != null && exps.length > 0) {
-						event.setExperiments(exps);
-						event.setPopulated(true);
-					} else {
-						event.setPopulated(false);
-						event
-								.setErrorMessage("No experiment can be retrieved from the server: "
-										+ url + ":" + port);
-					}
-
-					publishCaArrayEvent(event);
-				} else {
-					// For BioAssay detail, another kind of request.
-					if (ce.getRequestItem().equalsIgnoreCase(
-							CaArrayRequestEvent.BIOASSAY)) {
-						HashMap<String, String[]> filterCrit = ce
-								.getFilterCrit();
-						String experimentName = filterCrit
-								.get(CaArrayRequestEvent.EXPERIMENT)[0];
-						String[] hybridzations = filterCrit
-								.get(CaArrayRequestEvent.BIOASSAY);
-						boolean merge = ce.isMerge();
-						String qType = ce.getQType();
-						if (qType == null) {
-							qType = "CHPSignal";
-						}
-						CSExprMicroarraySet maSet = getDataSet(searchService,
-								hybridzations[0], qType);
-						CSExprMicroarraySet totalSet = maSet;
-						if (!merge) {
-							if (maSet != null) {
-								maSet.setLabel(experimentName + "_"
-										+ hybridzations[0]);
-								org.geworkbench.events.ProjectNodeAddedEvent pevent = new org.geworkbench.events.ProjectNodeAddedEvent(
-										"message", maSet, null);
-								ProjectPanel.addToHistory(maSet,
-										"Get from CaArray Server " + url + ":"
-												+ port + ".");
-								publishProjectNodeAddedEvent(pevent);
-							}
-						}
-
-						CaArrayEvent event = new CaArrayEvent(url, port);
-						if (totalSet != null) {
-							event.setPopulated(true);
-						} else {
-							event.setPopulated(false);
-							event
-									.setErrorMessage("No data associated with the quantitation type\n \""
-											+ qType
-											+ "\"\ncan be retrieved from the server: \n"
-											+ url + ":" + port + ".");
-						}
-						if (hybridzations.length > 1) {
-							for (int i = 1; i < hybridzations.length; i++) {
-								CSExprMicroarraySet maSet2 = getDataSet(
-										searchService, hybridzations[i], qType);
-								if (maSet2 == null) {
-									event.setPopulated(false);
-								} else {
-									maSet2.setLabel(experimentName);
-									event.setPopulated(true);
-									if (!merge) {
-										maSet2.setLabel(experimentName + "_"
-												+ hybridzations[i]);
-										org.geworkbench.events.ProjectNodeAddedEvent pevent = new org.geworkbench.events.ProjectNodeAddedEvent(
-												"message", maSet2, null);
-										publishProjectNodeAddedEvent(pevent);
-									} else {
-										if (maSet2 != null && maSet2.size() > 0
-												&& totalSet != null)
-											totalSet.add(maSet2.get(0));
-									}
-								}
-							}
-
-						}
-						if (merge) {
-
-							org.geworkbench.events.ProjectNodeAddedEvent pevent = new org.geworkbench.events.ProjectNodeAddedEvent(
-									"message", totalSet, null);
-							totalSet.setLabel(experimentName + "_"
-									+ hybridzations.length + "_merged");
-							publishProjectNodeAddedEvent(pevent);
-						}
-						event.setDataSet(totalSet);
-						event.setInfoType(CaArrayEvent.BIOASSAY);
-						publishCaArrayEvent(event);
-
-					}
-				}
-
-			} catch (ServerConnectionException se) {
+				// TreeMap<String, String[]> treeMap = null;
 				CaArrayEvent event = new CaArrayEvent(url, port);
-				event.setPopulated(false);
-				event.setSucceed(false);
-				se.printStackTrace();
-				publishCaArrayEvent(event);
-				event.setErrorMessage("Cannot connect to the server at " + url
-						+ ":" + port);
-			} catch (FailedLoginException fe) {
-				CaArrayEvent event = new CaArrayEvent(url, port);
-				event.setPopulated(false);
-				event.setSucceed(false);
-
-				event
-						.setErrorMessage("Either username or password is incorrect. Please check your login credentials. ");
-				publishCaArrayEvent(event);
-
-			}
-
-			catch (Exception e) {
-				CaArrayEvent event = new CaArrayEvent(url, port);
-				event.setPopulated(false);
-				event.setSucceed(false);
-				event.setErrorMessage(e.getMessage());
-				publishCaArrayEvent(event);
-				e.printStackTrace();
-
-			}
-		} else {
-			// below is to invoke external Java process to call caArray server.
-			String currentConnectionInfo = url + port;
-			if (username != null && username.length() > 0) {
-				currentConnectionInfo = currentConnectionInfo + username
-						+ password;
-			}
-			try {
-
-				if (ce.getRequestItem().equalsIgnoreCase(
-						CaArrayRequestEvent.EXPERIMENT)) {
-
-					// TreeMap<String, String[]> treeMap = null;
-					CaArrayEvent event = new CaArrayEvent(url, port);
-					// TreeMap<String, String> desTreeMap = null;
-					CaArray2Experiment[] exps = null;
-					if (ce.isUseFilterCrit()) {
-						HashMap<String, String[]> filters = ce.getFilterCrit();
-						if (filters != null) {
-							exps = externalDataSetDownloadClient
-									.lookupExperiments(url, port, username,
-											password, filters);
-						}
-					} else {
+				// TreeMap<String, String> desTreeMap = null;
+				CaArray2Experiment[] exps = null;
+				if (ce.isUseFilterCrit()) {
+					HashMap<String, String[]> filters = ce.getFilterCrit();
+					if (filters != null) {
 						exps = externalDataSetDownloadClient.lookupExperiments(
-								url, port, username, password);
+								url, port, username, password, filters);
 					}
-					if (exps != null && exps.length > 0) {
-						event.setExperiments(exps);
-						event.setPopulated(true);
-					} else {
-						event.setPopulated(false);
-						event
-								.setErrorMessage("No experiment can be retrieved from the server: "
-										+ url + ":" + port);
-					}
-
-					if (isCancelled
-							&& cancelledConnectionInfo != null
-							&& cancelledConnectionInfo
-									.equalsIgnoreCase(currentConnectionInfo)) {
-						return;
-					}
-					publishCaArrayEvent(event);
 				} else {
-					// For BioAssay detail, another kind of request.
-					if (ce.getRequestItem().equalsIgnoreCase(
-							CaArrayRequestEvent.BIOASSAY)) {
-						HashMap<String, String[]> filterCrit = ce
-								.getFilterCrit();
-						String experimentName = filterCrit
-								.get(CaArrayRequestEvent.EXPERIMENT)[0];
-						String[] hybridzations = filterCrit
-								.get(CaArrayRequestEvent.BIOASSAY);
-						boolean merge = ce.isMerge();
-						String qType = ce.getQType();
-						if (qType == null) {
-							qType = "CHPSignal";
-						}
-						CSExprMicroarraySet maSet = externalDataSetDownloadClient
-								.getDataSet(url, port, username, password,
-										hybridzations[0], qType);
-						CSExprMicroarraySet totalSet = maSet;
-						if (!merge) {
-							if (maSet != null) {
-								maSet.setLabel(experimentName + "_"
-										+ hybridzations[0]);
-								org.geworkbench.events.ProjectNodeAddedEvent pevent = new org.geworkbench.events.ProjectNodeAddedEvent(
-										"message", maSet, null);
-								ProjectPanel.addToHistory(maSet,
-										"Get from CaArray Server " + url + ":"
-												+ port + ".");
+					exps = externalDataSetDownloadClient.lookupExperiments(url,
+							port, username, password);
+				}
+				if (exps != null && exps.length > 0) {
+					event.setExperiments(exps);
+					event.setPopulated(true);
+				} else {
+					event.setPopulated(false);
+					event
+							.setErrorMessage("No experiment can be retrieved from the server: "
+									+ url + ":" + port);
+				}
 
-								if (isCancelled
-										&& cancelledConnectionInfo != null
-										&& cancelledConnectionInfo
-												.equalsIgnoreCase(currentConnectionInfo)) {
-									return;
-								}
-								publishProjectNodeAddedEvent(pevent);
-
-							}
-						}
-
-						CaArrayEvent event = new CaArrayEvent(url, port);
-						if (totalSet != null) {
-							event.setPopulated(true);
-						} else {
-							event.setPopulated(false);
-							event
-									.setErrorMessage("No data associated with the quantitation type\n \""
-											+ qType
-											+ "\"\ncan be retrieved from the server: \n"
-											+ url + ":" + port + ".");
-						}
-						if (hybridzations.length > 1) {
-							for (int i = 1; i < hybridzations.length; i++) {
-								if (isCancelled
-										&& cancelledConnectionInfo != null
-										&& cancelledConnectionInfo
-												.equalsIgnoreCase(currentConnectionInfo)) {
-									return;
-								}
-								CSExprMicroarraySet maSet2 = externalDataSetDownloadClient
-										.getDataSet(url, port, username,
-												password, hybridzations[i],
-												qType);
-								;
-								if (maSet2 == null) {
-									event.setPopulated(false);
-								} else {
-									maSet2.setLabel(experimentName);
-									event.setPopulated(true);
-									if (!merge) {
-
-										maSet2.setLabel(experimentName + "_"
-												+ hybridzations[i]);
-										org.geworkbench.events.ProjectNodeAddedEvent pevent = new org.geworkbench.events.ProjectNodeAddedEvent(
-												"message", maSet2, null);
-										publishProjectNodeAddedEvent(pevent);
-									} else {
-										if (maSet2 != null && maSet2.size() > 0
-												&& totalSet != null)
-											totalSet.add(maSet2.get(0));
-									}
-								}
-							}
-
-						}
-						if (merge) {
-
+				if (isCancelled
+						&& cancelledConnectionInfo != null
+						&& cancelledConnectionInfo
+								.equalsIgnoreCase(currentConnectionInfo)) {
+					return;
+				}
+				publishCaArrayEvent(event);
+			} else {
+				// For BioAssay detail, another kind of request.
+				if (ce.getRequestItem().equalsIgnoreCase(
+						CaArrayRequestEvent.BIOASSAY)) {
+					HashMap<String, String[]> filterCrit = ce.getFilterCrit();
+					String experimentName = filterCrit
+							.get(CaArrayRequestEvent.EXPERIMENT)[0];
+					String[] hybridzations = filterCrit
+							.get(CaArrayRequestEvent.BIOASSAY);
+					boolean merge = ce.isMerge();
+					String qType = ce.getQType();
+					if (qType == null) {
+						qType = "CHPSignal";
+					}
+					CSExprMicroarraySet maSet = externalDataSetDownloadClient
+							.getDataSet(url, port, username, password,
+									hybridzations[0], qType);
+					CSExprMicroarraySet totalSet = maSet;
+					if (!merge) {
+						if (maSet != null) {
+							maSet.setLabel(experimentName + "_"
+									+ hybridzations[0]);
 							org.geworkbench.events.ProjectNodeAddedEvent pevent = new org.geworkbench.events.ProjectNodeAddedEvent(
-									"message", totalSet, null);
-							totalSet.setLabel(experimentName + "_"
-									+ hybridzations.length + "_merged");
+									"message", maSet, null);
+							ProjectPanel.addToHistory(maSet,
+									"Get from CaArray Server " + url + ":"
+											+ port + ".");
+
 							if (isCancelled
 									&& cancelledConnectionInfo != null
 									&& cancelledConnectionInfo
@@ -393,62 +174,122 @@ public class CaArray2Component implements VisualPlugin {
 								return;
 							}
 							publishProjectNodeAddedEvent(pevent);
+
 						}
-						event.setDataSet(totalSet);
-						event.setInfoType(CaArrayEvent.BIOASSAY);
+					}
+
+					CaArrayEvent event = new CaArrayEvent(url, port);
+					if (totalSet != null) {
+						event.setPopulated(true);
+					} else {
+						event.setPopulated(false);
+						event
+								.setErrorMessage("No data associated with the quantitation type\n \""
+										+ qType
+										+ "\"\ncan be retrieved from the server: \n"
+										+ url + ":" + port + ".");
+					}
+					if (hybridzations.length > 1) {
+						for (int i = 1; i < hybridzations.length; i++) {
+							if (isCancelled
+									&& cancelledConnectionInfo != null
+									&& cancelledConnectionInfo
+											.equalsIgnoreCase(currentConnectionInfo)) {
+								return;
+							}
+							CSExprMicroarraySet maSet2 = externalDataSetDownloadClient
+									.getDataSet(url, port, username, password,
+											hybridzations[i], qType);
+							;
+							if (maSet2 == null) {
+								event.setPopulated(false);
+							} else {
+								maSet2.setLabel(experimentName);
+								event.setPopulated(true);
+								if (!merge) {
+
+									maSet2.setLabel(experimentName + "_"
+											+ hybridzations[i]);
+									org.geworkbench.events.ProjectNodeAddedEvent pevent = new org.geworkbench.events.ProjectNodeAddedEvent(
+											"message", maSet2, null);
+									publishProjectNodeAddedEvent(pevent);
+								} else {
+									if (maSet2 != null && maSet2.size() > 0
+											&& totalSet != null)
+										totalSet.add(maSet2.get(0));
+								}
+							}
+						}
+
+					}
+					if (merge) {
+
+						org.geworkbench.events.ProjectNodeAddedEvent pevent = new org.geworkbench.events.ProjectNodeAddedEvent(
+								"message", totalSet, null);
+						totalSet.setLabel(experimentName + "_"
+								+ hybridzations.length + "_merged");
 						if (isCancelled
 								&& cancelledConnectionInfo != null
 								&& cancelledConnectionInfo
 										.equalsIgnoreCase(currentConnectionInfo)) {
 							return;
 						}
-						publishCaArrayEvent(event);
-
+						publishProjectNodeAddedEvent(pevent);
 					}
-				}
+					event.setDataSet(totalSet);
+					event.setInfoType(CaArrayEvent.BIOASSAY);
+					if (isCancelled
+							&& cancelledConnectionInfo != null
+							&& cancelledConnectionInfo
+									.equalsIgnoreCase(currentConnectionInfo)) {
+						return;
+					}
+					publishCaArrayEvent(event);
 
-			} catch (ServerConnectionException se) {
-				CaArrayEvent event = new CaArrayEvent(url, port);
-				event.setPopulated(false);
-				event.setSucceed(false);
-				se.printStackTrace();
-				if (isCancelled
-						&& cancelledConnectionInfo != null
-						&& cancelledConnectionInfo
-								.equalsIgnoreCase(currentConnectionInfo)) {
-					return;
 				}
-				publishCaArrayEvent(event);
-				event.setErrorMessage("Cannot connect to the server at " + url
-						+ ":" + port);
-			} catch (FailedLoginException fe) {
-				CaArrayEvent event = new CaArrayEvent(url, port);
-				event.setPopulated(false);
-				event.setSucceed(false);
-
-				event
-						.setErrorMessage("Either username or password is incorrect. Please check your login credentials. ");
-				if (isCancelled
-						&& cancelledConnectionInfo != null
-						&& cancelledConnectionInfo
-								.equalsIgnoreCase(currentConnectionInfo)) {
-					return;
-				}
-				publishCaArrayEvent(event);
-
 			}
 
-			catch (Exception e) {
-				CaArrayEvent event = new CaArrayEvent(url, port);
-				event.setPopulated(false);
-				event.setSucceed(false);
-				event.setErrorMessage(e.getMessage());
-				publishCaArrayEvent(event);
-				e.printStackTrace();
-
+		} catch (ServerConnectionException se) {
+			CaArrayEvent event = new CaArrayEvent(url, port);
+			event.setPopulated(false);
+			event.setSucceed(false);
+			se.printStackTrace();
+			if (isCancelled
+					&& cancelledConnectionInfo != null
+					&& cancelledConnectionInfo
+							.equalsIgnoreCase(currentConnectionInfo)) {
+				return;
 			}
+			publishCaArrayEvent(event);
+			event.setErrorMessage("Cannot connect to the server at " + url
+					+ ":" + port);
+		} catch (FailedLoginException fe) {
+			CaArrayEvent event = new CaArrayEvent(url, port);
+			event.setPopulated(false);
+			event.setSucceed(false);
+
+			event
+					.setErrorMessage("Either username or password is incorrect. Please check your login credentials. ");
+			if (isCancelled
+					&& cancelledConnectionInfo != null
+					&& cancelledConnectionInfo
+							.equalsIgnoreCase(currentConnectionInfo)) {
+				return;
+			}
+			publishCaArrayEvent(event);
 
 		}
+
+		catch (Exception e) {
+			CaArrayEvent event = new CaArrayEvent(url, port);
+			event.setPopulated(false);
+			event.setSucceed(false);
+			event.setErrorMessage(e.getMessage());
+			publishCaArrayEvent(event);
+			e.printStackTrace();
+
+		}
+
 	}
 
 	/**
@@ -471,22 +312,8 @@ public class CaArray2Component implements VisualPlugin {
 				String password = ce.getPassword();
 
 				TreeMap<String, Set<String>> treeMap = null;
-				if (useExternalCaArray) {
-					treeMap = externalDataSetDownloadClient.lookupTypeValues(
+				treeMap = externalDataSetDownloadClient.lookupTypeValues(
 							url, port, username, password, listCritiria);
-				} else {
-					CaArrayServer server = new CaArrayServer(url, port);
-					if (username == null || username.trim().length() == 0) {
-						server.connect();// enable a user login.
-					} else {
-						server.connect(username, password);
-					}
-					CaArraySearchService searchService = server
-							.getSearchService();
-					DataRetrievalRequest request = new DataRetrievalRequest();
-					treeMap = CaArrayQueryClient.lookupTypeValues(
-							searchService, request, listCritiria);
-				}
 				CaArrayQueryResultEvent event = new CaArrayQueryResultEvent(
 						null, url, port, ce.getUsername(), ce.getPassword());
 
