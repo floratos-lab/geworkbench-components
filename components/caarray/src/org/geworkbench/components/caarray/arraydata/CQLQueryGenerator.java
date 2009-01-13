@@ -1,28 +1,25 @@
-/**
- * 
- */
 package org.geworkbench.components.caarray.arraydata;
-
-import org.apache.commons.lang.time.StopWatch;
-import org.geworkbench.builtin.projects.remoteresources.query.CaARRAYQueryPanel;
 
 import gov.nih.nci.cagrid.cqlquery.Association;
 import gov.nih.nci.cagrid.cqlquery.Attribute;
 import gov.nih.nci.cagrid.cqlquery.CQLQuery;
 import gov.nih.nci.cagrid.cqlquery.Predicate;
 
+import org.geworkbench.builtin.projects.remoteresources.query.CaARRAYQueryPanel;
+
 /**
  * @author xiaoqing
- * 
+ * @version $Id$
  */
 public class CQLQueryGenerator {
 	public final static String EXPERIMENT = "Experiment";
-/**
- * Create a CQLQuery to get all Objects for the class targetname.
- * 
- * @param targetname
- * @return
- */
+
+	/**
+	 * Create a CQLQuery to get all Objects for the class target name.
+	 * 
+	 * @param targetname
+	 * @return
+	 */
 	static CQLQuery generateQuery(String targetname) {
 
 		CQLQuery query = new CQLQuery();
@@ -32,7 +29,7 @@ public class CQLQueryGenerator {
 				String target = "gov.nih.nci.caarray.domain.project.Experiment";
 				object.setName(target);
 				query.setTarget(object);
-			}else{
+			} else {
 				object.setName(targetname);
 				query.setTarget(object);
 			}
@@ -42,7 +39,9 @@ public class CQLQueryGenerator {
 	}
 
 	/**
-	 * Create a CQLQuery to get a CQLQuery with a filter with the type:value pair.
+	 * Create a CQLQuery to get a CQLQuery with a filter with the type:value
+	 * pair.
+	 * 
 	 * @param targetname
 	 * @param type
 	 * @param value
@@ -112,13 +111,15 @@ public class CQLQueryGenerator {
 		}
 		return null;
 	}
-/**
- * Create a CQLQuery to get the valid values for one search critiria.
- * @param type
- * @param value
- * @return
- */
-	public static CQLQuery generateQuery(String type, String value) {
+
+	/**
+	 * Create a CQLQuery to get the valid values for one search criteria.
+	 * 
+	 * @param type
+	 * @param value
+	 * @return
+	 */
+	static CQLQuery generateQuery(String type, String value) {
 		CQLQuery query = new CQLQuery();
 		query.setTarget(new gov.nih.nci.cagrid.cqlquery.Object());
 		String target = "edu.georgetown.pir.Organism";
