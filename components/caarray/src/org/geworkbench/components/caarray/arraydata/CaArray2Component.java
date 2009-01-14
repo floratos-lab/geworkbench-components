@@ -3,8 +3,9 @@ package org.geworkbench.components.caarray.arraydata;
 import gov.nih.nci.caarray.services.ServerConnectionException;
 
 import java.awt.Component;
-import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
+import java.util.SortedMap;
 import java.util.TreeMap;
 
 import javax.security.auth.login.FailedLoginException;
@@ -91,7 +92,7 @@ public class CaArray2Component implements VisualPlugin {
 				// TreeMap<String, String> desTreeMap = null;
 				CaArray2Experiment[] exps = null;
 				if (ce.isUseFilterCrit()) {
-					HashMap<String, String[]> filters = ce.getFilterCrit();
+					Map<String, String> filters = ce.getFilterCrit();
 					if (filters != null) {
 						exps = externalDataSetDownloadClient.lookupExperiments(
 								url, port, username, password, filters);
@@ -121,24 +122,25 @@ public class CaArray2Component implements VisualPlugin {
 				// For BioAssay detail, another kind of request.
 				if (ce.getRequestItem().equalsIgnoreCase(
 						CaArrayRequestEvent.BIOASSAY)) {
-					HashMap<String, String[]> filterCrit = ce.getFilterCrit();
+					Map<String, String> filterCrit = ce.getFilterCrit();
 					String experimentName = filterCrit
-							.get(CaArrayRequestEvent.EXPERIMENT)[0];
-					String[] hybridzations = filterCrit
-							.get(CaArrayRequestEvent.BIOASSAY);
+							.get(CaArrayRequestEvent.EXPERIMENT);
+					SortedMap<String, Long> hybridzations = ce.getAssayNameFilter();
 					boolean merge = ce.isMerge();
 					String qType = ce.getQType();
 					if (qType == null) {
 						qType = "CHPSignal";
 					}
+					String hybName = hybridzations.firstKey();
+					Long hybId = hybridzations.get(hybName);
 					CSExprMicroarraySet maSet = externalDataSetDownloadClient
 							.getDataSet(url, port, username, password,
-									hybridzations[0], qType);
+									hybName, hybId, qType);
 					CSExprMicroarraySet totalSet = maSet;
 					if (!merge) {
 						if (maSet != null) {
 							maSet.setLabel(experimentName + "_"
-									+ hybridzations[0]);
+									+ hybName);
 							org.geworkbench.events.ProjectNodeAddedEvent pevent = new org.geworkbench.events.ProjectNodeAddedEvent(
 									"message", maSet, null);
 							ProjectPanel.addToHistory(maSet,
@@ -167,17 +169,18 @@ public class CaArray2Component implements VisualPlugin {
 										+ "\"\ncan be retrieved from the server: \n"
 										+ url + ":" + port + ".");
 					}
-					if (hybridzations.length > 1) {
-						for (int i = 1; i < hybridzations.length; i++) {
+					if (hybridzations.size() > 1) {
+						for (String hybridizationName: hybridzations.keySet()) {
 							if (isCancelled
 									&& cancelledConnectionInfo != null
 									&& cancelledConnectionInfo
 											.equalsIgnoreCase(currentConnectionInfo)) {
 								return;
 							}
+							Long hybridizationId = hybridzations.get(hybridizationName);
 							CSExprMicroarraySet maSet2 = externalDataSetDownloadClient
 									.getDataSet(url, port, username, password,
-											hybridzations[i], qType);
+											hybridizationName, hybridizationId, qType);
 							;
 							if (maSet2 == null) {
 								event.setPopulated(false);
@@ -187,7 +190,7 @@ public class CaArray2Component implements VisualPlugin {
 								if (!merge) {
 
 									maSet2.setLabel(experimentName + "_"
-											+ hybridzations[i]);
+											+ hybridizationName);
 									org.geworkbench.events.ProjectNodeAddedEvent pevent = new org.geworkbench.events.ProjectNodeAddedEvent(
 											"message", maSet2, null);
 									publishProjectNodeAddedEvent(pevent);
@@ -205,7 +208,7 @@ public class CaArray2Component implements VisualPlugin {
 						org.geworkbench.events.ProjectNodeAddedEvent pevent = new org.geworkbench.events.ProjectNodeAddedEvent(
 								"message", totalSet, null);
 						totalSet.setLabel(experimentName + "_"
-								+ hybridzations.length + "_merged");
+								+ hybridzations.size() + "_merged");
 						if (isCancelled
 								&& cancelledConnectionInfo != null
 								&& cancelledConnectionInfo

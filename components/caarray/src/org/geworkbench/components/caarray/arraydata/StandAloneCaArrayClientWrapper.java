@@ -17,8 +17,8 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
@@ -41,7 +41,7 @@ import org.geworkbench.events.CaArrayQueryResultEvent;
  * The class to invoke StandAloneCaArrayWrapper
  * 
  * @author xiaoqing
- * @version $Id: StandAloneCaArrayClientWrapper.java,v 1.5 2008-12-24 21:45:41 jiz Exp $
+ * @version $Id: StandAloneCaArrayClientWrapper.java,v 1.6 2009-01-14 21:59:16 jiz Exp $
  * 
  */
 public class StandAloneCaArrayClientWrapper {
@@ -263,17 +263,16 @@ public class StandAloneCaArrayClientWrapper {
 		return caArrayExperiments;
 	}
 
+	// TODO only one filter is used, maybe we should change the map to two strins
 	public CaArray2Experiment[] lookupExperiments(String url, int port,
-			String username, String password, HashMap<String, String[]> filters)
+			String username, String password, Map<String, String> filters)
 			throws Exception {
 
-		String[] arrays = new String[filters.size()];
-		arrays = filters.keySet().toArray(arrays);
-		for (String key : arrays) {
-			String[] values = filters.get(key);
-			if (values != null && values.length > 0) {
+		for (String key : filters.keySet()) {
+			String value = filters.get(key);
+			if (value != null) {
 				return lookupExperimentsWithFilter(url, port, username,
-						password, key, values[0]);
+						password, key, value);
 			}
 		}
 		return null;
@@ -349,7 +348,7 @@ public class StandAloneCaArrayClientWrapper {
 	 * @return
 	 */
 	public CSExprMicroarraySet getDataSet(String url, int port,
-			String username, String password, String hybridizationStr,
+			String username, String password, String hybridizationName, Long hybridizationId,
 			String quantitationType) throws Exception {
 		String savedFilename = tmpDir + url + "_" + port + "_" + HYB + "_"
 				+ quantitationType + ".txt";
@@ -358,14 +357,14 @@ public class StandAloneCaArrayClientWrapper {
 					+ HYB + "_" + quantitationType + ".txt";
 		}
 		String cmdline = prefixCMD + HYB + " " + savedFilename + " " + url
-				+ " " + port + " " + hybridizationStr + " " + quantitationType;
+				+ " " + port + " " + hybridizationId + " " + quantitationType;
 		if (username != null)
 			cmdline = cmdline + " " + username + " " + password;
 		invokeStandAloneApp(cmdline, savedFilename);
 		if (isFailed(savedFilename)) {
 			return null;
 		}
-		return processDataToBISON(savedFilename, hybridizationStr);
+		return processDataToBISON(savedFilename, hybridizationName);
 	}
 
 	/**

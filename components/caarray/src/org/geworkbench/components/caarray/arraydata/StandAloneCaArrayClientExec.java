@@ -30,8 +30,11 @@ import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.Vector;
@@ -47,7 +50,7 @@ import org.geworkbench.builtin.projects.remoteresources.query.CaARRAYQueryPanel;
  * This is invoked as a stand-alone application by StandAloneCaArrayClientWrapper.
  * 
  * @author xiaoqing
- * @version $Id: StandAloneCaArrayClientExec.java,v 1.6 2009-01-12 17:44:52 jiz Exp $
+ * @version $Id: StandAloneCaArrayClientExec.java,v 1.7 2009-01-14 21:59:16 jiz Exp $
  *
  */
 public class StandAloneCaArrayClientExec {
@@ -102,13 +105,13 @@ public class StandAloneCaArrayClientExec {
 				log.debug("Ending lookup experiment. " + new Date());
 			} else if (args[0]
 					.equalsIgnoreCase(StandAloneCaArrayClientWrapper.HYB)) {
-				String hybridname = args[4];
+				Long hybridId = new Long(args[4]);
 				String qType = args[5];
 				if (args.length >= 8) {
 					username = args[6];
 					password = args[7];
 				}
-				getDataSet(url, port, username, password, hybridname, qType,
+				getDataSet(url, port, username, password, hybridId, qType,
 						resultFilename);
 				log.debug("Ending loading dataset" + new Date());
 			} else if (args[0]
@@ -297,14 +300,12 @@ public class StandAloneCaArrayClientExec {
 				Set<Hybridization> h1 = (((Experiment) o).getHybridizations());
 
 				if (h1.size() > 0) {
-					String[] hybridizationValues = new String[h1.size()];
+					Map<String, Long> hybridizations = new HashMap<String, Long>();
 					Hybridization oneHybridization = null;
-					TreeSet<String> set = new TreeSet<String>();
 					for (Hybridization h : h1) {
 						oneHybridization = h;
-						set.add(h.getName());
+						hybridizations.put(h.getName(), h.getId());
 					}
-					hybridizationValues = set.toArray(hybridizationValues);
 					Hybridization hybridization = (Hybridization) (service
 							.search(oneHybridization).get(0));
 					DataSet dataSet = getDataSet(service, hybridization);
@@ -323,7 +324,7 @@ public class StandAloneCaArrayClientExec {
 					CaArray2Experiment exp = new CaArray2Experiment(url, port);
 					exp.setName(e.getTitle());
 					exp.setDescription(e.getDescription());
-					exp.setHybridizations(hybridizationValues);
+					exp.setHybridizations(hybridizations);
 					exp.setQuantitationTypes(qTypes);
 					exps.add(exp);
 				} // end of checking h1.size() > 0
@@ -390,14 +391,12 @@ public class StandAloneCaArrayClientExec {
 				Set<Hybridization> h1 = (((Experiment) o).getHybridizations());
 
 				if (h1.size() > 0) {
-					String[] hybridizationValues = new String[h1.size()];
-					TreeSet<String> set = new TreeSet<String>();
+					SortedMap<String, Long> hybridizations = new TreeMap<String, Long>();
 					Hybridization oneHybridization = null;
 					for (Hybridization h : h1) {
 						oneHybridization = h;
-						set.add(h.getName());
+						hybridizations.put(h.getName(), h.getId());
 					}
-					hybridizationValues = set.toArray(hybridizationValues);
 					// below is to get the QuantitationType for each experiment.
 					Hybridization hybridization = (Hybridization) (service
 							.search(oneHybridization).get(0));
@@ -428,7 +427,7 @@ public class StandAloneCaArrayClientExec {
 					CaArray2Experiment exp = new CaArray2Experiment(url, port);
 					exp.setName(e.getTitle());
 					exp.setDescription(e.getDescription());
-					exp.setHybridizations(hybridizationValues);
+					exp.setHybridizations(hybridizations);
 					exp.setQuantitationTypes(qTypes);
 					
 					exps.add(exp);
@@ -512,8 +511,9 @@ public class StandAloneCaArrayClientExec {
 	 * @param quantitationType
 	 * @return
 	 */
+	@SuppressWarnings("deprecation") // for hybridization.setId(hybridizationId);
 	private static void getDataSet(String url, int port,
-			String username, String password, String hybridizationStr,
+			String username, String password, Long hybridizationId,
 			String quantitationType, String outputFilename) {
 		log.debug("Running the getDataSet" + new Date());
 		CaArrayServer server = new CaArrayServer(url, port);
@@ -529,7 +529,8 @@ public class StandAloneCaArrayClientExec {
 		CaArraySearchService service = server.getSearchService();
 		AbstractProbe[] markersArray;
 		Hybridization hybridization = new Hybridization();
-		hybridization.setName(hybridizationStr);
+		// using ID to rebuild the Hybridization object instead of using name.
+		hybridization.setId(hybridizationId);
 		List<Hybridization> set = service.search(hybridization);
 		if (set == null || set.size() == 0) {
 			return;
