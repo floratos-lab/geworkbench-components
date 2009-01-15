@@ -74,7 +74,7 @@ import com.solarmetric.ide.ui.CheckboxCellRenderer;
  * @author mhall
  * @ch2514
  *
- * @version $Id: MindyPlugin.java,v 1.75 2009-01-09 21:01:00 oshteynb Exp $
+ * @version $Id: MindyPlugin.java,v 1.76 2009-01-15 22:47:50 oshteynb Exp $
  */
 @SuppressWarnings("serial")
 public class MindyPlugin extends JPanel {
@@ -773,13 +773,7 @@ public class MindyPlugin extends JPanel {
 
 			// bug 0001661,
 			// Heat Map will not display targets with zero score
-			List<DSGeneMarker> targetsNonZeroScore = new ArrayList<DSGeneMarker>();
-			List<MindyResultRow> resultRows = mindyData.getData();
-			for (MindyResultRow mindyResultRow : resultRows) {
-				if (mindyResultRow.getScore() != 0.0){
-					targetsNonZeroScore.add( mindyResultRow.getTarget());
-				}
-			}
+			List<DSGeneMarker> targetsNonZeroScore = createNonZeroScoreData();
 
 			heatmap = new ModulatorHeatMap(modulator, transFactors.iterator()
 					.next(), mindyData, targetsNonZeroScore, !mindyData.isAnnotated());
@@ -1199,6 +1193,23 @@ public class MindyPlugin extends JPanel {
 				+ System.currentTimeMillis());
 	}
 
+	// bug 0001661,
+	// could be in MindyData class,
+	// there are many way to optimize this from having rows with only non zero scores
+	// to making collection sort of singleton instead of creating it each time.
+	private List<DSGeneMarker> createNonZeroScoreData() {
+		List<DSGeneMarker> ret = new ArrayList<DSGeneMarker>();
+
+		List<MindyResultRow> resultRows = mindyData.getData();
+		for (MindyResultRow mindyResultRow : resultRows) {
+			if (mindyResultRow.getScore() != 0.0){
+				ret.add( mindyResultRow.getTarget());
+			}
+		}
+
+		return ret;
+	}
+
 	private void limitModulators(Integer modLimit, boolean selected,
 			JTable table) {
 		aggregateModel.setModLimit(modLimit);
@@ -1242,8 +1253,9 @@ public class MindyPlugin extends JPanel {
 			} else {
 				log.debug("Rebuilding heat map.");
 				boolean b = heatmap.isShowProbeName();
+				// bug 0001661, added call to createNonZeroScoreData()
 				heatmap = new ModulatorHeatMap(modMarker, mindyData
-						.getTranscriptionFactor(), mindyData, null, b);
+						.getTranscriptionFactor(), mindyData, createNonZeroScoreData(), b);
 				setHeatMap(heatmap);
 			}
 		}
@@ -1555,7 +1567,7 @@ public class MindyPlugin extends JPanel {
 	 *
 	 * @author mhall
 	 * @author ch2514
-	 * @version $Id: MindyPlugin.java,v 1.75 2009-01-09 21:01:00 oshteynb Exp $
+	 * @version $Id: MindyPlugin.java,v 1.76 2009-01-15 22:47:50 oshteynb Exp $
 	 */
 	private class ModulatorModel extends DefaultTableModel {
 
@@ -2027,7 +2039,7 @@ public class MindyPlugin extends JPanel {
 	 * For rendering modulator checkboxes on the targets table column headers.
 	 *
 	 * @author ch2514
-	 * @version $Id: MindyPlugin.java,v 1.75 2009-01-09 21:01:00 oshteynb Exp $
+	 * @version $Id: MindyPlugin.java,v 1.76 2009-01-15 22:47:50 oshteynb Exp $
 	 */
 	private class CheckBoxRenderer extends DefaultTableCellRenderer {
 		/**
@@ -2122,7 +2134,7 @@ public class MindyPlugin extends JPanel {
 	 *
 	 * @author mhall
 	 * @author ch2514
-	 * @version $Id: MindyPlugin.java,v 1.75 2009-01-09 21:01:00 oshteynb Exp $
+	 * @version $Id: MindyPlugin.java,v 1.76 2009-01-15 22:47:50 oshteynb Exp $
 	 */
 	private class AggregateTableModel extends DefaultTableModel {
 
@@ -3000,7 +3012,7 @@ public class MindyPlugin extends JPanel {
 	 * Compare M#, M+, or M- of two gene markers (for sorting).
 	 *
 	 * @author mhall
-	 * @version $Id: MindyPlugin.java,v 1.75 2009-01-09 21:01:00 oshteynb Exp $
+	 * @version $Id: MindyPlugin.java,v 1.76 2009-01-15 22:47:50 oshteynb Exp $
 	 */
 	private class ModulatorStatComparator implements Comparator<DSGeneMarker> {
 
@@ -3053,7 +3065,7 @@ public class MindyPlugin extends JPanel {
 	 *
 	 * @author mhall
 	 * @author ch2514
-	 * @version $Id: MindyPlugin.java,v 1.75 2009-01-09 21:01:00 oshteynb Exp $
+	 * @version $Id: MindyPlugin.java,v 1.76 2009-01-15 22:47:50 oshteynb Exp $
 	 */
 	private class ModulatorTargetModel extends DefaultTableModel {
 
@@ -3791,7 +3803,7 @@ public class MindyPlugin extends JPanel {
 	 * Heat map data model.
 	 *
 	 * @author mhall
-	 * @version $Id: MindyPlugin.java,v 1.75 2009-01-09 21:01:00 oshteynb Exp $
+	 * @version $Id: MindyPlugin.java,v 1.76 2009-01-15 22:47:50 oshteynb Exp $
 	 */
 	private class ModulatorListModel extends AbstractListModel {
 		private boolean showProbeName = false;
@@ -3866,7 +3878,7 @@ public class MindyPlugin extends JPanel {
 	 * for the targets table.
 	 *
 	 * @author ch2514
-	 * @version $Id: MindyPlugin.java,v 1.75 2009-01-09 21:01:00 oshteynb Exp $
+	 * @version $Id: MindyPlugin.java,v 1.76 2009-01-15 22:47:50 oshteynb Exp $
 	 */
 	private class ColumnHeaderListener extends MouseAdapter {
 		/**
