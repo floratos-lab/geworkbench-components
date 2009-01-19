@@ -1,5 +1,8 @@
 package org.geworkbench.components.skybaseview;
 
+import jalview.bin.Cache;
+import jalview.gui.AlignFrame;
+
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -8,24 +11,32 @@ import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Rectangle;
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Vector;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.ListSelectionModel;
-import javax.swing.border.Border;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.AbstractTableModel;
@@ -36,11 +47,14 @@ import org.apache.commons.lang.NumberUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
+import org.geworkbench.bison.datastructure.bioobjects.structure.CSProteinStructure;
 import org.geworkbench.bison.datastructure.bioobjects.structure.DSPrtDBResultSet;
 import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.engine.management.AcceptTypes;
+import org.geworkbench.engine.management.Publish;
 import org.geworkbench.engine.management.Subscribe;
 import org.geworkbench.events.ProjectEvent;
+import org.geworkbench.events.ProjectNodeAddedEvent;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartMouseEvent;
 import org.jfree.chart.ChartMouseListener;
@@ -75,7 +89,7 @@ import org.openscience.jmol.ui.JmolPopupSwing;
  * Display SkyBase blast results in table, bar chart and jmol
  * 
  * @author mw2518
- * @version $Id: SkyBaseViewer.java,v 1.4 2008-12-10 20:34:15 wangm Exp $
+ * @version $Id: SkyBaseViewer.java,v 1.5 2009-01-19 02:28:37 wangm Exp $
  * 
  */
 
@@ -83,16 +97,16 @@ import org.openscience.jmol.ui.JmolPopupSwing;
 public class SkyBaseViewer implements VisualPlugin {
 	private Log log = LogFactory.getLog(this.getClass());
 	private JPanel mainPanel = new JPanel();
-	private JPanel jp = new JPanel(new BorderLayout());
-	private Border border = jp.getBorder();
-	private JPanel jp2 = new JPanel(new BorderLayout());
-	private String result = null, qname = null;
+	private String result = null, qname = null, lastqname = null;
 	private static String strScript = "wireframe off; spacefill off; cartoons; color structure;";
 	private JmolPanel jmolPanel = new JmolPanel();
 	private JmolSimpleViewer viewer = jmolPanel.getViewer();
 	private Dimension prefsize1 = new Dimension(800, 235);
 	private Dimension prefsize = new Dimension(770, 210);
-
+	JLabel seqlb;
+	int cnt = 0;
+	HashMap<String, String> qbesti = new HashMap<String, String>();
+	HashMap<String, String> qlasti = new HashMap<String, String>();
 	JTable table;
 	ChartPanel cp;
 	String pdburl;
@@ -104,12 +118,14 @@ public class SkyBaseViewer implements VisualPlugin {
 			"Model Sequence", "Query Sequence", "pG", "Coverage Template",
 			"Id% Template-Model Sequences", "Template", "Template Length",
 			"eValue", "Model Length", "Model Coverage", "Model Species",
-			"Model Description", "Model File" };
+			"Model Description", "Model File", "Template-Model Alignment" };
 	int colcnt = columnNames.length;
 	MyBarRenderer renderer = new MyBarRenderer();
 	int besti = -1;
+	int lasti = -1;
 	String colKey = null;
 	String lastseqid = null;
+	String ofname = "";
 
 	private String trimdot(String result) {
 		int i = result.indexOf(".");
@@ -139,15 +155,18 @@ public class SkyBaseViewer implements VisualPlugin {
 	private void jbInit(String result) {
 		// pdburl = "http://156.145.102.40/pdb/08-13-2008AAK22092.1.pdb";
 
+		seqlb = new JLabel();
+		JButton add2prj = new JButton();
+		JButton alnview = new JButton();
+		JButton q_alnview = new JButton();
+
 		mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.PAGE_AXIS));
 		mainPanel.removeAll();
 		mainPanel.revalidate();
 		mainPanel.repaint();
 
+		JPanel jp = new JPanel();
 		jp.setLayout(new BoxLayout(jp, BoxLayout.LINE_AXIS));
-		jp.removeAll();
-		jp.revalidate();
-		jp.repaint();
 
 		if (result == null || !result.endsWith(".blout.hits")) {
 			mainPanel.add(new JTextArea("No Blast Results Found in SkyBase!"));
@@ -166,8 +185,7 @@ public class SkyBaseViewer implements VisualPlugin {
 				}
 				br.close();
 
-				String[][] first = new String[linecnt][colcnt];
-				String[][] data = new String[linecnt][colcnt];
+				String[][] first = new String[linecnt][];
 				br = new BufferedReader(new InputStreamReader(url
 						.openConnection().getInputStream()));
 				while ((line = br.readLine()) != null) {
@@ -189,11 +207,13 @@ public class SkyBaseViewer implements VisualPlugin {
 				String[][] second = new String[linecnt][];
 				while ((line = br.readLine()) != null) {
 					String[] toks = line.split("\t");
-					ArrayList<String> al = new ArrayList<String>(Arrays
-							.asList(first[i]));
+					String aln = new String();
+					for (int l = 26; l < 32; l++) {
+						aln += toks[l] + "\n";
+					}
 					second[i] = new String[] { toks[20], toks[10], toks[5],
 							toks[1], toks[13], toks[4], toks[9], toks[6],
-							toks[14], toks[17], toks[32] };
+							toks[14], toks[17], toks[32], aln };
 
 					toks[3] = toks[3].substring(0, toks[3].lastIndexOf("."));
 					mod[i] = toks[3];
@@ -201,8 +221,8 @@ public class SkyBaseViewer implements VisualPlugin {
 					cov[i] = string2double(toks[10], false);
 					pg[i] = string2double(toks[20], false);
 
-					log.info(mod[i] + ": " + pctid[i] + ": " + cov[i] + ": "
-							+ pg[i]);
+					log.debug(mod[i] + ": " + pctid[i] + ": " + cov[i] + ": "
+							+ pg[i] + ":" + aln);
 
 					// rank model quality by sorting models in groups with .1
 					// increment of pG:
@@ -238,9 +258,7 @@ public class SkyBaseViewer implements VisualPlugin {
 					if (!ht.get(pggrp).get(cov[i]).get(pctid[i]).containsKey(i)) {
 						ht.get(pggrp).get(cov[i]).get(pctid[i]).put(i, 'T');
 					}
-
-					al.addAll(Arrays.asList(second[i]));
-					data[i++] = al.toArray(new String[colcnt]);
+					i++;
 				}
 				br.close();
 
@@ -285,13 +303,13 @@ public class SkyBaseViewer implements VisualPlugin {
 				}
 				besti = b;
 
-				String[][] data2 = new String[linecnt][colcnt + 1];
+				String[][] data2 = new String[linecnt][colcnt];
 				for (int k = 0; k < first.length; k++) {
 					ArrayList<String> al2 = new ArrayList<String>(Arrays
 							.asList(rank[k].toString()));
 					al2.addAll(Arrays.asList(first[k]));
 					al2.addAll(Arrays.asList(second[k]));
-					data2[k] = al2.toArray(new String[colcnt + 1]);
+					data2[k] = al2.toArray(new String[colcnt]);
 				}
 
 				cp = plot_model_quality(mod, cov, pg, pctid, rank);
@@ -312,8 +330,20 @@ public class SkyBaseViewer implements VisualPlugin {
 				table.getSelectionModel().addListSelectionListener(
 						new MyListSelectionListener());
 				table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-				table.changeSelection(besti, 0, false, false);
 
+				if (qbesti.get(qname) == null) {
+					seqid = first[besti][3];
+					qbesti.put(qname, seqid);
+					table.changeSelection(besti, 0, false, false);
+				} else {
+					seqid = qbesti.get(qname);
+					for (int j = 0; j < first.length; j++) {
+						if (table.getModel().getValueAt(j, 4).equals(seqid)) {
+							table.changeSelection(j, 0, false, false);
+							break;
+						}
+					}
+				}
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -335,13 +365,137 @@ public class SkyBaseViewer implements VisualPlugin {
 			JScrollPane sp2 = new JScrollPane(cp);
 			jp.add(sp2);
 
+			JPanel jp2 = new JPanel(new BorderLayout());
 			jp2.add(jmolPanel, BorderLayout.CENTER);
+
+			JPanel buttons = new JPanel();
+			seqlb.setText(seqid);
+			seqlb.setFont(new Font("Arial", Font.BOLD, 12));
+			buttons.add(seqlb);
+
+			add2prj.setText("ATP");
+			add2prj.setToolTipText("Add To Project");
+			add2prj.addActionListener(new java.awt.event.ActionListener() {
+				public void actionPerformed(java.awt.event.ActionEvent e) {
+					add2prj_actionPerformed(e);
+				}
+			});
+			buttons.add(add2prj);
+
+			alnview.setText("VAT");
+			alnview.setToolTipText("View Alignment between Model-Template");
+			alnview.addActionListener(new java.awt.event.ActionListener() {
+				public void actionPerformed(java.awt.event.ActionEvent e) {
+					alnview_actionPerformed(e);
+				}
+			});
+			buttons.add(alnview);
+
+			q_alnview.setText("VAQ");
+			q_alnview.setToolTipText("View Alignment between Model-Query");
+			q_alnview.addActionListener(new java.awt.event.ActionListener() {
+				public void actionPerformed(java.awt.event.ActionEvent e) {
+					q_alnview_actionPerformed(e);
+				}
+			});
+			buttons.add(q_alnview);
+
+			jp2.add(buttons, BorderLayout.SOUTH);
 			jp.add(jp2);
 
+			mainPanel.add(jp);
 			mainPanel.revalidate();
 			mainPanel.repaint();
-			mainPanel.add(jp);
 		}
+	}
+
+	public void add2prj_actionPerformed(java.awt.event.ActionEvent e) {
+		CSProteinStructure dsp = new CSProteinStructure(null, seqid);
+		dsp.setFile(new File(ofname));
+		ProjectNodeAddedEvent event = new ProjectNodeAddedEvent(
+				"skybase model", null, dsp);
+		publishProjectNodeAddedEvent(event);
+	}
+
+	public void alnview_actionPerformed(java.awt.event.ActionEvent e) {
+		int rowcnt = table.getModel().getRowCount();
+		for (int j = 0; j < rowcnt; j++) {
+			if (table.getModel().getValueAt(j, 4).equals(colKey)) {
+				String aln = (String) table.getModel()
+						.getValueAt(j, colcnt - 1);
+
+				String afname = getLastDataDirectory() + "/webpdb/" + seqid
+						+ ".t_aln";
+				try {
+					Cache.initLogger();
+
+					PrintWriter pw = new PrintWriter(new BufferedWriter(
+							new FileWriter(afname)));
+					pw.print(aln);
+					pw.close();
+				} catch (Exception ex) {
+					ex.printStackTrace();
+				}
+
+				displayAlnFile(afname);
+				break;
+			}
+		}
+	}
+
+	public void q_alnview_actionPerformed(java.awt.event.ActionEvent e) {
+		int rowcnt = table.getModel().getRowCount();
+		for (int j = 0; j < rowcnt; j++) {
+			if (table.getModel().getValueAt(j, 4).equals(colKey)) {
+				String aln = ">" + seqid + "\n"
+						+ (String) table.getModel().getValueAt(j, 5) + "\n"
+						+ ">" + qname + "\n"
+						+ (String) table.getModel().getValueAt(j, 6) + "\n";
+
+				String afname = getLastDataDirectory() + "/webpdb/" + seqid
+						+ ".q_aln";
+				try {
+					Cache.initLogger();
+
+					PrintWriter pw = new PrintWriter(new BufferedWriter(
+							new FileWriter(afname)));
+					pw.print(aln);
+					pw.close();
+				} catch (Exception ex) {
+					ex.printStackTrace();
+				}
+
+				displayAlnFile(afname);
+				break;
+			}
+		}
+	}
+
+	public void displayAlnFile(String afname) {
+		String color = "CLUSTAL";
+		String protocol = "File";
+		String format = new jalview.io.IdentifyFile()
+				.Identify(afname, protocol);
+		jalview.io.FileLoader fileLoader = new jalview.io.FileLoader();
+		AlignFrame af = fileLoader.LoadFileWaitTillLoaded(afname, protocol,
+				format);
+		jalview.schemes.ColourSchemeI cs = jalview.schemes.ColourSchemeProperty
+				.getColour(af.getViewport().getAlignment(), color);
+		af.changeColour(cs);
+		af.toFront();
+		af.setVisible(true);
+		af.setClosable(true);
+		af.setResizable(true);
+		af.setMaximizable(true);
+		af.setIconifiable(true);
+		af.setFrameIcon(null);
+		af.setPreferredSize(new java.awt.Dimension(600, 400));
+		JFrame pop = new JFrame();
+		pop.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		// pop.setLocationRelativeTo(null);
+		pop.getContentPane().add(af, BorderLayout.CENTER);
+		pop.setVisible(true);
+		pop.pack();
 	}
 
 	public Component getComponent() {
@@ -478,7 +632,7 @@ public class SkyBaseViewer implements VisualPlugin {
 	/*
 	 * download web content from fname
 	 */
-	private StringBuffer getContent(String fname) {
+	private String getContent(String fname) {
 		StringBuffer contents = null;
 		try {
 			URL url = new URL(fname);
@@ -497,7 +651,7 @@ public class SkyBaseViewer implements VisualPlugin {
 			e.printStackTrace();
 			log.info("getContent notconnected error: " + fname);
 		}
-		return contents;
+		return contents.toString();
 	}
 
 	/*
@@ -520,27 +674,70 @@ public class SkyBaseViewer implements VisualPlugin {
 				int selectedRow = l.getMinSelectionIndex();
 				TableModel tm = table.getModel();
 				seqid = (String) tm.getValueAt(selectedRow, 4);
+				qbesti.put(qname, seqid);
+				lastseqid = qlasti.get(qname);
 
-				if (!seqid.equals(lastseqid)) {
+				if (!qname.equals(lastqname) || !seqid.equals(lastseqid)) {
 					String pdblink = (String) tm.getValueAt(selectedRow,
-							colcnt - 1);
+							colcnt - 2);
 					pdburl = pdbroot + pdblink;
 
-					StringBuffer contents = getContent(pdburl);
-					viewer.openStringInline(contents.toString());
+					String contents = getContent(pdburl);
+					ofname = getLastDataDirectory() + "/webpdb/" + seqid
+							+ ".pdb";
+					try {
+						PrintWriter pw = new PrintWriter(new BufferedWriter(
+								new FileWriter(ofname)));
+						pw.print(contents);
+						pw.close();
+					} catch (Exception ex) {
+						ex.printStackTrace();
+					}
+					viewer.openStringInline(contents);
 					viewer.evalString(strScript);
-
-					jp2.setBorder(BorderFactory.createCompoundBorder(
-							BorderFactory.createCompoundBorder(BorderFactory
-									.createTitledBorder(seqid), BorderFactory
-									.createEmptyBorder(5, 5, 5, 5)), border));
-
+					seqlb.setText(seqid);
+					/*
+					 * jp2.setBorder(BorderFactory.createCompoundBorder(
+					 * BorderFactory.createCompoundBorder(BorderFactory
+					 * .createTitledBorder(seqid), BorderFactory
+					 * .createEmptyBorder(5, 5, 5, 5)), border));
+					 */
 					renderer.setcol(seqid);
 					lastseqid = seqid;
+					qlasti.put(qname, seqid);
+					lasti = selectedRow;
 				}
 				colKey = seqid;
+				lastqname = qname;
 			}
 		}
+	}
+
+	static public String getLastDataDirectory() {
+		String dir = System.getProperty("data.files.dir");
+		// This is where we store user data information
+		String filename = System.getProperty("userSettings");
+		try {
+			File file = new File(filename);
+			if (file.exists()) {
+				BufferedReader br = new BufferedReader(new FileReader(file));
+				br.readLine(); // skip the format information
+				dir = br.readLine();
+				br.close();
+			}
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+		if (dir.equals(".")) {
+			dir = System.getProperty("user.dir");
+		}
+		return dir;
+	}
+
+	@Publish
+	public ProjectNodeAddedEvent publishProjectNodeAddedEvent(
+			ProjectNodeAddedEvent event) {
+		return event;
 	}
 
 	/*
