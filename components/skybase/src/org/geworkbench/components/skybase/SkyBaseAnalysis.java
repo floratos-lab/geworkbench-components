@@ -1,10 +1,8 @@
 package org.geworkbench.components.skybase;
 
-import java.io.DataInputStream;
+import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
+import java.io.FileReader;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
@@ -27,7 +25,7 @@ import edu.columbia.geworkbench.cagrid.skybase.client.SkyBaseWebClient;
  * AbstractGridAnalysis for blast skybase on grid service on web1
  * 
  * @author mw2518
- * @version $Id: SkyBaseAnalysis.java,v 1.4 2009-01-19 02:33:53 wangm Exp $
+ * @version $Id: SkyBaseAnalysis.java,v 1.5 2009-01-19 14:59:33 wangm Exp $
  *
  */
 public class SkyBaseAnalysis extends AbstractGridAnalysis implements
@@ -89,18 +87,24 @@ public class SkyBaseAnalysis extends AbstractGridAnalysis implements
 	 * return file content
 	 */
 	public String getcontent(File seqfile) {
-		byte[] fileBytes = null;
+		StringBuffer contents = new StringBuffer();
 		try {
-			FileInputStream fileIn = new FileInputStream(seqfile);
-			DataInputStream dataIn = new DataInputStream(fileIn);
-			fileBytes = new byte[dataIn.available()];
-			dataIn.readFully(fileBytes);
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
+		    BufferedReader br = new BufferedReader(new FileReader(seqfile));
+		    String line;
+		    boolean foundseq = false;
+		    while((line = br.readLine()) != null) {
+			if (line.startsWith(">"))
+			    if (foundseq) break;
+
+			contents.append(line);
+			contents.append("\n");
+			foundseq = true;
+		    }
+		    br.close();
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		return new String(fileBytes);
+		return contents.toString();
 	}
 
 	public void set_seqfile(DSSequenceSet seq) {
@@ -143,8 +147,7 @@ public class SkyBaseAnalysis extends AbstractGridAnalysis implements
 
 		log.info("sendfileparam: " + seqname);
 		parameterMap.put("sendnameParameter", seqname);
-		int offset = seqcontent.indexOf(">", 1);
-		if (offset>-1)  seqcontent = seqcontent.substring(0, offset);
+		System.out.println(seqcontent);
 		parameterMap.put("sendcontentParameter", seqcontent);
 
 		String cfgcommand = scp.getmincovValue() + " " + scp.getminsidValue()
