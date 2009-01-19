@@ -27,7 +27,7 @@ import edu.columbia.geworkbench.cagrid.skybase.client.SkyBaseWebClient;
  * AbstractGridAnalysis for blast skybase on grid service on web1
  * 
  * @author mw2518
- * @version $Id: SkyBaseAnalysis.java,v 1.3 2008-12-10 20:33:43 wangm Exp $
+ * @version $Id: SkyBaseAnalysis.java,v 1.4 2009-01-19 02:33:53 wangm Exp $
  *
  */
 public class SkyBaseAnalysis extends AbstractGridAnalysis implements
@@ -143,6 +143,8 @@ public class SkyBaseAnalysis extends AbstractGridAnalysis implements
 
 		log.info("sendfileparam: " + seqname);
 		parameterMap.put("sendnameParameter", seqname);
+		int offset = seqcontent.indexOf(">", 1);
+		if (offset>-1)  seqcontent = seqcontent.substring(0, offset);
 		parameterMap.put("sendcontentParameter", seqcontent);
 
 		String cfgcommand = scp.getmincovValue() + " " + scp.getminsidValue()
