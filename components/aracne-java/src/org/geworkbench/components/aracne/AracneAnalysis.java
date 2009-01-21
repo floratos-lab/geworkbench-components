@@ -117,6 +117,15 @@ public class AracneAnalysis extends AbstractGridAnalysis implements
 			}
 
 			p.setSubnet(new Vector<String>(hubGeneList));
+		} else {
+			int n = JOptionPane.showConfirmDialog(
+				    null,
+				    "You choose 'All vs All' for hub markers. This could take a LONG time. Do you want to continue?",
+				    "'All vs All' confirmation",
+				    JOptionPane.YES_NO_OPTION);
+			if(n==JOptionPane.NO_OPTION)
+				return null;
+
 		}
 		if (params.isThresholdMI()) {
 			p.setThreshold(params.getThreshold());
