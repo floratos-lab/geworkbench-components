@@ -33,7 +33,7 @@ import org.geworkbench.events.EventHandler;
  * Captures all events with an associated {@link EventHandler} defined.
  * 
  * @author keshav
- * @version $Id: GenspaceLogger.java,v 1.6 2007-12-04 19:08:52 sheths Exp $
+ * @version $Id: GenspaceLogger.java,v 1.7 2009-01-21 01:15:04 sheths Exp $
  */
 public class GenspaceLogger {
 

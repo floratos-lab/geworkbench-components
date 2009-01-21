@@ -4,6 +4,7 @@ import javax.swing.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.builtin.projects.remoteresources.query.GeWorkbenchCaARRAYAdaptor;
+import org.geworkbench.components.genspace.rating.WorkflowVisualizationPopup;
 import org.geworkbench.engine.config.*;
 import java.awt.Component;
 import org.jgraph.*;
@@ -12,11 +13,15 @@ import org.jgraph.event.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.geom.*;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.*;
 import java.net.*;
+
+
 
 public class WorkflowVisualization extends JPanel implements VisualPlugin, ActionListener {
 
@@ -32,11 +37,10 @@ public class WorkflowVisualization extends JPanel implements VisualPlugin, Actio
 	private ArrayList<String> workflows;
 	private JGraph graph;
 	private DefaultGraphCell[] cells;
+	
+	private WorkflowVisualizationPopup popup = new WorkflowVisualizationPopup();
 
 	public static final String[] NUMBERS = {"No", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten" };
-
-	private static final String HOST = "bambi.cs.columbia.edu";
-	private static final int PORT = 22222;
 
 	private String login = "chris"; // TODO: WHERE DOES THIS COME FROM???
 
@@ -98,7 +102,8 @@ public class WorkflowVisualization extends JPanel implements VisualPlugin, Actio
     	Socket s = null;
     	try
     	{
-    		s = new Socket(HOST, PORT);
+    		s = new Socket(RuntimeEnvironmentSettings.WORKFLOW_SERVER.getHost(),
+    					RuntimeEnvironmentSettings.WORKFLOW_SERVER.getPort());
     		out = new java.io.PrintWriter(s.getOutputStream());
 
     		// send the action keyword and the name of the tool
@@ -144,7 +149,9 @@ public class WorkflowVisualization extends JPanel implements VisualPlugin, Actio
     	Socket s = null;
     	try
     	{
-    		s = new Socket(HOST, PORT);
+    		s = new Socket(RuntimeEnvironmentSettings.WORKFLOW_SERVER.getHost(), 
+    					RuntimeEnvironmentSettings.WORKFLOW_SERVER.getPort());
+    		
     		out = new java.io.PrintWriter(s.getOutputStream());
 
     		// send the action keyword and the name of the tool
@@ -452,12 +459,15 @@ public class WorkflowVisualization extends JPanel implements VisualPlugin, Actio
 	private DefaultGraphCell createNode(String label, Rectangle2D bounds, Color color)
 	{
 		GraphNode cell = new GraphNode(label, color);
+
 		GraphConstants.setBounds(cell.getAttributes(), bounds);
 		GraphConstants.setGradientColor(cell.getAttributes(), color);
 		GraphConstants.setOpaque(cell.getAttributes(), true);
 		GraphConstants.setAutoSize(cell.getAttributes(), false);
 		GraphConstants.setResize(cell.getAttributes(), false);
-		GraphConstants.setBorder(cell.getAttributes(), BorderFactory.createRaisedBevelBorder());
+		GraphConstants.setEditable(cell.getAttributes(), false);
+		GraphConstants.setSizeable(cell.getAttributes(), false);
+		GraphConstants.setBorder(cell.getAttributes(), BorderFactory.createRaisedBevelBorder());		
 		DefaultPort port0 = new DefaultPort();
 		cell.add(port0);
 		return cell;
@@ -511,6 +521,7 @@ public class WorkflowVisualization extends JPanel implements VisualPlugin, Actio
 			workflows++;
 			avgPos = ((double)totalPos)/workflows;
 		}
+		
 	}
 
 
@@ -556,7 +567,7 @@ public class WorkflowVisualization extends JPanel implements VisualPlugin, Actio
 			if (o instanceof GraphNode)
 			{
 				GraphNode selectedNode = (GraphNode)o;
-
+				
 				// if it's highlighted already, unhighlight it
 				if (highlightedNodes.contains(selectedNode))
 					highlightedNodes.remove(selectedNode);
@@ -720,8 +731,19 @@ public class WorkflowVisualization extends JPanel implements VisualPlugin, Actio
 				 * automatically refresh the entire graph
 				 */
 				graph.getGraphLayoutCache().insertEdge(temp, temp.getSource(), temp.getTarget());
+			
 
-
+				
+				//Display the right click menu for rating
+				
+				Rectangle2D rect = GraphConstants.getBounds(selectedNode.getAttributes());
+			
+				popup.showToolOptions();
+				popup.showToolRating();
+				popup.hideWorkflowOptions();
+				popup.hideWorkflowRating();
+				popup.initialize(selectedNode.getToolName(), null);
+				popup.show(WorkflowVisualization.this, (int)rect.getCenterX(), (int)rect.getCenterY());
 			}
 			/*
 			// if they click on an edge... though a DefaultEdge *is* a DefaultGraphCell, so this would need to move up!!!!!
@@ -751,11 +773,14 @@ public class WorkflowVisualization extends JPanel implements VisualPlugin, Actio
 	class GraphNode extends DefaultGraphCell
 	{
 		Color color;
-		//boolean highlighted = false;
-
+		String toolName;
+		
+		public String getToolName() { return toolName; }
+		
 		public GraphNode (String label, Color c)
 		{
 			super(label);
+			toolName = label;
 			color = c;
 		}
 	}

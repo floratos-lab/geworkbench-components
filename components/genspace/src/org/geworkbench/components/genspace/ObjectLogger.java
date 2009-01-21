@@ -18,17 +18,22 @@ public class ObjectLogger {
 	private Log log = LogFactory.getLog(this.getClass());
 
 	public ObjectLogger(String analysisName, String dataSetName, String transactionId, String username, boolean genspace) {
+		
 		try {
 			File f = new File("geworkbench_log.xml");
 			
 			FileWriter fw = new FileWriter(f, true);
+			
+			//log only the file extension and not the filename
+			String[] fileName = dataSetName.split("\\.");
+			String fileExtension = fileName[fileName.length - 1];
 			
 			//fw.write("<measurement>");
 			fw.write("\t<metric name=\"analysis\">");
 			fw.write("\n\t\t<user name=\""+ username + "\" genspace=\"" + genspace + "\"/>");
 			fw.write("\n\t\t<host name=\""+ InetAddress.getLocalHost().getHostName() + "\"/>");
 			fw.write("\n\t\t<analysis name=\""+ analysisName + "\"/>");
-			fw.write("\n\t\t<dataset name=\""+ dataSetName + "\"/>");
+			fw.write("\n\t\t<dataset name=\""+ fileExtension + "\"/>");
 			fw.write("\n\t\t<transaction id=\""+ transactionId + "\"/>");
 			fw.write("\n\t\t<time>");
 			
@@ -45,9 +50,16 @@ public class ObjectLogger {
 			//fw.write("\n</measurement>\n");
 			
 			fw.close();
+			
+			//Modified by cheng
+			//System.out.println("AAAAAA: " + analysisName);
+			//System.out.println("BBBBBB: " + transactionId);
+			RealTimeWorkFlowSuggestion.updateCWFStatus(c.get(Calendar.HOUR_OF_DAY),c.get(Calendar.MINUTE),  c.get(Calendar.SECOND),  analysisName, transactionId);
+			
 		}
 		catch (Exception e) {
 			//TODO: Does nothing for now
+			//e.printStackTrace();
 		}
 	}
 	

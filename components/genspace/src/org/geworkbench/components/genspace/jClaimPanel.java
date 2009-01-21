@@ -39,19 +39,22 @@ import java.awt.event.ActionEvent;
 // This annotation lists the data set types that this component accepts.
 // The component will only appear when a data set of the appropriate type is selected.
 //@AcceptTypes({DSMicroarraySet.class})
-public class jClaim extends JPanel implements VisualPlugin, ActionListener {
+public class jClaimPanel extends JPanel implements VisualPlugin, ActionListener {
 
     private JButton b;
-    String jarFile = "components/genspaceLogin/lib/genspace-communicator.jar";
+    String jarFile = "components/genspace/lib/genspace-communicator.jar";
     //String jarFile = "components/genspaceLogin/lib/jclaim-genspace.jar";
+    //String jarFile = "genspace-communicator.jar";
     
     /**
      * Constructor
      */
-    public jClaim() {
-        b = new JButton("Start jClaim");
+    public jClaimPanel() {
+        b = new JButton("Start jClaimPanel");
         add(b);
         b.addActionListener(this);
+        
+        
     }
     
     /**
@@ -95,7 +98,7 @@ public class jClaim extends JPanel implements VisualPlugin, ActionListener {
      */
     public Component getComponent() {
         // In this case, this object is also the GUI component.
-        return this;
+        return this ;
     }
 
     /**
