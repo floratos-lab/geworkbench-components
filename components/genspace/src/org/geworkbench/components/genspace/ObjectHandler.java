@@ -15,15 +15,15 @@ import org.apache.ojb.otm.lock.ObjectLock;
  * A handler used to log events.
  * 
  * @author sheths
- * @version $Id: ObjectHandler.java,v 1.8 2008-09-18 00:27:32 sheths Exp $
+ * @version $Id: ObjectHandler.java,v 1.9 2009-01-21 01:15:04 sheths Exp $
  */
 public class ObjectHandler {
 
 	private Log log = LogFactory.getLog(this.getClass());
-	private String host = "bambi.cs.columbia.edu";
-	private int port = 12346;
-	private String lookupServer = "york.cs.columbia.edu";
-	private int lookupPort = 44444;
+	private String host = RuntimeEnvironmentSettings.EVENT_SERVER.getHost();
+	private int port = RuntimeEnvironmentSettings.EVENT_SERVER.getPort();
+	private String lookupServer = RuntimeEnvironmentSettings.LOOKUP_HOST;
+	private int lookupPort = RuntimeEnvironmentSettings.LOOKUP_PORT;
 	private int frequency = 2;
 	private static int count = 0;
 	private static String lastRunDataSetName = "";
@@ -31,11 +31,12 @@ public class ObjectHandler {
 	private long defaultRunTime = 1000 * 60; // 1 min
 	private static String lastTransactionId = "0";
 	private static int logStatus = 1; //0 = log, 1 = log anonymously, 2 = dont log
-
+    private static String userName = "";
+    
 	public ObjectHandler(Object event, Object source) {
 
 		if (event.getClass().getName().equals("org.geworkbench.events.AnalysisInvokedEvent")) {
-
+			
 			if (logStatus != 2) {
 
 				Method methods[] = event.getClass().getDeclaredMethods();
@@ -57,7 +58,13 @@ public class ObjectHandler {
 
 				// this is temporary
 				boolean genspace = false; // for now they are NOT logged in
-				username = System.getProperty("user.name"); // so use the system name
+				
+				if (userName.equals("")) {
+					username = System.getProperty("user.name"); // so use the system name
+				} else
+				{
+					username = userName;
+				}
 
 				for (Method m : methods) {
 					try {
@@ -187,9 +194,13 @@ public class ObjectHandler {
 		lastTransactionId = j.toString();
 	}
 
-	protected static void setLogStatus(int i) {
+	public static void setLogStatus(int i) {
 		//System.out.println(logStatus);
 		logStatus = i;
 		//System.out.println(logStatus);
+	}
+	
+	public static void setUserName(String userName) {
+		userName = userName;
 	}
 }

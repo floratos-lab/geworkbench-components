@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<!DOCTYPE GraphXML SYSTEM "GraphXML.dtd">
+<graph id="My First Graph">
+<node name="Columbia"><label>Columbia</label></node>
+<node name="chris"><label>&lt;&lt;ME&gt;&gt;</label></node>
+<edge source="chris" target="Columbia" />
+<node name="swap"><label>swap</label></node>
+<edge source="swap" target="Columbia" />
+<node name="swapneel"><label>swapneel</label></node>
+<edge source="swapneel" target="Columbia" />
+<node name="Dartmouth"><label>Dartmouth</label></node>
+<edge source="chris" target="Dartmouth" />
+<node name="gail"><label>gail</label></node>
+<edge source="gail" target="Dartmouth" />
+<node name="network"><label>network</label></node>
+<edge source="chris" target="network" />
+<node name="TESTT"><label>TESTT</label></node>
+<edge source="chris" target="TESTT" />
+</graph>

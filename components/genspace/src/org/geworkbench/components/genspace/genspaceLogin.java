@@ -131,7 +131,15 @@ public class genspaceLogin extends JPanel implements VisualPlugin, ActionListene
     		// may want a different event but it doesn't matter for now
     		notifyActionListeners(e);
     		// TODO: make sure this doesn't break everything when it's a genspace plugin
-    		if (frame != null) frame.setVisible(false);
+    		//if (frame != null) frame.setVisible(false);
+    		/*String jarFile = "components/genspace/lib/genspace-communicator.jar";
+    		ProcessBuilder pb = new ProcessBuilder("java", "-jar", jarFile, genspaceLogin);  
+    		try {
+    			Process p = pb.start();
+    		} catch (Exception ex) {
+    			// TODO Auto-generated catch block
+    			ex.printStackTrace();
+    		}*/
     	}
     }
     
