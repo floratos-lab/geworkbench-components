@@ -4,5 +4,6 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="lib/jgraph.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/geworkbench-core"/>
+	<classpathentry kind="lib" path="lib/hyperapplet.jar"/>
 	<classpathentry kind="output" path="classes"/>
 </classpath>
