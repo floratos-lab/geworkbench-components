@@ -179,7 +179,6 @@ public class WorkflowVisualizationPopup extends JPopupMenu implements ActionList
 		toolSRP.setVisible(false);
 	}
 
-	@Override
 	public void actionPerformed(ActionEvent event) {
 		String args = "";
 		
