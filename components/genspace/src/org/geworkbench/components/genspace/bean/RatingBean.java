@@ -44,7 +44,6 @@ public class RatingBean implements Serializable, Comparable {
 				
 	}
 	
-	@Override
 	public int compareTo(Object arg0) {
 		RatingBean other = (RatingBean) arg0;
 		if (this.overallRating > other.overallRating) return 1;
