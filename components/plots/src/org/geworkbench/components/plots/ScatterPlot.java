@@ -5,6 +5,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.Paint;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
@@ -77,12 +78,15 @@ import org.jfree.chart.ChartMouseListener;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.annotations.XYLineAnnotation;
+import org.jfree.chart.axis.Axis;
+import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.entity.ChartEntity;
 import org.jfree.chart.entity.XYItemEntity;
 import org.jfree.chart.labels.StandardXYToolTipGenerator;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.StandardXYItemRenderer;
+import org.jfree.chart.title.TextTitle;
 import org.jfree.data.general.SeriesException;
 import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeries;
@@ -530,6 +534,123 @@ public class ScatterPlot implements VisualPlugin {
         }
     }
 
+	private static class JFreeChartProperties{
+		
+    	private Boolean antiAlias = null;
+    	private Paint backgroundPaint = null;
+    		
+    	private TextTitle textTitle = null;
+    		
+    	private Boolean  domainAxisLineVisible   = null;
+    	private Boolean  domainTickLabelsVisible = null;
+    	private Boolean  domainTickMarksVisible  = null;
+    	private Boolean  domainVisible           = null;
+    
+    	private Boolean  rangeAxisLineVisible   = null;
+    	private Boolean  rangeTickLabelsVisible = null;
+    	private Boolean  rangeTickMarksVisible  = null;
+    	private Boolean  rangeVisible           = null;
+    		
+//    	private XYAnnotation xyAnnotations = null;
+    	private Paint paint = null;
+    	private PlotOrientation plotOrientation = null;
+    		
+    	private Boolean  domainCrosshairLockedOnData     = null;
+    	private Boolean  domainCrosshairVisible          = null; 
+    	private Boolean  domainGridlinesVisible          = null; 
+//    	private Boolean  domainMinorGridlinesVisible     = null; 
+//    	private Boolean  domainZeroBaselineVisible       = null; 
+//    	private Boolean  domainZoomable                  = null;
+    		
+    	private Boolean  rangeCrosshairLockedOnData      = null; 
+    	private Boolean  rangeCrosshairVisible           = null;
+    	private Boolean  rangeGridlinesVisible           = null;
+//    	private Boolean  rangeMinorGridlinesVisible      = null; 
+    	private Boolean  rangeZeroBaselineVisible        = null;
+//    	private Boolean  rangeZoomable                   = null;    		
+    		
+    	public JFreeChartProperties(JFreeChart jFreeChartOriginal) {
+    
+	    	antiAlias = jFreeChartOriginal.getAntiAlias();
+	    	backgroundPaint = jFreeChartOriginal.getBackgroundPaint();
+	    			
+	    	textTitle = jFreeChartOriginal.getTitle();
+	    		
+	    	XYPlot xyPlot = (XYPlot)jFreeChartOriginal.getPlot();
+	    	ValueAxis domainAxis  = xyPlot.getDomainAxis();
+	    	domainAxisLineVisible   = domainAxis.isAxisLineVisible();
+	    	domainTickLabelsVisible = domainAxis.isTickLabelsVisible();// 5
+	    	domainTickMarksVisible  = domainAxis.isTickMarksVisible();
+	    	domainVisible           = domainAxis.isVisible();
+	    
+	    	ValueAxis rangeAxis = xyPlot.getRangeAxis();
+	    	rangeAxisLineVisible   = rangeAxis.isAxisLineVisible();
+	    	rangeTickLabelsVisible = rangeAxis.isTickLabelsVisible();
+	    	rangeTickMarksVisible  = rangeAxis.isTickMarksVisible();
+	    	rangeVisible           = rangeAxis.isVisible();
+	    		
+//	    	XYAnnotation xyAnnotations = xyPlot.getAnnotations();
+	    	paint = xyPlot.getBackgroundPaint();
+	    	plotOrientation =  xyPlot.getOrientation();
+	    		
+	    	domainCrosshairLockedOnData     = xyPlot.isDomainCrosshairLockedOnData();
+	    	domainCrosshairVisible          = xyPlot.isDomainCrosshairVisible(); 
+	    	domainGridlinesVisible          = xyPlot.isDomainGridlinesVisible(); 
+//	    	domainMinorGridlinesVisible     = xyPlot.isDomainMinorGridlinesVisible(); 
+//	    	domainZeroBaselineVisible       = xyPlot.isDomainZeroBaselineVisible(); 
+//	    	domainZoomable                  = xyPlot.isDomainZoomable() ;
+	    		
+	    	rangeCrosshairLockedOnData      = xyPlot.isRangeCrosshairLockedOnData(); 
+	    	rangeCrosshairVisible           = xyPlot.isRangeCrosshairVisible() ;
+	    	rangeGridlinesVisible           = xyPlot.isRangeGridlinesVisible() ;
+//	    	rangeMinorGridlinesVisible      = xyPlot.isRangeMinorGridlinesVisible(); 
+	    	rangeZeroBaselineVisible        = xyPlot.isRangeZeroBaselineVisible();
+// 	    	rangeZoomable                   = xyPlot.isRangeZoomable() ;
+    	}		
+	
+		public void updateJFreeChartProperties(JFreeChart jFreeChart){
+	
+			jFreeChart.setAntiAlias(antiAlias);
+			jFreeChart.setBackgroundPaint(backgroundPaint);
+			
+			jFreeChart.setTitle(textTitle);
+
+			XYPlot xyPlot = (XYPlot)jFreeChart.getPlot();
+			ValueAxis domainAxis  = xyPlot.getDomainAxis();
+			domainAxis = xyPlot.getDomainAxis();
+			domainAxis.setAxisLineVisible(domainAxisLineVisible);
+			domainAxis.setTickLabelsVisible(domainTickLabelsVisible);// 5
+			domainAxis.setTickMarksVisible(domainTickMarksVisible);
+			domainAxis.setVisible(domainVisible);
+	
+			ValueAxis rangeAxis = xyPlot.getRangeAxis();
+			rangeAxis = xyPlot.getRangeAxis();
+			rangeAxis.setAxisLineVisible(rangeAxisLineVisible);
+			rangeAxis.setTickLabelsVisible(rangeTickLabelsVisible);
+			rangeAxis.setTickMarksVisible(rangeTickMarksVisible);
+			rangeAxis.setVisible(rangeVisible);
+			
+	//		xyPlot.getAnnotations(xyAnnotations);
+			xyPlot.setBackgroundPaint(paint);
+			xyPlot.setOrientation(plotOrientation);
+			
+			xyPlot.setDomainCrosshairLockedOnData(domainCrosshairLockedOnData);
+	        xyPlot.setDomainCrosshairVisible(domainCrosshairVisible); 
+	        xyPlot.setDomainGridlinesVisible(domainGridlinesVisible); 
+//			xyPlot.setDomainMinorGridlinesVisible(domainMinorGridlinesVisible); 
+//			xyPlot.setDomainZeroBaselineVisible(domainZeroBaselineVisible); 
+//	        xyPlot.setDomainZoomable(domainZoomable);
+	        
+	        xyPlot.setRangeCrosshairLockedOnData(rangeCrosshairLockedOnData); 
+	        xyPlot.setRangeCrosshairVisible(rangeCrosshairVisible);
+	        xyPlot.setRangeGridlinesVisible(rangeGridlinesVisible) ;
+//	        xyPlot.setRangeMinorGridlinesVisible(rangeMinorGridlinesVisible);
+			xyPlot.setRangeZeroBaselineVisible(rangeZeroBaselineVisible);
+//			xyPlot.setRangeZoomable(rangeZoomable);
+		}
+	}
+
+    
     private JSplitPane mainPanel;
     private JTabbedPane tabbedPane;
     private org.geworkbench.util.JAutoList microarrayList;
@@ -1117,11 +1238,17 @@ public class ScatterPlot implements VisualPlugin {
         ChartGroup group = chartGroups.get(type);
         for (int i = 0; i < group.charts.size(); i++) {
             Chart chart = group.charts.get(i);
-            if (type == PlotType.ARRAY) {
-                chart.panel.setChart(createMicroarrayChart(group.xIndex, chart.index, chart.chartData));
-            } else {
-                chart.panel.setChart(createGeneChart(group.xIndex, chart.index, chart.chartData));
-            }
+			ChartPanel localChartPanel = chart.panel;
+			JFreeChart jFreeChartOriginal = localChartPanel.getChart();
+			JFreeChartProperties jFreeChartProperties = new JFreeChartProperties(jFreeChartOriginal);
+			JFreeChart jFreeChartFinal = null;
+			if (type == PlotType.ARRAY) {
+				jFreeChartFinal =  createMicroarrayChart(group.xIndex, chart.index, chart.chartData);
+			} else {
+				jFreeChartFinal =  createGeneChart(group.xIndex, chart.index, chart.chartData);
+			}
+			jFreeChartProperties.updateJFreeChartProperties(jFreeChartFinal);
+			chart.panel.setChart(jFreeChartFinal);
         }
     }
 
