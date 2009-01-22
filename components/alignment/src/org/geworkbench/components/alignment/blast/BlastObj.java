@@ -1,18 +1,20 @@
 package org.geworkbench.components.alignment.blast;
 
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpStatus;
-import org.apache.commons.httpclient.cookie.CookiePolicy;
-import org.apache.commons.httpclient.methods.GetMethod;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.geworkbench.bison.datastructure.bioobjects.sequence.CSSequence;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
+
+import org.apache.commons.httpclient.DefaultHttpMethodRetryHandler;
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.HttpException;
+import org.apache.commons.httpclient.HttpStatus;
+import org.apache.commons.httpclient.methods.GetMethod;
+import org.apache.commons.httpclient.params.HttpMethodParams;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.geworkbench.bison.datastructure.bioobjects.sequence.CSSequence;
 
 /**
  * BlastObj.java A class to hold information about each individual hit of a
@@ -21,7 +23,7 @@ import java.net.URL;
  * <code> BlastParser </code> class.
  */
 public class BlastObj {
-	private Log log = LogFactory.getLog(BlastObj.class);
+	private static Log log = LogFactory.getLog(BlastObj.class);
 	
 	/**
 	 * The Databse ID of the protein sequence hit in this BlastObj.
@@ -448,71 +450,82 @@ public class BlastObj {
 	}
 
 	/**
+	 * Create Entrez Programming Utilities query URL from web query URL.
+	 * 
+	 * @param queryUrl
+	 * @return
+	 */
+	private static String EUtilsUrl(String queryUrl) {
+		int beginIndex = queryUrl.indexOf("&list_uids=");
+		if (beginIndex < 0) {
+			log.error("query URL does not have list_uids");
+			return null;
+		}
+		int endIndex = queryUrl.indexOf(queryUrl, beginIndex);
+
+		String id = null;
+		if (endIndex < 0)
+			id = queryUrl.substring(beginIndex);
+		else
+			id = queryUrl.substring(beginIndex, endIndex);
+
+		return "http://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=protein&id="
+				+ id + "&rettype=fasta";
+	}
+	
+	/**
 	 * getWholeSeq
 	 * 
 	 * @return Object
 	 */
 	public CSSequence getWholeSeq() throws BlastDataOutOfBoundException {
 
-		if (retriveWholeSeq && seqURL != null) {
-			try {
-				HttpClient client = new HttpClient();
-				GetMethod method = new GetMethod(seqURL.toString());
-				method.getParams().setCookiePolicy(
-						CookiePolicy.BROWSER_COMPATIBILITY);
-				method.getParams().makeStrict();
+		if (!retriveWholeSeq || seqURL == null)
+			return null;
 
-				int statusCode = client.executeMethod(method);
+		log.debug("URL" + seqURL);
+		HttpClient client = new HttpClient();
+		DefaultHttpMethodRetryHandler retryhandler = new DefaultHttpMethodRetryHandler(
+				10, true);
+		client.getParams().setParameter(HttpMethodParams.RETRY_HANDLER,
+				retryhandler);
 
-				if (statusCode == HttpStatus.SC_OK) {
-					InputStream stream = method.getResponseBodyAsStream();
-					BufferedReader in = new BufferedReader(
-							new InputStreamReader(stream));
-					String line;
-					while ((line = in.readLine()) != null) {
+		GetMethod getMethod = new GetMethod(EUtilsUrl(seqURL.toString()));
+		String sequenceLabel = null, sequence = null;
+		try {
+			int statusCode = client.executeMethod(getMethod);
 
-						if (line.startsWith("</form><pre>>")
-								|| line.trim()
-										.startsWith("</div></form><pre>>")
-								|| line.matches("</div></form><pre>>")
-								|| line.trim().startsWith(
-										"<pre><div class='recordbody'>>")) {
-							String[] str = line.split(">>");
-							int size = 0;
-							StringBuffer name = new StringBuffer();
-							String label = "";
-							if (str.length > 1) {
-								label = ">" + str[1] + "\n";
-							}
-							while ((line = in.readLine()) != null
-									&& !line.startsWith("</div>")
-									&& !line.startsWith("</pre>")) {
-								size += line.length();
-								if (size >= maxSize) {
-									throw new BlastDataOutOfBoundException(
-											"The sequence "
-													+ label
-													+ "  is too long to retrieve the whole sequence. The upper limit is "
-													+ maxSize + " bases.");
-								}
-								name.append(line + "\n");
-							}
-							CSSequence seq = new CSSequence(label, name
-									.toString());
-							return seq;
-						} // end of if
-					} // end of while
-				} else {
-					log.error("Unable to fetch default page, status code: "
-							+ statusCode);
-					return null;
+			if (statusCode == HttpStatus.SC_OK) {
+				InputStream stream = getMethod.getResponseBodyAsStream();
+				BufferedReader in = new BufferedReader(new InputStreamReader(
+						stream));
+				sequenceLabel = in.readLine();
+				StringBuilder sb = new StringBuilder();
+				String line = null;
+				while ((line = in.readLine()) != null) {
+					if (line.trim().length() > 0)
+						sb.append(line).append('\n');
 				}
-			} catch (IOException e) {
-				e.printStackTrace();
+				stream.close();
+				sequence = sb.toString();
+			} else {
+				log.error("E Utilties failed for " + seqURL);
+				log.error("status code=" + statusCode);
+				return null;
 			}
-
+		} catch (HttpException e) {
+			e.printStackTrace();
+			return null;
+		} catch (IOException e) {
+			e.printStackTrace();
+			return null;
+		} finally {
+			getMethod.releaseConnection();
 		}
-		return null;
+
+		log.debug("label\n" + sequenceLabel);
+		log.debug("sequence\n" + sequence);
+		return new CSSequence(sequenceLabel, sequence);
 	}
 
 	public String getSeqID() {
