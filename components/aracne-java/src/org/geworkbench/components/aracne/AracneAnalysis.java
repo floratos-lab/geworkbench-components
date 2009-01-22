@@ -120,7 +120,7 @@ public class AracneAnalysis extends AbstractGridAnalysis implements
 		} else {
 			int n = JOptionPane.showConfirmDialog(
 				    null,
-				    "You choose 'All vs All' for hub markers. This could take a LONG time. Do you want to continue?",
+				    "You have chosen 'All vs All' for hub markers. This could take a LONG time. Do you want to continue?",
 				    "'All vs All' confirmation",
 				    JOptionPane.YES_NO_OPTION);
 			if(n==JOptionPane.NO_OPTION)
