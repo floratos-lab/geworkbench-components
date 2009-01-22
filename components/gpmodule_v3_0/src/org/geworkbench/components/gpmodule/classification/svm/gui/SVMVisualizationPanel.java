@@ -27,9 +27,7 @@ import org.jdesktop.swingx.JXTable;
 
 import org.jdesktop.swingx.decorator.*;
 import org.jdesktop.swingx.decorator.SortOrder;
-import org.jfree.chart.ChartFactory;
-import org.jfree.chart.JFreeChart;
-import org.jfree.chart.ChartPanel;
+import org.jfree.chart.*;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeriesCollection;
@@ -660,7 +658,21 @@ public class SVMVisualizationPanel extends JPanel implements ItemListener
         curveChart.getXYPlot().getRenderer().setBaseSeriesVisible(false);
 
         chartPanel = new ChartPanel(curveChart, true);
-        //chartPanel.setMouseZoomable(false);
+        /*chartPanel.addChartMouseListener(new ChartMouseListener()
+        {
+            public void chartMouseMoved(ChartMouseEvent event)
+            {
+                event.getChart();
+            }
+
+            public void chartMouseClicked(ChartMouseEvent event)
+            {
+                System.out.println("mouse event trigger: " + event.getTrigger());
+                //AxisLocation location = new AxisLocation();
+
+               // event.getChart().
+            }
+        }); */
         chartPanel.setFocusable(true);
 
         graphPanel.add(chartPanel, BorderLayout.CENTER);
@@ -869,10 +881,10 @@ public class SVMVisualizationPanel extends JPanel implements ItemListener
             if(r != 0 && prevConfidence <= confidence)
                 continue;
 
-            int ppAndtp = 0;
-            int pnAndtn = 0;
-            int tp = 0;
-            int tn = 0;
+            double ppAndtp = 0;
+            double pnAndtn = 0;
+            double tp = 0;
+            double tn = 0;
             double s_z = 0;
 
             for(int r2 = 0; r2 < N; r2++)
