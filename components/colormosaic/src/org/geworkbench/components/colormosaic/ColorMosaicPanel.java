@@ -73,6 +73,7 @@ import org.geworkbench.events.MarkerSelectedEvent;
 import org.geworkbench.events.PhenotypeSelectedEvent;
 import org.geworkbench.events.PhenotypeSelectorEvent;
 import org.geworkbench.events.ProjectEvent;
+import org.geworkbench.util.ColorScale;
 import org.geworkbench.util.associationdiscovery.cluster.CSMatchedMatrixPattern;
 import org.geworkbench.util.associationdiscovery.cluster.CSMatrixPattern;
 
@@ -169,6 +170,8 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
         colorMosaicImage.setSignificanceResultSet(sigSet);
     }
 
+    private ColorScale colorScale = new ColorScale(Color.gray, Color.gray, Color.gray);
+    
     @SuppressWarnings("unchecked")
     private void jbInit() throws Exception {
         mainPanel.setBackground(Color.WHITE);
@@ -365,11 +368,13 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
         jToolBar1.add(jToolTipToggleButton, null);        
         mainPanel.add(jScrollPane, BorderLayout.CENTER);
         mainPanel.add(jPanel1, BorderLayout.SOUTH);
-        jPanel1.add(jGeneWidthSlider, new GridBagConstraints(2, 1, 1, 1, 0.34, 0.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
-        jPanel1.add(jGeneHeightSlider, new GridBagConstraints(1, 1, 1, 1, 0.33, 0.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
-        jPanel1.add(jLabel1, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
-        jPanel1.add(jLabel2, new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
+        jPanel1.add(jGeneWidthSlider, new GridBagConstraints(3, 1, 1, 1, 0.34, 0.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
+        jPanel1.add(jGeneHeightSlider, new GridBagConstraints(2, 1, 1, 1, 0.33, 0.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
+        jPanel1.add(jLabel1, new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
+        jPanel1.add(jLabel2, new GridBagConstraints(3, 0, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
         jPanel1.add(jIntensitySlider, new GridBagConstraints(0, 1, 1, 1, 0.33, 0.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
+        jPanel1.add(colorScale, 
+        		new GridBagConstraints(1, 1, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
         jPanel1.add(jLabel5, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
         jScrollPane.getViewport().add(colorMosaicImage, null);
         jScrollPane.setColumnHeaderView(colRuler);
@@ -613,7 +618,18 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
             for (int i = 0; i < markerNo; i++) {
                 matchedPattern.getPattern().markers()[i] = mArraySet.getMarkers().get(i);
             }
-            colorMosaicImage.addPattern(matchedPattern);       
+            colorMosaicImage.addPattern(matchedPattern);
+            
+            org.geworkbench.bison.util.colorcontext.ColorContext colorContext = (org.geworkbench.bison.util.colorcontext.ColorContext) mArraySet
+			.getObject(org.geworkbench.bison.util.colorcontext.ColorContext.class);
+            colorScale.setMinColor(colorContext
+					.getMinColorValue(jIntensitySlider.getValue()));
+            colorScale.setCenterColor(colorContext
+					.getMiddleColorValue(jIntensitySlider.getValue()));
+            colorScale.setMaxColor(colorContext
+					.getMaxColorValue(jIntensitySlider.getValue()));
+            colorScale.repaint();
+
         }
     }
 
@@ -765,6 +781,15 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
                    jAllMarkers.setEnabled(true);
                     
                 }
+                org.geworkbench.bison.util.colorcontext.ColorContext colorContext = (org.geworkbench.bison.util.colorcontext.ColorContext) set
+    			.getObject(org.geworkbench.bison.util.colorcontext.ColorContext.class);
+                colorScale.setMinColor(colorContext
+    					.getMinColorValue(jIntensitySlider.getValue()));
+                colorScale.setCenterColor(colorContext
+    					.getMiddleColorValue(jIntensitySlider.getValue()));
+                colorScale.setMaxColor(colorContext
+    					.getMaxColorValue(jIntensitySlider.getValue()));
+
             } else if (dataFile instanceof DSSignificanceResultSet) {          
                 significanceMode = true;
                 sigSet = (DSSignificanceResultSet) dataFile;                
