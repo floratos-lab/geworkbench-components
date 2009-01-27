@@ -653,7 +653,8 @@ public class GenePanel extends SelectorPanel<DSGeneMarker> {
 			Object source) {
     	// the proxy produced by cglib is something like this
     	//org.geworkbench.components.cytoscape.CytoscapeWidget$$EnhancerByCGLIB$$8bb8f936
-    	if(source.getClass().getName().startsWith("org.geworkbench.components.cytoscape.CytoscapeWidget")){
+   		if(source.getClass().getName().startsWith("org.geworkbench.components.cytoscape_v2_4.CytoscapeWidget")){
+    		
     		tagEventEnabled = false; // to prevent event cycle between GenePanel and CytoscapeWidget
     		spe.getPanel().setLabel(taggedSelection);
     	}
