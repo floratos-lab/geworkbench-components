@@ -13,6 +13,7 @@ import org.geworkbench.bison.model.clusters.MicroarrayHierCluster;
 import org.geworkbench.bison.util.colorcontext.ColorContext;
 import org.geworkbench.events.HierClusterModelEvent;
 import org.geworkbench.events.HierClusterModelEventListener;
+import org.geworkbench.util.ColorScale;
 
 import javax.swing.*;
 import javax.swing.border.LineBorder;
@@ -333,6 +334,16 @@ public class HierClusterViewWidget extends JPanel implements HierClusterModelEve
         arrayDendrogram.setChips(mASet);
         arrayNames.setChips(mASet);
         init(originalMarkerCluster, originalArrayCluster);
+        
+        org.geworkbench.bison.util.colorcontext.ColorContext colorContext = (org.geworkbench.bison.util.colorcontext.ColorContext) mASet.getDataSet()
+		.getObject(org.geworkbench.bison.util.colorcontext.ColorContext.class);
+        colorScale.setMinColor(colorContext
+				.getMinColorValue(slider.getValue()));
+        colorScale.setCenterColor(colorContext
+				.getMiddleColorValue(slider.getValue()));
+        colorScale.setMaxColor(colorContext
+				.getMaxColorValue(slider.getValue()));
+        colorScale.repaint();
     }
 
     /**
@@ -399,6 +410,8 @@ public class HierClusterViewWidget extends JPanel implements HierClusterModelEve
      */
     public void highlight(DSGeneMarker mInfo, boolean status) {
     }
+
+    private ColorScale colorScale = new ColorScale(Color.gray, Color.gray, Color.gray);
 
     /**
      * Configures the Graphical User Interface and Listeners
@@ -469,6 +482,8 @@ public class HierClusterViewWidget extends JPanel implements HierClusterModelEve
         bbuilder.addFixed(widthLabel);
         bbuilder.addRelatedGap();
         bbuilder.addFixed(jGeneWidth);
+        bbuilder.addGlue();
+        bbuilder.addFixed(colorScale);
         bbuilder.addGlue();
         bbuilder.addFixed(new JLabel("Intensity"));
         bbuilder.addRelatedGap();

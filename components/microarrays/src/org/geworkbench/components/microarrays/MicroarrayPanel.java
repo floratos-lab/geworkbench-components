@@ -10,6 +10,7 @@ import org.geworkbench.engine.management.Publish;
 import org.geworkbench.engine.management.Subscribe;
 import org.geworkbench.events.*;
 import org.geworkbench.util.microarrayutils.MicroarrayVisualizer;
+import org.geworkbench.util.ColorScale;
 
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
@@ -60,7 +61,7 @@ public class MicroarrayPanel extends MicroarrayVisualizer implements
 	JMenuItem jRemoveMarkerMenu = new JMenuItem();
 	JMenuItem jSaveImageMenu = new JMenuItem();
 	JCheckBox jShowAllMarkers = new JCheckBox();
-	MicroarrayColorGradient valueGradient = new MicroarrayColorGradient(
+	ColorScale valueGradient = new ColorScale(
 			Color.gray, Color.gray, Color.gray);
 	BorderLayout jLayout = new BorderLayout();
 	HashMap listeners = new HashMap();
@@ -244,11 +245,11 @@ public class MicroarrayPanel extends MicroarrayVisualizer implements
 		jToolBar.add(Box.createGlue(), null);
 		jToolBar.add(jMALabel, null);
 		jToolBar.add(Box.createGlue(), null);
-		jToolBar.add(new JLabel("-"));
-		jToolBar.add(Box.createHorizontalStrut(2), null);
+//		jToolBar.add(new JLabel("-"));
+//		jToolBar.add(Box.createHorizontalStrut(2), null);
 		jToolBar.add(valueGradient);
-		jToolBar.add(Box.createHorizontalStrut(2), null);
-		jToolBar.add(new JLabel("+"));
+//		jToolBar.add(Box.createHorizontalStrut(2), null);
+//		jToolBar.add(new JLabel("+"));
 		jToolBar.add(Box.createGlue(), null);
 		jToolBar.add(intensityLabel, null);
 		jToolBar.add(Box.createHorizontalStrut(5), null);
@@ -474,52 +475,52 @@ public class MicroarrayPanel extends MicroarrayVisualizer implements
 		}
 	}
 
-	private class MicroarrayColorGradient extends JPanel {
-		private Color minColor, maxColor, centerColor;
-		private Dimension d = new Dimension(40, 20);
-
-		public MicroarrayColorGradient(Color minColor, Color centerColor,
-				Color maxColor) {
-			this.minColor = minColor;
-			this.maxColor = maxColor;
-			this.centerColor = centerColor;
-			this.setMaximumSize(d);
-			this.setPreferredSize(d);
-			this.setMinimumSize(d);
-		}
-
-		protected void paintComponent(Graphics g) {
-			Graphics2D g2d = (Graphics2D) g;
-			g2d.setPaint(new GradientPaint(0, 0, minColor, getWidth() / 2, 0,
-					centerColor));
-			g2d.fillRect(0, 0, getWidth() / 2, getHeight());
-			g2d.setPaint(new GradientPaint(getWidth() / 2, 0, centerColor,
-					getWidth(), 0, maxColor));
-			g2d.fillRect(getWidth() / 2, 0, getWidth(), getHeight());
-		}
-
-		public Color getMinColor() {
-			return minColor;
-		}
-
-		public void setMinColor(Color minColor) {
-			this.minColor = minColor;
-		}
-
-		public Color getMaxColor() {
-			return maxColor;
-		}
-
-		public void setMaxColor(Color maxColor) {
-			this.maxColor = maxColor;
-		}
-
-		public Color getCenterColor() {
-			return centerColor;
-		}
-
-		public void setCenterColor(Color centerColor) {
-			this.centerColor = centerColor;
-		}
-	}
+//	private class MicroarrayColorGradient extends JPanel {
+//		private Color minColor, maxColor, centerColor;
+//		private Dimension d = new Dimension(400, 20);
+//
+//		public MicroarrayColorGradient(Color minColor, Color centerColor,
+//				Color maxColor) {
+//			this.minColor = minColor;
+//			this.maxColor = maxColor;
+//			this.centerColor = centerColor;
+//			this.setMaximumSize(d);
+//			this.setPreferredSize(d);
+//			this.setMinimumSize(d);
+//		}
+//
+//		protected void paintComponent(Graphics g) {
+//			Graphics2D g2d = (Graphics2D) g;
+//			g2d.setPaint(new GradientPaint(0, 0, minColor, getWidth() / 2, 0,
+//					centerColor));
+//			g2d.fillRect(0, 0, getWidth() / 2, getHeight());
+//			g2d.setPaint(new GradientPaint(getWidth() / 2, 0, centerColor,
+//					getWidth(), 0, maxColor));
+//			g2d.fillRect(getWidth() / 2, 0, getWidth(), getHeight());
+//		}
+//
+//		public Color getMinColor() {
+//			return minColor;
+//		}
+//
+//		public void setMinColor(Color minColor) {
+//			this.minColor = minColor;
+//		}
+//
+//		public Color getMaxColor() {
+//			return maxColor;
+//		}
+//
+//		public void setMaxColor(Color maxColor) {
+//			this.maxColor = maxColor;
+//		}
+//
+//		public Color getCenterColor() {
+//			return centerColor;
+//		}
+//
+//		public void setCenterColor(Color centerColor) {
+//			this.centerColor = centerColor;
+//		}
+//	}
 }
