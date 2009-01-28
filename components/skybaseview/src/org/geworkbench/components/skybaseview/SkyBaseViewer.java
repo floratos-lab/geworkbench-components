@@ -10,10 +10,11 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Rectangle;
+import java.awt.GridLayout;
+import java.awt.event.ActionListener;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
@@ -34,14 +35,17 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
+import javax.swing.JComboBox;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableModel;
+import javax.swing.table.DefaultTableCellRenderer;
 
 import org.apache.commons.lang.NumberUtils;
 import org.apache.commons.logging.Log;
@@ -89,7 +93,7 @@ import org.openscience.jmol.ui.JmolPopupSwing;
  * Display SkyBase blast results in table, bar chart and jmol
  * 
  * @author mw2518
- * @version $Id: SkyBaseViewer.java,v 1.5 2009-01-19 02:28:37 wangm Exp $
+ * @version $Id: SkyBaseViewer.java,v 1.6 2009-01-28 20:58:08 wangm Exp $
  * 
  */
 
@@ -97,11 +101,15 @@ import org.openscience.jmol.ui.JmolPopupSwing;
 public class SkyBaseViewer implements VisualPlugin {
 	private Log log = LogFactory.getLog(this.getClass());
 	private JPanel mainPanel = new JPanel();
+	private JPanel mPanel = new JPanel();
+	private JTabbedPane jtp = new JTabbedPane();
+	private JPanel alnt = new JPanel(new BorderLayout());
+	private JPanel alnq = new JPanel(new BorderLayout());
 	private String result = null, qname = null, lastqname = null;
 	private static String strScript = "wireframe off; spacefill off; cartoons; color structure;";
 	private JmolPanel jmolPanel = new JmolPanel();
 	private JmolSimpleViewer viewer = jmolPanel.getViewer();
-	private Dimension prefsize1 = new Dimension(800, 235);
+	private Dimension prefsize1 = new Dimension(800, 200);
 	private Dimension prefsize = new Dimension(770, 210);
 	JLabel seqlb;
 	int cnt = 0;
@@ -113,7 +121,7 @@ public class SkyBaseViewer implements VisualPlugin {
 	String pdbroot = "http://156.145.102.40/";
 	String seqid = null;
 	String blastroot = "http://156.145.238.15:8070/SkyBaseData/tmpblast/";
-	String[] columnNames = { "Model Rank", "Id% Query-Model Sequence",
+	String[] columnNames = { "Rank", "Id% Query-Model Sequence",
 			"Model Start-End", "Query Start-End", "Model SeqID",
 			"Model Sequence", "Query Sequence", "pG", "Coverage Template",
 			"Id% Template-Model Sequences", "Template", "Template Length",
@@ -126,6 +134,12 @@ public class SkyBaseViewer implements VisualPlugin {
 	String colKey = null;
 	String lastseqid = null;
 	String ofname = "";
+	String tmpfiledir = System.getProperty("temporary.files.directory")
+			+ "webpdb/";
+	File webpdbdir = new File(tmpfiledir);
+	JComboBox alncombo[] = new JComboBox[2];
+	Vector<String> vec[] = new Vector[2];
+	DefaultTableCellRenderer cellrdr = new DefaultTableCellRenderer();
 
 	private String trimdot(String result) {
 		int i = result.indexOf(".");
@@ -154,23 +168,33 @@ public class SkyBaseViewer implements VisualPlugin {
 	 */
 	private void jbInit(String result) {
 		// pdburl = "http://156.145.102.40/pdb/08-13-2008AAK22092.1.pdb";
-
+		if (!webpdbdir.exists())
+			webpdbdir.mkdir();
 		seqlb = new JLabel();
+
 		JButton add2prj = new JButton();
-		JButton alnview = new JButton();
+		JButton t_alnview = new JButton();
 		JButton q_alnview = new JButton();
 
-		mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.PAGE_AXIS));
-		mainPanel.removeAll();
-		mainPanel.revalidate();
-		mainPanel.repaint();
+		mainPanel.setLayout(new GridLayout());
+		mainPanel.add(jtp);
+		jtp.add("SkyBase Models", mPanel);
+		jtp.add("Template Alignment", alnt);
+		jtp.add("Query Alignment", alnq);
+
+		mPanel.setLayout(new BoxLayout(mPanel, BoxLayout.PAGE_AXIS));
+		mPanel.removeAll();
+		mPanel.revalidate();
+		mPanel.repaint();
+		alnt.removeAll();
+		alnq.removeAll();
 
 		JPanel jp = new JPanel();
 		jp.setLayout(new BoxLayout(jp, BoxLayout.LINE_AXIS));
 
 		if (result == null || !result.endsWith(".blout.hits")) {
-			mainPanel.add(new JTextArea("No Blast Results Found in SkyBase!"));
-			mainPanel.add(new JTextArea(""));
+			mPanel.add(new JTextArea("No Blast Results Found in SkyBase!"));
+			mPanel.add(new JTextArea(""));
 		} else {
 			try {
 				URL url = new URL(blastroot + result);
@@ -239,21 +263,13 @@ public class SkyBaseViewer implements VisualPlugin {
 						pggrp = 1;
 
 					if (!ht.containsKey(pggrp)) {
-						ht
-								.put(
-										pggrp,
-										new Hashtable<Double, Hashtable<Double, Hashtable<Integer, Character>>>());
+						ht.put(pggrp, new Hashtable<Double, Hashtable<Double, Hashtable<Integer, Character>>>());
 					}
 					if (!ht.get(pggrp).containsKey(cov[i])) {
-						ht
-								.get(pggrp)
-								.put(
-										cov[i],
-										new Hashtable<Double, Hashtable<Integer, Character>>());
+						ht.get(pggrp).put(cov[i], new Hashtable<Double, Hashtable<Integer, Character>>());
 					}
 					if (!ht.get(pggrp).get(cov[i]).containsKey(pctid[i])) {
-						ht.get(pggrp).get(cov[i]).put(pctid[i],
-								new Hashtable<Integer, Character>());
+						ht.get(pggrp).get(cov[i]).put(pctid[i], new Hashtable<Integer, Character>());
 					}
 					if (!ht.get(pggrp).get(cov[i]).get(pctid[i]).containsKey(i)) {
 						ht.get(pggrp).get(cov[i]).get(pctid[i]).put(i, 'T');
@@ -267,31 +283,22 @@ public class SkyBaseViewer implements VisualPlugin {
 				int b = 0;
 				Vector<Integer> v1 = new Vector<Integer>(ht.keySet());
 				Collections.sort(v1);
-				for (Enumeration<Integer> e1 = v1.elements(); e1
-						.hasMoreElements();) {
+				for (Enumeration<Integer> e1 = v1.elements(); e1.hasMoreElements();) {
 					Integer key1 = (Integer) e1.nextElement();
 					if (key1 != null) {
-						Vector<Double> v2 = new Vector<Double>(ht.get(key1)
-								.keySet());
+						Vector<Double> v2 = new Vector<Double>(ht.get(key1).keySet());
 						Collections.sort(v2);
-						for (Enumeration<Double> e2 = v2.elements(); e2
-								.hasMoreElements();) {
+						for (Enumeration<Double> e2 = v2.elements(); e2.hasMoreElements();) {
 							Double key2 = (Double) e2.nextElement();
 							if (key2 != null) {
-								Vector<Double> v3 = new Vector<Double>(ht.get(
-										key1).get(key2).keySet());
+								Vector<Double> v3 = new Vector<Double>(ht.get(key1).get(key2).keySet());
 								Collections.sort(v3);
-								for (Enumeration<Double> e3 = v3.elements(); e3
-										.hasMoreElements();) {
+								for (Enumeration<Double> e3 = v3.elements(); e3.hasMoreElements();) {
 									Double key3 = (Double) e3.nextElement();
 									if (key3 != null) {
-										Vector<Integer> v4 = new Vector<Integer>(
-												ht.get(key1).get(key2)
-														.get(key3).keySet());
+										Vector<Integer> v4 = new Vector<Integer>(ht.get(key1).get(key2).get(key3).keySet());
 										Collections.sort(v4);
-										for (Enumeration<Integer> e4 = v4
-												.elements(); e4
-												.hasMoreElements();) {
+										for (Enumeration<Integer> e4 = v4.elements(); e4.hasMoreElements();) {
 											b = (int) e4.nextElement();
 											rank[b] = r--;
 										}
@@ -305,8 +312,7 @@ public class SkyBaseViewer implements VisualPlugin {
 
 				String[][] data2 = new String[linecnt][colcnt];
 				for (int k = 0; k < first.length; k++) {
-					ArrayList<String> al2 = new ArrayList<String>(Arrays
-							.asList(rank[k].toString()));
+					ArrayList<String> al2 = new ArrayList<String>(Arrays.asList(rank[k].toString()));
 					al2.addAll(Arrays.asList(first[k]));
 					al2.addAll(Arrays.asList(second[k]));
 					data2[k] = al2.toArray(new String[colcnt]);
@@ -314,12 +320,15 @@ public class SkyBaseViewer implements VisualPlugin {
 
 				cp = plot_model_quality(mod, cov, pg, pctid, rank);
 
-				HitsTableModel tableModel = new HitsTableModel(data2,
-						columnNames) {
+				HitsTableModel tableModel = new HitsTableModel(data2, columnNames) {
 					private static final long serialVersionUID = 1L;
 				};
 
 				table = new JTable(tableModel);
+
+				cellrdr.setHorizontalAlignment(JLabel.CENTER);
+				table.setDefaultRenderer(table.getColumnClass(0), cellrdr);
+				table.updateUI();
 
 				JTableHeader header = table.getTableHeader();
 				TableSorter ts = new TableSorter(tableModel, header);
@@ -344,6 +353,8 @@ public class SkyBaseViewer implements VisualPlugin {
 						}
 					}
 				}
+
+				Cache.initLogger();
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -354,13 +365,8 @@ public class SkyBaseViewer implements VisualPlugin {
 			sp
 					.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 			sp.setPreferredSize(prefsize1);
-			sp.setBorder(BorderFactory.createCompoundBorder(BorderFactory
-					.createCompoundBorder(BorderFactory
-							.createTitledBorder("SkyBase Blast Results for "
-									+ qname), BorderFactory.createEmptyBorder(
-							5, 5, 5, 5)), sp.getBorder()));
 
-			mainPanel.add(sp);
+			mPanel.add(sp);
 
 			JScrollPane sp2 = new JScrollPane(cp);
 			jp.add(sp2);
@@ -382,14 +388,19 @@ public class SkyBaseViewer implements VisualPlugin {
 			});
 			buttons.add(add2prj);
 
-			alnview.setText("VAT");
-			alnview.setToolTipText("View Alignment between Model-Template");
-			alnview.addActionListener(new java.awt.event.ActionListener() {
+			for (int v = 0; v < 2; v++) {
+				alncombo[v] = new JComboBox();
+				vec[v] = new Vector<String>();
+			}
+
+			t_alnview.setText("VAT");
+			t_alnview.setToolTipText("View Alignment between Model-Template");
+			t_alnview.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
-					alnview_actionPerformed(e);
+					t_alnview_actionPerformed(e);
 				}
 			});
-			buttons.add(alnview);
+			buttons.add(t_alnview);
 
 			q_alnview.setText("VAQ");
 			q_alnview.setToolTipText("View Alignment between Model-Query");
@@ -403,9 +414,9 @@ public class SkyBaseViewer implements VisualPlugin {
 			jp2.add(buttons, BorderLayout.SOUTH);
 			jp.add(jp2);
 
-			mainPanel.add(jp);
-			mainPanel.revalidate();
-			mainPanel.repaint();
+			mPanel.add(jp);
+			mPanel.revalidate();
+			mPanel.repaint();
 		}
 	}
 
@@ -417,27 +428,21 @@ public class SkyBaseViewer implements VisualPlugin {
 		publishProjectNodeAddedEvent(event);
 	}
 
-	public void alnview_actionPerformed(java.awt.event.ActionEvent e) {
+	public void t_alnview_actionPerformed(java.awt.event.ActionEvent e) {
 		int rowcnt = table.getModel().getRowCount();
 		for (int j = 0; j < rowcnt; j++) {
 			if (table.getModel().getValueAt(j, 4).equals(colKey)) {
 				String aln = (String) table.getModel()
 						.getValueAt(j, colcnt - 1);
 
-				String afname = getLastDataDirectory() + "/webpdb/" + seqid
-						+ ".t_aln";
-				try {
-					Cache.initLogger();
+				String afname = tmpfiledir + seqid + ".t_aln";
 
-					PrintWriter pw = new PrintWriter(new BufferedWriter(
-							new FileWriter(afname)));
-					pw.print(aln);
-					pw.close();
-				} catch (Exception ex) {
-					ex.printStackTrace();
-				}
-
-				displayAlnFile(afname);
+				printfile(afname, aln);
+				alncombo[0] = getAlnCombo(afname, 0);
+				alnt.removeAll();
+				alnt.add(getAlnFrame(afname), BorderLayout.CENTER);
+				alnt.add(alncombo[0], BorderLayout.PAGE_START);
+				jtp.setSelectedIndex(1);
 				break;
 			}
 		}
@@ -452,26 +457,30 @@ public class SkyBaseViewer implements VisualPlugin {
 						+ ">" + qname + "\n"
 						+ (String) table.getModel().getValueAt(j, 6) + "\n";
 
-				String afname = getLastDataDirectory() + "/webpdb/" + seqid
-						+ ".q_aln";
-				try {
-					Cache.initLogger();
+				String afname = tmpfiledir + seqid + ".q_aln";
 
-					PrintWriter pw = new PrintWriter(new BufferedWriter(
-							new FileWriter(afname)));
-					pw.print(aln);
-					pw.close();
-				} catch (Exception ex) {
-					ex.printStackTrace();
-				}
-
-				displayAlnFile(afname);
+				printfile(afname, aln);
+				alncombo[1] = getAlnCombo(afname, 1);
+				alnq.removeAll();
+				alnq.add(getAlnFrame(afname), BorderLayout.CENTER);
+				alnq.add(alncombo[1], BorderLayout.PAGE_START);
+				jtp.setSelectedIndex(2);
 				break;
 			}
 		}
 	}
 
-	public void displayAlnFile(String afname) {
+	public void printfile(String afname, String aln) {
+		try {
+			PrintWriter pw = new PrintWriter(new BufferedWriter(new FileWriter(afname)));
+			pw.print(aln);
+			pw.close();
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+	}
+
+	public AlignFrame getAlnFrame(String afname) {
 		String color = "CLUSTAL";
 		String protocol = "File";
 		String format = new jalview.io.IdentifyFile()
@@ -489,13 +498,47 @@ public class SkyBaseViewer implements VisualPlugin {
 		af.setMaximizable(true);
 		af.setIconifiable(true);
 		af.setFrameIcon(null);
-		af.setPreferredSize(new java.awt.Dimension(600, 400));
-		JFrame pop = new JFrame();
-		pop.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		// pop.setLocationRelativeTo(null);
-		pop.getContentPane().add(af, BorderLayout.CENTER);
-		pop.setVisible(true);
-		pop.pack();
+		af.setPreferredSize(new java.awt.Dimension(1000, 400));
+		return af;
+	}
+
+	public JComboBox getAlnCombo(String afname, int type) {
+		if (!vec[type].contains(afname)) {
+			vec[type].add(afname);
+			alncombo[type].addItem(afname);
+		}
+		alncombo[type].setSelectedIndex(vec[type].indexOf(afname));
+		if (alncombo[type].getActionListeners().length == 0) {
+			if (type == 0)
+				alncombo[type]
+						.addActionListener(new java.awt.event.ActionListener() {
+							public void actionPerformed(
+									java.awt.event.ActionEvent e) {
+								String selectedfile = ((JComboBox) e
+										.getSource()).getSelectedItem()
+										.toString();
+								alnt.removeAll();
+								alnt.add(getAlnFrame(selectedfile),
+										BorderLayout.CENTER);
+								alnt.add(alncombo[0], BorderLayout.PAGE_START);
+							}
+						});
+			else
+				alncombo[type]
+						.addActionListener(new java.awt.event.ActionListener() {
+							public void actionPerformed(
+									java.awt.event.ActionEvent e) {
+								String selectedfile = ((JComboBox) e
+										.getSource()).getSelectedItem()
+										.toString();
+								alnq.removeAll();
+								alnq.add(getAlnFrame(selectedfile),
+										BorderLayout.CENTER);
+								alnq.add(alncombo[1], BorderLayout.PAGE_START);
+							}
+						});
+		}
+		return alncombo[type];
 	}
 
 	public Component getComponent() {
@@ -683,8 +726,7 @@ public class SkyBaseViewer implements VisualPlugin {
 					pdburl = pdbroot + pdblink;
 
 					String contents = getContent(pdburl);
-					ofname = getLastDataDirectory() + "/webpdb/" + seqid
-							+ ".pdb";
+					ofname = tmpfiledir + seqid + ".pdb";
 					try {
 						PrintWriter pw = new PrintWriter(new BufferedWriter(
 								new FileWriter(ofname)));
@@ -713,27 +755,6 @@ public class SkyBaseViewer implements VisualPlugin {
 		}
 	}
 
-	static public String getLastDataDirectory() {
-		String dir = System.getProperty("data.files.dir");
-		// This is where we store user data information
-		String filename = System.getProperty("userSettings");
-		try {
-			File file = new File(filename);
-			if (file.exists()) {
-				BufferedReader br = new BufferedReader(new FileReader(file));
-				br.readLine(); // skip the format information
-				dir = br.readLine();
-				br.close();
-			}
-		} catch (Exception ex) {
-			ex.printStackTrace();
-		}
-		if (dir.equals(".")) {
-			dir = System.getProperty("user.dir");
-		}
-		return dir;
-	}
-
 	@Publish
 	public ProjectNodeAddedEvent publishProjectNodeAddedEvent(
 			ProjectNodeAddedEvent event) {
@@ -752,7 +773,7 @@ public class SkyBaseViewer implements VisualPlugin {
 		JFreeChart ch = ChartFactory.createBarChart(null, null,
 				"pG / Coverage / Identity", sets[0], PlotOrientation.VERTICAL,
 				false, true, false);
-		ch.setTitle(new TextTitle("Models for SkyBase Blast Results", new Font(
+		ch.setTitle(new TextTitle("SkyBase Models for " + qname, new Font(
 				"Arial", Font.BOLD, 12)));
 		ch.setBackgroundPaint(new Color(225, 225, 225));
 
@@ -874,5 +895,4 @@ public class SkyBaseViewer implements VisualPlugin {
 			r = r * 100;
 		return r;
 	}
-
 }
