@@ -554,49 +554,71 @@ public class SVMVisualizationPanel extends JPanel implements ItemListener
         {
             public void actionPerformed(ActionEvent event)
             {
-                DSMicroarraySet maSet = (DSMicroarraySet)SVMVisualComponent.microarraySets.get(maSetNodeComboBox.getSelectedItem());
-                CSAnnotationContextManager manager = CSAnnotationContextManager.getInstance();
-
-                String context = (String)maSetComboBox.getSelectedItem();
-                DSAnnotationContext selectedContext = manager.getContext(maSet, context);
-
-                testLabels.clear();
-                TreePath[] labels = maSetGroupTree.getSelectionPaths();
-                ArrayList labelNames = new ArrayList();
-                DSPanel panel = new CSPanel();
-                for(int i = 0; i < labels.length; i++)
+                Thread t = new Thread()
                 {
-                    String label = (String)labels[i].getPath()[1];
-                    DSPanel selectedPanel = selectedContext.getItemsWithLabel(label);
-                    panel.addAll(selectedPanel);
-                    labelNames.add(labels[i].getLastPathComponent());
-                }
+                    public void run()
+                    {
+                        DSMicroarraySet maSet = (DSMicroarraySet)SVMVisualComponent.microarraySets.get(maSetNodeComboBox.getSelectedItem());
+                        CSAnnotationContextManager manager = CSAnnotationContextManager.getInstance();
 
-                //save labels that belong in context that are used to test the classifier
-                testLabels.put(context, labelNames);
+                        String context = (String)maSetComboBox.getSelectedItem();
+                        DSAnnotationContext selectedContext = manager.getContext(maSet, context);
 
-                manager.setCurrentContext(maSet, selectedContext);
-                svmClassifier.setParent(maSet);
+                        testLabels.clear();
+                        TreePath[] labels = maSetGroupTree.getSelectionPaths();
+                        ArrayList labelNames = new ArrayList();
+                        DSPanel panel = new CSPanel();
+                        for(int i = 0; i < labels.length; i++)
+                        {
+                            String label = (String)labels[i].getPath()[1];
+                            DSPanel selectedPanel = selectedContext.getItemsWithLabel(label);
+                            panel.addAll(selectedPanel);
+                            labelNames.add(labels[i].getLastPathComponent());
+                        }
 
-                ProgressBar progressBar;
-                progressBar = ProgressBar.create(ProgressBar.INDETERMINATE_TYPE);
-                progressBar.setTitle("Running classifier on test set");
-                progressBar.setAlwaysOnTop(true);
-                progressBar.showValues(false);
+                        //save labels that belong in context that are used to test the classifier
+                        testLabels.put(context, labelNames);
 
-                progressBar.start();
+                        manager.setCurrentContext(maSet, selectedContext);
+                        svmClassifier.setParent(maSet);
 
-                buildTestResultTable(svmClassifier.classify(panel));
+                        ProgressBar progressBar;
+                        progressBar = ProgressBar.create(ProgressBar.INDETERMINATE_TYPE);
+                        progressBar.setTitle("Running classifier on test set");
+                        progressBar.setAlwaysOnTop(false);
+                        progressBar.showValues(false);
 
-                progressBar.stop();
+                        progressBar.start();
 
-                if(testResultsTable != null && testResultsTable.getRowCount() > 0)
-                {
-                    controlRadioButton.setEnabled(true);
-                    caseRadioButton.setEnabled(true);
-                    createMaSetButton.setEnabled(true);
-                    applyFilter.setEnabled(true);
-                }
+                        PredictionResult result = null;
+                        try
+                        {
+                            result = svmClassifier.classify(panel);
+
+                            buildTestResultTable(result);
+                        }
+                        catch(Exception e)
+                        {
+                            e.printStackTrace();
+                            JOptionPane.showMessageDialog(null, e.getMessage());
+                    
+                            return;
+                        }
+                        finally
+                        {
+                            progressBar.stop();
+                        }
+
+                        if(testResultsTable != null && testResultsTable.getRowCount() > 0)
+                        {
+                            controlRadioButton.setEnabled(true);
+                            caseRadioButton.setEnabled(true);
+                            createMaSetButton.setEnabled(true);
+                            applyFilter.setEnabled(true);
+                        }
+                    }
+                };
+                t.start();
             }
         });
 
@@ -825,7 +847,7 @@ public class SVMVisualizationPanel extends JPanel implements ItemListener
                 lessThan = true;
         }
 
-        if(list == null || lessThan == false)
+        if(list.size() == 0 || lessThan == false)
         {
             return;
         }
