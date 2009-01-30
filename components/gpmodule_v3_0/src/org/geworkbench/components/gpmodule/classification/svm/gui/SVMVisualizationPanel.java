@@ -28,6 +28,7 @@ import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.decorator.*;
 import org.jdesktop.swingx.decorator.SortOrder;
 import org.jfree.chart.*;
+import org.jfree.chart.event.*;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeriesCollection;
@@ -679,22 +680,24 @@ public class SVMVisualizationPanel extends JPanel implements ItemListener
 
         curveChart.getXYPlot().getRenderer().setBaseSeriesVisible(false);
 
-        chartPanel = new ChartPanel(curveChart, true);
-        /*chartPanel.addChartMouseListener(new ChartMouseListener()
+        curveChart.addProgressListener(new ChartProgressListener()
         {
-            public void chartMouseMoved(ChartMouseEvent event)
+            public void chartProgress(ChartProgressEvent event)
             {
-                event.getChart();
-            }
+                if(event.getType() == ChartProgressEvent.DRAWING_FINISHED)
+                {
+                    double domainValue = curveChart.getXYPlot().getDomainCrosshairValue();
 
-            public void chartMouseClicked(ChartMouseEvent event)
-            {
-                System.out.println("mouse event trigger: " + event.getTrigger());
-                //AxisLocation location = new AxisLocation();
+                    double sliderValue = (domainValue  + 0.01)/0.01;
 
-               // event.getChart().
+                    if(confSlider.getValue() != sliderValue)
+                        confSlider.setValue((int)Math.round(sliderValue));
+                }
             }
-        }); */
+        });
+
+       chartPanel = new ChartPanel(curveChart, true);
+
         chartPanel.setFocusable(true);
 
         graphPanel.add(chartPanel, BorderLayout.CENTER);
