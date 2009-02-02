@@ -9,6 +9,8 @@ import javax.swing.JOptionPane;
 import javax.swing.JRadioButton;
 
 import org.apache.axis.message.addressing.EndpointReferenceType;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.geworkbench.util.ProgressBar;
 import org.geworkbench.util.Util;
 
@@ -26,6 +28,7 @@ import gov.nih.nci.cagrid.metadata.ServiceMetadata;
  *          keshav Exp $
  */
 public class GridServicesButtonListener implements ActionListener {
+	private Log log = LogFactory.getLog(this.getClass());
 
 	IndexServiceSelectionButtonListener indexServiceSelectionButtonListener = null;
 
@@ -84,10 +87,17 @@ public class GridServicesButtonListener implements ActionListener {
 					// JDialog jdialog = new ErrorDialog("");
 					// jdialog.setVisible(true);
 					// Util.centerWindow(jdialog);
-					JOptionPane.showMessageDialog(null, "Cannot reach host "
+					
+					if (indexServerUrl == null){
+						indexServerUrl = " ";
+					}
+					
+					JOptionPane.showMessageDialog(null, "Cannot reach host: "
 							+ indexServerUrl, "Error",
 							JOptionPane.ERROR_MESSAGE);
-					e.printStackTrace();
+					log.debug("Cannot reach host:  indexServerUrl=" + indexServerUrl 
+								+ "\n dispatcherLabelListener.getHost()="+ dispatcherLabelListener.getHost()
+								+ "\n Exception=" + e);
 				}
 
 				if (services == null) {
