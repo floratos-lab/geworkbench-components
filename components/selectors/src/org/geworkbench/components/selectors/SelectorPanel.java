@@ -1230,6 +1230,44 @@ public abstract class SelectorPanel<T extends DSSequential> implements
 		}
 	}
 
+	protected void deleteContext() {
+
+		DSAnnotationContextManager manager = CSAnnotationContextManager
+				.getInstance();
+
+		String contextName = context.getName();
+
+		if (contextName.equalsIgnoreCase("Default")){
+			JOptionPane.showMessageDialog(mainPanel, "You cannot delete the Default group.");
+			return;
+		}
+		
+		int confirm = JOptionPane.showConfirmDialog(getComponent(),
+				"Delete Group: " + contextName + " ?");
+
+		if (confirm != JOptionPane.YES_OPTION) {
+			return;
+		}
+		
+		if (!manager.hasContext(itemList, contextName)) {
+			JOptionPane.showMessageDialog(mainPanel, "Group does not exists.");
+		}else {
+			contextSelector.setSelectedItem(context);
+			manager.removeContext(itemList, contextName);
+			contextSelector.removeItem(context);            
+			context = manager.getContext(itemList, 0);
+			contextSelector.setSelectedItem(context);
+			
+			manager.setCurrentContext(itemList, context);
+			// Refresh list
+			listModel.refresh();
+			// Refresh tree
+			treeModel.setContext(context);
+			treeModel.fireTreeStructureChanged();
+			throwLabelEvent();
+		}
+	}
+
 	protected void switchContext(DSAnnotationContext newContext) {
 		if (!resetContextMode && (newContext != null)) {
 			context = newContext;
