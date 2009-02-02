@@ -98,6 +98,7 @@ public class GenePanel extends SelectorPanel<DSGeneMarker> {
 		treePopup.add(tagPanelItem);
 		rootPopup.add(loadPanelItem);
 		rootPopup.add(newPanelItem);
+		rootPopup.add(deleteSetGroupItem);
 		savePanelItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				saveButtonPressed(rightClickedPath);
@@ -122,6 +123,11 @@ public class GenePanel extends SelectorPanel<DSGeneMarker> {
 		loadPanelItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				loadButtonPressed();
+			}
+		});
+		deleteSetGroupItem.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				deleteContext();
 			}
 		});
 		newPanelItem.addActionListener(new ActionListener() {
@@ -160,6 +166,7 @@ public class GenePanel extends SelectorPanel<DSGeneMarker> {
 
 	private JMenuItem savePanelItem = new JMenuItem("Save");
 	private JMenuItem loadPanelItem = new JMenuItem("Load Set");
+	private JMenuItem deleteSetGroupItem = new JMenuItem("Delete Group");
 	private JMenuItem exportPanelItem = new JMenuItem("Export");
 	private JMenuItem tagPanelItem = new JMenuItem("Tag for visualization");
 	private JMenuItem newPanelItem = new JMenuItem("New Set");
