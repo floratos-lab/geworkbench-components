@@ -84,20 +84,9 @@ public class GridServicesButtonListener implements ActionListener {
 					services = DiscoveryServiceUtil.getServices(indexServerUrl,dispatcherLabelListener.getHost(),
 							selectedAnalysisType);
 				} catch (Exception e) {
-					// JDialog jdialog = new ErrorDialog("");
-					// jdialog.setVisible(true);
-					// Util.centerWindow(jdialog);
-					
-					if (indexServerUrl == null){
-						indexServerUrl = " ";
-					}
-					
 					JOptionPane.showMessageDialog(null, "Cannot reach host: "
 							+ indexServerUrl, "Error",
 							JOptionPane.ERROR_MESSAGE);
-					log.debug("Cannot reach host:  indexServerUrl=" + indexServerUrl 
-								+ "\n dispatcherLabelListener.getHost()="+ dispatcherLabelListener.getHost()
-								+ "\n Exception=" + e);
 				}
 
 				if (services == null) {
