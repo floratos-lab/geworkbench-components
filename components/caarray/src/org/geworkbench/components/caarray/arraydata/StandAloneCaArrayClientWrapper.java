@@ -29,6 +29,7 @@ import org.apache.commons.logging.LogFactory;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.CSExprMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
+import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.AnnotationParser;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.CSMicroarray;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMutableMarkerValue;
@@ -41,7 +42,7 @@ import org.geworkbench.events.CaArrayQueryResultEvent;
  * The class to invoke StandAloneCaArrayWrapper
  * 
  * @author xiaoqing
- * @version $Id: StandAloneCaArrayClientWrapper.java,v 1.6 2009-01-14 21:59:16 jiz Exp $
+ * @version $Id: StandAloneCaArrayClientWrapper.java,v 1.7 2009-02-09 16:39:19 jiz Exp $
  * 
  */
 public class StandAloneCaArrayClientWrapper {
@@ -263,7 +264,7 @@ public class StandAloneCaArrayClientWrapper {
 		return caArrayExperiments;
 	}
 
-	// TODO only one filter is used, maybe we should change the map to two strins
+	// TODO only one filter is used, maybe we should change the map to two strings
 	public CaArray2Experiment[] lookupExperiments(String url, int port,
 			String username, String password, Map<String, String> filters)
 			throws Exception {
@@ -440,6 +441,21 @@ public class StandAloneCaArrayClientWrapper {
 				}
 			}
 		}
+		// code copied from CSExprMicroarraySet line 372: the same task handled
+		// in two very different ways
+		if (maSet.getCompatibilityLabel() == null) {
+			/*
+			 * both the second and third argument of
+			 * AnnotationParser.matchChipType(maSet, null, false) are in fact
+			 * always ignored. never used.
+			 */
+			String chiptype = AnnotationParser
+					.matchChipType(maSet, null, false);
+			if (chiptype != null) {
+				maSet.setCompatibilityLabel(chiptype);
+			}
+		}
+        
 		microarray = new CSMicroarray(0, markerNo, name, null, null, true,
 				DSMicroarraySet.geneExpType);
 		microarray.setLabel(name);
