@@ -170,7 +170,11 @@ public class CaArray2Component implements VisualPlugin {
 										+ url + ":" + port + ".");
 					}
 					if (hybridzations.size() > 1) {
+						String firstName = hybridzations.firstKey();
 						for (String hybridizationName: hybridzations.keySet()) {
+							if(hybridizationName.equals(firstName))
+								continue;
+							
 							if (isCancelled
 									&& cancelledConnectionInfo != null
 									&& cancelledConnectionInfo
