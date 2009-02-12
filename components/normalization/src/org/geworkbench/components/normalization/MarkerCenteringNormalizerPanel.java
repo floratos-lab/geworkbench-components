@@ -1,14 +1,23 @@
 package org.geworkbench.components.normalization;
 
-import com.jgoodies.forms.builder.DefaultFormBuilder;
-import com.jgoodies.forms.layout.FormLayout;
-import org.geworkbench.analysis.AbstractSaveableParameterPanel;
-
-import javax.swing.*;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.GridLayout;
 import java.io.IOException;
 import java.io.ObjectStreamException;
 import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
+
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
+
+import org.geworkbench.analysis.AbstractSaveableParameterPanel;
+import org.geworkbench.events.listeners.ParameterActionListener;
+
+import com.jgoodies.forms.builder.DefaultFormBuilder;
+import com.jgoodies.forms.layout.FormLayout;
 
 /**
  * <p>Copyright: Copyright (c) 2003</p>
@@ -53,10 +62,43 @@ public class MarkerCenteringNormalizerPanel extends AbstractSaveableParameterPan
         }
     }
 
-    Object writeReplace() throws ObjectStreamException {
+    public Object writeReplace() throws ObjectStreamException {
         return new SerialInstance(averagingSelection.getSelectedIndex(), missingValuesSelection.getSelectedIndex());
     }
 
+    /*
+     * (non-Javadoc)
+     * @see org.geworkbench.analysis.AbstractSaveableParameterPanel#getParameters()
+     */
+    @Override
+    public Map<Serializable, Serializable> getParameters() {
+		Map<Serializable, Serializable> parameters = new HashMap<Serializable, Serializable>();
+		parameters.put("averaging", averagingSelection.getSelectedIndex());
+		parameters.put("missing", missingValuesSelection.getSelectedIndex());
+		return parameters;
+	}
+    
+    /*
+     * (non-Javadoc)
+     * @see org.geworkbench.analysis.AbstractSaveableParameterPanel#setParameters(java.util.Map)
+     */
+    @Override
+    public void setParameters(Map<Serializable, Serializable> parameters){
+    	if (parameters == null) return;
+        Set<Map.Entry<Serializable, Serializable>> set = parameters.entrySet();
+        for (Iterator<Map.Entry<Serializable, Serializable>> iterator = set.iterator(); iterator.hasNext();) {
+        	Map.Entry<Serializable, Serializable> parameter = iterator.next();
+			Object key = parameter.getKey();
+			Object value = parameter.getValue();
+			if (key.equals("averaging")){
+				this.averagingSelection.setSelectedIndex((Integer)value);
+			}
+			if (key.equals("missing")){
+				this.missingValuesSelection.setSelectedIndex((Integer)value);
+			}
+		}
+    }
+    
     public MarkerCenteringNormalizerPanel() {
         try {
             jbInit();
@@ -77,6 +119,11 @@ public class MarkerCenteringNormalizerPanel extends AbstractSaveableParameterPan
 
         builder.append("Averaging method", averagingSelection);
         builder.append("Missing values", missingValuesSelection);
+
+        ParameterActionListener parameterActionListener = new ParameterActionListener(this);
+        averagingSelection.addActionListener(parameterActionListener);
+        missingValuesSelection.addActionListener(parameterActionListener);
+
         this.add(builder.getPanel(), BorderLayout.CENTER);
     }
 
@@ -115,11 +162,11 @@ public class MarkerCenteringNormalizerPanel extends AbstractSaveableParameterPan
             return MarkerCenteringNormalizer.IGNORE;
     }
 
-    private void writeObject(java.io.ObjectOutputStream out) throws IOException {
+    public void writeObject(java.io.ObjectOutputStream out) throws IOException {
         out.defaultWriteObject();
     }
 
-    private void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
+    public void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
         in.defaultReadObject();
         revalidate();
     }

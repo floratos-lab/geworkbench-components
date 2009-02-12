@@ -11,18 +11,26 @@
 */
 package org.geworkbench.components.gpmodule.pca;
 
-import com.jgoodies.forms.builder.DefaultFormBuilder;
-import com.jgoodies.forms.layout.FormLayout;
-import org.geworkbench.analysis.AbstractSaveableParameterPanel;
-import org.geworkbench.components.gpmodule.GPAnalysisPanel;
-
-import javax.swing.*;
-import java.awt.*;
+import java.awt.BorderLayout;
 import java.io.ObjectStreamException;
 import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
+
+import javax.swing.JComboBox;
+
+import org.geworkbench.analysis.AbstractSaveableParameterPanel;
+import org.geworkbench.components.gpmodule.GPAnalysisPanel;
+import org.geworkbench.events.listeners.ParameterActionListener;
+
+import com.jgoodies.forms.builder.DefaultFormBuilder;
+import com.jgoodies.forms.layout.FormLayout;
 
 /**
- * @author: Marc-Danie Nazaire
+ * @author: Marc-Danie Nazaire, yc2480
+ * @version $ID$
  */
 public class PCAAnalysisPanel extends GPAnalysisPanel implements Serializable 
 {
@@ -47,6 +55,10 @@ public class PCAAnalysisPanel extends GPAnalysisPanel implements Serializable
         variables = new JComboBox();
         variables.addItem("genes");
         variables.addItem("experiments");
+
+        ParameterActionListener parameterActionListener = new ParameterActionListener(this);
+        
+        variables.addActionListener(parameterActionListener);
 
          FormLayout layout = new FormLayout(
                     "right:max(80dlu;pref), 7dlu,  max(70dlu;pref), 7dlu, max(95dlu;pref),7dlu, max(70dlu;pref)",
@@ -101,9 +113,43 @@ public class PCAAnalysisPanel extends GPAnalysisPanel implements Serializable
     	}
     }
     
-    Object writeReplace() throws ObjectStreamException {
+    public Object writeReplace() throws ObjectStreamException {
     	return new SerialInstance(
     			getVariables()
     			);
     }
+    
+	/*
+	 * (non-Javadoc)
+	 * @see org.geworkbench.analysis.AbstractSaveableParameterPanel#setParameters(java.util.Map)
+	 * Set inputed parameters to GUI.
+	 */
+    @Override
+    public void setParameters(Map<Serializable, Serializable> parameters){
+        Set<Map.Entry<Serializable, Serializable>> set = parameters.entrySet();
+        for (Iterator<Map.Entry<Serializable, Serializable>> iterator = set.iterator(); iterator.hasNext();) {
+        	Map.Entry<Serializable, Serializable> parameter = iterator.next();
+			Object key = parameter.getKey();
+			Object value = parameter.getValue();
+			if (key.equals("variables")){
+				setVariables((String)value);
+			}
+		}
+    }
+
+    /*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.geworkbench.analysis.AbstractSaveableParameterPanel#getParameters()
+	 *      Since HierClustPanel only has three parameters, we return metric,
+	 *      dimension and method in the format same as getBisonParameters().
+	 */
+    @Override
+    public Map<Serializable, Serializable> getParameters() {
+		Map<Serializable, Serializable> parameters = new HashMap<Serializable, Serializable>();
+
+		parameters.put("variables", getVariables());
+		return parameters;
+	}
+
 }

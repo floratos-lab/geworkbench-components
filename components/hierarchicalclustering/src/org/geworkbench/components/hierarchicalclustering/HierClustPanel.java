@@ -1,15 +1,27 @@
 package org.geworkbench.components.hierarchicalclustering;
 
-import com.jgoodies.forms.builder.DefaultFormBuilder;
-import com.jgoodies.forms.layout.FormLayout;
+import java.awt.BorderLayout;
+import java.awt.GridLayout;
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
+
+import javax.swing.BorderFactory;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.SwingConstants;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.geworkbench.analysis.AbstractSaveableParameterPanel;
 import org.geworkbench.bison.model.analysis.ParamValidationResults;
+import org.geworkbench.events.listeners.ParameterActionListener;
 
-import javax.swing.*;
-import java.awt.*;
-import java.io.IOException;
-import java.io.ObjectStreamException;
-import java.io.Serializable;
+import com.jgoodies.forms.builder.DefaultFormBuilder;
+import com.jgoodies.forms.layout.FormLayout;
 
 /**
  * <p>Copyright: Copyright (c) 2003</p>
@@ -19,10 +31,15 @@ import java.io.Serializable;
  * Hierarchical clustering analysis
  *
  * @author First Genetic Trust
- * @version 1.0
+ * @version $id$
  */
-public class HierClustPanel extends AbstractSaveableParameterPanel implements Serializable {
+public class HierClustPanel extends AbstractSaveableParameterPanel{
     /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	private Log log = LogFactory.getLog(this.getClass());
+	/**
      * Visual Widget
      */
     private JPanel jPanel1 = new JPanel();
@@ -54,34 +71,7 @@ public class HierClustPanel extends AbstractSaveableParameterPanel implements Se
      * Visual Widget
      */
     private JComboBox method = new JComboBox();
-    /**
-     * Visual Widget
-     */
-    private FlowLayout flowLayout1 = new FlowLayout();
-
-    private static class SerializedInstance implements Serializable {
-        private int metric;
-        private int dimension;
-        private int method;
-
-        public SerializedInstance(int metric, int dimension, int method) {
-            this.metric = metric;
-            this.dimension = dimension;
-            this.method = method;
-        }
-
-        Object readResolve() throws ObjectStreamException {
-            HierClustPanel panel = new HierClustPanel();
-            panel.metric.setSelectedIndex(metric);
-            panel.dimension.setSelectedIndex(dimension);
-            panel.method.setSelectedIndex(method);
-            return panel;
-        }
-    }
-
-    Object writeReplace() throws ObjectStreamException {
-        return new SerializedInstance(metric.getSelectedIndex(), dimension.getSelectedIndex(), method.getSelectedIndex());
-    }
+    
 
     /**
      * Default Constructor
@@ -126,7 +116,12 @@ public class HierClustPanel extends AbstractSaveableParameterPanel implements Se
         metric.addItem("Euclidean");
         metric.addItem("Pearson's");
         metric.addItem("Spearman's");
-//        this.add(jPanel1, null);
+
+        ParameterActionListener parameterActionListener = new ParameterActionListener(this);
+        
+        method.addActionListener(parameterActionListener);
+        dimension.addActionListener(parameterActionListener);
+        metric.addActionListener(parameterActionListener);
 
         FormLayout layout = new FormLayout(
                 "right:max(40dlu;pref), 3dlu, 70dlu, 7dlu",
@@ -141,7 +136,7 @@ public class HierClustPanel extends AbstractSaveableParameterPanel implements Se
         builder.append("Clustering Metric", metric);
         this.add(builder.getPanel());
     }
-
+    
     /**
      * Gets the currently selected hierarchical clustering method
      *
@@ -192,32 +187,63 @@ public class HierClustPanel extends AbstractSaveableParameterPanel implements Se
         return new ParamValidationResults(true, "Hierarchical Clustering Parameter validations passed");
     }
 
-    /**
-     * {@link java.io.Serializable} method
-     *
-     * @param out <code>ObjectOutputStream</code>
-     * @throws IOException
-     */
-    private void writeObject(java.io.ObjectOutputStream out) throws IOException {
-        out.defaultWriteObject();
-        //    out.writeObject((String)method.getSelectedItem());
-        //    out.writeObject((String)dimension.getSelectedItem());
-        //    out.writeObject((String)metric.getSelectedItem());
+	/*
+	 * (non-Javadoc)
+	 * @see org.geworkbench.analysis.AbstractSaveableParameterPanel#setParameters(java.util.Map)
+	 * Set inputed parameters to GUI.
+	 */
+    @Override
+    public void setParameters(Map<Serializable, Serializable> parameters){
+    	if (parameters == null) return;
+        Set<Map.Entry<Serializable, Serializable>> set = parameters.entrySet();
+        for (Iterator<Map.Entry<Serializable, Serializable>> iterator = set.iterator(); iterator.hasNext();) {
+        	Map.Entry<Serializable, Serializable> parameter = iterator.next();
+			Object key = parameter.getKey();
+			Object value = parameter.getValue();
+			if (key.equals("metric")){
+				this.metric.setSelectedIndex((Integer)value);
+			}
+			if (key.equals("dimension")){
+				this.dimension.setSelectedIndex((Integer)value);
+			}
+			if (key.equals("method")){
+				this.method.setSelectedIndex((Integer)value);
+			}
+		}
     }
 
-    /**
-     * {@link java.io.Serializable} method
-     *
-     * @param in <code>ObjectInputStream</code>
-     * @throws IOException
-     * @throws ClassNotFoundException
-     */
-    private void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
-        in.defaultReadObject();
-        //    method.setSelectedItem((String)in.readObject());
-        //    dimension.setSelectedItem((String)in.readObject());
-        //    metric.setSelectedItem((String)in.readObject());
-        revalidate();
-    }
+    /*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.geworkbench.analysis.AbstractSaveableParameterPanel#getParameters()
+	 *      Since HierClustPanel only has three parameters, we return metric,
+	 *      dimension and method in the format same as getBisonParameters().
+	 */
+    @Override
+    public Map<Serializable, Serializable> getParameters() {
+		Map<Serializable, Serializable> parameters = new HashMap<Serializable, Serializable>();
 
+		parameters.put("metric", this.metric.getSelectedIndex());
+		parameters.put("dimension", this.dimension.getSelectedIndex());
+		parameters.put("method", this.method.getSelectedIndex());
+		return parameters;
+	}
+
+    /*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.geworkbench.analysis.AbstractSaveableParameterPanel#clone() We
+	 *      create a new HierClustPanel, and copy the parameters, in this case,
+	 *      three parameters.
+	 */
+    @Override
+    public HierClustPanel clone(){
+        HierClustPanel panel = new HierClustPanel();
+        
+        log.debug("Clone"+metric.getSelectedIndex()+","+dimension.getSelectedIndex()+","+method.getSelectedIndex());
+        panel.metric.setSelectedIndex(metric.getSelectedIndex());
+        panel.dimension.setSelectedIndex(dimension.getSelectedIndex());
+        panel.method.setSelectedIndex(method.getSelectedIndex());
+        return panel;
+    }
 }

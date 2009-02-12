@@ -1,5 +1,8 @@
 package org.geworkbench.components.hierarchicalclustering;
 
+import java.io.Serializable;
+import java.util.Map;
+
 import junit.framework.TestCase;
 
 import org.geworkbench.analysis.AbstractAnalysis;
@@ -19,7 +22,7 @@ import org.geworkbench.util.SpearmanRankDistance;
  * @author John Watkinson
  * @author Bernd Jagla
  * @author yc2480
- * @version $Id: HClusteringTest.java,v 1.1 2008-12-09 17:10:20 keshav Exp $
+ * @version $Id: HClusteringTest.java,v 1.2 2009-02-12 22:28:15 keshav Exp $
  */
 public class HClusteringTest extends TestCase {
 	//Examples for linkage testing, same as the file linkage_comparison.txt in System Test
@@ -90,6 +93,7 @@ public class HClusteringTest extends TestCase {
 			public AlgorithmExecutionResults execute(Object arg0) {
 				return null;
 			}
+
 		}
 		AbstractAnalysis analysis = new NullAnalysis();
 

@@ -305,7 +305,7 @@ public class WVTrainingPanel extends GPTrainingPanel {
         }
     }
 
-    Object writeReplace() throws ObjectStreamException
+    public Object writeReplace() throws ObjectStreamException
     {
         return new SerializedInstance(numFeatureMethod.isSelected(), (Integer)numFeatures.getValue(), (String)statistic.getSelectedItem(), medianCheckbox.isSelected(),
                 minStdDevCheckbox.isSelected(), (String)minStdDev.getValue(), featureFileMethod.isSelected(), featureFile);

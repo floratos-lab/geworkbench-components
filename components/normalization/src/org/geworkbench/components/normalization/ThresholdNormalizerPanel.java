@@ -1,14 +1,24 @@
 package org.geworkbench.components.normalization;
 
-import com.jgoodies.forms.builder.DefaultFormBuilder;
-import com.jgoodies.forms.layout.FormLayout;
-import org.geworkbench.analysis.AbstractSaveableParameterPanel;
-
-import javax.swing.*;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.GridLayout;
 import java.io.IOException;
 import java.io.ObjectStreamException;
 import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
+
+import javax.swing.JComboBox;
+import javax.swing.JFormattedTextField;
+import javax.swing.JLabel;
+
+import org.geworkbench.analysis.AbstractSaveableParameterPanel;
+import org.geworkbench.events.listeners.ParameterActionListener;
+
+import com.jgoodies.forms.builder.DefaultFormBuilder;
+import com.jgoodies.forms.layout.FormLayout;
 
 /**
  * <p>Copyright: Copyright (c) 2003</p>
@@ -19,6 +29,8 @@ import java.io.Serializable;
 
 /**
  * Parameters panel used by the <code>ThresholdNormalizer</code>.
+ * @author unknown, yc2480
+ * @version $ID$
  */
 public class ThresholdNormalizerPanel extends AbstractSaveableParameterPanel implements Serializable {
     final String MIN_OPTION = "Minimum";
@@ -54,10 +66,51 @@ public class ThresholdNormalizerPanel extends AbstractSaveableParameterPanel imp
         }
     }
 
-    Object writeReplace() throws ObjectStreamException {
+    public Object writeReplace() throws ObjectStreamException {
         return new SerializedInstance((Number)cutoffEdit.getValue(), cutoffTypeSelection.getSelectedIndex(), missingValuesSelection.getSelectedIndex());
     }
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.geworkbench.analysis.AbstractSaveableParameterPanel#setParameters(java.util.Map)
+	 * Set inputed parameters to GUI.
+	 */
+    @Override
+    public void setParameters(Map<Serializable, Serializable> parameters){
+        if (parameters==null){
+        	return;
+        }
+        Set<Map.Entry<Serializable, Serializable>> set = parameters.entrySet();
+        for (Iterator<Map.Entry<Serializable, Serializable>> iterator = set.iterator(); iterator.hasNext();) {
+        	Map.Entry<Serializable, Serializable> parameter = iterator.next();
+			Object key = parameter.getKey();
+			Object value = parameter.getValue();
+			if (key.equals("cutoffEdit")){
+	            this.cutoffEdit.setValue((Number)value);
+			}
+			if (key.equals("cutoffTypeSelection")){
+				this.cutoffTypeSelection.setSelectedIndex((Integer)value);
+			}
+			if (key.equals("missingValuesSelection")){
+				this.missingValuesSelection.setSelectedIndex((Integer)value);
+			}
+		}
+    }
+
+    /*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.geworkbench.analysis.AbstractSaveableParameterPanel#getParameters()
+	 */
+    @Override
+    public Map<Serializable, Serializable> getParameters() {
+		Map<Serializable, Serializable> parameters = new HashMap<Serializable, Serializable>();
+		parameters.put("cutoffEdit", (Number)cutoffEdit.getValue());
+		parameters.put("cutoffTypeSelection", cutoffTypeSelection.getSelectedIndex());
+		parameters.put("missingValuesSelection", missingValuesSelection.getSelectedIndex());
+		return parameters;
+	}
+    
     public ThresholdNormalizerPanel() {
         try {
             jbInit();
@@ -83,6 +136,10 @@ public class ThresholdNormalizerPanel extends AbstractSaveableParameterPanel imp
 
         cutoffEdit.setValue(new Double(0.0));
         cutoffEdit.setFocusLostBehavior(JFormattedTextField.COMMIT_OR_REVERT);
+        ParameterActionListener parameterActionListener = new ParameterActionListener(this);
+        cutoffEdit.addPropertyChangeListener(parameterActionListener);
+		cutoffTypeSelection.addActionListener(parameterActionListener);
+		missingValuesSelection.addActionListener(parameterActionListener);
     }
 
     /**
@@ -122,11 +179,11 @@ public class ThresholdNormalizerPanel extends AbstractSaveableParameterPanel imp
             return ThresholdNormalizer.REPLACE;
     }
 
-    private void writeObject(java.io.ObjectOutputStream out) throws IOException {
+    public void writeObject(java.io.ObjectOutputStream out) throws IOException {
         out.defaultWriteObject();
     }
 
-    private void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
+    public void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
         in.defaultReadObject();
         revalidate();
     }

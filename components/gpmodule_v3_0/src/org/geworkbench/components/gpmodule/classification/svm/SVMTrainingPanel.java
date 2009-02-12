@@ -24,6 +24,10 @@ import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 
 import java.awt.*;
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Marc-Danie Nazaire
@@ -93,5 +97,14 @@ public class SVMTrainingPanel extends GPTrainingPanel
     protected CSClassifier trainForValidation(java.util.List<float[]> trainingCaseData, java.util.List<float[]> trainingControlData) throws ClassifierException
     {
         return null;    
+    }
+    
+    public void setParameters(Map<Serializable, Serializable> parameter){
+    	//for SVM, nothing to set
+    	return;
+    }
+    public Map<Serializable, Serializable> getParameters(){
+    	//for SVM, nothing to save
+    	return new HashMap<Serializable, Serializable>();
     }
 }

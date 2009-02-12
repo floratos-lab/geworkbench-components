@@ -59,7 +59,7 @@ public class MultiTTestAnalysisPanel extends AbstractSaveableParameterPanel impl
         }
     }
 
-    Object writeReplace() throws ObjectStreamException {
+    public Object writeReplace() throws ObjectStreamException {
         return new SerializedInstance((Number) pValue.getValue());
     }
 
@@ -149,11 +149,11 @@ public class MultiTTestAnalysisPanel extends AbstractSaveableParameterPanel impl
         return result;
     }
 
-    private void writeObject(java.io.ObjectOutputStream out) throws IOException {
+    public void writeObject(java.io.ObjectOutputStream out) throws IOException {
         out.defaultWriteObject();
     }
 
-    private void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
+    public void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
         in.defaultReadObject();
         revalidate();
     }

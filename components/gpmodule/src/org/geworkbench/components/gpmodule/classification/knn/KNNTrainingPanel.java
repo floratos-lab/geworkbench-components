@@ -352,7 +352,7 @@ public class KNNTrainingPanel extends GPTrainingPanel {
         }
     }
 
-    Object writeReplace() throws ObjectStreamException
+    public Object writeReplace() throws ObjectStreamException
     {
         return new SerializedInstance(numFeatureMethod.isSelected(), getNumFeatures(),
                 getStatistic(), useMedian(), useMinStdDev(), getMinStdDev(),

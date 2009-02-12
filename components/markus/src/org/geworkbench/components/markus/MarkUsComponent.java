@@ -483,7 +483,7 @@ public class MarkUsComponent extends JPanel implements VisualPlugin
 
         String paramName = JOptionPane.showInputDialog(annotationparamPanel, namedParameter, namedParameter);
         if (selectedAnnotationAnalysis != null && paramName != null) {
-            selectedAnnotationAnalysis.saveParametersUnderName(paramName);
+            selectedAnnotationAnalysis.saveParameters(paramName);
             setNamedParameters(selectedAnnotationAnalysis.getNamesOfStoredParameterSets());
         }
 

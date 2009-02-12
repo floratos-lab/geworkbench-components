@@ -1,13 +1,24 @@
 package org.geworkbench.components.filtering;
 
-import org.geworkbench.analysis.AbstractSaveableParameterPanel;
-import org.geworkbench.bison.model.analysis.ParamValidationResults;
-
-import javax.swing.*;
-import java.awt.*;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.GridLayout;
 import java.io.IOException;
 import java.io.ObjectStreamException;
 import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
+
+import javax.swing.JComboBox;
+import javax.swing.JFormattedTextField;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+
+import org.geworkbench.analysis.AbstractSaveableParameterPanel;
+import org.geworkbench.bison.model.analysis.ParamValidationResults;
+import org.geworkbench.events.listeners.ParameterActionListener;
 
 /**
  * <p>Copyright: Copyright (c) 2003</p>
@@ -21,6 +32,9 @@ import java.io.Serializable;
  * filter. Collects ranges bounds for the values of the green channel (Cy3)
  * and the red channel (Cy5). Individual marker values from a Genepix array
  * will be compared against these ranges and filtered appropriatelly.
+ * 
+ * @author unknown, yc2480
+ * @version $ID$
  */
 public class GenepixExpressionThresholdFilterPanel extends AbstractSaveableParameterPanel implements Serializable {
     final String INSIDE_RANGE = "Inside range";
@@ -61,10 +75,58 @@ public class GenepixExpressionThresholdFilterPanel extends AbstractSaveableParam
         }
     }
 
-    Object writeReplace()  throws ObjectStreamException {
+    public Object writeReplace() throws ObjectStreamException {
         return new SerializedInstance((Double)Cy3MinValue.getValue(), (Double)Cy3MaxValue.getValue(), (Double)Cy5MinValue.getValue(), (Double)Cy5MaxValue.getValue(), optionSelection.getSelectedIndex());
     }
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.geworkbench.analysis.AbstractSaveableParameterPanel#setParameters(java.util.Map)
+	 * Set inputed parameters to GUI.
+	 */
+    @Override
+    public void setParameters(Map<Serializable, Serializable> parameters){
+        Set<Map.Entry<Serializable, Serializable>> set = parameters.entrySet();
+        for (Iterator<Map.Entry<Serializable, Serializable>> iterator = set.iterator(); iterator.hasNext();) {
+        	Map.Entry<Serializable, Serializable> parameter = iterator.next();
+			Object key = parameter.getKey();
+			Object value = parameter.getValue();
+			if (key.equals("Cy3MinValue")){
+	            this.Cy3MinValue.setValue((Double)value);
+			}
+			if (key.equals("Cy3MaxValue")){
+				this.Cy3MaxValue.setValue((Double)value);
+			}
+			if (key.equals("Cy5MinValue")){
+				this.Cy5MinValue.setValue((Double)value);
+			}
+			if (key.equals("Cy5MaxValue")){
+				this.Cy5MaxValue.setValue((Double)value);
+			}
+			if (key.equals("optionSelection")){
+				this.optionSelection.setSelectedIndex((Integer)value);
+			}
+		}
+    }
+
+    /*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.geworkbench.analysis.AbstractSaveableParameterPanel#getParameters()
+	 *      Since HierClustPanel only has three parameters, we return metric,
+	 *      dimension and method in the format same as getBisonParameters().
+	 */
+    @Override
+    public Map<Serializable, Serializable> getParameters() {
+		Map<Serializable, Serializable> parameters = new HashMap<Serializable, Serializable>();
+		parameters.put("Cy3MinValue", (Double)Cy3MinValue.getValue());
+		parameters.put("Cy3MaxValue", (Double)Cy3MaxValue.getValue());
+		parameters.put("Cy5MinValue", (Double)Cy5MinValue.getValue());
+		parameters.put("Cy5MaxValue", (Double)Cy5MaxValue.getValue());
+		parameters.put("optionSelection", optionSelection.getSelectedIndex());
+		return parameters;
+	}
+    
     public GenepixExpressionThresholdFilterPanel() {
         try {
             jbInit();
@@ -102,6 +164,12 @@ public class GenepixExpressionThresholdFilterPanel extends AbstractSaveableParam
         Cy5MinValue.setFocusLostBehavior(JFormattedTextField.COMMIT_OR_REVERT);
         Cy5MaxValue.setValue(new Double(0.0));
         Cy5MaxValue.setFocusLostBehavior(JFormattedTextField.COMMIT_OR_REVERT);
+        ParameterActionListener parameterActionListener = new ParameterActionListener(this);
+        Cy3MinValue.addPropertyChangeListener(parameterActionListener);
+        Cy3MaxValue.addPropertyChangeListener(parameterActionListener);
+        Cy5MinValue.addPropertyChangeListener(parameterActionListener);
+        Cy5MaxValue.addPropertyChangeListener(parameterActionListener);
+        optionSelection.addActionListener(parameterActionListener);
     }
 
     /**
@@ -171,11 +239,11 @@ public class GenepixExpressionThresholdFilterPanel extends AbstractSaveableParam
             return new ParamValidationResults(true, "No Error");
     }
 
-    private void writeObject(java.io.ObjectOutputStream out) throws IOException {
+    public void writeObject(java.io.ObjectOutputStream out) throws IOException {
         out.defaultWriteObject();
     }
 
-    private void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
+    public void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
         in.defaultReadObject();
         revalidate();
     }

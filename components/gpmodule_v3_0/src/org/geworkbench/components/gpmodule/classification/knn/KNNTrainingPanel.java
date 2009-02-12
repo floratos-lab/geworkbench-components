@@ -16,6 +16,9 @@ import org.geworkbench.bison.model.analysis.ParamValidationResults;
 import org.geworkbench.util.ClassifierException;
 import org.geworkbench.builtin.projects.LoadData;
 import org.geworkbench.components.gpmodule.classification.GPTrainingPanel;
+import org.geworkbench.events.listeners.ParameterActionListener;
+import org.tigr.microarray.util.awt.SetNumericDialog;
+
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.layout.ColumnSpec;
 import com.jgoodies.forms.layout.FormLayout;
@@ -29,6 +32,10 @@ import java.awt.*;
 import java.io.File;
 import java.io.ObjectStreamException;
 import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Marc-Danie Nazaire
@@ -38,7 +45,7 @@ public class KNNTrainingPanel extends GPTrainingPanel {
     private static final int DEFAULT_NUM_NEIGHBORS = 3;
 
     private JRadioButton featureFileMethod;
-    private String featureFile;
+    private String featureFile = "";
     private javax.swing.JTextField featureFileTextBox;
     private JButton loadFeatureFileButton;
     private JFileChooser featureFileChooser = new JFileChooser();
@@ -67,6 +74,9 @@ public class KNNTrainingPanel extends GPTrainingPanel {
 
     protected void initUI()
     {
+    	
+        ParameterActionListener parameterActionListener = new ParameterActionListener(this);
+        
         numFeatureMethod = new JRadioButton();
         numFeatureMethod.setText("num features");
         numFeatureMethod.setSelected(true);
@@ -90,12 +100,14 @@ public class KNNTrainingPanel extends GPTrainingPanel {
                 }
             }
         });
+        numFeatureMethod.addActionListener(parameterActionListener);
 
         numFeatures = new JFormattedTextField();
         numFeatures.setPreferredSize(new Dimension(145, 20));
         numFeatures.setMinimumSize(new Dimension(145, 20));
         numFeatures.setMaximumSize(new Dimension(145, 20));
         numFeatures.setValue(DEFAULT_NUM_FEATURES);
+        numFeatures.addActionListener(parameterActionListener);
 
         featureFileMethod = new JRadioButton();
         featureFileMethod.setText("feature filename");
@@ -115,12 +127,14 @@ public class KNNTrainingPanel extends GPTrainingPanel {
                 }
             }
         });
+        featureFileMethod.addActionListener(parameterActionListener);
 
         featureFileTextBox = new JTextField();
         featureFileTextBox.setPreferredSize(new Dimension(145, 20));
         featureFileTextBox.setMinimumSize(new Dimension(145, 20));
         featureFileTextBox.setMaximumSize(new Dimension(145, 20));
         featureFileTextBox.setEnabled(false);
+        featureFileTextBox.addActionListener(parameterActionListener);
         loadFeatureFileButton = new JButton("Load");
         loadFeatureFileButton.setEnabled(false);
         loadFeatureFileButton.addActionListener(new ActionListener()
@@ -141,10 +155,12 @@ public class KNNTrainingPanel extends GPTrainingPanel {
         statistic.setMaximumSize(new Dimension(145, 20));
         statistic.addItem("SNR");
         statistic.addItem("T-Test");
-
+        statistic.addActionListener(parameterActionListener);
+        
         medianCheckbox = new JCheckBox();
         medianCheckbox.setText("median") ;
-
+        medianCheckbox.addActionListener(parameterActionListener);
+        
         minStdDevCheckbox = new JCheckBox();
         minStdDevCheckbox.setText("min std dev");
         minStdDevCheckbox.addItemListener( new ItemListener()
@@ -157,16 +173,19 @@ public class KNNTrainingPanel extends GPTrainingPanel {
                 {   minStdDev.setEnabled(false);    }
             }
         });
-
+        minStdDevCheckbox.addActionListener(parameterActionListener);
+        
         minStdDev = new JFormattedTextField("");
         minStdDev.setMaximumSize(new Dimension(145, 20));
         minStdDev.setMinimumSize(new Dimension(145, 20));
         minStdDev.setMaximumSize(new Dimension(145, 20));
         minStdDev.setEnabled(false);
-
+        minStdDev.addActionListener(parameterActionListener);
+        
         numNeighbors = new JFormattedTextField();
         numNeighbors.setValue(DEFAULT_NUM_NEIGHBORS);
-
+        numNeighbors.addActionListener(parameterActionListener);
+        
         weightType = new JComboBox();
         weightType.setMaximumSize(new Dimension(145, 20));
         weightType.setMinimumSize(new Dimension(145, 20));
@@ -174,6 +193,7 @@ public class KNNTrainingPanel extends GPTrainingPanel {
         weightType.addItem("none");
         weightType.addItem("one-over-k");
         weightType.addItem("distance");
+        weightType.addActionListener(parameterActionListener);
      
         distanceMeasure = new JComboBox();
         distanceMeasure.setMaximumSize(new Dimension(145, 20));
@@ -181,11 +201,17 @@ public class KNNTrainingPanel extends GPTrainingPanel {
         distanceMeasure.setMaximumSize(new Dimension(145, 20));
         distanceMeasure.addItem("Cosine");
         distanceMeasure.addItem("Euclidean");
+        distanceMeasure.addActionListener(parameterActionListener);
     }
 
     public int getNumFeatures()
     {
         return ((Integer)numFeatures.getValue()).intValue();
+    }
+
+    public void setNumFeatures(int n)
+    {
+        numFeatures.setValue(n);
     }
 
     public String getFeatureFile()
@@ -198,34 +224,65 @@ public class KNNTrainingPanel extends GPTrainingPanel {
         return (String)statistic.getSelectedItem();
     }
 
+    public void setStatistic(String s)
+    {
+        statistic.setSelectedItem(s);
+    }
+
     public String getMinStdDev()
     {
         return  (String)minStdDev.getValue();
+    }
+    public void setMinStdDev(String value)
+    {
+        minStdDev.setValue(value);
     }
 
     public boolean useMinStdDev()
     {
         return minStdDevCheckbox.isSelected();
     }
+    
+    public void setUseMinStdDev(boolean b)
+    {
+        minStdDevCheckbox.setSelected(b);
+    }
 
     public boolean useMedian()
     {
         return medianCheckbox.isSelected();
     }
-
+    
+    public void setUseMedian(boolean b)
+    {
+        medianCheckbox.setSelected(b);
+    }
+    
     public boolean useFeatureFileMethod()
     {
         return(featureFileMethod.isSelected());
+    }
+    public void setUseFeatureFileMethod(boolean b)
+    {
+        featureFileMethod.setSelected(b);
     }
 
     public String getWeightType()
     {
         return (String)weightType.getSelectedItem();
     }
+    public void setWeightType(String s)
+    {
+        weightType.setSelectedItem(s);
+    }
 
     public String getDistanceMeasure()
     {
         return (String)distanceMeasure.getSelectedItem();
+    }
+    public void setDistanceMeasure(String s)
+    {
+        distanceMeasure.setSelectedItem(s);
     }
 
     public int getNumNeighbors()
@@ -233,6 +290,10 @@ public class KNNTrainingPanel extends GPTrainingPanel {
         return ((Integer)numNeighbors.getValue()).intValue();
     }
 
+    public void setNumNeighbors(int n)
+    {
+        numNeighbors.setValue(n);
+    }
 
     protected String getSummaryFile()
     {
@@ -338,7 +399,92 @@ public class KNNTrainingPanel extends GPTrainingPanel {
         }
     }
 
-    Object writeReplace() throws ObjectStreamException
+	/*
+	 * (non-Javadoc)
+	 * @see org.geworkbench.analysis.AbstractSaveableParameterPanel#setParameters(java.util.Map)
+	 * Set inputed parameters to GUI.
+	 */
+    @Override
+    public void setParameters(Map<Serializable, Serializable> parameters){
+    	if (parameters==null){
+    		return;
+    	}
+    	if (getStopNotifyAnalysisPanelTemporaryFlag()==true) return;
+    	stopNotifyAnalysisPanelTemporary(true);
+
+        Set<Map.Entry<Serializable, Serializable>> set = parameters.entrySet();
+
+        
+        for (Iterator<Map.Entry<Serializable, Serializable>> iterator = set.iterator(); iterator.hasNext();) {
+        	Map.Entry<Serializable, Serializable> parameter = iterator.next();
+			Object key = parameter.getKey();
+			Object value = parameter.getValue();
+			
+
+			if (key.equals("numFeatureMethod")){
+				this.numFeatureMethod.setSelected((Boolean)value);
+			}
+			if (key.equals("numFeatures")){
+				setNumFeatures((Integer)value);
+			}
+			if (key.equals("statistic")){
+				setStatistic((String)value);
+			}
+			if (key.equals("useMedian")){
+				setUseMedian((Boolean)value);
+			}
+			if (key.equals("useMinStdDev")){
+				setUseMinStdDev((Boolean)value);
+			}
+			if (key.equals("minStdDev")){
+				setMinStdDev((String)value);
+			}
+			if (key.equals("featureFileMethod")){
+				setUseFeatureFileMethod((Boolean)value);
+			}
+			if (key.equals("featureFile")){
+				featureFile = ((String)value);
+			}
+			if (key.equals("numNeighbors")){
+				setNumNeighbors((Integer)value);
+			}
+	        String distanceMeasure = getDistanceMeasure();
+			if (key.equals("weightType")){
+				setWeightType((String)value);
+			}
+			if (key.equals("distanceMeasure")){
+				setDistanceMeasure((String)value);
+			}
+		}
+		stopNotifyAnalysisPanelTemporary(false);
+    }
+
+    /*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.geworkbench.analysis.AbstractSaveableParameterPanel#getParameters()
+	 *      Since HierClustPanel only has three parameters, we return metric,
+	 *      dimension and method in the format same as getBisonParameters().
+	 */
+    @Override
+    public Map<Serializable, Serializable> getParameters() {
+		Map<Serializable, Serializable> parameters = new HashMap<Serializable, Serializable>();
+
+		parameters.put("numFeatureMethod", this.numFeatureMethod.isSelected());
+		parameters.put("numFeatures", getNumFeatures());
+		parameters.put("statistic", getStatistic());
+		parameters.put("useMedian", useMedian());
+		parameters.put("useMinStdDev", useMinStdDev());
+		parameters.put("minStdDev", getMinStdDev());
+		parameters.put("featureFileMethod", useFeatureFileMethod());
+		parameters.put("featureFile", featureFile);
+		parameters.put("numNeighbors", getNumNeighbors());
+		parameters.put("weightType", getWeightType());
+		parameters.put("distanceMeasure", getDistanceMeasure());
+		return parameters;
+	}
+
+    public Object writeReplace() throws ObjectStreamException
     {
         return new SerializedInstance(numFeatureMethod.isSelected(), getNumFeatures(),
                 getStatistic(), useMedian(), useMinStdDev(), getMinStdDev(),

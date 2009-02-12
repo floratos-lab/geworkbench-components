@@ -8,6 +8,7 @@ import org.geworkbench.bison.datastructure.bioobjects.markers.CSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
+import org.geworkbench.events.listeners.ParameterActionListener;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileFilter;
@@ -124,11 +125,60 @@ public class HouseKeepingGeneNormalizerPanel extends
         }
     }
 
-    Object writeReplace() throws ObjectStreamException {
+    public Object writeReplace() throws ObjectStreamException {
         return new SerializedInstance(markerModel, selectedModel);
     }
-       
-
+    
+    /*
+     * (non-Javadoc)
+     * @see org.geworkbench.analysis.AbstractSaveableParameterPanel#getParameters()
+     */
+    @Override
+    public Map<Serializable, Serializable> getParameters() {
+		Map<Serializable, Serializable> parameters = new HashMap<Serializable, Serializable>();
+		int m = markerModel.size();
+		ArrayList<String> exclude = new ArrayList<String>(m);
+		for (int i = 0; i < m; i++) {
+			exclude.add((String)markerModel.get(i));
+		}
+		int n = selectedModel.size();
+		ArrayList<String> select = new ArrayList<String>(n);
+		for (int i = 0; i < n; i++) {
+			select.add((String)selectedModel.get(i));
+		}
+		parameters.put("excluded", exclude);
+		parameters.put("selected", select);
+		return parameters;
+	}
+    
+    /*
+     * (non-Javadoc)
+     * @see org.geworkbench.analysis.AbstractSaveableParameterPanel#setParameters(java.util.Map)
+     */
+    @Override
+    public void setParameters(Map<Serializable, Serializable> parameters){
+        Set<Map.Entry<Serializable, Serializable>> set = parameters.entrySet();
+        for (Iterator<Map.Entry<Serializable, Serializable>> iterator = set.iterator(); iterator.hasNext();) {
+        	Map.Entry<Serializable, Serializable> parameter = iterator.next();
+			Object key = parameter.getKey();
+			Object value = parameter.getValue();
+			if (key.equals("excluded")){
+				this.markerModel.clear();
+				ArrayList<?> exclude = (ArrayList<?>)value;
+	            for (int i = 0; i < exclude.size(); i++) {
+	                this.markerModel.add(i, exclude.get(i));
+	            }
+			}
+			if (key.equals("selected")){
+				this.selectedModel.clear();
+				ArrayList<?>  select = (ArrayList<?>)value;
+	            for (int i = 0; i < select.size(); i++) {
+	                this.selectedModel.add(i, select.get(i));
+	            }
+			}
+		}
+    }
+    
     public HouseKeepingGeneNormalizerPanel() {
         try {
             jbInit();
@@ -500,6 +550,16 @@ public class HouseKeepingGeneNormalizerPanel extends
                 handleMouseEvent(e);
             }
         });
+
+        /*
+		 * In this case, it use JList, which we'll not monitor it directly,
+		 * we'll moniter the model instead.
+		 */
+        ParameterActionListener parameterActionListener = new ParameterActionListener(this);
+        selectedModel.addListDataListener(parameterActionListener);
+        markerModel.addListDataListener(parameterActionListener);
+        
+        
         jList2.setCellRenderer(new ListCellRenderer());
         jList1.setCellRenderer(new DefaultListCellRenderer());
         listPopup.add(editItem);
@@ -880,13 +940,13 @@ public class HouseKeepingGeneNormalizerPanel extends
      * @throws IOException
      */
 
-    private void writeObject(java.io.ObjectOutputStream out) throws IOException {
+    public void writeObject(java.io.ObjectOutputStream out) throws IOException {
         out.defaultWriteObject();
         validateLists();
 
     }
 
-    private void readObject(java.io.ObjectInputStream in) throws IOException,
+    public void readObject(java.io.ObjectInputStream in) throws IOException,
             ClassNotFoundException {
         in.defaultReadObject();
         try {

@@ -6,6 +6,11 @@ import java.awt.Font;
 import java.io.IOException;
 import java.io.ObjectStreamException;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -19,14 +24,15 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.analysis.AbstractSaveableParameterPanel;
 import org.geworkbench.bison.model.analysis.ParamValidationResults;
+import org.geworkbench.events.listeners.ParameterActionListener;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.layout.FormLayout;
 
 /**
  * 
- * @author ch2514
- * @version $Id: NetBoostParamPanel.java,v 1.5 2008-08-29 21:27:17 hungc Exp $
+ * @author ch2514, yc2480
+ * @version $Id: NetBoostParamPanel.java,v 1.6 2009-02-12 22:28:15 keshav Exp $
  */
 public class NetBoostParamPanel extends AbstractSaveableParameterPanel
 		implements Serializable {
@@ -135,12 +141,74 @@ public class NetBoostParamPanel extends AbstractSaveableParameterPanel
 	 * @return
 	 * @throws ObjectStreamException
 	 */
-	Object writeReplace() throws ObjectStreamException {
+	public Object writeReplace() throws ObjectStreamException {
 		return new SerialInstance(this.traininExSpinner.getValue(),
 				this.boostingIterSpinner.getValue(), this.subgraphCountingCombo
 						.getSelectedItem(), this.crossValidSpinner.getValue(),
 				this.getSelectedModels());
 	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.geworkbench.analysis.AbstractSaveableParameterPanel#setParameters(java.util.Map)
+	 * Set inputed parameters to GUI.
+	 */
+    @Override
+    public void setParameters(Map<Serializable, Serializable> parameters){
+        Set<Map.Entry<Serializable, Serializable>> set = parameters.entrySet();
+        for (Iterator<Map.Entry<Serializable, Serializable>> iterator = set.iterator(); iterator.hasNext();) {
+        	Map.Entry<Serializable, Serializable> parameter = iterator.next();
+			Object key = parameter.getKey();
+			Object value = parameter.getValue();
+			if (key.equals("trainingEx")){
+				this.traininExSpinner.setValue(value);
+			}
+			if (key.equals("boostingIter")){
+				this.boostingIterSpinner.setValue(value);
+			}
+			if (key.equals("subgraphCounting")){
+				this.subgraphCountingCombo.setSelectedItem((String)value);
+			}
+			if (key.equals("crossValid")){
+				this.crossValidSpinner.setValue(value);
+			}
+			if (key.equals("modelSelections")){
+				setSelectedModels(booleanArray2ArrayList((ArrayList<Boolean>)value));
+			}
+		}
+    }
+
+    /*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.geworkbench.analysis.AbstractSaveableParameterPanel#getParameters()
+	 */
+    @Override
+    public Map<Serializable, Serializable> getParameters() {
+		Map<Serializable, Serializable> parameters = new HashMap<Serializable, Serializable>();
+		parameters.put("trainingEx", (Number)this.traininExSpinner.getValue());
+		parameters.put("boostingIter", (Number)this.boostingIterSpinner.getValue());
+		parameters.put("subgraphCounting", (String)this.subgraphCountingCombo.getSelectedItem());
+		parameters.put("crossValid", (Number)this.crossValidSpinner.getValue());
+		parameters.put("modelSelections", booleanArray2ArrayList(this.getSelectedModels()));
+		return parameters;
+	}
+
+    private ArrayList<Boolean> booleanArray2ArrayList(boolean[] bArray){
+    	ArrayList<Boolean> result = new ArrayList<Boolean>();
+    	for (int i = 0; i < bArray.length; i++) {
+			result.add(new Boolean(bArray[i]));
+		}
+    	return result;
+    }
+
+    private boolean[] booleanArray2ArrayList(ArrayList<Boolean> bArrayList){
+    	boolean[] result = new boolean[bArrayList.size()];
+    	for (int i = 0; i < result.length; i++) {
+    		result[i]=bArrayList.get(i);
+		}
+    	return result;
+    }
 
 	/**
 	 * 
@@ -176,11 +244,18 @@ public class NetBoostParamPanel extends AbstractSaveableParameterPanel
 	 */
 	private JPanel initMainPanel() {
 		JPanel result = new JPanel(new BorderLayout());
+        ParameterActionListener parameterActionListener = new ParameterActionListener(this);
+        
 		traininExSpinner = new JSpinner(new SpinnerNumberModel(100, 1, 500, 1));
 		boostingIterSpinner = new JSpinner(new SpinnerNumberModel(120, 1, 500,
 				1));
 		subgraphCountingCombo = new JComboBox(methods);
 		crossValidSpinner = new JSpinner(new SpinnerNumberModel(5, 1, 100, 1));
+
+		traininExSpinner.addChangeListener(parameterActionListener);
+		boostingIterSpinner.addChangeListener(parameterActionListener);
+		subgraphCountingCombo.addActionListener(parameterActionListener);
+		crossValidSpinner.addChangeListener(parameterActionListener);
 
 		FormLayout layout = new FormLayout(
 				"right:max(40dlu;pref), 4dlu, 70dlu, 7dlu", "");
@@ -214,6 +289,7 @@ public class NetBoostParamPanel extends AbstractSaveableParameterPanel
 		m.setFont(new Font("Arial", Font.BOLD, 12));
 		JLabel d = new JLabel("Description");
 		d.setFont(new Font("Arial", Font.BOLD, 12));
+        ParameterActionListener parameterActionListener = new ParameterActionListener(this);
 
 		// assumes the number of model names == number of model descriptions
 		// should already be checked at the analysis panel level when it reads
@@ -226,6 +302,8 @@ public class NetBoostParamPanel extends AbstractSaveableParameterPanel
 		for (int i = 0; i < modelNames.length; i++) {
 			modelBoxes[i] = new JCheckBox(modelNames[i]);
 			modelBoxes[i].setSelected(true);
+			modelBoxes[i].addActionListener(parameterActionListener);
+			
 			if (i < numDescs)
 				modelLabels[i] = new JLabel(modelDescs[i]);
 			else
@@ -307,6 +385,17 @@ public class NetBoostParamPanel extends AbstractSaveableParameterPanel
 	}
 
 	/**
+	 * 
+	 * @return
+	 */
+	void setSelectedModels(boolean[] booleans) {
+		if (modelBoxes.length == booleans.length) //else, probably version conflict.
+		for (int i = 0; i < modelBoxes.length; i++) {
+			modelBoxes[i].setSelected(booleans[i]);
+		}
+	}
+
+	/**
 	 * Validates if the parameters to be passed to the analysis routine are
 	 * indeed valid
 	 * 
@@ -335,7 +424,7 @@ public class NetBoostParamPanel extends AbstractSaveableParameterPanel
 	 *            <code>ObjectOutputStream</code>
 	 * @throws IOException
 	 */
-	private void writeObject(java.io.ObjectOutputStream out) throws IOException {
+	public void writeObject(java.io.ObjectOutputStream out) throws IOException {
 		out.defaultWriteObject();
 	}
 
@@ -347,7 +436,7 @@ public class NetBoostParamPanel extends AbstractSaveableParameterPanel
 	 * @throws IOException
 	 * @throws ClassNotFoundException
 	 */
-	private void readObject(java.io.ObjectInputStream in) throws IOException,
+	public void readObject(java.io.ObjectInputStream in) throws IOException,
 			ClassNotFoundException {
 		in.defaultReadObject();
 		revalidate();

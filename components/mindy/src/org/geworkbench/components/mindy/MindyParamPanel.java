@@ -11,6 +11,10 @@ import java.io.IOException;
 import java.io.ObjectStreamException;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
@@ -30,7 +34,6 @@ import org.apache.commons.logging.LogFactory;
 import org.geworkbench.analysis.AbstractSaveableParameterPanel;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
-import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.util.ValidationUtils;
 
@@ -40,8 +43,7 @@ import com.jgoodies.forms.layout.FormLayout;
 /**
  * MINDY analysis GUI. Allows the user to enter parameters to analyze.
  * 
- * @author mhall
- * @author ch2514
+ * @author mhall, ch2514, yc2480
  * @version $ID$
  */
 @SuppressWarnings("serial")
@@ -145,6 +147,8 @@ public class MindyParamPanel extends AbstractSaveableParameterPanel implements
 
 	private DSPanel<DSGeneMarker> selectorPanel;
 
+	private boolean calledFromProgram = false;
+	
 	/**
 	 * Constructor. Creates the parameter panel GUI.
 	 * 
@@ -214,11 +218,15 @@ public class MindyParamPanel extends AbstractSaveableParameterPanel implements
 				if (StringUtils.equals(selected, FROM_FILE)) {
 					modulatorsSets.setSelectedIndex(0);
 					modulatorsSets.setEnabled(false);
+					if (!calledFromProgram){
 					modulatorList.setText("");
+					}
 					loadModulatorsFile.setEnabled(true);
 				} else {
 					modulatorsSets.setEnabled(true);
+					if (!calledFromProgram){
 					modulatorList.setText("");
+					}
 					loadModulatorsFile.setEnabled(false);
 				}
 			}
@@ -257,7 +265,9 @@ public class MindyParamPanel extends AbstractSaveableParameterPanel implements
 				if (!StringUtils.isEmpty(selectedLabel))
 					if (!chooseMarkersFromSet(selectedLabel, modulatorList)) {
 						modulatorsSets.setSelectedIndex(0);
+						if (!calledFromProgram){
 						modulatorList.setText("");
+						}
 					}
 			}
 		});
@@ -771,7 +781,7 @@ public class MindyParamPanel extends AbstractSaveableParameterPanel implements
 		}
 	}
 
-	Object writeReplace() throws ObjectStreamException {
+	public Object writeReplace() throws ObjectStreamException {
 		return new SerializedInstance(this.modulatorList.getText(),
 				this.modulatorsFrom.getSelectedIndex(),
 				(String) this.modulatorsSets.getSelectedItem(), this.targetList
@@ -787,6 +797,123 @@ public class MindyParamPanel extends AbstractSaveableParameterPanel implements
 				this.dpiAnnotationList.getText(), this.dpiTolerance.getValue());
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.geworkbench.analysis.AbstractSaveableParameterPanel#setParameters(java.util.Map)
+	 * Set inputed parameters to GUI.
+	 */
+    @Override
+    public void setParameters(Map<Serializable, Serializable> parameters){
+        Set<Map.Entry<Serializable, Serializable>> set = parameters.entrySet();
+        for (Iterator<Map.Entry<Serializable, Serializable>> iterator = set.iterator(); iterator.hasNext();) {
+        	Map.Entry<Serializable, Serializable> parameter = iterator.next();
+			Object key = parameter.getKey();
+			Object value = parameter.getValue();
+			calledFromProgram = true;
+			if (key.equals("modulators")){
+				this.modulatorList.setText((String)value);
+			}
+			if (key.equals("modulatorFromType")){
+				this.modulatorsFrom.setSelectedIndex((Integer)value);
+			}
+			if (key.equals("targets")){
+				this.targetList.setText((String)value);
+			}
+			if (key.equals("targetFromType")){
+				this.targetsFrom.setSelectedIndex((Integer)value);
+			}
+			if (key.equals("annotations")){
+				this.dpiAnnotationList.setText((String)value);
+			}
+			if (key.equals("tf")){
+				this.transcriptionFactor.setText((String)value);
+			}
+			if (key.equals("fraction")){
+				this.setFraction.setValue(value);
+			}
+			if (key.equals("conditionalType")){
+				int conditionalType = (Integer)value;
+				if ((conditionalType >= 0)
+						&& (conditionalType < this.conditionalCombo
+								.getModel().getSize()))
+					this.conditionalCombo.setSelectedIndex(conditionalType);
+			}
+			if (key.equals("conditionalValue")){
+				this.conditional.setText((String)value);
+			}
+			if (key.equals("conditionalCorrection")){
+				int conditionalCorrection = (Integer)value;
+				if ((conditionalCorrection >= 0)
+						&& (conditionalCorrection < this.conditionalCorrection
+								.getModel().getSize()))
+					this.conditionalCorrection
+							.setSelectedIndex(conditionalCorrection);
+			}
+			if (key.equals("unconditionalType")){
+				int unconditionalType = (Integer)value;
+				if ((unconditionalType >= 0)
+						&& (unconditionalType < this.unconditionalCombo
+								.getModel().getSize()))
+					this.unconditionalCombo
+							.setSelectedIndex(unconditionalType);
+			}
+			if (key.equals("unconditionalValue")){
+				this.unconditional.setText((String)value);
+			}
+			if (key.equals("unconditionalCorrection")){
+				int unconditionalCorrection = (Integer)value;
+				if ((unconditionalCorrection >= 0)
+						&& (unconditionalCorrection < this.unconditionalCorrection
+								.getModel().getSize()))
+					this.unconditionalCorrection
+							.setSelectedIndex(unconditionalCorrection);
+			}
+			if (key.equals("dpitargets")){
+				this.dpiAnnotationList.setText((String)value);
+			}
+			if (key.equals("dpitolerance")){
+				this.dpiTolerance.setValue(value);
+			}
+			calledFromProgram = false;
+		}
+    }
+
+    /*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.geworkbench.analysis.AbstractSaveableParameterPanel#getParameters()
+	 *      Since HierClustPanel only has three parameters, we return metric,
+	 *      dimension and method in the format same as getBisonParameters().
+	 */
+    @Override
+    public Map<Serializable, Serializable> getParameters() {
+		Map<Serializable, Serializable> parameters = new HashMap<Serializable, Serializable>();
+		parameters.put("modulators", this.modulatorList.getText());
+		parameters.put("modulatorFromType", this.modulatorsFrom.getSelectedIndex());
+		//from previous code, it seems like the modulatorsSets is unused.
+		//parameters.put("", (String) this.modulatorsSets.getSelectedItem()
+		parameters.put("targets", this.targetList.getText());
+		parameters.put("targetFromType", this.targetsFrom.getSelectedIndex());
+		//from previous code, it seems like the targetsSets is unused.
+		//parameters.put("", (String) this.targetsSets.getSelectedItem());
+		parameters.put("annotations", this.dpiAnnotationList.getText());
+		parameters.put("tf", this.transcriptionFactor
+				.getText());
+		parameters.put("fraction", (Integer)this.setFraction.getValue());
+		parameters.put("conditionalType", this.conditionalCombo.getSelectedIndex());
+		parameters.put("conditionalValue", this.conditional
+				.getText());
+		parameters.put("conditionalCorrection", this.conditionalCorrection
+				.getSelectedIndex());
+		parameters.put("unconditionalType", this.unconditionalCombo
+				.getSelectedIndex());
+		parameters.put("unconditionalValue", this.unconditional.getText());
+		parameters.put("unconditionalCorrection", this.unconditionalCorrection.getSelectedIndex());
+		parameters.put("dpitargets", this.dpiAnnotationList.getText());
+		parameters.put("dpitolerance", (Double)this.dpiTolerance.getValue());
+		return parameters;
+	}
+
 	/**
 	 * {@link java.io.Serializable} method
 	 * 
@@ -794,7 +921,7 @@ public class MindyParamPanel extends AbstractSaveableParameterPanel implements
 	 *            <code>ObjectOutputStream</code>
 	 * @throws IOException
 	 */
-	private void writeObject(java.io.ObjectOutputStream out) throws IOException {
+	public void writeObject(java.io.ObjectOutputStream out) throws IOException {
 		out.defaultWriteObject();
 	}
 
@@ -806,7 +933,7 @@ public class MindyParamPanel extends AbstractSaveableParameterPanel implements
 	 * @throws IOException
 	 * @throws ClassNotFoundException
 	 */
-	private void readObject(java.io.ObjectInputStream in) throws IOException,
+	public void readObject(java.io.ObjectInputStream in) throws IOException,
 			ClassNotFoundException {
 		in.defaultReadObject();
 		revalidate();

@@ -11,28 +11,48 @@
 */
 package org.geworkbench.components.gpmodule.classification.wv;
 
-import org.geworkbench.util.ClassifierException;
+import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import java.io.File;
+import java.io.ObjectStreamException;
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
+
+import javax.swing.ButtonGroup;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
+import javax.swing.JFileChooser;
+import javax.swing.JFormattedTextField;
+import javax.swing.JPanel;
+import javax.swing.JRadioButton;
+import javax.swing.JTextField;
+
 import org.geworkbench.bison.algorithm.classification.CSClassifier;
 import org.geworkbench.bison.model.analysis.ParamValidationResults;
 import org.geworkbench.builtin.projects.LoadData;
 import org.geworkbench.components.gpmodule.classification.GPTrainingPanel;
+import org.geworkbench.events.listeners.ParameterActionListener;
+import org.geworkbench.util.ClassifierException;
+
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.layout.ColumnSpec;
 import com.jgoodies.forms.layout.FormLayout;
-
-import javax.swing.*;
-import java.awt.event.*;
-import java.awt.*;
-import java.io.File;
-import java.io.Serializable;
-import java.io.ObjectStreamException;
 /**
- * @author Marc-Danie Nazaire                                      
+ * @author Marc-Danie Nazaire          
+ * @version $ID$
+ * FIXME: saving parameter set to file not working yet. Only save in memory works.                            
  */
 public class WVTrainingPanel extends GPTrainingPanel {
     private static final int DEFAULT_NUM_FEATURES = 10;
 
-    private String featureFile = null;
+    private String featureFile = "";
     private javax.swing.JTextField featureFileTextBox;
     private JButton loadFeatureFileButton;
     private JFileChooser featureFileChooser = new JFileChooser();
@@ -231,6 +251,17 @@ public class WVTrainingPanel extends GPTrainingPanel {
 
         builder.append(featureFileMethod, featureFileTextBox, loadFeatureFileButton);
 
+        ParameterActionListener parameterActionListener = new ParameterActionListener(this);
+
+        numFeatureMethod.addActionListener(parameterActionListener);
+        numFeatures.addPropertyChangeListener(parameterActionListener);
+        statistic.addActionListener(parameterActionListener);
+        medianCheckbox.addActionListener(parameterActionListener);
+        minStdDevCheckbox.addActionListener(parameterActionListener);
+        minStdDev.addPropertyChangeListener(parameterActionListener);
+        featureFileMethod.addActionListener(parameterActionListener);
+        featureFileTextBox.addPropertyChangeListener(parameterActionListener);
+
         return builder.getPanel();
     }
 
@@ -290,7 +321,7 @@ public class WVTrainingPanel extends GPTrainingPanel {
         }
     }
 
-    Object writeReplace() throws ObjectStreamException
+    public Object writeReplace() throws ObjectStreamException
     {
         return new SerializedInstance(numFeatureMethod.isSelected(), (Integer)numFeatures.getValue(), (String)statistic.getSelectedItem(), medianCheckbox.isSelected(),
                 minStdDevCheckbox.isSelected(), (String)minStdDev.getValue(), featureFileMethod.isSelected(), featureFile);
@@ -336,6 +367,69 @@ public class WVTrainingPanel extends GPTrainingPanel {
             return panel;
         }
     }
+    
+	/*
+	 * (non-Javadoc)
+	 * @see org.geworkbench.analysis.AbstractSaveableParameterPanel#setParameters(java.util.Map)
+	 * Set inputed parameters to GUI.
+	 */
+    @Override
+    public void setParameters(Map<Serializable, Serializable> parameters){
+        Set<Map.Entry<Serializable, Serializable>> set = parameters.entrySet();
+        if (numFeatureMethod==null) initUI();
+        for (Iterator<Map.Entry<Serializable, Serializable>> iterator = set.iterator(); iterator.hasNext();) {
+        	Map.Entry<Serializable, Serializable> parameter = iterator.next();
+			Object key = parameter.getKey();
+			Object value = parameter.getValue();
+			if (key.equals("numFeatureMethod")){
+				this.numFeatureMethod.setSelected((Boolean)value);
+			}
+			if (key.equals("numFeatures")){
+				this.numFeatures.setValue((Integer)value);
+			}
+			if (key.equals("statistic")){
+				this.statistic.setSelectedItem((String)value);
+			}
+			if (key.equals("useMedian")){
+				this.medianCheckbox.setSelected((Boolean)value);
+			}
+			if (key.equals("useMinStdDev")){
+				this.minStdDevCheckbox.setSelected((Boolean)value);
+			}
+			if (key.equals("minStdDev")){
+				this.minStdDev.setValue((String)value);
+			}
+			if (key.equals("featureFileMethod")){
+				this.featureFileMethod.setSelected((Boolean)value);
+			}
+			if (key.equals("featureFile")){
+				this.featureFileTextBox.setText((String)value);
+			}
+		}
+    }
+
+    /*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.geworkbench.analysis.AbstractSaveableParameterPanel#getParameters()
+	 */
+    @Override
+    public Map<Serializable, Serializable> getParameters() {
+		Map<Serializable, Serializable> parameters = new HashMap<Serializable, Serializable>();
+		if (numFeatureMethod==null){
+			initUI();
+		}
+		parameters.put("numFeatureMethod", numFeatureMethod.isSelected());
+		parameters.put("numFeatures", (Integer)numFeatures.getValue());
+		parameters.put("statistic", (String)statistic.getSelectedItem());
+		parameters.put("useMedian", medianCheckbox.isSelected());
+		parameters.put("useMinStdDev", minStdDevCheckbox.isSelected());
+		parameters.put("minStdDev", (String)minStdDev.getValue());
+		parameters.put("featureFileMethod", featureFileMethod.isSelected());
+		parameters.put("featureFile", featureFile);
+		return parameters;
+	}
+
 }
 
 

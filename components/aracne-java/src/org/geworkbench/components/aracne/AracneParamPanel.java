@@ -11,6 +11,10 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 import java.util.Vector;
 
 import javax.swing.JButton;
@@ -31,7 +35,8 @@ import com.jgoodies.forms.layout.FormLayout;
 import edu.columbia.c2b2.aracne.Parameter;
 
 /**
- * @author mhall
+ * @author mhall, yc2480
+ * @version $ID$
  */
 public class AracneParamPanel extends AbstractSaveableParameterPanel implements Serializable {
 
@@ -260,6 +265,13 @@ public class AracneParamPanel extends AbstractSaveableParameterPanel implements 
         return hubCombo.getSelectedItem().equals(HUB_LIST);
     }
 
+    public void setIsHubListSpecified(boolean b) {
+    	if (b)
+    		hubCombo.setSelectedItem(HUB_LIST);
+    	else
+    		hubCombo.setSelectedItem(HUB_ALL);
+    }    
+    
     public String getHubMarkersFile() {
         return hubMarkersFile;
     }
@@ -268,24 +280,59 @@ public class AracneParamPanel extends AbstractSaveableParameterPanel implements 
         return kernelCombo.getSelectedItem().equals(KERNEL_SPECIFY);
     }
 
+    public void setIsKernelWidthSpecified(boolean b) {
+    	if (b){
+    		kernelCombo.setSelectedItem(KERNEL_SPECIFY);
+    	}else{
+    		kernelCombo.setSelectedItem(KERNEL_INFERRED);
+    	}
+    }
+
     public float getKernelWidth() {
         return Float.valueOf(kernelWidth.getText());
     }
 
+    public void setKernelWidth(Float f) {
+    	kernelWidth.setText(f.toString());
+    }
+    
     public boolean isThresholdMI() {
         return thresholdCombo.getSelectedItem().equals(THRESHOLD_MI);
     }
 
+    public void setIsThresholdMI(boolean b) {
+    	if (b){
+    		thresholdCombo.setSelectedItem(THRESHOLD_MI);
+    	}else{
+    		thresholdCombo.setSelectedItem(THRESHOLD_PVALUE);
+    	}
+    }
+
     public float getThreshold() {
         return Float.valueOf(threshold.getText());
+    }
+    
+    public void setThreshold(Float f) {
+    	threshold.setText(f.toString());
     }
 
     public boolean isDPIToleranceSpecified() {
         return dpiCombo.getSelectedItem().equals(DPI_APPLY);
     }
 
+    public void setIsDPIToleranceSpecified(boolean b) {
+    	if (b)
+    		dpiCombo.setSelectedItem(DPI_APPLY);
+    	else
+    		dpiCombo.setSelectedItem(DPI_NONE);
+    }
+    
     public float getDPITolerance() {
         return Float.valueOf(dpiTolerance.getText());
+    }
+
+    public void setDPITolerance(Float f) {
+    	dpiTolerance.setText(f.toString());
     }
 
     public ArrayList<String> getHubGeneList() {
@@ -309,8 +356,24 @@ public class AracneParamPanel extends AbstractSaveableParameterPanel implements 
         return hubMarkerList.getText();
     }
 
+    public void setHubGeneString(String s) {
+        hubMarkerList.setText(s);
+    }
+
+    public String getTargetGeneString() {
+        return targetList.getText();
+    }
+
+    public void setTargetGeneString(String s) {
+    	targetList.setText(s);
+    }
+
     public boolean isTargetListSpecified() {
         return targetCheckbox.isSelected();
+    }
+
+    public void setIsTargetListSpecified(boolean b) {
+    	targetCheckbox.setSelected(b);
     }
 
     public ArrayList<String> getTargetGenes() {
@@ -370,6 +433,83 @@ public class AracneParamPanel extends AbstractSaveableParameterPanel implements 
 		
 	}
 	
+	/*
+	 * (non-Javadoc)
+	 * @see org.geworkbench.analysis.AbstractSaveableParameterPanel#setParameters(java.util.Map)
+	 * Set inputed parameters to GUI.
+	 */
+    @Override
+    public void setParameters(Map<Serializable, Serializable> parameters){
+        Set<Map.Entry<Serializable, Serializable>> set = parameters.entrySet();
+        for (Iterator<Map.Entry<Serializable, Serializable>> iterator = set.iterator(); iterator.hasNext();) {
+        	Map.Entry<Serializable, Serializable> parameter = iterator.next();
+			Object key = parameter.getKey();
+			Object value = parameter.getValue();
+			if (key.equals("isHubListSpecified")){
+				setIsHubListSpecified((Boolean)value);
+			}
+			if (key.equals("HubGeneList")){
+				setHubGeneString((String)value);
+			}
+			if (key.equals("isThresholdMI")){
+				setIsThresholdMI((Boolean)value);
+			}
+			if (key.equals("Threshold")){
+				setThreshold((Float)value);
+			}
+			if (key.equals("isKernelWidthSpecified")){
+				setIsKernelWidthSpecified((Boolean)value);
+			}
+			if (key.equals("KernelWidth")){
+				setKernelWidth((Float)value);
+			}
+			if (key.equals("isDPIToleranceSpecified")){
+				setIsDPIToleranceSpecified((Boolean)value);
+			}
+			if (key.equals("DPITolerance")){
+				setDPITolerance((Float)value);
+			}
+			if (key.equals("isTargetListSpecified")){
+				setIsTargetListSpecified((Boolean)value);
+                if (!targetCheckbox.isSelected()) {
+                    targetList.setEnabled(false);
+                    loadTargetsButton.setEnabled(false);
+                } else {
+                    targetList.setEnabled(true);
+                    loadTargetsButton.setEnabled(true);
+                }
+			}
+			if (key.equals("TargetGenes")){
+				setTargetGeneString((String)value);
+			}
+		}
+    }
+
+    /*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.geworkbench.analysis.AbstractSaveableParameterPanel#getParameters()
+	 *      Since HierClustPanel only has three parameters, we return metric,
+	 *      dimension and method in the format same as getBisonParameters().
+	 */
+    @Override
+    public Map<Serializable, Serializable> getParameters() {
+		Map<Serializable, Serializable> parameters = new HashMap<Serializable, Serializable>();
+
+		parameters.put("isHubListSpecified", this.isHubListSpecified());
+		parameters.put("HubGeneList", this.getHubGeneString());
+		parameters.put("isThresholdMI", this.isThresholdMI());
+		parameters.put("Threshold", this.getThreshold());
+		parameters.put("isKernelWidthSpecified", this.isKernelWidthSpecified());
+		parameters.put("KernelWidth", this.getKernelWidth());
+		parameters.put("isDPIToleranceSpecified", this.isDPIToleranceSpecified());
+		parameters.put("DPITolerance", this.getDPITolerance());
+		parameters.put("isTargetListSpecified", this.isTargetListSpecified());
+		parameters.put("TargetGenes", this.getTargetGeneString());
+        		
+		return parameters;
+	}
+
 	public void maMode(){	//switch to microarray analysis mode
 		hubCombo.setEnabled(true);
 		loadMarkersButton.setEnabled(true);
