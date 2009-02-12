@@ -1,14 +1,24 @@
 package org.geworkbench.components.filtering;
 
-import org.geworkbench.analysis.AbstractSaveableParameterPanel;
-
-import javax.swing.*;
-import java.awt.*;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.GridLayout;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.io.IOException;
 import java.io.ObjectStreamException;
 import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
+
+import javax.swing.JCheckBox;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+
+import org.geworkbench.analysis.AbstractSaveableParameterPanel;
+import org.geworkbench.events.listeners.ParameterActionListener;
 
 /**
  * <p>Copyright: Copyright (c) 2003</p>
@@ -21,6 +31,9 @@ import java.io.Serializable;
  * Pararameters panel for the <code>AffyDetectionCallFilter</code>. Prompts
  * the user to designate which markers (those whose detection call is "Present",
  * "Absent" or "Marginal") should be filtered out.
+ * 
+ * @author unknown, yc2480
+ * @version $ID$
  */
 public class AffyDetectionCallFilterPanel extends AbstractSaveableParameterPanel implements Serializable, ItemListener {
     /**
@@ -64,10 +77,49 @@ public class AffyDetectionCallFilterPanel extends AbstractSaveableParameterPanel
         }
     }
 
-    Object writeReplace() throws ObjectStreamException {
+    public Object writeReplace() throws ObjectStreamException {
         return new SerializedInstance(presentButton.isSelected(), absentButton.isSelected(), marginalButton.isSelected());
     }
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.geworkbench.analysis.AbstractSaveableParameterPanel#setParameters(java.util.Map)
+	 * Set inputed parameters to GUI.
+	 */
+    @Override
+    public void setParameters(Map<Serializable, Serializable> parameters){
+        Set<Map.Entry<Serializable, Serializable>> set = parameters.entrySet();
+        for (Iterator<Map.Entry<Serializable, Serializable>> iterator = set.iterator(); iterator.hasNext();) {
+        	Map.Entry<Serializable, Serializable> parameter = iterator.next();
+			Object key = parameter.getKey();
+			Object value = parameter.getValue();
+
+			if (key.equals("present")){
+	            this.presentButton.setSelected((Boolean)value);
+			}
+			if (key.equals("absent")){
+				this.absentButton.setSelected((Boolean)value);
+			}
+			if (key.equals("marginal")){
+				this.marginalButton.setSelected((Boolean)value);
+			}
+		}
+    }
+
+    /*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.geworkbench.analysis.AbstractSaveableParameterPanel#getParameters()
+	 */
+    @Override
+    public Map<Serializable, Serializable> getParameters() {
+		Map<Serializable, Serializable> parameters = new HashMap<Serializable, Serializable>();
+		parameters.put("present", presentButton.isSelected());
+		parameters.put("absent", absentButton.isSelected());
+		parameters.put("marginal", marginalButton.isSelected());
+		return parameters;
+	}
+    
 
     public AffyDetectionCallFilterPanel() {
         try {
@@ -106,6 +158,10 @@ public class AffyDetectionCallFilterPanel extends AbstractSaveableParameterPanel
         container.add(buttonContainer);
         container.setPreferredSize(new Dimension(250, 55));
         this.add(container);
+        ParameterActionListener parameterActionListener = new ParameterActionListener(this);
+        presentButton.addActionListener(parameterActionListener);
+        absentButton.addActionListener(parameterActionListener);
+        marginalButton.addActionListener(parameterActionListener);
     }
 
     /**
@@ -142,11 +198,11 @@ public class AffyDetectionCallFilterPanel extends AbstractSaveableParameterPanel
             marginalButtonStatus = !marginalButtonStatus;
     }
 
-    private void writeObject(java.io.ObjectOutputStream out) throws IOException {
+    public void writeObject(java.io.ObjectOutputStream out) throws IOException {
         out.defaultWriteObject();
     }
 
-    private void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
+    public void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
         in.defaultReadObject();
         revalidate();
     }

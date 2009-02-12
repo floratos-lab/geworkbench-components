@@ -1,27 +1,47 @@
 package org.geworkbench.components.ei;
 
-import org.geworkbench.analysis.AbstractSaveableParameterPanel;
-import org.geworkbench.util.PropertiesMonitor;
-import org.geworkbench.engine.properties.PropertiesManager;
-import org.jdesktop.swingx.JXTable;
-import org.jdesktop.swingx.decorator.HighlighterPipeline;
-import org.jdesktop.swingx.decorator.Highlighter;
-import org.jdesktop.swingx.decorator.AlternateRowHighlighter;
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.Frame;
+import java.awt.GridBagLayout;
+import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.swing.DefaultCellEditor;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JDialog;
+import javax.swing.JFileChooser;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextField;
+import javax.swing.JToolBar;
+import javax.swing.ListSelectionModel;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import javax.swing.*;
-import javax.swing.filechooser.*;
-import java.io.*;
-import java.awt.*;
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
-import java.util.*;
-import java.util.List;
+import org.geworkbench.analysis.AbstractSaveableParameterPanel;
+import org.geworkbench.engine.properties.PropertiesManager;
+import org.jdesktop.swingx.JXTable;
+import org.jdesktop.swingx.decorator.AlternateRowHighlighter;
+import org.jdesktop.swingx.decorator.Highlighter;
+import org.jdesktop.swingx.decorator.HighlighterPipeline;
 
 import com.solarmetric.ide.ui.CheckboxCellRenderer;
+
 import edu.columbia.c2b2.evidenceinegration.Evidence;
-import edu.columbia.c2b2.evidenceinegration.Edge;
 
 /**
  * @author mhall
@@ -402,4 +422,12 @@ public class EvidenceIntegrationParamPanel extends AbstractSaveableParameterPane
         }
         return enabledGS;
     }
+     
+     public Map<Serializable, Serializable> getParameters() {
+		return new HashMap<Serializable, Serializable>();
+	}
+
+	public void setParameters(Map<Serializable, Serializable> parameter) {
+		return;
+	}
 }

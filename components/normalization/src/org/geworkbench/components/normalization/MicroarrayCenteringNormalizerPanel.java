@@ -51,7 +51,7 @@ public class MicroarrayCenteringNormalizerPanel extends AbstractSaveableParamete
         }
     }
 
-    Object writeReplace() throws ObjectStreamException {
+    public Object writeReplace() throws ObjectStreamException {
         return new SerializedInstance(averagingSelection.getSelectedIndex(), missingValuesSelection.getSelectedIndex());
     }
     
@@ -115,11 +115,11 @@ public class MicroarrayCenteringNormalizerPanel extends AbstractSaveableParamete
             return MarkerCenteringNormalizer.IGNORE;
     }
 
-    private void writeObject(java.io.ObjectOutputStream out) throws IOException {
+    public void writeObject(java.io.ObjectOutputStream out) throws IOException {
         out.defaultWriteObject();
     }
 
-    private void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
+    public void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
         in.defaultReadObject();
         revalidate();
     }

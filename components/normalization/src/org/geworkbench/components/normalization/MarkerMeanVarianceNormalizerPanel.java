@@ -1,14 +1,23 @@
 package org.geworkbench.components.normalization;
 
-import com.jgoodies.forms.builder.DefaultFormBuilder;
-import com.jgoodies.forms.layout.FormLayout;
-import org.geworkbench.analysis.AbstractSaveableParameterPanel;
-
-import javax.swing.*;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.GridLayout;
 import java.io.IOException;
 import java.io.ObjectStreamException;
 import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
+
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
+
+import org.geworkbench.analysis.AbstractSaveableParameterPanel;
+import org.geworkbench.events.listeners.ParameterActionListener;
+
+import com.jgoodies.forms.builder.DefaultFormBuilder;
+import com.jgoodies.forms.layout.FormLayout;
 
 /**
  * <p>Copyright: Copyright (c) 2003</p>
@@ -19,6 +28,8 @@ import java.io.Serializable;
 
 /**
  * Parameters panel for the <code>MarkerMeanVarianceNormalizer</code>..
+ * @author unknown, yc2480
+ * @version $ID$
  */
 public class MarkerMeanVarianceNormalizerPanel extends AbstractSaveableParameterPanel implements Serializable {
     final String MIN_OPTION = "Min profile";
@@ -47,10 +58,41 @@ public class MarkerMeanVarianceNormalizerPanel extends AbstractSaveableParameter
         }
     }
 
-    Object writeReplace() throws ObjectStreamException {
+    public Object writeReplace() throws ObjectStreamException {
         return new SerialInstance(missingValuesSelection.getSelectedIndex());
     }
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.geworkbench.analysis.AbstractSaveableParameterPanel#setParameters(java.util.Map)
+	 * Set inputed parameters to GUI.
+	 */
+    @Override
+    public void setParameters(Map<Serializable, Serializable> parameters){
+        Set<Map.Entry<Serializable, Serializable>> set = parameters.entrySet();
+        for (Iterator<Map.Entry<Serializable, Serializable>> iterator = set.iterator(); iterator.hasNext();) {
+        	Map.Entry<Serializable, Serializable> parameter = iterator.next();
+			Object key = parameter.getKey();
+			Object value = parameter.getValue();
+			if (key.equals("missing")){
+				this.missingValuesSelection.setSelectedIndex((Integer)value);
+			}
+		}
+    }
+
+    /*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.geworkbench.analysis.AbstractSaveableParameterPanel#getParameters()
+	 */
+    @Override
+    public Map<Serializable, Serializable> getParameters() {
+		Map<Serializable, Serializable> parameters = new HashMap<Serializable, Serializable>();
+		parameters.put("missing", missingValuesSelection.getSelectedIndex());
+		return parameters;
+	}
+
+    
     public MarkerMeanVarianceNormalizerPanel() {
         try {
             jbInit();
@@ -71,7 +113,8 @@ public class MarkerMeanVarianceNormalizerPanel extends AbstractSaveableParameter
 
         builder.append("Missing values", missingValuesSelection);
         this.add(builder.getPanel(), BorderLayout.CENTER);
-
+        ParameterActionListener parameterActionListener = new ParameterActionListener(this);
+        missingValuesSelection.addActionListener(parameterActionListener);
     }
 
     /**
@@ -95,11 +138,11 @@ public class MarkerMeanVarianceNormalizerPanel extends AbstractSaveableParameter
             return MarkerCenteringNormalizer.IGNORE;
     }
 
-    private void writeObject(java.io.ObjectOutputStream out) throws IOException {
+    public void writeObject(java.io.ObjectOutputStream out) throws IOException {
         out.defaultWriteObject();
     }
 
-    private void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
+    public void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
         in.defaultReadObject();
         revalidate();
     }

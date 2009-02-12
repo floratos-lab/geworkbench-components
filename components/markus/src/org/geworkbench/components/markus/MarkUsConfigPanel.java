@@ -169,7 +169,7 @@ public class MarkUsConfigPanel extends AbstractSaveableParameterPanel implements
         }
     }
 
-    Object writeReplace() throws ObjectStreamException {
+    public Object writeReplace() throws ObjectStreamException {
 	return new SerializedInstance();
     }
 

@@ -79,7 +79,7 @@ public class GenepixFlagsFilterPanel extends AbstractSaveableParameterPanel impl
 
 
     JScrollPane flagInfoPane = new JScrollPane();
-    private ArrayList hits = new ArrayList<FlagDetail>();
+    private ArrayList<FlagDetail> hits = new ArrayList<FlagDetail>();
 
     private JLabel infoLabel;
     private JLabel noFlagLabel;
@@ -100,7 +100,7 @@ public class GenepixFlagsFilterPanel extends AbstractSaveableParameterPanel impl
         Object readResolve() throws ObjectStreamException {
             GenepixFlagsFilterPanel panel = heldPanel;
             ArrayList selectedFlags = new ArrayList();            
-            for (Object fd : panel.hits) {
+            for (FlagDetail fd : panel.hits) {
                 FlagDetail detail = (FlagDetail) fd;
                 if (selectedFlags.contains(detail.getLabel())) {
                     detail.setIsFiltered(true);
@@ -112,10 +112,54 @@ public class GenepixFlagsFilterPanel extends AbstractSaveableParameterPanel impl
         }
     }
 
-    Object writeReplace() throws ObjectStreamException {
+    public Object writeReplace() throws ObjectStreamException {
         return new SerialInstance(getSelectedFlags());
     }
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.geworkbench.analysis.AbstractSaveableParameterPanel#setParameters(java.util.Map)
+	 * Set inputed parameters to GUI.
+	 */
+    @Override
+    public void setParameters(Map<Serializable, Serializable> parameters){
+    	if(parameters==null){
+    		return;
+    	}
+        Set<Map.Entry<Serializable, Serializable>> set = parameters.entrySet();
+        for (Iterator<Map.Entry<Serializable, Serializable>> iterator = set.iterator(); iterator.hasNext();) {
+        	Map.Entry<Serializable, Serializable> parameter = iterator.next();
+			Object key = parameter.getKey();
+			Object value = parameter.getValue();
+
+			if (key.equals("SelectedFlags")){
+				GenepixFlagsFilterPanel panel = heldPanel;
+	            ArrayList selectedFlags = (ArrayList)value;
+	            for (Object fd : panel.hits) {
+	                FlagDetail detail = (FlagDetail) fd;
+	                if (selectedFlags.contains(detail.getLabel())) {
+	                    detail.setIsFiltered(true);
+	                } else {
+	                    detail.setIsFiltered(false);
+	                }
+	            }
+			}
+		}
+    }
+
+    /*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.geworkbench.analysis.AbstractSaveableParameterPanel#getParameters()
+	 */
+    @Override
+    public Map<Serializable, Serializable> getParameters() {
+		Map<Serializable, Serializable> parameters = new HashMap<Serializable, Serializable>();
+		parameters.put("SelectedFlags", getSelectedFlags());
+		return parameters;
+	}
+
+    
     public GenepixFlagsFilterPanel() {
         try {
             jbInit();
@@ -324,11 +368,11 @@ public class GenepixFlagsFilterPanel extends AbstractSaveableParameterPanel impl
     public Component getComponent() {
         return this;
     };
-    private void writeObject(java.io.ObjectOutputStream out) throws IOException {
+    public void writeObject(java.io.ObjectOutputStream out) throws IOException {
         out.defaultWriteObject();
     }
 
-    private void readObject(java.io.ObjectInputStream in) throws IOException,
+    public void readObject(java.io.ObjectInputStream in) throws IOException,
             ClassNotFoundException {
         in.defaultReadObject();
         revalidate();

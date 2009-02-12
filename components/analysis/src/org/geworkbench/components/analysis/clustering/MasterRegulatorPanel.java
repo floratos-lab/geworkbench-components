@@ -11,6 +11,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -39,6 +40,7 @@ import com.jgoodies.binding.value.ValueModel;
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.layout.FormLayout;
 import org.geworkbench.components.analysis.clustering.TtestAnalysisPanel;
+import org.geworkbench.events.listeners.ParameterActionListener;
 /**
  *	Parameter Panel used for Master Regulator Analysis
  *	@author yc2480 $id$
@@ -153,6 +155,11 @@ public class MasterRegulatorPanel extends AbstractSaveableParameterPanel
 //        builder.append(tTestPanel,9);
 //		this.add(builder.getPanel());
         this.add(jTabbedPane1,BorderLayout.CENTER);
+        
+        ParameterActionListener parameterActionListener = new ParameterActionListener(this);
+        pValueHolder.addValueChangeListener(parameterActionListener);
+        TFGeneList.addValueChangeListener(parameterActionListener);
+        //FIXME: other GUI components
 	}
 	public class LoadNetworkButtonListener implements java.awt.event.ActionListener{
 		private HashMap<String, AdjacencyMatrixDataSet> adjMatrixHolder;
@@ -305,8 +312,14 @@ public class MasterRegulatorPanel extends AbstractSaveableParameterPanel
 		Double pValue=Double.valueOf(pValueTxt);
 		return pValue;
 	}
+	public void setPValue(double d){
+		pValueHolder.setValue(Double.toString(d));
+	}
 	public String getTranscriptionFactor(){
 		return TFGeneList.getValue().toString();
+	}
+	public void setTranscriptionFactor(String TFString){
+		TFGeneList.setValue(TFString);
 	}
 	public TtestAnalysisPanel getTTestPanel(){
 		return this.tTestPanel;
@@ -353,4 +366,35 @@ public class MasterRegulatorPanel extends AbstractSaveableParameterPanel
 	public void addGroupsToComboBox(){
 		
 	}
+	/*
+	 * (non-Javadoc)
+	 * @see org.geworkbench.analysis.AbstractSaveableParameterPanel#setParameters(java.util.Map)
+	 * Set inputed parameters to GUI.
+	 */
+    @Override
+    public void setParameters(Map<Serializable, Serializable> parameters){
+    	if (parameters==null) return;	//FIXME: this is a quick patch for 0001691, should fix it correctly.
+    	if (getStopNotifyAnalysisPanelTemporaryFlag()==true) return;
+    	stopNotifyAnalysisPanelTemporary(true);
+    	tTestPanel.setParameters(parameters);
+    	double d = (Double)parameters.get("alpha");
+    	setPValue(d);
+    	String TF = (String)parameters.get("TF");
+    	setTranscriptionFactor(TF);
+    	stopNotifyAnalysisPanelTemporary(false);
+    }
+    /*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.geworkbench.analysis.AbstractSaveableParameterPanel#getParameters()
+	 *      Since HierClustPanel only has three parameters, we return metric,
+	 *      dimension and method in the format same as getBisonParameters().
+	 */
+    @Override
+    public Map<Serializable, Serializable> getParameters() {
+    	Map<Serializable, Serializable> answer = tTestPanel.getParameters();
+    	answer.put("alpha",getPValue());
+    	answer.put("TF",getTranscriptionFactor());
+    	return answer;
+    }
 }

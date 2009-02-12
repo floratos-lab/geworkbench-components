@@ -7,13 +7,16 @@ import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
@@ -56,6 +59,7 @@ import org.geworkbench.bison.model.analysis.ParameterPanel;
 import org.geworkbench.components.analysis.clustering.MultiTTestAnalysisPanel;
 import org.geworkbench.components.analysis.clustering.TtestAnalysisPanel;
 import org.geworkbench.components.cagrid.gui.GridServicePanel;
+import org.geworkbench.engine.config.PluginRegistry;
 import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.engine.management.AcceptTypes;
 import org.geworkbench.engine.management.ComponentRegistry;
@@ -72,6 +76,7 @@ import org.geworkbench.util.Util;
 import org.geworkbench.util.microarrayutils.MicroarrayViewEventBase;
 import org.geworkbench.util.pathwaydecoder.mutualinformation.AdjacencyMatrixDataSet;
 import org.geworkbench.util.pathwaydecoder.mutualinformation.EdgeListDataSet;
+import org.ginkgo.labs.util.FileTools;
 import org.ginkgo.labs.ws.GridEndpointReferenceType;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
@@ -80,205 +85,106 @@ import com.jgoodies.forms.layout.FormLayout;
 import edu.columbia.geworkbench.cagrid.dispatcher.client.DispatcherClient;
 
 /**
- * <p>Copyright: Copyright (c) 2003</p>
- * <p>Company: First Genetic Trust Inc.</p>
- * @author First Genetic Trust
- * @version 1.0
- */
-
-/**
  * Application component offering users a selection of microarray data
  * clustering options.
+ * 
+ * @author First Genetic Trust Inc.
+ * @author keshav
+ * @author yc2480
+ * @version $Id: AnalysisPanel.java,v 1.72 2009-02-12 22:28:15 keshav Exp $
+ * 
  */
 @AcceptTypes( { DSMicroarraySet.class, AdjacencyMatrixDataSet.class,
 		EdgeListDataSet.class })
 public class AnalysisPanel extends MicroarrayViewEventBase implements
-		VisualPlugin {
-
-	private static final String SERVICE = "Service";
-
-	private static final String PARAMETERS = "Parameters";
-
-	private static final String USER_INFO = "userinfo";
-
-	private static final int ANALYSIS_TAB_COUNT = 1;
-
-	private String USER_INFO_DELIMIETER = "==";
+		VisualPlugin, ReHighlightable {
 
 	private Log log = LogFactory.getLog(this.getClass());
 
-	final static String DISPATCHER_URL = "dispatcher.url"; // used to get
-															// dispatcher url
-															// from
-															// application.properties,
-															// used as default
-															// value.
+	/* static variables */
+	private static final String DEFAULT_PARAMETER_SETTING_NAME = "New Parameter Setting Name";
+	private static final String SERVICE = "Service";
+	private static final String PARAMETERS = "Parameters";
+	private static final String USER_INFO = "userinfo";
+	private static final int ANALYSIS_TAB_COUNT = 1;
+	private static final String USER_INFO_DELIMIETER = "==";
 
-	private static final String GRID_HOST_KEY = "dispatcherURL"; // used to
-																	// get
-																	// dirpatcher
-																	// url from
-																	// PropertiesManager,
-																	// used as
-																	// user
-																	// preference.
+	/* dispatcher */
+
+	/* from application.properties */
+	final static String DISPATCHER_URL = "dispatcher.url";
+
+	/* from PropertiesManager (user preference) */
+	private static final String GRID_HOST_KEY = "dispatcherURL";
 
 	private String dispatcherUrl = System.getProperty(DISPATCHER_URL);
 
 	private String userInfo = null;
 
-	private List<Thread> threadList = new ArrayList();
+	/* user interface */
+	private JPanel analysisPanel = null;
 
-	/**
-	 * The underlying GUI panel for the clustering component
-	 */
-	protected JPanel analysisPanel = new JPanel();
+	private JScrollPane analysisScrollPane = null;
 
-	/**
-	 * Contains the pluggable clustering analyses available to the user to
-	 * choose from. These analyses will have been defined in the application
-	 * configuration file as <code>plugin</code> components and they are
-	 * expected to have been associated with the extension point
-	 * <code>clustering</code>.
-	 */
-	protected AbstractAnalysis[] availableAnalyses;
+	private JPanel innerAnalysisPanel = null;
 
-	/**
-	 * The most recently used analysis.
-	 */
-	protected AbstractAnalysis selectedAnalysis = null;
+	private BorderLayout analysisPanelBorderLayout = null;
 
-	/**
-	 * Results obtained from execution of an analysis. This is an instance
-	 * variable as the analysis is carried out on a worker thread.
-	 */
-	private AlgorithmExecutionResults results = null;
+	private BorderLayout borderLayout3 = null;
 
-	/**
-	 * Visual Widget
-	 */
-	private JScrollPane jScrollPane2 = new JScrollPane();
+	private ParameterPanel emptyParameterPanel = null;
 
-	/**
-	 * Visual Widget
-	 */
-	private JPanel jPanel3 = new JPanel();
+	private JSplitPane analysisParameterSplitPane = null;
 
-	/**
-	 * Visual Widget
-	 */
-	private BorderLayout borderLayout2 = new BorderLayout();
+	private JPanel selectedAnalysisParameterPanel = null;
 
-	/**
-	 * Visual Widget
-	 */
-	private BorderLayout borderLayout3 = new BorderLayout();
+	private ParameterPanel currentParameterPanel = null;
 
-	/**
-	 * Visual Widget
-	 */
-	private GridLayout gridLayout1 = new GridLayout();
+	private BorderLayout borderLayout4 = null;
 
-	/**
-	 * Visual Widget
-	 */
-	private GridLayout gridLayout2 = new GridLayout();
+	private BorderLayout borderLayout5 = null;
 
-	/**
-	 * Parameter panel with no saved parameters
-	 */
-	private ParameterPanel emptyParameterPanel = new AbstractSaveableParameterPanel();
+	private JPanel parameterPanel = null;
 
-	/**
-	 * Visual Widget
-	 */
-	private JSplitPane jSplitPane1 = new JSplitPane();
+	private JButton analyze = null;
 
-	/**
-	 * Visual Widget
-	 */
-	private JButton save = new JButton("Save Settings");
+	private GridLayout gridLayout3 = null;
 
-	/**
-	 * Visual Widget
-	 */
-	private JButton delete = new JButton("Delete Settings");
+	private JScrollPane jScrollPane1 = null;
 
-	/**
-	 * Visual Widget
-	 */
-	private JButton load = new JButton("Load Settings");
+	private JPanel jPanel1 = null;
 
-	/**
-	 * Visual Widget
-	 */
-	private JPanel jPanel4 = new JPanel();
+	private JScrollPane jScrollPane3 = null;
 
-	/**
-	 * Visual Widget
-	 */
-	private ParameterPanel currentParameterPanel = emptyParameterPanel;
-
-	/**
-	 * Visual Widget
-	 */
-	private JPanel buttons = new JPanel();
-
-	/**
-	 * Visual Widget
-	 */
-	private BorderLayout borderLayout4 = new BorderLayout();
-
-	/**
-	 * Visual Widget
-	 */
-	private BorderLayout borderLayout5 = new BorderLayout();
-
-	/**
-	 * Visual Widget
-	 */
-	private JPanel jParameterPanel = null;
-
-	/**
-	 * Visual Widget
-	 */
-	private JButton analyze = new JButton("Analyze");
-
-	/**
-	 * Visual Widget
-	 */
-	private BorderLayout borderLayout6 = new BorderLayout();
-
-	/**
-	 * Visual Widget
-	 */
-	private GridLayout gridLayout3 = new GridLayout();
-
-	JList namedParameters = new JList();
-
-	/**
-	 * Visual Widget
-	 */
-	private JScrollPane jScrollPane1 = new JScrollPane();
-
-	/**
-	 * Visual Widget
-	 */
-	private JPanel jPanel1 = new JPanel();
-
-	JList pluginAnalyses = new JList();
-
-	/**
-	 * Visual Widget
-	 */
-	private JScrollPane jScrollPane3 = new JScrollPane();
-
-	// keshav
 	private JTabbedPane jAnalysisTabbedPane = null;
 
 	private GridServicePanel jGridServicePanel = null;
 
-	// end keshav
+	/* buttons */
+	private JButton save = null;
+	private JButton delete = null;
+
+	/* other */
+
+	private List<Thread> threadList = new ArrayList<Thread>();
+
+	/*
+	 * Contains the pluggable clustering analysis available to the user to
+	 * choose from. These analyses will have been defined in the application
+	 * configuration file as <code>plugin</code> components and they are
+	 * expected to have been associated with the extension point <code>clustering</code>.
+	 */
+	protected AbstractAnalysis[] availableAnalyses = null;
+	protected AbstractAnalysis selectedAnalysis = null;
+
+	private JList analysesJList = null;
+	private JList paramsJList = null;
+
+	/*
+	 * Results obtained from execution of an analysis. This is an instance
+	 * variable as the analysis is carried out on a worker thread.
+	 */
+	private AlgorithmExecutionResults results = null;
 
 	/**
 	 * Default Constructor
@@ -292,6 +198,10 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 		reset();
 	}
 
+	/**
+	 * 
+	 * @return Return the Analysis Panel
+	 */
 	public AnalysisPanel getAnalysisPanel() {
 		return this;
 	}
@@ -305,47 +215,38 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 	public void jbInit() throws Exception {
 		super.jbInit();
 		analysisPanel = new JPanel();
-		jScrollPane2 = new JScrollPane();
-		jPanel3 = new JPanel();
-		borderLayout2 = new BorderLayout();
+		analysisScrollPane = new JScrollPane();
+		innerAnalysisPanel = new JPanel();
+		analysisPanelBorderLayout = new BorderLayout();
 		borderLayout3 = new BorderLayout();
-		gridLayout1 = new GridLayout();
-		gridLayout2 = new GridLayout();
 		emptyParameterPanel = new AbstractSaveableParameterPanel();
-		jSplitPane1 = new JSplitPane();
+		analysisParameterSplitPane = new JSplitPane();
 		save = new JButton("Save Settings");
 		delete = new JButton("Delete Settings");
-		load = new JButton("Load Settings");
-		jPanel4 = new JPanel();
+		selectedAnalysisParameterPanel = new JPanel();
 		currentParameterPanel = emptyParameterPanel;
-		buttons = new JPanel();
 		borderLayout4 = new BorderLayout();
 		borderLayout5 = new BorderLayout();
-		jParameterPanel = new JPanel();
+		parameterPanel = new JPanel();
 
 		analyze = new JButton("Analyze");
-		// Double it's width
+		/* Double it's width */
 		Dimension d = analyze.getPreferredSize();
 		d.setSize(d.getWidth() * 2, d.getHeight());
 		analyze.setPreferredSize(d);
 
-		borderLayout6 = new BorderLayout();
 		gridLayout3 = new GridLayout();
-		namedParameters = new JList();
+
+		paramsJList = new JList();
+
 		jScrollPane1 = new JScrollPane();
 		jPanel1 = new JPanel();
-		pluginAnalyses = new JList();
+		analysesJList = new JList();
 		jScrollPane3 = new JScrollPane();
 
-		analysisPanel.setLayout(borderLayout2);
-		jPanel3.setLayout(borderLayout3);
-		gridLayout1.setColumns(2);
-		gridLayout1.setRows(3);
-		gridLayout1.setVgap(0);
-		gridLayout2.setColumns(4);
-		gridLayout2.setRows(3);
-		// Make sure that only one analysis can be selected at a time;
-		// Make sure that only one parameter set can be selected at a time;
+		analysisPanel.setLayout(analysisPanelBorderLayout);
+		innerAnalysisPanel.setLayout(borderLayout3);
+
 		save.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				save_actionPerformed(e);
@@ -358,99 +259,103 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 			}
 
 		});
-		load.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				load_actionPerformed(e);
-			}
 
-		});
-		jPanel4.setLayout(borderLayout4);
+		selectedAnalysisParameterPanel.setLayout(borderLayout4);
 		currentParameterPanel.setLayout(borderLayout5);
-		// buttons.setLayout(new BoxLayout(buttons, BoxLayout.X_AXIS));
-		// buttons.setPreferredSize(new Dimension(248, 60));
-		jParameterPanel.setLayout(new BorderLayout());
+
+		parameterPanel.setLayout(new BorderLayout());
 		analyze.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				analyze_actionPerformed(e);
 			}
 
 		});
-		jSplitPane1.setOrientation(JSplitPane.VERTICAL_SPLIT);
-		jSplitPane1.setDividerSize(3);
-		namedParameters.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		namedParameters.addListSelectionListener(new ListSelectionListener() {
+		analysisParameterSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
+		analysisParameterSplitPane.setDividerSize(3);
+		/* Make sure that only one parameter set can be selected at a time; */
+		paramsJList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		paramsJList.addListSelectionListener(new ListSelectionListener() {
 			public void valueChanged(ListSelectionEvent e) {
 				namedParameterSelection_action(e);
 			}
 		});
-		namedParameters.setAutoscrolls(true);
-		namedParameters.setBorder(BorderFactory.createLineBorder(Color.black));
+		paramsJList.setAutoscrolls(true);
+		paramsJList.setBorder(BorderFactory.createLineBorder(Color.black));
 		jScrollPane1.setPreferredSize(new Dimension(248, 68));
 		jPanel1.setLayout(gridLayout3);
 		jPanel1.setMinimumSize(new Dimension(0, 0));
 		jPanel1.setPreferredSize(new Dimension(50, 50));
 		jPanel1.setToolTipText("");
-		pluginAnalyses.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		pluginAnalyses.addListSelectionListener(new ListSelectionListener() {
+		/* Make sure that only one analysis can be selected at a time; */
+		analysesJList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		analysesJList.addListSelectionListener(new ListSelectionListener() {
 			public void valueChanged(ListSelectionEvent e) {
 				analysisSelected_action(e);
 			}
 		});
-		pluginAnalyses.setBorder(BorderFactory.createLineBorder(Color.black));
+		analysesJList.setBorder(BorderFactory.createLineBorder(Color.black));
 		gridLayout3.setColumns(2);
-		analysisPanel.add(jScrollPane2, BorderLayout.CENTER);
-		jScrollPane2.getViewport().add(jPanel3, null);
-		jPanel3.add(jSplitPane1, BorderLayout.CENTER);
-		jSplitPane1.add(jParameterPanel, JSplitPane.BOTTOM);
+		analysisPanel.add(analysisScrollPane, BorderLayout.CENTER);
+		analysisScrollPane.getViewport().add(innerAnalysisPanel, null);
+		innerAnalysisPanel.add(analysisParameterSplitPane, BorderLayout.CENTER);
+		analysisParameterSplitPane.add(parameterPanel, JSplitPane.BOTTOM);
 
-		jPanel4.add(currentParameterPanel, BorderLayout.CENTER);
-		jParameterPanel.add(jPanel4, BorderLayout.CENTER);
+		// FIXME - this doesn't seem to do anything
+		selectedAnalysisParameterPanel.add(currentParameterPanel,
+				BorderLayout.CENTER);
 
-		// Add buttons
+		parameterPanel.add(selectedAnalysisParameterPanel, BorderLayout.CENTER);
+
+		/* buttons */
 		save.setPreferredSize(analyze.getPreferredSize());
 		delete.setPreferredSize(analyze.getPreferredSize());
 		delete.setEnabled(false);
-		load.setPreferredSize(analyze.getPreferredSize());
-		load.setEnabled(false);
+
 		FormLayout layout = new FormLayout("right:100dlu,10dlu", "");
-		DefaultFormBuilder builder = new DefaultFormBuilder(layout);
-		builder.setDefaultDialogBorder();
-		builder.appendSeparator("Analysis Actions");
-		builder.append(analyze);
-		builder.nextLine();
-		builder.append(save);
-		builder.nextLine();
-		builder.append(delete);
-		builder.append(load);
+		DefaultFormBuilder buttonsBuilder = new DefaultFormBuilder(layout);
+		buttonsBuilder.setDefaultDialogBorder();
+		buttonsBuilder.appendSeparator("Analysis Actions");
+		buttonsBuilder.append(analyze);
+		buttonsBuilder.nextLine();
+		buttonsBuilder.append(save);
+		buttonsBuilder.nextLine();
+		buttonsBuilder.append(delete);
 
-		jParameterPanel.add(builder.getPanel(), BorderLayout.LINE_END);
+		parameterPanel.add(buttonsBuilder.getPanel(), BorderLayout.LINE_END);
 
-		jSplitPane1.add(jPanel1, JSplitPane.TOP);
+		analysisParameterSplitPane.add(jPanel1, JSplitPane.TOP);
 		jPanel1.add(jScrollPane1, null);
 		jPanel1.add(jScrollPane3, null);
-		jScrollPane3.getViewport().add(namedParameters);
-		jScrollPane1.getViewport().add(pluginAnalyses);
+		jScrollPane3.getViewport().add(paramsJList);
+		jScrollPane1.getViewport().add(analysesJList);
 
-		// keshav
 		jAnalysisTabbedPane = new JTabbedPane();
-		jParameterPanel.setName(PARAMETERS);
-		jAnalysisTabbedPane.add(jParameterPanel);
-		jSplitPane1.add(jAnalysisTabbedPane);
-		// end keshav
+		parameterPanel.setName(PARAMETERS);
+		jAnalysisTabbedPane.add(parameterPanel);
+		analysisParameterSplitPane.add(jAnalysisTabbedPane);
 
 		mainPanel.add(analysisPanel, BorderLayout.CENTER);
 	}
 
 	/**
-	 * Queries the extension point <code>clustering</code> within the
-	 * <code>PluginRegistry </code> for available analysis-type plugins. <p/>
-	 * This method gets invoked every time that the analysis pane gets the
-	 * focus, in order to get the most recent list of analyses: given dynamic
+	 * Resets the list of analysis.
+	 */
+	private void reset() {
+		getAvailableAnalyses();
+		displayAnalyses();
+	}
+
+	/**
+	 * Queries the {@link PluginRegistry} for available
+	 * {@link ClusteringAnalysis} type plugins.
+	 * 
+	 * This method gets invoked every time that the analysis pane is placed into
+	 * focus in order to get the most recent list of analysis. Given the dynamic
 	 * loading of components this approach guarantees that any new plugins
 	 * loaded between uses of the analysis panel, will be correctly picked up.
 	 */
 	public void getAvailableAnalyses() {
-		// To check if the last used analysis is still available.
+		/* To check if the last used analysis is still available. */
 		boolean selectionChanged = true;
 		ClusteringAnalysis[] analyses = ComponentRegistry.getRegistry()
 				.getModules(ClusteringAnalysis.class);
@@ -470,365 +375,8 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 		}
 	}
 
-	/**
-	 * Obtains from the <code>PluginRegistry</code> ans displays the set of
-	 * available filters.
-	 */
-	public void reset() {
-		// Get the most recent available normalizers. Redisplay
-		getAvailableAnalyses();
-		displayAnalyses();
-	}
-
-	/**
-	 * Displays the list of available analyses.
-	 */
-	private void displayAnalyses() {
-		// Show graphical components
-		pluginAnalyses.removeAll();
-		// Stores the dispay names of the available analyses.
-		String[] names = new String[availableAnalyses.length];
-		for (int i = 0; i < availableAnalyses.length; i++) {
-			names[i] = ComponentRegistry.getRegistry().getDescriptorForPlugin(
-					availableAnalyses[i]).getLabel();
-			if (log.isDebugEnabled())
-				if (availableAnalyses[i] instanceof AbstractGridAnalysis) {
-					log.info("Analysis: " + availableAnalyses[i]
-							+ ", Is grid enabled? " + true);
-				} else {
-					log.info("Analysis: " + availableAnalyses[i]
-							+ ", Is grid enabled? " + false);
-				}
-		}
-
-		pluginAnalyses.setListData(names);
-		if (selectedAnalysis != null) {
-			pluginAnalyses.setSelectedValue(selectedAnalysis.getLabel(), true);
-		} else {
-			setParametersPanel(this.emptyParameterPanel);
-			save.setEnabled(false);
-		}
-		analysisPanel.revalidate();
-	}
-
-	/**
-	 * Set the parameters panel used in the analysis pane.
-	 * 
-	 * @param parameterPanel
-	 *            parameter panel stored on the file system
-	 */
-	private void setParametersPanel(ParameterPanel parameterPanel) {
-		jPanel4.remove(currentParameterPanel);
-		currentParameterPanel = parameterPanel;
-		jPanel4.add(currentParameterPanel, BorderLayout.CENTER);
-		analysisPanel.revalidate();
-		analysisPanel.repaint();
-	}
-
-	/**
-	 * Update the list that shows the known preset parameter settings for the
-	 * selected filter.
-	 * 
-	 * @param storedParameters
-	 *            parameters stored on the file system
-	 */
-	private void setNamedParameters(String[] storedParameters) {
-		namedParameters.removeAll();
-		namedParameters.setListData(storedParameters);
-		// Make sure that only one parameter set can be selected at a time;
-		namedParameters.getSelectionModel().setSelectionMode(
-				ListSelectionModel.SINGLE_SELECTION);
-		analysisPanel.revalidate();
-	}
-
-	/**
-	 * Delete the selected saved parameter.
-	 * 
-	 * @param name -
-	 *            name of the saved parameter
-	 */
-	private void removeNamedParameter(String name) {
-		selectedAnalysis.removeNamedParameter(name);
-		this.setNamedParameters(selectedAnalysis
-				.getNamesOfStoredParameterSets());
-	}
-
-	/**
-	 * Load the selected saved parameter.
-	 * 
-	 * @param name -
-	 *            name of the saved parameter
-	 */
-	private void loadNamedParameter(String name) {
-		setParametersPanel(selectedAnalysis.getNamedParameterSetPanel(name));
-	}
-
-	/**
-	 * Listener invoked when a new analysis is selected from the displayed list
-	 * of analyses.
-	 * 
-	 * @param lse
-	 *            The <code>ListSelectionEvent</code> received from the list
-	 *            selection.
-	 */
-	private void analysisSelected_action(ListSelectionEvent lse) {
-		if (pluginAnalyses.getSelectedIndex() == -1) {
-			return;
-		}
-		delete.setEnabled(false);
-		load.setEnabled(false);
-		selectedAnalysis = availableAnalyses[pluginAnalyses.getSelectedIndex()];
-		// Set the parameters panel for the selected analysis.
-		ParameterPanel paramPanel = selectedAnalysis.getParameterPanel();
-		// Set the list of available named parameters for the selected analysis.
-		if (paramPanel != null) {
-			setParametersPanel(paramPanel);
-			setNamedParameters(availableAnalyses[pluginAnalyses
-					.getSelectedIndex()].getNamesOfStoredParameterSets());
-			if (paramPanel instanceof MultiTTestAnalysisPanel
-					|| paramPanel instanceof TtestAnalysisPanel)
-				super.chkAllArrays.setVisible(false);
-			else
-				super.chkAllArrays.setVisible(true);
-
-			save.setEnabled(true);
-		} else {
-			setParametersPanel(this.emptyParameterPanel);
-			save.setEnabled(false);
-			// Since the analysis admits no parameters, there are no named
-			// parameter
-			// settings to show.
-			setNamedParameters(new String[0]);
-		}
-
-		// keshav
-		if (selectedAnalysis instanceof AbstractGridAnalysis) {
-			jGridServicePanel = new GridServicePanel(SERVICE);
-			jGridServicePanel.setAnalysisType(selectedAnalysis);
-			if (jAnalysisTabbedPane.getTabCount() > ANALYSIS_TAB_COUNT)
-				jAnalysisTabbedPane.remove(ANALYSIS_TAB_COUNT);
-
-			jAnalysisTabbedPane.addTab("Services", jGridServicePanel);
-		} else {
-			jAnalysisTabbedPane.remove(jGridServicePanel);
-			jGridServicePanel = null; // TODO this is just a quick fix for bug
-			// 0001174, Quick fix made user input
-			// service information every time.
-			// Should have a better implementation.
-		}
-	}
-
-	/**
-	 * Listener invoked when a named parameter is selected from the relevant
-	 * JList.
-	 * 
-	 * @param e
-	 *            the <code>ListSelectionEvent</code> received from the
-	 *            <code>MouseListener</code> listening to the namedParameters
-	 *            JList
-	 */
-	private void namedParameterSelection_action(ListSelectionEvent e) {
-		if (selectedAnalysis == null) {
-			delete.setEnabled(false);
-			load.setEnabled(false);
-			return;
-		}
-		int index = namedParameters.getSelectedIndex();
-		if (index != -1) {
-			delete.setEnabled(true);
-			load.setEnabled(true);
-			setParametersPanel(selectedAnalysis
-					.getNamedParameterSetPanel((String) namedParameters
-							.getModel().getElementAt(index)));
-		}
-	}
-
-	/**
-	 * Listener invoked when the "Analyze" button is pressed.
-	 * 
-	 * @param e
-	 *            <code>ActionEvent</code> generated by the "analyze" button
-	 */
-	private void analyze_actionPerformed(ActionEvent e) {
-		maSetView = getDataSetView();
-
-		if (currentParameterPanel instanceof MultiTTestAnalysisPanel
-				|| currentParameterPanel instanceof TtestAnalysisPanel)
-			onlyActivatedArrays = true;
-		else
-			onlyActivatedArrays = !chkAllArrays.isSelected();
-
-		if (selectedAnalysis == null
-				|| ((refMASet == null) && (refOtherSet == null))) {
-			return;
-		}
-
-		if (refOtherSet != null) { // added for
-			AnalysisInvokedEvent event = new AnalysisInvokedEvent(
-					selectedAnalysis.getLabel(), "");
-			publishAnalysisInvokedEvent(event);
-		} else if ((maSetView != null) && (refMASet != null)) {
-			AnalysisInvokedEvent event = new AnalysisInvokedEvent(
-					selectedAnalysis.getLabel(), maSetView.getDataSet()
-							.getLabel());
-			publishAnalysisInvokedEvent(event);
-		}
-
-		ParamValidationResults pvr = selectedAnalysis.validateParameters();
-		if (!pvr.isValid()) {
-			JOptionPane.showMessageDialog(null, pvr.getMessage(),
-					"Parameter Validation Error", JOptionPane.ERROR_MESSAGE);
-		} else {
-			analyze.setEnabled(false);
-			maSetView.useMarkerPanel(onlyActivatedMarkers);
-			maSetView.useItemPanel(onlyActivatedArrays);
-			Thread t = new Thread(new Runnable() {
-				public void run() {
-					ProgressBar pBar = null;
-
-					try {
-						/* check if we are dealing with a grid analysis */
-						if (isGridAnalysis()) {
-							ParamValidationResults validResult = ((AbstractGridAnalysis) selectedAnalysis)
-									.validInputData(maSetView, refMASet);
-							if (!validResult.isValid()) {
-								JOptionPane.showMessageDialog(null, validResult
-										.getMessage(), "Invalid Input Data",
-										JOptionPane.ERROR_MESSAGE);
-								return;
-							}
-							// ask for username and password
-							getUserInfo();
-							if (userInfo == null) {
-								JOptionPane
-										.showMessageDialog(
-												null,
-												"Please make sure you entered valid username and password",
-												"Invalid User Account",
-												JOptionPane.ERROR_MESSAGE);
-								return;
-							}
-							if (StringUtils.isEmpty(userInfo)) {
-								userInfo = null;
-								return;
-							}
-							pBar = Util.createProgressBar("Grid Services",
-									"Submitting service request");
-							pBar.start();
-							pBar.reset();
-							String url = getServiceUrl();
-							if (!StringUtils.isEmpty(url)) {
-
-								AbstractGridAnalysis selectedGridAnalysis = (AbstractGridAnalysis) selectedAnalysis;
-
-								List<Serializable> serviceParameterList = ((AbstractGridAnalysis) selectedGridAnalysis)
-										.handleBisonInputs(maSetView,
-												refOtherSet);
-
-								// adding user info
-								serviceParameterList.add(userInfo);
-
-								dispatcherUrl = jGridServicePanel.dispatcherLabelListener
-										.getHost();
-								DispatcherClient dispatcherClient = new DispatcherClient(
-										dispatcherUrl);
-
-								GridEndpointReferenceType gridEpr = dispatcherClient
-										.submit(
-												serviceParameterList,
-												url,
-												((AbstractGridAnalysis) selectedGridAnalysis)
-														.getBisonReturnType());
-
-								ProjectNodePendingEvent pendingEvent = new ProjectNodePendingEvent(
-										"Analysis Pending", gridEpr);
-								pendingEvent
-										.setDescription(selectedGridAnalysis
-												.getLabel()
-												+ " (pending)");
-								/* generate history for grid analysis */
-								String history = "";
-								history += "Grid service information:\n";
-								history += "\tIndex server url: "
-										+ jGridServicePanel.getIndexServerUrl();
-								history += "\tDispatcher url: " + dispatcherUrl
-										+ "\n";
-								history += "\tService url: " + url + "\n\n";
-								history += selectedAnalysis.createHistory();
-								if (refOtherSet != null)
-									history += generateHistoryString(refOtherSet);
-								else 
-									if ((maSetView != null) && (refMASet != null))
-										history += generateHistoryString(maSetView);
-								
-								pendingEvent.setHistory(history);
-
-								log.info("event is " + pendingEvent);
-
-								publishProjectNodePendingEvent(pendingEvent);
-
-								PollingThread pollingThread = new PollingThread(
-										getAnalysisPanel(), gridEpr,
-										dispatcherClient);
-								threadList.add(pollingThread);
-								pollingThread.start();
-
-							} else {
-								log.error("Cannot execute with url:  " + url);
-								JOptionPane
-										.showMessageDialog(
-												null,
-												"Cannot execute grid analysis: Invalid URL specified.",
-												"Invalid grid URL Error",
-												JOptionPane.ERROR_MESSAGE);
-							}
-						} else {
-							if (refOtherSet != null) { // added for
-								// analysis
-								// that do not take in
-								// microarray data set
-								results = selectedAnalysis.execute(refOtherSet);
-							} else if ((maSetView != null)
-									&& (refMASet != null)) {
-								//TODO: this validation procedure should move to AbstractAnalysis
-								if (selectedAnalysis instanceof AbstractGridAnalysis) {
-									ParamValidationResults validResult = ((AbstractGridAnalysis) selectedAnalysis)
-											.validInputData(maSetView, refMASet);
-									if (!validResult.isValid()) {
-										JOptionPane.showMessageDialog(null,
-												validResult.getMessage(),
-												"Invalid Input Data",
-												JOptionPane.ERROR_MESSAGE);
-										results = null;
-										analysisDone();
-										analyze.setEnabled(true);
-										return;
-									}
-								}								
-								results = selectedAnalysis.execute(maSetView);
-							}
-						}
-					} catch (Exception e) {
-						e.printStackTrace();
-					} finally {
-						analyze.setEnabled(true);
-					}
-					// FIXME don't use this check - remove projectNodeEvent from
-					// executeGridAnalysis first
-					if (!isGridAnalysis()) {
-						analysisDone();
-					} else {
-						pBar.stop();
-					}
-				}
-
-			});
-			t.setPriority(Thread.MIN_PRIORITY);
-			t.start();
-		}
-	}
-
 	@Publish
+	@SuppressWarnings("unchecked")
 	public org.geworkbench.events.SubpanelChangedEvent publishSubpanelChangedEvent(
 			org.geworkbench.events.SubpanelChangedEvent event) {
 		return event;
@@ -838,11 +386,14 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 	 * Post analysis steps to check if analysis terminated properly and then to
 	 * fire the appropriate application event
 	 */
+	@SuppressWarnings("unchecked")
 	private void analysisDone() {
-		// If everything was OK construct and fire the proper application-level
-		// event, thus notify interested application components of
-		// the results of the analysis operation.
-		// If there were problems encountered, let the user know.
+		/*
+		 * If everything was OK construct and fire the proper application-level
+		 * event, thus notify interested application components of the results
+		 * of the analysis operation. If there were problems encountered, let
+		 * the user know.
+		 */
 		if (results != null) {
 			if (!results.isExecutionSuccessful()) {
 				JOptionPane.showMessageDialog(null, results.getMessage(),
@@ -854,11 +405,7 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 				DSAncillaryDataSet dataSet = (DSAncillaryDataSet) resultObject;
 				final ProjectNodeAddedEvent event = new ProjectNodeAddedEvent(
 						"Analysis Result", null, dataSet);
-				// SwingUtilities.invokeLater(new Runnable() {
-				// public void run() {
 				publishProjectNodeAddedEvent(event);
-				// }
-				// });
 				return;
 			}
 			if (resultObject instanceof Hashtable) {
@@ -883,6 +430,11 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 		return event;
 	}
 
+	/**
+	 * 
+	 * @param event
+	 * @return
+	 */
 	@Publish
 	public AnalysisInvokedEvent publishAnalysisInvokedEvent(
 			AnalysisInvokedEvent event) {
@@ -923,8 +475,6 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 			Object source) {
 		DispatcherClient dispatcherClient = null;
 		try {
-			// dispatcherUrl =
-			// jGridServicePanel.dispatcherLabelListener.getHost();
 			PropertiesManager pm = PropertiesManager.getInstance();
 			String savedHost = null;
 			try {
@@ -956,70 +506,117 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 	}
 
 	/**
-	 * Listener invoked when the "Save Settings" button is pressed
 	 * 
-	 * @param e
-	 *            <code>ActionEvent</code> generated by "save" button
+	 * @param maSetView
+	 * @return
 	 */
-	private void save_actionPerformed(ActionEvent e) {
-		// Bring up a pop-up window for the user to enter the named to use.
-		// If the currently displayed parameter already has a name associated
-		// with it, use that name in the pop-up, otherwise show something like
-		// "New Parameter Setting Name".
-		int index = namedParameters.getSelectedIndex();
-		String namedParameter = null;
-		if (index != -1) {
-			namedParameter = (String) namedParameters.getModel().getElementAt(
-					index);
-			if (currentParameterPanel.isDirty()) {
-				namedParameter = "New Parameter Setting Name";
+	@SuppressWarnings("unchecked")
+	public String generateHistoryString(DSMicroarraySetView maSetView) {
+		String ans = "";
+
+		// TODO: this probably should get from method like
+		// DSMicroarraySetView.toString() or
+		// DSMicroarraySetView.generateHistoryString()
+
+		/* Generate text for microarrays/groups */
+		ans += "=The MicroarraySetView used for analysis contains following data="
+				+ FileTools.NEWLINE;
+		try {
+			log.debug("We got a " + maSetView.items().getClass().toString());
+			if (maSetView.items().getClass() == CSPanel.class) {
+				log.debug("situation 1: microarraySets selected");
+				DSItemList paneltest = ((DSPanel) maSetView.items()).panels();
+				Iterator groups2 = paneltest.iterator(); /* groups */
+				ans += "==Microarray Sets [" + paneltest.size() + "]=="
+						+ FileTools.NEWLINE;
+				while (groups2.hasNext()) {
+					DSPanel temp = (DSPanel) groups2.next();
+					ans += FileTools.TAB + temp.toString() + FileTools.NEWLINE;
+					Iterator groups3 = temp.iterator(); /*
+														 * microarrays in the
+														 * group
+														 */
+					while (groups3.hasNext()) {
+						Object temp2 = groups3.next();
+						ans += FileTools.TAB + FileTools.TAB + temp2.toString()
+								+ FileTools.NEWLINE;
+					}
+				}
+			} else if (maSetView.items().getClass() == CSExprMicroarraySet.class) {
+				log.debug("situation 2: microarraySets not selected");
+				CSExprMicroarraySet exprSet = (CSExprMicroarraySet) maSetView
+						.items();
+				ans += "==Used Microarrays [" + exprSet.size() + "]=="
+						+ FileTools.NEWLINE;
+				for (Iterator<DSMicroarray> iterator = exprSet.iterator(); iterator
+						.hasNext();) {
+					DSMicroarray array = iterator.next();
+					ans += FileTools.TAB + array.getLabel() + FileTools.NEWLINE;
+				}
 			}
+			ans += "==End of Microarray Sets==" + FileTools.NEWLINE;
+			/* Generate text for markers */
+			DSItemList paneltest = maSetView.getMarkerPanel();
+			if ((paneltest != null) && (paneltest.size() > 0)) {
+				log.debug("situation 3: markers selected");
+				Iterator groups2 = paneltest.iterator(); /* groups */
+				ans += "==Used Markers [" + paneltest.size() + "]=="
+						+ FileTools.NEWLINE;
+				while (groups2.hasNext()) {
+					CSExpressionMarker temp = (CSExpressionMarker) groups2
+							.next();
+					ans += FileTools.TAB + temp.getLabel() + FileTools.NEWLINE;
+				}
+			} else {
+				log.debug("situation 4: no markers selected.");
+				DSItemList<DSGeneMarker> markers = maSetView.markers();
+				ans += "==Used Markers [" + markers.size() + "]=="
+						+ FileTools.NEWLINE;
+				for (Iterator iterator = markers.iterator(); iterator.hasNext();) {
+					DSGeneMarker marker = (DSGeneMarker) iterator.next();
+					ans += FileTools.TAB + marker.getLabel()
+							+ FileTools.NEWLINE;
+				}
+			}
+			ans += "==End of Used Markers==" + FileTools.NEWLINE;
+		} catch (ClassCastException cce) {
+			/* it's not a DSPanel, we generate nothing for panel part */
+			log.error(cce);
+		}
+		ans += "=End of MicroarraySetView data=";
+		return ans;
+	}
+
+	/**
+	 * 
+	 * @param dataset
+	 * @return
+	 */
+	// TODO: probably need to be more specific....
+	@SuppressWarnings("unchecked")
+	public String generateHistoryString(DSDataSet dataset) {
+		if (dataset == null) {
+			return "No information on the data set." + FileTools.NEWLINE;
 		} else {
-			namedParameter = "New Parameter Setting Name";
-		}
-		String paramName = JOptionPane.showInputDialog(analysisPanel,
-				namedParameter, namedParameter);
-		if (selectedAnalysis != null && paramName != null) {
-			selectedAnalysis.saveParametersUnderName(paramName);
-			setNamedParameters(selectedAnalysis.getNamesOfStoredParameterSets());
-		}
-	}
-
-	/**
-	 * Listener invoked when the "Delete Settings" button is pressed
-	 * 
-	 * @param e -
-	 *            action event
-	 */
-	private void delete_actionPerformed(ActionEvent e) {
-		int choice = JOptionPane.showConfirmDialog(null,
-				"Are you sure you want to delete saved parameters?",
-				"Deleting Saved Parameters", JOptionPane.YES_NO_OPTION,
-				JOptionPane.WARNING_MESSAGE);
-		if ((selectedAnalysis != null) && (choice == 0)
-				&& (this.namedParameters.getSelectedIndex() >= 0)) {
-			log.info("Deleting saved parameters: "
-					+ (String) this.namedParameters.getSelectedValue());
-			this.removeNamedParameter((String) this.namedParameters
-					.getSelectedValue());
-			this.delete.setEnabled(false);
-			this.load.setEnabled(false);
+			StringBuilder sb = new StringBuilder();
+			sb.append("The data set used for analysis is [ ");
+			sb.append(dataset.getDataSetName());
+			sb.append(" ] from file [ ");
+			sb.append(dataset.getPath());
+			sb.append(" ]." + FileTools.NEWLINE);
+			return sb.toString();
 		}
 	}
 
-	/**
-	 * Listener invoked when the "Load Settings" button is pressed
-	 * 
-	 * @param e -
-	 *            action event
-	 */
-	private void load_actionPerformed(ActionEvent e) {
-		if ((selectedAnalysis != null)
-				&& (this.namedParameters.getSelectedIndex() >= 0)) {
-			log.info("Loading saved parameters: "
-					+ (String) this.namedParameters.getSelectedValue());
-			this.loadNamedParameter((String) this.namedParameters
-					.getSelectedValue());
+	@Subscribe
+	public void receive(org.geworkbench.events.PendingNodeCancelledEvent e,
+			Object source) {
+		for (Iterator<Thread> iterator = threadList.iterator(); iterator
+				.hasNext();) {
+			PollingThread element = (PollingThread) iterator.next();
+			if (element.getGridEPR() == e.getGridEpr()) {
+				element.cancel();
+			}
 		}
 	}
 
@@ -1061,6 +658,9 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 		return url;
 	}
 
+	/*
+	 * 
+	 */
 	private void getUserInfo() {
 		final JDialog userpasswdDialog = new JDialog();
 		log.debug("getting user info...");
@@ -1140,95 +740,533 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 	}
 
 	/**
+	 * Displays the list of available analyses.
+	 */
+	private void displayAnalyses() {
+		/* Clean the list */
+		analysesJList.removeAll();
+
+		/* Get the display names of the available analyses. */
+		String[] names = new String[availableAnalyses.length];
+		for (int i = 0; i < availableAnalyses.length; i++) {
+			names[i] = ComponentRegistry.getRegistry().getDescriptorForPlugin(
+					availableAnalyses[i]).getLabel();
+			if (log.isDebugEnabled())
+				if (availableAnalyses[i] instanceof AbstractGridAnalysis) {
+					log.info("Analysis: " + availableAnalyses[i]
+							+ ", Is grid enabled? " + true);
+				} else {
+					log.info("Analysis: " + availableAnalyses[i]
+							+ ", Is grid enabled? " + false);
+				}
+		}
+
+		/* Show graphical components */
+		analysesJList.setListData(names);
+		if (selectedAnalysis != null) {
+			analysesJList.setSelectedValue(selectedAnalysis.getLabel(), true);
+		} else {
+			setParametersPanel(this.emptyParameterPanel);
+			save.setEnabled(false);
+		}
+		analysisPanel.revalidate();
+	}
+
+	/**
+	 * Set the parameters panel used in the analysis pane.
 	 * 
-	 * @param maSetView
-	 * @return
+	 * @param parameterPanel
+	 *            parameter panel stored on the file system
+	 */
+	private void setParametersPanel(ParameterPanel parameterPanel) {
+		selectedAnalysisParameterPanel.remove(currentParameterPanel);
+		currentParameterPanel = parameterPanel;
+		selectedAnalysisParameterPanel.add(currentParameterPanel,
+				BorderLayout.CENTER);
+		analysisPanel.revalidate();
+		analysisPanel.repaint();
+		if (currentParameterPanel instanceof AbstractSaveableParameterPanel)
+			((AbstractSaveableParameterPanel) currentParameterPanel)
+					.setParameterHighlightCallback(new HighlightCurrentParameterThread(
+							this));
+	}
+
+	/**
+	 * Update the list that shows the known preset parameter settings for the
+	 * selected filter.
+	 * 
+	 * @param storedParameters
+	 */
+	private void setNamedParameters(String[] storedParameters) {
+		paramsJList.removeAll();
+		paramsJList.setListData(storedParameters);
+
+		/* make sure that only one parameter set can be selected at a time */
+		paramsJList.getSelectionModel().setSelectionMode(
+				ListSelectionModel.SINGLE_SELECTION);
+		analysisPanel.revalidate();
+		highlightCurrentParameterGroup();
+	}
+
+	/**
+	 * scan the saved list, see if the parameters in it are same as current one,
+	 * if yes, highlight it.
+	 */
+	private void highlightCurrentParameterGroup() {
+		ParameterPanel currentParameterPanel = selectedAnalysis
+				.getParameterPanel();
+		String[] parametersNameList = selectedAnalysis
+				.getNamesOfStoredParameterSets();
+		paramsJList.clearSelection();
+		for (int i = 0; i < parametersNameList.length; i++) {
+			Map<Serializable, Serializable> parameter1 = ((AbstractSaveableParameterPanel) currentParameterPanel)
+					.getParameters();
+			Map<Serializable, Serializable> parameter2 = new HashMap<Serializable, Serializable>();
+			parameter2.putAll(selectedAnalysis
+					.getNamedParameterSet(parametersNameList[i]));
+			parameter2.remove("ParameterKey");
+			if (parameter1.equals(parameter2)) {
+				/*
+				 * Move matched one to the top of the list, so user can always
+				 * see them.
+				 */
+				String[] savedParameterSetNames = selectedAnalysis
+						.getNamesOfStoredParameterSets();
+				/* savedParameterSetNames[i] will need to be moved to top */
+				/*
+				 * sets before it needs to move back, and it needs to be moved
+				 * to the first one.
+				 */
+				String matchedOne = savedParameterSetNames[i];
+				if (i != 0) {
+					for (int j = i - 1; j >= 0; j--) {
+						savedParameterSetNames[j + 1] = savedParameterSetNames[j];
+					}
+					savedParameterSetNames[0] = matchedOne;
+				}
+				/* set the JList to display the re-organized list */
+				paramsJList.removeAll();
+				paramsJList.setListData(savedParameterSetNames);
+				/*
+				 * make sure that only one parameter set can be selected at a
+				 * time
+				 */
+				paramsJList.getSelectionModel().setSelectionMode(
+						ListSelectionModel.SINGLE_SELECTION);
+				analysisPanel.revalidate();
+				/* select the first one (which matches current settings) */
+				paramsJList.setSelectedIndex(0);
+				/*
+				 * Since we don't allow duplicate parameter sets in the list, so
+				 * if we detect one, we can skip the rest.
+				 */
+				break;
+			}
+		}
+	}
+
+	/**
+	 * 
+	 */
+	public void refreshHighLight() {
+		highlightCurrentParameterGroup();
+	}
+
+	/**
+	 * Delete the selected saved parameter.
+	 * 
+	 * @param name -
+	 *            name of the saved parameter
+	 */
+	private void removeNamedParameter(String name) {
+		selectedAnalysis.removeNamedParameter(name);
+		this.setNamedParameters(selectedAnalysis
+				.getNamesOfStoredParameterSets());
+	}
+
+	/* action listeners */
+	/**
+	 * Listener invoked when the "Save Settings" button is pressed.
+	 * 
+	 * @param e
+	 */
+	private void save_actionPerformed(ActionEvent e) {
+
+		/*
+		 * If the parameterSet already exist, we popup a message window to
+		 * inform user
+		 */
+		if (selectedAnalysis
+				.parameterSetExist(selectedAnalysis.getParameters())) {
+			JOptionPane.showMessageDialog(null, "ParameterSet already exist.",
+					"Canceled", JOptionPane.OK_OPTION);
+		} else {
+			/*
+			 * A pop-up window for the user to enter the parameter name. If the
+			 * currently displayed parameter already has a name associated with
+			 * it, use that name in the pop-up, otherwise the default.
+			 */
+			int index = paramsJList.getSelectedIndex();
+			String namedParameter = null;
+			if (index != -1) {
+				namedParameter = (String) paramsJList.getModel().getElementAt(
+						index);
+				if (currentParameterPanel.isDirty()) {
+					namedParameter = DEFAULT_PARAMETER_SETTING_NAME;
+				}
+			} else {
+				namedParameter = DEFAULT_PARAMETER_SETTING_NAME;
+			}
+			String paramName = JOptionPane.showInputDialog(analysisPanel,
+					namedParameter, namedParameter);
+			File checkFile = new File(selectedAnalysis.scrubFilename(paramName));
+			if (checkFile.exists()) {
+				int answer = JOptionPane
+						.showConfirmDialog(
+								null,
+								"Parameter set name already used by other training panels in the same directory. Click OK to override it, or click Cancel to choose another name.",
+								"Warning", JOptionPane.OK_CANCEL_OPTION);
+				if (answer == JOptionPane.CANCEL_OPTION) {
+					return;
+				}
+			}
+			if (selectedAnalysis != null && paramName != null) {
+
+				selectedAnalysis.saveParameters(paramName);
+
+				String[] savedParameterSetNames = selectedAnalysis
+						.getNamesOfStoredParameterSets();
+
+				/* set the JList to display the saved parameter groups */
+				setNamedParameters(savedParameterSetNames);
+
+			}
+		}
+	}
+
+	/**
+	 * Listener invoked when the "Delete Settings" button is pressed
+	 * 
+	 * @param e
+	 */
+	private void delete_actionPerformed(ActionEvent e) {
+		int choice = JOptionPane.showConfirmDialog(null,
+				"Are you sure you want to delete saved parameters?",
+				"Deleting Saved Parameters", JOptionPane.YES_NO_OPTION,
+				JOptionPane.WARNING_MESSAGE);
+		if ((selectedAnalysis != null) && (choice == 0)
+				&& (this.paramsJList.getSelectedIndex() >= 0)) {
+			log.info("Deleting saved parameters: "
+					+ (String) this.paramsJList.getSelectedValue());
+			this.removeNamedParameter((String) this.paramsJList
+					.getSelectedValue());
+			if (this.paramsJList.getModel().getSize() < 1)
+				this.delete.setEnabled(false);
+		}
+	}
+
+	/**
+	 * Listener invoked when an analysis is selected from the {@link JList} of
+	 * analyses. The parameters for this analysis are shown.
+	 * 
+	 * @param lse
+	 */
+	private void analysisSelected_action(ListSelectionEvent lse) {
+		if (analysesJList.getSelectedIndex() == -1) {
+			return;
+		}
+		delete.setEnabled(false);
+
+		int index = analysesJList.getSelectedIndex();
+		selectedAnalysis = availableAnalyses[index];
+
+		/* Set the parameters panel for the selected analysis. */
+		ParameterPanel paramPanel = selectedAnalysis.getParameterPanel();
+		if (paramPanel != null) {
+			setParametersPanel(paramPanel);
+
+			// TODO add some variant back in
+			String[] storedParameterSetNames = availableAnalyses[index]
+					.getNamesOfStoredParameterSets();
+			setNamedParameters(storedParameterSetNames);
+
+			if (paramPanel instanceof MultiTTestAnalysisPanel
+					|| paramPanel instanceof TtestAnalysisPanel)
+				super.chkAllArrays.setVisible(false);
+			else
+				super.chkAllArrays.setVisible(true);
+
+			/*
+			 * If it's first time (means just after load from file) for this
+			 * analysis, assign last saved parameters to current parameter panel
+			 * and highlight last saved group.
+			 */
+			if (paramPanel instanceof AbstractSaveableParameterPanel) {
+				if (((AbstractSaveableParameterPanel) paramPanel).isFirstTime()) {
+					selectLastSavedParameterSet();
+					((AbstractSaveableParameterPanel) paramPanel)
+							.setFirstTime(false);
+				}
+			}
+
+			save.setEnabled(true);
+		} else {
+			setParametersPanel(this.emptyParameterPanel);
+			save.setEnabled(false);
+			/*
+			 * Since the analysis admits no parameters, there are no named
+			 * parametersettings to show.
+			 */
+			setNamedParameters(new String[0]);
+		}
+
+		if (selectedAnalysis instanceof AbstractGridAnalysis) {
+			jGridServicePanel = new GridServicePanel(SERVICE);
+			jGridServicePanel.setAnalysisType(selectedAnalysis);
+			if (jAnalysisTabbedPane.getTabCount() > ANALYSIS_TAB_COUNT)
+				jAnalysisTabbedPane.remove(ANALYSIS_TAB_COUNT);
+
+			jAnalysisTabbedPane.addTab("Services", jGridServicePanel);
+		} else {
+			jAnalysisTabbedPane.remove(jGridServicePanel);
+			jGridServicePanel = null; // TODO this is just a quick fix for bug
+			// 0001174, Quick fix made user input
+			// service information every time.
+			// Should have a better implementation.
+		}
+	}
+
+	/**
+	 * 
+	 */
+	private void selectLastSavedParameterSet() {
+		int lastIndex = paramsJList.getModel().getSize() - 1;
+		if (lastIndex >= 0) {
+			String paramName = selectedAnalysis.getLastSavedParameterSetName();
+			/* load from memory */
+			Map<Serializable, Serializable> parameters = selectedAnalysis
+					.getNamedParameterSet(paramName);
+			if (parameters != null) // fix share directory issue in gpmodule
+				selectedAnalysis.setParameters(parameters);
+		} else {
+			/* nothing saved, so select nothing */
+		}
+	}
+
+	/**
+	 * Listener invoked when a named parameter is selected.
+	 * 
+	 * @param e
+	 */
+	private void namedParameterSelection_action(ListSelectionEvent e) {
+		if (selectedAnalysis == null) {
+			delete.setEnabled(false);
+			return;
+		}
+		int index = paramsJList.getSelectedIndex();
+		if (index != -1) {
+			delete.setEnabled(true);
+
+			String paramName = (String) paramsJList.getModel().getElementAt(
+					index);
+			/* load from memory */
+			Map<Serializable, Serializable> parameters = selectedAnalysis
+					.getNamedParameterSet(paramName);
+			selectedAnalysis.setParameters(parameters);
+		}
+	}
+
+	/**
+	 * Listener invoked when the "Analyze" button is pressed.
+	 * 
+	 * @param e
 	 */
 	@SuppressWarnings("unchecked")
-	public String generateHistoryString(DSMicroarraySetView maSetView) {
-		String ans = "";
+	private void analyze_actionPerformed(ActionEvent e) {
+		maSetView = getDataSetView();
 
-		//TODO: this probably should get from DSMicroarraySetView.toString()
-		
-		// generate text for microarrays/groups
-		ans += "=The MicroarraySetView used for analysis contains following data=\n";
-		try {
-			log.debug("We got a "+maSetView.items().getClass().toString());
-			if (maSetView.items().getClass() == CSPanel.class){
-				log.debug("situation 1: microarraySets selected");
-				DSItemList paneltest = ((DSPanel) maSetView.items()).panels();
-				Iterator groups2 = paneltest.iterator(); // groups
-				ans += "==Microarray Sets [" + paneltest.size() + "]==\n";
-				while (groups2.hasNext()) {
-					DSPanel temp = (DSPanel) groups2.next();
-					ans += "\t" + temp.toString() + "\n";
-					Iterator groups3 = temp.iterator(); // microarrays in the group
-					while (groups3.hasNext()) {
-						Object temp2 = groups3.next();
-						ans += "\t\t" + temp2.toString() + "\n";
+		if (currentParameterPanel instanceof MultiTTestAnalysisPanel
+				|| currentParameterPanel instanceof TtestAnalysisPanel)
+			onlyActivatedArrays = true;
+		else
+			onlyActivatedArrays = !chkAllArrays.isSelected();
+
+		if (selectedAnalysis == null
+				|| ((refMASet == null) && (refOtherSet == null))) {
+			return;
+		}
+
+		if (refOtherSet != null) { /*
+									 * added for analysis that do not take in
+									 * microarray data set
+									 */
+
+			AnalysisInvokedEvent event = new AnalysisInvokedEvent(
+					selectedAnalysis.getLabel(), "");
+			publishAnalysisInvokedEvent(event);
+		} else if ((maSetView != null) && (refMASet != null)) {
+			AnalysisInvokedEvent event = new AnalysisInvokedEvent(
+					selectedAnalysis.getLabel(), maSetView.getDataSet()
+							.getLabel());
+			publishAnalysisInvokedEvent(event);
+		}
+
+		ParamValidationResults pvr = selectedAnalysis.validateParameters();
+		if (!pvr.isValid()) {
+			JOptionPane.showMessageDialog(null, pvr.getMessage(),
+					"Parameter Validation Error", JOptionPane.ERROR_MESSAGE);
+		} else {
+			analyze.setEnabled(false);
+			maSetView.useMarkerPanel(onlyActivatedMarkers);
+			maSetView.useItemPanel(onlyActivatedArrays);
+			Thread t = new Thread(new Runnable() {
+				public void run() {
+					ProgressBar pBar = null;
+
+					try {
+						/* check if we are dealing with a grid analysis */
+						if (isGridAnalysis()) {
+							ParamValidationResults validResult = ((AbstractGridAnalysis) selectedAnalysis)
+									.validInputData(maSetView, refMASet);
+							if (!validResult.isValid()) {
+								JOptionPane.showMessageDialog(null, validResult
+										.getMessage(), "Invalid Input Data",
+										JOptionPane.ERROR_MESSAGE);
+								return;
+							}
+							/* ask for username and password */
+							getUserInfo();
+							if (userInfo == null) {
+								JOptionPane
+										.showMessageDialog(
+												null,
+												"Please make sure you entered valid username and password",
+												"Invalid User Account",
+												JOptionPane.ERROR_MESSAGE);
+								return;
+							}
+							if (StringUtils.isEmpty(userInfo)) {
+								userInfo = null;
+								return;
+							}
+							pBar = Util.createProgressBar("Grid Services",
+									"Submitting service request");
+							pBar.start();
+							pBar.reset();
+							String url = getServiceUrl();
+							if (!StringUtils.isEmpty(url)) {
+
+								AbstractGridAnalysis selectedGridAnalysis = (AbstractGridAnalysis) selectedAnalysis;
+
+								List<Serializable> serviceParameterList = ((AbstractGridAnalysis) selectedGridAnalysis)
+										.handleBisonInputs(maSetView,
+												refOtherSet);
+
+								/* adding user info */
+								serviceParameterList.add(userInfo);
+
+								dispatcherUrl = jGridServicePanel.dispatcherLabelListener
+										.getHost();
+								DispatcherClient dispatcherClient = new DispatcherClient(
+										dispatcherUrl);
+
+								GridEndpointReferenceType gridEpr = dispatcherClient
+										.submit(
+												serviceParameterList,
+												url,
+												((AbstractGridAnalysis) selectedGridAnalysis)
+														.getBisonReturnType());
+
+								ProjectNodePendingEvent pendingEvent = new ProjectNodePendingEvent(
+										"Analysis Pending", gridEpr);
+								pendingEvent
+										.setDescription(selectedGridAnalysis
+												.getLabel()
+												+ " (pending)");
+								/* generate history for grid analysis */
+								String history = "";
+								history += "Grid service information:"
+										+ FileTools.NEWLINE;
+								history += FileTools.TAB + "Index server url: "
+										+ jGridServicePanel.getIndexServerUrl();
+								history += FileTools.TAB + "Dispatcher url: "
+										+ dispatcherUrl + FileTools.NEWLINE;
+								history += FileTools.TAB + "Service url: "
+										+ url + FileTools.NEWLINE
+										+ FileTools.NEWLINE;
+								history += selectedAnalysis.createHistory();
+								if (refOtherSet != null)
+									history += generateHistoryString(refOtherSet);
+								else if ((maSetView != null)
+										&& (refMASet != null))
+									history += generateHistoryString(maSetView);
+
+								pendingEvent.setHistory(history);
+
+								log.info("event is " + pendingEvent);
+
+								publishProjectNodePendingEvent(pendingEvent);
+
+								PollingThread pollingThread = new PollingThread(
+										getAnalysisPanel(), gridEpr,
+										dispatcherClient);
+								threadList.add(pollingThread);
+								pollingThread.start();
+
+							} else {
+								log.error("Cannot execute with url:  " + url);
+								JOptionPane
+										.showMessageDialog(
+												null,
+												"Cannot execute grid analysis: Invalid URL specified.",
+												"Invalid grid URL Error",
+												JOptionPane.ERROR_MESSAGE);
+							}
+						} else {
+							if (refOtherSet != null) {
+								/*
+								 * added for analysis that do not take in
+								 * microarray data set
+								 */
+								results = selectedAnalysis.execute(refOtherSet);
+							} else if ((maSetView != null)
+									&& (refMASet != null)) {
+								// TODO: this validation procedure should move
+								// to AbstractAnalysis
+								if (selectedAnalysis instanceof AbstractGridAnalysis) {
+									ParamValidationResults validResult = ((AbstractGridAnalysis) selectedAnalysis)
+											.validInputData(maSetView, refMASet);
+									if (!validResult.isValid()) {
+										JOptionPane.showMessageDialog(null,
+												validResult.getMessage(),
+												"Invalid Input Data",
+												JOptionPane.ERROR_MESSAGE);
+										results = null;
+										analysisDone();
+										analyze.setEnabled(true);
+										return;
+									}
+								}
+								results = selectedAnalysis.execute(maSetView);
+							}
+						}
+					} catch (Exception e) {
+						e.printStackTrace();
+					} finally {
+						analyze.setEnabled(true);
+					}
+					// FIXME don't use this check - remove projectNodeEvent from
+					// executeGridAnalysis first
+					if (!isGridAnalysis()) {
+						analysisDone();
+					} else {
+						pBar.stop();
 					}
 				}
-			}else if (maSetView.items().getClass() == CSExprMicroarraySet.class){
-				log.debug("situation 2: microarraySets not selected");
-				CSExprMicroarraySet exprSet = (CSExprMicroarraySet)maSetView.items();
-				ans += "==Used Microarrays [" + exprSet.size() + "]==\n";
-				for (Iterator<DSMicroarray> iterator = exprSet.iterator(); iterator.hasNext();) {
-					DSMicroarray array = iterator.next();
-					ans += "\t"+ array.getLabel()+"\n";
-				}
-			}
-			ans += "==End of Microarray Sets==\n";
-			// generate text for markers
-			DSItemList paneltest = maSetView.getMarkerPanel();
-			if ((paneltest!=null) && (paneltest.size()>0)){
-				log.debug("situation 3: markers selected");
-				Iterator groups2 = paneltest.iterator(); // groups
-				ans += "==Used Markers [" + paneltest.size() + "]==\n";
-				while (groups2.hasNext()) {
-					CSExpressionMarker temp = (CSExpressionMarker) groups2.next();
-					ans += "\t" + temp.getLabel() + "\n";
-				}
-			}else{
-				log.debug("situation 4: no markers selected.");
-				DSItemList<DSGeneMarker> markers = maSetView.markers();
-				ans += "==Used Markers [" + markers.size() + "]==\n";
-				for (Iterator iterator = markers.iterator(); iterator.hasNext();) {
-					DSGeneMarker marker = (DSGeneMarker) iterator.next();
-					ans += "\t" + marker.getLabel() + "\n";
-				}
-			}
-			ans += "==End of Used Markers==\n";
-		} catch (ClassCastException cce) {
-			// it's not a DSPanel, we generate nothing for panel part
-			log.error(cce);
-		}
-		ans += "=End of MicroarraySetView data=";
-		return ans;
-	}
 
-	// TODO: probably need to be more specific....
-	public String generateHistoryString(DSDataSet dataset) {
-		if (dataset == null) {
-			return "No information on the data set.\n";
-		} else {
-			StringBuilder sb = new StringBuilder();
-			sb.append("The data set used for analysis is [ ");
-			sb.append(dataset.getDataSetName());
-			sb.append(" ] from file [ ");
-			sb.append(dataset.getPath());
-			sb.append(" ].\n");
-			return sb.toString();
-		}
-	}
-
-	@Subscribe
-	public void receive(org.geworkbench.events.PendingNodeCancelledEvent e,
-			Object source) {
-		for (Iterator iterator = threadList.iterator(); iterator.hasNext();) {
-			PollingThread element = (PollingThread) iterator.next();
-			if (element.getGridEPR() == e.getGridEpr()) {
-				element.cancel();
-			}
+			});
+			t.setPriority(Thread.MIN_PRIORITY);
+			t.start();
 		}
 	}
 }

@@ -21,7 +21,7 @@ import com.jgoodies.forms.layout.FormLayout;
  * Parameters panel used by the SkyLine
  * 
  * @author mw2518
- * @version $Id: SkyLineConfigPanel.java,v 1.3 2008-12-10 20:35:05 wangm Exp $
+ * @version $Id: SkyLineConfigPanel.java,v 1.4 2009-02-12 22:28:15 keshav Exp $
  * 
  */
 public class SkyLineConfigPanel extends AbstractSaveableParameterPanel
@@ -126,7 +126,7 @@ public class SkyLineConfigPanel extends AbstractSaveableParameterPanel
 		}
 	}
 
-	Object writeReplace() throws ObjectStreamException {
+	public Object writeReplace() throws ObjectStreamException {
 		return new SerializedInstance((String) chainEdit.getValue(),
 				(String) dEdit.getValue(), run_pb1ValueSelection
 						.getSelectedIndex(), run_pb2ValueSelection

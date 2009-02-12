@@ -10,6 +10,10 @@ import java.awt.event.ItemEvent;
 import java.io.IOException;
 import java.io.ObjectStreamException;
 import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -30,9 +34,9 @@ import javax.swing.plaf.basic.BasicSeparatorUI;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.analysis.AbstractSaveableParameterPanel;
-import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.model.analysis.ParamValidationResults;
 import org.geworkbench.engine.config.VisualPlugin;
+import org.geworkbench.events.listeners.ParameterActionListener;
 
 import edu.columbia.geworkbench.cagrid.anova.AnovaParameter;
 import edu.columbia.geworkbench.cagrid.anova.FalseDiscoveryRateControl;
@@ -40,7 +44,7 @@ import edu.columbia.geworkbench.cagrid.anova.PValueEstimation;
 
 /**
  * @author yc2480
- * @version $Id: AnovaAnalysisPanel.java,v 1.12 2008-11-12 19:36:28 chiangy Exp $
+ * @version $Id: AnovaAnalysisPanel.java,v 1.13 2009-02-12 22:28:16 keshav Exp $
  */
 public class AnovaAnalysisPanel extends AbstractSaveableParameterPanel
 		implements Serializable {
@@ -817,6 +821,20 @@ public class AnovaAnalysisPanel extends AbstractSaveableParameterPanel
 		anovaParameter.setPermutationsNumber(PermutationsNumberDefault);
 		anovaParameter.setFalseSignificantGenesLimit(10.0f);
 		anovaParameter.setPValueThreshold(PValueThresholdDefault);
+		
+	    ParameterActionListener parameterActionListener = new ParameterActionListener(this);
+		jComboBoxPValueBasedOn.addActionListener(parameterActionListener);
+		jTextField.addActionListener(parameterActionListener);
+		//FIXME: monitor the model stead of the radio button, otherwise, the event will be sent twice and only process the first one.
+		jRadioButton.addActionListener(parameterActionListener);
+		jRadioButton1.addActionListener(parameterActionListener);
+		jRadioButton2.addActionListener(parameterActionListener);
+		jRadioButton3.addActionListener(parameterActionListener);
+		jRadioButton4.addActionListener(parameterActionListener);
+		jRadioButton5.addActionListener(parameterActionListener);
+		jTextFieldNFSG.addActionListener(parameterActionListener);
+		jTextFieldPFSG.addActionListener(parameterActionListener);
+		jTextFieldPValueThreshold.addActionListener(parameterActionListener);		
 	}
 
 	/**
@@ -893,18 +911,149 @@ public class AnovaAnalysisPanel extends AbstractSaveableParameterPanel
 	 * @return
 	 * @throws ObjectStreamException
 	 */
-	Object writeReplace() throws ObjectStreamException {
+	public Object writeReplace() throws ObjectStreamException {
 		// we rewrite the writeReplace so when serialization, only
 		// anovaParameter been stored.
 		return new SerializedInstance(this.anovaParameter);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.geworkbench.analysis.AbstractSaveableParameterPanel#setParameters(java.util.Map)
+	 * Set inputed parameters to GUI.
+	 */
+    @Override
+    public void setParameters(Map<Serializable, Serializable> parameters){
+    	if (getStopNotifyAnalysisPanelTemporaryFlag()==true) return;
+    	stopNotifyAnalysisPanelTemporary(true);
+        Set<Map.Entry<Serializable, Serializable>> set = parameters.entrySet();
+        for (Iterator<Map.Entry<Serializable, Serializable>> iterator = set.iterator(); iterator.hasNext();) {
+        	Map.Entry<Serializable, Serializable> parameter = iterator.next();
+			Object key = parameter.getKey();
+			Object value = parameter.getValue();
+			if (key.equals("FalseDiscoveryRateControl")){
+				this.anovaParameter.setFalseDiscoveryRateControl(FalseDiscoveryRateControl.fromString((String)value));
+			}
+			if (key.equals("FalseSignificantGenesLimit")){
+				this.anovaParameter.setFalseSignificantGenesLimit((Float)value);
+			}
+			if (key.equals("PermutationsNumber")){
+				this.anovaParameter.setPermutationsNumber((Integer)value);
+			}
+			if (key.equals("PValueEstimation")){
+				this.anovaParameter.setPValueEstimation(PValueEstimation.fromString((String)value));
+			}
+			if (key.equals("PValueThreshold")){
+				this.anovaParameter.setPValueThreshold((Float)value);
+			}
+		}
+		// start translate anovaParameter to AnovaAnalysisPanel by
+		// manipulate GUI according to anovaParameter
+		this.jTextFieldPValueThreshold.setText(Float.toString(anovaParameter.getPValueThreshold()));
+		if (anovaParameter.getPValueEstimation().equals(
+				PValueEstimation.permutation)) {
+			this.jComboBoxPValueBasedOn.setSelectedItem("Permutations");
+		} else {
+			this.jComboBoxPValueBasedOn.setSelectedItem("F-distribution");
+		}
+		this.jTextField.setText(anovaParameter.getPermutationsNumber()
+				.toString());
+
+		if (anovaParameter.getFalseDiscoveryRateControl().equals(
+				FalseDiscoveryRateControl.alpha)) {
+			this.jRadioButton.setSelected(true);
+		} else if (anovaParameter.getFalseDiscoveryRateControl().equals(
+				FalseDiscoveryRateControl.bonferroni)) {
+			this.jRadioButton1.setSelected(true);
+		} else if (anovaParameter.getFalseDiscoveryRateControl().equals(
+				FalseDiscoveryRateControl.adjbonferroni)) {
+			this.jRadioButton2.setSelected(true);
+		} else if (anovaParameter.getFalseDiscoveryRateControl().equals(
+				FalseDiscoveryRateControl.westfallyoung)) {
+			this.jRadioButton3.setSelected(true);
+		} else if (anovaParameter.getFalseDiscoveryRateControl().equals(
+				FalseDiscoveryRateControl.number)) {
+			this.jRadioButton4.setSelected(true);
+			this.jTextFieldNFSG.setText(anovaParameter
+					.getFalseSignificantGenesLimit().toString());
+		} else if (anovaParameter.getFalseDiscoveryRateControl().equals(
+				FalseDiscoveryRateControl.proportion)) {
+			this.jRadioButton5.setSelected(true);
+			this.jTextFieldPFSG.setText(anovaParameter
+					.getFalseSignificantGenesLimit().toString());
+		}
+		Log log = LogFactory.getLog(this.getClass());
+		log.debug(anovaParameter.getPValueEstimation());
+		log.debug(anovaParameter.getPermutationsNumber());
+		log.debug(anovaParameter.getFalseDiscoveryRateControl());
+		log.debug(anovaParameter.getFalseSignificantGenesLimit());
+		stopNotifyAnalysisPanelTemporary(false);
+    }
+
+    /*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.geworkbench.analysis.AbstractSaveableParameterPanel#getParameters()
+	 *      Since HierClustPanel only has three parameters, we return metric,
+	 *      dimension and method in the format same as getBisonParameters().
+	 */
+    @Override
+    public Map<Serializable, Serializable> getParameters() {
+		Map<Serializable, Serializable> parameters = new HashMap<Serializable, Serializable>();
+		//FIXME: needs error checking
+		if (jRadioButton.isSelected()) {
+			parameters.put("FalseDiscoveryRateControl",
+					FalseDiscoveryRateControl._alpha);
+		}
+		;
+		if (jRadioButton1.isSelected()) {
+			parameters.put("FalseDiscoveryRateControl",
+					FalseDiscoveryRateControl._bonferroni);
+		}
+		;
+		if (jRadioButton2.isSelected()) {
+			parameters.put("FalseDiscoveryRateControl",
+					FalseDiscoveryRateControl._adjbonferroni);
+		}
+		;
+		if (jRadioButton3.isSelected()) {
+			parameters.put("FalseDiscoveryRateControl",
+					FalseDiscoveryRateControl._westfallyoung);
+		}
+		;
+		if (jRadioButton4.isSelected()) {
+			parameters.put("FalseDiscoveryRateControl",
+					FalseDiscoveryRateControl._number);
+			parameters.put("FalseSignificantGenesLimit", Float
+					.valueOf(jTextFieldNFSG.getText()));
+		}
+		;
+		if (jRadioButton5.isSelected()) {
+			parameters.put("FalseDiscoveryRateControl",
+					FalseDiscoveryRateControl._proportion);
+			parameters.put("FalseSignificantGenesLimit", Float
+					.valueOf(jTextFieldPFSG.getText()));
+		}
+		;
+		parameters.put("PermutationsNumber", Integer.valueOf(jTextField
+				.getText()));
+		if (jComboBoxPValueBasedOn.getSelectedItem().equals("F-distribution")) {
+			parameters.put("PValueEstimation", PValueEstimation._fdistribution);
+		}
+		if (jComboBoxPValueBasedOn.getSelectedItem().equals("Permutations")) {
+			parameters.put("PValueEstimation", PValueEstimation._permutation);
+		}
+		parameters.put("PValueThreshold", Float.parseFloat(jTextFieldPValueThreshold.getText()));
+		return parameters;
+	}
+
+	
 	/**
 	 * 
 	 * @param out
 	 * @throws IOException
 	 */
-	private void writeObject(java.io.ObjectOutputStream out) throws IOException {
+	public void writeObject(java.io.ObjectOutputStream out) throws IOException {
 		out.defaultWriteObject();
 	}
 
@@ -914,7 +1063,7 @@ public class AnovaAnalysisPanel extends AbstractSaveableParameterPanel
 	 * @throws IOException
 	 * @throws ClassNotFoundException
 	 */
-	private void readObject(java.io.ObjectInputStream in) throws IOException,
+	public void readObject(java.io.ObjectInputStream in) throws IOException,
 			ClassNotFoundException {
 		in.defaultReadObject();
 		revalidate();

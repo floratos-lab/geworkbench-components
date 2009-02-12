@@ -7,6 +7,10 @@ import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.io.ObjectStreamException;
 import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 
 import javax.swing.BorderFactory;
 import javax.swing.JComboBox;
@@ -16,6 +20,7 @@ import javax.swing.JPanel;
 
 import org.geworkbench.analysis.AbstractSaveableParameterPanel;
 import org.geworkbench.bison.model.analysis.ParamValidationResults;
+import org.geworkbench.events.listeners.ParameterActionListener;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.layout.FormLayout;
@@ -123,7 +128,7 @@ public class SOMPanel extends AbstractSaveableParameterPanel implements Serializ
 
     }
 
-    Object writeReplace() throws ObjectStreamException {
+    public Object writeReplace() throws ObjectStreamException {
         return new SerialInstance(
                 (Number)rows.getValue(),
                 (Number)columns.getValue(),
@@ -133,6 +138,54 @@ public class SOMPanel extends AbstractSaveableParameterPanel implements Serializ
                 function.getSelectedIndex()
         );
     }
+    
+    /*
+     * (non-Javadoc)
+     * @see org.geworkbench.analysis.AbstractSaveableParameterPanel#setParameters(java.util.Map)
+     */
+    @Override
+    public void setParameters(Map<Serializable, Serializable> parameters){
+        Set<Map.Entry<Serializable, Serializable>> set = parameters.entrySet();
+        for (Iterator<Map.Entry<Serializable, Serializable>> iterator = set.iterator(); iterator.hasNext();) {
+        	Map.Entry<Serializable, Serializable> parameter = iterator.next();
+			Object key = parameter.getKey();
+			Object value = parameter.getValue();
+			if (key.equals("rows")){
+				this.rows.setValue(value);
+			}
+			if (key.equals("columns")){
+				this.columns.setValue(value);
+			}
+			if (key.equals("radius")){
+				this.radius.setValue(value);
+			}
+			if (key.equals("iterations")){
+				this.iterations.setValue(value);
+			}
+			if (key.equals("alpha")){
+				this.alpha.setValue(value);
+			}
+			if (key.equals("function")){
+				this.function.setSelectedIndex((Integer)value);
+			}
+		}
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see org.geworkbench.analysis.AbstractSaveableParameterPanel#getParameters()
+     */
+    @Override
+    public Map<Serializable, Serializable> getParameters() {
+		Map<Serializable, Serializable> parameters = new HashMap<Serializable, Serializable>();
+		parameters.put("rows", (Number)rows.getValue());
+		parameters.put("columns", (Number)columns.getValue());
+		parameters.put("radius", (Number)radius.getValue());
+		parameters.put("iterations", (Number)iterations.getValue());
+		parameters.put("alpha", (Number)alpha.getValue());
+		parameters.put("function", function.getSelectedIndex());
+		return parameters;
+	}
 
     /**
      * Default Constructor
@@ -199,6 +252,15 @@ public class SOMPanel extends AbstractSaveableParameterPanel implements Serializ
                 }
             }
         });
+
+        ParameterActionListener parameterActionListener = new ParameterActionListener(this);
+        
+        rows.addActionListener(parameterActionListener);
+        columns.addActionListener(parameterActionListener);
+        iterations.addActionListener(parameterActionListener);
+        radius.addActionListener(parameterActionListener);
+        alpha.addActionListener(parameterActionListener);
+        function.addActionListener(parameterActionListener);
 
         FormLayout layout = new FormLayout(
                 "right:max(40dlu;pref), 3dlu, 70dlu, 7dlu, "
@@ -306,7 +368,7 @@ public class SOMPanel extends AbstractSaveableParameterPanel implements Serializ
      * @param out <code>ObjectOutputStream</code>
      * @throws IOException
      */
-    private void writeObject(java.io.ObjectOutputStream out) throws IOException {
+    public void writeObject(java.io.ObjectOutputStream out) throws IOException {
         out.defaultWriteObject();
         //    out.writeInt(getRows());
         //    out.writeInt(getColumns());
@@ -323,7 +385,7 @@ public class SOMPanel extends AbstractSaveableParameterPanel implements Serializ
      * @throws IOException
      * @throws ClassNotFoundException
      */
-    private void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
+    public void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
         in.defaultReadObject();
         //   rows.setText(Integer.toString(in.readInt()));
         //   columns.setText(Integer.toString(in.readInt()));

@@ -54,7 +54,7 @@ import edu.columbia.geworkbench.cagrid.dispatcher.client.DispatcherClient;
  * skybase component: display homologous models in skybase for an input sequence
  * 
  * @author mw2518
- * @version $Id: SkyBaseComponent.java,v 1.4 2008-12-10 20:33:43 wangm Exp $
+ * @version $Id: SkyBaseComponent.java,v 1.5 2009-02-12 22:28:15 keshav Exp $
  *
  */
 
@@ -416,7 +416,7 @@ public class SkyBaseComponent extends JPanel implements VisualPlugin {
 		String paramName = JOptionPane.showInputDialog(skybaseparamPanel,
 				namedParameter, namedParameter);
 		if (selectedSkyBaseAnalysis != null && paramName != null) {
-			selectedSkyBaseAnalysis.saveParametersUnderName(paramName);
+			selectedSkyBaseAnalysis.saveParameters(paramName);
 			setNamedParameters(selectedSkyBaseAnalysis
 					.getNamesOfStoredParameterSets());
 		}

@@ -1,6 +1,8 @@
 package org.geworkbench.components.analysis.clustering;
 
+import java.io.Serializable;
 import java.util.Arrays;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.math.MathException;
@@ -34,7 +36,7 @@ import org.geworkbench.util.ProgressBarT;
 
 /**
  * @author John Watkinson
- * @version $Id: MultiTTestAnalysis.java,v 1.8 2008-06-17 19:14:05 my2248 Exp $
+ * @version $Id: MultiTTestAnalysis.java,v 1.9 2009-02-12 22:28:14 keshav Exp $
  */
 public class MultiTTestAnalysis extends AbstractAnalysis implements
 		ClusteringAnalysis {
@@ -442,5 +444,5 @@ public class MultiTTestAnalysis extends AbstractAnalysis implements
 	        }
 	         
 	    }
-
+	
 }

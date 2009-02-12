@@ -1,14 +1,25 @@
 package org.geworkbench.components.filtering;
 
-import org.geworkbench.analysis.AbstractSaveableParameterPanel;
-import org.geworkbench.bison.model.analysis.ParamValidationResults;
-
-import javax.swing.*;
-import java.awt.*;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.GridLayout;
 import java.io.IOException;
 import java.io.ObjectStreamException;
 import java.io.Serializable;
 import java.text.NumberFormat;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
+
+import javax.swing.JComboBox;
+import javax.swing.JFormattedTextField;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+
+import org.geworkbench.analysis.AbstractSaveableParameterPanel;
+import org.geworkbench.bison.model.analysis.ParamValidationResults;
+import org.geworkbench.events.listeners.ParameterActionListener;
 
 /**
  * <p>Copyright: Copyright (c) 2003</p>
@@ -19,6 +30,8 @@ import java.text.NumberFormat;
 
 /**
  * The parameters panel for the <code>ExpressionThresholdFilter</code> filter.
+ * @author unknown, yc2480
+ * @version $ID$
  */
 public class ExpressionThresholdFilterPanel extends AbstractSaveableParameterPanel implements Serializable {
     final String INSIDE_RANGE = "Inside range";
@@ -52,9 +65,51 @@ public class ExpressionThresholdFilterPanel extends AbstractSaveableParameterPan
         }
     }
 
-    Object writeReplace()  throws ObjectStreamException {
+    public Object writeReplace()  throws ObjectStreamException {
         return new SerializedInstance((Number) rangeMinValue.getValue(), (Number) rangeMaxValue.getValue(), (optionSelection.getSelectedIndex() == 0));
     }
+
+    ParameterActionListener parameterActionListener = new ParameterActionListener(this);
+	/*
+	 * (non-Javadoc)
+	 * @see org.geworkbench.analysis.AbstractSaveableParameterPanel#setParameters(java.util.Map)
+	 * Set inputed parameters to GUI.
+	 */
+    @Override
+    public void setParameters(Map<Serializable, Serializable> parameters){
+    	if ((getStopNotifyAnalysisPanelTemporaryFlag()==true)&&(parameterActionListener.getCalledFromProgramFlag()==true)) return;
+    	stopNotifyAnalysisPanelTemporary(true);
+        Set<Map.Entry<Serializable, Serializable>> set = parameters.entrySet();
+        for (Iterator<Map.Entry<Serializable, Serializable>> iterator = set.iterator(); iterator.hasNext();) {
+        	Map.Entry<Serializable, Serializable> parameter = iterator.next();
+			Object key = parameter.getKey();
+			Object value = parameter.getValue();
+			if (key.equals("rangeMin")){
+	            this.rangeMinValue.setValue((Number)value);
+			}
+			if (key.equals("rangeMax")){
+				this.rangeMaxValue.setValue((Number)value);
+			}
+			if (key.equals("isInside")){
+				this.optionSelection.setSelectedIndex((Boolean)value ? 0 : 1);
+			}
+		}
+        stopNotifyAnalysisPanelTemporary(false);
+    }
+
+    /*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.geworkbench.analysis.AbstractSaveableParameterPanel#getParameters()
+	 */
+    @Override
+    public Map<Serializable, Serializable> getParameters() {
+		Map<Serializable, Serializable> parameters = new HashMap<Serializable, Serializable>();
+		parameters.put("rangeMin", (Number) rangeMinValue.getValue());
+		parameters.put("rangeMax", (Number) rangeMaxValue.getValue());
+		parameters.put("isInside", (optionSelection.getSelectedIndex() == 0));
+		return parameters;
+	}
 
     public ExpressionThresholdFilterPanel() {
         try {
@@ -85,6 +140,10 @@ public class ExpressionThresholdFilterPanel extends AbstractSaveableParameterPan
         rangeMinValue.setFocusLostBehavior(JFormattedTextField.COMMIT_OR_REVERT);
         rangeMaxValue.setValue(new Double(0.0));
         rangeMaxValue.setFocusLostBehavior(JFormattedTextField.COMMIT_OR_REVERT);
+        
+        rangeMinValue.addPropertyChangeListener(parameterActionListener);
+        rangeMaxValue.addPropertyChangeListener(parameterActionListener);
+        optionSelection.addActionListener(parameterActionListener);
     }
 
     /**
@@ -136,11 +195,11 @@ public class ExpressionThresholdFilterPanel extends AbstractSaveableParameterPan
             return new ParamValidationResults(true, "No Error");
     }
 
-    private void writeObject(java.io.ObjectOutputStream out) throws IOException {
+    public void writeObject(java.io.ObjectOutputStream out) throws IOException {
         out.defaultWriteObject();
     }
 
-    private void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
+    public void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
         in.defaultReadObject();
         revalidate();
     }

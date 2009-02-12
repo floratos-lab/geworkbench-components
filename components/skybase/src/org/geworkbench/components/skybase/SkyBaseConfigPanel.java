@@ -17,7 +17,7 @@ import com.jgoodies.forms.layout.FormLayout;
  * parameter panel for blast skybase
  * 
  * @author mw2518
- * @version $Id: SkyBaseConfigPanel.java,v 1.3 2008-12-10 20:33:43 wangm Exp $
+ * @version $Id: SkyBaseConfigPanel.java,v 1.4 2009-02-12 22:28:15 keshav Exp $
  * 
  */
 public class SkyBaseConfigPanel extends AbstractSaveableParameterPanel
@@ -48,7 +48,7 @@ public class SkyBaseConfigPanel extends AbstractSaveableParameterPanel
 		}
 	}
 
-	Object writeReplace() throws ObjectStreamException {
+	public Object writeReplace() throws ObjectStreamException {
 		return new SerializedInstance((Integer) mincovEdit.getValue(),
 				(Integer) minsidEdit.getValue(), (Integer) rphitsEdit
 						.getValue());

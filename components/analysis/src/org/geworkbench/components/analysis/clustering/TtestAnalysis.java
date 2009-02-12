@@ -1,7 +1,9 @@
 package org.geworkbench.components.analysis.clustering;
 
+import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.Map;
 import java.util.Random;
 import java.util.Vector;
 
@@ -3392,5 +3394,5 @@ public class TtestAnalysis extends AbstractAnalysis implements
 	        }
 	         
 	    }
-
+	
 }

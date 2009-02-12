@@ -10,6 +10,10 @@ import java.io.IOException;
 import java.io.ObjectStreamException;
 import java.io.Serializable;
 import java.text.DecimalFormat;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 
 import javax.swing.InputVerifier;
 import javax.swing.JButton;
@@ -25,6 +29,7 @@ import javax.swing.text.NumberFormatter;
 import org.apache.commons.lang.StringUtils;
 import org.geworkbench.analysis.AbstractSaveableParameterPanel;
 import org.geworkbench.engine.properties.PropertiesManager;
+import org.geworkbench.events.listeners.ParameterActionListener;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.layout.FormLayout;
@@ -35,8 +40,7 @@ import com.jgoodies.forms.layout.FormLayout;
  * 
  * todo - make serializable work
  */
-public class MatrixReduceParamPanel extends AbstractSaveableParameterPanel
-		implements Serializable {
+public class MatrixReduceParamPanel extends AbstractSaveableParameterPanel{
 
 	static final String FILE_SPECIFY = "Please specify file";
 
@@ -152,11 +156,82 @@ public class MatrixReduceParamPanel extends AbstractSaveableParameterPanel
 		}
 	}
 
-	Object writeReplace() throws ObjectStreamException {
+	public Object writeReplace() throws ObjectStreamException {
 		return new SerialInstance(this.getSequenceFile(), this.getTopoChoice(),
 				this.topoPattern.getValue(), this.getTopoFile(), this.pValue
 						.getValue(), this.maxMotif.getValue(), this.strandCombo
 						.getSelectedIndex(), this.saveRunlog.isSelected());
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.geworkbench.analysis.AbstractSaveableParameterPanel#setParameters(java.util.Map)
+	 * Set inputed parameters to GUI.
+	 */
+    @Override
+    public void setParameters(Map<Serializable, Serializable> parameters){
+        Set<Map.Entry<Serializable, Serializable>> set = parameters.entrySet();
+        for (Iterator<Map.Entry<Serializable, Serializable>> iterator = set.iterator(); iterator.hasNext();) {
+        	Map.Entry<Serializable, Serializable> parameter = iterator.next();
+			Object key = parameter.getKey();
+			Object value = parameter.getValue();
+			if (key.equals("seqFile")){
+				this.sequenceFile = (String)value;
+				this.filename.setForeground(Color.BLACK);
+				if (this.sequenceFile.trim().equals(MatrixReduceParamPanel.FILE_SPECIFY))
+					this.filename.setForeground(Color.RED);
+				this.filename.setText(this.sequenceFile);
+			}
+			if (key.equals("topoChoice")){
+				this.topoCombo.setSelectedItem(value);
+			}
+			if (key.equals("topoPattern")){
+				this.topoPattern.setValue(value);
+			}
+			if (key.equals("topoFile")){
+				this.topoFile = (String)value;
+				this.topoFilename.setForeground(Color.BLACK);
+				if (this.topoFile.trim()
+						.equals(MatrixReduceParamPanel.FILE_SPECIFY))
+					this.topoFilename.setForeground(Color.RED);
+				this.topoFilename.setText(this.topoFile);
+			}
+			if (key.equals("pvalue")){
+				this.pValue.setValue(value);
+			}
+			if (key.equals("maxMotif")){
+				this.maxMotif.setValue(value);
+			}
+			if (key.equals("strand")){
+				// strand is the combo selected index, not the strand value sent to
+				// the service
+				this.strandCombo.setSelectedIndex((Integer)value);
+			}
+			if (key.equals("saveRunlog")){
+				this.saveRunlog.setSelected((Boolean)value);
+			}
+		}
+    }
+
+    /*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.geworkbench.analysis.AbstractSaveableParameterPanel#getParameters()
+	 *      Since HierClustPanel only has three parameters, we return metric,
+	 *      dimension and method in the format same as getBisonParameters().
+	 */
+    @Override
+    public Map<Serializable, Serializable> getParameters() {
+		Map<Serializable, Serializable> parameters = new HashMap<Serializable, Serializable>();
+		parameters.put("seqFile", this.getSequenceFile());
+		parameters.put("topoChoice", (String)this.getTopoChoice());
+		parameters.put("topoPattern", (String)this.topoPattern.getValue());
+		parameters.put("topoFile", this.getTopoFile());
+		parameters.put("pvalue", (Double)this.pValue.getValue());
+		parameters.put("maxMotif", (Integer)this.maxMotif.getValue());
+		parameters.put("strand", this.strandCombo.getSelectedIndex());
+		parameters.put("saveRunlog", this.saveRunlog.isSelected());
+		return parameters;
 	}
 
 	public MatrixReduceParamPanel() {
@@ -167,6 +242,8 @@ public class MatrixReduceParamPanel extends AbstractSaveableParameterPanel
 		c.gridx = 0;
 		c.gridy = 0;
 
+		ParameterActionListener parameterActionListener = new ParameterActionListener(this);
+        
 		readProperties();
 		filename.setForeground(Color.RED);
 		filename.setText(sequenceFile);
@@ -277,6 +354,12 @@ public class MatrixReduceParamPanel extends AbstractSaveableParameterPanel
 				}
 			}
 		});
+		pValue.addActionListener(parameterActionListener);
+		strandCombo.addActionListener(parameterActionListener);
+		maxMotif.addActionListener(parameterActionListener);
+		topoCombo.addActionListener(parameterActionListener);
+		topoPattern.addActionListener(parameterActionListener);
+		saveRunlog.addActionListener(parameterActionListener);
 	}
 
 	public class rangeVerifier extends InputVerifier {

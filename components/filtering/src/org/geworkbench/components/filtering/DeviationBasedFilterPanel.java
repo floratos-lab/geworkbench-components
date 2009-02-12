@@ -2,12 +2,18 @@ package org.geworkbench.components.filtering;
 
 import org.geworkbench.analysis.AbstractSaveableParameterPanel;
 import org.geworkbench.bison.model.analysis.ParamValidationResults;
+import org.geworkbench.events.listeners.ParameterActionListener;
 
 import javax.swing.*;
 import java.awt.*;
 import java.io.IOException;
 import java.io.ObjectStreamException;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * <p>Copyright: Copyright (c) 2003</p>
@@ -49,10 +55,41 @@ public class DeviationBasedFilterPanel extends AbstractSaveableParameterPanel im
         }
     }
 
-    Object writeReplace()  throws ObjectStreamException {
+    public Object writeReplace()  throws ObjectStreamException {
         return new SerializedInstance((String)missingValuesSelection.getSelectedItem(), (Double) deviationCutoff.getValue());
     }
 
+    /*
+     * (non-Javadoc)
+     * @see org.geworkbench.analysis.AbstractSaveableParameterPanel#getParameters()
+     */
+    @Override
+    public Map<Serializable, Serializable> getParameters() {
+		Map<Serializable, Serializable> parameters = new HashMap<Serializable, Serializable>();
+		parameters.put("missingValues", (String)missingValuesSelection.getSelectedItem());
+		parameters.put("bound", deviationCutoff.getText());
+		return parameters;
+	}
+    
+    /*
+     * (non-Javadoc)
+     * @see org.geworkbench.analysis.AbstractSaveableParameterPanel#setParameters(java.util.Map)
+     */
+    @Override
+    public void setParameters(Map<Serializable, Serializable> parameters){
+        Set<Map.Entry<Serializable, Serializable>> set = parameters.entrySet();
+        for (Iterator<Map.Entry<Serializable, Serializable>> iterator = set.iterator(); iterator.hasNext();) {
+        	Map.Entry<Serializable, Serializable> parameter = iterator.next();
+			Object key = parameter.getKey();
+			Object value = parameter.getValue();
+			if (key.equals("missingValues")){
+				missingValuesSelection.setSelectedItem((String)value);
+			}
+			if (key.equals("bound")){
+				deviationCutoff.setText((String)value);
+			}
+		}
+    }
 
     public DeviationBasedFilterPanel() {
         try {
@@ -79,6 +116,9 @@ public class DeviationBasedFilterPanel extends AbstractSaveableParameterPanel im
         this.add(container);
         deviationCutoff.setValue(new Double(0.0));
         deviationCutoff.setFocusLostBehavior(JFormattedTextField.COMMIT_OR_REVERT);
+        ParameterActionListener parameterActionListener = new ParameterActionListener(this);
+        missingValuesSelection.addActionListener(parameterActionListener);
+        deviationCutoff.addActionListener(parameterActionListener);
     }
 
     /**
@@ -123,11 +163,11 @@ public class DeviationBasedFilterPanel extends AbstractSaveableParameterPanel im
             return new ParamValidationResults(true, "No Error");
     }
 
-    private void writeObject(java.io.ObjectOutputStream out) throws IOException {
+    public void writeObject(java.io.ObjectOutputStream out) throws IOException {
         out.defaultWriteObject();
     }
 
-    private void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
+    public void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
         in.defaultReadObject();
         revalidate();
     }

@@ -1,11 +1,13 @@
 package org.geworkbench.components.analysis.clustering;
 
 import java.awt.Component;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
 
@@ -42,7 +44,7 @@ import org.geworkbench.util.pathwaydecoder.mutualinformation.AdjacencyMatrixData
 
 /**
  * @author yc2480
- * @version $Id: MasterRegulatorAnalysis.java,v 1.4 2008-07-30 11:44:17 bjagla Exp $
+ * @version $Id: MasterRegulatorAnalysis.java,v 1.5 2009-02-12 22:28:14 keshav Exp $
  */
 public class MasterRegulatorAnalysis extends AbstractAnalysis implements
 		ClusteringAnalysis {
@@ -335,5 +337,4 @@ public class MasterRegulatorAnalysis extends AbstractAnalysis implements
 
 		return histStr;
 	}
-
 }

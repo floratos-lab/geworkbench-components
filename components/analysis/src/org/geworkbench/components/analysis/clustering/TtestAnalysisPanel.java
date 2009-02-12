@@ -1,17 +1,35 @@
 package org.geworkbench.components.analysis.clustering;
 
-import com.jgoodies.forms.builder.DefaultFormBuilder;
-import com.jgoodies.forms.layout.FormLayout;
-import org.geworkbench.analysis.AbstractSaveableParameterPanel;
-
-import javax.swing.*;
-
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.GridBagLayout;
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.ObjectStreamException;
 import java.io.Serializable;
 import java.text.DecimalFormat;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
+
+import javax.swing.BorderFactory;
+import javax.swing.ButtonGroup;
+import javax.swing.JCheckBox;
+import javax.swing.JFormattedTextField;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JRadioButton;
+import javax.swing.JTabbedPane;
+import javax.swing.SwingConstants;
+
+import org.geworkbench.analysis.AbstractSaveableParameterPanel;
+import org.geworkbench.events.listeners.ParameterActionListener;
+
+import com.jgoodies.forms.builder.DefaultFormBuilder;
+import com.jgoodies.forms.layout.FormLayout;
 
 /**
  * <p>Title: Bioworks</p>
@@ -20,7 +38,8 @@ import java.text.DecimalFormat;
  * <p>Company: Columbia University</p>
  *
  * @author manjunath at genomecenter dot columbia dot edu
- * @version 1.0
+ * @author yc2480
+ * @version $ID$
  */
 
 public class TtestAnalysisPanel extends AbstractSaveableParameterPanel implements Serializable {
@@ -137,7 +156,7 @@ public class TtestAnalysisPanel extends AbstractSaveableParameterPanel implement
         }
     }
 
-    Object writeReplace() throws ObjectStreamException {
+    public Object writeReplace() throws ObjectStreamException {
         return new SerialInstance(
                 welch.isSelected(),
                 equalVariances.isSelected(),
@@ -155,6 +174,89 @@ public class TtestAnalysisPanel extends AbstractSaveableParameterPanel implement
         );
     }
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.geworkbench.analysis.AbstractSaveableParameterPanel#setParameters(java.util.Map)
+	 * Set inputed parameters to GUI.
+	 */
+    @Override
+    public void setParameters(Map<Serializable, Serializable> parameters){
+        Set<Map.Entry<Serializable, Serializable>> set = parameters.entrySet();
+        for (Iterator<Map.Entry<Serializable, Serializable>> iterator = set.iterator(); iterator.hasNext();) {
+        	Map.Entry<Serializable, Serializable> parameter = iterator.next();
+			Object key = parameter.getKey();
+			Object value = parameter.getValue();
+
+			if (key.equals("welch")){
+				welch.setSelected((Boolean)value);
+			}
+			if (key.equals("equalVariances")){
+				equalVariances.setSelected((Boolean)value);
+			}
+			if (key.equals("pvaluesByTDistribution")){
+				pvaluesByTDistribution.setSelected((Boolean)value);
+			}
+			if (key.equals("pvaluesByPerm")){
+				pvaluesByPerm.setSelected((Boolean)value);
+			}
+			if (key.equals("randomlyGroup")){
+				randomlyGroup.setSelected((Boolean)value);
+			}
+			if (key.equals("numCombs")){
+				numCombs.setValue((Number)value);
+			}
+			if (key.equals("allPerms")){
+				allPerms.setSelected((Boolean)value);
+			}
+			if (key.equals("alpha")){
+				alpha.setValue((Number)value);
+			}
+			if (key.equals("noCorrection")){
+				noCorrection.setSelected((Boolean)value);
+			}
+			if (key.equals("bonferroni")){
+				bonferroni.setSelected((Boolean)value);
+			}
+			if (key.equals("adjustedBonferroni")){
+				adjustedBonferroni.setSelected((Boolean)value);
+			}
+			if (key.equals("stepdownMinP")){
+				stepdownMinP.setSelected((Boolean)value);
+			}
+			if (key.equals("stepdownMaxT")){
+				stepdownMaxT.setSelected((Boolean)value);
+			}
+		}
+    }
+
+    /*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.geworkbench.analysis.AbstractSaveableParameterPanel#getParameters()
+	 *      Since HierClustPanel only has three parameters, we return metric,
+	 *      dimension and method in the format same as getBisonParameters().
+	 */
+    @Override
+    public Map<Serializable, Serializable> getParameters() {
+		Map<Serializable, Serializable> parameters = new HashMap<Serializable, Serializable>();
+
+		parameters.put("welch", welch.isSelected());
+		parameters.put("equalVariances", equalVariances.isSelected());
+		parameters.put("pvaluesByTDistribution", pvaluesByTDistribution.isSelected());
+		parameters.put("pvaluesByPerm", pvaluesByPerm.isSelected());
+		parameters.put("randomlyGroup", randomlyGroup.isSelected());
+		parameters.put("numCombs", (Number) numCombs.getValue());
+		parameters.put("allPerms", allPerms.isSelected());
+		parameters.put("alpha", (Number) alpha.getValue());
+		parameters.put("noCorrection", noCorrection.isSelected());
+		parameters.put("bonferroni", bonferroni.isSelected());
+		parameters.put("adjustedBonferroni", adjustedBonferroni.isSelected());
+		parameters.put("stepdownMinP", stepdownMinP.isSelected());
+		parameters.put("stepdownMaxT", stepdownMaxT.isSelected());
+		return parameters;
+	}
+
+    
     public TtestAnalysisPanel() {
         try {
             jbInit();
@@ -497,5 +599,20 @@ public class TtestAnalysisPanel extends AbstractSaveableParameterPanel implement
         jPanel10.add(stepdownMaxT, null);
         jPanel9.add(jLabel5, BorderLayout.CENTER);
 */
+        
+       ParameterActionListener parameterActionListener = new ParameterActionListener(this);
+       welch.addActionListener(parameterActionListener);
+       equalVariances.addActionListener(parameterActionListener);
+       pvaluesByTDistribution.addActionListener(parameterActionListener);
+       pvaluesByPerm.addActionListener(parameterActionListener);
+       randomlyGroup.addActionListener(parameterActionListener);
+       numCombs.addActionListener(parameterActionListener);
+       allPerms.addActionListener(parameterActionListener);
+       alpha.addActionListener(parameterActionListener);
+       noCorrection.addActionListener(parameterActionListener);
+       bonferroni.addActionListener(parameterActionListener);
+       adjustedBonferroni.addActionListener(parameterActionListener);
+       stepdownMinP.addActionListener(parameterActionListener);
+       stepdownMaxT.addActionListener(parameterActionListener);
     }
 }
