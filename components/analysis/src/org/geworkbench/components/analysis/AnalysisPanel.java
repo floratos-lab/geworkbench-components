@@ -49,13 +49,16 @@ import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetV
 import org.geworkbench.bison.datastructure.bioobjects.markers.CSExpressionMarker;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
+import org.geworkbench.bison.datastructure.bioobjects.structure.CSProteinStructure;
 import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
 import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
+import org.geworkbench.bison.model.analysis.Analysis;
 import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
 import org.geworkbench.bison.model.analysis.ClusteringAnalysis;
 import org.geworkbench.bison.model.analysis.ParamValidationResults;
 import org.geworkbench.bison.model.analysis.ParameterPanel;
+import org.geworkbench.bison.model.analysis.ProteinAnalysis;
 import org.geworkbench.components.analysis.clustering.MultiTTestAnalysisPanel;
 import org.geworkbench.components.analysis.clustering.TtestAnalysisPanel;
 import org.geworkbench.components.cagrid.gui.GridServicePanel;
@@ -91,11 +94,11 @@ import edu.columbia.geworkbench.cagrid.dispatcher.client.DispatcherClient;
  * @author First Genetic Trust Inc.
  * @author keshav
  * @author yc2480
- * @version $Id: AnalysisPanel.java,v 1.72 2009-02-12 22:28:15 keshav Exp $
+ * @version $Id: AnalysisPanel.java,v 1.73 2009-02-17 21:59:40 jiz Exp $
  * 
  */
 @AcceptTypes( { DSMicroarraySet.class, AdjacencyMatrixDataSet.class,
-		EdgeListDataSet.class })
+		EdgeListDataSet.class, CSProteinStructure.class })
 public class AnalysisPanel extends MicroarrayViewEventBase implements
 		VisualPlugin, ReHighlightable {
 
@@ -1267,6 +1270,43 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 			});
 			t.setPriority(Thread.MIN_PRIORITY);
 			t.start();
+		}
+	}
+	
+	/**
+	 *  Refresh the list of available analyses. 
+	 *  */
+	@Subscribe
+	public void receive(org.geworkbench.events.ProjectEvent even, Object source) {
+		super.receive(even, source);
+		if (even.getDataSet().getClass().equals(CSProteinStructure.class)) {
+			getAvailableProteinAnalyses();
+		} else {
+			getAvailableAnalyses();
+		}
+		displayAnalyses();
+	}
+
+	/**
+	 * Get ProtainAnalysis - the analyses for PDB data files, similar to getAvailableAnalyses() for all ClusteringAnalysise.
+	 */
+	private void getAvailableProteinAnalyses() {
+		boolean selectionChanged = true;
+		Analysis[] analyses = ComponentRegistry.getRegistry().getModules(
+				ProteinAnalysis.class);
+		availableAnalyses = new AbstractAnalysis[analyses.length];
+		for (int i = 0; i < analyses.length; i++) {
+			availableAnalyses[i] = (AbstractAnalysis) analyses[i];
+			if (selectedAnalysis == availableAnalyses[i]) {
+				selectionChanged = false;
+			}
+		}
+		if (selectionChanged) {
+			if (availableAnalyses.length > 0) {
+				selectedAnalysis = availableAnalyses[0];
+			} else {
+				selectedAnalysis = null;
+			}
 		}
 	}
 }

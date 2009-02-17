@@ -31,7 +31,7 @@ import com.jgoodies.forms.layout.FormLayout;
 /**
  * 
  * @author keshav
- * @version $Id: GridServicePanel.java,v 1.34 2008-10-28 16:55:18 keshav Exp $
+ * @version $Id: GridServicePanel.java,v 1.35 2009-02-17 21:59:40 jiz Exp $
  */
 public class GridServicePanel extends JPanel {
 	private Log log = LogFactory.getLog(this.getClass());
@@ -75,6 +75,7 @@ public class GridServicePanel extends JPanel {
 		analysisSet.add("Mindy");
 		analysisSet.add("Evidence");
 		analysisSet.add("Medusa");
+		analysisSet.add("MarkUs");
 
 		/* part A */
 		DefaultFormBuilder indexServiceBuilder = new DefaultFormBuilder(
