@@ -28,6 +28,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.analysis.AbstractAnalysis;
 import org.geworkbench.analysis.AbstractSaveableParameterPanel;
+import org.geworkbench.analysis.ParameterKey;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
@@ -104,7 +105,7 @@ public class NormalizationPanel implements VisualPlugin, ReHighlightable {
 	JButton save = new JButton("Save Settings");
 	JPanel jPanel4 = new JPanel();
 	FlowLayout flowLayout1 = new FlowLayout();
-	ParameterPanel emptyParameterPanel = new AbstractSaveableParameterPanel();
+	ParameterPanel emptyParameterPanel = new ParameterPanel();
 	ParameterPanel currentParameterPanel = emptyParameterPanel;
 	BorderLayout borderLayout4 = new BorderLayout();
 	BorderLayout borderLayout5 = new BorderLayout();
@@ -370,7 +371,7 @@ public class NormalizationPanel implements VisualPlugin, ReHighlightable {
 				Map<Serializable, Serializable> parameter2 = new HashMap<Serializable, Serializable>();
 				parameter2.putAll(selectedNormalizer
 						.getNamedParameterSet(parametersNameList[i]));
-				parameter2.remove("ParameterKey");
+				parameter2.remove(ParameterKey.class.getSimpleName());
 				if (parameter1.equals(parameter2)) {
 					namedParameters.setSelectedIndex(i);
 				}
