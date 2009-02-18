@@ -45,8 +45,9 @@ import edu.columbia.c2b2.evidenceinegration.Evidence;
 
 /**
  * @author mhall
+ * @version $Id: EvidenceIntegrationParamPanel.java,v 1.9 2009-02-18 21:28:25 chiangy Exp $
  */
-public class EvidenceIntegrationParamPanel extends AbstractSaveableParameterPanel implements Serializable {
+public class EvidenceIntegrationParamPanel extends AbstractSaveableParameterPanel {
 
     static Log log = LogFactory.getLog(EvidenceIntegrationParamPanel.class);
 
@@ -422,12 +423,20 @@ public class EvidenceIntegrationParamPanel extends AbstractSaveableParameterPane
         }
         return enabledGS;
     }
-     
-     public Map<Serializable, Serializable> getParameters() {
-		return new HashMap<Serializable, Serializable>();
-	}
 
-	public void setParameters(Map<Serializable, Serializable> parameter) {
-		return;
-	}
+     /*
+      * (non-Javadoc)
+      * @see org.geworkbench.analysis.AbstractSaveableParameterPanel#getParameters()
+      */
+     public Map<Serializable, Serializable> getParameters() {
+    	 return new HashMap<Serializable, Serializable>();
+     }
+
+     /*
+      * (non-Javadoc)
+      * @see org.geworkbench.analysis.AbstractSaveableParameterPanel#setParameters(java.util.Map)
+      */
+     public void setParameters(Map<Serializable, Serializable> parameter) {
+    	 return;
+     }
 }

@@ -4,8 +4,6 @@ import java.awt.BorderLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.IOException;
-import java.io.ObjectStreamException;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -33,9 +31,9 @@ import com.jgoodies.forms.layout.FormLayout;
  * SOM analysis
  *
  * @author First Genetic Trust
- * @version 1.0
+ * @version $Id: SOMPanel.java,v 1.4 2009-02-18 21:35:22 chiangy Exp $
  */
-public class SOMPanel extends AbstractSaveableParameterPanel implements Serializable {
+public class SOMPanel extends AbstractSaveableParameterPanel {
     /**
      * Visual Widget
      */
@@ -97,53 +95,10 @@ public class SOMPanel extends AbstractSaveableParameterPanel implements Serializ
      */
     private JFormattedTextField alpha = new JFormattedTextField();
 
-    private static class SerialInstance implements Serializable {
-
-        private Number rows;
-        private Number columns;
-        private Number radius;
-        private Number iterations;
-        private Number alpha;
-        private int function;
-
-        public SerialInstance(Number rows, Number columns, Number radius, Number iterations, Number alpha, int function) {
-            this.rows = rows;
-            this.columns = columns;
-            this.radius = radius;
-            this.iterations = iterations;
-            this.alpha = alpha;
-            this.function = function;
-        }
-
-        Object readResolve() throws ObjectStreamException {
-            SOMPanel panel = new SOMPanel();
-            panel.rows.setValue(rows);
-            panel.columns.setValue(columns);
-            panel.radius.setValue(radius);
-            panel.iterations.setValue(iterations);
-            panel.alpha.setValue(alpha);
-            panel.function.setSelectedIndex(function);
-            return panel;
-        }
-
-    }
-
-    public Object writeReplace() throws ObjectStreamException {
-        return new SerialInstance(
-                (Number)rows.getValue(),
-                (Number)columns.getValue(),
-                (Number)radius.getValue(),
-                (Number)iterations.getValue(),
-                (Number)alpha.getValue(),
-                function.getSelectedIndex()
-        );
-    }
-    
     /*
      * (non-Javadoc)
      * @see org.geworkbench.analysis.AbstractSaveableParameterPanel#setParameters(java.util.Map)
      */
-    @Override
     public void setParameters(Map<Serializable, Serializable> parameters){
         Set<Map.Entry<Serializable, Serializable>> set = parameters.entrySet();
         for (Iterator<Map.Entry<Serializable, Serializable>> iterator = set.iterator(); iterator.hasNext();) {
@@ -175,7 +130,6 @@ public class SOMPanel extends AbstractSaveableParameterPanel implements Serializ
      * (non-Javadoc)
      * @see org.geworkbench.analysis.AbstractSaveableParameterPanel#getParameters()
      */
-    @Override
     public Map<Serializable, Serializable> getParameters() {
 		Map<Serializable, Serializable> parameters = new HashMap<Serializable, Serializable>();
 		parameters.put("rows", (Number)rows.getValue());
@@ -360,40 +314,6 @@ public class SOMPanel extends AbstractSaveableParameterPanel implements Serializ
         else if (getLearningRate() <= 0f || getLearningRate() > 1f)
             return new ParamValidationResults(false, "Learning Rate has to be between 0 and 1");
         return new ParamValidationResults(true, "SOM Parameter validations passed");
-    }
-
-    /**
-     * {@link java.io.Serializable} method
-     *
-     * @param out <code>ObjectOutputStream</code>
-     * @throws IOException
-     */
-    public void writeObject(java.io.ObjectOutputStream out) throws IOException {
-        out.defaultWriteObject();
-        //    out.writeInt(getRows());
-        //    out.writeInt(getColumns());
-        //    out.writeInt(getIterations());
-        //    out.writeFloat(getRadius());
-        //    out.writeFloat(getLearningRate());
-        //    out.writeObject((String)function.getSelectedItem());
-    }
-
-    /**
-     * {@link java.io.Serializable} method
-     *
-     * @param in <code>ObjectInputStream</code>
-     * @throws IOException
-     * @throws ClassNotFoundException
-     */
-    public void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
-        in.defaultReadObject();
-        //   rows.setText(Integer.toString(in.readInt()));
-        //   columns.setText(Integer.toString(in.readInt()));
-        //    iterations.setText(Integer.toString(in.readInt()));
-        //    radius.setText(Float.toString(in.readFloat()));
-        //    alpha.setText(Float.toString(in.readFloat()));
-        //    function.setSelectedItem((String)in.readObject());
-        revalidate();
     }
 
 }

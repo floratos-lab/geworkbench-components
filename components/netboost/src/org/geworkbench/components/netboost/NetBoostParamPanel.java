@@ -3,8 +3,6 @@ package org.geworkbench.components.netboost;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Font;
-import java.io.IOException;
-import java.io.ObjectStreamException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -31,11 +29,11 @@ import com.jgoodies.forms.layout.FormLayout;
 
 /**
  * 
- * @author ch2514, yc2480
- * @version $Id: NetBoostParamPanel.java,v 1.6 2009-02-12 22:28:15 keshav Exp $
+ * @author ch2514
+ * @author yc2480
+ * @version $Id: NetBoostParamPanel.java,v 1.7 2009-02-18 21:34:44 chiangy Exp $
  */
-public class NetBoostParamPanel extends AbstractSaveableParameterPanel
-		implements Serializable {
+public class NetBoostParamPanel extends AbstractSaveableParameterPanel {
 
 	/**
 	 * 
@@ -66,94 +64,11 @@ public class NetBoostParamPanel extends AbstractSaveableParameterPanel
 
 	private JLabel[] modelLabels;
 
-	/**
-	 * 
-	 * @author ch2514
-	 * 
-	 */
-	private static class SerialInstance implements Serializable {
-		private Object trainingEx;
-
-		private Object boostingIter;
-
-		private Object subgraphCounting;
-
-		private Object crossValid;
-
-		private boolean[] modelSelections;
-
-		/**
-		 * 
-		 * @param trainingEx
-		 * @param boostingIter
-		 * @param subgraphCounting
-		 * @param crossValid
-		 * @param modelSelections
-		 */
-		public SerialInstance(Object trainingEx, Object boostingIter,
-				Object subgraphCounting, Object crossValid,
-				boolean[] modelSelections) {
-			this.trainingEx = trainingEx;
-			this.boostingIter = boostingIter;
-			this.crossValid = crossValid;
-			this.subgraphCounting = subgraphCounting;
-			this.modelSelections = modelSelections;
-		}
-
-		/**
-		 * 
-		 * @return
-		 * @throws ObjectStreamException
-		 */
-		Object readResolve() throws ObjectStreamException {
-			NetBoostParamPanel result = new NetBoostParamPanel();
-			result.traininExSpinner.setValue(this.trainingEx);
-			result.boostingIterSpinner.setValue(this.boostingIter);
-			result.crossValidSpinner.setValue(this.crossValid);
-			result.subgraphCountingCombo.setSelectedItem(this.subgraphCounting);
-
-			int numBooleans = this.modelSelections.length;
-			int numBoxes = result.modelBoxes.length;
-
-			if (numBooleans >= numBoxes) {
-				if (numBooleans > numBoxes)
-					log
-							.warn("Number of saved model selections is greater than number of model choices.");
-				for (int i = 0; i < numBoxes; i++) {
-					result.modelBoxes[i].setSelected(this.modelSelections[i]);
-				}
-			} else if (numBooleans < numBoxes) {
-				log
-						.warn("Number of saved model selections less than number of model choices.");
-			} else {
-				log
-						.warn("Number of saved model selections does not match number of model choices.");
-				for (int i = 0; i < numBoxes; i++) {
-					result.modelBoxes[i].setSelected(true);
-				}
-			}
-			return result;
-		}
-	}
-
-	/**
-	 * 
-	 * @return
-	 * @throws ObjectStreamException
-	 */
-	public Object writeReplace() throws ObjectStreamException {
-		return new SerialInstance(this.traininExSpinner.getValue(),
-				this.boostingIterSpinner.getValue(), this.subgraphCountingCombo
-						.getSelectedItem(), this.crossValidSpinner.getValue(),
-				this.getSelectedModels());
-	}
-
 	/*
 	 * (non-Javadoc)
 	 * @see org.geworkbench.analysis.AbstractSaveableParameterPanel#setParameters(java.util.Map)
 	 * Set inputed parameters to GUI.
 	 */
-    @Override
     public void setParameters(Map<Serializable, Serializable> parameters){
         Set<Map.Entry<Serializable, Serializable>> set = parameters.entrySet();
         for (Iterator<Map.Entry<Serializable, Serializable>> iterator = set.iterator(); iterator.hasNext();) {
@@ -183,7 +98,6 @@ public class NetBoostParamPanel extends AbstractSaveableParameterPanel
 	 * 
 	 * @see org.geworkbench.analysis.AbstractSaveableParameterPanel#getParameters()
 	 */
-    @Override
     public Map<Serializable, Serializable> getParameters() {
 		Map<Serializable, Serializable> parameters = new HashMap<Serializable, Serializable>();
 		parameters.put("trainingEx", (Number)this.traininExSpinner.getValue());
@@ -417,33 +331,8 @@ public class NetBoostParamPanel extends AbstractSaveableParameterPanel
 				"NetBoost Parameter validations passed");
 	}
 
-	/**
-	 * {@link java.io.Serializable} method
-	 * 
-	 * @param out
-	 *            <code>ObjectOutputStream</code>
-	 * @throws IOException
-	 */
-	public void writeObject(java.io.ObjectOutputStream out) throws IOException {
-		out.defaultWriteObject();
-	}
-
-	/**
-	 * {@link java.io.Serializable} method
-	 * 
-	 * @param in
-	 *            <code>ObjectInputStream</code>
-	 * @throws IOException
-	 * @throws ClassNotFoundException
-	 */
-	public void readObject(java.io.ObjectInputStream in) throws IOException,
-			ClassNotFoundException {
-		in.defaultReadObject();
-		revalidate();
-	}
-	
 	@Override
-	public String toString() {
+	public String getDataSetHistory() {
 		StringBuilder histStr = new StringBuilder("");
 		histStr.append("NetBoost parameters:\n");
 		histStr.append("----------------------------------------\n");

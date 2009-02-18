@@ -2,8 +2,6 @@ package org.geworkbench.components.normalization;
 
 import java.awt.BorderLayout;
 import java.awt.GridLayout;
-import java.io.IOException;
-import java.io.ObjectStreamException;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -29,39 +27,20 @@ import com.jgoodies.forms.layout.FormLayout;
 /**
  * Parameters panels used by the <code>MissingValueNormalizer</code>.
  * @author unknown, yc2480
- * @version $ID$
+ * @version $Id: MissingValueNormalizerPanel.java,v 1.6 2009-02-18 21:35:02 chiangy Exp $
  */
-public class MissingValueNormalizerPanel extends AbstractSaveableParameterPanel implements Serializable {
+public class MissingValueNormalizerPanel extends AbstractSaveableParameterPanel {
     final String MARKER_OPTION = "Mean profile marker";
     final String MICROARRAY_OPTION = "Mean microarray value";
     private GridLayout gridLayout1 = new GridLayout();
     private JLabel averagingTypeLabel = new JLabel("Averaging method");
     private JComboBox averagingTypeSelection = new JComboBox(new String[]{MARKER_OPTION, MICROARRAY_OPTION});
 
-    private static class SerializedInstance implements Serializable {
-        int averaging;
-
-        public SerializedInstance(int averaging) {
-            this.averaging = averaging;
-        }
-
-        Object readResolve() throws ObjectStreamException {
-            MissingValueNormalizerPanel panel = new MissingValueNormalizerPanel();
-            panel.averagingTypeSelection.setSelectedIndex(averaging);
-            return panel;
-        }
-    }
-
-    public Object writeReplace() throws ObjectStreamException {
-        return new SerializedInstance(averagingTypeSelection.getSelectedIndex());
-    }
-
 	/*
 	 * (non-Javadoc)
 	 * @see org.geworkbench.analysis.AbstractSaveableParameterPanel#setParameters(java.util.Map)
 	 * Set inputed parameters to GUI.
 	 */
-    @Override
     public void setParameters(Map<Serializable, Serializable> parameters){
         Set<Map.Entry<Serializable, Serializable>> set = parameters.entrySet();
         for (Iterator<Map.Entry<Serializable, Serializable>> iterator = set.iterator(); iterator.hasNext();) {
@@ -79,7 +58,6 @@ public class MissingValueNormalizerPanel extends AbstractSaveableParameterPanel 
 	 * 
 	 * @see org.geworkbench.analysis.AbstractSaveableParameterPanel#getParameters()
 	 */
-    @Override
     public Map<Serializable, Serializable> getParameters() {
 		Map<Serializable, Serializable> parameters = new HashMap<Serializable, Serializable>();
 		parameters.put("averaging", averagingTypeSelection.getSelectedIndex());
@@ -124,15 +102,6 @@ public class MissingValueNormalizerPanel extends AbstractSaveableParameterPanel 
             return MissingValueNormalizer.MARKER_PROFILE_MEAN;
         else
             return MissingValueNormalizer.MICROARRAY_MEAN;
-    }
-
-    public void writeObject(java.io.ObjectOutputStream out) throws IOException {
-        out.defaultWriteObject();
-    }
-
-    public void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
-        in.defaultReadObject();
-        revalidate();
     }
 
 }

@@ -17,7 +17,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.io.File;
-import java.io.ObjectStreamException;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -46,7 +45,7 @@ import com.jgoodies.forms.layout.ColumnSpec;
 import com.jgoodies.forms.layout.FormLayout;
 /**
  * @author Marc-Danie Nazaire          
- * @version $ID$
+ * @version $Id$
  * FIXME: saving parameter set to file not working yet. Only save in memory works.                            
  */
 public class WVTrainingPanel extends GPTrainingPanel {
@@ -321,59 +320,11 @@ public class WVTrainingPanel extends GPTrainingPanel {
         }
     }
 
-    public Object writeReplace() throws ObjectStreamException
-    {
-        return new SerializedInstance(numFeatureMethod.isSelected(), (Integer)numFeatures.getValue(), (String)statistic.getSelectedItem(), medianCheckbox.isSelected(),
-                minStdDevCheckbox.isSelected(), (String)minStdDev.getValue(), featureFileMethod.isSelected(), featureFile);
-    }
-
-    private static class SerializedInstance implements Serializable
-    {
-        private boolean numFeatureMethod;
-        private int numFeatures;
-        private String statistic;
-        private boolean useMedian;
-        private boolean useMinStdDev;
-        private String minStdDev;
-        private boolean featureFileMethod;
-        private String featureFile;
-
-        public SerializedInstance(Boolean numFeatureMethod, Integer numFeatures, String statistic, Boolean useMedian,
-                                  Boolean useMinStdDev, String minStdDev, Boolean featureFileMethod, String featureFile)
-        {
-            this.numFeatureMethod = numFeatureMethod;
-            this.numFeatures = numFeatures;
-            this.statistic = statistic;
-            this.useMedian = useMedian;
-            this.minStdDev = minStdDev;
-            this.useMinStdDev = useMinStdDev;
-            this.featureFileMethod = featureFileMethod;
-            this.featureFile = featureFile;
-        }
-
-        Object readResolve() throws ObjectStreamException
-        {
-            WVTraining wvTraining = new WVTraining();
-            WVTrainingPanel panel = new WVTrainingPanel(wvTraining);
-            panel.numFeatureMethod.setSelected(numFeatureMethod);
-            panel.numFeatures.setValue(numFeatures);
-            panel.statistic.setSelectedItem(statistic);
-            panel.medianCheckbox.setSelected(useMedian);
-            panel.minStdDevCheckbox.setSelected(useMinStdDev);
-            panel.minStdDev.setValue(minStdDev);
-            panel.featureFileMethod.setSelected(featureFileMethod);
-            panel.featureFileTextBox.setText(featureFile);
-
-            return panel;
-        }
-    }
-    
 	/*
 	 * (non-Javadoc)
 	 * @see org.geworkbench.analysis.AbstractSaveableParameterPanel#setParameters(java.util.Map)
 	 * Set inputed parameters to GUI.
 	 */
-    @Override
     public void setParameters(Map<Serializable, Serializable> parameters){
         Set<Map.Entry<Serializable, Serializable>> set = parameters.entrySet();
         if (numFeatureMethod==null) initUI();
@@ -413,7 +364,6 @@ public class WVTrainingPanel extends GPTrainingPanel {
 	 * 
 	 * @see org.geworkbench.analysis.AbstractSaveableParameterPanel#getParameters()
 	 */
-    @Override
     public Map<Serializable, Serializable> getParameters() {
 		Map<Serializable, Serializable> parameters = new HashMap<Serializable, Serializable>();
 		if (numFeatureMethod==null){

@@ -5,9 +5,13 @@ import java.awt.Font;
 import java.io.IOException;
 import java.io.ObjectStreamException;
 import java.io.Serializable;
+import java.util.Map;
 
+import javax.naming.OperationNotSupportedException;
 import javax.swing.JFormattedTextField;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.geworkbench.analysis.AbstractSaveableParameterPanel;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
@@ -17,11 +21,11 @@ import com.jgoodies.forms.layout.FormLayout;
  * parameter panel for blast skybase
  * 
  * @author mw2518
- * @version $Id: SkyBaseConfigPanel.java,v 1.4 2009-02-12 22:28:15 keshav Exp $
+ * @version $Id: SkyBaseConfigPanel.java,v 1.5 2009-02-18 21:36:18 chiangy Exp $
  * 
  */
-public class SkyBaseConfigPanel extends AbstractSaveableParameterPanel
-		implements Serializable {
+public class SkyBaseConfigPanel extends AbstractSaveableParameterPanel {
+	private Log log = LogFactory.getLog(this.getClass());
 	private JFormattedTextField mincovEdit = new JFormattedTextField();
 	private JFormattedTextField minsidEdit = new JFormattedTextField();
 	private JFormattedTextField rphitsEdit = new JFormattedTextField();
@@ -118,4 +122,24 @@ public class SkyBaseConfigPanel extends AbstractSaveableParameterPanel
 		in.defaultReadObject();
 		revalidate();
 	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.geworkbench.analysis.AbstractSaveableParameterPanel#getParameters()
+	 */
+	public Map<Serializable, Serializable> getParameters() {
+		// TODO Auto-generated method stub
+		log.error(new OperationNotSupportedException("Please implement getParameters()"));
+		return null;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.geworkbench.analysis.AbstractSaveableParameterPanel#setParameters(java.util.Map)
+	 */
+	public void setParameters(Map<Serializable, Serializable> parameters) {
+		// TODO Auto-generated method stub
+		log.error(new OperationNotSupportedException("Please implement setParameters()"));
+	}
+
 }

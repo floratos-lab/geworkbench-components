@@ -7,7 +7,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
-import java.io.ObjectStreamException;
 import java.io.Serializable;
 import java.text.DecimalFormat;
 import java.util.HashMap;
@@ -37,7 +36,7 @@ import com.jgoodies.forms.layout.FormLayout;
 /**
  * @author John Watkinson
  * @author ch2514
- * 
+ * @version $Id: MatrixReduceParamPanel.java,v 1.19 2009-02-18 21:33:19 chiangy Exp $
  * todo - make serializable work
  */
 public class MatrixReduceParamPanel extends AbstractSaveableParameterPanel{
@@ -97,78 +96,11 @@ public class MatrixReduceParamPanel extends AbstractSaveableParameterPanel{
 
 	private String topoDir = DEFAULT_DATA_DIR;
 
-	private static class SerialInstance implements Serializable {
-		private String seqFile;
-
-		private Object topoChoice;
-
-		private Object topoPattern;
-
-		private String topoFile;
-
-		private Object pvalue;
-
-		private Object maxMotif;
-
-		private int strand; // this is the combo selected index, not the strand
-
-		// value sent to the service
-
-		private boolean saveRunlog;
-
-		public SerialInstance(String seqFile, Object topoChoice,
-				Object topoPattern, String topoFile, Object pvalue,
-				Object maxMotif, int strand, boolean saveRunlog) {
-
-			this.seqFile = seqFile;
-			this.topoChoice = topoChoice;
-			this.topoPattern = topoPattern;
-			this.topoFile = topoFile;
-			this.pvalue = pvalue;
-			this.maxMotif = maxMotif;
-			this.strand = strand; // this is the combo selected index, not the
-			// strand value sent to the service
-			this.saveRunlog = saveRunlog;
-		}
-
-		Object readResolve() throws ObjectStreamException {
-			MatrixReduceParamPanel result = new MatrixReduceParamPanel();
-			result.sequenceFile = this.seqFile;
-			result.filename.setForeground(Color.BLACK);
-			if (this.seqFile.trim().equals(MatrixReduceParamPanel.FILE_SPECIFY))
-				result.filename.setForeground(Color.RED);
-			result.filename.setText(result.sequenceFile);
-			result.topoCombo.setSelectedItem(this.topoChoice);
-			result.topoPattern.setValue(this.topoPattern);
-			result.topoFile = this.topoFile;
-			result.topoFilename.setForeground(Color.BLACK);
-			if (this.topoFile.trim()
-					.equals(MatrixReduceParamPanel.FILE_SPECIFY))
-				result.topoFilename.setForeground(Color.RED);
-			result.topoFilename.setText(result.topoFile);
-			result.pValue.setValue(this.pvalue);
-			result.maxMotif.setValue(this.maxMotif);
-			// strand is the combo selected index, not the strand value sent to
-			// the service
-			result.strandCombo.setSelectedIndex(strand);
-			result.saveRunlog.setSelected(this.saveRunlog);
-			return result;
-		}
-	}
-
-	public Object writeReplace() throws ObjectStreamException {
-		return new SerialInstance(this.getSequenceFile(), this.getTopoChoice(),
-				this.topoPattern.getValue(), this.getTopoFile(), this.pValue
-						.getValue(), this.maxMotif.getValue(), this.strandCombo
-						.getSelectedIndex(), this.saveRunlog.isSelected());
-	}
-
 	/*
 	 * (non-Javadoc)
 	 * @see org.geworkbench.analysis.AbstractSaveableParameterPanel#setParameters(java.util.Map)
 	 * Set inputed parameters to GUI.
 	 */
-    @Override
     public void setParameters(Map<Serializable, Serializable> parameters){
         Set<Map.Entry<Serializable, Serializable>> set = parameters.entrySet();
         for (Iterator<Map.Entry<Serializable, Serializable>> iterator = set.iterator(); iterator.hasNext();) {
@@ -217,10 +149,7 @@ public class MatrixReduceParamPanel extends AbstractSaveableParameterPanel{
 	 * (non-Javadoc)
 	 * 
 	 * @see org.geworkbench.analysis.AbstractSaveableParameterPanel#getParameters()
-	 *      Since HierClustPanel only has three parameters, we return metric,
-	 *      dimension and method in the format same as getBisonParameters().
 	 */
-    @Override
     public Map<Serializable, Serializable> getParameters() {
 		Map<Serializable, Serializable> parameters = new HashMap<Serializable, Serializable>();
 		parameters.put("seqFile", this.getSequenceFile());
@@ -484,31 +413,6 @@ public class MatrixReduceParamPanel extends AbstractSaveableParameterPanel{
 	}
 
 	/**
-	 * {@link java.io.Serializable} method
-	 * 
-	 * @param out
-	 *            <code>ObjectOutputStream</code>
-	 * @throws IOException
-	 */
-	private void writeObject(java.io.ObjectOutputStream out) throws IOException {
-		out.defaultWriteObject();
-	}
-
-	/**
-	 * {@link java.io.Serializable} method
-	 * 
-	 * @param in
-	 *            <code>ObjectInputStream</code>
-	 * @throws IOException
-	 * @throws ClassNotFoundException
-	 */
-	private void readObject(java.io.ObjectInputStream in) throws IOException,
-			ClassNotFoundException {
-		in.defaultReadObject();
-		revalidate();
-	}
-
-	/**
 	 * 
 	 * 
 	 */
@@ -550,7 +454,7 @@ public class MatrixReduceParamPanel extends AbstractSaveableParameterPanel{
 	}
 	
 	@Override
-	public String toString() {
+	public String getDataSetHistory() {
 		StringBuilder histStr = new StringBuilder("");
 		histStr.append("MatrixREDUCE parameters:\n");
 		histStr.append("----------------------------------------\n");

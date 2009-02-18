@@ -35,10 +35,11 @@ import com.jgoodies.forms.layout.FormLayout;
 import edu.columbia.c2b2.aracne.Parameter;
 
 /**
- * @author mhall, yc2480
- * @version $ID$
+ * @author mhall
+ * @author yc2480
+ * @version $Id: AracneParamPanel.java,v 1.9 2009-02-18 21:27:08 chiangy Exp $
  */
-public class AracneParamPanel extends AbstractSaveableParameterPanel implements Serializable {
+public class AracneParamPanel extends AbstractSaveableParameterPanel {
 
     static Log log = LogFactory.getLog(AracneParamPanel.class);
 
@@ -408,7 +409,7 @@ public class AracneParamPanel extends AbstractSaveableParameterPanel implements 
     	return b;
     }
 	@Override
-	public String toString() {
+	public String getDataSetHistory() {
         final Parameter p = new Parameter();
         AracneParamPanel params = this;
         if (params.isHubListSpecified()) {
@@ -438,7 +439,6 @@ public class AracneParamPanel extends AbstractSaveableParameterPanel implements 
 	 * @see org.geworkbench.analysis.AbstractSaveableParameterPanel#setParameters(java.util.Map)
 	 * Set inputed parameters to GUI.
 	 */
-    @Override
     public void setParameters(Map<Serializable, Serializable> parameters){
         Set<Map.Entry<Serializable, Serializable>> set = parameters.entrySet();
         for (Iterator<Map.Entry<Serializable, Serializable>> iterator = set.iterator(); iterator.hasNext();) {
@@ -492,7 +492,6 @@ public class AracneParamPanel extends AbstractSaveableParameterPanel implements 
 	 *      Since HierClustPanel only has three parameters, we return metric,
 	 *      dimension and method in the format same as getBisonParameters().
 	 */
-    @Override
     public Map<Serializable, Serializable> getParameters() {
 		Map<Serializable, Serializable> parameters = new HashMap<Serializable, Serializable>();
 

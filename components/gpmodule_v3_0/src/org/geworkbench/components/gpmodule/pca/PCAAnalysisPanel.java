@@ -12,7 +12,6 @@
 package org.geworkbench.components.gpmodule.pca;
 
 import java.awt.BorderLayout;
-import java.io.ObjectStreamException;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -21,7 +20,7 @@ import java.util.Set;
 
 import javax.swing.JComboBox;
 
-import org.geworkbench.analysis.AbstractSaveableParameterPanel;
+import org.geworkbench.bison.model.analysis.ParameterPanel;
 import org.geworkbench.components.gpmodule.GPAnalysisPanel;
 import org.geworkbench.events.listeners.ParameterActionListener;
 
@@ -29,16 +28,17 @@ import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.layout.FormLayout;
 
 /**
- * @author: Marc-Danie Nazaire, yc2480
- * @version $ID$
+ * @author: Marc-Danie Nazaire
+ * @author yc2480
+ * @version $Id: PCAAnalysisPanel.java,v 1.10 2009-02-18 21:29:33 chiangy Exp $
  */
-public class PCAAnalysisPanel extends GPAnalysisPanel implements Serializable 
+public class PCAAnalysisPanel extends GPAnalysisPanel  
 {
     private JComboBox variables;
     
     public PCAAnalysisPanel()
      {
-        super(new AbstractSaveableParameterPanel(), "PCA");
+        super(new ParameterPanel(), "PCA");
          
         try
         {
@@ -99,32 +99,11 @@ public class PCAAnalysisPanel extends GPAnalysisPanel implements Serializable
         return PCAAnalysisPanel.class.getResource("help.html").getPath();
     }
     
-    private static class SerialInstance implements Serializable {
-    	private String variables;
-    	
-    	public SerialInstance(String variables){
-    		this.variables = variables;
-    	}
-    	
-    	Object readResolve() throws ObjectStreamException {
-    		PCAAnalysisPanel result = new PCAAnalysisPanel();
-    		result.setVariables(this.variables);		
-    		return result;
-    	}
-    }
-    
-    public Object writeReplace() throws ObjectStreamException {
-    	return new SerialInstance(
-    			getVariables()
-    			);
-    }
-    
 	/*
 	 * (non-Javadoc)
 	 * @see org.geworkbench.analysis.AbstractSaveableParameterPanel#setParameters(java.util.Map)
 	 * Set inputed parameters to GUI.
 	 */
-    @Override
     public void setParameters(Map<Serializable, Serializable> parameters){
         Set<Map.Entry<Serializable, Serializable>> set = parameters.entrySet();
         for (Iterator<Map.Entry<Serializable, Serializable>> iterator = set.iterator(); iterator.hasNext();) {
@@ -144,7 +123,6 @@ public class PCAAnalysisPanel extends GPAnalysisPanel implements Serializable
 	 *      Since HierClustPanel only has three parameters, we return metric,
 	 *      dimension and method in the format same as getBisonParameters().
 	 */
-    @Override
     public Map<Serializable, Serializable> getParameters() {
 		Map<Serializable, Serializable> parameters = new HashMap<Serializable, Serializable>();
 

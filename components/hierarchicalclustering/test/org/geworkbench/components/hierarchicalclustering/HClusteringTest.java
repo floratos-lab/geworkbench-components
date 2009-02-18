@@ -1,16 +1,10 @@
 package org.geworkbench.components.hierarchicalclustering;
 
-import java.io.Serializable;
-import java.util.Map;
-
 import junit.framework.TestCase;
 
 import org.geworkbench.analysis.AbstractAnalysis;
 import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
 import org.geworkbench.bison.model.clusters.HierCluster;
-import org.geworkbench.components.hierarchicalclustering.HClustering;
-import org.geworkbench.components.hierarchicalclustering.HierClusterFactory;
-import org.geworkbench.components.hierarchicalclustering.SimpleClustering;
 import org.geworkbench.util.ClusterUtils;
 import org.geworkbench.util.CorrelationDistance;
 import org.geworkbench.util.EuclideanDistance;
@@ -22,7 +16,7 @@ import org.geworkbench.util.SpearmanRankDistance;
  * @author John Watkinson
  * @author Bernd Jagla
  * @author yc2480
- * @version $Id: HClusteringTest.java,v 1.2 2009-02-12 22:28:15 keshav Exp $
+ * @version $Id: HClusteringTest.java,v 1.3 2009-02-18 21:30:09 chiangy Exp $
  */
 public class HClusteringTest extends TestCase {
 	//Examples for linkage testing, same as the file linkage_comparison.txt in System Test

@@ -11,31 +11,38 @@
 */
 package org.geworkbench.components.gpmodule.classification.knn;
 
-import org.geworkbench.bison.algorithm.classification.CSClassifier;
-import org.geworkbench.bison.model.analysis.ParamValidationResults;
-import org.geworkbench.util.ClassifierException;
-import org.geworkbench.builtin.projects.LoadData;
-import org.geworkbench.components.gpmodule.classification.GPTrainingPanel;
-import org.geworkbench.events.listeners.ParameterActionListener;
-import org.tigr.microarray.util.awt.SetNumericDialog;
-
-import com.jgoodies.forms.builder.DefaultFormBuilder;
-import com.jgoodies.forms.layout.ColumnSpec;
-import com.jgoodies.forms.layout.FormLayout;
-
-import javax.swing.*;
-import java.awt.event.ActionListener;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
-import java.awt.event.ItemListener;
+import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
-import java.awt.*;
+import java.awt.event.ItemListener;
 import java.io.File;
-import java.io.ObjectStreamException;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+
+import javax.swing.ButtonGroup;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
+import javax.swing.JFileChooser;
+import javax.swing.JFormattedTextField;
+import javax.swing.JPanel;
+import javax.swing.JRadioButton;
+import javax.swing.JTextField;
+
+import org.geworkbench.bison.algorithm.classification.CSClassifier;
+import org.geworkbench.bison.model.analysis.ParamValidationResults;
+import org.geworkbench.builtin.projects.LoadData;
+import org.geworkbench.components.gpmodule.classification.GPTrainingPanel;
+import org.geworkbench.events.listeners.ParameterActionListener;
+import org.geworkbench.util.ClassifierException;
+
+import com.jgoodies.forms.builder.DefaultFormBuilder;
+import com.jgoodies.forms.layout.ColumnSpec;
+import com.jgoodies.forms.layout.FormLayout;
 
 /**
  * @author Marc-Danie Nazaire
@@ -404,7 +411,6 @@ public class KNNTrainingPanel extends GPTrainingPanel {
 	 * @see org.geworkbench.analysis.AbstractSaveableParameterPanel#setParameters(java.util.Map)
 	 * Set inputed parameters to GUI.
 	 */
-    @Override
     public void setParameters(Map<Serializable, Serializable> parameters){
     	if (parameters==null){
     		return;
@@ -463,10 +469,7 @@ public class KNNTrainingPanel extends GPTrainingPanel {
 	 * (non-Javadoc)
 	 * 
 	 * @see org.geworkbench.analysis.AbstractSaveableParameterPanel#getParameters()
-	 *      Since HierClustPanel only has three parameters, we return metric,
-	 *      dimension and method in the format same as getBisonParameters().
 	 */
-    @Override
     public Map<Serializable, Serializable> getParameters() {
 		Map<Serializable, Serializable> parameters = new HashMap<Serializable, Serializable>();
 
@@ -484,61 +487,4 @@ public class KNNTrainingPanel extends GPTrainingPanel {
 		return parameters;
 	}
 
-    public Object writeReplace() throws ObjectStreamException
-    {
-        return new SerializedInstance(numFeatureMethod.isSelected(), getNumFeatures(),
-                getStatistic(), useMedian(), useMinStdDev(), getMinStdDev(),
-                useFeatureFileMethod(), featureFile, getNumNeighbors(), getWeightType(), getDistanceMeasure());
-    }
-
-    private static class SerializedInstance implements Serializable
-    {
-        private boolean numFeatureMethod;
-        private int numFeatures;
-        private String statistic;
-        private boolean useMedian;
-        private boolean useMinStdDev;
-        private String minStdDev;
-        private boolean featureFileMethod;
-        private String featureFile;
-        private Integer numNeighbors;
-        private String weightType;
-        private String distanceMeasure;
-
-        public SerializedInstance(Boolean numFeatureMethod, Integer numFeatures, String statistic, Boolean useMedian,
-                                  Boolean useMinStdDev, String minStdDev, Boolean featureFileMethod, String featureFile,
-                                  Integer numNeighbors, String weightType, String distanceMeasure)
-        {
-            this.numFeatureMethod = numFeatureMethod;
-            this.numFeatures = numFeatures;
-            this.statistic = statistic;
-            this.useMedian = useMedian;
-            this.minStdDev = minStdDev;
-            this.useMinStdDev = useMinStdDev;
-            this.featureFileMethod = featureFileMethod;
-            this.featureFile = featureFile;
-            this.numNeighbors = numNeighbors;
-            this.weightType = weightType;
-            this.distanceMeasure = distanceMeasure;
-        }
-
-        Object readResolve() throws ObjectStreamException
-        {
-            KNNTraining knnTraining = new KNNTraining();
-            KNNTrainingPanel panel = new KNNTrainingPanel(knnTraining);
-            panel.numFeatureMethod.setSelected(numFeatureMethod);
-            panel.numFeatures.setValue(numFeatures);
-            panel.statistic.setSelectedItem(statistic);
-            panel.medianCheckbox.setSelected(useMedian);
-            panel.minStdDevCheckbox.setSelected(useMinStdDev);
-            panel.minStdDev.setValue(minStdDev);
-            panel.featureFileMethod.setSelected(featureFileMethod);
-            panel.featureFileTextBox.setText(featureFile);
-            panel.numNeighbors.setValue(numNeighbors);
-            panel.weightType.setSelectedItem(weightType);
-            panel.distanceMeasure.setSelectedItem(distanceMeasure);
-
-            return panel;
-        }
-    }
 }

@@ -41,6 +41,7 @@ import org.apache.commons.logging.LogFactory;
 import org.geworkbench.analysis.AbstractAnalysis;
 import org.geworkbench.analysis.AbstractGridAnalysis;
 import org.geworkbench.analysis.AbstractSaveableParameterPanel;
+import org.geworkbench.analysis.ParameterKey;
 import org.geworkbench.bison.datastructure.biocollections.DSAncillaryDataSet;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.CSExprMicroarraySet;
@@ -53,8 +54,8 @@ import org.geworkbench.bison.datastructure.bioobjects.structure.CSProteinStructu
 import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
 import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
-import org.geworkbench.bison.model.analysis.Analysis;
 import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
+import org.geworkbench.bison.model.analysis.Analysis;
 import org.geworkbench.bison.model.analysis.ClusteringAnalysis;
 import org.geworkbench.bison.model.analysis.ParamValidationResults;
 import org.geworkbench.bison.model.analysis.ParameterPanel;
@@ -94,7 +95,7 @@ import edu.columbia.geworkbench.cagrid.dispatcher.client.DispatcherClient;
  * @author First Genetic Trust Inc.
  * @author keshav
  * @author yc2480
- * @version $Id: AnalysisPanel.java,v 1.73 2009-02-17 21:59:40 jiz Exp $
+ * @version $Id: AnalysisPanel.java,v 1.74 2009-02-18 21:26:03 chiangy Exp $
  * 
  */
 @AcceptTypes( { DSMicroarraySet.class, AdjacencyMatrixDataSet.class,
@@ -222,7 +223,7 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 		innerAnalysisPanel = new JPanel();
 		analysisPanelBorderLayout = new BorderLayout();
 		borderLayout3 = new BorderLayout();
-		emptyParameterPanel = new AbstractSaveableParameterPanel();
+		emptyParameterPanel = new ParameterPanel();
 		analysisParameterSplitPane = new JSplitPane();
 		save = new JButton("Save Settings");
 		delete = new JButton("Delete Settings");
@@ -827,7 +828,7 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 			Map<Serializable, Serializable> parameter2 = new HashMap<Serializable, Serializable>();
 			parameter2.putAll(selectedAnalysis
 					.getNamedParameterSet(parametersNameList[i]));
-			parameter2.remove("ParameterKey");
+			parameter2.remove(ParameterKey.class.getSimpleName());
 			if (parameter1.equals(parameter2)) {
 				/*
 				 * Move matched one to the top of the list, so user can always

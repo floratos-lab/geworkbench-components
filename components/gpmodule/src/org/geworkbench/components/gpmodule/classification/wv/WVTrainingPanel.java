@@ -11,25 +11,46 @@
 */
 package org.geworkbench.components.gpmodule.classification.wv;
 
-import org.geworkbench.util.ClassifierException;
+import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import java.io.File;
+import java.io.Serializable;
+import java.util.Map;
+
+import javax.naming.OperationNotSupportedException;
+import javax.swing.ButtonGroup;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
+import javax.swing.JFileChooser;
+import javax.swing.JFormattedTextField;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JRadioButton;
+import javax.swing.JTextField;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.geworkbench.algorithms.AbstractTrainingPanel;
 import org.geworkbench.bison.algorithm.classification.CSClassifier;
 import org.geworkbench.bison.model.analysis.ParamValidationResults;
 import org.geworkbench.builtin.projects.LoadData;
 import org.geworkbench.components.gpmodule.classification.GPTrainingPanel;
+import org.geworkbench.util.ClassifierException;
+
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.layout.ColumnSpec;
 import com.jgoodies.forms.layout.FormLayout;
-
-import javax.swing.*;
-import java.awt.event.*;
-import java.awt.*;
-import java.io.File;
-import java.io.Serializable;
-import java.io.ObjectStreamException;
 /**
- * @author Marc-Danie Nazaire                                      
+ * @author Marc-Danie Nazaire
+ * @version $Id$                                      
  */
 public class WVTrainingPanel extends GPTrainingPanel {
+	private Log log = LogFactory.getLog(this.getClass());
     private static final int DEFAULT_NUM_FEATURES = 10;
 
     private String featureFile = null;
@@ -305,52 +326,25 @@ public class WVTrainingPanel extends GPTrainingPanel {
         }
     }
 
-    public Object writeReplace() throws ObjectStreamException
-    {
-        return new SerializedInstance(numFeatureMethod.isSelected(), (Integer)numFeatures.getValue(), (String)statistic.getSelectedItem(), medianCheckbox.isSelected(),
-                minStdDevCheckbox.isSelected(), (String)minStdDev.getValue(), featureFileMethod.isSelected(), featureFile);
-    }
+    /*
+     * (non-Javadoc)
+     * @see org.geworkbench.analysis.AbstractSaveableParameterPanel#getParameters()
+     */
+	public Map<Serializable, Serializable> getParameters() {
+		// TODO Auto-generated method stub
+		log.error(new OperationNotSupportedException("Please implement getParameters()"));
+		return null;
+	}
 
-    private static class SerializedInstance implements Serializable
-    {
-        private boolean numFeatureMethod;
-        private int numFeatures;
-        private String statistic;
-        private boolean useMedian;
-        private boolean useMinStdDev;
-        private String minStdDev;
-        private boolean featureFileMethod;
-        private String featureFile;
+	/*
+	 * (non-Javadoc)
+	 * @see org.geworkbench.analysis.AbstractSaveableParameterPanel#setParameters(java.util.Map)
+	 */
+	public void setParameters(Map<Serializable, Serializable> parameters) {
+		// TODO Auto-generated method stub
+		log.error(new OperationNotSupportedException("Please implement setParameters()"));		
+	}
 
-        public SerializedInstance(Boolean numFeatureMethod, Integer numFeatures, String statistic, Boolean useMedian,
-                                  Boolean useMinStdDev, String minStdDev, Boolean featureFileMethod, String featureFile)
-        {
-            this.numFeatureMethod = numFeatureMethod;
-            this.numFeatures = numFeatures;
-            this.statistic = statistic;
-            this.useMedian = useMedian;
-            this.minStdDev = minStdDev;
-            this.useMinStdDev = useMinStdDev;
-            this.featureFileMethod = featureFileMethod;
-            this.featureFile = featureFile;
-        }
-
-        Object readResolve() throws ObjectStreamException
-        {
-            WVTraining wvTraining = new WVTraining();
-            WVTrainingPanel panel = new WVTrainingPanel(wvTraining);
-            panel.numFeatureMethod.setSelected(numFeatureMethod);
-            panel.numFeatures.setValue(numFeatures);
-            panel.statistic.setSelectedItem(statistic);
-            panel.medianCheckbox.setSelected(useMedian);
-            panel.minStdDevCheckbox.setSelected(useMinStdDev);
-            panel.minStdDev.setValue(minStdDev);
-            panel.featureFileMethod.setSelected(featureFileMethod);
-            panel.featureFileTextBox.setText(featureFile);
-
-            return panel;
-        }
-    }
 }
 
 

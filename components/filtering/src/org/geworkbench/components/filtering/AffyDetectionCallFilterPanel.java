@@ -5,8 +5,6 @@ import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
-import java.io.IOException;
-import java.io.ObjectStreamException;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -35,7 +33,7 @@ import org.geworkbench.events.listeners.ParameterActionListener;
  * @author unknown, yc2480
  * @version $ID$
  */
-public class AffyDetectionCallFilterPanel extends AbstractSaveableParameterPanel implements Serializable, ItemListener {
+public class AffyDetectionCallFilterPanel extends AbstractSaveableParameterPanel implements ItemListener {
     /**
 	 * 
 	 */
@@ -53,40 +51,11 @@ public class AffyDetectionCallFilterPanel extends AbstractSaveableParameterPanel
     private boolean absentButtonStatus;
     private boolean marginalButtonStatus;
 
-    private static class SerializedInstance implements Serializable {
-        /**
-		 * 
-		 */
-		private static final long serialVersionUID = 108562498655239047L;
-		boolean present;
-        boolean absent;
-        boolean marginal;
-
-        public SerializedInstance(boolean present, boolean absent, boolean marginal) {
-            this.present = present;
-            this.absent = absent;
-            this.marginal = marginal;
-        }
-
-        Object readResolve() throws ObjectStreamException {
-            AffyDetectionCallFilterPanel panel = new AffyDetectionCallFilterPanel();
-            panel.presentButton.setSelected(present);
-            panel.absentButton.setSelected(absent);
-            panel.marginalButton.setSelected(marginal);
-            return panel;
-        }
-    }
-
-    public Object writeReplace() throws ObjectStreamException {
-        return new SerializedInstance(presentButton.isSelected(), absentButton.isSelected(), marginalButton.isSelected());
-    }
-
 	/*
 	 * (non-Javadoc)
 	 * @see org.geworkbench.analysis.AbstractSaveableParameterPanel#setParameters(java.util.Map)
 	 * Set inputed parameters to GUI.
 	 */
-    @Override
     public void setParameters(Map<Serializable, Serializable> parameters){
         Set<Map.Entry<Serializable, Serializable>> set = parameters.entrySet();
         for (Iterator<Map.Entry<Serializable, Serializable>> iterator = set.iterator(); iterator.hasNext();) {
@@ -111,7 +80,6 @@ public class AffyDetectionCallFilterPanel extends AbstractSaveableParameterPanel
 	 * 
 	 * @see org.geworkbench.analysis.AbstractSaveableParameterPanel#getParameters()
 	 */
-    @Override
     public Map<Serializable, Serializable> getParameters() {
 		Map<Serializable, Serializable> parameters = new HashMap<Serializable, Serializable>();
 		parameters.put("present", presentButton.isSelected());
@@ -198,15 +166,6 @@ public class AffyDetectionCallFilterPanel extends AbstractSaveableParameterPanel
             marginalButtonStatus = !marginalButtonStatus;
     }
 
-    public void writeObject(java.io.ObjectOutputStream out) throws IOException {
-        out.defaultWriteObject();
-    }
-
-    public void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
-        in.defaultReadObject();
-        revalidate();
-    }
-    
     @Override
     public String toString(){
     	return

@@ -31,7 +31,7 @@ import com.jgoodies.forms.layout.FormLayout;
  * Hierarchical clustering analysis
  *
  * @author First Genetic Trust
- * @version $id$
+ * @version $Id: HierClustPanel.java,v 1.3 2009-02-18 21:30:09 chiangy Exp $
  */
 public class HierClustPanel extends AbstractSaveableParameterPanel{
     /**
@@ -192,7 +192,6 @@ public class HierClustPanel extends AbstractSaveableParameterPanel{
 	 * @see org.geworkbench.analysis.AbstractSaveableParameterPanel#setParameters(java.util.Map)
 	 * Set inputed parameters to GUI.
 	 */
-    @Override
     public void setParameters(Map<Serializable, Serializable> parameters){
     	if (parameters == null) return;
         Set<Map.Entry<Serializable, Serializable>> set = parameters.entrySet();
@@ -219,7 +218,6 @@ public class HierClustPanel extends AbstractSaveableParameterPanel{
 	 *      Since HierClustPanel only has three parameters, we return metric,
 	 *      dimension and method in the format same as getBisonParameters().
 	 */
-    @Override
     public Map<Serializable, Serializable> getParameters() {
 		Map<Serializable, Serializable> parameters = new HashMap<Serializable, Serializable>();
 

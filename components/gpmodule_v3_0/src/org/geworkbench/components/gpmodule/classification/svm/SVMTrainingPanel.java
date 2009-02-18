@@ -11,26 +11,25 @@
 */
 package org.geworkbench.components.gpmodule.classification.svm;
 
-import org.geworkbench.components.gpmodule.classification.GPTrainingPanel;
-import org.geworkbench.bison.algorithm.classification.CSClassifier;
-import org.geworkbench.util.ClassifierException;
-
-import javax.swing.*;
-
-import com.jgoodies.forms.layout.FormLayout;
-import com.jgoodies.forms.layout.ColumnSpec;
-import com.jgoodies.forms.layout.RowSpec;
-import com.jgoodies.forms.layout.CellConstraints;
-import com.jgoodies.forms.builder.DefaultFormBuilder;
-
-import java.awt.*;
+import java.awt.BorderLayout;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
+
+import javax.swing.JPanel;
+
+import org.geworkbench.bison.algorithm.classification.CSClassifier;
+import org.geworkbench.components.gpmodule.classification.GPTrainingPanel;
+import org.geworkbench.util.ClassifierException;
+
+import com.jgoodies.forms.builder.DefaultFormBuilder;
+import com.jgoodies.forms.layout.CellConstraints;
+import com.jgoodies.forms.layout.FormLayout;
+import com.jgoodies.forms.layout.RowSpec;
 
 /**
  * @author Marc-Danie Nazaire
+ * @version $Id: SVMTrainingPanel.java,v 1.6 2009-02-18 21:29:33 chiangy Exp $
  */
 public class SVMTrainingPanel extends GPTrainingPanel
 {

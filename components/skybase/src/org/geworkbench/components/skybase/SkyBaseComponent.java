@@ -14,7 +14,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
+import javax.naming.OperationNotSupportedException;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JList;
@@ -29,7 +31,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.analysis.AbstractGridAnalysis;
-import org.geworkbench.analysis.AbstractSaveableParameterPanel;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.sequences.CSSequenceSet;
 import org.geworkbench.bison.datastructure.biocollections.sequences.DSSequenceSet;
@@ -54,7 +55,7 @@ import edu.columbia.geworkbench.cagrid.dispatcher.client.DispatcherClient;
  * skybase component: display homologous models in skybase for an input sequence
  * 
  * @author mw2518
- * @version $Id: SkyBaseComponent.java,v 1.5 2009-02-12 22:28:15 keshav Exp $
+ * @version $Id: SkyBaseComponent.java,v 1.6 2009-02-18 21:36:18 chiangy Exp $
  *
  */
 
@@ -81,7 +82,7 @@ public class SkyBaseComponent extends JPanel implements VisualPlugin {
 	JButton save = new JButton("Save Settings");
 	JPanel jPanel4 = new JPanel();
 	FlowLayout flowLayout1 = new FlowLayout();
-	ParameterPanel emptyParameterPanel = new AbstractSaveableParameterPanel();
+	ParameterPanel emptyParameterPanel = new ParameterPanel();
 	ParameterPanel currentParameterPanel = emptyParameterPanel;
 	BorderLayout borderLayout4 = new BorderLayout();
 	BorderLayout borderLayout5 = new BorderLayout();
@@ -297,11 +298,15 @@ public class SkyBaseComponent extends JPanel implements VisualPlugin {
 			return;
 		int index = namedParameters.getSelectedIndex();
 		if (index != -1)
-			setParametersPanel(selectedSkyBaseAnalysis
-					.getNamedParameterSetPanel((String) namedParameters
+			setParameters(selectedSkyBaseAnalysis
+					.getNamedParameterSet((String) namedParameters
 							.getModel().getElementAt(index)));
 	}
 
+	public void setParameters(Map<Serializable,Serializable> parameters){
+		log.error(new OperationNotSupportedException("Please implement setParameters()"));
+	}
+	
 	private void resetparam_actionPerformed(ActionEvent e) {
 		ParameterPanel paramPanel = selectedSkyBaseAnalysis.getParameterPanel();
 		((SkyBaseConfigPanel) paramPanel).setDefaultParameters();

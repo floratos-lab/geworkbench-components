@@ -2,8 +2,6 @@ package org.geworkbench.components.normalization;
 
 import java.awt.BorderLayout;
 import java.awt.GridLayout;
-import java.io.IOException;
-import java.io.ObjectStreamException;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -30,7 +28,7 @@ import com.jgoodies.forms.layout.FormLayout;
  * @author unknown, yc2480
  * @version $ID$
  */
-public class QuantileNormalizerPanel extends AbstractSaveableParameterPanel implements Serializable {
+public class QuantileNormalizerPanel extends AbstractSaveableParameterPanel {
     /**
 	 * 
 	 */
@@ -42,36 +40,11 @@ public class QuantileNormalizerPanel extends AbstractSaveableParameterPanel impl
     private JLabel averagingTypeLabel = new JLabel("Averaging method");
     private JComboBox averagingTypeSelection = new JComboBox(new String[]{MARKER_OPTION, MICROARRAY_OPTION});
 
-    private static class SerialInstance implements Serializable {
-
-        /**
-		 * 
-		 */
-		private static final long serialVersionUID = 2525140046457874959L;
-		private int averaging;
-
-        public SerialInstance(int averaging) {
-            this.averaging = averaging;
-        }
-
-        Object readResolve() throws ObjectStreamException {
-            QuantileNormalizerPanel panel = new QuantileNormalizerPanel();
-            panel.averagingTypeSelection.setSelectedIndex(averaging);
-            return panel;
-        }
-
-    }
-
-    public Object writeReplace() throws ObjectStreamException {
-        return new SerialInstance(averagingTypeSelection.getSelectedIndex());
-    }
-    
 	/*
 	 * (non-Javadoc)
 	 * @see org.geworkbench.analysis.AbstractSaveableParameterPanel#setParameters(java.util.Map)
 	 * Set inputed parameters to GUI.
 	 */
-    @Override
     public void setParameters(Map<Serializable, Serializable> parameters){
         if (parameters==null){
         	return;
@@ -92,7 +65,6 @@ public class QuantileNormalizerPanel extends AbstractSaveableParameterPanel impl
 	 * 
 	 * @see org.geworkbench.analysis.AbstractSaveableParameterPanel#getParameters()
 	 */
-    @Override
     public Map<Serializable, Serializable> getParameters() {
 		Map<Serializable, Serializable> parameters = new HashMap<Serializable, Serializable>();
 		parameters.put("averagingTypeSelection", averagingTypeSelection.getSelectedIndex());
@@ -149,16 +121,6 @@ public class QuantileNormalizerPanel extends AbstractSaveableParameterPanel impl
          averagingTypeSelection.setSelectedItem(MICROARRAY_OPTION);
         }
     };
-
-
-    public void writeObject(java.io.ObjectOutputStream out) throws IOException {
-        out.defaultWriteObject();
-    }
-
-    public void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
-        in.defaultReadObject();
-        revalidate();
-    }
 
 }
 

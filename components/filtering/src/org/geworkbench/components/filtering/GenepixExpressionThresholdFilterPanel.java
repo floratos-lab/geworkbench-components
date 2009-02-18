@@ -3,8 +3,6 @@ package org.geworkbench.components.filtering;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
-import java.io.IOException;
-import java.io.ObjectStreamException;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -36,7 +34,7 @@ import org.geworkbench.events.listeners.ParameterActionListener;
  * @author unknown, yc2480
  * @version $ID$
  */
-public class GenepixExpressionThresholdFilterPanel extends AbstractSaveableParameterPanel implements Serializable {
+public class GenepixExpressionThresholdFilterPanel extends AbstractSaveableParameterPanel {
     final String INSIDE_RANGE = "Inside range";
     final String OUTSIDE_RANGE = "Outside range";
     private JLabel Cy3MinLabel = new JLabel("Cy3 Range Min");
@@ -51,40 +49,11 @@ public class GenepixExpressionThresholdFilterPanel extends AbstractSaveableParam
     private JComboBox optionSelection = new JComboBox(new String[]{INSIDE_RANGE, OUTSIDE_RANGE});
     private GridLayout gridLayout1 = new GridLayout();
 
-    private static class SerializedInstance implements Serializable {
-
-        private double cy3Min, cy3Max, cy5Min, cy5Max;
-        private int rangeOption;
-
-        public SerializedInstance(double cy3Min, double cy3Max, double cy5Min, double cy5Max, int rangeOption) {
-            this.cy3Min = cy3Min;
-            this.cy3Max = cy3Max;
-            this.cy5Min = cy5Min;
-            this.cy5Max = cy5Max;
-            this.rangeOption = rangeOption;
-        }
-
-        Object readResolve() throws ObjectStreamException {
-            GenepixExpressionThresholdFilterPanel panel = new GenepixExpressionThresholdFilterPanel();
-            panel.Cy3MinValue.setValue(cy3Min);
-            panel.Cy3MaxValue.setValue(cy3Max);
-            panel.Cy5MinValue.setValue(cy5Min);
-            panel.Cy5MaxValue.setValue(cy5Max);
-            panel.optionSelection.setSelectedIndex(rangeOption);
-            return panel;
-        }
-    }
-
-    public Object writeReplace() throws ObjectStreamException {
-        return new SerializedInstance((Double)Cy3MinValue.getValue(), (Double)Cy3MaxValue.getValue(), (Double)Cy5MinValue.getValue(), (Double)Cy5MaxValue.getValue(), optionSelection.getSelectedIndex());
-    }
-
 	/*
 	 * (non-Javadoc)
 	 * @see org.geworkbench.analysis.AbstractSaveableParameterPanel#setParameters(java.util.Map)
 	 * Set inputed parameters to GUI.
 	 */
-    @Override
     public void setParameters(Map<Serializable, Serializable> parameters){
         Set<Map.Entry<Serializable, Serializable>> set = parameters.entrySet();
         for (Iterator<Map.Entry<Serializable, Serializable>> iterator = set.iterator(); iterator.hasNext();) {
@@ -116,7 +85,6 @@ public class GenepixExpressionThresholdFilterPanel extends AbstractSaveableParam
 	 *      Since HierClustPanel only has three parameters, we return metric,
 	 *      dimension and method in the format same as getBisonParameters().
 	 */
-    @Override
     public Map<Serializable, Serializable> getParameters() {
 		Map<Serializable, Serializable> parameters = new HashMap<Serializable, Serializable>();
 		parameters.put("Cy3MinValue", (Double)Cy3MinValue.getValue());
@@ -237,15 +205,6 @@ public class GenepixExpressionThresholdFilterPanel extends AbstractSaveableParam
             return new ParamValidationResults(false, "Invalid range for Cy5 channel.");
         else
             return new ParamValidationResults(true, "No Error");
-    }
-
-    public void writeObject(java.io.ObjectOutputStream out) throws IOException {
-        out.defaultWriteObject();
-    }
-
-    public void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
-        in.defaultReadObject();
-        revalidate();
     }
 
 }

@@ -29,7 +29,7 @@ import com.jgoodies.forms.layout.FormLayout;
 /**
  * Parameters panel for the <code>MarkerCenteringNormalizer</code>.
  */
-public class MarkerCenteringNormalizerPanel extends AbstractSaveableParameterPanel implements Serializable {
+public class MarkerCenteringNormalizerPanel extends AbstractSaveableParameterPanel {
     final String MEAN_OPTION = "Mean";
     final String MEDIAN_OPTION = "Median";
     final String MIN_OPTION = "Min profile";
@@ -45,32 +45,10 @@ public class MarkerCenteringNormalizerPanel extends AbstractSaveableParameterPan
     private JComboBox averagingSelection = new JComboBox(new String[]{MEAN_OPTION, MEDIAN_OPTION});
     private JComboBox missingValuesSelection = new JComboBox(new String[]{MIN_OPTION, MAX_OPTION, ZERO_OPTION, IGNORE_OPTION});
 
-    private static class SerialInstance implements Serializable {
-        int averaging;
-        int missing;
-
-        public SerialInstance(int averaging, int missing) {
-            this.averaging = averaging;
-            this.missing = missing;
-        }
-
-        Object readResolve() throws ObjectStreamException {
-            MarkerCenteringNormalizerPanel panel = new MarkerCenteringNormalizerPanel();
-            panel.averagingSelection.setSelectedIndex(averaging);
-            panel.missingValuesSelection.setSelectedIndex(missing);
-            return panel;
-        }
-    }
-
-    public Object writeReplace() throws ObjectStreamException {
-        return new SerialInstance(averagingSelection.getSelectedIndex(), missingValuesSelection.getSelectedIndex());
-    }
-
     /*
      * (non-Javadoc)
      * @see org.geworkbench.analysis.AbstractSaveableParameterPanel#getParameters()
      */
-    @Override
     public Map<Serializable, Serializable> getParameters() {
 		Map<Serializable, Serializable> parameters = new HashMap<Serializable, Serializable>();
 		parameters.put("averaging", averagingSelection.getSelectedIndex());
@@ -82,7 +60,6 @@ public class MarkerCenteringNormalizerPanel extends AbstractSaveableParameterPan
      * (non-Javadoc)
      * @see org.geworkbench.analysis.AbstractSaveableParameterPanel#setParameters(java.util.Map)
      */
-    @Override
     public void setParameters(Map<Serializable, Serializable> parameters){
     	if (parameters == null) return;
         Set<Map.Entry<Serializable, Serializable>> set = parameters.entrySet();
@@ -160,15 +137,6 @@ public class MarkerCenteringNormalizerPanel extends AbstractSaveableParameterPan
             return MarkerCenteringNormalizer.ZERO;
         else
             return MarkerCenteringNormalizer.IGNORE;
-    }
-
-    public void writeObject(java.io.ObjectOutputStream out) throws IOException {
-        out.defaultWriteObject();
-    }
-
-    public void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
-        in.defaultReadObject();
-        revalidate();
     }
 
 }

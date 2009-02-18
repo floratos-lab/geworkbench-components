@@ -39,13 +39,13 @@ import com.jgoodies.forms.layout.FormLayout;
  * This is an example geWorkbench component.
  * 
  * @author Mark Chiang
- * @version $Id: TabularDataViewer.java,v 1.10 2008-12-12 20:53:50 chiangy Exp $
+ * @version $Id: TabularDataViewer.java,v 1.11 2009-02-18 21:26:36 chiangy Exp $
  */
 // This annotation lists the data set types that this component accepts.
 // The component will only appear when a data set of the appropriate type is
 // selected.
 @AcceptTypes({DSAnovaResultSet.class})
-public class TabularDataViewer extends AbstractSaveableParameterPanel implements
+public class TabularDataViewer extends JPanel implements
 		VisualPlugin {
 
 	/**
