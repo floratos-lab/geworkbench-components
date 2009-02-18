@@ -7,7 +7,6 @@ import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.ObjectStreamException;
 import java.io.Serializable;
 import java.text.DecimalFormat;
 import java.util.HashMap;
@@ -39,10 +38,10 @@ import com.jgoodies.forms.layout.FormLayout;
  *
  * @author manjunath at genomecenter dot columbia dot edu
  * @author yc2480
- * @version $ID$
+ * @version $Id: TtestAnalysisPanel.java,v 1.9 2009-02-18 21:18:27 chiangy Exp $
  */
 
-public class TtestAnalysisPanel extends AbstractSaveableParameterPanel implements Serializable {
+public class TtestAnalysisPanel extends AbstractSaveableParameterPanel {
 
     public static final int GROUP_A = 1;
     public static final int GROUP_B = 2;
@@ -104,82 +103,11 @@ public class TtestAnalysisPanel extends AbstractSaveableParameterPanel implement
     
     private boolean useroverride = false;
     
-
-    private static class SerialInstance implements Serializable {
-        private boolean welch;
-        private boolean equalGroup;
-        private boolean pvaluesByT;
-        private boolean pvaluesByPerm;
-        private boolean randomlyGroup;
-        private Number groupTimes;
-        private boolean useAllPerms;
-        private Number alpha;
-        private boolean justAlpha;
-        private boolean bonferroni;
-        private boolean adjustedBonferroni;
-        private boolean stepdownMinP;
-        private boolean stepdownMaxT;
-      
-
-        public SerialInstance(boolean welch, boolean equalGroup, boolean pvaluesByT, boolean pvaluesByPerm, boolean randomlyGroup, Number groupTimes, boolean useAllPerms, Number alpha, boolean justAlpha, boolean bonferroni, boolean adjustedBonferroni, boolean stepdownMinP, boolean stepdownMaxT) {
-            this.welch = welch;
-            this.equalGroup = equalGroup;
-            this.pvaluesByT = pvaluesByT;
-            this.pvaluesByPerm = pvaluesByPerm;
-            this.randomlyGroup = randomlyGroup;
-            this.groupTimes = groupTimes;
-            this.useAllPerms = useAllPerms;
-            this.alpha = alpha;
-            this.justAlpha = justAlpha;
-            this.bonferroni = bonferroni;
-            this.adjustedBonferroni = adjustedBonferroni;
-            this.stepdownMinP = stepdownMinP;
-            this.stepdownMaxT = stepdownMaxT;
-        }
-
-        Object readResolve() throws ObjectStreamException {
-            TtestAnalysisPanel panel = new TtestAnalysisPanel();
-            panel.welch.setSelected(welch);
-            panel.equalVariances.setSelected(equalGroup);
-            panel.pvaluesByTDistribution.setSelected(pvaluesByT);
-            panel.pvaluesByPerm.setSelected(pvaluesByPerm);
-            panel.randomlyGroup.setSelected(randomlyGroup);
-            panel.numCombs.setValue(groupTimes);
-            panel.allPerms.setSelected(useAllPerms);
-            panel.alpha.setValue(alpha);
-            panel.noCorrection.setSelected(justAlpha);
-            panel.bonferroni.setSelected(bonferroni);
-            panel.adjustedBonferroni.setSelected(adjustedBonferroni);
-            panel.stepdownMinP.setSelected(stepdownMinP);
-            panel.stepdownMaxT.setSelected(stepdownMaxT);
-            return panel;
-        }
-    }
-
-    public Object writeReplace() throws ObjectStreamException {
-        return new SerialInstance(
-                welch.isSelected(),
-                equalVariances.isSelected(),
-                pvaluesByTDistribution.isSelected(),
-                pvaluesByPerm.isSelected(),
-                randomlyGroup.isSelected(),
-                (Number) numCombs.getValue(),
-                allPerms.isSelected(),
-                (Number) alpha.getValue(),
-                noCorrection.isSelected(),
-                bonferroni.isSelected(),
-                adjustedBonferroni.isSelected(),
-                stepdownMinP.isSelected(),
-                stepdownMaxT.isSelected()
-        );
-    }
-
 	/*
 	 * (non-Javadoc)
 	 * @see org.geworkbench.analysis.AbstractSaveableParameterPanel#setParameters(java.util.Map)
 	 * Set inputed parameters to GUI.
 	 */
-    @Override
     public void setParameters(Map<Serializable, Serializable> parameters){
         Set<Map.Entry<Serializable, Serializable>> set = parameters.entrySet();
         for (Iterator<Map.Entry<Serializable, Serializable>> iterator = set.iterator(); iterator.hasNext();) {
@@ -233,10 +161,7 @@ public class TtestAnalysisPanel extends AbstractSaveableParameterPanel implement
 	 * (non-Javadoc)
 	 * 
 	 * @see org.geworkbench.analysis.AbstractSaveableParameterPanel#getParameters()
-	 *      Since HierClustPanel only has three parameters, we return metric,
-	 *      dimension and method in the format same as getBisonParameters().
 	 */
-    @Override
     public Map<Serializable, Serializable> getParameters() {
 		Map<Serializable, Serializable> parameters = new HashMap<Serializable, Serializable>();
 

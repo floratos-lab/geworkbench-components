@@ -29,6 +29,7 @@ import org.geworkbench.bison.annotation.DSAnnotationContextManager;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
+import org.geworkbench.events.listeners.ParameterActionListener;
 import org.geworkbench.util.pathwaydecoder.mutualinformation.AdjacencyMatrixDataSet;
 
 import com.jgoodies.binding.adapter.BasicComponentFactory;
@@ -39,14 +40,12 @@ import com.jgoodies.binding.value.ValueHolder;
 import com.jgoodies.binding.value.ValueModel;
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.layout.FormLayout;
-import org.geworkbench.components.analysis.clustering.TtestAnalysisPanel;
-import org.geworkbench.events.listeners.ParameterActionListener;
 /**
  *	Parameter Panel used for Master Regulator Analysis
- *	@author yc2480 $id$
+ *	@author yc2480 
+ *  @version $Id: MasterRegulatorPanel.java,v 1.6 2009-02-18 21:18:27 chiangy Exp $
  */
-public class MasterRegulatorPanel extends AbstractSaveableParameterPanel
-		implements Serializable {
+public class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
 
 	private static final long serialVersionUID = 1L;
 	private Log log = LogFactory.getLog(this.getClass());
@@ -366,12 +365,12 @@ public class MasterRegulatorPanel extends AbstractSaveableParameterPanel
 	public void addGroupsToComboBox(){
 		
 	}
+
 	/*
 	 * (non-Javadoc)
 	 * @see org.geworkbench.analysis.AbstractSaveableParameterPanel#setParameters(java.util.Map)
 	 * Set inputed parameters to GUI.
 	 */
-    @Override
     public void setParameters(Map<Serializable, Serializable> parameters){
     	if (parameters==null) return;	//FIXME: this is a quick patch for 0001691, should fix it correctly.
     	if (getStopNotifyAnalysisPanelTemporaryFlag()==true) return;
@@ -383,14 +382,12 @@ public class MasterRegulatorPanel extends AbstractSaveableParameterPanel
     	setTranscriptionFactor(TF);
     	stopNotifyAnalysisPanelTemporary(false);
     }
+    
     /*
 	 * (non-Javadoc)
 	 * 
 	 * @see org.geworkbench.analysis.AbstractSaveableParameterPanel#getParameters()
-	 *      Since HierClustPanel only has three parameters, we return metric,
-	 *      dimension and method in the format same as getBisonParameters().
 	 */
-    @Override
     public Map<Serializable, Serializable> getParameters() {
     	Map<Serializable, Serializable> answer = tTestPanel.getParameters();
     	answer.put("alpha",getPValue());

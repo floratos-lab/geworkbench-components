@@ -1,24 +1,28 @@
 package org.geworkbench.components.analysis.clustering;
 
-import com.jgoodies.forms.builder.DefaultFormBuilder;
-import com.jgoodies.forms.layout.FormLayout;
+import java.awt.BorderLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
+import javax.naming.OperationNotSupportedException;
+import javax.swing.JCheckBox;
+import javax.swing.JFormattedTextField;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.geworkbench.analysis.AbstractSaveableParameterPanel;
 import org.geworkbench.bison.annotation.CSAnnotationContextManager;
 import org.geworkbench.bison.annotation.DSAnnotationContext;
 import org.geworkbench.bison.annotation.DSAnnotationContextManager;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 
-import javax.swing.*;
-
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.io.IOException;
-import java.io.ObjectStreamException;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Set;
+import com.jgoodies.forms.builder.DefaultFormBuilder;
+import com.jgoodies.forms.layout.FormLayout;
 
 /**
  * <p>Copyright: Copyright (c) 2003</p>
@@ -30,7 +34,9 @@ import java.util.Set;
 /**
  * Parameters panel used by the <code>ThresholdNormalizer</code>.
  */
-public class MultiTTestAnalysisPanel extends AbstractSaveableParameterPanel implements Serializable {
+public class MultiTTestAnalysisPanel extends AbstractSaveableParameterPanel {
+
+	private Log log = LogFactory.getLog(this.getClass());
 
     private static final double DEFAULT_P_VALUE = 0.01;
 
@@ -43,26 +49,6 @@ public class MultiTTestAnalysisPanel extends AbstractSaveableParameterPanel impl
     JCheckBox logCheckbox;    
     private boolean useroverride = false;
     
-    
-    private static class SerializedInstance implements Serializable {
-
-        private Number pValue;
-
-        public SerializedInstance(Number pValue) {
-            this.pValue = pValue;
-        }
-
-        Object readResolve() throws ObjectStreamException {
-            MultiTTestAnalysisPanel panel = new MultiTTestAnalysisPanel();
-            panel.pValue.setValue(pValue);
-            return panel;
-        }
-    }
-
-    public Object writeReplace() throws ObjectStreamException {
-        return new SerializedInstance((Number) pValue.getValue());
-    }
-
     public MultiTTestAnalysisPanel() {
         try {
             jbInit();
@@ -149,15 +135,6 @@ public class MultiTTestAnalysisPanel extends AbstractSaveableParameterPanel impl
         return result;
     }
 
-    public void writeObject(java.io.ObjectOutputStream out) throws IOException {
-        out.defaultWriteObject();
-    }
-
-    public void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
-        in.defaultReadObject();
-        revalidate();
-    }
-
     public void setMaSet(DSMicroarraySet maSet) {
         this.maSet = maSet;
     }
@@ -170,6 +147,25 @@ public class MultiTTestAnalysisPanel extends AbstractSaveableParameterPanel impl
     public boolean isLogNormalized() {         
     	return logCheckbox.isSelected();
     }
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.geworkbench.analysis.AbstractSaveableParameterPanel#getParameters()
+	 */
+	public Map<Serializable, Serializable> getParameters() {
+		// TODO Auto-generated method stub
+		log.error(new OperationNotSupportedException("Please implement getParameters()"));
+		return null;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.geworkbench.analysis.AbstractSaveableParameterPanel#setParameters(java.util.Map)
+	 */
+	public void setParameters(Map<Serializable, Serializable> parameters) {
+		// TODO Auto-generated method stub
+		log.error(new OperationNotSupportedException("Please implement setParameters()"));
+	}
     
     
 
