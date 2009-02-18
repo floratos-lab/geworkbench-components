@@ -6,7 +6,9 @@ import java.io.IOException;
 import java.io.ObjectStreamException;
 import java.io.Serializable;
 import java.text.NumberFormat;
+import java.util.Map;
 
+import javax.naming.OperationNotSupportedException;
 import javax.swing.JComboBox;
 import javax.swing.JFormattedTextField;
 
@@ -21,7 +23,7 @@ import com.jgoodies.forms.layout.FormLayout;
  * Parameters panel used by the SkyLine
  * 
  * @author mw2518
- * @version $Id: SkyLineConfigPanel.java,v 1.4 2009-02-12 22:28:15 keshav Exp $
+ * @version $Id: SkyLineConfigPanel.java,v 1.5 2009-02-18 22:03:50 chiangy Exp $
  * 
  */
 public class SkyLineConfigPanel extends AbstractSaveableParameterPanel
@@ -345,6 +347,25 @@ public class SkyLineConfigPanel extends AbstractSaveableParameterPanel
 			ClassNotFoundException {
 		in.defaultReadObject();
 		revalidate();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.geworkbench.analysis.AbstractSaveableParameterPanel#getParameters()
+	 */
+	public Map<Serializable, Serializable> getParameters() {
+		// TODO Auto-generated method stub
+		log.error(new OperationNotSupportedException("Please implement getParameters()"));
+		return null;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.geworkbench.analysis.AbstractSaveableParameterPanel#setParameters(java.util.Map)
+	 */
+	public void setParameters(Map<Serializable, Serializable> parameters) {
+		// TODO Auto-generated method stub
+		log.error(new OperationNotSupportedException("Please implement setParameters()"));
 	}
 
 }
