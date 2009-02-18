@@ -39,7 +39,7 @@ public class InteractionsConnectionImpl implements INTERACTIONS {
     }
 
     public ArrayList<InteractionDetail> getPairWiseInteraction(BigDecimal id1) {
-        ArrayList arrayList = new ArrayList<InteractionDetail>();
+        ArrayList<InteractionDetail> arrayList = new ArrayList<InteractionDetail>();
 
         HttpURLConnection aConnection = null;
 		ResultSetlUtil rs = null;
@@ -56,16 +56,21 @@ public class InteractionsConnectionImpl implements INTERACTIONS {
                     msid2 = rs.getBigDecimal("ms_id2");
                     confidenceValue = rs.getDouble("confidence_value");
                     isModulated = rs.getString("is_modulated");
-                    interactionType = rs.getString("interaction_type");
+                    interactionType = rs.getString("interaction_type").trim();
                     controlType = rs.getString("control_type");
                     direction = rs.getString("direction");
                     isReversible = rs.getString("is_reversible");
                     source = rs.getString("source");
-                    if (InteractionDetail.PROTEINPROTEININTERACTION.equalsIgnoreCase(interactionType)) {
-                        interactionType = InteractionDetail.PROTEINPROTEININTERACTION;
+                    if(interactionType.equals("1")) {
+                    	interactionType = InteractionDetail.PROTEINPROTEININTERACTION;
+                    	logger.debug("interaction type returned from database is "+interactionType+" for protein-protein");
+                    } else if(interactionType.equals("2")) {
+                    	interactionType = InteractionDetail.PROTEINDNAINTERACTION;
+                    	logger.debug("interaction type returned from database is "+interactionType+" for protein-DNA");
                     } else {
-                        interactionType = InteractionDetail.PROTEINDNAINTERACTION;
-
+                    	/* for the interaction types other than protein-protein and protein-DNA, they are skipped for this*/
+                    	logger.debug("interaction type returned from database is "+interactionType+" (types other than protein-protein and protein-DNA)");
+                    	continue;
                     }
                     InteractionDetail interactionDetail = new InteractionDetail(msid1.toString(), msid2.toString(), confidenceValue, interactionType);
                     arrayList.add(interactionDetail);
