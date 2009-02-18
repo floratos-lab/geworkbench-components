@@ -2,9 +2,10 @@ package org.geworkbench.components.markus;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.GridLayout;
-import java.io.IOException;
 import java.io.Serializable;
+import java.util.Map;
 
+import javax.naming.OperationNotSupportedException;
 import javax.swing.BorderFactory;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -17,6 +18,8 @@ import javax.swing.SwingConstants;
 import javax.swing.ToolTipManager;
 import javax.swing.border.TitledBorder;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.geworkbench.analysis.AbstractSaveableParameterPanel;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
@@ -27,9 +30,10 @@ import com.jgoodies.forms.layout.FormLayout;
  * 
  * @author meng
  * @author zji
- * @version $Id: MarkUsConfigPanel.java,v 1.3 2009-02-17 21:59:38 jiz Exp $
+ * @version $Id: MarkUsConfigPanel.java,v 1.4 2009-02-18 21:42:32 chiangy Exp $
  */
-public class MarkUsConfigPanel extends AbstractSaveableParameterPanel implements Serializable {
+public class MarkUsConfigPanel extends AbstractSaveableParameterPanel {
+	private Log log = LogFactory.getLog(this.getClass());
 	private static final long serialVersionUID = 238110585216063808L;
 	
 	//structure analysis
@@ -413,13 +417,22 @@ public class MarkUsConfigPanel extends AbstractSaveableParameterPanel implements
 		msa4.setSelectedIndex(msa4Value);
     }
 
-    private void writeObject(java.io.ObjectOutputStream out) throws IOException {
-        out.defaultWriteObject();
-    }
-
-    private void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
-        in.defaultReadObject();
-        revalidate();
-    }
+    /*
+     * (non-Javadoc)
+     * @see org.geworkbench.analysis.AbstractSaveableParameterPanel#getParameters()
+     */
+    public Map<Serializable, Serializable> getParameters() {
+		// TODO Auto-generated method stub
+		log.error(new OperationNotSupportedException("Please implement getParameters()"));
+		return null;
+	}
+	/*
+	 * (non-Javadoc)
+	 * @see org.geworkbench.analysis.AbstractSaveableParameterPanel#setParameters(java.util.Map)
+	 */
+	public void setParameters(Map<Serializable, Serializable> parameters) {
+		// TODO Auto-generated method stub
+		log.error(new OperationNotSupportedException("Please implement setParameters()"));
+	}
 }
 
