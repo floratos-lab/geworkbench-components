@@ -3,8 +3,6 @@ package org.geworkbench.components.filtering;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
-import java.io.IOException;
-import java.io.ObjectStreamException;
 import java.io.Serializable;
 import java.text.NumberFormat;
 import java.util.HashMap;
@@ -33,7 +31,7 @@ import org.geworkbench.events.listeners.ParameterActionListener;
  * @author unknown, yc2480
  * @version $ID$
  */
-public class ExpressionThresholdFilterPanel extends AbstractSaveableParameterPanel implements Serializable {
+public class ExpressionThresholdFilterPanel extends AbstractSaveableParameterPanel {
     final String INSIDE_RANGE = "Inside range";
     final String OUTSIDE_RANGE = "Outside range";
     private JLabel rangeMinLabel = new JLabel("Range Min");
@@ -44,38 +42,13 @@ public class ExpressionThresholdFilterPanel extends AbstractSaveableParameterPan
     private JComboBox optionSelection = new JComboBox(new String[]{INSIDE_RANGE, OUTSIDE_RANGE});
     private GridLayout gridLayout1 = new GridLayout();
 
-    private static class SerializedInstance implements Serializable {
-
-        private Number rangeMin;
-        private Number rangeMax;
-        boolean isInside;
-
-        public SerializedInstance(Number rangeMin, Number rangeMax, boolean inside) {
-            this.rangeMin = rangeMin;
-            this.rangeMax = rangeMax;
-            isInside = inside;
-        }
-
-        Object readResolve() throws ObjectStreamException {
-            ExpressionThresholdFilterPanel panel = new ExpressionThresholdFilterPanel();
-            panel.rangeMinValue.setValue(rangeMin);
-            panel.rangeMaxValue.setValue(rangeMax);
-            panel.optionSelection.setSelectedIndex(isInside ? 0 : 1);
-            return panel;
-        }
-    }
-
-    public Object writeReplace()  throws ObjectStreamException {
-        return new SerializedInstance((Number) rangeMinValue.getValue(), (Number) rangeMaxValue.getValue(), (optionSelection.getSelectedIndex() == 0));
-    }
-
     ParameterActionListener parameterActionListener = new ParameterActionListener(this);
-	/*
+
+    /*
 	 * (non-Javadoc)
 	 * @see org.geworkbench.analysis.AbstractSaveableParameterPanel#setParameters(java.util.Map)
 	 * Set inputed parameters to GUI.
 	 */
-    @Override
     public void setParameters(Map<Serializable, Serializable> parameters){
     	if ((getStopNotifyAnalysisPanelTemporaryFlag()==true)&&(parameterActionListener.getCalledFromProgramFlag()==true)) return;
     	stopNotifyAnalysisPanelTemporary(true);
@@ -102,7 +75,6 @@ public class ExpressionThresholdFilterPanel extends AbstractSaveableParameterPan
 	 * 
 	 * @see org.geworkbench.analysis.AbstractSaveableParameterPanel#getParameters()
 	 */
-    @Override
     public Map<Serializable, Serializable> getParameters() {
 		Map<Serializable, Serializable> parameters = new HashMap<Serializable, Serializable>();
 		parameters.put("rangeMin", (Number) rangeMinValue.getValue());
@@ -193,15 +165,6 @@ public class ExpressionThresholdFilterPanel extends AbstractSaveableParameterPan
             return new ParamValidationResults(false, "Upper bound must be larger than lower bound.");
         else
             return new ParamValidationResults(true, "No Error");
-    }
-
-    public void writeObject(java.io.ObjectOutputStream out) throws IOException {
-        out.defaultWriteObject();
-    }
-
-    public void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
-        in.defaultReadObject();
-        revalidate();
     }
 
 }

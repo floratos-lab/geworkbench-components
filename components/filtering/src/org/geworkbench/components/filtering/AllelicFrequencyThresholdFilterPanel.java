@@ -6,40 +6,27 @@ package org.geworkbench.components.filtering;
 
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
-import java.io.IOException;
-import java.io.ObjectStreamException;
 import java.io.Serializable;
+import java.util.Map;
+
+import javax.naming.OperationNotSupportedException;
 import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.geworkbench.analysis.AbstractSaveableParameterPanel;
 import org.geworkbench.bison.model.analysis.ParamValidationResults;
 
 /**
  * @author manjunath at genomecenter dot columbia dot edu
  */
-public class AllelicFrequencyThresholdFilterPanel extends AbstractSaveableParameterPanel implements Serializable {
-    
+public class AllelicFrequencyThresholdFilterPanel extends AbstractSaveableParameterPanel {
+	private Log log = LogFactory.getLog(this.getClass());
     private JLabel minPercentLabel = new JLabel("Minimum Allele Frequency (Percent): ");
     private JFormattedTextField minPercentValue = new JFormattedTextField();
     private GridLayout gridLayout1 = new GridLayout();
-
-    private static class SerializedInstance implements Serializable {
-        private Number minPercent;
-        public SerializedInstance(Number minPercent) {
-            this.minPercent = minPercent;
-        }
-
-        Object readResolve() throws ObjectStreamException {
-            AllelicFrequencyThresholdFilterPanel panel = new AllelicFrequencyThresholdFilterPanel();
-            panel.minPercentValue.setValue(minPercent);
-            return panel;
-        }
-    }
-
-    public Object writeReplace()  throws ObjectStreamException {
-        return new SerializedInstance((Number) minPercentValue.getValue());
-    }
 
     public AllelicFrequencyThresholdFilterPanel() {
         try {
@@ -89,12 +76,23 @@ public class AllelicFrequencyThresholdFilterPanel extends AbstractSaveableParame
             return new ParamValidationResults(true, "No Error");
     }
 
-    public void writeObject(java.io.ObjectOutputStream out) throws IOException {
-        out.defaultWriteObject();
-    }
+    /*
+     * (non-Javadoc)
+     * @see org.geworkbench.analysis.AbstractSaveableParameterPanel#getParameters()
+     */
+	public Map<Serializable, Serializable> getParameters() {
+		// TODO Auto-generated method stub
+		log.error(new OperationNotSupportedException("Please implement getParameters()"));
+		return null;
+	}
 
-    public void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
-        in.defaultReadObject();
-        revalidate();
-    }
+	/*
+	 * (non-Javadoc)
+	 * @see org.geworkbench.analysis.AbstractSaveableParameterPanel#setParameters(java.util.Map)
+	 */
+	public void setParameters(Map<Serializable, Serializable> parameters) {
+		// TODO Auto-generated method stub
+		log.error(new OperationNotSupportedException("Please implement setParameters()"));
+	}
+
 }

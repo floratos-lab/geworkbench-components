@@ -1,17 +1,28 @@
 package org.geworkbench.components.filtering;
 
 
-import org.geworkbench.analysis.AbstractSaveableParameterPanel;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 
-import javax.swing.*;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.AbstractTableModel;
-import java.awt.*;
-import java.io.IOException;
-import java.io.ObjectStreamException;
-import java.io.Serializable;
-import java.util.*;
+
+import org.geworkbench.analysis.AbstractSaveableParameterPanel;
 
 /**
  * <p>Copyright: Copyright (c) 2005</p>
@@ -24,8 +35,7 @@ import java.util.*;
  * The parameters panel for the <code>GenepixFlagsFilter</code>
  * filter. The measures will be removed based on their flags.
  */
-public class GenepixFlagsFilterPanel extends AbstractSaveableParameterPanel implements
-        Serializable {
+public class GenepixFlagsFilterPanel extends AbstractSaveableParameterPanel {
     /**
      * Inner class to represent FlagDetail.
      */
@@ -89,39 +99,11 @@ public class GenepixFlagsFilterPanel extends AbstractSaveableParameterPanel impl
 
     private static GenepixFlagsFilterPanel heldPanel;
 
-    private static class SerialInstance implements Serializable {
-
-        private ArrayList selectedFlags;
-
-        public SerialInstance(ArrayList selectedFlags) {
-            this.selectedFlags = selectedFlags;
-        }
-
-        Object readResolve() throws ObjectStreamException {
-            GenepixFlagsFilterPanel panel = heldPanel;
-            ArrayList selectedFlags = new ArrayList();            
-            for (FlagDetail fd : panel.hits) {
-                FlagDetail detail = (FlagDetail) fd;
-                if (selectedFlags.contains(detail.getLabel())) {
-                    detail.setIsFiltered(true);
-                } else {
-                    detail.setIsFiltered(false);
-                }
-            }
-            return panel;
-        }
-    }
-
-    public Object writeReplace() throws ObjectStreamException {
-        return new SerialInstance(getSelectedFlags());
-    }
-
 	/*
 	 * (non-Javadoc)
 	 * @see org.geworkbench.analysis.AbstractSaveableParameterPanel#setParameters(java.util.Map)
 	 * Set inputed parameters to GUI.
 	 */
-    @Override
     public void setParameters(Map<Serializable, Serializable> parameters){
     	if(parameters==null){
     		return;
@@ -152,7 +134,6 @@ public class GenepixFlagsFilterPanel extends AbstractSaveableParameterPanel impl
 	 * 
 	 * @see org.geworkbench.analysis.AbstractSaveableParameterPanel#getParameters()
 	 */
-    @Override
     public Map<Serializable, Serializable> getParameters() {
 		Map<Serializable, Serializable> parameters = new HashMap<Serializable, Serializable>();
 		parameters.put("SelectedFlags", getSelectedFlags());
@@ -368,15 +349,6 @@ public class GenepixFlagsFilterPanel extends AbstractSaveableParameterPanel impl
     public Component getComponent() {
         return this;
     };
-    public void writeObject(java.io.ObjectOutputStream out) throws IOException {
-        out.defaultWriteObject();
-    }
-
-    public void readObject(java.io.ObjectInputStream in) throws IOException,
-            ClassNotFoundException {
-        in.defaultReadObject();
-        revalidate();
-    }
 
     public void setFlagInfoPanel(JScrollPane FlagInfoPanel) {
         this.flagInfoPane = FlagInfoPanel;

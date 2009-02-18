@@ -1,8 +1,50 @@
 package org.geworkbench.components.normalization;
 
-import com.jgoodies.forms.builder.PanelBuilder;
-import com.jgoodies.forms.layout.CellConstraints;
-import com.jgoodies.forms.layout.FormLayout;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
+
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.DefaultListCellRenderer;
+import javax.swing.DefaultListModel;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JFileChooser;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
+import javax.swing.JScrollPane;
+import javax.swing.SwingUtilities;
+import javax.swing.filechooser.FileFilter;
+import javax.swing.tree.TreePath;
+
 import org.geworkbench.analysis.AbstractSaveableParameterPanel;
 import org.geworkbench.bison.datastructure.bioobjects.markers.CSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
@@ -10,16 +52,9 @@ import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.events.listeners.ParameterActionListener;
 
-import javax.swing.*;
-import javax.swing.filechooser.FileFilter;
-import javax.swing.tree.TreePath;
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.io.*;
-import java.util.*;
+import com.jgoodies.forms.builder.PanelBuilder;
+import com.jgoodies.forms.layout.CellConstraints;
+import com.jgoodies.forms.layout.FormLayout;
 
 /**
  * <p>Title: </p>
@@ -38,8 +73,7 @@ import java.util.*;
  * Parameters panel for the <code>HouseKeepingGeneNormalizer</code>..
  */
 //AbstractSaveableParameterPanel
-public class HouseKeepingGeneNormalizerPanel extends
-        AbstractSaveableParameterPanel implements Serializable {
+public class HouseKeepingGeneNormalizerPanel extends AbstractSaveableParameterPanel {
 
     JScrollPane jScrollPane1 = new JScrollPane();
     JScrollPane jScrollPane2 = new JScrollPane();
@@ -91,49 +125,10 @@ public class HouseKeepingGeneNormalizerPanel extends
     JButton moveNextButton = new JButton();
     JPanel jPanel6 = new JPanel();
 
-    private static class SerializedInstance implements Serializable {
-
-        private ArrayList exclude;
-        private ArrayList select;
-
-        public SerializedInstance(DefaultListModel excluded, DefaultListModel selected) {
-            {
-                int n = excluded.size();
-                exclude = new ArrayList(n);
-                for (int i = 0; i < n; i++) {
-                    exclude.add(excluded.get(i));
-                }
-            }
-            {
-                int n = selected.size();
-                select = new ArrayList(n);
-                for (int i = 0; i < n; i++) {
-                    select.add(selected.get(i));
-                }
-            }
-        }
-
-        Object readResolve() throws ObjectStreamException {
-            HouseKeepingGeneNormalizerPanel panel = new HouseKeepingGeneNormalizerPanel();
-            for (int i = 0; i < exclude.size(); i++) {
-                panel.markerModel.add(i, exclude.get(i));
-            }
-            for (int i = 0; i < select.size(); i++) {
-                panel.selectedModel.add(i, select.get(i));
-            }
-            return panel;
-        }
-    }
-
-    public Object writeReplace() throws ObjectStreamException {
-        return new SerializedInstance(markerModel, selectedModel);
-    }
-    
     /*
      * (non-Javadoc)
      * @see org.geworkbench.analysis.AbstractSaveableParameterPanel#getParameters()
      */
-    @Override
     public Map<Serializable, Serializable> getParameters() {
 		Map<Serializable, Serializable> parameters = new HashMap<Serializable, Serializable>();
 		int m = markerModel.size();
@@ -155,7 +150,6 @@ public class HouseKeepingGeneNormalizerPanel extends
      * (non-Javadoc)
      * @see org.geworkbench.analysis.AbstractSaveableParameterPanel#setParameters(java.util.Map)
      */
-    @Override
     public void setParameters(Map<Serializable, Serializable> parameters){
         Set<Map.Entry<Serializable, Serializable>> set = parameters.entrySet();
         for (Iterator<Map.Entry<Serializable, Serializable>> iterator = set.iterator(); iterator.hasNext();) {
@@ -932,30 +926,6 @@ public class HouseKeepingGeneNormalizerPanel extends
 
         }
 
-    }
-
-
-    /**
-     * @param out ObjectOutputStream
-     * @throws IOException
-     */
-
-    public void writeObject(java.io.ObjectOutputStream out) throws IOException {
-        out.defaultWriteObject();
-        validateLists();
-
-    }
-
-    public void readObject(java.io.ObjectInputStream in) throws IOException,
-            ClassNotFoundException {
-        in.defaultReadObject();
-        try {
-            jbInit();
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        revalidate();
     }
 
     /**

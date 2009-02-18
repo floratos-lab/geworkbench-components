@@ -2,7 +2,6 @@ package org.geworkbench.components.filtering;
 
 import java.awt.Dimension;
 import java.awt.FlowLayout;
-import java.io.ObjectStreamException;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -31,27 +30,13 @@ import org.geworkbench.events.listeners.ParameterActionListener;
  * the user to enter a number X. Markers whose value is missing in more than X
  * microarrays will be removed.
  * 
+ * @author First Genetic Trust
  * @author yc2480
- * @version $ID$
+ * @version $Id: MissingValuesFilterPanel.java,v 1.8 2009-02-18 21:28:51 chiangy Exp $
  */
-public class MissingValuesFilterPanel extends AbstractSaveableParameterPanel implements Serializable {
+public class MissingValuesFilterPanel extends AbstractSaveableParameterPanel {
     private JLabel maxMissingLabel = new JLabel("<html><p>Maximum number of</p><p>missing arrays</p></html>");
     private JFormattedTextField maxMissingValue = new JFormattedTextField();
-
-    private static class SerialInstance implements Serializable {
-        Integer value;
-
-        public SerialInstance(Integer value) {
-            this.value = value;
-        }
-
-        Object readResolve() throws ObjectStreamException {
-            MissingValuesFilterPanel panel = new MissingValuesFilterPanel();
-            panel.maxMissingValue.setValue(value);
-            panel.revalidate();
-            return panel;
-        }
-    }
 
     public MissingValuesFilterPanel() {
         try {
@@ -112,25 +97,11 @@ public class MissingValuesFilterPanel extends AbstractSaveableParameterPanel imp
             return new ParamValidationResults(true, "No Error");
     }
 
-//    private void writeObject(java.io.ObjectOutputStream out) throws IOException {
-//        out.defaultWriteObject();
-//    }
-//
-//    private void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
-//        in.defaultReadObject();
-//        revalidate();
-//    }
-
-    public Object writeReplace() throws ObjectStreamException {
-        return new SerialInstance((Integer) maxMissingValue.getValue());
-    }
-
 	/*
 	 * (non-Javadoc)
 	 * @see org.geworkbench.analysis.AbstractSaveableParameterPanel#setParameters(java.util.Map)
 	 * Set inputed parameters to GUI.
 	 */
-    @Override
     public void setParameters(Map<Serializable, Serializable> parameters){
         Set<Map.Entry<Serializable, Serializable>> set = parameters.entrySet();
         for (Iterator<Map.Entry<Serializable, Serializable>> iterator = set.iterator(); iterator.hasNext();) {
@@ -150,7 +121,6 @@ public class MissingValuesFilterPanel extends AbstractSaveableParameterPanel imp
 	 * 
 	 * @see org.geworkbench.analysis.AbstractSaveableParameterPanel#getParameters()
 	 */
-    @Override
     public Map<Serializable, Serializable> getParameters() {
 		Map<Serializable, Serializable> parameters = new HashMap<Serializable, Serializable>();
 		parameters.put("maxMissingValue", (Integer) maxMissingValue.getValue());

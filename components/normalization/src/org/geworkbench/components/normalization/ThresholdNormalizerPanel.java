@@ -2,8 +2,6 @@ package org.geworkbench.components.normalization;
 
 import java.awt.BorderLayout;
 import java.awt.GridLayout;
-import java.io.IOException;
-import java.io.ObjectStreamException;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -32,7 +30,7 @@ import com.jgoodies.forms.layout.FormLayout;
  * @author unknown, yc2480
  * @version $ID$
  */
-public class ThresholdNormalizerPanel extends AbstractSaveableParameterPanel implements Serializable {
+public class ThresholdNormalizerPanel extends AbstractSaveableParameterPanel {
     final String MIN_OPTION = "Minimum";
     final String MAX_OPTION = "Maximum";
     final String IGNORE_OPTION = "Ignore";
@@ -45,37 +43,11 @@ public class ThresholdNormalizerPanel extends AbstractSaveableParameterPanel imp
     private JComboBox cutoffTypeSelection = new JComboBox(new String[]{MIN_OPTION, MAX_OPTION});
     private JComboBox missingValuesSelection = new JComboBox(new String[]{IGNORE_OPTION, REPLACE_OPTION});
 
-    private static class SerializedInstance implements Serializable {
-
-        private Number cutoff;
-        private int cutoffType;
-        private int missing;
-
-        public SerializedInstance(Number cutoff, int cutoffType, int missing) {
-            this.cutoff = cutoff;
-            this.cutoffType = cutoffType;
-            this.missing = missing;
-        }
-
-        Object readResolve() throws ObjectStreamException {
-            ThresholdNormalizerPanel panel = new ThresholdNormalizerPanel();
-            panel.cutoffEdit.setValue(cutoff);
-            panel.cutoffTypeSelection.setSelectedIndex(cutoffType);
-            panel.missingValuesSelection.setSelectedIndex(missing);
-            return panel;
-        }
-    }
-
-    public Object writeReplace() throws ObjectStreamException {
-        return new SerializedInstance((Number)cutoffEdit.getValue(), cutoffTypeSelection.getSelectedIndex(), missingValuesSelection.getSelectedIndex());
-    }
-
 	/*
 	 * (non-Javadoc)
 	 * @see org.geworkbench.analysis.AbstractSaveableParameterPanel#setParameters(java.util.Map)
 	 * Set inputed parameters to GUI.
 	 */
-    @Override
     public void setParameters(Map<Serializable, Serializable> parameters){
         if (parameters==null){
         	return;
@@ -102,7 +74,6 @@ public class ThresholdNormalizerPanel extends AbstractSaveableParameterPanel imp
 	 * 
 	 * @see org.geworkbench.analysis.AbstractSaveableParameterPanel#getParameters()
 	 */
-    @Override
     public Map<Serializable, Serializable> getParameters() {
 		Map<Serializable, Serializable> parameters = new HashMap<Serializable, Serializable>();
 		parameters.put("cutoffEdit", (Number)cutoffEdit.getValue());
@@ -177,15 +148,6 @@ public class ThresholdNormalizerPanel extends AbstractSaveableParameterPanel imp
             return ThresholdNormalizer.IGNORE;
         else
             return ThresholdNormalizer.REPLACE;
-    }
-
-    public void writeObject(java.io.ObjectOutputStream out) throws IOException {
-        out.defaultWriteObject();
-    }
-
-    public void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
-        in.defaultReadObject();
-        revalidate();
     }
 
 }

@@ -1,12 +1,19 @@
 package org.geworkbench.components.normalization;
 
-import org.geworkbench.analysis.AbstractSaveableParameterPanel;
-
-import javax.swing.*;
-import java.awt.*;
-import java.io.IOException;
-import java.io.ObjectStreamException;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.GridLayout;
 import java.io.Serializable;
+import java.util.Map;
+
+import javax.naming.OperationNotSupportedException;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.geworkbench.analysis.AbstractSaveableParameterPanel;
 
 /**
  * <p>Copyright: Copyright (c) 2003</p>
@@ -18,7 +25,8 @@ import java.io.Serializable;
 /**
  * The parameters panel used by the <code>MicroarraysCenteringNormalizer</code>.
  */
-public class MicroarrayCenteringNormalizerPanel extends AbstractSaveableParameterPanel implements Serializable {
+public class MicroarrayCenteringNormalizerPanel extends AbstractSaveableParameterPanel {
+	private Log log = LogFactory.getLog(this.getClass());
     final String MEAN_OPTION = "Mean";
     final String MEDIAN_OPTION = "Median";
     final String MIN_OPTION = "Min profile";
@@ -34,27 +42,6 @@ public class MicroarrayCenteringNormalizerPanel extends AbstractSaveableParamete
     private JComboBox averagingSelection = new JComboBox(new String[]{MEAN_OPTION, MEDIAN_OPTION});
     private JComboBox missingValuesSelection = new JComboBox(new String[]{MIN_OPTION, MAX_OPTION, ZERO_OPTION, IGNORE_OPTION});
 
-    private static class SerializedInstance implements Serializable {
-        int averaging;
-        int missing;
-
-        public SerializedInstance(int averaging, int missing) {
-            this.averaging = averaging;
-            this.missing = missing;
-        }
-
-        Object readResolve() throws ObjectStreamException {
-            MicroarrayCenteringNormalizerPanel panel = new MicroarrayCenteringNormalizerPanel();
-            panel.averagingSelection.setSelectedIndex(averaging);
-            panel.missingValuesSelection.setSelectedIndex(missing);
-            return panel;
-        }
-    }
-
-    public Object writeReplace() throws ObjectStreamException {
-        return new SerializedInstance(averagingSelection.getSelectedIndex(), missingValuesSelection.getSelectedIndex());
-    }
-    
     public MicroarrayCenteringNormalizerPanel() {
         try {
             jbInit();
@@ -115,14 +102,24 @@ public class MicroarrayCenteringNormalizerPanel extends AbstractSaveableParamete
             return MarkerCenteringNormalizer.IGNORE;
     }
 
-    public void writeObject(java.io.ObjectOutputStream out) throws IOException {
-        out.defaultWriteObject();
-    }
+	/*
+	 * (non-Javadoc)
+	 * @see org.geworkbench.analysis.AbstractSaveableParameterPanel#getParameters()
+	 */
+	public Map<Serializable, Serializable> getParameters() {
+		// TODO Auto-generated method stub
+		log.error(new OperationNotSupportedException("Please implement getParameters()"));		
+		return null;
+	}
 
-    public void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
-        in.defaultReadObject();
-        revalidate();
-    }
+	/*
+	 * (non-Javadoc)
+	 * @see org.geworkbench.analysis.AbstractSaveableParameterPanel#setParameters(java.util.Map)
+	 */
+	public void setParameters(Map<Serializable, Serializable> parameters) {
+		// TODO Auto-generated method stub
+		log.error(new OperationNotSupportedException("Please implement setParameters()"));
+	}
 
 }
 

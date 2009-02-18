@@ -768,11 +768,16 @@ public class MindyAnalysis extends AbstractGridAnalysis implements
 	// The goal here is to get access to selector panel object that the
 	// MindyAnalysis class listens for.
 	// This is not the preferred way of doing things, but it suffices for now.
-	public ParameterPanel getNamedParameterSetPanel(String name) {
-		MindyParamPanel pp = (MindyParamPanel) super
-				.getNamedParameterSetPanel(name);
-		// this is really bad...
-		pp.setSelectorPanel(pp, this.selectorPanel);
-		return pp;
-	}
+
+	// FIXME: In new parameter panel frame work, we only store parameters
+	// instead of panels, attending to get the panel will no longer works. We'll
+	// need to fix this using other way.
+
+//	public ParameterPanel getNamedParameterSetPanel(String name) {
+//		MindyParamPanel pp = (MindyParamPanel) super
+//				.getNamedParameterSetPanel(name);
+//		// this is really bad...
+//		pp.setSelectorPanel(pp, this.selectorPanel);
+//		return pp;
+//	}
 }

@@ -7,8 +7,6 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Graphics;
 import java.awt.event.ItemEvent;
-import java.io.IOException;
-import java.io.ObjectStreamException;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -44,10 +42,9 @@ import edu.columbia.geworkbench.cagrid.anova.PValueEstimation;
 
 /**
  * @author yc2480
- * @version $Id: AnovaAnalysisPanel.java,v 1.13 2009-02-12 22:28:16 keshav Exp $
+ * @version $Id: AnovaAnalysisPanel.java,v 1.14 2009-02-18 21:26:36 chiangy Exp $
  */
-public class AnovaAnalysisPanel extends AbstractSaveableParameterPanel
-		implements Serializable {
+public class AnovaAnalysisPanel extends AbstractSaveableParameterPanel {
 
 	private int PermutationsNumberDefault = 100;
 	
@@ -846,83 +843,11 @@ public class AnovaAnalysisPanel extends AbstractSaveableParameterPanel
 		return this;
 	}
 
-	private static class SerializedInstance implements Serializable {
-
-		private static final long serialVersionUID = 1L;
-		private AnovaParameter anovaParameter;
-
-		public SerializedInstance(AnovaParameter anovaParameter) {
-			this.anovaParameter = anovaParameter;
-		}
-
-		// we rewrite the readResolve so we can store the GUI using serialized
-		// anovaParameter data.
-		Object readResolve() throws ObjectStreamException {
-			AnovaAnalysisPanel panel = new AnovaAnalysisPanel();
-			panel.anovaParameter = this.anovaParameter;
-
-			// start translate anovaParameter to AnovaAnalysisPanel by
-			// manipulate GUI according to anovaParameter
-			panel.jTextFieldPValueThreshold.setText(Float.toString(anovaParameter.getPValueThreshold()));
-			if (anovaParameter.getPValueEstimation().equals(
-					PValueEstimation.permutation)) {
-				panel.jComboBoxPValueBasedOn.setSelectedItem("Permutations");
-			} else {
-				panel.jComboBoxPValueBasedOn.setSelectedItem("F-distribution");
-			}
-			panel.jTextField.setText(anovaParameter.getPermutationsNumber()
-					.toString());
-
-			if (anovaParameter.getFalseDiscoveryRateControl().equals(
-					FalseDiscoveryRateControl.alpha)) {
-				panel.jRadioButton.setSelected(true);
-			} else if (anovaParameter.getFalseDiscoveryRateControl().equals(
-					FalseDiscoveryRateControl.bonferroni)) {
-				panel.jRadioButton1.setSelected(true);
-			} else if (anovaParameter.getFalseDiscoveryRateControl().equals(
-					FalseDiscoveryRateControl.adjbonferroni)) {
-				panel.jRadioButton2.setSelected(true);
-			} else if (anovaParameter.getFalseDiscoveryRateControl().equals(
-					FalseDiscoveryRateControl.westfallyoung)) {
-				panel.jRadioButton3.setSelected(true);
-			} else if (anovaParameter.getFalseDiscoveryRateControl().equals(
-					FalseDiscoveryRateControl.number)) {
-				panel.jRadioButton4.setSelected(true);
-				panel.jTextFieldNFSG.setText(anovaParameter
-						.getFalseSignificantGenesLimit().toString());
-			} else if (anovaParameter.getFalseDiscoveryRateControl().equals(
-					FalseDiscoveryRateControl.proportion)) {
-				panel.jRadioButton5.setSelected(true);
-				panel.jTextFieldPFSG.setText(anovaParameter
-						.getFalseSignificantGenesLimit().toString());
-			}
-			Log log = LogFactory.getLog(this.getClass());
-			log.debug(anovaParameter.getPValueEstimation());
-			log.debug(anovaParameter.getPermutationsNumber());
-			log.debug(anovaParameter.getFalseDiscoveryRateControl());
-			log.debug(anovaParameter.getFalseSignificantGenesLimit());
-
-			return panel;
-		}
-	}
-
-	/**
-	 * 
-	 * @return
-	 * @throws ObjectStreamException
-	 */
-	public Object writeReplace() throws ObjectStreamException {
-		// we rewrite the writeReplace so when serialization, only
-		// anovaParameter been stored.
-		return new SerializedInstance(this.anovaParameter);
-	}
-
 	/*
 	 * (non-Javadoc)
 	 * @see org.geworkbench.analysis.AbstractSaveableParameterPanel#setParameters(java.util.Map)
 	 * Set inputed parameters to GUI.
 	 */
-    @Override
     public void setParameters(Map<Serializable, Serializable> parameters){
     	if (getStopNotifyAnalysisPanelTemporaryFlag()==true) return;
     	stopNotifyAnalysisPanelTemporary(true);
@@ -997,7 +922,6 @@ public class AnovaAnalysisPanel extends AbstractSaveableParameterPanel
 	 *      Since HierClustPanel only has three parameters, we return metric,
 	 *      dimension and method in the format same as getBisonParameters().
 	 */
-    @Override
     public Map<Serializable, Serializable> getParameters() {
 		Map<Serializable, Serializable> parameters = new HashMap<Serializable, Serializable>();
 		//FIXME: needs error checking
@@ -1047,30 +971,8 @@ public class AnovaAnalysisPanel extends AbstractSaveableParameterPanel
 		return parameters;
 	}
 
-	
-	/**
-	 * 
-	 * @param out
-	 * @throws IOException
-	 */
-	public void writeObject(java.io.ObjectOutputStream out) throws IOException {
-		out.defaultWriteObject();
-	}
-
-	/**
-	 * 
-	 * @param in
-	 * @throws IOException
-	 * @throws ClassNotFoundException
-	 */
-	public void readObject(java.io.ObjectInputStream in) throws IOException,
-			ClassNotFoundException {
-		in.defaultReadObject();
-		revalidate();
-	}
-
 	@Override
-	public String toString() {
+	public String getDataSetHistory() {
 		AnovaAnalysisPanel anovaAnalysisPanel=this;
 		String histStr = "";
 		// Header

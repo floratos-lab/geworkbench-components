@@ -8,7 +8,9 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.Map;
 
+import javax.naming.OperationNotSupportedException;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -31,7 +33,7 @@ import com.jgoodies.forms.layout.FormLayout;
 /**
  * 
  * @author keshav
- * @version $Id: MedusaParamPanel.java,v 1.13 2008-03-10 19:50:38 chiangy Exp $
+ * @version $Id: MedusaParamPanel.java,v 1.14 2009-02-18 21:33:53 chiangy Exp $
  */
 public class MedusaParamPanel extends AbstractSaveableParameterPanel implements
 		Serializable {
@@ -764,5 +766,24 @@ public class MedusaParamPanel extends AbstractSaveableParameterPanel implements
 
 	public void setLabelsFilePath(String labelsFilePath) {
 		this.labelsFilePath = labelsFilePath;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.geworkbench.analysis.AbstractSaveableParameterPanel#getParameters()
+	 */
+	public Map<Serializable, Serializable> getParameters() {
+		// TODO Auto-generated method stub
+		log.error(new OperationNotSupportedException("Please implement getParameters()"));
+		return null;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.geworkbench.analysis.AbstractSaveableParameterPanel#setParameters(java.util.Map)
+	 */
+	public void setParameters(Map<Serializable, Serializable> parameters) {
+		// TODO Auto-generated method stub
+		log.error(new OperationNotSupportedException("Please implement setParameters()"));		
 	}
 }

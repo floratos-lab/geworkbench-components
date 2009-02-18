@@ -1,19 +1,22 @@
 package org.geworkbench.components.filtering;
 
-import org.geworkbench.analysis.AbstractSaveableParameterPanel;
-import org.geworkbench.bison.model.analysis.ParamValidationResults;
-import org.geworkbench.events.listeners.ParameterActionListener;
-
-import javax.swing.*;
-import java.awt.*;
-import java.io.IOException;
-import java.io.ObjectStreamException;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.GridLayout;
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+
+import javax.swing.JComboBox;
+import javax.swing.JFormattedTextField;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+
+import org.geworkbench.analysis.AbstractSaveableParameterPanel;
+import org.geworkbench.bison.model.analysis.ParamValidationResults;
+import org.geworkbench.events.listeners.ParameterActionListener;
 
 /**
  * <p>Copyright: Copyright (c) 2003</p>
@@ -27,7 +30,7 @@ import java.util.Set;
  * user enter a deviation value. All markers whose signal deviation across
  * all arrays is less that this value will be filtered.
  */
-public class DeviationBasedFilterPanel extends AbstractSaveableParameterPanel implements Serializable {
+public class DeviationBasedFilterPanel extends AbstractSaveableParameterPanel {
     final String MARKER_OPTION = "Marker average";
     final String MICROARRAY_OPTION = "Microarray average";
     final String IGNORE_OPTION = "Ignore";
@@ -37,33 +40,10 @@ public class DeviationBasedFilterPanel extends AbstractSaveableParameterPanel im
     private JFormattedTextField deviationCutoff = new JFormattedTextField();
     private JComboBox missingValuesSelection = new JComboBox(new String[]{MARKER_OPTION, MICROARRAY_OPTION, IGNORE_OPTION});
 
-    private static class SerializedInstance implements Serializable {
-
-        String missingValues;
-        Double bound;
-
-        public SerializedInstance(String missingValues, Double bound) {
-            this.missingValues = missingValues;
-            this.bound = bound;
-        }
-
-        Object readResolve() throws ObjectStreamException {
-            DeviationBasedFilterPanel panel = new DeviationBasedFilterPanel();
-            panel.deviationCutoff.setValue(bound);
-            panel.missingValuesSelection.setSelectedItem(missingValues);
-            return panel;
-        }
-    }
-
-    public Object writeReplace()  throws ObjectStreamException {
-        return new SerializedInstance((String)missingValuesSelection.getSelectedItem(), (Double) deviationCutoff.getValue());
-    }
-
     /*
      * (non-Javadoc)
      * @see org.geworkbench.analysis.AbstractSaveableParameterPanel#getParameters()
      */
-    @Override
     public Map<Serializable, Serializable> getParameters() {
 		Map<Serializable, Serializable> parameters = new HashMap<Serializable, Serializable>();
 		parameters.put("missingValues", (String)missingValuesSelection.getSelectedItem());
@@ -75,7 +55,6 @@ public class DeviationBasedFilterPanel extends AbstractSaveableParameterPanel im
      * (non-Javadoc)
      * @see org.geworkbench.analysis.AbstractSaveableParameterPanel#setParameters(java.util.Map)
      */
-    @Override
     public void setParameters(Map<Serializable, Serializable> parameters){
         Set<Map.Entry<Serializable, Serializable>> set = parameters.entrySet();
         for (Iterator<Map.Entry<Serializable, Serializable>> iterator = set.iterator(); iterator.hasNext();) {
@@ -161,15 +140,6 @@ public class DeviationBasedFilterPanel extends AbstractSaveableParameterPanel im
             return new ParamValidationResults(false, "The deviation cannot be negative.");
         else
             return new ParamValidationResults(true, "No Error");
-    }
-
-    public void writeObject(java.io.ObjectOutputStream out) throws IOException {
-        out.defaultWriteObject();
-    }
-
-    public void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
-        in.defaultReadObject();
-        revalidate();
     }
 
 }

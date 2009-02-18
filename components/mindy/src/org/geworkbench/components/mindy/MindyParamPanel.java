@@ -8,7 +8,6 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.ObjectStreamException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -47,8 +46,7 @@ import com.jgoodies.forms.layout.FormLayout;
  * @version $ID$
  */
 @SuppressWarnings("serial")
-public class MindyParamPanel extends AbstractSaveableParameterPanel implements
-		Serializable {
+public class MindyParamPanel extends AbstractSaveableParameterPanel {
 
 	static Log log = LogFactory.getLog(MindyParamPanel.class);
 
@@ -690,119 +688,11 @@ public class MindyParamPanel extends AbstractSaveableParameterPanel implements
 		return false;
 	}
 
-	// For framework serialization process
-	private static class SerializedInstance implements Serializable {
-		private int modulatorFromType, targetFromType;
-
-		private String modulators;
-
-		private String targets;
-
-		private String annotations;
-
-		private String tf;
-
-		private Object fraction;
-
-		private int conditionalType;
-
-		private String conditionalValue;
-
-		private int conditionalCorrection;
-
-		private int unconditionalType;
-
-		private String unconditionalValue;
-
-		private int unconditionalCorrection;
-
-		private String dpitargets;
-
-		private Object dpitolerance;
-
-		public SerializedInstance(String modulators, int modulatorFromType,
-				String modulatorSet, String targets, int targetFromType,
-				String targetSet, String annotations, String tf,
-				Object fraction, int conditionalType, String conditionalValue,
-				int conditionalCorrection, int unconditionalType,
-				String unconditionalValue, int unconditionalCorrection,
-				String dpitargets, Object dpitolerance) {
-			this.modulators = modulators;
-			this.modulatorFromType = modulatorFromType;
-			this.targets = targets;
-			this.targetFromType = targetFromType;
-			this.annotations = annotations;
-			this.tf = tf;
-			this.fraction = fraction;
-			this.conditionalType = conditionalType;
-			this.conditionalValue = conditionalValue;
-			this.conditionalCorrection = conditionalCorrection;
-			this.unconditionalType = unconditionalType;
-			this.unconditionalValue = unconditionalValue;
-			this.unconditionalCorrection = unconditionalCorrection;
-			this.dpitargets = dpitargets;
-			this.dpitolerance = dpitolerance;
-		}
-
-		Object readResolve() throws ObjectStreamException {
-			MindyParamPanel panel = new MindyParamPanel();
-			panel.modulatorsFrom.setSelectedIndex(this.modulatorFromType);
-			panel.modulatorList.setText(this.modulators);
-			panel.targetsFrom.setSelectedIndex(this.targetFromType);
-			panel.targetList.setText(this.targets);
-			panel.dpiAnnotationList.setText(this.annotations);
-			panel.transcriptionFactor.setText(this.tf);
-			panel.setFraction.setValue(this.fraction);
-			if ((this.conditionalType >= 0)
-					&& (this.conditionalType < panel.conditionalCombo
-							.getModel().getSize()))
-				panel.conditionalCombo.setSelectedIndex(this.conditionalType);
-			panel.conditional.setText(this.conditionalValue);
-			if ((this.conditionalCorrection >= 0)
-					&& (this.conditionalCorrection < panel.conditionalCorrection
-							.getModel().getSize()))
-				panel.conditionalCorrection
-						.setSelectedIndex(this.conditionalCorrection);
-			if ((this.unconditionalType >= 0)
-					&& (this.unconditionalType < panel.unconditionalCombo
-							.getModel().getSize()))
-				panel.unconditionalCombo
-						.setSelectedIndex(this.unconditionalType);
-			panel.unconditional.setText(this.unconditionalValue);
-			if ((this.unconditionalCorrection >= 0)
-					&& (this.unconditionalCorrection < panel.unconditionalCorrection
-							.getModel().getSize()))
-				panel.unconditionalCorrection
-						.setSelectedIndex(this.unconditionalCorrection);
-			panel.dpiAnnotationList.setText(this.dpitargets);
-			panel.dpiTolerance.setValue(this.dpitolerance);
-
-			return panel;
-		}
-	}
-
-	public Object writeReplace() throws ObjectStreamException {
-		return new SerializedInstance(this.modulatorList.getText(),
-				this.modulatorsFrom.getSelectedIndex(),
-				(String) this.modulatorsSets.getSelectedItem(), this.targetList
-						.getText(), this.targetsFrom.getSelectedIndex(),
-				(String) this.targetsSets.getSelectedItem(),
-				this.dpiAnnotationList.getText(), this.transcriptionFactor
-						.getText(), this.setFraction.getValue(),
-				this.conditionalCombo.getSelectedIndex(), this.conditional
-						.getText(), this.conditionalCorrection
-						.getSelectedIndex(), this.unconditionalCombo
-						.getSelectedIndex(), this.unconditional.getText(),
-				this.unconditionalCorrection.getSelectedIndex(),
-				this.dpiAnnotationList.getText(), this.dpiTolerance.getValue());
-	}
-
 	/*
 	 * (non-Javadoc)
 	 * @see org.geworkbench.analysis.AbstractSaveableParameterPanel#setParameters(java.util.Map)
 	 * Set inputed parameters to GUI.
 	 */
-    @Override
     public void setParameters(Map<Serializable, Serializable> parameters){
         Set<Map.Entry<Serializable, Serializable>> set = parameters.entrySet();
         for (Iterator<Map.Entry<Serializable, Serializable>> iterator = set.iterator(); iterator.hasNext();) {
@@ -882,10 +772,7 @@ public class MindyParamPanel extends AbstractSaveableParameterPanel implements
 	 * (non-Javadoc)
 	 * 
 	 * @see org.geworkbench.analysis.AbstractSaveableParameterPanel#getParameters()
-	 *      Since HierClustPanel only has three parameters, we return metric,
-	 *      dimension and method in the format same as getBisonParameters().
 	 */
-    @Override
     public Map<Serializable, Serializable> getParameters() {
 		Map<Serializable, Serializable> parameters = new HashMap<Serializable, Serializable>();
 		parameters.put("modulators", this.modulatorList.getText());
@@ -912,31 +799,6 @@ public class MindyParamPanel extends AbstractSaveableParameterPanel implements
 		parameters.put("dpitargets", this.dpiAnnotationList.getText());
 		parameters.put("dpitolerance", (Double)this.dpiTolerance.getValue());
 		return parameters;
-	}
-
-	/**
-	 * {@link java.io.Serializable} method
-	 * 
-	 * @param out
-	 *            <code>ObjectOutputStream</code>
-	 * @throws IOException
-	 */
-	public void writeObject(java.io.ObjectOutputStream out) throws IOException {
-		out.defaultWriteObject();
-	}
-
-	/**
-	 * {@link java.io.Serializable} method
-	 * 
-	 * @param in
-	 *            <code>ObjectInputStream</code>
-	 * @throws IOException
-	 * @throws ClassNotFoundException
-	 */
-	public void readObject(java.io.ObjectInputStream in) throws IOException,
-			ClassNotFoundException {
-		in.defaultReadObject();
-		revalidate();
 	}
 
 }

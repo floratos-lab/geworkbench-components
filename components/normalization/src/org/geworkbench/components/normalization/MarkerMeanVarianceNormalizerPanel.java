@@ -2,8 +2,6 @@ package org.geworkbench.components.normalization;
 
 import java.awt.BorderLayout;
 import java.awt.GridLayout;
-import java.io.IOException;
-import java.io.ObjectStreamException;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -31,7 +29,7 @@ import com.jgoodies.forms.layout.FormLayout;
  * @author unknown, yc2480
  * @version $ID$
  */
-public class MarkerMeanVarianceNormalizerPanel extends AbstractSaveableParameterPanel implements Serializable {
+public class MarkerMeanVarianceNormalizerPanel extends AbstractSaveableParameterPanel {
     final String MIN_OPTION = "Min profile";
     final String MAX_OPTION = "Max profile";
     final String ZERO_OPTION = "Zero";
@@ -43,31 +41,11 @@ public class MarkerMeanVarianceNormalizerPanel extends AbstractSaveableParameter
      */
     private JComboBox missingValuesSelection = new JComboBox(new String[]{MIN_OPTION, MAX_OPTION, ZERO_OPTION, IGNORE_OPTION});
 
-    private static class SerialInstance implements Serializable {
-
-        private int missing;
-
-        public SerialInstance(int missing) {
-            this.missing = missing;
-        }
-
-        Object readResolve() throws ObjectStreamException {
-            MarkerMeanVarianceNormalizerPanel panel = new MarkerMeanVarianceNormalizerPanel();
-            panel.missingValuesSelection.setSelectedIndex(missing);
-            return panel;
-        }
-    }
-
-    public Object writeReplace() throws ObjectStreamException {
-        return new SerialInstance(missingValuesSelection.getSelectedIndex());
-    }
-
 	/*
 	 * (non-Javadoc)
 	 * @see org.geworkbench.analysis.AbstractSaveableParameterPanel#setParameters(java.util.Map)
 	 * Set inputed parameters to GUI.
 	 */
-    @Override
     public void setParameters(Map<Serializable, Serializable> parameters){
         Set<Map.Entry<Serializable, Serializable>> set = parameters.entrySet();
         for (Iterator<Map.Entry<Serializable, Serializable>> iterator = set.iterator(); iterator.hasNext();) {
@@ -85,7 +63,6 @@ public class MarkerMeanVarianceNormalizerPanel extends AbstractSaveableParameter
 	 * 
 	 * @see org.geworkbench.analysis.AbstractSaveableParameterPanel#getParameters()
 	 */
-    @Override
     public Map<Serializable, Serializable> getParameters() {
 		Map<Serializable, Serializable> parameters = new HashMap<Serializable, Serializable>();
 		parameters.put("missing", missingValuesSelection.getSelectedIndex());
@@ -136,15 +113,6 @@ public class MarkerMeanVarianceNormalizerPanel extends AbstractSaveableParameter
             return MarkerCenteringNormalizer.ZERO;
         else
             return MarkerCenteringNormalizer.IGNORE;
-    }
-
-    public void writeObject(java.io.ObjectOutputStream out) throws IOException {
-        out.defaultWriteObject();
-    }
-
-    public void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
-        in.defaultReadObject();
-        revalidate();
     }
 
 }
