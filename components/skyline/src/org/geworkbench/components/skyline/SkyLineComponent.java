@@ -51,7 +51,7 @@ import com.jgoodies.forms.layout.FormLayout;
  * This is skyline component for structure comparative modeling
  * 
  * @author mw2518
- * @version $Id: SkyLineComponent.java,v 1.9 2009-02-12 22:28:15 keshav Exp $
+ * @version $Id: SkyLineComponent.java,v 1.10 2009-02-18 22:02:49 chiangy Exp $
  */
 @AcceptTypes( { DSProteinStructure.class })
 public class SkyLineComponent extends JPanel implements VisualPlugin {
@@ -102,7 +102,7 @@ public class SkyLineComponent extends JPanel implements VisualPlugin {
 	JButton save = new JButton("Save Settings");
 	JPanel jPanel4 = new JPanel();
 	FlowLayout flowLayout1 = new FlowLayout();
-	ParameterPanel emptyParameterPanel = new AbstractSaveableParameterPanel();
+	ParameterPanel emptyParameterPanel = new ParameterPanel();
 	ParameterPanel currentParameterPanel = emptyParameterPanel;
 	BorderLayout borderLayout4 = new BorderLayout();
 	BorderLayout borderLayout5 = new BorderLayout();
@@ -427,8 +427,8 @@ public class SkyLineComponent extends JPanel implements VisualPlugin {
 			return;
 		int index = namedParameters.getSelectedIndex();
 		if (index != -1)
-			setParametersPanel(selectedStructureAnalysis
-					.getNamedParameterSetPanel((String) namedParameters
+			selectedStructureAnalysis.setParameters(selectedStructureAnalysis
+					.getNamedParameterSet((String) namedParameters
 							.getModel().getElementAt(index)));
 	}
 
