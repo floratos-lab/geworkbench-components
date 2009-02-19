@@ -27,8 +27,8 @@ public class GenSpaceSecurityPanel extends JPanel implements VisualPlugin, Actio
 		DataVisibility dataPanel = new DataVisibility(uName);
 		mainPanel.addTab("Data Visibility", dataPanel);
 		
-		NetworkVisibility nwPanel = new NetworkVisibility(uName);
-		mainPanel.addTab("User Visibility", nwPanel);
+		//NetworkVisibility nwPanel = new NetworkVisibility(uName);
+		//mainPanel.addTab("User Visibility", nwPanel);
 		
 		GenSpaceGeneralProfile genPanel = new GenSpaceGeneralProfile();
 		mainPanel.addTab("General Profile", genPanel);

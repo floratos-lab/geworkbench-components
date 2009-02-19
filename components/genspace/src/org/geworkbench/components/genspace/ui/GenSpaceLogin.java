@@ -28,7 +28,7 @@ import java.util.regex.Pattern;
 // This annotation lists the data set types that this component accepts.
 // The component will only appear when a data set of the appropriate type is selected.
 //@AcceptTypes({DSMicroarraySet.class})
-public class GenSpaceLogin extends JPanel implements VisualPlugin, ActionListener {
+public class GenSpaceLogin extends JPanel implements VisualPlugin, ActionListener, Runnable {
 
     private JLabel l1, l2, l3;
     private JTextField tf;
@@ -57,6 +57,10 @@ public class GenSpaceLogin extends JPanel implements VisualPlugin, ActionListene
      * Constructor
      */
     public GenSpaceLogin() {
+    	
+    }
+    
+    public void run() {
     	this.setSize(500, 500);
     	
     	JPanel onePanel = new JPanel();

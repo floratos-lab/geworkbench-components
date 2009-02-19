@@ -23,7 +23,7 @@ import java.net.*;
 
 
 
-public class WorkflowVisualization extends JPanel implements VisualPlugin, ActionListener {
+public class WorkflowVisualization extends JPanel implements VisualPlugin, ActionListener, Runnable {
 
 	private Log log = LogFactory.getLog(this.getClass());
 	private JComboBox tools = new JComboBox();
@@ -49,6 +49,9 @@ public class WorkflowVisualization extends JPanel implements VisualPlugin, Actio
 	{
 		log.info("Workflow Visualization started");
 
+	}
+	
+	public void run() {
 		initComponents();
 	}
 
@@ -72,7 +75,7 @@ public class WorkflowVisualization extends JPanel implements VisualPlugin, Actio
 		actionKeywords.put("Most common workflow including", "INCLUDE");
 		actionKeywords.put("All workflows including", "ALL");
 
-		selectPanel.add(checkbox);
+		//selectPanel.add(checkbox);
 
 		selectPanel.add(actions);
 		selectPanel.add(tools);

@@ -109,6 +109,7 @@ public class DataVisibility extends JPanel implements VisualPlugin, ActionListen
 		add(logPreferences);
 		logPreferences.addActionListener(this);
 
+		/*
 		dataVisibilityOptions = new JComboBox();
 		dataVisibilityOptions.addItem("-- Select Data Visibility Options --");
 		dataVisibilityOptions.addItem("Data Not Visible At All");
@@ -117,7 +118,7 @@ public class DataVisibility extends JPanel implements VisualPlugin, ActionListen
 		
 		add(dataVisibilityOptions);
 		dataVisibilityOptions.addActionListener(this);
-
+		
 		ArrayList<String> allNetworks = getAllNetworks();
 		networks = new JList(allNetworks.toArray());
 		networks.setVisibleRowCount(3);
@@ -126,7 +127,8 @@ public class DataVisibility extends JPanel implements VisualPlugin, ActionListen
 		networks.setEnabled(false);
 		add(new JScrollPane(networks));
 		networks.addListSelectionListener(this);
-
+		*/
+		
 		save = new JButton("Save");
 		add(save);
 		save.addActionListener(this);
@@ -158,12 +160,14 @@ public class DataVisibility extends JPanel implements VisualPlugin, ActionListen
         gridbag.setConstraints(blank, c);
     	add(blank);		
 
+    	
 		dataVisibilityOptions = new JComboBox();
 		dataVisibilityOptions.addItem("-- Select Data Visibility Options --");
 		dataVisibilityOptions.addItem("Data Not Visible At All");
 		dataVisibilityOptions.addItem("Data Visible Within My Network");
 		dataVisibilityOptions.addItem("Data Visible In Networks");
-			System.out.println("Second one"+bean.getDataVisibility());
+		/*
+		System.out.println("Second one"+bean.getDataVisibility());
 		dataVisibilityOptions.setSelectedIndex(bean.getDataVisibility()+1);
 		c.gridwidth = GridBagConstraints.REMAINDER;
 		gridbag.setConstraints(dataVisibilityOptions, c);		
@@ -206,7 +210,8 @@ public class DataVisibility extends JPanel implements VisualPlugin, ActionListen
 		c.gridwidth = GridBagConstraints.REMAINDER;		
         gridbag.setConstraints(blank, c);
     	add(blank);				
-
+		*/
+    	
 		save = new JButton("Save");
 		add(save);
 		save.addActionListener(this);}
@@ -233,7 +238,7 @@ public class DataVisibility extends JPanel implements VisualPlugin, ActionListen
 
 		String option = "";
 		
-
+		/*
 		if (e.getSource() == dataVisibilityOptions) {
 			option = dataVisibilityOptions.getSelectedItem().toString();
 			networks.setEnabled(false);
@@ -242,13 +247,14 @@ public class DataVisibility extends JPanel implements VisualPlugin, ActionListen
 		if (option.equals("Data Visible In Networks")) {
 			networks.setEnabled(true);
 		}
-
+		*/
+		
 		if (e.getSource() == save) {
 			if (logPreferences.getSelectedIndex() == 0) {
 				JOptionPane.showMessageDialog(this,
 						"Please Select Log Preferences", "",
 						JOptionPane.INFORMATION_MESSAGE);
-			} else if (dataVisibilityOptions.getSelectedIndex() == 0) {
+			} /*else if (dataVisibilityOptions.getSelectedIndex() == 0) {
 				JOptionPane.showMessageDialog(this,
 						"Please Select Data Visibility Option", "",
 						JOptionPane.INFORMATION_MESSAGE);
@@ -259,7 +265,8 @@ public class DataVisibility extends JPanel implements VisualPlugin, ActionListen
 							"Please Select Atleast One Network", "",
 							JOptionPane.INFORMATION_MESSAGE);
 					dataVisibilityOptions.setSelectedIndex(2);
-				} else {
+				}*/
+				else {
 
 					preference = logPreferences.getSelectedIndex();
 		    		ObjectHandler.setLogStatus(preference);
@@ -275,8 +282,13 @@ public class DataVisibility extends JPanel implements VisualPlugin, ActionListen
 					
 					DataVisibilityBean dvb = new DataVisibilityBean();
 					dvb.setUName(username);
-					dvb.setDataVisibility((short) (dataVisibilityOptions
-							.getSelectedIndex()-1));
+					
+					//temporary hack to display success at the end
+					//remove the next line when we use the full blown version of the security module
+					dataVisibilityOptions.setSelectedIndex(2);
+					
+					dvb.setDataVisibility((short) (dataVisibilityOptions.getSelectedIndex()-1));
+					
 					dvb.setLogData((short) (logPreferences.getSelectedIndex()-1));
 					dvb.setSelectedNetworks(selectedNetworks);
 					dvb.setMessage("saveDataVisibility");
@@ -290,7 +302,7 @@ public class DataVisibility extends JPanel implements VisualPlugin, ActionListen
      					 
     					JOptionPane.showMessageDialog(this, msg);
     				}
-				}
+				//}
 			}
 		}
 	}
