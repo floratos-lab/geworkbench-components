@@ -43,7 +43,7 @@ public class GenSpaceRegistration extends JPanel implements  VisualPlugin, Actio
         try 
         {
         		// ideally this should also be in the properties file
-        		String title = "Please enter your registartion inforamtion below.";
+        		String title = "Please enter your registration information below.";
         } 
         catch (Exception e) { }		
 		
@@ -62,55 +62,55 @@ public class GenSpaceRegistration extends JPanel implements  VisualPlugin, Actio
 	private void initComponents() {	
 		this.setSize(500, 500);
 		this.setLayout(new  GridLayout( 15, 2));
-		JLabel j1 = new JLabel("Enter sign in user id:");
+		JLabel j1 = new JLabel("Enter sign in user id *");
 		userId = new JTextField("", 20);
 		add(j1);
 		add(userId);
 
-		JLabel jp = new JLabel("Select your password:");
+		JLabel jp = new JLabel("Select your password *");
 		 password = new JPasswordField(10);
 		password.addActionListener(this);
 
 		add(jp);
 		add(password);
 		
-		JLabel jpc = new JLabel("Confirm your password:");
+		JLabel jpc = new JLabel("Confirm your password *");
 		passwordDup = new JPasswordField(10);
 		add(jpc);
 		add(passwordDup);
 		
-		JLabel j2 = new JLabel("First Name:");
+		JLabel j2 = new JLabel("First Name");
 		fname = new JTextField("", 20);
 		add(j2);
 		add(fname);
 
-		JLabel j3 = new JLabel("Last Name:");
+		JLabel j3 = new JLabel("Last Name");
 		lname = new JTextField("", 20);
 		add(j3);
 		add(lname);
 
-		JLabel j4 = new JLabel("Lab Affiliation:");
+		JLabel j4 = new JLabel("Lab Affiliation *");
 		labaff= new JTextField("", 20);
 		add(j4);
 		add(labaff);
 
-		JLabel emailLabel = new JLabel("Email Address:");
+		JLabel emailLabel = new JLabel("Email Address");
 		email= new JTextField("", 20);
 		add(emailLabel);
 		add(email);
 		
-		JLabel phoneLabel = new JLabel("Phone:");
+		JLabel phoneLabel = new JLabel("Phone");
 		phone = new JTextField("", 20);
 		add(phoneLabel);
 		add(phone);
 
 
-		JLabel j5 = new JLabel("Address 1:");
+		JLabel j5 = new JLabel("Address 1");
 		addr1 = new JTextField("", 20);
 		add(j5);
 		add(addr1);
 
-		JLabel j6 = new JLabel("Address 2:");
+		JLabel j6 = new JLabel("Address 2");
 		addr2 = new JTextField("", 20);
 		add(j6);
 		add(addr2);
@@ -125,7 +125,7 @@ public class GenSpaceRegistration extends JPanel implements  VisualPlugin, Actio
 		add(j9);
 		add(state);
 
-		JLabel j8 = new JLabel("ZIP Code:");
+		JLabel j8 = new JLabel("ZIP Code");
 		zipcode = new JTextField("", 20);
 		add(j8);
 		add(zipcode);
@@ -199,12 +199,12 @@ public class GenSpaceRegistration extends JPanel implements  VisualPlugin, Actio
         					
         					callLogin();
     					} else {
-        					String msg="User Registration is failed.";
+        					String msg="User Registration failed.";
 	      					 
         					JOptionPane.showMessageDialog(this, msg);
     					}
     				} else {
-    					String msg="User ID is duplicated.";
+    					String msg="User ID is duplicated";
     					      					 
     					JOptionPane.showMessageDialog(this, msg);
     					

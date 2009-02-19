@@ -22,7 +22,7 @@ import java.util.*;
 
 
 
-public class RealTimeWorkFlowSuggestion extends JPanel implements VisualPlugin{
+public class RealTimeWorkFlowSuggestion extends JPanel implements VisualPlugin, Runnable{
 
 	JRadioButton log, logAnon, noLog;
 	ButtonGroup group;
@@ -66,10 +66,12 @@ public class RealTimeWorkFlowSuggestion extends JPanel implements VisualPlugin{
 	int preference; // the logging preference
 	
 	public RealTimeWorkFlowSuggestion() {	
-		initComponents();
 		
 	}
 
+	public void run() {
+		initComponents();
+	}
 	
 	private void initComponents()
 	{	  
