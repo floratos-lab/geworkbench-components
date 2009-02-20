@@ -1179,7 +1179,8 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 						eidc);
 				serial = copy.get(index).getSerial();
 				matrix.addGeneRow(serial);
-
+				log.debug(" index:" + index + ",serial:" + serial + ",CNKB#"
+						+ cellularNetWorkElementInformation.getdSGeneMarker());
 				for (InteractionDetail interactionDetail : arrayList) {
 					DSGeneMarker marker = new CSGeneMarker();
 					marker.setGeneId(new Integer(interactionDetail
@@ -1188,14 +1189,30 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 					if (index >= 0) {
 						isEmpty = false;
 						int serial2 = copy.get(index).getSerial();
-						matrix.add(serial, serial2, 0.8f);
+						String mid1 = interactionDetail.getdSGeneMarker1();
+						DSGeneMarker marker1 = new CSGeneMarker();
+						marker1.setGeneId(Integer.parseInt(mid1));
+						int index1 = Collections.binarySearch(copy, marker1,
+								eidc);
+						int serial1 = copy.get(index1).getSerial();
+						matrix.addGeneRow(serial1);
+
+						matrix.add(serial1, serial2, 0.8f);
 						if (interactionDetail
 								.getInteractionType()
 								.equalsIgnoreCase(
 										InteractionDetail.PROTEINPROTEININTERACTION)) {
-							matrix.addDirectional(serial, serial2, "pp");
-							matrix.addDirectional(serial2, serial, "pp");
-
+							matrix.addDirectional(serial1, serial2, "pp");
+							matrix.addDirectional(serial2, serial1, "pp");
+							log.debug("\t"
+									+ interactionDetail.getdSGeneMarker1()
+									+ ":" + serial1 + "<=>"
+									+ interactionDetail.getdSGeneMarker2()
+									+ ":" + serial2 + " ::pp");
+							log.debug("\t#geneRows:"
+									+ matrix.getGeneRows().size()
+									+ ",#InteractionMap:"
+									+ matrix.getInteractionMap().size());
 						} else {
 							matrix.addDirectional(serial, serial2, "pd");
 							matrix.addDirectional(serial2, serial, "pd");
