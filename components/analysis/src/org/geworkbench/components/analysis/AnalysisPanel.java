@@ -95,7 +95,7 @@ import edu.columbia.geworkbench.cagrid.dispatcher.client.DispatcherClient;
  * @author First Genetic Trust Inc.
  * @author keshav
  * @author yc2480
- * @version $Id: AnalysisPanel.java,v 1.74 2009-02-18 21:26:03 chiangy Exp $
+ * @version $Id: AnalysisPanel.java,v 1.75 2009-02-23 18:08:49 chiangy Exp $
  * 
  */
 @AcceptTypes( { DSMicroarraySet.class, AdjacencyMatrixDataSet.class,
@@ -1106,11 +1106,11 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 									 */
 
 			AnalysisInvokedEvent event = new AnalysisInvokedEvent(
-					selectedAnalysis.getLabel(), "");
+					selectedAnalysis, "");
 			publishAnalysisInvokedEvent(event);
 		} else if ((maSetView != null) && (refMASet != null)) {
 			AnalysisInvokedEvent event = new AnalysisInvokedEvent(
-					selectedAnalysis.getLabel(), maSetView.getDataSet()
+					selectedAnalysis, maSetView.getDataSet()
 							.getLabel());
 			publishAnalysisInvokedEvent(event);
 		}
