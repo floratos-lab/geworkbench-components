@@ -18,6 +18,7 @@ import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -28,7 +29,7 @@ import com.jgoodies.forms.layout.FormLayout;
  * Class to display version information dialog.
  * 
  * @author not attributable
- * @version $Id: VersionInfoDialog.java,v 1.12 2008-11-18 19:51:08 jiz Exp $
+ * @version $Id: VersionInfoDialog.java,v 1.13 2009-02-23 20:40:14 keshav Exp $
  */
 public class VersionInfoDialog extends JDialog implements ActionListener {
 	private static final long serialVersionUID = 4152518674720567787L;
@@ -92,7 +93,9 @@ public class VersionInfoDialog extends JDialog implements ActionListener {
 			builder.nextLine();
 			builder.append(new JLabel(version));
 			builder.nextLine();
-			builder.append(new JLabel("Updated on " + buildTime));
+			if (!StringUtils.isEmpty(buildTime)) {
+				builder.append(new JLabel("Updated on " + buildTime));
+			}
 
 			getContentPane().add(builder.getPanel(), null);
 		}
