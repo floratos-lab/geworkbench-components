@@ -16,7 +16,7 @@ import edu.columbia.geworkbench.cagrid.dispatcher.client.DispatcherClient;
  * A thread that handles remote service polling.
  * 
  * @author keshav
- * @version $Id: PollingThread.java,v 1.7 2008-12-11 18:45:40 chiangy Exp $
+ * @version $Id: PollingThread.java,v 1.8 2009-02-24 18:12:18 keshav Exp $
  */
 public class PollingThread extends Thread {
 
@@ -29,7 +29,7 @@ public class PollingThread extends Thread {
 	private DispatcherClient dispatcherClient = null;
 
 	private boolean cancelled = false;
-	
+
 	public PollingThread(AnalysisPanel panel,
 			GridEndpointReferenceType gridEPR, DispatcherClient dispatcherClient) {
 
@@ -47,27 +47,32 @@ public class PollingThread extends Thread {
 			while (result == null) {
 				log.debug("polling");
 				Thread.sleep(10000);
-				if (cancelled) return;
-				try{
+				if (cancelled)
+					return;
+				try {
 					result = dispatcherClient.getResults(gridEPR);
-				}catch(Exception e){
+				} catch (Exception e) {
 					result = e;
 				}
 			}
 			ProjectNodeCompletedEvent completedEvent = new ProjectNodeCompletedEvent(
 					"Analysis Completed", gridEPR);
-			if (result instanceof Exception){
-				//generate user understandalbe messages. Detailed information will shown on dispatcher server's log.debug
+			if (result instanceof Exception) {
+				/*
+				 * Generate user understandable messages. Detailed information
+				 * is located on dispatcher server's log.debug
+				 */
 				String errorMessage = "";
-				errorMessage += ((Exception)result).getMessage();
-				//TODO: this filter out some messages, there's potential that message do have ":" in it. we should have a way to prevent this.
-				//errorMessage=org.geworkbench.bison.util.StringUtils.filter(errorMessage,"^.*:");
-				errorMessage=org.geworkbench.bison.util.StringUtils.filter(errorMessage,"java.rmi.RemoteException: "); 
-				errorMessage=org.geworkbench.bison.util.StringUtils.filter(errorMessage,"^.*::");
-				
+				errorMessage += ((Exception) result).getMessage();
+
+				/* This filters out some messages */
+				errorMessage = org.geworkbench.bison.util.StringUtils.filter(
+						errorMessage, "java.rmi.RemoteException: ");
+
 				JOptionPane.showMessageDialog(null, errorMessage,
-						"Your analysis has been canceled.", JOptionPane.ERROR_MESSAGE);
-			}else if (result != null && (result instanceof String)
+						"Your analysis has been canceled.",
+						JOptionPane.ERROR_MESSAGE);
+			} else if (result != null && (result instanceof String)
 					&& result.equals("null")) {
 				completedEvent.setDataSet(null);
 			} else if (result != null)
@@ -80,11 +85,12 @@ public class PollingThread extends Thread {
 		}
 
 	}
-	public void cancel(){
+
+	public void cancel() {
 		cancelled = true;
 	}
-	
-	public GridEndpointReferenceType getGridEPR(){
+
+	public GridEndpointReferenceType getGridEPR() {
 		return gridEPR;
 	}
 }
