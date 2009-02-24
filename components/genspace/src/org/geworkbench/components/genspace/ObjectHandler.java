@@ -15,7 +15,7 @@ import org.geworkbench.bison.model.analysis.Analysis;
  * A handler used to log events.
  * 
  * @author sheths
- * @version $Id: ObjectHandler.java,v 1.10 2009-02-24 21:36:32 keshav Exp $
+ * @version $Id: ObjectHandler.java,v 1.11 2009-02-24 22:45:41 sheths Exp $
  */
 public class ObjectHandler {
 
@@ -68,7 +68,7 @@ public class ObjectHandler {
 
 				for (Method m : methods) {
 					try {
-						if (m.getName().equals("getAnalysisName")) {
+						if (m.getName().equals("getAnalysis")) {
 							analysis = (Analysis)m.invoke(event);
 						} else if (m.getName().equals("getDataSetName")) {
 							dataSetName = m.invoke(event).toString();
@@ -80,10 +80,12 @@ public class ObjectHandler {
 
 				incrementTransactionId(dataSetName);
 				ObjectLogger o = null;
-				String analysisName = null;
+				String analysisName = "";
+				analysisName = ((AbstractAnalysis)analysis).getLabel();
+				
 				if (logStatus == 0) {
 					log.debug("genspace - Logging");
-					analysisName = ((AbstractAnalysis)analysis).getLabel();
+					
 					o = new ObjectLogger(analysisName, dataSetName,
 							lastTransactionId, username, genspace);
 				} else if (logStatus == 1) {

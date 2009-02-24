@@ -15,7 +15,6 @@ import java.awt.event.MouseListener;
 
 import org.geworkbench.engine.properties.PropertiesManager;
 
-
 import java.io.*;
 import java.net.*;
 import java.util.*;
@@ -177,8 +176,8 @@ public class RealTimeWorkFlowSuggestion extends JPanel implements VisualPlugin, 
 		}
 		
 		//first we print out the finished workflow
-		System.out.println("");
-		System.out.println("now we print all finished work flow:");
+		//System.out.println("");
+		//System.out.println("now we print all finished work flow:");
 		for (int i = 0; i < usedWorkFlowToday.size(); i ++) {
 			//we get the current finished work flow from the finished WF list
 			String tempWF = (String)usedWorkFlowToday.get(i);
@@ -189,7 +188,7 @@ public class RealTimeWorkFlowSuggestion extends JPanel implements VisualPlugin, 
 				System.out.print(((TransactionElement)tempWF.get(j)).getToolName() + " -> ");							  
 			}
 			*/
-			System.out.println("Old work flow: " + tempWF);						  
+			//System.out.println("Old work flow: " + tempWF);						  
 		}
 		
 		//-----------------show finished work flows today
@@ -218,7 +217,7 @@ public class RealTimeWorkFlowSuggestion extends JPanel implements VisualPlugin, 
 			
 			//get statA
 			statAValue = ((Integer)RealTimeWFSuggestionResults.get(0)).intValue();
-			System.out.println(statAValue);
+			//System.out.println(statAValue);
 			if (statAValue == 0) {
 				statA = false;
 			}
@@ -228,7 +227,7 @@ public class RealTimeWorkFlowSuggestion extends JPanel implements VisualPlugin, 
 			
 			//get statB
 			statBValue = (ArrayList)RealTimeWFSuggestionResults.get(1);
-			System.out.println(statBValue);
+			//System.out.println(statBValue);
 			if (statBValue.size() == 0) {
 				statB = false;
 			}
@@ -238,7 +237,7 @@ public class RealTimeWorkFlowSuggestion extends JPanel implements VisualPlugin, 
 			
 			//get statC
 			statCValue = (ArrayList)RealTimeWFSuggestionResults.get(2);
-			System.out.println("this time! Stat C: " + statCValue);
+			//System.out.println("this time! Stat C: " + statCValue);
 			
 		}
 		catch (Exception e) {
@@ -363,9 +362,7 @@ public class RealTimeWorkFlowSuggestion extends JPanel implements VisualPlugin, 
 		arguments.add(currentWorkflowTools);
 		arguments.add(LoginManager.getLoggedInUser());
 		
-		//FIXME - this is causing geworkbench to hang ... see line 27 of ServerRequest
-		//String nextBestRated = ServerRequest.get(RuntimeEnvironmentSettings.ISBU_SERVER, "nextBestRatedTool", arguments).toString();
-		String nextBestRated = null;
+		String nextBestRated = ServerRequest.get(RuntimeEnvironmentSettings.ISBU_SERVER, "nextBestRatedTool", arguments).toString();
 		
 		if (nextBestRated != null && !nextBestRated.equals("none"))
 			infoArea.append("Next best rated tool to use: " + nextBestRated + ".\n\n");
@@ -405,15 +402,15 @@ public class RealTimeWorkFlowSuggestion extends JPanel implements VisualPlugin, 
 			
 			if (transactionID.equals(currentTid)) { //we are still in the same transaction, just go ahead
 				
-				System.out.println(" ");
-				System.out.println("Incoming Transaction ID: " + transactionID);
-				System.out.println("current Transaction ID: " + currentTid);
-				System.out.println(" ");
+				//System.out.println(" ");
+				//System.out.println("Incoming Transaction ID: " + transactionID);
+				//System.out.println("current Transaction ID: " + currentTid);
+				//System.out.println(" ");
 				
 				TransactionElement element = new TransactionElement(hour, minute, second, toolName);
 				
 				currentWorkFlow.add(element);
-				System.out.println("Current work flow expanded by one more node!");
+				//System.out.println("Current work flow expanded by one more node!");
 				
 				workflowNodePanel.add(new JLabel(arrow));
 				
@@ -422,10 +419,10 @@ public class RealTimeWorkFlowSuggestion extends JPanel implements VisualPlugin, 
 			}
 			else { //if we are starting a new transaction (wf)
 				
-				System.out.println(" ");
-				System.out.println("Incoming Transaction ID: " + transactionID);
-				System.out.println("current Transaction ID: " + currentTid);
-				System.out.println("We need to clear the cwf and start a new one. ");
+				//System.out.println(" ");
+				//System.out.println("Incoming Transaction ID: " + transactionID);
+				//System.out.println("current Transaction ID: " + currentTid);
+				//System.out.println("We need to clear the cwf and start a new one. ");
 				
 				currentTid = transactionID;
 				
@@ -442,7 +439,7 @@ public class RealTimeWorkFlowSuggestion extends JPanel implements VisualPlugin, 
 				currentWorkFlow.clear();
 				workflowNodePanel.removeAll();
 				
-				System.out.println("Current work flow cleared!");
+				//System.out.println("Current work flow cleared!");
 				
 				//and then add in new work flow node
 				
@@ -450,8 +447,8 @@ public class RealTimeWorkFlowSuggestion extends JPanel implements VisualPlugin, 
 				
 				currentWorkFlow.add(element);
 				
-				System.out.println("We add a new starting node to cleared CWF!");
-				System.out.println(" ");
+				//System.out.println("We add a new starting node to cleared CWF!");
+				//System.out.println(" ");
 				
 				displayCWF();
 			}
@@ -498,22 +495,22 @@ public class RealTimeWorkFlowSuggestion extends JPanel implements VisualPlugin, 
 	
 	private static ArrayList getRealTimeWorkFlowSuggestion(String cwf) throws Exception {
 		
-		System.out.println(" ");
-		System.out.println("Current CWF being sent: " + cwf);
+		//System.out.println(" ");
+		//System.out.println("Current CWF being sent: " + cwf);
 		clientSideID = "RTWFS#getRealTimeWorkFlowSuggestion#" + cwf;//zhu yi kong ge shi zi dai de ...
 		Socket s = new Socket(serverIP, serverPort);
 		ObjectOutputStream oos = new ObjectOutputStream(s.getOutputStream());
 		oos.writeObject(clientSideID);
 		oos.flush();
-		System.out.println("client request sent (RTWFS)");
+		//System.out.println("client request sent (RTWFS)");
 		
 		//waiting for server response...
 		
 		ObjectInputStream ois = new ObjectInputStream(s.getInputStream());
-		System.out.println("waiting response from server (RTWFS).....");
+		//System.out.println("waiting response from server (RTWFS).....");
 		ArrayList resultList = (ArrayList) ois.readObject();
-		System.out.println("Real Time suggestion Info aquired from ISBU server!!");
-		System.out.println();
+		//System.out.println("Real Time suggestion Info aquired from ISBU server!!");
+		//System.out.println();
 		return resultList;
 		
 	}
