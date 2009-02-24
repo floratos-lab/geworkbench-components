@@ -362,8 +362,10 @@ public class RealTimeWorkFlowSuggestion extends JPanel implements VisualPlugin, 
 		ArrayList arguments = new ArrayList();
 		arguments.add(currentWorkflowTools);
 		arguments.add(LoginManager.getLoggedInUser());
-
-		String nextBestRated = ServerRequest.get(RuntimeEnvironmentSettings.ISBU_SERVER, "nextBestRatedTool", arguments).toString();
+		
+		//FIXME - this is causing geworkbench to hang ... see line 27 of ServerRequest
+		//String nextBestRated = ServerRequest.get(RuntimeEnvironmentSettings.ISBU_SERVER, "nextBestRatedTool", arguments).toString();
+		String nextBestRated = null;
 		
 		if (nextBestRated != null && !nextBestRated.equals("none"))
 			infoArea.append("Next best rated tool to use: " + nextBestRated + ".\n\n");

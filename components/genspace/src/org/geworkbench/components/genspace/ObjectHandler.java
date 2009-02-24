@@ -1,6 +1,5 @@
 package org.geworkbench.components.genspace;
 
-import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.net.Socket;
 import java.util.Calendar;
@@ -9,13 +8,14 @@ import java.util.Scanner;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.ojb.otm.lock.ObjectLock;
+import org.geworkbench.analysis.AbstractAnalysis;
+import org.geworkbench.bison.model.analysis.Analysis;
 
 /**
  * A handler used to log events.
  * 
  * @author sheths
- * @version $Id: ObjectHandler.java,v 1.9 2009-01-21 01:15:04 sheths Exp $
+ * @version $Id: ObjectHandler.java,v 1.10 2009-02-24 21:36:32 keshav Exp $
  */
 public class ObjectHandler {
 
@@ -41,7 +41,7 @@ public class ObjectHandler {
 
 				Method methods[] = event.getClass().getDeclaredMethods();
 
-				String analysisName = "";
+				Analysis analysis = null;
 				String dataSetName = "";
 				String username;
 				
@@ -69,7 +69,7 @@ public class ObjectHandler {
 				for (Method m : methods) {
 					try {
 						if (m.getName().equals("getAnalysisName")) {
-							analysisName = m.invoke(event).toString();
+							analysis = (Analysis)m.invoke(event);
 						} else if (m.getName().equals("getDataSetName")) {
 							dataSetName = m.invoke(event).toString();
 						}
@@ -80,8 +80,10 @@ public class ObjectHandler {
 
 				incrementTransactionId(dataSetName);
 				ObjectLogger o = null;
+				String analysisName = null;
 				if (logStatus == 0) {
 					log.debug("genspace - Logging");
+					analysisName = ((AbstractAnalysis)analysis).getLabel();
 					o = new ObjectLogger(analysisName, dataSetName,
 							lastTransactionId, username, genspace);
 				} else if (logStatus == 1) {
