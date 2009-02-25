@@ -1,23 +1,33 @@
 package org.geworkbench.components.genspace;
 
-import javax.swing.*;
-import javax.swing.border.MatteBorder;
-
-import org.apache.ojb.jdo.jdoql.ThisExpression;
-import org.geworkbench.components.genspace.rating.WorkflowVisualizationPopup;
-import org.geworkbench.components.genspace.ui.LoginManager;
-import org.geworkbench.engine.config.*;
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.FlowLayout;
+import java.awt.Font;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.net.Socket;
+import java.util.ArrayList;
+import java.util.StringTokenizer;
 
-import org.geworkbench.engine.properties.PropertiesManager;
+import javax.swing.ButtonGroup;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JRadioButton;
+import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
+import javax.swing.JTextArea;
+import javax.swing.border.MatteBorder;
 
-import java.io.*;
-import java.net.*;
-import java.util.*;
+import org.geworkbench.components.genspace.rating.WorkflowVisualizationPopup;
+import org.geworkbench.components.genspace.ui.LoginManager;
+import org.geworkbench.engine.config.VisualPlugin;
 
 
 
