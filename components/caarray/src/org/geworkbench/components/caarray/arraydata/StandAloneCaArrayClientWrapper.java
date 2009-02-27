@@ -42,7 +42,7 @@ import org.geworkbench.events.CaArrayQueryResultEvent;
  * The class to invoke StandAloneCaArrayWrapper
  * 
  * @author xiaoqing
- * @version $Id: StandAloneCaArrayClientWrapper.java,v 1.7 2009-02-09 16:39:19 jiz Exp $
+ * @version $Id: StandAloneCaArrayClientWrapper.java,v 1.8 2009-02-27 16:46:59 jiz Exp $
  * 
  */
 public class StandAloneCaArrayClientWrapper {
@@ -350,7 +350,7 @@ public class StandAloneCaArrayClientWrapper {
 	 */
 	public CSExprMicroarraySet getDataSet(String url, int port,
 			String username, String password, String hybridizationName, Long hybridizationId,
-			String quantitationType) throws Exception {
+			String quantitationType, String chipType) throws Exception {
 		String savedFilename = tmpDir + url + "_" + port + "_" + HYB + "_"
 				+ quantitationType + ".txt";
 		if (username != null) {
@@ -365,9 +365,9 @@ public class StandAloneCaArrayClientWrapper {
 		if (isFailed(savedFilename)) {
 			return null;
 		}
-		return processDataToBISON(savedFilename, hybridizationName);
+		return processDataToBISON(savedFilename, hybridizationName, chipType);
 	}
-
+	
 	/**
 	 * Translate the data file into BISON type.
 	 * 
@@ -377,7 +377,7 @@ public class StandAloneCaArrayClientWrapper {
 	 * @return
 	 */
 
-	private CSExprMicroarraySet processDataToBISON(String filename, String name) {
+	private CSExprMicroarraySet processDataToBISON(String filename, String name, String chipType) {
 
 		BufferedReader inputStream = null;
 
@@ -441,21 +441,10 @@ public class StandAloneCaArrayClientWrapper {
 				}
 			}
 		}
-		// code copied from CSExprMicroarraySet line 372: the same task handled
-		// in two very different ways
-		if (maSet.getCompatibilityLabel() == null) {
-			/*
-			 * both the second and third argument of
-			 * AnnotationParser.matchChipType(maSet, null, false) are in fact
-			 * always ignored. never used.
-			 */
-			String chiptype = AnnotationParser
-					.matchChipType(maSet, null, false);
-			if (chiptype != null) {
-				maSet.setCompatibilityLabel(chiptype);
-			}
-		}
-        
+
+		maSet.setCompatibilityLabel(chipType);
+		AnnotationParser.setChipType(maSet, chipType);
+		
 		microarray = new CSMicroarray(0, markerNo, name, null, null, true,
 				DSMicroarraySet.geneExpType);
 		microarray.setLabel(name);
