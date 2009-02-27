@@ -16,6 +16,7 @@ import org.apache.commons.logging.LogFactory;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.CSExprMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.sequences.CSSequenceSet;
+import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.AnnotationParser;
 import org.geworkbench.builtin.projects.ProjectPanel;
 import org.geworkbench.builtin.projects.remoteresources.carraydata.CaArray2Experiment;
 import org.geworkbench.engine.config.VisualPlugin;
@@ -133,9 +134,10 @@ public class CaArray2Component implements VisualPlugin {
 					}
 					String hybName = hybridzations.firstKey();
 					Long hybId = hybridzations.get(hybName);
+					String chipType = AnnotationParser.matchChipType(null, "", false);
 					CSExprMicroarraySet maSet = externalDataSetDownloadClient
 							.getDataSet(url, port, username, password,
-									hybName, hybId, qType);
+									hybName, hybId, qType, chipType);
 					CSExprMicroarraySet totalSet = maSet;
 					if (!merge) {
 						if (maSet != null) {
@@ -184,7 +186,7 @@ public class CaArray2Component implements VisualPlugin {
 							Long hybridizationId = hybridzations.get(hybridizationName);
 							CSExprMicroarraySet maSet2 = externalDataSetDownloadClient
 									.getDataSet(url, port, username, password,
-											hybridizationName, hybridizationId, qType);
+											hybridizationName, hybridizationId, qType, chipType);
 							;
 							if (maSet2 == null) {
 								event.setPopulated(false);
