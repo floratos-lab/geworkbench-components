@@ -180,7 +180,7 @@ public class GenSpaceRegistration extends JPanel implements  VisualPlugin, Actio
 	{
 		if (e.getSource() == save) {
 
-			SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+			org.jdesktop.swingworker.SwingWorker<Void, Void> worker = new org.jdesktop.swingworker.SwingWorker<Void, Void>() {
 				public Void doInBackground() {
 
 					save.setEnabled(false);
