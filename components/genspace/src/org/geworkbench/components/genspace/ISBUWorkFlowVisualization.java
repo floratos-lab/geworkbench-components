@@ -28,8 +28,10 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.engine.config.VisualPlugin;
 
+import org.jdesktop.swingworker.*;
+
 public class ISBUWorkFlowVisualization extends JPanel implements VisualPlugin,
-		Runnable {
+Runnable {
 
 	private Log log = LogFactory.getLog(this.getClass());
 
@@ -48,7 +50,7 @@ public class ISBUWorkFlowVisualization extends JPanel implements VisualPlugin,
 	private JLabel top3Tool = new JLabel("Top3 Most Popular Tools");
 	private JLabel top3WF = new JLabel("Top3 Most Popular Workflows");
 	private JLabel top3ToolAsHead = new JLabel(
-			"Top3 Most Popular Tools at Start of Workflows");
+	"Top3 Most Popular Tools at Start of Workflows");
 	private JLabel top1 = new JLabel("1: ");
 	private JLabel top2 = new JLabel("2: ");
 	private JLabel top3 = new JLabel("3: ");
@@ -66,11 +68,11 @@ public class ISBUWorkFlowVisualization extends JPanel implements VisualPlugin,
 	private JPanel subSingleToolPanel = new JPanel();
 	private JLabel single1 = new JLabel("Total usage rate: ");
 	private JLabel single2 = new JLabel(
-			"Total usage rate at start of workflow: ");
+	"Total usage rate at start of workflow: ");
 	private JLabel single3 = new JLabel(
-			"The most popular tool used next to this tool: ");
+	"The most popular tool used next to this tool: ");
 	private JLabel single4 = new JLabel(
-			"The most popular tool used before this tool: ");
+	"The most popular tool used before this tool: ");
 
 	// All the above Panels are addded to the northPanel
 	private JPanel northPanel = new JPanel();
@@ -79,16 +81,16 @@ public class ISBUWorkFlowVisualization extends JPanel implements VisualPlugin,
 
 	// Netwroks
 	private static final int PORT = RuntimeEnvironmentSettings.WORKFLOW_VIS_SERVER
-			.getPort();
+	.getPort();
 	private static final String HOST = RuntimeEnvironmentSettings.WORKFLOW_VIS_SERVER
-			.getHost();
+	.getHost();
 	private String login = "chris"; // TODO: WHERE DOES THIS COME FROM???
 
 	private static String clientSideID = null; // K
 	private static String serverIP = RuntimeEnvironmentSettings.ISBU_SERVER
-			.getHost();
+	.getHost();
 	private static int serverPort = RuntimeEnvironmentSettings.ISBU_SERVER
-			.getPort(); // K
+	.getPort(); // K
 	private ArrayList top3ToolString; // K
 	private ArrayList top3ToolAsHeadString; // K
 	private ArrayList top3WFString; // K
@@ -129,59 +131,67 @@ public class ISBUWorkFlowVisualization extends JPanel implements VisualPlugin,
 		/* K added (START)-singleTool */
 		tools.addItemListener(new ItemListener() {
 			public void itemStateChanged(ItemEvent event) {
-				try {
-					// selectedIndex = toolComboBox.getSelectedIndex();
-					String toolBeingRequested = tools.getSelectedItem()
+
+				SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+					public Void doInBackground() {
+
+						try {
+							// selectedIndex = toolComboBox.getSelectedIndex();
+							String toolBeingRequested = tools.getSelectedItem()
 							.toString();
-					// System.out.println("(((((((((( addItemLister" +
-					// tools.toString());
-					// labelIndex.setText((String)allAnalysisTools.get(selectedIndex));
+							// System.out.println("(((((((((( addItemLister" +
+							// tools.toString());
+							// labelIndex.setText((String)allAnalysisTools.get(selectedIndex));
 
-					// System.out.println("SELECTED$$$$" + toolBeingRequested);
+							// System.out.println("SELECTED$$$$" + toolBeingRequested);
 
-					if (toolBeingRequested.equals("-- select tool --")) {
-						single1.setText("Total usage rate: ");
+							if (toolBeingRequested.equals("-- select tool --")) {
+								single1.setText("Total usage rate: ");
 
-						single2
+								single2
 								.setText("Total usage rate at start of workflow: ");
 
-						single3
+								single3
 								.setText("The most popular tool used next to this tool: ");
 
-						single4
+								single4
 								.setText("The most popular tool used before this tool: ");
-						return;
+								return null;
 
-					} else {
-						// now we talk to the server
-						String usageRate = getUsageRate(toolBeingRequested);
-						single1.setText("Total usage rate: " + usageRate);
+							} else {
+								// now we talk to the server
+								String usageRate = getUsageRate(toolBeingRequested);
+								single1.setText("Total usage rate: " + usageRate);
 
-						String usageRateAsWFHead = getUsageRateAsWFHead(toolBeingRequested);
-						single2
+								String usageRateAsWFHead = getUsageRateAsWFHead(toolBeingRequested);
+								single2
 								.setText("Total usage rate at start of workflow: "
 										+ usageRateAsWFHead);
 
-						String mostPopularNextTool = getMostPopularNextTool(toolBeingRequested);
-						single3
+								String mostPopularNextTool = getMostPopularNextTool(toolBeingRequested);
+								single3
 								.setText("The most popular tool used next to this tool: "
 										+ mostPopularNextTool);
 
-						String mostPopularPreviousTool = getMostPopularPreviousTool(toolBeingRequested);
-						single4
+								String mostPopularPreviousTool = getMostPopularPreviousTool(toolBeingRequested);
+								single4
 								.setText("The most popular tool used before this tool: "
 										+ mostPopularPreviousTool);
 
-						// workflows =
-						// getTop3MostPopularWFForThisTool(toolBeingRequested);
-						// labelNC20.setText(top3WFForThisTool.get(0) + " and "
-						// + top3WFForThisTool.get(1) + " and " +
-						// top3WFForThisTool.get(2));
+								// workflows =
+								// getTop3MostPopularWFForThisTool(toolBeingRequested);
+								// labelNC20.setText(top3WFForThisTool.get(0) + " and "
+								// + top3WFForThisTool.get(1) + " and " +
+								// top3WFForThisTool.get(2));
 
+							}
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
+						return null;
 					}
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
+				};
+				worker.execute();
 			}
 		});
 		/* K added (END)-singleTool */
@@ -192,93 +202,102 @@ public class ISBUWorkFlowVisualization extends JPanel implements VisualPlugin,
 		top3ControlPanel.setBackground(Color.LIGHT_GRAY);
 		top3Button.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent topE) {
-				/* K added START */
-				// KTop3 top3 = new KTop3();
-				top3ToolString = new ArrayList();
-				try {
-					top3ToolString = getTop3MostPopularTools();
-					for (int i = 0; i < 3; i++) {
-						// System.out.println("****************");
-						// System.out.println(top3ToolString.get(i));
-						// System.out.println("****************");
-						if (i == 0)
-							top1
+
+				SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+					public Void doInBackground() {
+
+
+						/* K added START */
+						// KTop3 top3 = new KTop3();
+						top3ToolString = new ArrayList();
+						try {
+							top3ToolString = getTop3MostPopularTools();
+							for (int i = 0; i < 3; i++) {
+								// System.out.println("****************");
+								// System.out.println(top3ToolString.get(i));
+								// System.out.println("****************");
+								if (i == 0)
+									top1
 									.setText("1: "
 											+ (String) top3ToolString.get(i));
-						if (i == 1)
-							top2
+								if (i == 1)
+									top2
 									.setText("2: "
 											+ (String) top3ToolString.get(i));
-						if (i == 2)
-							top3
+								if (i == 2)
+									top3
 									.setText("3: "
 											+ (String) top3ToolString.get(i));
-					}
-				} catch (Exception except) {
+							}
+						} catch (Exception except) {
 
-				}
-				top3ToolAsHeadString = new ArrayList();
-				try {
-					top3ToolAsHeadString = getTop3MostPopularWFHead();
-					for (int i = 0; i < 3; i++) {
-						// System.out.println("****************");
-						// System.out.println((String)top3ToolString.get(i));
-						// System.out.println("****************");
-						if (i == 0)
-							top11.setText("1: "
-									+ (String) top3ToolAsHeadString.get(i));
-						if (i == 1)
-							top22.setText("2: "
-									+ (String) top3ToolAsHeadString.get(i));
-						if (i == 2)
-							top33.setText("3: "
-									+ (String) top3ToolAsHeadString.get(i));
-					}
-				} catch (Exception except) {
+						}
+						top3ToolAsHeadString = new ArrayList();
+						try {
+							top3ToolAsHeadString = getTop3MostPopularWFHead();
+							for (int i = 0; i < 3; i++) {
+								// System.out.println("****************");
+								// System.out.println((String)top3ToolString.get(i));
+								// System.out.println("****************");
+								if (i == 0)
+									top11.setText("1: "
+											+ (String) top3ToolAsHeadString.get(i));
+								if (i == 1)
+									top22.setText("2: "
+											+ (String) top3ToolAsHeadString.get(i));
+								if (i == 2)
+									top33.setText("3: "
+											+ (String) top3ToolAsHeadString.get(i));
+							}
+						} catch (Exception except) {
 
-				}
-				top3WFString = new ArrayList();
-				try {
-					top3WFString = getTop3MostPopularWF();
-					// System.out.println(top3WFString.size());
-					// top111.setText("1: "+ (String)top3WFString.get(0));
-					// top222.setText("2: "+ (String)top3WFString.get(1));
-					// top333.setText("3: "+ (String)top3WFString.get(2));
-					// System.out.println((String)top3WFString.get(0));
-					// System.out.println((String)top3WFString.get(1));
-					// System.out.println((String)top3WFString.get(2));
-					String s3 = (String) top3WFString.get(2);
+						}
+						top3WFString = new ArrayList();
+						try {
+							top3WFString = getTop3MostPopularWF();
+							// System.out.println(top3WFString.size());
+							// top111.setText("1: "+ (String)top3WFString.get(0));
+							// top222.setText("2: "+ (String)top3WFString.get(1));
+							// top333.setText("3: "+ (String)top3WFString.get(2));
+							// System.out.println((String)top3WFString.get(0));
+							// System.out.println((String)top3WFString.get(1));
+							// System.out.println((String)top3WFString.get(2));
+							String s3 = (String) top3WFString.get(2);
 
-					for (int i = 0; i < 3; i++) {
-						// System.out.println("****************");
-						// System.out.println(top3WFString.get(i));
-						// System.out.println("****************");
-						if (i == 0) {
-							// System.out.println("No1No1No1No1");
-							top111
+							for (int i = 0; i < 3; i++) {
+								// System.out.println("****************");
+								// System.out.println(top3WFString.get(i));
+								// System.out.println("****************");
+								if (i == 0) {
+									// System.out.println("No1No1No1No1");
+									top111
 									.setText("1: "
 											+ (String) top3WFString.get(i));
-						}
-						if (i == 1) {
-							// System.out.println("No2No2No2No2");
-							top222
+								}
+								if (i == 1) {
+									// System.out.println("No2No2No2No2");
+									top222
 									.setText("2: "
 											+ (String) top3WFString.get(i));
-						} // ARACNE,MRA Analysis,MRA Analysis,T Test Analysis,T
-							// Test Analysis,T Test Analysis,T Test Analysis,
-						// "123456789 123456789 123456789 123456789 123456789 123456789"
-						if (i == 2) {
-							// System.out.println("No3No3No3No3" + s3);
-							top333.setText("3: " + s3);
+								} // ARACNE,MRA Analysis,MRA Analysis,T Test Analysis,T
+								// Test Analysis,T Test Analysis,T Test Analysis,
+								// "123456789 123456789 123456789 123456789 123456789 123456789"
+								if (i == 2) {
+									// System.out.println("No3No3No3No3" + s3);
+									top333.setText("3: " + s3);
+								}
+
+							}
+
+						} catch (Exception except) {
+							System.out.println("$$$$$$$$$$$$$$$$Exception");
+							except.printStackTrace();
 						}
-
+						/* Koichrio added END */
+						return null;
 					}
-
-				} catch (Exception except) {
-					System.out.println("$$$$$$$$$$$$$$$$Exception");
-					except.printStackTrace();
-				}
-				/* Koichrio added END */
+				};
+				worker.execute();
 			}
 		});
 		top3Label.setFont(new Font("Courier New", Font.BOLD, 20));
@@ -495,8 +514,8 @@ public class ISBUWorkFlowVisualization extends JPanel implements VisualPlugin,
 	private static String getUsageRate(String toolApplied) throws Exception {
 
 		clientSideID = "feature2,getUsageRate," + toolApplied;// zhu yi kong ge
-																// shi zi dai de
-																// ...
+		// shi zi dai de
+		// ...
 		Socket s = new Socket(serverIP, serverPort);
 		ObjectOutputStream oos = new ObjectOutputStream(s.getOutputStream());
 		oos.writeObject(clientSideID);
@@ -516,16 +535,16 @@ public class ISBUWorkFlowVisualization extends JPanel implements VisualPlugin,
 
 	// K added from SuggestionBasedOnSingleTool
 	private static String getUsageRateAsWFHead(String toolApplied)
-			throws Exception {
+	throws Exception {
 
 		clientSideID = "feature2,getUsageRateAsWFHead," + toolApplied;// zhu yi
-																		// kong
-																		// ge
-																		// shi
-																		// zi
-																		// dai
-																		// de
-																		// ...
+		// kong
+		// ge
+		// shi
+		// zi
+		// dai
+		// de
+		// ...
 		Socket s = new Socket(serverIP, serverPort);
 		ObjectOutputStream oos = new ObjectOutputStream(s.getOutputStream());
 		oos.writeObject(clientSideID);
@@ -544,17 +563,17 @@ public class ISBUWorkFlowVisualization extends JPanel implements VisualPlugin,
 
 	// K added from SuggestionBasedOnSingleTool
 	private static String getMostPopularNextTool(String toolApplied)
-			throws Exception {
+	throws Exception {
 
 		clientSideID = "feature2,getMostPopularNextTool," + toolApplied;// zhu
-																		// yi
-																		// kong
-																		// ge
-																		// shi
-																		// zi
-																		// dai
-																		// de
-																		// ...
+		// yi
+		// kong
+		// ge
+		// shi
+		// zi
+		// dai
+		// de
+		// ...
 		Socket s = new Socket(serverIP, serverPort);
 		ObjectOutputStream oos = new ObjectOutputStream(s.getOutputStream());
 		oos.writeObject(clientSideID);
@@ -573,17 +592,17 @@ public class ISBUWorkFlowVisualization extends JPanel implements VisualPlugin,
 
 	// K added from SuggestionBasedOnSingleTool
 	private static String getMostPopularPreviousTool(String toolApplied)
-			throws Exception {
+	throws Exception {
 
 		clientSideID = "feature2,getMostPopularPreviousTool," + toolApplied;// zhu
-																			// yi
-																			// kong
-																			// ge
-																			// shi
-																			// zi
-																			// dai
-																			// de
-																			// ...
+		// yi
+		// kong
+		// ge
+		// shi
+		// zi
+		// dai
+		// de
+		// ...
 		Socket s = new Socket(serverIP, serverPort);
 		ObjectOutputStream oos = new ObjectOutputStream(s.getOutputStream());
 		oos.writeObject(clientSideID);

@@ -33,11 +33,13 @@ import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+import org.jdesktop.swingworker.*;
+
 
 public class GenSpaceGeneralProfile extends JPanel implements  VisualPlugin, ActionListener {
 
 	private JFrame jframe;
-	
+
 	private JTextField fname;
 	private JTextField lname;
 	private JTextField labaff;
@@ -52,27 +54,27 @@ public class GenSpaceGeneralProfile extends JPanel implements  VisualPlugin, Act
 	//TODO: All validations. Field validations.
 	//Invoke call to LoginMgr to pass the bean
 	//Display message from the LoginMgr
-	
+
 	JButton save;
-	
+
 	GenSpaceLogin login;
-	
+
 	public GenSpaceGeneralProfile()
 	{	
 		// read the preferences from the properties file
-        try 
-        {
-        		// ideally this should also be in the properties file
-        		String title = "General Profile Settings";
+		try 
+		{
+			// ideally this should also be in the properties file
+			String title = "General Profile Settings";
 
-        } 
-        catch (Exception e) { }		
+		} 
+		catch (Exception e) { }		
 
-		
+
 		initComponents();
 	}
 
-	
+
 	private void initComponents()
 	{	
 		//String username = LoginManager.loggedInUser;
@@ -82,10 +84,10 @@ public class GenSpaceGeneralProfile extends JPanel implements  VisualPlugin, Act
 		rbean.setUName(username);
 		LoginManager lmgr = new LoginManager(rbean);
 		rbean = lmgr.getUserInfo();
-		
+
 		this.setLayout(new  GridLayout( 15, 2));
 
-		
+
 		JLabel j2 = new JLabel("First Name:");
 		fname = new JTextField(rbean.getFName(), 20);
 		add(j2);
@@ -106,7 +108,7 @@ public class GenSpaceGeneralProfile extends JPanel implements  VisualPlugin, Act
 		email= new JTextField(rbean.getEmail(), 20);
 		add(emailLabel);
 		add(email);
-		
+
 		JLabel phoneLabel = new JLabel("Phone:");
 		phone = new JTextField(rbean.getPhoneNumber(), 20);
 		add(phoneLabel);
@@ -127,7 +129,7 @@ public class GenSpaceGeneralProfile extends JPanel implements  VisualPlugin, Act
 		city = new JTextField(rbean.getCity(), 20);
 		add(j7);
 		add(city);
-		
+
 		JLabel j9 = new JLabel("State");
 		state = new JTextField(rbean.getState(), 20);
 		add(j9);
@@ -137,19 +139,19 @@ public class GenSpaceGeneralProfile extends JPanel implements  VisualPlugin, Act
 		zipcode = new JTextField(rbean.getZipCode(), 20);
 		add(j8);
 		add(zipcode);
-		
+
 		JPanel saveReset;
-	
+
 		save = new JButton("Save");
 		save.addActionListener(this);
 
 		add(save);
-        
-        
-        save.setEnabled(true);
+
+
+		save.setEnabled(true);
 	}
-	
-	
+
+
 	private RegisterBean getBean()
 	{
 		RegisterBean bean = new RegisterBean();
@@ -165,55 +167,66 @@ public class GenSpaceGeneralProfile extends JPanel implements  VisualPlugin, Act
 		bean.setZipcode(zipcode.getText());
 		return bean;
 	}
+
+	public void actionPerformed(ActionEvent e) 
+	{
+		if (e.getSource() == save) {
+
+			SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+				public Void doInBackground() {
+
+					save.setEnabled(false);
+					RegisterBean bean = getBean();
+					String username = LoginManager.getLoggedInUser();
+					bean.setUName(username);
+					LoginManager manager = new LoginManager(bean);
+
+					try
+					{
+						StringBuffer errMsg = new StringBuffer();
+						if(isValid(errMsg))
+						{
+							//System.out.println("valid");
+
+							boolean userRegister = manager.userUpdate();
+
+							if (userRegister) {
+								String msg="Information updated";
+
+								JOptionPane.showMessageDialog(null, msg);
+
+								System.out.println("information updated");
+							}
+							else {
+								String msg="Information update failed";
+
+								JOptionPane.showMessageDialog(null, msg);
+
+							}
+						}
+
+
+						else {
+							JOptionPane.showMessageDialog(null, errMsg.toString(),
+									"Error Information", JOptionPane.INFORMATION_MESSAGE);
+
+							getThisPanel().revalidate();
+						}
+					}
+					catch (Exception ex) { }
+					save.setEnabled(true);
+
+					return null;
+				} 
+			};
+			worker.execute();
+		}
+	}
 	
-    public void actionPerformed(ActionEvent e) 
-    {
-    	if (e.getSource() == save) {
-    		
-    		save.setEnabled(false);
-    		RegisterBean bean = getBean();
-    		String username = LoginManager.getLoggedInUser();
-    		bean.setUName(username);
-    		LoginManager manager = new LoginManager(bean);
-    		
-    		try
-    		{
-    			StringBuffer errMsg = new StringBuffer();
-    			if(isValid(errMsg))
-    			{
-    				//System.out.println("valid");
-    			
-    				boolean userRegister = manager.userUpdate();
-    					
-    				if (userRegister) {
-        				String msg="Information updated";
-	      					 
-        				JOptionPane.showMessageDialog(this, msg);
-        					
-    					System.out.println("information updated");
-    				}
-    				else {
-        				String msg="Information update failed";
-	      					 
-        				JOptionPane.showMessageDialog(this, msg);
-        				
-    					}
-    				}
-    			
-    				    				
-    			else {
-    				JOptionPane.showMessageDialog(this, errMsg.toString(),
-                            "Error Information", JOptionPane.INFORMATION_MESSAGE);
-                				
-    				this.revalidate();
-    			}
-    		}
-    		catch (Exception ex) { }
-    		save.setEnabled(true);
-    		
-    	} 
-    }
-    
+	public JPanel getThisPanel() {
+		return this;
+	}
+
 	private boolean empty(String str)
 	{
 		if("".equalsIgnoreCase(str) || null == str)
@@ -221,88 +234,88 @@ public class GenSpaceGeneralProfile extends JPanel implements  VisualPlugin, Act
 		else
 			return false;
 	}
-   
+
 	public boolean isValid(StringBuffer msg) {
 
-		 String labaffStr = labaff.getText();
-		 boolean valid = true;
-		 
-	
-		 if(empty(labaffStr))
-		 {
-			 msg.append("Lab affiliation cannot be empty\n");
-			 valid = false;
-		 }
-		 
-		 Pattern pattern;
-		 Matcher matcher;
-		 
+		String labaffStr = labaff.getText();
+		boolean valid = true;
+
+
+		if(empty(labaffStr))
+		{
+			msg.append("Lab affiliation cannot be empty\n");
+			valid = false;
+		}
+
+		Pattern pattern;
+		Matcher matcher;
+
 		// Phone number validation
-		 if(!empty(phone.getText()))
-		 {
-			 pattern = 
-		            Pattern.compile("[^0-9a-zA-Z()-]");
-	
-		     matcher = 
-		            pattern.matcher(phone.getText());
-		     
-		     if(matcher.find()) 
-		     {
-		    	 msg.append("Phone number contains invalid characters\n");
-		    	 valid = false;
-		     }
-		 }
+		if(!empty(phone.getText()))
+		{
+			pattern = 
+				Pattern.compile("[^0-9a-zA-Z()-]");
+
+			matcher = 
+				pattern.matcher(phone.getText());
+
+			if(matcher.find()) 
+			{
+				msg.append("Phone number contains invalid characters\n");
+				valid = false;
+			}
+		}
 		// email validation
-	     if(!empty(email.getText()))
-	     {
-			 pattern = 
-		            Pattern.compile("[0-9a-zA-Z()-_.]+@[0-9a-zA-Z()-_.]+");
-	
-		     matcher = 
-		            pattern.matcher(email.getText());
-		     if(!matcher.find()) 
-		     {
-		    	 msg.append("Invalid Email.\n");
-		    	 valid = false;
-		     }
-		     
-	     }
-	     System.out.println("valid : " + valid);
-		 return valid;
+		if(!empty(email.getText()))
+		{
+			pattern = 
+				Pattern.compile("[0-9a-zA-Z()-_.]+@[0-9a-zA-Z()-_.]+");
+
+			matcher = 
+				pattern.matcher(email.getText());
+			if(!matcher.find()) 
+			{
+				msg.append("Invalid Email.\n");
+				valid = false;
+			}
+
+		}
+		System.out.println("valid : " + valid);
+		return valid;
 	}
-    
-    public void initFrame()
-    {
-    	jframe = new JFrame();
-    	jframe.add(this);
-    	jframe.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-    	jframe.setSize(500,500);
-    }    
-    
-    public void showFrame()
-    {
-    	jframe.setVisible(true); 	
-    } 
-    
-    public void hideFrame()
-    {
-    	jframe.setVisible(false); 	
-    }    
-    
-    /**
-     * This method fulfills the contract of the {@link VisualPlugin} interface.
-     * It returns the GUI component for this visual plugin.
-     */
-    public Component getComponent() {
-        // In this case, this object is also the GUI component.
-        return this;
-    }
-    
+
+	public void initFrame()
+	{
+		jframe = new JFrame();
+		jframe.add(this);
+		jframe.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		jframe.setSize(500,500);
+	}    
+
+	public void showFrame()
+	{
+		jframe.setVisible(true); 	
+	} 
+
+	public void hideFrame()
+	{
+		jframe.setVisible(false); 	
+	}    
+
+	/**
+	 * This method fulfills the contract of the {@link VisualPlugin} interface.
+	 * It returns the GUI component for this visual plugin.
+	 */
+	public Component getComponent() {
+		// In this case, this object is also the GUI component.
+		return this;
+	}
+
 	public static void main(String args[]) throws Exception
-    {
-    	GenSpaceGeneralProfile panel = new  GenSpaceGeneralProfile();
-    	panel.initFrame();
-    	panel.showFrame();
-    }
+	{
+		GenSpaceGeneralProfile panel = new  GenSpaceGeneralProfile();
+		panel.initFrame();
+		panel.showFrame();
+	}
 }
 
