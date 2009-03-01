@@ -22,6 +22,8 @@ import java.io.PrintWriter;
 import java.util.*;
 import java.net.*;
 
+import org.jdesktop.swingworker.*;
+
 
 
 public class WorkflowVisualization extends JPanel implements VisualPlugin, ActionListener, Runnable {
