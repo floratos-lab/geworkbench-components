@@ -1,6 +1,7 @@
 package org.geworkbench.components.genspace;
 
 import javax.swing.*;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.builtin.projects.remoteresources.query.GeWorkbenchCaARRAYAdaptor;
@@ -37,7 +38,7 @@ public class WorkflowVisualization extends JPanel implements VisualPlugin, Actio
 	private ArrayList<String> workflows;
 	private JGraph graph;
 	private DefaultGraphCell[] cells;
-	
+
 	private WorkflowVisualizationPopup popup = new WorkflowVisualizationPopup();
 
 	public static final String[] NUMBERS = {"No", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten" };
@@ -50,7 +51,7 @@ public class WorkflowVisualization extends JPanel implements VisualPlugin, Actio
 		log.info("Workflow Visualization started");
 
 	}
-	
+
 	public void run() {
 		initComponents();
 	}
@@ -100,95 +101,99 @@ public class WorkflowVisualization extends JPanel implements VisualPlugin, Actio
 	{
 		ArrayList<String> allTools = new ArrayList<String>();
 
-    	// connect to the server and get the info we need
-    	PrintWriter out = null;
-    	Socket s = null;
-    	try
-    	{
-    		s = new Socket(RuntimeEnvironmentSettings.WORKFLOW_SERVER.getHost(),
-    					RuntimeEnvironmentSettings.WORKFLOW_SERVER.getPort());
-    		out = new java.io.PrintWriter(s.getOutputStream());
+		// connect to the server and get the info we need
+		PrintWriter out = null;
+		Socket s = null;
+		try
+		{
+			s = new Socket(RuntimeEnvironmentSettings.WORKFLOW_SERVER.getHost(),
+					RuntimeEnvironmentSettings.WORKFLOW_SERVER.getPort());
+			out = new java.io.PrintWriter(s.getOutputStream());
 
-    		// send the action keyword and the name of the tool
-    		out.write("TOOLS\n");
-       		out.flush();
+			// send the action keyword and the name of the tool
+			out.write("TOOLS\n");
+			out.flush();
 
-    		// read in the response and store the values in an ArrayList
-    		Scanner in = new Scanner(s.getInputStream());
-    		while (in.hasNext())
-    		{
-    			String line = in.nextLine();
-    			log.info(line);
-    			if (line.equals("END")) break;
-    			allTools.add(line);
-    		}
-    	}
-    	catch (Exception ex)
-    	{
-    		ex.printStackTrace();
-    		// TODO: handle the error more gracefully
-    	}
-    	finally
-    	{
-    		try { out.close(); } catch (Exception ex) { }
-    		try { s.close(); } catch (Exception ex) { }
-    	}
-    	return allTools;
+			// read in the response and store the values in an ArrayList
+			Scanner in = new Scanner(s.getInputStream());
+			while (in.hasNext())
+			{
+				String line = in.nextLine();
+				log.info(line);
+				if (line.equals("END")) break;
+				allTools.add(line);
+			}
+		}
+		catch (Exception ex)
+		{
+			ex.printStackTrace();
+			// TODO: handle the error more gracefully
+		}
+		finally
+		{
+			try { out.close(); } catch (Exception ex) { }
+			try { s.close(); } catch (Exception ex) { }
+		}
+		return allTools;
 	}
 
 
-    public void actionPerformed(ActionEvent e)
-    {
-    	// get the name of the selected tool and the action
-    	String tool = tools.getSelectedItem().toString();
-    	String action = actions.getSelectedItem().toString();
+	public void actionPerformed(ActionEvent e)
+	{
 
-    	// to store the workflows that come back from the server
-    	workflows = new ArrayList<String>();
+		SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+			public Void doInBackground() {
 
+				// get the name of the selected tool and the action
+				String tool = tools.getSelectedItem().toString();
+				String action = actions.getSelectedItem().toString();
 
-    	// connect to the server and get the info we need
-    	PrintWriter out = null;
-    	Socket s = null;
-    	try
-    	{
-    		s = new Socket(RuntimeEnvironmentSettings.WORKFLOW_SERVER.getHost(), 
-    					RuntimeEnvironmentSettings.WORKFLOW_SERVER.getPort());
-    		
-    		out = new java.io.PrintWriter(s.getOutputStream());
-
-    		// send the action keyword and the name of the tool
-    		out.write(actionKeywords.get(action) + "\n");
-    		out.write(tool + "\n");
-    		// send the username and whether or not to limit to that user's networks
-    		out.println(login);
-    		out.println(checkbox.isSelected());
-    		out.flush();
-
-    		// read in the response and store the values in an ArrayList
-    		Scanner in = new Scanner(s.getInputStream());
-    		while (in.hasNext())
-    		{
-    			String line = in.nextLine();
-    			log.info(line);
-    			if (line.equals("END")) break;
-    			workflows.add(line);
-    		}
-    	}
-    	catch (Exception ex)
-    	{
-    		ex.printStackTrace();
-    		// TODO: handle the error more gracefully
-    	}
-    	finally
-    	{
-    		try { out.close(); } catch (Exception ex) { }
-    		try { s.close(); } catch (Exception ex) { }
-    	}
+				// to store the workflows that come back from the server
+				workflows = new ArrayList<String>();
 
 
-    	/*
-    	 * This is just sample data!!!!
+				// connect to the server and get the info we need
+				PrintWriter out = null;
+				Socket s = null;
+				try
+				{
+					s = new Socket(RuntimeEnvironmentSettings.WORKFLOW_SERVER.getHost(), 
+							RuntimeEnvironmentSettings.WORKFLOW_SERVER.getPort());
+
+					out = new java.io.PrintWriter(s.getOutputStream());
+
+					// send the action keyword and the name of the tool
+					out.write(actionKeywords.get(action) + "\n");
+					out.write(tool + "\n");
+					// send the username and whether or not to limit to that user's networks
+					out.println(login);
+					out.println(checkbox.isSelected());
+					out.flush();
+
+					// read in the response and store the values in an ArrayList
+					Scanner in = new Scanner(s.getInputStream());
+					while (in.hasNext())
+					{
+						String line = in.nextLine();
+						log.info(line);
+						if (line.equals("END")) break;
+						workflows.add(line);
+					}
+				}
+				catch (Exception ex)
+				{
+					ex.printStackTrace();
+					// TODO: handle the error more gracefully
+				}
+				finally
+				{
+					try { out.close(); } catch (Exception ex) { }
+					try { s.close(); } catch (Exception ex) { }
+				}
+
+
+				/*
+				 * This is just sample data!!!!
     	if (action.equals("All workflows including"))
     	{
     		if (tool.equals("Log2 Normalizer"))
@@ -219,131 +224,133 @@ public class WorkflowVisualization extends JPanel implements VisualPlugin, Actio
     		else
     			workflows.add("BLAST, Pattern Discovery");
     	}
-    	*/
+				 */
 
-    	// make sure we got some results!
-    	if (workflows.size() == 0)
-    	{
-    		// no results came back!
-    		JOptionPane.showMessageDialog(this, "There are no workflows matching that criteria");
-    		return;
-    	}
+				// make sure we got some results!
+				if (workflows.size() == 0)
+				{
+					// no results came back!
+					JOptionPane.showMessageDialog(null, "There are no workflows matching that criteria");
+					return null;
+				}
 
-    	// update the status
-    	String noun = "workflow";
-    	if (workflows.size() > 1) noun = "workflows";
-    	label.setText(workflows.size() + " " + noun + " found");
+				// update the status
+				String noun = "workflow";
+				if (workflows.size() > 1) noun = "workflows";
+				label.setText(workflows.size() + " " + noun + " found");
 
-    	// different method calls to handle the different types of return values
-    	if (action.equals("All workflows including"))
-    	{
-    		HashMap<String, Node> nodeMap = new HashMap<String, Node>();
-    		ArrayList<Edge> edges = new ArrayList<Edge>();
+				// different method calls to handle the different types of return values
+				if (action.equals("All workflows including"))
+				{
+					HashMap<String, Node> nodeMap = new HashMap<String, Node>();
+					ArrayList<Edge> edges = new ArrayList<Edge>();
 
-    		// go through the workflows and rip out the individual parts
-    		for (String workflow : workflows)
-    		{
-    			String[] n = workflow.split(",");
-    			for (int i = 0; i < n.length; i++)
-    			{
-    				// add the individual node, but only if it's not already there
-    				if (nodeMap.keySet().contains(n[i]) == false)
-    				{
-    					nodeMap.put(n[i], new Node(n[i]));
-    				}
-    				// update the position
-    				nodeMap.get(n[i]).addPosition(i);
+					// go through the workflows and rip out the individual parts
+					for (String workflow : workflows)
+					{
+						String[] n = workflow.split(",");
+						for (int i = 0; i < n.length; i++)
+						{
+							// add the individual node, but only if it's not already there
+							if (nodeMap.keySet().contains(n[i]) == false)
+							{
+								nodeMap.put(n[i], new Node(n[i]));
+							}
+							// update the position
+							nodeMap.get(n[i]).addPosition(i);
 
-    				// mark the starting node
-    				if (i == 0) nodeMap.get(n[i]).isStart = true;
+							// mark the starting node
+							if (i == 0) nodeMap.get(n[i]).isStart = true;
 
-    				// create an edge between this one and the next, only if the edge doesn't already exist
-    				if (i < n.length - 1)
-    				{
-    					Edge edge = new Edge(n[i], n[i+1]);
-    					if (edges.contains(edge) == false)
-    					{
-    						edges.add(edge);
-    					}
-    				}
-    			}
-    		}
+							// create an edge between this one and the next, only if the edge doesn't already exist
+							if (i < n.length - 1)
+							{
+								Edge edge = new Edge(n[i], n[i+1]);
+								if (edges.contains(edge) == false)
+								{
+									edges.add(edge);
+								}
+							}
+						}
+					}
 
-    		/*
+					/*
     		for (Node node : nodeMap.values())
     		{
     			System.out.println(node.value + " " + node.avgPos);
     		}
-    		*/
+					 */
 
 
-    		// now sort the nodes based on their average places in the workflows
-    		Node[] nodes = nodeMap.values().toArray(new Node[nodeMap.size()]);
+					// now sort the nodes based on their average places in the workflows
+					Node[] nodes = nodeMap.values().toArray(new Node[nodeMap.size()]);
 
-    		// when in doubt, use selection sort!
-    		for (int i = 0; i < nodes.length-1; i++)
-    		{
-    			double min = nodes[i].avgPos;
-    			int minIndex = i;
+					// when in doubt, use selection sort!
+					for (int i = 0; i < nodes.length-1; i++)
+					{
+						double min = nodes[i].avgPos;
+						int minIndex = i;
 
-    			for (int j = i; j < nodes.length; j++)
-    			{
-    				if (nodes[j].avgPos < min)
-    				{
-    					min = nodes[j].avgPos;
-    					minIndex = j;
-    				}
-    			}
+						for (int j = i; j < nodes.length; j++)
+						{
+							if (nodes[j].avgPos < min)
+							{
+								min = nodes[j].avgPos;
+								minIndex = j;
+							}
+						}
 
-    			Node temp = nodes[i];
-    			nodes[i] = nodes[minIndex];
-    			nodes[minIndex] = temp;
-    		}
+						Node temp = nodes[i];
+						nodes[i] = nodes[minIndex];
+						nodes[minIndex] = temp;
+					}
 
-    		/*
+					/*
     		System.out.println("AFTER SORTING");
     		for (Node node : nodes)
     		{
     			System.out.println(node.value + " " + node.avgPos);
     		}
-    		*/
+					 */
 
-    		// finally, we draw the thing
-    		draw(nodes, edges.toArray(new Edge[edges.size()]), tool);
-    	}
-    	else
-    	{
-    		// if it's not all workflows, then it's just one, which means we just have a single entry in the arraylist
-    		String workflow = workflows.get(0);
-    		// separate all the names
-    		String[] nodeNames = workflow.split(",");
-    		// create an array of Nodes
-    		Node[] nodes = new Node[nodeNames.length];
+					// finally, we draw the thing
+					draw(nodes, edges.toArray(new Edge[edges.size()]), tool);
+				}
+				else
+				{
+					// if it's not all workflows, then it's just one, which means we just have a single entry in the arraylist
+					String workflow = workflows.get(0);
+					// separate all the names
+					String[] nodeNames = workflow.split(",");
+					// create an array of Nodes
+					Node[] nodes = new Node[nodeNames.length];
 
-    		// populate the array of Nodes
-    		for (int i = 0; i < nodes.length; i++)
-    		{
-    			nodes[i] = new Node(nodeNames[i]);
-    		}
+					// populate the array of Nodes
+					for (int i = 0; i < nodes.length; i++)
+					{
+						nodes[i] = new Node(nodeNames[i]);
+					}
 
-    		// mark the starting node
-    		nodes[0].isStart = true;
+					// mark the starting node
+					nodes[0].isStart = true;
 
-    		// draw!
-    		draw(nodes, tool);
-   		}
+					// draw!
+					draw(nodes, tool);
+				}
+				return null;
+			}
+		};
+		worker.execute();
+	}
 
+	public Component getComponent() {
+		// In this case, this object is also the GUI component.
+		return this;
+	}
 
-    }
-
-    public Component getComponent() {
-        // In this case, this object is also the GUI component.
-        return this;
-    }
-
-    /**
-     * Method to draw the graph when we only have a single sequence of nodes and not an entire tree
-     */
+	/**
+	 * Method to draw the graph when we only have a single sequence of nodes and not an entire tree
+	 */
 	public void draw(Node[] nodes, String tool)
 	{
 		draw(nodes, null, tool);
@@ -524,7 +531,7 @@ public class WorkflowVisualization extends JPanel implements VisualPlugin, Actio
 			workflows++;
 			avgPos = ((double)totalPos)/workflows;
 		}
-		
+
 	}
 
 
@@ -570,7 +577,7 @@ public class WorkflowVisualization extends JPanel implements VisualPlugin, Actio
 			if (o instanceof GraphNode)
 			{
 				GraphNode selectedNode = (GraphNode)o;
-				
+
 				// if it's highlighted already, unhighlight it
 				if (highlightedNodes.contains(selectedNode))
 					highlightedNodes.remove(selectedNode);
@@ -587,7 +594,7 @@ public class WorkflowVisualization extends JPanel implements VisualPlugin, Actio
 					selectedNode.highlighted = true;
 					highlightedNodes.add(selectedNode);
 				}
-				*/
+				 */
 
 
 				// remove all the highlighted edges
@@ -608,15 +615,15 @@ public class WorkflowVisualization extends JPanel implements VisualPlugin, Actio
 						String[] nodes = workflow.split(",");
 						for (int i = 0; i < nodes.length; i++)
 						{
-		    				// create an edge between this one and the next, only if the edge doesn't already exist
-		    				if (i < nodes.length - 1)
-		    				{
-		    					Edge edge = new Edge(nodes[i], nodes[i+1]);
-		    					if (workflowEdges.contains(edge) == false)
-		    					{
-		    						workflowEdges.add(edge);
-		    					}
-		    				}
+							// create an edge between this one and the next, only if the edge doesn't already exist
+							if (i < nodes.length - 1)
+							{
+								Edge edge = new Edge(nodes[i], nodes[i+1]);
+								if (workflowEdges.contains(edge) == false)
+								{
+									workflowEdges.add(edge);
+								}
+							}
 						}
 					}
 				}
@@ -630,9 +637,9 @@ public class WorkflowVisualization extends JPanel implements VisualPlugin, Actio
 				{
 					for (int i = 0; i < highlightedNodes.size(); i++)
 					{
-							if (i > 0) highlighted += ", ";
-							if (i == highlightedNodes.size() - 1) highlighted += "and ";
-							highlighted += highlightedNodes.get(i).getUserObject();
+						if (i > 0) highlighted += ", ";
+						if (i == highlightedNodes.size() - 1) highlighted += "and ";
+						highlighted += highlightedNodes.get(i).getUserObject();
 					}
 				}
 				// TODO: alphabetize them?
@@ -711,7 +718,7 @@ public class WorkflowVisualization extends JPanel implements VisualPlugin, Actio
 						{
 							theCell.highlighted = false;
 						}
-						*/
+						 */
 
 						// now determine how to color the cells
 						if (highlightedNodes.contains(theCell))
@@ -734,13 +741,13 @@ public class WorkflowVisualization extends JPanel implements VisualPlugin, Actio
 				 * automatically refresh the entire graph
 				 */
 				graph.getGraphLayoutCache().insertEdge(temp, temp.getSource(), temp.getTarget());
-			
 
-				
+
+
 				//Display the right click menu for rating
-				
+
 				Rectangle2D rect = GraphConstants.getBounds(selectedNode.getAttributes());
-			
+
 				popup.showToolOptions();
 				popup.showToolRating();
 				popup.hideWorkflowOptions();
@@ -752,7 +759,7 @@ public class WorkflowVisualization extends JPanel implements VisualPlugin, Actio
 			// if they click on an edge... though a DefaultEdge *is* a DefaultGraphCell, so this would need to move up!!!!!
 			else if (o instanceof DefaultEdge)
 				System.out.println("clicked on " + ((DefaultEdge)o).getUserObject());
-			*/
+			 */
 		}
 
 		/**
@@ -777,9 +784,9 @@ public class WorkflowVisualization extends JPanel implements VisualPlugin, Actio
 	{
 		Color color;
 		String toolName;
-		
+
 		public String getToolName() { return toolName; }
-		
+
 		public GraphNode (String label, Color c)
 		{
 			super(label);
