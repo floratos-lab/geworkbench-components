@@ -128,7 +128,7 @@ public class GenSpaceLogin extends JPanel implements VisualPlugin, ActionListene
 
 		if (e.getSource() == b1) {
 
-			SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+			org.jdesktop.swingworker.SwingWorker<Void, Void> worker = new org.jdesktop.swingworker.SwingWorker<Void, Void>() {
 				public Void doInBackground() {
 
 					b1.setEnabled(false);

@@ -244,7 +244,7 @@ ListSelectionListener {
 
 		if (e.getSource() == save) {
 
-			SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+			org.jdesktop.swingworker.SwingWorker<Void, Void> worker = new org.jdesktop.swingworker.SwingWorker<Void, Void>() {
 				public Void doInBackground() {
 
 					if (logPreferences.getSelectedIndex() == 0) {

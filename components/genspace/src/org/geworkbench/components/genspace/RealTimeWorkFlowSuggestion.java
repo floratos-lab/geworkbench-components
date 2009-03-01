@@ -388,7 +388,7 @@ public class RealTimeWorkFlowSuggestion extends JPanel implements VisualPlugin, 
 
 	public static void updateCWFStatus(final int hour, final int minute, final int second, final String toolName, final String transactionID) {
 
-		SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+		org.jdesktop.swingworker.SwingWorker<Void, Void> worker = new org.jdesktop.swingworker.SwingWorker<Void, Void>() {
 			public Void doInBackground() {
 
 				//System.out.println(" ");

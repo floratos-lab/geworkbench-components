@@ -132,7 +132,7 @@ Runnable {
 		tools.addItemListener(new ItemListener() {
 			public void itemStateChanged(ItemEvent event) {
 
-				SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+				org.jdesktop.swingworker.SwingWorker<Void, Void> worker = new org.jdesktop.swingworker.SwingWorker<Void, Void>() {
 					public Void doInBackground() {
 
 						try {
@@ -203,7 +203,7 @@ Runnable {
 		top3Button.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent topE) {
 
-				SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+				org.jdesktop.swingworker.SwingWorker<Void, Void> worker = new org.jdesktop.swingworker.SwingWorker<Void, Void>() {
 					public Void doInBackground() {
 
 
