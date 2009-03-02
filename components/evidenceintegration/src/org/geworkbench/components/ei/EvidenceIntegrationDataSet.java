@@ -3,7 +3,6 @@ package org.geworkbench.components.ei;
 import org.geworkbench.bison.datastructure.biocollections.CSAncillaryDataSet;
 import org.geworkbench.bison.datastructure.biocollections.DSAncillaryDataSet;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
-import org.geworkbench.util.pathwaydecoder.mutualinformation.MindyData;
 
 import java.io.File;
 import java.util.List;
