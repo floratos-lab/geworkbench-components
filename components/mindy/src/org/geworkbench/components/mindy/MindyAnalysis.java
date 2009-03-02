@@ -36,9 +36,6 @@ import org.geworkbench.events.GeneSelectorEvent;
 import org.geworkbench.events.ProjectEvent;
 import org.geworkbench.events.ProjectNodeAddedEvent;
 import org.geworkbench.util.ProgressBar;
-import org.geworkbench.util.pathwaydecoder.mutualinformation.MindyData;
-import org.geworkbench.util.pathwaydecoder.mutualinformation.MindyDataSet;
-import org.geworkbench.util.pathwaydecoder.mutualinformation.MindyGeneMarker;
 
 import wb.data.Marker;
 import wb.data.MarkerSet;
@@ -57,6 +54,7 @@ import edu.columbia.c2b2.mindy.MindyResults;
 @SuppressWarnings("serial")
 public class MindyAnalysis extends AbstractGridAnalysis implements
 		ClusteringAnalysis {
+
 	Log log = LogFactory.getLog(this.getClass());
 
 	private MindyParamPanel paramPanel;
@@ -448,7 +446,10 @@ public class MindyAnalysis extends AbstractGridAnalysis implements
 		public void run() {
 			log.debug("Running MINDY algorithm...");
 			Mindy mindy = new Mindy();
-			results = mindy.runMindy(convert(mSet, arraySet, markerSet,
+
+			ArrayList<DSMicroarray> arrayForMindyRun = MindyData.createArrayForMindyRun(mSet, arraySet);
+
+			results = mindy.runMindy(convert(mSet, arrayForMindyRun, markerSet,
 					chosenTargets), tf, modulators, dpiAnnots, fullSetMI,
 					fullSetThreshold, subsetMI, subsetThreshold, setFraction,
 					dpiTolerance);
@@ -456,40 +457,14 @@ public class MindyAnalysis extends AbstractGridAnalysis implements
 
 			progressBar.setMessage("Processing MINDY Results");
 
-			int numWithSymbols = 0;
-			List<MindyData.MindyResultRow> dataRows = new ArrayList<MindyData.MindyResultRow>();
-			Collator myCollator = Collator.getInstance();
-			HashMap<DSGeneMarker, MindyGeneMarker> mindyMap = new HashMap<DSGeneMarker, MindyGeneMarker>();
-			for (MindyResults.MindyResultForTarget result : results) {
-				DSItemList<DSGeneMarker> markers = mSet.getMarkers();
-				DSGeneMarker target = markers.get(result.getTarget().getName());
-				if (!StringUtils.isEmpty(target.getGeneName()))
-					numWithSymbols++;
-				if (!mindyMap.containsKey(target)) {
-					mindyMap.put(target, new MindyGeneMarker(target, myCollator
-							.getCollationKey(target.getLabel()), myCollator
-							.getCollationKey(target.getDescription())));
-				}
-				for (MindyResults.MindyResultForTarget.ModulatorSpecificResult specificResult : result) {
-					DSGeneMarker mod = markers.get(specificResult
-							.getModulator().getName());
-					if (!StringUtils.isEmpty(mod.getGeneName()))
-						numWithSymbols++;
-					if (!mindyMap.containsKey(mod)) {
-						mindyMap
-								.put(mod, new MindyGeneMarker(mod, myCollator
-										.getCollationKey(mod.getLabel()),
-										myCollator.getCollationKey(mod
-												.getDescription())));
-					}
-					dataRows.add(new MindyData.MindyResultRow(mod, transFac,
-							target, specificResult.getScore(), 0f, myCollator
-									.getCollationKey(mod.getLabel()),
-							myCollator.getCollationKey(target.getLabel())));
-				}
-			}
+			MindyData loadedData = new MindyData(results, (CSMicroarraySet) mSet, arrayForMindyRun, setFraction, transFac);
 
-			if (dataRows.size() <= 0) {
+			mindyDataSet = new MindyDataSet(mSet, "MINDY Results", loadedData,
+					candidateModFile);
+
+			log.info("Done converting MINDY results.");
+
+			if ( loadedData.isEmpty()) {
 				progressBar.stop();
 				log.warn("MINDY obtained no results.");
 				JOptionPane.showMessageDialog(paramPanel.getParent(),
@@ -497,28 +472,6 @@ public class MindyAnalysis extends AbstractGridAnalysis implements
 						JOptionPane.WARNING_MESSAGE);
 				return;
 			}
-			MindyData loadedData = new MindyData((CSMicroarraySet) mSet,
-					dataRows, setFraction);
-			loadedData.setMindyMap(mindyMap);
-
-			// Pearson correlation
-			ArrayList<DSMicroarray> maList = loadedData.getArraySetAsList();
-			SimpleRegression sr;
-			for (MindyData.MindyResultRow r : dataRows) {
-				sr = new SimpleRegression();
-				for (DSMicroarray ma : maList) {
-					sr.addData(ma.getMarkerValue(r.getTarget()).getValue(), ma
-							.getMarkerValue(r.getTranscriptionFactor())
-							.getValue());
-				}
-				r.setCorrelation(sr.getR());
-			}
-
-			if (numWithSymbols > 0)
-				loadedData.setAnnotated(true);
-			mindyDataSet = new MindyDataSet(mSet, "MINDY Results", loadedData,
-					candidateModFile);
-			log.info("Done converting MINDY results.");
 
 			if (mindyDataSet != null) {
 				log.info(paramDesc);
@@ -543,7 +496,7 @@ public class MindyAnalysis extends AbstractGridAnalysis implements
 		}
 
 		private MicroarraySet convert(DSMicroarraySet<DSMicroarray> inSet,
-				DSPanel arraySet, DSPanel markerSet, List<String> chosenTargets) {
+				ArrayList<DSMicroarray> arrayForMindyRun, DSPanel markerSet, List<String> chosenTargets) {
 			MarkerSet markers = new MarkerSet();
 			if ((markerSet != null) && (markerSet.size() > 0)) {
 				log.debug("Processing marker panel: size=" + markerSet.size());
@@ -579,18 +532,10 @@ public class MindyAnalysis extends AbstractGridAnalysis implements
 
 			MicroarraySet returnSet = new MicroarraySet(inSet.getDataSetName(),
 					"ID", "ChipType", markers);
-			if ((arraySet != null) && (arraySet.size() > 0)) {
-				int size = arraySet.size();
-				for (int i = 0; i < size; i++) {
-					DSMicroarray ma = (DSMicroarray) arraySet.get(i);
-					returnSet.addMicroarray(new Microarray(ma.getLabel(), ma
-							.getRawMarkerData()));
-				}
-			} else {
-				for (DSMicroarray microarray : inSet) {
-					returnSet.addMicroarray(new Microarray(microarray
-							.getLabel(), microarray.getRawMarkerData()));
-				}
+
+			for (DSMicroarray microarray : arrayForMindyRun) {
+				returnSet.addMicroarray(new Microarray(microarray
+						.getLabel(), microarray.getRawMarkerData()));
 			}
 
 			// debug only
@@ -604,6 +549,7 @@ public class MindyAnalysis extends AbstractGridAnalysis implements
 
 			return returnSet;
 		}
+
 	}
 
 	// the following methods implemented for AbstractGridAnalysis

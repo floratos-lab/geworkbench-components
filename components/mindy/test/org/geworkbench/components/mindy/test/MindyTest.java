@@ -4,8 +4,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.CSExprMicroarraySet;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
+import org.geworkbench.components.mindy.MindyData;
 import org.geworkbench.components.mindy.MindyPlugin;
-import org.geworkbench.util.pathwaydecoder.mutualinformation.MindyData;
 import org.geworkbench.components.mindy.MindyResultsParser;
 
 import javax.swing.*;
