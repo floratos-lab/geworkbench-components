@@ -36,9 +36,10 @@ public class GenSpace extends JPanel implements VisualPlugin {
 		Thread rtwfs_thread = new Thread(rtwfs);
 		rtwfs_thread.start();
 		
+		
 		org.geworkbench.components.genspace.ui.GenSpaceLogin login = new org.geworkbench.components.genspace.ui.GenSpaceLogin();
-		Thread login_thread = new Thread(login);
-		login_thread.start();
+		//login.run();
+		
 		
 		jtp.addTab("GenSpace Login", login);
 		jtp.addTab("Workflow Visualization", wv);
