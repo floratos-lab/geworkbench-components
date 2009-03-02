@@ -6,8 +6,6 @@ import org.geworkbench.engine.config.VisualPlugin;
 
 import javax.swing.*;
 
-import sun.misc.BASE64Encoder;
-
 import java.awt.*;
 import java.io.*;
 import java.net.Socket;
@@ -60,7 +58,7 @@ public class GenSpaceLogin extends JPanel implements VisualPlugin, ActionListene
 	 * Constructor
 	 */
 	public GenSpaceLogin() {
-
+		run();
 	}
 
 	public void run() {
