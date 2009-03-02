@@ -26,7 +26,6 @@ import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMutableMarkerValue;
 import org.geworkbench.bison.util.colorcontext.ColorContext;
-import org.geworkbench.util.pathwaydecoder.mutualinformation.MindyData;
 
 /**
  * Creates a heat map of selected modulator, transcription factor, and targets.
@@ -61,7 +60,7 @@ public class ModulatorHeatMap extends JPanel {
     private MindyData mindyData;
 
     private int maxGeneNameWidth = -1;
-    private java.util.List<MindyData.MindyResultRow> targetRows;
+    private java.util.List<MindyResultRow> targetRows;
     private List<DSGeneMarker> targetLimits;
 
     private ColorContext colorContext = null;
@@ -98,8 +97,8 @@ public class ModulatorHeatMap extends JPanel {
         this.mindyData = mindyData;
         this.setFractionPercent = mindyData.getSetFraction() * 100;
 
-        // Extract and sort set based on modulator
-        sortedPerMod = mindyData.getArraySetAsList();
+        // Extract and sort set based on modulator, why modulator ?
+        sortedPerMod = mindyData.getArrayForMindyRun();
         Collections.sort(sortedPerMod, new MicroarrayMarkerPositionComparator(modulator.getSerial()
         		, MicroarrayMarkerPositionComparator.EXPRESSION_VALUE
         		,  true));
@@ -142,7 +141,7 @@ public class ModulatorHeatMap extends JPanel {
         		, MicroarrayMarkerPositionComparator.EXPRESSION_VALUE
         		, true));
         limitTargets(targetLimits);
-        Collections.sort(targetRows, new MindyRowComparator(MindyRowComparator.PEARSON_CORRELATION, false));
+        Collections.sort(targetRows, new MindyRowComparator(MindyRowComparator.PEARSON_CORRELATION, false, mindyData));
 
         FontRenderContext context = new FontRenderContext(null, true, false);
         for (DSGeneMarker marker : markers) {
@@ -294,7 +293,7 @@ public class ModulatorHeatMap extends JPanel {
 
 	        log.debug("\t\t\tloop start...");
 	        for (int i = 0; i < targetRows.size(); i++) {
-	            MindyData.MindyResultRow mindyRow = targetRows.get(i);
+	            MindyResultRow mindyRow = targetRows.get(i);
 	            DSGeneMarker target = mindyRow.getTarget();
 	            paintExpressionBar(cellWidth, expressionBarWidth, g, targetCurrY, target);
 	            String targetName = this.getMarkerDisplayName(target);
