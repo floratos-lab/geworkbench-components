@@ -173,8 +173,8 @@ public class LoginManager {
 	    		{
 	    			PropertiesManager properties = PropertiesManager.getInstance();
 	    			properties.setProperty(GenSpaceLogin.class, PROPERTY_GENSPACE_LOGIN_USER, bean.getUsername());
-	    			Message msg = new Message();
-	    			msg.startMessage();
+	    			//Message msg = new Message();
+	    			//msg.startMessage();
 	    		}
 	    		catch (Exception ex) { }
 	        	ret= true;

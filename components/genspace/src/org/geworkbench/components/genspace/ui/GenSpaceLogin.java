@@ -290,12 +290,12 @@ public class GenSpaceLogin extends JPanel implements VisualPlugin, ActionListene
 		bean.setUName(tf.getText());
 		char[] pass = pf.getPassword();
 		String test = "TEST";
-		System.out.println("Pass 1: "+ pass);
-		System.out.println("Pass 2: "+ getEncryptPassword(test));
-		System.out.println("Pass 3: "+ getEncryptPassword(test));
+		//System.out.println("Pass 1: "+ pass);
+		//System.out.println("Pass 2: "+ getEncryptPassword(test));
+		//System.out.println("Pass 3: "+ getEncryptPassword(test));
 
 		bean.setPassword(pass);
-		System.out.println("co : " + isPasswordCorrect(pass));
+		//System.out.println("co : " + isPasswordCorrect(pass));
 		bean.setFName("");
 		bean.setLName("");
 		bean.setLabAffiliation("");
@@ -439,7 +439,7 @@ public class GenSpaceLogin extends JPanel implements VisualPlugin, ActionListene
 	}
 
 	private void callRegisterMember() {
-		System.out.println("Register");
+		//System.out.println("Register");
 
 		panel = new GenSpaceRegistration();
 		this.setLayout(new FlowLayout());

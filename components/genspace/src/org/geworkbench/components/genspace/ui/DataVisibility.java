@@ -83,7 +83,7 @@ ListSelectionListener {
 	}
 
 	public DataVisibility(String uName) {
-		System.out.println("Data Visibility Options");
+		//System.out.println("Data Visibility Options");
 		LoginManager manager = new LoginManager();
 		DataVisibilityBean bean = manager.getDataVisibilityBean(uName);
 		username = uName;
