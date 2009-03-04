@@ -280,7 +280,7 @@ public class GenSpaceGeneralProfile extends JPanel implements  VisualPlugin, Act
 			}
 
 		}
-		System.out.println("valid : " + valid);
+		//System.out.println("valid : " + valid);
 		return valid;
 	}
 
