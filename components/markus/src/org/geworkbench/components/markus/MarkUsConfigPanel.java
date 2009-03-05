@@ -35,7 +35,7 @@ import com.jgoodies.forms.layout.FormLayout;
  * @author meng
  * @author zji
  * @author yc2480
- * @version $Id: MarkUsConfigPanel.java,v 1.5 2009-02-25 21:38:09 chiangy Exp $
+ * @version $Id: MarkUsConfigPanel.java,v 1.6 2009-03-05 21:00:31 jiz Exp $
  */
 public class MarkUsConfigPanel extends AbstractSaveableParameterPanel {
 	private Log log = LogFactory.getLog(this.getClass());
@@ -725,4 +725,42 @@ public class MarkUsConfigPanel extends AbstractSaveableParameterPanel {
 		stopNotifyAnalysisPanelTemporary(false);
 	}
 
+	/**
+	 * This method must be implemented to create meaningful data history.
+	 */
+	public String getDataSetHistory() {
+		StringBuilder sb = new StringBuilder("Parameters:\n");
+		sb.append("\tskan="+getskanValue()+"\n");
+		sb.append("\tdali="+getdaliValue()+"\n");
+		sb.append("\tscreen="+getscreenValue()+"\n");
+		sb.append("\tdelphi="+getdelphiValue()+"\n");
+		sb.append("\tpsiblast="+getpsiblastValue()+"\n");
+		sb.append("\tips="+getipsValue()+"\n");
+		sb.append("\tconsurf="+getconsurfValue()+"\n");
+		sb.append("\tconsurf3="+getconsurf3Value()+"\n");
+		sb.append("\tconsurf4="+getconsurf4Value()+"\n");
+		sb.append("\tChain="+getChain()+"\n");
+		sb.append("\tgridsize="+getgridsizeValue()+"\n");
+		sb.append("\tboxfill="+getboxfillValue()+"\n");
+		sb.append("\tsteps="+getstepsValue()+"\n");
+		sb.append("\tsc="+getscValue()+"\n");
+		sb.append("\tradius="+getradiusValue()+"\n");
+		sb.append("\tibc="+getibcValue()+"\n");
+		sb.append("\tnli="+getnliValue()+"\n");
+		sb.append("\tli="+getliValue()+"\n");
+		sb.append("\tidc="+getidcValue()+"\n");
+		sb.append("\tedc="+getedcValue()+"\n");
+		sb.append("\tcsftitle3="+csftitle3.getValue()+"\n");
+		sb.append("\teval3="+eval3.getText()+"\n");
+		sb.append("\titer3="+iter3.getText()+"\n");
+		sb.append("\tfilter3="+filter3.getText()+"\n");
+		sb.append("\tmsa3="+getmsa3Value()+"\n");
+		sb.append("\tcsftitle4="+csftitle4.getValue()+"\n");
+		sb.append("\teval4="+eval4.getText()+"\n");
+		sb.append("\titer4="+iter4.getText()+"\n");
+		sb.append("\tfilter4="+filter4.getText()+"\n");
+		sb.append("\tmsa4="+getmsa4Value()+"\n\n");
+
+		return sb.toString();
+	}
 }
