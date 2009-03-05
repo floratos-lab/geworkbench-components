@@ -16,6 +16,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.HashMap;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
@@ -61,7 +62,7 @@ import org.openscience.jmol.ui.JmolPopupSwing;
  * SkyLine result viewer for each homology model
  * 
  * @author mw2518
- * @version $Id: SkyLineViewEachPanel.java,v 1.8 2008-12-10 20:35:55 wangm Exp $
+ * @version $Id: SkyLineViewEachPanel.java,v 1.9 2009-03-05 22:27:55 wangm Exp $
  */
 @AcceptTypes( { DSProteinStructure.class })
 public class SkyLineViewEachPanel extends JPanel implements VisualPlugin,
@@ -85,6 +86,8 @@ public class SkyLineViewEachPanel extends JPanel implements VisualPlugin,
 	private Boolean finish = false;
 	private int maxhitcols = 20;
 	private int lasti = 0;
+	private int num_model_files = 5;
+	private HashMap<String, Integer> forder = new HashMap<String, Integer>();
 	private static String strScript = "wireframe off; spacefill off; cartoons; color structure;";
 
 	private static String energycols[] = { "Residue #", "Pair Energy",
@@ -165,6 +168,14 @@ public class SkyLineViewEachPanel extends JPanel implements VisualPlugin,
 			mainPanel.repaint();
 			return;
 		}
+		
+		//keep model files in fixed order
+		forder.put("pdb", 0);
+		forder.put("ali", 1);
+		forder.put("energy", 2);
+		forder.put("profile", 3);
+		forder.put("slp", 4);
+		
 		// list of models for selection
 		displayModels();
 
@@ -264,7 +275,7 @@ public class SkyLineViewEachPanel extends JPanel implements VisualPlugin,
 	private void displayModelFiles() throws Exception {
 		// String[] amfiles = {".energy", ".profile", ".pdb", "zscore.slp",
 		// ".ali"};
-		String strdir = resultdir + "MODELLER/" + modelname;
+		String strdir = resultdir + "MODELLER/" + modelname+"/";
 
 		URL url = new URL(strdir);
 		URLConnection uc = url.openConnection();
@@ -276,8 +287,9 @@ public class SkyLineViewEachPanel extends JPanel implements VisualPlugin,
 				.getInputStream()));
 		String line;
 		boolean start = false;
-		int offset = 0, i = 0, pdbi = 0;
+		int offset = 0, pdbi = 0;
 		Vector<String> amfiles = new Vector<String>();
+		amfiles.setSize(num_model_files);
 		while ((line = in.readLine()) != null) {
 			if (start) {
 				if ((offset = line.indexOf("a href=\"")) > -1) {
@@ -285,11 +297,10 @@ public class SkyLineViewEachPanel extends JPanel implements VisualPlugin,
 							.lastIndexOf("\""));
 					String elem = subline
 							.substring(subline.lastIndexOf("/") + 1);
+					String ftype = elem.substring(elem.lastIndexOf(".")+1);
+
 					if (!elem.endsWith("prosa")) {
-						amfiles.addElement(elem);
-						if (elem.endsWith("pdb"))
-							pdbi = i;
-						i++;
+						amfiles.setElementAt(elem, forder.get(ftype));
 					}
 				}
 			} else if (line.indexOf("Filename") > -1) {
