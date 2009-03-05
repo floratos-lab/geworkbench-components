@@ -95,7 +95,7 @@ import edu.columbia.geworkbench.cagrid.dispatcher.client.DispatcherClient;
  * @author First Genetic Trust Inc.
  * @author keshav
  * @author yc2480
- * @version $Id: AnalysisPanel.java,v 1.75 2009-02-23 18:08:49 chiangy Exp $
+ * @version $Id: AnalysisPanel.java,v 1.76 2009-03-05 19:14:29 jiz Exp $
  * 
  */
 @AcceptTypes( { DSMicroarraySet.class, AdjacencyMatrixDataSet.class,
@@ -1280,12 +1280,14 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 	@Subscribe
 	public void receive(org.geworkbench.events.ProjectEvent even, Object source) {
 		super.receive(even, source);
-		if (even.getDataSet().getClass().equals(CSProteinStructure.class)) {
-			getAvailableProteinAnalyses();
-		} else {
-			getAvailableAnalyses();
+		if(even.getDataSet()!=null) {
+			if (even.getDataSet().getClass().equals(CSProteinStructure.class)) {
+				getAvailableProteinAnalyses();
+			} else {
+				getAvailableAnalyses();
+			}
+			displayAnalyses();
 		}
-		displayAnalyses();
 	}
 
 	/**
