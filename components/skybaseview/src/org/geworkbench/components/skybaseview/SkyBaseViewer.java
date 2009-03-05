@@ -47,7 +47,7 @@ import javax.swing.table.JTableHeader;
 import javax.swing.table.TableModel;
 import javax.swing.table.DefaultTableCellRenderer;
 
-import org.apache.commons.lang.NumberUtils;
+import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
@@ -93,7 +93,7 @@ import org.openscience.jmol.ui.JmolPopupSwing;
  * Display SkyBase blast results in table, bar chart and jmol
  * 
  * @author mw2518
- * @version $Id: SkyBaseViewer.java,v 1.6 2009-01-28 20:58:08 wangm Exp $
+ * @version $Id: SkyBaseViewer.java,v 1.7 2009-03-05 23:21:55 wangm Exp $
  * 
  */
 
@@ -884,10 +884,11 @@ public class SkyBaseViewer implements VisualPlugin {
 		Double r = 0.0;
 		int k = 0;
 		if (NumberUtils.isNumber(s)) {
-			if ((k = s.indexOf("%")) > 0)
-				r = Double.valueOf(s.substring(0, k)).doubleValue() * 0.01;
-			else
-				r = Double.valueOf(s).doubleValue();
+			r = Double.valueOf(s).doubleValue();
+		} else if ((k = s.indexOf("%")) > 0) {
+			String subs = s.substring(0, k);
+			if (NumberUtils.isNumber(subs))
+				r = Double.valueOf(subs).doubleValue() * 0.01;
 		} else
 			log.info("Warning: " + s + " is not a number!");
 
