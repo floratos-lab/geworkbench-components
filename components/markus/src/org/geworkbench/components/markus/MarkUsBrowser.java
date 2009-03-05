@@ -1,22 +1,3 @@
-/*
- * The markus project
- * 
- * Copyright (c) 2008 Columbia University
- * 
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *       http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- */
-
 package org.geworkbench.components.markus;
 
 import org.geworkbench.bison.datastructure.biocollections.DSAncillaryDataSet;
@@ -44,7 +25,7 @@ import org.jdesktop.jdic.browser.*;
 /**
  * 
  * @author mwang
- * @version $Id: MarkUsBrowser.java,v 1.2 2009-02-17 21:59:38 jiz Exp $
+ * @version $Id: MarkUsBrowser.java,v 1.3 2009-03-05 16:22:51 jiz Exp $
  *
  */
 
@@ -229,6 +210,8 @@ public class MarkUsBrowser implements VisualPlugin {
 
 				mainPanel.add(jtp, BorderLayout.CENTER);
 				mainPanel.add(statusBar, BorderLayout.SOUTH);
+			} else {
+				tb.setURL(new URL(url)); // add this no matter what
 			}
 		} catch (Exception e) {
 			System.out.println(e.getMessage());
@@ -252,11 +235,7 @@ public class MarkUsBrowser implements VisualPlugin {
 		}
 
 		public void initializationCompleted(WebBrowserEvent event) {
-			// set blank page if no results
-			if (musid4prt.get(proteinData) == null) {
-				tb
-						.setContent("<html><head><title>blank</title></head><body></body></html>");
-			}
+			updateStatusInfo("Initialization completed.");
 		}
 
 		public void downloadCompleted(WebBrowserEvent event) {
