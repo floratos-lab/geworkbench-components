@@ -38,6 +38,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.bioobjects.structure.DSProteinStructure;
+import org.geworkbench.bison.datastructure.bioobjects.structure.SkyLineResultDataSet;
 import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.engine.management.AcceptTypes;
 import org.geworkbench.engine.management.Subscribe;
@@ -62,9 +63,9 @@ import org.openscience.jmol.ui.JmolPopupSwing;
  * SkyLine result viewer for each homology model
  * 
  * @author mw2518
- * @version $Id: SkyLineViewEachPanel.java,v 1.9 2009-03-05 22:27:55 wangm Exp $
+ * @version $Id: SkyLineViewEachPanel.java,v 1.10 2009-03-06 20:21:44 jiz Exp $
  */
-@AcceptTypes( { DSProteinStructure.class })
+@AcceptTypes( { SkyLineResultDataSet.class })
 public class SkyLineViewEachPanel extends JPanel implements VisualPlugin,
 		ActionListener, ListSelectionListener {
 	private Log log = LogFactory.getLog(this.getClass());
@@ -94,6 +95,7 @@ public class SkyLineViewEachPanel extends JPanel implements VisualPlugin,
 			"Surface Energy", "Combined Energy" };
 	private JmolPanel jmolPanel = new JmolPanel();
 
+	@SuppressWarnings("unchecked")
 	@Subscribe
 	public void receive(StructureAnalysisEvent event, Object source) {
 		DSDataSet dataset = event.getDataSet();
@@ -107,11 +109,16 @@ public class SkyLineViewEachPanel extends JPanel implements VisualPlugin,
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	@Subscribe
 	public void receive(ProjectEvent event, Object source) {
 		DSDataSet dataset = event.getDataSet();
 		if (dataset instanceof DSProteinStructure) {
 			proteinData = (DSProteinStructure) dataset;
+			showResults(proteinData);
+		} else if (dataset instanceof SkyLineResultDataSet) {
+			SkyLineResultDataSet r = (SkyLineResultDataSet) dataset;
+			proteinData = (DSProteinStructure) r.getParentDataSet();
 			showResults(proteinData);
 		}
 	}
@@ -595,7 +602,7 @@ public class SkyLineViewEachPanel extends JPanel implements VisualPlugin,
 			return Double.parseDouble((String) data[row][col]);
 		}
 
-		public Class getColumnClass(int c) {
+		public Class<?> getColumnClass(int c) {
 			return getValueAt(0, c).getClass();
 		}
 
@@ -642,7 +649,7 @@ public class SkyLineViewEachPanel extends JPanel implements VisualPlugin,
 			}
 		}
 
-		public Class getColumnClass(int c) {
+		public Class<?> getColumnClass(int c) {
 			return getValueAt(0, c).getClass();
 		}
 

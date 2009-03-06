@@ -31,6 +31,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.bioobjects.structure.DSProteinStructure;
+import org.geworkbench.bison.datastructure.bioobjects.structure.SkyLineResultDataSet;
 import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.engine.management.AcceptTypes;
 import org.geworkbench.engine.management.Subscribe;
@@ -41,9 +42,9 @@ import org.geworkbench.events.StructureAnalysisEvent;
  * SkyLine result viewer for all homology models
  * 
  * @author mw2518
- * @version $Id: SkyLineViewAllPanel.java,v 1.6 2008-12-10 20:35:55 wangm Exp $
+ * @version $Id: SkyLineViewAllPanel.java,v 1.7 2009-03-06 20:21:44 jiz Exp $
  */
-@AcceptTypes( { DSProteinStructure.class })
+@AcceptTypes( { SkyLineResultDataSet.class })
 public class SkyLineViewAllPanel implements VisualPlugin, ActionListener {
 	private Log log = LogFactory.getLog(this.getClass());
 	private DSProteinStructure proteinData;
@@ -60,6 +61,7 @@ public class SkyLineViewAllPanel implements VisualPlugin, ActionListener {
 	private JLabel choosefile = new JLabel();
 	private int maxhitcols = 16;
 
+	@SuppressWarnings("unchecked")
 	@Subscribe
 	public void receive(StructureAnalysisEvent event, Object source) {
 		DSDataSet dataset = event.getDataSet();
@@ -74,12 +76,17 @@ public class SkyLineViewAllPanel implements VisualPlugin, ActionListener {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	@Subscribe
 	public void receive(ProjectEvent event, Object source) {
 		DSDataSet dataset = event.getDataSet();
 		if (dataset instanceof DSProteinStructure) {
 			proteinData = (DSProteinStructure) dataset;
 			log.info("project event");
+			showResults(proteinData);
+		} else if (dataset instanceof SkyLineResultDataSet) {
+			SkyLineResultDataSet r = (SkyLineResultDataSet) dataset;
+			proteinData = (DSProteinStructure) r.getParentDataSet();
 			showResults(proteinData);
 		}
 	}
@@ -402,7 +409,7 @@ public class SkyLineViewAllPanel implements VisualPlugin, ActionListener {
 			}
 		}
 
-		public Class getColumnClass(int c) {
+		public Class<?> getColumnClass(int c) {
 			return getValueAt(0, c).getClass();
 		}
 
@@ -442,7 +449,7 @@ public class SkyLineViewAllPanel implements VisualPlugin, ActionListener {
 			return data[row][col];
 		}
 
-		public Class getColumnClass(int c) {
+		public Class<?> getColumnClass(int c) {
 			return getValueAt(0, c).getClass();
 		}
 
