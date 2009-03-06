@@ -31,7 +31,7 @@ import org.jdesktop.jdic.browser.WebBrowserListener;
 /**
  * 
  * @author mwang
- * @version $Id: MarkUsBrowser.java,v 1.4 2009-03-06 17:10:45 jiz Exp $
+ * @version $Id: MarkUsBrowser.java,v 1.5 2009-03-06 23:45:00 jiz Exp $
  *
  */
 
@@ -50,7 +50,7 @@ public class MarkUsBrowser implements VisualPlugin {
 	private MyStatusBar statusBar = new MyStatusBar();
 	private boolean initial = true;
 	private boolean link = true;
-	private HashMap<DSProteinStructure, String> musid4prt = null;
+	private HashMap<DSProteinStructure, String> musid4prt = new HashMap<DSProteinStructure, String>();
 	private String process_id = null;
 	private String lastpid = null;
 	
@@ -61,7 +61,6 @@ public class MarkUsBrowser implements VisualPlugin {
 	private boolean useIE = true;
 	
 	protected MarkUsBrowser() {
-		musid4prt = new HashMap<DSProteinStructure, String>();
 	}
 
 	@SuppressWarnings("unchecked")
@@ -101,20 +100,25 @@ public class MarkUsBrowser implements VisualPlugin {
 					for (int i = tc - 1; i > 0; i--)
 						jtp.remove(i);
 			}
-			if (musid4prt.get(proteinData) != null) {
-				lastpid = process_id;
-				process_id = musid4prt.get(proteinData);
-				log.debug("proteinData found: "+process_id);
-				if(tb!=null)
-					System.out.print(tb.isInitialized());
-				else
-					System.out.print("tb=null");
-				System.out.println(" " + process_id + " "
+
+			if (musid4prt.get(proteinData) == null) {
+				process_id = resultData.getResult();
+				musid4prt.put(proteinData, process_id);
+			}
+
+			lastpid = process_id;
+			process_id = musid4prt.get(proteinData);
+			log.debug("proteinData found: "+process_id);
+			if(tb!=null)
+				System.out.print(tb.isInitialized());
+			else
+				System.out.print("tb=null");
+			System.out.println(" " + process_id + " "
 						+ proteinData + " " + lastpid);
 
-				if (process_id.startsWith("MUS") && tb.isInitialized()
-						&& !lastpid.equals(process_id))
-					showResults(process_id);
+			if (process_id.startsWith("MUS") && tb.isInitialized()
+					&& !lastpid.equals(process_id)) {
+				showResults(process_id);
 			}
 		}
 	}
