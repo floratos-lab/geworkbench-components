@@ -1,43 +1,50 @@
 package org.geworkbench.components.markus;
 
+import java.awt.BorderLayout;
+import java.awt.Component;
+import java.net.URL;
+import java.util.HashMap;
+import java.util.StringTokenizer;
+
+import javax.swing.BorderFactory;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JTabbedPane;
+import javax.swing.ToolTipManager;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.geworkbench.bison.datastructure.biocollections.DSAncillaryDataSet;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.bioobjects.structure.DSProteinStructure;
 import org.geworkbench.bison.datastructure.bioobjects.structure.MarkUsResultDataSet;
-import org.geworkbench.events.ProjectEvent;
-import org.geworkbench.events.ProjectNodeCompletedEvent;
 import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.engine.management.AcceptTypes;
 import org.geworkbench.engine.management.Subscribe;
-
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-
-import javax.swing.*;
-
-import java.awt.*;
-import java.util.HashMap;
-import java.util.StringTokenizer;
-import java.net.*;
-
-import org.jdesktop.jdic.browser.*;
+import org.geworkbench.events.ProjectEvent;
+import org.geworkbench.events.ProjectNodeCompletedEvent;
+import org.jdesktop.jdic.browser.BrowserEngineManager;
+import org.jdesktop.jdic.browser.IBrowserEngine;
+import org.jdesktop.jdic.browser.WebBrowserEvent;
+import org.jdesktop.jdic.browser.WebBrowserListener;
 
 /**
  * 
  * @author mwang
- * @version $Id: MarkUsBrowser.java,v 1.3 2009-03-05 16:22:51 jiz Exp $
+ * @version $Id: MarkUsBrowser.java,v 1.4 2009-03-06 17:10:45 jiz Exp $
  *
  */
 
 @AcceptTypes( { MarkUsResultDataSet.class })
 public class MarkUsBrowser implements VisualPlugin {
+	private static Log log = LogFactory.getLog(MarkUsResultDataSet.class);
+	
 	private DSProteinStructure proteinData;
 	private JPanel mainPanel = new JPanel(new BorderLayout());
 	private JPanel jp = new JPanel(new BorderLayout());
 	
 	private static CloseableTabbedPane jtp = new CloseableTabbedPane();
 	private TabBrowser tb;
-	private boolean finish = false;
 	private String tabtitle = null;
 
 	private MyStatusBar statusBar = new MyStatusBar();
@@ -58,7 +65,6 @@ public class MarkUsBrowser implements VisualPlugin {
 	}
 
 	@SuppressWarnings("unchecked")
-	// event.getDataSet() is not parameterized
 	@Subscribe
 	public void receive(ProjectNodeCompletedEvent event, Object source) {
 		DSAncillaryDataSet dataset = event.getAncillaryDataSet();
@@ -98,23 +104,7 @@ public class MarkUsBrowser implements VisualPlugin {
 			if (musid4prt.get(proteinData) != null) {
 				lastpid = process_id;
 				process_id = musid4prt.get(proteinData);
-				if(tb!=null)
-					System.out.print(tb.isInitialized());
-				else
-					System.out.print("tb=null");
-				System.out.println(" " + process_id + " "
-						+ proteinData + " " + lastpid);
-
-				if (process_id.startsWith("MUS") && tb.isInitialized()
-						&& !lastpid.equals(process_id))
-					showResults(process_id);
-			} else if (!initial) {
-//				tb
-//						.setContent("<html><head><title>blank</title></head><body></body></html>");
-				// // System.out.println("content: "+tb.getContent());
-				lastpid = process_id;
-				process_id = resultData.getResult();
-				proteinData = (DSProteinStructure)resultData.getParentDataSet();
+				log.debug("proteinData found: "+process_id);
 				if(tb!=null)
 					System.out.print(tb.isInitialized());
 				else
@@ -132,47 +122,6 @@ public class MarkUsBrowser implements VisualPlugin {
 	private void showResults(String process_id) {
 		String url = "http://luna.bioc.columbia.edu/honiglab/mark-us/cgi-bin/browse.pl?pdb_id="
 				+ process_id;
-
-		try {
-			jbInit(url);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-
-	boolean checkJobFinish(String url) {
-		try {
-			URLConnection uc = new URL(url).openConnection();
-			if (!uc.getContentType().startsWith("text/html")) {
-				return false;
-			}
-			BufferedReader in = new BufferedReader(new InputStreamReader(uc
-					.getInputStream()));
-			String line = null;
-			while ((line = in.readLine()) != null) {
-				if (line.indexOf("<div class=\"error\">") > -1) {
-					System.out.println(line);
-					return false;
-				}
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return true;
-	}
-
-	private void jbInit(String url) {
-		// String url =
-		// "http://luna.bioc.columbia.edu/honiglab/mark-us/cgi-bin/browse.pl?stralign=on&method=skan&chain_id=21136";
-		// String url =
-		// "http://luna.bioc.columbia.edu/honiglab/mark-us/cgi-bin/browse.pl?pdb_id="+process_id;
-		finish = checkJobFinish(url);
-		if (!finish) {
-			mainPanel.removeAll();
-			mainPanel.revalidate();
-			mainPanel.repaint();
-			return;
-		}
 
 		ToolTipManager.sharedInstance().setLightWeightPopupEnabled(false);
 
@@ -205,6 +154,7 @@ public class MarkUsBrowser implements VisualPlugin {
 				tb.addWebBrowserListener(new WebTabListener());
 				tb.setMainBrowser(this);
 
+				jp.removeAll();
 				jp.add(tb, BorderLayout.CENTER);
 				jtp.addTab(tabtitle, jp);
 
