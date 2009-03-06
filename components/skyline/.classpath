@@ -8,11 +8,6 @@
 	<classpathentry kind="lib" path="lib/axis.jar"/>
 	<classpathentry kind="lib" path="lib/axis-url.jar"/>
 	<classpathentry kind="lib" path="lib/bootstrap.jar"/>
-	<classpathentry kind="lib" path="lib/caGrid-core-1.0.jar"/>
-	<classpathentry kind="lib" path="lib/caGrid-introduce-security-client-1.0.jar"/>
-	<classpathentry kind="lib" path="lib/caGrid-introduce-security-common-1.0.jar"/>
-	<classpathentry kind="lib" path="lib/caGrid-introduce-security-service-1.0.jar"/>
-	<classpathentry kind="lib" path="lib/caGrid-introduce-security-stubs-1.0.jar"/>
 	<classpathentry kind="lib" path="lib/cog-axis.jar"/>
 	<classpathentry kind="lib" path="lib/cog-jglobus.jar"/>
 	<classpathentry kind="lib" path="lib/cog-tomcat.jar"/>
@@ -47,11 +42,6 @@
 	<classpathentry kind="lib" path="lib/puretls.jar"/>
 	<classpathentry kind="lib" path="lib/resolver.jar"/>
 	<classpathentry kind="lib" path="lib/saaj.jar"/>
-	<classpathentry kind="lib" path="lib/SkyLineWeb-client.jar"/>
-	<classpathentry kind="lib" path="lib/SkyLineWeb-common.jar"/>
-	<classpathentry kind="lib" path="lib/SkyLineWeb-service.jar"/>
-	<classpathentry kind="lib" path="lib/SkyLineWeb-stubs.jar"/>
-	<classpathentry kind="lib" path="lib/SkyLineWeb-tests.jar"/>
 	<classpathentry kind="lib" path="lib/wsdl4j.jar"/>
 	<classpathentry kind="lib" path="lib/wsrf_common.jar"/>
 	<classpathentry kind="lib" path="lib/wsrf_core_registry_stubs.jar"/>
