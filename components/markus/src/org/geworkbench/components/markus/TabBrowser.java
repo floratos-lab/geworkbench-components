@@ -15,31 +15,20 @@ import org.jdesktop.jdic.browser.WebBrowser;
  * Embedded browser for MarkUsResult
  * 
  * @author mwang
- * @version $Id: TabBrowser.java,v 1.3 2009-03-05 16:22:51 jiz Exp $
+ * @version $Id: TabBrowser.java,v 1.4 2009-03-06 17:10:45 jiz Exp $
  *
  */
 class TabBrowser extends WebBrowser {
 	private static final long serialVersionUID = -4833106758989294420L;
 	Log log = LogFactory.getLog(TabBrowser.class);
 
-	protected URL lastToOpenURL = null;
 	public static MarkUsBrowser mb;
 	private boolean useIE = true;
-
-	public TabBrowser() {
-		super();
-	}
-
-	public TabBrowser(URL url) {
-		super(url);
-		setLastToOpenURL(url);
-	}
 
 	public TabBrowser(URL url, boolean IE) {
 		super(url);
 		setURL(url, url.getQuery(), "user-agent:geWorkbench");
 		useIE = IE;
-		setLastToOpenURL(url);
 	}
 
 	// return false to block popup window
@@ -56,16 +45,7 @@ class TabBrowser extends WebBrowser {
 	// return false to block url navigation
 	protected boolean willOpenURL(URL url) {
 		boolean rc = super.willOpenURL(url);
-		setLastToOpenURL(url);
 		return rc;
-	}
-
-	protected void setLastToOpenURL(URL url) {
-		lastToOpenURL = url;
-	}
-
-	protected URL getLastToOpenURL() {
-		return lastToOpenURL;
 	}
 
 	public void setMainBrowser(MarkUsBrowser mainbrowser) {
