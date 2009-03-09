@@ -108,11 +108,9 @@ public class GenePanel extends SelectorPanel<DSGeneMarker> {
 			public void actionPerformed(ActionEvent e) {
 				if (!tagEventEnabled) return; // to avoid event cycle
 				String selected = (String)panelTree.getSelectionPath().getLastPathComponent();
-				if(!selected.equals(taggedSelection)) {
-					taggedSelection = selected;
-					panelTree.repaint();
-					publishGeneTaggedEvent(new GeneTaggedEvent(context.getItemsWithLabel(taggedSelection)));
-				}
+				taggedSelection = selected;
+				panelTree.repaint();
+				publishGeneTaggedEvent(new GeneTaggedEvent(context.getItemsWithLabel(taggedSelection)));
 			}
 		});
 		exportPanelItem.addActionListener(new ActionListener() {
@@ -281,10 +279,6 @@ public class GenePanel extends SelectorPanel<DSGeneMarker> {
 		event = new GeneSelectorEvent(context.getLabelTree());
 		if (event != null) {
 			publishGeneSelectorEvent(event);
-		}
-
-		if (tagEventEnabled) {
-			publishGeneTaggedEvent(new GeneTaggedEvent(context.getItemsWithLabel(taggedSelection)));
 		}
 	}
 
@@ -645,10 +639,10 @@ public class GenePanel extends SelectorPanel<DSGeneMarker> {
         @Override
         public Component getTreeCellRendererComponent(JTree tree, Object value, boolean selected, boolean expanded, boolean leaf, int row, boolean hasFocus) {
             Component comp = super.getTreeCellRendererComponent(tree, value, selected, expanded, leaf, row, hasFocus);
-            if (value instanceof String) {
-            	if(value.equals(taggedSelection))
-            		cellLabel.setForeground(Color.BLUE);
-            }
+//            if (value instanceof String) {
+//            	if(value.equals(taggedSelection))
+//            		cellLabel.setForeground(Color.BLUE);
+//            }
             return comp;
         }
     }
@@ -663,7 +657,7 @@ public class GenePanel extends SelectorPanel<DSGeneMarker> {
    		if(source.getClass().getName().startsWith("org.geworkbench.components.cytoscape_v2_4.CytoscapeWidget")){
     		
     		tagEventEnabled = false; // to prevent event cycle between GenePanel and CytoscapeWidget
-    		spe.getPanel().setLabel(taggedSelection);
+    		spe.getPanel().setLabel("Cytoscape selection");
     	}
     	super.receive(spe, source);
     	tagEventEnabled = true;
