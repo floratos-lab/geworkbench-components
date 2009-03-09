@@ -1194,6 +1194,12 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 						marker1.setGeneId(Integer.parseInt(mid1));
 						int index1 = Collections.binarySearch(copy, marker1,
 								eidc);
+						if (index1 < 0) {
+							log.info("Marker "
+									+ interactionDetail.getdSGeneMarker1()
+									+ " does not exist at the dataset. ");
+							continue;
+						}
 						int serial1 = copy.get(index1).getSerial();
 						matrix.addGeneRow(serial1);
 
@@ -1218,7 +1224,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 							matrix.addDirectional(serial2, serial, "pd");
 						}
 					} else {
-						System.out.println("Marker "
+						log.info("Marker "
 								+ interactionDetail.getdSGeneMarker2()
 								+ " does not exist at the dataset. ");
 					}
