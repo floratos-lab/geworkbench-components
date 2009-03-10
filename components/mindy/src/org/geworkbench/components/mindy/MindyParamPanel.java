@@ -41,7 +41,7 @@ import com.jgoodies.forms.layout.FormLayout;
 
 /**
  * MINDY analysis GUI. Allows the user to enter parameters to analyze.
- * 
+ *
  * @author mhall, ch2514, yc2480
  * @version $ID$
  */
@@ -146,10 +146,10 @@ public class MindyParamPanel extends AbstractSaveableParameterPanel {
 	private DSPanel<DSGeneMarker> selectorPanel;
 
 	private boolean calledFromProgram = false;
-	
+
 	/**
 	 * Constructor. Creates the parameter panel GUI.
-	 * 
+	 *
 	 */
 	public MindyParamPanel() {
 		super();
@@ -392,12 +392,12 @@ public class MindyParamPanel extends AbstractSaveableParameterPanel {
 		builder.append("", new JLabel(""));
 		builder.append("", new JLabel(""));
 
-		builder.append("Conditional (MINDY)", this.conditionalCombo, 3);
+		builder.append("Conditional", this.conditionalCombo, 3);
 		builder.append(this.conditional);
 		builder.append("Correction", this.conditionalCorrection, 3);
 		builder.append(new JLabel(""));
 
-		builder.append("Unconditional (ARACNE)", this.unconditionalCombo, 3);
+		builder.append("Unconditional", this.unconditionalCombo, 3);
 		builder.append(this.unconditional);
 		builder.append("Correction", this.unconditionalCorrection, 3);
 		builder.append(new JLabel(""));
@@ -504,7 +504,7 @@ public class MindyParamPanel extends AbstractSaveableParameterPanel {
 
 	/**
 	 * Sets the transcription factor
-	 * 
+	 *
 	 * @param label
 	 */
 	public void setTranscriptionFactor(String label) {
@@ -513,7 +513,7 @@ public class MindyParamPanel extends AbstractSaveableParameterPanel {
 
 	/**
 	 * Gets the candidate modulator file name.
-	 * 
+	 *
 	 * @return candidate modulator file name.
 	 */
 	public String getCandidateModulatorsFile() {
@@ -522,7 +522,7 @@ public class MindyParamPanel extends AbstractSaveableParameterPanel {
 
 	/**
 	 * Gets the set fraction.
-	 * 
+	 *
 	 * @return the set fraction
 	 */
 	public int getSetFraction() {
@@ -531,7 +531,7 @@ public class MindyParamPanel extends AbstractSaveableParameterPanel {
 
 	/**
 	 * Gets the DPI tolerance.
-	 * 
+	 *
 	 * @return the DPI tolerance
 	 */
 	public float getDPITolerance() {
@@ -580,7 +580,7 @@ public class MindyParamPanel extends AbstractSaveableParameterPanel {
 
 	/**
 	 * Gets the transcription factor.
-	 * 
+	 *
 	 * @return the transcription factor
 	 */
 	public String getTranscriptionFactor() {
@@ -589,7 +589,7 @@ public class MindyParamPanel extends AbstractSaveableParameterPanel {
 
 	/**
 	 * Gets the modulator gene list.
-	 * 
+	 *
 	 * @return the modulator gene list
 	 */
 	public ArrayList<String> getModulatorGeneList() {
@@ -600,7 +600,7 @@ public class MindyParamPanel extends AbstractSaveableParameterPanel {
 
 	/**
 	 * Gets the target gene list.
-	 * 
+	 *
 	 * @return the target gene list
 	 */
 	public ArrayList<String> getTargetGeneList() {
@@ -611,7 +611,7 @@ public class MindyParamPanel extends AbstractSaveableParameterPanel {
 
 	/**
 	 * Gets the DPI annotated gene list.
-	 * 
+	 *
 	 * @return the DPI annotated gene list
 	 */
 	public ArrayList<String> getDPIAnnotatedGeneList() {
@@ -770,7 +770,7 @@ public class MindyParamPanel extends AbstractSaveableParameterPanel {
 
     /*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.geworkbench.analysis.AbstractSaveableParameterPanel#getParameters()
 	 */
     public Map<Serializable, Serializable> getParameters() {
