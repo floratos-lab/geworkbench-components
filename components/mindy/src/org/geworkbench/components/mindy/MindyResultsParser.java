@@ -2,7 +2,7 @@ package org.geworkbench.components.mindy;
 
 import org.geworkbench.bison.datastructure.biocollections.microarrays.CSMicroarraySet;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
-import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
+import org.geworkbench.util.pathwaydecoder.mutualinformation.MindyData;
 
 import java.io.*;
 import java.util.List;
@@ -23,12 +23,12 @@ public class MindyResultsParser {
 	 * @throws IOException
 	 */
     public static MindyData parseResults(CSMicroarraySet maSet, File resultsFile) throws IOException {
-        List<MindyResultRow> rows = new ArrayList<MindyResultRow>();
+        List<MindyData.MindyResultRow> rows = new ArrayList<MindyData.MindyResultRow>();
         BufferedReader in = new BufferedReader(new FileReader(resultsFile));
 
-        //read in the header
+        //read in the header 
         in.readLine();
-
+        
         String line = in.readLine();
         while (line != null) {
             String[] tokens = line.split("\t");
@@ -37,13 +37,10 @@ public class MindyResultsParser {
             DSGeneMarker target = maSet.getMarkers().get(tokens[2]);
             float score = Float.valueOf(tokens[3]);
             float pvalue = Float.valueOf(tokens[4]);
-            rows.add(new MindyResultRow(hub, target, score));
+            rows.add(new MindyData.MindyResultRow(hub, transFac, target, score, pvalue));
 
             line = in.readLine();
         }
-
-        // assuming that there were no array selection and mindy was run with all arrays
         return new MindyData(maSet, rows, 0);
-//        return new MindyData(maSet, null, rows, 0);
     }
 }
