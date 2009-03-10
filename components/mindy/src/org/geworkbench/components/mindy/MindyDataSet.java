@@ -1,12 +1,11 @@
 package org.geworkbench.components.mindy;
 
+import java.io.File;
+
 import org.geworkbench.bison.datastructure.biocollections.CSAncillaryDataSet;
 import org.geworkbench.bison.datastructure.biocollections.DSAncillaryDataSet;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
-import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
-import org.geworkbench.bison.util.RandomNumberGenerator;
-
-import java.io.File;
+import org.geworkbench.util.pathwaydecoder.mutualinformation.MindyData;
 
 /**
  * @author Matt Hall
