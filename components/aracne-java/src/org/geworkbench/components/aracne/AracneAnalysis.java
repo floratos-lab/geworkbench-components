@@ -620,6 +620,8 @@ public class AracneAnalysis extends AbstractGridAnalysis implements
 			params.adjMode((AdjacencyMatrixDataSet) dataSet);
 		} else if (dataSet instanceof DSMicroarraySet) {
 			AracneParamPanel params = (AracneParamPanel) aspp;
+			/* This following line is added only at the point when the mark set info is needed for parameter panel. */
+			params.setMicroarraySet((DSMicroarraySet)dataSet);
 			params.maMode();
 		}
 	}
