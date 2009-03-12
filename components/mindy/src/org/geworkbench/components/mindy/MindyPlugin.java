@@ -74,7 +74,7 @@ import com.solarmetric.ide.ui.CheckboxCellRenderer;
  * @author mhall
  * @ch2514
  *
- * @version $Id: MindyPlugin.java,v 1.79 2009-03-10 21:29:36 oshteynb Exp $
+ * @version $Id: MindyPlugin.java,v 1.80 2009-03-12 16:06:15 chiangy Exp $
  */
 @SuppressWarnings("serial")
 public class MindyPlugin extends JPanel {
@@ -1567,7 +1567,7 @@ public class MindyPlugin extends JPanel {
 	 *
 	 * @author mhall
 	 * @author ch2514
-	 * @version $Id: MindyPlugin.java,v 1.79 2009-03-10 21:29:36 oshteynb Exp $
+	 * @version $Id: MindyPlugin.java,v 1.80 2009-03-12 16:06:15 chiangy Exp $
 	 */
 	private class ModulatorModel extends DefaultTableModel {
 
@@ -2039,7 +2039,7 @@ public class MindyPlugin extends JPanel {
 	 * For rendering modulator checkboxes on the targets table column headers.
 	 *
 	 * @author ch2514
-	 * @version $Id: MindyPlugin.java,v 1.79 2009-03-10 21:29:36 oshteynb Exp $
+	 * @version $Id: MindyPlugin.java,v 1.80 2009-03-12 16:06:15 chiangy Exp $
 	 */
 	private class CheckBoxRenderer extends DefaultTableCellRenderer {
 		/**
@@ -2096,14 +2096,6 @@ public class MindyPlugin extends JPanel {
 							MIN_MARKER_NAME_WIDTH);
 					return blank;
 				} else if (column < boxes.length) {
-					int w = MIN_CHECKBOX_WIDTH + MIN_MARKER_NAME_WIDTH
-							+ boxes.length * MIN_SCORE_WIDTH;
-					if (w > scrollPane.getWidth()) {
-						table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-					} else {
-						table
-								.setAutoResizeMode(JTable.AUTO_RESIZE_SUBSEQUENT_COLUMNS);
-					}
 					boxes[column] = new JCheckBox();
 					boxes[column].setEnabled(true);
 					if (column < atm.getNumberOfModulatorCheckBoxes())
@@ -2134,7 +2126,7 @@ public class MindyPlugin extends JPanel {
 	 *
 	 * @author mhall
 	 * @author ch2514
-	 * @version $Id: MindyPlugin.java,v 1.79 2009-03-10 21:29:36 oshteynb Exp $
+	 * @version $Id: MindyPlugin.java,v 1.80 2009-03-12 16:06:15 chiangy Exp $
 	 */
 	private class AggregateTableModel extends DefaultTableModel {
 
@@ -3020,7 +3012,7 @@ public class MindyPlugin extends JPanel {
 	 * Compare M#, M+, or M- of two gene markers (for sorting).
 	 *
 	 * @author mhall
-	 * @version $Id: MindyPlugin.java,v 1.79 2009-03-10 21:29:36 oshteynb Exp $
+	 * @version $Id: MindyPlugin.java,v 1.80 2009-03-12 16:06:15 chiangy Exp $
 	 */
 	private class ModulatorStatComparator implements Comparator<DSGeneMarker> {
 
@@ -3073,7 +3065,7 @@ public class MindyPlugin extends JPanel {
 	 *
 	 * @author mhall
 	 * @author ch2514
-	 * @version $Id: MindyPlugin.java,v 1.79 2009-03-10 21:29:36 oshteynb Exp $
+	 * @version $Id: MindyPlugin.java,v 1.80 2009-03-12 16:06:15 chiangy Exp $
 	 */
 	private class ModulatorTargetModel extends DefaultTableModel {
 
@@ -3811,7 +3803,7 @@ public class MindyPlugin extends JPanel {
 	 * Heat map data model.
 	 *
 	 * @author mhall
-	 * @version $Id: MindyPlugin.java,v 1.79 2009-03-10 21:29:36 oshteynb Exp $
+	 * @version $Id: MindyPlugin.java,v 1.80 2009-03-12 16:06:15 chiangy Exp $
 	 */
 	private class ModulatorListModel extends AbstractListModel {
 		private boolean showProbeName = false;
@@ -3886,7 +3878,7 @@ public class MindyPlugin extends JPanel {
 	 * for the targets table.
 	 *
 	 * @author ch2514
-	 * @version $Id: MindyPlugin.java,v 1.79 2009-03-10 21:29:36 oshteynb Exp $
+	 * @version $Id: MindyPlugin.java,v 1.80 2009-03-12 16:06:15 chiangy Exp $
 	 */
 	private class ColumnHeaderListener extends MouseAdapter {
 		/**
