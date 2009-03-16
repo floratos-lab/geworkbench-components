@@ -28,7 +28,7 @@ import org.globus.progtutorial.clients.BlastService.Client;
  * <p>Company: AMDeC_Califano lab</p>
  *
  * @author XZ
- * @version $Id: ServerInfoPanel.java,v 1.22 2009-03-16 19:41:55 chiangy Exp $
+ * @version $Id: ServerInfoPanel.java,v 1.23 2009-03-16 19:44:09 chiangy Exp $
  */
 
 public class ServerInfoPanel extends JPanel {
@@ -173,6 +173,7 @@ public class ServerInfoPanel extends JPanel {
                         GridBagConstraints.WEST,
                         GridBagConstraints.HORIZONTAL,
                         new Insets(2, 2, 2, 2), 0, 0));
+        //FIXME: Add this back in when support becomes available for a Columbia hosted Blast server
         //jToolBar1.add(jRadioButton1);
         jToolBar1.add(jRadioButton2);
        // jToolBar1.add(jRadioButton3);
