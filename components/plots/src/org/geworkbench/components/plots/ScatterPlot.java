@@ -13,6 +13,8 @@ import java.awt.event.FocusListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.MouseEvent;
+import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.text.NumberFormat;
 import java.util.ArrayList;
@@ -86,6 +88,7 @@ import org.jfree.chart.labels.StandardXYToolTipGenerator;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.StandardXYItemRenderer;
+import org.jfree.chart.renderer.xy.XYItemRenderer;
 import org.jfree.chart.title.TextTitle;
 import org.jfree.data.general.SeriesException;
 import org.jfree.data.xy.XYDataset;
@@ -505,33 +508,98 @@ public class ScatterPlot implements VisualPlugin {
     private class MicroarrayXYToolTip extends StandardXYToolTipGenerator {
 
         private ChartData chartData;
-
-        public MicroarrayXYToolTip(ChartData data) {
+        private ChartPanel chartPanel;
+        private Rectangle2D shapeBound;
+        private XYPlot xyPlot;
+        
+        public MicroarrayXYToolTip(ChartData data, ChartPanel chartPanel, XYPlot xyPlot) {
             this.chartData = data;
+            this.chartPanel = chartPanel;
+            this.xyPlot = xyPlot;
+            shapeBound = null;
         }
 
         public String generateToolTip(XYDataset data, int series, int item) {
-            String result = "Unknown: ";
-            DSGeneMarker marker = chartData.getMarker(series, item);
-            if (marker != null) {
-                org.geworkbench.util.pathwaydecoder.RankSorter rs = chartData.getRankSorter(series, item);
-                DSPanel<DSGeneMarker> panel = dataSetView.getMarkerPanel();
-                try{
-	                DSPanel value = panel.getPanel(marker);
-	                if (value != null) {
-	                    result = marker.getLabel() + ": " + value.getLabel() + " [" + rs.x + "," + rs.y + "]";
-	                } else {
-	                    result = marker.getLabel() + ": " + "No Panel, " + " [" + rs.x + "," + rs.y + "]";
-	                }
-	                return result;
-                } catch (Exception e){
-                	result = marker.getLabel() + ": " + "No Panel, " + " [" + rs.x + "," + rs.y + "]";
-                	return result;
-                }
-            } else {
-                return "";
-            }
+        	/*
+			 * because this customized tooltip needs to know the chart panel
+			 * size, it is NOT supposed to called in any case when chartPanel is
+			 * null - which was OK for a more regular tool tip.
+			 */
+			if (chartPanel == null) {
+				throw new RuntimeException("tooltip error: no ChartPanel");
+				}
+			/* this customized tooltip also needs to know the the symbol shape */
+			if (shapeBound == null){
+				throw new RuntimeException("tooltip error: shape bound unknown");}
+        	
+            ValueAxis domainAxis = xyPlot.getDomainAxis();
+            ValueAxis rangeAxis = xyPlot.getRangeAxis();
+            double rangeLower = rangeAxis.getLowerBound();
+            double rangeHeight = rangeAxis.getUpperBound() - rangeLower;
+            double domainLower = domainAxis.getLowerBound();
+            double domainWidth = domainAxis.getUpperBound() - domainLower;
+
+           	/*
+			 * generateToolTip should be called only when the chartPanel is not
+			 * null
+			 */
+			Rectangle2D area = chartPanel.getScreenDataArea();
+
+			org.geworkbench.util.pathwaydecoder.RankSorter rs = chartData
+					.getRankSorter(series, item);
+			double x0 = (rs.x - domainLower) / domainWidth * area.getWidth()
+					- 0.5 * shapeBound.getWidth();
+			double y0 = (rs.y - rangeLower) / rangeHeight * area.getHeight()
+					- 0.5 * shapeBound.getHeight();
+			Rectangle2D bound = new Rectangle2D.Double(x0, y0, shapeBound
+					.getWidth(), shapeBound.getHeight());
+
+			DSPanel<DSGeneMarker> panel = dataSetView.getMarkerPanel();
+			if (panel == null) {
+				throw new RuntimeException("tooltip error: marker panel is null");
+			}
+			DSMicroarraySet<DSMicroarray> maSet = (DSMicroarraySet) dataSetView
+			.getDataSet();
+			if (maSet == null)
+				return ""; /*
+								 * only process if rankSorter is interesting.
+								 * Behavior copied from method
+								 * chartData.getMarker(series, item)
+								 */
+			
+			StringBuilder sb = new StringBuilder("<html>");
+			for (ArrayList<RankSorter> list : chartData.xyPoints) {
+				for (org.geworkbench.util.pathwaydecoder.RankSorter rankSorter : list) {
+					if (rankSorter.id < maSet.getMarkers().size()) {
+						double x = (rankSorter.x - domainLower) / domainWidth
+								* area.getWidth();
+						double y = (rankSorter.y - rangeLower) / rangeHeight
+								* area.getHeight();
+						if (bound.contains(new Point2D.Double(x, y))) {
+							DSGeneMarker markerNear = maSet.getMarkers().get(
+									rankSorter.id);
+							String label = "No Panel, ";
+							DSPanel<DSGeneMarker> value = panel
+									.getPanel(markerNear);
+							if (value != null)
+								label = value.getLabel();
+							sb.append(
+									tooltipForMarker(markerNear, label,
+											rankSorter)).append("<br>");
+						}
+					}
+				}
+			}
+			return sb.append("</html>").toString();
         }
+        
+        private String tooltipForMarker(DSGeneMarker marker, String label, RankSorter rs) {
+        	return marker.getLabel() + ": " + label + " [" + rs.x + "," + rs.y + "]";
+        }
+
+		public void setShapeBound(Rectangle2D bound) {
+			shapeBound = bound;
+		}
     }
 
 	private static class JFreeChartProperties{
@@ -1173,7 +1241,7 @@ public class ScatterPlot implements VisualPlugin {
                     JFreeChart chart;
                     if (type == PlotType.ARRAY) {
                 		attributes.index = findMAIndex(clickedLabel);
-                        chart = createMicroarrayChart(group.xIndex, attributes.index, attributes.chartData);
+                        chart = createMicroarrayChart(group.xIndex, attributes.index, attributes.chartData, attributes.panel);
                     } else {
                 		attributes.index = findMarkerIndex(clickedLabel);
                         chart = createGeneChart(group.xIndex, attributes.index, attributes.chartData);
@@ -1185,6 +1253,14 @@ public class ScatterPlot implements VisualPlugin {
                         } else {
                             attributes.panel.addChartMouseListener(new GeneChartMouseListener(attributes.chartData));
                         }
+                        /* This following is necessary to make tooltip aware of chart panel, which is out of the 'regular" chain of info flow. */
+                        MicroarrayXYToolTip tooltips = new MicroarrayXYToolTip(attributes.chartData, attributes.panel, chart.getXYPlot());
+                        XYItemRenderer renderer = chart.getXYPlot().getRenderer();
+                        Rectangle2D bound = renderer.getSeriesShape(0).getBounds2D();
+                        tooltips.setShapeBound(bound);
+                        renderer.setToolTipGenerator(tooltips);
+                        chart.getXYPlot().setRenderer(renderer);
+                        /* END of section to handle tooltip */
                     } else {
                         attributes.panel.setChart(chart);
                     }
@@ -1243,7 +1319,7 @@ public class ScatterPlot implements VisualPlugin {
 			JFreeChartProperties jFreeChartProperties = new JFreeChartProperties(jFreeChartOriginal);
 			JFreeChart jFreeChartFinal = null;
 			if (type == PlotType.ARRAY) {
-				jFreeChartFinal =  createMicroarrayChart(group.xIndex, chart.index, chart.chartData);
+				jFreeChartFinal =  createMicroarrayChart(group.xIndex, chart.index, chart.chartData, chart.panel);
 			} else {
 				jFreeChartFinal =  createGeneChart(group.xIndex, chart.index, chart.chartData);
 			}
@@ -1684,7 +1760,7 @@ public class ScatterPlot implements VisualPlugin {
     /**
      * @todo Merge this method with {@link #createGeneChart(int, int, org.geworkbench.components.plots.ScatterPlot.ChartData)} .
      */
-    private JFreeChart createMicroarrayChart(int exp1, int exp2, ChartData chartData) throws SeriesException {
+    private JFreeChart createMicroarrayChart(int exp1, int exp2, ChartData chartData, ChartPanel chartPanel) throws SeriesException {
     	DSMicroarray ma1 = null;
         DSMicroarray ma2 = null;
         if(!StringUtils.isEmpty(chartData.getXLabel())) ma1 = findMA(chartData.getXLabel());
@@ -1854,8 +1930,10 @@ public class ScatterPlot implements VisualPlugin {
             mainChart.getXYPlot().addAnnotation(annotation);
         }
         chartData.setXyPoints(xyPoints);
-        StandardXYToolTipGenerator tooltips = new MicroarrayXYToolTip(chartData);
+        MicroarrayXYToolTip tooltips = new MicroarrayXYToolTip(chartData, chartPanel, mainChart.getXYPlot());
         StandardXYItemRenderer renderer = new StandardXYItemRenderer(StandardXYItemRenderer.SHAPES, tooltips);
+        Rectangle2D bound = renderer.getSeriesShape(0).getBounds2D();
+        tooltips.setShapeBound(bound);
         for (int i = 0; i < propertiesList.size(); i++) {
             PanelVisualProperties panelVisualProperties = propertiesList.get(i);
             // Note: "i+1" because we skip the default 'other' series.
