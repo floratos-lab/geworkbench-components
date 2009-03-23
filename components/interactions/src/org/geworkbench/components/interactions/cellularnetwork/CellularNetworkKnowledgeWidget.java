@@ -1992,6 +1992,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 			updateAllMarkersList(orderedSet, hits);
 
 			activeMarkersTableModel.fireTableDataChanged();
+			previewTableModel.fireTableDataChanged();
 			checkSelectedTableWithNewDataSet(panel);
 
 			allGeneList.setModel(new DefaultListModel());
