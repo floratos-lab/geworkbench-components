@@ -270,10 +270,11 @@ public class SequenceDiscoveryViewAppComponent implements VisualPlugin,
 			String tempString = fullSequenceDB.getFile().getName() + "temp-"
 					+ activeSequenceDB.size();
 			File tempFile = new File(tempFolder + tempString);
-			SequencePatternUtils.createFile(tempFile, activeSequenceDB);
-			activeSequenceDB = new CSSequenceSet();
-			activeSequenceDB.readFASTAFile(tempFile);
-			activeSequenceDB.setFASTAFile(tempFile);
+			if(SequencePatternUtils.createFile(tempFile, activeSequenceDB)) {
+				activeSequenceDB = new CSSequenceSet();
+				activeSequenceDB.readFASTAFile(tempFile);
+				activeSequenceDB.setFASTAFile(tempFile);
+			}
 		}
 //		if (activeSequenceDB != null) {
 //			System.out.println("get updated. " + activeSequenceDB.getID());
