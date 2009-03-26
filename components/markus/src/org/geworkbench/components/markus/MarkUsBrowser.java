@@ -2,6 +2,7 @@ package org.geworkbench.components.markus;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.StringTokenizer;
@@ -31,12 +32,14 @@ import org.jdesktop.jdic.browser.WebBrowserListener;
 /**
  * 
  * @author mwang
- * @version $Id: MarkUsBrowser.java,v 1.5 2009-03-06 23:45:00 jiz Exp $
+ * @version $Id: MarkUsBrowser.java,v 1.6 2009-03-26 19:51:33 jiz Exp $
  *
  */
 
 @AcceptTypes( { MarkUsResultDataSet.class })
 public class MarkUsBrowser implements VisualPlugin {
+	private static final String MARKUS_RESULT_URL = "http://luna.bioc.columbia.edu/honiglab/mark-us/cgi-bin/browse.pl?pdb_id=";
+
 	private static Log log = LogFactory.getLog(MarkUsResultDataSet.class);
 	
 	private DSProteinStructure proteinData;
@@ -58,7 +61,22 @@ public class MarkUsBrowser implements VisualPlugin {
 
 	// set true for jdic to use IE browser; false for Mozilla(FIXME: LINK in TAB
 	// NOT WORKING)
-	private boolean useIE = true;
+	private final static boolean useIE = true;
+	
+	static {
+		BrowserEngineManager bem = BrowserEngineManager.instance();
+		if (bem.getActiveEngine() != bem.getEngines().get(
+				BrowserEngineManager.IE)) {
+			// set jdic to use IE or Mozilla browser
+			if (useIE == true) {
+				bem.setActiveEngine(BrowserEngineManager.IE);
+			} else {
+				bem.setActiveEngine(BrowserEngineManager.MOZILLA);
+				IBrowserEngine be = bem.getActiveEngine();
+				be.setEnginePath("C:\\Program Files\\mozilla\\mozilla.exe");
+			}
+		}
+	}
 	
 	protected MarkUsBrowser() {
 	}
@@ -109,23 +127,36 @@ public class MarkUsBrowser implements VisualPlugin {
 			lastpid = process_id;
 			process_id = musid4prt.get(proteinData);
 			log.debug("proteinData found: "+process_id);
-			if(tb!=null)
-				System.out.print(tb.isInitialized());
-			else
-				System.out.print("tb=null");
-			System.out.println(" " + process_id + " "
-						+ proteinData + " " + lastpid);
+			if(tb==null || !tb.isInitialized()) {
+				try {
+					tb = new TabBrowser(new URL(MARKUS_RESULT_URL
+							+ process_id), useIE);
+					tb.addWebBrowserListener(new WebTabListener());
+					tb.setMainBrowser(this);
+					jp.removeAll();
+					jp.add(tb, BorderLayout.CENTER);
+					jtp.addTab(tabtitle, jp);
+					mainPanel.add(jtp, BorderLayout.CENTER);
+					mainPanel.invalidate();
+					mainPanel.repaint();
+				} catch (MalformedURLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+					return;
+				}
+			}
+			log.debug("process_id=" + process_id + "; proteinData="
+						+ proteinData + ";lastpid " + lastpid);
 
-			if (process_id.startsWith("MUS") && tb.isInitialized()
-					&& !lastpid.equals(process_id)) {
+			if (process_id.startsWith("MUS") && !lastpid.equals(process_id)) {
 				showResults(process_id);
 			}
 		}
 	}
 
 	private void showResults(String process_id) {
-		String url = "http://luna.bioc.columbia.edu/honiglab/mark-us/cgi-bin/browse.pl?pdb_id="
-				+ process_id;
+		log.debug("showResults called for "+process_id);
+		String url = MARKUS_RESULT_URL + process_id;
 
 		ToolTipManager.sharedInstance().setLightWeightPopupEnabled(false);
 
@@ -138,19 +169,6 @@ public class MarkUsBrowser implements VisualPlugin {
 		try {
 			if (initial) {
 				initial = false;
-				BrowserEngineManager bem = BrowserEngineManager.instance();
-				if (bem.getActiveEngine() != bem.getEngines().get(
-						BrowserEngineManager.IE)) {
-					// set jdic to use IE or Mozilla browser
-					if (useIE == true) {
-						bem.setActiveEngine(BrowserEngineManager.IE);
-					} else {
-						bem.setActiveEngine(BrowserEngineManager.MOZILLA);
-						IBrowserEngine be = bem.getActiveEngine();
-						be
-								.setEnginePath("C:\\Program Files\\mozilla\\mozilla.exe");
-					}
-				}
 
 				// Print out debug messages in the command line.
 				// tb.setDebug(true);
@@ -205,8 +223,7 @@ public class MarkUsBrowser implements VisualPlugin {
 				return;
 
 			// set url or content in this function to get the page displayed
-			String url = "http://luna.bioc.columbia.edu/honiglab/mark-us/cgi-bin/browse.pl?pdb_id="
-					+ process_id;
+			String url = MARKUS_RESULT_URL + process_id;
 
 			try {
 				if (tb.getURL() != null) {
