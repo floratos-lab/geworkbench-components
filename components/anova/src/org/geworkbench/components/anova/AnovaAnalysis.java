@@ -53,7 +53,7 @@ import edu.columbia.geworkbench.cagrid.anova.PValueEstimation;
 
 /**
  * @author yc2480
- * @version $Id: AnovaAnalysis.java,v 1.23 2009-03-20 20:43:15 chiangy Exp $
+ * @version $Id: AnovaAnalysis.java,v 1.24 2009-03-31 20:33:06 jiz Exp $
  */
 public class AnovaAnalysis extends AbstractGridAnalysis implements
 		ClusteringAnalysis {
@@ -325,14 +325,6 @@ public class AnovaAnalysis extends AbstractGridAnalysis implements
 			pb.start();
 		}
 		try {
-			/* show detail message to user, so user know it's running. */
-			OWA.addAlgorithmListener(new AlgorithmListener() {
-				public void valueChanged(AlgorithmEvent event) {
-					if (!unitTestMode)
-						pb.setMessage(event.getDescription());
-				}
-			});
-
 			/* when user close the ProgressBar, call OWA.abort(); */
 			class AbortObserver implements Observer {
 				OneWayANOVA OWA = null;;
