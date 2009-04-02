@@ -95,7 +95,7 @@ import edu.columbia.geworkbench.cagrid.dispatcher.client.DispatcherClient;
  * @author First Genetic Trust Inc.
  * @author keshav
  * @author yc2480
- * @version $Id: AnalysisPanel.java,v 1.76 2009-03-05 19:14:29 jiz Exp $
+ * @version $Id: AnalysisPanel.java,v 1.77 2009-04-02 22:09:55 chiangy Exp $
  * 
  */
 @AcceptTypes( { DSMicroarraySet.class, AdjacencyMatrixDataSet.class,
@@ -376,6 +376,12 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 			} else {
 				selectedAnalysis = null;
 			}
+		}
+		String[] names = new String[availableAnalyses.length];
+		for (int i = 0; i < availableAnalyses.length; i++) {
+			names[i] = ComponentRegistry.getRegistry().getDescriptorForPlugin(
+					availableAnalyses[i]).getLabel();
+			availableAnalyses[i].setLabel(names[i]);
 		}
 	}
 
@@ -969,6 +975,7 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 		}
 	}
 
+	int previousSelectedIndex = -1;
 	/**
 	 * Listener invoked when an analysis is selected from the {@link JList} of
 	 * analyses. The parameters for this analysis are shown.
@@ -1025,12 +1032,14 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 		}
 
 		if (selectedAnalysis instanceof AbstractGridAnalysis) {
-			jGridServicePanel = new GridServicePanel(SERVICE);
-			jGridServicePanel.setAnalysisType(selectedAnalysis);
-			if (jAnalysisTabbedPane.getTabCount() > ANALYSIS_TAB_COUNT)
-				jAnalysisTabbedPane.remove(ANALYSIS_TAB_COUNT);
-
-			jAnalysisTabbedPane.addTab("Services", jGridServicePanel);
+			if (analysesJList.getSelectedIndex() != previousSelectedIndex){
+				jGridServicePanel = new GridServicePanel(SERVICE);
+				jGridServicePanel.setAnalysisType(selectedAnalysis);
+				if (jAnalysisTabbedPane.getTabCount() > ANALYSIS_TAB_COUNT)
+					jAnalysisTabbedPane.remove(ANALYSIS_TAB_COUNT);
+	
+				jAnalysisTabbedPane.addTab("Services", jGridServicePanel);
+			}
 		} else {
 			jAnalysisTabbedPane.remove(jGridServicePanel);
 			jGridServicePanel = null; // TODO this is just a quick fix for bug
@@ -1038,6 +1047,7 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 			// service information every time.
 			// Should have a better implementation.
 		}
+		previousSelectedIndex = analysesJList.getSelectedIndex();		
 	}
 
 	/**
