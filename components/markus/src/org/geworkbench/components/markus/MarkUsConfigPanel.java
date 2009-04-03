@@ -35,7 +35,7 @@ import com.jgoodies.forms.layout.FormLayout;
  * @author meng
  * @author zji
  * @author yc2480
- * @version $Id: MarkUsConfigPanel.java,v 1.6 2009-03-05 21:00:31 jiz Exp $
+ * @version $Id: MarkUsConfigPanel.java,v 1.7 2009-04-03 16:04:11 jiz Exp $
  */
 public class MarkUsConfigPanel extends AbstractSaveableParameterPanel {
 	private Log log = LogFactory.getLog(this.getClass());
@@ -184,52 +184,28 @@ public class MarkUsConfigPanel extends AbstractSaveableParameterPanel {
 		return val;
 	}
 
-	public double geteval3Value() {
-		try {
-			return Double.parseDouble(eval3.getText());
-		} catch (Exception e) {
-			throw new NumberFormatException();
-		}
+	public double geteval3Value() throws NumberFormatException {
+		return Double.parseDouble(eval3.getText());
 	}
 
-	public double geteval4Value() {
-		try {
-			return Double.parseDouble(eval4.getText());
-		} catch (Exception e) {
-			throw new NumberFormatException();
-		}
+	public double geteval4Value()  throws NumberFormatException {
+		return Double.parseDouble(eval4.getText());
 	}
 
-	public int getiter3Value() {
-		try {
-			return Integer.parseInt(iter3.getText());
-		} catch (Exception e) {
-			throw new NumberFormatException();
-		}
+	public int getiter3Value()  throws NumberFormatException {
+		return Integer.parseInt(iter3.getText());
 	}
 
-	public int getiter4Value() {
-		try {
-			return Integer.parseInt(iter4.getText());
-		} catch (Exception e) {
-			throw new NumberFormatException();
-		}
+	public int getiter4Value()  throws NumberFormatException {
+		return Integer.parseInt(iter4.getText());
 	}
 
-	public int getfilter3Value() {
-		try {
-			return Integer.parseInt(filter3.getText());
-		} catch (Exception e) {
-			throw new NumberFormatException();
-		}
+	public int getfilter3Value()  throws NumberFormatException {
+		return Integer.parseInt(filter3.getText());
 	}
 
-	public int getfilter4Value() {
-		try {
-			return Integer.parseInt(filter4.getText());
-		} catch (Exception e) {
-			throw new NumberFormatException();
-		}
+	public int getfilter4Value() throws NumberFormatException {
+		return Integer.parseInt(filter4.getText());
 	}
 
 	public String getmsa3Value() {
@@ -497,12 +473,18 @@ public class MarkUsConfigPanel extends AbstractSaveableParameterPanel {
 		csftitle3.setFocusLostBehavior(JFormattedTextField.COMMIT_OR_REVERT);
 		int msa3Value = 0;
 		msa3.setSelectedIndex(msa3Value);
+		iter3.setText("0");
+		filter3.setText("0");
+		eval3.setText("0");
 
 		String csftitle4Value = "analysis 4";
 		csftitle4.setValue(csftitle4Value);
 		csftitle4.setFocusLostBehavior(JFormattedTextField.COMMIT_OR_REVERT);
 		int msa4Value = 0;
 		msa4.setSelectedIndex(msa4Value);
+		iter4.setText("0");
+		filter4.setText("0");
+		eval4.setText("0");
 	}
 
 	/*
@@ -536,19 +518,19 @@ public class MarkUsConfigPanel extends AbstractSaveableParameterPanel {
 		try {
 			parameters.put("eval3", (Double) geteval3Value());
 		} catch (NumberFormatException nfe) {
-			parameters.put("eval3", "");
+			parameters.put("eval3", "0");
 			log.error(nfe, nfe);
 		}
 		try {
 			parameters.put("iter3", (Integer) getiter3Value());
 		} catch (NumberFormatException nfe) {
-			parameters.put("iter3", "");
+			parameters.put("iter3", "0");
 			log.error(nfe, nfe);
 		}
 		try {
 			parameters.put("filter3", (Integer) getfilter3Value());
 		} catch (NumberFormatException nfe) {
-			parameters.put("filter3", "");
+			parameters.put("filter3", "0");
 			log.error(nfe, nfe);
 		}
 		parameters.put("msa3", (String) getmsa3Value());
@@ -556,19 +538,19 @@ public class MarkUsConfigPanel extends AbstractSaveableParameterPanel {
 		try {
 			parameters.put("eval4", (Double) geteval4Value());
 		} catch (NumberFormatException nfe) {
-			parameters.put("eval4", "");
+			parameters.put("eval4", "0");
 			log.error(nfe, nfe);
 		}
 		try {
 			parameters.put("iter4", (Integer) getiter4Value());
 		} catch (NumberFormatException nfe) {
-			parameters.put("iter4", "");
+			parameters.put("iter4", "0");
 			log.error(nfe, nfe);
 		}
 		try {
 			parameters.put("filter4", (Integer) getfilter4Value());
 		} catch (NumberFormatException nfe) {
-			parameters.put("filter4", "");
+			parameters.put("filter4", "0");
 			log.error(nfe, nfe);
 		}
 		parameters.put("msa4", (String) getmsa4Value());
@@ -671,7 +653,7 @@ public class MarkUsConfigPanel extends AbstractSaveableParameterPanel {
 				try {
 					eval3.setValue((Double) value);
 				} catch (Exception e) {
-					eval3.setText("");
+					eval3.setText("0");
 					log.error("problem parsing eval3");
 				}
 			}
@@ -679,7 +661,7 @@ public class MarkUsConfigPanel extends AbstractSaveableParameterPanel {
 				try {
 					eval4.setValue((Double) value);
 				} catch (Exception e) {
-					eval4.setText("");
+					eval4.setText("0");
 					log.error("problem parsing eval4");
 				}
 			}
@@ -687,7 +669,7 @@ public class MarkUsConfigPanel extends AbstractSaveableParameterPanel {
 				try {
 					iter3.setValue((Integer) value);
 				} catch (Exception e) {
-					iter3.setText("");
+					iter3.setText("0");
 					log.error("problem parsing iter3");
 				}
 			}
@@ -695,7 +677,7 @@ public class MarkUsConfigPanel extends AbstractSaveableParameterPanel {
 				try {
 					iter4.setValue((Integer) value);
 				} catch (Exception e) {
-					iter4.setText("");
+					iter4.setText("0");
 					log.error("problem parsing iter4");
 				}
 			}
@@ -703,7 +685,7 @@ public class MarkUsConfigPanel extends AbstractSaveableParameterPanel {
 				try {
 					filter3.setValue((Integer) value);
 				} catch (Exception e) {
-					filter3.setText("");
+					filter3.setText("0");
 					log.error("problem parsing filter3");
 				}
 			}
@@ -711,7 +693,7 @@ public class MarkUsConfigPanel extends AbstractSaveableParameterPanel {
 				try {
 					filter4.setValue((Integer) value);
 				} catch (Exception e) {
-					filter4.setText("");
+					filter4.setText("0");
 					log.error("problem parsing filter4");
 				}
 			}
