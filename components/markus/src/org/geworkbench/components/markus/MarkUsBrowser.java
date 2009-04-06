@@ -2,6 +2,7 @@ package org.geworkbench.components.markus;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
@@ -28,11 +29,12 @@ import org.jdesktop.jdic.browser.BrowserEngineManager;
 import org.jdesktop.jdic.browser.IBrowserEngine;
 import org.jdesktop.jdic.browser.WebBrowserEvent;
 import org.jdesktop.jdic.browser.WebBrowserListener;
+import org.jdesktop.jdic.browser.WebKitWebBrowser;
 
 /**
  * 
  * @author mwang
- * @version $Id: MarkUsBrowser.java,v 1.6 2009-03-26 19:51:33 jiz Exp $
+ * @version $Id: MarkUsBrowser.java,v 1.7 2009-04-06 16:21:15 wangm Exp $
  *
  */
 
@@ -58,6 +60,8 @@ public class MarkUsBrowser implements VisualPlugin {
 	private String lastpid = null;
 	
 	private int tc = 0;
+	private static String osname = System.getProperty("os.name").toLowerCase();
+    private final static boolean is_mac = (osname.indexOf("mac") > -1);
 
 	// set true for jdic to use IE browser; false for Mozilla(FIXME: LINK in TAB
 	// NOT WORKING)
@@ -65,7 +69,11 @@ public class MarkUsBrowser implements VisualPlugin {
 	
 	static {
 		BrowserEngineManager bem = BrowserEngineManager.instance();
-		if (bem.getActiveEngine() != bem.getEngines().get(
+	    if (is_mac)
+	    {
+		    bem.setActiveEngine(BrowserEngineManager.WEBKIT);
+	    }
+	    else if (bem.getActiveEngine() != bem.getEngines().get(
 				BrowserEngineManager.IE)) {
 			// set jdic to use IE or Mozilla browser
 			if (useIE == true) {
@@ -127,7 +135,9 @@ public class MarkUsBrowser implements VisualPlugin {
 			lastpid = process_id;
 			process_id = musid4prt.get(proteinData);
 			log.debug("proteinData found: "+process_id);
-			if(tb==null || !tb.isInitialized()) {
+			if (!is_mac)
+			{
+			    if(tb==null || !tb.isInitialized()) {
 				try {
 					tb = new TabBrowser(new URL(MARKUS_RESULT_URL
 							+ process_id), useIE);
@@ -144,6 +154,7 @@ public class MarkUsBrowser implements VisualPlugin {
 					e.printStackTrace();
 					return;
 				}
+			    }
 			}
 			log.debug("process_id=" + process_id + "; proteinData="
 						+ proteinData + ";lastpid " + lastpid);
@@ -164,26 +175,43 @@ public class MarkUsBrowser implements VisualPlugin {
 		statusBar.lblDesc.setText("JDIC Browser");
 
 		if (!initial)
+		    if (!is_mac)
 			tb
 					.setContent("<html><head><title>blank</title></head><body></body></html>");
 		try {
 			if (initial) {
 				initial = false;
-
-				// Print out debug messages in the command line.
-				// tb.setDebug(true);
-				tb = new TabBrowser(new URL(url), useIE);
-				tb.addWebBrowserListener(new WebTabListener());
-				tb.setMainBrowser(this);
-
-				jp.removeAll();
-				jp.add(tb, BorderLayout.CENTER);
-				jtp.addTab(tabtitle, jp);
-
+				
+			    if (is_mac)
+			    {
+			    	//WebKitWebBrowser calls Mac-only com.apple.eawt.CocoaComponent
+			    	//load it with reflect to allow compilation under windows
+				    Class wkwbc = Class.forName("org.jdesktop.jdic.browser.WebKitWebBrowser");
+				    Object webBrowser = wkwbc.newInstance();
+				    Method setContent = wkwbc.getMethod("setContent", Class.forName("java.lang.String"));
+				    Method setURL = wkwbc.getMethod("setURL", Class.forName("java.net.URL"));
+				    setContent.invoke(webBrowser, "MacRoman");
+				    setURL.invoke(webBrowser, new URL(url));
+				    jp.add((java.awt.Component)webBrowser, BorderLayout.CENTER);
+				    jtp.addTab(tabtitle, jp);
+			    }
+			    else
+			    {
+					// Print out debug messages in the command line.
+					// tb.setDebug(true);
+					tb = new TabBrowser(new URL(url), useIE);
+					tb.addWebBrowserListener(new WebTabListener());
+					tb.setMainBrowser(this);
+	
+					jp.removeAll();
+					jp.add(tb, BorderLayout.CENTER);
+					jtp.addTab(tabtitle, jp);
+			    }
 				mainPanel.add(jtp, BorderLayout.CENTER);
 				mainPanel.add(statusBar, BorderLayout.SOUTH);
 			} else {
-				tb.setURL(new URL(url)); // add this no matter what
+				if (!is_mac)
+					tb.setURL(new URL(url)); // add this no matter what
 			}
 		} catch (Exception e) {
 			System.out.println(e.getMessage());
