@@ -36,12 +36,13 @@ import edu.columbia.c2b2.evidenceinegration.EvidenceIntegration;
 
 /**
  * @author mhall
+ * @version $Id: EvidenceIntegrationAnalysis.java,v 1.12 2009-04-07 18:11:56 chiangy Exp $
  */
 public class EvidenceIntegrationAnalysis extends AbstractGridAnalysis implements ClusteringAnalysis {
 
     public static final String DB_URL = "jdbc:mysql://afdev:3306/evidence_integration";
-    public static final String DB_USERNAME = "matt";
-    public static final String DB_PASSWORD = "matthall";
+    public static final String DB_USERNAME = "evidence_integ";
+    public static final String DB_PASSWORD = "S@cUrE_aR@a56";
     private final String analysisName = "EvidenceIntegration";
 
     EvidenceIntegration eiEngine = new EvidenceIntegration(DB_URL, DB_USERNAME, DB_PASSWORD);
