@@ -471,15 +471,6 @@ public class InteractionsSoapBindingSkeleton implements org.geworkbench.componen
         impl.setMSID2(in0);
     }
 
-    public java.lang.String getISREVERSIBLE() throws java.rmi.RemoteException {
-        java.lang.String ret = impl.getISREVERSIBLE();
-        return ret;
-    }
-
-    public void setISREVERSIBLE(java.lang.String in0) throws java.rmi.RemoteException {
-        impl.setISREVERSIBLE(in0);
-    }
-
     public java.math.BigDecimal getMSID1() throws java.rmi.RemoteException {
         java.math.BigDecimal ret = impl.getMSID1();
         return ret;
@@ -496,24 +487,6 @@ public class InteractionsSoapBindingSkeleton implements org.geworkbench.componen
 
     public void setSOURCE(java.lang.String in0) throws java.rmi.RemoteException {
         impl.setSOURCE(in0);
-    }
-
-    public java.lang.String getCONTROLTYPE() throws java.rmi.RemoteException {
-        java.lang.String ret = impl.getCONTROLTYPE();
-        return ret;
-    }
-
-    public void setCONTROLTYPE(java.lang.String in0) throws java.rmi.RemoteException {
-        impl.setCONTROLTYPE(in0);
-    }
-
-    public java.lang.String getDIRECTION() throws java.rmi.RemoteException {
-        java.lang.String ret = impl.getDIRECTION();
-        return ret;
-    }
-
-    public void setDIRECTION(java.lang.String in0) throws java.rmi.RemoteException {
-        impl.setDIRECTION(in0);
     }
 
     public double getCONFIDENCEVALUE() throws java.rmi.RemoteException {
