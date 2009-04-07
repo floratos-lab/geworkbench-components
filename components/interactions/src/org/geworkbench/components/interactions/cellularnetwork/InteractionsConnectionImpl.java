@@ -21,11 +21,8 @@ public class InteractionsConnectionImpl implements INTERACTIONS {
 	private String interactionType = null;
     private BigDecimal msid2 = null;
 
-    private String isReversible = null;
     private BigDecimal msid1 = null;
     private String source = null;
-    private String controlType = null;
-    private String direction = null;
     private double confidenceValue = 0d;
     private String isModulated = null;
     private BigDecimal id = null;
@@ -57,9 +54,6 @@ public class InteractionsConnectionImpl implements INTERACTIONS {
                     confidenceValue = rs.getDouble("confidence_value");
                     isModulated = rs.getString("is_modulated");
                     interactionType = rs.getString("interaction_type").trim();
-                    controlType = rs.getString("control_type");
-                    direction = rs.getString("direction");
-                    isReversible = rs.getString("is_reversible");
                     source = rs.getString("source");
                     if(interactionType.equals("1")) {
                     	interactionType = InteractionDetail.PROTEINPROTEININTERACTION;
@@ -102,14 +96,6 @@ public class InteractionsConnectionImpl implements INTERACTIONS {
         msid2 = in0;
     }
 
-    public String getISREVERSIBLE() throws java.rmi.RemoteException {
-        return isReversible;
-    }
-
-    public void setISREVERSIBLE(String in0) throws java.rmi.RemoteException {
-        isReversible = in0;
-    }
-
     public BigDecimal getMSID1() throws java.rmi.RemoteException {
         return msid1;
     }
@@ -124,22 +110,6 @@ public class InteractionsConnectionImpl implements INTERACTIONS {
 
     public void setSOURCE(String in0) throws java.rmi.RemoteException {
         source = in0;
-    }
-
-    public String getCONTROLTYPE() throws java.rmi.RemoteException {
-        return controlType;
-    }
-
-    public void setCONTROLTYPE(String in0) throws java.rmi.RemoteException {
-        controlType = in0;
-    }
-
-    public String getDIRECTION() throws java.rmi.RemoteException {
-        return direction;
-    }
-
-    public void setDIRECTION(String in0) throws java.rmi.RemoteException {
-        direction = in0;
     }
 
     public double getCONFIDENCEVALUE() throws java.rmi.RemoteException {

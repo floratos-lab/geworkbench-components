@@ -16,10 +16,6 @@ public interface INTERACTIONS extends java.rmi.Remote {
 
     public void setMSID2(java.math.BigDecimal in0) throws java.rmi.RemoteException;
 
-    public java.lang.String getISREVERSIBLE() throws java.rmi.RemoteException;
-
-    public void setISREVERSIBLE(java.lang.String in0) throws java.rmi.RemoteException;
-
     public java.math.BigDecimal getMSID1() throws java.rmi.RemoteException;
 
     public void setMSID1(java.math.BigDecimal in0) throws java.rmi.RemoteException;
@@ -27,14 +23,6 @@ public interface INTERACTIONS extends java.rmi.Remote {
     public java.lang.String getSOURCE() throws java.rmi.RemoteException;
 
     public void setSOURCE(java.lang.String in0) throws java.rmi.RemoteException;
-
-    public java.lang.String getCONTROLTYPE() throws java.rmi.RemoteException;
-
-    public void setCONTROLTYPE(java.lang.String in0) throws java.rmi.RemoteException;
-
-    public java.lang.String getDIRECTION() throws java.rmi.RemoteException;
-
-    public void setDIRECTION(java.lang.String in0) throws java.rmi.RemoteException;
 
     public double getCONFIDENCEVALUE() throws java.rmi.RemoteException;
 
