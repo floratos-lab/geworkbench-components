@@ -568,7 +568,21 @@ public class ScatterPlot implements VisualPlugin {
 								 */
 			
 			StringBuilder sb = new StringBuilder("<html>");
+			int count = 0;
+			final int MAXIMUM_NUMBER_FOR_SMART_TOOLTIP = 100;
+			final int MAXIMUM_ITEMS_IN_A_TOOLTIP = 10;
 			for (ArrayList<RankSorter> list : chartData.xyPoints) {
+
+				/* If a list has too many points, use the simple tooltip to avoid slow response. */
+				if (list.size() > MAXIMUM_NUMBER_FOR_SMART_TOOLTIP) {
+					DSGeneMarker marker = chartData.getMarker(series, item);
+					String label = "No Panel, ";
+					DSPanel<DSGeneMarker> value = panel.getPanel(marker);
+					if (value != null)
+						label = value.getLabel();
+					return tooltipForMarker(marker, label, rs);
+				}
+
 				for (org.geworkbench.util.pathwaydecoder.RankSorter rankSorter : list) {
 					if (rankSorter.id < maSet.getMarkers().size()) {
 						double x = (rankSorter.x - domainLower) / domainWidth
@@ -583,6 +597,9 @@ public class ScatterPlot implements VisualPlugin {
 									.getPanel(markerNear);
 							if (value != null)
 								label = value.getLabel();
+							count++;
+							if(count>MAXIMUM_ITEMS_IN_A_TOOLTIP) /* If there are too many points for this tool tip, show the first group.*/
+								return sb.append("...</html>").toString();
 							sb.append(
 									tooltipForMarker(markerNear, label,
 											rankSorter)).append("<br>");
