@@ -555,9 +555,7 @@ public class ScatterPlot implements VisualPlugin {
 					.getWidth(), shapeBound.getHeight());
 
 			DSPanel<DSGeneMarker> panel = dataSetView.getMarkerPanel();
-			if (panel == null) {
-				throw new RuntimeException("tooltip error: marker panel is null");
-			}
+
 			DSMicroarraySet<DSMicroarray> maSet = (DSMicroarraySet) dataSetView
 			.getDataSet();
 			if (maSet == null)
@@ -577,7 +575,9 @@ public class ScatterPlot implements VisualPlugin {
 				if (list.size() > MAXIMUM_NUMBER_FOR_SMART_TOOLTIP) {
 					DSGeneMarker marker = chartData.getMarker(series, item);
 					String label = "No Panel, ";
-					DSPanel<DSGeneMarker> value = panel.getPanel(marker);
+					DSPanel<DSGeneMarker> value = null;
+					if(panel!=null)
+						value = panel.getPanel(marker);
 					if (value != null)
 						label = value.getLabel();
 					return tooltipForMarker(marker, label, rs);
@@ -593,8 +593,9 @@ public class ScatterPlot implements VisualPlugin {
 							DSGeneMarker markerNear = maSet.getMarkers().get(
 									rankSorter.id);
 							String label = "No Panel, ";
-							DSPanel<DSGeneMarker> value = panel
-									.getPanel(markerNear);
+							DSPanel<DSGeneMarker> value = null;
+							if (panel != null)
+								value = panel.getPanel(markerNear);
 							if (value != null)
 								label = value.getLabel();
 							count++;
