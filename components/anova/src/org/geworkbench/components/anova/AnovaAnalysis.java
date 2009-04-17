@@ -53,7 +53,7 @@ import edu.columbia.geworkbench.cagrid.anova.PValueEstimation;
 
 /**
  * @author yc2480
- * @version $Id: AnovaAnalysis.java,v 1.24 2009-03-31 20:33:06 jiz Exp $
+ * @version $Id: AnovaAnalysis.java,v 1.25 2009-04-17 16:47:34 chiangy Exp $
  */
 public class AnovaAnalysis extends AbstractGridAnalysis implements
 		ClusteringAnalysis {
@@ -418,8 +418,7 @@ public class AnovaAnalysis extends AbstractGridAnalysis implements
 				 * significant.
 				 */
 				if (inTheList) {
-					DSGeneMarker item = view.markers().get(
-							view.markers().get(i).getLabel());
+					DSGeneMarker item = view.markers().get(i);
 					log.debug("SignificantMarker: "
 							+ view.markers().get(i).getLabel()
 							+ ", with apFM: " + apFM.A[i][0]);
