@@ -43,7 +43,7 @@ import org.geworkbench.events.CaArrayQueryResultEvent;
  * The class to invoke StandAloneCaArrayWrapper
  * 
  * @author xiaoqing
- * @version $Id: StandAloneCaArrayClientWrapper.java,v 1.9 2009-04-17 21:01:38 chiangy Exp $
+ * @version $Id: StandAloneCaArrayClientWrapper.java,v 1.10 2009-04-18 12:20:28 jiz Exp $
  * 
  */
 public class StandAloneCaArrayClientWrapper {
@@ -121,7 +121,6 @@ public class StandAloneCaArrayClientWrapper {
 			prefixCMD = jkdLocation + "/bin/java -Xmx400M -classpath \""
 					+ CLASSPATH
 					+ "\" org.geworkbench.components.caarray.arraydata.StandAloneCaArrayClientExec ";
-			prefixCMD = "\"C:\\Program Files\\Java\\jre1.5.0_14/bin/java\" -Xmx400M -classpath \"C:\\Documents and Settings\\yc2480\\eclipse_geworkbench_workspace\\geworkbench-core;C:\\Documents and Settings\\yc2480\\eclipse_geworkbench_workspace\\geworkbench-core\\classes;C:\\Documents and Settings\\yc2480\\eclipse_geworkbench_workspace\\caarray\\classes;C:\\Documents and Settings\\yc2480\\eclipse_geworkbench_workspace\\caarray\\lib;C:\\Documents and Settings\\yc2480\\eclipse_geworkbench_workspace\\geworkbench-core\\components\\caarray\\classes;C:\\Documents and Settings\\yc2480\\eclipse_geworkbench_workspace\\caarray\\lib\\axis.jar;C:\\Documents and Settings\\yc2480\\eclipse_geworkbench_workspace\\caarray\\lib\\caarray-client.jar;C:\\Documents and Settings\\yc2480\\eclipse_geworkbench_workspace\\caarray\\lib\\caGrid-CQL-cql.1.0-1.2.jar;C:\\Documents and Settings\\yc2480\\eclipse_geworkbench_workspace\\caarray\\lib\\caGrid-data-stubs-1.2.jar;C:\\Documents and Settings\\yc2480\\eclipse_geworkbench_workspace\\caarray\\lib\\commons-collections-3.2.jar;C:\\Documents and Settings\\yc2480\\eclipse_geworkbench_workspace\\caarray\\lib\\commons-io-1.3.2.jar;C:\\Documents and Settings\\yc2480\\eclipse_geworkbench_workspace\\caarray\\lib\\commons-lang-2.3.jar;C:\\Documents and Settings\\yc2480\\eclipse_geworkbench_workspace\\caarray\\lib\\commons-logging-1.1.jar;C:\\Documents and Settings\\yc2480\\eclipse_geworkbench_workspace\\caarray\\lib\\csmapi.jar;C:\\Documents and Settings\\yc2480\\eclipse_geworkbench_workspace\\caarray\\lib\\ejb3-persistence.jar;C:\\Documents and Settings\\yc2480\\eclipse_geworkbench_workspace\\caarray\\lib\\hibernate-annotations.jar;C:\\Documents and Settings\\yc2480\\eclipse_geworkbench_workspace\\caarray\\lib\\hibernate3.jar;C:\\Documents and Settings\\yc2480\\eclipse_geworkbench_workspace\\caarray\\lib\\javassist.jar;C:\\Documents and Settings\\yc2480\\eclipse_geworkbench_workspace\\caarray\\lib\\jboss-aop-jdk50-client.jar;C:\\Documents and Settings\\yc2480\\eclipse_geworkbench_workspace\\caarray\\lib\\jboss-aspect-jdk50-client.jar;C:\\Documents and Settings\\yc2480\\eclipse_geworkbench_workspace\\caarray\\lib\\jboss-ejb3-client.jar;C:\\Documents and Settings\\yc2480\\eclipse_geworkbench_workspace\\caarray\\lib\\jboss-ejb3x.jar;C:\\Documents and Settings\\yc2480\\eclipse_geworkbench_workspace\\caarray\\lib\\jbossall-client.jar;C:\\Documents and Settings\\yc2480\\eclipse_geworkbench_workspace\\caarray\\lib\\log4j-1.2.13.jar;C:\\Documents and Settings\\yc2480\\eclipse_geworkbench_workspace\\caarray\\lib\\nci-commons-core-1.0.9.jar;.\" org.geworkbench.components.caarray.arraydata.StandAloneCaArrayClientExec ";
 		}
 	}
 
