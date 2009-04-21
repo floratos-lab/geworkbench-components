@@ -598,6 +598,7 @@ public abstract class SelectorPanel<T extends DSSequential> implements
 		}
 		treeModel.fireLabelItemsChanged(SELECTION_LABEL);
 
+		throwLabelEvent();
 		listModel.refreshItem(index);
 		 
 	}
