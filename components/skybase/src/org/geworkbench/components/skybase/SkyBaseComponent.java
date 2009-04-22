@@ -57,7 +57,7 @@ import edu.columbia.geworkbench.cagrid.dispatcher.client.DispatcherClient;
  * skybase component: display homologous models in skybase for an input sequence
  * 
  * @author mw2518
- * @version $Id: SkyBaseComponent.java,v 1.7 2009-04-22 15:34:00 jiz Exp $
+ * @version $Id: SkyBaseComponent.java,v 1.8 2009-04-22 18:42:36 jiz Exp $
  *
  */
 
@@ -312,7 +312,11 @@ public class SkyBaseComponent extends JPanel implements VisualPlugin {
 		skybaseparamPanel.repaint();
 		if (currentParameterPanel instanceof AbstractSaveableParameterPanel)
 			((AbstractSaveableParameterPanel) currentParameterPanel)
-					.setParameterHighlightCallback(new HighlightCurrentParameterThread());
+					.setParameterHighlightCallback(new Thread() {
+						public void run() {
+							highlightCurrentParameterGroup();
+						}
+					});
 	}
 
 	private void setNamedParameters(String[] storedParameters) {
@@ -484,7 +488,7 @@ public class SkyBaseComponent extends JPanel implements VisualPlugin {
 		}
 	}
 
-	// two methods copied from AnalysiPanel
+	// based on similar method from AnalysiPanel
 	/**
 	 * scan the saved list, see if the parameters in it are same as current one,
 	 * if yes, highlight it.
@@ -539,30 +543,6 @@ public class SkyBaseComponent extends JPanel implements VisualPlugin {
 				 */
 				break;
 			}
-		}
-	}
-
-	/**
-	 * 
-	 */
-	public void refreshHighLight() {
-		highlightCurrentParameterGroup();
-	}
-
-	// based on a similar class from package org.geworkbench.components.analysis;
-	/**
-	 * We use this class as a call back function
-	 * 
-	 * @author yc2480
-	 * $id$
-	 */
-	private class HighlightCurrentParameterThread extends Thread {
-		/*
-		 * (non-Javadoc)
-		 * @see java.lang.Thread#run()
-		 */
-		public void run() {
-			refreshHighLight();
 		}
 	}
 }
