@@ -12,11 +12,11 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import javax.naming.OperationNotSupportedException;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JList;
@@ -31,6 +31,8 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.analysis.AbstractGridAnalysis;
+import org.geworkbench.analysis.AbstractSaveableParameterPanel;
+import org.geworkbench.analysis.ParameterKey;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.sequences.CSSequenceSet;
 import org.geworkbench.bison.datastructure.biocollections.sequences.DSSequenceSet;
@@ -55,7 +57,7 @@ import edu.columbia.geworkbench.cagrid.dispatcher.client.DispatcherClient;
  * skybase component: display homologous models in skybase for an input sequence
  * 
  * @author mw2518
- * @version $Id: SkyBaseComponent.java,v 1.6 2009-02-18 21:36:18 chiangy Exp $
+ * @version $Id: SkyBaseComponent.java,v 1.7 2009-04-22 15:34:00 jiz Exp $
  *
  */
 
@@ -80,6 +82,8 @@ public class SkyBaseComponent extends JPanel implements VisualPlugin {
 	JButton submit = new JButton("Submit Job");
 	JButton checkResults = new JButton("Check Status");
 	JButton save = new JButton("Save Settings");
+	JButton delete = new JButton("Delete Settings");
+
 	JPanel jPanel4 = new JPanel();
 	FlowLayout flowLayout1 = new FlowLayout();
 	ParameterPanel emptyParameterPanel = new ParameterPanel();
@@ -148,6 +152,12 @@ public class SkyBaseComponent extends JPanel implements VisualPlugin {
 				save_actionPerformed(e);
 			}
 		});
+		delete.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				delete_actionPerformed(e);
+			}
+
+		});
 		jPanel1.setLayout(gridLayout3);
 		jPanel1.setMinimumSize(new Dimension(0, 0));
 		jPanel1.setPreferredSize(new Dimension(50, 20));
@@ -180,9 +190,10 @@ public class SkyBaseComponent extends JPanel implements VisualPlugin {
 		jPanel4.add(currentParameterPanel, BorderLayout.CENTER);
 
 		// Add buttons
-		resetparam.setPreferredSize(save.getPreferredSize());
-		submit.setPreferredSize(save.getPreferredSize());
-		checkResults.setPreferredSize(save.getPreferredSize());
+		resetparam.setPreferredSize(delete.getPreferredSize());
+		submit.setPreferredSize(delete.getPreferredSize());
+		checkResults.setPreferredSize(delete.getPreferredSize());
+		save.setPreferredSize(delete.getPreferredSize());
 		FormLayout layout = new FormLayout("right:100dlu,10dlu", "");
 		DefaultFormBuilder builder = new DefaultFormBuilder(layout);
 		builder.setDefaultDialogBorder();
@@ -192,6 +203,7 @@ public class SkyBaseComponent extends JPanel implements VisualPlugin {
 		// builder.append(checkResults);
 		builder.nextLine();
 		builder.append(save);
+		builder.append(delete);
 
 		jPanel3.add(builder.getPanel(), BorderLayout.EAST);
 
@@ -201,6 +213,39 @@ public class SkyBaseComponent extends JPanel implements VisualPlugin {
 		jScrollPane3.getViewport().add(namedParameters, null);
 		jScrollPane1.getViewport().add(pluginSkyBaseAnalysis, null);
 
+	}
+
+	/**
+	 * Listener invoked when the "Delete Settings" button is pressed
+	 * 
+	 * @param e
+	 */
+	private void delete_actionPerformed(ActionEvent e) {
+		int choice = JOptionPane.showConfirmDialog(null,
+				"Are you sure you want to delete saved parameters?",
+				"Deleting Saved Parameters", JOptionPane.YES_NO_OPTION,
+				JOptionPane.WARNING_MESSAGE);
+		if ( (choice == 0)
+				&& (namedParameters.getSelectedIndex() >= 0)) {
+			log.info("Deleting saved parameters: "
+					+ (String) namedParameters.getSelectedValue());
+			this.removeNamedParameter((String) namedParameters
+					.getSelectedValue());
+			if (namedParameters.getModel().getSize() < 1)
+				this.delete.setEnabled(false);
+		}
+	}
+	
+	/**
+	 * Delete the selected saved parameter.
+	 * 
+	 * @param name -
+	 *            name of the saved parameter
+	 */
+	private void removeNamedParameter(String name) {
+		selectedSkyBaseAnalysis.removeNamedParameter(name);
+		this.setNamedParameters(selectedSkyBaseAnalysis
+				.getNamesOfStoredParameterSets());
 	}
 
 	/*
@@ -265,6 +310,9 @@ public class SkyBaseComponent extends JPanel implements VisualPlugin {
 		jPanel4.add(currentParameterPanel, BorderLayout.CENTER);
 		skybaseparamPanel.revalidate();
 		skybaseparamPanel.repaint();
+		if (currentParameterPanel instanceof AbstractSaveableParameterPanel)
+			((AbstractSaveableParameterPanel) currentParameterPanel)
+					.setParameterHighlightCallback(new HighlightCurrentParameterThread());
 	}
 
 	private void setNamedParameters(String[] storedParameters) {
@@ -273,6 +321,7 @@ public class SkyBaseComponent extends JPanel implements VisualPlugin {
 		namedParameters.getSelectionModel().setSelectionMode(
 				ListSelectionModel.SINGLE_SELECTION);
 		skybaseparamPanel.revalidate();
+		highlightCurrentParameterGroup();
 	}
 
 	private void skybaseAnalysisSelected_action(ListSelectionEvent lse) {
@@ -296,17 +345,25 @@ public class SkyBaseComponent extends JPanel implements VisualPlugin {
 	private void namedParameterSelection_action(ListSelectionEvent e) {
 		if (selectedSkyBaseAnalysis == null)
 			return;
+
+		// duplicate behavior as in AnalysisPanel line 1075
+		if (selectedSkyBaseAnalysis == null) {
+			delete.setEnabled(false);
+			return;
+		}
 		int index = namedParameters.getSelectedIndex();
-		if (index != -1)
-			setParameters(selectedSkyBaseAnalysis
-					.getNamedParameterSet((String) namedParameters
-							.getModel().getElementAt(index)));
+		if (index != -1) {
+			delete.setEnabled(true);
+
+			String paramName = (String) namedParameters.getModel().getElementAt(
+					index);
+			/* load from memory */
+			Map<Serializable, Serializable> parameters = selectedSkyBaseAnalysis
+					.getNamedParameterSet(paramName);
+			selectedSkyBaseAnalysis.setParameters(parameters);
+		}
 	}
 
-	public void setParameters(Map<Serializable,Serializable> parameters){
-		log.error(new OperationNotSupportedException("Please implement setParameters()"));
-	}
-	
 	private void resetparam_actionPerformed(ActionEvent e) {
 		ParameterPanel paramPanel = selectedSkyBaseAnalysis.getParameterPanel();
 		((SkyBaseConfigPanel) paramPanel).setDefaultParameters();
@@ -424,6 +481,88 @@ public class SkyBaseComponent extends JPanel implements VisualPlugin {
 			selectedSkyBaseAnalysis.saveParameters(paramName);
 			setNamedParameters(selectedSkyBaseAnalysis
 					.getNamesOfStoredParameterSets());
+		}
+	}
+
+	// two methods copied from AnalysiPanel
+	/**
+	 * scan the saved list, see if the parameters in it are same as current one,
+	 * if yes, highlight it.
+	 */
+	private void highlightCurrentParameterGroup() {
+		ParameterPanel currentParameterPanel = selectedSkyBaseAnalysis
+				.getParameterPanel();
+		String[] parametersNameList = selectedSkyBaseAnalysis
+				.getNamesOfStoredParameterSets();
+		namedParameters.clearSelection();
+		for (int i = 0; i < parametersNameList.length; i++) {
+			Map<Serializable, Serializable> parameter1 = ((AbstractSaveableParameterPanel) currentParameterPanel)
+					.getParameters();
+			Map<Serializable, Serializable> parameter2 = new HashMap<Serializable, Serializable>();
+			parameter2.putAll(selectedSkyBaseAnalysis
+					.getNamedParameterSet(parametersNameList[i]));
+			parameter2.remove(ParameterKey.class.getSimpleName());
+			if (parameter1.equals(parameter2)) {
+				/*
+				 * Move matched one to the top of the list, so user can always
+				 * see them.
+				 */
+				String[] savedParameterSetNames = selectedSkyBaseAnalysis
+						.getNamesOfStoredParameterSets();
+				/* savedParameterSetNames[i] will need to be moved to top */
+				/*
+				 * sets before it needs to move back, and it needs to be moved
+				 * to the first one.
+				 */
+				String matchedOne = savedParameterSetNames[i];
+				if (i != 0) {
+					for (int j = i - 1; j >= 0; j--) {
+						savedParameterSetNames[j + 1] = savedParameterSetNames[j];
+					}
+					savedParameterSetNames[0] = matchedOne;
+				}
+				/* set the JList to display the re-organized list */
+				namedParameters.removeAll();
+				namedParameters.setListData(savedParameterSetNames);
+				/*
+				 * make sure that only one parameter set can be selected at a
+				 * time
+				 */
+				namedParameters.getSelectionModel().setSelectionMode(
+						ListSelectionModel.SINGLE_SELECTION);
+				namedParameters.revalidate();
+				/* select the first one (which matches current settings) */
+				namedParameters.setSelectedIndex(0);
+				/*
+				 * Since we don't allow duplicate parameter sets in the list, so
+				 * if we detect one, we can skip the rest.
+				 */
+				break;
+			}
+		}
+	}
+
+	/**
+	 * 
+	 */
+	public void refreshHighLight() {
+		highlightCurrentParameterGroup();
+	}
+
+	// based on a similar class from package org.geworkbench.components.analysis;
+	/**
+	 * We use this class as a call back function
+	 * 
+	 * @author yc2480
+	 * $id$
+	 */
+	private class HighlightCurrentParameterThread extends Thread {
+		/*
+		 * (non-Javadoc)
+		 * @see java.lang.Thread#run()
+		 */
+		public void run() {
+			refreshHighLight();
 		}
 	}
 }

@@ -5,7 +5,10 @@ import java.awt.Font;
 import java.io.IOException;
 import java.io.ObjectStreamException;
 import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 
 import javax.naming.OperationNotSupportedException;
 import javax.swing.JFormattedTextField;
@@ -13,6 +16,7 @@ import javax.swing.JFormattedTextField;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.analysis.AbstractSaveableParameterPanel;
+import org.geworkbench.events.listeners.ParameterActionListener;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.layout.FormLayout;
@@ -21,7 +25,7 @@ import com.jgoodies.forms.layout.FormLayout;
  * parameter panel for blast skybase
  * 
  * @author mw2518
- * @version $Id: SkyBaseConfigPanel.java,v 1.5 2009-02-18 21:36:18 chiangy Exp $
+ * @version $Id: SkyBaseConfigPanel.java,v 1.6 2009-04-22 15:34:00 jiz Exp $
  * 
  */
 public class SkyBaseConfigPanel extends AbstractSaveableParameterPanel {
@@ -64,6 +68,11 @@ public class SkyBaseConfigPanel extends AbstractSaveableParameterPanel {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		ParameterActionListener parameterActionListener = new ParameterActionListener(
+				this);
+		mincovEdit.addPropertyChangeListener(parameterActionListener);
+		minsidEdit.addPropertyChangeListener(parameterActionListener);
+		rphitsEdit.addPropertyChangeListener(parameterActionListener);
 	}
 
 	/*
@@ -128,9 +137,12 @@ public class SkyBaseConfigPanel extends AbstractSaveableParameterPanel {
 	 * @see org.geworkbench.analysis.AbstractSaveableParameterPanel#getParameters()
 	 */
 	public Map<Serializable, Serializable> getParameters() {
-		// TODO Auto-generated method stub
-		log.error(new OperationNotSupportedException("Please implement getParameters()"));
-		return null;
+		Map<Serializable, Serializable> parameters = new HashMap<Serializable, Serializable>();
+		parameters.put("mincov", getmincovValue()); // int
+		parameters.put("minsid", getminsidValue()); // int
+		parameters.put("trphits", getrphitsValue()); // int
+
+		return parameters;
 	}
 
 	/*
@@ -138,8 +150,21 @@ public class SkyBaseConfigPanel extends AbstractSaveableParameterPanel {
 	 * @see org.geworkbench.analysis.AbstractSaveableParameterPanel#setParameters(java.util.Map)
 	 */
 	public void setParameters(Map<Serializable, Serializable> parameters) {
-		// TODO Auto-generated method stub
-		log.error(new OperationNotSupportedException("Please implement setParameters()"));
+		if (getStopNotifyAnalysisPanelTemporaryFlag() == true)
+			return;
+		stopNotifyAnalysisPanelTemporary(true);
+		Set<Map.Entry<Serializable, Serializable>> set = parameters.entrySet();
+		for (Iterator<Map.Entry<Serializable, Serializable>> iterator = set
+				.iterator(); iterator.hasNext();) {
+			Map.Entry<Serializable, Serializable> parameter = iterator.next();
+			Object key = parameter.getKey();
+			Object value = parameter.getValue();
+			if(key.equals("mincov"))mincovEdit.setValue(value); // int
+			else if(key.equals("minsid"))minsidEdit.setValue(value); // int
+			else if(key.equals("trphits"))rphitsEdit.setValue(value); // int 
+		}
+		stopNotifyAnalysisPanelTemporary(false);
 	}
 
+	
 }
