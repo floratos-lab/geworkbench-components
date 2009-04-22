@@ -6,15 +6,18 @@ import java.io.IOException;
 import java.io.ObjectStreamException;
 import java.io.Serializable;
 import java.text.NumberFormat;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 
-import javax.naming.OperationNotSupportedException;
 import javax.swing.JComboBox;
 import javax.swing.JFormattedTextField;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.analysis.AbstractSaveableParameterPanel;
+import org.geworkbench.events.listeners.ParameterActionListener;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.layout.FormLayout;
@@ -23,7 +26,7 @@ import com.jgoodies.forms.layout.FormLayout;
  * Parameters panel used by the SkyLine
  * 
  * @author mw2518
- * @version $Id: SkyLineConfigPanel.java,v 1.5 2009-02-18 22:03:50 chiangy Exp $
+ * @version $Id: SkyLineConfigPanel.java,v 1.6 2009-04-22 15:33:59 jiz Exp $
  * 
  */
 public class SkyLineConfigPanel extends AbstractSaveableParameterPanel
@@ -152,6 +155,26 @@ public class SkyLineConfigPanel extends AbstractSaveableParameterPanel
 			e.printStackTrace();
 		}
 
+		/* every editing component needs to notify parameter panel about its change */
+		ParameterActionListener parameterActionListener = new ParameterActionListener(
+				this);
+		chainEdit.addPropertyChangeListener(parameterActionListener);
+		run_pb1ValueSelection.addActionListener(parameterActionListener);
+		run_pb2ValueSelection.addActionListener(parameterActionListener);
+		dEdit.addPropertyChangeListener(parameterActionListener);
+		chosen_speciesEdit.addPropertyChangeListener(parameterActionListener);
+		jEdit.addPropertyChangeListener(parameterActionListener);
+		bEdit.addPropertyChangeListener(parameterActionListener);
+		hEdit.addPropertyChangeListener(parameterActionListener);
+		eEdit.addPropertyChangeListener(parameterActionListener);
+		fValueSelection.addActionListener(parameterActionListener);
+		redundancy_levelEdit.addPropertyChangeListener(parameterActionListener);
+		run_modellerValueSelection.addActionListener(parameterActionListener);
+		model_numberEdit.addPropertyChangeListener(parameterActionListener);
+		hetatmValueSelection.addActionListener(parameterActionListener);
+		clustalValueSelection.addActionListener(parameterActionListener);
+
+		log.info("SkyLineConfigPanel is created.");
 	}
 
 	/*
@@ -240,7 +263,6 @@ public class SkyLineConfigPanel extends AbstractSaveableParameterPanel
 	}
 
 	public String getchainValue() {
-		log.info("get chain value: " + chainEdit.getValue());
 		return (String) chainEdit.getValue();
 	}
 
@@ -354,9 +376,24 @@ public class SkyLineConfigPanel extends AbstractSaveableParameterPanel
 	 * @see org.geworkbench.analysis.AbstractSaveableParameterPanel#getParameters()
 	 */
 	public Map<Serializable, Serializable> getParameters() {
-		// TODO Auto-generated method stub
-		log.error(new OperationNotSupportedException("Please implement getParameters()"));
-		return null;
+		Map<Serializable, Serializable> parameters = new HashMap<Serializable, Serializable>();
+		parameters.put("chain", getchainValue()); // String
+		parameters.put("pbOnInput", getrun_pb1Value()); // String
+		parameters.put("pbOnHomolugous", getrun_pb2Value()); // String 
+		parameters.put("sequenceDatabase", getdValue()) ; // String
+		parameters.put("chosenSpecies", getchosen_speciesValue()); /// String
+		parameters.put("roundToRun", getjValue()); /// int
+		parameters.put("maximumNumber", getbValue()); /// int
+		parameters.put("inclusionThreshold", gethValue()); // double
+		parameters.put("expectation", geteValue()); // double
+		parameters.put("filter", getfValue()); // String
+		parameters.put("redundancyLevel", getredundancy_levelValue()); // int
+		parameters.put("runModeller", getrun_modellerValue()); // String
+		parameters.put("modelNumber", getmodel_numberValue()); // int
+		parameters.put("hetatm", gethetatmValue()); // String
+		parameters.put("clustal", getclustalValue()); // String
+
+		return parameters;
 	}
 
 	/*
@@ -364,8 +401,32 @@ public class SkyLineConfigPanel extends AbstractSaveableParameterPanel
 	 * @see org.geworkbench.analysis.AbstractSaveableParameterPanel#setParameters(java.util.Map)
 	 */
 	public void setParameters(Map<Serializable, Serializable> parameters) {
-		// TODO Auto-generated method stub
-		log.error(new OperationNotSupportedException("Please implement setParameters()"));
+		if (getStopNotifyAnalysisPanelTemporaryFlag() == true)
+			return;
+		stopNotifyAnalysisPanelTemporary(true);
+		Set<Map.Entry<Serializable, Serializable>> set = parameters.entrySet();
+		for (Iterator<Map.Entry<Serializable, Serializable>> iterator = set
+				.iterator(); iterator.hasNext();) {
+			Map.Entry<Serializable, Serializable> parameter = iterator.next();
+			Object key = parameter.getKey();
+			Object value = parameter.getValue();
+			if(key.equals("chain"))chainEdit.setValue(value); // String
+			else if(key.equals("pbOnInput"))run_pb1ValueSelection.setSelectedItem(value); // String
+			else if(key.equals("pbOnHomolugous"))run_pb2ValueSelection.setSelectedItem(value); // String 
+			else if(key.equals("sequenceDatabase"))dEdit.setValue(value) ; // String
+			else if(key.equals("chosenSpecies"))chosen_speciesEdit.setValue(value); /// String
+			else if(key.equals("roundToRun"))jEdit.setValue(value); /// int
+			else if(key.equals("maximumNumber"))bEdit.setValue(value); /// int
+			else if(key.equals("inclusionThreshold"))hEdit.setValue(value); // double
+			else if(key.equals("expectation"))eEdit.setValue(value); // double
+			else if(key.equals("filter"))fValueSelection.setSelectedItem(value); // String
+			else if(key.equals("redundancyLevel"))redundancy_levelEdit.setValue(value); // int
+			else if(key.equals("runModeller"))run_modellerValueSelection.setSelectedItem(value); // String
+			else if(key.equals("modelNumber"))model_numberEdit.setValue(value); // int
+			else if(key.equals("hetatm"))hetatmValueSelection.setSelectedItem(value); // String
+			else if(key.equals("clustal"))clustalValueSelection.setSelectedItem(value); // String
+		}
+		stopNotifyAnalysisPanelTemporary(false);
 	}
 
 }
