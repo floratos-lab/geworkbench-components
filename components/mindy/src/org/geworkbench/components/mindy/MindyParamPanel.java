@@ -43,7 +43,8 @@ import com.jgoodies.forms.layout.FormLayout;
  * MINDY analysis GUI. Allows the user to enter parameters to analyze.
  *
  * @author mhall, ch2514, yc2480
- * @version $ID$
+ * @author oshteynb
+ * @version $Id: MindyParamPanel.java,v 1.29 2009-04-27 15:49:02 keshav Exp $
  */
 @SuppressWarnings("serial")
 public class MindyParamPanel extends AbstractSaveableParameterPanel {
@@ -69,7 +70,7 @@ public class MindyParamPanel extends AbstractSaveableParameterPanel {
 	private static final String[] TARGET_FROM = { FROM_ALL, FROM_FILE,
 			FROM_SETS };
 
-	private static final String[] DEFAULT_SET = { " " };
+	static final String[] DEFAULT_SET = { " " };
 
 	private static final String[] CONDITIONAL = { MI };
 	private static final String[] UNCONDITIONAL = { P_VALUE, MI };
@@ -159,6 +160,14 @@ public class MindyParamPanel extends AbstractSaveableParameterPanel {
 			e.printStackTrace();
 			log.debug("Cannot initialize MINDY parameter panel.", e);
 		}
+	}
+
+	public DSPanel<DSGeneMarker> getSelectorPanel() {
+		return selectorPanel;
+	}
+
+	public JComboBox getTargetsSets() {
+		return targetsSets;
 	}
 
 	void setDataSet(DSDataSet ds) {
@@ -392,12 +401,12 @@ public class MindyParamPanel extends AbstractSaveableParameterPanel {
 		builder.append("", new JLabel(""));
 		builder.append("", new JLabel(""));
 
-		builder.append("Conditional", this.conditionalCombo, 3);
+		builder.append("Conditional (MINDY)", this.conditionalCombo, 3);
 		builder.append(this.conditional);
 		builder.append("Correction", this.conditionalCorrection, 3);
 		builder.append(new JLabel(""));
 
-		builder.append("Unconditional", this.unconditionalCombo, 3);
+		builder.append("Unconditional (ARACNE)", this.unconditionalCombo, 3);
 		builder.append(this.unconditional);
 		builder.append("Correction", this.unconditionalCorrection, 3);
 		builder.append(new JLabel(""));
@@ -656,10 +665,26 @@ public class MindyParamPanel extends AbstractSaveableParameterPanel {
 		}
 	}
 
-	private boolean chooseMarkersFromSet(String setLabel, JTextField toPopulate) {
-		if (selectorPanel == null)
-			return false;
+	static public DSPanel<DSGeneMarker> chooseMarkersSet(String setLabel, DSPanel<DSGeneMarker> selectorPanel){
 		DSPanel<DSGeneMarker> selectedSet = null;
+		if (selectorPanel != null){
+			setLabel = setLabel.trim();
+			for (DSPanel<DSGeneMarker> panel : selectorPanel.panels()) {
+				if (StringUtils.equals(setLabel, panel.getLabel().trim())) {
+					selectedSet = panel;
+					break;
+				}
+			}
+		}
+
+		return selectedSet;
+	}
+
+	public boolean chooseMarkersFromSet(String setLabel, JTextField toPopulate) {
+		DSPanel<DSGeneMarker> selectedSet = chooseMarkersSet(setLabel, selectorPanel);
+
+/*		if (selectorPanel == null)
+			return false;
 		setLabel = setLabel.trim();
 		for (DSPanel<DSGeneMarker> panel : selectorPanel.panels()) {
 			if (StringUtils.equals(setLabel, panel.getLabel().trim())) {
@@ -667,6 +692,7 @@ public class MindyParamPanel extends AbstractSaveableParameterPanel {
 				break;
 			}
 		}
+*/
 		if (selectedSet != null) {
 			if (selectedSet.size() > 0) {
 				StringBuilder sb = new StringBuilder();
@@ -685,6 +711,7 @@ public class MindyParamPanel extends AbstractSaveableParameterPanel {
 				return false;
 			}
 		}
+
 		return false;
 	}
 

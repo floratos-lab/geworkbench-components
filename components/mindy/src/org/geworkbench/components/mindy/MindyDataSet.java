@@ -5,21 +5,29 @@ import java.io.File;
 import org.geworkbench.bison.datastructure.biocollections.CSAncillaryDataSet;
 import org.geworkbench.bison.datastructure.biocollections.DSAncillaryDataSet;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
-import org.geworkbench.util.pathwaydecoder.mutualinformation.MindyData;
 
 /**
  * @author Matt Hall
+ * @author oshteynb
+ * @version $Id: MindyDataSet.java,v 1.3 2009-04-27 15:49:02 keshav Exp $
  */
 public class MindyDataSet extends CSAncillaryDataSet implements DSAncillaryDataSet {
 
     private static final long serialVersionUID = -6835973287728524201L;
     private MindyData data;
     private String filename;
+	private MindyParamPanel params;
 
-    public MindyDataSet(DSDataSet parent, String label, MindyData data, String filename) {
+
+    public MindyParamPanel getParams() {
+		return params;
+	}
+
+	public MindyDataSet(MindyParamPanel params, DSDataSet parent, String label, MindyData data, String filename) {
         super(parent, label);
         this.data = data;
         this.filename = filename;
+        this.params = params;
     }
 
     public File getDataSetFile() {

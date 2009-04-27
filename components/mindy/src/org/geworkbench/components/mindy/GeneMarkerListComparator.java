@@ -2,12 +2,11 @@ package org.geworkbench.components.mindy;
 
 import java.util.Comparator;
 import org.geworkbench.bison.datastructure.bioobjects.markers.*;
-import org.geworkbench.util.pathwaydecoder.mutualinformation.MindyData;
 
 /**
  * Compare two gene markers (for sorting).
  * @author ch2514
- * @version $Id: GeneMarkerListComparator.java,v 1.5 2009-03-10 13:45:37 keshav Exp $
+ * @version $Id: GeneMarkerListComparator.java,v 1.6 2009-04-27 15:49:02 keshav Exp $
  */
 public class GeneMarkerListComparator implements Comparator<DSGeneMarker> {
 	/**
@@ -30,14 +29,14 @@ public class GeneMarkerListComparator implements Comparator<DSGeneMarker> {
      * Sorting mode - compare two gene markers based on their modes.
      */
     public static final int MODE = 5;
-    
+
     // variables
     private MindyData md;
     private int mode;
     private boolean ascending;
     private DSGeneMarker modulator;
-	
-    /** 
+
+    /**
      * @param md - MINDY data
      * @param mode - sorting mode
      * @param ascending - (for sorting).  If true, the gene markers are sorted in
@@ -48,8 +47,8 @@ public class GeneMarkerListComparator implements Comparator<DSGeneMarker> {
 		this.mode = mode;
 		this.ascending = ascending;
 	}
-	
-	/** 
+
+	/**
 	 * @param md - MINDY data
 	 * @param modulator - modulator with which to calculate the score of a marker
 	 * @param mode - sorting mode
@@ -64,11 +63,11 @@ public class GeneMarkerListComparator implements Comparator<DSGeneMarker> {
 	/**
 	 * Compares two gene markers based on the mode specified in the constructor.
 	 * This method is for Collections sorting to call.
-	 * 
+	 *
 	 * @param x - the first gene marker to be compared
      * @param y - the second gene marker to be compared
      * @return A negative integer if the first gene marker precedes the second.
-     * Zero if the two markers are the same.  
+     * Zero if the two markers are the same.
      * A positive integer if the second marker precedes the first.
 	 */
 	public int compare(DSGeneMarker x, DSGeneMarker y) {
@@ -91,9 +90,9 @@ public class GeneMarkerListComparator implements Comparator<DSGeneMarker> {
         case SCORE:
         	if(modulator != null){
         		if(ascending)
-        			return Float.compare(md.getScore(modulator, md.getTranscriptionFactor(), x), md.getScore(modulator, md.getTranscriptionFactor(), y));
+        			return Float.compare(md.getScore(modulator, x), md.getScore(modulator, y));
         		else
-        			return Float.compare(md.getScore(modulator, md.getTranscriptionFactor(), y), md.getScore(modulator, md.getTranscriptionFactor(), x));
+        			return Float.compare(md.getScore(modulator, y), md.getScore(modulator, x));
         	}
         	break;
         case MODE:
@@ -108,7 +107,7 @@ public class GeneMarkerListComparator implements Comparator<DSGeneMarker> {
         	else xmode = 0;
         	if(ymover > ymunder) ymode = 1;
         	else if(ymover < ymunder) ymode = -1;
-        	else ymode = 0;        	
+        	else ymode = 0;
         	if(ascending)
         		return new Integer(xmode).compareTo(new Integer(ymode));
         	else

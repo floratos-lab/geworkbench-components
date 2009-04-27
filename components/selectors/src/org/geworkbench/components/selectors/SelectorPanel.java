@@ -945,6 +945,7 @@ public abstract class SelectorPanel<T extends DSSequential> implements
 					}
 				}
 				addPanel(receivedPanel);
+				throwLabelEvent();
 				break;
 			}
 			case SubpanelChangedEvent.SET_CONTENTS: {
