@@ -9,10 +9,12 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
@@ -34,14 +36,12 @@ import org.geworkbench.events.ImageSnapshotEvent;
 import org.geworkbench.events.ProjectEvent;
 import org.geworkbench.events.SubpanelChangedEvent;
 import org.geworkbench.util.ProgressBar;
-import org.geworkbench.util.pathwaydecoder.mutualinformation.MindyData;
-import org.geworkbench.util.pathwaydecoder.mutualinformation.MindyDataSet;
-import org.geworkbench.util.threading.SwingWorker;
 
 /**
  * @author mhall
  * @author ch2514
- * @version $ID$
+ * @author oshteynb
+ * @version $Id: MindyVisualComponent.java,v 1.33 2009-04-27 15:49:02 keshav Exp $
  */
 @AcceptTypes(MindyDataSet.class)
 public class MindyVisualComponent implements VisualPlugin, java.util.Observer {
@@ -69,10 +69,14 @@ public class MindyVisualComponent implements VisualPlugin, java.util.Observer {
 
 	private boolean stopDrawing = false;
 
+	public MindyParamPanel getParams() {
+		return dataSet.getParams();
+	}
+
 	/**
 	 * Constructor. Includes a place holder for a MINDY result view (i.e. class
 	 * MindyPlugin).
-	 * 
+	 *
 	 */
 	public MindyVisualComponent() {
 		// Just a place holder
@@ -92,7 +96,7 @@ public class MindyVisualComponent implements VisualPlugin, java.util.Observer {
 	/**
 	 * Receives the general ProjectEvent from the framework. Creates MINDY's
 	 * data set based on data from the ProjectEvent.
-	 * 
+	 *
 	 * @param projectEvent
 	 * @param source -
 	 *            source of the ProjectEvent
@@ -178,7 +182,7 @@ public class MindyVisualComponent implements VisualPlugin, java.util.Observer {
 	/**
 	 * Receives GeneSelectorEvent from the framework. Extracts markers in the
 	 * selected marker sets from the Selector Panel.
-	 * 
+	 *
 	 * @param e -
 	 *            GeneSelectorEvent
 	 * @param source -
@@ -189,13 +193,34 @@ public class MindyVisualComponent implements VisualPlugin, java.util.Observer {
 	public void receive(GeneSelectorEvent e, Object source) {
 		log.debug("***Received gene selector event ");
 		if (dataSet != null) {
-			if (e.getPanel() != null)
+
+			if (e.getPanel() != null) {
+//				DSPanel<DSGeneMarker> selectorPanel = e.getPanel();
+				selectorPanel = e.getPanel();
+
+				Iterator it = ht.values().iterator();
+				while (it.hasNext()) {
+					log
+							.debug("***received gene selector event::calling resetTargetSetModel: ");
+					((MindyPlugin) it.next()).setFilteringSelectorPanel(selectorPanel);
+//					((MindyPlugin) it.next()).resetTargetSetModel(selectorPanel);
+				}
+			} else
+				log
+
+		.debug("Received Gene Selector Event: Selection panel sent was null");
+
+// TODO
+			{
+
+/*			if (e.getPanel() != null)
 				this.selectorPanel = e.getPanel();
 			else
 				log
 						.debug("Received Gene Selector Event: Selection panel sent was null");
+*/
 
-			DSMicroarraySetView<DSGeneMarker, DSMicroarray> maView = new CSMicroarraySetView<DSGeneMarker, DSMicroarray>(
+/*			DSMicroarraySetView<DSGeneMarker, DSMicroarray> maView = new CSMicroarraySetView<DSGeneMarker, DSMicroarray>(
 					dataSet.getData().getArraySet());
 			maView.setMarkerPanel(e.getPanel());
 			maView.useMarkerPanel(true);
@@ -225,8 +250,10 @@ public class MindyVisualComponent implements VisualPlugin, java.util.Observer {
 					log.debug("Gene Selector Event contained no marker data.");
 				}
 			}
+*/
+		}
 
-			Iterator it = ht.values().iterator();
+/*			Iterator it = ht.values().iterator();
 			if (selectedMarkers != null) {
 				while (it.hasNext()) {
 					log
@@ -241,16 +268,18 @@ public class MindyVisualComponent implements VisualPlugin, java.util.Observer {
 					((MindyPlugin) it.next()).limitMarkers(null);
 				}
 			}
+*/
 		} else {
 			log
 					.debug("Received Gene Selector Event: Dataset in this component is null");
 		}
+
 	}
 
 	/**
 	 * Publish SubpanelChangedEvent to the framework to add selected markers to
 	 * the marker set(s) on the Selector Panel.
-	 * 
+	 *
 	 * @param e -
 	 *            SubpanelChangedEvent
 	 * @return
@@ -264,7 +293,7 @@ public class MindyVisualComponent implements VisualPlugin, java.util.Observer {
 	/**
 	 * Publish ImageSnapshotEvent to the framework to capture an image of the
 	 * heat map.
-	 * 
+	 *
 	 * @param heatmap -
 	 *            MINDY's heat map panel
 	 * @return ImageSnapshotEvent
