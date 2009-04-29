@@ -64,6 +64,10 @@ import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.events.SubpanelChangedEvent;
+import org.geworkbench.util.pathwaydecoder.mutualinformation.MindyData;
+import org.geworkbench.util.pathwaydecoder.mutualinformation.MindyGeneMarker;
+import org.geworkbench.util.pathwaydecoder.mutualinformation.MindyResultRow;
+import org.geworkbench.util.pathwaydecoder.mutualinformation.ModulatorInfo;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.layout.FormLayout;
@@ -75,7 +79,7 @@ import com.solarmetric.ide.ui.CheckboxCellRenderer;
  * @author mhall
  * @ch2514
  * @author oshteynb
- * @version $Id: MindyPlugin.java,v 1.81 2009-04-27 15:49:02 keshav Exp $
+ * @version $Id: MindyPlugin.java,v 1.82 2009-04-29 19:55:33 oshteynb Exp $
  */
 @SuppressWarnings("serial")
 public class MindyPlugin extends JPanel {
@@ -176,7 +180,6 @@ public class MindyPlugin extends JPanel {
 	// TODO new panel bug 0001718
 	private JPanel markerSetFilteringPanel;
 
-	private MindyParamPanel mindyParamPanel = null;
 	private DSPanel<DSGeneMarker> filteringSelectorPanel;
 
 /*	private JComboBox targetsSets = new JComboBox(new DefaultComboBoxModel(
@@ -231,24 +234,18 @@ public class MindyPlugin extends JPanel {
 				+ System.currentTimeMillis());
 
 		this.visualPlugin = visualPlugin;
-		this.mindyParamPanel = visualPlugin.getParams();
 
-		filteringSelectorPanel = mindyParamPanel.getSelectorPanel();
+		/*   init like in param panel, check for null needed for loading saved workspace */
+		MindyParamPanel mindyParamPanel = MindyAnalysis.getParamsPanel();
+		if (mindyParamPanel != null){
+			filteringSelectorPanel = mindyParamPanel.getSelectorPanel();
+			resetTargetSetModel(filteringSelectorPanel);
+		}
 
-		resetTargetSetModel(filteringSelectorPanel);
 //		targetsSets.setSelectedIndex(0);
-
-//		targetList.setEditable(false);
-
 		targetsSets.setEditable(false);
-//		targetsSets.setEditable(true);
-//		targetsSets.setEnabled(false);
 		targetsSets.setEnabled(true);
 
-/*		targetList.setText("");
-		targetList.setEditable(true);
-		targetList.setEnabled(true);
-*/
 		this.mindyData = data;
 		this.dataSize = mindyData.getData().size();
 		modulators = mindyData.getModulators();
@@ -1849,8 +1846,6 @@ public class MindyPlugin extends JPanel {
 
 		selectedSetName = tmpSelectedSetName;
 		targetsSets.setSelectedItem(selectedSetName);
-
-//		targetsSets.repaint();
 	}
 
 	private List<DSGeneMarker> getFilteredMarkers(String selectedLabel) {
@@ -1919,7 +1914,7 @@ public class MindyPlugin extends JPanel {
 	 * For rendering modulator checkboxes on the targets table column headers.
 	 *
 	 * @author ch2514
-	 * @version $Id: MindyPlugin.java,v 1.81 2009-04-27 15:49:02 keshav Exp $
+	 * @version $Id: MindyPlugin.java,v 1.82 2009-04-29 19:55:33 oshteynb Exp $
 	 */
 	private class CheckBoxRenderer extends DefaultTableCellRenderer {
 		/**
@@ -2016,7 +2011,7 @@ public class MindyPlugin extends JPanel {
 	 *
 	 * @author mhall
 	 * @author ch2514
-	 * @version $Id: MindyPlugin.java,v 1.81 2009-04-27 15:49:02 keshav Exp $
+	 * @version $Id: MindyPlugin.java,v 1.82 2009-04-29 19:55:33 oshteynb Exp $
 	 */
 	class AggregateTableModel extends DefaultTableModel {
 
@@ -2930,7 +2925,7 @@ public class MindyPlugin extends JPanel {
 	 * Compare M#, M+, or M- of two gene markers (for sorting).
 	 *
 	 * @author mhall
-	 * @version $Id: MindyPlugin.java,v 1.81 2009-04-27 15:49:02 keshav Exp $
+	 * @version $Id: MindyPlugin.java,v 1.82 2009-04-29 19:55:33 oshteynb Exp $
 	 */
 	private class ModulatorStatComparator implements Comparator<DSGeneMarker> {
 
@@ -2983,7 +2978,7 @@ public class MindyPlugin extends JPanel {
 	 *
 	 * @author mhall
 	 * @author ch2514
-	 * @version $Id: MindyPlugin.java,v 1.81 2009-04-27 15:49:02 keshav Exp $
+	 * @version $Id: MindyPlugin.java,v 1.82 2009-04-29 19:55:33 oshteynb Exp $
 	 */
 	class ModulatorTargetModel extends DefaultTableModel {
 
@@ -3751,7 +3746,7 @@ public class MindyPlugin extends JPanel {
 	 * for the targets table.
 	 *
 	 * @author ch2514
-	 * @version $Id: MindyPlugin.java,v 1.81 2009-04-27 15:49:02 keshav Exp $
+	 * @version $Id: MindyPlugin.java,v 1.82 2009-04-29 19:55:33 oshteynb Exp $
 	 */
 	private class ColumnHeaderListener extends MouseAdapter {
 		/**

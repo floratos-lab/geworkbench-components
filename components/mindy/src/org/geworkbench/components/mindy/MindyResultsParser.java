@@ -1,12 +1,16 @@
 package org.geworkbench.components.mindy;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.geworkbench.bison.datastructure.biocollections.microarrays.CSMicroarraySet;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
-import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
-
-import java.io.*;
-import java.util.List;
-import java.util.ArrayList;
+import org.geworkbench.util.pathwaydecoder.mutualinformation.MindyData;
+import org.geworkbench.util.pathwaydecoder.mutualinformation.MindyResultRow;
 
 /**
  * For reading in data file and creating Mindy Data.

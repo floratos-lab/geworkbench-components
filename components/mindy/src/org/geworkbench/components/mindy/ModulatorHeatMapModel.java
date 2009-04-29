@@ -9,10 +9,12 @@ import org.apache.commons.logging.LogFactory;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.util.colorcontext.ColorContext;
+import org.geworkbench.util.pathwaydecoder.mutualinformation.MindyData;
+import org.geworkbench.util.pathwaydecoder.mutualinformation.MindyResultRow;
 
 /**
  * @author oshteynb
- * @version $Id: ModulatorHeatMapModel.java,v 1.2 2009-04-27 15:49:02 keshav Exp $
+ * @version $Id: ModulatorHeatMapModel.java,v 1.3 2009-04-29 19:55:33 oshteynb Exp $
  *
  */
 public class ModulatorHeatMapModel {

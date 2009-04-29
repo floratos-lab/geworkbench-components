@@ -2,6 +2,8 @@ package org.geworkbench.components.mindy;
 
 import java.util.Comparator;
 
+import org.geworkbench.util.pathwaydecoder.mutualinformation.MindyGeneMarker;
+
 public class MindyMarkerListComparator implements Comparator<MindyGeneMarker> {
 	/**
 	 * Sorting mode - compare two gene markers based on their short names.

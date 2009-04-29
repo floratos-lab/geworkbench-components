@@ -9,12 +9,10 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
-import javax.swing.DefaultComboBoxModel;
 import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
@@ -36,12 +34,14 @@ import org.geworkbench.events.ImageSnapshotEvent;
 import org.geworkbench.events.ProjectEvent;
 import org.geworkbench.events.SubpanelChangedEvent;
 import org.geworkbench.util.ProgressBar;
+import org.geworkbench.util.pathwaydecoder.mutualinformation.MindyData;
+import org.geworkbench.util.pathwaydecoder.mutualinformation.MindyDataSet;
 
 /**
  * @author mhall
  * @author ch2514
  * @author oshteynb
- * @version $Id: MindyVisualComponent.java,v 1.33 2009-04-27 15:49:02 keshav Exp $
+ * @version $Id: MindyVisualComponent.java,v 1.34 2009-04-29 19:55:33 oshteynb Exp $
  */
 @AcceptTypes(MindyDataSet.class)
 public class MindyVisualComponent implements VisualPlugin, java.util.Observer {
@@ -68,10 +68,6 @@ public class MindyVisualComponent implements VisualPlugin, java.util.Observer {
 	private int maxMarkers = -1;
 
 	private boolean stopDrawing = false;
-
-	public MindyParamPanel getParams() {
-		return dataSet.getParams();
-	}
 
 	/**
 	 * Constructor. Includes a place holder for a MINDY result view (i.e. class
