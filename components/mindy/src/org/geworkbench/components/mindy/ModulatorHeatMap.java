@@ -21,6 +21,7 @@ import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMutableMarkerValue;
 import org.geworkbench.bison.util.colorcontext.ColorContext;
+import org.geworkbench.util.pathwaydecoder.mutualinformation.MindyResultRow;
 
 /**
  * Creates a heat map of selected modulator, transcription factor, and targets.
@@ -28,7 +29,7 @@ import org.geworkbench.bison.util.colorcontext.ColorContext;
  * @author mhall
  * @author ch2514
  * @author oshteynb
- * @version $Id: ModulatorHeatMap.java,v 1.34 2009-04-27 15:49:02 keshav Exp $
+ * @version $Id: ModulatorHeatMap.java,v 1.35 2009-04-29 19:55:33 oshteynb Exp $
  */
 @SuppressWarnings("serial")
 public class ModulatorHeatMap extends JPanel {

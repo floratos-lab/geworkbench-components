@@ -2,11 +2,15 @@ package org.geworkbench.components.mindy;
 
 import java.util.Comparator;
 
+import org.geworkbench.util.pathwaydecoder.mutualinformation.MindyData;
+import org.geworkbench.util.pathwaydecoder.mutualinformation.MindyResultRow;
+
+
 
 /**
  * Compare two MINDY result rows (for sorting).
  * @author ch2514
- * @version $Id: MindyRowComparator.java,v 1.9 2009-04-27 16:48:44 keshav Exp $
+ * @version $Id: MindyRowComparator.java,v 1.10 2009-04-29 19:55:33 oshteynb Exp $
  */
 public class MindyRowComparator implements Comparator<MindyResultRow> {
 	/**

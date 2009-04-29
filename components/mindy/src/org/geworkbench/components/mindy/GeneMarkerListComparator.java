@@ -2,11 +2,12 @@ package org.geworkbench.components.mindy;
 
 import java.util.Comparator;
 import org.geworkbench.bison.datastructure.bioobjects.markers.*;
+import org.geworkbench.util.pathwaydecoder.mutualinformation.MindyData;
 
 /**
  * Compare two gene markers (for sorting).
  * @author ch2514
- * @version $Id: GeneMarkerListComparator.java,v 1.6 2009-04-27 15:49:02 keshav Exp $
+ * @version $Id: GeneMarkerListComparator.java,v 1.7 2009-04-29 19:55:33 oshteynb Exp $
  */
 public class GeneMarkerListComparator implements Comparator<DSGeneMarker> {
 	/**
