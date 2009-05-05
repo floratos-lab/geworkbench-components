@@ -139,7 +139,7 @@ import org.w3c.dom.Element;
  * Index database through caBio. Displays data in two table with 6 columns each. 
  * 
  * @author yc2480
- * @version $Id: AnnotationsPanel2.java,v 1.1 2009-05-05 20:21:37 chiangy Exp $
+ * @version $Id: AnnotationsPanel2.java,v 1.2 2009-05-05 21:02:26 chiangy Exp $
  * 
  */
 @AcceptTypes({DSMicroarraySet.class})
@@ -3106,18 +3106,18 @@ public class AnnotationsPanel2 implements VisualPlugin, Observer{
 //             
 //        }           
 //        else
-        {
-        	diseaseTable.setSortableModel(new CGITableModel());
-        	diseaseTable.getColumnModel().getColumn(0).setHeaderValue("Marker");
-            diseaseTable.getColumnModel().getColumn(1).setHeaderValue("Gene");
-            diseaseTable.getColumnModel().getColumn(2).setHeaderValue("Disease");
-            diseaseTable.getColumnModel().getColumn(3).setHeaderValue("Role");
-            diseaseTable.getColumnModel().getColumn(4).setHeaderValue("Sentence");
-            diseaseTable.getColumnModel().getColumn(5).setHeaderValue("Pubmed");
-            diseaseTable.getTableHeader().revalidate();
-            //jTabbedPane1.setSelectedIndex(0);
-             
-        }
+//        {
+//        	diseaseTable.setSortableModel(new CGITableModel());
+//        	diseaseTable.getColumnModel().getColumn(0).setHeaderValue("Marker");
+//            diseaseTable.getColumnModel().getColumn(1).setHeaderValue("Gene");
+//            diseaseTable.getColumnModel().getColumn(2).setHeaderValue("Disease");
+//            diseaseTable.getColumnModel().getColumn(3).setHeaderValue("Role");
+//            diseaseTable.getColumnModel().getColumn(4).setHeaderValue("Sentence");
+//            diseaseTable.getColumnModel().getColumn(5).setHeaderValue("Pubmed");
+//            diseaseTable.getTableHeader().revalidate();
+//            //jTabbedPane1.setSelectedIndex(0);
+//             
+//        }
          
          
     	  if (svgStringListMap.containsKey(new Integer(hashcode)))
