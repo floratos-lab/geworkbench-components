@@ -139,7 +139,7 @@ import org.w3c.dom.Element;
  * Index database through caBio. Displays data in two table with 6 columns each. 
  * 
  * @author yc2480
- * @version $Id: AnnotationsPanel2.java,v 1.2 2009-05-05 21:02:26 chiangy Exp $
+ * @version $Id: AnnotationsPanel2.java,v 1.3 2009-05-06 21:08:55 chiangy Exp $
  * 
  */
 @AcceptTypes({DSMicroarraySet.class})
@@ -147,8 +147,10 @@ import org.w3c.dom.Element;
 public class AnnotationsPanel2 implements VisualPlugin, Observer{
     private static final String GENE_FINDER_PREFIX = "http://cgap.nci.nih.gov/Genes/GeneInfo?";
     private static final String RETRIEVE_INFORMATION = "Retrieve Annotations";
-	private static final String RETRIEVE_PATHWAY_DATA = "Get gene annotations";
+	private static final String RETRIEVE_PATHWAY_DATA = "Get gene annotations (from CGAP)";
 	private static final String RETRIEVE_CGI_DATA = "Get Disease/Agent associations (from CGI)";
+	private static final String[] Human_Mouse= {"Human","Mouse"};
+    private static final String[] Human_Mouse_Code= {"Hs","Mm"};
     /**
      * Web URL prefix for obtaining Gene annotation
      */        
@@ -180,6 +182,7 @@ public class AnnotationsPanel2 implements VisualPlugin, Observer{
 	String selectedGene = "";
 	String selectedDisease = "";
 	SortableTable selectedTable = null;
+    private String humanOrMouse = Human_Mouse_Code[0];	//default to Human 
     //Aris want the table to sort by number of records when the records just been retrieved.
     boolean sortByNumberOfRecords=true;
 
@@ -1273,6 +1276,7 @@ public class AnnotationsPanel2 implements VisualPlugin, Observer{
 			public void itemStateChanged(ItemEvent e) {
 				userAlsoWantPathwayData = (e.getStateChange() == ItemEvent.SELECTED);
 				cgiRetrievePathwayCheckBox.setSelected(userAlsoWantPathwayData);
+				annoHumanOrMouseComboBox.setEnabled(userAlsoWantPathwayData);
 			}
 		});
         //Init button panel in cgi panel
@@ -1305,6 +1309,7 @@ public class AnnotationsPanel2 implements VisualPlugin, Observer{
 			public void itemStateChanged(ItemEvent e) {
 				userAlsoWantPathwayData = (e.getStateChange() == ItemEvent.SELECTED);
 				annoRetrievePathwayCheckBox.setSelected(userAlsoWantPathwayData);
+				cgiHumanOrMouseComboBox.setEnabled(userAlsoWantPathwayData);
 			}
 		});
         // JPanel middleSectionPanel = new JPanel();
@@ -1340,12 +1345,31 @@ public class AnnotationsPanel2 implements VisualPlugin, Observer{
         cgiBottomPanel.setPreferredSize(new Dimension(100,60));
         cgiBottomPanel.setLayout(new BorderLayout());
         cgiBottomPanel.add(textFieldPanel, BorderLayout.CENTER);
+        ActionListener HumanMouseListener = new java.awt.event.ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+            	String selected =(String)((JComboBox)e.getSource()).getSelectedItem(); 
+        		if (selected.equals(Human_Mouse[0]))
+        			humanOrMouse = Human_Mouse_Code[0];
+        		else if (selected.equals(Human_Mouse[1]))
+        			humanOrMouse = Human_Mouse_Code[1];
+        		else{
+        			log.error("Shouldn't happen");
+        		}
+        		//sync two dropdown box
+        		if (e.getSource() == annoHumanOrMouseComboBox) cgiHumanOrMouseComboBox.setSelectedItem(selected);
+        		if (e.getSource() == cgiHumanOrMouseComboBox) annoHumanOrMouseComboBox.setSelectedItem(selected);
+            }
+        };
         annoButtonPanel.add(annoRetrieveCaBioCheckBox);
         annoButtonPanel.add(annoRetrievePathwayCheckBox);
+        annoButtonPanel.add(annoHumanOrMouseComboBox);
+        annoHumanOrMouseComboBox.addActionListener(HumanMouseListener);
         annoButtonPanel.add(annoRetrieveButton);
         annoButtonPanel.add(annoClearButton);
         cgiButtonPanel.add(cgiRetrieveCaBioCheckBox);
         cgiButtonPanel.add(cgiRetrievePathwayCheckBox);
+        cgiButtonPanel.add(cgiHumanOrMouseComboBox);
+        cgiHumanOrMouseComboBox.addActionListener(HumanMouseListener);
         cgiButtonPanel.add(cgiRetrieveButton);
         cgiButtonPanel.add(cgiClearButton);
         annotationModel = new AnnotationTableModel();
@@ -2494,7 +2518,7 @@ public class AnnotationsPanel2 implements VisualPlugin, Observer{
                             
                             String geneName = selectedMarkerInfo.get(i).getGeneName();
                             GeneAnnotation[] annotations;
-                            annotations = criteria.searchByName(geneName);
+                            annotations = criteria.searchByName(geneName, humanOrMouse);
 
                             if (annotations == null )
                             	return;
@@ -2522,17 +2546,19 @@ public class AnnotationsPanel2 implements VisualPlugin, Observer{
                                             geneData.add(gene);
                                             markerData.add(marker);
                                         }
-                                    } else {
-                                        pathwayData.add(new PathwayData("", null));
-                                        geneData.add(gene);
-                                        markerData.add(marker);
                                     }
+//                                    else {
+//                                        pathwayData.add(new PathwayData("", null));
+//                                        geneData.add(gene);
+//                                        markerData.add(marker);
+//                                    }
                                 }
-                            } else {
-                                pathwayData.add(new PathwayData("", null));
-                                geneData.add(new GeneData("", null));
-                                markerData.add(marker);
                             }
+//                            else {
+//                                pathwayData.add(new PathwayData("", null));
+//                                geneData.add(new GeneData("", null));
+//                                markerData.add(marker);
+//                            }
                         } 
                         
                         pb.stop();
@@ -2542,6 +2568,14 @@ public class AnnotationsPanel2 implements VisualPlugin, Observer{
                     MarkerData[] markers = markerData.toArray(new MarkerData[0]);
                     GeneData[] genes = geneData.toArray(new GeneData[0]);
                     PathwayData[] pathways = pathwayData.toArray(new PathwayData[0]);
+                    if (pathways.length == 0)
+						JOptionPane
+								.showMessageDialog(
+										null,
+										"Server does not have records about these markers for this organism, please try other markers or organism.",
+										"Server returns no records",
+										JOptionPane.OK_OPTION);
+                    
                     annotationModel = new AnnotationTableModel(markers, genes, pathways);
                     annotationTableList.put(new Integer(maSet.hashCode()),  annotationModel);
                     annotationTable.setSortableModel(annotationModel);
@@ -3025,11 +3059,13 @@ public class AnnotationsPanel2 implements VisualPlugin, Observer{
     JButton annoClearButton = new JButton();
     private JCheckBox annoRetrieveCaBioCheckBox = new JCheckBox(RETRIEVE_CGI_DATA);
     private JCheckBox annoRetrievePathwayCheckBox = new JCheckBox(RETRIEVE_PATHWAY_DATA);
+    private JComboBox annoHumanOrMouseComboBox = new JComboBox(Human_Mouse);
     //GUIs used by CGI panel
     private JButton cgiRetrieveButton = new JButton();
     JButton cgiClearButton = new JButton();
     private JCheckBox cgiRetrieveCaBioCheckBox = new JCheckBox(RETRIEVE_CGI_DATA);
     private JCheckBox cgiRetrievePathwayCheckBox = new JCheckBox(RETRIEVE_PATHWAY_DATA);
+    private JComboBox cgiHumanOrMouseComboBox = new JComboBox(Human_Mouse);
     
     
     private DSItemList<DSGeneMarker> selectedMarkerInfo = null;

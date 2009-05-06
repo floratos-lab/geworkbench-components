@@ -89,6 +89,21 @@ public class GeneSearchCriteriaImpl implements GeneSearchCriteria {
 		}
 	}
 
+	public GeneAnnotation[] searchByName(String name, String organism) {
+		Gene gene = new Gene();
+		gene.setSymbol(name);
+
+		try {
+		 
+			List results = appService.search(Gene.class, gene);			
+			return GeneAnnotationImpl.toUniqueArray(results, organism);
+			
+		} catch (ApplicationException e) {
+			log.error(e);
+			return null;
+		}
+	}
+
 	public GeneAnnotation[] searchByProbeId(String probeId) {
 		log.error(new OperationNotSupportedException("No searchByProbeId implemented for caBio 4.2 yet."));
 		return null;
