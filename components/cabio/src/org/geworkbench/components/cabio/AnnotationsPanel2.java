@@ -139,7 +139,7 @@ import org.w3c.dom.Element;
  * Index database through caBio. Displays data in two table with 6 columns each. 
  * 
  * @author yc2480
- * @version $Id: AnnotationsPanel2.java,v 1.3 2009-05-06 21:08:55 chiangy Exp $
+ * @version $Id: AnnotationsPanel2.java,v 1.4 2009-05-07 14:46:51 chiangy Exp $
  * 
  */
 @AcceptTypes({DSMicroarraySet.class})
@@ -2153,6 +2153,10 @@ public class AnnotationsPanel2 implements VisualPlugin, Observer{
                             updateDiseaseNumber();
                             orderDropDownLists(dropDownLists[2]);
                             orderDropDownLists(dropDownLists[6]);
+                        	diseaseModel.sortByColumn(2,false);
+                        	diseaseModel.sortByColumn(0,true);
+                        	agentModel.sortByColumn(2,false);
+                        	agentModel.sortByColumn(0,true);
                         }
                     });
                 }
