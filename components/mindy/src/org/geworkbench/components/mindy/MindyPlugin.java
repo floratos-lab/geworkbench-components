@@ -79,7 +79,7 @@ import com.solarmetric.ide.ui.CheckboxCellRenderer;
  * @author mhall
  * @ch2514
  * @author oshteynb
- * @version $Id: MindyPlugin.java,v 1.82 2009-04-29 19:55:33 oshteynb Exp $
+ * @version $Id: MindyPlugin.java,v 1.83 2009-05-07 15:59:41 oshteynb Exp $
  */
 @SuppressWarnings("serial")
 public class MindyPlugin extends JPanel {
@@ -178,8 +178,6 @@ public class MindyPlugin extends JPanel {
 
 
 	// TODO new panel bug 0001718
-	private JPanel markerSetFilteringPanel;
-
 	private DSPanel<DSGeneMarker> filteringSelectorPanel;
 
 /*	private JComboBox targetsSets = new JComboBox(new DefaultComboBoxModel(
@@ -505,6 +503,10 @@ public class MindyPlugin extends JPanel {
 					return component;
 				}
 			};
+			
+			/* do not allow the user to reorder table columns */
+			targetTable.getTableHeader().setReorderingAllowed(false);
+			
 			targetTable.getTableHeader().setDefaultRenderer(
 					new CheckBoxRenderer());
 			targetTable.getTableHeader().addMouseListener(
@@ -1914,7 +1916,7 @@ public class MindyPlugin extends JPanel {
 	 * For rendering modulator checkboxes on the targets table column headers.
 	 *
 	 * @author ch2514
-	 * @version $Id: MindyPlugin.java,v 1.82 2009-04-29 19:55:33 oshteynb Exp $
+	 * @version $Id: MindyPlugin.java,v 1.83 2009-05-07 15:59:41 oshteynb Exp $
 	 */
 	private class CheckBoxRenderer extends DefaultTableCellRenderer {
 		/**
@@ -2011,7 +2013,7 @@ public class MindyPlugin extends JPanel {
 	 *
 	 * @author mhall
 	 * @author ch2514
-	 * @version $Id: MindyPlugin.java,v 1.82 2009-04-29 19:55:33 oshteynb Exp $
+	 * @version $Id: MindyPlugin.java,v 1.83 2009-05-07 15:59:41 oshteynb Exp $
 	 */
 	class AggregateTableModel extends DefaultTableModel {
 
@@ -2925,7 +2927,7 @@ public class MindyPlugin extends JPanel {
 	 * Compare M#, M+, or M- of two gene markers (for sorting).
 	 *
 	 * @author mhall
-	 * @version $Id: MindyPlugin.java,v 1.82 2009-04-29 19:55:33 oshteynb Exp $
+	 * @version $Id: MindyPlugin.java,v 1.83 2009-05-07 15:59:41 oshteynb Exp $
 	 */
 	private class ModulatorStatComparator implements Comparator<DSGeneMarker> {
 
@@ -2978,7 +2980,7 @@ public class MindyPlugin extends JPanel {
 	 *
 	 * @author mhall
 	 * @author ch2514
-	 * @version $Id: MindyPlugin.java,v 1.82 2009-04-29 19:55:33 oshteynb Exp $
+	 * @version $Id: MindyPlugin.java,v 1.83 2009-05-07 15:59:41 oshteynb Exp $
 	 */
 	class ModulatorTargetModel extends DefaultTableModel {
 
@@ -3746,7 +3748,7 @@ public class MindyPlugin extends JPanel {
 	 * for the targets table.
 	 *
 	 * @author ch2514
-	 * @version $Id: MindyPlugin.java,v 1.82 2009-04-29 19:55:33 oshteynb Exp $
+	 * @version $Id: MindyPlugin.java,v 1.83 2009-05-07 15:59:41 oshteynb Exp $
 	 */
 	private class ColumnHeaderListener extends MouseAdapter {
 		/**
