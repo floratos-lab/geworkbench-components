@@ -19,17 +19,17 @@ import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.bioobjects.structure.PudgeResultSet;
 import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
-import org.geworkbench.bison.model.analysis.ClusteringAnalysis;
 import org.geworkbench.bison.model.analysis.ParamValidationResults;
+import org.geworkbench.bison.model.analysis.ProteinSequenceAnalysis;
 
 /**
  * Pudge analysis for protein fasta sequence
  * 
  * @author mw2518
- * @version $Id: PudgeAnalysis.java,v 1.1 2009-05-11 19:09:12 wangm Exp $
+ * @version $Id: PudgeAnalysis.java,v 1.2 2009-05-11 20:32:45 jiz Exp $
  */
 public class PudgeAnalysis extends AbstractGridAnalysis implements
-		ClusteringAnalysis {
+		ProteinSequenceAnalysis {
 	private static final long serialVersionUID = 1L;
 	public PudgeConfigPanel pcp;
 	String strurl = "http://luna.bioc.columbia.edu/honiglab/pudge/cgi-bin/pipe_int.cgi";
