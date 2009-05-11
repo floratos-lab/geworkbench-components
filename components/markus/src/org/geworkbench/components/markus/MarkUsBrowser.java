@@ -2,10 +2,12 @@ package org.geworkbench.components.markus;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.io.FileInputStream;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
+import java.util.Properties;
 import java.util.StringTokenizer;
 
 import javax.swing.BorderFactory;
@@ -30,11 +32,12 @@ import org.jdesktop.jdic.browser.IBrowserEngine;
 import org.jdesktop.jdic.browser.WebBrowserEvent;
 import org.jdesktop.jdic.browser.WebBrowserListener;
 import org.jdesktop.jdic.browser.WebKitWebBrowser;
+import org.jdesktop.jdic.browser.WebBrowser;
 
 /**
  * 
  * @author mwang
- * @version $Id: MarkUsBrowser.java,v 1.7 2009-04-06 16:21:15 wangm Exp $
+ * @version $Id: MarkUsBrowser.java,v 1.8 2009-05-11 19:06:08 wangm Exp $
  *
  */
 
@@ -50,6 +53,9 @@ public class MarkUsBrowser implements VisualPlugin {
 	
 	private static CloseableTabbedPane jtp = new CloseableTabbedPane();
 	private TabBrowser tb;
+	private WebBrowser wb = null;
+	private Object webBrowser = null;
+	private Method setURL = null;
 	private String tabtitle = null;
 
 	private MyStatusBar statusBar = new MyStatusBar();
@@ -62,27 +68,31 @@ public class MarkUsBrowser implements VisualPlugin {
 	private int tc = 0;
 	private static String osname = System.getProperty("os.name").toLowerCase();
     private final static boolean is_mac = (osname.indexOf("mac") > -1);
+    private final static boolean is_windows = (osname.indexOf("windows") > -1);
 
 	// set true for jdic to use IE browser; false for Mozilla(FIXME: LINK in TAB
 	// NOT WORKING)
-	private final static boolean useIE = true;
+	private final static boolean useIE = is_windows;
 	
+	private static Properties prop = new Properties();
+	private static String mozilla_path = null;
 	static {
 		BrowserEngineManager bem = BrowserEngineManager.instance();
-	    if (is_mac)
-	    {
-		    bem.setActiveEngine(BrowserEngineManager.WEBKIT);
-	    }
-	    else if (bem.getActiveEngine() != bem.getEngines().get(
-				BrowserEngineManager.IE)) {
-			// set jdic to use IE or Mozilla browser
-			if (useIE == true) {
-				bem.setActiveEngine(BrowserEngineManager.IE);
-			} else {
-				bem.setActiveEngine(BrowserEngineManager.MOZILLA);
-				IBrowserEngine be = bem.getActiveEngine();
-				be.setEnginePath("C:\\Program Files\\mozilla\\mozilla.exe");
+		if (is_mac)
+			bem.setActiveEngine(BrowserEngineManager.WEBKIT);
+		else if (is_windows)
+			bem.setActiveEngine(BrowserEngineManager.IE);
+		else {
+			bem.setActiveEngine(BrowserEngineManager.MOZILLA);
+			IBrowserEngine be = bem.getActiveEngine();
+			try{
+				FileInputStream fis = new FileInputStream("conf/jdic.properties");
+				prop.load(fis);
+				mozilla_path = prop.getProperty("mozilla.path");
+			}catch(Exception e){
+				e.printStackTrace();
 			}
+			be.setEnginePath(mozilla_path);
 		}
 	}
 	
@@ -135,7 +145,7 @@ public class MarkUsBrowser implements VisualPlugin {
 			lastpid = process_id;
 			process_id = musid4prt.get(proteinData);
 			log.debug("proteinData found: "+process_id);
-			if (!is_mac)
+			if (is_windows)
 			{
 			    if(tb==null || !tb.isInitialized()) {
 				try {
@@ -156,11 +166,31 @@ public class MarkUsBrowser implements VisualPlugin {
 				}
 			    }
 			}
+
 			log.debug("process_id=" + process_id + "; proteinData="
 						+ proteinData + ";lastpid " + lastpid);
 
 			if (process_id.startsWith("MUS") && !lastpid.equals(process_id)) {
 				showResults(process_id);
+			}
+			else if (!initial)
+			{
+			    try{
+				if (is_mac)
+				    setURL.invoke(webBrowser, new URL(MARKUS_RESULT_URL+process_id));
+				else if (!is_windows)
+				{
+				    wb = new WebBrowser(new URL(MARKUS_RESULT_URL+process_id));
+				    jp.removeAll();
+				    jp.add(wb, BorderLayout.CENTER);
+				    jtp.addTab(process_id, jp);
+				    mainPanel.add(jtp, BorderLayout.CENTER);
+				    mainPanel.invalidate();
+				    mainPanel.repaint();
+				}
+			    }catch(Exception e){
+				e.printStackTrace();
+			    }
 			}
 		}
 	}
@@ -175,9 +205,8 @@ public class MarkUsBrowser implements VisualPlugin {
 		statusBar.lblDesc.setText("JDIC Browser");
 
 		if (!initial)
-		    if (!is_mac)
-			tb
-					.setContent("<html><head><title>blank</title></head><body></body></html>");
+		    if (is_windows)
+			tb.setContent("<html><head><title>blank</title></head><body></body></html>");
 		try {
 			if (initial) {
 				initial = false;
@@ -187,15 +216,15 @@ public class MarkUsBrowser implements VisualPlugin {
 			    	//WebKitWebBrowser calls Mac-only com.apple.eawt.CocoaComponent
 			    	//load it with reflect to allow compilation under windows
 				    Class wkwbc = Class.forName("org.jdesktop.jdic.browser.WebKitWebBrowser");
-				    Object webBrowser = wkwbc.newInstance();
+				    webBrowser = wkwbc.newInstance();
 				    Method setContent = wkwbc.getMethod("setContent", Class.forName("java.lang.String"));
-				    Method setURL = wkwbc.getMethod("setURL", Class.forName("java.net.URL"));
+				    setURL = wkwbc.getMethod("setURL", Class.forName("java.net.URL"));
 				    setContent.invoke(webBrowser, "MacRoman");
 				    setURL.invoke(webBrowser, new URL(url));
 				    jp.add((java.awt.Component)webBrowser, BorderLayout.CENTER);
 				    jtp.addTab(tabtitle, jp);
 			    }
-			    else
+			    else if (is_windows)
 			    {
 					// Print out debug messages in the command line.
 					// tb.setDebug(true);
@@ -207,11 +236,31 @@ public class MarkUsBrowser implements VisualPlugin {
 					jp.add(tb, BorderLayout.CENTER);
 					jtp.addTab(tabtitle, jp);
 			    }
-				mainPanel.add(jtp, BorderLayout.CENTER);
-				mainPanel.add(statusBar, BorderLayout.SOUTH);
+			    else
+			    {
+					// set auto_dispose=false to avoid dead mozilla browser in linux
+					wb = new WebBrowser(new URL(url), useIE);
+					jp.removeAll();
+					jp.add(wb, BorderLayout.CENTER);
+					jtp.addTab(process_id, jp);
+			    }
+			    mainPanel.add(jtp, BorderLayout.CENTER);
+			    mainPanel.add(statusBar, BorderLayout.SOUTH);
 			} else {
-				if (!is_mac)
+				if (is_mac)
+				    setURL.invoke(webBrowser, new URL(url));
+				else if (is_windows)
 					tb.setURL(new URL(url)); // add this no matter what
+				else
+				{
+					wb = new WebBrowser(new URL(url));
+				    jp.removeAll();
+				    jp.add(wb, BorderLayout.CENTER);
+				    jtp.addTab(process_id, jp);
+				    mainPanel.add(jtp, BorderLayout.CENTER);
+				    mainPanel.invalidate();
+				    mainPanel.repaint();
+				}
 			}
 		} catch (Exception e) {
 			System.out.println(e.getMessage());
