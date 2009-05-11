@@ -44,6 +44,7 @@ import org.geworkbench.analysis.AbstractSaveableParameterPanel;
 import org.geworkbench.analysis.ParameterKey;
 import org.geworkbench.bison.datastructure.biocollections.DSAncillaryDataSet;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
+import org.geworkbench.bison.datastructure.biocollections.sequences.CSSequenceSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.CSExprMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
@@ -95,11 +96,11 @@ import edu.columbia.geworkbench.cagrid.dispatcher.client.DispatcherClient;
  * @author First Genetic Trust Inc.
  * @author keshav
  * @author yc2480
- * @version $Id: AnalysisPanel.java,v 1.77 2009-04-02 22:09:55 chiangy Exp $
+ * @version $Id: AnalysisPanel.java,v 1.78 2009-05-11 19:11:42 wangm Exp $
  * 
  */
 @AcceptTypes( { DSMicroarraySet.class, AdjacencyMatrixDataSet.class,
-		EdgeListDataSet.class, CSProteinStructure.class })
+		EdgeListDataSet.class, CSProteinStructure.class, CSSequenceSet.class })
 public class AnalysisPanel extends MicroarrayViewEventBase implements
 		VisualPlugin, ReHighlightable {
 
