@@ -61,6 +61,7 @@ import org.geworkbench.bison.model.analysis.ClusteringAnalysis;
 import org.geworkbench.bison.model.analysis.ParamValidationResults;
 import org.geworkbench.bison.model.analysis.ParameterPanel;
 import org.geworkbench.bison.model.analysis.ProteinAnalysis;
+import org.geworkbench.bison.model.analysis.ProteinSequenceAnalysis;
 import org.geworkbench.components.analysis.clustering.MultiTTestAnalysisPanel;
 import org.geworkbench.components.analysis.clustering.TtestAnalysisPanel;
 import org.geworkbench.components.cagrid.gui.GridServicePanel;
@@ -96,7 +97,7 @@ import edu.columbia.geworkbench.cagrid.dispatcher.client.DispatcherClient;
  * @author First Genetic Trust Inc.
  * @author keshav
  * @author yc2480
- * @version $Id: AnalysisPanel.java,v 1.78 2009-05-11 19:11:42 wangm Exp $
+ * @version $Id: AnalysisPanel.java,v 1.79 2009-05-11 20:31:14 jiz Exp $
  * 
  */
 @AcceptTypes( { DSMicroarraySet.class, AdjacencyMatrixDataSet.class,
@@ -1294,6 +1295,8 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 		if(even.getDataSet()!=null) {
 			if (even.getDataSet().getClass().equals(CSProteinStructure.class)) {
 				getAvailableProteinAnalyses();
+			} else if (even.getDataSet().getClass().equals(CSSequenceSet.class)) {
+				getAvailableProteinSequenceAnalyses();
 			} else {
 				getAvailableAnalyses();
 			}
@@ -1308,6 +1311,29 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 		boolean selectionChanged = true;
 		Analysis[] analyses = ComponentRegistry.getRegistry().getModules(
 				ProteinAnalysis.class);
+		availableAnalyses = new AbstractAnalysis[analyses.length];
+		for (int i = 0; i < analyses.length; i++) {
+			availableAnalyses[i] = (AbstractAnalysis) analyses[i];
+			if (selectedAnalysis == availableAnalyses[i]) {
+				selectionChanged = false;
+			}
+		}
+		if (selectionChanged) {
+			if (availableAnalyses.length > 0) {
+				selectedAnalysis = availableAnalyses[0];
+			} else {
+				selectedAnalysis = null;
+			}
+		}
+	}
+	
+	/**
+	 * Get the protein sequence analyses.
+	 */
+	private void getAvailableProteinSequenceAnalyses() {
+		boolean selectionChanged = true;
+		Analysis[] analyses = ComponentRegistry.getRegistry().getModules(
+				ProteinSequenceAnalysis.class);
 		availableAnalyses = new AbstractAnalysis[analyses.length];
 		for (int i = 0; i < analyses.length; i++) {
 			availableAnalyses[i] = (AbstractAnalysis) analyses[i];
