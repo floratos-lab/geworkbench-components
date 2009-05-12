@@ -60,7 +60,7 @@ import org.geworkbench.bison.model.analysis.Analysis;
 import org.geworkbench.bison.model.analysis.ClusteringAnalysis;
 import org.geworkbench.bison.model.analysis.ParamValidationResults;
 import org.geworkbench.bison.model.analysis.ParameterPanel;
-import org.geworkbench.bison.model.analysis.ProteinAnalysis;
+import org.geworkbench.bison.model.analysis.ProteinStructureAnalysis;
 import org.geworkbench.bison.model.analysis.ProteinSequenceAnalysis;
 import org.geworkbench.components.analysis.clustering.MultiTTestAnalysisPanel;
 import org.geworkbench.components.analysis.clustering.TtestAnalysisPanel;
@@ -97,7 +97,7 @@ import edu.columbia.geworkbench.cagrid.dispatcher.client.DispatcherClient;
  * @author First Genetic Trust Inc.
  * @author keshav
  * @author yc2480
- * @version $Id: AnalysisPanel.java,v 1.79 2009-05-11 20:31:14 jiz Exp $
+ * @version $Id: AnalysisPanel.java,v 1.80 2009-05-12 18:55:05 jiz Exp $
  * 
  */
 @AcceptTypes( { DSMicroarraySet.class, AdjacencyMatrixDataSet.class,
@@ -1294,7 +1294,7 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 		super.receive(even, source);
 		if(even.getDataSet()!=null) {
 			if (even.getDataSet().getClass().equals(CSProteinStructure.class)) {
-				getAvailableProteinAnalyses();
+				getAvailableProteinStructureAnalyses();
 			} else if (even.getDataSet().getClass().equals(CSSequenceSet.class)) {
 				getAvailableProteinSequenceAnalyses();
 			} else {
@@ -1307,10 +1307,10 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 	/**
 	 * Get ProtainAnalysis - the analyses for PDB data files, similar to getAvailableAnalyses() for all ClusteringAnalysise.
 	 */
-	private void getAvailableProteinAnalyses() {
+	private void getAvailableProteinStructureAnalyses() {
 		boolean selectionChanged = true;
 		Analysis[] analyses = ComponentRegistry.getRegistry().getModules(
-				ProteinAnalysis.class);
+				ProteinStructureAnalysis.class);
 		availableAnalyses = new AbstractAnalysis[analyses.length];
 		for (int i = 0; i < analyses.length; i++) {
 			availableAnalyses[i] = (AbstractAnalysis) analyses[i];
