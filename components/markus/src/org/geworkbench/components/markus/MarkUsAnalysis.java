@@ -13,16 +13,16 @@ import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
 import org.geworkbench.bison.model.analysis.ParamValidationResults;
-import org.geworkbench.bison.model.analysis.ProteinAnalysis;
+import org.geworkbench.bison.model.analysis.ProteinStructureAnalysis;
 
 /**
  * MarkUs Analysis.
 
  * @author meng
  * @author zji
- * @version $Id: MarkUsAnalysis.java,v 1.5 2009-02-17 21:59:38 jiz Exp $
+ * @version $Id: MarkUsAnalysis.java,v 1.6 2009-05-12 18:52:18 jiz Exp $
  */
-public class MarkUsAnalysis extends AbstractGridAnalysis implements ProteinAnalysis 
+public class MarkUsAnalysis extends AbstractGridAnalysis implements ProteinStructureAnalysis 
 {
 	private static final long serialVersionUID = -4702468130439199874L;
 	Log log = LogFactory.getLog(MarkUsAnalysis.class);
