@@ -13,7 +13,7 @@ import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
 import org.geworkbench.bison.model.analysis.ParamValidationResults;
-import org.geworkbench.bison.model.analysis.ProteinAnalysis;
+import org.geworkbench.bison.model.analysis.ProteinStructureAnalysis;
 
 /**
  * Run SkyLine analysis on grid service on web1 Replaces all values less (or
@@ -21,11 +21,11 @@ import org.geworkbench.bison.model.analysis.ProteinAnalysis;
  * 
  * @author mw2518
  * @author zji
- * @version $Id: SkyLineAnalysis.java,v 1.5 2009-03-06 20:22:31 jiz Exp $
+ * @version $Id: SkyLineAnalysis.java,v 1.6 2009-05-12 18:51:46 jiz Exp $
  * 
  */
 public class SkyLineAnalysis extends AbstractGridAnalysis implements
-		ProteinAnalysis {
+		ProteinStructureAnalysis {
 	private static final long serialVersionUID = 5531166361344848544L;
 	Log log = LogFactory.getLog(SkyLineAnalysis.class);
 
