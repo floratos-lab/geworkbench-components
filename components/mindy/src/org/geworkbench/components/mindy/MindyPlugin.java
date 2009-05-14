@@ -79,7 +79,7 @@ import com.solarmetric.ide.ui.CheckboxCellRenderer;
  * @author mhall
  * @ch2514
  * @author oshteynb
- * @version $Id: MindyPlugin.java,v 1.84 2009-05-07 16:08:11 oshteynb Exp $
+ * @version $Id: MindyPlugin.java,v 1.85 2009-05-14 17:52:17 oshteynb Exp $
  */
 @SuppressWarnings("serial")
 public class MindyPlugin extends JPanel {
@@ -502,10 +502,10 @@ public class MindyPlugin extends JPanel {
 					return component;
 				}
 			};
-			
+
 			/* do not allow the user to reorder table columns */
 			targetTable.getTableHeader().setReorderingAllowed(false);
-			
+
 			targetTable.getTableHeader().setDefaultRenderer(
 					new CheckBoxRenderer());
 			targetTable.getTableHeader().addMouseListener(
@@ -1388,14 +1388,30 @@ public class MindyPlugin extends JPanel {
 		return modMarker;
 	}
 
+	/* Table tab   */
+	private void columnScrolling() {
+//		int w = MIN_CHECKBOX_WIDTH + MIN_MARKER_NAME_WIDTH + boxes.length
+		int colCount = targetTable.getColumnCount();
+		int w = MIN_CHECKBOX_WIDTH + MIN_MARKER_NAME_WIDTH + colCount
+				* MIN_SCORE_WIDTH;
+		if (w > scrollPane.getWidth()) {
+			targetTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+		} else {
+			targetTable
+					.setAutoResizeMode(JTable.AUTO_RESIZE_SUBSEQUENT_COLUMNS);
+		}
+	}
+
 	private void limitModulators(Integer modLimit, boolean selected,
 			JTable table) {
 		aggregateModel.setModLimit(modLimit);
 		aggregateModel.setModulatorsLimited(selected);
-		aggregateModel.fireTableStructureChanged();
 		MindyPlugin.this
 				.setTargetCheckboxesVisibility(selectionEnabledCheckBoxTarget
 						.isSelected());
+
+		aggregateModel.fireTableStructureChanged();
+		this.columnScrolling();
 	}
 
 	private void clearAllTargetTableModulatorSelections() {
@@ -1915,7 +1931,7 @@ public class MindyPlugin extends JPanel {
 	 * For rendering modulator checkboxes on the targets table column headers.
 	 *
 	 * @author ch2514
-	 * @version $Id: MindyPlugin.java,v 1.84 2009-05-07 16:08:11 oshteynb Exp $
+	 * @version $Id: MindyPlugin.java,v 1.85 2009-05-14 17:52:17 oshteynb Exp $
 	 */
 	private class CheckBoxRenderer extends DefaultTableCellRenderer {
 		/**
@@ -2012,7 +2028,7 @@ public class MindyPlugin extends JPanel {
 	 *
 	 * @author mhall
 	 * @author ch2514
-	 * @version $Id: MindyPlugin.java,v 1.84 2009-05-07 16:08:11 oshteynb Exp $
+	 * @version $Id: MindyPlugin.java,v 1.85 2009-05-14 17:52:17 oshteynb Exp $
 	 */
 	class AggregateTableModel extends DefaultTableModel {
 
@@ -2461,6 +2477,7 @@ public class MindyPlugin extends JPanel {
 
 			fireTableStructureChanged();
 			fireTableDataChanged();
+			columnScrolling();
 		}
 
 		/**
@@ -2926,7 +2943,7 @@ public class MindyPlugin extends JPanel {
 	 * Compare M#, M+, or M- of two gene markers (for sorting).
 	 *
 	 * @author mhall
-	 * @version $Id: MindyPlugin.java,v 1.84 2009-05-07 16:08:11 oshteynb Exp $
+	 * @version $Id: MindyPlugin.java,v 1.85 2009-05-14 17:52:17 oshteynb Exp $
 	 */
 	private class ModulatorStatComparator implements Comparator<DSGeneMarker> {
 
@@ -2979,7 +2996,7 @@ public class MindyPlugin extends JPanel {
 	 *
 	 * @author mhall
 	 * @author ch2514
-	 * @version $Id: MindyPlugin.java,v 1.84 2009-05-07 16:08:11 oshteynb Exp $
+	 * @version $Id: MindyPlugin.java,v 1.85 2009-05-14 17:52:17 oshteynb Exp $
 	 */
 	class ModulatorTargetModel extends DefaultTableModel {
 
@@ -3747,7 +3764,7 @@ public class MindyPlugin extends JPanel {
 	 * for the targets table.
 	 *
 	 * @author ch2514
-	 * @version $Id: MindyPlugin.java,v 1.84 2009-05-07 16:08:11 oshteynb Exp $
+	 * @version $Id: MindyPlugin.java,v 1.85 2009-05-14 17:52:17 oshteynb Exp $
 	 */
 	private class ColumnHeaderListener extends MouseAdapter {
 		/**
