@@ -1273,7 +1273,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 					AdjacencyMatrixEvent.Action.DRAW_NETWORK));
 		} else {
 			JOptionPane.showMessageDialog(null,
-					"No interactions exists in the current databaset",
+					"No interactions exist in the current database.",
 					"Empty Set", JOptionPane.ERROR_MESSAGE);
 		}
 
