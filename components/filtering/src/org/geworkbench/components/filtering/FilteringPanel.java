@@ -14,8 +14,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
@@ -26,6 +24,8 @@ import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.geworkbench.analysis.AbstractAnalysis;
 import org.geworkbench.analysis.AbstractSaveableParameterPanel;
 import org.geworkbench.analysis.ParameterKey;
@@ -43,6 +43,9 @@ import org.geworkbench.engine.management.Subscribe;
 import org.geworkbench.events.FilteringEvent;
 import org.ginkgo.labs.util.FileTools;
 
+import com.jgoodies.forms.builder.DefaultFormBuilder;
+import com.jgoodies.forms.layout.FormLayout;
+
 /**
  * <p>Copyright: Copyright (c) 2003</p>
  * <p>Company: First Genetic Trust Inc.</p>
@@ -56,6 +59,7 @@ import org.ginkgo.labs.util.FileTools;
  */
 @AcceptTypes( { DSMicroarraySet.class })
 public class FilteringPanel implements VisualPlugin, ReHighlightable {
+	private Log log = LogFactory.getLog(FilteringPanel.class);
 
 	/**
 	 * The underlying GUI panel for the filtering component
@@ -96,11 +100,12 @@ public class FilteringPanel implements VisualPlugin, ReHighlightable {
 	JPanel jPanelControl = new JPanel();
 	BorderLayout borderLayout2 = new BorderLayout();
 	BorderLayout borderLayout3 = new BorderLayout();
-	JPanel buttons = new JPanel();
+
 	GridLayout gridLayout1 = new GridLayout();
 	GridLayout gridLayout2 = new GridLayout();
-	JButton analyze = new JButton("Filter");
+	JButton filter = new JButton("Filter");
 	JButton save = new JButton("Save Settings");
+	JButton deleteSetting = new JButton("Delete Settings");
 	JPanel jPanel4 = new JPanel();
 	FlowLayout flowLayout1 = new FlowLayout();
 	ParameterPanel emptyParameterPanel = new ParameterPanel();
@@ -143,14 +148,13 @@ public class FilteringPanel implements VisualPlugin, ReHighlightable {
 		filteringPanel.setLayout(borderLayout2);
 		jPanel3.setLayout(borderLayout3);
 		jPanelControl.setLayout(borderLayout4);
-		buttons.setLayout(new BoxLayout(buttons, BoxLayout.X_AXIS));
-		buttons.setPreferredSize(new Dimension(248, 60));
+
 		gridLayout1.setColumns(2);
 		gridLayout1.setRows(3);
 		gridLayout1.setVgap(0);
 		gridLayout2.setColumns(4);
 		gridLayout2.setRows(3);
-		analyze.addActionListener(new ActionListener() {
+		filter.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				filtering_actionPerformed(e);
 			}
@@ -162,6 +166,12 @@ public class FilteringPanel implements VisualPlugin, ReHighlightable {
 			}
 
 		});
+		deleteSetting.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				delete_actionPerformed(e);
+			}
+		});
+
 		jScrollPane1.setPreferredSize(new Dimension(248, 80));
 		jPanel1.setLayout(gridLayout3);
 		jPanel1.setMinimumSize(new Dimension(0, 0));
@@ -195,19 +205,63 @@ public class FilteringPanel implements VisualPlugin, ReHighlightable {
 		jSplitPane1.add(jPanelControl, JSplitPane.BOTTOM);
 		jPanelControl.add(jPanel4, BorderLayout.WEST);
 		jPanel4.add(currentParameterPanel, BorderLayout.CENTER);
-		buttons.add(Box.createHorizontalGlue());
-		buttons.add(Box.createRigidArea(new Dimension(10, 0)));
-		buttons.add(Box.createRigidArea(new Dimension(10, 0)));
-		buttons.add(save);
-		buttons.add(analyze);
+
 		jSplitPane1.add(jPanel1, JSplitPane.TOP);
 		jPanel1.add(jScrollPane1, null);
 		jPanel1.add(jScrollPane3, null);
 		jScrollPane3.getViewport().add(namedParameters, null);
 		jScrollPane1.getViewport().add(pluginFilters, null);
-		buttons.add(Box.createRigidArea(new Dimension(10, 0)));
-		jPanelControl.add(buttons, BorderLayout.EAST);
+
+		save.setPreferredSize(deleteSetting.getPreferredSize());
+		filter.setPreferredSize(deleteSetting.getPreferredSize());
+		deleteSetting.setEnabled(false);
+
+		FormLayout layout = new FormLayout("right:100dlu,10dlu", "");
+		DefaultFormBuilder buttonsBuilder = new DefaultFormBuilder(layout);
+		buttonsBuilder.setDefaultDialogBorder();
+		buttonsBuilder.append(filter);
+		buttonsBuilder.nextLine();
+		buttonsBuilder.append(save);
+		buttonsBuilder.nextLine();
+		buttonsBuilder.append(deleteSetting);
+
+		jPanelControl.add(buttonsBuilder.getPanel(), BorderLayout.EAST);
 	}
+
+
+	/**
+	 * Listener invoked when the "Delete Settings" button is pressed
+	 * 
+	 * @param e
+	 */
+	private void delete_actionPerformed(ActionEvent e) {
+		int choice = JOptionPane.showConfirmDialog(null,
+				"Are you sure you want to delete saved parameters?",
+				"Deleting Saved Parameters", JOptionPane.YES_NO_OPTION,
+				JOptionPane.WARNING_MESSAGE);
+		if ((selectedFilter != null) && (choice == 0)
+				&& (namedParameters.getSelectedIndex() >= 0)) {
+			log.info("Deleting saved parameters: "
+					+ (String) namedParameters.getSelectedValue());
+			this.removeNamedParameter((String) namedParameters
+					.getSelectedValue());
+			if (namedParameters.getModel().getSize() < 1)
+				deleteSetting.setEnabled(false);
+		}
+	}
+	
+	/**
+	 * Delete the selected saved parameter.
+	 * 
+	 * @param name -
+	 *            name of the saved parameter
+	 */
+	private void removeNamedParameter(String name) {
+		selectedFilter.removeNamedParameter(name);
+		this.setNamedParameters(selectedFilter
+				.getNamesOfStoredParameterSets());
+	}
+
 
 	/**
 	 * Implementation of method from interface <code>ProjectListener</code>.
@@ -369,6 +423,8 @@ public class FilteringPanel implements VisualPlugin, ReHighlightable {
 	private void filterSelected_action(ListSelectionEvent lse) {
 		if (pluginFilters.getSelectedIndex() == -1)
 			return;
+		deleteSetting.setEnabled(false);
+
 		selectedFilter = availableFilters[pluginFilters.getSelectedIndex()];
 		/* Get the parameters panel for the selected filter. */
 		ParameterPanel paramPanel = selectedFilter.getParameterPanel();
@@ -431,10 +487,14 @@ public class FilteringPanel implements VisualPlugin, ReHighlightable {
 	 *            JList
 	 */
 	private void namedParameterSelection_action(ListSelectionEvent e) {
-		if (selectedFilter == null)
+		if (selectedFilter == null) {
+			deleteSetting.setEnabled(false);
 			return;
+		}
 		int index = namedParameters.getSelectedIndex();
 		if (index != -1) {
+			deleteSetting.setEnabled(true);
+
 			String paramName = (String) namedParameters.getModel()
 					.getElementAt(index);
 			/* load from memory */
