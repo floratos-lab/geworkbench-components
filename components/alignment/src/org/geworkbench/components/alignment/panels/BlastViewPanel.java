@@ -737,7 +737,6 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
 			BlastObj hit = (BlastObj) hits.get(i);
 			hit.setInclude(false);
 		}
-		AddSequenceToProjectButton.setBackground(Color.white);
 
 		displayResults("<h4>No alignment hit is selected.");
 
@@ -827,7 +826,6 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
 		for (int i = 0; i < hits.size(); i++) {
 			BlastObj hit = (BlastObj) hits.get(i);
 			hit.setInclude(true);
-			AddSequenceToProjectButton.setBackground(Color.orange);
 
 		}
 		displayResults("<h4>All are selected.");
