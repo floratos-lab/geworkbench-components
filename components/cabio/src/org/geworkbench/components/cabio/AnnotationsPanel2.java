@@ -30,7 +30,9 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
 import java.awt.image.BufferedImage;
+import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.StringReader;
@@ -72,6 +74,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.TableColumnModelEvent;
 import javax.swing.event.TableColumnModelListener;
+import javax.swing.filechooser.FileFilter;
 import javax.swing.plaf.basic.BasicComboBoxRenderer;
 import javax.swing.table.TableCellRenderer;
 
@@ -118,6 +121,8 @@ import org.jfree.ui.SortableTableModel;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import com.Ostermiller.util.CSVPrinter;
+
 /**
  * <p>
  * Title: caBio component
@@ -139,7 +144,7 @@ import org.w3c.dom.Element;
  * Index database through caBio. Displays data in two table with 6 columns each. 
  * 
  * @author yc2480
- * @version $Id: AnnotationsPanel2.java,v 1.5 2009-05-27 15:57:13 chiangy Exp $
+ * @version $Id: AnnotationsPanel2.java,v 1.6 2009-05-27 18:47:49 chiangy Exp $
  * 
  */
 @AcceptTypes({DSMicroarraySet.class})
@@ -199,8 +204,8 @@ public class AnnotationsPanel2 implements VisualPlugin, Observer{
 				- "</a></html>".length());
 	}
 
-	/*
-	 * 
+	/**
+	 * Used by Annotation sub-component for Pathway annotations.
 	 */
     private class AnnotationTableModel extends SortableTableModel {
 
@@ -235,7 +240,6 @@ public class AnnotationsPanel2 implements VisualPlugin, Observer{
             size = 0;
             indices = new Integer[0];
         }
-
 
         private void resetIndices() {
             for (int i = 0; i < size; i++) {
@@ -309,8 +313,8 @@ public class AnnotationsPanel2 implements VisualPlugin, Observer{
         }
     }
 
-	/*
-	 * 
+	/**
+	 * Use by Cancer Gene Index tables, both disease and agent table.
 	 */
 	private class CGITableModel extends SortableTableModel {
 
@@ -1036,6 +1040,36 @@ public class AnnotationsPanel2 implements VisualPlugin, Observer{
 		public MarkerData[] getMarkerData() {
 			return markerData;
 		}
+
+		public boolean toCSV(String filename){
+			File tempAnnot = new File(filename);
+			try {
+				CSVPrinter csvout = new CSVPrinter(
+						new BufferedOutputStream(new FileOutputStream(
+								tempAnnot)));
+				for (int cx = 0; cx< this.size; cx++){
+					String markerName = markerData[cx].name;
+			        String geneName = geneData[cx].name;
+			        String diseaseName = diseaseData[cx].name;
+			        String roleName = roleData[cx].role;
+			        String sentence = sentenceData[cx].sentence;
+			        String pubmedId = pubmedData[cx].id;
+			        csvout.print(markerName);
+			        csvout.print(geneName);
+			        csvout.print(diseaseName);
+			        csvout.print(roleName);
+			        csvout.print(sentence);
+			        csvout.print(pubmedId);
+			        csvout.println();
+				}
+				csvout.flush();
+				csvout.close();
+			} catch (Exception e1) {
+				e1.printStackTrace();
+	        	return false;				
+			}
+			return true;
+        }
     }
 
     private static class MarkerData implements Comparable {
@@ -1292,7 +1326,7 @@ public class AnnotationsPanel2 implements VisualPlugin, Observer{
 
         });
         cgiClearButton.setForeground(Color.black);
-        cgiClearButton.setToolTipText("");
+        cgiClearButton.setToolTipText("Clear both tables.");
         cgiClearButton.setFocusPainted(true);
         cgiClearButton.setText("Clear");
         cgiClearButton.addActionListener(new ActionListener() {
@@ -1300,7 +1334,17 @@ public class AnnotationsPanel2 implements VisualPlugin, Observer{
                 cgiClearButton_actionPerformed(e);
             }
         });
-        
+
+        exportButton.setForeground(Color.black);
+        exportButton.setToolTipText("Export to CSV files");
+        exportButton.setFocusPainted(true);
+        exportButton.setText("Export");
+        exportButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+            	exportButton_actionPerformed(e);
+            }
+        });
+
         cgiRetrieveCaBioCheckBox.addItemListener(new ItemListener() {
 			public void itemStateChanged(ItemEvent e) {
 				userAlsoWantCaBioData = (e.getStateChange() == ItemEvent.SELECTED);
@@ -1374,6 +1418,7 @@ public class AnnotationsPanel2 implements VisualPlugin, Observer{
         cgiHumanOrMouseComboBox.addActionListener(HumanMouseListener);
         cgiButtonPanel.add(cgiRetrieveButton);
         cgiButtonPanel.add(cgiClearButton);
+        cgiButtonPanel.add(exportButton);
         annotationModel = new AnnotationTableModel();
         annotationTable = new SortableTable(annotationModel);
         annotationPanel.setLayout(new BorderLayout());
@@ -2764,6 +2809,46 @@ public class AnnotationsPanel2 implements VisualPlugin, Observer{
     /*
      * 
      */
+    private void exportButton_actionPerformed(ActionEvent e) {
+		JFileChooser jFC=new JFileChooser();
+
+		//We remove "all files" from filter, since we only allow CSV format
+		FileFilter ft = jFC.getAcceptAllFileFilter();
+		jFC.removeChoosableFileFilter(ft);
+		
+		TabularFileFilter filter = new TabularFileFilter();
+        jFC.setFileFilter(filter);
+
+	    //Save disease model to CSV file
+        jFC.setDialogTitle("Save disease table");
+		int returnVal = jFC.showSaveDialog(this.getComponent());
+	    if (returnVal == JFileChooser.APPROVE_OPTION) {
+			String tabFilename;
+			tabFilename = jFC.getSelectedFile().getAbsolutePath();
+			if (!tabFilename.toLowerCase().endsWith(
+					"." + filter.getExtension().toLowerCase())) {
+				tabFilename += "." + filter.getExtension();
+			}
+			diseaseModel.toCSV(tabFilename);
+		}
+
+	    //Save agent model to CSV file
+        jFC.setDialogTitle("Save agent table");
+		returnVal = jFC.showSaveDialog(this.getComponent());
+	    if (returnVal == JFileChooser.APPROVE_OPTION) {
+			String tabFilename;
+			tabFilename = jFC.getSelectedFile().getAbsolutePath();
+			if (!tabFilename.toLowerCase().endsWith(
+					"." + filter.getExtension().toLowerCase())) {
+				tabFilename += "." + filter.getExtension();
+			}
+			agentModel.toCSV(tabFilename);
+		}
+    }
+    
+    /*
+     * 
+     */
     private void annoClearButton_actionPerformed(ActionEvent e) {
         annotationTable.setSortableModel(new AnnotationTableModel());
         annotationTable.getColumnModel().getColumn(0).setHeaderValue("Marker");
@@ -3083,6 +3168,7 @@ public class AnnotationsPanel2 implements VisualPlugin, Observer{
     private JCheckBox cgiRetrieveCaBioCheckBox = new JCheckBox(RETRIEVE_CGI_DATA);
     private JCheckBox cgiRetrievePathwayCheckBox = new JCheckBox(RETRIEVE_PATHWAY_DATA);
     private JComboBox cgiHumanOrMouseComboBox = new JComboBox(Human_Mouse);
+    private JButton exportButton = new JButton();
     
     
     private DSItemList<DSGeneMarker> selectedMarkerInfo = null;
@@ -3679,5 +3765,25 @@ public class AnnotationsPanel2 implements VisualPlugin, Observer{
 		stopAlgorithm = true;
 		GeneAnnotationImpl.stopAlgorithm = true;
     }
-    
+
+	private class TabularFileFilter extends FileFilter {
+		public String getDescription() {
+			return "CSV Files";
+		}
+
+		public boolean accept(File f) {
+			String name = f.getName();
+			boolean tabFile = name.endsWith("csv") || name.endsWith("CSV");
+			if (f.isDirectory() || tabFile) {
+				return true;
+			}
+
+			return false;
+		}
+
+		public String getExtension() {
+			return "csv";
+		}
+
+	}
 }
