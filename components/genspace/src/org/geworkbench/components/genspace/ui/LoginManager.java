@@ -205,7 +205,7 @@ public class LoginManager {
 			pw.write (buf);
 			pw.flush();
 				
-			System.out.println("Sent socket!");
+			//System.out.println("Sent socket!");
 			byte[] buffer = new byte[1024];
 			InputStream in =  s.getInputStream();
 			in.read(buffer);
@@ -232,7 +232,7 @@ public class LoginManager {
 			pw.write (buf);
 			pw.flush();
 				
-			System.out.println("Sent socket!");
+			//System.out.println("Sent socket!");
 			
 
             if (socketBr.readLine().equalsIgnoreCase("true")) {

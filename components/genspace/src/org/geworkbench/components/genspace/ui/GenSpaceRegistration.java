@@ -198,7 +198,7 @@ public class GenSpaceRegistration extends JPanel implements  VisualPlugin, Actio
 								boolean userRegister = manager.userRegister();
 
 								if (userRegister) {
-									String msg="User Registered with default preferences data and user visible within user's networks.";
+									String msg="User Registered with default preferences";
 
 									JOptionPane.showMessageDialog(null, msg);
 
@@ -270,7 +270,7 @@ public class GenSpaceRegistration extends JPanel implements  VisualPlugin, Actio
 		}
 		if(empty(pw))
 		{
-			msg.append("Pasword cannot be empty\n");
+			msg.append("Password cannot be empty\n");
 			valid = false;
 		}
 		if(empty(confirm))
