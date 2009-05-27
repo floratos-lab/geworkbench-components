@@ -204,7 +204,7 @@ public class GenSpaceRegistration extends JPanel implements  VisualPlugin, Actio
 
 									callLogin();
 								} else {
-									String msg="User Registration failed.";
+									String msg="User Registration failed. Cannot connect to server.";
 
 									JOptionPane.showMessageDialog(null, msg);
 								}
