@@ -5,7 +5,7 @@ package org.geworkbench.components.anova.gui;
 
 /**
  * @author yc2480
- * @version $Id: TableViewer.java,v 1.2 2008-02-20 15:40:30 keshav Exp $
+ * @version $Id: TableViewer.java,v 1.3 2009-05-27 16:29:55 chiangy Exp $
  * 
  */
 import java.awt.Color;
@@ -259,6 +259,7 @@ public class TableViewer extends JPanel {
 							return myFloat.compareTo(otherFloat);
 						}
 					}
+					if (otherObject==null) otherObject="";
 					return ((Comparable<Object>) myObject).compareTo(otherObject);
 				}
 				if (myObject instanceof JLabel) {
