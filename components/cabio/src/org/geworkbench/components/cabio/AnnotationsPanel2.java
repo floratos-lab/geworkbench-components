@@ -144,7 +144,7 @@ import com.Ostermiller.util.CSVPrinter;
  * Index database through caBio. Displays data in two table with 6 columns each. 
  * 
  * @author yc2480
- * @version $Id: AnnotationsPanel2.java,v 1.6 2009-05-27 18:47:49 chiangy Exp $
+ * @version $Id: AnnotationsPanel2.java,v 1.7 2009-05-27 22:35:35 chiangy Exp $
  * 
  */
 @AcceptTypes({DSMicroarraySet.class})
@@ -1041,35 +1041,49 @@ public class AnnotationsPanel2 implements VisualPlugin, Observer{
 			return markerData;
 		}
 
-		public boolean toCSV(String filename){
+		public boolean toCSV(String filename) {
+			String[] diseaseHeader = { "Marker ID", "Gene Symbol", "Disease",
+					"Gene-Disease Relation", "Abstract Sentence", "PMID" };
+			String[] agentHeader = { "Marker ID", "Gene Symbol", "Agent",
+					"Gene-Agent Relation", "Abstract Sentence", "PMID" };
 			File tempAnnot = new File(filename);
 			try {
-				CSVPrinter csvout = new CSVPrinter(
-						new BufferedOutputStream(new FileOutputStream(
-								tempAnnot)));
-				for (int cx = 0; cx< this.size; cx++){
+				CSVPrinter csvout = new CSVPrinter(new BufferedOutputStream(
+						new FileOutputStream(tempAnnot)));
+				if (this == diseaseModel){
+					for (int i = 0; i < diseaseHeader.length; i++) {
+						csvout.print(diseaseHeader[i]);
+					}
+					csvout.println();
+				}else{
+					for (int i = 0; i < agentHeader.length; i++) {
+						csvout.print(agentHeader[i]);
+					}
+					csvout.println();
+				}
+				for (int cx = 0; cx < this.size; cx++) {
 					String markerName = markerData[cx].name;
-			        String geneName = geneData[cx].name;
-			        String diseaseName = diseaseData[cx].name;
-			        String roleName = roleData[cx].role;
-			        String sentence = sentenceData[cx].sentence;
-			        String pubmedId = pubmedData[cx].id;
-			        csvout.print(markerName);
-			        csvout.print(geneName);
-			        csvout.print(diseaseName);
-			        csvout.print(roleName);
-			        csvout.print(sentence);
-			        csvout.print(pubmedId);
-			        csvout.println();
+					String geneName = geneData[cx].name;
+					String diseaseName = diseaseData[cx].name;
+					String roleName = roleData[cx].role;
+					String sentence = sentenceData[cx].sentence;
+					String pubmedId = pubmedData[cx].id;
+					csvout.print(markerName);
+					csvout.print(geneName);
+					csvout.print(diseaseName);
+					csvout.print(roleName);
+					csvout.print(sentence);
+					csvout.print(pubmedId);
+					csvout.println();
 				}
 				csvout.flush();
 				csvout.close();
 			} catch (Exception e1) {
 				e1.printStackTrace();
-	        	return false;				
+				return false;
 			}
 			return true;
-        }
+		}
     }
 
     private static class MarkerData implements Comparable {
