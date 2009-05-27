@@ -79,7 +79,7 @@ import com.solarmetric.ide.ui.CheckboxCellRenderer;
  * @author mhall
  * @ch2514
  * @author oshteynb
- * @version $Id: MindyPlugin.java,v 1.85 2009-05-14 17:52:17 oshteynb Exp $
+ * @version $Id: MindyPlugin.java,v 1.86 2009-05-27 15:32:06 oshteynb Exp $
  */
 @SuppressWarnings("serial")
 public class MindyPlugin extends JPanel {
@@ -244,7 +244,8 @@ public class MindyPlugin extends JPanel {
 		targetsSets.setEnabled(true);
 
 		this.mindyData = data;
-		this.dataSize = mindyData.getData().size();
+//		this.dataSize = mindyData.getData().size();
+		this.dataSize = mindyData.getDataSize();
 		modulators = mindyData.getModulators();
 
 		// for heatmap image rendering cursor
@@ -1931,7 +1932,7 @@ public class MindyPlugin extends JPanel {
 	 * For rendering modulator checkboxes on the targets table column headers.
 	 *
 	 * @author ch2514
-	 * @version $Id: MindyPlugin.java,v 1.85 2009-05-14 17:52:17 oshteynb Exp $
+	 * @version $Id: MindyPlugin.java,v 1.86 2009-05-27 15:32:06 oshteynb Exp $
 	 */
 	private class CheckBoxRenderer extends DefaultTableCellRenderer {
 		/**
@@ -2028,7 +2029,7 @@ public class MindyPlugin extends JPanel {
 	 *
 	 * @author mhall
 	 * @author ch2514
-	 * @version $Id: MindyPlugin.java,v 1.85 2009-05-14 17:52:17 oshteynb Exp $
+	 * @version $Id: MindyPlugin.java,v 1.86 2009-05-27 15:32:06 oshteynb Exp $
 	 */
 	class AggregateTableModel extends DefaultTableModel {
 
@@ -2071,7 +2072,8 @@ public class MindyPlugin extends JPanel {
 		 */
 		public AggregateTableModel(MindyData mindyData) {
 			this.showProbeName = !mindyData.isAnnotated();
-			this.checkedTargets = new boolean[mindyData.getData().size()];
+//			this.checkedTargets = new boolean[mindyData.getData().size()];
+			this.checkedTargets = new boolean[mindyData.getDataSize()];
 			this.mindyData = mindyData;
 //			allModulators = mindyData.getModulators();
 			int allModulatorsSize = mindyData.getModulators().size();
@@ -2943,7 +2945,7 @@ public class MindyPlugin extends JPanel {
 	 * Compare M#, M+, or M- of two gene markers (for sorting).
 	 *
 	 * @author mhall
-	 * @version $Id: MindyPlugin.java,v 1.85 2009-05-14 17:52:17 oshteynb Exp $
+	 * @version $Id: MindyPlugin.java,v 1.86 2009-05-27 15:32:06 oshteynb Exp $
 	 */
 	private class ModulatorStatComparator implements Comparator<DSGeneMarker> {
 
@@ -2996,7 +2998,7 @@ public class MindyPlugin extends JPanel {
 	 *
 	 * @author mhall
 	 * @author ch2514
-	 * @version $Id: MindyPlugin.java,v 1.85 2009-05-14 17:52:17 oshteynb Exp $
+	 * @version $Id: MindyPlugin.java,v 1.86 2009-05-27 15:32:06 oshteynb Exp $
 	 */
 	class ModulatorTargetModel extends DefaultTableModel {
 
@@ -3041,18 +3043,16 @@ public class MindyPlugin extends JPanel {
 		 */
 		public ModulatorTargetModel(MindyData mindyData) {
 			this.showProbeName = !mindyData.isAnnotated();
-			this.modChecks = new boolean[mindyData.getData().size()];
-			this.targetChecks = new boolean[mindyData.getData().size()];
-			enabledModulators = new ArrayList<DSGeneMarker>(mindyData.getData()
-					.size());
-			enabledTargets = new ArrayList<DSGeneMarker>(mindyData.getData()
-					.size());
+			this.modChecks = new boolean[mindyData.getDataSize()];
+			this.targetChecks = new boolean[mindyData.getDataSize()];
+			enabledModulators = new ArrayList<DSGeneMarker>(mindyData.getDataSize());
+			enabledTargets = new ArrayList<DSGeneMarker>(mindyData.getDataSize());
 			limitedModulators = new ArrayList<DSGeneMarker>();
 			limitedTargets = new ArrayList<DSGeneMarker>();
 			selectedModulators = new ArrayList<DSGeneMarker>();
 			selectedTargets = new ArrayList<DSGeneMarker>();
 
-			for (int i = 0; i < mindyData.getData().size(); i++) {
+			for (int i = 0; i < mindyData.getDataSize(); i++) {
 				this.modChecks[i] = false;
 				this.targetChecks[i] = false;
 			}
@@ -3764,7 +3764,7 @@ public class MindyPlugin extends JPanel {
 	 * for the targets table.
 	 *
 	 * @author ch2514
-	 * @version $Id: MindyPlugin.java,v 1.85 2009-05-14 17:52:17 oshteynb Exp $
+	 * @version $Id: MindyPlugin.java,v 1.86 2009-05-27 15:32:06 oshteynb Exp $
 	 */
 	private class ColumnHeaderListener extends MouseAdapter {
 		/**

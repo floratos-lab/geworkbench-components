@@ -528,7 +528,7 @@ public class MindyAnalysis extends AbstractGridAnalysis implements
 				mindyData.initFilteredModulatorInfoMap();
 			}
 
-			mindyData.setData(dataRows);
+//			mindyData.setData(dataRows);
 
 //			mindyData.calculateModulatorInfo(false);
 
