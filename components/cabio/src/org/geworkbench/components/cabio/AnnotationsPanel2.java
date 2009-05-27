@@ -139,7 +139,7 @@ import org.w3c.dom.Element;
  * Index database through caBio. Displays data in two table with 6 columns each. 
  * 
  * @author yc2480
- * @version $Id: AnnotationsPanel2.java,v 1.4 2009-05-07 14:46:51 chiangy Exp $
+ * @version $Id: AnnotationsPanel2.java,v 1.5 2009-05-27 15:57:13 chiangy Exp $
  * 
  */
 @AcceptTypes({DSMicroarraySet.class})
@@ -187,6 +187,8 @@ public class AnnotationsPanel2 implements VisualPlugin, Observer{
     boolean sortByNumberOfRecords=true;
 
     private boolean stopAlgorithm = false;
+
+    JMenuItem retrieveItem = new JMenuItem("retrieve all");
 
 	private String wrapInHTML(String s) {
 		return "<html><a href=\"__noop\">" + s + "</a></html>";
@@ -1517,6 +1519,15 @@ public class AnnotationsPanel2 implements VisualPlugin, Observer{
                 	selectedRow = row;
                 	selectedGene = ((GeneData)(((CGITableModel)diseaseTable.getModel()).getObjectAt(row, COL_GENE))).name;
                 	selectedDisease = ((DiseaseData)(((CGITableModel)diseaseTable.getModel()).getObjectAt(row, COL_DISEASE))).name;
+                	MarkerData md = ((CGITableModel) diseaseTable.getModel())
+							.getMarkerAt(row, column);
+					if (md.numOutOfNum.equals("")) {
+						// If no records left on server, we don't show the
+						// Retrieve All button. Mantis #1840
+						retrieveItem.setVisible(false);
+					} else {
+						retrieveItem.setVisible(true);
+					}
                 	expandCollapseRetrieveAllMenu.show(diseaseTable, e.getX(), e.getY());
                 }
             }
@@ -1813,7 +1824,6 @@ public class AnnotationsPanel2 implements VisualPlugin, Observer{
 			}
 		}
         ActionListener retrieveActionListener = new RetrieveActionListener();
-        JMenuItem retrieveItem = new JMenuItem("retrieve all");
         retrieveItem.addActionListener(retrieveActionListener);
         expandCollapseRetrieveAllMenu.add(retrieveItem);
 
@@ -2051,6 +2061,9 @@ public class AnnotationsPanel2 implements VisualPlugin, Observer{
 	                    				roleData.add(new RoleData(gda.getRole()));
 	                    				sentenceData.add(new SentenceData(e.getSentence()));
 	                    				pubmedData.add(new PubmedData(Integer.toString(e.getPubmedId())));
+	                    				log.error("We got "+markerDataNew.name+","+geneDataNew.name+","+diseaseDataNew.name+","+roleDataNew.role+","+sentenceDataNew.sentence+","+pubmedDataNew.id);	                    				
+                    				}else{
+                    					log.error("We already got "+markerDataNew.name+","+geneDataNew.name+","+diseaseDataNew.name+","+roleDataNew.role+","+sentenceDataNew.sentence+","+pubmedDataNew.id);
                     				}
                     			}
                     			else if (gfa instanceof GeneAgentAssociation) {
