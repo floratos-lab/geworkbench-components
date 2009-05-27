@@ -1,26 +1,44 @@
 package org.geworkbench.components.sequenceretriever;
 
-import java.io.*;
-import java.net.URL;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.MalformedURLException;
-import java.sql.*;
-
-import org.geworkbench.bison.datastructure.bioobjects.sequence.CSSequence;
-import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.AnnotationParser;
-import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
-import org.geworkbench.util.sequences.GeneChromosomeMatcher;
+import java.net.URL;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.TreeSet;
+import java.util.Vector;
 
 import javax.swing.JOptionPane;
 import javax.xml.namespace.QName;
 import javax.xml.rpc.ParameterMode;
 
-import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
-import org.geworkbench.bison.datastructure.biocollections.sequences.CSSequenceSet;
 import org.apache.axis.client.Call;
 import org.apache.axis.client.Service;
 import org.apache.axis.encoding.XMLType;
-
-import java.util.*;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.geworkbench.bison.datastructure.biocollections.sequences.CSSequenceSet;
+import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
+import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.AnnotationParser;
+import org.geworkbench.bison.datastructure.bioobjects.sequence.CSSequence;
+import org.geworkbench.components.parsers.RMAExpressFileFormat;
+import org.geworkbench.util.sequences.GeneChromosomeMatcher;
 
 /**
  * <p>Title: </p>
@@ -35,6 +53,7 @@ import java.util.*;
  * @version 1.0
  */
 public class SequenceFetcher {
+	static Log log = LogFactory.getLog(RMAExpressFileFormat.class);
     public static final String UCSC = "UCSC";
     private static SequenceFetcher theSequenceFetcher = new SequenceFetcher();
     private final static String chiptyemapfilename = "chiptypeDatabaseMap.txt";
@@ -281,68 +300,75 @@ public class SequenceFetcher {
     }
 
     /**
-     * getGeneChromosomeMatchers
-     *
-     * @param geneName String
-     * @param database String
-     * @return any[]
-     */
-    public static Vector getGeneChromosomeMatchers(String
-            geneName, String database) {
-        if (database == null) {
-            return null;
-        }
-        String[] columnName = {"chrom", "strand", "txStart", "txEnd"};
-        Vector<GeneChromosomeMatcher>
-                vector = new Vector<GeneChromosomeMatcher>();
-        try {
-            Statement stmt;
-            Class.forName("com.mysql.jdbc.Driver");
+	 * getGeneChromosomeMatchers
+	 * 
+	 * @param geneName
+	 *            String
+	 * @param database
+	 *            String
+	 * @return any[]
+	 */
+	public static Vector getGeneChromosomeMatchers(String geneName,
+			String database) {
+		if (database == null) {
+			return null;
+		}
+		String[] columnName = { "chrom", "strand", "txStart", "txEnd" };
+		Vector<GeneChromosomeMatcher> vector = new Vector<GeneChromosomeMatcher>();
+		try {
+			Statement stmt;
+			Class.forName("com.mysql.jdbc.Driver");
 
-            String url =
-                    UCSCDATABASEURL +
-                            database.trim() + "?autoReconnect=true";
-            Connection con =
-                    DriverManager.getConnection(
-                            url, "genome", "");
-            stmt = con.createStatement();
-            boolean success = stmt.execute(
-                    "select known.chrom, known.strand, known.txStart, known.txEnd, kg.refseq from knownGene as known, kgXref as kg  where kg.refseq = '" +
-                            geneName + "' and kg.kgID = known.name ");
-            if (success) {
-                ResultSet rs = stmt.getResultSet();
-                while (rs.next()) {
-                    String chrom = rs.getString(columnName[0]);
-                    boolean positiveStrand = true;
-                    if (rs.getString(columnName[1]).equalsIgnoreCase("-")) {
-                        positiveStrand = false;
-                    }
-                    int txStart = new Integer(rs.getString(columnName[2])).
-                            intValue();
-                    int txEnd = new Integer(rs.getString(columnName[3])).
-                            intValue();
-                    GeneChromosomeMatcher geneMatcher = new
-                            GeneChromosomeMatcher(positiveStrand, chrom,
-                            txStart, txEnd, database);
-                    geneMatcher.setName(geneName);
-                    vector.add(geneMatcher);
-                }
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return vector;
-    }
+			String url = UCSCDATABASEURL + database.trim()
+					+ "?autoReconnect=true";
+			Connection con = DriverManager.getConnection(url, "genome", "");
+			stmt = con.createStatement();
+			boolean success = stmt
+					.execute("select known.chrom, known.strand, known.txStart, known.txEnd, kg.refseq from knownGene as known, kgXref as kg  where kg.refseq = '"
+							+ geneName + "' and kg.kgID = known.name ");
+			if (success) {
+				ResultSet rs = stmt.getResultSet();
+				while (rs.next()) {
+					String chrom = rs.getString(columnName[0]);
+					boolean positiveStrand = true;
+					if (rs.getString(columnName[1]).equalsIgnoreCase("-")) {
+						positiveStrand = false;
+					}
+					int txStart = new Integer(rs.getString(columnName[2]))
+							.intValue();
+					int txEnd = new Integer(rs.getString(columnName[3]))
+							.intValue();
+					GeneChromosomeMatcher geneMatcher = new GeneChromosomeMatcher(
+							positiveStrand, chrom, txStart, txEnd, database);
+					geneMatcher.setName(geneName);
+					vector.add(geneMatcher);
+				}
+			}
+		} catch (SQLException sqle) {
+			JOptionPane.showMessageDialog(null,
+					"Got an exception while executing SQL query on server.",
+					"Server probably down.", JOptionPane.ERROR_MESSAGE);
+			log.error(sqle, sqle);
+		} catch (ClassNotFoundException cnfe) {
+			JOptionPane.showMessageDialog(null, ClassNotFoundException.class
+					.getSimpleName()
+					+ " for jdbc driver.", "Have you installed jdbc driver?",
+					JOptionPane.ERROR_MESSAGE);
+			log.error(cnfe, cnfe);
+		} catch (Exception e) {
+			log.error(e);
+		}
+		return vector;
+	}
 
     /**
-     * Retrieve sequences based on the chromosome position of the gene.
-     *
-     * @param geneChromosomeMatcher
-     * @param upstreamRegion
-     * @param downstreamRegion
-     * @return
-     */
+	 * Retrieve sequences based on the chromosome position of the gene.
+	 * 
+	 * @param geneChromosomeMatcher
+	 * @param upstreamRegion
+	 * @param downstreamRegion
+	 * @return
+	 */
     public CSSequence getSequences(GeneChromosomeMatcher
             geneChromosomeMatcher,
                                    int upstreamRegion,
