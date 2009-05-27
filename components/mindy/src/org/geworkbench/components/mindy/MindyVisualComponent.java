@@ -23,6 +23,7 @@ import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.builtin.projects.ProjectPanel;
+import org.geworkbench.builtin.projects.ProjectSelection;
 import org.geworkbench.builtin.projects.ProjectTreeNode;
 import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.engine.management.AcceptTypes;
@@ -41,7 +42,7 @@ import org.geworkbench.util.pathwaydecoder.mutualinformation.MindyDataSet;
  * @author mhall
  * @author ch2514
  * @author oshteynb
- * @version $Id: MindyVisualComponent.java,v 1.34 2009-04-29 19:55:33 oshteynb Exp $
+ * @version $Id: MindyVisualComponent.java,v 1.35 2009-05-27 16:43:49 oshteynb Exp $
  */
 @AcceptTypes(MindyDataSet.class)
 public class MindyVisualComponent implements VisualPlugin, java.util.Observer {
@@ -99,13 +100,38 @@ public class MindyVisualComponent implements VisualPlugin, java.util.Observer {
 	 */
 	@Subscribe(Asynchronous.class)
 	public void receive(ProjectEvent projectEvent, Object source) {
-		log.debug("MINDY received project event.");
-		plugin.removeAll();
+		/*  added to preconditions checks,
+		 *  until preconditions issue is resolved  */
+        if (projectEvent == null) {
+        	return;
+        }
+
+        if (source == null) {
+        	return;
+        }
+
+        log.debug("MINDY received project event.");
 		DSDataSet data = projectEvent.getDataSet();
-		ProjectTreeNode node = ((ProjectPanel) source).getSelection()
-				.getSelectedNode();
-		log.debug("event is from node [" + node.toString() + "]");
 		if ((data != null) && (data instanceof MindyDataSet)) {
+			/*
+			 * moved some code inside if statement and after checks for preconditions
+			 * to leave code in usable state in case there were null pointers
+			 */
+
+			if (plugin == null) {
+				return;
+			}
+
+			ProjectSelection ps = ((ProjectPanel) source).getSelection();
+			if (ps == null) {
+				return;
+			}
+
+			plugin.removeAll();
+
+			ProjectTreeNode node = ps.getSelectedNode();
+
+			log.debug("event is from node [" + node.toString() + "]");
 			// Check to see if the hashtable has a mindy plugin associated with
 			// the selected project tree node
 			if (ht.containsKey(node)) {
