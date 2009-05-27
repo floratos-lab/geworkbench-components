@@ -1,4 +1,4 @@
-package org.geworkbench.components.analysis;
+package org.geworkbench.components.normalization;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -35,6 +35,8 @@ import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
 import org.geworkbench.bison.model.analysis.NormalizingAnalysis;
 import org.geworkbench.bison.model.analysis.ParamValidationResults;
 import org.geworkbench.bison.model.analysis.ParameterPanel;
+import org.geworkbench.analysis.HighlightCurrentParameterThread;
+import org.geworkbench.analysis.ReHighlightable;
 import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.engine.management.AcceptTypes;
 import org.geworkbench.engine.management.ComponentRegistry;
@@ -103,6 +105,7 @@ public class NormalizationPanel implements VisualPlugin, ReHighlightable {
 	GridLayout gridLayout2 = new GridLayout();
 	JButton analyze = new JButton("Normalize");
 	JButton save = new JButton("Save Settings");
+	JButton delete = new JButton("Delete Settings");
 	JPanel jPanel4 = new JPanel();
 	FlowLayout flowLayout1 = new FlowLayout();
 	ParameterPanel emptyParameterPanel = new ParameterPanel();
@@ -170,6 +173,12 @@ public class NormalizationPanel implements VisualPlugin, ReHighlightable {
 			}
 
 		});
+		delete.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				delete_actionPerformed(e);
+			}
+
+		});
 		jPanel1.setLayout(gridLayout3);
 		jPanel1.setMinimumSize(new Dimension(0, 0));
 		jPanel1.setPreferredSize(new Dimension(50, 50));
@@ -206,7 +215,10 @@ public class NormalizationPanel implements VisualPlugin, ReHighlightable {
 		jPanel4.add(currentParameterPanel, BorderLayout.CENTER);
 
 		/* Add buttons */
-		analyze.setPreferredSize(save.getPreferredSize());
+		analyze.setPreferredSize(delete.getPreferredSize());
+		save.setPreferredSize(delete.getPreferredSize());
+		delete.setEnabled(false);
+
 		FormLayout layout = new FormLayout("right:100dlu,10dlu", "");
 		DefaultFormBuilder builder = new DefaultFormBuilder(layout);
 		builder.setDefaultDialogBorder();
@@ -214,6 +226,8 @@ public class NormalizationPanel implements VisualPlugin, ReHighlightable {
 		builder.append(analyze);
 		builder.nextLine();
 		builder.append(save);
+		builder.nextLine();
+		builder.append(delete);
 
 		jPanelControl.add(builder.getPanel(), BorderLayout.EAST);
 
@@ -223,6 +237,40 @@ public class NormalizationPanel implements VisualPlugin, ReHighlightable {
 		jScrollPane3.getViewport().add(namedParameters, null);
 		jScrollPane1.getViewport().add(pluginNormalizers, null);
 	}
+
+	/**
+	 * Listener invoked when the "Delete Settings" button is pressed
+	 * 
+	 * @param e
+	 */
+	private void delete_actionPerformed(ActionEvent e) {
+		int choice = JOptionPane.showConfirmDialog(null,
+				"Are you sure you want to delete saved parameters?",
+				"Deleting Saved Parameters", JOptionPane.YES_NO_OPTION,
+				JOptionPane.WARNING_MESSAGE);
+		if ((selectedNormalizer != null) && (choice == 0)
+				&& (namedParameters.getSelectedIndex() >= 0)) {
+			log.info("Deleting saved parameters: "
+					+ (String) namedParameters.getSelectedValue());
+			this.removeNamedParameter((String) namedParameters
+					.getSelectedValue());
+			if (namedParameters.getModel().getSize() < 1)
+				delete.setEnabled(false);
+		}
+	}
+	
+	/**
+	 * Delete the selected saved parameter.
+	 * 
+	 * @param name -
+	 *            name of the saved parameter
+	 */
+	private void removeNamedParameter(String name) {
+		selectedNormalizer.removeNamedParameter(name);
+		this.setNamedParameters(selectedNormalizer
+				.getNamesOfStoredParameterSets());
+	}
+
 
 	/**
 	 * Implementation of method from interface <code>ProjectListener</code>.
@@ -403,6 +451,8 @@ public class NormalizationPanel implements VisualPlugin, ReHighlightable {
 	private void normalizerSelected_action(ListSelectionEvent lse) {
 		if (pluginNormalizers.getSelectedIndex() == -1)
 			return;
+		delete.setEnabled(false);
+
 		selectedNormalizer = availableNormalizers[pluginNormalizers
 				.getSelectedIndex()];
 		/* Set the parameters panel for the selected normalizer. */
@@ -477,10 +527,14 @@ public class NormalizationPanel implements VisualPlugin, ReHighlightable {
 	 *            namedParameters JList
 	 */
 	private void namedParameterSelection_action(ListSelectionEvent e) {
-		if (selectedNormalizer == null)
+		if (selectedNormalizer == null) {
+			delete.setEnabled(false);
 			return;
+		}
 		int index = namedParameters.getSelectedIndex();
 		if (index != -1) {
+			delete.setEnabled(true);
+
 			String paramName = (String) namedParameters.getModel()
 					.getElementAt(index);
 			/* load from memory */
