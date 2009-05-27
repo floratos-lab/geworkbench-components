@@ -27,6 +27,7 @@ import org.geworkbench.events.CaArrayEvent;
 import org.geworkbench.events.CaArrayQueryEvent;
 import org.geworkbench.events.CaArrayQueryResultEvent;
 import org.geworkbench.events.CaArrayRequestEvent;
+import org.geworkbench.events.CaArraySuccessEvent;
 
 /**
  * The wrapper class for CaArray Component.
@@ -138,6 +139,7 @@ public class CaArray2Component implements VisualPlugin {
 					CSExprMicroarraySet maSet = externalDataSetDownloadClient
 							.getDataSet(url, port, username, password,
 									hybName, hybId, qType, chipType);
+					publishCaArraySuccessEvent(new CaArraySuccessEvent(1,1));
 					CSExprMicroarraySet totalSet = maSet;
 					if (!merge) {
 						if (maSet != null) {
@@ -173,6 +175,7 @@ public class CaArray2Component implements VisualPlugin {
 					}
 					if (hybridzations.size() > 1) {
 						String firstName = hybridzations.firstKey();
+						int number = 0;	//index number out of total arrays
 						for (String hybridizationName: hybridzations.keySet()) {
 							if(hybridizationName.equals(firstName))
 								continue;
@@ -188,6 +191,7 @@ public class CaArray2Component implements VisualPlugin {
 									.getDataSet(url, port, username, password,
 											hybridizationName, hybridizationId, qType, chipType);
 							;
+							publishCaArraySuccessEvent(new CaArraySuccessEvent(number++, hybridzations.size()));
 							if (maSet2 == null) {
 								event.setPopulated(false);
 							} else {
@@ -277,6 +281,15 @@ public class CaArray2Component implements VisualPlugin {
 
 		}
 
+	}
+	/**
+	 * 
+	 * @param event
+	 * @return
+	 */
+	@Publish
+	public CaArraySuccessEvent publishCaArraySuccessEvent(CaArraySuccessEvent event) {
+		return event;
 	}
 
 	/**
