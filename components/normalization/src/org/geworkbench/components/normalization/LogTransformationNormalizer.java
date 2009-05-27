@@ -57,8 +57,11 @@ public class LogTransformationNormalizer extends AbstractAnalysis implements Nor
                 markerValue = microarray.getMarkerValue(markerInfo.get(i));
                 signal = markerValue.getValue();
                 if (!markerValue.isMissing() && signal <= 0.0d)
-                    return new AlgorithmExecutionResults(false,
-                            "The dataset contains non-positive data points", null);
+					return new AlgorithmExecutionResults(
+							false,
+							"The dataset contains negative and/or zero values.\n"
+									+ "Negative or zero values need to be filtered out before a log transformation can be performed.",
+							null);
             }
         }
 
