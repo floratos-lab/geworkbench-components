@@ -3,23 +3,27 @@ package org.geworkbench.components.pudge;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
+import java.awt.Dimension;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
-import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.Properties;
-import java.util.StringTokenizer;
 
 import javax.swing.BorderFactory;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.EtchedBorder;
+import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
-import javax.swing.ToolTipManager;
+import javax.swing.ImageIcon;
+import javax.swing.SwingConstants;
+import javax.swing.JToolBar;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -32,6 +36,7 @@ import org.geworkbench.events.ProjectEvent;
 import org.jdesktop.jdic.browser.BrowserEngineManager;
 import org.jdesktop.jdic.browser.IBrowserEngine;
 import org.jdesktop.jdic.browser.WebBrowser;
+import org.jdesktop.jdic.browser.IWebBrowser;
 import org.jdesktop.jdic.browser.WebBrowserEvent;
 import org.jdesktop.jdic.browser.WebBrowserListener;
 
@@ -39,22 +44,35 @@ import org.jdesktop.jdic.browser.WebBrowserListener;
  * display Pudge website in JDIC embedded IE web browser
  * 
  * @author mw2518
- * @version $Id: PudgeBrowser.java,v 1.1 2009-05-11 19:09:12 wangm Exp $
+ * @version $Id: PudgeBrowser.java,v 1.2 2009-05-28 16:36:39 wangm Exp $
  */
 @AcceptTypes( { PudgeResultSet.class })
 public class PudgeBrowser implements VisualPlugin {
 	private Log log = LogFactory.getLog(this.getClass());
 	private JPanel mainPanel = new JPanel(new BorderLayout());
 	private JPanel jp = new JPanel(new BorderLayout());
-	private WebBrowser wb;
-	private Object webBrowser = null;
-	private Method setURL = null;
+	private IWebBrowser wb;
 	private boolean finish = false;
 	boolean initial = true, link = true;
+
+	public static ImageIcon browseIcon = new ImageIcon(
+	   "src/images/Right.gif");
+	JToolBar jBrowserToolBar = new JToolBar();
+	JButton jStopButton = new JButton("Stop",
+		new ImageIcon("src/images/Stop.png"));
+	JButton jRefreshButton = new JButton("Refresh",
+		new ImageIcon("src/images/Reload.png"));
+	JButton jForwardButton = new JButton("Forward",
+		new ImageIcon("src/images/Forward.png"));
+	JButton jBackButton = new JButton("Back",
+		new ImageIcon("src/images/Back.png"));
 	MyStatusBar statusBar = new MyStatusBar();
 	JPanel jAddressPanel = new JPanel();
 	JLabel jAddressLabel = new JLabel();
 	JTextField jAddressTextField = new JTextField();
+	JButton jGoButton = new JButton();
+	JPanel jAddrToolBarPanel = new JPanel();
+
 	private PudgeResultSet resultData;
 	private String jobname = "";
 	String urlbase = "http://luna.bioc.columbia.edu/honiglab/pudge/cgi-bin/";
@@ -201,16 +219,62 @@ public class PudgeBrowser implements VisualPlugin {
 			return;
 		}
 
-		ToolTipManager.sharedInstance().setLightWeightPopupEnabled(false);
-
 		jAddressPanel.setLayout(new BorderLayout());
 		jAddressTextField
 				.addActionListener(new Browser_jAddressTextField_actionAdapter(
 						this));
 		jAddressLabel.setBorder(BorderFactory.createEmptyBorder(0, 4, 0, 4));
 		jAddressLabel.setText(" URL: ");
+
+		jGoButton.setBorder(BorderFactory.createCompoundBorder(new EmptyBorder(0, 2, 0, 2),
+								       new EtchedBorder()));
+		jGoButton.setMaximumSize(new Dimension(60, 25));
+		jGoButton.setMinimumSize(new Dimension(60, 25));
+		jGoButton.setPreferredSize(new Dimension(60, 25));
+		jGoButton.setIcon(browseIcon);
+		jGoButton.setText("GO");
+		jGoButton.addActionListener(new Browser_jGoButton_actionAdapter(this));
+
+		jBackButton.setHorizontalTextPosition(SwingConstants.TRAILING);
+		jBackButton.setEnabled(false);
+		jBackButton.setMaximumSize(new Dimension(75, 27));
+		jBackButton.setPreferredSize(new Dimension(75, 27));
+		jBackButton.addActionListener(new Browser_jBackButton_actionAdapter(this));
+		jForwardButton.setEnabled(false);
+		jForwardButton.addActionListener(new Browser_jForwardButton_actionAdapter(this));
+		jRefreshButton.setEnabled(true);
+		jRefreshButton.setMaximumSize(new Dimension(75, 27));
+		jRefreshButton.setMinimumSize(new Dimension(75, 27));
+		jRefreshButton.setPreferredSize(new Dimension(75, 27));
+		jRefreshButton.addActionListener(new Browser_jRefreshButton_actionAdapter(this));
+		jStopButton.setVerifyInputWhenFocusTarget(true);
+		jStopButton.setText("Stop");
+		jStopButton.setEnabled(true);
+		jStopButton.setMaximumSize(new Dimension(75, 27));
+		jStopButton.setMinimumSize(new Dimension(75, 27));
+		jStopButton.setPreferredSize(new Dimension(75, 27));
+		jStopButton.addActionListener(new Browser_jStopButton_actionAdapter(this));
 		jAddressPanel.add(jAddressLabel, BorderLayout.WEST);
 		jAddressPanel.add(jAddressTextField, BorderLayout.CENTER);
+		jAddressPanel.add(jGoButton, BorderLayout.EAST);
+		jAddressPanel.setBorder(BorderFactory.createCompoundBorder(
+				BorderFactory.createEtchedBorder(),
+				BorderFactory.createEmptyBorder(2, 0, 2, 0)));
+
+		jBrowserToolBar.setFloatable(false);
+		jBrowserToolBar.add(jBackButton, null);
+		jBrowserToolBar.add(jForwardButton, null);
+		jBrowserToolBar.addSeparator();
+		jBrowserToolBar.add(jRefreshButton, null);
+		jBrowserToolBar.add(jStopButton, null);
+		jBrowserToolBar.setBorder(BorderFactory.createCompoundBorder(
+				BorderFactory.createEtchedBorder(),
+				BorderFactory.createEmptyBorder(2, 2, 2, 0)));
+
+		jAddrToolBarPanel.setLayout(new BorderLayout());
+		jAddrToolBarPanel.add(jAddressPanel, BorderLayout.CENTER);
+		jAddrToolBarPanel.add(jBrowserToolBar, BorderLayout.WEST);
+		jAddrToolBarPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 2, 0));
 
 		statusBar.setBorder(BorderFactory.createEmptyBorder(2, 0, 0, 0));
 		statusBar.lblDesc.setText("JDIC Browser");
@@ -225,36 +289,27 @@ public class PudgeBrowser implements VisualPlugin {
 					// load it with reflect to allow compilation under windows
 					Class wkwbc = Class
 							.forName("org.jdesktop.jdic.browser.WebKitWebBrowser");
-					webBrowser = wkwbc.newInstance();
-					Method setContent = wkwbc.getMethod("setContent", Class
-							.forName("java.lang.String"));
-					setURL = wkwbc.getMethod("setURL", Class
-							.forName("java.net.URL"));
-					setContent.invoke(webBrowser, "MacRoman");
-					setURL.invoke(webBrowser, new URL(url));
-					jp
-							.add((java.awt.Component) webBrowser,
-									BorderLayout.CENTER);
+					wb = (IWebBrowser)wkwbc.newInstance();
+					wb.setContent("MacRoman");
+					wb.setURL(new URL(url));
 				} else {
 				    //set auto_dispose=false to avoid dead mozilla browser in linux
 					wb = new WebBrowser(new URL(url), is_windows);
-					//if (is_windows)
-					wb.addWebBrowserListener(new WebListener());
-					jp.add(wb, BorderLayout.CENTER);
 				}
+				wb.addWebBrowserListener(new WebListener());
+				jp.add(wb.asComponent(), BorderLayout.CENTER);
 				mainPanel.add(jp, BorderLayout.CENTER);
-				mainPanel.add(jAddressPanel, BorderLayout.NORTH);
+				mainPanel.add(jAddrToolBarPanel, BorderLayout.NORTH);
 				mainPanel.add(statusBar, BorderLayout.SOUTH);
 			} else {
-				if (is_mac)
-					setURL.invoke(webBrowser, new URL(url));
-				else if (is_windows)
+				if (is_mac || is_windows)
 					wb.setURL(new URL(url));
 				else
 				{
 					wb = new WebBrowser(new URL(url));
+					wb.addWebBrowserListener(new WebListener());
 					jp.removeAll();
-					jp.add(wb, BorderLayout.CENTER);
+					jp.add(wb.asComponent(), BorderLayout.CENTER);
 				}
 			}
 		} catch (Exception e) {
@@ -285,6 +340,8 @@ public class PudgeBrowser implements VisualPlugin {
 		}
 
 		public void downloadCompleted(WebBrowserEvent event) {
+			jBackButton.setEnabled(wb.isBackEnabled());
+			jForwardButton.setEnabled(wb.isForwardEnabled());
 			updateStatusInfo("Loading completed.");
 			URL currentUrl = wb.getURL();
 			if (currentUrl != null)
@@ -319,26 +376,6 @@ public class PudgeBrowser implements VisualPlugin {
 		}
 
 		public void downloadProgress(WebBrowserEvent webEvent) {
-			String values = webEvent.getData();
-			if (values != null) {
-				StringTokenizer tokenizer = new StringTokenizer(values, " ");
-
-				if (tokenizer.hasMoreTokens()) {
-					String current = tokenizer.nextToken();
-					if (tokenizer.hasMoreTokens()) {
-						String max = tokenizer.nextToken();
-
-						int progress = Integer.parseInt(current);
-						int progressMax = Integer.parseInt(max);
-
-						onDownloadProgress(webEvent, progress, progressMax);
-					}
-				}
-			}
-		}
-
-		protected void onDownloadProgress(WebBrowserEvent webEvent,
-				int progress, int progressMax) {
 		}
 
 		public void windowClose(WebBrowserEvent event) {
@@ -346,7 +383,7 @@ public class PudgeBrowser implements VisualPlugin {
 			log.info("closed by script." + event.getData());
 			if (JOptionPane.YES_OPTION == JOptionPane
 					.showConfirmDialog(
-							wb,
+							wb.asComponent(),
 							"The webpage you are viewing is trying to close the window.\n Do you want to close this window?",
 							"Warning", JOptionPane.YES_NO_OPTION,
 							JOptionPane.QUESTION_MESSAGE)) {
@@ -369,7 +406,27 @@ public class PudgeBrowser implements VisualPlugin {
 		loadURL();
 	}
 
-	/**
+	void jBackButton_actionPerformed(ActionEvent e) {
+		wb.back();
+	}
+
+	void jForwardButton_actionPerformed(ActionEvent e) {
+		wb.forward();
+	}
+
+	void jRefreshButton_actionPerformed(ActionEvent e) {
+		wb.refresh();
+	}
+
+	void jStopButton_actionPerformed(ActionEvent e) {
+		wb.stop();
+	}
+
+	void jGoButton_actionPerformed(ActionEvent e) {
+		loadURL();
+	}
+
+    /**
 	 * Check the current input URL string in the address text field, load it,
 	 * and update the status info and toolbar info.
 	 */
@@ -441,4 +498,64 @@ public class PudgeBrowser implements VisualPlugin {
 		}
 	}
 
+	class Browser_jBackButton_actionAdapter implements java.awt.event.ActionListener {
+		PudgeBrowser adaptee;
+
+		Browser_jBackButton_actionAdapter(PudgeBrowser adaptee) {
+			this.adaptee = adaptee;
+		}
+
+		public void actionPerformed(ActionEvent e) {
+			adaptee.jBackButton_actionPerformed(e);
+		}
+	}
+
+
+	class Browser_jForwardButton_actionAdapter implements java.awt.event.ActionListener {
+		PudgeBrowser adaptee;
+
+		Browser_jForwardButton_actionAdapter(PudgeBrowser adaptee) {
+			this.adaptee = adaptee;
+		}
+
+		public void actionPerformed(ActionEvent e) {
+			adaptee.jForwardButton_actionPerformed(e);
+		}
+	}
+
+	class Browser_jRefreshButton_actionAdapter implements java.awt.event.ActionListener {
+		PudgeBrowser adaptee;
+
+		Browser_jRefreshButton_actionAdapter(PudgeBrowser adaptee) {
+			this.adaptee = adaptee;
+		}
+
+		public void actionPerformed(ActionEvent e) {
+			adaptee.jRefreshButton_actionPerformed(e);
+		}
+	}
+
+	class Browser_jStopButton_actionAdapter implements java.awt.event.ActionListener {
+		PudgeBrowser adaptee;
+
+		Browser_jStopButton_actionAdapter(PudgeBrowser adaptee) {
+			this.adaptee = adaptee;
+		}
+
+		public void actionPerformed(ActionEvent e) {
+			adaptee.jStopButton_actionPerformed(e);
+		}
+	}
+
+	class Browser_jGoButton_actionAdapter implements java.awt.event.ActionListener {
+		PudgeBrowser adaptee;
+
+		Browser_jGoButton_actionAdapter(PudgeBrowser adaptee) {
+			this.adaptee = adaptee;
+		}
+
+		public void actionPerformed(ActionEvent e) {
+			adaptee.jGoButton_actionPerformed(e);
+		}
+	}
 }
