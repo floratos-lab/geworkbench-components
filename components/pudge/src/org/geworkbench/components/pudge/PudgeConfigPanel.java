@@ -3,10 +3,15 @@ package org.geworkbench.components.pudge;
 import java.awt.BorderLayout;
 import java.awt.Font;
 import java.io.Serializable;
+import java.io.File;
 import java.util.Map;
 
 import javax.naming.OperationNotSupportedException;
 import javax.swing.JFormattedTextField;
+import javax.swing.JFileChooser;
+import javax.swing.JButton;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
 
 import org.geworkbench.analysis.AbstractSaveableParameterPanel;
 
@@ -20,7 +25,7 @@ import com.jgoodies.forms.layout.FormLayout;
  * Configuration panel for Pudge analysis
  * 
  * @author mw2518
- * @version $Id: PudgeConfigPanel.java,v 1.1 2009-05-11 19:09:12 wangm Exp $
+ * @version $Id: PudgeConfigPanel.java,v 1.2 2009-05-28 16:12:26 wangm Exp $
  */
 public class PudgeConfigPanel extends AbstractSaveableParameterPanel implements Serializable
 {
@@ -28,6 +33,7 @@ public class PudgeConfigPanel extends AbstractSaveableParameterPanel implements 
     private static final long serialVersionUID = 1L;
     private JFormattedTextField jobname = new JFormattedTextField();
     private JFormattedTextField natives = new JFormattedTextField();
+    private JFileChooser jfc = new JFileChooser();
 
     public PudgeConfigPanel()
     {
@@ -46,10 +52,26 @@ public class PudgeConfigPanel extends AbstractSaveableParameterPanel implements 
 	builder.setDefaultDialogBorder();
 	builder.appendSeparator("Default Pudge parameters");
 	builder.append("Job Name", jobname);
-	builder.append("Native Structure", natives);
-
+	JButton ob = new JButton("Browse for Native Structure");
+	ob.addActionListener(new OpenAction());
+	builder.append(ob, natives);
+	
 	this.add(builder.getPanel(), BorderLayout.CENTER);
 	setDefaultParameters();
+    }
+
+    class OpenAction implements ActionListener
+    {
+	public void actionPerformed(ActionEvent ae)
+	{
+	    int ret = jfc.showOpenDialog(PudgeConfigPanel.this);
+	    if (ret == jfc.APPROVE_OPTION)
+	    {
+		File file = jfc.getSelectedFile();
+		natives.setText(file.getAbsolutePath());
+		natives.setValue(file.getAbsolutePath());
+	    }
+	}
     }
 
     public void setDefaultParameters()
