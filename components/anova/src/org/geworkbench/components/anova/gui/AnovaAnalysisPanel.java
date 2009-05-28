@@ -42,7 +42,7 @@ import edu.columbia.geworkbench.cagrid.anova.PValueEstimation;
 
 /**
  * @author yc2480
- * @version $Id: AnovaAnalysisPanel.java,v 1.14 2009-02-18 21:26:36 chiangy Exp $
+ * @version $Id: AnovaAnalysisPanel.java,v 1.15 2009-05-28 22:03:24 chiangy Exp $
  */
 public class AnovaAnalysisPanel extends AbstractSaveableParameterPanel {
 
@@ -822,6 +822,7 @@ public class AnovaAnalysisPanel extends AbstractSaveableParameterPanel {
 	    ParameterActionListener parameterActionListener = new ParameterActionListener(this);
 		jComboBoxPValueBasedOn.addActionListener(parameterActionListener);
 		jTextField.addActionListener(parameterActionListener);
+		jTextField.addFocusListener(parameterActionListener);
 		//FIXME: monitor the model stead of the radio button, otherwise, the event will be sent twice and only process the first one.
 		jRadioButton.addActionListener(parameterActionListener);
 		jRadioButton1.addActionListener(parameterActionListener);
@@ -830,8 +831,11 @@ public class AnovaAnalysisPanel extends AbstractSaveableParameterPanel {
 		jRadioButton4.addActionListener(parameterActionListener);
 		jRadioButton5.addActionListener(parameterActionListener);
 		jTextFieldNFSG.addActionListener(parameterActionListener);
+		jTextFieldNFSG.addFocusListener(parameterActionListener);
 		jTextFieldPFSG.addActionListener(parameterActionListener);
-		jTextFieldPValueThreshold.addActionListener(parameterActionListener);		
+		jTextFieldPFSG.addFocusListener(parameterActionListener);
+		jTextFieldPValueThreshold.addActionListener(parameterActionListener);	
+		jTextFieldPValueThreshold.addFocusListener(parameterActionListener);
 	}
 
 	/**
