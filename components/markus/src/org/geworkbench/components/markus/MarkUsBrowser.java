@@ -2,6 +2,9 @@ package org.geworkbench.components.markus;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
+import java.awt.Dimension;
 import java.io.FileInputStream;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
@@ -13,6 +16,10 @@ import java.util.StringTokenizer;
 import javax.swing.BorderFactory;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JButton;
+import javax.swing.JToolBar;
+import javax.swing.ImageIcon;
+import javax.swing.SwingConstants;
 import javax.swing.JTabbedPane;
 import javax.swing.ToolTipManager;
 
@@ -33,11 +40,12 @@ import org.jdesktop.jdic.browser.WebBrowserEvent;
 import org.jdesktop.jdic.browser.WebBrowserListener;
 import org.jdesktop.jdic.browser.WebKitWebBrowser;
 import org.jdesktop.jdic.browser.WebBrowser;
+import org.jdesktop.jdic.browser.IWebBrowser;
 
 /**
  * 
  * @author mwang
- * @version $Id: MarkUsBrowser.java,v 1.8 2009-05-11 19:06:08 wangm Exp $
+ * @version $Id: MarkUsBrowser.java,v 1.9 2009-05-28 16:09:45 wangm Exp $
  *
  */
 
@@ -222,6 +230,53 @@ public class MarkUsBrowser implements VisualPlugin {
 				    setContent.invoke(webBrowser, "MacRoman");
 				    setURL.invoke(webBrowser, new URL(url));
 				    jp.add((java.awt.Component)webBrowser, BorderLayout.CENTER);
+
+				    JButton jStopButton = new JButton("Stop",
+						new ImageIcon("src/images/Stop.png"));
+				    JButton jRefreshButton = new JButton("Refresh",
+						new ImageIcon("src/images/Reload.png"));
+				    JButton jForwardButton = new JButton("Forward",
+						new ImageIcon("src/images/Forward.png"));
+				    JButton jBackButton = new JButton("Back",
+						new ImageIcon("src/images/Back.png"));
+				    jBackButton.setHorizontalTextPosition(SwingConstants.TRAILING);
+				    jBackButton.setEnabled(true);
+				    jBackButton.setMaximumSize(new Dimension(75, 27));
+				    jBackButton.setPreferredSize(new Dimension(75, 27));
+				    jBackButton.addActionListener(new ActionListener(){
+					    public void actionPerformed(ActionEvent ae) {
+						((IWebBrowser)webBrowser).back(); }});
+				    jForwardButton.setEnabled(true);
+				    jForwardButton.addActionListener(new ActionListener(){
+					    public void actionPerformed(ActionEvent ae) {
+						((IWebBrowser)webBrowser).forward(); }});
+				    jRefreshButton.setEnabled(true);
+				    jRefreshButton.setMaximumSize(new Dimension(75, 27));
+				    jRefreshButton.setMinimumSize(new Dimension(75, 27));
+				    jRefreshButton.setPreferredSize(new Dimension(75, 27));
+				    jRefreshButton.addActionListener(new ActionListener(){
+					    public void actionPerformed(ActionEvent ae) {
+						((IWebBrowser)webBrowser).refresh(); }});
+				    jStopButton.setVerifyInputWhenFocusTarget(true);
+				    jStopButton.setText("Stop");
+				    jStopButton.setEnabled(true);
+				    jStopButton.setMaximumSize(new Dimension(75, 27));
+				    jStopButton.setMinimumSize(new Dimension(75, 27));
+				    jStopButton.setPreferredSize(new Dimension(75, 27));
+				    jStopButton.addActionListener(new ActionListener(){
+					    public void actionPerformed(ActionEvent ae){
+						((IWebBrowser)webBrowser).stop(); }});
+				    JToolBar jBrowserToolBar = new JToolBar();
+				    jBrowserToolBar.setFloatable(false);
+				    jBrowserToolBar.add(jBackButton, null);
+				    jBrowserToolBar.add(jForwardButton, null);
+				    jBrowserToolBar.addSeparator();
+				    jBrowserToolBar.add(jRefreshButton, null);
+				    jBrowserToolBar.add(jStopButton, null);
+				    jBrowserToolBar.setBorder(BorderFactory.createCompoundBorder(
+							BorderFactory.createEtchedBorder(),
+							BorderFactory.createEmptyBorder(2, 2, 2, 0)));
+				    jp.add(jBrowserToolBar, BorderLayout.NORTH);
 				    jtp.addTab(tabtitle, jp);
 			    }
 			    else if (is_windows)
