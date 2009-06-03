@@ -3,6 +3,8 @@ package org.geworkbench.components.caarray.arraydata;
 import gov.nih.nci.cagrid.cqlquery.Association;
 import gov.nih.nci.cagrid.cqlquery.Attribute;
 import gov.nih.nci.cagrid.cqlquery.CQLQuery;
+import gov.nih.nci.cagrid.cqlquery.Group;
+import gov.nih.nci.cagrid.cqlquery.LogicalOperator;
 import gov.nih.nci.cagrid.cqlquery.Predicate;
 
 import org.geworkbench.builtin.projects.remoteresources.query.CaARRAYQueryPanel;
@@ -67,14 +69,37 @@ public class CQLQueryGenerator {
 					organismAssociation.setRoleName("organism");
 					object.setAssociation(organismAssociation);
 				} else if (type.equalsIgnoreCase(CaARRAYQueryPanel.PINAME)) {
+					String[] name = value.split(StandAloneCaArrayClientExec.NAME_SEPARATOR);
+					if (name.length<2)
+						return null;
+					String firstName = name[1];
+					String lastName = name[0];
+
+					Association contactAssociation = new Association();
+					contactAssociation
+							.setName("gov.nih.nci.caarray.domain.project.ExperimentContact");
 					Association organismAssociation = new Association();
 					organismAssociation
-							.setName("gov.nih.nci.caarray.domain.project.ExperimentContact");
-					Attribute organismAttribute = new Attribute();
-					organismAttribute.setName("name");
-					organismAttribute.setValue(value);
-					organismAttribute.setPredicate(Predicate.EQUAL_TO);
-					object.setAssociation(organismAssociation);
+							.setName("gov.nih.nci.caarray.domain.contact.Person");
+					Attribute att = new Attribute(); 
+					att.setName("firstName"); 
+					att.setPredicate(Predicate.EQUAL_TO); 
+					att.setValue(firstName); 
+					Attribute att2 = new Attribute(); 
+					att2.setName("lastName"); 
+					att2.setPredicate(Predicate.EQUAL_TO); 
+					att2.setValue(lastName);
+					Attribute[] atts = new Attribute[2];
+					atts[0]=att;
+					atts[1]=att2;
+					Group group = new Group();
+					group.setAttribute(atts);
+					group.setLogicRelation(LogicalOperator.AND);
+					organismAssociation.setGroup(group);
+					organismAssociation.setRoleName("contact");
+					contactAssociation.setAssociation(organismAssociation);
+					contactAssociation.setRoleName("experimentContacts");
+					object.setAssociation(contactAssociation);
 				} else if (type
 						.equalsIgnoreCase(CaARRAYQueryPanel.CHIPPROVIDER)) {
 					Association organismAssociation = new Association();

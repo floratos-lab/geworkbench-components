@@ -43,7 +43,7 @@ import org.geworkbench.events.CaArrayQueryResultEvent;
  * The class to invoke StandAloneCaArrayWrapper
  * 
  * @author xiaoqing
- * @version $Id: StandAloneCaArrayClientWrapper.java,v 1.10 2009-04-18 12:20:28 jiz Exp $
+ * @version $Id: StandAloneCaArrayClientWrapper.java,v 1.11 2009-06-03 20:11:20 chiangy Exp $
  * 
  */
 public class StandAloneCaArrayClientWrapper {
@@ -292,10 +292,10 @@ public class StandAloneCaArrayClientWrapper {
 			savedFilename = tmpDir + url + "_" + port + "_" + username + "_"
 					+ type + "_" + value + ".txt";
 		}
-		String cmdline = prefixCMD + FILTERINFO + " " + savedFilename + " "
-				+ url + " " + port + " " + type + " " + value;
+		String cmdline = prefixCMD + FILTERINFO + " \"" + savedFilename + "\" "
+				+ url + " " + port + " \"" + type + "\" \"" + value +"\"";
 		if (username != null)
-			cmdline = cmdline + " " + username + " " + password;
+			cmdline = cmdline + " \"" + username + "\" \"" + password + "\"";
 		invokeStandAloneApp(cmdline, savedFilename);
 		CaArray2Experiment[] tree = null;
 		if (isFailed(savedFilename)) {

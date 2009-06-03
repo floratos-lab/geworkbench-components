@@ -50,7 +50,7 @@ import org.geworkbench.builtin.projects.remoteresources.query.CaARRAYQueryPanel;
  * This is invoked as a stand-alone application by StandAloneCaArrayClientWrapper.
  * 
  * @author xiaoqing
- * @version $Id: StandAloneCaArrayClientExec.java,v 1.7 2009-01-14 21:59:16 jiz Exp $
+ * @version $Id: StandAloneCaArrayClientExec.java,v 1.8 2009-06-03 20:11:20 chiangy Exp $
  *
  */
 public class StandAloneCaArrayClientExec {
@@ -62,6 +62,7 @@ public class StandAloneCaArrayClientExec {
 	static final String ServerConnectionException = "ServerConnectionException";
 	static final String FailedLoginException = "FailedLoginException";
 	static final String Exception = "Exception";
+	public static final String NAME_SEPARATOR = ", ";
 
 	// there are not member variables in this class
 	// all the method invoked from main are thus all changed to static to avoid
@@ -189,7 +190,7 @@ public class StandAloneCaArrayClientExec {
 					}
 					if (o instanceof Person) {
 						Person p = (Person) o;
-						values.add(p.getFirstName() + " " + p.getLastName());
+						values.add(p.getLastName() + NAME_SEPARATOR + p.getFirstName());
 					}
 					if (o instanceof AbstractBioMaterial) {
 						AbstractBioMaterial p = (AbstractBioMaterial) o;
