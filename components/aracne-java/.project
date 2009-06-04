@@ -3,6 +3,7 @@
 	<name>aracne-java</name>
 	<comment></comment>
 	<projects>
+		<project>geworkbench-core</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>
