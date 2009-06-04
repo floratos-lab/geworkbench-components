@@ -144,7 +144,7 @@ import com.Ostermiller.util.CSVPrinter;
  * Index database through caBio. Displays data in two table with 6 columns each. 
  * 
  * @author yc2480
- * @version $Id: AnnotationsPanel2.java,v 1.7 2009-05-27 22:35:35 chiangy Exp $
+ * @version $Id: AnnotationsPanel2.java,v 1.8 2009-06-04 15:02:58 chiangy Exp $
  * 
  */
 @AcceptTypes({DSMicroarraySet.class})
@@ -1992,12 +1992,26 @@ public class AnnotationsPanel2 implements VisualPlugin, Observer{
         return mainPanel;
     }
 
+    /* act as a lock */
+    private boolean inProgress = false;
+    
     /*
      * 
      */
     private void retrieveAll(DSGeneMarker marker){
+    	if (inProgress){
+    		//TODO: bring up old one?
+    		return;
+    	}else{
+    		retrieveItem.setEnabled(false);
+    		inProgress = true;
+    	}
     	retrieveMarkerInfo.clear();
-        DSGeneMarker retrieveMarker = marker;
+    	//TODO: If we support retrieve all for multiple markers, 
+    	//			We should remove retrieveMarker variable.
+    	//		If we only allow retrieve all for one marker at a time,
+    	//			We should remove retrieveMarkerInfo variable.
+        retrieveMarker = marker;
         retrieveMarkerInfo.add(retrieveMarker);
         
         try {
@@ -2097,7 +2111,9 @@ public class AnnotationsPanel2 implements VisualPlugin, Observer{
                                 pb.setMessage(progressMessage+"Records "+(diseaseIndex+agentIndex)+"/"+(diseaseRecords+agentRecords)+"\n");
 								if (stopAlgorithm == true) {
 									stopAlgorithm(pb);
-									break;
+						    		inProgress = false;
+						    		retrieveItem.setEnabled(true);
+									return;
 								}
                     			if (gfa instanceof GeneDiseaseAssociation) {
                     				diseaseIndex++;                    				
@@ -2120,9 +2136,9 @@ public class AnnotationsPanel2 implements VisualPlugin, Observer{
 	                    				roleData.add(new RoleData(gda.getRole()));
 	                    				sentenceData.add(new SentenceData(e.getSentence()));
 	                    				pubmedData.add(new PubmedData(Integer.toString(e.getPubmedId())));
-	                    				log.error("We got "+markerDataNew.name+","+geneDataNew.name+","+diseaseDataNew.name+","+roleDataNew.role+","+sentenceDataNew.sentence+","+pubmedDataNew.id);	                    				
+	                    				log.debug("We got "+markerDataNew.name+","+geneDataNew.name+","+diseaseDataNew.name+","+roleDataNew.role+","+sentenceDataNew.sentence+","+pubmedDataNew.id);	                    				
                     				}else{
-                    					log.error("We already got "+markerDataNew.name+","+geneDataNew.name+","+diseaseDataNew.name+","+roleDataNew.role+","+sentenceDataNew.sentence+","+pubmedDataNew.id);
+                    					log.debug("We already got "+markerDataNew.name+","+geneDataNew.name+","+diseaseDataNew.name+","+roleDataNew.role+","+sentenceDataNew.sentence+","+pubmedDataNew.id);
                     				}
                     			}
                     			else if (gfa instanceof GeneAgentAssociation) {
@@ -2212,6 +2228,17 @@ public class AnnotationsPanel2 implements VisualPlugin, Observer{
                     diseaseTable.setVisible(true);
                     agentTable.setVisible(true);
                     sortByNumberOfRecords = true;
+                    //Clear numOutOfNum, so no "Retrieve All" option shown if we already got all records.
+                    for (int i = 0; i < diseaseModel.markerData.length; i++) {
+            			MarkerData markerData3 = diseaseModel.markerData[i];
+            			if (retrieveMarker.getLabel().equals(markerData3.name))
+            				markerData3.numOutOfNum="";
+            		}
+                    for (int i = 0; i < agentModel.markerData.length; i++) {
+            			MarkerData markerData3 = agentModel.markerData[i];
+            			if (retrieveMarker.getLabel().equals(markerData3.name))
+            				markerData3.numOutOfNum="";
+            		}
                     
                     SwingUtilities.invokeLater(new Runnable() {
                         public void run() {
@@ -2229,6 +2256,8 @@ public class AnnotationsPanel2 implements VisualPlugin, Observer{
                         	diseaseModel.sortByColumn(0,true);
                         	agentModel.sortByColumn(2,false);
                         	agentModel.sortByColumn(0,true);
+                    		inProgress = false;
+                    		retrieveItem.setEnabled(true);
                         }
                     });
                 }
@@ -2251,18 +2280,9 @@ public class AnnotationsPanel2 implements VisualPlugin, Observer{
         }
         catch (Exception e) {
             e.printStackTrace();
+    		inProgress = false;
+    		retrieveItem.setEnabled(true);
         }
-        
-        for (int i = 0; i < diseaseModel.markerData.length; i++) {
-			MarkerData markerData = diseaseModel.markerData[i];
-			if (retrieveMarker.getLabel().equals(markerData.name))
-				markerData.numOutOfNum="";
-		}
-        for (int i = 0; i < agentModel.markerData.length; i++) {
-			MarkerData markerData = agentModel.markerData[i];
-			if (retrieveMarker.getLabel().equals(markerData.name))
-				markerData.numOutOfNum="";
-		}
     }
     
     /**
@@ -3187,6 +3207,7 @@ public class AnnotationsPanel2 implements VisualPlugin, Observer{
     
     private DSItemList<DSGeneMarker> selectedMarkerInfo = null;
     private DSItemList<DSGeneMarker> retrieveMarkerInfo = new CSItemList<DSGeneMarker>();
+    private DSGeneMarker retrieveMarker = null;
     private GeneSearchCriteria criteria = null;
     private Pathway[] pathways = new Pathway[0];
 
