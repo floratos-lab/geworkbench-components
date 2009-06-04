@@ -49,7 +49,7 @@ import edu.columbia.c2b2.aracne.Parameter;
 public class AracneAnalysis extends AbstractGridAnalysis implements
 		ClusteringAnalysis {
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = 1L;
 
@@ -60,7 +60,7 @@ public class AracneAnalysis extends AbstractGridAnalysis implements
 	private final String analysisName = "Aracne";
 
 	/**
-	 * 
+	 *
 	 */
 	public AracneAnalysis() {
 		setLabel("ARACNE");
@@ -69,7 +69,7 @@ public class AracneAnalysis extends AbstractGridAnalysis implements
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.geworkbench.analysis.AbstractAnalysis#getAnalysisType()
 	 */
 	public int getAnalysisType() {
@@ -78,7 +78,7 @@ public class AracneAnalysis extends AbstractGridAnalysis implements
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.geworkbench.bison.model.analysis.Analysis#execute(java.lang.Object)
 	 */
 	@SuppressWarnings("unchecked")
@@ -152,6 +152,9 @@ public class AracneAnalysis extends AbstractGridAnalysis implements
 			adjMatrix = null;
 		}
 
+		Parameter.ALGORITHM algor = params.getAlgorithm();
+		p.setAlgorithm(algor);
+
 		int bs = params.getBootstrapNumber();
 		double pt = params.getConsensusThreshold();
 		if (bs <= 0 || pt <= 0 || pt > 1)
@@ -168,7 +171,7 @@ public class AracneAnalysis extends AbstractGridAnalysis implements
 	}
 
 	/**
-	 * 
+	 *
 	 * @param adjMatrix
 	 * @param mSet
 	 * @return
@@ -208,12 +211,12 @@ public class AracneAnalysis extends AbstractGridAnalysis implements
 	}
 
 	/**
-	 * 
+	 *
 	 * FIXME: This convert() has bug in it !!!, Since Microarray.getValues() in
 	 * workbook.jar will return all the marker values, we should filter out
 	 * those inactive markers in DSMicroarraySetView before put into
 	 * MicroarraySet
-	 * 
+	 *
 	 * @param inSet
 	 * @return
 	 */
@@ -240,7 +243,7 @@ public class AracneAnalysis extends AbstractGridAnalysis implements
 	}
 
 	/**
-	 * 
+	 *
 	 * @param graph
 	 * @param mSet
 	 * @return
@@ -263,7 +266,7 @@ public class AracneAnalysis extends AbstractGridAnalysis implements
 	}
 
 	/**
-	 * 
+	 *
 	 * @param ae
 	 * @return
 	 */
@@ -274,7 +277,7 @@ public class AracneAnalysis extends AbstractGridAnalysis implements
 	}
 
 	/**
-	 * 
+	 *
 	 * @param event
 	 * @return
 	 */
@@ -285,7 +288,7 @@ public class AracneAnalysis extends AbstractGridAnalysis implements
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	class AracneThread extends Thread {
 		private WeightedGraph weightedGraph;
@@ -357,7 +360,7 @@ public class AracneAnalysis extends AbstractGridAnalysis implements
 		}
 
 		/**
-		 * 
+		 *
 		 * @return
 		 */
 		public AracneProgress getProgressWindow() {
@@ -365,7 +368,7 @@ public class AracneAnalysis extends AbstractGridAnalysis implements
 		}
 
 		/**
-		 * 
+		 *
 		 * @param progressWindow
 		 */
 		public void setProgressWindow(AracneProgress progressWindow) {
@@ -376,7 +379,7 @@ public class AracneAnalysis extends AbstractGridAnalysis implements
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.geworkbench.analysis.AbstractAnalysis#validateParameters()
 	 *      Validates the user-entered parameter values.
 	 */
@@ -470,7 +473,7 @@ public class AracneAnalysis extends AbstractGridAnalysis implements
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.geworkbench.analysis.AbstractGridAnalysis#getBisonParameters()
 	 */
 	@Override
@@ -536,7 +539,7 @@ public class AracneAnalysis extends AbstractGridAnalysis implements
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.geworkbench.analysis.AbstractGridAnalysis#getAnalysisName()
 	 */
 	@Override
@@ -546,7 +549,7 @@ public class AracneAnalysis extends AbstractGridAnalysis implements
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.geworkbench.analysis.AbstractGridAnalysis#getBisonReturnType()
 	 */
 	@SuppressWarnings("unchecked")
@@ -557,7 +560,7 @@ public class AracneAnalysis extends AbstractGridAnalysis implements
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.geworkbench.analysis.AbstractGridAnalysis#useMicroarraySetView()
 	 */
 	@Override
@@ -567,7 +570,7 @@ public class AracneAnalysis extends AbstractGridAnalysis implements
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.geworkbench.analysis.AbstractGridAnalysis#useOtherDataSet()
 	 */
 	@Override
@@ -577,7 +580,7 @@ public class AracneAnalysis extends AbstractGridAnalysis implements
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.geworkbench.analysis.AbstractGridAnalysis#validInputData(org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView,
 	 *      org.geworkbench.bison.datastructure.biocollections.DSDataSet)
 	 */
@@ -607,7 +610,7 @@ public class AracneAnalysis extends AbstractGridAnalysis implements
 	}
 
 	/**
-	 * 
+	 *
 	 * @param e
 	 * @param source
 	 */
@@ -627,7 +630,7 @@ public class AracneAnalysis extends AbstractGridAnalysis implements
 	}
 
 	/**
-	 * 
+	 *
 	 * @param e
 	 * @param source
 	 */
@@ -659,7 +662,7 @@ public class AracneAnalysis extends AbstractGridAnalysis implements
 		String ans = "";
 
 		//TODO: this probably should get from DSMicroarraySetView.toString()
-		
+
 		// generate text for microarrays/groups
 		ans += "=The MicroarraySetView used for analysis contains following data=\n";
 		try {
@@ -715,5 +718,5 @@ public class AracneAnalysis extends AbstractGridAnalysis implements
 		ans += "=End of MicroarraySetView data=";
 		return ans;
 	}
-	
+
 }

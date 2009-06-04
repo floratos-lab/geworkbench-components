@@ -44,7 +44,7 @@ import edu.columbia.c2b2.aracne.Parameter;
 /**
  * @author mhall
  * @author yc2480
- * @version $Id: AracneParamPanel.java,v 1.10 2009-03-11 19:04:55 jiz Exp $
+ * @version $Id: AracneParamPanel.java,v 1.11 2009-06-04 20:01:49 oshteynb Exp $
  */
 public class AracneParamPanel extends AbstractSaveableParameterPanel {
 	private static final long serialVersionUID = 4023695671471667725L;
@@ -63,10 +63,14 @@ public class AracneParamPanel extends AbstractSaveableParameterPanel {
     public static final String DPI_NONE = "Do Not Apply";
     public static final String DPI_APPLY = "Apply";
 
+    public static final String FIXED_BANDWIDTH = "Fixed Bandwidth";
+    public static final String ADAPTIVE_PARTITIONING = "Adaptive Partitioning";
+
     private JButton loadResultsButton = new JButton("Load...");
     private String hubMarkersFile = new String("data/test.txt");
 
     private JComboBox hubCombo = new JComboBox(new String[]{HUB_ALL, FROM_SETS, FROM_FILE});
+    private JComboBox algorithmCombo = new JComboBox(new String[]{ADAPTIVE_PARTITIONING,FIXED_BANDWIDTH});
     private JComboBox thresholdCombo = new JComboBox(new String[]{THRESHOLD_MI, THRESHOLD_PVALUE});
     private JComboBox kernelCombo = new JComboBox(new String[]{KERNEL_INFERRED, KERNEL_SPECIFY});
     private JComboBox dpiCombo = new JComboBox(new String[]{DPI_NONE, DPI_APPLY});
@@ -81,7 +85,7 @@ public class AracneParamPanel extends AbstractSaveableParameterPanel {
     private JButton loadTargetsButton = new JButton("Load Targets");
 
     private String targetListFile = new String("data/targets.txt");
-    
+
     // Add two new parameters for "hardening" ARACNE. They are adapted from perl script instead of Java implementation.
     private JFormattedTextField bootstrapField = new JFormattedTextField("1");
     private JTextField pThresholdField = new JTextField("1.e-6");
@@ -95,7 +99,7 @@ public class AracneParamPanel extends AbstractSaveableParameterPanel {
         dpiTolerance.setEnabled(false);
         targetList.setEnabled(false);
         loadTargetsButton.setEnabled(false);
-        
+
         pThresholdField.setEnabled(false);
 
         FormLayout layout = new FormLayout(
@@ -114,6 +118,10 @@ public class AracneParamPanel extends AbstractSaveableParameterPanel {
         builder.append("Threshold Type", thresholdCombo, threshold);
         builder.nextRow();
 
+        /* choices of two algorithms for now     */
+        builder.append("Algorithm", algorithmCombo);
+        builder.nextRow();
+
         builder.append("Kernel Width", kernelCombo, kernelWidth);
         builder.nextRow();
 
@@ -123,7 +131,7 @@ public class AracneParamPanel extends AbstractSaveableParameterPanel {
         builder.append("DPI Target List", targetCheckbox);
         builder.append(targetList, loadTargetsButton);
         builder.nextRow();
-        
+
         builder.append("Bootstrap number", bootstrapField);
         builder.append("Consensus threshold", pThresholdField);
 
@@ -253,12 +261,12 @@ public class AracneParamPanel extends AbstractSaveableParameterPanel {
         		else
         			pThresholdField.setEnabled(true);
 			}
-        	
+
         });
 
         /*
          * this listener is triggered by bootstrapField losing the focus
-         * another possible way is to listen whenever a key is typed - with its pro (easier to wake pThresholField) 
+         * another possible way is to listen whenever a key is typed - with its pro (easier to wake pThresholField)
          * and con (more checkings; higher level so not depending platform as keyReleased)
          */
 //        bootstrapField.addPropertyChangeListener("value", new PropertyChangeListener() {
@@ -269,7 +277,7 @@ public class AracneParamPanel extends AbstractSaveableParameterPanel {
 //        		else
 //        			pThresholdField.setEnabled(true);
 //			}
-//        
+//
 //        });
 
 //        builder.append("Full Set Kernel Width", fullsetKernelWidth);
@@ -295,8 +303,8 @@ public class AracneParamPanel extends AbstractSaveableParameterPanel {
     public void setIsHubListSpecified(boolean b) {
     	if (!b)
     		hubCombo.setSelectedItem(HUB_ALL);
-    }    
-    
+    }
+
     public String getHubMarkersFile() {
         return hubMarkersFile;
     }
@@ -320,7 +328,7 @@ public class AracneParamPanel extends AbstractSaveableParameterPanel {
     public void setKernelWidth(Float f) {
     	kernelWidth.setText(f.toString());
     }
-    
+
     public boolean isThresholdMI() {
         return thresholdCombo.getSelectedItem().equals(THRESHOLD_MI);
     }
@@ -336,7 +344,7 @@ public class AracneParamPanel extends AbstractSaveableParameterPanel {
     public float getThreshold() {
         return Float.valueOf(threshold.getText());
     }
-    
+
     public void setThreshold(Float f) {
     	threshold.setText(f.toString());
     }
@@ -351,13 +359,27 @@ public class AracneParamPanel extends AbstractSaveableParameterPanel {
     	else
     		dpiCombo.setSelectedItem(DPI_NONE);
     }
-    
-    public float getDPITolerance() {
-        return Float.valueOf(dpiTolerance.getText());
+
+    public Parameter.ALGORITHM getAlgorithm() {
+		Parameter.ALGORITHM algor = Parameter.ALGORITHM.FIXED_BANDWIDTH;
+
+    	if (algorithmCombo.getSelectedItem().equals(FIXED_BANDWIDTH)){
+    		algor = Parameter.ALGORITHM.FIXED_BANDWIDTH;
+    	}
+
+    	if (algorithmCombo.getSelectedItem().equals(ADAPTIVE_PARTITIONING)){
+    		algor = Parameter.ALGORITHM.ADAPTIVE_PARTITIONING;
+    	}
+
+        return algor;
     }
 
     public void setDPITolerance(Float f) {
     	dpiTolerance.setText(f.toString());
+    }
+
+    public float getDPITolerance() {
+        return Float.valueOf(dpiTolerance.getText());
     }
 
     public ArrayList<String> getHubGeneList() {
@@ -421,7 +443,7 @@ public class AracneParamPanel extends AbstractSaveableParameterPanel {
     	}
     	return p;
     }
-    
+
     public int getBootstrapNumber() {
     	int b = 0;
     	try {
@@ -455,9 +477,9 @@ public class AracneParamPanel extends AbstractSaveableParameterPanel {
             p.setTf_list(new Vector<String>(params.getTargetGenes()));
         }
         return p.getParamterDescription();
-		
+
 	}
-	
+
 	/*
 	 * (non-Javadoc)
 	 * @see org.geworkbench.analysis.AbstractSaveableParameterPanel#setParameters(java.util.Map)
@@ -511,7 +533,7 @@ public class AracneParamPanel extends AbstractSaveableParameterPanel {
 
     /*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.geworkbench.analysis.AbstractSaveableParameterPanel#getParameters()
 	 *      Since HierClustPanel only has three parameters, we return metric,
 	 *      dimension and method in the format same as getBisonParameters().
@@ -529,7 +551,7 @@ public class AracneParamPanel extends AbstractSaveableParameterPanel {
 		parameters.put("DPITolerance", this.getDPITolerance());
 		parameters.put("isTargetListSpecified", this.isTargetListSpecified());
 		parameters.put("TargetGenes", this.getTargetGeneString());
-        		
+
 		return parameters;
 	}
 
@@ -537,7 +559,7 @@ public class AracneParamPanel extends AbstractSaveableParameterPanel {
 		hubCombo.setEnabled(true);
 		kernelCombo.setEnabled(true);
 		kernelWidth.setEnabled(true);
-		
+
         String selectedItem = (String) hubCombo.getSelectedItem();
         if (HUB_ALL.equals(selectedItem)) {
             markerSetCombo.setEnabled(false);
@@ -547,7 +569,7 @@ public class AracneParamPanel extends AbstractSaveableParameterPanel {
         	markerSetCombo.setEnabled(true);
             hubMarkerList.setEnabled(true);
             loadMarkersButton.setEnabled(false);
-            
+
         	markerSetCombo.removeAllItems();
         	for(String setName: getMarkerSets()) {
         		markerSetCombo.addItem(setName);
@@ -568,7 +590,7 @@ public class AracneParamPanel extends AbstractSaveableParameterPanel {
 		hubMarkerList.setEnabled(false);
 		kernelWidth.setEnabled(false);
 	}
-	
+
 	/**
 	 * This is added to make the marker sets available.
 	 */
@@ -580,7 +602,7 @@ public class AracneParamPanel extends AbstractSaveableParameterPanel {
 	public void setMicroarraySet(DSMicroarraySet<DSMicroarray> maSet){
 		this.maSet = maSet;
 	}
-	
+
 	/**
 	 * Listener to update the marker list based on marker combo selection.
 	 *
@@ -589,9 +611,9 @@ public class AracneParamPanel extends AbstractSaveableParameterPanel {
 		public void actionPerformed(ActionEvent e) {
 	        JComboBox cb = (JComboBox)e.getSource();
 	        String setName = (String)cb.getSelectedItem();
-	        
+
 	        if(setName==null || !markerSetCombo.isFocusOwner() )return; // so do not clear out existing marker list
-	        
+
     		DSAnnotationContextManager manager = CSAnnotationContextManager
     		.getInstance();
     		DSAnnotationContext<DSGeneMarker> markerSet = manager
@@ -625,5 +647,5 @@ public class AracneParamPanel extends AbstractSaveableParameterPanel {
 		}
 		return list;
 	}
-	
+
 }
