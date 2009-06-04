@@ -1,8 +1,8 @@
 /*
  * The aracne-java project
- * 
+ *
  * Copyright (c) 2008 Columbia University
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -50,7 +50,7 @@ import edu.columbia.c2b2.aracne.Aracne;
 
 /**
  * @author zji
- * @version $Id: HardenedAracne.java,v 1.1 2008-07-09 18:33:09 jiz Exp $
+ * @version $Id: HardenedAracne.java,v 1.2 2009-06-04 20:01:49 oshteynb Exp $
  *
  */
 public class HardenedAracne {
@@ -59,27 +59,31 @@ public class HardenedAracne {
 	private static class AracneTask implements Callable<WeightedGraph> {
 		private MicroarraySet microarraySet;
 		private Parameter parameter;
-		
+
 		AracneTask(MicroarraySet microarraySet, Parameter parameter) {
 			this.microarraySet = microarraySet;
 			this.parameter = parameter;
 		}
 
 		public WeightedGraph call() {
+//			System.out.println("AracneTask.call with parameter: " + parameter);
 			return Aracne.run(microarraySet, parameter);
 		}
-		
+
 	}
-	
+
 	/*
 	 * this method is used in place of Aracne.run(MicroarraySet microarraySet, Parameter parameter)
 	 * to make ARACNE 'hardened' - bootstrap and parallel
 	 */
-	// two parameters (bootstrap & pthreshold) are not part of edu.columbia.c2b2.aracne.Parameter 
+	// two parameters (bootstrap & pthreshold) are not part of edu.columbia.c2b2.aracne.Parameter
 	// because they are from the perl script instead of aracne-java
 	public static WeightedGraph run(MicroarraySet microarraySet, Parameter parameter, int bootstrapNumber, double pThreshold) {
-		if(bootstrapNumber==1)return Aracne.run(microarraySet, parameter);
-		
+		if(bootstrapNumber==1){
+//			System.out.println("HardenedAracne.run with parameter: " + parameter);
+			return Aracne.run(microarraySet, parameter);
+		}
+
 		if(parameter.getSample()!=0) {
 			System.out.println("this should never happen. fatal: the initial parameter is not zero");
 			System.exit(1);
@@ -97,7 +101,7 @@ public class HardenedAracne {
 			tasks.add(new AracneTask(microarraySet, param));
 			bootstrapId++;
 		}
-		
+
 		WeightedGraph[] graph = new WeightedGraph[bootstrapNumber];
 		long begin = new Date().getTime(); // in case to log the execution duration
 		try {
@@ -118,10 +122,10 @@ public class HardenedAracne {
 			return null; // if something was wrong, don't continue to process incomplete bootstraps
 		}
 		log.info("It took ExecutorService executor "+(new Date().getTime()-begin)+" milliseconds to finish.");
-		
+
 		return consensusNetwork(graph, parameter, pThreshold);
 	}
-	
+
 	/**
 	 * clone a Parameter object except the 'sample' field
 	 * this is necessary because we need to maintain the multiple instances for parallel computing
@@ -131,7 +135,7 @@ public class HardenedAracne {
 	 */
 	private static Parameter copyParameter(Parameter old, int sample) {
 		Parameter copy = new Parameter();
-	    
+
 		copy.setThreshold(old.getThreshold());
 		copy.setPvalue(old.getPvalue());
 		copy.setEps(old.getEps());
@@ -159,7 +163,7 @@ public class HardenedAracne {
 
 		return copy;
 	}
-	
+
 	private static NormalDistribution normalDistribution = new NormalDistributionImpl();
 	/**
 	 * this method constructs consensus network
@@ -169,14 +173,14 @@ public class HardenedAracne {
 	 */
 	private static WeightedGraph consensusNetwork(WeightedGraph[] listOfGraph, Parameter parameter, double pThreshold) {
 		// many variables have a shorten instead of easier-to-read name to map to the original perl script
-		// so as to easier to verify the correctness of the algorithm 
+		// so as to easier to verify the correctness of the algorithm
 		int bootstrapNumber = listOfGraph.length;
 		int[] totEdge = new int[bootstrapNumber];
 		Map<String, Integer> totSupport = new HashMap<String, Integer>();
 		Map<String, Double> totMI = new HashMap<String, Double>();
-		
+
 		for(int i=0; i<bootstrapNumber; i++)totEdge[i] = 0;
-		
+
 		int bsnum = 0; // this index and some following start with 0, which is different from the perl script
 		for(WeightedGraph graph: listOfGraph) {
 			/*
@@ -206,7 +210,7 @@ public class HardenedAracne {
 			}
 			bsnum++;
 		}
-		
+
 		int totedge = totSupport.size();
 		System.out.println("total edges tested: "+totedge);
 		System.out.println("Bonferroni corrected (0.05) alpha: " + (0.05/totedge) );
@@ -220,10 +224,10 @@ public class HardenedAracne {
 		}
 		sigma = Math.sqrt(sigma);
 		System.out.println("mu: "+mu+"\nsigma: "+sigma);
-		
+
 		Set<String> keySet = totSupport.keySet();
 		SortedSet<String> sortedKeySet = new TreeSet<String>(keySet);
-		
+
 		PrintWriter pw = null;
 		if(!parameter.isSuppressFileWriting()) {
 			try {
@@ -235,20 +239,20 @@ public class HardenedAracne {
 				// null pw will make the following code not to try to output
 			}
 		}
-		
+
         WeightedGraph graph = new WeightedGraph("Consensus Network");
         String currentg1 = "-1";
         // only for the purpose of writing a disk file (.adj file) of the network, key set should be sorted first
         for (String key: sortedKeySet) {
-        	
+
         	String[] gene = key.split("\\.");
-        	
+
         	double z = (totSupport.get(key)-mu)/sigma;
         	try {
 				double pval = 1. - normalDistribution.cumulativeProbability(z); // this is equivalent to Statistics:Distributions:uprob($z); in perl
 				if(pval<pThreshold) {
 		        	/* WeightedGraph.addNode is deprecated: it must not be needed any more.
-					 Logically the information about the two nodes is duplicated of that of the edge, 
+					 Logically the information about the two nodes is duplicated of that of the edge,
 					 so addNode is probably ignored in the actual implementation.
 					 The source code at
 					 http://gforge.nci.nih.gov/svn/gforge/workbook/trunk/src/wb/plugins/aracne/WeightedGraph.java
@@ -257,7 +261,7 @@ public class HardenedAracne {
 		        	//graph.addNode(gene[1]);
 		        	float mi =  (float)(totMI.get(key)/totSupport.get(key));
 		        	graph.addEdge(gene[0], gene[1], mi);
-		        	
+
 		        	// output disk file
 		        	if(pw!=null) {
 		        		if(!gene[0].equals(currentg1)) {
@@ -283,9 +287,9 @@ public class HardenedAracne {
 				}
 			} catch (MathException e) {
 				e.printStackTrace();
-				// in case of unexpected numerical anomaly happens, the edge is not added to the graph 
-			} 
-			
+				// in case of unexpected numerical anomaly happens, the edge is not added to the graph
+			}
+
 			if(pw!=null) {
 				pw.close();
 			}
