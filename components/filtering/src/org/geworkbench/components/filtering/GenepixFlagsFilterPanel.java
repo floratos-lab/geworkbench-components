@@ -127,6 +127,8 @@ public class GenepixFlagsFilterPanel extends AbstractSaveableParameterPanel {
 	            }
 			}
 		}
+        revalidate();
+        repaint();
     }
 
     /*
