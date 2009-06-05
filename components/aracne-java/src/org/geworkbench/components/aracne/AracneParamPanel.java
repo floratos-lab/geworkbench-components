@@ -44,7 +44,7 @@ import edu.columbia.c2b2.aracne.Parameter;
 /**
  * @author mhall
  * @author yc2480
- * @version $Id: AracneParamPanel.java,v 1.11 2009-06-04 20:01:49 oshteynb Exp $
+ * @version $Id: AracneParamPanel.java,v 1.12 2009-06-05 18:32:41 oshteynb Exp $
  */
 public class AracneParamPanel extends AbstractSaveableParameterPanel {
 	private static final long serialVersionUID = 4023695671471667725L;
@@ -161,15 +161,17 @@ public class AracneParamPanel extends AbstractSaveableParameterPanel {
             }
         });
 
+        algorithmCombo.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				setKernelCombo();
+			}
+		});
+
+
         kernelCombo.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                JComboBox cb = (JComboBox) e.getSource();
-                String selectedItem = (String) cb.getSelectedItem();
-                if (KERNEL_INFERRED.equals(selectedItem)) {
-                    kernelWidth.setEnabled(false);
-                } else {
-                    kernelWidth.setEnabled(true);
-                }
+//                JComboBox cb = (JComboBox) e.getSource();
+                setKernelWidth();
             }
         });
 
@@ -295,6 +297,18 @@ public class AracneParamPanel extends AbstractSaveableParameterPanel {
             }
         });
     }
+
+	public void setKernelCombo() {
+        String selectedItem = (String) algorithmCombo.getSelectedItem();
+
+        if (selectedItem.equals(ADAPTIVE_PARTITIONING) ){
+        	kernelCombo.setEnabled(false);
+        	kernelWidth.setEnabled(false);
+        } else {
+        	kernelCombo.setEnabled(true);
+        	setKernelWidth();
+        }
+	}
 
     public boolean isHubListSpecified() {
         return hubCombo.getSelectedItem().equals(FROM_FILE) || hubCombo.getSelectedItem().equals(FROM_SETS);
@@ -646,6 +660,18 @@ public class AracneParamPanel extends AbstractSaveableParameterPanel {
 			list.add(markerSet.getLabel(cx));
 		}
 		return list;
+	}
+
+	/**
+	 * enable or disable kernelWidth depending on the kernelCombo selection
+	 */
+	private void setKernelWidth() {
+		String selectedItem = (String) kernelCombo.getSelectedItem();
+		if (KERNEL_INFERRED.equals(selectedItem)) {
+		    kernelWidth.setEnabled(false);
+		} else {
+		    kernelWidth.setEnabled(true);
+		}
 	}
 
 }
