@@ -627,6 +627,9 @@ public class AracneAnalysis extends AbstractGridAnalysis implements
 			params.setMicroarraySet((DSMicroarraySet)dataSet);
 			params.maMode();
 		}
+
+		AracneParamPanel params = (AracneParamPanel) aspp;
+		params.setKernelCombo();
 	}
 
 	/**
