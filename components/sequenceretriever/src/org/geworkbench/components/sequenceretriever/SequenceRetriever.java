@@ -78,7 +78,7 @@ import org.geworkbench.util.sequences.GeneChromosomeMatcher;
  * @author Xuegong Wang
  * @author manjunath at genomecenter dot columbia dot edu
  * @author xiaoqing at genomecenter dot columbia dot edu
- * @version $Id: SequenceRetriever.java,v 1.56 2008-11-24 21:37:41 jiz Exp $
+ * @version $Id: SequenceRetriever.java,v 1.57 2009-06-08 18:29:40 jiz Exp $
  */
 
 @SuppressWarnings("unchecked")
@@ -651,7 +651,8 @@ public class SequenceRetriever implements VisualPlugin {
 			if (retrievedDNASequences.containsKey(marker.toString())) {
 				ArrayList<String> values = retrievedDNASequences.get(marker
 						.toString());
-				values.add(seqs.toString());
+				if(!values.contains(seqs.toString()))
+					values.add(seqs.toString());
 			} else {
 				ArrayList<String> values = new ArrayList<String>();
 				values.add(seqs.toString());
@@ -797,7 +798,8 @@ public class SequenceRetriever implements VisualPlugin {
 															.toString())) {
 												ArrayList<String> values = retrievedDNASequences
 														.get(marker.toString());
-												values.add(seqs.toString());
+												if(!values.contains(seqs.toString()))
+													values.add(seqs.toString());
 											} else {
 												ArrayList<String> values = new ArrayList<String>();
 												values.add(seqs.toString());
