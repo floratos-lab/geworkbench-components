@@ -1,0 +1,20 @@
+<geaw-config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="ConfigurationFile Schema.xsd">
+
+	<component  name="Marker Mean Variance Normalizer"
+				class="org.geworkbench.components.normalization.MarkerMeanVarianceNormalizer"
+				version="1.0"
+				author="C2B2"
+				authorURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Home"
+				toolURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Home"
+				visualizer="true"
+				description="Normalizer"
+				license="-----"
+	 	 >
+			<required-component class="org.geworkbench.components.microarrays.TabularMicroarrayPanel" />
+			<required-component class="org.geworkbench.components.analysis.NormalizationPanel" />
+	</component>
+
+	<plugin id="MarkerMeanVarianceNormalizer" name="Mean Variance Normalizer" class="org.geworkbench.components.normalization.MarkerMeanVarianceNormalizer" source="normalization"/>
+	
+</geaw-config>	

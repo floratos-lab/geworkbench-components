@@ -1,0 +1,21 @@
+<geaw-config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="ConfigurationFile Schema.xsd">
+	
+	<component  name="SOM Analysis"
+				class="org.geworkbench.components.somclustering.SOMAnalysis"
+				version="1.0"
+				author="GT = -D x ln(SF)"
+				authorURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Plugins"
+				toolURL="http://wiki.c2b2.columbia.edu/workbench/images/6/65/Somcluster.png"
+				description="SOM Analysis"
+				analysis="true"
+				license="-----"
+	 >
+	 
+	 <required-component class="org.geworkbench.components.somclustering.SOMDisplay" />
+	 
+	 </component>
+	 
+	<plugin id="somAnalysis" name="SOM Analysis" class="org.geworkbench.components.somclustering.SOMAnalysis" source="somclustering"/>
+	
+</geaw-config>

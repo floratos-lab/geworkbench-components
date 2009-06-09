@@ -1,4 +1,0 @@
-<plugin id="hierarchicalClusteringPanel" name="Dendrogram" class="org.geworkbench.components.hierarchicalclustering.HierClusterViewAppComponent" source="hierarchicalclustering">
-	<gui-area name="VisualArea"/>
-</plugin>
-<plugin id="fastHierarchicalClusteringAnalysis" name="Hierachical Clustering" class="org.geworkbench.components.hierarchicalclustering.FastHierClustAnalysis" source="hierarchicalclustering"/>

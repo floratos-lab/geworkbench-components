@@ -1,0 +1,19 @@
+<geaw-config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="ConfigurationFile Schema.xsd">
+
+	<component  name="MasterRegulatorAnalysis"
+							class="org.geworkbench.components.analysis.clustering.MasterRegulatorAnalysis"
+							version="1.0"
+							author="C2B2"
+							authorURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Home"
+							toolURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Home"
+							description="====="
+							license="-----"
+							analysis="true"							
+	 >
+			<required-component class="org.geworkbench.components.analysis.clustering.MasterRegulatorViewer" />
+	</component>
+
+	<plugin id="MasterRegulatorAnalysis" name="MRA Analysis" class="org.geworkbench.components.analysis.clustering.MasterRegulatorAnalysis" source="analysis"/>
+
+</geaw-config>

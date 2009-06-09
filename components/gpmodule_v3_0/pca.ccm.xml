@@ -1,0 +1,21 @@
+<geaw-config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="ConfigurationFile Schema.xsd">
+
+	<component  name="PCA Viewer 3.0"
+				class="org.geworkbench.components.gpmodule.pca.PCA"
+				version="1.0"
+				author="C2B2"
+				authorURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Home"
+				toolURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Home"
+				description="====="
+				license="-----"
+				visualizer="true"
+	 >
+			<required-component class="org.geworkbench.components.gpmodule.pca.PCAAnalysis" />
+	</component>
+
+	<plugin id="PCA" name="PCA Viewer 3.0" class="org.geworkbench.components.gpmodule.pca.PCA" source="gpmodule_v3_0">
+		<gui-area name="VisualArea"/>
+	</plugin>
+
+</geaw-config>
