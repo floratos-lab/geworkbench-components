@@ -2,3 +2,6 @@ classes
 conf
 endpointReferenceTest.xml
 savedParams
+analysis.properties
+masterregulatoranalysis.properties
+ttestanalysis.properties

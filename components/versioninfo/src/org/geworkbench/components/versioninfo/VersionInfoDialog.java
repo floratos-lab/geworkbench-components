@@ -29,7 +29,7 @@ import com.jgoodies.forms.layout.FormLayout;
  * Class to display version information dialog.
  * 
  * @author not attributable
- * @version $Id: VersionInfoDialog.java,v 1.13 2009-02-23 20:40:14 keshav Exp $
+ * @version $Id: VersionInfoDialog.java,v 1.14 2009-06-09 20:27:29 keshav Exp $
  */
 public class VersionInfoDialog extends JDialog implements ActionListener {
 	private static final long serialVersionUID = 4152518674720567787L;
@@ -124,16 +124,17 @@ public class VersionInfoDialog extends JDialog implements ActionListener {
 	}
 
 	private static String VERSION_INFO_FILENAME = "version.txt";
+
 	/**
 	 * Run to build a update properties file for version and build time
 	 * information.
 	 * 
 	 * This method is used independent of the geWorkbench application.
 	 * 
-	 * @param string -
-	 *            args[0] should be the version number, e.g. "1.6.1" args[1]
-	 *            should be the path to save the file e.g.
-	 *            "c:/java/apps/geworkbench_workspace2/geworkbench-core/componenents/versioninfo/org/geworkbench/components/versioninfo/";
+	 * @param string
+	 *            - args[0] should be the version number, e.g. "1.6.1" args[1]
+	 *            should be the path to save the file e.g."c:/java/apps/geworkbench_workspace2/geworkbench-core/componenents/versioninfo/org/geworkbench/components/versioninfo/"
+	 *            ;
 	 * 
 	 */
 	public static void main(String[] args) {

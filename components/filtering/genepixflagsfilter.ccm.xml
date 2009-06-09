@@ -1,0 +1,18 @@
+<geaw-config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="ConfigurationFile Schema.xsd">
+
+	<component  name="Genepix Flag Filter"
+				class="org.geworkbench.components.filtering.GenepixFlagsFilter"
+				version="1.0"
+				author="C2B2"
+				authorURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Home"
+				toolURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Home"
+				description="A Filter"
+				license="----"
+	 >
+			<required-component class="org.geworkbench.components.microarrays.TabularMicroarrayPanel" />
+	</component>
+
+	<plugin id="genepixflagsfilter" name="Genepix Flag Filter" class="org.geworkbench.components.filtering.GenepixFlagsFilter" source="filtering"/>
+
+</geaw-config>

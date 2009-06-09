@@ -1,0 +1,57 @@
+   <html>
+
+
+
+<head>
+
+<meta http-equiv="Content-Language" content="en-us">
+
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+
+<meta name="GENERATOR" content="Microsoft FrontPage 4.0">
+
+<meta name="ProgId" content="FrontPage.Editor.Document">
+
+<title>User Comments</title>
+
+<link rel="stylesheet" type="text/css" href="ncicb.css">
+</head>
+
+
+
+<body>
+    <h3>Cellular Network Knowledge Base</h3> 
+    <p>The Cellular Network Knowledge Base (CNKB) is a repository of interactions between pairs of proteins (these interactions can be either computationally or experimentally derived). Both direct, physical interactions can be captured as well as indirect transcriptional relationships (where an interaction is between a transcription factor and its gene target). Each pairwise interaction has an associated confidence/likelihood value (between 0 and 1) reflecting the strength of the underlying data, whether experimental or computational. Details on the methodology used to construct the CNKB are available at: <a href="http://www.ncbi.nlm.nih.gov/pubmed/18277385?ordinalpos=1&itool=EntrezSystem2.PEntrez.Pubmed.Pubmed_ResultsPanel.Pubmed_RVBrief"><em>Mani KM, Lefebvre C, Wang K, Lim WK, Basso K, Dalla-Favera R, Califano A., &quot;
+    A systems biology approach to prediction of oncogenes and molecular perturbation targets in B-cell lymphomas&quot;, Molecular Systems Biology 4:169, 2008</em></a></p> 
+<p>Gene interaction information from the CNKB can be used, for example, in order to assess the plausibility of a hypothesis of concerted molecular action represented by a gene set that has been discovered using computational approaches (e.g., by running a clustering analysis on a microarray set to identify tandems of co-expressed genes). If the genes in such a set are reported in the CNKB to have several direct interactions (or several common targets) then this may be evidence that the gene set   indeed reflects at some level a real biological process.</p> 
+<h3>User Interface Overview</h3>
+<p>The graphical user interface (GUI) of the CNKB component has several areas of distinct functionality (marked as 1, 2, 3 in the figure below). To use the component a microarray set node must first be  selected in the Project Folders area of geWorkbench and then one or more marker sets from the Markers component must be activated. The markers in those activated marker sets will appear in the &quot;Activated Marker List&quot; area of the the CNKB GUI. From there, one or more markers can be selected and moved into the &quot;Selected Marker List&quot; (markers can be selected one at a time by double-clicking; or they can be selected as a group and moved by right-clicking on the selection). Communication with the CNKB database is initiated by clicking on the &quot;Refresh&quot; button and all pairwise interactions that involve genes represented by a marker in the &quot;Select Marker List&quot; are retrieved (an interaction is retrieved if at least one of its 2 members is in the &quot;Selected Marker List&quot;). There are 2 types of interactions stored in the CNKB: Protein-Protein and Protein-Dna (the latter indicating transcriptional relationships between transcription factors and their target). The aggregate number (across all genes) of retrieved interactions is displayed on the Throttle Graph. Three distinct graphs are drawn, showing the aggregate for each of the two interaction categories as well as their combined total. </p>
+<p>The interactions can be assembled into a network and visualized in the Cytoscape component. This is achieved by clicking on the &quot;Create Network&quot; button. The x-axis slider in the Throttle graph can be used to threshold which interactions will be included in the Cytoscape network; by moving the slider to any given threshold value from 0-1, only interactions whose confidence level is above the threshold will be retained. Further, it is possible to include/exclude interactions that belong to one or the other type. To that end, the checkboxes in the &quot;Selected Marker List&quot; can be used. </p>
+<p><b>1. </b><b>Activated Marker List </b></p>
+<p>The &quot;Activated Marker List&quot; contains the markers that belong to activated marker sets from the Markers component. It contains 3 columns:</p>
+<p><em>Marker</em>: The marker name (comes from the microarray set node selected in the Project Folders area).</p>
+<p><em>Gene</em>: The gene name corresponding to the marker, if known.</p> 
+<p><em>Type</em>: A gene type designation, derived from the gene's GO annotation: </p>
+<ul>
+  <li>TF : Transcription Factor </li>
+  <li>K: Kinase </li>
+  <li>P: Phosphatase</li>
+</ul>
+<p><b>2. </b><b>Selected Marker List</b></p>
+<p>Lists the subset of markers from the &quot;Activated Marker List&quot; about which information will be retrieved from the CNKB. It contains the following columns:</p>
+<p><em>Include Protein-DNA, Include Protein-Protein</em>: Check boxes used to specify which type(s) of interactions to use when assembling the Cytoscape network.</p>
+<p><em>Marker Name</em>: The marker name (same as in the &quot;Activated Marker List&quot;). Appears italicized to indicate that interaction information has not yet been retrieved. <strong>B</strong><b>old face</b> font indicates that interaction information has been retrieved (and is  displayed).</p>
+<p><em>Gene</em>: The gene name (same as in the &quot;Activated Marker List&quot;).</p>
+<p><em>Gene Type</em>: A gene type designation, derived from the gene's GO annotation same as in the &quot;Activated Marker List&quot;).</p>
+<p><em>GO Description</em>: The GO annotation of the gene. Right clicking on the column brings up the the gene GO classification of the gene across the 3 top-level GO categories: Component, Function and Process.</p>
+<p><em># of Protein-DNA Interactions, # of Protein-Protein Interactions</em>: the number of interactions (of each type) that pass the confidence threshold specified by the x-axis slider in the Throttle Graph. The values in these columns will change when the slider moves. A value will be displayed grayed out if its corresponding checkbox (from the first 2 columns in the table) is not enabled. This acts as a visual reminder that those interaction will not be included in the interaction network constructed when clicking on the &quot;Create Network&quot; button.</p>
+<p>The &ldquo;&quot;Display Preferences&quot; button can be used to control how many of the columns listed above are visible within the Selected Marker List.</p>
+<p><b>3. </b><b>Throttle Graph</b></p>
+<p>The &quot;Threshold&quot; text box can be used to enter directly a confidence  threshold value (instead of using the slider).</p>
+<p><img width="901" height="602" src="cellularnetwork_files/image001.png"></p> 
+    <h3>&nbsp;</h3> 
+</body>
+
+
+
+</html>
