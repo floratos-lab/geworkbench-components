@@ -1,10 +1,9 @@
 classes
 savedParams
-filteringpanel.properties
 affydetectioncallfilter.properties
 deviationbasedfilter.properties
 expressionthresholdfilter.properties
+filteringpanel.properties
 genepixexpressionthresholdfilter.properties
 genepixflagsfilter.properties
 missingvaluesfilter.properties
-

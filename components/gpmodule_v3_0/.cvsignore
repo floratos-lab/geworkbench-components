@@ -1,2 +1,8 @@
 classes
 savedParams
+knntraining.properties
+pca.properties
+pcaanalysis.properties
+svmtraining.properties
+svmvisualcomponent.properties
+wvtraining.properties

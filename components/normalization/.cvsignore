@@ -4,6 +4,7 @@ housekeepinggenenormalizer.properties
 logtransformationnormalizer.properties
 markercenteringnormalizer.properties
 markermeanvariancenormalizer.properties
+microarraycenteringnormalizer.properties
 missingvaluenormalizer.properties
 normalizationpanel.properties
 quantilenormalizer.properties
