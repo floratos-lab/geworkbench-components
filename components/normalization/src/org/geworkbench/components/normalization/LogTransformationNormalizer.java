@@ -60,7 +60,7 @@ public class LogTransformationNormalizer extends AbstractAnalysis implements Nor
 					return new AlgorithmExecutionResults(
 							false,
 							"The dataset contains negative and/or zero values.\n"
-									+ "Negative or zero values need to be filtered out before a log transformation can be performed.",
+									+ "Negative or zero values need to be replaced or filtered out before a log transformation can be performed.",
 							null);
             }
         }
