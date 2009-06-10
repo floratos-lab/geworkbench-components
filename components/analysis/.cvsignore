@@ -4,4 +4,5 @@ endpointReferenceTest.xml
 savedParams
 analysis.properties
 masterregulatoranalysis.properties
+masterregulatorviewer.properties
 ttestanalysis.properties
