@@ -346,8 +346,8 @@ public class SequenceFetcher {
 			}
 		} catch (SQLException sqle) {
 			JOptionPane.showMessageDialog(null,
-					"Got an exception while executing SQL query on server.",
-					"Server probably down.", JOptionPane.ERROR_MESSAGE);
+					"Remote server may be unavailable",
+					"Error during sequence query", JOptionPane.ERROR_MESSAGE);
 			log.error(sqle, sqle);
 		} catch (ClassNotFoundException cnfe) {
 			JOptionPane.showMessageDialog(null, ClassNotFoundException.class
