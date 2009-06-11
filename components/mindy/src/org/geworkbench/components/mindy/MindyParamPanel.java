@@ -44,10 +44,14 @@ import com.jgoodies.forms.layout.FormLayout;
  *
  * @author mhall, ch2514, yc2480
  * @author oshteynb
- * @version $Id: MindyParamPanel.java,v 1.29 2009-04-27 15:49:02 keshav Exp $
+ * @version $Id: MindyParamPanel.java,v 1.30 2009-06-11 16:12:02 oshteynb Exp $
  */
 @SuppressWarnings("serial")
 public class MindyParamPanel extends AbstractSaveableParameterPanel {
+
+	private static final String P_VALUE_DEFAULT_VALUE = "1e-2";
+
+	private static final String MI_DEFAULT_VALUE = "0.1";
 
 	static Log log = LogFactory.getLog(MindyParamPanel.class);
 
@@ -72,13 +76,13 @@ public class MindyParamPanel extends AbstractSaveableParameterPanel {
 
 	static final String[] DEFAULT_SET = { " " };
 
-	private static final String[] CONDITIONAL = { MI };
-	private static final String[] UNCONDITIONAL = { P_VALUE, MI };
+	private static final String[] CONDITIONAL = { MI, P_VALUE };
+	private static final String[] UNCONDITIONAL = { MI , P_VALUE };
 
 	private static final String[] CONDITIONAL_DEFAULT_VALUES = {
-			"0" };
+		MI_DEFAULT_VALUE, P_VALUE_DEFAULT_VALUE  };
 	private static final String[] UNCONDITIONAL_DEFAULT_VALUES = {
-			"1e-2", "0" };
+		MI_DEFAULT_VALUE, P_VALUE_DEFAULT_VALUE  };
 
 	private static final String[] CORRECTIONS = { NONE, BONFERRONI };
 
@@ -401,12 +405,12 @@ public class MindyParamPanel extends AbstractSaveableParameterPanel {
 		builder.append("", new JLabel(""));
 		builder.append("", new JLabel(""));
 
-		builder.append("Conditional (MINDY)", this.conditionalCombo, 3);
+		builder.append("Conditional", this.conditionalCombo, 3);
 		builder.append(this.conditional);
 		builder.append("Correction", this.conditionalCorrection, 3);
 		builder.append(new JLabel(""));
 
-		builder.append("Unconditional (ARACNE)", this.unconditionalCombo, 3);
+		builder.append("Unconditional", this.unconditionalCombo, 3);
 		builder.append(this.unconditional);
 		builder.append("Correction", this.unconditionalCorrection, 3);
 		builder.append(new JLabel(""));

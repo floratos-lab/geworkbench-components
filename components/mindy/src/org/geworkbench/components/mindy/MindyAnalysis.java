@@ -265,7 +265,7 @@ public class MindyAnalysis extends AbstractGridAnalysis implements
 			subsetThreshold = subsetThreshold / numMarkers;
 		}
 
-		paramDescB.append("Conditional (MINDY):\t");
+		paramDescB.append("Conditional:\t");
 		paramDescB.append(params.getConditional());
 		paramDescB.append(" at ");
 		paramDescB.append(params.getConditionalValue());
@@ -273,7 +273,7 @@ public class MindyAnalysis extends AbstractGridAnalysis implements
 		paramDescB.append(params.getConditionalCorrection());
 		paramDescB.append("\n");
 
-		paramDescB.append("Unconditional (ARACNE):\t");
+		paramDescB.append("Unconditional:\t");
 		paramDescB.append(params.getUnconditional());
 		paramDescB.append(" at ");
 		paramDescB.append(params.getUnconditionalValue());
