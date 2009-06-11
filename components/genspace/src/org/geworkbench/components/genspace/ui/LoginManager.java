@@ -114,7 +114,10 @@ public class LoginManager {
 		} catch (Exception ex) { 
 			ex.printStackTrace();
 			
-			return false;
+			//in case there's an exception such as losing network connections, this used to give a false error message that the user id is duplicated.
+			//assume that the user is not a duplicate for now, and try registering
+			//changed the return value to true
+			return true;
 		}		
 		
 	}
