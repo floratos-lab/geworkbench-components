@@ -1,7 +1,15 @@
 package org.geworkbench.components.annotations;
 
-import java.util.Observable;
-import java.util.Observer; 
+import gov.nih.nci.cabio.domain.Agent;
+import gov.nih.nci.cabio.domain.DiseaseOntology;
+import gov.nih.nci.cabio.domain.Evidence;
+import gov.nih.nci.cabio.domain.Gene;
+import gov.nih.nci.cabio.domain.GeneDiseaseAssociation;
+import gov.nih.nci.cabio.domain.GeneFunctionAssociation;
+import gov.nih.nci.system.applicationservice.ApplicationException;
+import gov.nih.nci.system.applicationservice.ApplicationService;
+import gov.nih.nci.system.client.ApplicationServiceProvider;
+
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -20,13 +28,18 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.Iterator;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
+import java.util.Observable;
+import java.util.Observer;
 
-import javax.swing.Box; 
+import javax.swing.Box;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -43,6 +56,18 @@ import javax.swing.JToolBar;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 
+import org.apache.batik.bridge.DefaultExternalResourceSecurity;
+import org.apache.batik.bridge.DefaultScriptSecurity;
+import org.apache.batik.bridge.ExternalResourceSecurity;
+import org.apache.batik.bridge.ScriptSecurity;
+import org.apache.batik.dom.svg.SAXSVGDocumentFactory;
+import org.apache.batik.swing.JSVGCanvas;
+import org.apache.batik.swing.svg.LinkActivationEvent;
+import org.apache.batik.swing.svg.LinkActivationListener;
+import org.apache.batik.swing.svg.SVGUserAgent;
+import org.apache.batik.util.ParsedURL;
+import org.apache.batik.util.XMLResourceDescriptor;
+import org.apache.batik.util.gui.JErrorPane;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
@@ -71,25 +96,11 @@ import org.geworkbench.util.ProgressBar;
 import org.geworkbench.util.annotation.Pathway;
 import org.jfree.ui.SortableTable;
 import org.jfree.ui.SortableTableModel;
-
-import org.apache.batik.bridge.DefaultExternalResourceSecurity;
-import org.apache.batik.bridge.DefaultScriptSecurity;
-import org.apache.batik.bridge.ExternalResourceSecurity;
-import org.apache.batik.bridge.ScriptSecurity;
-import org.apache.batik.dom.svg.SAXSVGDocumentFactory;
-import org.apache.batik.swing.JSVGCanvas;
-import org.apache.batik.swing.svg.LinkActivationEvent;
-import org.apache.batik.swing.svg.LinkActivationListener;
-import org.apache.batik.swing.svg.SVGUserAgent;
-import org.apache.batik.util.ParsedURL;
-import org.apache.batik.util.XMLResourceDescriptor;
-import org.apache.batik.util.gui.JErrorPane;
- 
-import org.w3c.dom.*;
-
- 
-import java.io.StringReader;
-import java.util.Locale;
+import org.w3c.dom.Attr;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
  
  
 /**
@@ -113,33 +124,52 @@ import java.util.Locale;
  * that this gene's product participates in.
  * 
  * @author manjunath at genomecenter dot columbia dot edu
- * @version $Id: AnnotationsPanel.java,v 1.33 2008-10-28 16:55:18 keshav Exp $
+ * @version $Id: AnnotationsPanel.java,v 1.34 2009-06-11 21:07:21 chiangy Exp $
  * 
  * 
  */
 @AcceptTypes({DSMicroarraySet.class})
 public class AnnotationsPanel implements VisualPlugin, Observer{
     static Log log = LogFactory.getLog(AnnotationsPanel.class);
-    private boolean stopAlgorithm =false;
-    
-    private class TableModel extends SortableTableModel {
+    public static final int COL_MARKER = 0;
+    public static final int COL_GENE = 1;
+    public static final int COL_DISEASE = 2;
+    public static final int COL_ROLE = 3;
+    public static final int COL_SENTENCE = 4;
+    public static final int COL_PUBMED = 5;
 
-        public static final int COL_MARKER = 0;
-        public static final int COL_GENE = 1;
-        public static final int COL_PATHWAY = 2;
+    private boolean stopAlgorithm = false;
+
+	private String wrapInHTML(String s) {
+		return "<html><a href=\"__noop\">" + s + "</a></html>";
+	}
+
+	private String unwrapFromHTML(String s) {
+		return s.substring("<html><a href=\"__noop\">".length(), s.length()
+				- "</a></html>".length());
+	}
+
+	private class TableModel extends SortableTableModel {
 
         private MarkerData[] markerData;
         private GeneData[] geneData;
         private PathwayData[] pathwayData;
-
+        private DiseaseData[] diseaseData;
+        private RoleData[] roleData;
+        private SentenceData[] sentenceData;
+        private PubmedData[] pubmedData;
+        
         private Integer[] indices;
         private int size;
 
-        public TableModel(MarkerData[] markerData, GeneData[] geneData, PathwayData[] pathwayData) {
+        public TableModel(MarkerData[] markerData, GeneData[] geneData, DiseaseData[] diseaseData, RoleData[] roleData, SentenceData[] sentenceData, PubmedData[] pubmedData) {
             this.markerData = markerData;
             this.geneData = geneData;
-            this.pathwayData = pathwayData;
-            size = pathwayData.length;
+            this.diseaseData = diseaseData;
+            this.roleData = roleData;
+            this.sentenceData = sentenceData;
+            this.pubmedData = pubmedData;
+            size = diseaseData.length;
             indices = new Integer[size];
             resetIndices();
         }
@@ -147,7 +177,10 @@ public class AnnotationsPanel implements VisualPlugin, Observer{
         public TableModel() {
             this.markerData = new MarkerData[0];
             this.geneData = new GeneData[0];
-            this.pathwayData = new PathwayData[0];
+            this.diseaseData = new DiseaseData[0];
+            this.roleData = new RoleData[0];
+            this.sentenceData = new SentenceData[0];
+            this.pubmedData = new PubmedData[0];
             size = 0;
             indices = new Integer[0];
         }
@@ -164,12 +197,7 @@ public class AnnotationsPanel implements VisualPlugin, Observer{
         }
 
         public int getColumnCount() {
-            return 3;
-        }
-
-        private String wrapInHTML(String s) {
-//            return "<html><u><font color=\"#0000FF\">" + s + "</font></u></html>";
-            return "<html><a href=\"__noop\">" + s + "</a></html>";
+            return 6;
         }
 
         public Object getValueAt(int rowIndex, int columnIndex) {
@@ -178,15 +206,21 @@ public class AnnotationsPanel implements VisualPlugin, Observer{
                     return markerData[indices[rowIndex]].name;
                 case COL_GENE:
                     return wrapInHTML(geneData[indices[rowIndex]].name);
-                case COL_PATHWAY:
-                    return wrapInHTML(pathwayData[indices[rowIndex]].name);
+                case COL_DISEASE:
+                    return diseaseData[indices[rowIndex]].name;
+                case COL_ROLE:
+                    return roleData[indices[rowIndex]].role;
+                case COL_SENTENCE:
+                    return sentenceData[indices[rowIndex]].sentence;
+                case COL_PUBMED:
+                    return wrapInHTML(pubmedData[indices[rowIndex]].id);
             }
             return null;
         }
 
         public void sortByColumn(final int column, final boolean ascending) {
             resetIndices();
-            final Comparable[][] columns = {markerData, geneData, pathwayData};
+            final Comparable[][] columns = {markerData, geneData, diseaseData, roleData, sentenceData, pubmedData};
             Comparator<Integer> comparator = new Comparator<Integer>() {
                 public int compare(Integer i, Integer j) {
                     if (ascending) {
@@ -212,15 +246,15 @@ public class AnnotationsPanel implements VisualPlugin, Observer{
                     break;
                 case COL_GENE:
                     GeneData gene = geneData[indices[rowIndex]];
-                    if (gene.annotation.getCGAPGeneURLs().size() > 0) {
-                        activateGene(gene);
-                    }
+//                    if (gene.getCGAPGeneURLs().size() > 0) {
+//                        activateGene(gene);
+//                    }
                     break;
-                case COL_PATHWAY:
-                    PathwayData pathway = pathwayData[indices[rowIndex]];
+                case COL_DISEASE:
+                	DiseaseData disease = diseaseData[indices[rowIndex]];
                     // Could be the blank "(none)" pathway.
-                    if (pathway.pathway != null) {
-                        activatePathway(pathway);
+                    if (disease.diseaseOntology != null) {
+                        //activatePathway(pathway);
                     }
                     break;
             }
@@ -246,13 +280,27 @@ public class AnnotationsPanel implements VisualPlugin, Observer{
     }
 
     private static class GeneData implements Comparable {
+        /**
+         * Web URL prefix for obtaining Locus Link annotation
+         */
+        private static final String LOCUS_LINK_PREFIX = "http://www.ncbi.nlm.nih.gov/LocusLink/LocRpt.cgi?l=";
+        /**
+         * Web URL prefix for obtaining CGAP annotation
+         */
+        private static final String GENE_FINDER_PREFIX = "http://cgap.nci.nih.gov/Genes/GeneInfo?";
+        /**
+         * Web URL prefix currently being used
+         */
+        public static final String PREFIX_USED = GENE_FINDER_PREFIX;
+        private static final String HUMAN_ABBREV = "Hs";
+        private static final String MOUSE_ABBREV = "Mm";
 
         public String name;
-        public GeneAnnotation annotation;
-
-        public GeneData(String name, GeneAnnotation annotation) {
+        public Gene gene;
+        
+        public GeneData(String name, Gene gene) {
             this.name = name;
-            this.annotation = annotation;
+            this.gene = gene;
         }
 
         public int compareTo(Object o) {
@@ -261,6 +309,7 @@ public class AnnotationsPanel implements VisualPlugin, Observer{
             }
             return -1;
         }
+
     }
 
     private static class PathwayData implements Comparable {
@@ -276,6 +325,88 @@ public class AnnotationsPanel implements VisualPlugin, Observer{
         public int compareTo(Object o) {
             if (o instanceof PathwayData) {
                 return name.compareTo(((PathwayData) o).name);
+            }
+            return -1;
+        }
+    }
+
+    private static class DiseaseData implements Comparable {
+
+        public String name;
+        public DiseaseOntology diseaseOntology;
+
+        public DiseaseData(String name, DiseaseOntology diseaseOntology) {
+            this.name = name;
+            this.diseaseOntology = diseaseOntology;
+        }
+
+        public int compareTo(Object o) {
+            if (o instanceof DiseaseData) {
+                return name.compareTo(((DiseaseData) o).name);
+            }
+            return -1;
+        }
+    }
+    private static class RoleData implements Comparable {
+
+        public String role;
+
+        public RoleData(String role) {
+            this.role = role;
+        }
+
+        public int compareTo(Object o) {
+            if (o instanceof RoleData) {
+                return role.compareTo(((RoleData) o).role);
+            }
+            return -1;
+        }
+    }
+    private static class SentenceData implements Comparable {
+
+        public String sentence;
+
+        public SentenceData(String sentence) {
+            this.sentence = sentence;
+        }
+
+        public int compareTo(Object o) {
+            if (o instanceof SentenceData) {
+                return sentence.compareTo(((SentenceData) o).sentence);
+            }
+            return -1;
+        }
+    }
+
+    private static class PubmedData implements Comparable {
+
+        public String id;
+
+        public PubmedData(String id) {
+            this.id = id;
+        }
+
+        public int compareTo(Object o) {
+            if (o instanceof PubmedData) {
+                return id.compareTo(((PubmedData) o).id);
+            }
+            return -1;
+        }
+    }
+
+    private static class AgentData implements Comparable {
+
+        public String name;
+        public Agent agent;
+
+        public AgentData(String name, Agent agent) {
+            this.name = name;
+            this.agent = agent;
+        }
+
+        public int compareTo(Object o) {
+            if (o instanceof AgentData) {
+                return name.compareTo(((AgentData) o).name);
             }
             return -1;
         }
@@ -316,8 +447,8 @@ public class AnnotationsPanel implements VisualPlugin, Observer{
         
         annotationsPanel.setLayout(borderLayout1);
         showPanels.setHorizontalAlignment(SwingConstants.CENTER);
-        showPanels.setText("Retrieve annotations");
-        showPanels.setToolTipText("Retrieve gene and pathway information for markers in activated panels");
+        showPanels.setText("Retrieve Disease Information");
+        showPanels.setToolTipText("Retrieve gene and disease information for markers in activated panels");
         showPanels.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 showPanels_actionPerformed(e);
@@ -342,7 +473,10 @@ public class AnnotationsPanel implements VisualPlugin, Observer{
         table = new SortableTable(model);
         table.getColumnModel().getColumn(0).setHeaderValue("Marker");
         table.getColumnModel().getColumn(1).setHeaderValue("Gene");
-        table.getColumnModel().getColumn(2).setHeaderValue("Pathway");
+        table.getColumnModel().getColumn(2).setHeaderValue("Disease");
+        table.getColumnModel().getColumn(3).setHeaderValue("Role");
+        table.getColumnModel().getColumn(4).setHeaderValue("Sentence");
+        table.getColumnModel().getColumn(5).setHeaderValue("Pubmed");
         table.setCellSelectionEnabled(false);
         table.setRowSelectionAllowed(false);
         table.setColumnSelectionAllowed(false);
@@ -353,6 +487,28 @@ public class AnnotationsPanel implements VisualPlugin, Observer{
                 if ((column >= 0) && (row >= 0)) {
                     model.activateCell(row, column);
                 }
+                if ((column == COL_GENE)) {
+                    String value = (String) table.getValueAt(row, column);
+                    value=unwrapFromHTML(value);
+                    String address = "http://www.genecards.org/cgi-bin/carddisp.pl?gene="+value;
+                    try {
+						BrowserLauncher.openURL(address);
+					} catch (IOException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+                }
+                if ((column == COL_PUBMED)) {
+                    String value = (String) table.getValueAt(row, column);
+                    value=unwrapFromHTML(value);
+                    String address = "http://www.ncbi.nlm.nih.gov/pubmed/"+value;
+                    try {
+						BrowserLauncher.openURL(address);
+					} catch (IOException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+                }
             }
         });
         table.addMouseMotionListener(new MouseMotionAdapter() {
@@ -362,7 +518,7 @@ public class AnnotationsPanel implements VisualPlugin, Observer{
                 int column = table.columnAtPoint(e.getPoint());
                 int row = table.rowAtPoint(e.getPoint());
                 if ((column >= 0) && (row >= 0)) {
-                    if ((column == TableModel.COL_GENE) || (column == TableModel.COL_PATHWAY)) {
+                    if ((column == COL_GENE) || (column == COL_PUBMED)) {
                         if (!isHand) {
                             isHand = true;
                             table.setCursor(new Cursor(Cursor.HAND_CURSOR));
@@ -399,7 +555,7 @@ public class AnnotationsPanel implements VisualPlugin, Observer{
     private void showAnnotation() {
         if (criteria == null) {
             try {
-                criteria = new GeneSearchCriteriaImpl();
+//                criteria = new GeneSearchCriteriaImpl();
             } catch (Exception e) {
                 log.error("Exception: could not create caBIO search criteria in Annotation Panel. Exception is: ");
                 e.printStackTrace();
@@ -409,20 +565,34 @@ public class AnnotationsPanel implements VisualPlugin, Observer{
 
         pathways = new Pathway[0];
         try {
-            Runnable query = new Runnable() {         	 
-            	 
+            Runnable query = new Runnable() {
+            	
+            	//FIXME: error thrown from caBio should be handled by giving user a popup dialog. and disable the progress bar.
             	public void run() {
             		ProgressBar pb = ProgressBar.create(ProgressBar.INDETERMINATE_TYPE);
                     pb.addObserver(getAnnotationsPanel());
                     pb.setMessage("Connecting to server...");
                     ArrayList<MarkerData> markerData = new ArrayList<MarkerData>();
                     ArrayList<GeneData> geneData = new ArrayList<GeneData>();
-                    ArrayList<PathwayData> pathwayData = new ArrayList<PathwayData>();
+                    ArrayList<DiseaseData> diseaseData = new ArrayList<DiseaseData>();
+                    ArrayList<RoleData> roleData = new ArrayList<RoleData>();
+                    ArrayList<SentenceData> sentenceData = new ArrayList<SentenceData>();
+                    ArrayList<PubmedData> pubmedData = new ArrayList<PubmedData>();
                     if (selectedMarkerInfo != null) {
                         pb.setTitle("Querying caBIO..");
                         pb.start();           
-                                              
-                        int index = 0;                       
+
+                		ApplicationService appService = null;
+                		try {
+                			Thread.currentThread().setContextClassLoader(this.getClass().getClassLoader());
+                			appService = ApplicationServiceProvider.getApplicationService();
+                		} catch (Exception e) {
+                			// TODO Auto-generated catch block
+                			e.printStackTrace();
+                		}
+
+                        int index = 0;
+                        //TODO: to save network communication time, we should query only once by submitting the list.
                         for (int i = 0; i < selectedMarkerInfo.size(); i++) {
                              
                            if (stopAlgorithm == true)
@@ -433,54 +603,37 @@ public class AnnotationsPanel implements VisualPlugin, Observer{
                             
                             String geneName = selectedMarkerInfo.get(i).getGeneName();
                             String probeLabel = selectedMarkerInfo.get(i).getLabel();
-                            GeneAnnotation[] annotations;
-                            if ("".equals(geneName) || geneName.equals(probeLabel)) {
-//                                useGeneName = false;
-                                annotations = criteria.searchByProbeId(probeLabel);
-                            } else {
-                                annotations = criteria.searchByName(geneName);
-                            }
-
-                            if (annotations == null )
-                            	return;
                             
-                            pb.setMessage("Getting Marker Annotation and Pathways: " + selectedMarkerInfo.get(i).getLabel());
-                            MarkerData marker = new MarkerData(selectedMarkerInfo.get(i));
-                                                     
-                            if ( annotations.length > 0) {
-                                for (int j = 0; j < annotations.length; j++) {
-                                    if (stopAlgorithm == true)                       
-                                    {
-                                       stopAlgorithm(pb);
-                                        return;
-                                    }
-                                    
-                                    Pathway[] pways = annotations[j].getPathways();
-                                    Pathway[] temp = new Pathway[pathways.length + pways.length];
-                                    System.arraycopy(pathways, 0, temp, 0, pathways.length);
-                                    System.arraycopy(pways, 0, temp, pathways.length, pways.length);
-                                    pathways = temp;
-                                    //geneAnnotation +=
-                                    //  "<table width=\"90%\" border=\"1\" cellspacing=\"0\" "
-                                    //+ "cellpadding=\"2\"><tr valign=\"top\">";
-                                    GeneData gene = new GeneData(annotations[j].getGeneName(), annotations[j]);
-                                    if (pways.length > 0) {
-                                        for (int k = 0; k < pways.length; k++) {
-                                            pathwayData.add(new PathwayData(pways[k].getPathwayName(), pways[k]));
-                                            geneData.add(gene);
-                                            markerData.add(marker);
-                                        }
-                                    } else {
-                                        pathwayData.add(new PathwayData("", null));
-                                        geneData.add(gene);
-                                        markerData.add(marker);
-                                    }
-                                }
-                            } else {
-                                pathwayData.add(new PathwayData("", null));
-                                geneData.add(new GeneData("", null));
-                                markerData.add(marker);
-                            }
+                    		String geneSymbol = geneName;
+                    		//int uniGeneId = marker.getUnigene().getUnigeneId();
+                    		Gene gene = new Gene();
+                    		gene.setSymbol(geneSymbol);
+
+                    		List<Object> results2 = null;
+                    		try {
+                    			results2 = appService.search(GeneFunctionAssociation.class, gene);
+                    		} catch (ApplicationException e) {
+                    			// TODO Auto-generated catch block
+                    			e.printStackTrace();
+                    		}
+
+                    		System.out.println("\nDisease associated with Gene: " + geneSymbol);
+                    		for (Object gfa : results2) {
+                    			if (gfa instanceof GeneDiseaseAssociation) {
+                    				GeneDiseaseAssociation gda = (GeneDiseaseAssociation) gfa;
+                    				markerData.add(new MarkerData(selectedMarkerInfo.get(i)));
+                    				geneData.add(new GeneData(gda.getGene().getSymbol(),gda.getGene()));
+                    				System.out.println("  Disease: " + gda.getDiseaseOntology().getName());
+                    				diseaseData.add(new DiseaseData(gda.getDiseaseOntology().getName(),gda.getDiseaseOntology()));
+                    				System.out.println("    Role: " + gda.getRole());
+                    				Evidence e = gda.getEvidence();
+                    				System.out.println("    Sentence: "+e.getSentence());
+                    				System.out.println("    PubmedId:"+e.getPubmedId());
+                    				roleData.add(new RoleData(gda.getRole()));
+                    				sentenceData.add(new SentenceData(e.getSentence()));
+                    				pubmedData.add(new PubmedData(Integer.toString(e.getPubmedId())));
+                    			}
+                    		}
                         } 
                         
                         pb.stop();
@@ -489,13 +642,19 @@ public class AnnotationsPanel implements VisualPlugin, Observer{
                     }
                     MarkerData[] markers = markerData.toArray(new MarkerData[0]);
                     GeneData[] genes = geneData.toArray(new GeneData[0]);
-                    PathwayData[] pathways = pathwayData.toArray(new PathwayData[0]);
-                    model = new TableModel(markers, genes, pathways);
-                    annotationTableList.put(new Integer(maSet.hashCode()),  new TableModel(markers, genes, pathways));
+                    DiseaseData[] diseases = diseaseData.toArray(new DiseaseData[0]);
+                    RoleData[] roles = roleData.toArray(new RoleData[0]);
+                    SentenceData[] sentences = sentenceData.toArray(new SentenceData[0]);
+                    PubmedData[] pubmeds = pubmedData.toArray(new PubmedData[0]);
+                    model = new TableModel(markers, genes, diseases, roles, sentences, pubmeds);
+                    //annotationTableList.put(new Integer(maSet.hashCode()),  new TableModel(markers, genes, diseases, pubmeds));
                     table.setSortableModel(model);
                     table.getColumnModel().getColumn(0).setHeaderValue("Marker");
                     table.getColumnModel().getColumn(1).setHeaderValue("Gene");
-                    table.getColumnModel().getColumn(2).setHeaderValue("Pathway");
+                    table.getColumnModel().getColumn(2).setHeaderValue("Disease");
+                    table.getColumnModel().getColumn(3).setHeaderValue("Role");
+                    table.getColumnModel().getColumn(4).setHeaderValue("Sentence");
+                    table.getColumnModel().getColumn(5).setHeaderValue("Pubmed");
                     SwingUtilities.invokeLater(new Runnable() {
                         public void run() {
                             table.getTableHeader().repaint();
@@ -516,7 +675,10 @@ public class AnnotationsPanel implements VisualPlugin, Observer{
         table.setSortableModel(new TableModel());
         table.getColumnModel().getColumn(0).setHeaderValue("Marker");
         table.getColumnModel().getColumn(1).setHeaderValue("Gene");
-        table.getColumnModel().getColumn(2).setHeaderValue("Pathway");
+        table.getColumnModel().getColumn(2).setHeaderValue("Disease");
+        table.getColumnModel().getColumn(3).setHeaderValue("Role");
+        table.getColumnModel().getColumn(4).setHeaderValue("Sentence");
+        table.getColumnModel().getColumn(5).setHeaderValue("Pubmed");
         table.getTableHeader().revalidate();
         annotationTableList.put(new Integer(maSet.hashCode()),  new TableModel());
     }
@@ -536,7 +698,7 @@ public class AnnotationsPanel implements VisualPlugin, Observer{
     private void activateGene(final GeneData gene) {
         JPopupMenu popup = new JPopupMenu();
 //        JPopupMenu CGAPPopup = new JPopupMenu("CGAP");
-        java.util.List<GeneAnnotationImpl.CGAPUrl> cgapGeneURLs = gene.annotation.getCGAPGeneURLs();
+        java.util.List<GeneAnnotationImpl.CGAPUrl> cgapGeneURLs = null;//gene.annotation.getCGAPGeneURLs();
         for (final GeneAnnotationImpl.CGAPUrl cgapUrl : cgapGeneURLs) {
             JMenuItem jMenuItem = new JMenuItem("CGAP > " + cgapUrl.getOrganismName());
             jMenuItem.addActionListener(new ActionListener() {
@@ -812,7 +974,10 @@ public class AnnotationsPanel implements VisualPlugin, Observer{
         	table.setSortableModel(model);
         	table.getColumnModel().getColumn(0).setHeaderValue("Marker");
             table.getColumnModel().getColumn(1).setHeaderValue("Gene");
-            table.getColumnModel().getColumn(2).setHeaderValue("Pathway");
+            table.getColumnModel().getColumn(2).setHeaderValue("Disease");
+            table.getColumnModel().getColumn(3).setHeaderValue("Role");
+            table.getColumnModel().getColumn(4).setHeaderValue("Sentence");
+            table.getColumnModel().getColumn(5).setHeaderValue("Pubmed");
             table.getTableHeader().revalidate();
              
         }           
@@ -821,7 +986,10 @@ public class AnnotationsPanel implements VisualPlugin, Observer{
         	table.setSortableModel(new TableModel());
         	table.getColumnModel().getColumn(0).setHeaderValue("Marker");
             table.getColumnModel().getColumn(1).setHeaderValue("Gene");
-            table.getColumnModel().getColumn(2).setHeaderValue("Pathway");
+            table.getColumnModel().getColumn(2).setHeaderValue("Disease");
+            table.getColumnModel().getColumn(3).setHeaderValue("Role");
+            table.getColumnModel().getColumn(4).setHeaderValue("Sentence");
+            table.getColumnModel().getColumn(5).setHeaderValue("Pubmed");
             table.getTableHeader().revalidate();
             jTabbedPane1.setSelectedIndex(0);
              

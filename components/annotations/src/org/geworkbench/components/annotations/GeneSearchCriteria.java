@@ -18,6 +18,7 @@ public interface GeneSearchCriteria {
      * @param name accession
      */
     GeneAnnotation[] searchByName(String name);
+    GeneAnnotation[] searchByName(String name, String organism);
 
     /**
      * Sets a BioCarta identifier to be a Search criterion
