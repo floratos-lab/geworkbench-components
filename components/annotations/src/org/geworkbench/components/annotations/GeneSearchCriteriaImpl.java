@@ -1,14 +1,15 @@
 package org.geworkbench.components.annotations;
 
 import gov.nih.nci.cabio.domain.Gene;
-import gov.nih.nci.cabio.domain.GenericReporter;
 import gov.nih.nci.cabio.domain.Pathway;
 import gov.nih.nci.system.applicationservice.ApplicationException;
-import gov.nih.nci.system.applicationservice.ApplicationService; 
+import gov.nih.nci.system.applicationservice.ApplicationService;
 import gov.nih.nci.system.client.ApplicationServiceProvider;
+
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
+
+import javax.naming.OperationNotSupportedException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -88,19 +89,24 @@ public class GeneSearchCriteriaImpl implements GeneSearchCriteria {
 		}
 	}
 
-	public GeneAnnotation[] searchByProbeId(String probeId) {
-		GenericReporter reporter = new GenericReporter();
-		reporter.setName(probeId);
+	public GeneAnnotation[] searchByName(String name, String organism) {
+		Gene gene = new Gene();
+		gene.setSymbol(name);
 
 		try {
-			 
-			List results = appService.search(Gene.class, reporter);			 
-			return GeneAnnotationImpl.toUniqueArray(results);
+		 
+			List results = appService.search(Gene.class, gene);			
+			return GeneAnnotationImpl.toUniqueArray(results, organism);
 			
 		} catch (ApplicationException e) {
 			log.error(e);
 			return null;
 		}
+	}
+
+	public GeneAnnotation[] searchByProbeId(String probeId) {
+		log.error(new OperationNotSupportedException("No searchByProbeId implemented for caBio 4.2 yet."));
+		return null;
 	}
 
 	public GeneAnnotation[] getGenesInPathway(

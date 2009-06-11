@@ -80,12 +80,14 @@ public class GeneAnnotationImpl implements GeneAnnotation {
     public GeneAnnotationImpl() {
     }
 
+    private Gene gene = null;
     /**
      * Constructor
      *
      * @param gene <code>Gene</code>
      */
     public GeneAnnotationImpl(Gene gene) {
+    	this.gene = gene;
         name = gene.getFullName();
         symbol = gene.getSymbol();
 //        description = gene.getLocusLinkSummary();
@@ -245,6 +247,23 @@ public class GeneAnnotationImpl implements GeneAnnotation {
         return uniqueGenes.toArray(new GeneAnnotation[]{});
     }
 
+    public static GeneAnnotation[] toUniqueArray(List<gov.nih.nci.cabio.domain.Gene> geneList, String organism) {
+        Set<GeneAnnotation> uniqueGenes = new HashSet<GeneAnnotation>();
+        for (int i = 0; i < geneList.size(); i++) {
+        	if ( stopAlgorithm == true )
+        	{        		 
+        		stopAlgorithm = false;
+        		return null;
+        	}
+        	Gene g = geneList.get(i);
+        	String test = g.getTaxon().getAbbreviation();
+        	if((g != null) && (g.getSymbol() != null) && (g.getTaxon().getAbbreviation().equals(organism))){
+	            uniqueGenes.add(new GeneAnnotationImpl(g));
+        	}
+        }
+        return uniqueGenes.toArray(new GeneAnnotation[]{});
+    }
+
     public boolean equals(Object object) {
         GeneAnnotation other = (GeneAnnotation) object;
         return symbol.equals(other.getGeneSymbol());
@@ -289,6 +308,10 @@ public class GeneAnnotationImpl implements GeneAnnotation {
             this.organismName = organismName;
         }
     }
+
+	public Gene getGene() {
+		return gene;
+	}
 
 }
 

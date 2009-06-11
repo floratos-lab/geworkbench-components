@@ -1,8 +1,7 @@
 package org.geworkbench.components.annotations;
 
-import org.geworkbench.util.annotation.Pathway;
+import gov.nih.nci.cabio.domain.Gene;
 
-import java.net.URL;
 import java.util.List;
 
 /**
@@ -21,7 +20,7 @@ public interface GeneAnnotation {
      * @return Gene name
      */
     String getGeneName();
-
+    Gene getGene();
     /**
      * Gets Gene Description
      *
