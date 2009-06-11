@@ -4,6 +4,8 @@ import java.util.Calendar;
 import java.io.FileWriter;
 import java.net.InetAddress;
 import java.io.File;
+import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -17,7 +19,7 @@ public class ObjectLogger {
 
 	private Log log = LogFactory.getLog(this.getClass());
 
-	public ObjectLogger(String analysisName, String dataSetName, String transactionId, String username, boolean genspace) {
+	public ObjectLogger(String analysisName, String dataSetName, String transactionId, String username, boolean genspace, Map parameters) {
 		
 		try {
 			File f = new File("geworkbench_log.xml");
@@ -46,6 +48,25 @@ public class ObjectLogger {
 			fw.write("\n\t\t\t<minute>" + c.get(Calendar.MINUTE) + "</minute>");
 			fw.write("\n\t\t\t<second>" + c.get(Calendar.SECOND) + "</second>");
 			fw.write("\n\t\t</time>");
+			
+			//log the parameters
+			Set keys = parameters.keySet();
+			
+			fw.write("\n\t\t<parameters count=\"" + keys.size() + "\">");
+			int count = 0;
+			
+			for (Object key : keys) {
+				Object value = parameters.get(key);
+				fw.write("\n\t\t\t<parameter id=\"" + count + "\">");
+				fw.write("\n\t\t\t\t<key>" + key.toString() + "</key>");
+				fw.write("\n\t\t\t\t<value>" + value.toString() + "</value>");
+				fw.write("\n\t\t\t</parameter>");
+				
+				count++;
+			}
+			
+			fw.write("\n\t\t</parameters>");
+			
 			fw.write("\n\t</metric>\n");
 			//fw.write("\n</measurement>\n");
 			
