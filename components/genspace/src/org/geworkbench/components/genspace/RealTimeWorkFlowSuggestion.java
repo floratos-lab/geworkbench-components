@@ -141,7 +141,7 @@ public class RealTimeWorkFlowSuggestion extends JPanel implements VisualPlugin, 
 		//the info panel
 		workflowInfoPanel.add(new JScrollPane(infoArea));
 		infoArea.setFont(new Font( "Verdana", Font.PLAIN, 10 ));
-		infoArea.append("You haven't use any tools!\n");
+		infoArea.append("You haven't used any tools!\n");
 		infoArea.append("Next best rated tool to use: none.");
 
 
@@ -212,7 +212,7 @@ public class RealTimeWorkFlowSuggestion extends JPanel implements VisualPlugin, 
 
 		}
 		if (usedWorkFlowToday.size() == 0) {
-			finishedWF = "NO finished work flows!";
+			finishedWF = "No finished work flows!";
 		}
 
 
@@ -273,7 +273,7 @@ public class RealTimeWorkFlowSuggestion extends JPanel implements VisualPlugin, 
 		}
 		statBDisplay = statBDisplay.replace(",", " -> ");
 		if (statBValue.size() == 0) {
-			statBDisplay = "NO super work flows!";
+			statBDisplay = "No super work flows!";
 		}
 
 
@@ -313,7 +313,7 @@ public class RealTimeWorkFlowSuggestion extends JPanel implements VisualPlugin, 
 
 		}
 		if (statCValue.size() == 0) {
-			statCDisplay = "NO next steps!";
+			statCDisplay = "No next steps!";
 		}
 
 
@@ -351,9 +351,9 @@ public class RealTimeWorkFlowSuggestion extends JPanel implements VisualPlugin, 
 		//infoArea.append("Your current workflow activity so far: \n" + cwfSeparate + "\n\n");
 		//infoArea.append(finishedWF + "\n\n\n");
 
-		infoArea.append("THE FOLLOWING IS THE SUGGESTION INFORMATION FOR YOUR CURRENT WORK FLOW: " + "\n");
+		infoArea.append("THE FOLLOWING ARE THE SUGGESTIONS FOR YOUR CURRENT WORK FLOW: " + "\n");
 		infoArea.append("-----------------------------------------------------------------------\n\n");
-		infoArea.append("HOSTORICAL TIMES OF USE:" + "\n");
+		infoArea.append("HISTORICAL TIMES OF USE:" + "\n");
 		infoArea.append("Your current work flow has been used " + statAValue + " times in history." + "\n\n");
 		infoArea.append("HISTORICAL SUPER FLOWS: " + "\n");
 		infoArea.append(statBDisplay + "\n\n");
