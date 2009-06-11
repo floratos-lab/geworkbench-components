@@ -1,12 +1,12 @@
 classes
 savedParams
+normalizationpanel.properties
 housekeepinggenenormalizer.properties
 logtransformationnormalizer.properties
 markercenteringnormalizer.properties
 markermeanvariancenormalizer.properties
 microarraycenteringnormalizer.properties
 missingvaluenormalizer.properties
-normalizationpanel.properties
 quantilenormalizer.properties
 thresholdnormalizer.properties
 
