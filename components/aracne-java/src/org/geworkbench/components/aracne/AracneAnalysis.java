@@ -533,6 +533,11 @@ public class AracneAnalysis extends AbstractGridAnalysis implements
 		bisonParameters.put("bootstrapNumber", bootstrapNumber);
 		double consensusThreshold = paramPanel.getConsensusThreshold();
 		bisonParameters.put("consensusThreshold", consensusThreshold);
+		
+		String algorithm = AracneParamPanel.FIXED_BANDWIDTH;
+		if(paramPanel.getAlgorithm().equals(Parameter.ALGORITHM.ADAPTIVE_PARTITIONING))
+			algorithm = AracneParamPanel.ADAPTIVE_PARTITIONING;
+		bisonParameters.put("algorithm", algorithm);
 
 		return bisonParameters;
 	}
