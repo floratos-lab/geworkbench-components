@@ -2,7 +2,7 @@ classes
 conf
 endpointReferenceTest.xml
 savedParams
-analysisPanel.properties
+analysispanel.properties
 masterregulatoranalysis.properties
 masterregulatorviewer.properties
 ttestanalysis.properties
