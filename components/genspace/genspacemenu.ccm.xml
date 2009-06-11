@@ -14,6 +14,7 @@
 		xsi:noNamespaceSchemaLocation="Descriptor Schema.xsd">
 		<component class="org.geworkbench.engine.config.GenSpaceMenu">
 			<menu-item path="Tools.genSpace" mode="always" var="Tools.genSpace" />
+			<online-help helpSet="org/geworkbench/components/genspace/help/genspaceHelpSet.hs"/>
 		</component>
 	</component-descriptor>
 
