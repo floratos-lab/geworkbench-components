@@ -44,7 +44,7 @@ import edu.columbia.c2b2.aracne.Parameter;
 /**
  * @author mhall
  * @author yc2480
- * @version $Id: AracneParamPanel.java,v 1.12 2009-06-05 18:32:41 oshteynb Exp $
+ * @version $Id: AracneParamPanel.java,v 1.13 2009-06-12 21:13:26 oshteynb Exp $
  */
 public class AracneParamPanel extends AbstractSaveableParameterPanel {
 	private static final long serialVersionUID = 4023695671471667725L;
@@ -571,8 +571,7 @@ public class AracneParamPanel extends AbstractSaveableParameterPanel {
 
 	public void maMode(){	//switch to microarray analysis mode
 		hubCombo.setEnabled(true);
-		kernelCombo.setEnabled(true);
-		kernelWidth.setEnabled(true);
+		setKernelCombo();
 
         String selectedItem = (String) hubCombo.getSelectedItem();
         if (HUB_ALL.equals(selectedItem)) {
