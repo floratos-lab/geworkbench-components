@@ -239,7 +239,7 @@ public class LoginManager {
 			
 
             if (socketBr.readLine().equalsIgnoreCase("true")) {
-            	System.out.println("Sent true!");
+            	//System.out.println("Sent true!");
             	return true;
             } else {
             	return false;

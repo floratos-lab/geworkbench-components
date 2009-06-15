@@ -242,7 +242,7 @@ public class GenSpaceLogin extends JPanel implements VisualPlugin, ActionListene
 		}
 
 
-		System.out.println("valid : " + valid);
+		//System.out.println("valid : " + valid);
 		return valid;
 	}
 
@@ -250,7 +250,7 @@ public class GenSpaceLogin extends JPanel implements VisualPlugin, ActionListene
 		boolean isCorrect = true;
 		char[] correctPassword = { 'b', 'u', 'g', 'a', 'b', 'o', 'o' };
 		String test = new String(input);
-		System.out.println("co : " + test);
+		//System.out.println("co : " + test);
 
 		if (input.length != correctPassword.length) {
 			isCorrect = false;
