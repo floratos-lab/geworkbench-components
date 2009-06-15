@@ -1,16 +1,17 @@
 <geaw-config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:noNamespaceSchemaLocation="ConfigurationFile Schema.xsd">
 
-	<component  name="Pudge Analysis"
-							class="org.geworkbench.components.pudge.PudgeAnalysis"
-							version="1.0"
-							author="C2B2"
-							authorURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Home"
-							toolURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Home"
-							description="====="
-							license="-----"
-	 />
+	<component name="Pudge Analysis"
+		class="org.geworkbench.components.pudge.PudgeAnalysis" version="1.0"
+		author="C2B2" authorURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Home"
+		toolURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Home"
+		description="=====" license="-----">
 
-    <plugin id="PudgeAnalysis" name="Pudge Analysis" class="org.geworkbench.components.pudge.PudgeAnalysis" source="pudge"/>
-    
+		<required-component class="org.geworkbench.components.pudge.PudgeBrowser" />
+
+	</component>
+
+	<plugin id="PudgeAnalysis" name="Pudge Analysis"
+		class="org.geworkbench.components.pudge.PudgeAnalysis" source="pudge" />
+
 </geaw-config>
