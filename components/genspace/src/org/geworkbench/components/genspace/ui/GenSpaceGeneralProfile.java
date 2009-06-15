@@ -88,39 +88,39 @@ public class GenSpaceGeneralProfile extends JPanel implements  VisualPlugin, Act
 		this.setLayout(new  GridLayout( 15, 2));
 
 
-		JLabel j2 = new JLabel("First Name:");
+		JLabel j2 = new JLabel("First Name");
 		fname = new JTextField(rbean.getFName(), 20);
 		add(j2);
 		add(fname);
 
-		JLabel j3 = new JLabel("Last Name:");
+		JLabel j3 = new JLabel("Last Name");
 		lname = new JTextField(rbean.getLName(), 20);
 		add(j3);
 		add(lname);
 
 
-		JLabel j4 = new JLabel("Lab Affiliation:");
+		JLabel j4 = new JLabel("Lab Affiliation *");
 		labaff= new JTextField(rbean.getLabAffliation(), 20);
 		add(j4);
 		add(labaff);
 
-		JLabel emailLabel = new JLabel("Email Address:");
+		JLabel emailLabel = new JLabel("Email Address");
 		email= new JTextField(rbean.getEmail(), 20);
 		add(emailLabel);
 		add(email);
 
-		JLabel phoneLabel = new JLabel("Phone:");
+		JLabel phoneLabel = new JLabel("Phone");
 		phone = new JTextField(rbean.getPhoneNumber(), 20);
 		add(phoneLabel);
 		add(phone);
 
 
-		JLabel j5 = new JLabel("Address 1:");
+		JLabel j5 = new JLabel("Address 1");
 		addr1 = new JTextField(rbean.getAddr1(), 20);
 		add(j5);
 		add(addr1);
 
-		JLabel j6 = new JLabel("Address 2:");
+		JLabel j6 = new JLabel("Address 2");
 		addr2 = new JTextField(rbean.getAddr2(), 20);
 		add(j6);
 		add(addr2);
@@ -135,7 +135,7 @@ public class GenSpaceGeneralProfile extends JPanel implements  VisualPlugin, Act
 		add(j9);
 		add(state);
 
-		JLabel j8 = new JLabel("ZIP Code:");
+		JLabel j8 = new JLabel("ZIP Code");
 		zipcode = new JTextField(rbean.getZipCode(), 20);
 		add(j8);
 		add(zipcode);
@@ -195,7 +195,7 @@ public class GenSpaceGeneralProfile extends JPanel implements  VisualPlugin, Act
 
 								JOptionPane.showMessageDialog(null, msg);
 
-								System.out.println("information updated");
+								//System.out.println("information updated");
 							}
 							else {
 								String msg="Information update failed";
