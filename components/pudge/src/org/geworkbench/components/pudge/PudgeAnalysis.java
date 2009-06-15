@@ -26,7 +26,7 @@ import org.geworkbench.bison.model.analysis.ProteinSequenceAnalysis;
  * Pudge analysis for protein fasta sequence
  * 
  * @author mw2518
- * @version $Id: PudgeAnalysis.java,v 1.2 2009-05-11 20:32:45 jiz Exp $
+ * @version $Id: PudgeAnalysis.java,v 1.3 2009-06-15 14:10:58 wangm Exp $
  */
 public class PudgeAnalysis extends AbstractGridAnalysis implements
 		ProteinSequenceAnalysis {
@@ -37,8 +37,8 @@ public class PudgeAnalysis extends AbstractGridAnalysis implements
 			+ "content-disposition: form-data; name=\"dir_name\"\r\n\r\n@\r\n--AaB03x\r\n"
 			+ "content-disposition: form-data; name=\"domain\"\r\n\r\nnone\r\n--AaB03x\r\n"
 			+ "content-disposition: form-data; name=\"start\"\r\n\r\nT\r\n--AaB03x\r\n"
-			+ "content-disposition: form-data; name=\"enterX\"\r\n\r\nselect_methods\r\n--AaB03x\r\n"
-			+ "content-disposition: form-data; name=\"get_fa\"\r\n\r\n\r\n--AaB03x\r\n"
+			+ "content-disposition: form-data; name=\"enter\"\r\n\r\nselect_methods\r\n--AaB03x\r\n"
+			+ "content-disposition: form-data; name=\"got1\"\r\n\r\n\r\n--AaB03x\r\n"
 			+ "content-disposition: form-data; name=\"file\"; filename=\"protein.fasta\"\r\nContent-Type: text/plain\r\n\r\n";
 
 	PudgeAnalysis() {
