@@ -26,14 +26,14 @@ import com.jgoodies.forms.layout.FormLayout;
  * Parameters panel used by the SkyLine
  * 
  * @author mw2518
- * @version $Id: SkyLineConfigPanel.java,v 1.6 2009-04-22 15:33:59 jiz Exp $
+ * @version $Id: SkyLineConfigPanel.java,v 1.7 2009-06-15 19:48:20 jiz Exp $
  * 
  */
 public class SkyLineConfigPanel extends AbstractSaveableParameterPanel
 		implements Serializable {
 	private Log log = LogFactory.getLog(this.getClass());
-	final String YES = "YES";
-	final String NO = "NO";
+	final static String YES = "YES";
+	final static String NO = "NO";
 	final String MIN_OPTION = "Minimum";
 	final String MAX_OPTION = "Maximum";
 	final String IGNORE_OPTION = "Ignore";
@@ -272,23 +272,23 @@ public class SkyLineConfigPanel extends AbstractSaveableParameterPanel
 
 	public String getrun_pb1Value() {
 		if (run_pb1ValueSelection.getSelectedItem().equals(YES))
-			return SkyLineAnalysis.YES;
+			return SkyLineConfigPanel.YES;
 		else
-			return SkyLineAnalysis.NO;
+			return SkyLineConfigPanel.NO;
 	}
 
 	public String getrun_pb2Value() {
 		if (run_pb2ValueSelection.getSelectedItem().equals(YES))
-			return SkyLineAnalysis.YES;
+			return SkyLineConfigPanel.YES;
 		else
-			return SkyLineAnalysis.NO;
+			return SkyLineConfigPanel.NO;
 	}
 
 	public String getfValue() {
 		if (fValueSelection.getSelectedItem().equals(YES))
-			return SkyLineAnalysis.YES;
+			return SkyLineConfigPanel.YES;
 		else
-			return SkyLineAnalysis.NO;
+			return SkyLineConfigPanel.NO;
 	}
 
 	public String getchosen_speciesValue() {
@@ -297,30 +297,30 @@ public class SkyLineConfigPanel extends AbstractSaveableParameterPanel
 
 	public String getrun_modellerValue() {
 		if (run_modellerValueSelection.getSelectedItem().equals(YES))
-			return SkyLineAnalysis.YES;
+			return SkyLineConfigPanel.YES;
 		else
-			return SkyLineAnalysis.NO;
+			return SkyLineConfigPanel.NO;
 	}
 
 	public String getrun_nestValue() {
 		if (run_nestValueSelection.getSelectedItem().equals(YES))
-			return SkyLineAnalysis.YES;
+			return SkyLineConfigPanel.YES;
 		else
-			return SkyLineAnalysis.NO;
+			return SkyLineConfigPanel.NO;
 	}
 
 	public String gethetatmValue() {
 		if (hetatmValueSelection.getSelectedItem().equals(YES))
-			return SkyLineAnalysis.YES;
+			return SkyLineConfigPanel.YES;
 		else
-			return SkyLineAnalysis.NO;
+			return SkyLineConfigPanel.NO;
 	}
 
 	public String getclustalValue() {
 		if (clustalValueSelection.getSelectedItem().equals(YES))
-			return SkyLineAnalysis.YES;
+			return SkyLineConfigPanel.YES;
 		else
-			return SkyLineAnalysis.NO;
+			return SkyLineConfigPanel.NO;
 	}
 
 	public int getjValue() {
