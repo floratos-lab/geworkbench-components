@@ -24,17 +24,7 @@
 	<classpathentry kind="lib" path="lib/wsrf_tools.jar"/>
 	<classpathentry kind="lib" path="lib/wss4j.jar"/>
 	<classpathentry kind="lib" path="lib/xmlsec.jar"/>
-	<classpathentry kind="lib" path="lib/caGrid-1.1-metadata-common.jar"/>
-	<classpathentry kind="lib" path="lib/caGrid-1.1-metadata-data.jar"/>
-	<classpathentry kind="lib" path="lib/caGrid-1.1-metadata-security.jar"/>
-	<classpathentry kind="lib" path="lib/caGrid-1.1-discovery.jar"/>
-	<classpathentry kind="lib" path="lib/caGrid-1.1-metadataUtils.jar"/>
-	<classpathentry kind="lib" path="lib/caGrid-1.1-core.jar"/>
 	<classpathentry kind="lib" path="lib/Dispatcher-client.jar" sourcepath="C:/java/apps/eclipse_cagrid_workspace/Dispatcher/src"/>
-	<classpathentry kind="lib" path="lib/caGrid-1.1-ServiceSecurityProvider-client.jar"/>
-	<classpathentry kind="lib" path="lib/caGrid-1.1-ServiceSecurityProvider-common.jar"/>
-	<classpathentry kind="lib" path="lib/caGrid-1.1-ServiceSecurityProvider-service.jar"/>
-	<classpathentry kind="lib" path="lib/caGrid-1.1-ServiceSecurityProvider-stubs.jar"/>
 	<classpathentry kind="lib" path="lib/axis.jar" sourcepath="C:/java/jar_source/axis-1_2RC2/src"/>
 	<classpathentry kind="lib" path="lib/addressing-1.0.jar"/>
 	<classpathentry kind="lib" path="lib/cog-axis.jar"/>
@@ -43,5 +33,17 @@
 	<classpathentry kind="lib" path="lib/cog-url.jar"/>
 	<classpathentry kind="lib" path="lib/binding-2.0.4.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/geworkbench-core"/>
+	<classpathentry kind="lib" path="lib/caGrid-core-1.3.jar"/>
+	<classpathentry kind="lib" path="lib/caGrid-discovery-1.3.jar"/>
+	<classpathentry kind="lib" path="lib/caGrid-metadata-common-1.3.jar"/>
+	<classpathentry kind="lib" path="lib/caGrid-metadata-data-1.3.jar"/>
+	<classpathentry kind="lib" path="lib/caGrid-metadata-security-1.3.jar"/>
+	<classpathentry kind="lib" path="lib/caGrid-metadatautils-1.3.jar"/>
+	<classpathentry kind="lib" path="lib/caGrid-ServiceSecurityProvider-client-1.3.jar"/>
+	<classpathentry kind="lib" path="lib/caGrid-ServiceSecurityProvider-common-1.3.jar"/>
+	<classpathentry kind="lib" path="lib/caGrid-ServiceSecurityProvider-service-1.3.jar"/>
+	<classpathentry kind="lib" path="lib/caGrid-ServiceSecurityProvider-stubs-1.3.jar"/>
+	<classpathentry kind="lib" path="lib/Dispatcher-common.jar"/>
+	<classpathentry kind="lib" path="lib/Dispatcher-stubs.jar"/>
 	<classpathentry kind="output" path="classes"/>
 </classpath>
