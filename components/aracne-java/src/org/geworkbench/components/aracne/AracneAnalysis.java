@@ -190,11 +190,11 @@ public class AracneAnalysis extends AbstractGridAnalysis implements
 		}
 		for (Map.Entry<Integer, HashMap<Integer, Float>> entry : geneRows
 				.entrySet()) {
-			DSGeneMarker gene1 = markers.get(entry.getKey());
+			DSGeneMarker gene1 = mSet.allMarkers().get(entry.getKey());
 			if (gene1 != null) {
 				HashMap<Integer, Float> destGenes = entry.getValue();
 				for (Map.Entry<Integer, Float> destEntry : destGenes.entrySet()) {
-					DSGeneMarker destGene = markers.get(destEntry.getKey());
+					DSGeneMarker destGene = mSet.allMarkers().get(destEntry.getKey());
 					if (destGene != null) {
 						graph.addEdge(gene1.getLabel(), destGene.getLabel(),
 								destEntry.getValue());
