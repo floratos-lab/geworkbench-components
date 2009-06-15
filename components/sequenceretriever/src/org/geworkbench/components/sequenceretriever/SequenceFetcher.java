@@ -307,9 +307,10 @@ public class SequenceFetcher {
 	 * @param database
 	 *            String
 	 * @return any[]
+     * @throws SQLException 
 	 */
 	public static Vector getGeneChromosomeMatchers(String geneName,
-			String database) {
+			String database) throws SQLException {
 		if (database == null) {
 			return null;
 		}
@@ -345,10 +346,7 @@ public class SequenceFetcher {
 				}
 			}
 		} catch (SQLException sqle) {
-			JOptionPane.showMessageDialog(null,
-					"Remote server may be unavailable",
-					"Error during sequence query", JOptionPane.ERROR_MESSAGE);
-			log.error(sqle, sqle);
+			throw sqle;
 		} catch (ClassNotFoundException cnfe) {
 			JOptionPane.showMessageDialog(null, ClassNotFoundException.class
 					.getSimpleName()

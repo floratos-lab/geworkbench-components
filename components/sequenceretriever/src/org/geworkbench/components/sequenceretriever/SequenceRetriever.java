@@ -11,6 +11,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -78,7 +79,7 @@ import org.geworkbench.util.sequences.GeneChromosomeMatcher;
  * @author Xuegong Wang
  * @author manjunath at genomecenter dot columbia dot edu
  * @author xiaoqing at genomecenter dot columbia dot edu
- * @version $Id: SequenceRetriever.java,v 1.57 2009-06-08 18:29:40 jiz Exp $
+ * @version $Id: SequenceRetriever.java,v 1.58 2009-06-15 21:25:37 chiangy Exp $
  */
 
 @SuppressWarnings("unchecked")
@@ -736,7 +737,10 @@ public class SequenceRetriever implements VisualPlugin {
 					String database = SequenceFetcher
 							.matchChipType(AnnotationParser
 									.getCurrentChipType());
+					boolean serverWorking = true;
 					for (int i = 0; i < selectedList.size(); i++) {
+						if (!serverWorking) 
+							break;
 						DSGeneMarker marker = (DSGeneMarker) selectedList
 								.get(i);
 						double progress = (double) (i + 1)
@@ -751,13 +755,25 @@ public class SequenceRetriever implements VisualPlugin {
 						if (knownGeneName != null && knownGeneName.length > 0) {
 
 							for (String geneName : knownGeneName) {
+								if (!serverWorking) 
+									break;
 								if (geneName == null
 										|| geneName.equals(NOANNOTATION)) {
 									continue;
 								}
-								Vector geneChromosomeMatchers = SequenceFetcher
-										.getGeneChromosomeMatchers(geneName,
-												database);
+								Vector geneChromosomeMatchers = null;
+								try {
+									geneChromosomeMatchers = SequenceFetcher
+											.getGeneChromosomeMatchers(
+													geneName, database);
+								} catch (SQLException sqle) {
+									JOptionPane.showMessageDialog(null,
+											"Remote server may be unavailable",
+											"Error during sequence query",
+											JOptionPane.ERROR_MESSAGE);
+									log.error(sqle, sqle);
+									serverWorking = false;
+								}
 								if (geneChromosomeMatchers != null) {
 									for (int j = 0; j < geneChromosomeMatchers
 											.size(); j++) {
