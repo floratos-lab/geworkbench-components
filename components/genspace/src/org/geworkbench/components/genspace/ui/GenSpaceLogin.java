@@ -103,8 +103,8 @@ public class GenSpaceLogin extends JPanel implements VisualPlugin, ActionListene
 		msgText1 = new JLabel ("Register to take advantage of genSpace security features.");
 		msgText2 = new JLabel("As a registered user you will be able to:");
 		msgText3 = new JLabel("1. Set your data visbility preferences.");
-		msgText4 = new JLabel("2. Set your own visibility across various networks.");
-		msgText5 = new JLabel(" You can also choose to continue using genSpace without a login in which case") ;
+		msgText4 = new JLabel("2. Post comments and rate workflows and tools.");
+		msgText5 = new JLabel("You can also choose to continue using genSpace without a login in which case") ;
 		msgText6 = new JLabel("default security preferences will be applied.");
 
 		msgPanel.add (msgText);
