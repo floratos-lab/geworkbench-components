@@ -33,7 +33,7 @@ public class GenSpaceLogPreferences extends JPanel implements VisualPlugin, Acti
         				"you to connect with other geWorkbench users.\n\n" +
         				"In order for it to be effective, genSpace must log which analysis\n" +
         				"tools you use during your geWorkbench session.\n\n" +
-        				"Please go to the genSpace Logging Preference window to configure \n" +
+        				"Please go to Tools > genSpace window to configure \n" +
         				"your preference. You can later change it at any time.";
         		String title = "Please set your genSpace logging preferences.";
         		JOptionPane.showMessageDialog(this, message, title, JOptionPane.INFORMATION_MESSAGE);
