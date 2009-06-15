@@ -12,7 +12,7 @@ public class RuntimeEnvironmentSettings {
 	public static final String PROD_HOST = BAMBI;
 	public static final String DEVEL_HOST = BORIS;
 	
-	public static final String SERVER = DEVEL_HOST;
+	public static final String SERVER = PROD_HOST;
 
 	public static final ServerConfig EVENT_SERVER = new ServerConfig(SERVER, 12346);
 	public static final ServerConfig WORKFLOW_SERVER = new ServerConfig(SERVER, 12343);
@@ -25,5 +25,10 @@ public class RuntimeEnvironmentSettings {
 
 	public static final String DEFAULT_USER = "";
 	
-	public static final String GS_WEB_ROOT = "http://lenox.cs.columbia.edu/genspace/";
+	public static final String GS_WEB_ROOT_PROD = "http://bambi.cs.columbia.edu/";
+	public static final String GS_WEB_ROOT_DEVEL = "http://lenox.cs.columbia.edu/genspace/";
+	
+	public static final String GS_WEB_ROOT = GS_WEB_ROOT_PROD;
+	
+	
 }
