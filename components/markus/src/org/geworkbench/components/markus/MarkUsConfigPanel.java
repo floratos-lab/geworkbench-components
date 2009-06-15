@@ -35,7 +35,7 @@ import com.jgoodies.forms.layout.FormLayout;
  * @author meng
  * @author zji
  * @author yc2480
- * @version $Id: MarkUsConfigPanel.java,v 1.7 2009-04-03 16:04:11 jiz Exp $
+ * @version $Id: MarkUsConfigPanel.java,v 1.8 2009-06-15 17:31:13 jiz Exp $
  */
 public class MarkUsConfigPanel extends AbstractSaveableParameterPanel {
 	private Log log = LogFactory.getLog(this.getClass());
@@ -617,7 +617,7 @@ public class MarkUsConfigPanel extends AbstractSaveableParameterPanel {
 			if (key.equals("radius")) {
 				radius.setValue((Double) value);
 			}
-			if (key.equals("icb")) {
+			if (key.equals("ibc")) {
 				Integer i = (Integer) value;
 				if (i.compareTo(1) == 0) {
 					ibc.setSelectedItem("Zero");
