@@ -92,6 +92,7 @@ public class AracneAnalysis extends AbstractGridAnalysis implements
 			log
 					.debug("Input dataset is adjacency matrix, will only perform DPI.");
 			adjMatrix = (AdjacencyMatrixDataSet) input;
+			mSetView.setDataSet(adjMatrix.getParentDataSet());			
 		}
 
 		final Parameter p = new Parameter();
