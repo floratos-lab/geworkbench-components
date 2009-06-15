@@ -21,7 +21,7 @@ import org.geworkbench.bison.model.analysis.ProteinStructureAnalysis;
  * 
  * @author mw2518
  * @author zji
- * @version $Id: SkyLineAnalysis.java,v 1.6 2009-05-12 18:51:46 jiz Exp $
+ * @version $Id: SkyLineAnalysis.java,v 1.7 2009-06-15 19:48:21 jiz Exp $
  * 
  */
 public class SkyLineAnalysis extends AbstractGridAnalysis implements
@@ -31,10 +31,6 @@ public class SkyLineAnalysis extends AbstractGridAnalysis implements
 
 	private final String analysisName = "SkyLine";
 	
-	// Static fields used to designate the available user option within the
-	// normalizer's parameters panel.
-	protected static final String YES = "yes";
-	protected static final String NO = "no";
 	protected static final int MINIMUM = 0;
 	protected static final int MAXIMUM = 1;
 	protected static final int IGNORE = 0;
