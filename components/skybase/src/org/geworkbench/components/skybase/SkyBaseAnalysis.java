@@ -17,7 +17,7 @@ import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
 import org.geworkbench.bison.model.analysis.ParamValidationResults;
-import org.geworkbench.bison.model.analysis.ProteinDatabaseAnalysis;
+import org.geworkbench.bison.model.analysis.ProteinSequenceAnalysis;
 
 import edu.columbia.geworkbench.cagrid.skybase.client.SkyBaseWebClient;
 
@@ -25,11 +25,11 @@ import edu.columbia.geworkbench.cagrid.skybase.client.SkyBaseWebClient;
  * AbstractGridAnalysis for blast skybase on grid service on web1
  * 
  * @author mw2518
- * @version $Id: SkyBaseAnalysis.java,v 1.5 2009-01-19 14:59:33 wangm Exp $
+ * @version $Id: SkyBaseAnalysis.java,v 1.6 2009-06-15 14:06:28 wangm Exp $
  *
  */
 public class SkyBaseAnalysis extends AbstractGridAnalysis implements
-		ProteinDatabaseAnalysis {
+		ProteinSequenceAnalysis {
 	private Log log = LogFactory.getLog(this.getClass());
 	private static final long serialVersionUID = 1L;
 	SkyBaseConfigPanel scp;
@@ -84,37 +84,6 @@ public class SkyBaseAnalysis extends AbstractGridAnalysis implements
 	}
 
 	/*
-	 * return file content
-	 */
-	public String getcontent(File seqfile) {
-		StringBuffer contents = new StringBuffer();
-		try {
-		    BufferedReader br = new BufferedReader(new FileReader(seqfile));
-		    String line;
-		    boolean foundseq = false;
-		    while((line = br.readLine()) != null) {
-			if (line.startsWith(">"))
-			    if (foundseq) break;
-
-			contents.append(line);
-			contents.append("\n");
-			foundseq = true;
-		    }
-		    br.close();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return contents.toString();
-	}
-
-	public void set_seqfile(DSSequenceSet seq) {
-		File seqfile = seq.getFile();
-		seqname = seqfile.getName();
-		seqfilename = remoteseqdir + seqname;
-		seqcontent = getcontent(seqfile);
-	}
-
-	/*
 	 * (non-Javadoc)
 	 * @see org.geworkbench.analysis.AbstractGridAnalysis#useMicroarraySetView()
 	 */
@@ -144,11 +113,6 @@ public class SkyBaseAnalysis extends AbstractGridAnalysis implements
 	 */
 	public Map<Serializable, Serializable> getBisonParameters() {
 		Map<Serializable, Serializable> parameterMap = new HashMap<Serializable, Serializable>();
-
-		log.info("sendfileparam: " + seqname);
-		parameterMap.put("sendnameParameter", seqname);
-		System.out.println(seqcontent);
-		parameterMap.put("sendcontentParameter", seqcontent);
 
 		String cfgcommand = scp.getmincovValue() + " " + scp.getminsidValue()
 				+ " " + scp.getrphitsValue();
