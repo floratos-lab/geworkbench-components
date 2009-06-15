@@ -1,19 +1,15 @@
 <geaw-config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:noNamespaceSchemaLocation="ConfigurationFile Schema.xsd">
 
-	<component  name="ARACNE Analysis"
-				class="org.geworkbench.components.aracne.AracneAnalysis" 
-				version="1.0"
-				author="Andrea Califano, Ph.D."
-				authorURL="http://wiki.c2b2.columbia.edu/califanolab/index.php/Califano_Info"
-				toolURL="http://amdec-bioinfo.cu-genome.org/html/ARACNE.htm"
-				description="===="
-				mustAccept="true"
-				documentation="****"
-				analysis="true"
-	 >
-		<required-component class="org.geworkbench.components.cytoscape_v2_4.CytoscapeWidget" />
-		<license >
+	<component name="ARACNE Analysis"
+		class="org.geworkbench.components.aracne.AracneAnalysis" version="1.0"
+		author="Andrea Califano, Ph.D."
+		authorURL="http://wiki.c2b2.columbia.edu/califanolab/index.php/Califano_Info"
+		toolURL="http://amdec-bioinfo.cu-genome.org/html/ARACNE.htm"
+		description="====" mustAccept="true" documentation="****" analysis="true">
+		<required-component
+			class="org.geworkbench.components.cytoscape_v2_4.CytoscapeWidget" />
+		<license>
 			<![CDATA[
 <html>
 
@@ -422,12 +418,15 @@ clear=all style='page-break-before:always'>
 	</component>
 
 
-	<plugin id="AracneAnalysis" name="ARACNE Analysis" class="org.geworkbench.components.aracne.AracneAnalysis" source="aracne-java"/>
-	
-	<component-descriptor xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="Descriptor Schema.xsd">
-	    <component class="org.geworkbench.components.aracne-java.AracneAnalysis">
-	        <online-help helpSet="org/geworkbench/components/aracne/help/aracneHelpSet.hs"/>
-	    </component>
+	<plugin id="AracneAnalysis" name="ARACNE Analysis"
+		class="org.geworkbench.components.aracne.AracneAnalysis" source="aracne-java" />
+
+	<component-descriptor xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		xsi:noNamespaceSchemaLocation="Descriptor Schema.xsd">
+		<component class="org.geworkbench.components.aracne-java.AracneAnalysis">
+			<online-help
+				helpSet="org/geworkbench/components/aracne/help/aracneHelpSet.hs" />
+		</component>
 	</component-descriptor>
-	
+
 </geaw-config>
