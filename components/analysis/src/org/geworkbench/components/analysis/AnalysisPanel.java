@@ -11,7 +11,9 @@ import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
@@ -46,9 +48,9 @@ import org.geworkbench.analysis.ParameterKey;
 import org.geworkbench.analysis.ReHighlightable;
 import org.geworkbench.bison.datastructure.biocollections.DSAncillaryDataSet;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
-import org.geworkbench.bison.datastructure.biocollections.sequences.CSSequenceSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.CSExprMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
+import org.geworkbench.bison.datastructure.biocollections.sequences.CSSequenceSet;
 import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
 import org.geworkbench.bison.datastructure.bioobjects.markers.CSExpressionMarker;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
@@ -62,8 +64,8 @@ import org.geworkbench.bison.model.analysis.Analysis;
 import org.geworkbench.bison.model.analysis.ClusteringAnalysis;
 import org.geworkbench.bison.model.analysis.ParamValidationResults;
 import org.geworkbench.bison.model.analysis.ParameterPanel;
-import org.geworkbench.bison.model.analysis.ProteinStructureAnalysis;
 import org.geworkbench.bison.model.analysis.ProteinSequenceAnalysis;
+import org.geworkbench.bison.model.analysis.ProteinStructureAnalysis;
 import org.geworkbench.components.analysis.clustering.MultiTTestAnalysisPanel;
 import org.geworkbench.components.analysis.clustering.TtestAnalysisPanel;
 import org.geworkbench.components.cagrid.gui.GridServicePanel;
@@ -99,7 +101,7 @@ import edu.columbia.geworkbench.cagrid.dispatcher.client.DispatcherClient;
  * @author First Genetic Trust Inc.
  * @author keshav
  * @author yc2480
- * @version $Id: AnalysisPanel.java,v 1.81 2009-05-27 21:35:39 jiz Exp $
+ * @version $Id: AnalysisPanel.java,v 1.82 2009-06-16 14:30:02 tgarben Exp $
  * 
  */
 @AcceptTypes( { DSMicroarraySet.class, AdjacencyMatrixDataSet.class,
@@ -387,8 +389,22 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 					availableAnalyses[i]).getLabel();
 			availableAnalyses[i].setLabel(names[i]);
 		}
+		
+		AbstractAnalysisLabelComparator comparator = new AbstractAnalysisLabelComparator();
+		Arrays.sort(availableAnalyses, comparator );
 	}
 
+	/**
+	 * Comparator for availableAnalyses.
+	 */
+	class AbstractAnalysisLabelComparator implements Comparator<Object>{
+		public int compare(Object abstractAnalysis1, Object abstractAnalysis2){
+			String label1 = ( (AbstractAnalysis) abstractAnalysis1).getLabel();
+			String label2 = ( (AbstractAnalysis) abstractAnalysis2).getLabel();
+			return label1.compareTo(label2);
+		}
+	}
+	
 	@Publish
 	@SuppressWarnings("unchecked")
 	public org.geworkbench.events.SubpanelChangedEvent publishSubpanelChangedEvent(
