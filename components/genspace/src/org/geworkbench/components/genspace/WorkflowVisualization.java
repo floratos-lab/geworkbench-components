@@ -179,7 +179,7 @@ public class WorkflowVisualization extends JPanel implements VisualPlugin, Actio
 						String line = in.nextLine();
 						log.info(line);
 						if (line.equals("END")) break;
-						workflows.add(line);
+						if (!(line.equals("null"))) workflows.add(line);
 					}
 				}
 				catch (Exception ex)
@@ -233,6 +233,7 @@ public class WorkflowVisualization extends JPanel implements VisualPlugin, Actio
 				{
 					// no results came back!
 					JOptionPane.showMessageDialog(null, "There are no workflows matching that criteria");
+					label.setText("No Workflows found");
 					return null;
 				}
 
