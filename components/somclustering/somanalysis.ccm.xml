@@ -9,11 +9,14 @@
 				toolURL="http://wiki.c2b2.columbia.edu/workbench/images/6/65/Somcluster.png"
 				description="SOM Analysis"
 				analysis="true"
-				license="-----"
 	 >
-	 
-	 <required-component class="org.geworkbench.components.somclustering.SOMDisplay" />
-	 
+		<required-component class="org.geworkbench.components.somclustering.SOMDisplay" />
+		<license><![CDATA[
+			<html><head><meta http-equiv=Content-Type content="text/html; charset=windows-1252"></head>
+			<body>----</body>
+			</html>
+		]]></license>
+		
 	 </component>
 	 
 	<plugin id="somAnalysis" name="SOM Analysis" class="org.geworkbench.components.somclustering.SOMAnalysis" source="somclustering"/>

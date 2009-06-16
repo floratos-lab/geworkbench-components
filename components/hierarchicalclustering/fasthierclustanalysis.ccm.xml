@@ -14,15 +14,14 @@ is a tree (called a dendrogram), with individual elements at one end and
 a single cluster containing every element at the other. 
 Agglomerative algorithms begin at the leaves of the tree, 
 whereas divisive algorithms begin at the root."
-				license="Hierarchical clustering builds (agglomerative), or breaks up (divisive), 
-a hierarchy of clusters. The traditional representation of this hierarchy 
-is a tree (called a dendrogram), with individual elements at one end and 
-a single cluster containing every element at the other. 
-Agglomerative algorithms begin at the leaves of the tree, 
-whereas divisive algorithms begin at the root."
-				
 	 >
-			<required-component class="org.geworkbench.components.hierarchicalclustering.HierClusterViewAppComponent" />
+		<required-component class="org.geworkbench.components.hierarchicalclustering.HierClusterViewAppComponent" />
+		<license><![CDATA[
+			<html><head><meta http-equiv=Content-Type content="text/html; charset=windows-1252"></head>
+				<body>----</body>
+			</html>
+		]]></license>
+			
 	</component>
 
 

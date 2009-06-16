@@ -9,10 +9,15 @@
 				toolURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Home"
 				visualizer="true"
 				description="Normalizer"
-				license="-----"
-	 	 >
-			<required-component class="org.geworkbench.components.microarrays.TabularMicroarrayPanel" />
-			<required-component class="org.geworkbench.components.analysis.NormalizationPanel" />
+	 >
+		<required-component class="org.geworkbench.components.microarrays.TabularMicroarrayPanel" />
+		<required-component class="org.geworkbench.components.normalization.NormalizationPanel" />
+		<license><![CDATA[
+			<html><head><meta http-equiv=Content-Type content="text/html; charset=windows-1252"></head>
+				<body>----</body>
+			</html>
+		]]></license>
+			
 	</component>
 
 	<plugin id="LogTransformationNormalizer" name="Log2 Tranformation" class="org.geworkbench.components.normalization.LogTransformationNormalizer" source="normalization"/>

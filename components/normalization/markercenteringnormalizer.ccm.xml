@@ -9,10 +9,14 @@
 				toolURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Home"
 				visualizer="true"
 				description="Normalizer"
-				license="-----"
-	 	 >
-			<required-component class="org.geworkbench.components.microarrays.TabularMicroarrayPanel" />
-			<required-component class="org.geworkbench.components.analysis.NormalizationPanel" />
+ 	 >
+		<required-component class="org.geworkbench.components.microarrays.TabularMicroarrayPanel" />
+		<required-component class="org.geworkbench.components.normalization.NormalizationPanel" />
+		<license><![CDATA[
+			<html><head><meta http-equiv=Content-Type content="text/html; charset=windows-1252"></head>
+				<body>----</body>
+			</html>
+		]]></license>
 	</component>
 
 	<plugin id="MarkerCenteringNormalizer" name="Marker Centering Normalizer" class="org.geworkbench.components.normalization.MarkerCenteringNormalizer" source="normalization"/>

@@ -17,6 +17,11 @@ Agglomerative algorithms begin at the leaves of the tree,
 whereas divisive algorithms begin at the root."
 	 >	 
 		<related-component class="org.geworkbench.components.hierarchicalclustering.FastHierClustAnalysis" />
+		<license><![CDATA[
+			<html><head><meta http-equiv=Content-Type content="text/html; charset=windows-1252"></head>
+				<body>----</body>
+			</html>
+		]]></license>
 
 	</component>
 
