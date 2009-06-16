@@ -11,7 +11,6 @@
 				license="-----"
 				visualizer="true"
 	 >
-			<required-component class="org.geworkbench.components.skybase.SkyBaseComponent" />
 			<required-component class="org.geworkbench.components.skybase.SkyBaseAnalysis" />
 	</component>
 

@@ -12,7 +12,6 @@
 				analysis="true"
 	 >
 			<required-component class="org.geworkbench.components.skybaseview.SkyBaseViewer" />
-			<required-component class="org.geworkbench.components.skybase.SkyBaseComponent" />
 			
 	</component>
 
