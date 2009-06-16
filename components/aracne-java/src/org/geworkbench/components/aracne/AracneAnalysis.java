@@ -92,7 +92,7 @@ public class AracneAnalysis extends AbstractGridAnalysis implements
 			log
 					.debug("Input dataset is adjacency matrix, will only perform DPI.");
 			adjMatrix = (AdjacencyMatrixDataSet) input;
-			mSetView.setDataSet(adjMatrix.getParentDataSet());			
+			mSetView.setDataSet(adjMatrix.getParentDataSet());
 		}
 
 		final Parameter p = new Parameter();
@@ -155,6 +155,17 @@ public class AracneAnalysis extends AbstractGridAnalysis implements
 
 		Parameter.ALGORITHM algor = params.getAlgorithm();
 		p.setAlgorithm(algor);
+
+		Parameter.MODE mode = params.getMode();
+		p.setMode(mode);
+
+		String dataSetName = mSetView.getDataSet().getDataSetName();
+
+		String DATASETNAME_ALGORITHM_kernel_file = dataSetName +"_" + params.getAlgorithmAsString() +"_"  + "kernel.txt";
+		String DATASETNAME_ALGORITHM_threshold_file = dataSetName +"_" + params.getAlgorithmAsString() +"_"  + "threshold.txt";
+
+		p.setKernelFile(DATASETNAME_ALGORITHM_kernel_file);
+		p.setThresholdFile(DATASETNAME_ALGORITHM_threshold_file);
 
 		int bs = params.getBootstrapNumber();
 		double pt = params.getConsensusThreshold();

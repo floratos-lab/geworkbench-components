@@ -44,7 +44,7 @@ import edu.columbia.c2b2.aracne.Parameter;
 /**
  * @author mhall
  * @author yc2480
- * @version $Id: AracneParamPanel.java,v 1.13 2009-06-12 21:13:26 oshteynb Exp $
+ * @version $Id: AracneParamPanel.java,v 1.14 2009-06-16 22:41:40 oshteynb Exp $
  */
 public class AracneParamPanel extends AbstractSaveableParameterPanel {
 	private static final long serialVersionUID = 4023695671471667725L;
@@ -66,11 +66,20 @@ public class AracneParamPanel extends AbstractSaveableParameterPanel {
     public static final String FIXED_BANDWIDTH = "Fixed Bandwidth";
     public static final String ADAPTIVE_PARTITIONING = "Adaptive Partitioning";
 
+    public static final String FIXED = "Fixed";
+    public static final String ADAPTIVE = "Adaptive";
+
+    public static final String COMPLETE = "Complete";
+    public static final String PREPROCESSING = "Preprocessing";
+    public static final String DISCOVERY = "Discovery";
+
     private JButton loadResultsButton = new JButton("Load...");
     private String hubMarkersFile = new String("data/test.txt");
 
     private JComboBox hubCombo = new JComboBox(new String[]{HUB_ALL, FROM_SETS, FROM_FILE});
     private JComboBox algorithmCombo = new JComboBox(new String[]{ADAPTIVE_PARTITIONING,FIXED_BANDWIDTH});
+    private JComboBox modeCombo = new JComboBox(new String[]{COMPLETE,PREPROCESSING, DISCOVERY});
+
     private JComboBox thresholdCombo = new JComboBox(new String[]{THRESHOLD_MI, THRESHOLD_PVALUE});
     private JComboBox kernelCombo = new JComboBox(new String[]{KERNEL_INFERRED, KERNEL_SPECIFY});
     private JComboBox dpiCombo = new JComboBox(new String[]{DPI_NONE, DPI_APPLY});
@@ -120,6 +129,10 @@ public class AracneParamPanel extends AbstractSaveableParameterPanel {
 
         /* choices of two algorithms for now     */
         builder.append("Algorithm", algorithmCombo);
+        builder.nextRow();
+
+        /* choices of three modes     */
+        builder.append("Mode", modeCombo);
         builder.nextRow();
 
         builder.append("Kernel Width", kernelCombo, kernelWidth);
@@ -386,6 +399,34 @@ public class AracneParamPanel extends AbstractSaveableParameterPanel {
     	}
 
         return algor;
+    }
+
+    public String getAlgorithmAsString() {
+		String algor = FIXED;
+
+    	if (algorithmCombo.getSelectedItem().equals(FIXED_BANDWIDTH)){
+    		algor = FIXED;
+    	}
+
+    	if (algorithmCombo.getSelectedItem().equals(ADAPTIVE_PARTITIONING)){
+    		algor = ADAPTIVE;
+    	}
+
+        return algor;
+    }
+
+    public Parameter.MODE getMode() {
+		Parameter.MODE mode = Parameter.MODE.COMPLETE;
+
+    	if (modeCombo.getSelectedItem().equals(PREPROCESSING)){
+    		mode = Parameter.MODE.PREPROCESSING;
+    	}
+
+    	if (modeCombo.getSelectedItem().equals(DISCOVERY)){
+    		mode = Parameter.MODE.DISCOVERY;
+    	}
+
+        return mode;
     }
 
     public void setDPITolerance(Float f) {
