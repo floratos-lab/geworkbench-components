@@ -8,10 +8,15 @@
 				authorURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Home"
 				toolURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Home"
 				description="====="
-				license="-----"
 				analysis="true"
 	 >
-			<required-component class="org.geworkbench.components.ei.EvidenceIntegrationVisualization" />
+		<required-component class="org.geworkbench.components.ei.EvidenceIntegrationVisualization" />
+		<license><![CDATA[
+			<html><head><meta http-equiv=Content-Type content="text/html; charset=windows-1252"></head>
+				<body>----</body>
+			</html>
+		]]></license>
+
 	</component>
 
 	<plugin id="EvidenceIntegrationAnalysis" name="Evidence Integration Analysis" class="org.geworkbench.components.ei.EvidenceIntegrationAnalysis" source="evidenceintegration"/>

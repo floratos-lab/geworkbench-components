@@ -5,9 +5,15 @@
 		class="org.geworkbench.components.pudge.PudgeAnalysis" version="1.0"
 		author="C2B2" authorURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Home"
 		toolURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Home"
-		description="=====" license="-----">
+		description="=====" 
+	>
 
 		<required-component class="org.geworkbench.components.pudge.PudgeBrowser" />
+		<license><![CDATA[
+			<html><head><meta http-equiv=Content-Type content="text/html; charset=windows-1252"></head>
+				<body>----</body>
+			</html>
+		]]></license>
 
 	</component>
 

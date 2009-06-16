@@ -10,13 +10,15 @@
 				description="Clustering of markers using self organizing maps. The resulting clusters can be visualized in the SOM Clusters Viewer plugin.
 geWorkbench-ANOVA is a component of geWorkbench that provides a statistical analysis function to determine significance between the means of independent groups of data using the analysis of variance algorithm. In geWorkbench, each group comprises gene expression microarray measurements from various samples, and one is interested in identifying genes whose mean expression is significantly different across the various groups.	
 "
-				license="-----"
 				visualizer="true"
 	 >
-	 
-	 <related-component class="org.geworkbench.components.somclustering.SOMAnalysis" />
-	 
-	 </component>
+		<related-component class="org.geworkbench.components.somclustering.SOMAnalysis" />
+		<license><![CDATA[
+			<html><head><meta http-equiv=Content-Type content="text/html; charset=windows-1252"></head>
+			<body>----</body>
+			</html>
+		]]></license>
+	</component>
 	
 	<plugin id="somdisplay" name="SOM Clusters" class="org.geworkbench.components.somclustering.SOMDisplay" source="somclustering">
 		<gui-area name="VisualArea"/>
