@@ -329,6 +329,11 @@ public class AracneAnalysis extends AbstractGridAnalysis implements
 			log.debug("Done running ARACNE in worker thread.");
 			progressWindow.stopProgress();
 
+			/* done if in PREPROCESSING mode*/
+			if (this.p.getMode().equals(Parameter.MODE.PREPROCESSING)) {
+				return;
+			}
+
 			if (weightedGraph.getEdges().size() > 0) {
 				AdjacencyMatrixDataSet dataSet = new AdjacencyMatrixDataSet(
 						convert(weightedGraph, mSetView.getMicroarraySet()),
