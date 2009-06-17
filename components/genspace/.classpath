@@ -3,8 +3,8 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="lib/jgraph.jar"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/geworkbench-core"/>
 	<classpathentry kind="lib" path="lib/hyperapplet.jar"/>
 	<classpathentry kind="lib" path="lib/swing-worker-1.2.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/geworkbench-core"/>
 	<classpathentry kind="output" path="classes"/>
 </classpath>
