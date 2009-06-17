@@ -121,7 +121,7 @@ public class WorkflowVisualization extends JPanel implements VisualPlugin, Actio
 			while (in.hasNext())
 			{
 				String line = in.nextLine();
-				log.info(line);
+				log.debug(line);
 				if (line.equals("END")) break;
 				allTools.add(line);
 			}
