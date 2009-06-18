@@ -44,7 +44,7 @@ import edu.columbia.c2b2.aracne.Parameter;
 /**
  * @author mhall
  * @author yc2480
- * @version $Id: AracneParamPanel.java,v 1.14 2009-06-16 22:41:40 oshteynb Exp $
+ * @version $Id: AracneParamPanel.java,v 1.15 2009-06-18 16:57:00 ksmith Exp $
  */
 public class AracneParamPanel extends AbstractSaveableParameterPanel {
 	private static final long serialVersionUID = 4023695671471667725L;
@@ -66,8 +66,8 @@ public class AracneParamPanel extends AbstractSaveableParameterPanel {
     public static final String FIXED_BANDWIDTH = "Fixed Bandwidth";
     public static final String ADAPTIVE_PARTITIONING = "Adaptive Partitioning";
 
-    public static final String FIXED = "Fixed";
-    public static final String ADAPTIVE = "Adaptive";
+    public static final String FIXED = "ARACNe_FBW";
+    public static final String ADAPTIVE = "ARACNe_AP";
 
     public static final String COMPLETE = "Complete";
     public static final String PREPROCESSING = "Preprocessing";
