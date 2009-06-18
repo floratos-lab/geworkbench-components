@@ -161,8 +161,8 @@ public class AracneAnalysis extends AbstractGridAnalysis implements
 
 		String dataSetName = mSetView.getDataSet().getDataSetName();
 
-		String DATASETNAME_ALGORITHM_kernel_file = dataSetName +"_" + params.getAlgorithmAsString() +"_"  + "kernel.txt";
-		String DATASETNAME_ALGORITHM_threshold_file = dataSetName +"_" + params.getAlgorithmAsString() +"_"  + "threshold.txt";
+		String DATASETNAME_ALGORITHM_kernel_file = dataSetName +"_" + params.getAlgorithmForFileName() +"_"  + "kernel.txt";
+		String DATASETNAME_ALGORITHM_threshold_file = dataSetName +"_" + params.getAlgorithmForFileName() +"_"  + "threshold.txt";
 
 		p.setKernelFile(DATASETNAME_ALGORITHM_kernel_file);
 		p.setThresholdFile(DATASETNAME_ALGORITHM_threshold_file);
