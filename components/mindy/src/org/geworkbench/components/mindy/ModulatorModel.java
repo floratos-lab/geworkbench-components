@@ -16,7 +16,7 @@ import org.geworkbench.util.pathwaydecoder.mutualinformation.MindyGeneMarker;
  * @author mhall
  * @author ch2514
  * @author oshteynb
- * @version $Id: ModulatorModel.java,v 1.3 2009-04-29 19:55:33 oshteynb Exp $
+ * @version $Id: ModulatorModel.java,v 1.4 2009-06-18 20:45:32 oshteynb Exp $
  */
 class ModulatorModel extends AbstractTableModel {
 	/**
@@ -202,7 +202,7 @@ class ModulatorModel extends AbstractTableModel {
 				return "=";
 			}
 		} else {
-			return mod.getDescription();
+			return mod.toString();
 		}
 	}
 
