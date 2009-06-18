@@ -73,9 +73,14 @@ Runnable {
 	"The most popular tool used next to this tool: ");
 	private JLabel single4 = new JLabel(
 	"The most popular tool used before this tool: ");
+	private JLabel message = new JLabel("*The ranking of tools and workflows in the \"ALL TOOLS\" section is based on an exponential time-decay function.");
+	private JLabel message1 = new JLabel("The \"INDIVIDUAL TOOL\" section shows the raw data for a tool usage, which is not exponentially weighted.");
 
 	// All the above Panels are addded to the northPanel
 	private JPanel northPanel = new JPanel();
+	
+	//JPanel to display the disclaimer message
+	private JPanel messagePanel = new JPanel();
 
 	private JComboBox tools = new JComboBox();
 
@@ -372,9 +377,14 @@ Runnable {
 		northPanel.add(singleControlPanel); // K
 		northPanel.add(singleToolPanel); // K
 		// northPanel.add(selectPanel); // K
+		
+		messagePanel.setLayout(new BoxLayout(messagePanel, BoxLayout.Y_AXIS));
+		messagePanel.add(message);
+		messagePanel.add(message1);
 
-		setBackground(Color.CYAN);
+		//setBackground(Color.CYAN);
 		add(northPanel, BorderLayout.CENTER); // K
+		add(messagePanel, BorderLayout.SOUTH);
 		// add(graphPanel, BorderLayout.CENTER);
 
 	}
