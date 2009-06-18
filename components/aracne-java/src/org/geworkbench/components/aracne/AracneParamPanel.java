@@ -44,7 +44,7 @@ import edu.columbia.c2b2.aracne.Parameter;
 /**
  * @author mhall
  * @author yc2480
- * @version $Id: AracneParamPanel.java,v 1.15 2009-06-18 16:57:00 ksmith Exp $
+ * @version $Id: AracneParamPanel.java,v 1.16 2009-06-18 22:19:43 oshteynb Exp $
  */
 public class AracneParamPanel extends AbstractSaveableParameterPanel {
 	private static final long serialVersionUID = 4023695671471667725L;
@@ -387,6 +387,10 @@ public class AracneParamPanel extends AbstractSaveableParameterPanel {
     		dpiCombo.setSelectedItem(DPI_NONE);
     }
 
+    public void setAlgorithm(String algor) {
+		algorithmCombo.setSelectedItem(algor);
+	}
+
     public Parameter.ALGORITHM getAlgorithm() {
 		Parameter.ALGORITHM algor = Parameter.ALGORITHM.FIXED_BANDWIDTH;
 
@@ -402,6 +406,12 @@ public class AracneParamPanel extends AbstractSaveableParameterPanel {
     }
 
     public String getAlgorithmAsString() {
+		String algor = algorithmCombo.getSelectedItem().toString();
+
+        return algor;
+    }
+
+    public String getAlgorithmForFileName() {
 		String algor = FIXED;
 
     	if (algorithmCombo.getSelectedItem().equals(FIXED_BANDWIDTH)){
@@ -413,6 +423,12 @@ public class AracneParamPanel extends AbstractSaveableParameterPanel {
     	}
 
         return algor;
+    }
+
+    public String getModeAsString() {
+		String mode = modeCombo.getSelectedItem().toString();
+
+        return mode;
     }
 
     public Parameter.MODE getMode() {
@@ -428,6 +444,10 @@ public class AracneParamPanel extends AbstractSaveableParameterPanel {
 
         return mode;
     }
+
+    public void setMode(String mode) {
+    	modeCombo.setSelectedItem(mode);
+	}
 
     public void setDPITolerance(Float f) {
     	dpiTolerance.setText(f.toString());
@@ -583,6 +603,14 @@ public class AracneParamPanel extends AbstractSaveableParameterPanel {
 			if (key.equals("TargetGenes")){
 				setTargetGeneString((String)value);
 			}
+
+			if (key.equals("Algorithm")){
+				setAlgorithm((String)value);
+			}
+			if (key.equals("Mode")){
+				setMode((String)value);
+			}
+
 		}
     }
 
@@ -606,6 +634,8 @@ public class AracneParamPanel extends AbstractSaveableParameterPanel {
 		parameters.put("DPITolerance", this.getDPITolerance());
 		parameters.put("isTargetListSpecified", this.isTargetListSpecified());
 		parameters.put("TargetGenes", this.getTargetGeneString());
+		parameters.put("Algorithm", this.getAlgorithmAsString());
+		parameters.put("Mode", this.getModeAsString());
 
 		return parameters;
 	}
