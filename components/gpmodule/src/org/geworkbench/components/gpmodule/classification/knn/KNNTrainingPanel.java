@@ -388,4 +388,10 @@ public class KNNTrainingPanel extends GPTrainingPanel {
 		log.error(new OperationNotSupportedException("Please implement setParameters()"));
 	}
 
+	@Override
+	public void fillDefaultValues(Map<Serializable, Serializable> parameters) {
+		// TODO Auto-generated method stub
+		
+	}
+
 }
