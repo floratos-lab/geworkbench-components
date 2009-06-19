@@ -35,7 +35,7 @@ import com.jgoodies.forms.layout.FormLayout;
  * @author meng
  * @author zji
  * @author yc2480
- * @version $Id: MarkUsConfigPanel.java,v 1.8 2009-06-15 17:31:13 jiz Exp $
+ * @version $Id: MarkUsConfigPanel.java,v 1.9 2009-06-19 19:22:19 jiz Exp $
  */
 public class MarkUsConfigPanel extends AbstractSaveableParameterPanel {
 	private Log log = LogFactory.getLog(this.getClass());
@@ -744,5 +744,11 @@ public class MarkUsConfigPanel extends AbstractSaveableParameterPanel {
 		sb.append("\tmsa4="+getmsa4Value()+"\n\n");
 
 		return sb.toString();
+	}
+
+	@Override
+	public void fillDefaultValues(Map<Serializable, Serializable> parameters) {
+		// TODO Auto-generated method stub
+		
 	}
 }

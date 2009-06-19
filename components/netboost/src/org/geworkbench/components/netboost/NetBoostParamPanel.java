@@ -31,7 +31,7 @@ import com.jgoodies.forms.layout.FormLayout;
  * 
  * @author ch2514
  * @author yc2480
- * @version $Id: NetBoostParamPanel.java,v 1.7 2009-02-18 21:34:44 chiangy Exp $
+ * @version $Id: NetBoostParamPanel.java,v 1.8 2009-06-19 19:23:26 jiz Exp $
  */
 public class NetBoostParamPanel extends AbstractSaveableParameterPanel {
 
@@ -376,6 +376,12 @@ public class NetBoostParamPanel extends AbstractSaveableParameterPanel {
 		}
 
 		return histStr.toString();
+	}
+
+	@Override
+	public void fillDefaultValues(Map<Serializable, Serializable> parameters) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

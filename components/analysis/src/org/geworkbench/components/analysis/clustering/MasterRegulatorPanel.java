@@ -43,7 +43,7 @@ import com.jgoodies.forms.layout.FormLayout;
 /**
  *	Parameter Panel used for Master Regulator Analysis
  *	@author yc2480 
- *  @version $Id: MasterRegulatorPanel.java,v 1.6 2009-02-18 21:18:27 chiangy Exp $
+ *  @version $Id: MasterRegulatorPanel.java,v 1.7 2009-06-19 19:22:27 jiz Exp $
  */
 public class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
 
@@ -394,4 +394,9 @@ public class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
     	answer.put("TF",getTranscriptionFactor());
     	return answer;
     }
+	@Override
+	public void fillDefaultValues(Map<Serializable, Serializable> parameters) {
+		// TODO Auto-generated method stub
+		
+	}
 }

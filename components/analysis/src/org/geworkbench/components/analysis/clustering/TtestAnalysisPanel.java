@@ -38,7 +38,7 @@ import com.jgoodies.forms.layout.FormLayout;
  *
  * @author manjunath at genomecenter dot columbia dot edu
  * @author yc2480
- * @version $Id: TtestAnalysisPanel.java,v 1.9 2009-02-18 21:18:27 chiangy Exp $
+ * @version $Id: TtestAnalysisPanel.java,v 1.10 2009-06-19 19:25:23 jiz Exp $
  */
 
 public class TtestAnalysisPanel extends AbstractSaveableParameterPanel {
@@ -540,4 +540,10 @@ public class TtestAnalysisPanel extends AbstractSaveableParameterPanel {
        stepdownMinP.addActionListener(parameterActionListener);
        stepdownMaxT.addActionListener(parameterActionListener);
     }
+
+	@Override
+	public void fillDefaultValues(Map<Serializable, Serializable> parameters) {
+		// TODO Auto-generated method stub
+		
+	}
 }

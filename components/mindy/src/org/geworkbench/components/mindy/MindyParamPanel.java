@@ -44,7 +44,7 @@ import com.jgoodies.forms.layout.FormLayout;
  *
  * @author mhall, ch2514, yc2480
  * @author oshteynb
- * @version $Id: MindyParamPanel.java,v 1.30 2009-06-11 16:12:02 oshteynb Exp $
+ * @version $Id: MindyParamPanel.java,v 1.31 2009-06-19 19:22:55 jiz Exp $
  */
 @SuppressWarnings("serial")
 public class MindyParamPanel extends AbstractSaveableParameterPanel {
@@ -830,6 +830,12 @@ public class MindyParamPanel extends AbstractSaveableParameterPanel {
 		parameters.put("dpitargets", this.dpiAnnotationList.getText());
 		parameters.put("dpitolerance", (Double)this.dpiTolerance.getValue());
 		return parameters;
+	}
+
+	@Override
+	public void fillDefaultValues(Map<Serializable, Serializable> parameters) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

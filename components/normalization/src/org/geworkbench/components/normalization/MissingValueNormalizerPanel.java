@@ -27,7 +27,7 @@ import com.jgoodies.forms.layout.FormLayout;
 /**
  * Parameters panels used by the <code>MissingValueNormalizer</code>.
  * @author unknown, yc2480
- * @version $Id: MissingValueNormalizerPanel.java,v 1.6 2009-02-18 21:35:02 chiangy Exp $
+ * @version $Id: MissingValueNormalizerPanel.java,v 1.7 2009-06-19 19:23:05 jiz Exp $
  */
 public class MissingValueNormalizerPanel extends AbstractSaveableParameterPanel {
     final String MARKER_OPTION = "Mean profile marker";
@@ -103,6 +103,12 @@ public class MissingValueNormalizerPanel extends AbstractSaveableParameterPanel 
         else
             return MissingValueNormalizer.MICROARRAY_MEAN;
     }
+
+	@Override
+	public void fillDefaultValues(Map<Serializable, Serializable> parameters) {
+		// TODO Auto-generated method stub
+		
+	}
 
 }
 

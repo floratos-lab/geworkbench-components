@@ -120,7 +120,13 @@ public class QuantileNormalizerPanel extends AbstractSaveableParameterPanel {
         if(type.equalsIgnoreCase(MICROARRAY_OPTION)){
          averagingTypeSelection.setSelectedItem(MICROARRAY_OPTION);
         }
-    };
+    }
+
+	@Override
+	public void fillDefaultValues(Map<Serializable, Serializable> parameters) {
+		// TODO Auto-generated method stub
+		
+	};
 
 }
 

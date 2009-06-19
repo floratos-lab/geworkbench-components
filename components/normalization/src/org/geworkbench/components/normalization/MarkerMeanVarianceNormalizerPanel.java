@@ -115,5 +115,11 @@ public class MarkerMeanVarianceNormalizerPanel extends AbstractSaveableParameter
             return MarkerCenteringNormalizer.IGNORE;
     }
 
+	@Override
+	public void fillDefaultValues(Map<Serializable, Serializable> parameters) {
+		// TODO Auto-generated method stub
+		
+	}
+
 }
 
