@@ -42,7 +42,7 @@ import edu.columbia.geworkbench.cagrid.anova.PValueEstimation;
 
 /**
  * @author yc2480
- * @version $Id: AnovaAnalysisPanel.java,v 1.15 2009-05-28 22:03:24 chiangy Exp $
+ * @version $Id: AnovaAnalysisPanel.java,v 1.16 2009-06-19 19:15:40 jiz Exp $
  */
 public class AnovaAnalysisPanel extends AbstractSaveableParameterPanel {
 
@@ -1021,4 +1021,13 @@ public class AnovaAnalysisPanel extends AbstractSaveableParameterPanel {
 		}
 		return new ParamValidationResults(true, "No Error");
     }
+
+	@Override
+	public void fillDefaultValues(Map<Serializable, Serializable> parameters) {
+		if(parameters.get("PValueEstimation")==null)parameters.put("PValueEstimation", PValueEstimation._fdistribution);
+		if(parameters.get("FalseDiscoveryRateControl")==null)parameters.put("FalseDiscoveryRateControl", FalseDiscoveryRateControl._alpha);
+		if(parameters.get("PermutationsNumber")==null)parameters.put("PermutationsNumber", PermutationsNumberDefault);
+		if(parameters.get("PValueThreshold")==null)parameters.put("PValueThreshold", PValueThresholdDefault);
+		if(parameters.get("FalseSignificantGenesLimit")==null)parameters.put("FalseSignificantGenesLimit", 10.0f);
+	}
 }
