@@ -487,4 +487,10 @@ public class KNNTrainingPanel extends GPTrainingPanel {
 		return parameters;
 	}
 
+	@Override
+	public void fillDefaultValues(Map<Serializable, Serializable> parameters) {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

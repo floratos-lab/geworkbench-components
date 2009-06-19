@@ -30,7 +30,7 @@ import com.jgoodies.forms.layout.FormLayout;
 /**
  * @author: Marc-Danie Nazaire
  * @author yc2480
- * @version $Id: PCAAnalysisPanel.java,v 1.10 2009-02-18 21:29:33 chiangy Exp $
+ * @version $Id: PCAAnalysisPanel.java,v 1.11 2009-06-19 19:21:24 jiz Exp $
  */
 public class PCAAnalysisPanel extends GPAnalysisPanel  
 {
@@ -128,6 +128,12 @@ public class PCAAnalysisPanel extends GPAnalysisPanel
 
 		parameters.put("variables", getVariables());
 		return parameters;
+	}
+
+	@Override
+	public void fillDefaultValues(Map<Serializable, Serializable> parameters) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

@@ -175,5 +175,11 @@ public class AffyDetectionCallFilterPanel extends AbstractSaveableParameterPanel
         "absent: "+isAbsentSelected()+"\n"+
     	"========================================\n";
     }
+
+	@Override
+	public void fillDefaultValues(Map<Serializable, Serializable> parameters) {
+		// TODO Auto-generated method stub
+		
+	}
 }
 

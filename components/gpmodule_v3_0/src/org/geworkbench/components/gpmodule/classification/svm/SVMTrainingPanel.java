@@ -29,7 +29,7 @@ import com.jgoodies.forms.layout.RowSpec;
 
 /**
  * @author Marc-Danie Nazaire
- * @version $Id: SVMTrainingPanel.java,v 1.6 2009-02-18 21:29:33 chiangy Exp $
+ * @version $Id: SVMTrainingPanel.java,v 1.7 2009-06-19 19:18:48 jiz Exp $
  */
 public class SVMTrainingPanel extends GPTrainingPanel
 {
@@ -106,4 +106,10 @@ public class SVMTrainingPanel extends GPTrainingPanel
     	//for SVM, nothing to save
     	return new HashMap<Serializable, Serializable>();
     }
+
+	@Override
+	public void fillDefaultValues(Map<Serializable, Serializable> parameters) {
+		// TODO Auto-generated method stub
+		
+	}
 }

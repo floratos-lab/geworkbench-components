@@ -31,7 +31,7 @@ import com.jgoodies.forms.layout.FormLayout;
  * Hierarchical clustering analysis
  *
  * @author First Genetic Trust
- * @version $Id: HierClustPanel.java,v 1.3 2009-02-18 21:30:09 chiangy Exp $
+ * @version $Id: HierClustPanel.java,v 1.4 2009-06-19 19:21:34 jiz Exp $
  */
 public class HierClustPanel extends AbstractSaveableParameterPanel{
     /**
@@ -244,4 +244,10 @@ public class HierClustPanel extends AbstractSaveableParameterPanel{
         panel.method.setSelectedIndex(method.getSelectedIndex());
         return panel;
     }
+
+	@Override
+	public void fillDefaultValues(Map<Serializable, Serializable> parameters) {
+		// TODO Auto-generated method stub
+		
+	}
 }
