@@ -101,11 +101,11 @@ import edu.columbia.geworkbench.cagrid.dispatcher.client.DispatcherClient;
  * @author First Genetic Trust Inc.
  * @author keshav
  * @author yc2480
- * @version $Id: AnalysisPanel.java,v 1.83 2009-06-19 19:13:56 tgarben Exp $
+ * @version $Id: AnalysisPanel.java,v 1.84 2009-06-19 20:10:03 chiangy Exp $
  * 
  */
-@AcceptTypes( { DSMicroarraySet.class, AdjacencyMatrixDataSet.class,
-		EdgeListDataSet.class, CSProteinStructure.class, CSSequenceSet.class })
+@AcceptTypes( { DSMicroarraySet.class, EdgeListDataSet.class,
+		CSProteinStructure.class, CSSequenceSet.class })
 public class AnalysisPanel extends MicroarrayViewEventBase implements
 		VisualPlugin, ReHighlightable {
 
@@ -1222,7 +1222,8 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 								history += "Grid service information:"
 										+ FileTools.NEWLINE;
 								history += FileTools.TAB + "Index server url: "
-										+ jGridServicePanel.getIndexServerUrl();
+										+ jGridServicePanel.getIndexServerUrl()
+										+ FileTools.NEWLINE;
 								history += FileTools.TAB + "Dispatcher url: "
 										+ dispatcherUrl + FileTools.NEWLINE;
 								history += FileTools.TAB + "Service url: "
