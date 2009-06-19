@@ -385,5 +385,11 @@ public class GenepixFlagsFilterPanel extends AbstractSaveableParameterPanel {
         this.unflaggedProbeNum = unflaggedProbeNum;
     }
 
+	@Override
+	public void fillDefaultValues(Map<Serializable, Serializable> parameters) {
+		// TODO Auto-generated method stub
+		
+	}
+
 
 }

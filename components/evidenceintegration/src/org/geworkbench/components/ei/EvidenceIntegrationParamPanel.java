@@ -45,7 +45,7 @@ import edu.columbia.c2b2.evidenceinegration.Evidence;
 
 /**
  * @author mhall
- * @version $Id: EvidenceIntegrationParamPanel.java,v 1.9 2009-02-18 21:28:25 chiangy Exp $
+ * @version $Id: EvidenceIntegrationParamPanel.java,v 1.10 2009-06-19 19:20:36 jiz Exp $
  */
 public class EvidenceIntegrationParamPanel extends AbstractSaveableParameterPanel {
 
@@ -439,4 +439,10 @@ public class EvidenceIntegrationParamPanel extends AbstractSaveableParameterPane
      public void setParameters(Map<Serializable, Serializable> parameter) {
     	 return;
      }
+
+	@Override
+	public void fillDefaultValues(Map<Serializable, Serializable> parameters) {
+		// TODO Auto-generated method stub
+		
+	}
 }

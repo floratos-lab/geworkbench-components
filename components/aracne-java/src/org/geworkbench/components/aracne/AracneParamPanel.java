@@ -44,7 +44,7 @@ import edu.columbia.c2b2.aracne.Parameter;
 /**
  * @author mhall
  * @author yc2480
- * @version $Id: AracneParamPanel.java,v 1.16 2009-06-18 22:19:43 oshteynb Exp $
+ * @version $Id: AracneParamPanel.java,v 1.17 2009-06-19 19:20:15 jiz Exp $
  */
 public class AracneParamPanel extends AbstractSaveableParameterPanel {
 	private static final long serialVersionUID = 4023695671471667725L;
@@ -742,6 +742,12 @@ public class AracneParamPanel extends AbstractSaveableParameterPanel {
 		} else {
 		    kernelWidth.setEnabled(true);
 		}
+	}
+
+	@Override
+	public void fillDefaultValues(Map<Serializable, Serializable> parameters) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

@@ -1011,6 +1011,13 @@ public class HouseKeepingGeneNormalizerPanel extends AbstractSaveableParameterPa
         }
     }
 
+
+	@Override
+	public void fillDefaultValues(Map<Serializable, Serializable> parameters) {
+		// TODO Auto-generated method stub
+		
+	}
+
 }
 
 

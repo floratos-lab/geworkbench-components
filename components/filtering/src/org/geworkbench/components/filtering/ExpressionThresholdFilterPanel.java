@@ -167,4 +167,10 @@ public class ExpressionThresholdFilterPanel extends AbstractSaveableParameterPan
             return new ParamValidationResults(true, "No Error");
     }
 
+	@Override
+	public void fillDefaultValues(Map<Serializable, Serializable> parameters) {
+		// TODO Auto-generated method stub
+		
+	}
+
 }
