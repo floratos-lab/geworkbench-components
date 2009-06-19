@@ -150,5 +150,11 @@ public class ThresholdNormalizerPanel extends AbstractSaveableParameterPanel {
             return ThresholdNormalizer.REPLACE;
     }
 
+	@Override
+	public void fillDefaultValues(Map<Serializable, Serializable> parameters) {
+		// TODO Auto-generated method stub
+		
+	}
+
 }
 

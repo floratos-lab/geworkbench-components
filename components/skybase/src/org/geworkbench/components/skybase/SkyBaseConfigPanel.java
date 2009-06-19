@@ -25,7 +25,7 @@ import com.jgoodies.forms.layout.FormLayout;
  * parameter panel for blast skybase
  * 
  * @author mw2518
- * @version $Id: SkyBaseConfigPanel.java,v 1.6 2009-04-22 15:34:00 jiz Exp $
+ * @version $Id: SkyBaseConfigPanel.java,v 1.7 2009-06-19 19:23:50 jiz Exp $
  * 
  */
 public class SkyBaseConfigPanel extends AbstractSaveableParameterPanel {
@@ -164,6 +164,12 @@ public class SkyBaseConfigPanel extends AbstractSaveableParameterPanel {
 			else if(key.equals("trphits"))rphitsEdit.setValue(value); // int 
 		}
 		stopNotifyAnalysisPanelTemporary(false);
+	}
+
+	@Override
+	public void fillDefaultValues(Map<Serializable, Serializable> parameters) {
+		// TODO Auto-generated method stub
+		
 	}
 
 	

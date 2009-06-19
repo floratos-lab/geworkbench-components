@@ -36,7 +36,7 @@ import com.jgoodies.forms.layout.FormLayout;
 /**
  * @author John Watkinson
  * @author ch2514
- * @version $Id: MatrixReduceParamPanel.java,v 1.19 2009-02-18 21:33:19 chiangy Exp $
+ * @version $Id: MatrixReduceParamPanel.java,v 1.20 2009-06-19 19:22:33 jiz Exp $
  * todo - make serializable work
  */
 public class MatrixReduceParamPanel extends AbstractSaveableParameterPanel{
@@ -481,5 +481,11 @@ public class MatrixReduceParamPanel extends AbstractSaveableParameterPanel{
 		histStr.append("\n\n");
 		
 		return histStr.toString();
+	}
+
+	@Override
+	public void fillDefaultValues(Map<Serializable, Serializable> parameters) {
+		// TODO Auto-generated method stub
+		
 	}
 }

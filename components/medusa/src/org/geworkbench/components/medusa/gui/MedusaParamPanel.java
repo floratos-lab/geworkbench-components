@@ -33,7 +33,7 @@ import com.jgoodies.forms.layout.FormLayout;
 /**
  * 
  * @author keshav
- * @version $Id: MedusaParamPanel.java,v 1.14 2009-02-18 21:33:53 chiangy Exp $
+ * @version $Id: MedusaParamPanel.java,v 1.15 2009-06-19 19:22:41 jiz Exp $
  */
 public class MedusaParamPanel extends AbstractSaveableParameterPanel implements
 		Serializable {
@@ -785,5 +785,11 @@ public class MedusaParamPanel extends AbstractSaveableParameterPanel implements
 	public void setParameters(Map<Serializable, Serializable> parameters) {
 		// TODO Auto-generated method stub
 		log.error(new OperationNotSupportedException("Please implement setParameters()"));		
+	}
+
+	@Override
+	public void fillDefaultValues(Map<Serializable, Serializable> parameters) {
+		// TODO Auto-generated method stub
+		
 	}
 }

@@ -25,7 +25,7 @@ import com.jgoodies.forms.layout.FormLayout;
  * Configuration panel for Pudge analysis
  * 
  * @author mw2518
- * @version $Id: PudgeConfigPanel.java,v 1.2 2009-05-28 16:12:26 wangm Exp $
+ * @version $Id: PudgeConfigPanel.java,v 1.3 2009-06-19 19:23:34 jiz Exp $
  */
 public class PudgeConfigPanel extends AbstractSaveableParameterPanel implements Serializable
 {
@@ -110,6 +110,12 @@ public class PudgeConfigPanel extends AbstractSaveableParameterPanel implements 
 	public void setParameters(Map<Serializable, Serializable> parameters) {
 		// TODO Auto-generated method stub
 		log.error(new OperationNotSupportedException("Please implement setParameters()"));
+	}
+
+	@Override
+	public void fillDefaultValues(Map<Serializable, Serializable> parameters) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

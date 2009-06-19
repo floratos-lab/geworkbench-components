@@ -31,7 +31,7 @@ import com.jgoodies.forms.layout.FormLayout;
  * SOM analysis
  *
  * @author First Genetic Trust
- * @version $Id: SOMPanel.java,v 1.4 2009-02-18 21:35:22 chiangy Exp $
+ * @version $Id: SOMPanel.java,v 1.5 2009-06-19 19:25:05 jiz Exp $
  */
 public class SOMPanel extends AbstractSaveableParameterPanel {
     /**
@@ -315,5 +315,11 @@ public class SOMPanel extends AbstractSaveableParameterPanel {
             return new ParamValidationResults(false, "Learning Rate has to be between 0 and 1");
         return new ParamValidationResults(true, "SOM Parameter validations passed");
     }
+
+	@Override
+	public void fillDefaultValues(Map<Serializable, Serializable> parameters) {
+		// TODO Auto-generated method stub
+		
+	}
 
 }
