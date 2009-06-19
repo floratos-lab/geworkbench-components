@@ -101,7 +101,7 @@ import edu.columbia.geworkbench.cagrid.dispatcher.client.DispatcherClient;
  * @author First Genetic Trust Inc.
  * @author keshav
  * @author yc2480
- * @version $Id: AnalysisPanel.java,v 1.82 2009-06-16 14:30:02 tgarben Exp $
+ * @version $Id: AnalysisPanel.java,v 1.83 2009-06-19 19:13:56 tgarben Exp $
  * 
  */
 @AcceptTypes( { DSMicroarraySet.class, AdjacencyMatrixDataSet.class,
@@ -399,8 +399,8 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 	 */
 	class AbstractAnalysisLabelComparator implements Comparator<Object>{
 		public int compare(Object abstractAnalysis1, Object abstractAnalysis2){
-			String label1 = ( (AbstractAnalysis) abstractAnalysis1).getLabel();
-			String label2 = ( (AbstractAnalysis) abstractAnalysis2).getLabel();
+			String label1 = ( (AbstractAnalysis) abstractAnalysis1).getLabel().toLowerCase();
+			String label2 = ( (AbstractAnalysis) abstractAnalysis2).getLabel().toLowerCase();
 			return label1.compareTo(label2);
 		}
 	}
