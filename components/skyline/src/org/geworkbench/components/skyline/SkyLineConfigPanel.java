@@ -26,7 +26,7 @@ import com.jgoodies.forms.layout.FormLayout;
  * Parameters panel used by the SkyLine
  * 
  * @author mw2518
- * @version $Id: SkyLineConfigPanel.java,v 1.7 2009-06-15 19:48:20 jiz Exp $
+ * @version $Id: SkyLineConfigPanel.java,v 1.8 2009-06-19 19:16:51 jiz Exp $
  * 
  */
 public class SkyLineConfigPanel extends AbstractSaveableParameterPanel
@@ -340,11 +340,27 @@ public class SkyLineConfigPanel extends AbstractSaveableParameterPanel
 	}
 
 	public double gethValue() {
-		return ((Double) hEdit.getValue()).doubleValue();
+		Object obj = hEdit.getValue();
+		if(obj.getClass().getSimpleName().equals("Long"))
+			return ((Long)obj).doubleValue();
+		else if(obj.getClass().getSimpleName().equals("Double"))
+			return ((Double)obj).doubleValue();
+		else {
+			log.error("wrong type returned from gethValue: "+obj.getClass().getName());
+			return 0;
+		}
 	}
 
 	public double geteValue() {
-		return ((Double) eEdit.getValue()).doubleValue();
+		Object obj = eEdit.getValue();
+		if(obj.getClass().getSimpleName().equals("Long"))
+			return ((Long)obj).doubleValue();
+		else if(obj.getClass().getSimpleName().equals("Double"))
+			return ((Double)obj).doubleValue();
+		else {
+			log.error("wrong type returned from geteValue: "+obj.getClass().getName());
+			return 0;
+		}
 	}
 
 	public int getCutoffType() {
@@ -427,6 +443,25 @@ public class SkyLineConfigPanel extends AbstractSaveableParameterPanel
 			else if(key.equals("clustal"))clustalValueSelection.setSelectedItem(value); // String
 		}
 		stopNotifyAnalysisPanelTemporary(false);
+	}
+
+	@Override
+	public void fillDefaultValues(Map<Serializable, Serializable> parameters) {
+		if(parameters.get("chain")==null)parameters.put("chain", chain);
+		if(parameters.get("pbOnInput")==null)parameters.put("pbOnInput", YES);
+		if(parameters.get("pbOnHomolugous")==null)parameters.put("pbOnHomolugous", NO);
+		if(parameters.get("sequenceDatabase")==null)parameters.put("sequenceDatabase", d);
+		if(parameters.get("chosenSpecies")==null)parameters.put("chosenSpecies", chosen_species);
+		if(parameters.get("roundToRun")==null)parameters.put("roundToRun", j);
+		if(parameters.get("maximumNumber")==null)parameters.put("maximumNumber", b);
+		if(parameters.get("inclusionThreshold")==null)parameters.put("inclusionThreshold", h);
+		if(parameters.get("expectation")==null)parameters.put("expectation", e);
+		if(parameters.get("filter")==null)parameters.put("filter", YES);
+		if(parameters.get("redundancyLevel")==null)parameters.put("redundancyLevel", redundancy_level);
+		if(parameters.get("runModeller")==null)parameters.put("runModeller", YES);
+		if(parameters.get("modelNumber")==null)parameters.put("modelNumber", model_number);
+		if(parameters.get("hetatm")==null)parameters.put("hetatm", NO);
+		if(parameters.get("clustal")==null)parameters.put("clustal", YES);
 	}
 
 }
