@@ -190,8 +190,15 @@ public class TabularMicroarrayPanel extends MicroarrayViewEventBase implements V
     //}
 
     protected void fireModelChangedEvent(MicroarraySetViewEvent event) {
-
-    	resetTablularView();
+    	if(SwingUtilities.isEventDispatchThread()) {
+    		resetTablularView();
+    	} else {
+    		SwingUtilities.invokeLater(new Thread() {
+    			public void run() {
+    				resetTablularView();
+    			}
+    		});
+    	}
     }
 
     private void resetTablularView() {
