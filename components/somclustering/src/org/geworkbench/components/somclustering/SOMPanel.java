@@ -7,6 +7,7 @@ import java.awt.event.ActionListener;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -19,6 +20,7 @@ import javax.swing.JPanel;
 import org.geworkbench.analysis.AbstractSaveableParameterPanel;
 import org.geworkbench.bison.model.analysis.ParamValidationResults;
 import org.geworkbench.events.listeners.ParameterActionListener;
+import org.ginkgo.labs.util.FileTools;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.layout.FormLayout;
@@ -31,10 +33,29 @@ import com.jgoodies.forms.layout.FormLayout;
  * SOM analysis
  *
  * @author First Genetic Trust
- * @version $Id: SOMPanel.java,v 1.5 2009-06-19 19:25:05 jiz Exp $
+ * @version $Id: SOMPanel.java,v 1.6 2009-06-22 15:22:35 chiangy Exp $
  */
 public class SOMPanel extends AbstractSaveableParameterPanel {
-    /**
+	private static final String GAUSSIAN = "Gaussian";
+	private static final String BUBBLE = "Bubble";
+	private static final String[] FUNCTIONS = { BUBBLE, GAUSSIAN };
+
+	private static final String ROWS = "rows";
+	private static final String COLUMNS = "columns";
+	private static final String RADIUS = "radius";
+	private static final String ITERATIONS = "iterations";
+	private static final String ALPHA = "alpha";
+	private static final String FUNCTION = "function";
+
+    /* Human readable text */
+    private static final String ROWS_HR = "Rows: ";
+	private static final String COLUMNS_HR = "Columns: ";
+	private static final String RADIUS_HR = "Radius: ";
+	private static final String ITERATIONS_HR = "Iterations: ";
+	private static final String ALPHA_HR = "Alpha: ";
+    private static final String FUNCTION_HR = "Function: ";
+    
+	/**
      * Visual Widget
      */
     private JLabel rowLabel = new JLabel("Grid");
@@ -105,22 +126,22 @@ public class SOMPanel extends AbstractSaveableParameterPanel {
         	Map.Entry<Serializable, Serializable> parameter = iterator.next();
 			Object key = parameter.getKey();
 			Object value = parameter.getValue();
-			if (key.equals("rows")){
+			if (key.equals(ROWS)){
 				this.rows.setValue(value);
 			}
-			if (key.equals("columns")){
+			if (key.equals(COLUMNS)){
 				this.columns.setValue(value);
 			}
-			if (key.equals("radius")){
+			if (key.equals(RADIUS)){
 				this.radius.setValue(value);
 			}
-			if (key.equals("iterations")){
+			if (key.equals(ITERATIONS)){
 				this.iterations.setValue(value);
 			}
-			if (key.equals("alpha")){
+			if (key.equals(ALPHA)){
 				this.alpha.setValue(value);
 			}
-			if (key.equals("function")){
+			if (key.equals(FUNCTION)){
 				this.function.setSelectedIndex((Integer)value);
 			}
 		}
@@ -132,13 +153,80 @@ public class SOMPanel extends AbstractSaveableParameterPanel {
      */
     public Map<Serializable, Serializable> getParameters() {
 		Map<Serializable, Serializable> parameters = new HashMap<Serializable, Serializable>();
-		parameters.put("rows", (Number)rows.getValue());
-		parameters.put("columns", (Number)columns.getValue());
-		parameters.put("radius", (Number)radius.getValue());
-		parameters.put("iterations", (Number)iterations.getValue());
-		parameters.put("alpha", (Number)alpha.getValue());
-		parameters.put("function", function.getSelectedIndex());
+		parameters.put(ROWS, (Number)rows.getValue());
+		parameters.put(COLUMNS, (Number)columns.getValue());
+		parameters.put(RADIUS, (Number)radius.getValue());
+		parameters.put(ITERATIONS, (Number)iterations.getValue());
+		parameters.put(ALPHA, (Number)alpha.getValue());
+		parameters.put(FUNCTION, function.getSelectedIndex());
 		return parameters;
+	}
+    
+    // This method will be moved to AbstractSaveableParameterPanel.java.
+	// PS: getDataSetHistory() should be moved too.
+	/**
+	 * Currently this method is used to generate dataset history, will be used
+	 * by GenSpace and others.
+	 * 
+	 * @return This method returns human readable parameters. The data should be
+	 *         the same as returned from getParameters(), but human readable. If
+	 *         getParameters() returns metric:euclidean, this method would
+	 *         probably return "Clustering Metric: euclidean"
+	 */
+	public Map<Serializable, Serializable> getHumanReadableParameters() {
+		/*
+		 * We use LinkedHashMap to retain the order of parameters, so we can
+		 * control the order when displaying it.
+		 */
+		Map<Serializable, Serializable> parameters = new LinkedHashMap<Serializable, Serializable>();
+
+		Number rows = (Number) getParameters().get(ROWS);
+		parameters.put(ROWS_HR, rows);
+
+		Number columns = (Number) getParameters().get(COLUMNS);
+		parameters.put(COLUMNS_HR, columns);
+
+		Number radius = (Number) getParameters().get(RADIUS);
+		parameters.put(RADIUS_HR, radius);
+
+		Number iterations = (Number) getParameters().get(ITERATIONS);
+		parameters.put(ITERATIONS_HR, iterations);
+
+		Number alpha = (Number) getParameters().get(ALPHA);
+		parameters.put(ALPHA_HR, alpha);
+
+		int function = (Integer) getParameters().get(FUNCTION);
+		parameters.put(FUNCTION_HR, FUNCTIONS[function]);
+
+		return parameters;
+	}
+
+	
+	// getDataSetHistory() is general enough to be moved to
+	// AbstractSaveableParameterPanel.java after getHumanReadableParameters() moved.
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.geworkbench.analysis.AbstractSaveableParameterPanel#getDataSetHistory()
+	 */
+	@Override
+	public String getDataSetHistory() {
+		/* translate between machine index to human readable text. */
+		String histStr = "";
+		Map<Serializable, Serializable> pMap = getHumanReadableParameters();
+		// Header
+		histStr += "SOM Clustering Analysis run with parameters:"
+				+ FileTools.NEWLINE;
+		histStr += "----------------------------------------"
+				+ FileTools.NEWLINE;
+		for (Iterator<Map.Entry<Serializable, Serializable>> iterator = pMap
+				.entrySet().iterator(); iterator.hasNext();) {
+			Map.Entry<Serializable, Serializable> parameter = iterator.next();
+			Object key = parameter.getKey();
+			Object value = parameter.getValue();
+			histStr += key.toString() + value.toString() + FileTools.NEWLINE;
+		}
+		return histStr;
 	}
 
     /**
@@ -191,13 +279,13 @@ public class SOMPanel extends AbstractSaveableParameterPanel {
         alpha.setValue(new Float(0.8));
         alpha.setBorder(BorderFactory.createEtchedBorder());
 //        this.add(jPanel1, BorderLayout.CENTER);
-        function.addItem("Bubble");
-        function.addItem("Gaussian");
+        function.addItem(BUBBLE);
+        function.addItem(GAUSSIAN);
         function.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 JComboBox cb = (JComboBox) e.getSource();
                 String selectedItem = (String) cb.getSelectedItem();
-                if (selectedItem.equals("Bubble")) {
+                if (selectedItem.equals(BUBBLE)) {
                 	radiusLabel.setEnabled(true);
                 	radius.setEnabled(true);
                 } else {
