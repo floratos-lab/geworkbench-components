@@ -10,6 +10,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -37,6 +38,7 @@ import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
 import org.geworkbench.bison.model.analysis.FilteringAnalysis;
 import org.geworkbench.bison.model.analysis.ParamValidationResults;
 import org.geworkbench.bison.model.analysis.ParameterPanel;
+import org.geworkbench.engine.comparators.AbstractAnalysisLabelComparator;
 import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.engine.management.AcceptTypes;
 import org.geworkbench.engine.management.ComponentRegistry;
@@ -317,6 +319,9 @@ public class FilteringPanel implements VisualPlugin, ReHighlightable {
 				selectedFilter = availableFilters[0];
 			else
 				selectedFilter = null;
+		
+		AbstractAnalysisLabelComparator comparator = new AbstractAnalysisLabelComparator();
+		Arrays.sort(availableFilters, comparator );
 	}
 
 	/**
