@@ -1,6 +1,3 @@
 classes
 savedParams
-evdpanel.properties
-expressionprofilepanel.properties
-microarraypanel.properties
-tabularmicroarraypanel.properties
+*.ccmproperties

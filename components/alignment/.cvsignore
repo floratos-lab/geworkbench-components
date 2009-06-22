@@ -1,5 +1,4 @@
 classes
 classes-components
 savedParams
-blastappcomponent.properties
-blastviewcomponent.properties
+*.ccmproperties

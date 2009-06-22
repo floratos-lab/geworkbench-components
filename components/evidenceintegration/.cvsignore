@@ -1,4 +1,3 @@
 classes
 savedParams
-evidenceintegrationanalysis.properties
-evidenceintegrationvisualization.properties
+*.ccmproperties

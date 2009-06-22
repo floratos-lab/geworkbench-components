@@ -1,4 +1,3 @@
 classes
 savedParams
-anovaanalysis.properties
-tabulardataviewer.properties
+*.ccmproperties

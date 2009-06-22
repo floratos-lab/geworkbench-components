@@ -1,4 +1,3 @@
 classes
 savedParams
-medusaanalysis.properties
-medusavisualcomponent.properties
+*.ccmproperties

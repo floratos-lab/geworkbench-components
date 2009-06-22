@@ -1,4 +1,3 @@
 classes
 savedParams
-skylineviewallpanel.properties
-skylinevieweachpanel.properties
+*.ccmproperties
