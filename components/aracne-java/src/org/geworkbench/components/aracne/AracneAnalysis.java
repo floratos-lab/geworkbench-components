@@ -63,7 +63,7 @@ public class AracneAnalysis extends AbstractGridAnalysis implements
 	 *
 	 */
 	public AracneAnalysis() {
-		setLabel("ARACNE");
+		setLabel("ARACNE Analysis");
 		setDefaultPanel(new AracneParamPanel());
 	}
 

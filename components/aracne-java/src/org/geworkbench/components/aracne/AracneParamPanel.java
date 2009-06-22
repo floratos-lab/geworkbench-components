@@ -34,6 +34,7 @@ import org.geworkbench.bison.annotation.DSAnnotationContextManager;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
+import org.geworkbench.events.listeners.ParameterActionListener;
 import org.geworkbench.util.pathwaydecoder.mutualinformation.AdjacencyMatrixDataSet;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
@@ -44,7 +45,7 @@ import edu.columbia.c2b2.aracne.Parameter;
 /**
  * @author mhall
  * @author yc2480
- * @version $Id: AracneParamPanel.java,v 1.17 2009-06-19 19:20:15 jiz Exp $
+ * @version $Id: AracneParamPanel.java,v 1.18 2009-06-22 23:25:41 oshteynb Exp $
  */
 public class AracneParamPanel extends AbstractSaveableParameterPanel {
 	private static final long serialVersionUID = 4023695671471667725L;
@@ -100,7 +101,7 @@ public class AracneParamPanel extends AbstractSaveableParameterPanel {
     private JTextField pThresholdField = new JTextField("1.e-6");
 
     public AracneParamPanel() {
-        this.setLayout(new BorderLayout());
+		this.setLayout(new BorderLayout());
 
         hubMarkerList.setEnabled(false);
         loadMarkersButton.setEnabled(false);
@@ -309,6 +310,22 @@ public class AracneParamPanel extends AbstractSaveableParameterPanel {
                 hubMarkersFile = chooser.getSelectedFile().getPath();
             }
         });
+
+	    ParameterActionListener parameterActionListener = new ParameterActionListener(this);
+	    hubCombo.addActionListener(parameterActionListener);
+	    hubMarkerList.addActionListener(parameterActionListener);
+	    thresholdCombo.addActionListener(parameterActionListener);
+	    threshold.addActionListener(parameterActionListener);
+	    kernelCombo.addActionListener(parameterActionListener);
+	    kernelWidth.addActionListener(parameterActionListener);
+	    dpiCombo.addActionListener(parameterActionListener);
+	    dpiTolerance.addActionListener(parameterActionListener);
+	    targetCheckbox.addActionListener(parameterActionListener);
+	    targetList.addActionListener(parameterActionListener);
+	    algorithmCombo.addActionListener(parameterActionListener);
+	    modeCombo.addActionListener(parameterActionListener);
+	    bootstrapField.addActionListener(parameterActionListener);
+	    pThresholdField.addActionListener(parameterActionListener);
     }
 
 	public void setKernelCombo() {
@@ -508,6 +525,13 @@ public class AracneParamPanel extends AbstractSaveableParameterPanel {
         return targetListFile;
     }
 
+    public String getConsensusThresholdAsText() {
+    	return pThresholdField.getText();
+    }
+    public void setConsensusThresholdAsText(String thresh) {
+    	pThresholdField.setText(thresh);
+    }
+
     public double getConsensusThreshold() {
     	double p = 0;
     	try {
@@ -517,6 +541,13 @@ public class AracneParamPanel extends AbstractSaveableParameterPanel {
     		// the caller of this method has to handle the case that 0 is returned, which is not a valid value
     	}
     	return p;
+    }
+
+    public String getBootstrapField() {
+    	return bootstrapField.getText();
+    }
+    public void setBootstrapField(String bootstrap) {
+    	bootstrapField.setText(bootstrap);
     }
 
     public int getBootstrapNumber() {
@@ -610,6 +641,12 @@ public class AracneParamPanel extends AbstractSaveableParameterPanel {
 			if (key.equals("Mode")){
 				setMode((String)value);
 			}
+			if (key.equals("BootstrapNumber")){
+				setBootstrapField((String)value);
+			}
+			if (key.equals("ConsensusThreshold")){
+				setConsensusThresholdAsText((String)value);
+			}
 
 		}
     }
@@ -636,6 +673,9 @@ public class AracneParamPanel extends AbstractSaveableParameterPanel {
 		parameters.put("TargetGenes", this.getTargetGeneString());
 		parameters.put("Algorithm", this.getAlgorithmAsString());
 		parameters.put("Mode", this.getModeAsString());
+
+		parameters.put("BootstrapNumber", this.getBootstrapField());
+		parameters.put("ConsensusThreshold", this.getConsensusThresholdAsText());
 
 		return parameters;
 	}
