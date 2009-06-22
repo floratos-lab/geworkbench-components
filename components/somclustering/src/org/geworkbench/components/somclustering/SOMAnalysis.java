@@ -677,12 +677,7 @@ public class SOMAnalysis extends AbstractGridAnalysis implements
 
 	private String generateDataSetHistory(int dim_x, int dim_y, int iterations, boolean is_neighborhood_bubble, float radius, float alpha, DSMicroarraySetView<? extends DSGeneMarker, ? extends DSMicroarray> data){
 		String answer="";
-		answer+="Rows: "+dim_x+"\n";
-		answer+="Columns: "+dim_y+"\n";
-		answer+="Radius: "+radius+"\n";
-		answer+="Iterations: "+iterations+"\n";
-		answer+="Alpha: "+alpha+"\n";
-		answer+=is_neighborhood_bubble?"Function: Bubble\n":"Gaussian\n";
+		answer+=aspp.getDataSetHistory();
 		answer+="\n"+data.items().size() +" microarray analyzed:\n";		
 		for (DSMicroarray microarray : data.items()){
 			answer+="\t"+microarray.getLabel()+"\n";
