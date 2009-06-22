@@ -1,4 +1,3 @@
 classes
 savedParams
-markusanalysis.properties
-markusbrowser.properties
+*.ccmproperties

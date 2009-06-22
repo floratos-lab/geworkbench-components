@@ -1,4 +1,3 @@
 classes
 savedParams
-somanalysis.properties
-somdisplay.properties
+*.ccmproperties

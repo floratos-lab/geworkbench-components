@@ -1,4 +1,3 @@
 classes
 savedParams
-genspacelogger.properties
-genspacemenu.properties
+*.ccmproperties

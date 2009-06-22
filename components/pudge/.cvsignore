@@ -1,4 +1,3 @@
 classes
 savedParams
-pudgeanalysis.properties
-pudgebrowser.properties
+*.ccmproperties

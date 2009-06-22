@@ -1,4 +1,3 @@
 classes
 savedParams
-mindyanalysis.properties
-mindyvisualcomponent.properties
+*.ccmproperties

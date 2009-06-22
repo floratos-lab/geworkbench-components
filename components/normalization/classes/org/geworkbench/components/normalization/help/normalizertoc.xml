@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="ISO-8859-1" standalone="yes"?>
+
+<toc version="1.0">
+
+	<tocitem text="Normalizers">
+
+	
+		<tocitem target="overview" text="Normalizer Overview"/>
+	
+		<tocitem target="log.trans.norm" text="Log Transformation"/>
+
+		<tocitem target="array.mean.norm" text="Array Mean"/>
+
+		<tocitem target="marker.mean.norm" text="Marker Mean"/>
+
+		<tocitem target="mean.devi.norm" text="Mean Deviant"/>
+
+		<tocitem target="min.value.norm" text="Threshold"/>
+
+		<tocitem target="mis.val.cal.norm" text="Missing Value Calculation"/>
+
+		<tocitem target="Quantile" text="Quantile"/>
+
+		<tocitem target="Housekeeping" text="Housekeeping"/>
+
+	</tocitem>
+
+</toc>
+

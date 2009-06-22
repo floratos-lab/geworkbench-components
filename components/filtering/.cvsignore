@@ -1,9 +1,3 @@
 classes
 savedParams
-affydetectioncallfilter.properties
-deviationbasedfilter.properties
-expressionthresholdfilter.properties
-filteringpanel.properties
-genepixexpressionthresholdfilter.properties
-genepixflagsfilter.properties
-missingvaluesfilter.properties
+*.ccmproperties
