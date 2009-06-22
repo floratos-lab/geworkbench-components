@@ -10,6 +10,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -37,6 +38,7 @@ import org.geworkbench.bison.model.analysis.ParamValidationResults;
 import org.geworkbench.bison.model.analysis.ParameterPanel;
 import org.geworkbench.analysis.HighlightCurrentParameterThread;
 import org.geworkbench.analysis.ReHighlightable;
+import org.geworkbench.engine.comparators.AbstractAnalysisLabelComparator;
 import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.engine.management.AcceptTypes;
 import org.geworkbench.engine.management.ComponentRegistry;
@@ -323,6 +325,9 @@ public class NormalizationPanel implements VisualPlugin, ReHighlightable {
 				selectedNormalizer = availableNormalizers[0];
 			else
 				selectedNormalizer = null;
+		
+		AbstractAnalysisLabelComparator comparator = new AbstractAnalysisLabelComparator();
+		Arrays.sort(availableNormalizers, comparator );
 	}
 
 	/**
