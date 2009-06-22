@@ -37,7 +37,7 @@ import org.geworkbench.util.SpearmanRankDistance;
 /**
  * 
  * @author unattributable
- * @version $Id: FastHierClustAnalysis.java,v 1.1 2008-12-09 16:53:45 chiangy Exp $
+ * @version $Id: FastHierClustAnalysis.java,v 1.2 2009-06-22 15:20:26 chiangy Exp $
  * 
  */
 class FastHierClustAnalysis extends AbstractGridAnalysis implements
@@ -333,14 +333,7 @@ class FastHierClustAnalysis extends AbstractGridAnalysis implements
 	 */
 	private String generateHistoryString() {
 		String histStr = "";
-		Map<Serializable, Serializable> pMap = getBisonParameters();
-		// Header
-		histStr += "Hierarchical Clustering Analysis run with parameters:\n";
-		histStr += "----------------------------------------\n";
-		 
-		histStr += "Clustering Method: " + pMap.get("Method").toString() + "\n";
-		histStr += "Clustering Dimension: " + pMap.get("Dimension").toString() + "\n";
-		histStr += "Clustering Metric: " + pMap.get("Distance").toString() + "\n";
+		histStr += aspp.getDataSetHistory();
 
 		// group names and markers
 		histStr += groupAndChipsString;

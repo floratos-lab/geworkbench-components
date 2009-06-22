@@ -5,6 +5,7 @@ import java.awt.GridLayout;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -19,6 +20,7 @@ import org.apache.commons.logging.LogFactory;
 import org.geworkbench.analysis.AbstractSaveableParameterPanel;
 import org.geworkbench.bison.model.analysis.ParamValidationResults;
 import org.geworkbench.events.listeners.ParameterActionListener;
+import org.ginkgo.labs.util.FileTools;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.layout.FormLayout;
@@ -31,10 +33,23 @@ import com.jgoodies.forms.layout.FormLayout;
  * Hierarchical clustering analysis
  *
  * @author First Genetic Trust
- * @version $Id: HierClustPanel.java,v 1.4 2009-06-19 19:21:34 jiz Exp $
+ * @version $Id: HierClustPanel.java,v 1.5 2009-06-22 15:20:26 chiangy Exp $
  */
 public class HierClustPanel extends AbstractSaveableParameterPanel{
-    /**
+	/* identification text string for parameter saving. */
+    private static final String METHOD = "method";
+	private static final String DIMENSION = "dimension";
+	private static final String METRIC = "metric";
+
+	private static final String METHOD_HR = "Clustering Method: ";
+	private static final String DIMENSION_HR = "Clustering Dimension: ";
+	private static final String METRIC_HR = "Clustering Metric: ";
+
+	private static final String METRICS[] = { "euclidean", "pearson", "spearman" };
+	private static final String METHODS[] = { "single", "average", "complete" };
+	private static final String DIMENSIONS[] = { "marker", "microarray", "both" };
+
+	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
@@ -199,18 +214,77 @@ public class HierClustPanel extends AbstractSaveableParameterPanel{
         	Map.Entry<Serializable, Serializable> parameter = iterator.next();
 			Object key = parameter.getKey();
 			Object value = parameter.getValue();
-			if (key.equals("metric")){
+			if (key.equals(METRIC)){
 				this.metric.setSelectedIndex((Integer)value);
 			}
-			if (key.equals("dimension")){
+			if (key.equals(DIMENSION)){
 				this.dimension.setSelectedIndex((Integer)value);
 			}
-			if (key.equals("method")){
+			if (key.equals(METHOD)){
 				this.method.setSelectedIndex((Integer)value);
 			}
 		}
     }
 
+    // This method will be moved to AbstractSaveableParameterPanel.java.
+	// PS: getDataSetHistory() should be moved too.
+	/**
+	 * Currently this method is used to generate dataset history, will be used
+	 * by GenSpace and others.
+	 * 
+	 * @return This method returns human readable parameters. The data should be
+	 *         the same as returned from getParameters(), but human readable. If
+	 *         getParameters() returns metric:euclidean, this method would
+	 *         probably return "Clustering Metric: euclidean"
+	 */
+	public Map<Serializable, Serializable> getHumanReadableParameters() {
+		/*
+		 * We use LinkedHashMap to retain the order of parameters, so we can
+		 * control the order when displaying it.
+		 */
+		Map<Serializable, Serializable> parameters = new LinkedHashMap<Serializable, Serializable>();
+
+		int method = (Integer) getParameters().get(METHOD);
+		parameters.put(METHOD_HR, METHODS[method]);
+
+		int dimension = (Integer) getParameters().get(DIMENSION);
+		parameters.put(DIMENSION_HR, DIMENSIONS[dimension]);
+
+		int metric = (Integer) getParameters().get(METRIC);
+		parameters.put(METRIC_HR, METRICS[metric]);
+
+		return parameters;
+	}
+
+	
+	// getDataSetHistory() is general enough to be moved to
+	// AbstractSaveableParameterPanel.java after getHumanReadableParameters()
+	// moved.
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.geworkbench.analysis.AbstractSaveableParameterPanel#getDataSetHistory()
+	 */
+	@Override
+	public String getDataSetHistory() {
+		/* translate between machine index to human readable text. */
+		String histStr = "";
+		Map<Serializable, Serializable> pMap = getHumanReadableParameters();
+		// Header, could be moved to AbstractAnalysis.java
+		histStr += "Hierarchical Clustering Analysis run with parameters:"
+				+ FileTools.NEWLINE;
+		histStr += "----------------------------------------"
+				+ FileTools.NEWLINE;
+		for (Iterator<Map.Entry<Serializable, Serializable>> iterator = pMap
+				.entrySet().iterator(); iterator.hasNext();) {
+			Map.Entry<Serializable, Serializable> parameter = iterator.next();
+			Object key = parameter.getKey();
+			Object value = parameter.getValue();
+			histStr += key.toString() + value.toString() + FileTools.NEWLINE;
+		}
+		return histStr;
+	}
+    
     /*
 	 * (non-Javadoc)
 	 * 
@@ -221,9 +295,9 @@ public class HierClustPanel extends AbstractSaveableParameterPanel{
     public Map<Serializable, Serializable> getParameters() {
 		Map<Serializable, Serializable> parameters = new HashMap<Serializable, Serializable>();
 
-		parameters.put("metric", this.metric.getSelectedIndex());
-		parameters.put("dimension", this.dimension.getSelectedIndex());
-		parameters.put("method", this.method.getSelectedIndex());
+		parameters.put(METRIC, this.metric.getSelectedIndex());
+		parameters.put(DIMENSION, this.dimension.getSelectedIndex());
+		parameters.put(METHOD, this.method.getSelectedIndex());
 		return parameters;
 	}
 
