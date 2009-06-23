@@ -551,10 +551,27 @@ public class AracneAnalysis extends AbstractGridAnalysis implements
 		double consensusThreshold = paramPanel.getConsensusThreshold();
 		bisonParameters.put("consensusThreshold", consensusThreshold);
 
-		String algorithm = AracneParamPanel.FIXED_BANDWIDTH;
-		if(paramPanel.getAlgorithm().equals(Parameter.ALGORITHM.ADAPTIVE_PARTITIONING))
-			algorithm = AracneParamPanel.ADAPTIVE_PARTITIONING;
+		String algorithm = null;
+    	if (paramPanel.getAlgorithm().equals(Parameter.ALGORITHM.ADAPTIVE_PARTITIONING)){
+    		algorithm = AracneParamPanel.ADAPTIVE_PARTITIONING;
+    	} else if (paramPanel.getAlgorithm().equals(Parameter.ALGORITHM.FIXED_BANDWIDTH)){
+    		algorithm = AracneParamPanel.FIXED_BANDWIDTH;
+    	} else {
+    		log.error("wrong algorithm in parameters");
+    	}
 		bisonParameters.put("algorithm", algorithm);
+		
+		String mode = null;
+    	if (paramPanel.getMode().equals(Parameter.MODE.COMPLETE)){
+    		mode = AracneParamPanel.COMPLETE;
+    	} else if (paramPanel.getMode().equals(Parameter.MODE.PREPROCESSING)){
+    		mode = AracneParamPanel.PREPROCESSING;
+    	} else if (paramPanel.getMode().equals(Parameter.MODE.DISCOVERY)){
+    		mode = AracneParamPanel.DISCOVERY;
+    	} else {
+    		log.error("wrong mode in parameters");
+    	}
+		bisonParameters.put("mode", mode);
 
 		return bisonParameters;
 	}
