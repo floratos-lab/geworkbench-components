@@ -45,7 +45,7 @@ import edu.columbia.c2b2.aracne.Parameter;
 /**
  * @author mhall
  * @author yc2480
- * @version $Id: AracneParamPanel.java,v 1.18 2009-06-22 23:25:41 oshteynb Exp $
+ * @version $Id: AracneParamPanel.java,v 1.19 2009-06-23 00:25:05 oshteynb Exp $
  */
 public class AracneParamPanel extends AbstractSaveableParameterPanel {
 	private static final long serialVersionUID = 4023695671471667725L;
@@ -466,6 +466,16 @@ public class AracneParamPanel extends AbstractSaveableParameterPanel {
     	modeCombo.setSelectedItem(mode);
 	}
 
+    public String getHubAsString() {
+		String mode = hubCombo.getSelectedItem().toString();
+
+        return mode;
+    }
+
+    public void setHub(String hub) {
+    	hubCombo.setSelectedItem(hub);
+	}
+
     public void setDPITolerance(Float f) {
     	dpiTolerance.setText(f.toString());
     }
@@ -641,6 +651,9 @@ public class AracneParamPanel extends AbstractSaveableParameterPanel {
 			if (key.equals("Mode")){
 				setMode((String)value);
 			}
+			if (key.equals("Hub")){
+				setHub((String)value);
+			}
 			if (key.equals("BootstrapNumber")){
 				setBootstrapField((String)value);
 			}
@@ -660,6 +673,8 @@ public class AracneParamPanel extends AbstractSaveableParameterPanel {
 	 */
     public Map<Serializable, Serializable> getParameters() {
 		Map<Serializable, Serializable> parameters = new HashMap<Serializable, Serializable>();
+
+		parameters.put("Hub", this.getHubAsString());
 
 		parameters.put("isHubListSpecified", this.isHubListSpecified());
 		parameters.put("HubGeneList", this.getHubGeneString());
@@ -787,7 +802,7 @@ public class AracneParamPanel extends AbstractSaveableParameterPanel {
 	@Override
 	public void fillDefaultValues(Map<Serializable, Serializable> parameters) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 }
