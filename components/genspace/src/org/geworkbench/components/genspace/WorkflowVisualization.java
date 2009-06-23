@@ -2,6 +2,7 @@ package org.geworkbench.components.genspace;
 
 import javax.swing.*;
 
+import org.apache.commons.collections15.Transformer;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.builtin.projects.remoteresources.query.GeWorkbenchCaARRAYAdaptor;
@@ -10,6 +11,8 @@ import org.geworkbench.engine.config.*;
 import java.awt.Component;
 import org.jgraph.*;
 import org.jgraph.graph.*;
+
+import org.jgraph.layout.TreeLayoutAlgorithm;
 import org.jgraph.event.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -22,7 +25,15 @@ import java.io.PrintWriter;
 import java.util.*;
 import java.net.*;
 
+import edu.uci.ics.jung.algorithms.layout.CircleLayout;
+import edu.uci.ics.jung.graph.DirectedGraph;
+import edu.uci.ics.jung.graph.DirectedOrderedSparseMultigraph;
+import edu.uci.ics.jung.graph.DirectedSparseGraph;
+import edu.uci.ics.jung.graph.util.EdgeType;
+import edu.uci.ics.jung.graph.util.Pair;
+
 import org.jdesktop.swingworker.*;
+
 
 
 
@@ -36,6 +47,7 @@ public class WorkflowVisualization extends JPanel implements VisualPlugin, Actio
 	private JLabel label = new JLabel();
 	private JPanel selectPanel = new JPanel();
 	private JPanel graphPanel = new JPanel();
+	private JScrollPane scroller = new JScrollPane();;
 	private HashMap<String, String> actionKeywords = new HashMap<String, String>();
 	private ArrayList<String> workflows;
 	private JGraph graph;
@@ -50,7 +62,7 @@ public class WorkflowVisualization extends JPanel implements VisualPlugin, Actio
 
 	public WorkflowVisualization()
 	{
-		log.info("Workflow Visualization started");
+		log.debug("Workflow Visualization started");
 
 	}
 
@@ -92,7 +104,7 @@ public class WorkflowVisualization extends JPanel implements VisualPlugin, Actio
 
 		add(selectPanel, BorderLayout.NORTH);
 
-		add(graphPanel, BorderLayout.CENTER);
+		add(scroller, BorderLayout.CENTER);
 	}
 
 
@@ -177,7 +189,7 @@ public class WorkflowVisualization extends JPanel implements VisualPlugin, Actio
 					while (in.hasNext())
 					{
 						String line = in.nextLine();
-						log.info(line);
+						log.debug(line);
 						if (line.equals("END")) break;
 						if (!(line.equals("null"))) workflows.add(line);
 					}
@@ -367,6 +379,9 @@ public class WorkflowVisualization extends JPanel implements VisualPlugin, Actio
 	{
 		// general setup stuff
 		GraphModel model = new DefaultGraphModel();
+		DirectedOrderedSparseMultigraph<Integer, Integer> backGraph = new DirectedOrderedSparseMultigraph<Integer, Integer>();
+		final ArrayList<String> reverseMap = new ArrayList<String>();
+		
 		GraphLayoutCache view = new GraphLayoutCache(model, new DefaultCellViewFactory());
 		graph = new JGraph(model, view);
 
@@ -375,7 +390,8 @@ public class WorkflowVisualization extends JPanel implements VisualPlugin, Actio
 		if (edges == null) size = nodes.length * 2 - 1;
 		else size = nodes.length + edges.length;
 		cells = new DefaultGraphCell[size];
-
+		DefaultGraphCell[] extraCells = new DefaultGraphCell[size];
+		
 		// to keep track of the mapping between node numbers and the names
 		HashMap<String, Integer> map = new HashMap<String, Integer>();
 
@@ -386,7 +402,7 @@ public class WorkflowVisualization extends JPanel implements VisualPlugin, Actio
 		// the average width per node
 		double avgWidth = ((double)width)/nodes.length;
 
-		// create the Nodes
+		// create the Nodes. Do a preliminary (random) layout.
 		int count = 0;
 		for (int i = 0; i < nodes.length; i++)
 		{
@@ -398,7 +414,7 @@ public class WorkflowVisualization extends JPanel implements VisualPlugin, Actio
 			// figure out which color - default is gray
 			Color myColor = Color.gray;
 			if (node.equals(target)) myColor = Color.yellow;
-			//System.out.println("Node is " + node + "; target is " + target);
+//			System.out.println("Node is " + node + "; target is " + target);
 			//else if (nodes[i].isStart) color = Color.green;
 			//else if (count == nodes.length - 1) color = Color.red;
 
@@ -408,20 +424,23 @@ public class WorkflowVisualization extends JPanel implements VisualPlugin, Actio
 			int tempWidth = node.trim().length() * 7; // figure 7 pixels per character
 			int myWidth = (tempWidth < minWidth) ? minWidth : tempWidth;
 			if (node.equals(target)) myWidth *= 1.5;
-			cells[count] = createNode(node, new Rectangle2D.Double(avgWidth * count + 40, height * factor, myWidth, myHeight), myColor);
+			backGraph.addVertex(count);
+			cells[count] = createNode(node,node, new Rectangle2D.Double(avgWidth * count + 50, height * factor, myWidth, myHeight), myColor);
 			map.put(node, count);
+			reverseMap.add(node);
 			// increment the counter
 			count++;
 		}
-
-		// create the Edges
+		// create the Edges - preliminary
 		if (edges == null)
 		{
 			// this is for the case when we don't have a tree, just a sequence of nodes
 			int max = count-1; // the maximum node number
 			for (; count < size; count++)
 			{
-				cells[count] = createEdge(cells[count-max-1], cells[count-max]);
+			
+				Pair<Integer> temp = new Pair<Integer>((count-max-1),(count-max));
+				backGraph.addEdge(count, count-max-1, count-max);
 			}
 		}
 		else
@@ -432,25 +451,109 @@ public class WorkflowVisualization extends JPanel implements VisualPlugin, Actio
 				// get the source and destination from the Edge array, using the map
 				int src = map.get(edge.src);
 				int dest = map.get(edge.dest);
+				
+				backGraph.addEdge(count, new Pair(src,dest));
+				count++;
+			}
+		}
+		
+
+//		Now actually do the layout, then recreate the display graph using the calculated co-ords.
+		CircleLayout<Integer, Integer> layout = new CircleLayout<Integer,Integer>(backGraph);
+		layout.setSize(new Dimension(scroller.getWidth()-100,scroller.getHeight()-100));
+		count = 0;
+		int[] shifts = new int[nodes.length];
+		for (int i = 0; i < nodes.length; i++)
+		{
+			String node = nodes[i].value;
+
+			
+			// figure out which color - default is gray
+			Color myColor = Color.gray;
+			if (node.equals(target)) myColor = Color.yellow;
+			
+			int myHeight = (node.equals(target)) ? 60 : 40;
+			// use the number of characters to figure out the width
+			int minWidth = 80;
+			String toDisplay = node;
+			if(node.trim().length() > 21)
+			{
+				//Add a line break
+				toDisplay = "<html>"+node.trim().substring(0,20)+"-<br>"+node.trim().substring(20) + "</html>";
+			}
+			int tempWidth = 23 * 7; // figure 7 pixels per character
+			int myWidth = (tempWidth < minWidth) ? minWidth : tempWidth;
+			if (node.equals(target)) myWidth *= 1.5;
+			double myX = layout.getX(i);
+			double myY = layout.getY(i);
+			shifts[i] = 0;
+			if(i>0)
+			{
+				//Check to see if the guy to the left is too close
+				
+				if(Math.abs(layout.getY(i-1) - layout.getY(i)) < 60)
+				{
+					//They are relatively "on top" vertically
+					if(layout.getY(i-1) > layout.getY(i))
+						myY-=40;
+					else
+						myY+=40;
+					myX-=myWidth/2 + shifts[i-1];
+					shifts[i] += (myWidth/2 + shifts[i-1]);
+				}
+			}
+			cells[count] = createNode(node,toDisplay, new Rectangle2D.Double(myX, myY, myWidth, myHeight), myColor);
+
+			// increment the counter
+			count++;
+		}
+		// create the Edges for REAL
+		if (edges == null)
+		{
+			// this is for the case when we don't have a tree, just a sequence of nodes
+			int max = count-1; // the maximum node number
+			for (; count < size; count++)
+			{
+				cells[count] = createEdge(cells[count-max-1], cells[count-max]);
+
+			}
+		}
+		else
+		{
+			// this is for the case when we have a full tree
+			for (Edge edge : edges)
+			{
+				// get the source and destination from the Edge array, using the map
+				int src = map.get(edge.src);
+				int dest = map.get(edge.dest);
+				
 				cells[count] = createEdge(cells[src], cells[dest]);
 				count++;
 			}
 		}
+		
+		
+		graph.setDoubleBuffered(true);
 
 		// to handle any changes to the graph
 		GraphListener listener = new GraphListener(this);
 		graph.getModel().addGraphModelListener(listener);
 		graph.getSelectionModel().addGraphSelectionListener(listener);
 
+		
 		// load up the graph
 		graph.getGraphLayoutCache().insert(cells);
+		
 
-		remove(graphPanel);
 		graphPanel = new JPanel();
 		graphPanel.setLayout(new BorderLayout());
 		graphPanel.add(graph, BorderLayout.CENTER);
-		add(graphPanel, BorderLayout.CENTER);
+		remove(scroller);
+	    scroller = new JScrollPane(graphPanel);
+
+		add(scroller, BorderLayout.CENTER);
 		graphPanel.setVisible(true);
+		scroller.setVisible(true);
 
 		validate();
 		repaint();
@@ -461,17 +564,17 @@ public class WorkflowVisualization extends JPanel implements VisualPlugin, Actio
 		GraphEdge edge = new GraphEdge(); //new DefaultEdge(source.getUserObject() + ":" + target.getUserObject());
 		edge.setSource(source.getChildAt(0));
 		edge.setTarget(target.getChildAt(0));
-		edge.sourceNode = source.getUserObject().toString();
-		edge.destNode = target.getUserObject().toString();
+		edge.sourceNode = ((GraphNode)source).toolName.toString();
+		edge.destNode = ((GraphNode)target).toolName.toString();
 		int arrow = GraphConstants.ARROW_CLASSIC;
 		GraphConstants.setLineEnd(edge.getAttributes(), arrow);
 		GraphConstants.setEndFill(edge.getAttributes(), true);
 		return edge;
 	}
 
-	private DefaultGraphCell createNode(String label, Rectangle2D bounds, Color color)
+	private DefaultGraphCell createNode(String label, String toDisplay, Rectangle2D bounds, Color color)
 	{
-		GraphNode cell = new GraphNode(label, color);
+		GraphNode cell = new GraphNode(label, toDisplay,color);
 
 		GraphConstants.setBounds(cell.getAttributes(), bounds);
 		GraphConstants.setGradientColor(cell.getAttributes(), color);
@@ -633,20 +736,20 @@ public class WorkflowVisualization extends JPanel implements VisualPlugin, Actio
 
 				// put together the String with the list of all the selected nodes
 				String highlighted = "";
-				if (highlightedNodes.size() == 1) highlighted = highlightedNodes.get(0).getUserObject().toString();
+				if (highlightedNodes.size() == 1) highlighted = highlightedNodes.get(0).getToolName();
 				else if (highlightedNodes.size() == 2)
-					highlighted = highlightedNodes.get(0).getUserObject() + " and " + highlightedNodes.get(1).getUserObject();
+					highlighted = highlightedNodes.get(0).getToolName()+ " and " + highlightedNodes.get(1).getToolName();
 				else
 				{
 					for (int i = 0; i < highlightedNodes.size(); i++)
 					{
 						if (i > 0) highlighted += ", ";
 						if (i == highlightedNodes.size() - 1) highlighted += "and ";
-						highlighted += highlightedNodes.get(i).getUserObject();
+						highlighted += highlightedNodes.get(i).getToolName();
 					}
 				}
 				// TODO: alphabetize them?
-				log.info("highlighted=" + highlighted);
+				log.debug("highlighted=" + highlighted);
 
 
 				// update the status
@@ -773,7 +876,8 @@ public class WorkflowVisualization extends JPanel implements VisualPlugin, Actio
 		{
 			if (nodes.isEmpty()) return false;
 			for (GraphNode node : nodes)
-				if (workflow.contains(node.getUserObject().toString()) == false) return false;
+				if (workflow.contains(node.getToolName()) == false) return false;
+			
 			return true;
 		}
 	}
@@ -787,15 +891,16 @@ public class WorkflowVisualization extends JPanel implements VisualPlugin, Actio
 	{
 		Color color;
 		String toolName;
-
+		String toDisplay;
 		public String getToolName() { return toolName; }
-
-		public GraphNode (String label, Color c)
+		public GraphNode (String label, String toDisplay, Color c)
 		{
-			super(label);
+			super(toDisplay);
 			toolName = label;
+			this.toDisplay = toDisplay;
 			color = c;
 		}
+	
 	}
 
 }
