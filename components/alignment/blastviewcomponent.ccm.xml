@@ -8,7 +8,7 @@
 				authorURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Home"
 				toolURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Home"
 				description="====="
-				mustAccept="true"
+				mustAccept="false"
 				visualizer="true"				
 	 >
 		<required-component class="org.geworkbench.components.alignment.panels.BlastAppComponent" />
