@@ -32,6 +32,8 @@ public class GSEAAnalysisPanel extends GPAnalysisPanel
     private JComboBox geneListOrder;
     private JComboBox normMode;
     private JComboBox randomMode;
+    private JComboBox collapseMode;
+    private JComboBox omitFeatures;    
     
     public GSEAAnalysisPanel()
     {
@@ -49,9 +51,12 @@ public class GSEAAnalysisPanel extends GPAnalysisPanel
 
     public JPanel getRequiredParametersPanel()
     {
+
         gsDatabase = new JComboBox();
-        gsDatabase.addItem("GENE_SYMBOL.chip");
-        gsDatabase.addItem("Seq_Accession.chip");
+
+        gsDatabase.addItem("c1.all.v2.5.symbols.gmt [Positional]");
+        gsDatabase.addItem("c2.all.v2.5.symbols.gmt [Curated]");
+        
 
         NumberFormat format = NumberFormat.getInstance();
         format.setMaximumFractionDigits(0);
@@ -67,13 +72,13 @@ public class GSEAAnalysisPanel extends GPAnalysisPanel
         collapseProbes.addItem("no");
 
         FormLayout layout = new FormLayout(
-                    "right:max(80dlu;pref), 7dlu,  max(70dlu;pref), 7dlu, max(95dlu;pref),7dlu, max(70dlu;pref)",
+                    "left:max(80dlu;pref), 7dlu,  max(70dlu;pref), 7dlu, max(75dlu;pref),2dlu, max(70dlu;pref)",
                     "");
         DefaultFormBuilder builder = new DefaultFormBuilder(layout);
         builder.setDefaultDialogBorder();
 
         builder.appendSeparator("Gene Set Enrichment Analysis (GSEA) Required Parameters");
-        builder.nextRow();
+        builder.nextLine();
 
         builder.append("gene sets database" , gsDatabase);
 
@@ -118,22 +123,23 @@ public class GSEAAnalysisPanel extends GPAnalysisPanel
         geneListOrder.addItem("ascending");
 
         FormLayout layout = new FormLayout(
-                    "right:max(80dlu;pref), 7dlu,  max(70dlu;pref), 7dlu, max(95dlu;pref),7dlu, max(70dlu;pref)",
+                    "left:max(80dlu;pref), 7dlu,  max(70dlu;pref), 7dlu, max(75dlu;pref),2dlu, max(70dlu;pref)",
                     "");
         DefaultFormBuilder builder = new DefaultFormBuilder(layout);
         builder.setDefaultDialogBorder();
 
         builder.appendSeparator("Gene Set Enrichment Analysis (GSEA) Basic Parameters");
-        builder.nextRow();
+        builder.nextLine();
 
         builder.append("scoring scheme" , scoringScheme);
-        builder.nextRow();
-        builder.append("metric for ranking genes" , rankMetric);
 
-        // add the GenePattern logo
+        //add the GenePattern logo
         builder.setColumn(7);
         builder.add(getGPLogo());
         builder.nextRow();
+
+        builder.append("metric for ranking genes" , rankMetric);
+        builder.nextLine();
         builder.append("min gene set size", minSize);
         builder.nextLine();
         builder.append("max gene set size", maxSize);
@@ -146,31 +152,45 @@ public class GSEAAnalysisPanel extends GPAnalysisPanel
 
     public JPanel getAdvancedParametersPanel()
     {
+        collapseMode = new JComboBox();
+        collapseMode.addItem("max probe");
+        collapseMode.addItem("median of probes");
+
         normMode = new JComboBox();
         normMode.addItem("none");
         normMode.addItem("meandiv");
 
         randomMode = new JComboBox();
-        randomMode.addItem("no_balance");
-        randomMode.addItem("equalize_and_balance");
+        randomMode.addItem("no balance");
+        randomMode.addItem("equalize and balance");
+
+        omitFeatures = new JComboBox();
+        omitFeatures.addItem("yes");
+        omitFeatures.addItem("no");
 
         FormLayout layout = new FormLayout(
-                    "right:max(80dlu;pref), 7dlu,  max(70dlu;pref), 7dlu, max(95dlu;pref),7dlu, max(70dlu;pref)",
+                    "left:max(80dlu;pref), 7dlu,  max(70dlu;pref), 7dlu, max(75dlu;pref),2dlu, max(70dlu;pref)",
                     "");
         DefaultFormBuilder builder = new DefaultFormBuilder(layout);
         builder.setDefaultDialogBorder();
 
         builder.appendSeparator("Gene Set Enrichment Analysis (GSEA) Advanced Parameters");
-        builder.nextRow();
+        builder.nextLine();
 
-        builder.append("normalization mode" , normMode);
-        builder.nextRow();
+        builder.append("collapse mode" , collapseMode);
 
-        // add the GenePattern logo
+        //add the GenePattern logo
         builder.setColumn(7);
         builder.add(getGPLogo());
         builder.nextRow();
+
+        builder.append("normalization mode" , normMode);
+        builder.nextLine();
+        
         builder.append("randomization mode" , randomMode);
+        builder.nextLine();
+
+        builder.append("omit features with no symbol match" , omitFeatures);
         builder.nextLine();
 
         return builder.getPanel();
@@ -223,20 +243,6 @@ public class GSEAAnalysisPanel extends GPAnalysisPanel
 	 */
     public void setParameters(Map<Serializable, Serializable> parameters)
     {
-        /*Set<Map.Entry<Serializable, Serializable>> set = parameters.entrySet();
-        for (Iterator<Map.Entry<Serializable, Serializable>> iterator = set.iterator(); iterator.hasNext();) {
-        	Map.Entry<Serializable, Serializable> parameter = iterator.next();
-			Object key = parameter.getKey();
-			Object value = parameter.getValue();
-			if (key.equals("gene sets database"))
-            {
-				setGsDatabase((String)value);
-			}
-            if (key.equals("number of permutations")){
-				setNumPermutations((Long)value);
-			}
-        }*/
-
         log.error(new OperationNotSupportedException("Please implement setParameters()"));
     }
 
@@ -249,12 +255,6 @@ public class GSEAAnalysisPanel extends GPAnalysisPanel
 	 */
     public Map<Serializable, Serializable> getParameters()
     {
-       /* Map<Serializable, Serializable> parameters = new HashMap<Serializable, Serializable>();
-
-        parameters.put("gene sets database", getGsDatabase());
-        parameters.put("number of permutations", getGsDatabase());
-
-        return parameters; */
 		log.error(new OperationNotSupportedException("Please implement getParameters()"));
         return null;
     }
@@ -262,6 +262,5 @@ public class GSEAAnalysisPanel extends GPAnalysisPanel
     @Override
 	public void fillDefaultValues(Map<Serializable, Serializable> parameters) {
 		// TODO Auto-generated method stub
-
 	}
 }
