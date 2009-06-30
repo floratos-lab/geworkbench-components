@@ -44,7 +44,7 @@ import org.jdesktop.jdic.browser.WebBrowserListener;
  * display Pudge website in JDIC embedded IE web browser
  * 
  * @author mw2518
- * @version $Id: PudgeBrowser.java,v 1.2 2009-05-28 16:36:39 wangm Exp $
+ * @version $Id: PudgeBrowser.java,v 1.3 2009-06-30 19:21:27 wangm Exp $
  */
 @AcceptTypes( { PudgeResultSet.class })
 public class PudgeBrowser implements VisualPlugin {
@@ -152,6 +152,9 @@ public class PudgeBrowser implements VisualPlugin {
 					e.printStackTrace();
 				}
 			}
+			//if new data set is received while job is pending, stop the thread
+			if (resultURL.indexOf(jobname)<0) return;
+			
 			resultData.setResult(resultURL);
 			link = false;
 			try {
