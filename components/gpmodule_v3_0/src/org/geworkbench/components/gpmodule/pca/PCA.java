@@ -452,7 +452,7 @@ public class PCA extends MicroarrayViewEventBase
 
     private void buildResultsTable()
     {
-        String[] columnNames = {"Id", "Eigen Value", "% Var"};
+        String[] columnNames = {"ID", "Eigenvalue", "Variance"};
         TableModel tableModel = new DefaultTableModel(columnNames, pcaDataSet.getNumPCs()){
             public boolean isCellEditable(int rowIndex, int columnIndex)
             {
@@ -1013,7 +1013,7 @@ public class PCA extends MicroarrayViewEventBase
     {
         jToolBar3.removeAll();
 
-        jToolBar3.add(new JLabel("% Var"));
+        jToolBar3.add(new JLabel("Variance(%)"));
         jToolBar3.add(perVar);
         jToolBar3.addSeparator();
 
