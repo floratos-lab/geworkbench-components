@@ -6,10 +6,19 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import javax.swing.*;
+import javax.swing.event.ChangeListener;
+import javax.swing.event.ChangeEvent;
 import javax.naming.OperationNotSupportedException;
 import java.io.Serializable;
+import java.io.File;
 import java.util.Map;
+import java.util.HashMap;
 import java.text.NumberFormat;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
+import java.awt.event.ItemListener;
+import java.awt.event.ItemEvent;
+import java.awt.*;
 
 import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.forms.builder.DefaultFormBuilder;
@@ -21,7 +30,10 @@ public class GSEAAnalysisPanel extends GPAnalysisPanel
 {
     private Log log = LogFactory.getLog(this.getClass());
 
+    JRadioButton selectGS;
+    JRadioButton upLoadGS;
     private JComboBox gsDatabase;
+    private JComboBox chipPlatform;    
     private JFormattedTextField numPerm;
     private JComboBox permType;
     private JComboBox collapseProbes;
@@ -33,7 +45,10 @@ public class GSEAAnalysisPanel extends GPAnalysisPanel
     private JComboBox normMode;
     private JComboBox randomMode;
     private JComboBox collapseMode;
-    private JComboBox omitFeatures;    
+    private JComboBox omitFeatures;
+    private JFileChooser gsDatabaseFile;
+    private JTextField gsDatabaseFileField;
+    private JButton loadGSDatabaseButton;
     
     public GSEAAnalysisPanel()
     {
@@ -51,13 +66,115 @@ public class GSEAAnalysisPanel extends GPAnalysisPanel
 
     public JPanel getRequiredParametersPanel()
     {
-
         gsDatabase = new JComboBox();
 
         gsDatabase.addItem("c1.all.v2.5.symbols.gmt [Positional]");
         gsDatabase.addItem("c2.all.v2.5.symbols.gmt [Curated]");
+        gsDatabase.addItem("c2.biocarta.v2.5.symbols.gmt [Curated]");
+        gsDatabase.addItem("c2.cgp.v2.5.symbols.gmt [Curated]");
+        gsDatabase.addItem("c2.cp.v2.5.symbols.gmt [Curated]");
+        gsDatabase.addItem("c2.genmapp.v2.5.symbols.gmt [Curated]");
+        gsDatabase.addItem("c2.kegg.v2.5.symbols.gmt [Curated]");
+        gsDatabase.addItem("c3.all.v2.5.symbols.gmt [Motif]");
+        gsDatabase.addItem("c3.mir.v2.5.symbols.gmt [Motif]");
+        gsDatabase.addItem("c3.tft.v2.5.symbols.gmt [Motif];");
+        gsDatabase.addItem("c4.all.v2.5.symbols.gmt [Computational]");
+        gsDatabase.addItem("c4.cgn.v2.5.symbols.gmt [Computational]");
+        gsDatabase.addItem("c4.cm.v2.5.symbols.gmt [Computational];");
+        gsDatabase.addItem("c5.all.v2.5.symbols.gmt [Gene ontology]");
+        gsDatabase.addItem("c5.all.v2.5.symbols.gmt [Gene ontology]");
+        gsDatabase.addItem("c5.cc.v2.5.symbols.gmt [Gene ontology]");
+        gsDatabase.addItem("c5.mf.v2.5.symbols.gmt [Gene ontology]");
+        gsDatabase.addItem("c1.v2.symbols.gmt [Positional];");
+        gsDatabase.addItem("c2.v2.symbols.gmt [Curated]");
+        gsDatabase.addItem("c3.v2.symbols.gmt [Motif]");
+        gsDatabase.addItem("c4.v2.symbols.gmt [Computational]");
+        gsDatabase.addItem("c4.v1.symbols.gmt [Computational]");
+        gsDatabase.addItem("c3.v1.symbols.gmt [Motif]");
+        gsDatabase.addItem("c2.v1.symbols.gmt [Curated]");
+        gsDatabase.addItem("c1.v1.symbols.gmt [Positional]");
         
 
+        gsDatabase.setMinimumSize(new Dimension(270, 22));
+        gsDatabase.setMaximumSize(new Dimension(270, 22));
+        gsDatabase.setPreferredSize(new Dimension(270, 22));
+
+        gsDatabaseFile = new JFileChooser();
+        gsDatabaseFileField = new JTextField();
+        gsDatabaseFileField.setEnabled(false);        
+        gsDatabaseFileField.setMinimumSize(new Dimension(110, 22));
+        gsDatabaseFileField.setMaximumSize(new Dimension(110, 22));
+        gsDatabaseFileField.setPreferredSize(new Dimension(110, 22));
+
+        selectGS = new JRadioButton("Select Gene Set Database");
+        selectGS.setSelected(true);
+        selectGS.addItemListener(new ItemListener()
+        {
+            public void itemStateChanged(ItemEvent event)
+            {
+                if(event.getStateChange() == ItemEvent.SELECTED)
+                {
+                    gsDatabase.setEnabled(true);
+                }
+                if(event.getStateChange() == ItemEvent.DESELECTED)
+                {
+                    gsDatabase.setEnabled(false);
+                }
+            }
+        });
+
+
+        upLoadGS = new JRadioButton("Upload Gene Set Database");
+        upLoadGS.setSelected(false);
+        upLoadGS.addItemListener(new ItemListener()
+        {
+            public void itemStateChanged(ItemEvent event)
+            {
+                if(event.getStateChange() == ItemEvent.SELECTED)
+                {
+                    gsDatabaseFileField.setEnabled(true);
+                    loadGSDatabaseButton.setEnabled(true);                    
+                }
+                if(event.getStateChange() == ItemEvent.DESELECTED)
+                {
+                    gsDatabaseFileField.setEnabled(false);
+                    loadGSDatabaseButton.setEnabled(false);
+                }
+            }
+        });
+
+        ButtonGroup gsGroup = new ButtonGroup();
+        gsGroup.add(selectGS);
+        gsGroup.add(upLoadGS);
+
+        loadGSDatabaseButton = new JButton("Load");
+        loadGSDatabaseButton.setEnabled(false);
+        loadGSDatabaseButton.addActionListener(new ActionListener()
+        {
+            public void actionPerformed(ActionEvent event)
+            {
+                int returnValue = gsDatabaseFile.showOpenDialog(null);
+                if (returnValue == JFileChooser.APPROVE_OPTION)
+                {
+                    File file = gsDatabaseFile.getSelectedFile();
+                    gsDatabaseFileField.setText(file.getAbsolutePath());
+                }
+            }
+        });
+        collapseProbes = new JComboBox();
+        collapseProbes.addItem("yes");
+        collapseProbes.addItem("no");
+
+        chipPlatform = new JComboBox();
+        chipPlatform.addItem("GENE_SYMBOL.chip");
+        chipPlatform.addItem("Seq_Accession.chip");
+        chipPlatform.addItem("SEQ_ACCESSION.chip");
+        chipPlatform.addItem("Hu35KsubA.chip");
+        chipPlatform.addItem("Hu35KsubB.chip");
+        chipPlatform.addItem("Hu35KsubC.chip");
+        chipPlatform.addItem("Hu35KsubD.chip");
+        chipPlatform.addItem("Hu6800.chip");
+        
         NumberFormat format = NumberFormat.getInstance();
         format.setMaximumFractionDigits(0);
         numPerm = new JFormattedTextField(format);
@@ -66,13 +183,9 @@ public class GSEAAnalysisPanel extends GPAnalysisPanel
         permType = new JComboBox();
         permType.addItem("phenotype");
         permType.addItem("gene set");
-
-        collapseProbes = new JComboBox();
-        collapseProbes.addItem("yes");
-        collapseProbes.addItem("no");
-
+       
         FormLayout layout = new FormLayout(
-                    "left:max(80dlu;pref), 7dlu,  max(70dlu;pref), 7dlu, max(75dlu;pref),2dlu, max(70dlu;pref)",
+                    "left:max(80dlu;pref), 7dlu,  max(70dlu;pref), 7dlu, max(55dlu;pref),20dlu, max(70dlu;pref)",
                     "");
         DefaultFormBuilder builder = new DefaultFormBuilder(layout);
         builder.setDefaultDialogBorder();
@@ -80,17 +193,23 @@ public class GSEAAnalysisPanel extends GPAnalysisPanel
         builder.appendSeparator("Gene Set Enrichment Analysis (GSEA) Required Parameters");
         builder.nextLine();
 
-        builder.append("gene sets database" , gsDatabase);
+        builder.append(selectGS);
+        builder.append(gsDatabase);
 
         // add the GenePattern logo
         builder.setColumn(7);
         builder.add(getGPLogo());
         builder.nextRow();
-        builder.append("number of permutations", numPerm);
+        builder.append(upLoadGS);
+        builder.append(gsDatabaseFileField, loadGSDatabaseButton);
+        builder.nextLine();
+        builder.append("collapse probe sets to gene symbols", collapseProbes);        
+        builder.nextLine();
+        builder.append("chip platform", chipPlatform);
         builder.nextLine();
         builder.append("permutation type", permType);
         builder.nextLine();
-        builder.append("collapse probe sets to gene symbols", collapseProbes);
+        builder.append("number of permutations", numPerm);
         builder.nextLine();
 
         return builder.getPanel();
@@ -207,6 +326,16 @@ public class GSEAAnalysisPanel extends GPAnalysisPanel
         parameterPanel.add(multiPane);
     }
 
+    public String getChipPlatform()
+    {
+        return (String) chipPlatform.getSelectedItem();
+    }
+
+    public void setChipPlatform(String s)
+    {
+    	chipPlatform.setSelectedItem(s);
+    }
+
     public String getGsDatabase()
     {
         return (String) gsDatabase.getSelectedItem();
@@ -255,7 +384,12 @@ public class GSEAAnalysisPanel extends GPAnalysisPanel
 	 */
     public Map<Serializable, Serializable> getParameters()
     {
-		log.error(new OperationNotSupportedException("Please implement getParameters()"));
+		//log.error(new OperationNotSupportedException("Please implement getParameters()"));
+
+        Map<Serializable, Serializable> parameters = new HashMap<Serializable, Serializable>();
+
+		parameters.put("numFeatureMethod", "yes");
+
         return null;
     }
 
