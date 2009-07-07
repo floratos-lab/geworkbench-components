@@ -7,7 +7,9 @@ import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.genepattern.matrix.Dataset;
 import org.genepattern.matrix.AbstractDataset;
+import org.genepattern.matrix.ClassVector;
 import org.genepattern.io.gct.GctWriter;
+import org.genepattern.io.cls.ClsWriter;
 import org.genepattern.util.GPpropertiesManager;
 import org.genepattern.client.GPClient;
 import org.genepattern.webservice.JobResult;
@@ -21,7 +23,6 @@ import javax.swing.*;
 import java.io.*;
 import java.util.List;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 /**
  * @author: Marc-Danie Nazaire
@@ -97,6 +98,25 @@ public abstract class GPAnalysis extends AbstractAnalysis implements ClusteringA
         }
 
         return gctFile;
+    }
+
+    protected File createCLSFile(String fileName, ClassVector classLabel)
+    {
+        File clsFile = null;
+
+        try
+        {
+            clsFile = new File(fileName + ".cls");
+            clsFile.deleteOnExit();
+            FileOutputStream clsOutputStream = new FileOutputStream(clsFile);
+
+            ClsWriter writer = new ClsWriter();
+            writer.write(classLabel, clsOutputStream);
+        }
+        catch(Exception e)
+        {   e.printStackTrace(); }
+
+        return clsFile;
     }
 
     public List runAnalysis(String analysisName, Parameter[] parameters, String password) throws Exception
