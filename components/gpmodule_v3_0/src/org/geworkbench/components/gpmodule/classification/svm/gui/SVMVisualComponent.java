@@ -53,11 +53,11 @@ public class SVMVisualComponent implements VisualPlugin
     @Subscribe
     public void receive(org.geworkbench.events.ProjectNodeAddedEvent e, Object source)
     {
-        System.out.println("SVMVisualComponent received project node added event.");
         DSDataSet dataSet = e.getDataSet();
 
         if (dataSet instanceof DSMicroarraySet)
         {
+            System.out.println("SVMVisualComponent received project node added event.");            
             microarraySets.put(dataSet.getDataSetName(), dataSet);
 		}
     }
