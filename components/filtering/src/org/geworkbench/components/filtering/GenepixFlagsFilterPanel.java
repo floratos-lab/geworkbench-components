@@ -86,7 +86,8 @@ public class GenepixFlagsFilterPanel extends AbstractSaveableParameterPanel {
 
     }
 
-
+    private static final String NOT_FILTERED = "not filtered";
+	private static final String FILTERED = "filtered";
 
     JScrollPane flagInfoPane = new JScrollPane();
     private ArrayList<FlagDetail> hits = new ArrayList<FlagDetail>();
@@ -133,7 +134,7 @@ public class GenepixFlagsFilterPanel extends AbstractSaveableParameterPanel {
 
     /*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.geworkbench.analysis.AbstractSaveableParameterPanel#getParameters()
 	 */
     public Map<Serializable, Serializable> getParameters() {
@@ -142,7 +143,7 @@ public class GenepixFlagsFilterPanel extends AbstractSaveableParameterPanel {
 		return parameters;
 	}
 
-    
+
     public GenepixFlagsFilterPanel() {
         try {
             jbInit();
@@ -388,7 +389,26 @@ public class GenepixFlagsFilterPanel extends AbstractSaveableParameterPanel {
 	@Override
 	public void fillDefaultValues(Map<Serializable, Serializable> parameters) {
 		// TODO Auto-generated method stub
-		
+
+	}
+	@Override
+	public String getDataSetHistory() {
+		String histStr = "";
+
+		// Header
+		histStr += "GenepixFlagsFilter parameters:\n";
+		histStr += "----------------------------------------\n";
+
+		/*   flags*/
+        for (Object fd : heldPanel.hits) {
+            FlagDetail detail = (FlagDetail) fd;
+    		histStr += detail.getLabel() + ": ";
+    		histStr += detail.isFiltered? FILTERED : NOT_FILTERED;
+    		histStr += "\n";
+
+        }
+
+		return histStr;
 	}
 
 

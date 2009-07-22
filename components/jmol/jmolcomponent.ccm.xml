@@ -7,7 +7,9 @@
 				author="C2B2"
 				authorURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Home"
 				toolURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Home"
-				description="====="
+				description="JMOL is an open-source molecular structure viewer.
+ In geWorkbench it can be used to visualize protein
+ and DNA structures in PDB format"
 				visualizer="true"
 	 >
 		<license><![CDATA[

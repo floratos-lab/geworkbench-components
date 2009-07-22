@@ -30,7 +30,7 @@ import org.geworkbench.events.listeners.ParameterActionListener;
  * filter. Collects ranges bounds for the values of the green channel (Cy3)
  * and the red channel (Cy5). Individual marker values from a Genepix array
  * will be compared against these ranges and filtered appropriatelly.
- * 
+ *
  * @author unknown, yc2480
  * @version $ID$
  */
@@ -80,7 +80,7 @@ public class GenepixExpressionThresholdFilterPanel extends AbstractSaveableParam
 
     /*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.geworkbench.analysis.AbstractSaveableParameterPanel#getParameters()
 	 *      Since HierClustPanel only has three parameters, we return metric,
 	 *      dimension and method in the format same as getBisonParameters().
@@ -94,7 +94,7 @@ public class GenepixExpressionThresholdFilterPanel extends AbstractSaveableParam
 		parameters.put("optionSelection", optionSelection.getSelectedIndex());
 		return parameters;
 	}
-    
+
     public GenepixExpressionThresholdFilterPanel() {
         try {
             jbInit();
@@ -210,7 +210,36 @@ public class GenepixExpressionThresholdFilterPanel extends AbstractSaveableParam
 	@Override
 	public void fillDefaultValues(Map<Serializable, Serializable> parameters) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
+	@Override
+	public String getDataSetHistory() {
+		GenepixExpressionThresholdFilterPanel genepixExpressionThresholdFilterPanel = this;
+		String histStr = "";
+		// Header
+		histStr += "GenepixExpressionThresholdFilter parameters:\n";
+		histStr += "----------------------------------------\n";
+		// Cy3 Range Min
+		histStr += "Cy3 Range Min: ";
+		histStr += genepixExpressionThresholdFilterPanel.getCy3Min() + "\n";
+
+		// Cy3 Range Max
+		histStr += "Cy3 Range Max: ";
+		histStr += genepixExpressionThresholdFilterPanel.getCy3Max() + "\n";
+
+		// Cy5 Range Min
+		histStr += "Cy5 Range Min: ";
+		histStr += genepixExpressionThresholdFilterPanel.getCy5Min() + "\n";
+
+		// Cy5 Range Max
+		histStr += "Cy5 Range Max: ";
+		histStr += genepixExpressionThresholdFilterPanel.getCy5Max() + "\n";
+
+		// Filter values
+		histStr += "Filter values: ";
+		histStr += genepixExpressionThresholdFilterPanel.optionSelection.getSelectedItem() + "\n";
+
+		return histStr;
+	}
 }

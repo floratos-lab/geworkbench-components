@@ -33,6 +33,7 @@ import org.geworkbench.events.AdjacencyMatrixEvent;
 import org.geworkbench.events.ProjectNodeAddedEvent;
 import org.geworkbench.util.pathwaydecoder.mutualinformation.AdjacencyMatrix;
 import org.geworkbench.util.pathwaydecoder.mutualinformation.AdjacencyMatrixDataSet;
+import org.ginkgo.labs.util.FileTools;
 
 import wb.data.Marker;
 import wb.data.MarkerSet;
@@ -730,25 +731,40 @@ public class AracneAnalysis extends AbstractGridAnalysis implements
 				}
 			}
 			ans += "==End of Microarray Sets==\n";
-			// generate text for markers
+			// generate text for markers; iterations over markers could be refactored into one
 			DSItemList paneltest = maSetView.getMarkerPanel();
-			if ((paneltest!=null) && (paneltest.size()>0)){
-				log.debug("situation 3: markers selected");
-				Iterator groups2 = paneltest.iterator(); // groups
-				ans += "==Used Markers [" + paneltest.size() + "]==\n";
-				while (groups2.hasNext()) {
-					CSExpressionMarker temp = (CSExpressionMarker) groups2.next();
-					ans += "\t" + temp.getLabel() + "\n";
+			
+			if (maSetView.useMarkerPanel()) {
+				if ((paneltest!=null) && (paneltest.size()>0)){
+					log.debug("situation 3: markers selected");
+					Iterator groups2 = paneltest.iterator(); // groups
+					ans += "==Used Markers [" + paneltest.size() + "]==\n";
+					while (groups2.hasNext()) {
+						CSExpressionMarker temp = (CSExpressionMarker) groups2.next();
+						ans += "\t" + temp.getLabel() + "\n";
+					}
+				}else{
+					log.debug("situation 4: no markers selected.");
+					DSItemList<DSGeneMarker> markers = maSetView.markers();
+					ans += "==Used Markers [" + markers.size() + "]==\n";
+					for (Iterator iterator = markers.iterator(); iterator.hasNext();) {
+						DSGeneMarker marker = (DSGeneMarker) iterator.next();
+						ans += "\t" + marker.getLabel() + "\n";
+					}
 				}
-			}else{
-				log.debug("situation 4: no markers selected.");
-				DSItemList<DSGeneMarker> markers = maSetView.markers();
-				ans += "==Used Markers [" + markers.size() + "]==\n";
+			} else {
+				log.debug("situation 5: All Markers selected.");
+				DSItemList<DSGeneMarker> markers = maSetView.allMarkers();
+				ans += "==Used Markers [" + markers.size() + "]=="
+						+ FileTools.NEWLINE;
 				for (Iterator iterator = markers.iterator(); iterator.hasNext();) {
 					DSGeneMarker marker = (DSGeneMarker) iterator.next();
-					ans += "\t" + marker.getLabel() + "\n";
+					ans += FileTools.TAB + marker.getLabel()
+							+ FileTools.NEWLINE;
 				}
 			}
+
+
 			ans += "==End of Used Markers==\n";
 		} catch (ClassCastException cce) {
 			// it's not a DSPanel, we generate nothing for panel part

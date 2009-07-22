@@ -7,8 +7,12 @@
 				author="C2B2"
 				authorURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Home"
 				toolURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Home"
-				description="====="
+				description="Displays the results of ANOVA analysis of gene expression
+ data in tabular format.  For each gene and each group of arrays, shows
+ the mean, standard deviation, F-statistic, and the p-value (probablility
+ of seeing the observed differences in group means and variances by chance)"
 				visualizer="true"
+				loadByDefault="true"
 	 >
 		<required-component class="org.geworkbench.components.anova.AnovaAnalysis" />
 		<license><![CDATA[

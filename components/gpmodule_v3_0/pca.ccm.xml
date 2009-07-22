@@ -7,7 +7,11 @@
 				author="C2B2"
 				authorURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Home"
 				toolURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Home"
-				description="====="
+				description="Provides visualization of PCA results
+ calculated using the GenePattern v3
+ implementation of PCA (Principal
+ Component Analysis)."
+ 
 				visualizer="true"
 	 >
 		<required-component class="org.geworkbench.components.gpmodule.pca.PCAAnalysis" />

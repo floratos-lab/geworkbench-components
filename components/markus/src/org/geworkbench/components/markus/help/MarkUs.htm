@@ -1,0 +1,45 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html dir="ltr" xml:lang="en" xmlns="http://www.w3.org/1999/xhtml" lang="en"><head>
+
+  
+</head>
+<body>
+<h1>Markus</h1>
+<br>
+<a name="Overview"></a><h2>Overview</h2>
+
+</p><p>Mark-Us is a web server to assist the assessment of the
+biochemical function for a given protein structure. MarkUs identifies
+related protein structures and sequences, detects protein cavities, and
+calculates the surface electrostatic potentials and amino acid
+conservation profile. The results can be browsed by an interactive web
+interface that allows one to integrate Gene Ontology terms, UniProt
+features, and the Enzyme Classification. The Mark-Us website is at <a href="http://luna.bioc.columbia.edu/honiglab/mark-us/cgi-bin/submit.pl" class="external free" title="http://luna.bioc.columbia.edu/honiglab/mark-us/cgi-bin/submit.pl" rel="nofollow">http://luna.bioc.columbia.edu/honiglab/mark-us/cgi-bin/submit.pl</a>
+</p>
+<a name="Mark-Us_in_geWorkbench"></a><h2>Mark-Us in geWorkbench</h2>
+<p>The starting point for a Mark-Us analysis is a PDB protein structure file.
+</p><p>1. If the Mark-Us component has not been loaded in the Component Configuration Manager (CCM), first do so.
+</p><p>2. Load a PDB file for the protein whose structure you would like to analyze.
+</p><p>3. Set the desired parameters.  The defaults are shown in the following figure.
+</p><p><img src="MarkUs_files/T_MarkUs_Parameters.png" alt="Image:T_MarkUs_Parameters.png" longdesc="/workbench/index.php/Image:T_MarkUs_Parameters.png" width="997" height="379">
+</p><p>4. Inspect and adjust if desired the parameters to DelPhi.  DelPhi calculates the electrostatic field around the molecule.
+</p><p><br>
+<img src="MarkUs_files/T_MarkUs_DelPhi_Parameters.png" alt="Image:T_MarkUs_DelPhi_Parameters.png" longdesc="/workbench/index.php/Image:T_MarkUs_DelPhi_Parameters.png" width="802" height="278">
+</p><p><br>
+5. Mark-Us is available in geWorkbench only as a grid service. 
+</p>
+<ul><li> Click on the Services tab.
+</li><li> Select the "Grid" radio button.
+</li><li> Push the "Grid Services" button.  This will retrieve available Mark-Us grid services from an index server.
+</li><li> Select the radio button for the desired grid service.
+</li></ul>
+<p><br>
+<img src="MarkUs_files/T_MarkUs_grid_service.png" alt="Image:T_MarkUs_grid_service.png" longdesc="/workbench/index.php/Image:T_MarkUs_grid_service.png" width="645" height="174">
+</p><p><br>
+6. Return to the Parameters tab.
+7. Push the "Analyze" button.
+8. The result of the analysis is returned to a web-browser window displayed within geWorkbench.
+</p><p><br>
+<img src="MarkUs_files/T_MarkUs_Web_result.png" alt="Image:T_MarkUs_Web_result.png" longdesc="/workbench/index.php/Image:T_MarkUs_Web_result.png" width="1182" height="855">
+</p>
+ </body></html>

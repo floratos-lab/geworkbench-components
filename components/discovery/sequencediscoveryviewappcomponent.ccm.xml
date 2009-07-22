@@ -6,8 +6,9 @@
 				version="1.0"
 				author="C2B2"
 				authorURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Home"
-				toolURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Home"
-				description="====="
+				toolURL="http://wiki.c2b2.columbia.edu/califanolab/index.php/Software"
+				description="Implements the SPLASH algorithm for pattern discovery
+ in a set of sequences."
 				analysis="true"
 	 >
 		<license><![CDATA[

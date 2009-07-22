@@ -7,7 +7,11 @@
 				author="C2B2"
 				authorURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Home"
 				toolURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Home"
-				description="A Filter"
+				description="Applicable to 2-channel arrays (Genepix)
+ data only. Defines applicable ranges for each channel,
+ and marks as missing all expression measurements for
+ which either channel intensity is inside (or outside)
+ the defined range. "
 	 >
 		<required-component class="org.geworkbench.components.microarrays.TabularMicroarrayPanel" />
 		<license><![CDATA[

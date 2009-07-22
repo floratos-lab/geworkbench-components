@@ -1,16 +1,25 @@
 <geaw-config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:noNamespaceSchemaLocation="ConfigurationFile Schema.xsd">
 
-	<component name="ARACNE Analysis"
+	<component name="ARACNe Analysis"
 		class="org.geworkbench.components.aracne.AracneAnalysis" version="1.0"
 		author="Andrea Califano, Ph.D."
 		authorURL="http://wiki.c2b2.columbia.edu/califanolab/index.php/Califano_Info"
-		toolURL="http://amdec-bioinfo.cu-genome.org/html/ARACNE.htm"
-		description="====" mustAccept="true" documentation="****" analysis="true">
+		toolURL="http://wiki.c2b2.columbia.edu/califanolab/index.php/Software/ARACNE"
+		description="ARACNe: Algorithm for the Reconstruction of Accurate
+ Cellular Networks.  This component uses a measure of mutual
+ information to quantify the influence of one or more chosen
+ hub genes (e.g. transcription factors) on the expression of
+ other target genes.  Direct interactions can be preferentially
+ preserved over indirect.  Primarily intended for the
+ reconstruction of cellular networks within mammalian cell types,
+ it requires expression profiles from many differ states
+ (conditions, phenotypes) to provide the perturbations which
+ allow networks to be inferred." 
+ 		mustAccept="true" documentation="http://wiki.c2b2.columbia.edu/workbench/index.php/Tutorial_-_ARACNE" analysis="true">
 		<required-component
 			class="org.geworkbench.components.cytoscape_v2_4.CytoscapeWidget" />
-		<required-component
-			class="org.geworkbench.components.cutenet.GenewaysWidget" />	
+				
 		<license>
 			<![CDATA[
 <html>

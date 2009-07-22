@@ -7,7 +7,8 @@
 				author="C2B2"
 				authorURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Home"
 				toolURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Home"
-				description="====="
+				description="Visualizes results obtained from classifying
+ samples based on SVMs generated using the Gene Pattern v3 SVM service. "
 				visualizer="true"
 	 >
 		<required-component class="org.geworkbench.components.gpmodule.classification.svm.SVMTraining" />

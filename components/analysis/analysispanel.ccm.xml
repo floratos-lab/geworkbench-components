@@ -7,8 +7,8 @@
 				author="C2B2"
 				authorURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Home"
 				toolURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Home"
-				description="====="
-				analysis="true"
+				description="The Analysis Panel component provides a framework
+ which supports numerous, individually loadable analysis methods."
 				loadByDefault="true"
 	 >
 		<license><![CDATA[

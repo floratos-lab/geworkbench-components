@@ -5,7 +5,9 @@
 		class="org.geworkbench.components.pudge.PudgeAnalysis" version="1.0"
 		author="C2B2" authorURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Home"
 		toolURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Home"
-		description="=====" 
+		description="Interface to a protein structure prediction server
+ (Honig lab) which integrates tools used at different stages
+ of the structural prediction process." 
 	>
 
 		<required-component class="org.geworkbench.components.pudge.PudgeBrowser" />
@@ -19,5 +21,13 @@
 
 	<plugin id="PudgeAnalysis" name="Pudge Analysis"
 		class="org.geworkbench.components.pudge.PudgeAnalysis" source="pudge" />
+
+	<component-descriptor xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		xsi:noNamespaceSchemaLocation="Descriptor Schema.xsd">
+		<component class="org.geworkbench.components.pudge.PudgeAnalysis">
+			<online-help
+				helpSet="org/geworkbench/components/pudge/help/pudgeHelpSet.hs" />
+		</component>
+	</component-descriptor>
 
 </geaw-config>

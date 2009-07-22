@@ -7,8 +7,11 @@
 				author="C2B2"
 				authorURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Home"
 				toolURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Home"
-				description="====="
-				analysis="true"				
+				description="This component computes the Student's t-test result
+ for the significance of any differential expression seen between two
+ clases of microarray gene expression profiles (case and control)."
+				analysis="true"
+				loadByDefault="true"				
  	 >
 		<required-component class="org.geworkbench.components.colormosaic.ColorMosaicPanel" />
 		<license><![CDATA[

@@ -7,7 +7,11 @@
 				author="C2B2"
 				authorURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Home"
 				toolURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Home"
-				description="====="
+				description="Provides an interface to the GenePattern v3
+ implementation of KNN (K-nearest neighbors), a clustering
+ algorithm.  The K-Nearest Neighbor algorithm classifies a
+ sample by assigning it the label most frequently
+ represented among the k nearest samples."
 				analysis="true"
 	 >
 		<license><![CDATA[

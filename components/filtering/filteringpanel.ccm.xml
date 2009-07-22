@@ -7,7 +7,7 @@
 				author="C2B2"
 				authorURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Home"
 				toolURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Home"
-				description="A Filter"
+				description="A framework component which supports the various specific filtering method components."
 				loadByDefault="true"
 	 >
 		<license><![CDATA[

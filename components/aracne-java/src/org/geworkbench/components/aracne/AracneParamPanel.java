@@ -45,7 +45,7 @@ import edu.columbia.c2b2.aracne.Parameter;
 /**
  * @author mhall
  * @author yc2480
- * @version $Id: AracneParamPanel.java,v 1.19 2009-06-23 00:25:05 oshteynb Exp $
+ * @version $Id: AracneParamPanel.java,v 1.20 2009-07-22 15:34:34 jiz Exp $
  */
 public class AracneParamPanel extends AbstractSaveableParameterPanel {
 	private static final long serialVersionUID = 4023695671471667725L;
@@ -85,7 +85,7 @@ public class AracneParamPanel extends AbstractSaveableParameterPanel {
     private JComboBox kernelCombo = new JComboBox(new String[]{KERNEL_INFERRED, KERNEL_SPECIFY});
     private JComboBox dpiCombo = new JComboBox(new String[]{DPI_NONE, DPI_APPLY});
     private JButton loadMarkersButton = new JButton("Load Markers");
-    private JComboBox markerSetCombo = null;
+    private JComboBox markerSetCombo = new JComboBox();
     private JTextField hubMarkerList = new JTextField(DEFAULT_HUB);
     private JTextField kernelWidth = new JTextField("0.1");
     private JTextField threshold = new JTextField("0.3");
@@ -120,7 +120,6 @@ public class AracneParamPanel extends AbstractSaveableParameterPanel {
         builder.appendSeparator("ARACNE Paramaters");
 
         builder.append("Hub Marker(s)", hubCombo);
-        markerSetCombo = new JComboBox();
         markerSetCombo.addActionListener(new MarkerSetComboListener());
 		markerSetCombo.setEnabled(false);
         builder.append(markerSetCombo, hubMarkerList, loadMarkersButton);
@@ -313,6 +312,7 @@ public class AracneParamPanel extends AbstractSaveableParameterPanel {
 
 	    ParameterActionListener parameterActionListener = new ParameterActionListener(this);
 	    hubCombo.addActionListener(parameterActionListener);
+	    markerSetCombo.addActionListener(parameterActionListener);
 	    hubMarkerList.addActionListener(parameterActionListener);
 	    thresholdCombo.addActionListener(parameterActionListener);
 	    threshold.addActionListener(parameterActionListener);
@@ -466,6 +466,16 @@ public class AracneParamPanel extends AbstractSaveableParameterPanel {
     	modeCombo.setSelectedItem(mode);
 	}
 
+    public String getMarkerSet() {
+    	String markerSet = (String) markerSetCombo.getSelectedItem();
+
+        return markerSet;
+    }
+
+    public void setMarkerSet(String markerSet) {
+    	markerSetCombo.setSelectedItem(markerSet);
+	}
+
     public String getHubAsString() {
 		String mode = hubCombo.getSelectedItem().toString();
 
@@ -602,11 +612,16 @@ public class AracneParamPanel extends AbstractSaveableParameterPanel {
 	 * Set inputed parameters to GUI.
 	 */
     public void setParameters(Map<Serializable, Serializable> parameters){
+    	if (getStopNotifyAnalysisPanelTemporaryFlag()==true) return;
+    	stopNotifyAnalysisPanelTemporary(true);
+
         Set<Map.Entry<Serializable, Serializable>> set = parameters.entrySet();
+		String markerSetTmp = null;
         for (Iterator<Map.Entry<Serializable, Serializable>> iterator = set.iterator(); iterator.hasNext();) {
         	Map.Entry<Serializable, Serializable> parameter = iterator.next();
 			Object key = parameter.getKey();
 			Object value = parameter.getValue();
+
 			if (key.equals("isHubListSpecified")){
 				setIsHubListSpecified((Boolean)value);
 			}
@@ -654,6 +669,10 @@ public class AracneParamPanel extends AbstractSaveableParameterPanel {
 			if (key.equals("Hub")){
 				setHub((String)value);
 			}
+			if (key.equals("MarkerSet")){
+				markerSetTmp = (String)value;
+//				setMarkerSet(markerSetTmp);
+			}
 			if (key.equals("BootstrapNumber")){
 				setBootstrapField((String)value);
 			}
@@ -662,6 +681,10 @@ public class AracneParamPanel extends AbstractSaveableParameterPanel {
 			}
 
 		}
+        /*  setHub method can reset or disable value of markerSetCombo, see wiki Parameter Panel for more details  */
+		setMarkerSet(markerSetTmp);
+
+		stopNotifyAnalysisPanelTemporary(false);
     }
 
     /*
@@ -675,6 +698,7 @@ public class AracneParamPanel extends AbstractSaveableParameterPanel {
 		Map<Serializable, Serializable> parameters = new HashMap<Serializable, Serializable>();
 
 		parameters.put("Hub", this.getHubAsString());
+		parameters.put("MarkerSet", this.getMarkerSet());
 
 		parameters.put("isHubListSpecified", this.isHubListSpecified());
 		parameters.put("HubGeneList", this.getHubGeneString());
