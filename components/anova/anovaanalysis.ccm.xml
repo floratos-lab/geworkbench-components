@@ -4,13 +4,15 @@
 	<component  name="AnovaAnalysis"
 							class="org.geworkbench.components.anova.AnovaAnalysis"
 							version="1.0"
-							author="SStotal = SSerror + SStreatments"
+							author="MEV (TIGR)"
 							authorURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Plugins"
 							toolURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Plugins"
-							description="Analysis of Variance - detection of significant differences in expression between more than two groups.
-geWorkbench-ANOVA is a component of geWorkbench that provides a statistical analysis function to determine significance between the means of independent groups of data using the analysis of variance algorithm. In geWorkbench, each group comprises gene expression microarray measurements from various samples, and one is interested in identifying genes whose mean expression is significantly different across the various groups.	
-"
+							description="Analysis of Variance is used in geWorkbench to deterimine
+ if significant differences in expression exist among three or more groups
+ of microarray gene expression profiles.  Formally, it tests the null
+ hypothesis that, for each gene, the mean expression of each group is equal."
 							analysis="true"
+							loadByDefault="true"
 	 >
 		<required-component class="org.geworkbench.components.anova.gui.TabularDataViewer" />
 		<required-component class="org.geworkbench.components.colormosaic.ColorMosaicPanel" />

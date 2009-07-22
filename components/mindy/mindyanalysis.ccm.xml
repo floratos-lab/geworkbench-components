@@ -7,7 +7,12 @@
 				author="C2B2"
 				authorURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Home"
 				toolURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Home"
-				description="====="
+				description="The MINDy algorithm uses gene expression data
+ to determine whether one or more putative modulator genes influence
+ the regulatory activity of a transcription factor gene over
+ a set of target genes.  The ARACNe algorithm is used determine
+ if a change in modulator expression results in a change in the
+ mutual information of hub and target genes."
 				analysis="true"
 	 >
 		<required-component class="org.geworkbench.components.mindy.MindyVisualComponent" />

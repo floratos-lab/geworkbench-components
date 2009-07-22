@@ -29,16 +29,19 @@ import org.geworkbench.events.listeners.ParameterActionListener;
  * Pararameters panel for the <code>AffyDetectionCallFilter</code>. Prompts
  * the user to designate which markers (those whose detection call is "Present",
  * "Absent" or "Marginal") should be filtered out.
- * 
+ *
  * @author unknown, yc2480
  * @version $ID$
  */
 public class AffyDetectionCallFilterPanel extends AbstractSaveableParameterPanel implements ItemListener {
-    /**
-	 * 
+	/**
+	 *
 	 */
 	private static final long serialVersionUID = -1144320550372709784L;
-	
+
+    private static final String NOT_FILTERED = "not filtered";
+	private static final String FILTERED = "filtered";
+
 	final String PRESENT_OPTION = "P";
     final String ABSENT_OPTION = "A";
     final String MARGINAL_OPTION = "M";
@@ -77,7 +80,7 @@ public class AffyDetectionCallFilterPanel extends AbstractSaveableParameterPanel
 
     /*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.geworkbench.analysis.AbstractSaveableParameterPanel#getParameters()
 	 */
     public Map<Serializable, Serializable> getParameters() {
@@ -87,7 +90,7 @@ public class AffyDetectionCallFilterPanel extends AbstractSaveableParameterPanel
 		parameters.put("marginal", marginalButton.isSelected());
 		return parameters;
 	}
-    
+
 
     public AffyDetectionCallFilterPanel() {
         try {
@@ -179,7 +182,35 @@ public class AffyDetectionCallFilterPanel extends AbstractSaveableParameterPanel
 	@Override
 	public void fillDefaultValues(Map<Serializable, Serializable> parameters) {
 		// TODO Auto-generated method stub
-		
+
 	}
+
+	@Override
+	public String getDataSetHistory() {
+		AffyDetectionCallFilterPanel affyDetectionCallFilterPanel = this;
+		String histStr = "";
+
+		// Header
+		histStr += "AffyDetectionCallFilter parameters:\n";
+		histStr += "----------------------------------------\n";
+
+		// present
+		histStr += PRESENT_OPTION + ": ";
+		histStr += isPresentSelected()? FILTERED : NOT_FILTERED;
+		histStr += "\n";
+
+		// marginal
+		histStr += MARGINAL_OPTION + ": ";
+		histStr += isMarginalSelected()? FILTERED : NOT_FILTERED;
+		histStr += "\n";
+
+		// absent
+		histStr += ABSENT_OPTION + ": ";
+		histStr += isAbsentSelected()? FILTERED : NOT_FILTERED;
+		histStr += "\n";
+
+		return histStr;
+	}
+
 }
 

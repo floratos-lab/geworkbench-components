@@ -8,7 +8,8 @@
 				authorURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Home"
 				toolURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Home"
 				visualizer="true"
-				description="Normalizer"
+				description="Log2 normalized a microarray gene expression dataset."
+				loadByDefault="true"
 	 >
 		<required-component class="org.geworkbench.components.microarrays.TabularMicroarrayPanel" />
 		<required-component class="org.geworkbench.components.normalization.NormalizationPanel" />

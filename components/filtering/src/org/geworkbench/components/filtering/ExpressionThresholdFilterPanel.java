@@ -173,4 +173,29 @@ public class ExpressionThresholdFilterPanel extends AbstractSaveableParameterPan
 		
 	}
 
+	@Override
+	public String getDataSetHistory() {
+		String histStr = "Expression Threshold Filter:\n";
+
+		Map<Serializable, Serializable>parameters = null;
+		parameters = getParameters();
+		histStr += "Range Min: ";
+		histStr += parameters.get("rangeMin");
+		histStr += "\nRange Max: ";
+		histStr += parameters.get("rangeMax");
+		histStr += "\nFilter Values: ";
+
+		Boolean isInside = (Boolean)parameters.get("isInside");
+		if ( isInside.booleanValue() ){
+			histStr += "Inside Range";
+		}
+		else{
+			histStr += "Outside Range";
+		}
+		
+		histStr += "\n----------------------------------------\n";
+		return histStr;
+	}
+
+	
 }

@@ -6,21 +6,21 @@
 
 <map version="1.0">
 
-    <mapID target="overview" url="NormalizersOverview.htm"/>
+    <mapID target="overview" url="Normalizers_Overview.htm"/>
 
-    <mapID target="log.trans.norm" url="LogTransNormalizer.htm"/>
+    <mapID target="log.trans.norm" url="Log2_Transformation_Normalizer.HTML"/>
 
-    <mapID target="array.mean.norm" url="ArrayMean Normalizer.htm"/>
+    <mapID target="array.mean.norm" url="NOT AVAIL/ArrayMean Normalizer.htm"/>
 
-    <mapID target="marker.mean.norm" url="MarkerMeanNormalizer.htm"/>
+    <mapID target="marker.mean.norm" url="Marker-based_centering_normalizer.HTML"/>
 
-    <mapID target="mean.devi.norm" url="MeanDeviNormalizer.htm"/>
+    <mapID target="mean.devi.norm" url="NOT AVAIL/MeanDeviNormalizer.htm"/>
 
-    <mapID target="min.value.norm" url="ThresholdNormalizer.htm"/>
+    <mapID target="min.value.norm" url="Threshold.HTML"/>
 
-    <mapID target="mis.val.cal.norm" url="MisValCal Normalizer.htm"/>
+    <mapID target="mis.val.cal.norm" url="Missing_Value_Normalizer.htm"/>
 
-    <mapID target="Housekeeping" url="Housekeeping.HTML"/>
+    <mapID target="Housekeeping" url="Housekeeping_Gene_Normalization.htm"/>
 
     <mapID target="Quantile" url="Quantile.HTML"/>
 

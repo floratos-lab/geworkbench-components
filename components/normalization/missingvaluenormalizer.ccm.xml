@@ -8,7 +8,10 @@
 				authorURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Home"
 				toolURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Home"
 				visualizer="true"
-				description="Normalizer"
+				description="Replaces every missing value with either the
+ mean value of that marker across all microarrays or with
+ the mean measurement of all markers in the microarray
+ where the missing value is observed."
  	 >
 		<required-component class="org.geworkbench.components.microarrays.TabularMicroarrayPanel" />
 		<required-component class="org.geworkbench.components.normalization.NormalizationPanel" />

@@ -9,12 +9,9 @@
 				authorURL="http://www.tm4.org/mev.html"
 				toolURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Screenshots#Hierarchical_Clustering"
 				visualizer="true"
-				description="Hierarchical clustering builds (agglomerative), or breaks up (divisive), 
-a hierarchy of clusters. The traditional representation of this hierarchy 
-is a tree (called a dendrogram), with individual elements at one end and 
-a single cluster containing every element at the other. 
-Agglomerative algorithms begin at the leaves of the tree, 
-whereas divisive algorithms begin at the root."
+				description="This component implenents a tree-like dendrogram view
+ of the results of hierarchical clustering."
+ 				loadByDefault="true"
 	 >	 
 		<related-component class="org.geworkbench.components.hierarchicalclustering.FastHierClustAnalysis" />
 		<license><![CDATA[

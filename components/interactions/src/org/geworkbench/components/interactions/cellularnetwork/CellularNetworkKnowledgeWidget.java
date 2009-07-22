@@ -518,7 +518,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 					}
 				});
 		thresholdSlider
-				.setToolTipText("Move the slider to change the threshold of org.geworkbench.components.interactions.cellularnetwork");
+				.setToolTipText("Move the slider to change the threshold for the throttle graph");
 
 		graphToolBar.add(thresholdLabel);
 		graphToolBar.add(Box.createHorizontalStrut(10));
