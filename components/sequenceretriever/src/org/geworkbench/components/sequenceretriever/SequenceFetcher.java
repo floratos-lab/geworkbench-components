@@ -235,7 +235,10 @@ public class SequenceFetcher {
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+        	if ( e.getMessage().contains("DbfNoEntryFoundException"))
+        	 	 log.info("No result found for affyid " + affyid );
+        	else        	
+                 e.printStackTrace();
         }
         return sequenceSet;
     }
