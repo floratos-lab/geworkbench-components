@@ -63,13 +63,12 @@ public abstract class GPAnalysisPanel extends AbstractSaveableParameterPanel {
 
     protected JLabel getGPLogo()
     {
-        java.net.URL imageURL = GPAnalysisPanel.class.getResource("images/gp-logo.jpg");
+        java.net.URL imageURL = GPAnalysisPanel.class.getResource("images/gp-logo.gif");
         ImageIcon image = new ImageIcon(imageURL);
 
         JLabel label = new JLabel();
         label.setIcon(image);
 
         return label;
-   }   
-
+    }
 }
