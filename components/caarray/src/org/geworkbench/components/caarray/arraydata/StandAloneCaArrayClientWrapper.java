@@ -43,7 +43,7 @@ import org.geworkbench.events.CaArrayQueryResultEvent;
  * The class to invoke StandAloneCaArrayWrapper
  * 
  * @author xiaoqing
- * @version $Id: StandAloneCaArrayClientWrapper.java,v 1.11 2009-06-03 20:11:20 chiangy Exp $
+ * @version $Id: StandAloneCaArrayClientWrapper.java,v 1.12 2009-08-05 21:08:49 jiz Exp $
  * 
  */
 public class StandAloneCaArrayClientWrapper {
@@ -548,7 +548,8 @@ public class StandAloneCaArrayClientWrapper {
 				}
 				if (pw != null) {
 					pw.flush();
-					pw.close();
+					/* do not try close the stream here because it is potentially used in other thread */
+					// pw.close();
 				}
 			} catch (IOException ioe) {
 				ioe.printStackTrace();
