@@ -68,18 +68,20 @@ import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.engine.management.AcceptTypes;
 import org.geworkbench.engine.management.Publish;
 import org.geworkbench.engine.management.Script;
-import org.geworkbench.engine.management.Subscribe;
+import org.geworkbench.engine.management.Subscribe; 
+import org.geworkbench.events.GetSequenceEvent;
 import org.geworkbench.events.GeneSelectorEvent;
+ 
 import org.geworkbench.events.ProjectNodeAddedEvent;
 import org.geworkbench.util.sequences.GeneChromosomeMatcher;
-
+ 
 /**
  * Widget to retrieve Promoter sequence from UCSC's DAS sequence server.
  * 
  * @author Xuegong Wang
  * @author manjunath at genomecenter dot columbia dot edu
  * @author xiaoqing at genomecenter dot columbia dot edu
- * @version $Id: SequenceRetriever.java,v 1.58 2009-06-15 21:25:37 chiangy Exp $
+ * @version $Id: SequenceRetriever.java,v 1.59 2009-08-05 14:43:28 my2248 Exp $
  */
 
 @SuppressWarnings("unchecked")
@@ -591,7 +593,11 @@ public class SequenceRetriever implements VisualPlugin {
 					} else {
 						updateProgressBar(100, "Finished on " + new Date());
 						jSelectedList.updateUI();
-						seqDisPanel.setRetrievedMap(currentRetrievedMap);
+						seqDisPanel.setRetrievedMap(currentRetrievedMap);				
+					 
+					 
+						PublishGetSequenceHistoryEvent(new GetSequenceEvent(refMASet,  
+								GenerateHistStr()));
 					}
 					stopButton.setEnabled(false);
 					jComboCategory.setSelectedItem(currentView);
@@ -602,7 +608,8 @@ public class SequenceRetriever implements VisualPlugin {
 		} else {
 			JOptionPane.showMessageDialog(null,
 					"Please select gene(s) or marker(s).");
-		}
+		} 
+		
 	}
 
 	void jActivateBttn_actionPerformed(ActionEvent e) {
@@ -625,7 +632,7 @@ public class SequenceRetriever implements VisualPlugin {
 						.showInputDialog("Please enter a name for the dataset");
 				if (label != null) {
 					selectedSequenceDB.setLabel(label);
-					selectedSequenceDB.parseMarkers();
+					selectedSequenceDB.parseMarkers();				 
 					ProjectNodeAddedEvent event = new ProjectNodeAddedEvent(
 							"message", selectedSequenceDB, null);
 					publishProjectNodeAddedEvent(event);
@@ -892,9 +899,13 @@ public class SequenceRetriever implements VisualPlugin {
 				 * the editor to read it?
 				 */
 				postProcessSequences();
-			}
-
+			}			
+		 
 		}
+		
+	
+		
+		
 	}
 
 	private void postProcessSequences() {
@@ -966,7 +977,7 @@ public class SequenceRetriever implements VisualPlugin {
 	public void receive(org.geworkbench.events.ProjectEvent e, Object source) {
 
 		log.debug("Source object " + source);
-
+		 
 		if (e.getMessage().equals(org.geworkbench.events.ProjectEvent.CLEARED)) {
 			refMASet = null;
 			cleanUp();
@@ -994,7 +1005,7 @@ public class SequenceRetriever implements VisualPlugin {
 	@Subscribe
 	public void receive(GeneSelectorEvent e, Object publisher) {
 		log.debug("received GeneSelectorEvent::source="
-				+ publisher.getClass().getName());
+				+ publisher.getClass().getName());	 
 		markers = e.getPanel();
 		final Runnable processEventThread = new Runnable() {
 			public void run() {
@@ -1438,4 +1449,34 @@ public class SequenceRetriever implements VisualPlugin {
 		}
 
 	}
+	
+	
+	String GenerateHistStr()
+	{
+		String histStr = "Sequence Retriever\n";
+		histStr += "get sequence parameters:\n";
+		histStr += "Type Category: " +  jComboCategory.getSelectedItem().toString() + "\n";;
+		histStr += "Source Category: " +  jSourceCategory.getSelectedItem().toString() + "\n";
+		if (((String) jComboCategory.getSelectedItem())
+				.equalsIgnoreCase(DNAVIEW)) {
+			histStr += "Start Point:" + ((Integer) model.getNumber()).intValue() + "\n";
+			histStr += "End Point:" + ((Integer) model1.getNumber()).intValue() + "\n";
+		}
+		histStr += "------------------------------------\n";
+		return histStr;
+	}
+		
+	 
+
+	
+	/**
+	 * 
+	 * @param event
+	 * @return
+	 */
+	@Publish
+	public GetSequenceEvent PublishGetSequenceHistoryEvent(GetSequenceEvent event) {
+		return event;
+	}
+	
 }
