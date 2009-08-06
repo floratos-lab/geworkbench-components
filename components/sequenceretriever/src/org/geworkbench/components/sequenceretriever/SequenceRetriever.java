@@ -68,12 +68,12 @@ import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.engine.management.AcceptTypes;
 import org.geworkbench.engine.management.Publish;
 import org.geworkbench.engine.management.Script;
-import org.geworkbench.engine.management.Subscribe; 
-import org.geworkbench.events.GetSequenceEvent;
+import org.geworkbench.engine.management.Subscribe;  
 import org.geworkbench.events.GeneSelectorEvent;
  
 import org.geworkbench.events.ProjectNodeAddedEvent;
 import org.geworkbench.util.sequences.GeneChromosomeMatcher;
+import org.geworkbench.builtin.projects.ProjectPanel;
  
 /**
  * Widget to retrieve Promoter sequence from UCSC's DAS sequence server.
@@ -81,7 +81,7 @@ import org.geworkbench.util.sequences.GeneChromosomeMatcher;
  * @author Xuegong Wang
  * @author manjunath at genomecenter dot columbia dot edu
  * @author xiaoqing at genomecenter dot columbia dot edu
- * @version $Id: SequenceRetriever.java,v 1.59 2009-08-05 14:43:28 my2248 Exp $
+ * @version $Id: SequenceRetriever.java,v 1.60 2009-08-06 20:15:56 my2248 Exp $
  */
 
 @SuppressWarnings("unchecked")
@@ -593,11 +593,8 @@ public class SequenceRetriever implements VisualPlugin {
 					} else {
 						updateProgressBar(100, "Finished on " + new Date());
 						jSelectedList.updateUI();
-						seqDisPanel.setRetrievedMap(currentRetrievedMap);				
+						seqDisPanel.setRetrievedMap(currentRetrievedMap);			 
 					 
-					 
-						PublishGetSequenceHistoryEvent(new GetSequenceEvent(refMASet,  
-								GenerateHistStr()));
 					}
 					stopButton.setEnabled(false);
 					jComboCategory.setSelectedItem(currentView);
@@ -632,10 +629,13 @@ public class SequenceRetriever implements VisualPlugin {
 						.showInputDialog("Please enter a name for the dataset");
 				if (label != null) {
 					selectedSequenceDB.setLabel(label);
-					selectedSequenceDB.parseMarkers();				 
+					selectedSequenceDB.parseMarkers();	
+					ProjectPanel.addToHistory(selectedSequenceDB, GenerateHistStr()); 
 					ProjectNodeAddedEvent event = new ProjectNodeAddedEvent(
 							"message", selectedSequenceDB, null);
 					publishProjectNodeAddedEvent(event);
+				
+				
 				}
 			} else {
 				JOptionPane.showMessageDialog(null,
@@ -1448,8 +1448,7 @@ public class SequenceRetriever implements VisualPlugin {
 
 		}
 
-	}
-	
+	}	
 	
 	String GenerateHistStr()
 	{
@@ -1469,14 +1468,5 @@ public class SequenceRetriever implements VisualPlugin {
 	 
 
 	
-	/**
-	 * 
-	 * @param event
-	 * @return
-	 */
-	@Publish
-	public GetSequenceEvent PublishGetSequenceHistoryEvent(GetSequenceEvent event) {
-		return event;
-	}
-	
+	 
 }
