@@ -81,7 +81,7 @@ import org.geworkbench.builtin.projects.ProjectPanel;
  * @author Xuegong Wang
  * @author manjunath at genomecenter dot columbia dot edu
  * @author xiaoqing at genomecenter dot columbia dot edu
- * @version $Id: SequenceRetriever.java,v 1.60 2009-08-06 20:15:56 my2248 Exp $
+ * @version $Id: SequenceRetriever.java,v 1.61 2009-08-10 20:36:11 my2248 Exp $
  */
 
 @SuppressWarnings("unchecked")
@@ -93,6 +93,7 @@ public class SequenceRetriever implements VisualPlugin {
 	private static final String UCSC = "UCSC";
 	private static final String EBI = "EBI";
 	
+	 
 	private String currentSource = LOCAL;
 
 	private final static String NORMAL = "normal";
@@ -103,7 +104,7 @@ public class SequenceRetriever implements VisualPlugin {
 	private final static String DNAVIEW = "DNA";
 
 	private String currentView = DNAVIEW;
-	private String status = NORMAL;
+	private String status = NORMAL; 
 
 	private DSPanel<DSGeneMarker> markers = null;
 
@@ -630,7 +631,7 @@ public class SequenceRetriever implements VisualPlugin {
 				if (label != null) {
 					selectedSequenceDB.setLabel(label);
 					selectedSequenceDB.parseMarkers();	
-					ProjectPanel.addToHistory(selectedSequenceDB, GenerateHistStr()); 
+					ProjectPanel.addToHistory(selectedSequenceDB, generateHistStr()); 
 					ProjectNodeAddedEvent event = new ProjectNodeAddedEvent(
 							"message", selectedSequenceDB, null);
 					publishProjectNodeAddedEvent(event);
@@ -741,9 +742,10 @@ public class SequenceRetriever implements VisualPlugin {
 				} else if (jSourceCategory.getSelectedItem().equals(UCSC)) {
 					int startPoint = ((Integer) model.getNumber()).intValue();
 					int endPoint = ((Integer) model1.getNumber()).intValue();
+ 
 					String database = SequenceFetcher
-							.matchChipType(AnnotationParser
-									.getCurrentChipType());
+							.matchChipType(AnnotationParser.getCurrentChipType());
+					 
 					boolean serverWorking = true;
 					for (int i = 0; i < selectedList.size(); i++) {
 						if (!serverWorking) 
@@ -1450,7 +1452,7 @@ public class SequenceRetriever implements VisualPlugin {
 
 	}	
 	
-	String GenerateHistStr()
+	String generateHistStr()
 	{
 		String histStr = "Sequence Retriever\n";
 		histStr += "get sequence parameters:\n";
@@ -1460,7 +1462,10 @@ public class SequenceRetriever implements VisualPlugin {
 				.equalsIgnoreCase(DNAVIEW)) {
 			histStr += "Start Point:" + ((Integer) model.getNumber()).intValue() + "\n";
 			histStr += "End Point:" + ((Integer) model1.getNumber()).intValue() + "\n";
+			if (jSourceCategory.getSelectedItem().equals(UCSC))
+				histStr += "Genome Assembly: " +  SequenceFetcher.getGenomeAssembly() + "\n";
 		}
+	
 		histStr += "------------------------------------\n";
 		return histStr;
 	}

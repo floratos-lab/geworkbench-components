@@ -65,6 +65,8 @@ public class SequenceFetcher {
     public static final String EBIURL = "http://www.ebi.ac.uk/ws/services/Dbfetch";
     public static int UPSTREAM = 2000;
     public static int DOWNSTREAM = 2000;
+    
+    private static String genomeAssembly = "";
 
     private static CSSequenceSet cachedSequences = null;
 
@@ -271,6 +273,7 @@ public class SequenceFetcher {
                     differentValues.toArray(), defaultChipChoice);
             if (selectedValue != null) {
                 database = (String) selectedValue;
+                genomeAssembly = (String) selectedValue;
                 if (database.equals("Other")) {
                     return null;
                 }
@@ -463,5 +466,12 @@ public class SequenceFetcher {
         return null;
 
     }
+    
+    public static String getGenomeAssembly()
+    {
+    	return genomeAssembly;
+    }
+    
+    
 
 }
