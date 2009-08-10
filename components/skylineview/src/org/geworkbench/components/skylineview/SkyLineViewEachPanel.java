@@ -63,7 +63,7 @@ import org.openscience.jmol.ui.JmolPopupSwing;
  * SkyLine result viewer for each homology model
  * 
  * @author mw2518
- * @version $Id: SkyLineViewEachPanel.java,v 1.11 2009-03-06 21:49:42 jiz Exp $
+ * @version $Id: SkyLineViewEachPanel.java,v 1.12 2009-08-10 15:40:37 wangm Exp $
  */
 @AcceptTypes( { SkyLineResultDataSet.class })
 public class SkyLineViewEachPanel extends JPanel implements VisualPlugin,
@@ -78,7 +78,7 @@ public class SkyLineViewEachPanel extends JPanel implements VisualPlugin,
 	private Border border2 = jScrollPane2.getBorder();
 	private String title = "";
 	private String modelname = "";
-	private String rootdir = "http://luna.bioc.columbia.edu:8080/SkyLineData/output";
+	private String rootdir = "http://luna.bioc.columbia.edu:8081/SkyLineData/output";
 	private String resultdir = "";
 	private String pname = "";
 	private JLabel choosefile = new JLabel();
