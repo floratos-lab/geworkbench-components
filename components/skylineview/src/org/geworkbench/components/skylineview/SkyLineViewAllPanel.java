@@ -42,7 +42,7 @@ import org.geworkbench.events.StructureAnalysisEvent;
  * SkyLine result viewer for all homology models
  * 
  * @author mw2518
- * @version $Id: SkyLineViewAllPanel.java,v 1.8 2009-03-06 21:49:42 jiz Exp $
+ * @version $Id: SkyLineViewAllPanel.java,v 1.9 2009-08-10 15:40:37 wangm Exp $
  */
 @AcceptTypes( { SkyLineResultDataSet.class })
 public class SkyLineViewAllPanel implements VisualPlugin, ActionListener {
@@ -52,7 +52,7 @@ public class SkyLineViewAllPanel implements VisualPlugin, ActionListener {
 	private JScrollPane jScrollPane = new JScrollPane();
 	private Border border = jScrollPane.getBorder();
 	private String title = "";
-	private String rootdir = "http://luna.bioc.columbia.edu:8080/SkyLineData/output";
+	private String rootdir = "http://luna.bioc.columbia.edu:8081/SkyLineData/output";
 	private String resultdir = "";
 	private String pname = "";
 	private JComboBox allmodels;// = new JComboBox();
