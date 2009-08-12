@@ -50,7 +50,7 @@ import org.geworkbench.builtin.projects.remoteresources.query.CaARRAYQueryPanel;
  * This is invoked as a stand-alone application by StandAloneCaArrayClientWrapper.
  * 
  * @author xiaoqing
- * @version $Id: StandAloneCaArrayClientExec.java,v 1.8 2009-06-03 20:11:20 chiangy Exp $
+ * @version $Id: StandAloneCaArrayClientExec.java,v 1.9 2009-08-12 03:12:39 jiz Exp $
  *
  */
 public class StandAloneCaArrayClientExec {
@@ -537,7 +537,7 @@ public class StandAloneCaArrayClientExec {
 			return;
 		}
 
-		hybridization = service.search(hybridization).get(0);
+		hybridization = set.get(0);
 		DataSet dataSet = null;
 
 		// If raw data doesn't exist, try to find derived data
