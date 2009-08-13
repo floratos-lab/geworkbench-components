@@ -2,7 +2,7 @@
 	xsi:noNamespaceSchemaLocation="ConfigurationFile Schema.xsd">
 
 	<component  name="GSEA Analysis"
-				class="org.geworkbench.components.gpmodule.gsea.GSEAnalysis"
+				class="org.geworkbench.components.gpmodule.gsea.GSEAAnalysis"
 				version="1.0"
 				author="C2B2"
 				authorURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Home"
