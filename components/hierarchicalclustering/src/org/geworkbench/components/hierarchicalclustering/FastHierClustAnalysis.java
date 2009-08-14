@@ -27,6 +27,7 @@ import org.geworkbench.bison.model.analysis.ParamValidationResults;
 import org.geworkbench.bison.model.clusters.CSHierClusterDataSet;
 import org.geworkbench.bison.model.clusters.HierCluster;
 import org.geworkbench.builtin.projects.ProjectPanel;
+import org.geworkbench.engine.config.PluginRegistry;
 import org.geworkbench.util.CorrelationDistance;
 import org.geworkbench.util.Distance;
 import org.geworkbench.util.EuclideanDistance;
@@ -37,7 +38,7 @@ import org.geworkbench.util.SpearmanRankDistance;
 /**
  * 
  * @author unattributable
- * @version $Id: FastHierClustAnalysis.java,v 1.2 2009-06-22 15:20:26 chiangy Exp $
+ * @version $Id: FastHierClustAnalysis.java,v 1.3 2009-08-14 20:45:54 chiangy Exp $
  * 
  */
 class FastHierClustAnalysis extends AbstractGridAnalysis implements
@@ -58,7 +59,9 @@ class FastHierClustAnalysis extends AbstractGridAnalysis implements
 
 	public FastHierClustAnalysis() {
 		localAnalysisType = AbstractAnalysis.HIERARCHICAL_CLUSTERING_TYPE;
-		setLabel("Hierarchical Clustering");
+		String className = this.getClass().getSuperclass().getName();
+		String pluginName = PluginRegistry.getNameMap(className);
+		setLabel(pluginName);
 		setDefaultPanel(new HierClustPanel());
 	}
 
