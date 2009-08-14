@@ -3,8 +3,9 @@ package org.geworkbench.components.gpmodule.gsea;
 import org.geworkbench.components.gpmodule.GPAnalysis;
 import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
 import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
-import org.geworkbench.bison.datastructure.biocollections.pca.CSPCADataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
+import org.geworkbench.bison.datastructure.biocollections.gsea.DSGSEAResultDataSet;
+import org.geworkbench.bison.datastructure.biocollections.gsea.CSGSEAResultDataSet;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
@@ -24,10 +25,8 @@ import org.genepattern.webservice.Parameter;
 import org.genepattern.matrix.ClassVector;
 import org.genepattern.matrix.DefaultClassVector;
 
-import java.util.Observer;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Iterator;
+import javax.swing.*;
+import java.util.*;
 import java.io.File;
 
 /**
@@ -38,7 +37,7 @@ public class GSEAAnalysis extends GPAnalysis
     private static Log log = LogFactory.getLog(GSEAAnalysis.class);
 
 	private GSEAProgress progress = new GSEAProgress();
-    private String reportFile = null;
+    private DSGSEAResultDataSet gsResultDataSet;
 
     private Task task;
 	private boolean error = false;
@@ -46,7 +45,7 @@ public class GSEAAnalysis extends GPAnalysis
     public GSEAAnalysis()
     {
         setLabel("GSEA Analysis");
-        panel = new GSEAAnalysisPanel();
+        panel = new org.geworkbench.components.gpmodule.gsea.GSEAAnalysisPanel();
         setDefaultPanel(panel);
     }
 
@@ -64,7 +63,7 @@ public class GSEAAnalysis extends GPAnalysis
 
 		if (task.isCancelled()) {
 			return null;
-		} else if (reportFile == null) {
+		} else if (gsResultDataSet == null) {
 			if (error)
 				return null;
 
@@ -72,7 +71,7 @@ public class GSEAAnalysis extends GPAnalysis
 					"An error occurred when running GSEA.", null);
 		} else
 			return new AlgorithmExecutionResults(true, "GSEA Results",
-					reportFile);
+                    gsResultDataSet);
 
 	}
 
@@ -89,11 +88,8 @@ public class GSEAAnalysis extends GPAnalysis
 		public GSEAProgress() {
 			pb.addObserver(this);
 			pb.setTitle("GSEA Progress");
-		}
-
-		public void setProgress(int value) {
-			pb.setMessage("" + value);
-		}
+            pb.setMessage("Running GSEA Analysis");
+        }
 
 		public void startProgress() {
 			pb.start();
@@ -106,7 +102,7 @@ public class GSEAAnalysis extends GPAnalysis
 		public void update(java.util.Observable ob, Object o) {
 			if ((task != null) && (!task.isCancelled()) && (!task.isDone())) {
 				task.cancel(true);
-				//log.info("Cancelling GSEA Analysis");
+				log.info("Cancelling GSEA Analysis");
 			}
 		}
 	}
@@ -135,49 +131,75 @@ public class GSEAAnalysis extends GPAnalysis
 		}
 
 		public String doInBackground() {
-			progress.setProgress(0);
-			String history = generateHistoryString(view);
-
             String reportFile = null;
-
-            DSMicroarraySet maSet = view.getMicroarraySet();
-            //DSItemList<DSGeneMarker> markers = view.markers();
-
-            DSAnnotationContext<DSMicroarray> context = CSAnnotationContextManager.getInstance().getCurrentContext(maSet);
-
-            DSPanel<DSMicroarray> controlPanel = context.getActivatedItemsForClass(CSAnnotationContext.CLASS_CONTROL);            
-            DSPanel<DSMicroarray> casePanel = context.getActivatedItemsForClass(CSAnnotationContext.CLASS_CASE);
-
-            DSPanel maByClass = new CSPanel();
-            maByClass.addAll(controlPanel);
-            maByClass.addAll(casePanel);
-
-            String gctFileName = createGCTFile("gseaDataset", view.markers(), maByClass).getAbsolutePath();
-
-            List parameters = new ArrayList();
-
-			parameters.add(new Parameter("expression.dataset", gctFileName));
-
-            //Depends on control labeled samples appearing before case labeled samples
-            String[] classLabels = new String[maByClass.size()];
-            for(int i = 0; i < maByClass.size(); i++)
+            try
             {
-                if(i < controlPanel.size())
-                    classLabels[i] = "Control";
-                else
-                    classLabels[i] = "Case";
-            }
+                String history = generateHistoryString(view);
 
-            ClassVector classVec = new DefaultClassVector(classLabels);
-            File clsData = createCLSFile("GSEA_Cls", classVec);
-            parameters.add(new Parameter("phenotype.labels", clsData.getAbsolutePath()));
+                DSMicroarraySet maSet = view.getMicroarraySet();
 
-            parameters.add(new Parameter("gene.sets.database", ((GSEAAnalysisPanel)panel).getGsDatabase()));
-            parameters.add(new Parameter("chip.platform", ((GSEAAnalysisPanel)panel).getChipPlatform()));
+                DSAnnotationContext<DSMicroarray> context = CSAnnotationContextManager.getInstance().getCurrentContext(maSet);
 
+                DSPanel arraysByClass = new CSPanel();
+                Collection labels = new ArrayList();
+                for(int l = 0; l < context.getNumberOfLabels(); l++)
+                {
+                    String label = context.getLabel(l);
+                    if(context.isLabelActive(label))
+                    {
+                        DSPanel dsPanel = context.getItemsWithLabel(label);
+                        Collection currentList = new ArrayList(arraysByClass);
+                        currentList.retainAll(dsPanel);
+                        if(currentList.size() != 0)
+                        {
+                            String message = "The following items were found in more than one active label: " + currentList;
+                            log.error(message);
+                            JOptionPane.showMessageDialog(panel, message);
+                            return null;
+                        }
 
-            List results = runAnalysis("GSEA", (Parameter[]) parameters
+                        labels.addAll(Collections.nCopies(dsPanel.size(), label));
+                        arraysByClass.addAll(dsPanel);
+                    }
+                }
+
+                String gctFileName = view.getMicroarraySet().getFile().getName();
+                gctFileName = gctFileName + System.currentTimeMillis();
+                File gctFile = createGCTFile(gctFileName, view.markers(), arraysByClass);
+                gctFile.deleteOnExit();
+                gctFileName = gctFile.getAbsolutePath();
+
+                List parameters = new ArrayList();
+
+			    parameters.add(new Parameter("expression.dataset", gctFileName));
+
+                String clsFileName = gctFileName + System.currentTimeMillis();
+                ClassVector classVec = new DefaultClassVector((String[])labels.toArray(new String[0]));
+
+                File clsFile = createCLSFile(clsFileName, classVec);
+
+                parameters.add(new Parameter("phenotype.labels", clsFile.getAbsolutePath()));
+
+                parameters.add(new Parameter("gene.sets.database", ((org.geworkbench.components.gpmodule.gsea.GSEAAnalysisPanel)panel).getGsDatabase()));
+                parameters.add(new Parameter("chip.platform", ((org.geworkbench.components.gpmodule.gsea.GSEAAnalysisPanel)panel).getChipPlatform()));
+
+                List<String> results = (List<String>)runAnalysis("GSEA", (Parameter[]) parameters
 					.toArray(new Parameter[0]), panel.getPassword());
+
+                for(String file : results)
+                {
+                    if(file.endsWith(".zip"))
+                    {
+                        reportFile = file;
+                    }
+                }
+                gsResultDataSet = new CSGSEAResultDataSet(view.getDataSet(), "GSEA Results", reportFile);
+                ProjectPanel.addToHistory(gsResultDataSet, history);
+            }
+            catch(Exception e)
+            {
+                log.error(e);
+            }
 
             return reportFile;
 		}
@@ -193,7 +215,7 @@ public class GSEAAnalysis extends GPAnalysis
 				}
 			}
 			progress.stopProgress();
-			log.debug("Closing PCA progress bar.");
+			log.debug("Closing GSEA progress bar.");
 		}
 	}
 
@@ -203,7 +225,7 @@ public class GSEAAnalysis extends GPAnalysis
 
 		history = "Generated by GSEA run with parameters: \n";
 		history += "----------------------------------------\n";
-		history += "Gene set Database: " + ((GSEAAnalysisPanel) panel).getGsDatabase()
+		history += "Gene set Database: " + ((org.geworkbench.components.gpmodule.gsea.GSEAAnalysisPanel) panel).getGsDatabase()
 				+ "\n";
 
 		if (view.useMarkerPanel() && !(view.getMarkerPanel().size() == 0)) {
