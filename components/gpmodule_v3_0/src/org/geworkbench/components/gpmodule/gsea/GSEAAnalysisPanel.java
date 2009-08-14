@@ -33,7 +33,7 @@ public class GSEAAnalysisPanel extends GPAnalysisPanel
     JRadioButton selectGS;
     JRadioButton upLoadGS;
     private JComboBox gsDatabase;
-    private JComboBox chipPlatform;    
+    private JComboBox chipPlatform;
     private JFormattedTextField numPerm;
     private JComboBox permType;
     private JComboBox collapseProbes;
@@ -49,7 +49,7 @@ public class GSEAAnalysisPanel extends GPAnalysisPanel
     private JFileChooser gsDatabaseFile;
     private JTextField gsDatabaseFileField;
     private JButton loadGSDatabaseButton;
-    
+
     public GSEAAnalysisPanel()
     {
         super(new ParameterPanel(), "GSEA");
@@ -93,15 +93,17 @@ public class GSEAAnalysisPanel extends GPAnalysisPanel
         gsDatabase.addItem("c3.v1.symbols.gmt [Motif]");
         gsDatabase.addItem("c2.v1.symbols.gmt [Curated]");
         gsDatabase.addItem("c1.v1.symbols.gmt [Positional]");
-        
+
 
         gsDatabase.setMinimumSize(new Dimension(270, 22));
         gsDatabase.setMaximumSize(new Dimension(270, 22));
         gsDatabase.setPreferredSize(new Dimension(270, 22));
 
         gsDatabaseFile = new JFileChooser();
+
         gsDatabaseFileField = new JTextField();
-        gsDatabaseFileField.setEnabled(false);        
+        gsDatabaseFileField.setEditable(false);
+        gsDatabaseFileField.setEnabled(false);
         gsDatabaseFileField.setMinimumSize(new Dimension(110, 22));
         gsDatabaseFileField.setMaximumSize(new Dimension(110, 22));
         gsDatabaseFileField.setPreferredSize(new Dimension(110, 22));
@@ -133,7 +135,7 @@ public class GSEAAnalysisPanel extends GPAnalysisPanel
                 if(event.getStateChange() == ItemEvent.SELECTED)
                 {
                     gsDatabaseFileField.setEnabled(true);
-                    loadGSDatabaseButton.setEnabled(true);                    
+                    loadGSDatabaseButton.setEnabled(true);
                 }
                 if(event.getStateChange() == ItemEvent.DESELECTED)
                 {
@@ -166,15 +168,44 @@ public class GSEAAnalysisPanel extends GPAnalysisPanel
         collapseProbes.addItem("no");
 
         chipPlatform = new JComboBox();
+        chipPlatform.addItem("AFFYMETRIX.chip");
+        chipPlatform.addItem("Agilent_Human1_cDNA.chip");
+        chipPlatform.addItem("Agilent_Human1A.chip");
+        chipPlatform.addItem("Agilent_Human1Av2.chip");
+        chipPlatform.addItem("Agilent_Human1B.chip");
+        chipPlatform.addItem("Agilent_HumanGenome.chip");
+        chipPlatform.addItem("Agilent_Mouse_cDNA.chip;");
+        chipPlatform.addItem("Agilent_MouseDev.chip");
+        chipPlatform.addItem("Agilent_MouseGenome.chip");
+        chipPlatform.addItem("Agilent_MouseOligo.chip");
+        chipPlatform.addItem("Agilent_RatGenome_G4131A.chip");
+        chipPlatform.addItem("Agilent_RatOligo.chip");
+        chipPlatform.addItem("AtlasMouse1.2.chip;");
+        chipPlatform.addItem("AtlasRat1.2.chip");
+        chipPlatform.addItem("APPLERA_ABI1700.chip");
+        chipPlatform.addItem("ATH1_121501.chip");
         chipPlatform.addItem("GENE_SYMBOL.chip");
-        chipPlatform.addItem("Seq_Accession.chip");
-        chipPlatform.addItem("SEQ_ACCESSION.chip");
         chipPlatform.addItem("Hu35KsubA.chip");
         chipPlatform.addItem("Hu35KsubB.chip");
         chipPlatform.addItem("Hu35KsubC.chip");
         chipPlatform.addItem("Hu35KsubD.chip");
         chipPlatform.addItem("Hu6800.chip");
-        
+        chipPlatform.addItem("HG_Focus.chip");
+        chipPlatform.addItem("HG_U133A.chip");
+        chipPlatform.addItem("HG_U133AAOFAV2.chip");
+        chipPlatform.addItem("HG_U133A_2.chip");
+        chipPlatform.addItem("HG_U133B.chip;");
+        chipPlatform.addItem("HG_U133_Plus_2.chip;");
+        chipPlatform.addItem("HG_U95Av2.chip");
+        chipPlatform.addItem("HG_U95B.chip");
+        chipPlatform.addItem("HG_U95C.chip");
+        chipPlatform.addItem("HG_U95D.chip");
+        chipPlatform.addItem("HG_U95E.chip");
+        chipPlatform.addItem("Seq_Accession.chip");
+        chipPlatform.addItem("SEQ_ACCESSION.chip");
+
+        chipPlatform.setSelectedItem("GENE_SYMBOL.chip");
+
         NumberFormat format = NumberFormat.getInstance();
         format.setMaximumFractionDigits(0);
         numPerm = new JFormattedTextField(format);
@@ -183,7 +214,7 @@ public class GSEAAnalysisPanel extends GPAnalysisPanel
         permType = new JComboBox();
         permType.addItem("phenotype");
         permType.addItem("gene set");
-       
+
         FormLayout layout = new FormLayout(
                     "left:max(80dlu;pref), 7dlu,  max(70dlu;pref), 7dlu, max(55dlu;pref),20dlu, max(70dlu;pref)",
                     "");
@@ -203,7 +234,7 @@ public class GSEAAnalysisPanel extends GPAnalysisPanel
         builder.append(upLoadGS);
         builder.append(gsDatabaseFileField, loadGSDatabaseButton);
         builder.nextLine();
-        builder.append("collapse probe sets to gene symbols", collapseProbes);        
+        builder.append("collapse probe sets to gene symbols", collapseProbes);
         builder.nextLine();
         builder.append("chip platform", chipPlatform);
         builder.nextLine();
@@ -221,13 +252,13 @@ public class GSEAAnalysisPanel extends GPAnalysisPanel
         scoringScheme.addItem("classic");
         scoringScheme.addItem("weighted");
         scoringScheme.addItem("weighted_p2");
-        scoringScheme.addItem("weighted_p1.5");        
+        scoringScheme.addItem("weighted_p1.5");
 
         rankMetric = new JComboBox();
         rankMetric.addItem("Cosine");
         rankMetric.addItem("Euclidean");
         rankMetric.addItem("Manhattan");
-        rankMetric.addItem("Pearson");               
+        rankMetric.addItem("Pearson");
 
         NumberFormat format = NumberFormat.getInstance();
         format.setMaximumFractionDigits(0);
@@ -305,7 +336,7 @@ public class GSEAAnalysisPanel extends GPAnalysisPanel
 
         builder.append("normalization mode" , normMode);
         builder.nextLine();
-        
+
         builder.append("randomization mode" , randomMode);
         builder.nextLine();
 
@@ -320,7 +351,7 @@ public class GSEAAnalysisPanel extends GPAnalysisPanel
 
         multiPane.addTab("Required parameters", getRequiredParametersPanel());
         multiPane.addTab("Basic parameters", getBasicParametersPanel());
-        multiPane.addTab("Advanced parameters", getAdvancedParametersPanel());        
+        multiPane.addTab("Advanced parameters", getAdvancedParametersPanel());
 
 
         parameterPanel.add(multiPane);
