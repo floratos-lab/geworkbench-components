@@ -13,7 +13,6 @@ import java.awt.*;
  */
 public class TabBrowser extends WebBrowser
 {
-    private static final long serialVersionUID = -4833106758989294420L;
     Log log = LogFactory.getLog(TabBrowser.class);
 
     public static GSEABrowser gb;
