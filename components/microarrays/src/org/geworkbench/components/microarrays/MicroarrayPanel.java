@@ -111,8 +111,6 @@ public class MicroarrayPanel extends MicroarrayVisualizer implements
 		super.reset();
 		if (mArraySet != null) {
 			jMASlider.setMaximum(dataSetView.items().size() - 1);
-			jMASlider.setMinimum(0);
-			jMASlider.setValue(0);
 		} else {
 			jMASlider.setMaximum(0);
 			jMASlider.setMinimum(0);
