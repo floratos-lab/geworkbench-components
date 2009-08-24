@@ -13,6 +13,7 @@ package org.geworkbench.components.gpmodule;
 
 import org.geworkbench.bison.model.analysis.ParameterPanel;
 import org.geworkbench.analysis.AbstractSaveableParameterPanel;
+import org.genepattern.webservice.TaskInfo;
 
 import javax.swing.*;
 import java.awt.*;
@@ -28,14 +29,14 @@ public abstract class GPAnalysisPanel extends AbstractSaveableParameterPanel {
     
     public GPAnalysisPanel(ParameterPanel panel, String label)
     {
-        gpTabbedPane = new JTabbedPane();
+        gpTabbedPane = new JTabbedPane();       
+        gpHelpPanel = new GPHelpPanel(label, getParamDescriptionFile(), getDescriptionFile());
+        parameterPanel = panel;
+        parameterPanel.setLayout(new BorderLayout());
         gpConfigPanel = new GPConfigPanel();
         gpConfigPanel.setPreferredSize(getPreferredSize());
         gpConfigPanel.setMinimumSize(getPreferredSize());
         gpConfigPanel.setMaximumSize(getPreferredSize());
-        gpHelpPanel = new GPHelpPanel(label, getParamDescriptionFile(), getDescriptionFile());
-        parameterPanel = panel;
-        parameterPanel.setLayout(new BorderLayout());
     }
 
     protected abstract void initParameterPanel();
@@ -46,7 +47,6 @@ public abstract class GPAnalysisPanel extends AbstractSaveableParameterPanel {
     protected void init()
     {
         setLayout(new BorderLayout());
-
         initParameterPanel();
 
         gpTabbedPane.addTab("Parameters", parameterPanel);
@@ -70,5 +70,10 @@ public abstract class GPAnalysisPanel extends AbstractSaveableParameterPanel {
         label.setIcon(image);
 
         return label;
+    }
+
+    public TaskInfo getModuleInfo()
+    {
+        return gpConfigPanel.getTaskInfo();            
     }
 }

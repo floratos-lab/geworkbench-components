@@ -1,18 +1,20 @@
 package org.geworkbench.components.gpmodule.gsea;
 
 import org.geworkbench.components.gpmodule.GPAnalysisPanel;
+import org.geworkbench.components.gpmodule.GPConfigPanel;
+import org.geworkbench.components.gpmodule.listener.ServerConnectionListener;
+import org.geworkbench.components.gpmodule.event.ServerConnectionEvent;
 import org.geworkbench.bison.model.analysis.ParameterPanel;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.genepattern.webservice.TaskInfo;
+import org.genepattern.webservice.ParameterInfo;
 
 import javax.swing.*;
-import javax.swing.event.ChangeListener;
-import javax.swing.event.ChangeEvent;
 import javax.naming.OperationNotSupportedException;
 import java.io.Serializable;
 import java.io.File;
-import java.util.Map;
-import java.util.HashMap;
+import java.util.*;
 import java.text.NumberFormat;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
@@ -29,9 +31,6 @@ import com.jgoodies.forms.builder.DefaultFormBuilder;
 public class GSEAAnalysisPanel extends GPAnalysisPanel
 {
     private Log log = LogFactory.getLog(this.getClass());
-
-    JRadioButton selectGS;
-    JRadioButton upLoadGS;
     private JComboBox gsDatabase;
     private JComboBox chipPlatform;
     private JFormattedTextField numPerm;
@@ -46,9 +45,16 @@ public class GSEAAnalysisPanel extends GPAnalysisPanel
     private JComboBox randomMode;
     private JComboBox collapseMode;
     private JComboBox omitFeatures;
+    JRadioButton selectGS;
+    JRadioButton upLoadGS;
     private JFileChooser gsDatabaseFile;
     private JTextField gsDatabaseFileField;
     private JButton loadGSDatabaseButton;
+    JRadioButton selectChip;
+    JRadioButton upLoadChip;
+    private JFileChooser chipPlatformFile;
+    private JTextField chipPlatformFileField;
+    private JButton loadChipButton;
 
     public GSEAAnalysisPanel()
     {
@@ -56,6 +62,7 @@ public class GSEAAnalysisPanel extends GPAnalysisPanel
 
         try
         {
+            GPConfigPanel.addServerConnectionListener(new MyServerConnectionListener());            
             init();
         }
         catch (Exception e)
@@ -68,7 +75,7 @@ public class GSEAAnalysisPanel extends GPAnalysisPanel
     {
         gsDatabase = new JComboBox();
 
-        gsDatabase.addItem("c1.all.v2.5.symbols.gmt [Positional]");
+        /*gsDatabase.addItem("c1.all.v2.5.symbols.gmt [Positional]");
         gsDatabase.addItem("c2.all.v2.5.symbols.gmt [Curated]");
         gsDatabase.addItem("c2.biocarta.v2.5.symbols.gmt [Curated]");
         gsDatabase.addItem("c2.cgp.v2.5.symbols.gmt [Curated]");
@@ -82,7 +89,6 @@ public class GSEAAnalysisPanel extends GPAnalysisPanel
         gsDatabase.addItem("c4.cgn.v2.5.symbols.gmt [Computational]");
         gsDatabase.addItem("c4.cm.v2.5.symbols.gmt [Computational];");
         gsDatabase.addItem("c5.all.v2.5.symbols.gmt [Gene ontology]");
-        gsDatabase.addItem("c5.all.v2.5.symbols.gmt [Gene ontology]");
         gsDatabase.addItem("c5.cc.v2.5.symbols.gmt [Gene ontology]");
         gsDatabase.addItem("c5.mf.v2.5.symbols.gmt [Gene ontology]");
         gsDatabase.addItem("c1.v2.symbols.gmt [Positional];");
@@ -93,7 +99,7 @@ public class GSEAAnalysisPanel extends GPAnalysisPanel
         gsDatabase.addItem("c3.v1.symbols.gmt [Motif]");
         gsDatabase.addItem("c2.v1.symbols.gmt [Curated]");
         gsDatabase.addItem("c1.v1.symbols.gmt [Positional]");
-
+        */
 
         gsDatabase.setMinimumSize(new Dimension(270, 22));
         gsDatabase.setMaximumSize(new Dimension(270, 22));
@@ -108,7 +114,7 @@ public class GSEAAnalysisPanel extends GPAnalysisPanel
         gsDatabaseFileField.setMaximumSize(new Dimension(110, 22));
         gsDatabaseFileField.setPreferredSize(new Dimension(110, 22));
 
-        selectGS = new JRadioButton("Select Gene Set Database");
+        selectGS = new JRadioButton("select gene set database");
         selectGS.setSelected(true);
         selectGS.addItemListener(new ItemListener()
         {
@@ -126,7 +132,7 @@ public class GSEAAnalysisPanel extends GPAnalysisPanel
         });
 
 
-        upLoadGS = new JRadioButton("Upload Gene Set Database");
+        upLoadGS = new JRadioButton("upload gene set database");
         upLoadGS.setSelected(false);
         upLoadGS.addItemListener(new ItemListener()
         {
@@ -149,7 +155,7 @@ public class GSEAAnalysisPanel extends GPAnalysisPanel
         gsGroup.add(selectGS);
         gsGroup.add(upLoadGS);
 
-        loadGSDatabaseButton = new JButton("Load");
+        loadGSDatabaseButton = new JButton("load");
         loadGSDatabaseButton.setEnabled(false);
         loadGSDatabaseButton.addActionListener(new ActionListener()
         {
@@ -163,12 +169,25 @@ public class GSEAAnalysisPanel extends GPAnalysisPanel
                 }
             }
         });
+
         collapseProbes = new JComboBox();
         collapseProbes.addItem("yes");
         collapseProbes.addItem("no");
 
         chipPlatform = new JComboBox();
-        chipPlatform.addItem("AFFYMETRIX.chip");
+        TaskInfo taskInfo = getModuleInfo();
+        if(taskInfo != null)
+        {
+            addChipPlatformData(taskInfo);
+            addGeneSetDatabase(taskInfo);            
+        }
+        else
+        {
+            String connectMessage = "First login to GenePattern to see choices";
+            chipPlatform.addItem(connectMessage);
+            gsDatabase.addItem(connectMessage);
+        }
+        /*chipPlatform.addItem("AFFYMETRIX.chip");
         chipPlatform.addItem("Agilent_Human1_cDNA.chip");
         chipPlatform.addItem("Agilent_Human1A.chip");
         chipPlatform.addItem("Agilent_Human1Av2.chip");
@@ -202,9 +221,71 @@ public class GSEAAnalysisPanel extends GPAnalysisPanel
         chipPlatform.addItem("HG_U95D.chip");
         chipPlatform.addItem("HG_U95E.chip");
         chipPlatform.addItem("Seq_Accession.chip");
-        chipPlatform.addItem("SEQ_ACCESSION.chip");
+        chipPlatform.addItem("SEQ_ACCESSION.chip");*/
 
-        chipPlatform.setSelectedItem("GENE_SYMBOL.chip");
+        chipPlatformFile = new JFileChooser();
+
+        chipPlatformFileField = new JTextField();
+        chipPlatformFileField.setEditable(false);
+        chipPlatformFileField.setEnabled(false);
+        chipPlatformFileField.setMinimumSize(new Dimension(110, 22));
+        chipPlatformFileField.setMaximumSize(new Dimension(110, 22));
+        chipPlatformFileField.setPreferredSize(new Dimension(110, 22));
+
+        selectChip = new JRadioButton("select chip platform");
+        selectChip.setSelected(true);
+        selectChip.addItemListener(new ItemListener()
+        {
+            public void itemStateChanged(ItemEvent event)
+            {
+                if(event.getStateChange() == ItemEvent.SELECTED)
+                {
+                    chipPlatform.setEnabled(true);
+                }
+                if(event.getStateChange() == ItemEvent.DESELECTED)
+                {
+                    chipPlatform.setEnabled(false);
+                }
+            }
+        });
+
+        upLoadChip = new JRadioButton("upload chip platform file");
+        upLoadChip.setSelected(false);
+        upLoadChip.addItemListener(new ItemListener()
+        {
+            public void itemStateChanged(ItemEvent event)
+            {
+                if(event.getStateChange() == ItemEvent.SELECTED)
+                {
+                    gsDatabaseFileField.setEnabled(true);
+                    loadGSDatabaseButton.setEnabled(true);
+                }
+                if(event.getStateChange() == ItemEvent.DESELECTED)
+                {
+                    gsDatabaseFileField.setEnabled(false);
+                    loadGSDatabaseButton.setEnabled(false);
+                }
+            }
+        });
+
+        ButtonGroup chipGroup = new ButtonGroup();
+        chipGroup.add(selectChip);
+        chipGroup.add(upLoadChip);
+
+        loadChipButton = new JButton("Load");
+        loadChipButton.setEnabled(false);
+        loadChipButton.addActionListener(new ActionListener()
+        {
+            public void actionPerformed(ActionEvent event)
+            {
+                int returnValue = chipPlatformFile.showOpenDialog(null);
+                if (returnValue == JFileChooser.APPROVE_OPTION)
+                {
+                    File file = chipPlatformFile.getSelectedFile();
+                    chipPlatformFileField.setText(file.getAbsolutePath());
+                }
+            }
+        });
 
         NumberFormat format = NumberFormat.getInstance();
         format.setMaximumFractionDigits(0);
@@ -236,7 +317,11 @@ public class GSEAAnalysisPanel extends GPAnalysisPanel
         builder.nextLine();
         builder.append("collapse probe sets to gene symbols", collapseProbes);
         builder.nextLine();
-        builder.append("chip platform", chipPlatform);
+        builder.append(selectChip);
+        builder.append(chipPlatform);
+        builder.nextLine();
+        builder.append(upLoadChip);
+        builder.append(chipPlatformFileField, loadChipButton);        
         builder.nextLine();
         builder.append("permutation type", permType);
         builder.nextLine();
@@ -428,4 +513,82 @@ public class GSEAAnalysisPanel extends GPAnalysisPanel
 	public void fillDefaultValues(Map<Serializable, Serializable> parameters) {
 		// TODO Auto-generated method stub
 	}
+
+    private void addChipPlatformData(TaskInfo taskInfo)
+    {
+        ParameterInfo[] pArray = taskInfo.getParameterInfoArray();
+        ParameterInfo chipPInfo = null;
+        for(int i = 0; i < pArray.length; i++)
+        {
+            if(pArray[i].getName().equals("chip.platform"))
+            {
+                chipPInfo = pArray[i];
+                break;
+            }
+        }
+        if(chipPInfo != null)
+        {
+            Map<String, String> choices = chipPInfo.getChoices();
+            Set<String> keys = choices.keySet();
+
+            SortedSet sortedKeys = new TreeSet();
+            sortedKeys.addAll(keys);
+            Iterator<String> it = sortedKeys.iterator();
+            if(sortedKeys.size() > 0)
+                chipPlatform.removeAllItems();
+            while(it.hasNext())
+            {
+                String key = it.next();
+                chipPlatform.removeItem(key);
+                chipPlatform.addItem(key);
+            }
+
+            repaint();
+        }
+    }
+
+     private void addGeneSetDatabase(TaskInfo taskInfo)
+    {
+        ParameterInfo[] pArray = taskInfo.getParameterInfoArray();
+        ParameterInfo gsDatabaseInfo = null;
+        for(int i = 0; i < pArray.length; i++)
+        {
+            if(pArray[i].getName().equals("gene.sets.database"))
+            {
+                gsDatabaseInfo = pArray[i];
+                break;
+            }
+        }
+        if(gsDatabaseInfo != null)
+        {
+            Map<String, String> choices = gsDatabaseInfo.getChoices();
+            Set<String> keys = choices.keySet();
+
+            SortedSet sortedKeys = new TreeSet();
+            sortedKeys.addAll(keys);
+            Iterator<String> it = sortedKeys.iterator();            if(keys.size() > 0)
+
+            if(sortedKeys.size() > 0)
+                gsDatabase.removeAllItems();
+
+            while(it.hasNext())
+            {
+                String key = it.next();
+                gsDatabase.removeItem(key);
+                gsDatabase.addItem(key);
+            }
+
+            repaint();
+        }
+    }
+
+    public class MyServerConnectionListener extends ServerConnectionListener
+    {
+        public void serverConnected(ServerConnectionEvent event)
+        {
+            TaskInfo info = event.getModuleInfo();
+            addChipPlatformData(info);
+            addGeneSetDatabase(info);
+        }
+    }
 }

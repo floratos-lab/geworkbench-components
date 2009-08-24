@@ -34,9 +34,14 @@ import java.beans.PropertyChangeListener;
 
 import org.genepattern.util.GPpropertiesManager;
 import org.genepattern.webservice.AdminProxy;
+import org.genepattern.webservice.WebServiceException;
+import org.genepattern.webservice.TaskInfo;
 import org.systemsbiology.util.InvalidInputException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.geworkbench.components.gpmodule.gsea.GSEAAnalysisPanel;
+import org.geworkbench.components.gpmodule.event.ServerConnectionEvent;
+import org.geworkbench.components.gpmodule.listener.ServerConnectionListener;
 
 /**
  * @author: Marc-Danie Nazaire 
@@ -53,6 +58,8 @@ public class GPConfigPanel extends JPanel
     private JFrame editSettingsFrame;
     private JTable serverSettingsTable;
     private DefaultFormBuilder builder;
+    public static ServerConnectionListener listener = null;
+    private TaskInfo moduleInfo = null;
 
     public GPConfigPanel()
     {
@@ -222,7 +229,7 @@ public class GPConfigPanel extends JPanel
         panel.add(Box.createRigidArea(new Dimension(2, 0)));
         panel.add(modifyButton);
         this.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
-        this.add(panel);  
+        this.add(panel);         
     }
 
     private void showMessageDialog(String message)
@@ -351,10 +358,10 @@ public class GPConfigPanel extends JPanel
     
     private boolean testConfigSettings(String serverName, String userName, String password)
     {
+        AdminProxy admin = null;
         try
         {
-            AdminProxy admin = new AdminProxy(serverName, userName, password);
-            admin.getAllTasks();
+            admin = new AdminProxy(serverName, userName, password);
         }
         catch(Exception e)
         {
@@ -373,6 +380,18 @@ public class GPConfigPanel extends JPanel
             return false;
         }
 
+        if(admin != null)
+        {
+            try
+            {
+                moduleInfo = admin.getTask("GSEA");
+                fireStatusEvent(new ServerConnectionEvent(moduleInfo));
+            }
+            catch(Exception we)
+            {
+                we.printStackTrace();
+            }
+        }
         return true;
     }
 
@@ -409,7 +428,9 @@ public class GPConfigPanel extends JPanel
             if(passwordValue != null)
             {
                 password.setText(passwordValue);
-            } 
+            }
+
+            testConfigSettings(gpServer.toString(), (String)username.getValue(), passwordValue);
         }
         else
         {
@@ -445,12 +466,12 @@ public class GPConfigPanel extends JPanel
                 else
                     gpServer = new URL(protocolInput, hostInput , "");
 
-                boolean result = testConfigSettings(gpServer.toString(), userNameInput, passwordValue);
-                if(!result)
+                boolean success = testConfigSettings(gpServer.toString(), userNameInput, passwordValue);
+                if(!success)
                 {
                     return false;
                 }
-
+               
                 GPpropertiesManager.setProperty("gp.server", gpServer.toString());
                 GPpropertiesManager.setProperty("gp.user.name", userNameInput);
 
@@ -507,6 +528,19 @@ public class GPConfigPanel extends JPanel
         return new String(password.getPassword());
     }
 
+    public static void addServerConnectionListener(ServerConnectionListener sl)
+    {
+        listener = sl;
+    }
+
+    public void fireStatusEvent(AWTEvent evt)
+    {
+        if (listener != null && evt instanceof ServerConnectionEvent)
+        {
+            listener.serverConnected((ServerConnectionEvent)evt);
+        }
+    }
+
     private class MyCellRenderer extends JLabel implements TableCellRenderer
     {
 	    public MyCellRenderer()
@@ -536,4 +570,9 @@ public class GPConfigPanel extends JPanel
             return this;
 	    }
 	}
+
+    public TaskInfo getTaskInfo()
+    {
+        return moduleInfo;
+    }
 }
