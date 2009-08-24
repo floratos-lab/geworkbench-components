@@ -1,12 +1,12 @@
 package org.geworkbench.components.caarray.arraydata;
 
 import gov.nih.nci.caarray.services.ServerConnectionException;
+import gov.nih.nci.caarray.services.external.v1_0.InvalidReferenceException;
 
 import java.awt.Component;
+import java.rmi.RemoteException;
 import java.util.Map;
-import java.util.Set;
 import java.util.SortedMap;
-import java.util.TreeMap;
 
 import javax.security.auth.login.FailedLoginException;
 import javax.swing.JPanel;
@@ -41,15 +41,11 @@ public class CaArray2Component implements VisualPlugin {
 
 	private Log log = LogFactory.getLog(CaArray2Component.class);
 
-	private StandAloneCaArrayClientWrapper externalDataSetDownloadClient = new StandAloneCaArrayClientWrapper();
-
-	protected static final String SERVER_NAME = "array-stage.nci.nih.gov ";
-	protected static final int JNDI_PORT = 8080;
-	protected static final int GRID_SERVICE_PORT = 8080;
-
 	private String cancelledConnectionInfo = null;
 	private boolean isCancelled = false;
 
+	// process two types of queries: (1) the list of experiments; and (2) the
+	// actual data
 	/**
 	 * 
 	 * @param ce
@@ -57,7 +53,7 @@ public class CaArray2Component implements VisualPlugin {
 	 */
 	@Subscribe
 	public void receive(CaArrayRequestEvent ce, Object source) {
-		
+
 		if (ce == null) {
 			return;
 		}
@@ -79,12 +75,13 @@ public class CaArray2Component implements VisualPlugin {
 			isCancelled = false;
 		}
 
-		// below is to invoke external Java process to call caArray server.
 		String currentConnectionInfo = url + port;
 		if (username != null && username.length() > 0) {
 			currentConnectionInfo = currentConnectionInfo + username + password;
 		}
 		try {
+			CaArrayClient client = new CaArrayClient(url, port, username,
+					password);
 
 			if (ce.getRequestItem().equalsIgnoreCase(
 					CaArrayRequestEvent.EXPERIMENT)) {
@@ -96,12 +93,20 @@ public class CaArray2Component implements VisualPlugin {
 				if (ce.isUseFilterCrit()) {
 					Map<String, String> filters = ce.getFilterCrit();
 					if (filters != null) {
-						exps = externalDataSetDownloadClient.lookupExperiments(
-								url, port, username, password, filters);
+						for (String key : filters.keySet()) {
+							String value = filters.get(key);
+							if (value != null) {
+								exps = client
+										.getExperimentListWithFilter(
+												key, value);
+								continue;
+							}
+						}
 					}
 				} else {
-					exps = externalDataSetDownloadClient.lookupExperiments(url,
-							port, username, password);
+					// case of no filtering
+					exps = client.getExperimentListWithFilter(
+							null, null);
 				}
 				if (exps != null && exps.length > 0) {
 					event.setExperiments(exps);
@@ -127,24 +132,24 @@ public class CaArray2Component implements VisualPlugin {
 					Map<String, String> filterCrit = ce.getFilterCrit();
 					String experimentName = filterCrit
 							.get(CaArrayRequestEvent.EXPERIMENT);
-					SortedMap<String, Long> hybridzations = ce.getAssayNameFilter();
+					SortedMap<String, String> hybridzations = ce
+							.getAssayNameFilter();
 					boolean merge = ce.isMerge();
 					String qType = ce.getQType();
 					if (qType == null) {
 						qType = "CHPSignal";
 					}
 					String hybName = hybridzations.firstKey();
-					Long hybId = hybridzations.get(hybName);
-					String chipType = AnnotationParser.matchChipType(null, "", false);
-					CSExprMicroarraySet maSet = externalDataSetDownloadClient
-							.getDataSet(url, port, username, password,
-									hybName, hybId, qType, chipType);
-					publishCaArraySuccessEvent(new CaArraySuccessEvent(1,1));
+					String hybId = hybridzations.get(hybName);
+					String chipType = AnnotationParser.matchChipType(null, "",
+							false);
+					CSExprMicroarraySet maSet = client.getDataSet(hybName, hybId, qType,
+							chipType);
+					publishCaArraySuccessEvent(new CaArraySuccessEvent(1, 1));
 					CSExprMicroarraySet totalSet = maSet;
 					if (!merge) {
 						if (maSet != null) {
-							maSet.setLabel(experimentName + "_"
-									+ hybName);
+							maSet.setLabel(experimentName + "_" + hybName);
 							org.geworkbench.events.ProjectNodeAddedEvent pevent = new org.geworkbench.events.ProjectNodeAddedEvent(
 									"message", maSet, null);
 							ProjectPanel.addToHistory(maSet,
@@ -175,23 +180,26 @@ public class CaArray2Component implements VisualPlugin {
 					}
 					if (hybridzations.size() > 1) {
 						String firstName = hybridzations.firstKey();
-						int number = 0;	//index number out of total arrays
-						for (String hybridizationName: hybridzations.keySet()) {
-							if(hybridizationName.equals(firstName))
+						int number = 0; // index number out of total arrays
+						for (String hybridizationName : hybridzations.keySet()) {
+							if (hybridizationName.equals(firstName))
 								continue;
-							
+
 							if (isCancelled
 									&& cancelledConnectionInfo != null
 									&& cancelledConnectionInfo
 											.equalsIgnoreCase(currentConnectionInfo)) {
 								return;
 							}
-							Long hybridizationId = hybridzations.get(hybridizationName);
-							CSExprMicroarraySet maSet2 = externalDataSetDownloadClient
-									.getDataSet(url, port, username, password,
-											hybridizationName, hybridizationId, qType, chipType);
+							String hybridizationId = hybridzations
+									.get(hybridizationName);
+							CSExprMicroarraySet maSet2 = client
+									.getDataSet(
+											hybridizationName, hybridizationId,
+											qType, chipType);
 							;
-							publishCaArraySuccessEvent(new CaArraySuccessEvent(number++, hybridzations.size()));
+							publishCaArraySuccessEvent(new CaArraySuccessEvent(
+									number++, hybridzations.size()));
 							if (maSet2 == null) {
 								event.setPopulated(false);
 							} else {
@@ -282,17 +290,23 @@ public class CaArray2Component implements VisualPlugin {
 		}
 
 	}
+
+	// the event that data has been retrieved
 	/**
 	 * 
 	 * @param event
 	 * @return
 	 */
 	@Publish
-	public CaArraySuccessEvent publishCaArraySuccessEvent(CaArraySuccessEvent event) {
+	public CaArraySuccessEvent publishCaArraySuccessEvent(
+			CaArraySuccessEvent event) {
 		return event;
 	}
 
 	/**
+	 * 
+	 * process the query for filtering, publish the event with either the result
+	 * of all filter type-values or failure info
 	 * 
 	 * @param ce
 	 * @param source
@@ -301,63 +315,37 @@ public class CaArray2Component implements VisualPlugin {
 	public void receive(CaArrayQueryEvent ce, Object source) {
 		log.debug("CaArrayQueryEvent is received.");
 
+		String url = ce.getUrl();
+		int port = ce.getPort();
+		String username = ce.getUsername();
+		String password = ce.getPassword();
+		CaArrayQueryResultEvent event = new CaArrayQueryResultEvent(null, url,
+				port, username, password);
 		try {
-			if (ce != null
-					&& ce.getInfoType().equalsIgnoreCase(
-							CaArrayQueryEvent.GOTVALIDVALUES)) {
-				String url = ce.getUrl();
-				int port = ce.getPort();
-				String[] listCritiria = ce.getQueries();
-				String username = ce.getUsername();
-				String password = ce.getPassword();
-
-				TreeMap<String, Set<String>> treeMap = null;
-				treeMap = externalDataSetDownloadClient.lookupTypeValues(
-							url, port, username, password, listCritiria);
-				CaArrayQueryResultEvent event = new CaArrayQueryResultEvent(
-						null, url, port, ce.getUsername(), ce.getPassword());
-
-				event.setQueryPairs(treeMap);
-				event.setSucceed(true);
-				publishCaArrayQueryResultEvent(event);
-			} else {// For BioAssay detail, another kind of request.
-				if (ce.getInfoType().equalsIgnoreCase(
-						CaArrayQueryEvent.GOTEXPERIMENTS)) {
-
-				}
-			}
-
-		} catch (gov.nih.nci.caarray.services.ServerConnectionException se) {
-			CaArrayQueryResultEvent event = new CaArrayQueryResultEvent(null,
-					ce.getUrl(), ce.getPort(), ce.getUsername(), ce
-							.getPassword());
+			CaArrayClient client = new CaArrayClient(url, port, username,
+					password);
+			event.setQueryPairs(client.lookupTypeValues());
+			event.setSucceed(true);
+		} catch (ServerConnectionException se) {
 			event.setSucceed(false);
-			event.setErrorMessage("Cannot connect to the server at "
-					+ ce.getUrl() + ":" + ce.getPort());
-			publishCaArrayQueryResultEvent(event);
+			event.setErrorMessage("ServerConnectionException: host " + url
+					+ "; port " + port + "; " + se.getMessage());
 		} catch (FailedLoginException fe) {
-			CaArrayQueryResultEvent event = new CaArrayQueryResultEvent(null,
-					ce.getUrl(), ce.getPort(), ce.getUsername(), ce
-							.getPassword());
 			event.setSucceed(false);
-			event
-					.setErrorMessage("Either username or password is incorrect. Please check your login credentials. ");
-
-			publishCaArrayQueryResultEvent(event);
-
-		}
-
-		catch (Exception e) {
-
-			CaArrayQueryResultEvent event = new CaArrayQueryResultEvent(null,
-					ce.getUrl(), ce.getPort(), ce.getUsername(), ce
-							.getPassword());
+			event.setErrorMessage("FailedLoginException: username " + username
+					+ "; " + fe.getMessage());
+		} catch (InvalidReferenceException e) {
 			event.setSucceed(false);
-			event.setErrorMessage("Cannot connect to the server.");
-			publishCaArrayQueryResultEvent(event);
+			event.setErrorMessage("InvalidReferenceException: "
+					+ e.getMessage());
+		} catch (RemoteException e) {
+			event.setSucceed(false);
+			event.setErrorMessage("RemoteException: " + e.getMessage());
 		}
+		publishCaArrayQueryResultEvent(event);
 	}
 
+	// the event of the new data node to be added
 	@Publish
 	public org.geworkbench.events.ProjectNodeAddedEvent publishProjectNodeAddedEvent(
 			org.geworkbench.events.ProjectNodeAddedEvent event) {
@@ -366,7 +354,8 @@ public class CaArray2Component implements VisualPlugin {
 
 	/**
 	 * 
-	 * @param event
+	 * @param event:
+	 *            the list of experiment retrieved
 	 * @return
 	 */
 	@Publish
@@ -374,6 +363,7 @@ public class CaArray2Component implements VisualPlugin {
 		return event;
 	}
 
+	// the even that the filter has been processed
 	@Publish
 	public CaArrayQueryResultEvent publishCaArrayQueryResultEvent(
 			CaArrayQueryResultEvent event) {
@@ -381,7 +371,8 @@ public class CaArray2Component implements VisualPlugin {
 	}
 
 	/**
-	 * The constructor does not do much, but it has to be here to make Digester work.
+	 * The constructor does not do much, but it has to be here to make Digester
+	 * work.
 	 */
 	public CaArray2Component() {
 		mainPanel = new JPanel();
