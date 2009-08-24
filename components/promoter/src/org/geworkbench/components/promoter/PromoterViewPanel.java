@@ -977,7 +977,7 @@ public class PromoterViewPanel extends JPanel {
         }
         if (!sequenceDB.isDNA()) {
             JOptionPane.showMessageDialog(null,
-                                          "It looks like you are trying to find TF from protein seqeunces. Please load a DNA sequence first.",
+                                          "It looks like you are trying to find TF from protein sequences. Please load a DNA sequence first.",
                                           "Please check",
                                           JOptionPane.ERROR_MESSAGE);
             return;
@@ -1149,8 +1149,10 @@ public class PromoterViewPanel extends JPanel {
             mx.normalize();
             tf.setMatrix(mx);
             tf.setName(file.getName());
-            DefaultListModel ls = (DefaultListModel) jSelectedTFList.getModel();
-            ls.addElement(tf);
+            tfListModel.addElement(tf);
+            tfMap.put(file.getName(), tf);
+            int index = tfListModel.indexOf(file.getName());
+            tfPanel.setHighlightedIndex(index);
         }
     }
 
@@ -2311,6 +2313,10 @@ public class PromoterViewPanel extends JPanel {
 
         public void refreshItem(int index) {
             fireContentsChanged(this, index, index);
+        }
+        
+        public int indexOf(Object object) {
+        	return tfNameSet.indexOf(object);
         }
 
     }
