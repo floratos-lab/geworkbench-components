@@ -114,12 +114,17 @@ public class GridServicesButtonListener implements ActionListener {
 						}
 					});
 					
-					linkedLabel.addMouseMotionListener(new MouseMotionAdapter() {
-						public void mouseMoved(MouseEvent e) {
-							linkedLabel.setCursor(new Cursor(Cursor.HAND_CURSOR));
-						}
-
-					});
+					// FIXME - Visually, the hand does not appear. This has been
+					// reported in the
+					// sun database and is supposed to be fixed in Java 6:
+					// http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=5079694
+					// linkedLabel.addMouseMotionListener(new
+					// MouseMotionAdapter() {
+					// public void mouseMoved(MouseEvent e) {
+					// linkedLabel.setCursor(new Cursor(Cursor.HAND_CURSOR));
+					// }
+					//
+					// });
 					
 					JOptionPane.showMessageDialog(null, linkedLabel, "Error",
 							JOptionPane.ERROR_MESSAGE);
