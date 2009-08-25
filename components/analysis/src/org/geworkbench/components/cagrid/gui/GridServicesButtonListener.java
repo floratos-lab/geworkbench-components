@@ -1,7 +1,12 @@
 package org.geworkbench.components.cagrid.gui;
 
+import java.awt.Cursor;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionAdapter;
+import java.io.IOException;
 
 import javax.swing.ButtonGroup;
 import javax.swing.JLabel;
@@ -11,6 +16,7 @@ import javax.swing.JRadioButton;
 import org.apache.axis.message.addressing.EndpointReferenceType;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.geworkbench.util.BrowserLauncher;
 import org.geworkbench.util.ProgressBar;
 import org.geworkbench.util.Util;
 
@@ -84,8 +90,38 @@ public class GridServicesButtonListener implements ActionListener {
 					services = DiscoveryServiceUtil.getServices(indexServerUrl,dispatcherLabelListener.getHost(),
 							selectedAnalysisType);
 				} catch (Exception e) {
-					JOptionPane.showMessageDialog(null, "Cannot reach host: "
-							+ indexServerUrl, "Error",
+					final JLabel linkedLabel = new JLabel("<html>No service running. Please check with the administrator of your grid infrastructure. For services hosted by the geWorkbench team you can inquire at the geWorkbench <A href=https://cabig-kc.nci.nih.gov/Molecular/forums/viewforum.php?f=10&sid=237690e6926a15d8062491481120867a>KC Forum</a></html>");
+					linkedLabel.addMouseListener(new MouseListener() {
+						public void mouseClicked(MouseEvent e) {
+							try {
+								BrowserLauncher.openURL("https://cabig-kc.nci.nih.gov/Molecular/forums/viewforum.php?f=10&sid=237690e6926a15d8062491481120867a");
+								} catch (IOException e1) {
+								e1.printStackTrace();
+								}
+							
+						}
+						public void mouseEntered(MouseEvent e) {
+							// TODO Auto-generated method stub
+						}
+						public void mouseExited(MouseEvent e) {
+							// TODO Auto-generated method stub	
+						}
+						public void mousePressed(MouseEvent e) {
+							// TODO Auto-generated method stub	
+						}
+						public void mouseReleased(MouseEvent e) {
+							// TODO Auto-generated method stub	
+						}
+					});
+					
+					linkedLabel.addMouseMotionListener(new MouseMotionAdapter() {
+						public void mouseMoved(MouseEvent e) {
+							linkedLabel.setCursor(new Cursor(Cursor.HAND_CURSOR));
+						}
+
+					});
+					
+					JOptionPane.showMessageDialog(null, linkedLabel, "Error",
 							JOptionPane.ERROR_MESSAGE);
 				}
 
