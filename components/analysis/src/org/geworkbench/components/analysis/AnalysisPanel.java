@@ -102,7 +102,7 @@ import edu.columbia.geworkbench.cagrid.dispatcher.client.DispatcherClient;
  * @author First Genetic Trust Inc.
  * @author keshav
  * @author yc2480
- * @version $Id: AnalysisPanel.java,v 1.85 2009-06-22 15:25:02 tgarben Exp $
+ * @version $Id: AnalysisPanel.java,v 1.86 2009-08-26 18:24:42 my2248 Exp $
  * 
  */
 @AcceptTypes( { DSMicroarraySet.class, EdgeListDataSet.class,
@@ -970,11 +970,19 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 	 * @param e
 	 */
 	private void delete_actionPerformed(ActionEvent e) {
-		int choice = JOptionPane.showConfirmDialog(null,
-				"Are you sure you want to delete saved parameters?",
-				"Deleting Saved Parameters", JOptionPane.YES_NO_OPTION,
-				JOptionPane.WARNING_MESSAGE);
-		if ((selectedAnalysis != null) && (choice == 0)
+		if (selectedAnalysis != null && this.paramsJList.getSelectedIndex() == -1 )
+		{
+			JOptionPane.showMessageDialog(null, "You have to select a setting before you can delete it.",
+					"Canceled", JOptionPane.OK_OPTION);
+		}
+		else
+		{
+			int choice = JOptionPane.showConfirmDialog(null,
+					"Are you sure you want to delete saved parameters?",
+					"Deleting Saved Parameters", JOptionPane.YES_NO_OPTION,
+					JOptionPane.WARNING_MESSAGE);
+		 
+		    if ((selectedAnalysis != null) && (choice == 0)
 				&& (this.paramsJList.getSelectedIndex() >= 0)) {
 			log.info("Deleting saved parameters: "
 					+ (String) this.paramsJList.getSelectedValue());
@@ -982,7 +990,8 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 					.getSelectedValue());
 			if (this.paramsJList.getModel().getSize() < 1)
 				this.delete.setEnabled(false);
-		}
+		    }
+		 }
 	}
 
 	int previousSelectedIndex = -1;
