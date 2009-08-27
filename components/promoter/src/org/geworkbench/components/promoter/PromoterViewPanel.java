@@ -1149,10 +1149,51 @@ public class PromoterViewPanel extends JPanel {
             mx.normalize();
             tf.setMatrix(mx);
             tf.setName(file.getName());
-            tfListModel.addElement(tf);
-            tfMap.put(file.getName(), tf);
-            int index = tfListModel.indexOf(file.getName());
-            tfPanel.setHighlightedIndex(index);
+
+            DefaultListModel selectedModel = (DefaultListModel)jSelectedTFList.getModel(); // selected
+
+            /* TF is in the map */
+            if ( tfMap.containsValue(tf)){
+    			int o = JOptionPane.showConfirmDialog(null,
+    					"Replace Transcription Factor: " + file.getName(), "Replace the existing Transcription Factor?",
+    					JOptionPane.YES_NO_CANCEL_OPTION);
+    			if (o != JOptionPane.YES_OPTION) {
+    				return;
+    			}
+    			
+    			/* TF is in sequence panel */
+                if ( !selectedModel.contains(tf)){
+                    tfMap.put(file.getName(), tf);
+                	
+                    // Highlight
+                    int index = tfListModel.indexOf(file.getName()); // sequence model
+                    tfPanel.setHighlightedIndex(index);				 // sequence panel
+					currentTF = tf;
+		            try {
+		                drawLogo(currentTF);
+		            } catch (Exception ex) {
+		                ex.printStackTrace();
+		            }
+                }else{ /* TF is in selected panel */
+                    tfMap.put(file.getName(), tf);
+                	
+	                currentTF = tf;
+	                selectedModel.removeElement(tf);
+	                selectedModel.addElement(tf);
+	                jSelectedTFList.clearSelection();
+
+                }
+                
+            }else{ /* TF is not in the map */
+
+            	currentTF = tf;
+            	tfMap.put(file.getName(), tf);					 // calculation map
+            	tfListModel.addElement(tf);						 // sequence modal
+            	
+            	// Highlight
+                int index = tfListModel.indexOf(file.getName()); // sequence modal
+                tfPanel.setHighlightedIndex(index);				 // sequence panel
+            }
         }
     }
 

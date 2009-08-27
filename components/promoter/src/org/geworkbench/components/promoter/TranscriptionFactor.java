@@ -198,4 +198,14 @@ public class TranscriptionFactor implements DSPattern<DSSequence, CSSeqRegistrat
     public String toString(DSSequence sequence, CSSeqRegistration reg) {
         return "TF" + sequence.getLabel() + ": " + reg.toString();
     }
+
+    @Override
+    public boolean equals (Object object){
+    	TranscriptionFactor tf = (TranscriptionFactor )object;
+    	if (this.getName().equals( tf.getName())){
+    		return true;
+    	}
+    	
+    	return false;
+    }
 }
