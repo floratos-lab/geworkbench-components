@@ -402,7 +402,7 @@ public class GenepixFlagsFilterPanel extends AbstractSaveableParameterPanel {
 		/*   flags*/
         for (Object fd : heldPanel.hits) {
             FlagDetail detail = (FlagDetail) fd;
-    		histStr += detail.getLabel() + ": ";
+    		histStr += detail.getLabel() + " (" + flagExplanationTable.get(detail.getLabel()).toString() + ") : ";
     		histStr += detail.isFiltered? FILTERED : NOT_FILTERED;
     		histStr += "\n";
 
