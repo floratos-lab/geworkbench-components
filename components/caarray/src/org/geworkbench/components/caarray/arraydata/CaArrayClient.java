@@ -60,27 +60,27 @@ import org.geworkbench.builtin.projects.remoteresources.query.CaARRAYQueryPanel;
 
 /**
  * The class to invoke StandAloneCaArrayWrapper
- *
+ * 
  * @author xiaoqing
  * @version $Id: StandAloneCaArrayClientWrapper.java,v 1.12 2009/08/05 21:08:49
  *          jiz Exp $
- *
+ * 
  */
 public class CaArrayClient {
 	private Log log = null;
 
 	private static final String NAME_SEPARATOR = ", ";
-
+	
 	private CaArrayServer server = null;
     private SearchService searchService = null;
     private SearchApiUtils searchServiceHelper = null;
 	private DataService dataService = null;
-
+    
 	CaArrayClient(String url,
 			int port, String username,
 			String password) throws ServerConnectionException, FailedLoginException {
 		server = new CaArrayServer(url, port);
-
+		
 		ClassLoader originalContextClassLoader = Thread.currentThread()
 				.getContextClassLoader();
 		Thread.currentThread().setContextClassLoader(
@@ -98,7 +98,7 @@ public class CaArrayClient {
 		Thread.currentThread()
 				.setContextClassLoader(originalContextClassLoader);
 	}
-
+	
     private List<Organism> lookupOrganisms() throws InvalidReferenceException {
         ExampleSearchCriteria<Organism> criteria = new ExampleSearchCriteria<Organism>();
         Organism exampleOrganism = new Organism();
@@ -139,19 +139,19 @@ public class CaArrayClient {
 	/**
 	 * The method to query caArray server to return valid values for all filter types. For
 	 * example, return all valid Organisms in caArray.
-	 *
+	 * 
 	 * @param service
 	 * @param request
 	 * @param type
 	 * @return
-	 * @throws InvalidReferenceException
-	 * @throws RemoteException
+	 * @throws InvalidReferenceException 
+	 * @throws RemoteException 
 	 */
 	@SuppressWarnings("unchecked")
 	TreeMap<String, Set<String>> lookupTypeValues() throws InvalidReferenceException, RemoteException
 			 {
 		String[] types = CaARRAYQueryPanel.listContent;
-
+		
 		TreeMap<String, Set<String>> tree = new TreeMap<String, Set<String>>();
 
 		for (String type : types) {
@@ -189,9 +189,9 @@ public class CaArrayClient {
 		Vector<CaArray2Experiment> exps = new Vector<CaArray2Experiment>();
 
 		ExperimentSearchCriteria experimentSearchCriteria = new ExperimentSearchCriteria();
-
+		
 		long startTime = System.currentTimeMillis();
-
+		
 		if(filterkey!=null) {
 		if (filterkey.equalsIgnoreCase(CaARRAYQueryPanel.ORGANISM)) {
 	        ExampleSearchCriteria<Organism> organismCriteria = new ExampleSearchCriteria<Organism>();
@@ -228,12 +228,12 @@ public class CaArrayClient {
 		        CaArrayEntityReference providerRef = arrayProviders.get(0).getReference();
 		        experimentSearchCriteria.setArrayProvider(providerRef);
 	        }
-		} else { // other filtering never implemented
+		} else { // other filtering never implemented 
 			return null;
+		}		
 		}
-		}
-
-
+		
+		
         List<Experiment> experiments = (searchServiceHelper.experimentsByCriteria(experimentSearchCriteria)).list();
         long time1 = System.currentTimeMillis();
         long totalTime = time1 - startTime;
@@ -242,38 +242,12 @@ public class CaArrayClient {
         } else {
             System.out.println("Retrieved " + experiments.size() + " experiments in " + totalTime + " ms.");
         }
-
-        int count = 0; // count those experiments with at least one hybridization
+		
 		for (Experiment e : experiments) {
 			CaArrayEntityReference experimentRef = e.getReference();
-
-			HybridizationSearchCriteria searchCriteria = new HybridizationSearchCriteria();
-			searchCriteria.setExperiment(experimentRef);
-			List<Hybridization> hybridizations = (searchServiceHelper
-					.hybridizationsByCriteria(searchCriteria)).list();
-			if (hybridizations != null && hybridizations.size() > 0) {
-				count++;
-
-				Map<String, String> hybridizationIds = new HashMap<String, String>();
-				for (Hybridization h : hybridizations) {
-					hybridizationIds.put(h.getName(), h.getId());
-				}
-
-				List<QuantitationType> quantitationTypes = getQuantitationTypes(hybridizations
-							.get(0));
-				String[] qTypes = new String[quantitationTypes.size()];
-				int i = 0;
-				for (QuantitationType q : quantitationTypes) {
-					qTypes[i++] = q.getName();
-				}
-
-				exps.add(new CaArray2Experiment(e.getTitle(), e
-						.getDescription(), hybridizationIds, qTypes));
-
-			} // end of checking h1.size() > 0
+			exps.add(new CaArray2Experiment(experimentRef.getId(), e.getTitle(), e
+						.getDescription()));
 		}
-        long time2 = System.currentTimeMillis();
-        System.out.println("Retrieved all hybridizations of " + count + " experiments in " + (time2-time1) + " ms.");
 
 		CaArray2Experiment[] experimentsArray = new CaArray2Experiment[exps.size()];
 		exps.toArray(experimentsArray);
@@ -281,10 +255,48 @@ public class CaArrayClient {
 		log.debug("Ending the lookupExperiments " + new Date());
 		return experimentsArray;
 	}
+	
+	/**
+	 * This method fills hybridization info for the given CaArray2Experiment.
+	 * Even in the case of zero hybridization, hybridization list should be set as zero size, not null.
+	 * 
+	 * @param caArray2Experiment
+	 * @throws InvalidReferenceException
+	 */
+	void getHybridizations(CaArray2Experiment caArray2Experiment)
+			throws InvalidReferenceException {
+		String experimentReferenceId = caArray2Experiment.getExperimentReferenceId();
+		CaArrayEntityReference experimentRef = new CaArrayEntityReference(experimentReferenceId);
+
+		HybridizationSearchCriteria searchCriteria = new HybridizationSearchCriteria();
+		searchCriteria.setExperiment(experimentRef);
+		List<Hybridization> hybridizations = (searchServiceHelper
+				.hybridizationsByCriteria(searchCriteria)).list();
+
+		Map<String, String> hybridizationIds = new HashMap<String, String>();
+		caArray2Experiment.setHybridizations(hybridizationIds);
+		
+		if (hybridizations != null && hybridizations.size() > 0) {
+			
+			for (Hybridization h : hybridizations) {
+				hybridizationIds.put(h.getName(), h.getId());
+			}
+			
+			List<QuantitationType> quantitationTypes = getQuantitationTypes(hybridizations
+					.get(0));
+			String[] qTypes = new String[quantitationTypes.size()];
+			int i = 0;
+			for (QuantitationType q : quantitationTypes) {
+				qTypes[i++] = q.getName();
+			}
+			caArray2Experiment.setQuantitationTypes(qTypes);
+		}
+	}
 
 	/**
-	 *
+	 * 
 	 * get all quantitations type for a hybridization
+	 * 
 	 * @throws InvalidReferenceException
 	 */
 	private List<QuantitationType> getQuantitationTypes(Hybridization hybridization) throws InvalidReferenceException{
@@ -292,11 +304,11 @@ public class CaArrayClient {
         qtCrit.setHybridization(hybridization.getReference());
         return searchService.searchForQuantitationTypes(qtCrit);
 	}
-
+	
 	/**
 	 * The method to grab the data from caArray server with defined
 	 * Hybridization and QuantitationType. A BISON DataType will be returned.
-	 *
+	 * 
 	 */
 	CSExprMicroarraySet getDataSet(String hybridizationName,
 			String hybridizationId, String quantitationType, String chipType)
@@ -325,7 +337,7 @@ public class CaArrayClient {
             return null;
         }
         dataSetRequest.setQuantitationTypes(quantitationTypeRefs);
-
+        
         DataSet dataSet = dataService.getDataSet(dataSetRequest);
 
         // Ordered list of row headers (probe sets)
@@ -347,13 +359,13 @@ public class CaArrayClient {
             System.out.println("Column = " + qType.getName() + "; Data type = "
                     + qType.getDataType());
             dataColumn = (AbstractDataColumn) columnIterator.next();
-
+            
             if(qType.getName().equalsIgnoreCase(quantitationType)) {
                 columnDataType = qType.getDataType();
             	break; // found the right column
             }
         }
-
+        
         if(dataColumn==null)throw new Exception("No column of type "+quantitationType+" in this dataset.");
 
         switch (columnDataType) {
@@ -387,7 +399,7 @@ public class CaArrayClient {
                 // Should never get here.
             	log.error("Type "+columnDataType + " not expected.");
         }
-
+            
 		for (int i = 0; i < doubleValues.length; i++) {
 				markerValuePairs[i] = new MarkerValuePair(
 						probeSets.get(i).getName(), doubleValues[i]);
@@ -398,7 +410,7 @@ public class CaArrayClient {
 
 	/**
 	 * Translate the data file into BISON type.
-	 *
+	 * 
 	 */
 	private CSExprMicroarraySet processDataToBISON(
 			MarkerValuePair[] pairs, String name, String chipType) {
