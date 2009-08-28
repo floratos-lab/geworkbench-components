@@ -27,6 +27,8 @@ import org.geworkbench.events.CaArrayEvent;
 import org.geworkbench.events.CaArrayQueryEvent;
 import org.geworkbench.events.CaArrayQueryResultEvent;
 import org.geworkbench.events.CaArrayRequestEvent;
+import org.geworkbench.events.CaArrayRequestHybridizationListEvent;
+import org.geworkbench.events.CaArrayReturnHybridizationListEvent;
 import org.geworkbench.events.CaArraySuccessEvent;
 
 /**
@@ -259,9 +261,9 @@ public class CaArray2Component implements VisualPlugin {
 							.equalsIgnoreCase(currentConnectionInfo)) {
 				return;
 			}
-			publishCaArrayEvent(event);
 			event.setErrorMessage("Cannot connect to the server at " + url
 					+ ":" + port);
+			publishCaArrayEvent(event);
 		} catch (FailedLoginException fe) {
 			CaArrayEvent event = new CaArrayEvent(url, port);
 			event.setPopulated(false);
@@ -383,4 +385,50 @@ public class CaArray2Component implements VisualPlugin {
 	public Component getComponent() {
 		return mainPanel;
 	}
+	
+	@Publish
+	public CaArrayReturnHybridizationListEvent publishCaArrayReturnHybridizationListEvent(CaArrayReturnHybridizationListEvent event) {
+		return event;
+	}
+	
+	@Subscribe
+	public void receive(CaArrayRequestHybridizationListEvent event, Object source) {
+		CaArray2Experiment caArray2Experiment = event.getExperiment();
+		
+		String url = event.getUrl();
+		int port = event.getPort();
+		String username = event.getUsername();
+		String password = event.getPassword();
+
+		try {
+			CaArrayClient client = new CaArrayClient(url, port, username,
+					password);
+			client.getHybridizations(caArray2Experiment);
+			publishCaArrayReturnHybridizationListEvent(new CaArrayReturnHybridizationListEvent(caArray2Experiment));
+		} catch (FailedLoginException e) {
+			CaArrayEvent errorEvent = new CaArrayEvent(url, port);
+			errorEvent.setPopulated(false);
+			errorEvent.setSucceed(false);
+
+			errorEvent
+					.setErrorMessage("Either username or password is incorrect. Please check your login credentials. ");
+			publishCaArrayEvent(errorEvent);
+		} catch (ServerConnectionException se) {
+			CaArrayEvent errorEvent = new CaArrayEvent(url, port);
+			errorEvent.setPopulated(false);
+			errorEvent.setSucceed(false);
+			se.printStackTrace();
+			errorEvent.setErrorMessage("Cannot connect to the server at " + url
+					+ ":" + port);
+			publishCaArrayEvent(errorEvent);
+		} catch (InvalidReferenceException e) {
+			CaArrayEvent errorEvent = new CaArrayEvent(url, port);
+			errorEvent.setPopulated(false);
+			errorEvent.setSucceed(false);
+			e.printStackTrace();
+			errorEvent.setErrorMessage("InvalidReferenceException: " + e.getMessage());
+			publishCaArrayEvent(errorEvent);
+		}
+	}
+	
 }
