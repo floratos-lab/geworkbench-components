@@ -43,7 +43,6 @@ public class GSEABrowser implements VisualPlugin
 	private Method setURL = null;
     private String tabtitle = null;
 
-    private String process_id = null;
     private MyStatusBar statusBar = new MyStatusBar();
 
     private boolean initial = true;
@@ -98,8 +97,7 @@ public class GSEABrowser implements VisualPlugin
             {
 		        try
                 {
-		            tb = new TabBrowser(new URL(gseaURL
-							+ process_id), useIE);
+		            tb = new TabBrowser(new URL(gseaURL), useIE);
 				    tb.addWebBrowserListener(new WebTabListener());
 				    tb.setMainBrowser(this);
 				    jp.removeAll();
@@ -204,7 +202,7 @@ public class GSEABrowser implements VisualPlugin
 					wb = new WebBrowser(new URL(gseaURL), useIE);
 					jp.removeAll();
 					jp.add(wb, BorderLayout.CENTER);
-					jtp.addTab(process_id, jp);
+					//jtp.addTab(process_id, jp);
 			    }
                 mainPanel.add(jtp, BorderLayout.CENTER);
 			    mainPanel.add(statusBar, BorderLayout.SOUTH); 
@@ -219,7 +217,7 @@ public class GSEABrowser implements VisualPlugin
 					wb = new WebBrowser(new URL(gseaURL));
 				    jp.removeAll();
 				    jp.add(wb, BorderLayout.CENTER);
-				    jtp.addTab(process_id, jp);
+				    //jtp.addTab(process_id, jp);
 				    mainPanel.add(jtp, BorderLayout.CENTER);
 				    mainPanel.invalidate();
 				    mainPanel.repaint();
