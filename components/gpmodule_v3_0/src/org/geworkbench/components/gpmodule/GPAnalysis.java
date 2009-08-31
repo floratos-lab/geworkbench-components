@@ -5,6 +5,7 @@ import org.geworkbench.bison.model.analysis.ClusteringAnalysis;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
+import org.geworkbench.builtin.projects.Icons;
 import org.genepattern.matrix.Dataset;
 import org.genepattern.matrix.AbstractDataset;
 import org.genepattern.matrix.ClassVector;
@@ -32,6 +33,7 @@ public abstract class GPAnalysis extends AbstractAnalysis implements ClusteringA
     static Log log = LogFactory.getLog(GPAnalysis.class);
         
     protected GPAnalysisPanel panel;
+    public static ImageIcon GP_ICON = new ImageIcon(Icons.class.getResource(""));
 
     protected File createGCTFile(String fileName, final DSItemList<DSGeneMarker> markers, final DSItemList<DSMicroarray> arrays)
     {
@@ -145,7 +147,7 @@ public abstract class GPAnalysis extends AbstractAnalysis implements ClusteringA
 
             if(analysisResult.hasStandardError())
             {
-                JOptionPane.showMessageDialog(panel, "An error occurred while running analysis.");
+                //JOptionPane.showMessageDialog(panel, "An error occurred while running analysis.");
             }
 
             String[] outputFiles = analysisResult.getOutputFileNames();
@@ -165,7 +167,7 @@ public abstract class GPAnalysis extends AbstractAnalysis implements ClusteringA
             
             // remove job from GenePattern server
             AnalysisWebServiceProxy analysisProxy = new AnalysisWebServiceProxy(server.getServer(), server.getUsername(), password);
-            analysisProxy.purgeJob(analysisResult.getJobNumber());
+            //analysisProxy.purgeJob(analysisResult.getJobNumber());
         }
         catch(WebServiceException we)
         {

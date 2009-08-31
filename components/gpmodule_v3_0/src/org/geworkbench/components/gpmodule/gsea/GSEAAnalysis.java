@@ -2,6 +2,7 @@ package org.geworkbench.components.gpmodule.gsea;
 
 import org.geworkbench.components.gpmodule.GPAnalysis;
 import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
+import org.geworkbench.bison.model.clusters.DSSOMClusterDataSet;
 import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.gsea.DSGSEAResultDataSet;
@@ -19,6 +20,7 @@ import org.geworkbench.events.ProjectNodeAddedEvent;
 import org.geworkbench.util.ProgressBar;
 import org.geworkbench.util.threading.SwingWorker;
 import org.geworkbench.builtin.projects.ProjectPanel;
+import org.geworkbench.builtin.projects.Icons;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.genepattern.webservice.Parameter;
@@ -47,6 +49,7 @@ public class GSEAAnalysis extends GPAnalysis
         setLabel("GSEA Analysis");
         panel = new org.geworkbench.components.gpmodule.gsea.GSEAAnalysisPanel();
         setDefaultPanel(panel);
+        ProjectPanel.setIconForType(DSGSEAResultDataSet.class, GP_ICON);
     }
 
     public AlgorithmExecutionResults execute(Object input)
@@ -186,6 +189,10 @@ public class GSEAAnalysis extends GPAnalysis
                 List<String> results = (List<String>)runAnalysis("GSEA", (Parameter[]) parameters
 					.toArray(new Parameter[0]), panel.getPassword());
 
+                if(results == null)
+                {
+                    return null;
+                }
                 for(String file : results)
                 {
                     if(file.endsWith(".zip"))
@@ -198,6 +205,7 @@ public class GSEAAnalysis extends GPAnalysis
             }
             catch(Exception e)
             {
+                e.printStackTrace();
                 log.error(e);
             }
 
