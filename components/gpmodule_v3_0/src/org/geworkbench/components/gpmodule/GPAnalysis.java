@@ -33,7 +33,7 @@ public abstract class GPAnalysis extends AbstractAnalysis implements ClusteringA
     static Log log = LogFactory.getLog(GPAnalysis.class);
         
     protected GPAnalysisPanel panel;
-    public static ImageIcon GP_ICON = new ImageIcon(Icons.class.getResource(""));
+    public static ImageIcon GP_ICON = new ImageIcon(Icons.class.getResource("images/gp-logo.gif"));
 
     protected File createGCTFile(String fileName, final DSItemList<DSGeneMarker> markers, final DSItemList<DSMicroarray> arrays)
     {
