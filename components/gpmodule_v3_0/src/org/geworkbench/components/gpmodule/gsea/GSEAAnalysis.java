@@ -49,7 +49,7 @@ public class GSEAAnalysis extends GPAnalysis
         setLabel("GSEA Analysis");
         panel = new org.geworkbench.components.gpmodule.gsea.GSEAAnalysisPanel();
         setDefaultPanel(panel);
-        ProjectPanel.setIconForType(DSGSEAResultDataSet.class, GP_ICON);
+        ProjectPanel.setIconForType(DSGSEAResultDataSet.class, GPAnalysis.GP_ICON);
     }
 
     public AlgorithmExecutionResults execute(Object input)
