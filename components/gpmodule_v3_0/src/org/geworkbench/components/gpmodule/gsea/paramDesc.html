@@ -1,12 +1,11 @@
 <html>
-<head>
-</head>
+<head> </head>
 <body>
+	<font size=4> <b> <center> Required Parameters </center> </b> </font>
+
 <table border="1">
-   <th> Required Parameters </th>
-  <tbody>
     <tr>
-      <th> Name </th>
+      <th>Name </th>
       <th> Description </th>
     </tr>
     <tr>
@@ -44,7 +43,45 @@
       <td> Number of permutations to perform. 
       </td>
     </tr>
-  </tbody>
+</table>
+
+<br>
+<font size=4><b> <center>  Basic Parameters </center></b></font>
+<table border="1">
+    <tr>
+      <th> Name </th>
+      <th> Description </th>
+    </tr>
+    <tr>
+      <td> scoring scheme </td>
+	<td> The statistic used to score hits (gene set members) and misses (non-members) 
+ </td>
+    </tr>
+    <tr>
+      <td> metric for ranking genes </td>
+	<td> Class separation metric - gene markers are 
+ranked using this metric to produce the gene 
+list
+ </td>
+    </tr>
+<tr>
+      <td> min gene set size </td>
+	<td> Gene sets smaller than this are excluded 
+from the analysis 
+ </td>
+</tr>
+<tr>
+      <td> max gene set size</td>
+	<td> Gene sets larger than this are excluded from 
+the analysis 
+</tr>
+
+<tr>
+    <td> gene list ordering mode </td>
+	<td>   Direction in which the gene list should be 
+ordered </td>
+ 
+</tr>
 </table>
 </body>
 </html>
