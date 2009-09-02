@@ -108,7 +108,7 @@ public class GPHelpPanel extends JSplitPane
             {
                 try
                 {
-                    BrowserLauncher.openURL("http://www.broad.mit.edu/cancer/software/genepattern/download/");
+                    BrowserLauncher.openURL("http://www.broadinstitute.org/cancer/software/genepattern/download/");
                 }
                 catch(Exception e)
                 {
