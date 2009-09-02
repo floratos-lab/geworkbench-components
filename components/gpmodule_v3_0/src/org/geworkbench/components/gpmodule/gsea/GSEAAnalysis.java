@@ -202,6 +202,10 @@ public class GSEAAnalysis extends GPAnalysis
                     {
                         reportFile = file;
                     }
+                    else
+                    {
+                        (new File(file)).deleteOnExit();
+                    }
                 }
 
                 gsResultDataSet = new CSGSEAResultDataSet(view.getDataSet(), "GSEA Results", reportFile);
