@@ -167,7 +167,7 @@ public abstract class GPAnalysis extends AbstractAnalysis implements ClusteringA
             
             // remove job from GenePattern server
             AnalysisWebServiceProxy analysisProxy = new AnalysisWebServiceProxy(server.getServer(), server.getUsername(), password);
-            //analysisProxy.purgeJob(analysisResult.getJobNumber());
+            analysisProxy.purgeJob(analysisResult.getJobNumber());
         }
         catch(WebServiceException we)
         {
