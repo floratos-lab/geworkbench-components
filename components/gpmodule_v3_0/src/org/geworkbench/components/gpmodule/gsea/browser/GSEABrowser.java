@@ -181,7 +181,7 @@ public class GSEABrowser implements VisualPlugin
 					BorderFactory.createEtchedBorder(),
 					BorderFactory.createEmptyBorder(2, 2, 2, 0)));
 
-                    //jp.add(jBrowserToolBar, BorderLayout.NORTH);
+                    jp.add(jBrowserToolBar, BorderLayout.NORTH);
 				    jtp.addTab(tabtitle, jp);
                 }
 		        else if (is_windows)
