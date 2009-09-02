@@ -75,32 +75,6 @@ public class GSEAAnalysisPanel extends GPAnalysisPanel
     {
         gsDatabase = new JComboBox();
 
-        /*gsDatabase.addItem("c1.all.v2.5.symbols.gmt [Positional]");
-        gsDatabase.addItem("c2.all.v2.5.symbols.gmt [Curated]");
-        gsDatabase.addItem("c2.biocarta.v2.5.symbols.gmt [Curated]");
-        gsDatabase.addItem("c2.cgp.v2.5.symbols.gmt [Curated]");
-        gsDatabase.addItem("c2.cp.v2.5.symbols.gmt [Curated]");
-        gsDatabase.addItem("c2.genmapp.v2.5.symbols.gmt [Curated]");
-        gsDatabase.addItem("c2.kegg.v2.5.symbols.gmt [Curated]");
-        gsDatabase.addItem("c3.all.v2.5.symbols.gmt [Motif]");
-        gsDatabase.addItem("c3.mir.v2.5.symbols.gmt [Motif]");
-        gsDatabase.addItem("c3.tft.v2.5.symbols.gmt [Motif];");
-        gsDatabase.addItem("c4.all.v2.5.symbols.gmt [Computational]");
-        gsDatabase.addItem("c4.cgn.v2.5.symbols.gmt [Computational]");
-        gsDatabase.addItem("c4.cm.v2.5.symbols.gmt [Computational];");
-        gsDatabase.addItem("c5.all.v2.5.symbols.gmt [Gene ontology]");
-        gsDatabase.addItem("c5.cc.v2.5.symbols.gmt [Gene ontology]");
-        gsDatabase.addItem("c5.mf.v2.5.symbols.gmt [Gene ontology]");
-        gsDatabase.addItem("c1.v2.symbols.gmt [Positional];");
-        gsDatabase.addItem("c2.v2.symbols.gmt [Curated]");
-        gsDatabase.addItem("c3.v2.symbols.gmt [Motif]");
-        gsDatabase.addItem("c4.v2.symbols.gmt [Computational]");
-        gsDatabase.addItem("c4.v1.symbols.gmt [Computational]");
-        gsDatabase.addItem("c3.v1.symbols.gmt [Motif]");
-        gsDatabase.addItem("c2.v1.symbols.gmt [Curated]");
-        gsDatabase.addItem("c1.v1.symbols.gmt [Positional]");
-        */
-
         gsDatabase.setMinimumSize(new Dimension(270, 22));
         gsDatabase.setMaximumSize(new Dimension(270, 22));
         gsDatabase.setPreferredSize(new Dimension(270, 22));
@@ -187,41 +161,6 @@ public class GSEAAnalysisPanel extends GPAnalysisPanel
             chipPlatform.addItem(connectMessage);
             gsDatabase.addItem(connectMessage);
         }
-        /*chipPlatform.addItem("AFFYMETRIX.chip");
-        chipPlatform.addItem("Agilent_Human1_cDNA.chip");
-        chipPlatform.addItem("Agilent_Human1A.chip");
-        chipPlatform.addItem("Agilent_Human1Av2.chip");
-        chipPlatform.addItem("Agilent_Human1B.chip");
-        chipPlatform.addItem("Agilent_HumanGenome.chip");
-        chipPlatform.addItem("Agilent_Mouse_cDNA.chip;");
-        chipPlatform.addItem("Agilent_MouseDev.chip");
-        chipPlatform.addItem("Agilent_MouseGenome.chip");
-        chipPlatform.addItem("Agilent_MouseOligo.chip");
-        chipPlatform.addItem("Agilent_RatGenome_G4131A.chip");
-        chipPlatform.addItem("Agilent_RatOligo.chip");
-        chipPlatform.addItem("AtlasMouse1.2.chip;");
-        chipPlatform.addItem("AtlasRat1.2.chip");
-        chipPlatform.addItem("APPLERA_ABI1700.chip");
-        chipPlatform.addItem("ATH1_121501.chip");
-        chipPlatform.addItem("GENE_SYMBOL.chip");
-        chipPlatform.addItem("Hu35KsubA.chip");
-        chipPlatform.addItem("Hu35KsubB.chip");
-        chipPlatform.addItem("Hu35KsubC.chip");
-        chipPlatform.addItem("Hu35KsubD.chip");
-        chipPlatform.addItem("Hu6800.chip");
-        chipPlatform.addItem("HG_Focus.chip");
-        chipPlatform.addItem("HG_U133A.chip");
-        chipPlatform.addItem("HG_U133AAOFAV2.chip");
-        chipPlatform.addItem("HG_U133A_2.chip");
-        chipPlatform.addItem("HG_U133B.chip;");
-        chipPlatform.addItem("HG_U133_Plus_2.chip;");
-        chipPlatform.addItem("HG_U95Av2.chip");
-        chipPlatform.addItem("HG_U95B.chip");
-        chipPlatform.addItem("HG_U95C.chip");
-        chipPlatform.addItem("HG_U95D.chip");
-        chipPlatform.addItem("HG_U95E.chip");
-        chipPlatform.addItem("Seq_Accession.chip");
-        chipPlatform.addItem("SEQ_ACCESSION.chip");*/
 
         chipPlatformFile = new JFileChooser();
 
@@ -474,12 +413,12 @@ public class GSEAAnalysisPanel extends GPAnalysisPanel
 
     protected String getParamDescriptionFile()
     {
-        return null; //GSEAAnalysisPanel.class.getResource("paramDesc.html").getPath();
+        return GSEAAnalysisPanel.class.getResource("paramDesc.html").getPath();
     }
 
     protected String getDescriptionFile()
     {
-        return null; //GSEAAnalysisPanel.class.getResource("help.html").getPath();
+        return GSEAAnalysisPanel.class.getResource("help.html").getPath();
     }
     /*
 	 * (non-Javadoc)

@@ -2,7 +2,6 @@ package org.geworkbench.components.gpmodule.gsea;
 
 import org.geworkbench.components.gpmodule.GPAnalysis;
 import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
-import org.geworkbench.bison.model.clusters.DSSOMClusterDataSet;
 import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.gsea.DSGSEAResultDataSet;
@@ -49,7 +48,7 @@ public class GSEAAnalysis extends GPAnalysis
         setLabel("GSEA Analysis");
         panel = new org.geworkbench.components.gpmodule.gsea.GSEAAnalysisPanel();
         setDefaultPanel(panel);
-        //ProjectPanel.setIconForType(DSGSEAResultDataSet.class, GPAnalysis.GP_ICON);
+        //ProjectPanel.setIconForType(DSGSEAResultDataSet.class, GP_ICON);
     }
 
     public AlgorithmExecutionResults execute(Object input)
@@ -90,16 +89,20 @@ public class GSEAAnalysis extends GPAnalysis
 
 		public GSEAProgress() {
 			pb.addObserver(this);
-			pb.setTitle("GSEA Progress");
-            pb.setMessage("Running GSEA Analysis");
         }
 
 		public void startProgress() {
-			pb.start();
+            pb.setTitle("GSEA Progress");
+            pb.setMessage("Running GSEA Analysis");
+
+            pb.start();
 		}
 
 		public void stopProgress() {
-			pb.stop();
+            pb.setTitle("");
+            pb.setMessage("");
+
+            pb.stop();
 		}
 
 		public void update(java.util.Observable ob, Object o) {
@@ -200,6 +203,7 @@ public class GSEAAnalysis extends GPAnalysis
                         reportFile = file;
                     }
                 }
+
                 gsResultDataSet = new CSGSEAResultDataSet(view.getDataSet(), "GSEA Results", reportFile);
                 ProjectPanel.addToHistory(gsResultDataSet, history);
             }
