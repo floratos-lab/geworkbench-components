@@ -23,7 +23,7 @@
 	</component>
 
 
-	<plugin id="TtestAnalysis" name="t Test Analysis" class="org.geworkbench.components.analysis.clustering.TtestAnalysis" source="analysis"/>
+	<plugin id="TtestAnalysis" name="T Test Analysis" class="org.geworkbench.components.analysis.clustering.TtestAnalysis" source="analysis"/>
 
 	<component-descriptor xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="Descriptor Schema.xsd">
 	    <component class="org.geworkbench.components.analysis.clustering.TtestAnalysis">
