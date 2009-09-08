@@ -42,7 +42,7 @@ import edu.columbia.geworkbench.cagrid.anova.PValueEstimation;
 
 /**
  * @author yc2480
- * @version $Id: AnovaAnalysisPanel.java,v 1.16 2009-06-19 19:15:40 jiz Exp $
+ * @version $Id: AnovaAnalysisPanel.java,v 1.17 2009-09-08 17:33:23 chiangy Exp $
  */
 public class AnovaAnalysisPanel extends AbstractSaveableParameterPanel {
 
@@ -963,13 +963,13 @@ public class AnovaAnalysisPanel extends AbstractSaveableParameterPanel {
 					.valueOf(jTextFieldPFSG.getText()));
 		}
 		;
-		parameters.put("PermutationsNumber", Integer.valueOf(jTextField
-				.getText()));
 		if (jComboBoxPValueBasedOn.getSelectedItem().equals("F-distribution")) {
 			parameters.put("PValueEstimation", PValueEstimation._fdistribution);
 		}
 		if (jComboBoxPValueBasedOn.getSelectedItem().equals("Permutations")) {
 			parameters.put("PValueEstimation", PValueEstimation._permutation);
+			parameters.put("PermutationsNumber", Integer.valueOf(jTextField
+					.getText()));
 		}
 		parameters.put("PValueThreshold", Float.parseFloat(jTextFieldPValueThreshold.getText()));
 		return parameters;
@@ -1026,8 +1026,12 @@ public class AnovaAnalysisPanel extends AbstractSaveableParameterPanel {
 	public void fillDefaultValues(Map<Serializable, Serializable> parameters) {
 		if(parameters.get("PValueEstimation")==null)parameters.put("PValueEstimation", PValueEstimation._fdistribution);
 		if(parameters.get("FalseDiscoveryRateControl")==null)parameters.put("FalseDiscoveryRateControl", FalseDiscoveryRateControl._alpha);
-		if(parameters.get("PermutationsNumber")==null)parameters.put("PermutationsNumber", PermutationsNumberDefault);
+		if(parameters.get("PValueEstimation")==PValueEstimation._permutation)
+			if(parameters.get("PermutationsNumber")==null)parameters.put("PermutationsNumber", PermutationsNumberDefault);
 		if(parameters.get("PValueThreshold")==null)parameters.put("PValueThreshold", PValueThresholdDefault);
-		if(parameters.get("FalseSignificantGenesLimit")==null)parameters.put("FalseSignificantGenesLimit", 10.0f);
+		if(parameters.get("FalseDiscoveryRateControl")==FalseDiscoveryRateControl._number)
+			if(parameters.get("FalseSignificantGenesLimit")==null)parameters.put("FalseSignificantGenesLimit", 10.0f);
+		if(parameters.get("FalseDiscoveryRateControl")==FalseDiscoveryRateControl._proportion)
+			if(parameters.get("FalseSignificantGenesLimit")==null)parameters.put("FalseSignificantGenesLimit", 0.05f);
 	}
 }
