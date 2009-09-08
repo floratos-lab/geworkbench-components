@@ -36,7 +36,7 @@ import com.jgoodies.forms.layout.FormLayout;
 /**
  * @author John Watkinson
  * @author ch2514
- * @version $Id: MatrixReduceParamPanel.java,v 1.20 2009-06-19 19:22:33 jiz Exp $
+ * @version $Id: MatrixReduceParamPanel.java,v 1.21 2009-09-08 20:46:52 chiangy Exp $
  * todo - make serializable work
  */
 public class MatrixReduceParamPanel extends AbstractSaveableParameterPanel{
@@ -102,6 +102,9 @@ public class MatrixReduceParamPanel extends AbstractSaveableParameterPanel{
 	 * Set inputed parameters to GUI.
 	 */
     public void setParameters(Map<Serializable, Serializable> parameters){
+    	if (getStopNotifyAnalysisPanelTemporaryFlag()==true) return;
+    	stopNotifyAnalysisPanelTemporary(true);
+    	
         Set<Map.Entry<Serializable, Serializable>> set = parameters.entrySet();
         for (Iterator<Map.Entry<Serializable, Serializable>> iterator = set.iterator(); iterator.hasNext();) {
         	Map.Entry<Serializable, Serializable> parameter = iterator.next();
@@ -143,6 +146,7 @@ public class MatrixReduceParamPanel extends AbstractSaveableParameterPanel{
 				this.saveRunlog.setSelected((Boolean)value);
 			}
 		}
+		stopNotifyAnalysisPanelTemporary(false);
     }
 
     /*
