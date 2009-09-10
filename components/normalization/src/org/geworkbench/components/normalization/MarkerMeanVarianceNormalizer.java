@@ -24,12 +24,12 @@ import java.util.Arrays;
  * values in the profile. The normalizer also offers options for handling missing
  * values. In particular, the available choices are:
  * <UL>
- * <LI>“Min”: replace with the smallest profile value resulting after the
+ * <LI>“Min? replace with the smallest profile value resulting after the
  * mean/deviation adjustment ,</LI>
- * <LI>“Max”: replace with the largest profile value resulting after the
+ * <LI>“Max? replace with the largest profile value resulting after the
  * mean/deviation adjustment,</LI>
- * <LI>“Zero”: replace with 0,</LI>
- * <LI>“Ignore”: No change.</LI>.
+ * <LI>“Zero? replace with 0,</LI>
+ * <LI>“Ignore? No change.</LI>.
  * </UL>
  */
 public class MarkerMeanVarianceNormalizer extends AbstractAnalysis implements NormalizingAnalysis {
@@ -42,7 +42,6 @@ public class MarkerMeanVarianceNormalizer extends AbstractAnalysis implements No
     int missingValues;
 
     public MarkerMeanVarianceNormalizer() {
-        setLabel("Mean-variance normalizer");
         setDefaultPanel(new MarkerMeanVarianceNormalizerPanel());
     }
 

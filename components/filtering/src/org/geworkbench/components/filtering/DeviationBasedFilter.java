@@ -60,7 +60,6 @@ public class DeviationBasedFilter extends AbstractAnalysis implements FilteringA
     protected double[] microarrayAverages = null;
     
     public DeviationBasedFilter() {
-        setLabel("Deviation filter");
         setDefaultPanel(new DeviationBasedFilterPanel());
     }
     

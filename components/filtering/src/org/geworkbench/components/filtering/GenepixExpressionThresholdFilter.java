@@ -55,7 +55,6 @@ public class GenepixExpressionThresholdFilter extends AbstractAnalysis implement
     protected int rangeOption;
 
     public GenepixExpressionThresholdFilter() {
-        setLabel("2 Channel threshold filter");
         setDefaultPanel(new GenepixExpressionThresholdFilterPanel());
     }
 

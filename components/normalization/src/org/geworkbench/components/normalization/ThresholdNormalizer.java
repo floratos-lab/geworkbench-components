@@ -30,7 +30,6 @@ public class ThresholdNormalizer extends AbstractAnalysis implements Normalizing
     int missingValues;
 
     public ThresholdNormalizer() {
-        setLabel("Threshold Normalizer");
         setDefaultPanel(new ThresholdNormalizerPanel());
     }
 

@@ -122,12 +122,10 @@ public class TtestAnalysis extends AbstractAnalysis implements
 
 	public TtestAnalysis() {
 		localAnalysisType = AbstractAnalysis.TTEST_TYPE;
-		setLabel("T Test Analysis");
 		setDefaultPanel(new TtestAnalysisPanel());
 	}
 	public TtestAnalysis(TtestAnalysisPanel panel) {
 		localAnalysisType = AbstractAnalysis.TTEST_TYPE;
-		setLabel("T Test Analysis");
 		setDefaultPanel(panel);
 	}
 	private void reset() {
@@ -211,7 +209,7 @@ public class TtestAnalysis extends AbstractAnalysis implements
 		pbTtest.setBounds(new ProgressBar.IncrementModel(0, markers, 0,
 				markers, 1));
 //		pbTtest.setMessage("Constructing ... " + markers + " variables");
-//		pbTtest.setMessage("Analyzing in a process…");
+//		pbTtest.setMessage("Analyzing in a process?);
 		pbTtest.setMessage("Calculating TTest, please wait...");
 		pbTtest.start();
 		this.stopAlgorithm = false;

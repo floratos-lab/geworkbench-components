@@ -36,7 +36,7 @@ import org.geworkbench.util.ProgressBarT;
 
 /**
  * @author John Watkinson
- * @version $Id: MultiTTestAnalysis.java,v 1.9 2009-02-12 22:28:14 keshav Exp $
+ * @version $Id: MultiTTestAnalysis.java,v 1.10 2009-09-10 16:40:26 chiangy Exp $
  */
 public class MultiTTestAnalysis extends AbstractAnalysis implements
 		ClusteringAnalysis {
@@ -77,7 +77,6 @@ public class MultiTTestAnalysis extends AbstractAnalysis implements
     boolean isLogNormalized = false;
 
 	public MultiTTestAnalysis() {
-		setLabel("Multi t Test Analysis");
 		panel = new MultiTTestAnalysisPanel();
 		setDefaultPanel(panel);
 	}

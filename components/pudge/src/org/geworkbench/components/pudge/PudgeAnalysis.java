@@ -26,7 +26,7 @@ import org.geworkbench.bison.model.analysis.ProteinSequenceAnalysis;
  * Pudge analysis for protein fasta sequence
  * 
  * @author mw2518
- * @version $Id: PudgeAnalysis.java,v 1.3 2009-06-15 14:10:58 wangm Exp $
+ * @version $Id: PudgeAnalysis.java,v 1.4 2009-09-10 16:40:26 chiangy Exp $
  */
 public class PudgeAnalysis extends AbstractGridAnalysis implements
 		ProteinSequenceAnalysis {
@@ -42,7 +42,6 @@ public class PudgeAnalysis extends AbstractGridAnalysis implements
 			+ "content-disposition: form-data; name=\"file\"; filename=\"protein.fasta\"\r\nContent-Type: text/plain\r\n\r\n";
 
 	PudgeAnalysis() {
-		setLabel("Pudge Analysis");
 		pcp = new PudgeConfigPanel();
 		setDefaultPanel(pcp);
 	}

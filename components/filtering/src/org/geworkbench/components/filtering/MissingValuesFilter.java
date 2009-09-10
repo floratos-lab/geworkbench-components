@@ -35,7 +35,6 @@ public class MissingValuesFilter extends AbstractAnalysis implements FilteringAn
     int maxMissingMicroarrays;
 
     public MissingValuesFilter() {
-        setLabel("Missing values filter");
         setDefaultPanel(new MissingValuesFilterPanel());
     }
 

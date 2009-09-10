@@ -23,12 +23,12 @@ import java.util.Arrays;
  * values in the profile. The normalizer also offers options for handling missing
  * values. In particular, the available choices are:
  * <UL>
- * <LI>“Min”: replace with the smallest profile value resulting after the
+ * <LI>“Min? replace with the smallest profile value resulting after the
  * mean/median subtraction,</LI>
- * <LI>“Max”: replace with the largest profile value resulting after the
+ * <LI>“Max? replace with the largest profile value resulting after the
  * mean/median subtraction,</LI>
- * <LI>“Zero”: replace with 0,</LI>
- * <LI>“Ignore”: No change.</LI>.
+ * <LI>“Zero? replace with 0,</LI>
+ * <LI>“Ignore? No change.</LI>.
  * </UL>
  */
 public class MarkerCenteringNormalizer extends AbstractAnalysis implements NormalizingAnalysis {
@@ -44,7 +44,6 @@ public class MarkerCenteringNormalizer extends AbstractAnalysis implements Norma
     int missingValues;
 
     public MarkerCenteringNormalizer() {
-        setLabel("Marker-based centering");
         setDefaultPanel(new MarkerCenteringNormalizerPanel());
     }
 

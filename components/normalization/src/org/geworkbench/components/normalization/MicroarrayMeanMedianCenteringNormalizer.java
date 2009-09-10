@@ -40,7 +40,6 @@ public class MicroarrayMeanMedianCenteringNormalizer extends AbstractAnalysis {
         _localAnalysisType = AbstractAnalysis.MICROARRAY_MEAN_MEDIAN_CENTERING_NORMALIZER_TYPE;
         _meanMedianType = meanMedianType;
         _missingType = missingType;
-        setLabel("Microarray Mean Median Centering Normalizer");
     }
 
     public int getAnalysisType() {

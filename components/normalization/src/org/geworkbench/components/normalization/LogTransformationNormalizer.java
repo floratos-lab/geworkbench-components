@@ -28,7 +28,6 @@ public class LogTransformationNormalizer extends AbstractAnalysis implements Nor
 
     public LogTransformationNormalizer() {
         analysisType = AbstractAnalysis.LOG_TRANSFORMATION_NORMALIZER_TYPE;
-        setLabel("Log2 Transformation");
     }
 
     public int getAnalysisType() {

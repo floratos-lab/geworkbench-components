@@ -41,7 +41,6 @@ public class ExpressionThresholdFilter extends AbstractAnalysis implements Filte
     protected int rangeOption;
 
     public ExpressionThresholdFilter() {
-        setLabel("Expression threshold filter");
         setDefaultPanel(new ExpressionThresholdFilterPanel());
     }
 

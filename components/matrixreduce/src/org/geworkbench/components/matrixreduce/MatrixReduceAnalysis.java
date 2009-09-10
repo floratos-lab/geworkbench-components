@@ -106,7 +106,6 @@ public class MatrixReduceAnalysis extends AbstractGridAnalysis implements
 	private File tempDir = null;
 
 	public MatrixReduceAnalysis() {
-		setLabel("MatrixREDUCE");
 		setDefaultPanel(new MatrixReduceParamPanel());
 		params = (MatrixReduceParamPanel) aspp;
 	}

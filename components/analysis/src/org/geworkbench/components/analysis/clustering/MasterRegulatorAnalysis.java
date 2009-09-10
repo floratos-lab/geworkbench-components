@@ -44,7 +44,7 @@ import org.geworkbench.util.pathwaydecoder.mutualinformation.AdjacencyMatrixData
 
 /**
  * @author yc2480
- * @version $Id: MasterRegulatorAnalysis.java,v 1.5 2009-02-12 22:28:14 keshav Exp $
+ * @version $Id: MasterRegulatorAnalysis.java,v 1.6 2009-09-10 16:40:26 chiangy Exp $
  */
 public class MasterRegulatorAnalysis extends AbstractAnalysis implements
 		ClusteringAnalysis {
@@ -58,7 +58,6 @@ public class MasterRegulatorAnalysis extends AbstractAnalysis implements
 	private MasterRegulatorPanel mraAnalysisPanel = new MasterRegulatorPanel();
 
 	public MasterRegulatorAnalysis() {
-		setLabel("MRA Analysis");
 		setDefaultPanel(mraAnalysisPanel);
 	}
 

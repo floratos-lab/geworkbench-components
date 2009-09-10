@@ -86,7 +86,6 @@ public class MindyAnalysis extends AbstractGridAnalysis implements
 	 * Constructor. Creates MINDY parameter panel.
 	 */
 	public MindyAnalysis() {
-		setLabel("MINDY");
 		paramPanel = new MindyParamPanel();
 		setDefaultPanel(paramPanel);
 	}

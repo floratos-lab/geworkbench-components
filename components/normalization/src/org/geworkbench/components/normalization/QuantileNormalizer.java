@@ -53,7 +53,6 @@ public class QuantileNormalizer extends AbstractAnalysis implements NormalizingA
     int markerCount;  // The number of markers in the input dataset.
 
     public QuantileNormalizer() {
-        setLabel("Quantile Normalization");
         setDefaultPanel(new QuantileNormalizerPanel());
     }
 
