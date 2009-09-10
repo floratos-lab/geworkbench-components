@@ -543,10 +543,25 @@ public class MindyAnalysis extends AbstractGridAnalysis implements
 
 			ArrayList<DSMicroarray> arrayForMindyRun = MindyData.createArrayForMindyRun(mSet, arraySet);
 
-			results = mindy.runMindy(convert(mSet, arrayForMindyRun, markerSet,
-					chosenTargets), tf, modulators, dpiAnnots, fullSetMI,
-					fullSetThreshold, subsetMI, subsetThreshold, setFraction,
-					dpiTolerance);
+			// bug 1992, it was about NPE, but just in case will catch any exception
+			try {
+				results = mindy.runMindy(convert(mSet, arrayForMindyRun, markerSet,
+						chosenTargets), tf, modulators, dpiAnnots, fullSetMI,
+						fullSetThreshold, subsetMI, subsetThreshold, setFraction,
+						dpiTolerance);
+			} catch (Exception e) {
+				log.error(e.getCause());
+				results = null;
+			}
+			if ( results == null ) {
+				progressBar.stop();
+				log.warn("MINDY obtained no results.");
+				JOptionPane.showMessageDialog(paramPanel.getParent(),
+						"MINDY obtained no results.", "see errors, logs",
+						JOptionPane.WARNING_MESSAGE);
+				return;
+			}
+
 			log.debug("Finished running MINDY algorithm.");
 
 			progressBar.setMessage("Processing MINDY Results");
