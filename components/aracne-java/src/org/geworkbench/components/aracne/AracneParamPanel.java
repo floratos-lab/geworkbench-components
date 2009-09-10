@@ -45,7 +45,7 @@ import edu.columbia.c2b2.aracne.Parameter;
 /**
  * @author mhall
  * @author yc2480
- * @version $Id: AracneParamPanel.java,v 1.20 2009-07-22 15:34:34 jiz Exp $
+ * @version $Id: AracneParamPanel.java,v 1.21 2009-09-10 15:34:01 oshteynb Exp $
  */
 public class AracneParamPanel extends AbstractSaveableParameterPanel {
 	private static final long serialVersionUID = 4023695671471667725L;
@@ -827,6 +827,18 @@ public class AracneParamPanel extends AbstractSaveableParameterPanel {
 	public void fillDefaultValues(Map<Serializable, Serializable> parameters) {
 		// TODO Auto-generated method stub
 
+	}
+
+	public String getThresholdFile(String dataSetName) {
+		String DATASETNAME_ALGORITHM_threshold_file = dataSetName +"_" + getAlgorithmForFileName() +"_"  + "threshold.txt";
+
+		return DATASETNAME_ALGORITHM_threshold_file;
+	}
+
+	public String getKernelFile(String dataSetName) {
+		String DATASETNAME_ALGORITHM_kernel_file = dataSetName +"_" + getAlgorithmForFileName() +"_"  + "kernel.txt";
+
+		return DATASETNAME_ALGORITHM_kernel_file;
 	}
 
 }
