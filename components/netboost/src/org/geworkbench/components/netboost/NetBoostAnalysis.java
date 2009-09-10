@@ -24,7 +24,7 @@ import org.geworkbench.events.ProjectEvent;
  * NetBoost Analysis
  * 
  * @author ch2514
- * @version $Id: NetBoostAnalysis.java,v 1.8 2008-08-27 18:32:59 chiangy Exp $
+ * @version $Id: NetBoostAnalysis.java,v 1.9 2009-09-10 16:40:26 chiangy Exp $
  */
 
 public class NetBoostAnalysis extends AbstractGridAnalysis implements
@@ -81,7 +81,6 @@ public class NetBoostAnalysis extends AbstractGridAnalysis implements
 
 	public NetBoostAnalysis() {
 		this.localAnalysisType = AbstractAnalysis.NETBOOST_TYPE;
-		setLabel("NetBoostAnalysis");
 		paramPanel = new NetBoostParamPanel();
 		setDefaultPanel(paramPanel);
 	}

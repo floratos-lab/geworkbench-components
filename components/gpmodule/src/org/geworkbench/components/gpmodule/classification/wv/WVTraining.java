@@ -43,7 +43,6 @@ public class WVTraining extends GPTraining implements TrainingTask
 
     public WVTraining()
     {
-        setLabel("WV Classifier");
         panel = new WVTrainingPanel(this);
         setDefaultPanel(panel);
     }

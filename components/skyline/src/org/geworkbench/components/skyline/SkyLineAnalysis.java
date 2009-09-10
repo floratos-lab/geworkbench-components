@@ -21,7 +21,7 @@ import org.geworkbench.bison.model.analysis.ProteinStructureAnalysis;
  * 
  * @author mw2518
  * @author zji
- * @version $Id: SkyLineAnalysis.java,v 1.7 2009-06-15 19:48:21 jiz Exp $
+ * @version $Id: SkyLineAnalysis.java,v 1.8 2009-09-10 16:40:26 chiangy Exp $
  * 
  */
 public class SkyLineAnalysis extends AbstractGridAnalysis implements
@@ -39,7 +39,6 @@ public class SkyLineAnalysis extends AbstractGridAnalysis implements
 	private	SkyLineConfigPanel slp;
 
 	public SkyLineAnalysis() {
-		setLabel("Comparative Modeling Pipeline: SkyLine");
 		slp = new SkyLineConfigPanel();
 		setDefaultPanel(slp);
 	}

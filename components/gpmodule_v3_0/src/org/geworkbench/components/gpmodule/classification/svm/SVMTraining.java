@@ -53,7 +53,6 @@ public class SVMTraining extends GPTraining implements TrainingTask
 
     public SVMTraining()
     {
-        setLabel("SVM Classifier");
         panel = new SVMTrainingPanel(this);
         setDefaultPanel(panel);
     }

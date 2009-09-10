@@ -36,7 +36,7 @@ import edu.columbia.c2b2.evidenceinegration.EvidenceIntegration;
 
 /**
  * @author mhall
- * @version $Id: EvidenceIntegrationAnalysis.java,v 1.12 2009-04-07 18:11:56 chiangy Exp $
+ * @version $Id: EvidenceIntegrationAnalysis.java,v 1.13 2009-09-10 16:40:26 chiangy Exp $
  */
 public class EvidenceIntegrationAnalysis extends AbstractGridAnalysis implements ClusteringAnalysis {
 
@@ -53,7 +53,6 @@ public class EvidenceIntegrationAnalysis extends AbstractGridAnalysis implements
     private EvidenceIntegrationParamPanel eiParamPanel;
 
     public EvidenceIntegrationAnalysis() {
-        setLabel("EvidenceIntegration");
         eiParamPanel = new EvidenceIntegrationParamPanel(eiEngine.getGoldStandardSources());
         setDefaultPanel(eiParamPanel);
     }

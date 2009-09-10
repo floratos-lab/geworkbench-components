@@ -42,7 +42,6 @@ public class KNNTraining extends GPTraining implements TrainingTask
 
     public KNNTraining()
     {
-       setLabel("KNN Classifier");
        panel = new KNNTrainingPanel(this);
        setDefaultPanel(panel);
     }

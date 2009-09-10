@@ -32,7 +32,6 @@ public class AffyDetectionCallFilter extends AbstractAnalysis implements Filteri
     protected boolean filterMarginal = false;
 
     public AffyDetectionCallFilter() {
-        setLabel("Affy detection call filter");
         setDefaultPanel(new AffyDetectionCallFilterPanel());
     }
 

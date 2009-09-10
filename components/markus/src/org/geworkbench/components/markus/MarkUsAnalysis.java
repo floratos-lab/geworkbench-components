@@ -20,7 +20,7 @@ import org.geworkbench.bison.model.analysis.ProteinStructureAnalysis;
 
  * @author meng
  * @author zji
- * @version $Id: MarkUsAnalysis.java,v 1.6 2009-05-12 18:52:18 jiz Exp $
+ * @version $Id: MarkUsAnalysis.java,v 1.7 2009-09-10 16:40:26 chiangy Exp $
  */
 public class MarkUsAnalysis extends AbstractGridAnalysis implements ProteinStructureAnalysis 
 {
@@ -32,7 +32,6 @@ public class MarkUsAnalysis extends AbstractGridAnalysis implements ProteinStruc
     private MarkUsConfigPanel mcp;
 
     public MarkUsAnalysis() {
-        setLabel("Protein Function Annotation Server: MarkUs");
 		mcp = new MarkUsConfigPanel();
 		setDefaultPanel(mcp);
     }

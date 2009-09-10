@@ -31,7 +31,6 @@ public class MissingValueNormalizer extends AbstractAnalysis implements Normaliz
     int averagingType = -1;
 
     public MissingValueNormalizer() {
-        setLabel("Missing value computation");
         setDefaultPanel(new MissingValueNormalizerPanel());
     }
 

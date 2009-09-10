@@ -24,7 +24,7 @@ import org.geworkbench.components.medusa.gui.MedusaParamPanel;
 /**
  * 
  * @author keshav
- * @version $Id: MedusaAnalysisTest.java,v 1.12 2007-05-23 16:03:38 keshav Exp $
+ * @version $Id: MedusaAnalysisTest.java,v 1.13 2009-09-10 16:40:26 chiangy Exp $
  */
 public class MedusaAnalysisTest extends TestCase {
 
@@ -67,7 +67,6 @@ public class MedusaAnalysisTest extends TestCase {
 	protected void setUp() {
 		panel = new MedusaParamPanel();
 		analysis = new MedusaAnalysis();
-		analysis.setLabel("MEDUSA");
 
 		Random r = new Random();
 

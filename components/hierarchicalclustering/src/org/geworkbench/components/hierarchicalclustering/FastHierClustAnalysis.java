@@ -38,7 +38,7 @@ import org.geworkbench.util.SpearmanRankDistance;
 /**
  * 
  * @author unattributable
- * @version $Id: FastHierClustAnalysis.java,v 1.3 2009-08-14 20:45:54 chiangy Exp $
+ * @version $Id: FastHierClustAnalysis.java,v 1.4 2009-09-10 16:40:26 chiangy Exp $
  * 
  */
 class FastHierClustAnalysis extends AbstractGridAnalysis implements
@@ -59,9 +59,6 @@ class FastHierClustAnalysis extends AbstractGridAnalysis implements
 
 	public FastHierClustAnalysis() {
 		localAnalysisType = AbstractAnalysis.HIERARCHICAL_CLUSTERING_TYPE;
-		String className = this.getClass().getSuperclass().getName();
-		String pluginName = PluginRegistry.getNameMap(className);
-		setLabel(pluginName);
 		setDefaultPanel(new HierClustPanel());
 	}
 

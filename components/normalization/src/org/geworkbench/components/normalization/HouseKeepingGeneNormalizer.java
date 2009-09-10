@@ -54,7 +54,6 @@ public class HouseKeepingGeneNormalizer extends AbstractAnalysis implements
     HouseKeepingGeneNormalizerPanel houseKeepingGeneNormalizerPanel = new HouseKeepingGeneNormalizerPanel();
 
     public HouseKeepingGeneNormalizer() {
-        setLabel("HouseKeeping Genes Normalizer");
         setDefaultPanel(houseKeepingGeneNormalizerPanel);
         try {
             jbInit();

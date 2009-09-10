@@ -33,7 +33,6 @@ public class GenepixFlagsFilter extends AbstractAnalysis implements
     private TreeMap flagsProbeNum = new TreeMap<String, Integer>();
 
     public GenepixFlagsFilter() {
-        setLabel("Genepix Flags Filter");
         setDefaultPanel(new GenepixFlagsFilterPanel());
     }
 

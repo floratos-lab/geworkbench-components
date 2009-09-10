@@ -53,7 +53,7 @@ import edu.columbia.geworkbench.cagrid.anova.PValueEstimation;
 
 /**
  * @author yc2480
- * @version $Id: AnovaAnalysis.java,v 1.25 2009-04-17 16:47:34 chiangy Exp $
+ * @version $Id: AnovaAnalysis.java,v 1.26 2009-09-10 16:40:26 chiangy Exp $
  */
 public class AnovaAnalysis extends AbstractGridAnalysis implements
 		ClusteringAnalysis {
@@ -86,7 +86,6 @@ public class AnovaAnalysis extends AbstractGridAnalysis implements
 
 	public AnovaAnalysis() {
 		localAnalysisType = AbstractAnalysis.TTEST_TYPE;
-		setLabel("Anova Analysis");
 		setDefaultPanel(anovaAnalysisPanel);
 	}
 

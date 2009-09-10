@@ -34,7 +34,7 @@ import edu.columbia.ccls.medusa.MedusaLoader;
 /**
  * 
  * @author keshav
- * @version $Id: MedusaAnalysis.java,v 1.41 2008-08-27 18:33:12 chiangy Exp $
+ * @version $Id: MedusaAnalysis.java,v 1.42 2009-09-10 16:40:26 chiangy Exp $
  */
 public class MedusaAnalysis extends AbstractGridAnalysis implements
 		ClusteringAnalysis {
@@ -60,7 +60,6 @@ public class MedusaAnalysis extends AbstractGridAnalysis implements
 	 * 
 	 */
 	public MedusaAnalysis() {
-		setLabel("MEDUSA");
 		setDefaultPanel(new MedusaParamPanel());
 	}
 

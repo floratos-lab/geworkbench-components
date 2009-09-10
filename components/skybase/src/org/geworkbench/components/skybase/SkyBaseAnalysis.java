@@ -25,7 +25,7 @@ import edu.columbia.geworkbench.cagrid.skybase.client.SkyBaseWebClient;
  * AbstractGridAnalysis for blast skybase on grid service on web1
  * 
  * @author mw2518
- * @version $Id: SkyBaseAnalysis.java,v 1.6 2009-06-15 14:06:28 wangm Exp $
+ * @version $Id: SkyBaseAnalysis.java,v 1.7 2009-09-10 16:40:26 chiangy Exp $
  *
  */
 public class SkyBaseAnalysis extends AbstractGridAnalysis implements
@@ -40,7 +40,6 @@ public class SkyBaseAnalysis extends AbstractGridAnalysis implements
 	public SkyBaseWebClient client;
 
 	SkyBaseAnalysis() {
-		setLabel("Blast SkyBase");
 		scp = new SkyBaseConfigPanel();
 		setDefaultPanel(scp);
 		try {

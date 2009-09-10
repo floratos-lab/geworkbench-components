@@ -52,7 +52,6 @@ public class PCAAnalysis extends GPAnalysis {
 	private boolean error = false;
 
 	public PCAAnalysis() {
-		setLabel("PCA Analysis");
 		panel = new PCAAnalysisPanel();
 		setDefaultPanel(panel);
 	}

@@ -82,7 +82,6 @@ public class SOMAnalysis extends AbstractGridAnalysis implements
 	 */
 	public SOMAnalysis() {
 		localAnalysisType = AbstractAnalysis.SOM_CLUSTERING_TYPE;
-		setLabel("SOM Analysis");
 		setDefaultPanel(new SOMPanel());
 	}
 

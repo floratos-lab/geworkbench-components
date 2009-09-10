@@ -23,7 +23,6 @@ public class AllelicFrequencyThresholdFilter extends AbstractAnalysis implements
     
     /** Creates a new instance of AllelicFrequencyThresholdFilter */
     public AllelicFrequencyThresholdFilter() {
-        setLabel("Frequency threshold filter");
         setDefaultPanel(new AllelicFrequencyThresholdFilterPanel());
     }    
 
