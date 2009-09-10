@@ -1,11 +1,15 @@
 package org.geworkbench.components.promoter;
 
 import java.util.Arrays;
-import java.util.HashMap;
 
 import org.biojava.bio.gui.DistributionLogo;
 import org.geworkbench.bison.datastructure.bioobjects.sequence.DSSequence;
 
+/**
+ * 
+ * @author unattributable
+ * @version $Id: Matrix.java,v 1.6 2009-09-10 18:13:02 tgarben Exp $
+ */
 public class Matrix {
     public Matrix() {
         try {
@@ -17,7 +21,6 @@ public class Matrix {
 
     public char[] symbols = null;
     public boolean normalized = false;
-    public static HashMap hash = new HashMap();
     public double random = 0;
     public Distribution[] countTable = new Distribution[1];
     private Distribution[] rawCountTable = new Distribution[1];
@@ -78,10 +81,17 @@ public class Matrix {
     public double[][] getScores() {
         double scores[][] = new double[countTable.length][symbols.length];
         for (int i = 0; i < countTable.length; i++) {
+        	double entropy = 0;
+        	double information = 0;
+        	double rawValue = 0;
             for (int j = 0; j < symbols.length; j++) {
-                double rawValue = countTable[i].get(symbols[j]);
-                scores[i][j] = Math.abs(rawValue * Math.log(4 * rawValue));
-
+                rawValue = countTable[i].get(symbols[j]);
+                entropy -= rawValue * Math.log(rawValue)/Math.log(2);
+                information = Math.log(symbols.length)/Math.log(2) - entropy;
+            }
+            for (int j = 0; j < symbols.length; j++) {
+                rawValue = countTable[i].get(symbols[j]);
+                scores[i][j] = rawValue * information;
             }
         }
         return scores;
@@ -115,7 +125,6 @@ public class Matrix {
     }
 
     public int collectSequenceScores(DSSequence sequence, double[] scores) {
-        double score;
         int cUP = 0;
         int cDN = 0;
         int i = 0;
