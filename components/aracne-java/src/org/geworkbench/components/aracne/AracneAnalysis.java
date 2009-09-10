@@ -161,9 +161,8 @@ public class AracneAnalysis extends AbstractGridAnalysis implements
 		p.setMode(mode);
 
 		String dataSetName = mSetView.getDataSet().getDataSetName();
-
-		String DATASETNAME_ALGORITHM_kernel_file = dataSetName +"_" + params.getAlgorithmForFileName() +"_"  + "kernel.txt";
-		String DATASETNAME_ALGORITHM_threshold_file = dataSetName +"_" + params.getAlgorithmForFileName() +"_"  + "threshold.txt";
+		String DATASETNAME_ALGORITHM_kernel_file = params.getKernelFile(dataSetName);
+		String DATASETNAME_ALGORITHM_threshold_file = params.getThresholdFile(dataSetName);
 
 		p.setKernelFile(DATASETNAME_ALGORITHM_kernel_file);
 		p.setThresholdFile(DATASETNAME_ALGORITHM_threshold_file);
@@ -561,7 +560,7 @@ public class AracneAnalysis extends AbstractGridAnalysis implements
     		log.error("wrong algorithm in parameters");
     	}
 		bisonParameters.put("algorithm", algorithm);
-		
+
 		String mode = null;
     	if (paramPanel.getMode().equals(Parameter.MODE.COMPLETE)){
     		mode = AracneParamPanel.COMPLETE;
@@ -573,6 +572,14 @@ public class AracneAnalysis extends AbstractGridAnalysis implements
     		log.error("wrong mode in parameters");
     	}
 		bisonParameters.put("mode", mode);
+
+		// TODO - do we need to handle mSetView the same way as at the beginning of execute() method and have it as an arg?
+		String dataSetName = mSetView.getDataSet().getDataSetName();
+		String DATASETNAME_ALGORITHM_kernel_file = paramPanel.getKernelFile(dataSetName);
+		String DATASETNAME_ALGORITHM_threshold_file = paramPanel.getThresholdFile(dataSetName);
+
+		bisonParameters.put("kernalFile", DATASETNAME_ALGORITHM_kernel_file);
+		bisonParameters.put("thresholdFile", DATASETNAME_ALGORITHM_threshold_file);
 
 		return bisonParameters;
 	}
@@ -733,7 +740,7 @@ public class AracneAnalysis extends AbstractGridAnalysis implements
 			ans += "==End of Microarray Sets==\n";
 			// generate text for markers; iterations over markers could be refactored into one
 			DSItemList paneltest = maSetView.getMarkerPanel();
-			
+
 			if (maSetView.useMarkerPanel()) {
 				if ((paneltest!=null) && (paneltest.size()>0)){
 					log.debug("situation 3: markers selected");
