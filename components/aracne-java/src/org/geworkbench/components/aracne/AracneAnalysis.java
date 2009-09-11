@@ -572,8 +572,8 @@ public class AracneAnalysis extends AbstractGridAnalysis implements
     	}
 		bisonParameters.put("mode", mode);
 
-		// TODO - do we need to handle mSetView the same way as at the beginning of execute() method and have it as an arg?
-		String dataSetName = mSetView.getDataSet().getDataSetName();
+	    // bug #1997
+		String dataSetName = paramPanel.getMaSetName();
 		String DATASETNAME_ALGORITHM_kernel_file = paramPanel.getKernelFile(dataSetName);
 		String DATASETNAME_ALGORITHM_threshold_file = paramPanel.getThresholdFile(dataSetName);
 

@@ -45,7 +45,7 @@ import edu.columbia.c2b2.aracne.Parameter;
 /**
  * @author mhall
  * @author yc2480
- * @version $Id: AracneParamPanel.java,v 1.21 2009-09-10 15:34:01 oshteynb Exp $
+ * @version $Id: AracneParamPanel.java,v 1.22 2009-09-11 22:42:13 oshteynb Exp $
  */
 public class AracneParamPanel extends AbstractSaveableParameterPanel {
 	private static final long serialVersionUID = 4023695671471667725L;
@@ -758,6 +758,15 @@ public class AracneParamPanel extends AbstractSaveableParameterPanel {
 	 * This is added to make the marker sets available.
 	 */
 	private DSMicroarraySet<DSMicroarray> maSet=null;
+
+
+	/**
+	 * was added as fix bug #1997
+	 */
+	public String getMaSetName() {
+		return maSet.getDataSetName();
+	}
+
 	/**
 	 * This method needs to be called to make microarray set available.
 	 * @param maSet
