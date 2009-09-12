@@ -1,6 +1,7 @@
 package org.geworkbench.components.caarray.arraydata;
 
 import gov.nih.nci.caarray.services.ServerConnectionException;
+import gov.nih.nci.caarray.services.external.v1_0.InvalidInputException;
 import gov.nih.nci.caarray.services.external.v1_0.InvalidReferenceException;
 
 import java.awt.Component;
@@ -421,12 +422,12 @@ public class CaArray2Component implements VisualPlugin {
 			errorEvent.setErrorMessage("Cannot connect to the server at " + url
 					+ ":" + port);
 			publishCaArrayEvent(errorEvent);
-		} catch (InvalidReferenceException e) {
+		} catch (InvalidInputException e) {
 			CaArrayEvent errorEvent = new CaArrayEvent(url, port);
 			errorEvent.setPopulated(false);
 			errorEvent.setSucceed(false);
 			e.printStackTrace();
-			errorEvent.setErrorMessage("InvalidReferenceException: " + e.getMessage());
+			errorEvent.setErrorMessage("InvalidInputException: " + e.getMessage());
 			publishCaArrayEvent(errorEvent);
 		}
 	}
