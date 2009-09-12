@@ -24,6 +24,7 @@ import gov.nih.nci.caarray.external.v1_0.query.QuantitationTypeSearchCriteria;
 import gov.nih.nci.caarray.external.v1_0.sample.Hybridization;
 import gov.nih.nci.caarray.services.ServerConnectionException;
 import gov.nih.nci.caarray.services.external.v1_0.CaArrayServer;
+import gov.nih.nci.caarray.services.external.v1_0.InvalidInputException;
 import gov.nih.nci.caarray.services.external.v1_0.InvalidReferenceException;
 import gov.nih.nci.caarray.services.external.v1_0.data.DataService;
 import gov.nih.nci.caarray.services.external.v1_0.search.JavaSearchApiUtils;
@@ -211,7 +212,11 @@ public class CaArrayClient {
 	        List<Person> investigators = searchService.getAllPrincipalInvestigators();
 	        for (Person investigator : investigators) {
 	            if (name[0].equalsIgnoreCase(investigator.getLastName()) && name[1].equalsIgnoreCase(investigator.getFirstName())) {
-	                experimentSearchCriteria.setPrincipalInvestigator(investigator.getReference());
+	                Set<CaArrayEntityReference> principalInvestigators = new TreeSet<CaArrayEntityReference>();
+	                principalInvestigators.add(investigator.getReference());
+					experimentSearchCriteria.setPrincipalInvestigators(principalInvestigators);
+	                // RC3 version is as following
+	                //experimentSearchCriteria.setPrincipalInvestigators(.setPrincipalInvestigator(investigator.getReference());
 	                break;
 	            }
 	        }
@@ -261,10 +266,12 @@ public class CaArrayClient {
 	 * Even in the case of zero hybridization, hybridization list should be set as zero size, not null.
 	 * 
 	 * @param caArray2Experiment
-	 * @throws InvalidReferenceException
+	 * @throws InvalidInputException 
 	 */
+	// RC3 version is as following
+	//void getHybridizations(CaArray2Experiment caArray2Experiment)
 	void getHybridizations(CaArray2Experiment caArray2Experiment)
-			throws InvalidReferenceException {
+			throws InvalidInputException {
 		String experimentReferenceId = caArray2Experiment.getExperimentReferenceId();
 		CaArrayEntityReference experimentRef = new CaArrayEntityReference(experimentReferenceId);
 
@@ -296,10 +303,11 @@ public class CaArrayClient {
 	/**
 	 * 
 	 * get all quantitations type for a hybridization
-	 * 
-	 * @throws InvalidReferenceException
+	 * @throws InvalidInputException 
 	 */
-	private List<QuantitationType> getQuantitationTypes(Hybridization hybridization) throws InvalidReferenceException{
+	// RC3 version is as following
+	//private List<QuantitationType> getQuantitationTypes(Hybridization hybridization) throws InvalidReferenceException{
+	private List<QuantitationType> getQuantitationTypes(Hybridization hybridization) throws InvalidInputException{
         QuantitationTypeSearchCriteria qtCrit = new QuantitationTypeSearchCriteria();
         qtCrit.setHybridization(hybridization.getReference());
         return searchService.searchForQuantitationTypes(qtCrit);
