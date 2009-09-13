@@ -941,7 +941,9 @@ public class PromoterViewPanel extends JPanel {
             tf.setName(name);
             tf.setJasparID(id.toString());
             Matrix mx = (Matrix) mxs.get(id);
-            mx.normalize();
+//			mx.normalize();
+			mx.initialize();
+
             tf.setMatrix(mx);
             //
             tfNameSet.add(name);
@@ -1146,7 +1148,8 @@ public class PromoterViewPanel extends JPanel {
 
             // mx.train(sec);
             TranscriptionFactor tf = new TranscriptionFactor();
-            mx.normalize();
+//			mx.normalize();
+			mx.initialize();
             tf.setMatrix(mx);
             tf.setName(file.getName());
 
@@ -1218,8 +1221,7 @@ public class PromoterViewPanel extends JPanel {
             jInfoPanel = new ImagePanel();
             matrixDisplayPanel.removeAll();
             matrixDisplayPanel.setLayout(new BorderLayout());
-            ((ImagePanel) jInfoPanel).setImage(pattern.getMatrix().
-                                               getScores());
+            ((ImagePanel) jInfoPanel).setImage(pattern.getMatrix().getSmallSampleScores());
             JTable table = matrixPane.createMatrixTable(pattern.getMatrix());
             // setting the size of the table and its columns
             table.setPreferredScrollableViewportSize(new Dimension(800, 100));

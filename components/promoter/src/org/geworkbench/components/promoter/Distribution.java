@@ -19,6 +19,7 @@ public class Distribution {
     public char[] symbols = null;
     public double[] counts = null;
     public double totalCounts = 0;
+    public double smallSampleCorrection = 0;
 
     public Distribution(char[] symbolist) {
         symbols = symbolist;
@@ -28,6 +29,23 @@ public class Distribution {
         }
     }
 
+    public Distribution() {
+	}
+
+	public Distribution copy ( ){
+    	Distribution newDistribution = new Distribution();
+    	newDistribution.symbols = this.symbols;
+    	newDistribution.totalCounts = this.totalCounts;
+    	newDistribution.smallSampleCorrection = this.smallSampleCorrection;
+
+    	newDistribution.counts = new double[this.counts.length];
+        for (int i = 0; i < newDistribution.counts.length; i++) {
+        	newDistribution.counts[i] = this.counts[i];
+        }
+    	
+    	return newDistribution;
+    }
+    
     public void set(char sym, double value) {
         for (int i = 0; i < symbols.length; i++) {
             if (sym == symbols[i]) {
@@ -55,7 +73,7 @@ public class Distribution {
         }
     }
 
-    public void normalize() {
+    public void pseudoNormalize() {
         getTotal();
         double b = Math.sqrt(totalCounts);
         for (int i = 0; i < symbols.length; i++) {
@@ -63,6 +81,30 @@ public class Distribution {
         }
     }
 
+    public void normalize() {
+        getTotal();
+        double b = Math.sqrt(totalCounts);
+        for (int i = 0; i < symbols.length; i++) {
+        	if (totalCounts ==0){
+        		counts[i] = 0;
+        	}
+        	
+            counts[i] = counts[i] / totalCounts;
+            
+        	if (counts[i] < Double.MIN_VALUE){
+        		counts[i] = Double.MIN_VALUE;
+        	}
+        }
+    }
+
+    public void calcSmallSampleCorrection() {
+        getTotal();
+
+        for (int i = 0; i < symbols.length; i++) {
+        	smallSampleCorrection = 3/(2* Math.log(2) * totalCounts );
+        }
+    }
+    
     public double getMax() {
         double max = 0;
         if (counts != null) {
