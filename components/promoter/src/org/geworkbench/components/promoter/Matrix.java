@@ -8,7 +8,7 @@ import org.geworkbench.bison.datastructure.bioobjects.sequence.DSSequence;
 /**
  * 
  * @author unattributable
- * @version $Id: Matrix.java,v 1.6 2009-09-10 18:13:02 tgarben Exp $
+ * @version $Id: Matrix.java,v 1.7 2009-09-13 04:42:05 tgarben Exp $
  */
 public class Matrix {
     public Matrix() {
@@ -24,6 +24,7 @@ public class Matrix {
     public double random = 0;
     public Distribution[] countTable = new Distribution[1];
     private Distribution[] rawCountTable = new Distribution[1];
+    private Distribution[] normalizedCountTable = null;
 
     public double getRandom() {
         return random;
@@ -31,6 +32,10 @@ public class Matrix {
 
     public Distribution[] getRawCountTable() {
         return rawCountTable;
+    }
+
+    public Distribution[] getNormalizedCountTable() {
+        return normalizedCountTable;
     }
 
     public char[] getSymbols() {
@@ -45,11 +50,44 @@ public class Matrix {
         return countTable.length;
     }
 
-    public void normalize() {
-        rawCountTable = countTable;
-        for (int i = 0; i < countTable.length; i++) {
+    public void initialize() {
+    	calcSmallSampleCorrections();
+    	createRawCountTable();
+    	createNormalizedCountTable();
+    	pseudoNormalizeCountTable();
+    }
 
-            countTable[i].normalize();
+    public void createRawCountTable() {
+
+    	rawCountTable = new Distribution[countTable.length];
+
+		for (int i = 0; i < countTable.length; i++) {
+			rawCountTable[i] = countTable[i].copy();
+		}
+	}
+    
+    public void calcSmallSampleCorrections(){
+		for (int i = 0; i < countTable.length; i++) {
+			countTable[i].calcSmallSampleCorrection();
+		}
+    }
+
+   	public void createNormalizedCountTable(){
+   		
+    	normalizedCountTable = new Distribution[rawCountTable.length];
+
+		for (int i = 0; i < normalizedCountTable.length; i++) {
+			normalizedCountTable[i] = rawCountTable[i].copy();
+		}
+   		
+        for (int i = 0; i < normalizedCountTable.length; i++) {
+            normalizedCountTable[i].normalize();
+        }
+   	}
+
+    public void pseudoNormalizeCountTable() {
+        for (int i = 0; i < countTable.length; i++) {
+            countTable[i].pseudoNormalize();
         }
         normalized = true;
     }
@@ -78,7 +116,52 @@ public class Matrix {
 
     }
 
-    public double[][] getScores() {
+
+//    public double[][] getScores() {
+//        double scores[][] = new double[countTable.length][symbols.length];
+//        for (int i = 0; i < countTable.length; i++) {
+//            for (int j = 0; j < symbols.length; j++) {
+//                double rawValue = countTable[i].get(symbols[j]);
+//                scores[i][j] = Math.abs(rawValue * Math.log(4 * rawValue));
+//
+//            }
+//        }
+//        return scores;
+//    }
+    
+    /**
+     * 
+     * @author tg2321
+     * 
+     */
+    public double[][] getSmallSampleScores() {
+        double scores[][] = new double[normalizedCountTable.length][symbols.length];
+        for (int i = 0; i < normalizedCountTable.length; i++) {
+        	double entropy = 0;
+        	double information = 0;
+        	double rawValue = 0;
+        	double smallSampleCorrection = normalizedCountTable[i].smallSampleCorrection;
+        	
+            for (int j = 0; j < symbols.length; j++) {
+                rawValue = normalizedCountTable[i].get(symbols[j]);
+                entropy -= rawValue * Math.log(rawValue)/Math.log(2);
+            }
+
+            information = Math.log(symbols.length)/Math.log(2) - (entropy + smallSampleCorrection);
+//          information = Math.log(symbols.length)/Math.log(2) - (entropy); // for testing purposes
+            
+            for (int j = 0; j < symbols.length; j++) {
+                rawValue = normalizedCountTable[i].get(symbols[j]);
+                double score = rawValue * information;
+                
+                scores[i][j] = score;
+            }
+        }
+        return scores;
+    }
+
+
+    public double[][] getPseudoCountScores() {
         double scores[][] = new double[countTable.length][symbols.length];
         for (int i = 0; i < countTable.length; i++) {
         	double entropy = 0;
@@ -87,8 +170,9 @@ public class Matrix {
             for (int j = 0; j < symbols.length; j++) {
                 rawValue = countTable[i].get(symbols[j]);
                 entropy -= rawValue * Math.log(rawValue)/Math.log(2);
-                information = Math.log(symbols.length)/Math.log(2) - entropy;
             }
+//            information = Math.log(symbols.length)/Math.log(2) - (entropy + smallSampleCorrection);
+            information = Math.log(symbols.length)/Math.log(2) - (entropy);
             for (int j = 0; j < symbols.length; j++) {
                 rawValue = countTable[i].get(symbols[j]);
                 scores[i][j] = rawValue * information;

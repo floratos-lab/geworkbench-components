@@ -1,13 +1,11 @@
 package org.geworkbench.components.promoter;
 
+import java.text.DecimalFormat;
+
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.table.AbstractTableModel;
-import javax.swing.table.TableCellRenderer;
-import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableModel;
-import java.awt.BorderLayout;
-import java.text.DecimalFormat;
 
 /**
  * <p>Title: </p>
@@ -81,11 +79,15 @@ public class MatrixScrollPane extends JScrollPane {
             int rowLength = symbols.length;
             int columnlength = matrix.getLength();
             Object[][] cols = new Object[rowLength][columnlength + 1];
-            Distribution[] dis = matrix.getRawCountTable();
+//          Distribution[] dis = matrix.getRawCountTable(); toggle between these views at a later date.
+            Distribution[] dis = matrix.getNormalizedCountTable();
+            
             for (int i = 0; i < rowLength; i++) {
                 cols[i][0] = new Character(symbols[i]);
                 for (int j = 0; j < columnlength; j++) {
-                    cols[i][j + 1] = formatPV.format(dis[j].get(symbols[i]));//)matrix.getMatch(j, symbols[i]);
+                	char sym = symbols[i];
+                	double symbol = dis[j].get(sym);
+                    cols[i][j + 1] = formatPV.format(symbol);//)matrix.getMatch(j, symbols[i]);
                 }
             }
             return cols;
