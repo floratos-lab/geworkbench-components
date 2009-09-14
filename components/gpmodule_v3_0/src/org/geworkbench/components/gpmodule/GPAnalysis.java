@@ -127,6 +127,7 @@ public abstract class GPAnalysis extends AbstractAnalysis implements ClusteringA
         String serverName = GPpropertiesManager.getProperty("gp.server");
         String userName = GPpropertiesManager.getProperty("gp.user.name");
 
+        JobResult analysisResult = null;
         try
         {
             if(serverName == null)
@@ -143,18 +144,14 @@ public abstract class GPAnalysis extends AbstractAnalysis implements ClusteringA
 
             GPClient server = new GPClient(serverName, userName, password);
 
-            JobResult analysisResult = server.runAnalysis(analysisName, parameters);
-
-            if(analysisResult.hasStandardError())
-            {
-                //JOptionPane.showMessageDialog(panel, "An error occurred while running analysis.");
-            }
+            analysisResult = server.runAnalysis(analysisName, parameters);
 
             String[] outputFiles = analysisResult.getOutputFileNames();
 
+            AnalysisWebServiceProxy analysisProxy = new AnalysisWebServiceProxy(server.getServer(), server.getUsername(), password);
+
             if(outputFiles != null && outputFiles.length > 0)
             {
-                AnalysisWebServiceProxy analysisProxy = new AnalysisWebServiceProxy(server.getServer(), server.getUsername(), password);
                 File[] results = analysisProxy.getResultFiles(analysisResult.getJobNumber(), outputFiles, new File(System.getProperty("temporary.files.directory")), true);
 
                 for(int i = 0; i < results.length; i++)
@@ -165,8 +162,28 @@ public abstract class GPAnalysis extends AbstractAnalysis implements ClusteringA
             else
                 resultFiles = null;
             
+            if(analysisResult.hasStandardError())
+            {
+                String[] errorFile = {"stderr.txt"};
+                File[] results = analysisProxy.getResultFiles(analysisResult.getJobNumber(), errorFile, new File(System.getProperty("temporary.files.directory")), true);
+
+                if(results != null && results.length > 0)
+                {
+                    boolean result = extractErrorMessages(results[0]);
+                    if(result)
+                    {
+                        JOptionPane.showMessageDialog(panel, "Some errors where generated while running analysis. Please check the logs for details.");
+                    }
+                    else
+                    {
+                        JOptionPane.showMessageDialog(panel, "Some errors where generated while running analysis.");
+                    }
+                }
+            }
+
+            
             // remove job from GenePattern server
-            AnalysisWebServiceProxy analysisProxy = new AnalysisWebServiceProxy(server.getServer(), server.getUsername(), password);
+            analysisProxy = new AnalysisWebServiceProxy(server.getServer(), server.getUsername(), password);
             analysisProxy.purgeJob(analysisResult.getJobNumber());
         }
         catch(WebServiceException we)
@@ -175,18 +192,37 @@ public abstract class GPAnalysis extends AbstractAnalysis implements ClusteringA
                 JOptionPane.showMessageDialog(panel, "Could not connect to the GenePattern server at " + serverName + ".\n Please verify the GenePattern server settings and that the GenePattern server is running.");
             else if(we.getMessage().contains("not found on server"))
                 JOptionPane.showMessageDialog(panel, analysisName + " module was not found on the GenePattern server at " + serverName + ".");
-            else
+            else if(analysisResult == null)
                 JOptionPane.showMessageDialog(panel, "An error occurred while trying to connect to the GenePattern server " + serverName + ".\n Please verify the GenePattern server settings.");
-
+            else
+            {
+                JOptionPane.showMessageDialog(panel, "An error occurred while retrieving results from GenePattern server " + serverName + ".\n Please check the logs for details.");                    
+            }
             throw we;
         }
-        /*catch(IOException io)
-        {
-            log.error(io);
-            JOptionPane.showMessageDialog(panel, "An error occurred while retrieving results from the GenePattern server.");
-        } */
 
         return resultFiles;
+    }
+
+
+    private boolean extractErrorMessages(File file)
+    {
+        try
+        {
+            BufferedReader reader = new BufferedReader( new FileReader(file));
+            String line;
+            while((line = reader.readLine()) != null)
+            {
+                log.error(line + "\n");
+            }
+        }
+        catch(Exception e)
+        {
+            e.printStackTrace();
+            return false;
+        }
+
+        return true;
     }
 
     public int getAnalysisType()
