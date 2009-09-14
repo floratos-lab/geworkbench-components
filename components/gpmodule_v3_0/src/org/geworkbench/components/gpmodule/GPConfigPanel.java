@@ -362,6 +362,9 @@ public class GPConfigPanel extends JPanel
         try
         {
             admin = new AdminProxy(serverName, userName, password);
+
+            //hack to force to connect to server
+            admin.getServiceInfo();
         }
         catch(Exception e)
         {
