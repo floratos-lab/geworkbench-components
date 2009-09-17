@@ -2145,11 +2145,8 @@ public class PromoterViewPanel extends JPanel {
     }
 
     public void clearButton_actionPerformed(ActionEvent e) {
-    	// bug 1994, "Clear All" button should not clear "Show Patterns" and "Show TFs"
-/*
         showTF.setSelected(false);
         showSeqPattern.setSelected(false);
-*/
         updateParameters();
         cleanAllPatterns();
         seqDisPanel.initialize(sequenceDB);
