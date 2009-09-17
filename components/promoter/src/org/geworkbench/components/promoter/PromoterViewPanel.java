@@ -1050,7 +1050,7 @@ public class PromoterViewPanel extends JPanel {
                                             bw.write(seqReg.x1 + 1 + tab);
                                         }
                                         bw.newLine();
-                                        
+
                                     }
                                 }
                             }
@@ -1163,11 +1163,11 @@ public class PromoterViewPanel extends JPanel {
     			if (o != JOptionPane.YES_OPTION) {
     				return;
     			}
-    			
+
     			/* TF is in sequence panel */
                 if ( !selectedModel.contains(tf)){
                     tfMap.put(file.getName(), tf);
-                	
+
                     // Highlight
                     int index = tfListModel.indexOf(file.getName()); // sequence model
                     tfPanel.setHighlightedIndex(index);				 // sequence panel
@@ -1179,20 +1179,20 @@ public class PromoterViewPanel extends JPanel {
 		            }
                 }else{ /* TF is in selected panel */
                     tfMap.put(file.getName(), tf);
-                	
+
 	                currentTF = tf;
 	                selectedModel.removeElement(tf);
 	                selectedModel.addElement(tf);
 	                jSelectedTFList.clearSelection();
 
                 }
-                
+
             }else{ /* TF is not in the map */
 
             	currentTF = tf;
             	tfMap.put(file.getName(), tf);					 // calculation map
             	tfListModel.addElement(tf);						 // sequence modal
-            	
+
             	// Highlight
                 int index = tfListModel.indexOf(file.getName()); // sequence modal
                 tfPanel.setHighlightedIndex(index);				 // sequence panel
@@ -2145,8 +2145,11 @@ public class PromoterViewPanel extends JPanel {
     }
 
     public void clearButton_actionPerformed(ActionEvent e) {
+    	// bug 1994, "Clear All" button should not clear "Show Patterns" and "Show TFs"
+/*
         showTF.setSelected(false);
         showSeqPattern.setSelected(false);
+*/
         updateParameters();
         cleanAllPatterns();
         seqDisPanel.initialize(sequenceDB);
@@ -2357,7 +2360,7 @@ public class PromoterViewPanel extends JPanel {
         public void refreshItem(int index) {
             fireContentsChanged(this, index, index);
         }
-        
+
         public int indexOf(Object object) {
         	return tfNameSet.indexOf(object);
         }
