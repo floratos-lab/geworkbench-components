@@ -19,7 +19,6 @@ public class Distribution {
     public char[] symbols = null;
     public double[] counts = null;
     public double totalCounts = 0;
-    public double smallSampleCorrection = 0;
 
     public Distribution(char[] symbolist) {
         symbols = symbolist;
@@ -36,7 +35,6 @@ public class Distribution {
     	Distribution newDistribution = new Distribution();
     	newDistribution.symbols = this.symbols;
     	newDistribution.totalCounts = this.totalCounts;
-    	newDistribution.smallSampleCorrection = this.smallSampleCorrection;
 
     	newDistribution.counts = new double[this.counts.length];
         for (int i = 0; i < newDistribution.counts.length; i++) {
@@ -97,13 +95,6 @@ public class Distribution {
         }
     }
 
-    public void calcSmallSampleCorrection() {
-        getTotal();
-
-        for (int i = 0; i < symbols.length; i++) {
-        	smallSampleCorrection = 3/(2* Math.log(2) * totalCounts );
-        }
-    }
     
     public double getMax() {
         double max = 0;
@@ -120,7 +111,6 @@ public class Distribution {
     public double getTotal() {
         if (totalCounts == 0) {
             for (int i = 0; i < counts.length; i++) {
-
                 totalCounts += counts[i];
             }
         }

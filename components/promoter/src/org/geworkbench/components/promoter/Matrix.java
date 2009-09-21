@@ -8,7 +8,7 @@ import org.geworkbench.bison.datastructure.bioobjects.sequence.DSSequence;
 /**
  * 
  * @author unattributable
- * @version $Id: Matrix.java,v 1.7 2009-09-13 04:42:05 tgarben Exp $
+ * @version $Id: Matrix.java,v 1.8 2009-09-21 19:44:29 tgarben Exp $
  */
 public class Matrix {
     public Matrix() {
@@ -25,7 +25,8 @@ public class Matrix {
     public Distribution[] countTable = new Distribution[1];
     private Distribution[] rawCountTable = new Distribution[1];
     private Distribution[] normalizedCountTable = null;
-
+    private double [] smallSampleCorrection = null;
+    
     public double getRandom() {
         return random;
     }
@@ -67,8 +68,11 @@ public class Matrix {
 	}
     
     public void calcSmallSampleCorrections(){
+    	smallSampleCorrection = new double[countTable.length];
+    	
 		for (int i = 0; i < countTable.length; i++) {
-			countTable[i].calcSmallSampleCorrection();
+			double totalCounts = countTable[i].getTotal();
+			smallSampleCorrection[i] = 3/(2* Math.log(2) * totalCounts);
 		}
     }
 
@@ -135,30 +139,37 @@ public class Matrix {
      * 
      */
     public double[][] getSmallSampleScores() {
-        double scores[][] = new double[normalizedCountTable.length][symbols.length];
-        for (int i = 0; i < normalizedCountTable.length; i++) {
-        	double entropy = 0;
-        	double information = 0;
-        	double rawValue = 0;
-        	double smallSampleCorrection = normalizedCountTable[i].smallSampleCorrection;
-        	
-            for (int j = 0; j < symbols.length; j++) {
-                rawValue = normalizedCountTable[i].get(symbols[j]);
-                entropy -= rawValue * Math.log(rawValue)/Math.log(2);
-            }
+		double scores[][] = new double[countTable.length][symbols.length];
+		for (int i = 0; i < countTable.length; i++) {
+			double frequency = 0;
+			double frequencyLog2 = 0;
+			double entropy = 0;
+			double ssc = smallSampleCorrection[i];
+			double entropyPlusSSC = 0;
+			double information = 0;
 
-            information = Math.log(symbols.length)/Math.log(2) - (entropy + smallSampleCorrection);
-//          information = Math.log(symbols.length)/Math.log(2) - (entropy); // for testing purposes
-            
-            for (int j = 0; j < symbols.length; j++) {
-                rawValue = normalizedCountTable[i].get(symbols[j]);
-                double score = rawValue * information;
-                
-                scores[i][j] = score;
-            }
-        }
-        return scores;
-    }
+			for (int j = 0; j < symbols.length; j++) {
+				frequency = normalizedCountTable[i].get(symbols[j]);
+				frequencyLog2 = Math.log(frequency) / Math.log(2);
+				entropy -= frequency * frequencyLog2;
+			}
+
+			entropyPlusSSC = entropy + ssc;
+			information = (Math.log(symbols.length) / Math.log(2)) - entropyPlusSSC;
+
+			for (int j = 0; j < symbols.length; j++) {
+				frequency = normalizedCountTable[i].get(symbols[j]);
+				double score = frequency * information;
+
+				if (score<0){
+					score = 0;
+				}
+				
+				scores[i][j] = score;
+			}
+		}
+		return scores;
+	}
 
 
     public double[][] getPseudoCountScores() {
