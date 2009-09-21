@@ -1,0 +1,21 @@
+<geaw-config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="ConfigurationFile Schema.xsd">
+
+	<component  name="GoAnalysisResultView"
+				class="org.geworkbench.components.geneontology2.GoAnalysisResultView"
+				version="1.0"
+				author="C2B2"
+				authorURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Home"
+				toolURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Home"
+				description="GO terms analysis result view"
+				visualizer="true"
+	 >
+		<required-component class="org.geworkbench.components.geneontology2.GoAnalysis" />
+	</component>
+	
+
+    <plugin id="GoAnalysisResultView" name="GO Terms Analysis Result View" class="org.geworkbench.components.geneontology2.GoAnalysisResultView" source="geneontology2">
+        <gui-area name="VisualArea"/>
+    </plugin>		
+	
+</geaw-config>

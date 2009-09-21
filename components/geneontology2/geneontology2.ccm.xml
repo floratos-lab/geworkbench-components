@@ -1,0 +1,18 @@
+<geaw-config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="ConfigurationFile Schema.xsd">
+
+	<component name="GeneOntology2"
+		class="org.geworkbench.components.geneontology2.GoAnalysis"
+		version="1.0" author="C2B2"
+		authorURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Home"
+		toolURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Home"
+		description="Gene Ontology Terms Analysis"
+		analysis="true">
+
+		<required-component class="org.geworkbench.components.geneontology2.GoAnalysisResultView" />
+	</component>
+	
+	<plugin id="GeneOntology2" name="GO Terms Analysis"
+		class="org.geworkbench.components.geneontology2.GoAnalysis" source="geneontology2" />
+	
+</geaw-config>
