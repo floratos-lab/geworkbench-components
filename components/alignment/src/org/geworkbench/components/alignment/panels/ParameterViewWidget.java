@@ -30,7 +30,7 @@ import java.util.StringTokenizer;
  */
 
 public class ParameterViewWidget extends JPanel {
-    JCheckBox pfpFilterBox = new JCheckBox();
+    
     JPanel jBasicPane = new JPanel();
     JLabel DatabaseLabel = new JLabel();
     JTabbedPane jTabbedPane1 = new JTabbedPane();
@@ -190,9 +190,6 @@ public class ParameterViewWidget extends JPanel {
      */
     private void jbInit() throws Exception {
 
-        pfpFilterBox.setToolTipText("Paracel Filtering Package");
-        pfpFilterBox.setSelected(true);
-        pfpFilterBox.setText("PFP Filter");
         jBasicPane.setLayout(gridBagLayout6);
         jBasicPane.setMinimumSize(new Dimension(10, 100));
         DatabaseLabel.setText("Database:");
@@ -600,7 +597,7 @@ public class ParameterViewWidget extends JPanel {
                 , GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                 new Insets(0, 0, 0, 0), 98, 7));
         jScrollPane3.getViewport().add(jList4, null);
-        filterPanel.add(pfpFilterBox, null);
+        
         filterPanel.add(lowComplexFilterBox, null);
         filterPanel.add(maskLookupOnlyBox, null);
         filterPanel.add(jDisplayInWebBox, null);

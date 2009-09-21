@@ -64,14 +64,13 @@ import com.borland.jbcl.layout.XYLayout;
 /**
  *
  * @author not attributable
- * @version $Id: BlastAppComponent.java,v 1.31 2008-12-17 22:31:03 jiz Exp $
+ * @version $Id: BlastAppComponent.java,v 1.32 2009-09-21 19:56:45 keshav Exp $
  */
 @SuppressWarnings("unchecked")
 @AcceptTypes( {CSSequenceSet.class})
 public class BlastAppComponent extends
         CSSequenceSetViewEventBase {
 
-    JCheckBox pfpFilterBox = new JCheckBox();
     JPanel jBasicPane = new JPanel();
     JLabel DatabaseLabel = new JLabel();
     JTabbedPane jTabbedPane1 = new JTabbedPane();
@@ -392,7 +391,7 @@ public class BlastAppComponent extends
      */
     public void jbInit() throws Exception {
         super.jbInit();
-        pfpFilterBox = new JCheckBox();
+   
         jBasicPane = new JPanel();
         DatabaseLabel = new JLabel();
         jTabbedPane1 = new JTabbedPane();
@@ -781,9 +780,7 @@ public class BlastAppComponent extends
         jBasicPane.setPreferredSize(new Dimension(364, 250));
         jPanel3.setLayout(borderLayout3);
         //this.add(jLabel4, java.awt.BorderLayout.NORTH);
-        pfpFilterBox.setToolTipText("Paracel Filtering Package");
-        pfpFilterBox.setSelected(false);
-        pfpFilterBox.setText("PFP Filter");
+        
         //   jEntThreshBox.addActionListener(new
         //                                  ParameterPanel_jEntThreshBox_actionAdapter(this));
         jBasicPane.setLayout(borderLayout2);
@@ -1102,7 +1099,7 @@ public class BlastAppComponent extends
         filterPanel.add(maskLowCaseBox);
         filterPanel.add(maskLookupOnlyBox, null);
         filterPanel.add(humanRepeatFilter);
-        filterPanel.add(pfpFilterBox, null);
+       
         jPanel1 = new JPanel();
         filterPanel.add(jPanel1);
         jPanel1.add(jDisplayInWebBox);
