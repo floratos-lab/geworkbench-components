@@ -213,49 +213,8 @@ public class GoAnalysis extends AbstractAnalysis implements ClusteringAnalysis {
 		}
 
 		GoAnalysisResult analysisResult = new GoAnalysisResult(null,
-				"Go Terms Analysis Result");
-		EnrichedGOTermsResult studySetResult = null;
-		while ((studySetResult = controller.calculateNextStudy()) != null
-				&& !this.stopAlgorithm) {
-			Iterator<AbstractGOTermProperties> iter = studySetResult.iterator();
+				"Go Terms Analysis Result", controller);
 
-			while (iter.hasNext()) {
-				AbstractGOTermProperties prop = iter.next();
-				Term term = prop.goTerm;
-				int popCount = 0, studyCount = 0;
-				for (int i = 0; i < prop.getNumberOfProperties(); i++) {
-					/*
-					 * the index may be fixed, but not 'visible' from the
-					 * AbstractGOTermProperties's interface
-					 */
-					if (prop.getPropertyName(i).equalsIgnoreCase("Pop.term")) {
-						popCount = Integer.parseInt(prop.getProperty(i));
-					} else if (prop.getPropertyName(i).equalsIgnoreCase(
-							"Study.term")) {
-						studyCount = Integer.parseInt(prop.getProperty(i));
-					} else {
-						// log.trace(i+":"+prop.getPropertyName(i)+"="+prop.getProperty(i));
-					}
-				}
-				ResultRow row = new ResultRow(term.getName(), term
-						.getNamespaceAsString(), prop.p, prop.p_adjusted,
-						popCount, studyCount);
-				analysisResult.addResultRow(term.getID().id, row);
-				// log.trace("one row: "+row);
-			}
-
-			// this is not needed except for understanding the result structure
-			if (log.isDebugEnabled()) {
-				if (studySetResult.getSize() > 0) {
-					File outFile = new File("ONTOLOGIZER_RESULT");
-					studySetResult.writeTable(outFile);
-					log.debug("Ontologizer got result.");
-				} else {
-					log.debug("Ontologizer got empty result. Size="
-							+ studySetResult.getSize());
-				}
-			}
-		}
 		progressBar.dispose();
 		if (this.stopAlgorithm) {
 			return new AlgorithmExecutionResults(false,
@@ -482,31 +441,40 @@ public class GoAnalysis extends AbstractAnalysis implements ClusteringAnalysis {
 	}
 }
 
-class ResultRow {
-	String name;
-	String namespace;
-	double p;
-	double pAdjusted;
-	int popCount;
-	int studyCount;
-	
-	ResultRow(String name, String namespace, double p, double pAdjusted, int popCount, int studyCount) {
-		this.name = name;
-		this.namespace = namespace;
-		this.p = p;
-		this.pAdjusted = pAdjusted;
-		this.popCount = popCount;
-		this.studyCount = studyCount;
-	}
-	
-	public String toString() {
-		return name+"|"+namespace+"|"+p+"|"+pAdjusted+"|"+popCount+"|"+studyCount;
-	}
-}
-
-// interface DSAncillaryDataSet is the minimal requirement to fit in to geWorkbench analysis's result output framework 
+// interface DSAncillaryDataSet is the minimal requirement to fit in to geWorkbench analysis's result output framework
+/**
+ * Go Terms Analysis Result.
+ * Wrapper for the result from ontologizer 2.0.
+ */
 class GoAnalysisResult extends CSAncillaryDataSet<CSMicroarray> {
 	private static final long serialVersionUID = -337000604982427702L;
+	static Log log = LogFactory.getLog(GoAnalysisResult.class);
+	
+	static class ResultRow {
+		String name;
+		String namespace;
+		double p;
+		double pAdjusted;
+		int popCount;
+		int studyCount;
+		
+		ResultRow(String name, String namespace, double p, double pAdjusted, int popCount, int studyCount) {
+			this.name = name;
+			this.namespace = namespace;
+			this.p = p;
+			this.pAdjusted = pAdjusted;
+			this.popCount = popCount;
+			this.studyCount = studyCount;
+		}
+		
+		public String toString() {
+			return name+"|"+namespace+"|"+p+"|"+pAdjusted+"|"+popCount+"|"+studyCount;
+		}
+	}
+
+	ResultRow getRow(Integer goId) {
+		return result.get(goId);
+	}
 	
 	private Map<Integer, ResultRow> result = null;
 	
@@ -518,9 +486,87 @@ class GoAnalysisResult extends CSAncillaryDataSet<CSMicroarray> {
 		else return 0;
 	}
 
-	protected GoAnalysisResult(DSDataSet<CSMicroarray> parent, String label) {
+	// TODO remove if not used
+//	protected GoAnalysisResult(DSDataSet<CSMicroarray> parent, String label) {
+//		super(parent, label);
+//		result = new HashMap<Integer, ResultRow>();
+//	}
+	
+	
+	/**
+	 * Constructor based on a result from Ontologizer 2.0.
+	 * 
+	 * @param parent
+	 * @param label
+	 * @param ontologizerResult
+	 */
+	protected GoAnalysisResult(DSDataSet<CSMicroarray> parent, String label,
+			EnrichedGOTermsResult ontologizerResult) {
 		super(parent, label);
 		result = new HashMap<Integer, ResultRow>();
+
+		appendOntologizerResult(ontologizerResult);
+	}
+	
+	/**
+	 * Constructor from Ontologizer 2.0 controller.
+	 * 
+	 * @param parent
+	 * @param label
+	 * @param ontologizerResult
+	 */
+	protected GoAnalysisResult(DSDataSet<CSMicroarray> parent, String label,
+			OntologizerCore ontologizerCore) {
+		this(parent, label, ontologizerCore.calculateNextStudy());
+		
+		EnrichedGOTermsResult studySetResult = null;
+		while ((studySetResult = ontologizerCore.calculateNextStudy()) != null) {
+			appendOntologizerResult(studySetResult);
+
+			// this is not needed except for understanding the result structure
+			if (log.isDebugEnabled()) {
+					if (studySetResult.getSize() > 0) {
+						File outFile = new File("ONTOLOGIZER_RESULT");
+						studySetResult.writeTable(outFile);
+						log.debug("Ontologizer got result.");
+					} else {
+						log.debug("Ontologizer got empty result. Size="
+								+ studySetResult.getSize());
+					}
+			}
+		}
+	}
+	
+	/**
+	 * Append more result rows from another Ontologizer 2.0 result.
+	 * @param ontologizerResult
+	 */
+	void appendOntologizerResult(EnrichedGOTermsResult ontologizerResult) {
+		Iterator<AbstractGOTermProperties> iter = ontologizerResult.iterator();
+
+		while (iter.hasNext()) {
+			AbstractGOTermProperties prop = iter.next();
+			Term term = prop.goTerm;
+			int popCount = 0, studyCount = 0;
+			for (int i = 0; i < prop.getNumberOfProperties(); i++) {
+				/*
+				 * the index may be fixed, but not 'visible' from the
+				 * AbstractGOTermProperties's interface
+				 */
+				if (prop.getPropertyName(i).equalsIgnoreCase("Pop.term")) {
+					popCount = Integer.parseInt(prop.getProperty(i));
+				} else if (prop.getPropertyName(i).equalsIgnoreCase(
+						"Study.term")) {
+					studyCount = Integer.parseInt(prop.getProperty(i));
+				} else {
+					// log.trace(i+":"+prop.getPropertyName(i)+"="+prop.getProperty(i));
+				}
+			}
+			ResultRow row = new ResultRow(term.getName(), term
+					.getNamespaceAsString(), prop.p, prop.p_adjusted, popCount,
+					studyCount);
+			result.put(term.getID().id, row);
+		}
 	}
 
 	void addResultRow(int goId, ResultRow row) {
