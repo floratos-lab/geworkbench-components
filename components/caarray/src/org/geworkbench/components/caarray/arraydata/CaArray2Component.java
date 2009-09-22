@@ -2,7 +2,6 @@ package org.geworkbench.components.caarray.arraydata;
 
 import gov.nih.nci.caarray.services.ServerConnectionException;
 import gov.nih.nci.caarray.services.external.v1_0.InvalidInputException;
-import gov.nih.nci.caarray.services.external.v1_0.InvalidReferenceException;
 
 import java.awt.Component;
 import java.rmi.RemoteException;
@@ -337,13 +336,13 @@ public class CaArray2Component implements VisualPlugin {
 			event.setSucceed(false);
 			event.setErrorMessage("FailedLoginException: username " + username
 					+ "; " + fe.getMessage());
-		} catch (InvalidReferenceException e) {
-			event.setSucceed(false);
-			event.setErrorMessage("InvalidReferenceException: "
-					+ e.getMessage());
 		} catch (RemoteException e) {
 			event.setSucceed(false);
 			event.setErrorMessage("RemoteException: " + e.getMessage());
+		} catch (InvalidInputException e) {
+			event.setSucceed(false);
+			event.setErrorMessage("InvalidInputException: "
+					+ e.getMessage());
 		}
 		publishCaArrayQueryResultEvent(event);
 	}

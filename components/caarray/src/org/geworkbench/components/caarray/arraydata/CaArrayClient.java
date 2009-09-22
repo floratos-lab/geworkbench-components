@@ -25,7 +25,6 @@ import gov.nih.nci.caarray.external.v1_0.sample.Hybridization;
 import gov.nih.nci.caarray.services.ServerConnectionException;
 import gov.nih.nci.caarray.services.external.v1_0.CaArrayServer;
 import gov.nih.nci.caarray.services.external.v1_0.InvalidInputException;
-import gov.nih.nci.caarray.services.external.v1_0.InvalidReferenceException;
 import gov.nih.nci.caarray.services.external.v1_0.data.DataService;
 import gov.nih.nci.caarray.services.external.v1_0.search.JavaSearchApiUtils;
 import gov.nih.nci.caarray.services.external.v1_0.search.SearchApiUtils;
@@ -100,7 +99,7 @@ public class CaArrayClient {
 				.setContextClassLoader(originalContextClassLoader);
 	}
 	
-    private List<Organism> lookupOrganisms() throws InvalidReferenceException {
+    private List<Organism> lookupOrganisms() throws InvalidInputException {
         ExampleSearchCriteria<Organism> criteria = new ExampleSearchCriteria<Organism>();
         Organism exampleOrganism = new Organism();
         criteria.setExample(exampleOrganism);
@@ -122,7 +121,7 @@ public class CaArrayClient {
         return investigators;
     }
 
-    private List<ArrayProvider> lookupArrayProviders() throws InvalidReferenceException {
+    private List<ArrayProvider> lookupArrayProviders() throws InvalidInputException {
         ExampleSearchCriteria<ArrayProvider> criteria = new ExampleSearchCriteria<ArrayProvider>();
         ArrayProvider exampleProvider = new ArrayProvider();
         criteria.setExample(exampleProvider);
@@ -145,11 +144,11 @@ public class CaArrayClient {
 	 * @param request
 	 * @param type
 	 * @return
-	 * @throws InvalidReferenceException 
 	 * @throws RemoteException 
+	 * @throws InvalidInputException 
 	 */
 	@SuppressWarnings("unchecked")
-	TreeMap<String, Set<String>> lookupTypeValues() throws InvalidReferenceException, RemoteException
+	TreeMap<String, Set<String>> lookupTypeValues() throws RemoteException, InvalidInputException
 			 {
 		String[] types = CaARRAYQueryPanel.listContent;
 		
@@ -353,6 +352,9 @@ public class CaArrayClient {
         // Ordered list of column headers (quantitation types like Signal, Log Ratio etc.)
         List<QuantitationType> quantitationTypes = dataSet.getQuantitationTypes();
         // Data for the first hybridization (the only hybridization, in our case)
+        if(dataSet.getDatas().size()<1) {
+        	throw new Exception("No data in this dataset.");
+        }
         HybridizationData data = dataSet.getDatas().get(0);
         // Ordered list of columns with values (columns are in the same order as column headers/quantitation types)
         List<AbstractDataColumn> dataColumns = data.getDataColumns();
