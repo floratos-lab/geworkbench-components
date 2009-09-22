@@ -11,6 +11,8 @@ import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -387,7 +389,7 @@ public class GoAnalysisResultView extends JPanel implements VisualPlugin {
 		return this;
 	}
 	
-	private Map<Integer, ResultRow> result = null;
+	private GoAnalysisResult result = null;
 
 	private static Map<Integer, GoTreeNode> namespaceId2Node = null;
 	private AbstractButton allButton;
@@ -467,8 +469,7 @@ public class GoAnalysisResultView extends JPanel implements VisualPlugin {
 	public void receive(ProjectEvent e, Object source) {
 		DSDataSet<CSMicroarray> dataSet = e.getDataSet();
 		if (dataSet instanceof GoAnalysisResult) {
-			GoAnalysisResult r = (GoAnalysisResult)dataSet;
-			result = r.getResult();
+			result = (GoAnalysisResult)dataSet;
 			tableModel.populateNewResult( result );
 			
 			populateTreeRrepresentation();
@@ -604,19 +605,21 @@ public class GoAnalysisResultView extends JPanel implements VisualPlugin {
 			return columnNames[col];
 		}
 		
-		public void populateNewResult(Map<Integer, ResultRow> result) {
-			int rowCount = result.keySet().size();
+		private static NumberFormat nf = new DecimalFormat("0.0000");
+
+		public void populateNewResult(GoAnalysisResult result) {
+			int rowCount = result.getCount();
 			data = new Object[rowCount][COLUMN_COUNT];
 			
 			int row = 0;
-			for(Integer goId: result.keySet()) {
-				ResultRow resultRow = result.get(goId);
+			for(Integer goId: result.getResult().keySet()) {
+				GoAnalysisResult.ResultRow resultRow = result.getRow(goId);
 //				log.trace("GO:"+goId+"|"+resultRow.toString());
 				data[row][0] = goId;
 				data[row][1] = resultRow.name;
 				data[row][2] = resultRow.namespace;
-				data[row][3] = resultRow.p;
-				data[row][4] = resultRow.pAdjusted;
+				data[row][3] = nf.format( resultRow.p );
+				data[row][4] = nf.format(resultRow.pAdjusted );
 				data[row][5] = resultRow.popCount;
 				data[row][6] = resultRow.studyCount;
 				row++;
@@ -747,7 +750,7 @@ public class GoAnalysisResultView extends JPanel implements VisualPlugin {
 				return namespace[-goId-1]; // valid 'goId' here are -1, -2, -3  <=> valid index are 0, 1, 2
 			}
 			
-			ResultRow row = GoAnalysisResultView.this.result.get(goId);
+			GoAnalysisResult.ResultRow row = GoAnalysisResultView.this.result.getRow(goId);
 			if(row==null) {// not in the result 
 				return GoAnalysis.termDetail.get(goId).name; 
 			} else { // in the result from ontologizer
