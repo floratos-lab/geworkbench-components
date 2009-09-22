@@ -81,7 +81,7 @@ public class GoAnalysisParameterPanel extends AbstractSaveableParameterPanel {
 
 	/* referent list = population; change list = study set */
 	private static JComboBox referenceListSource = new JComboBox(new String[] {
-			"From Set", "From File" });
+			"All Genes", "From Set", "From File" });
 	private static JComboBox changedListSource = new JComboBox(new String[] {
 			"From Set", "From File", "From Result Node" });
 
@@ -174,10 +174,10 @@ public class GoAnalysisParameterPanel extends AbstractSaveableParameterPanel {
 		// set the Map with the parameter values retrieved from GUI
 		// component
 		parameters.put("referenceListSource", (String)referenceListSource.getSelectedItem());
-		parameters.put("referenceListSets", (String)referenceListSource.getSelectedItem());
+		parameters.put("referenceListSets", (String)referenceListSets.getSelectedItem());
 		parameters.put("referenceList", referenceList.getText());
 		parameters.put("changedListSource", (String)changedListSource.getSelectedItem());
-		parameters.put("changedListSets", (String)changedListSource.getSelectedItem());
+		parameters.put("changedListSets", (String)changedListSets.getSelectedItem());
 		parameters.put("changedList", changedList.getText());
 		
 		parameters.put("ontologyFile", ontologyFileNameField.getText());
@@ -208,15 +208,16 @@ public class GoAnalysisParameterPanel extends AbstractSaveableParameterPanel {
 		if (listString.length() == 0)
 			return null;
 
-		switch (referenceListSource.getSelectedIndex()) {
-		case 0: // from set
-			return listString.split(", ");
-		case 1: // from file - duplicate for now - in case this is changed to
-				// file name instead
-			return listString.split(", ");
-		default:
-			return null; // never-happen case
-		}
+		return listString.split(", ");
+//		switch (referenceListSource.getSelectedIndex()) {
+//		case 0: // from set
+//			return listString.split(", ");
+//		case 1: // from file - duplicate for now - in case this is changed to
+//				// file name instead
+//			return listString.split(", ");
+//		default:
+//			return null; // never-happen case
+//		}
 	}
 
 	/* this is called from getDataHistory */
@@ -341,7 +342,8 @@ public class GoAnalysisParameterPanel extends AbstractSaveableParameterPanel {
 			geneOntologyRadioButton.setEnabled(false);
 			final String ontologyFileName = GeneOntologyTreePopulateComponent
 					.getObofileName();
-			ontologyFileNameField = new JTextField(ontologyFileName);
+			ontologyFileNameField = new JTextField(20);
+			ontologyFileNameField.setText(ontologyFileName);
 			ontologyFileNameField.setEnabled(false); // this is always
 														// disabled even in the
 														// future version with
@@ -360,7 +362,7 @@ public class GoAnalysisParameterPanel extends AbstractSaveableParameterPanel {
 																		// to
 																		// spec
 			alternateOntologyRadioButton.setEnabled(false);
-			JTextField alternateOntologyField = new JTextField();
+			JTextField alternateOntologyField = new JTextField(20);
 			alternateOntologyField.setEnabled(false);
 			JButton loadButton = new JButton("Load");
 			loadButton.setEnabled(false);
@@ -462,13 +464,19 @@ public class GoAnalysisParameterPanel extends AbstractSaveableParameterPanel {
 			public void actionPerformed(ActionEvent e) {
 				JComboBox cb = (JComboBox) e.getSource();
 				switch (cb.getSelectedIndex()) {
-				case 0:// from set
+				case 0:// all genes
+					referenceListSets.setEnabled(false);
+					referenceList.setText(getAllGenesAsString());
+					referenceList.setEditable(false);
+					referenceListLoadButton.setEnabled(false);
+					break;
+				case 1:// from set
 					referenceListSets.setEnabled(true);
-					referenceList.setEnabled(true);
+					referenceList.setEditable(true);
 					referenceListLoadButton.setEnabled(false);
 					GoAnalysisParameterPanel.this.refreshMarkerSetList(referenceListSets);
 					break;
-				case 1: // from file
+				case 2: // from file
 					referenceListSets.setEnabled(false);
 					referenceList.setEnabled(false);
 					referenceListLoadButton.setEnabled(true);
@@ -508,9 +516,9 @@ public class GoAnalysisParameterPanel extends AbstractSaveableParameterPanel {
 		changedListLoadButton.addActionListener(new LoadButtonListener(
 				changedList));
 
-		// this setting maps the source choice of 'From Set'
-		referenceListSets.setEnabled(true);
-		referenceList.setEnabled(true);
+//		// this setting maps the source choice of 'From Set'
+//		referenceListSets.setEnabled(true);
+//		referenceList.setEnabled(true);
 		referenceListLoadButton.setEnabled(false);
 		changedListSets.setEnabled(true);
 		changedList.setEnabled(true);
@@ -625,6 +633,44 @@ public class GoAnalysisParameterPanel extends AbstractSaveableParameterPanel {
 
 		return set;
 	}
+	
+	/**
+	 * Get all genes from the marker selection panel.
+	 * @param setName
+	 * @return
+	 */
+	private Set<String> getAllGenes() {
+		Set<String> set = new HashSet<String>();
+		if (dataset == null)
+			return set; // in case maSet is not properly set
+
+		DSAnnotationContextManager manager = CSAnnotationContextManager
+				.getInstance();
+		DSAnnotationContext<DSGeneMarker> markerSet = manager
+				.getCurrentContext(dataset.getMarkers());
+
+		for ( DSGeneMarker marker : markerSet.getItemList() ) {
+			String geneName = marker.getGeneName();
+			if (!geneName.equals("---")) {
+				set.add(marker.getGeneName());
+			}
+		}
+		return set;
+	}
+
+	private String getAllGenesAsString() {
+		Set<String> allGenes = getAllGenes();
+		if(allGenes==null || allGenes.size()==0)return "";
+		
+		StringBuffer sb = new StringBuffer("");
+		for(String gene: allGenes) {
+			if(sb.length()==0)
+				sb.append(gene);
+			else
+				sb.append(", ").append(gene);
+		}
+		return sb.toString();
+	}
 
 	/**
 	 * Get the list of available mark sets.
@@ -651,13 +697,13 @@ public class GoAnalysisParameterPanel extends AbstractSaveableParameterPanel {
 		if(parameters.get("referenceListSource")==null)
 			parameters.put("referenceListSource", (String)referenceListSource.getItemAt(0));
 		if(parameters.get("referenceListSets")==null)
-			parameters.put("referenceListSets", (String)referenceListSource.getItemAt(0));
+			parameters.put("referenceListSets", (String)referenceListSets.getItemAt(0));
 		if(parameters.get("referenceList")==null)
 			parameters.put("referenceList", "");
 		if(parameters.get("changedListSource")==null)
 			parameters.put("changedListSource", (String)changedListSource.getItemAt(0));
 		if(parameters.get("changedListSets")==null)
-			parameters.put("changedListSets", (String)changedListSource.getItemAt(0));
+			parameters.put("changedListSets", (String)changedListSets.getItemAt(0));
 		if(parameters.get("changedList")==null)
 			parameters.put("changedList", "");
 		
@@ -691,15 +737,20 @@ public class GoAnalysisParameterPanel extends AbstractSaveableParameterPanel {
 		dataset = d;
 		annotationFileNameField.setText(dataset.getAnnotationFileName());
 
-		/* only do this if 'from set' is chosen */
-		if (referenceListSource.getSelectedIndex() == 0) {
+		switch (referenceListSource.getSelectedIndex()) {
+		case 1:
 			refreshMarkerSetList(referenceListSets);
+			break; // from set
+		case 0:
+			referenceList.setText(getAllGenesAsString());
+			referenceList.setEditable(false);
+			break; // all genes
 		}
-		if (changedListSource.getSelectedIndex() == 0) { 
+		/* only do this if 'from set' is chosen */
+		if (changedListSource.getSelectedIndex() == 0) {
 			refreshMarkerSetList(changedListSets);
 		}
 		repaint();
-
 	}
 
 	@Override
@@ -748,7 +799,10 @@ public class GoAnalysisParameterPanel extends AbstractSaveableParameterPanel {
 					.getGeneList(setName);
 			StringBuilder sb = new StringBuilder();
 			for (String gene : geneSet) {
-				sb.append(gene + ", ");
+				if(sb.length()==0)
+					sb.append(gene);
+				else
+					sb.append(", ").append(gene);
 			}
 			String markerListString = sb.toString();
 			if (markerListString.length() > 2)
