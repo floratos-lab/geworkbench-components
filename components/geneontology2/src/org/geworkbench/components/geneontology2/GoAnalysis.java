@@ -120,9 +120,11 @@ public class GoAnalysis extends AbstractAnalysis implements ClusteringAnalysis {
 			PrintWriter pw = new PrintWriter(new FileWriter(studySet));
 			String[] changedGenesArray = parameterPanel.getChangedGeneList();
 			changedGenes = new HashSet<String>();
-			if (changedGenesArray == null || changedGenesArray.length == 0)
+			if (changedGenesArray == null || changedGenesArray.length == 0) {
+				progressBar.dispose();
 				return new AlgorithmExecutionResults(false,
 						"Study set is empty.", null);
+			}
 			for (String gene : changedGenesArray) {
 				pw.println(gene);
 				changedGenes.add(gene);
@@ -133,9 +135,11 @@ public class GoAnalysis extends AbstractAnalysis implements ClusteringAnalysis {
 			String[] referenceGenesArray = parameterPanel
 					.getReferenceGeneList();
 			referenceGenes = new HashSet<String>();
-			if (referenceGenesArray == null || referenceGenesArray.length == 0)
+			if (referenceGenesArray == null || referenceGenesArray.length == 0) {
+				progressBar.dispose();
 				return new AlgorithmExecutionResults(false,
 						"Reference set is empty.", null);
+			}
 			for (String gene : referenceGenesArray) {
 				pw.println(gene);
 				referenceGenes.add(gene);
