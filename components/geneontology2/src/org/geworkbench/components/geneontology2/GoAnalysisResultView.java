@@ -482,12 +482,6 @@ public class GoAnalysisResultView extends JPanel implements VisualPlugin {
 	 }
 	
 	private void populateGeneList(int goId) {
-		if(GoAnalysis.term2Gene.get(goId)==null) {
-			log.debug("No gene annotated to GO ID "+goId);
-			geneListTableModel.setDataVector(new Object[0][3], geneListHeaders);
-			return;
-		}
-
 		boolean includeDescendants = false;
 		if (termButton.isSelected()) {
 			includeDescendants = false;
