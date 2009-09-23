@@ -324,7 +324,7 @@ public class GoAnalysis extends AbstractAnalysis implements ClusteringAnalysis {
 				line = br.readLine();
 			}
 			br.close();
-			System.out.println("term count "+termDetail.size());
+			log.debug("term count "+termDetail.size());
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 			log.error("Ontology tree is not successfullly created due to FileNotException: "+e.getMessage());
@@ -494,13 +494,6 @@ class GoAnalysisResult extends CSAncillaryDataSet<CSMicroarray> {
 		else return 0;
 	}
 
-	// TODO remove if not used
-//	protected GoAnalysisResult(DSDataSet<CSMicroarray> parent, String label) {
-//		super(parent, label);
-//		result = new HashMap<Integer, ResultRow>();
-//	}
-	
-	
 	/**
 	 * Constructor based on a result from Ontologizer 2.0.
 	 * 
