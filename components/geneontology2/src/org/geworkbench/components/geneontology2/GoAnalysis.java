@@ -312,7 +312,15 @@ public class GoAnalysis extends AbstractAnalysis implements ClusteringAnalysis {
 						ontologyChild.put(parent, children);
 					}
 					children.add(id);
-				}
+				} else if (line.startsWith("relationship: part_of GO:")) {
+					Integer parent = Integer.valueOf( line.substring("relationship: part_of GO:".length(), line.indexOf("!")).trim() );
+					List<Integer> children = ontologyChild.get(parent);
+					if(children==null) {
+						children = new ArrayList<Integer>();
+						ontologyChild.put(parent, children);
+					}
+					children.add(id);
+				} 
 				line = br.readLine();
 			}
 			br.close();
