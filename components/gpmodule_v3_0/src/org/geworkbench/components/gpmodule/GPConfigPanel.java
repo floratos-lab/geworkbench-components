@@ -83,7 +83,7 @@ public class GPConfigPanel extends JPanel
         username = new JFormattedTextField(defaultFormatter);
         password = new JPasswordField();
 
-        resetGPConfigParameters();
+        resetGPConfigParameters(true);
 
         protocol.setPreferredSize(new Dimension(145, 20));
         protocol.setMinimumSize(new Dimension(145, 20));
@@ -139,7 +139,7 @@ public class GPConfigPanel extends JPanel
         {
             public void actionPerformed(ActionEvent event)
             {
-               resetGPConfigParameters();
+               resetGPConfigParameters(false);
                editSettingsFrame.dispose();    
             }
         });
@@ -155,7 +155,7 @@ public class GPConfigPanel extends JPanel
         {
             public void componentShown(ComponentEvent event)
             {
-                resetGPConfigParameters();
+                resetGPConfigParameters(false);
             }
 
             public void componentResized(ComponentEvent event){}
@@ -356,7 +356,7 @@ public class GPConfigPanel extends JPanel
         }
     }
     
-    private boolean testConfigSettings(String serverName, String userName, String password)
+    private boolean testConfigSettings(String serverName, String userName, String password, boolean automatic)
     {
         AdminProxy admin = null;
         try
@@ -368,18 +368,21 @@ public class GPConfigPanel extends JPanel
         }
         catch(Exception e)
         {
-            log.info(e);
+            // this is not executed when login is initiated automatically and not by user
+            if(!automatic)
+            {
+                log.info(e);
 
-            if(e.getMessage() != null && e.getMessage().contains("Unknown user"))
-            {
-                showMessageDialog("Unknown user or invalid password");
-            }
-            else
-            {
-                showMessageDialog("Could not connect to the GenePattern server at " + serverName + "/gp" +  
+                if(e.getMessage() != null && e.getMessage().contains("Unknown user"))
+                {
+                    showMessageDialog("Unknown user or invalid password");
+                }
+                else
+                {
+                    showMessageDialog("Could not connect to the GenePattern server at " + serverName + "/gp" +
                                     "\nPlease verify the settings and that the GenePattern server is running");
+                }
             }
-            
             return false;
         }
 
@@ -392,13 +395,17 @@ public class GPConfigPanel extends JPanel
             }
             catch(Exception we)
             {
-                we.printStackTrace();
+                // this is not executed when login is initiated automatically and not by user                
+                if(!automatic)
+                {
+                    we.printStackTrace();
+                }
             }
         }
         return true;
     }
 
-    private void resetGPConfigParameters()
+    private void resetGPConfigParameters(boolean automatic)
     {
         String serverName = GPpropertiesManager.getProperty("gp.server");
 
@@ -433,7 +440,7 @@ public class GPConfigPanel extends JPanel
                 password.setText(passwordValue);
             }
 
-            testConfigSettings(gpServer.toString(), (String)username.getValue(), passwordValue);
+            testConfigSettings(gpServer.toString(), (String)username.getValue(), passwordValue, automatic);
         }
         else
         {
@@ -469,7 +476,7 @@ public class GPConfigPanel extends JPanel
                 else
                     gpServer = new URL(protocolInput, hostInput , "");
 
-                boolean success = testConfigSettings(gpServer.toString(), userNameInput, passwordValue);
+                boolean success = testConfigSettings(gpServer.toString(), userNameInput, passwordValue, false);
                 if(!success)
                 {
                     return false;
@@ -486,7 +493,7 @@ public class GPConfigPanel extends JPanel
             catch(IOException e)
             {
                 log.debug(e.getMessage());
-                resetGPConfigParameters();
+                resetGPConfigParameters(false);
                 showMessageDialog("Problem saving GenePattern server settings");
             }
             catch(InvalidInputException e)
