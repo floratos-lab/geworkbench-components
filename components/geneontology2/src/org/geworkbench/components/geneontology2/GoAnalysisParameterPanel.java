@@ -650,9 +650,9 @@ public class GoAnalysisParameterPanel extends AbstractSaveableParameterPanel {
 				.getCurrentContext(dataset.getMarkers());
 
 		for ( DSGeneMarker marker : markerSet.getItemList() ) {
-			String geneName = marker.getGeneName();
+			String geneName = marker.getGeneName().trim();
 			if (!geneName.equals("---")) {
-				set.add(marker.getGeneName());
+				set.add(geneName);
 			}
 		}
 		return set;
@@ -804,11 +804,7 @@ public class GoAnalysisParameterPanel extends AbstractSaveableParameterPanel {
 				else
 					sb.append(", ").append(gene);
 			}
-			String markerListString = sb.toString();
-			if (markerListString.length() > 2)
-				markerListString = markerListString.substring(0,
-						markerListString.length() - 2);
-			targetField.setText(markerListString);
+			targetField.setText(sb.toString());
 		}
 	}
 
