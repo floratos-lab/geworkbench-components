@@ -43,6 +43,8 @@ import javax.swing.JTree;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.event.TreeSelectionEvent;
+import javax.swing.event.TreeSelectionListener;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
@@ -214,7 +216,22 @@ public class GoAnalysisResultView extends JPanel implements VisualPlugin {
 
 		tree = new JTree(treeModel);
 		tree.setRootVisible(false);
-		
+		tree.addTreeSelectionListener(new TreeSelectionListener() {
+
+			public void valueChanged(TreeSelectionEvent e) {
+				GoTreeNode node = (GoTreeNode) tree.getLastSelectedPathComponent();
+
+				if (node == null)	//Nothing is selected.	
+					return;
+				
+				Integer goId = node.goId;
+				populateGeneList(goId);
+				populateSingleGeneTree(goId);
+				showGeneDetail(goId);
+			}
+			
+		});
+
 		treeTab.add(new JScrollPane(tree), BorderLayout.CENTER);
 
 		geneListWindow.setLayout(new BoxLayout(geneListWindow, BoxLayout.Y_AXIS));
