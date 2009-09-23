@@ -365,7 +365,9 @@ public class GoAnalysis extends AbstractAnalysis implements ClusteringAnalysis {
 			}
 			for(int i=0; i<geneSymbols.length; i++) {
 				String geneSymbol = geneSymbols[i];
-				String geneTitle = geneTitles[i];
+				String geneTitle = "";
+				if(i<geneTitles.length)
+					geneTitle = geneTitles[i];
 				genes.add(geneSymbol);
 				if(!geneDetails.containsKey(geneSymbol)) {
 					GeneDetails details = new GeneDetails(geneTitle);

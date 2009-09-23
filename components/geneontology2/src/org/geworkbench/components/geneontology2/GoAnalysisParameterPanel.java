@@ -314,7 +314,7 @@ public class GoAnalysisParameterPanel extends AbstractSaveableParameterPanel {
 		{
 			FormLayout layout = new FormLayout(
 					"right:max(10dlu;pref), 3dlu, pref, 7dlu, "
-							+ "right:max(10dlu;pref), 3dlu, pref, 7dlu, "
+							+ "left:max(10dlu;pref), 3dlu, pref, 7dlu, "
 							+ "right:max(10dlu;pref), 3dlu, pref, 7dlu ", "");
 			DefaultFormBuilder builder = new DefaultFormBuilder(layout);
 			builder.setDefaultDialogBorder();
@@ -322,12 +322,14 @@ public class GoAnalysisParameterPanel extends AbstractSaveableParameterPanel {
 			builder.appendSeparator("Gene lists selection");
 
 			referenceListSets = new JComboBox();
+			referenceListSets.setPrototypeDisplayValue("WWWWWWWWWW"); // set expected width
 			referenceList = new JTextField(20);
 			referenceListLoadButton = new JButton("Load");
 			builder.append("Reference Gene List", referenceListSource,
 					referenceListSets, referenceList, referenceListLoadButton);
 			builder.nextLine();
 			changedListSets = new JComboBox();
+			changedListSets.setPrototypeDisplayValue("WWWWWWWWWW"); // set expected width
 			changedList = new JTextField(20);
 			changedListLoadButton = new JButton("Load");
 			builder.append("Changed Gene List", changedListSource,
@@ -384,7 +386,7 @@ public class GoAnalysisParameterPanel extends AbstractSaveableParameterPanel {
 		{
 			FormLayout layout = new FormLayout(
 					"right:max(10dlu;pref), 3dlu, pref, 7dlu, "
-							+ "right:max(10dlu;pref), 3dlu, pref, 7dlu, "
+							+ "left:max(10dlu;pref), 3dlu, pref, 7dlu, "
 							+ "right:max(10dlu;pref), 3dlu, pref, 7dlu ", "");
 			DefaultFormBuilder builder = new DefaultFormBuilder(layout);
 			builder.setDefaultDialogBorder();

@@ -46,6 +46,7 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.table.AbstractTableModel;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableColumnModel;
@@ -179,6 +180,7 @@ public class GoAnalysisResultView extends JPanel implements VisualPlugin {
 		
 		tableModel = new GoTableModel();
 		table = new JTable(tableModel);
+		table.setDefaultRenderer(Double.class, new DoubleRenderer(4));
 		prepareSorting();
 		tableTab.add(new JScrollPane(table));
 		
@@ -574,7 +576,7 @@ public class GoAnalysisResultView extends JPanel implements VisualPlugin {
 		});
 	}
 
-	private int sortCol = 0;
+	private int sortCol = GoTableModel.TABLE_COLUMN_INDEX_ADJUSTED_P;
 	private boolean isSortAsc = true;
 
 	private static class GoTableModel extends AbstractTableModel {
@@ -582,6 +584,14 @@ public class GoAnalysisResultView extends JPanel implements VisualPlugin {
 		 * 
 		 */
 		private static final long serialVersionUID = -7009237666149228067L;
+
+		private static final int TABLE_COLUMN_INDEX_GO_ID = 0;
+		private static final int TABLE_COLUMN_INDEX_GO_TERM_NAME = 1;
+		private static final int TABLE_COLUMN_INDEX_NAMESPACE = 2;
+		private static final int TABLE_COLUMN_INDEX_P = 3;
+		private static final int TABLE_COLUMN_INDEX_ADJUSTED_P = 4;
+		private static final int TABLE_COLUMN_INDEX_POP_COUNT = 5;
+		private static final int TABLE_COLUMN_INDEX_STUDY_COUNT = 6;
 		
 		private String[] columnNames = { "GO:ID", "Name", "Namespace",
 				"P-value", "Adjusted P-value", "Population Count", "Study Count" };
@@ -616,8 +626,6 @@ public class GoAnalysisResultView extends JPanel implements VisualPlugin {
 			return columnNames[col];
 		}
 		
-		private static NumberFormat nf = new DecimalFormat("0.0000");
-
 		public void populateNewResult(GoAnalysisResult result) {
 			int rowCount = result.getCount();
 			data = new Object[rowCount][COLUMN_COUNT];
@@ -625,17 +633,18 @@ public class GoAnalysisResultView extends JPanel implements VisualPlugin {
 			int row = 0;
 			for(Integer goId: result.getResult().keySet()) {
 				GoAnalysisResult.ResultRow resultRow = result.getRow(goId);
-//				log.trace("GO:"+goId+"|"+resultRow.toString());
-				data[row][0] = goId;
-				data[row][1] = resultRow.name;
-				data[row][2] = resultRow.namespace;
-				data[row][3] = nf.format( resultRow.p );
-				data[row][4] = nf.format(resultRow.pAdjusted );
-				data[row][5] = resultRow.popCount;
-				data[row][6] = resultRow.studyCount;
+				data[row][TABLE_COLUMN_INDEX_GO_ID] = goId;
+				data[row][TABLE_COLUMN_INDEX_GO_TERM_NAME] = resultRow.name;
+				data[row][TABLE_COLUMN_INDEX_NAMESPACE] = resultRow.namespace;
+				data[row][TABLE_COLUMN_INDEX_P] = resultRow.p;
+				data[row][TABLE_COLUMN_INDEX_ADJUSTED_P] = resultRow.pAdjusted;
+				data[row][TABLE_COLUMN_INDEX_POP_COUNT] = resultRow.popCount;
+				data[row][TABLE_COLUMN_INDEX_STUDY_COUNT] = resultRow.studyCount;
 				row++;
 			}
 			log.debug("total rows: "+rowCount);
+			sort(TABLE_COLUMN_INDEX_ADJUSTED_P, true); // initial sorting
+
 			fireTableDataChanged();
 
 		}
@@ -657,6 +666,31 @@ public class GoAnalysisResultView extends JPanel implements VisualPlugin {
 			fireTableDataChanged();
 		}
 
+		public Class<?> getColumnClass(int columnIndex) {
+			if(columnIndex==TABLE_COLUMN_INDEX_ADJUSTED_P || columnIndex==TABLE_COLUMN_INDEX_P)
+				return Double.class;
+			else
+				return Object.class;
+		}
+	}
+	
+	private static class DoubleRenderer extends DefaultTableCellRenderer {
+		private static final long serialVersionUID = -3198188622862469457L;
+		private NumberFormat formatter = null;
+
+		public DoubleRenderer(int digits) { 
+			super(); 
+			StringBuffer sb = new StringBuffer("0.");
+			for(int i=0; i<digits; i++)sb.append("0");
+			formatter = new DecimalFormat(sb.toString());
+		}
+
+	    public void setValue(Object value) {
+	        if (formatter==null) {
+	            formatter = NumberFormat.getNumberInstance();
+	        }
+	        setText((value == null) ? "" : formatter.format(value));
+	    }
 	}
 
 	private static class GoAnalysisComparator implements Comparator<Object[]> {
