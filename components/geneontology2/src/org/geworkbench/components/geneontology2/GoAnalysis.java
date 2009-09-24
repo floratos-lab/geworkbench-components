@@ -49,6 +49,8 @@ public class GoAnalysis extends AbstractAnalysis implements ClusteringAnalysis {
 	// it is necessary to implement ClusteringAnalysis for the AnalysisPanel to pick it up. No other known effect.
 	
 	static int getEntrezId(String geneSymbol) {
+		if(geneDetails==null || geneDetails.get(geneSymbol)==null)
+			return 0;
 		return geneDetails.get(geneSymbol).getEntrezId();
 	}
 	
