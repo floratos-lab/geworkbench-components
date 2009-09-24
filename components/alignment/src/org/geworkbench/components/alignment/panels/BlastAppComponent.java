@@ -64,7 +64,7 @@ import com.borland.jbcl.layout.XYLayout;
 /**
  *
  * @author not attributable
- * @version $Id: BlastAppComponent.java,v 1.32 2009-09-21 19:56:45 keshav Exp $
+ * @version $Id: BlastAppComponent.java,v 1.33 2009-09-24 16:42:54 keshav Exp $
  */
 @SuppressWarnings("unchecked")
 @AcceptTypes( {CSSequenceSet.class})
@@ -1105,7 +1105,10 @@ public class BlastAppComponent extends
         jPanel1.add(jDisplayInWebBox);
         jTabbedBlastPane.add(jBasicPane, "Main");
         jTabbedBlastPane.add(jAdvancedPane, "Advanced Options");
-        jTabbedBlastPane.add(jServerInfoPane, "Service");
+        
+        // bug http://wiki.c2b2.columbia.edu/mantis/view.php?id=1747
+        // jTabbedBlastPane.add(jServerInfoPane, "Service");
+        
         mainPanel.add(jTabbedPane1, java.awt.BorderLayout.CENTER);
         // mainPanel.add(checkboxPanel, BorderLayout.SOUTH);
         jToolBar1.add(jLabel2);
