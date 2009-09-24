@@ -11,6 +11,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.IOException;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
@@ -28,6 +29,7 @@ import javax.swing.AbstractButton;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
+import javax.swing.JEditorPane;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
@@ -37,14 +39,16 @@ import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
-import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.JTree;
 import javax.swing.ListSelectionModel;
+import javax.swing.event.HyperlinkEvent;
+import javax.swing.event.HyperlinkListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
+import javax.swing.event.HyperlinkEvent.EventType;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
@@ -72,6 +76,7 @@ import org.geworkbench.engine.management.Publish;
 import org.geworkbench.engine.management.Subscribe;
 import org.geworkbench.events.ProjectEvent;
 import org.geworkbench.events.SubpanelChangedEvent;
+import org.geworkbench.util.BrowserLauncher;
 
 /**
  * @author zji
@@ -93,10 +98,8 @@ public class GoAnalysisResultView extends JPanel implements VisualPlugin {
 	private JTree singleGeneTree = null;
 	private SingleGeneTreeNode singleGeneTreeRoot = null;
 	private DefaultTableModel geneListTableModel = null;
-	private JTextArea geneDetails = null;
+	private JEditorPane geneDetails = null;
 	private JTable table = null;
-//	private JScrollPane geneDetailsScrollPane = null;
-//	private JScrollBar verticalScrollBar;
 	protected String namespaceFilter = null;
 	
 	private static Object[] geneListHeaders = new String[]{"Gene Symbol", "Expression change", "Description"};
@@ -195,7 +198,7 @@ public class GoAnalysisResultView extends JPanel implements VisualPlugin {
 	
 					populateSingleGeneTree(goId);
 					
-					showGeneDetail(goId);
+					showTermDetail(goId);
 				}
 			}
 			
@@ -229,7 +232,7 @@ public class GoAnalysisResultView extends JPanel implements VisualPlugin {
 				Integer goId = node.goId;
 				populateGeneList(goId);
 				populateSingleGeneTree(goId);
-				showGeneDetail(goId);
+				showTermDetail(goId);
 			}
 			
 		});
@@ -283,6 +286,18 @@ public class GoAnalysisResultView extends JPanel implements VisualPlugin {
 		geneListTableModel = new DefaultTableModel(data, geneListHeaders);
 		geneListTable = new JTable(geneListTableModel);
 		prepareCopyToSet();
+		ListSelectionModel geneListModel = geneListTable.getSelectionModel();
+		geneListModel.addListSelectionListener(new ListSelectionListener() {
+
+			public void valueChanged(ListSelectionEvent e) {
+				// refresh gene detail panel
+				int index = geneListTable.getSelectedRow();
+				if(index>=0 && index<=geneListTableModel.getRowCount()) { // in case the selection is not in the new range
+					showGeneDetail((String)geneListTableModel.getValueAt(index, 0));
+				}
+			}
+			
+		});
 		geneListWindow.add(new JScrollPane(geneListTable));
 		
 		// more details on right side
@@ -307,9 +322,25 @@ public class GoAnalysisResultView extends JPanel implements VisualPlugin {
 
 		detailPanel.setLayout(new BoxLayout(detailPanel, BoxLayout.Y_AXIS));
 		detailPanel.add(new JLabel("Term/Gene Details"));
-		geneDetails = new JTextArea();
+		geneDetails = new JEditorPane();
 		geneDetails.setEditable(false);
 		detailPanel.add(new JScrollPane(geneDetails));
+		
+		geneDetails.addHyperlinkListener(new HyperlinkListener() {
+
+			public void hyperlinkUpdate(HyperlinkEvent e) {
+				if (e.getEventType() == EventType.ACTIVATED) {
+					try {
+						BrowserLauncher
+								.openURL(e.getURL().toString());
+					} catch (IOException e1) {
+						e1.printStackTrace();
+						log.error("BrowserLauncher failed on "+e.getURL().toString());
+					}
+				}
+			}
+
+		});
 	}
 
 	private void prepareCopyToSet() {
@@ -376,7 +407,8 @@ public class GoAnalysisResultView extends JPanel implements VisualPlugin {
 		
 	}
 
-	protected void showGeneDetail(int goId) {
+	protected void showTermDetail(int goId) {
+		geneDetails.setContentType("text/plain");
 		if(GoAnalysis.term2Gene.get(goId)==null) {
 			geneDetails.setText("No gene annotated to GO ID "+goId);
 			return;
@@ -385,21 +417,26 @@ public class GoAnalysisResultView extends JPanel implements VisualPlugin {
 		StringBuffer sb = new StringBuffer("Term GO ID: "+goId+"\nGenes annotated:\n");
 	
 		// here are the genes annotated to this term only, not to descendants.
-//		log.debug("show gene detail for GO term "+goId);
 		int i=0;
 		for(String gene: GoAnalysis.term2Gene.get(goId)) {
 			sb.append(gene).append("\n   Gene title: ").append(
 					GoAnalysis.geneDetails.get(gene))
-					// TODO .append("\n").append("... more details for the gene: link to CGAP")
 					.append("\n\n");
 			i++;
 		}
-//		log.debug(i+" genes' detail shown");
 		
 		geneDetails.setText(sb.toString());
 		geneDetails.setCaretPosition(0); // move the scroll pane to top if the text is long
 	}
-
+	
+	protected void showGeneDetail(String geneSymbol) {
+		int geneId = GoAnalysis.getEntrezId(geneSymbol);
+		geneDetails.setContentType("text/html");
+		geneDetails.setText("Details of Gene " + geneSymbol
+				+ "<p>Entrez ID: "+geneId+" <a href=http://www.ncbi.nlm.nih.gov/gene/" + geneId
+				+ ">Link to Entrez Gene Database</a>");
+	}
+	
 	/* (non-Javadoc)
 	 * @see org.geworkbench.engine.config.VisualPlugin#getComponent()
 	 */
