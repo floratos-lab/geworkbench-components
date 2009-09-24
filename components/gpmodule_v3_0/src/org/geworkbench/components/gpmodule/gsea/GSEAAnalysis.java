@@ -129,186 +129,190 @@ public class GSEAAnalysis extends GPAnalysis
 	}
 
 	private class Task extends SwingWorker<String, Void> {
-		DSMicroarraySetView<DSGeneMarker, DSMicroarray> view;
+             DSMicroarraySetView<DSGeneMarker, DSMicroarray> view;
 
-		public Task(DSMicroarraySetView<DSGeneMarker, DSMicroarray> view) {
-			this.view = view;
-		}
+             public Task(DSMicroarraySetView<DSGeneMarker, DSMicroarray> view) {
+                 this.view = view;
+             }
 
-		public String doInBackground() {
-            String reportFile = null;
-            try
-            {
-                String history = generateHistoryString(view);
+             public String doInBackground() {
+                 String reportFile = null;
+                 try
+                 {
+                     String history = generateHistoryString(view);
 
-                DSMicroarraySet maSet = view.getMicroarraySet();
+                     DSMicroarraySet maSet = view.getMicroarraySet();
 
-                DSAnnotationContext<DSMicroarray> context = CSAnnotationContextManager.getInstance().getCurrentContext(maSet);
+                     DSAnnotationContext<DSMicroarray> context = CSAnnotationContextManager.getInstance().getCurrentContext(maSet);
 
-                DSPanel arraysByClass = new CSPanel();
-                Collection labels = new ArrayList();
-                for(int l = 0; l < context.getNumberOfLabels(); l++)
-                {
-                    String label = context.getLabel(l);
-                    if(context.isLabelActive(label))
-                    {
-                        DSPanel dsPanel = context.getItemsWithLabel(label);
-                        Collection currentList = new ArrayList(arraysByClass);
-                        currentList.retainAll(dsPanel);
-                        if(currentList.size() != 0)
-                        {
-                            String message = "The following items were found in more than one active label: " + currentList;
-                            log.error(message);
-                            JOptionPane.showMessageDialog(panel, message);
-                            return null;
-                        }
+                     DSPanel arraysByClass = new CSPanel();
+                     Collection labels = new ArrayList();
+                     for(int l = 0; l < context.getNumberOfLabels(); l++)
+                     {
+                         String label = context.getLabel(l);
+                         if(context.isLabelActive(label))
+                         {
+                             DSPanel dsPanel = context.getItemsWithLabel(label);
+                             Collection currentList = new ArrayList(arraysByClass);
+                             currentList.retainAll(dsPanel);
+                             if(currentList.size() != 0)
+                             {
+                                 String message = "The following items were found in more than one active label: " + currentList;
+                                 log.error(message);
+                                 JOptionPane.showMessageDialog(panel, message);
+                                 return null;
+                             }
 
-                        labels.addAll(Collections.nCopies(dsPanel.size(), label));
-                        arraysByClass.addAll(dsPanel);
-                    }
-                }
+                             label = label.replaceAll(" ", "_");
+                             
+                             labels.addAll(Collections.nCopies(dsPanel.size(), label));
+                             arraysByClass.addAll(dsPanel);
+                         }
+                     }
 
-                String gctFileName = view.getMicroarraySet().getFile().getName();
-                gctFileName = gctFileName + System.currentTimeMillis();
-                File gctFile = createGCTFile(gctFileName, view.markers(), arraysByClass);
-                gctFile.deleteOnExit();
-                gctFileName = gctFile.getAbsolutePath();
+                     String gctFileName = view.getMicroarraySet().getFile().getName();
+                     gctFileName = gctFileName + System.currentTimeMillis();
+                     File gctFile = createGCTFile(gctFileName, view.markers(), arraysByClass);
+                     gctFile.deleteOnExit();
+                     gctFileName = gctFile.getAbsolutePath();
 
-                List parameters = new ArrayList();
+                     List parameters = new ArrayList();
 
-			    parameters.add(new Parameter("expression.dataset", gctFileName));
+                     parameters.add(new Parameter("expression.dataset", gctFileName));
 
-                String clsFileName = gctFileName + System.currentTimeMillis();
-                ClassVector classVec = new DefaultClassVector((String[])labels.toArray(new String[0]));
+                     String clsFileName = gctFileName + System.currentTimeMillis();
 
-                File clsFile = createCLSFile(clsFileName, classVec);
 
-                parameters.add(new Parameter("phenotype.labels", clsFile.getAbsolutePath()));
+                     ClassVector classVec = new DefaultClassVector((String[])labels.toArray(new String[0]));
 
-                parameters.add(new Parameter("gene.sets.database", ((org.geworkbench.components.gpmodule.gsea.GSEAAnalysisPanel)panel).getGsDatabase()));
-                parameters.add(new Parameter("chip.platform", ((org.geworkbench.components.gpmodule.gsea.GSEAAnalysisPanel)panel).getChipPlatform()));
+                     File clsFile = createCLSFile(clsFileName, classVec);
 
-                List<String> results = (List<String>)runAnalysis("GSEA", (Parameter[]) parameters
-					.toArray(new Parameter[0]), panel.getPassword());
+                     parameters.add(new Parameter("phenotype.labels", clsFile.getAbsolutePath()));
 
-                if(results == null)
-                {
-                    return null;
-                }
-                for(String file : results)
-                {
-                    if(file.endsWith(".zip"))
-                    {
-                        reportFile = file;
-                    }
-                    else
-                    {
-                        (new File(file)).deleteOnExit();
-                    }
-                }
+                     parameters.add(new Parameter("gene.sets.database", ((org.geworkbench.components.gpmodule.gsea.GSEAAnalysisPanel)panel).getGsDatabase()));
+                     parameters.add(new Parameter("chip.platform", ((org.geworkbench.components.gpmodule.gsea.GSEAAnalysisPanel)panel).getChipPlatform()));
 
-                gsResultDataSet = new CSGSEAResultDataSet(view.getDataSet(), "GSEA Results", reportFile);
-                ProjectPanel.addToHistory(gsResultDataSet, history);
-            }
-            catch(Exception e)
-            {
-                e.printStackTrace();
-                log.error(e);
-            }
+                     List<String> results = (List<String>)runAnalysis("GSEA", (Parameter[]) parameters
+                         .toArray(new Parameter[0]), panel.getPassword());
 
-            return reportFile;
-		}
+                     if(results == null)
+                     {
+                         return null;
+                     }
+                     for(String file : results)
+                     {
+                         if(file.endsWith(".zip"))
+                         {
+                             reportFile = file;
+                         }
+                         else
+                         {
+                             (new File(file)).deleteOnExit();
+                         }
+                     }
 
-		public void done() {
-			if (!this.isCancelled()) {
-				try {
-					log.debug("Transferring GSEA data set back to event thread.");
-				} catch (Exception e) {
-					log.error(
-							"Exception in finishing up worker thread that called GSEA: "
-									+ e.getMessage(), e);
-				}
-			}
-			progress.stopProgress();
-			log.debug("Closing GSEA progress bar.");
-		}
-	}
+                     gsResultDataSet = new CSGSEAResultDataSet(view.getDataSet(), "GSEA Results", reportFile);
+                     ProjectPanel.addToHistory(gsResultDataSet, history);
+                 }
+                 catch(Exception e)
+                 {
+                     e.printStackTrace();
+                     log.error(e);
+                 }
 
-	private String generateHistoryString(
-			DSMicroarraySetView<DSGeneMarker, DSMicroarray> view) {
-		String history = "";
+                 return reportFile;
+             }
 
-		history = "Generated by GSEA run with parameters: \n";
-		history += "----------------------------------------\n";
-		history += "Gene set Database: " + ((org.geworkbench.components.gpmodule.gsea.GSEAAnalysisPanel) panel).getGsDatabase()
-				+ "\n";
+             public void done() {
+                 if (!this.isCancelled()) {
+                     try {
+                         log.debug("Transferring GSEA data set back to event thread.");
+                     } catch (Exception e) {
+                         log.error(
+                                 "Exception in finishing up worker thread that called GSEA: "
+                                         + e.getMessage(), e);
+                     }
+                 }
+                 progress.stopProgress();
+                 log.debug("Closing GSEA progress bar.");
+             }
+         }
 
-		if (view.useMarkerPanel() && !(view.getMarkerPanel().size() == 0)) {
-			DSAnnotationContext<DSGeneMarker> context = CSAnnotationContextManager
-					.getInstance().getCurrentContext(
-							view.getMicroarraySet().getMarkers());
+         private String generateHistoryString(
+                 DSMicroarraySetView<DSGeneMarker, DSMicroarray> view) {
+             String history = "";
 
-			DSPanel<DSGeneMarker> mp = context.getActiveItems();
-			DSItemList panels = mp.panels();
+             history = "Generated by GSEA run with parameters: \n";
+             history += "----------------------------------------\n";
+             history += "Gene set Database: " + ((org.geworkbench.components.gpmodule.gsea.GSEAAnalysisPanel) panel).getGsDatabase()
+                     + "\n";
 
-			if (!((DSPanel) panels.get(CSAnnotationContext.SELECTION))
-					.isActive()) {
-				panels.remove(panels.get(CSAnnotationContext.SELECTION));
-			}
+             if (view.useMarkerPanel() && !(view.getMarkerPanel().size() == 0)) {
+                 DSAnnotationContext<DSGeneMarker> context = CSAnnotationContextManager
+                         .getInstance().getCurrentContext(
+                                 view.getMicroarraySet().getMarkers());
 
-			history += "\n" + panels.size() + " marker sets activated: \n";
+                 DSPanel<DSGeneMarker> mp = context.getActiveItems();
+                 DSItemList panels = mp.panels();
 
-			for (int i = 0; i < panels.size(); i++) {
-				DSPanel<DSGeneMarker> panel = (DSPanel) panels.get(i);
-				history += "\t Set " + panel.getLabel() + " (" + panel.size()
-						+ " markers):" + "\n";
+                 if (!((DSPanel) panels.get(CSAnnotationContext.SELECTION))
+                         .isActive()) {
+                     panels.remove(panels.get(CSAnnotationContext.SELECTION));
+                 }
 
-				for (DSGeneMarker marker : panel) {
-					history += "\t\t" + marker.getLabel() + "\n";
-				}
-			}
-		} else {
-			history += view.markers().size() + " markers analyzed:\n";
-			for (DSGeneMarker marker : view.markers()) {
-				history += "\t" + marker.getLabel() + "\n";
-			}
-		}
+                 history += "\n" + panels.size() + " marker sets activated: \n";
 
-		if (view.useItemPanel() && !(view.getItemPanel().size() == 0)) {
-			CSAnnotationContextManager manager = CSAnnotationContextManager
-					.getInstance();
-			CSAnnotationContext<DSMicroarray> context = (CSAnnotationContext) manager
-					.getCurrentContext(view.getMicroarraySet());
+                 for (int i = 0; i < panels.size(); i++) {
+                     DSPanel<DSGeneMarker> panel = (DSPanel) panels.get(i);
+                     history += "\t Set " + panel.getLabel() + " (" + panel.size()
+                             + " markers):" + "\n";
 
-			DSPanel<DSMicroarray> ap = context.getActiveItems();
-			DSItemList panels = ap.panels();
+                     for (DSGeneMarker marker : panel) {
+                         history += "\t\t" + marker.getLabel() + "\n";
+                     }
+                 }
+             } else {
+                 history += view.markers().size() + " markers analyzed:\n";
+                 for (DSGeneMarker marker : view.markers()) {
+                     history += "\t" + marker.getLabel() + "\n";
+                 }
+             }
 
-			if (!((DSPanel) panels.get(CSAnnotationContext.SELECTION))
-					.isActive()) {
-				panels.remove(panels.get(CSAnnotationContext.SELECTION));
-			}
+             if (view.useItemPanel() && !(view.getItemPanel().size() == 0)) {
+                 CSAnnotationContextManager manager = CSAnnotationContextManager
+                         .getInstance();
+                 CSAnnotationContext<DSMicroarray> context = (CSAnnotationContext) manager
+                         .getCurrentContext(view.getMicroarraySet());
 
-			history += "\n" + panels.size() + " array sets activated: \n";
+                 DSPanel<DSMicroarray> ap = context.getActiveItems();
+                 DSItemList panels = ap.panels();
 
-			for (int i = 0; i < panels.size(); i++) {
-				DSPanel<DSMicroarray> panel = (DSPanel) panels.get(i);
+                 if (!((DSPanel) panels.get(CSAnnotationContext.SELECTION))
+                         .isActive()) {
+                     panels.remove(panels.get(CSAnnotationContext.SELECTION));
+                 }
 
-				history += "\t Set " + panel.getLabel() + " (" + panel.size()
-						+ " arrays):" + "\n";
+                 history += "\n" + panels.size() + " array sets activated: \n";
 
-				for (DSMicroarray array : panel) {
-					history += "\t\t" + array.getLabel() + "\n";
-				}
-			}
-		}
+                 for (int i = 0; i < panels.size(); i++) {
+                     DSPanel<DSMicroarray> panel = (DSPanel) panels.get(i);
 
-		else {
-			history += view.items().size() + " arrays analyzed:\n";
-			for (DSMicroarray array : view.items()) {
-				history += "\t" + array.getLabel() + "\n";
-			}
-		}
+                     history += "\t Set " + panel.getLabel() + " (" + panel.size()
+                             + " arrays):" + "\n";
 
-		return history;
-	}
-}
+                     for (DSMicroarray array : panel) {
+                         history += "\t\t" + array.getLabel() + "\n";
+                     }
+                 }
+             }
+
+             else {
+                 history += view.items().size() + " arrays analyzed:\n";
+                 for (DSMicroarray array : view.items()) {
+                     history += "\t" + array.getLabel() + "\n";
+                 }
+             }
+
+             return history;
+         }
+     }
