@@ -99,6 +99,8 @@ public abstract class GPAnalysis extends AbstractAnalysis implements ClusteringA
             {   e.printStackTrace();    }
         }
 
+        gctFile = fixFileName(gctFile);
+        
         return gctFile;
     }
 
@@ -121,6 +123,67 @@ public abstract class GPAnalysis extends AbstractAnalysis implements ClusteringA
         return clsFile;
     }
 
+    protected File fixFileName(File fileName)
+    {
+        if(fileName == null)
+        {
+            return null;
+        }
+
+        String newFileName = fileName.getName();
+        newFileName = newFileName.replaceAll("-", "_");
+        newFileName = newFileName.replaceAll(" ", "_");
+
+        File newFile = new File(fileName.getParent(), newFileName);
+        if(!fileName.getName().equals(newFileName))
+        {
+            if(!fileName.renameTo(newFile))
+            {
+                InputStream in = null;
+                OutputStream out = null;
+
+                try {
+                    in = new FileInputStream(fileName);
+                    out = new FileOutputStream(newFileName);
+
+                    copy(in, out);
+                    in.close();
+
+                    out.flush();
+                    out.close();
+                }
+                catch(Exception e)
+                {
+                    e.printStackTrace();
+                }
+                finally {
+                    try
+                    {
+                        if (in != null){
+                            in.close();
+                        }
+                        if (out != null){
+                            out.flush();
+                            out.close();
+                        }
+                    }
+                    catch(Exception e){}
+                }
+            }
+        }
+
+        return newFile;
+    }
+
+    private static void copy(InputStream in, OutputStream out) throws IOException
+    {
+        byte[] buffer = new byte[1024];
+        int read;
+        while((read = in.read(buffer)) != -1)
+        {
+            out.write(buffer, 0, read);
+        }
+    }
     public List runAnalysis(String analysisName, Parameter[] parameters, String password) throws Exception
     {
         List resultFiles = new ArrayList();
@@ -128,6 +191,7 @@ public abstract class GPAnalysis extends AbstractAnalysis implements ClusteringA
         String userName = GPpropertiesManager.getProperty("gp.user.name");
 
         JobResult analysisResult = null;
+        GPClient server = null;
         try
         {
             if(serverName == null)
@@ -142,16 +206,16 @@ public abstract class GPAnalysis extends AbstractAnalysis implements ClusteringA
                 return null;
             }
 
-            GPClient server = new GPClient(serverName, userName, password);
+            server = new GPClient(serverName, userName, password);
 
             analysisResult = server.runAnalysis(analysisName, parameters);
+            analysisResult.downloadFiles(System.getProperty("temporary.files.directory"), true);
 
             String[] outputFiles = analysisResult.getOutputFileNames();
-
-            AnalysisWebServiceProxy analysisProxy = new AnalysisWebServiceProxy(server.getServer(), server.getUsername(), password);
-
             if(outputFiles != null && outputFiles.length > 0)
             {
+                AnalysisWebServiceProxy analysisProxy = new AnalysisWebServiceProxy(server.getServer(), server.getUsername(), password);
+                
                 File[] results = analysisProxy.getResultFiles(analysisResult.getJobNumber(), outputFiles, new File(System.getProperty("temporary.files.directory")), true);
 
                 for(int i = 0; i < results.length; i++)
@@ -159,32 +223,20 @@ public abstract class GPAnalysis extends AbstractAnalysis implements ClusteringA
                     resultFiles.add(results[i].getAbsolutePath());
                 }
             }
-            else
-                resultFiles = null;
-            
-            if(analysisResult.hasStandardError())
+            /*if(analysisResult.hasStandardError())
             {
-                String[] errorFile = {"stderr.txt"};
-                File[] results = analysisProxy.getResultFiles(analysisResult.getJobNumber(), errorFile, new File(System.getProperty("temporary.files.directory")), true);
+                File errorFile = new File(System.getProperty("temporary.files.directory") + "/stderr.txt");
 
-                if(results != null && results.length > 0)
+                boolean result = extractErrorMessages(errorFile);
+                if(result)
                 {
-                    boolean result = extractErrorMessages(results[0]);
-                    if(result)
-                    {
-                        JOptionPane.showMessageDialog(panel, "Some errors where generated while running analysis. Please check the logs for details.");
-                    }
-                    else
-                    {
-                        JOptionPane.showMessageDialog(panel, "Some errors where generated while running analysis.");
-                    }
+                    JOptionPane.showMessageDialog(panel, "Some errors where generated while running analysis. Please check the logs for details.");
                 }
-            }
-
-            
-            // remove job from GenePattern server
-            analysisProxy = new AnalysisWebServiceProxy(server.getServer(), server.getUsername(), password);
-            analysisProxy.purgeJob(analysisResult.getJobNumber());
+                else
+                {
+                    JOptionPane.showMessageDialog(panel, "Some errors where generated while running analysis.");
+                }           
+            }*/
         }
         catch(WebServiceException we)
         {
@@ -199,6 +251,15 @@ public abstract class GPAnalysis extends AbstractAnalysis implements ClusteringA
                 JOptionPane.showMessageDialog(panel, "An error occurred while retrieving results from GenePattern server " + serverName + ".\n Please check the logs for details.");                    
             }
             throw we;
+        }
+        finally
+        {
+            if(server != null && analysisResult != null)
+            {
+                // remove job from GenePattern server
+                AnalysisWebServiceProxy analysisProxy = new AnalysisWebServiceProxy(server.getServer(), server.getUsername(), password);
+                analysisProxy.purgeJob(analysisResult.getJobNumber());
+            }
         }
 
         return resultFiles;
