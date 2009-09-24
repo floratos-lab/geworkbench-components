@@ -28,7 +28,6 @@ import java.util.Vector;
 import javax.swing.AbstractButton;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
-import javax.swing.JButton;
 import javax.swing.JEditorPane;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
@@ -79,6 +78,8 @@ import org.geworkbench.events.SubpanelChangedEvent;
 import org.geworkbench.util.BrowserLauncher;
 
 /**
+ * Visual component to show the result from GO Term Analysis.
+ * 
  * @author zji
  *
  */
@@ -103,41 +104,16 @@ public class GoAnalysisResultView extends JPanel implements VisualPlugin {
 	protected String namespaceFilter = null;
 	
 	private static Object[] geneListHeaders = new String[]{"Gene Symbol", "Expression change", "Description"};
-
-	/**
-	 * 
-	 */
-	public GoAnalysisResultView() {
-		super();
-		JPanel leftPanel = new JPanel();
-		
+	
+	private JTabbedPane initializePrimaryView() {
 		JTabbedPane primaryView = new JTabbedPane();
-		primaryView.setMinimumSize(new Dimension(600, 500));
 
-		JPanel geneListWindow = new JPanel();
-		JPanel singelGeneView = new JPanel();
-		JPanel detailPanel = new JPanel();
-		
 		JPanel tableTab = new JPanel();
 		JPanel treeTab = new JPanel();
 		primaryView.add(tableTab, "Table Browser");
 		primaryView.add(treeTab, "Tree Browser");
-		
-		leftPanel.setLayout(new BoxLayout(leftPanel, BoxLayout.Y_AXIS));
-		leftPanel.add(primaryView);
-		leftPanel.add(geneListWindow);
 
-		JPanel rightPanel = new JPanel();
-		rightPanel.setMinimumSize(new Dimension(300, 500));
-		rightPanel.setLayout(new BorderLayout());
-		rightPanel.add(new JSplitPane(JSplitPane.VERTICAL_SPLIT,
-				singelGeneView, detailPanel), BorderLayout.CENTER);
-		
-		setLayout(new BorderLayout());
-		add(new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
-                leftPanel, rightPanel), BorderLayout.CENTER);
-		
-		// more detail on left side
+		// more details following
 		tableTab.setLayout(new BoxLayout(tableTab, BoxLayout.Y_AXIS));
 		JPanel namespacePanel = new JPanel();
 		namespacePanel.add(new JLabel("GO Subontology (Namespaces)"));
@@ -206,8 +182,9 @@ public class GoAnalysisResultView extends JPanel implements VisualPlugin {
 
 		treeTab.setLayout(new BorderLayout());
 		JPanel mapPanel = new JPanel();
-		mapPanel.add(new JLabel("Map array genes as reference list"));
-		mapPanel.add(new JButton("Map")); // TODO not implemented, pending decision on the coverage of the tree view
+		// TODO not implemented yet
+//		mapPanel.add(new JLabel("Map array genes as reference list"));
+//		mapPanel.add(new JButton("Map")); 
 		treeTab.add(mapPanel, BorderLayout.NORTH);
 
 		GoTreeNode root = new GoTreeNode (); // root
@@ -238,6 +215,21 @@ public class GoAnalysisResultView extends JPanel implements VisualPlugin {
 		});
 
 		treeTab.add(new JScrollPane(tree), BorderLayout.CENTER);
+		
+		return primaryView;
+	}
+	
+	private JPanel initializeLeftPanel() {
+		JPanel leftPanel = new JPanel();
+
+		JTabbedPane primaryView = initializePrimaryView();
+		JPanel geneListWindow = new JPanel();
+
+		leftPanel.setLayout(new BoxLayout(leftPanel, BoxLayout.Y_AXIS));
+		JSplitPane splitPane= new JSplitPane(JSplitPane.VERTICAL_SPLIT,
+				primaryView, geneListWindow);
+		splitPane.setDividerLocation(500);
+		leftPanel.add(splitPane, BorderLayout.CENTER);
 
 		geneListWindow.setLayout(new BoxLayout(geneListWindow, BoxLayout.Y_AXIS));
 		JPanel showGeneForPanel = new JPanel();
@@ -299,8 +291,20 @@ public class GoAnalysisResultView extends JPanel implements VisualPlugin {
 			
 		});
 		geneListWindow.add(new JScrollPane(geneListTable));
+		return leftPanel;
+	}
+
+	private JPanel initializeRightPanel() {
+		JPanel rightPanel = new JPanel();
+		JPanel singelGeneView = new JPanel();
+		JPanel detailPanel = new JPanel();
 		
-		// more details on right side
+		rightPanel.setMinimumSize(new Dimension(300, 500));
+		rightPanel.setLayout(new BorderLayout());
+		rightPanel.add(new JSplitPane(JSplitPane.VERTICAL_SPLIT,
+				singelGeneView, detailPanel), BorderLayout.CENTER);
+
+		// more details following
 		singelGeneView.setLayout(new BoxLayout(singelGeneView, BoxLayout.Y_AXIS));
 		singelGeneView.add(new JLabel("Single Gene View"));
 		singleGeneTreeRoot = new SingleGeneTreeNode (); // root
@@ -341,6 +345,22 @@ public class GoAnalysisResultView extends JPanel implements VisualPlugin {
 			}
 
 		});
+		
+		return rightPanel;
+	}
+	
+	/**
+	 * 
+	 */
+	public GoAnalysisResultView() {
+		super();
+
+		JPanel leftPanel = initializeLeftPanel();
+		JPanel rightPanel = initializeRightPanel();
+		
+		setLayout(new BorderLayout());
+		add(new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
+                leftPanel, rightPanel), BorderLayout.CENTER);
 	}
 
 	private void prepareCopyToSet() {
