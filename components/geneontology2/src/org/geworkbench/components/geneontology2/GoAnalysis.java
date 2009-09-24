@@ -48,6 +48,10 @@ import org.geworkbench.util.ProgressBar;
 public class GoAnalysis extends AbstractAnalysis implements ClusteringAnalysis {
 	// it is necessary to implement ClusteringAnalysis for the AnalysisPanel to pick it up. No other known effect.
 	
+	static int getEntrezId(String geneSymbol) {
+		return geneDetails.get(geneSymbol).getEntrezId();
+	}
+	
 	private static final String NAMESPACE_LABEL = "namespace: ";
 
 	static Log log = LogFactory.getLog(GoAnalysis.class);
@@ -337,16 +341,21 @@ public class GoAnalysis extends AbstractAnalysis implements ClusteringAnalysis {
 	static Map<String, GeneDetails> geneDetails;
 	// this is necessary because there may be need to include more details
 	private class GeneDetails {
-		public GeneDetails(String geneTitle) {
+		public GeneDetails(String geneTitle, int entrezId) {
 			this.geneTitle = geneTitle;
+			this.entrezId = entrezId;
 		}
 
 		private String geneTitle;
+		private int entrezId;
+		
+		public int getEntrezId() {return entrezId; }
 		
 		public String toString() {return geneTitle; }
 	}
 
 //	private final static int ANNOTATION_INDEX_PROBSET_ID = 0;
+	private final static int ANNOTATION_INDEX_ENTREZ_ID = 18;
 	private final static int ANNOTATION_INDEX_GENE_TITLE = 13;
 	private final static int ANNOTATION_INDEX_GENE_SYMBOL = 14;
 	private final static int ANNOTATION_INDEX_BIOLOGICAL_PROCESS = 30;
@@ -356,7 +365,7 @@ public class GoAnalysis extends AbstractAnalysis implements ClusteringAnalysis {
 	static Set<String> changedGenes;
 	static Set<String> referenceGenes;
 	
-	private void parseOneNameSpace(String namespaceAnnotation, String[] geneSymbols, String[] geneTitles) {
+	private void parseOneNameSpace(String namespaceAnnotation, String[] geneSymbols, String[] geneTitles, String[] entrezIds) {
 		for (Integer goId : getGoId(namespaceAnnotation)) {
 			Set<String> genes = term2Gene.get(goId);
 			if (genes == null) {
@@ -368,9 +377,12 @@ public class GoAnalysis extends AbstractAnalysis implements ClusteringAnalysis {
 				String geneTitle = "";
 				if(i<geneTitles.length)
 					geneTitle = geneTitles[i];
+				int entrezId = 0;
+				if(i<entrezIds.length)
+					entrezId = Integer.parseInt(entrezIds[i].trim());
 				genes.add(geneSymbol);
 				if(!geneDetails.containsKey(geneSymbol)) {
-					GeneDetails details = new GeneDetails(geneTitle);
+					GeneDetails details = new GeneDetails(geneTitle, entrezId);
 					geneDetails.put(geneSymbol, details);
 				}
 			}
@@ -402,11 +414,12 @@ public class GoAnalysis extends AbstractAnalysis implements ClusteringAnalysis {
 //							+ molecularFunction);
 					String[] geneSymbols = geneSymbolField.split("///");
 					String[] geneTitles = fields[ANNOTATION_INDEX_GENE_TITLE].trim().split("///");
+					String[] entrezIds = fields[ANNOTATION_INDEX_ENTREZ_ID].trim().split("///");
 					for(int i=0; i<geneSymbols.length; i++)
 						geneSymbols[i] = geneSymbols[i].trim(); 
-					parseOneNameSpace(biologicalProcess, geneSymbols, geneTitles);
-					parseOneNameSpace(cellularComponent, geneSymbols, geneTitles);
-					parseOneNameSpace(molecularFunction, geneSymbols, geneTitles);
+					parseOneNameSpace(biologicalProcess, geneSymbols, geneTitles, entrezIds);
+					parseOneNameSpace(cellularComponent, geneSymbols, geneTitles, entrezIds);
+					parseOneNameSpace(molecularFunction, geneSymbols, geneTitles, entrezIds);
 				}
 				count++;
 				
