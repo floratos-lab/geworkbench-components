@@ -18,6 +18,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 
 import javax.swing.SwingUtilities;
 
@@ -48,6 +49,10 @@ import org.geworkbench.util.ProgressBar;
 public class GoAnalysis extends AbstractAnalysis implements ClusteringAnalysis {
 	// it is necessary to implement ClusteringAnalysis for the AnalysisPanel to pick it up. No other known effect.
 	
+	private static final String PARSING_MARKER_GO = " GO:";
+
+	private static final String PARSING_MARKER_RELATIONSHIP = "relationship: ";
+
 	static int getEntrezId(String geneSymbol) {
 		if(geneDetails==null || geneDetails.get(geneSymbol)==null)
 			return 0;
@@ -266,6 +271,15 @@ public class GoAnalysis extends AbstractAnalysis implements ClusteringAnalysis {
 		}
 	}
 	
+	private static final Set<String> parentRelationshipTypes;
+	static {
+		parentRelationshipTypes = new TreeSet<String>();
+		parentRelationshipTypes.add("part_of");
+		parentRelationshipTypes.add("regulates");
+		parentRelationshipTypes.add("negatively_regulates");
+		parentRelationshipTypes.add("positively_regulates");
+	}
+	
 	static Map<Integer, GoTermDetail> termDetail = null;
 	private void analyzeCompleteObo(String goTermsOBOFile) {
 		termDetail = new HashMap<Integer, GoTermDetail>();
@@ -318,14 +332,23 @@ public class GoAnalysis extends AbstractAnalysis implements ClusteringAnalysis {
 						ontologyChild.put(parent, children);
 					}
 					children.add(id);
-				} else if (line.startsWith("relationship: part_of GO:")) {
-					Integer parent = Integer.valueOf( line.substring("relationship: part_of GO:".length(), line.indexOf("!")).trim() );
-					List<Integer> children = ontologyChild.get(parent);
-					if(children==null) {
-						children = new ArrayList<Integer>();
-						ontologyChild.put(parent, children);
+				} else if (line.startsWith(PARSING_MARKER_RELATIONSHIP)) {
+					String relationship = line.substring(
+							PARSING_MARKER_RELATIONSHIP.length(), line
+									.indexOf(PARSING_MARKER_GO));
+					if (parentRelationshipTypes.contains(relationship)) {
+						int markerLength = PARSING_MARKER_RELATIONSHIP.length()
+								+ relationship.length()
+								+ PARSING_MARKER_GO.length();
+						Integer parent = Integer.valueOf(line.substring(
+								markerLength, line.indexOf("!")).trim());
+						List<Integer> children = ontologyChild.get(parent);
+						if (children == null) {
+							children = new ArrayList<Integer>();
+							ontologyChild.put(parent, children);
+						}
+						children.add(id);
 					}
-					children.add(id);
 				} 
 				line = br.readLine();
 			}
