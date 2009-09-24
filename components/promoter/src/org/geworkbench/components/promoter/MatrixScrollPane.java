@@ -21,7 +21,6 @@ import javax.swing.table.TableModel;
  */
 public class MatrixScrollPane extends JScrollPane {
     private JTable matrixTable;
-    private static final DecimalFormat formatPV = new DecimalFormat("0.00");
 
     public MatrixScrollPane() {
         super();
@@ -33,10 +32,10 @@ public class MatrixScrollPane extends JScrollPane {
         super(table);
     }
 
-    public JTable createMatrixTable(Matrix matrix) {
+    public JTable createMatrixTable(boolean showCounts, Matrix matrix) {
 
         final String[] cols = createColumnsName(matrix);
-        final Object[][] rowData = createRowsData(matrix);
+        final Object[][] rowData = createRowsData(showCounts, matrix);
         if(cols==null || rowData==null){
             return null;
         }
@@ -73,14 +72,29 @@ public class MatrixScrollPane extends JScrollPane {
      * @param matrix Matrix
      * @return Object[][]
      */
-    private Object[][] createRowsData(Matrix matrix) {
+    private Object[][] createRowsData(boolean showCounts, Matrix matrix) {
+    	DecimalFormat formatPV = null; 
+    	
+    	if (showCounts){
+    		formatPV = new DecimalFormat("0");
+    	}else{
+    		formatPV = new DecimalFormat("0.00");
+    	}
+    	
+    	
         if (matrix != null && matrix.getLength() > 0) {
             char[] symbols = matrix.getSymbols();
             int rowLength = symbols.length;
             int columnlength = matrix.getLength();
             Object[][] cols = new Object[rowLength][columnlength + 1];
-//          Distribution[] dis = matrix.getRawCountTable(); toggle between these views at a later date.
-            Distribution[] dis = matrix.getNormalizedCountTable();
+            
+            Distribution[] dis = null;
+            if (showCounts){
+            	dis = matrix.getRawCountTable();
+            
+            }else{
+            	dis = matrix.getNormalizedCountTable();	
+            }
             
             for (int i = 0; i < rowLength; i++) {
                 cols[i][0] = new Character(symbols[i]);

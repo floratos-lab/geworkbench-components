@@ -71,9 +71,16 @@ public class Distribution {
         }
     }
 
-    public void pseudoNormalize() {
+    public void pseudoNormalize(boolean sqrtNSelected, double pseudocount) {
         getTotal();
-        double b = Math.sqrt(totalCounts);
+        double b = 0;
+        
+        if (sqrtNSelected){
+        	b = Math.sqrt(totalCounts);
+        }else{
+        	b = pseudocount;
+        }
+        
         for (int i = 0; i < symbols.length; i++) {
             counts[i] = (counts[i] + b / 4) / (totalCounts + b);
         }

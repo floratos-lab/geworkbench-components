@@ -100,6 +100,10 @@ public class PromoterViewPanel extends JPanel {
     GridLayout gridLayout2 = new GridLayout();
     JLabel jLabel4 = new JLabel();
     JLabel noTFLabel = new JLabel("No TF is selected.");
+    JLabel displayOptionLabel = new JLabel ("Display: ");
+    ButtonGroup countFreqGroup = new ButtonGroup();
+    JRadioButton countsRadioButton = new JRadioButton("Counts", true);
+    JRadioButton frequenciesRadioButton = new JRadioButton("Frequencies", false);
     TitledBorder titledBorder1;
     TitledBorder titledBorder2;
     TitledBorder titledBorder3;
@@ -438,6 +442,37 @@ public class PromoterViewPanel extends JPanel {
         //iterationLabel.setHorizontalAlignment(SwingConstants.TRAILING);
         iterationLabel.setHorizontalTextPosition(SwingConstants.LEADING);
         iterationLabel.setText("Iterations:");
+        
+        countsRadioButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+            	countsRadioButton_actionPerformed(e);
+            }
+        });
+        
+        frequenciesRadioButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+            	frequenciesRadioButton_actionPerformed(e);
+            	
+            }
+        }); 
+
+        pseudocountBox.setText("1.0");
+        pseudocountBox.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+            	pseudocountBox_actionPerformed(e);
+            }
+        });
+        
+        pseudocountLabel.setHorizontalTextPosition(SwingConstants.LEADING);
+        pseudocountLabel.setText("Pseudocount:");
+        
+        sqrtNCheckBox.setText("sqrt(n)");
+        sqrtNCheckBox.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+            	sqrtNCheckBox_actionPerformed(e);
+            }
+        });        
+        
          primer5Label.setFont(new java.awt.Font("Dialog", Font.BOLD, 11));
           primer3Label.setFont(new java.awt.Font("Dialog", Font.BOLD, 11));
         primer5Label.setText("5\' hits");
@@ -546,7 +581,12 @@ public class PromoterViewPanel extends JPanel {
         matrixDisplayPanel = new JPanel();
         logoPanel.add(matrixDisplayPanel, BorderLayout.CENTER);
         matrixDisplayPanel.add(noTFLabel);
-        //matrixDisplayPanel.add(matrixPane);
+        displayOptionsPanel.add(displayOptionLabel);
+        displayOptionsPanel.add(countsRadioButton);
+        displayOptionsPanel.add(frequenciesRadioButton);
+        logoPanel.add(displayOptionsPanel, BorderLayout.CENTER);
+        countFreqGroup.add(countsRadioButton);
+        countFreqGroup.add(frequenciesRadioButton);
         jTabbedPane2.add(logoPanel, "Logo");
         jTabbedPane2.add(jPanel12, "Parameters");
         northPanel.setLayout(new BorderLayout());
@@ -561,105 +601,105 @@ public class PromoterViewPanel extends JPanel {
         jTabbedPane2.add(northPanel, "Sequence");
         jPanel12.add(parmsPanel, java.awt.BorderLayout.CENTER);
         parmsPanel.add(actualLabel1,
-                       new GridBagConstraints(1, 8, 1, 1, 1.0, 0.0
+                       new GridBagConstraints(1, 9, 1, 1, 1.0, 0.0
                                               , GridBagConstraints.CENTER,
                                               GridBagConstraints.HORIZONTAL,
                                               new Insets(1, 2, 1, 2), 0, 0));
-        parmsPanel.add(totalLabel1, new GridBagConstraints(2, 5, 1, 1, 0.0, 0.0
+        parmsPanel.add(totalLabel1, new GridBagConstraints(2, 6, 1, 1, 0.0, 0.0
                 , GridBagConstraints.CENTER, GridBagConstraints.NONE,
                 new Insets(0, 0, 0, 0), 0, 0));
         parmsPanel.add(sequenceLabel1,
-                       new GridBagConstraints(3, 5, 1, 1, 0.0, 0.0
+                       new GridBagConstraints(3, 6, 1, 1, 0.0, 0.0
                                               , GridBagConstraints.CENTER,
                                               GridBagConstraints.NONE,
                                               new Insets(0, 0, 0, 0), 0, 0));
         parmsPanel.add(expectedLabel1,
-                       new GridBagConstraints(1, 7, 1, 1, 1.0, 0.0
+                       new GridBagConstraints(1, 8, 1, 1, 1.0, 0.0
                                               , GridBagConstraints.CENTER,
                                               GridBagConstraints.HORIZONTAL,
                                               new Insets(1, 2, 1, 2), 0, 0));
         parmsPanel.add(expectedCountBox,
-                       new GridBagConstraints(2, 7, 1, 1, 1.0, 0.0
+                       new GridBagConstraints(2, 8, 1, 1, 1.0, 0.0
                                               , GridBagConstraints.CENTER,
                                               GridBagConstraints.HORIZONTAL,
                                               new Insets(1, 2, 1, 2), 0, 0));
         parmsPanel.add(expectedSeqCountBox,
-                       new GridBagConstraints(3, 7, 1, 1, 1.0, 0.0
+                       new GridBagConstraints(3, 8, 1, 1, 1.0, 0.0
                                               , GridBagConstraints.CENTER,
                                               GridBagConstraints.HORIZONTAL,
                                               new Insets(1, 2, 1, 2), 0, 0));
-        parmsPanel.add(countBox, new GridBagConstraints(2, 8, 1, 1, 1.0, 0.0
+        parmsPanel.add(countBox, new GridBagConstraints(2, 9, 1, 1, 1.0, 0.0
                 , GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
                 new Insets(1, 2, 0, 2), 0, 0));
-        parmsPanel.add(seqCountBox, new GridBagConstraints(3, 8, 1, 1, 1.0, 0.0
+        parmsPanel.add(seqCountBox, new GridBagConstraints(3, 9, 1, 1, 1.0, 0.0
                 , GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
                 new Insets(1, 2, 0, 2), 0, 0));
 
           parmsPanel.add(enrichmentBox,
-                       new GridBagConstraints(2, 9, 1, 1, 1.0, 0.0
+                       new GridBagConstraints(2, 10, 1, 1, 1.0, 0.0
                                               , GridBagConstraints.CENTER,
                                               GridBagConstraints.HORIZONTAL,
                                               new Insets(1, 2, 1, 2), 0, 0));
         parmsPanel.add(seqEnrichmentBox,
-                       new GridBagConstraints(3, 9, 1, 1, 1.0, 0.0
+                       new GridBagConstraints(3, 10, 1, 1, 1.0, 0.0
                                               , GridBagConstraints.CENTER,
                                               GridBagConstraints.HORIZONTAL,
                                               new Insets(1, 2, 1, 2), 0, 0));
         parmsPanel.add(enrichmentLabel,
-                       new GridBagConstraints(1, 9, 2, 1, 1.0, 0.0
+                       new GridBagConstraints(1, 10, 2, 1, 1.0, 0.0
                                               , GridBagConstraints.CENTER,
                                               GridBagConstraints.HORIZONTAL,
                                               new Insets(1, 2, 1, 2), 0, 0));
 
           parmsPanel.add(percentSeqMatchBox,
-                       new GridBagConstraints(3, 10, 2, 1, 1.0, 0.0
+                       new GridBagConstraints(3, 11, 2, 1, 1.0, 0.0
                                               , GridBagConstraints.CENTER,
                                               GridBagConstraints.HORIZONTAL,
                                               new Insets(1, 2, 1, 2), 0, 0));
 
-          parmsPanel.add(jLabel1, new GridBagConstraints(1, 10, 1, 1, 0.0, 0.0
+          parmsPanel.add(jLabel1, new GridBagConstraints(1, 11, 1, 1, 0.0, 0.0
                 , GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
                 new Insets(0, 0, 0, 0), 0, 0));
 
         parmsPanel.add(primer5Label,
-                       new GridBagConstraints(2, 11, 1, 1, 0.0, 0.0
+                       new GridBagConstraints(2, 12, 1, 1, 0.0, 0.0
                                               , GridBagConstraints.CENTER,
                                               GridBagConstraints.NONE,
                                               new Insets(0, 0, 0, 0), 0, 0));
         parmsPanel.add(primer3Label,
-                       new GridBagConstraints(3, 11, 1, 1, 0.0, 0.0
+                       new GridBagConstraints(3, 12, 1, 1, 0.0, 0.0
                                               , GridBagConstraints.CENTER,
                                               GridBagConstraints.NONE,
                                               new Insets(0, 0, 0, 0), 0, 0));
         parmsPanel.add(match5PrimeExpectBox,
-                       new GridBagConstraints(2, 12, 1, 1, 1.0, 0.0
+                       new GridBagConstraints(2, 13, 1, 1, 1.0, 0.0
                                               , GridBagConstraints.CENTER,
                                               GridBagConstraints.HORIZONTAL,
                                               new Insets(1, 2, 1, 2), 0, 0));
         parmsPanel.add(match3PrimeExpectBox,
-                       new GridBagConstraints(3, 12, 1, 1, 1.0, 0.0
+                       new GridBagConstraints(3, 13, 1, 1, 1.0, 0.0
                                               , GridBagConstraints.CENTER,
                                               GridBagConstraints.HORIZONTAL,
                                               new Insets(1, 2, 1, 2), 0, 0));
 
                 parmsPanel.add(expect2Label,
-                       new GridBagConstraints(1, 12, 2, 1, 1.0, 0.0
+                       new GridBagConstraints(1, 13, 2, 1, 1.0, 0.0
                                               , GridBagConstraints.CENTER,
                                               GridBagConstraints.HORIZONTAL,
                                               new Insets(1, 2, 1, 2), 0, 0));
 
         parmsPanel.add(actualLabel,
-                       new GridBagConstraints(1, 13, 1, 1, 1.0, 0.0
+                       new GridBagConstraints(1, 14, 1, 1, 1.0, 0.0
                                               , GridBagConstraints.CENTER,
                                               GridBagConstraints.HORIZONTAL,
                                               new Insets(1, 2, 1, 2), 0, 0));
         parmsPanel.add(match5PrimeActualBox,
-                       new GridBagConstraints(2, 13, 1, 1, 1.0, 0.0
+                       new GridBagConstraints(2, 14, 1, 1, 1.0, 0.0
                                               , GridBagConstraints.CENTER,
                                               GridBagConstraints.HORIZONTAL,
                                               new Insets(1, 2, 1, 2), 0, 0));
         parmsPanel.add(match3PrimeActualBox,
-                       new GridBagConstraints(3, 13, 1, 1, 1.0, 0.0
+                       new GridBagConstraints(3, 14, 1, 1, 1.0, 0.0
                                               , GridBagConstraints.CENTER,
                                               GridBagConstraints.HORIZONTAL,
                                               new Insets(1, 2, 1, 2), 0, 0));
@@ -686,6 +726,26 @@ public class PromoterViewPanel extends JPanel {
                                               , GridBagConstraints.CENTER,
                                               GridBagConstraints.HORIZONTAL,
                                               new Insets(1, 2, 1, 2), 0, 0));
+
+		parmsPanel.add(pseudocountBox, 
+						new GridBagConstraints(2, 4, 1, 1, 0.5,0.0
+								               , GridBagConstraints.CENTER,
+								               GridBagConstraints.HORIZONTAL,
+								               new Insets(1, 2, 1, 2), 0, 0));
+		
+		
+		parmsPanel.add(pseudocountLabel, 
+					    new GridBagConstraints(1, 4, 1, 1,	0.5, 0.0
+					    					   , GridBagConstraints.CENTER,
+					    					   GridBagConstraints.HORIZONTAL, 
+					    					   new Insets(1, 2, 1, 2), 0, 0));
+		
+        parmsPanel.add(sqrtNCheckBox, 
+        				new GridBagConstraints(3, 4, 1, 1, 0.0, 0.0
+							                   , GridBagConstraints.CENTER, 
+							                   GridBagConstraints.HORIZONTAL,
+								               new Insets(0, 2, 0, 2), 0, 0));
+
         parmsPanel.add(pValueLabel, new GridBagConstraints(1, 1, 1, 1, 1.0, 0.0
                 , GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
                 new Insets(1, 2, 1, 2), 0, 0));
@@ -694,16 +754,16 @@ public class PromoterViewPanel extends JPanel {
                 new Insets(1, 2, 1, 2), 0, 0));
 
 
-        parmsPanel.add(jLabel5, new GridBagConstraints(2, 4, 1, 1, 0.0, 0.0
+        parmsPanel.add(jLabel5, new GridBagConstraints(2, 5, 1, 1, 0.0, 0.0
                 , GridBagConstraints.CENTER, GridBagConstraints.NONE,
                 new Insets(0, 0, 0, 0), 0, 0));
         parmsPanel.add(jLabel6, new GridBagConstraints(2, 6, 1, 1, 0.0, 0.0
                 , GridBagConstraints.CENTER, GridBagConstraints.NONE,
                 new Insets(0, 0, 0, 0), 0, 0));
-        parmsPanel.add(resultLabel, new GridBagConstraints(0, 5, 1, 1, 0.0, 0.0
+        parmsPanel.add(resultLabel, new GridBagConstraints(0, 6, 1, 1, 0.0, 0.0
                 , GridBagConstraints.NORTHWEST, GridBagConstraints.NONE,
                 new Insets(0, 0, 0, 0), 0, 0));
-        parmsPanel.add(resultLabel, new GridBagConstraints(0, 4, 1, 1, 0.0, 0.0
+        parmsPanel.add(resultLabel, new GridBagConstraints(0, 5, 1, 1, 0.0, 0.0
                 , GridBagConstraints.NORTHWEST, GridBagConstraints.NONE,
                 new Insets(20, 0, 10, 0), 0, 0));
         parmsPanel.add(parametersLabel,
@@ -762,7 +822,8 @@ public class PromoterViewPanel extends JPanel {
             }
             return c;
         }
-    }; JPanel jPanel12 = new JPanel();
+    }; 
+    JPanel jPanel12 = new JPanel();
     JPanel parmsPanel = new JPanel();
     GridBagLayout gridBagLayout1 = new GridBagLayout();
     JTextField pValueField = new JTextField();
@@ -785,6 +846,9 @@ public class PromoterViewPanel extends JPanel {
     JButton stopButton = new JButton();
     JTextField iterationBox = new JTextField();
     JLabel iterationLabel = new JLabel();
+    JTextField pseudocountBox = new JTextField();
+    JLabel pseudocountLabel = new JLabel();
+    JCheckBox sqrtNCheckBox = new JCheckBox();
     JLabel primer5Label = new JLabel();
     JLabel primer3Label = new JLabel();
     JTextField match5PrimeExpectBox = new JTextField();
@@ -807,6 +871,7 @@ public class PromoterViewPanel extends JPanel {
     private JLabel jLabel6 = new JLabel();
     private TFListPanel tfPanel;
     private JPanel matrixDisplayPanel = new JPanel();
+    private JPanel displayOptionsPanel = new JPanel();
     private JButton matrixDetailButton = new JButton();
     private MatrixScrollPane matrixPane = new MatrixScrollPane();
     private TitledBorder titledBorder6 = new TitledBorder("");
@@ -941,8 +1006,9 @@ public class PromoterViewPanel extends JPanel {
             tf.setName(name);
             tf.setJasparID(id.toString());
             Matrix mx = (Matrix) mxs.get(id);
-//			mx.normalize();
-			mx.initialize();
+            boolean sqrtNSelected = false;
+            double pseduocount = 0;
+			mx.initialize(sqrtNSelected, pseduocount);
 
             tf.setMatrix(mx);
             //
@@ -968,8 +1034,21 @@ public class PromoterViewPanel extends JPanel {
 
     }
 
+    void refreshTranscriptionFactorList(){
+
+    	Iterator<TranscriptionFactor> it = tfMap.values().iterator();
+    	while (it.hasNext()) {
+        	TranscriptionFactor transcriptionFactor = it.next();;
+        	Matrix matrix = transcriptionFactor.getMatrix();
+            boolean sqrtNSelected = sqrtNCheckBox.isSelected();        	
+            double pseduocount = Double.parseDouble(pseudocountBox.getText());
+        	matrix.refresh(sqrtNSelected, pseduocount);
+        }
+    }
+    
     void displayBtn_actionPerformed(ActionEvent e) {
 
+    	refreshTranscriptionFactorList();
         DefaultListModel ls = (DefaultListModel)
                               jSelectedTFList.
                               getModel();
@@ -1148,8 +1227,9 @@ public class PromoterViewPanel extends JPanel {
 
             // mx.train(sec);
             TranscriptionFactor tf = new TranscriptionFactor();
-//			mx.normalize();
-			mx.initialize();
+            boolean sqrtNSelected = sqrtNCheckBox.isSelected();
+            double pseduocount = Double.parseDouble(pseudocountBox.getText());
+			mx.initialize(sqrtNSelected, pseduocount);
             tf.setMatrix(mx);
             tf.setName(file.getName());
 
@@ -1222,7 +1302,8 @@ public class PromoterViewPanel extends JPanel {
             matrixDisplayPanel.removeAll();
             matrixDisplayPanel.setLayout(new BorderLayout());
             ((ImagePanel) jInfoPanel).setImage(pattern.getMatrix().getSmallSampleScores());
-            JTable table = matrixPane.createMatrixTable(pattern.getMatrix());
+            boolean showCounts = countsRadioButton.isSelected();
+            JTable table = matrixPane.createMatrixTable(showCounts, pattern.getMatrix());
             // setting the size of the table and its columns
             table.setPreferredScrollableViewportSize(new Dimension(800, 100));
             //table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
@@ -1231,6 +1312,7 @@ public class PromoterViewPanel extends JPanel {
             jInfoPanel.add(new JLabel(pattern.getName()));
             logoPanel.add(jInfoPanel, BorderLayout.NORTH);
             logoPanel.add(matrixDisplayPanel, BorderLayout.CENTER);
+            logoPanel.add(displayOptionsPanel, BorderLayout.AFTER_LAST_LINE);
 
             this.repaint();
             //jTabbedPane2.setSelectedIndex(LOGO);
@@ -2206,6 +2288,38 @@ public class PromoterViewPanel extends JPanel {
 
     }
 
+    public void countsRadioButton_actionPerformed(ActionEvent e) {
+        try {
+            drawLogo(currentTF);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    
+    public void frequenciesRadioButton_actionPerformed(ActionEvent e) {
+        try {
+            drawLogo(currentTF);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+    
+    
+    public void pseudocountBox_actionPerformed(ActionEvent e) {
+
+    }
+    
+    public void sqrtNCheckBox_actionPerformed(ActionEvent e) {
+
+    	boolean sqrtNSelected = sqrtNCheckBox.isSelected();
+    	if(sqrtNSelected){
+    		pseudocountBox.setEditable(false);
+    	}else{
+    		pseudocountBox.setEditable(true);
+    	}
+    }
+    
     /**
      * receive
      *

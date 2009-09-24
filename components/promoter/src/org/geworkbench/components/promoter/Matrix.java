@@ -8,7 +8,7 @@ import org.geworkbench.bison.datastructure.bioobjects.sequence.DSSequence;
 /**
  * 
  * @author unattributable
- * @version $Id: Matrix.java,v 1.8 2009-09-21 19:44:29 tgarben Exp $
+ * @version $Id: Matrix.java,v 1.9 2009-09-24 14:21:40 tgarben Exp $
  */
 public class Matrix {
     public Matrix() {
@@ -51,13 +51,18 @@ public class Matrix {
         return countTable.length;
     }
 
-    public void initialize() {
+    public void initialize(boolean sqrtNSelected, double pseduocount) {
     	calcSmallSampleCorrections();
     	createRawCountTable();
     	createNormalizedCountTable();
-    	pseudoNormalizeCountTable();
+    	pseudoNormalizeCountTable(sqrtNSelected, pseduocount);
     }
 
+    public void refresh(boolean sqrtNSelected, double pseduocount) {
+    	restoreCountTable();
+    	pseudoNormalizeCountTable(sqrtNSelected, pseduocount);
+    }
+    
     public void createRawCountTable() {
 
     	rawCountTable = new Distribution[countTable.length];
@@ -88,10 +93,18 @@ public class Matrix {
             normalizedCountTable[i].normalize();
         }
    	}
+   	
+    public void restoreCountTable() {
+		for (int i = 0; i < countTable.length; i++) {
+			countTable[i] = rawCountTable[i].copy();
+		}
 
-    public void pseudoNormalizeCountTable() {
+		normalized = false;
+    }
+   	
+    public void pseudoNormalizeCountTable(boolean sqrtNSelected, double pseduocount) {
         for (int i = 0; i < countTable.length; i++) {
-            countTable[i].pseudoNormalize();
+            countTable[i].pseudoNormalize(sqrtNSelected, pseduocount);
         }
         normalized = true;
     }
