@@ -306,7 +306,7 @@ public class GoAnalysisResultView extends JPanel implements VisualPlugin {
 
 		// more details following
 		singelGeneView.setLayout(new BoxLayout(singelGeneView, BoxLayout.Y_AXIS));
-		singelGeneView.add(new JLabel("Single Gene View"));
+		singelGeneView.add(new JLabel("Single Term View"));
 		singleGeneTreeRoot = new SingleGeneTreeNode (); // root
 		singleGeneModel = new DefaultTreeModel(singleGeneTreeRoot);
 
