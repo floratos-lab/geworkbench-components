@@ -190,14 +190,14 @@ public class GoAnalysisResultView extends JPanel implements VisualPlugin {
 		GoTreeNode root = new GoTreeNode (); // root
 		treeModel = new DefaultTreeModel(root);
 		namespaceId2Node = new HashMap<Integer, GoTreeNode>();
-		for(int namespaceId: GoAnalysis.NAMESPACE_ID) {
+		for(int namespaceId: GoAnalysis.namespaceIds) {
 			GoTreeNode namespaceNode = new GoTreeNode(namespaceId); 
 			root.add(namespaceNode);
 			namespaceId2Node.put(namespaceId, namespaceNode);
 		}
 
 		tree = new JTree(treeModel);
-		tree.setRootVisible(false);
+//		tree.setRootVisible(false);
 		tree.addTreeSelectionListener(new TreeSelectionListener() {
 
 			public void valueChanged(TreeSelectionEvent e) {
@@ -471,21 +471,33 @@ public class GoAnalysisResultView extends JPanel implements VisualPlugin {
 	private AbstractButton allButton;
 	
 	private void populateTreeRrepresentation() {
-		/* three namespace nodes are implemented differently from regular GO terms */
-		for(int namespaceId: GoAnalysis.NAMESPACE_ID) {
+		/* in case the first time */
+		if(namespaceId2Node==null)
+			namespaceId2Node = new HashMap<Integer, GoTreeNode>();
+		if(namespaceId2Node.size()==0) {
+			GoTreeNode root = (GoTreeNode)(treeModel.getRoot());
+			for(int namespaceId: GoAnalysis.namespaceIds) {
+				GoTreeNode namespaceNode = new GoTreeNode(namespaceId); 
+				root.add(namespaceNode);
+				namespaceId2Node.put(namespaceId, namespaceNode);
+			}
+		}
+
+		for(int namespaceId: GoAnalysis.namespaceIds) {
 			GoTreeNode namespaceNode = namespaceId2Node.get(namespaceId);
 			namespaceNode.removeAllChildren();
 			for(Integer child: GoAnalysis.ontologyChild.get(namespaceId)) {
 				addChildren(child, namespaceNode);
 			}
 		}
+	//	tree.
 	}
 	
 	// this does the similar thing as populateTreeRrepresentation with slightly different approach.
 	private void populateSingleGeneTree(int geneId) {
 		singleGeneTreeRoot.removeAllChildren();
 
-		for(int namespaceId: GoAnalysis.NAMESPACE_ID) {
+		for(int namespaceId: GoAnalysis.namespaceIds) {
 			findAndAddChildren(geneId, namespaceId, singleGeneTreeRoot);
 		}
 		singleGeneModel.reload();
@@ -807,10 +819,8 @@ public class GoAnalysisResultView extends JPanel implements VisualPlugin {
 
 		public String toString() {
 			if(goId==0)return "ROOT"; // this string does not matter because it is not visible 
-			else if (goId<0) {
-				return namespace[-goId-1]; // valid 'goId' here are -1, -2, -3  <=> valid index are 0, 1, 2
-			}
 			
+			// if it is namespace, we may want to format it differently
 			return GoAnalysis.termDetail.get(goId).name; 
 		}
 	}
@@ -848,10 +858,8 @@ public class GoAnalysisResultView extends JPanel implements VisualPlugin {
 		@Override
 		public String toString() {
 			if(goId==0)return "ROOT"; // this string does not matter because it is not visible 
-			else if (goId<0) {
-				return namespace[-goId-1]; // valid 'goId' here are -1, -2, -3  <=> valid index are 0, 1, 2
-			}
-			
+
+			// if it is namespace, we may want to format it differently 
 			GoAnalysisResult.ResultRow row = GoAnalysisResultView.this.result.getRow(goId);
 			if(row==null) {// not in the result 
 				return GoAnalysis.termDetail.get(goId).name; 

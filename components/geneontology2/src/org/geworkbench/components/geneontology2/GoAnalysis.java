@@ -258,8 +258,14 @@ public class GoAnalysis extends AbstractAnalysis implements ClusteringAnalysis {
 	
 	static Map<Integer, List<Integer> > ontologyChild = null;
 	
-	private static String[] namespace = {"molecular_function", "biological_process", "cellular_component"};
-	static int[] NAMESPACE_ID = {-1, -2, -3};
+	private static final Set<String> namespace;
+	static {
+		namespace = new TreeSet<String>();
+		namespace.add("molecular_function");
+		namespace.add("biological_process");
+		namespace.add("cellular_component");
+	};
+	static Set<Integer> namespaceIds = new TreeSet<Integer>();
 
 	static class GoTermDetail {
 		String name;
@@ -285,9 +291,8 @@ public class GoAnalysis extends AbstractAnalysis implements ClusteringAnalysis {
 		termDetail = new HashMap<Integer, GoTermDetail>();
 		// this one is needed to count 'exploded' tree efficiently
 		ontologyChild = new HashMap<Integer, List<Integer> >();
-		ontologyChild.put(NAMESPACE_ID[0], new ArrayList<Integer>());
-		ontologyChild.put(NAMESPACE_ID[1], new ArrayList<Integer>());
-		ontologyChild.put(NAMESPACE_ID[2], new ArrayList<Integer>());
+		
+		namespaceIds.clear();
 		
 		try {
 			BufferedReader br = new BufferedReader(new FileReader(goTermsOBOFile));
@@ -296,7 +301,7 @@ public class GoAnalysis extends AbstractAnalysis implements ClusteringAnalysis {
 			while(line!=null) {
 				if(line.startsWith("id: GO:")) {
 					id = Integer.valueOf( line.substring(7) );
-					String name = br.readLine().substring("name:".length());
+					String name = br.readLine().substring("name: ".length());
 					String thisNameSpace = br.readLine().substring(NAMESPACE_LABEL.length());
 					String def = br.readLine().trim();
 					while(!def.startsWith("def:") && def.length()>0)
@@ -307,23 +312,16 @@ public class GoAnalysis extends AbstractAnalysis implements ClusteringAnalysis {
 					}
 					termDetail.put( id, new GoTermDetail(name, def) );
 
-					// use namespace as the original single parent. this could be replaced if there are some real parents
-					int parent = 0;
-					if(thisNameSpace.equals(namespace[0]))
-						parent = NAMESPACE_ID[0];
-					else if(thisNameSpace.equals(namespace[1])) 
-						parent = NAMESPACE_ID[1];
-					else if(thisNameSpace.equals(namespace[2]))
-						parent = NAMESPACE_ID[2];
-					else {
-						log.error("unknown namespace: "+thisNameSpace);
+					if(namespace.contains(name)) {
+						namespaceIds.add(id);
+						ontologyChild.put(id, new ArrayList<Integer>());
+						if(!thisNameSpace.equals(name)) {
+							log.error("namespace not match namespce node");
+						}
+						List<Integer> children = new ArrayList<Integer>();
+						children.add(id);
+						ontologyChild.put(0, children);
 					}
-					List<Integer> children = ontologyChild.get(parent);
-					if(children==null) {
-						children = new ArrayList<Integer>();
-						ontologyChild.put(parent, children);
-					}
-					children.add(id);
 				} else if (line.startsWith("is_a: GO:")) {
 					Integer parent = Integer.valueOf( line.substring("is_a: GO:".length(), line.indexOf("!")).trim() );
 					List<Integer> children = ontologyChild.get(parent);
