@@ -1,7 +1,7 @@
 <geaw-config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:noNamespaceSchemaLocation="ConfigurationFile Schema.xsd">
 
-	<component  name="Net Boost"
+	<component  name="NetBoost Viewer"
 				class="org.geworkbench.components.netboost.NetBoostVisualComponent"
 				version="1.0"
 				author="C2B2"
@@ -19,7 +19,7 @@
 			
 	</component>
 
-	<plugin id="NetBoostVisualComponent" name="Net Boost" class="org.geworkbench.components.netboost.NetBoostVisualComponent" source="netboost">
+	<plugin id="NetBoostVisualComponent" name="NetBoost Viewer" class="org.geworkbench.components.netboost.NetBoostVisualComponent" source="netboost">
 		<gui-area name="VisualArea"/>
 	</plugin>
 
