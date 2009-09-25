@@ -1,7 +1,7 @@
 <geaw-config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:noNamespaceSchemaLocation="ConfigurationFile Schema.xsd">
 
-	<component  name="Sequence"
+	<component  name="Sequence Viewer"
 				class="org.geworkbench.components.sequences.SequenceViewAppComponent"
 				version="1.0"
 				author="C2B2"
@@ -21,7 +21,7 @@
 	</component>
 
 
-	<plugin id="SequenceViewAppComponent" name="Sequence" class="org.geworkbench.components.sequences.SequenceViewAppComponent" source="sequences">
+	<plugin id="SequenceViewAppComponent" name="Sequence Viewer" class="org.geworkbench.components.sequences.SequenceViewAppComponent" source="sequences">
 		<gui-area name="VisualArea"/>
 	</plugin>
 
