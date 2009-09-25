@@ -1,7 +1,7 @@
 <geaw-config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:noNamespaceSchemaLocation="ConfigurationFile Schema.xsd">
 
-	<component  name="Jmol"
+	<component  name="Jmol Molecular Structure Viewer"
 				class="org.geworkbench.components.jmol.JmolComponent"
 				version="1.0"
 				author="C2B2"
@@ -20,7 +20,7 @@
 	</component>
 
 
-	<plugin id="JmolComponent" name="Jmol" class="org.geworkbench.components.jmol.JmolComponent" source="jmol">
+	<plugin id="JmolComponent" name="Jmol molecular structure viewer" class="org.geworkbench.components.jmol.JmolComponent" source="jmol">
 		<gui-area name="VisualArea"/>
 	</plugin>
 
