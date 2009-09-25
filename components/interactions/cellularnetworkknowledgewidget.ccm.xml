@@ -1,7 +1,7 @@
 <geaw-config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:noNamespaceSchemaLocation="ConfigurationFile Schema.xsd">
 
-	<component  name="Cellular NetWork"
+	<component  name="Cellular Network Knowledge Base"
 				class="org.geworkbench.components.interactions.cellularnetwork.CellularNetworkKnowledgeWidget"
 				version="1.0"
 				author="C2B2"
@@ -25,7 +25,7 @@
 	 
 	 </component>
 
-	<plugin id="CellularNetworkKnowledgeWidget" name="Cellular NetWork" class="org.geworkbench.components.interactions.cellularnetwork.CellularNetworkKnowledgeWidget" source="interactions">
+	<plugin id="CellularNetworkKnowledgeWidget" name="Cellular Network Knowledge Base" class="org.geworkbench.components.interactions.cellularnetwork.CellularNetworkKnowledgeWidget" source="interactions">
 		<gui-area name="VisualArea"/>
 	</plugin>
 
