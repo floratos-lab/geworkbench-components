@@ -160,7 +160,9 @@ public class GenepixFlagsFilterPanel extends AbstractSaveableParameterPanel {
         flagExplanationTable.put("-50", "Not Found");
         flagExplanationTable.put("-75", "Absent");
         flagExplanationTable.put("0", "Unflagged");
-       boxlayout = new BoxLayout(container, BoxLayout.Y_AXIS);
+        flagExplanationTable.put("-99", "Flagged bad by user");
+        
+        boxlayout = new BoxLayout(container, BoxLayout.Y_AXIS);
         container.setLayout(boxlayout);
         infoLabel = new JLabel(nonApplicableReminder);
         container.add(infoLabel);
@@ -402,7 +404,10 @@ public class GenepixFlagsFilterPanel extends AbstractSaveableParameterPanel {
 		/*   flags*/
         for (Object fd : heldPanel.hits) {
             FlagDetail detail = (FlagDetail) fd;
-    		histStr += detail.getLabel() + " (" + flagExplanationTable.get(detail.getLabel()).toString() + ") : ";
+    		String flagExplanation = "unknown";
+    		if (flagExplanationTable.get(detail.getLabel()) != null )
+    			flagExplanation = flagExplanationTable.get(detail.getLabel()).toString();
+            histStr += detail.getLabel() + " (" + flagExplanation + ") : ";
     		histStr += detail.isFiltered? FILTERED : NOT_FILTERED;
     		histStr += "\n";
 
