@@ -1,7 +1,7 @@
 <geaw-config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:noNamespaceSchemaLocation="ConfigurationFile Schema.xsd">
 
-	<component  name="TabularDataViewer"
+	<component  name="ANOVA Tabular Viewer"
 				class="org.geworkbench.components.anova.gui.TabularDataViewer"
 				version="1.0"
 				author="C2B2"
@@ -23,7 +23,7 @@
 
 	</component>
 
-    <plugin id="TabularDataViewer" name="Tabular Viewer" class="org.geworkbench.components.anova.gui.TabularDataViewer" source="anova">
+    <plugin id="TabularDataViewer" name="ANOVA Tabular Viewer" class="org.geworkbench.components.anova.gui.TabularDataViewer" source="anova">
         <gui-area name="VisualArea"/>
     </plugin>		
 	
