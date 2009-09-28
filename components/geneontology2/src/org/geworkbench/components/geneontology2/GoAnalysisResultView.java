@@ -28,6 +28,7 @@ import java.util.Vector;
 import javax.swing.AbstractButton;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
+import javax.swing.JButton;
 import javax.swing.JEditorPane;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
@@ -181,11 +182,42 @@ public class GoAnalysisResultView extends JPanel implements VisualPlugin {
 		});
 
 		treeTab.setLayout(new BorderLayout());
-		JPanel mapPanel = new JPanel();
-		// TODO not implemented yet
-//		mapPanel.add(new JLabel("Map array genes as reference list"));
-//		mapPanel.add(new JButton("Map")); 
-		treeTab.add(mapPanel, BorderLayout.NORTH);
+		JPanel searchPanel = new JPanel();
+		searchPanel.add(new JLabel("Search by GO term ID"));
+		searchId = new JTextField(20);
+		searchPanel.add(searchId);
+		JButton searchButton = new JButton("Search");
+		searchPanel.add(searchButton); 
+		treeTab.add(searchPanel, BorderLayout.NORTH);
+		
+		searchButton.addActionListener(new ActionListener() {
+
+			public void actionPerformed(ActionEvent e) {
+				int goId = Integer.parseInt(searchId.getText());
+				
+				List<GoTreeNode> treePathList = null;
+				TreePath selectedPath = tree.getSelectionPath();
+				if(selectedPath==null) { // find the first one if no node is selected
+					GoTreeNode root = (GoTreeNode)(treeModel.getRoot());
+					treePathList = searchById(root, goId);
+				} else { // find the next
+					treePathList = new ArrayList<GoTreeNode>();
+					for(Object obj: selectedPath.getPath()) {
+						treePathList.add((GoTreeNode)obj);
+					}
+					searchNext(treePathList, goId);
+				}
+				if(treePathList==null || treePathList.size()==0)
+					log.debug("go term not found for ID "+ goId);
+				else {
+					TreePath treePath = new TreePath(treePathList.toArray());
+					tree.setSelectionPath(treePath);
+					tree.scrollPathToVisible(treePath);
+					log.debug("go term found "+treePath.toString());
+				}
+			}
+			
+		});
 
 		GoTreeNode root = new GoTreeNode (); // root
 		treeModel = new DefaultTreeModel(root);
@@ -197,6 +229,7 @@ public class GoAnalysisResultView extends JPanel implements VisualPlugin {
 		}
 
 		tree = new JTree(treeModel);
+		tree.setExpandsSelectedPaths(true);
 //		tree.setRootVisible(false);
 		tree.addTreeSelectionListener(new TreeSelectionListener() {
 
@@ -490,9 +523,49 @@ public class GoAnalysisResultView extends JPanel implements VisualPlugin {
 				addChildren(child, namespaceNode);
 			}
 		}
-	//	tree.
 	}
 	
+	private void searchNext(List<GoTreeNode> treePathList, int id) {
+		int lastIndex = treePathList.size()-1;
+		GoTreeNode node = treePathList.remove(lastIndex); // remove the last matching node
+		if(node==treeModel.getRoot()) {  // path list is empty now: no more found
+			treePathList.clear();
+			treePathList.addAll( searchById(node, id) );
+			return;
+		}
+
+		GoTreeNode parent = (GoTreeNode)node.getParent();
+		for(int index = parent.getIndex(node)+1; index <parent.getChildCount(); index++) {
+			GoTreeNode sibling = (GoTreeNode)parent.getChildAt(index);
+			
+			List<GoTreeNode> list = searchById(sibling, id);
+			if(list!=null) {
+				treePathList.addAll(list);
+				return;
+			}
+		}
+		// if not in siblings
+		searchNext(treePathList, id);
+	}
+	
+	/* recursive call. terminate at either found or not children*/
+	private List<GoTreeNode> searchById(GoTreeNode node, int id) {
+		if(node.goId==id){
+			List<GoTreeNode> list= new ArrayList<GoTreeNode>();
+			list.add(node);
+			return list;
+		}
+		for(int i=0; i<node.getChildCount(); i++) {
+			GoTreeNode child = (GoTreeNode)(node.getChildAt(i));
+			List<GoTreeNode> list = searchById(child, id); 
+			if(list!=null) {
+				list.add(0, node);
+				return list;
+			}
+		}
+		return null;
+	}
+
 	// this does the similar thing as populateTreeRrepresentation with slightly different approach.
 	private void populateSingleGeneTree(int geneId) {
 		singleGeneTreeRoot.removeAllChildren();
@@ -800,6 +873,7 @@ public class GoAnalysisResultView extends JPanel implements VisualPlugin {
 	private JRadioButton changedGeneListButton;
 	private JRadioButton referenceListButton;
 	private JTable geneListTable;
+	private JTextField searchId;
 
 	private class SingleGeneTreeNode extends DefaultMutableTreeNode {
 		/**
@@ -869,6 +943,7 @@ public class GoAnalysisResultView extends JPanel implements VisualPlugin {
 		}
 		
 		public void add(GoTreeNode goTreeNode) {
+			goTreeNode.parent = this;
 			if(children==null) {
 				children = new ArrayList<GoTreeNode>();
 			}
