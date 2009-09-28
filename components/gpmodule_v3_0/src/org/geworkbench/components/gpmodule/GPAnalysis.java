@@ -24,6 +24,7 @@ import javax.swing.*;
 import java.io.*;
 import java.util.List;
 import java.util.ArrayList;
+import java.awt.*;
 
 /**
  * @author: Marc-Danie Nazaire
@@ -223,20 +224,17 @@ public abstract class GPAnalysis extends AbstractAnalysis implements ClusteringA
                     resultFiles.add(results[i].getAbsolutePath());
                 }
             }
-            /*if(analysisResult.hasStandardError())
+
+            if(analysisResult.hasStandardError())
             {
                 File errorFile = new File(System.getProperty("temporary.files.directory") + "/stderr.txt");
 
-                boolean result = extractErrorMessages(errorFile);
-                if(result)
-                {
-                    JOptionPane.showMessageDialog(panel, "Some errors where generated while running analysis. Please check the logs for details.");
-                }
-                else
+                boolean result = extractErrorMessages(errorFile, analysisName);
+                if(!result)
                 {
                     JOptionPane.showMessageDialog(panel, "Some errors where generated while running analysis.");
                 }           
-            }*/
+            }
         }
         catch(WebServiceException we)
         {
@@ -258,7 +256,7 @@ public abstract class GPAnalysis extends AbstractAnalysis implements ClusteringA
             {
                 // remove job from GenePattern server
                 AnalysisWebServiceProxy analysisProxy = new AnalysisWebServiceProxy(server.getServer(), server.getUsername(), password);
-                //analysisProxy.purgeJob(analysisResult.getJobNumber());
+                analysisProxy.purgeJob(analysisResult.getJobNumber());
             }
         }
 
@@ -266,16 +264,29 @@ public abstract class GPAnalysis extends AbstractAnalysis implements ClusteringA
     }
 
 
-    private boolean extractErrorMessages(File file)
+    private boolean extractErrorMessages(File file, String analysisName)
     {
         try
         {
             BufferedReader reader = new BufferedReader( new FileReader(file));
             String line;
+            StringBuffer sb = new StringBuffer();
             while((line = reader.readLine()) != null)
             {
-                log.error(line + "\n");
+                sb.append(line);
+                sb.append("\n");                
             }
+
+            log.error(sb + "\n");
+
+            JTextArea textArea = new JTextArea();
+            textArea.setEditable(false);
+            textArea.setMargin(new Insets(5, 5, 5, 5));
+            textArea.setText(sb.toString());
+
+            JScrollPane scroll_pane = new JScrollPane(textArea);
+            JOptionPane.showMessageDialog(null, scroll_pane, (analysisName +  " analysis error"),
+                         JOptionPane.ERROR_MESSAGE);
         }
         catch(Exception e)
         {
@@ -284,6 +295,11 @@ public abstract class GPAnalysis extends AbstractAnalysis implements ClusteringA
         }
 
         return true;
+    }
+
+    public void abort()
+    {
+        log.error("Aborting analysis");
     }
 
     public int getAnalysisType()
