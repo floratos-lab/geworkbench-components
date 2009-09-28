@@ -285,8 +285,11 @@ public abstract class GPAnalysis extends AbstractAnalysis implements ClusteringA
             textArea.setText(sb.toString());
 
             JScrollPane scroll_pane = new JScrollPane(textArea);
-            JOptionPane.showMessageDialog(null, scroll_pane, (analysisName +  " analysis error"),
-                         JOptionPane.ERROR_MESSAGE);
+         
+            JOptionPane pane = new JOptionPane(scroll_pane, JOptionPane.ERROR_MESSAGE);
+            JDialog dialog = pane.createDialog(null, (analysisName +  " analysis error"));
+            dialog.setAlwaysOnTop(true);
+            dialog.setVisible(true);
         }
         catch(Exception e)
         {
