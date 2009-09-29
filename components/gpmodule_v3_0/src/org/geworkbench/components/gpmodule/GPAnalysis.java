@@ -271,11 +271,24 @@ public abstract class GPAnalysis extends AbstractAnalysis implements ClusteringA
             BufferedReader reader = new BufferedReader( new FileReader(file));
             String line;
             StringBuffer sb = new StringBuffer();
+            boolean just_pref_warning = true;
             while((line = reader.readLine()) != null)
             {
+                // special hack to hide java preferences warning
+                if(line.contains("java.util.prefs.FileSystemPreferences")
+                    || line.contains("WARNING: Prefs"))
+                {
+                    log.error(line + "\n");
+                    continue;
+                }
+
+                just_pref_warning = false;
                 sb.append(line);
                 sb.append("\n");                
             }
+
+            if(just_pref_warning)
+                return true;
 
             log.error(sb + "\n");
 
