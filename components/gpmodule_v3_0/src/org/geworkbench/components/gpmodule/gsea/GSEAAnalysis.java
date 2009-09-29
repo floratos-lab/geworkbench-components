@@ -203,7 +203,7 @@ public class GSEAAnalysis extends GPAnalysis
                           {
                               if(file.endsWith(".zip"))
                               {
-                                  if(file.getBytes().length > 240)
+                                  if(file.getBytes().length > 50)
                                   {
                                       reportFile = file;
                                       gsResultDataSet = new CSGSEAResultDataSet(view.getDataSet(), "GSEA Results", reportFile);
