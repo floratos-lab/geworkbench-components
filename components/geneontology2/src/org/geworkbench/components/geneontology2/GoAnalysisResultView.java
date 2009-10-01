@@ -527,7 +527,9 @@ public class GoAnalysisResultView extends JPanel implements VisualPlugin {
 		GoTreeNode node = treePathList.remove(lastIndex); // remove the last matching node
 		if(node==treeModel.getRoot()) {  // path list is empty now: no more found
 			treePathList.clear();
-			treePathList.addAll( searchMatchingNode(node, searchText) );
+			List<GoTreeNode> list = searchMatchingNode(node, searchText);
+			if(list!=null)
+				treePathList.addAll( list );
 			return;
 		}
 
