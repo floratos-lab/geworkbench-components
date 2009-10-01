@@ -3,37 +3,26 @@
  */
 package org.geworkbench.components.geneontology2;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
 
 import javax.swing.SwingUtilities;
 
 import ontologizer.OntologizerCore;
-import ontologizer.calculation.AbstractGOTermProperties;
 import ontologizer.calculation.EnrichedGOTermsResult;
 import ontologizer.go.OBOParserException;
-import ontologizer.go.Term;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.analysis.AbstractAnalysis;
-import org.geworkbench.bison.datastructure.biocollections.CSAncillaryDataSet;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.CSMicroarraySet;
+import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
+import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.CSMicroarray;
 import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
 import org.geworkbench.bison.model.analysis.ClusteringAnalysis;
@@ -43,24 +32,13 @@ import org.geworkbench.events.ProjectEvent;
 import org.geworkbench.util.ProgressBar;
 
 /**
+ * Go Term Analysis component of geWorkbench.
+ * 
  * @author zji
- *
+ * @version $Id: GoAnalysis.java,v 1.12 2009-10-01 16:49:50 jiz Exp $
  */
 public class GoAnalysis extends AbstractAnalysis implements ClusteringAnalysis {
-	// it is necessary to implement ClusteringAnalysis for the AnalysisPanel to pick it up. No other known effect.
-	
-	private static final String PARSING_MARKER_GO = " GO:";
-
-	private static final String PARSING_MARKER_RELATIONSHIP = "relationship: ";
-
-	static int getEntrezId(String geneSymbol) {
-		if(geneDetails==null || geneDetails.get(geneSymbol)==null)
-			return 0;
-		return geneDetails.get(geneSymbol).getEntrezId();
-	}
-	
-	private static final String NAMESPACE_LABEL = "namespace: ";
-
+	/* necessary to implement ClusteringAnalysis for the AnalysisPanel to pick it up. No other effect. */
 	static Log log = LogFactory.getLog(GoAnalysis.class);
 
 	/**
@@ -73,19 +51,16 @@ public class GoAnalysis extends AbstractAnalysis implements ClusteringAnalysis {
 	}
 
 	private static final long serialVersionUID = 5914151910006536646L;
-	
-	private GoAnalysisParameterPanel parameterPanel = new GoAnalysisParameterPanel();
+	private GoAnalysisParameterPanel parameterPanel;
 
 	@Override
 	public int getAnalysisType() {
-		// not used, but required by the AbstractAnalysis interface
+		/* not used, but required by the AbstractAnalysis interface */
 		return  AbstractAnalysis.ZERO_TYPE;
 	}
 	
-	static HashMap<Integer, Set<String>> term2Gene;
 
 	@SuppressWarnings("unchecked")
-	// for the cast from Object input to DSMicroarraySetView
 	public AlgorithmExecutionResults execute(Object input) {
 		// ProgressBar code should be as isolated from other code as possible.
 		final ProgressBar progressBar = ProgressBar
@@ -93,7 +68,6 @@ public class GoAnalysis extends AbstractAnalysis implements ClusteringAnalysis {
 		progressBar.addObserver(this);
 		progressBar.setTitle("GO Terms Analysis");
 		progressBar.setMessage("GO Terms Analysis is ongoing. Please wait.");
-		
 		
 		String associationFileName = parameterPanel.getAssociationFile();
 
@@ -123,6 +97,9 @@ public class GoAnalysis extends AbstractAnalysis implements ClusteringAnalysis {
 			return new AlgorithmExecutionResults(false, e1.getMessage(), null);
 		}
 
+		DSMicroarraySetView<DSGeneMarker, CSMicroarray> microArraySetView = (DSMicroarraySetView<DSGeneMarker, CSMicroarray>) input;
+		GoAnalysisResult analysisResult = new GoAnalysisResult(microArraySetView.getDataSet(), "Go Terms Analysis Result");
+		
 		final String studySetFileName = "STUDYSET_TEMPORARY";
 		final String populationSetFileName = "POPULATIONSET_TEMPORARY";
 		File studySet = new File(studySetFileName);
@@ -130,7 +107,6 @@ public class GoAnalysis extends AbstractAnalysis implements ClusteringAnalysis {
 		try {
 			PrintWriter pw = new PrintWriter(new FileWriter(studySet));
 			String[] changedGenesArray = parameterPanel.getChangedGeneList();
-			changedGenes = new HashSet<String>();
 			if (changedGenesArray == null || changedGenesArray.length == 0) {
 				progressBar.dispose();
 				return new AlgorithmExecutionResults(false,
@@ -138,14 +114,13 @@ public class GoAnalysis extends AbstractAnalysis implements ClusteringAnalysis {
 			}
 			for (String gene : changedGenesArray) {
 				pw.println(gene);
-				changedGenes.add(gene);
+				analysisResult.changedGenes.add(gene);
 			}
 			pw.close();
 
 			pw = new PrintWriter(new FileWriter(populationSet));
 			String[] referenceGenesArray = parameterPanel
 					.getReferenceGeneList();
-			referenceGenes = new HashSet<String>();
 			if (referenceGenesArray == null || referenceGenesArray.length == 0) {
 				progressBar.dispose();
 				return new AlgorithmExecutionResults(false,
@@ -153,7 +128,7 @@ public class GoAnalysis extends AbstractAnalysis implements ClusteringAnalysis {
 			}
 			for (String gene : referenceGenesArray) {
 				pw.println(gene);
-				referenceGenes.add(gene);
+				analysisResult.referenceGenes.add(gene);
 			}
 			pw.close();
 		} catch (IOException e1) {
@@ -175,26 +150,30 @@ public class GoAnalysis extends AbstractAnalysis implements ClusteringAnalysis {
 
 		arguments.calculationName = parameterPanel.getCalculationMethod();
 		arguments.correctionName = parameterPanel.getCorrectionMethod();
-		// arguments.filterOutUnannotatedGenes = cmd.hasOption('i');
-		// arguments.filterFile = cmd.getOptionValue('f');
+		/* leave other argument as default */
 
-		log.debug("arguments are " + arguments);
+		GoAnalysisResult.parseOboFile(arguments.goTermsOBOFile);
+		if (this.stopAlgorithm) {
+			progressBar.dispose();
+			return new AlgorithmExecutionResults(false,
+					"GO Terms Analysis is cancelled", null);
+		}
 
-		long start = System.currentTimeMillis();
-		analyzeCompleteObo(arguments.goTermsOBOFile);
-		long finish = System.currentTimeMillis();
-		log.debug("time building the complete ontology tree is "
-					+ (finish - start) + " milliseconds");
-		parseAnnotation(associationFileName);
+		GoAnalysisResult.parseAnnotation(associationFileName);
+		if (this.stopAlgorithm) {
+			progressBar.dispose();
+			return new AlgorithmExecutionResults(false,
+					"GO Terms Analysis is cancelled", null);
+		}
 
 		/*
 		 * OntologizerCore has only one constructor that take the file names. We
 		 * cannot directly set the studydset as a StudySetList, which is
 		 * actually used in Ontologizer.
 		 */
-		OntologizerCore controller = null;
+		OntologizerCore ontologizerCore = null;
 		try {
-			controller = new OntologizerCore(arguments);
+			ontologizerCore = new OntologizerCore(arguments);
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 			progressBar.dispose();
@@ -223,8 +202,28 @@ public class GoAnalysis extends AbstractAnalysis implements ClusteringAnalysis {
 					"GO Terms Analysis is cancelled", null);
 		}
 
-		GoAnalysisResult analysisResult = new GoAnalysisResult(null,
-				"Go Terms Analysis Result", controller);
+		EnrichedGOTermsResult studySetResult = null;
+		while ((studySetResult = ontologizerCore.calculateNextStudy()) != null) {
+			analysisResult.appendOntologizerResult(studySetResult);
+			
+			if (this.stopAlgorithm) {
+				progressBar.dispose();
+				return new AlgorithmExecutionResults(false,
+						"GO Terms Analysis is cancelled", null);
+			}
+
+			// this is not needed except for understanding the result structure
+			if (log.isDebugEnabled()) {
+					if (studySetResult.getSize() > 0) {
+						File outFile = new File("ONTOLOGIZER_RESULT");
+						studySetResult.writeTable(outFile);
+						log.debug("Ontologizer got result.");
+					} else {
+						log.debug("Ontologizer got empty result. Size="
+								+ studySetResult.getSize());
+					}
+			}
+		}
 
 		progressBar.dispose();
 		if (this.stopAlgorithm) {
@@ -256,225 +255,6 @@ public class GoAnalysis extends AbstractAnalysis implements ClusteringAnalysis {
 		return histStr.toString();
 	}
 	
-	static Map<Integer, List<Integer> > ontologyChild = null;
-	
-	private static final Set<String> namespace;
-	static {
-		namespace = new TreeSet<String>();
-		namespace.add("molecular_function");
-		namespace.add("biological_process");
-		namespace.add("cellular_component");
-	};
-	static Set<Integer> namespaceIds = new TreeSet<Integer>();
-
-	static class GoTermDetail {
-		String name;
-		String def;
-		
-		GoTermDetail(String name, String def) {
-			this.name = name;
-			this.def = def;
-		}
-	}
-	
-	private static final Set<String> parentRelationshipTypes;
-	static {
-		parentRelationshipTypes = new TreeSet<String>();
-		parentRelationshipTypes.add("part_of");
-		parentRelationshipTypes.add("regulates");
-		parentRelationshipTypes.add("negatively_regulates");
-		parentRelationshipTypes.add("positively_regulates");
-	}
-	
-	static Map<Integer, GoTermDetail> termDetail = null;
-	private void analyzeCompleteObo(String goTermsOBOFile) {
-		termDetail = new HashMap<Integer, GoTermDetail>();
-		// this one is needed to count 'exploded' tree efficiently
-		ontologyChild = new HashMap<Integer, List<Integer> >();
-		
-		namespaceIds.clear();
-		
-		try {
-			BufferedReader br = new BufferedReader(new FileReader(goTermsOBOFile));
-			String line = br.readLine();
-			Integer id = null;
-			while(line!=null) {
-				if(line.startsWith("id: GO:")) {
-					id = Integer.valueOf( line.substring(7) );
-					String name = br.readLine().substring("name: ".length());
-					String thisNameSpace = br.readLine().substring(NAMESPACE_LABEL.length());
-					String def = br.readLine().trim();
-					while(!def.startsWith("def:") && def.length()>0)
-						def = br.readLine();
-						
-					if(def.length()>0) {
-						def = def.substring("def:\"".length(), def.indexOf("\" ["));
-					}
-					termDetail.put( id, new GoTermDetail(name, def) );
-
-					if(namespace.contains(name)) {
-						namespaceIds.add(id);
-						ontologyChild.put(id, new ArrayList<Integer>());
-						if(!thisNameSpace.equals(name)) {
-							log.error("namespace not match namespce node");
-						}
-						List<Integer> children = new ArrayList<Integer>();
-						children.add(id);
-						ontologyChild.put(0, children);
-					}
-				} else if (line.startsWith("is_a: GO:")) {
-					Integer parent = Integer.valueOf( line.substring("is_a: GO:".length(), line.indexOf("!")).trim() );
-					List<Integer> children = ontologyChild.get(parent);
-					if(children==null) {
-						children = new ArrayList<Integer>();
-						ontologyChild.put(parent, children);
-					}
-					children.add(id);
-				} else if (line.startsWith(PARSING_MARKER_RELATIONSHIP)) {
-					String relationship = line.substring(
-							PARSING_MARKER_RELATIONSHIP.length(), line
-									.indexOf(PARSING_MARKER_GO));
-					if (parentRelationshipTypes.contains(relationship)) {
-						int markerLength = PARSING_MARKER_RELATIONSHIP.length()
-								+ relationship.length()
-								+ PARSING_MARKER_GO.length();
-						Integer parent = Integer.valueOf(line.substring(
-								markerLength, line.indexOf("!")).trim());
-						List<Integer> children = ontologyChild.get(parent);
-						if (children == null) {
-							children = new ArrayList<Integer>();
-							ontologyChild.put(parent, children);
-						}
-						children.add(id);
-					}
-				} 
-				line = br.readLine();
-			}
-			br.close();
-			log.debug("term count "+termDetail.size());
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-			log.error("Ontology tree is not successfullly created due to FileNotException: "+e.getMessage());
-		} catch (IOException e) {
-			e.printStackTrace();
-			log.error("Ontology tree is not successfullly created due to IOException: "+e.getMessage());
-		}
-	}
-	
-	static Map<String, GeneDetails> geneDetails;
-	// this is necessary because there may be need to include more details
-	private class GeneDetails {
-		public GeneDetails(String geneTitle, int entrezId) {
-			this.geneTitle = geneTitle;
-			this.entrezId = entrezId;
-		}
-
-		private String geneTitle;
-		private int entrezId;
-		
-		public int getEntrezId() {return entrezId; }
-		
-		public String toString() {return geneTitle; }
-	}
-
-//	private final static int ANNOTATION_INDEX_PROBSET_ID = 0;
-	private final static int ANNOTATION_INDEX_ENTREZ_ID = 18;
-	private final static int ANNOTATION_INDEX_GENE_TITLE = 13;
-	private final static int ANNOTATION_INDEX_GENE_SYMBOL = 14;
-	private final static int ANNOTATION_INDEX_BIOLOGICAL_PROCESS = 30;
-	private final static int ANNOTATION_INDEX_CELLULAR_COMPONENT = 31;
-	private final static int ANNOTATION_INDEX_MOLECULAR_FUNCTION = 32;
-
-	static Set<String> changedGenes;
-	static Set<String> referenceGenes;
-	
-	private void parseOneNameSpace(String namespaceAnnotation, String[] geneSymbols, String[] geneTitles, String[] entrezIds) {
-		for (Integer goId : getGoId(namespaceAnnotation)) {
-			Set<String> genes = term2Gene.get(goId);
-			if (genes == null) {
-				genes = new HashSet<String>();
-				term2Gene.put(goId, genes);
-			}
-			for(int i=0; i<geneSymbols.length; i++) {
-				String geneSymbol = geneSymbols[i];
-				String geneTitle = "";
-				if(i<geneTitles.length)
-					geneTitle = geneTitles[i];
-				int entrezId = 0;
-				if(i<entrezIds.length)
-					entrezId = Integer.parseInt(entrezIds[i].trim());
-				genes.add(geneSymbol);
-				if(!geneDetails.containsKey(geneSymbol)) {
-					GeneDetails details = new GeneDetails(geneTitle, entrezId);
-					geneDetails.put(geneSymbol, details);
-				}
-			}
-		}
-		
-	}
-	
-	private void parseAnnotation(String annotationFileName) {
-		term2Gene = new HashMap<Integer, Set<String> >();
-		geneDetails = new HashMap<String, GeneDetails>();
-		
-		try {
-			BufferedReader br = new BufferedReader(new FileReader(annotationFileName));
-			String line = br.readLine();
-			int count = 0;
-			while(line!=null) {
-				while(line.startsWith("#"))
-					line = br.readLine();
-				line = line.substring(1, line.length()-2); // trimming the leading and trailing quotation mark
-				String[] fields = line.split("\",\"");
-//				String probesetId = fields[ANNOTATION_INDEX_PROBSET_ID];
-				String geneSymbolField = fields[ANNOTATION_INDEX_GENE_SYMBOL];
-				String biologicalProcess = fields[ANNOTATION_INDEX_BIOLOGICAL_PROCESS];
-				String cellularComponent = fields[ANNOTATION_INDEX_CELLULAR_COMPONENT];
-				String molecularFunction = fields[ANNOTATION_INDEX_MOLECULAR_FUNCTION];
-				if (count > 0 && !geneSymbolField.equals("---") ) {
-//					log.debug(probesetId + "|" + geneSymbolField + "|"
-//							+ biologicalProcess + "|" + cellularComponent + "|"
-//							+ molecularFunction);
-					String[] geneSymbols = geneSymbolField.split("///");
-					String[] geneTitles = fields[ANNOTATION_INDEX_GENE_TITLE].trim().split("///");
-					String[] entrezIds = fields[ANNOTATION_INDEX_ENTREZ_ID].trim().split("///");
-					for(int i=0; i<geneSymbols.length; i++)
-						geneSymbols[i] = geneSymbols[i].trim(); 
-					parseOneNameSpace(biologicalProcess, geneSymbols, geneTitles, entrezIds);
-					parseOneNameSpace(cellularComponent, geneSymbols, geneTitles, entrezIds);
-					parseOneNameSpace(molecularFunction, geneSymbols, geneTitles, entrezIds);
-				}
-				count++;
-				
-				line = br.readLine();
-			}
-			br.close();
-			log.debug("total records in annotation file is "+count);
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-			log.error("Annotation map is not successfullly created due to FileNotException: "+e.getMessage());
-		} catch (IOException e) {
-			e.printStackTrace();
-			log.error("Annotation map is not successfullly created due to IOException: "+e.getMessage());
-		}
-	}
-	
-	private static List<Integer> getGoId(String annotationField) {
-		List<Integer> ids = new ArrayList<Integer>();
-
-		String[] goTerm = annotationField.split("///");
-		for(String g: goTerm) {
-			String[] f = g.split("//");
-			try {
-				ids.add( Integer.valueOf(f[0].trim()) );
-			} catch (NumberFormatException e) {
-				// do nothing for non-number case, like "---"
-				// log.debug("non-number in annotation "+f[0]);
-			}
-		}
-		return ids;
-	}
-	
 	/* this is needed to catch the current dataset and consequently the loaded annotation */
 	@SuppressWarnings("unchecked")
 	@Subscribe
@@ -487,137 +267,3 @@ public class GoAnalysis extends AbstractAnalysis implements ClusteringAnalysis {
 	}
 }
 
-// interface DSAncillaryDataSet is the minimal requirement to fit in to geWorkbench analysis's result output framework
-/**
- * Go Terms Analysis Result.
- * Wrapper for the result from ontologizer 2.0.
- */
-class GoAnalysisResult extends CSAncillaryDataSet<CSMicroarray> {
-	private static final long serialVersionUID = -337000604982427702L;
-	static Log log = LogFactory.getLog(GoAnalysisResult.class);
-	
-	static class ResultRow {
-		String name;
-		String namespace;
-		double p;
-		double pAdjusted;
-		int popCount;
-		int studyCount;
-		
-		ResultRow(String name, String namespace, double p, double pAdjusted, int popCount, int studyCount) {
-			this.name = name;
-			this.namespace = namespace;
-			this.p = p;
-			this.pAdjusted = pAdjusted;
-			this.popCount = popCount;
-			this.studyCount = studyCount;
-		}
-		
-		public String toString() {
-			return name+"|"+namespace+"|"+p+"|"+pAdjusted+"|"+popCount+"|"+studyCount;
-		}
-	}
-
-	ResultRow getRow(Integer goId) {
-		return result.get(goId);
-	}
-	
-	private Map<Integer, ResultRow> result = null;
-	
-	Map<Integer, ResultRow> getResult() {return result; }
-
-	public int getCount() {
-		if(result!=null)
-			return result.size();
-		else return 0;
-	}
-
-	/**
-	 * Constructor based on a result from Ontologizer 2.0.
-	 * 
-	 * @param parent
-	 * @param label
-	 * @param ontologizerResult
-	 */
-	protected GoAnalysisResult(DSDataSet<CSMicroarray> parent, String label,
-			EnrichedGOTermsResult ontologizerResult) {
-		super(parent, label);
-		result = new HashMap<Integer, ResultRow>();
-
-		appendOntologizerResult(ontologizerResult);
-	}
-	
-	/**
-	 * Constructor from Ontologizer 2.0 controller.
-	 * 
-	 * @param parent
-	 * @param label
-	 * @param ontologizerResult
-	 */
-	protected GoAnalysisResult(DSDataSet<CSMicroarray> parent, String label,
-			OntologizerCore ontologizerCore) {
-		this(parent, label, ontologizerCore.calculateNextStudy());
-		
-		EnrichedGOTermsResult studySetResult = null;
-		while ((studySetResult = ontologizerCore.calculateNextStudy()) != null) {
-			appendOntologizerResult(studySetResult);
-
-			// this is not needed except for understanding the result structure
-			if (log.isDebugEnabled()) {
-					if (studySetResult.getSize() > 0) {
-						File outFile = new File("ONTOLOGIZER_RESULT");
-						studySetResult.writeTable(outFile);
-						log.debug("Ontologizer got result.");
-					} else {
-						log.debug("Ontologizer got empty result. Size="
-								+ studySetResult.getSize());
-					}
-			}
-		}
-	}
-	
-	/**
-	 * Append more result rows from another Ontologizer 2.0 result.
-	 * @param ontologizerResult
-	 */
-	void appendOntologizerResult(EnrichedGOTermsResult ontologizerResult) {
-		Iterator<AbstractGOTermProperties> iter = ontologizerResult.iterator();
-
-		while (iter.hasNext()) {
-			AbstractGOTermProperties prop = iter.next();
-			Term term = prop.goTerm;
-			int popCount = 0, studyCount = 0;
-			for (int i = 0; i < prop.getNumberOfProperties(); i++) {
-				/*
-				 * the index may be fixed, but not 'visible' from the
-				 * AbstractGOTermProperties's interface
-				 */
-				if (prop.getPropertyName(i).equalsIgnoreCase("Pop.term")) {
-					popCount = Integer.parseInt(prop.getProperty(i));
-				} else if (prop.getPropertyName(i).equalsIgnoreCase(
-						"Study.term")) {
-					studyCount = Integer.parseInt(prop.getProperty(i));
-				} else {
-					// log.trace(i+":"+prop.getPropertyName(i)+"="+prop.getProperty(i));
-				}
-			}
-			ResultRow row = new ResultRow(term.getName(), term
-					.getNamespaceAsString(), prop.p, prop.p_adjusted, popCount,
-					studyCount);
-			result.put(term.getID().id, row);
-		}
-	}
-
-	void addResultRow(int goId, ResultRow row) {
-		result.put(goId, row);
-	}
-	
-	public File getDataSetFile() {
-		// no use. required by the interface
-		return null;
-	}
-
-	public void setDataSetFile(File file) {
-		// no use. required by the interface
-	}
-}
