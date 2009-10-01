@@ -433,9 +433,6 @@ public class GoAnalysisParameterPanel extends AbstractSaveableParameterPanel {
 			ontologyGroup.add(loadedAnnotationsRadioButton);
 			ontologyGroup.add(alternateAnnotationRadioButton);
 
-			// TODO this part may not be necessary because it duplicates what is
-			// the component manager dialog
-			// included for now because it is in the spec (Use Case 6/2/2009)
 			builder.nextLine();
 			builder.append(""); // just to add empty on GUI
 			builder.nextLine();
@@ -823,17 +820,8 @@ public class GoAnalysisParameterPanel extends AbstractSaveableParameterPanel {
 
 			if (returnVal == JFileChooser.APPROVE_OPTION) {
 				File file = fc.getSelectedFile();
-				// This is where a real application would open the file.
-				String referenceFileName = file.getAbsolutePath(); // this
-																	// should be
-																	// pass to
-																	// analysis
-																	// instead
-																	// of
-																	// re-creating
-																	// temporary
-																	// file //
-																	// TODO
+				String referenceFileName = file.getAbsolutePath(); 
+				// this could be passed to analysis instead of re-creating temporary file
 				// nevertheless, we need to get the content only for showing
 				BufferedReader br;
 				try {
@@ -852,10 +840,8 @@ public class GoAnalysisParameterPanel extends AbstractSaveableParameterPanel {
 					}
 					referenceList.setText(sb.toString());
 				} catch (FileNotFoundException e1) {
-					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				} catch (IOException e2) {
-					// TODO Auto-generated catch block
 					e2.printStackTrace();
 				}
 			} else {

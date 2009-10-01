@@ -17,13 +17,11 @@ import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.Vector;
 
 import javax.swing.AbstractButton;
 import javax.swing.BoxLayout;
@@ -130,7 +128,7 @@ public class GoAnalysisResultView extends JPanel implements VisualPlugin {
 				} else {
 					for(int i=0; i<3; i++){
 						if(namespaceButton[i].isSelected()) {
-							tableModel.filter(namespace[i]);
+							tableModel.filter(namespaceLabels[i]);
 							table.repaint();
 							return;
 						}
@@ -144,7 +142,7 @@ public class GoAnalysisResultView extends JPanel implements VisualPlugin {
 		ButtonGroup namespaceGroup = new ButtonGroup();
 		namespaceGroup.add(allButton);
 		for(int i=0; i<3; i++){
-			namespaceButton[i] = new JRadioButton(namespace[i]);
+			namespaceButton[i] = new JRadioButton(namespaceLabels[i]);
 			namespacePanel.add(namespaceButton[i]);
 			namespaceGroup.add(namespaceButton[i]);
 			namespaceButton[i].addActionListener(namespaceListener );
@@ -183,7 +181,7 @@ public class GoAnalysisResultView extends JPanel implements VisualPlugin {
 
 		treeTab.setLayout(new BorderLayout());
 		JPanel searchPanel = new JPanel();
-		searchPanel.add(new JLabel("Search by GO term ID"));
+		searchPanel.add(new JLabel("Search by GO term ID or name"));
 		searchId = new JTextField(20);
 		searchPanel.add(searchId);
 		JButton searchButton = new JButton("Search");
@@ -193,22 +191,22 @@ public class GoAnalysisResultView extends JPanel implements VisualPlugin {
 		searchButton.addActionListener(new ActionListener() {
 
 			public void actionPerformed(ActionEvent e) {
-				int goId = Integer.parseInt(searchId.getText());
+				String searchText = searchId.getText();
 				
 				List<GoTreeNode> treePathList = null;
 				TreePath selectedPath = tree.getSelectionPath();
 				if(selectedPath==null) { // find the first one if no node is selected
 					GoTreeNode root = (GoTreeNode)(treeModel.getRoot());
-					treePathList = searchById(root, goId);
+					treePathList = searchMatchingNode(root, searchText);
 				} else { // find the next
 					treePathList = new ArrayList<GoTreeNode>();
 					for(Object obj: selectedPath.getPath()) {
 						treePathList.add((GoTreeNode)obj);
 					}
-					searchNext(treePathList, goId);
+					searchNext(treePathList, searchText);
 				}
 				if(treePathList==null || treePathList.size()==0)
-					log.debug("go term not found for ID "+ goId);
+					log.debug("go term not found for ID/name "+ searchText);
 				else {
 					TreePath treePath = new TreePath(treePathList.toArray());
 					tree.setSelectionPath(treePath);
@@ -219,18 +217,17 @@ public class GoAnalysisResultView extends JPanel implements VisualPlugin {
 			
 		});
 
-		GoTreeNode root = new GoTreeNode (); // root
+		GoTreeNode root = new GoTreeNode (result); // root
 		treeModel = new DefaultTreeModel(root);
 		namespaceId2Node = new HashMap<Integer, GoTreeNode>();
-		for(int namespaceId: GoAnalysis.namespaceIds) {
-			GoTreeNode namespaceNode = new GoTreeNode(namespaceId); 
+		for(int namespaceId: GoAnalysisResult.namespaceIds) {
+			GoTreeNode namespaceNode = new GoTreeNode(result, namespaceId, root); // parent is root: 0 
 			root.add(namespaceNode);
 			namespaceId2Node.put(namespaceId, namespaceNode);
 		}
 
 		tree = new JTree(treeModel);
 		tree.setExpandsSelectedPaths(true);
-//		tree.setRootVisible(false);
 		tree.addTreeSelectionListener(new TreeSelectionListener() {
 
 			public void valueChanged(TreeSelectionEvent e) {
@@ -462,7 +459,7 @@ public class GoAnalysisResultView extends JPanel implements VisualPlugin {
 
 	protected void showTermDetail(int goId) {
 		geneDetails.setContentType("text/plain");
-		if(GoAnalysis.term2Gene.get(goId)==null) {
+		if(GoAnalysisResult.getAnnotatedGenes(goId)==null) {
 			geneDetails.setText("No gene annotated to GO ID "+goId);
 			return;
 		}
@@ -471,9 +468,9 @@ public class GoAnalysisResultView extends JPanel implements VisualPlugin {
 	
 		// here are the genes annotated to this term only, not to descendants.
 		int i=0;
-		for(String gene: GoAnalysis.term2Gene.get(goId)) {
+		for(String gene: GoAnalysisResult.getAnnotatedGenes(goId)) {
 			sb.append(gene).append("\n   Gene title: ").append(
-					GoAnalysis.geneDetails.get(gene))
+					GoAnalysisResult.getGeneDetail(gene))
 					.append("\n\n");
 			i++;
 		}
@@ -483,7 +480,7 @@ public class GoAnalysisResultView extends JPanel implements VisualPlugin {
 	}
 	
 	protected void showGeneDetail(String geneSymbol) {
-		int geneId = GoAnalysis.getEntrezId(geneSymbol);
+		int geneId = GoAnalysisResult.getEntrezId(geneSymbol);
 		geneDetails.setContentType("text/html");
 		geneDetails.setText("Details of Gene " + geneSymbol
 				+ "<p>Entrez ID: "+geneId+" <a href=http://www.ncbi.nlm.nih.gov/gene/" + geneId
@@ -498,7 +495,7 @@ public class GoAnalysisResultView extends JPanel implements VisualPlugin {
 		return this;
 	}
 	
-	private GoAnalysisResult result = null;
+	GoAnalysisResult result = null;
 
 	private static Map<Integer, GoTreeNode> namespaceId2Node = null;
 	private AbstractButton allButton;
@@ -509,28 +506,28 @@ public class GoAnalysisResultView extends JPanel implements VisualPlugin {
 			namespaceId2Node = new HashMap<Integer, GoTreeNode>();
 		if(namespaceId2Node.size()==0) {
 			GoTreeNode root = (GoTreeNode)(treeModel.getRoot());
-			for(int namespaceId: GoAnalysis.namespaceIds) {
-				GoTreeNode namespaceNode = new GoTreeNode(namespaceId); 
+			for(int namespaceId: GoAnalysisResult.namespaceIds) {
+				GoTreeNode namespaceNode = new GoTreeNode(result, namespaceId, root); 
 				root.add(namespaceNode);
 				namespaceId2Node.put(namespaceId, namespaceNode);
 			}
 		}
 
-		for(int namespaceId: GoAnalysis.namespaceIds) {
+		for(int namespaceId: GoAnalysisResult.namespaceIds) {
 			GoTreeNode namespaceNode = namespaceId2Node.get(namespaceId);
 			namespaceNode.removeAllChildren();
-			for(Integer child: GoAnalysis.ontologyChild.get(namespaceId)) {
+			for(Integer child: GoAnalysisResult.getOntologyChildren(namespaceId)) {
 				addChildren(child, namespaceNode);
 			}
 		}
 	}
 	
-	private void searchNext(List<GoTreeNode> treePathList, int id) {
+	private void searchNext(List<GoTreeNode> treePathList, String searchText) {
 		int lastIndex = treePathList.size()-1;
 		GoTreeNode node = treePathList.remove(lastIndex); // remove the last matching node
 		if(node==treeModel.getRoot()) {  // path list is empty now: no more found
 			treePathList.clear();
-			treePathList.addAll( searchById(node, id) );
+			treePathList.addAll( searchMatchingNode(node, searchText) );
 			return;
 		}
 
@@ -538,26 +535,27 @@ public class GoAnalysisResultView extends JPanel implements VisualPlugin {
 		for(int index = parent.getIndex(node)+1; index <parent.getChildCount(); index++) {
 			GoTreeNode sibling = (GoTreeNode)parent.getChildAt(index);
 			
-			List<GoTreeNode> list = searchById(sibling, id);
+			List<GoTreeNode> list = searchMatchingNode(sibling, searchText);
 			if(list!=null) {
 				treePathList.addAll(list);
 				return;
 			}
 		}
 		// if not in siblings
-		searchNext(treePathList, id);
+		searchNext(treePathList, searchText);
 	}
 	
 	/* recursive call. terminate at either found or not children*/
-	private List<GoTreeNode> searchById(GoTreeNode node, int id) {
-		if(node.goId==id){
+	private List<GoTreeNode> searchMatchingNode(GoTreeNode node, String searchText) {
+		GoTermMatcher matcher = GoTermMatcher.createMatcher(node, searchText);
+		if(matcher.match()){
 			List<GoTreeNode> list= new ArrayList<GoTreeNode>();
 			list.add(node);
 			return list;
 		}
 		for(int i=0; i<node.getChildCount(); i++) {
 			GoTreeNode child = (GoTreeNode)(node.getChildAt(i));
-			List<GoTreeNode> list = searchById(child, id); 
+			List<GoTreeNode> list = searchMatchingNode(child, searchText); 
 			if(list!=null) {
 				list.add(0, node);
 				return list;
@@ -570,7 +568,7 @@ public class GoAnalysisResultView extends JPanel implements VisualPlugin {
 	private void populateSingleGeneTree(int geneId) {
 		singleGeneTreeRoot.removeAllChildren();
 
-		for(int namespaceId: GoAnalysis.namespaceIds) {
+		for(int namespaceId: GoAnalysisResult.namespaceIds) {
 			findAndAddChildren(geneId, namespaceId, singleGeneTreeRoot);
 		}
 		singleGeneModel.reload();
@@ -599,7 +597,7 @@ public class GoAnalysisResultView extends JPanel implements VisualPlugin {
 			found = true;
 		}
 
-		List<Integer> grandchildren = GoAnalysis.ontologyChild.get(childId);
+		List<Integer> grandchildren = GoAnalysisResult.getOntologyChildren(childId);
 		if(grandchildren==null) return found;
 		
 		for(Integer grandchild: grandchildren) {
@@ -613,10 +611,10 @@ public class GoAnalysisResultView extends JPanel implements VisualPlugin {
 	}
 	
 	private void addChildren(Integer childId, GoTreeNode parent) {
-		GoTreeNode childNode = new GoTreeNode(childId, parent); 
+		GoTreeNode childNode = new GoTreeNode(result, childId, parent); 
 		parent.add(childNode);
 
-		List<Integer> grandchildren = GoAnalysis.ontologyChild.get(childId);
+		List<Integer> grandchildren = GoAnalysisResult.getOntologyChildren(childId);
 		if(grandchildren==null) return;
 		
 		for(Integer grandchild: grandchildren) {
@@ -654,9 +652,9 @@ public class GoAnalysisResultView extends JPanel implements VisualPlugin {
 		Set<String> genes = genesFomrTermAndDescendants(goId, includeDescendants);
 		
 		if(changedGeneListButton.isSelected()) {
-			genes.retainAll(GoAnalysis.changedGenes);
+			genes.retainAll(result.changedGenes);
 		} else if(referenceListButton.isSelected()) {
-			genes.retainAll(GoAnalysis.referenceGenes);
+			genes.retainAll(result.referenceGenes);
 		} else {
 			log.error("'Show genes from' not set");
 		}
@@ -666,7 +664,7 @@ public class GoAnalysisResultView extends JPanel implements VisualPlugin {
 		for(String gene: genes) {
 			dataVector[i][0] = gene;
 			dataVector[i][1] = "";
-			dataVector[i][2] = GoAnalysis.geneDetails.get(gene);
+			dataVector[i][2] = GoAnalysisResult.getGeneDetail(gene);
 			i++;
 		}
 
@@ -675,12 +673,12 @@ public class GoAnalysisResultView extends JPanel implements VisualPlugin {
 	
 	private Set<String> genesFomrTermAndDescendants(int goId, boolean includeDescendants) {
 		Set<String> genes = new HashSet<String>();
-		Set<String> annotatedGenes = GoAnalysis.term2Gene.get(goId);
+		Set<String> annotatedGenes = GoAnalysisResult.getAnnotatedGenes(goId);
 		if(annotatedGenes!=null)
 			genes.addAll(annotatedGenes);
 		
 		if(includeDescendants) {
-			List<Integer> children = GoAnalysis.ontologyChild.get(goId);
+			List<Integer> children = GoAnalysisResult.getOntologyChildren(goId);
 			if(children!=null) {
 				for(Integer child: children) {
 					genes.addAll(genesFomrTermAndDescendants(child, includeDescendants));
@@ -867,7 +865,7 @@ public class GoAnalysisResultView extends JPanel implements VisualPlugin {
 		}
 	}
 	
-	private static String[] namespace = {"Molecular Function", "Biological Process", "Cellular Component"};
+	private static final String[] namespaceLabels = {"Molecular Function", "Biological Process", "Cellular Component"};
 	private JRadioButton termButton;
 	private JRadioButton termAndDewscendantsButton;
 	private JRadioButton changedGeneListButton;
@@ -895,93 +893,7 @@ public class GoAnalysisResultView extends JPanel implements VisualPlugin {
 			if(goId==0)return "ROOT"; // this string does not matter because it is not visible 
 			
 			// if it is namespace, we may want to format it differently
-			return GoAnalysis.termDetail.get(goId).name; 
-		}
-	}
-
-	private class GoTreeNode implements TreeNode {
-		protected int goId; // because memory efficiency is a real concern here, we only include GO ID in the node implementation
-		private GoTreeNode parent;
-		private List<GoTreeNode> children;
-		
-		
-		GoTreeNode(int goId, GoTreeNode parent) {
-			this.goId = goId;
-			this.parent = parent;
-			this.children = null;
-		}
-
-	    public void removeAllChildren() {
-	    	children = null;
-        }
-
-		/* constructor only for root*/
-		GoTreeNode() {
-			this.goId = 0;
-		}
-
-		/* constructor only for three namespace. they don't have a real GO ID*/
-		/* this technique avoids manipulate the real GO ID's */
-		GoTreeNode(int namespaceId) {
-			this.goId = namespaceId;
-		}
-		
-		/* (non-Javadoc)
-		 * @see java.lang.Object#toString()
-		 */
-		@Override
-		public String toString() {
-			if(goId==0)return "ROOT"; // this string does not matter because it is not visible 
-
-			// if it is namespace, we may want to format it differently 
-			GoAnalysisResult.ResultRow row = GoAnalysisResultView.this.result.getRow(goId);
-			if(row==null) {// not in the result 
-				return GoAnalysis.termDetail.get(goId).name; 
-			} else { // in the result from ontologizer
-				return row.name+" ("+row.studyCount+"/"+row.popCount+") ("+row.pAdjusted+")";
-			}
-		}
-		
-		public void add(GoTreeNode goTreeNode) {
-			goTreeNode.parent = this;
-			if(children==null) {
-				children = new ArrayList<GoTreeNode>();
-			}
-			children.add(goTreeNode);
-			
-		}
-
-		public Enumeration<GoTreeNode> children() {
-			Vector<GoTreeNode> v = new Vector<GoTreeNode>(children);
-			return v.elements();
-		}
-
-		public boolean getAllowsChildren() {
-			return true;
-		}
-
-		public TreeNode getChildAt(int childIndex) {
-			if(children==null)return null;
-			return children.get(childIndex);
-		}
-
-		public int getChildCount() {
-			if(children==null)return 0;
-			return children.size();
-		}
-
-		public int getIndex(TreeNode node) {
-			if(children==null)return -1;
-			return children.indexOf(node); // return -1 if not contain
-		}
-
-		public TreeNode getParent() {
-			return parent;
-		}
-
-		public boolean isLeaf() {
-			if(getChildCount()==0)return true;
-			else return false;
+			return GoAnalysisResult.getGoTermName(goId); 
 		}
 	}
 }
