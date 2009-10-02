@@ -6,10 +6,10 @@
 
 <map version="1.0">
 
-	<mapID target="overview" url="BlastOverview.htm"/>
-	<mapID target="alignmentResults" url="Alignment Results.htm"/>
-
-	 	
+	<mapID target="overview" url="blast.htm#Overview"/>
+	<mapID target="BLAST_job_setup" url="blast.htm#BLAST_job_setup"/>
+	<mapID target="BLAST_results_viewer" url="blast.htm#BLAST_Results_Viewer"/>
+	<mapID target="BLAST_example" url="blast.htm#Example:_Running_a_BLAST_search"/>
 
 </map>
 
