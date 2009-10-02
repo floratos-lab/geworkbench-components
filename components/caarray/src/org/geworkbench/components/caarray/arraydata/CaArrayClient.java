@@ -62,6 +62,7 @@ import org.geworkbench.builtin.projects.remoteresources.query.CaARRAYQueryPanel;
  * The class to invoke StandAloneCaArrayWrapper
  * 
  * @author xiaoqing
+ * @author zji
  * @version $Id: StandAloneCaArrayClientWrapper.java,v 1.12 2009/08/05 21:08:49
  *          jiz Exp $
  * 
@@ -103,35 +104,15 @@ public class CaArrayClient {
         ExampleSearchCriteria<Organism> criteria = new ExampleSearchCriteria<Organism>();
         Organism exampleOrganism = new Organism();
         criteria.setExample(exampleOrganism);
-        long startTime = System.currentTimeMillis();
         List<Organism> organisms = searchServiceHelper.byExample(criteria).list();
-        long totalTime = System.currentTimeMillis() - startTime;
-        System.out.println("Found " + organisms.size() + " organisms in " + totalTime + " ms.");
         return organisms;
-    }
-
-    private List<Person> lookupPrincipalInvestigators() throws RemoteException {
-        long startTime = System.currentTimeMillis();
-        List<Person> investigators = searchService.getAllPrincipalInvestigators();
-        long totalTime = System.currentTimeMillis() - startTime;
-        System.out.println("Found " + investigators.size() + " principal investigators in " + totalTime + " ms.");
-        for (Person investigator : investigators) {
-            System.out.print(investigator.getLastName() + "  ");
-        }
-        return investigators;
     }
 
     private List<ArrayProvider> lookupArrayProviders() throws InvalidInputException {
         ExampleSearchCriteria<ArrayProvider> criteria = new ExampleSearchCriteria<ArrayProvider>();
         ArrayProvider exampleProvider = new ArrayProvider();
         criteria.setExample(exampleProvider);
-        long startTime = System.currentTimeMillis();
         List<ArrayProvider> arrayProviders = searchServiceHelper.byExample(criteria).list();
-        long totalTime = System.currentTimeMillis() - startTime;
-        System.out.println("Found " + arrayProviders.size() + " array providers in " + totalTime + " ms.");
-        for (ArrayProvider arrayProvider : arrayProviders) {
-            System.out.print(arrayProvider.getName() + "  ");
-        }
         return arrayProviders;
     }
 
@@ -165,7 +146,7 @@ public class CaArrayClient {
 					}
 				}
 			} else if (type.equalsIgnoreCase(CaARRAYQueryPanel.PINAME)) {
-				List<Person> pis = lookupPrincipalInvestigators();
+				List<Person> pis = searchService.getAllPrincipalInvestigators();
 				for (Person p : pis) {
 					values.add( p.getLastName() + NAME_SEPARATOR
 							+ p.getFirstName() );
@@ -189,8 +170,6 @@ public class CaArrayClient {
 		Vector<CaArray2Experiment> exps = new Vector<CaArray2Experiment>();
 
 		ExperimentSearchCriteria experimentSearchCriteria = new ExperimentSearchCriteria();
-		
-		long startTime = System.currentTimeMillis();
 		
 		if(filterkey!=null) {
 		if (filterkey.equalsIgnoreCase(CaARRAYQueryPanel.ORGANISM)) {
@@ -239,13 +218,6 @@ public class CaArrayClient {
 		
 		
         List<Experiment> experiments = (searchServiceHelper.experimentsByCriteria(experimentSearchCriteria)).list();
-        long time1 = System.currentTimeMillis();
-        long totalTime = time1 - startTime;
-        if (experiments == null || experiments.size() <= 0) {
-            System.out.println("No experiments found matching the requested criteria.");
-        } else {
-            System.out.println("Retrieved " + experiments.size() + " experiments in " + totalTime + " ms.");
-        }
 		
 		for (Experiment e : experiments) {
 			CaArrayEntityReference experimentRef = e.getReference();
@@ -338,7 +310,7 @@ public class CaArrayClient {
         for (QuantitationType qt : qtypes) {
             quantitationTypeRefs.add(qt.getReference());
         }
-        System.out.println("Retrieved quant types: " + qtypes);
+
         if (quantitationTypeRefs.isEmpty()) {
             System.err.println("Could not find one or more of the requested quantitation types... ");
             return null;
@@ -366,8 +338,6 @@ public class CaArrayClient {
 		AbstractDataColumn dataColumn = null;
         DataType columnDataType = null;
         for (QuantitationType qType : quantitationTypes) {
-            System.out.println("Column = " + qType.getName() + "; Data type = "
-                    + qType.getDataType());
             dataColumn = (AbstractDataColumn) columnIterator.next();
             
             if(qType.getName().equalsIgnoreCase(quantitationType)) {
@@ -381,26 +351,21 @@ public class CaArrayClient {
         switch (columnDataType) {
             case INTEGER:
                 int[] intValues = ((IntegerColumn) dataColumn).getValues();
-                System.out.println("Retrieved " + intValues.length + " int values.");
         		for (int i = 0; i < doubleValues.length; i++) doubleValues[i] = intValues[i];
                 break;
             case DOUBLE:
                 doubleValues = ((DoubleColumn) dataColumn).getValues();
-                System.out.println("Retrieved " + doubleValues.length + " double values.");
                 break;
             case FLOAT:
                 float[] floatValues = ((FloatColumn) dataColumn).getValues();
-                System.out.println("Retrieved " + floatValues.length + " float values.");
         		for (int i = 0; i < doubleValues.length; i++) doubleValues[i] = floatValues[i];
                 break;
             case SHORT:
                 short[] shortValues = ((ShortColumn) dataColumn).getValues();
-                System.out.println("Retrieved " + shortValues.length + " short values.");
         		for (int i = 0; i < doubleValues.length; i++) doubleValues[i] = shortValues[i];
                 break;
             case LONG:
                 long[] longValues = ((LongColumn) dataColumn).getValues();
-                System.out.println("Retrieved " + longValues.length + " long values.");
         		for (int i = 0; i < doubleValues.length; i++) doubleValues[i] = longValues[i];
                 break;
             case BOOLEAN:
