@@ -45,7 +45,7 @@ import edu.columbia.c2b2.aracne.Parameter;
 /**
  * @author mhall
  * @author yc2480
- * @version $Id: AracneParamPanel.java,v 1.22 2009-09-11 22:42:13 oshteynb Exp $
+ * @version $Id: AracneParamPanel.java,v 1.23 2009-10-05 19:52:07 npodduturi Exp $
  */
 public class AracneParamPanel extends AbstractSaveableParameterPanel {
 	private static final long serialVersionUID = 4023695671471667725L;
@@ -588,6 +588,8 @@ public class AracneParamPanel extends AbstractSaveableParameterPanel {
             ArrayList<String> hubGeneList = params.getHubGeneList();
             p.setSubnet(new Vector<String>(hubGeneList));
         }
+        p.setAlgorithm(params.getAlgorithm());
+        p.setMode(params.getMode());
         if (params.isThresholdMI()) {
             p.setThreshold(params.getThreshold());
         } else {
