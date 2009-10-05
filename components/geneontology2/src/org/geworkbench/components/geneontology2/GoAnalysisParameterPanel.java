@@ -596,8 +596,7 @@ public class GoAnalysisParameterPanel extends AbstractSaveableParameterPanel {
 
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
 			File file = fc.getSelectedFile();
-			// This is where a real application would open the file.
-			alternateAnnotationFileName.setText(file.getName());
+			alternateAnnotationFileName.setText(file.getAbsolutePath());
 		} else {
 			// if canceled, do nothing
 		}
