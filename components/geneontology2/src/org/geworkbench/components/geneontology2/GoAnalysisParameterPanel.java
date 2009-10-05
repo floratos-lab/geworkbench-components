@@ -405,7 +405,7 @@ public class GoAnalysisParameterPanel extends AbstractSaveableParameterPanel {
 
 			alternateAnnotationRadioButton = new JRadioButton();
 			alternateAnnotationRadioButton
-					.setText("User alternate annotation file");
+					.setText("Use alternate annotation file");
 			alternateAnnotationFileName = new JTextField(20);
 			loadAlternateAnnotationButton = new JButton("Browse");
 			builder.append("", alternateAnnotationRadioButton,
