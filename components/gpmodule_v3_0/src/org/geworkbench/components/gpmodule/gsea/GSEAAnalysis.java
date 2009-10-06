@@ -22,6 +22,8 @@ import org.geworkbench.builtin.projects.ProjectPanel;
 import org.geworkbench.builtin.projects.Icons;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.tools.zip.ZipFile;
+import org.apache.tools.zip.ZipEntry;
 import org.genepattern.webservice.Parameter;
 import org.genepattern.matrix.ClassVector;
 import org.genepattern.matrix.DefaultClassVector;
@@ -203,19 +205,31 @@ public class GSEAAnalysis extends GPAnalysis
                           {
                               if(file.endsWith(".zip"))
                               {
-                                  if(file.getBytes().length > 50)
-                                  {
-                                      reportFile = file;
-                                      gsResultDataSet = new CSGSEAResultDataSet(view.getDataSet(), "GSEA Results", reportFile);
-                                      ProjectPanel.addToHistory(gsResultDataSet, history);
-                                  }
+                                    int htmlCount = 0;
+                                    ZipFile zipFile = new ZipFile(file);
+                                    Enumeration en = zipFile.getEntries();
+                                    while(en.hasMoreElements())
+                                    {
+                                        ZipEntry entry = (ZipEntry)en.nextElement();
+                                        if(entry.getName().endsWith(".html"))
+                                        {
+                                            htmlCount++;
+                                        }
+                                    }
+
+                                    if(htmlCount == 1)
+                                    {
+                                        task.cancel(true);
+                                    }
+                                    reportFile = file;
+                                    gsResultDataSet = new CSGSEAResultDataSet(view.getDataSet(), "GSEA Results", reportFile);
+                                    ProjectPanel.addToHistory(gsResultDataSet, history);                                    
                               }
                               else
                               {
                                   (new File(file)).deleteOnExit();
                               }
-                          }
-
+                           }
                       }
                       catch(Exception e)
                       {
