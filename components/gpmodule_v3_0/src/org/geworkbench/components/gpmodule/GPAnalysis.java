@@ -6,6 +6,7 @@ import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.builtin.projects.Icons;
+import org.geworkbench.components.gpmodule.gsea.GSEAAnalysisPanel;
 import org.genepattern.matrix.Dataset;
 import org.genepattern.matrix.AbstractDataset;
 import org.genepattern.matrix.ClassVector;
@@ -17,14 +18,20 @@ import org.genepattern.webservice.JobResult;
 import org.genepattern.webservice.AnalysisWebServiceProxy;
 import org.genepattern.webservice.WebServiceException;
 import org.genepattern.webservice.Parameter;
+import org.genepattern.gui.UIUtil;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import javax.swing.*;
+import javax.swing.text.StyledEditorKit;
 import java.io.*;
 import java.util.List;
 import java.util.ArrayList;
 import java.awt.*;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowAdapter;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeEvent;
 
 /**
  * @author: Marc-Danie Nazaire
@@ -232,7 +239,7 @@ public abstract class GPAnalysis extends AbstractAnalysis implements ClusteringA
                 boolean result = extractErrorMessages(errorFile, analysisName);
                 if(!result)
                 {
-                    JOptionPane.showMessageDialog(panel, "Some errors where generated while running analysis.");
+                    JOptionPane.showMessageDialog(panel, "Some errors and/or warnings where generated while running analysis.");
                 }           
             }
         }
@@ -266,6 +273,7 @@ public abstract class GPAnalysis extends AbstractAnalysis implements ClusteringA
 
     private boolean extractErrorMessages(File file, String analysisName)
     {
+        boolean status = false;
         try
         {
             BufferedReader reader = new BufferedReader( new FileReader(file));
@@ -274,7 +282,7 @@ public abstract class GPAnalysis extends AbstractAnalysis implements ClusteringA
             boolean just_pref_warning = true;
             while((line = reader.readLine()) != null)
             {
-                // special hack to hide java preferences warning
+                // special hack to hide java preferences warning in GSEA
                 if(line.contains("java.util.prefs.FileSystemPreferences")
                     || line.contains("WARNING: Prefs"))
                 {
@@ -298,16 +306,79 @@ public abstract class GPAnalysis extends AbstractAnalysis implements ClusteringA
             textArea.setText(sb.toString());
 
             JScrollPane scroll_pane = new JScrollPane(textArea);
-         
-            JOptionPane pane = new JOptionPane(scroll_pane, JOptionPane.ERROR_MESSAGE);
-            JDialog dialog = pane.createDialog(null, (analysisName +  " analysis error"));
+
+            Object[] options = {"Help", "OK"};
+            final JOptionPane pane = new JOptionPane(scroll_pane, JOptionPane.ERROR_MESSAGE,
+                    JOptionPane.YES_NO_OPTION, null, options, options[1]);
+
+            String title = analysisName +  " analysis error";
+
+            final JDialog dialog = new JDialog((JFrame)null, title, true);
+            dialog.setContentPane(pane);
+            dialog.setDefaultCloseOperation(
+            JDialog.DO_NOTHING_ON_CLOSE);
+            dialog.addWindowListener(new WindowAdapter() {
+                public void windowClosing(WindowEvent we) {}
+            });
+
+            pane.addPropertyChangeListener(
+                new PropertyChangeListener() {
+                public void propertyChange(PropertyChangeEvent e) {
+                    String prop = e.getPropertyName();
+
+                    if (dialog.isVisible()
+                    && (e.getSource() == pane)
+                        && (prop.equals(JOptionPane.VALUE_PROPERTY))) {
+                        dialog.setVisible(false);
+                    }
+                }
+            });
+            dialog.pack();
             dialog.setAlwaysOnTop(true);
+            UIUtil.centerOnScreen(dialog);
             dialog.setVisible(true);
+
+            status = true;
+            String value = (String)pane.getValue();
+            if (value.equals("Help")) {
+                File helpFile = new File(GSEAAnalysisPanel.class.getResource("gsea_common_errors.html").getPath());
+                JTextPane textPane = new JTextPane();
+                textPane.setEditorKit(new StyledEditorKit());
+
+                try
+                {
+                    textPane.setPage(helpFile.toURL());
+                    textPane.setEditable(false);
+                }
+                catch(Exception e)
+                {
+                    e.printStackTrace();
+                }
+
+                textPane.setMinimumSize(new Dimension(440, 400));
+                textPane.setPreferredSize(new Dimension(740, 700));
+                textPane.setMaximumSize(new Dimension(950, 760));
+
+                JScrollPane sp = new JScrollPane(textPane);
+
+                //JOptionPane.showMessageDialog(panel, (sp));
+                JFrame frame = new JFrame("GSEA Help");
+                frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+
+                frame.add(sp, BorderLayout.CENTER);
+
+                frame.pack();
+                UIUtil.centerOnScreen(frame);
+                frame.setVisible(true);
+
+            } else if (value.equals("OK")) {
+                dialog.setVisible(false);
+            }
         }
         catch(Exception e)
         {
             e.printStackTrace();
-            return false;
+            return status;
         }
 
         return true;
