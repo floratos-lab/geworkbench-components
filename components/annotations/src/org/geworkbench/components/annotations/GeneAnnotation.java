@@ -4,6 +4,14 @@ import gov.nih.nci.cabio.domain.Gene;
 
 import java.util.List;
 
+import javax.swing.JMenuItem;
+
+import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
+import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
+import org.geworkbench.components.annotations.AnnotationsPanel2.CGITableModel;
+import org.geworkbench.util.ProgressBar;
+
+
 /**
  * <p>Copyright: Copyright (c) 2003</p>
  * <p>Company: First Genetic Trust Inc.</p>
@@ -63,4 +71,9 @@ public interface GeneAnnotation {
     String getGeneSymbol();
 
     void setSymbol(String symbol);
+    
+    String getEntrezId(Gene gene);    
+    
+    AgentDiseaseResults retrieveAll(DSItemList<DSGeneMarker> retrieveMarkerInfo, JMenuItem retrieveItem, CGITableModel diseaseModel, CGITableModel agentModel, ProgressBar pb);
+    AgentDiseaseResults showAnnotation(DSItemList<DSGeneMarker> retrieveMarkerInfo, JMenuItem retrieveItem, CGITableModel diseaseModel, CGITableModel agentModel, ProgressBar pb);
 }

@@ -1,17 +1,34 @@
 package org.geworkbench.components.annotations;
 
-import org.geworkbench.util.annotation.Pathway;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import gov.nih.nci.cabio.domain.Evidence;
+import gov.nih.nci.cabio.domain.Gene;
+import gov.nih.nci.cabio.domain.GeneAgentAssociation;
+import gov.nih.nci.cabio.domain.GeneDiseaseAssociation;
+import gov.nih.nci.cabio.domain.GeneFunctionAssociation;
+import gov.nih.nci.common.domain.DatabaseCrossReference;
+import gov.nih.nci.system.applicationservice.ApplicationException;
+import gov.nih.nci.system.applicationservice.ApplicationService;
+import gov.nih.nci.system.client.ApplicationServiceProvider;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 
-import gov.nih.nci.cabio.domain.Gene;
-import gov.nih.nci.system.applicationservice.ApplicationService;
-import gov.nih.nci.system.client.ApplicationServiceProvider;
-import gov.nih.nci.system.applicationservice.ApplicationException;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
+import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
+import org.geworkbench.components.annotations.AnnotationsPanel2.CGITableModel;
+import org.geworkbench.util.ProgressBar;
+import org.geworkbench.util.annotation.Pathway;
 
 /**
  * <p>Copyright: Copyright (c) 2003</p>
@@ -311,6 +328,358 @@ public class GeneAnnotationImpl implements GeneAnnotation {
 
 	public Gene getGene() {
 		return gene;
+	}
+
+	public String getEntrezId(Gene gene) {
+        String entrezId = "";
+        Collection<DatabaseCrossReference> crossReferences = gene.getDatabaseCrossReferenceCollection();
+        for (Iterator iterator = crossReferences.iterator(); iterator.hasNext();) {
+			DatabaseCrossReference crossReference = (DatabaseCrossReference) iterator.next();
+			if (crossReference.getDataSourceName().equals("LOCUS_LINK_ID")){
+				entrezId = crossReference.getCrossReferenceId();
+				break;
+			}
+		}
+        return entrezId;
+	}
+    /* act as a lock */
+    private boolean inProgress = false;
+
+	public AgentDiseaseResults retrieveAll(
+			DSItemList<DSGeneMarker> retrieveMarkerInfo, JMenuItem retrieveItem, CGITableModel diseaseModel, CGITableModel agentModel, ProgressBar pb) {
+        ArrayList<MarkerData> markerData = new ArrayList<MarkerData>();
+        ArrayList<GeneData> geneData = new ArrayList<GeneData>();
+        ArrayList<DiseaseData> diseaseData = new ArrayList<DiseaseData>();
+        ArrayList<RoleData> roleData = new ArrayList<RoleData>();
+        ArrayList<SentenceData> sentenceData = new ArrayList<SentenceData>();
+        ArrayList<PubmedData> pubmedData = new ArrayList<PubmedData>();
+        ArrayList<MarkerData> markerData2 = new ArrayList<MarkerData>();
+        ArrayList<GeneData> geneData2 = new ArrayList<GeneData>();
+        ArrayList<EvsIdData> evsIdData = new ArrayList<EvsIdData>();
+        ArrayList<DiseaseData> agentData = new ArrayList<DiseaseData>();
+        ArrayList<RoleData> agentRoleData = new ArrayList<RoleData>();
+        ArrayList<SentenceData> agentSentenceData = new ArrayList<SentenceData>();
+        ArrayList<PubmedData> agentPubmedData = new ArrayList<PubmedData>();
+        if (retrieveMarkerInfo != null) {
+            pb.setTitle("Querying caBIO..");
+            pb.start();
+
+    		ApplicationService appService = null;
+    		try {
+    			Thread.currentThread().setContextClassLoader(this.getClass().getClassLoader());
+    			appService = ApplicationServiceProvider.getApplicationService();
+    		} catch (Exception e) {
+    			log.error(e,e);
+				JOptionPane
+				.showConfirmDialog(
+						null,
+						"Please try again later",
+						"Server side error", JOptionPane.OK_OPTION);
+    			pb.stop();
+    			return null;
+    		}
+
+            int index = 0;
+            //TODO: to save network communication time, we should query only once by submitting the list.
+            for (int i = 0; i < retrieveMarkerInfo.size(); i++) {
+                index++;
+                String progressMessage = "";
+                progressMessage += "Marker "+index+"/"+retrieveMarkerInfo.size()+"   ";
+				if (stopAlgorithm == true) {
+					stopAlgorithm(pb);
+					break;
+				}
+
+                String geneName = retrieveMarkerInfo.get(i).getGeneName();
+
+        		String geneSymbol = geneName;
+        		//int uniGeneId = marker.getUnigene().getUnigeneId();
+        		Gene gene = new Gene();
+        		gene.setSymbol(geneSymbol);
+
+        		List<Object> results2 = null;
+        		try {
+        			results2 = appService.search(GeneFunctionAssociation.class, gene);
+        		} catch (Exception e) {
+        			log.error(e,e);
+        			JOptionPane.showMessageDialog(null, "Please try again later",
+        					"Server side error", JOptionPane.ERROR_MESSAGE);
+        			pb.stop();
+        			return null;
+        		}
+
+        		log.debug("\nDisease associated with Gene: " + geneSymbol);
+        		int diseaseIndex = 0;
+        		int agentIndex = 0;
+        		int diseaseRecords=0;
+        		int agentRecords=0;
+        		if (results2!=null)
+        		for (Object gfa : results2) {
+        			if (gfa instanceof GeneDiseaseAssociation) {
+        				diseaseRecords++;
+        			}
+        			else if (gfa instanceof GeneAgentAssociation) {
+        				agentRecords++;
+        			}
+        		}
+        		String numOutOfNumDisease = "";
+        		String numOutOfNumAgent = "";
+//        		if (diseaseRecords>diseaseLimitIndex){
+//        			numOutOfNumDisease = diseaseLimitIndex+" out of "+diseaseRecords;
+//        		}
+//        		if (agentRecords>agentLimitIndex){
+//        			numOutOfNumAgent = agentLimitIndex+" out of "+agentRecords;
+//        		}
+        		if (results2!=null)
+        		for (Object gfa : results2) {
+                    pb.setMessage(progressMessage+"Records "+(diseaseIndex+agentIndex)+"/"+(diseaseRecords+agentRecords)+"\n");
+					if (stopAlgorithm == true) {
+						stopAlgorithm(pb);
+			    		inProgress = false;
+			    		retrieveItem.setEnabled(true);
+						return null;
+					}
+        			if (gfa instanceof GeneDiseaseAssociation) {
+        				diseaseIndex++;
+        				GeneDiseaseAssociation gda = (GeneDiseaseAssociation) gfa;
+        				Evidence e = gda.getEvidence();
+        				MarkerData markerDataNew = new MarkerData(retrieveMarkerInfo.get(i),numOutOfNumDisease);
+        				GeneData geneDataNew = new GeneData(gda.getGene().getSymbol(),gda.getGene());
+        				DiseaseData diseaseDataNew = new DiseaseData(gda.getDiseaseOntology().getName(),gda.getDiseaseOntology(), gda.getDiseaseOntology().getEVSId());
+        				RoleData roleDataNew = new RoleData(gda.getRole());
+        				SentenceData sentenceDataNew = new SentenceData(e.getSentence());
+        				PubmedData pubmedDataNew = new PubmedData(Integer.toString(e.getPubmedId()));
+        				if (!diseaseModel.containsRecord(markerDataNew, geneDataNew, diseaseDataNew, roleDataNew, sentenceDataNew, pubmedDataNew)){
+            				markerData.add(new MarkerData(retrieveMarkerInfo.get(i),numOutOfNumDisease));
+            				geneData.add(new GeneData(gda.getGene().getSymbol(),gda.getGene()));
+            				log.debug("  Disease: " + gda.getDiseaseOntology().getName());
+            				diseaseData.add(new DiseaseData(gda.getDiseaseOntology().getName(),gda.getDiseaseOntology(), gda.getDiseaseOntology().getEVSId()));
+            				log.debug("    Role: " + gda.getRole());
+            				log.debug("    Sentence: "+e.getSentence());
+            				log.debug("    PubmedId:"+e.getPubmedId());
+            				roleData.add(new RoleData(gda.getRole()));
+            				sentenceData.add(new SentenceData(e.getSentence()));
+            				pubmedData.add(new PubmedData(Integer.toString(e.getPubmedId())));
+            				log.debug("We got "+markerDataNew.name+","+geneDataNew.name+","+diseaseDataNew.name+","+roleDataNew.role+","+sentenceDataNew.sentence+","+pubmedDataNew.id);
+        				}else{
+        					log.debug("We already got "+markerDataNew.name+","+geneDataNew.name+","+diseaseDataNew.name+","+roleDataNew.role+","+sentenceDataNew.sentence+","+pubmedDataNew.id);
+        				}
+        			}
+        			else if (gfa instanceof GeneAgentAssociation) {
+        				diseaseIndex++;
+        				GeneAgentAssociation gaa = (GeneAgentAssociation) gfa;
+        				Evidence e = gaa.getEvidence();
+        				MarkerData markerDataNew = new MarkerData(retrieveMarkerInfo.get(i),numOutOfNumAgent);
+        				GeneData geneDataNew = new GeneData(gaa.getGene().getSymbol(),gaa.getGene());
+        				DiseaseData diseaseDataNew = new DiseaseData(gaa.getAgent().getName(),null, gaa.getAgent().getEVSId());
+        				RoleData roleDataNew = new RoleData(gaa.getRole());
+        				SentenceData sentenceDataNew = new SentenceData(e.getSentence());
+        				PubmedData pubmedDataNew = new PubmedData(Integer.toString(e.getPubmedId()));
+        				if (!agentModel.containsRecord(markerDataNew, geneDataNew, diseaseDataNew, roleDataNew, sentenceDataNew, pubmedDataNew)){
+            				markerData2.add(new MarkerData(retrieveMarkerInfo.get(i),numOutOfNumAgent));
+            				geneData2.add(new GeneData(gaa.getGene().getSymbol(),gaa.getGene()));
+            				evsIdData.add(new EvsIdData(gaa.getAgent().getEVSId()));
+            				agentData.add(new DiseaseData(gaa.getAgent().getName(),null, gaa.getAgent().getEVSId()));
+            				log.debug("  Id: " + gaa.getId());
+            				log.debug("  Role: " + gaa.getRole());
+            				log.debug("  EvsId: " + gaa.getAgent().getEVSId());
+            				log.debug("  Name: " + gaa.getAgent().getName());
+            				log.debug("    Sentence: "+e.getSentence());
+            				log.debug("    PubmedId:"+e.getPubmedId());
+            				agentRoleData.add(new RoleData(gaa.getRole()));
+            				agentSentenceData.add(new SentenceData(e.getSentence()));
+            				agentPubmedData.add(new PubmedData(Integer.toString(e.getPubmedId())));
+        				}
+        			}
+        		}
+            }
+        }
+        pb.setMessage("Converting data...\n");
+        MarkerData[] markers = markerData.toArray(new MarkerData[0]);
+        GeneData[] genes = geneData.toArray(new GeneData[0]);
+        DiseaseData[] diseases = diseaseData.toArray(new DiseaseData[0]);
+        RoleData[] roles = roleData.toArray(new RoleData[0]);
+        SentenceData[] sentences = sentenceData.toArray(new SentenceData[0]);
+        PubmedData[] pubmeds = pubmedData.toArray(new PubmedData[0]);
+        MarkerData[] markers2 = markerData2.toArray(new MarkerData[0]);
+        GeneData[] genes2 = geneData2.toArray(new GeneData[0]);
+        //TODO: clean variables for this evsIds, since we handle evsIds in agentData now.
+        EvsIdData[] evsIds = evsIdData.toArray(new EvsIdData[0]);
+        DiseaseData[] agents = agentData.toArray(new DiseaseData[0]);
+        RoleData[] agentRoles = agentRoleData.toArray(new RoleData[0]);
+        SentenceData[] agentSentences = agentSentenceData.toArray(new SentenceData[0]);
+        PubmedData[] agentPubmeds = agentPubmedData.toArray(new PubmedData[0]);
+        return new AgentDiseaseResults(markers, genes, diseases, roles,
+				sentences, pubmeds, markers2, genes2, evsIds, agents,
+				agentRoles, agentSentences, agentPubmeds);
+	}
+
+	public AgentDiseaseResults showAnnotation(
+			DSItemList<DSGeneMarker> selectedMarkerInfo, JMenuItem retrieveItem, CGITableModel diseaseModel, CGITableModel agentModel, ProgressBar pb) {
+        ArrayList<MarkerData> markerData = new ArrayList<MarkerData>();
+        ArrayList<GeneData> geneData = new ArrayList<GeneData>();
+        ArrayList<DiseaseData> diseaseData = new ArrayList<DiseaseData>();
+        ArrayList<RoleData> roleData = new ArrayList<RoleData>();
+        ArrayList<SentenceData> sentenceData = new ArrayList<SentenceData>();
+        ArrayList<PubmedData> pubmedData = new ArrayList<PubmedData>();
+        ArrayList<MarkerData> markerData2 = new ArrayList<MarkerData>();
+        ArrayList<GeneData> geneData2 = new ArrayList<GeneData>();
+        ArrayList<EvsIdData> evsIdData = new ArrayList<EvsIdData>();
+        ArrayList<DiseaseData> agentData = new ArrayList<DiseaseData>();
+        ArrayList<RoleData> agentRoleData = new ArrayList<RoleData>();
+        ArrayList<SentenceData> agentSentenceData = new ArrayList<SentenceData>();
+        ArrayList<PubmedData> agentPubmedData = new ArrayList<PubmedData>();
+        if (selectedMarkerInfo != null) {
+            pb.setTitle("Querying caBIO..");
+            pb.start();
+
+    		ApplicationService appService = null;
+    		try {
+    			Thread.currentThread().setContextClassLoader(this.getClass().getClassLoader());
+    			appService = ApplicationServiceProvider.getApplicationService();
+    		} catch (Exception e) {
+    			log.error(e,e);
+				JOptionPane
+				.showConfirmDialog(
+						null,
+						"Please try again later",
+						"Server side error", JOptionPane.OK_OPTION);
+    			pb.stop();
+    			return null;
+    		}
+
+            int index = 0;
+            //TODO: to save network communication time, we should query only once by submitting the list.
+            for (int i = 0; i < selectedMarkerInfo.size(); i++) {
+                index++;
+                String progressMessage = "";
+                progressMessage += "Marker "+index+"/"+selectedMarkerInfo.size()+"   ";
+				if (stopAlgorithm == true) {
+					stopAlgorithm(pb);
+					break;
+				}
+
+                String geneName = selectedMarkerInfo.get(i).getGeneName();
+
+        		String geneSymbol = geneName;
+        		//int uniGeneId = marker.getUnigene().getUnigeneId();
+        		Gene gene = new Gene();
+        		gene.setSymbol(geneSymbol);
+
+        		List<Object> results2 = null;
+        		try {
+        			results2 = appService.search(GeneFunctionAssociation.class, gene);
+        		} catch (Exception e) {
+        			log.error(e,e);
+        			JOptionPane.showMessageDialog(null, "Please try again later",
+        					"Server side error", JOptionPane.ERROR_MESSAGE);
+        			pb.stop();
+        			return null;
+        		}
+
+        		log.debug("\nDisease associated with Gene: " + geneSymbol);
+        		final int diseaseLimit = 10;
+        		final int agentLimit = 10;
+        		int diseaseLimitIndex = diseaseLimit;
+        		int agentLimitIndex = agentLimit;
+        		int diseaseRecords=0;
+        		int agentRecords=0;
+        		if (results2!=null)
+        		for (Object gfa : results2) {
+        			if (gfa instanceof GeneDiseaseAssociation) {
+        				diseaseRecords++;
+        			}
+        			else if (gfa instanceof GeneAgentAssociation) {
+        				agentRecords++;
+        			}
+        		}
+        		String numOutOfNumDisease = "";
+        		String numOutOfNumAgent = "";
+        		if (diseaseRecords>diseaseLimitIndex){
+        			numOutOfNumDisease = diseaseLimitIndex+" out of "+diseaseRecords;
+        		}
+        		if (agentRecords>agentLimitIndex){
+        			numOutOfNumAgent = agentLimitIndex+" out of "+agentRecords;
+        		}
+        		if (results2!=null)
+        		for (Object gfa : results2) {
+                    pb.setMessage(progressMessage+"Records "+(diseaseLimit+agentLimit-diseaseLimitIndex-agentLimitIndex)+"/"+(diseaseRecords+agentRecords)+"\n");
+					if (stopAlgorithm == true) {
+						stopAlgorithm(pb);
+						break;
+					}
+        			if (gfa instanceof GeneDiseaseAssociation) {
+            			if (diseaseLimitIndex>0)
+            				diseaseLimitIndex--;
+            			else
+            				continue;
+        				GeneDiseaseAssociation gda = (GeneDiseaseAssociation) gfa;
+        				markerData.add(new MarkerData(selectedMarkerInfo.get(i),numOutOfNumDisease));
+        				geneData.add(new GeneData(gda.getGene().getSymbol(),gda.getGene()));
+        				log.debug("  Disease: " + gda.getDiseaseOntology().getName());
+        				diseaseData.add(new DiseaseData(gda.getDiseaseOntology().getName(),gda.getDiseaseOntology(), gda.getDiseaseOntology().getEVSId()));
+        				log.debug("    Role: " + gda.getRole());
+        				Evidence e = gda.getEvidence();
+        				log.debug("    Sentence: "+e.getSentence());
+        				log.debug("    PubmedId:"+e.getPubmedId());
+        				roleData.add(new RoleData(gda.getRole()));
+        				sentenceData.add(new SentenceData(e.getSentence()));
+        				pubmedData.add(new PubmedData(Integer.toString(e.getPubmedId())));
+        			}
+        			else if (gfa instanceof GeneAgentAssociation) {
+            			if (agentLimitIndex>0)
+            				agentLimitIndex--;
+            			else
+            				continue;
+        				GeneAgentAssociation gaa = (GeneAgentAssociation) gfa;
+        				markerData2.add(new MarkerData(selectedMarkerInfo.get(i),numOutOfNumAgent));
+        				geneData2.add(new GeneData(gaa.getGene().getSymbol(),gaa.getGene()));
+        				evsIdData.add(new EvsIdData(gaa.getAgent().getEVSId()));
+        				agentData.add(new DiseaseData(gaa.getAgent().getName(),null, gaa.getAgent().getEVSId()));
+        				log.debug("  Id: " + gaa.getId());
+        				log.debug("  Role: " + gaa.getRole());
+        				log.debug("  EvsId: " + gaa.getAgent().getEVSId());
+        				log.debug("  Name: " + gaa.getAgent().getName());
+        				Evidence e = gaa.getEvidence();
+        				log.debug("    Sentence: "+e.getSentence());
+        				log.debug("    PubmedId:"+e.getPubmedId());
+        				agentRoleData.add(new RoleData(gaa.getRole()));
+        				agentSentenceData.add(new SentenceData(e.getSentence()));
+        				agentPubmedData.add(new PubmedData(Integer.toString(e.getPubmedId())));
+        			}
+        		}
+            }
+
+            pb.stop();
+
+        }
+        
+        MarkerData[] markers = markerData.toArray(new MarkerData[0]);
+        GeneData[] genes = geneData.toArray(new GeneData[0]);
+        DiseaseData[] diseases = diseaseData.toArray(new DiseaseData[0]);
+        RoleData[] roles = roleData.toArray(new RoleData[0]);
+        SentenceData[] sentences = sentenceData.toArray(new SentenceData[0]);
+        PubmedData[] pubmeds = pubmedData.toArray(new PubmedData[0]);
+        MarkerData[] markers2 = markerData2.toArray(new MarkerData[0]);
+        GeneData[] genes2 = geneData2.toArray(new GeneData[0]);
+        //TODO: clean variables for this evsIds, since we handle evsIds in agentData now.
+        EvsIdData[] evsIds = evsIdData.toArray(new EvsIdData[0]);
+        DiseaseData[] agents = agentData.toArray(new DiseaseData[0]);
+        RoleData[] agentRoles = agentRoleData.toArray(new RoleData[0]);
+        SentenceData[] agentSentences = agentSentenceData.toArray(new SentenceData[0]);
+        PubmedData[] agentPubmeds = agentPubmedData.toArray(new PubmedData[0]);
+        return new AgentDiseaseResults(markers, genes, diseases, roles,
+				sentences, pubmeds, markers2, genes2, evsIds, agents,
+				agentRoles, agentSentences, agentPubmeds);
+	}
+    /**
+    *
+    * @param pb
+    */
+   public void stopAlgorithm(ProgressBar pb) {
+		stopAlgorithm = false;
+//		pb.stop();
+//		pb.dispose();
 	}
 
 }
