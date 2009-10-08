@@ -1,15 +1,15 @@
 package org.geworkbench.components.annotations;
 
-import gov.nih.nci.cabio.domain.Agent;
-import gov.nih.nci.cabio.domain.DiseaseOntology;
-import gov.nih.nci.cabio.domain.Evidence;
-import gov.nih.nci.cabio.domain.Gene;
-import gov.nih.nci.cabio.domain.GeneAgentAssociation;
-import gov.nih.nci.cabio.domain.GeneDiseaseAssociation;
-import gov.nih.nci.cabio.domain.GeneFunctionAssociation;
-import gov.nih.nci.common.domain.DatabaseCrossReference;
-import gov.nih.nci.system.applicationservice.ApplicationService;
-import gov.nih.nci.system.client.ApplicationServiceProvider;
+//import gov.nih.nci.cabio.domain.Agent;
+//import gov.nih.nci.cabio.domain.DiseaseOntology;
+//import gov.nih.nci.cabio.domain.Evidence;
+//import gov.nih.nci.cabio.domain.Gene;
+//import gov.nih.nci.cabio.domain.GeneAgentAssociation;
+//import gov.nih.nci.cabio.domain.GeneDiseaseAssociation;
+//import gov.nih.nci.cabio.domain.GeneFunctionAssociation;
+//import gov.nih.nci.common.domain.DatabaseCrossReference;
+//import gov.nih.nci.system.applicationservice.ApplicationService;
+//import gov.nih.nci.system.client.ApplicationServiceProvider;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -147,7 +147,7 @@ import com.Ostermiller.util.CSVPrinter;
  * Index database through caBio. Displays data in two table with 6 columns each.
  *
  * @author yc2480
- * @version $Id: AnnotationsPanel2.java,v 1.2 2009-07-22 15:34:34 jiz Exp $
+ * @version $Id: AnnotationsPanel2.java,v 1.3 2009-10-08 16:27:54 chiangy Exp $
  *
  */
 @AcceptTypes({DSMicroarraySet.class})
@@ -171,7 +171,7 @@ public class AnnotationsPanel2 implements VisualPlugin, Observer{
     /**
      * Web URL prefix for obtaining Agent annotation
      */
-    private static final String EVS_PREFIX = "http://nciterms.nci.nih.gov/NCIBrowser/ConceptReport.jsp?dictionary=NCI_Thesaurus&code=";
+    private static final String EVS_PREFIX = "http://nciterms.nci.nih.gov/ncitbrowser/ConceptReport.jsp?dictionary=NCI%20Thesaurus&code=";
 	static Log log = LogFactory.getLog(AnnotationsPanel2.class);
     public static final int COL_MARKER = 0;
     public static final int COL_GENE = 1;
@@ -320,7 +320,7 @@ public class AnnotationsPanel2 implements VisualPlugin, Observer{
 	/**
 	 * Use by Cancer Gene Index tables, both disease and agent table.
 	 */
-	private class CGITableModel extends SortableTableModel {
+	protected class CGITableModel extends SortableTableModel {
 
         /**
 		 *
@@ -1141,180 +1141,6 @@ public class AnnotationsPanel2 implements VisualPlugin, Observer{
 		}
     }
 
-    private static class MarkerData implements Comparable {
-
-        public String name;
-        public DSGeneMarker marker;
-        public String numOutOfNum;
-
-        public MarkerData(DSGeneMarker marker, String numOutOfNum) {
-            this.name = marker.getLabel();
-            this.marker = marker;
-            this.numOutOfNum = numOutOfNum;
-        }
-
-        public int compareTo(Object o) {
-            if (o instanceof MarkerData) {
-                return name.compareTo(((MarkerData) o).name);
-            }
-            return -1;
-        }
-    }
-
-    private static class GeneData implements Comparable {
-        /**
-         * Web URL prefix for obtaining CGAP annotation
-         */
-        private static final String GENE_FINDER_PREFIX = "http://cgap.nci.nih.gov/Genes/GeneInfo?";
-        /**
-         * Web URL prefix currently being used
-         */
-        public static final String PREFIX_USED = GENE_FINDER_PREFIX;
-
-        public String name;
-        public Gene gene;
-        public String organism;
-
-        public GeneData(String name, Gene gene) {
-            this.name = name;
-            this.gene = gene;
-            this.organism = "";
-        }
-
-        public void setOrganism(String organism){
-        	this.organism = organism;
-        }
-
-        public String getOrganism(){
-        	return this.organism;
-        }
-
-        public int compareTo(Object o) {
-            if (o instanceof GeneData) {
-                return name.compareTo(((GeneData) o).name);
-            }
-            return -1;
-        }
-
-    }
-
-    private static class PathwayData implements Comparable {
-
-        public String name;
-        public Pathway pathway;
-
-        public PathwayData(String name, Pathway pathway) {
-            this.name = name;
-            this.pathway = pathway;
-        }
-
-        public int compareTo(Object o) {
-            if (o instanceof PathwayData) {
-                return name.compareTo(((PathwayData) o).name);
-            }
-            return -1;
-        }
-    }
-
-    private static class DiseaseData implements Comparable {
-
-        public String name;
-        public DiseaseOntology diseaseOntology;
-        public String evsId;
-        public DiseaseData(String name, DiseaseOntology diseaseOntology, String evsId) {
-            this.name = name;
-            this.diseaseOntology = diseaseOntology;
-            this.evsId = evsId;
-        }
-
-        public int compareTo(Object o) {
-            if (o instanceof DiseaseData) {
-                return name.compareTo(((DiseaseData) o).name);
-            }
-            return -1;
-        }
-    }
-    private static class RoleData implements Comparable {
-
-        public String role;
-
-        public RoleData(String role) {
-            this.role = role;
-        }
-
-        public int compareTo(Object o) {
-            if (o instanceof RoleData) {
-                return role.compareTo(((RoleData) o).role);
-            }
-            return -1;
-        }
-    }
-    private static class SentenceData implements Comparable {
-
-        public String sentence;
-
-        public SentenceData(String sentence) {
-            this.sentence = sentence;
-        }
-
-        public int compareTo(Object o) {
-            if (o instanceof SentenceData) {
-                return sentence.compareTo(((SentenceData) o).sentence);
-            }
-            return -1;
-        }
-    }
-
-    private static class PubmedData implements Comparable {
-
-        public String id;
-
-        public PubmedData(String id) {
-            this.id = id;
-        }
-
-        public int compareTo(Object o) {
-            if (o instanceof PubmedData) {
-                return id.compareTo(((PubmedData) o).id);
-            }
-            return -1;
-        }
-    }
-
-    private static class AgentData implements Comparable {
-
-        public String name;
-        public Agent agent;
-        public String evsId;
-        public AgentData(String name, Agent agent, String evsId) {
-            this.name = name;
-            this.agent = agent;
-            this.evsId = evsId;
-        }
-
-        public int compareTo(Object o) {
-            if (o instanceof AgentData) {
-                return name.compareTo(((AgentData) o).name);
-            }
-            return -1;
-        }
-    }
-    private static class EvsIdData implements Comparable {
-
-        public String evsId;
-
-        public EvsIdData(String evsId) {
-            this.evsId = evsId;
-        }
-
-        public int compareTo(Object o) {
-            if (o instanceof AgentData) {
-                return evsId.compareTo(((EvsIdData) o).evsId);
-            }
-            return -1;
-        }
-    }
-
     /**
      * Default Constructor
      */
@@ -2103,173 +1929,30 @@ public class AnnotationsPanel2 implements VisualPlugin, Observer{
             Runnable query = new Runnable() {
 
             	public void run() {
-//            		dropDownLists[2].removeAllItems();
-//            		dropDownLists[2].addItem("");
             		ProgressBar pb = ProgressBar.create(ProgressBar.INDETERMINATE_TYPE);
                     pb.addObserver(getAnnotationsPanel());
                     pb.setMessage("Connecting to server...");
-                    ArrayList<MarkerData> markerData = new ArrayList<MarkerData>();
-                    ArrayList<GeneData> geneData = new ArrayList<GeneData>();
-                    ArrayList<DiseaseData> diseaseData = new ArrayList<DiseaseData>();
-                    ArrayList<RoleData> roleData = new ArrayList<RoleData>();
-                    ArrayList<SentenceData> sentenceData = new ArrayList<SentenceData>();
-                    ArrayList<PubmedData> pubmedData = new ArrayList<PubmedData>();
-                    ArrayList<MarkerData> markerData2 = new ArrayList<MarkerData>();
-                    ArrayList<GeneData> geneData2 = new ArrayList<GeneData>();
-                    ArrayList<EvsIdData> evsIdData = new ArrayList<EvsIdData>();
-                    ArrayList<DiseaseData> agentData = new ArrayList<DiseaseData>();
-                    ArrayList<RoleData> agentRoleData = new ArrayList<RoleData>();
-                    ArrayList<SentenceData> agentSentenceData = new ArrayList<SentenceData>();
-                    ArrayList<PubmedData> agentPubmedData = new ArrayList<PubmedData>();
-                    if (retrieveMarkerInfo != null) {
-                        pb.setTitle("Querying caBIO..");
-                        pb.start();
-
-                		ApplicationService appService = null;
-                		try {
-                			Thread.currentThread().setContextClassLoader(this.getClass().getClassLoader());
-                			appService = ApplicationServiceProvider.getApplicationService();
-                		} catch (Exception e) {
-                			log.error(e,e);
-            				JOptionPane
-    						.showConfirmDialog(
-    								null,
-    								"Please try again later",
-    								"Server side error", JOptionPane.OK_OPTION);
-                			pb.stop();
-                			return;
-                		}
-
-                        int index = 0;
-                        //TODO: to save network communication time, we should query only once by submitting the list.
-                        for (int i = 0; i < retrieveMarkerInfo.size(); i++) {
-                            index++;
-                            String progressMessage = "";
-                            progressMessage += "Marker "+index+"/"+retrieveMarkerInfo.size()+"   ";
-							if (stopAlgorithm == true) {
-								stopAlgorithm(pb);
-								break;
-							}
-
-                            String geneName = retrieveMarkerInfo.get(i).getGeneName();
-
-                    		String geneSymbol = geneName;
-                    		//int uniGeneId = marker.getUnigene().getUnigeneId();
-                    		Gene gene = new Gene();
-                    		gene.setSymbol(geneSymbol);
-
-                    		List<Object> results2 = null;
-                    		try {
-                    			results2 = appService.search(GeneFunctionAssociation.class, gene);
-                    		} catch (Exception e) {
-                    			log.error(e,e);
-                    			JOptionPane.showMessageDialog(null, "Please try again later",
-                    					"Server side error", JOptionPane.ERROR_MESSAGE);
-                    			pb.stop();
-                    			return;
-                    		}
-
-                    		log.debug("\nDisease associated with Gene: " + geneSymbol);
-                    		int diseaseIndex = 0;
-                    		int agentIndex = 0;
-                    		int diseaseRecords=0;
-                    		int agentRecords=0;
-                    		if (results2!=null)
-                    		for (Object gfa : results2) {
-                    			if (gfa instanceof GeneDiseaseAssociation) {
-                    				diseaseRecords++;
-                    			}
-                    			else if (gfa instanceof GeneAgentAssociation) {
-                    				agentRecords++;
-                    			}
-                    		}
-                    		String numOutOfNumDisease = "";
-                    		String numOutOfNumAgent = "";
-//                    		if (diseaseRecords>diseaseLimitIndex){
-//                    			numOutOfNumDisease = diseaseLimitIndex+" out of "+diseaseRecords;
-//                    		}
-//                    		if (agentRecords>agentLimitIndex){
-//                    			numOutOfNumAgent = agentLimitIndex+" out of "+agentRecords;
-//                    		}
-                    		if (results2!=null)
-                    		for (Object gfa : results2) {
-                                pb.setMessage(progressMessage+"Records "+(diseaseIndex+agentIndex)+"/"+(diseaseRecords+agentRecords)+"\n");
-								if (stopAlgorithm == true) {
-									stopAlgorithm(pb);
-						    		inProgress = false;
-						    		retrieveItem.setEnabled(true);
-									return;
-								}
-                    			if (gfa instanceof GeneDiseaseAssociation) {
-                    				diseaseIndex++;
-                    				GeneDiseaseAssociation gda = (GeneDiseaseAssociation) gfa;
-                    				Evidence e = gda.getEvidence();
-                    				MarkerData markerDataNew = new MarkerData(retrieveMarkerInfo.get(i),numOutOfNumDisease);
-                    				GeneData geneDataNew = new GeneData(gda.getGene().getSymbol(),gda.getGene());
-                    				DiseaseData diseaseDataNew = new DiseaseData(gda.getDiseaseOntology().getName(),gda.getDiseaseOntology(), gda.getDiseaseOntology().getEVSId());
-                    				RoleData roleDataNew = new RoleData(gda.getRole());
-                    				SentenceData sentenceDataNew = new SentenceData(e.getSentence());
-                    				PubmedData pubmedDataNew = new PubmedData(Integer.toString(e.getPubmedId()));
-                    				if (!diseaseModel.containsRecord(markerDataNew, geneDataNew, diseaseDataNew, roleDataNew, sentenceDataNew, pubmedDataNew)){
-	                    				markerData.add(new MarkerData(retrieveMarkerInfo.get(i),numOutOfNumDisease));
-	                    				geneData.add(new GeneData(gda.getGene().getSymbol(),gda.getGene()));
-	                    				log.debug("  Disease: " + gda.getDiseaseOntology().getName());
-	                    				diseaseData.add(new DiseaseData(gda.getDiseaseOntology().getName(),gda.getDiseaseOntology(), gda.getDiseaseOntology().getEVSId()));
-	                    				log.debug("    Role: " + gda.getRole());
-	                    				log.debug("    Sentence: "+e.getSentence());
-	                    				log.debug("    PubmedId:"+e.getPubmedId());
-	                    				roleData.add(new RoleData(gda.getRole()));
-	                    				sentenceData.add(new SentenceData(e.getSentence()));
-	                    				pubmedData.add(new PubmedData(Integer.toString(e.getPubmedId())));
-	                    				log.debug("We got "+markerDataNew.name+","+geneDataNew.name+","+diseaseDataNew.name+","+roleDataNew.role+","+sentenceDataNew.sentence+","+pubmedDataNew.id);
-                    				}else{
-                    					log.debug("We already got "+markerDataNew.name+","+geneDataNew.name+","+diseaseDataNew.name+","+roleDataNew.role+","+sentenceDataNew.sentence+","+pubmedDataNew.id);
-                    				}
-                    			}
-                    			else if (gfa instanceof GeneAgentAssociation) {
-                    				diseaseIndex++;
-                    				GeneAgentAssociation gaa = (GeneAgentAssociation) gfa;
-                    				Evidence e = gaa.getEvidence();
-                    				MarkerData markerDataNew = new MarkerData(retrieveMarkerInfo.get(i),numOutOfNumAgent);
-                    				GeneData geneDataNew = new GeneData(gaa.getGene().getSymbol(),gaa.getGene());
-                    				DiseaseData diseaseDataNew = new DiseaseData(gaa.getAgent().getName(),null, gaa.getAgent().getEVSId());
-                    				RoleData roleDataNew = new RoleData(gaa.getRole());
-                    				SentenceData sentenceDataNew = new SentenceData(e.getSentence());
-                    				PubmedData pubmedDataNew = new PubmedData(Integer.toString(e.getPubmedId()));
-                    				if (!agentModel.containsRecord(markerDataNew, geneDataNew, diseaseDataNew, roleDataNew, sentenceDataNew, pubmedDataNew)){
-	                    				markerData2.add(new MarkerData(retrieveMarkerInfo.get(i),numOutOfNumAgent));
-	                    				geneData2.add(new GeneData(gaa.getGene().getSymbol(),gaa.getGene()));
-	                    				evsIdData.add(new EvsIdData(gaa.getAgent().getEVSId()));
-	                    				agentData.add(new DiseaseData(gaa.getAgent().getName(),null, gaa.getAgent().getEVSId()));
-	                    				log.debug("  Id: " + gaa.getId());
-	                    				log.debug("  Role: " + gaa.getRole());
-	                    				log.debug("  EvsId: " + gaa.getAgent().getEVSId());
-	                    				log.debug("  Name: " + gaa.getAgent().getName());
-	                    				log.debug("    Sentence: "+e.getSentence());
-	                    				log.debug("    PubmedId:"+e.getPubmedId());
-	                    				agentRoleData.add(new RoleData(gaa.getRole()));
-	                    				agentSentenceData.add(new SentenceData(e.getSentence()));
-	                    				agentPubmedData.add(new PubmedData(Integer.toString(e.getPubmedId())));
-                    				}
-                    			}
-                    		}
-                        }
-                    }
-                    pb.setMessage("Converting data...\n");
-                    MarkerData[] markers = markerData.toArray(new MarkerData[0]);
-                    GeneData[] genes = geneData.toArray(new GeneData[0]);
-                    DiseaseData[] diseases = diseaseData.toArray(new DiseaseData[0]);
-                    RoleData[] roles = roleData.toArray(new RoleData[0]);
-                    SentenceData[] sentences = sentenceData.toArray(new SentenceData[0]);
-                    PubmedData[] pubmeds = pubmedData.toArray(new PubmedData[0]);
-                    MarkerData[] markers2 = markerData2.toArray(new MarkerData[0]);
-                    GeneData[] genes2 = geneData2.toArray(new GeneData[0]);
+            		GeneAnnotation geneAnnotation = new GeneAnnotationImpl();
+            		AgentDiseaseResults agentDiseaseResults = geneAnnotation.retrieveAll(retrieveMarkerInfo, retrieveItem, diseaseModel, agentModel, pb);
+            		if (stopAlgorithm){
+            			inProgress = false;
+            			stopAlgorithm(pb);
+            			return;
+            		}
+                    MarkerData[] markers = agentDiseaseResults.getMarkers();
+                    GeneData[] genes = agentDiseaseResults.getGenes();
+                    DiseaseData[] diseases = agentDiseaseResults.getDiseases();
+                    RoleData[] roles = agentDiseaseResults.getRoles();
+                    SentenceData[] sentences = agentDiseaseResults.getSentences();
+                    PubmedData[] pubmeds = agentDiseaseResults.getPubmeds();
+                    MarkerData[] markers2 = agentDiseaseResults.getMarkers2();
+                    GeneData[] genes2 = agentDiseaseResults.getGenes2();
                     //TODO: clean variables for this evsIds, since we handle evsIds in agentData now.
-                    EvsIdData[] evsIds = evsIdData.toArray(new EvsIdData[0]);
-                    DiseaseData[] agents = agentData.toArray(new DiseaseData[0]);
-                    RoleData[] agentRoles = agentRoleData.toArray(new RoleData[0]);
-                    SentenceData[] agentSentences = agentSentenceData.toArray(new SentenceData[0]);
-                    PubmedData[] agentPubmeds = agentPubmedData.toArray(new PubmedData[0]);
+                    EvsIdData[] evsIds = agentDiseaseResults.getEvsIds();
+                    DiseaseData[] agents = agentDiseaseResults.getAgents();
+                    RoleData[] agentRoles = agentDiseaseResults.getAgentRoles();
+                    SentenceData[] agentSentences = agentDiseaseResults.getAgentSentences();
+                    PubmedData[] agentPubmeds = agentDiseaseResults.getAgentPubmeds();
 					// FIXME: remove number appended on the list, then do these,
 					// follow by recalculate the number and append to the list.
                     for (int j = 0; j < diseases.length; j++) {
@@ -2392,157 +2075,26 @@ public class AnnotationsPanel2 implements VisualPlugin, Observer{
             		ProgressBar pb = ProgressBar.create(ProgressBar.INDETERMINATE_TYPE);
                     pb.addObserver(getAnnotationsPanel());
                     pb.setMessage("Connecting to server...");
-                    ArrayList<MarkerData> markerData = new ArrayList<MarkerData>();
-                    ArrayList<GeneData> geneData = new ArrayList<GeneData>();
-                    ArrayList<DiseaseData> diseaseData = new ArrayList<DiseaseData>();
-                    ArrayList<RoleData> roleData = new ArrayList<RoleData>();
-                    ArrayList<SentenceData> sentenceData = new ArrayList<SentenceData>();
-                    ArrayList<PubmedData> pubmedData = new ArrayList<PubmedData>();
-                    ArrayList<MarkerData> markerData2 = new ArrayList<MarkerData>();
-                    ArrayList<GeneData> geneData2 = new ArrayList<GeneData>();
-                    ArrayList<EvsIdData> evsIdData = new ArrayList<EvsIdData>();
-                    ArrayList<DiseaseData> agentData = new ArrayList<DiseaseData>();
-                    ArrayList<RoleData> agentRoleData = new ArrayList<RoleData>();
-                    ArrayList<SentenceData> agentSentenceData = new ArrayList<SentenceData>();
-                    ArrayList<PubmedData> agentPubmedData = new ArrayList<PubmedData>();
-                    if (selectedMarkerInfo != null) {
-                        pb.setTitle("Querying caBIO..");
-                        pb.start();
-
-                		ApplicationService appService = null;
-                		try {
-                			Thread.currentThread().setContextClassLoader(this.getClass().getClassLoader());
-                			appService = ApplicationServiceProvider.getApplicationService();
-                		} catch (Exception e) {
-                			log.error(e,e);
-            				JOptionPane
-    						.showConfirmDialog(
-    								null,
-    								"Please try again later",
-    								"Server side error", JOptionPane.OK_OPTION);
-                			pb.stop();
-                			return;
-                		}
-
-                        int index = 0;
-                        //TODO: to save network communication time, we should query only once by submitting the list.
-                        for (int i = 0; i < selectedMarkerInfo.size(); i++) {
-                            index++;
-                            String progressMessage = "";
-                            progressMessage += "Marker "+index+"/"+selectedMarkerInfo.size()+"   ";
-							if (stopAlgorithm == true) {
-								stopAlgorithm(pb);
-								break;
-							}
-
-                            String geneName = selectedMarkerInfo.get(i).getGeneName();
-
-                    		String geneSymbol = geneName;
-                    		//int uniGeneId = marker.getUnigene().getUnigeneId();
-                    		Gene gene = new Gene();
-                    		gene.setSymbol(geneSymbol);
-
-                    		List<Object> results2 = null;
-                    		try {
-                    			results2 = appService.search(GeneFunctionAssociation.class, gene);
-                    		} catch (Exception e) {
-                    			log.error(e,e);
-                    			JOptionPane.showMessageDialog(null, "Please try again later",
-                    					"Server side error", JOptionPane.ERROR_MESSAGE);
-                    			pb.stop();
-                    			return;
-                    		}
-
-                    		log.debug("\nDisease associated with Gene: " + geneSymbol);
-                    		final int diseaseLimit = 10;
-                    		final int agentLimit = 10;
-                    		int diseaseLimitIndex = diseaseLimit;
-                    		int agentLimitIndex = agentLimit;
-                    		int diseaseRecords=0;
-                    		int agentRecords=0;
-                    		if (results2!=null)
-                    		for (Object gfa : results2) {
-                    			if (gfa instanceof GeneDiseaseAssociation) {
-                    				diseaseRecords++;
-                    			}
-                    			else if (gfa instanceof GeneAgentAssociation) {
-                    				agentRecords++;
-                    			}
-                    		}
-                    		String numOutOfNumDisease = "";
-                    		String numOutOfNumAgent = "";
-                    		if (diseaseRecords>diseaseLimitIndex){
-                    			numOutOfNumDisease = diseaseLimitIndex+" out of "+diseaseRecords;
-                    		}
-                    		if (agentRecords>agentLimitIndex){
-                    			numOutOfNumAgent = agentLimitIndex+" out of "+agentRecords;
-                    		}
-                    		if (results2!=null)
-                    		for (Object gfa : results2) {
-                                pb.setMessage(progressMessage+"Records "+(diseaseLimit+agentLimit-diseaseLimitIndex-agentLimitIndex)+"/"+(diseaseRecords+agentRecords)+"\n");
-								if (stopAlgorithm == true) {
-									stopAlgorithm(pb);
-									break;
-								}
-                    			if (gfa instanceof GeneDiseaseAssociation) {
-                        			if (diseaseLimitIndex>0)
-                        				diseaseLimitIndex--;
-                        			else
-                        				continue;
-                    				GeneDiseaseAssociation gda = (GeneDiseaseAssociation) gfa;
-                    				markerData.add(new MarkerData(selectedMarkerInfo.get(i),numOutOfNumDisease));
-                    				geneData.add(new GeneData(gda.getGene().getSymbol(),gda.getGene()));
-                    				log.debug("  Disease: " + gda.getDiseaseOntology().getName());
-                    				diseaseData.add(new DiseaseData(gda.getDiseaseOntology().getName(),gda.getDiseaseOntology(), gda.getDiseaseOntology().getEVSId()));
-                    				log.debug("    Role: " + gda.getRole());
-                    				Evidence e = gda.getEvidence();
-                    				log.debug("    Sentence: "+e.getSentence());
-                    				log.debug("    PubmedId:"+e.getPubmedId());
-                    				roleData.add(new RoleData(gda.getRole()));
-                    				sentenceData.add(new SentenceData(e.getSentence()));
-                    				pubmedData.add(new PubmedData(Integer.toString(e.getPubmedId())));
-                    			}
-                    			else if (gfa instanceof GeneAgentAssociation) {
-                        			if (agentLimitIndex>0)
-                        				agentLimitIndex--;
-                        			else
-                        				continue;
-                    				GeneAgentAssociation gaa = (GeneAgentAssociation) gfa;
-                    				markerData2.add(new MarkerData(selectedMarkerInfo.get(i),numOutOfNumAgent));
-                    				geneData2.add(new GeneData(gaa.getGene().getSymbol(),gaa.getGene()));
-                    				evsIdData.add(new EvsIdData(gaa.getAgent().getEVSId()));
-                    				agentData.add(new DiseaseData(gaa.getAgent().getName(),null, gaa.getAgent().getEVSId()));
-                    				log.debug("  Id: " + gaa.getId());
-                    				log.debug("  Role: " + gaa.getRole());
-                    				log.debug("  EvsId: " + gaa.getAgent().getEVSId());
-                    				log.debug("  Name: " + gaa.getAgent().getName());
-                    				Evidence e = gaa.getEvidence();
-                    				log.debug("    Sentence: "+e.getSentence());
-                    				log.debug("    PubmedId:"+e.getPubmedId());
-                    				agentRoleData.add(new RoleData(gaa.getRole()));
-                    				agentSentenceData.add(new SentenceData(e.getSentence()));
-                    				agentPubmedData.add(new PubmedData(Integer.toString(e.getPubmedId())));
-                    			}
-                    		}
-                        }
-
-                        pb.stop();
-
-                    }
-                    MarkerData[] markers = markerData.toArray(new MarkerData[0]);
-                    GeneData[] genes = geneData.toArray(new GeneData[0]);
-                    DiseaseData[] diseases = diseaseData.toArray(new DiseaseData[0]);
-                    RoleData[] roles = roleData.toArray(new RoleData[0]);
-                    SentenceData[] sentences = sentenceData.toArray(new SentenceData[0]);
-                    PubmedData[] pubmeds = pubmedData.toArray(new PubmedData[0]);
-                    MarkerData[] markers2 = markerData2.toArray(new MarkerData[0]);
-                    GeneData[] genes2 = geneData2.toArray(new GeneData[0]);
-                    //TODO: clean this variable
-                    EvsIdData[] evsIds = evsIdData.toArray(new EvsIdData[0]);
-                    DiseaseData[] agents = agentData.toArray(new DiseaseData[0]);
-                    RoleData[] agentRoles = agentRoleData.toArray(new RoleData[0]);
-                    SentenceData[] agentSentences = agentSentenceData.toArray(new SentenceData[0]);
-                    PubmedData[] agentPubmeds = agentPubmedData.toArray(new PubmedData[0]);
+            		GeneAnnotation geneAnnotation = new GeneAnnotationImpl();
+            		AgentDiseaseResults agentDiseaseResults = geneAnnotation.showAnnotation(selectedMarkerInfo, retrieveItem, diseaseModel, agentModel, pb);
+            		if (stopAlgorithm){
+            			stopAlgorithm(pb);
+            			return;
+            		}
+                    MarkerData[] markers = agentDiseaseResults.getMarkers();
+                    GeneData[] genes = agentDiseaseResults.getGenes();
+                    DiseaseData[] diseases = agentDiseaseResults.getDiseases();
+                    RoleData[] roles = agentDiseaseResults.getRoles();
+                    SentenceData[] sentences = agentDiseaseResults.getSentences();
+                    PubmedData[] pubmeds = agentDiseaseResults.getPubmeds();
+                    MarkerData[] markers2 = agentDiseaseResults.getMarkers2();
+                    GeneData[] genes2 = agentDiseaseResults.getGenes2();
+                    //TODO: clean variables for this evsIds, since we handle evsIds in agentData now.
+                    EvsIdData[] evsIds = agentDiseaseResults.getEvsIds();
+                    DiseaseData[] agents = agentDiseaseResults.getAgents();
+                    RoleData[] agentRoles = agentDiseaseResults.getAgentRoles();
+                    SentenceData[] agentSentences = agentDiseaseResults.getAgentSentences();
+                    PubmedData[] agentPubmeds = agentDiseaseResults.getAgentPubmeds();
                     if (diseases.length+agents.length==0){
         				JOptionPane
 						.showMessageDialog(
@@ -2718,7 +2270,7 @@ public class AnnotationsPanel2 implements VisualPlugin, Observer{
                                     System.arraycopy(pathways, 0, temp, 0, pathways.length);
                                     System.arraycopy(pways, 0, temp, pathways.length, pways.length);
                                     pathways = temp;
-                                    GeneData gene = new GeneData(annotations[j].getGeneSymbol(),annotations[j].getGene());
+                                    GeneData gene = new GeneData(annotations[j]);
                                     if (pways.length > 0) {
                                         for (int k = 0; k < pways.length; k++) {
                                             pathwayData.add(new PathwayData(pways[k].getPathwayName(), pways[k]));
@@ -3004,15 +2556,8 @@ public class AnnotationsPanel2 implements VisualPlugin, Observer{
         JPopupMenu popup = new JPopupMenu();
         String value = (String) gene.name;
         //Get Entrez id
-        String entrezId = "";
-        Collection<DatabaseCrossReference> crossReferences = gene.gene.getDatabaseCrossReferenceCollection();
-        for (Iterator iterator = crossReferences.iterator(); iterator.hasNext();) {
-			DatabaseCrossReference crossReference = (DatabaseCrossReference) iterator.next();
-			if (crossReference.getDataSourceName().equals("LOCUS_LINK_ID")){
-				entrezId = crossReference.getCrossReferenceId();
-				break;
-			}
-		}
+        GeneAnnotation annotation = new GeneAnnotationImpl();
+        String entrezId = annotation.getEntrezId(gene.gene);
         if (!entrezId.equals("")){	//if we got an ID
             String entrezUrl = "http://www.ncbi.nlm.nih.gov/sites/entrez?Db=gene&Cmd=ShowDetailView&TermToSearch="+entrezId;
             JMenuItem entrezJMenuItem = new JMenuItem("Go to Entrez for " + value);
@@ -3870,8 +3415,10 @@ public class AnnotationsPanel2 implements VisualPlugin, Observer{
     public void stopAlgorithm(ProgressBar pb) {
 
     	stopAlgorithm = false;
-		pb.stop();
-        pb.dispose();
+    	if (pb!=null){
+    		pb.stop();
+    		pb.dispose();
+    	}
 
 	}
 
