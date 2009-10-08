@@ -45,7 +45,7 @@ import org.jdesktop.jdic.browser.IWebBrowser;
 /**
  * 
  * @author mwang
- * @version $Id: MarkUsBrowser.java,v 1.9 2009-05-28 16:09:45 wangm Exp $
+ * @version $Id: MarkUsBrowser.java,v 1.10 2009-10-08 15:32:47 wangm Exp $
  *
  */
 
@@ -131,6 +131,17 @@ public class MarkUsBrowser implements VisualPlugin {
 	@Subscribe
 	public void receive(ProjectEvent event, Object source) {
 		DSDataSet dataset = event.getDataSet();
+		if (is_mac && webBrowser != null && dataset instanceof DSProteinStructure)
+		{
+			boolean isshowing = ((java.awt.Component) webBrowser).isShowing();
+			if (isshowing == true) {
+				try {
+					setURL.invoke(webBrowser, new URL("http://wiki.c2b2.columbia.edu/workbench/index.php/Home"));
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		}
 		if (dataset instanceof MarkUsResultDataSet) {
 			MarkUsResultDataSet resultData = (MarkUsResultDataSet) dataset;
 			proteinData = (DSProteinStructure) resultData.getParentDataSet();
