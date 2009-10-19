@@ -58,13 +58,17 @@ import org.jfree.data.xy.XYSeriesCollection;
  * Analysis
  * 
  * @author Adam Margolin
- * @version $Id: ExpressionProfilePanel.java,v 1.13 2008-09-11 21:24:27 chiangy Exp $
+ * @version $Id: ExpressionProfilePanel.java,v 1.14 2009-10-19 16:50:29 jiz Exp $
  * @see MenuListener, VisualPlugin
  * 
  */
 @AcceptTypes( { DSMicroarraySet.class })
 public class ExpressionProfilePanel extends MicroarrayViewEventBase implements
 		MenuListener, VisualPlugin {
+
+	private static final String Y_AXIS_LABEL = "Expression Level";
+
+	private static final String X_AXIS_LABEL = "Experiment";
 
 	Log log = LogFactory.getLog(this.getClass());
 
@@ -93,8 +97,8 @@ public class ExpressionProfilePanel extends MicroarrayViewEventBase implements
 		super.jbInit();
 		graphPanel = new JPanel(new BorderLayout());
 		chart = ChartFactory.createXYLineChart(null, // Title
-				"Experiment", // X-Axis label
-				"Value", // Y-Axis label
+				X_AXIS_LABEL, // X-Axis label
+				Y_AXIS_LABEL, // Y-Axis label
 				new XYSeriesCollection(), // Dataset
 				PlotOrientation.VERTICAL, false, // Show legend
 				true, true);
@@ -205,8 +209,8 @@ public class ExpressionProfilePanel extends MicroarrayViewEventBase implements
 							StandardXYItemRenderer.LINES, tooltipGenerator);
 
 					JFreeChart ch = ChartFactory.createXYLineChart(null, // Title
-							"Experiment", // X-Axis label
-							"Value", // Y-Axis label
+							X_AXIS_LABEL, // X-Axis label
+							Y_AXIS_LABEL, // Y-Axis label
 							plots, // Dataset
 							PlotOrientation.VERTICAL, false, // Show legend
 							isToolTipEnabled, true);
@@ -219,7 +223,7 @@ public class ExpressionProfilePanel extends MicroarrayViewEventBase implements
 						for (int maCtr = 0; maCtr < arrays.size(); maCtr++)
 							alist[maCtr] = arrays.get(maCtr).getLabel();
 						ch.getXYPlot().setDomainAxis(
-								new SymbolAxis("Experiment", alist));
+								new SymbolAxis(X_AXIS_LABEL, alist));
 						ch.getXYPlot().getDomainAxis().setVerticalTickLabels(
 								true);
 
