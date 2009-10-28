@@ -5,7 +5,7 @@ import org.geworkbench.bison.model.analysis.ClusteringAnalysis;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
-import org.geworkbench.builtin.projects.Icons;
+//import org.geworkbench.builtin.projects.Icons;
 import org.geworkbench.components.gpmodule.gsea.GSEAAnalysisPanel;
 import org.genepattern.matrix.Dataset;
 import org.genepattern.matrix.AbstractDataset;
@@ -14,10 +14,7 @@ import org.genepattern.io.gct.GctWriter;
 import org.genepattern.io.cls.ClsWriter;
 import org.genepattern.util.GPpropertiesManager;
 import org.genepattern.client.GPClient;
-import org.genepattern.webservice.JobResult;
-import org.genepattern.webservice.AnalysisWebServiceProxy;
-import org.genepattern.webservice.WebServiceException;
-import org.genepattern.webservice.Parameter;
+import org.genepattern.webservice.*;
 import org.genepattern.gui.UIUtil;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -214,7 +211,28 @@ public abstract class GPAnalysis extends AbstractAnalysis implements ClusteringA
                 return null;
             }
 
+
             server = new GPClient(serverName, userName, password);
+
+            //hack for GSEA Analysis
+            if(analysisName.toLowerCase().equals("gsea"))
+            {
+                AdminProxy admin = new AdminProxy(serverName, userName, password);
+                String lsid = admin.getTask(analysisName).getLsid();
+                int index = lsid.lastIndexOf(":")+1;
+                if(index != -1)
+                {
+                    String version = lsid.substring(lsid.lastIndexOf(":")+1);
+                    //check that the GSEA version is at least 5 since earlier
+                    // versions will not work
+                    if(version != null && Integer.parseInt(version) < 5)
+                    {
+                        JOptionPane.showMessageDialog(panel, "Found GSEA version "+ version + ", but GSEA version 5 or greater is " +
+                                "required to run this analysis. \nPlease update the GSEA module on the GenePattern server: \n\t"+ serverName);
+                        return null;
+                    }
+                }
+            }
 
             analysisResult = server.runAnalysis(analysisName, parameters);
             analysisResult.downloadFiles(System.getProperty("temporary.files.directory"), true);
@@ -223,7 +241,6 @@ public abstract class GPAnalysis extends AbstractAnalysis implements ClusteringA
             if(outputFiles != null && outputFiles.length > 0)
             {
                 AnalysisWebServiceProxy analysisProxy = new AnalysisWebServiceProxy(server.getServer(), server.getUsername(), password);
-                
                 File[] results = analysisProxy.getResultFiles(analysisResult.getJobNumber(), outputFiles, new File(System.getProperty("temporary.files.directory")), true);
 
                 for(int i = 0; i < results.length; i++)
