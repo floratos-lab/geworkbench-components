@@ -9,7 +9,6 @@
 	<classpathentry kind="lib" path="lib/GenePattern.jar"/>
 	<classpathentry kind="lib" path="lib/Jama-1.0.1.jar"/>
 	<classpathentry kind="lib" path="lib/jaxrpc.jar"/>
-	<classpathentry kind="lib" path="lib/log4j-1.2.11.jar"/>
 	<classpathentry kind="lib" path="lib/MAGEstk-2003-10-24-v1.1-compatible.jar"/>
 	<classpathentry kind="lib" path="lib/mail.jar"/>
 	<classpathentry kind="lib" path="lib/mev-algorithm-impl.jar"/>
