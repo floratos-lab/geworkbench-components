@@ -600,7 +600,11 @@ public class GoAnalysisResultView extends JPanel implements VisualPlugin {
 		}
 
 		List<Integer> grandchildren = GoAnalysisResult.getOntologyChildren(childId);
-		if(grandchildren==null) return found;
+		if(grandchildren==null) {
+			if(found)
+				parent.add(childNode);
+			return found;
+		}
 		
 		for(Integer grandchild: grandchildren) {
 			boolean foundInSubtree = findAndAddChildren(targetGene, grandchild, childNode);
