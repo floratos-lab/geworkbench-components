@@ -9,15 +9,15 @@
 	<title>Cellular Network Knowledge Base</title>
 	<!-- maps -->
 	<maps>
-		<homeID>overview</homeID>
-		<mapref location="cellular.jhm"/>
+		<homeID>Overview</homeID>
+		<mapref location="cnkb.jhm"/>
 	</maps>
 	<!-- views -->
 	<view>
 		<name>TOC</name>
 		<label>Cellular Network Knowledge Base</label>
 		<type>javax.help.TOCView</type>
-		<data>cellulartoc.xml</data>
+		<data>cnkb_toc.xml</data>
 	</view>
 </helpset>
 

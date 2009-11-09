@@ -32,7 +32,7 @@ import org.geworkbench.events.listeners.ParameterActionListener;
  * 
  * @author First Genetic Trust
  * @author yc2480
- * @version $Id: MissingValuesFilterPanel.java,v 1.9 2009-06-19 19:23:11 jiz Exp $
+ * @version $Id: MissingValuesFilterPanel.java,v 1.10 2009-11-09 17:23:01 jiz Exp $
  */
 public class MissingValuesFilterPanel extends AbstractSaveableParameterPanel {
     private JLabel maxMissingLabel = new JLabel("<html><p>Maximum number of</p><p>missing arrays</p></html>");
@@ -132,5 +132,17 @@ public class MissingValuesFilterPanel extends AbstractSaveableParameterPanel {
 		// TODO Auto-generated method stub
 		
 	}
+	
+	@Override
+	public String getDataSetHistory() {
+		String histStr = "Missing Values Filter parameter:\n";
+		Map<Serializable, Serializable>parameters = null;
+		parameters = getParameters();
+		histStr += "Maximum number of missing arrays: ";
+		histStr += parameters.get("maxMissingValue");
+		histStr += "\n----------------------------------------\n";
+		return histStr;
+	}
+
 
 }

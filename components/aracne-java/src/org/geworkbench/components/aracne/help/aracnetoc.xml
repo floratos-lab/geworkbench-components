@@ -4,7 +4,13 @@
 
 	<tocitem text="ARACNE">
 
-		<tocitem target="ARACNE" text="Overview"/>
+		<tocitem target="Overview" text="Overview"/>
+		<tocitem target="Setting_up_an_ARACNe_run" text="Setting up an ARACNe run"/>
+		<tocitem target="Services_.28Local_vs_Grid.29" text="Services (Local vs Grid)"/>
+		<tocitem target="Viewing_ARACNe_results" text="Viewing ARACNe results"/>
+		<tocitem target="Dataset_History" text="Dataset History"/>
+		<tocitem target="Example_of_running_ARACNe" text="Example of running ARACNe"/>
+		<tocitem target="References" text="References"/>
 
 	</tocitem>
 

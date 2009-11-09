@@ -39,7 +39,7 @@ import org.geworkbench.util.associationdiscovery.cluster.CSMatchedMatrixPattern;
  * This class is used in CMHRuler, CNVRuler and ColorMosaicPanel.
  * 
  * @author Manjunath Kustagi
- * @version $Id: ColorMosaicImage.java,v 1.16 2009-01-29 17:33:40 jiz Exp $
+ * @version $Id: ColorMosaicImage.java,v 1.17 2009-11-09 17:22:46 jiz Exp $
  */
 
 public class ColorMosaicImage extends JPanel implements Scrollable {
@@ -176,6 +176,8 @@ public class ColorMosaicImage extends JPanel implements Scrollable {
 		}
 		for (int i = startIndex; i < stopIndex; i++) {
 			DSGeneMarker stats = cluster.getGeneLabel(i);
+			if(stats==null)continue;
+			
 			DSGeneMarker mkInfo = microarraySet.getMarkers().get(
 					stats.getSerial());
 			org.geworkbench.bison.util.colorcontext.ColorContext colorContext = (ColorContext) microarraySet
@@ -250,7 +252,7 @@ public class ColorMosaicImage extends JPanel implements Scrollable {
 				int x1 = (chipNo * geneWidth) / 1 - 1;
 				g.fillRect(x0, y0, x1 - x0, 2);
 			}
-		}
+		} // loop of i
 		// Draw the bottom right corner of the boundary box.
 		int x0 = chipNo * geneWidth - 1;
 		int y0 = (row + geneNo) * geneHeight;
