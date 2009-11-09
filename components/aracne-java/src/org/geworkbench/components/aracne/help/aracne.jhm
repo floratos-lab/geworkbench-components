@@ -6,7 +6,13 @@
 
 <map version="1.0">
 
-	<mapID target="ARACNE" url="aracne.htm"/>
+	<mapID target="Overview" url="aracne.htm#Overview"/>
+	<mapID target="Setting_up_an_ARACNe_run" url="aracne.htm#Setting_up_an_ARACNe_run"/>
+	<mapID target="Services_.28Local_vs_Grid.29" url="aracne.htm#Services_.28Local_vs_Grid.29"/>
+	<mapID target="Viewing_ARACNe_results" url="aracne.htm#Viewing_ARACNe_results"/>
+	<mapID target="Dataset_History" url="aracne.htm#Dataset_History"/>
+	<mapID target="Example_of_running_ARACNe" url="aracne.htm#Example_of_running_ARACNe"/>
+	<mapID target="References" url="aracne.htm#References"/>
 
 </map>
 
