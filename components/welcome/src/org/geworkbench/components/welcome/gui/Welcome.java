@@ -38,7 +38,7 @@ import org.geworkbench.events.ComponentConfigurationManagerUpdateEvent;
  * active it in CCM again.
  * 
  * @author yc2480
- * @version $Id: Welcome.java,v 1.2 2009-07-22 15:34:34 jiz Exp $
+ * @version $Id: Welcome.java,v 1.3 2009-11-09 18:12:41 jiz Exp $
  */
 public class Welcome extends JPanel implements VisualPlugin {
 
@@ -130,7 +130,7 @@ public class Welcome extends JPanel implements VisualPlugin {
 	 */
 	private void removeComponent(String resource, String ccmFileName) {
 		// remove from GUI
-		ComponentConfigurationManager manager = new ComponentConfigurationManager();
+		ComponentConfigurationManager manager = ComponentConfigurationManager.getInstance();
 		manager.removeComponent(resource, ccmFileName);
 		// remove from CCM
 		String propFileName = ccmFileName.replace(".ccm.xml", ".ccmproperties");
@@ -147,7 +147,7 @@ public class Welcome extends JPanel implements VisualPlugin {
 	 * up to date.
 	 */
 	private void ccmRefresh() {
-		ComponentConfigurationManager manager = new ComponentConfigurationManager();
+		ComponentConfigurationManager manager = ComponentConfigurationManager.getInstance();
 		ComponentRegistry componentRegistry = ComponentRegistry.getRegistry();
 		HashMap<Class, List<Class>> acceptors = componentRegistry
 				.getAcceptorsHashMap();
