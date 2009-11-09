@@ -67,7 +67,7 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin{
 //	MyTableModel myTableModel = new MyTableModel(new Object[1][1]); 
 	TableViewer tv;
 	TableViewer tv2;
-	String[] columnNames = {"Transcription Factor", "P-Value", "Genes in regulon", "Genes in target list"};
+	String[] columnNames = {"Master Regulator", "P-Value", "Genes in regulon", "Genes in target list"};
 	String[] detailColumnNames = {"Genes in target list", "P-Value", "T-Test Value"};
 	DSMasterRagulatorResultSet<DSGeneMarker> MRAResultSet;
 	DetailedTFGraphViewer detailedTFGraphViewer;
@@ -270,9 +270,9 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin{
 //		builder.nextColumn();
 		
 			//build the top-right panel
-			FormLayout detailTFFormLayout = new FormLayout("40dlu, 6dlu, 120dlu, pref:grow, 60dlu, 6dlu, 60dlu","20dlu, pref:grow");
+			FormLayout detailTFFormLayout = new FormLayout("80dlu, 6dlu, 120dlu, pref:grow, 60dlu, 6dlu, 60dlu","20dlu, pref:grow");
 			DefaultFormBuilder detailTFFormBuilder = new DefaultFormBuilder(detailTFFormLayout);
-			detailTFFormBuilder.append("TF Name:");
+			detailTFFormBuilder.append("Master Regulator:");
 			JLabel tfALabelField = BasicComponentFactory.createLabel(tfAHolder);
 			detailTFFormBuilder.append(tfALabelField);
 			//detailTFFormBuilder.nextColumn();

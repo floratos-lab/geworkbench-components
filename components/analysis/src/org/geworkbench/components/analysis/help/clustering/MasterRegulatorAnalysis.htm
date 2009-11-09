@@ -1,128 +1,270 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html dir="ltr" xml:lang="en" xmlns="http://www.w3.org/1999/xhtml" lang="en"><head>
-<head>
 
   
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta name="KEYWORDS" content="Tutorial - Master Regulator Analysis">
 
-    <title>Master Regulator Analysis</title>
-
-	<link rel="stylesheet" type="text/css" href="ncicb.css">
-
-</head>
-
-<body>
-<a name="top" id="top"></a>
-<h1>Master Regulator Analysis</h1>
-
-
-<a name="Overview"></a><h2>Overview</h2>
-<p>The goal of Master Regulator Analysis (MRA)is to identify
-transcription factors (TFs) which control the regulation of a set of
-target genes (TGs) that demonstrate significant differential expression
-across two cellular phenotypes, e.g. &quot;Case&quot; and &quot;Control&quot; in a
-microarray dataset. Differential expression is measured using a simple
-t-test. Sets of genes putatively controlled by each TF (each TF's
-regulon) are obtained from an adjacency matrix (interaction network)
-calculated by <a href="http://wiki.c2b2.columbia.edu/workbench/index.php/Tutorial_-_ARACNE" title="Tutorial - ARACNE"> ARACNe</a> or other source prior to MRA.<br>
+    <title>Tutorial - Master Regulator Analysis - Workbench</title>
+    <style type="text/css" media="screen,projection">/*<![CDATA[*/ @import "/workbench/skins/monobook/main.css"; /*]]>*/</style>
+    <link rel="stylesheet" type="text/css" href="MasterRegulatorAnalysis_files/commonPrint.css">
+<a name="Overview"></a><h1>Overview</h1>
+<p>Regulatory activity in the context of specific cellular phenotypes
+can be modeled using interaction networks. These are graphs where nodes
+represent genes and an edge between two nodes A and B means that genes <i>A</i> and <i>B</i> are participants in the same regulatory activity. E.g., <i>A</i> can be a transcription factor for <i>B</i>; or, <i>A</i> can be an miRNA that silences <i>B</i>.
+Analysis of such regulatory networks [<a href="#Basso2009">Basso et al., 2009</a>] has convincingly
+demonstrated their scale-free nature which is dominated by a relatively
+small number of nodes with a large degree of connectivity. The genes
+corresponding to those nodes are known as "master regulators" and
+collectively orchestrate the regulatory program of the underlying
+cellular phenotype(s). </p>
+<p>The master regulator analysis (MRA) component in geWorkbench
+combines regulatory information from interaction networks with
+differential expression analysis. The objective is to place
+differentially expressed genes within a regulatory context and identify
+the master regulators responsible for coordinating their regulation,
+thus highlighting the regulatory apparatus driving phenotypic
+differentiation. Specifically, given an interaction network <i>I</i>, a (presumed) master regulator gene <i>A</i>, and two sets of microarrays representing two distinct phenotypes, MRA computes the intersection between two sets of genes:
 </p>
-<p>The dataset from which the adjacency matrix is derived would not
-necessarily be the same one used for the t-test. An ARACNe run requires
-a dataset which explores many different expression phenotypes of a
-particular cell type, whereas a differential expression experiment
-compares only two classes.<br>
-</p>
-<p>For each TF, MRA then calculates, using Fisher's Exact test,
-whether there is greater overlap between the set of the TF's target
-genes and the set of differentially expressed genes than would be
-expected by chance. </p><p>The types of data which will be used in the MRA then are:
-</p>
-<ol><li> A microarray dataset appropriate for examining differential gene expression using a t-test. 
-</li><li> A list of putative transcription factors which are to be tested against the differentially expressed genes.
-</li><li> An interaction network in the form of an ARACNe adjacency
-matrix. It should contain the results of an ARACNe run including, as
-hub markers, at least all of the transcription factors that will be
-tested in MRA.
+<ol><li> The neighbors of <i>A</i> in the interaction network <i>I</i> (this gene set is called the <i><b>regulon</b></i> of <i>A</i>).
+</li><li> The set of differentially expressed genes in the array data from the two phenotypes of interest.
 </li></ol>
-<a name="MRA Parameters_and_Settings"></a>
-<h2>MRA  settings</h2>
+<p>Fisher’s exact test is then used to quantify how likely it is to
+encounter an intersection of the observed size by chance alone. A small
+p-value is taken to imply that gene <i>A</i> may play a significant role in mediating the regulatory program that leads to the differential phenotypes.
+</p><p>Interaction networks are represented as "adjacency matrices". An
+adjacency matrix lists the connections that each node takes part in,
+and includes a measure of the strength of that interaction (e.g. the
+mutual information in the case of matrices generated by ARACNe).
+</p>
+<a name="Setting_up_an_MRA_run"></a><h1>Setting up an MRA run</h1>
+<a name="Prerequisites"></a><h2>Prerequisites</h2>
+<ul><li> First confirm that the MRA component is available in geWorkbench. If not, it can be loaded using the <a href="http://wiki.c2b2.columbia.edu/workbench/index.php/Tutorial_-_Component_Configuration_Manager" title="Tutorial - Component Configuration Manager"> Component Configuration Manager</a>.
+</li><li> The MRA component will be listed along with the other analysis routines within the geWorkbench Analysis Panel.
+</li></ul>
+<p><img src="MasterRegulatorAnalysis_files/MRA_Parameters_panel.png" alt="Image:MRA_Parameters_panel.png" longdesc="/workbench/index.php/Image:MRA_Parameters_panel.png" width="943" height="291">
+</p>
+<ul><li> Data from an expression experiment (comprising measurements
+from multiple arrays/samples) has been loaded and the corresponding
+node has been selected within the Project Folders:
+</li></ul>
+<p><img src="MasterRegulatorAnalysis_files/Experiment_data_node_MRA.png" alt="Image:Experiment_data_node_(MRA).png" longdesc="/workbench/index.php/Image:Experiment_data_node_%28MRA%29.png" width="239" height="317">
+</p>
+<ul><li> Two array sets (each containing a distinct subset of arrays
+from the expression experiment) have been selected in the
+"Arrays/Phenotypes" component, representing the two phenotypes under
+investigation. One of the array sets (identified by the red-color pin)
+has been classified as containing the "Case" arrays (i.e., one of the 2
+phenotypes) while the other one contains the "Controls" (the second
+phenotype):
+</li></ul>
+<p><img src="MasterRegulatorAnalysis_files/Array_set_class_assignment_MRA.png" alt="Image:Array_set_class_assignment_(MRA).png" longdesc="/workbench/index.php/Image:Array_set_class_assignment_%28MRA%29.png" width="227" height="388">
+</p><p><u><b>NOTE</b></u>:The "Case"/"Control" assignment is needed
+because, in general, it is possible to select more than one array sets
+for this analysis. In that case it is necessary to explicitly designate
+which belong to each of the 2 phenotypes.
+</p>
+<a name="Parameters_and_Settings"></a><h2>Parameters and Settings</h2>
 <a name="Load_Network"></a><h3>Load Network</h3>
-<p>The network consists of an adjacency matrix generated by ARACNe.  
+<p>There are 2 ways to designate the interaction network, represented
+by an adjacency matrix, that will be used for computing the regulons of
+the candidate master regulator genes:
 </p>
-<ul><li> <b>From File</b> - load an adjacency matrix generated by an external run of ARACNe. 
-</li><li> <b>From Project</b> - load an ARACNe adjacency matrix from a result node in the Project Folders component.
+<ul><li> <b>From File</b>: by choosing a file that describes a network. 
+</li><li> <b>From Project</b>: by selecting an adjacency matrix node from the Project Folders component. Several analytical components in geWorkbench (e.g., <a href="http://wiki.c2b2.columbia.edu/workbench/index.php/Tutorial_-_ARACNE" title="Tutorial - ARACNE"> ARACNE</a>) produce adjacency matrix results nodes that can be utilized for this purpose.
 </li></ul>
-<a name="Transcription_Factors"></a><h3>Transcription Factors</h3>
-<ul><li> <b>From File</b> - Load a comma-separate list of transcription factors from a file.
-</li><li> <b>From Sets</b> - Use a set defined in the Markers component as the list of transcription factors.
-</li></ul>
-<a name="Significance_Threshold"></a><h3>Significance Threshold</h3>
-<ul><li> <b>T-test p-value (alpha)</b> - The cutoff p-value by which to
-establish whether a particular marker shows a significant difference in
-expression between the two groups. (Note that multiple testing
-corrections are offered on the t-test parameters tab).
-</li></ul>
-<p><br>
-</p><p> <img src="MasterRegulatorAnalysis_files/T_MRA_Setup.png"  width="1116" height="383">
-</p><p><br>
+<a name="Master_Regulators"></a><h3>Master Regulators</h3>
+<p>There are 2 ways to designate the candidate master regulator genes to use:
 </p>
-<a name="t-test"></a>
-<h2>t-test Parameters and Settings </h2>
-<p>The parameter settings available for the MRA t-test are shown in the
-figure below. These parameters are the same as those described in the <a href="http://wiki.c2b2.columbia.edu/workbench/index.php/Tutorial_-_Differential_Expression" title="Tutorial - Differential Expression"> t-test component tutorial</a>.
+<ul><li> <b>From File</b>: by choosing a file that contains a (comma separated) list of  marker names.
+</li><li> <b>From Sets</b>: by selecting a marker set from within the “Markers” component.
+</li></ul>
+<a name="T-test_p-value_.28alpha.29"></a><h3>T-test p-value (alpha)</h3>
+<p>Differential expression between the 2 phenotypes of interest is
+assessed using a t-test. The p-value provided by the user indicates the
+significance threshold below which a gene’s average expression is
+presumed to be significantly different in the 2 sets of arrays (cases
+and controls). Additional parameter settings affecting the execution of
+the t-test are defined within the “T-test” subtab. The parameters
+specified there are exactly the same as those used for the differential
+expression t-test analysis (see description in the corresponding <a href="http://wiki.c2b2.columbia.edu/workbench/index.php/Tutorial_-_Differential_Expression" title="Tutorial - Differential Expression"> tutorial</a>).
 </p>
-<a name="P-values_based_on"></a><h3>P-values based on</h3>
+<a name="Working_with_and_viewing_the_analysis_results"></a><h1>Working with and viewing the analysis results</h1>
+<p>Following the successful completion of the MRA computation, a result
+node appears in the Project Folder area of the geWorkbench interface,
+under the microarray experiment node used for the computation:
+</p><p><img src="MasterRegulatorAnalysis_files/MRA_results_node.png" alt="Image:MRA_results_node.png" longdesc="/workbench/index.php/Image:MRA_results_node.png" width="197" height="261"> 
+</p><p>The results of the analysis can be visualized in the MRA Viewer component by selecting the result node.
+</p>
+<a name="MRA_Results_Viewer"></a><h2>MRA Results Viewer</h2>
+<p>The MRA viewer is structured in 3 distinct areas.
+</p><p><img src="MasterRegulatorAnalysis_files/MRA_viewer_full.png" alt="Image:MRA_viewer_full.png" longdesc="/workbench/index.php/Image:MRA_viewer_full.png" width="731" height="475">
+</p>
+<a name="Summary_Listing"></a><h3>Summary Listing</h3>
+<p>This is a table with one row for each candidate master regulator. 
+</p><p><img src="MasterRegulatorAnalysis_files/MRA_Summary_listing.png" alt="Image:MRA_Summary_listing.png" longdesc="/workbench/index.php/Image:MRA_Summary_listing.png" width="499" height="302">
+</p><p>Each row contains 4 columns:
+</p>
+<ol><li> <b>Master Regulator</b>: This is either the master regulator
+gene name or the marker/probeset name identifying the corresponding
+array feature (depending on the selection of the radio buttons “Symbol”
+and “Probe set”).
+</li><li> <b>P-value</b>: the p-value from Fisher’s exact test. The
+test utilizes a 2x2 contingency table where rows classify markers as
+differentially expressed versus non-differentially expressed, while
+columns indicate if a marker belongs to the regulon of the master
+regulator or not. Counts are computed using all markers found in the
+input experiment data. (Fischer's exact test includes p-values for
+more-extreme tables). </li><li> <b>Genes in regulon</b>: The number of genes in the regulon
+of the master regulator (this comprises the set of genes that are first
+neighbors of the master regulator in the interaction network specified
+in the parameters panel).
+</li><li> <b>Genes in target list</b>: The number of differentially expressed genes that are also members of the regulon.
+</li></ol>
+<p>The contents of the table can be ordered by any column, by clicking on the column name.
+</p>
+<a name="Detailed_Listing"></a><h3>Detailed Listing</h3>
+<p>By clicking on the radio button associated with a master regulator
+in the Summary table, it is possible to display the complete listing of
+the differentially expressed genes intersecting the regulon of that
+master regulator. </p><p><img src="MasterRegulatorAnalysis_files/MRA_Detailed_listing.png" alt="Image:MRA_Detailed_listing.png" longdesc="/workbench/index.php/Image:MRA_Detailed_listing.png" width="505" height="429">
+</p><p>The genes are displayed in a table with the following columns:
+</p>
+<ul><li> <b>Genes in target list</b>: the names of the genes in the
+intersection set. Either the gene name or the marker/probe set name is
+used (based on the choice of "Symbol" or "Probe Set" radio buttons).
+</li><li> <b>P-value</b>: the p-value of the t-test statistic for this marker, computed over the 2 sets of arrays (cases versus controls). 
+</li><li> <b>T-test value</b>: The actual value of the t-test statistic
+for the gene. A positive value indicates that the mean expression of
+the gene is higher in cases than in controls (a negative value has the
+opposite meaning).
+</li></ul>
+<p>The “P-val Threshold” parameter (located above the table) can be
+used to limit the number of target genes displayed. Specifically, only
+genes with a p-value less than the specified cutoff will be shown (if
+“P-val Threshold” is left empty, then all target genes in the
+intersection set are displayed). Additional functionality is made
+available through the following buttons: </p>
+<ul><li> <b>Add to Set</b>: creates a set containing the markers that
+correspond to the genes currently displayed in the table. The new
+marker set appears in the Markers component and is named after the
+master regulator.
+</li><li> <b>Export selected</b>: same as “Add to Set” but instead of being added to a marker set, the markers are stored into a file.
+</li><li> <b>Export all</b>: stores into a file information for all
+master regulators (instead of only the one currently selected in the
+“Summary” view). Specifically, for each master regulator, the file
+lists the markers for all genes that are both differential expressed
+and also belong to the master regulator’s regulon.
+</li></ul>
+<a name="Graph_View"></a><h3>Graph View</h3>
+<p>For a given master regulator <i>A</i> and the intersection between
+its regulon and the set of differentially expressed genes, the graph
+view helps assess if the intersection genes are preferentially
+over-expressed in the cases versus the controls. The biological
+motivation comes from observing that regulators with multiple
+targets tend to affect the expression level of (most of) their targets
+in one particular direction: they either promote their expression or
+inhibit it; but they rarely do both equally. </p><p><img src="MasterRegulatorAnalysis_files/700px-MRA_graph_view.png" alt="" longdesc="/workbench/index.php/Image:MRA_graph_view.png" width="700" height="137">
+</p>
+<ul><li> The red-blue gradient at the bottom of the graph represents
+the range between the highest (red) and the lowest (blue) t-test
+statistic recorded among all differentially expressed genes. </li><li> The vertical bars correspond to the genes displayed in the
+table under the “Detailed listing” portion of the interface, i.e., the
+intersection between the differentially expressed genes and the regulon
+of the master regulator <i>A</i> currently selected within the “Summary listing” table. 
+</li><li> The relative location of a bar on the gradient represents the t-test statistic recorded for the corresponding gene. 
+</li><li> Further, the color of each bar provides information about the
+correlation between the expression levels of the target gene and the
+master regulator A (correlations are computed as Pearson’s r, using
+data from all microarrays in the experiment): black means that the two
+genes are positively correlated (r &gt; 0) while orange means that
+correlation is negative (r &lt; 0).
+</li></ul>
+<a name="Dataset_History"></a><h1>Dataset History</h1>
+<p>Each results node stores the parameter settings used to setup the
+corresponding MRA run. The specific parameter values can be inspected
+within the Dataset History component, after clicking on the MRA results
+node in the Project Folders pane.
+</p>
+<a name="Example_of_running_MRA"></a><h1>Example of running MRA</h1>
+<p>This example uses the Bcell-100.exp dataset available in the
+data/public_data directory of geWorkbench, and further described on the
+<a href="http://wiki.c2b2.columbia.edu/workbench/index.php/Download" title="Download">Download</a>
+page. Briefly, this dataset is composed of 100 Affymetrix HG-U95Av2
+arrays on which various B-cell lines, both normal and cancerous, were
+analyzed. Thus it explores a potentially wide variety of expression
+phenotypes.
+</p>
+<a name="Prerequisites_2"></a><h2>Prerequisites</h2>
+<ol><li> Obtain the annotation file for the HG-U95Av2 array type from the Affymetrix NetAffx website (<a href="http://www.affymetrix.com/support/technical/byproduct.affx?product=hgu95" class="external free" title="http://www.affymetrix.com/support/technical/byproduct.affx?product=hgu95" rel="nofollow">http://www.affymetrix.com/support/technical/byproduct.affx?product=hgu95</a>).
+The name will be similar to "HG_U95Av2.na29.annot.csv", where na29 is
+the version number. Loading the annotation file associates gene names
+and other information with the Affymetrix probeset IDs (see the
+geWorkbench FAQ for details on obtaining these files).
+</li><li> Store in your disk the following 2 files:
+<ol><li> <a href="http://wiki.c2b2.columbia.edu/workbench/images/5/5f/Interaction_network.txt" class="internal" title="Interaction network.txt"> Interaction_network.txt</a>:
+describes an interaction network with 1955 nodes and 3810 edges. The
+file has 1955 lines (one for each node, the node name is the first
+entry in every line) and each line lists the edges emanating from that
+node. Edges are describes as tab-delimited pairs where the first member
+of the pair is the name of the target node and the second member is a
+number specifying a weight for the edge (MRA does not use the weight
+information but other geWorkbench components do). Node names correspond
+to marker ids.
+</li><li> <a href="http://wiki.c2b2.columbia.edu/workbench/images/7/74/Master_regulators.csv" class="internal" title="Master regulators.csv"> Master_regulators.csv</a>: a list of master regulators. The marker ids in this file correspond to genes whose <a href="http://www.geneontology.org/" class="external text" title="http://www.geneontology.org/" rel="nofollow">Gene Ontology</a> annotation (under the Molecular Function category) lists them as transcription factors.
+</li></ol>
+</li></ol>
+<a name="Loading_and_preparing_the_example_data"></a><h2>Loading and preparing the example data</h2>
+<ol><li> Load the Bcell-100.exp dataset into geWorkbench as type "Affymetrix File Matrix".  (See <a href="http://wiki.c2b2.columbia.edu/workbench/index.php/Tutorial_-_Local_Data_Files" title="Tutorial - Local Data Files"> Local Data Files</a>).
+</li><li> When prompted, load the annotation file.
+</li></ol>
+<a name="Choosing_array_groups"></a><h2>Choosing array groups</h2>
+<p>The Bcell-100 dataset comes with predefined sets of arrays.  
+</p>
+<ul><li> In the Arrays/Phenotypes component (at lower left in the
+geWorkbench GUI), choose the group in the pulldown menu called "Class".
+</li><li> Check the box beside the 2 array sets titled "non-GC B-Cell" and "non-GC Tumor", as shown in the figure below.
+</li></ul>
+<p><img src="MasterRegulatorAnalysis_files/MRA_array_set_activation.png" alt="Image:MRA_array_set_activation.png" longdesc="/workbench/index.php/Image:MRA_array_set_activation.png" width="229" height="412">
+</p>
+<ul><li> Right-click on the array set titled "non-GC Tumor" and from
+the resulting popup menu choose "Classification-&gt;Case" to indicate
+that the arrays in that set will be treated as the "Case" phenotype for
+the t-test:
+</li></ul>
+<p><img src="MasterRegulatorAnalysis_files/Array_set_class_assignment_MRA.png" alt="Image:Array_set_class_assignment_(MRA).png" longdesc="/workbench/index.php/Image:Array_set_class_assignment_%28MRA%29.png" width="227" height="388">
+</p>
+<a name="Setting_up_the_parameters_and_starting_MRA"></a><h2>Setting up the parameters and starting MRA</h2>
+<p>In the Analysis Panel, select the "MRA Analysis" entry and set the parameters as follows:
+</p>
+<ul><li> <b>Load Network</b>: from the drop down choose the option
+"From File", click on the "Load" button, and select to open the file
+"Interaction_network.txt".
+</li><li> <b>Transcription Factors</b>: from the drop down choose the
+option "From File", click on the "Load" button, and select to open the
+file "Master_regulators.csv".
+</li><li> <b>T-test p-value (alpha)</b>: set the significance threshold to 0.01.
+</li></ul>
+<p><img src="MasterRegulatorAnalysis_files/MRA_params_setting_1.png" alt="Image:MRA_params_setting_1.png" longdesc="/workbench/index.php/Image:MRA_params_setting_1.png" width="846" height="405">
+</p>
+<ul><li> Click on the "T-test" tab and under <b>Correction Method</b>
+select the option titled "Standard Bonferroni", to indicate that the
+p-value of the t-test statistic for each gene should be family-wise
+corrected before compared to the p-value threshold (alpha) specified
+above.
+</li></ul>
+<p><img src="MasterRegulatorAnalysis_files/MRA_params_setting_2.png" alt="Image:MRA_params_setting_2.png" longdesc="/workbench/index.php/Image:MRA_params_setting_2.png" width="826" height="394">
+</p>
+<ul><li> Click on the <b>Analyze</b> button.
+</li></ul>
+<a name="Results"></a><h2>Results</h2>
+<p>Upon completion of the analysis, an MRA results node is placed in
+the Project Folders tree. The analysis results can be browsed using the
+MRA viewer and are as shown above in the MRA Results Viewer section.
+</p>
+<a name="References"></a><h1>References</h1>
 <ul>
-  <li> <strong>t-distribution</strong> - directly calculate the p-value
-</li><li> <strong>Permutation</strong> - determine the p-value empirically through repeated trials against permuted data sets.
-<ul><li> Randomly group experiments  - #-times - how many permuations to carry out 
-</li><li> All permutations
-</li></ul>
-</li></ul>
-<a name="Correction_method"></a><h3>Correction method</h3>
-<ul><li> <strong>Just alpha</strong> (no correction)
-</li><li> <strong>Standard Bonferroni</strong> - divide given p-value threshold by number of markers tested.
-</li><li> <strong>Adjusted Bonferroni</strong> - same as Standard Bonferroni, except the divisor for each successive marker tested is decreased by one.
-</li></ul>
-<p>&nbsp;</p>
-<a name="Step-down_Westfall_and_Young_methods"></a><h3>Step-down Westfall and Young methods</h3>
-<p>(only if permuation is selected for p-value calculation)
-</p>
-<ul><li><strong> minP
-</strong></li><li><strong> maxT
-</strong></li></ul>
-<a name="Group_Variances"></a><h3>Group Variances</h3>
-<p>Choose whether the variances in the two groups being compared are expected to be equal or not.
-</p>
-<ul><li> <strong>Unequal</strong> (Welch approximation)
-</li>
-<li><strong> Equal
-</strong></li>
+  <li><a name="Basso2009" id="Basso2009"></a>Basso K, Margolin AA, Stolovitzky G, Klein U, Dalla-Favera R, Califano  A: <em>Reverse engineering of regulatory networks in human B cells</em>. Nat  Genet 2005, 37(4):382-390. [<a href="http://www.ncbi.nlm.nih.gov/pubmed/15778709">Pubmed link</a>]</li>
+  <li><a name="Lim2009" id="Lim2009"></a>Lim WK, Lyashenko E, Califano A: <em>Master regulators used as breast cancer metastasis classifier</em>. Pac Symp Biocomput. 2009:504-15. [<a href="http://www.ncbi.nlm.nih.gov/pubmed/19209726">Pubmed link</a>]</li>
 </ul>
-
-<img src="MasterRegulatorAnalysis_files/T_MRA_t-test.png" />
-
-<a name="Multiple_testing_considerations"></a><h2>Multiple testing considerations</h2>
-<ul><li> <b>t-test</b> - The t-test for differential expression is run
-on each marker in turn, so that potentially thousands of tests may be
-performed. The t-test tab within MRA offers simple multiple testing
-corrections such as the Bonferroni correction. </li></ul>
-<ul><li> <b>Fisher's Exact Test</b> - Note that Fisher's Exact test is
-run for each transcription factor and a p-value reported. No correction
-is supplied for this occurrence of multiple testing.
-</li></ul>
-<a name="Running_MRA"></a><h2>Running MRA</h2>
-<ol><li> Select or load an adjacency matrix from an ARACNe run or other source.
-</li><li> Select or load a list of transcription factors.
-</li><li> Define two classes of arrays, e.g. case and control in the Arrays/Phenotypes component.
-</li><li> Set the significance threshold and t-test parameters as desired.
-</li><li> Press the <b>Analyze</b> button.  The t-test followed by the Fisher's Exact tests will be carried out.
-</li><li> A table and graphic showing transcription factors for whose
-interactions significant overlap with the set of differentially
-expressed genes was found will be displayed.
-</li>
-</ol>
-
- <p>&nbsp;</p>
 </body></html>

@@ -43,7 +43,7 @@ import com.jgoodies.forms.layout.FormLayout;
 /**
  *	Parameter Panel used for Master Regulator Analysis
  *	@author yc2480 
- *  @version $Id: MasterRegulatorPanel.java,v 1.7 2009-06-19 19:22:27 jiz Exp $
+ *  @version $Id: MasterRegulatorPanel.java,v 1.8 2009-11-09 17:14:11 jiz Exp $
  */
 public class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
 
@@ -83,7 +83,7 @@ public class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
 		builder.append(loadNetworkButton);
 		builder.nextLine();
 		
-		builder.append("Transcription Factors");
+		builder.append("Master Regulators");
 		JComboBox tfFrom = createTFFromComboBox();
 		tfFrom.setSelectedIndex(1);			//preselect "From File"
 		//JComboBox tfGroups = createGroupsComboBox();
