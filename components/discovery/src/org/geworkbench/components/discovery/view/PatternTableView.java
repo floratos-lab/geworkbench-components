@@ -204,6 +204,16 @@ public class PatternTableView extends JPanel {
                     selected = new File(selected.getAbsolutePath() + ".regx");
                 }
 
+                if (selected.exists()) {
+					int o = JOptionPane.showConfirmDialog(null,
+
+					"Replace the file", "Replace the existing file?",
+							JOptionPane.YES_NO_CANCEL_OPTION);
+					if (o != JOptionPane.YES_OPTION) {
+						return;
+					}
+				}
+                
                 BufferedWriter writer = new BufferedWriter(new FileWriter(selected));
                 for (int i = 0; i < rows.length; i++) {
                     org.geworkbench.util.patterns.CSMatchedSeqPattern pattern = (org.geworkbench.util.patterns.CSMatchedSeqPattern) model.getPattern(i);
@@ -257,6 +267,17 @@ public class PatternTableView extends JPanel {
                         return;
                     }
                     File file = chooser.getSelectedFile();
+
+                    if (file.exists()) {
+    					int o = JOptionPane.showConfirmDialog(null,
+
+    					"Replace the file", "Replace the existing file?",
+    							JOptionPane.YES_NO_CANCEL_OPTION);
+    					if (o != JOptionPane.YES_OPTION) {
+    						return;
+    					}
+    				}
+                    
                     if (!file.getName().endsWith(".pat")) {
                         file = new File(file.getAbsolutePath() + ".pat");
                     }
