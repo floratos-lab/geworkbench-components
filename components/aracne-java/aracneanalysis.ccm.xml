@@ -6,6 +6,7 @@
 		author="Andrea Califano, Ph.D."
 		authorURL="http://wiki.c2b2.columbia.edu/califanolab/index.php/Califano_Info"
 		toolURL="http://wiki.c2b2.columbia.edu/califanolab/index.php/Software/ARACNE"
+		tutorialURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Tutorial_-_ARACNE"
 		description="ARACNe: Algorithm for the Reconstruction of Accurate
  Cellular Networks.  This component uses a measure of mutual
  information to quantify the influence of one or more chosen

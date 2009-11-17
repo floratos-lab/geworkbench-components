@@ -1178,7 +1178,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 						cellularNetWorkElementInformation.getdSGeneMarker(),
 						eidc);
 				serial = copy.get(index).getSerial();
-				matrix.addGeneRow(serial);
+				matrix.addGeneRow(serial); // TGTG IS THIS SMASHING THE MATRIX?????
 				log.debug(" index:" + index + ",serial:" + serial + ",CNKB#"
 						+ cellularNetWorkElementInformation.getdSGeneMarker());
 				for (InteractionDetail interactionDetail : arrayList) {
@@ -1198,18 +1198,18 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 							log.info("Marker "
 									+ interactionDetail.getdSGeneMarker1()
 									+ " does not exist at the dataset. ");
-							continue;
+							continue; //TGTG NO ADD
 						}
 						int serial1 = copy.get(index1).getSerial();
-						matrix.addGeneRow(serial1);
+						matrix.addGeneRow(serial1);// TGTG ADD
 
-						matrix.add(serial1, serial2, 0.8f);
+						matrix.add(serial1, serial2, 0.8f);  // TGTG ADD
 						if (interactionDetail
 								.getInteractionType()
 								.equalsIgnoreCase(
 										InteractionDetail.PROTEINPROTEININTERACTION)) {
-							matrix.addDirectional(serial1, serial2, "pp");
-							matrix.addDirectional(serial2, serial1, "pp");
+							matrix.addDirectional(serial1, serial2, "pp"); // TGTG ADD
+							matrix.addDirectional(serial2, serial1, "pp"); // TGTG ADD
 							log.debug("\t"
 									+ interactionDetail.getdSGeneMarker1()
 									+ ":" + serial1 + "<=>"
@@ -1220,12 +1220,12 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 									+ ",#InteractionMap:"
 									+ matrix.getInteractionMap().size());
 						} else {
-							matrix.addDirectional(serial, serial2, "pd");
-							matrix.addDirectional(serial2, serial, "pd");
+							matrix.addDirectional(serial, serial2, "pd"); // TGTG ADD
+							matrix.addDirectional(serial2, serial, "pd"); // TGTG ADD
 						}
 					} else {
 						log.info("Marker "
-								+ interactionDetail.getdSGeneMarker2()
+								+ interactionDetail.getdSGeneMarker2() // TGTG NO ADD
 								+ " does not exist at the dataset. ");
 					}
 				}
@@ -1267,13 +1267,13 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 					+ "      Selected Marker List: \n" + historyStr + "\n";
 			ProjectPanel.addToHistory(dataSet, historyStr);
 			publishProjectNodeAddedEvent(new ProjectNodeAddedEvent(
-					"Adjacency Matrix Added", null, dataSet));
-			publishAdjacencyMatrixEvent(new AdjacencyMatrixEvent(matrix,
+					"Adjacency Matrix Added", null, dataSet));				// over here
+			publishAdjacencyMatrixEvent(new AdjacencyMatrixEvent(matrix,  // TGTG PUBLISH -1 = networkfocus
 					"Interactions from knowledgebase", -1, 2, 0.5f,
 					AdjacencyMatrixEvent.Action.DRAW_NETWORK));
 		} else {
 			JOptionPane.showMessageDialog(null,
-					"No interactions exist in the current database.",
+					"No interactions exist in the current database.", // TGTG NO PUBLISH
 					"Empty Set", JOptionPane.ERROR_MESSAGE);
 		}
 
