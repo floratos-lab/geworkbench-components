@@ -7,6 +7,7 @@
 							author="C2B2"
 							authorURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Home"
 							toolURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Home"
+							tutorialURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Tutorial_-_Master_Regulator_Analysis"							
 							description="The Master Regulator Analysis (MRA) component attempts
  to identify transcription factors which control the regulation of a set
  of differentially expressed target genes (TGs).  Differential expression
