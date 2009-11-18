@@ -22,7 +22,7 @@
 
 	</component>
 
-	<plugin id="MatrixReduceAnalysis" name="MatrixREDUCE" class="org.geworkbench.components.matrixreduce.MatrixReduceAnalysis" source="matrixreduce"/>
+	<plugin id="MatrixReduceAnalysis" name="MatrixREDUCE Analysis" class="org.geworkbench.components.matrixreduce.MatrixReduceAnalysis" source="matrixreduce"/>
 
 	<component-descriptor xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="Descriptor Schema.xsd">
 	    <component class="org.geworkbench.components.matrixreduce.MatrixReduceAnalysis">
