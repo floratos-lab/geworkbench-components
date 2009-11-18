@@ -79,7 +79,7 @@ import com.solarmetric.ide.ui.CheckboxCellRenderer;
  * @author mhall
  * @ch2514
  * @author oshteynb
- * @version $Id: MindyPlugin.java,v 1.87 2009-10-27 20:57:00 oshteynb Exp $
+ * @version $Id: MindyPlugin.java,v 1.88 2009-11-18 18:15:46 oshteynb Exp $
  */
 @SuppressWarnings("serial")
 public class MindyPlugin extends JPanel {
@@ -120,7 +120,8 @@ public class MindyPlugin extends JPanel {
 
 	private JTabbedPane tabs;
 
-	private JCheckBox selectionEnabledCheckBox, selectionEnabledCheckBoxTarget;
+	private JCheckBox selectionEnabledCheckBox;
+	private JCheckBox selectionEnabledCheckBoxTarget;
 
 	private JScrollPane heatMapScrollPane;
 
@@ -286,7 +287,12 @@ public class MindyPlugin extends JPanel {
 			DefaultTableCellRenderer renderer = new DefaultTableCellRenderer();
 			renderer.setHorizontalAlignment(DefaultTableCellRenderer.CENTER);
 			modTable.getColumnModel().getColumn(5).setCellRenderer(renderer);
-			modTable.getColumnModel().getColumn(0).setMaxWidth(15);
+
+//			modTable.getColumnModel().getColumn(0).setMaxWidth(15);
+			// 0 hardcoded for consistency, refactor later
+			modTable.getColumnModel().getColumn(0).setMinWidth(
+					MIN_CHECKBOX_WIDTH);
+
 			modTable.setAutoCreateColumnsFromModel(false);
 			modTable.getTableHeader().addMouseListener(
 					new ColumnHeaderListener());
@@ -506,6 +512,9 @@ public class MindyPlugin extends JPanel {
 
 			/* do not allow the user to reorder table columns */
 			targetTable.getTableHeader().setReorderingAllowed(false);
+			// 0 hardcoded for consistency, refactor later
+			targetTable.getColumnModel().getColumn(0).setMinWidth(
+					MIN_CHECKBOX_WIDTH);
 
 			targetTable.getTableHeader().setDefaultRenderer(
 					new CheckBoxRenderer());
@@ -724,16 +733,23 @@ public class MindyPlugin extends JPanel {
 						// If not shaded, match the table's background
 						c.setBackground(getBackground());
 					}
+
 					return c;
 				}
 			};
 			JScrollPane scrollPane = new JScrollPane(listTable);
+
+			restoreBooleanRenderers(listTable);
+
 			listTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 			listTable.setAutoCreateColumnsFromModel(false);
 			listTable.getTableHeader().addMouseListener(
 					new ColumnHeaderListener());
-
-			restoreBooleanRenderers(listTable);
+			// 0 hardcoded for consistency, refactor later
+			listTable.getColumnModel().getColumn(0).setMinWidth(
+					MIN_CHECKBOX_WIDTH);
+			listTable.getColumnModel().getColumn(2).setMinWidth(
+					MIN_CHECKBOX_WIDTH);
 
 			selectionEnabledCheckBox = new JCheckBox(ENABLE_SELECTION + " 0");
 			selectionEnabledCheckBox.addActionListener(new ActionListener() {
@@ -1430,8 +1446,8 @@ public class MindyPlugin extends JPanel {
 	private void setListTableViewOptions() {
 		boolean selected = selectionEnabledCheckBox.isSelected();
 		if (selected) {
-			listTable.getColumnModel().getColumn(0).setMaxWidth(15);
-			listTable.getColumnModel().getColumn(2).setMaxWidth(15);
+			listTable.getColumnModel().getColumn(0).setMaxWidth(30);
+			listTable.getColumnModel().getColumn(2).setMaxWidth(30);
 		}
 		setListCheckboxesVisibility(selected);
 	}
@@ -1439,7 +1455,7 @@ public class MindyPlugin extends JPanel {
 	private void setTargetTableViewOptions() {
 		boolean selected = selectionEnabledCheckBoxTarget.isSelected();
 		if (selected) {
-			targetTable.getColumnModel().getColumn(0).setMaxWidth(15);
+			targetTable.getColumnModel().getColumn(0).setMaxWidth(30);
 		} else {
 			targetTable.getColumnModel().getColumn(0).setMaxWidth(0);
 		}
@@ -1448,12 +1464,12 @@ public class MindyPlugin extends JPanel {
 
 	private void setListCheckboxesVisibility(boolean show) {
 		if (show) {
-			listTable.getColumn(" ").setMaxWidth(15);
-			listTable.getColumn("  ").setMaxWidth(15);
-			listTable.getColumn(" ").setMinWidth(15);
-			listTable.getColumn("  ").setMinWidth(15);
-			listTable.getColumn(" ").setWidth(15);
-			listTable.getColumn("  ").setWidth(15);
+			listTable.getColumn(" ").setMaxWidth(30);
+			listTable.getColumn("  ").setMaxWidth(30);
+			listTable.getColumn(" ").setMinWidth(30);
+			listTable.getColumn("  ").setMinWidth(30);
+			listTable.getColumn(" ").setWidth(30);
+			listTable.getColumn("  ").setWidth(30);
 		} else {
 			listTable.getColumn(" ").setMaxWidth(0);
 			listTable.getColumn("  ").setMaxWidth(0);
@@ -1466,9 +1482,9 @@ public class MindyPlugin extends JPanel {
 
 	private void setTargetCheckboxesVisibility(boolean show) {
 		if (show) {
-			targetTable.getColumn(" ").setMaxWidth(15);
-			targetTable.getColumn(" ").setMinWidth(15);
-			targetTable.getColumn(" ").setWidth(15);
+			targetTable.getColumn(" ").setMaxWidth(30);
+			targetTable.getColumn(" ").setMinWidth(30);
+			targetTable.getColumn(" ").setWidth(30);
 		} else {
 			targetTable.getColumn(" ").setMaxWidth(0);
 			targetTable.getColumn(" ").setMinWidth(0);
@@ -1932,7 +1948,7 @@ public class MindyPlugin extends JPanel {
 	 * For rendering modulator checkboxes on the targets table column headers.
 	 *
 	 * @author ch2514
-	 * @version $Id: MindyPlugin.java,v 1.87 2009-10-27 20:57:00 oshteynb Exp $
+	 * @version $Id: MindyPlugin.java,v 1.88 2009-11-18 18:15:46 oshteynb Exp $
 	 */
 	private class CheckBoxRenderer extends DefaultTableCellRenderer {
 		/**
@@ -1971,8 +1987,8 @@ public class MindyPlugin extends JPanel {
 					blankLabel.setBackground(c.getBackground());
 					blank.setBorder(loweredetched);
 					blank.add(blankLabel);
-					blank.setMaximumSize(new Dimension((int) blank.getSize()
-							.getWidth(), 10));
+					int maxSize = (int) blank.getSize().getWidth();
+					blank.setMaximumSize(new Dimension(maxSize, 10));
 					table.getColumnModel().getColumn(column).setMinWidth(
 							MIN_CHECKBOX_WIDTH);
 					return blank;
@@ -2020,6 +2036,33 @@ public class MindyPlugin extends JPanel {
 					return p;
 				}
 			}
+
+			if (o instanceof ModulatorModel) {
+				if (column == 0) {
+					JPanel blank = new JPanel();
+					JLabel blankLabel = new JLabel("  ");
+					blank.add(blankLabel);
+					int maxSize = (int) blank.getSize().getWidth();
+					blank.setMaximumSize(new Dimension(maxSize, 10));
+					table.getColumnModel().getColumn(column).setMinWidth(
+							MIN_CHECKBOX_WIDTH);
+					return blank;
+				}
+			}
+
+			if (o instanceof ModulatorTargetModel) {
+				if ( (column == 0) || (column == 2) ) {
+					JPanel blank = new JPanel();
+					JLabel blankLabel = new JLabel("  ");
+					blank.add(blankLabel);
+					int maxSize = (int) blank.getSize().getWidth();
+					blank.setMaximumSize(new Dimension(maxSize, 10));
+					table.getColumnModel().getColumn(column).setMinWidth(
+							MIN_CHECKBOX_WIDTH);
+					return blank;
+				}
+			}
+
 			return c;
 		}
 	}
@@ -2029,7 +2072,7 @@ public class MindyPlugin extends JPanel {
 	 *
 	 * @author mhall
 	 * @author ch2514
-	 * @version $Id: MindyPlugin.java,v 1.87 2009-10-27 20:57:00 oshteynb Exp $
+	 * @version $Id: MindyPlugin.java,v 1.88 2009-11-18 18:15:46 oshteynb Exp $
 	 */
 	class AggregateTableModel extends DefaultTableModel {
 
@@ -2312,11 +2355,6 @@ public class MindyPlugin extends JPanel {
 					}
 				}
 
-//				fireTableDataChanged();
-
-				MindyPlugin.this
-						.setTargetCheckboxesVisibility(selectionEnabledCheckBoxTarget
-								.isSelected());
 			}
 		}
 
@@ -2593,9 +2631,6 @@ public class MindyPlugin extends JPanel {
 			else
 				selectAllTargetsCheckBoxTarget.setSelected(false);
 
-			MindyPlugin.this
-					.setTargetCheckboxesVisibility(selectionEnabledCheckBoxTarget
-							.isSelected());
 		}
 
 		/**
@@ -2715,7 +2750,6 @@ public class MindyPlugin extends JPanel {
 					this.checkedTargets[i] = false;
 				}
 			}
-			fireTableStructureChanged();
 
 			selectionEnabledCheckBoxTarget.setText(ENABLE_SELECTION + " "
 					+ aggregateModel.getNumberOfMarkersSelected());
@@ -2945,7 +2979,7 @@ public class MindyPlugin extends JPanel {
 	 * Compare M#, M+, or M- of two gene markers (for sorting).
 	 *
 	 * @author mhall
-	 * @version $Id: MindyPlugin.java,v 1.87 2009-10-27 20:57:00 oshteynb Exp $
+	 * @version $Id: MindyPlugin.java,v 1.88 2009-11-18 18:15:46 oshteynb Exp $
 	 */
 	private class ModulatorStatComparator implements Comparator<DSGeneMarker> {
 
@@ -2998,7 +3032,7 @@ public class MindyPlugin extends JPanel {
 	 *
 	 * @author mhall
 	 * @author ch2514
-	 * @version $Id: MindyPlugin.java,v 1.87 2009-10-27 20:57:00 oshteynb Exp $
+	 * @version $Id: MindyPlugin.java,v 1.88 2009-11-18 18:15:46 oshteynb Exp $
 	 */
 	class ModulatorTargetModel extends DefaultTableModel {
 
@@ -3764,7 +3798,7 @@ public class MindyPlugin extends JPanel {
 	 * for the targets table.
 	 *
 	 * @author ch2514
-	 * @version $Id: MindyPlugin.java,v 1.87 2009-10-27 20:57:00 oshteynb Exp $
+	 * @version $Id: MindyPlugin.java,v 1.88 2009-11-18 18:15:46 oshteynb Exp $
 	 */
 	private class ColumnHeaderListener extends MouseAdapter {
 		/**
@@ -3835,7 +3869,6 @@ public class MindyPlugin extends JPanel {
 						cb
 								.setSelected(atm
 										.getModulatorCheckBoxState(mColIndex));
-						atm.fireTableStructureChanged();
 						DSGeneMarker m = atm.enabledModulators.get(mColIndex
 								- AggregateTableModel.EXTRA_COLS);
 						int tRowIndex = atm.activeTargets.indexOf(m);
@@ -3855,6 +3888,7 @@ public class MindyPlugin extends JPanel {
 						MindyPlugin.this
 								.setTargetCheckboxesVisibility(selectionEnabledCheckBoxTarget
 										.isSelected());
+						atm.fireTableStructureChanged();
 					}
 					if (mColIndex >= atm.getNumberOfModulatorCheckBoxes())
 						log.error("check box index [" + mColIndex
@@ -3869,6 +3903,7 @@ public class MindyPlugin extends JPanel {
 						boolean tmp = states[mColIndex];
 						states[mColIndex] = !tmp;
 						atm.sort(mColIndex, states[mColIndex]);
+						aggregateModel.fireTableStructureChanged();
 					}
 				}
 			}
