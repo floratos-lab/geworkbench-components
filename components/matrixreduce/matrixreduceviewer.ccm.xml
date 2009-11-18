@@ -20,7 +20,7 @@
 			
 	</component>
 
-	<plugin id="MatrixReduceViewer" name="MatrixREDUCE" class="org.geworkbench.components.matrixreduce.MatrixReduceViewer" source="matrixreduce">
+	<plugin id="MatrixReduceViewer" name="MatrixREDUCE Viewer" class="org.geworkbench.components.matrixreduce.MatrixReduceViewer" source="matrixreduce">
 		<gui-area name="VisualArea"/>
 	</plugin>
 
