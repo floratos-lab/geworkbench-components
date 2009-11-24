@@ -38,7 +38,7 @@ import org.geworkbench.events.ComponentConfigurationManagerUpdateEvent;
  * active it in CCM again.
  * 
  * @author yc2480
- * @version $Id: Welcome.java,v 1.3 2009-11-09 18:12:41 jiz Exp $
+ * @version $Id: Welcome.java,v 1.4 2009-11-24 15:41:07 jiz Exp $
  */
 public class Welcome extends JPanel implements VisualPlugin {
 
@@ -154,7 +154,6 @@ public class Welcome extends JPanel implements VisualPlugin {
 		ComponentConfigurationManagerUpdateEvent ccmEvent = new ComponentConfigurationManagerUpdateEvent(
 				acceptors);
 		publishComponentConfigurationManagerUpadateEvent(ccmEvent);
-		manager.loadAllComponentFolders();
 	}
 
 	/*
