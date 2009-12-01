@@ -40,6 +40,8 @@ import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.JTree;
 import javax.swing.ListSelectionModel;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
 import javax.swing.event.ListSelectionEvent;
@@ -104,11 +106,15 @@ public class GoAnalysisResultView extends JPanel implements VisualPlugin {
 	
 	private static Object[] geneListHeaders = new String[]{"Gene Symbol", "Expression change", "Description"};
 	
-	private JTabbedPane initializePrimaryView() {
-		JTabbedPane primaryView = new JTabbedPane();
+	private JTabbedPane primaryView = null;
+	private JPanel tableTab = null;
+	private JPanel treeTab = null;
+	
+	private void initializePrimaryView() {
+		primaryView = new JTabbedPane();
 
-		JPanel tableTab = new JPanel();
-		JPanel treeTab = new JPanel();
+		tableTab = new JPanel();
+		treeTab = new JPanel();
 		primaryView.add(tableTab, "Table Browser");
 		primaryView.add(treeTab, "Tree Browser");
 
@@ -233,8 +239,10 @@ public class GoAnalysisResultView extends JPanel implements VisualPlugin {
 			public void valueChanged(TreeSelectionEvent e) {
 				GoTreeNode node = (GoTreeNode) tree.getLastSelectedPathComponent();
 
-				if (node == null)	//Nothing is selected.	
+				if (node == null || node.goId==0) { //Nothing or ROOT is selected.	
+					geneListTableModel.setDataVector(null, geneListHeaders);
 					return;
+				}
 				
 				Integer goId = node.goId;
 				populateGeneList(goId);
@@ -245,14 +253,12 @@ public class GoAnalysisResultView extends JPanel implements VisualPlugin {
 		});
 
 		treeTab.add(new JScrollPane(tree), BorderLayout.CENTER);
-		
-		return primaryView;
 	}
 	
 	private JPanel initializeLeftPanel() {
 		JPanel leftPanel = new JPanel();
 
-		JTabbedPane primaryView = initializePrimaryView();
+		initializePrimaryView();
 		JPanel geneListWindow = new JPanel();
 
 		leftPanel.setLayout(new BoxLayout(leftPanel, BoxLayout.Y_AXIS));
@@ -272,11 +278,7 @@ public class GoAnalysisResultView extends JPanel implements VisualPlugin {
 		
 		ActionListener genesForListener = new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				int index = table.getSelectedRow();
-				if(index>=0 && index<=tableModel.getRowCount()) { // in case the selection is not in the new range
-					Integer goId = (Integer)tableModel.getValueAt(index, 0);
-					populateGeneList(goId);
-				}
+				refreshGeneView();
 			}
 		};
 		termButton.addActionListener(genesForListener);
@@ -321,7 +323,42 @@ public class GoAnalysisResultView extends JPanel implements VisualPlugin {
 			
 		});
 		geneListWindow.add(new JScrollPane(geneListTable));
+		
+		primaryView.addChangeListener(new ChangeListener() {
+
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				refreshGeneView();
+			}
+			
+		});
 		return leftPanel;
+	}
+	
+	private void refreshGeneView () {
+		if(primaryView.getSelectedComponent()==tableTab) {
+			int index = table.getSelectedRow();
+			if(index>=0 && index<=tableModel.getRowCount()) { // in case the selection is not in the new range
+				Integer goId = (Integer)tableModel.getValueAt(index, 0);
+
+				populateGeneList(goId);
+				populateSingleGeneTree(goId);
+				showTermDetail(goId);
+			}
+		} else if (primaryView.getSelectedComponent()==treeTab) {
+			GoTreeNode node = (GoTreeNode) tree.getLastSelectedPathComponent();
+			if(node==null || node.goId==0) {
+				geneListTableModel.setDataVector(null, geneListHeaders);
+				return;
+			}
+			Integer goId = node.goId;
+
+			populateGeneList(goId);
+			populateSingleGeneTree(goId);
+			showTermDetail(goId);
+		} else {
+			log.error("invalid selection of primaryView");
+		}
 	}
 
 	private JPanel initializeRightPanel() {
