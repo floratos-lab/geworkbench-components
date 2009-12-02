@@ -326,7 +326,7 @@ public class GoAnalysisResultView extends JPanel implements VisualPlugin {
 		
 		primaryView.addChangeListener(new ChangeListener() {
 
-			@Override
+			//@Override
 			public void stateChanged(ChangeEvent e) {
 				refreshGeneView();
 			}
