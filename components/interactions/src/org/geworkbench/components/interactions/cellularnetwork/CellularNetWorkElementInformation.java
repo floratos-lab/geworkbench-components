@@ -3,6 +3,7 @@ package org.geworkbench.components.interactions.cellularnetwork;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.AnnotationParser;
 import org.geworkbench.bison.datastructure.bioobjects.markers.goterms.GOTerm;
+import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.GeneOntologyUtil;
 
 import java.util.ArrayList;
 import java.util.Set;
