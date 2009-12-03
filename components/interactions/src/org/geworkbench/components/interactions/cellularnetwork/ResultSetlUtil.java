@@ -1,16 +1,37 @@
 package org.geworkbench.components.interactions.cellularnetwork;
 
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.io.BufferedReader;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.math.BigDecimal;
-import java.net.HttpURLConnection;
+import java.net.HttpURLConnection; 
+import java.net.PasswordAuthentication;
 import java.net.URL;
+import java.net.Authenticator;
+import java.util.Properties;
 import java.util.TreeMap;
 
 import javax.servlet.http.HttpServletResponse;
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JPasswordField;
+import javax.swing.JTextField;
 
+import sun.misc.BASE64Decoder;
+
+ 
 /**
  * @author oleg shteynbuk
  *
@@ -35,9 +56,10 @@ import javax.servlet.http.HttpServletResponse;
  *
  */
 public class ResultSetlUtil {
-//	public static final String INTERACTIONS_SERVLET_URL = "http://localhost:8080/InteractionsServlet/InteractionsServlet";
-	public static final String INTERACTIONS_SERVLET_URL = "http://cagridnode.c2b2.columbia.edu:8080/cknb/InteractionsServlet/InteractionsServlet";
-
+ 	
+	//public static String INTERACTIONS_SERVLET_URL = "http://156.145.29.16:8080/InteractionsServlet/InteractionsServlet";
+	//public static final String INTERACTIONS_SERVLET_URL = "http://cagridnode.c2b2.columbia.edu:8080/cknb/InteractionsServlet/InteractionsServlet";
+     
 	// currently in two files
 	public static final int SPLIT_ALL = -2;
 	public static final String DEL = "|";
@@ -46,7 +68,9 @@ public class ResultSetlUtil {
 	public static final String MYSQL = "mysql";
 	public static final String NULL_STR = "null";
 	public static final BigDecimal NULL_BIGDECIMAL = new BigDecimal(0);
-
+   	 
+	public static String INTERACTIONS_SERVLET_URL = null;
+	
 	private TreeMap<String, Integer> metaMap;
 	private String[] row;
 	private String decodedString;
@@ -62,6 +86,11 @@ public class ResultSetlUtil {
 		processMetadata();
 	}
 
+	public static void setUrl(String aUrl)
+	{
+		 INTERACTIONS_SERVLET_URL = aUrl;
+	}
+	
 	// reconstruct metadata
 	public void processMetadata() {
 		for (int i = 0; i < row.length; i++) {
@@ -140,14 +169,14 @@ public class ResultSetlUtil {
 	public static HttpURLConnection getConnection(String url) throws IOException {
 		URL aURL = new URL(url);
 		HttpURLConnection aConnection = (HttpURLConnection)( aURL.openConnection());
-		aConnection.setDoOutput(true);
-
+		aConnection.setDoOutput(true);	 
 		return aConnection;
 	}
-
+	
+	
 	public static ResultSetlUtil executeQuery(String aSQL, String db,
-			HttpURLConnection aConnection) throws IOException {
-
+			HttpURLConnection aConnection) throws IOException, UnAuthenticatedException {
+			
 		String data = db + DEL + aSQL;
 
 		OutputStreamWriter out = new OutputStreamWriter(aConnection
@@ -159,9 +188,14 @@ public class ResultSetlUtil {
 		// errors, exceptions
 		int respCode = aConnection.getResponseCode();
 
+		if (respCode == HttpServletResponse.SC_UNAUTHORIZED)
+			throw new UnAuthenticatedException("server response code = " + respCode );   
+		
 		if ( (respCode==HttpServletResponse.SC_BAD_REQUEST) || (respCode==HttpServletResponse.SC_INTERNAL_SERVER_ERROR)  ){
 			throw new IOException("server response code = " + respCode + ", see server logs");
 		}
+
+		
 
 		BufferedReader in = new BufferedReader(new InputStreamReader(
 				aConnection.getInputStream()));
@@ -176,15 +210,27 @@ public class ResultSetlUtil {
 	public static void main(String[] args) {
 		HttpURLConnection aConnection = null;
 		ResultSetlUtil rs = null;
-		try {
+		try {		 
+			Properties iteractionsProp = new Properties();
+		 	iteractionsProp.load(new FileInputStream("conf/iteractions.properties"));
+	     	String interactionsServletUrl = iteractionsProp.getProperty("interactions_servlet_url");
+	     	ResultSetlUtil.setUrl(interactionsServletUrl);
 			String urlString = INTERACTIONS_SERVLET_URL;
+		 
 			aConnection = ResultSetlUtil.getConnection(urlString);
-
-			String aSQL = "SELECT * FROM pairwise_interaction where ms_id1=14102 and ms_id2=246097";
-			 rs = ResultSetlUtil.executeQuery(aSQL, MYSQL,
-					aConnection);
-
-			while (rs.next()) {
+			//aConnection.setRequestProperty("Authorization", "Basic " + "encoding");
+			 
+			java.net.URLConnection.setDefaultAllowUserInteraction(true);
+		    Authenticator.setDefault(new BasicAuthenticator());
+		   		   
+		    
+			//String aSQL = "SELECT pi.*, dl.name  FROM pairwise_interaction pi, db_list dl where (ms_id1=14102 or ms_id2=14102) and pi.source=dl.id";
+			//String aSQL = "getPairWiseInteraction"+ ResultSetlUtil.DEL + "1633" + ResultSetlUtil.DEL + "BCi_V1" + ResultSetlUtil.DEL + "1.0";
+			String aSQL = "getPairWiseInteraction"+ ResultSetlUtil.DEL + "165" + ResultSetlUtil.DEL + "HGi_Interactome_V1" + ResultSetlUtil.DEL + "1.0";
+			rs = ResultSetlUtil.executeQuery(aSQL, MYSQL,
+					aConnection);  		 
+			
+		    while (rs.next()) {
 
 				BigDecimal msid1 = rs.getBigDecimal("ms_id1");
 				System.out.println("msid1 = " + msid1);
@@ -201,14 +247,165 @@ public class ResultSetlUtil {
 
 				String source = rs.getString("source");
 				System.out.println("source = " + source);
-
+                
+				String interactionType = rs.getString("interaction_type");
+				System.out.println("name = " + interactionType);
 			}
-			rs.close();
+			//rs.close();	 
 
-		} catch (IOException e) {
+		} catch (IOException ie) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			ie.printStackTrace();
 		}
-
+	  catch (Exception e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}
+        finally
+        {
+        	if (rs != null)
+        	{
+        		try
+        		{
+        		  rs.close();	
+        		  
+        		}catch (Exception e)
+        		{}
+        		
+        	}
+        	System.exit(0);
+        }
 	}
 }
+
+/**
+ * Extends Authenticator to allow for user login
+ * @author  R. Smudz
+ */
+  class BasicAuthenticator extends java.net.Authenticator {
+    private LoginDialog dialog;
+    
+    /** Creates a new instance of BasicAuthenticator */
+    public BasicAuthenticator() {
+    }
+    
+    protected java.net.PasswordAuthentication getPasswordAuthentication() {
+        PasswordAuthentication authentication = createLoginDialog();
+        return authentication;
+    }
+
+    private PasswordAuthentication createLoginDialog() {
+        if (dialog == null)
+            dialog = new LoginDialog();
+
+       
+        dialog.show();
+        PasswordAuthentication p = dialog.getAuth();
+        return p;
+    }
+}
+
+
+	class LoginDialog extends JDialog implements KeyListener, ActionListener
+	{
+	    private	JPanel	north, south;
+	    private	JLabel	nameLabel, passwordLabel, infoLabel;
+	    private	JTextField	nameTextField;
+	    private	JPasswordField  passwordField;
+	    private	JButton	loginButton, cancelButton;
+	    private	String	username;
+	    private char	password[];
+	    private PasswordAuthentication	privateAuth;
+
+	    public LoginDialog()
+	    {
+	        setModal(true);
+	        setTitle("Login Required");
+	        north = new JPanel();
+	        north.setLayout(null);
+	        north.setPreferredSize(new Dimension(277, 110));
+	        nameLabel = new JLabel("Userna:", JLabel.LEFT);
+	        nameLabel.setBounds(10, 60, 90, 20);
+	        north.add(nameLabel);
+	        passwordLabel = new JLabel("Password:", JLabel.LEFT);
+	        passwordLabel.setBounds(10, 90, 90, 20);
+	        north.add(passwordLabel);
+	        nameTextField = new JTextField();
+	        nameTextField.setBounds(100, 60, 157, 20);
+	        north.add(nameTextField);
+	        passwordField = new JPasswordField();
+	        passwordField.setBounds(100, 90, 157, 20);
+	        north.add(passwordField);
+
+	        getContentPane().add(north,BorderLayout.CENTER);
+	        south = new JPanel();
+	        south.setLayout(new FlowLayout(FlowLayout.RIGHT, 10, 10));
+	        loginButton = new JButton("Login");
+	        loginButton.addActionListener(this);
+	        south.add(loginButton);
+		    cancelButton = new JButton("Cancel");
+	        cancelButton.addActionListener(new ActionListener()
+	        {
+	            public void actionPerformed(ActionEvent ae)
+	            {
+	                privateAuth = null;
+	                hide();
+	            }
+	        });
+
+	        south.add(cancelButton);
+	        getContentPane().add(south, BorderLayout.SOUTH);
+		loginButton.addKeyListener(this);
+	        setDefaultCloseOperation(HIDE_ON_CLOSE);
+	        pack();
+	        //parent frame may not be up so use center of screen
+	        Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
+	        setLocation((int)d.getWidth()/2 - getWidth()/2, (int)d.getHeight()/2 -
+	getHeight()/2 );
+	    }
+
+	    public void actionPerformed(ActionEvent ae)
+	    {
+	        char[] authArray;
+
+	        username = nameTextField.getText();
+	        nameTextField.setText("");
+	        password = passwordField.getPassword();
+	        passwordField.setText("");
+	        privateAuth = new PasswordAuthentication(username, password);
+	        //  Delete attributes for userID and password
+	        username = "";
+	        password = new String("").toCharArray();
+	        nameTextField.requestFocus();
+	        hide();
+	    }
+
+	    /**
+	     *	Returns the actual PasswordAuthentication,
+	     *	 which was generated from the login dialog.
+	     *
+	     *	@return PasswordAuthentication - actual PasswordAuthentication.
+	     */
+	    public PasswordAuthentication getAuth()
+	    {
+	            return privateAuth;
+	    }
+	    
+	    public void keyPressed(java.awt.event.KeyEvent keyEvent) {
+	    }
+	    
+	    public void keyReleased(java.awt.event.KeyEvent keyEvent) {
+	    }
+	    
+	    public void keyTyped(java.awt.event.KeyEvent keyEvent) {
+	        if(keyEvent.getKeyCode() == KeyEvent.VK_UNDEFINED || keyEvent.getKeyCode
+	() == KeyEvent.VK_ENTER)
+	            actionPerformed(null);
+	    }
+	}
+
+
+
+
+ 
+

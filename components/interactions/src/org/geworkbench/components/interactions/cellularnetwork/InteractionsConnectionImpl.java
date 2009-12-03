@@ -3,6 +3,7 @@ package org.geworkbench.components.interactions.cellularnetwork;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.net.HttpURLConnection;
 import java.rmi.RemoteException;
@@ -10,7 +11,7 @@ import java.util.ArrayList;
 
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 
-public class InteractionsConnectionImpl implements INTERACTIONS {
+public class InteractionsConnectionImpl {
 	/**
 	 * Logger for this class
 	 */
@@ -18,25 +19,29 @@ public class InteractionsConnectionImpl implements INTERACTIONS {
 
 	private static final String UNSUPPORTED_OPERATION_MESSAGE = "unsupported operation";
 
-	private String interactionType = null;
-    private BigDecimal msid2 = null;
-
-    private BigDecimal msid1 = null;
-    private String source = null;
-    private double confidenceValue = 0d;
-    private String isModulated = null;
-    private BigDecimal id = null;
+ 
 
     public InteractionsConnectionImpl() {
     }
 
-     public ArrayList<InteractionDetail> getPairWiseInteraction(DSGeneMarker marker) {
+     public ArrayList<InteractionDetail> getPairWiseInteraction(DSGeneMarker marker, String context, String version)  throws UnAuthenticatedException {
             BigDecimal id = new BigDecimal(marker.getGeneId());
-                return this.getPairWiseInteraction(id);
-    }
+                return this.getPairWiseInteraction(id, context, version);
+    }  
 
-    public ArrayList<InteractionDetail> getPairWiseInteraction(BigDecimal id1) {
-        ArrayList<InteractionDetail> arrayList = new ArrayList<InteractionDetail>();
+    public ArrayList<InteractionDetail> getPairWiseInteraction(BigDecimal id1, String context, String version)  throws UnAuthenticatedException  {
+    	String interactionType = null;
+        BigDecimal msid2 = null;
+        BigDecimal msid1 = null;
+        String geneName1 = null;
+        String geneName2 = null;
+        
+        String source = null;
+        double confidenceValue = 0d;
+        String isModulated = null;
+        BigDecimal id = null;  	
+    	
+    	ArrayList<InteractionDetail> arrayList = new ArrayList<InteractionDetail>();
 
         HttpURLConnection aConnection = null;
 		ResultSetlUtil rs = null;
@@ -44,33 +49,31 @@ public class InteractionsConnectionImpl implements INTERACTIONS {
         try {
 			String urlString = ResultSetlUtil.INTERACTIONS_SERVLET_URL;
 			aConnection = ResultSetlUtil.getConnection(urlString);
-
-			String aSQL = "SELECT * FROM pairwise_interaction where ms_id1=" + id1.toString() + " or ms_id2=" + id1.toString();
-			 rs = ResultSetlUtil.executeQuery(aSQL, ResultSetlUtil.MYSQL,
+			String methodAndParams = "getPairWiseInteraction"+ ResultSetlUtil.DEL + id1.toString() + ResultSetlUtil.DEL + context + ResultSetlUtil.DEL + version;
+			//String aSQL = "SELECT * FROM pairwise_interaction where ms_id1=" + id1.toString() + " or ms_id2=" + id1.toString();
+			 rs = ResultSetlUtil.executeQuery(methodAndParams, ResultSetlUtil.MYSQL,
 						aConnection);
-                while (rs.next()) {
+             while (rs.next()) {
                 	msid1 = rs.getBigDecimal("ms_id1");
                     msid2 = rs.getBigDecimal("ms_id2");
+                    geneName1 = rs.getString("gene1");
+                    geneName2 = rs.getString("gene2");
                     confidenceValue = rs.getDouble("confidence_value");
-                    isModulated = rs.getString("is_modulated");
+                    isModulated = rs.getString("is_modulated");                   
+                    source = rs.getString("source");                   
+                    
                     interactionType = rs.getString("interaction_type").trim();
-                    source = rs.getString("source");
-                    if(interactionType.equals("1")) {
-                    	interactionType = InteractionDetail.PROTEINPROTEININTERACTION;
-                    	logger.debug("interaction type returned from database is "+interactionType+" for protein-protein");
-                    } else if(interactionType.equals("2")) {
-                    	interactionType = InteractionDetail.PROTEINDNAINTERACTION;
-                    	logger.debug("interaction type returned from database is "+interactionType+" for protein-DNA");
-                    } else {
-                    	/* for the interaction types other than protein-protein and protein-DNA, they are skipped for this*/
-                    	logger.debug("interaction type returned from database is "+interactionType+" (types other than protein-protein and protein-DNA)");
-                    	continue;
-                    }
-                    InteractionDetail interactionDetail = new InteractionDetail(msid1.toString(), msid2.toString(), confidenceValue, interactionType);
+                    
+                    InteractionDetail interactionDetail = new InteractionDetail(msid1.toString(), msid2.toString(), geneName1, geneName2, confidenceValue, interactionType);
                     arrayList.add(interactionDetail);
                 }
     			rs.close();
-
+        }
+        catch(UnAuthenticatedException uae)
+		{
+			 throw new UnAuthenticatedException(uae.getMessage());   
+		 
+        
         } catch (Exception se) {
 			if (logger.isErrorEnabled()) {
 				logger.error("getPairWiseInteraction(BigDecimal) - ResultSetlUtil rs=" + rs); //$NON-NLS-1$
@@ -80,62 +83,138 @@ public class InteractionsConnectionImpl implements INTERACTIONS {
         return arrayList;
     }
 
-    public String getINTERACTIONTYPE() throws java.rmi.RemoteException {
-        return interactionType;
-    }
+    public ArrayList<String> getInteractionTypes()
+    {
+        ArrayList<String> arrayList = new ArrayList<String>();
 
-    public void setINTERACTIONTYPE(String in0) throws java.rmi.RemoteException {
-        interactionType = in0;
-    }
+        HttpURLConnection aConnection = null;
+		ResultSetlUtil rs = null;
+        String interactionType = null;
+        
+        try {
+			String urlString = ResultSetlUtil.INTERACTIONS_SERVLET_URL;
+			aConnection = ResultSetlUtil.getConnection(urlString);
+			String methodAndParams = "getInteractionTypes";			 
+			rs = ResultSetlUtil.executeQuery(methodAndParams, ResultSetlUtil.MYSQL,
+						aConnection);
+             while (rs.next()) { 
+            	 
+                   interactionType = rs.getString("interaction_type").trim();       
+                   
+                   arrayList.add(interactionType);
+                }
+    		rs.close();
 
-    public BigDecimal getMSID2() throws java.rmi.RemoteException {
-        return msid2;
+        } catch (Exception se) {
+			if (logger.isErrorEnabled()) {
+				logger.error("getInteractionTypes() - ResultSetlUtil rs=" + rs); //$NON-NLS-1$
+			}
+			se.printStackTrace();
+        }
+        return arrayList;  	
     }
+    
+    public ArrayList<String> getDatasetNames()
+    {
+    	  ArrayList<String> arrayList = new ArrayList<String>();
 
-    public void setMSID2(BigDecimal in0) throws java.rmi.RemoteException {
-        msid2 = in0;
+          HttpURLConnection aConnection = null;
+  		  ResultSetlUtil rs = null;
+          String datasetName = null;
+          
+          try {
+  			String urlString = ResultSetlUtil.INTERACTIONS_SERVLET_URL;
+  			aConnection = ResultSetlUtil.getConnection(urlString);
+  			String methodAndParams = "getDatasetNames";			 
+  			rs = ResultSetlUtil.executeQuery(methodAndParams, ResultSetlUtil.MYSQL,
+  						aConnection);
+               while (rs.next()) {                	 
+                     
+            	     datasetName= rs.getString("name").trim();        
+                     
+                     arrayList.add(datasetName);
+                  }
+      		rs.close();
+
+          } catch (Exception se) {
+  			if (logger.isErrorEnabled()) {
+  				logger.error("getDatasetNames() - ResultSetlUtil rs=" + rs); //$NON-NLS-1$
+  			}
+  			se.printStackTrace();
+          }
+          return arrayList;  		
     }
+    
+    public ArrayList<String> getVersionDescriptor(String datasetName)
+    {
+    	  ArrayList<String> arrayList = new ArrayList<String>();
 
-    public BigDecimal getMSID1() throws java.rmi.RemoteException {
-        return msid1;
-    }
+          HttpURLConnection aConnection = null;
+  		  ResultSetlUtil rs = null;
+          String version = null;
+          
+          try {
+  			String urlString = ResultSetlUtil.INTERACTIONS_SERVLET_URL;
+  			aConnection = ResultSetlUtil.getConnection(urlString);
+  			String methodAndParams = "getVersionDescriptor" + ResultSetlUtil.DEL + datasetName;			 
+  			rs = ResultSetlUtil.executeQuery(methodAndParams, ResultSetlUtil.MYSQL,
+  						aConnection);
+               while (rs.next()) { 
+              	 
+                     version = rs.getString("version").trim();       
+                     
+                     arrayList.add(version);
+                  }
+      		rs.close();
 
-    public void setMSID1(BigDecimal in0) throws java.rmi.RemoteException {
-        msid1 = in0;
-    }
+          } catch (Exception se) {
+  			if (logger.isErrorEnabled()) {
+  				logger.error("getInteractionTypes() - ResultSetlUtil rs=" + rs); //$NON-NLS-1$
+  			}
+  			se.printStackTrace();
+          }
+          return arrayList;  	 	
+    }  
+   
+    public static boolean isValidUrl(String urlStr) {
+		 
+		 			
+			  ArrayList<String> arrayList = new ArrayList<String>();
 
-    public String getSOURCE() throws java.rmi.RemoteException {
-        return source;
-    }
+	          HttpURLConnection aConnection = null;
+	  		  ResultSetlUtil rs = null;
+	          String datasetName = null;
+	          
+	          try {
+	  			 
+	  			aConnection = ResultSetlUtil.getConnection(urlStr);
+	  			String methodAndParams = "getDatasetNames";			 
+	  			rs = ResultSetlUtil.executeQuery(methodAndParams, ResultSetlUtil.MYSQL,
+	  						aConnection);
+	             /*  while (rs.next()) {                	 
+	                     
+	            	     datasetName= rs.getString("name").trim();        
+	                     
+	                     arrayList.add(datasetName);
+	                  }*/
+	      		rs.close();
 
-    public void setSOURCE(String in0) throws java.rmi.RemoteException {
-        source = in0;
-    }
-
-    public double getCONFIDENCEVALUE() throws java.rmi.RemoteException {
-        return confidenceValue;
-    }
-
-    public void setCONFIDENCEVALUE(double in0) throws java.rmi.RemoteException {
-        confidenceValue = in0;
-    }
-
-    public String getISMODULATED() throws java.rmi.RemoteException {
-        return isModulated;
-    }
-
-    public void setISMODULATED(String in0) throws java.rmi.RemoteException {
-        isModulated = in0;
-    }
-
-    public BigDecimal getID() throws java.rmi.RemoteException {
-        return id;
-    }
-
-    public void setID(BigDecimal in0) throws java.rmi.RemoteException {
-        id = in0;
-    }
-
+	          
+	     	     return true;
+		      }
+		      catch(java.net.ConnectException ce)
+		      {
+			      ce.printStackTrace();
+			      return false;
+		      }
+		      catch(Exception e)
+		      {
+			     e.printStackTrace();
+			     return false;
+		       }	
+		
+	}
+    
     public void insert() throws java.rmi.RemoteException {
 
 /*    	try {
@@ -483,5 +562,5 @@ public class InteractionsConnectionImpl implements INTERACTIONS {
 */
         throw new RuntimeException( UNSUPPORTED_OPERATION_MESSAGE);
 
-    }
+    }   
 }

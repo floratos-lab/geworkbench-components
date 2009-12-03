@@ -14,14 +14,18 @@ package org.geworkbench.components.interactions.cellularnetwork;
 public class InteractionDetail {
     private String dSGeneMarker1;    //One node name
     private String dSGeneMarker2;
+    private String dSGeneName1;    //One node name
+    private String dSGeneName2;
     private double confidence;
     private String InteraactionType;
     public static final String PROTEINPROTEININTERACTION = "protein-protein";
     public static final String PROTEINDNAINTERACTION = "protein-dna";
 
-    public InteractionDetail(String dSGeneMarker1, String dSGeneMarker2, double confidence, String interaactionType) {
+    public InteractionDetail(String dSGeneMarker1, String dSGeneMarker2, String dSGeneName1, String dSGeneName2,double confidence, String interaactionType) {
         this.dSGeneMarker1 = dSGeneMarker1;
         this.dSGeneMarker2 = dSGeneMarker2;
+        this.dSGeneName1 = dSGeneName1;
+        this.dSGeneName2 = dSGeneName2;
         this.confidence = confidence;
         InteraactionType = interaactionType;
     }
@@ -41,6 +45,23 @@ public class InteractionDetail {
     public void setdSGeneMarker2(String dSGeneMarker2) {
         this.dSGeneMarker2 = dSGeneMarker2;
     }
+    
+    public String getdSGeneName1() {
+        return dSGeneName1;
+    }
+
+    public void setdSGeneName1(String dSGeneName1) {
+        this.dSGeneName1 = dSGeneName1;
+    }
+
+    public String getdSGeneName2() {
+        return dSGeneName2;
+    }
+
+    public void setdSGeneName2(String dSGeneName2) {
+        this.dSGeneName2 = dSGeneName2;
+    }
+    
 
     public double getConfidence() {
         return confidence;

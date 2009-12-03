@@ -7,7 +7,9 @@ import org.geworkbench.bison.datastructure.bioobjects.markers.goterms.GOTerm;
 import java.util.ArrayList;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.List;
+import java.util.List;  
+import java.util.HashMap;
+import java.util.HashSet;
 
 /**
  * Created by IntelliJ IDEA.
@@ -22,18 +24,22 @@ import java.util.List;
  *
  */
 public class CellularNetWorkElementInformation {
-    private int ppInteractionNum;
-    private int pdInteractionNum;
-    private boolean includePPInteraction;
-    private boolean includePDInteraction;
+    private HashMap<String,Integer> interactionNumMap = new HashMap<String,Integer>();
+	//private int ppInteractionNum;
+    //private int pdInteractionNum;
+    //private HashMap<String, Boolean> interactionIsIncludedMap;
+    private Set<String> interactionIncludedSet =  new HashSet<String>();
+    //private boolean includePPInteraction;
+    //private boolean includePDInteraction;
     private DSGeneMarker dSGeneMarker;
     private String goInfoStr;
     private String geneType;
     private InteractionDetail[] interactionDetails;
     private static double threshold;
     private int[] distribution;
-    private int[] ppDistribution;
-    private int[] pdDistribution;
+    private HashMap<String, int[]> interactionDistributionMap = new HashMap<String, int[]>();
+    //private int[] ppDistribution;
+    //private int[] pdDistribution;
     private static double smallestIncrement;
     private static Double defaultSmallestIncrement = 0.01;
     private static int binNumber;
@@ -68,17 +74,16 @@ public class CellularNetWorkElementInformation {
     private TreeMap<String, List<GOTerm>> treeMapForFunction;
     private TreeMap<String, List<GOTerm>> treeMapForProcess;
 
-    public CellularNetWorkElementInformation(int ppInteractionNum, int pdInteractionNum, boolean includePPInteraction, boolean includePDInteraction, DSGeneMarker dSGeneMarker, String goInfoStr, String geneType) {
-        this.ppInteractionNum = ppInteractionNum;
-        this.pdInteractionNum = pdInteractionNum;
-        this.includePPInteraction = includePPInteraction;
-        this.includePDInteraction = includePDInteraction;
+    public CellularNetWorkElementInformation(HashMap<String, Integer> interactionNumMap,  ArrayList<String> interactionIncludedSeList, DSGeneMarker dSGeneMarker, String goInfoStr, String geneType) {
+        this.interactionNumMap = interactionNumMap;       
+        this.interactionIncludedSet.addAll(interactionIncludedSeList);       
         this.dSGeneMarker = dSGeneMarker;
         this.goInfoStr = goInfoStr;
         this.geneType = geneType;
-    }
+       
+    } 
 
-    public CellularNetWorkElementInformation(DSGeneMarker dSGeneMarker) {
+    public CellularNetWorkElementInformation(DSGeneMarker dSGeneMarker, List<String> allInteractionTypes) {
         this.dSGeneMarker = dSGeneMarker;
         smallestIncrement = defaultSmallestIncrement;
         isDirty = true;
@@ -95,6 +100,19 @@ public class CellularNetWorkElementInformation {
             }
         }
         geneType = GeneOntologyUtil.getOntologyUtil().checkMarkerFunctions(dSGeneMarker);
+    	for (String interactionType: allInteractionTypes)
+    	{
+    		interactionNumMap.put(interactionType, 0);
+    	}
+    	
+    	for (String interactionType: allInteractionTypes)
+       	{
+           	interactionDistributionMap.put(interactionType,new int[binNumber]);
+           	 for (int i = 0; i < binNumber; i++)  
+           		 (interactionDistributionMap.get(interactionType))[i]=0;
+        }
+    	
+        
         reset();
 
     }
@@ -104,15 +122,29 @@ public class CellularNetWorkElementInformation {
      */
     public void reset() {
         // isDirty = true;
-        ppInteractionNum = 0;
-        pdInteractionNum = 0;
+        //ppInteractionNum = 0;
+        //pdInteractionNum = 0;
+    	for (String interactionType: interactionNumMap.keySet())
+    	{
+    		interactionNumMap.put(interactionType, 0);
+    	}
         binNumber = (int) (1 / smallestIncrement) + 1;
         distribution = new int[binNumber];
-        ppDistribution = new int[binNumber];
-        pdDistribution = new int[binNumber];
+       // ppDistribution = new int[binNumber];
+        //pdDistribution = new int[binNumber];
+        
+        for (String interactionType: interactionDistributionMap.keySet())
+    	{
+        	interactionDistributionMap.put(interactionType,new int[binNumber]);
+        	 for (int i = 0; i < binNumber; i++) {
+        		 (interactionDistributionMap.get(interactionType))[i]=0;
+                
+             }
+    	}
+        
         for (int i = 0; i < binNumber; i++) {
             distribution[i] = 0;
-            pdDistribution[i] = ppDistribution[i] = 0;
+            
         }
     }
 
@@ -122,14 +154,11 @@ public class CellularNetWorkElementInformation {
             for (int i = 0; i < interactionDetails.length; i++) {
                 InteractionDetail interactionDetail = interactionDetails[i];
                 if (interactionDetail != null && interactionDetail.getConfidence() >= threshold) {
-                    if (isIncludePDInteraction() && interactionDetail.getInteractionType().equalsIgnoreCase(InteractionDetail.PROTEINDNAINTERACTION))
+                    if (this.isIncludedInteraction(interactionDetail.getInteractionType()))
                     {
                         arrayList.add(interactionDetail);
                     }
-                    if (isIncludePPInteraction() && interactionDetail.getInteractionType().equalsIgnoreCase(InteractionDetail.PROTEINPROTEININTERACTION))
-                    {
-                        arrayList.add(interactionDetail);
-                    }
+                   
                 }
             }
         }
@@ -168,14 +197,20 @@ public class CellularNetWorkElementInformation {
         CellularNetWorkElementInformation.binNumber = binNumber;
     }
 
-    public CellularNetWorkElementInformation(int pdInteractionNum, int ppInteractionNum, DSGeneMarker dSGeneMarker) {
-        this.pdInteractionNum = pdInteractionNum;
-        this.ppInteractionNum = ppInteractionNum;
+    public CellularNetWorkElementInformation(HashMap<String,Integer> interactionNumMap, DSGeneMarker dSGeneMarker) {
+        this.interactionNumMap = interactionNumMap;       
         this.dSGeneMarker = dSGeneMarker;
     }
 
-    public int getPpInteractionNum() {
-        return ppInteractionNum;
+    public Integer getInteractionNum(String interactionType) {
+        if (interactionNumMap.containsKey(interactionType))
+    	   return interactionNumMap.get(interactionType);
+        else
+        	return null;
+    }
+    
+    public HashMap<String, Integer> getInteractionNumMap() {
+        return this.interactionNumMap;
     }
 
     public static double getThreshold() {
@@ -218,78 +253,99 @@ public class CellularNetWorkElementInformation {
         }
 
         reset();
+        
         for (InteractionDetail interactionDetail : interactionDetails) {
             if (interactionDetail != null) {
                 int confidence = (int) (interactionDetail.getConfidence() * 100);
+                String interactionType = interactionDetail.getInteractionType();
                 if (confidence < distribution.length && confidence >= 0) {
                     for (int i = 0; i <= confidence; i++) {
                         distribution[i]++;
                     }
-                    if (interactionDetail.getInteractionType().equalsIgnoreCase(InteractionDetail.PROTEINPROTEININTERACTION))
+                    
+                    
+                    if (interactionDistributionMap.containsKey(interactionType))
                     {
-                        for (int i = 0; i <= confidence; i++) {
-                            ppDistribution[i]++;
-                        }
-                    } else {
-                        for (int i = 0; i <= confidence; i++) {
-                            pdDistribution[i]++;
-                        }
+                    	 
+                    	 for (int i = 0; i <= confidence; i++) {
+                    		 interactionDistributionMap.get(interactionType)[i]++;
+                         }
+                    	 
                     }
+                    else
+                    {
+                    	 int[] interactionDistribution = new int[binNumber];
+                    	 for (int i = 0; i < binNumber; i++) {
+                    		 if (i <= confidence)
+                    		   interactionDistribution[i]=1;
+                    		 else
+                    		   interactionDistribution[i]=0;
+                            
+                         }                    	 
+                    	 interactionDistributionMap.put(interactionType, new int[binNumber]);
+                    	 
+                    	 
+                    }
+                  
                 }
                 if (confidence >= 100 * threshold) {
-                    if (interactionDetail.getInteractionType().equals(InteractionDetail.PROTEINPROTEININTERACTION)) {
-                        ppInteractionNum++;
-                    } else {
-                        pdInteractionNum++;
+                    if (this.interactionNumMap.containsKey(interactionType))
+                    {
+                    	int num = interactionNumMap.get(interactionType) + 1;
+                    	interactionNumMap.put(interactionType, num);
+                     
                     }
-
+                    else
+                    {
+                    	interactionNumMap.put(interactionType, 1);
+                     
+                    }
+                    
                 }
             }
         }
+        
+       
     }
 
-    public int[] getPpDistribution() {
-        return ppDistribution;
+    public int[] getInteractionDistribution(String interactionType) {
+        return this.interactionDistributionMap.get(interactionType);
     }
 
-    public void setPpDistribution(int[] ppDistribution) {
-        this.ppDistribution = ppDistribution;
+    public HashMap<String, int[]> getInteractionDistributionMap() {
+        return this.interactionDistributionMap;
     }
 
-    public int[] getPdDistribution() {
-        return pdDistribution;
+    public Set<String> getIncludledInteractionSet() {
+        return this.interactionIncludedSet;
+    }
+    public void setInteractionDistribution(String interactionType, int[] interactionDistribution) {
+        this.interactionDistributionMap.put(interactionType, interactionDistribution);
     }
 
-    public void setPdDistribution(int[] pdDistribution) {
-        this.pdDistribution = pdDistribution;
+     
+
+    public void setInteractionNum(String interactionType, int interactionNum) {
+        this.interactionNumMap.put(interactionType, interactionNum);
     }
 
-    public void setPpInteractionNum(int ppInteractionNum) {
-        this.ppInteractionNum = ppInteractionNum;
+    
+
+    public boolean isIncludedInteraction(String interactionType) {
+        return this.interactionIncludedSet.contains(interactionType);
     }
 
-    public int getPdInteractionNum() {
-        return pdInteractionNum;
+    public void addIncludedInteractionType(String interactionType) {
+        this.interactionIncludedSet.add(interactionType);
     }
-
-    public void setPdInteractionNum(int pdInteractionNum) {
-        this.pdInteractionNum = pdInteractionNum;
+    
+    public void setIncludedInteractionTypeList(List<String> selectedInteractionTypes) {
+        interactionIncludedSet.clear();
+        interactionIncludedSet.addAll(selectedInteractionTypes);
     }
-
-    public boolean isIncludePPInteraction() {
-        return includePPInteraction;
-    }
-
-    public void setIncludePPInteraction(boolean includePPInteraction) {
-        this.includePPInteraction = includePPInteraction;
-    }
-
-    public boolean isIncludePDInteraction() {
-        return includePDInteraction;
-    }
-
-    public void setIncludePDInteraction(boolean includePDInteraction) {
-        this.includePDInteraction = includePDInteraction;
+    
+    public void removeIncludedInteraction(String interactionType) {
+        this.interactionIncludedSet.remove(interactionType);
     }
 
     public DSGeneMarker getdSGeneMarker() {
