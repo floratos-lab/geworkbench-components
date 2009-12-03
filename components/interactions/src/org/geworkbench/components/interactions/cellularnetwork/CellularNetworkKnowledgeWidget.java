@@ -26,6 +26,7 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.TreeMap;
@@ -1391,6 +1392,7 @@ columnLabels[i].length()-COLUMNLABELPOSTFIX.length()))) {
 
 	private void createNetworks(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_loadfromDBHandler
 		HashMap<Integer,String> geneIdToNameMap = new HashMap<Integer, String>();
+		Set<Integer> geneIdNotExistInSelectedMa = new HashSet<Integer>();
 		DSItemList<DSGeneMarker> markers = dataset.getMarkers();
 		DSItemList<DSGeneMarker> copy = new CSItemList<DSGeneMarker>();
 		copy.addAll(markers);
@@ -1430,8 +1432,8 @@ columnLabels[i].length()-COLUMNLABELPOSTFIX.length()))) {
 						   if (isRestrictToGenesPresentInMicroarray)
 						      continue;
 						   serial2 = new Integer(mid2);
+						   geneIdNotExistInSelectedMa.add(serial2);
 						   if (interactionDetail.getdSGeneName2()!= null && 
-
 !interactionDetail.getdSGeneName2().trim().equals("")&& !interactionDetail.getdSGeneName2().trim().equals("null"))
 						      geneIdToNameMap.put(serial2, interactionDetail.getdSGeneName2());
 					    }
@@ -1451,6 +1453,7 @@ columnLabels[i].length()-COLUMNLABELPOSTFIX.length()))) {
 							   continue;
 							
 							serial1 = Integer.parseInt(mid1);
+							 geneIdNotExistInSelectedMa.add(serial1);
 							  if (interactionDetail.getdSGeneName1()!= null && 
 
 !interactionDetail.getdSGeneName1().trim().equals("") && !interactionDetail.getdSGeneName1().trim().equals("null"))
@@ -1484,6 +1487,8 @@ cellularNetWorkElementInformation.getInteractionNum(interactionType) + "\n";
 	 
 
 		} // end for loop
+		dataset.clearName("GENE_NOT_EXIST_IN_MA");
+		dataset.addNameValuePair("GENE_NOT_EXIST_IN_MA", geneIdNotExistInSelectedMa);
 		dataset.clearName("GENEMAP");
 		dataset.addNameValuePair("GENEMAP", geneIdToNameMap);
 		dataSet = new AdjacencyMatrixDataSet(matrix, serial, 0.5f, 2,
