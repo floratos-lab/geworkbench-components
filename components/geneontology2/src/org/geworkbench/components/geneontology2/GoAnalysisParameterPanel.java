@@ -44,6 +44,7 @@ import org.geworkbench.bison.datastructure.bioobjects.microarray.CSAnovaResultSe
 import org.geworkbench.bison.datastructure.bioobjects.microarray.CSMicroarray;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.CSSignificanceResultSet;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.CSTTestResultSet;
+import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.builtin.projects.DataSetNode;
 import org.geworkbench.builtin.projects.DataSetSubNode;
@@ -647,9 +648,15 @@ public class GoAnalysisParameterPanel extends AbstractSaveableParameterPanel {
 		DSAnnotationContext<DSGeneMarker> markerSet = manager
 				.getCurrentContext(dataset.getMarkers());
 
-		if(markerSet.getItemList()==null)return set;
+		DSItemList<DSGeneMarker> markers = null;
+		try {
+			markers = markerSet.getItemList();
+		} catch (NullPointerException e) {
+			return set;
+		}
+		if(markers==null) return set;
 		
-		for ( DSGeneMarker marker : markerSet.getItemList() ) {
+		for ( DSGeneMarker marker : markers ) {
 			String geneName = marker.getGeneName().trim();
 			if (!geneName.equals("---")) {
 				set.add(geneName);
