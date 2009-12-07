@@ -46,13 +46,14 @@ import org.geworkbench.components.alignment.blast.HmmObj;
 import org.geworkbench.components.alignment.blast.HmmResultParser;
 import org.geworkbench.components.alignment.blast.NCBIBlastParser;
 import org.geworkbench.engine.management.Subscribe;
+import org.geworkbench.util.FilePathnameUtils;
 import org.geworkbench.util.JAutoList;
 import org.geworkbench.util.PropertiesMonitor;
 
 import com.borland.jbcl.layout.VerticalFlowLayout;
 
 /**
- * 
+ *
  * @author XZ
  * @version 1.0
  */
@@ -128,7 +129,7 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
 	/**
 	 * Creates a new <code>JPanel</code> with <code>FlowLayout</code> and
 	 * the specified buffering strategy.
-	 * 
+	 *
 	 * @param isDoubleBuffered
 	 *            a boolean, true for double-buffering, which uses additional
 	 *            memory space to achieve fast, flicker-free updates TODO
@@ -150,7 +151,7 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
 	/**
 	 * Creates a new JPanel with the specified layout manager and buffering
 	 * strategy.
-	 * 
+	 *
 	 * @param layout
 	 *            the LayoutManager to use
 	 * @param isDoubleBuffered
@@ -262,7 +263,7 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
 
 	/**
 	 * getResults
-	 * 
+	 *
 	 * @param blastAppComponent
 	 *            Object
 	 * @return Object[]
@@ -298,7 +299,7 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
 
 	/**
 	 * Display details of each alignment.
-	 * 
+	 *
 	 * @param s
 	 *            String
 	 */
@@ -338,7 +339,7 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
 
 	/**
 	 * Returns a JScrollpane containing Blast results in table format.
-	 * 
+	 *
 	 * @return a JScrollpane containing table of Blast results.
 	 */
 	private JScrollPane getHmmListPanel() {
@@ -368,7 +369,7 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
 
 	/**
 	 * Returns a JScrollpane containing Blast results in table format.
-	 * 
+	 *
 	 * @return a JScrollpane containing table of Blast results.
 	 */
 	private JScrollPane getBlastListPanel() {
@@ -663,11 +664,7 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
 				progressMonitor.setProgress(retrievedSequenceNum);
 				String tempString = "temp-" + RandomNumberGenerator.getID()
 						+ ".fasta";
-				String tempFolder = System.getProperties().getProperty(
-						"temporary.files.directory");
-				if (tempFolder == null) {
-					tempFolder = ".";
-				}
+				String tempFolder = FilePathnameUtils.getTemporaryFilesDirectoryPath();
 				File tempFile = new File(tempFolder + tempString);
 				PrintWriter out = new PrintWriter(
 						new FileOutputStream(tempFile));
@@ -744,7 +741,7 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
 
 	/**
 	 * setResults
-	 * 
+	 *
 	 * @param string
 	 *            String
 	 */
@@ -936,7 +933,7 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
 	// XYLayout xYLayout1 = new XYLayout();
 	/**
 	 * setSequenceDB
-	 * 
+	 *
 	 * @param sequenceDB
 	 *            DSDataSet
 	 */
@@ -947,7 +944,7 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
 
 	/**
 	 * setBlastDataSet
-	 * 
+	 *
 	 * @param arrayList
 	 *            ArrayList
 	 */

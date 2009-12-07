@@ -7,6 +7,7 @@ import org.geworkbench.components.alignment.grid.ServiceDataModel;
 import org.geworkbench.components.alignment.grid.ServiceDataViewPanel;
 import org.geworkbench.components.alignment.grid.service.SystemInformation;
 import org.geworkbench.events.ProjectNodeAddedEvent;
+import org.geworkbench.util.FilePathnameUtils;
 import org.globus.ogsa.NotificationSinkCallback;
 import org.globus.ogsa.ServiceData;
 import org.globus.ogsa.client.managers.NotificationSinkManager;
@@ -309,11 +310,6 @@ public class BlastGridServiceDataPanel extends AbstractPortTypePanel implements 
             System.out.println(output);
             BrowserLauncher.openURL(output);
             URL url = new URL(output);
-            String tempFolder = System.getProperties().getProperty("temporary.files.directory");
-            if (tempFolder == null) {
-                tempFolder = ".";
-
-            }
 
             String filename = "C:\\" + url.getFile();
             PrintWriter bw = new PrintWriter(new FileOutputStream(filename));

@@ -56,6 +56,7 @@ import org.geworkbench.engine.management.Publish;
 import org.geworkbench.engine.management.Script;
 import org.geworkbench.events.MicroarraySetViewEvent;
 import org.geworkbench.events.ProjectNodeAddedEvent;
+import org.geworkbench.util.FilePathnameUtils;
 import org.geworkbench.util.session.SoapClient;
 
 import com.borland.jbcl.layout.XYConstraints;
@@ -75,7 +76,7 @@ public class BlastAppComponent extends
     JLabel DatabaseLabel = new JLabel();
     JTabbedPane jTabbedPane1 = new JTabbedPane();
     JTabbedPane jTabbedBlastPane = new JTabbedPane();
-    
+
     /*********Code Implement By Anh Vu***************
      *********Contact: vietanh.vu@m4x.org************
      *********Declaration of Blat's component********/
@@ -98,7 +99,7 @@ public class BlastAppComponent extends
     JPanel jPanelMain = new JPanel();
     JPanel jPanelSubBlat = new JPanel();
     JPanel jPanelUpBlat = new JPanel();
-    JScrollPane jScrollPaneBlat = new JScrollPane(); 
+    JScrollPane jScrollPaneBlat = new JScrollPane();
     Border borderBlat1 = BorderFactory.createEtchedBorder(Color.white,
             new Color(165, 163, 151));
     Border borderBlat2 = new TitledBorder(borderBlat1,
@@ -108,8 +109,8 @@ public class BlastAppComponent extends
     BorderLayout borderLayoutBlat3 = new BorderLayout();
     JToolBar jToolBarBlat = new JToolBar();
     JProgressBar jProgressBarBlat = new JProgressBar();
-    JButton jButtonUpdate = new JButton(); 
-    
+    JButton jButtonUpdate = new JButton();
+
     /*Blat Stand Alone Tab
      */
     JLabel jLabelOoc = new JLabel();
@@ -136,7 +137,7 @@ public class BlastAppComponent extends
     JLabel jLabelMask = new JLabel();
     JLabel jLabelQMask = new JLabel();
     JLabel jLabelOut = new JLabel();
-            
+
     JPanel jPanelStandAloneBlat = new JPanel();
     JTextField jTextFieldOoc = new JTextField();
     JTextField jTextFieldTileSize = new JTextField();
@@ -150,7 +151,7 @@ public class BlastAppComponent extends
     JTextField jTextFieldDots = new JTextField();
     JTextField jTextFieldSelectDatabase = new JTextField();
     JTextField jTextFieldOutputFile = new JTextField();
-    
+
     JCheckBox jCheckBoxNoHead = new JCheckBox();
     JCheckBox jCheckBoxMakeOoc = new JCheckBox();
     JCheckBox jCheckBoxTrimT = new JCheckBox();
@@ -158,16 +159,16 @@ public class BlastAppComponent extends
     JCheckBox jCheckBoxTrimHardA = new JCheckBox();
     JCheckBox jCheckBoxFine = new JCheckBox();
     JCheckBox jCheckBoxProt = new JCheckBox();
-    
+
     JComboBox jComboBoxDatabaseType = new JComboBox();
     JComboBox jComboBoxQType = new JComboBox();
     JComboBox jComboBoxMask = new JComboBox();
     JComboBox jComboBoxQMask = new JComboBox();
     JComboBox jComboBoxOut = new JComboBox();
-    
+
     JPanel jPanelSubSBlat = new JPanel();
     JPanel jPanelUpSBlat = new JPanel();
-    JScrollPane jScrollPaneSBlat = new JScrollPane(); 
+    JScrollPane jScrollPaneSBlat = new JScrollPane();
     Border borderSBlat1 = BorderFactory.createEtchedBorder(Color.white,
             new Color(165, 163, 151));
     Border borderSBlat2 = new TitledBorder(borderBlat1,
@@ -177,13 +178,13 @@ public class BlastAppComponent extends
     BorderLayout borderLayoutSBlat3 = new BorderLayout();
     JToolBar jToolBarSBlat = new JToolBar();
     JProgressBar jProgressBarSBlat = new JProgressBar();
-    
+
     JButton jButtonSetDefault = new JButton();
     JButton jButtonBrowse = new JButton();
     JButton jButtonOpen = new JButton();
-           
+
     /*********End Code*******************************/
-    
+
     JTabbedPane jTabbedHmmPane = new JTabbedPane();
     JTabbedPane jTabbedSmPane = new JTabbedPane();
     ServerInfoPanel jServerInfoPane = new ServerInfoPanel();
@@ -203,7 +204,7 @@ public class BlastAppComponent extends
     static final int BLAT = 1;//new code
     static final int HMM = 2;//new code
     static final int SW = 3;//new code
-    
+
     static final int BLAT_SERVER = 0;
     static final int SBLAT = 1;
     /*********End Code*******************************/
@@ -222,7 +223,7 @@ public class BlastAppComponent extends
                                  "/genomes/rat/goldenPath_June2003/100/*",
                                  "/genomes/chimpanzee/goldenPath_Feb2004/100/*",
                                  "/genomes/dog/goldenPath/2005_May/100/*"};
-    
+
     String[] programParameter = {
                                 "blastp", "blastn", "blastx", "tblastn",
                                 "tblastx"};
@@ -240,7 +241,7 @@ public class BlastAppComponent extends
     };
      /*********Code Implement By Anh Vu***************
      *********Contact: vietanh.vu@m4x.org*************
-     ***Setup the default parameter for blat stand 
+     ***Setup the default parameter for blat stand
      ***alone application*****************************/
      public final String DEFAULT_DATABASE_TYPE = "dna";
      public final String DEFAULT_QTYPE = "dna";
@@ -257,14 +258,14 @@ public class BlastAppComponent extends
      public final String DEFAULT_MIN_IDENTITY_NUCLEOTIDE = "90";
      public final String DEFAULT_MIN_IDENTITY_PROTEIN = "25";
      public final String DEFAULT_MAX_GAP = "2";
-     public final String DEFAULT_REP_MATCH = "1024"; 
+     public final String DEFAULT_REP_MATCH = "1024";
      public final String DEFAULT_MIN_DIVERGENCE = "15";
      public final String DEFAULT_DOTS = "0";
      public final String DEFAULT_DATABASE_DIRECTORY = "C:\\AnhVu\\Fasta";
      public final String DEFAULT_OUTPUT_RESULT = "C:\\AnhVu\\SBlatResults";
      public final String SCRIPT_DIRECTORY = "C:\\AnhVu";
      /*********End Code*******************************/
-     
+
     //JList jDBList = new JList(databaseParameter);
     JPanel checkboxPanel = new JPanel();
     JList jDBList = new JList();
@@ -391,12 +392,12 @@ public class BlastAppComponent extends
      */
     public void jbInit() throws Exception {
         super.jbInit();
-   
+
         jBasicPane = new JPanel();
         DatabaseLabel = new JLabel();
         jTabbedPane1 = new JTabbedPane();
         jTabbedBlastPane = new JTabbedPane();
-        
+
         /*********Code Implement By Anh Vu***************
         *********Contact: vietanh.vu@m4x.org************/
         jTabbedBlatPane = new JTabbedPane();
@@ -435,19 +436,19 @@ public class BlastAppComponent extends
                                       BlastAppComponent_jButtonUpdate_actionAdapter(this));
 
         /*setting up the parameters like on Blat web search page*/
-        String[] strGenome = {"Human", "Chimp", "Rhesus", "Dog", "Cow", "Mouse", "Rat", 
+        String[] strGenome = {"Human", "Chimp", "Rhesus", "Dog", "Cow", "Mouse", "Rat",
                             "Opossum", "Chicken", "X. tropicalis", "Zebrafish",
-                            "Tetraodon", "Fugu", "C. intestinalis", "D. melanogaster", 
-                            "D. simulans", "D. sechellia", "D. yakuba", "D. erecta", 
-                            "D. ananassae", "D. persimilis", "D. pseudoobscura", "D. virilis", 
-                            "D. mojavensis", "D. grimshawi", "A. mellifera", "A. gambiae", 
+                            "Tetraodon", "Fugu", "C. intestinalis", "D. melanogaster",
+                            "D. simulans", "D. sechellia", "D. yakuba", "D. erecta",
+                            "D. ananassae", "D. persimilis", "D. pseudoobscura", "D. virilis",
+                            "D. mojavensis", "D. grimshawi", "A. mellifera", "A. gambiae",
                             "C. elegans", "C. briggsae", "S. purpuratus", "S. cerevisiae", "SARS"};
         String[] strAssembly = {"Mar. 2006", "May 2004", "July 2003", "Apr. 2003"};
         String[] strAssemblyValue = {"hg18", "hg17", "hg16", "hg15"};
         String[] strQueryType = {"BLAT's guess", "DNA", "protein", "translated RNA", "translated DNA"};
         String[] strSortOutput = {"query,score", "query,start", "chrom,score", "chrom,start", "score"};
         String[] strOutputType = {"hyperlink", "psl", "psl no header"};
-      
+
         jComboBoxGenome = new JComboBox(strGenome);
         jComboBoxAssembly = new JComboBox(strAssembly);
         jComboBoxAssembly.addActionListener(new BlastAppComponent_jComboBoxAssembly_actionAdapter(this));
@@ -484,9 +485,9 @@ public class BlastAppComponent extends
         jScrollPaneBlat.getViewport().add(jPanelUpBlat);
         jPanelMain.add(jScrollPaneBlat, java.awt.BorderLayout.CENTER);
         jToolBarBlat.add(jProgressBarBlat);
-        jPanelMain.add(jToolBarBlat, java.awt.BorderLayout.NORTH); 
+        jPanelMain.add(jToolBarBlat, java.awt.BorderLayout.NORTH);
         jTabbedBlatPane.add(jPanelMain, "BlatServer");
-        
+
         /*Stand Alone Blat
          */
         jLabelOoc = new JLabel("Ooc");
@@ -513,7 +514,7 @@ public class BlastAppComponent extends
         jLabelMask = new JLabel("Mask");
         jLabelQMask = new JLabel("QMask");
         jLabelOut = new JLabel("Out");
-        
+
         jTextFieldOoc = new JTextField();
         jTextFieldTileSize = new JTextField();
         jTextFieldOneOff = new JTextField();
@@ -526,7 +527,7 @@ public class BlastAppComponent extends
         jTextFieldDots = new JTextField();
         jTextFieldSelectDatabase = new JTextField();
         jTextFieldOutputFile = new JTextField();
-    
+
         jCheckBoxNoHead = new JCheckBox();
         jCheckBoxMakeOoc = new JCheckBox();
         jCheckBoxTrimT = new JCheckBox();
@@ -534,11 +535,11 @@ public class BlastAppComponent extends
         jCheckBoxTrimHardA = new JCheckBox();
         jCheckBoxFine = new JCheckBox();
         jCheckBoxProt = new JCheckBox();
-        
+
         String[] sDatabaseType = {"dna", "prot", "dnax"};
         String[] sQType = {"dna", "rna", "prot", "dnax", "rnax"};
-        String[] sMask = {"none","lower", "upper", "out", "file.out"}; 
-        String[] sQMask = {"none","lower", "upper", "out", "file.out"}; 
+        String[] sMask = {"none","lower", "upper", "out", "file.out"};
+        String[] sQMask = {"none","lower", "upper", "out", "file.out"};
         String[] sOut ={"psl", "pslx", "axt", "maf", "wublast", "blast"};
         jComboBoxDatabaseType = new JComboBox(sDatabaseType);
         jComboBoxQType = new JComboBox(sQType);
@@ -546,11 +547,11 @@ public class BlastAppComponent extends
         jComboBoxMask = new JComboBox(sMask);
         jComboBoxQMask = new JComboBox(sQMask);
         jComboBoxOut = new JComboBox(sOut);
-        
+
         borderLayoutSBlat1 = new BorderLayout();
         borderLayoutSBlat2 = new BorderLayout();
         borderLayoutSBlat3 = new BorderLayout();
-        
+
         jPanelStandAloneBlat = new JPanel();
         jPanelStandAloneBlat.setPreferredSize(new Dimension(364, 250));
         jPanelStandAloneBlat.setLayout(borderLayoutSBlat1);
@@ -559,13 +560,13 @@ public class BlastAppComponent extends
         jPanelSubSBlat.setLayout(new XYLayout());
         jPanelUpSBlat = new JPanel();
         jPanelUpSBlat.setLayout(borderLayoutSBlat2);
-        
-        jScrollPaneSBlat = new JScrollPane(); 
+
+        jScrollPaneSBlat = new JScrollPane();
         borderSBlat1 = BorderFactory.createEtchedBorder(Color.white,
             new Color(165, 163, 151));
         borderSBlat2 = new TitledBorder(borderBlat1,
                                       "Please select the options below, check blat documents for more infor");
-        
+
         jToolBarSBlat = new JToolBar();
         jProgressBarSBlat = new JProgressBar();
         jProgressBarSBlat.setMinimumSize(new Dimension(10, 26));
@@ -573,7 +574,7 @@ public class BlastAppComponent extends
         jProgressBarSBlat.setOrientation(JProgressBar.HORIZONTAL);
         jProgressBarSBlat.setBorder(BorderFactory.createEtchedBorder());
         jProgressBarSBlat.setStringPainted(true);
-    
+
         jButtonSetDefault = new JButton();
         jButtonSetDefault.setText("Reset Default");
         jButtonSetDefault.addActionListener(new BlastAppComponent_jButtonSetDefault_actionAdapter(this));
@@ -583,24 +584,24 @@ public class BlastAppComponent extends
         jButtonOpen = new JButton();
         jButtonOpen.addActionListener(new BlastAppComponent_jButtonOpen_actionAdapter(this));
         jButtonOpen.setText("Open File");
-        
+
         jPanelSubSBlat.setBorder(borderSBlat2);
         jPanelSubSBlat.add(jLabelSelectDatabase, new XYConstraints(100, 10, 100, 20));
         jPanelSubSBlat.add(jTextFieldSelectDatabase, new XYConstraints(200, 10, 200, 20));
         jPanelSubSBlat.add(jButtonBrowse, new XYConstraints(400, 10, 100, 20));
-        
+
         jPanelSubSBlat.add(jLabelDatabaseType, new XYConstraints(15, 100, 80, 20));
         jPanelSubSBlat.add(jLabelQType, new XYConstraints(130, 100, 80, 20));
         jPanelSubSBlat.add(jLabelMask, new XYConstraints(260, 100, 80, 20));
         jPanelSubSBlat.add(jLabelQMask, new XYConstraints(365, 100, 80, 20));
         jPanelSubSBlat.add(jLabelOut, new XYConstraints(480, 100, 80, 20));
-        
+
         jPanelSubSBlat.add(jComboBoxDatabaseType, new XYConstraints(0, 130, 100, 20));
         jPanelSubSBlat.add(jComboBoxQType, new XYConstraints(110, 130, 100, 20));
         jPanelSubSBlat.add(jComboBoxMask, new XYConstraints(220, 130, 100, 20));
         jPanelSubSBlat.add(jComboBoxQMask, new XYConstraints(330, 130, 100, 20));
         jPanelSubSBlat.add(jComboBoxOut, new XYConstraints(440, 130, 100, 20));
-        
+
         jPanelSubSBlat.add(jLabelOoc, new XYConstraints(0, 160, 80, 20));
         jPanelSubSBlat.add(jLabelTileSize, new XYConstraints(0, 190, 80, 20));
         jPanelSubSBlat.add(jLabelOneOff, new XYConstraints(0, 220, 80, 20));
@@ -611,7 +612,7 @@ public class BlastAppComponent extends
         jPanelSubSBlat.add(jLabelRepMatch, new XYConstraints(0, 370, 80, 20));
         jPanelSubSBlat.add(jLabelMinDivergence, new XYConstraints(0, 400, 80, 20));
         jPanelSubSBlat.add(jLabelDots, new XYConstraints(0, 430, 80, 20));
-        
+
         jPanelSubSBlat.add(jTextFieldOoc, new XYConstraints(90, 160, 30, 20));
         jPanelSubSBlat.add(jTextFieldTileSize, new XYConstraints(90, 190, 30, 20));
         jPanelSubSBlat.add(jTextFieldOneOff, new XYConstraints(90, 220, 30, 20));
@@ -622,37 +623,37 @@ public class BlastAppComponent extends
         jPanelSubSBlat.add(jTextFieldRepMatch, new XYConstraints(90, 370, 30, 20));
         jPanelSubSBlat.add(jTextFieldMinDivergence, new XYConstraints(90, 400, 30, 20));
         jPanelSubSBlat.add(jTextFieldDots, new XYConstraints(90, 430, 30, 20));
-        
+
         jPanelSubSBlat.add(jLabelNoHead, new XYConstraints(150, 250, 70, 20));
         jPanelSubSBlat.add(jLabelMakeOoc, new XYConstraints(150, 280, 70, 20));
         jPanelSubSBlat.add(jLabelTrimT, new XYConstraints(150, 310, 70, 20));
         jPanelSubSBlat.add(jLabelTrimHardA, new XYConstraints(150, 340, 70, 20));
         jPanelSubSBlat.add(jLabelFine, new XYConstraints(150, 370, 70, 20));
         jPanelSubSBlat.add(jLabelProt, new XYConstraints(150, 400, 70, 20));
-        
+
         jPanelSubSBlat.add(jCheckBoxNoHead, new XYConstraints(225, 250, 30, 20));
         jPanelSubSBlat.add(jCheckBoxMakeOoc, new XYConstraints(225, 280, 30, 20));
         jPanelSubSBlat.add(jCheckBoxTrimT, new XYConstraints(225, 310, 30, 20));
         jPanelSubSBlat.add(jCheckBoxTrimHardA, new XYConstraints(225, 340, 30, 20));
         jPanelSubSBlat.add(jCheckBoxFine, new XYConstraints(225, 370, 30, 30));
         jPanelSubSBlat.add(jCheckBoxProt, new XYConstraints(225, 400, 30, 30));
-        
+
         jPanelSubSBlat.add(jButtonSetDefault, new XYConstraints(400, 300, 120, 30));
-        
+
         jPanelSubSBlat.add(jLabelOutputFile, new XYConstraints(100, 500, 100, 20));
         jPanelSubSBlat.add(jTextFieldOutputFile, new XYConstraints(200, 500, 200, 20));
         jPanelSubSBlat.add(jButtonOpen, new XYConstraints(400, 500, 100, 20));
-        
+
         jPanelUpSBlat.add(jPanelSubSBlat, java.awt.BorderLayout.CENTER);
         jScrollPaneSBlat.getViewport().add(jPanelUpSBlat);
         jPanelStandAloneBlat.add(jScrollPaneSBlat, java.awt.BorderLayout.CENTER);
         jToolBarSBlat.add(jProgressBarSBlat);
-        jPanelStandAloneBlat.add(jToolBarSBlat, java.awt.BorderLayout.NORTH); 
+        jPanelStandAloneBlat.add(jToolBarSBlat, java.awt.BorderLayout.NORTH);
         jTabbedBlatPane.add(jPanelStandAloneBlat, "StandAloneBlat");
         standAloneBlatDefault();
-        
+
         /*********End Code*******************************/
-        
+
         jTabbedHmmPane = new JTabbedPane();
         jTabbedSmPane = new JTabbedPane();
         jServerInfoPane = new ServerInfoPanel();
@@ -780,7 +781,7 @@ public class BlastAppComponent extends
         jBasicPane.setPreferredSize(new Dimension(364, 250));
         jPanel3.setLayout(borderLayout3);
         //this.add(jLabel4, java.awt.BorderLayout.NORTH);
-        
+
         //   jEntThreshBox.addActionListener(new
         //                                  ParameterPanel_jEntThreshBox_actionAdapter(this));
         jBasicPane.setLayout(borderLayout2);
@@ -838,14 +839,14 @@ public class BlastAppComponent extends
         jExpectBox.setVerifyInputWhenFocusTarget(true);
         matrixLabel.setText("Expect:");
         jGapcostsBox.setVerifyInputWhenFocusTarget(true);
-        
+
         // update tooltip text
         // based on information from http://blast.ncbi.nlm.nih.gov/Blast.cgi and http://www.ncbi.nlm.nih.gov/BLAST/matrix_info.html
         jExpectBox.setToolTipText("Random background noise");
         jWordsizeBox.setToolTipText("The length of the words governing the sensitivity");
         jMatrixBox.setToolTipText("Assigns a score for aligning any possible pair of residues");
         jGapcostsBox.setToolTipText("Score subtracted due to the gaps");
-        
+
         jWordsizeBox.addActionListener(new
                                        BlastAppComponent_jFrameShiftPaneltyBox_actionAdapter(this));
         blastxSettingPanel.setLayout(gridBagLayout2);
@@ -1039,12 +1040,12 @@ public class BlastAppComponent extends
                 , GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                 new Insets(0, 0, 1, 59), 78, -61));
         jTabbedPane1.add(jTabbedBlastPane, "BLAST");
-        
+
         /*********Code Implement By Anh Vu***************
         *********Contact: vietanh.vu@m4x.org************/
        // jTabbedPane1.add(jTabbedBlatPane, "BLAT");
         /*********End Code*******************************/
-        
+
         //jTabbedPane1.add(jHMMPane, "HMM");
         jScrollPane2.getViewport().add(jList2, null);
 
@@ -1099,16 +1100,16 @@ public class BlastAppComponent extends
         filterPanel.add(maskLowCaseBox);
         filterPanel.add(maskLookupOnlyBox, null);
         filterPanel.add(humanRepeatFilter);
-       
+
         jPanel1 = new JPanel();
         filterPanel.add(jPanel1);
         jPanel1.add(jDisplayInWebBox);
         jTabbedBlastPane.add(jBasicPane, "Main");
         jTabbedBlastPane.add(jAdvancedPane, "Advanced Options");
-        
+
         // bug http://wiki.c2b2.columbia.edu/mantis/view.php?id=1747
         // jTabbedBlastPane.add(jServerInfoPane, "Service");
-        
+
         mainPanel.add(jTabbedPane1, java.awt.BorderLayout.CENTER);
         // mainPanel.add(checkboxPanel, BorderLayout.SOUTH);
         jToolBar1.add(jLabel2);
@@ -1329,12 +1330,7 @@ public class BlastAppComponent extends
             } else { //to handle new sequenceDB.
 
                 try {
-                    String tempFolder = System.getProperties().getProperty(
-                            "temporary.files.directory");
-                    if (tempFolder == null) {
-                        tempFolder = ".";
-
-                    }
+                    String tempFolder = FilePathnameUtils.getTemporaryFilesDirectoryPath();
 
                     String outputFile = tempFolder + "Blast" +
                                         RandomNumberGenerator.getID() +
@@ -1451,7 +1447,7 @@ public class BlastAppComponent extends
 
         return ps;
     }
-    
+
 
     /**
      * Collect selected parameters.
@@ -1476,12 +1472,7 @@ public class BlastAppComponent extends
 
             try {
 
-                String tempFolder = System.getProperties().getProperty(
-                        "temporary.files.directory");
-                if (tempFolder == null) {
-                    tempFolder = ".";
-
-                }
+                String tempFolder = FilePathnameUtils.getTemporaryFilesDirectoryPath();
 
                 String outputFile = tempFolder + "Blast" +
                                     RandomNumberGenerator.getID() +
@@ -1524,7 +1515,7 @@ public class BlastAppComponent extends
     /*********Code Implement By Anh Vu***************
      *********Contact: vietanh.vu@m4x.org************
      *Collect all selected parameters and save it to*
-     * a ParameterBlatSetting object. @return this*** 
+     * a ParameterBlatSetting object. @return this***
      * ParameterBlatSetting*************************/
     public ParameterBlatSetting collectBlatParameters(){
         ParameterBlatSetting ps = new ParameterBlatSetting();
@@ -1533,12 +1524,12 @@ public class BlastAppComponent extends
         ps.setStringOutputType((String) jComboBoxOutputType.getSelectedItem());
         ps.setStringQueryType((String) jComboBoxQueryType.getSelectedItem());
         ps.setStringSortOutput((String) jComboBoxSortOutput.getSelectedItem());
-        ps.setBooleanFeelLucky(jCheckBoxLucky.isSelected()); 
+        ps.setBooleanFeelLucky(jCheckBoxLucky.isSelected());
         ps.setBooleanOpenInBrowser(jCheckBoxOpenInBrowser.isSelected());
-       
+
         return ps;
     }
-    
+
     public ParameterSetter processBlatParameters(){
         ParameterBlatSetting parameterBlatSetting = collectBlatParameters();
         if (parameterBlatSetting == null) {
@@ -1552,11 +1543,7 @@ public class BlastAppComponent extends
         } else {
 
             try {
-                String tempFolder = System.getProperties().getProperty(
-                        "temporary.files.directory");
-                if (tempFolder == null) {
-                    tempFolder = ".";
-                }
+                String tempFolder = FilePathnameUtils.getTemporaryFilesDirectoryPath();
 
                 if (fastaFile == null) {
                     fastaFile = activeSequenceDB;
@@ -1584,9 +1571,9 @@ public class BlastAppComponent extends
 
         }
         return parameterSetter;
-    } 
-    /*********End Code*******************************/   
-    
+    }
+    /*********End Code*******************************/
+
     /*********Code Implement By Anh Vu***************
     *********Contact: vietanh.vu@m4x.org************
     ****Set up the command Line for Stand Alone Blat*/
@@ -1634,13 +1621,13 @@ public class BlastAppComponent extends
             sCommandLine += jComboBoxMask.getSelectedItem();
             sCommandLine += " ";
         }
-        
+
         if(!jComboBoxQMask.getSelectedItem().equals(DEFAULT_QMASK)){
             sCommandLine += "-qMask=";
             sCommandLine += jComboBoxQMask.getSelectedItem();
             sCommandLine += " ";
         }
-        sCommandLine += "-minRepDivergence="; 
+        sCommandLine += "-minRepDivergence=";
         sCommandLine += jTextFieldMinDivergence.getText();
         sCommandLine += " dots=";
         sCommandLine += jTextFieldDots.getText();
@@ -1658,7 +1645,7 @@ public class BlastAppComponent extends
         sCommandLine += sOutput;
         return sCommandLine;
     }
-    /*********End Code*******************************/   
+    /*********End Code*******************************/
 
 
 
@@ -1727,12 +1714,7 @@ public class BlastAppComponent extends
 
         try {
 
-            String tempFolder = System.getProperties().getProperty(
-                    "temporary.files.directory");
-            if (tempFolder == null) {
-                tempFolder = ".";
-
-            }
+            String tempFolder = FilePathnameUtils.getTemporaryFilesDirectoryPath();
             String outputFile = tempFolder + "Algo" +
                                 RandomNumberGenerator.getID() +
                                 ".html";
@@ -1819,7 +1801,7 @@ public class BlastAppComponent extends
                 parameterSetter = processNCBIParameters();
 
             }
-        } 
+        }
         else if (jTabbedPane1.getSelectedIndex() == BlastAppComponent.BLAT){
             if(jTabbedBlatPane.getSelectedIndex() == BLAT_SERVER)
                 parameterSetter = processBlatParameters();
@@ -1843,8 +1825,8 @@ public class BlastAppComponent extends
             jProgressBarBlat.setString("Blat Search Stopped On " + finished_Date);
         }
     }
-    /*********End Code*******************************/ 
-    
+    /*********End Code*******************************/
+
     public void setBlastDisplayPanel(int selectedPanel) {
         if (selectedPanel == BlastAppComponent.SERVER) {
             jTabbedBlastPane.setSelectedIndex(BlastAppComponent.SERVER);
@@ -1875,7 +1857,7 @@ public class BlastAppComponent extends
     };
 
     void jButton1_actionPerformed(ActionEvent e) {
-        
+
         blastFinished("OTHERS_Interrupted");
 
     }
@@ -1980,9 +1962,9 @@ public class BlastAppComponent extends
         };
         SwingUtilities.invokeLater(r);
     }
-    
-     /*********End Code*******************************/   
-    
+
+     /*********End Code*******************************/
+
     void jButton2_actionPerformed(ActionEvent e) {
         if (fastaFile == null || fastaFile.isDNA()) {
             reportError("Please select a PROTEIN sequence file first.",
@@ -1998,12 +1980,7 @@ public class BlastAppComponent extends
 
         try {
 
-            String tempFolder = System.getProperties().getProperty(
-                    "temporary.files.directory");
-            if (tempFolder == null) {
-                tempFolder = "./";
-
-            }
+            String tempFolder = FilePathnameUtils.getTemporaryFilesDirectoryPath();
             String outputFile = tempFolder + "Hmm" +
                                 RandomNumberGenerator.getID() +
                                 ".txt";
@@ -2132,7 +2109,7 @@ public class BlastAppComponent extends
      *********Contact: vietanh.vu@m4x.org************
      *Setting up the default parameters for Stand****
      *Alone Blat Application*************************/
-    
+
     public void standAloneBlatDefault(){
         jTextFieldOoc.setText(DEFAULT_Ooc);
         jTextFieldTileSize.setText(DEFAULT_TILE_SIZE_DNA);
@@ -2151,7 +2128,7 @@ public class BlastAppComponent extends
         jComboBoxOut.setSelectedIndex(0);
         jTextFieldSelectDatabase.setText(DEFAULT_DATABASE_DIRECTORY);
     }
-    
+
     public void processSBlat(){
         String sCommandLine;
         File f = new File(jTextFieldSelectDatabase.getText());
@@ -2163,7 +2140,7 @@ public class BlastAppComponent extends
                 String sDatabase = "\"" + files[i].getAbsolutePath() + "\"";
                 sCommandLine = sBlatCommandLine(sDatabase, sQuery, sOutput);
                 new RunCommand(sCommandLine);
-                try{            
+                try{
                     Runtime rt = Runtime.getRuntime();
                     rt.exec(sCommandLine);
                 } catch (Throwable t){
@@ -2316,7 +2293,7 @@ class BlastAppComponent_algorithmSearch_actionAdapter implements java.
 class BlastAppComponent_jButton2_actionAdapter implements java.awt.event.
         ActionListener {
     BlastAppComponent adaptee;
-    
+
     BlastAppComponent_jButton2_actionAdapter(BlastAppComponent
                                              adaptee) {
         this.adaptee = adaptee;
@@ -2347,24 +2324,24 @@ class BlastAppComponent_jComboBoxAssembly_actionAdapter implements java.awt.even
         this.adaptee.jComboBoxAssemblyValue.setSelectedIndex(this.adaptee.jComboBoxAssembly.getSelectedIndex());
     }
 }
- 
+
 class BlastAppComponent_jButtonUpdate_actionAdapter implements java.awt.event.ActionListener{
     BlastAppComponent adaptee;
     BlastAppComponent_jButtonUpdate_actionAdapter(BlastAppComponent adaptee){
         this.adaptee = adaptee;
     }
-    public void actionPerformed(ActionEvent e){  
+    public void actionPerformed(ActionEvent e){
         try {
             Socket s = new Socket(org.geworkbench.components.alignment.blast.RemoteBlat.getBlatServer(),
                                   org.geworkbench.components.alignment.blast.RemoteBlat.getBlatPort());
 
             //create an output stream for sending message.
             DataOutputStream out = new DataOutputStream(s.getOutputStream());
-            
+
             //create buffered reader stream for reading incoming byte stream.
             InputStreamReader inBytes = new InputStreamReader(s.getInputStream());
             BufferedReader in = new BufferedReader(inBytes);
-            
+
             out.writeBytes("PUT /cgi-bin/hgBlat\r\n");
             java.util.regex.Pattern p = java.util.regex.Pattern.compile("<SELECT NAME");
             while(true){
@@ -2384,7 +2361,7 @@ class BlastAppComponent_jButtonUpdate_actionAdapter implements java.awt.event.Ac
                             sData = in.readLine();
                         }
                     }
-                    
+
                     else if (sOption.equals("db")){
                         adaptee.jComboBoxAssembly.removeAllItems();
                         adaptee.jComboBoxAssemblyValue.removeAllItems();
@@ -2397,7 +2374,7 @@ class BlastAppComponent_jButtonUpdate_actionAdapter implements java.awt.event.Ac
                             sData = in.readLine();
                         }
                     }
-                    
+
                     else if (sOption.equals("type")){
                         adaptee.jComboBoxQueryType.removeAllItems();
                         sData = in.readLine();
@@ -2408,7 +2385,7 @@ class BlastAppComponent_jButtonUpdate_actionAdapter implements java.awt.event.Ac
                             sData = in.readLine();
                         }
                     }
-                    
+
                     else if (sOption.equals("sort")){
                         adaptee.jComboBoxSortOutput.removeAllItems();
                         sData = in.readLine();
@@ -2429,9 +2406,9 @@ class BlastAppComponent_jButtonUpdate_actionAdapter implements java.awt.event.Ac
                             sData = in.readLine();
                         }
                     }
-                    
+
                     else {
-                        
+
                     }
                 }
             }
@@ -2441,7 +2418,7 @@ class BlastAppComponent_jButtonUpdate_actionAdapter implements java.awt.event.Ac
         }
         catch (EOFException err) {
             adaptee.reportError("EOF:" + err.getMessage(), "EOF Exception Error");
-        } 
+        }
         catch (IOException err) {
             adaptee.reportError(err.getMessage(), "IO Exception Error");
         }
@@ -2464,7 +2441,7 @@ class BlastAppComponent_jButtonBrowse_actionAdapter implements java.awt.event.Ac
     }
     public void actionPerformed(ActionEvent e){
         JFileChooser fc = new JFileChooser();
-        fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);      
+        fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
         if (fc.showOpenDialog(null) == JFileChooser.APPROVE_OPTION){
             File dir = fc.getSelectedFile();
             this.adaptee.jTextFieldSelectDatabase.setText(dir.getAbsolutePath());
@@ -2510,12 +2487,12 @@ class RunCommand extends Thread{
         this.start();
     }
     public void run(){
-        try{            
+        try{
             Runtime rt = Runtime.getRuntime();
             rt.exec(sCommand);
         } catch (Throwable t){
             t.printStackTrace();
         }
     }
-} 
+}
  /*********End Code*******************************/

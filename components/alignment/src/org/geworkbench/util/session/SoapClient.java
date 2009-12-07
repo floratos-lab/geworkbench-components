@@ -16,6 +16,8 @@ import org.geworkbench.bison.datastructure.biocollections.sequences.
         CSSequenceSet;
 import org.geworkbench.bison.datastructure.biocollections.sequences.DSSequenceSet;
 import org.geworkbench.bison.datastructure.bioobjects.sequence.DSSequence;
+import org.geworkbench.util.FilePathnameUtils;
+
 import java.io.IOException;
 
 
@@ -526,13 +528,9 @@ public class SoapClient {
     }
 
     public String getLocalFileName(String path) {
-        String tempFolder = System.getProperties().getProperty(
-                "temporary.files.directory");
-        if (tempFolder == null) {
-            tempFolder = "./";
+		String tempFolder = FilePathnameUtils.getTemporaryFilesDirectoryPath();
 
-        }
-        return tempFolder + getFileName(path);
+		return tempFolder + getFileName(path);
     }
 
     public void setSequenceDB(CSSequenceSet sequenceDB) {

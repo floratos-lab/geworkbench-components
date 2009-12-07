@@ -1,6 +1,9 @@
 package org.geworkbench.components.alignment.synteny;
 
 import javax.swing.*;
+
+import org.geworkbench.util.FilePathnameUtils;
+
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
@@ -161,16 +164,14 @@ public class MarkerPane
 
         if(listModel2.getSize()==0)return;
 
-        String tempDir = System.getProperty("temporary.files.directory");
+		String tempDir = FilePathnameUtils.getTemporaryFilesDirectoryPath();
 
               FileOutputStream fout;
               String out_name = null;
               String job_id = null;
-              String res_name;
 
               job_id = new String("Synteny_" + Math.rint(Math.random() * 1000000));
               out_name = new String(tempDir + job_id + ".sub");
-              res_name = new String(tempDir + job_id + ".res");
 
               try {
                   fout = new FileOutputStream(out_name);
