@@ -160,14 +160,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 	
 	private  static final String SELECTVERSION = "Select Version";
 	
-	//private static String PDNUMBERLABEL = "# of Protein-DNA Interactions";
-
-	//private static String PPNUMBERLABEL = "# of Protein-Protein Interactions";
-
-	/*private static String[] columnLabels = new String[] { INCLUDEPDLABEL,
-			INCLUDEPPLABEL, MARKERLABEL, GENELABEL, GENETYPELABEL,
-			GOTERMCOLUMN, PDNUMBERLABEL, PPNUMBERLABEL };*/
-	
+	 
 	private static String[] firstFourColumnLabels = new String[] {MARKERLABEL, GENELABEL, GENETYPELABEL,
 		GOTERMCOLUMN};	
 	
@@ -602,10 +595,10 @@ CellularNetWorkElementInformation(
 	        	 versionComboBox.revalidate();
 	        	 
 	        	 for (CellularNetWorkElementInformation cellularNetWorkElementInformation : hits)						
-
+	        	 {
 	 
-						cellularNetWorkElementInformation.setDirty(true);							
-
+						cellularNetWorkElementInformation.setDirty(true);        	         
+	        	 }
  
 	         }
 	          
@@ -913,7 +906,7 @@ networkAvailInteractionTypes,selectedNetworkInteractionTypeModel,availNetworkInt
 							// CellularNetWorkElementInformation(marker)))
 							CellularNetWorkElementInformation cellularNetWorkElementInformation = new 
 
-CellularNetWorkElementInformation(
+                            CellularNetWorkElementInformation(
 									marker, AllInteractionTypes);
 							boolean newEntry = true;
 							allGenes.remove(row);
@@ -1219,7 +1212,7 @@ cellularNetWorkElementInformation.getInteractionDistribution(interactionType)[i]
 		 
 		      if ( displaySelectedInteractionTypes.contains(columnLabels[i].substring(0, 
 
-columnLabels[i].length()-COLUMNLABELPOSTFIX.length()))) {
+                columnLabels[i].length()-COLUMNLABELPOSTFIX.length()))) {
 				model.addColumn(tableColumns[i]);
 			  }		      
 			// System.out.println(tableColumns.length + "model size" +
@@ -1407,6 +1400,8 @@ columnLabels[i].length()-COLUMNLABELPOSTFIX.length()))) {
 		String historyStr = "";
 		boolean isRestrictToGenesPresentInMicroarray = networkJCheckBox1.isSelected();
 		for (CellularNetWorkElementInformation cellularNetWorkElementInformation : hits) {
+			if (cellularNetWorkElementInformation.isDirty() == true)
+				continue;
 			ArrayList<InteractionDetail> arrayList = cellularNetWorkElementInformation
 					.getSelectedInteractions();
 			if (arrayList != null && arrayList.size() > 0) {
@@ -1839,7 +1834,7 @@ listModel1, ListModel listModel2) {
 							
 							
 
-cellularNetWorkElementInformation.setIncludedInteractionTypeList(networkSelectedInteractionTypes);
+                            cellularNetWorkElementInformation.setIncludedInteractionTypeList(networkSelectedInteractionTypes);
 							
 							cellularNetWorkElementInformation
 									.setInteractionDetails(interactionDetails);
