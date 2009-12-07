@@ -9,6 +9,7 @@ import org.geworkbench.components.alignment.client.BlastAlgorithm;
 import org.geworkbench.components.alignment.client.HMMDataSet;
 import org.geworkbench.components.alignment.grid.CreateGridServiceDialog;
 import org.geworkbench.events.ProjectNodeAddedEvent;
+import org.geworkbench.util.FilePathnameUtils;
 import org.geworkbench.util.session.SoapClient;
 
 import javax.swing.*;
@@ -30,7 +31,7 @@ import java.util.StringTokenizer;
  */
 
 public class ParameterViewWidget extends JPanel {
-    
+
     JPanel jBasicPane = new JPanel();
     JLabel DatabaseLabel = new JLabel();
     JTabbedPane jTabbedPane1 = new JTabbedPane();
@@ -206,7 +207,7 @@ public class ParameterViewWidget extends JPanel {
         jMatrixBox.addItem("blosum50");
         jMatrixBox.addItem("blosum62");
         jMatrixBox.addItem("blosum100");
-     
+
         jDBList.setToolTipText("Select a database");
         jDBList.setVerifyInputWhenFocusTarget(true);
         jDBList.setVisibleRowCount(1);
@@ -597,7 +598,7 @@ public class ParameterViewWidget extends JPanel {
                 , GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                 new Insets(0, 0, 0, 0), 98, 7));
         jScrollPane3.getViewport().add(jList4, null);
-        
+
         filterPanel.add(lowComplexFilterBox, null);
         filterPanel.add(maskLookupOnlyBox, null);
         filterPanel.add(jDisplayInWebBox, null);
@@ -753,12 +754,7 @@ public class ParameterViewWidget extends JPanel {
                    }*/
 
             try {
-                String tempFolder = System.getProperties().getProperty(
-                        "temporary.files.directory");
-                if (tempFolder == null) {
-                    tempFolder = ".";
-
-                }
+				String tempFolder = FilePathnameUtils.getTemporaryFilesDirectoryPath();
 
                 String outputFile = tempFolder + "Blast" +
                                     RandomNumberGenerator.getID() +
@@ -833,12 +829,7 @@ public class ParameterViewWidget extends JPanel {
 
         try {
 
-            String tempFolder = System.getProperties().getProperty(
-                    "temporary.files.directory");
-            if (tempFolder == null) {
-                tempFolder = ".";
-
-            }
+			String tempFolder = FilePathnameUtils.getTemporaryFilesDirectoryPath();
             String outputFile = tempFolder + "Algo" +
                                 RandomNumberGenerator.getID() +
                                 ".html";
@@ -993,12 +984,7 @@ public class ParameterViewWidget extends JPanel {
 
         try {
 
-            String tempFolder = System.getProperties().getProperty(
-                    "temporary.files.directory");
-            if (tempFolder == null) {
-                tempFolder = "./";
-
-            }
+			String tempFolder = FilePathnameUtils.getTemporaryFilesDirectoryPath();
             String outputFile = tempFolder + "Hmm" +
                                 RandomNumberGenerator.getID() +
                                 ".txt";

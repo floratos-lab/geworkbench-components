@@ -21,6 +21,7 @@ import org.geworkbench.bison.datastructure.bioobjects.sequence.CSSequence;
 import org.geworkbench.bison.util.RandomNumberGenerator;
 import org.geworkbench.components.alignment.blast.RemoteBlat;
 import org.geworkbench.components.alignment.panels.*;
+import org.geworkbench.util.FilePathnameUtils;
 import org.geworkbench.util.session.SoapClient;
 import org.globus.progtutorial.clients.BlastService.Client;
 
@@ -95,10 +96,7 @@ public class BlatAlgorithm extends BWAbstractAlgorithm implements SoapClientIn {
                     e.printStackTrace();
                 }
             }
-            String tempFolder = System.getProperties().getProperty("temporary.files.directory");
-            if (tempFolder == null) {
-                tempFolder = ".";
-            }
+			String tempFolder = FilePathnameUtils.getTemporaryFilesDirectoryPath();
             //generate a new file name for the coming outputfile.
             String outputFile = tempFolder + "Blat" + RandomNumberGenerator.getID() +".html";
             //generate a structure to get the output
@@ -107,7 +105,7 @@ public class BlatAlgorithm extends BWAbstractAlgorithm implements SoapClientIn {
             CSSequenceSet activeSequenceDB = soapClient.getSequenceDB();
             int count = 0;
             for (Object sequence : activeSequenceDB) {
-                updateStatus("Uploading sequence: " + ((CSSequence) sequence));       
+                updateStatus("Uploading sequence: " + ((CSSequence) sequence));
                 blat = new RemoteBlat(((CSSequence) sequence).getSequence(), ((CSSequence) sequence).toString(), outputFile, outputStruct);
                 blat.setCmdLine(parameterBlatSetting);
                 if (parameterBlatSetting.getBooleanFeelLucky())
@@ -121,7 +119,7 @@ public class BlatAlgorithm extends BWAbstractAlgorithm implements SoapClientIn {
                     return;
                 }
                 updateStatus("Querying sequence: " + ((CSSequence) sequence).getDescriptions().toString());
-                blat.getBlat(message);          
+                blat.getBlat(message);
                 while (!blat.getBlatDone()){
                     try {
                         if(blastAppComponent!=null && !blastAppComponent.isStopButtonPushed()){
@@ -217,7 +215,7 @@ public class BlatAlgorithm extends BWAbstractAlgorithm implements SoapClientIn {
      *
      */
 
-    
+
 
     public void setSoapClient(SoapClient client) {
         soapClient = client;

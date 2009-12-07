@@ -34,22 +34,24 @@ import org.geworkbench.components.alignment.panels.BlastAppComponent;
 import org.geworkbench.components.alignment.panels.ParameterSetting;
 import org.geworkbench.events.ProjectNodeAddedEvent;
 import org.geworkbench.util.BrowserLauncher;
+import org.geworkbench.util.FilePathnameUtils;
 import org.geworkbench.util.session.SoapClient;
 import org.globus.progtutorial.clients.BlastService.Client;
 
 /**
  * BlastAlgorithm.
- * 
+ *
  * @author XZ
  * @author zji
  * @version $Id: BlastAlgorithm.java,v 1.30 2008-08-08 18:14:28 xiaoqing Exp $
  */
 public class BlastAlgorithm extends BWAbstractAlgorithm implements SoapClientIn {
+
 	static Log LOG = LogFactory.getLog(RemoteBlast.class);
 
 	/**
 	 * BlastAlgorithm
-	 * 
+	 *
 	 * @param aBoolean
 	 *            boolean
 	 */
@@ -84,7 +86,7 @@ public class BlastAlgorithm extends BWAbstractAlgorithm implements SoapClientIn 
 
 	/**
 	 * Update Progress with finished percentage and related information.
-	 * 
+	 *
 	 * @param percent
 	 *            double
 	 * @param text
@@ -99,7 +101,7 @@ public class BlastAlgorithm extends BWAbstractAlgorithm implements SoapClientIn 
 
 	/**
 	 * Update progress only with String information.
-	 * 
+	 *
 	 * @param text
 	 *            String
 	 */
@@ -112,7 +114,7 @@ public class BlastAlgorithm extends BWAbstractAlgorithm implements SoapClientIn 
 	/**
 	 * Update the component's progressBar with information and reset the
 	 * ProgressBar.
-	 * 
+	 *
 	 * @param boo
 	 *            boolean
 	 * @param text
@@ -127,7 +129,7 @@ public class BlastAlgorithm extends BWAbstractAlgorithm implements SoapClientIn 
 
 	/**
 	 * Get the percentage of completion.
-	 * 
+	 *
 	 * @return double
 	 */
 	public double getCompletion() {
@@ -140,7 +142,7 @@ public class BlastAlgorithm extends BWAbstractAlgorithm implements SoapClientIn 
 
 	/**
 	 * Show error message and update status
-	 * 
+	 *
 	 * @param e
 	 */
 	private void processExceptionFromNcbi(Exception e, CSSequence sequence) {
@@ -231,11 +233,7 @@ public class BlastAlgorithm extends BWAbstractAlgorithm implements SoapClientIn 
 		}
 		// Handle grid situation.
 		if (gridEnabled) {
-			String tempFolder = System.getProperties().getProperty(
-					"temporary.files.directory");
-			if (tempFolder == null) {
-				tempFolder = ".";
-			}
+			String tempFolder = FilePathnameUtils.getTemporaryFilesDirectoryPath();
 
 			CSAlignmentResultSet blastResult = new CSAlignmentResultSet(tempFolder + "a.html",
 					inputFilename, soapClient.getSequenceDB());
@@ -287,12 +285,8 @@ public class BlastAlgorithm extends BWAbstractAlgorithm implements SoapClientIn 
 	 */
 	@SuppressWarnings("unchecked") // two lines affected
 	private void executeUsingNcbi() {
-		String tempFolder = System.getProperties().getProperty(
-				"temporary.files.directory");
-		if (tempFolder == null) {
-			tempFolder = ".";
+		String tempFolder = FilePathnameUtils.getTemporaryFilesDirectoryPath();
 
-		}
 		/* generate a new file name for the coming output file. */
 		String outputFile = tempFolder + "Blast"
 				+ RandomNumberGenerator.getID() + ".html";
@@ -404,18 +398,18 @@ public class BlastAlgorithm extends BWAbstractAlgorithm implements SoapClientIn 
 
 		if (blastAppComponent != null) {
 			blastAppComponent.publishProjectNodeAddedEvent(event);
-		}		
+		}
 	}
 
 	private String generateHistoryStr(CSSequenceSet<CSSequence> activeSequenceDB) {
 		String histStr = "";
 		if(parameterSetting!=null){
-			
+
 			// Header
 			histStr += "Blast run with the following parameters:\n";
 			histStr += "----------------------------------------\n\n";
 
-			 
+
 				histStr += "Database: " + parameterSetting.getDbName() + LINEBREAK;
 				histStr += "BLAST Program: " + parameterSetting.getProgramName() + LINEBREAK;
 				histStr += "Expect: " + parameterSetting.getExpect() + LINEBREAK;
@@ -426,7 +420,7 @@ public class BlastAlgorithm extends BWAbstractAlgorithm implements SoapClientIn 
 				histStr += "Human Repeat Filter On: " + parameterSetting.isHumanRepeatFilterOn() + LINEBREAK;
 				histStr += "Mask Low Case: " + parameterSetting.isMaskLowCase() + LINEBREAK;
 				histStr += "Mask Lookup Table: " + parameterSetting.isMaskLookupTable() + LINEBREAK + LINEBREAK;
-				
+
 				histStr += "Number of Sequences: " + activeSequenceDB.size() + LINEBREAK;
 				for (CSSequence marker : activeSequenceDB) {
 					histStr += "\t" + marker.getLabel() + "\n";
@@ -438,7 +432,7 @@ public class BlastAlgorithm extends BWAbstractAlgorithm implements SoapClientIn 
 
 	/**
 	 * The workhorse to run Blast program.
-	 * 
+	 *
 	 * This method is only invoked by construct() defined in BWAbstractAlgorithm.
 	 */
 	protected void execute() {
@@ -449,7 +443,7 @@ public class BlastAlgorithm extends BWAbstractAlgorithm implements SoapClientIn 
 				e.printStackTrace();
 			}
 		}
-		
+
 		if (useNCBI) {
 			executeUsingNcbi();
 		} else {
