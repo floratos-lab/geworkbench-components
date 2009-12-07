@@ -91,7 +91,7 @@ import org.geworkbench.bison.datastructure.bioobjects.markers.goterms.GOTerm;
 import org.geworkbench.bison.datastructure.complex.panels.CSItemList;
 import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
-import org.geworkbench.builtin.projects.ProjectPanel; 
+import org.geworkbench.builtin.projects.ProjectPanel;
 import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.engine.management.AcceptTypes;
 import org.geworkbench.engine.management.Publish;
@@ -103,7 +103,7 @@ import org.geworkbench.events.ProjectNodeAddedEvent;
 import org.geworkbench.util.Util;
 import org.geworkbench.util.pathwaydecoder.mutualinformation.AdjacencyMatrix;
 import org.geworkbench.util.pathwaydecoder.mutualinformation.AdjacencyMatrixDataSet;
- 
+
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -131,13 +131,13 @@ import com.jgoodies.forms.layout.FormLayout;
 public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 		implements VisualPlugin {
 	private Log log = LogFactory.getLog(this.getClass());
-	
+
 	private static String PROPERTIES_FILE = "conf/application.properties";
-	
-	private static final String INTERACTIONS_SERVLET_URL = "interactions_servlet_url";  
-	
+
+	private static final String INTERACTIONS_SERVLET_URL = "interactions_servlet_url";
+
 	private Properties iteractionsProp;
-	
+
 	private static final String GOTERMCOLUMN = "GO Annotation";
 
 	private static final String INCLUDEPDLABEL = "Include Protein-DNA";
@@ -154,18 +154,17 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 
 	private static final String GENETYPELABEL = "Gene Type";
 
-	private  static final String COLUMNLABELPOSTFIX = " #";
-	 
-	private  static final String SELECTCONTEXT = "Select Contex";
-	
-	private  static final String SELECTVERSION = "Select Version";
-	
-	 
-	private static String[] firstFourColumnLabels = new String[] {MARKERLABEL, GENELABEL, GENETYPELABEL,
-		GOTERMCOLUMN};	
-	
+	private static final String COLUMNLABELPOSTFIX = " #";
+
+	private static final String SELECTCONTEXT = "Select Contex";
+
+	private static final String SELECTVERSION = "Select Version";
+
+	private static String[] firstFourColumnLabels = new String[] { MARKERLABEL,
+			GENELABEL, GENETYPELABEL, GOTERMCOLUMN };
+
 	private static String[] columnLabels;
-	
+
 	private static TableColumn[] tableColumns;
 
 	private boolean cancelAction = false;
@@ -176,16 +175,16 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 	 * Creates new form Interactions
 	 */
 	public CellularNetworkKnowledgeWidget() {
-		
-		initLoading();		
+
+		initLoading();
 		initComponents();
-		
+
 		ppInteractions.setSelected(true);
 		ppInteractions.setToolTipText("Include Protein-Protein Interactions");
 		pdInteractions.setSelected(true);
 		pdInteractions.setEnabled(true);
-		pdInteractions.setToolTipText("Include Protein-DNA Interactions");		 
-		activatedMarkerTable.getTableHeader().setEnabled(true);		 
+		pdInteractions.setToolTipText("Include Protein-DNA Interactions");
+		activatedMarkerTable.getTableHeader().setEnabled(true);
 		activatedMarkerTable.setPreferredScrollableViewportSize(new Dimension(
 				280, 100));
 		activatedMarkerTable.getColumnModel().getColumn(0).setPreferredWidth(
@@ -216,7 +215,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 	/**
 	 * Create a popup menu to display thge name of different Go Terms in 3
 	 * catagories.
-	 *
+	 * 
 	 * @param rowIndex
 	 * @param columnIndex
 	 * @return
@@ -304,10 +303,10 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 					if (marker != null) {
 						// !hits.contains(new
 						// CellularNetWorkElementInformation(marker)))
-						CellularNetWorkElementInformation cellularNetWorkElementInformation = new 
+						CellularNetWorkElementInformation cellularNetWorkElementInformation = new
 
-CellularNetWorkElementInformation(
-								marker, AllInteractionTypes);
+						CellularNetWorkElementInformation(marker,
+								AllInteractionTypes);
 						boolean newEntry = true;
 						allGenes.remove(row);
 						for (CellularNetWorkElementInformation cell : hits) {
@@ -347,7 +346,7 @@ CellularNetWorkElementInformation(
 	/**
 	 * Create a popup menu to display thge name of different Go Terms in 3
 	 * catagories.
-	 *
+	 * 
 	 * @param rowIndex
 	 * @param columnIndex
 	 * @return
@@ -401,7 +400,7 @@ CellularNetWorkElementInformation(
 
 	/**
 	 * Display a tree for a specific go term.
-	 *
+	 * 
 	 * @param jMenu
 	 * @param treeMap
 	 */
@@ -428,7 +427,7 @@ CellularNetWorkElementInformation(
 
 	/**
 	 * Create a TreeNode from the Go Term data.
-	 *
+	 * 
 	 * @param set
 	 * @return
 	 */
@@ -454,7 +453,7 @@ CellularNetWorkElementInformation(
 
 	/**
 	 * Display Go Tree.
-	 *
+	 * 
 	 * @param set
 	 */
 	private void displayGoTree(List<GOTerm> set) {
@@ -494,21 +493,22 @@ CellularNetWorkElementInformation(
 		jPanel2 = new javax.swing.JPanel();
 		JPanel topPanel = new JPanel();
 		throttlePanel = new JPanel();
-		jLabel2 = new javax.swing.JLabel();		 	
-		availableInteractionTypeList = new javax.swing.JList();		 
+		jLabel2 = new javax.swing.JLabel();
+		availableInteractionTypeList = new javax.swing.JList();
 		selectedInteractionTypeList = new javax.swing.JList();
-		availableNetworkInteractionTypeList = new javax.swing.JList();		 
+		availableNetworkInteractionTypeList = new javax.swing.JList();
 		selectedNetworkInteractionTypeList = new javax.swing.JList();
 		addButton = new javax.swing.JButton();
 		removeButton = new javax.swing.JButton();
 		networkAddButton = new javax.swing.JButton();
 		networkRemoveButton = new javax.swing.JButton();
 		refreshButton = new javax.swing.JButton();
-		changeButton = new javax.swing.JButton();		 
-		jPanel1 = new javax.swing.JPanel();		
+		changeButton = new javax.swing.JButton();
+		jPanel1 = new javax.swing.JPanel();
 		jScrollPane3 = new javax.swing.JScrollPane();
-		jScrollPane3.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-		jPreferencePanel = new javax.swing.JPanel();	
+		jScrollPane3
+				.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		jPreferencePanel = new javax.swing.JPanel();
 		jScrollPane4 = new javax.swing.JScrollPane();
 		jScrollPane5 = new javax.swing.JScrollPane();
 		jTabbedPane1 = new JTabbedPane();
@@ -561,55 +561,54 @@ CellularNetWorkElementInformation(
 		graphToolBar.add(thresholdTextField);
 		graphToolBar.add(thresholdSlider);
 		cancelButton = new JButton();
-	 
-		  contextComboBox.setSize(60, 10);	      
-	      if (contextList != null )	      {
-	    	  contextList.add(0, SELECTCONTEXT);	        
-	      }
-	      else
-	      {  contextList = new ArrayList<String>();
-	         contextList.add(SELECTCONTEXT);
-	      }
-	      contextComboBox.setModel( new DefaultComboBoxModel(contextList.toArray()) );
-	      
-	      versionComboBox.addItem(SELECTVERSION);
-	      versionComboBox.setSelectedItem(SELECTVERSION);
-	      versionComboBox.setSize(80, 10);
-	       
-	      
-	     contextComboBox.addItemListener(new ItemListener() {
 
-	         public void itemStateChanged(ItemEvent e) {
-	        	 
-	        	 String selectedCoxtext = contextComboBox.getSelectedItem().toString();
-	           	 InteractionsConnectionImpl interactionsConnection = new InteractionsConnectionImpl();
-	        	 ArrayList<String> versionList = interactionsConnection.getVersionDescriptor(selectedCoxtext);
-	        	 versionComboBox.removeAllItems();
-	        	 versionComboBox.addItem(SELECTVERSION);
-	        	 if (versionList != null && versionList.size() > 0 )
-	             {	 
-	        		 for (int i=0; i<versionList.size();i++)
-	        			 versionComboBox.addItem(versionList.get(i));
-	                 
-	             }
-	        	 versionComboBox.revalidate();
-	        	 
-	        	 for (CellularNetWorkElementInformation cellularNetWorkElementInformation : hits)						
-	        	 {
-	 
-						cellularNetWorkElementInformation.setDirty(true);        	         
-	        	 }
- 
-	         }
-	          
-	     });    
-		
-	     networkJCheckBox2.addActionListener(new ActionListener() {
+		contextComboBox.setSize(60, 10);
+		if (contextList != null) {
+			contextList.add(0, SELECTCONTEXT);
+		} else {
+			contextList = new ArrayList<String>();
+			contextList.add(SELECTCONTEXT);
+		}
+		contextComboBox
+				.setModel(new DefaultComboBoxModel(contextList.toArray()));
+
+		versionComboBox.addItem(SELECTVERSION);
+		versionComboBox.setSelectedItem(SELECTVERSION);
+		versionComboBox.setSize(80, 10);
+
+		contextComboBox.addItemListener(new ItemListener() {
+
+			public void itemStateChanged(ItemEvent e) {
+
+				String selectedCoxtext = contextComboBox.getSelectedItem()
+						.toString();
+				InteractionsConnectionImpl interactionsConnection = new InteractionsConnectionImpl();
+				ArrayList<String> versionList = interactionsConnection
+						.getVersionDescriptor(selectedCoxtext);
+				versionComboBox.removeAllItems();
+				versionComboBox.addItem(SELECTVERSION);
+				if (versionList != null && versionList.size() > 0) {
+					for (int i = 0; i < versionList.size(); i++)
+						versionComboBox.addItem(versionList.get(i));
+
+				}
+				versionComboBox.revalidate();
+
+				for (CellularNetWorkElementInformation cellularNetWorkElementInformation : hits) {
+
+					cellularNetWorkElementInformation.setDirty(true);
+				}
+
+			}
+
+		});
+
+		networkJCheckBox2.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				networkJCheckBox2_actionPerformed(e);
 			}
-		});		 
-		 
+		});
+
 		jPanel2.setBorder(javax.swing.BorderFactory.createLineBorder(new Color(
 				204, 204, 255)));
 		// jPanel2.setMaximumSize(new Dimension(200, 80));
@@ -620,140 +619,149 @@ CellularNetWorkElementInformation(
 		throttlePanel.setMinimumSize(new Dimension(230, 100));
 		throttlePanel.setPreferredSize(new Dimension(230, 300));
 		jLabel2.setText("Obtain Interactions for Gene(s):");
-		 
+
 		availableInteractionTypeList.setModel(availableInteractionTypeModel);
 		availableInteractionTypeList.addMouseListener(new MouseAdapter() {
 			public void mouseClicked(MouseEvent evt) {
-			  if (evt.getClickCount() == 2) 
-			  {
-				interactionTypeListHandler(evt, 
+				if (evt.getClickCount() == 2) {
+					interactionTypeListHandler(evt,
 
-availableInteractionTypeList,selectedInteractionTypeList,displayAvailInteractionTypes,displaySelectedInteractionTypes, 
+					availableInteractionTypeList, selectedInteractionTypeList,
+							displayAvailInteractionTypes,
+							displaySelectedInteractionTypes,
 
-availableInteractionTypeModel,selectedInteractionTypeModel);
-			    if (networkJCheckBox2.isSelected() == true)
-			    {			    	  
-			    	populatesNetworkPrefFromColumnPref();
-			    }
-			    updateColumnPref();
-			  }
-			}
-		});		
-		 
-		availableNetworkInteractionTypeList.setModel(availNetworkInteractionTypeModel);
-		availableNetworkInteractionTypeList.addMouseListener(new MouseAdapter() {
-			public void mouseClicked(MouseEvent evt) {
-				 
-				if ( evt.getClickCount() == 2 && networkJCheckBox2.isSelected() == false)
-				{
-					interactionTypeListHandler(evt, 
-
-availableNetworkInteractionTypeList,selectedNetworkInteractionTypeList,networkAvailInteractionTypes,networkSelectedInteractionTypes, 
-
-availNetworkInteractionTypeModel,selectedNetworkInteractionTypeModel);
-					if (hits != null && hits.size() > 0) {
-						 
-						for (CellularNetWorkElementInformation cellularNetWorkElementInformation : hits)			
-
-				 
-							
-
-cellularNetWorkElementInformation.setIncludedInteractionTypeList(networkSelectedInteractionTypes);							
-
- 
-					} 
-
+							availableInteractionTypeModel,
+							selectedInteractionTypeModel);
+					if (networkJCheckBox2.isSelected() == true) {
+						populatesNetworkPrefFromColumnPref();
+					}
+					updateColumnPref();
 				}
-				 
-				 
-			    
 			}
-		});		
-		 
+		});
+
+		availableNetworkInteractionTypeList
+				.setModel(availNetworkInteractionTypeModel);
+		availableNetworkInteractionTypeList
+				.addMouseListener(new MouseAdapter() {
+					public void mouseClicked(MouseEvent evt) {
+
+						if (evt.getClickCount() == 2
+								&& networkJCheckBox2.isSelected() == false) {
+							interactionTypeListHandler(evt,
+
+							availableNetworkInteractionTypeList,
+									selectedNetworkInteractionTypeList,
+									networkAvailInteractionTypes,
+									networkSelectedInteractionTypes,
+
+									availNetworkInteractionTypeModel,
+									selectedNetworkInteractionTypeModel);
+							if (hits != null && hits.size() > 0) {
+
+								for (CellularNetWorkElementInformation cellularNetWorkElementInformation : hits)
+
+									cellularNetWorkElementInformation
+											.setIncludedInteractionTypeList(networkSelectedInteractionTypes);
+
+							}
+
+						}
+
+					}
+				});
+
 		selectedInteractionTypeList.setModel(selectedInteractionTypeModel);
 		selectedInteractionTypeList.addMouseListener(new MouseAdapter() {
-			public void mouseClicked(MouseEvent evt) {				 
-				if (evt.getClickCount() == 2  )
-				{
-				  interactionTypeListHandler(evt, selectedInteractionTypeList, 
+			public void mouseClicked(MouseEvent evt) {
+				if (evt.getClickCount() == 2) {
+					interactionTypeListHandler(evt,
+							selectedInteractionTypeList,
 
-availableInteractionTypeList,displaySelectedInteractionTypes, 
+							availableInteractionTypeList,
+							displaySelectedInteractionTypes,
 
-displayAvailInteractionTypes,selectedInteractionTypeModel,availableInteractionTypeModel);
-				  if (networkJCheckBox2.isSelected() == true)
-				  {			    	  
-				    	populatesNetworkPrefFromColumnPref();
-				  }
-				  updateColumnPref();
+							displayAvailInteractionTypes,
+							selectedInteractionTypeModel,
+							availableInteractionTypeModel);
+					if (networkJCheckBox2.isSelected() == true) {
+						populatesNetworkPrefFromColumnPref();
+					}
+					updateColumnPref();
 				}
 			}
-		});	 
-	 
-		selectedNetworkInteractionTypeList.setModel(selectedNetworkInteractionTypeModel);
+		});
+
+		selectedNetworkInteractionTypeList
+				.setModel(selectedNetworkInteractionTypeModel);
 		selectedNetworkInteractionTypeList.addMouseListener(new MouseAdapter() {
 			public void mouseClicked(MouseEvent evt) {
-				if ( evt.getClickCount() == 2 && networkJCheckBox2.isSelected() == false)
-				{
-					interactionTypeListHandler(evt, selectedNetworkInteractionTypeList, 
+				if (evt.getClickCount() == 2
+						&& networkJCheckBox2.isSelected() == false) {
+					interactionTypeListHandler(evt,
+							selectedNetworkInteractionTypeList,
 
-availableNetworkInteractionTypeList,networkSelectedInteractionTypes, 
+							availableNetworkInteractionTypeList,
+							networkSelectedInteractionTypes,
 
-networkAvailInteractionTypes,selectedNetworkInteractionTypeModel,availNetworkInteractionTypeModel);
-					if (hits != null && hits.size() > 0) {						 
-						for (CellularNetWorkElementInformation cellularNetWorkElementInformation : hits)			
+							networkAvailInteractionTypes,
+							selectedNetworkInteractionTypeModel,
+							availNetworkInteractionTypeModel);
+					if (hits != null && hits.size() > 0) {
+						for (CellularNetWorkElementInformation cellularNetWorkElementInformation : hits)
 
-				 
-							
+							cellularNetWorkElementInformation
+									.setIncludedInteractionTypeList(networkSelectedInteractionTypes);
 
-cellularNetWorkElementInformation.setIncludedInteractionTypeList(networkSelectedInteractionTypes);							
-
- 
-					} 
+					}
 				}
-			
-			
-			
+
 			}
-		});	 
-		
+		});
+
 		addButton.setText(">>>");
 		addButton.setToolTipText("Add to selection");
 		addButton.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				addRemoveButtonHandler(evt, 
+				addRemoveButtonHandler(evt,
 
-availableInteractionTypeList,selectedInteractionTypeList,displayAvailInteractionTypes,displaySelectedInteractionTypes, 
+				availableInteractionTypeList, selectedInteractionTypeList,
+						displayAvailInteractionTypes,
+						displaySelectedInteractionTypes,
 
-availableInteractionTypeModel,selectedInteractionTypeModel);
-				if (networkJCheckBox2.isSelected() == true)
-				{			    	  
+						availableInteractionTypeModel,
+						selectedInteractionTypeModel);
+				if (networkJCheckBox2.isSelected() == true) {
 					populatesNetworkPrefFromColumnPref();
-			    }
-				
+				}
+
 				updateColumnPref();
-				
+
 			}
 		});
-		
+
 		networkAddButton.setText(">>>");
 		networkAddButton.setToolTipText("Add to selection");
 		networkAddButton.setEnabled(false);
 		networkAddButton.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				addRemoveButtonHandler(evt, 
+				addRemoveButtonHandler(evt,
 
-availableNetworkInteractionTypeList,selectedNetworkInteractionTypeList,networkAvailInteractionTypes,networkSelectedInteractionTypes, 
+				availableNetworkInteractionTypeList,
+						selectedNetworkInteractionTypeList,
+						networkAvailInteractionTypes,
+						networkSelectedInteractionTypes,
 
-availNetworkInteractionTypeModel,selectedNetworkInteractionTypeModel);
+						availNetworkInteractionTypeModel,
+						selectedNetworkInteractionTypeModel);
 				if (hits != null && hits.size() > 0) {
-					 
-					for (CellularNetWorkElementInformation cellularNetWorkElementInformation : hits)				
 
-			 
-						cellularNetWorkElementInformation.setIncludedInteractionTypeList(networkSelectedInteractionTypes);	
+					for (CellularNetWorkElementInformation cellularNetWorkElementInformation : hits)
 
-						 
-				} 
+						cellularNetWorkElementInformation
+								.setIncludedInteractionTypeList(networkSelectedInteractionTypes);
+
+				}
 			}
 		});
 
@@ -761,52 +769,54 @@ availNetworkInteractionTypeModel,selectedNetworkInteractionTypeModel);
 		removeButton.setToolTipText("Remove From Selection");
 		removeButton.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				addRemoveButtonHandler(evt, selectedInteractionTypeList, 
+				addRemoveButtonHandler(evt, selectedInteractionTypeList,
 
-availableInteractionTypeList,displaySelectedInteractionTypes, 
+				availableInteractionTypeList, displaySelectedInteractionTypes,
 
-displayAvailInteractionTypes,selectedInteractionTypeModel,availableInteractionTypeModel);
-				if (networkJCheckBox2.isSelected() == true)
-				{			    	  
+				displayAvailInteractionTypes, selectedInteractionTypeModel,
+						availableInteractionTypeModel);
+				if (networkJCheckBox2.isSelected() == true) {
 					populatesNetworkPrefFromColumnPref();
-			    }
-				
+				}
+
 				updateColumnPref();
-				
+
 			}
 		});
-		
-		
+
 		networkRemoveButton.setText("<<<");
 		networkRemoveButton.setToolTipText("Remove From Selection");
 		networkRemoveButton.setEnabled(false);
-		networkRemoveButton.addActionListener(new java.awt.event.ActionListener() {
-			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				addRemoveButtonHandler(evt,selectedNetworkInteractionTypeList, 
+		networkRemoveButton
+				.addActionListener(new java.awt.event.ActionListener() {
+					public void actionPerformed(java.awt.event.ActionEvent evt) {
+						addRemoveButtonHandler(evt,
+								selectedNetworkInteractionTypeList,
 
-availableNetworkInteractionTypeList,networkSelectedInteractionTypes, 
+								availableNetworkInteractionTypeList,
+								networkSelectedInteractionTypes,
 
-networkAvailInteractionTypes,selectedNetworkInteractionTypeModel,availNetworkInteractionTypeModel);
-				if (hits != null && hits.size() > 0) {
-					 
-					for (CellularNetWorkElementInformation cellularNetWorkElementInformation : hits)				
+								networkAvailInteractionTypes,
+								selectedNetworkInteractionTypeModel,
+								availNetworkInteractionTypeModel);
+						if (hits != null && hits.size() > 0) {
 
-			 
-						cellularNetWorkElementInformation.setIncludedInteractionTypeList(networkSelectedInteractionTypes);	
+							for (CellularNetWorkElementInformation cellularNetWorkElementInformation : hits)
 
-						 
-				} 
-			}
-		});
-		
-		changeButton.setText("Change");	 
+								cellularNetWorkElementInformation
+										.setIncludedInteractionTypeList(networkSelectedInteractionTypes);
+
+						}
+					}
+				});
+
+		changeButton.setText("Change");
 		changeButton.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
 				changeButtonHandler(evt);
 			}
 		});
-		
-		
+
 		refreshButton.setText("Refresh");
 		refreshButton.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -904,10 +914,10 @@ networkAvailInteractionTypes,selectedNetworkInteractionTypeModel,availNetworkInt
 						if (marker != null) {
 							// !hits.contains(new
 							// CellularNetWorkElementInformation(marker)))
-							CellularNetWorkElementInformation cellularNetWorkElementInformation = new 
+							CellularNetWorkElementInformation cellularNetWorkElementInformation = new
 
-                            CellularNetWorkElementInformation(
-									marker, AllInteractionTypes);
+							CellularNetWorkElementInformation(marker,
+									AllInteractionTypes);
 							boolean newEntry = true;
 							allGenes.remove(row);
 							for (CellularNetWorkElementInformation cell : hits) {
@@ -930,7 +940,7 @@ networkAvailInteractionTypes,selectedNetworkInteractionTypeModel,availNetworkInt
 			}
 
 			private void maybeShowPopup(MouseEvent e) {
-			 
+
 				if (e.isPopupTrigger() && activatedMarkerTable.isEnabled()) {
 					Point p = new Point(e.getX(), e.getY());
 					int col = activatedMarkerTable.columnAtPoint(p);
@@ -984,26 +994,23 @@ networkAvailInteractionTypes,selectedNetworkInteractionTypeModel,availNetworkInt
 		jProgressBar1.setBorderPainted(true);
 		jProgressBar1.setMaximum(100);
 		jProgressBar1.setMinimum(0);
-		progressDisplayBar.add(jProgressBar1);		 
+		progressDisplayBar.add(jProgressBar1);
 		jPanel1.add(progressDisplayBar, BorderLayout.NORTH);
-		//jPanel1.add(jScrollPane3, BorderLayout.CENTER);
+		// jPanel1.add(jScrollPane3, BorderLayout.CENTER);
 		jPanel1.add(jTabbedPane1, BorderLayout.CENTER);
 		jTabbedPane1.add("Main", jScrollPane3);
-		 jTabbedPane1.add("Preferences", jScrollPane5);
-	   
-	    jPreferencePanel.setLayout(new BorderLayout());		          
-	    jPreferencePanel.add(buildInteractionsDatabasePanel(), BorderLayout.NORTH); 
-	    jPreferencePanel.add(buildColumnDisplayPreferencesPanel(),BorderLayout.CENTER ); 
-	    jPreferencePanel.add(buildNetworkGenerationPreferencesPanel(),BorderLayout.SOUTH); 
-	    
-	    jScrollPane5.setViewportView(jPreferencePanel);
-	   
-	    
-	    
-	    
-	    
-	    
-	    
+		jTabbedPane1.add("Preferences", jScrollPane5);
+
+		jPreferencePanel.setLayout(new BorderLayout());
+		jPreferencePanel.add(buildInteractionsDatabasePanel(),
+				BorderLayout.NORTH);
+		jPreferencePanel.add(buildColumnDisplayPreferencesPanel(),
+				BorderLayout.CENTER);
+		jPreferencePanel.add(buildNetworkGenerationPreferencesPanel(),
+				BorderLayout.SOUTH);
+
+		jScrollPane5.setViewportView(jPreferencePanel);
+
 		jPanel1.add(commandToolBar, BorderLayout.SOUTH);
 		topPanel = new JPanel();
 		topPanel.setLayout(new BorderLayout());
@@ -1035,36 +1042,34 @@ networkAvailInteractionTypes,selectedNetworkInteractionTypeModel,availNetworkInt
 		upPanel.add(jPanel1, JSplitPane.BOTTOM);
 		upPanel.setOneTouchExpandable(true);
 		throttlePanel.add(graphToolBar, BorderLayout.SOUTH);
-	 
+
 		commandToolBar.add(refreshButton);
 		commandToolBar.add(createNetWorkButton);
 		cancelButton.setText("Cancel");
 		commandToolBar.add(cancelButton);
 		hits = new Vector<CellularNetWorkElementInformation>();
-		 
+
 		tableColumns = new TableColumn[columnLabels.length];
 		TableColumnModel model = detailTable.getColumnModel();
 		for (int i = 0; i < columnLabels.length; i++) {
-			 
+
 			tableColumns[i] = model.getColumn(i);
 		}
-		
-		for (int i = 0; i < columnLabels.length; i++) 
-			model.removeColumn(tableColumns[i]);	
-		for (int i = 0; i < 4; i++) 	     
-				model.addColumn(tableColumns[i]);	
+
+		for (int i = 0; i < columnLabels.length; i++)
+			model.removeColumn(tableColumns[i]);
+		for (int i = 0; i < 4; i++)
+			model.addColumn(tableColumns[i]);
 
 		jCenterPanel.setLayout(gridLayout2);
 		gridLayout2.setColumns(2);
 		gridLayout2.setRows(4);
-		 
-	 
 
 	}// </editor-fold>
 
 	/**
 	 * Generate the data to draw the curve.
-	 *
+	 * 
 	 * @param min
 	 * @param max
 	 * @param selectedId
@@ -1077,16 +1082,18 @@ networkAvailInteractionTypes,selectedNetworkInteractionTypeModel,availNetworkInt
 		int binSize = CellularNetWorkElementInformation.getBinNumber();
 		XYSeriesCollection plots = new XYSeriesCollection();
 		try {
-			XYSeries dataSeries = new XYSeries("Total Distribution");		
-		 
+			XYSeries dataSeries = new XYSeries("Total Distribution");
+
 			Map<String, XYSeries> interactionDataSeriesMap = new HashMap<String, XYSeries>();
-			for(String interactionType : displaySelectedInteractionTypes)
-				interactionDataSeriesMap.put(interactionType, new XYSeries(interactionType));
+			for (String interactionType : displaySelectedInteractionTypes)
+				interactionDataSeriesMap.put(interactionType, new XYSeries(
+						interactionType));
 			int[] basketValues = new int[binSize];
-		 
+
 			Map<String, int[]> interactionBasketValuesMap = new HashMap<String, int[]>();
-			for(String interactionType : displaySelectedInteractionTypes)
-				interactionBasketValuesMap.put(interactionType, new int[binSize]);
+			for (String interactionType : displaySelectedInteractionTypes)
+				interactionBasketValuesMap.put(interactionType,
+						new int[binSize]);
 			for (int i = 0; i < binSize; i++) {
 				basketValues[i] = 0;
 			}
@@ -1094,19 +1101,16 @@ networkAvailInteractionTypes,selectedNetworkInteractionTypeModel,availNetworkInt
 				for (CellularNetWorkElementInformation cellularNetWorkElementInformation : hits) {
 					int[] distributionArray = cellularNetWorkElementInformation
 							.getDistribution();
-				 
-                   
+
 					for (int i = 0; i < binSize; i++) {
 						basketValues[i] += distributionArray[i];
-					 
-						for(String interactionType : displaySelectedInteractionTypes)
-						{					 
-							interactionBasketValuesMap.get(interactionType)[i] += 
 
-cellularNetWorkElementInformation.getInteractionDistribution(interactionType)[i];
-						
+						for (String interactionType : displaySelectedInteractionTypes) {
+							interactionBasketValuesMap.get(interactionType)[i] += cellularNetWorkElementInformation
+									.getInteractionDistribution(interactionType)[i];
+
 						}
-					
+
 					}
 
 				}
@@ -1119,53 +1123,46 @@ cellularNetWorkElementInformation.getInteractionDistribution(interactionType)[i]
 				dataSeries.add(i
 						* CellularNetWorkElementInformation
 								.getSmallestIncrement(), basketValues[i]);
-			 
-				
-				for(String interactionType : displaySelectedInteractionTypes)
-				{
-					(interactionDataSeriesMap.get(interactionType)).add(i* CellularNetWorkElementInformation
-								.getSmallestIncrement(), interactionBasketValuesMap.get(interactionType)[i] );
+
+				for (String interactionType : displaySelectedInteractionTypes) {
+					(interactionDataSeriesMap.get(interactionType)).add(i
+							* CellularNetWorkElementInformation
+									.getSmallestIncrement(),
+							interactionBasketValuesMap.get(interactionType)[i]);
 				}
 			}
 
 			plots.addSeries(dataSeries);
-			for(String interactionType : displaySelectedInteractionTypes)
-			{
+			for (String interactionType : displaySelectedInteractionTypes) {
 				plots.addSeries(interactionDataSeriesMap.get(interactionType));
 			}
-		 
 
 		} catch (IndexOutOfBoundsException e) {
 			return null;
 		}
 		return plots;
 	}
-	
+
 	/**
 	 * Respond to the select/unselect of Protein Protein interaction checkbox.
-	 *
+	 * 
 	 * @param e
 	 */
 	public void networkJCheckBox2_actionPerformed(ActionEvent e) {
-	       if (networkJCheckBox2.isSelected() == true)
-	       {
-	    	   networkAddButton.setEnabled(false);
-	    	   networkRemoveButton.setEnabled(false);
-	    	   populatesNetworkPrefFromColumnPref();
-	       }
-	       else{
-	    	   networkAddButton.setEnabled(true);
-	    	   networkRemoveButton.setEnabled(true);
-	       }
-	    	   
-	
-	}
+		if (networkJCheckBox2.isSelected() == true) {
+			networkAddButton.setEnabled(false);
+			networkRemoveButton.setEnabled(false);
+			populatesNetworkPrefFromColumnPref();
+		} else {
+			networkAddButton.setEnabled(true);
+			networkRemoveButton.setEnabled(true);
+		}
 
-	 
+	}
 
 	/**
 	 * Respond to the change of the Threshold Text field.
-	 *
+	 * 
 	 * @param
 	 */
 	public void jThresholdTextField_actionPerformed() {
@@ -1189,48 +1186,42 @@ cellularNetWorkElementInformation.getInteractionDistribution(interactionType)[i]
 		detailTable.revalidate();
 	}
 
-	 
-	
-	public void updateColumnPref()
-	{
-		 
-		TableColumnModel model = detailTable.getColumnModel();
-		 
-		for (int i = 0; i < columnLabels.length; i++) 
-			model.removeColumn(tableColumns[i]);		
-		 
-		if (markerJCheckBox.isSelected())  
-			model.addColumn(tableColumns[0]);
-		if (geneJCheckBox.isSelected())  
-			model.addColumn(tableColumns[1]);		
-		if (geneTypeLCheckBox.isSelected())  
-			model.addColumn(tableColumns[2]);
-		if (goTermJCheckBox.isSelected())  
-			model.addColumn(tableColumns[3]);
-		
-		for (int i = 4; i < columnLabels.length; i++) {		 
-		 
-		      if ( displaySelectedInteractionTypes.contains(columnLabels[i].substring(0, 
+	public void updateColumnPref() {
 
-                columnLabels[i].length()-COLUMNLABELPOSTFIX.length()))) {
+		TableColumnModel model = detailTable.getColumnModel();
+
+		for (int i = 0; i < columnLabels.length; i++)
+			model.removeColumn(tableColumns[i]);
+
+		if (markerJCheckBox.isSelected())
+			model.addColumn(tableColumns[0]);
+		if (geneJCheckBox.isSelected())
+			model.addColumn(tableColumns[1]);
+		if (geneTypeLCheckBox.isSelected())
+			model.addColumn(tableColumns[2]);
+		if (goTermJCheckBox.isSelected())
+			model.addColumn(tableColumns[3]);
+
+		for (int i = 4; i < columnLabels.length; i++) {
+
+			if (displaySelectedInteractionTypes.contains(columnLabels[i]
+					.substring(0,
+
+					columnLabels[i].length() - COLUMNLABELPOSTFIX.length()))) {
 				model.addColumn(tableColumns[i]);
-			  }		      
+			}
 			// System.out.println(tableColumns.length + "model size" +
 			// model.getColumnCount());
-		}	
-		 
+		}
 
 		detailTable.tableChanged(new TableModelEvent(previewTableModel));
-		detailTable.repaint();	   
-	
-	
-	}
+		detailTable.repaint();
 
- 	 
+	}
 
 	/**
 	 * Create the plot for the throttle graph.
-	 *
+	 * 
 	 * @param plots
 	 * @param title
 	 */
@@ -1384,7 +1375,7 @@ cellularNetWorkElementInformation.getInteractionDistribution(interactionType)[i]
 	}
 
 	private void createNetworks(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_loadfromDBHandler
-		HashMap<Integer,String> geneIdToNameMap = new HashMap<Integer, String>();
+		HashMap<Integer, String> geneIdToNameMap = new HashMap<Integer, String>();
 		Set<Integer> geneIdNotExistInSelectedMa = new HashSet<Integer>();
 		DSItemList<DSGeneMarker> markers = dataset.getMarkers();
 		DSItemList<DSGeneMarker> copy = new CSItemList<DSGeneMarker>();
@@ -1394,11 +1385,12 @@ cellularNetWorkElementInformation.getInteractionDistribution(interactionType)[i]
 		AdjacencyMatrix matrix = new AdjacencyMatrix();
 		AdjacencyMatrixDataSet dataSet = null;
 		matrix.setMicroarraySet(dataset);
-		
+
 		int serial = 0;
 		boolean isEmpty = true;
 		String historyStr = "";
-		boolean isRestrictToGenesPresentInMicroarray = networkJCheckBox1.isSelected();
+		boolean isRestrictToGenesPresentInMicroarray = networkJCheckBox1
+				.isSelected();
 		for (CellularNetWorkElementInformation cellularNetWorkElementInformation : hits) {
 			if (cellularNetWorkElementInformation.isDirty() == true)
 				continue;
@@ -1413,83 +1405,94 @@ cellularNetWorkElementInformation.getInteractionDistribution(interactionType)[i]
 				log.debug(" index:" + index + ",serial:" + serial + ",CNKB#"
 						+ cellularNetWorkElementInformation.getdSGeneMarker());
 				for (InteractionDetail interactionDetail : arrayList) {
-					    DSGeneMarker marker = new CSGeneMarker();
-					    String mid2 = interactionDetail.getdSGeneMarker2();
-					    marker.setGeneId(new Integer(mid2));
-					    index = Collections.binarySearch(copy, marker, eidc);
-					    int serial2 = 0;
-					    if (index >= 0) {						  
-						   serial2 = copy.get(index).getSerial();
-					    } else {
-						   log.info("Marker "
+					DSGeneMarker marker = new CSGeneMarker();
+					String mid2 = interactionDetail.getdSGeneMarker2();
+					marker.setGeneId(new Integer(mid2));
+					index = Collections.binarySearch(copy, marker, eidc);
+					int serial2 = 0;
+					if (index >= 0) {
+						serial2 = copy.get(index).getSerial();
+					} else {
+						log.info("Marker "
 								+ interactionDetail.getdSGeneMarker2()
 								+ " does not exist at the dataset. ");
-						   if (isRestrictToGenesPresentInMicroarray)
-						      continue;
-						   serial2 = new Integer(mid2);
-						   geneIdNotExistInSelectedMa.add(serial2);
-						   if (interactionDetail.getdSGeneName2()!= null && 
-!interactionDetail.getdSGeneName2().trim().equals("")&& !interactionDetail.getdSGeneName2().trim().equals("null"))
-						      geneIdToNameMap.put(serial2, interactionDetail.getdSGeneName2());
-					    }
-					    
-					    isEmpty = false;
-						String mid1 = interactionDetail.getdSGeneMarker1();
-						DSGeneMarker marker1 = new CSGeneMarker();
-						marker1.setGeneId(Integer.parseInt(mid1));
-						int index1 = Collections.binarySearch(copy, marker1,
-								eidc);
-						int serial1 = 0;
-						if (index1 < 0) {
-							log.info("Marker "
-									+ interactionDetail.getdSGeneMarker1()
-									+ " does not exist at the dataset. ");
-							if (isRestrictToGenesPresentInMicroarray)
-							   continue;
-							
-							serial1 = Integer.parseInt(mid1);
-							 geneIdNotExistInSelectedMa.add(serial1);
-							  if (interactionDetail.getdSGeneName1()!= null && 
+						if (isRestrictToGenesPresentInMicroarray)
+							continue;
+						serial2 = new Integer(mid2);
+						geneIdNotExistInSelectedMa.add(serial2);
+						if (interactionDetail.getdSGeneName2() != null
+								&& !interactionDetail.getdSGeneName2().trim()
+										.equals("")
+								&& !interactionDetail.getdSGeneName2().trim()
+										.equals("null"))
+							geneIdToNameMap.put(serial2, interactionDetail
+									.getdSGeneName2());
+					}
 
-!interactionDetail.getdSGeneName1().trim().equals("") && !interactionDetail.getdSGeneName1().trim().equals("null"))
-							      geneIdToNameMap.put(serial1, interactionDetail.getdSGeneName1());
-						}
-						else
-						{
-						   serial1 = copy.get(index1).getSerial();
-						}
-						matrix.addGeneRow(serial1);
+					isEmpty = false;
+					String mid1 = interactionDetail.getdSGeneMarker1();
+					DSGeneMarker marker1 = new CSGeneMarker();
+					marker1.setGeneId(Integer.parseInt(mid1));
+					int index1 = Collections.binarySearch(copy, marker1, eidc);
+					int serial1 = 0;
+					if (index1 < 0) {
+						log.info("Marker "
+								+ interactionDetail.getdSGeneMarker1()
+								+ " does not exist at the dataset. ");
+						if (isRestrictToGenesPresentInMicroarray)
+							continue;
 
-						matrix.add(serial1, serial2, 0.8f);
-						
-						matrix.addDirectional(serial1, serial2, interactionDetail.getInteractionType());
-						matrix.addDirectional(serial2, serial1, interactionDetail.getInteractionType());
-					 
-					
+						serial1 = Integer.parseInt(mid1);
+						geneIdNotExistInSelectedMa.add(serial1);
+						if (interactionDetail.getdSGeneName1() != null
+								&&
+
+								!interactionDetail.getdSGeneName1().trim()
+										.equals("")
+								&& !interactionDetail.getdSGeneName1().trim()
+										.equals("null"))
+							geneIdToNameMap.put(serial1, interactionDetail
+									.getdSGeneName1());
+					} else {
+						serial1 = copy.get(index1).getSerial();
+					}
+					matrix.addGeneRow(serial1);
+
+					matrix.add(serial1, serial2, 0.8f);
+
+					matrix.addDirectional(serial1, serial2, interactionDetail
+							.getInteractionType());
+					matrix.addDirectional(serial2, serial1, interactionDetail
+							.getInteractionType());
+
 				}
 			}
-           
-			 
-			Set<String> interactionIncludedSet = cellularNetWorkElementInformation.getIncludledInteractionSet();
-			if (interactionIncludedSet.size() > 0 )
-				historyStr += "           "
-					+ cellularNetWorkElementInformation.getdSGeneMarker()
-							.getLabel() + ": \n";
-			for(String interactionType : interactionIncludedSet)
-				historyStr += "\t Include " + interactionType + ": " + 
 
-cellularNetWorkElementInformation.getInteractionNum(interactionType) + "\n";
-	 
+			Set<String> interactionIncludedSet = cellularNetWorkElementInformation
+					.getIncludledInteractionSet();
+			if (interactionIncludedSet.size() > 0)
+				historyStr += "           "
+						+ cellularNetWorkElementInformation.getdSGeneMarker()
+								.getLabel() + ": \n";
+			for (String interactionType : interactionIncludedSet)
+				historyStr += "\t Include "
+						+ interactionType
+						+ ": "
+						+
+
+						cellularNetWorkElementInformation
+								.getInteractionNum(interactionType) + "\n";
 
 		} // end for loop
 		dataset.clearName("GENE_NOT_EXIST_IN_MA");
-		dataset.addNameValuePair("GENE_NOT_EXIST_IN_MA", geneIdNotExistInSelectedMa);
+		dataset.addNameValuePair("GENE_NOT_EXIST_IN_MA",
+				geneIdNotExistInSelectedMa);
 		dataset.clearName("GENEMAP");
 		dataset.addNameValuePair("GENEMAP", geneIdToNameMap);
 		dataSet = new AdjacencyMatrixDataSet(matrix, serial, 0.5f, 2,
-				 	"Adjacency Matrix", dataset.getLabel(), dataset);
+				"Adjacency Matrix", dataset.getLabel(), dataset);
 
-		if (dataSet != null && !isEmpty) {	
+		if (dataSet != null && !isEmpty) {
 
 			historyStr = "Cellular Network Parameters: \n"
 					+ "      Threshold: " + thresholdTextField.getText() + "\n"
@@ -1511,13 +1514,12 @@ cellularNetWorkElementInformation.getInteractionNum(interactionType) + "\n";
 	// Variables declaration - do not modify//GEN-BEGIN:variables
 	private JButton addButton;
 	private JButton networkAddButton;
-	
+
 	private JButton cancelButton;
 
 	private JList availableInteractionTypeList;
 	private JList availableNetworkInteractionTypeList;
-	
-	
+
 	private JButton refreshButton;
 
 	private JButton createNetWorkButton;
@@ -1530,32 +1532,30 @@ cellularNetWorkElementInformation.getInteractionNum(interactionType) + "\n";
 
 	private JPanel jPanel2;
 
-	
 	private JPanel throttlePanel;
 
 	private JFreeChart chart;
 
 	private ChartPanel graph;
 
- 
 	private JScrollPane jScrollPane3;
 	private JScrollPane jScrollPane4;
 	private JScrollPane jScrollPane5;
-	
+
 	private JTabbedPane jTabbedPane1;
-	
+
 	private JPanel jPreferencePanel;
 
 	private JTable detailTable;
 
 	private JButton removeButton;
 	private JButton networkRemoveButton;
-	
-	private JButton changeButton; 
+
+	private JButton changeButton;
 
 	private JList selectedInteractionTypeList;
 	private JList selectedNetworkInteractionTypeList;
-	
+
 	private JSplitPane topPane = new JSplitPane();
 
 	private JSplitPane upPanel = new JSplitPane();
@@ -1576,7 +1576,7 @@ cellularNetWorkElementInformation.getInteractionNum(interactionType) + "\n";
 
 	private JTextField thresholdTextField;
 
-	private JSlider thresholdSlider;	 
+	private JSlider thresholdSlider;
 
 	private DecimalFormat myFormatter = new DecimalFormat("0.00");
 
@@ -1591,21 +1591,23 @@ cellularNetWorkElementInformation.getInteractionNum(interactionType) + "\n";
 
 	JPanel mainDialogPanel = new JPanel();
 
- 
-	private preferenceJCheckBox markerJCheckBox = new preferenceJCheckBox(MARKERLABEL, true);
-	private preferenceJCheckBox geneTypeLCheckBox = new preferenceJCheckBox(GENETYPELABEL, true);
-	private preferenceJCheckBox geneJCheckBox = new preferenceJCheckBox(GENELABEL, true);
-	private preferenceJCheckBox goTermJCheckBox = new preferenceJCheckBox(GOTERMCOLUMN, true);
-	
-	private JCheckBox networkJCheckBox1 = new JCheckBox("Restrict to genes prsent in microarray set", false);
-	private JCheckBox networkJCheckBox2 = new JCheckBox("Use setting  from Column Display Preferences", true);
-	 
-	
-	
+	private preferenceJCheckBox markerJCheckBox = new preferenceJCheckBox(
+			MARKERLABEL, true);
+	private preferenceJCheckBox geneTypeLCheckBox = new preferenceJCheckBox(
+			GENETYPELABEL, true);
+	private preferenceJCheckBox geneJCheckBox = new preferenceJCheckBox(
+			GENELABEL, true);
+	private preferenceJCheckBox goTermJCheckBox = new preferenceJCheckBox(
+			GOTERMCOLUMN, true);
+
+	private JCheckBox networkJCheckBox1 = new JCheckBox(
+			"Restrict to genes prsent in microarray set", false);
+	private JCheckBox networkJCheckBox2 = new JCheckBox(
+			"Use setting  from Column Display Preferences", true);
+
 	// index service label
-	private	JLabel serviceLabel = null;	
-	
-	
+	private JLabel serviceLabel = null;
+
 	GridLayout gridLayout1 = new GridLayout();
 
 	GridBagLayout gridBagLayout1 = new GridBagLayout();
@@ -1621,63 +1623,63 @@ cellularNetWorkElementInformation.getInteractionNum(interactionType) + "\n";
 	BorderLayout borderLayout1 = new BorderLayout();
 
 	JDialog dialog = new JDialog();
-    
+
 	JDialog goDialog = new JDialog();
-    
-	JDialog changeServicesDialog = null;	
-	
-	private void interactionTypeListHandler(MouseEvent evt, JList jList1, JList jList2, List<String> types1, List<String> types2, ListModel 
 
-listModel1, ListModel listModel2) {
+	JDialog changeServicesDialog = null;
 
-			int index = jList1.locationToIndex(evt.getPoint());
-			if (index >= 0) 
-			{
-				String type = types1.get(index);
-			    types2.add(type);			
-			    types1.remove(type);
-			    Collections.sort(types1);
-			    Collections.sort(types2);
-			    jList1.setModel(new DefaultListModel());
-			    jList1.setModel(listModel1);
-			    jList2.setModel(new DefaultListModel());
-			    jList2.setModel(listModel2);			    
-			
-			 }
-		
+	private void interactionTypeListHandler(MouseEvent evt, JList jList1,
+			JList jList2, List<String> types1, List<String> types2, ListModel
+
+			listModel1, ListModel listModel2) {
+
+		int index = jList1.locationToIndex(evt.getPoint());
+		if (index >= 0) {
+			String type = types1.get(index);
+			types2.add(type);
+			types1.remove(type);
+			Collections.sort(types1);
+			Collections.sort(types2);
+			jList1.setModel(new DefaultListModel());
+			jList1.setModel(listModel1);
+			jList2.setModel(new DefaultListModel());
+			jList2.setModel(listModel2);
+
+		}
+
 	}
 
 	private void populatesNetworkPrefFromColumnPref() {
-		
+
 		networkAvailInteractionTypes.clear();
 		networkAvailInteractionTypes.addAll(displayAvailInteractionTypes);
 		networkSelectedInteractionTypes.clear();
 		networkSelectedInteractionTypes.addAll(displaySelectedInteractionTypes);
-		
+
 		if (hits != null && hits.size() > 0) {
-			 
-				for (CellularNetWorkElementInformation cellularNetWorkElementInformation : hits) {
-					 
-					cellularNetWorkElementInformation.setIncludedInteractionTypeList(networkSelectedInteractionTypes);		
 
-					 
-				}
+			for (CellularNetWorkElementInformation cellularNetWorkElementInformation : hits) {
 
-		 
+				cellularNetWorkElementInformation
+						.setIncludedInteractionTypeList(networkSelectedInteractionTypes);
+
+			}
+
 		}
-		
-		
+
 		availableNetworkInteractionTypeList.setModel(new DefaultListModel());
-	    availableNetworkInteractionTypeList.setModel(availNetworkInteractionTypeModel);
-	    selectedNetworkInteractionTypeList.setModel(new DefaultListModel());
-	    selectedNetworkInteractionTypeList.setModel(selectedNetworkInteractionTypeModel); 
-		
-	    
+		availableNetworkInteractionTypeList
+				.setModel(availNetworkInteractionTypeModel);
+		selectedNetworkInteractionTypeList.setModel(new DefaultListModel());
+		selectedNetworkInteractionTypeList
+				.setModel(selectedNetworkInteractionTypeModel);
+
 	}
 
-	private void addRemoveButtonHandler(ActionEvent e, JList jList1, JList jList2, List<String> types1, List<String> types2, ListModel 
+	private void addRemoveButtonHandler(ActionEvent e, JList jList1,
+			JList jList2, List<String> types1, List<String> types2, ListModel
 
-listModel1, ListModel listModel2) {
+			listModel1, ListModel listModel2) {
 		int[] indices = jList1.getSelectedIndices();
 		if (indices != null && indices.length > 0) {
 			Vector<String> types = new Vector<String>();
@@ -1689,7 +1691,7 @@ listModel1, ListModel listModel2) {
 			for (String type : types) {
 				types1.remove(type);
 			}
-			
+
 			Collections.sort(types1);
 			Collections.sort(types2);
 			jList1.setModel(new DefaultListModel());
@@ -1697,19 +1699,18 @@ listModel1, ListModel listModel2) {
 			jList2.setModel(new DefaultListModel());
 			jList2.setModel(listModel2);
 		}
-	
+
 	}
 
-	 
 	private void changeButtonHandler(ActionEvent e) {
 		log.debug("changing url");
-		
+
 		String host = ResultSetlUtil.INTERACTIONS_SERVLET_URL;
-		 
+
 		changeServicesDialog = new JDialog();
-		
+
 		DefaultFormBuilder indexServerPanelBuilder = new DefaultFormBuilder(
-				new FormLayout("right:20dlu"));	 
+				new FormLayout("right:20dlu"));
 
 		final JTextField hostField = new JTextField(host);
 
@@ -1719,25 +1720,24 @@ listModel1, ListModel listModel2) {
 			public void actionPerformed(ActionEvent e) {
 				String urlStr = hostField.getText();
 				Boolean isValidUrl = true;
-				if (InteractionsConnectionImpl.isValidUrl(urlStr))
-				{
+				if (InteractionsConnectionImpl.isValidUrl(urlStr)) {
 					ResultSetlUtil.setUrl(urlStr);
-				    serviceLabel.setText(urlStr);
-				    reInitPreferences();
-				}
-				else
-				{
+					serviceLabel.setText(urlStr);
+					reInitPreferences();
+				} else {
 					isValidUrl = false;
 				}
-				 
+
 				changeServicesDialog.dispose();
-				
-				if (isValidUrl == false)
-				{
-					JOptionPane.showMessageDialog(null, "No service running. Please check with the administrator of your service infrastructure.", "Error",
-							JOptionPane.ERROR_MESSAGE);
+
+				if (isValidUrl == false) {
+					JOptionPane
+							.showMessageDialog(
+									null,
+									"No service running. Please check with the administrator of your service infrastructure.",
+									"Error", JOptionPane.ERROR_MESSAGE);
 				}
-				 
+
 			}
 		});
 
@@ -1766,10 +1766,8 @@ listModel1, ListModel listModel2) {
 		changeServicesDialog.pack();
 		Util.centerWindow(changeServicesDialog);
 		changeServicesDialog.setVisible(true);
-	
+
 	}
-	
-	
 
 	private void cancelTheAction(ActionEvent e) {
 		cancelAction = true;
@@ -1781,28 +1779,34 @@ listModel1, ListModel listModel2) {
 		Runnable r = new Runnable() {
 			public void run() {
 				try {
-					String context = contextComboBox.getSelectedItem().toString();
-					String version = versionComboBox.getSelectedItem().toString();
-					if (context.equalsIgnoreCase(SELECTCONTEXT))
-					{
-						JOptionPane.showMessageDialog(null, "Please go to Preferences wondow to select database context.", 
+					String context = contextComboBox.getSelectedItem()
+							.toString();
+					String version = versionComboBox.getSelectedItem()
+							.toString();
+					if (context.equalsIgnoreCase(SELECTCONTEXT)) {
+						JOptionPane
+								.showMessageDialog(
+										null,
+										"Please go to Preferences wondow to select database context.",
 
-"Information",
-								JOptionPane.INFORMATION_MESSAGE);
+										"Information",
+										JOptionPane.INFORMATION_MESSAGE);
 						refreshButton.setEnabled(true);
 						return;
 					}
-					
-					if (version.equalsIgnoreCase(SELECTVERSION))
-					{
-						JOptionPane.showMessageDialog(null, "Please go to Preferences wondow to select database version.", 
 
-"Information",
-								JOptionPane.INFORMATION_MESSAGE);
+					if (version.equalsIgnoreCase(SELECTVERSION)) {
+						JOptionPane
+								.showMessageDialog(
+										null,
+										"Please go to Preferences wondow to select database version.",
+
+										"Information",
+										JOptionPane.INFORMATION_MESSAGE);
 						refreshButton.setEnabled(true);
 						return;
 					}
-					
+
 					updateProgressBar(0, "Querying the Knowledge Base...");
 					InteractionsConnectionImpl interactionsConnection = new InteractionsConnectionImpl();
 					int retrievedQueryNumber = 0;
@@ -1821,21 +1825,19 @@ listModel1, ListModel listModel2) {
 								&& cellularNetWorkElementInformation.isDirty()) {
 							BigDecimal id = new BigDecimal(marker.getGeneId());
 							ArrayList<InteractionDetail> interactionDetails = null;
-							
-							try
-							{
-							  interactionDetails = interactionsConnection
-									.getPairWiseInteraction(id, context, version);
-							}catch(UnAuthenticatedException uae)
-							{
+
+							try {
+								interactionDetails = interactionsConnection
+										.getPairWiseInteraction(id, context,
+												version);
+							} catch (UnAuthenticatedException uae) {
 								cancelAction = true;
 								break;
 							}
-							
-							
 
-                            cellularNetWorkElementInformation.setIncludedInteractionTypeList(networkSelectedInteractionTypes);
-							
+							cellularNetWorkElementInformation
+									.setIncludedInteractionTypeList(networkSelectedInteractionTypes);
+
 							cellularNetWorkElementInformation
 									.setInteractionDetails(interactionDetails);
 							cellularNetWorkElementInformation.setDirty(false);
@@ -1857,7 +1859,7 @@ listModel1, ListModel listModel2) {
 				} catch (Exception e) {
 					log.error("$Runnable.run()", e); //$NON-NLS-1$
 					refreshButton.setEnabled(true);
-					
+
 				}
 			}
 		};
@@ -1872,102 +1874,134 @@ listModel1, ListModel listModel2) {
 	 */
 	private void initLoading() {
 		iteractionsProp = new Properties();
-		try
-		{			 
-	     	iteractionsProp.load(new FileInputStream(PROPERTIES_FILE));
-	     	String interactionsServletUrl = iteractionsProp.getProperty(INTERACTIONS_SERVLET_URL);
-	     	ResultSetlUtil.setUrl(interactionsServletUrl);
-	     	InteractionsConnectionImpl interactionsConnection = new InteractionsConnectionImpl();
-	     	contextList = interactionsConnection.getDatasetNames();	     	
-	     	
-	     	AllInteractionTypes = interactionsConnection.getInteractionTypes();
-	     	
-	     	displayAvailInteractionTypes = interactionsConnection.getInteractionTypes();
-	    	
-	     	if (displayAvailInteractionTypes != null)
-	     	{
-	     		
-	     		columnLabels = new String[firstFourColumnLabels.length + displayAvailInteractionTypes.size()];
-	     		Collections.sort(displayAvailInteractionTypes);
-	     		networkAvailInteractionTypes.addAll(displayAvailInteractionTypes);
-	     		for (int i=0; i<firstFourColumnLabels.length; i++)
-		     	    columnLabels[i]=firstFourColumnLabels[i];
-	     		for (int i=0; i<displayAvailInteractionTypes.size(); i++)
-		     	    columnLabels[i+4]=displayAvailInteractionTypes.get(i) + COLUMNLABELPOSTFIX;
-		     	
-	     	}
-	     	else
-	     	{
-	     		for (int i=0; i<firstFourColumnLabels.length; i++)
-		     	    columnLabels[i]=firstFourColumnLabels[i];
-	     	}
-	     	
-	     	
-		}
-		catch(java.io.IOException ie)
-		{
+		try {
+			iteractionsProp.load(new FileInputStream(PROPERTIES_FILE));
+			String interactionsServletUrl = iteractionsProp
+					.getProperty(INTERACTIONS_SERVLET_URL);
+			ResultSetlUtil.setUrl(interactionsServletUrl);
+			InteractionsConnectionImpl interactionsConnection = new InteractionsConnectionImpl();
+			contextList = interactionsConnection.getDatasetNames();
+
+			AllInteractionTypes = interactionsConnection.getInteractionTypes();
+
+			displayAvailInteractionTypes = interactionsConnection
+					.getInteractionTypes();
+
+			if (displayAvailInteractionTypes != null) {
+
+				columnLabels = new String[firstFourColumnLabels.length
+						+ displayAvailInteractionTypes.size()];
+				Collections.sort(displayAvailInteractionTypes);
+				networkAvailInteractionTypes
+						.addAll(displayAvailInteractionTypes);
+				for (int i = 0; i < firstFourColumnLabels.length; i++)
+					columnLabels[i] = firstFourColumnLabels[i];
+				for (int i = 0; i < displayAvailInteractionTypes.size(); i++)
+					columnLabels[i + 4] = displayAvailInteractionTypes.get(i)
+							+ COLUMNLABELPOSTFIX;
+
+			} else {
+				for (int i = 0; i < firstFourColumnLabels.length; i++)
+					columnLabels[i] = firstFourColumnLabels[i];
+			}
+
+		} catch (java.io.IOException ie) {
 			log.error(ie.getMessage());
-		}	
-		catch(Exception e)
-		{
+		} catch (Exception e) {
 			log.error(e.getMessage());
-		}	
-		
+		}
+
 	}
-	
+
 	private void reInitPreferences() {
-		 
-		try
-		{      
-	     	InteractionsConnectionImpl interactionsConnection = new InteractionsConnectionImpl();
-	     	     	 
-	     	contextList.clear();
-	     	displayAvailInteractionTypes.clear();
-	     	displaySelectedInteractionTypes.clear();
-	     	networkAvailInteractionTypes.clear();
-	     	networkSelectedInteractionTypes.clear();
-	     	contextList = interactionsConnection.getDatasetNames();	     	
-	     	displayAvailInteractionTypes = interactionsConnection.getInteractionTypes();	     	
-	     	
-	     	if (displayAvailInteractionTypes != null)
-	     	{
-	     		Collections.sort(displayAvailInteractionTypes);
-	     		networkAvailInteractionTypes.addAll(displayAvailInteractionTypes);
-	     	}
-	     	  
-	     	 if (contextList != null )	      {
-		    	  contextList.add(0, SELECTCONTEXT);	        
-		      }
-		      else
-		      {  contextList = new ArrayList<String>();
-		         contextList.add(SELECTCONTEXT);
-		      }
-		      contextComboBox.setModel( new DefaultComboBoxModel(contextList.toArray()) );
-		      
-		     
-		    versionComboBox.removeAllItems();
-		    versionComboBox.addItem(SELECTVERSION);
-		      
-		    availableInteractionTypeList.setModel(new DefaultListModel());
-		    availableInteractionTypeList.setModel(availableInteractionTypeModel);
-		    availableNetworkInteractionTypeList.setModel(new DefaultListModel());
-		    availableNetworkInteractionTypeList.setModel(availNetworkInteractionTypeModel);
-		    selectedInteractionTypeList.setModel(new DefaultListModel());
-		    selectedInteractionTypeList.setModel(selectedInteractionTypeModel);
-		    selectedNetworkInteractionTypeList.setModel(new DefaultListModel());
-		    selectedNetworkInteractionTypeList.setModel(selectedNetworkInteractionTypeModel);
-	        
-		    updateColumnPref();
-		
-		
-		}		 
-		catch(Exception e)
-		{
+
+		try {
+			InteractionsConnectionImpl interactionsConnection = new InteractionsConnectionImpl();
+
+			contextList.clear();
+			displayAvailInteractionTypes.clear();
+			displaySelectedInteractionTypes.clear();
+			networkAvailInteractionTypes.clear();
+			networkSelectedInteractionTypes.clear();
+			contextList = interactionsConnection.getDatasetNames();
+			displayAvailInteractionTypes = interactionsConnection
+					.getInteractionTypes();
+
+			if (displayAvailInteractionTypes != null) {
+				Collections.sort(displayAvailInteractionTypes);
+				networkAvailInteractionTypes
+						.addAll(displayAvailInteractionTypes);
+			}
+
+			if (contextList != null) {
+				contextList.add(0, SELECTCONTEXT);
+			} else {
+				contextList = new ArrayList<String>();
+				contextList.add(SELECTCONTEXT);
+			}
+			contextComboBox.setModel(new DefaultComboBoxModel(contextList
+					.toArray()));
+
+			versionComboBox.removeAllItems();
+			versionComboBox.addItem(SELECTVERSION);
+
+			availableInteractionTypeList.setModel(new DefaultListModel());
+			availableInteractionTypeList
+					.setModel(availableInteractionTypeModel);
+			availableNetworkInteractionTypeList
+					.setModel(new DefaultListModel());
+			availableNetworkInteractionTypeList
+					.setModel(availNetworkInteractionTypeModel);
+			selectedInteractionTypeList.setModel(new DefaultListModel());
+			selectedInteractionTypeList.setModel(selectedInteractionTypeModel);
+			selectedNetworkInteractionTypeList.setModel(new DefaultListModel());
+			selectedNetworkInteractionTypeList
+					.setModel(selectedNetworkInteractionTypeModel);
+
+			AllInteractionTypes.clear();
+			AllInteractionTypes = interactionsConnection.getInteractionTypes();
+
+			if (displayAvailInteractionTypes != null) {
+
+				columnLabels = new String[firstFourColumnLabels.length
+						+ displayAvailInteractionTypes.size()];
+				Collections.sort(displayAvailInteractionTypes);
+				networkAvailInteractionTypes
+						.addAll(displayAvailInteractionTypes);
+				for (int i = 0; i < firstFourColumnLabels.length; i++)
+					columnLabels[i] = firstFourColumnLabels[i];
+				for (int i = 0; i < displayAvailInteractionTypes.size(); i++)
+					columnLabels[i + 4] = displayAvailInteractionTypes.get(i)
+							+ COLUMNLABELPOSTFIX;
+
+			} else {
+				for (int i = 0; i < firstFourColumnLabels.length; i++)
+					columnLabels[i] = firstFourColumnLabels[i];
+			}
+			previewTableModel = new PreviewTableModel();			 
+			detailTable.setModel(previewTableModel);
+			tableColumns = new TableColumn[columnLabels.length];
+			TableColumnModel model = detailTable.getColumnModel();
+			for (int i = 0; i < columnLabels.length; i++) {
+
+				tableColumns[i] = model.getColumn(i);
+			}
+
+			for (int i = 0; i < columnLabels.length; i++)
+				model.removeColumn(tableColumns[i]);
+			for (int i = 0; i < 4; i++)
+				model.addColumn(tableColumns[i]);
+
+			
+
+			updateColumnPref();
+
+		} catch (Exception e) {
 			log.error(e.getMessage());
-		}	
-		
+		}
+
 	}
-	
+
 	ListModel availableInteractionTypeModel = new AbstractListModel() {
 		public Object getElementAt(int index) {
 			return displayAvailInteractionTypes.get(index);
@@ -1977,7 +2011,7 @@ listModel1, ListModel listModel2) {
 			return displayAvailInteractionTypes.size();
 		}
 	};
-	
+
 	ListModel availNetworkInteractionTypeModel = new AbstractListModel() {
 		public Object getElementAt(int index) {
 			return networkAvailInteractionTypes.get(index);
@@ -2007,7 +2041,7 @@ listModel1, ListModel listModel2) {
 			return networkSelectedInteractionTypes.size();
 		}
 	};
-	
+
 	DefaultTableModel activeMarkersTableModel = new DefaultTableModel() {
 
 		@Override
@@ -2086,12 +2120,15 @@ listModel1, ListModel listModel2) {
 			return "loading ...";
 		}
 	};
-
-	DefaultTableModel previewTableModel;
+	
+	PreviewTableModel previewTableModel = new PreviewTableModel();
+ 
+ 	 
+	
+	private class PreviewTableModel extends DefaultTableModel
 
 	{
-		previewTableModel = new DefaultTableModel() {
-
+	 
 			@Override
 			public int getColumnCount() {
 				return columnLabels.length;
@@ -2203,9 +2240,8 @@ COLUMNLABELPOSTFIX.length());
 				detailTable.repaint();
 			}*/
 
-		};
 	}
-
+	
 	public class IntegerRenderer extends JLabel implements TableCellRenderer {
 		Border unselectedBorder = null;
 
@@ -2268,16 +2304,18 @@ COLUMNLABELPOSTFIX.length());
 					// tableColumn.getHeaderValue().toString().equalsIgnoreCase(PDNUMBERLABEL)
 					// );
 					String headerStr = tableColumn.getHeaderValue().toString();
-					if (!cellularNetWorkElementInformation.getIncludledInteractionSet().contains(headerStr.substring(0, 
+					if (!cellularNetWorkElementInformation
+							.getIncludledInteractionSet().contains(
+									headerStr.substring(0,
 
-headerStr.length()- COLUMNLABELPOSTFIX.length())))
-					{		 
+									headerStr.length()
+											- COLUMNLABELPOSTFIX.length()))) {
 						setBackground(Color.gray);
 					}
 					// else if (column == 6) {
 					// setBackground(Color.white);
 					// }
-					 
+
 					// else if (column == 7) {
 					// setBackground(Color.white);
 					// }
@@ -2310,20 +2348,20 @@ headerStr.length()- COLUMNLABELPOSTFIX.length())))
 			return this;
 		}
 	}
+
 	public class preferenceJCheckBox extends JCheckBox {
 
-		  public preferenceJCheckBox(String label,  boolean isSelected) {
+		public preferenceJCheckBox(String label, boolean isSelected) {
 
-		          super(label, isSelected);
-		          addMouseListener(new MouseAdapter() { 
-		              public void mouseClicked(MouseEvent me) { 
-		            	  updateColumnPref();
-		              } 
-		            });         
-              
-		       
-		  }
-	}	
+			super(label, isSelected);
+			addMouseListener(new MouseAdapter() {
+				public void mouseClicked(MouseEvent me) {
+					updateColumnPref();
+				}
+			});
+
+		}
+	}
 
 	public class ColorRenderer extends JLabel implements TableCellRenderer {
 		Border unselectedBorder = null;
@@ -2413,20 +2451,20 @@ headerStr.length()- COLUMNLABELPOSTFIX.length())))
 
 	private JComboBox contextComboBox = new JComboBox();
 	private JComboBox versionComboBox = new JComboBox();
-	
+
 	private List<String> contextList = new ArrayList<String>();
-	
+
 	private List<String> AllInteractionTypes = new ArrayList<String>();
-	
+
 	private List<String> displayAvailInteractionTypes = new ArrayList<String>();
-	
+
 	private List<String> displaySelectedInteractionTypes = new ArrayList<String>();
-	
-    private List<String> networkAvailInteractionTypes = new ArrayList<String>();
-	
+
+	private List<String> networkAvailInteractionTypes = new ArrayList<String>();
+
 	private List<String> networkSelectedInteractionTypes = new ArrayList<String>();
-	
-	//private INTERACTIONS interactionsService = null;
+
+	// private INTERACTIONS interactionsService = null;
 
 	private Vector<DSGeneMarker> allGenes = new Vector<DSGeneMarker>();
 
@@ -2484,10 +2522,10 @@ headerStr.length()- COLUMNLABELPOSTFIX.length())))
 			previewTableModel.fireTableDataChanged();
 			checkSelectedTableWithNewDataSet(panel);
 
-			//allGeneList.setModel(new DefaultListModel());
-			//allGeneList.setModel(allGeneModel);
-			//selectedGenesList.setModel(new DefaultListModel());
-			//selectedGenesList.setModel(selectedInteractionTypeModel);
+			// allGeneList.setModel(new DefaultListModel());
+			// allGeneList.setModel(allGeneModel);
+			// selectedGenesList.setModel(new DefaultListModel());
+			// selectedGenesList.setModel(selectedInteractionTypeModel);
 
 		}
 		repaint();
@@ -2600,178 +2638,152 @@ headerStr.length()- COLUMNLABELPOSTFIX.length())))
 			detailTable.repaint();
 		}
 	}
-	
-	private JPanel buildInteractionsDatabasePanel()
-	{
-		 FormLayout layout = new FormLayout(
-                 "right:pref, 20dlu, left:pref, 3dlu, "
-               + "left:pref, 7dlu", 
-               
-                 "");
- 	
- 	 DefaultFormBuilder builder = new DefaultFormBuilder(layout);
- 	 builder.setLeftToRight(true);
-		 builder.setDefaultDialogBorder();
 
-      builder.appendSeparator("Interactions Database");	         
-      builder.append(changeButton);
-      //builder.append(urlLabel);	
-      serviceLabel = new JLabel("Url: " +ResultSetlUtil.INTERACTIONS_SERVLET_URL);
-      builder.append(serviceLabel);   
-      builder.nextLine();      
-    
-      
-      builder.append(contextComboBox);
-      builder.append(versionComboBox);
-      builder.nextLine();
-     
-      serviceLabel.setForeground(Color.BLUE); 
-  	 
-      
-      return builder.getPanel();
-      
-      
-      
-      
-	}
-	private JPanel buildColumnCheckBoxPanel()
-	{
-		 FormLayout layout = new FormLayout(
-                 "left:pref, 20dlu, left:pref, 20dlu",  "");	
- 	     DefaultFormBuilder builder = new DefaultFormBuilder(layout);
- 	     builder.setLeftToRight(true);
-		 builder.setDefaultDialogBorder();		 
-		 
-		 builder.append( markerJCheckBox );
-	     builder.append( geneTypeLCheckBox);
-	     builder.nextLine();
-	 	 builder.append(geneJCheckBox );
-	     builder.append( goTermJCheckBox);
-	     builder.nextLine();	   
-	    
-         return builder.getPanel();
-      
-      
-     
-	} 
-	
-	private JPanel buildNetworkPrefCheckBoxPanel()
-	{
-		 FormLayout layout = new FormLayout(
-                 "left:pref",  "");	
- 	     DefaultFormBuilder builder = new DefaultFormBuilder(layout);
- 	     builder.setLeftToRight(true);
-		 builder.setDefaultDialogBorder();		 
-		 
-		 builder.append( networkJCheckBox1 );	      
-	     builder.nextLine();
-	 	 builder.append(networkJCheckBox2 );	    
-	     builder.nextLine();
-	      
-         return builder.getPanel();   
-      
-     
-	} 
-	
-	
-	
-	
-	private JPanel buildAddRemoveButtonPanel(JButton addButton, JButton removeButton)
-	{
-		 FormLayout layout = new FormLayout(
-                 "left:pref, 20dlu",  "");	
- 	     DefaultFormBuilder builder = new DefaultFormBuilder(layout);
- 	     builder.setLeftToRight(true);
-		 builder.setDefaultDialogBorder();		 
-		  
-		builder.append( addButton );	      
-	     builder.nextLine();
-	 	builder.append(removeButton );
-	    
-	     builder.nextLine();
-	   
-       return builder.getPanel();      
-      
-     
-	} 
-	
-	
-	private JPanel buildJListPanel(String title, JList aJlist)
-	{
-		 FormLayout layout = new FormLayout(
-                 "left:pref", "");              
-                 
- 	
- 	     DefaultFormBuilder builder = new DefaultFormBuilder(layout);
- 	     builder.setLeftToRight(true);
-		 builder.setDefaultDialogBorder();
-		 JScrollPane jScrollPane1 = new javax.swing.JScrollPane();		
-		 jScrollPane1.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-		 jScrollPane1.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-		 jScrollPane1.setPreferredSize(new java.awt.Dimension(150, 90));
-		 jScrollPane1.setViewportView(aJlist);
-		 builder.append(new JLabel(title));
-		 builder.append(jScrollPane1);    
-       
-		 return builder.getPanel();     
-     
-	}
-	
-	
-	
-	private JPanel buildColumnDisplayPreferencesPanel()
-	{
-		 FormLayout layout = new FormLayout(
-                 "left:pref, 3dlu, left:pref, 3dlu, "
-               + "left:pref, 3dlu, left:pref, 3dlu" , 
-               
-                 "");
- 	
- 	    DefaultFormBuilder builder = new DefaultFormBuilder(layout);
- 	    builder.setLeftToRight(true);
+	private JPanel buildInteractionsDatabasePanel() {
+		FormLayout layout = new FormLayout(
+				"right:pref, 20dlu, left:pref, 3dlu, " + "left:pref, 7dlu",
+
+				"");
+
+		DefaultFormBuilder builder = new DefaultFormBuilder(layout);
+		builder.setLeftToRight(true);
 		builder.setDefaultDialogBorder();
 
-		builder.appendSeparator("Column Display Preference");	
+		builder.appendSeparator("Interactions Database");
+		builder.append(changeButton);
+		// builder.append(urlLabel);
+		serviceLabel = new JLabel("Url: "
+				+ ResultSetlUtil.INTERACTIONS_SERVLET_URL);
+		builder.append(serviceLabel);
+		builder.nextLine();
+
+		builder.append(contextComboBox);
+		builder.append(versionComboBox);
+		builder.nextLine();
+
+		serviceLabel.setForeground(Color.BLUE);
+
+		return builder.getPanel();
+
+	}
+
+	private JPanel buildColumnCheckBoxPanel() {
+		FormLayout layout = new FormLayout(
+				"left:pref, 20dlu, left:pref, 20dlu", "");
+		DefaultFormBuilder builder = new DefaultFormBuilder(layout);
+		builder.setLeftToRight(true);
+		builder.setDefaultDialogBorder();
+
+		builder.append(markerJCheckBox);
+		builder.append(geneTypeLCheckBox);
+		builder.nextLine();
+		builder.append(geneJCheckBox);
+		builder.append(goTermJCheckBox);
+		builder.nextLine();
+
+		return builder.getPanel();
+
+	}
+
+	private JPanel buildNetworkPrefCheckBoxPanel() {
+		FormLayout layout = new FormLayout("left:pref", "");
+		DefaultFormBuilder builder = new DefaultFormBuilder(layout);
+		builder.setLeftToRight(true);
+		builder.setDefaultDialogBorder();
+
+		builder.append(networkJCheckBox1);
+		builder.nextLine();
+		builder.append(networkJCheckBox2);
+		builder.nextLine();
+
+		return builder.getPanel();
+
+	}
+
+	private JPanel buildAddRemoveButtonPanel(JButton addButton,
+			JButton removeButton) {
+		FormLayout layout = new FormLayout("left:pref, 20dlu", "");
+		DefaultFormBuilder builder = new DefaultFormBuilder(layout);
+		builder.setLeftToRight(true);
+		builder.setDefaultDialogBorder();
+
+		builder.append(addButton);
+		builder.nextLine();
+		builder.append(removeButton);
+
+		builder.nextLine();
+
+		return builder.getPanel();
+
+	}
+
+	private JPanel buildJListPanel(String title, JList aJlist) {
+		FormLayout layout = new FormLayout("left:pref", "");
+
+		DefaultFormBuilder builder = new DefaultFormBuilder(layout);
+		builder.setLeftToRight(true);
+		builder.setDefaultDialogBorder();
+		JScrollPane jScrollPane1 = new javax.swing.JScrollPane();
+		jScrollPane1
+				.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+		jScrollPane1
+				.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+		jScrollPane1.setPreferredSize(new java.awt.Dimension(150, 90));
+		jScrollPane1.setViewportView(aJlist);
+		builder.append(new JLabel(title));
+		builder.append(jScrollPane1);
+
+		return builder.getPanel();
+
+	}
+
+	private JPanel buildColumnDisplayPreferencesPanel() {
+		FormLayout layout = new FormLayout("left:pref, 3dlu, left:pref, 3dlu, "
+				+ "left:pref, 3dlu, left:pref, 3dlu",
+
+		"");
+
+		DefaultFormBuilder builder = new DefaultFormBuilder(layout);
+		builder.setLeftToRight(true);
+		builder.setDefaultDialogBorder();
+
+		builder.appendSeparator("Column Display Preference");
 		builder.append(buildColumnCheckBoxPanel());
-	    builder.append(buildJListPanel("Available Interaction Types",availableInteractionTypeList ));
-	    builder.append(buildAddRemoveButtonPanel(addButton, removeButton ));
-	    builder.append(buildJListPanel("Selected Interaction Types", selectedInteractionTypeList));
-	     
-	    builder.nextLine();   
-	   
-        return builder.getPanel();
-      
-      
-     
+		builder.append(buildJListPanel("Available Interaction Types",
+				availableInteractionTypeList));
+		builder.append(buildAddRemoveButtonPanel(addButton, removeButton));
+		builder.append(buildJListPanel("Selected Interaction Types",
+				selectedInteractionTypeList));
+
+		builder.nextLine();
+
+		return builder.getPanel();
+
 	}
-	 
-	
-	private JPanel buildNetworkGenerationPreferencesPanel()
-	{
-		 FormLayout layout = new FormLayout(
-                 "left:pref, 3dlu, left:pref, 3dlu, "
-               + "left:pref, 3dlu, left:pref, 3dlu" , 
-               
-                 "");
- 	
- 	    DefaultFormBuilder builder = new DefaultFormBuilder(layout);
- 	    builder.setLeftToRight(true);
+
+	private JPanel buildNetworkGenerationPreferencesPanel() {
+		FormLayout layout = new FormLayout("left:pref, 3dlu, left:pref, 3dlu, "
+				+ "left:pref, 3dlu, left:pref, 3dlu",
+
+		"");
+
+		DefaultFormBuilder builder = new DefaultFormBuilder(layout);
+		builder.setLeftToRight(true);
 		builder.setDefaultDialogBorder();
 
+		builder.appendSeparator("Network Generation Preferences");
 
-		 builder.appendSeparator("Network Generation Preferences");	
-		
-		 builder.append(buildNetworkPrefCheckBoxPanel());
-		    builder.append(buildJListPanel("Available Interaction Types",availableNetworkInteractionTypeList ));
-		    builder.append(buildAddRemoveButtonPanel(networkAddButton, networkRemoveButton ));
-		    builder.append(buildJListPanel("Selected Interaction Types", selectedNetworkInteractionTypeList));
-		     
-		    builder.nextLine();   
-		   
-	   
-       return builder.getPanel();
-      
-      
-     
-	} 
+		builder.append(buildNetworkPrefCheckBoxPanel());
+		builder.append(buildJListPanel("Available Interaction Types",
+				availableNetworkInteractionTypeList));
+		builder.append(buildAddRemoveButtonPanel(networkAddButton,
+				networkRemoveButton));
+		builder.append(buildJListPanel("Selected Interaction Types",
+				selectedNetworkInteractionTypeList));
+
+		builder.nextLine();
+
+		return builder.getPanel();
+
+	}
 }
