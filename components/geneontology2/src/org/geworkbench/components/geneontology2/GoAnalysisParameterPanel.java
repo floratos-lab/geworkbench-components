@@ -647,6 +647,8 @@ public class GoAnalysisParameterPanel extends AbstractSaveableParameterPanel {
 		DSAnnotationContext<DSGeneMarker> markerSet = manager
 				.getCurrentContext(dataset.getMarkers());
 
+		if(markerSet.getItemList()==null)return set;
+		
 		for ( DSGeneMarker marker : markerSet.getItemList() ) {
 			String geneName = marker.getGeneName().trim();
 			if (!geneName.equals("---")) {
