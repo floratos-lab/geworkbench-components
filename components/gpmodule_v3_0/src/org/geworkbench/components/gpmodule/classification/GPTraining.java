@@ -24,6 +24,7 @@ import org.genepattern.webservice.AnalysisWebServiceProxy;
 import org.genepattern.webservice.WebServiceException;
 import org.genepattern.util.GPpropertiesManager;
 import org.geworkbench.util.ClassifierException;
+import org.geworkbench.util.FilePathnameUtils;
 import org.geworkbench.algorithms.AbstractTraining;
 
 import java.io.*;
@@ -159,7 +160,7 @@ public abstract class GPTraining extends AbstractTraining
             String serverName = GPpropertiesManager.getProperty("gp.server");
             String userName = GPpropertiesManager.getProperty("gp.user.name");
             String password = ((GPTrainingPanel)this.panel).getPassword();
-            GPClient server = new GPClient(serverName, userName, password);            
+            GPClient server = new GPClient(serverName, userName, password);
 
             JobResult analysisResult = server.runAnalysis(classifierName, parameters);
             String[] outputFiles = analysisResult.getOutputFileNames();
@@ -180,7 +181,7 @@ public abstract class GPTraining extends AbstractTraining
             String[] resultFiles = new String[1] ;
             resultFiles[0] = modelFileName;
 
-            File[] result = analysisProxy.getResultFiles(analysisResult.getJobNumber(), resultFiles, new File(System.getProperty("temporary.files.directory")), true);
+            File[] result = analysisProxy.getResultFiles(analysisResult.getJobNumber(), resultFiles, new File(FilePathnameUtils.getTemporaryFilesDirectoryPath()), true);
             if(result == null || result.length == 0)
                 throw new ClassifierException("Error: Could not retrieve training model from GenePattern");
 
@@ -197,7 +198,7 @@ public abstract class GPTraining extends AbstractTraining
 
              if(we.getMessage().indexOf(classifierName + " not found on server") != -1)
              {
-                throw new ClassifierException(classifierName + " module not found on  GenePattern server");        
+                throw new ClassifierException(classifierName + " module not found on  GenePattern server");
              }
              else
                 throw new ClassifierException("Could not connect to GenePattern server");

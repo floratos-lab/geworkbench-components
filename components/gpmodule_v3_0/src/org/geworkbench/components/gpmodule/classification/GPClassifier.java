@@ -13,6 +13,7 @@ package org.geworkbench.components.gpmodule.classification;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.algorithm.classification.CSClassifier;
 import org.geworkbench.util.ClassifierException;
+import org.geworkbench.util.FilePathnameUtils;
 import org.genepattern.io.gct.GctWriter;
 import org.genepattern.io.cls.ClsWriter;
 import org.genepattern.util.GPpropertiesManager;
@@ -119,7 +120,7 @@ public abstract class GPClassifier extends CSClassifier
 
     protected File createTestCLSFile(String fileName, int numArrays)
     {
-        return createTestCLSFile(fileName, numArrays, null);    
+        return createTestCLSFile(fileName, numArrays, null);
     }
 
     protected File createTestCLSFile(String fileName, int numArrays, String[] classLabels)
@@ -190,7 +191,7 @@ public abstract class GPClassifier extends CSClassifier
             String[] resultFiles = new String[1] ;
             resultFiles[0] = predFileName;
 
-            File[] result = analysisProxy.getResultFiles(analysisResult.getJobNumber(), resultFiles, new File(System.getProperty("temporary.files.directory")), true);
+            File[] result = analysisProxy.getResultFiles(analysisResult.getJobNumber(), resultFiles, new File( FilePathnameUtils.getTemporaryFilesDirectoryPath() ), true);
             if(result == null || result.length == 0)
                 throw new ClassifierException("Error: Could not retrieve classifier model from GenePattern");
 

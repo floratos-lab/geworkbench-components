@@ -6,6 +6,7 @@ import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.bison.datastructure.biocollections.gsea.CSGSEAResultDataSet;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.events.ProjectEvent;
+import org.geworkbench.util.FilePathnameUtils;
 import org.genepattern.io.ArchiveUtil;
 import org.jdesktop.jdic.browser.*;
 
@@ -119,7 +120,7 @@ public class GSEABrowser implements VisualPlugin
 
 		statusBar.setBorder(BorderFactory.createEmptyBorder(2, 0, 0, 0));
 		statusBar.lblDesc.setText("JDIC Browser");
-        
+
         try
         {
             if(initial)
@@ -205,7 +206,7 @@ public class GSEABrowser implements VisualPlugin
 					//jtp.addTab(process_id, jp);
 			    }
                 mainPanel.add(jtp, BorderLayout.CENTER);
-			    mainPanel.add(statusBar, BorderLayout.SOUTH); 
+			    mainPanel.add(statusBar, BorderLayout.SOUTH);
             }
             else {
 				if (is_mac)
@@ -234,13 +235,13 @@ public class GSEABrowser implements VisualPlugin
     }
 
     private void extractResults()
-    {        
-        ArchiveUtil.unzipRecursive(new File(gseaResultDataSet.getReportFile()), new File(System.getProperty("temporary.files.directory") + "/gsearesults"));
+    {
+        ArchiveUtil.unzipRecursive(new File(gseaResultDataSet.getReportFile()), new File( FilePathnameUtils.getTemporaryFilesDirectoryPath() + "/gsearesults"));
 
         System.out.println("report file:" + gseaResultDataSet.getReportFile());
         try
         {
-            gseaURL = (new File(System.getProperty("temporary.files.directory") + "/gsearesults/"+ "index.html")).toURL().toString();
+            gseaURL = (new File( FilePathnameUtils.getTemporaryFilesDirectoryPath() + "/gsearesults/"+ "index.html")).toURL().toString();
             System.out.println("GSEA url:" + gseaURL);
         }
         catch(MalformedURLException me)
@@ -249,7 +250,7 @@ public class GSEABrowser implements VisualPlugin
         }
     }
 
-    @Subscribe    
+    @Subscribe
     public void receive(ProjectEvent e, Object source)
     {
         if(e.getDataSet() != null && e.getDataSet() instanceof CSGSEAResultDataSet)

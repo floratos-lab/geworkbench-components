@@ -7,6 +7,7 @@ import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 //import org.geworkbench.builtin.projects.Icons;
 import org.geworkbench.components.gpmodule.gsea.GSEAAnalysisPanel;
+import org.geworkbench.util.FilePathnameUtils;
 import org.genepattern.matrix.Dataset;
 import org.genepattern.matrix.AbstractDataset;
 import org.genepattern.matrix.ClassVector;
@@ -36,7 +37,7 @@ import java.beans.PropertyChangeEvent;
 public abstract class GPAnalysis extends AbstractAnalysis implements ClusteringAnalysis
 {
     static Log log = LogFactory.getLog(GPAnalysis.class);
-        
+
     protected GPAnalysisPanel panel;
     //public static ImageIcon GP_ICON = new ImageIcon(GPAnalysis.class.getResource("images/gp-result-logo.gif"));
 
@@ -105,7 +106,7 @@ public abstract class GPAnalysis extends AbstractAnalysis implements ClusteringA
         }
 
         gctFile = fixFileName(gctFile);
-        
+
         return gctFile;
     }
 
@@ -235,13 +236,13 @@ public abstract class GPAnalysis extends AbstractAnalysis implements ClusteringA
             }
 
             analysisResult = server.runAnalysis(analysisName, parameters);
-            analysisResult.downloadFiles(System.getProperty("temporary.files.directory"), true);
+            analysisResult.downloadFiles( FilePathnameUtils.getTemporaryFilesDirectoryPath(), true);
 
             String[] outputFiles = analysisResult.getOutputFileNames();
             if(outputFiles != null && outputFiles.length > 0)
             {
                 AnalysisWebServiceProxy analysisProxy = new AnalysisWebServiceProxy(server.getServer(), server.getUsername(), password);
-                File[] results = analysisProxy.getResultFiles(analysisResult.getJobNumber(), outputFiles, new File(System.getProperty("temporary.files.directory")), true);
+                File[] results = analysisProxy.getResultFiles(analysisResult.getJobNumber(), outputFiles, new File(FilePathnameUtils.getTemporaryFilesDirectoryPath()), true);
 
                 for(int i = 0; i < results.length; i++)
                 {
@@ -257,7 +258,7 @@ public abstract class GPAnalysis extends AbstractAnalysis implements ClusteringA
                 if(!result)
                 {
                     JOptionPane.showMessageDialog(panel, "Some errors and/or warnings where generated while running analysis.");
-                }           
+                }
             }
         }
         catch(WebServiceException we)
@@ -270,7 +271,7 @@ public abstract class GPAnalysis extends AbstractAnalysis implements ClusteringA
                 JOptionPane.showMessageDialog(panel, "An error occurred while trying to connect to the GenePattern server " + serverName + ".\n Please verify the GenePattern server settings.");
             else
             {
-                JOptionPane.showMessageDialog(panel, "An error occurred while retrieving results from GenePattern server " + serverName + ".\n Please check the logs for details.");                    
+                JOptionPane.showMessageDialog(panel, "An error occurred while retrieving results from GenePattern server " + serverName + ".\n Please check the logs for details.");
             }
             throw we;
         }
@@ -309,7 +310,7 @@ public abstract class GPAnalysis extends AbstractAnalysis implements ClusteringA
 
                 just_pref_warning = false;
                 sb.append(line);
-                sb.append("\n");                
+                sb.append("\n");
             }
 
             if(just_pref_warning)

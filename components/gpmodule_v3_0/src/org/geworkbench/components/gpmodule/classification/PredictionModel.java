@@ -11,15 +11,14 @@
 */
 package org.geworkbench.components.gpmodule.classification;
 
-import org.geworkbench.util.ClassifierException;
-
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.io.FileOutputStream;
-import java.util.HashMap;
-import java.nio.channels.FileChannel;
+import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
+
+import org.geworkbench.util.FilePathnameUtils;
 
 /**
  * @author  Marc-Danie Nazaire
@@ -55,7 +54,7 @@ public class PredictionModel
 
         try
         {
-            modelFile = File.createTempFile("predModel", ".odf", new File(System.getProperty("temporary.files.directory")));
+            modelFile = File.createTempFile("predModel", ".odf", new File(FilePathnameUtils.getTemporaryFilesDirectoryPath()));
             modelFile.deleteOnExit();
 
             FileOutputStream out = new FileOutputStream(modelFile);
