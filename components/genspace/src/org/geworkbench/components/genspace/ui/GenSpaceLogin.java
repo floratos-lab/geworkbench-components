@@ -3,6 +3,7 @@ package org.geworkbench.components.genspace.ui;
 
 import org.geworkbench.components.genspace.bean.RegisterBean;
 import org.geworkbench.engine.config.VisualPlugin;
+import org.geworkbench.util.FilePathnameUtils;
 
 import javax.swing.*;
 
@@ -22,7 +23,7 @@ import org.jdesktop.swingworker.*;
 /**
  * This is an example geWorkbench component.
  *
- * 
+ *
  */
 //This annotation lists the data set types that this component accepts.
 //The component will only appear when a data set of the appropriate type is selected.
@@ -145,7 +146,7 @@ public class GenSpaceLogin extends JPanel implements VisualPlugin, ActionListene
 							LoginManager manager = new LoginManager(getBean());
 							userLogin = manager.userLogin();
 
-							if (userLogin) { 
+							if (userLogin) {
 								String msg="User Logged in.";
 								JOptionPane.showMessageDialog(getComponent(), msg);
 								GenSpaceSecurityPanel p = new GenSpaceSecurityPanel(getBean().getUsername());
@@ -229,12 +230,12 @@ public class GenSpaceLogin extends JPanel implements VisualPlugin, ActionListene
 		// user name special character validation
 		if(!empty(id))
 		{
-			pattern = 
+			pattern =
 				Pattern.compile("[^0-9a-zA-Z()-_]");
 
-			matcher = 
+			matcher =
 				pattern.matcher(id);
-			if(matcher.find()) 
+			if(matcher.find())
 			{
 				msg.append("Invalid user name.\n");
 				valid = false;
@@ -280,7 +281,7 @@ public class GenSpaceLogin extends JPanel implements VisualPlugin, ActionListene
 			int b = hashedBytes[i] & 0xFF;
 			sb.append(HEX_DIGITS.charAt(b >>> 4)).append(HEX_DIGITS.charAt(b & 0xF));
 		}
-		return sb.toString();	
+		return sb.toString();
 	}
 
 	private RegisterBean getBean()
@@ -305,9 +306,9 @@ public class GenSpaceLogin extends JPanel implements VisualPlugin, ActionListene
 		bean.setAddr2("");
 		bean.setCity("");
 		bean.setState("");
-		bean.setZipcode("");		
+		bean.setZipcode("");
 		return bean;
-	}    
+	}
 
 	/**
 	 * Checks if a login is valid
@@ -325,7 +326,7 @@ public class GenSpaceLogin extends JPanel implements VisualPlugin, ActionListene
 	public int check(String login, String pass) {
 		try{
 			String encrypted_pass = getEncodedString(pass);
-			BufferedReader br = new BufferedReader(new FileReader(filename));
+			BufferedReader br = new BufferedReader(new FileReader(FilePathnameUtils.getUserSettingDirectoryPath() + filename));
 			String file_login = br.readLine();
 			String file_encrypted_pass = br.readLine();
 			br.close();
@@ -381,7 +382,7 @@ public class GenSpaceLogin extends JPanel implements VisualPlugin, ActionListene
 	 * Creates a Login
 	 * @return 0 If Successful, -1 otherwise
 	 */
-	private int create() 
+	private int create()
 	{
 		return create(tf.getText(), new String(pf.getPassword()));
 	}
@@ -393,7 +394,7 @@ public class GenSpaceLogin extends JPanel implements VisualPlugin, ActionListene
 	public int create(String login, String pass) {
 		try{
 			String encrypted_pass = getEncodedString(pass);
-			FileWriter fw = new FileWriter(filename);
+    		FileWriter fw = new FileWriter( FilePathnameUtils.getUserSettingDirectoryPath() + filename );
 			fw.write(login);
 			fw.write("\n");
 			fw.write(encrypted_pass);
@@ -447,7 +448,7 @@ public class GenSpaceLogin extends JPanel implements VisualPlugin, ActionListene
 		this.add(panel);
 		//this.setSize(500, 500);
 		this.revalidate();
-	}    
+	}
 
 	/**
 	 * For when we want to show this panel in its own frame.
@@ -459,7 +460,7 @@ public class GenSpaceLogin extends JPanel implements VisualPlugin, ActionListene
 		//frame.setSize(400,400);
 		frame.setLocation(0,0);
 		frame.setResizable(false);
-		frame.setTitle("Please login or register before starting jClaim");  
+		frame.setTitle("Please login or register before starting jClaim");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	}
 
@@ -468,7 +469,7 @@ public class GenSpaceLogin extends JPanel implements VisualPlugin, ActionListene
 	 */
 	public void showFrame()
 	{
-		frame.setVisible(true); 
+		frame.setVisible(true);
 	}
 
 	/**
@@ -476,7 +477,7 @@ public class GenSpaceLogin extends JPanel implements VisualPlugin, ActionListene
 	 */
 	public void hideFrame()
 	{
-		frame.setVisible(false);   
+		frame.setVisible(false);
 	}
 
 	public static void main(String[] args)

@@ -20,6 +20,7 @@ import org.geworkbench.engine.management.AcceptTypes;
 import org.geworkbench.engine.management.Subscribe;
 import org.geworkbench.engine.properties.PropertiesManager;
 import org.geworkbench.events.ProjectEvent;
+import org.geworkbench.util.FilePathnameUtils;
 import org.apache.commons.math.stat.descriptive.SummaryStatistics;
 import org.apache.commons.math.stat.descriptive.SummaryStatisticsImpl;
 
@@ -41,7 +42,7 @@ import java.util.ArrayList;
 /**
  * This is an example geWorkbench component.
  *
- * 
+ *
  */
 // This annotation lists the data set types that this component accepts.
 // The component will only appear when a data set of the appropriate type is selected.
@@ -57,16 +58,16 @@ public class genspaceLogin extends JPanel implements VisualPlugin, ActionListene
 
     // to indicate whether the user is logged in or not
     public static boolean isLoggedIn = false;
-    
+
     // the user's login ID
     public static String genspaceLogin = null;
-     
+
     // a list of all ActionListeners waiting for login events
     private ArrayList<ActionListener> listeners = new ArrayList<ActionListener>();
-    
+
     // the surrounding JFrame when this is used as a standalone window
     private JFrame frame;
-    
+
     /**
      * Constructor
      */
@@ -92,7 +93,7 @@ public class genspaceLogin extends JPanel implements VisualPlugin, ActionListene
         b2.addActionListener(this);
         b3.addActionListener(this);
     }
-    
+
     /**
      * Action Listener
      */
@@ -123,7 +124,7 @@ public class genspaceLogin extends JPanel implements VisualPlugin, ActionListene
     			isLoggedIn = false;
     		}
     		l3.setVisible(true);
-    	}	
+    	}
 
     	// if they're logged in, do some bookkeeping and cleanup
     	if (isLoggedIn)
@@ -133,7 +134,7 @@ public class genspaceLogin extends JPanel implements VisualPlugin, ActionListene
     		// TODO: make sure this doesn't break everything when it's a genspace plugin
     		//if (frame != null) frame.setVisible(false);
     		/*String jarFile = "components/genspace/lib/genspace-communicator.jar";
-    		ProcessBuilder pb = new ProcessBuilder("java", "-jar", jarFile, genspaceLogin);  
+    		ProcessBuilder pb = new ProcessBuilder("java", "-jar", jarFile, genspaceLogin);
     		try {
     			Process p = pb.start();
     		} catch (Exception ex) {
@@ -142,8 +143,8 @@ public class genspaceLogin extends JPanel implements VisualPlugin, ActionListene
     		}*/
     	}
     }
-    
-     
+
+
     /**
      * Checks if a login is valid
      * @return 0 is valid, -1 otherwise
@@ -152,7 +153,7 @@ public class genspaceLogin extends JPanel implements VisualPlugin, ActionListene
     {
     	return check(tf.getText(), new String(pf.getPassword()));
     }
-    
+
     /**
      * Checks if a login is valid
      * @return 0 is valid, -1 otherwise
@@ -160,7 +161,7 @@ public class genspaceLogin extends JPanel implements VisualPlugin, ActionListene
     public int check(String login, String pass) {
     	try{
     		String encrypted_pass = getEncodedString(pass);
-    		BufferedReader br = new BufferedReader(new FileReader(filename));
+    		BufferedReader br = new BufferedReader(new FileReader(FilePathnameUtils.getUserSettingDirectoryPath() + filename));
     		String file_login = br.readLine();
     		String file_encrypted_pass = br.readLine();
     		br.close();
@@ -193,7 +194,7 @@ public class genspaceLogin extends JPanel implements VisualPlugin, ActionListene
 		}
 		return buf.toString();
 	}
-    
+
     /**
      * Creates a Hash
      * @param clearText The Clear-Text String
@@ -211,12 +212,12 @@ public class genspaceLogin extends JPanel implements VisualPlugin, ActionListene
     	}
     	return "";
     }
-    
+
     /**
      * Creates a Login
      * @return 0 If Successful, -1 otherwise
      */
-    private int create() 
+    private int create()
     {
     	return create(tf.getText(), new String(pf.getPassword()));
     }
@@ -228,7 +229,7 @@ public class genspaceLogin extends JPanel implements VisualPlugin, ActionListene
     public int create(String login, String pass) {
     	try{
     		String encrypted_pass = getEncodedString(pass);
-    		FileWriter fw = new FileWriter(filename);
+    		FileWriter fw = new FileWriter( FilePathnameUtils.getUserSettingDirectoryPath() + filename );
     		fw.write(login);
     		fw.write("\n");
     		fw.write(encrypted_pass);
@@ -262,9 +263,9 @@ public class genspaceLogin extends JPanel implements VisualPlugin, ActionListene
      */
     @Subscribe
     public void receive(ProjectEvent event, Object source) {
-            
+
         }
-    
+
     /**
      * For notifying other components of a login event.
      */
@@ -272,7 +273,7 @@ public class genspaceLogin extends JPanel implements VisualPlugin, ActionListene
     {
     	listeners.add(al);
     }
-    
+
     public void notifyActionListeners(ActionEvent e)
     {
     	for (ActionListener al : listeners)
@@ -280,8 +281,8 @@ public class genspaceLogin extends JPanel implements VisualPlugin, ActionListene
     		al.actionPerformed(e);
     	}
     }
-    
-    
+
+
     /**
      * For when we want to show this panel in its own frame.
      */
@@ -293,7 +294,7 @@ public class genspaceLogin extends JPanel implements VisualPlugin, ActionListene
     	frame.setLocation(0,0);
     	frame.setResizable(false);
     	frame.setTitle("Please login or register before starting jClaim");
-    	frame.setVisible(true);    	
+    	frame.setVisible(true);
     }
 
     public static void main(String[] args)
