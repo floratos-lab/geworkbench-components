@@ -240,21 +240,28 @@ public class CellularNetWorkElementInformation {
             interactionDetails = new InteractionDetail[2];
             this.interactionDetails = arrayList.toArray(interactionDetails);
         }
+        else
+        {	
+        	interactionDetails = null;
+        	reset();
+        }
         if (interactionDetails != null) {
             update();
         }
+        
     }
 
     /**
      * Update the number of interaction based on the new threshold or new InteractionDetails.
      */
     private void update() {
-        if (interactionDetails == null || interactionDetails.length == 0) {
+    	
+    	reset();
+    	
+    	if (interactionDetails == null || interactionDetails.length == 0) {
             return;
         }
-
-        reset();
-        
+       
         for (InteractionDetail interactionDetail : interactionDetails) {
             if (interactionDetail != null) {
                 int confidence = (int) (interactionDetail.getConfidence() * 100);
