@@ -28,6 +28,7 @@ import org.geworkbench.events.HistoryEvent;
 import org.geworkbench.events.ProjectEvent;
 import org.geworkbench.events.SequenceDiscoveryTableEvent;
 import org.geworkbench.events.SessionConnectEvent;
+import org.geworkbench.util.FilePathnameUtils;
 import org.geworkbench.util.PropertiesMonitor;
 import org.geworkbench.util.patterns.SequencePatternUtils;
 import org.geworkbench.util.remote.Connection;
@@ -66,7 +67,7 @@ import java.util.ArrayList;
  * <p>
  * Company: Califano Lab
  * </p>
- * 
+ *
  * @author cal lab
  * @version 1.0
  */
@@ -131,7 +132,7 @@ public class SequenceDiscoveryViewAppComponent implements VisualPlugin,
 	/**
 	 * This method creates a new session. The session is created with the
 	 * database file returned from getDivcoveryFile.
-	 * 
+	 *
 	 * @return the new session or null if no session was created.
 	 */
 	private DiscoverySession createSession() {
@@ -196,7 +197,7 @@ public class SequenceDiscoveryViewAppComponent implements VisualPlugin,
 
 	/**
 	 * This is a helper method to build a URL to a server
-	 * 
+	 *
 	 * @param host
 	 *            name of a host
 	 * @param port
@@ -243,7 +244,7 @@ public class SequenceDiscoveryViewAppComponent implements VisualPlugin,
 	}
 
 	public void updateDataSetView() {
-		
+
 		boolean activateMarkers = true;
 		if (currentStatus == NONSEQUENCE) {
 			return;
@@ -262,11 +263,7 @@ public class SequenceDiscoveryViewAppComponent implements VisualPlugin,
 			activeSequenceDB = (CSSequenceSet) fullSequenceDB;
 		} else if (activeSequenceDB.size() < fullSequenceDB.size()) {
 			// create a temp folder for new Sequence.
-			String tempFolder = System.getProperties().getProperty(
-					"temporary.files.directory");
-			if (tempFolder == null) {
-				tempFolder = "./";
-			}
+			String tempFolder = FilePathnameUtils.getTemporaryFilesDirectoryPath();
 			String tempString = fullSequenceDB.getFile().getName() + "temp-"
 					+ activeSequenceDB.size();
 			File tempFile = new File(tempFolder + tempString);
@@ -296,7 +293,7 @@ public class SequenceDiscoveryViewAppComponent implements VisualPlugin,
 
 	/**
 	 * geneSelectorAction
-	 * 
+	 *
 	 * @param e
 	 *            GeneSelectorEvent
 	 */
@@ -405,7 +402,7 @@ public class SequenceDiscoveryViewAppComponent implements VisualPlugin,
 	/**
 	 * The function varifies that the selected data file in the same as the
 	 * session's data file.
-	 * 
+	 *
 	 * @param s
 	 *            DiscoverySession
 	 * @return boolean
@@ -437,7 +434,7 @@ public class SequenceDiscoveryViewAppComponent implements VisualPlugin,
 	/**
 	 * The method returns a session. Note: The method will popup a dialog to
 	 * create a session.
-	 * 
+	 *
 	 * @return the active session.
 	 */
 	public synchronized DiscoverySession getSession() {
@@ -447,7 +444,7 @@ public class SequenceDiscoveryViewAppComponent implements VisualPlugin,
 
 	/**
 	 * The method pop the session chooser dialog.
-	 * 
+	 *
 	 * @return the a SessionChooser object if the user entered valid data, else
 	 *         null.
 	 */
@@ -464,7 +461,7 @@ public class SequenceDiscoveryViewAppComponent implements VisualPlugin,
 
 	/**
 	 * copy the data from one LoginPanelModel to the other.
-	 * 
+	 *
 	 * @param from
 	 * @param to
 	 */
@@ -476,7 +473,7 @@ public class SequenceDiscoveryViewAppComponent implements VisualPlugin,
 
 	/**
 	 * This method passes the session properties to the Properties manager.
-	 * 
+	 *
 	 * @param host
 	 *            host name
 	 * @param port
@@ -496,7 +493,7 @@ public class SequenceDiscoveryViewAppComponent implements VisualPlugin,
 
 	/**
 	 * This method returns the file on which a discovery will be made on.
-	 * 
+	 *
 	 * @return file for discovery
 	 */
 	public synchronized File getDiscoveryFile() {
@@ -512,7 +509,7 @@ public class SequenceDiscoveryViewAppComponent implements VisualPlugin,
 
 	/**
 	 * This method returns a true if a discovery file is selected.
-	 * 
+	 *
 	 * @return true if and only if a file is selected in the project pannel.
 	 */
 	public boolean isDiscoveryFileSet() {
@@ -521,7 +518,7 @@ public class SequenceDiscoveryViewAppComponent implements VisualPlugin,
 
 	/**
 	 * This method is used to fire events from the SequenceDiscoveryViewWidget
-	 * 
+	 *
 	 * @param evt
 	 *            property event
 	 */
