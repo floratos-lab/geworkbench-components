@@ -59,6 +59,7 @@ import org.geworkbench.engine.management.Publish;
 import org.geworkbench.engine.management.Subscribe;
 import org.geworkbench.events.ProjectEvent;
 import org.geworkbench.events.ProjectNodeAddedEvent;
+import org.geworkbench.util.FilePathnameUtils;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartMouseEvent;
 import org.jfree.chart.ChartMouseListener;
@@ -134,7 +135,7 @@ public class SkyBaseViewer implements VisualPlugin {
 	String colKey = null;
 	String lastseqid = null;
 	String ofname = "";
-	String tmpfiledir = System.getProperty("temporary.files.directory")
+	String tmpfiledir = FilePathnameUtils.getTemporaryFilesDirectoryPath()
 			+ "webpdb/";
 	File webpdbdir = new File(tmpfiledir);
 	JComboBox alncombo[] = new JComboBox[2];
