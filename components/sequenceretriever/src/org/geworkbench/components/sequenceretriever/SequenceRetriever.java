@@ -68,16 +68,17 @@ import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.engine.management.AcceptTypes;
 import org.geworkbench.engine.management.Publish;
 import org.geworkbench.engine.management.Script;
-import org.geworkbench.engine.management.Subscribe;  
+import org.geworkbench.engine.management.Subscribe;
 import org.geworkbench.events.GeneSelectorEvent;
- 
+
 import org.geworkbench.events.ProjectNodeAddedEvent;
+import org.geworkbench.util.FilePathnameUtils;
 import org.geworkbench.util.sequences.GeneChromosomeMatcher;
 import org.geworkbench.builtin.projects.ProjectPanel;
- 
+
 /**
  * Widget to retrieve Promoter sequence from UCSC's DAS sequence server.
- * 
+ *
  * @author Xuegong Wang
  * @author manjunath at genomecenter dot columbia dot edu
  * @author xiaoqing at genomecenter dot columbia dot edu
@@ -92,8 +93,8 @@ public class SequenceRetriever implements VisualPlugin {
 	private static final String LOCAL = "Local";
 	private static final String UCSC = "UCSC";
 	private static final String EBI = "EBI";
-	
-	 
+
+
 	private String currentSource = LOCAL;
 
 	private final static String NORMAL = "normal";
@@ -104,7 +105,7 @@ public class SequenceRetriever implements VisualPlugin {
 	private final static String DNAVIEW = "DNA";
 
 	private String currentView = DNAVIEW;
-	private String status = NORMAL; 
+	private String status = NORMAL;
 
 	private DSPanel<DSGeneMarker> markers = null;
 
@@ -304,7 +305,7 @@ public class SequenceRetriever implements VisualPlugin {
 		afterText.setModel(model1);
 		afterText.setSize(new Dimension(15, 10));
 		afterText.setPreferredSize(new Dimension(15, 10));
-		
+
 		jLabel1.setToolTipText("Downstream");
 		jLabel1.setText("+");
 		jLabel2.setToolTipText("Upstream");
@@ -477,7 +478,7 @@ public class SequenceRetriever implements VisualPlugin {
 
 	/**
 	 * Handle the selection at the MarkerList table.
-	 * 
+	 *
 	 * @param index
 	 */
 	private void updateSelectedSequenceDB(int index) {
@@ -594,8 +595,8 @@ public class SequenceRetriever implements VisualPlugin {
 					} else {
 						updateProgressBar(100, "Finished on " + new Date());
 						jSelectedList.updateUI();
-						seqDisPanel.setRetrievedMap(currentRetrievedMap);			 
-					 
+						seqDisPanel.setRetrievedMap(currentRetrievedMap);
+
 					}
 					stopButton.setEnabled(false);
 					jComboCategory.setSelectedItem(currentView);
@@ -606,8 +607,8 @@ public class SequenceRetriever implements VisualPlugin {
 		} else {
 			JOptionPane.showMessageDialog(null,
 					"Please select gene(s) or marker(s).");
-		} 
-		
+		}
+
 	}
 
 	void jActivateBttn_actionPerformed(ActionEvent e) {
@@ -630,13 +631,13 @@ public class SequenceRetriever implements VisualPlugin {
 						.showInputDialog("Please enter a name for the dataset");
 				if (label != null) {
 					selectedSequenceDB.setLabel(label);
-					selectedSequenceDB.parseMarkers();	
-					ProjectPanel.addToHistory(selectedSequenceDB, generateHistStr()); 
+					selectedSequenceDB.parseMarkers();
+					ProjectPanel.addToHistory(selectedSequenceDB, generateHistStr());
 					ProjectNodeAddedEvent event = new ProjectNodeAddedEvent(
 							"message", selectedSequenceDB, null);
 					publishProjectNodeAddedEvent(event);
-				
-				
+
+
 				}
 			} else {
 				JOptionPane.showMessageDialog(null,
@@ -742,13 +743,13 @@ public class SequenceRetriever implements VisualPlugin {
 				} else if (jSourceCategory.getSelectedItem().equals(UCSC)) {
 					int startPoint = ((Integer) model.getNumber()).intValue();
 					int endPoint = ((Integer) model1.getNumber()).intValue();
- 
+
 					String database = SequenceFetcher
 							.matchChipType(AnnotationParser.getCurrentChipType());
-					 
+
 					boolean serverWorking = true;
 					for (int i = 0; i < selectedList.size(); i++) {
-						if (!serverWorking) 
+						if (!serverWorking)
 							break;
 						DSGeneMarker marker = (DSGeneMarker) selectedList
 								.get(i);
@@ -764,7 +765,7 @@ public class SequenceRetriever implements VisualPlugin {
 						if (knownGeneName != null && knownGeneName.length > 0) {
 
 							for (String geneName : knownGeneName) {
-								if (!serverWorking) 
+								if (!serverWorking)
 									break;
 								if (geneName == null
 										|| geneName.equals(NOANNOTATION)) {
@@ -901,13 +902,13 @@ public class SequenceRetriever implements VisualPlugin {
 				 * the editor to read it?
 				 */
 				postProcessSequences();
-			}			
-		 
+			}
+
 		}
-		
-	
-		
-		
+
+
+
+
 	}
 
 	private void postProcessSequences() {
@@ -970,7 +971,7 @@ public class SequenceRetriever implements VisualPlugin {
 
 	/**
 	 * receiveProjectSelection
-	 * 
+	 *
 	 * @param e
 	 *            ProjectEvent
 	 */
@@ -979,7 +980,7 @@ public class SequenceRetriever implements VisualPlugin {
 	public void receive(org.geworkbench.events.ProjectEvent e, Object source) {
 
 		log.debug("Source object " + source);
-		 
+
 		if (e.getMessage().equals(org.geworkbench.events.ProjectEvent.CLEARED)) {
 			refMASet = null;
 			cleanUp();
@@ -1000,14 +1001,14 @@ public class SequenceRetriever implements VisualPlugin {
 
 	/**
 	 * geneSelectorAction
-	 * 
+	 *
 	 * @param e
 	 *            GeneSelectorEvent
 	 */
 	@Subscribe
 	public void receive(GeneSelectorEvent e, Object publisher) {
 		log.debug("received GeneSelectorEvent::source="
-				+ publisher.getClass().getName());	 
+				+ publisher.getClass().getName());
 		markers = e.getPanel();
 		final Runnable processEventThread = new Runnable() {
 			public void run() {
@@ -1025,11 +1026,11 @@ public class SequenceRetriever implements VisualPlugin {
 
 	/**
 	 * geneSelectorAction
-	 * 
+	 *
 	 * @param e
 	 *            GeneSelectorEvent
 	 */
-	 
+
 	public void processEvent() {
 		// log.debug("process GeneSelectorEvent::source="
 		// + publisher.getClass().getName());
@@ -1142,7 +1143,7 @@ public class SequenceRetriever implements VisualPlugin {
 
 	/**
 	 * getComponent
-	 * 
+	 *
 	 * @return Component
 	 */
 	public Component getComponent() {
@@ -1154,7 +1155,7 @@ public class SequenceRetriever implements VisualPlugin {
 
 	/**
 	 * todo sdfsd
-	 * 
+	 *
 	 * @param e
 	 *            ActionEvent
 	 */
@@ -1165,12 +1166,7 @@ public class SequenceRetriever implements VisualPlugin {
 
 	private String getRandomFileName() {
 		String tempString = "temp" + RandomNumberGenerator.getID() + ".fasta";
-		String tempFolder = System.getProperties().getProperty(
-				"temporary.files.directory");
-
-		if (tempFolder == null) {
-			tempFolder = ".";
-		}
+		String tempFolder = FilePathnameUtils.getTemporaryFilesDirectoryPath();
 		String fileName = tempFolder + tempString;
 		return fileName;
 	}
@@ -1362,7 +1358,7 @@ public class SequenceRetriever implements VisualPlugin {
 		/**
 		 * Does nothing by default. Override to handle a list element being
 		 * clicked.
-		 * 
+		 *
 		 * @param index
 		 *            the list element that was clicked.
 		 */
@@ -1372,7 +1368,7 @@ public class SequenceRetriever implements VisualPlugin {
 		/**
 		 * Does nothing by default. Override to handle a list element being
 		 * double-clicked.
-		 * 
+		 *
 		 * @param index
 		 *            the list element that was clicked.
 		 */
@@ -1382,7 +1378,7 @@ public class SequenceRetriever implements VisualPlugin {
 		/**
 		 * Does nothing by default. Override to handle a list element being
 		 * right-clicked.
-		 * 
+		 *
 		 * @param index
 		 *            the list element that was clicked.
 		 */
@@ -1403,7 +1399,7 @@ public class SequenceRetriever implements VisualPlugin {
 
 		/**
 		 * Set the highlightedIndex automatically.
-		 * 
+		 *
 		 * @param theIndex
 		 *            int
 		 * @return boolean
@@ -1450,8 +1446,8 @@ public class SequenceRetriever implements VisualPlugin {
 
 		}
 
-	}	
-	
+	}
+
 	String generateHistStr()
 	{
 		String histStr = "Sequence Retriever\n";
@@ -1465,13 +1461,13 @@ public class SequenceRetriever implements VisualPlugin {
 			if (jSourceCategory.getSelectedItem().equals(UCSC))
 				histStr += "Genome Assembly: " +  SequenceFetcher.getGenomeAssembly() + "\n";
 		}
-	
+
 		histStr += "------------------------------------\n";
 		return histStr;
 	}
-		
-	 
 
-	
-	 
+
+
+
+
 }
