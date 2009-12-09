@@ -70,7 +70,9 @@ public class PudgeAnalysis extends AbstractGridAnalysis implements
 			conn.setRequestProperty("Content-Transfer-Encoding", "binary");
 			conn.connect();
 
-			String jobname = pcp.getjobnameValue() + "_"
+			//append _geworkbench_timestamp to user specified jobname
+			//to specify pudge jobs sent from geworkbench
+			String jobname = pcp.getjobnameValue() + "_geworkbench_"
 					+ new java.sql.Timestamp(new java.util.Date().getTime());
 			String request = req
 					.replaceFirst("@", jobname.replaceAll(" ", "_"));
