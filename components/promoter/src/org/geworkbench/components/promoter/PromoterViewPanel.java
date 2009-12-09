@@ -26,6 +26,7 @@ import org.geworkbench.bison.datastructure.complex.pattern.sequence.
 import org.geworkbench.components.promoter.modulediscovery.*;
 import org.geworkbench.events.GeneSelectorEvent;
 import org.geworkbench.events.SequenceDiscoveryTableEvent;
+import org.geworkbench.util.FilePathnameUtils;
 import org.geworkbench.util.JAutoList;
 import org.geworkbench.util.RandomSequenceGenerator;
 import org.geworkbench.util.associationdiscovery.statistics.ClusterStatistics;
@@ -442,19 +443,19 @@ public class PromoterViewPanel extends JPanel {
         //iterationLabel.setHorizontalAlignment(SwingConstants.TRAILING);
         iterationLabel.setHorizontalTextPosition(SwingConstants.LEADING);
         iterationLabel.setText("Iterations:");
-        
+
         countsRadioButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
             	countsRadioButton_actionPerformed(e);
             }
         });
-        
+
         frequenciesRadioButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
             	frequenciesRadioButton_actionPerformed(e);
-            	
+
             }
-        }); 
+        });
 
         pseudocountBox.setText("1.0");
         pseudocountBox.addActionListener(new ActionListener() {
@@ -462,17 +463,17 @@ public class PromoterViewPanel extends JPanel {
             	pseudocountBox_actionPerformed(e);
             }
         });
-        
+
         pseudocountLabel.setHorizontalTextPosition(SwingConstants.LEADING);
         pseudocountLabel.setText("Pseudocount:");
-        
+
         sqrtNCheckBox.setText("sqrt(n)");
         sqrtNCheckBox.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
             	sqrtNCheckBox_actionPerformed(e);
             }
-        });        
-        
+        });
+
          primer5Label.setFont(new java.awt.Font("Dialog", Font.BOLD, 11));
           primer3Label.setFont(new java.awt.Font("Dialog", Font.BOLD, 11));
         primer5Label.setText("5\' hits");
@@ -727,22 +728,22 @@ public class PromoterViewPanel extends JPanel {
                                               GridBagConstraints.HORIZONTAL,
                                               new Insets(1, 2, 1, 2), 0, 0));
 
-		parmsPanel.add(pseudocountBox, 
+		parmsPanel.add(pseudocountBox,
 						new GridBagConstraints(2, 4, 1, 1, 0.5,0.0
 								               , GridBagConstraints.CENTER,
 								               GridBagConstraints.HORIZONTAL,
 								               new Insets(1, 2, 1, 2), 0, 0));
-		
-		
-		parmsPanel.add(pseudocountLabel, 
+
+
+		parmsPanel.add(pseudocountLabel,
 					    new GridBagConstraints(1, 4, 1, 1,	0.5, 0.0
 					    					   , GridBagConstraints.CENTER,
-					    					   GridBagConstraints.HORIZONTAL, 
+					    					   GridBagConstraints.HORIZONTAL,
 					    					   new Insets(1, 2, 1, 2), 0, 0));
-		
-        parmsPanel.add(sqrtNCheckBox, 
+
+        parmsPanel.add(sqrtNCheckBox,
         				new GridBagConstraints(3, 4, 1, 1, 0.0, 0.0
-							                   , GridBagConstraints.CENTER, 
+							                   , GridBagConstraints.CENTER,
 							                   GridBagConstraints.HORIZONTAL,
 								               new Insets(0, 2, 0, 2), 0, 0));
 
@@ -822,7 +823,7 @@ public class PromoterViewPanel extends JPanel {
             }
             return c;
         }
-    }; 
+    };
     JPanel jPanel12 = new JPanel();
     JPanel parmsPanel = new JPanel();
     GridBagLayout gridBagLayout1 = new GridBagLayout();
@@ -1040,12 +1041,12 @@ public class PromoterViewPanel extends JPanel {
     	while (it.hasNext()) {
         	TranscriptionFactor transcriptionFactor = it.next();;
         	Matrix matrix = transcriptionFactor.getMatrix();
-            boolean sqrtNSelected = sqrtNCheckBox.isSelected();        	
+            boolean sqrtNSelected = sqrtNCheckBox.isSelected();
             double pseduocount = Double.parseDouble(pseudocountBox.getText());
         	matrix.refresh(sqrtNSelected, pseduocount);
         }
     }
-    
+
     void displayBtn_actionPerformed(ActionEvent e) {
 
     	refreshTranscriptionFactorList();
@@ -1163,11 +1164,11 @@ public class PromoterViewPanel extends JPanel {
         });
         fc.setDialogTitle("choose the matrix files");
 
-        String dir = System.getProperty("temporary.files.directory");
+		String dir = FilePathnameUtils.getTemporaryFilesDirectoryPath();
         // This is where we store user data information
         String filename = "promoterPanelSettings";
         try {
-            File file = new File(dir + File.separator + filename);
+            File file = new File(dir + filename);
             if (file.exists()) {
                 BufferedReader br = new BufferedReader(new FileReader(file));
                 dir = br.readLine();
@@ -1177,7 +1178,7 @@ public class PromoterViewPanel extends JPanel {
             ex.printStackTrace();
         }
         if (dir == null || dir.equals(".")) {
-            dir = System.getProperty("user.dir");
+			dir = FilePathnameUtils.getTemporaryFilesDirectoryPath();
         }
         fc.setCurrentDirectory(new File(dir));
 
@@ -1187,7 +1188,7 @@ public class PromoterViewPanel extends JPanel {
 
     private void fc_actionPerformed(ActionEvent e) {
 
-        String dir = System.getProperty("temporary.files.directory");
+		String dir = FilePathnameUtils.getTemporaryFilesDirectoryPath();
         // This is where we store user data information
         String filename = "promoterPanelSettings";
 
@@ -1215,7 +1216,7 @@ public class PromoterViewPanel extends JPanel {
 
                 try { //save current settings.
                     BufferedWriter bw = new BufferedWriter(new FileWriter(dir +
-                            File.separator + filename));
+                             filename));
                     bw.write(directory);
                     bw.close();
                 } catch (IOException ex) {
@@ -1982,8 +1983,8 @@ public class PromoterViewPanel extends JPanel {
                 URL set13K = new URL(System.getProperty(
                         "data.download.site") +
                                      "13K.fa");
-                File set13KFile = new File(System.getProperty(
-                        "temporary.files.directory") + "13K.fa");
+                File set13KFile = new File(FilePathnameUtils
+						.getTemporaryFilesDirectoryPath() + "13K.fa");
                 if (!set13KFile.exists()) {
                     BufferedReader br = new BufferedReader(new
                             InputStreamReader(set13K.openStream()));
@@ -2296,7 +2297,7 @@ public class PromoterViewPanel extends JPanel {
         }
     }
 
-    
+
     public void frequenciesRadioButton_actionPerformed(ActionEvent e) {
         try {
             drawLogo(currentTF);
@@ -2304,12 +2305,12 @@ public class PromoterViewPanel extends JPanel {
             ex.printStackTrace();
         }
     }
-    
-    
+
+
     public void pseudocountBox_actionPerformed(ActionEvent e) {
 
     }
-    
+
     public void sqrtNCheckBox_actionPerformed(ActionEvent e) {
 
     	boolean sqrtNSelected = sqrtNCheckBox.isSelected();
@@ -2319,7 +2320,7 @@ public class PromoterViewPanel extends JPanel {
     		pseudocountBox.setEditable(true);
     	}
     }
-    
+
     /**
      * receive
      *
