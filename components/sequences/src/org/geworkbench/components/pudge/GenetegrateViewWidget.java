@@ -16,6 +16,7 @@ import org.geworkbench.util.patterns.PatternSequenceDisplayUtil;
 import org.geworkbench.util.patterns.CSMatchedSeqPattern;
 import org.geworkbench.util.patterns.PatternOperations;
 import org.geworkbench.util.patterns.PatternLocations;
+import org.geworkbench.util.FilePathnameUtils;
 import org.geworkbench.util.Util;
 import org.geworkbench.util.sequences.SequenceViewWidgetPanel;
 import org.geworkbench.util.sequences.PDBFileGenerator;
@@ -111,8 +112,7 @@ public class GenetegrateViewWidget extends JPanel {
     private static final int GAP = 40;
     private String[] inputFileNames;
     private GenetegrateViewAppComponent genetegrateViewAppComponent;
-    static String tempFolder = System.getProperties().getProperty(
-            "temporary.files.directory");
+    static String tempFolder = FilePathnameUtils.getTemporaryFilesDirectoryPath();
     private static int GAPSECOND = 60000;
     private boolean isNormal = true;
     private boolean isStopped = false;
@@ -436,8 +436,6 @@ public class GenetegrateViewWidget extends JPanel {
             JOptionPane.showMessageDialog(null, "The sequences are DNA sequence, please load a protein sequence first.", "DNA Sequence", JOptionPane.ERROR_MESSAGE);
             return;
         }
-        tempFolder = System.getProperties().getProperty(
-                "temporary.files.directory");
         inputFileNames = new String[ activeSequenceDB.size()];
         for (int i = 0; i < activeSequenceDB.size(); i++) {
             DSSequence seq = activeSequenceDB.getSequence(i);
@@ -451,9 +449,6 @@ public class GenetegrateViewWidget extends JPanel {
             tempString = tempString.replace('|', '_');
             tempString = tempString.replace(' ', '_');
             tempString = tempString.replace('/', '_');
-            if (tempFolder == null) {
-                tempFolder = ".";
-            }
             File tempFile = new File(tempFolder + tempString);
             if (tempFile.exists()) {
                 tempFile.delete();
