@@ -50,6 +50,7 @@ import org.geworkbench.builtin.projects.ProjectPanel;
 import org.geworkbench.engine.management.Publish;
 import org.geworkbench.engine.management.Subscribe;
 import org.geworkbench.events.ProjectNodePostCompletedEvent;
+import org.geworkbench.util.FilePathnameUtils;
 import org.geworkbench.util.ProgressBar;
 import org.geworkbench.util.Util;
 
@@ -64,8 +65,7 @@ public class MatrixReduceAnalysis extends AbstractGridAnalysis implements
 		ClusteringAnalysis, Observer {
 	Log log = LogFactory.getLog(this.getClass());
 
-	private static final String TEMP_DIR = System
-			.getProperty("temporary.files.directory");
+	private static final String TEMP_DIR = FilePathnameUtils.getTemporaryFilesDirectoryPath();
 
 	private static final String MICROARRAY_SET_FILE_NAME = "microarraySet.tsv";
 
@@ -259,9 +259,9 @@ public class MatrixReduceAnalysis extends AbstractGridAnalysis implements
 			// Write set out to tab-delimited format
 			String tempDirParent = TEMP_DIR;
 			String tempDirName = "mr";
-			tempDir = new File(tempDirParent, tempDirName);
+			tempDir = new File(tempDirParent + tempDirName);
 			tempDir.mkdirs();
-			File microarrayFile = new File(MICROARRAY_SET_FILE_NAME);
+			File microarrayFile = new File(FilePathnameUtils.getTemporaryFilesDirectoryPath() + MICROARRAY_SET_FILE_NAME);
 			if (stopAlgorithm) {
 				stopAlgorithm = false;
 				progressBar.stop();
@@ -571,7 +571,7 @@ public class MatrixReduceAnalysis extends AbstractGridAnalysis implements
 			} else {
 				// TODO:
 				if (tempDir == null) {
-					tempDir = new File(tempDirParent, tempDirName);
+					tempDir = new File(tempDirParent + tempDirName);
 					tempDir.mkdirs();
 				}
 				String slash = "/";
@@ -636,7 +636,7 @@ public class MatrixReduceAnalysis extends AbstractGridAnalysis implements
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.geworkbench.analysis.AbstractGridAnalysis#useMicroarraySetView()
 	 */
 	@Override
@@ -646,7 +646,7 @@ public class MatrixReduceAnalysis extends AbstractGridAnalysis implements
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.geworkbench.analysis.AbstractGridAnalysis#useOtherDataSet()
 	 */
 	@Override
