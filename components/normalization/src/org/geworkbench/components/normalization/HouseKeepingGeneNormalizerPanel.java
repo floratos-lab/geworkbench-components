@@ -51,6 +51,7 @@ import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.events.listeners.ParameterActionListener;
+import org.geworkbench.util.FilePathnameUtils;
 
 import com.jgoodies.forms.builder.PanelBuilder;
 import com.jgoodies.forms.layout.CellConstraints;
@@ -87,7 +88,7 @@ public class HouseKeepingGeneNormalizerPanel extends AbstractSaveableParameterPa
     JLabel excludedGenesLabel = new JLabel();
     JButton clearButton = new JButton();
     BorderLayout borderLayout1 = new BorderLayout();
-    DSPanel<DSGeneMarker> panel;   
+    DSPanel<DSGeneMarker> panel;
     DSPanel<DSGeneMarker> markerPanel;
     DefaultListModel selectedModel = new DefaultListModel();
     DefaultListModel markerModel = new DefaultListModel();
@@ -95,7 +96,7 @@ public class HouseKeepingGeneNormalizerPanel extends AbstractSaveableParameterPa
     JButton loadButton = new JButton();
     JList jList2 = new JList(selectedModel);
     JList jList1 = new JList(markerModel); //(DefaultListModel) jList1.getListModel();
-   
+
     JButton saveButton = new JButton();
 
     JPanel jPanel2 = new JPanel();
@@ -115,7 +116,6 @@ public class HouseKeepingGeneNormalizerPanel extends AbstractSaveableParameterPa
     final String AVG_OPTION = "Microarray Average";
     final String IGNORE_OPTION = "Ignore";
     String lastDirString = ".";
-    final String USERSETTINGSFILE = "userSettings.txt";
     private int currentHighlightedIndex = -1;
     private boolean isMissingValueIgnored = true;
     JComboBox missingValuesCombo = new JComboBox(new String[]{IGNORE_OPTION,
@@ -145,7 +145,7 @@ public class HouseKeepingGeneNormalizerPanel extends AbstractSaveableParameterPa
 		parameters.put("selected", select);
 		return parameters;
 	}
-    
+
     /*
      * (non-Javadoc)
      * @see org.geworkbench.analysis.AbstractSaveableParameterPanel#setParameters(java.util.Map)
@@ -172,7 +172,7 @@ public class HouseKeepingGeneNormalizerPanel extends AbstractSaveableParameterPa
 			}
 		}
     }
-    
+
     public HouseKeepingGeneNormalizerPanel() {
         try {
             jbInit();
@@ -552,8 +552,8 @@ public class HouseKeepingGeneNormalizerPanel extends AbstractSaveableParameterPa
         ParameterActionListener parameterActionListener = new ParameterActionListener(this);
         selectedModel.addListDataListener(parameterActionListener);
         markerModel.addListDataListener(parameterActionListener);
-        
-        
+
+
         jList2.setCellRenderer(new ListCellRenderer());
         jList1.setCellRenderer(new DefaultListCellRenderer());
         listPopup.add(editItem);
@@ -762,25 +762,25 @@ public class HouseKeepingGeneNormalizerPanel extends AbstractSaveableParameterPa
         return markerPanel;
     }
 
-    public String getParamDetail() {        
-       String paramDetail = "Excluded Genes:\n"; 
+    public String getParamDetail() {
+       String paramDetail = "Excluded Genes:\n";
        for (Enumeration en = markerModel.elements(); en.hasMoreElements();) {
-                 
+
            paramDetail +=  en.nextElement().toString() +"\n";
        }
-       paramDetail += "Included Genes:\n"; 
-       
+       paramDetail += "Included Genes:\n";
+
        for (Enumeration en = selectedModel.elements(); en.hasMoreElements();) {
-            
+
     	   paramDetail +=  en.nextElement().toString() +"\n";
        }
-       
+
        paramDetail += "How to handle missing value: " + missingValuesCombo.getSelectedItem().toString() +"\n";
-       
+
        return paramDetail ;
     }
-    
-    
+
+
     public DSPanel getPanel() {
         updatePanel();
 
@@ -868,10 +868,7 @@ public class HouseKeepingGeneNormalizerPanel extends AbstractSaveableParameterPa
     public String getLastDirectory() {
         String dir = ".";
         try {
-            String filename = USERSETTINGSFILE;
-            if (System.getProperty("housekeepingnormalizerSettings") != null) {
-                filename = System.getProperty("housekeepingnormalizerSettings");
-            }
+            String filename = FilePathnameUtils.getHousekeepingnormalizerSettingsPath();
 
             File file = new File(filename);
             if (file.exists()) {
@@ -892,11 +889,7 @@ public class HouseKeepingGeneNormalizerPanel extends AbstractSaveableParameterPa
 
     public void setLastDirectory(String dir) {
         try { //save current settings.
-            String outputfile = USERSETTINGSFILE;
-            if (System.getProperty("housekeepingnormalizerSettings") != null) {
-                outputfile = System.getProperty(
-                        "housekeepingnormalizerSettings");
-            }
+            String outputfile = FilePathnameUtils.getHousekeepingnormalizerSettingsPath();
             BufferedWriter br = new BufferedWriter(new FileWriter(
                     outputfile));
             br.write(dir);
@@ -1015,7 +1008,7 @@ public class HouseKeepingGeneNormalizerPanel extends AbstractSaveableParameterPa
 	@Override
 	public void fillDefaultValues(Map<Serializable, Serializable> parameters) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 }
