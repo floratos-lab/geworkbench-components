@@ -38,6 +38,7 @@ import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.AnnotationParser;
 import org.geworkbench.bison.datastructure.bioobjects.sequence.CSSequence;
 import org.geworkbench.components.parsers.RMAExpressFileFormat;
+import org.geworkbench.util.FilePathnameUtils;
 import org.geworkbench.util.sequences.GeneChromosomeMatcher;
 
 /**
@@ -65,15 +66,15 @@ public class SequenceFetcher {
     public static final String EBIURL = "http://www.ebi.ac.uk/ws/services/Dbfetch";
     public static int UPSTREAM = 2000;
     public static int DOWNSTREAM = 2000;
-    
+
     private static String genomeAssembly = "";
 
     private static CSSequenceSet cachedSequences = null;
 
     public static void populateSequenceCache() {
-        File file = new File(System.getProperty("temporary.files.directory") +
-                File.separator + "sequences" + File.separator +
-                "cachedSequences");
+        File file = new File( FilePathnameUtils.getTemporaryFilesDirectoryPath() +
+                "sequences" + File.separator +
+                "cachedSequences" );
         if (cachedSequences == null) {
             if (file.exists()) {
                 try {
@@ -93,8 +94,8 @@ public class SequenceFetcher {
                 URL url =  SequenceFetcher.class.getResource(
                         "All.NC.-2k+2k.txt");
                 File downloadedFile =
-                        new File(System.getProperty("temporary.files.directory") +
-                                File.separator + "sequences" + File.separator +
+                        new File(FilePathnameUtils.getTemporaryFilesDirectoryPath() +
+                                "sequences" + File.separator +
                                 "downloadedSequences");
                 try {
                     if (!downloadedFile.exists()) {
@@ -239,7 +240,7 @@ public class SequenceFetcher {
         } catch (Exception e) {
         	if ( e.getMessage().contains("DbfNoEntryFoundException"))
         	 	 log.info("No result found for affyid " + affyid );
-        	else        	
+        	else
                  e.printStackTrace();
         }
         return sequenceSet;
@@ -307,13 +308,13 @@ public class SequenceFetcher {
 
     /**
 	 * getGeneChromosomeMatchers
-	 * 
+	 *
 	 * @param geneName
 	 *            String
 	 * @param database
 	 *            String
 	 * @return any[]
-     * @throws SQLException 
+     * @throws SQLException
 	 */
 	public static Vector getGeneChromosomeMatchers(String geneName,
 			String database) throws SQLException {
@@ -367,7 +368,7 @@ public class SequenceFetcher {
 
     /**
 	 * Retrieve sequences based on the chromosome position of the gene.
-	 * 
+	 *
 	 * @param geneChromosomeMatcher
 	 * @param upstreamRegion
 	 * @param downstreamRegion
@@ -466,12 +467,12 @@ public class SequenceFetcher {
         return null;
 
     }
-    
+
     public static String getGenomeAssembly()
     {
     	return genomeAssembly;
     }
-    
-    
+
+
 
 }
