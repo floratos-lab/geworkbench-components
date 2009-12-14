@@ -44,7 +44,7 @@ import org.jdesktop.jdic.browser.WebBrowserListener;
  * display Pudge website in JDIC embedded IE web browser
  * 
  * @author mw2518
- * @version $Id: PudgeBrowser.java,v 1.3 2009-06-30 19:21:27 wangm Exp $
+ * @version $Id: PudgeBrowser.java,v 1.3 2009/06/30 19:21:27 wangm Exp $
  */
 @AcceptTypes( { PudgeResultSet.class })
 public class PudgeBrowser implements VisualPlugin {
@@ -53,35 +53,37 @@ public class PudgeBrowser implements VisualPlugin {
 	private JPanel jp = new JPanel(new BorderLayout());
 	private IWebBrowser wb;
 	private boolean finish = false;
-	boolean initial = true, link = true;
+	private boolean initial = true, link = true;
 
-	public static ImageIcon browseIcon = new ImageIcon(
+	private static ImageIcon browseIcon = new ImageIcon(
 	   "src/images/Right.gif");
-	JToolBar jBrowserToolBar = new JToolBar();
-	JButton jStopButton = new JButton("Stop",
-		new ImageIcon("src/images/Stop.png"));
-	JButton jRefreshButton = new JButton("Refresh",
-		new ImageIcon("src/images/Reload.png"));
-	JButton jForwardButton = new JButton("Forward",
-		new ImageIcon("src/images/Forward.png"));
-	JButton jBackButton = new JButton("Back",
-		new ImageIcon("src/images/Back.png"));
-	MyStatusBar statusBar = new MyStatusBar();
-	JPanel jAddressPanel = new JPanel();
-	JLabel jAddressLabel = new JLabel();
-	JTextField jAddressTextField = new JTextField();
-	JButton jGoButton = new JButton();
-	JPanel jAddrToolBarPanel = new JPanel();
+	private JToolBar jBrowserToolBar = new JToolBar();
+	private JButton jStopButton = new JButton("Stop",
+	   new ImageIcon("src/images/Stop.png"));
+	private JButton jRefreshButton = new JButton("Refresh",
+	   new ImageIcon("src/images/Reload.png"));
+	private JButton jForwardButton = new JButton("Forward",
+	   new ImageIcon("src/images/Forward.png"));
+	private JButton jBackButton = new JButton("Back",
+	   new ImageIcon("src/images/Back.png"));
+	private MyStatusBar statusBar = new MyStatusBar();
+	private JPanel jAddressPanel = new JPanel();
+	private JLabel jAddressLabel = new JLabel();
+	private JTextField jAddressTextField = new JTextField();
+	private JButton jGoButton = new JButton();
+	private JPanel jAddrToolBarPanel = new JPanel();
 
 	private PudgeResultSet resultData;
 	private String jobname = "";
-	String urlbase = "http://luna.bioc.columbia.edu/honiglab/pudge/cgi-bin/";
+	private String urlbase = "http://luna.bioc.columbia.edu/honiglab/pudge/cgi-bin/";
+	private String finalResultURL = "";
 	private static String osname = System.getProperty("os.name").toLowerCase();
 	private final static boolean is_mac = (osname.indexOf("mac") > -1);
 	private final static boolean is_windows = (osname.indexOf("windows") > -1);
 	private static Properties prop = new Properties();
 	private static String mozilla_path = null;
-	
+	private static enum Status {CONFIG, PENDING, FINAL};
+
 	static {
 		BrowserEngineManager bem = BrowserEngineManager.instance();
 		if (is_mac)
@@ -111,117 +113,123 @@ public class PudgeBrowser implements VisualPlugin {
 			resultData = (PudgeResultSet) dataset;
 			String r1 = resultData.getResult();
 			if (r1.length() == 0) {
-				System.out.println("No PudgeResultSet!");
-				r1 = urlbase + "pipe_int.cgi";
+				JOptionPane.showMessageDialog(null, "No Pudge Result Set!",
+						"Warning", JOptionPane.WARNING_MESSAGE);
+				mainPanel.removeAll();
+				mainPanel.revalidate();
+				mainPanel.repaint();
+				return;
 			}
 			jobname = resultData.getLabel();
 			link = false;
-			showResults(r1);
+			finalResultURL = urlbase + "show_results.cgi?from_user=" + jobname;
+
+			// check job status from the pudge webserver only once, 
+			// instead of keeping track of it until the job is done
+			String resultURL = getCurrentURL(r1);
+			if (resultURL != r1)
+				resultData.setResult(resultURL);
+			jbInit(resultURL);
 		}
 	}
 
-	class RunURL implements Runnable {
-		String resultURL = "";
-		int type = 2;
+	// get url for current job status
+	private String getCurrentURL(String resultURL) {
 
-		RunURL(String res, int t) {
-			resultURL = res;
-			type = t;
+		if (resultURL == finalResultURL)
+			return resultURL;
+
+		String pendingResultURL = resultURL;
+		int i1, i2;
+		if ((i1 = resultURL.indexOf("tmpdir=")) > 0
+				&& (i2 = resultURL.indexOf("&", i1)) > 0) {
+			pendingResultURL = urlbase + "pipe_int.cgi?status=1&jobID="
+					+ resultURL.substring(i1 + 7, i2) + "&dir_name=" + jobname;
 		}
+		Status sts = checkJobFinish(pendingResultURL);
 
-		public void run() {
-			if (type == 2) {
-				int i1, i2;
-				if ((i1 = resultURL.indexOf("tmpdir=")) > 0
-						&& (i2 = resultURL.indexOf("&", i1)) > 0)
-					resultURL = urlbase + "pipe_int.cgi?status=1&jobID="
-							+ resultURL.substring(i1 + 7, i2) + "&dir_name="
-							+ jobname;
-				runtype(resultURL, type);
-			}
-
-			resultURL = urlbase + "show_results.cgi?from_user=" + jobname;
-			runtype(resultURL, 3);
-		}
-
-		public void runtype(String resultURL, int type) {
-			while (!checkJobFinish(resultURL, type)) {
-				try {
-					Thread.sleep(100);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-			}
-			//if new data set is received while job is pending, stop the thread
-			if (resultURL.indexOf(jobname)<0) return;
-			
-			resultData.setResult(resultURL);
-			link = false;
-			try {
-				wb.setURL(new URL(resultURL));
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
-	}
-
-	private void showResults(String resultURL) {
-		int type = 1;
-		if (resultURL.indexOf("status=1") > -1)
-			type = 2;
-		else if (resultURL.indexOf("show_results.cgi") > -1)
-			type = 3;
-
-		jbInit(resultURL, type);
-
-		if (type < 3 && !resultURL.equals(urlbase + "pipe_int.cgi"))
-			new Thread(new RunURL(resultURL, type + 1)).start();
+		if (sts == Status.FINAL)
+			return finalResultURL;
+		if (sts == Status.PENDING)
+			return pendingResultURL;
+		return resultURL;
 	}
 
 	/*
-	 * check if result page is valid
+	 * check job running status
 	 */
-	boolean checkJobFinish(String url, int type) {
+	private Status checkJobFinish(String url) {
 		try {
-			if (type == 1)
-				return true;
 			URLConnection uc = new URL(url).openConnection();
 			if (uc == null || !uc.getContentType().startsWith("text/html")) {
-				return false;
+				return Status.CONFIG;
 			}
 
 			BufferedReader in = new BufferedReader(new InputStreamReader(uc
 					.getInputStream()));
 			String line = null;
 			while ((line = in.readLine()) != null) {
-				if (type == 2) {
-					if (line.indexOf("Please use this link to see the results") > -1)
-						return false;
-				} else if (type == 3) {
-					if (line.indexOf("show_results.cgi") > -1)
-						return true;
-				}
+				if (line.indexOf("Please use this link to see the results") > -1)
+					return Status.CONFIG;
+				if (line.indexOf("show_results.cgi") > -1)
+					return Status.FINAL;
 			}
+			in.close();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		if (type == 2)
-			return true;
-		return false;
+		return Status.PENDING;
 	}
 
 	/*
 	 * start embedded web browser
 	 */
-	private void jbInit(String url, int type) {
-		finish = checkJobFinish(url, type);
-		if (!finish) {
-			mainPanel.removeAll();
-			mainPanel.revalidate();
-			mainPanel.repaint();
-			return;
-		}
+	private void jbInit(String url) {
+		try {
+			if (initial) {
+				initial = false;
+				setToolBar();
 
+				if (is_mac) {
+					// WebKitWebBrowser calls Mac-only
+					// com.apple.eawt.CocoaComponent
+					// load it with reflect to allow compilation under windows
+					Class wkwbc = Class
+							.forName("org.jdesktop.jdic.browser.WebKitWebBrowser");
+					wb = (IWebBrowser) wkwbc.newInstance();
+					wb.setContent("MacRoman");
+					wb.setURL(new URL(url));
+				} else {
+					System.out.println("initial: " + url);
+					// set auto_dispose=false to avoid dead mozilla browser in
+					// linux
+					wb = new WebBrowser(new URL(url), is_windows);
+				}
+				wb.addWebBrowserListener(new WebListener());
+				jp.add(wb.asComponent(), BorderLayout.CENTER);
+				mainPanel.add(jp, BorderLayout.CENTER);
+				mainPanel.add(jAddrToolBarPanel, BorderLayout.NORTH);
+				mainPanel.add(statusBar, BorderLayout.SOUTH);
+			} else {
+				System.out.println("later: " + url);
+
+				if (is_mac || is_windows)
+					wb.setURL(new URL(url));
+				else {
+					wb = new WebBrowser(new URL(url));
+					wb.addWebBrowserListener(new WebListener());
+					jp.removeAll();
+					jp.add(wb.asComponent(), BorderLayout.CENTER);
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		mainPanel.revalidate();
+		mainPanel.repaint();
+	}
+
+	private void setToolBar() {
 		jAddressPanel.setLayout(new BorderLayout());
 		jAddressTextField
 				.addActionListener(new Browser_jAddressTextField_actionAdapter(
@@ -230,7 +238,7 @@ public class PudgeBrowser implements VisualPlugin {
 		jAddressLabel.setText(" URL: ");
 
 		jGoButton.setBorder(BorderFactory.createCompoundBorder(new EmptyBorder(0, 2, 0, 2),
-								       new EtchedBorder()));
+									new EtchedBorder()));
 		jGoButton.setMaximumSize(new Dimension(60, 25));
 		jGoButton.setMinimumSize(new Dimension(60, 25));
 		jGoButton.setPreferredSize(new Dimension(60, 25));
@@ -281,45 +289,6 @@ public class PudgeBrowser implements VisualPlugin {
 
 		statusBar.setBorder(BorderFactory.createEmptyBorder(2, 0, 0, 0));
 		statusBar.lblDesc.setText("JDIC Browser");
-
-		try {
-			if (initial) {
-				initial = false;
-
-				if (is_mac) {
-					// WebKitWebBrowser calls Mac-only
-					// com.apple.eawt.CocoaComponent
-					// load it with reflect to allow compilation under windows
-					Class wkwbc = Class
-							.forName("org.jdesktop.jdic.browser.WebKitWebBrowser");
-					wb = (IWebBrowser)wkwbc.newInstance();
-					wb.setContent("MacRoman");
-					wb.setURL(new URL(url));
-				} else {
-				    //set auto_dispose=false to avoid dead mozilla browser in linux
-					wb = new WebBrowser(new URL(url), is_windows);
-				}
-				wb.addWebBrowserListener(new WebListener());
-				jp.add(wb.asComponent(), BorderLayout.CENTER);
-				mainPanel.add(jp, BorderLayout.CENTER);
-				mainPanel.add(jAddrToolBarPanel, BorderLayout.NORTH);
-				mainPanel.add(statusBar, BorderLayout.SOUTH);
-			} else {
-				if (is_mac || is_windows)
-					wb.setURL(new URL(url));
-				else
-				{
-					wb = new WebBrowser(new URL(url));
-					wb.addWebBrowserListener(new WebListener());
-					jp.removeAll();
-					jp.add(wb.asComponent(), BorderLayout.CENTER);
-				}
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		mainPanel.revalidate();
-		mainPanel.repaint();
 	}
 
 	/*
@@ -334,7 +303,7 @@ public class PudgeBrowser implements VisualPlugin {
 	/*
 	 * web browser listener
 	 */
-	public class WebListener implements WebBrowserListener {
+	private class WebListener implements WebBrowserListener {
 		public void downloadStarted(WebBrowserEvent event) {
 			updateStatusInfo("Loading started.");
 		}
@@ -359,7 +328,6 @@ public class PudgeBrowser implements VisualPlugin {
 			if (link == true)
 				return;
 			URL currentUrl = wb.getURL();
-
 			// set url or content in this function to get the page displayed
 			String url = resultData.getResult();
 			try {
@@ -401,39 +369,39 @@ public class PudgeBrowser implements VisualPlugin {
 		}
 	}
 
-	void updateStatusInfo(String statusMessage) {
+	private void updateStatusInfo(String statusMessage) {
 		statusBar.lblStatus.setText(statusMessage);
 	}
 
-	void jAddressTextField_actionPerformed(ActionEvent e) {
+	private void jAddressTextField_actionPerformed(ActionEvent e) {
 		loadURL();
 	}
 
-	void jBackButton_actionPerformed(ActionEvent e) {
+	private void jBackButton_actionPerformed(ActionEvent e) {
 		wb.back();
 	}
 
-	void jForwardButton_actionPerformed(ActionEvent e) {
+	private void jForwardButton_actionPerformed(ActionEvent e) {
 		wb.forward();
 	}
 
-	void jRefreshButton_actionPerformed(ActionEvent e) {
+	private void jRefreshButton_actionPerformed(ActionEvent e) {
 		wb.refresh();
 	}
 
-	void jStopButton_actionPerformed(ActionEvent e) {
+	private void jStopButton_actionPerformed(ActionEvent e) {
 		wb.stop();
 	}
 
-	void jGoButton_actionPerformed(ActionEvent e) {
+	private void jGoButton_actionPerformed(ActionEvent e) {
 		loadURL();
 	}
 
-    /**
+	/**
 	 * Check the current input URL string in the address text field, load it,
 	 * and update the status info and toolbar info.
 	 */
-	void loadURL() {
+	private void loadURL() {
 		String inputValue = jAddressTextField.getText();
 
 		if (inputValue == null) {
@@ -488,7 +456,7 @@ public class PudgeBrowser implements VisualPlugin {
 		}
 	}
 
-	class Browser_jAddressTextField_actionAdapter implements
+	private static class Browser_jAddressTextField_actionAdapter implements
 			java.awt.event.ActionListener {
 		PudgeBrowser adaptee;
 
@@ -501,7 +469,7 @@ public class PudgeBrowser implements VisualPlugin {
 		}
 	}
 
-	class Browser_jBackButton_actionAdapter implements java.awt.event.ActionListener {
+	private static class Browser_jBackButton_actionAdapter implements java.awt.event.ActionListener {
 		PudgeBrowser adaptee;
 
 		Browser_jBackButton_actionAdapter(PudgeBrowser adaptee) {
@@ -513,8 +481,7 @@ public class PudgeBrowser implements VisualPlugin {
 		}
 	}
 
-
-	class Browser_jForwardButton_actionAdapter implements java.awt.event.ActionListener {
+	private static class Browser_jForwardButton_actionAdapter implements java.awt.event.ActionListener {
 		PudgeBrowser adaptee;
 
 		Browser_jForwardButton_actionAdapter(PudgeBrowser adaptee) {
@@ -526,7 +493,7 @@ public class PudgeBrowser implements VisualPlugin {
 		}
 	}
 
-	class Browser_jRefreshButton_actionAdapter implements java.awt.event.ActionListener {
+	private static class Browser_jRefreshButton_actionAdapter implements java.awt.event.ActionListener {
 		PudgeBrowser adaptee;
 
 		Browser_jRefreshButton_actionAdapter(PudgeBrowser adaptee) {
@@ -538,7 +505,7 @@ public class PudgeBrowser implements VisualPlugin {
 		}
 	}
 
-	class Browser_jStopButton_actionAdapter implements java.awt.event.ActionListener {
+	private static class Browser_jStopButton_actionAdapter implements java.awt.event.ActionListener {
 		PudgeBrowser adaptee;
 
 		Browser_jStopButton_actionAdapter(PudgeBrowser adaptee) {
@@ -550,7 +517,7 @@ public class PudgeBrowser implements VisualPlugin {
 		}
 	}
 
-	class Browser_jGoButton_actionAdapter implements java.awt.event.ActionListener {
+	private static class Browser_jGoButton_actionAdapter implements java.awt.event.ActionListener {
 		PudgeBrowser adaptee;
 
 		Browser_jGoButton_actionAdapter(PudgeBrowser adaptee) {
