@@ -8,6 +8,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -42,7 +43,9 @@ class GoAnalysisResult extends CSAncillaryDataSet<CSMicroarray> {
 	Set<String> changedGenes;
 	Set<String> referenceGenes;
 
-	static class ResultRow {
+	static class ResultRow implements Serializable {
+		private static final long serialVersionUID = 8340126713281389148L;
+		
 		String name;
 		String namespace;
 		double p;
