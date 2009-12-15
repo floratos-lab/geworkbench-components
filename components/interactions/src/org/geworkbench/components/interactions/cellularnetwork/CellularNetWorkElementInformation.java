@@ -26,12 +26,9 @@ import java.util.HashSet;
  */
 public class CellularNetWorkElementInformation {
     private HashMap<String,Integer> interactionNumMap = new HashMap<String,Integer>();
-	//private int ppInteractionNum;
-    //private int pdInteractionNum;
-    //private HashMap<String, Boolean> interactionIsIncludedMap;
-    private Set<String> interactionIncludedSet =  new HashSet<String>();
-    //private boolean includePPInteraction;
-    //private boolean includePDInteraction;
+	 
+    Set<String> allInteractionTypes = new HashSet<String>();  
+    private Set<String> interactionIncludedSet =  new HashSet<String>();     
     private DSGeneMarker dSGeneMarker;
     private String goInfoStr;
     private String geneType;
@@ -39,8 +36,7 @@ public class CellularNetWorkElementInformation {
     private static double threshold;
     private int[] distribution;
     private HashMap<String, int[]> interactionDistributionMap = new HashMap<String, int[]>();
-    //private int[] ppDistribution;
-    //private int[] pdDistribution;
+     
     private static double smallestIncrement;
     private static Double defaultSmallestIncrement = 0.01;
     private static int binNumber;
@@ -101,7 +97,11 @@ public class CellularNetWorkElementInformation {
             }
         }
         geneType = GeneOntologyUtil.getOntologyUtil().checkMarkerFunctions(dSGeneMarker);
-    	for (String interactionType: allInteractionTypes)
+        
+        this.allInteractionTypes.clear();
+        this.allInteractionTypes.addAll(allInteractionTypes);
+        
+       /* for (String interactionType: allInteractionTypes)
     	{
     		interactionNumMap.put(interactionType, 0);
     	}
@@ -111,7 +111,7 @@ public class CellularNetWorkElementInformation {
            	interactionDistributionMap.put(interactionType,new int[binNumber]);
            	 for (int i = 0; i < binNumber; i++)  
            		 (interactionDistributionMap.get(interactionType))[i]=0;
-        }
+        }*/
     	
         
         reset();
@@ -122,19 +122,15 @@ public class CellularNetWorkElementInformation {
      * Remove all previous retrieved information.
      */
     public void reset() {
-        // isDirty = true;
-        //ppInteractionNum = 0;
-        //pdInteractionNum = 0;
-    	for (String interactionType: interactionNumMap.keySet())
+      
+    	for (String interactionType: allInteractionTypes)
     	{
     		interactionNumMap.put(interactionType, 0);
     	}
         binNumber = (int) (1 / smallestIncrement) + 1;
         distribution = new int[binNumber];
-       // ppDistribution = new int[binNumber];
-        //pdDistribution = new int[binNumber];
-        
-        for (String interactionType: interactionDistributionMap.keySet())
+       
+        for (String interactionType: allInteractionTypes)
     	{
         	interactionDistributionMap.put(interactionType,new int[binNumber]);
         	 for (int i = 0; i < binNumber; i++) {
@@ -234,9 +230,12 @@ public class CellularNetWorkElementInformation {
      * Associate the gene marker with the details.
      * @param arrayList
      */
-    public void setInteractionDetails(ArrayList<InteractionDetail> arrayList) {
+    public void setInteractionDetails(ArrayList<InteractionDetail> arrayList, List<String> allInteractionTypes) {
 
-        if (arrayList != null && arrayList.size() > 0) {
+    	if ( this.allInteractionTypes.size() == 0 )
+    		this.allInteractionTypes.addAll(allInteractionTypes);
+    	
+    	if (arrayList != null && arrayList.size() > 0) {
             interactionDetails = new InteractionDetail[2];
             this.interactionDetails = arrayList.toArray(interactionDetails);
         }
@@ -245,23 +244,26 @@ public class CellularNetWorkElementInformation {
         	interactionDetails = null;
         	reset();
         }
+        
         if (interactionDetails != null) {
             update();
         }
-        
+       
     }
 
     /**
      * Update the number of interaction based on the new threshold or new InteractionDetails.
      */
     private void update() {
-    	
-    	reset();
+        
+    	 reset();
     	
     	if (interactionDetails == null || interactionDetails.length == 0) {
             return;
         }
+
        
+        
         for (InteractionDetail interactionDetail : interactionDetails) {
             if (interactionDetail != null) {
                 int confidence = (int) (interactionDetail.getConfidence() * 100);
