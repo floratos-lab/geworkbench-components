@@ -128,7 +128,6 @@ public class CaArrayClient {
 	 * @throws RemoteException 
 	 * @throws InvalidInputException 
 	 */
-	@SuppressWarnings("unchecked")
 	TreeMap<String, Set<String>> lookupTypeValues() throws RemoteException, InvalidInputException
 			 {
 		String[] types = CaARRAYQueryPanel.listContent;
