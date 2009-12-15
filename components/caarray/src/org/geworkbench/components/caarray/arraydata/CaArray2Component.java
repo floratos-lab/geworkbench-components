@@ -17,6 +17,7 @@ import org.geworkbench.bison.datastructure.biocollections.microarrays.CSExprMicr
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.sequences.CSSequenceSet;
 import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.AnnotationParser;
+import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.builtin.projects.ProjectPanel;
 import org.geworkbench.builtin.projects.remoteresources.carraydata.CaArray2Experiment;
 import org.geworkbench.engine.config.VisualPlugin;
@@ -149,9 +150,9 @@ public class CaArray2Component implements VisualPlugin {
 							chipType);
 					publishCaArraySuccessEvent(new CaArraySuccessEvent(1, 1));
 					CSExprMicroarraySet totalSet = maSet;
-					if (!merge) {
-						if (maSet != null) {
-							maSet.setLabel(experimentName + "_" + hybName);
+					if (maSet != null) {
+						maSet.setLabel(experimentName + "_" + hybName);
+						if (!merge) {
 							org.geworkbench.events.ProjectNodeAddedEvent pevent = new org.geworkbench.events.ProjectNodeAddedEvent(
 									"message", maSet, null);
 							ProjectPanel.addToHistory(maSet,
@@ -181,6 +182,8 @@ public class CaArray2Component implements VisualPlugin {
 										+ url + ":" + port + ".");
 					}
 					if (hybridzations.size() > 1) {
+						DSMicroarraySet<? extends DSMicroarray>[] sets = new DSMicroarraySet<?>[hybridzations.size()];
+						sets[0] = maSet;
 						String firstName = hybridzations.firstKey();
 						int number = 0; // index number out of total arrays
 						for (String hybridizationName : hybridzations.keySet()) {
@@ -202,41 +205,26 @@ public class CaArray2Component implements VisualPlugin {
 							;
 							publishCaArraySuccessEvent(new CaArraySuccessEvent(
 									number++, hybridzations.size()));
+
 							if (maSet2 == null) {
 								event.setPopulated(false);
 							} else {
-								maSet2.setLabel(experimentName);
+								maSet2.setLabel(experimentName + "_"
+										+ hybridizationName);
 								event.setPopulated(true);
 								if (!merge) {
-
-									maSet2.setLabel(experimentName + "_"
-											+ hybridizationName);
-									org.geworkbench.events.ProjectNodeAddedEvent pevent = new org.geworkbench.events.ProjectNodeAddedEvent(
-											"message", maSet2, null);
-									publishProjectNodeAddedEvent(pevent);
+									publishProjectNodeAddedEvent(new org.geworkbench.events.ProjectNodeAddedEvent(
+											"message", maSet2, null));
 								} else {
-									if (maSet2 != null && maSet2.size() > 0
-											&& totalSet != null)
-										totalSet.add(maSet2.get(0));
+									sets[number] = maSet2;
 								}
 							}
-						}
+						} // loop of all hybridizations
+						if (merge)
+							ProjectPanel.getInstance().doMergeSets(sets );
 
 					}
-					if (merge) {
 
-						org.geworkbench.events.ProjectNodeAddedEvent pevent = new org.geworkbench.events.ProjectNodeAddedEvent(
-								"message", totalSet, null);
-						totalSet.setLabel(experimentName + "_"
-								+ hybridzations.size() + "_merged");
-						if (isCancelled
-								&& cancelledConnectionInfo != null
-								&& cancelledConnectionInfo
-										.equalsIgnoreCase(currentConnectionInfo)) {
-							return;
-						}
-						publishProjectNodeAddedEvent(pevent);
-					}
 					event.setDataSet(totalSet);
 					event.setInfoType(CaArrayEvent.BIOASSAY);
 					if (isCancelled
