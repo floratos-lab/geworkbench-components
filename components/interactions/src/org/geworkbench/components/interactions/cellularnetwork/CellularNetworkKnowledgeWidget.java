@@ -581,7 +581,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 				String selectedCoxtext = SELECTCONTEXT;
 				if( selectedVersion != null)
 				   selectedCoxtext = contextComboBox.getSelectedItem().toString();
-				ArrayList<String> versionList = null;
+				List<VersionDescriptor> versionList = null;
 				if (selectedCoxtext != SELECTCONTEXT)
 				{				 
 					InteractionsConnectionImpl interactionsConnection = new InteractionsConnectionImpl();
@@ -593,7 +593,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 				versionComboBox.addItem(SELECTVERSION);
 				if (versionList != null && versionList.size() > 0) {
 					for (int i = 0; i < versionList.size(); i++)
-						versionComboBox.addItem(versionList.get(i));
+						versionComboBox.addItem(versionList.get(i).getVersion());
 
 				}
 				versionComboBox.revalidate();
@@ -1512,11 +1512,12 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 
 		} // end for loop
 		 
-		dataset.clearName("GENEMAP");
-		dataset.addNameValuePair("GENEMAP", geneIdToNameMap);
+		
 		dataSet = new AdjacencyMatrixDataSet(matrix, serial, 0.5f, 2,
 				"Adjacency Matrix", dataset.getLabel(), dataset);
-
+		dataSet.clearName("GENEMAP");
+		dataSet.addNameValuePair("GENEMAP", geneIdToNameMap);
+		
 		if (dataSet != null && !isEmpty) {
 
 			historyStr = "Cellular Network Parameters: \n"

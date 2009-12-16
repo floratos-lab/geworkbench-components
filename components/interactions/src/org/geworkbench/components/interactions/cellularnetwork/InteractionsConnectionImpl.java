@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.net.HttpURLConnection;
 import java.rmi.RemoteException;
+import java.util.List;
 import java.util.ArrayList;
 
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
@@ -145,13 +146,15 @@ public class InteractionsConnectionImpl {
           return arrayList;  		
     }
     
-    public ArrayList<String> getVersionDescriptor(String datasetName)
+    public List<VersionDescriptor> getVersionDescriptor(String datasetName)
     {
-    	  ArrayList<String> arrayList = new ArrayList<String>();
+    	  List<VersionDescriptor> arrayList = new ArrayList<VersionDescriptor>();
 
           HttpURLConnection aConnection = null;
   		  ResultSetlUtil rs = null;
           String version = null;
+          String value = null;
+          boolean needAuthentication = false;
           
           try {
   			String urlString = ResultSetlUtil.INTERACTIONS_SERVLET_URL;
@@ -160,11 +163,15 @@ public class InteractionsConnectionImpl {
   			rs = ResultSetlUtil.executeQuery(methodAndParams, ResultSetlUtil.MYSQL,
   						aConnection);
                while (rs.next()) { 
-              	 
-                     version = rs.getString("version").trim();       
-                     
-                     arrayList.add(version);
-                  }
+            	    version = rs.getString("version").trim();
+            	    value = rs.getString("authentication_yn").trim();
+            	    if (value.equalsIgnoreCase("Y"))
+            	    	needAuthentication = true;
+            	    else
+            	    	needAuthentication = false;
+            	    VersionDescriptor vd = new VersionDescriptor(version, needAuthentication);
+                    arrayList.add(vd);
+               }
       		rs.close();
 
           } catch (Exception se) {
