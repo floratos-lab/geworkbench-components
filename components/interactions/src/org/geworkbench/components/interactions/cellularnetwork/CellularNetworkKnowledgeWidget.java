@@ -157,7 +157,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 
 	private static final String COLUMNLABELPOSTFIX = " #";
 
-	private static final String SELECTCONTEXT = "Select Contex";
+	private static final String SELECTCONTEXT = "Select Context";
 
 	private static final String SELECTVERSION = "Select Version";
 
