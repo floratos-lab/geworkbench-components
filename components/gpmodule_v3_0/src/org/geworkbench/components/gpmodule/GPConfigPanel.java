@@ -36,7 +36,6 @@ import org.genepattern.util.GPpropertiesManager;
 import org.genepattern.webservice.AdminProxy;
 import org.genepattern.webservice.WebServiceException;
 import org.genepattern.webservice.TaskInfo;
-import org.systemsbiology.util.InvalidInputException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.components.gpmodule.gsea.GSEAAnalysisPanel;
@@ -48,7 +47,15 @@ import org.geworkbench.components.gpmodule.listener.ServerConnectionListener;
  */
 public class GPConfigPanel extends JPanel
 {
-    private static Log log = LogFactory.getLog(GPConfigPanel.class);
+    private static class InvalidInputException extends Exception {
+		private static final long serialVersionUID = -667139707540590720L;
+
+		InvalidInputException(String message) {
+    		super(message);
+    	}
+	}
+
+	private static Log log = LogFactory.getLog(GPConfigPanel.class);
     private JFormattedTextField protocol;
     private JFormattedTextField host;
     private JFormattedTextField port;
