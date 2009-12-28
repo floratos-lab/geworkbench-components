@@ -8,13 +8,10 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
 
 import javax.swing.JButton;
 import javax.swing.JEditorPane;
 import javax.swing.JPanel;
-import javax.swing.SwingUtilities;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -38,11 +35,12 @@ import org.geworkbench.events.ComponentConfigurationManagerUpdateEvent;
  * active it in CCM again.
  * 
  * @author yc2480
- * @version $Id: Welcome.java,v 1.4 2009-11-24 15:41:07 jiz Exp $
+ * @version $Id$
  */
-public class Welcome extends JPanel implements VisualPlugin {
+public class WelcomeScreen extends JPanel implements VisualPlugin {
+	private static final long serialVersionUID = -8058072598346112808L;
 
-	static Log log = LogFactory.getLog(Welcome.class);
+	static Log log = LogFactory.getLog(WelcomeScreen.class);
 
 	/* the CCM file used for welcome component */
 	private static final String CCMFILENAME = "WelcomeScreen.ccm.xml";
@@ -85,7 +83,7 @@ public class Welcome extends JPanel implements VisualPlugin {
 	 * area. ccmRefresh() will be called, to let geWorkbench correctly display
 	 * it on startup.
 	 */
-	public Welcome() {
+	public WelcomeScreen() {
 		textFieldPanel = new JPanel();
 		textFieldPanel.setLayout(new BorderLayout());
 		String filename = "";
@@ -116,7 +114,6 @@ public class Welcome extends JPanel implements VisualPlugin {
 		buttonPanel = new JPanel();
 		buttonPanel.add(button);
 		textFieldPanel.add(buttonPanel, BorderLayout.SOUTH);
-
 	}
 
 	/**
@@ -147,12 +144,10 @@ public class Welcome extends JPanel implements VisualPlugin {
 	 * up to date.
 	 */
 	private void ccmRefresh() {
-		ComponentConfigurationManager manager = ComponentConfigurationManager.getInstance();
 		ComponentRegistry componentRegistry = ComponentRegistry.getRegistry();
-		HashMap<Class, List<Class>> acceptors = componentRegistry
-				.getAcceptorsHashMap();
 		ComponentConfigurationManagerUpdateEvent ccmEvent = new ComponentConfigurationManagerUpdateEvent(
-				acceptors);
+				componentRegistry
+				.getAcceptorsHashMap());
 		publishComponentConfigurationManagerUpadateEvent(ccmEvent);
 	}
 
