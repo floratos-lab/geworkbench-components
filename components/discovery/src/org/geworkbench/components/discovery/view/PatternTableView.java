@@ -267,21 +267,20 @@ public class PatternTableView extends JPanel {
                         return;
                     }
                     File file = chooser.getSelectedFile();
+                    if (!file.getName().endsWith(".pat")) {
+                        file = new File(file.getAbsolutePath() + ".pat");
+                    }
 
                     if (file.exists()) {
     					int o = JOptionPane.showConfirmDialog(null,
 
-    					"Replace the file", "Replace the existing file?",
+    					"Replace the file", "Replace existing file?",
     							JOptionPane.YES_NO_CANCEL_OPTION);
     					if (o != JOptionPane.YES_OPTION) {
     						return;
     					}
     				}
                     
-                    if (!file.getName().endsWith(".pat")) {
-                        file = new File(file.getAbsolutePath() + ".pat");
-                    }
-
                     patternDB.write(file);
                     jSavePatternsWInfoItem.setEnabled(true);
                     JOptionPane.showMessageDialog(null, "Save operation completed.", "Save Patterns", JOptionPane.INFORMATION_MESSAGE);
