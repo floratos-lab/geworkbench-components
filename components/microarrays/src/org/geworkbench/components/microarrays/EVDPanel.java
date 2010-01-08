@@ -4,6 +4,7 @@ package org.geworkbench.components.microarrays;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
+import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMutableMarkerValue;
 import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
 import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
@@ -970,6 +971,7 @@ public class EVDPanel extends MicroarrayViewEventBase implements MenuListener {
         }
 
         public void process(DSMicroarray ma, double min, double max) {
+        	if(ma==null)return;
 
             maxValue = max;
             minValue = min;
@@ -986,7 +988,10 @@ public class EVDPanel extends MicroarrayViewEventBase implements MenuListener {
 
                 DSGeneMarker marker = genes.get(geneCtr);
 
-                double value = ma.getMarkerValue(marker).getValue();
+                DSMutableMarkerValue markerValue = ma.getMarkerValue(marker);
+                if(markerValue==null)continue;
+                
+                double value = markerValue.getValue();
                 if (Double.isNaN(value) || value < minValue || value > maxValue) {
                     value = 0;
                 } else {
