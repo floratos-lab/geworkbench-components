@@ -1,8 +1,10 @@
 package org.geworkbench.components.interactions.cellularnetwork;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
+import java.awt.Color; 
 import java.awt.Component;
+import java.awt.Font; 
+import javax.swing.Icon; 
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Frame;
@@ -59,7 +61,8 @@ import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.JToolBar;
 import javax.swing.JTree;
-import javax.swing.ListModel;
+import javax.swing.ListCellRenderer;
+import javax.swing.ListModel; 
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.border.Border;
@@ -67,12 +70,15 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.TableModelEvent;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.DefaultListCellRenderer;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
-import javax.swing.tree.TreeSelectionModel;
+import javax.swing.tree.TreeSelectionModel; 
+
+
 
 import org.apache.commons.collections15.set.ListOrderedSet;
 import org.apache.commons.logging.Log;
@@ -551,19 +557,23 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 		cancelButton = new JButton();
 
 		contextComboBox.setSize(60, 10);
-		if (contextList != null) {
+		/*if (contextList != null) {
 			contextList.add(0, SELECTCONTEXT);
 		} else {
 			contextList = new ArrayList<String>();
 			contextList.add(SELECTCONTEXT);
-		}
+		}		
+		 
 		contextComboBox
 				.setModel(new DefaultComboBoxModel(contextList.toArray()));
-
+		
+			
 		versionComboBox.addItem(SELECTVERSION);
-		versionComboBox.setSelectedItem(SELECTVERSION);
+		versionComboBox.setSelectedItem(SELECTVERSION);  */
+		ListCellRenderer aRenderer = new ComboBoxCellRenderer();
 		versionComboBox.setSize(80, 10);
-
+		versionComboBox.setRenderer(aRenderer);
+		
 		contextComboBox.addItemListener(new ItemListener() {
 
 			public void itemStateChanged(ItemEvent e) {
@@ -571,7 +581,9 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 				String selectedCoxtext = SELECTCONTEXT;
 				if( selectedVersion != null)
 				   selectedCoxtext = contextComboBox.getSelectedItem().toString();
-				List<VersionDescriptor> versionList = null;
+			    if (versionList == null)
+			    	versionList = new ArrayList<VersionDescriptor>(); 
+				versionList.clear();
 				if (selectedCoxtext != SELECTCONTEXT)
 				{				 
 					InteractionsConnectionImpl interactionsConnection = new InteractionsConnectionImpl();
@@ -579,13 +591,10 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 				    versionList = interactionsConnection
 						.getVersionDescriptor(selectedCoxtext);
 				}
-				versionComboBox.removeAllItems();
-				versionComboBox.addItem(SELECTVERSION);
-				if (versionList != null && versionList.size() > 0) {
-					for (int i = 0; i < versionList.size(); i++)
-						versionComboBox.addItem(versionList.get(i).getVersion());
-
-				}
+				
+				versionList.add(0, new VersionDescriptor(SELECTVERSION, false));
+				versionComboBox.setModel(new DefaultComboBoxModel(versionList
+						.toArray()));
 				versionComboBox.revalidate();
 
 				for (CellularNetWorkElementInformation cellularNetWorkElementInformation : hits) {
@@ -602,7 +611,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 			public void itemStateChanged(ItemEvent e) {
 				
 				Object selectedVersion = versionComboBox.getSelectedItem();
-				if (selectedVersion != null && selectedVersion.toString() != SELECTVERSION )
+				if (selectedVersion != null && ((VersionDescriptor)selectedVersion).getVersion() != SELECTVERSION )
 				{
 						for (CellularNetWorkElementInformation cellularNetWorkElementInformation : hits)  
          					cellularNetWorkElementInformation.setDirty(true);
@@ -909,8 +918,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 		});
 		activatedMarkerTable.setModel(activeMarkersTableModel);
 		activatedMarkerTable.addMouseListener(new MouseAdapter() {
-			public void mouseClicked(MouseEvent e) {
-				boolean isDirty = true;
+			public void mouseClicked(MouseEvent e) {				 
 				if (e.getClickCount() == 2) {
 					JTable target = (JTable) e.getSource();
 					int row = target.getSelectedRow();
@@ -1303,8 +1311,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 
 				public String generateToolTip(XYDataset dataset, int series,
 						int item) {
-					String resultStr = "";
-					Object[] result = new Object[3];
+					String resultStr = "";					 
 					String label = (String) (plots.getSeries(series).getKey());
 					double x = dataset.getXValue(series, item);
 					if (Double.isNaN(x) && dataset.getX(series, item) == null) {
@@ -1468,7 +1475,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 										.equals("")
 								&& !interactionDetail.getdSGeneName1().trim()
 										.equals("null"))
-							geneIdToNameMap.put(serial1 * (-1), interactionDetail
+							geneIdToNameMap.put(serial1*(-1), interactionDetail
 									.getdSGeneName1());
 					} else {
 						serial1 = copy.get(index1).getSerial();
@@ -1793,8 +1800,8 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 				 
 					String context = contextComboBox.getSelectedItem()
 							.toString();
-					String version = versionComboBox.getSelectedItem()
-							.toString();
+					String version = ((VersionDescriptor)versionComboBox.getSelectedItem()).getVersion();
+ 
 					if (context.equalsIgnoreCase(SELECTCONTEXT)) {
 						JOptionPane
 								.showMessageDialog(
@@ -1922,13 +1929,20 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 				contextList = new ArrayList<String>();
 				contextList.add(SELECTCONTEXT);
 			}
+			
+			if (versionList != null) {
+				versionList.clear();
+				versionList.add(0, new VersionDescriptor(SELECTVERSION, false));
+			} else {
+				versionList = new ArrayList<VersionDescriptor>();
+				versionList.add(new VersionDescriptor(SELECTVERSION, false));
+			}
 			contextComboBox.setModel(new DefaultComboBoxModel(contextList
 					.toArray()));
-
-			versionComboBox.removeAllItems();
-			versionComboBox.addItem(SELECTVERSION);	
-
-
+			 
+			versionComboBox.setModel(new DefaultComboBoxModel(versionList
+					.toArray()));
+			
 			if (allInteractionTypes != null) {
 				
 				Collections.sort(allInteractionTypes);
@@ -1989,6 +2003,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 		try {
 			 
 			contextList.clear();
+			versionList.clear();
 			allInteractionTypes.clear();
 			displayAvailInteractionTypes.clear();
 			displaySelectedInteractionTypes.clear();
@@ -2326,6 +2341,38 @@ COLUMNLABELPOSTFIX.length());
 
 		}
 	}
+	
+	class ComboBoxCellRenderer implements ListCellRenderer {
+		  protected DefaultListCellRenderer defaultRenderer = new DefaultListCellRenderer();
+
+		  public Component getListCellRendererComponent(JList list, Object value, int index,
+		      boolean isSelected, boolean cellHasFocus) {
+		    Font theFont = null;
+		    Color theForeground = null;
+		    Icon theIcon = null;
+		    String theText = null;
+
+		    JLabel renderer = (JLabel) defaultRenderer.getListCellRendererComponent(list, value, index,
+		        isSelected, cellHasFocus);
+		    
+		    VersionDescriptor v = (VersionDescriptor)value;
+		    theText = v.getVersion();
+		    
+		    if (v.getRequiresAuthentication() == true)
+		    {
+		      theForeground = Color.red;      
+		      theFont = new Font("TimesRoman", Font.ITALIC, 12);
+		      renderer.setFont(theFont);
+		      renderer.setForeground(theForeground);
+		    }
+		    
+		    renderer.setText(theText);
+		     
+		    return renderer;
+		  }
+		}
+	
+	
 
 	public class ColorRenderer extends JLabel implements TableCellRenderer {
 		Border unselectedBorder = null;
@@ -2412,12 +2459,18 @@ COLUMNLABELPOSTFIX.length());
 			return new JLabel("<html><b> " + (String) value + "</b></html>");
 		}
 	};
+	
+	 
+	
+	
+	
 
 	private JComboBox contextComboBox = new JComboBox();
 	private JComboBox versionComboBox = new JComboBox();
 
 	private List<String> contextList = new ArrayList<String>();
-
+	private List<VersionDescriptor> versionList = new ArrayList<VersionDescriptor>();
+	
 	private List<String> allInteractionTypes = new ArrayList<String>();
 
 	private List<String> displayAvailInteractionTypes = new ArrayList<String>();
