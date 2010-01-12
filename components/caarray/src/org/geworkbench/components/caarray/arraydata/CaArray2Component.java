@@ -270,7 +270,8 @@ public class CaArray2Component implements VisualPlugin {
 		} // loop of all hybridizations
 		ProjectPanel.getInstance().doMergeSets(sets);
 		for(DSMicroarraySet<? extends DSMicroarray>set: sets) {
-			AnnotationParser.cleanUpAnnotatioAfterUnload((DSDataSet<DSBioObject>) set);
+			Object obj = set;
+			AnnotationParser.cleanUpAnnotatioAfterUnload((DSDataSet<DSBioObject>) obj);
 		}
 	}
 
