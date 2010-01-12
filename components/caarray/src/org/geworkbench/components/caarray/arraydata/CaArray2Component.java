@@ -13,9 +13,11 @@ import javax.swing.JPanel;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.CSExprMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.sequences.CSSequenceSet;
+import org.geworkbench.bison.datastructure.bioobjects.DSBioObject;
 import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.AnnotationParser;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.builtin.projects.ProjectPanel;
@@ -128,115 +130,70 @@ public class CaArray2Component implements VisualPlugin {
 					return;
 				}
 				publishCaArrayEvent(event);
-			} else {
-				// For BioAssay detail, another kind of request.
-				if (ce.getRequestItem().equalsIgnoreCase(
-						CaArrayRequestEvent.BIOASSAY)) {
-					Map<String, String> filterCrit = ce.getFilterCrit();
-					String experimentName = filterCrit
-							.get(CaArrayRequestEvent.EXPERIMENT);
-					SortedMap<String, String> hybridzations = ce
-							.getAssayNameFilter();
-					boolean merge = ce.isMerge();
-					String qType = ce.getQType();
-					if (qType == null) {
-						qType = "CHPSignal";
-					}
-					String hybName = hybridzations.firstKey();
-					String hybId = hybridzations.get(hybName);
-					String chipType = AnnotationParser.matchChipType(null, "",
-							false);
-					CSExprMicroarraySet maSet = client.getDataSet(hybName, hybId, qType,
-							chipType);
-					publishCaArraySuccessEvent(new CaArraySuccessEvent(1, 1));
-					CSExprMicroarraySet totalSet = maSet;
-					if (maSet != null) {
-						maSet.setLabel(experimentName + "_" + hybName);
-						if (!merge) {
-							org.geworkbench.events.ProjectNodeAddedEvent pevent = new org.geworkbench.events.ProjectNodeAddedEvent(
-									"message", maSet, null);
-							ProjectPanel.addToHistory(maSet,
-									"Get from CaArray Server " + url + ":"
-											+ port + ".");
-
-							if (isCancelled
-									&& cancelledConnectionInfo != null
-									&& cancelledConnectionInfo
-											.equalsIgnoreCase(currentConnectionInfo)) {
-								return;
-							}
-							publishProjectNodeAddedEvent(pevent);
-
-						}
-					}
-
-					CaArrayEvent event = new CaArrayEvent(url, port);
-					if (totalSet != null) {
-						event.setPopulated(true);
-					} else {
-						event.setPopulated(false);
-						event
-								.setErrorMessage("No data associated with the quantitation type\n \""
-										+ qType
-										+ "\"\ncan be retrieved from the server: \n"
-										+ url + ":" + port + ".");
-					}
-					if (hybridzations.size() > 1) {
-						DSMicroarraySet<? extends DSMicroarray>[] sets = new DSMicroarraySet<?>[hybridzations.size()];
-						sets[0] = maSet;
-						String firstName = hybridzations.firstKey();
-						int number = 0; // index number out of total arrays
-						for (String hybridizationName : hybridzations.keySet()) {
-							if (hybridizationName.equals(firstName))
-								continue;
-
-							if (isCancelled
-									&& cancelledConnectionInfo != null
-									&& cancelledConnectionInfo
-											.equalsIgnoreCase(currentConnectionInfo)) {
-								return;
-							}
-							String hybridizationId = hybridzations
-									.get(hybridizationName);
-							CSExprMicroarraySet maSet2 = client
-									.getDataSet(
-											hybridizationName, hybridizationId,
-											qType, chipType);
-							;
-							publishCaArraySuccessEvent(new CaArraySuccessEvent(
-									number++, hybridzations.size()));
-
-							if (maSet2 == null) {
-								event.setPopulated(false);
-							} else {
-								maSet2.setLabel(experimentName + "_"
-										+ hybridizationName);
-								event.setPopulated(true);
-								if (!merge) {
-									publishProjectNodeAddedEvent(new org.geworkbench.events.ProjectNodeAddedEvent(
-											"message", maSet2, null));
-								} else {
-									sets[number] = maSet2;
-								}
-							}
-						} // loop of all hybridizations
-						if (merge)
-							ProjectPanel.getInstance().doMergeSets(sets );
-
-					}
-
-					event.setDataSet(totalSet);
-					event.setInfoType(CaArrayEvent.BIOASSAY);
-					if (isCancelled
-							&& cancelledConnectionInfo != null
-							&& cancelledConnectionInfo
-									.equalsIgnoreCase(currentConnectionInfo)) {
-						return;
-					}
-					publishCaArrayEvent(event);
-
+			} else if (ce.getRequestItem().equalsIgnoreCase(
+					CaArrayRequestEvent.BIOASSAY)) { // For BioAssay detail,
+														// another kind of
+														// request.
+				Map<String, String> filterCrit = ce.getFilterCrit();
+				String experimentName = filterCrit
+						.get(CaArrayRequestEvent.EXPERIMENT);
+				SortedMap<String, String> hybridzations = ce
+						.getAssayNameFilter();
+				boolean merge = ce.isMerge();
+				String qType = ce.getQType();
+				if (qType == null) {
+					qType = "CHPSignal";
 				}
-			}
+
+				String chipType = AnnotationParser.matchChipType(null, "",
+						false);
+
+				if (merge) {
+					doMerge(client, hybridzations, qType, experimentName,
+							currentConnectionInfo, chipType);
+				} else {
+
+					int number = 0; // index number out of total arrays
+					for (String hybridizationName : hybridzations.keySet()) {
+
+						if (isCancelled
+								&& cancelledConnectionInfo != null
+								&& cancelledConnectionInfo
+										.equalsIgnoreCase(currentConnectionInfo)) {
+							return;
+						}
+						String hybridizationId = hybridzations
+								.get(hybridizationName);
+						CSExprMicroarraySet maSet2 = client.getDataSet(
+								hybridizationName, hybridizationId, qType,
+								chipType);
+						;
+						publishCaArraySuccessEvent(new CaArraySuccessEvent(
+								number++, hybridzations.size()));
+
+						if (maSet2 != null) {
+							maSet2.setLabel(experimentName + "_"
+									+ hybridizationName);
+
+							publishProjectNodeAddedEvent(new org.geworkbench.events.ProjectNodeAddedEvent(
+									"message", maSet2, null));
+						}
+					} // loop of all hybridizations
+				}
+
+				CaArrayEvent event = new CaArrayEvent(url, port);
+				event.setPopulated(true);
+				event.setInfoType(CaArrayEvent.BIOASSAY); // this only disposes
+															// caARRAYPanel
+				if (isCancelled
+						&& cancelledConnectionInfo != null
+						&& cancelledConnectionInfo
+								.equalsIgnoreCase(currentConnectionInfo)) {
+					return;
+				}
+				publishCaArrayEvent(event);
+
+			} // end of the last 'else if' for CaArrayRequestEvent.BIOASSAY)
 
 		} catch (ServerConnectionException se) {
 			CaArrayEvent event = new CaArrayEvent(url, port);
@@ -279,6 +236,42 @@ public class CaArray2Component implements VisualPlugin {
 
 		}
 
+	}
+
+	@SuppressWarnings("unchecked")
+	private void doMerge(CaArrayClient client,
+			SortedMap<String, String> hybridzations, String qType,
+			String experimentName, String currentConnectionInfo, String chipType)
+			throws Exception {
+		DSMicroarraySet<? extends DSMicroarray>[] sets = new DSMicroarraySet<?>[hybridzations
+				.size()];
+
+		int number = 0;
+		for (String hybridizationName : hybridzations.keySet()) {
+			String hybridizationId = hybridzations.get(hybridizationName);
+			sets[number] = client.getDataSet(hybridizationName,
+					hybridizationId, qType, chipType);
+
+			if (sets[number] == null)
+				continue;
+
+			sets[number].setLabel(experimentName + "_" + hybridizationName);
+
+			if (isCancelled
+					&& cancelledConnectionInfo != null
+					&& cancelledConnectionInfo
+							.equalsIgnoreCase(currentConnectionInfo)) {
+				return;
+			}
+
+			publishCaArraySuccessEvent(new CaArraySuccessEvent(number++,
+					hybridzations.size()));
+
+		} // loop of all hybridizations
+		ProjectPanel.getInstance().doMergeSets(sets);
+		for(DSMicroarraySet<? extends DSMicroarray>set: sets) {
+			AnnotationParser.cleanUpAnnotatioAfterUnload((DSDataSet<DSBioObject>) set);
+		}
 	}
 
 	// the event that data has been retrieved
