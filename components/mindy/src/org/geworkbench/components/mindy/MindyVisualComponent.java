@@ -20,7 +20,6 @@ import org.geworkbench.bison.datastructure.biocollections.views.CSMicroarraySetV
 import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
-import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.builtin.projects.ProjectPanel;
 import org.geworkbench.builtin.projects.ProjectSelection;
@@ -52,8 +51,6 @@ public class MindyVisualComponent implements VisualPlugin, java.util.Observer {
 
 	private JPanel plugin;
 
-	private MindyPlugin mindyPlugin;
-
 	private List<DSGeneMarker> selectedMarkers;
 
 	private DSPanel<DSGeneMarker> selectorPanel;
@@ -61,12 +58,6 @@ public class MindyVisualComponent implements VisualPlugin, java.util.Observer {
 	private HashMap<ProjectTreeNode, MindyPlugin> ht;
 
 	private ProgressBar progressBar = null;
-
-	private int prevStateMarkers = -1;
-
-	private int currentStateMarkers = -1;
-
-	private int maxMarkers = -1;
 
 	private boolean stopDrawing = false;
 
@@ -112,6 +103,8 @@ public class MindyVisualComponent implements VisualPlugin, java.util.Observer {
 
         log.debug("MINDY received project event.");
 		DSDataSet data = projectEvent.getDataSet();
+
+		MindyPlugin mindyPlugin = null;
 		if ((data != null) && (data instanceof MindyDataSet)) {
 			/*
 			 * moved some code inside if statement and after checks for preconditions
@@ -162,16 +155,12 @@ public class MindyVisualComponent implements VisualPlugin, java.util.Observer {
 					// Incorporate selections from marker set selection panel
 					DSMicroarraySetView<DSGeneMarker, DSMicroarray> maView = new CSMicroarraySetView<DSGeneMarker, DSMicroarray>(
 							dataSet.getData().getArraySet());
-					DSItemList<DSGeneMarker> uniqueMarkers = maView
-							.getUniqueMarkers();
 					if (stopDrawing) {
 						stopDrawing = false;
 						progressBar.stop();
 						log.warn("Cancelling Mindy GUI.");
 						return;
 					}
-					maxMarkers = uniqueMarkers.size();
-					currentStateMarkers = maxMarkers;
 					maView.useMarkerPanel(true);
 
 					// Register the mindy plugin with our hashtable for keeping
@@ -306,6 +295,7 @@ public class MindyVisualComponent implements VisualPlugin, java.util.Observer {
 	 *            SubpanelChangedEvent
 	 * @return
 	 */
+	@SuppressWarnings("unchecked")
 	@Publish
 	public SubpanelChangedEvent publishSubpanelChangedEvent(
 			SubpanelChangedEvent e) {
@@ -341,7 +331,7 @@ public class MindyVisualComponent implements VisualPlugin, java.util.Observer {
 		}
 	}
 
-	DSPanel getSelectorPanel() {
+	DSPanel<DSGeneMarker> getSelectorPanel() {
 		return this.selectorPanel;
 	}
 
