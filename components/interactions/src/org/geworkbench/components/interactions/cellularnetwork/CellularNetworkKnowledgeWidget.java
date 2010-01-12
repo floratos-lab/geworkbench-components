@@ -554,18 +554,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 		cancelButton = new JButton();
 
 		contextComboBox.setSize(60, 10);
-		/*
-		 * if (contextList != null) { contextList.add(0, SELECTCONTEXT); } else {
-		 * contextList = new ArrayList<String>();
-		 * contextList.add(SELECTCONTEXT); }
-		 * 
-		 * contextComboBox .setModel(new
-		 * DefaultComboBoxModel(contextList.toArray()));
-		 * 
-		 * 
-		 * versionComboBox.addItem(SELECTVERSION);
-		 * versionComboBox.setSelectedItem(SELECTVERSION);
-		 */
+		 
 		ListCellRenderer aRenderer = new ComboBoxCellRenderer();
 		versionComboBox.setSize(80, 10);
 		versionComboBox.setRenderer(aRenderer);
@@ -575,7 +564,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 			public void itemStateChanged(ItemEvent e) {
 				Object selectedVersion = versionComboBox.getSelectedItem();
 				String selectedCoxtext = SELECTCONTEXT;
-				if (selectedVersion != null)
+				//if (selectedVersion != null)  
 					selectedCoxtext = contextComboBox.getSelectedItem()
 							.toString();
 				if (versionList == null)
@@ -2359,7 +2348,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 
 			if (v.getRequiresAuthentication() == true) {
 				theForeground = Color.red;
-				theFont = new Font("TimesRoman", Font.ITALIC, 12);
+				theFont = new Font("TimesRoman", Font.BOLD | Font.ITALIC, 12);
 				renderer.setFont(theFont);
 				renderer.setForeground(theForeground);
 			}
