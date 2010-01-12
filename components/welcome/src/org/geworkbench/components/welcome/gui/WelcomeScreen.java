@@ -42,10 +42,7 @@ public class WelcomeScreen extends JPanel implements VisualPlugin {
 
 	static Log log = LogFactory.getLog(WelcomeScreen.class);
 
-	/* the CCM file used for welcome component */
-	private static final String CCMFILENAME = "WelcomeScreen.ccm.xml";
-
-	/* the resource string used for CCM */
+	/* the resource string */
 	private static final String RESOURCE = "welcome";
 
 	/*
@@ -56,7 +53,7 @@ public class WelcomeScreen extends JPanel implements VisualPlugin {
 
 	/*
 	 * Text for the button After press this button, this welcome component will
-	 * be removed from CCM.
+	 * be removed.
 	 */
 	private static final String BUTTON_TEXT = "Enter";
 
@@ -69,7 +66,7 @@ public class WelcomeScreen extends JPanel implements VisualPlugin {
 	/* The text area to show welcome message */
 	JEditorPane textField = null;
 
-	/* The button to remove welcome component from CCM. */
+	/* The button to remove welcome component. */
 	JButton button = null;
 
 	/*
@@ -101,14 +98,14 @@ public class WelcomeScreen extends JPanel implements VisualPlugin {
 			 * If we can not load the welcome file, disable welcome component
 			 * for failover.
 			 */
-			log.error("FIle " + filename + " not found.");
-			removeComponent(RESOURCE, CCMFILENAME);
+			log.error("File " + filename + " not found.");
+			removeSelf();
 			return;
 		}
 		button = new JButton(BUTTON_TEXT);
 		button.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				removeComponent(RESOURCE, CCMFILENAME);
+				removeSelf();
 			}
 		});
 		buttonPanel = new JPanel();
@@ -120,20 +117,18 @@ public class WelcomeScreen extends JPanel implements VisualPlugin {
 	 * This method will remove the specified component from GUI, CCM, and
 	 * refresh geWorkbench.
 	 * 
-	 * @param resource
-	 *            resource used in CCM
 	 * @param ccmFileName
 	 *            file name of CCM file, currently ending with .ccm.xml
 	 */
-	private void removeComponent(String resource, String ccmFileName) {
+	private void removeSelf() {
+		String dir = ComponentRegistry.getRegistry().getComponentResourceByName(RESOURCE).getDir();
+		File cwbFile = new File(dir+"/classes/org/geworkbench/components/welcome/gui/WelcomeScreen.cwb.xml");
 		// remove from GUI
 		ComponentConfigurationManager manager = ComponentConfigurationManager.getInstance();
-		manager.removeComponent(resource, ccmFileName);
-		// remove from CCM
-		String propFileName = ccmFileName.replace(".ccm.xml", ".ccmproperties");
-		String sChoice = (new Boolean(false)).toString();
-		ComponentConfigurationManager.writeProperty(resource, propFileName,
-				"on-off", sChoice);
+		manager.removeComponent(RESOURCE, cwbFile.getAbsolutePath());
+
+		ComponentConfigurationManager.writeProperty(RESOURCE, "WelcomeScreen.ccmproperties",
+				"on-off", "false");
 		// refresh
 		ccmRefresh();
 	}
