@@ -41,7 +41,7 @@ public class ModulatorSelections  implements Serializable{
 			/* clear modulators in tabs */
 			this.selectedModulators.clear();
 
-			this.mindyPlugin.aggregateModel.disableAllModulators();
+			this.mindyPlugin.getAggregateModel().disableAllModulators();
 
 			this.mindyPlugin.modTargetModel.disableAllModulators();
 		} else {
