@@ -292,7 +292,7 @@ public class CellularNetWorkElementInformation {
                     		   interactionDistribution[i]=0;
                             
                          }                    	 
-                    	 interactionDistributionMap.put(interactionType, new int[binNumber]);
+                    	 interactionDistributionMap.put(interactionType, interactionDistribution);
                     	 
                     	 
                     }
