@@ -52,16 +52,27 @@ public class TabularMicroarrayPanel extends MicroarrayViewEventBase implements V
     }
 
     TableCellRenderer renderer = new DefaultTableCellRenderer() {
+        private static final long serialVersionUID = -2148986327315654796L;
         public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int col) {
             Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, col);
-            if (col == 0) {
+            int visualCol = col;
+
+			if (visualColumnPosition.length != microarrayTableModel.getColumnCount()) {
+				visualColumnPosition = new int[microarrayTableModel.getColumnCount()];
+			}
+			
+			/* Convert the model index to the visual index */
+			visualCol = table.convertColumnIndexToModel(col);
+			visualColumnPosition[col] = visualCol;
+            
+            if (visualCol == 0) {
                 c.setBackground(Color.lightGray);
                 ((JLabel) c).setHorizontalAlignment(JLabel.LEFT);
                 ((JLabel) c).setBorder(BorderFactory.createRaisedBevelBorder());
             } else {
                 DSGeneMarker stats = uniqueMarkers.get(row);
                 if (stats != null) {
-                    DSMutableMarkerValue marker = maSetView.items().get(col - 1).getMarkerValue(stats.getSerial());
+                    DSMutableMarkerValue marker = maSetView.items().get(visualCol - 1).getMarkerValue(stats.getSerial());
                     if (marker.isMissing()) {
                         c.setBackground(Color.yellow);
                     } else if (marker.isMasked()) {
@@ -148,6 +159,7 @@ public class TabularMicroarrayPanel extends MicroarrayViewEventBase implements V
     };
 
     JTable jTable1 = null;
+    private int [] visualColumnPosition = new int[0];
 
     protected void jbInit() throws Exception {
         super.jbInit();
@@ -224,6 +236,41 @@ public class TabularMicroarrayPanel extends MicroarrayViewEventBase implements V
         synchronized (jTable1) {
             jTable1.setModel(new DefaultTableModel());
             jTable1.setModel(microarrayTableModel);
+    		restoreVisualColumnOrder();
         }
     }
+    
+    /**
+     *	Restore the column order in the GUI 
+     * 
+     */
+    private void restoreVisualColumnOrder() {
+		if (microarrayTableModel == null
+				|| microarrayTableModel.getColumnCount() == 0) {
+			return;
+		}
+		if (visualColumnPosition == null
+				|| visualColumnPosition.length != microarrayTableModel
+						.getColumnCount()) {
+			visualColumnPosition = new int[0];
+			return;
+		}
+
+		String[] visualColumnNames = new String[visualColumnPosition.length];
+		for (int i = 0; i < visualColumnPosition.length; i++) {
+			visualColumnNames[i] = jTable1.getColumnName(visualColumnPosition[i]);
+		}
+		
+		for (int to = 0; to < visualColumnPosition.length; to++) {
+			String toName = visualColumnNames[to];
+			for (int from = 0; from < visualColumnPosition.length; from++) {
+				String fromName = jTable1.getColumnName(from);
+				if (fromName.equals(toName)) {
+					/* Restore column position */
+					jTable1.moveColumn(from, to);
+					break;
+				}
+			}
+		}
+	}
 }
