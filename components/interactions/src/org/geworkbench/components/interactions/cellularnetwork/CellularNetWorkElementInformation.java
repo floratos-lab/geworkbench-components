@@ -166,8 +166,8 @@ public class CellularNetWorkElementInformation {
         return smallestIncrement;
     }
 
-    public void setSmallestIncrement(double smallestIncrement) {
-        this.smallestIncrement = smallestIncrement;
+    public void setSmallestIncrement(double smallestIncrementNumber) {
+        smallestIncrement = smallestIncrementNumber;
     }
 
     public int[] getDistribution() {
@@ -215,8 +215,8 @@ public class CellularNetWorkElementInformation {
     }
 
     public void setThreshold(double _threshold) {
-        if (this.threshold != _threshold) {
-            this.threshold = _threshold;
+        if (threshold != _threshold) {
+            threshold = _threshold;
 
         }
         update();
