@@ -15,9 +15,7 @@
  form and interactions can be visualized as a network graph in Cytoscape."
 				visualizer="true"
 	 >
-		<required-component class="org.geworkbench.components.cytoscape_v2_4.CytoscapeWidget" />
-		<required-component
-			class="org.geworkbench.components.cutenet.GenewaysWidget" />	
+		<required-component class="org.geworkbench.components.cytoscape.CytoscapeWidget" />
 		<license><![CDATA[
 			<html><head><meta http-equiv=Content-Type content="text/html; charset=windows-1252"></head>
 				<body>----</body>
