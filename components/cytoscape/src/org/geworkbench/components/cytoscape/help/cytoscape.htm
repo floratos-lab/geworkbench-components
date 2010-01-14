@@ -1,0 +1,151 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html dir="ltr" xml:lang="en" xmlns="http://www.w3.org/1999/xhtml" lang="en"><head>
+
+    <title>Tutorial - Cytoscape Network Viewer - Workbench</title>
+    <style type="text/css" media="screen,projection">/*<![CDATA[*/ @import "/workbench/skins/monobook/main.css"; /*]]>*/</style>
+    <link rel="stylesheet" type="text/css" href="cytoscape_files/commonPrint.css">
+
+
+
+<a name="Cytoscape"></a><h2>Cytoscape</h2>
+<p>This tutorial includes new functionality specific to geWorkbench versions 1.7.0 and later.
+</p><p>Cytoscape (<a href="http://www.cytoscape.org">www.cytoscape.org</a>) is a sophisticated network and
+pathway visualization tool that has been incorporated into geWorkbench
+as a component. Within geWorkbench, Cytoscape is used to depict
+putative interaction networks, for example as created from running
+ARACNe or a Cellular Network Knowledgebase query. Both of these tools
+return "adjacency matrices", that is, interaction networks, to the
+Project folders component. Currently, Cytoscape version 2.4.7 used in
+geWorkbench. </p>
+<p>Cytoscape has been integrated into geWorkbench in such a way
+that it can communicate in both directions with the Markers component.
+</p>
+<ol><li> Nodes in a Cytoscape network can be selected indivudually or
+by drawing a selection box around them. This will result in the
+selected nodes being placed into the "Cytoscape selection" set in the
+Markers component.
+</li><li> A set of markers in the Markers component can be labeled
+with the "tag for visualization" property, which will project that set
+onto the network depicted in Cytoscape. Those markers in the
+intersection of the tagged set and the network display will be
+hightlighted in yellow.
+</li></ol>
+<p>The use of Cytoscape and its interactions with geWorkbench are
+described in the following sections. First we will describe the layout
+of the Cytoscape graphical interface. The network diagram depicted was
+calculated using ARACNe in the <a href="http://wiki.c2b2.columbia.edu/workbench/index.php/Tutorial_-_ARACNE" class="external text" title="http://wiki.c2b2.columbia.edu/workbench/index.php/Tutorial - ARACNE" rel="nofollow">ARACNe tutorial.
+</p>
+<a name="Layout_of_the_Cytoscape_component"></a><h2>Layout of the Cytoscape component</h2>
+<p>The Cytoscape component has 4 main areas:
+</p><p><br>
+<img src="cytoscape_files/T_Cytoscape_ARACNE_result.png" alt="Image:T_Cytoscape_ARACNE_result.png" longdesc="/workbench/index.php/Image:T_Cytoscape_ARACNE_result.png" width="768" height="579">
+</p><p><br>
+</p>
+<ol><li> At upper left is a list of networks that have been loaded into
+Cytoscape, showing the network name, and the number of nodes and edges.
+in addition, the numbers in parantheses show the numbers of nodes and
+edges which have been highlighted (selected) in the network depiction.
+</li><li> At upper right is the main network depiction pane. Gene or
+protein symbols/names will be depicted if available. However, if for
+examle an Affymetrix microarray dataset was read in but no annotation
+file was associated with it, then only probeset names would appear.
+Nodes which have been selected are depicted in yellow and are returned
+to the "Cytoscape selection" set in the Markers component. Edges which
+have been selected are depicted in red.
+</li><li> At lower left is a navigation tool, which shows the entire
+network and a representation (purple rectangle) of where the viewing
+pane described above is situated. The purple viewing pane can be moved
+by using the mouse to visualize different parts of the network as
+desired. This is done by left-clicking with the mouse in the purple
+rectangle and moving it.
+</li><li> At lower right is a list of selected nodes.
+</li></ol>
+<a name="Selecting_nodes_in_Cytoscape"></a><h2>Selecting nodes in Cytoscape</h2>
+<ul><li> Individual nodes and/or edges can be selected in Cytoscape by clicking on them with the mouse.  
+</li><li> To select multiple nodes or edges, hold down the <b>Shift</b> key while making the selection.  
+</li><li> Alternatively, a selection box can be drawn around both nodes
+and edges by left-clicking in the network diagram and selecting the
+desired targets.
+</li></ul>
+<p>The figure below shows three nodes selected.
+</p><p><br>
+<img src="cytoscape_files/T_Cytoscape_select.png" alt="Image:T_Cytoscape_select.png" longdesc="/workbench/index.php/Image:T_Cytoscape_select.png" width="528" height="316">
+</p><p><br>The result from selecting the three nodes above is
+transferred to the Cytoscape selection set in the Markers component.
+Note that four probesets are hit by the three genes selected, as a gene
+may be represented by multiple probesets.
+</p><p><br>
+<img src="cytoscape_files/T_Cytoscape_selected_set.png" alt="Image:T_Cytoscape_selected_set.png" longdesc="/workbench/index.php/Image:T_Cytoscape_selected_set.png" width="224" height="464">
+</p><p><br>
+If a selection box is drawn on the network with the mouse, both nodes and edges will be selected as shown below:
+</p><p><br>
+<img src="cytoscape_files/T_Cytoscape_manual_node_select.png" alt="Image:T_Cytoscape_manual_node_select.png" longdesc="/workbench/index.php/Image:T_Cytoscape_manual_node_select.png" width="667" height="534">
+</p><p><br>
+</p>
+<a name="Set_operations_on_networks"></a><h2>Set operations on networks</h2>
+<p>As described in the previous section, multiple gene nodes can be selected by holding down the <b>Shift</b>
+key while left-clicking on each desire node in turn. While the multiple
+nodes are selected, one can right-click, which will produce a pop-up
+menu. This menu allows one to choose the set of genes which are either
+the UNION or INTERSECTION of the those connected directly to the
+selected nodes.
+</p><p><img src="cytoscape_files/T_Cytoscape_set_operations.png" alt="Image:T_Cytoscape_set_operations.png" longdesc="/workbench/index.php/Image:T_Cytoscape_set_operations.png" width="337" height="168">
+</p><p>The genes selected in this way are returned to the Markers
+component in a set called "Cytoscape Selection". For each gene included
+in the UNION or INTERSECTION, there may be more than one marker
+associated with it. If so, all markers belonging to a particular gene
+will be returned to to the Markers component "Cytoscape Selection" set.
+</p>
+<a name="Projecting_marker_sets_onto_Cytoscape"></a><h2>Projecting marker sets onto Cytoscape</h2>
+<p>The diagram below illustrates projecting a set defined in the
+Markers component back onto the Cytoscape network diagram. In this
+case, the set of transcription factors originally used in the ARACNe
+run is labeled with "tag for visualization" by right-clicking on it and
+selecting this menu option.
+</p><p><br>
+<img src="cytoscape_files/T_Cytoscape_tag_for_vis.png" alt="Image:T_Cytoscape_tag_for_vis.png" longdesc="/workbench/index.php/Image:T_Cytoscape_tag_for_vis.png" width="249" height="314">
+</p><p><br>
+Three nodes are highlighted in the diagram.
+</p><p><br>
+<img src="cytoscape_files/T_Cytoscape_tagged.png" alt="Image:T_Cytoscape_tagged.png" longdesc="/workbench/index.php/Image:T_Cytoscape_tagged.png" width="667" height="506">
+</p><p><br>Note that a marker can potentially be associated with more
+than one gene. If so, when tagged for visualization, each gene
+associated with the marker, if present in Cytoscape, would be
+highlighted.
+</p>
+<a name="Altering_the_view_in_Cytoscape"></a><h2>Altering the view in Cytoscape</h2>
+<p>The use of the sliding viewpane at lower left to navigate about the
+main drawn network has already been mentioned - it can be grabbed and
+moved by left-clicking on it with the mouse.
+</p><p>There are several more controls arrayed about the lower edge of
+the Cytoscape component. These include four magnifying glass icons:
+</p>
+<ul><li> "minus" - zoom out.
+</li><li> "plus" - zoom in.
+</li><li> "open" - zoom to display selected region.
+</li><li> "1:1" - zoom out to display all of current network.
+</li></ul>
+<p>In the image below, the view has been zoomed in:
+</p><p><img src="cytoscape_files/T_Cytoscape_zoom_view.png" alt="Image:T_Cytoscape_zoom_view.png" longdesc="/workbench/index.php/Image:T_Cytoscape_zoom_view.png" width="659" height="537">
+</p>
+<a name="Network_commands"></a><h2>Network commands</h2>
+<p>Right-clicking on a listed network in Cytoscape will bring up a menu with the following choices:
+</p><p><img src="cytoscape_files/T_Cytoscape_Network_manipulations.png" alt="Image:T_Cytoscape_Network_manipulations.png" longdesc="/workbench/index.php/Image:T_Cytoscape_Network_manipulations.png" width="305" height="202">
+</p>
+<a name="Edit_Network_Title"></a><h3>Edit Network Title</h3>
+<p>Edit the title of the network.
+</p>
+<a name="Create_View"></a><h3>Create View</h3>
+<p>Recreate the network graphics.
+</p>
+<a name="Destroy_View"></a><h3>Destroy View</h3>
+<p>Remove the network graphics.
+</p>
+<a name="Destroy_Network"></a><h3>Destroy Network</h3>
+<p>Completely remove the network from Cytoscape. Note that this does
+not remove the netowrk adjacency matrix from the geWorkbench Project
+Folders component. The network can be recreated in Cytoscape by
+clicking on the appropriate adjacency matrix in the Project Folders
+component.
+</p>
+</body></html>
