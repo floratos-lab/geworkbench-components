@@ -20,7 +20,9 @@ import java.awt.event.ItemListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.math.BigDecimal;
+import java.net.ConnectException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -554,7 +556,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 		cancelButton = new JButton();
 
 		contextComboBox.setSize(60, 10);
-		 
+
 		ListCellRenderer aRenderer = new ComboBoxCellRenderer();
 		versionComboBox.setSize(80, 10);
 		versionComboBox.setRenderer(aRenderer);
@@ -562,19 +564,36 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 		contextComboBox.addItemListener(new ItemListener() {
 
 			public void itemStateChanged(ItemEvent e) {
+				if (e.getStateChange() == ItemEvent.DESELECTED)
+					return;
 				Object selectedVersion = versionComboBox.getSelectedItem();
 				String selectedCoxtext = SELECTCONTEXT;
-				//if (selectedVersion != null)  
+				if (selectedVersion != null)
 					selectedCoxtext = contextComboBox.getSelectedItem()
 							.toString();
 				if (versionList == null)
 					versionList = new ArrayList<VersionDescriptor>();
 				versionList.clear();
+
 				if (selectedCoxtext != SELECTCONTEXT) {
 					InteractionsConnectionImpl interactionsConnection = new InteractionsConnectionImpl();
+					try {
+						versionList = interactionsConnection
+								.getVersionDescriptor(selectedCoxtext);
+					} catch (ConnectException ce) {
+						JOptionPane
+								.showMessageDialog(
+										null,
+										"No service running. Please check with the administrator of your service infrastructure.",
+										"Error", JOptionPane.ERROR_MESSAGE);
+					} catch (IOException ie) {
+						JOptionPane
+								.showMessageDialog(
+										null,
+										"CNKB service has an internal error, Please contact with geWorkbench developer ...",
+										"Error", JOptionPane.ERROR_MESSAGE);
+					}
 
-					versionList = interactionsConnection
-							.getVersionDescriptor(selectedCoxtext);
 				}
 
 				versionList.add(0, new VersionDescriptor(SELECTVERSION, false));
@@ -1108,9 +1127,9 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 			if (hits != null && hits.size() > 0) {
 				for (CellularNetWorkElementInformation cellularNetWorkElementInformation : hits) {
 					DSGeneMarker marker = cellularNetWorkElementInformation
-					.getdSGeneMarker();
-					if ( marker == null || marker.getGeneId() == -1)
-					   continue;
+							.getdSGeneMarker();
+					if (marker == null || marker.getGeneId() == -1)
+						continue;
 					int[] distributionArray = cellularNetWorkElementInformation
 							.getDistribution();
 
@@ -1847,7 +1866,25 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 								cancelAction = true;
 								break;
 							}
-
+						     catch (ConnectException ce) {
+							JOptionPane
+									.showMessageDialog(
+											null,
+											"No service running. Please check with the administrator of your service infrastructure.",
+											"Error", JOptionPane.ERROR_MESSAGE);
+							cancelAction = true;
+							break;
+						     
+						     } catch (IOException ie) {
+							JOptionPane
+									.showMessageDialog(
+											null,
+											"CNKB service has an internal error, Please contact with geWorkbench developer ...",
+											"Error", JOptionPane.ERROR_MESSAGE);
+							cancelAction = true;
+							break;
+						     
+						     }
 							cellularNetWorkElementInformation
 									.setIncludedInteractionTypeList(networkSelectedInteractionTypes);
 
@@ -1907,10 +1944,24 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 		try {
 
 			InteractionsConnectionImpl interactionsConnection = new InteractionsConnectionImpl();
-
-			contextList = interactionsConnection.getDatasetNames();
-
-			allInteractionTypes = interactionsConnection.getInteractionTypes();
+			if (contextList != null) contextList.clear();
+			try {
+				contextList = interactionsConnection.getDatasetNames();
+				allInteractionTypes = interactionsConnection
+						.getInteractionTypes();
+			} catch (ConnectException ce) {
+				JOptionPane
+						.showMessageDialog(
+								null,
+								"No service running. Please check with the administrator of your service infrastructure.",
+								"Error", JOptionPane.ERROR_MESSAGE);
+			} catch (IOException ie) {
+				JOptionPane
+						.showMessageDialog(
+								null,
+								"CNKB service has an internal error, Please contact with geWorkbench developer ...",
+								"Error", JOptionPane.ERROR_MESSAGE);
+			}
 
 			if (contextList != null) {
 				contextList.add(0, SELECTCONTEXT);
@@ -2518,11 +2569,6 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 			activeMarkersTableModel.fireTableDataChanged();
 			previewTableModel.fireTableDataChanged();
 			checkSelectedTableWithNewDataSet(panel);
-
-			// allGeneList.setModel(new DefaultListModel());
-			// allGeneList.setModel(allGeneModel);
-			// selectedGenesList.setModel(new DefaultListModel());
-			// selectedGenesList.setModel(selectedInteractionTypeModel);
 
 		}
 		repaint();

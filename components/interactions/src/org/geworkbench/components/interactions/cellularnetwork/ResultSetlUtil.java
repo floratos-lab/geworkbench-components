@@ -32,22 +32,21 @@ import javax.swing.JTextField;
 /**
  * @author oleg shteynbuk
  * 
- *         tmp class that sends sql query over HTTP for execution see
- *         interactionsweb component
+ * tmp class that sends sql query over HTTP for execution see interactionsweb
+ * component
  * 
- *         some functionality is similar to functionality provided by classes:
- *         DriverManager, Statement, Connection and ResultSet from java.sql
+ * some functionality is similar to functionality provided by classes:
+ * DriverManager, Statement, Connection and ResultSet from java.sql
  * 
- *         result set is returned as a text. data could be retrieved by column
- *         name or by column number. supported data types: String, BigDecimal,
- *         double. nulls are supported. "|" and end of line should not be part
- *         of the data as they are used as delimiters.
+ * result set is returned as a text. data could be retrieved by column name or
+ * by column number. supported data types: String, BigDecimal, double. nulls are
+ * supported. "|" and end of line should not be part of the data as they are
+ * used as delimiters.
  * 
- *         if server couldn't process request, including SQLException, client
- *         will get IOException. not sure that custom exception class is needed
- *         at this time.
+ * if server couldn't process request, including SQLException, client will get
+ * IOException. not sure that custom exception class is needed at this time.
  * 
- *         for an example of usage and testing see function main.
+ * for an example of usage and testing see function main.
  * 
  */
 public class ResultSetlUtil {
@@ -167,8 +166,9 @@ public class ResultSetlUtil {
 	}
 
 	public static ResultSetlUtil executeQuery(String aSQL, String db,
-			HttpURLConnection aConnection) throws IOException,
-			UnAuthenticatedException {
+			String urlStr) throws IOException, UnAuthenticatedException {
+
+		HttpURLConnection aConnection = getConnection(urlStr);
 
 		String data = db + DEL + aSQL;
 
@@ -201,7 +201,7 @@ public class ResultSetlUtil {
 
 	// test
 	public static void main(String[] args) {
-		HttpURLConnection aConnection = null;
+
 		ResultSetlUtil rs = null;
 		try {
 			Properties iteractionsProp = new Properties();
@@ -210,17 +210,14 @@ public class ResultSetlUtil {
 			String interactionsServletUrl = iteractionsProp
 					.getProperty("interactions_servlet_url");
 			ResultSetlUtil.setUrl(interactionsServletUrl);
-			String urlString = INTERACTIONS_SERVLET_URL;
-
-			aConnection = ResultSetlUtil.getConnection(urlString);
-
 			java.net.URLConnection.setDefaultAllowUserInteraction(true);
 			Authenticator.setDefault(new BasicAuthenticator());
 
 			String aSQL = "getPairWiseInteraction" + ResultSetlUtil.DEL + "165"
 					+ ResultSetlUtil.DEL + "HGi_Interactome_V1"
 					+ ResultSetlUtil.DEL + "1.0";
-			rs = ResultSetlUtil.executeQuery(aSQL, MYSQL, aConnection);
+			rs = ResultSetlUtil.executeQuery(aSQL, MYSQL,
+					INTERACTIONS_SERVLET_URL);
 
 			while (rs.next()) {
 
@@ -265,10 +262,15 @@ public class ResultSetlUtil {
 		}
 	}
 
-	static private class LoginDialog extends JDialog implements KeyListener, ActionListener {
-		/**
-			 * 
-			 */
+	/**
+	 * 
+	 * The following LoginDialog is not used by application, just for a testing
+	 * purpose."
+	 */
+
+	static private class LoginDialog extends JDialog implements KeyListener,
+			ActionListener {
+
 		private static final long serialVersionUID = -851685398982531107L;
 		private JPanel north, south;
 		private JLabel nameLabel, passwordLabel;
@@ -339,8 +341,8 @@ public class ResultSetlUtil {
 		}
 
 		/**
-		 * Returns the actual PasswordAuthentication, which was generated from the
-		 * login dialog.
+		 * Returns the actual PasswordAuthentication, which was generated from
+		 * the login dialog.
 		 * 
 		 * @return PasswordAuthentication - actual PasswordAuthentication.
 		 */
@@ -362,9 +364,8 @@ public class ResultSetlUtil {
 	}
 
 	/**
-	 * Extends Authenticator to allow for user login
+	 * Extends Authenticator to allow for user login *
 	 * 
-	 * @author R. Smudz
 	 */
 	static private class BasicAuthenticator extends java.net.Authenticator {
 		private LoginDialog dialog;
