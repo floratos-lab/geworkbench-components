@@ -22,6 +22,7 @@ import java.awt.event.MouseEvent;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.net.Authenticator;
 import java.net.ConnectException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -93,7 +94,7 @@ import org.geworkbench.bison.datastructure.bioobjects.markers.goterms.GOTerm;
 import org.geworkbench.bison.datastructure.complex.panels.CSItemList;
 import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
-import org.geworkbench.builtin.projects.ProjectPanel;
+import org.geworkbench.builtin.projects.ProjectPanel; 
 import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.engine.management.AcceptTypes;
 import org.geworkbench.engine.management.Publish;
@@ -482,6 +483,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 	 */
 
 	private void initComponents() {
+		Authenticator.setDefault(new BasicAuthenticator());
 		new javax.swing.JPanel();
 		jPanel2 = new javax.swing.JPanel();
 		JPanel topPanel = new JPanel();
