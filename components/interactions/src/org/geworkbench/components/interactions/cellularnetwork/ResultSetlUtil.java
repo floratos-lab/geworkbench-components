@@ -20,7 +20,6 @@ import java.net.PasswordAuthentication;
 import java.net.URL;
 import java.util.Properties;
 import java.util.TreeMap;
-
 import javax.servlet.http.HttpServletResponse;
 import javax.swing.JButton;
 import javax.swing.JDialog;
@@ -179,6 +178,7 @@ public class ResultSetlUtil {
 		out.close();
 
 		// errors, exceptions
+
 		int respCode = aConnection.getResponseCode();
 
 		if (respCode == HttpServletResponse.SC_UNAUTHORIZED)
@@ -210,12 +210,11 @@ public class ResultSetlUtil {
 			String interactionsServletUrl = iteractionsProp
 					.getProperty("interactions_servlet_url");
 			ResultSetlUtil.setUrl(interactionsServletUrl);
-			//java.net.URLConnection.setDefaultAllowUserInteraction(true);
+			// java.net.URLConnection.setDefaultAllowUserInteraction(true);
 			Authenticator.setDefault(new BasicAuthenticator());
 
 			String aSQL = "getPairWiseInteraction" + ResultSetlUtil.DEL + "165"
-					+ ResultSetlUtil.DEL + "BCi"
-					+ ResultSetlUtil.DEL + "1.0";
+					+ ResultSetlUtil.DEL + "BCi" + ResultSetlUtil.DEL + "1.0";
 			rs = ResultSetlUtil.executeQuery(aSQL, MYSQL,
 					INTERACTIONS_SERVLET_URL);
 
@@ -262,10 +261,7 @@ public class ResultSetlUtil {
 		}
 	}
 
-	
-
 }
-
 
 /**
  * 
@@ -273,8 +269,7 @@ public class ResultSetlUtil {
  * purpose."
  */
 
-   class LoginDialog extends JDialog implements KeyListener,
-		ActionListener {
+class LoginDialog extends JDialog implements KeyListener, ActionListener {
 
 	private static final long serialVersionUID = -851685398982531107L;
 	private JPanel north, south;
@@ -346,8 +341,8 @@ public class ResultSetlUtil {
 	}
 
 	/**
-	 * Returns the actual PasswordAuthentication, which was generated from
-	 * the login dialog.
+	 * Returns the actual PasswordAuthentication, which was generated from the
+	 * login dialog.
 	 * 
 	 * @return PasswordAuthentication - actual PasswordAuthentication.
 	 */
@@ -372,7 +367,7 @@ public class ResultSetlUtil {
  * Extends Authenticator to allow for user login *
  * 
  */
- class BasicAuthenticator extends java.net.Authenticator {
+class BasicAuthenticator extends java.net.Authenticator {
 	private LoginDialog dialog;
 
 	/** Creates a new instance of BasicAuthenticator */
@@ -391,7 +386,5 @@ public class ResultSetlUtil {
 		dialog.setVisible(true);
 		PasswordAuthentication p = dialog.getAuth();
 		return p;
-	} 
+	}
 }
-
-
