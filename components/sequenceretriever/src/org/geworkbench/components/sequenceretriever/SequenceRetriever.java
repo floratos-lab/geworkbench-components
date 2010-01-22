@@ -477,32 +477,37 @@ public class SequenceRetriever implements VisualPlugin {
 	}
 
 	/**
-	 * Handle the selection at the MarkerList table.
+	 * Handle the selections at the MarkerList table.
 	 *
-	 * @param index
+	 * @param indices
 	 */
-	private void updateSelectedSequenceDB(int index) {
-		if (ls2 != null && ls2.size() > index && index > -1) {
-			DSGeneMarker marker = (DSGeneMarker) ls2.get(index);
-			CSSequenceSet displaySequenceDB = new CSSequenceSet();
-			ArrayList<String> values = currentRetrievedSequences.get(marker
-					.toString());
-			if (values == null) {
-				seqDisPanel.initialize();
-				return;
-			} else {
+	private void updateSelectedSequenceDB(int[] indices) {
+		seqDisPanel.initialize();
+		
+		CSSequenceSet displaySequenceDB = new CSSequenceSet();
+		for (int i = 0; i < indices.length; i++) {
+			int index = indices[i];
 
-				for (String o : values) {
-					RetrievedSequenceView retrievedSequenceView = currentRetrievedMap
-							.get(o);
-					if (retrievedSequenceView != null
+			if (ls2 != null && ls2.size() > index
+					&& index > -1) {
+
+				DSGeneMarker marker = (DSGeneMarker) ls2.get(index);
+
+				ArrayList<String> values = currentRetrievedSequences.get(marker.toString());
+				if (values == null) {
+					continue;
+				} else {
+
+					for (String o : values) {
+						RetrievedSequenceView retrievedSequenceView = currentRetrievedMap.get(o);
+						if (retrievedSequenceView != null
 							&& retrievedSequenceView.getSequence() != null) {
-						displaySequenceDB.addASequence(retrievedSequenceView
-								.getSequence());
+							displaySequenceDB.addASequence(retrievedSequenceView.getSequence());
+						}
 					}
+					displaySequenceDB.parseMarkers();
+					seqDisPanel.setDisplaySequenceDB(displaySequenceDB);
 				}
-				displaySequenceDB.parseMarkers();
-				seqDisPanel.setDisplaySequenceDB(displaySequenceDB);
 			}
 		}
 	}
@@ -1432,7 +1437,7 @@ public class SequenceRetriever implements VisualPlugin {
 
 	private class SequenceListSelectionListener implements
 			ListSelectionListener {
-		int selectedRow;
+		int[] selectedRows;
 
 		public void valueChanged(ListSelectionEvent e) {
 			// Ignore extra messages.
@@ -1441,8 +1446,8 @@ public class SequenceRetriever implements VisualPlugin {
 			}
 			JList lsm = (JList) e.getSource();
 
-			selectedRow = lsm.getMinSelectionIndex();
-			updateSelectedSequenceDB(selectedRow);
+			selectedRows = lsm.getSelectedIndices();
+			updateSelectedSequenceDB(selectedRows);
 
 		}
 
