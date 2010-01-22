@@ -730,7 +730,11 @@ public class CytoscapeWidget implements VisualPlugin {
 		}
 		nodeDm.setControllingAttributeName("geneType", cytoNetwork, false);
 
-		nodeDm.putMapValue("", shapes[shapeIndex]);
+		nodeDm.putMapValue("K", shapes[shapeIndex]);
+		nodeDm.putMapValue("P", shapes[++shapeIndex]);
+		nodeDm.putMapValue("TF", shapes[++shapeIndex]);
+		nodeDm.putMapValue("", shapes[++shapeIndex]);
+		
 
 		sample1VisualStyle.getNodeAppearanceCalculator().setCalculator((nc));
 
