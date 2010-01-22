@@ -95,7 +95,7 @@ public class CytoscapeWidget implements VisualPlugin {
 		public void propertyChange(PropertyChangeEvent evnt) {
 			if (evnt.getPropertyName() == cytoscape.view.CytoscapeDesktop.NETWORK_VIEW_CREATED) {
 				Cytoscape.getCurrentNetworkView().addNodeContextMenuListener(
-						menuListener);
+						new ExpandMenuListener(CytoscapeWidget.this));
 			}
 			log.debug(evnt.getPropertyName());
 		}
@@ -106,7 +106,6 @@ public class CytoscapeWidget implements VisualPlugin {
 	private AdjacencyMatrixDataSet adjSet = null;
 	private HashSet<String> dataSetIDs = new HashSet<String>();
 	private HashMap<Integer, String> geneIdToNameMap = new HashMap<Integer, String>();
-	private ExpandMenuListener menuListener;
 	private DiscreteMapping nodeDm = null, edgeDm = null;
 
 	private VisualStyle sample1VisualStyle;
@@ -749,9 +748,6 @@ public class CytoscapeWidget implements VisualPlugin {
 		edgeDm.setControllingAttributeName("type", cytoNetwork, false);
 
 		sample1VisualStyle.setName("geneways-interactions");
-
-		menuListener = new ExpandMenuListener(this);
-
 	}
 
 	@SuppressWarnings("unchecked")
