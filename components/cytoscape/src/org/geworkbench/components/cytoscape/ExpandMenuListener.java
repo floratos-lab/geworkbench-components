@@ -94,6 +94,9 @@ public class ExpandMenuListener implements NodeContextMenuListener {
 					&& Cytoscape.getCurrentNetwork() != null) {
 				java.util.List nodes = Cytoscape.getCurrentNetworkView()
 						.getSelectedNodes();
+				
+				if(nodes.size()==0)return;
+				
 				log.debug(nodes.size() + " node(s) selected");
 
 				DSPanel<DSGeneMarker> IntersectionMarkers = new CSPanel<DSGeneMarker>(
