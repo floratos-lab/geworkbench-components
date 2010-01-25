@@ -572,9 +572,11 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 		contextComboBox.addItemListener(new ItemListener() {
 
 			public void itemStateChanged(ItemEvent e) {
+
 				if (e.getStateChange() == ItemEvent.DESELECTED)
 					return;
-
+				//System.out.println("click on data set started:"
+				//		+ System.currentTimeMillis());
 				Object selectedVersion = versionComboBox.getSelectedItem();
 				String selectedCoxtext = SELECTCONTEXT;
 				if (selectedVersion != null)
@@ -614,6 +616,9 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 
 					cellularNetWorkElementInformation.setDirty(true);
 				}
+
+				//System.out.println("click on data set ended:"
+				//		+ System.currentTimeMillis());
 
 			}
 
@@ -2415,9 +2420,12 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 
 		public Component getListCellRendererComponent(JList list, Object value,
 				int index, boolean isSelected, boolean cellHasFocus) {
+
+			//System.out.println("getListCellRendererComponent() started:"
+			//		+ System.currentTimeMillis());
+
 			Font theFont = null;
 			Color theForeground = null;
-			Icon theIcon = null;
 			String theText = null;
 
 			JLabel renderer = (JLabel) defaultRenderer
@@ -2425,18 +2433,24 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 							isSelected, cellHasFocus);
 
 			VersionDescriptor v = (VersionDescriptor) value;
-			theText = v.getVersion();
+			if (v != null) {
 
-			if (v.getRequiresAuthentication() == true) {
-				theForeground = Color.red;
-				theFont = new Font("TimesRoman", Font.BOLD | Font.ITALIC, 12);
-				renderer.setFont(theFont);
-				renderer.setForeground(theForeground);
+				theText = v.getVersion();
+
+				if (v.getRequiresAuthentication() == true) {
+					theForeground = Color.red;
+					theFont = new Font("TimesRoman", Font.BOLD | Font.ITALIC,
+							12);
+					renderer.setFont(theFont);
+					renderer.setForeground(theForeground);
+				}
+				if (theText != null && theText.equalsIgnoreCase("null"))
+					theText = " ";
+				renderer.setText(theText);
 			}
-			if (theText.equalsIgnoreCase("null"))
-				theText = " ";
-			renderer.setText(theText);
-
+			
+			//System.out.println("getListCellRendererComponent() ended at:"
+			//		+ System.currentTimeMillis());
 			return renderer;
 		}
 	}
