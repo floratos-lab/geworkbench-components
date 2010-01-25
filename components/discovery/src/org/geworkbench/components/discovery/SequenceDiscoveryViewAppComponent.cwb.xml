@@ -1,0 +1,30 @@
+<component-descriptor xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="Descriptor Schema.xsd">
+
+	<component  name="Pattern Discovery"
+				class="org.geworkbench.components.discovery.SequenceDiscoveryViewAppComponent"
+				version="1.0"
+				author="C2B2"
+				authorURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Home"
+				toolURL="http://wiki.c2b2.columbia.edu/califanolab/index.php/Software"
+				tutorialURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Tutorial_-_Pattern_Discovery"
+				description="Implements the SPLASH algorithm for pattern discovery
+ in a set of sequences."
+				analysis="true"
+	 >
+		<license><![CDATA[
+			<html><head><meta http-equiv=Content-Type content="text/html; charset=windows-1252"></head>
+				<body>----</body>
+			</html>
+		]]></license>
+
+		<online-help helpSet="org/geworkbench/components/discovery/help/patternDiscoveryHelpSet.hs"/>
+		
+	</component>
+
+
+	<plugin id="SequenceDiscoveryViewAppComponent" name="Pattern Discovery" class="org.geworkbench.components.discovery.SequenceDiscoveryViewAppComponent" source="discovery">
+		<gui-area name="CommandArea"/>
+	</plugin>
+
+</component-descriptor>
