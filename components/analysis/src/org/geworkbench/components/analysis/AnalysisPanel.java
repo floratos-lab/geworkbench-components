@@ -1159,6 +1159,8 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 					try {
 						/* check if we are dealing with a grid analysis */
 						if (isGridAnalysis()) {
+							AbstractGridAnalysis selectedGridAnalysis = (AbstractGridAnalysis) selectedAnalysis;
+
 							ParamValidationResults validResult = ((AbstractGridAnalysis) selectedAnalysis)
 									.validInputData(maSetView, refMASet);
 							if (!validResult.isValid()) {
@@ -1167,20 +1169,23 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 										JOptionPane.ERROR_MESSAGE);
 								return;
 							}
-							/* ask for username and password */
-							getUserInfo();
-							if (userInfo == null) {
-								JOptionPane
-										.showMessageDialog(
-												null,
-												"Please make sure you entered valid username and password",
-												"Invalid User Account",
-												JOptionPane.ERROR_MESSAGE);
-								return;
-							}
-							if (StringUtils.isEmpty(userInfo)) {
-								userInfo = null;
-								return;
+							
+							if(selectedGridAnalysis.isAuthorizationRequired()) {
+								/* ask for username and password */
+								getUserInfo();
+								if (userInfo == null) {
+									JOptionPane
+											.showMessageDialog(
+													null,
+													"Please make sure you entered valid username and password",
+													"Invalid User Account",
+													JOptionPane.ERROR_MESSAGE);
+									return;
+								}
+								if (StringUtils.isEmpty(userInfo)) {
+									userInfo = null;
+									return;
+								}
 							}
 							pBar = Util.createProgressBar("Grid Services",
 									"Submitting service request");
@@ -1188,8 +1193,6 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 							pBar.reset();
 							String url = getServiceUrl();
 							if (!StringUtils.isEmpty(url)) {
-
-								AbstractGridAnalysis selectedGridAnalysis = (AbstractGridAnalysis) selectedAnalysis;
 
 								List<Serializable> serviceParameterList = ((AbstractGridAnalysis) selectedGridAnalysis)
 										.handleBisonInputs(maSetView,
