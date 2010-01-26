@@ -129,5 +129,11 @@ public class MarkUsAnalysis extends AbstractGridAnalysis implements ProteinStruc
 		// TODO Auto-generated method stub
 		return new ParamValidationResults(true, null);
 	}
+	
+	@Override
+	public boolean isAuthorizationRequired() {
+		return false;
+	}
+
 }
 
