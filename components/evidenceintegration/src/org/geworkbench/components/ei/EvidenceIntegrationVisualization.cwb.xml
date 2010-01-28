@@ -1,5 +1,4 @@
-<geaw-config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:noNamespaceSchemaLocation="ConfigurationFile Schema.xsd">
+<component-descriptor xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="Descriptor Schema.xsd">
 
 	<component  name="Evidence Integration Viewer"
 				class="org.geworkbench.components.ei.EvidenceIntegrationVisualization"
@@ -17,10 +16,11 @@
 			</html>
 		]]></license>
 
+
 	</component>
 
 	<plugin id="EvidenceIntegrationVisualization" name="Evidence Integration Viewer" class="org.geworkbench.components.ei.EvidenceIntegrationVisualization" source="evidenceintegration">
 		<gui-area name="VisualArea"/>
 	</plugin>
 
-</geaw-config>
+</component-descriptor>
