@@ -1,5 +1,4 @@
-<geaw-config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:noNamespaceSchemaLocation="ConfigurationFile Schema.xsd">
+<component-descriptor xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="Descriptor Schema.xsd">
 
 	<component  name="GSEA Analysis"
 				class="org.geworkbench.components.gpmodule.gsea.GSEAAnalysis"
@@ -21,8 +20,9 @@
 			</html>
 		]]></license>
 
+
 	</component>
 
     <plugin id="GSEAAnalysis" name="GSEA Analysis" class="org.geworkbench.components.gpmodule.gsea.GSEAAnalysis" source="gpmodule_v3_0"/>
 
-</geaw-config>
+</component-descriptor>

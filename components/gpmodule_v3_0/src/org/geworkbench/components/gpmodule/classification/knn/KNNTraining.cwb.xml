@@ -1,5 +1,4 @@
-<geaw-config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:noNamespaceSchemaLocation="ConfigurationFile Schema.xsd">
+<component-descriptor xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="Descriptor Schema.xsd">
 
 	<component  name="KNN Analysis 3.0"
 				class="org.geworkbench.components.gpmodule.classification.knn.KNNTraining"
@@ -20,9 +19,10 @@
 				<body>----</body>
 			</html>
 		]]></license>
+
 	</component>
 
 
 	<plugin id="KNNTraining" name="KNN Analysis 3.0" class="org.geworkbench.components.gpmodule.classification.knn.KNNTraining" source="gpmodule_v3_0"/>
 
-</geaw-config>
+</component-descriptor>

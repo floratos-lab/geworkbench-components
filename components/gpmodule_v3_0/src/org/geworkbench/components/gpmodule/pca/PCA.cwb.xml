@@ -1,5 +1,4 @@
-<geaw-config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:noNamespaceSchemaLocation="ConfigurationFile Schema.xsd">
+<component-descriptor xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="Descriptor Schema.xsd">
 
 	<component  name="PCA Viewer 3.0"
 				class="org.geworkbench.components.gpmodule.pca.PCA"
@@ -22,10 +21,11 @@
 			</html>
 		]]></license>
 
+
 	</component>
 
 	<plugin id="PCA" name="PCA Viewer 3.0" class="org.geworkbench.components.gpmodule.pca.PCA" source="gpmodule_v3_0">
 		<gui-area name="VisualArea"/>
 	</plugin>
 
-</geaw-config>
+</component-descriptor>
