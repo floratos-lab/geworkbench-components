@@ -1,5 +1,4 @@
-<geaw-config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:noNamespaceSchemaLocation="ConfigurationFile Schema.xsd">
+<component-descriptor xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="Descriptor Schema.xsd">
 
 	<component  name="GoAnalysisResultView"
 				class="org.geworkbench.components.geneontology2.GoAnalysisResultView"
@@ -12,6 +11,7 @@
 				visualizer="true"
 	 >
 		<required-component class="org.geworkbench.components.geneontology2.GoAnalysis" />
+
 	</component>
 	
 
@@ -19,4 +19,4 @@
         <gui-area name="VisualArea"/>
     </plugin>		
 	
-</geaw-config>
+</component-descriptor>
