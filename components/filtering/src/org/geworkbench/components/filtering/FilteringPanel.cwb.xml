@@ -1,5 +1,4 @@
-<geaw-config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:noNamespaceSchemaLocation="ConfigurationFile Schema.xsd">
+<component-descriptor xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="Descriptor Schema.xsd">
 
 	<component  name="Filtering Panel"
 				class="org.geworkbench.components.filtering.FilteringPanel"
@@ -16,10 +15,11 @@
 				<body>----</body>
 			</html>
 		]]></license>
+
 	</component>
 
 	<plugin id="filteringpanel" name="Filtering" class="org.geworkbench.components.filtering.FilteringPanel" source="filtering">
 		<gui-area name="CommandArea"/>
 	</plugin>
 
-</geaw-config>
+</component-descriptor>

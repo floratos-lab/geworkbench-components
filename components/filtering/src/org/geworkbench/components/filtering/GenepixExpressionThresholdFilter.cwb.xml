@@ -1,5 +1,4 @@
-<geaw-config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:noNamespaceSchemaLocation="ConfigurationFile Schema.xsd">
+<component-descriptor xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="Descriptor Schema.xsd">
 
 	<component  name="Filtering Panel"
 				class="org.geworkbench.components.filtering.GenepixExpressionThresholdFilter"
@@ -21,8 +20,9 @@
 			</html>
 		]]></license>
 
+
 	</component>
 
 	<plugin id="genepixexpressionthresholdfilter" name="Genepix Filter" class="org.geworkbench.components.filtering.GenepixExpressionThresholdFilter" source="filtering"/>
 
-</geaw-config>
+</component-descriptor>

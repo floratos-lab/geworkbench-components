@@ -1,5 +1,4 @@
-<geaw-config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:noNamespaceSchemaLocation="ConfigurationFile Schema.xsd">
+<component-descriptor xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="Descriptor Schema.xsd">
 
 	<component  name="Expression Threshold Filter"
 				class="org.geworkbench.components.filtering.ExpressionThresholdFilter"
@@ -18,8 +17,9 @@
 			</html>
 		]]></license>
 
+
 	</component>
 
 	<plugin id="expressionthresholdfilter" name="Expression Threshold Filter" class="org.geworkbench.components.filtering.ExpressionThresholdFilter" source="filtering"/>
 	
-</geaw-config>
+</component-descriptor>
