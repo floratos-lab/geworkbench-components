@@ -434,12 +434,16 @@ public class CytoscapeWidget implements VisualPlugin {
 				Cytoscape.getNodeAttributes().setAttribute(
 						cyNode.getIdentifier(), "markerName",
 						gm1.getShortName());
+				
+				if (geneType == null || geneType.trim().equals(""))
+					geneType ="non K/P/TF, in microarray set";
+                 
 				Cytoscape.getNodeAttributes().setAttribute(
 						cyNode.getIdentifier(), "geneType", geneType);
 				if (nodeDm.getMapValue(geneType.trim()) == null) {
 					nodeDm.putMapValue(geneType.trim(), shapes[++shapeIndex]);
 
-				}
+				} 
 
 			} else {
 				// Cytoscape.getNodeAttributes().setAttribute(n1.getIdentifier(),
@@ -468,10 +472,10 @@ public class CytoscapeWidget implements VisualPlugin {
 
 		if (level == 0) {
 			return;
-		}
-
+		}		
+		
 		log.debug("createSubNetwork(" + geneId + ")");
-
+      		
 		HashMap<Integer, HashMap<Integer, Float>> geneRows = adjMatrix
 				.getGeneRows();
 		HashMap<Integer, String> interactionGeneRows = adjMatrix
@@ -585,6 +589,9 @@ public class CytoscapeWidget implements VisualPlugin {
 						edgeDm.putMapValue(type, getRandomCorlor());
 
 					}
+					
+					
+					
 
 				}
 
@@ -592,6 +599,9 @@ public class CytoscapeWidget implements VisualPlugin {
 				ex.printStackTrace();
 			}
 			 
+			
+			
+			
 		    createSubNetwork(key, threshold, level - 1);
 
 			 
@@ -732,7 +742,8 @@ public class CytoscapeWidget implements VisualPlugin {
 		nodeDm.putMapValue("K", shapes[shapeIndex]);
 		nodeDm.putMapValue("P", shapes[++shapeIndex]);
 		nodeDm.putMapValue("TF", shapes[++shapeIndex]);
-		nodeDm.putMapValue("", shapes[++shapeIndex]);
+		//non K/E/TF, in microarray set
+		nodeDm.putMapValue("non K/P/TF, in microarray set", shapes[++shapeIndex]);
 		
 
 		sample1VisualStyle.getNodeAppearanceCalculator().setCalculator((nc));
