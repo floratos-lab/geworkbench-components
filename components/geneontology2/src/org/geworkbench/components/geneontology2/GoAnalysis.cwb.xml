@@ -1,5 +1,4 @@
-<geaw-config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:noNamespaceSchemaLocation="ConfigurationFile Schema.xsd">
+<component-descriptor xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="Descriptor Schema.xsd">
 
 	<component name="GeneOntology2"
 		class="org.geworkbench.components.geneontology2.GoAnalysis"
@@ -11,9 +10,10 @@
 		analysis="true">
 
 		<required-component class="org.geworkbench.components.geneontology2.GoAnalysisResultView" />
+
 	</component>
 	
 	<plugin id="GeneOntology2" name="GO Terms Analysis"
 		class="org.geworkbench.components.geneontology2.GoAnalysis" source="geneontology2" />
 	
-</geaw-config>
+</component-descriptor>
