@@ -1,5 +1,4 @@
-<geaw-config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:noNamespaceSchemaLocation="ConfigurationFile Schema.xsd">
+<component-descriptor xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="Descriptor Schema.xsd">
 
 	<component name="Genspace Collaboration Tool"
 		class="org.geworkbench.components.genspace.GenspaceLogger" version="1.0"
@@ -13,6 +12,7 @@
 				<body>----</body>
 			</html>
 		]]></license>
+
 	</component>
 
 
@@ -21,5 +21,4 @@
 	</plugin>
 
 
-</geaw-config>
-
+</component-descriptor>
