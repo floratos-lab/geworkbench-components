@@ -1,5 +1,4 @@
-<geaw-config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:noNamespaceSchemaLocation="ConfigurationFile Schema.xsd">
+<component-descriptor xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="Descriptor Schema.xsd">
 
 	<component  name="Deviation Based Filter"
 				class="org.geworkbench.components.filtering.DeviationBasedFilter"
@@ -19,8 +18,9 @@
 			</html>
 		]]></license>
 
+
 	</component>
 
 	<plugin id="deviationbasedfilter" name="Deviation Filter" class="org.geworkbench.components.filtering.DeviationBasedFilter" source="filtering"/>
 	
-</geaw-config>
+</component-descriptor>
