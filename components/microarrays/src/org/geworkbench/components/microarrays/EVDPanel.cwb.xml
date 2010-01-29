@@ -1,5 +1,4 @@
-<geaw-config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:noNamespaceSchemaLocation="ConfigurationFile Schema.xsd">
+<component-descriptor xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="Descriptor Schema.xsd">
 
 	<component  name="Expression Value Distribution"
 				class="org.geworkbench.components.microarrays.EVDPanel"
@@ -18,17 +17,14 @@
 				<body>----</body>
 			</html>
 		]]></license>
+	        <menu-item path="File.Image snapshot" mode="onFocus" var="File.Image snapshot"/>
+	        <online-help helpSet="org/geworkbench/components/microarrays/help/expressionvaluedist/evdHelpSet.hs"/>
+
 	</component>
 
 	<plugin id="EVDPanel" name="Expression Value Distribution" class="org.geworkbench.components.microarrays.EVDPanel" source="microarrays">
 		<gui-area name="VisualArea"/>
 	</plugin>
 
-	<component-descriptor xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="Descriptor Schema.xsd">
-	    <component class="org.geworkbench.components.microarrays.EVDPanel">
-	        <menu-item path="File.Image snapshot" mode="onFocus" var="File.Image snapshot"/>
-	        <online-help helpSet="org/geworkbench/components/microarrays/help/expressionvaluedist/evdHelpSet.hs"/>
-	    </component>
-	</component-descriptor>
 
-</geaw-config>
+</component-descriptor>

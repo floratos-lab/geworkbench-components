@@ -1,5 +1,4 @@
-<geaw-config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:noNamespaceSchemaLocation="ConfigurationFile Schema.xsd">
+<component-descriptor xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="Descriptor Schema.xsd">
 
 	<component  name="Microarray Viewer"
 				class="org.geworkbench.components.microarrays.MicroarrayPanel"
@@ -18,6 +17,9 @@
 				<body>----</body>
 			</html>
 		]]></license>
+	        <menu-item path="File.Image snapshot" mode="onFocus" var="File.Image snapshot"/>
+	        <online-help helpSet="org/geworkbench/components/microarrays/help/microarraypanel/microarrayPanelHelpSet.hs"/>
+
 	</component>
 
 
@@ -27,12 +29,6 @@
 		<subscription type="org.geworkbench.events.ProjectEvent" enabled="Yes"/>
 	</plugin>
 
-	<component-descriptor xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="Descriptor Schema.xsd">
-	    <component class="org.geworkbench.components.microarrays.MicroarrayPanel">
-	        <menu-item path="File.Image snapshot" mode="onFocus" var="File.Image snapshot"/>
-	        <online-help helpSet="org/geworkbench/components/microarrays/help/microarraypanel/microarrayPanelHelpSet.hs"/>
-	    </component>
-	</component-descriptor>
 
 
-</geaw-config>
+</component-descriptor>

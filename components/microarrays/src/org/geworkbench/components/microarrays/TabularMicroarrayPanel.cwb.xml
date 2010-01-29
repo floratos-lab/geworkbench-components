@@ -1,5 +1,4 @@
-<geaw-config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:noNamespaceSchemaLocation="ConfigurationFile Schema.xsd">
+<component-descriptor xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="Descriptor Schema.xsd">
 
 	<component  name="Tabular Microarray Viewer"
 				class="org.geworkbench.components.microarrays.TabularMicroarrayPanel"
@@ -15,6 +14,8 @@
 				<body>----</body>
 			</html>
 		]]></license>
+	        <online-help helpSet="org/geworkbench/components/microarrays/help/tablepanel/tablePanelHelpSet.hs"/>
+
 	</component>
 
 
@@ -22,10 +23,5 @@
 		<gui-area name="VisualArea"/>
 	</plugin>
 
-	<component-descriptor xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="Descriptor Schema.xsd">
-	    <component class="org.geworkbench.components.microarrays.TabularMicroarrayPanel">
-	        <online-help helpSet="org/geworkbench/components/microarrays/help/tablepanel/tablePanelHelpSet.hs"/>
-	    </component>
-	</component-descriptor>
 	
-</geaw-config>
+</component-descriptor>
