@@ -1,5 +1,4 @@
-<geaw-config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:noNamespaceSchemaLocation="ConfigurationFile Schema.xsd">
+<component-descriptor xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="Descriptor Schema.xsd">
 
 	<component  name="Position Histogram"
 				class="org.geworkbench.components.poshistogram.PositionHistogramAppComponent"
@@ -15,6 +14,9 @@
 				<body>----</body>
 			</html>
 		]]></license>
+	        <menu-item path="File.Image snapshot" mode="onFocus" var="File.Image snapshot"/>
+	        <online-help helpSet="org/geworkbench/components/poshistogram/help/posHistogramHelpSet.hs"/>
+
 	</component>
 
 
@@ -22,11 +24,5 @@
 		<gui-area name="VisualArea"/>
 	</plugin>
 
-	<component-descriptor xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="Descriptor Schema.xsd">
-	    <component class="org.geworkbench.components.poshistogram.PositionHistogramAppComponent">
-	        <menu-item path="File.Image snapshot" mode="onFocus" var="File.Image snapshot"/>
-	        <online-help helpSet="org/geworkbench/components/poshistogram/help/posHistogramHelpSet.hs"/>
-	    </component>
-	</component-descriptor>
 
-</geaw-config>
+</component-descriptor>
