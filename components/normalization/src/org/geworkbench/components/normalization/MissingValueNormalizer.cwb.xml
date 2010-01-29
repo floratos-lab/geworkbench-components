@@ -1,5 +1,4 @@
-	<geaw-config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:noNamespaceSchemaLocation="ConfigurationFile Schema.xsd">
+<component-descriptor xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="Descriptor Schema.xsd">
 
 	<component  name="Missing Values Normalizer"
 				class="org.geworkbench.components.normalization.MissingValueNormalizer"
@@ -21,9 +20,9 @@
 				<body>----</body>
 			</html>
 		]]></license>
+
 	</component>
 
 	<plugin id="MissingValueNormalizer" name="Missing Values Normalizer" class="org.geworkbench.components.normalization.MissingValueNormalizer" source="normalization"/>
 	
-</geaw-config>
-
+</component-descriptor>

@@ -1,5 +1,4 @@
-<geaw-config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:noNamespaceSchemaLocation="ConfigurationFile Schema.xsd">
+<component-descriptor xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="Descriptor Schema.xsd">
 
 	<component  name="HouseKeeping Genes Normalizer"
 				class="org.geworkbench.components.normalization.HouseKeepingGeneNormalizer"
@@ -20,8 +19,9 @@
 			</html>
 		]]></license>
 			
+
 	</component>
 
 	<plugin id="HouseKeepingGeneNormalizer" name="HouseKeeping Genes Normalizer" class="org.geworkbench.components.normalization.HouseKeepingGeneNormalizer" source="normalization"/>
 	
-</geaw-config>
+</component-descriptor>

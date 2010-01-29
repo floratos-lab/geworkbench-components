@@ -1,5 +1,4 @@
-<geaw-config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:noNamespaceSchemaLocation="ConfigurationFile Schema.xsd">
+<component-descriptor xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="Descriptor Schema.xsd">
 
 	<component  name="Net Boost Analysis"
 				class="org.geworkbench.components.netboost.NetBoostAnalysis"
@@ -17,14 +16,11 @@
 			</html>
 		]]></license>
 			
+	        <online-help helpSet="org/geworkbench/components/netboost/help/netboostHelpSet.hs"/>
+
 	</component>
 
 	<plugin id="NetBoostAnalysis" name="NetBoost Analysis" class="org.geworkbench.components.netboost.NetBoostAnalysis" source="netboost"/>
 
-	<component-descriptor xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="Descriptor Schema.xsd">
-	    <component class="org.geworkbench.components.netboost.NetBoostAnalysis">
-	        <online-help helpSet="org/geworkbench/components/netboost/help/netboostHelpSet.hs"/>
-	    </component>
-	</component-descriptor>
 
-</geaw-config>
+</component-descriptor>
