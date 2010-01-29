@@ -1,5 +1,4 @@
-<geaw-config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:noNamespaceSchemaLocation="ConfigurationFile Schema.xsd">
+<component-descriptor xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="Descriptor Schema.xsd">
 
 	<component  name="MatrixREDUCE Analysis"
 				class="org.geworkbench.components.matrixreduce.MatrixReduceAnalysis"
@@ -20,14 +19,11 @@
 			</html>
 		]]></license>
 
+	        <online-help helpSet="org/geworkbench/components/matrixreduce/help/matrixHelpSet.hs"/>
+
 	</component>
 
 	<plugin id="MatrixReduceAnalysis" name="MatrixREDUCE Analysis" class="org.geworkbench.components.matrixreduce.MatrixReduceAnalysis" source="matrixreduce"/>
 
-	<component-descriptor xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="Descriptor Schema.xsd">
-	    <component class="org.geworkbench.components.matrixreduce.MatrixReduceAnalysis">
-	        <online-help helpSet="org/geworkbench/components/matrixreduce/help/matrixHelpSet.hs"/>
-	    </component>
-	</component-descriptor>
 
-</geaw-config>
+</component-descriptor>
