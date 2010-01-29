@@ -1,17 +1,15 @@
-<geaw-config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:noNamespaceSchemaLocation="ConfigurationFile Schema.xsd">
+<component-descriptor xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="Descriptor Schema.xsd">
 
-	<component  name="Marker Mean Variance Normalizer"
-				class="org.geworkbench.components.normalization.MarkerMeanVarianceNormalizer"
+	<component  name="Microarray Centering Normalizer"
+				class="org.geworkbench.components.normalization.MicroarrayCenteringNormalizer"
 				version="1.0"
 				author="C2B2"
 				authorURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Home"
 				toolURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Home"
 				tutorialURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Tutorial_-_Filtering_and_Normalizing"
 				visualizer="true"
-				description="For each marker profile in a microarray dataset, subtracts the mean
- or median value and then divides by the standard deviation."
-	 	 >
+				description="Subtracts the mean or median measurement of the microarray from every measurement in that microarray."
+ 	 >
 		<required-component class="org.geworkbench.components.microarrays.TabularMicroarrayPanel" />
 		<required-component class="org.geworkbench.components.normalization.NormalizationPanel" />
 		<license><![CDATA[
@@ -22,6 +20,6 @@
 
 	</component>
 
-	<plugin id="MarkerMeanVarianceNormalizer" name="Mean Variance Normalizer" class="org.geworkbench.components.normalization.MarkerMeanVarianceNormalizer" source="normalization"/>
+	<plugin id="MicroarrayCenteringNormalizer" name="Microarray Centering Normalizer" class="org.geworkbench.components.normalization.MicroarrayCenteringNormalizer" source="normalization"/>
 	
-</geaw-config>	
+</component-descriptor>

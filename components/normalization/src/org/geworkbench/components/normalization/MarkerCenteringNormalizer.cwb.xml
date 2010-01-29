@@ -1,5 +1,4 @@
-<geaw-config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:noNamespaceSchemaLocation="ConfigurationFile Schema.xsd">
+<component-descriptor xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="Descriptor Schema.xsd">
 
 	<component  name="Marker Centering Normalizer"
 				class="org.geworkbench.components.normalization.MarkerCenteringNormalizer"
@@ -18,8 +17,9 @@
 				<body>----</body>
 			</html>
 		]]></license>
+
 	</component>
 
 	<plugin id="MarkerCenteringNormalizer" name="Marker Centering Normalizer" class="org.geworkbench.components.normalization.MarkerCenteringNormalizer" source="normalization"/>
 	
-</geaw-config>	
+</component-descriptor>

@@ -1,5 +1,4 @@
-<geaw-config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:noNamespaceSchemaLocation="ConfigurationFile Schema.xsd">
+<component-descriptor xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="Descriptor Schema.xsd">
 
 	<component  name="Normalization Panel"
 				class="org.geworkbench.components.normalization.NormalizationPanel"
@@ -16,6 +15,8 @@
 				<body>----</body>
 			</html>
 		]]></license>
+	        <online-help helpSet="org/geworkbench/components/normalization/help/normalizerHelpSet.hs"/>
+
 	</component>
 
 
@@ -23,12 +24,5 @@
 		<gui-area name="CommandArea"/>
 	</plugin>
 
-	<component-descriptor xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="Descriptor Schema.xsd">
-	    <component class="org.geworkbench.components.normalization.NormalizationPanel">
-	        <online-help helpSet="org/geworkbench/components/normalization/help/normalizerHelpSet.hs"/>
-	    </component>
-	</component-descriptor>
 	
-</geaw-config>
-
-
+</component-descriptor>
