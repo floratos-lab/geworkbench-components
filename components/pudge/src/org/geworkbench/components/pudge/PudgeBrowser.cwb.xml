@@ -1,5 +1,4 @@
-<geaw-config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:noNamespaceSchemaLocation="ConfigurationFile Schema.xsd">
+<component-descriptor xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="Descriptor Schema.xsd">
 
 	<component name="PudgeBrowser"
 		class="org.geworkbench.components.pudge.PudgeBrowser" version="1.0"
@@ -14,6 +13,7 @@
 				<body>----</body>
 			</html>
 		]]></license>
+
 	</component>
 
 	<plugin id="PudgeBrowser" name="PudgeBrowser"
@@ -21,4 +21,4 @@
 		<gui-area name="VisualArea" />
 	</plugin>
 
-</geaw-config>
+</component-descriptor>
