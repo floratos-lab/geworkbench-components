@@ -1,5 +1,4 @@
-<geaw-config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:noNamespaceSchemaLocation="ConfigurationFile Schema.xsd">
+<component-descriptor xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="Descriptor Schema.xsd">
 
 	<component  name="SkyLine Output for All Models"
 				class="org.geworkbench.components.skylineview.SkyLineViewAllPanel"
@@ -18,10 +17,11 @@
 			</html>
 		]]></license>
 
+
 	</component>
 
   <plugin id="SkyLineViewAllPanel" name="SkyLine Output for All Models" class="org.geworkbench.components.skylineview.SkyLineViewAllPanel" source="skylineview">
  	 	<gui-area name="VisualArea"/>
   </plugin>
 
-</geaw-config>
+</component-descriptor>
