@@ -1,5 +1,4 @@
-<geaw-config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:noNamespaceSchemaLocation="ConfigurationFile Schema.xsd">
+<component-descriptor xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="Descriptor Schema.xsd">
 	
 	<component  name="SOM Analysis"
 				class="org.geworkbench.components.somclustering.SOMAnalysis"
@@ -18,8 +17,9 @@
 			</html>
 		]]></license>
 		
+
 	 </component>
 	 
 	<plugin id="somAnalysis" name="SOM Analysis" class="org.geworkbench.components.somclustering.SOMAnalysis" source="somclustering"/>
 	
-</geaw-config>
+</component-descriptor>
