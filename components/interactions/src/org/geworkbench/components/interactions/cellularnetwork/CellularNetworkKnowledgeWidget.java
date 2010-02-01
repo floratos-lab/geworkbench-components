@@ -82,6 +82,7 @@ import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
 import org.apache.commons.collections15.set.ListOrderedSet;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
@@ -96,9 +97,11 @@ import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.builtin.projects.ProjectPanel;
 import org.geworkbench.engine.config.VisualPlugin;
+import org.geworkbench.engine.config.Closable;
 import org.geworkbench.engine.management.AcceptTypes;
 import org.geworkbench.engine.management.Publish;
 import org.geworkbench.engine.management.Subscribe;
+import org.geworkbench.engine.properties.PropertiesManager;
 import org.geworkbench.events.AdjacencyMatrixEvent;
 import org.geworkbench.events.GeneSelectorEvent;
 import org.geworkbench.events.ProjectEvent;
@@ -131,7 +134,7 @@ import com.jgoodies.forms.layout.FormLayout;
  */
 @AcceptTypes( { DSMicroarraySet.class })
 public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
-		implements VisualPlugin {
+		implements VisualPlugin, Closable {
 	private Log log = LogFactory.getLog(this.getClass());
 
 	private static String PROPERTIES_FILE = "conf/application.properties";
@@ -162,6 +165,10 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 
 	private static final String SELECTVERSION = "Select Version";
 
+	private static final String DISPLAYSELECTEDINTERACTIONTYPE = "displaySelectedInteractionTypes";
+
+	private static final String NETWORKSELECTEDINTERACTIONTYPE = "networkSelectedInteractionTypes";
+
 	private static String[] firstFourColumnLabels = new String[] { MARKERLABEL,
 			GENELABEL, GENETYPELABEL, GOTERMCOLUMN };
 
@@ -170,9 +177,11 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 
 	private static TableColumn[] tableColumns;
 
+	private PropertiesManager pm = null;
+
 	private boolean cancelAction = false;
 
-	private boolean needRedraw = true;
+	private boolean needRedraw = false;
 
 	// public static final int THRESHOLD = 5000;
 
@@ -180,8 +189,10 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 	 * Creates new form Interactions
 	 */
 	public CellularNetworkKnowledgeWidget() {
-
-		loadProperty();
+		
+		pm = PropertiesManager.getInstance();
+		
+		loadURLProperty();
 		initComponents();
 
 		activatedMarkerTable.getTableHeader().setEnabled(true);
@@ -203,6 +214,10 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 
 	public Component getComponent() {
 		return this;
+	}
+
+	public void closing() {
+		savePreferences();
 	}
 
 	private void cancelCellEditing() {
@@ -489,6 +504,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 	 */
 
 	private void initComponents() {
+		
 		Authenticator.setDefault(new BasicAuthenticator());
 		new javax.swing.JPanel();
 		jPanel2 = new javax.swing.JPanel();
@@ -562,6 +578,8 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 		graphToolBar.add(thresholdTextField);
 		graphToolBar.add(thresholdSlider);
 		cancelButton = new JButton();
+		// blankLabel = new JLabel();
+		savePreferenceButton = new JButton();
 
 		contextComboBox.setSize(60, 10);
 
@@ -575,8 +593,8 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 
 				if (e.getStateChange() == ItemEvent.DESELECTED)
 					return;
-				//System.out.println("click on data set started:"
-				//		+ System.currentTimeMillis());
+				// System.out.println("click on data set started:"
+				// + System.currentTimeMillis());
 				Object selectedVersion = versionComboBox.getSelectedItem();
 				String selectedCoxtext = SELECTCONTEXT;
 				if (selectedVersion != null)
@@ -617,8 +635,8 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 					cellularNetWorkElementInformation.setDirty(true);
 				}
 
-				//System.out.println("click on data set ended:"
-				//		+ System.currentTimeMillis());
+				// System.out.println("click on data set ended:"
+				// + System.currentTimeMillis());
 
 			}
 
@@ -863,13 +881,19 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 			}
 		});
 
+		savePreferenceButton
+				.addActionListener(new java.awt.event.ActionListener() {
+					public void actionPerformed(java.awt.event.ActionEvent evt) {
+						//savePreferences();
+					}
+				});
+
 		jPanel1.setBorder(javax.swing.BorderFactory.createLineBorder(new Color(
 				204, 204, 255)));
 		// jPanel1.setMaximumSize(new Dimension(587, 382));
 		jPanel1.setMinimumSize(new Dimension(300, 50));
 		jPanel1.setPreferredSize(new Dimension(587, 182));
 
-		detailTable.setModel(previewTableModel);
 		detailTable.addMouseListener(new MouseAdapter() {
 			public void mouseClicked(MouseEvent e) {
 				if (e.getClickCount() == 2) {
@@ -1030,9 +1054,9 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 		jPanel1.add(progressDisplayBar, BorderLayout.NORTH);
 		// jPanel1.add(jScrollPane3, BorderLayout.CENTER);
 		jPanel1.add(jTabbedPane1, BorderLayout.CENTER);
+
 		jTabbedPane1.add("Main", jScrollPane3);
 		jTabbedPane1.setSelectedIndex(0);
-
 		jTabbedPane1.add("Preferences", jScrollPane5);
 
 		jTabbedPane1.addChangeListener(new ChangeListener() {
@@ -1094,9 +1118,29 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 		commandToolBar.add(createNetWorkButton);
 		cancelButton.setText("Cancel");
 		commandToolBar.add(cancelButton);
+		// blankLabel.setText(" ");
+		// commandToolBar.add(blankLabel);
+		savePreferenceButton.setText("Save Preferences");
+		savePreferenceButton.setEnabled(false);
+		commandToolBar.add(savePreferenceButton);
+
 		hits = new Vector<CellularNetWorkElementInformation>();
 
+		displaySelectedInteractionTypes.add(PROTEIN_DNA);
+		displaySelectedInteractionTypes.add(PROTEIN_PROTEIN);
+		readInteractionTypesProperties();
+		
+		columnLabels = new String[firstFourColumnLabels.length
+				+ displaySelectedInteractionTypes.size()];
+
+		for (int i = 0; i < firstFourColumnLabels.length; i++)
+			columnLabels[i] = firstFourColumnLabels[i];
+		for (int i = 0; i < displaySelectedInteractionTypes.size(); i++)
+			columnLabels[i + 4] = displaySelectedInteractionTypes.get(i)
+					+ COLUMNLABELPOSTFIX;
 		tableColumns = new TableColumn[columnLabels.length];
+		previewTableModel = new PreviewTableModel();
+		detailTable.setModel(previewTableModel);
 		TableColumnModel model = detailTable.getColumnModel();
 		for (int i = 0; i < columnLabels.length; i++) {
 
@@ -1121,10 +1165,11 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 
 	public XYSeriesCollection createCollection(double min, double max,
 			int selectedId, boolean active) {
+		boolean needDraw = false;
+		XYSeries dataSeries = new XYSeries("Total Distribution");
 		int binSize = CellularNetWorkElementInformation.getBinNumber();
 		XYSeriesCollection plots = new XYSeriesCollection();
 		try {
-			XYSeries dataSeries = new XYSeries("Total Distribution");
 
 			Map<String, XYSeries> interactionDataSeriesMap = new HashMap<String, XYSeries>();
 			for (String interactionType : displaySelectedInteractionTypes)
@@ -1143,8 +1188,10 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 				for (CellularNetWorkElementInformation cellularNetWorkElementInformation : hits) {
 					DSGeneMarker marker = cellularNetWorkElementInformation
 							.getdSGeneMarker();
-					if (marker == null || marker.getGeneId() == -1)
+					if (marker == null || marker.getGeneId() == -1
+							|| cellularNetWorkElementInformation.isDirty())
 						continue;
+					needDraw = true;
 					int[] distributionArray = cellularNetWorkElementInformation
 							.getDistribution();
 
@@ -1178,9 +1225,13 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 				}
 			}
 
-			plots.addSeries(dataSeries);
-			for (String interactionType : displaySelectedInteractionTypes) {
-				plots.addSeries(interactionDataSeriesMap.get(interactionType));
+			if (hits != null && hits.size() > 0 &&  needDraw == true) {
+
+				plots.addSeries(dataSeries);
+				for (String interactionType : displaySelectedInteractionTypes) {
+					plots.addSeries(interactionDataSeriesMap
+							.get(interactionType));
+				}
 			}
 
 		} catch (IndexOutOfBoundsException e) {
@@ -1383,10 +1434,10 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 
 	void thresholdSlider_stateChanged(ChangeEvent e) {
 		int value = thresholdSlider.getValue();
-		double maxValue = thresholdSlider.getMaximum();
+		// double maxValue = thresholdSlider.getMaximum();
 		XYPlot plot = this.chart.getXYPlot();
-		ValueAxis domainAxis = plot.getDomainAxis();
-		Range range = domainAxis.getRange();
+		// ValueAxis domainAxis = plot.getDomainAxis();
+		// Range range = domainAxis.getRange();
 		// double c = domainAxis.getLowerBound()
 		// + (value / maxValue) * range.getLength();
 
@@ -1558,13 +1609,192 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 
 	}// GEN-LAST:event_loadfromDBHandler
 
+	/**
+	 * 
+	 * 
+	 */
+	private void readPreferences() {
+
+		String isChecked = "";
+
+		try {
+            String contextProperty = pm.getProperty(this.getClass(), SELECTCONTEXT, "");
+			if (!contextProperty.equals("") && contextList.contains(contextProperty))
+				contextComboBox.setSelectedItem(contextProperty);
+			else if (!contextProperty.equals("") && !contextList.contains(contextProperty))
+				  JOptionPane.showMessageDialog(null, "Database context: "
+							+ contextProperty
+							+ " is not in current database, so it is deleted from preference setting.", "Info",
+							JOptionPane.INFORMATION_MESSAGE);
+				
+			String versionProperty = pm.getProperty(this.getClass(), SELECTVERSION, ""); 
+		    for (VersionDescriptor vd : versionList)
+		    {
+		    	if (vd.getVersion().equals(versionProperty))
+		    	{
+		    		versionComboBox.setSelectedItem(vd);
+		    	    break;
+		    	}
+		    }
+			
+			readInteractionTypesProperties();
+			List<String> listNotInDatanase = new ArrayList<String>();
+			for (String s : displaySelectedInteractionTypes) {
+				if (displayAvailInteractionTypes.contains(s))
+					displayAvailInteractionTypes.remove(s);
+				else {
+					if (!listNotInDatanase.contains(s))
+						listNotInDatanase.add(s);
+
+				}
+			}
+
+			for (String s : networkSelectedInteractionTypes) {
+				if (networkAvailInteractionTypes.contains(s))
+					networkAvailInteractionTypes.remove(s);
+				else {
+					if (!listNotInDatanase.contains(s))
+						listNotInDatanase.add(s);
+
+				}
+			}
+			if (listNotInDatanase.size() > 0) {
+				displaySelectedInteractionTypes.removeAll(listNotInDatanase);
+				networkSelectedInteractionTypes.removeAll(listNotInDatanase);
+                if (listNotInDatanase.size() > 1)
+				  JOptionPane.showMessageDialog(null, "Interaction Types: "
+						+ listNotInDatanase.toString()
+						+ " are not in current database, so they are deleted from preference setting.", "Info",
+						JOptionPane.INFORMATION_MESSAGE);
+                else
+                	JOptionPane.showMessageDialog(null, "The Interaction Type: "
+    						+ listNotInDatanase.toString()
+    						+ " is not in current database, so it is deleted from preference setting.", "Info",
+    						JOptionPane.INFORMATION_MESSAGE);
+			
+			}
+			
+			
+			
+			
+			isChecked = pm.getProperty(this.getClass(), MARKERLABEL, "");
+			if (isChecked != null && isChecked.equalsIgnoreCase("false")) {
+				markerJCheckBox.setSelected(false);
+			} else if (isChecked != null && isChecked.equalsIgnoreCase("true")) {
+				markerJCheckBox.setSelected(true);
+			}
+			isChecked = pm.getProperty(this.getClass(), GENELABEL, "");
+			if (isChecked != null && isChecked.equalsIgnoreCase("false")) {
+				geneJCheckBox.setSelected(false);
+			} else if (isChecked != null && isChecked.equalsIgnoreCase("true")) {
+				geneJCheckBox.setSelected(true);
+			}
+			isChecked = pm.getProperty(this.getClass(), GENETYPELABEL, "");
+			if (isChecked != null && isChecked.equalsIgnoreCase("false")) {
+				geneTypeLCheckBox.setSelected(false);
+			} else if (isChecked != null && isChecked.equalsIgnoreCase("true")) {
+				geneTypeLCheckBox.setSelected(true);
+			}
+			isChecked = pm.getProperty(this.getClass(), GOTERMCOLUMN, "");
+			if (isChecked != null && isChecked.equalsIgnoreCase("false")) {
+				goTermJCheckBox.setSelected(false);
+			} else if (isChecked != null && isChecked.equalsIgnoreCase("true")) {
+				goTermJCheckBox.setSelected(true);
+			}
+
+			isChecked = pm.getProperty(this.getClass(), GOTERMCOLUMN, "");
+			if (isChecked != null && isChecked.equalsIgnoreCase("false")) {
+				goTermJCheckBox.setSelected(false);
+			} else if (isChecked != null && isChecked.equalsIgnoreCase("true")) {
+				goTermJCheckBox.setSelected(true);
+			}
+
+			isChecked = pm.getProperty(this.getClass(), networkJCheckBox1
+					.getText(), "");
+			if (isChecked != null && isChecked.equalsIgnoreCase("true")) {
+				networkJCheckBox1.setSelected(true);
+			} else if (isChecked != null && isChecked.equalsIgnoreCase("false")) {
+				networkJCheckBox1.setSelected(false);
+			}
+
+			isChecked = pm.getProperty(this.getClass(), networkJCheckBox2
+					.getText(), "true");
+			if (isChecked != null && isChecked.equalsIgnoreCase("false")) {
+				networkJCheckBox2.setSelected(false);
+				networkAddButton.setEnabled(true);
+				networkRemoveButton.setEnabled(true);
+			} else if (isChecked != null && isChecked.equalsIgnoreCase("true")) {
+				networkJCheckBox2.setSelected(true);
+				networkAddButton.setEnabled(false);
+				networkRemoveButton.setEnabled(false);
+			}
+
+		} catch (IOException ie) {
+			ie.printStackTrace();
+		}
+		 catch (Exception e) {
+				e.printStackTrace();
+		 }
+	}
+
+	/**
+	 * 
+	 * 
+	 */
+	private void readInteractionTypesProperties() {
+
+		String interactionStr = null;
+		try {
+			interactionStr = pm.getProperty(this.getClass(),
+					DISPLAYSELECTEDINTERACTIONTYPE, null);
+			if (interactionStr != null && !interactionStr.trim().equals("")) {
+				displaySelectedInteractionTypes.clear();
+				displaySelectedInteractionTypes
+						.addAll(processInteractionStr(interactionStr.trim()));
+			}
+			interactionStr = pm.getProperty(this.getClass(),
+					NETWORKSELECTEDINTERACTIONTYPE, null);
+			if (interactionStr != null && !interactionStr.trim().equals("")) {
+				networkSelectedInteractionTypes.clear();
+				networkSelectedInteractionTypes
+						.addAll(processInteractionStr(interactionStr.trim()));
+			}
+
+		} catch (IOException ie) {
+			ie.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	private List<String> processInteractionStr(String interactionStr) {
+		List<String> aList = new ArrayList<String>();
+		interactionStr = interactionStr.substring(1,
+				interactionStr.length() - 1);
+		if (!interactionStr.trim().equals("")) {
+			String[] tokens = interactionStr.split(",");
+			for (int i = 0; i < tokens.length; i++) {
+				aList.add(tokens[i].trim());
+			}
+
+		}
+
+		return aList;
+	}
+
 	// Variables declaration - do not modify//GEN-BEGIN:variables
 	private JButton addButton;
+
 	private JButton networkAddButton;
 
 	private JButton cancelButton;
 
+	private JButton savePreferenceButton;
+
+	// private JLabel blankLabel;
+
 	private JList availableInteractionTypeList;
+
 	private JList availableNetworkInteractionTypeList;
 
 	private JButton refreshButton;
@@ -1813,6 +2043,73 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 		cancelAction = true;
 	}
 
+	private void savePreferences() {
+
+		try {
+
+			pm.setProperty(this.getClass(), "url",
+					ResultSetlUtil.INTERACTIONS_SERVLET_URL);
+
+			pm.setProperty(this.getClass(), SELECTCONTEXT, contextComboBox
+					.getSelectedItem().toString());
+			VersionDescriptor v = (VersionDescriptor) versionComboBox
+					.getSelectedItem();
+			String version = SELECTVERSION;
+			if (v != null)
+				version = v.getVersion();
+
+			pm.setProperty(this.getClass(), SELECTVERSION, version);
+
+			pm.setProperty(this.getClass(), DISPLAYSELECTEDINTERACTIONTYPE,
+					displaySelectedInteractionTypes.toString());
+			pm.setProperty(this.getClass(), NETWORKSELECTEDINTERACTIONTYPE,
+					networkSelectedInteractionTypes.toString());
+
+			if (!markerJCheckBox.isSelected())
+				pm.setProperty(this.getClass(), MARKERLABEL, String
+						.valueOf(false));
+			else
+				pm.setProperty(this.getClass(), MARKERLABEL, String
+						.valueOf(true));
+			if (!geneJCheckBox.isSelected())
+				pm.setProperty(this.getClass(), GENELABEL, String
+						.valueOf(false));
+			else
+				pm
+						.setProperty(this.getClass(), GENELABEL, String
+								.valueOf(true));
+			if (!geneTypeLCheckBox.isSelected())
+				pm.setProperty(this.getClass(), GENETYPELABEL, String
+						.valueOf(false));
+			else
+				pm.setProperty(this.getClass(), GENETYPELABEL, String
+						.valueOf(true));
+			if (!goTermJCheckBox.isSelected())
+				pm.setProperty(this.getClass(), GOTERMCOLUMN, String
+						.valueOf(false));
+			else
+				pm.setProperty(this.getClass(), GOTERMCOLUMN, String
+						.valueOf(true));
+
+			if (!networkJCheckBox1.isSelected())
+				pm.setProperty(this.getClass(), networkJCheckBox1.getText(),
+						String.valueOf(false));
+			else
+				pm.setProperty(this.getClass(), networkJCheckBox1.getText(),
+						String.valueOf(true));
+
+			if (!networkJCheckBox2.isSelected())
+				pm.setProperty(this.getClass(), networkJCheckBox2.getText(),
+						String.valueOf(false));
+			else
+				pm.setProperty(this.getClass(), networkJCheckBox2.getText(),
+						String.valueOf(true));
+
+		} catch (IOException ie) {
+			ie.printStackTrace();
+		}
+	}
+
 	private void previewSelectionsHandler(ActionEvent e) {
 		refreshButton.setEnabled(false);
 		cancelAction = false;
@@ -1836,7 +2133,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 						JOptionPane
 								.showMessageDialog(
 										null,
-										"Please go to Preferences wondow to select database context.",
+										"Please go to Preferences window to make sure that you select the correct database context.",
 
 										"Information",
 										JOptionPane.INFORMATION_MESSAGE);
@@ -1849,7 +2146,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 						JOptionPane
 								.showMessageDialog(
 										null,
-										"Please go to Preferences wondow to select database version.",
+										"Please go to Preferences window to make sure that you select the correct database version.",
 
 										"Information",
 										JOptionPane.INFORMATION_MESSAGE);
@@ -1875,7 +2172,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 						if (marker != null && marker.getGeneId() != -1
 								&& cellularNetWorkElementInformation.isDirty()) {
 							BigDecimal id = new BigDecimal(marker.getGeneId());
-							ArrayList<InteractionDetail> interactionDetails = null;
+							List<InteractionDetail> interactionDetails = null;
 
 							try {
 								interactionDetails = interactionsConnection
@@ -1943,12 +2240,18 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 	/**
 	 * Create a connection with the server.
 	 */
-	private void loadProperty() {
+	private void loadURLProperty() {
 		iteractionsProp = new Properties();
 		try {
-			iteractionsProp.load(new FileInputStream(PROPERTIES_FILE));
-			String interactionsServletUrl = iteractionsProp
-					.getProperty(INTERACTIONS_SERVLET_URL);
+   
+			String interactionsServletUrl = pm.getProperty(this.getClass(),
+					"url", "");
+			if (interactionsServletUrl == null
+					|| interactionsServletUrl.trim().equals("")) {
+				iteractionsProp.load(new FileInputStream(PROPERTIES_FILE));
+				interactionsServletUrl = iteractionsProp
+						.getProperty(INTERACTIONS_SERVLET_URL);
+			}
 			ResultSetlUtil.setUrl(interactionsServletUrl);
 
 		} catch (java.io.IOException ie) {
@@ -1982,6 +2285,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 								null,
 								"CNKB service has an internal error, Please contact with geWorkbench developer ...",
 								"Error", JOptionPane.ERROR_MESSAGE);
+
 			}
 
 			if (contextList != null) {
@@ -2003,8 +2307,10 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 
 			versionComboBox.setModel(new DefaultComboBoxModel(versionList
 					.toArray()));
-
-			if (allInteractionTypes != null) {
+			
+			displaySelectedInteractionTypes.clear(); 
+			networkSelectedInteractionTypes.clear(); 
+			if (allInteractionTypes != null && allInteractionTypes.size() > 0 ) {
 
 				Collections.sort(allInteractionTypes);
 				displayAvailInteractionTypes.addAll(allInteractionTypes);
@@ -2019,7 +2325,12 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 				for (int i = 0; i < displayAvailInteractionTypes.size(); i++)
 					columnLabels[i + 4] = displayAvailInteractionTypes.get(i)
 							+ COLUMNLABELPOSTFIX;
-
+				 
+				displaySelectedInteractionTypes.add(PROTEIN_DNA);
+				displaySelectedInteractionTypes.add(PROTEIN_PROTEIN);
+				networkSelectedInteractionTypes.add(PROTEIN_DNA);
+				networkSelectedInteractionTypes.add(PROTEIN_PROTEIN);
+				readPreferences();
 			} else {
 				for (int i = 0; i < firstFourColumnLabels.length; i++)
 					columnLabels[i] = firstFourColumnLabels[i];
@@ -2037,19 +2348,8 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 			for (int i = 0; i < columnLabels.length; i++)
 				model.removeColumn(tableColumns[i]);
 			for (int i = 0; i < 4; i++)
-				model.addColumn(tableColumns[i]);
-
-			displayAvailInteractionTypes.remove(PROTEIN_DNA);
-			displayAvailInteractionTypes.remove(PROTEIN_PROTEIN);
-
-			displaySelectedInteractionTypes.add(PROTEIN_DNA);
-			displaySelectedInteractionTypes.add(PROTEIN_PROTEIN);
-
-			networkAvailInteractionTypes.remove(PROTEIN_DNA);
-			networkAvailInteractionTypes.remove(PROTEIN_PROTEIN);
-
-			networkSelectedInteractionTypes.add(PROTEIN_DNA);
-			networkSelectedInteractionTypes.add(PROTEIN_PROTEIN);
+				model.addColumn(tableColumns[i]);			
+			
 
 			availableInteractionTypeList.setModel(new DefaultListModel());
 			availableInteractionTypeList
@@ -2066,7 +2366,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 			needRedraw = false;
 			updateColumnPref();
 			needRedraw = true;
-			;
+			savePreferenceButton.setEnabled(true);
 
 		} catch (Exception e) {
 			log.error(e.getMessage());
@@ -2078,14 +2378,16 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 
 		try {
 
+			savePreferences();
+			
 			contextList.clear();
 			versionList.clear();
 			allInteractionTypes.clear();
 			displayAvailInteractionTypes.clear();
 			displaySelectedInteractionTypes.clear();
 			networkAvailInteractionTypes.clear();
-			networkSelectedInteractionTypes.clear();
-
+			networkSelectedInteractionTypes.clear();		
+			
 			initPreferences();
 
 		} catch (Exception e) {
@@ -2406,6 +2708,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 		public preferenceJCheckBox(String label, boolean isSelected) {
 
 			super(label, isSelected);
+
 			addMouseListener(new MouseAdapter() {
 				public void mouseClicked(MouseEvent me) {
 					updateColumnPref();
@@ -2421,8 +2724,8 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 		public Component getListCellRendererComponent(JList list, Object value,
 				int index, boolean isSelected, boolean cellHasFocus) {
 
-			//System.out.println("getListCellRendererComponent() started:"
-			//		+ System.currentTimeMillis());
+			// System.out.println("getListCellRendererComponent() started:"
+			// + System.currentTimeMillis());
 
 			Font theFont = null;
 			Color theForeground = null;
@@ -2448,9 +2751,9 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 					theText = " ";
 				renderer.setText(theText);
 			}
-			
-			//System.out.println("getListCellRendererComponent() ended at:"
-			//		+ System.currentTimeMillis());
+
+			// System.out.println("getListCellRendererComponent() ended at:"
+			// + System.currentTimeMillis());
 			return renderer;
 		}
 	}
@@ -2835,7 +3138,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 		builder.setLeftToRight(true);
 		builder.setDefaultDialogBorder();
 
-		builder.appendSeparator("Column Display Preference");
+		builder.appendSeparator("Column Display Preferences");
 		builder.append(buildColumnCheckBoxPanel());
 		builder.append(buildJListPanel("Available Interaction Types",
 				availableInteractionTypeList));

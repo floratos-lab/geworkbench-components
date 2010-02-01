@@ -230,7 +230,7 @@ public class CellularNetWorkElementInformation {
      * Associate the gene marker with the details.
      * @param arrayList
      */
-    public void setInteractionDetails(ArrayList<InteractionDetail> arrayList, List<String> allInteractionTypes) {
+    public void setInteractionDetails(List<InteractionDetail> arrayList, List<String> allInteractionTypes) {
 
     	if ( this.allInteractionTypes.size() == 0 )
     		this.allInteractionTypes.addAll(allInteractionTypes);

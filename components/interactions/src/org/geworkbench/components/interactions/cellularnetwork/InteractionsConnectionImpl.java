@@ -24,14 +24,14 @@ public class InteractionsConnectionImpl {
 	public InteractionsConnectionImpl() {
 	}
 
-	public ArrayList<InteractionDetail> getPairWiseInteraction(
+	public List<InteractionDetail> getPairWiseInteraction(
 			DSGeneMarker marker, String context, String version)
 			throws UnAuthenticatedException, ConnectException, IOException {
 		BigDecimal id = new BigDecimal(marker.getGeneId());
 		return this.getPairWiseInteraction(id, context, version);
 	}
 
-	public ArrayList<InteractionDetail> getPairWiseInteraction(BigDecimal id1,
+	public List<InteractionDetail> getPairWiseInteraction(BigDecimal id1,
 			String context, String version) throws UnAuthenticatedException,
 			ConnectException, IOException {
 		String interactionType = null;
@@ -42,7 +42,7 @@ public class InteractionsConnectionImpl {
 
 		double confidenceValue = 0d;
 
-		ArrayList<InteractionDetail> arrayList = new ArrayList<InteractionDetail>();
+		List<InteractionDetail> arrayList = new ArrayList<InteractionDetail>();
 
 		ResultSetlUtil rs = null;
 
@@ -97,9 +97,9 @@ public class InteractionsConnectionImpl {
 		return arrayList;
 	}
 
-	public ArrayList<String> getInteractionTypes() throws ConnectException,
+	public List<String> getInteractionTypes() throws ConnectException,
 			IOException {
-		ArrayList<String> arrayList = new ArrayList<String>();
+		List<String> arrayList = new ArrayList<String>();
 
 		ResultSetlUtil rs = null;
 		String interactionType = null;
