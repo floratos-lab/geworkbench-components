@@ -578,9 +578,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 		graphToolBar.add(thresholdTextField);
 		graphToolBar.add(thresholdSlider);
 		cancelButton = new JButton();
-		// blankLabel = new JLabel();
-		savePreferenceButton = new JButton();
-
+	 
 		contextComboBox.setSize(60, 10);
 
 		ListCellRenderer aRenderer = new ComboBoxCellRenderer();
@@ -880,14 +878,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 				cancelTheAction(evt);
 			}
 		});
-
-		savePreferenceButton
-				.addActionListener(new java.awt.event.ActionListener() {
-					public void actionPerformed(java.awt.event.ActionEvent evt) {
-						//savePreferences();
-					}
-				});
-
+ 
 		jPanel1.setBorder(javax.swing.BorderFactory.createLineBorder(new Color(
 				204, 204, 255)));
 		// jPanel1.setMaximumSize(new Dimension(587, 382));
@@ -1118,12 +1109,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 		commandToolBar.add(createNetWorkButton);
 		cancelButton.setText("Cancel");
 		commandToolBar.add(cancelButton);
-		// blankLabel.setText(" ");
-		// commandToolBar.add(blankLabel);
-		savePreferenceButton.setText("Save Preferences");
-		savePreferenceButton.setEnabled(false);
-		commandToolBar.add(savePreferenceButton);
-
+	 
 		hits = new Vector<CellularNetWorkElementInformation>();
 
 		displaySelectedInteractionTypes.add(PROTEIN_DNA);
@@ -1787,11 +1773,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 
 	private JButton networkAddButton;
 
-	private JButton cancelButton;
-
-	private JButton savePreferenceButton;
-
-	// private JLabel blankLabel;
+	private JButton cancelButton; 
 
 	private JList availableInteractionTypeList;
 
@@ -2366,8 +2348,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 			needRedraw = false;
 			updateColumnPref();
 			needRedraw = true;
-			savePreferenceButton.setEnabled(true);
-
+	 
 		} catch (Exception e) {
 			log.error(e.getMessage());
 		}
