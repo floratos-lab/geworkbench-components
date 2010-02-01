@@ -1,5 +1,4 @@
-<geaw-config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:noNamespaceSchemaLocation="ConfigurationFile Schema.xsd">
+<component-descriptor xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="Descriptor Schema.xsd">
 
 	<component name="Pudge Analysis"
 		class="org.geworkbench.components.pudge.PudgeAnalysis" version="1.0"
@@ -18,17 +17,13 @@
 			</html>
 		]]></license>
 
+			<online-help
+				helpSet="org/geworkbench/components/pudge/help/pudgeHelpSet.hs" />
+
 	</component>
 
 	<plugin id="PudgeAnalysis" name="Pudge Analysis"
 		class="org.geworkbench.components.pudge.PudgeAnalysis" source="pudge" />
 
-	<component-descriptor xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-		xsi:noNamespaceSchemaLocation="Descriptor Schema.xsd">
-		<component class="org.geworkbench.components.pudge.PudgeAnalysis">
-			<online-help
-				helpSet="org/geworkbench/components/pudge/help/pudgeHelpSet.hs" />
-		</component>
-	</component-descriptor>
 
-</geaw-config>
+</component-descriptor>
