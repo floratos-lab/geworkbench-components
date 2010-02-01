@@ -1,5 +1,4 @@
-<geaw-config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:noNamespaceSchemaLocation="ConfigurationFile Schema.xsd">
+<component-descriptor xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="Descriptor Schema.xsd">
 
 	<component  name="Sequence Retriever"
 				class="org.geworkbench.components.sequenceretriever.SequenceRetriever"
@@ -21,6 +20,8 @@
 				<body>----</body>
 			</html>
 		]]></license>
+	        <online-help helpSet="org/geworkbench/components/sequenceRetriever/help/sequenceRetrieverHelpSet.hs"/>
+
 	</component>
 
 
@@ -28,10 +29,5 @@
 		<gui-area name="VisualArea"/>
 	</plugin>
 
-	<component-descriptor xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="Descriptor Schema.xsd">
-	    <component class="org.geworkbench.components.sequenceRetriever.SequenceRetriever">
-	        <online-help helpSet="org/geworkbench/components/sequenceRetriever/help/sequenceRetrieverHelpSet.hs"/>
-	    </component>
-	</component-descriptor>
 
-</geaw-config>
+</component-descriptor>
