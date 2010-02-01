@@ -1,5 +1,4 @@
-<geaw-config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:noNamespaceSchemaLocation="ConfigurationFile Schema.xsd">
+<component-descriptor xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="Descriptor Schema.xsd">
 
 	<component  name="SkyLine Comparative Modeling"
 				class="org.geworkbench.components.skyline.SkyLineAnalysis"
@@ -17,8 +16,9 @@
 				<body>----</body>
 			</html>
 		]]></license>
+
 	</component>
 
   <plugin id="SkyLineAnalysis" name="SkyLine Comparative Modeling" class="org.geworkbench.components.skyline.SkyLineAnalysis" source="skyline"/>
 
-</geaw-config>
+</component-descriptor>
