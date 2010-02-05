@@ -64,17 +64,16 @@ import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
 import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.bison.util.RandomNumberGenerator;
+import org.geworkbench.builtin.projects.ProjectPanel;
 import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.engine.management.AcceptTypes;
 import org.geworkbench.engine.management.Publish;
 import org.geworkbench.engine.management.Script;
 import org.geworkbench.engine.management.Subscribe;
 import org.geworkbench.events.GeneSelectorEvent;
-
 import org.geworkbench.events.ProjectNodeAddedEvent;
 import org.geworkbench.util.FilePathnameUtils;
 import org.geworkbench.util.sequences.GeneChromosomeMatcher;
-import org.geworkbench.builtin.projects.ProjectPanel;
 
 /**
  * Widget to retrieve Promoter sequence from UCSC's DAS sequence server.
@@ -593,7 +592,9 @@ public class SequenceRetriever implements VisualPlugin {
 						list.addElement(o);
 					}
 
-					getSequences(list);
+					if (!getSequences(list)){
+						return;
+					}
 					if (status.equalsIgnoreCase(STOP)) {
 						sequenceDB = new CSSequenceSet();
 						updateProgressBar(100, "Stopped on " + new Date());
@@ -719,7 +720,7 @@ public class SequenceRetriever implements VisualPlugin {
 
 	}
 
-	void getSequences(Vector selectedList) {
+	boolean getSequences(Vector selectedList) {
 
 		if (selectedList != null) {
 
@@ -740,7 +741,7 @@ public class SequenceRetriever implements VisualPlugin {
 						updateProgressBar(progress, "Retrieving "
 								+ marker.getLabel());
 						if (status.equalsIgnoreCase(STOP)) {
-							return;
+							return false;
 						}
 						getCachedDNASequences(marker);
 					}
@@ -749,8 +750,15 @@ public class SequenceRetriever implements VisualPlugin {
 					int startPoint = ((Integer) model.getNumber()).intValue();
 					int endPoint = ((Integer) model1.getNumber()).intValue();
 
-					String database = SequenceFetcher
-							.matchChipType(AnnotationParser.getCurrentChipType());
+					String currentChipType = AnnotationParser
+							.getCurrentChipType();
+					String database = "";
+					database = SequenceFetcher.matchChipType(currentChipType);
+
+					/* No selection was made */
+					if (database == null) {
+						return false;
+					}
 
 					boolean serverWorking = true;
 					for (int i = 0; i < selectedList.size(); i++) {
@@ -761,7 +769,7 @@ public class SequenceRetriever implements VisualPlugin {
 						double progress = (double) (i + 1)
 								/ (double) (selectedList.size());
 						if (status.equalsIgnoreCase(STOP)) {
-							return;
+							return false;
 						}
 						updateProgressBar(progress, "Retrieving "
 								+ marker.getLabel());
@@ -861,7 +869,7 @@ public class SequenceRetriever implements VisualPlugin {
 								.get(count);
 						String affyid = geneMarker.getLabel();
 						if (status.equalsIgnoreCase(STOP)) {
-							return;
+							return false;
 						}
 						double progress = (double) count
 								/ (double) (selectedList.size());
@@ -910,10 +918,7 @@ public class SequenceRetriever implements VisualPlugin {
 			}
 
 		}
-
-
-
-
+		return true;
 	}
 
 	private void postProcessSequences() {
@@ -951,14 +956,14 @@ public class SequenceRetriever implements VisualPlugin {
 			sequenceDB.writeToFile(fileName);
 			sequenceDB = new CSSequenceSet();
 			sequenceDB.readFASTAFile(new File(fileName));
+			
+			updateDisplay(sequenceDB, currentRetrievedMap);
 		}
-		updateDisplay(sequenceDB, currentRetrievedMap);
-
 	}
 
 	private void updateDisplay(CSSequenceSet selectedSet,
 			HashMap<String, RetrievedSequenceView> newMap) {
-		if (selectedSet == null || newMap == null) {
+		if (selectedSet == null || newMap == null || selectedSet.size()==0 || newMap.size()==0 ) {
 			cleanUp(currentView);
 			return;
 		}
