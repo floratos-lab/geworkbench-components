@@ -1,36 +1,16 @@
 package org.geworkbench.components.genspace;
 
-import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
-import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
-import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.AnnotationParser;
-import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
-import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
-import org.geworkbench.bison.datastructure.bioobjects.microarray.CSMicroarray;
-import org.geworkbench.bison.datastructure.bioobjects.microarray.CSExpressionMarkerValue;
-import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
-import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
-import org.geworkbench.bison.annotation.DSAnnotationContext;
-import org.geworkbench.bison.annotation.CSAnnotationContextManager;
-import org.geworkbench.bison.annotation.CSAnnotationContext;
-import org.geworkbench.bison.datastructure.bioobjects.markers.goterms.GeneOntologyTree;
-import org.geworkbench.bison.datastructure.bioobjects.markers.goterms.GoMapping;
-import org.geworkbench.bison.datastructure.bioobjects.markers.goterms.GOTerm;
-import org.geworkbench.engine.config.VisualPlugin;
-import org.geworkbench.engine.management.AcceptTypes;
-import org.geworkbench.engine.management.Subscribe;
-import org.geworkbench.engine.properties.PropertiesManager;
-import org.geworkbench.events.ProjectEvent;
-import org.apache.commons.math.stat.descriptive.SummaryStatistics;
-import org.apache.commons.math.stat.descriptive.SummaryStatisticsImpl;
+import java.awt.Component;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
-import javax.swing.JPanel;
-import javax.swing.JOptionPane;
-import javax.swing.JPasswordField;
 import javax.swing.JFrame;
-import java.awt.Component;
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
+import javax.swing.JPanel;
+
+import org.geworkbench.engine.config.VisualPlugin;
+import org.geworkbench.engine.management.Subscribe;
+import org.geworkbench.events.ProjectEvent;
 /**
  * This is an example geWorkbench component.
  *
