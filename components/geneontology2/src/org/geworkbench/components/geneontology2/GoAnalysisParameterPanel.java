@@ -52,7 +52,6 @@ import org.geworkbench.builtin.projects.ProjectPanel;
 import org.geworkbench.builtin.projects.ProjectTreeNode;
 import org.geworkbench.events.listeners.ParameterActionListener;
 import org.geworkbench.util.BrowserLauncher;
-import org.geworkbench.util.GeneOntologyTreePopulateComponent;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.layout.FormLayout;
@@ -60,6 +59,8 @@ import com.jgoodies.forms.layout.FormLayout;
 public class GoAnalysisParameterPanel extends AbstractSaveableParameterPanel {
 	private static final long serialVersionUID = -57544738480207581L;
 	static Log log = LogFactory.getLog(GoAnalysisParameterPanel.class);
+	
+	private static final String DEFAULT_OBO_FILE = "data/gene_ontology.1_2.obo";
 
 	private JTabbedPane jTabbedPane1 = null;
 	private JPanel selectionPanel = null;
@@ -343,8 +344,7 @@ public class GoAnalysisParameterPanel extends AbstractSaveableParameterPanel {
 			geneOntologyRadioButton.setText("Gene Ontlogy");
 			geneOntologyRadioButton.setSelected(true);
 			geneOntologyRadioButton.setEnabled(false);
-			final String ontologyFileName = GeneOntologyTreePopulateComponent
-					.getObofileName();
+			final String ontologyFileName = DEFAULT_OBO_FILE;
 			ontologyFileNameField = new JTextField(20);
 			ontologyFileNameField.setText(ontologyFileName);
 			ontologyFileNameField.setEnabled(false); // this is always
