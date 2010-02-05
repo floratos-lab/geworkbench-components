@@ -20,9 +20,14 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.TreeSet;
 import java.util.Vector;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.swing.JOptionPane;
 import javax.xml.namespace.QName;
@@ -58,9 +63,8 @@ public class SequenceFetcher {
     public static final String UCSC = "UCSC";
     private static SequenceFetcher theSequenceFetcher = new SequenceFetcher();
     private final static String chiptyemapfilename = "chiptypeDatabaseMap.txt";
-    private static HashMap chiptypeMap = new HashMap();
+    private static HashMap<String, String> chiptypeMap = new HashMap<String, String>();
     private static ArrayList<String> chipTypes = new ArrayList<String>();
-    public static String DEFAULT_CHIPTYPE = "hg18";
     public static final String newline = System.getProperty("line.separator");
     public static String UCSCDATABASEURL = "jdbc:mysql://genome-mysql.cse.ucsc.edu:3306/";
     public static final String EBIURL = "http://www.ebi.ac.uk/ws/services/Dbfetch";
@@ -70,6 +74,7 @@ public class SequenceFetcher {
     private static String genomeAssembly = "";
 
     private static CSSequenceSet cachedSequences = null;
+	private static ArrayList<String> allDBs = new ArrayList<String>();
 
     public static void populateSequenceCache() {
         File file = new File( FilePathnameUtils.getTemporaryFilesDirectoryPath() +
@@ -163,15 +168,23 @@ public class SequenceFetcher {
         return null;
     }
 
+	/*
+	 * Get databases from the USCS MySQL server 
+	 * which have the highest version number.
+	 * 
+	 * Look up the database name (without a version number) 
+	 * from the chiptypeDatabaseMap.txt file
+	 * based on the name of annotation file associated with  
+	 * the data set in the Project panel.
+	 */
     static {
         BufferedReader br = new BufferedReader(new InputStreamReader(
                 SequenceFetcher.class.getResourceAsStream(chiptyemapfilename)));
         try {
             String str = br.readLine();
-            while (str != null) {
+            while (str != null && str.contains(",")) {
                 String[] data = str.split(",");
                 chiptypeMap.put(data[0].trim(), data[1].trim());
-                chiptypeMap.put(data[1].trim(), data[0].trim());
                 chipTypes.add(data[1].trim());
                 str = br.readLine();
             }
@@ -180,6 +193,32 @@ public class SequenceFetcher {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        
+    	Statement statement ;
+		try {
+		Class.forName("com.mysql.jdbc.Driver");
+		} catch (ClassNotFoundException cnfe) {
+			JOptionPane.showMessageDialog(null, ClassNotFoundException.class
+					.getSimpleName()
+					+ " for jdbc driver.", "Have you installed jdbc driver?",
+					JOptionPane.ERROR_MESSAGE);
+			log.error(cnfe, cnfe);
+		}
+			
+		String dburl = UCSCDATABASEURL;
+		Connection connection;
+		try {
+			connection = DriverManager.getConnection(dburl, "genome", "");
+			statement = connection.createStatement();
+			statement.execute("show databases");
+			ResultSet resultSet = statement .getResultSet();
+			while ( resultSet.next() ){
+				allDBs.add( resultSet.getString(1));
+			}
+		    Collections.sort(allDBs, new VersionComparator());
+		} catch (Exception e) {
+			log.error(e);
+		}
     }
 
 
@@ -253,48 +292,41 @@ public class SequenceFetcher {
         return null;
     }
 
+    protected static String matchChipType(String chipId) {
 
-    public static String matchChipType(String chipId) {
-        if (chiptypeMap.size() == 0) {
-            //no property file loaded.
-            return matchChipTypeToDatabase(chipId);
-        }
-        String database = (String) chiptypeMap.get(chipId);
-        String defaultChipChoice = database;
-        if (defaultChipChoice == null) {
-            defaultChipChoice = DEFAULT_CHIPTYPE;
-            Object[] possibleValues = chipTypes.toArray();
-            TreeSet differentValues = new TreeSet();
-            for (Object o : possibleValues) {
-                differentValues.add(o);
-            }
-            Object selectedValue = JOptionPane.showInputDialog(null,
-                    "Please confirm your genome assembly",
-                    "Select Assembly", JOptionPane.QUESTION_MESSAGE, null,
-                    differentValues.toArray(), defaultChipChoice);
-            if (selectedValue != null) {
-                database = (String) selectedValue;
-                genomeAssembly = (String) selectedValue;
-                if (database.equals("Other")) {
-                    return null;
-                }
-            }
-            return database;
-        }
-        return database;
-    }
+		String defaultChipChoice = "";
+		TreeSet<String> differentValues = new TreeSet<String>();
+		Iterator<String> fileIterator = chiptypeMap.keySet().iterator();
+		while (fileIterator.hasNext()) {
+			String annotationFileSegment = (String) fileIterator.next();
+			String dbWithoutVersion = (String) chiptypeMap
+					.get(annotationFileSegment);
 
-    /**
-     * Only used when the property file cannot be found.
-     */
-    public static String matchChipTypeToDatabase(String chipType) {
-        if (chipType.startsWith("HG")) {
-            return "hg18";
-        } else if (chipType.startsWith("M")) {
-            return "mm8";
-        }
-        return "hg18";
-    }
+			String db = "";
+			Iterator<String> allDBsIterator = allDBs.iterator();
+			while (allDBsIterator.hasNext()) {
+				db = (String) allDBsIterator.next();
+				if (db.startsWith(dbWithoutVersion)) {
+					differentValues.add(db);
+
+					if (chipId.contains(annotationFileSegment)) {
+						defaultChipChoice = db;
+					}
+					break;
+				}
+			}
+		}
+
+		Object selectedValue = JOptionPane.showInputDialog(null,
+				"Please confirm your genome assembly", "Select Assembly",
+				JOptionPane.QUESTION_MESSAGE, null, differentValues.toArray(),
+				defaultChipChoice);
+		if (selectedValue != null) {
+			genomeAssembly = (String) selectedValue;
+		}
+		String database = (String) selectedValue;
+		return database;
+	}
 
     /**
      * getSequences
@@ -473,6 +505,47 @@ public class SequenceFetcher {
     	return genomeAssembly;
     }
 
+}
 
+/**
+ * 
+ * @author tg2321
+ *
+ * compares Strings of the format hg18 to hg19
+ * and sorts on the integer part of the String
+ * moving the later versions to the beginning.
+ * 
+ */
+class VersionComparator implements Comparator<Object> {
+	public int compare(Object o1, Object o2) {
+		if (o1 instanceof String && o2 instanceof String) {
+			String string1 = (String) o1;
+			String string2 = (String) o2;
+			Pattern integersOnly = Pattern.compile("\\d+");
+			Matcher matcher1 = integersOnly.matcher(string1);
+			boolean foundInteger1 = matcher1.find();
+			Matcher matcher2 = integersOnly.matcher(string2);
+			boolean foundInteger2 = matcher2.find();
+			if (!foundInteger1 && !foundInteger2) {
+				return 0;
+			}
+			if (!foundInteger1) {
+				return 1;
+			}
+			if (!foundInteger2) {
+				return -1;
+			}
 
+			String versionNumber1 = matcher1.group();
+			String versionNumber2 = matcher2.group();
+			Integer versionInt1 = new Integer(versionNumber1);
+			Integer versionInt2 = new Integer(versionNumber2);
+
+			int compareOut = versionInt1.compareTo(versionInt2); 
+			
+			return -1 * compareOut ;
+		}
+
+		return 0;
+	}
 }
