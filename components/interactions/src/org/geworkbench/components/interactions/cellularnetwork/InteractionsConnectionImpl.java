@@ -6,6 +6,7 @@ import org.apache.commons.logging.LogFactory;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.net.ConnectException;
+import java.net.SocketTimeoutException;
 import java.rmi.RemoteException;
 import java.util.List;
 import java.util.ArrayList;
@@ -24,16 +25,16 @@ public class InteractionsConnectionImpl {
 	public InteractionsConnectionImpl() {
 	}
 
-	public List<InteractionDetail> getPairWiseInteraction(
-			DSGeneMarker marker, String context, String version)
-			throws UnAuthenticatedException, ConnectException, IOException {
+	public List<InteractionDetail> getPairWiseInteraction(DSGeneMarker marker,
+			String context, String version) throws UnAuthenticatedException,
+			ConnectException, SocketTimeoutException, IOException {
 		BigDecimal id = new BigDecimal(marker.getGeneId());
 		return this.getPairWiseInteraction(id, context, version);
 	}
 
 	public List<InteractionDetail> getPairWiseInteraction(BigDecimal id1,
 			String context, String version) throws UnAuthenticatedException,
-			ConnectException, IOException {
+			ConnectException, SocketTimeoutException, IOException {
 		String interactionType = null;
 		BigDecimal msid2 = null;
 		BigDecimal msid1 = null;
@@ -80,7 +81,11 @@ public class InteractionsConnectionImpl {
 				logger.error(ce.getMessage());
 			}
 			throw new ConnectException(ce.getMessage());
-
+		} catch (SocketTimeoutException se) {
+			if (logger.isErrorEnabled()) {
+				logger.error(se.getMessage());
+			}
+			throw new SocketTimeoutException(se.getMessage());
 		} catch (IOException ie) {
 			if (logger.isErrorEnabled()) {
 				logger.error(ie.getMessage());
@@ -98,7 +103,7 @@ public class InteractionsConnectionImpl {
 	}
 
 	public List<String> getInteractionTypes() throws ConnectException,
-			IOException {
+			SocketTimeoutException, IOException {
 		List<String> arrayList = new ArrayList<String>();
 
 		ResultSetlUtil rs = null;
@@ -124,7 +129,11 @@ public class InteractionsConnectionImpl {
 				logger.error(ce.getMessage());
 			}
 			throw new ConnectException(ce.getMessage());
-
+		} catch (SocketTimeoutException se) {
+			if (logger.isErrorEnabled()) {
+				logger.error(se.getMessage());
+			}
+			throw new SocketTimeoutException(se.getMessage());
 		} catch (IOException ie) {
 			if (logger.isErrorEnabled()) {
 				logger.error(ie.getMessage());
@@ -141,7 +150,7 @@ public class InteractionsConnectionImpl {
 	}
 
 	public ArrayList<String> getDatasetNames() throws ConnectException,
-			IOException {
+			SocketTimeoutException, IOException {
 		ArrayList<String> arrayList = new ArrayList<String>();
 
 		ResultSetlUtil rs = null;
@@ -167,7 +176,11 @@ public class InteractionsConnectionImpl {
 				logger.error(ce.getMessage());
 			}
 			throw new ConnectException(ce.getMessage());
-
+		} catch (SocketTimeoutException se) {
+			if (logger.isErrorEnabled()) {
+				logger.error(se.getMessage());
+			}
+			throw new SocketTimeoutException(se.getMessage());
 		} catch (IOException ie) {
 			if (logger.isErrorEnabled()) {
 				logger.error(ie.getMessage());
@@ -184,7 +197,7 @@ public class InteractionsConnectionImpl {
 	}
 
 	public List<VersionDescriptor> getVersionDescriptor(String datasetName)
-			throws ConnectException, IOException {
+			throws ConnectException, SocketTimeoutException, IOException {
 		List<VersionDescriptor> arrayList = new ArrayList<VersionDescriptor>();
 
 		ResultSetlUtil rs = null;
@@ -217,7 +230,11 @@ public class InteractionsConnectionImpl {
 				logger.error(ce.getMessage());
 			}
 			throw new ConnectException(ce.getMessage());
-
+		} catch (SocketTimeoutException se) {
+			if (logger.isErrorEnabled()) {
+				logger.error(se.getMessage());
+			}
+			throw new SocketTimeoutException(se.getMessage());
 		} catch (IOException ie) {
 			if (logger.isErrorEnabled()) {
 				logger.error(ie.getMessage());
@@ -226,9 +243,9 @@ public class InteractionsConnectionImpl {
 
 		} catch (Exception se) {
 			if (logger.isErrorEnabled()) {
-				logger.error("getInteractionTypes() - ResultSetlUtil rs=" + rs); //$NON-NLS-1$
+				logger.error(se.getMessage()); //$NON-NLS-1$
 			}
-			se.printStackTrace();
+
 		}
 		return arrayList;
 	}
@@ -247,10 +264,14 @@ public class InteractionsConnectionImpl {
 
 			return true;
 		} catch (java.net.ConnectException ce) {
-			ce.printStackTrace();
+			if (logger.isErrorEnabled()) {
+				logger.error(ce.getMessage());
+			}
 			return false;
 		} catch (Exception e) {
-			e.printStackTrace();
+			if (logger.isErrorEnabled()) {
+				logger.error(e.getMessage());
+			}
 			return false;
 		}
 

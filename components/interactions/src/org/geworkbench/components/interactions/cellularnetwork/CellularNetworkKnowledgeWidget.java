@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.net.Authenticator;
 import java.net.ConnectException;
+import java.net.SocketTimeoutException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -145,8 +146,10 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 	private static String PROPERTIES_FILE = "conf/application.properties";
 
 	private static final String INTERACTIONS_SERVLET_URL = "interactions_servlet_url";
-
+	private static final String INTERACTIONS_SERVLET_CONNECTION_TIMEOUT = "interactions_servlet_connection_timeout";
 	private Properties iteractionsProp;
+	
+	private int timeout = 0;
 
 	private static final String GOTERMCOLUMN = "GO Annotation";
 
@@ -197,7 +200,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 
 		pm = PropertiesManager.getInstance();
 
-		loadURLProperty();
+		loadApplicationProperty();
 		initComponents();
 
 		activatedMarkerTable.getTableHeader().setEnabled(true);
@@ -674,6 +677,14 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 										null,
 										"No service running. Please check with the administrator of your service infrastructure.",
 										"Error", JOptionPane.ERROR_MESSAGE);
+					} catch (SocketTimeoutException se) {
+						JOptionPane
+						.showMessageDialog(
+								null,
+								"No service running. Please check with the administrator of your service infrastructure.",
+								"Error",
+								JOptionPane.ERROR_MESSAGE);		       
+					
 					} catch (IOException ie) {
 						JOptionPane
 								.showMessageDialog(
@@ -2250,7 +2261,17 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 								cancelAction = true;
 								break;
 
-							} catch (IOException ie) {
+							} catch (SocketTimeoutException se) {
+								JOptionPane
+								.showMessageDialog(
+										null,
+										"No service running. Please check with the administrator of your service infrastructure.",
+										"Error",
+										JOptionPane.ERROR_MESSAGE);
+						        cancelAction = true;
+						        break;
+
+					    }catch (IOException ie) {
 								JOptionPane
 										.showMessageDialog(
 												null,
@@ -2299,20 +2320,24 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 	/**
 	 * Create a connection with the server.
 	 */
-	private void loadURLProperty() {
+	private void loadApplicationProperty() {
 		iteractionsProp = new Properties();
 		try {
-
+			iteractionsProp.load(new FileInputStream(PROPERTIES_FILE));
+			
+			timeout = new Integer(iteractionsProp
+						.getProperty(INTERACTIONS_SERVLET_CONNECTION_TIMEOUT));
+			
 			String interactionsServletUrl = pm.getProperty(this.getClass(),
 					"url", "");
 			if (interactionsServletUrl == null
 					|| interactionsServletUrl.trim().equals("")) {
-				iteractionsProp.load(new FileInputStream(PROPERTIES_FILE));
+				 
 				interactionsServletUrl = iteractionsProp
 						.getProperty(INTERACTIONS_SERVLET_URL);
 			}
 			ResultSetlUtil.setUrl(interactionsServletUrl);
-
+			ResultSetlUtil.setTimeout(timeout);
 		} catch (java.io.IOException ie) {
 			log.error(ie.getMessage());
 		} catch (Exception e) {
@@ -2338,6 +2363,13 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 								null,
 								"No service running. Please check with the administrator of your service infrastructure.",
 								"Error", JOptionPane.ERROR_MESSAGE);
+			} catch (SocketTimeoutException se) {
+				JOptionPane
+				.showMessageDialog(
+						null,
+						"No service running. Please check with the administrator of your service infrastructure.",
+						"Error",
+						JOptionPane.ERROR_MESSAGE);			
 			} catch (IOException ie) {
 				JOptionPane
 						.showMessageDialog(
