@@ -60,6 +60,8 @@ public class ResultSetlUtil {
 	public static final BigDecimal NULL_BIGDECIMAL = new BigDecimal(0);
 
 	public static String INTERACTIONS_SERVLET_URL = null;
+	
+	public static int urlConnectionTimeout = 0;
 
 	private TreeMap<String, Integer> metaMap;
 	private String[] row;
@@ -79,6 +81,11 @@ public class ResultSetlUtil {
 	public static void setUrl(String aUrl) {
 		INTERACTIONS_SERVLET_URL = aUrl;
 	}
+	
+	public static void setTimeout(int timeout) {
+		urlConnectionTimeout = timeout;
+	}
+
 
 	// reconstruct metadata
 	public void processMetadata() {
@@ -161,6 +168,7 @@ public class ResultSetlUtil {
 		HttpURLConnection aConnection = (HttpURLConnection) (aURL
 				.openConnection());
 		aConnection.setDoOutput(true);
+		aConnection.setConnectTimeout(urlConnectionTimeout);
 		return aConnection;
 	}
 
