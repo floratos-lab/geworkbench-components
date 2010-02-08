@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <component-descriptor xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:noNamespaceSchemaLocation="Descriptor Schema.xsd">
 
@@ -12,14 +13,6 @@
  The component allows selected network nodes (genes) to be
  returned to a geWorkbench project for further analysis."
 		visualizer="true" loadByDefault="true">
-
-		<!--
-			TODO Add this back in when Geneways becomes a released component.
-			Currently, the geneways component has loadByDefault=true and
-			hidden=true in genewayswidget.ccm.xml, so it is always loaded.
-			<required-component
-			class="org.geworkbench.components.cutenet.GenewaysWidget" />
-		-->
 
 		<license><![CDATA[
 			<html><head><meta http-equiv=Content-Type content="text/html; charset=windows-1252"></head>
