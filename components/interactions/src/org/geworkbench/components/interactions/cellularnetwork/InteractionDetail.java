@@ -18,9 +18,7 @@ public class InteractionDetail {
     private String dSGeneName2;
     private double confidence;
     private String InteraactionType;
-    public static final String PROTEINPROTEININTERACTION = "protein-protein";
-    public static final String PROTEINDNAINTERACTION = "protein-dna";
-
+   
     public InteractionDetail(String dSGeneMarker1, String dSGeneMarker2, String dSGeneName1, String dSGeneName2,double confidence, String interaactionType) {
         this.dSGeneMarker1 = dSGeneMarker1;
         this.dSGeneMarker2 = dSGeneMarker2;

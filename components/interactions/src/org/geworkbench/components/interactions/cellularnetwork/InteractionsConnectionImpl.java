@@ -36,8 +36,8 @@ public class InteractionsConnectionImpl {
 			String context, String version) throws UnAuthenticatedException,
 			ConnectException, SocketTimeoutException, IOException {
 		String interactionType = null;
-		BigDecimal msid2 = null;
-		BigDecimal msid1 = null;
+		String msid2 = null;
+		String msid1 = null;
 		String geneName1 = null;
 		String geneName2 = null;
 
@@ -59,8 +59,8 @@ public class InteractionsConnectionImpl {
 					ResultSetlUtil.INTERACTIONS_SERVLET_URL);
 
 			while (rs.next()) {
-				msid1 = rs.getBigDecimal("ms_id1");
-				msid2 = rs.getBigDecimal("ms_id2");
+				msid1 = rs.getString("ms_id1");
+				msid2 = rs.getString("ms_id2");
 				geneName1 = rs.getString("gene1");
 				geneName2 = rs.getString("gene2");
 				confidenceValue = rs.getDouble("confidence_value");

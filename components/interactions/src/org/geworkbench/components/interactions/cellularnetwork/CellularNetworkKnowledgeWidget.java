@@ -148,7 +148,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 	private static final String INTERACTIONS_SERVLET_URL = "interactions_servlet_url";
 	private static final String INTERACTIONS_SERVLET_CONNECTION_TIMEOUT = "interactions_servlet_connection_timeout";
 	private Properties iteractionsProp;
-	
+
 	private int timeout = 0;
 
 	private static final String GOTERMCOLUMN = "GO Annotation";
@@ -679,12 +679,11 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 										"Error", JOptionPane.ERROR_MESSAGE);
 					} catch (SocketTimeoutException se) {
 						JOptionPane
-						.showMessageDialog(
-								null,
-								"No service running. Please check with the administrator of your service infrastructure.",
-								"Error",
-								JOptionPane.ERROR_MESSAGE);		       
-					
+								.showMessageDialog(
+										null,
+										"No service running. Please check with the administrator of your service infrastructure.",
+										"Error", JOptionPane.ERROR_MESSAGE);
+
 					} catch (IOException ie) {
 						JOptionPane
 								.showMessageDialog(
@@ -1542,7 +1541,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 	}
 
 	private void createNetworks(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_loadfromDBHandler
-		HashMap<Integer, String> geneIdToNameMap = new HashMap<Integer, String>();
+		HashMap<String, String> geneIdToNameMap = new HashMap<String, String>();
 		DSItemList<DSGeneMarker> markers = dataset.getMarkers();
 		DSItemList<DSGeneMarker> copy = new CSItemList<DSGeneMarker>();
 		copy.addAll(markers);
@@ -1554,6 +1553,8 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 
 		int serial = 0;
 		boolean isEmpty = true;
+		boolean isGene1InMicroarray = true;
+		boolean isGene2InMicroarray = true;
 		String historyStr = "";
 		boolean isRestrictToGenesPresentInMicroarray = networkJCheckBox1
 				.isSelected();
@@ -1571,66 +1572,103 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 				log.debug(" index:" + index + ",serial:" + serial + ",CNKB#"
 						+ cellularNetWorkElementInformation.getdSGeneMarker());
 				for (InteractionDetail interactionDetail : arrayList) {
+					isGene1InMicroarray = true;
+					isGene2InMicroarray = true;
 					DSGeneMarker marker = new CSGeneMarker();
 					String mid2 = interactionDetail.getdSGeneMarker2();
-					marker.setGeneId(new Integer(mid2));
-					index = Collections.binarySearch(copy, marker, eidc);
-					int serial2 = 0;
-					if (index >= 0) {
-						serial2 = copy.get(index).getSerial();
-					} else {
+					int serial2 = -1;
+					try {
+						marker.setGeneId(new Integer(mid2));
+						index = Collections.binarySearch(copy, marker, eidc);
+						if (index >= 0)
+							serial2 = copy.get(index).getSerial();
+						else
+							isGene2InMicroarray = false;
+
+					} catch (NumberFormatException ne) {
+						isGene2InMicroarray = false;
+					}
+
+					if (isGene2InMicroarray == false) {
 						log.info("Marker "
 								+ interactionDetail.getdSGeneMarker2()
 								+ " does not exist at the dataset. ");
 						if (isRestrictToGenesPresentInMicroarray)
 							continue;
 
-						serial2 = (new Integer(mid2)) * (-1);
-
+						 
 						if (interactionDetail.getdSGeneName2() != null
 								&& !interactionDetail.getdSGeneName2().trim()
 										.equals("")
 								&& !interactionDetail.getdSGeneName2().trim()
 										.equals("null"))
-							geneIdToNameMap.put(serial2 * (-1),
-									interactionDetail.getdSGeneName2());
+							geneIdToNameMap.put(mid2, interactionDetail
+									.getdSGeneName2());
 					}
 
-					isEmpty = false;
+					
+
 					String mid1 = interactionDetail.getdSGeneMarker1();
 					DSGeneMarker marker1 = new CSGeneMarker();
-					marker1.setGeneId(Integer.parseInt(mid1));
-					int index1 = Collections.binarySearch(copy, marker1, eidc);
-					int serial1 = 0;
-					if (index1 < 0) {
+					int serial1 = -1;
+					try {
+						marker1.setGeneId(Integer.parseInt(mid1));
+						int index1 = Collections.binarySearch(copy, marker1,
+								eidc);
+						
+						if (index1 < 0) {							
+							isGene1InMicroarray = false;						
+						} else {
+							serial1 = copy.get(index1).getSerial();
+						}
+					} catch (NumberFormatException ne) {
+						isGene1InMicroarray = false;
+					}
+					if (isGene1InMicroarray == false) {
 						log.info("Marker "
 								+ interactionDetail.getdSGeneMarker1()
 								+ " does not exist at the dataset. ");
+						 
 						if (isRestrictToGenesPresentInMicroarray)
 							continue;
 
-						serial1 = Integer.parseInt(mid1) * (-1);
-
 						if (interactionDetail.getdSGeneName1() != null
 								&&
-
 								!interactionDetail.getdSGeneName1().trim()
 										.equals("")
-								&& !interactionDetail.getdSGeneName1().trim()
-										.equals("null"))
-							geneIdToNameMap.put(serial1 * (-1),
+								&& !interactionDetail.getdSGeneName1()
+										.trim().equals("null"))
+							geneIdToNameMap.put(mid1,
 									interactionDetail.getdSGeneName1());
-					} else {
-						serial1 = copy.get(index1).getSerial();
 					}
-					matrix.addGeneRow(serial1);
 
-					matrix.add(serial1, serial2, 0.8f);
+					if (isGene1InMicroarray == false || isGene2InMicroarray == false)
+					{
+						   if (serial1 != -1)
+							   mid1 = String.valueOf(serial1);
+						   if (serial2 != -1)
+							   mid2 = String.valueOf(serial2);
+						
+						    matrix.add(mid1, mid2, 0.8f);
 
-					matrix.addDirectional(serial1, serial2, interactionDetail
+						    matrix.addDirectional(mid1, mid2, interactionDetail
+								.getInteractionType());
+						    matrix.addDirectional(mid2, mid1, interactionDetail
+								.getInteractionType());
+					}
+					else
+				    {
+						matrix.addGeneRow(serial1);  
+
+					    matrix.add(serial1, serial2, 0.8f);
+
+					    matrix.addDirectional(serial1, serial2, interactionDetail
 							.getInteractionType());
-					matrix.addDirectional(serial2, serial1, interactionDetail
+					    matrix.addDirectional(serial2, serial1, interactionDetail
 							.getInteractionType());
+				    }
+					
+					isEmpty = false;
 
 				}
 			}
@@ -2263,15 +2301,15 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 
 							} catch (SocketTimeoutException se) {
 								JOptionPane
-								.showMessageDialog(
-										null,
-										"No service running. Please check with the administrator of your service infrastructure.",
-										"Error",
-										JOptionPane.ERROR_MESSAGE);
-						        cancelAction = true;
-						        break;
+										.showMessageDialog(
+												null,
+												"No service running. Please check with the administrator of your service infrastructure.",
+												"Error",
+												JOptionPane.ERROR_MESSAGE);
+								cancelAction = true;
+								break;
 
-					    }catch (IOException ie) {
+							} catch (IOException ie) {
 								JOptionPane
 										.showMessageDialog(
 												null,
@@ -2324,15 +2362,15 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 		iteractionsProp = new Properties();
 		try {
 			iteractionsProp.load(new FileInputStream(PROPERTIES_FILE));
-			
+
 			timeout = new Integer(iteractionsProp
-						.getProperty(INTERACTIONS_SERVLET_CONNECTION_TIMEOUT));
-			
+					.getProperty(INTERACTIONS_SERVLET_CONNECTION_TIMEOUT));
+
 			String interactionsServletUrl = pm.getProperty(this.getClass(),
 					"url", "");
 			if (interactionsServletUrl == null
 					|| interactionsServletUrl.trim().equals("")) {
-				 
+
 				interactionsServletUrl = iteractionsProp
 						.getProperty(INTERACTIONS_SERVLET_URL);
 			}
@@ -2365,11 +2403,10 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 								"Error", JOptionPane.ERROR_MESSAGE);
 			} catch (SocketTimeoutException se) {
 				JOptionPane
-				.showMessageDialog(
-						null,
-						"No service running. Please check with the administrator of your service infrastructure.",
-						"Error",
-						JOptionPane.ERROR_MESSAGE);			
+						.showMessageDialog(
+								null,
+								"No service running. Please check with the administrator of your service infrastructure.",
+								"Error", JOptionPane.ERROR_MESSAGE);
 			} catch (IOException ie) {
 				JOptionPane
 						.showMessageDialog(
