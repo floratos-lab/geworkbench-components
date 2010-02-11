@@ -21,7 +21,8 @@ public class InteractionsConnectionImpl {
 			.getLog(InteractionsConnectionImpl.class);
 
 	private static final String UNSUPPORTED_OPERATION_MESSAGE = "unsupported operation";
-
+	private static final String ENTREZ_GENE = "Entrez Gene";
+	
 	public InteractionsConnectionImpl() {
 	}
 
@@ -40,6 +41,10 @@ public class InteractionsConnectionImpl {
 		String msid1 = null;
 		String geneName1 = null;
 		String geneName2 = null;
+		String db1_xref = null;
+		String db2_xref = null;
+		Boolean isGene1EntrezId = null;
+		Boolean isGene2EntrezId = null;
 
 		double confidenceValue = 0d;
 
@@ -58,19 +63,39 @@ public class InteractionsConnectionImpl {
 					ResultSetlUtil.MYSQL,
 					ResultSetlUtil.INTERACTIONS_SERVLET_URL);
 
-			while (rs.next()) {
+			while (rs.next()) {				
+			try
+			{
 				msid1 = rs.getString("ms_id1");
 				msid2 = rs.getString("ms_id2");
 				geneName1 = rs.getString("gene1");
 				geneName2 = rs.getString("gene2");
+				db1_xref = rs.getString("db1_xref");
+				db2_xref = rs.getString("db2_xref");
 				confidenceValue = rs.getDouble("confidence_value");
 
 				interactionType = rs.getString("interaction_type").trim();
 
+				if (db1_xref.trim().equalsIgnoreCase(ENTREZ_GENE))
+					isGene1EntrezId = true;
+				else
+					isGene1EntrezId = false;
+				
+				if (db2_xref.trim().equalsIgnoreCase(ENTREZ_GENE))
+					isGene2EntrezId = true;
+				else
+					isGene2EntrezId = false;
+				
 				InteractionDetail interactionDetail = new InteractionDetail(
 						msid1.toString(), msid2.toString(), geneName1,
-						geneName2, confidenceValue, interactionType);
+						geneName2, isGene1EntrezId.booleanValue(), isGene2EntrezId.booleanValue(), confidenceValue, interactionType);
 				arrayList.add(interactionDetail);
+			}catch(NullPointerException npe)
+			{
+				if (logger.isErrorEnabled()) {
+					logger.error("db row is dropped because a NullPointerException");
+				}
+			}
 			}
 			rs.close();
 		} catch (UnAuthenticatedException uae) {

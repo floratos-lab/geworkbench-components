@@ -1577,15 +1577,25 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 					DSGeneMarker marker = new CSGeneMarker();
 					String mid2 = interactionDetail.getdSGeneMarker2();
 					int serial2 = -1;
-					try {
-						marker.setGeneId(new Integer(mid2));
+					if (interactionDetail.isGene2EntrezId()) {
+						try {
+							marker.setGeneId(new Integer(mid2));
+						} catch (NumberFormatException ne) {
+							if (log.isErrorEnabled()) {
+								log
+										.error("ms_id2 is expect to be an integer: "
+												+ mid2
+												+ "This interaction is going to be dropped");
+							}
+							continue;
+						}
 						index = Collections.binarySearch(copy, marker, eidc);
 						if (index >= 0)
 							serial2 = copy.get(index).getSerial();
 						else
 							isGene2InMicroarray = false;
 
-					} catch (NumberFormatException ne) {
+					} else {
 						isGene2InMicroarray = false;
 					}
 
@@ -1596,7 +1606,6 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 						if (isRestrictToGenesPresentInMicroarray)
 							continue;
 
-						 
 						if (interactionDetail.getdSGeneName2() != null
 								&& !interactionDetail.getdSGeneName2().trim()
 										.equals("")
@@ -1604,70 +1613,85 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 										.equals("null"))
 							geneIdToNameMap.put(mid2, interactionDetail
 									.getdSGeneName2());
-					}
+						else
+							geneIdToNameMap.put(mid2, "");
 
-					
+					}
 
 					String mid1 = interactionDetail.getdSGeneMarker1();
 					DSGeneMarker marker1 = new CSGeneMarker();
 					int serial1 = -1;
-					try {
-						marker1.setGeneId(Integer.parseInt(mid1));
+					if (interactionDetail.isGene1EntrezId()) {
+
+						try {
+							marker1.setGeneId(Integer.parseInt(mid1));
+						} catch (NumberFormatException ne) {
+							if (log.isErrorEnabled()) {
+								log
+										.error("ms_id1 is expect to be an integer: "
+												+ mid1
+												+ "This interaction is going to be dropped");
+							}
+							continue;
+						}
 						int index1 = Collections.binarySearch(copy, marker1,
 								eidc);
-						
-						if (index1 < 0) {							
-							isGene1InMicroarray = false;						
+
+						if (index1 < 0) {
+							isGene1InMicroarray = false;
 						} else {
 							serial1 = copy.get(index1).getSerial();
 						}
-					} catch (NumberFormatException ne) {
+					} else {
 						isGene1InMicroarray = false;
 					}
 					if (isGene1InMicroarray == false) {
 						log.info("Marker "
 								+ interactionDetail.getdSGeneMarker1()
 								+ " does not exist at the dataset. ");
-						 
+
 						if (isRestrictToGenesPresentInMicroarray)
 							continue;
 
 						if (interactionDetail.getdSGeneName1() != null
-								&&
-								!interactionDetail.getdSGeneName1().trim()
+								&& !interactionDetail.getdSGeneName1().trim()
 										.equals("")
-								&& !interactionDetail.getdSGeneName1()
-										.trim().equals("null"))
-							geneIdToNameMap.put(mid1,
-									interactionDetail.getdSGeneName1());
+								&& !interactionDetail.getdSGeneName1().trim()
+										.equals("null"))
+							geneIdToNameMap.put(mid1, interactionDetail
+									.getdSGeneName1());
+						else
+							geneIdToNameMap.put(mid1, "");
 					}
 
-					if (isGene1InMicroarray == false || isGene2InMicroarray == false)
-					{
-						   if (serial1 != -1)
-							   mid1 = String.valueOf(serial1);
-						   if (serial2 != -1)
-							   mid2 = String.valueOf(serial2);
-						
-						    matrix.add(mid1, mid2, 0.8f);
+					if (isGene1InMicroarray == false
+							|| isGene2InMicroarray == false) {
+						if (serial1 != -1)
+							mid1 = String.valueOf(serial1);
+						if (serial2 != -1)
+							mid2 = String.valueOf(serial2);
 
-						    matrix.addDirectional(mid1, mid2, interactionDetail
-								.getInteractionType());
-						    matrix.addDirectional(mid2, mid1, interactionDetail
-								.getInteractionType());
+						matrix.add(mid1, mid2, isGene1InMicroarray,
+								isGene2InMicroarray, 0.8f);
+
+						matrix.addDirectional(mid1, mid2, isGene1InMicroarray,
+								isGene2InMicroarray, interactionDetail
+										.getInteractionType());
+						matrix.addDirectional(mid2, mid1, isGene2InMicroarray,
+								isGene1InMicroarray, interactionDetail
+										.getInteractionType());
+
+					} else {
+						matrix.addGeneRow(serial1);
+
+						matrix.add(serial1, serial2, 0.8f);
+
+						matrix.addDirectional(serial1, serial2,
+								interactionDetail.getInteractionType());
+						matrix.addDirectional(serial2, serial1,
+								interactionDetail.getInteractionType());
 					}
-					else
-				    {
-						matrix.addGeneRow(serial1);  
 
-					    matrix.add(serial1, serial2, 0.8f);
-
-					    matrix.addDirectional(serial1, serial2, interactionDetail
-							.getInteractionType());
-					    matrix.addDirectional(serial2, serial1, interactionDetail
-							.getInteractionType());
-				    }
-					
 					isEmpty = false;
 
 				}

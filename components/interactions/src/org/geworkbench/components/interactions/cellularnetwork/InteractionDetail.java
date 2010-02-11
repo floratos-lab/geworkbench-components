@@ -16,18 +16,23 @@ public class InteractionDetail {
     private String dSGeneMarker2;
     private String dSGeneName1;    //One node name
     private String dSGeneName2;
+    boolean isGene1EntrezId = true;
+    boolean isGene2EntrezId = true;
     private double confidence;
     private String InteraactionType;
    
-    public InteractionDetail(String dSGeneMarker1, String dSGeneMarker2, String dSGeneName1, String dSGeneName2,double confidence, String interaactionType) {
+    public InteractionDetail(String dSGeneMarker1, String dSGeneMarker2, String dSGeneName1, String dSGeneName2, boolean isGene1EntrezId, boolean isGene2EntrezId, double confidence, String interaactionType) {
         this.dSGeneMarker1 = dSGeneMarker1;
         this.dSGeneMarker2 = dSGeneMarker2;
         this.dSGeneName1 = dSGeneName1;
         this.dSGeneName2 = dSGeneName2;
+        this.isGene1EntrezId = isGene1EntrezId;
+        this.isGene2EntrezId = isGene2EntrezId;
         this.confidence = confidence;
         InteraactionType = interaactionType;
     }
 
+    
     public String getdSGeneMarker1() {
         return dSGeneMarker1;
     }
@@ -60,7 +65,15 @@ public class InteractionDetail {
         this.dSGeneName2 = dSGeneName2;
     }
     
+    public boolean isGene1EntrezId() {
+        return isGene1EntrezId;
+    }
 
+    public boolean isGene2EntrezId() {
+        return isGene2EntrezId;
+    }
+    
+    
     public double getConfidence() {
         return confidence;
     }
