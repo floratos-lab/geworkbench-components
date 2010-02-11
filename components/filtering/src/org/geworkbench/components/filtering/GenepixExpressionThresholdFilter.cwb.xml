@@ -1,6 +1,6 @@
 <component-descriptor xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="Descriptor Schema.xsd">
 
-	<component  name="Filtering Panel"
+	<component  name="Genepix Expression Threshold Filter"
 				class="org.geworkbench.components.filtering.GenepixExpressionThresholdFilter"
 				version="1.0"
 				author="C2B2"
@@ -23,6 +23,6 @@
 
 	</component>
 
-	<plugin id="genepixexpressionthresholdfilter" name="Genepix Filter" class="org.geworkbench.components.filtering.GenepixExpressionThresholdFilter" source="filtering"/>
+	<plugin id="genepixexpressionthresholdfilter" name="Genepix Expression Threshold Filter" class="org.geworkbench.components.filtering.GenepixExpressionThresholdFilter" source="filtering"/>
 
 </component-descriptor>
