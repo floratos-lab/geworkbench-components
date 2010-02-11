@@ -326,17 +326,108 @@ public class CytoscapeWidget implements VisualPlugin {
 		return results;
 	}
 
+	private void createEdge(CyNode n1, CyNode n2, String geneId1, String geneId2, String type)
+	{
+		// process the edge connecting geneId and key
+		CyEdge e = null;
+	 
+		if (type != null) {
+			/*
+			 * if (geneId > id2) { e =
+			 * Cytoscape.getCyEdge(String.valueOf(geneId),
+			 * String.valueOf(geneId) + "." + type + "." +
+			 * String.valueOf(id2), String.valueOf(id2), type); } else { e =
+			 * Cytoscape.getCyEdge(String.valueOf(id2), String.valueOf(id2) +
+			 * "." + type + "." + String.valueOf(geneId),
+			 * String.valueOf(geneId), type); }
+			 */				
+		 
+			e = Cytoscape.getCyEdge(n1.getIdentifier(), geneId1						 
+					+ "." + type + "." + geneId2, n2
+					.getIdentifier(), type);
+			// Aracne result will not have an type, so we should
+			// not need to check it here.
+			if (!cytoNetwork.edgeExists(n2, n1))
+				cytoNetwork.addEdge(e);
+
+			e.setIdentifier(geneId1 + "." + type + "."
+					+ geneId2 + "/" + n1.getIdentifier() + "-"
+					+ n2.getIdentifier());
+
+		} else {
+			/*
+			 * if (geneId < id2) { e =
+			 * Cytoscape.getCyEdge(String.valueOf(geneId),
+			 * String.valueOf(geneId) + ".pp." + String.valueOf(id2),
+			 * String.valueOf(id2), ""); } else { e =
+			 * Cytoscape.getCyEdge(String.valueOf(geneId),
+			 * String.valueOf(geneId) + ".pp." + String.valueOf(id2),
+			 * String.valueOf(id2), ""); }
+			 */
+			// e = Cytoscape.getCyEdge(String.valueOf(geneId),
+			// String.valueOf(geneId) + ".pp." +
+			// String.valueOf(id2), String.valueOf(id2), "");
+			e = Cytoscape.getCyEdge(n1.getIdentifier(), geneId1
+					+ ".pp." + geneId2, n2.getIdentifier(), "");
+			// For Aracne edges, if a reverse edge exist, we
+			// skip it.
+			// For Geneways edges,
+			if (!cytoNetwork.edgeExists(n2, n1)) // Aracne
+				// result
+				// will not
+				// have an
+				// type, so
+				// we should
+				// check it
+				// here.
+				cytoNetwork.addEdge(e);
+			e.setIdentifier(geneId1 + ".pp."
+					+ geneId2 + "/" + n1.getIdentifier() + "-"
+					+ n2.getIdentifier());
+
+		}
+		try {
+
+			/*
+			 * Cytoscape.getEdgeAttributes()
+			 * .setAttribute(e.getIdentifier(), "attr1", new Double(v12));
+			 */
+			log.debug("edge " + geneId1 + "-" + geneId2 + ":"
+					+ n1.getIdentifier() + "-" + n2.getIdentifier());
+
+			if (type != null) {
+				Cytoscape.getEdgeAttributes().setAttribute(
+						e.getIdentifier(), "type", type);
+				//Cytoscape.getEdgeAttributes().setAttribute(
+				//		e.getIdentifier(), "interaction", type);
+				// getRandomCorlor();
+				// edgeDm.putMapValue(type, getRandomCorlor());
+				if (edgeDm.getMapValue(type) == null) {
+					edgeDm.putMapValue(type, getRandomCorlor());
+
+				}
+				
+				
+				
+
+			}
+
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+		
+		 
+	}
+	
 	private CyNode createNode(String geneIdStr) {
 		boolean isInSelectedMicroarray = true;
 		Integer geneId = null;
 		
-		try{
-			geneId = new Integer(geneIdStr);
-			if (geneId > maSet.getMarkers().size())
-			{
-				isInSelectedMicroarray = false;
-			}
-		}catch (NumberFormatException ne)
+		if (!geneIdToNameMap.containsKey(geneIdStr))
+		{
+			geneId = new Integer(geneIdStr);			 
+		}
+	    else
 		{
 			isInSelectedMicroarray = false;
 		}		
@@ -514,101 +605,7 @@ public class CytoscapeWidget implements VisualPlugin {
 			CyNode n1 = createNode(String.valueOf(geneId));		   
 			CyNode n2 = createNode(key.toString());
 
-			// process the edge connecting geneId and key
-			CyEdge e = null;
-			String geneIdStr = null;
-			String keyStr = null;			
-			 
-			geneIdStr = String.valueOf(geneId);			 
-		    keyStr = String.valueOf(key);			
-			
-			if (type != null) {
-				/*
-				 * if (geneId > id2) { e =
-				 * Cytoscape.getCyEdge(String.valueOf(geneId),
-				 * String.valueOf(geneId) + "." + type + "." +
-				 * String.valueOf(id2), String.valueOf(id2), type); } else { e =
-				 * Cytoscape.getCyEdge(String.valueOf(id2), String.valueOf(id2) +
-				 * "." + type + "." + String.valueOf(geneId),
-				 * String.valueOf(geneId), type); }
-				 */				
-			 
-				e = Cytoscape.getCyEdge(n1.getIdentifier(), geneIdStr						 
-						+ "." + type + "." + keyStr, n2
-						.getIdentifier(), type);
-				// Aracne result will not have an type, so we should
-				// not need to check it here.
-				if (!cytoNetwork.edgeExists(n2, n1))
-					cytoNetwork.addEdge(e);
-
-				e.setIdentifier(geneIdStr + "." + type + "."
-						+ keyStr + "/" + n1.getIdentifier() + "-"
-						+ n2.getIdentifier());
-
-			} else {
-				/*
-				 * if (geneId < id2) { e =
-				 * Cytoscape.getCyEdge(String.valueOf(geneId),
-				 * String.valueOf(geneId) + ".pp." + String.valueOf(id2),
-				 * String.valueOf(id2), ""); } else { e =
-				 * Cytoscape.getCyEdge(String.valueOf(geneId),
-				 * String.valueOf(geneId) + ".pp." + String.valueOf(id2),
-				 * String.valueOf(id2), ""); }
-				 */
-				// e = Cytoscape.getCyEdge(String.valueOf(geneId),
-				// String.valueOf(geneId) + ".pp." +
-				// String.valueOf(id2), String.valueOf(id2), "");
-				e = Cytoscape.getCyEdge(n1.getIdentifier(), geneIdStr
-						+ ".pp." + keyStr, n2.getIdentifier(), "");
-				// For Aracne edges, if a reverse edge exist, we
-				// skip it.
-				// For Geneways edges,
-				if (!cytoNetwork.edgeExists(n2, n1)) // Aracne
-					// result
-					// will not
-					// have an
-					// type, so
-					// we should
-					// check it
-					// here.
-					cytoNetwork.addEdge(e);
-				e.setIdentifier(geneIdStr + ".pp."
-						+ keyStr + "/" + n1.getIdentifier() + "-"
-						+ n2.getIdentifier());
-
-			}
-			try {
-
-				/*
-				 * Cytoscape.getEdgeAttributes()
-				 * .setAttribute(e.getIdentifier(), "attr1", new Double(v12));
-				 */
-				log.debug("edge " + geneIdStr + "-" + keyStr + ":"
-						+ n1.getIdentifier() + "-" + n2.getIdentifier());
-
-				if (type != null) {
-					Cytoscape.getEdgeAttributes().setAttribute(
-							e.getIdentifier(), "type", type);
-					//Cytoscape.getEdgeAttributes().setAttribute(
-					//		e.getIdentifier(), "interaction", type);
-					// getRandomCorlor();
-					// edgeDm.putMapValue(type, getRandomCorlor());
-					if (edgeDm.getMapValue(type) == null) {
-						edgeDm.putMapValue(type, getRandomCorlor());
-
-					}
-					
-					
-					
-
-				}
-
-			} catch (Exception ex) {
-				ex.printStackTrace();
-			}
-			 
-			
-			
+			createEdge(n1, n2, String.valueOf(geneId),String.valueOf(key),type );
 			
 		    createSubNetwork(key, threshold, level - 1);
 
@@ -647,65 +644,7 @@ public class CytoscapeWidget implements VisualPlugin {
 			CyNode n2 = createNode(key );
 
 			// process the edge connecting geneId and key
-			CyEdge e = null;			 
-		 
-			if (type != null) {
-				 
-				e = Cytoscape.getCyEdge(n1.getIdentifier(), geneId + 					 
-						 "." + type + "." + key, n2
-						.getIdentifier(), type);
-			 
-				if (!cytoNetwork.edgeExists(n2, n1))
-					cytoNetwork.addEdge(e);
-
-				e.setIdentifier(geneId + "." + type + "."
-						+ key + "/" + n1.getIdentifier() + "-"
-						+ n2.getIdentifier());
-
-			} else {
-				 
-				e = Cytoscape.getCyEdge(n1.getIdentifier(), geneId
-						+ ".unknown." + key, n2.getIdentifier(), "");
-				 
-				if (!cytoNetwork.edgeExists(n2, n1))  
-					 
-					cytoNetwork.addEdge(e);
-				e.setIdentifier(geneId + ".unknown."
-						+ key + "/" + n1.getIdentifier() + "-"
-						+ n2.getIdentifier());
-
-			}
-			try {
-
-				/*
-				 * Cytoscape.getEdgeAttributes()
-				 * .setAttribute(e.getIdentifier(), "attr1", new Double(v12));
-				 */
-				log.debug("edge " + geneId + "-" + key + ":"
-						+ n1.getIdentifier() + "-" + n2.getIdentifier());
-
-				if (type != null) {
-					Cytoscape.getEdgeAttributes().setAttribute(
-							e.getIdentifier(), "type", type);
-					//Cytoscape.getEdgeAttributes().setAttribute(
-					//		e.getIdentifier(), "interaction", type);
-					 
-					if (edgeDm.getMapValue(type) == null) {
-						edgeDm.putMapValue(type, getRandomCorlor());
-
-					}
-					
-					
-					
-
-				}
-
-			} catch (Exception ex) {
-				ex.printStackTrace();
-			}
-			 
-			
-			
+			createEdge(n1, n2, geneId, key, type );
 			
 		    createSubNetwork(key, threshold, level - 1);
 
