@@ -34,9 +34,7 @@ public class SkyBaseAnalysis extends AbstractGridAnalysis implements
 	private static final long serialVersionUID = 1L;
 	SkyBaseConfigPanel scp;
 	String seqname, seqfilename, seqcontent;
-	public static String remote_root = "/nfs/apollo/2/c2b2/server_data/www/skyline/skybase/jakarta-tomcat-5.0.28/webapps/ROOT/SkyBaseData";
-	private static final String remoteseqdir = remote_root + "/SEQ";
-	private static final String skybaseweb = "http://156.145.238.15:8070/wsrf/services/cagrid/SkyBaseWeb";
+	private static final String skybaseweb = "http://skyline.c2b2.columbia.edu:8080/wsrf/services/cagrid/SkyBaseWeb";
 	public SkyBaseWebClient client;
 
 	SkyBaseAnalysis() {
