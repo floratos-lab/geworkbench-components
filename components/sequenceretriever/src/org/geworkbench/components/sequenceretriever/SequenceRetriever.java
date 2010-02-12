@@ -52,6 +52,7 @@ import org.apache.commons.collections15.set.ListOrderedSet;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
+import org.geworkbench.bison.datastructure.biocollections.microarrays.CSMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.sequences.CSSequenceSet;
 import org.geworkbench.bison.datastructure.biocollections.sequences.DSSequenceSet;
@@ -68,7 +69,6 @@ import org.geworkbench.builtin.projects.ProjectPanel;
 import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.engine.management.AcceptTypes;
 import org.geworkbench.engine.management.Publish;
-import org.geworkbench.engine.management.Script;
 import org.geworkbench.engine.management.Subscribe;
 import org.geworkbench.events.GeneSelectorEvent;
 import org.geworkbench.events.ProjectNodeAddedEvent;
@@ -231,6 +231,7 @@ public class SequenceRetriever implements VisualPlugin {
 	public SequenceRetriever() {
 		try {
 			jbInit();
+			SequenceFetcher.getSequenceFetcher();
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
@@ -677,50 +678,7 @@ public class SequenceRetriever implements VisualPlugin {
 		}
 	}
 
-	@Script
-	public DSSequenceSet getSequences(DSPanel markers, String type,
-			String serverName) {
-		CSSequenceSet sequenceSet = new CSSequenceSet();
-		if (type.equalsIgnoreCase(DNAVIEW)) {
-			jComboCategory.setSelectedItem(DNAVIEW);
-			model.setValue(1000);
-			model1.setValue(1000);
-		} else {
-			jComboCategory.setSelectedItem(PROTEINVIEW);
-		}
-
-		if (markers != null && markers.size() > 0) {
-
-			Vector selectedList = new Vector();
-			for (Object o : markers) {
-				selectedList.add(o);
-			}
-			getSequences(selectedList);
-		}
-		if (type.equalsIgnoreCase(DNAVIEW)) {
-			sequenceSet = dnaSequenceDB;
-		} else {
-			sequenceSet = proteinSequenceDB;
-		}
-		if (sequenceSet != null) {
-			if (sequenceSet.getLabel() == null) {
-				sequenceSet.setLabel("retrievedFrom" + serverName);
-			}
-		}
-		return sequenceSet;
-	}
-
-	@Script
-	public DSSequenceSet getSequenceSet(DSPanel markers, String type,
-			String serverName) {
-		CSSequenceSet sequenceSet = new CSSequenceSet();
-
-		sequenceSet.readFASTAFile(new File("data/histoall.fa"));
-		return sequenceSet;
-
-	}
-
-	boolean getSequences(Vector selectedList) {
+	private boolean getSequences(Vector selectedList) {
 
 		if (selectedList != null) {
 
@@ -753,7 +711,8 @@ public class SequenceRetriever implements VisualPlugin {
 					String currentChipType = AnnotationParser
 							.getCurrentChipType();
 					String database = "";
-					database = SequenceFetcher.matchChipType(currentChipType);
+					String annotationFileName = ((CSMicroarraySet)refMASet).getAnnotationFileName(); 
+					database = SequenceFetcher.matchChipType(currentChipType, annotationFileName);
 
 					/* No selection was made */
 					if (database == null) {
@@ -949,8 +908,7 @@ public class SequenceRetriever implements VisualPlugin {
 		sequenceDB.parseMarkers();
 		String fileName = this.getRandomFileName();
 		if (sequenceDB.getSequenceNo() == 0) {
-			JOptionPane.showMessageDialog(getComponent(),
-					"No sequences retrieved for selected markers");
+			showNoSequencesDialog();
 		}
 		if (sequenceDB.getSequenceNo() != 0) {
 			sequenceDB.writeToFile(fileName);
@@ -961,6 +919,20 @@ public class SequenceRetriever implements VisualPlugin {
 		}
 	}
 
+	private void showNoSequencesDialog() {
+	    Runnable showModalDialog = new Runnable() {
+	        public void run() {
+				JOptionPane.showMessageDialog(getComponent(),
+				"No sequences retrieved for selected markers");
+	        }
+	    };
+	    try {
+			SwingUtilities.invokeAndWait(showModalDialog);
+		} catch (Exception e) {
+			log.error(e);
+		} 
+	}
+	
 	private void updateDisplay(CSSequenceSet selectedSet,
 			HashMap<String, RetrievedSequenceView> newMap) {
 		if (selectedSet == null || newMap == null || selectedSet.size()==0 || newMap.size()==0 ) {
@@ -986,7 +958,6 @@ public class SequenceRetriever implements VisualPlugin {
 	 *            ProjectEvent
 	 */
 	@Subscribe
-	@SuppressWarnings("unchecked")
 	public void receive(org.geworkbench.events.ProjectEvent e, Object source) {
 
 		log.debug("Source object " + source);
@@ -1109,31 +1080,8 @@ public class SequenceRetriever implements VisualPlugin {
 						}
 						tempSequencesList.put(mrk.toString(), values);
 					}
-					// currentRetrievedSequences.remove(marker.toString());
 				}
 
-				// if (oldList.size() > 0) {
-				// for (Object o : oldList) {
-				// DSGeneMarker marker = (DSGeneMarker) o;
-				// ArrayList<String> values =
-				// currentRetrievedSequences.get(marker.toString());
-				// if (values != null) {
-				// for (String key : values) {
-				// RetrievedSequenceView retrievedSequenceView =
-				// currentRetrievedMap.get(key);
-				// if (retrievedSequenceView != null &&
-				// retrievedSequenceView.getSequence() != null) {
-				// if(sequenceDB.contains(retrievedSequenceView.getSequence())){
-				// sequenceDB.remove(retrievedSequenceView.getSequence());
-				// }
-				// }
-				// currentRetrievedMap.remove(key);
-				// }
-				// }
-				// currentRetrievedSequences.remove(marker.toString());
-				// }
-				//
-				// }
 				currentRetrievedMap = tempMap;
 				currentRetrievedSequences = tempSequencesList;
 				sequenceDB = tempSequenceDB;
