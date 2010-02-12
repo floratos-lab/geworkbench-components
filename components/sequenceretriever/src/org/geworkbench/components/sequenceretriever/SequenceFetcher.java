@@ -21,15 +21,14 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.TreeSet;
 import java.util.Vector;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
 import javax.xml.namespace.QName;
 import javax.xml.rpc.ParameterMode;
 
@@ -64,7 +63,6 @@ public class SequenceFetcher {
     private static SequenceFetcher theSequenceFetcher = new SequenceFetcher();
     private final static String chiptyemapfilename = "chiptypeDatabaseMap.txt";
     private static HashMap<String, String> chiptypeMap = new HashMap<String, String>();
-    private static ArrayList<String> chipTypes = new ArrayList<String>();
     public static final String newline = System.getProperty("line.separator");
     public static String UCSCDATABASEURL = "jdbc:mysql://genome-mysql.cse.ucsc.edu:3306/";
     public static final String EBIURL = "http://www.ebi.ac.uk/ws/services/Dbfetch";
@@ -73,10 +71,16 @@ public class SequenceFetcher {
 
     private static String genomeAssembly = "";
 
-    private static CSSequenceSet cachedSequences = null;
+    private static CSSequenceSet<CSSequence> cachedSequences = null;
 	private static ArrayList<String> allDBs = new ArrayList<String>();
+	private static ArrayList<String> recentDBs = new ArrayList<String>();
 
-    public static void populateSequenceCache() {
+	private static ArrayList <String> displayList = new ArrayList<String>();
+	private static String defaultChipChoice = "Select a genome";	
+	private static Object selectedValue = null;
+	
+    @SuppressWarnings("unchecked")
+	private static void populateSequenceCache() {
         File file = new File( FilePathnameUtils.getTemporaryFilesDirectoryPath() +
                 "sequences" + File.separator +
                 "cachedSequences" );
@@ -85,7 +89,7 @@ public class SequenceFetcher {
                 try {
                     FileInputStream fis = new FileInputStream(file);
                     ObjectInputStream ois = new ObjectInputStream(fis);
-                    cachedSequences = (CSSequenceSet) ois.readObject();
+                    cachedSequences = (CSSequenceSet<CSSequence>) ois.readObject();
                     ois.close();
                     fis.close();
                 } catch (FileNotFoundException fnfe) {
@@ -151,7 +155,7 @@ public class SequenceFetcher {
         }
     }
 
-    public static CSSequence getCachedPromoterSequence(DSGeneMarker marker,
+    static CSSequence getCachedPromoterSequence(DSGeneMarker marker,
                                                        int upstream, int fromStart) {
         if (cachedSequences == null) {
             populateSequenceCache();
@@ -172,10 +176,10 @@ public class SequenceFetcher {
 	 * Get databases from the USCS MySQL server 
 	 * which have the highest version number.
 	 * 
-	 * Look up the database name (without a version number) 
-	 * from the chiptypeDatabaseMap.txt file
-	 * based on the name of annotation file associated with  
-	 * the data set in the Project panel.
+	 * retrieves databases of the form:
+	 * anoCar1, anoGam1, apiMel1, apiMel2, bosTau2, bosTau3, bosTau4
+	 * and stores only the most recent version in the variable recentDBs.
+	 * 
 	 */
     static {
         BufferedReader br = new BufferedReader(new InputStreamReader(
@@ -185,7 +189,6 @@ public class SequenceFetcher {
             while (str != null && str.contains(",")) {
                 String[] data = str.split(",");
                 chiptypeMap.put(data[0].trim(), data[1].trim());
-                chipTypes.add(data[1].trim());
                 str = br.readLine();
             }
             br.close();
@@ -215,17 +218,55 @@ public class SequenceFetcher {
 			while ( resultSet.next() ){
 				allDBs.add( resultSet.getString(1));
 			}
-		    Collections.sort(allDBs, new VersionComparator());
+		    Collections.sort(allDBs);
 		} catch (Exception e) {
 			log.error(e);
+		}
+
+		Pattern stringPattern = Pattern.compile("\\D+"); 
+		String mostRecentDBandVer = allDBs.get(0);
+		Matcher matcher = stringPattern.matcher(mostRecentDBandVer);
+		boolean foundDB = matcher.find();
+		String currentDB = "";
+		if (foundDB){
+			currentDB = matcher.group();
+		}
+
+		String challenger = "";
+		String challengersDB = "";
+		for (int i=0; i< allDBs.size(); i++){
+			challenger = allDBs.get(i);
+			matcher = stringPattern.matcher(challenger);
+			foundDB = matcher.find();
+			if (foundDB){
+				challengersDB = matcher.group();
+			}
+
+			if(!challengersDB.equals(currentDB)){
+				recentDBs.add(mostRecentDBandVer);
+
+				mostRecentDBandVer = allDBs.get(i);
+				currentDB = challengersDB;
+				continue;
+			}
+			
+			if (mostRecentDBandVer.length() == challenger.length() ){
+				if(mostRecentDBandVer.compareTo(challenger)<0){
+					mostRecentDBandVer = challenger;
+				}
+			}
+
+			if(mostRecentDBandVer.length() < challenger.length()){
+				mostRecentDBandVer = challenger;
+			}
 		}
     }
 
 
-    public SequenceFetcher() {
+    private SequenceFetcher() {
     }
 
-    public static SequenceFetcher getSequenceFetcher() {
+    static SequenceFetcher getSequenceFetcher() {
         return theSequenceFetcher;
     }
 
@@ -233,14 +274,11 @@ public class SequenceFetcher {
         return null;
     }
 
-
-    public static CSSequenceSet getAffyProteinSequences(String affyid) {
-        CSSequenceSet sequenceSet = new CSSequenceSet();
+    static CSSequenceSet<CSSequence> getAffyProteinSequences(String affyid) {
+        CSSequenceSet<CSSequence> sequenceSet = new CSSequenceSet<CSSequence>();
         try {
-
             Call call = (Call) new Service().createCall();
-            call.setTargetEndpointAddress(new java.net.URL(
-                    EBIURL));
+            call.setTargetEndpointAddress(new java.net.URL(EBIURL));
             call.setOperationName(new QName("urn:Dbfetch", "fetchData"));
             call.addParameter("query", XMLType.XSD_STRING, ParameterMode.IN);
             call.addParameter("format", XMLType.XSD_STRING, ParameterMode.IN);
@@ -285,49 +323,77 @@ public class SequenceFetcher {
         return sequenceSet;
     }
 
-    public static CSSequence[] getSequences(String geneName, String source) {
+    static CSSequence[] getSequences(String geneName, String source) {
         if (source.equals(UCSC)) {
             return getSequences(geneName);
         }
         return null;
     }
 
-    protected static String matchChipType(String chipId) {
+    static String matchChipType(String chipId, String annotationFileName) {
 
-		String defaultChipChoice = "";
-		TreeSet<String> differentValues = new TreeSet<String>();
-		Iterator<String> fileIterator = chiptypeMap.keySet().iterator();
-		while (fileIterator.hasNext()) {
-			String annotationFileSegment = (String) fileIterator.next();
-			String dbWithoutVersion = (String) chiptypeMap
-					.get(annotationFileSegment);
+		displayList.clear();
+    	displayList.add("Select a genome");
+		String db = "";
+		Iterator<String> recentDBsIterator = recentDBs.iterator();
+		while (recentDBsIterator.hasNext()) {
+			db = (String) recentDBsIterator.next();
+			// get display, such as "Human", from chiptypeDatabseMap.txt
 
-			String db = "";
-			Iterator<String> allDBsIterator = allDBs.iterator();
-			while (allDBsIterator.hasNext()) {
-				db = (String) allDBsIterator.next();
-				if (db.startsWith(dbWithoutVersion)) {
-					differentValues.add(db);
+			String displayString = chiptypeMap.get(db);
+			String dbNoVersion = stringBegining(db);
+			boolean foundOne = false;
+			if (displayString!=null){
+				displayString += " - ("+ db + ")";
+				foundOne = true;
+			}else {
+				
+				displayString = chiptypeMap.get(dbNoVersion);
+				if (displayString!=null){
+					displayString += " - ("+ db + ")";
+					foundOne = true;
+				}
+			}
 
-					if (chipId.contains(annotationFileSegment)) {
-						defaultChipChoice = db;
-					}
-					break;
+			if (foundOne){
+				displayList.add(displayString);
+				
+				if(annotationFileName.contains("HG_") && dbNoVersion.equals("hg")){
+					defaultChipChoice = displayString; 	
+				}else if(annotationFileName.contains("Mouse") && dbNoVersion.equals("mm")){
+					defaultChipChoice = displayString; 	
+				}else if(annotationFileName.contains("Rat") && dbNoVersion.equals("rn")){
+					defaultChipChoice = displayString; 	
 				}
 			}
 		}
-
-		Object selectedValue = JOptionPane.showInputDialog(null,
-				"Please confirm your genome assembly", "Select Assembly",
-				JOptionPane.QUESTION_MESSAGE, null, differentValues.toArray(),
-				defaultChipChoice);
-		if (selectedValue != null) {
+		showGenomeDialog();
+		
+		String database = null;
+		if (selectedValue != null && !selectedValue.equals("Select a genome")) {
 			genomeAssembly = (String) selectedValue;
+			String choice = (String) selectedValue;
+			database = choice.substring(choice.indexOf("(")+1, choice.indexOf(")"));
 		}
-		String database = (String) selectedValue;
+		
 		return database;
 	}
 
+    private static void showGenomeDialog() {
+	    Runnable showInputDialog = new Runnable() {
+	        public void run() {
+	        	selectedValue = JOptionPane.showInputDialog(null,
+	    				"Please select a species.\nIts latest genome version\nfrom UCSC will be used.", "Confirm Genome Version",
+	    				JOptionPane.QUESTION_MESSAGE, null, displayList.toArray(),
+	    				defaultChipChoice);		        }
+	    };
+	    try {
+			SwingUtilities.invokeAndWait(showInputDialog);
+		} catch (Exception e) {
+			log.error(e);
+		}
+	}
+    
     /**
      * getSequences
      *
@@ -348,7 +414,7 @@ public class SequenceFetcher {
 	 * @return any[]
      * @throws SQLException
 	 */
-	public static Vector getGeneChromosomeMatchers(String geneName,
+	static Vector<GeneChromosomeMatcher> getGeneChromosomeMatchers(String geneName,
 			String database) throws SQLException {
 		if (database == null) {
 			return null;
@@ -406,7 +472,7 @@ public class SequenceFetcher {
 	 * @param downstreamRegion
 	 * @return
 	 */
-    public CSSequence getSequences(GeneChromosomeMatcher
+    CSSequence getSequences(GeneChromosomeMatcher
             geneChromosomeMatcher,
                                    int upstreamRegion,
                                    int downstreamRegion) {
@@ -461,12 +527,9 @@ public class SequenceFetcher {
                     uin));
             String line;
             StringBuffer sequenceContent = new StringBuffer();
-            boolean reachStartPoint = false;
-            boolean reachEndPoint = false;
             while ((line = in.readLine()) != null) {
                 int size = 0;
                 if (line.trim().startsWith("<DNA")) {
-                    reachStartPoint = true;
                     String[] str = line.split(">");
                     if (str.length > 1) {
                         sequenceContent.append(str[1]);
@@ -500,52 +563,23 @@ public class SequenceFetcher {
 
     }
 
-    public static String getGenomeAssembly()
+    static String getGenomeAssembly()
     {
     	return genomeAssembly;
     }
 
-}
-
-/**
- * 
- * @author tg2321
- *
- * compares Strings of the format hg18 to hg19
- * and sorts on the integer part of the String
- * moving the later versions to the beginning.
- * 
- */
-class VersionComparator implements Comparator<Object> {
-	public int compare(Object o1, Object o2) {
-		if (o1 instanceof String && o2 instanceof String) {
-			String string1 = (String) o1;
-			String string2 = (String) o2;
-			Pattern integersOnly = Pattern.compile("\\d+");
-			Matcher matcher1 = integersOnly.matcher(string1);
-			boolean foundInteger1 = matcher1.find();
-			Matcher matcher2 = integersOnly.matcher(string2);
-			boolean foundInteger2 = matcher2.find();
-			if (!foundInteger1 && !foundInteger2) {
-				return 0;
-			}
-			if (!foundInteger1) {
-				return 1;
-			}
-			if (!foundInteger2) {
-				return -1;
-			}
-
-			String versionNumber1 = matcher1.group();
-			String versionNumber2 = matcher2.group();
-			Integer versionInt1 = new Integer(versionNumber1);
-			Integer versionInt2 = new Integer(versionNumber2);
-
-			int compareOut = versionInt1.compareTo(versionInt2); 
-			
-			return -1 * compareOut ;
+    /*
+     * Take a String like hg19 and return hg
+     */
+    private static String stringBegining(String StringAndInt){
+		Pattern stringPattern = Pattern.compile("\\D+"); 
+		Matcher matcher = stringPattern.matcher(StringAndInt);
+		boolean foundOne = matcher.find();
+		String justString = "";
+		if (foundOne){
+			justString = matcher.group();
 		}
-
-		return 0;
-	}
+    	return justString;
+    }
+    
 }

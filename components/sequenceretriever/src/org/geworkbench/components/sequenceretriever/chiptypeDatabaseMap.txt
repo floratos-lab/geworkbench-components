@@ -1,3 +1,7 @@
-HG-, hg
-Mouse, mm
-Rat230, rn
+#DB, Display
+hg, Human
+mm, Mouse
+rn, Rat
+hg19, Human - GRCh37
+mm9, Mouse - MGSC37
+rn4, Rat - RGSC Rnor 3.4
