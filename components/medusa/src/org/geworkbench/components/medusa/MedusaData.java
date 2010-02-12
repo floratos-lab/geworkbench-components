@@ -1,12 +1,11 @@
 package org.geworkbench.components.medusa;
 
 import java.io.Serializable;
-import java.util.List;
+import java.util.ArrayList;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.CSMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
+import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 
 /**
@@ -16,20 +15,15 @@ import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
  */
 public class MedusaData implements Serializable {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
 
-	private Log log = LogFactory.getLog(this.getClass());
-
-	private DSMicroarraySet arraySet;
+	private DSMicroarraySet<DSMicroarray> arraySet;
 
 	// private List<RulesBean> rulesBeans = null; TODO - get from Medusa team
 
-	private List<DSGeneMarker> regulators = null;
+	private ArrayList<DSGeneMarker> regulators = null;
 
-	private List<DSGeneMarker> targets = null;
+	private ArrayList<DSGeneMarker> targets = null;
 
 	private MedusaCommand medusaCommand = null;
 
@@ -39,8 +33,8 @@ public class MedusaData implements Serializable {
 	 * @param regulators
 	 * @param targets
 	 */
-	public MedusaData(DSMicroarraySet arraySet, List<DSGeneMarker> regulators,
-			List<DSGeneMarker> targets, MedusaCommand medusaCommand) {
+	public MedusaData(DSMicroarraySet<DSMicroarray> arraySet, ArrayList<DSGeneMarker> regulators,
+			ArrayList<DSGeneMarker> targets, MedusaCommand medusaCommand) {
 		this.arraySet = arraySet;
 		this.regulators = regulators;
 		this.targets = targets;
@@ -51,7 +45,7 @@ public class MedusaData implements Serializable {
 	 * 
 	 * @return {@link DSMicroarraySet}
 	 */
-	public DSMicroarraySet getArraySet() {
+	public DSMicroarraySet<DSMicroarray> getArraySet() {
 		return arraySet;
 	}
 
@@ -59,7 +53,7 @@ public class MedusaData implements Serializable {
 	 * 
 	 * @param arraySet
 	 */
-	public void setArraySet(CSMicroarraySet arraySet) {
+	public void setArraySet(CSMicroarraySet<DSMicroarray> arraySet) {
 		this.arraySet = arraySet;
 	}
 
@@ -67,7 +61,7 @@ public class MedusaData implements Serializable {
 	 * 
 	 * @return List<DSGeneMarker>
 	 */
-	public List<DSGeneMarker> getRegulators() {
+	public ArrayList<DSGeneMarker> getRegulators() {
 		return regulators;
 	}
 
@@ -75,7 +69,7 @@ public class MedusaData implements Serializable {
 	 * 
 	 * @return List<DSGeneMarker>
 	 */
-	public List<DSGeneMarker> getTargets() {
+	public ArrayList<DSGeneMarker> getTargets() {
 		return targets;
 	}
 

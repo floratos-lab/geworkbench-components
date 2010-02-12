@@ -3,10 +3,11 @@ package org.geworkbench.components.medusa.gui;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.util.List;
 
 import javax.swing.ImageIcon;
@@ -16,10 +17,8 @@ import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JViewport;
-import javax.swing.ScrollPaneLayout;
 
-import net.eleritec.docking.defaults.DefaultDockingPort;
-
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
@@ -32,8 +31,11 @@ import org.geworkbench.engine.management.Subscribe;
 import org.geworkbench.events.ImageSnapshotEvent;
 import org.geworkbench.events.ProjectEvent;
 import org.geworkbench.events.SubpanelChangedEvent;
+import org.geworkbench.util.FilePathnameUtils;
 import org.geworkbench.util.ProgressBar;
 import org.geworkbench.util.Util;
+
+import com.ice.tar.tar;
 
 import edu.columbia.ccls.medusa.io.SerializedRule;
 
@@ -57,6 +59,7 @@ public class MedusaVisualComponent implements VisualPlugin {
 
 	public static final int IMAGE_HEIGHT = 300;
 	public static final int IMAGE_WIDTH = 675;
+	private static final String outdir = FilePathnameUtils.getTemporaryFilesDirectoryPath()+"temp/medusa/dataset/output/";
 
 	/**
 	 * 
@@ -91,6 +94,42 @@ public class MedusaVisualComponent implements VisualPlugin {
 			if (dataSet != data) {
 				dataSet = ((MedusaDataSet) data);
 				component.removeAll();
+				
+				String tarstr = dataSet.getPath();
+				log.info(dataSet.getFilename()+" received length: "+tarstr.length());
+
+				File dirPath = new File(outdir);
+				if (!dirPath.exists())  dirPath.mkdirs();
+				
+				String tardir = outdir+dataSet.getFilename()+".tar";
+				try{
+					decodeStringToFile(tarstr, tardir);
+				}catch(Exception e){
+					e.printStackTrace();
+					pBar.stop();
+					return;
+				}
+
+				String pwd = System.getProperty("user.dir");
+				System.setProperty("user.dir", FilePathnameUtils.getTemporaryFilesDirectoryPath());
+
+				tar app = new tar(); 
+				String tarArgs[] = {"-xf", tardir};
+				app.instanceMain(tarArgs);
+
+				System.setProperty("user.dir", pwd);
+				
+				File delfile = new File(tardir);
+				if (delfile.exists())
+				{
+					System.gc();
+					boolean ret = delfile.delete();
+					log.info(ret+ " delete "+ delfile.getPath());
+				}
+
+				String runpath = dataSet.getFilename();
+				dataSet.setAbsPath(runpath);
+				
 				medusaVisualizationPanel = new MedusaVisualizationPanel(this,
 						dataSet.getData(), dataSet.getPath());
 				// medusaPlugin.limitMarkers(selectedMarkers);
@@ -223,6 +262,13 @@ public class MedusaVisualComponent implements VisualPlugin {
 	public void exportMotifs(List<SerializedRule> srules, String filePath) {
 		// FIXME allowing a null param for now, but I don't like it
 		MedusaUtil.writePssmToFile(filePath, srules);
+	}
+
+	private void decodeStringToFile(String encodedInput, String decodedFile) throws Exception {
+
+		byte[] decodedInput = Base64.decodeBase64(encodedInput.getBytes());
+		FileOutputStream out = new FileOutputStream(decodedFile);
+		out.write(decodedInput);
 	}
 
 }

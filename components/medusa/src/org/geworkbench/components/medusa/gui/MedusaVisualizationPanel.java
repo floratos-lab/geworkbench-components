@@ -2,7 +2,6 @@ package org.geworkbench.components.medusa.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentEvent;
@@ -13,7 +12,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.swing.*;
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JFileChooser;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
+import javax.swing.JTabbedPane;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -23,6 +29,7 @@ import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.components.medusa.MedusaData;
 import org.geworkbench.components.medusa.MedusaUtil;
 import org.geworkbench.events.SubpanelChangedEvent;
+import org.geworkbench.util.FilePathnameUtils;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.layout.FormLayout;
@@ -45,7 +52,7 @@ public class MedusaVisualizationPanel extends JPanel {
 	 */
 	private static final long serialVersionUID = 1L;
 
-	private String defaultPath = "temp/medusa/dataset/output/";
+	private String defaultPath = FilePathnameUtils.getTemporaryFilesDirectoryPath()+"temp/medusa/dataset/output/";
 	private String path = defaultPath + "run1/";
 
 	private String rulesPath = path + "rules/";
@@ -320,7 +327,7 @@ public class MedusaVisualizationPanel extends JPanel {
 		regulatorHeatScrollPane.getHorizontalScrollBar().setModel(targetHeatScrollPane.getHorizontalScrollBar().getModel());
 		targetHeatScrollPane.getVerticalScrollBar().setModel(hitOrMissScrollPane.getVerticalScrollBar().getModel());
 		/* dummy panel at 2,0 so we can align the buttons (below) */
-		JPanel dummyPanel11 = new JPanel();
+		//JPanel dummyPanel11 = new JPanel();
 		//motifPanel.add(dummyPanel11);
 
 		/* add buttons at 2,1 */

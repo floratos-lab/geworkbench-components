@@ -40,7 +40,7 @@ public class MedusaPluginTest extends TestCase {
 
 	float data[][] = new float[numElements][numElements];
 
-	private List<DSGeneMarker> targets = null;
+	private ArrayList<DSGeneMarker> targets = null;
 
 	private MedusaCommand medusaCommand = null;
 

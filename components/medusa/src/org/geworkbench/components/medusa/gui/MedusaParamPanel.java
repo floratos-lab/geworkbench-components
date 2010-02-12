@@ -475,6 +475,17 @@ public class MedusaParamPanel extends AbstractSaveableParameterPanel implements
 				}
 			}
 		});
+		
+		reverseComplementCombo.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				JComboBox cb = (JComboBox) e.getSource();
+				String selectedItem = (String) cb.getSelectedItem();
+				if (TRUE.equals(selectedItem))
+					reverseComplement = true;
+				else
+					reverseComplement = false;
+			}
+		});
 	}
 
 	/* accessors */

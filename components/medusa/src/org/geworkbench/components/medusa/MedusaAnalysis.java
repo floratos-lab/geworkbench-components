@@ -1,11 +1,15 @@
 package org.geworkbench.components.medusa;
 
+import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -40,15 +44,18 @@ public class MedusaAnalysis extends AbstractGridAnalysis implements
 		ClusteringAnalysis {
 
 	private Log log = LogFactory.getLog(this.getClass());
-
+	
+	private final String analysisName = "Medusa";
+	private final int analysisType = MEDUSA_TYPE;
+	
 	private StringBuilder s = null;
 
 	// TODO change name to inputdataset.labels
 	String fileLabels = "data/medusa/dataset/web100_test.labels";
 
-	private List<DSGeneMarker> regulators = null;
+	private ArrayList<DSGeneMarker> regulators = null;
 
-	private List<DSGeneMarker> targets = null;
+	private ArrayList<DSGeneMarker> targets = null;
 
 	/**
 	 * 
@@ -70,8 +77,7 @@ public class MedusaAnalysis extends AbstractGridAnalysis implements
 	 */
 	@Override
 	public String getAnalysisName() {
-		// TODO Auto-generated method stub
-		return null;
+		return analysisName;
 	}
 
 	/*
@@ -81,8 +87,47 @@ public class MedusaAnalysis extends AbstractGridAnalysis implements
 	 */
 	@Override
 	protected Map<Serializable, Serializable> getBisonParameters() {
-		// TODO Auto-generated method stub
-		return null;
+	    Map<Serializable, Serializable> parameterMap = new HashMap<Serializable, Serializable>();
+		MedusaParamPanel paramPanel = (MedusaParamPanel) aspp;
+		
+		//main parameter panel
+		String featuresFileName = "";
+		String featuresFileContent="";
+		try{
+			String featuresFilePath = paramPanel.getFeaturesFilePath();
+			File featuresFile = new File(featuresFilePath);
+			byte[] buffer = new byte[(int)featuresFile.length()];
+			BufferedInputStream bis = new BufferedInputStream(new FileInputStream(featuresFilePath));
+			bis.read(buffer);
+			featuresFileContent=new String(buffer);
+			featuresFileName=featuresFile.getName();
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+	    parameterMap.put("featuresFileName", featuresFileName);
+	    parameterMap.put("featuresFileContent", featuresFileContent);
+	    
+	    parameterMap.put("useSelectedAsRegulators", paramPanel.isUseSelectedAsRegulators());
+	    parameterMap.put("regulatorTextField", paramPanel.getRegulatorTextField().getText());
+	    
+	    parameterMap.put("useAllAsTargets", paramPanel.isUseAllAsTargets());
+	    parameterMap.put("targetTextField", paramPanel.getTargetTextField().getText());
+	    
+	    parameterMap.put("intervalBase", paramPanel.getIntervalBase());
+	    parameterMap.put("intervalBound", paramPanel.getIntervalBound());
+	    parameterMap.put("boostingIterations", paramPanel.getBoostingIterations());
+	    
+	    //secondary parameter panel
+	    parameterMap.put("minKmer", paramPanel.getMinKmer());
+	    parameterMap.put("maxKmer", paramPanel.getMaxKmer());
+	    parameterMap.put("usingDimers", paramPanel.isUsingDimers());
+	    parameterMap.put("minGap", paramPanel.getMinGap());
+	    parameterMap.put("maxGap", paramPanel.getMaxGap());
+	    parameterMap.put("reverseComplement", paramPanel.isReverseComplement());
+	    parameterMap.put("pssmLength", paramPanel.getPssmLength());
+	    parameterMap.put("agg", paramPanel.getAgg());
+
+	    return parameterMap;
 	}
 
 	/*
@@ -92,8 +137,7 @@ public class MedusaAnalysis extends AbstractGridAnalysis implements
 	 */
 	@Override
 	public int getAnalysisType() {
-		// TODO Auto-generated method stub
-		return 0;
+		return analysisType;
 	}
 
 	/*
@@ -102,6 +146,19 @@ public class MedusaAnalysis extends AbstractGridAnalysis implements
 	 * @see org.geworkbench.bison.model.analysis.Analysis#execute(java.lang.Object)
 	 */
 	public AlgorithmExecutionResults execute(Object input) {
+	// inform the user that only remote service is available
+	return new AlgorithmExecutionResults(
+			false,
+			"Medusa does not have a local algorithm service.  Please choose \"Grid\" on the Medusa analysis panel.",
+			null);
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.geworkbench.bison.model.analysis.Analysis#execute(java.lang.Object)
+	 */
+	public AlgorithmExecutionResults execute_local_jdk5(Object input) {
 		MedusaParamPanel params = (MedusaParamPanel) aspp;
 
 		DSMicroarraySetView<DSGeneMarker, DSMicroarray> microarraySetView = (CSMicroarraySetView<DSGeneMarker, DSMicroarray>) input;
@@ -232,10 +289,10 @@ public class MedusaAnalysis extends AbstractGridAnalysis implements
 	 * @param regulators
 	 * @return {@link List}
 	 */
-	private List<DSGeneMarker> getRegulators(MedusaParamPanel params,
+	private ArrayList<DSGeneMarker> getRegulators(MedusaParamPanel params,
 			DSMicroarraySetView<DSGeneMarker, DSMicroarray> microarraySetView) {
 
-		List<DSGeneMarker> regulators = new ArrayList<DSGeneMarker>();
+		ArrayList<DSGeneMarker> regulators = new ArrayList<DSGeneMarker>();
 
 		DSGeneMarker marker = null;
 
@@ -273,10 +330,10 @@ public class MedusaAnalysis extends AbstractGridAnalysis implements
 	 * @param regulators
 	 * @return {@link List}
 	 */
-	private List<DSGeneMarker> getTargets(MedusaParamPanel params,
+	private ArrayList<DSGeneMarker> getTargets(MedusaParamPanel params,
 			DSMicroarraySetView<DSGeneMarker, DSMicroarray> microarraySetView) {
 
-		List<DSGeneMarker> targets = new ArrayList<DSGeneMarker>();
+		ArrayList<DSGeneMarker> targets = new ArrayList<DSGeneMarker>();
 
 		DSGeneMarker marker = null;
 
@@ -430,8 +487,7 @@ public class MedusaAnalysis extends AbstractGridAnalysis implements
 
 	@Override
 	public Class getBisonReturnType() {
-		// TODO Auto-generated method stub
-		return null;
+		return MedusaDataSet.class;
 	}
 
 	@Override
