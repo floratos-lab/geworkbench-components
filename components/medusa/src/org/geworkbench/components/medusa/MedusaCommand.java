@@ -1,5 +1,7 @@
 package org.geworkbench.components.medusa;
 
+import java.io.Serializable;
+
 /**
  * A command object to pass around with medusa parameters. This command object
  * is oblivious to any client, and can be reused in any context (rich client,
@@ -8,7 +10,8 @@ package org.geworkbench.components.medusa;
  * @author keshav
  * @version $Id: MedusaCommand.java,v 1.3 2007-06-20 16:59:35 keshav Exp $
  */
-public class MedusaCommand {
+public class MedusaCommand implements Serializable {
+	private static final long serialVersionUID = 1L;
 
 	private String featuresFile = null;
 
