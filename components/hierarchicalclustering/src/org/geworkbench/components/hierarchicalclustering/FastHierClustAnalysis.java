@@ -1,11 +1,12 @@
 package org.geworkbench.components.hierarchicalclustering;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+
+import javax.swing.JOptionPane;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -17,8 +18,8 @@ import org.geworkbench.bison.annotation.DSAnnotationContextManager;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
-import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker; 
-import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray; 
+import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
+import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
@@ -27,7 +28,6 @@ import org.geworkbench.bison.model.analysis.ParamValidationResults;
 import org.geworkbench.bison.model.clusters.CSHierClusterDataSet;
 import org.geworkbench.bison.model.clusters.HierCluster;
 import org.geworkbench.builtin.projects.ProjectPanel;
-import org.geworkbench.engine.config.PluginRegistry;
 import org.geworkbench.util.CorrelationDistance;
 import org.geworkbench.util.Distance;
 import org.geworkbench.util.EuclideanDistance;
@@ -45,7 +45,7 @@ class FastHierClustAnalysis extends AbstractGridAnalysis implements
 		ClusteringAnalysis {
 
 	private static final long serialVersionUID = 1L;
-	private Log log = LogFactory.getLog(this.getClass());
+	private static Log log = LogFactory.getLog(FastHierClustAnalysis.class);
 
 	private int localAnalysisType;
 
@@ -229,13 +229,50 @@ class FastHierClustAnalysis extends AbstractGridAnalysis implements
 
 		// Check to make sure we have enough data to support the requested
 		// dimension, otherwise fall back to single dimension
+		
+		final int LARGE_SET_SIZE = 1000;
+		int size = matrix[dim].length;
+		if(size>LARGE_SET_SIZE) {
+			String d = null;
+			if(dim==0)d = "Gene Marker";
+			else if(dim==1)d = "Microarray";
+			else {
+				log.error("wrong dimension "+dim);
+			}
+			int n = JOptionPane.showConfirmDialog(null,
+				    d+ " set size "+size+" is very large and may cause out-of-memory error.\n Do you want to continue?",
+				    "Too large set",
+				    JOptionPane.WARNING_MESSAGE,
+				    JOptionPane.YES_NO_OPTION);
+			if (n != JOptionPane.YES_OPTION) {
+				return null;
+			}
+		}
 
-		HierCluster result = algo[method].compute(this, matrix[dim],
-				cluster[dim], distance[metric]);
+		reportJavaHeapMemory("before HierarchicalClusterAlgorithm.compute(...)");
+		try {
+			HierCluster result = algo[method].compute(this, matrix[dim],
+					cluster[dim], distance[metric]);
+			long time = System.currentTimeMillis() - start;
+			log.debug("  TIME: " + time + "   ");
+			reportJavaHeapMemory("after HierarchicalClusterAlgorithm.compute(...)");
+			return result;
+		} catch (OutOfMemoryError e) {
+			reportJavaHeapMemory("after OutOfMemoryError is caught");
+			log
+					.error("OutOfMemoryError: "+e.getMessage()
+							+ ". The application is not stable to continue. It is suggested to quit the geWorkbench.");
+			return null;
+		}
 
-		long time = System.currentTimeMillis() - start;
-		log.debug("  TIME: " + time + "   ");
-		return result;
+	}
+	
+	private static void reportJavaHeapMemory(String message) {
+		long usableFreeMemory= Runtime.getRuntime().maxMemory()
+	    -Runtime.getRuntime().totalMemory()
+	    +Runtime.getRuntime().freeMemory();
+		//http://stackoverflow.com/questions/555580/finding-memory-usage-in-java
+		log.debug(message+": "+usableFreeMemory+" out of "+Runtime.getRuntime().maxMemory()+" Java heap memory is usable");
 	}
 
 	/*
