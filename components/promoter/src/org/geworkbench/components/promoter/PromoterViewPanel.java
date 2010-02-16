@@ -1295,10 +1295,7 @@ public class PromoterViewPanel extends JPanel {
         try {
             jInfoPanel.removeAll();
             logoPanel.removeAll();
-            String id = pattern.getJasparID();
 
-//            String iniURL = "http://jaspar.cgb.ki.se//TEMP/" +
-//                            pattern.getJasparID().trim() + "_BIG.png";
             jInfoPanel = new ImagePanel();
             matrixDisplayPanel.removeAll();
             matrixDisplayPanel.setLayout(new BorderLayout());
