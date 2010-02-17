@@ -56,7 +56,7 @@ public class MRATtestPanel extends TtestAnalysisPanel {
     GridLayout gridLayout2 = new GridLayout();
     JRadioButton equalVariances = new JRadioButton("Equal");
     BorderLayout borderLayout1 = new BorderLayout();
-    JRadioButton randomlyGroup = new JRadioButton("Ramdomly group experiments");
+    JRadioButton randomlyGroup = new JRadioButton("Randomly group experiments");
     FlowLayout flowLayout1 = new FlowLayout();
     BorderLayout borderLayout2 = new BorderLayout();
     JLabel jLabel3 = new JLabel();
@@ -92,6 +92,7 @@ public class MRATtestPanel extends TtestAnalysisPanel {
     JCheckBox logCheckbox;
     
     private boolean useroverride = false;
+    private ParameterActionListener parameterActionListener = null;
     
 	/*
 	 * (non-Javadoc)
@@ -383,22 +384,6 @@ public class MRATtestPanel extends TtestAnalysisPanel {
         welch.setSelected(true);
         builder.append(welch, equalVariances);
     	this.add(builder.getPanel());
-    	
-    	//FIXME: We should pass parent ASPP (MasterRegulatorPanel) into ParameterActionListener (instead of MRATtestPanel).
-        ParameterActionListener parameterActionListener = new ParameterActionListener(this); 
-        welch.addActionListener(parameterActionListener);
-        equalVariances.addActionListener(parameterActionListener);
-        pvaluesByTDistribution.addActionListener(parameterActionListener);
-        pvaluesByPerm.addActionListener(parameterActionListener);
-        randomlyGroup.addActionListener(parameterActionListener);
-        numCombs.addActionListener(parameterActionListener);
-        allPerms.addActionListener(parameterActionListener);
-        alpha.addActionListener(parameterActionListener);
-        noCorrection.addActionListener(parameterActionListener);
-        bonferroni.addActionListener(parameterActionListener);
-        adjustedBonferroni.addActionListener(parameterActionListener);
-        stepdownMinP.addActionListener(parameterActionListener);
-        stepdownMaxT.addActionListener(parameterActionListener);
 
     	/*
     	jLabel5.setText("Step down Westfall and Young Methods (for permutation only)");
@@ -549,5 +534,27 @@ public class MRATtestPanel extends TtestAnalysisPanel {
 
         }
 */
+    }
+    
+    protected void setParamActionListener(ParameterActionListener pal) {
+		if (pal != null)
+			parameterActionListener = pal;
+		else
+			parameterActionListener = new ParameterActionListener(this);
+
+		//pass parent ASPP (MasterRegulatorPanel) into ParameterActionListener (instead of MRATtestPanel).
+		welch.addActionListener(parameterActionListener);
+		equalVariances.addActionListener(parameterActionListener);
+		pvaluesByTDistribution.addActionListener(parameterActionListener);
+		pvaluesByPerm.addActionListener(parameterActionListener);
+		randomlyGroup.addActionListener(parameterActionListener);
+		numCombs.addActionListener(parameterActionListener);
+		allPerms.addActionListener(parameterActionListener);
+		alpha.addActionListener(parameterActionListener);
+		noCorrection.addActionListener(parameterActionListener);
+		bonferroni.addActionListener(parameterActionListener);
+		adjustedBonferroni.addActionListener(parameterActionListener);
+		stepdownMinP.addActionListener(parameterActionListener);
+		stepdownMaxT.addActionListener(parameterActionListener);
     }
 }

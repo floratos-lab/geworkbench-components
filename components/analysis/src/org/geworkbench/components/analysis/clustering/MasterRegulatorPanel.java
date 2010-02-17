@@ -48,14 +48,17 @@ import com.jgoodies.forms.layout.FormLayout;
 public class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
 
 	private static final long serialVersionUID = 1L;
+	private static final float PValueThresholdDefault = 0.05f;
+	private static final String TFGeneListDefault = ("AFFX-HUMGAPDH/M33197_3_at, AFFX-HUMGAPDH/M33197_5_at, AFFX-HUMGAPDH/M33197_M_at, AFFX-HUMRGE/M10098_3_at, AFFX-HUMRGE/M10098_M_at");
+
 	private Log log = LogFactory.getLog(this.getClass());
 	private ArrayListModel<String> networkFromModel; //used for 0,0 drop down box
 	private ArrayListModel<String> adjModel; //used for 0,1 drop down box
 	private ArrayListModel<String> tfFromModel; //used for 1,0 drop down box
 	private ArrayListModel<String> groupModel; //used for 0,1 drop down box
 	private ValueModel correctionHolder; //No correction, Standard Bonferroni, Adj Bonferroni
-	private ValueModel pValueHolder; // 0.05
-	private ValueModel TFGeneList; //Marker 1, Marker 2...
+	private JTextField pValueTextField = null;
+	private JTextField TFGeneListTextField = null; //Marker 1, Marker 2...
 	private HashMap<String,AdjacencyMatrixDataSet> adjMatrix=new HashMap<String,AdjacencyMatrixDataSet>();
 	private DSMicroarraySet<DSMicroarray> maSet=null;
 	private MRATtestPanel tTestPanel= new MRATtestPanel();
@@ -63,6 +66,8 @@ public class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
 	private JComboBox tfGroups = createGroupsComboBox();
 	private JButton loadNetworkButton=new JButton("Load");
 	private JButton loadTFButton=new JButton("Load");
+	private JComboBox networkFrom = null;
+	private JComboBox tfFrom = null;
 	public MasterRegulatorPanel(){
 		FormLayout layout = new FormLayout(
                 "left:max(100dlu;pref), 10dlu, 100dlu, 10dlu, "
@@ -72,7 +77,7 @@ public class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
 		builder.setDefaultDialogBorder();
 		builder.appendSeparator("Network");
 		builder.append("Load Network");
-		JComboBox networkFrom = createNetworkFromComboBox();
+		networkFrom = createNetworkFromComboBox();
 		networkFrom.setSelectedIndex(1);	//preselect "From File"
 		//JComboBox networkMatrix = createNetworkMatrixComboBox();
 		builder.append(networkFrom);
@@ -84,15 +89,16 @@ public class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
 		builder.nextLine();
 		
 		builder.append("Master Regulators");
-		JComboBox tfFrom = createTFFromComboBox();
+		tfFrom = createTFFromComboBox();
 		tfFrom.setSelectedIndex(1);			//preselect "From File"
 		//JComboBox tfGroups = createGroupsComboBox();
 		builder.append(tfFrom);
 		tfGroups.setEnabled(false);
 		builder.append(tfGroups);
-		TFGeneList = new ValueHolder("AFFX-HUMGAPDH/M33197_3_at, AFFX-HUMGAPDH/M33197_5_at, AFFX-HUMGAPDH/M33197_M_at, AFFX-HUMRGE/M10098_3_at, AFFX-HUMRGE/M10098_M_at");
-		JTextField tfGenes= BasicComponentFactory.createTextField(TFGeneList);
-		builder.append(tfGenes);
+		if (TFGeneListTextField == null)
+			TFGeneListTextField = new JTextField();
+		TFGeneListTextField.setText(TFGeneListDefault);
+		builder.append(TFGeneListTextField);
 		//JButton loadTFButton=new JButton("Load");
 		loadTFButton.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent e) {
@@ -113,7 +119,7 @@ public class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
 		                    }
 		                    String geneString = geneListBuilder.toString();
 		                    geneString = geneString.substring(0, geneString.length() - 2);
-		                    TFGeneList.setValue(geneString);
+		                    TFGeneListTextField.setText(geneString);
 	                    }else{
 	                    	//user canceled
 	                    }
@@ -129,8 +135,9 @@ public class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
 		
 		builder.appendSeparator("Significance Threshold");
 		builder.append("T-test p-value (alpha)");
-		this.pValueHolder = new ValueHolder("0.05");
-        JTextField pValueTextField = BasicComponentFactory.createTextField(pValueHolder);
+		if (pValueTextField == null)
+			pValueTextField = new JTextField();
+		pValueTextField.setText(Float.toString(PValueThresholdDefault));
 		builder.append(pValueTextField);
 		builder.nextLine();
 
@@ -156,11 +163,13 @@ public class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
         this.add(jTabbedPane1,BorderLayout.CENTER);
         
         ParameterActionListener parameterActionListener = new ParameterActionListener(this);
-        pValueHolder.addValueChangeListener(parameterActionListener);
-        TFGeneList.addValueChangeListener(parameterActionListener);
-        //FIXME: other GUI components
+        pValueTextField.addActionListener(parameterActionListener);
+        TFGeneListTextField.addActionListener(parameterActionListener);
+        tTestPanel.setParamActionListener(parameterActionListener);
+        networkFrom.addActionListener(parameterActionListener);
+        tfFrom.addActionListener(parameterActionListener);
 	}
-	public class LoadNetworkButtonListener implements java.awt.event.ActionListener{
+	public class LoadNetworkButtonListener implements java.awt.event.ActionListener {
 		private HashMap<String, AdjacencyMatrixDataSet> adjMatrixHolder;
 		public LoadNetworkButtonListener(HashMap<String, AdjacencyMatrixDataSet> adjMatrixHolder){
 			this.adjMatrixHolder = adjMatrixHolder; 
@@ -278,7 +287,7 @@ public class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
                 String geneString = geneListBuilder.toString();
                 if (geneString.length()>2)
                 	geneString = geneString.substring(0, geneString.length() - 2);
-                TFGeneList.setValue(geneString);
+                TFGeneListTextField.setText(geneString);
         	}
         }
     }
@@ -307,18 +316,16 @@ public class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
 		return correctionHolder.getValue().toString();
 	}
 	public double getPValue(){
-		String pValueTxt=pValueHolder.getValue().toString();
-		Double pValue=Double.valueOf(pValueTxt);
-		return pValue;
+		return Double.valueOf(pValueTextField.getText());
 	}
 	public void setPValue(double d){
-		pValueHolder.setValue(Double.toString(d));
+		pValueTextField.setText(Double.toString(d));
 	}
 	public String getTranscriptionFactor(){
-		return TFGeneList.getValue().toString();
+		return TFGeneListTextField.getText();
 	}
 	public void setTranscriptionFactor(String TFString){
-		TFGeneList.setValue(TFString);
+		TFGeneListTextField.setText(TFString);
 	}
 	public TtestAnalysisPanel getTTestPanel(){
 		return this.tTestPanel;
@@ -380,6 +387,8 @@ public class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
     	setPValue(d);
     	String TF = (String)parameters.get("TF");
     	setTranscriptionFactor(TF);
+    	networkFrom.setSelectedIndex((Integer)parameters.get("networkFrom"));
+    	tfFrom.setSelectedIndex((Integer)parameters.get("tfFrom"));
     	stopNotifyAnalysisPanelTemporary(false);
     }
     
@@ -392,6 +401,8 @@ public class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
     	Map<Serializable, Serializable> answer = tTestPanel.getParameters();
     	answer.put("alpha",getPValue());
     	answer.put("TF",getTranscriptionFactor());
+    	answer.put("networkFrom", networkFrom.getSelectedIndex());
+    	answer.put("tfFrom", tfFrom.getSelectedIndex());
     	return answer;
     }
 	@Override
