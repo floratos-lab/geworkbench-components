@@ -230,25 +230,6 @@ class FastHierClustAnalysis extends AbstractGridAnalysis implements
 		// Check to make sure we have enough data to support the requested
 		// dimension, otherwise fall back to single dimension
 		
-		final int LARGE_SET_SIZE = 1000;
-		int size = matrix[dim].length;
-		if(size>LARGE_SET_SIZE) {
-			String d = null;
-			if(dim==0)d = "Gene Marker";
-			else if(dim==1)d = "Microarray";
-			else {
-				log.error("wrong dimension "+dim);
-			}
-			int n = JOptionPane.showConfirmDialog(null,
-				    d+ " set size "+size+" is very large and may cause out-of-memory error.\n Do you want to continue?",
-				    "Too large set",
-				    JOptionPane.WARNING_MESSAGE,
-				    JOptionPane.YES_NO_OPTION);
-			if (n != JOptionPane.YES_OPTION) {
-				return null;
-			}
-		}
-
 		reportJavaHeapMemory("before HierarchicalClusterAlgorithm.compute(...)");
 		try {
 			HierCluster result = algo[method].compute(this, matrix[dim],
@@ -262,6 +243,9 @@ class FastHierClustAnalysis extends AbstractGridAnalysis implements
 			log
 					.error("OutOfMemoryError: "+e.getMessage()
 							+ ". The application is not stable to continue. It is suggested to quit the geWorkbench.");
+			// very likely the following dialog will not be able to show up
+			JOptionPane.showMessageDialog(null, "Even if you are able to see this message, " +
+					"the application is not stable to continue due to Out Of Memory error. It is suggested to quit or kill geWorkbench.");
 			return null;
 		}
 
@@ -399,6 +383,26 @@ class FastHierClustAnalysis extends AbstractGridAnalysis implements
 			return new ParamValidationResults(false,
 					"Microarray set contains missing values.\n"
 							+ "Remove before proceeding.");
+
+		// warning danger of out of memory error
+		final int LARGE_SET_SIZE = 1000;
+		String setTooLarge = null;
+		if(numMAs>LARGE_SET_SIZE) {
+			setTooLarge = "Microarray set size "+numMAs;
+		}
+		if(numMarkers>LARGE_SET_SIZE) {
+			setTooLarge = "Gene Marker set size "+numMarkers;
+		}
+		if(setTooLarge!=null) {
+			int n = JOptionPane.showConfirmDialog(null,
+					setTooLarge+" is very large and may cause out-of-memory error.\n Do you want to continue?",
+				    "Too large set",
+				    JOptionPane.WARNING_MESSAGE,
+				    JOptionPane.YES_NO_OPTION);
+			if (n != JOptionPane.YES_OPTION) {
+				return new ParamValidationResults(false, "You chose to cancel because marker set is too large.");
+			}
+		}
 
 		return new ParamValidationResults(true,"No Error");
 	}
