@@ -67,7 +67,6 @@ public class ParameterPanel extends JPanel {
 
 	// Advanced Panel
 	private JCheckBox jExactOnlyBox = new JCheckBox();
-	private JCheckBox jCountSeqBox = new JCheckBox();
 	private JCheckBox jPValueBox = new JCheckBox();
 	private JComboBox jMatrixBox = new JComboBox();
 	private JLabel jSimThresholdLabel = new JLabel();
@@ -227,8 +226,6 @@ public class ParameterPanel extends JPanel {
 		jMatrixBox.addItem("BLOSUM100");
 		jMatrixBox.setSelectedIndex(0);
 		AdvancedPane.setLayout(jAdvancedgridBL);
-		jCountSeqBox.setSelected(false);
-		jCountSeqBox.setText("Count Sequences");
 		jPValueBox.setSelected(true);
 		jPValueBox.setText("ZScore");
 		jExactOnlyBox.setSelected(true);
@@ -379,9 +376,6 @@ public class ParameterPanel extends JPanel {
 		AdvancedPane.add(jExactOnlyBox, new GridBagConstraints(0, 0, 1, 1, 0.0,
 				0.0, GridBagConstraints.WEST, GridBagConstraints.NONE,
 				new Insets(1, 2, 1, 2), 0, 0));
-		AdvancedPane.add(jCountSeqBox, new GridBagConstraints(0, 1, 1, 1, 0.0,
-				0.0, GridBagConstraints.WEST, GridBagConstraints.NONE,
-				new Insets(1, 2, 1, 40), 0, 0));
 
 		// Remove Z score, fix bug 850
 		// AdvancedPane.add(jPValueBox, new GridBagConstraints(0, 3, 1, 1, 0.0,
@@ -515,10 +509,6 @@ public class ParameterPanel extends JPanel {
 		return (Integer.parseInt(jMinWTokensBox.getText()));
 	}
 
-	public int getCountSeqBoxSelected() {
-		return (jCountSeqBox.isSelected() ? 1 : 0);
-	}
-
 	public int getMinTokens() {
 		return (Integer.parseInt(jMinTokensBox.getText()));
 	}
@@ -646,10 +636,8 @@ public class ParameterPanel extends JPanel {
 			String support = format.format(parms.getMinPer100Support() * 100);
 			jMinSupportBox.setText(support);
 			// jMinSupportMenu.setSelectedItem(SUPPORT_PERCENT_1_100);
-			jCountSeqBox.setSelected(true);
 		} else {
 			jMinSupportBox.setText(format.format(parms.getMinSupport()));
-			jCountSeqBox.setSelected((parms.getCountSeq() == 1) ? true : false);
 		}
 		// if (parms.getMinPer100Support() > 0) {
 		// String support = format.format(parms.getMinPer100Support() * 100);
@@ -702,13 +690,6 @@ public class ParameterPanel extends JPanel {
 
 	public String getMinSupportExhaustive() {
 		return jMinSupportExhaustive.getText().trim();
-	}
-
-	public int getCountSeq() {
-		if (jCountSeqBox.isSelected()) {
-			return 1;
-		}
-		return 0;
 	}
 
 	public String getDensityConstraint() {
