@@ -8,9 +8,9 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.Map;
 
-import javax.naming.OperationNotSupportedException;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -24,6 +24,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.analysis.AbstractSaveableParameterPanel;
+import org.geworkbench.events.listeners.ParameterActionListener;
 import org.ginkgo.labs.util.FileTools;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
@@ -486,6 +487,24 @@ public class MedusaParamPanel extends AbstractSaveableParameterPanel implements
 					reverseComplement = false;
 			}
 		});
+		
+        ParameterActionListener parameterActionListener = new ParameterActionListener(this);
+        regulatorCombo.addActionListener(parameterActionListener);
+		regulatorTextField.addActionListener(parameterActionListener);
+		targetCombo.addActionListener(parameterActionListener);
+		targetTextField.addActionListener(parameterActionListener);
+		intervalBaseTextField.addActionListener(parameterActionListener);
+		intervalBoundTextField.addActionListener(parameterActionListener);
+		boostingIterationsTextField.addActionListener(parameterActionListener);
+		
+		minKmerTextField.addActionListener(parameterActionListener);
+		maxKmerTextField.addActionListener(parameterActionListener);
+		dimersCombo.addActionListener(parameterActionListener);
+		dimerMinGapTextField.addActionListener(parameterActionListener);
+		dimerMaxGapTextField.addActionListener(parameterActionListener);
+		reverseComplementCombo.addActionListener(parameterActionListener);
+		pssmLengthTextField.addActionListener(parameterActionListener);
+		aggTextField.addActionListener(parameterActionListener);
 	}
 
 	/* accessors */
@@ -547,14 +566,14 @@ public class MedusaParamPanel extends AbstractSaveableParameterPanel implements
 		} catch (NumberFormatException nfe) {
 			JOptionPane.showMessageDialog(null, NUMERIC_VALUES_ONLY, "Error",
 					JOptionPane.ERROR_MESSAGE);
-			throw new RuntimeException(nfe.getMessage());
+			//throw new RuntimeException(nfe.getMessage());
 		}
 
 		if (boostingIterations < 0) {
 			JOptionPane.showMessageDialog(null, "Boosting iterations "
 					+ CANNOT_BE_NEGATIVE, "Error", JOptionPane.ERROR_MESSAGE);
-			throw new RuntimeException("Boosting iterations "
-					+ CANNOT_BE_NEGATIVE);
+			//throw new RuntimeException("Boosting iterations "
+			//		+ CANNOT_BE_NEGATIVE);
 		}
 
 		return boostingIterations;
@@ -784,9 +803,26 @@ public class MedusaParamPanel extends AbstractSaveableParameterPanel implements
 	 * @see org.geworkbench.analysis.AbstractSaveableParameterPanel#getParameters()
 	 */
 	public Map<Serializable, Serializable> getParameters() {
-		// TODO Auto-generated method stub
-		log.error(new OperationNotSupportedException("Please implement getParameters()"));
-		return null;
+		Map<Serializable, Serializable> parameters = new HashMap<Serializable, Serializable>();
+
+		parameters.put("regulatorCombo", regulatorCombo.getSelectedIndex());
+		parameters.put("regulator", regulatorTextField.getText());
+		parameters.put("targetCombo", targetCombo.getSelectedIndex());
+		parameters.put("target", targetTextField.getText());
+		parameters.put("intervalBase", getIntervalBase());
+		parameters.put("intervalBound", getIntervalBound());
+		parameters.put("boostingIterations", getBoostingIterations());
+		
+		parameters.put("minKmer", getMinKmer());
+		parameters.put("maxKmer", getMaxKmer());
+		parameters.put("dimersCombo", dimersCombo.getSelectedIndex());
+		parameters.put("minGap", getMinGap());
+		parameters.put("maxGap", getMaxGap());
+		parameters.put("rcomp", reverseComplementCombo.getSelectedIndex());
+		parameters.put("pssmLength", getPssmLength());
+		parameters.put("agg", getAgg());
+		
+		return parameters;
 	}
 
 	/*
@@ -794,8 +830,22 @@ public class MedusaParamPanel extends AbstractSaveableParameterPanel implements
 	 * @see org.geworkbench.analysis.AbstractSaveableParameterPanel#setParameters(java.util.Map)
 	 */
 	public void setParameters(Map<Serializable, Serializable> parameters) {
-		// TODO Auto-generated method stub
-		log.error(new OperationNotSupportedException("Please implement setParameters()"));		
+		regulatorCombo.setSelectedIndex((Integer)parameters.get("regulatorCombo"));
+		regulatorTextField.setText((String)parameters.get("regulator"));
+		targetCombo.setSelectedIndex((Integer)parameters.get("targetCombo"));
+		targetTextField.setText((String)parameters.get("target"));
+		intervalBaseTextField.setText(Double.toString((Double)parameters.get("intervalBase")));
+		intervalBoundTextField.setText(Double.toString((Double)parameters.get("intervalBound")));
+		boostingIterationsTextField.setText(Integer.toString((Integer)parameters.get("boostingIterations")));
+		
+		minKmerTextField.setText(Integer.toString((Integer)parameters.get("minKmer")));
+		maxKmerTextField.setText(Integer.toString((Integer)parameters.get("maxKmer")));
+		dimersCombo.setSelectedIndex((Integer)parameters.get("dimersCombo"));
+		dimerMinGapTextField.setText(Integer.toString((Integer)parameters.get("minGap")));
+		dimerMaxGapTextField.setText(Integer.toString((Integer)parameters.get("maxGap")));
+		reverseComplementCombo.setSelectedIndex((Integer)parameters.get("rcomp"));
+		pssmLengthTextField.setText(Integer.toString((Integer)parameters.get("pssmLength")));
+		aggTextField.setText(Integer.toString((Integer)parameters.get("agg")));
 	}
 
 	@Override
