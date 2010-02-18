@@ -27,8 +27,8 @@ import java.util.HashSet;
 public class CellularNetWorkElementInformation {
     private HashMap<String,Integer> interactionNumMap = new HashMap<String,Integer>();
 	 
-    Set<String> allInteractionTypes = new HashSet<String>();  
-    private Set<String> interactionIncludedSet =  new HashSet<String>();     
+    private static Set<String> allInteractionTypes = new HashSet<String>();  
+     
     private DSGeneMarker dSGeneMarker;
     private String goInfoStr;
     private String geneType;
@@ -71,22 +71,21 @@ public class CellularNetWorkElementInformation {
     private TreeMap<String, List<GOTerm>> treeMapForFunction;
     private TreeMap<String, List<GOTerm>> treeMapForProcess;
 
-    public CellularNetWorkElementInformation(HashMap<String, Integer> interactionNumMap,  ArrayList<String> interactionIncludedSeList, DSGeneMarker dSGeneMarker, String goInfoStr, String geneType) {
+    public CellularNetWorkElementInformation(HashMap<String, Integer> interactionNumMap, DSGeneMarker dSGeneMarker, String goInfoStr, String geneType) {
         this.interactionNumMap = interactionNumMap;       
-        this.interactionIncludedSet.addAll(interactionIncludedSeList);       
         this.dSGeneMarker = dSGeneMarker;
         this.goInfoStr = goInfoStr;
         this.geneType = geneType;
        
     } 
 
-    public CellularNetWorkElementInformation(DSGeneMarker dSGeneMarker, List<String> allInteractionTypes) {
+    public CellularNetWorkElementInformation(DSGeneMarker dSGeneMarker) {
         this.dSGeneMarker = dSGeneMarker;
         smallestIncrement = defaultSmallestIncrement;
         isDirty = true;
         goInfoStr = "";
         Set<GOTerm> set = GeneOntologyUtil.getOntologyUtil().getAllGOTerms(dSGeneMarker);
-       treeMapForComponent = GeneOntologyUtil.getOntologyUtil().getAllGoTerms(dSGeneMarker, AnnotationParser.GENE_ONTOLOGY_CELLULAR_COMPONENT);
+        treeMapForComponent = GeneOntologyUtil.getOntologyUtil().getAllGoTerms(dSGeneMarker, AnnotationParser.GENE_ONTOLOGY_CELLULAR_COMPONENT);
         treeMapForFunction = GeneOntologyUtil.getOntologyUtil().getAllGoTerms(dSGeneMarker, AnnotationParser.GENE_ONTOLOGY_MOLECULAR_FUNCTION);
         treeMapForProcess = GeneOntologyUtil.getOntologyUtil().getAllGoTerms(dSGeneMarker, AnnotationParser.GENE_ONTOLOGY_BIOLOGICAL_PROCESS);
 
@@ -98,21 +97,6 @@ public class CellularNetWorkElementInformation {
         }
         geneType = GeneOntologyUtil.getOntologyUtil().checkMarkerFunctions(dSGeneMarker);
         
-        this.allInteractionTypes.clear();
-        this.allInteractionTypes.addAll(allInteractionTypes);
-        
-       /* for (String interactionType: allInteractionTypes)
-    	{
-    		interactionNumMap.put(interactionType, 0);
-    	}
-    	
-    	for (String interactionType: allInteractionTypes)
-       	{
-           	interactionDistributionMap.put(interactionType,new int[binNumber]);
-           	 for (int i = 0; i < binNumber; i++)  
-           		 (interactionDistributionMap.get(interactionType))[i]=0;
-        }*/
-    	
         
         reset();
 
@@ -145,13 +129,13 @@ public class CellularNetWorkElementInformation {
         }
     }
 
-    public ArrayList<InteractionDetail> getSelectedInteractions() {
+    public ArrayList<InteractionDetail> getSelectedInteractions(List<String> interactionIncludedList) {
         ArrayList<InteractionDetail> arrayList = new ArrayList<InteractionDetail>();
         if (interactionDetails != null && interactionDetails.length > 0) {
             for (int i = 0; i < interactionDetails.length; i++) {
                 InteractionDetail interactionDetail = interactionDetails[i];
                 if (interactionDetail != null && interactionDetail.getConfidence() >= threshold) {
-                    if (this.isIncludedInteraction(interactionDetail.getInteractionType()))
+                    if (interactionIncludedList.contains(interactionDetail.getInteractionType()))
                     {
                         arrayList.add(interactionDetail);
                     }
@@ -186,6 +170,13 @@ public class CellularNetWorkElementInformation {
         return isDirty;
     }
 
+    public static void setAllInteractionTypes(List<String> allInteractionTypeList) 
+    {
+    	   allInteractionTypes.clear();
+           allInteractionTypes.addAll(allInteractionTypeList);
+           
+    }
+    
     public void setDirty(boolean dirty) {
         isDirty = dirty;
     }
@@ -230,11 +221,9 @@ public class CellularNetWorkElementInformation {
      * Associate the gene marker with the details.
      * @param arrayList
      */
-    public void setInteractionDetails(List<InteractionDetail> arrayList, List<String> allInteractionTypes) {
+    public void setInteractionDetails(List<InteractionDetail> arrayList) {
 
-    	if ( this.allInteractionTypes.size() == 0 )
-    		this.allInteractionTypes.addAll(allInteractionTypes);
-    	
+    	 
     	if (arrayList != null && arrayList.size() > 0) {
             interactionDetails = new InteractionDetail[2];
             this.interactionDetails = arrayList.toArray(interactionDetails);
@@ -326,9 +315,7 @@ public class CellularNetWorkElementInformation {
         return this.interactionDistributionMap;
     }
 
-    public Set<String> getIncludledInteractionSet() {
-        return this.interactionIncludedSet;
-    }
+    
     public void setInteractionDistribution(String interactionType, int[] interactionDistribution) {
         this.interactionDistributionMap.put(interactionType, interactionDistribution);
     }
@@ -337,26 +324,7 @@ public class CellularNetWorkElementInformation {
 
     public void setInteractionNum(String interactionType, int interactionNum) {
         this.interactionNumMap.put(interactionType, interactionNum);
-    }
-
-    
-
-    public boolean isIncludedInteraction(String interactionType) {
-        return this.interactionIncludedSet.contains(interactionType);
-    }
-
-    public void addIncludedInteractionType(String interactionType) {
-        this.interactionIncludedSet.add(interactionType);
-    }
-    
-    public void setIncludedInteractionTypeList(List<String> selectedInteractionTypes) {
-        interactionIncludedSet.clear();
-        interactionIncludedSet.addAll(selectedInteractionTypes);
-    }
-    
-    public void removeIncludedInteraction(String interactionType) {
-        this.interactionIncludedSet.remove(interactionType);
-    }
+    }   
 
     public DSGeneMarker getdSGeneMarker() {
         return dSGeneMarker;
