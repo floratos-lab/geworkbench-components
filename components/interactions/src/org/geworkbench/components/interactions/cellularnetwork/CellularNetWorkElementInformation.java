@@ -196,7 +196,7 @@ public class CellularNetWorkElementInformation {
 	public void setInteractionDetails(List<InteractionDetail> arrayList) {
 
 		if (arrayList != null && arrayList.size() > 0) {
-			interactionDetails = new InteractionDetail[2];
+			interactionDetails = new InteractionDetail[arrayList.size()];
 			this.interactionDetails = arrayList.toArray(interactionDetails);
 		} else {
 			interactionDetails = null;
@@ -247,7 +247,8 @@ public class CellularNetWorkElementInformation {
 			interactionDistribution[i] = 0;
 		if (interactionDetails == null || interactionDetails.length <= 0 )
 			return interactionDistribution;
-		for (InteractionDetail interactionDetail : interactionDetails) {
+		
+		for (InteractionDetail interactionDetail : interactionDetails) {		 
 			int confidence = (int) (interactionDetail.getConfidence() * 100);
 			if (confidence < interactionDistribution.length && confidence >= 0) {
 
@@ -258,6 +259,7 @@ public class CellularNetWorkElementInformation {
 
 				}
 			}
+			 
 
 		}
 
