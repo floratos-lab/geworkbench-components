@@ -286,7 +286,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 					// !hits.contains(new
 					// CellularNetWorkElementInformation(marker)))
 					CellularNetWorkElementInformation cellularNetWorkElementInformation = new CellularNetWorkElementInformation(
-							marker, allInteractionTypes);
+							marker);
 					boolean newEntry = true;
 					for (CellularNetWorkElementInformation cell : hits) {
 						if (cell.equals(cellularNetWorkElementInformation)) {
@@ -296,7 +296,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 					}
 					if (newEntry) {
 						hits.addElement(new CellularNetWorkElementInformation(
-								marker, allInteractionTypes));
+								marker));
 					}
 				}
 			}
@@ -326,10 +326,9 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 					if (marker != null) {
 						// !hits.contains(new
 						// CellularNetWorkElementInformation(marker)))
-						CellularNetWorkElementInformation cellularNetWorkElementInformation = new
+						CellularNetWorkElementInformation cellularNetWorkElementInformation = new CellularNetWorkElementInformation(
+								marker);
 
-						CellularNetWorkElementInformation(marker,
-								allInteractionTypes);
 						boolean newEntry = true;
 						allGenes.remove(row);
 						for (CellularNetWorkElementInformation cell : hits) {
@@ -341,7 +340,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 						if (newEntry) {
 							hits
 									.addElement(new CellularNetWorkElementInformation(
-											marker, allInteractionTypes));
+											marker));
 						}
 
 					}
@@ -779,14 +778,6 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 									networkSelectedInteractionTypes,
 									availNetworkInteractionTypeModel,
 									selectedNetworkInteractionTypeModel);
-							if (hits != null && hits.size() > 0) {
-
-								for (CellularNetWorkElementInformation cellularNetWorkElementInformation : hits)
-
-									cellularNetWorkElementInformation
-											.setIncludedInteractionTypeList(networkSelectedInteractionTypes);
-
-							}
 
 						}
 
@@ -827,13 +818,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 							networkAvailInteractionTypes,
 							selectedNetworkInteractionTypeModel,
 							availNetworkInteractionTypeModel);
-					if (hits != null && hits.size() > 0) {
-						for (CellularNetWorkElementInformation cellularNetWorkElementInformation : hits)
 
-							cellularNetWorkElementInformation
-									.setIncludedInteractionTypeList(networkSelectedInteractionTypes);
-
-					}
 				}
 
 			}
@@ -874,14 +859,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 
 						availNetworkInteractionTypeModel,
 						selectedNetworkInteractionTypeModel);
-				if (hits != null && hits.size() > 0) {
 
-					for (CellularNetWorkElementInformation cellularNetWorkElementInformation : hits)
-
-						cellularNetWorkElementInformation
-								.setIncludedInteractionTypeList(networkSelectedInteractionTypes);
-
-				}
 			}
 		});
 
@@ -919,14 +897,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 								networkAvailInteractionTypes,
 								selectedNetworkInteractionTypeModel,
 								availNetworkInteractionTypeModel);
-						if (hits != null && hits.size() > 0) {
 
-							for (CellularNetWorkElementInformation cellularNetWorkElementInformation : hits)
-
-								cellularNetWorkElementInformation
-										.setIncludedInteractionTypeList(networkSelectedInteractionTypes);
-
-						}
 					}
 				});
 
@@ -1043,8 +1014,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 							// CellularNetWorkElementInformation(marker)))
 							CellularNetWorkElementInformation cellularNetWorkElementInformation = new
 
-							CellularNetWorkElementInformation(marker,
-									allInteractionTypes);
+							CellularNetWorkElementInformation(marker);
 							boolean newEntry = true;
 							allGenes.remove(row);
 							for (CellularNetWorkElementInformation cell : hits) {
@@ -1057,7 +1027,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 							if (newEntry) {
 								hits
 										.addElement(new CellularNetWorkElementInformation(
-												marker, allInteractionTypes));
+												marker));
 							}
 							activatedMarkerTable.revalidate();
 							detailTable.revalidate();
@@ -1349,6 +1319,16 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 		detailTable.revalidate();
 	}
 
+	public void memoryUsage() {
+		Runtime rtime = Runtime.getRuntime();
+		System.out.println("Total Memory---->" + rtime.totalMemory());
+		System.out.println("Free Memory---->" + rtime.freeMemory());
+		System.out.println("Used Memory---->"
+				+ (rtime.totalMemory() - rtime.freeMemory()));
+		System.out.println("Used Memory---->");
+
+	}
+
 	public void updateColumnPref() {
 
 		TableColumnModel model = detailTable.getColumnModel();
@@ -1562,7 +1542,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 			if (cellularNetWorkElementInformation.isDirty() == true)
 				continue;
 			ArrayList<InteractionDetail> arrayList = cellularNetWorkElementInformation
-					.getSelectedInteractions();
+					.getSelectedInteractions(networkSelectedInteractionTypes);
 			if (arrayList != null && arrayList.size() > 0) {
 				int index = Collections.binarySearch(copy,
 						cellularNetWorkElementInformation.getdSGeneMarker(),
@@ -1697,19 +1677,15 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 				}
 			}
 
-			Set<String> interactionIncludedSet = cellularNetWorkElementInformation
-					.getIncludledInteractionSet();
-			if (interactionIncludedSet.size() > 0)
+			if (networkSelectedInteractionTypes.size() > 0)
 				historyStr += "           "
 						+ cellularNetWorkElementInformation.getdSGeneMarker()
 								.getLabel() + ": \n";
-			for (String interactionType : interactionIncludedSet)
+			for (String interactionType : networkSelectedInteractionTypes)
 				historyStr += "\t Include "
 						+ interactionType
 						+ ": "
-						+
-
-						cellularNetWorkElementInformation
+						+ cellularNetWorkElementInformation
 								.getInteractionNum(interactionType) + "\n";
 
 		} // end for loop
@@ -2058,17 +2034,6 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 		networkSelectedInteractionTypes.clear();
 		networkSelectedInteractionTypes.addAll(displaySelectedInteractionTypes);
 
-		if (hits != null && hits.size() > 0) {
-
-			for (CellularNetWorkElementInformation cellularNetWorkElementInformation : hits) {
-
-				cellularNetWorkElementInformation
-						.setIncludedInteractionTypeList(networkSelectedInteractionTypes);
-
-			}
-
-		}
-
 		availableNetworkInteractionTypeList.setModel(new DefaultListModel());
 		availableNetworkInteractionTypeList
 				.setModel(availNetworkInteractionTypeModel);
@@ -2179,6 +2144,8 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 
 		try {
 
+			if (allInteractionTypes.size() == 0)
+				return;
 			pm.setProperty(this.getClass(), "url",
 					ResultSetlUtil.INTERACTIONS_SERVLET_URL);
 
@@ -2243,6 +2210,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 	}
 
 	private void previewSelectionsHandler(ActionEvent e) {
+
 		refreshButton.setEnabled(false);
 		cancelAction = false;
 		Runnable r = new Runnable() {
@@ -2344,13 +2312,12 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 								break;
 
 							}
-							cellularNetWorkElementInformation
-									.setIncludedInteractionTypeList(networkSelectedInteractionTypes);
 
 							cellularNetWorkElementInformation
-									.setInteractionDetails(interactionDetails,
-											allInteractionTypes);
+									.setInteractionDetails(interactionDetails);
+
 							cellularNetWorkElementInformation.setDirty(false);
+
 						}
 					}
 					if (!cancelAction) {
@@ -2411,7 +2378,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 	private void initPreferences() {
 
 		try {
-			// Authenticator.setDefault(new BasicAuthenticator());
+
 			InteractionsConnectionImpl interactionsConnection = new InteractionsConnectionImpl();
 			if (contextList != null)
 				contextList.clear();
@@ -2465,6 +2432,8 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 			if (allInteractionTypes != null && allInteractionTypes.size() > 0) {
 
 				Collections.sort(allInteractionTypes);
+				CellularNetWorkElementInformation
+						.setAllInteractionTypes(allInteractionTypes);
 				displayAvailInteractionTypes.addAll(allInteractionTypes);
 				networkAvailInteractionTypes
 						.addAll(displayAvailInteractionTypes);
@@ -2808,12 +2777,10 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 					// tableColumn.getHeaderValue().toString().equalsIgnoreCase(PDNUMBERLABEL)
 					// );
 					String headerStr = tableColumn.getHeaderValue().toString();
-					if (!cellularNetWorkElementInformation
-							.getIncludledInteractionSet().contains(
-									headerStr.substring(0,
+					if (!networkSelectedInteractionTypes.contains(headerStr
+							.substring(0,
 
-									headerStr.length()
-											- COLUMNLABELPOSTFIX.length()))) {
+							headerStr.length() - COLUMNLABELPOSTFIX.length()))) {
 						setBackground(Color.gray);
 					}
 					// else if (column == 6) {
