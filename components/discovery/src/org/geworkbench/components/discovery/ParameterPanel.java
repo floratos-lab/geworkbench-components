@@ -1,25 +1,38 @@
 package org.geworkbench.components.discovery;
 
-import org.geworkbench.util.RegularExpressionVerifier;
-import polgara.soapPD_wsdl.Parameters;
-
-import javax.swing.*;
-import javax.swing.border.Border;
-import javax.swing.border.EtchedBorder;
-import javax.swing.border.TitledBorder;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.text.DecimalFormat;
-import java.util.Vector;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.swing.BorderFactory;
+import javax.swing.ButtonGroup;
+import javax.swing.InputVerifier;
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JRadioButton;
+import javax.swing.JTabbedPane;
+import javax.swing.JTextField;
+import javax.swing.border.Border;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.geworkbench.util.RegularExpressionVerifier;
+
+import polgara.soapPD_wsdl.Parameters;
+
 /**
  * <p>
- * ParameterPanel
- * </p>
- * <p>
- * Description:
+ * Parameter panel for pattern discovery.
  * </p>
  * <p>
  * Copyright: Copyright (c) 2003
@@ -29,28 +42,28 @@ import java.util.regex.Pattern;
  * </p>
  * 
  * @author not attributable
- * @version 1.0
+ * @version $Id$
  */
 
 public class ParameterPanel extends JPanel {
-	public static final String SUPPORT_OCCURANCES = "# Support Occurances";
-	public static final String SUPPORT_SEQUENCES = "# Support Sequences";
-	public static final String SUPPORT_PERCENT_1_100 = "Support Percent %(1-100)";
+	private static final long serialVersionUID = 1979480021078904298L;
+	private static Log log = LogFactory.getLog(ParameterPanel.class);
+			
+	static final String SUPPORT_OCCURANCES = "# Support Occurances";
+	static final String SUPPORT_SEQUENCES = "# Support Sequences";
+	static final String SUPPORT_PERCENT_1_100 = "Support Percent %(1-100)";
+	
 	private JTabbedPane jTabbedPane1 = new JTabbedPane();
 	private JPanel BasicPane = new JPanel();
 	private JPanel AdvancedPane = new JPanel();
-	private JPanel jGroupingPane = new JPanel();
 
 	private BorderLayout jborderLayout = new BorderLayout();
 
 	private GridBagLayout jBasicGridBL = new GridBagLayout();
 	private GridBagLayout jAdvancedgridBL = new GridBagLayout();
-	private GridBagLayout jGroupsGridBL = new GridBagLayout();
 	private GridBagLayout jLimitsGridBL = new GridBagLayout();
 	private GridBagLayout jExhaustiveGridBL = new GridBagLayout();
 
-	// Hirachical panel fields
-	private JPanel jHierarchicalPane = new JPanel();
 	private JTextField jMinPatternNoBox = new JTextField();
 	private JLabel jMinClusterSizeLabel = new JLabel();
 	private JLabel jMinPatternNoLabel = new JLabel();
@@ -67,19 +80,16 @@ public class ParameterPanel extends JPanel {
 
 	// Advanced Panel
 	private JCheckBox jExactOnlyBox = new JCheckBox();
-	private JCheckBox jPValueBox = new JCheckBox();
+
 	private JComboBox jMatrixBox = new JComboBox();
 	private JLabel jSimThresholdLabel = new JLabel();
 	private JTextField jSimThresholdBox = new JTextField();
-	private JLabel jMinPValueLabel = new JLabel();
-	private JTextField jMinPValueBox = new JTextField();
 
 	// Groups Panel
 	private JLabel jGroupsLabel = new JLabel();
 	private JLabel jGroupSizeLabel = new JLabel();
 	private JComboBox jGroupsBox = new JComboBox();
 	private JTextField jGroupSizeBox = new JTextField();
-	private Vector jGroups = null;
 
 	// Limits Panel
 	private JPanel jLimitsPane = new JPanel();
@@ -95,9 +105,6 @@ public class ParameterPanel extends JPanel {
 	private JLabel jDecreaseDensitySupportLabel = new JLabel();
 	private JComboBox jDecreaseDensitySupportBox = new JComboBox();
 
-	// profileHMM Panel
-	private JPanel jProfileHMMPane = new JPanel();
-	private GridBagLayout jProfileHMMGridBL = new GridBagLayout();
 	private JLabel jEntThreshLabel = new JLabel();
 	private JTextField jEntThreshBox = new JTextField();
 	private JLabel jConsRegionExtLabel = new JLabel();
@@ -110,33 +117,21 @@ public class ParameterPanel extends JPanel {
 	private JLabel jLabel1 = new JLabel();
 	private JLabel jLabel2 = new JLabel();
 
-	// private JLabel jEntropyThresh = new JLabel();
-	// private JTextField jEntropyThreshBox = new JTextField();
-	// private JLabel jSlidingWindow = new JLabel();
-	// private JTextField jSlidingWindowBox = new JTextField();
-	// private JLabel jConservedRegionExtension = new JLabel();
-	// private JTextField jConsRegionExtBox = new JTextField();
+	private JLabel jLabel3 = new JLabel();
+	private JTextField jMinSupportExhaustive = new JTextField();
+	private JPanel jPanel1 = new JPanel();
+	private GridBagLayout gridBagLayout1 = new GridBagLayout();
 
-	private ParametersHandler pHandler = null;
-	JLabel jLabel3 = new JLabel();
-	JTextField jMinSupportExhaustive = new JTextField();
-	JPanel jPanel1 = new JPanel();
-	GridBagLayout gridBagLayout1 = new GridBagLayout();
-	TitledBorder titledBorder1;
-	Border border1;
-	Border border2;
-	Border border3;
-	Border border4;
-	Border border5;
-	Border border6;
-	Border border7;
-	JPanel jPanel2 = new JPanel();
-	GridBagLayout gridBagLayout2 = new GridBagLayout();
-	JLabel jLabel4 = new JLabel();
-	JTextField jTextField1 = new JTextField();
-	JTextField jMinClusterSizeBox = new JTextField();
-	JCheckBox jUseHMMBox = new JCheckBox();
-	GridBagLayout gridBagLayout3 = new GridBagLayout();
+	private Border border2;
+	private Border border3;
+	private Border border5;
+	private Border border7;
+	private JPanel jPanel2 = new JPanel();
+	private GridBagLayout gridBagLayout2 = new GridBagLayout();
+	private JLabel jLabel4 = new JLabel();
+	private JTextField jTextField1 = new JTextField();
+	private JTextField jMinClusterSizeBox = new JTextField();
+	private JCheckBox jUseHMMBox = new JCheckBox();
 	private String currentSupportMenuStr = SUPPORT_PERCENT_1_100;
 	private int maxSeqNumber;
 
@@ -148,17 +143,11 @@ public class ParameterPanel extends JPanel {
 		}
 	}
 
-	void jbInit() throws Exception {
+	private void jbInit() throws Exception {
 		// Basic Panel
-		titledBorder1 = new TitledBorder(new EtchedBorder(EtchedBorder.RAISED,
-				Color.white, new Color(148, 145, 140)),
-				"As percent of sequences");
-		border1 = BorderFactory.createEmptyBorder(2, 2, 2, 2);
 		border2 = BorderFactory.createEmptyBorder(2, 2, 2, 2);
 		border3 = BorderFactory.createEmptyBorder(2, 2, 2, 2);
-		border4 = BorderFactory.createEmptyBorder(2, 2, 2, 2);
 		border5 = BorderFactory.createEmptyBorder(2, 2, 2, 2);
-		border6 = BorderFactory.createEmptyBorder(2, 2, 2, 2);
 		border7 = BorderFactory.createEmptyBorder(2, 2, 2, 2);
 		BasicPane.setLayout(jBasicGridBL);
 		BasicPane.setPreferredSize(new Dimension(10, 100));
@@ -167,7 +156,7 @@ public class ParameterPanel extends JPanel {
 		jMinWTokensLabel.setText("Density Tokens:");
 		jMinWTokensLabel.setToolTipText("");
 		this.setLayout(jborderLayout);
-		// jMinSupportMenu.setText("Support:");
+
 		jMinSupportMenu.addItem(SUPPORT_PERCENT_1_100);
 		jMinSupportMenu.addItem(SUPPORT_SEQUENCES);
 		jMinSupportMenu.addItem(SUPPORT_OCCURANCES);
@@ -181,21 +170,15 @@ public class ParameterPanel extends JPanel {
 		jMinWTokensBox.setText("4");
 		jMinTokensLabel.setText("Min Tokens:");
 		jMinSupportBox.setText("70");
-		jProfileHMMPane.setLayout(jProfileHMMGridBL);
-		jProfileHMMPane.setBorder(border1);
-		jProfileHMMPane.setMaximumSize(new Dimension(32767, 32767));
+
 		jEntThreshLabel.setText("Entropy Threshold:");
 		jConsRegionExtLabel.setText("Conserved Region Extension:");
-		jConsRegionExtBox
-				.addActionListener(new ParameterPanel_jConsRegionExtBox_actionAdapter(
-						this));
+
 		jEntThreshBox.setEnabled(true);
 		jEntThreshBox.setSelectionEnd(0);
 		jEntThreshBox.setSelectionStart(0);
 		jEntThreshBox.setText("16");
-		jEntThreshBox
-				.addActionListener(new ParameterPanel_jEntThreshBox_actionAdapter(
-						this));
+
 		jSlidWindowSizeLabel.setText("Sliding Window Size:");
 		jSequenceRadioButton.setEnabled(false);
 		jSequenceRadioButton.setDoubleBuffered(false);
@@ -216,8 +199,6 @@ public class ParameterPanel extends JPanel {
 				"(\\d){1,9}"));
 		jWindowBox
 				.setInputVerifier(new RegularExpressionVerifier("(\\d){1,9}"));
-		// jMinSupportBox.setInputVerifier(new
-		// SupportVerifier("0?\\.?(\\d){1,9}(%)?"));
 		jMinSupportBox.setInputVerifier(new SupportVerifier(
 				"0?\\.?(\\d){1,9}(%)?"));
 		// Advanced Panel
@@ -226,23 +207,16 @@ public class ParameterPanel extends JPanel {
 		jMatrixBox.addItem("BLOSUM100");
 		jMatrixBox.setSelectedIndex(0);
 		AdvancedPane.setLayout(jAdvancedgridBL);
-		jPValueBox.setSelected(true);
-		jPValueBox.setText("ZScore");
+
 		jExactOnlyBox.setSelected(true);
 		jExactOnlyBox.setText("Exact Only");
 		jSimThresholdLabel.setText("Similarity Threshold:");
 		jSimThresholdBox.setText("2");
 
-		jMinPValueLabel.setText("Min. ZScore:");
-		jMinPValueBox.setPreferredSize(new Dimension(80, 20));
-		jMinPValueBox.setText("-10000");
 		// add a verifier
 		jSimThresholdBox.setPreferredSize(new Dimension(80, 20));
 		jSimThresholdBox.setInputVerifier(new RegularExpressionVerifier(
 				"(\\d){1,9}"));
-		// check if it's double
-		jMinPValueBox.setInputVerifier(new RegularExpressionVerifier(
-				"(-)?(\\d){1,10}(.)?(\\d){1,10}?(.)?(\\d){1,10}"));
 		// Groups Panel
 		jGroupsBox.addItem("Normal");
 		jGroupsBox.addItem("Occurs in Group");
@@ -258,12 +232,10 @@ public class ParameterPanel extends JPanel {
 		jGroupSizeLabel.setMaximumSize(new Dimension(63, 15));
 		jGroupSizeLabel.setMinimumSize(new Dimension(50, 15));
 		jGroupSizeLabel.setText("Size: ");
-		jGroupingPane.setLayout(jGroupsGridBL);
+
 		jGroupSizeBox.setEnabled(false);
 		jGroupSizeBox.setMinimumSize(new Dimension(4, 21));
 		jGroupSizeBox.setText("1");
-		jGroupingPane.setBorder(border6);
-		jGroupingPane.setDebugGraphicsOptions(0);
 
 		// input verifier
 		jGroupSizeBox.setInputVerifier(new RegularExpressionVerifier(
@@ -304,8 +276,7 @@ public class ParameterPanel extends JPanel {
 		jConsRegionExtBox.setEnabled(false);
 		jConsRegionExtBox.setText("");
 		jLimitsPane.setBorder(border2);
-		jHierarchicalPane.setBorder(border4);
-		jHierarchicalPane.setMinimumSize(new Dimension(156, 52));
+
 		jExhaustivePane.setBorder(border5);
 		AdvancedPane.setBorder(border7);
 		jMinPatternNoBox.setPreferredSize(new Dimension(20, 20));
@@ -321,26 +292,11 @@ public class ParameterPanel extends JPanel {
 		jUseHMMBox.setText("Use ProfileHMM");
 		buttonGroup1.add(jOccurenceRadioButton);
 		buttonGroup1.add(jSequenceRadioButton);
-		jDecreaseSupportBox
-				.addActionListener(new ParameterPanel_jDecreaseSupportBox_actionAdapter(
-						this));
+
 		// input verifier
 		jDecreaseSupportBox.setInputVerifier(new RegularExpressionVerifier(
 				"(\\d){1,9}(%)?"));
-		// Hierarchical Panel
-		jHierarchicalPane.setLayout(gridBagLayout3);
-		jHierarchicalPane.add(jMinClusterSizeLabel, new GridBagConstraints(0,
-				0, 1, 1, 0.0, 0.0, GridBagConstraints.WEST,
-				GridBagConstraints.NONE, new Insets(2, 2, 2, 2), 0, 0));
-		jHierarchicalPane.add(jMinClusterSizeBox, new GridBagConstraints(1, 0,
-				1, 1, 1.0, 0.0, GridBagConstraints.WEST,
-				GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2), 0, 0));
-		jHierarchicalPane.add(jMinPatternNoLabel, new GridBagConstraints(0, 1,
-				1, 1, 0.0, 0.0, GridBagConstraints.WEST,
-				GridBagConstraints.NONE, new Insets(2, 2, 2, 2), 0, 0));
-		jHierarchicalPane.add(jMinPatternNoBox, new GridBagConstraints(1, 1, 1,
-				1, 1.0, 0.0, GridBagConstraints.WEST,
-				GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2), 0, 0));
+
 		jMinPatternNoLabel.setText("Min. Pattern Number:");
 		jMinPatternNoBox.setText("10");
 		jMinClusterSizeLabel.setText("Min. Cluster Size:");
@@ -377,16 +333,6 @@ public class ParameterPanel extends JPanel {
 				0.0, GridBagConstraints.WEST, GridBagConstraints.NONE,
 				new Insets(1, 2, 1, 2), 0, 0));
 
-		// Remove Z score, fix bug 850
-		// AdvancedPane.add(jPValueBox, new GridBagConstraints(0, 3, 1, 1, 0.0,
-		// 0.0, GridBagConstraints.WEST, GridBagConstraints.BOTH, new Insets(1,
-		// 2, 1, 2), 0, 0));
-		// AdvancedPane.add(jMinPValueLabel, new GridBagConstraints(1, 3, 1, 1,
-		// 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
-		// new Insets(1, 2, 2, 2), 0, 0));
-		// AdvancedPane.add(jMinPValueBox, new GridBagConstraints(2, 3, 1, 1,
-		// 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
-		// new Insets(1, 1, 2, 2), 0, 0));
 		AdvancedPane.add(jMatrixBox, new GridBagConstraints(1, 0, 2, 1, 1.0,
 				0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
 				new Insets(2, 2, 2, 2), 0, 0));
@@ -396,19 +342,6 @@ public class ParameterPanel extends JPanel {
 		AdvancedPane.add(jSimThresholdBox, new GridBagConstraints(2, 1, 1, 1,
 				0.0, 0.0, GridBagConstraints.CENTER,
 				GridBagConstraints.HORIZONTAL, new Insets(1, 1, 2, 2), 0, 0));
-
-		jGroupingPane.add(jGroupsBox, new GridBagConstraints(1, 0, 1, 1, 1.0,
-				0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
-				new Insets(2, 4, 2, 4), 139, 0));
-		jGroupingPane.add(jGroupSizeBox, new GridBagConstraints(1, 1, 1, 1,
-				1.0, 0.0, GridBagConstraints.NORTHWEST,
-				GridBagConstraints.HORIZONTAL, new Insets(2, 4, 2, 4), 0, 0));
-		jGroupingPane.add(jGroupSizeLabel, new GridBagConstraints(0, 1, 1, 1,
-				0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE,
-				new Insets(2, 2, 2, 2), 0, 0));
-		jGroupingPane.add(jGroupsLabel, new GridBagConstraints(0, 0, 1, 1, 0.0,
-				0.0, GridBagConstraints.WEST, GridBagConstraints.NONE,
-				new Insets(2, 2, 2, 2), 0, 0));
 
 		jLimitsPane.add(jMaxPatternNoLabel, new GridBagConstraints(0, 0, 1, 1,
 				0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE,
@@ -467,34 +400,9 @@ public class ParameterPanel extends JPanel {
 				0.0, GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL,
 				new Insets(2, 2, 2, 2), 0, 0));
 
-		jProfileHMMPane.add(jEntThreshBox, new GridBagConstraints(1, 1, 2, 1,
-				0.0, 0.0, GridBagConstraints.WEST,
-				GridBagConstraints.HORIZONTAL, new Insets(0, 2, 0, 0), 0, 0));
-		jProfileHMMPane.add(jConsRegionExtLabel, new GridBagConstraints(0, 2,
-				1, 1, 0.0, 0.0, GridBagConstraints.CENTER,
-				GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
-		jProfileHMMPane.add(jConsRegionExtBox, new GridBagConstraints(1, 2, 1,
-				1, 1.0, 0.0, GridBagConstraints.WEST,
-				GridBagConstraints.HORIZONTAL, new Insets(0, 2, 0, 0), 0, 0));
-		jProfileHMMPane.add(jSlidingWindowBox, new GridBagConstraints(1, 3, 2,
-				1, 0.0, 0.0, GridBagConstraints.WEST,
-				GridBagConstraints.HORIZONTAL, new Insets(0, 2, 0, 0), 0, 0));
-		jProfileHMMPane.add(jSlidWindowSizeLabel, new GridBagConstraints(0, 3,
-				1, 1, 0.0, 0.0, GridBagConstraints.WEST,
-				GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
-		jProfileHMMPane.add(jEntThreshLabel, new GridBagConstraints(0, 1, 1, 1,
-				0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE,
-				new Insets(0, 0, 0, 0), 0, 0));
-		jProfileHMMPane.add(jUseHMMBox, new GridBagConstraints(0, 0, 1, 1, 0.0,
-				0.0, GridBagConstraints.WEST, GridBagConstraints.NONE,
-				new Insets(0, 0, 0, 0), 0, 0));
 		jTabbedPane1.add(BasicPane, "Basic");
-		// FIXME if the commented-out three tabs (hierarchical, profileHMM, grouping) are decided to be removed permanently, we should remove reference to the panes altogether
-		//jTabbedPane1.add(jHierarchicalPane, "Hierarchical");
 		jTabbedPane1.add(jExhaustivePane, "Exhaustive");
 		jTabbedPane1.add(jLimitsPane, "Limits");
-		//jTabbedPane1.add(jProfileHMMPane, "ProfileHMM");
-		//jTabbedPane1.add(jGroupingPane, "Grouping");
 		jTabbedPane1.add(AdvancedPane, "Advanced");
 		this.add(jTabbedPane1, BorderLayout.NORTH);
 		jTabbedPane1.setSelectedIndex(0);
@@ -537,8 +445,9 @@ public class ParameterPanel extends JPanel {
 		return (jExactOnlyBox.isSelected() ? 1 : 0);
 	}
 
+	// always true ('selected'). not on GUI
 	public int getPValueBoxSelected() {
-		return (jPValueBox.isSelected() ? 1 : 0);
+		return 1;
 	}
 
 	public String getMatrixSelection() {
@@ -549,8 +458,9 @@ public class ParameterPanel extends JPanel {
 		return (Double.parseDouble(jSimThresholdBox.getText()));
 	}
 
+	// always return this. not shown on GUI.
 	public double getMinPValue() {
-		return (Double.parseDouble(jMinPValueBox.getText()));
+		return -10000.;
 	}
 
 	public double getProfileEntropy() {
@@ -622,33 +532,15 @@ public class ParameterPanel extends JPanel {
 	}
 
 	public void setParameters(Parameters parms) {
-		DecimalFormat format = new DecimalFormat("####.##");
-		// Parsing the BASIC panel
-		// if (parms.getMinPer100Support() > 0) {
-		// String support = format.format(parms.getMinPer100Support() * 100);
-		// jMinSupportBox.setText(support + "%");
-		// jCountSeqBox.setSelected(true);
-		// } else {
-		// jMinSupportBox.setText(Integer.toString(parms.getMinSupport()));
-		// }
+		final DecimalFormat format = new DecimalFormat("####.##");
+
 		jMinSupportMenu.setSelectedItem(currentSupportMenuStr);
 		if (currentSupportMenuStr.equalsIgnoreCase(SUPPORT_PERCENT_1_100)) {
 			String support = format.format(parms.getMinPer100Support() * 100);
 			jMinSupportBox.setText(support);
-			// jMinSupportMenu.setSelectedItem(SUPPORT_PERCENT_1_100);
 		} else {
 			jMinSupportBox.setText(format.format(parms.getMinSupport()));
 		}
-		// if (parms.getMinPer100Support() > 0) {
-		// String support = format.format(parms.getMinPer100Support() * 100);
-		// jMinSupportBox.setText(support);
-		// jMinSupportMenu.setSelectedItem(SUPPORT_PERCENT_1_100);
-		// jCountSeqBox.setSelected(true);
-		// } else {
-		// jMinSupportBox.setText(Integer.toString(parms.getMinSupport()));
-		// jMinSupportMenu.setSelectedItem(SUPPORT_SEQUENCES);
-		// }
-		// jCountSeqBox.setSelected((parms.getCountSeq() == 1) ? true : false);
 
 		jMinTokensBox.setText(Integer.toString(parms.getMinTokens()));
 		jWindowBox.setText(Integer.toString(parms.getWindow()));
@@ -656,10 +548,9 @@ public class ParameterPanel extends JPanel {
 
 		// Parsing the ADVANCED panel
 		jExactOnlyBox.setSelected((parms.getExact() == 1) ? true : false);
-		jPValueBox.setSelected((parms.getComputePValue() == 1) ? true : false);
+
 		jMatrixBox.setSelectedItem(parms.getSimilarityMatrix());
 		jSimThresholdBox.setText(format.format(parms.getSimilarityThreshold()));
-		jMinPValueBox.setText(format.format(parms.getMinPValue()));
 
 		// Parsing the HIERARCHICAL panel
 		if (parms != null && parms.getHierarchical() != null)
@@ -698,32 +589,10 @@ public class ParameterPanel extends JPanel {
 		return decConstraint;
 	}
 
-	void jDecreaseSupportBox_actionPerformed(ActionEvent e) {
-
-	}
-
-	void jEntThreshBox_actionPerformed(ActionEvent e) {
-	}
-
-	void jConsRegionExtBox_actionPerformed(ActionEvent e) {
-	}
-
 	void jSupportMenu_actionPerformed(ActionEvent e) {
 		String selectedSupportStr = (String) jMinSupportMenu.getSelectedItem();
-		System.out.println(selectedSupportStr);
-		String minSupportStr = getMinSupport();
 		if (!currentSupportMenuStr.equalsIgnoreCase(selectedSupportStr)) {
-			// if(currentSupportMenuStr.equalsIgnoreCase(SUPPORT_PERCENT_1_100)){
-			// int minSupport =Math.min((int)
-			// (Math.ceil(Double.parseDouble(minSupportStr)/100 *
-			// maxSeqNumber)), maxSeqNumber);
-			// jMinSupportBox.setText(new Integer(minSupport).toString());
-			// }else{
-			// int minSupport =Math.min((int)
-			// (Math.ceil(Double.parseDouble(minSupportStr)/maxSeqNumber *
-			// 100)), 100);
-			// jMinSupportBox.setText(new Integer(minSupport).toString());
-			// }
+			log.debug(currentSupportMenuStr+"=>"+selectedSupportStr);
 			jMinSupportBox.setText("");
 			this.revalidate();
 
@@ -733,7 +602,7 @@ public class ParameterPanel extends JPanel {
 
 	// this class is used for the parametorPanel for verification of input.
 	// It uses a regular expression for the verification
-	class SupportVerifier extends InputVerifier {
+	private class SupportVerifier extends InputVerifier {
 		// TEXT_FIELD = "^(\\S)(.){1,75}(\\S)$";
 		// NON_NEGATIVE_INTEGER_FIELD = "(\\d){1,9}";
 		// INTEGER_FIELD = "(-)?" + NON_NEGATIVE_INTEGER_FIELD;
@@ -766,7 +635,7 @@ public class ParameterPanel extends JPanel {
 			input.setInputVerifier(this);
 			// Tell whomever called us that we don't want to yield focus.
 			return false;
-		}// endof shouldyieldfocus()
+		}// end of shouldyieldfocus()
 
 		public boolean verify(JComponent input) {
 			JTextField tf = (JTextField) input;
@@ -794,65 +663,24 @@ public class ParameterPanel extends JPanel {
 				}
 			}
 
-			// if (!match) {
-			// JOptionPane.showMessageDialog(null, "Eggs aren't supposed to be
-			// green.");
-			// }
 			return match;
-		}// endof verify()
+		}// end of verify()
 
+	}
+
+	private static class ParameterPanel_jSupportMenu_actionAdapter implements
+			java.awt.event.ActionListener {
+		ParameterPanel adaptee;
+
+		ParameterPanel_jSupportMenu_actionAdapter(ParameterPanel adaptee) {
+			this.adaptee = adaptee;
+		}
+
+		public void actionPerformed(ActionEvent e) {
+			adaptee.jSupportMenu_actionPerformed(e);
+		}
 	}
 
 }
 
-class ParameterPanel_jDecreaseSupportBox_actionAdapter implements
-		java.awt.event.ActionListener {
-	ParameterPanel adaptee;
 
-	ParameterPanel_jDecreaseSupportBox_actionAdapter(ParameterPanel adaptee) {
-		this.adaptee = adaptee;
-	}
-
-	public void actionPerformed(ActionEvent e) {
-		adaptee.jDecreaseSupportBox_actionPerformed(e);
-	}
-}
-
-class ParameterPanel_jEntThreshBox_actionAdapter implements
-		java.awt.event.ActionListener {
-	ParameterPanel adaptee;
-
-	ParameterPanel_jEntThreshBox_actionAdapter(ParameterPanel adaptee) {
-		this.adaptee = adaptee;
-	}
-
-	public void actionPerformed(ActionEvent e) {
-		adaptee.jEntThreshBox_actionPerformed(e);
-	}
-}
-
-class ParameterPanel_jSupportMenu_actionAdapter implements
-		java.awt.event.ActionListener {
-	ParameterPanel adaptee;
-
-	ParameterPanel_jSupportMenu_actionAdapter(ParameterPanel adaptee) {
-		this.adaptee = adaptee;
-	}
-
-	public void actionPerformed(ActionEvent e) {
-		adaptee.jSupportMenu_actionPerformed(e);
-	}
-}
-
-class ParameterPanel_jConsRegionExtBox_actionAdapter implements
-		java.awt.event.ActionListener {
-	ParameterPanel adaptee;
-
-	ParameterPanel_jConsRegionExtBox_actionAdapter(ParameterPanel adaptee) {
-		this.adaptee = adaptee;
-	}
-
-	public void actionPerformed(ActionEvent e) {
-		adaptee.jConsRegionExtBox_actionPerformed(e);
-	}
-}
