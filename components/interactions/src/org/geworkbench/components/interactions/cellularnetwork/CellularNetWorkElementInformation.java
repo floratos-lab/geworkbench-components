@@ -8,7 +8,7 @@ import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.G
 import java.util.ArrayList;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.List;  
+import java.util.List;
 import java.util.HashMap;
 import java.util.HashSet;
 
@@ -21,307 +21,287 @@ import java.util.HashSet;
  */
 
 /**
- * It is used to save all celllualr Network information related to a specific marker.
- *
+ * It is used to save all celllualr Network information related to a specific
+ * marker.
+ * 
  */
 public class CellularNetWorkElementInformation {
-    private HashMap<String,Integer> interactionNumMap = new HashMap<String,Integer>();
+	private HashMap<String, Integer> interactionNumMap = new HashMap<String, Integer>();
+
+	private static Set<String> allInteractionTypes = new HashSet<String>();
+
+	private DSGeneMarker dSGeneMarker;
+	private String goInfoStr;
+	private String geneType;
+	private InteractionDetail[] interactionDetails;
+	private static double threshold;	 
+	private static double smallestIncrement;
+	private static Double defaultSmallestIncrement = 0.01;
+	private static int binNumber;
+	private boolean isDirty;
+
+	public CellularNetWorkElementInformation(
+			HashMap<String, Integer> interactionNumMap,
+			DSGeneMarker dSGeneMarker, String goInfoStr, String geneType) {
+		this.interactionNumMap = interactionNumMap;
+		this.dSGeneMarker = dSGeneMarker;
+		this.goInfoStr = goInfoStr;
+		this.geneType = geneType;
+
+	}
+
+	public CellularNetWorkElementInformation(DSGeneMarker dSGeneMarker) {
+		this.dSGeneMarker = dSGeneMarker;
+		smallestIncrement = defaultSmallestIncrement;
+		isDirty = true;
+		goInfoStr = "";
+		Set<GOTerm> set = GeneOntologyUtil.getOntologyUtil().getAllGOTerms(
+				dSGeneMarker);
+
+		if (set != null && set.size() > 0) {
+			for (GOTerm goTerm : set) {
+				goInfoStr += goTerm.getName() + "; ";
+			}
+		}
+		geneType = GeneOntologyUtil.getOntologyUtil().checkMarkerFunctions(
+				dSGeneMarker);
+
+		reset();
+
+	}
+
+	/**
+	 * Remove all previous retrieved information.
+	 */
+	public void reset() {
+
+		for (String interactionType : allInteractionTypes) {
+			interactionNumMap.put(interactionType, 0);
+		}
+		binNumber = (int) (1 / smallestIncrement) + 1;
+
+		 
+	}
+
+	public ArrayList<InteractionDetail> getSelectedInteractions(
+			List<String> interactionIncludedList) {
+		ArrayList<InteractionDetail> arrayList = new ArrayList<InteractionDetail>();
+		if (interactionDetails != null && interactionDetails.length > 0) {
+			for (int i = 0; i < interactionDetails.length; i++) {
+				InteractionDetail interactionDetail = interactionDetails[i];
+				if (interactionDetail != null
+						&& interactionDetail.getConfidence() >= threshold) {
+					if (interactionIncludedList.contains(interactionDetail
+							.getInteractionType())) {
+						arrayList.add(interactionDetail);
+					}
+
+				}
+			}
+		}
+		return arrayList;
+	}
+
+	public static double getSmallestIncrement() {
+		return smallestIncrement;
+	}
+
+	public void setSmallestIncrement(double smallestIncrementNumber) {
+		smallestIncrement = smallestIncrementNumber;
+	}
+
+	public int[] getDistribution() {
+		int[] distribution = new int[binNumber];
+		for (int i = 0; i < binNumber; i++)
+			distribution[i] = 0;
+		if (interactionDetails == null || interactionDetails.length <= 0 )
+			return distribution;
+		for (InteractionDetail interactionDetail : interactionDetails) {
+			if (interactionDetail != null) {
+				int confidence = (int) (interactionDetail.getConfidence() * 100);
+				if (confidence < distribution.length && confidence >= 0) {
+					for (int i = 0; i <= confidence; i++)
+						distribution[i]++;
+
+				}
+
+			}
+		}
+		return distribution;
+	}
+
 	 
-    private static Set<String> allInteractionTypes = new HashSet<String>();  
-     
-    private DSGeneMarker dSGeneMarker;
-    private String goInfoStr;
-    private String geneType;
-    private InteractionDetail[] interactionDetails;
-    private static double threshold;
-    private int[] distribution;
-    private HashMap<String, int[]> interactionDistributionMap = new HashMap<String, int[]>();
-     
-    private static double smallestIncrement;
-    private static Double defaultSmallestIncrement = 0.01;
-    private static int binNumber;
-    private boolean isDirty;   
+	public static int getBinNumber() {
+		return binNumber;
+	}
 
-    public CellularNetWorkElementInformation(HashMap<String, Integer> interactionNumMap, DSGeneMarker dSGeneMarker, String goInfoStr, String geneType) {
-        this.interactionNumMap = interactionNumMap;       
-        this.dSGeneMarker = dSGeneMarker;
-        this.goInfoStr = goInfoStr;
-        this.geneType = geneType;
-       
-    } 
+	public boolean isDirty() {
+		return isDirty;
+	}
 
-    public CellularNetWorkElementInformation(DSGeneMarker dSGeneMarker) {
-        this.dSGeneMarker = dSGeneMarker;
-        smallestIncrement = defaultSmallestIncrement;
-        isDirty = true;
-        goInfoStr = "";
-        Set<GOTerm> set = GeneOntologyUtil.getOntologyUtil().getAllGOTerms(dSGeneMarker);       
+	public static void setAllInteractionTypes(
+			List<String> allInteractionTypeList) {
+		allInteractionTypes.clear();
+		allInteractionTypes.addAll(allInteractionTypeList);
 
-        if (set != null && set.size() > 0) {
-            for (GOTerm goTerm : set) {
-                goInfoStr += goTerm.getName() + "; ";
-            }
-        }
-        geneType = GeneOntologyUtil.getOntologyUtil().checkMarkerFunctions(dSGeneMarker);
-        
-        
-        reset();
+	}
 
-    }
+	public void setDirty(boolean dirty) {
+		isDirty = dirty;
+	}
 
-    /**
-     * Remove all previous retrieved information.
-     */
-    public void reset() {
-      
-    	for (String interactionType: allInteractionTypes)
-    	{
-    		interactionNumMap.put(interactionType, 0);
-    	}
-        binNumber = (int) (1 / smallestIncrement) + 1;
-        distribution = new int[binNumber];
-       
-        for (String interactionType: allInteractionTypes)
-    	{
-        	interactionDistributionMap.put(interactionType,new int[binNumber]);
-        	 for (int i = 0; i < binNumber; i++) {
-        		 (interactionDistributionMap.get(interactionType))[i]=0;
-                
-             }
-    	}
-        
-        for (int i = 0; i < binNumber; i++) {
-            distribution[i] = 0;
-            
-        }
-    }
+	public static void setBinNumber(int binNumber) {
+		CellularNetWorkElementInformation.binNumber = binNumber;
+	}
 
-    public ArrayList<InteractionDetail> getSelectedInteractions(List<String> interactionIncludedList) {
-        ArrayList<InteractionDetail> arrayList = new ArrayList<InteractionDetail>();
-        if (interactionDetails != null && interactionDetails.length > 0) {
-            for (int i = 0; i < interactionDetails.length; i++) {
-                InteractionDetail interactionDetail = interactionDetails[i];
-                if (interactionDetail != null && interactionDetail.getConfidence() >= threshold) {
-                    if (interactionIncludedList.contains(interactionDetail.getInteractionType()))
-                    {
-                        arrayList.add(interactionDetail);
-                    }
-                   
-                }
-            }
-        }
-        return arrayList;
-    }
+	public CellularNetWorkElementInformation(
+			HashMap<String, Integer> interactionNumMap,
+			DSGeneMarker dSGeneMarker) {
+		this.interactionNumMap = interactionNumMap;
+		this.dSGeneMarker = dSGeneMarker;
+	}
 
-    public static double getSmallestIncrement() {
-        return smallestIncrement;
-    }
+	public Integer getInteractionNum(String interactionType) {
+		if (interactionNumMap.containsKey(interactionType))
+			return interactionNumMap.get(interactionType);
+		else
+			return null;
+	}
 
-    public void setSmallestIncrement(double smallestIncrementNumber) {
-        smallestIncrement = smallestIncrementNumber;
-    }
+	public HashMap<String, Integer> getInteractionNumMap() {
+		return this.interactionNumMap;
+	}
 
-    public int[] getDistribution() {
-        return distribution;
-    }
+	public static double getThreshold() {
+		return threshold;
+	}
 
-    public void setDistribution(int[] distribution) {
-        this.distribution = distribution;
-    }
+	public void setThreshold(double _threshold) {
+		if (threshold != _threshold) {
+			threshold = _threshold;
 
-    public static int getBinNumber() {
-        return binNumber;
-    }
+		}
+		update();
+	}
 
-    public boolean isDirty() {
-        return isDirty;
-    }
+	public InteractionDetail[] getInteractionDetails() {
+		return interactionDetails;
+	}
 
-    public static void setAllInteractionTypes(List<String> allInteractionTypeList) 
-    {
-    	   allInteractionTypes.clear();
-           allInteractionTypes.addAll(allInteractionTypeList);
-           
-    }
-    
-    public void setDirty(boolean dirty) {
-        isDirty = dirty;
-    }
+	/**
+	 * Associate the gene marker with the details.
+	 * 
+	 * @param arrayList
+	 */
+	public void setInteractionDetails(List<InteractionDetail> arrayList) {
 
-    public static void setBinNumber(int binNumber) {
-        CellularNetWorkElementInformation.binNumber = binNumber;
-    }
+		if (arrayList != null && arrayList.size() > 0) {
+			interactionDetails = new InteractionDetail[2];
+			this.interactionDetails = arrayList.toArray(interactionDetails);
+		} else {
+			interactionDetails = null;
+			reset();
+		}
 
-    public CellularNetWorkElementInformation(HashMap<String,Integer> interactionNumMap, DSGeneMarker dSGeneMarker) {
-        this.interactionNumMap = interactionNumMap;       
-        this.dSGeneMarker = dSGeneMarker;
-    }
+		if (interactionDetails != null) {
+			update();
+		}
 
-    public Integer getInteractionNum(String interactionType) {
-        if (interactionNumMap.containsKey(interactionType))
-    	   return interactionNumMap.get(interactionType);
-        else
-        	return null;
-    }
-    
-    public HashMap<String, Integer> getInteractionNumMap() {
-        return this.interactionNumMap;
-    }
+	}
 
-    public static double getThreshold() {
-        return threshold;
-    }
+	/**
+	 * Update the number of interaction based on the new threshold or new
+	 * InteractionDetails.
+	 */
+	private void update() {
 
-    public void setThreshold(double _threshold) {
-        if (threshold != _threshold) {
-            threshold = _threshold;
+		reset();
 
-        }
-        update();
-    }
+		if (interactionDetails == null || interactionDetails.length == 0) {
+			return;
+		}
 
-    public InteractionDetail[] getInteractionDetails() {
-        return interactionDetails;
-    }
+		for (InteractionDetail interactionDetail : interactionDetails) {
+			if (interactionDetail != null) {
+				int confidence = (int) (interactionDetail.getConfidence() * 100);
+				String interactionType = interactionDetail.getInteractionType();				 
+				if (confidence >= 100 * threshold) {
+					if (this.interactionNumMap.containsKey(interactionType)) {
+						int num = interactionNumMap.get(interactionType) + 1;
+						interactionNumMap.put(interactionType, num);
 
-    /**
-     * Associate the gene marker with the details.
-     * @param arrayList
-     */
-    public void setInteractionDetails(List<InteractionDetail> arrayList) {
+					} else {
+						interactionNumMap.put(interactionType, 1);
 
-    	 
-    	if (arrayList != null && arrayList.size() > 0) {
-            interactionDetails = new InteractionDetail[2];
-            this.interactionDetails = arrayList.toArray(interactionDetails);
-        }
-        else
-        {	
-        	interactionDetails = null;
-        	reset();
-        }
-        
-        if (interactionDetails != null) {
-            update();
-        }
-       
-    }
+					}
 
-    /**
-     * Update the number of interaction based on the new threshold or new InteractionDetails.
-     */
-    private void update() {
-        
-    	 reset();
-    	
-    	if (interactionDetails == null || interactionDetails.length == 0) {
-            return;
-        }
+				}
+			}
+		}
 
-       
-        
-        for (InteractionDetail interactionDetail : interactionDetails) {
-            if (interactionDetail != null) {
-                int confidence = (int) (interactionDetail.getConfidence() * 100);
-                String interactionType = interactionDetail.getInteractionType();
-                if (confidence < distribution.length && confidence >= 0) {
-                    for (int i = 0; i <= confidence; i++) {
-                        distribution[i]++;
-                    }
-                    
-                    
-                    if (interactionDistributionMap.containsKey(interactionType))
-                    {
-                    	 
-                    	 for (int i = 0; i <= confidence; i++) {
-                    		 interactionDistributionMap.get(interactionType)[i]++;
-                         }
-                    	 
-                    }
-                    else
-                    {
-                    	 int[] interactionDistribution = new int[binNumber];
-                    	 for (int i = 0; i < binNumber; i++) {
-                    		 if (i <= confidence)
-                    		   interactionDistribution[i]=1;
-                    		 else
-                    		   interactionDistribution[i]=0;
-                            
-                         }                    	 
-                    	 interactionDistributionMap.put(interactionType, interactionDistribution);
-                    	 
-                    	 
-                    }
-                  
-                }
-                if (confidence >= 100 * threshold) {
-                    if (this.interactionNumMap.containsKey(interactionType))
-                    {
-                    	int num = interactionNumMap.get(interactionType) + 1;
-                    	interactionNumMap.put(interactionType, num);
-                     
-                    }
-                    else
-                    {
-                    	interactionNumMap.put(interactionType, 1);
-                     
-                    }
-                    
-                }
-            }
-        }
-        
-       
-    }
+	}
 
-    public int[] getInteractionDistribution(String interactionType) {
-        return this.interactionDistributionMap.get(interactionType);
-    }
+	public int[] getInteractionDistribution(String interactionType) {
+		int[] interactionDistribution = new int[binNumber];
+		for (int i = 0; i < binNumber; i++)
+			interactionDistribution[i] = 0;
+		if (interactionDetails == null || interactionDetails.length <= 0 )
+			return interactionDistribution;
+		for (InteractionDetail interactionDetail : interactionDetails) {
+			int confidence = (int) (interactionDetail.getConfidence() * 100);
+			if (confidence < interactionDistribution.length && confidence >= 0) {
 
-    public HashMap<String, int[]> getInteractionDistributionMap() {
-        return this.interactionDistributionMap;
-    }
+				if (interactionDetail.getInteractionType().equals(
+						interactionType)) {
+					for (int i = 0; i <= confidence; i++)
+						interactionDistribution[i]++;
 
-    
-    public void setInteractionDistribution(String interactionType, int[] interactionDistribution) {
-        this.interactionDistributionMap.put(interactionType, interactionDistribution);
-    }
+				}
+			}
 
-     
+		}
 
-    public void setInteractionNum(String interactionType, int interactionNum) {
-        this.interactionNumMap.put(interactionType, interactionNum);
-    }   
+		return interactionDistribution;
+	}
+	 
+	public void setInteractionNum(String interactionType, int interactionNum) {
+		this.interactionNumMap.put(interactionType, interactionNum);
+	}
 
-    public DSGeneMarker getdSGeneMarker() {
-        return dSGeneMarker;
-    }
+	public DSGeneMarker getdSGeneMarker() {
+		return dSGeneMarker;
+	}
 
-    public void setdSGeneMarker(DSGeneMarker dSGeneMarker) {
-        this.dSGeneMarker = dSGeneMarker;
-    }
+	public void setdSGeneMarker(DSGeneMarker dSGeneMarker) {
+		this.dSGeneMarker = dSGeneMarker;
+	}
 
-    public String getGoInfoStr() {
-        return goInfoStr;
-    }
+	public String getGoInfoStr() {
+		return goInfoStr;
+	}
 
-    public void setGoInfoStr(String goInfoStr) {
-        this.goInfoStr = goInfoStr;
-    }
+	public void setGoInfoStr(String goInfoStr) {
+		this.goInfoStr = goInfoStr;
+	}
 
-    public String getGeneType() {
-        return geneType;
-    }
+	public String getGeneType() {
+		return geneType;
+	}
 
-    public void setGeneType(String geneType) {
-        this.geneType = geneType;
-    }
+	public void setGeneType(String geneType) {
+		this.geneType = geneType;
+	}
 
-    public boolean equals(Object obj){
-        if(obj instanceof CellularNetWorkElementInformation){
-            return dSGeneMarker.getGeneName().equals(((CellularNetWorkElementInformation)obj).getdSGeneMarker().getGeneName())&&dSGeneMarker.getLabel().equals(((CellularNetWorkElementInformation)obj).getdSGeneMarker().getLabel());
-        }else{
-            return false;
-        }
-    }
+	public boolean equals(Object obj) {
+		if (obj instanceof CellularNetWorkElementInformation) {
+			return dSGeneMarker.getGeneName().equals(
+					((CellularNetWorkElementInformation) obj).getdSGeneMarker()
+							.getGeneName())
+					&& dSGeneMarker.getLabel().equals(
+							((CellularNetWorkElementInformation) obj)
+									.getdSGeneMarker().getLabel());
+		} else {
+			return false;
+		}
+	}
 }
