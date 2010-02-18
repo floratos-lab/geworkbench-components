@@ -40,36 +40,7 @@ public class CellularNetWorkElementInformation {
     private static double smallestIncrement;
     private static Double defaultSmallestIncrement = 0.01;
     private static int binNumber;
-    private boolean isDirty;
-
-    public TreeMap<String, List<GOTerm>> getTreeMapForComponent() {
-        return treeMapForComponent;
-    }
-
-    public void setTreeMapForComponent(TreeMap<String, List<GOTerm>> treeMapForComponent) {
-        this.treeMapForComponent = treeMapForComponent;
-    }
-
-    public TreeMap<String, List<GOTerm>> getTreeMapForFunction() {
-        return treeMapForFunction;
-    }
-
-    public void setTreeMapForFunction(TreeMap<String, List<GOTerm>> treeMapForFunction) {
-        this.treeMapForFunction = treeMapForFunction;
-    }
-
-    public TreeMap<String, List<GOTerm>> getTreeMapForProcess() {
-        return treeMapForProcess;
-    }
-
-    public void setTreeMapForProcess(TreeMap<String, List<GOTerm>> treeMapForProcess) {
-        this.treeMapForProcess = treeMapForProcess;
-    }
-
-    //For go terms
-   private TreeMap<String, List<GOTerm>> treeMapForComponent;
-    private TreeMap<String, List<GOTerm>> treeMapForFunction;
-    private TreeMap<String, List<GOTerm>> treeMapForProcess;
+    private boolean isDirty;   
 
     public CellularNetWorkElementInformation(HashMap<String, Integer> interactionNumMap, DSGeneMarker dSGeneMarker, String goInfoStr, String geneType) {
         this.interactionNumMap = interactionNumMap;       
@@ -84,11 +55,7 @@ public class CellularNetWorkElementInformation {
         smallestIncrement = defaultSmallestIncrement;
         isDirty = true;
         goInfoStr = "";
-        Set<GOTerm> set = GeneOntologyUtil.getOntologyUtil().getAllGOTerms(dSGeneMarker);
-        treeMapForComponent = GeneOntologyUtil.getOntologyUtil().getAllGoTerms(dSGeneMarker, AnnotationParser.GENE_ONTOLOGY_CELLULAR_COMPONENT);
-        treeMapForFunction = GeneOntologyUtil.getOntologyUtil().getAllGoTerms(dSGeneMarker, AnnotationParser.GENE_ONTOLOGY_MOLECULAR_FUNCTION);
-        treeMapForProcess = GeneOntologyUtil.getOntologyUtil().getAllGoTerms(dSGeneMarker, AnnotationParser.GENE_ONTOLOGY_BIOLOGICAL_PROCESS);
-
+        Set<GOTerm> set = GeneOntologyUtil.getOntologyUtil().getAllGOTerms(dSGeneMarker);       
 
         if (set != null && set.size() > 0) {
             for (GOTerm goTerm : set) {

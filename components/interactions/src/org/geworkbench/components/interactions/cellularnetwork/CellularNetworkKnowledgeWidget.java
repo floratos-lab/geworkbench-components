@@ -439,19 +439,27 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 		goFunctionMenu.setText("Function");
 		JMenu processMenu = new JMenu();
 		processMenu.setText("Process");
-		if (hit.getTreeMapForComponent() != null
-				&& hit.getTreeMapForComponent().size() > 0) {
-			addGoTermMenuItem(componentMenu, hit.getTreeMapForComponent());
+		TreeMap<String, List<GOTerm>> treeMapForComponent = null;
+		TreeMap<String, List<GOTerm>> treeMapForFunction = null;
+	    TreeMap<String, List<GOTerm>> treeMapForProcess = null;
+	    
+		treeMapForComponent = GeneOntologyUtil.getOntologyUtil().getAllGoTerms(hit.getdSGeneMarker(), AnnotationParser.GENE_ONTOLOGY_CELLULAR_COMPONENT);
+		treeMapForFunction = GeneOntologyUtil.getOntologyUtil().getAllGoTerms(hit.getdSGeneMarker(), AnnotationParser.GENE_ONTOLOGY_MOLECULAR_FUNCTION);
+        treeMapForProcess = GeneOntologyUtil.getOntologyUtil().getAllGoTerms(hit.getdSGeneMarker(), AnnotationParser.GENE_ONTOLOGY_BIOLOGICAL_PROCESS);
+		
+		if (treeMapForComponent != null
+				&& treeMapForComponent.size() > 0) {
+			addGoTermMenuItem(componentMenu, treeMapForComponent);
 			contextMenu.add(componentMenu);
 		}
-		if (hit.getTreeMapForFunction() != null
-				&& hit.getTreeMapForFunction().size() > 0) {
-			addGoTermMenuItem(goFunctionMenu, hit.getTreeMapForFunction());
+		if (treeMapForFunction != null
+				&& treeMapForFunction.size() > 0) {
+			addGoTermMenuItem(goFunctionMenu, treeMapForFunction);
 			contextMenu.add(goFunctionMenu);
 		}
-		if (hit.getTreeMapForProcess() != null
-				&& hit.getTreeMapForProcess().size() > 0) {
-			addGoTermMenuItem(processMenu, hit.getTreeMapForProcess());
+		if (treeMapForProcess != null
+				&& treeMapForProcess.size() > 0) {
+			addGoTermMenuItem(processMenu, treeMapForProcess);
 			contextMenu.add(processMenu);
 		}
 
