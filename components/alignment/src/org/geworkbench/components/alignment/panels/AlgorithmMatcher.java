@@ -64,6 +64,146 @@ public class AlgorithmMatcher {
     public static final String BLASTPROGRAM5 = "tblastn";
     public static final String BLASTPROGRAM0 = "Please select a program first.";
 
+    private static final String[] nucleotideDBdescription = {
+        "nt                        All GenBank+EMBL+DDBJ+PDB sequences",
+        "refseq_mrna       mRNA from NCBI",
+        "refseq_genomic  Genomic from NCBI",
+        "est                      GenBank+EMBL+DDBJ from EST",
+        "est_human          Human subset of est",
+        "est_mouse          Mouse subset of est",
+        "est_others          Other than human or mouse",
+        "gss                      Genome Survey Sequence",
+        "htgs                    Unfinished High Throughput Genomic Sequences",
+        "pat                      GenBank's Patent division nucleotides",
+        "pdb                     3D structure seqeuences from Protein Data Bank",
+        "month                 Recent GenBank+EMBL+DDBJ+PDB sequences",
+        "alu_repeats        Select Alu repeats from REPBASE",
+        "dbsts                  GenBank + EMBL + DDBJ",
+        "chromosome       Complete chromosomes from NCBI RSP",
+        "wgs                     Assemblies of Whole Genome Shotgun sequences",
+        "env_nt                Sequences from environmental samples"
+    };
+
+    private static final String[] proteinDBdescription = {
+        "nr                        All GenBank+EMBL+DDBJ+PDB sequences",
+        "refseq                 NCBI Protein sequences",
+        "swissprot            SWISS-PROT protein sequences",
+        "pat                      GenBank's Patent division",
+        "month                 Recent GenBank+EMBL+DDBJ+PDB",
+        "pdb                     3D structure dqeuences from Protein Data Bank",
+        "env_nr                CDS translations",
+        "Smart v4.0          663 PSSMs from Smart",
+        "Pfam v11.0         7255 PSSMs from Pfam",
+        "COG v1.00          4873 PSSMs from NCBI COG",
+        "KOG v1.00          4825 PSSMs from NCBI KOG",
+        "CDD v2.05          11399 PSSMs from NCBI curated cd set"
+    };
+
+    
+    
+    private static final String[] nucleotideDBdetails = {
+        "All GenBank+EMBL+DDBJ+PDB sequences\n" +
+        "(but no EST, STS, GSS, or phase 0,\n" +
+        "1 or 2 HTGS sequences).\n" +
+        "No longer 'non-redundant'\n" +
+        "due to computational cost.", // nr
+        
+        "mRNA sequences from NCBI\n" +
+        "Reference Sequence Project.", // refseq_mrna
+        
+        "Genomic sequences from\n" +
+        "NCBI Reference Sequence Project.", // refseq_genomic
+        
+        "Database of GenBank + EMBL + DDBJ\n" +
+        "sequences from EST division.", // est
+        
+        "Human subset of est.", // est_human
+        "Mouse subset of est.", // est_mouse
+        "Subset of est other than human or mouse.", // est_others
+        
+        "Genome Survey Sequence, includes\n" + 
+        "single-pass genomic data,\n" +
+        "nexon-trapped sequences,\n" +
+        "and Alu PCR sequences.", // gss
+        
+        "Unfinished High Throughput\n" +
+        "Genomic Sequences:\n" +
+        "phases 0, 1 and 2. Finished,\n" +
+        "phase 3 HTG sequences are in nr.", // htgs
+        
+        "Nucleotides from the\n" +
+        "Patent division of GenBank.", // pat
+                
+        "Sequences derived from the 3-dimensional\n" +
+        "structure records from Protein Data Bank.\n" +
+        "They are NOT the coding sequences for the\n" +
+        "coresponding proteins found in the same\n" +
+        "PDB record.", // pdb
+        
+        "All new or revised GenBank+EMBL+DDBJ+PDB\n" +
+        "sequences released in the last 30 days.", // month
+        
+        "Select Alu repeats from REPBASE,\n" +
+        "suitable for masking Alu repeats\n" +
+        "from query sequences.\n" +
+        "See 'Alu alert' by Claverie and Makalowski,\n" +
+        "Nature 371: 752 (1994).", // alu_repeats
+        
+        "Database of Sequence Tag Site entries\n" +
+        "from the STS division of\n" +
+        "GenBank + EMBL + DDBJ.", // dbsts
+        
+        "Complete genomes and complete chromosomes\n" +
+        "from the NCBI Reference Sequence project.\n" +
+        "It overlaps with refseq_genomic.", // chromosome
+        
+        "Assemblies of Whole Genome Shotgun sequences.", // wgs
+        
+        "Sequences from environmental samples,\n" +
+        "such as uncultured bacterial samples\n" +
+        "isolated from soil or marine samples.\n" +
+        "The largest single source is\n" +
+        "Sagarsso Sea project. \n" + 
+        "This does NOT overlap with nucleotide nr." // env_nt
+
+    
+    };
+
+    
+
+    private static final String[] proteinDBdetails = {
+        "Non-redundant GenBank CDS translations\n" +
+        "+ PDB + SwissProt + PIR + PRF, \n" +
+        "excluding those in env_nr.", // nr
+        
+        "Protein sequences from NCBI Reference\n" +
+        "Sequence project.", // refseq
+        
+        "Last major release of the SWISS-PROT protein\n" +
+        "sequence database (no incremental updates).", // swissprot
+        
+        "Proteins from the Patent division of GenBank.", // pat
+        "All new or revised GenBank CDS translations\n" +
+        "+ PDB + SwissProt + PIR + PRF released in the\n" +
+        "last 30 days.", // month
+        
+        "Sequences derived from the 3-dimensional\n" +
+        "structure records from the Protein Data Bank.", // pdb
+
+        "Non-redundant CDS translations\n" +
+        "from env_nt entries.", // env_nr
+        
+        "663 PSSMs from Smart,\n" +
+        "no longer actively maintained.", // Smart v4.0 ²
+        
+        "7255 PSSMs from Pfam, not the latest.", // Pfam v11.0 ²
+        "4873 PSSMs from NCBI COG set.", // COG v1.00 ²
+        
+        "4825 PSSMs from NCBI KOG set\n" +
+        "(eukaryotic COG equivalent).", // KOG v1.00 ²
+        
+        "11399 PSSMs from NCBI curated cd set." // CDD V2.05 ²
+    };
 
     public AlgorithmMatcher() {
     }
@@ -106,48 +246,44 @@ public class AlgorithmMatcher {
      * @return String[]
      */
     public static String[] translateToArray(String programName) {
-        if (programName.equalsIgnoreCase("blastp")) {
-            return new String[] {
-                    "ncbi/nr                      Peptides of all non-redundant sequences.",
-                    "ncbi/pdbaa               Peptide sequences  derived from the PDB.",
-                    "ncbi/swissprot       SWISS-PROT protein sequence database.",
-                    "ncbi/yeast.aa            Yeast  genomic CDS translations."};
+		if (programName.equalsIgnoreCase("blastp")) {
+			return proteinDBdescription;
+		} else if (programName.equalsIgnoreCase("blastn")) {
+			return nucleotideDBdescription;
+		} else if (programName.startsWith("tblast")) {
+			return nucleotideDBdescription;
+		} else if (programName.equalsIgnoreCase("blastx")) {
+			return proteinDBdescription;
+		} else if (programName.equalsIgnoreCase("gridblast.cu-genome.org")) {
+			return new String[] { "http://adgate.cu-genome.org:8080/ogsa/services/core/registry/ContainerRegistryService" };
+		} else if (programName.equalsIgnoreCase("informatics40")) {
+			return new String[] { "http://156.145.235.50:8081/ogsa/services/core/registry/ContainerRegistryService" };
+		} else {
+			return new String[] {};
+		}
+	}
 
-        } else if (programName.equalsIgnoreCase("blastn")) {
-            return new String[] {
-                    "ncbi/nt                    All non-redundant  DNA sequences.",
-                    "ncbi/pdbnt               Nucleotide sequences  derived from the PDB.",
-                    "ncbi/yeast.nt           Yeast genomic nucleotide sequences."
-// ,
-//                    "/genomes/mouse/goldenPath_Aug2005/100/*",
-//                    "/genomes/rat/goldenPath_June2003/100/*",
-//                    "/genomes/chimpanzee/goldenPath_Feb2004/100/*",
-//                    "/genomes/dog/goldenPath/2005_May/100/*"
-            };
-
-        } else if (programName.startsWith("tblast")) {
-            return new String[] {
-                    "ncbi/nt                   All non-redundant  DNA sequences.",
-                    "ncbi/pdbnt               Nucleotide sequences  derived from the PDB.",
-                    "ncbi/yeast.nt           Yeast genomic nucleotide sequences."};
-
-        } else if (programName.equalsIgnoreCase("blastx")) {
-            return new String[] {
-                    "ncbi/nr                      Peptides of all non-redundant sequences.",
-                    "ncbi/pdbaa               Peptide sequences  derived from the PDB.",
-                    "ncbi/swissprot      SWISS-PROT protein sequence database.",
-                    "ncbi/yeast.aa            Yeast  genomic CDS translations."};
-
-        } else if (programName.equalsIgnoreCase("gridblast.cu-genome.org")) {
-            return new String[] {"http://adgate.cu-genome.org:8080/ogsa/services/core/registry/ContainerRegistryService"};
-        } else if (programName.equalsIgnoreCase("informatics40")) {
-            return new String[] {"http://156.145.235.50:8081/ogsa/services/core/registry/ContainerRegistryService"};
-
-        } else {
-            return new String[] {};
-        }
-
-    }
+    public static String translateToDBdetails(String programName, int selection) {
+    	if (selection < 0 ){
+    		return "";
+    	}
+    	
+		if (programName.equalsIgnoreCase("blastp")) {
+			return proteinDBdetails[selection];
+		} else if (programName.equalsIgnoreCase("blastn")) {
+			return nucleotideDBdetails[selection];
+		} else if (programName.startsWith("tblast")) {
+			return nucleotideDBdetails[selection];
+		} else if (programName.equalsIgnoreCase("blastx")) {
+			return proteinDBdetails[selection];
+		} else if (programName.equalsIgnoreCase("gridblast.cu-genome.org")) {
+			return "http://adgate.cu-genome.org:8080/ogsa/services/core/registry/ContainerRegistryService";
+		} else if (programName.equalsIgnoreCase("informatics40")) {
+			return "http://156.145.235.50:8081/ogsa/services/core/registry/ContainerRegistryService";
+		} else {
+			return "";
+		}
+	}
 
     /**
      * Match to correct matrix.
