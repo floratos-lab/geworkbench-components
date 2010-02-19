@@ -5,6 +5,7 @@ import java.awt.CardLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -36,13 +37,17 @@ import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.JToolBar;
 import javax.swing.ListModel;
+import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
 import javax.swing.border.TitledBorder;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 
 import org.geworkbench.algorithms.BWAbstractAlgorithm;
 import org.geworkbench.bison.datastructure.biocollections.sequences.CSSequenceSet;
@@ -271,6 +276,7 @@ public class BlastAppComponent extends
     JList jDBList = new JList();
     JButton blastButton = new JButton();
     JScrollPane jScrollPane1 = new JScrollPane();
+    JScrollPane jScrollPane12 = new JScrollPane();
     JComboBox jProgramBox = new JComboBox();
     JPanel filterPanel = new JPanel();
     JCheckBox maskLookupOnlyBox = new JCheckBox();
@@ -285,6 +291,7 @@ public class BlastAppComponent extends
 	CSSequenceSet fastaFile;
     private BlastAppComponent blastAppComponent = null;
     JPanel subSeqPanel;
+    JPanel subSeqPanel2;
     JLabel jLabel1 = new JLabel();
     JLabel jLabel2 = new JLabel();
     JLabel jLabel3 = new JLabel();
@@ -358,6 +365,8 @@ public class BlastAppComponent extends
             new Color(165, 163, 151));
     Border border2 = new TitledBorder(border1,
                                       "Please specify subsequence, program and database");
+    Border border3 = new TitledBorder(border1, "Database Details");
+    JTextArea textArea = new JTextArea("");
     JToolBar jToolBar1 = new JToolBar();
     JLabel jLabel4;
     JLabel jLabel9 = new JLabel();
@@ -770,6 +779,8 @@ public class BlastAppComponent extends
         allArraysCheckBox = new JCheckBox("Activated Sequences", true);
         subSeqPanel = new JPanel();
         subSeqPanel.setBorder(border2);
+        subSeqPanel2 = new JPanel();
+        subSeqPanel2.setBorder(border3);
         jLabel4 = new JLabel();
         jLabel4.setText("jLabel4");
         jLabel9.setText("Program: ");
@@ -802,6 +813,7 @@ public class BlastAppComponent extends
         jDBList.setToolTipText("Select a database");
         jDBList.setVerifyInputWhenFocusTarget(true);
         jDBList.setVisibleRowCount(1);
+        jDBList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         jProgramBox.addItem("Select a program");
         jProgramBox.addItem("blastn");
         jProgramBox.addItem("blastp");
@@ -822,6 +834,7 @@ public class BlastAppComponent extends
         jTabbedPane1.setMinimumSize(new Dimension(5, 5));
         jProgramBox.addActionListener(new
                                       BlastAppComponent_jProgramBox_actionAdapter(this));
+        jDBList.addListSelectionListener(new BlastAppComponent_jDBList_listSelectionListener(this) );
         jMatrixBox = new JComboBox();
         jMatrixBox.addActionListener(new
                                      BlastAppComponent_jMatrixBox_actionAdapter(this));
@@ -856,6 +869,7 @@ public class BlastAppComponent extends
         jProgramBox.setAutoscrolls(false);
         jProgramBox.setMinimumSize(new Dimension(26, 21));
         subSeqPanel.setLayout(xYLayout1);
+        subSeqPanel2.setLayout(xYLayout1);
         jLabel1.setText("to ");
         jLabel2.setText("Subsequence: From");
         jLabel3.setText("Subsequence: ");
@@ -1118,6 +1132,11 @@ public class BlastAppComponent extends
         jToolBar1.add(jendPointField);
         subSeqPanel.add(jScrollPane1, new XYConstraints(0, 89, 352, 97));
         subSeqPanel.add(jLabel9, new XYConstraints(0, 36, 60, 23));
+        textArea.setBackground(subSeqPanel2.getBackground());
+        textArea.setEditable(false);
+        textArea.setLineWrap(true); //wrap text around
+        textArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
+        subSeqPanel2.add(textArea,new XYConstraints(0, 84, 352, 55));
         subSeqPanel.add(DatabaseLabel, new XYConstraints(0, 59, 61, 23));
         subSeqPanel.add(jProgramBox, new XYConstraints(84, 36, 267, 25)); //edit for new class.
        // subSeqPanel.add(jToolBar1, new XYConstraints( -1, 0, 353, 27));
@@ -1126,9 +1145,12 @@ public class BlastAppComponent extends
         displayToolBar.add(Box.createHorizontalStrut(5), null);
         displayToolBar.add(blastStopButton);
         jScrollPane4.getViewport().add(jPanel3);
-        jPanel3.add(subSeqPanel, java.awt.BorderLayout.CENTER);
+        jPanel3.add(subSeqPanel, java.awt.BorderLayout.WEST);
+        jPanel3.add(subSeqPanel2, java.awt.BorderLayout.CENTER);
         jBasicPane.add(jScrollPane4, java.awt.BorderLayout.CENTER);
         jBasicPane.add(jToolBar2, java.awt.BorderLayout.NORTH);
+        
+        // Advanced Pane
         blastxSettingPanel.add(jMatrixBox,
                                new GridBagConstraints(1, 2, 1, 1, 1.0, 0.0
                 , GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL,
@@ -1234,8 +1256,10 @@ public class BlastAppComponent extends
 
         String selectedProgramName = (String) cb.getSelectedItem();
         if (selectedProgramName != null) {
-            jDBList = new JList(AlgorithmMatcher.translateToArray((String)
-                    selectedProgramName));
+        	jDBList.setSelectedIndex(0);
+        	JList tempList = new JList(AlgorithmMatcher.translateToArray((String)selectedProgramName));
+            ListModel listModel = tempList.getModel();
+        	jDBList.setModel(listModel);
             (jScrollPane1.getViewport()).add(jDBList, null);
             String[] model = AlgorithmMatcher.translateToMatrices(
                     selectedProgramName);
@@ -1260,6 +1284,16 @@ public class BlastAppComponent extends
         // repaint();
     }
 
+    void jDBList_actionPerformed(ListSelectionEvent e) {
+    	JList jDBList = (JList) e.getSource();
+    	int dbSelection = jDBList.getSelectedIndex();
+    	
+        String program = (String) jProgramBox.getSelectedItem();
+        String dbDetails = AlgorithmMatcher.translateToDBdetails(program, dbSelection); 
+        
+        textArea.setText( dbDetails );
+    }
+    
     void jMatrixBox_actionPerformed(ActionEvent e) {
         String[] model = AlgorithmMatcher.translateToGapcosts(
                 jMatrixBox.getSelectedItem().toString());
@@ -2165,6 +2199,24 @@ class BlastAppComponent_jProgramBox_actionAdapter implements java.awt.
     public void actionPerformed(ActionEvent e) {
         adaptee.jProgramBox_actionPerformed(e);
     }
+}
+
+
+class BlastAppComponent_jDBList_listSelectionListener implements
+		ListSelectionListener {
+	BlastAppComponent adaptee;
+
+	BlastAppComponent_jDBList_listSelectionListener(BlastAppComponent adaptee) {
+		this.adaptee = adaptee;
+	}
+
+	public void valueChanged(ListSelectionEvent e) {
+		if (e.getValueIsAdjusting()) {
+			return;
+		}
+			
+		adaptee.jDBList_actionPerformed(e);
+	}
 }
 
 
