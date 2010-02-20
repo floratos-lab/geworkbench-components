@@ -647,6 +647,13 @@ public abstract class SelectorPanel<T extends DSSequential> implements
 					defaultLabel);
 			if (label == null) {
 				return;
+			} else if (label.indexOf("|") > -1) {
+				JOptionPane
+						.showMessageDialog(
+								null,
+								"\"|\" is a reserved character that cannot be used in an array set name.\nPlease choose other characters.",
+								"Array Set Label Warning",
+								JOptionPane.WARNING_MESSAGE);
 			} else {
 				if (context.indexOfLabel(label) == -1) {
 					addPanel(new CSPanel<T>(label));
