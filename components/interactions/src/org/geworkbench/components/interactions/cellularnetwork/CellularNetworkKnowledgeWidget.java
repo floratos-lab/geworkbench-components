@@ -441,24 +441,27 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 		processMenu.setText("Process");
 		TreeMap<String, List<GOTerm>> treeMapForComponent = null;
 		TreeMap<String, List<GOTerm>> treeMapForFunction = null;
-	    TreeMap<String, List<GOTerm>> treeMapForProcess = null;
-	    
-		treeMapForComponent = GeneOntologyUtil.getOntologyUtil().getAllGoTerms(hit.getdSGeneMarker(), AnnotationParser.GENE_ONTOLOGY_CELLULAR_COMPONENT);
-		treeMapForFunction = GeneOntologyUtil.getOntologyUtil().getAllGoTerms(hit.getdSGeneMarker(), AnnotationParser.GENE_ONTOLOGY_MOLECULAR_FUNCTION);
-        treeMapForProcess = GeneOntologyUtil.getOntologyUtil().getAllGoTerms(hit.getdSGeneMarker(), AnnotationParser.GENE_ONTOLOGY_BIOLOGICAL_PROCESS);
-		
-		if (treeMapForComponent != null
-				&& treeMapForComponent.size() > 0) {
+		TreeMap<String, List<GOTerm>> treeMapForProcess = null;
+
+		treeMapForComponent = GeneOntologyUtil.getOntologyUtil().getAllGoTerms(
+				hit.getdSGeneMarker(),
+				AnnotationParser.GENE_ONTOLOGY_CELLULAR_COMPONENT);
+		treeMapForFunction = GeneOntologyUtil.getOntologyUtil().getAllGoTerms(
+				hit.getdSGeneMarker(),
+				AnnotationParser.GENE_ONTOLOGY_MOLECULAR_FUNCTION);
+		treeMapForProcess = GeneOntologyUtil.getOntologyUtil().getAllGoTerms(
+				hit.getdSGeneMarker(),
+				AnnotationParser.GENE_ONTOLOGY_BIOLOGICAL_PROCESS);
+
+		if (treeMapForComponent != null && treeMapForComponent.size() > 0) {
 			addGoTermMenuItem(componentMenu, treeMapForComponent);
 			contextMenu.add(componentMenu);
 		}
-		if (treeMapForFunction != null
-				&& treeMapForFunction.size() > 0) {
+		if (treeMapForFunction != null && treeMapForFunction.size() > 0) {
 			addGoTermMenuItem(goFunctionMenu, treeMapForFunction);
 			contextMenu.add(goFunctionMenu);
 		}
-		if (treeMapForProcess != null
-				&& treeMapForProcess.size() > 0) {
+		if (treeMapForProcess != null && treeMapForProcess.size() > 0) {
 			addGoTermMenuItem(processMenu, treeMapForProcess);
 			contextMenu.add(processMenu);
 		}
@@ -1232,6 +1235,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 				for (CellularNetWorkElementInformation cellularNetWorkElementInformation : hits) {
 					DSGeneMarker marker = cellularNetWorkElementInformation
 							.getdSGeneMarker();
+
 					if (marker == null || marker.getGeneId() == -1
 							|| cellularNetWorkElementInformation.isDirty())
 						continue;
@@ -1239,14 +1243,16 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 					int[] distributionArray = cellularNetWorkElementInformation
 							.getDistribution();
 
-					for (int i = 0; i < binSize; i++) {
+					for (int i = 0; i < binSize; i++)
 						basketValues[i] += distributionArray[i];
 
-						for (String interactionType : displaySelectedInteractionTypes) {
-							interactionBasketValuesMap.get(interactionType)[i] += cellularNetWorkElementInformation
-									.getInteractionDistribution(interactionType)[i];
-
-						}
+					for (String interactionType : displaySelectedInteractionTypes) {
+						int[] interactionDistribution = cellularNetWorkElementInformation
+								.getInteractionDistribution(interactionType);
+						int[] interactionBasketValues = interactionBasketValuesMap
+								.get(interactionType);
+						for (int i = 0; i < binSize; i++)
+							interactionBasketValues[i] += interactionDistribution[i];
 
 					}
 
