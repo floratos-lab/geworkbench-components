@@ -167,11 +167,27 @@ public class InteractionsConnectionImpl {
 
 		} catch (Exception se) {
 			if (logger.isErrorEnabled()) {
-				logger.error("getInteractionTypes() - ResultSetlUtil rs=" + rs); //$NON-NLS-1$
+				logger.error("getInteractionTypes() - ResultSetlUtil: " + se.getMessage() ); //$NON-NLS-1$
 			}
-			se.printStackTrace();
+			 
 		}
 		return arrayList;
+	}
+	
+	public void closeDbConnection()   {
+		String methodAndParams = "closeDbConnection";
+		try {
+
+		     ResultSetlUtil.executeQuery(methodAndParams,
+				ResultSetlUtil.MYSQL,
+				ResultSetlUtil.INTERACTIONS_SERVLET_URL);
+		 
+		} catch (Exception se) {
+			if (logger.isErrorEnabled()) {
+				logger.error(se.getMessage()); //$NON-NLS-1$
+			}
+			 
+		}
 	}
 
 	public ArrayList<String> getDatasetNames() throws ConnectException,
@@ -214,9 +230,9 @@ public class InteractionsConnectionImpl {
 
 		} catch (Exception se) {
 			if (logger.isErrorEnabled()) {
-				logger.error("getDatasetNames() - ResultSetlUtil rs=" + rs); //$NON-NLS-1$
+				logger.error(se.getMessage()); //$NON-NLS-1$
 			}
-			se.printStackTrace();
+			 
 		}
 		return arrayList;
 	}

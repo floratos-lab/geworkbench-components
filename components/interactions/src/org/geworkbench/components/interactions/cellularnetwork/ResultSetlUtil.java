@@ -89,6 +89,8 @@ public class ResultSetlUtil {
 
 	// reconstruct metadata
 	public void processMetadata() {
+		if (row == null)
+			return;
 		for (int i = 0; i < row.length; i++) {
 			metaMap.put(row[i], new Integer(i + 1));
 		}
@@ -202,6 +204,7 @@ public class ResultSetlUtil {
 		BufferedReader in = new BufferedReader(new InputStreamReader(
 				aConnection.getInputStream()));
 
+		
 		ResultSetlUtil rs = new ResultSetlUtil(in);
 
 		return rs;
@@ -220,13 +223,19 @@ public class ResultSetlUtil {
 			ResultSetlUtil.setUrl(interactionsServletUrl);
 			// java.net.URLConnection.setDefaultAllowUserInteraction(true);
 			Authenticator.setDefault(new BasicAuthenticator());
-
+            
 			String aSQL = "getPairWiseInteraction" + ResultSetlUtil.DEL + "165"
 					+ ResultSetlUtil.DEL + "BCi" + ResultSetlUtil.DEL + "1.0";
-			rs = ResultSetlUtil.executeQuery(aSQL, MYSQL,
+			 int i = 165;
+			 
+				 
+				aSQL = "getPairWiseInteraction" + ResultSetlUtil.DEL + i
+					+ ResultSetlUtil.DEL + "BCi" + ResultSetlUtil.DEL + "1.0";
+			    
+				rs = ResultSetlUtil.executeQuery(aSQL, MYSQL,
 					INTERACTIONS_SERVLET_URL);
-
-			while (rs.next()) {
+			 
+			 while (rs.next()) {
 
 				BigDecimal msid1 = rs.getBigDecimal("ms_id1");
 				System.out.println("msid1 = " + msid1);
@@ -239,16 +248,12 @@ public class ResultSetlUtil {
 				// double confidenceValue = rs.getDouble("confidence_value");
 				System.out.println("confidence_value = " + confidenceValue);
 
-				String isModulated = rs.getString("is_modulated");
-				System.out.println("is_modulated = " + isModulated);
-
-				String source = rs.getString("source");
-				System.out.println("source = " + source);
+				 
 
 				String interactionType = rs.getString("interaction_type");
 				System.out.println("name = " + interactionType);
-			}
-			// rs.close();
+			} 
+			 
 
 		} catch (IOException ie) {
 			// TODO Auto-generated catch block
