@@ -147,9 +147,13 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 
 	private static final String INTERACTIONS_SERVLET_URL = "interactions_servlet_url";
 	private static final String INTERACTIONS_SERVLET_CONNECTION_TIMEOUT = "interactions_servlet_connection_timeout";
+	private static final String MAX_INTERACTIONS_NUMBER = "max_interaction_number";
+
 	private Properties iteractionsProp;
 
 	private int timeout = 0;
+
+	private int maxInteractionNum = 2000;
 
 	private static final String GOTERMCOLUMN = "GO Annotation";
 
@@ -1542,17 +1546,21 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 		CellularNetworkKnowledgeWidget.EntrezIdComparator eidc = new CellularNetworkKnowledgeWidget.EntrezIdComparator();
 		Collections.sort(copy, eidc);
 		AdjacencyMatrix matrix = new AdjacencyMatrix();
-		AdjacencyMatrixDataSet dataSet = null;
+		AdjacencyMatrixDataSet adjacencyMatrixdataSet = null;
 		matrix.setMicroarraySet(dataset);
 
 		int serial = 0;
-		boolean isEmpty = true;
+		int interactionNum = 0;
+		boolean createNetwork = false;
+		boolean needBreak = false;
 		boolean isGene1InMicroarray = true;
 		boolean isGene2InMicroarray = true;
 		String historyStr = "";
 		boolean isRestrictToGenesPresentInMicroarray = networkJCheckBox1
 				.isSelected();
 		for (CellularNetWorkElementInformation cellularNetWorkElementInformation : hits) {
+			if (needBreak)
+				break;
 			if (cellularNetWorkElementInformation.isDirty() == true)
 				continue;
 			ArrayList<InteractionDetail> arrayList = cellularNetWorkElementInformation
@@ -1685,9 +1693,21 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 						matrix.addDirectional(serial2, serial1,
 								interactionDetail.getInteractionType());
 					}
-
-					isEmpty = false;
-
+					interactionNum++;
+					if (interactionNum > maxInteractionNum
+							&& createNetwork == false) {
+						String theMessage = "Too many interactions in the selected marker list. It will take long time and maybe run out of memory.\nPlease click \"Cancel\" button to cancel the process, or click \"Ok\" button to continue ...";
+						int result = JOptionPane.showConfirmDialog(
+								(Component) null, theMessage, "alert",
+								JOptionPane.OK_CANCEL_OPTION);
+						if (result == JOptionPane.OK_OPTION)
+							createNetwork = true;
+						else {
+							createNetwork = false;
+							needBreak = true;
+							break;
+						}
+					}
 				}
 			}
 
@@ -1704,26 +1724,31 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 
 		} // end for loop
 
-		dataSet = new AdjacencyMatrixDataSet(matrix, serial, 0.5f, 2,
-				"Adjacency Matrix", dataset.getLabel(), dataset);
-		dataSet.clearName("GENEMAP");
-		dataSet.addNameValuePair("GENEMAP", geneIdToNameMap);
+		if (interactionNum <= maxInteractionNum && interactionNum > 0) {
+			createNetwork = true;
+		} else if (interactionNum == 0){
+			JOptionPane.showMessageDialog(null,
+					"No interactions exist in the current database.",
+					"Empty Set", JOptionPane.ERROR_MESSAGE);
+			createNetwork = false;
 
-		if (dataSet != null && !isEmpty) {
+		}
+		if (createNetwork == true) {
+
+			adjacencyMatrixdataSet = new AdjacencyMatrixDataSet(matrix, serial,
+					0.5f, 2, "Adjacency Matrix", dataset.getLabel(), dataset);
+			adjacencyMatrixdataSet.clearName("GENEMAP");
+			adjacencyMatrixdataSet.addNameValuePair("GENEMAP", geneIdToNameMap);
 
 			historyStr = "Cellular Network Parameters: \n"
 					+ "      Threshold: " + thresholdTextField.getText() + "\n"
 					+ "      Selected Marker List: \n" + historyStr + "\n";
-			ProjectPanel.addToHistory(dataSet, historyStr);
+			ProjectPanel.addToHistory(adjacencyMatrixdataSet, historyStr);
 			publishProjectNodeAddedEvent(new ProjectNodeAddedEvent(
-					"Adjacency Matrix Added", null, dataSet));
+					"Adjacency Matrix Added", null, adjacencyMatrixdataSet));
 			publishAdjacencyMatrixEvent(new AdjacencyMatrixEvent(matrix,
 					"Interactions from knowledgebase", -1, 2, 0.5f,
 					AdjacencyMatrixEvent.Action.DRAW_NETWORK));
-		} else {
-			JOptionPane.showMessageDialog(null,
-					"No interactions exist in the current database.",
-					"Empty Set", JOptionPane.ERROR_MESSAGE);
 		}
 
 	}// GEN-LAST:event_loadfromDBHandler
@@ -2229,6 +2254,9 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 		cancelAction = false;
 		Runnable r = new Runnable() {
 			public void run() {
+
+				InteractionsConnectionImpl interactionsConnection = new InteractionsConnectionImpl();
+
 				try {
 
 					String context = null;
@@ -2270,7 +2298,6 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 
 					updateProgressBar(0, "Querying the Knowledge Base...");
 
-					InteractionsConnectionImpl interactionsConnection = new InteractionsConnectionImpl();
 					int retrievedQueryNumber = 0;
 					for (CellularNetWorkElementInformation cellularNetWorkElementInformation : hits) {
 						retrievedQueryNumber++;
@@ -2351,6 +2378,9 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 					log.error("$Runnable.run()", e); //$NON-NLS-1$
 					refreshButton.setEnabled(true);
 
+				} finally {
+					// try to close connection
+					interactionsConnection.closeDbConnection();
 				}
 			}
 		};
@@ -2370,7 +2400,8 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 
 			timeout = new Integer(iteractionsProp
 					.getProperty(INTERACTIONS_SERVLET_CONNECTION_TIMEOUT));
-
+			maxInteractionNum = new Integer(iteractionsProp
+					.getProperty(MAX_INTERACTIONS_NUMBER));
 			String interactionsServletUrl = pm.getProperty(this.getClass(),
 					"url", "");
 			if (interactionsServletUrl == null
