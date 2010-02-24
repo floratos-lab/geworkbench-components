@@ -285,6 +285,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 
 	protected void removeAllRows(String tableName) {
 		if (ACTIVETABLE.equalsIgnoreCase(tableName)) {
+			activatedMarkerTable.removeRowSelectionInterval(0, allGenes.size()-1);
 			for (DSGeneMarker marker : allGenes) {
 				if (marker != null) {
 					// !hits.contains(new
@@ -306,7 +307,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 			}
 			allGenes.removeAllElements();
 		} else {
-
+			detailTable.removeRowSelectionInterval(0, hits.size()-1);
 			for (CellularNetWorkElementInformation marker : hits) {
 				if (marker != null
 						&& !allGenes.contains(marker.getdSGeneMarker())) {
@@ -321,8 +322,9 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 		detailTable.revalidate();
 	}
 
-	protected void removeMutipleRows(int[] selectedRows, String tableName) {
+	protected void removeMutipleRows(int[] selectedRows, String tableName) {		
 		if (ACTIVETABLE.equals(tableName)) {
+			activatedMarkerTable.removeRowSelectionInterval(0, allGenes.size()-1);
 			for (int i = selectedRows.length - 1; i >= 0; i--) {
 				int row = selectedRows[i];
 				if (row < allGenes.size()) {
@@ -352,6 +354,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 
 			}
 		} else {
+			detailTable.removeRowSelectionInterval(0, hits.size()-1);
 			for (int i = selectedRows.length - 1; i >= 0; i--) {
 				int row = selectedRows[i];
 				if (row < hits.size()) {
@@ -364,7 +367,8 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 					}
 				}
 			}
-		}
+		}		 
+		
 		activatedMarkerTable.revalidate();
 		detailTable.revalidate();
 	}
@@ -956,6 +960,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 							allGenes.add(marker.getdSGeneMarker());
 
 						}
+						detailTable.removeRowSelectionInterval(0, hits.size()-1);
 						activatedMarkerTable.revalidate();
 						detailTable.revalidate();
 					}
