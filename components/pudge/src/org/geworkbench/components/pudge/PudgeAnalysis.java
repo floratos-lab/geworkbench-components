@@ -35,6 +35,7 @@ public class PudgeAnalysis extends AbstractGridAnalysis implements
 	String strurl = "http://luna.bioc.columbia.edu/honiglab/pudge/cgi-bin/pipe_int.cgi";
 	String req = "--AaB03x\r\n"
 			+ "content-disposition: form-data; name=\"dir_name\"\r\n\r\n@\r\n--AaB03x\r\n"
+			+ "content-disposition: form-data; name=\"dummy\"\r\n\r\nacademic\r\n--AaB03x\r\n"
 			+ "content-disposition: form-data; name=\"domain\"\r\n\r\nnone\r\n--AaB03x\r\n"
 			+ "content-disposition: form-data; name=\"start\"\r\n\r\nT\r\n--AaB03x\r\n"
 			+ "content-disposition: form-data; name=\"enter\"\r\n\r\nselect_methods\r\n--AaB03x\r\n"
@@ -76,6 +77,8 @@ public class PudgeAnalysis extends AbstractGridAnalysis implements
 					+ new java.sql.Timestamp(new java.util.Date().getTime());
 			String request = req
 					.replaceFirst("@", jobname.replaceAll(" ", "_"));
+			if (pcp.isAcademic())
+				request = request.replaceFirst("dummy", "academic_user");
 			OutputStream out = conn.getOutputStream();
 			out.write(request.getBytes());
 			FileInputStream fis = new FileInputStream(fastafile);
