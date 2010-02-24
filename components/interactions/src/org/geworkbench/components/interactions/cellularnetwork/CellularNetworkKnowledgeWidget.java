@@ -1701,11 +1701,11 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 					interactionNum++;
 					if (interactionNum > maxInteractionNum
 							&& createNetwork == false) {
-						String theMessage = "Too many interactions in the selected marker list. It will take long time and maybe run out of memory.\nPlease click \"Cancel\" button to cancel the process, or click \"Ok\" button to continue ...";
+						String theMessage = "Too many interactions in the selected marker list. It will take long time and maybe run out of memory.\nDo you want to cancel the process? Please click \"YES\" to terminate this process.";
 						int result = JOptionPane.showConfirmDialog(
 								(Component) null, theMessage, "alert",
-								JOptionPane.OK_CANCEL_OPTION);
-						if (result == JOptionPane.OK_OPTION)
+								JOptionPane.YES_NO_OPTION);
+						if (result == JOptionPane.NO_OPTION)
 							createNetwork = true;
 						else {
 							createNetwork = false;
@@ -3007,7 +3007,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 		public Component getTableCellRendererComponent(JTable table,
 				Object value, boolean isSelected, boolean hasFocus, int row,
 				int column) {
-			return new JLabel("<html><b> " + (String) value + "</b></html>");
+			return new JLabel("<html><b>" + (String) value + "</b></html>");
 		}
 	};
 
