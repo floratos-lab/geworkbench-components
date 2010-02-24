@@ -46,11 +46,6 @@ public class CSSequenceSetViewEventBase implements VisualPlugin {
 	private JTextField sequenceNumberField;
 
 	public CSSequenceSetViewEventBase() {
-		try {
-			jbInit();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
 
 	}
 

@@ -65,7 +65,7 @@ public class AlgorithmMatcher {
     public static final String BLASTPROGRAM0 = "Please select a program first.";
 
     private static final String[] nucleotideDBdescription = {
-        "nt                        All GenBank+EMBL+DDBJ+PDB sequences",
+        "nr                        All GenBank+EMBL+DDBJ+PDB sequences",
         "refseq_mrna       mRNA from NCBI",
         "refseq_genomic  Genomic from NCBI",
         "est                      GenBank+EMBL+DDBJ from EST",
@@ -90,7 +90,7 @@ public class AlgorithmMatcher {
         "swissprot            SWISS-PROT protein sequences",
         "pat                      GenBank's Patent division",
         "month                 Recent GenBank+EMBL+DDBJ+PDB",
-        "pdb                     3D structure dqeuences from Protein Data Bank",
+        "pdb                     3D structure seqeuences from Protein Data Bank",
         "env_nr                CDS translations",
         "Smart v4.0          663 PSSMs from Smart",
         "Pfam v11.0         7255 PSSMs from Pfam",

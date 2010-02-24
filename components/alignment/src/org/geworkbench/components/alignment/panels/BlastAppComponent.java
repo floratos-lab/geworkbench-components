@@ -364,9 +364,9 @@ public class BlastAppComponent extends
     Border border1 = BorderFactory.createEtchedBorder(Color.white,
             new Color(165, 163, 151));
     Border border2 = new TitledBorder(border1,
-                                      "Please specify subsequence, program and database");
+                                      "Please specify Program and Database");
     Border border3 = new TitledBorder(border1, "Database Details");
-    JTextArea textArea = new JTextArea("");
+    JTextArea textArea = new JTextArea();
     JToolBar jToolBar1 = new JToolBar();
     JLabel jLabel4;
     JLabel jLabel9 = new JLabel();
@@ -759,7 +759,7 @@ public class BlastAppComponent extends
         border1 = BorderFactory.createEtchedBorder(Color.white,
                 new Color(165, 163, 151));
         border2 = new TitledBorder(border1,
-                                   "Please specify subsequence, program and database");
+                                   "Please specify Program and Database");
         jToolBar1 = new JToolBar();
 
         jLabel9 = new JLabel();
@@ -1132,7 +1132,21 @@ public class BlastAppComponent extends
         jToolBar1.add(jendPointField);
         subSeqPanel.add(jScrollPane1, new XYConstraints(0, 89, 352, 97));
         subSeqPanel.add(jLabel9, new XYConstraints(0, 36, 60, 23));
-        textArea.setBackground(subSeqPanel2.getBackground());
+        
+        Color color = subSeqPanel2.getBackground();
+        
+        if (color == null){
+        	String string = "";
+        	System.out.println("tgtgtg NO COLOR??????");
+        }
+
+        if (textArea == null){
+        	String string = "";
+        	System.out.println("tgtgtg NO TEXTAREA??????");
+        }
+
+        
+        textArea.setBackground(color);
         textArea.setEditable(false);
         textArea.setLineWrap(true); //wrap text around
         textArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
