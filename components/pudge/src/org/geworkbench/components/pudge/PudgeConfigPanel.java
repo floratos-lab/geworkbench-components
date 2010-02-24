@@ -10,6 +10,8 @@ import javax.naming.OperationNotSupportedException;
 import javax.swing.JFormattedTextField;
 import javax.swing.JFileChooser;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.ToolTipManager;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 
@@ -31,8 +33,10 @@ public class PudgeConfigPanel extends AbstractSaveableParameterPanel implements 
 {
     private Log log = LogFactory.getLog(this.getClass());
     private static final long serialVersionUID = 1L;
+    private static final int tooltipDelay = 10000;
     private JFormattedTextField jobname = new JFormattedTextField();
     private JFormattedTextField natives = new JFormattedTextField();
+	private JCheckBox academic = new JCheckBox("Non-Profit or Aacademic User");
     private JFileChooser jfc = new JFileChooser();
 
     public PudgeConfigPanel()
@@ -55,6 +59,12 @@ public class PudgeConfigPanel extends AbstractSaveableParameterPanel implements 
 	JButton ob = new JButton("Browse for Native Structure");
 	ob.addActionListener(new OpenAction());
 	builder.append(ob, natives);
+	ToolTipManager.sharedInstance().setDismissDelay(tooltipDelay);
+	academic.setToolTipText("<html>Some of the external applications are restricted by their authors to academic users.<br>" +
+			"Most of the applications are open to all users.<br>" +
+			"For the list of restricted software with an alternative, check help on pudge analysis. <br>" +
+			"Check if this server will be used solely for educational purposes or for basic research intended to advance scientific knowledge.</html>");
+	builder.append(academic);
 	
 	this.add(builder.getPanel(), BorderLayout.CENTER);
 	setDefaultParameters();
@@ -82,6 +92,7 @@ public class PudgeConfigPanel extends AbstractSaveableParameterPanel implements 
 	natives.setFont(new Font("Sans Serif", Font.BOLD, 14));
 	natives.setFocusLostBehavior(JFormattedTextField.COMMIT_OR_REVERT);
 	natives.setValue("");
+	academic.setSelected(false);
     }
 
     public String getjobnameValue()
@@ -91,6 +102,10 @@ public class PudgeConfigPanel extends AbstractSaveableParameterPanel implements 
     public String getnativesValue()
     {
 	return (String)natives.getValue();
+    }
+    public boolean isAcademic()
+    {
+    	return academic.isSelected();
     }
 
 	/*
