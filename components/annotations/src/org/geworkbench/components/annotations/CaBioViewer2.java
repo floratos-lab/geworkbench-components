@@ -13,6 +13,7 @@ import java.awt.Component;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
@@ -175,7 +176,8 @@ public class CaBioViewer2 extends JPanel implements VisualPlugin {
 				GeneDiseaseAssociation gda = (GeneDiseaseAssociation) gfa;
 				System.out.println("  Disease: " + gda.getDiseaseOntology().getName());
 				System.out.println("    Role: " + gda.getRole());
-				Evidence e = gda.getEvidence();
+				Collection<Evidence> ce = gda.getEvidenceCollection();
+				GeneAnnotationImpl.EvidenceStruct e = GeneAnnotationImpl.getSentencePubmedid(ce);
 				System.out.println("    Sentence: "+e.getSentence());
 				System.out.println("    PubmedId:"+e.getPubmedId());
 			}
@@ -217,7 +219,8 @@ public class CaBioViewer2 extends JPanel implements VisualPlugin {
 				GeneDiseaseAssociation gda = (GeneDiseaseAssociation) gfa;
 				System.out.println("  Disease: " + gda.getDiseaseOntology().getName());
 				System.out.println("    Role: " + gda.getRole());
-				Evidence e = gda.getEvidence();
+				Collection<Evidence> ce = gda.getEvidenceCollection();
+				GeneAnnotationImpl.EvidenceStruct e = GeneAnnotationImpl.getSentencePubmedid(ce);
 				System.out.println("    Sentence: "+e.getSentence());
 				System.out.println("    PubmedId:"+e.getPubmedId());
 			}
@@ -240,12 +243,12 @@ public class CaBioViewer2 extends JPanel implements VisualPlugin {
 				GeneDiseaseAssociation gda = (GeneDiseaseAssociation) gfa;
 				table[cx][0]=gda.getRole();
 				table[cx][1]=gda.getDiseaseOntology().getName();
-				Evidence e = gda.getEvidence();
+				Collection<Evidence> ce = gda.getEvidenceCollection();
+				GeneAnnotationImpl.EvidenceStruct e = GeneAnnotationImpl.getSentencePubmedid(ce);
 				System.out.println("    Sentence: "+e.getSentence());
 				System.out.println("    PubmedId:"+e.getPubmedId());
 				table[cx][2]=e.getSentence();
-				String pubmedId = Integer.toString(e.getPubmedId());
-				table[cx][3]=pubmedId;
+				table[cx][3]=e.getPubmedId();
 				cx++;
 			}
 		}

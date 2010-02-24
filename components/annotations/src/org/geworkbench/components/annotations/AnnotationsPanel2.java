@@ -1442,11 +1442,22 @@ public class AnnotationsPanel2 implements VisualPlugin, Observer{
 	                if ((column == COL_PUBMED)) {
 	                    String value = (String) diseaseTable.getValueAt(row, column);
 	                    value=unwrapFromHTML(value);
-	                    String address = PUBMED_PREFIX + value;
-	                    try {
-							BrowserLauncher.openURL(address);
-						} catch (IOException e1) {
-							log.error(e1,e1);
+	                    if (value.indexOf(";") > -1)
+	                    {
+	                    	for (String subvalue : value.split(";"))
+	                    		try{
+	                    			BrowserLauncher.openURL(PUBMED_PREFIX + subvalue);
+	                    		}catch(IOException e1){
+	                    			log.error(e1);
+	                    		}
+	                    }
+	                    else {
+							String address = PUBMED_PREFIX + value;
+							try {
+								BrowserLauncher.openURL(address);
+							} catch (IOException e1) {
+								log.error(e1, e1);
+							}
 						}
 	                }
 	                if ((column == COL_SENTENCE)) {
