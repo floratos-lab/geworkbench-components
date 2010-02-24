@@ -31,6 +31,7 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -626,12 +627,13 @@ public class AnnotationsPanel implements VisualPlugin, Observer{
                     				System.out.println("  Disease: " + gda.getDiseaseOntology().getName());
                     				diseaseData.add(new DiseaseData(gda.getDiseaseOntology().getName(),gda.getDiseaseOntology()));
                     				System.out.println("    Role: " + gda.getRole());
-                    				Evidence e = gda.getEvidence();
+                    				Collection<Evidence> ce = gda.getEvidenceCollection();
+                    				GeneAnnotationImpl.EvidenceStruct e = GeneAnnotationImpl.getSentencePubmedid(ce);
                     				System.out.println("    Sentence: "+e.getSentence());
                     				System.out.println("    PubmedId:"+e.getPubmedId());
                     				roleData.add(new RoleData(gda.getRole()));
                     				sentenceData.add(new SentenceData(e.getSentence()));
-                    				pubmedData.add(new PubmedData(Integer.toString(e.getPubmedId())));
+                    				pubmedData.add(new PubmedData(e.getPubmedId()));
                     			}
                     		}
                         } 

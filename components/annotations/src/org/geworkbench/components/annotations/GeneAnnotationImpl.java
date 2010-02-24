@@ -241,6 +241,44 @@ public class GeneAnnotationImpl implements GeneAnnotation {
         this.symbol = symbol;
     }
 
+	static class EvidenceStruct
+	{
+		private String sentence = null;
+		private String pubmedId = null;
+		EvidenceStruct(String sent, String pub)
+		{
+			sentence = sent;
+			pubmedId = pub;
+		}
+		public String getSentence() {
+			return sentence;
+		}
+		public String getPubmedId() {
+			return pubmedId;
+		}
+}
+
+    /*
+     * get sentence and pubmedId from evidence collection
+     */
+    protected static EvidenceStruct getSentencePubmedid(Collection<Evidence> ce)
+    {
+    	String sentence = "";
+    	String pubmedId = "";
+		for (Iterator<Evidence> it = ce.iterator(); it.hasNext(); )
+		{
+			Evidence e = it.next();
+			sentence += e.getSentence();
+			pubmedId += Integer.toString(e.getPubmedId());
+			if (it.hasNext()) 
+			{
+				sentence += "; ";
+				pubmedId += "; ";
+			}
+		}
+		return new EvidenceStruct(sentence, pubmedId);
+    }
+    
     /**
      * Creates <code>GeneAnnotation[]</code> object from <code>Gene[]</code>
      * obtained from caBIO queries
@@ -442,13 +480,14 @@ public class GeneAnnotationImpl implements GeneAnnotation {
         			if (gfa instanceof GeneDiseaseAssociation) {
         				diseaseIndex++;
         				GeneDiseaseAssociation gda = (GeneDiseaseAssociation) gfa;
-        				Evidence e = gda.getEvidence();
+        				Collection<Evidence> ce = gda.getEvidenceCollection();
         				MarkerData markerDataNew = new MarkerData(retrieveMarkerInfo.get(i),numOutOfNumDisease);
         				GeneData geneDataNew = new GeneData(gda.getGene().getSymbol(),gda.getGene());
         				DiseaseData diseaseDataNew = new DiseaseData(gda.getDiseaseOntology().getName(),gda.getDiseaseOntology(), gda.getDiseaseOntology().getEVSId());
         				RoleData roleDataNew = new RoleData(gda.getRole());
+        				EvidenceStruct e = GeneAnnotationImpl.getSentencePubmedid(ce);
         				SentenceData sentenceDataNew = new SentenceData(e.getSentence());
-        				PubmedData pubmedDataNew = new PubmedData(Integer.toString(e.getPubmedId()));
+        				PubmedData pubmedDataNew = new PubmedData(e.getPubmedId());
         				if (!diseaseModel.containsRecord(markerDataNew, geneDataNew, diseaseDataNew, roleDataNew, sentenceDataNew, pubmedDataNew)){
             				markerData.add(new MarkerData(retrieveMarkerInfo.get(i),numOutOfNumDisease));
             				geneData.add(new GeneData(gda.getGene().getSymbol(),gda.getGene()));
@@ -459,7 +498,7 @@ public class GeneAnnotationImpl implements GeneAnnotation {
             				log.debug("    PubmedId:"+e.getPubmedId());
             				roleData.add(new RoleData(gda.getRole()));
             				sentenceData.add(new SentenceData(e.getSentence()));
-            				pubmedData.add(new PubmedData(Integer.toString(e.getPubmedId())));
+            				pubmedData.add(new PubmedData(e.getPubmedId()));
             				log.debug("We got "+markerDataNew.name+","+geneDataNew.name+","+diseaseDataNew.name+","+roleDataNew.role+","+sentenceDataNew.sentence+","+pubmedDataNew.id);
         				}else{
         					log.debug("We already got "+markerDataNew.name+","+geneDataNew.name+","+diseaseDataNew.name+","+roleDataNew.role+","+sentenceDataNew.sentence+","+pubmedDataNew.id);
@@ -468,13 +507,14 @@ public class GeneAnnotationImpl implements GeneAnnotation {
         			else if (gfa instanceof GeneAgentAssociation) {
         				diseaseIndex++;
         				GeneAgentAssociation gaa = (GeneAgentAssociation) gfa;
-        				Evidence e = gaa.getEvidence();
+        				Collection<Evidence> ce = gaa.getEvidenceCollection();
         				MarkerData markerDataNew = new MarkerData(retrieveMarkerInfo.get(i),numOutOfNumAgent);
         				GeneData geneDataNew = new GeneData(gaa.getGene().getSymbol(),gaa.getGene());
         				DiseaseData diseaseDataNew = new DiseaseData(gaa.getAgent().getName(),null, gaa.getAgent().getEVSId());
         				RoleData roleDataNew = new RoleData(gaa.getRole());
+        				EvidenceStruct e = GeneAnnotationImpl.getSentencePubmedid(ce);
         				SentenceData sentenceDataNew = new SentenceData(e.getSentence());
-        				PubmedData pubmedDataNew = new PubmedData(Integer.toString(e.getPubmedId()));
+        				PubmedData pubmedDataNew = new PubmedData(e.getPubmedId());
         				if (!agentModel.containsRecord(markerDataNew, geneDataNew, diseaseDataNew, roleDataNew, sentenceDataNew, pubmedDataNew)){
             				markerData2.add(new MarkerData(retrieveMarkerInfo.get(i),numOutOfNumAgent));
             				geneData2.add(new GeneData(gaa.getGene().getSymbol(),gaa.getGene()));
@@ -488,7 +528,7 @@ public class GeneAnnotationImpl implements GeneAnnotation {
             				log.debug("    PubmedId:"+e.getPubmedId());
             				agentRoleData.add(new RoleData(gaa.getRole()));
             				agentSentenceData.add(new SentenceData(e.getSentence()));
-            				agentPubmedData.add(new PubmedData(Integer.toString(e.getPubmedId())));
+            				agentPubmedData.add(new PubmedData(e.getPubmedId()));
         				}
         			}
         		}
@@ -608,6 +648,7 @@ public class GeneAnnotationImpl implements GeneAnnotation {
 						stopAlgorithm(pb);
 						break;
 					}
+
         			if (gfa instanceof GeneDiseaseAssociation) {
             			if (diseaseLimitIndex>0)
             				diseaseLimitIndex--;
@@ -619,12 +660,13 @@ public class GeneAnnotationImpl implements GeneAnnotation {
         				log.debug("  Disease: " + gda.getDiseaseOntology().getName());
         				diseaseData.add(new DiseaseData(gda.getDiseaseOntology().getName(),gda.getDiseaseOntology(), gda.getDiseaseOntology().getEVSId()));
         				log.debug("    Role: " + gda.getRole());
-        				Evidence e = gda.getEvidence();
+        				Collection<Evidence> ce = gda.getEvidenceCollection();
+        				EvidenceStruct e = GeneAnnotationImpl.getSentencePubmedid(ce);
         				log.debug("    Sentence: "+e.getSentence());
         				log.debug("    PubmedId:"+e.getPubmedId());
         				roleData.add(new RoleData(gda.getRole()));
         				sentenceData.add(new SentenceData(e.getSentence()));
-        				pubmedData.add(new PubmedData(Integer.toString(e.getPubmedId())));
+        				pubmedData.add(new PubmedData(e.getPubmedId()));
         			}
         			else if (gfa instanceof GeneAgentAssociation) {
             			if (agentLimitIndex>0)
@@ -640,12 +682,13 @@ public class GeneAnnotationImpl implements GeneAnnotation {
         				log.debug("  Role: " + gaa.getRole());
         				log.debug("  EvsId: " + gaa.getAgent().getEVSId());
         				log.debug("  Name: " + gaa.getAgent().getName());
-        				Evidence e = gaa.getEvidence();
+        				Collection<Evidence> ce = gaa.getEvidenceCollection();
+        				EvidenceStruct e = GeneAnnotationImpl.getSentencePubmedid(ce);
         				log.debug("    Sentence: "+e.getSentence());
         				log.debug("    PubmedId:"+e.getPubmedId());
         				agentRoleData.add(new RoleData(gaa.getRole()));
         				agentSentenceData.add(new SentenceData(e.getSentence()));
-        				agentPubmedData.add(new PubmedData(Integer.toString(e.getPubmedId())));
+        				agentPubmedData.add(new PubmedData(e.getPubmedId()));
         			}
         		}
             }
