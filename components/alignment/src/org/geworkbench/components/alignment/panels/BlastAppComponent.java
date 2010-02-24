@@ -1132,21 +1132,7 @@ public class BlastAppComponent extends
         jToolBar1.add(jendPointField);
         subSeqPanel.add(jScrollPane1, new XYConstraints(0, 89, 352, 97));
         subSeqPanel.add(jLabel9, new XYConstraints(0, 36, 60, 23));
-        
-        Color color = subSeqPanel2.getBackground();
-        
-        if (color == null){
-        	String string = "";
-        	System.out.println("tgtgtg NO COLOR??????");
-        }
-
-        if (textArea == null){
-        	String string = "";
-        	System.out.println("tgtgtg NO TEXTAREA??????");
-        }
-
-        
-        textArea.setBackground(color);
+        textArea.setBackground(subSeqPanel2.getBackground());
         textArea.setEditable(false);
         textArea.setLineWrap(true); //wrap text around
         textArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
