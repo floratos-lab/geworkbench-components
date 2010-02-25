@@ -46,6 +46,11 @@ public class CSSequenceSetViewEventBase implements VisualPlugin {
 	private JTextField sequenceNumberField;
 
 	public CSSequenceSetViewEventBase() {
+		try {
+			jbInit();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 
 	}
 
@@ -112,7 +117,7 @@ public class CSSequenceSetViewEventBase implements VisualPlugin {
 
 	}
 
-	protected void jbInit() throws Exception {
+	private void jbInit() throws Exception {
 		mainPanel = new JPanel();
 
 		displayToolBar = new JToolBar();
