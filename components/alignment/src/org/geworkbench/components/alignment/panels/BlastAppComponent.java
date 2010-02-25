@@ -46,7 +46,6 @@ import org.geworkbench.algorithms.BWAbstractAlgorithm;
 import org.geworkbench.bison.datastructure.biocollections.sequences.CSSequenceSet;
 import org.geworkbench.bison.util.RandomNumberGenerator;
 import org.geworkbench.components.alignment.client.BlastAlgorithm;
-import org.geworkbench.components.alignment.grid.CreateGridServiceDialog;
 import org.geworkbench.engine.management.AcceptTypes;
 import org.geworkbench.engine.management.Publish;
 import org.geworkbench.events.MicroarraySetViewEvent;
@@ -882,13 +881,6 @@ public class BlastAppComponent extends
             }
         };
         SwingUtilities.invokeLater(r);
-    }
-
-    /**
-     * createGridDialog
-     */
-    public void createGridDialog() {
-        new CreateGridServiceDialog(null, "grid service");
     }
 
     public BlastAppComponent getBlastAppComponent() {
