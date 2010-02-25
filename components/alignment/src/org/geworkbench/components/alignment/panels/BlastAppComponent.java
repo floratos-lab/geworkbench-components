@@ -1,7 +1,6 @@
 package org.geworkbench.components.alignment.panels;
 
 import java.awt.BorderLayout;
-import java.awt.CardLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -68,15 +67,17 @@ public class BlastAppComponent extends
         CSSequenceSetViewEventBase {
 	Log log = LogFactory.getLog(BlastAppComponent.class);
 
-    JPanel jBasicPane = new JPanel();
-    JLabel DatabaseLabel = new JLabel();
-    JTabbedPane jTabbedPane1 = new JTabbedPane();
-    JTabbedPane jTabbedBlastPane = new JTabbedPane();
+    private JPanel jBasicPane = new JPanel();
+    private JTabbedPane jTabbedPane1 = new JTabbedPane();
+    private JTabbedPane jTabbedBlastPane = new JTabbedPane();
 
-    ServerInfoPanel jServerInfoPane = new ServerInfoPanel();
-
-    JComboBox jMatrixBox = new JComboBox();
-    JCheckBox lowComplexFilterBox = new JCheckBox();
+    // five check boxes in filter panel
+    private JCheckBox lowComplexFilterBox = null;
+    private JCheckBox maskLowCaseBox = null;
+    private JCheckBox maskLookupOnlyBox = null;
+    private JCheckBox humanRepeatFilter = null;
+    private JCheckBox jDisplayInWebBox = null;
+    
     JPanel jAdvancedPane = new JPanel();
     JFileChooser jFileChooser1 = new JFileChooser();
 
@@ -100,15 +101,20 @@ public class BlastAppComponent extends
     JScrollPane jScrollPane1 = new JScrollPane();
     JScrollPane jScrollPane12 = new JScrollPane();
     JComboBox jProgramBox = new JComboBox();
-    JPanel filterPanel = new JPanel();
-    JCheckBox maskLookupOnlyBox = new JCheckBox();
-    JLabel expectLabel = new JLabel();
-    JComboBox jExpectBox = new JComboBox();
-    JLabel matrixLabel = new JLabel();
-    JPanel blastxSettingPanel = new JPanel();
-    JComboBox jGapcostsBox = new JComboBox();
-    JLabel jWordsizeLabel = new JLabel();
-    JComboBox jWordsizeBox = new JComboBox();
+
+    private JPanel filterPanel = new JPanel();
+    private JPanel blastxSettingPanel = new JPanel();
+    
+    // 4 pairs of label and combo box on blastxSettingPanel
+    private JLabel matrixLabel = new JLabel("Expect:");
+    private JComboBox jMatrixBox = new JComboBox();
+    private JLabel expectLabel = new JLabel("Matrix:");
+    private JComboBox jExpectBox = new JComboBox();
+    private JLabel jWordsizeLabel = new JLabel("Word size:");
+    private JComboBox jWordsizeBox = new JComboBox();
+    private JLabel jGapcostsLabel = new JLabel("Gap costs:");
+    private JComboBox jGapcostsBox = new JComboBox();
+    
     ParameterSetter parameterSetter = new ParameterSetter();
 	CSSequenceSet fastaFile;
     private BlastAppComponent blastAppComponent = null;
@@ -117,7 +123,6 @@ public class BlastAppComponent extends
 
     JTextField jstartPointField = new JTextField();
     JTextField jendPointField = new JTextField();
-    CardLayout cardLayout1 = new CardLayout();
     JProgressBar serviceProgressBar = new JProgressBar();
 
     JLabel jLabel5 = new JLabel();
@@ -143,10 +148,8 @@ public class BlastAppComponent extends
 
     JList jList2 = new JList(algorithmParameter);
 
-    JCheckBox jDisplayInWebBox = new JCheckBox();
     BorderLayout borderLayout1 = new BorderLayout();
     GridBagLayout gridBagLayout3 = new GridBagLayout();
-    JLabel jGapcostsLabel = new JLabel();
     GridBagLayout gridBagLayout2 = new GridBagLayout();
 
     JButton blastStopButton = new JButton();
@@ -183,10 +186,10 @@ public class BlastAppComponent extends
     JScrollPane jScrollPane4 = new JScrollPane();
     private static final int MAIN = 0;
     public static final int SERVER = 2;
-    JCheckBox humanRepeatFilter = new JCheckBox();
-    JPanel jPanel1 = new JPanel();
-    private JCheckBox maskLowCaseBox = new JCheckBox();
+
     private boolean stopButtonPushed;
+    
+    private static JLabel DatabaseLabel = new JLabel("Database:");
     
     public BlastAppComponent() {
         try {
@@ -199,35 +202,23 @@ public class BlastAppComponent extends
     private void jbInit() throws Exception {
 
         jBasicPane = new JPanel();
-        DatabaseLabel = new JLabel();
         jTabbedPane1 = new JTabbedPane();
         jTabbedBlastPane = new JTabbedPane();
 
-        jServerInfoPane = new ServerInfoPanel();
-        jServerInfoPane.setBlastAppComponent(this);
         jScrollPane4 = new JScrollPane();
-                //JComboBox jMatrixBox = new JComboBox();
-        lowComplexFilterBox = new JCheckBox();
+
         jAdvancedPane = new JPanel();
         checkboxPanel = new JPanel();
         jDBList = new JList();
         blastButton = new JButton();
         jScrollPane1 = new JScrollPane();
         jProgramBox = new JComboBox();
-        filterPanel = new JPanel();
-        maskLookupOnlyBox = new JCheckBox();
-        expectLabel = new JLabel();
-        jExpectBox = new JComboBox();
-        matrixLabel = new JLabel();
+
         blastxSettingPanel = new JPanel();
-        jGapcostsBox = new JComboBox();
-        jWordsizeLabel = new JLabel();
-        jWordsizeBox = new JComboBox();
         parameterSetter = new ParameterSetter();
 
         jstartPointField = new JTextField();
         jendPointField = new JTextField();
-        cardLayout1 = new CardLayout();
         serviceProgressBar = new JProgressBar();
 
         jLabel5 = new JLabel();
@@ -253,10 +244,8 @@ public class BlastAppComponent extends
 
         jList2 = new JList(algorithmParameter);
 
-        jDisplayInWebBox = new JCheckBox();
         borderLayout1 = new BorderLayout();
         gridBagLayout3 = new GridBagLayout();
-        jGapcostsLabel = new JLabel();
         gridBagLayout2 = new GridBagLayout();
 
         blastStopButton = new JButton();
@@ -289,7 +278,7 @@ public class BlastAppComponent extends
         xYLayout2 = new XYLayout();
         borderLayout3 = new BorderLayout();
 
-//above is part of code to get rid of npe.
+        //above is part of code to get rid of npe.
         //sgePanel.setPv(this);
         allArraysCheckBox = new JCheckBox("Activated Sequences", true);
         subSeqPanel = new JPanel();
@@ -305,24 +294,11 @@ public class BlastAppComponent extends
         checkboxPanel.setLayout(xYLayout2);
         jBasicPane.setPreferredSize(new Dimension(364, 250));
         jPanel3.setLayout(borderLayout3);
-        //this.add(jLabel4, java.awt.BorderLayout.NORTH);
 
-        //   jEntThreshBox.addActionListener(new
-        //                                  ParameterPanel_jEntThreshBox_actionAdapter(this));
         jBasicPane.setLayout(borderLayout2);
         //jBasicPane.setPreferredSize(new Dimension(10, 100));
         jBasicPane.setMinimumSize(new Dimension(10, 100));
-        //jDecreaseDensitySupportBox.setSelectedIndex(0);
-        DatabaseLabel.setText("Database:");
-        // jServerInfoPane.setPv(this);
-        jServerInfoPane.setLayout(cardLayout1);
-        //jMatrixBox.setSelectedIndex(0);
-        lowComplexFilterBox.setMinimumSize(new Dimension(10, 23));
-        lowComplexFilterBox.setMnemonic('0');
-        lowComplexFilterBox.setSelected(true);
-        lowComplexFilterBox.setText("Low Complexity");
-        lowComplexFilterBox.addActionListener(new
-                                              BlastAppComponent_lowComplexFilterBox_actionAdapter(this));
+
         jAdvancedPane.setLayout(gridBagLayout3);
         jDBList.setToolTipText("Select a database");
         jDBList.setVerifyInputWhenFocusTarget(true);
@@ -343,30 +319,46 @@ public class BlastAppComponent extends
         blastButton.setToolTipText("Start BLAST");
 
         blastButton.addActionListener(new
-                                      BlastAppComponent_blastButton_actionAdapter(this));
+                                      BlastAppComponent_blastButton_actionAdapter());
         jTabbedPane1.setDebugGraphicsOptions(0);
         jTabbedPane1.setMinimumSize(new Dimension(5, 5));
         jProgramBox.addActionListener(new
-                                      BlastAppComponent_jProgramBox_actionAdapter(this));
-        jDBList.addListSelectionListener(new BlastAppComponent_jDBList_listSelectionListener(this) );
-        jMatrixBox = new JComboBox();
-        jMatrixBox.addActionListener(new
-                                     BlastAppComponent_jMatrixBox_actionAdapter(this));
-        // this.setLayout(borderLayout1);
-        maskLookupOnlyBox.setText("Mask for lookup table only");
-        maskLookupOnlyBox.setMinimumSize(new Dimension(5, 23));
-        maskLookupOnlyBox.setMnemonic('0');
-        maskLookupOnlyBox.setSelected(false);
-        expectLabel.setText("Matrix:");
+                                      BlastAppComponent_jProgramBox_actionAdapter());
+        jDBList.addListSelectionListener(new BlastAppComponent_jDBList_listSelectionListener() );
+
+        // details of four combo boxes on plastx panel
+        // (1)
+        jMatrixBox
+				.addActionListener(new BlastAppComponent_jMatrixBox_actionAdapter());
         jMatrixBox.addItem("dna.mat");
         jMatrixBox.setVerifyInputWhenFocusTarget(true);
         jMatrixBox.setSelectedIndex(0);
-
+        // (2)
         jExpectBox.setSelectedIndex( -1);
         jExpectBox.setVerifyInputWhenFocusTarget(true);
-        matrixLabel.setText("Expect:");
+        jExpectBox.addItem("10");
+        jExpectBox.addItem("1");
+        jExpectBox.addItem("0.1");
+        jExpectBox.addItem("0.01");
+        jExpectBox.addItem("0.000000001");
+        jExpectBox.addItem("100");
+        jExpectBox.addItem("1000");
+        jExpectBox.setEditable(true);
+        // (3)
         jGapcostsBox.setVerifyInputWhenFocusTarget(true);
-
+        jGapcostsBox.addItem("Existence: 11 Extension: 1");
+        jGapcostsBox.addItem("Existence:  9 Extension: 2");
+        jGapcostsBox.addItem("Existence:  8 Extension: 2");
+        jGapcostsBox.addItem("Existence:  7 Extension: 2");
+        jGapcostsBox.addItem("Existence: 12 Extension: 1");
+        jGapcostsBox.addItem("Existence: 10 Extension: 1");
+        // (4)
+        jWordsizeBox.addItem("3");
+        jWordsizeBox.addItem("2");
+        jWordsizeBox.addItem("7");
+        jWordsizeBox.addItem("11");
+        jWordsizeBox.addItem("15");
+        
         // update tooltip text
         // based on information from http://blast.ncbi.nlm.nih.gov/Blast.cgi and http://www.ncbi.nlm.nih.gov/BLAST/matrix_info.html
         jExpectBox.setToolTipText("Random background noise");
@@ -374,12 +366,8 @@ public class BlastAppComponent extends
         jMatrixBox.setToolTipText("Assigns a score for aligning any possible pair of residues");
         jGapcostsBox.setToolTipText("Score subtracted due to the gaps");
 
-        jWordsizeBox.addActionListener(new
-                                       BlastAppComponent_jFrameShiftPaneltyBox_actionAdapter(this));
         blastxSettingPanel.setLayout(gridBagLayout2);
-        jServerInfoPane.setMinimumSize(new Dimension(0, 0));
-        //jServerInfoPane.setPreferredSize(new Dimension(0, 0));
-        jServerInfoPane.setToolTipText("Blast server Info");
+
         jProgramBox.setAutoscrolls(false);
         jProgramBox.setMinimumSize(new Dimension(26, 21));
         subSeqPanel.setLayout(xYLayout1);
@@ -415,17 +403,11 @@ public class BlastAppComponent extends
         progressBar1.setStringPainted(true);
 
         jAdvancedPane.setMinimumSize(new Dimension(5, 25));
-        filterPanel.setMinimumSize(new Dimension(5, 10));
         blastxSettingPanel.setMinimumSize(new Dimension(5, 115));
         subSeqPanel1.setMinimumSize(new Dimension(10, 30));
 
         jList2.setMaximumSize(new Dimension(209, 68));
         jList2.setMinimumSize(new Dimension(100, 68));
-        jDisplayInWebBox.setMinimumSize(new Dimension(10, 23));
-        jDisplayInWebBox.setSelected(true);
-        jDisplayInWebBox.setText("Display result in your web browser");
-        jGapcostsLabel.setToolTipText("");
-        jGapcostsLabel.setText("Gap costs:");
 
         blastStopButton.setFont(new java.awt.Font("Arial Black", 0, 11));
         blastStopButton.setVerifyInputWhenFocusTarget(true);
@@ -434,16 +416,8 @@ public class BlastAppComponent extends
         blastStopButton.setToolTipText("Stop the Query");
 
         blastStopButton.addActionListener(new
-                                          BlastAppComponent_blastStopButton_actionAdapter(this));
+                                          BlastAppComponent_blastStopButton_actionAdapter());
 
-        humanRepeatFilter = new JCheckBox();
-        humanRepeatFilter.setToolTipText("Human Repeat Filter");
-        humanRepeatFilter.setSelected(false);
-        humanRepeatFilter.setText("Human Repeats Filter");
-        maskLowCaseBox = new JCheckBox();
-        maskLowCaseBox.setToolTipText("Filterl lower case sequences.");
-        maskLowCaseBox.setText("Mask lower case");
-        jWordsizeLabel.setText("Word size:");
         jToolBar2.add(serviceProgressBar);
         serviceProgressBar.setOrientation(JProgressBar.HORIZONTAL);
         serviceProgressBar.setBorder(BorderFactory.createEtchedBorder());
@@ -470,21 +444,82 @@ public class BlastAppComponent extends
                 new Insets(5, 0, 0, 0), 0, 10));
 
         jTabbedPane1.add(jTabbedBlastPane, "BLAST");
+        
+        // 5 check boxes on filter panel
+        lowComplexFilterBox = new JCheckBox();
+        lowComplexFilterBox.setMinimumSize(new Dimension(10, 23));
+        lowComplexFilterBox.setMnemonic('0');
+        lowComplexFilterBox.setSelected(true);
+        lowComplexFilterBox.setText("Low Complexity");
+        
+        maskLowCaseBox = new JCheckBox();
+        maskLowCaseBox.setToolTipText("Filterl lower case sequences.");
+        maskLowCaseBox.setText("Mask lower case");
 
-        filterPanel.add(lowComplexFilterBox, null);
+        maskLookupOnlyBox = new JCheckBox();
+        maskLookupOnlyBox.setText("Mask for lookup table only");
+        maskLookupOnlyBox.setMinimumSize(new Dimension(5, 23));
+        maskLookupOnlyBox.setMnemonic('0');
+        maskLookupOnlyBox.setSelected(false);
+        
+        humanRepeatFilter = new JCheckBox();
+        humanRepeatFilter.setToolTipText("Human Repeat Filter");
+        humanRepeatFilter.setSelected(false);
+        humanRepeatFilter.setText("Human Repeats Filter");
+        
+        jDisplayInWebBox = new JCheckBox();
+        jDisplayInWebBox.setMinimumSize(new Dimension(10, 23));
+        jDisplayInWebBox.setSelected(true);
+        jDisplayInWebBox.setText("Display result in your web browser");
+
+        // filter Panel: including five check boxes
+        filterPanel = new JPanel();
+        filterPanel.setMinimumSize(new Dimension(5, 10));
+        filterPanel.add(lowComplexFilterBox);
         filterPanel.add(maskLowCaseBox);
-        filterPanel.add(maskLookupOnlyBox, null);
+        filterPanel.add(maskLookupOnlyBox);
         filterPanel.add(humanRepeatFilter);
+        filterPanel.add(jDisplayInWebBox);
+        
+        // blastxSettingPanel includes four pairs of label and combo box
+		blastxSettingPanel.add(matrixLabel, new GridBagConstraints(0, 0, 1, 1,
+				0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE,
+				new Insets(2, 2, 2, 2), 0, 0));
+        blastxSettingPanel.add(jMatrixBox, new GridBagConstraints(1, 2, 1, 1,
+				1.0, 0.0, GridBagConstraints.WEST,
+				GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2), 0, 0));
+		blastxSettingPanel.add(jWordsizeLabel, new GridBagConstraints(0, 1, 1,
+				1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE,
+				new Insets(2, 2, 2, 2), 0, 0));
+		blastxSettingPanel.add(jWordsizeBox, new GridBagConstraints(1, 1, 1, 1,
+				1.0, 0.0, GridBagConstraints.WEST,
+				GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2), 0, 0));
+		blastxSettingPanel.add(expectLabel, new GridBagConstraints(0, 2, 1, 1,
+				0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE,
+				new Insets(2, 2, 2, 2), 0, 0));
+		blastxSettingPanel.add(jExpectBox, new GridBagConstraints(1, 0, 1, 1,
+				1.0, 0.0, GridBagConstraints.WEST,
+				GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2), 0, 0));
+        blastxSettingPanel.add(jGapcostsLabel, new GridBagConstraints(0, 3, 1,
+				1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE,
+				new Insets(2, 2, 2, 6), 1, -2));
+		blastxSettingPanel.add(jGapcostsBox, new GridBagConstraints(1, 3, 1, 1,
+				1.0, 0.0, GridBagConstraints.WEST,
+				GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2), 0, 0));
 
-        jPanel1 = new JPanel();
-        filterPanel.add(jPanel1);
-        jPanel1.add(jDisplayInWebBox);
-        jTabbedBlastPane.add(jBasicPane, "Main");
+        // Advanced Pane contains two panels
+		jAdvancedPane.add(filterPanel, new GridBagConstraints(0, 1, 1, 1, 1.0,
+				1.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+				new Insets(0, 0, 0, 0), -150, 82));
+		jAdvancedPane.add(blastxSettingPanel, new GridBagConstraints(0, 0, 1,
+				1, 1.0, 1.0, GridBagConstraints.CENTER,
+				GridBagConstraints.HORIZONTAL, new Insets(0, 2, 1, 3), 0, 23));
+
+		// jTabbedBlastPane contains two panels
+		jTabbedBlastPane.add(jBasicPane, "Main");
         jTabbedBlastPane.add(jAdvancedPane, "Advanced Options");
 
-        // bug http://wiki.c2b2.columbia.edu/mantis/view.php?id=1747
-        // jTabbedBlastPane.add(jServerInfoPane, "Service");
-
+        // mainPanel contains one tabbed pane
         mainPanel.add(jTabbedPane1, java.awt.BorderLayout.CENTER);
 
         subSeqPanel.add(jScrollPane1, new XYConstraints(0, 89, 352, 97));
@@ -506,76 +541,6 @@ public class BlastAppComponent extends
         jPanel3.add(subSeqPanel2, java.awt.BorderLayout.CENTER);
         jBasicPane.add(jScrollPane4, java.awt.BorderLayout.CENTER);
         jBasicPane.add(jToolBar2, java.awt.BorderLayout.NORTH);
-        
-        // Advanced Pane
-        blastxSettingPanel.add(jMatrixBox,
-                               new GridBagConstraints(1, 2, 1, 1, 1.0, 0.0
-                , GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL,
-                new Insets(2, 2, 2, 2), 0, 0));
-        blastxSettingPanel.add(expectLabel,
-                               new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0
-                , GridBagConstraints.WEST, GridBagConstraints.NONE,
-                new Insets(2, 2, 2, 2), 0, 0));
-        blastxSettingPanel.add(jWordsizeLabel,
-                               new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0
-                , GridBagConstraints.WEST, GridBagConstraints.NONE,
-                new Insets(2, 2, 2, 2), 0, 0));
-        blastxSettingPanel.add(jWordsizeBox,
-                               new GridBagConstraints(1, 1, 1, 1, 1.0, 0.0
-                , GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL,
-                new Insets(2, 2, 2, 2), 0, 0));
-        blastxSettingPanel.add(matrixLabel,
-                               new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
-                , GridBagConstraints.WEST, GridBagConstraints.NONE,
-                new Insets(2, 2, 2, 2), 0, 0));
-        blastxSettingPanel.add(jExpectBox,
-                               new GridBagConstraints(1, 0, 1, 1, 1.0, 0.0
-                , GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL,
-                new Insets(2, 2, 2, 2), 0, 0));
-        jAdvancedPane.add(filterPanel,
-                          new GridBagConstraints(0, 1, 1, 1, 1.0, 1.0
-                                                 , GridBagConstraints.CENTER,
-                                                 GridBagConstraints.BOTH,
-                                                 new Insets(0, 0, 0, 0), -150,
-                                                 82));
-        blastxSettingPanel.add(jGapcostsLabel,
-                               new GridBagConstraints(0, 3, 1, 1, 0.0, 0.0
-                , GridBagConstraints.WEST, GridBagConstraints.NONE,
-                new Insets(2, 2, 2, 6), 1, -2));
-        blastxSettingPanel.add(jGapcostsBox,
-                               new GridBagConstraints(1, 3, 1, 1, 1.0, 0.0
-                , GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL,
-                new Insets(2, 2, 2, 2), 0, 0));
-        jAdvancedPane.add(blastxSettingPanel,
-                          new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
-                                                 , GridBagConstraints.CENTER,
-                                                 GridBagConstraints.HORIZONTAL,
-                                                 new Insets(0, 2, 1, 3), 0, 23));
-        jExpectBox.addItem("10");
-        jExpectBox.addItem("1");
-
-        jExpectBox.addItem("0.1");
-        jExpectBox.addItem("0.01");
-        jExpectBox.addItem("0.000000001");
-        jExpectBox.addItem("100");
-
-        jExpectBox.addItem("1000");
-        jExpectBox.setEditable(true);
-        jGapcostsBox.addItem("Existence: 11 Extension: 1");
-        jGapcostsBox.addItem("Existence:  9 Extension: 2");
-        jGapcostsBox.addItem("Existence:  8 Extension: 2");
-        jGapcostsBox.addItem("Existence:  7 Extension: 2");
-        jGapcostsBox.addItem("Existence: 12 Extension: 1");
-        jGapcostsBox.addItem("Existence: 10 Extension: 1");
-
-        jWordsizeBox.addItem("3");
-        jWordsizeBox.addItem("2");
-
-        jWordsizeBox.addItem("7");
-
-        jWordsizeBox.addItem("11");
-
-        jWordsizeBox.addItem("15");
 
         jTabbedPane1.setSelectedComponent(jTabbedBlastPane);
         jTabbedBlastPane.setSelectedComponent(jBasicPane);
@@ -588,7 +553,7 @@ public class BlastAppComponent extends
 
     }
 
-    void jProgramBox_actionPerformed(ActionEvent e) {
+    private void jProgramBox_actionPerformed(ActionEvent e) {
 
         JComboBox cb = (JComboBox) e.getSource();
 
@@ -620,11 +585,9 @@ public class BlastAppComponent extends
             }
 
         }
-        //jScrollPanel = new JScrollPanel(jDBList);
-        // repaint();
     }
 
-    void jDBList_actionPerformed(ListSelectionEvent e) {
+    private void jDBList_actionPerformed(ListSelectionEvent e) {
     	JList jDBList = (JList) e.getSource();
     	int dbSelection = jDBList.getSelectedIndex();
     	
@@ -634,18 +597,10 @@ public class BlastAppComponent extends
         textArea.setText( dbDetails );
     }
     
-    void jMatrixBox_actionPerformed(ActionEvent e) {
+    private void jMatrixBox_actionPerformed(ActionEvent e) {
         String[] model = AlgorithmMatcher.translateToGapcosts(
                 jMatrixBox.getSelectedItem().toString());
-        jGapcostsBox.setModel(new DefaultComboBoxModel(model));
-    }
-
-    void jFrameShiftPaneltyBox_actionPerformed(ActionEvent e) {
-
-    }
-
-    void lowComplexFilterBox_actionPerformed(ActionEvent e) {
-
+       	jGapcostsBox.setModel(new DefaultComboBoxModel(model));
     }
 
     public CSSequenceSet getFastaFile() {
@@ -657,7 +612,7 @@ public class BlastAppComponent extends
                                       JOptionPane.ERROR_MESSAGE);
     }
 
-    public ParameterSetter processNCBIParameters() {
+    private ParameterSetter processNCBIParameters() {
         ParameterSetting parameterSetting = collectParameters();
         if (parameterSetting == null) {
             return null;
@@ -715,7 +670,7 @@ public class BlastAppComponent extends
      * Collect all selected parameters and save it to a ParameterSetting object.
      * @return ParameterSetting
      */
-    public ParameterSetting collectParameters() {
+    private ParameterSetting collectParameters() {
         ParameterSetting ps = new ParameterSetting();
         String dbName = (String) jDBList.getSelectedValue();
         String programName = (String) jProgramBox.getSelectedItem();
@@ -789,71 +744,6 @@ public class BlastAppComponent extends
         return ps;
     }
 
-
-    /**
-     * Collect selected parameters.
-     * @return ParameterSetter
-     */
-
-    private ParameterSetter processParameters() {
-        ParameterSetting parameterSetting = collectParameters();
-        if (parameterSetting == null) {
-            return null;
-        }
-        parameterSetting.setUseNCBI(false);
-        //jServerInfoPane.retriveServerInfo();
-        if (fastaFile == null) {
-            if (sequenceDB == null) {
-                reportError("Please select a sequence file first!",
-                            "Parameter Error");
-                return null;
-            }
-
-        } else {
-
-            try {
-
-                String tempFolder = FilePathnameUtils.getTemporaryFilesDirectoryPath();
-
-                String outputFile = tempFolder + "Blast" +
-                                    RandomNumberGenerator.getID() +
-                                    ".html";
-
-                if (fastaFile == null) {
-                    fastaFile = activeSequenceDB;
-                }
-                SoapClient sc = new SoapClient(parameterSetting.getProgramName(),
-                                               parameterSetting.getDbName(),
-                                               outputFile);
-                serviceProgressBar.setForeground(Color.ORANGE);
-                serviceProgressBar.setBackground(Color.WHITE);
-                serviceProgressBar.setIndeterminate(true);
-                serviceProgressBar.setString(
-                        "Blast is running on the Columbia Blast Server.");
-
-                BlastAlgorithm blastAlgo = new BlastAlgorithm();
-                sc.setSequenceDB(activeSequenceDB);
-                sc.setParentSequenceDB(sequenceDB);
-                sc.setCmd(AlgorithmMatcher.translateToCommandline(
-                        parameterSetting));
-                blastAlgo.setBlastAppComponent(this);
-                blastAlgo.setSoapClient(sc);
-                blastAlgo.setStartBrowser(parameterSetting.isViewInBrowser());
-                blastAlgo.start();
-                Thread.sleep(2);
-                if (blastAlgo != null && parameterSetter != null) {
-                    parameterSetter.setAlgo(blastAlgo);
-                }
-
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
-        }
-        return parameterSetter;
-
-    }
-
     /**
      * blastFinished
      * Take care of the state of finished blast.
@@ -894,17 +784,13 @@ public class BlastAppComponent extends
         }
     }
 
-    void blastButton_actionPerformed(ActionEvent e) {
+    private void blastButton_actionPerformed(ActionEvent e) {
         stopButtonPushed = false;
         if (jTabbedPane1.getSelectedIndex() == BlastAppComponent.BLAST) {
             jTabbedBlastPane.setSelectedIndex(BlastAppComponent.MAIN);
-            if (jServerInfoPane.getServerType() ==
-                ServerInfoPanel.COLUMBIA) {
-                parameterSetter = processParameters();
-            } else if (jServerInfoPane.getServerType() == ServerInfoPanel.NCBI) {
-                parameterSetter = processNCBIParameters();
 
-            }
+			// only support NCBI server now
+			parameterSetter = processNCBIParameters();
         } else {
             log.warn("unexpected selectedIndex of jTabbedPane1 "+jTabbedPane1.getSelectedIndex());
         }
@@ -946,7 +832,7 @@ public class BlastAppComponent extends
 
     }
 
-    void blastStopButton_actionPerformed(ActionEvent e) {
+    private void blastStopButton_actionPerformed(ActionEvent e) {
         stopBlastAction();
     }
 
@@ -1023,114 +909,48 @@ public class BlastAppComponent extends
                                          ProjectNodeAddedEvent event) {
         return event;
     }
-}
+    
+    private class BlastAppComponent_jMatrixBox_actionAdapter implements
+			java.awt.event.ActionListener {
 
-
-class BlastAppComponent_jProgramBox_actionAdapter implements java.awt.
-        event.ActionListener {
-    BlastAppComponent adaptee;
-
-    BlastAppComponent_jProgramBox_actionAdapter(BlastAppComponent
-                                                adaptee) {
-        this.adaptee = adaptee;
-    }
-
-    public void actionPerformed(ActionEvent e) {
-        adaptee.jProgramBox_actionPerformed(e);
-    }
-}
-
-
-class BlastAppComponent_jDBList_listSelectionListener implements
-		ListSelectionListener {
-	BlastAppComponent adaptee;
-
-	BlastAppComponent_jDBList_listSelectionListener(BlastAppComponent adaptee) {
-		this.adaptee = adaptee;
-	}
-
-	public void valueChanged(ListSelectionEvent e) {
-		if (e.getValueIsAdjusting()) {
-			return;
+		public void actionPerformed(ActionEvent e) {
+			jMatrixBox_actionPerformed(e);
 		}
-			
-		adaptee.jDBList_actionPerformed(e);
 	}
-}
+    
+    private class BlastAppComponent_jProgramBox_actionAdapter implements
+			java.awt.event.ActionListener {
 
+		public void actionPerformed(ActionEvent e) {
+			jProgramBox_actionPerformed(e);
+		}
+	}
+    
+    private class BlastAppComponent_blastButton_actionAdapter implements
+			java.awt.event.ActionListener {
 
-class BlastAppComponent_jMatrixBox_actionAdapter implements java.awt.
-        event.ActionListener {
-    BlastAppComponent adaptee;
+		public void actionPerformed(ActionEvent e) {
+			blastButton_actionPerformed(e);
+		}
+	}
 
-    BlastAppComponent_jMatrixBox_actionAdapter(BlastAppComponent
-                                               adaptee) {
-        this.adaptee = adaptee;
-    }
+    private class BlastAppComponent_blastStopButton_actionAdapter implements
+			java.awt.event.ActionListener {
+		public void actionPerformed(ActionEvent e) {
+			blastStopButton_actionPerformed(e);
+		}
+	}
 
-    public void actionPerformed(ActionEvent e) {
-        adaptee.jMatrixBox_actionPerformed(e);
-    }
-}
+    private class BlastAppComponent_jDBList_listSelectionListener implements
+			ListSelectionListener {
 
+		public void valueChanged(ListSelectionEvent e) {
+			if (e.getValueIsAdjusting()) {
+				return;
+			}
 
-class BlastAppComponent_jFrameShiftPaneltyBox_actionAdapter implements
-        java.awt.event.ActionListener {
-    BlastAppComponent adaptee;
+			jDBList_actionPerformed(e);
+		}
+	}
 
-    BlastAppComponent_jFrameShiftPaneltyBox_actionAdapter(
-            BlastAppComponent
-            adaptee) {
-        this.adaptee = adaptee;
-    }
-
-    public void actionPerformed(ActionEvent e) {
-        adaptee.jFrameShiftPaneltyBox_actionPerformed(e);
-    }
-}
-
-
-class BlastAppComponent_lowComplexFilterBox_actionAdapter implements
-        java.awt.event.ActionListener {
-    BlastAppComponent adaptee;
-
-    BlastAppComponent_lowComplexFilterBox_actionAdapter(
-            BlastAppComponent
-            adaptee) {
-        this.adaptee = adaptee;
-    }
-
-    public void actionPerformed(ActionEvent e) {
-        adaptee.lowComplexFilterBox_actionPerformed(e);
-    }
-}
-
-
-class BlastAppComponent_blastButton_actionAdapter implements java.awt.
-        event.ActionListener {
-    BlastAppComponent adaptee;
-
-    BlastAppComponent_blastButton_actionAdapter(BlastAppComponent
-                                                adaptee) {
-        this.adaptee = adaptee;
-    }
-
-    public void actionPerformed(ActionEvent e) {
-        adaptee.blastButton_actionPerformed(e);
-    }
-}
-
-class BlastAppComponent_blastStopButton_actionAdapter implements java.
-        awt.event.ActionListener {
-    BlastAppComponent adaptee;
-
-    BlastAppComponent_blastStopButton_actionAdapter(
-            BlastAppComponent
-            adaptee) {
-        this.adaptee = adaptee;
-    }
-
-    public void actionPerformed(ActionEvent e) {
-        adaptee.blastStopButton_actionPerformed(e);
-    }
 }
