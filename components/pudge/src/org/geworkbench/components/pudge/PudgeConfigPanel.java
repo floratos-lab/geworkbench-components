@@ -1,6 +1,8 @@
 package org.geworkbench.components.pudge;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Cursor;
 import java.awt.Font;
 import java.io.Serializable;
 import java.io.File;
@@ -14,8 +16,13 @@ import javax.swing.JCheckBox;
 import javax.swing.ToolTipManager;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
 
 import org.geworkbench.analysis.AbstractSaveableParameterPanel;
+import org.geworkbench.util.BrowserLauncher;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -36,8 +43,16 @@ public class PudgeConfigPanel extends AbstractSaveableParameterPanel implements 
     private static final int tooltipDelay = 10000;
     private JFormattedTextField jobname = new JFormattedTextField();
     private JFormattedTextField natives = new JFormattedTextField();
-	private JCheckBox academic = new JCheckBox("Non-Profit or Aacademic User");
+	private JCheckBox academic = new JCheckBox("");
     private JFileChooser jfc = new JFileChooser();
+	private String mainMessage = "<html>I am a non-profit/academic user and this server will<br>"
+			+ "be used solely for educational purposes or for basic<br>"
+			+ "research intended to advance scientific knowledge.</html>";
+	private String popMessage = "<html>Some of the external applications are restricted by their authors<br>"
+			+ "to academic users. Most of the applications are open to all users.</html>";
+	private String linkMessage = "<html><u>Click to see the list of restricted software</u></html>";
+	private String popURL = "http://wiki.c2b2.columbia.edu/honiglab_public/index.php?"
+			+ "title=Software:Show_Results#Applications_Restricted_to_Academic_Users";
 
     public PudgeConfigPanel()
     {
@@ -60,11 +75,37 @@ public class PudgeConfigPanel extends AbstractSaveableParameterPanel implements 
 	ob.addActionListener(new OpenAction());
 	builder.append(ob, natives);
 	ToolTipManager.sharedInstance().setDismissDelay(tooltipDelay);
-	academic.setToolTipText("<html>Some of the external applications are restricted by their authors to academic users.<br>" +
-			"Most of the applications are open to all users.<br>" +
-			"For the list of restricted software with an alternative, check help on pudge analysis. <br>" +
-			"Check if this server will be used solely for educational purposes or for basic research intended to advance scientific knowledge.</html>");
-	builder.append(academic);
+	JLabel lb = new JLabel(mainMessage);
+	lb.setToolTipText(popMessage);
+
+	JLabel url = new JLabel(linkMessage);
+	url.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+	url.setToolTipText(popMessage);
+	url.addMouseListener(new MouseAdapter() {
+			public void mousePressed(MouseEvent me) {
+				try {
+					BrowserLauncher.openURL(popURL);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+
+			public void mouseEntered(MouseEvent evt) {
+				evt.getComponent().setForeground(new Color(0xC0, 0xC0, 0xF0));
+
+			}
+
+			public void mouseExited(MouseEvent evt) {
+				evt.getComponent().setForeground(Color.BLACK);
+			}
+		});
+
+	BorderLayout bl = new BorderLayout();
+	bl.setVgap(5);
+	JPanel lbPane = new JPanel(bl);
+	lbPane.add(lb, BorderLayout.CENTER);
+	lbPane.add(url, BorderLayout.SOUTH);
+	builder.append(academic, lbPane);
 	
 	this.add(builder.getPanel(), BorderLayout.CENTER);
 	setDefaultParameters();
