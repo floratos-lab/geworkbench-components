@@ -34,7 +34,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
+import java.util.Set; 
 import java.util.TreeMap;
 import java.util.Vector;
 
@@ -2941,6 +2941,37 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 			this(true);
 		}
 
+		private String insertLineBreaker(Object value)
+		{
+			String toolTipText = "";
+			String str = null;
+			if (value == null )
+				return toolTipText;
+			str =  value.toString();
+			if (str.length() <= 100)
+				toolTipText = str;
+			else
+			{
+				int startIndex = 0;			 
+				while(startIndex<str.length())
+				{
+					int endIndex = startIndex + 100;
+					if (endIndex < str.length())	
+					{	while( str.charAt(endIndex) != ' ')
+							endIndex++;
+					   toolTipText += str.substring(startIndex, endIndex) + "<br>";				 
+					}
+				    else					 
+					   toolTipText += str.substring(startIndex, str.length()) ;						 
+					 
+					startIndex = endIndex;
+				}
+			}		
+			
+			
+			return toolTipText;
+		}
+		
 		public Component getTableCellRendererComponent(JTable table,
 				Object color, boolean isSelected, boolean hasFocus, int row,
 				int column) {
@@ -2998,7 +3029,9 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 					}
 				}
 			}
-			setToolTipText("Value:  " + color);
+			
+			String toolTipText = insertLineBreaker(color);			 
+			setToolTipText("<html>Value1: " + toolTipText +  "<html>");
 			return this;
 		}
 	}
