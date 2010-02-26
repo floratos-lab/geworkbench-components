@@ -74,9 +74,10 @@ public class PudgeAnalysis extends AbstractGridAnalysis implements
 			//append _geworkbench_timestamp to user specified jobname
 			//to specify pudge jobs sent from geworkbench
 			String jobname = pcp.getjobnameValue() + "_geworkbench_"
-					+ new java.sql.Timestamp(new java.util.Date().getTime());
+					+ new java.sql.Timestamp(new java.util.Date().getTime())
+							.toString().replaceAll("[-:.]", "");
 			String request = req
-					.replaceFirst("@", jobname.replaceAll(" ", "_"));
+					.replaceFirst("@", jobname.replaceAll("[^a-zA-Z0-9_]", "_"));
 			if (pcp.isAcademic())
 				request = request.replaceFirst("dummy", "academic_user");
 			OutputStream out = conn.getOutputStream();

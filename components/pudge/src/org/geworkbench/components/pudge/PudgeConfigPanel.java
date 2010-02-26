@@ -13,7 +13,6 @@ import javax.swing.JFormattedTextField;
 import javax.swing.JFileChooser;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
-import javax.swing.ToolTipManager;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
@@ -40,7 +39,6 @@ public class PudgeConfigPanel extends AbstractSaveableParameterPanel implements 
 {
     private Log log = LogFactory.getLog(this.getClass());
     private static final long serialVersionUID = 1L;
-    private static final int tooltipDelay = 10000;
     private JFormattedTextField jobname = new JFormattedTextField();
     private JFormattedTextField natives = new JFormattedTextField();
 	private JCheckBox academic = new JCheckBox("");
@@ -70,11 +68,12 @@ public class PudgeConfigPanel extends AbstractSaveableParameterPanel implements 
 	DefaultFormBuilder builder = new DefaultFormBuilder(layout);
 	builder.setDefaultDialogBorder();
 	builder.appendSeparator("Default Pudge parameters");
+	jobname.setToolTipText("<html>Please use word characters(letters, numbers, underscores)." +
+			"<br>Non-word characters will be replaced by underscores.</html>");
 	builder.append("Job Name", jobname);
 	JButton ob = new JButton("Browse for Native Structure");
 	ob.addActionListener(new OpenAction());
 	builder.append(ob, natives);
-	ToolTipManager.sharedInstance().setDismissDelay(tooltipDelay);
 	JLabel lb = new JLabel(mainMessage);
 	lb.setToolTipText(popMessage);
 
