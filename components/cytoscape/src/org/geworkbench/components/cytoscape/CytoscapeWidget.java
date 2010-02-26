@@ -105,7 +105,6 @@ public class CytoscapeWidget implements VisualPlugin {
 	static private Log log = LogFactory.getLog(CytoscapeWidget.class);
 	private AdjacencyMatrixDataSet adjSet = null;
 	private HashSet<String> dataSetIDs = new HashSet<String>();
-	private HashMap<String, String> geneIdToNameMap = new HashMap<String, String>();
 	private DiscreteMapping nodeDm = null, edgeDm = null;
 
 	private VisualStyle sample1VisualStyle;
@@ -239,8 +238,10 @@ public class CytoscapeWidget implements VisualPlugin {
 		
 		DSDataSet<?> dataSet = e.getDataSet();
 		if (dataSet instanceof AdjacencyMatrixDataSet) {
-			adjSet = (AdjacencyMatrixDataSet) dataSet;
+			adjSet = (AdjacencyMatrixDataSet) dataSet;		 
 			maSet = adjSet.getMatrix().getMicroarraySet();
+			this.getGeneIdToNameMap();
+			
 			if (maSet != null)
 				swissprotIdToMarkerIdMap = getSwissProtToMarkerIDMapping(maSet);
 			boolean found = false;
@@ -290,14 +291,14 @@ public class CytoscapeWidget implements VisualPlugin {
 			return;
 		}
 
-		AdjacencyMatrixDataSet adjMatrix = (AdjacencyMatrixDataSet) dataSet;
+		AdjacencyMatrixDataSet adjMatrixDataSet = (AdjacencyMatrixDataSet) dataSet;
 		Set<?> networkSet = Cytoscape.getNetworkSet();
 		for (Object network : networkSet) {
 			String id = null;
 			if (network instanceof FingCyNetwork) {
 				id = ((FingCyNetwork) network).getIdentifier();
 				CyNetwork cyNetwork = Cytoscape.getNetwork(id);
-				if (cyNetwork.getTitle().equals(adjMatrix.getNetworkName())) {
+				if (cyNetwork.getTitle().equals(adjMatrixDataSet.getNetworkName())) {
 					Cytoscape.destroyNetwork(cyNetwork);
 					return;
 				}
@@ -325,6 +326,17 @@ public class CytoscapeWidget implements VisualPlugin {
 		}
 		return results;
 	}
+	
+	public void memoryUsage() {
+		Runtime rtime = Runtime.getRuntime();
+		System.out.println("Total Memory---->" + rtime.totalMemory());
+		System.out.println("Free Memory---->" + rtime.freeMemory());
+		System.out.println("Used Memory---->"
+				+ (rtime.totalMemory() - rtime.freeMemory()));
+		System.out.println("Used Memory---->");
+
+	}
+
 
 	private void createEdge(CyNode n1, CyNode n2, String geneId1, String geneId2, String type)
 	{
@@ -419,7 +431,7 @@ public class CytoscapeWidget implements VisualPlugin {
 		 
 	}
 	
-	private CyNode createNode(String geneIdStr) {
+	private CyNode createNode(String geneIdStr, HashMap<String, String> geneIdToNameMap) {
 		boolean isInSelectedMicroarray = true;
 		Integer geneId = null;
 		
@@ -575,7 +587,7 @@ public class CytoscapeWidget implements VisualPlugin {
 	} 
 	
 
-	private void createSubNetwork(int geneId, double threshold, int level) {
+	private void createSubNetwork(int geneId, HashMap<String, String> geneIdToNameMap, double threshold, int level) {
 
 		if (level == 0) {
 			return;
@@ -602,18 +614,18 @@ public class CytoscapeWidget implements VisualPlugin {
 				continue;
 
 			// process the two nodes
-			CyNode n1 = createNode(String.valueOf(geneId));		   
-			CyNode n2 = createNode(key.toString());
+			CyNode n1 = createNode(String.valueOf(geneId), geneIdToNameMap);		   
+			CyNode n2 = createNode(key.toString(),geneIdToNameMap);
 
 			createEdge(n1, n2, String.valueOf(geneId),String.valueOf(key),type );
 			
-		    createSubNetwork(key, threshold, level - 1);
+		    createSubNetwork(key, geneIdToNameMap, threshold, level - 1);
 
 			 
 		} // end of the loop for map
 	}
 
-	private void createSubNetwork(String geneId, double threshold, int level) {
+	private void createSubNetwork(String geneId, HashMap<String, String> geneIdToNameMap, double threshold, int level) {
 
 		if (level == 0) {
 			return;
@@ -640,13 +652,13 @@ public class CytoscapeWidget implements VisualPlugin {
 				continue;
 
 			// process the two nodes
-			CyNode n1 = createNode(geneId);		   
-			CyNode n2 = createNode(key );
+			CyNode n1 = createNode(geneId, geneIdToNameMap);		   
+			CyNode n2 = createNode(key, geneIdToNameMap);
 
 			// process the edge connecting geneId and key
 			createEdge(n1, n2, geneId, key, type );
 			
-		    createSubNetwork(key, threshold, level - 1);
+		    createSubNetwork(key, geneIdToNameMap,threshold, level - 1);
 
 			 
 		} // end of the loop for map
@@ -826,22 +838,9 @@ public class CytoscapeWidget implements VisualPlugin {
 		adjSet.setNetworkName(name);
 		cytoNetwork = Cytoscape.createNetwork(name);
 
-		Object[] list = null;
-
-		if (adjSet != null) {
-			list = adjSet.getValuesForName("GENEMAP");
-			if (geneIdToNameMap != null)
-				geneIdToNameMap.clear();
-
-			if (list != null && list.length > 0) {
-				geneIdToNameMap = (HashMap<String, String>) list[0];
-			}
-
-		}
-
 		// 2) DRAW NETWORK event
 	 
-		drawCompleteNetwork(adjSet.getMatrix(), adjSet.getThreshold());
+		drawCompleteNetwork(adjSet.getMatrix(), getGeneIdToNameMap(), adjSet.getThreshold());
 		// if (adjSet.getGeneId() == -1) {
 		// drawCompleteNetwork(adjSet.getMatrix(), adjSet.getThreshold());
 		// } else {
@@ -885,7 +884,24 @@ public class CytoscapeWidget implements VisualPlugin {
 		}
 	}
 
-	void drawCompleteNetwork(AdjacencyMatrix adjMatrix, double threshold) {
+	private HashMap<String, String> getGeneIdToNameMap()
+	{
+		HashMap<String, String> map =  new HashMap<String, String>();
+
+		Object[] list = null;
+		if (adjSet != null) {
+			list = adjSet.getValuesForName("GENEMAP");			 
+			if (list != null && list.length > 0 && list[0] != null) {
+				map = (HashMap<String, String>) list[0];
+			}
+
+		}
+		return map;
+	
+	
+	}
+	
+	void drawCompleteNetwork(AdjacencyMatrix adjMatrix, HashMap<String, String> geneIdToNameMap, double threshold) {
 	 
 		for (int cx = 0; cx < Cytoscape.getCurrentNetwork().getEdgeCount(); cx++) {
 			Cytoscape.getCurrentNetwork().removeEdge(cx, true);
@@ -897,7 +913,7 @@ public class CytoscapeWidget implements VisualPlugin {
 		while (keysIt.hasNext()) {
 			i++;
 			int key = keysIt.next().intValue();
-			createSubNetwork(key, threshold, 1);
+			createSubNetwork(key, geneIdToNameMap, threshold, 1);
 			log.debug("iteration: " + i);
 		}
 		
@@ -907,7 +923,7 @@ public class CytoscapeWidget implements VisualPlugin {
 		while (keysNotInMicroarray.hasNext()) {
 			i++;
 			String key = keysNotInMicroarray.next();
-			createSubNetwork(key, threshold, 1);
+			createSubNetwork(key, geneIdToNameMap, threshold, 1);
 			log.debug("iteration: " + i);
 		}
 		
@@ -915,10 +931,10 @@ public class CytoscapeWidget implements VisualPlugin {
 		// I use cytoscape's build-in layout instead of yfiles layout to avoid
 		// duplicates entries in yfiles's menu.
 		new ForceDirectedLayout(Cytoscape.getCurrentNetworkView()).doLayout();
-	 
+		memoryUsage();
 		new SpringEmbeddedLayouter(Cytoscape.getCurrentNetworkView())
 				.doLayout();
-	 
+		 
 		Cytoscape.getCurrentNetworkView().fitContent();
 	
 		 
