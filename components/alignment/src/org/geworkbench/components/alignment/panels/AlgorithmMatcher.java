@@ -86,8 +86,8 @@ public class AlgorithmMatcher {
 			new DatabaseInfo("refseq_mrna", "mRNA from NCBI"),
 			new DatabaseInfo("refseq_genomic", "Genomic from NCBI"),
 			new DatabaseInfo("est", "GenBank+EMBL+DDBJ from EST"),
-			new DatabaseInfo("est_human", "Human subset of est"),
-			new DatabaseInfo("est_mouse", "Mouse subset of est"),
+			new DatabaseInfo("est_human", "Human subset of EST"),
+			new DatabaseInfo("est_mouse", "Mouse subset of EST"),
 			new DatabaseInfo("est_others", "Other than human or mouse"),
 			new DatabaseInfo("gss", "Genome Survey Sequence"),
 			new DatabaseInfo("htgs",
@@ -111,12 +111,7 @@ public class AlgorithmMatcher {
 			new DatabaseInfo("month", "Recent GenBank+EMBL+DDBJ+PDB"),
 			new DatabaseInfo("pdb",
 					"3D structure seqeuences from Protein Data Bank"),
-			new DatabaseInfo("env_nr", "CDS translations"),
-			new DatabaseInfo("Smart v4.0", "663 PSSMs from Smart"),
-			new DatabaseInfo("Pfam v11.0", "7255 PSSMs from Pfam"),
-			new DatabaseInfo("COG v1.00", "4873 PSSMs from NCBI COG"),
-			new DatabaseInfo("KOG v1.00", "4825 PSSMs from NCBI KOG"),
-			new DatabaseInfo("CDD v2.05", "11399 PSSMs from NCBI curated cd set") };
+			new DatabaseInfo("env_nr", "CDS translations")};
 	
 	private static final String[][] nucleotideDBdescriptionArray = new String[nucleotideDBdescription.length][2];
 	private static final String[][] proteinDBdescriptionArray  = new String[proteinDBdescription.length][2];
@@ -147,8 +142,8 @@ public class AlgorithmMatcher {
         "Database of GenBank + EMBL + DDBJ\n" +
         "sequences from EST division.", // est
         
-        "Human subset of est.", // est_human
-        "Mouse subset of est.", // est_mouse
+        "Human subset of EST.", // est_human
+        "Mouse subset of EST.", // est_mouse
         "Subset of est other than human or mouse.", // est_others
         
         "Genome Survey Sequence, includes\n" + 
@@ -221,18 +216,9 @@ public class AlgorithmMatcher {
         "structure records from the Protein Data Bank.", // pdb
 
         "Non-redundant CDS translations\n" +
-        "from env_nt entries.", // env_nr
+        "from env_nt entries." // env_nr
         
-        "663 PSSMs from Smart,\n" +
-        "no longer actively maintained.", // Smart v4.0 ²
-        
-        "7255 PSSMs from Pfam, not the latest.", // Pfam v11.0 ²
-        "4873 PSSMs from NCBI COG set.", // COG v1.00 ²
-        
-        "4825 PSSMs from NCBI KOG set\n" +
-        "(eukaryotic COG equivalent).", // KOG v1.00 ²
-        
-        "11399 PSSMs from NCBI curated cd set." // CDD V2.05 ²
+
     };
 
     public AlgorithmMatcher() {
