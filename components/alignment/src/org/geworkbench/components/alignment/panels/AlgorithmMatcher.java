@@ -7,11 +7,10 @@ package org.geworkbench.components.alignment.panels;
  * <p>Company: Columbia University</p>
  *
  * @author not attributable
- * @version 1.0
+ * @version $Id$
  */
 
 public class AlgorithmMatcher {
-
 
     public static final String GAP0 = "Existence: 11 Extension: 1";
     public static final String GAP1 = "Existence:  9 Extension: 2";
@@ -63,43 +62,74 @@ public class AlgorithmMatcher {
     public static final String BLASTPROGRAM4 = "blastp";
     public static final String BLASTPROGRAM5 = "tblastn";
     public static final String BLASTPROGRAM0 = "Please select a program first.";
-
-    private static final String[] nucleotideDBdescription = {
-        "nr                        All GenBank+EMBL+DDBJ+PDB sequences",
-        "refseq_mrna       mRNA from NCBI",
-        "refseq_genomic  Genomic from NCBI",
-        "est                      GenBank+EMBL+DDBJ from EST",
-        "est_human          Human subset of est",
-        "est_mouse          Mouse subset of est",
-        "est_others          Other than human or mouse",
-        "gss                      Genome Survey Sequence",
-        "htgs                    Unfinished High Throughput Genomic Sequences",
-        "pat                      GenBank's Patent division nucleotides",
-        "pdb                     3D structure seqeuences from Protein Data Bank",
-        "month                 Recent GenBank+EMBL+DDBJ+PDB sequences",
-        "alu_repeats        Select Alu repeats from REPBASE",
-        "dbsts                  GenBank + EMBL + DDBJ",
-        "chromosome       Complete chromosomes from NCBI RSP",
-        "wgs                     Assemblies of Whole Genome Shotgun sequences",
-        "env_nt                Sequences from environmental samples"
-    };
-
-    private static final String[] proteinDBdescription = {
-        "nr                        All GenBank+EMBL+DDBJ+PDB sequences",
-        "refseq                 NCBI Protein sequences",
-        "swissprot            SWISS-PROT protein sequences",
-        "pat                      GenBank's Patent division",
-        "month                 Recent GenBank+EMBL+DDBJ+PDB",
-        "pdb                     3D structure seqeuences from Protein Data Bank",
-        "env_nr                CDS translations",
-        "Smart v4.0          663 PSSMs from Smart",
-        "Pfam v11.0         7255 PSSMs from Pfam",
-        "COG v1.00          4873 PSSMs from NCBI COG",
-        "KOG v1.00          4825 PSSMs from NCBI KOG",
-        "CDD v2.05          11399 PSSMs from NCBI curated cd set"
-    };
-
     
+    private static class DatabaseInfo {
+    	private String abbreviation;
+		private String description;
+    	
+    	DatabaseInfo(String abbreviation, String description) {
+    		this.abbreviation = abbreviation;
+    		this.description = description;
+    	}
+
+    	String getAbbreviation() {
+			return abbreviation;
+		}
+
+		String getDescription() {
+			return description;
+		}
+    }
+
+    private static final DatabaseInfo[] nucleotideDBdescription = {
+			new DatabaseInfo("nr", "All GenBank+EMBL+DDBJ+PDB sequences"),
+			new DatabaseInfo("refseq_mrna", "mRNA from NCBI"),
+			new DatabaseInfo("refseq_genomic", "Genomic from NCBI"),
+			new DatabaseInfo("est", "GenBank+EMBL+DDBJ from EST"),
+			new DatabaseInfo("est_human", "Human subset of est"),
+			new DatabaseInfo("est_mouse", "Mouse subset of est"),
+			new DatabaseInfo("est_others", "Other than human or mouse"),
+			new DatabaseInfo("gss", "Genome Survey Sequence"),
+			new DatabaseInfo("htgs",
+					"Unfinished High Throughput Genomic Sequences"),
+			new DatabaseInfo("pat", "GenBank's Patent division nucleotides"),
+			new DatabaseInfo("pdb",
+					"3D structure seqeuences from Protein Data Bank"),
+			new DatabaseInfo("month", "Recent GenBank+EMBL+DDBJ+PDB sequences"),
+			new DatabaseInfo("alu_repeats", "Select Alu repeats from REPBASE"),
+			new DatabaseInfo("dbsts", "GenBank + EMBL + DDBJ"),
+			new DatabaseInfo("chromosome", "Complete chromosomes from NCBI RSP"),
+			new DatabaseInfo("wgs",
+					"Assemblies of Whole Genome Shotgun sequences"),
+			new DatabaseInfo("env_nt", "Sequences from environmental samples") };
+
+	private static final DatabaseInfo[] proteinDBdescription = {
+			new DatabaseInfo("nr", "All GenBank+EMBL+DDBJ+PDB sequences"),
+			new DatabaseInfo("refseq", "NCBI Protein sequences"),
+			new DatabaseInfo("swissprot", "SWISS-PROT protein sequences"),
+			new DatabaseInfo("pat", "GenBank's Patent division"),
+			new DatabaseInfo("month", "Recent GenBank+EMBL+DDBJ+PDB"),
+			new DatabaseInfo("pdb",
+					"3D structure seqeuences from Protein Data Bank"),
+			new DatabaseInfo("env_nr", "CDS translations"),
+			new DatabaseInfo("Smart v4.0", "663 PSSMs from Smart"),
+			new DatabaseInfo("Pfam v11.0", "7255 PSSMs from Pfam"),
+			new DatabaseInfo("COG v1.00", "4873 PSSMs from NCBI COG"),
+			new DatabaseInfo("KOG v1.00", "4825 PSSMs from NCBI KOG"),
+			new DatabaseInfo("CDD v2.05", "11399 PSSMs from NCBI curated cd set") };
+	
+	private static final String[][] nucleotideDBdescriptionArray = new String[nucleotideDBdescription.length][2];
+	private static final String[][] proteinDBdescriptionArray  = new String[proteinDBdescription.length][2];
+	static {
+		for(int i=0; i<nucleotideDBdescription.length; i++) {
+			nucleotideDBdescriptionArray[i][0] = nucleotideDBdescription[i].getAbbreviation();
+			nucleotideDBdescriptionArray[i][1] = nucleotideDBdescription[i].getDescription();
+		}
+		for(int i=0; i<proteinDBdescription.length; i++) {
+			proteinDBdescriptionArray[i][0] = proteinDBdescription[i].getAbbreviation();
+			proteinDBdescriptionArray[i][1] = proteinDBdescription[i].getDescription();
+		}
+	}
     
     private static final String[] nucleotideDBdetails = {
         "All GenBank+EMBL+DDBJ+PDB sequences\n" +
@@ -242,24 +272,19 @@ public class AlgorithmMatcher {
 
     /**
      * Match to correct database.
-     * @param programName String
-     * @return String[]
+     * 
      */
-    public static String[] translateToArray(String programName) {
+    static String[][] translateToArray(String programName) {
 		if (programName.equalsIgnoreCase("blastp")) {
-			return proteinDBdescription;
+			return proteinDBdescriptionArray;
 		} else if (programName.equalsIgnoreCase("blastn")) {
-			return nucleotideDBdescription;
+			return nucleotideDBdescriptionArray;
 		} else if (programName.startsWith("tblast")) {
-			return nucleotideDBdescription;
+			return nucleotideDBdescriptionArray;
 		} else if (programName.equalsIgnoreCase("blastx")) {
-			return proteinDBdescription;
-		} else if (programName.equalsIgnoreCase("gridblast.cu-genome.org")) {
-			return new String[] { "http://adgate.cu-genome.org:8080/ogsa/services/core/registry/ContainerRegistryService" };
-		} else if (programName.equalsIgnoreCase("informatics40")) {
-			return new String[] { "http://156.145.235.50:8081/ogsa/services/core/registry/ContainerRegistryService" };
+			return proteinDBdescriptionArray;
 		} else {
-			return new String[] {};
+			return null;
 		}
 	}
 

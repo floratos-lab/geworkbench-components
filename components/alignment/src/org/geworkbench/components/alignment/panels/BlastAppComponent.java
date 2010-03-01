@@ -2,6 +2,7 @@ package org.geworkbench.components.alignment.panels;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
@@ -11,11 +12,11 @@ import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.io.IOException;
 import java.util.Date;
-import java.util.StringTokenizer;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.DefaultComboBoxModel;
+import javax.swing.DefaultListSelectionModel;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -28,17 +29,21 @@ import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
+import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.JToolBar;
-import javax.swing.ListModel;
+import javax.swing.JViewport;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
 import javax.swing.border.Border;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableModel;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -94,7 +99,7 @@ public class BlastAppComponent extends
                                   //   "Double Frame (for DNA sequence to DNA DB)"
     };
 
-    private JList jDBList = new JList();
+    private JTable jDBList = null;
     private JButton blastButton = new JButton();
     private JScrollPane jScrollPane1 = new JScrollPane();
 
@@ -207,7 +212,31 @@ public class BlastAppComponent extends
 
         jAdvancedPane = new JPanel();
 
-        jDBList = new JList();
+        jDBList = new JTable() // customized only to hide the header
+        {
+			private static final long serialVersionUID = -7546361375519248646L;
+
+			protected void configureEnclosingScrollPane() {
+                Container p = getParent();
+                if (p instanceof JViewport) {
+                    Container gp = p.getParent();
+                    if (gp instanceof JScrollPane) {
+                        JScrollPane scrollPane = (JScrollPane)gp;
+                        // Make certain we are the viewPort's view and not, for
+                        // example, the rowHeaderView of the scrollPane -
+                        // an implementor of fixed columns might do this.
+                        JViewport viewport = scrollPane.getViewport();
+                        if (viewport == null || viewport.getView() != this) {
+                            return;
+                        }
+//                        scrollPane.setColumnHeaderView(getTableHeader());
+                        scrollPane.getViewport().setScrollMode(JViewport.BACKINGSTORE_SCROLL_MODE );
+                        scrollPane.setBorder(UIManager.getBorder("Table.scrollPaneBorder"));
+                    }
+                }
+            }
+        };
+
         blastButton = new JButton();
         jScrollPane1 = new JScrollPane();
         jProgramBox = new JComboBox();
@@ -299,7 +328,6 @@ public class BlastAppComponent extends
         jAdvancedPane.setLayout(gridBagLayout3);
         jDBList.setToolTipText("Select a database");
         jDBList.setVerifyInputWhenFocusTarget(true);
-        jDBList.setVisibleRowCount(1);
         jDBList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         jProgramBox.addItem("Select a program");
         jProgramBox.addItem("blastn");
@@ -321,7 +349,7 @@ public class BlastAppComponent extends
         jTabbedPane1.setMinimumSize(new Dimension(5, 5));
         jProgramBox.addActionListener(new
                                       BlastAppComponent_jProgramBox_actionAdapter());
-        jDBList.addListSelectionListener(new BlastAppComponent_jDBList_listSelectionListener() );
+        jDBList.getSelectionModel().addListSelectionListener(new BlastAppComponent_jDBList_listSelectionListener() );
 
         // details of four combo boxes on plastx panel
         // (1)
@@ -558,9 +586,9 @@ public class BlastAppComponent extends
 
         String selectedProgramName = (String) cb.getSelectedItem();
         if (selectedProgramName != null) {
-        	jDBList.setSelectedIndex(0);
-        	JList tempList = new JList(AlgorithmMatcher.translateToArray((String)selectedProgramName));
-            ListModel listModel = tempList.getModel();
+        	//jDBList.setRowSelectionInterval(0, 0); // TODO is this necessary?
+        	final String[] columnNames = {"abbreviate", "description"};
+            TableModel listModel = new DefaultTableModel(AlgorithmMatcher.translateToArray((String)selectedProgramName), columnNames);
         	jDBList.setModel(listModel);
             (jScrollPane1.getViewport()).add(jDBList, null);
             String[] model = AlgorithmMatcher.translateToMatrices(
@@ -585,8 +613,8 @@ public class BlastAppComponent extends
     }
 
     private void jDBList_actionPerformed(ListSelectionEvent e) {
-    	JList jDBList = (JList) e.getSource();
-    	int dbSelection = jDBList.getSelectedIndex();
+    	DefaultListSelectionModel jDBList = (DefaultListSelectionModel)e.getSource();
+    	int dbSelection = jDBList.getMinSelectionIndex();
     	
         String program = (String) jProgramBox.getSelectedItem();
         String dbDetails = AlgorithmMatcher.translateToDBdetails(program, dbSelection); 
@@ -669,7 +697,9 @@ public class BlastAppComponent extends
      */
     private ParameterSetting collectParameters() {
         ParameterSetting ps = new ParameterSetting();
-        String dbName = (String) jDBList.getSelectedValue();
+        int selectedRow = jDBList.getSelectedRow();
+        String dbName = (String)jDBList.getModel().getValueAt(selectedRow, 0);
+
         String programName = (String) jProgramBox.getSelectedItem();
         if (programName == null ||
             programName.equalsIgnoreCase(AlgorithmMatcher.BLASTPROGRAM0)) {
@@ -680,11 +710,6 @@ public class BlastAppComponent extends
             reportError("Please select a DATABASE to search!",
                         "Parameter Error");
             return null;
-
-        } else {
-            StringTokenizer st = new StringTokenizer(dbName);
-            dbName = st.nextToken();
-
         }
 
         boolean lowComplexFilterOn = lowComplexFilterBox.isSelected();
