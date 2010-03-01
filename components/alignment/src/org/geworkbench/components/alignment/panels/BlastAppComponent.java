@@ -94,12 +94,11 @@ public class BlastAppComponent extends
                                   //   "Double Frame (for DNA sequence to DNA DB)"
     };
 
-    JPanel checkboxPanel = new JPanel();
-    JList jDBList = new JList();
-    JButton blastButton = new JButton();
-    JScrollPane jScrollPane1 = new JScrollPane();
-    JScrollPane jScrollPane12 = new JScrollPane();
-    JComboBox jProgramBox = new JComboBox();
+    private JList jDBList = new JList();
+    private JButton blastButton = new JButton();
+    private JScrollPane jScrollPane1 = new JScrollPane();
+
+    private JComboBox jProgramBox = new JComboBox();
 
     private JPanel filterPanel = new JPanel();
     private JPanel blastxSettingPanel = new JPanel();
@@ -180,7 +179,7 @@ public class BlastAppComponent extends
     JPanel jPanel2 = new JPanel();
     JPanel jPanel3 = new JPanel();
     BorderLayout borderLayout2 = new BorderLayout();
-    XYLayout xYLayout2 = new XYLayout();
+
     BorderLayout borderLayout3 = new BorderLayout();
     JScrollPane jScrollPane4 = new JScrollPane();
     private static final int MAIN = 0;
@@ -207,7 +206,7 @@ public class BlastAppComponent extends
         jScrollPane4 = new JScrollPane();
 
         jAdvancedPane = new JPanel();
-        checkboxPanel = new JPanel();
+
         jDBList = new JList();
         blastButton = new JButton();
         jScrollPane1 = new JScrollPane();
@@ -274,7 +273,7 @@ public class BlastAppComponent extends
         jPanel2 = new JPanel();
         jPanel3 = new JPanel();
         borderLayout2 = new BorderLayout();
-        xYLayout2 = new XYLayout();
+
         borderLayout3 = new BorderLayout();
 
         //above is part of code to get rid of npe.
@@ -290,7 +289,6 @@ public class BlastAppComponent extends
         serviceProgressBar.setMinimumSize(new Dimension(10, 26));
         serviceProgressBar.setPreferredSize(new Dimension(104, 26));
 
-        checkboxPanel.setLayout(xYLayout2);
         jBasicPane.setPreferredSize(new Dimension(364, 250));
         jPanel3.setLayout(borderLayout3);
 
