@@ -22,7 +22,6 @@ import org.geworkbench.algorithms.BWAbstractAlgorithm;
 import org.geworkbench.bison.datastructure.biocollections.DSAncillaryDataSet;
 import org.geworkbench.bison.datastructure.biocollections.sequences.CSSequenceSet;
 import org.geworkbench.bison.datastructure.biocollections.sequences.DSSequenceSet;
-import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.sequence.CSAlignmentResultSet;
 import org.geworkbench.bison.datastructure.bioobjects.sequence.CSSequence;
 import org.geworkbench.bison.util.RandomNumberGenerator;
@@ -43,11 +42,11 @@ import org.globus.progtutorial.clients.BlastService.Client;
  *
  * @author XZ
  * @author zji
- * @version $Id: BlastAlgorithm.java,v 1.30 2008-08-08 18:14:28 xiaoqing Exp $
+ * @version $Id$
  */
-public class BlastAlgorithm extends BWAbstractAlgorithm implements SoapClientIn {
+public class BlastAlgorithm extends BWAbstractAlgorithm {
 
-	static Log LOG = LogFactory.getLog(RemoteBlast.class);
+	static private Log LOG = LogFactory.getLog(RemoteBlast.class);
 
 	/**
 	 * BlastAlgorithm
