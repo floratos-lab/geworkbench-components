@@ -446,7 +446,7 @@ public class BlastAlgorithm extends BWAbstractAlgorithm {
 		if (useNCBI) {
 			executeUsingNcbi();
 		} else {
-			executeNotUsingNcbi();
+			LOG.error("useNCBI is never expected to be false");
 		}
 	}
 
