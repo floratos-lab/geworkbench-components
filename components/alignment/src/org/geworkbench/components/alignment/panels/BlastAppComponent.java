@@ -553,7 +553,7 @@ public class BlastAppComponent extends
         textArea.setEditable(false);
         textArea.setLineWrap(true); //wrap text around
         textArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
-        subSeqPanel2.add(textArea,new XYConstraints(0, 84, 352, 55));
+        subSeqPanel2.add(textArea,new XYConstraints(0, 84, 352, 150));
         subSeqPanel.add(DatabaseLabel, new XYConstraints(0, 59, 61, 23));
         subSeqPanel.add(jProgramBox, new XYConstraints(84, 36, 267, 25)); //edit for new class.
        // subSeqPanel.add(jToolBar1, new XYConstraints( -1, 0, 353, 27));
