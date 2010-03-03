@@ -1,18 +1,15 @@
 package org.geworkbench.components.filtering;
 
-import org.geworkbench.analysis.AbstractAnalysis;
-import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
+import org.geworkbench.bison.datastructure.bioobjects.microarray.CSMarkerValue;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSGenepixMarkerValue;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
-import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMutableMarkerValue;
-import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
 import org.geworkbench.bison.model.analysis.FilteringAnalysis;
 
 /**
  * <p>Copyright: Copyright (c) 2003</p>
  * <p>Company: First Genetic Trust Inc.</p>
  * @author First Genetic Trust Inc.
- * @version 1.0
+ * @version $Id$
  */
 
 /**
@@ -21,8 +18,10 @@ import org.geworkbench.bison.model.analysis.FilteringAnalysis;
  * outside or inside a user defined range. The "outside"/"inside" option
  * is also a user defined.
  */
-public class GenepixExpressionThresholdFilter extends AbstractAnalysis implements FilteringAnalysis {
-    // Static fields used to designate the user option available from the
+public class GenepixExpressionThresholdFilter extends FilteringAnalysis {
+	private static final long serialVersionUID = -7467339732013411000L;
+
+	// Static fields used to designate the user option available from the
     // combo box within the normalizer's parameters panel.
     public static final int INSIDE_RANGE = 0;
 
@@ -58,46 +57,26 @@ public class GenepixExpressionThresholdFilter extends AbstractAnalysis implement
         setDefaultPanel(new GenepixExpressionThresholdFilterPanel());
     }
 
-    public int getAnalysisType() {
-        return AbstractAnalysis.TWO_CHANNEL_THRESHOLD_FILTER_TYPE;
-    }
-
-    public AlgorithmExecutionResults execute(Object input) {
-        if (input == null)
-            return new AlgorithmExecutionResults(false, "Invalid input.", null);
-        assert input instanceof DSMicroarraySet;
-        DSMicroarraySet<DSMicroarray> maSet = (DSMicroarraySet) input;
-        // Collect the parameters needed for the execution of the filter
-        cy3Min = ((GenepixExpressionThresholdFilterPanel) aspp).getCy3Min();
-        cy3Max = ((GenepixExpressionThresholdFilterPanel) aspp).getCy3Max();
-        cy5Min = ((GenepixExpressionThresholdFilterPanel) aspp).getCy5Min();
-        cy5Max = ((GenepixExpressionThresholdFilterPanel) aspp).getCy5Max();
-        rangeOption = ((GenepixExpressionThresholdFilterPanel) aspp).getRangeOption();
-        int markerCount = maSet.getMarkers().size();
-        int arrayCount = maSet.size();
-        for (int i = 0; i < arrayCount; i++) {
-            DSMicroarray mArray = maSet.get(i);
-            for (int j = 0; j < markerCount; ++j) {
-                DSMutableMarkerValue mv = (DSMutableMarkerValue) mArray.getMarkerValue(j);
-                if ((mv instanceof DSGenepixMarkerValue)) {
-                    if (shouldBeFiltered((DSGenepixMarkerValue) mv))
-                        mv.setMissing(true);
-                } else
-                    return new AlgorithmExecutionResults(false, "This filter can only be used with Genepix datasets", null);
-            }
-        }
-
-        return new AlgorithmExecutionResults(true, "No errors.", input);
-    }
+    @Override
+	protected boolean expectedType() {
+        // assuming the first marker has the same type as all other markers
+        DSMicroarray mArray = maSet.get(0);
+        CSMarkerValue mv = (CSMarkerValue) mArray.getMarkerValue(0);
+        return (mv instanceof DSGenepixMarkerValue);
+	}
+    
+	protected String expectedTypeName = "Genepix";
 
     /**
      * Check if the 2 channel signals for the argument marker value respect the
      * range restrictions specified by the user.
      *
-     * @param mv
-     * @return
      */
-    private boolean shouldBeFiltered(DSGenepixMarkerValue mv) {
+    @Override
+    protected boolean isMissing(int arrayIndex, int markerIndex) {
+        DSMicroarray mArray = maSet.get(arrayIndex);
+        DSGenepixMarkerValue mv = (DSGenepixMarkerValue) mArray.getMarkerValue(markerIndex);
+
         if (mv == null || mv.isMissing())
             return false;
         double cy3Signal = mv.getCh1Fg() - mv.getCh1Bg();
@@ -110,4 +89,15 @@ public class GenepixExpressionThresholdFilter extends AbstractAnalysis implement
                 return true;
         return false;
     }
+
+	@Override
+	protected void getParametersFromPanel() {
+        cy3Min = ((GenepixExpressionThresholdFilterPanel) aspp).getCy3Min();
+        cy3Max = ((GenepixExpressionThresholdFilterPanel) aspp).getCy3Max();
+        cy5Min = ((GenepixExpressionThresholdFilterPanel) aspp).getCy5Min();
+        cy5Max = ((GenepixExpressionThresholdFilterPanel) aspp).getCy5Max();
+        rangeOption = ((GenepixExpressionThresholdFilterPanel) aspp).getRangeOption();
+        
+        filterOption = FilterOption.MARKING;
+	}
 }

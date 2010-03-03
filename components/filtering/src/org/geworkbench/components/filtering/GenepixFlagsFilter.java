@@ -1,74 +1,50 @@
 package org.geworkbench.components.filtering;
 
-import org.geworkbench.analysis.AbstractAnalysis;
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.TreeSet;
+
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.CSExprMicroarraySet;
-import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.CSGenepixMarkerValue;
+import org.geworkbench.bison.datastructure.bioobjects.microarray.CSMarkerValue;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSGenepixMarkerValue;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMutableMarkerValue;
-import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
 import org.geworkbench.bison.model.analysis.FilteringAnalysis;
 import org.geworkbench.engine.management.Subscribe;
-
-import java.util.ArrayList;
-import java.util.TreeMap;
-import java.util.TreeSet;
 
 /**
  * <p>Copyright: Copyright (c) 2005</p>
  * <p>Company: Columbia University.</p>
  * @author Xiaoqing Zhang
- * @version 1.0
+ * @version $Id$
  */
 
 /**
  * Implementation of an flag-based filter for 2 channel data. The
  * class will filter out measures based on its flags.
  */
-public class GenepixFlagsFilter extends AbstractAnalysis implements
-        FilteringAnalysis {
-
-    private TreeMap flagsProbeNum = new TreeMap<String, Integer>();
+public class GenepixFlagsFilter extends FilteringAnalysis {
+	private static final long serialVersionUID = -6605769712853311721L;
+	
+	private Map<String, Integer> flagsProbeNum = new TreeMap<String, Integer>();
 
     public GenepixFlagsFilter() {
         setDefaultPanel(new GenepixFlagsFilterPanel());
     }
 
-    public int getAnalysisType() {
-        return AbstractAnalysis.GENEPIX_FlAGS_FILTER_TYPE;
-    }
-
-    public AlgorithmExecutionResults execute(Object input) {
-        if (input == null) {
-            return new AlgorithmExecutionResults(false, "Invalid input.", null);
-        }
-        assert input instanceof DSMicroarraySet;
-        DSMicroarraySet<DSMicroarray> maSet = (DSMicroarraySet) input;
-        // Collect the parameters needed for the execution of the filter
-
-        int markerCount = maSet.getMarkers().size();
-        int arrayCount = maSet.size();
-        for (int i = 0; i < arrayCount; i++) {
-            DSMicroarray mArray = maSet.get(i);
-            for (int j = 0; j < markerCount; ++j) {
-                DSMutableMarkerValue mv = (DSMutableMarkerValue) mArray.
-                                          getMarkerValue(j);
-                if ((mv instanceof DSGenepixMarkerValue)) {
-                    if (shouldBeFiltered((DSGenepixMarkerValue) mv)) {
-                        mv.setMissing(true);
-                    }
-                } else {
-                    return new AlgorithmExecutionResults(false,
-                            "This filter can only be used with Genepix datasets", null);
-                }
-            }
-        }
-
-        return new AlgorithmExecutionResults(true, "No errors.", input);
-    }
-
+    @Override
+	protected boolean expectedType() {
+        // TODO we need to do this a more clear way if it is really needed
+        DSMicroarray mArray = maSet.get(0);
+        CSMarkerValue mv = (CSMarkerValue) mArray.getMarkerValue(0);
+        return (mv instanceof DSGenepixMarkerValue);
+	}
+    
+	protected String expectedTypeName = "Genepix";
 
     /**
      * Check if the 2 channel signals for the argument marker value should be set as missing.
@@ -76,11 +52,15 @@ public class GenepixFlagsFilter extends AbstractAnalysis implements
      * @param mv
      * @return
      */
-    private boolean shouldBeFiltered(DSGenepixMarkerValue mv) {
+    @Override
+    protected boolean isMissing(int arrayIndex, int markerIndex) {
+        DSMicroarray mArray = maSet.get(arrayIndex);
+        DSGenepixMarkerValue mv = (DSGenepixMarkerValue) mArray.getMarkerValue(markerIndex);
+
         if (mv == null || mv.isMissing()) {
             return false;
         }
-        ArrayList selectedFlags = ((GenepixFlagsFilterPanel) aspp).
+        ArrayList<?> selectedFlags = ((GenepixFlagsFilterPanel) aspp).
                                   getSelectedFlags();
         if (selectedFlags != null) {
             return selectedFlags.contains(mv.getFlag());
@@ -96,13 +76,13 @@ public class GenepixFlagsFilter extends AbstractAnalysis implements
      */
     @Subscribe public void receive(org.geworkbench.events.ProjectEvent e,
                                    Object source) {
-        TreeSet flagSet = new TreeSet();
+        Set<String> flagSet = new TreeSet<String>();
         int unflaggedProbeNum = 0;
         flagsProbeNum.clear();
         if (e.getMessage().equals(org.geworkbench.events.ProjectEvent.CLEARED)) {
             ((GenepixFlagsFilterPanel) aspp).setFlagInfoPanel();
         } else {
-            DSDataSet dataSet = e.getDataSet();
+            DSDataSet<?> dataSet = e.getDataSet();
             if(dataSet==null){
 
                 ((GenepixFlagsFilterPanel) aspp).setFlagInfoPanel(
@@ -168,9 +148,6 @@ public class GenepixFlagsFilter extends AbstractAnalysis implements
 
 
             }
-
-
-
     }
 
     // We override here the method AbstractAnalysis.saveParametersUnderName(String name)
@@ -178,4 +155,9 @@ public class GenepixFlagsFilter extends AbstractAnalysis implements
     // this filter (due to the fact that the parameters are dataset specific).
     public void saveParametersUnderName(String name) {
           }
+
+	@Override
+	protected void getParametersFromPanel() {
+		filterOption = FilterOption.MARKING;
+	}
 }
