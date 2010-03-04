@@ -1,6 +1,5 @@
 package org.geworkbench.components.filtering;
 
-import org.geworkbench.bison.datastructure.bioobjects.microarray.CSMarkerValue;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMarkerValue;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.model.analysis.FilteringAnalysis;
@@ -49,7 +48,7 @@ public class ExpressionThresholdFilter extends FilteringAnalysis {
     @Override
     protected boolean isMissing(int arrayIndex, int markerIndex) {
         DSMicroarray mArray = maSet.get(arrayIndex);
-    	CSMarkerValue mv = (CSMarkerValue) mArray.getMarkerValue(markerIndex);
+    	DSMarkerValue mv = (DSMarkerValue) mArray.getMarkerValue(markerIndex);
 
     	if (mv == null || mv.isMissing())
             return false;
