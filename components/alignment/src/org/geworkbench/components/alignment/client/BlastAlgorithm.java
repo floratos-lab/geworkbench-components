@@ -1,25 +1,15 @@
 package org.geworkbench.components.alignment.client;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLConnection;
 import java.net.UnknownHostException;
 import java.util.Date;
-import java.util.StringTokenizer;
 
 import javax.swing.JOptionPane;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.algorithms.BWAbstractAlgorithm;
-import org.geworkbench.bison.datastructure.biocollections.DSAncillaryDataSet;
 import org.geworkbench.bison.datastructure.biocollections.sequences.CSSequenceSet;
 import org.geworkbench.bison.datastructure.biocollections.sequences.DSSequenceSet;
 import org.geworkbench.bison.datastructure.bioobjects.sequence.CSAlignmentResultSet;
@@ -34,8 +24,6 @@ import org.geworkbench.components.alignment.panels.ParameterSetting;
 import org.geworkbench.events.ProjectNodeAddedEvent;
 import org.geworkbench.util.BrowserLauncher;
 import org.geworkbench.util.FilePathnameUtils;
-import org.geworkbench.util.session.SoapClient;
-import org.globus.progtutorial.clients.BlastService.Client;
 
 /**
  * BlastAlgorithm.
@@ -48,30 +36,17 @@ public class BlastAlgorithm extends BWAbstractAlgorithm {
 
 	static private Log LOG = LogFactory.getLog(RemoteBlast.class);
 
-	/**
-	 * BlastAlgorithm
-	 *
-	 * @param aBoolean
-	 *            boolean
-	 */
-	public BlastAlgorithm(boolean aBoolean, String inputFile, Client _client) {
-		gridEnabled = aBoolean;
-		client = _client;
-		inputFilename = inputFile;
-
-	}
-
-	private Client client;
 	private BlastAppComponent blastAppComponent = null;
-	private SoapClient soapClient = null;
+
 	private boolean startBrowser;
-	private boolean gridEnabled = false;
 	private boolean jobFinished = false;
-	private String inputFilename;
-	private static final String TEMPURLFOLDER = "http://adparacel.cu-genome.org/examples/output/";
-	// "http://amdec-bioinfo.cu-genome.org/html/temp/";
+
 	private boolean useNCBI = false;
 	private ParameterSetting parameterSetting;
+
+	private CSSequenceSet sequenceDB;
+	private DSSequenceSet parentSequenceDB;
+	
 	private final static int TIMEGAP = 4000;
 	private final static int SHORTTIMEGAP = 50;
 	private final static String LINEBREAK = System.getProperty("line.separator");
@@ -157,129 +132,6 @@ public class BlastAlgorithm extends BWAbstractAlgorithm {
 	}
 
 	/**
-	 * Execute in the case when NCBI is not used.
-	 */
-	@SuppressWarnings("unchecked") // one line affected
-	private void executeNotUsingNcbi() {
-		if (soapClient != null) {
-			String cmd = soapClient.getCmd();
-			String textFile = "";
-			String htmlFile = null;
-
-			try {
-				if (cmd.startsWith("pb")) {
-
-					if (!soapClient.startRun(true)) {
-						// fail to connect or other problem.
-						blastAppComponent.reportError(BlastAppComponent.ERROR2,
-								"Server unreachable");
-						blastAppComponent
-								.setBlastDisplayPanel(BlastAppComponent.SERVER);
-						blastAppComponent
-								.blastFinished(BlastAppComponent.ERROR1);
-						return;
-					}
-					htmlFile = ((SoapClient) soapClient).getOutputfile();
-					if (stopRequested) {
-						return;
-					}
-					if (startBrowser && !stopRequested) {
-						if ((new File(htmlFile)).canRead()) {
-							BrowserLauncher.openURL(TEMPURLFOLDER
-									+ getFileName(htmlFile));
-						} else {
-							LOG.warn("CANNOT READ " + htmlFile);
-						}
-					}
-
-				} else {
-					soapClient.startRun();
-					textFile = ((SoapClient) soapClient).getOutputfile();
-				}
-			} catch (Exception exce) {
-				blastAppComponent.reportError(BlastAppComponent.ERROR2,
-						"Server unreachable");
-
-			}
-			if (blastAppComponent != null) {
-				blastAppComponent.blastFinished(cmd);
-			}
-
-			DSAncillaryDataSet blastResult = null;
-			if (htmlFile != null) {
-				if (soapClient.getSequenceDB() != null
-						&& soapClient.getSequenceDB().getFASTAFileName() != null) {
-					blastResult = new CSAlignmentResultSet(htmlFile, soapClient
-							.getSequenceDB().getFASTAFileName(), soapClient
-							.getSequenceDB());
-				}
-			} else if (cmd.startsWith("btk search")) {
-
-				blastResult = new SWDataSet(textFile, soapClient
-						.getInputFileName(), blastAppComponent.getFastaFile());
-			} else if (cmd.startsWith("btk hmm")) {
-
-				blastResult = new HMMDataSet(textFile, soapClient
-						.getInputFileName(), blastAppComponent.getFastaFile());
-			}
-			ProjectNodeAddedEvent event = new ProjectNodeAddedEvent(null, null,
-					blastResult);
-			if (blastAppComponent != null) {
-				blastAppComponent.publishProjectNodeAddedEvent(event);
-			} else {
-				blastAppComponent.publishProjectNodeAddedEvent(event);
-			}
-		}
-		// Handle grid situation.
-		if (gridEnabled) {
-			String tempFolder = FilePathnameUtils.getTemporaryFilesDirectoryPath();
-
-			CSAlignmentResultSet blastResult = new CSAlignmentResultSet(tempFolder + "a.html",
-					inputFilename, soapClient.getSequenceDB());
-			org.geworkbench.events.ProjectNodeAddedEvent event = new org.geworkbench.events.ProjectNodeAddedEvent(
-					"message", null, blastResult);
-			blastAppComponent.publishProjectNodeAddedEvent(event);
-			String output = client.submitRequest(inputFilename);
-			URL url = null;
-			try {
-				url = new URL(output);
-				String filename = "C:\\" + url.getFile();
-				blastResult.setResultFile(filename);
-				jobFinished = true;
-				BrowserLauncher.openURL(output);
-				PrintWriter bw = new PrintWriter(new FileOutputStream(filename));
-				URLConnection urlCon = url.openConnection();
-
-				String line = "";
-				BufferedReader br = new BufferedReader(new InputStreamReader(
-						urlCon.getInputStream()));
-				while ((line = br.readLine()) != null) {
-					bw.println(line);
-				}
-				br.close();
-				bw.close();
-				blastResult = new CSAlignmentResultSet(filename, inputFilename,
-						soapClient.getSequenceDB());
-			} catch (MalformedURLException e) {
-				LOG
-						.warn("MalformedURLException in the grid-enabled part of execute() in BlastAlgorithm: "
-								+ e.getMessage());
-				e.printStackTrace();
-			} catch (FileNotFoundException e) {
-				LOG
-						.warn("FileNotFoundException in the grid-enabled part of execute() in BlastAlgorithm: "
-								+ e.getMessage());
-				e.printStackTrace();
-			} catch (IOException e) {
-				LOG
-						.warn("IOException in the grid-enabled part of execute() in BlastAlgorithm: "
-								+ e.getMessage());
-				e.printStackTrace();
-			}
-		}
-	}
-
-	/**
 	 * Execute in the case when NCBI is used.
 	 */
 	@SuppressWarnings("unchecked") // two lines affected
@@ -291,9 +143,8 @@ public class BlastAlgorithm extends BWAbstractAlgorithm {
 				+ RandomNumberGenerator.getID() + ".html";
 
 		RemoteBlast blast;
-		CSSequenceSet<CSSequence> activeSequenceDB = soapClient
-				.getSequenceDB();
-		DSSequenceSet parentSequenceSet = soapClient.getParentSequenceDB();
+		CSSequenceSet<CSSequence> activeSequenceDB = sequenceDB;
+		DSSequenceSet parentSequenceSet = parentSequenceDB;
 
 		for (CSSequence sequence : activeSequenceDB) {
 			updateStatus("Uploading sequence: " + sequence);
@@ -435,7 +286,7 @@ public class BlastAlgorithm extends BWAbstractAlgorithm {
 	 * This method is only invoked by construct() defined in BWAbstractAlgorithm.
 	 */
 	protected void execute() {
-		if (soapClient == null) {
+		if (sequenceDB == null || parentSequenceDB == null) {
 			try {
 				Thread.sleep(SHORTTIMEGAP);
 			} catch (InterruptedException e) {
@@ -448,10 +299,6 @@ public class BlastAlgorithm extends BWAbstractAlgorithm {
 		} else {
 			LOG.error("useNCBI is never expected to be false");
 		}
-	}
-
-	public void setSoapClient(SoapClient client) {
-		soapClient = client;
 	}
 
 	public boolean isStartBrowser() {
@@ -490,24 +337,14 @@ public class BlastAlgorithm extends BWAbstractAlgorithm {
 		this.jobFinished = jobFinished;
 	}
 
-	private String getFileName(String path) {
-		StringTokenizer st = new StringTokenizer(path, "/");
-		String s = null;
-		if (st.countTokens() <= 1) {
-			st = new StringTokenizer(path, "\\");
-			if (st.countTokens() <= 1) {
-				return path;
-			}
-
-			while (st.hasMoreTokens())
-				s = st.nextToken();
-
-			return s;
-		}
-
-		while (st.hasMoreTokens())
-			s = st.nextToken();
-
-		return s;
+	public void setSequenceDB(CSSequenceSet sequenceDB) {
+		this.sequenceDB = sequenceDB;
+		
 	}
+
+	public void setParentSequenceDB(DSSequenceSet parentSequenceDB) {
+		this.parentSequenceDB = parentSequenceDB;
+		
+	}
+
 }
