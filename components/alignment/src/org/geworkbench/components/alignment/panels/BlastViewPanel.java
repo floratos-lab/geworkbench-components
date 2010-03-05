@@ -1,7 +1,6 @@
 package org.geworkbench.components.alignment.panels;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.LayoutManager;
 import java.awt.event.ActionEvent;
@@ -42,8 +41,6 @@ import org.geworkbench.bison.datastructure.bioobjects.sequence.CSSequence;
 import org.geworkbench.bison.util.RandomNumberGenerator;
 import org.geworkbench.components.alignment.blast.BlastDataOutOfBoundException;
 import org.geworkbench.components.alignment.blast.BlastObj;
-import org.geworkbench.components.alignment.blast.HmmObj;
-import org.geworkbench.components.alignment.blast.HmmResultParser;
 import org.geworkbench.components.alignment.blast.NCBIBlastParser;
 import org.geworkbench.engine.management.Subscribe;
 import org.geworkbench.util.FilePathnameUtils;
@@ -342,36 +339,6 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
 	 *
 	 * @return a JScrollpane containing table of Blast results.
 	 */
-	private JScrollPane getHmmListPanel() {
-		/* customized table Model */
-		HmmHitsTableModel myModel = new HmmHitsTableModel();
-		/* table based on myModel */
-		JTable table = new JTable(myModel);
-
-		// setting the size of the table and its columns
-		table.setPreferredScrollableViewportSize(new Dimension(800, 100));
-		table.getColumnModel().getColumn(0).setPreferredWidth(15);
-		table.getColumnModel().getColumn(1).setPreferredWidth(50);
-		table.getColumnModel().getColumn(2).setPreferredWidth(300);
-		table.getColumnModel().getColumn(3).setPreferredWidth(20);
-		table.getColumnModel().getColumn(4).setPreferredWidth(20);
-		table.getColumnModel().getColumn(5).setPreferredWidth(20);
-		table.getColumnModel().getColumn(6).setPreferredWidth(20);
-
-		/* set up Listener for row selection on table */
-		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		ListSelectionModel rowSM = table.getSelectionModel();
-		rowSM.addListSelectionListener(new BlastDetaillistSelectionListener());
-		table.setSelectionModel(rowSM);
-		return new JScrollPane(table);
-
-	}
-
-	/**
-	 * Returns a JScrollpane containing Blast results in table format.
-	 *
-	 * @return a JScrollpane containing table of Blast results.
-	 */
 	private JScrollPane getBlastListPanel() {
 
 		/* customized table Model */
@@ -435,93 +402,6 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
 		}
 		return false;
 
-	}
-
-	/**
-	 * This class extends AbstractTableModel and creates a table view of Blast
-	 * results.
-	 */
-	private class HmmHitsTableModel extends AbstractTableModel {
-		private static final long serialVersionUID = 1339732003693036581L;
-
-		/* array of the column names in order from left to right */
-		final String[] columnNames = {
-
-		"Name", "ID", "Description", "e-value", "align length", "%identity",
-				"Include" };
-		HmmObj hit;
-
-		/* returns the number of columns in table */
-		public int getColumnCount() {
-			return columnNames.length;
-		}
-
-		/* returns the number of rows in table */
-		public int getRowCount() {
-			if (hits == null) {
-				return 0;
-			}
-
-			return (hits.size());
-		}
-
-		/* return the header for the column number */
-		public String getColumnName(int col) {
-			return columnNames[col];
-		}
-
-		/* get the Object data to be displayed at (row, col) in table */
-		public Object getValueAt(int row, int col) {
-			/* get specific BlastObj based on row number */
-			hit = (HmmObj) hits.get(row);
-			/* display data depending on which column is chosen */
-			switch (col) {
-			case 0:
-				return hit.getName(); // name
-			case 1:
-				return hit.getID();
-			case 2:
-				return hit.getDescription(); // description
-			case 3:
-				return "N/A"; // evalue
-			case 4:
-				return "N/A"; // evalue
-				// length of hit protein
-			case 5:
-
-				// percent of sequence aligned to hit sequence
-				return "N/A"; // evalue
-			case 6:
-				return "N/A"; // evalue//whether is chosen for MSA
-			}
-			return null;
-		}
-
-		/* returns the Class type of the column c */
-		public Class getColumnClass(int c) {
-			return getValueAt(0, c).getClass();
-		}
-
-		/*
-		 * returns if the cell is editable; returns false for all cells in
-		 * columns except column 6
-		 */
-		public boolean isCellEditable(int row, int col) {
-			// Note that the data/cell address is constant,
-			// no matter where the cell appears onscreen.
-			return col >= 6;
-
-		}
-
-		/*
-		 * detect change in cell at (row, col); set cell to value; update the
-		 * table
-		 */
-		public void setValueAt(Object value, int row, int col) {
-			hit = (HmmObj) hits.get(row);
-			// hit.setInclude( ( (Boolean) value).booleanValue());
-			fireTableCellUpdated(row, col);
-		}
 	}
 
 	/**
@@ -736,23 +616,6 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
 		}
 
 		displayResults("<h4>No alignment hit is selected.");
-
-	}
-
-	/**
-	 * setResults
-	 *
-	 * @param string
-	 *            String
-	 */
-	public void setResults(String string) {
-
-		HmmResultParser hmmParser = new HmmResultParser(string);
-		hmmParser.parseResults();
-		this.hits = hmmParser.getHits();
-		blastResult.removeAll();
-		blastResult.add(getHmmListPanel());
-		revalidate();
 
 	}
 

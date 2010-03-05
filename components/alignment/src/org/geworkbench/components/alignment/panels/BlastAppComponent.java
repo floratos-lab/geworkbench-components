@@ -49,13 +49,10 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.algorithms.BWAbstractAlgorithm;
 import org.geworkbench.bison.datastructure.biocollections.sequences.CSSequenceSet;
-import org.geworkbench.bison.util.RandomNumberGenerator;
 import org.geworkbench.components.alignment.client.BlastAlgorithm;
 import org.geworkbench.engine.management.AcceptTypes;
 import org.geworkbench.engine.management.Publish;
 import org.geworkbench.events.MicroarraySetViewEvent;
-import org.geworkbench.util.FilePathnameUtils;
-import org.geworkbench.util.session.SoapClient;
 
 import com.borland.jbcl.layout.XYConstraints;
 import com.borland.jbcl.layout.XYLayout;
@@ -651,11 +648,11 @@ public class BlastAppComponent extends
             } else { //to handle new sequenceDB.
 
                 try {
-                    String tempFolder = FilePathnameUtils.getTemporaryFilesDirectoryPath();
+//                    String tempFolder = FilePathnameUtils.getTemporaryFilesDirectoryPath();
 
-                    String outputFile = tempFolder + "Blast" +
-                                        RandomNumberGenerator.getID() +
-                                        ".html";
+//                    String outputFile = tempFolder + "Blast" +
+//                                        RandomNumberGenerator.getID() +
+//                                        ".html";
                     //progressBar = new JProgressBar(0, 100);
 
                     serviceProgressBar.setForeground(Color.GREEN);
@@ -665,19 +662,24 @@ public class BlastAppComponent extends
                     if (fastaFile == null && activeSequenceDB != null) {
                         fastaFile = (CSSequenceSet) activeSequenceDB;
                     }
-                    SoapClient sc = new SoapClient(parameterSetting.
-                            getProgramName(),
-                            parameterSetting.getDbName(),
-                            outputFile);
-
-                    sc.setSequenceDB(activeSequenceDB);
-                    sc.setParentSequenceDB(sequenceDB);
+//                    SoapClient sc = new SoapClient(parameterSetting.
+//                            getProgramName(),
+//                            parameterSetting.getDbName(),
+//                            outputFile);
+//
+//                    sc.setSequenceDB(activeSequenceDB);
+//                    sc.setParentSequenceDB(sequenceDB);
                     BlastAlgorithm blastAlgo = new BlastAlgorithm();
                     blastAlgo.setUseNCBI(true);
                     blastAlgo.setParameterSetting(parameterSetting);
 
                     blastAlgo.setBlastAppComponent(this);
-                    blastAlgo.setSoapClient(sc);
+
+                    //blastAlgo.setSoapClient(sc);
+                    // sc is only used to pass these two paramteres
+                    blastAlgo.setSequenceDB(activeSequenceDB);
+                    blastAlgo.setParentSequenceDB(sequenceDB);
+                    
                     blastAlgo.start();
                     Thread.sleep(5);
 

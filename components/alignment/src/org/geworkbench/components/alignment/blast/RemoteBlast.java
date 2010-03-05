@@ -18,7 +18,6 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.geworkbench.util.session.SoapClient;
 
 /**
  * RemoteBlast is a class that implements submission of a protein sequence to
@@ -268,14 +267,18 @@ public class RemoteBlast {
 	 */
 	public void getBlast(String rid, String format) {
 		getBlastDone = false;
-		String message = RESULTPREFIX + format + "&RID=" + rid + "\r\n\r\n";
+		// workaround suggested in Tao Tao's email
+		String message = RESULTPREFIX + format + "&RID=" + rid + "&OLD_BLAST=false\r\n\r\n";
+//		String message = RESULTPREFIX + format + "&RID=" + rid + "\r\n\r\n";
 		resultURLString = "http://blast.ncbi.nlm.nih.gov/Blast.cgi?CMD=Get&FORMAT_TYPE="
 				+ format + "&RID=";
 		LOG.info(new Date() + message);
 		BlastThread blastThread = new BlastThread(message);
 		blastThread.start();
 	}
-
+	
+	private static long TIMEGAP = 4000;
+	
 	/**
 	 * This class is a Thread that retrieves Blast results by Blast RID#, which
 	 * can take some period of time. The thread continually requests results
@@ -350,7 +353,7 @@ public class RemoteBlast {
 						data = in.readLine();
 					}
 					if (!done) {
-						Thread.sleep(SoapClient.TIMEGAP);
+						Thread.sleep(TIMEGAP);
 					} else {
 						// TODO Remove the new feature. WE need figure out a way
 						// to download the images later.
