@@ -23,8 +23,5 @@
 	<classpathentry kind="lib" path="lib/yLayouts.jar"/>
 	<classpathentry kind="lib" path="lib/layout.jar"/>
 	<classpathentry kind="lib" path="lib/swing-layout-1.0.1.jar"/>
-	<classpathentry kind="lib" path="lib/AutomaticLayout.jar"/>
-	<classpathentry kind="lib" path="lib/com-nerius-math-xform.jar"/>
-	<classpathentry kind="lib" path="lib/jaxb-impl.jar"/>
 	<classpathentry kind="output" path="classes"/>
 </classpath>
