@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
+import org.geworkbench.engine.config.UILauncher;
+
 import cytoscape.init.CyInitParams;
 
 /**
@@ -17,21 +19,14 @@ import cytoscape.init.CyInitParams;
 public class InitParam implements CyInitParams {
 	private String[] args;
 	private Properties props;
-	private String[] graphFiles;
-	private String[] plugins;
 	private Properties vizmapProps;
 	private String sessionFile;
-	private String[] nodeAttrFiles;
-	private String[] edgeAttrFiles;
-	private String[] expressionFiles;
 	private int mode;
 	
 	InitParam() {
 		mode = CyInitParams.TEXT;
 		props = new Properties();
 
-		plugins = new String[1];
-		plugins[0] = "plugins_v2_4";
 		vizmapProps = new Properties();
 
 	}
@@ -45,23 +40,41 @@ public class InitParam implements CyInitParams {
 	}
 
 	public List<String> getGraphFiles() {
-		return createList(graphFiles);
+		return new ArrayList<String>();
 	}
 
 	public List<String> getEdgeAttributeFiles() {
-		return createList(edgeAttrFiles);
+		return new ArrayList<String>();
 	}
 
 	public List<String> getNodeAttributeFiles() {
-		return createList(nodeAttrFiles);
+		return new ArrayList<String>();
 	}
 
 	public List<String> getExpressionFiles() {
-		return createList(expressionFiles);
+		return new ArrayList<String>();
 	}
 
+	// TODO it needs to be verified which jar files are really necessary
 	public List<String> getPlugins() {
-		return createList(plugins);
+		List<String> plugins = new ArrayList<String>();
+		final String pluginDirectory = UILauncher.getComponentsDirectory()+"/cytoscape/lib/";
+		plugins.add(pluginDirectory+"AutomaticLayout.jar");
+		plugins.add(pluginDirectory+"yLayouts.jar");
+		plugins.add(pluginDirectory+"biopax.jar");
+		plugins.add(pluginDirectory+"cPath.jar");
+		plugins.add(pluginDirectory+"CytoscapeEditor.jar");
+		plugins.add(pluginDirectory+"exesto.jar");
+		plugins.add(pluginDirectory+"filter.jar");
+		plugins.add(pluginDirectory+"GraphMerge.jar");
+		plugins.add(pluginDirectory+"linkout.jar");
+		plugins.add(pluginDirectory+"ManualLayout.jar");
+		plugins.add(pluginDirectory+"psi_mi.jar");
+		plugins.add(pluginDirectory+"quick_find.jar");
+		plugins.add(pluginDirectory+"SBMLReader.jar");
+		plugins.add(pluginDirectory+"TableImport.jar");
+		plugins.add(pluginDirectory+"yeast-context.jar");
+		return plugins;
 	}
 
 	public String getSessionFile() {
@@ -76,13 +89,4 @@ public class InitParam implements CyInitParams {
 		return args;
 	}
 
-	private List<String> createList(String[] vals) {
-		if (vals == null)
-			return new ArrayList<String>();
-		ArrayList<String> a = new ArrayList<String>(vals.length);
-		for (int i = 0; i < vals.length; i++)
-			a.add(i, vals[i]);
-
-		return a;
-	}
 }

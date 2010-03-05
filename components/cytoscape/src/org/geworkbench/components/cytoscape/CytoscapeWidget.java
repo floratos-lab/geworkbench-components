@@ -98,6 +98,33 @@ public class CytoscapeWidget implements VisualPlugin {
 						new ExpandMenuListener(CytoscapeWidget.this));
 			}
 			log.debug(evnt.getPropertyName());
+			
+			/*
+			 * This particular case in cytoscape needs context class loader to be
+			 * set. It is in a separate thread, we cannot and don't need to reset
+			 * the context class loader.
+			 */
+			StackTraceElement[] stackTrace = Thread.currentThread()
+					.getStackTrace();
+			boolean isTaskWrapperRun = false;
+			boolean isWriteSessionToDisk = false;
+			for (StackTraceElement e : stackTrace) {
+				if (e
+						.toString()
+						.equals(
+								"cytoscape.data.writers.CytoscapeSessionWriter.writeSessionToDisk(CytoscapeSessionWriter.java:240)"))
+					isWriteSessionToDisk = true;
+				if (e
+						.toString()
+						.equals(
+								"cytoscape.task.util.TaskWrapper.run(TaskManager.java:125)"))
+					isTaskWrapperRun = true;
+			}
+			/* to make sure it does not happen for unintended cases */
+			if (isTaskWrapperRun && isWriteSessionToDisk) {
+				Thread.currentThread().setContextClassLoader(
+						CytoscapeDesktop.class.getClassLoader());
+			}
 		}
 
 	}
