@@ -37,16 +37,12 @@ import org.geworkbench.util.annotation.Pathway;
  * Implementation of the <code>GeneAnnotation</code> contract
  *
  * @author First Genetic Trust
- * @version 1.0
+ * @version $Id$
  */
 public class GeneAnnotationImpl implements GeneAnnotation {
 
     static Log log = LogFactory.getLog(GeneAnnotationImpl.class);
 
-    /**
-     * Web URL prefix for obtaining Locus Link annotation
-     */
-    private static final String LOCUS_LINK_PREFIX = "http://www.ncbi.nlm.nih.gov/LocusLink/LocRpt.cgi?l=";
     /**
      * Web URL prefix for obtaining CGAP annotation
      */
@@ -116,13 +112,13 @@ public class GeneAnnotationImpl implements GeneAnnotation {
         g.setId(gene.getId());
 
         gov.nih.nci.cabio.domain.Pathway pathway = new gov.nih.nci.cabio.domain.Pathway();
-        Set genes = new HashSet();
+        Set<Gene> genes = new HashSet<Gene>();
         genes.add(g);
         pathway.setGeneCollection(genes);
         
         try {
         	ApplicationService appService = ApplicationServiceProvider.getApplicationService();
-            List pways = appService.search(
+            List<gov.nih.nci.cabio.domain.Pathway> pways = appService.search(
                     "gov.nih.nci.cabio.domain.Pathway", pathway);
             pathways = PathwayImpl.toArray(pways);
         } catch (ApplicationException e) {
@@ -311,7 +307,7 @@ public class GeneAnnotationImpl implements GeneAnnotation {
         		return null;
         	}
         	Gene g = geneList.get(i);
-        	String test = g.getTaxon().getAbbreviation();
+
         	if((g != null) && (g.getSymbol() != null) && (g.getTaxon().getAbbreviation().equals(organism))){
 	            uniqueGenes.add(new GeneAnnotationImpl(g));
         	}
@@ -371,7 +367,7 @@ public class GeneAnnotationImpl implements GeneAnnotation {
 	public String getEntrezId(Gene gene) {
         String entrezId = "";
         Collection<DatabaseCrossReference> crossReferences = gene.getDatabaseCrossReferenceCollection();
-        for (Iterator iterator = crossReferences.iterator(); iterator.hasNext();) {
+        for (Iterator<DatabaseCrossReference> iterator = crossReferences.iterator(); iterator.hasNext();) {
 			DatabaseCrossReference crossReference = (DatabaseCrossReference) iterator.next();
 			if (crossReference.getDataSourceName().equals("LOCUS_LINK_ID")){
 				entrezId = crossReference.getCrossReferenceId();
@@ -380,8 +376,6 @@ public class GeneAnnotationImpl implements GeneAnnotation {
 		}
         return entrezId;
 	}
-    /* act as a lock */
-    private boolean inProgress = false;
 
 	public AgentDiseaseResults retrieveAll(
 			DSItemList<DSGeneMarker> retrieveMarkerInfo, JMenuItem retrieveItem, CGITableModel diseaseModel, CGITableModel agentModel, ProgressBar pb) {
@@ -473,7 +467,7 @@ public class GeneAnnotationImpl implements GeneAnnotation {
                     pb.setMessage(progressMessage+"Records "+(diseaseIndex+agentIndex)+"/"+(diseaseRecords+agentRecords)+"\n");
 					if (stopAlgorithm == true) {
 						stopAlgorithm(pb);
-			    		inProgress = false;
+
 			    		retrieveItem.setEnabled(true);
 						return null;
 					}
