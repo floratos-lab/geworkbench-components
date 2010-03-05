@@ -1,16 +1,5 @@
 package org.geworkbench.components.annotations;
 
-//import gov.nih.nci.cabio.domain.Agent;
-//import gov.nih.nci.cabio.domain.DiseaseOntology;
-//import gov.nih.nci.cabio.domain.Evidence;
-//import gov.nih.nci.cabio.domain.Gene;
-//import gov.nih.nci.cabio.domain.GeneAgentAssociation;
-//import gov.nih.nci.cabio.domain.GeneDiseaseAssociation;
-//import gov.nih.nci.cabio.domain.GeneFunctionAssociation;
-//import gov.nih.nci.common.domain.DatabaseCrossReference;
-//import gov.nih.nci.system.applicationservice.ApplicationService;
-//import gov.nih.nci.system.client.ApplicationServiceProvider;
-
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -38,13 +27,10 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Observable;
@@ -116,7 +102,6 @@ import org.geworkbench.events.ProjectEvent;
 import org.geworkbench.events.SubpanelChangedEvent;
 import org.geworkbench.util.BrowserLauncher;
 import org.geworkbench.util.ProgressBar;
-import org.geworkbench.util.ProgressGraph;
 import org.geworkbench.util.Util;
 import org.geworkbench.util.annotation.Pathway;
 import org.jfree.ui.SortableTable;
@@ -890,7 +875,6 @@ public class AnnotationsPanel2 implements VisualPlugin, Observer{
 
         public Object getObjectAt(int rowIndex, int columnIndex) {
         	log.debug(rowIndex+","+columnIndex);
-        	Integer origIndex = null;
         	try{
             switch (columnIndex) {
                 case COL_MARKER:
@@ -900,14 +884,10 @@ public class AnnotationsPanel2 implements VisualPlugin, Observer{
                 case COL_DISEASE:
                 	return diseaseData[filterIndices[rowIndex]];
                 case COL_ROLE:
-                	//FIXME: why following two lines are different? Would we have a bug?
-                	origIndex = new Integer(indices[filterIndices[rowIndex]]);
                		return roleData[filterIndices[rowIndex]];
                 case COL_SENTENCE:
-                	origIndex = new Integer(indices[filterIndices[rowIndex]]);
                		return sentenceData[filterIndices[rowIndex]];
                 case COL_PUBMED:
-                	origIndex = new Integer(indices[filterIndices[rowIndex]]);
                		return pubmedData[filterIndices[rowIndex]];
                 case COL_EVSID:
                     return diseaseData[filterIndices[rowIndex]];
@@ -1077,7 +1057,6 @@ public class AnnotationsPanel2 implements VisualPlugin, Observer{
                     diseaseTable.repaint();
                     break;
                 case COL_GENE:
-                    GeneData gene = geneData[indices[rowIndex]];
 //                    if (gene.getCGAPGeneURLs().size() > 0) {
 //                        activateGene(gene);
 //                    }
@@ -1958,8 +1937,7 @@ public class AnnotationsPanel2 implements VisualPlugin, Observer{
                     PubmedData[] pubmeds = agentDiseaseResults.getPubmeds();
                     MarkerData[] markers2 = agentDiseaseResults.getMarkers2();
                     GeneData[] genes2 = agentDiseaseResults.getGenes2();
-                    //TODO: clean variables for this evsIds, since we handle evsIds in agentData now.
-                    EvsIdData[] evsIds = agentDiseaseResults.getEvsIds();
+
                     DiseaseData[] agents = agentDiseaseResults.getAgents();
                     RoleData[] agentRoles = agentDiseaseResults.getAgentRoles();
                     SentenceData[] agentSentences = agentDiseaseResults.getAgentSentences();
@@ -2100,8 +2078,7 @@ public class AnnotationsPanel2 implements VisualPlugin, Observer{
                     PubmedData[] pubmeds = agentDiseaseResults.getPubmeds();
                     MarkerData[] markers2 = agentDiseaseResults.getMarkers2();
                     GeneData[] genes2 = agentDiseaseResults.getGenes2();
-                    //TODO: clean variables for this evsIds, since we handle evsIds in agentData now.
-                    EvsIdData[] evsIds = agentDiseaseResults.getEvsIds();
+
                     DiseaseData[] agents = agentDiseaseResults.getAgents();
                     RoleData[] agentRoles = agentDiseaseResults.getAgentRoles();
                     SentenceData[] agentSentences = agentDiseaseResults.getAgentSentences();
