@@ -2,6 +2,7 @@ package org.geworkbench.components.alignment.panels;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -10,11 +11,13 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.util.Date;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListSelectionModel;
 import javax.swing.ImageIcon;
@@ -23,7 +26,6 @@ import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
-import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
@@ -48,11 +50,18 @@ import javax.swing.table.TableModel;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.algorithms.BWAbstractAlgorithm;
+import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.sequences.CSSequenceSet;
+import org.geworkbench.bison.datastructure.biocollections.sequences.DSSequenceSet;
+import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
+import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.components.alignment.client.BlastAlgorithm;
+import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.engine.management.AcceptTypes;
+import org.geworkbench.engine.management.Asynchronous;
 import org.geworkbench.engine.management.Publish;
-import org.geworkbench.events.MicroarraySetViewEvent;
+import org.geworkbench.engine.management.Subscribe;
+import org.geworkbench.events.GeneSelectorEvent;
 
 import com.borland.jbcl.layout.XYConstraints;
 import com.borland.jbcl.layout.XYLayout;
@@ -64,11 +73,22 @@ import com.borland.jbcl.layout.XYLayout;
  */
 @SuppressWarnings("unchecked")
 @AcceptTypes( {CSSequenceSet.class})
-public class BlastAppComponent extends
-        CSSequenceSetViewEventBase {
+public class BlastAppComponent implements VisualPlugin {
 	Log log = LogFactory.getLog(BlastAppComponent.class);
 
-    private JPanel jBasicPane = new JPanel();
+	// members from the base class in the previous version
+	private DSSequenceSet sequenceDB = null;
+	private CSSequenceSet activeSequenceDB = null;
+	private boolean activateMarkers = true;
+	private DSPanel<? extends DSGeneMarker> activatedMarkers = null;
+	
+	private JPanel mainPanel;
+	private JToolBar displayToolBar;
+	private JCheckBox chkAllMarkers = new JCheckBox("All Markers");
+	private JTextField sequenceNumberField;
+
+	// members from originally in this class
+	private JPanel jBasicPane = new JPanel();
     private JTabbedPane jTabbedPane1 = new JTabbedPane();
     private JTabbedPane jTabbedBlastPane = new JTabbedPane();
 
@@ -87,14 +107,6 @@ public class BlastAppComponent extends
     public static final String NCBILABEL = "NCBI BLAST Result";
     public static final String ERROR1 = "Interrupted";
     public static final String ERROR2 = "The connection to the Columbia Blast Server cannot be established, please try NCBI Blast Server.";
-
-    String[] algorithmParameter = {
-                                  "Smith-Waterman DNA",
-                                  "Smith-Waterman Protein",
-                                  "Frame (for DNA query to protein DB)",
-                                  "Frame (for protein query to DNA DB)",
-                                  //   "Double Frame (for DNA sequence to DNA DB)"
-    };
 
     private JTable jDBList = null;
     private JButton blastButton = new JButton();
@@ -146,8 +158,6 @@ public class BlastAppComponent extends
     JProgressBar progressBar1 = new JProgressBar();
     GridBagLayout gridBagLayout9 = new GridBagLayout();
 
-    JList jList2 = new JList(algorithmParameter);
-
     BorderLayout borderLayout1 = new BorderLayout();
     GridBagLayout gridBagLayout3 = new GridBagLayout();
     GridBagLayout gridBagLayout2 = new GridBagLayout();
@@ -193,13 +203,14 @@ public class BlastAppComponent extends
     
     public BlastAppComponent() {
         try {
-            jbInit();
+        	init1();
+        	init2();
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    private void jbInit() throws Exception {
+    private void init2() throws Exception {
 
         jBasicPane = new JPanel();
         jTabbedPane1 = new JTabbedPane();
@@ -265,8 +276,6 @@ public class BlastAppComponent extends
 
         progressBar1 = new JProgressBar();
         gridBagLayout9 = new GridBagLayout();
-
-        jList2 = new JList(algorithmParameter);
 
         borderLayout1 = new BorderLayout();
         gridBagLayout3 = new GridBagLayout();
@@ -428,9 +437,6 @@ public class BlastAppComponent extends
         blastxSettingPanel.setMinimumSize(new Dimension(5, 115));
         subSeqPanel1.setMinimumSize(new Dimension(10, 30));
 
-        jList2.setMaximumSize(new Dimension(209, 68));
-        jList2.setMinimumSize(new Dimension(100, 68));
-
         blastStopButton.setFont(new java.awt.Font("Arial Black", 0, 11));
         blastStopButton.setVerifyInputWhenFocusTarget(true);
         //blastStopButton.setText("STOP");
@@ -583,7 +589,7 @@ public class BlastAppComponent extends
 
         String selectedProgramName = (String) cb.getSelectedItem();
         if (selectedProgramName != null) {
-        	//jDBList.setRowSelectionInterval(0, 0); // TODO is this necessary?
+
         	final String[] columnNames = {"abbreviate", "description"};
             TableModel listModel = new DefaultTableModel(AlgorithmMatcher.translateToArray((String)selectedProgramName), columnNames);
         	jDBList.setModel(listModel);
@@ -831,11 +837,13 @@ public class BlastAppComponent extends
 
     }
 
-    protected void fireModelChangedEvent(MicroarraySetViewEvent event) {
-    	fastaFile = activeSequenceDB;
+    void jButton1_actionPerformed(ActionEvent e) {
+
+        blastFinished("OTHERS_Interrupted");
+
     }
 
-    void stopBlastAction() {
+    private void blastStopButton_actionPerformed(ActionEvent e) {
         stopButtonPushed = true;
         if (this.jTabbedPane1.getSelectedIndex() == BlastAppComponent.BLAST) {
             blastFinished("Interrupted");
@@ -848,16 +856,6 @@ public class BlastAppComponent extends
                 algo.stop();
             }
         }
-    };
-
-    void jButton1_actionPerformed(ActionEvent e) {
-
-        blastFinished("OTHERS_Interrupted");
-
-    }
-
-    private void blastStopButton_actionPerformed(ActionEvent e) {
-        stopBlastAction();
     }
 
     void jButton7_actionPerformed(ActionEvent e) {
@@ -927,6 +925,119 @@ public class BlastAppComponent extends
         return event;
     }
     
+	/**
+	 * getComponent
+	 * 
+	 * @return Component
+	 */
+	public Component getComponent() {
+		return mainPanel;
+	}
+
+	private void init1() throws Exception {
+		mainPanel = new JPanel();
+
+		displayToolBar = new JToolBar();
+		displayToolBar
+				.setLayout(new BoxLayout(displayToolBar, BoxLayout.X_AXIS));
+		chkAllMarkers.setToolTipText("Use All Markers.");
+		chkAllMarkers.setSelected(false);
+		chkAllMarkers.addActionListener(new ActionListener() {
+
+			public void actionPerformed(ActionEvent e) {
+				activateMarkers = !((JCheckBox) e.getSource()).isSelected();
+				refreshMaSetView();
+			}
+
+		});
+
+		BorderLayout borderLayout2 = new BorderLayout();
+		mainPanel.setLayout(borderLayout2);
+		sequenceNumberField = new JTextField(20);
+		sequenceNumberField.setMaximumSize(sequenceNumberField.getPreferredSize());
+		sequenceNumberField.setEditable(false);
+
+		sequenceNumberField.setText("Total Sequence Number:");
+		displayToolBar.add(chkAllMarkers, null);
+		displayToolBar.add(Box.createHorizontalStrut(5), null);
+		displayToolBar.add(sequenceNumberField);
+		mainPanel.add(displayToolBar, java.awt.BorderLayout.SOUTH);
+
+		activateMarkers = !chkAllMarkers.isSelected();
+
+	}
+	
+	private void refreshMaSetView() {
+		getDataSetView();
+		fastaFile = activeSequenceDB;
+	}
+	
+	private void getDataSetView() {
+		activateMarkers = !chkAllMarkers.isSelected();
+		if (activateMarkers) {
+			if (activatedMarkers != null && activatedMarkers.size() > 0) {
+
+				if (activateMarkers && (sequenceDB != null)) {
+					activeSequenceDB = (CSSequenceSet) ((CSSequenceSet) sequenceDB)
+							.getActiveSequenceSet(activatedMarkers);
+					sequenceNumberField.setText("Activated Sequence Number: "
+							+ activeSequenceDB.size());
+				}
+
+			} else if (sequenceDB != null) {
+				sequenceNumberField.setText("Total Sequence Number: "
+						+ sequenceDB.size());
+
+				activeSequenceDB = (CSSequenceSet) sequenceDB;
+			}
+
+		} else if (sequenceDB != null) {
+			sequenceNumberField.setText("Total Sequence Number: "
+					+ sequenceDB.size());
+		}
+
+	}
+	
+	/**
+	 * receiveProjectSelection
+	 * 
+	 * @param e -
+	 *            ProjectEvent
+	 */
+	@Subscribe
+	public void receive(org.geworkbench.events.ProjectEvent e, Object source) {
+		if (e.getMessage().equals(org.geworkbench.events.ProjectEvent.CLEARED)) {
+			fastaFile = activeSequenceDB;
+		} else {
+			DSDataSet dataSet = e.getDataSet();
+			if (dataSet instanceof DSSequenceSet) {
+				if (sequenceDB != dataSet) {
+					this.sequenceDB = (DSSequenceSet) dataSet;
+
+					activatedMarkers = null;
+				}
+			}
+		}
+		refreshMaSetView();
+	}
+	
+	/**
+	 * geneSelectorAction
+	 * 
+	 * @param e
+	 *            GeneSelectorEvent
+	 */
+	@Subscribe(Asynchronous.class)
+	public void receive(GeneSelectorEvent e, Object source) {
+		if (e.getPanel() != null && e.getPanel().size() > 0) {
+			activatedMarkers = e.getPanel().activeSubset();
+		} else {
+			activatedMarkers = null;
+		}
+		refreshMaSetView();
+	}
+
+	// following are a group of listener classes
     private class BlastAppComponent_jMatrixBox_actionAdapter implements
 			java.awt.event.ActionListener {
 
