@@ -267,9 +267,7 @@ public class RemoteBlast {
 	 */
 	public void getBlast(String rid, String format) {
 		getBlastDone = false;
-		// workaround suggested in Tao Tao's email
-		String message = RESULTPREFIX + format + "&RID=" + rid + "&OLD_BLAST=false\r\n\r\n";
-//		String message = RESULTPREFIX + format + "&RID=" + rid + "\r\n\r\n";
+		String message = RESULTPREFIX + format + "&RID=" + rid + "\r\n\r\n";
 		resultURLString = "http://blast.ncbi.nlm.nih.gov/Blast.cgi?CMD=Get&FORMAT_TYPE="
 				+ format + "&RID=";
 		LOG.info(new Date() + message);
