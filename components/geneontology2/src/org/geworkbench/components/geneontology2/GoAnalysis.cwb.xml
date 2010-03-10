@@ -5,7 +5,7 @@
 		version="1.0" author="C2B2"
 		authorURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Home"
 		toolURL="http://compbio.charite.de/index.php/ontologizer2.html"
-		tutorialURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Tutorial_-_Local_Data_Files"
+		tutorialURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Tutorial_-_Gene_Ontology_Term_Over-representation"
 		description="Gene Ontology Terms Analysis, built on Ontologizer 2.0. "
 		analysis="true">
 
