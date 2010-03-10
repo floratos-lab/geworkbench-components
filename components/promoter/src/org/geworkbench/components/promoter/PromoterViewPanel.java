@@ -176,6 +176,10 @@ public class PromoterViewPanel extends JPanel {
     private HashMap primerToMotif = new HashMap();
     private boolean fivePrimerDirection = true;
     private TranscriptionFactor currentTF;
+    private static final String JASPAR_DATA_FOLDER = "jaspar_CORE";
+    private static final String MATRIX_IDNAME_FILE = "MATRIX.txt";
+    private static final String MATRIX_ANNOTATION_FILE = "MATRIX_ANNOTATION.txt";
+    private static final String MATRIX_DATA_FILE = "MATRIX_DATA.txt";
 
     public PromoterViewPanel() {
         try {
@@ -951,7 +955,10 @@ public class PromoterViewPanel extends JPanel {
 		final int IDNAME_ID = 2;
 		final int IDNAME_NAME = 4;
 		final int IDNAME_COLUMN_NUM = 5;
-		InputStream idNameStream = PromoterViewPanel.class.getResourceAsStream("MATRIX.txt");
+		String idnameFileName = FilePathnameUtils.getDataFilesDirPath()
+				+ JASPAR_DATA_FOLDER + FilePathnameUtils.FILE_SEPARATOR + MATRIX_IDNAME_FILE;
+		File idnameFile = new File(idnameFileName);
+		InputStream idNameStream = new FileInputStream(idnameFile);
 		BufferedReader idNameReader = new BufferedReader(new InputStreamReader(idNameStream));
 		HashMap<String, String[]> idNameMap = new HashMap<String, String[]>();
 		String idNameRow = idNameReader.readLine();
@@ -969,7 +976,10 @@ public class PromoterViewPanel extends JPanel {
 		final int ANNOTATIONS_TYPE = 1;
 		final int ANNOTATIONS_VALUE = 2;
 		final int ANNOTATIONS_COLUMN_NUM = 3;
-		InputStream annotationStream = PromoterViewPanel.class.getResourceAsStream("MATRIX_ANNOTATION.txt");
+		String annotationFileName = FilePathnameUtils.getDataFilesDirPath()
+				+ JASPAR_DATA_FOLDER + FilePathnameUtils.FILE_SEPARATOR + MATRIX_ANNOTATION_FILE;
+		File annotationFile = new File(annotationFileName);
+		InputStream annotationStream = new FileInputStream(annotationFile);
 		BufferedReader annotationReader = new BufferedReader(new InputStreamReader(annotationStream));
 		HashMap<String, HashMap<String, String[]>> annotationMaps = new HashMap<String, HashMap<String, String[]>>();
 		String annotationRow = annotationReader.readLine();
@@ -995,7 +1005,10 @@ public class PromoterViewPanel extends JPanel {
 		final int DATA_INDEX = 2;
 		final int DATA_COUNT = 3;
 		final int DATA_COLUMN_NUM = 4;
-		InputStream dataStream = PromoterViewPanel.class.getResourceAsStream("MATRIX_DATA.txt");
+		String dataFileName = FilePathnameUtils.getDataFilesDirPath()
+				+ JASPAR_DATA_FOLDER + FilePathnameUtils.FILE_SEPARATOR + MATRIX_DATA_FILE;
+		File dataFile = new File(dataFileName);
+		InputStream dataStream = new FileInputStream(dataFile);
 		BufferedReader dataReader = new BufferedReader(new InputStreamReader(dataStream));
 		HashMap<String, HashMap<String, String[]>> dataMaps = new HashMap<String, HashMap<String, String[]>>();
 		String dataRow = dataReader.readLine();
