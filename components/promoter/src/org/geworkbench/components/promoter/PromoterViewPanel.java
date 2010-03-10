@@ -78,7 +78,7 @@ public class PromoterViewPanel extends JPanel {
     JPanel jPanel2 = new JPanel();
     JPanel logoPanel = new JPanel();
     TFListModel tfListModel = new TFListModel();
-    Vector tfNameSet;
+    Vector<String> tfNameSet;
     BorderLayout borderLayout1 = new BorderLayout();
     JButton displayBtn = new JButton();
     BorderLayout borderLayout3 = new BorderLayout();
@@ -945,78 +945,129 @@ public class PromoterViewPanel extends JPanel {
         if (tfMap == null) {
             tfMap = new TreeMap();
         }
-        //DefaultListModel ls = new DefaultListModel();
 
-        BufferedReader br = null;
+		// MATRIX.TXT ///////////
+		final int IDNAME_KEY = 0;
+		final int IDNAME_ID = 2;
+		final int IDNAME_NAME = 4;
+		final int IDNAME_COLUMN_NUM = 5;
+		InputStream idNameStream = PromoterViewPanel.class.getResourceAsStream("MATRIX.txt");
+		BufferedReader idNameReader = new BufferedReader(new InputStreamReader(idNameStream));
+		HashMap<String, String[]> idNameMap = new HashMap<String, String[]>();
+		String idNameRow = idNameReader.readLine();
+		while (idNameRow != null) {
+			String[] cols = idNameRow.split("\t");
+			if (cols.length >= IDNAME_COLUMN_NUM) {
+				idNameMap.put(cols[IDNAME_KEY], cols);
+			}
+			idNameRow = idNameReader.readLine();
+		}
+		idNameReader.close();
+        
+		// MATRIX_ANNOTATION.TXT ///////////
+		final int ANNOTATIONS_KEY = 0;
+		final int ANNOTATIONS_TYPE = 1;
+		final int ANNOTATIONS_VALUE = 2;
+		final int ANNOTATIONS_COLUMN_NUM = 3;
+		InputStream annotationStream = PromoterViewPanel.class.getResourceAsStream("MATRIX_ANNOTATION.txt");
+		BufferedReader annotationReader = new BufferedReader(new InputStreamReader(annotationStream));
+		HashMap<String, HashMap<String, String[]>> annotationMaps = new HashMap<String, HashMap<String, String[]>>();
+		String annotationRow = annotationReader.readLine();
+		while (annotationRow != null) {
+			String[] cols = annotationRow.split("\t");
+			HashMap<String, String[]> annotationMap = (HashMap<String, String[]>) annotationMaps.get(cols[ANNOTATIONS_KEY]);
+			if (annotationMap == null) {
+				annotationMap = new HashMap<String, String[]>();
+				annotationMaps.put(cols[ANNOTATIONS_KEY], annotationMap);
+			}
+			// if more annotations fields are needed, && cols[ANNOTATIONS_TYPE].equals("class")
+			// can be removed.
+			if (cols.length >= ANNOTATIONS_COLUMN_NUM && cols[ANNOTATIONS_TYPE].equals("class") ) {
+				annotationMap.put(cols[ANNOTATIONS_TYPE], cols);
+			}
+			annotationRow = annotationReader.readLine();
+		}
+		annotationReader.close();
+ 
+		// MATRIX_DATA.TXT ///////////
+		final int DATA_KEY = 0;
+		final int DATA_SYMBOL = 1;
+		final int DATA_INDEX = 2;
+		final int DATA_COUNT = 3;
+		final int DATA_COLUMN_NUM = 4;
+		InputStream dataStream = PromoterViewPanel.class.getResourceAsStream("MATRIX_DATA.txt");
+		BufferedReader dataReader = new BufferedReader(new InputStreamReader(dataStream));
+		HashMap<String, HashMap<String, String[]>> dataMaps = new HashMap<String, HashMap<String, String[]>>();
+		String dataRow = dataReader.readLine();
+		while (dataRow != null) {
+			String[] cols = dataRow.split("\t");
+			HashMap<String, String[]> dataMap = (HashMap<String, String[]>) dataMaps.get(cols[DATA_KEY]);
+			if (dataMap == null) {
+				dataMap = new HashMap<String, String[]>();
+				dataMaps.put(cols[DATA_KEY], dataMap);
+			}
+			if (cols.length >= DATA_COLUMN_NUM) {
+				dataMap.put(cols[DATA_SYMBOL]+"~"+cols[DATA_INDEX], cols); // [A,C,G,T]~[1-n] indexes 
+			}
+			dataRow = dataReader.readLine();
+		}
+		dataReader.close();
 
-        InputStream input2 = PromoterViewPanel.class.getResourceAsStream(
-                "MATRIX_ANNOTATION.txt");
-        br = new BufferedReader(new InputStreamReader(input2));
+		
+		
+		HashMap<String, Matrix> matrixMap = new HashMap<String, Matrix>();
+		for (Iterator<String> it = dataMaps.keySet().iterator(); it.hasNext();) {
+			// Object key = it.next();
+			String key = (String) it.next();
+			String[] idNameResult =  (String[])idNameMap.get(key);
+			String id = idNameResult[IDNAME_ID]; 
+			Matrix matrix = (Matrix) matrixMap.get(key);
+			if (matrix == null) {
+				char[] sym = { 'A', 'C', 'G', 'T' };
+				matrix = new Matrix(sym);
+				matrixMap.put(id, matrix);
+			}
 
-        HashMap factors = new HashMap();
-        String line = br.readLine();
-        while (line != null) {
+			HashMap<String, String[]> dataResults = dataMaps.get(key);
+			for (Iterator<String> it2 = dataResults.keySet().iterator(); it2.hasNext();) {
+				String symbolIndexKey = (String) it2.next();
+				String[] row = dataResults.get(symbolIndexKey);
 
-            String[] cols = line.split("\t");
+				matrix.setCounts(row[DATA_SYMBOL].charAt(0),
+								Integer.parseInt(row[DATA_INDEX]) - 1, 
+								Double.parseDouble(row[DATA_COUNT]));
+			}
+		}	
 
-            HashMap hs = (HashMap) factors.get(cols[0]);
-            if (hs == null) {
-                hs = new HashMap();
-                factors.put(cols[0], hs);
-            }
-            if (cols.length >= 3) {
-                hs.put(cols[1], cols[2]);
-            }
-            line = br.readLine();
 
-        }
-        br.close();
-        HashMap mxs = new HashMap();
-        BufferedReader b = null;
+		tfNameSet = new Vector<String>();
+		for (Iterator<String> it = dataMaps.keySet().iterator(); it.hasNext();) {
+			String key = (String)it.next();
+			
+			String[] idNameResult = idNameMap.get(key);
+			String id = idNameResult[IDNAME_ID];
+			String name = idNameResult[IDNAME_NAME];
+			
+			HashMap<String, String[]> annotationsResults = annotationMaps.get(key);
+			String[] annotationsResult = annotationsResults.get("class");
+			String clazz = annotationsResult[ANNOTATIONS_VALUE]; 
+			
+			String fullName = name + ":" + clazz + ":" + id;
 
-        InputStream input = PromoterViewPanel.class.getResourceAsStream(
-                "MATRIX_DATA.txt");
-        b = new BufferedReader(new InputStreamReader(input));
-
-        String oneline = b.readLine();
-
-        while (oneline != null) {
-            String[] cls = oneline.split("\t");
-            Matrix m = (Matrix) mxs.get(cls[0]);
-            if (m == null) {
-                char[] sym = {
-                             'A', 'C', 'G', 'T'};
-                m = new Matrix(sym);
-                mxs.put(cls[0], m);
-            }
-            m.setCounts(cls[1].charAt(0), Integer.parseInt(cls[2]) - 1,
-                        Double.parseDouble(cls[3]));
-            oneline = b.readLine();
-        }
-        b.close();
-
-        tfNameSet = new Vector<String>();
-        //tfNameSet.add(); = "";
-        int i = 0;
-        for (Iterator it = factors.keySet().iterator(); it.hasNext(); ) {
-            Object id = it.next();
-            TranscriptionFactor tf = new TranscriptionFactor();
-            HashMap hash = (HashMap) factors.get(id);
-            String name = (String) hash.get("name") + ":" +
-                          (String) hash.get("class") + ":" + id;
-            tf.setName(name);
-            tf.setJasparID(id.toString());
-            Matrix mx = (Matrix) mxs.get(id);
-            boolean sqrtNSelected = false;
-            double pseduocount = 0;
+			boolean sqrtNSelected = false;
+			double pseduocount = 0;
+			Matrix mx = (Matrix) matrixMap.get(id);
 			mx.initialize(sqrtNSelected, pseduocount);
-
-            tf.setMatrix(mx);
-            //
-            tfNameSet.add(name);
-            i++;
-            tfMap.put(name, tf);
-        }
+			
+			TranscriptionFactor tf = new TranscriptionFactor();
+			tf.setName(fullName);
+			tf.setJasparID(name);
+			tf.setMatrix(mx);
+			tfMap.put(fullName, tf);
+			
+			tfNameSet.add(fullName);
+		}
+        
         Collections.sort(tfNameSet);
 //        Arrays.sort(names);
 //        for (int k = 0; k < names.length; k++) {

@@ -1,1125 +1,2695 @@
-MA0001	name	AGL3
-MA0001	class	MADS
-MA0001	total_ic	10.5900
-MA0001	medline	7632923
-MA0001	sysgroup	plant
-MA0001	species	Arabidopsis thaliana
-MA0001	type	SELEX
-MA0001	acc	P29383
-MA0002	name	RUNX1
-MA0002	class	RUNT
-MA0002	comment	Matrix changed since last release: removal of primers and sites overlapping primers
-MA0002	total_ic	11.696
-MA0002	medline	8413232
-MA0002	sysgroup	plant
-MA0002	species	Arabidopsis thaliana
-MA0002	type	SELEX
-MA0002	acc	Q01196 
-MA0003	name	TFAP2A
-MA0003	class	AP2
-MA0003	total_ic	7.8120
-MA0003	medline	10497269
-MA0003	sysgroup	vertebrate
-MA0003	species	Homo sapiens
-MA0003	type	SELEX
-MA0003	acc	P05549
-MA0004	name	Arnt
-MA0004	class	bHLH
-MA0004	total_ic	10.9920
-MA0004	medline	7592839
-MA0004	sysgroup	vertebrate
-MA0004	species	Mus musculus
-MA0004	type	SELEX
-MA0004	acc	P53762
-MA0005	name	Agamous
-MA0005	class	MADS
-MA0005	total_ic	9.0940 , 11.598
-MA0005	medline	7901838
-MA0005	sysgroup	plant
-MA0005	species	Arabidopsis thaliana
-MA0005	type	SELEX
-MA0005	acc	P17839
-MA0006	name	Arnt-Ahr
-MA0006	class	bHLH
-MA0006	total_ic	9.5320
-MA0006	comment	dimer
-MA0006	medline	7592839
-MA0006	sysgroup	vertebrate
-MA0006	species	Mus musculus
-MA0006	type	SELEX
-MA0006	acc	P30561 , P53762
-MA0007	name	Ar
-MA0007	class	NUCLEAR RECEPTOR
-MA0007	total_ic	15.7070
-MA0007	medline	1491700
-MA0007	sysgroup	vertebrate
-MA0007	species	Rattus rattus
-MA0007	type	SELEX
-MA0007	acc	P15207
-MA0008	name	Athb-1
-MA0008	class	HOMEO-ZIP
-MA0008	total_ic	11.8810
-MA0008	medline	8253077
-MA0008	sysgroup	plant
-MA0008	species	Arabidopsis thaliana
-MA0008	type	SELEX
-MA0008	acc	Q02283
-MA0009	name	T
-MA0009	class	T-BOX
-MA0009	total_ic	17.8630
-MA0009	medline	8344258
-MA0009	sysgroup	vertebrate
-MA0009	species	Mus musculus
-MA0009	type	SELEX
-MA0009	acc	P20293
-MA0010	name	Broad-complex_1
-MA0010	class	ZN-FINGER, C2H2
-MA0010	total_ic	12.6150
-MA0010	comment	Different splice forms affacts DNA binding: four matrices
-MA0010	medline	8062827
-MA0010	sysgroup	insect
-MA0010	species	Drosophila melanogaster
-MA0010	type	COMPILED
-MA0010	acc	CAA38474
-MA0011	name	Broad-complex_2
-MA0011	class	ZN-FINGER, C2H2
-MA0011	total_ic	7.7210
-MA0011	comment	Different splice forms affacts DNA binding: four matrices
-MA0011	medline	8062827
-MA0011	sysgroup	insect
-MA0011	species	Drosophila melanogaster
-MA0011	type	COMPILED
-MA0011	acc	CAA38476
-MA0012	name	Broad-complex_3
-MA0012	class	ZN-FINGER, C2H2
-MA0012	total_ic	9.3380
-MA0012	comment	Different splice forms affacts DNA binding: four matrices
-MA0012	medline	8062827
-MA0012	sysgroup	insect
-MA0012	species	Drosophila melanogaster
-MA0012	type	COMPILED
-MA0012	acc	NP_726754
-MA0013	name	Broad-complex_4
-MA0013	class	ZN-FINGER, C2H2
-MA0013	total_ic	11.6020
-MA0013	medline	8062827
-MA0013	sysgroup	insect
-MA0013	species	Drosophila melanogaster
-MA0013	type	COMPILED
-MA0013	acc	CAA38474
-MA0014	name	Pax5
-MA0014	class	PAIRED
-MA0014	total_ic	12.4280
-MA0014	medline	8406007
-MA0014	sysgroup	vertebrate
-MA0014	species	Mus musculus
-MA0014	type	COMPILED
-MA0014	acc	Q02650
-MA0015	name	CF2-II
-MA0015	class	ZN-FINGER, C2H2
-MA0015	total_ic	10.9780
-MA0015	medline	1290524
-MA0015	sysgroup	insect
-MA0015	species	Drosophila melanogaster
-MA0015	type	SELEX
-MA0015	acc	P20385
-MA0016	name	usp
-MA0016	class	NUCLEAR RECEPTOR
-MA0016	total_ic	13.7890
-MA0016	medline	1280827
-MA0016	sysgroup	insect
-MA0016	species	Drosophila melanogaster
-MA0016	type	SELEX
-MA0016	acc	NP_476781
-MA0017	name	NR2F1
-MA0017	class	NUCLEAR RECEPTOR
-MA0017	total_ic	15.9250
-MA0017	medline	8496174
-MA0017	sysgroup	vertebrate
-MA0017	species	Homo sapiens
-MA0017	type	COMPILED
-MA0017	acc	P10589
-MA0018	name	CREB1
-MA0018	class	bZIP
-MA0018	total_ic	12.6060
-MA0018	medline	8264613
-MA0018	sysgroup	vertebrate
-MA0018	species	Homo sapiens
-MA0018	type	SELEX
-MA0018	acc	P16220
-MA0019	name	Ddit3-Cebpa
-MA0019	class	bZIP
-MA0019	total_ic	11.6510
-MA0019	comment	dimer between Ddit3 and Cebpa
-MA0019	medline	8657121
-MA0019	sysgroup	vertebrate
-MA0019	species	Rattus norvegicus
-MA0019	type	SELEX
-MA0019	acc	Q62857 , P05554
-MA0020	name	Dof2
-MA0020	class	ZN-FINGER, DOF
-MA0020	total_ic	8.6250
-MA0020	medline	10074718
-MA0020	sysgroup	plant
-MA0020	species	Zea mays
-MA0020	type	SELEX
-MA0020	acc	Q41800
-MA0021	name	Dof3
-MA0021	class	ZN-FINGER, DOF
-MA0021	total_ic	9.0030
-MA0021	medline	10074718
-MA0021	sysgroup	plant
-MA0021	species	Zea mays
-MA0021	type	SELEX
-MA0021	acc	Q41801
-MA0022	name	dl_1
-MA0022	class	REL
-MA0022	total_ic	12.9060
-MA0022	comment	dl has a dual binding specificity and therefore two models: MA0022 and MA0023
-MA0022	medline	1582412
-MA0022	sysgroup	insect
-MA0022	species	Drosophila melanogaster
-MA0022	type	SELEX
-MA0022	acc	AAF53611
-MA0023	name	Dl_2
-MA0023	class	REL
-MA0023	total_ic	14.1210
-MA0023	comment	dl has a dual binding specificity and therefore two models: MA0022 and MA0023
-MA0023	medline	1582412
-MA0023	sysgroup	insect
-MA0023	species	Drosophila melanogaster
-MA0023	type	SELEX
-MA0023	acc	AAF53611
-MA0024	name	E2F1
-MA0024	class	E2F_TDP
-MA0024	total_ic	13.8380
-MA0024	medline	1411535
-MA0024	sysgroup	vertebrate
-MA0024	species	Homo sapiens
-MA0024	type	COMPILED
-MA0024	acc	NP_005216
-MA0025	name	NFIL3
-MA0025	class	bZIP
-MA0025	total_ic	14.1410
-MA0025	medline	1620116
-MA0025	sysgroup	vertebrate
-MA0025	species	Homo sapiens
-MA0025	type	SELEX
-MA0025	acc	NP_005375
-MA0026	name	Eip74EF
-MA0026	class	ETS
-MA0026	total_ic	10.3540
-MA0026	medline	2208281
-MA0026	sysgroup	insect
-MA0026	species	Drosophila melanogaster
-MA0026	type	SELEX
-MA0026	acc	P20105
-MA0027	name	En1
-MA0027	class	HOMEO
-MA0027	total_ic	6.4210
-MA0027	medline	8096059
-MA0027	sysgroup	vertebrate
-MA0027	species	Mus musculus
-MA0027	type	SELEX
-MA0027	acc	P09065
-MA0028	name	ELK1
-MA0028	class	ETS
-MA0028	total_ic	8.8130
-MA0028	medline	1425594
-MA0028	sysgroup	vertebrate
-MA0028	species	Homo sapiens
-MA0028	type	SELEX
-MA0028	acc	P19419
-MA0029	name	Evi1
-MA0029	class	ZN-FINGER, C2H2
-MA0029	total_ic	17.9080
-MA0029	medline	8321231
-MA0029	sysgroup	vertebrate
-MA0029	species	Mus musculus
-MA0029	type	SELEX
-MA0029	acc	AAI39763
-MA0030	name	FOXF2
-MA0030	class	FORKHEAD
-MA0030	total_ic	14.8250
-MA0030	medline	7957066
-MA0030	sysgroup	vertebrate
-MA0030	species	Homo sapiens
-MA0030	type	SELEX
-MA0030	acc	Q12947
-MA0031	name	FOXD1
-MA0031	class	FORKHEAD
-MA0031	total_ic	11.9300
-MA0031	medline	7957066
-MA0031	sysgroup	vertebrate
-MA0031	species	Homo sapiens
-MA0031	type	SELEX
-MA0031	acc	Q16676
-MA0032	name	FOXC1
-MA0032	class	FORKHEAD
-MA0032	total_ic	6.5100
-MA0032	medline	7957066
-MA0032	sysgroup	vertebrate
-MA0032	species	Homo sapiens
-MA0032	type	SELEX
-MA0032	acc	Q12948
-MA0033	name	FOXL1
-MA0033	class	FORKHEAD
-MA0033	total_ic	6.0680
-MA0033	medline	7957066
-MA0033	sysgroup	vertebrate
-MA0033	species	Homo sapiens
-MA0033	type	SELEX
-MA0033	acc	Q12952
-MA0034	name	GAMYB
-MA0034	class	TRP-CLUSTER
-MA0034	total_ic	9.3080
-MA0034	medline	10069063
-MA0034	sysgroup	plant
-MA0034	species	Hordeum vulgare
-MA0034	type	SELEX
-MA0034	acc	CAA61021
-MA0035	name	Gata1
-MA0035	class	ZN-FINGER, GATA
-MA0035	total_ic	5.7370
-MA0035	medline	8321207
-MA0035	sysgroup	vertebrate
-MA0035	species	Mus musculus
-MA0035	type	SELEX
-MA0035	acc	P17679
-MA0036	name	GATA2
-MA0036	class	ZN-FINGER, GATA
-MA0036	total_ic	5.6870
-MA0036	medline	8321207
-MA0036	sysgroup	vertebrate
-MA0036	species	Homo sapiens
-MA0036	type	SELEX
-MA0036	acc	P23769
-MA0037	name	GATA3
-MA0037	class	ZN-FINGER, GATA
-MA0037	total_ic	6.6310
-MA0037	medline	8321207
-MA0037	sysgroup	vertebrate
-MA0037	species	Homo sapiens
-MA0037	type	SELEX
-MA0037	acc	P23771
-MA0038	name	Gfi
-MA0038	class	ZN-FINGER, C2H2
-MA0038	total_ic	9.4670
-MA0038	medline	8754800
-MA0038	sysgroup	vertebrate
-MA0038	species	Rattus norvegicus
-MA0038	type	SELEX
-MA0038	acc	Q07120
-MA0039	name	Klf4
-MA0039	class	ZN-FINGER, C2H2
-MA0039	total_ic	7.2340
-MA0039	medline	9443972
-MA0039	sysgroup	vertebrate
-MA0039	species	Mus musculus
-MA0039	type	SELEX
-MA0039	acc	Q60793
-MA0040	name	Foxq1
-MA0040	class	FORKHEAD
-MA0040	total_ic	14.0720
-MA0040	medline	8139574
-MA0040	sysgroup	vertebrate
-MA0040	species	Rattus norvegicus
-MA0040	type	SELEX
-MA0040	acc	Q63244
-MA0041	name	Foxd3
-MA0041	class	FORKHEAD
-MA0041	total_ic	12.9450
-MA0041	medline	8139574
-MA0041	sysgroup	vertebrate
-MA0041	species	Rattus norvegicus
-MA0041	type	SELEX
-MA0041	acc	Q63245
-MA0042	name	FOXI1
-MA0042	class	FORKHEAD
-MA0042	total_ic	13.1850
-MA0042	medline	9153225
-MA0042	sysgroup	vertebrate
-MA0042	species	Homo sapiens
-MA0042	type	SELEX
-MA0042	acc	Q12951
-MA0043	name	HLF
-MA0043	class	bZIP
-MA0043	total_ic	11.1450
-MA0043	medline	8065331
-MA0043	sysgroup	vertebrate
-MA0043	species	Homo sapiens
-MA0043	type	SELEX
-MA0043	acc	Q16534
-MA0044	name	HMG-1
-MA0044	class	HMG
-MA0044	total_ic	8.4330
-MA0044	medline	9161031
-MA0044	sysgroup	plant
-MA0044	species	Pisum sativum
-MA0044	type	SELEX
-MA0044	acc	CAA54168
-MA0045	name	HMG-IY
-MA0045	class	HMG
-MA0045	total_ic	10.3400
-MA0045	medline	9161031
-MA0045	sysgroup	plant
-MA0045	species	Pisum sativum
-MA0045	type	SELEX
-MA0045	acc	CAA61747
-MA0046	name	HNF1A
-MA0046	class	HOMEO
-MA0046	total_ic	15.5480
-MA0046	medline	9047360
-MA0046	sysgroup	vertebrate
-MA0046	species	Vertebrates
-MA0046	type	COMPILED
-MA0046	acc	ABR09270
-MA0047	name	Foxa2
-MA0047	class	FORKHEAD
-MA0047	total_ic	12.4370
-MA0047	medline	8139574
-MA0047	sysgroup	vertebrate
-MA0047	species	Rattus norvegicus
-MA0047	type	COMPILED
-MA0047	acc	P32182
-MA0048	name	NHLH1
-MA0048	class	bHLH
-MA0048	total_ic	14.1300
-MA0048	medline	8289804
-MA0048	sysgroup	vertebrate
-MA0048	species	Homo sapiens
-MA0048	type	SELEX
-MA0048	acc	Q02575
-MA0049	name	hb
-MA0049	class	ZN-FINGER, C2H2
-MA0049	total_ic	10.4030
-MA0049	medline	2507923
-MA0049	sysgroup	insect
-MA0049	species	Drosophila melanogaster
-MA0049	type	COMPILED
-MA0049	acc	P05084
-MA0050	name	IRF1
-MA0050	class	TRP-CLUSTER
-MA0050	total_ic	16.0090
-MA0050	medline	7687740
-MA0050	sysgroup	vertebrate
-MA0050	species	Homo sapiens
-MA0050	type	SELEX
-MA0050	acc	P10914
-MA0051	name	IRF2
-MA0051	class	TRP-CLUSTER
-MA0051	total_ic	21.1360
-MA0051	medline	7687740
-MA0051	sysgroup	vertebrate
-MA0051	species	Homo sapiens
-MA0051	type	SELEX
-MA0051	acc	P14316
-MA0052	name	MEF2A
-MA0052	class	MADS
-MA0052	total_ic	15.7090
-MA0052	medline	1748287
-MA0052	sysgroup	vertebrate
-MA0052	species	Homo sapiens
-MA0052	type	SELEX
-MA0052	acc	EAX02249
-MA0053	name	MNB1A
-MA0053	class	ZN-FINGER, DOF
-MA0053	total_ic	8.6290
-MA0053	medline	10074718
-MA0053	sysgroup	plant
-MA0053	species	Zea mays
-MA0053	type	SELEX
-MA0053	acc	P38564
-MA0054	name	MYB.ph3
-MA0054	class	TRP-CLUSTER
-MA0054	total_ic	8.5610
-MA0054	medline	7737128
-MA0054	sysgroup	plant
-MA0054	species	Petunia hybrida
-MA0054	type	SELEX
-MA0054	acc	Q02994
-MA0055	name	Myf
-MA0055	class	bHLH
-MA0055	total_ic	15.9130
-MA0055	medline	9571041
-MA0055	sysgroup	vertebrate
-MA0055	species	Homo sapiens
-MA0055	type	COMPILED
-MA0055	acc	
-MA0056	name	MZF1_1-4
-MA0056	class	ZN-FINGER, C2H2
-MA0056	total_ic	8.5860
-MA0056	comment	
-MA0056	medline	8114711
-MA0056	sysgroup	vertebrate
-MA0056	species	Homo sapiens
-MA0056	type	SELEX
-MA0056	acc	P28698
-MA0057	name	MZF1_5-13
-MA0057	class	ZN-FINGER, C2H2
-MA0057	total_ic	9.3990
-MA0057	comment	
-MA0057	medline	8114711
-MA0057	sysgroup	vertebrate
-MA0057	species	Homo sapiens
-MA0057	type	SELEX
-MA0057	acc	P28698
-MA0058	name	MAX
-MA0058	class	bHLH-ZIP
-MA0058	total_ic	12.6860
-MA0058	medline	8265351
-MA0058	sysgroup	vertebrate
-MA0058	species	Homo sapiens
-MA0058	type	SELEX
-MA0058	acc	AAH36092
-MA0059	name	MYC-MAX
-MA0059	class	bHLH-ZIP
-MA0059	comment	Heterodimer of MYC and MAX 
-MA0059	total_ic	14.2360
-MA0059	medline	8265351
-MA0059	sysgroup	vertebrate
-MA0059	species	Homo sapiens
-MA0059	type	SELEX
-MA0059	acc	AAH36092 , Q6LBK7
-MA0060	name	NFYA
-MA0060	class	CAAT-BOX
-MA0060	total_ic	12.9280
-MA0060	medline	9469818
-MA0060	sysgroup	vertebrate
-MA0060	species	-
-MA0060	type	COMPILED
-MA0060	acc	P23511
-MA0061	name	NF-kappaB
-MA0061	class	REL
-MA0061	total_ic	13.3440
-MA0061	medline	8449662
-MA0061	sysgroup	vertebrate
-MA0061	species	-
-MA0061	type	COMPILED
-MA0062	name	GABPA
-MA0062	class	ETS
-MA0062	total_ic	13.8920
-MA0062	medline	8383622
-MA0062	sysgroup	vertebrate
-MA0062	species	Homo sapiens
-MA0062	type	COMPILED
-MA0062	acc	Q06546
-MA0063	name	Nkx2-5
-MA0063	class	HOMEO
-MA0063	total_ic	8.2690
-MA0063	medline	7797561
-MA0063	sysgroup	vertebrate
-MA0063	species	Mus musculus
-MA0063	type	SELEX
-MA0063	acc	P42582
-MA0064	name	PBF
-MA0064	class	ZN-FINGER, DOF
-MA0064	total_ic	8.5090
-MA0064	medline	10074718
-MA0064	sysgroup	plant
-MA0064	species	Zea mays
-MA0064	type	SELEX
-MA0064	acc	O24463
-MA0065	name	PPARG-RXRA
-MA0065	class	NUCLEAR RECEPTOR
-MA0065	total_ic	23.4450
-MA0065	comment	Heterodimer between PPARG and RXRA
-MA0065	medline	11139380
-MA0065	sysgroup	vertebrate
-MA0065	species	Homo sapiens
-MA0065	type	SELEX
-MA0065	acc	P37231 , P19793
-MA0066	name	PPARG
-MA0066	class	NUCLEAR RECEPTOR
-MA0066	total_ic	20.3660
-MA0066	medline	11139380
-MA0066	sysgroup	vertebrate
-MA0066	species	Homo sapiens
-MA0066	type	SELEX
-MA0066	acc	P37231
-MA0067	name	Pax2
-MA0067	class	PAIRED
-MA0067	total_ic	6.2060
-MA0067	medline	8132558
-MA0067	sysgroup	vertebrate
-MA0067	species	Mus musculus
-MA0067	type	SELEX
-MA0067	acc	P32114
-MA0068	name	Pax4
-MA0068	class	PAIRED-HOMEO
-MA0068	total_ic	11.0000
-MA0068	medline	10567552
-MA0068	sysgroup	vertebrate
-MA0068	species	Mus musculus
-MA0068	type	SELEX
-MA0068	acc	P32115
-MA0069	name	Pax6
-MA0069	class	PAIRED
-MA0069	total_ic	13.7960
-MA0069	medline	8132558
-MA0069	sysgroup	vertebrate
-MA0069	species	Homo sapiens
-MA0069	type	SELEX
-MA0069	acc	P26367
-MA0070	name	PBX1
-MA0070	class	HOMEO
-MA0070	total_ic	14.6440
-MA0070	medline	7910944
-MA0070	sysgroup	vertebrate
-MA0070	species	Homo sapiens
-MA0070	type	SELEX
-MA0070	acc	Q5T486
-MA0071	name	RORA_1
-MA0071	class	NUCLEAR RECEPTOR
-MA0071	total_ic	13.1920
-MA0071	comment	isoform type "a" with different DNA-binding specificty. Alternative model exist for isoform "b" in MA0072
-MA0071	medline	7926749
-MA0071	sysgroup	vertebrate
-MA0071	species	Homo sapiens
-MA0071	type	SELEX
-MA0071	acc	NP_599023
-MA0072	name	RORA_2
-MA0072	class	NUCLEAR RECEPTOR
-MA0072	total_ic	17.4230
-MA0072	comment	isoform type "b" with different DNA-binding specificity. Alternative model exist for isoform "a" in MA0071
-MA0072	medline	7926749
-MA0072	sysgroup	vertebrate
-MA0072	species	Homo sapiens
-MA0072	type	SELEX
-MA0072	acc	NP_599022
-MA0073	name	RREB1
-MA0073	class	ZN-FINGER, C2H2
-MA0073	total_ic	22.2800
-MA0073	medline	8816445
-MA0073	sysgroup	vertebrate
-MA0073	species	Homo sapiens
-MA0073	type	SELEX
-MA0073	acc	Q92766
-MA0074	name	RXRA-VDR
-MA0074	class	NUCLEAR RECEPTOR
-MA0074	total_ic	20.4520
-MA0074	comment	heterodimer between RXRA and VDR
-MA0074	medline	8674817
-MA0074	sysgroup	vertebrate
-MA0074	species	Homo sapiens
-MA0074	type	SELEX
-MA0074	acc	P19793  , P11473
-MA0075	name	Prrx2
-MA0075	class	HOMEO
-MA0075	total_ic	9.0620
-MA0075	medline	7901837
-MA0075	sysgroup	vertebrate
-MA0075	species	Mus musculus
-MA0075	type	SELEX
-MA0075	acc	Q06348
-MA0076	name	ELK4
-MA0076	class	ETS
-MA0076	total_ic	14.1230
-MA0076	medline	8524663
-MA0076	sysgroup	vertebrate
-MA0076	species	Homo sapiens
-MA0076	type	SELEX
-MA0076	acc	P28324
-MA0077	name	SOX9
-MA0077	class	HMG
-MA0077	total_ic	9.0810
-MA0077	medline	9973626
-MA0077	sysgroup	vertebrate
-MA0077	species	Homo sapiens
-MA0077	type	SELEX
-MA0077	acc	P48436
-MA0078	name	Sox17
-MA0078	class	HMG
-MA0078	total_ic	10.5030
-MA0078	medline	8636240
-MA0078	sysgroup	vertebrate
-MA0078	species	Mus musculus
-MA0078	type	SELEX
-MA0078	acc	Q61473
-MA0079	name	SP1
-MA0079	class	ZN-FINGER, C2H2
-MA0079	total_ic	9.7160
-MA0079	medline	2192357
-MA0079	sysgroup	vertebrate
-MA0079	species	Homo sapiens
-MA0079	type	SELEX
-MA0079	acc	P08047
-MA0080	name	SPI1
-MA0080	class	ETS
-MA0080	total_ic	7.2180
-MA0080	medline	7624145
-MA0080	sysgroup	vertebrate
-MA0080	species	Homo sapiens
-MA0080	type	SELEX
-MA0080	acc	P17947
-MA0081	name	SPIB
-MA0081	class	ETS
-MA0081	total_ic	9.0600
-MA0081	medline	7624145
-MA0081	sysgroup	vertebrate
-MA0081	species	Homo sapiens
-MA0081	type	SELEX
-MA0081	acc	Q01892
-MA0082	name	SQUA
-MA0082	class	MADS
-MA0082	total_ic	12.3870
-MA0082	medline	9826749
-MA0082	sysgroup	plant
-MA0082	species	Antirrhinum majus
-MA0082	type	SELEX
-MA0082	acc	CAA45228
-MA0083	name	SRF
-MA0083	class	MADS
-MA0083	total_ic	17.9670
-MA0083	medline	2243767
-MA0083	sysgroup	vertebrate
-MA0083	species	Homo sapiens
-MA0083	type	SELEX
-MA0083	acc	P11831
-MA0084	name	SRY
-MA0084	class	HMG
-MA0084	total_ic	9.1930
-MA0084	medline	8190643
-MA0084	sysgroup	vertebrate
-MA0084	species	Homo sapiens
-MA0084	type	SELEX
-MA0084	acc	Q05066
-MA0085	name	Su(H)
-MA0085	class	IPT/TIG domain
-MA0085	total_ic	16.6710
-MA0085	medline	7590239
-MA0085	sysgroup	insect
-MA0085	species	Drosophila melanogaster
-MA0085	type	COMPILED
-MA0085	acc	P28159
-MA0086	name	sna
-MA0086	class	ZN-FINGER, C2H2
-MA0086	total_ic	10.7080
-MA0086	medline	8371971
-MA0086	sysgroup	insect
-MA0086	species	Drosophila melanogaster
-MA0086	type	SELEX
-MA0086	acc	P08044
-MA0087	name	Sox5
-MA0087	class	HMG
-MA0087	total_ic	10.8320
-MA0087	medline	1396566
-MA0087	sysgroup	vertebrate
-MA0087	species	Mus musculus
-MA0087	type	SELEX
-MA0087	acc	P35710
-MA0088	name	Staf
-MA0088	class	ZN-FINGER, C2H2
-MA0088	total_ic	17.5380
-MA0088	medline	9009278
-MA0088	sysgroup	vertebrate
-MA0088	species	Xenopus laevis
-MA0088	type	COMPILED
-MA0088	acc	Q91853
-MA0089	name	TCF11-MafG
-MA0089	class	bZIP
-MA0089	total_ic	7.9400
-MA0089	comment	Heterodimer between TCF11 and Mafg
-MA0089	medline	9421508
-MA0089	sysgroup	vertebrate
-MA0089	species	Gallus gallus
-MA0089	type	SELEX
-MA0089	acc	Q14494 , Q90889
-MA0090	name	TEAD1
-MA0090	class	TEA
-MA0090	total_ic	15.6790
-MA0090	medline	9571041
-MA0090	sysgroup	vertebrate
-MA0090	species	Homo sapiens
-MA0090	type	COMPILED
-MA0090	acc	P28347
-MA0091	name	TAL1-TCF3
-MA0091	class	bHLH
-MA0091	total_ic	14.0710
-MA0091	comment	Heterodimer between TAL1 and TCF3
-MA0091	medline	8289805
-MA0091	sysgroup	vertebrate
-MA0091	species	Homo sapiens
-MA0091	type	SELEX
-MA0091	acc	P17542 , P15923
-MA0092	name	Hand1-Tcfe2a
-MA0092	class	bHLH
-MA0092	total_ic	10.1450
-MA0092	medline	7791788
-MA0092	sysgroup	vertebrate
-MA0092	species	Mus musculus
-MA0092	type	SELEX
-MA0092	acc	Q64279 , P15806
-MA0093	name	USF1
-MA0093	class	bHLH-ZIP
-MA0093	total_ic	11.2920
-MA0093	medline	8052536
-MA0093	sysgroup	vertebrate
-MA0093	species	Homo sapiens
-MA0093	type	SELEX
-MA0093	acc	P22415
-MA0094	name	Ubx
-MA0094	class	HOMEO
-MA0094	total_ic	5.5770
-MA0094	medline	1673656
-MA0094	sysgroup	insect
-MA0094	species	Drosophila melanogaster
-MA0094	type	SELEX
-MA0094	acc	P83949
-MA0095	name	YY1
-MA0095	class	ZN-FINGER, C2H2
-MA0095	total_ic	8.1020
-MA0095	medline	7816599
-MA0095	sysgroup	vertebrate
-MA0095	species	Homo sapiens
-MA0095	type	COMPILED
-MA0095	acc	P25490
-MA0096	name	bZIP910
-MA0096	class	bZIP
-MA0096	total_ic	12.5510
-MA0096	medline	9680995
-MA0096	sysgroup	plant
-MA0096	species	Antirrhinum majus
-MA0096	type	SELEX
-MA0096	acc	CAA74022
-MA0097	name	bZIP911
-MA0097	class	bZIP
-MA0097	total_ic	19.8800
-MA0097	medline	9680995
-MA0097	sysgroup	plant
-MA0097	species	Antirrhinum majus
-MA0097	type	SELEX
-MA0097	acc	CAA74023
-MA0098	name	ETS1
-MA0098	class	ETS
-MA0098	total_ic	7.0800
-MA0098	medline	1542566
-MA0098	sysgroup	vertebrate
-MA0098	species	Homo sapiens
-MA0098	type	SELEX
-MA0098	acc	CAG47050
-MA0099	name	Fos
-MA0099	class	bZIP
-MA0099	total_ic	10.6720
-MA0099	medline	2243767
-MA0099	sysgroup	vertebrate
-MA0099	species	Mus musculus
-MA0099	type	SELEX
-MA0099	acc	P01101
-MA0100	name	Myb
-MA0100	class	TRP-CLUSTER
-MA0100	total_ic	9.8840
-MA0100	medline	1861984
-MA0100	sysgroup	vertebrate
-MA0100	species	Mus musculus
-MA0100	type	SELEX
-MA0100	acc	P06876
-MA0101	name	REL
-MA0101	class	REL
-MA0101	total_ic	10.5180
-MA0101	medline	1406630
-MA0101	sysgroup	vertebrate
-MA0101	species	Homo sapiens
-MA0101	type	SELEX
-MA0101	acc	Q04864
-MA0102	name	Cebpa
-MA0102	class	bZIP
-MA0102	total_ic	9.1860
-MA0102	medline	1672737
-MA0102	sysgroup	vertebrate
-MA0102	species	-
-MA0102	type	COMPILED
-MA0102	acc	
-MA0103	name	ZEB1
-MA0103	class	ZN-FINGER, C2H2
-MA0103	total_ic	8.3070
-MA0103	medline	8065305
-MA0103	sysgroup	vertebrate
-MA0103	species	Gallus gallus
-MA0103	type	SELEX
-MA0103	acc	P36197
-MA0104	name	Mycn
-MA0104	class	bHLH-ZIP
-MA0104	total_ic	10.4440
-MA0104	medline	1594445
-MA0104	sysgroup	vertebrate
-MA0104	species	Mus musculus
-MA0104	type	SELEX
-MA0104	acc	P03966
-MA0105	name	NFKB1
-MA0105	class	REL
-MA0105	total_ic	15.6280
-MA0105	medline	1406630
-MA0105	sysgroup	vertebrate
-MA0105	species	Homo sapiens
-MA0105	type	SELEX
-MA0105	acc	P19838
-MA0106	name	TP53
-MA0106	class	P53
-MA0106	total_ic	26.2420
-MA0106	medline	1588974
-MA0106	sysgroup	vertebrate
-MA0106	species	Homo sapiens
-MA0106	type	SELEX
-MA0106	acc	P04637
-MA0107	name	RELA
-MA0107	class	REL
-MA0107	total_ic	14.7550
-MA0107	medline	1406630
-MA0107	sysgroup	vertebrate
-MA0107	species	Homo sapiens
-MA0107	type	SELEX
-MA0107	acc	Q04206
-MA0108	name	TBP
-MA0108	class	TATA-box
-MA0108	total_ic	10.1981 
-MA0108	medline	2329577
-MA0108	sysgroup	-
-MA0108	species	-
-MA0109	name	RUSH1-alfa
-MA0109	class	ZN-FINGER, GATA
-MA0109	comment	updated matrix sincle last release
-MA0109	total_ic	7.46926530914378
-MA0109	medline	12198246
-MA0109	sysgroup	vertebrate
-MA0109	species	Oryctolagus cuniculus
-MA0109	type	SELEX
-MA0109	acc	AAM33847
-MA0110	name	ATHB5
-MA0110	class	HOMEO-ZIP
-MA0110	total_ic	12.814
-MA0110	comment	updated matrix since last release
-MA0110	medline	11247607
-MA0110	sysgroup	plant
-MA0110	species	Arabidopsis thaliana
-MA0110	type	SELEX
-MA0110	acc	11762265
-MA0111	name	Spz1
-MA0111	class	bHLH-ZIP
-MA0111	total_ic	11.9065419262377
-MA0111	medline	11165476
-MA0111	sysgroup	vertebrate
-MA0111	species	Mus musculus
-MA0111	type	SELEX
-MA0111	acc	AAK15458
-MA0112	name	ESR1
-MA0112	class	NUCLEAR RECEPTOR
-MA0112	total_ic	17.6826
-MA0112	medline	15563547
-MA0112	sysgroup	vertebrate
-MA0112	species	-
-MA0112	type	COMPILED
-MA0112	acc	P03372
-MA0113	name	NR3C1
-MA0113	class	NUCLEAR RECEPTOR
-MA0113	total_ic	14.7489
-MA0113	medline	15563547
-MA0113	sysgroup	vertebrate
-MA0113	species	-
-MA0113	type	COMPILED
-MA0113	acc	P04150
-MA0114	name	HNF4A
-MA0114	class	NUCLEAR RECEPTOR
-MA0114	total_ic	9.6174
-MA0114	medline	12385991
-MA0114	sysgroup	vertebrate
-MA0114	species	-
-MA0114	type	COMPILED
-MA0114	acc	P41235
-MA0115	name	NR1H2-RXRA
-MA0115	class	NUCLEAR RECEPTOR
-MA0115	total_ic	27.8780
-MA0115	comment	heterodimer between NR1H2 and RXR
-MA0115	medline	10187832
-MA0115	sysgroup	vertebrate
-MA0115	species	Homo sapiens
-MA0115	type	SELEX
-MA0115	acc	P55055 , P19793
-MA0116	name	Roaz
-MA0116	class	ZN-FINGER, C2H2
-MA0116	total_ic	17.9252482810031
-MA0116	medline	9774661
-MA0116	sysgroup	vertebrate
-MA0116	species	Rattus norvegicus
-MA0116	type	SELEX
-MA0116	acc	O08961
-MA0117	name	Mafb
-MA0117	class	bZIP, MAF
-MA0117	total_ic	6.76893921374478
-MA0117	medline	9571165
-MA0117	sysgroup	vertebrate
-MA0117	species	Rattus norvegicus
-MA0117	type	SELEX
-MA0117	acc	P54842
-MA0118	name	Macho-1
-MA0118	class	ZN-FINGER, C2H2
-MA0118	total_ic	7.46607328520911
-MA0118	medline	15661650
-MA0118	sysgroup	chordate
-MA0118	species	Halocynthia roretzi
-MA0118	type	SELEX
-MA0118	acc	Q9GRA5
-MA0119	name	TLX1-NFIC
-MA0119	class	HOMEO/CAAT
-MA0119	comment	heterodimer between TLX1 and NFIC
-MA0119	total_ic	19.6648726674762
-MA0119	medline	10327073
-MA0119	sysgroup	veterbrate
-MA0119	species	Homo sapiens
-MA0119	type	SELEX
-MA0119	acc	P31314 , NP_995315.1
-MA0120	name	id1
-MA0120	class	ZN-FINGER, C2H2
-MA0120	total_ic	7.72439203551961
-MA0120	medline	15020707
-MA0120	sysgroup	plant
-MA0120	species	Zea mays
-MA0120	type	SELEX
-MA0120	acc	AAC18941
-MA0121	name	ARR10
-MA0121	class	TRP-CLUSTER
-MA0121	total_ic	9.59458248131567
-MA0121	medline	12215502
-MA0121	sysgroup	plant
-MA0121	species	Arabidopsis thaliana
-MA0121	type	SELEX
-MA0121	acc	O49397
-MA0122	name	Bapx1
-MA0122	class	HOMEO
-MA0122	total_ic	8.54224977193481
-MA0122	medline	12746429
-MA0122	sysgroup	vertebrate
-MA0122	species	Mus musculus
-MA0122	type	SELEX
-MA0122	acc	P97503
-MA0123	name	ABI4
-MA0123	class	AP2
-MA0123	total_ic	9.74035932391708
-MA0123	medline	12368505
-MA0123	sysgroup	plant
-MA0123	species	Zea mays
-MA0123	type	SELEX
-MA0123	acc	Q8L7W9
-MA0124	name	NKX3-1
-MA0124	class	HOMEO
-MA0124	total_ic	11.127
-MA0124	medline	10871372
-MA0124	sysgroup	vertebrate
-MA0124	species	Homo sapiens
-MA0124	type	SELEX
-MA0124	acc	Q99801
-MA0125	name	Nobox
-MA0125	class	HOMEO
-MA0125	total_ic	9.573
-MA0125	medline	16997917
-MA0125	sysgroup	vertebrate
-MA0125	species	Mus musculus
-MA0125	type	SELEX
-MA0125	acc	Q8VIH1
-MA0126	name	ovo
-MA0126	class	ZN-FINGER, C2H2 
-MA0126	total_ic	9.602
-MA0126	medline	10637336
-MA0126	sysgroup	insect
-MA0126	species	Drosophila melanogaster
-MA0126	type	SELEX
-MA0126	acc	P51521
-MA0127	name	PEND
-MA0127	class	bZIP
-MA0127	total_ic	10.059
-MA0127	medline	9973626
-MA0127	sysgroup	plant
-MA0127	species	Pisum sativum
-MA0127	type	SELEX
-MA0127	acc	BAD90707
-MA0128	name	EMBP1
-MA0128	class	bZIP
-MA0128	total_ic	12.362
-MA0128	medline	10561063
-MA0128	sysgroup	PLANT
-MA0128	species	Triticum aestivum
-MA0128	type	SELEX
-MA0128	acc	P25032
-MA0129	name	TGA1a
-MA0129	class	bZIP
-MA0129	total_ic	9.797
-MA0129	medline	10561063
-MA0129	sysgroup	PLANT
-MA0129	species	Nicotiana sp.
-MA0129	type	SELEX
-MA0129	acc	CAA34468
-MA0130	name	ZNF354C
-MA0130	class	ZN-FINGER, C2H2 
-MA0130	total_ic	8.958
-MA0130	medline	15555547
-MA0130	sysgroup	Vertebrate
-MA0130	species	Homo sapiens
-MA0130	type	SELEX
-MA0130	acc	Q86Y25
-MA0131	name	MIZF
-MA0131	class	ZN-FINGER, C2H2 
-MA0131	total_ic	13.197
-MA0131	medline	14752047
-MA0131	sysgroup	vertebrate
-MA0131	species	Homo sapiens
-MA0131	type	SELEX
-MA0131	acc	Q9BQA5
-MA0132	name	Pdx1
-MA0132	class	HOMEO
-MA0132	total_ic	9.040
-MA0132	medline	14704343
-MA0132	sysgroup	vertebrate
-MA0132	species	Mus musculus
-MA0132	type	SELEX
-MA0132	acc	NP_032840
-MA0133	name	BRCA1
-MA0133	class	-
-MA0133	comment	Multi-protein complex
-MA0133	total_ic	5.261
-MA0133	medline	14502648
-MA0133	sysgroup	
-MA0133	species	Homo sapiens
-MA0133	type	SELEX
-MA0133	acc	-
-MA0134	name	Lhx3
-MA0134	class	HOMEO
-MA0134	comment	two isoforms with different DNA models
-MA0134	total_ic	12.941
-MA0134	medline	15865204
-MA0134	sysgroup	vertebrate
-MA0134	species	Homo sapiens
-MA0134	type	SELEX
-MA0134	acc	AAF36809
-MA0135	name	Lhx3
-MA0135	class	HOMEO
-MA0135	comment	two isoforms with different DNA models
-MA0135	total_ic	16.354
-MA0135	medline	11602361
-MA0135	sysgroup	vertebrate
-MA0135	species	Mus musculus
-MA0135	type	SELEX
-MA0135	acc	P50481
-MA0136	name	ELF5
-MA0136	class	ETS
-MA0136	total_ic	8.693
-MA0136	medline	16704374
-MA0136	sysgroup	vertebrate
-MA0136	species	Mus musculus
-MA0136	type	SELEX
-MA0136	acc	
-MA0137	name	STAT1
-MA0137	class	Stat
-MA0137	total_ic	18.431
-MA0137	medline	17558387
-MA0137	sysgroup	vertebrate
-MA0137	species	Homo sapiens
-MA0137	type	COMPILED
-MA0137	acc	Q53XW4
-MA0138	name	REST
-MA0138	class	ZN-FINGER, C2H2 
-MA0138	total_ic	22.958
-MA0138	medline	-
-MA0138	sysgroup	vertebrate
-MA0138	species	Homo Sapiens
-MA0138	type	COMPILED
-MA0138	acc	NP_005603
+9229	class	Other Alpha-Helix
+9229	comment	-
+9229	family	MADS
+9229	medline	7632923
+9229	tax_group	plants
+9229	type	SELEX
+9231	class	Zipper-Type
+9231	comment	-
+9231	family	Helix-Loop-Helix
+9231	medline	10497269
+9231	pazar_tf_id	TF0000002
+9231	tax_group	vertebrates
+9231	type	SELEX
+9232	class	Zipper-Type
+9232	comment	-
+9232	family	Helix-Loop-Helix
+9232	medline	7592839
+9232	pazar_tf_id	TF0000003
+9232	tax_group	vertebrates
+9232	type	SELEX
+9233	class	Other Alpha-Helix
+9233	comment	dimer
+9233	family	MADS
+9233	medline	7901838
+9233	tax_group	plants
+9233	type	SELEX
+9234	class	Zipper-Type
+9234	comment	dimer
+9234	family	Helix-Loop-Helix
+9234	medline	7592839
+9234	pazar_tf_id	TF0000004
+9234	tax_group	vertebrates
+9234	type	SELEX
+9235	class	Zinc-coordinating
+9235	comment	-
+9235	family	Hormone-nuclear Receptor
+9235	medline	1491700
+9235	pazar_tf_id	TF0000005
+9235	tax_group	vertebrates
+9235	type	SELEX
+9236	class	Helix-Turn-Helix
+9236	comment	homodimer
+9236	family	Homeo
+9236	medline	8253077
+9236	tax_group	plants
+9236	type	SELEX
+9237	class	Beta-Hairpin-Ribbon
+9237	comment	-
+9237	family	T
+9237	medline	8344258
+9237	pazar_tf_id	TF0000006
+9237	tax_group	vertebrates
+9237	type	SELEX
+9238	class	Zinc-coordinating
+9238	comment	Different splice forms affect DNA binding: four matrices
+9238	family	BetaBetaAlpha-zinc finger
+9238	medline	8062827
+9238	pazar_tf_id	TF0000007
+9238	tax_group	insects
+9238	type	COMPILED
+9239	class	Zinc-coordinating
+9239	comment	Different splice forms affect DNA binding: four matrices
+9239	family	BetaBetaAlpha-zinc finger
+9239	medline	8062827
+9239	pazar_tf_id	TF0000008
+9239	tax_group	insects
+9239	type	COMPILED
+9240	class	Zinc-coordinating
+9240	comment	Different splice forms affect DNA binding: four matrices
+9240	family	BetaBetaAlpha-zinc finger
+9240	medline	8062827
+9240	pazar_tf_id	TF0000009
+9240	tax_group	insects
+9240	type	COMPILED
+9241	class	Zinc-coordinating
+9241	comment	Different splice forms affect DNA binding: four matrices
+9241	family	BetaBetaAlpha-zinc finger
+9241	medline	8062827
+9241	pazar_tf_id	TF0000010
+9241	tax_group	insects
+9241	type	COMPILED
+9242	class	Helix-Turn-Helix
+9242	comment	-
+9242	family	Homeo
+9242	medline	8406007
+9242	pazar_tf_id	TF0000011
+9242	tax_group	vertebrates
+9242	type	COMPILED
+9243	class	Zinc-coordinating
+9243	comment	-
+9243	family	BetaBetaAlpha-zinc finger
+9243	medline	1290524
+9243	tax_group	insects
+9243	type	SELEX
+9244	class	Zinc-coordinating
+9244	comment	-
+9244	family	Hormone-nuclear Receptor
+9244	medline	1280827
+9244	tax_group	insects
+9244	type	SELEX
+9245	class	Zinc-coordinating
+9245	comment	-
+9245	family	Hormone-nuclear Receptor
+9245	medline	8496174
+9245	pazar_tf_id	TF0000012
+9245	tax_group	vertebrates
+9245	type	COMPILED
+9247	class	Zipper-Type
+9247	comment	dimer between Ddit3 and Cebpa
+9247	family	Leucine Zipper
+9247	medline	8657121
+9247	tax_group	vertebrates
+9247	type	SELEX
+9248	class	Zinc-coordinating
+9248	comment	-
+9248	family	Dof
+9248	medline	10074718
+9248	tax_group	plants
+9248	type	SELEX
+9249	class	Zinc-coordinating
+9249	comment	-
+9249	family	Dof
+9249	medline	10074718
+9249	tax_group	plants
+9249	type	SELEX
+9250	class	Ig-fold
+9250	comment	dl has a dual binding specificity and therefore two models: MA0022 and MA0023
+9250	family	Rel
+9250	medline	1582412
+9250	tax_group	insects
+9250	type	SELEX
+9251	class	Ig-fold
+9251	comment	dl has a dual binding specificity and therefore two models: MA0022 and MA0023
+9251	family	Rel
+9251	medline	1582412
+9251	tax_group	insects
+9251	type	SELEX
+9252	class	Winged Helix-Turn-Helix
+9252	comment	-
+9252	family	E2F
+9252	medline	1411535
+9252	pazar_tf_id	TF0000014
+9252	tax_group	vertebrates
+9252	type	COMPILED
+9253	class	Zipper-Type
+9253	comment	-
+9253	family	Leucine Zipper
+9253	medline	1620116
+9253	pazar_tf_id	TF0000015
+9253	tax_group	vertebrates
+9253	type	SELEX
+9254	class	Winged Helix-Turn-Helix
+9254	comment	-
+9254	family	Ets
+9254	medline	2208281
+9254	tax_group	insects
+9254	type	SELEX
+9255	class	Helix-Turn-Helix
+9255	comment	-
+9255	family	Homeo
+9255	medline	8096059
+9255	pazar_tf_id	TF0000016
+9255	tax_group	vertebrates
+9255	type	SELEX
+9256	class	Winged Helix-Turn-Helix
+9256	comment	-
+9256	family	Ets
+9256	medline	1425594
+9256	pazar_tf_id	TF0000017
+9256	tax_group	vertebrates
+9256	type	SELEX
+9257	class	Zinc-coordinating
+9257	comment	-
+9257	family	BetaBetaAlpha-zinc finger
+9257	medline	8321231
+9257	pazar_tf_id	TF0000018
+9257	tax_group	vertebrates
+9257	type	SELEX
+9258	class	Winged Helix-Turn-Helix
+9258	comment	-
+9258	family	Forkhead
+9258	medline	7957066
+9258	pazar_tf_id	TF0000019
+9258	tax_group	vertebrates
+9258	type	SELEX
+9259	class	Winged Helix-Turn-Helix
+9259	comment	-
+9259	family	Forkhead
+9259	medline	7957066
+9259	tax_group	vertebrates
+9259	type	SELEX
+9260	class	Winged Helix-Turn-Helix
+9260	comment	-
+9260	family	Forkhead
+9260	medline	7957066
+9260	pazar_tf_id	TF0000020
+9260	tax_group	vertebrates
+9260	type	SELEX
+9261	class	Winged Helix-Turn-Helix
+9261	comment	-
+9261	family	Forkhead
+9261	medline	7957066
+9261	pazar_tf_id	TF0000021
+9261	tax_group	vertebrates
+9261	type	SELEX
+9262	class	Helix-Turn-Helix
+9262	comment	-
+9262	family	Myb
+9262	medline	10069063
+9262	tax_group	plants
+9262	type	SELEX
+9264	class	Zinc-coordinating
+9264	comment	-
+9264	family	GATA
+9264	medline	8321207
+9264	pazar_tf_id	TF0000023
+9264	tax_group	vertebrates
+9264	type	SELEX
+9265	class	Zinc-coordinating
+9265	comment	-
+9265	family	GATA
+9265	medline	8321207
+9265	pazar_tf_id	TF0000024
+9265	tax_group	vertebrates
+9265	type	SELEX
+9266	class	Zinc-coordinating
+9266	comment	-
+9266	family	BetaBetaAlpha-zinc finger
+9266	medline	8754800
+9266	pazar_tf_id	TF0000025
+9266	tax_group	vertebrates
+9266	type	SELEX
+9268	class	Winged Helix-Turn-Helix
+9268	comment	-
+9268	family	Forkhead
+9268	medline	8139574
+9268	tax_group	vertebrates
+9268	type	SELEX
+9269	class	Winged Helix-Turn-Helix
+9269	comment	-
+9269	family	Forkhead
+9269	medline	8139574
+9269	tax_group	vertebrates
+9269	type	SELEX
+9270	class	Winged Helix-Turn-Helix
+9270	comment	-
+9270	family	Forkhead
+9270	medline	9153225
+9270	pazar_tf_id	TF0000027
+9270	tax_group	vertebrates
+9270	type	SELEX
+9271	class	Zipper-Type
+9271	comment	-
+9271	family	Leucine Zipper
+9271	medline	8065331
+9271	pazar_tf_id	TF0000028
+9271	tax_group	vertebrates
+9271	type	SELEX
+9272	class	Other Alpha-Helix
+9272	comment	-
+9272	family	High Mobility Group
+9272	medline	9161031
+9272	tax_group	plants
+9272	type	SELEX
+9273	class	Other Alpha-Helix
+9273	comment	-
+9273	family	High Mobility Group
+9273	medline	9161031
+9273	tax_group	plants
+9273	type	SELEX
+9274	class	Helix-Turn-Helix
+9274	comment	-
+9274	family	Homeo
+9274	medline	9047360
+9274	tax_group	vertebrates
+9274	type	COMPILED
+9276	class	Zipper-Type
+9276	comment	-
+9276	family	Helix-Loop-Helix
+9276	medline	8289804
+9276	pazar_tf_id	TF0000030
+9276	tax_group	vertebrates
+9276	type	SELEX
+9277	class	Zinc-coordinating
+9277	comment	-
+9277	family	BetaBetaAlpha-zinc finger
+9277	medline	2507923
+9277	pazar_tf_id	TF0000031
+9277	tax_group	insects
+9277	type	COMPILED
+9278	class	Winged Helix-Turn-Helix
+9278	comment	-
+9278	family	IRF
+9278	medline	7687740
+9278	pazar_tf_id	TF0000032
+9278	tax_group	vertebrates
+9278	type	SELEX
+9279	class	Winged Helix-Turn-Helix
+9279	comment	-
+9279	family	IRF
+9279	medline	7687740
+9279	pazar_tf_id	TF0000033
+9279	tax_group	vertebrates
+9279	type	SELEX
+9280	class	Other Alpha-Helix
+9280	comment	-
+9280	family	MADS
+9280	medline	1748287
+9280	pazar_tf_id	TF0000034
+9280	tax_group	vertebrates
+9280	type	SELEX
+9281	class	Zinc-coordinating
+9281	comment	-
+9281	family	Dof
+9281	medline	10074718
+9281	tax_group	plants
+9281	type	SELEX
+9282	class	Helix-Turn-Helix
+9282	comment	-
+9282	family	Myb
+9282	medline	7737128
+9282	tax_group	plants
+9282	type	SELEX
+9283	class	Zipper-Type
+9283	comment	-
+9283	family	Helix-Loop-Helix
+9283	medline	9571041
+9283	tax_group	vertebrates
+9283	type	COMPILED
+9284	class	Zinc-coordinating
+9284	comment	-
+9284	family	BetaBetaAlpha-zinc finger
+9284	medline	8114711
+9284	pazar_tf_id	TF0000035
+9284	tax_group	vertebrates
+9284	type	SELEX
+9285	class	Zinc-coordinating
+9285	comment	-
+9285	family	BetaBetaAlpha-zinc finger
+9285	medline	8114711
+9285	pazar_tf_id	TF0000036
+9285	tax_group	vertebrates
+9285	type	SELEX
+9286	class	Zipper-Type
+9286	comment	-
+9286	family	Helix-Loop-Helix
+9286	medline	8265351
+9286	pazar_tf_id	TF0000037
+9286	tax_group	vertebrates
+9286	type	SELEX
+9287	class	Zipper-Type
+9287	comment	Heterodimer of MYC and MAX 
+9287	family	Helix-Loop-Helix
+9287	medline	8265351
+9287	pazar_tf_id	TF0000038
+9287	tax_group	vertebrates
+9287	type	SELEX
+9288	class	Other Alpha-Helix
+9288	comment	-
+9288	family	NFY CCAAT-binding
+9288	medline	9469818
+9288	tax_group	vertebrates
+9288	type	COMPILED
+9289	class	Ig-fold
+9289	comment	-
+9289	family	Rel
+9289	medline	8449662
+9289	tax_group	vertebrates
+9289	type	COMPILED
+9291	class	Helix-Turn-Helix
+9291	comment	-
+9291	family	Homeo
+9291	medline	7797561
+9291	pazar_tf_id	TF0000040
+9291	tax_group	vertebrates
+9291	type	SELEX
+9292	class	Zinc-coordinating
+9292	comment	-
+9292	family	Dof
+9292	medline	10074718
+9292	tax_group	plants
+9292	type	SELEX
+9294	class	Zinc-coordinating
+9294	comment	-
+9294	family	Hormone-nuclear Receptor
+9294	medline	11139380
+9294	pazar_tf_id	TF0000042
+9294	tax_group	vertebrates
+9294	type	SELEX
+9295	class	Helix-Turn-Helix
+9295	comment	-
+9295	family	Homeo
+9295	medline	8132558
+9295	pazar_tf_id	TF0000043
+9295	tax_group	vertebrates
+9295	type	SELEX
+9296	class	Helix-Turn-Helix
+9296	comment	-
+9296	family	Homeo
+9296	medline	10567552
+9296	pazar_tf_id	TF0000044
+9296	tax_group	vertebrates
+9296	type	SELEX
+9297	class	Helix-Turn-Helix
+9297	comment	-
+9297	family	Homeo
+9297	medline	8132558
+9297	pazar_tf_id	TF0000045
+9297	tax_group	vertebrates
+9297	type	SELEX
+9298	class	Helix-Turn-Helix
+9298	comment	-
+9298	family	Homeo
+9298	medline	7910944
+9298	pazar_tf_id	TF0000046
+9298	tax_group	vertebrates
+9298	type	SELEX
+9299	class	Zinc-coordinating
+9299	comment	isoform type
+9299	family	Hormone-nuclear Receptor
+9299	medline	7926749
+9299	pazar_tf_id	TF0000047
+9299	tax_group	vertebrates
+9299	type	SELEX
+9300	class	Zinc-coordinating
+9300	comment	isoform type
+9300	family	Hormone-nuclear Receptor
+9300	medline	7926749
+9300	pazar_tf_id	TF0000048
+9300	tax_group	vertebrates
+9300	type	SELEX
+9301	class	Zinc-coordinating
+9301	comment	-
+9301	family	BetaBetaAlpha-zinc finger
+9301	medline	8816445
+9301	pazar_tf_id	TF0000049
+9301	tax_group	vertebrates
+9301	type	SELEX
+9302	class	Zinc-coordinating
+9302	comment	heterodimer between RXRA and VDR
+9302	family	Hormone-nuclear Receptor
+9302	medline	8674817
+9302	pazar_tf_id	TF0000050
+9302	tax_group	vertebrates
+9302	type	SELEX
+9303	class	Helix-Turn-Helix
+9303	comment	-
+9303	family	Homeo
+9303	medline	7901837
+9303	pazar_tf_id	TF0000051
+9303	tax_group	vertebrates
+9303	type	SELEX
+9304	class	Winged Helix-Turn-Helix
+9304	comment	-
+9304	family	Ets
+9304	medline	8524663
+9304	pazar_tf_id	TF0000052
+9304	tax_group	vertebrates
+9304	type	SELEX
+9305	class	Other Alpha-Helix
+9305	comment	-
+9305	family	High Mobility Group
+9305	medline	9973626
+9305	pazar_tf_id	TF0000053
+9305	tax_group	vertebrates
+9305	type	SELEX
+9306	class	Other Alpha-Helix
+9306	comment	-
+9306	family	High Mobility Group
+9306	medline	8636240
+9306	pazar_tf_id	TF0000054
+9306	tax_group	vertebrates
+9306	type	SELEX
+9309	class	Winged Helix-Turn-Helix
+9309	comment	-
+9309	family	Ets
+9309	medline	7624145
+9309	pazar_tf_id	TF0000057
+9309	tax_group	vertebrates
+9309	type	SELEX
+9310	class	Other Alpha-Helix
+9310	comment	-
+9310	family	MADS
+9310	medline	9826749
+9310	tax_group	plants
+9310	type	SELEX
+9311	class	Other Alpha-Helix
+9311	comment	-
+9311	family	MADS
+9311	medline	2243767
+9311	pazar_tf_id	TF0000058
+9311	tax_group	vertebrates
+9311	type	SELEX
+9312	class	Other Alpha-Helix
+9312	comment	-
+9312	family	High Mobility Group
+9312	medline	8190643
+9312	pazar_tf_id	TF0000059
+9312	tax_group	vertebrates
+9312	type	SELEX
+9313	class	Other
+9313	comment	-
+9313	family	LAG1
+9313	medline	7590239
+9313	pazar_tf_id	TF0000060
+9313	tax_group	insects
+9313	type	COMPILED
+9314	class	Zinc-coordinating
+9314	comment	-
+9314	family	BetaBetaAlpha-zinc finger
+9314	medline	8371971
+9314	pazar_tf_id	TF0000061
+9314	tax_group	insects
+9314	type	SELEX
+9315	class	Other Alpha-Helix
+9315	comment	-
+9315	family	High Mobility Group
+9315	medline	1396566
+9315	pazar_tf_id	TF0000062
+9315	tax_group	vertebrates
+9315	type	SELEX
+9316	class	Zinc-coordinating
+9316	comment	-
+9316	family	BetaBetaAlpha-zinc finger
+9316	medline	9009278
+9316	tax_group	vertebrates
+9316	type	COMPILED
+9317	class	Zipper-Type
+9317	comment	Heterodimer between TCF11 and Mafg
+9317	family	Leucine Zipper
+9317	medline	9421508
+9317	pazar_tf_id	TF0000063
+9317	tax_group	vertebrates
+9317	type	SELEX
+9318	class	Helix-Turn-Helix
+9318	comment	-
+9318	family	Homeo
+9318	medline	9571041
+9318	pazar_tf_id	TF0000064
+9318	tax_group	vertebrates
+9318	type	COMPILED
+9319	class	Zipper-Type
+9319	comment	Heterodimer between TAL1 and TCF3
+9319	family	Helix-Loop-Helix
+9319	medline	8289805
+9319	pazar_tf_id	TF0000065
+9319	tax_group	vertebrates
+9319	type	SELEX
+9320	class	Zipper-Type
+9320	comment	-
+9320	family	Helix-Loop-Helix
+9320	medline	7791788
+9320	pazar_tf_id	TF0000066
+9320	tax_group	vertebrates
+9320	type	SELEX
+9321	class	Zipper-Type
+9321	comment	-
+9321	family	Helix-Loop-Helix
+9321	medline	8052536
+9321	pazar_tf_id	TF0000067
+9321	tax_group	vertebrates
+9321	type	SELEX
+9323	class	Zinc-coordinating
+9323	comment	-
+9323	family	BetaBetaAlpha-zinc finger
+9323	medline	7816599
+9323	pazar_tf_id	TF0000069
+9323	tax_group	vertebrates
+9323	type	COMPILED
+9324	class	Zipper-Type
+9324	comment	-
+9324	family	Leucine Zipper
+9324	medline	9680995
+9324	tax_group	plants
+9324	type	SELEX
+9325	class	Zipper-Type
+9325	comment	-
+9325	family	Leucine Zipper
+9325	medline	9680995
+9325	tax_group	plants
+9325	type	SELEX
+9326	class	Winged Helix-Turn-Helix
+9326	comment	-
+9326	family	Ets
+9326	medline	1542566
+9326	pazar_tf_id	TF0000070
+9326	tax_group	vertebrates
+9326	type	SELEX
+9328	class	Helix-Turn-Helix
+9328	comment	-
+9328	family	Myb
+9328	medline	1861984
+9328	pazar_tf_id	TF0000072
+9328	tax_group	vertebrates
+9328	type	SELEX
+9329	class	Ig-fold
+9329	comment	-
+9329	family	Rel
+9329	medline	1406630
+9329	pazar_tf_id	TF0000073
+9329	tax_group	vertebrates
+9329	type	SELEX
+9331	class	Zinc-coordinating
+9331	comment	-
+9331	family	BetaBetaAlpha-zinc finger
+9331	medline	8065305
+9331	pazar_tf_id	TF0000074
+9331	tax_group	vertebrates
+9331	type	SELEX
+9333	class	Ig-fold
+9333	comment	-
+9333	family	Rel
+9333	medline	1406630
+9333	pazar_tf_id	TF0000076
+9333	tax_group	vertebrates
+9333	type	SELEX
+9334	class	Zinc-coordinating
+9334	comment	-
+9334	family	Loop-Sheet-Helix
+9334	medline	1588974
+9334	pazar_tf_id	TF0000077
+9334	tax_group	vertebrates
+9334	type	SELEX
+9335	class	Ig-fold
+9335	comment	-
+9335	family	Rel
+9335	medline	1406630
+9335	pazar_tf_id	TF0000078
+9335	tax_group	vertebrates
+9335	type	SELEX
+9337	class	Beta-sheet
+9337	comment	column 7 error fixed in version 2 
+9337	family	TATA-binding
+9337	medline	2329577
+9337	tax_group	vertebrates
+9338	class	Zinc-coordinating
+9338	comment	updated matrix sincle last release
+9338	family	GATA
+9338	medline	12198246
+9338	tax_group	vertebrates
+9338	type	SELEX
+9339	class	Helix-Turn-Helix
+9339	comment	updated matrix since last release
+9339	family	Homeo
+9339	medline	11247607
+9339	tax_group	plants
+9339	type	SELEX
+9340	class	Other
+9340	comment	-
+9340	family	Other
+9340	medline	11165476
+9340	pazar_tf_id	TF0000079
+9340	tax_group	vertebrates
+9340	type	SELEX
+9342	class	Zinc-coordinating
+9342	comment	-
+9342	family	Hormone-nuclear Receptor
+9342	medline	15563547
+9342	tax_group	vertebrates
+9342	type	COMPILED
+9343	class	Zinc-coordinating
+9343	comment	-
+9343	family	Hormone-nuclear Receptor
+9343	medline	12385991
+9343	tax_group	vertebrates
+9343	type	COMPILED
+9344	class	Zinc-coordinating
+9344	comment	heterodimer between NR1H2 and RXR
+9344	family	Hormone-nuclear Receptor
+9344	medline	10187832
+9344	pazar_tf_id	TF0000080
+9344	tax_group	vertebrates
+9344	type	SELEX
+9345	class	Zinc-coordinating
+9345	comment	-
+9345	family	BetaBetaAlpha-zinc finger
+9345	medline	9774661
+9345	pazar_tf_id	TF0000081
+9345	tax_group	vertebrates
+9345	type	SELEX
+9346	class	Zipper-Type
+9346	comment	-
+9346	family	Leucine Zipper
+9346	medline	9571165
+9346	pazar_tf_id	TF0000082
+9346	tax_group	vertebrates
+9346	type	SELEX
+9347	class	Zinc-coordinating
+9347	comment	-
+9347	family	BetaBetaAlpha-zinc finger
+9347	medline	15661650
+9347	tax_group	urochordates
+9347	type	SELEX
+9348	class	Helix-Turn-Helix::Other
+9348	comment	heterodimer between TLX1 and NFIC
+9348	family	Homeo::Nuclear Factor I-CCAAT-binding
+9348	medline	10327073
+9348	pazar_tf_id	TF0000083
+9348	tax_group	vertebrates
+9348	type	SELEX
+9349	class	Zinc-coordinating
+9349	comment	-
+9349	family	BetaBetaAlpha-zinc finger
+9349	medline	15020707
+9349	tax_group	plants
+9349	type	SELEX
+9350	class	Helix-Turn-Helix
+9350	comment	-
+9350	family	Myb
+9350	medline	12215502
+9350	tax_group	plants
+9350	type	SELEX
+9351	class	Helix-Turn-Helix
+9351	comment	-
+9351	family	Homeo
+9351	medline	12746429
+9351	pazar_tf_id	TF0000084
+9351	tax_group	vertebrates
+9351	type	SELEX
+9352	class	Beta-Hairpin-Ribbon
+9352	comment	-
+9352	family	AP2 MBD-like
+9352	medline	12368505
+9352	tax_group	plants
+9352	type	SELEX
+9353	class	Helix-Turn-Helix
+9353	comment	-
+9353	family	Homeo
+9353	medline	10871372
+9353	pazar_tf_id	TF0000819
+9353	tax_group	vertebrates
+9353	type	SELEX
+9354	class	Helix-Turn-Helix
+9354	comment	-
+9354	family	Homeo
+9354	medline	16997917
+9354	pazar_tf_id	TF0000820
+9354	tax_group	vertebrates
+9354	type	SELEX
+9355	class	Zinc-coordinating
+9355	comment	-
+9355	family	BetaBetaAlpha-zinc finger
+9355	medline	10637336
+9355	pazar_tf_id	TF0000821
+9355	tax_group	insects
+9355	type	SELEX
+9356	class	Zipper-Type
+9356	comment	-
+9356	family	Leucine Zipper
+9356	medline	9973626
+9356	tax_group	plants
+9356	type	SELEX
+9357	class	Zipper-Type
+9357	comment	-
+9357	family	Leucine Zipper
+9357	medline	10561063
+9357	tax_group	plants
+9357	type	SELEX
+9358	class	Zipper-Type
+9358	comment	-
+9358	family	Leucine Zipper
+9358	medline	10561063
+9358	tax_group	plants
+9358	type	SELEX
+9359	class	Zinc-coordinating
+9359	comment	-
+9359	family	BetaBetaAlpha-zinc finger
+9359	medline	15555547
+9359	pazar_tf_id	TF0000822
+9359	tax_group	vertebrates
+9359	type	SELEX
+9360	class	Zinc-coordinating
+9360	comment	-
+9360	family	BetaBetaAlpha-zinc finger
+9360	medline	14752047
+9360	pazar_tf_id	TF0000823
+9360	tax_group	vertebrates
+9360	type	SELEX
+9361	class	Helix-Turn-Helix
+9361	comment	-
+9361	family	Homeo
+9361	medline	14704343
+9361	pazar_tf_id	TF0000824
+9361	tax_group	vertebrates
+9361	type	SELEX
+9362	class	Other
+9362	comment	Multi-protein complex
+9362	family	Other
+9362	medline	14502648
+9362	pazar_tf_id	TF0000825
+9362	tax_group	vertebrates
+9362	type	SELEX
+9363	class	Helix-Turn-Helix
+9363	comment	-
+9363	family	Homeo
+9363	medline	11602361
+9363	pazar_tf_id	TF0000827
+9363	tax_group	vertebrates
+9363	type	SELEX
+9364	class	Winged Helix-Turn-Helix
+9364	comment	-
+9364	family	Ets
+9364	medline	16704374
+9364	pazar_tf_id	TF0000828
+9364	tax_group	vertebrates
+9364	type	SELEX
+9367	class	Zinc-coordinating 
+9367	comment	-
+9367	family	BetaBetaAlpha-zinc finger
+9367	medline	17512414 
+9367	pazar_tf_id	TF0000607
+9367	tax_group	vertebrates
+9367	type	ChiP-seq
+9368	class	Zipper-Type 
+9368	comment	Heterodimer between TAL1 and GATA1. Data is from Frank Grosveld's Lab.
+9368	family	Helix-Loop-Helix
+9368	medline	-
+9368	pazar_tf_id	TF0000022
+9368	tax_group	vertebrates
+9368	type	ChiP-seq
+9369	class	Zinc-coordinating      
+9369	comment	-
+9369	family	Hormone-nuclear Receptor
+9369	medline	18555785           
+9369	pazar_tf_id	-
+9369	tax_group	vertebrates
+9369	type	ChiP-seq
+9370	class	Helix-Turn-Helix
+9370	comment	-
+9370	family	Homeo
+9370	medline	18555785
+9370	pazar_tf_id	-
+9370	tax_group	vertebrates
+9370	type	Chip-seq
+9371	class	Other Alpha-Helix
+9371	comment	-
+9371	family	High Mobility Group
+9371	medline	18555785
+9371	pazar_tf_id	TF0000779
+9371	tax_group	vertebrates
+9371	type	ChiP-seq
+9372	class	Ig-fold
+9372	comment	-
+9372	family	Stat
+9372	medline	18555785 
+9372	pazar_tf_id	TF0000492
+9372	tax_group	vertebrates
+9372	type	ChiP-seq
+9373	class	Other
+9373	comment	-
+9373	family	CP2
+9373	medline	18555785 
+9373	pazar_tf_id	-
+9373	tax_group	vertebrates
+9373	type	ChiP-seq
+9374	class	Zinc-coordinating
+9374	comment	-
+9374	family	BetaBetaAlpha-zinc finger
+9374	medline	18555785
+9374	pazar_tf_id	-
+9374	tax_group	vertebrates
+9374	type	ChiP-seq
+9375	class	Zipper-Type
+9375	comment	-
+9375	family	Helix-Loop-Helix
+9375	medline	18555785
+9375	pazar_tf_id	TF0000420
+9375	tax_group	vertebrates
+9375	type	ChiP-seq
+9376	class	Winged Helix-Turn-Helix
+9376	comment	-
+9376	family	Forkhead
+9376	medline	18798982
+9376	pazar_tf_id	TF0000263
+9376	tax_group	vertebrates
+9376	type	ChiP-Seq
+9377	class	Winged Helix-Turn-Helix
+9377	comment	fusion protein between EWSR1 and FLI1 in an oncogenic event.
+9377	family	Ets
+9377	medline	19305498
+9377	pazar_tf_id	TF0000660
+9377	tax_group	vertebrates
+9377	type	ChiP-seq
+9378	class	Winged Helix-Turn-Helix
+9378	comment	-
+9378	family	Ets
+9378	medline	19160518  
+9378	pazar_tf_id	TF0000039
+9378	tax_group	vertebrates
+9378	type	ChiP-seq
+9379	class	Zinc-coordinating 
+9379	comment	Data is from Frank Grosveld's Lab. 
+9379	family	GATA
+9379	medline	-
+9379	pazar_tf_id	TF0000022
+9379	tax_group	vertebrates
+9379	type	ChiP-seq
+9380	class	Zinc-coordinating
+9380	comment	- 
+9380	family	BetaBetaAlpha-zinc finger
+9380	medline	18555785 
+9380	pazar_tf_id	TF0000026
+9380	tax_group	vertebrates
+9380	type	ChiP-seq
+9381	class	Zinc-coordinating
+9381	comment	-
+9381	family	BetaBetaAlpha-zinc finger
+9381	medline	17540862 
+9381	pazar_tf_id	TF0000830
+9381	tax_group	vertebrates
+9381	type	Chip-seq
+9382	class	Ig-fold
+9382	comment	Data is from Frank Grosveld's Lab.
+9382	family	Runt
+9382	medline	-
+9382	pazar_tf_id	TF0000001
+9382	tax_group	vertebrates
+9382	type	ChiP-seq
+9383	class	Ig-fold
+9383	comment	-
+9383	family	Stat
+9383	medline	17558387
+9383	pazar_tf_id	TF0000829
+9383	tax_group	vertebrates
+9383	type	ChiP-seq
+9384	class	Zipper-Type
+9384	comment	-
+9384	family	Helix-Loop-Helix
+9384	medline	18555785
+9384	pazar_tf_id	TF0000075
+9384	tax_group	vertebrates
+9384	type	ChiP-Seq
+9385	class	Winged Helix-Turn-Helix
+9385	comment	-
+9385	family	Forkhead
+9385	medline	19553195 
+9385	pazar_tf_id	TF0000029
+9385	tax_group	vertebrates
+9385	type	ChiP-seq
+9386	class	Zinc-coordinating
+9386	comment	-
+9386	family	Hormone-nuclear Receptor
+9386	medline	19339991
+9386	pazar_tf_id	TF0000189
+9386	tax_group	vertebrates
+9386	type	ChiP-seq
+9387	class	Zinc-coordinating
+9387	comment	Heterodimer between PPARG and RXRA
+9387	family	Hormone-nuclear Receptor
+9387	medline	18981474
+9387	pazar_tf_id	
+9387	tax_group	vertebrates
+9387	type	ChiP-seq
+9388	class	Zipper-Type
+9388	comment	Annotations from PAZAR NFE2L2(NRF2) in the AREs project (TF0000699).
+9388	family	Leucine Zipper
+9388	medline	17916232
+9388	pazar_tf_id	TF0000699
+9388	tax_group	vertebrates
+9388	type	COMPILED
+9389	class	Helix-Turn-Helix
+9389	comment	Annotations from PAZAR ARID3A_MOUSE in the TFe project (TF0000816).
+9389	family	Arid
+9389	medline	8543152
+9389	pazar_tf_id	TF0000816
+9389	tax_group	vertebrates
+9389	type	SELEX
+9390	class	Ig-fold
+9390	comment	Annotations from PAZAR NFAT1_MOUSE + NFAT1_HUMAN + NFAT1_RAT (TF0000191, TF0000193, TF0000195) in the pleiades genes project.
+9390	family	Rel
+9390	medline	17916232
+9390	pazar_tf_id	TF0000193
+9390	tax_group	vertebrates
+9390	type	COMPILED
+9391	class	Helix-Turn-Helix
+9391	comment	Annotations from PAZAR HNF1B_HUMAN + HNF1B_MOUSE (TF0000780, TF0000782) in the TFe project.
+9391	family	Homeo
+9391	medline	17916232
+9391	pazar_tf_id	TF0000780
+9391	tax_group	vertebrates
+9391	type	COMPILED
+9392	class	Zipper-Type
+9392	comment	Annotations from PAZAR EBF1_MOUSE (TF0000762) in the Olf_Ebf_TFBS project.
+9392	family	Helix-Loop-Helix
+9392	medline	17916232
+9392	pazar_tf_id	TF0000762
+9392	tax_group	vertebrates
+9392	type	COMPILED
+9393	class	Zinc-coordinating
+9393	comment	Annotations from PAZAR INSM1_HUMAN (TF0000773) in the TFe project.
+9393	family	BetaBetaAlpha-zinc finger
+9393	medline	17916232
+9393	pazar_tf_id	TF0000773
+9393	tax_group	vertebrates
+9393	type	COMPILED
+9394	class	Winged Helix-Turn-Helix
+9394	comment	Annotations from PAZAR FEV_RAT + FEV_HUMAN (TF0000158, TF0000163) in the pleiades genes project.
+9394	family	Ets
+9394	medline	17916232
+9394	pazar_tf_id	TF0000163
+9394	tax_group	vertebrates
+9394	type	COMPILED
+9395	class	Winged Helix-Turn-Helix
+9395	comment	Annotations from PAZAR FOXO3_MOUSE + FOXO3_HUMAN (TF0000811, TF0000812) in the TFe project.
+9395	family	Forkhead
+9395	medline	17916232
+9395	pazar_tf_id	-
+9395	tax_group	vertebrates
+9395	type	COMPILED
+9396	class	Helix-Turn-Helix
+9396	comment	Annotations from PAZAR HOXA5_MOUSE + HOXA5_HUMAN (TF0000293, TF0000501) in the pleiades genes project.
+9396	family	Homeo
+9396	medline	17916232
+9396	pazar_tf_id	TF0000501
+9396	tax_group	vertebrates
+9396	type	COMPILED
+9397	class	Zinc-coordinating
+9397	comment	Dimer. Annotations from PAZAR RXR/RAR_HUMAN (TF0000788) in the RARE project.
+9397	family	Hormone-nuclear Receptor
+9397	medline	17916232
+9397	pazar_tf_id	TF0000788
+9397	tax_group	vertebrates
+9397	type	COMPILED
+9398	class	Zinc-coordinating
+9398	comment	Annotations from PAZAR NR4A2_MOUSE + NR4A2_RAT + NR4A2_HUMAN (TF0000135, TF0000153, TF0000157) in the pleiades genes project.
+9398	family	Hormone-nuclear Receptor
+9398	medline	17916232
+9398	pazar_tf_id	TF0000135
+9398	tax_group	vertebrates
+9398	type	COMPILED
+9399	class	Other
+9399	comment	Half-site reported based on MEME analysis of SELEX sequences
+9399	family	NFI CCAAT-binding
+9399	medline	12101405
+9399	pazar_tf_id	TF0000368
+9399	tax_group	vertebrates
+9399	type	High-throughput SELEX SAGE
+9400	class	Zinc-coordinating
+9400	comment	aka Zif268
+9400	family	BetaBetaAlpha-zinc finger
+9400	medline	16041365
+9400	pazar_tf_id	TF0000345
+9400	tax_group	vertebrates
+9400	type	bacterial 1-hybrid
+9401	class	Zinc-coordinating
+9401	family	BetaBetaAlpha-zinc finger
+9401	medline	16041365
+9401	pazar_tf_id	-
+9401	tax_group	vertebrates
+9401	type	bacterial 1-hybrid
+9402	class	Zinc-coordinating
+9402	family	Hormone-nuclear Receptor
+9402	medline	15634773
+9402	pazar_tf_id	-
+9402	tax_group	vertebrates
+9402	type	SELEX
+9403	class	Winged Helix-Turn-Helix
+9403	comment	Annotations from PAZAR PU.1 in the pleiades genes project (TF0000134).
+9403	family	Ets
+9403	medline	17916232 
+9403	pazar_tf_id	TF0000056
+9403	tax_group	vertebrates
+9403	type	COMPILED
+9404	class	Zipper-Type
+9404	comment	Annotations from PAZAR CREB1_RAT + CREB1_HUMAN + CREB1_MOUSE in the pleiades genes project (TF0000110, TF0000150, TF0000732).
+9404	family	Leucine Zipper
+9404	medline	17916232 
+9404	pazar_tf_id	TF0000013
+9404	tax_group	vertebrates
+9404	type	COMPILED
+9405	class	Zipper-Type
+9405	comment	Dimer. Annotations from PAZAR C-JUN + JUN_RAT + JUN_MOUSE + JUN_HUMAN + FOS/JUN_HUMAN + FOS_HUMAN in the pleiades genes project (TF0000129, TF0000147, TF0000234, TF0000243, TF0000670, TF0000287).
+9405	family	Leucine Zipper
+9405	medline	17916232
+9405	pazar_tf_id	TF0000071
+9405	tax_group	vertebrates
+9405	type	COMPILED
+9406	class	Zinc-coordinating
+9406	comment	Annotations from PAZAR SP1 + SP1_MOUSE + SP1_HUMAN + SP1_RAT in the pleiades genes project (TF0000105, TF0000121, TF0000137, TF0000146).
+9406	family	BetaBetaAlpha-zinc finger
+9406	medline	17916232
+9406	pazar_tf_id	TF0000055
+9406	tax_group	vertebrates
+9406	type	COMPILED
+9407	class	Zipper-Type
+9407	comment	last 3 nt removed
+9407	family	Leucine Zipper
+9407	medline	1672737
+9407	tax_group	vertebrates
+9407	type	COMPILED
+9408	class	Helix-Turn-Helix
+9408	comment	-
+9408	family	Homeo
+9408	medline	18332042
+9408	tax_group	insects
+9408	type	bacterial 1-hybrid
+9409	class	Helix-Turn-Helix
+9409	comment	-
+9409	family	Homeo
+9409	medline	18332042
+9409	tax_group	insects
+9409	type	bacterial 1-hybrid
+9410	class	Helix-Turn-Helix
+9410	comment	-
+9410	family	Homeo
+9410	medline	18332042
+9410	tax_group	insects
+9410	type	bacterial 1-hybrid
+9411	class	Helix-Turn-Helix
+9411	comment	-
+9411	family	Homeo
+9411	medline	18332042
+9411	tax_group	insects
+9411	type	bacterial 1-hybrid
+9412	class	Helix-Turn-Helix
+9412	comment	-
+9412	family	Homeo
+9412	medline	18332042
+9412	tax_group	insects
+9412	type	bacterial 1-hybrid
+9413	class	Helix-Turn-Helix
+9413	comment	-
+9413	family	Homeo
+9413	medline	18332042
+9413	tax_group	insects
+9413	type	bacterial 1-hybrid
+9414	class	Helix-Turn-Helix
+9414	comment	-
+9414	family	Homeo
+9414	medline	18332042
+9414	tax_group	insects
+9414	type	bacterial 1-hybrid
+9415	class	Helix-Turn-Helix
+9415	comment	-
+9415	family	Homeo
+9415	medline	18332042
+9415	tax_group	insects
+9415	type	bacterial 1-hybrid
+9416	class	Helix-Turn-Helix
+9416	comment	-
+9416	family	Homeo
+9416	medline	18332042
+9416	tax_group	insects
+9416	type	bacterial 1-hybrid
+9417	class	Helix-Turn-Helix
+9417	comment	formerly CG12361
+9417	family	Homeo
+9417	medline	18332042
+9417	tax_group	insects
+9417	type	bacterial 1-hybrid
+9418	class	Helix-Turn-Helix
+9418	comment	-
+9418	family	Homeo
+9418	medline	18332042
+9418	tax_group	insects
+9418	type	bacterial 1-hybrid
+9419	class	Helix-Turn-Helix
+9419	comment	-
+9419	family	Homeo
+9419	medline	18332042
+9419	tax_group	insects
+9419	type	bacterial 1-hybrid
+9420	class	Helix-Turn-Helix
+9420	comment	-
+9420	family	Homeo
+9420	medline	18332042
+9420	tax_group	insects
+9420	type	bacterial 1-hybrid
+9421	class	Helix-Turn-Helix
+9421	comment	-
+9421	family	Homeo
+9421	medline	18332042
+9421	tax_group	insects
+9421	type	bacterial 1-hybrid
+9422	class	Helix-Turn-Helix
+9422	comment	-
+9422	family	Homeo
+9422	medline	18332042
+9422	tax_group	insects
+9422	type	bacterial 1-hybrid
+9423	class	Helix-Turn-Helix
+9423	comment	-
+9423	family	Homeo
+9423	medline	18585360
+9423	tax_group	insects
+9423	type	bacterial 1-hybrid
+9424	class	Helix-Turn-Helix
+9424	comment	-
+9424	family	Homeo
+9424	medline	18332042
+9424	tax_group	insects
+9424	type	bacterial 1-hybrid
+9425	class	Helix-Turn-Helix
+9425	comment	-
+9425	family	Homeo
+9425	medline	18332042
+9425	tax_group	insects
+9425	type	bacterial 1-hybrid
+9426	class	Helix-Turn-Helix
+9426	comment	-
+9426	family	Homeo
+9426	medline	18585360
+9426	tax_group	insects
+9426	type	bacterial 1-hybrid
+9427	class	Helix-Turn-Helix
+9427	comment	-
+9427	family	Homeo
+9427	medline	18332042
+9427	tax_group	insects
+9427	type	bacterial 1-hybrid
+9428	class	Other Alpha-Helix
+9428	comment	-
+9428	family	Sand
+9428	medline	15572468
+9428	tax_group	insects
+9428	type	DNaseI footprinting
+9429	class	Helix-Turn-Helix
+9429	comment	-
+9429	family	Homeo
+9429	medline	18332042
+9429	tax_group	insects
+9429	type	bacterial 1-hybrid
+9430	class	Helix-Turn-Helix
+9430	comment	-
+9430	family	Homeo
+9430	medline	18585360
+9430	tax_group	insects
+9430	type	bacterial 1-hybrid
+9431	class	Helix-Turn-Helix
+9431	comment	-
+9431	family	Homeo
+9431	medline	18332042
+9431	tax_group	insects
+9431	type	bacterial 1-hybrid
+9432	class	Helix-Turn-Helix
+9432	comment	-
+9432	family	Homeo
+9432	medline	18332042
+9432	tax_group	insects
+9432	type	bacterial 1-hybrid
+9433	class	Helix-Turn-Helix
+9433	comment	-
+9433	family	Homeo
+9433	medline	18332042
+9433	tax_group	insects
+9433	type	bacterial 1-hybrid
+9434	class	Helix-Turn-Helix
+9434	comment	-
+9434	family	Homeo
+9434	medline	18332042
+9434	tax_group	insects
+9434	type	bacterial 1-hybrid
+9435	class	Helix-Turn-Helix
+9435	comment	-
+9435	family	Homeo
+9435	medline	18332042
+9435	tax_group	insects
+9435	type	bacterial 1-hybrid
+9436	class	Helix-Turn-Helix
+9436	comment	-
+9436	family	Homeo
+9436	medline	18332042
+9436	tax_group	insects
+9436	type	bacterial 1-hybrid
+9437	class	Helix-Turn-Helix
+9437	comment	-
+9437	family	Homeo
+9437	medline	18332042
+9437	tax_group	insects
+9437	type	bacterial 1-hybrid
+9438	class	Helix-Turn-Helix
+9438	comment	-
+9438	family	Homeo
+9438	medline	18332042
+9438	tax_group	insects
+9438	type	bacterial 1-hybrid
+9439	class	Helix-Turn-Helix
+9439	comment	-
+9439	family	Homeo
+9439	medline	18332042
+9439	tax_group	insects
+9439	type	bacterial 1-hybrid
+9440	class	Helix-Turn-Helix
+9440	comment	-
+9440	family	Homeo
+9440	medline	18585360
+9440	tax_group	insects
+9440	type	bacterial 1-hybrid
+9441	class	Helix-Turn-Helix
+9441	comment	-
+9441	family	Homeo
+9441	medline	18332042
+9441	tax_group	insects
+9441	type	bacterial 1-hybrid
+9442	class	Helix-Turn-Helix
+9442	comment	-
+9442	family	Homeo
+9442	medline	18332042
+9442	tax_group	insects
+9442	type	bacterial 1-hybrid
+9443	class	Helix-Turn-Helix
+9443	comment	-
+9443	family	Homeo
+9443	medline	18332042
+9443	tax_group	insects
+9443	type	bacterial 1-hybrid
+9444	class	Helix-Turn-Helix
+9444	comment	-
+9444	family	Homeo
+9444	medline	18585360
+9444	tax_group	insects
+9444	type	bacterial 1-hybrid
+9445	class	Helix-Turn-Helix
+9445	comment	-
+9445	family	Homeo
+9445	medline	18332042
+9445	tax_group	insects
+9445	type	bacterial 1-hybrid
+9446	class	Helix-Turn-Helix
+9446	comment	-
+9446	family	Homeo
+9446	medline	18332042
+9446	tax_group	insects
+9446	type	bacterial 1-hybrid
+9447	class	Helix-Turn-Helix
+9447	comment	-
+9447	family	Homeo
+9447	medline	18332042
+9447	tax_group	insects
+9447	type	bacterial 1-hybrid
+9448	class	Zinc-coordinating
+9448	comment	-
+9448	family	BetaBetaAlpha-zinc finger
+9448	medline	15572468
+9448	tax_group	insects
+9448	type	DNaseI footprinting
+9449	class	Helix-Turn-Helix
+9449	comment	-
+9449	family	Homeo
+9449	medline	18332042
+9449	tax_group	insects
+9449	type	bacterial 1-hybrid
+9450	class	Helix-Turn-Helix
+9450	comment	-
+9450	family	Homeo
+9450	medline	18332042
+9450	tax_group	insects
+9450	type	bacterial 1-hybrid
+9451	class	Helix-Turn-Helix
+9451	comment	-
+9451	family	Homeo
+9451	medline	18585360
+9451	tax_group	insects
+9451	type	bacterial 1-hybrid
+9452	class	Helix-Turn-Helix
+9452	comment	-
+9452	family	Homeo
+9452	medline	18332042
+9452	tax_group	insects
+9452	type	bacterial 1-hybrid
+9453	class	Helix-Turn-Helix
+9453	comment	-
+9453	family	Homeo
+9453	medline	18332042
+9453	tax_group	insects
+9453	type	bacterial 1-hybrid
+9454	class	Helix-Turn-Helix
+9454	comment	-
+9454	family	Homeo
+9454	medline	18332042
+9454	tax_group	insects
+9454	type	bacterial 1-hybrid
+9455	class	Helix-Turn-Helix
+9455	comment	-
+9455	family	Homeo
+9455	medline	18332042
+9455	tax_group	insects
+9455	type	bacterial 1-hybrid
+9456	class	Helix-Turn-Helix
+9456	family	Brinker
+9456	medline	15572468
+9456	tax_group	insects
+9456	type	DNaseI footprinting
+9457	class	Helix-Turn-Helix
+9457	comment	-
+9457	family	Homeo
+9457	medline	18332042
+9457	tax_group	insects
+9457	type	bacterial 1-hybrid
+9458	class	Helix-Turn-Helix
+9458	comment	-
+9458	family	Homeo
+9458	medline	18332042
+9458	tax_group	insects
+9458	type	bacterial 1-hybrid
+9459	class	Helix-Turn-Helix
+9459	comment	-
+9459	family	Homeo
+9459	medline	18332042
+9459	tax_group	insects
+9459	type	bacterial 1-hybrid
+9460	class	Helix-Turn-Helix
+9460	comment	-
+9460	family	Homeo
+9460	medline	18332042
+9460	tax_group	insects
+9460	type	bacterial 1-hybrid
+9461	class	Helix-Turn-Helix
+9461	comment	-
+9461	family	Homeo
+9461	medline	18332042
+9461	tax_group	insects
+9461	type	bacterial 1-hybrid
+9462	class	Helix-Turn-Helix
+9462	comment	-
+9462	family	Homeo
+9462	medline	18332042
+9462	tax_group	insects
+9462	type	bacterial 1-hybrid
+9463	class	Helix-Turn-Helix
+9463	comment	-
+9463	family	Homeo
+9463	medline	18332042
+9463	tax_group	insects
+9463	type	bacterial 1-hybrid
+9464	class	Helix-Turn-Helix
+9464	comment	-
+9464	family	Homeo
+9464	medline	18332042
+9464	tax_group	insects
+9464	type	bacterial 1-hybrid
+9465	class	Helix-Turn-Helix
+9465	comment	-
+9465	family	Homeo
+9465	medline	18585360
+9465	tax_group	insects
+9465	type	bacterial 1-hybrid
+9466	class	Helix-Turn-Helix
+9466	comment	-
+9466	family	Homeo
+9466	medline	18332042
+9466	tax_group	insects
+9466	type	bacterial 1-hybrid
+9467	class	Helix-Turn-Helix
+9467	comment	-
+9467	family	Homeo
+9467	medline	18585360
+9467	tax_group	insects
+9467	type	bacterial 1-hybrid
+9468	class	Helix-Turn-Helix
+9468	comment	-
+9468	family	Homeo
+9468	medline	18332042
+9468	tax_group	insects
+9468	type	bacterial 1-hybrid
+9469	class	Helix-Turn-Helix
+9469	comment	-
+9469	family	Homeo
+9469	medline	18332042
+9469	tax_group	insects
+9469	type	bacterial 1-hybrid
+9470	class	Helix-Turn-Helix
+9470	comment	-
+9470	family	Homeo
+9470	medline	18332042
+9470	tax_group	insects
+9470	type	bacterial 1-hybrid
+9471	class	Helix-Turn-Helix
+9471	comment	-
+9471	family	Homeo
+9471	medline	18332042
+9471	tax_group	insects
+9471	type	bacterial 1-hybrid
+9472	class	Helix-Turn-Helix
+9472	comment	-
+9472	family	Homeo
+9472	medline	18585360
+9472	tax_group	insects
+9472	type	bacterial 1-hybrid
+9473	class	Helix-Turn-Helix
+9473	comment	-
+9473	family	Homeo
+9473	medline	18332042
+9473	tax_group	insects
+9473	type	bacterial 1-hybrid
+9474	class	Helix-Turn-Helix
+9474	comment	-
+9474	family	Homeo
+9474	medline	18332042
+9474	tax_group	insects
+9474	type	bacterial 1-hybrid
+9475	class	Helix-Turn-Helix
+9475	comment	-
+9475	family	Homeo
+9475	medline	18332042
+9475	tax_group	insects
+9475	type	bacterial 1-hybrid
+9476	class	Helix-Turn-Helix
+9476	comment	-
+9476	family	Homeo
+9476	medline	18332042
+9476	tax_group	insects
+9476	type	bacterial 1-hybrid
+9477	class	Helix-Turn-Helix
+9477	comment	-
+9477	family	Homeo
+9477	medline	18332042
+9477	tax_group	insects
+9477	type	bacterial 1-hybrid
+9478	class	Helix-Turn-Helix
+9478	comment	-
+9478	family	Homeo
+9478	medline	18332042
+9478	tax_group	insects
+9478	type	bacterial 1-hybrid
+9479	class	Helix-Turn-Helix
+9479	comment	-
+9479	family	Homeo
+9479	medline	18332042
+9479	tax_group	insects
+9479	type	bacterial 1-hybrid
+9480	class	Other Alpha-Helix
+9480	comment	-
+9480	family	High Mobility Group
+9480	medline	15572468
+9480	tax_group	insects
+9480	type	DNaseI footprinting
+9481	class	Helix-Turn-Helix
+9481	comment	-
+9481	family	Homeo
+9481	medline	18332042
+9481	tax_group	insects
+9481	type	bacterial 1-hybrid
+9482	class	Helix-Turn-Helix
+9482	comment	-
+9482	family	Homeo
+9482	medline	16041365
+9482	tax_group	insects
+9482	type	bacterial 1-hybrid
+9483	class	Helix-Turn-Helix
+9483	comment	-
+9483	family	Homeo
+9483	medline	18332042
+9483	tax_group	insects
+9483	type	bacterial 1-hybrid
+9484	class	Helix-Turn-Helix
+9484	comment	-
+9484	family	Homeo
+9484	medline	18332042
+9484	tax_group	insects
+9484	type	bacterial 1-hybrid
+9485	class	Ig-fold
+9485	comment	Bgb is the co-activator with CBF-beta domain
+9485	family	Runt
+9485	medline	16041365
+9485	tax_group	insects
+9485	type	bacterial 1-hybrid
+9486	class	Helix-Turn-Helix
+9486	comment	-
+9486	family	Homeo
+9486	medline	15572468
+9486	tax_group	insects
+9486	type	DNaseI footprinting
+9487	class	Zinc-coordinating
+9487	comment	-
+9487	family	BetaBetaAlpha-zinc finger
+9487	medline	15572468
+9487	tax_group	insects
+9487	type	DNaseI footprinting
+9488	class	Helix-Turn-Helix
+9488	comment	-
+9488	family	Homeo
+9488	medline	18332042
+9488	tax_group	insects
+9488	type	bacterial 1-hybrid
+9489	class	Helix-Turn-Helix
+9489	comment	-
+9489	family	Homeo
+9489	medline	18332042
+9489	tax_group	insects
+9489	type	bacterial 1-hybrid
+9490	class	Helix-Turn-Helix
+9490	comment	-
+9490	family	Homeo
+9490	medline	18585360
+9490	tax_group	insects
+9490	type	bacterial 1-hybrid
+9491	class	Helix-Turn-Helix
+9491	comment	-
+9491	family	Homeo
+9491	medline	18332042
+9491	tax_group	insects
+9491	type	bacterial 1-hybrid
+9492	class	Zipper-type
+9492	comment	-
+9492	family	Helix-Loop-Helix
+9492	medline	15572468
+9492	tax_group	insects
+9492	type	DNaseI footprinting
+9493	class	Helix-Turn-Helix
+9493	comment	-
+9493	family	Homeo
+9493	medline	18332042
+9493	tax_group	insects
+9493	type	bacterial 1-hybrid
+9494	class	Helix-Turn-Helix
+9494	comment	-
+9494	family	Homeo
+9494	medline	18332042
+9494	tax_group	insects
+9494	type	bacterial 1-hybrid
+9495	class	Helix-Turn-Helix
+9495	comment	-
+9495	family	Homeo
+9495	medline	18332042
+9495	tax_group	insects
+9495	type	bacterial 1-hybrid
+9496	class	Helix-Turn-Helix
+9496	comment	-
+9496	family	Homeo
+9496	medline	18585360
+9496	tax_group	insects
+9496	type	bacterial 1-hybrid
+9497	class	Helix-Turn-Helix
+9497	comment	-
+9497	family	Homeo
+9497	medline	15572468
+9497	tax_group	insects
+9497	type	DNaseI footprinting
+9498	class	Helix-Turn-Helix
+9498	comment	-
+9498	family	Zeste
+9498	medline	15572468
+9498	tax_group	insects
+9498	type	DNaseI footprinting
+9499	class	Helix-Turn-Helix
+9499	comment	-
+9499	family	Homeo
+9499	medline	18332042
+9499	tax_group	insects
+9499	type	bacterial 1-hybrid
+9500	class	Helix-Turn-Helix
+9500	comment	-
+9500	family	Homeo
+9500	medline	18332042
+9500	tax_group	insects
+9500	type	bacterial 1-hybrid
+9501	class	Helix-Turn-Helix
+9501	comment	-
+9501	family	Homeo
+9501	medline	18585360
+9501	tax_group	insects
+9501	type	bacterial 1-hybrid
+9502	class	Zinc-coordinating
+9502	comment	-
+9502	family	Hormone-nuclear Receptor
+9502	medline	18272478
+9502	tax_group	vertebrates
+9502	type	ChIP-chip
+9503	class	Zipper-Type
+9503	comment	dimer between HIF1A and ARNT
+9503	family	Helix-Loop-Helix
+9503	medline	16234508
+9503	tax_group	vertebrates
+9503	type	COMPILED
+9504	class	Zinc-coordinating
+9504	comment	-
+9504	family	BetaBetaAlpha-zinc finger
+9504	medline	17606643
+9504	tax_group	nematodes
+9504	type	COMPILED
+9505	class	Other
+9505	comment	-
+9505	family	Other
+9505	medline	16314527 
+9505	tax_group	nematodes
+9505	type	SELEX
+9506	class	Zinc-coordinating
+9506	comment	-
+9506	family	DM
+9506	medline	9927589
+9506	tax_group	nematodes
+9506	type	EMSA
+9507	class	Helix-Turn-Helix
+9507	comment	dimer
+9507	family	Homeo
+9507	medline	15177025 
+9507	tax_group	nematodes
+9507	type	EMSA
+9508	class	Helix-Turn-Helix
+9508	comment	NK-2 class; ortholog to Drosophila tinman and vertebrate Nkx2-5
+9508	family	Homeo
+9508	medline	16998473
+9508	tax_group	nematodes
+9508	type	PBM
+9509	class	Zinc-coordinating
+9509	family	BetaBetaAlpha-zinc finger
+9509	medline	19111667
+9509	tax_group	fungi
+9509	type	PBM, CSA and/or DIP-chip
+9510	class	Other Alpha-Helix
+9510	family	High Mobility Group
+9510	medline	19111667
+9510	tax_group	fungi
+9510	type	PBM, CSA and/or DIP-chip
+9511	class	Zinc-coordinating
+9511	family	BetaBetaAlpha-zinc finger
+9511	medline	19111667
+9511	tax_group	fungi
+9511	type	PBM, CSA and/or DIP-chip
+9512	class	Zinc-coordinating
+9512	family	BetaBetaAlpha-zinc finger
+9512	medline	19111667
+9512	tax_group	fungi
+9512	type	PBM, CSA and/or DIP-chip
+9513	class	Other
+9513	family	Other
+9513	medline	18842628
+9513	tax_group	fungi
+9513	type	PBM
+9514	class	Other
+9514	family	Other
+9514	medline	19111667
+9514	tax_group	fungi
+9514	type	PBM, CSA and/or DIP-chip
+9515	class	Other Alpha-Helix
+9515	family	MADS
+9515	medline	16522208
+9515	tax_group	fungi
+9515	type	ChIP-on-chip
+9516	class	Zinc-coordinating
+9516	family	Fungal Zn cluster
+9516	medline	16522208
+9516	tax_group	fungi
+9516	type	ChIP-on-chip
+9517	class	Zinc-coordinating
+9517	family	Fungal Zn cluster
+9517	medline	18842628
+9517	tax_group	fungi
+9517	type	PBM
+9518	class	Zipper-Type
+9518	family	Leucine Zipper
+9518	medline	16522208
+9518	tax_group	fungi
+9518	type	ChIP-on-chip
+9519	class	Zinc-coordinating
+9519	family	Fungal Zn cluster
+9519	medline	19111667
+9519	tax_group	fungi
+9519	type	PBM, CSA and/or DIP-chip
+9520	class	Zinc-coordinating
+9520	family	GATA
+9520	medline	16522208
+9520	tax_group	fungi
+9520	type	ChIP-on-chip
+9521	class	Zinc-coordinating
+9521	family	BetaBetaAlpha-zinc finger
+9521	medline	19111667
+9521	tax_group	fungi
+9521	type	PBM, CSA and/or DIP-chip
+9522	class	Helix-Turn-Helix
+9522	family	Myb
+9522	medline	18842628
+9522	tax_group	fungi
+9522	type	PBM
+9523	class	Zipper-Type
+9523	family	Leucine Zipper
+9523	medline	17130146
+9523	tax_group	fungi
+9523	type	COMPILED
+9524	class	Zinc-coordinating
+9524	family	Fungal Zn cluster
+9524	medline	19111667
+9524	tax_group	fungi
+9524	type	PBM, CSA and/or DIP-chip
+9525	class	Zipper-Type
+9525	family	Helix-Loop-Helix
+9525	medline	19111667
+9525	tax_group	fungi
+9525	type	PBM, CSA and/or DIP-chip
+9526	class	Zinc-coordinating
+9526	family	Fungal Zn cluster
+9526	medline	19111667
+9526	tax_group	fungi
+9526	type	PBM, CSA and/or DIP-chip
+9527	class	Zinc-coordinating
+9527	family	Fungal Zn cluster
+9527	medline	19111667
+9527	tax_group	fungi
+9527	type	PBM, CSA and/or DIP-chip
+9528	class	Zipper-Type
+9528	family	Leucine Zipper
+9528	medline	19111667
+9528	tax_group	fungi
+9528	type	PBM, CSA and/or DIP-chip
+9529	class	Zinc-coordinating
+9529	family	BetaBetaAlpha-zinc finger
+9529	medline	19111667
+9529	tax_group	fungi
+9529	type	PBM, CSA and/or DIP-chip
+9530	class	Zipper-Type
+9530	family	Leucine Zipper
+9530	medline	19111667
+9530	tax_group	fungi
+9530	type	PBM, CSA and/or DIP-chip
+9531	class	Zinc-coordinating
+9531	family	Copper fist
+9531	medline	17130146
+9531	tax_group	fungi
+9531	type	COMPILED
+9532	class	Helix-Turn-Helix
+9532	family	Homeo
+9532	medline	19111667
+9532	tax_group	fungi
+9532	type	PBM, CSA and/or DIP-chip
+9533	class	Zinc-coordinating
+9533	family	GATA
+9533	medline	19111667
+9533	tax_group	fungi
+9533	type	PBM, CSA and/or DIP-chip
+9534	class	Zinc-coordinating
+9534	family	Fungal Zn cluster
+9534	medline	16522208
+9534	tax_group	fungi
+9534	type	ChIP-on-chip
+9535	class	Other
+9535	family	Other
+9535	medline	19111667
+9535	tax_group	fungi
+9535	type	PBM, CSA and/or DIP-chip
+9536	class	Zinc-coordinating
+9536	family	Fungal Zn cluster
+9536	medline	19111667
+9536	tax_group	fungi
+9536	type	PBM, CSA and/or DIP-chip
+9537	class	Zinc-coordinating
+9537	family	GATA
+9537	medline	19111667
+9537	tax_group	fungi
+9537	type	PBM, CSA and/or DIP-chip
+9538	class	Zinc-coordinating
+9538	family	Fungal Zn cluster
+9538	medline	19111667
+9538	tax_group	fungi
+9538	type	PBM, CSA and/or DIP-chip
+9539	class	Winged Helix-Turn-Helix
+9539	family	Forkhead
+9539	medline	19111667
+9539	tax_group	fungi
+9539	type	PBM, CSA and/or DIP-chip
+9540	class	Winged Helix-Turn-Helix
+9540	family	Forkhead
+9540	medline	18842628
+9540	tax_group	fungi
+9540	type	PBM
+9541	class	Winged Helix-Turn-Helix
+9541	family	Forkhead
+9541	medline	19111667
+9541	tax_group	fungi
+9541	type	PBM, CSA and/or DIP-chip
+9542	class	Zinc-coordinating
+9542	family	BetaBetaAlpha-zinc finger
+9542	medline	19111667
+9542	tax_group	fungi
+9542	type	PBM, CSA and/or DIP-chip
+9543	class	Zinc-coordinating
+9543	family	Fungal Zn cluster
+9543	medline	18842628
+9543	tax_group	fungi
+9543	type	PBM
+9544	class	Zinc-coordinating
+9544	family	GATA
+9544	medline	19111667
+9544	tax_group	fungi
+9544	type	PBM, CSA and/or DIP-chip
+9545	class	Zinc-coordinating
+9545	family	GATA
+9545	medline	19111667
+9545	tax_group	fungi
+9545	type	PBM, CSA and/or DIP-chip
+9546	class	Zinc-coordinating
+9546	family	GATA
+9546	medline	19111667
+9546	tax_group	fungi
+9546	type	PBM, CSA and/or DIP-chip
+9547	class	Zipper-Type
+9547	family	Leucine Zipper
+9547	medline	18842628
+9547	tax_group	fungi
+9547	type	PBM
+9548	class	Other
+9548	family	Other
+9548	medline	10487868
+9548	tax_group	fungi
+9548	type	COMPILED
+9549	class	Other
+9549	family	Other
+9549	medline	16522208
+9549	tax_group	fungi
+9549	type	ChIP-on-chip
+9550	class	Zinc-coordinating
+9550	family	BetaBetaAlpha-zinc finger
+9550	medline	19111667
+9550	tax_group	fungi
+9550	type	PBM, CSA and/or DIP-chip
+9551	class	Zinc-coordinating
+9551	family	GATA
+9551	medline	19111667
+9551	tax_group	fungi
+9551	type	PBM, CSA and/or DIP-chip
+9552	class	Zinc-coordinating
+9552	family	Fungal Zn cluster
+9552	medline	18842628
+9552	tax_group	fungi
+9552	type	PBM
+9553	class	Zinc-coordinating
+9553	family	GATA
+9553	medline	19111667
+9553	tax_group	fungi
+9553	type	PBM, CSA and/or DIP-chip
+9554	class	Zipper-Type
+9554	family	Leucine Zipper
+9554	medline	19111667
+9554	tax_group	fungi
+9554	type	PBM, CSA and/or DIP-chip
+9555	class	Zinc-coordinating
+9555	family	Fungal Zn cluster
+9555	medline	19111667
+9555	tax_group	fungi
+9555	type	PBM, CSA and/or DIP-chip
+9556	class	Zinc-coordinating
+9556	family	Fungal Zn cluster
+9556	medline	19111667
+9556	tax_group	fungi
+9556	type	PBM, CSA and/or DIP-chip
+9557	class	Other Alpha-Helix
+9557	family	NFY CCAAT-binding
+9557	medline	17130146
+9557	tax_group	fungi
+9557	type	COMPILED
+9558	class	Other Alpha-Helix
+9558	family	NFY CCAAT-binding
+9558	medline	17130146
+9558	tax_group	fungi
+9558	type	COMPILED
+9559	class	Other Alpha-Helix
+9559	family	NFY CCAAT-binding
+9559	medline	16522208
+9559	tax_group	fungi
+9559	type	ChIP-on-chip
+9560	class	Other Alpha-Helix
+9560	family	NFY CCAAT-binding
+9560	medline	17130146
+9560	tax_group	fungi
+9560	type	COMPILED
+9561	class	Winged Helix-Turn-Helix
+9561	family	Forkhead
+9561	medline	19111667
+9561	tax_group	fungi
+9561	type	PBM, CSA and/or DIP-chip
+9562	class	Helix-Turn-Helix
+9562	family	Homeo
+9562	medline	19111667
+9562	tax_group	fungi
+9562	type	PBM, CSA and/or DIP-chip
+9563	class	Winged Helix-Turn-Helix
+9563	family	E2F
+9563	medline	19111667
+9563	tax_group	fungi
+9563	type	PBM, CSA and/or DIP-chip
+9564	class	Other
+9564	family	Other
+9564	medline	16522208
+9564	tax_group	fungi
+9564	type	ChIP-on-chip
+9565	class	Zipper-Type
+9565	family	Helix-Loop-Helix
+9565	medline	16522208
+9565	tax_group	fungi
+9565	type	ChIP-on-chip
+9566	class	Zipper-Type
+9566	family	Helix-Loop-Helix
+9566	medline	16522208
+9566	tax_group	fungi
+9566	type	ChIP-on-chip
+9567	class	Other Alpha-Helix
+9567	family	High Mobility Group
+9567	medline	16522208
+9567	tax_group	fungi
+9567	type	ChIP-on-chip
+9568	class	Zinc-coordinating
+9568	family	Fungal Zn cluster
+9568	medline	19111667
+9568	tax_group	fungi
+9568	type	PBM, CSA and/or DIP-chip
+9569	class	Zinc-coordinating
+9569	family	Fungal Zn cluster
+9569	medline	19111667
+9569	tax_group	fungi
+9569	type	PBM, CSA and/or DIP-chip
+9570	class	Zinc-coordinating
+9570	family	Copper fist
+9570	medline	17130146
+9570	tax_group	fungi
+9570	type	COMPILED
+9571	class	Helix-Turn-Helix
+9571	family	Homeo
+9571	medline	16522208
+9571	tax_group	fungi
+9571	type	ChIP-on-chip
+9572	class	Helix-Turn-Helix
+9572	family	Homeo
+9572	medline	10487868
+9572	tax_group	fungi
+9572	type	COMPILED
+9573	class	Ig-fold
+9573	family	Rel
+9573	medline	19111667
+9573	tax_group	fungi
+9573	type	PBM, CSA and/or DIP-chip
+9574	class	Ig-fold
+9574	family	Rel
+9574	medline	17130146
+9574	tax_group	fungi
+9574	type	COMPILED
+9575	class	Other Alpha-Helix
+9575	family	MADS
+9575	medline	17130146
+9575	tax_group	fungi
+9575	type	COMPILED
+9576	class	Zipper-Type
+9576	family	Leucine Zipper
+9576	medline	16522208
+9576	tax_group	fungi
+9576	type	ChIP-on-chip
+9577	class	Zinc-coordinating
+9577	family	BetaBetaAlpha-zinc finger
+9577	medline	19111667
+9577	tax_group	fungi
+9577	type	PBM, CSA and/or DIP-chip
+9578	class	Zinc-coordinating
+9578	family	BetaBetaAlpha-zinc finger
+9578	medline	19111667
+9578	tax_group	fungi
+9578	type	PBM, CSA and/or DIP-chip
+9579	class	Zipper-Type
+9579	family	Leucine Zipper
+9579	medline	16522208
+9579	tax_group	fungi
+9579	type	ChIP-on-chip
+9580	class	Winged Helix-Turn-Helix
+9580	family	E2F
+9580	medline	18842628
+9580	tax_group	fungi
+9580	type	PBM
+9581	class	Zinc-coordinating
+9581	family	BetaBetaAlpha-zinc finger
+9581	medline	19111667
+9581	tax_group	fungi
+9581	type	PBM, CSA and/or DIP-chip
+9582	class	Zinc-coordinating
+9582	family	BetaBetaAlpha-zinc finger
+9582	medline	19111667
+9582	tax_group	fungi
+9582	type	PBM, CSA and/or DIP-chip
+9583	class	Zinc-coordinating
+9583	family	BetaBetaAlpha-zinc finger
+9583	medline	19111667
+9583	tax_group	fungi
+9583	type	PBM, CSA and/or DIP-chip
+9584	class	Zinc-coordinating
+9584	family	BetaBetaAlpha-zinc finger
+9584	medline	16522208
+9584	tax_group	fungi
+9584	type	ChIP-on-chip
+9585	class	Zinc-coordinating
+9585	family	BetaBetaAlpha-zinc finger
+9585	medline	19111667
+9585	tax_group	fungi
+9585	type	PBM, CSA and/or DIP-chip
+9586	class	Zinc-coordinating
+9586	family	BetaBetaAlpha-zinc finger
+9586	medline	19111667
+9586	tax_group	fungi
+9586	type	PBM, CSA and/or DIP-chip
+9587	class	Ig-fold
+9587	family	NDT80/PhoG
+9587	medline	18842628
+9587	tax_group	fungi
+9587	type	PBM
+9588	class	Other Alpha-Helix
+9588	family	High Mobility Group
+9588	medline	19111667
+9588	tax_group	fungi
+9588	type	PBM, CSA and/or DIP-chip
+9589	class	Other Alpha-Helix
+9589	family	High Mobility Group
+9589	medline	18842628
+9589	tax_group	fungi
+9589	type	PBM
+9590	class	Other Alpha-Helix
+9590	family	High Mobility Group
+9590	medline	18842628
+9590	tax_group	fungi
+9590	type	PBM
+9591	class	Zinc-coordinating
+9591	family	BetaBetaAlpha-zinc finger
+9591	medline	18842628
+9591	tax_group	fungi
+9591	type	PBM
+9592	class	Zinc-coordinating
+9592	family	Fungal Zn cluster
+9592	medline	19111667
+9592	tax_group	fungi
+9592	type	PBM, CSA and/or DIP-chip
+9593	class	Zipper-Type
+9593	family	Leucine Zipper
+9593	medline	16522208
+9593	tax_group	fungi
+9593	type	ChIP-on-chip
+9594	class	Helix-Turn-Helix
+9594	family	Myb
+9594	medline	18842628
+9594	tax_group	fungi
+9594	type	PBM
+9595	class	Helix-Turn-Helix
+9595	family	Myb
+9595	medline	18842628
+9595	tax_group	fungi
+9595	type	PBM
+9596	class	Zinc-coordinating
+9596	family	Fungal Zn cluster
+9596	medline	19111667
+9596	tax_group	fungi
+9596	type	PBM, CSA and/or DIP-chip
+9597	class	Zinc-coordinating
+9597	family	Fungal Zn cluster
+9597	medline	16522208
+9597	tax_group	fungi
+9597	type	ChIP-on-chip
+9598	class	Zinc-coordinating
+9598	family	Fungal Zn cluster
+9598	medline	19111667
+9598	tax_group	fungi
+9598	type	PBM, CSA and/or DIP-chip
+9599	class	Other
+9599	family	KilA-N
+9599	medline	19111667
+9599	tax_group	fungi
+9599	type	PBM, CSA and/or DIP-chip
+9600	class	Helix-Turn-Helix
+9600	family	Homeo
+9600	medline	19111667
+9600	tax_group	fungi
+9600	type	PBM, CSA and/or DIP-chip
+9601	class	Zipper-Type
+9601	family	Helix-Loop-Helix
+9601	medline	18842628
+9601	tax_group	fungi
+9601	type	PBM
+9602	class	Zinc-coordinating
+9602	family	Fungal Zn cluster
+9602	medline	19111667
+9602	tax_group	fungi
+9602	type	PBM, CSA and/or DIP-chip
+9603	class	Helix-Turn-Helix
+9603	family	Myb
+9603	medline	19111667
+9603	tax_group	fungi
+9603	type	PBM, CSA and/or DIP-chip
+9604	class	Zinc-coordinating
+9604	family	Fungal Zn cluster
+9604	medline	19111667
+9604	tax_group	fungi
+9604	type	PBM, CSA and/or DIP-chip
+9605	class	Zinc-coordinating
+9605	family	Fungal Zn cluster
+9605	medline	19111667
+9605	tax_group	fungi
+9605	type	PBM, CSA and/or DIP-chip
+9606	class	Zinc-coordinating
+9606	family	Fungal Zn cluster
+9606	medline	19111667
+9606	tax_group	fungi
+9606	type	PBM, CSA and/or DIP-chip
+9607	class	Helix-Turn-Helix
+9607	family	Myb
+9607	medline	19111667
+9607	tax_group	fungi
+9607	type	PBM, CSA and/or DIP-chip
+9608	class	Zinc-coordinating
+9608	family	BetaBetaAlpha-zinc finger
+9608	medline	19111667
+9608	tax_group	fungi
+9608	type	PBM, CSA and/or DIP-chip
+9609	class	Winged Helix-Turn-Helix
+9609	family	RFX
+9609	medline	19111667
+9609	tax_group	fungi
+9609	type	PBM, CSA and/or DIP-chip
+9610	class	Zinc-coordinating
+9610	family	BetaBetaAlpha-zinc finger
+9610	medline	19111667
+9610	tax_group	fungi
+9610	type	PBM, CSA and/or DIP-chip
+9611	class	Zinc-coordinating
+9611	family	Fungal Zn cluster
+9611	medline	19111667
+9611	tax_group	fungi
+9611	type	PBM, CSA and/or DIP-chip
+9612	class	Zinc-coordinating
+9612	family	BetaBetaAlpha-zinc finger
+9612	medline	19111667
+9612	tax_group	fungi
+9612	type	PBM, CSA and/or DIP-chip
+9613	class	Other Alpha-Helix
+9613	family	MADS
+9613	medline	10487868
+9613	tax_group	fungi
+9613	type	COMPILED
+9614	class	Zinc-coordinating
+9614	family	BetaBetaAlpha-zinc finger
+9614	medline	16522208
+9614	tax_group	fungi
+9614	type	ChIP-on-chip
+9615	class	Other Alpha-Helix
+9615	family	High Mobility Group
+9615	medline	19111667
+9615	tax_group	fungi
+9615	type	PBM, CSA and/or DIP-chip
+9616	class	Zinc-coordinating
+9616	family	BetaBetaAlpha-zinc finger
+9616	medline	19111667
+9616	tax_group	fungi
+9616	type	PBM, CSA and/or DIP-chip
+9617	class	Zinc-coordinating
+9617	family	BetaBetaAlpha-zinc finger
+9617	medline	19111667
+9617	tax_group	fungi
+9617	type	PBM, CSA and/or DIP-chip
+9618	class	Zinc-coordinating
+9618	family	Fungal Zn cluster
+9618	medline	19111667
+9618	tax_group	fungi
+9618	type	PBM, CSA and/or DIP-chip
+9619	class	Zinc-coordinating
+9619	family	Fungal Zn cluster
+9619	medline	19111667
+9619	tax_group	fungi
+9619	type	PBM, CSA and/or DIP-chip
+9620	class	Zipper-Type
+9620	family	Helix-Loop-Helix
+9620	medline	18842628
+9620	tax_group	fungi
+9620	type	PBM
+9621	class	Winged Helix-Turn-Helix
+9621	family	E2F
+9621	medline	18842628
+9621	tax_group	fungi
+9621	type	PBM
+9622	class	Zinc-coordinating
+9622	family	BetaBetaAlpha-zinc finger
+9622	medline	18842628
+9622	tax_group	fungi
+9622	type	PBM
+9623	class	Zinc-coordinating
+9623	family	BetaBetaAlpha-zinc finger
+9623	medline	19111667
+9623	tax_group	fungi
+9623	type	PBM, CSA and/or DIP-chip
+9624	class	Zinc-coordinating
+9624	family	Fungal Zn cluster
+9624	medline	19111667
+9624	tax_group	fungi
+9624	type	PBM, CSA and/or DIP-chip
+9625	class	Winged Helix-Turn-Helix
+9625	family	E2F
+9625	medline	19111667
+9625	tax_group	fungi
+9625	type	PBM, CSA and/or DIP-chip
+9626	class	Zipper-Type
+9626	family	Leucine Zipper
+9626	medline	17130146
+9626	tax_group	fungi
+9626	type	COMPILED
+9627	class	Other Alpha-Helix
+9627	family	MADS
+9627	medline	18842628
+9627	tax_group	fungi
+9627	type	PBM
+9628	class	Helix-Turn-Helix
+9628	family	Myb
+9628	medline	17130146
+9628	tax_group	fungi
+9628	type	COMPILED
+9629	class	Other
+9629	family	KilA-N
+9629	medline	19111667
+9629	tax_group	fungi
+9629	type	PBM, CSA and/or DIP-chip
+9630	class	Beta-sheet
+9630	family	TATA-binding
+9630	medline	18842628
+9630	tax_group	fungi
+9630	type	PBM
+9631	class	Other Alpha-Helix
+9631	family	High Mobility Group
+9631	medline	16522208
+9631	tax_group	fungi
+9631	type	ChIP-on-chip
+9632	class	Other
+9632	family	Other
+9632	medline	16522208
+9632	tax_group	fungi
+9632	type	ChIP-on-chip
+9633	class	Zinc-coordinating
+9633	family	GATA
+9633	medline	19111667
+9633	tax_group	fungi
+9633	type	PBM, CSA and/or DIP-chip
+9634	class	Other
+9634	family	Other
+9634	medline	18842628
+9634	tax_group	fungi
+9634	type	PBM
+9635	class	Zinc-coordinating
+9635	family	Fungal Zn cluster
+9635	medline	19111667
+9635	tax_group	fungi
+9635	type	PBM, CSA and/or DIP-chip
+9636	class	Zinc-coordinating
+9636	family	Fungal Zn cluster
+9636	medline	19111667
+9636	tax_group	fungi
+9636	type	PBM, CSA and/or DIP-chip
+9637	class	Helix-Turn-Helix
+9637	family	Homeo
+9637	medline	17130146
+9637	tax_group	fungi
+9637	type	COMPILED
+9638	class	Zinc-coordinating
+9638	family	BetaBetaAlpha-zinc finger
+9638	medline	16522208
+9638	tax_group	fungi
+9638	type	ChIP-on-chip
+9639	class	Zinc-coordinating
+9639	family	BetaBetaAlpha-zinc finger
+9639	medline	18842628
+9639	tax_group	fungi
+9639	type	PBM
+9640	class	Zinc-coordinating
+9640	family	BetaBetaAlpha-zinc finger
+9640	medline	19111667
+9640	tax_group	fungi
+9640	type	PBM, CSA and/or DIP-chip
+9641	class	Zinc-coordinating
+9641	family	BetaBetaAlpha-zinc finger
+9641	medline	19111667
+9641	tax_group	fungi
+9641	type	PBM, CSA and/or DIP-chip
+9642	class	Other
+9642	family	AT-hook
+9642	medline	19111667
+9642	tax_group	fungi
+9642	type	PBM, CSA and/or DIP-chip
+9643	class	Zinc-coordinating
+9643	family	Fungal Zn cluster
+9643	medline	16522208
+9643	tax_group	fungi
+9643	type	ChIP-on-chip
+9644	class	Zinc-coordinating
+9644	family	Fungal Zn cluster
+9644	medline	18842628
+9644	tax_group	fungi
+9644	type	PBM
+9645	class	Ig-fold
+9645	family	Rel
+9645	medline	19111667
+9645	tax_group	fungi
+9645	type	PBM, CSA and/or DIP-chip
+9646	class	Zinc-coordinating
+9646	family	BetaBetaAlpha-zinc finger
+9646	medline	19111667
+9646	tax_group	fungi
+9646	type	PBM, CSA and/or DIP-chip
+9647	class	Helix-Turn-Helix
+9647	family	Myb
+9647	medline	19111667
+9647	tax_group	fungi
+9647	type	PBM, CSA and/or DIP-chip
+9648	class	Zinc-coordinating
+9648	family	Fungal Zn cluster
+9648	medline	19111667
+9648	tax_group	fungi
+9648	type	PBM, CSA and/or DIP-chip
+9649	class	Zinc-coordinating
+9649	family	Fungal Zn cluster
+9649	medline	19111667
+9649	tax_group	fungi
+9649	type	PBM, CSA and/or DIP-chip
+9650	class	Helix-Turn-Helix
+9650	family	Homeo
+9650	medline	19111667
+9650	tax_group	fungi
+9650	type	PBM, CSA and/or DIP-chip
+9651	class	Zinc-coordinating
+9651	family	Fungal Zn cluster
+9651	medline	17130146
+9651	tax_group	fungi
+9651	type	COMPILED
+9652	class	Helix-Turn-Helix
+9652	family	Homeo
+9652	medline	19111667
+9652	tax_group	fungi
+9652	type	PBM, CSA and/or DIP-chip
+9653	class	Zipper-Type
+9653	family	Helix-Loop-Helix
+9653	medline	19111667
+9653	tax_group	fungi
+9653	type	PBM, CSA and/or DIP-chip
+9654	class	Zinc-coordinating
+9654	family	Fungal Zn cluster
+9654	medline	19111667
+9654	tax_group	fungi
+9654	type	PBM, CSA and/or DIP-chip
+9655	class	Zinc-coordinating
+9655	family	Fungal Zn cluster
+9655	medline	19111667
+9655	tax_group	fungi
+9655	type	PBM, CSA and/or DIP-chip
+9656	class	Zinc-coordinating
+9656	family	Fungal Zn cluster
+9656	medline	17130146
+9656	tax_group	fungi
+9656	type	COMPILED
+9657	class	Zinc-coordinating
+9657	family	BetaBetaAlpha-zinc finger
+9657	medline	18842628
+9657	tax_group	fungi
+9657	type	PBM
+9658	class	Ig-fold
+9658	family	Rel
+9658	medline	19111667
+9658	tax_group	fungi
+9658	type	PBM, CSA and/or DIP-chip
+9659	class	Zipper-Type
+9659	family	Leucine Zipper
+9659	medline	18842628
+9659	tax_group	fungi
+9659	type	PBM
+9660	class	Zipper-Type
+9660	family	Leucine Zipper
+9660	medline	19111667
+9660	tax_group	fungi
+9660	type	PBM, CSA and/or DIP-chip
+9661	class	Zipper-Type
+9661	family	Leucine Zipper
+9661	medline	16522208
+9661	tax_group	fungi
+9661	type	ChIP-on-chip
+9662	class	Zipper-Type
+9662	family	Leucine Zipper
+9662	medline	18842628
+9662	tax_group	fungi
+9662	type	PBM
+9663	class	Zipper-Type
+9663	family	Leucine Zipper
+9663	medline	17130146
+9663	tax_group	fungi
+9663	type	COMPILED
+9664	class	Zinc-coordinating
+9664	family	Fungal Zn cluster
+9664	medline	19111667
+9664	tax_group	fungi
+9664	type	PBM, CSA and/or DIP-chip
+9665	class	Helix-Turn-Helix
+9665	family	Myb
+9665	medline	17130146
+9665	tax_group	fungi
+9665	type	COMPILED
+9666	class	Zinc-coordinating
+9666	family	Fungal Zn cluster
+9666	medline	19111667
+9666	tax_group	fungi
+9666	type	PBM, CSA and/or DIP-chip
+9667	class	Zinc-coordinating
+9667	family	BetaBetaAlpha-zinc finger
+9667	medline	19111667
+9667	tax_group	fungi
+9667	type	PBM, CSA and/or DIP-chip
+9668	class	Zinc-coordinating
+9668	family	Fungal Zn cluster
+9668	medline	19111667
+9668	tax_group	fungi
+9668	type	PBM, CSA and/or DIP-chip
+9669	class	Zinc-coordinating
+9669	family	BetaBetaAlpha-zinc finger
+9669	medline	19111667
+9669	tax_group	fungi
+9669	type	PBM, CSA and/or DIP-chip
+9670	class	Helix-Turn-Helix
+9670	family	Homeo
+9670	medline	16522208
+9670	tax_group	fungi
+9670	type	ChIP-on-chip
+9671	class	Zinc-coordinating
+9671	family	Fungal Zn cluster
+9671	medline	19111667
+9671	tax_group	fungi
+9671	type	PBM, CSA and/or DIP-chip
+9672	class	Zinc-coordinating
+9672	family	Fungal Zn cluster
+9672	medline	19111667
+9672	tax_group	fungi
+9672	type	PBM, CSA and/or DIP-chip
+9673	class	Zinc-coordinating
+9673	family	Fungal Zn cluster
+9673	medline	19111667
+9673	tax_group	fungi
+9673	type	PBM, CSA and/or DIP-chip
+9674	class	Zinc-coordinating
+9674	family	Fungal Zn cluster
+9674	medline	19111667
+9674	tax_group	fungi
+9674	type	PBM, CSA and/or DIP-chip
+9675	class	Zinc-coordinating
+9675	family	BetaBetaAlpha-zinc finger
+9675	medline	19111667
+9675	tax_group	fungi
+9675	type	PBM, CSA and/or DIP-chip
+9676	class	Zinc-coordinating
+9676	family	Fungal Zn cluster
+9676	medline	19111667
+9676	tax_group	fungi
+9676	type	PBM, CSA and/or DIP-chip
+9677	class	Helix-Turn-Helix
+9677	family	Homeo
+9677	medline	19111667
+9677	tax_group	fungi
+9677	type	PBM, CSA and/or DIP-chip
+9678	class	Zinc-coordinating
+9678	family	BetaBetaAlpha-zinc finger
+9678	medline	19111667
+9678	tax_group	fungi
+9678	type	PBM, CSA and/or DIP-chip
+9679	class	Zinc-coordinating
+9679	family	BetaBetaAlpha-zinc finger
+9679	medline	18842628
+9679	tax_group	fungi
+9679	type	PBM
+9680	class	Zinc-coordinating
+9680	family	BetaBetaAlpha-zinc finger
+9680	medline	19111667
+9680	tax_group	fungi
+9680	type	PBM, CSA and/or DIP-chip
+9681	class	Zinc-coordinating
+9681	family	Fungal Zn cluster
+9681	medline	19111667
+9681	tax_group	fungi
+9681	type	PBM, CSA and/or DIP-chip
+9682	class	Zinc-coordinating
+9682	family	Fungal Zn cluster
+9682	medline	19111667
+9682	tax_group	fungi
+9682	type	PBM, CSA and/or DIP-chip
+9683	class	Zinc-coordinating
+9683	family	Fungal Zn cluster
+9683	medline	19111667
+9683	tax_group	fungi
+9683	type	PBM, CSA and/or DIP-chip
+9684	class	Zinc-coordinating
+9684	family	BetaBetaAlpha-zinc finger
+9684	medline	16522208
+9684	tax_group	fungi
+9684	type	ChIP-on-chip
+9685	class	Zinc-coordinating
+9685	family	BetaBetaAlpha-zinc finger
+9685	medline	19111667
+9685	tax_group	fungi
+9685	type	PBM, CSA and/or DIP-chip
+10526	class	Other Alpha-Helix
+10526	comment	Annotations from PAZAR SOX10_RAT + SOX10_HUMAN + SOX10_MOUSE (TF0000223, TF0000224, TF0000226) in the pleiades genes project.
+10526	family	High Mobility Group
+10526	medline	17916232
+10526	pazar_tf_id	TF0000224
+10526	tax_group	vertebrates
+10526	type	COMPILED
+10527	class	Zinc-coordinating
+10527	comment	-
+10527	family	BetaBetaAlpha-zinc finger
+10527	medline	18332042
+10527	tax_group	insects
+10527	type	bacterial 1-hybrid
+10528	class	Helix-Turn-Helix
+10528	comment	-
+10528	family	Homeo
+10528	medline	18332042
+10528	tax_group	insects
+10528	type	bacterial 1-hybrid
+10529	class	Other Alpha-Helix
+10529	comment	-
+10529	family	High Mobility Group
+10529	medline	18332042
+10529	tax_group	insects
+10529	type	bacterial 1-hybrid
+10530	class	Winged Helix-Turn-Helix
+10530	comment	-
+10530	family	Forkhead
+10530	medline	18332042
+10530	tax_group	insects
+10530	type	bacterial 1-hybrid
+10531	class	Zipper-type
+10531	comment	-
+10531	family	Leucine Zipper
+10531	medline	18332042
+10531	tax_group	insects
+10531	type	bacterial 1-hybrid
+10532	class	Helix-Turn-Helix
+10532	comment	-
+10532	family	Homeo
+10532	medline	18332042
+10532	tax_group	insects
+10532	type	bacterial 1-hybrid
+10533	class	Zipper-type
+10533	comment	-
+10533	family	Helix-Loop-Helix
+10533	medline	18332042
+10533	tax_group	insects
+10533	type	bacterial 1-hybrid
+10534	class	Zinc-coordinating
+10534	comment	-
+10534	family	BetaBetaAlpha-zinc finger
+10534	medline	18332042
+10534	tax_group	insects
+10534	type	bacterial 1-hybrid
+10535	class	Zinc-coordinating
+10535	comment	-
+10535	family	Hormone-nuclear Receptor
+10535	medline	18332042
+10535	tax_group	insects
+10535	type	bacterial 1-hybrid
+10536	class	Zinc-coordinating
+10536	comment	-
+10536	family	BetaBetaAlpha-zinc finger
+10536	medline	18332042
+10536	tax_group	insects
+10536	type	bacterial 1-hybrid
+10537	class	Zinc-coordinating
+10537	comment	-
+10537	family	BetaBetaAlpha-zinc finger
+10537	medline	18332042
+10537	tax_group	insects
+10537	type	bacterial 1-hybrid
+10538	class	Zinc-coordinating
+10538	comment	-
+10538	family	BetaBetaAlpha-zinc finger
+10538	medline	18332042
+10538	tax_group	insects
+10538	type	bacterial 1-hybrid
+10539	class	Helix-Turn-Helix
+10539	comment	-
+10539	family	Homeo
+10539	medline	18332042
+10539	tax_group	insects
+10539	type	bacterial 1-hybrid
+10540	class	Zinc-coordinating
+10540	comment	-
+10540	family	BetaBetaAlpha-zinc finger
+10540	medline	18332042
+10540	tax_group	insects
+10540	type	bacterial 1-hybrid
+10541	class	Helix-Turn-Helix
+10541	comment	-
+10541	family	Homeo
+10541	medline	18332042
+10541	tax_group	insects
+10541	type	bacterial 1-hybrid
+10542	class	Winged Helix-Turn-Helix
+10542	comment	-
+10542	family	Forkhead
+10542	medline	18332042
+10542	tax_group	insects
+10542	type	bacterial 1-hybrid
+10543	class	Zinc-coordinating
+10543	comment	-
+10543	family	Hormone-nuclear Receptor
+10543	medline	18332042
+10543	tax_group	insects
+10543	type	bacterial 1-hybrid
+10544	class	Other
+10544	comment	-
+10544	family	AT-hook
+10544	medline	18332042
+10544	tax_group	insects
+10544	type	bacterial 1-hybrid
