@@ -40,6 +40,7 @@ import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.JTree;
 import javax.swing.ListSelectionModel;
+import javax.swing.RowFilter;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.HyperlinkEvent;
@@ -52,9 +53,8 @@ import javax.swing.event.HyperlinkEvent.EventType;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.JTableHeader;
-import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableModel;
+import javax.swing.table.TableRowSorter;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeNode;
@@ -102,13 +102,13 @@ public class GoAnalysisResultView extends JPanel implements VisualPlugin {
 	private DefaultTableModel geneListTableModel = null;
 	private JEditorPane geneDetails = null;
 	private JTable table = null;
-	protected String namespaceFilter = null;
 	
 	private static Object[] geneListHeaders = new String[]{"Gene Symbol", "Expression change", "Description"};
 	
 	private JTabbedPane primaryView = null;
 	private JPanel tableTab = null;
 	private JPanel treeTab = null;
+	private TableRowSorter<GoTableModel> sorter = null;
 	
 	private void initializePrimaryView() {
 		primaryView = new JTabbedPane();
@@ -130,11 +130,14 @@ public class GoAnalysisResultView extends JPanel implements VisualPlugin {
 			public void actionPerformed(ActionEvent e) {
 				tableModel.populateNewResult(result);
 				if(allButton.isSelected()) {
+					sorter.setRowFilter(null);
 					table.repaint();
 				} else {
 					for(int i=0; i<3; i++){
 						if(namespaceButton[i].isSelected()) {
-							tableModel.filter(namespaceLabels[i]);
+							RowFilter<GoTableModel, Integer> filter = new NamespaceFilter(
+											namespaceLabels[i]);
+							sorter.setRowFilter(filter);
 							table.repaint();
 							return;
 						}
@@ -164,8 +167,9 @@ public class GoAnalysisResultView extends JPanel implements VisualPlugin {
 		
 		tableModel = new GoTableModel();
 		table = new JTable(tableModel);
+		sorter = new TableRowSorter<GoTableModel>(tableModel);
+		table.setRowSorter(sorter);
 		table.setDefaultRenderer(Double.class, new DoubleRenderer(4));
-		prepareSorting();
 		tableTab.add(new JScrollPane(table));
 		
 		ListSelectionModel listSelectionModel = table.getSelectionModel();
@@ -494,7 +498,7 @@ public class GoAnalysisResultView extends JPanel implements VisualPlugin {
 		
 	}
 
-	protected void showTermDetail(int goId) {
+	private void showTermDetail(int goId) {
 		geneDetails.setContentType("text/plain");
 		if(GoAnalysisResult.getAnnotatedGenes(goId)==null) {
 			geneDetails.setText("No gene annotated to GO ID "+goId);
@@ -730,37 +734,6 @@ public class GoAnalysisResultView extends JPanel implements VisualPlugin {
 		}
 		return genes;
 	}
-	
-	/* set the sorting functionality */
-	private void prepareSorting() {
-		JTableHeader header = table.getTableHeader();
-		header.addMouseListener(new MouseAdapter() {
-			public void mouseClicked(MouseEvent e) {
-				TableColumnModel colModel = table.getColumnModel();
-				int columnModelIndex = colModel.getColumnIndexAtX(e.getX());
-				int modelIndex = colModel.getColumn(columnModelIndex)
-						.getModelIndex();
-
-				if (modelIndex < 0)
-					return;
-
-				log.debug("sorting on column #" + modelIndex);
-
-				if (sortCol == modelIndex)
-					isSortAsc = !isSortAsc;
-				else
-					sortCol = modelIndex;
-
-				tableModel.sort(sortCol, isSortAsc);
-
-				table.repaint();
-			}
-
-		});
-	}
-
-	private int sortCol = GoTableModel.TABLE_COLUMN_INDEX_ADJUSTED_P;
-	private boolean isSortAsc = true;
 
 	private static class GoTableModel extends AbstractTableModel {
 	    /**
@@ -784,19 +757,6 @@ public class GoAnalysisResultView extends JPanel implements VisualPlugin {
 			return COLUMN_COUNT;
 		}
 
-		public void sort(int sortCol, boolean isSortAsc) {
-			List<Object[]> rows = new ArrayList<Object[]>();
-			for(int row=0; row<getRowCount(); row++) {
-				rows.add(data[row]);
-			}
-			Collections.sort(rows, new GoAnalysisComparator(sortCol, isSortAsc));
-			int row = 0;
-			for(Object[] rowData: rows) {
-				data[row++] = rowData;
-			}
-			fireTableDataChanged();
-		}
-
 		public int getRowCount() {
 			return data.length;
 		}
@@ -809,51 +769,57 @@ public class GoAnalysisResultView extends JPanel implements VisualPlugin {
 			return columnNames[col];
 		}
 		
+		private static class AdjustedPComparator implements Comparator<Object[]> {
+
+			public int compare(Object[] o1, Object[] o2) {
+				Double d1 = (Double) o1[TABLE_COLUMN_INDEX_ADJUSTED_P];
+				Double d2 = (Double) o2[TABLE_COLUMN_INDEX_ADJUSTED_P];
+				if(d1<d2)return -1;
+				else if(d1>d2)return 1;
+				else return 0;
+			}
+		}
+		
 		public void populateNewResult(GoAnalysisResult result) {
 			int rowCount = result.getCount();
-			data = new Object[rowCount][COLUMN_COUNT];
 			
-			int row = 0;
+			List<Object[]> rows = new ArrayList<Object[]>();
 			for(Integer goId: result.getResult().keySet()) {
 				GoAnalysisResult.ResultRow resultRow = result.getRow(goId);
-				data[row][TABLE_COLUMN_INDEX_GO_ID] = goId;
-				data[row][TABLE_COLUMN_INDEX_GO_TERM_NAME] = resultRow.name;
-				data[row][TABLE_COLUMN_INDEX_NAMESPACE] = resultRow.namespace;
-				data[row][TABLE_COLUMN_INDEX_P] = resultRow.p;
-				data[row][TABLE_COLUMN_INDEX_ADJUSTED_P] = resultRow.pAdjusted;
-				data[row][TABLE_COLUMN_INDEX_POP_COUNT] = resultRow.popCount;
-				data[row][TABLE_COLUMN_INDEX_STUDY_COUNT] = resultRow.studyCount;
-				row++;
+				Object[] array = new Object[COLUMN_COUNT];
+				array[TABLE_COLUMN_INDEX_GO_ID] = goId;
+				array[TABLE_COLUMN_INDEX_GO_TERM_NAME] = resultRow.name;
+				array[TABLE_COLUMN_INDEX_NAMESPACE] = resultRow.namespace;
+				array[TABLE_COLUMN_INDEX_P] = resultRow.p;
+				array[TABLE_COLUMN_INDEX_ADJUSTED_P] = resultRow.pAdjusted;
+				array[TABLE_COLUMN_INDEX_POP_COUNT] = resultRow.popCount;
+				array[TABLE_COLUMN_INDEX_STUDY_COUNT] = resultRow.studyCount;
+				rows.add(array);
 			}
 			log.debug("total rows: "+rowCount);
-			sort(TABLE_COLUMN_INDEX_ADJUSTED_P, true); // initial sorting
+			Collections.sort(rows, new AdjustedPComparator());
+			int row = 0;
+			data = new Object[rowCount][COLUMN_COUNT];
+			for(Object[] array: rows) {
+				data[row] = array;
+				row++;
+			}
 
 			fireTableDataChanged();
 
 		}
 		
-		// filter is supported by java 6. this solution is only to support the functionality until we move to java 6. 
-		void filter(String filter) {
-			if(filter==null)return;
-			
-			List<Object[]> filteredData = new ArrayList<Object[]>();
-			int rowCount = 0;
-			for(int row=0; row<getRowCount(); row++) {
-				String namespaceLetter = (String)getValueAt(row, 2);
-				if(filter.startsWith(namespaceLetter)) {
-					filteredData.add(data[row]);
-					rowCount++;
-				}
-			}
-			data = filteredData.toArray(new Object[rowCount][COLUMN_COUNT]);
-			fireTableDataChanged();
-		}
-
 		public Class<?> getColumnClass(int columnIndex) {
 			if(columnIndex==TABLE_COLUMN_INDEX_ADJUSTED_P || columnIndex==TABLE_COLUMN_INDEX_P)
 				return Double.class;
-			else
+			else if(columnIndex==TABLE_COLUMN_INDEX_GO_ID || columnIndex==TABLE_COLUMN_INDEX_POP_COUNT || columnIndex==TABLE_COLUMN_INDEX_STUDY_COUNT)
+				return Integer.class;
+			else if(columnIndex==TABLE_COLUMN_INDEX_GO_TERM_NAME || columnIndex==TABLE_COLUMN_INDEX_NAMESPACE )
+				return String.class;
+			else {
+				log.warn("Unspecified column type");
 				return Object.class;
+			}
 		}
 	}
 	
@@ -876,38 +842,6 @@ public class GoAnalysisResultView extends JPanel implements VisualPlugin {
 	    }
 	}
 
-	private static class GoAnalysisComparator implements Comparator<Object[]> {
-		private int sortCol;;
-		protected boolean isSortAsc;
-
-		public GoAnalysisComparator(int sortCol, boolean isSortAsc) {
-			this.sortCol = sortCol;
-			this.isSortAsc = isSortAsc;
-		}
-
-		public int compare(Object[] o1, Object[] o2) {
-			int result = 0;
-			Object object1 = o1[sortCol];
-			Object object2 = o2[sortCol];
-			if(sortCol==0 || sortCol==5 || sortCol==6) {
-				Integer s1 = (Integer) object1;
-				Integer s2 = (Integer) object2;
-				result = s1.compareTo(s2);
-			} else if(sortCol==1 || sortCol==2) {
-				String s1 = (String) object1;
-				String s2 = (String) object2;
-				result = s1.compareTo(s2);
-			} else if(sortCol==3 || sortCol==4) {
-				Double s1 = (Double) object1;
-				Double s2 = (Double) object2;
-				result = s1.compareTo(s2);
-			}
-			if (!isSortAsc)
-				result = -result;
-			return result;
-		}
-	}
-	
 	private static final String[] namespaceLabels = {"Molecular Function", "Biological Process", "Cellular Component"};
 	private JRadioButton termButton;
 	private JRadioButton termAndDewscendantsButton;
@@ -939,4 +873,25 @@ public class GoAnalysisResultView extends JPanel implements VisualPlugin {
 			return GoAnalysisResult.getGoTermName(goId); 
 		}
 	}
+	
+	static private class NamespaceFilter extends RowFilter<GoTableModel, Integer> {
+		private String filter;
+		
+		NamespaceFilter(String filter) {
+			this.filter = filter;
+		}
+
+		@Override
+		public boolean include(
+				Entry<? extends GoTableModel, ? extends Integer> entry) {
+			GoTableModel model = entry.getModel();
+			String namespaceLetter = (String)model.getValueAt( entry.getIdentifier().intValue(), GoTableModel.TABLE_COLUMN_INDEX_NAMESPACE );
+			
+			if(filter.startsWith(namespaceLetter)) 
+				return true;
+			else
+				return false;
+		}
+	}
+
 }
