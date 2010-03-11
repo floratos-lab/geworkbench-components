@@ -62,6 +62,7 @@ public class InitParam implements CyInitParams {
 		plugins.add(pluginDirectory+"AutomaticLayout.jar");
 		plugins.add(pluginDirectory+"yLayouts.jar");
 		plugins.add(pluginDirectory+"biopax.jar");
+		plugins.add(pluginDirectory+"browser.jar");
 		plugins.add(pluginDirectory+"cPath.jar");
 		plugins.add(pluginDirectory+"CytoscapeEditor.jar");
 		plugins.add(pluginDirectory+"exesto.jar");
