@@ -22,7 +22,7 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
-import org.geworkbench.components.medusa.MedusaDataSet;
+import org.geworkbench.bison.datastructure.biocollections.medusa.MedusaDataSet;
 import org.geworkbench.components.medusa.MedusaUtil;
 import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.engine.management.AcceptTypes;

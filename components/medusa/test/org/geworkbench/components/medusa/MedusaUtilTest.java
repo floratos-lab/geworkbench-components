@@ -9,6 +9,7 @@ import junit.framework.TestCase;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.geworkbench.bison.datastructure.biocollections.medusa.MedusaCommand;
 import org.w3c.dom.Document;
 
 import edu.columbia.ccls.medusa.io.RuleParser;
