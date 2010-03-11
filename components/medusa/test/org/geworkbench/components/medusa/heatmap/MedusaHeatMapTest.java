@@ -3,6 +3,7 @@ import javax.swing.JDialog;
 
 import junit.framework.TestCase;
 
+import org.geworkbench.bison.datastructure.biocollections.medusa.MedusaData;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.CSMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.views.CSMicroarraySetView;
@@ -13,7 +14,6 @@ import org.geworkbench.bison.datastructure.bioobjects.microarray.CSExpressionMar
 import org.geworkbench.bison.datastructure.bioobjects.microarray.CSMicroarray;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
-import org.geworkbench.components.medusa.MedusaData;
 
 /**
  * A test class for the MedusaHeatMap.

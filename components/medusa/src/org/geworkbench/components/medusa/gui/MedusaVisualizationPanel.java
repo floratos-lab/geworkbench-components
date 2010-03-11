@@ -23,10 +23,10 @@ import javax.swing.JTabbedPane;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.geworkbench.bison.datastructure.biocollections.medusa.MedusaData;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
-import org.geworkbench.components.medusa.MedusaData;
 import org.geworkbench.components.medusa.MedusaUtil;
 import org.geworkbench.events.SubpanelChangedEvent;
 import org.geworkbench.util.FilePathnameUtils;
