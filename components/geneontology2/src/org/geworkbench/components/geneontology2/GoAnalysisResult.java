@@ -35,6 +35,7 @@ import org.geworkbench.bison.datastructure.bioobjects.microarray.CSMicroarray;
  * wrapping for the result from ontologizer 2.0.
  * 
  * @author zji
+ * @version $Id$
  */
 class GoAnalysisResult extends CSAncillaryDataSet<CSMicroarray> {
 	private static final long serialVersionUID = -337000604982427702L;
@@ -357,8 +358,14 @@ class GoAnalysisResult extends CSAncillaryDataSet<CSMicroarray> {
 				if(i<geneTitles.length)
 					geneTitle = geneTitles[i];
 				int entrezId = 0;
-				if(i<entrezIds.length)
-					entrezId = Integer.parseInt(entrezIds[i].trim());
+				if(i<entrezIds.length) {
+					try {
+						entrezId = Integer.parseInt(entrezIds[i].trim());
+					} catch (NumberFormatException e) {
+						log.warn("unexpected entrezId field "+entrezIds[i]);
+						return;
+					}
+				}
 				genes.add(geneSymbol);
 				if(!geneDetails.containsKey(geneSymbol)) {
 					GeneDetails details = new GeneDetails(geneTitle, entrezId);
