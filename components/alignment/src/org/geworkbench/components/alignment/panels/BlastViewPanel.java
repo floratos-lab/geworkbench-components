@@ -17,7 +17,6 @@ import javax.swing.AbstractListModel;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JEditorPane;
-import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -41,18 +40,16 @@ import org.geworkbench.bison.datastructure.bioobjects.sequence.CSSequence;
 import org.geworkbench.bison.util.RandomNumberGenerator;
 import org.geworkbench.components.alignment.blast.BlastDataOutOfBoundException;
 import org.geworkbench.components.alignment.blast.BlastObj;
-import org.geworkbench.components.alignment.blast.NCBIBlastParser;
 import org.geworkbench.engine.management.Subscribe;
 import org.geworkbench.util.FilePathnameUtils;
 import org.geworkbench.util.JAutoList;
-import org.geworkbench.util.PropertiesMonitor;
 
 import com.borland.jbcl.layout.VerticalFlowLayout;
 
 /**
  *
  * @author XZ
- * @version 1.0
+ * @version $Id$
  */
 @SuppressWarnings("unchecked")
 public class BlastViewPanel extends JPanel implements HyperlinkListener {
