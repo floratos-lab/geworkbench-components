@@ -13,7 +13,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
@@ -85,7 +84,6 @@ import org.geworkbench.events.SubpanelChangedEvent;
 import org.geworkbench.util.ProgressBar;
 import org.geworkbench.util.Util;
 import org.geworkbench.util.microarrayutils.MicroarrayViewEventBase;
-import org.geworkbench.util.pathwaydecoder.mutualinformation.AdjacencyMatrixDataSet;
 import org.geworkbench.util.pathwaydecoder.mutualinformation.EdgeListDataSet;
 import org.ginkgo.labs.util.FileTools;
 import org.ginkgo.labs.ws.GridEndpointReferenceType;
@@ -1288,6 +1286,7 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 							}
 						}
 					} catch (Exception e) {
+						results = null;
 						e.printStackTrace();
 					} finally {
 						analyze.setEnabled(true);
