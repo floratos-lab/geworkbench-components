@@ -951,6 +951,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 				if (e.getClickCount() == 2) {
 					JTable target = (JTable) e.getSource();
 					int row = target.getSelectedRow();
+					detailTable.removeRowSelectionInterval(0, hits.size()-1);
 					if (row < hits.size()) {
 						CellularNetWorkElementInformation marker = hits
 								.get(row);
@@ -959,8 +960,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 								&& !allGenes.contains(marker.getdSGeneMarker())) {
 							allGenes.add(marker.getdSGeneMarker());
 
-						}
-						detailTable.removeRowSelectionInterval(0, hits.size()-1);
+						}						
 						activatedMarkerTable.revalidate();
 						detailTable.revalidate();
 					}
