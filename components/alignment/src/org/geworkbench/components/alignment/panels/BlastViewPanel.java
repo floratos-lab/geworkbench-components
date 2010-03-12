@@ -74,7 +74,7 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
 	private JScrollPane jScrollPane1 = new JScrollPane();
 	private BorderLayout borderLayout2 = new BorderLayout();
 	private BlastViewComponent blastViewComponent;
-	private JButton loadButton = new JButton();
+
 	private String currentError;
 	private JButton jButton1 = new JButton();
 	private JButton addAlignedButton = new JButton();
@@ -207,11 +207,6 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
 
 		detailedInfo.setLayout(borderLayout2);
 
-		loadButton.setToolTipText("Load a blast result file.");
-		loadButton.setText("Load");
-		loadButton
-				.addActionListener(new BlastViewPanel_loadButton_actionAdapter(
-						this));
 		singleAlignmentArea.setContentType("text/html");
 
 		singleAlignmentArea.setEditable(false);
@@ -233,7 +228,6 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
 		jSplitPane1.setDividerSize(1);
 		this.setLayout(borderLayout3);
 
-		summaryPanel.add(loadButton, null);
 		summaryPanel.add(resetButton, null);
 		summaryPanel.add(allButton);
 		summaryPanel.add(AddSequenceToProjectButton, null);
@@ -258,14 +252,7 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
 		this.add(mainPanel, java.awt.BorderLayout.CENTER);
 	}
 
-	/**
-	 * getResults
-	 *
-	 * @param blastAppComponent
-	 *            Object
-	 * @return Object[]
-	 */
-	public void setResults(Vector hits) {
+	private void setResults(Vector hits) {
 		this.hits = hits;
 		displayResults();
 	}
@@ -619,57 +606,6 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
 
 	}
 
-	public void loadButton_actionPerformed(ActionEvent actionEvent) {
-
-		JFileChooser chooser = new JFileChooser(PropertiesMonitor
-				.getPropertiesMonitor().getDefPath());
-		org.geworkbench.components.parsers.ExampleFileFilter filter = new org.geworkbench.components.parsers.ExampleFileFilter();
-		filter.setDescription("Alignment file (*.html)");
-		filter.addExtension("html");
-		chooser.addChoosableFileFilter(filter);
-
-		int returnVal = chooser.showOpenDialog(this);
-		if (returnVal != JFileChooser.APPROVE_OPTION) {
-			return;
-		}
-
-		org.geworkbench.util.PropertiesMonitor.getPropertiesMonitor()
-				.setDefPath(chooser.getCurrentDirectory().getAbsolutePath());
-		File patternfile = chooser.getSelectedFile();
-		try {
-			NCBIBlastParser bp = new NCBIBlastParser(patternfile
-					.getAbsolutePath());
-
-			if (bp.parseResults()) {
-
-				hits = bp.getHits();
-
-				setResults(hits);
-			} else {
-				NCBIBlastParser nbp = new NCBIBlastParser(patternfile
-						.getAbsolutePath());
-				nbp.setTotalSequenceNum(1);
-				if (nbp.parseResults()) {
-
-					hits = nbp.getHits();
-
-					setResults(hits);
-				} else {
-
-					JOptionPane.showMessageDialog(null,
-							"The file is not in a supported format.",
-							"Format Error", JOptionPane.ERROR_MESSAGE);
-				}
-			}
-
-		} catch (NullPointerException e1) {
-
-			e1.printStackTrace();
-
-		}
-
-	}
-
 	public void addAlignedButton_actionPerformed(ActionEvent e) {
 		if (!verify()) {
 			reportError(currentError);
@@ -831,19 +767,6 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
 
 		public void actionPerformed(ActionEvent e) {
 			adaptee.allButton_actionPerformed(e);
-		}
-	}
-
-	private static class BlastViewPanel_loadButton_actionAdapter implements
-			ActionListener {
-		private BlastViewPanel adaptee;
-
-		BlastViewPanel_loadButton_actionAdapter(BlastViewPanel adaptee) {
-			this.adaptee = adaptee;
-		}
-
-		public void actionPerformed(ActionEvent actionEvent) {
-			adaptee.loadButton_actionPerformed(actionEvent);
 		}
 	}
 
