@@ -6,6 +6,8 @@ package org.geworkbench.components.geneontology2;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.geworkbench.bison.datastructure.biocollections.GoAnalysisResult;
+
 
 /**
  * @author zji

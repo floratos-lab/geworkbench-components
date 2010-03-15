@@ -15,8 +15,6 @@ import java.io.IOException;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -63,6 +61,7 @@ import javax.swing.tree.TreePath;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
+import org.geworkbench.bison.datastructure.biocollections.GoAnalysisResult;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.CSMicroarray;
@@ -176,7 +175,9 @@ public class GoAnalysisResultView extends JPanel implements VisualPlugin {
 		listSelectionModel.addListSelectionListener(new ListSelectionListener() {
 
 			public void valueChanged(ListSelectionEvent e) {
-				int index = table.getSelectedRow();
+				if(table.getSelectedRow()==-1)return; // no selection, do nothing
+
+				int index = table.convertRowIndexToModel( table.getSelectedRow() );
 				if(index>=0 && index<=tableModel.getRowCount()) { // in case the selection is not in the new range
 					Integer goId = (Integer)tableModel.getValueAt(index, 0);
 					populateGeneList(goId);
@@ -230,7 +231,7 @@ public class GoAnalysisResultView extends JPanel implements VisualPlugin {
 		GoTreeNode root = new GoTreeNode (result); // root
 		treeModel = new DefaultTreeModel(root);
 		namespaceId2Node = new HashMap<Integer, GoTreeNode>();
-		for(int namespaceId: GoAnalysisResult.namespaceIds) {
+		for(int namespaceId: GoAnalysisResult.getNamespaceIds()) {
 			GoTreeNode namespaceNode = new GoTreeNode(result, namespaceId, root); // parent is root: 0 
 			root.add(namespaceNode);
 			namespaceId2Node.put(namespaceId, namespaceNode);
@@ -547,14 +548,14 @@ public class GoAnalysisResultView extends JPanel implements VisualPlugin {
 			namespaceId2Node = new HashMap<Integer, GoTreeNode>();
 		if(namespaceId2Node.size()==0) {
 			GoTreeNode root = (GoTreeNode)(treeModel.getRoot());
-			for(int namespaceId: GoAnalysisResult.namespaceIds) {
+			for(int namespaceId: GoAnalysisResult.getNamespaceIds()) {
 				GoTreeNode namespaceNode = new GoTreeNode(result, namespaceId, root); 
 				root.add(namespaceNode);
 				namespaceId2Node.put(namespaceId, namespaceNode);
 			}
 		}
 
-		for(int namespaceId: GoAnalysisResult.namespaceIds) {
+		for(int namespaceId: GoAnalysisResult.getNamespaceIds()) {
 			GoTreeNode namespaceNode = namespaceId2Node.get(namespaceId);
 			namespaceNode.removeAllChildren();
 			for(Integer child: GoAnalysisResult.getOntologyChildren(namespaceId)) {
@@ -611,7 +612,7 @@ public class GoAnalysisResultView extends JPanel implements VisualPlugin {
 	private void populateSingleGeneTree(int geneId) {
 		singleGeneTreeRoot.removeAllChildren();
 
-		for(int namespaceId: GoAnalysisResult.namespaceIds) {
+		for(int namespaceId: GoAnalysisResult.getNamespaceIds()) {
 			findAndAddChildren(geneId, namespaceId, singleGeneTreeRoot);
 		}
 		singleGeneModel.reload();
@@ -699,9 +700,9 @@ public class GoAnalysisResultView extends JPanel implements VisualPlugin {
 		Set<String> genes = genesFomrTermAndDescendants(goId, includeDescendants);
 		
 		if(changedGeneListButton.isSelected()) {
-			genes.retainAll(result.changedGenes);
+			genes.retainAll(result.getChangedGenes());
 		} else if(referenceListButton.isSelected()) {
-			genes.retainAll(result.referenceGenes);
+			genes.retainAll(result.getReferenceGenes());
 		} else {
 			log.error("'Show genes from' not set");
 		}
@@ -769,44 +770,10 @@ public class GoAnalysisResultView extends JPanel implements VisualPlugin {
 			return columnNames[col];
 		}
 		
-		private static class AdjustedPComparator implements Comparator<Object[]> {
-
-			public int compare(Object[] o1, Object[] o2) {
-				Double d1 = (Double) o1[TABLE_COLUMN_INDEX_ADJUSTED_P];
-				Double d2 = (Double) o2[TABLE_COLUMN_INDEX_ADJUSTED_P];
-				if(d1<d2)return -1;
-				else if(d1>d2)return 1;
-				else return 0;
-			}
-		}
-		
 		public void populateNewResult(GoAnalysisResult result) {
-			int rowCount = result.getCount();
+			data = result.getResultAsArray();
 			
-			List<Object[]> rows = new ArrayList<Object[]>();
-			for(Integer goId: result.getResult().keySet()) {
-				GoAnalysisResult.ResultRow resultRow = result.getRow(goId);
-				Object[] array = new Object[COLUMN_COUNT];
-				array[TABLE_COLUMN_INDEX_GO_ID] = goId;
-				array[TABLE_COLUMN_INDEX_GO_TERM_NAME] = resultRow.name;
-				array[TABLE_COLUMN_INDEX_NAMESPACE] = resultRow.namespace;
-				array[TABLE_COLUMN_INDEX_P] = resultRow.p;
-				array[TABLE_COLUMN_INDEX_ADJUSTED_P] = resultRow.pAdjusted;
-				array[TABLE_COLUMN_INDEX_POP_COUNT] = resultRow.popCount;
-				array[TABLE_COLUMN_INDEX_STUDY_COUNT] = resultRow.studyCount;
-				rows.add(array);
-			}
-			log.debug("total rows: "+rowCount);
-			Collections.sort(rows, new AdjustedPComparator());
-			int row = 0;
-			data = new Object[rowCount][COLUMN_COUNT];
-			for(Object[] array: rows) {
-				data[row] = array;
-				row++;
-			}
-
 			fireTableDataChanged();
-
 		}
 		
 		public Class<?> getColumnClass(int columnIndex) {
