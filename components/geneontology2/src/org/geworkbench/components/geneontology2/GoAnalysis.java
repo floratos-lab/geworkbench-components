@@ -9,17 +9,21 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.lang.reflect.InvocationTargetException;
+import java.util.Iterator;
 
 import javax.swing.SwingUtilities;
 
 import ontologizer.OntologizerCore;
+import ontologizer.calculation.AbstractGOTermProperties;
 import ontologizer.calculation.EnrichedGOTermsResult;
 import ontologizer.go.OBOParserException;
+import ontologizer.go.Term;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.analysis.AbstractAnalysis;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
+import org.geworkbench.bison.datastructure.biocollections.GoAnalysisResult;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.CSMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
@@ -114,7 +118,7 @@ public class GoAnalysis extends AbstractAnalysis implements ClusteringAnalysis {
 			}
 			for (String gene : changedGenesArray) {
 				pw.println(gene);
-				analysisResult.changedGenes.add(gene);
+				analysisResult.addChangedGenes(gene);
 			}
 			pw.close();
 
@@ -128,7 +132,7 @@ public class GoAnalysis extends AbstractAnalysis implements ClusteringAnalysis {
 			}
 			for (String gene : referenceGenesArray) {
 				pw.println(gene);
-				analysisResult.referenceGenes.add(gene);
+				analysisResult.addReferenceGenes(gene);
 			}
 			pw.close();
 		} catch (IOException e1) {
@@ -204,7 +208,7 @@ public class GoAnalysis extends AbstractAnalysis implements ClusteringAnalysis {
 
 		EnrichedGOTermsResult studySetResult = null;
 		while ((studySetResult = ontologizerCore.calculateNextStudy()) != null) {
-			analysisResult.appendOntologizerResult(studySetResult);
+			appendOntologizerResult(analysisResult, studySetResult);
 			
 			if (this.stopAlgorithm) {
 				progressBar.dispose();
@@ -245,7 +249,38 @@ public class GoAnalysis extends AbstractAnalysis implements ClusteringAnalysis {
 					"GO Term Analysis succeeded.", analysisResult);
 		}
 	}
-	
+
+	/**
+	 * Append more result rows from another Ontologizer 2.0 result.
+	 * @param ontologizerResult
+	 */
+	private void appendOntologizerResult(GoAnalysisResult result, EnrichedGOTermsResult ontologizerResult) {
+		Iterator<AbstractGOTermProperties> iter = ontologizerResult.iterator();
+
+		while (iter.hasNext()) {
+			AbstractGOTermProperties prop = iter.next();
+			Term term = prop.goTerm;
+			int popCount = 0, studyCount = 0;
+			for (int i = 0; i < prop.getNumberOfProperties(); i++) {
+				/*
+				 * the index may be fixed, but not 'visible' from the
+				 * AbstractGOTermProperties's interface
+				 */
+				if (prop.getPropertyName(i).equalsIgnoreCase("Pop.term")) {
+					popCount = Integer.parseInt(prop.getProperty(i));
+				} else if (prop.getPropertyName(i).equalsIgnoreCase(
+						"Study.term")) {
+					studyCount = Integer.parseInt(prop.getProperty(i));
+				} else {
+					// log.trace(i+":"+prop.getPropertyName(i)+"="+prop.getProperty(i));
+				}
+			}
+			result.addResultRow(term.getID().id, term.getName(), term
+					.getNamespaceAsString(), prop.p, prop.p_adjusted, popCount,
+					studyCount);
+		}
+	}
+
 	private String generateHistoryString(int resultSize) {
 		StringBuffer histStr = new StringBuffer();
 		histStr.append(aspp.getDataSetHistory() );

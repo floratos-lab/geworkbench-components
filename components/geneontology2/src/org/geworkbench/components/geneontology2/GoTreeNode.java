@@ -10,6 +10,8 @@ import java.util.Vector;
 
 import javax.swing.tree.TreeNode;
 
+import org.geworkbench.bison.datastructure.biocollections.GoAnalysisResult;
+
 /**
  * Tree node for GO term tree.
  * @author zji
@@ -49,11 +51,11 @@ class GoTreeNode implements TreeNode {
 	public String toString() {
 		if(goId==0)return "ROOT"; 
 
-		GoAnalysisResult.ResultRow row = result.getRow(goId);
+		String row = result.getRowAsString(goId);
 		if(row==null) {// not in the result 
 			return GoAnalysisResult.getGoTermName(goId); 
 		} else { // in the result from ontologizer
-			return row.name+" ("+row.studyCount+"/"+row.popCount+") ("+row.pAdjusted+")";
+			return row;
 		}
 	}
 	
