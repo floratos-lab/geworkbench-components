@@ -175,7 +175,13 @@ public class GoAnalysisResultView extends JPanel implements VisualPlugin {
 		listSelectionModel.addListSelectionListener(new ListSelectionListener() {
 
 			public void valueChanged(ListSelectionEvent e) {
-				if(table.getSelectedRow()==-1)return; // no selection, do nothing
+				if(table.getSelectedRow()==-1) {
+					geneListTableModel.setDataVector(new Object[0][0], null);
+					singleGeneTreeRoot.removeAllChildren();
+					singleGeneModel.reload();
+					geneDetails.setText("");
+					return; // no selection, clear the responding display
+				}
 
 				int index = table.convertRowIndexToModel( table.getSelectedRow() );
 				if(index>=0 && index<=tableModel.getRowCount()) { // in case the selection is not in the new range
