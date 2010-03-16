@@ -348,7 +348,7 @@ public class GoAnalysisResultView extends JPanel implements VisualPlugin {
 	
 	private void refreshGeneView () {
 		if(primaryView.getSelectedComponent()==tableTab) {
-			int index = table.getSelectedRow();
+			int index = table.convertRowIndexToModel( table.getSelectedRow() );
 			if(index>=0 && index<=tableModel.getRowCount()) { // in case the selection is not in the new range
 				Integer goId = (Integer)tableModel.getValueAt(index, 0);
 
