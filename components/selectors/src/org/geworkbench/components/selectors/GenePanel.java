@@ -4,8 +4,11 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -45,6 +48,7 @@ import org.geworkbench.events.GeneSelectorEvent;
 import org.geworkbench.events.GeneTaggedEvent;
 import org.geworkbench.events.MarkerSelectedEvent;
 import org.geworkbench.events.SubpanelChangedEvent;
+import org.geworkbench.util.FilePathnameUtils;
 import org.geworkbench.util.Util;
 
 import com.Ostermiller.util.CSVPrinter;
@@ -89,9 +93,45 @@ public class GenePanel extends SelectorPanel<DSGeneMarker> {
 		}
 	}
 
+	/*
+	 * config file to store last used directory for marker set saving/loading
+	 */
+	private static final String selectorLastDirConf = FilePathnameUtils
+			.getUserSettingDirectoryPath()
+			+ "selectors"
+			+ FilePathnameUtils.FILE_SEPARATOR
+			+ "selectorLastDir.conf";
+
+	private static String getLastDataDirectory() {
+		String dir = FilePathnameUtils.getDataFilesDirPath();
+		try {
+			File file = new File(selectorLastDirConf);
+			if (file.exists()) {
+				BufferedReader br = new BufferedReader(new FileReader(file));
+				dir = br.readLine();
+				br.close();
+			}
+		} catch (IOException ex) {
+			ex.printStackTrace();
+		}
+		return dir;
+	}
+
+	private static void setLastDataDirectory(String dir) {
+		try {
+			BufferedWriter br = new BufferedWriter(new FileWriter(
+					selectorLastDirConf));
+			br.write(dir);
+			br.close();
+		} catch (IOException ex) {
+			ex.printStackTrace();
+		}
+	}
+
 	public GenePanel() {
 		super(DSGeneMarker.class, "Marker");
 		tagEventEnabled = true;
+		lastDir = getLastDataDirectory();
 		// Add gene panel specific menu items.
 		treePopup.insert(newPanelItem2, 4);
 		treePopup.add(savePanelItem);
@@ -174,6 +214,9 @@ public class GenePanel extends SelectorPanel<DSGeneMarker> {
 		String[] labels = getSelectedTreesFromTree();
 		if (labels != null && labels.length > 0) {
 			JFileChooser fc = new JFileChooser(".");
+			if (!lastDir.equals("")) {
+				fc.setCurrentDirectory(new File(lastDir));
+			}
 			FileFilter filter = new MarkerPanelSetFileFilter();
 			fc.setFileFilter(filter);
 			fc.setDialogTitle("Save Marker Set");
@@ -194,6 +237,13 @@ public class GenePanel extends SelectorPanel<DSGeneMarker> {
 					}
 				}
 				if (confirmed) {
+					lastDir = fc.getSelectedFile().getPath();
+					try {
+						setLastDataDirectory(fc.getCurrentDirectory()
+								.getCanonicalPath());
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
 					serializePanel(filename, labels);
 				}
 			}
@@ -222,6 +272,12 @@ public class GenePanel extends SelectorPanel<DSGeneMarker> {
 
 		if (choice == JFileChooser.APPROVE_OPTION) {
 			lastDir = fc.getSelectedFile().getPath();
+			try {
+				setLastDataDirectory(fc.getCurrentDirectory()
+						.getCanonicalPath());
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 			DSPanel<DSGeneMarker> panel = deserializePanel(fc.getSelectedFile());
 			addPanel(panel);
 			throwLabelEvent();
@@ -263,6 +319,12 @@ public class GenePanel extends SelectorPanel<DSGeneMarker> {
 
 		if (choice == JFileChooser.APPROVE_OPTION) {
 			lastDir = fc.getSelectedFile().getPath();
+			try {
+				setLastDataDirectory(fc.getCurrentDirectory()
+						.getCanonicalPath());
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 			DSPanel<DSGeneMarker> panel = getPanelFromSymbols(fc.getSelectedFile());
 			addPanel(panel);
 			throwLabelEvent();
