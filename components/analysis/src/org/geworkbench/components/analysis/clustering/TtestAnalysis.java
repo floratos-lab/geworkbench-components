@@ -3222,10 +3222,10 @@ public class TtestAnalysis extends AbstractAnalysis implements
 		}
 		histStr += "\t" + "critical p-Value: " + alpha + "\n";
 		
-		if ( useroverride == true)
-			histStr += "\t" + "user override: true \n";
-		else
-			histStr += "\t" + "user override: false \n";
+		//if ( useroverride == true)
+		//	histStr += "\t" + "user override: true \n";
+		//else
+		//	histStr += "\t" + "user override: false \n";
 		
 		if ( isLogNormalized == true)
 			histStr += "\t" + "isLogNormalized: true \n";
