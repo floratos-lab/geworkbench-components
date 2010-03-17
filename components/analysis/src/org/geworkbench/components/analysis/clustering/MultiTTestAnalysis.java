@@ -206,8 +206,8 @@ public class MultiTTestAnalysis extends AbstractAnalysis implements
 					}
 				}
 
-				if (useroverride == false)             
-	                 guessLogNormalized(maSet);
+				//if (useroverride == false)             
+	               //  guessLogNormalized(maSet);
 				
 				String histHeader = this.GenerateHistoryHeader(alpha);
 				String markerString = GenerateMarkerString(view);
@@ -288,10 +288,10 @@ public class MultiTTestAnalysis extends AbstractAnalysis implements
 
 		histStr += "Critical P-Value: " + alpha + "\n";
 		
-		if ( useroverride == true)
-			histStr += "\t" + "user override: true \n";
-		else
-			histStr += "\t" + "user override: false \n";
+		//if ( useroverride == true)
+		//	histStr += "\t" + "user override: true \n";
+		//else
+		//	histStr += "\t" + "user override: false \n";
 		
 		if ( isLogNormalized == true)
 			histStr += "\t" + "isLogNormalized: true \n";
