@@ -3278,8 +3278,8 @@ public class TtestAnalysis extends AbstractAnalysis implements
 	private void setFoldChnage(DSMicroarraySet<DSMicroarray> set, DSSignificanceResultSet<DSGeneMarker> resultSet)
 	{
 		            
-             if (useroverride == false)             
-                 guessLogNormalized(set);
+            // if (useroverride == false)             
+              //   guessLogNormalized(set);
             
              
              String[] caseLabels = resultSet.getLabels(DSTTestResultSet.CASE);
