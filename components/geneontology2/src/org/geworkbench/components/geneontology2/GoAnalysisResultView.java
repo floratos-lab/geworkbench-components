@@ -20,6 +20,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 
 import javax.swing.AbstractButton;
 import javax.swing.BoxLayout;
@@ -81,6 +82,7 @@ import org.geworkbench.util.BrowserLauncher;
  * Visual component to show the result from GO Term Analysis.
  * 
  * @author zji
+ * @version $Id$
  *
  */
 @AcceptTypes({GoAnalysisResult.class})
@@ -175,6 +177,8 @@ public class GoAnalysisResultView extends JPanel implements VisualPlugin {
 		listSelectionModel.addListSelectionListener(new ListSelectionListener() {
 
 			public void valueChanged(ListSelectionEvent e) {
+				if (e.getValueIsAdjusting() == true) return; // avoid process twice
+
 				if(table.getSelectedRow()==-1) {
 					geneListTableModel.setDataVector(new Object[0][0], null);
 					singleGeneTreeRoot.removeAllChildren();
@@ -703,7 +707,8 @@ public class GoAnalysisResultView extends JPanel implements VisualPlugin {
 		} else {
 			log.error("'Show genes for' not set");
 		}
-		Set<String> genes = genesFomrTermAndDescendants(goId, includeDescendants);
+		Set<Integer> processedTerms = new TreeSet<Integer>();
+		Set<String> genes = genesFomrTermAndDescendants(processedTerms, goId, includeDescendants);
 		
 		if(changedGeneListButton.isSelected()) {
 			genes.retainAll(result.getChangedGenes());
@@ -725,7 +730,7 @@ public class GoAnalysisResultView extends JPanel implements VisualPlugin {
 		geneListTableModel.setDataVector(dataVector, geneListHeaders);
 	}
 	
-	private Set<String> genesFomrTermAndDescendants(int goId, boolean includeDescendants) {
+	private Set<String> genesFomrTermAndDescendants(Set<Integer> processedTerms, int goId, boolean includeDescendants) {
 		Set<String> genes = new HashSet<String>();
 		Set<String> annotatedGenes = GoAnalysisResult.getAnnotatedGenes(goId);
 		if(annotatedGenes!=null)
@@ -735,10 +740,13 @@ public class GoAnalysisResultView extends JPanel implements VisualPlugin {
 			List<Integer> children = GoAnalysisResult.getOntologyChildren(goId);
 			if(children!=null) {
 				for(Integer child: children) {
-					genes.addAll(genesFomrTermAndDescendants(child, includeDescendants));
+					if(!processedTerms.contains(child)) {
+						genes.addAll(genesFomrTermAndDescendants(processedTerms, child, includeDescendants));
+					}
 				}
 			}
 		}
+		processedTerms.add(goId);
 		return genes;
 	}
 
