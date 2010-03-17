@@ -341,7 +341,7 @@ public class GoAnalysisResultView extends JPanel implements VisualPlugin {
 		
 		primaryView.addChangeListener(new ChangeListener() {
 
-			//@Override
+			@Override
 			public void stateChanged(ChangeEvent e) {
 				refreshGeneView();
 			}
@@ -352,6 +352,8 @@ public class GoAnalysisResultView extends JPanel implements VisualPlugin {
 	
 	private void refreshGeneView () {
 		if(primaryView.getSelectedComponent()==tableTab) {
+			if(table.getSelectedRow()==-1)return;
+			
 			int index = table.convertRowIndexToModel( table.getSelectedRow() );
 			if(index>=0 && index<=tableModel.getRowCount()) { // in case the selection is not in the new range
 				Integer goId = (Integer)tableModel.getValueAt(index, 0);
