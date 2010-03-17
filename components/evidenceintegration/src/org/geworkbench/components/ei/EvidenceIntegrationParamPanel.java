@@ -2,6 +2,7 @@ package org.geworkbench.components.ei;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.Frame;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
@@ -29,6 +30,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.JToolBar;
 import javax.swing.ListSelectionModel;
+import javax.swing.table.TableColumn;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -204,7 +206,8 @@ public class EvidenceIntegrationParamPanel extends AbstractSaveableParameterPane
         }
 
         JPanel priorContainer = new JPanel(new GridLayout(2, 1));
-
+        final int COLUMN0_MAX_WIDTH=10;
+        TableColumn column = null;
         {
             JPanel tablePanel = new JPanel(new BorderLayout());
             JLabel label = new JLabel("Predefined Gold Standards");
@@ -218,10 +221,15 @@ public class EvidenceIntegrationParamPanel extends AbstractSaveableParameterPane
                 predefinedPriors.add(source);
             }
             predefinedModel = new PriorTableModel(predefinedPriors);
-            predefTable = new JXTable(predefinedModel);
+            predefTable = new JXTable(predefinedModel);            
+            
+            column = predefTable.getColumnModel().getColumn(0);
+            column.setMaxWidth(COLUMN0_MAX_WIDTH); 
             setBooleanRenderers(predefTable);
+            
             JScrollPane predefScrollPane = new JScrollPane(predefTable);
             tablePanel.add(predefScrollPane, BorderLayout.CENTER);
+            
             priorContainer.add(tablePanel);
         }
 
@@ -234,6 +242,8 @@ public class EvidenceIntegrationParamPanel extends AbstractSaveableParameterPane
             //loadedPriors.add(new Evidence("Loaded 1", null));
             loadedModel = new PriorTableModel(loadedPriors);
             loadedTable = new JXTable(loadedModel);
+            column = loadedTable.getColumnModel().getColumn(0);
+            column.setMaxWidth(COLUMN0_MAX_WIDTH); 
             setBooleanRenderers(loadedTable);
             JScrollPane loadedScrollPane = new JScrollPane(loadedTable);
             tablePanel.add(loadedScrollPane, BorderLayout.CENTER);
