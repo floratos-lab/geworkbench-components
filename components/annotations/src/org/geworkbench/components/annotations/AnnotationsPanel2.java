@@ -2267,11 +2267,11 @@ public class AnnotationsPanel2 implements VisualPlugin, Observer{
                                             markerData.add(marker);
                                         }
                                     }
-//                                    else {
-//                                        pathwayData.add(new PathwayData("", null));
-//                                        geneData.add(gene);
-//                                        markerData.add(marker);
-//                                    }
+                                    else {
+                                        pathwayData.add(new PathwayData("", null));
+                                        geneData.add(gene);
+                                        markerData.add(marker);
+                                    }
                                 }
                             }
 //                            else {
