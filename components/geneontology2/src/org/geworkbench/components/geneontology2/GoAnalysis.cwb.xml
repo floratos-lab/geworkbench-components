@@ -3,7 +3,7 @@
 	<component name="Gene Ontology Term Analysis (Ontologizer 2.0)"
 		class="org.geworkbench.components.geneontology2.GoAnalysis"
 		version="1.0"
-		author="Peter Robinson"
+		author="Peter Robinson (Charite)"
 		authorURL="http://compbio.charite.de/index.php/peter-n-robinson.html"
 		toolURL="http://compbio.charite.de/index.php/ontologizer2.html"
 		tutorialURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Tutorial_-_Gene_Ontology_Term_Analysis"
