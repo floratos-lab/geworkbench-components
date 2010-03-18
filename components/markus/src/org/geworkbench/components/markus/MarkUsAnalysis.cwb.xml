@@ -30,6 +30,6 @@
 
 	</component>
 
-  <plugin id="MarkUsAnalysis" name="MarkUs Analysis" class="org.geworkbench.components.markus.MarkUsAnalysis" source="markus"/>
+  <plugin id="MarkUsAnalysis" name="Mark-Us Analysis" class="org.geworkbench.components.markus.MarkUsAnalysis" source="markus"/>
   
 </component-descriptor>
