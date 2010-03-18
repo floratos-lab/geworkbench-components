@@ -206,7 +206,7 @@ public class EvidenceIntegrationParamPanel extends AbstractSaveableParameterPane
         }
 
         JPanel priorContainer = new JPanel(new GridLayout(2, 1));
-        final int COLUMN0_MAX_WIDTH=10;
+        final int COLUMN0_MAX_WIDTH=25;
         TableColumn column = null;
         {
             JPanel tablePanel = new JPanel(new BorderLayout());
