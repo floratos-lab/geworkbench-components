@@ -40,7 +40,7 @@ import edu.columbia.c2b2.evidenceinegration.EvidenceIntegration;
  */
 public class EvidenceIntegrationAnalysis extends AbstractGridAnalysis implements ClusteringAnalysis {
 
-    public static final String DB_URL = "jdbc:mysql://afdev:3306/evidence_integration";
+    public static final String DB_URL = "jdbc:mysql://afdev.c2b2.columbia.edu:3306/evidence_integration";
     public static final String DB_USERNAME = "evidence_integ";
     public static final String DB_PASSWORD = "S@cUrE_aR@a56";
     private final String analysisName = "EvidenceIntegration";
