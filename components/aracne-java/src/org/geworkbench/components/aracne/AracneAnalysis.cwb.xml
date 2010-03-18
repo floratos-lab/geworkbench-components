@@ -3,7 +3,7 @@
 
 	<component name="ARACNe Analysis"
 		class="org.geworkbench.components.aracne.AracneAnalysis" version="1.0"
-		author="Andrea Califano, Ph.D."
+		author="Califano lab (C2B2)"
 		authorURL="http://wiki.c2b2.columbia.edu/califanolab/index.php/Califano_Info"
 		toolURL="http://wiki.c2b2.columbia.edu/califanolab/index.php/Software/ARACNE"
 		tutorialURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Tutorial_-_ARACNE"
