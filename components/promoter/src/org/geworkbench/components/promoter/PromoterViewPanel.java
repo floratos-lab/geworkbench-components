@@ -417,7 +417,8 @@ public class PromoterViewPanel extends JPanel {
         countBox.setEditable(false);
         countBox.setText("0");
         thresholdBox.setPreferredSize(new Dimension(70, 18));
-        Set13KCheck.setText("13K Set");
+        thresholdBox.setEditable(false);
+        set13KCheck.setText("13K Set");
         percentSeqMatchBox.setPreferredSize(new Dimension(70, 18));
         percentSeqMatchBox.setEditable(false);
         percentSeqMatchBox.setText("0%");
@@ -432,6 +433,10 @@ public class PromoterViewPanel extends JPanel {
         seqCountBox.setText("0");
         seqEnrichmentBox.setEditable(false);
         seqEnrichmentBox.setText("1.0");
+        pValueFieldResult.setMinimumSize(new Dimension(70, 18));
+        pValueFieldResult.setEditable(false);
+        thresholdResult.setMinimumSize(new Dimension(70, 18));
+        thresholdResult.setEditable(false);
         stopButton.setText("Stop");
         stopButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -606,108 +611,128 @@ public class PromoterViewPanel extends JPanel {
         jTabbedPane2.add(northPanel, "Sequence");
         jPanel12.add(parmsPanel, java.awt.BorderLayout.CENTER);
         parmsPanel.add(actualLabel1,
-                       new GridBagConstraints(1, 9, 1, 1, 1.0, 0.0
+                       new GridBagConstraints(1, 11, 1, 1, 1.0, 0.0
                                               , GridBagConstraints.CENTER,
                                               GridBagConstraints.HORIZONTAL,
                                               new Insets(1, 2, 1, 2), 0, 0));
-        parmsPanel.add(totalLabel1, new GridBagConstraints(2, 6, 1, 1, 0.0, 0.0
+        parmsPanel.add(totalLabel1, new GridBagConstraints(2, 8, 1, 1, 0.0, 0.0
                 , GridBagConstraints.CENTER, GridBagConstraints.NONE,
                 new Insets(0, 0, 0, 0), 0, 0));
         parmsPanel.add(sequenceLabel1,
-                       new GridBagConstraints(3, 6, 1, 1, 0.0, 0.0
+                       new GridBagConstraints(3, 8, 1, 1, 0.0, 0.0
                                               , GridBagConstraints.CENTER,
                                               GridBagConstraints.NONE,
                                               new Insets(0, 0, 0, 0), 0, 0));
         parmsPanel.add(expectedLabel1,
-                       new GridBagConstraints(1, 8, 1, 1, 1.0, 0.0
+                       new GridBagConstraints(1, 10, 1, 1, 1.0, 0.0
                                               , GridBagConstraints.CENTER,
                                               GridBagConstraints.HORIZONTAL,
                                               new Insets(1, 2, 1, 2), 0, 0));
         parmsPanel.add(expectedCountBox,
-                       new GridBagConstraints(2, 8, 1, 1, 1.0, 0.0
-                                              , GridBagConstraints.CENTER,
-                                              GridBagConstraints.HORIZONTAL,
-                                              new Insets(1, 2, 1, 2), 0, 0));
-        parmsPanel.add(expectedSeqCountBox,
-                       new GridBagConstraints(3, 8, 1, 1, 1.0, 0.0
-                                              , GridBagConstraints.CENTER,
-                                              GridBagConstraints.HORIZONTAL,
-                                              new Insets(1, 2, 1, 2), 0, 0));
-        parmsPanel.add(countBox, new GridBagConstraints(2, 9, 1, 1, 1.0, 0.0
-                , GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
-                new Insets(1, 2, 0, 2), 0, 0));
-        parmsPanel.add(seqCountBox, new GridBagConstraints(3, 9, 1, 1, 1.0, 0.0
-                , GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
-                new Insets(1, 2, 0, 2), 0, 0));
-
-          parmsPanel.add(enrichmentBox,
                        new GridBagConstraints(2, 10, 1, 1, 1.0, 0.0
                                               , GridBagConstraints.CENTER,
                                               GridBagConstraints.HORIZONTAL,
                                               new Insets(1, 2, 1, 2), 0, 0));
-        parmsPanel.add(seqEnrichmentBox,
+        parmsPanel.add(expectedSeqCountBox,
                        new GridBagConstraints(3, 10, 1, 1, 1.0, 0.0
                                               , GridBagConstraints.CENTER,
                                               GridBagConstraints.HORIZONTAL,
                                               new Insets(1, 2, 1, 2), 0, 0));
+        parmsPanel.add(countBox, new GridBagConstraints(2, 11, 1, 1, 1.0, 0.0
+                , GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
+                new Insets(1, 2, 0, 2), 0, 0));
+        parmsPanel.add(seqCountBox, new GridBagConstraints(3, 11, 1, 1, 1.0, 0.0
+                , GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
+                new Insets(1, 2, 0, 2), 0, 0));
+
+          parmsPanel.add(enrichmentBox,
+                       new GridBagConstraints(2, 12, 1, 1, 1.0, 0.0
+                                              , GridBagConstraints.CENTER,
+                                              GridBagConstraints.HORIZONTAL,
+                                              new Insets(1, 2, 1, 2), 0, 0));
+        parmsPanel.add(seqEnrichmentBox,
+                       new GridBagConstraints(3, 12, 1, 1, 1.0, 0.0
+                                              , GridBagConstraints.CENTER,
+                                              GridBagConstraints.HORIZONTAL,
+                                              new Insets(1, 2, 1, 2), 0, 0));
         parmsPanel.add(enrichmentLabel,
-                       new GridBagConstraints(1, 10, 2, 1, 1.0, 0.0
+                       new GridBagConstraints(1, 12, 2, 1, 1.0, 0.0
                                               , GridBagConstraints.CENTER,
                                               GridBagConstraints.HORIZONTAL,
                                               new Insets(1, 2, 1, 2), 0, 0));
 
           parmsPanel.add(percentSeqMatchBox,
-                       new GridBagConstraints(3, 11, 2, 1, 1.0, 0.0
+                       new GridBagConstraints(4, 13, 2, 1, 1.0, 0.0
                                               , GridBagConstraints.CENTER,
                                               GridBagConstraints.HORIZONTAL,
                                               new Insets(1, 2, 1, 2), 0, 0));
 
-          parmsPanel.add(jLabel1, new GridBagConstraints(1, 11, 1, 1, 0.0, 0.0
+          parmsPanel.add(jLabel1, new GridBagConstraints(1, 13, 1, 1, 0.0, 0.0
                 , GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
                 new Insets(0, 0, 0, 0), 0, 0));
 
         parmsPanel.add(primer5Label,
-                       new GridBagConstraints(2, 12, 1, 1, 0.0, 0.0
+                       new GridBagConstraints(2, 14, 1, 1, 0.0, 0.0
                                               , GridBagConstraints.CENTER,
                                               GridBagConstraints.NONE,
                                               new Insets(0, 0, 0, 0), 0, 0));
         parmsPanel.add(primer3Label,
-                       new GridBagConstraints(3, 12, 1, 1, 0.0, 0.0
+                       new GridBagConstraints(3, 14, 1, 1, 0.0, 0.0
                                               , GridBagConstraints.CENTER,
                                               GridBagConstraints.NONE,
                                               new Insets(0, 0, 0, 0), 0, 0));
         parmsPanel.add(match5PrimeExpectBox,
-                       new GridBagConstraints(2, 13, 1, 1, 1.0, 0.0
+                       new GridBagConstraints(2, 15, 1, 1, 1.0, 0.0
                                               , GridBagConstraints.CENTER,
                                               GridBagConstraints.HORIZONTAL,
                                               new Insets(1, 2, 1, 2), 0, 0));
         parmsPanel.add(match3PrimeExpectBox,
-                       new GridBagConstraints(3, 13, 1, 1, 1.0, 0.0
+                       new GridBagConstraints(3, 15, 1, 1, 1.0, 0.0
                                               , GridBagConstraints.CENTER,
                                               GridBagConstraints.HORIZONTAL,
                                               new Insets(1, 2, 1, 2), 0, 0));
 
-                parmsPanel.add(expect2Label,
-                       new GridBagConstraints(1, 13, 2, 1, 1.0, 0.0
+        parmsPanel.add(expect2Label,
+                       new GridBagConstraints(1, 15, 2, 1, 1.0, 0.0
                                               , GridBagConstraints.CENTER,
                                               GridBagConstraints.HORIZONTAL,
                                               new Insets(1, 2, 1, 2), 0, 0));
 
         parmsPanel.add(actualLabel,
-                       new GridBagConstraints(1, 14, 1, 1, 1.0, 0.0
+                       new GridBagConstraints(1, 16, 1, 1, 1.0, 0.0
+                                              , GridBagConstraints.CENTER,
+                                              GridBagConstraints.HORIZONTAL,
+                                              new Insets(1, 2, 1, 2), 0, 0));
+        parmsPanel.add(pValueFieldResultLabel,
+                       new GridBagConstraints(1, 6, 1, 1, 1.0, 0.0
+		                                      , GridBagConstraints.CENTER,
+		                                      GridBagConstraints.HORIZONTAL,
+		                                      new Insets(1, 2, 1, 2), 0, 0));
+
+        parmsPanel.add(pValueFieldResult,
+                      new GridBagConstraints(2, 6, 1, 1, 1.0, 0.0
+	                                         , GridBagConstraints.CENTER,
+	                                         GridBagConstraints.HORIZONTAL,
+	                                         new Insets(1, 2, 1, 2), 0, 0));
+
+        
+        parmsPanel.add(thresholdResultLabel,
+                       new GridBagConstraints(1, 7, 1, 1, 1.0, 0.0
+	                                          , GridBagConstraints.CENTER,
+	                                          GridBagConstraints.HORIZONTAL,
+	                                          new Insets(1, 2, 1, 2), 0, 0));
+
+        parmsPanel.add(thresholdResult,
+                       new GridBagConstraints(2, 7, 1, 1, 1.0, 0.0
                                               , GridBagConstraints.CENTER,
                                               GridBagConstraints.HORIZONTAL,
                                               new Insets(1, 2, 1, 2), 0, 0));
         parmsPanel.add(match5PrimeActualBox,
-                       new GridBagConstraints(2, 14, 1, 1, 1.0, 0.0
+                       new GridBagConstraints(2, 16, 1, 1, 1.0, 0.0
                                               , GridBagConstraints.CENTER,
                                               GridBagConstraints.HORIZONTAL,
                                               new Insets(1, 2, 1, 2), 0, 0));
-        parmsPanel.add(match3PrimeActualBox,
-                       new GridBagConstraints(3, 14, 1, 1, 1.0, 0.0
-                                              , GridBagConstraints.CENTER,
-                                              GridBagConstraints.HORIZONTAL,
-                                              new Insets(1, 2, 1, 2), 0, 0));
+        parmsPanel.add(match3PrimeActualBox, new GridBagConstraints(3, 16, 1, 1, 1.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(1, 2, 1, 2), 0, 0));
         parmsPanel.add(thresholdBox,
                        new GridBagConstraints(2, 2, 1, 1, 1.0, 0.0
                                               , GridBagConstraints.CENTER,
@@ -718,7 +743,7 @@ public class PromoterViewPanel extends JPanel {
                                               , GridBagConstraints.CENTER,
                                               GridBagConstraints.HORIZONTAL,
                                               new Insets(0, 2, 0, 2), 0, 0));
-        parmsPanel.add(Set13KCheck, new GridBagConstraints(3, 2, 1, 1, 0.0, 0.0
+        parmsPanel.add(set13KCheck, new GridBagConstraints(3, 2, 1, 1, 0.0, 0.0
                 , GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
                 new Insets(0, 2, 0, 2), 0, 0));
         parmsPanel.add(iterationBox,
@@ -832,6 +857,8 @@ public class PromoterViewPanel extends JPanel {
     JPanel parmsPanel = new JPanel();
     GridBagLayout gridBagLayout1 = new GridBagLayout();
     JTextField pValueField = new JTextField();
+    JLabel pValueFieldResultLabel = new JLabel("Calculated PValue / 1K: ");
+    JTextField pValueFieldResult = new JTextField();
     JLabel pValueLabel = new JLabel();
     JLabel expectedLabel1 = new JLabel();
     JTextField expectedCountBox = new JTextField();
@@ -841,7 +868,9 @@ public class PromoterViewPanel extends JPanel {
     JTextField countBox = new JTextField();
     JCheckBox useThresholdCheck = new JCheckBox();
     JTextField thresholdBox = new JTextField();
-    JCheckBox Set13KCheck = new JCheckBox();
+    JLabel thresholdResultLabel = new JLabel("Calculated Threshold: ");
+    JTextField thresholdResult = new JTextField();
+    JCheckBox set13KCheck = new JCheckBox();
     JTextField percentSeqMatchBox = new JTextField();
     JLabel totalLabel1 = new JLabel();
     JLabel sequenceLabel1 = new JLabel();
@@ -1507,7 +1536,7 @@ public class PromoterViewPanel extends JPanel {
                             ar.add(pattern);
                             ScoreStats stats = null;
                             // Load the 13K set if needed
-                            if (Set13KCheck.isSelected()) {
+                            if (set13KCheck.isSelected()) {
                                 load13KBSet();
                             } else {
                                 background = null;
@@ -1532,8 +1561,7 @@ public class PromoterViewPanel extends JPanel {
                                 // assign the new pValue based on what we could find
                                 if (stats != null) {
                                     pValue = stats.pValue;
-                                    pValueField.setText(formatPV.format(
-                                            pValue));
+                                    pValueFieldResult.setText(formatPV.format(pValue));
                                     threshold = stats.score * 0.99;
                                 } else {
                                     //stopped.
@@ -1634,7 +1662,7 @@ public class PromoterViewPanel extends JPanel {
                             }
 
                             if (useThresholdCheck.isSelected()) {
-                                if (Set13KCheck.isSelected()) {
+                                if (set13KCheck.isSelected()) { // set13KCheck
                                     // using the length of the current sequences as background, determine an appropriate pvalue
                                     // from the 13K Set
                                     getMatchesPerLength(pattern,
@@ -1658,7 +1686,7 @@ public class PromoterViewPanel extends JPanel {
                         p = msExpect.matchNo / (double) totalLength;
                     }
                     if (useThresholdCheck.isSelected()) {
-                        pValueField.setText(formatPV.format(p * 1000));
+                    	pValueFieldResult.setText(formatPV.format(p * 1000));      
                     }
                     int percent = (int) (100 * (double) msActual.matchSeq /
                                          (double) seqNo);
@@ -1702,7 +1730,7 @@ public class PromoterViewPanel extends JPanel {
                             match5primeNo));
                     match3PrimeExpectBox.setText(formatPV.format(msExpect.
                             match3primeNo));
-                    thresholdBox.setText(format.format(threshold));
+                    thresholdResult.setText(format.format(threshold));
                     countBox.setText(formatInt.format(matchCount));
                     updateProgressBar(0, "Done");
 
@@ -2069,8 +2097,15 @@ public class PromoterViewPanel extends JPanel {
     }
 
     public void useThresholdCheck_actionPerformed(ActionEvent e) {
-
-    }
+    	boolean useThresholdSelected = useThresholdCheck.isSelected();
+    	if(useThresholdSelected){
+    		pValueField.setEditable(false);
+    		thresholdBox.setEditable(true);
+    	}else{
+    		pValueField.setEditable(true);
+    		thresholdBox.setEditable(false);
+    	}
+	}
 
     void updateProgressBar(final double percent, final String text) {
         Runnable r = new Runnable() {
