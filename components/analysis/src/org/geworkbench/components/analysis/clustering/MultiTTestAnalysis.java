@@ -286,13 +286,8 @@ public class MultiTTestAnalysis extends AbstractAnalysis implements
 		histStr += "Multi t Test run with parameters:\n";
 		histStr += "----------------------------------------\n";
 
-		histStr += "Critical P-Value: " + alpha + "\n";
-		
-		//if ( useroverride == true)
-		//	histStr += "\t" + "user override: true \n";
-		//else
-		//	histStr += "\t" + "user override: false \n";
-		
+		histStr += "Critical P-Value: " + alpha + "\n";		
+		 
 		if ( isLogNormalized == true)
 			histStr += "\t" + "isLogNormalized: true \n";
 		else
@@ -420,28 +415,5 @@ public class MultiTTestAnalysis extends AbstractAnalysis implements
 		  
 	}
 	 
-	private void guessLogNormalized(DSMicroarraySet<DSMicroarray> set) {
-	        double minValue = Double.POSITIVE_INFINITY;
-	        double maxValue = Double.NEGATIVE_INFINITY;
-	        for (DSMicroarray microarray : set) {
-	            DSMutableMarkerValue[] values = microarray.getMarkerValues();
-	            double v;
-	            for (DSMutableMarkerValue value : values) {
-	                v = value.getValue();
-	                if (v < minValue) {
-	                    minValue = v;
-	                }
-	                if (v > maxValue) {
-	                    maxValue = v;
-	                }
-	            }
-	        }
-	        if (maxValue - minValue < 100) {
-	            isLogNormalized = true;
-	        } else {
-	            isLogNormalized = false;
-	        }
-	         
-	    }
-	
+	 
 }
