@@ -2,6 +2,7 @@ package org.geworkbench.components.analysis;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
@@ -55,6 +56,7 @@ import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetV
 import org.geworkbench.bison.datastructure.bioobjects.markers.CSExpressionMarker;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
+import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMutableMarkerValue;
 import org.geworkbench.bison.datastructure.bioobjects.structure.CSProteinStructure;
 import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
 import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
@@ -388,11 +390,11 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 					availableAnalyses[i]).getLabel();
 			availableAnalyses[i].setLabel(names[i]);
 		}
-		
+
 		AbstractAnalysisLabelComparator comparator = new AbstractAnalysisLabelComparator();
-		Arrays.sort(availableAnalyses, comparator );
+		Arrays.sort(availableAnalyses, comparator);
 	}
-	
+
 	@Publish
 	@SuppressWarnings("unchecked")
 	public org.geworkbench.events.SubpanelChangedEvent publishSubpanelChangedEvent(
@@ -968,31 +970,31 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 	 * @param e
 	 */
 	private void delete_actionPerformed(ActionEvent e) {
-		if (selectedAnalysis != null && this.paramsJList.getSelectedIndex() == -1 )
-		{
-			JOptionPane.showMessageDialog(null, "You have to select a setting before you can delete it.",
+		if (selectedAnalysis != null
+				&& this.paramsJList.getSelectedIndex() == -1) {
+			JOptionPane.showMessageDialog(null,
+					"You have to select a setting before you can delete it.",
 					"Canceled", JOptionPane.OK_OPTION);
-		}
-		else
-		{
+		} else {
 			int choice = JOptionPane.showConfirmDialog(null,
 					"Are you sure you want to delete saved parameters?",
 					"Deleting Saved Parameters", JOptionPane.YES_NO_OPTION,
 					JOptionPane.WARNING_MESSAGE);
-		 
-		    if ((selectedAnalysis != null) && (choice == 0)
-				&& (this.paramsJList.getSelectedIndex() >= 0)) {
-			log.info("Deleting saved parameters: "
-					+ (String) this.paramsJList.getSelectedValue());
-			this.removeNamedParameter((String) this.paramsJList
-					.getSelectedValue());
-			if (this.paramsJList.getModel().getSize() < 1)
-				this.delete.setEnabled(false);
-		    }
-		 }
+
+			if ((selectedAnalysis != null) && (choice == 0)
+					&& (this.paramsJList.getSelectedIndex() >= 0)) {
+				log.info("Deleting saved parameters: "
+						+ (String) this.paramsJList.getSelectedValue());
+				this.removeNamedParameter((String) this.paramsJList
+						.getSelectedValue());
+				if (this.paramsJList.getModel().getSize() < 1)
+					this.delete.setEnabled(false);
+			}
+		}
 	}
 
 	int previousSelectedIndex = -1;
+
 	/**
 	 * Listener invoked when an analysis is selected from the {@link JList} of
 	 * analyses. The parameters for this analysis are shown.
@@ -1049,12 +1051,12 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 		}
 
 		if (selectedAnalysis instanceof AbstractGridAnalysis) {
-			if (analysesJList.getSelectedIndex() != previousSelectedIndex){
+			if (analysesJList.getSelectedIndex() != previousSelectedIndex) {
 				jGridServicePanel = new GridServicePanel(SERVICE);
 				jGridServicePanel.setAnalysisType(selectedAnalysis);
 				if (jAnalysisTabbedPane.getTabCount() > ANALYSIS_TAB_COUNT)
 					jAnalysisTabbedPane.remove(ANALYSIS_TAB_COUNT);
-	
+
 				jAnalysisTabbedPane.addTab("Services", jGridServicePanel);
 			}
 		} else {
@@ -1064,7 +1066,7 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 			// service information every time.
 			// Should have a better implementation.
 		}
-		previousSelectedIndex = analysesJList.getSelectedIndex();		
+		previousSelectedIndex = analysesJList.getSelectedIndex();
 	}
 
 	/**
@@ -1117,9 +1119,29 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 		maSetView = getDataSetView();
 
 		if (currentParameterPanel instanceof MultiTTestAnalysisPanel
-				|| currentParameterPanel instanceof TtestAnalysisPanel)
+				|| currentParameterPanel instanceof TtestAnalysisPanel) {
 			onlyActivatedArrays = true;
-		else
+
+			Boolean isLogNormalized = null;
+			if (currentParameterPanel instanceof TtestAnalysisPanel)
+				isLogNormalized = ((TtestAnalysisPanel) currentParameterPanel)
+						.isLogNormalized();
+			else
+				isLogNormalized = ((MultiTTestAnalysisPanel) currentParameterPanel)
+						.isLogNormalized();
+
+			Boolean isLogNormalizedFromGuess = guessLogNormalized(maSetView);
+
+			if (isLogNormalizedFromGuess != null
+					&& isLogNormalizedFromGuess.booleanValue() != isLogNormalized
+							.booleanValue()) {
+				String theMessage = "We have detected that the checkbox 'Data is log2-tranformed' may not be correctly set. Do you want to proceed anyway?";
+				int result = JOptionPane.showConfirmDialog((Component) null,
+						theMessage, "alert", JOptionPane.YES_NO_OPTION);
+				if (result == JOptionPane.NO_OPTION)
+					return;
+			}
+		} else
 			onlyActivatedArrays = !chkAllArrays.isSelected();
 
 		if (selectedAnalysis == null
@@ -1137,8 +1159,7 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 			publishAnalysisInvokedEvent(event);
 		} else if ((maSetView != null) && (refMASet != null)) {
 			AnalysisInvokedEvent event = new AnalysisInvokedEvent(
-					selectedAnalysis, maSetView.getDataSet()
-							.getLabel());
+					selectedAnalysis, maSetView.getDataSet().getLabel());
 			publishAnalysisInvokedEvent(event);
 		}
 
@@ -1167,8 +1188,8 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 										JOptionPane.ERROR_MESSAGE);
 								return;
 							}
-							
-							if(selectedGridAnalysis.isAuthorizationRequired()) {
+
+							if (selectedGridAnalysis.isAuthorizationRequired()) {
 								/* ask for username and password */
 								getUserInfo();
 								if (userInfo == null) {
@@ -1305,14 +1326,14 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 			t.start();
 		}
 	}
-	
+
 	/**
-	 *  Refresh the list of available analyses. 
-	 *  */
+	 * Refresh the list of available analyses.
+	 */
 	@Subscribe
 	public void receive(org.geworkbench.events.ProjectEvent even, Object source) {
 		super.receive(even, source);
-		if(even.getDataSet()!=null) {
+		if (even.getDataSet() != null) {
 			if (even.getDataSet().getClass().equals(CSProteinStructure.class)) {
 				getAvailableProteinStructureAnalyses();
 			} else if (even.getDataSet().getClass().equals(CSSequenceSet.class)) {
@@ -1325,7 +1346,8 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 	}
 
 	/**
-	 * Get ProtainAnalysis - the analyses for PDB data files, similar to getAvailableAnalyses() for all ClusteringAnalysise.
+	 * Get ProtainAnalysis - the analyses for PDB data files, similar to
+	 * getAvailableAnalyses() for all ClusteringAnalysise.
 	 */
 	private void getAvailableProteinStructureAnalyses() {
 		boolean selectionChanged = true;
@@ -1346,7 +1368,7 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 			}
 		}
 	}
-	
+
 	/**
 	 * Get the protein sequence analyses.
 	 */
@@ -1369,4 +1391,46 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 			}
 		}
 	}
+
+	private Boolean guessLogNormalized(Object input) {
+		Boolean isLogNormalized = null;
+		if (input == null) {
+			return isLogNormalized;
+		}
+		try {
+			assert input instanceof DSMicroarraySetView;
+			DSMicroarraySetView<? extends DSGeneMarker, ? extends DSMicroarray> data = (DSMicroarraySetView) input;
+
+			DSDataSet set = data.getDataSet();
+			if (set instanceof DSMicroarraySet) {
+				DSMicroarraySet<DSMicroarray> maSet = (DSMicroarraySet<DSMicroarray>) set;
+				double minValue = Double.POSITIVE_INFINITY;
+				double maxValue = Double.NEGATIVE_INFINITY;
+				for (DSMicroarray microarray : maSet) {
+					DSMutableMarkerValue[] values = microarray
+							.getMarkerValues();
+					double v;
+					for (DSMutableMarkerValue value : values) {
+						v = value.getValue();
+						if (v < minValue) {
+							minValue = v;
+						}
+						if (v > maxValue) {
+							maxValue = v;
+						}
+					}
+				}
+				if (maxValue - minValue < 100) {
+					isLogNormalized = true;
+				} else {
+					isLogNormalized = false;
+				}
+			}
+		} catch (Exception e) {
+			// do nothing, TtestAnalysis.execute() will do validation
+		}
+		return isLogNormalized;
+
+	}
+
 }
