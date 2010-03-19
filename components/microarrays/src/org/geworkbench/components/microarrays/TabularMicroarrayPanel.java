@@ -236,7 +236,7 @@ public class TabularMicroarrayPanel extends MicroarrayViewEventBase implements V
         synchronized (jTable1) {
             jTable1.setModel(new DefaultTableModel());
             jTable1.setModel(microarrayTableModel);
-    		restoreVisualColumnOrder();
+//    		restoreVisualColumnOrder();
         }
     }
     
