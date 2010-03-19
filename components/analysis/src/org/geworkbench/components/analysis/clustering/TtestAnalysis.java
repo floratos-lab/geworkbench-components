@@ -3221,12 +3221,7 @@ public class TtestAnalysis extends AbstractAnalysis implements
 			histStr += "\t" + "#times: " + numCombs + "\n";
 		}
 		histStr += "\t" + "critical p-Value: " + alpha + "\n";
-		
-		//if ( useroverride == true)
-		//	histStr += "\t" + "user override: true \n";
-		//else
-		//	histStr += "\t" + "user override: false \n";
-		
+			 
 		if ( isLogNormalized == true)
 			histStr += "\t" + "isLogNormalized: true \n";
 		else
@@ -3277,11 +3272,7 @@ public class TtestAnalysis extends AbstractAnalysis implements
 	
 	private void setFoldChnage(DSMicroarraySet<DSMicroarray> set, DSSignificanceResultSet<DSGeneMarker> resultSet)
 	{
-		            
-            // if (useroverride == false)             
-              //   guessLogNormalized(set);
-            
-             
+		             
              String[] caseLabels = resultSet.getLabels(DSTTestResultSet.CASE);
              String[] controlLabels = resultSet.getLabels(DSTTestResultSet.CONTROL);
              DSAnnotationContext<DSMicroarray> context = CSAnnotationContextManager.getInstance().getCurrentContext(set);
@@ -3369,28 +3360,5 @@ public class TtestAnalysis extends AbstractAnalysis implements
 		  
 	}
 	 
-	private void guessLogNormalized(DSMicroarraySet<DSMicroarray> set) {
-	        double minValue = Double.POSITIVE_INFINITY;
-	        double maxValue = Double.NEGATIVE_INFINITY;
-	        for (DSMicroarray microarray : set) {
-	            DSMutableMarkerValue[] values = microarray.getMarkerValues();
-	            double v;
-	            for (DSMutableMarkerValue value : values) {
-	                v = value.getValue();
-	                if (v < minValue) {
-	                    minValue = v;
-	                }
-	                if (v > maxValue) {
-	                    maxValue = v;
-	                }
-	            }
-	        }
-	        if (maxValue - minValue < 100) {
-	            isLogNormalized = true;
-	        } else {
-	            isLogNormalized = false;
-	        }
-	         
-	    }
-	
+	 
 }
