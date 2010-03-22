@@ -41,7 +41,6 @@ import org.geworkbench.bison.datastructure.biocollections.sequences.CSSequenceSe
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.AnnotationParser;
 import org.geworkbench.bison.datastructure.bioobjects.sequence.CSSequence;
-import org.geworkbench.components.parsers.RMAExpressFileFormat;
 import org.geworkbench.util.FilePathnameUtils;
 import org.geworkbench.util.sequences.GeneChromosomeMatcher;
 
@@ -58,7 +57,8 @@ import org.geworkbench.util.sequences.GeneChromosomeMatcher;
  * @version 1.0
  */
 public class SequenceFetcher {
-	static Log log = LogFactory.getLog(RMAExpressFileFormat.class);
+	private static Log log = LogFactory.getLog(SequenceFetcher.class);
+	
     public static final String UCSC = "UCSC";
     private static SequenceFetcher theSequenceFetcher = new SequenceFetcher();
     private final static String chiptyemapfilename = "chiptypeDatabaseMap.txt";
