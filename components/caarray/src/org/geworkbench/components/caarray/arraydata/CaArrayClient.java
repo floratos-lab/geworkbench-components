@@ -7,6 +7,7 @@ import gov.nih.nci.caarray.external.v1_0.data.DataSet;
 import gov.nih.nci.caarray.external.v1_0.data.DataType;
 import gov.nih.nci.caarray.external.v1_0.data.DesignElement;
 import gov.nih.nci.caarray.external.v1_0.data.DoubleColumn;
+import gov.nih.nci.caarray.external.v1_0.data.FileCategory;
 import gov.nih.nci.caarray.external.v1_0.data.FloatColumn;
 import gov.nih.nci.caarray.external.v1_0.data.HybridizationData;
 import gov.nih.nci.caarray.external.v1_0.data.IntegerColumn;
@@ -304,6 +305,7 @@ public class CaArrayClient {
         // Select the quantitation types (columns) of interest.
         QuantitationTypeSearchCriteria qtCrit = new QuantitationTypeSearchCriteria();
         qtCrit.setHybridization(hybridization.getReference());
+        qtCrit.getFileCategories().add(FileCategory.DERIVED_DATA);
         List<QuantitationType> qtypes = searchService.searchForQuantitationTypes(qtCrit);
         Set<CaArrayEntityReference> quantitationTypeRefs = new HashSet<CaArrayEntityReference>();
         for (QuantitationType qt : qtypes) {
