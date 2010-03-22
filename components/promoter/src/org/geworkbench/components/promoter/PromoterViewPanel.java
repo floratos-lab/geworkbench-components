@@ -407,7 +407,7 @@ public class PromoterViewPanel extends JPanel {
         parmsPanel.setMinimumSize(new Dimension(130, 100));
         parmsPanel.setPreferredSize(new Dimension(130, 100));
         enrichmentLabel.setText("Enrich. p-value:");
-        useThresholdCheck.setText("Use Thr.");
+        useThresholdCheck.setText("Use Threshold:");
         useThresholdCheck.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 useThresholdCheck_actionPerformed(e);
