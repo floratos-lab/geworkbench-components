@@ -1,7 +1,7 @@
 <component-descriptor xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:noNamespaceSchemaLocation="Descriptor Schema.xsd">
 	
-	<component  name="MRA Viewer"
+	<component  name="Master Regulator Analysis Viewer"
 				class="org.geworkbench.components.analysis.clustering.MasterRegulatorViewer"
 				version="1.0"
 				author="C2B2"
