@@ -3,9 +3,9 @@
 	<component  name="MatrixREDUCE Analysis"
 				class="org.geworkbench.components.matrixreduce.MatrixReduceAnalysis"
 				version="1.0"
-				author="Harmen Bussemaker"
+				author="Bussemaker lab (C2B2)"
 				authorURL="http://bussemaker.bio.columbia.edu/lab"
-				toolURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Home"
+				toolURL="http://bussemaker.bio.columbia.edu/software/MatrixREDUCE/"
 				tutorialURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Tutorial_-_MatrixREDUCE"
 				description="MatrixREDUCE is a tool for inferring the binding
  specificity and nuclear concentration of transcription
