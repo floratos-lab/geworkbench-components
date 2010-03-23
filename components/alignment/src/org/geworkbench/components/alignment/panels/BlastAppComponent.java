@@ -45,6 +45,7 @@ import javax.swing.border.TitledBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableColumn;
 import javax.swing.table.TableModel;
 
 import org.apache.commons.logging.Log;
@@ -593,6 +594,12 @@ public class BlastAppComponent implements VisualPlugin {
         	final String[] columnNames = {"abbreviate", "description"};
             TableModel listModel = new DefaultTableModel(AlgorithmMatcher.translateToArray((String)selectedProgramName), columnNames);
         	jDBList.setModel(listModel);
+        	jDBList.setAutoResizeMode(JTable.AUTO_RESIZE_LAST_COLUMN); 
+        	// make the first column large enough
+        	int vColIndex = 0; 
+        	TableColumn col = jDBList.getColumnModel().getColumn(vColIndex); 
+        	int width = 250; 
+        	col.setPreferredWidth(width); 
             (jScrollPane1.getViewport()).add(jDBList, null);
             String[] model = AlgorithmMatcher.translateToMatrices(
                     selectedProgramName);

@@ -96,7 +96,7 @@ public class AlgorithmMatcher {
 			new DatabaseInfo("pdb",
 					"3D structure seqeuences from Protein Data Bank"),
 			new DatabaseInfo("month", "Recent GenBank+EMBL+DDBJ+PDB sequences"),
-			new DatabaseInfo("alu_repeats", "Select Alu repeats from REPBASE"),
+			new DatabaseInfo("alu", "Select Alu repeats from REPBASE"),
 			new DatabaseInfo("dbsts", "GenBank + EMBL + DDBJ"),
 			new DatabaseInfo("chromosome", "Complete chromosomes from NCBI RSP"),
 			new DatabaseInfo("wgs",
@@ -105,7 +105,7 @@ public class AlgorithmMatcher {
 
 	private static final DatabaseInfo[] proteinDBdescription = {
 			new DatabaseInfo("nr", "All GenBank+EMBL+DDBJ+PDB sequences"),
-			new DatabaseInfo("refseq", "NCBI Protein sequences"),
+			new DatabaseInfo("refseq_protein", "NCBI Protein sequences"),
 			new DatabaseInfo("swissprot", "SWISS-PROT protein sequences"),
 			new DatabaseInfo("pat", "GenBank's Patent division"),
 			new DatabaseInfo("month", "Recent GenBank+EMBL+DDBJ+PDB"),
@@ -117,12 +117,12 @@ public class AlgorithmMatcher {
 	private static final String[][] proteinDBdescriptionArray  = new String[proteinDBdescription.length][2];
 	static {
 		for(int i=0; i<nucleotideDBdescription.length; i++) {
-			nucleotideDBdescriptionArray[i][0] = nucleotideDBdescription[i].getAbbreviation();
-			nucleotideDBdescriptionArray[i][1] = nucleotideDBdescription[i].getDescription();
+			nucleotideDBdescriptionArray[i][1] = nucleotideDBdescription[i].getAbbreviation();
+			nucleotideDBdescriptionArray[i][0] = nucleotideDBdescription[i].getDescription();
 		}
 		for(int i=0; i<proteinDBdescription.length; i++) {
-			proteinDBdescriptionArray[i][0] = proteinDBdescription[i].getAbbreviation();
-			proteinDBdescriptionArray[i][1] = proteinDBdescription[i].getDescription();
+			proteinDBdescriptionArray[i][1] = proteinDBdescription[i].getAbbreviation();
+			proteinDBdescriptionArray[i][0] = proteinDBdescription[i].getDescription();
 		}
 	}
     
