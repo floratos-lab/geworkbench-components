@@ -83,7 +83,7 @@ public class AlgorithmMatcher {
 
     private static final DatabaseInfo[] nucleotideDBdescription = {
 			new DatabaseInfo("nr", "All GenBank+EMBL+DDBJ+PDB sequences"),
-			new DatabaseInfo("refseq_mrna", "mRNA from NCBI"),
+			new DatabaseInfo("refseq_rna", "mRNA from NCBI"),
 			new DatabaseInfo("refseq_genomic", "Genomic from NCBI"),
 			new DatabaseInfo("est", "GenBank+EMBL+DDBJ from EST"),
 			new DatabaseInfo("est_human", "Human subset of EST"),
