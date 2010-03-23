@@ -3,10 +3,10 @@
 	<component  name="Net Boost Analysis"
 				class="org.geworkbench.components.netboost.NetBoostAnalysis"
 				version="1.0"
-				author="C2B2"
-				authorURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Home"
-				toolURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Home"
-				description="Not released."
+				author="Wiggins lab (C2B2)"
+				authorURL="http://www.columbia.edu/~chw2/"
+				toolURL="http://www.ncbi.nlm.nih.gov/pubmed/15728374"
+				description="NetBoost is an algorithm used to assess evolutionary mechanisms that may have given rise to an interaction network. Specifically, given a gene-gene interaction network T (like the one produced by ARACNE) NetBoost will examine a number of generative evolutionary models {M} and will attempt to assess which of these models is more probable to have generated the network T."
 				analysis="true"
 	 >
 		<required-component class="org.geworkbench.components.netboost.NetBoostVisualComponent" />
