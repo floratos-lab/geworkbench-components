@@ -6,7 +6,7 @@
 				author="Murray lab (C2B2)"
 				authorURL="http://156.145.102.40/index.html"
 				toolURL="http://156.145.102.40/nesg3/nesg.php"
-				description="Not released."
+				description="A high-throughput comparative modeling pipeline. It is used to find  homology models for a protein whose structure has been experimentally determined. It first finds the protein sequence neighbors in the NCBI non-redundant protein sequence database using PSI-BLAST, then builds models for each of the homology sequences using the protein structure as the template. Model qualities are evaluated to decide which models are likely to be meaningful. It has enabled the discovery of new members of protein families and new functional inferences about individual structures at the family level. "
 				analysis="true"
 	 >
 		<required-component class="org.geworkbench.components.skylineview.SkyLineViewAllPanel" />

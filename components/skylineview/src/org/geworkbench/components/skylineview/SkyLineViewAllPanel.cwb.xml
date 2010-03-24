@@ -6,7 +6,7 @@
 				author="Murray lab (C2B2)"
 				authorURL="http://156.145.102.40/index.html"
 				toolURL="http://156.145.102.40/nesg3/nesg.php"
-				description="Not released."
+				description="Displays summary run statistics for all models resulting from the Skyline Comparative Modeling analysis (including run statistics, alignment results for all models, a hit list with rank, evalue, sequence identity, coverage, species... and a model list with model quality pG score). "
 				visualizer="true"
 	 >
 		<required-component class="org.geworkbench.components.skylineview.SkyLineViewEachPanel" />
