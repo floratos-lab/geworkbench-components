@@ -75,6 +75,8 @@ import com.borland.jbcl.layout.XYLayout;
 @SuppressWarnings("unchecked")
 @AcceptTypes( {CSSequenceSet.class})
 public class BlastAppComponent implements VisualPlugin {
+	private static final int DATABASE_NAME_INDEX = 1;
+
 	Log log = LogFactory.getLog(BlastAppComponent.class);
 
 	// members from the base class in the previous version
@@ -713,7 +715,7 @@ public class BlastAppComponent implements VisualPlugin {
     private ParameterSetting collectParameters() {
         ParameterSetting ps = new ParameterSetting();
         int selectedRow = jDBList.getSelectedRow();
-        String dbName = (String)jDBList.getModel().getValueAt(selectedRow, 0);
+        String dbName = (String)jDBList.getModel().getValueAt(selectedRow, DATABASE_NAME_INDEX);
 
         String programName = (String) jProgramBox.getSelectedItem();
         if (programName == null ||
