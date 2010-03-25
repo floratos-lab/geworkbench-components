@@ -4,8 +4,8 @@
 				class="org.geworkbench.components.skybaseview.SkyBaseViewer"
 				version="1.0"
 				author="Murray lab (C2B2)"
-				authorURL="http://156.145.102.40/index.html"
-				toolURL="http://156.145.102.40/nesg3/nesg.php"
+				authorURL="http://ph7wnu.cpmc.columbia.edu/index.html"
+				toolURL="http://1ph7wnu.cpmc.columbia.edu/nesg3/nesg.php"
 				description="Displays detailed information about models resulting from SkyBase Analysis. Views include (1) a Jmol model viewer, (2) a bar chart for all models displaying model quality pG score, template coverage, model-template sequence identity and model rank, (3) a table with more detailed information about all the models, and (4) model-template and model-query sequence alignments. "
 				visualizer="true"
 	 >

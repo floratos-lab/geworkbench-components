@@ -4,9 +4,9 @@
 				class="org.geworkbench.components.skybase.SkyBaseAnalysis"
 				version="1.0"
 				author="Murray lab (C2B2)"
-				authorURL="http://156.145.102.40/index.html"
-				toolURL="http://156.145.102.40/nesg3/nesg.php"
-				description="SkyBase is a database that stores the homology models built by SkyLine analysis for all NESG PSI2 protein structures. Users can search the database with their sequence of interest to find homology models which meet user-defined alignment coverage and sequence identity constraints. "
+				authorURL="http://ph7wnu.cpmc.columbia.edu/index.html"
+				toolURL="http://ph7wnu.cpmc.columbia.edu/nesg3/nesg.php"
+				description="SkyBase is a database that stores the homology models built by SkyLine analysis for all NESG PSI2 protein structures. Users can search the database with their sequence of interest to find homology models which meet user-defined alignment coverage and sequence identity constraints.  See als<o http://ph7wnu.cpmc.columbia.edu/research/pages/pipeline.html."
 				analysis="true"
 	 >
 		<required-component class="org.geworkbench.components.skybaseview.SkyBaseViewer" />
