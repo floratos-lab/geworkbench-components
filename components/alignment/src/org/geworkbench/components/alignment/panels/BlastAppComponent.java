@@ -44,7 +44,7 @@ import javax.swing.border.Border;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import javax.swing.table.DefaultTableModel;
+import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableModel;
 
@@ -583,6 +583,37 @@ public class BlastAppComponent implements VisualPlugin {
         jProgramBox1.addItem("nr");
 
     }
+    
+    static private class UneditableTableModel extends AbstractTableModel {
+		private static final long serialVersionUID = 1231350431097267149L;
+		
+		private String[][] data;
+    	
+    	UneditableTableModel(String[][] data) {
+    		this.data = data;
+    	}
+
+		@Override
+		public int getColumnCount() {
+			return 2;
+		}
+
+		@Override
+		public int getRowCount() {
+			return data.length;
+		}
+
+		@Override
+		public Object getValueAt(int rowIndex, int columnIndex) {
+			return data[rowIndex][columnIndex];
+		}
+    	
+		@Override
+		public boolean isCellEditable(int rowIndex,
+                int columnIndex) {
+			return false;
+		}
+    }
 
     private void jProgramBox_actionPerformed(ActionEvent e) {
 
@@ -593,8 +624,7 @@ public class BlastAppComponent implements VisualPlugin {
         String selectedProgramName = (String) cb.getSelectedItem();
         if (selectedProgramName != null) {
 
-        	final String[] columnNames = {"abbreviate", "description"};
-            TableModel listModel = new DefaultTableModel(AlgorithmMatcher.translateToArray((String)selectedProgramName), columnNames);
+            TableModel listModel = new UneditableTableModel(AlgorithmMatcher.translateToArray((String)selectedProgramName));
         	jDBList.setModel(listModel);
         	jDBList.setAutoResizeMode(JTable.AUTO_RESIZE_LAST_COLUMN); 
         	// make the first column large enough
