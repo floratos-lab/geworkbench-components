@@ -170,8 +170,9 @@ public class RemoteBlast {
 		String urlString = getWrappedSubtring(line,
 				"var myncbi_cu = unescape('", "');");
 		if (urlString != null) {
-			String error = getWrappedSubtring(URLDecoder.decode(urlString, "UTF-8"),
-					"&ERROR=", "&EXPECT");
+			// need to decode twice to make it really clear of %
+			String error = getWrappedSubtring(URLDecoder.decode(URLDecoder
+					.decode(urlString, "UTF-8"), "UTF-8"), "&ERROR=", "&EXPECT");
 			if (error != null)
 				return error.replace("+", " ");
 		}

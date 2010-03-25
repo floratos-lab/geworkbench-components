@@ -56,7 +56,7 @@ import org.geworkbench.bison.datastructure.biocollections.sequences.CSSequenceSe
 import org.geworkbench.bison.datastructure.biocollections.sequences.DSSequenceSet;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
-import org.geworkbench.components.alignment.client.BlastAlgorithm;
+import org.geworkbench.components.alignment.blast.BlastAlgorithm;
 import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.engine.management.AcceptTypes;
 import org.geworkbench.engine.management.Asynchronous;
