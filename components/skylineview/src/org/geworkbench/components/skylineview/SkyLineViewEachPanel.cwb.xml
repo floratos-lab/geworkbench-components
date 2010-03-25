@@ -6,7 +6,7 @@
 				author="Murray lab (C2B2)"
 				authorURL="http://ph7wnu.cpmc.columbia.edu/index.html"
 				toolURL="http://ph7wnu.cpmc.columbia.edu/nesg3/nesg.php"
-				description="Displays details about each homology model resulting from the Skyline Comparative Modeling analysis (including energy profile, zscore, pdb file, alignment between template and model). "
+				description="Displays details about each homology model resulting from the Skyline Comparative Modeling analysis (including energy profile, zscore, pdb file, and alignment between template and model). "
 				visualizer="true"
 	 >
 		<required-component class="org.geworkbench.components.skylineview.SkyLineViewAllPanel" />
