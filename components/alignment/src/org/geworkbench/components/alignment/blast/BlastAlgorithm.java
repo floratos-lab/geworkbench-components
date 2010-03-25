@@ -1,4 +1,4 @@
-package org.geworkbench.components.alignment.client;
+package org.geworkbench.components.alignment.blast;
 
 import java.io.File;
 import java.io.IOException;
@@ -14,9 +14,9 @@ import org.geworkbench.bison.datastructure.biocollections.sequences.CSSequenceSe
 import org.geworkbench.bison.datastructure.biocollections.sequences.DSSequenceSet;
 import org.geworkbench.bison.datastructure.bioobjects.sequence.CSAlignmentResultSet;
 import org.geworkbench.bison.datastructure.bioobjects.sequence.CSSequence;
+import org.geworkbench.bison.datastructure.bioobjects.sequence.DSSequence;
 import org.geworkbench.bison.util.RandomNumberGenerator;
 import org.geworkbench.builtin.projects.ProjectPanel;
-import org.geworkbench.components.alignment.blast.RemoteBlast;
 import org.geworkbench.components.alignment.blast.RemoteBlast.NcbiResponseException;
 import org.geworkbench.components.alignment.panels.AlgorithmMatcher;
 import org.geworkbench.components.alignment.panels.BlastAppComponent;
@@ -44,8 +44,8 @@ public class BlastAlgorithm extends BWAbstractAlgorithm {
 	private boolean useNCBI = false;
 	private ParameterSetting parameterSetting;
 
-	private CSSequenceSet sequenceDB;
-	private DSSequenceSet parentSequenceDB;
+	private CSSequenceSet<CSSequence> sequenceDB;
+	private DSSequenceSet<? extends DSSequence> parentSequenceDB;
 	
 	private final static int TIMEGAP = 4000;
 	private final static int SHORTTIMEGAP = 50;
@@ -120,7 +120,6 @@ public class BlastAlgorithm extends BWAbstractAlgorithm {
 	 * @param e
 	 */
 	private void processExceptionFromNcbi(Exception e, CSSequence sequence) {
-		e.printStackTrace();
 		if (blastAppComponent != null) {
 			String exceptionName = e.getClass().getName();
 			blastAppComponent.reportError("Sequence " + sequence
@@ -134,7 +133,6 @@ public class BlastAlgorithm extends BWAbstractAlgorithm {
 	/**
 	 * Execute in the case when NCBI is used.
 	 */
-	@SuppressWarnings("unchecked") // two lines affected
 	private void executeUsingNcbi() {
 		String tempFolder = FilePathnameUtils.getTemporaryFilesDirectoryPath();
 
@@ -144,7 +142,7 @@ public class BlastAlgorithm extends BWAbstractAlgorithm {
 
 		RemoteBlast blast;
 		CSSequenceSet<CSSequence> activeSequenceDB = sequenceDB;
-		DSSequenceSet parentSequenceSet = parentSequenceDB;
+		DSSequenceSet<? extends DSSequence> parentSequenceSet = parentSequenceDB;
 
 		for (CSSequence sequence : activeSequenceDB) {
 			updateStatus("Uploading sequence: " + sequence);
@@ -337,12 +335,12 @@ public class BlastAlgorithm extends BWAbstractAlgorithm {
 		this.jobFinished = jobFinished;
 	}
 
-	public void setSequenceDB(CSSequenceSet sequenceDB) {
+	public void setSequenceDB(CSSequenceSet<CSSequence> sequenceDB) {
 		this.sequenceDB = sequenceDB;
 		
 	}
 
-	public void setParentSequenceDB(DSSequenceSet parentSequenceDB) {
+	public void setParentSequenceDB(DSSequenceSet<? extends DSSequence> parentSequenceDB) {
 		this.parentSequenceDB = parentSequenceDB;
 		
 	}
