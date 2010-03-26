@@ -1,9 +1,8 @@
 package org.geworkbench.components.alignment.panels;
 
 /**
- * <p>Title: Bioworks</p>
- * <p>Description: Modular Application Framework for Gene Expession, Sequence and Genotype Analysis</p>
- * <p>Copyright: Copyright (c) 2003 -2004</p>
+ * Utility used by BlastAppComponent and BlastAlgorithm.
+ * 
  * <p>Company: Columbia University</p>
  *
  * @author not attributable
@@ -190,11 +189,8 @@ public class AlgorithmMatcher {
         "The largest single source is\n" +
         "Sagarsso Sea project. \n" + 
         "This does NOT overlap with nucleotide nr." // env_nt
-
     
     };
-
-    
 
     private static final String[] proteinDBdetails = {
         "Non-redundant GenBank CDS translations\n" +
@@ -217,44 +213,8 @@ public class AlgorithmMatcher {
 
         "Non-redundant CDS translations\n" +
         "from env_nt entries." // env_nr
-        
 
     };
-
-    public AlgorithmMatcher() {
-    }
-
-    /**
-     * translate to real paramters used by GeneMatcher2.
-     *
-     * @param  algoTitle
-     * @return String
-     */
-    public static String translate(String algoTitle) {
-        //HashTable ht = new HashTable();
-        /*    "Smith-Waterman DNA",
-           "Smith-Waterman Protein",
-         "Frame (for DNA sequece to protein DB)",
-         "Frame (for protein sequecne to protein DB)",
-         */
-        if (algoTitle.equalsIgnoreCase("Smith-Waterman DNA")) {
-            return "swn";
-
-        } else if (algoTitle.equalsIgnoreCase("Smith-Waterman Protein")) {
-            return "swp";
-        } else if (algoTitle.equalsIgnoreCase("Pfam local alignment only")) {
-            return "hmm queryset=Pfam_latest_fs_local";
-
-        } else if (algoTitle.equalsIgnoreCase("Pfam global alignment only")) {
-            return "hmm queryset=Pfam_latest_ls_global";
-        } else if (algoTitle.equalsIgnoreCase(
-                "Pfam global and local alignments")) {
-            return "hmm queryset=Pfam_latest*";
-
-        }
-
-        return null;
-    }
 
     /**
      * Match to correct database.
@@ -274,7 +234,7 @@ public class AlgorithmMatcher {
 		}
 	}
 
-    public static String translateToDBdetails(String programName, int selection) {
+    static String translateToDBdetails(String programName, int selection) {
     	if (selection < 0 ){
     		return "";
     	}
@@ -301,7 +261,7 @@ public class AlgorithmMatcher {
      * @param programName String
      * @return String[]
      */
-    public static String[] translateToMatrices(String programName) {
+    static String[] translateToMatrices(String programName) {
         if (programName.equalsIgnoreCase("blastn")) {
             return new String[] {MATRIX0};
 
@@ -317,7 +277,7 @@ public class AlgorithmMatcher {
      * @param programName String
      * @return String[]
      */
-    public static String[] translateToGapcosts(String programName) {
+    static String[] translateToGapcosts(String programName) {
         if (programName.equalsIgnoreCase(MATRIX1)) {
             return new String[] {GAP0, GAP1, GAP2, GAP3, GAP3, GAP4, GAP5};
 
@@ -477,13 +437,12 @@ public class AlgorithmMatcher {
                 if (ps.getProgramName().equals("blastp")||ps.getProgramName().equals("tblastn"))	//COMPOSITION only applies to blastp and tblastn
                 	cmd += "&EXPECT=" + ps.getExpect() + "&MAX_NUM_SEQ=50&&COMPOSITION_BASED_STATISTICS=2&AUTO_FORMAT=Semiauto&CDD_SEARCH=on&SHOW_OVERVIEW=on&SERVICE=plain\r\n\r\n";
                 else
-                	cmd += "&EXPECT=" + ps.getExpect() + "&MAX_NUM_SEQ=50&AUTO_FORMAT=Semiauto&CDD_SEARCH=on&SHOW_OVERVIEW=on&SERVICE=plain\r\n\r\n";
+                	cmd += "&EXPECT=" + ps.getExpect() + "&MAX_NUM_SEQ=50&AUTO_FORMAT=Semiauto&SHOW_OVERVIEW=on&SERVICE=plain\r\n\r\n";
             }
 
         }
-        //   System.out.println("(" + cmd + ")");
-        return cmd;
 
+        return cmd;
     }
 
     /**
@@ -492,29 +451,12 @@ public class AlgorithmMatcher {
      * @param selectedProgramName String
      * @return String[]
      */
-    public static String[] translateToWordSize(String selectedProgramName) {
+    static String[] translateToWordSize(String selectedProgramName) {
         if (selectedProgramName.trim().equalsIgnoreCase("blastn")) {
             return new String[] {"11", "7", "15"};
 
         } else {
             return new String[] {"3", "2"};
-        }
-
-    }
-
-    /**
-     * translateToPrograms
-     *
-     * @param isDNA boolean
-     * @return String[]
-     */
-    public static String[] translateToPrograms(boolean isDNA) {
-        if (isDNA) {
-            return new String[] {BLASTPROGRAM0, BLASTPROGRAM1, BLASTPROGRAM2,
-                    BLASTPROGRAM3};
-
-        } else {
-            return new String[] {BLASTPROGRAM0, BLASTPROGRAM4, BLASTPROGRAM5};
         }
 
     }
