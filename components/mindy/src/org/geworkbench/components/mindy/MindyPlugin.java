@@ -78,6 +78,7 @@ public class MindyPlugin extends JPanel {
 	static final int MIN_CHECKBOX_WIDTH = 10;
 
 	static final int MIN_MARKER_NAME_WIDTH = 200;
+	
 
 	static final int MIN_SCORE_WIDTH = 66;
 
@@ -319,6 +320,7 @@ public class MindyPlugin extends JPanel {
 			ll.setFont(new Font(ll.getFont().getName(), Font.BOLD, 12));
 			ll.setForeground(Color.BLUE);
 			selectAll = new JCheckBox("Select All");
+			
 			selectAll.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent actionEvent) {
 					setCursor(hourglassCursor);
@@ -333,7 +335,8 @@ public class MindyPlugin extends JPanel {
 					setCursor(normalCursor);
 				}
 			});
-
+			
+			
 			JLabel dl = new JLabel("Marker Display  ", SwingConstants.LEFT);
 			dl.setFont(new Font(dl.getFont().getName(), Font.BOLD, 12));
 			dl.setForeground(Color.BLUE);
@@ -381,7 +384,7 @@ public class MindyPlugin extends JPanel {
 			((ModulatorModel) modTable.getModel()).sort(2, false); // default
 			// sort by
 			// M#
-
+			
 			tabs.add("Modulator", panel);
 		}
 
@@ -560,6 +563,7 @@ public class MindyPlugin extends JPanel {
 			tabs.add("List", panel);
 		}
 
+		
 		{
 			// Heat Map
 			// This is modulator just to give us something to generate the heat
@@ -878,7 +882,11 @@ public class MindyPlugin extends JPanel {
 
 			tabs.add("Heat Map", panel);
 		}
-
+		
+		//selectAll and de-selectAll
+		ModulatorModel modelTemp = (ModulatorModel) modTable.getModel();
+		modelTemp.selectAllModulators(true);
+		modelTemp.selectAllModulators(false);	
 
 		// TODO
 		setLayout(new BorderLayout());
@@ -905,6 +913,7 @@ public class MindyPlugin extends JPanel {
 		markerSetFilteringPanel.setVisible(true);
 */
 
+		
 
 		JPanel result = new JPanel(new BorderLayout());
 		FormLayout layout = new FormLayout(
@@ -1015,7 +1024,11 @@ public class MindyPlugin extends JPanel {
 		tabs.setVisible(true);
 
 		doResizeAndRepaint();
+	
+
+	
 	}
+
 
 	private void doResizeAndRepaint() {
 		revalidate();
