@@ -12,7 +12,6 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.IOException;
 import java.util.Date;
 
 import javax.swing.BorderFactory;
@@ -894,15 +893,6 @@ public class BlastAppComponent implements VisualPlugin {
             if (algo != null) {
                 algo.stop();
             }
-        }
-    }
-
-    void jButton7_actionPerformed(ActionEvent e) {
-        try {
-            BrowserLauncher.openURL("http://pfam.wustl.edu/browse.shtml");
-        } catch (IOException ex) {
-            reportError(ex.getMessage(), "Connection Error");
-
         }
     }
 
