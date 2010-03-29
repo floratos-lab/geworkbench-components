@@ -9,7 +9,6 @@ import javax.swing.JOptionPane;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.geworkbench.algorithms.BWAbstractAlgorithm;
 import org.geworkbench.bison.datastructure.biocollections.sequences.CSSequenceSet;
 import org.geworkbench.bison.datastructure.biocollections.sequences.DSSequenceSet;
 import org.geworkbench.bison.datastructure.bioobjects.sequence.CSAlignmentResultSet;
@@ -32,7 +31,7 @@ import org.geworkbench.util.FilePathnameUtils;
  * @author zji
  * @version $Id$
  */
-public class BlastAlgorithm extends BWAbstractAlgorithm {
+public class BlastAlgorithm {
 
 	static private Log LOG = LogFactory.getLog(RemoteBlast.class);
 
@@ -50,12 +49,9 @@ public class BlastAlgorithm extends BWAbstractAlgorithm {
 	private final static int TIMEGAP = 4000;
 	private final static int SHORTTIMEGAP = 50;
 	private final static String LINEBREAK = System.getProperty("line.separator");
+	
 	public void setBlastAppComponent(BlastAppComponent _blastAppComponent) {
 		blastAppComponent = _blastAppComponent;
-	}
-
-	public BlastAlgorithm() {
-
 	}
 
 	/**
@@ -66,7 +62,6 @@ public class BlastAlgorithm extends BWAbstractAlgorithm {
 	 * @param text
 	 *            String
 	 */
-
 	void updateProgressStatus(final double percent, final String text) {
 		if (blastAppComponent != null) {
 			blastAppComponent.updateProgressBar(percent, text);
@@ -102,19 +97,6 @@ public class BlastAlgorithm extends BWAbstractAlgorithm {
 	}
 
 	/**
-	 * Get the percentage of completion.
-	 *
-	 * @return double
-	 */
-	public double getCompletion() {
-		if (jobFinished) {
-			// Make it bigger than 1, it means that job is done.
-			return 3;
-		}
-		return super.getCompletion();
-	}
-
-	/**
 	 * Show error message and update status
 	 *
 	 * @param e
@@ -131,9 +113,24 @@ public class BlastAlgorithm extends BWAbstractAlgorithm {
 	}
 
 	/**
-	 * Execute in the case when NCBI is used.
+	 * The workhorse to run Blast program.
+	 *
+	 * This method is invoked by from the working thread.
 	 */
-	private void executeUsingNcbi() {
+	protected void execute() {
+		if (sequenceDB == null || parentSequenceDB == null) {
+			LOG.error("null pointer detected");
+			try { // FIXME if this can recover after 50 milliseconds, the design was wrong somewhere
+				Thread.sleep(SHORTTIMEGAP);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
+
+		if (!useNCBI) {
+			LOG.error("useNCBI is never expected to be false");
+		}
+
 		String tempFolder = FilePathnameUtils.getTemporaryFilesDirectoryPath();
 
 		/* generate a new file name for the coming output file. */
@@ -274,29 +271,7 @@ public class BlastAlgorithm extends BWAbstractAlgorithm {
 					histStr += "\t" + marker.getLabel() + "\n";
 				}
 		}
-		// TODO Auto-generated method stub
 		return histStr;
-	}
-
-	/**
-	 * The workhorse to run Blast program.
-	 *
-	 * This method is only invoked by construct() defined in BWAbstractAlgorithm.
-	 */
-	protected void execute() {
-		if (sequenceDB == null || parentSequenceDB == null) {
-			try {
-				Thread.sleep(SHORTTIMEGAP);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-		}
-
-		if (useNCBI) {
-			executeUsingNcbi();
-		} else {
-			LOG.error("useNCBI is never expected to be false");
-		}
 	}
 
 	public boolean isStartBrowser() {
@@ -344,5 +319,56 @@ public class BlastAlgorithm extends BWAbstractAlgorithm {
 		this.parentSequenceDB = parentSequenceDB;
 		
 	}
+
+	// following code is adopted from BWAAbstractAlgorithm
+    /**
+     * Specifies if a stop has been requested
+     */
+    private boolean stopRequested = false;
+    
+    /**
+     * Runs the analysis on a separate thread
+     */
+    private AnalysisThread worker = null;
+
+    /**
+     * Starts the Algorithm execution
+     */
+    public void start() {
+        if ((worker == null) || (!worker.isAlive())) {
+            worker = new AnalysisThread(this);
+            worker.start();
+        }
+    }
+    
+    /**
+     * Stops the algorithm execution
+     */
+    public void stop() {
+        stopRequested = true;
+        worker.interrupt();
+
+    }
+
+    private class AnalysisThread extends Thread {
+        private BlastAlgorithm analysis = null;
+
+        public AnalysisThread(BlastAlgorithm algo) {
+            analysis = algo;
+        }
+
+        @Override
+        public void run() {
+            synchronized (analysis) {
+                try {
+                    analysis.execute();
+                    stopRequested = false;
+                } catch (Exception e) {
+                	e.printStackTrace();
+                    return;
+                }
+            }
+        }
+    }
 
 }

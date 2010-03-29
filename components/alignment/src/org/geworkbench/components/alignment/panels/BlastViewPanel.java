@@ -2,7 +2,6 @@ package org.geworkbench.components.alignment.panels;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.awt.LayoutManager;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
@@ -38,14 +37,11 @@ import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.bioobjects.sequence.CSSequence;
 import org.geworkbench.bison.util.RandomNumberGenerator;
-import org.geworkbench.components.alignment.blast.BlastDataOutOfBoundException;
 import org.geworkbench.components.alignment.blast.BlastObj;
 import org.geworkbench.engine.management.Subscribe;
 import org.geworkbench.util.BrowserLauncher;
 import org.geworkbench.util.FilePathnameUtils;
 import org.geworkbench.util.JAutoList;
-
-import com.borland.jbcl.layout.VerticalFlowLayout;
 
 /**
  *
@@ -86,7 +82,10 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
 	private ArrayList blastDataSet = new ArrayList();
 	private final double jSplitPane1DividerLocation = 0.5;
 
-	public BlastViewPanel() {
+	/**
+	 * No public constructor because it is used only by this package.
+	 */
+	BlastViewPanel() {
 		try {
 			jbInit();
 		} catch (Exception e) {
@@ -121,43 +120,6 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
 		}
 	}
 
-	/**
-	 * Creates a new <code>JPanel</code> with <code>FlowLayout</code> and
-	 * the specified buffering strategy.
-	 *
-	 * @param isDoubleBuffered
-	 *            a boolean, true for double-buffering, which uses additional
-	 *            memory space to achieve fast, flicker-free updates TODO
-	 *            Implement this javax.swing.JPanel constructor
-	 */
-	public BlastViewPanel(boolean isDoubleBuffered) {
-		super(isDoubleBuffered);
-	}
-
-	/**
-	 * @param layout
-	 *            the LayoutManager to use TODO Implement this
-	 *            javax.swing.JPanel constructor
-	 */
-	public BlastViewPanel(LayoutManager layout) {
-		super(layout);
-	}
-
-	/**
-	 * Creates a new JPanel with the specified layout manager and buffering
-	 * strategy.
-	 *
-	 * @param layout
-	 *            the LayoutManager to use
-	 * @param isDoubleBuffered
-	 *            a boolean, true for double-buffering, which uses additional
-	 *            memory space to achieve fast, flicker-free updates TODO
-	 *            Implement this javax.swing.JPanel constructor
-	 */
-	public BlastViewPanel(LayoutManager layout, boolean isDoubleBuffered) {
-		super(layout, isDoubleBuffered);
-	}
-
 	private void jbInit() throws Exception {
 		mainPanel = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
 		mainPanel.setOneTouchExpandable(true);
@@ -172,13 +134,13 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
 		AddSequenceToProjectButton
 				.setText("Add Selected Sequences to Project ");
 		AddSequenceToProjectButton
-				.addActionListener(new BlastViewPanel_HMMButton_actionAdapter(
-						this));
+				.addActionListener(new AddSelectedActionAdapter(
+						));
 		resetButton.setToolTipText("Clear all selections.");
 		resetButton.setText("Reset");
 		resetButton
-				.addActionListener(new BlastViewPanel_resetButton_actionAdapter(
-						this));
+				.addActionListener(new ResetActionAdapter(
+						));
 
 		blastResult.setBorder(BorderFactory.createLoweredBevelBorder());
 		blastResult.setPreferredSize(new Dimension(145, 150));
@@ -214,17 +176,16 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
 		addAlignedButton.setToolTipText("Add only aligned parts into project.");
 		addAlignedButton.setText("Only Add Aligned Parts");
 		addAlignedButton
-				.addActionListener(new BlastViewPanel_addAlignedButton_actionAdapter(
-						this));
+				.addActionListener(new AddAllActionAdapter());
 		allButton.setToolTipText("Select all hits.");
 		allButton.setText("Select All");
-		allButton.addActionListener(new BlastViewPanel_allButton_actionAdapter(
-				this));
+		allButton.addActionListener(new SelectAllActionAdapter(
+				));
 		jSplitPane1.setOrientation(JSplitPane.VERTICAL_SPLIT);
 		jSplitPane1.setMinimumSize(new Dimension(100, 100));
 		jSplitPane1.setPreferredSize(new Dimension(500, 600));
 		jSplitPane1.setDividerSize(1);
-		this.setLayout(borderLayout3);
+		this.setLayout(new BorderLayout());
 
 		summaryPanel.add(resetButton, null);
 		summaryPanel.add(allButton);
@@ -477,26 +438,9 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
 
 	}
 
-	boolean verify() {
-		if (hits == null) {
-			return false;
-		}
-		return true;
-
-	}
-
-	void reportError(String errorMessage) {
+	private void reportError(String errorMessage) {
 		JOptionPane.showMessageDialog(null, errorMessage, "Error",
 				JOptionPane.INFORMATION_MESSAGE);
-	}
-
-	void HMMButton_actionPerformed(ActionEvent e) {
-		if (!verify()) {
-			reportError(currentError);
-			return;
-		}
-		submitNewSequences(e, true);
-
 	}
 
 	class AddNewSequenceThread extends Thread {
@@ -511,11 +455,6 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
 
 			CSSequenceSet db = new CSSequenceSet();
 
-			/**
-			 * TODO Old SoapClient need fastaFile name, so just create a temp
-			 * fasta file here. Consider change SoapClient to Dataset directly
-			 * for blast.
-			 */
 			try {
 
 				if (!foundAtLeastOneSelected()) {
@@ -567,12 +506,7 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
 				org.geworkbench.events.ProjectNodeAddedEvent event = new org.geworkbench.events.ProjectNodeAddedEvent(
 						"message", db, null);
 				blastViewComponent.publishProjectNodeAddedEvent(event);
-			} catch (BlastDataOutOfBoundException be) {
-				String errorMessage = be.getMessage();
-				JOptionPane.showMessageDialog(null, errorMessage, "Error",
-						JOptionPane.WARNING_MESSAGE);
-
-			} catch (Exception ex) {
+			} catch (Exception ex) { //FIXME this catch-all exception is dangerous
 				ex.printStackTrace();
 			}
 
@@ -580,51 +514,6 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
 	}
 
 	private ProgressMonitor progressMonitor;
-
-	void submitNewSequences(ActionEvent e, boolean isFullLength) {
-		Thread thread = new AddNewSequenceThread(isFullLength) {
-
-		};
-		thread.start();
-
-	}
-
-	void resetButton_actionPerformed(ActionEvent e) {
-		if (!verify()) {
-			reportError(currentError);
-			return;
-		}
-
-		for (int i = 0; i < hits.size(); i++) {
-			BlastObj hit = (BlastObj) hits.get(i);
-			hit.setInclude(false);
-		}
-
-		displayResults("<h4>No alignment hit is selected.");
-
-	}
-
-	public void addAlignedButton_actionPerformed(ActionEvent e) {
-		if (!verify()) {
-			reportError(currentError);
-			return;
-		}
-		submitNewSequences(e, false);
-	}
-
-	public void allButton_actionPerformed(ActionEvent e) {
-		if (!verify()) {
-			reportError(currentError);
-			return;
-		}
-		for (int i = 0; i < hits.size(); i++) {
-			BlastObj hit = (BlastObj) hits.get(i);
-			hit.setInclude(true);
-
-		}
-		displayResults("<h4>All are selected.");
-
-	}
 
 	/**
 	 * The marker JAutoList type.
@@ -723,11 +612,7 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
 	 * The dataset that holds the microarrayset and panels.
 	 */
 	private DSMicroarraySetView<DSGeneMarker, DSMicroarray> dataSetView = new CSMicroarraySetView<DSGeneMarker, DSMicroarray>();
-	BorderLayout borderLayout3 = new BorderLayout();
-	VerticalFlowLayout verticalFlowLayout1 = new VerticalFlowLayout();
 
-	// private MarkerListModel markerModel = new MarkerListModel();
-	// XYLayout xYLayout1 = new XYLayout();
 	/**
 	 * setSequenceDB
 	 *
@@ -753,58 +638,63 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
 
 	}
 
-	// following five listener classes are only used in this classes, so
-	// changed to inner classes
-	private static class BlastViewPanel_allButton_actionAdapter implements
+	// following are action adapters for the buttons
+	private class SelectAllActionAdapter implements
 			ActionListener {
-		private BlastViewPanel adaptee;
-
-		BlastViewPanel_allButton_actionAdapter(BlastViewPanel adaptee) {
-			this.adaptee = adaptee;
-		}
 
 		public void actionPerformed(ActionEvent e) {
-			adaptee.allButton_actionPerformed(e);
+			if (hits == null) {
+				reportError(currentError);
+				return;
+			}
+			for (int i = 0; i < hits.size(); i++) {
+				BlastObj hit = (BlastObj) hits.get(i);
+				hit.setInclude(true);
+
+			}
+			displayResults("<h4>All are selected.");
 		}
 	}
 
-	private static class BlastViewPanel_HMMButton_actionAdapter implements
+	private class AddSelectedActionAdapter implements
 			java.awt.event.ActionListener {
-		BlastViewPanel adaptee;
-
-		BlastViewPanel_HMMButton_actionAdapter(BlastViewPanel adaptee) {
-			this.adaptee = adaptee;
-		}
 
 		public void actionPerformed(ActionEvent e) {
-			adaptee.HMMButton_actionPerformed(e);
+			if (hits == null) {
+				reportError(currentError);
+				return;
+			}
+			new AddNewSequenceThread(true).start();
 		}
 	}
 
-	private static class BlastViewPanel_addAlignedButton_actionAdapter
+	private class AddAllActionAdapter
 			implements ActionListener {
-		private BlastViewPanel adaptee;
-
-		BlastViewPanel_addAlignedButton_actionAdapter(BlastViewPanel adaptee) {
-			this.adaptee = adaptee;
-		}
 
 		public void actionPerformed(ActionEvent e) {
-
-			adaptee.addAlignedButton_actionPerformed(e);
+			if (hits == null) {
+				reportError(currentError);
+				return;
+			}
+			new AddNewSequenceThread(false).start();
 		}
 	}
 
-	private static class BlastViewPanel_resetButton_actionAdapter implements
+	private class ResetActionAdapter implements
 			java.awt.event.ActionListener {
-		BlastViewPanel adaptee;
-
-		BlastViewPanel_resetButton_actionAdapter(BlastViewPanel adaptee) {
-			this.adaptee = adaptee;
-		}
 
 		public void actionPerformed(ActionEvent e) {
-			adaptee.resetButton_actionPerformed(e);
+			if (hits == null) {
+				reportError(currentError);
+				return;
+			}
+
+			for (int i = 0; i < hits.size(); i++) {
+				BlastObj hit = (BlastObj) hits.get(i);
+				hit.setInclude(false);
+			}
+
+			displayResults("<h4>No alignment hit is selected.");
 		}
 	}
 
