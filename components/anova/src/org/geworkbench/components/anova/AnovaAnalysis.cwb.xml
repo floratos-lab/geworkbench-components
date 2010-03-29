@@ -2,12 +2,12 @@
 	xsi:noNamespaceSchemaLocation="Descriptor Schema.xsd">
 
 	<component  name="AnovaAnalysis"
-							class="org.geworkbench.components.anova.AnovaAnalysis"
-							version="1.0"
-							author="MEV (TIGR)"
-							authorURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Plugins"
-							toolURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Plugins"
-							description="Analysis of Variance is used in geWorkbench to deterimine
+		class="org.geworkbench.components.anova.AnovaAnalysis"
+		version="1.0"
+		author="MEV (TIGR)"
+		authorURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Plugins"
+		toolURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Plugins"
+		description="Analysis of Variance is used in geWorkbench to deterimine
  if significant differences in expression exist among three or more groups
  of microarray gene expression profiles.  Formally, it tests the null
  hypothesis that, for each gene, the mean expression of each group is equal."

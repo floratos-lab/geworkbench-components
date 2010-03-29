@@ -4,11 +4,11 @@
 	<component  name="Pattern Discovery"
 				class="org.geworkbench.components.discovery.SequenceDiscoveryViewAppComponent"
 				version="1.0"
-				author="C2B2"
+				author="geWorkbench Development Team"
 				authorURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Home"
 				toolURL="http://wiki.c2b2.columbia.edu/califanolab/index.php/Software"
 				tutorialURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Tutorial_-_Pattern_Discovery"
-				description="Implements the SPLASH algorithm for pattern discovery
+				description="Front-end control and display for the SPLASH algorithm for pattern discovery
  in a set of sequences."
 				analysis="true"
 	 >

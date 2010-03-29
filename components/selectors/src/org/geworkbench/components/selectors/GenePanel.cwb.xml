@@ -3,7 +3,8 @@
 
 	<component name="Markers"
 		class="org.geworkbench.components.selectors.GenePanel" version="1.0"
-		author="C2B2" authorURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Home"
+		author="geWorkbench Development Team" 
+		authorURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Home"
 		toolURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Home"
 		description="Displays a list of all markers/genes/seqeunces
  loaded in the current dataset.  Allows searching on marker/gene/sequence names
