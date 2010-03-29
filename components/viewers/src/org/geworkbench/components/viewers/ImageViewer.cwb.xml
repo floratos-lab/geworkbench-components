@@ -3,7 +3,7 @@
 
 	<component name="Image Viewer"
 		class="org.geworkbench.components.viewers.ImageViewer" version="1.0"
-		author="C2B2" authorURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Home"
+		author="geWorkbench Development Team" authorURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Home"
 		toolURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Home"
 		description="Displays screenshots produced by various geWorkbench graphical components."
 		visualizer="true" loadByDefault="true">

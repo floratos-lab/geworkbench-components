@@ -2,7 +2,8 @@
 	xsi:noNamespaceSchemaLocation="Descriptor Schema.xsd">
 	<component name="Alignment Results"
 		class="org.geworkbench.components.alignment.panels.BlastViewComponent"
-		version="1.0" author="C2B2"
+		version="1.0" 
+		author="geWorkbench Development Team"
 		authorURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Home"
 		tutorialURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Tutorial_-_BLAST"
 		toolURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Home"
