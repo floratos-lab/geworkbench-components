@@ -41,6 +41,7 @@ import org.geworkbench.bison.util.RandomNumberGenerator;
 import org.geworkbench.components.alignment.blast.BlastDataOutOfBoundException;
 import org.geworkbench.components.alignment.blast.BlastObj;
 import org.geworkbench.engine.management.Subscribe;
+import org.geworkbench.util.BrowserLauncher;
 import org.geworkbench.util.FilePathnameUtils;
 import org.geworkbench.util.JAutoList;
 
