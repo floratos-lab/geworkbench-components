@@ -1,5 +1,10 @@
 package org.geworkbench.components.alignment.panels;
 
+/**
+ * 
+ * @author zji
+ * @version $Id$
+ */
 public class ParameterSetting {
         /**
          * Database name, a required parameter.
@@ -57,44 +62,35 @@ public class ParameterSetting {
         private int endPoint = -1;
 
 
-    public ParameterSetting() {
-        try {
-            jbInit();
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-    }
-
-    public void setDbName(String dbName) {
+    /**
+     * No public constructor because this is only used in this package.
+     * 
+     * @param dbName
+     * @param programName
+     * @param viewInBrowser
+     * @param expect
+     * @param lowComplexityFilterOn
+     * @param humanRepeatFilterOn
+     * @param maskLowCase
+     * @param matrix
+     * @param maskLookupTable
+     */
+    ParameterSetting(String dbName, String programName, boolean viewInBrowser,
+			double expect, boolean lowComplexityFilterOn,
+			boolean humanRepeatFilterOn, boolean maskLowCase, String matrix,
+			boolean maskLookupTable) {
         this.dbName = dbName;
-    }
-
-    public void setProgramName(String programName) {
         this.programName = programName;
-    }
-
-    public void setViewInBrowser(boolean viewInBrowser) {
         this.viewInBrowser = viewInBrowser;
-    }
-
-    public void setMatrix(String matrix) {
+        this.expect = expect;
+        this.lowComplexityFilterOn = lowComplexityFilterOn;
+        this.humanRepeatFilterOn = humanRepeatFilterOn;
         this.matrix = matrix;
+		this.maskLookupTable = maskLookupTable;
     }
 
     public void setPenalty(String penalty) {
         this.penalty = penalty;
-    }
-
-    public void setExpect(double expect) {
-        this.expect = expect;
-    }
-
-    public void setHumanRepeatFilterOn(boolean humanRepeatFilterOn) {
-        this.humanRepeatFilterOn = humanRepeatFilterOn;
-    }
-
-    public void setLowComplexityFilterOn(boolean lowComplexityFilterOn) {
-        this.lowComplexityFilterOn = lowComplexityFilterOn;
     }
 
     public void setUseNCBI(boolean useNCBI) {
@@ -109,10 +105,6 @@ public class ParameterSetting {
         this.startPoint = startPoint;
     }
 
-    public void setMaskLowCase(boolean maskLowCase) {
-        this.maskLowCase = maskLowCase;
-    }
-
     public void setWordsize(String wordsize) {
         this.wordsize = wordsize;
     }
@@ -121,6 +113,7 @@ public class ParameterSetting {
         this.gapCost = gapCost;
     }
 
+    // following are the getters
     public String getDbName() {
         return dbName;
     }
@@ -177,20 +170,10 @@ public class ParameterSetting {
         return gapCost;
     }
 
-    private void jbInit() throws Exception {
-    }
-
 	/**
 	 * @return the maskLookupTable
 	 */
 	public boolean isMaskLookupTable() {
 		return maskLookupTable;
-	}
-
-	/**
-	 * @param maskLookupTable the maskLookupTable to set
-	 */
-	public void setMaskLookupTable(boolean maskLookupTable) {
-		this.maskLookupTable = maskLookupTable;
 	}
 }

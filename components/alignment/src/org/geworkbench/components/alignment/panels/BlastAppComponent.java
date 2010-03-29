@@ -675,7 +675,8 @@ public class BlastAppComponent implements VisualPlugin {
                                       JOptionPane.ERROR_MESSAGE);
     }
 
-    private void processNCBIParameters() {
+    private BlastAlgorithm blastAlgo = null;
+    private void runBlastAlgorithm() {
         ParameterSetting parameterSetting = collectParameters();
         if (parameterSetting == null) {
             return;
@@ -698,7 +699,7 @@ public class BlastAppComponent implements VisualPlugin {
                         fastaFile = (CSSequenceSet) activeSequenceDB;
                     }
 
-                    BlastAlgorithm blastAlgo = new BlastAlgorithm();
+                    blastAlgo = new BlastAlgorithm();
                     blastAlgo.setUseNCBI(true);
                     blastAlgo.setParameterSetting(parameterSetting);
 
@@ -723,7 +724,6 @@ public class BlastAppComponent implements VisualPlugin {
      * @return ParameterSetting
      */
     private ParameterSetting collectParameters() {
-        ParameterSetting ps = new ParameterSetting();
         int selectedRow = jDBList.getSelectedRow();
         String dbName = (String)jDBList.getModel().getValueAt(selectedRow, DATABASE_NAME_INDEX);
 
@@ -766,18 +766,12 @@ public class BlastAppComponent implements VisualPlugin {
             }
         }
         String wordsize = (String) jWordsizeBox.getSelectedItem();
-        ps.setDbName(dbName);
-        ps.setProgramName(programName);
-        ps.setViewInBrowser(jDisplayInWebBox.isSelected());
-        ps.setExpect(expectValue);
-        ps.setLowComplexityFilterOn(lowComplexFilterOn);
-        ps.setHumanRepeatFilterOn(humanRepeatFilterOn);
-        ps.setMaskLowCase(maskLowCaseOn);
-        ps.setMatrix((String) jMatrixBox.getSelectedItem());
-        ps.setMaskLookupTable(maskLookupOnlyBox.isSelected());
+        ParameterSetting ps = new ParameterSetting(dbName, programName,
+				jDisplayInWebBox.isSelected(), expectValue, lowComplexFilterOn,
+				humanRepeatFilterOn, maskLowCaseOn, (String) jMatrixBox
+						.getSelectedItem(), maskLookupOnlyBox.isSelected());
         if (startValue <= 1 && endValue >= fastaFile.getMaxLength()) {
             //just use whole sequence. No end to reset.
-
         } else {
             ps.setStartPoint(startValue);
             ps.setEndPoint(endValue);
@@ -800,8 +794,6 @@ public class BlastAppComponent implements VisualPlugin {
     public void blastFinished(String cmd) {
         Date finished_Date = new Date();
         if (cmd.startsWith("Interrupted")) {
-
-
 
             serviceProgressBar.setForeground(Color.ORANGE);
             serviceProgressBar.setBackground(Color.ORANGE);
@@ -839,7 +831,7 @@ public class BlastAppComponent implements VisualPlugin {
             jTabbedBlastPane.setSelectedIndex(BlastAppComponent.MAIN);
 
 			// only support NCBI server now
-			processNCBIParameters();
+			runBlastAlgorithm();
         } else {
             log.warn("unexpected selectedIndex of jTabbedPane1 "+jTabbedPane1.getSelectedIndex());
         }
@@ -856,17 +848,14 @@ public class BlastAppComponent implements VisualPlugin {
 
     }
 
-    void jButton1_actionPerformed(ActionEvent e) {
-
-        blastFinished("OTHERS_Interrupted");
-
-    }
-
     private void blastStopButton_actionPerformed(ActionEvent e) {
         stopButtonPushed = true;
         if (this.jTabbedPane1.getSelectedIndex() == BlastAppComponent.BLAST) {
             blastFinished("Interrupted");
         }
+        
+        if(blastAlgo!=null)
+        	blastAlgo.stop();
     }
 
     public void updateProgressBar(final double percent, final String text) {

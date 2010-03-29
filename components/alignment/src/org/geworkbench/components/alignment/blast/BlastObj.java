@@ -19,14 +19,15 @@ import org.geworkbench.bison.datastructure.bioobjects.sequence.CSSequence;
 /**
  * BlastObj.java A class to hold information about each individual hit of a
  * Blast database search on a protein sequence. <br>
- * Currently this class can only be instantiated by the
- * <code> BlastParser </code> class.
+ * 
+ * @author zji
+ * @version $Id$
  */
 public class BlastObj {
 	private static Log log = LogFactory.getLog(BlastObj.class);
 	
 	/**
-	 * The Databse ID of the protein sequence hit in this BlastObj.
+	 * The Database ID of the protein sequence hit in this BlastObj.
 	 */
 	String databaseID;
 	/**
@@ -478,7 +479,7 @@ public class BlastObj {
 	 * 
 	 * @return Object
 	 */
-	public CSSequence getWholeSeq() throws BlastDataOutOfBoundException {
+	public CSSequence getWholeSeq() {
 
 		if (!retriveWholeSeq || seqURL == null)
 			return null;
