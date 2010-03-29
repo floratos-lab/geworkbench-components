@@ -49,7 +49,6 @@ import javax.swing.table.TableModel;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.geworkbench.algorithms.BWAbstractAlgorithm;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.sequences.CSSequenceSet;
 import org.geworkbench.bison.datastructure.biocollections.sequences.DSSequenceSet;
@@ -129,7 +128,6 @@ public class BlastAppComponent implements VisualPlugin {
     private JLabel jGapcostsLabel = new JLabel("Gap costs:");
     private JComboBox jGapcostsBox = new JComboBox();
     
-    ParameterSetter parameterSetter = new ParameterSetter();
 	CSSequenceSet fastaFile;
     private BlastAppComponent blastAppComponent = null;
     JPanel subSeqPanel;
@@ -252,7 +250,6 @@ public class BlastAppComponent implements VisualPlugin {
         jProgramBox = new JComboBox();
 
         blastxSettingPanel = new JPanel();
-        parameterSetter = new ParameterSetter();
 
         jstartPointField = new JTextField();
         jendPointField = new JTextField();
@@ -678,26 +675,20 @@ public class BlastAppComponent implements VisualPlugin {
                                       JOptionPane.ERROR_MESSAGE);
     }
 
-    private ParameterSetter processNCBIParameters() {
+    private void processNCBIParameters() {
         ParameterSetting parameterSetting = collectParameters();
         if (parameterSetting == null) {
-            return null;
+            return;
         }
         parameterSetting.setUseNCBI(true);
         if (activeSequenceDB != null) {
             if (sequenceDB == null) {
                 reportError("Please select a sequence file first!",
                             "Parameter Error");
-                return null;
+                return;
             } else { //to handle new sequenceDB.
 
                 try {
-//                    String tempFolder = FilePathnameUtils.getTemporaryFilesDirectoryPath();
-
-//                    String outputFile = tempFolder + "Blast" +
-//                                        RandomNumberGenerator.getID() +
-//                                        ".html";
-                    //progressBar = new JProgressBar(0, 100);
 
                     serviceProgressBar.setForeground(Color.GREEN);
                     serviceProgressBar.setBackground(Color.WHITE);
@@ -706,21 +697,13 @@ public class BlastAppComponent implements VisualPlugin {
                     if (fastaFile == null && activeSequenceDB != null) {
                         fastaFile = (CSSequenceSet) activeSequenceDB;
                     }
-//                    SoapClient sc = new SoapClient(parameterSetting.
-//                            getProgramName(),
-//                            parameterSetting.getDbName(),
-//                            outputFile);
-//
-//                    sc.setSequenceDB(activeSequenceDB);
-//                    sc.setParentSequenceDB(sequenceDB);
+
                     BlastAlgorithm blastAlgo = new BlastAlgorithm();
                     blastAlgo.setUseNCBI(true);
                     blastAlgo.setParameterSetting(parameterSetting);
 
                     blastAlgo.setBlastAppComponent(this);
 
-                    //blastAlgo.setSoapClient(sc);
-                    // sc is only used to pass these two paramteres
                     blastAlgo.setSequenceDB(activeSequenceDB);
                     blastAlgo.setParentSequenceDB(sequenceDB);
                     
@@ -733,8 +716,6 @@ public class BlastAppComponent implements VisualPlugin {
 
             }
         }
-        return parameterSetter;
-
     }
 
     /**
@@ -858,7 +839,7 @@ public class BlastAppComponent implements VisualPlugin {
             jTabbedBlastPane.setSelectedIndex(BlastAppComponent.MAIN);
 
 			// only support NCBI server now
-			parameterSetter = processNCBIParameters();
+			processNCBIParameters();
         } else {
             log.warn("unexpected selectedIndex of jTabbedPane1 "+jTabbedPane1.getSelectedIndex());
         }
@@ -885,14 +866,6 @@ public class BlastAppComponent implements VisualPlugin {
         stopButtonPushed = true;
         if (this.jTabbedPane1.getSelectedIndex() == BlastAppComponent.BLAST) {
             blastFinished("Interrupted");
-        }
-
-        if (parameterSetter != null) {
-
-            BWAbstractAlgorithm algo = parameterSetter.getAlgo();
-            if (algo != null) {
-                algo.stop();
-            }
         }
     }
 
