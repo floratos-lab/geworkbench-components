@@ -72,9 +72,7 @@ public class HierClusterViewAppComponent implements VisualPlugin, MenuListener, 
         DSDataSet dataSet = event.getDataSet();
         if ((dataSet != null) && (dataSet instanceof DSHierClusterDataSet)) {
             DSHierClusterDataSet clusterSet = (DSHierClusterDataSet) dataSet;
-            MarkerHierCluster markerCluster = (MarkerHierCluster) clusterSet.getCluster(0);
-            MicroarrayHierCluster microarrayCluster = (MicroarrayHierCluster) clusterSet.getCluster(1);
-            HierClusterModelEvent hcme = new HierClusterModelEvent(source, (DSMicroarraySetView) clusterSet.getDataSetView(), markerCluster, microarrayCluster);
+            HierClusterModelEvent hcme = new HierClusterModelEvent(source, clusterSet);
             fireModelChanged(hcme);
         }
     }

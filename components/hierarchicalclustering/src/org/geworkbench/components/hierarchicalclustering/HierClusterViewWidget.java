@@ -7,6 +7,7 @@ import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetV
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.model.clusters.Cluster;
+import org.geworkbench.bison.model.clusters.DSHierClusterDataSet;
 import org.geworkbench.bison.model.clusters.HierCluster;
 import org.geworkbench.bison.model.clusters.MarkerHierCluster;
 import org.geworkbench.bison.model.clusters.MicroarrayHierCluster;
@@ -111,6 +112,8 @@ public class HierClusterViewWidget extends JPanel implements HierClusterModelEve
      * Currently displayed microarray cluster
      */
     private MicroarrayHierCluster selectedArrayCluster = null;
+
+    private DSHierClusterDataSet clusterSet = null;
 
     /**
      * The subcluster of arrayCluster currently being displayed. This
@@ -327,13 +330,21 @@ public class HierClusterViewWidget extends JPanel implements HierClusterModelEve
     public void hierClusterModelChange(HierClusterModelEvent hcme) {
     	display.resetVariables();	//fix mantis #1578
         mASet = hcme.getMicroarraySet();
-        originalMarkerCluster = selectedMarkerCluster = hcme.getMarkerCluster();
-        originalArrayCluster = selectedArrayCluster = hcme.getMicroarrayCluster();
+        originalMarkerCluster = hcme.getMarkerCluster();
+        originalArrayCluster = hcme.getMicroarrayCluster();
+        selectedMarkerCluster = hcme.getSelectedMarkerCluster();
+        selectedArrayCluster = hcme.getSelectedMicroarrayCluster();
+    	clusterSet = hcme.getClusterSet();
+        zoomEnabled = hcme.getSelectionEnabled();
+        jCheckBox1.setSelected(zoomEnabled);
         display.setChips(mASet);
         markerDendrogram.setChips(mASet);
         arrayDendrogram.setChips(mASet);
         arrayNames.setChips(mASet);
-        init(originalMarkerCluster, originalArrayCluster);
+        if (!zoomEnabled || (selectedMarkerCluster == null && selectedArrayCluster == null))
+        	init(originalMarkerCluster, originalArrayCluster);
+        else
+        	init(selectedMarkerCluster, selectedArrayCluster);
         
         org.geworkbench.bison.util.colorcontext.ColorContext colorContext = (org.geworkbench.bison.util.colorcontext.ColorContext) mASet.getDataSet()
 		.getObject(org.geworkbench.bison.util.colorcontext.ColorContext.class);
@@ -541,6 +552,7 @@ public class HierClusterViewWidget extends JPanel implements HierClusterModelEve
      */
     private void zoomCheckBox_actionPerformed(ActionEvent e) {
         zoomEnabled = jCheckBox1.isSelected();
+        clusterSet.setSelectionEnabled(zoomEnabled);
 
         if (!zoomEnabled) {
             resetOriginal();
@@ -615,6 +627,8 @@ public class HierClusterViewWidget extends JPanel implements HierClusterModelEve
                     init(selectedMarkerCluster, selectedArrayCluster);
                 }
             }
+            HierCluster[] selectedClusters = {selectedMarkerCluster, selectedArrayCluster};
+            clusterSet.setSelectedClusters(selectedClusters);
 
             this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
         }
