@@ -118,7 +118,7 @@ class FastHierClustAnalysis extends AbstractGridAnalysis implements
 		HierCluster[] resultClusters = new HierCluster[2];
 		resultClusters[0] = markerCluster;
 		resultClusters[1] = microarrayCluster;
-		CSHierClusterDataSet dataSet = new CSHierClusterDataSet(resultClusters,
+		CSHierClusterDataSet dataSet = new CSHierClusterDataSet(resultClusters, null, false,
 				"Hierarchical Clustering", data);
 		
 		//added by Min You, for generating data set hist
