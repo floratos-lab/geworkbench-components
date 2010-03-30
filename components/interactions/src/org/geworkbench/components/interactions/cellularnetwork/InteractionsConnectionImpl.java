@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.ArrayList;
 
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
+import org.geworkbench.util.network.InteractionDetail;
 
 public class InteractionsConnectionImpl {
 	/**
