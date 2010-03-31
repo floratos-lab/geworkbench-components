@@ -88,18 +88,19 @@ public class BlastViewComponent implements
             //update db with the selected file in the project
             if (df instanceof DSAlignmentResultSet) {
                 if ( ((CSAlignmentResultSet) df).getLabel().equals(BlastAppComponent.NCBILABEL) ) {
-                    NCBIBlastParser nbp = new NCBIBlastParser((CSSequenceSet<?extends DSSequence>)
-                            sequenceDB, ((DSAlignmentResultSet) df).
-                            getResultFilePath());
-                    nbp.parseResults();
+                	int totalSequenceNumber = ((CSSequenceSet<? extends DSSequence>) sequenceDB)
+							.size();
+					NCBIBlastParser nbp = new NCBIBlastParser(
+							totalSequenceNumber, ((DSAlignmentResultSet) df)
+									.getResultFilePath());
 
-                   //blastViewPanel.setResults(hits);
-                    blastViewPanel.setSequenceDB((CSSequenceSet<? extends DSSequence>) sequenceDB);
-                    blastViewPanel.setBlastDataSet(nbp.getBlastDataset());
+					blastViewPanel
+							.setSequenceDB((CSSequenceSet<? extends DSSequence>) sequenceDB);
+					blastViewPanel.setBlastDataSet(nbp.parseResults());
 
-                    String summary = nbp.getSummary();
-                   blastViewPanel.setSummary(summary);
-                   df.addDescription(summary);
+					String summary = nbp.getSummary();
+					blastViewPanel.setSummary(summary);
+					df.addDescription(summary);
                 } else {
                 	log.error("Unexpected CSAlignmentResultSet label "+((CSAlignmentResultSet) df).getLabel());
                 }
