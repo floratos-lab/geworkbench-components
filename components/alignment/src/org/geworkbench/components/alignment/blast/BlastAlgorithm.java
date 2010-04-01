@@ -213,8 +213,8 @@ public class BlastAlgorithm {
 					if (osName.startsWith("Mac OS")) {
 						BrowserLauncher.openURL(outputFilePath);
 					} else {
-						BrowserLauncher.openURL(new File(outputFile)
-								.getAbsolutePath());
+						BrowserLauncher.openURL("file:///"+new File(outputFile)
+								.getAbsolutePath().replace("\\", "/"));
 					}
 				} catch (Exception ex) {
 					ex.printStackTrace();
