@@ -123,10 +123,20 @@ public class BlastObj {
 	private int alignmentLength;
 	private int endPoint;
 
-	/**
-	 * Constructor: is blank.
-	 */
-	public BlastObj() {
+	public BlastObj(boolean retriveWholeSeq, String databaseID, String name, String description,
+			String score, String evalue) {
+		this.retriveWholeSeq = retriveWholeSeq;
+		this.databaseID = databaseID;
+		this.description = description;
+		this.name = name;
+
+		try {
+			this.score = Integer.parseInt(score);
+		} catch (NumberFormatException e) {
+			// ignored
+		}
+
+		this.evalue = evalue;
 	}
 
 	/* Get methods for class variables. */
@@ -253,44 +263,7 @@ public class BlastObj {
 	}
 
 	/* Set methods for class variables */
-
-	/**
-	 * Sets the database name of the hit protein sequence stored in this
-	 * BlastObj.
-	 * 
-	 * @param s,
-	 *            the new database name of this BlastObj.
-	 */
-	public void setDatabaseID(String s) {
-		databaseID = s;
-	}
-
-	/**
-	 * Sets the accession number of the hit protein sequence stored in this
-	 * BlastObj.
-	 * 
-	 * @param s,
-	 *            the new accession number of this BlastObj.
-	 */
-
-	/**
-	 * Sets the description of the hit protein sequence stored in this BlastObj.
-	 * 
-	 * @param s,
-	 *            the new description of this BlastObj.
-	 */
-	public void setDescription(String s) {
-		description = s;
-	}
-
-	/**
-	 * Sets the length of the alignment of query and hit protein sequence stored
-	 * in this BlastObj.
-	 * 
-	 * @param i,
-	 *            the alignment length of this BlastObj.
-	 */
-
+	
 	/**
 	 * Sets the percentage of the query that's aligned with protein sequence hit
 	 * in this BlastObj.
@@ -323,29 +296,6 @@ public class BlastObj {
 
 	public void setPercentPos(int i) {
 		percentPos = i;
-	}
-
-	/**
-	 * Sets the score of the alignment of the query with protein sequence hit in
-	 * this BlastObj.
-	 * 
-	 * @param i,
-	 *            the new score of this BlastObj.
-	 */
-
-	public void setScore(int i) {
-		score = i;
-	}
-
-	/**
-	 * Sets the e-value of the alignment of the query with protein sequence hit
-	 * in this BlastObj.
-	 * 
-	 * @param s,
-	 *            the new e-value of this BlastObj.
-	 */
-	public void setEvalue(String s) {
-		evalue = s;
 	}
 
 	/**
@@ -410,16 +360,8 @@ public class BlastObj {
 		return retriveWholeSeq;
 	}
 
-	public void setRetriveWholeSeq(boolean retriveWholeSeq) {
-		this.retriveWholeSeq = retriveWholeSeq;
-	}
-
 	public String getName() {
 		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
 	}
 
 	public int getLength() {
@@ -481,7 +423,12 @@ public class BlastObj {
 	 */
 	public CSSequence getWholeSeq() {
 
-		if (!retriveWholeSeq || seqURL == null)
+		if (!retriveWholeSeq ) {
+			// this field is kept for now, but never set false
+			log.error("retriveWholeSeq is false");
+			return null;
+		}
+		if (seqURL == null)
 			return null;
 
 		log.debug("URL" + seqURL);
