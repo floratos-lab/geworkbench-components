@@ -141,8 +141,9 @@ public class NCBIBlastParser {
 					} else if(tagSeparated.length==3) { // for database alu (without HTML links)
 						String[] fields = tagSeparated[0].split("\\|");
 						id = fields[0];
-						name = fields[1];
-						description = fields[2].trim();
+						int firstSpace = fields[2].indexOf(" ");
+						name = fields[1]+":"+fields[2].substring(0, firstSpace);
+						description = fields[2].trim().substring(firstSpace);
 						score = tagSeparated[1].trim();
 						evalue = tagSeparated[2].trim();
 					} else {
