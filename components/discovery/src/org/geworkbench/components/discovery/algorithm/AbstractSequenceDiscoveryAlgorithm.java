@@ -21,7 +21,7 @@ import java.io.File;
  * @version 1.0
  */
 
-public abstract class AbstractSequenceDiscoveryAlgorithm implements org.geworkbench.algorithms.BWAlgorithm {
+public abstract class AbstractSequenceDiscoveryAlgorithm {
     /**
      * List of listeners
      */
@@ -242,4 +242,15 @@ public abstract class AbstractSequenceDiscoveryAlgorithm implements org.geworkbe
     	//System.out.println("IN ASDAlgo: " + sequenceInputData.size());
         this.sequenceInputData = sequenceInputData;
     }
+    
+    /**
+     * Start the algorithm.
+     */
+    abstract public void start();
+
+    /**
+     * Stop the algorithm.
+     */
+    abstract public void stop();
+
 }
