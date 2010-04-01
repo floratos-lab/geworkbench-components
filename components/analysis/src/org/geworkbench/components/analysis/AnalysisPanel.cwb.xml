@@ -1,7 +1,7 @@
 <component-descriptor xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:noNamespaceSchemaLocation="Descriptor Schema.xsd">
 
-	<component  name="AnalysisPanel"
+	<component  name="Analysis Panel"
 				class="org.geworkbench.components.analysis.AnalysisPanel"
 				version="1.0"
 				author="geWorkbench Development Team"
