@@ -38,7 +38,7 @@ public class ExpandMenuListener implements NodeContextMenuListener {
 	private CytoscapeWidget cytoscapeWidget = null;
 
 	// following fields are a temporary solution for refactoring
-	protected MultiMap<String, Integer> swissprotIdToMarkerIdMap = null;
+	protected MultiMap<String, Integer> geneIdToMarkerIdMap = null;
 	protected DSMicroarraySet<? extends DSMicroarray> maSet = null;
 	protected JProgressBar jProgressBar = null;
 	protected CyNetwork cytoNetwork = null;
@@ -48,7 +48,7 @@ public class ExpandMenuListener implements NodeContextMenuListener {
 	public ExpandMenuListener(CytoscapeWidget cytoscapeWidget) {
 
 		this.cytoscapeWidget = cytoscapeWidget;
-		swissprotIdToMarkerIdMap = cytoscapeWidget.swissprotIdToMarkerIdMap;
+		geneIdToMarkerIdMap = cytoscapeWidget.geneIdToMarkerIdMap;
 		maSet = cytoscapeWidget.maSet;
 		jProgressBar = cytoscapeWidget.jProgressBar;
 		cytoNetwork = cytoscapeWidget.cytoNetwork;
@@ -222,7 +222,7 @@ public class ExpandMenuListener implements NodeContextMenuListener {
 						.getListAttribute(id, "swissprotIDs");
 				if (spIDs != null) {
 					for (Iterator<String> isp = spIDs.iterator(); isp.hasNext();) {
-						Collection<Integer> markerIds = swissprotIdToMarkerIdMap
+						Collection<Integer> markerIds = geneIdToMarkerIdMap
 								.get(isp.next());
 						if (markerIds != null) {
 							for (Integer markerId : markerIds) {
@@ -232,7 +232,7 @@ public class ExpandMenuListener implements NodeContextMenuListener {
 						}
 					}
 				}
-				if (swissprotIdToMarkerIdMap.size() == 0)
+				if (geneIdToMarkerIdMap.size() == 0)
 					// probably user doesn't load annotation file, so
 					// swissprotIdToMarkerIdMap contains nothing
 					selectedMarkers.add((DSGeneMarker) maSet.getMarkers().get(
