@@ -172,9 +172,18 @@ public class NCBIBlastParser {
 				index = 0;
 
 				boolean endofResult = false;
-				while (line != null && !line.trim().startsWith("Database")
-						&& !line.trim().startsWith(">")) {
+				final String ALU_DETAIL_LEADING = "<pre><script src=\"blastResult.js\"></script>>";
+				while (line != null) {
+					line = line.trim();
+					if (line.startsWith("Database") || line.startsWith(">")
+							|| line.startsWith(ALU_DETAIL_LEADING)) {
+						break;
+					}
 					line = br.readLine();
+				}
+
+				if (line.startsWith(ALU_DETAIL_LEADING)) {
+					line = line.substring(ALU_DETAIL_LEADING.length()-1);
 				}
 
 				/* parsing detailed alignments Each has <PRE></PRE> */
