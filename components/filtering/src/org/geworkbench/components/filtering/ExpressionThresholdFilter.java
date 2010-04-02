@@ -1,5 +1,7 @@
 package org.geworkbench.components.filtering;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMarkerValue;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.model.analysis.FilteringAnalysis;
@@ -18,6 +20,7 @@ import org.geworkbench.bison.model.analysis.FilteringAnalysis;
  */
 public class ExpressionThresholdFilter extends FilteringAnalysis {
 	private static final long serialVersionUID = 4346087654519386037L;
+	private static Log log = LogFactory.getLog(ExpressionThresholdFilter.class);
 	
 	// Static fields used to designate the user option available from the
     // combo box within the normalizer's parameters panel.
@@ -50,8 +53,11 @@ public class ExpressionThresholdFilter extends FilteringAnalysis {
         DSMicroarray mArray = maSet.get(arrayIndex);
     	DSMarkerValue mv = (DSMarkerValue) mArray.getMarkerValue(markerIndex);
 
-    	if (mv == null || mv.isMissing())
+    	if (mv == null)
             return false;
+    	if (mv.isMissing()) // the case already marked
+            return true;
+
         double signal = mv.getValue();
         if (rangeOption == INSIDE_RANGE)
             if ((signal >= minValue && signal <= maxValue))
@@ -64,11 +70,22 @@ public class ExpressionThresholdFilter extends FilteringAnalysis {
 
 	@Override
 	protected void getParametersFromPanel() {
-        minValue = ((ExpressionThresholdFilterPanel) aspp).getLowerBound();
-        maxValue = ((ExpressionThresholdFilterPanel) aspp).getUpperBound();
-        rangeOption = ((ExpressionThresholdFilterPanel) aspp).getRangeOption();
+		ExpressionThresholdFilterPanel parameterPanel = (ExpressionThresholdFilterPanel) aspp; 
+        minValue = parameterPanel.getLowerBound();
+        maxValue = parameterPanel.getUpperBound();
+        rangeOption = parameterPanel.getRangeOption();
 
-        filterOption = FilterOption.MARKING;
-		
+        FilterOptionPanel filterOptionPanel = parameterPanel.getFilterOptionPanel();
+		if(filterOptionPanel.getSelectedOption()==FilterOptionPanel.Option.NUMBER_REMOVAL) {
+	        criterionOption = CriterionOption.COUNT;
+		} else if(filterOptionPanel.getSelectedOption()==FilterOptionPanel.Option.PERCENT_REMOVAL) {
+	        criterionOption = CriterionOption.PERCENT;
+		} else {
+	        log.error("Invalid filtering option");
+		}
+
+        numberThreshold = filterOptionPanel.getNumberThreshold();
+        percentThreshold = filterOptionPanel.getPercentThreshold();
 	}
+
 }

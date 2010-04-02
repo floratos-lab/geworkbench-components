@@ -11,9 +11,11 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
+import javax.swing.BoxLayout;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JRadioButton;
 
 import org.geworkbench.analysis.AbstractSaveableParameterPanel;
 import org.geworkbench.events.listeners.ParameterActionListener;
@@ -26,7 +28,7 @@ import org.geworkbench.events.listeners.ParameterActionListener;
  */
 
 /**
- * Pararameters panel for the <code>AffyDetectionCallFilter</code>. Prompts
+ * Parameters panel for the <code>AffyDetectionCallFilter</code>. Prompts
  * the user to designate which markers (those whose detection call is "Present",
  * "Absent" or "Marginal") should be filtered out.
  *
@@ -100,6 +102,8 @@ public class AffyDetectionCallFilterPanel extends AbstractSaveableParameterPanel
         }
 
     }
+    
+    private FilterOptionPanel filterOptionPanel = new FilterOptionPanel();
 
     private void jbInit() throws Exception {
         this.setLayout(new FlowLayout());
@@ -128,11 +132,32 @@ public class AffyDetectionCallFilterPanel extends AbstractSaveableParameterPanel
         container.add(callSelectionLabel);
         container.add(buttonContainer);
         container.setPreferredSize(new Dimension(250, 55));
-        this.add(container);
         ParameterActionListener parameterActionListener = new ParameterActionListener(this);
         presentButton.addActionListener(parameterActionListener);
         absentButton.addActionListener(parameterActionListener);
         marginalButton.addActionListener(parameterActionListener);
+        
+        JPanel topPanel = new JPanel(new FlowLayout());
+        topPanel.add(filterOptionPanel);
+        topPanel.setAlignmentX(LEFT_ALIGNMENT);
+        JPanel bottomPanel = new JPanel(new FlowLayout());
+        bottomPanel.add(container);
+        bottomPanel.setAlignmentX(LEFT_ALIGNMENT);
+        bottomPanel.setMaximumSize(new Dimension(250, 80));
+        
+        JPanel wrapperPanel = new JPanel();
+        BoxLayout boxLayout = new BoxLayout(wrapperPanel, BoxLayout.PAGE_AXIS);
+        wrapperPanel.setLayout(boxLayout);
+        wrapperPanel.add(topPanel);
+        wrapperPanel.add(bottomPanel);
+        this.add(wrapperPanel);
+
+    }
+    
+    private JRadioButton moreButton;
+
+    boolean removeIfMore() {
+    	return moreButton.isSelected();
     }
 
     /**
@@ -187,7 +212,6 @@ public class AffyDetectionCallFilterPanel extends AbstractSaveableParameterPanel
 
 	@Override
 	public String getDataSetHistory() {
-		AffyDetectionCallFilterPanel affyDetectionCallFilterPanel = this;
 		String histStr = "";
 
 		// Header
@@ -211,6 +235,8 @@ public class AffyDetectionCallFilterPanel extends AbstractSaveableParameterPanel
 
 		return histStr;
 	}
-
+	
+	FilterOptionPanel getFilterOptionPanel() {
+		return filterOptionPanel;
+	}
 }
-

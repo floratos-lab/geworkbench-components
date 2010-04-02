@@ -1,5 +1,7 @@
 package org.geworkbench.components.filtering;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.CSMarkerValue;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSAffyMarkerValue;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
@@ -24,6 +26,8 @@ public class AffyDetectionCallFilter extends FilteringAnalysis {
 	 * 
 	 */
 	private static final long serialVersionUID = -6590700967249955520L;
+	private static Log log = LogFactory.getLog(AffyDetectionCallFilter.class);
+	
 	protected boolean filterPresent = false;
     protected boolean filterAbsent = false;
     protected boolean filterMarginal = false;
@@ -65,10 +69,21 @@ public class AffyDetectionCallFilter extends FilteringAnalysis {
     
 	@Override
 	protected void getParametersFromPanel() {
-        filterPresent = ((AffyDetectionCallFilterPanel) aspp).isPresentSelected();
-        filterAbsent = ((AffyDetectionCallFilterPanel) aspp).isAbsentSelected();
-        filterMarginal = ((AffyDetectionCallFilterPanel) aspp).isMarginalSelected();
+		AffyDetectionCallFilterPanel affyDetectionCallFilterPanel = (AffyDetectionCallFilterPanel) aspp; 
+        filterPresent = affyDetectionCallFilterPanel.isPresentSelected();
+        filterAbsent = affyDetectionCallFilterPanel.isAbsentSelected();
+        filterMarginal = affyDetectionCallFilterPanel.isMarginalSelected();
         
-        filterOption = FilterOption.MARKING;
+        FilterOptionPanel filterOptionPanel = affyDetectionCallFilterPanel.getFilterOptionPanel();
+		if(filterOptionPanel.getSelectedOption()==FilterOptionPanel.Option.NUMBER_REMOVAL) {
+	        criterionOption = CriterionOption.COUNT;
+		} else if(filterOptionPanel.getSelectedOption()==FilterOptionPanel.Option.PERCENT_REMOVAL) {
+	        criterionOption = CriterionOption.PERCENT;
+		} else {
+	        log.error("Invalid filtering option");
+		}
+
+        numberThreshold = filterOptionPanel.getNumberThreshold();
+        percentThreshold = filterOptionPanel.getPercentThreshold();
 	}
 }

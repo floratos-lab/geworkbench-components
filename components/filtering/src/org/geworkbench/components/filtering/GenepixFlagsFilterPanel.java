@@ -3,6 +3,7 @@ package org.geworkbench.components.filtering;
 
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -28,7 +29,7 @@ import org.geworkbench.analysis.AbstractSaveableParameterPanel;
  * <p>Copyright: Copyright (c) 2005</p>
  * <p>Company: Columbia.</p>
  * @author Xiaoqing Zhang
- * @version 1.0
+ * @version $Id$
  */
 
 /**
@@ -36,7 +37,9 @@ import org.geworkbench.analysis.AbstractSaveableParameterPanel;
  * filter. The measures will be removed based on their flags.
  */
 public class GenepixFlagsFilterPanel extends AbstractSaveableParameterPanel {
-    /**
+	private static final long serialVersionUID = -8138872216028249538L;
+
+	/**
      * Inner class to represent FlagDetail.
      */
     private static class FlagDetail implements Serializable {
@@ -154,6 +157,8 @@ public class GenepixFlagsFilterPanel extends AbstractSaveableParameterPanel {
 
     }
 
+    private FilterOptionPanel filterOptionPanel = new FilterOptionPanel();
+
     private void jbInit() throws Exception {
         flagExplanationTable.put("-100", "Bad");
         flagExplanationTable.put("100", "Good");
@@ -168,7 +173,21 @@ public class GenepixFlagsFilterPanel extends AbstractSaveableParameterPanel {
         container.add(infoLabel);
         container.add(Box.createVerticalGlue());
         container.setPreferredSize(new Dimension(380, 150));
-        this.add(container);
+
+        JPanel topPanel = new JPanel(new FlowLayout());
+        topPanel.add(filterOptionPanel);
+        topPanel.setAlignmentX(LEFT_ALIGNMENT);
+        JPanel bottomPanel = new JPanel(new FlowLayout());
+        bottomPanel.add(container);
+        bottomPanel.setAlignmentX(LEFT_ALIGNMENT);
+        bottomPanel.setMaximumSize(new Dimension(380, 150));
+
+        JPanel wrapperPanel = new JPanel();
+        BoxLayout boxLayout = new BoxLayout(wrapperPanel, BoxLayout.PAGE_AXIS);
+        wrapperPanel.setLayout(boxLayout);
+        wrapperPanel.add(topPanel);
+        wrapperPanel.add(bottomPanel);
+        this.add(wrapperPanel);
 
     }
 
@@ -416,5 +435,8 @@ public class GenepixFlagsFilterPanel extends AbstractSaveableParameterPanel {
 		return histStr;
 	}
 
+	FilterOptionPanel getFilterOptionPanel() {
+		return filterOptionPanel;
+	}
 
 }
