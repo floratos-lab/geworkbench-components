@@ -1,5 +1,7 @@
 package org.geworkbench.components.filtering;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.CSMarkerValue;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSGenepixMarkerValue;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
@@ -20,6 +22,7 @@ import org.geworkbench.bison.model.analysis.FilteringAnalysis;
  */
 public class GenepixExpressionThresholdFilter extends FilteringAnalysis {
 	private static final long serialVersionUID = -7467339732013411000L;
+	private static Log log = LogFactory.getLog(GenepixExpressionThresholdFilter.class);
 
 	// Static fields used to designate the user option available from the
     // combo box within the normalizer's parameters panel.
@@ -92,12 +95,20 @@ public class GenepixExpressionThresholdFilter extends FilteringAnalysis {
 
 	@Override
 	protected void getParametersFromPanel() {
-        cy3Min = ((GenepixExpressionThresholdFilterPanel) aspp).getCy3Min();
-        cy3Max = ((GenepixExpressionThresholdFilterPanel) aspp).getCy3Max();
-        cy5Min = ((GenepixExpressionThresholdFilterPanel) aspp).getCy5Min();
-        cy5Max = ((GenepixExpressionThresholdFilterPanel) aspp).getCy5Max();
-        rangeOption = ((GenepixExpressionThresholdFilterPanel) aspp).getRangeOption();
+		GenepixExpressionThresholdFilterPanel parameterPanel = (GenepixExpressionThresholdFilterPanel) aspp;
+        cy3Min = parameterPanel.getCy3Min();
+        cy3Max = parameterPanel.getCy3Max();
+        cy5Min = parameterPanel.getCy5Min();
+        cy5Max = parameterPanel.getCy5Max();
+        rangeOption = parameterPanel.getRangeOption();
         
-        filterOption = FilterOption.MARKING;
+        FilterOptionPanel filterOptionPanel = parameterPanel.getFilterOptionPanel();
+		if(filterOptionPanel.getSelectedOption()==FilterOptionPanel.Option.NUMBER_REMOVAL) {
+	        criterionOption = CriterionOption.COUNT;
+		} else if(filterOptionPanel.getSelectedOption()==FilterOptionPanel.Option.PERCENT_REMOVAL) {
+	        criterionOption = CriterionOption.PERCENT;
+		} else {
+	        log.error("Invalid filtering option");
+		}
 	}
 }

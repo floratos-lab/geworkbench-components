@@ -1,7 +1,6 @@
 package org.geworkbench.components.filtering;
 
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.io.Serializable;
 import java.util.HashMap;
@@ -14,6 +13,8 @@ import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.geworkbench.analysis.AbstractSaveableParameterPanel;
 import org.geworkbench.bison.model.analysis.ParamValidationResults;
 import org.geworkbench.events.listeners.ParameterActionListener;
@@ -26,14 +27,18 @@ import org.geworkbench.events.listeners.ParameterActionListener;
  */
 
 /**
- * Paremeters panel for the <code>DeviationBasedFilter</code>. Promts the
+ * Parameters panel for the <code>DeviationBasedFilter</code>. Prompts the
  * user enter a deviation value. All markers whose signal deviation across
  * all arrays is less that this value will be filtered.
  */
 public class DeviationBasedFilterPanel extends AbstractSaveableParameterPanel {
-    final String MARKER_OPTION = "Marker average";
+	private static final long serialVersionUID = -4547048958101290068L;
+	private static Log log = LogFactory.getLog(DeviationBasedFilterPanel.class);
+	
+	final String MARKER_OPTION = "Marker average";
     final String MICROARRAY_OPTION = "Microarray average";
     final String IGNORE_OPTION = "Ignore";
+
     private GridLayout gridLayout1 = new GridLayout();
     private JLabel deviationLabel = new JLabel("Deviation bound");
     private JLabel missingValuesLabel = new JLabel("Missing values");
@@ -80,7 +85,6 @@ public class DeviationBasedFilterPanel extends AbstractSaveableParameterPanel {
     }
 
     private void jbInit() throws Exception {
-        this.setLayout(new FlowLayout());
         JPanel container = new JPanel();
         gridLayout1.setColumns(2);
         gridLayout1.setHgap(10);
@@ -101,7 +105,7 @@ public class DeviationBasedFilterPanel extends AbstractSaveableParameterPanel {
     }
 
     /**
-     * Get the deviation cutoff threashold that will be used for deciding which
+     * Get the deviation cutoff threshold that will be used for deciding which
      * markers to prune.
      *
      * @return The cutoff value.
@@ -124,8 +128,13 @@ public class DeviationBasedFilterPanel extends AbstractSaveableParameterPanel {
             return DeviationBasedFilter.MARKER;
         else if (missingValuesSelection.getSelectedItem().equals(MICROARRAY_OPTION))
             return DeviationBasedFilter.MICROARRAY;
-        else
+        else if (missingValuesSelection.getSelectedItem().equals(IGNORE_OPTION))
             return DeviationBasedFilter.IGNORE;
+        else {
+        	// also return ignore option, but not intended
+        	log.error("unexcepted option of missing value treatment");
+        	return DeviationBasedFilter.IGNORE;
+        }
     }
 
     /**

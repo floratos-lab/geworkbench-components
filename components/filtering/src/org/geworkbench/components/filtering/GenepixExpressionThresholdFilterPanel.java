@@ -9,6 +9,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
+import javax.swing.BoxLayout;
 import javax.swing.JComboBox;
 import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
@@ -35,7 +36,9 @@ import org.geworkbench.events.listeners.ParameterActionListener;
  * @version $ID$
  */
 public class GenepixExpressionThresholdFilterPanel extends AbstractSaveableParameterPanel {
-    final String INSIDE_RANGE = "Inside range";
+	private static final long serialVersionUID = -3835388346988546797L;
+	
+	final String INSIDE_RANGE = "Inside range";
     final String OUTSIDE_RANGE = "Outside range";
     private JLabel Cy3MinLabel = new JLabel("Cy3 Range Min");
     private JLabel Cy3MaxLabel = new JLabel("Cy3 Range Max");
@@ -104,6 +107,8 @@ public class GenepixExpressionThresholdFilterPanel extends AbstractSaveableParam
 
     }
 
+    private FilterOptionPanel filterOptionPanel = new FilterOptionPanel();
+
     private void jbInit() throws Exception {
         this.setLayout(new FlowLayout());
         JPanel container = new JPanel();
@@ -123,7 +128,22 @@ public class GenepixExpressionThresholdFilterPanel extends AbstractSaveableParam
         container.add(optionLabel);
         container.add(optionSelection);
         container.setPreferredSize(new Dimension(400, 80));
-        this.add(container);
+        
+        JPanel topPanel = new JPanel(new FlowLayout());
+        topPanel.add(filterOptionPanel);
+        topPanel.setAlignmentX(LEFT_ALIGNMENT);
+        JPanel bottomPanel = new JPanel(new FlowLayout());
+        bottomPanel.add(container);
+        bottomPanel.setAlignmentX(LEFT_ALIGNMENT);
+        bottomPanel.setMaximumSize(new Dimension(400, 80));
+
+        JPanel wrapperPanel = new JPanel();
+        BoxLayout boxLayout = new BoxLayout(wrapperPanel, BoxLayout.PAGE_AXIS);
+        wrapperPanel.setLayout(boxLayout);
+        wrapperPanel.add(topPanel);
+        wrapperPanel.add(bottomPanel);
+        this.add(wrapperPanel);
+
         Cy3MinValue.setValue(new Double(0.0));
         Cy3MinValue.setFocusLostBehavior(JFormattedTextField.COMMIT_OR_REVERT);
         Cy3MaxValue.setValue(new Double(0.0));
@@ -242,4 +262,9 @@ public class GenepixExpressionThresholdFilterPanel extends AbstractSaveableParam
 
 		return histStr;
 	}
+
+	FilterOptionPanel getFilterOptionPanel() {
+		return filterOptionPanel;
+	}
+	
 }

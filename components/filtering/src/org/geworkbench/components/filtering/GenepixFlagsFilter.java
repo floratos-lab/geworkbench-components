@@ -6,6 +6,8 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.CSExprMicroarraySet;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.CSGenepixMarkerValue;
@@ -29,6 +31,7 @@ import org.geworkbench.engine.management.Subscribe;
  */
 public class GenepixFlagsFilter extends FilteringAnalysis {
 	private static final long serialVersionUID = -6605769712853311721L;
+	private static Log log = LogFactory.getLog(GenepixFlagsFilter.class);
 	
 	private Map<String, Integer> flagsProbeNum = new TreeMap<String, Integer>();
 
@@ -158,6 +161,14 @@ public class GenepixFlagsFilter extends FilteringAnalysis {
 
 	@Override
 	protected void getParametersFromPanel() {
-		filterOption = FilterOption.MARKING;
+		GenepixFlagsFilterPanel parameterPanel = (GenepixFlagsFilterPanel) aspp;
+        FilterOptionPanel filterOptionPanel = parameterPanel.getFilterOptionPanel();
+		if(filterOptionPanel.getSelectedOption()==FilterOptionPanel.Option.NUMBER_REMOVAL) {
+	        criterionOption = CriterionOption.COUNT;
+		} else if(filterOptionPanel.getSelectedOption()==FilterOptionPanel.Option.PERCENT_REMOVAL) {
+	        criterionOption = CriterionOption.PERCENT;
+		} else {
+	        log.error("Invalid filtering option");
+		}
 	}
 }

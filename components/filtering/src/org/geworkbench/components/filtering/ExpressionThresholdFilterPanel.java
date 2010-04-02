@@ -10,6 +10,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
+import javax.swing.BoxLayout;
 import javax.swing.JComboBox;
 import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
@@ -20,19 +21,14 @@ import org.geworkbench.bison.model.analysis.ParamValidationResults;
 import org.geworkbench.events.listeners.ParameterActionListener;
 
 /**
- * <p>Copyright: Copyright (c) 2003</p>
- * <p>Company: First Genetic Trust Inc.</p>
- * @author First Genetic Trust
- * @version 1.0
- */
-
-/**
  * The parameters panel for the <code>ExpressionThresholdFilter</code> filter.
  * @author unknown, yc2480
- * @version $ID$
+ * @version $Id$
  */
 public class ExpressionThresholdFilterPanel extends AbstractSaveableParameterPanel {
-    final String INSIDE_RANGE = "Inside range";
+	private static final long serialVersionUID = 5725991435412934513L;
+	
+	final String INSIDE_RANGE = "Inside range";
     final String OUTSIDE_RANGE = "Outside range";
     private JLabel rangeMinLabel = new JLabel("Range Min");
     private JLabel rangeMaxLabel = new JLabel("Range Max");
@@ -92,8 +88,9 @@ public class ExpressionThresholdFilterPanel extends AbstractSaveableParameterPan
 
     }
 
+    private FilterOptionPanel filterOptionPanel = new FilterOptionPanel();
+    
     private void jbInit() throws Exception {
-        this.setLayout(new FlowLayout());
         JPanel container = new JPanel();
         gridLayout1.setColumns(2);
         gridLayout1.setHgap(10);
@@ -107,7 +104,22 @@ public class ExpressionThresholdFilterPanel extends AbstractSaveableParameterPan
         container.add(rangeOptionLabel);
         container.add(optionSelection);
         container.setPreferredSize(new Dimension(250, 80));
-        this.add(container);
+
+        JPanel topPanel = new JPanel(new FlowLayout());
+        topPanel.add(filterOptionPanel);
+        topPanel.setAlignmentX(LEFT_ALIGNMENT);
+        JPanel bottomPanel = new JPanel(new FlowLayout());
+        bottomPanel.add(container);
+        bottomPanel.setAlignmentX(LEFT_ALIGNMENT);
+        bottomPanel.setMaximumSize(new Dimension(250, 80));
+
+        JPanel wrapperPanel = new JPanel();
+        BoxLayout boxLayout = new BoxLayout(wrapperPanel, BoxLayout.PAGE_AXIS);
+        wrapperPanel.setLayout(boxLayout);
+        wrapperPanel.add(topPanel);
+        wrapperPanel.add(bottomPanel);
+        this.add(wrapperPanel);
+        
         rangeMinValue.setValue(new Double(0.0));
         rangeMinValue.setFocusLostBehavior(JFormattedTextField.COMMIT_OR_REVERT);
         rangeMaxValue.setValue(new Double(0.0));
@@ -197,5 +209,8 @@ public class ExpressionThresholdFilterPanel extends AbstractSaveableParameterPan
 		return histStr;
 	}
 
+	FilterOptionPanel getFilterOptionPanel() {
+		return filterOptionPanel;
+	}
 	
 }

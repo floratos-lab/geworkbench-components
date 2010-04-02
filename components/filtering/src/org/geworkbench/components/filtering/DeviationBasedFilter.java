@@ -1,5 +1,7 @@
 package org.geworkbench.components.filtering;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMarkerValue;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
@@ -35,12 +37,13 @@ import org.geworkbench.bison.model.analysis.FilteringAnalysis;
  */
 public class DeviationBasedFilter extends FilteringAnalysis {
 	private static final long serialVersionUID = -3948591097666762748L;
-	
+	private static Log log = LogFactory.getLog(DeviationBasedFilter.class);
+			
 	// Static fields used to designate the available user option within the
     // normalizer's parameters panel.
-    public static final int MARKER = 0;
-    public static final int MICROARRAY = 1;
-    public static final int IGNORE = 2;
+    static final int MARKER = 0;
+    static final int MICROARRAY = 1;
+    static final int IGNORE = 2;
     /**
      * User-specified value for deviation bound (comes from the
      * <code>DeviationBasedFilterPanel</code>).
@@ -61,9 +64,24 @@ public class DeviationBasedFilter extends FilteringAnalysis {
     
     private boolean[] missingMarkers;
     
+    /**
+     * This filter is different from other filters in that the marker are recognized as missing directly
+     * instead of being based on count or percentage. So this method is in fact ignored.
+     */
     @Override
     public boolean isMissing(int arrayIndex, int markerIndex) {
-    	return missingMarkers[markerIndex]; //arrayIndex is ignored
+    	return true; // does not matter
+    }
+    
+    /**
+     * This filter is different from other filters in that the marker are recognized as missing directly
+     * instead of being based on count or percentage. So this method just uses special value to control switch.
+     * This way, we don't have to change remove() method, which is more complicated and used by other filters.
+     */
+    @Override
+    protected int countMissing(int markerIndex) {
+    	if(missingMarkers[markerIndex])return numberThreshold+1; // remove
+    	else return numberThreshold-1; // not to remove
     }
     
     /**
@@ -177,15 +195,16 @@ public class DeviationBasedFilter extends FilteringAnalysis {
 
 	@Override
 	protected void getParametersFromPanel() {
-        deviationBound = ((DeviationBasedFilterPanel) aspp).getDeviationCutoff();
-        missingValues = ((DeviationBasedFilterPanel) aspp).getMissingValueTreatment();
+		DeviationBasedFilterPanel deviationBasedFilterPanel = (DeviationBasedFilterPanel)aspp;
+        deviationBound = deviationBasedFilterPanel.getDeviationCutoff();
+        missingValues = deviationBasedFilterPanel.getMissingValueTreatment();
         int arrayCount = maSet.size();
 
         // Go over all markers, compute their deviation, and decide which to filter.
         microarrayAverages = new double[arrayCount];
         computeMicroarrayAverages(maSet);
         
-        // this filter is implemented a little different because missing always applies to the enitre marker
+        // this filter is implemented a little different because missing always applies to the entire marker
         int markerCount = maSet.getMarkers().size();
         missingMarkers = new boolean[markerCount];
         for(int i=0; i<markerCount; i++) {
@@ -197,8 +216,14 @@ public class DeviationBasedFilter extends FilteringAnalysis {
             	missingMarkers[i] = false;
         	
         }
+        log.debug("pre-calcaultation done");
+ 
+        // not used for this particular filter
+//        numberThreshold = deviationBasedFilterPanel.getNumberThreshold();
+//        percentThreshold = deviationBasedFilterPanel.getPercentThreshold();
         
-        filterOption = FilterOption.MARKING;
-       }
+        criterionOption = CriterionOption.COUNT;
+        numberThreshold = 0;
+      }
 
 }
