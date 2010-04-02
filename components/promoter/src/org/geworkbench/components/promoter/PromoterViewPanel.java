@@ -27,7 +27,6 @@ import org.geworkbench.components.promoter.modulediscovery.*;
 import org.geworkbench.events.GeneSelectorEvent;
 import org.geworkbench.events.SequenceDiscoveryTableEvent;
 import org.geworkbench.util.FilePathnameUtils;
-import org.geworkbench.util.JAutoList;
 import org.geworkbench.util.RandomSequenceGenerator;
 import org.geworkbench.util.associationdiscovery.statistics.ClusterStatistics;
 import org.geworkbench.util.patterns.*;
@@ -49,37 +48,44 @@ import com.larvalabs.chart.PSAMPlot;
  */
 
 public class PromoterViewPanel extends JPanel {
-    public class ScoreStats {
+	private static final long serialVersionUID = -6523545577029722522L;
+
+	public class ScoreStats {
         public double score;
         public double pValue;
         public ScoreStats() {}
     }
 
-
     private PromoterView promoterView;
     DSPanel<DSGeneMarker> markers = null;
-    private DSSequenceSet sequenceDB = null;
+    private DSSequenceSet<DSSequence> sequenceDB = null;
     private JFileChooser fc = null;
     private JFileChooser fc2 = null;
     boolean selectedRegionChanged = false;
-    //JTextPane jInfoPanel = new JTextPane();
     JPanel jInfoPanel = new ImagePanel();
-    DSSequenceSet background = null;
+    DSSequenceSet<DSSequence> background = null;
     private TreeMap<String,
             TranscriptionFactor> tfMap = new TreeMap<String,
                                          TranscriptionFactor>();
-    //Layouts
+    TreeMap<String, TranscriptionFactor> getTfMap() {
+		return tfMap;
+	}
 
-    private BorderLayout borderLayout2 = new BorderLayout();
-    //Panels and Panes
+	private BorderLayout borderLayout2 = new BorderLayout();
     private JScrollPane seqScrollPane = new JScrollPane();
     private SequencePatternDisplayPanel seqDisPanel = new
             SequencePatternDisplayPanel();
     JPanel jPanel2 = new JPanel();
     JPanel logoPanel = new JPanel();
-    TFListModel tfListModel = new TFListModel();
-    Vector<String> tfNameSet;
-    BorderLayout borderLayout1 = new BorderLayout();
+    
+    Vector<String> uniqueTaxGroupVector = new Vector<String>();
+	Vector<String> getUniqueTaxGroupVector() {
+		return uniqueTaxGroupVector;
+	}
+
+	HashMap<String, String> fullNameTaxGroupMap = new HashMap<String, String>();
+	
+	BorderLayout borderLayout1 = new BorderLayout();
     JButton displayBtn = new JButton();
     BorderLayout borderLayout3 = new BorderLayout();
     JButton jSaveButton = new JButton();
@@ -120,11 +126,9 @@ public class PromoterViewPanel extends JPanel {
     JPanel jPanel7 = new JPanel();
     JPopupMenu itemListPopup = new JPopupMenu();
     JPopupMenu selectedItemListPopup = new JPopupMenu();
-    protected JMenuItem addToPanelItem = new JMenuItem("Add");
-    protected JMenuItem clearSelectionItem = new JMenuItem(
-            "Remove from Selected List.");
-    protected JMenuItem saveItem = new JMenuItem(
-            "Save");
+    JMenuItem addToPanelItem = new JMenuItem("Add");
+    JMenuItem clearSelectionItem = new JMenuItem("Remove from Selected List.");
+    JMenuItem saveItem = new JMenuItem("Save");
     JPanel jPanel6 = new JPanel();
     JPanel jPanel9 = new JPanel();
     JLabel jLabel2 = new JLabel();
@@ -139,7 +143,8 @@ public class PromoterViewPanel extends JPanel {
     JPanel jPanel10 = new JPanel();
     JPanel jPanel11 = new JPanel();
     BorderLayout borderLayout11 = new BorderLayout();
-    JList jSelectedTFList = new JList();
+    private DefaultListModel selectedTFModel = new DefaultListModel();
+    JList jSelectedTFList = new JList(getSelectedTFModel());
     JLabel jLabel3 = new JLabel();
     JPanel jPanel1 = new JPanel();
     JPanel northPanel = new JPanel();
@@ -155,33 +160,42 @@ public class PromoterViewPanel extends JPanel {
     double pValue = 0.05;
     private ArrayList<DSPattern> seqPatterns = new ArrayList<DSPattern>();
     private ArrayList<DSPattern> promoterPatterns = new ArrayList<DSPattern>();
-    HashMap<DSPattern,
-            Display> seqPatternDisplay = new HashMap<DSPattern, Display>();
+    HashMap<DSPattern, Display> seqPatternDisplay = new HashMap<DSPattern, Display>();
     Hashtable<DSPattern<DSSequence, CSSeqRegistration>, List<DSPatternMatch<DSSequence, CSSeqRegistration>>>
             seqPatternMatches = new Hashtable<DSPattern<DSSequence,
                                 CSSeqRegistration>,
                                 List<DSPatternMatch<DSSequence,
                                 CSSeqRegistration>>>();
-    HashMap<DSPattern,
-            Display> promoterPatternDisplay = new HashMap<DSPattern, Display>();
+    HashMap<DSPattern, Display> promoterPatternDisplay = new HashMap<DSPattern, Display>();
     Hashtable<DSPattern<DSSequence, CSSeqRegistration>, List<DSPatternMatch<DSSequence, CSSeqRegistration>>>
             promoterPatternMatches = new Hashtable<DSPattern<DSSequence,
                                      CSSeqRegistration>,
                                      List<DSPatternMatch<DSSequence,
                                      CSSeqRegistration>>>();
-    private final static int SEQUENCE = 2;
     private final static int LOGO = 0;
     private final static int PARAMETERS = 1;
+    private final static int SEQUENCE = 2;
     protected JMenuItem imageSnapShotItem = new JMenuItem("Image SnapShot");
-    private HashMap primerToMotif = new HashMap();
     private boolean fivePrimerDirection = true;
     private TranscriptionFactor currentTF;
-    private static final String JASPAR_DATA_FOLDER = "jaspar_CORE";
+    void setCurrentTF(TranscriptionFactor currentTF) {
+		this.currentTF = currentTF;
+	}
+
+    TFListModel tfListModel = new TFListModel(selectedTFModel);
+    TFListModel getTfListModel() {
+		return tfListModel;
+	}
+
+
+    
+    
+	private static final String JASPAR_DATA_FOLDER = "jaspar_CORE";
     private static final String MATRIX_IDNAME_FILE = "MATRIX.txt";
     private static final String MATRIX_ANNOTATION_FILE = "MATRIX_ANNOTATION.txt";
     private static final String MATRIX_DATA_FILE = "MATRIX_DATA.txt";
 
-    public PromoterViewPanel() {
+   public PromoterViewPanel() {
         try {
             jbInit();
 
@@ -192,7 +206,6 @@ public class PromoterViewPanel extends JPanel {
 
     void jbInit() throws Exception {
         this.setLayout(borderLayout2);
-
         jProgressBar1.setForeground(Color.green);
         jProgressBar1.setBorderPainted(true);
         jPanel2.setLayout(borderLayout1);
@@ -227,10 +240,8 @@ public class PromoterViewPanel extends JPanel {
                 jDiscoverModuleBttn_actionPerformed(e);
             }
         });
-        jScrollPane3.setHorizontalScrollBarPolicy(JScrollPane.
-                                                  HORIZONTAL_SCROLLBAR_ALWAYS);
-        jScrollPane3.setVerticalScrollBarPolicy(JScrollPane.
-                                                VERTICAL_SCROLLBAR_ALWAYS);
+        jScrollPane3.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+        jScrollPane3.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
         jScrollPane3.setAutoscrolls(false);
         jScrollPane3.setPreferredSize(new Dimension(64, 59));
         jPanel4.setLayout(borderLayout4);
@@ -238,28 +249,27 @@ public class PromoterViewPanel extends JPanel {
         jLabel4.setText("TF List");
 
         fillupTranscriptionFactorList();
+        tfListPanel = new TFListPanel(this);
+        tfListModel.setFullNameTaxGroupMap(fullNameTaxGroupMap); 
+
         matrixDetailButton.setText("Matrix Details");
         matrixDetailButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 matrixDetailButton_actionPerformed(e);
             }
         });
-        matrixPane.setVerticalScrollBarPolicy(JScrollPane.
-                                              VERTICAL_SCROLLBAR_ALWAYS);
+        matrixPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
         matrixPane.setViewportBorder(BorderFactory.createRaisedBevelBorder());
         matrixPane.setMinimumSize(new Dimension(50, 100));
         matrixPane.setPreferredSize(new Dimension(100, 100));
         matrixPane.setToolTipText("Detaill");
         reverseButton = new JButton("Reverse complement");
         reverseButton.addActionListener(new java.awt.event.ActionListener() {
-
             public void actionPerformed(ActionEvent e) {
-
                 reverseButton_actionPerformed(e);
             }
         });
 
-        //jEditorPane1.add(matrixTable);
         itemListPopup.add(addToPanelItem);
         selectedItemListPopup.add(clearSelectionItem);
         clearSelectionItem.addActionListener(new ActionListener() {
@@ -274,18 +284,14 @@ public class PromoterViewPanel extends JPanel {
             }
 
         });
-        saveItem = new JMenuItem(
-                "Save");
+        saveItem = new JMenuItem("Save");
         saveItem.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 saveResultToAFile();
             }
-
         });
 
-        displayBtn.setToolTipText(
-                "Scans the selected sequences with the TF matrices");
-
+        displayBtn.setToolTipText("Scans the selected sequences with the TF matrices");
         displayBtn.setText("Scan");
         displayBtn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -313,9 +319,8 @@ public class PromoterViewPanel extends JPanel {
                 jaddNewTFB_actionPerformed(e);
             }
         });
-
-        jScrollPane1.setHorizontalScrollBarPolicy(JScrollPane.
-                                                  HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        
+        jScrollPane1.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         jScrollPane1.setAlignmentX((float) 0.5);
         jScrollPane1.setAutoscrolls(true);
         jScrollPane1.setBorder(BorderFactory.createEtchedBorder());
@@ -342,8 +347,8 @@ public class PromoterViewPanel extends JPanel {
             public void valueChanged(ListSelectionEvent e) {
                 moduleListSelection_action(e);
             }
-        }
-        );
+        });
+        
         jPanel8.setLayout(borderLayout10);
         jPanel5.setLayout(borderLayout6);
         minOccur.setOpaque(true);
@@ -369,16 +374,12 @@ public class PromoterViewPanel extends JPanel {
             }
         });
         jSelectedTFList.setToolTipText("Selected transcription factors");
-        DefaultListModel ls1 = new DefaultListModel();
-        jSelectedTFList.setModel(ls1);
         jLabel3.setHorizontalAlignment(SwingConstants.CENTER);
         jLabel3.setText("Selected TF");
         jPanel1.setLayout(borderLayout5);
         jPanel1.setForeground(Color.black);
-
         jScrollPane2.setMinimumSize(new Dimension(24, 24));
         jScrollPane2.setPreferredSize(new Dimension(4, 100));
-
         jPanel11.setLayout(gridLayout2);
         gridLayout2.setColumns(3);
         gridLayout2.setRows(2);
@@ -404,6 +405,8 @@ public class PromoterViewPanel extends JPanel {
         enrichmentBox.setEditable(false);
         enrichmentBox.setText("1.0");
         parmsPanel.setBorder(BorderFactory.createEtchedBorder());
+        parmsPanel.setMinimumSize(new Dimension(130, 110));
+        parmsPanel.setPreferredSize(new Dimension(130, 110));
         parmsPanel.setMinimumSize(new Dimension(130, 100));
         parmsPanel.setPreferredSize(new Dimension(130, 100));
         enrichmentLabel.setText("Enrich. p-value:");
@@ -449,7 +452,7 @@ public class PromoterViewPanel extends JPanel {
                 iterationBox_actionPerformed(e);
             }
         });
-        //iterationLabel.setHorizontalAlignment(SwingConstants.TRAILING);
+
         iterationLabel.setHorizontalTextPosition(SwingConstants.LEADING);
         iterationLabel.setText("Iterations:");
 
@@ -483,21 +486,19 @@ public class PromoterViewPanel extends JPanel {
             }
         });
 
-         primer5Label.setFont(new java.awt.Font("Dialog", Font.BOLD, 11));
-          primer3Label.setFont(new java.awt.Font("Dialog", Font.BOLD, 11));
+        primer5Label.setFont(new java.awt.Font("Dialog", Font.BOLD, 11));
+        primer3Label.setFont(new java.awt.Font("Dialog", Font.BOLD, 11));
         primer5Label.setText("5\' hits");
         primer3Label.setText("3\' hits");
-        //expect2Label.setHorizontalAlignment(SwingConstants.TRAILING);
+
         expect2Label.setText("Expected:");
         match5PrimeExpectBox.setEditable(false);
         match5PrimeExpectBox.setText("0");
         match3PrimeExpectBox.setEditable(false);
         match3PrimeExpectBox.setText("0");
-//        totalLabel.setText("Total");
-//        sequenceLabel.setText("Sequence");
         match5PrimeActualBox.setEditable(false);
         match5PrimeActualBox.setText("0");
-        //actualLabel.setHorizontalAlignment(SwingConstants.TRAILING);
+
         actualLabel.setText("Actual:");
         match3PrimeActualBox.setEditable(false);
         match3PrimeActualBox.setText("0");
@@ -546,13 +547,7 @@ public class PromoterViewPanel extends JPanel {
         jScrollPane1.getViewport().add(jTranscriptionFactorList, null);
         jPanel1.add(jScrollPane2, BorderLayout.CENTER);
         jPanel1.add(jLabel3, BorderLayout.NORTH);
-        //replace The old TF list Panel with JAutoList
-        //jPanel3.add(jPanel4, null);
-        tfListModel = new TFListModel();
-        tfListModel.refresh();
-        tfPanel = new TFListPanel();
-        jPanel3.add(tfPanel, null);
-
+        jPanel3.add(tfListPanel, null);
         jScrollPane2.getViewport().add(jSelectedTFList, null);
         jPanel11.add(displayBtn, null);
         jPanel11.add(jaddNewTFB, null);
@@ -638,14 +633,17 @@ public class PromoterViewPanel extends JPanel {
                                               , GridBagConstraints.CENTER,
                                               GridBagConstraints.HORIZONTAL,
                                               new Insets(1, 2, 1, 2), 0, 0));
-        parmsPanel.add(countBox, new GridBagConstraints(2, 11, 1, 1, 1.0, 0.0
-                , GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
-                new Insets(1, 2, 0, 2), 0, 0));
-        parmsPanel.add(seqCountBox, new GridBagConstraints(3, 11, 1, 1, 1.0, 0.0
-                , GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
-                new Insets(1, 2, 0, 2), 0, 0));
-
-          parmsPanel.add(enrichmentBox,
+        parmsPanel.add(countBox, 
+                	  new GridBagConstraints(2, 11, 1, 1, 1.0, 0.0
+                            				  , GridBagConstraints.CENTER, 
+                            				  GridBagConstraints.HORIZONTAL,
+                            				  new Insets(1, 2, 0, 2), 0, 0));
+        parmsPanel.add(seqCountBox, 
+        			  new GridBagConstraints(3, 11, 1, 1, 1.0, 0.0
+        					  				  , GridBagConstraints.CENTER, 
+        					  				  GridBagConstraints.HORIZONTAL,
+        					  				  new Insets(1, 2, 0, 2), 0, 0));
+        parmsPanel.add(enrichmentBox,
                        new GridBagConstraints(2, 12, 1, 1, 1.0, 0.0
                                               , GridBagConstraints.CENTER,
                                               GridBagConstraints.HORIZONTAL,
@@ -667,9 +665,11 @@ public class PromoterViewPanel extends JPanel {
                                               GridBagConstraints.HORIZONTAL,
                                               new Insets(1, 2, 1, 2), 0, 0));
 
-          parmsPanel.add(jLabel1, new GridBagConstraints(1, 13, 1, 1, 0.0, 0.0
-                , GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
-                new Insets(0, 0, 0, 0), 0, 0));
+          parmsPanel.add(jLabel1, 
+        		  	   new GridBagConstraints(1, 13, 1, 1, 0.0, 0.0
+        		  			   				  , GridBagConstraints.CENTER, 
+        		  			   				  GridBagConstraints.HORIZONTAL,
+        		  			   				  new Insets(0, 0, 0, 0), 0, 0));
 
         parmsPanel.add(primer5Label,
                        new GridBagConstraints(2, 14, 1, 1, 0.0, 0.0
@@ -714,7 +714,6 @@ public class PromoterViewPanel extends JPanel {
 	                                         , GridBagConstraints.CENTER,
 	                                         GridBagConstraints.HORIZONTAL,
 	                                         new Insets(1, 2, 1, 2), 0, 0));
-
         
         parmsPanel.add(thresholdResultLabel,
                        new GridBagConstraints(1, 7, 1, 1, 1.0, 0.0
@@ -732,7 +731,11 @@ public class PromoterViewPanel extends JPanel {
                                               , GridBagConstraints.CENTER,
                                               GridBagConstraints.HORIZONTAL,
                                               new Insets(1, 2, 1, 2), 0, 0));
-        parmsPanel.add(match3PrimeActualBox, new GridBagConstraints(3, 16, 1, 1, 1.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(1, 2, 1, 2), 0, 0));
+        parmsPanel.add(match3PrimeActualBox, 
+        			   new GridBagConstraints(3, 16, 1, 1, 1.0, 0.0
+        					   				  , GridBagConstraints.CENTER, 
+        					   				  GridBagConstraints.HORIZONTAL, 
+        					   				  new Insets(1, 2, 1, 2), 0, 0));
         parmsPanel.add(thresholdBox,
                        new GridBagConstraints(2, 2, 1, 1, 1.0, 0.0
                                               , GridBagConstraints.CENTER,
@@ -743,9 +746,11 @@ public class PromoterViewPanel extends JPanel {
                                               , GridBagConstraints.CENTER,
                                               GridBagConstraints.HORIZONTAL,
                                               new Insets(0, 2, 0, 2), 0, 0));
-        parmsPanel.add(set13KCheck, new GridBagConstraints(3, 2, 1, 1, 0.0, 0.0
-                , GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
-                new Insets(0, 2, 0, 2), 0, 0));
+        parmsPanel.add(set13KCheck, 
+        			   new GridBagConstraints(3, 2, 1, 1, 0.0, 0.0
+        					   				  , GridBagConstraints.CENTER, 
+        					   				  GridBagConstraints.HORIZONTAL,
+        					   				  new Insets(0, 2, 0, 2), 0, 0));
         parmsPanel.add(iterationBox,
                        new GridBagConstraints(2, 3, 1, 1, 1.0, 0.0
                                               , GridBagConstraints.CENTER,
@@ -813,8 +818,8 @@ public class PromoterViewPanel extends JPanel {
         seqDisPanel.addMenuItem(saveItem);
     }
 
-    public org.geworkbench.events.ImageSnapshotEvent
-            createImageSnapshot() {
+   	private org.geworkbench.events.ImageSnapshotEvent createImageSnapshot() {
+    
         JPanel graph = seqDisPanel.getSeqViewWPanel();
         Dimension panelSize = graph.getSize();
         BufferedImage image = new BufferedImage(panelSize.width,
@@ -831,28 +836,6 @@ public class PromoterViewPanel extends JPanel {
         return event;
     }
 
-
-    /**
-     * @todo addto use on transcriptionFactorList
-     */
-    private DefaultListCellRenderer renderer = new DefaultListCellRenderer() {
-        public Component getListCellRendererComponent(JList list, Object value,
-                int index, boolean isSelected, boolean cellHasFocus) {
-            Component c = super.getListCellRendererComponent(list, value, index,
-                    isSelected, cellHasFocus);
-            // IGenericMarker stats = (IGenericMarker) value;
-            if (isSelected) {
-
-                c.setBackground(Color.yellow);
-
-            } else {
-
-                c.setBackground(Color.white);
-
-            }
-            return c;
-        }
-    };
     JPanel jPanel12 = new JPanel();
     JPanel parmsPanel = new JPanel();
     GridBagLayout gridBagLayout1 = new GridBagLayout();
@@ -894,8 +877,7 @@ public class PromoterViewPanel extends JPanel {
     JTextField match3PrimeActualBox = new JTextField();
     JLabel actualLabel = new JLabel();
     PromoterPatternDB pdb; //= new PromoterPatternDB();
-    HashMap<String,
-            PromoterPatternDB> map = new HashMap<String, PromoterPatternDB>();
+    HashMap<String, PromoterPatternDB> map = new HashMap<String, PromoterPatternDB>();
     private JTabbedPane jTabbedPane2 = new JTabbedPane();
     private JLabel parametersLabel = new JLabel();
     private JLabel resultLabel = new JLabel();
@@ -903,14 +885,13 @@ public class PromoterViewPanel extends JPanel {
     private BorderLayout borderLayout12 = new BorderLayout();
     private JLabel jLabel5 = new JLabel();
     private JLabel jLabel6 = new JLabel();
-    private TFListPanel tfPanel;
-    private JPanel matrixDisplayPanel = new JPanel();
+    private TFListPanel tfListPanel = null;
+	private JPanel matrixDisplayPanel = new JPanel();
     private JPanel displayOptionsPanel = new JPanel();
     private JButton matrixDetailButton = new JButton();
     private MatrixScrollPane matrixPane = new MatrixScrollPane();
-    private TitledBorder titledBorder6 = new TitledBorder("");
-    // private JTable matrixTable = new MatrixTable();
-    public void setSequenceDB(DSSequenceSet db2) {
+
+    void setSequenceDB(DSSequenceSet<DSSequence> db2) {
         String id = null;
         if (db2 != null && sequenceDB != null) {
             id = db2.getID();
@@ -926,60 +907,43 @@ public class PromoterViewPanel extends JPanel {
                 clear();
                 sequenceDB = db2;
                 seqDisPanel.initialize(sequenceDB);
-
             }
         } else if (db2 != null) {
             clear();
             sequenceDB = db2;
             seqDisPanel.initialize(sequenceDB);
-
         }
-
     }
 
-    public void setPromterView(PromoterView promterView) {
+    void setPromterView(PromoterView promterView) {
         this.promoterView = promterView;
     }
 
-    /**
-     * clear
-     */
-    public void clear() {
+
+    private void clear() {
         seqPatterns.clear();
         seqPatternDisplay.clear();
         seqPatternMatches.clear();
         promoterPatterns.clear();
         promoterPatternDisplay.clear();
         promoterPatternMatches.clear();
-
-//        promoterPatterns = new ArrayList<DSPattern>();
-//
-//           promoterPatternDisplay = new HashMap<DSPattern, Display>();
-//
-//            promoterPatternMatches = new Hashtable<DSPattern<DSSequence,
-//                                     CSSeqRegistration>,
-//                                     List<DSPatternMatch<DSSequence,
-//                                     CSSeqRegistration>>>();
-
-
-
     }
 
-    public DSSequenceSet getSequenceDB() {
+    private DSSequenceSet<DSSequence> getSequenceDB() {
         return sequenceDB;
     }
 
-    public PromoterView getPromterView() {
+    private PromoterView getPromterView() {
         return promoterView;
     }
 
-    void fillupTranscriptionFactorList() throws FileNotFoundException,
-            IOException {
+
+    private void fillupTranscriptionFactorList() throws FileNotFoundException, IOException {
         if (tfMap == null) {
-            tfMap = new TreeMap();
+            tfMap = new TreeMap<String, TranscriptionFactor>();
         }
 
-		// MATRIX.TXT ///////////
+		/* Load MATRIX.TXT */
 		final int IDNAME_KEY = 0;
 		final int IDNAME_ID = 2;
 		final int IDNAME_NAME = 4;
@@ -1000,7 +964,7 @@ public class PromoterViewPanel extends JPanel {
 		}
 		idNameReader.close();
         
-		// MATRIX_ANNOTATION.TXT ///////////
+		/* Load MATRIX_ANNOTATION.TXT */
 		final int ANNOTATIONS_KEY = 0;
 		final int ANNOTATIONS_TYPE = 1;
 		final int ANNOTATIONS_VALUE = 2;
@@ -1021,14 +985,14 @@ public class PromoterViewPanel extends JPanel {
 			}
 			// if more annotations fields are needed, && cols[ANNOTATIONS_TYPE].equals("class")
 			// can be removed.
-			if (cols.length >= ANNOTATIONS_COLUMN_NUM && cols[ANNOTATIONS_TYPE].equals("class") ) {
+			if (cols.length >= ANNOTATIONS_COLUMN_NUM && (cols[ANNOTATIONS_TYPE].equals("class") ||  (cols[ANNOTATIONS_TYPE].equals("tax_group")))) {
 				annotationMap.put(cols[ANNOTATIONS_TYPE], cols);
 			}
 			annotationRow = annotationReader.readLine();
 		}
 		annotationReader.close();
  
-		// MATRIX_DATA.TXT ///////////
+		/* Load MATRIX_DATA.TXT */
 		final int DATA_KEY = 0;
 		final int DATA_SYMBOL = 1;
 		final int DATA_INDEX = 2;
@@ -1059,7 +1023,6 @@ public class PromoterViewPanel extends JPanel {
 		
 		HashMap<String, Matrix> matrixMap = new HashMap<String, Matrix>();
 		for (Iterator<String> it = dataMaps.keySet().iterator(); it.hasNext();) {
-			// Object key = it.next();
 			String key = (String) it.next();
 			String[] idNameResult =  (String[])idNameMap.get(key);
 			String id = idNameResult[IDNAME_ID]; 
@@ -1081,8 +1044,9 @@ public class PromoterViewPanel extends JPanel {
 			}
 		}	
 
-
-		tfNameSet = new Vector<String>();
+		uniqueTaxGroupVector.clear();
+		
+		Set<String> uniqueTaxGroupSet = new HashSet<String>();
 		for (Iterator<String> it = dataMaps.keySet().iterator(); it.hasNext();) {
 			String key = (String)it.next();
 			
@@ -1091,8 +1055,8 @@ public class PromoterViewPanel extends JPanel {
 			String name = idNameResult[IDNAME_NAME];
 			
 			HashMap<String, String[]> annotationsResults = annotationMaps.get(key);
-			String[] annotationsResult = annotationsResults.get("class");
-			String clazz = annotationsResult[ANNOTATIONS_VALUE]; 
+			String[] clazzArray = annotationsResults.get("class");
+			String clazz = clazzArray[ANNOTATIONS_VALUE]; 
 			
 			String fullName = name + ":" + clazz + ":" + id;
 
@@ -1106,29 +1070,23 @@ public class PromoterViewPanel extends JPanel {
 			tf.setJasparID(name);
 			tf.setMatrix(mx);
 			tfMap.put(fullName, tf);
+			tfListModel.addElement(fullName);
 			
-			tfNameSet.add(fullName);
+			
+			String[] tax_groupArray = annotationsResults.get("tax_group");
+			String tax_group = tax_groupArray[ANNOTATIONS_VALUE]; 
+			uniqueTaxGroupSet.add(tax_group);
+	
+			fullNameTaxGroupMap.put(fullName, tax_group);
 		}
-        
-        Collections.sort(tfNameSet);
-//        Arrays.sort(names);
-//        for (int k = 0; k < names.length; k++) {
-//            Object tf = map.get(names[k]);
-//            tfListModel.addElement(tf);
-//        }
-//        jTranscriptionFactorList.setToolTipText("Transcription factor list");
-//        jTranscriptionFactorList.setModel(tfListModel);
-//        jTranscriptionFactorList.addMouseListener(new java.awt.event.
-//                                                  MouseAdapter() {
-//            public void mouseClicked(MouseEvent e) {
-//                jTranscriptionFactorList_mouseClicked(e);
-//            }
-//
-//        });
-
+		tfListModel.setFullNameTaxGroupMap(fullNameTaxGroupMap);
+		
+        uniqueTaxGroupVector.add("All Taxonomies");
+        uniqueTaxGroupVector.addAll(uniqueTaxGroupSet);
+        Collections.sort(uniqueTaxGroupVector);
     }
 
-    void refreshTranscriptionFactorList(){
+    private void refreshTranscriptionFactorList(){
 
     	Iterator<TranscriptionFactor> it = tfMap.values().iterator();
     	while (it.hasNext()) {
@@ -1140,12 +1098,10 @@ public class PromoterViewPanel extends JPanel {
         }
     }
 
-    void displayBtn_actionPerformed(ActionEvent e) {
+
+    private void displayBtn_actionPerformed(ActionEvent e) {
 
     	refreshTranscriptionFactorList();
-        DefaultListModel ls = (DefaultListModel)
-                              jSelectedTFList.
-                              getModel();
 
         if (sequenceDB == null) {
             return;
@@ -1156,10 +1112,9 @@ public class PromoterViewPanel extends JPanel {
                                           "Please check",
                                           JOptionPane.ERROR_MESSAGE);
             return;
-
         }
 
-        if (ls.isEmpty()) {
+        if (getSelectedTFModel().isEmpty()) {
             JOptionPane.showMessageDialog(null,
                                           "No Transcription Factor is Selected.",
                                           "Please check",
@@ -1171,7 +1126,8 @@ public class PromoterViewPanel extends JPanel {
         jTabbedPane2.setSelectedIndex(SEQUENCE);
     }
 
-    void saveResultToAFile() {
+    
+    private void saveResultToAFile() {
         //this will save the results into a file.
         if (sequenceDB == null) {
             return;
@@ -1190,28 +1146,23 @@ public class PromoterViewPanel extends JPanel {
         fc2 = new JFileChooser();
         fc2.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                if (e.getActionCommand() == fc.APPROVE_SELECTION) {
+                if (e.getActionCommand() == JFileChooser.APPROVE_SELECTION) {
                     File file = fc2.getSelectedFile();
                     try {
-                        String comma = ", ";
                         String tab = "\t";
-                        BufferedWriter bw = new BufferedWriter(new FileWriter(
-                                file));
+                        BufferedWriter bw = new BufferedWriter(new FileWriter(file));
 
                         for (CSSequence sequence : keySet) {
                             bw.write(sequence.getLabel());
                             bw.newLine();
-                            PatternSequenceDisplayUtil pu = tfPatterns.get(
-                                    sequence);
-                            TreeSet<PatternLocations>
-                                    patternsPerSequence = pu.getTreeSet();
+                            PatternSequenceDisplayUtil pu = tfPatterns.get(sequence);
+                            TreeSet<PatternLocations> patternsPerSequence = pu.getTreeSet();
                             if (patternsPerSequence != null &&
                                 patternsPerSequence.size() > 0) {
                                 for (PatternLocations pl : patternsPerSequence) {
                                     CSSeqRegistration registration = pl.
                                             getRegistration();
                                     if (registration != null) {
-
                                         CSSeqRegistration seqReg = (
                                                 CSSeqRegistration) registration;
                                         bw.write(pl.getAscii() + tab);
@@ -1223,23 +1174,17 @@ public class PromoterViewPanel extends JPanel {
                                             bw.write(seqReg.x1 + 1 + tab);
                                         }
                                         bw.newLine();
-
                                     }
                                 }
                             }
-
                             bw.newLine();
                         }
-
                         bw.flush();
                         bw.close();
-//
                     } catch (IOException ex) {
                         ex.printStackTrace();
                     }
-
                 }
-
             }
         });
         fc2.setDialogTitle("Save to file");
@@ -1247,13 +1192,12 @@ public class PromoterViewPanel extends JPanel {
     }
 
 //this will add  new TFs from fasta file
-    void jaddNewTFB_actionPerformed(ActionEvent e) {
+    private void jaddNewTFB_actionPerformed(ActionEvent e) {
         fc = new JFileChooser();
         fc.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 fc_actionPerformed(e);
             }
-
         });
         fc.setDialogTitle("choose the matrix files");
 
@@ -1276,7 +1220,6 @@ public class PromoterViewPanel extends JPanel {
         fc.setCurrentDirectory(new File(dir));
 
         fc.showOpenDialog(this);
-
     }
 
     private void fc_actionPerformed(ActionEvent e) {
@@ -1285,7 +1228,7 @@ public class PromoterViewPanel extends JPanel {
         // This is where we store user data information
         String filename = "promoterPanelSettings";
 
-        if (e.getActionCommand() == fc.APPROVE_SELECTION) {
+        if (e.getActionCommand() == JFileChooser.APPROVE_SELECTION) {
             File file = fc.getSelectedFile();
             String directory = file.getParent();
             char[] sybol = {
@@ -1308,8 +1251,7 @@ public class PromoterViewPanel extends JPanel {
                 }
 
                 try { //save current settings.
-                    BufferedWriter bw = new BufferedWriter(new FileWriter(dir +
-                             filename));
+                    BufferedWriter bw = new BufferedWriter(new FileWriter(dir + filename));
                     bw.write(directory);
                     bw.close();
                 } catch (IOException ex) {
@@ -1327,8 +1269,6 @@ public class PromoterViewPanel extends JPanel {
             tf.setMatrix(mx);
             tf.setName(file.getName());
 
-            DefaultListModel selectedModel = (DefaultListModel)jSelectedTFList.getModel(); // selected
-
             /* TF is in the map */
             if ( tfMap.containsValue(tf)){
     			int o = JOptionPane.showConfirmDialog(null,
@@ -1339,12 +1279,12 @@ public class PromoterViewPanel extends JPanel {
     			}
 
     			/* TF is in sequence panel */
-                if ( !selectedModel.contains(tf)){
+                if ( !getSelectedTFModel().contains(tf)){
                     tfMap.put(file.getName(), tf);
 
                     // Highlight
-                    int index = tfListModel.indexOf(file.getName()); // sequence model
-                    tfPanel.setHighlightedIndex(index);				 // sequence panel
+                    int index = tfListModel.indexOf(file.getName());
+                    tfListPanel.setHighlightedIndex(index);
 					currentTF = tf;
 		            try {
 		                drawLogo(currentTF);
@@ -1355,35 +1295,22 @@ public class PromoterViewPanel extends JPanel {
                     tfMap.put(file.getName(), tf);
 
 	                currentTF = tf;
-	                selectedModel.removeElement(tf);
-	                selectedModel.addElement(tf);
+	                getSelectedTFModel().removeElement(tf);
+	                getSelectedTFModel().addElement(tf);
 	                jSelectedTFList.clearSelection();
 
                 }
-
             }else{ /* TF is not in the map */
 
             	currentTF = tf;
-            	tfMap.put(file.getName(), tf);					 // calculation map
-            	tfListModel.addElement(tf);						 // sequence modal
-
-            	// Highlight
-                int index = tfListModel.indexOf(file.getName()); // sequence modal
-                tfPanel.setHighlightedIndex(index);				 // sequence panel
+            	tfMap.put(file.getName(), tf);
+            	tfListModel.addElement(file.getName());
             }
         }
     }
 
-//    public String asString() {
-//        return seqDisPanel.asString();
 
-//    }
-
-    void jTranscriptionFactorList_mouseClicked(int index, MouseEvent e) {
-
-    }
-
-    private void drawLogo(TranscriptionFactor pattern) throws Exception {
+    void drawLogo(TranscriptionFactor pattern) throws Exception {
 
         try {
             jInfoPanel.removeAll();
@@ -1406,36 +1333,13 @@ public class PromoterViewPanel extends JPanel {
             logoPanel.add(displayOptionsPanel, BorderLayout.AFTER_LAST_LINE);
 
             this.repaint();
-            //jTabbedPane2.setSelectedIndex(LOGO);
-
         } catch (Exception e) {
             e.printStackTrace();
         }
-
     }
 
-    public void hyperlinkUpdate(HyperlinkEvent event) {
-//        if (event.getEventType() == HyperlinkEvent.EventType.ACTIVATED) {
-//            try {
-//                BrowserLauncher.openURL(event.getURL().toString());
-//                //singleAlignmentArea.setPage(event.getURL());
-//                //urlField.setText(event.getURL().toExternalForm());
-//            } catch (IOException ioe) {
-//
-//            }
-//        }
-//
-        if (event.getEventType() == HyperlinkEvent.EventType.ACTIVATED) {
-//            try {
-//               // jInfoPanel.setPage(event.getURL());
-//            } catch (IOException ioe) {
-//                // Some warning to user
-//            }
-        }
 
-    }
-
-    void jSelectedTFList_mouseClicked(MouseEvent e) {
+    private void jSelectedTFList_mouseClicked(MouseEvent e) {
 
         int index = jSelectedTFList.locationToIndex(e.getPoint());
         if (index < 0) {
@@ -1446,44 +1350,24 @@ public class PromoterViewPanel extends JPanel {
                                       getModel().getElementAt(index);
         currentTF = pattern;
         if (e.getClickCount() == 2) {
-            ((DefaultListModel) jSelectedTFList.getModel()).removeElementAt(
-                    index);
+            ((DefaultListModel) jSelectedTFList.getModel()).removeElementAt(index);
             tfListModel.addElement(pattern);
-//            mappingPatterns();
-
+            tfListModel.refresh();
         } else {
 
             try {
                 drawLogo(pattern);
-//                jInfoPanel.removeAll();
-//                RenderingHints hints = new RenderingHints(RenderingHints.
-//                        KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-//
-//                DistributionLogo[] logos = ((TranscriptionFactor) pattern).
-//                                           getMatrix().getLogo();
-//                for (int k = 0; k < logos.length; k++) {
-//
-//                    jInfoPanel.setLayout(new GridLayout(1, logos.length));
-//                    logos[k].setPreferredSize(new Dimension(40, 50));
-//                    logos[k].setRenderingHints(hints);
-//
-//                    jInfoPanel.add(logos[k]);
-//
-//                }
-//                jInfoPanel.revalidate();
-//                jInfoPanel.repaint();
             } catch (Exception e2) {
                 e2.printStackTrace();
             }
 
         }
-
     }
 
     /**
      * Begin to scan the sequences.
      */
-    public void mappingPatterns() {
+    private void mappingPatterns() {
         if (!isRunning) {
             averageNo = 10;
             try {
@@ -1505,13 +1389,10 @@ public class PromoterViewPanel extends JPanel {
                     DecimalFormat format = new DecimalFormat("0.###E0");
                     DecimalFormat formatInt = new DecimalFormat("0");
                     DecimalFormat formatPV = new DecimalFormat("0.0000");
-                    ArrayList ar = new ArrayList();
-                    DefaultListModel ls = (DefaultListModel)
-                                          jSelectedTFList.
-                                          getModel();
+                    ArrayList<TranscriptionFactor> ar = new ArrayList<TranscriptionFactor>();
                     double threshold = 0;
 
-                    if (pValue < 0.005) {
+                    if (pValue < 0.05) {
                         pValue = 0.05;
                         pValueField.setText(formatPV.format(pValue));
                     }
@@ -1524,13 +1405,9 @@ public class PromoterViewPanel extends JPanel {
                     MatchStats msExpect = new MatchStats();
                     int seqNo = 0;
                     int totalLength = 0;
-                    for (Enumeration en = ls.elements(); en.hasMoreElements(); ) {
-
-                        TranscriptionFactor pattern = (TranscriptionFactor)
-                                en.
-                                nextElement();
-                        jProgressBar1.setString("Processing :" +
-                                                pattern.getName());
+                    for (Enumeration<TranscriptionFactor> en = (Enumeration<TranscriptionFactor>) getSelectedTFModel().elements(); en.hasMoreElements(); ) {
+                        TranscriptionFactor pattern = (TranscriptionFactor)en.nextElement();
+                        jProgressBar1.setString("Processing :" + pattern.getName());
 
                         if (pattern != null) {
                             ar.add(pattern);
@@ -1644,7 +1521,6 @@ public class PromoterViewPanel extends JPanel {
                                     }
                                     msActual.matchNo++;
                                 }
-//                                matchCount += matches.size();
                                 Display dis = new Display();
                                 dis.setColor(PatternOperations.
                                              getPatternColor(
@@ -1734,12 +1610,6 @@ public class PromoterViewPanel extends JPanel {
                     countBox.setText(formatInt.format(matchCount));
                     updateProgressBar(0, "Done");
 
-                    //update the map, associate the seqenceDB with Patterns and save it to the map
-//                    pdb = new PromoterPatternDB(sequenceDB);
-//                    pdb.setDisplay(promoterPatternDisplay);
-//                    pdb.setMatches(promoterPatternMatches);
-//                    map.put(sequenceDB.getID(), pdb);
-
                 }
 
             };
@@ -1750,11 +1620,11 @@ public class PromoterViewPanel extends JPanel {
         }
     }
 
-    void jButton2_actionPerformed(ActionEvent e) {
+    private void jButton2_actionPerformed(ActionEvent e) {
         fc = new JFileChooser();
         fc.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                if (e.getActionCommand() == fc.APPROVE_SELECTION) {
+                if (e.getActionCommand() == JFileChooser.APPROVE_SELECTION) {
                     File data = fc.getSelectedFile();
                     digestInputFile(data);
 
@@ -1765,48 +1635,21 @@ public class PromoterViewPanel extends JPanel {
         });
         fc.setDialogTitle("choose the Transfac file");
         fc.showOpenDialog(this);
-
     }
 
-//    void jActivateBttn_actionPerformed(ActionEvent e) {
-//        String label = JOptionPane.showInputDialog(
-//            "Please enter a name for the dataset");
-//        if (label != null) {
-//            sequenceDB.setLabel(label);
-//            ProjectNodeAddedEvent event =
-//                new ProjectNodeAddedEvent(promoterView, "message", sequenceDB, null);
-//
-//            try {
-//                promoterView.throwEvent(ProjectNodeAddedListener.class,
-//                                        "projectNodeAdded", event);
-//            }
-//            catch (AppEventListenerException ex) {
-//                ex.printStackTrace();
-//            }
-//        }
-//
-//    }
 
-    void text_actionPerformed(ActionEvent e) {
-        this.selectedRegionChanged = true;
-    }
 
     /**
      * sequenceDiscoveryTableRowSelected
      *
      * @param e SequenceDiscoveryTableEvent
      */
-
-    public void sequenceDiscoveryTableRowSelected(
-            SequenceDiscoveryTableEvent e) {
+    void sequenceDiscoveryTableRowSelected(SequenceDiscoveryTableEvent e) {
         updateParameters();
         seqDisPanel.patternSelectionHasChanged(e);
         /** @todo Fix patterns */
         //clear previously selected discovered patterns
         Vector<DSPattern> tobedeleted = new Vector<DSPattern>(seqPatterns);
-//        for (DSPattern<DSSequence, CSSeqRegistration> pattern : seqDisPanel.getPatternMatches().keySet()) {
-//            tobedeleted.add(pattern);
-//        }
         for (int i = 0; i < tobedeleted.size(); i++) {
             seqDisPanel.removePattern(tobedeleted.get(i));
         }
@@ -1830,10 +1673,6 @@ public class PromoterViewPanel extends JPanel {
                     CSSeqRegistration>> matches = pattern.matches();
             seqPatternDisplay.put(p, dis);
             seqPatternMatches.put(p, matches);
-
-//            if (showSeqPattern.isSelected()) {
-//                seqDisPanel.addAPattern(p, dis, matches);
-//            }
         }
     }
 
@@ -1842,42 +1681,11 @@ public class PromoterViewPanel extends JPanel {
         seqDisPanel.setDisplayTF(showTF.isSelected());
     }
 
-//    void jButton1_actionPerformed(ActionEvent e) {
-//        BufferedWriter br = null;
-//        try {
-//            br = new BufferedWriter(new FileWriter("testtesttest.txt"));
-//        }
-//        catch (IOException ex) {
-//        }
-//        String oneline = "";
-//        for (Iterator it = seqDisPanel.getPatternMatchs().keySet().iterator();
-//             it.hasNext(); ) {
-//
-//            IGetPattern pattern = (IGetPattern) it.next();
-//            IGetPatternMatchCollection matches = (
-//                IGetPatternMatchCollection) seqDisPanel.getPatternMatchs().get(
-//                pattern);
-//            for (int m = 0; m < matches.size(); m++) {
-//                int offset = matches.get(m).getOffset();
-//                oneline = oneline + "V$" + pattern.asString() + " " +
-//                    offset + "(-);";
-//            }
-//
-//        }
-//
-//        oneline = oneline + ")\n";
-//        try {
-//            br.write(oneline);
-//        }
-//        catch (IOException ex1) {
-//        }
-//
-//    }
 
 
-    void jDiscoverModuleBttn_actionPerformed(ActionEvent e) {
+
+    private void jDiscoverModuleBttn_actionPerformed(ActionEvent e) {
         try {
-//            jButton1_actionPerformed(e); // write the stuff into a file
             discovery();
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -1896,8 +1704,7 @@ public class PromoterViewPanel extends JPanel {
                         matchesTable = seqDisPanel.getPatternMatches();
                 Hashtable patternPrime = new Hashtable();
                 Integer n = new Integer(1);
-                for (Iterator it = matchesTable.keySet().iterator();
-                                   it.hasNext(); ) {
+                for (Iterator it = matchesTable.keySet().iterator(); it.hasNext(); ) {
                     n = nextPrime(n);
                     Object o = it.next();
                     patternPrime.put(o, n);
@@ -1936,48 +1743,46 @@ public class PromoterViewPanel extends JPanel {
 
     }
 
-    protected void clearSelectionPressed() {
+    private void clearSelectionPressed() {
         int[] indices = jSelectedTFList.getSelectedIndices();
         Object[] selectedTFs = jSelectedTFList.getSelectedValues();
         if (indices.length > 0) {
             for (int i = indices.length - 1; i >= 0; i--) {
-                ((DefaultListModel) jSelectedTFList.getModel()).
-                        removeElementAt(
-                                indices[i]);
+            	getSelectedTFModel().removeElementAt(indices[i]);
             }
             for (Object ob : selectedTFs) {
                 tfListModel.addElement(ob);
             }
-
+            
+			tfListModel.refresh();
         }
     }
 
-    protected void addSelectionPressed() {
-        int[] indices = tfPanel.getList().getSelectedIndices();
+    private void addSelectionPressed() {
+        int[] indices = tfListPanel.getTFList().getSelectedIndices();
         if (indices.length > 0) {
-
             for (int i = indices.length - 1; i >= 0; i--) {
                 addSelectedTF(indices[i]);
             }
-
         } else {
-            JOptionPane.showMessageDialog(this,
-                                          "Please select at least one TF first.");
+            JOptionPane.showMessageDialog(this, "Please select at least one TF first.");
         }
     }
 
-    protected void addSelectedTF(int index) {
+
+    void addSelectedTF(int index) {
         String tfName = (String) tfListModel.getElementAt(index);
         tfListModel.remove(index);
+		tfListModel.refresh();
+
         TranscriptionFactor value = tfMap.get(tfName);
-        DefaultListModel ls = (DefaultListModel) jSelectedTFList.
-                              getModel();
-        if (!ls.contains(value)) {
-            ls.addElement(value);
-        }
+		if (!getSelectedTFModel().contains(value)) {
+			getSelectedTFModel().addElement(value);
+		}
     }
 
-    void moduleListSelection_action(ListSelectionEvent e) {
+
+    private void moduleListSelection_action(ListSelectionEvent e) {
         //clear existing composite patterns
         Vector<DSPattern<DSSequence,
                 CSSeqRegistration>>
@@ -1999,8 +1804,7 @@ public class PromoterViewPanel extends JPanel {
         //add selected ones
         Object[] modules = moduleList.getSelectedValues();
         for (int i = 0; i < modules.length; i++) {
-            PatternDisplay<DSSequence,
-                    CSSeqRegistration> pd = (PatternDisplay) modules[i];
+            PatternDisplay<DSSequence, CSSeqRegistration> pd = (PatternDisplay) modules[i];
             Object pdPattern = pd.getPt();
             if (pdPattern instanceof CSMultiSeqPattern) {
                 CSMultiSeqPattern compPatt = (CSMultiSeqPattern) pdPattern;
@@ -2036,7 +1840,8 @@ public class PromoterViewPanel extends JPanel {
         }
     }
 
-    public static Integer nextPrime(Integer m) {
+
+    private static Integer nextPrime(Integer m) {
         int n;
         n = m.intValue();
         if (n <= 1) {
@@ -2066,7 +1871,8 @@ public class PromoterViewPanel extends JPanel {
         return true;
     }
 
-    void load13KBSet() {
+
+    private void load13KBSet() {
         if (background == null) {
             try {
                 URL set13K = new URL(System.getProperty(
@@ -2096,7 +1902,8 @@ public class PromoterViewPanel extends JPanel {
         }
     }
 
-    public void useThresholdCheck_actionPerformed(ActionEvent e) {
+
+    private void useThresholdCheck_actionPerformed(ActionEvent e) {
     	boolean useThresholdSelected = useThresholdCheck.isSelected();
     	if(useThresholdSelected){
     		pValueField.setEditable(false);
@@ -2107,7 +1914,8 @@ public class PromoterViewPanel extends JPanel {
     	}
 	}
 
-    void updateProgressBar(final double percent, final String text) {
+
+    private void updateProgressBar(final double percent, final String text) {
         Runnable r = new Runnable() {
             public void run() {
                 try {
@@ -2124,7 +1932,8 @@ public class PromoterViewPanel extends JPanel {
         SwingUtilities.invokeLater(r);
     }
 
-    public ScoreStats getThreshold(TranscriptionFactor pattern,
+
+    private ScoreStats getThreshold(TranscriptionFactor pattern,
                                    RandomSequenceGenerator rg,
                                    double pValue) {
         // computes the score based on a probability of a match of pValue
@@ -2163,8 +1972,9 @@ public class PromoterViewPanel extends JPanel {
         return stats;
     }
 
-    public ScoreStats getThreshold(TranscriptionFactor pattern,
-                                   DSSequenceSet seqDB, double pValue) {
+
+    private ScoreStats getThreshold(TranscriptionFactor pattern,
+                                   DSSequenceSet<DSSequence> seqDB, double pValue) {
         // computes the score based on a probability of a match of pValue
         // To get goo statistics, we expect at least 100 matches to exceed
         // the threshold in the null hypothesis. Hence, this is the number
@@ -2206,15 +2016,15 @@ public class PromoterViewPanel extends JPanel {
         return stats;
     }
 
-    public void getMatchesPerLength(TranscriptionFactor pattern, int length,
-                                    double threshold, DSSequenceSet seqDB,
+
+    private void getMatchesPerLength(TranscriptionFactor pattern, int length,
+                                    double threshold, DSSequenceSet<DSSequence> seqDB,
                                     RandomSequenceGenerator rg,
                                     MatchStats ms) {
         // Determine the number of iterations so that the statistics are good
         int partialLength = 0;
         int totalLength = length * averageNo;
         while (partialLength < totalLength) {
-            int invalidNo = 0;
             double progress = (double) partialLength / (double) totalLength;
             updateProgressBar(progress, "Computing Null Hypothesis");
             DSSequence sequence = null;
@@ -2237,36 +2047,6 @@ public class PromoterViewPanel extends JPanel {
 
     }
 
-    private int countInvalid(TranscriptionFactor tf, DSSequence seq) {
-        boolean validRegion = true;
-        boolean invalidRegion = false;
-        int validRegionLen = 0;
-        int pLen = tf.getLength();
-        int invalidNo = 0;
-        String ascii = seq.getSequence();
-        for (int i = 0; i < ascii.length(); i++) {
-            char c = Character.toUpperCase(ascii.charAt(i));
-            switch (c) {
-            case 'A':
-            case 'C':
-            case 'G':
-            case 'T':
-            case 'U':
-                validRegionLen++;
-                if (validRegionLen > pLen) {
-                    validRegion = true;
-                } else {
-                    // Not enough characters yet to match the pattern
-                    invalidNo++;
-                }
-                break;
-            default:
-                validRegion = false;
-                invalidNo++;
-            }
-        }
-        return invalidNo;
-    }
 
     private boolean isBasePair(char c) {
         switch (c) {
@@ -2299,14 +2079,10 @@ public class PromoterViewPanel extends JPanel {
                 char c2 = Character.toUpperCase(ascii.charAt(i - tfLen));
                 if (isBasePair(c1)) {
                     valid++;
-                } else {
-                    int x = 1;
-                }
+                } 
                 if (isBasePair(c2)) {
                     valid--;
-                } else {
-                    int x = 1;
-                }
+                } 
                 if (valid >= tfLen) {
                     validPositions++;
                 }
@@ -2315,15 +2091,15 @@ public class PromoterViewPanel extends JPanel {
         return validPositions;
     }
 
-    public void jButton1_actionPerformed(ActionEvent e) {
+    private void jButton1_actionPerformed(ActionEvent e) {
         stop = true;
     }
 
-    public void expectedCountBox_actionPerformed(ActionEvent e) {
+    private void expectedCountBox_actionPerformed(ActionEvent e) {
 
     }
 
-    public void clearButton_actionPerformed(ActionEvent e) {
+    private void clearButton_actionPerformed(ActionEvent e) {
         showTF.setSelected(false);
         showSeqPattern.setSelected(false);
         updateParameters();
@@ -2335,11 +2111,11 @@ public class PromoterViewPanel extends JPanel {
     /**
      * cleanAllPatterns
      */
-    public void cleanAllPatterns() {
+    private void cleanAllPatterns() {
         clear();
     }
 
-    public void showTF_actionPerformed(ActionEvent e) {
+    private void showTF_actionPerformed(ActionEvent e) {
         updateParameters();
         if (showTF.isSelected() && promoterPatterns.size() > 0) {
             for (DSPattern pattern : promoterPatterns) {
@@ -2347,45 +2123,25 @@ public class PromoterViewPanel extends JPanel {
                                         promoterPatternDisplay.get(pattern),
                                         promoterPatternMatches.get(pattern));
             }
-
         } else {
-//            for (DSPattern pattern : promoterPatterns) {
-//                seqDisPanel.removePattern(pattern);
-//            }
             seqDisPanel.setPatternTFMatches(null);
-
         }
         seqDisPanel.initPanelView();
         repaint();
     }
 
-    public void showSeqPattern_actionPerformed(ActionEvent e) {
-        if (seqPatterns != null) {
-            //        seqDisPanel.setPatternTFMatches(null);
-        }
+    private void showSeqPattern_actionPerformed(ActionEvent e) {
         updateParameters();
         seqDisPanel.initPanelView();
         repaint();
-//        if (showSeqPattern.isSelected()) {
-//            for (DSPattern pattern : seqPatterns) {
-//                seqDisPanel.addAPattern(pattern,
-//                                        seqPatternDisplay.get(pattern),
-//                                        seqPatternMatches.get(pattern));
-//
-//            }
-//        } else {
-//            for (DSPattern pattern : seqPatterns) {
-//                seqDisPanel.removePattern(pattern);
-//            }
-//
-//        }
     }
 
-    public void iterationBox_actionPerformed(ActionEvent e) {
 
+    private void iterationBox_actionPerformed(ActionEvent e) {
     }
 
-    public void countsRadioButton_actionPerformed(ActionEvent e) {
+
+    private void countsRadioButton_actionPerformed(ActionEvent e) {
         try {
             drawLogo(currentTF);
         } catch (Exception ex) {
@@ -2394,7 +2150,8 @@ public class PromoterViewPanel extends JPanel {
     }
 
 
-    public void frequenciesRadioButton_actionPerformed(ActionEvent e) {
+
+    private void frequenciesRadioButton_actionPerformed(ActionEvent e) {
         try {
             drawLogo(currentTF);
         } catch (Exception ex) {
@@ -2403,11 +2160,11 @@ public class PromoterViewPanel extends JPanel {
     }
 
 
-    public void pseudocountBox_actionPerformed(ActionEvent e) {
+    private void pseudocountBox_actionPerformed(ActionEvent e) {
 
     }
 
-    public void sqrtNCheckBox_actionPerformed(ActionEvent e) {
+    private void sqrtNCheckBox_actionPerformed(ActionEvent e) {
 
     	boolean sqrtNSelected = sqrtNCheckBox.isSelected();
     	if(sqrtNSelected){
@@ -2422,57 +2179,18 @@ public class PromoterViewPanel extends JPanel {
      *
      * @param e GeneSelectorEvent
      */
-    public void receive(GeneSelectorEvent e) {
+    void receive(GeneSelectorEvent e) {
         seqDisPanel.sequenceDBUpdate(e);
     }
 
-    public void pValueField_actionPerformed(ActionEvent e) {
+
+    private void pValueField_actionPerformed(ActionEvent e) {
 
     }
 
-    /**
-     * The marker JAutoList type.
-     */
-    private class TFListPanel extends JAutoList {
-
-        public TFListPanel() {
-            super(tfListModel);
-        }
-
-        public boolean setHighlightedIndex(int theIndex) {
-            super.setHighlightedIndex(theIndex);
-            elementClicked(theIndex, null);
-            return true;
-        }
-
-        @Override protected void elementDoubleClicked(int index,
-                MouseEvent e) {
-            addSelectedTF(index);
-        }
 
 
-        @Override protected void elementClicked(int index, MouseEvent e) {
-
-            String tfName = (String) tfListModel.getElementAt(index);
-
-            TranscriptionFactor pattern = tfMap.get(tfName);
-            currentTF = pattern;
-            try {
-                drawLogo(pattern);
-            } catch (Exception e2) {
-                e2.printStackTrace();
-            }
-
-        }
-
-        @Override protected void elementRightClicked(int index,
-                MouseEvent e) {
-            itemRightClicked(index, e);
-        }
-    }
-
-
-    private void itemRightClicked(int index, final MouseEvent e) {
+    void itemRightClicked(int index, final MouseEvent e) {
         //ensureItemIsSelected(index);
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
@@ -2485,17 +2203,17 @@ public class PromoterViewPanel extends JPanel {
         //ensureItemIsSelected(index);
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
-                selectedItemListPopup.show(e.getComponent(), e.getX(),
-                                           e.getY());
+                selectedItemListPopup.show(e.getComponent(), e.getX(), e.getY());
             }
         });
     }
 
-    public void matrixDetailButton_actionPerformed(ActionEvent e) {
 
+    private void matrixDetailButton_actionPerformed(ActionEvent e) {
     }
 
-    public void reverseButton_actionPerformed(ActionEvent e) {
+
+    private void reverseButton_actionPerformed(ActionEvent e) {
         fivePrimerDirection = !fivePrimerDirection;
         if (currentTF != null) {
             try {
@@ -2506,79 +2224,14 @@ public class PromoterViewPanel extends JPanel {
         }
     }
 
-    /**
-     * ListModel for the marker list.
-     */
-    private class TFListModel extends AbstractListModel {
 
-        public int getSize() {
-            if (tfNameSet == null) {
-                return 0;
-            }
-            return tfNameSet.size();
-        }
-
-        public Object getElementAt(int index) {
-            if ((tfNameSet == null) || tfNameSet.size() <= index) {
-                return null;
-            } else {
-                return tfNameSet.get(index);
-            }
-        }
-
-        public void addElement(Object obj) {
-            if (!tfNameSet.contains(obj.toString())) {
-                tfNameSet.add(obj.toString());
-                Collections.sort(tfNameSet);
-                int index = tfNameSet.size();
-                fireIntervalAdded(this, index, index);
-
-            }
-
-        }
-
-        public Object remove(int index) {
-            Object rv = tfNameSet.get(index);
-            tfNameSet.remove(index);
-            fireIntervalRemoved(this, index, index);
-            return rv;
-        }
-
-
-        public Object getItem(int index) {
-            if ((tfNameSet == null) || tfNameSet.size() <= index) {
-                return null;
-            } else {
-                return tfNameSet.get(index);
-            }
-
-        }
-
-        /**
-         * Indicates to the associated JList that the contents need to be redrawn.
-         */
-        public void refresh() {
-            if (tfNameSet == null) {
-                fireContentsChanged(this, 0, 0);
-            } else {
-                fireContentsChanged(this, 0, tfNameSet.size());
-            }
-        }
-
-        public void refreshItem(int index) {
-            fireContentsChanged(this, index, index);
-        }
-
-        public int indexOf(Object object) {
-        	return tfNameSet.indexOf(object);
-        }
-
-    }
-
+	DefaultListModel getSelectedTFModel() {
+		return selectedTFModel;
+	}
 
     class ImagePanel extends JPanel {
-
-        private Image img;
+		private static final long serialVersionUID = 2663743406941254956L;
+		private Image img;
         private int WIDTH = 400;
         private int HEIGHT = 200;
 
@@ -2625,10 +2278,7 @@ public class PromoterViewPanel extends JPanel {
                     this.img = im;
                     repaint();
                 }
-            } catch (Exception ex) {
-
-            }
-
+            } catch (Exception ex) {}
         }
 
         public void setImage(double scores[][]) {
@@ -2646,11 +2296,6 @@ public class PromoterViewPanel extends JPanel {
                                  graphics.getFontRenderContext());
 
             psamPlot.paint(graphics);
-            //ImageIcon psamImage = new ImageIcon(image);
-            // Load logo - no longer used.
-            // File logoFile = new File(file.getParentFile(), file.getName().replace(".out", ".png"));
-            // ImageIcon psamImage = new ImageIcon(logoFile.getAbsolutePath());
-            //psam.setPsamImage(psamImage);
             setImage(image);
         }
 
@@ -2668,5 +2313,4 @@ public class PromoterViewPanel extends JPanel {
             return new Dimension(40, 40);
         }
     }
-
 }
