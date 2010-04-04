@@ -1,21 +1,23 @@
 package org.geworkbench.components.alignment.blast;
 
 import java.io.BufferedReader;
-import java.io.DataOutputStream;
-import java.io.EOFException;
 import java.io.File;
-import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.PrintStream;
+import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
-import java.net.Socket;
 import java.net.URLDecoder;
-import java.net.UnknownHostException;
-import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.httpclient.DefaultHttpMethodRetryHandler;
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.HttpException;
+import org.apache.commons.httpclient.HttpStatus;
+import org.apache.commons.httpclient.methods.GetMethod;
+import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -25,7 +27,7 @@ import org.apache.commons.logging.LogFactory;
  * retrieved results out to a file.
  *
  * @author zji
- * @version $Id: RemoteBlast.java,v 1.23 2008-12-09 17:06:14 oshteynb Exp $
+ * @version $Id$
  */
 public class RemoteBlast {
 	static Log LOG = LogFactory.getLog(RemoteBlast.class);
@@ -39,12 +41,7 @@ public class RemoteBlast {
 	 * The protein sequence to submit to Blast.
 	 */
 	private String query;
-	private String waitingTime = "0";
 
-	/**
-	 * The default file name to write results out to.
-	 */
-	private final String DEFAULT_FILENAME = "BLAST_results.txt";
 	/**
 	 * The file name to write results out to.
 	 */
@@ -54,14 +51,7 @@ public class RemoteBlast {
 	 * The Conserved Domain RID#.
 	 */
 	private String CDD_rid;
-	/**
-	 * The default port number for the socket to connect to.
-	 */
-	private final int DEFAULT_PORT = 80;
-	/**
-	 * The default server address for the socket to connect to.
-	 */
-	private final String Blast_SERVER = "blast.ncbi.nlm.nih.gov";
+
 	/**
 	 * A flag indicating whether Blast results have been retrieve.
 	 * <code>true</code> if Blast is done, <code>false</code> if not.
@@ -81,13 +71,9 @@ public class RemoteBlast {
 	 */
 	private String cmdLine;
 	/**
-	 * The URL of the Blast result corresponds to one sequence. Don't use it in
-	 * the problem.
+	 * The URL of the Blast result corresponds to one sequence.
 	 */
 	private String resultURLString;
-
-	private final String SUBMITPREFIX = "Put http://blast.ncbi.nlm.nih.gov/Blast.cgi?CMD=Put&QUERY=";
-	private final String RESULTPREFIX = "Get http://blast.ncbi.nlm.nih.gov/Blast.cgi?CMD=Get&FORMAT_TYPE=";
 
 	/**
 	 * Creates a new RemoteBlast and sets query, filename.
@@ -97,9 +83,11 @@ public class RemoteBlast {
 	 * @param the
 	 *            String value to set filename with.
 	 */
-	public RemoteBlast(String query, String filename) {
+	public RemoteBlast(String query, String filename, String cmdLine) {
 		this.query = query;
 		this.filename = filename;
+		this.cmdLine = cmdLine;
+
 		this.CDD_rid = null;
 	}
 
@@ -111,15 +99,6 @@ public class RemoteBlast {
 	 */
 	public boolean getBlastDone() {
 		return getBlastDone;
-	}
-
-	/**
-	 * Returns the Conserved Domain Search RID #.
-	 *
-	 * @return CDD_rid - the String representing the CDD RID #.
-	 */
-	public String getCDD_rid() {
-		return CDD_rid;
 	}
 
 	/**
@@ -179,84 +158,68 @@ public class RemoteBlast {
 		return null;
 	}
 
-	/**
-	 * Creates a socket connection to the NCBI Blast server and submits an HTTP
-	 * request to Blast with the query and parses out the Blast RID #. Also
-	 * initiates a Conserved Domain Search and parses out the resulting CDD RID #
-	 * used for retrieval of CDD Search results if domains found.
-	 *
-	 * @return a String representing the Blast RID # used to retrieve Blast
-	 *         results, <code>null</code> if not successful.
-	 * @throws NcbiResponseException
-	 *             when a error message instead of a valid RID is returned by
-	 *             NCBI Blast server
-	 * @throws IOException
-	 * @throws UnknownHostException
-	 */
-	public String submitBlast() throws NcbiResponseException,
-			UnknownHostException, IOException {
 
-		String message = ""; /* HTTP GET message */
+	String submitBlast() throws NcbiResponseException {
+		HttpClient client = new HttpClient();
+		DefaultHttpMethodRetryHandler retryhandler = new DefaultHttpMethodRetryHandler(
+				10, true);
+		client.getParams().setParameter(HttpMethodParams.RETRY_HANDLER,
+				retryhandler);
 
-		Socket s = null;
+		String submitURLString = "http://blast.ncbi.nlm.nih.gov/Blast.cgi?CMD=Put&QUERY="
+				+ query + cmdLine;
+		GetMethod getMethod = new GetMethod(submitURLString);
+		try {
+			int statusCode = client.executeMethod(getMethod);
 
-		if (cmdLine != null) {
-			message = SUBMITPREFIX + query + cmdLine;
-		}
+			if (statusCode == HttpStatus.SC_OK) {
+				InputStream stream = getMethod.getResponseBodyAsStream();
+				BufferedReader in = new BufferedReader(new InputStreamReader(
+						stream));
+				String line = null;
+				while ((line = in.readLine()) != null) {
+					// get CDD_rid. this is done if CDD_rid is still null and doesn't
+					// affect the flow of getting RID
+					if (CDD_rid == null) {
+						Matcher m1 = p1.matcher(line);
+						Matcher m2 = p2.matcher(line);
+						if (m1.find()) {
+							CDD_rid = m1.group(1);
+						}
+						if (m2.find()) {
+							CDD_rid = "none";
+						}
+					}
 
-		s = new Socket(Blast_SERVER, DEFAULT_PORT);
+					// check error response.
+					String errorMessage = getErrorMessage(line);
+					if (errorMessage != null)
+						throw new NcbiResponseException(errorMessage);
 
-		// create an output stream for sending message.
-		DataOutputStream out = new DataOutputStream(s.getOutputStream());
+					final int TOKEN_NUMBER_IN_RID_STRING = 3; // RID = ????
+					// check RID
+					if (line.equals("<!--QBlastInfoBegin")) {
+						String nextLine = in.readLine();
+						if (nextLine == null) throw new NcbiResponseException("No status after <!--QBlastInfoBegin");
 
-		// create buffered reader stream for reading incoming byte stream.
-		InputStreamReader inBytes = new InputStreamReader(s.getInputStream());
-		BufferedReader in = new BufferedReader(inBytes);
-
-		// write String message to output stream as byte sequence.
-		out.writeBytes(message);
-
-		// reads each incoming line until it finds the CDD and Blast RIDs.
-		String line = in.readLine();
-		while (line != null) {
-			// get CDD_rid. this is done if CDD_rid is still null and doesn't
-			// affect the flow of getting RID
-			if (CDD_rid == null) {
-				Matcher m1 = p1.matcher(line);
-				Matcher m2 = p2.matcher(line);
-				if (m1.find()) {
-					CDD_rid = m1.group(1);
+						String[] token = nextLine.trim().split(" ");
+						if (token.length >= TOKEN_NUMBER_IN_RID_STRING) {
+							return token[2];
+						} // don't return here so we can further parse error
+					}
 				}
-				if (m2.find()) {
-					CDD_rid = "none";
-				}
+				throw new NcbiResponseException("No status in entire response");
+			} else {
+				LOG.error("Submission returns error status");
+				throw new NcbiResponseException("Submission returns error status");
 			}
-
-			// check error response.
-			String errorMessage = getErrorMessage(line);
-			if (errorMessage != null)
-				throw new NcbiResponseException(errorMessage);
-
-			final int TOKEN_NUMBER_IN_RID_STRING = 3; // RID = ????
-			// check RID
-			if (line.equals("<!--QBlastInfoBegin")) {
-				String nextLine = in.readLine();
-				if (nextLine != null) {
-					String[] token = nextLine.trim().split(" ");
-					if (token.length >= TOKEN_NUMBER_IN_RID_STRING) {
-						s.close();
-						return token[2];
-					} // don't return here so we can further parse error
-				} else {
-					s.close();
-					return null;
-				}
-			}
-
-			line = in.readLine();
+		} catch (HttpException e) {
+			throw new NcbiResponseException(e.getMessage());
+		} catch (IOException e) {
+			throw new NcbiResponseException(e.getMessage());
+		} finally {
+			getMethod.releaseConnection();
 		}
-
-		return null;
 	}
 
 	/**
@@ -266,207 +229,91 @@ public class RemoteBlast {
 	 * @param rid -
 	 *            String representing the Blast RID# to retrieve results for.
 	 */
-	public void getBlast(String rid, String format) {
+	void getBlast(String rid, String format) {
 		getBlastDone = false;
-		String message = RESULTPREFIX + format + "&RID=" + rid + "\r\n\r\n";
 		resultURLString = "http://blast.ncbi.nlm.nih.gov/Blast.cgi?CMD=Get&FORMAT_TYPE="
-				+ format + "&RID=";
-		LOG.info(new Date() + message);
-		BlastThread blastThread = new BlastThread(message);
-		blastThread.start();
+				+ format + "&RID=" + rid;
+
+		while(!retrieveResult()) {
+			try {
+				Thread.sleep(TIMEGAP);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
+		getBlastDone = true;
+	}
+	
+	// a new thread is not necessary because this is already in a separate thread managed by BlastAlgorithm
+	private boolean retrieveResult() {
+		HttpClient client = new HttpClient();
+		DefaultHttpMethodRetryHandler retryhandler = new DefaultHttpMethodRetryHandler(
+				10, true);
+		client.getParams().setParameter(HttpMethodParams.RETRY_HANDLER,
+				retryhandler);
+
+		GetMethod getMethod = new GetMethod(resultURLString);
+		try {
+			int statusCode = client.executeMethod(getMethod);
+
+			if (statusCode == HttpStatus.SC_OK) {
+				InputStream stream = getMethod.getResponseBodyAsStream();
+				BufferedReader in = new BufferedReader(new InputStreamReader(
+						stream));
+				String line = in.readLine();
+				StringBuilder sb = new StringBuilder(line);
+				while ((line = in.readLine()) != null) {
+					sb.append(line).append(System.getProperty("line.separator"));
+				}
+				stream.close();
+				
+				String s = sb.toString();
+				if(s.contains("READY")) {
+					s = s.replaceFirst("(?s).*READY[\\r\\n]+\\sQBlastInfoEnd[\\r\\n]+\\s--\\>\\</p\\>", ""); // remove everything before READY
+					s = s.replaceAll("\\<iframe.*\\</iframe\\>", "");
+					s = s
+							.replaceAll(
+									"\\s\\<div id=\"graphic\" class=\"blRes\"\\>(?s).+?\\</center\\>\\<hr\\>\\</div\\>",
+									""); // remove the graphic block
+					
+					s = updateImageLink(s);
+					// true flag for append: useful for now for multiple sequences
+					PrintWriter pw = new PrintWriter(new FileWriter(new File(filename), true)); //"RETRIEVED_"+rid+"_"+System.currentTimeMillis()+".html"));
+					pw.println(NCBIHEADER);
+					pw.println( s );
+					pw.close();
+					return true;
+				} else {
+					LOG.debug("... blast result not ready");
+					return false;
+				}
+			} else {
+				LOG.error("retrieve failed for " + resultURLString);
+				LOG.error("status code=" + statusCode);
+				return true;
+			}
+		} catch (HttpException e) {
+			e.printStackTrace();
+			return true;
+		} catch (IOException e) {
+			e.printStackTrace();
+			return true;
+		} finally {
+			getMethod.releaseConnection();
+		}
+
 	}
 	
 	private static long TIMEGAP = 4000;
 	
-	/**
-	 * This class is a Thread that retrieves Blast results by Blast RID#, which
-	 * can take some period of time. The thread continually requests results
-	 * from the NCBI Blast server with the Blast RID# via an HTTP request using
-	 * a Socket and writes results out to file.
-	 */
-	private class BlastThread extends Thread {
-		String message;
-
-		public BlastThread(String Blast_rid) {
-			message = Blast_rid;
-		}
-
-		public void run() {
-			Socket s;
-			try {
-				// create an output stream for writing to a file. appending
-				// file.
-				PrintStream ps = new PrintStream(new FileOutputStream(new File(
-						filename), true), true);
-
-				// print header.
-				ps.println(NCBIHEADER);
-
-				boolean BlastnotDone = false;
-				while (!BlastnotDone) {
-
-					s = new Socket(Blast_SERVER, DEFAULT_PORT);
-
-					// create an output stream for sending message.
-					DataOutputStream out = new DataOutputStream(s
-							.getOutputStream());
-
-					// create buffered reader stream for reading incoming byte
-					// stream.
-					InputStreamReader inBytes = new InputStreamReader(s
-							.getInputStream());
-					BufferedReader in = new BufferedReader(inBytes);
-
-					// write String message to output stream as byte sequence.
-					out.writeBytes(message);
-
-					String data = in.readLine();
-					boolean done = false;
-					boolean getWaitingTime = false;
-
-					while (data != null) {
-						if (data.equals("\tStatus=WAITING")) {
-							done = false;
-						} else if (data.equals("\tStatus=READY")) {
-							BlastnotDone = true;
-							done = true;
-							data = in.readLine();
-							data = in.readLine();
-							data = in.readLine();
-							break;
-						}
-						if (getWaitingTime) {
-							if (data == null) {
-								setWaitingTime("0");
-							} else {
-
-								setWaitingTime(data.substring(4, 12));
-							}
-
-							getWaitingTime = false;
-						}
-						if (data.trim().startsWith(
-								"<tr><td>Time since submission</td>")) {
-							getWaitingTime = true;
-						}
-						data = in.readLine();
-					}
-					if (!done) {
-						Thread.sleep(TIMEGAP);
-					} else {
-						// TODO Remove the new feature. WE need figure out a way
-						// to download the images later.
-						boolean needRemoveNewFeature = false;
-						while (data != null) {
-							boolean debug = false;
-							if (data
-									.equalsIgnoreCase("Sbjct  159  -KPKTVKAKPVKASKPKKAKP--VKPKAKSSAKRAGKKK  194")) {
-								debug = true;
-							}
-							if (debug) {
-								LOG.debug("After 159: " + data);
-							}
-							data = updateImageLink(data);
-							if (data.trim().startsWith(
-									"<div id=\"graphic\" class=\"blRes\">")) {
-								needRemoveNewFeature = true;
-							} else if (data.trim().startsWith(
-									"</center><hr></div><!--/#graphic-->")
-									&& needRemoveNewFeature) {
-								needRemoveNewFeature = false;
-							} else if (!needRemoveNewFeature) {
-								ps.println(data);
-							}
-							data = in.readLine();
-						}
-					}
-
-					s.close();
-				} // end of while (BlastnotDone).
-
-				getBlastDone = true;
-				ps.close();
-			} catch (UnknownHostException e) {
-				LOG.warn("Socket:" + e.getMessage());
-			} catch (EOFException e) {
-				LOG.warn("EOF:" + e.getMessage());
-			} catch (IOException e) {
-				LOG.warn("readline:" + e.getMessage());
-			} catch (InterruptedException e) {
-				LOG.warn("wait:" + e.getMessage());
-			}
-		} // end of run().
-
-	} // end of class BlastThread.
-
 	private String updateImageLink(String data) {
-		if (data.indexOf("SRC=\"/blast/images") > -1) {
-			data = data.replaceAll("SRC=\"/blast/images",
-					"src=\"http://blast.ncbi.nlm.nih.gov/images");
-		}
-		if (data.indexOf("src=\"images") > -1) {
-			data = data.replaceAll("src=\"images",
-					"src=\"http://blast.ncbi.nlm.nih.gov/images");
-		}
-		if (data.indexOf("SRC=\"images") > -1) {
-			data = data.replaceAll("SRC=\"images",
-					"src=\"http://blast.ncbi.nlm.nih.gov/images");
-		}
-		if (data.indexOf("src=\"/blast/images") > -1) {
-			data = data.replaceAll("src=\"/blast/images",
-					"src=\"http://blast.ncbi.nlm.nih.gov/images");
-		}
-		if (data.indexOf("href=\"/blast/") > -1) {
-			data = data.replaceAll("href=\"/blast/",
-					"href=\"http://blast.ncbi.nlm.nih.gov/");
-		}
-		if (data.indexOf("type=\"checkbox\"") > -1) {
-			data = data.replaceAll("type=\"checkbox\"", "type=\"hidden\"");
-		}
-		if (data.indexOf("type=\"button\"") > -1) {
-			data = data.replaceAll("type=\"button\"", "type=\"hidden\"");
-		}
-		if (data.indexOf("type=button") > -1) {
-			data = data.replaceAll("type=button", "type=\"hidden\"");
-		}
+		data = data.replaceAll("(src|SRC)=\"(/blast/)?images",
+				"src=\"http://blast.ncbi.nlm.nih.gov/images");
+		data = data.replaceAll("href=\"/blast/",
+				"href=\"http://blast.ncbi.nlm.nih.gov/");
+		data = data.replaceAll("type=(\"checkbox\"|\"?button\"?)", "type=\"hidden\"");
 
 		return data;
-	}
-
-	/**
-	 * RemoteBlast
-	 *
-	 * @param aQuery
-	 *            String
-	 */
-	public RemoteBlast(String aQuery) {
-		this.query = aQuery;
-		this.filename = DEFAULT_FILENAME;
-		this.CDD_rid = null;
-	}
-
-	public void setWaitingTime(String waitingTime) {
-		this.waitingTime = waitingTime;
-	}
-
-	public void setCmdLine(String cmdLine) {
-		this.cmdLine = cmdLine;
-	}
-
-	public void setResultURLString(String resultURLString) {
-		this.resultURLString = resultURLString;
-	}
-
-	public String getWaitingTime() {
-		return waitingTime;
-	}
-
-	public String getCmdLine() {
-		return cmdLine;
-	}
-
-	public String getResultURLString() {
-		return resultURLString;
 	}
 
 }

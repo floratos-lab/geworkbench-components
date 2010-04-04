@@ -1,8 +1,6 @@
 package org.geworkbench.components.alignment.blast;
 
 import java.io.File;
-import java.io.IOException;
-import java.net.UnknownHostException;
 import java.util.Date;
 
 import javax.swing.JOptionPane;
@@ -143,20 +141,12 @@ public class BlastAlgorithm {
 
 		for (CSSequence sequence : activeSequenceDB) {
 			updateStatus("Uploading sequence: " + sequence);
-			blast = new RemoteBlast(sequence.getSequence(), outputFile);
-
-			blast.setCmdLine(AlgorithmMatcher
+			blast = new RemoteBlast(sequence.getSequence(), outputFile, AlgorithmMatcher
 					.translateToCommandline(parameterSetting));
 			String BLAST_rid = null;
 			try {
 				BLAST_rid = blast.submitBlast();
-			} catch (UnknownHostException e1) {
-				processExceptionFromNcbi(e1, sequence);
-				return;
 			} catch (NcbiResponseException e1) {
-				processExceptionFromNcbi(e1, sequence);
-				return;
-			} catch (IOException e1) {
 				processExceptionFromNcbi(e1, sequence);
 				return;
 			}
