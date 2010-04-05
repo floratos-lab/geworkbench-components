@@ -32,10 +32,12 @@ import org.geworkbench.events.listeners.ParameterActionListener;
  * 
  * @author First Genetic Trust
  * @author yc2480
- * @version $Id: MissingValuesFilterPanel.java,v 1.10 2009-11-09 17:23:01 jiz Exp $
+ * @version $Id$
  */
 public class MissingValuesFilterPanel extends AbstractSaveableParameterPanel {
-    private JLabel maxMissingLabel = new JLabel("<html><p>Maximum number of</p><p>missing arrays</p></html>");
+	private static final long serialVersionUID = 1391701528215000956L;
+	
+	private JLabel maxMissingLabel = new JLabel("<html><p>Maximum number of</p><p>missing arrays</p></html>");
     private JFormattedTextField maxMissingValue = new JFormattedTextField();
 
     public MissingValuesFilterPanel() {
