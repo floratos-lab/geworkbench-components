@@ -42,7 +42,6 @@ import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.A
 import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.GeneOntologyUtil;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
-import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.engine.management.AcceptTypes;
@@ -808,8 +807,6 @@ public class CytoscapeWidget implements VisualPlugin {
 		sample1VisualStyle.setName("geneways-interactions");
 	}
 
-	@SuppressWarnings("unchecked")
-	// only because maSet.getValuesForName("GENEMAP");
 	private void receiveMatrix() {
 		// 1) RECEIVE event
 		String name = adjSet.getNetworkName();
@@ -875,6 +872,8 @@ public class CytoscapeWidget implements VisualPlugin {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
+	// only because adjSet.getValuesForName("GENEMAP");
 	private HashMap<String, String> getGeneIdToNameMap() {
 		HashMap<String, String> map = new HashMap<String, String>();
 
