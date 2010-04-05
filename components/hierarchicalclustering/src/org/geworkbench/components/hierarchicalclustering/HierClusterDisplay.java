@@ -326,13 +326,15 @@ public class HierClusterDisplay extends JPanel {
                         int xRatio = (chipNo * geneWidth) + labelGutter;
                         int yRatio = (y + geneHeight) - fontGutter;
                         String accession = stats.getLabel();
-
-                        if (accession == null) {
-                            accession = "Undefined";
-                        }
-
-                        ig.drawString(accession, xRatio, yRatio);
-                    }
+						String geneName = stats.getShortName();
+						if (accession == null) {
+							accession = "Undefined";
+						}
+						String drawMe = accession + (geneName != null
+										&& accession.compareTo(geneName) != 0 ? " ("
+										+ geneName + ")" : "");
+						ig.drawString(drawMe, xRatio, yRatio);
+					}
                 }
             }
         } catch (NullPointerException npe) {
