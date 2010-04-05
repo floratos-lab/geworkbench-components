@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -43,17 +44,11 @@ public class GenepixFlagsFilterPanel extends AbstractSaveableParameterPanel {
      * Inner class to represent FlagDetail.
      */
     private static class FlagDetail implements Serializable {
-        String label;
-        String number;
-        boolean isFiltered;
-        String description;
-        HashMap knownDescriptions = new HashMap() {};
-
-        FlagDetail(String theLabel, String theNumber) {
-            label = theLabel;
-            number = theNumber;
-            isFiltered = false;
-        }
+		private static final long serialVersionUID = 6505401364167035460L;
+		
+		private String label;
+		private String number;
+		private boolean isFiltered;
 
         FlagDetail(String theLabel) {
             label = theLabel;
@@ -82,7 +77,7 @@ public class GenepixFlagsFilterPanel extends AbstractSaveableParameterPanel {
     String noFlagDetectedReminder =
             "The Genepix file has no flags.";
     int unflaggedProbeNum = 0;
-    Map flaggedProbeNum;
+    Map<String, Integer> flaggedProbeNum;
     final Hashtable<String,
             String> flagExplanationTable = new Hashtable<String, String>();
     static {
@@ -96,7 +91,6 @@ public class GenepixFlagsFilterPanel extends AbstractSaveableParameterPanel {
     private ArrayList<FlagDetail> hits = new ArrayList<FlagDetail>();
 
     private JLabel infoLabel;
-    private JLabel noFlagLabel;
     JPanel container = new JPanel();
     BoxLayout boxlayout;
     JTable table1;
@@ -108,7 +102,8 @@ public class GenepixFlagsFilterPanel extends AbstractSaveableParameterPanel {
 	 * @see org.geworkbench.analysis.AbstractSaveableParameterPanel#setParameters(java.util.Map)
 	 * Set inputed parameters to GUI.
 	 */
-    public void setParameters(Map<Serializable, Serializable> parameters){
+    @SuppressWarnings("unchecked")
+	public void setParameters(Map<Serializable, Serializable> parameters){
     	if(parameters==null){
     		return;
     	}
@@ -120,7 +115,7 @@ public class GenepixFlagsFilterPanel extends AbstractSaveableParameterPanel {
 
 			if (key.equals("SelectedFlags")){
 				GenepixFlagsFilterPanel panel = heldPanel;
-	            ArrayList selectedFlags = (ArrayList)value;
+	            List<String> selectedFlags = (ArrayList<String>)value;
 	            for (Object fd : panel.hits) {
 	                FlagDetail detail = (FlagDetail) fd;
 	                if (selectedFlags.contains(detail.getLabel())) {
@@ -225,11 +220,11 @@ public class GenepixFlagsFilterPanel extends AbstractSaveableParameterPanel {
      *
      * @return a JScrollpane containing table of Flags.
      */
-    public void setFlagInfoPanel(Set values) {
+    public void setFlagInfoPanel(Set<String> values) {
         hits.clear();
 
-        for (Object ob : values) {
-            FlagDetail newFlag = new FlagDetail((String) ob);
+        for (String str : values) {
+            FlagDetail newFlag = new FlagDetail(str);
             hits.add(newFlag);
         }
         container.removeAll();
@@ -259,8 +254,9 @@ public class GenepixFlagsFilterPanel extends AbstractSaveableParameterPanel {
     /**
      * getSelectedFlags
      */
-    public ArrayList getSelectedFlags() {
-        ArrayList selectedFlags = new ArrayList();
+    // return type should be changed to List
+    public ArrayList<String> getSelectedFlags() {
+        ArrayList<String> selectedFlags = new ArrayList<String>();
         for (Object fd : hits) {
             if (((FlagDetail) fd).isFiltered) {
                 selectedFlags.add(((FlagDetail) fd).getLabel());
@@ -295,8 +291,9 @@ public class GenepixFlagsFilterPanel extends AbstractSaveableParameterPanel {
      * This class extends AbstractTableModel and creates a table view of Flags.
      */
     private class FlagsTableModel extends AbstractTableModel {
-
-        /* array of the column names in order from left to right*/
+		private static final long serialVersionUID = 8266464868252493663L;
+		
+		/* array of the column names in order from left to right*/
         final String[] columnNames = {"Filter", "Flags Name", "Description",
                                      "# of probes",
         };
@@ -346,7 +343,7 @@ public class GenepixFlagsFilterPanel extends AbstractSaveableParameterPanel {
         }
 
         /*returns the Class type of the column c*/
-        public Class getColumnClass(int c) {
+        public Class<?> getColumnClass(int c) {
             return getValueAt(0, c).getClass();
         }
 
@@ -394,7 +391,7 @@ public class GenepixFlagsFilterPanel extends AbstractSaveableParameterPanel {
      *
      * @param flagsProbeNum Map
      */
-    public void setflaggedProbeNum(Map flagsProbeNum) {
+    public void setflaggedProbeNum(Map<String, Integer> flagsProbeNum) {
         this.flaggedProbeNum = flagsProbeNum;
     }
 
