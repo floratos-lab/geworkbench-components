@@ -747,8 +747,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 			public void itemStateChanged(ItemEvent e) {
 				if (e.getStateChange() == ItemEvent.DESELECTED)
 					return;
-				Object selectedVersion = versionComboBox.getSelectedItem();
-				System.out.println("hits turn to red ....");
+				Object selectedVersion = versionComboBox.getSelectedItem();				 
 				if ( isUserSelected == false)
 				{
 					isUserSelected = true;
@@ -965,9 +964,9 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 		// jPanel1.setMaximumSize(new Dimension(587, 382));
 		jPanel1.setMinimumSize(new Dimension(300, 50));
 		jPanel1.setPreferredSize(new Dimension(587, 182));
-
+		
 		detailTable.addMouseListener(new MouseAdapter() {
-			public void mouseClicked(MouseEvent e) {
+			public void mouseClicked(MouseEvent e) {			
 				if (e.getClickCount() == 2) {
 					JTable target = (JTable) e.getSource();
 				 
@@ -986,7 +985,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 						detailTable.revalidate();
 
 					}
-				}
+				}			 
 			}
 
 			private void maybeShowPopup(MouseEvent e) {
@@ -2914,40 +2913,31 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 
 	class ComboBoxCellRenderer implements ListCellRenderer {
 		protected DefaultListCellRenderer defaultRenderer = new DefaultListCellRenderer();
-
+			
 		public Component getListCellRendererComponent(JList list, Object value,
 				int index, boolean isSelected, boolean cellHasFocus) {
-
-			// System.out.println("getListCellRendererComponent() started:"
-			// + System.currentTimeMillis());
-
-			Font theFont = null;
-			Color theForeground = null;
+ 
 			String theText = null;
 
 			JLabel renderer = (JLabel) defaultRenderer
 					.getListCellRendererComponent(list, value, index,
-							isSelected, cellHasFocus);
-
+							isSelected, cellHasFocus);			
+		
 			VersionDescriptor v = (VersionDescriptor) value;
 			if (v != null) {
 
 				theText = v.getVersion();
-
-				if (v.getRequiresAuthentication() == true) {
-					theForeground = Color.red;
-					theFont = new Font("TimesRoman", Font.BOLD | Font.ITALIC,
-							12);
-					renderer.setFont(theFont);
-					renderer.setForeground(theForeground);
-				}
 				if (theText != null && theText.equalsIgnoreCase("null"))
 					theText = " ";
-				renderer.setText(theText);
+				if (v.getRequiresAuthentication() == true) {
+					renderer.setText("<html><font color=red><i>" + theText
+							+ "</i></font></html>");
+				}
+				else
+					renderer.setText(theText);
+				
 			}
-
-			// System.out.println("getListCellRendererComponent() ended at:"
-			// + System.currentTimeMillis());
+			 
 			return renderer;
 		}
 	}
