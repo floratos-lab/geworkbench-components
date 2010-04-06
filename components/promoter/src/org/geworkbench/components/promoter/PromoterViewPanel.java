@@ -524,7 +524,7 @@ public class PromoterViewPanel extends JPanel {
         });
         parametersLabel.setFont(new java.awt.Font("Times New Roman", Font.BOLD,
                                                   12));
-        parametersLabel.setText("Paramters:");
+        parametersLabel.setText("Parameters:");
         expectedCountBox.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 expectedCountBox_actionPerformed(e);
