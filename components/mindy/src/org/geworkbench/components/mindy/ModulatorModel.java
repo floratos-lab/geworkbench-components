@@ -18,7 +18,7 @@ import org.geworkbench.util.pathwaydecoder.mutualinformation.MindyGeneMarker;
  * @author mhall
  * @author ch2514
  * @author oshteynb
- * @version $Id: ModulatorModel.java,v 1.4 2009-06-18 20:45:32 oshteynb Exp $
+ * @version $Id$
  */
 class ModulatorModel extends AbstractTableModel {
 	/**
@@ -28,18 +28,11 @@ class ModulatorModel extends AbstractTableModel {
 
 	private static Log log = LogFactory.getLog(ModulatorModel.class);
 
-	final MindyPlugin mindyPlugin;
+	MindyPlugin mindyPlugin;
 
 	private boolean[] enabled;
 
-	// TODO probably should be in UserSelections
-//	private ArrayList<DSGeneMarker> selectedModulators;
-
-	private ArrayList<DSGeneMarker> modulators;
-
-	/*  do we need these ones*/
-//	private List<DSGeneMarker> limitedModulators;
-
+	ArrayList<DSGeneMarker> modulators;
 
 	private MindyData mindyData;
 
@@ -51,20 +44,23 @@ class ModulatorModel extends AbstractTableModel {
 	private boolean showProbeName = false;
 
 	//TODO selections, need to go, keep it here for now
-	private ModulatorSelections selections;
+	private List<DSGeneMarker> selectedModulators;
 
 	/**
 	 * Constructor.
 	 *
 	 * @param mindyData -
 	 *            MINDY data
-	 * @param mindyPlugin TODO
+	 * @param mindyPlugin
 	 */
-	public ModulatorModel(MindyPlugin mindyPlugin, MindyData mindyData) {
+	ModulatorModel() {
+	}
+	
+	void setMindyPlugin(final MindyPlugin mindyPlugin) {
 		this.mindyPlugin = mindyPlugin;
-		this.mindyData = mindyData;
+		mindyData = mindyPlugin.getMindyData();
 
-		this.selections = new ModulatorSelections(mindyPlugin, this);
+		selectedModulators = new ArrayList<DSGeneMarker>();
 
 		this.showProbeName = !mindyData.isAnnotated();
 
@@ -72,25 +68,16 @@ class ModulatorModel extends AbstractTableModel {
 
 		this.enabled = new boolean[modulators.size()];
 
-/*		this.limitedModulators = new ArrayList<DSGeneMarker>(modulators
-				.size());
-*/
-//		this.selectedModulators = new ArrayList<DSGeneMarker>();
-
 		this.ascendSortStates = new boolean[columnNames.length];
 		for (int i = 0; i < this.ascendSortStates.length; i++)
 			this.ascendSortStates[i] = true;
-	}
-
-	public ModulatorSelections getSelections() {
-		return selections;
 	}
 
 	void rememberSelections() {
 		enabled = new boolean[modulators.size()];
 		int size = modulators.size();
 		for (int i = 0; i < size; i++) {
-			if (this.selections.getSelectedModulators().contains(modulators.get(i)))
+			if (selectedModulators.contains(modulators.get(i)))
 				enabled[i] = true;
 			else
 				enabled[i] = false;
@@ -102,6 +89,7 @@ class ModulatorModel extends AbstractTableModel {
 	 *
 	 * @return the number of columns in the modulator table
 	 */
+	@Override
 	public int getColumnCount() {
 		return columnNames.length;
 	}
@@ -111,29 +99,13 @@ class ModulatorModel extends AbstractTableModel {
 	 *
 	 * @return number of rows on the table
 	 */
+	@Override
 	public int getRowCount() {
 		if (enabled == null) {
 			return 0;
 		} else {
 			return modulators.size();
 		}
-
-/*		if (this.mindyPlugin.globalSelectionState.allMarkerOverride) {
-			if (enabled == null) {
-				return 0;
-			} else {
-				return modulators.size();
-			}
-
-		} else {
-
-			if (limitedModulators == null) {
-				return 0;
-			}
-			return limitedModulators.size();
-
-		}
-*/
 	}
 
 	/**
@@ -144,6 +116,7 @@ class ModulatorModel extends AbstractTableModel {
 	 * @prarm columnIndex - column index of the table cell
 	 * @return true if the table cell is editable, and false otherwise
 	 */
+	@Override
 	public boolean isCellEditable(int rowIndex, int columnIndex) {
 		if (columnIndex == 0) {
 			return true;
@@ -160,6 +133,7 @@ class ModulatorModel extends AbstractTableModel {
 	 * @return the class object representing the table column
 	 */
 	@SuppressWarnings("unchecked")
+	@Override
 	public Class getColumnClass(int columnIndex) {
 		if (columnIndex == 0) {
 			return Boolean.class;
@@ -182,13 +156,14 @@ class ModulatorModel extends AbstractTableModel {
 	 *            column index of the cell
 	 * @return the value object of specified table cell
 	 */
+	@Override
 	public Object getValueAt(int rowIndex, int columnIndex) {
 		DSGeneMarker mod;
 		mod = getModulatorForIndex(rowIndex);
 		if (columnIndex == 0) {
 			return enabled[rowIndex];
 		} else if (columnIndex == 1) {
-			return MindyPlugin.getMarkerDisplayName(this.isShowProbeName(), mod);
+			return MindyPlugin.getMarkerDisplayName(showProbeName, mod);
 		} else if (columnIndex == 2) {
 			return mindyData.getFilteredStatistics(mod).getCount();
 		} else if (columnIndex == 3) {
@@ -220,6 +195,7 @@ class ModulatorModel extends AbstractTableModel {
 	 * @param columnIndex -
 	 *            column index of the cell
 	 */
+	@Override
 	public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
 		if (columnIndex == 0) {
 			enableModulator(rowIndex, (Boolean) aValue);
@@ -236,13 +212,6 @@ class ModulatorModel extends AbstractTableModel {
 		DSGeneMarker mod;
 		mod = modulators.get(rowIndex);
 
-/*		if (this.mindyPlugin.globalSelectionState.allMarkerOverride) {
-			mod = modulators.get(rowIndex);
-		} else {
-			mod = limitedModulators.get(rowIndex);
-		}
-*/
-
 		return mod;
 	}
 
@@ -253,6 +222,7 @@ class ModulatorModel extends AbstractTableModel {
 	 *            index of the column
 	 * @return name of the column
 	 */
+	@Override
 	public String getColumnName(int columnIndex) {
 		return columnNames[columnIndex];
 	}
@@ -264,22 +234,25 @@ class ModulatorModel extends AbstractTableModel {
 	 * @return a list of sorting states (ascending = true, descending =
 	 *         false)
 	 */
-	public boolean[] getAscendSortStates() {
+	boolean[] getAscendSortStates() {
 		return this.ascendSortStates;
 	}
+	
+	void setSelectedModulators(List<DSGeneMarker> selectedModulators) {
+		if (selectedModulators == null) {
 
-	/**
-	 * Set the sorting states (ascending or descending) of each column in
-	 * the modulator table.
-	 *
-	 * @param states -
-	 *            a list of sorting states (ascending = true, descending =
-	 *            false)
-	 */
-/*	public void setAscendSortStates(boolean[] states) {
-		this.ascendSortStates = states;
+			/* clear modulators in tabs */
+			this.selectedModulators.clear();
+
+			this.mindyPlugin.tableTab.getAggregateModel().disableAllModulators();
+
+			this.mindyPlugin.modTargetModel.disableAllModulators();
+		} else {
+			this.selectedModulators = selectedModulators;
+		}
 	}
-*/
+
+
 	/**
 	 * Select all modulators on the modulator table.
 	 *
@@ -287,19 +260,19 @@ class ModulatorModel extends AbstractTableModel {
 	 *            true to select all modulators on the table, and false
 	 *            otherwise
 	 */
-	public void selectAllModulators(boolean selected) {
+	@SuppressWarnings("unchecked")
+	void selectAllModulators(boolean selected) {
 		log.debug("\t\tmod model::selectAllModulators::start::"
 				+ System.currentTimeMillis());
 		for (int i = 0; i < enabled.length; i++) {
 			enabled[i] = selected;
 		}
 		if (selected) {
-			this.selections
-					.setSelectedModulators((ArrayList<DSGeneMarker>) this.modulators
+			this.setSelectedModulators((ArrayList<DSGeneMarker>) this.modulators
 							.clone());
 
 			// set selected mods to aggregate table model
-			this.mindyPlugin.getAggregateModel()
+			this.mindyPlugin.tableTab.getAggregateModel()
 					.setEnabledModulators((ArrayList<DSGeneMarker>) this.modulators
 							.clone());
 
@@ -307,7 +280,7 @@ class ModulatorModel extends AbstractTableModel {
 			this.mindyPlugin.modTargetModel
 					.setEnabledModulators((ArrayList<DSGeneMarker>) this.modulators
 							.clone()); // does not redraw table!
-			ArrayList<DSGeneMarker> tmpTargets = (ArrayList<DSGeneMarker>) ((ArrayList<DSGeneMarker>) this.mindyPlugin.getAggregateModel()
+			ArrayList<DSGeneMarker> tmpTargets = (ArrayList<DSGeneMarker>) ((ArrayList<DSGeneMarker>) this.mindyPlugin.tableTab.getAggregateModel()
 					.getActiveTargets()).clone();
 			this.mindyPlugin.modTargetModel
 					.setEnabledTargets(tmpTargets);
@@ -323,7 +296,7 @@ class ModulatorModel extends AbstractTableModel {
 
 			mindyPlugin.enableTabs();
 		} else {
-			this.selections.setSelectedModulators(null);
+			this.setSelectedModulators(null);
 
 			mindyPlugin.disableTabs();
 		}
@@ -331,30 +304,29 @@ class ModulatorModel extends AbstractTableModel {
 		log.debug("\t\tmod model::selectAllModulators::end::"
 				+ System.currentTimeMillis());
 	}
-
+	
+	@SuppressWarnings("unchecked")
 	private void enableModulator(int rowIndex, boolean enable) {
 		log.debug("\t\tmod model::enableModulator::start::"
 				+ System.currentTimeMillis());
 		enabled[rowIndex] = enable;
 		DSGeneMarker mod = getModulatorForIndex(rowIndex);
 		if (enabled[rowIndex]) {
-			if (!this.selections.getSelectedModulators().contains(mod))
-				this.selections.addSelectedModulator(mod);
+			if (!selectedModulators.contains(mod))
+				selectedModulators.add(mod);
 
-			this.mindyPlugin.getAggregateModel().enableModulator(mod);
+			this.mindyPlugin.tableTab.getAggregateModel().enableModulator(mod);
 			this.mindyPlugin.modTargetModel
-					.setEnabledTargets((ArrayList<DSGeneMarker>) ((ArrayList<DSGeneMarker>) this.mindyPlugin.getAggregateModel()
+					.setEnabledTargets((ArrayList<DSGeneMarker>) ((ArrayList<DSGeneMarker>) this.mindyPlugin.tableTab.getAggregateModel()
 							.getActiveTargets()).clone());
 			// the line above does not redraw table!
 			this.mindyPlugin.modTargetModel.enableModulator(mod); // also redraws the
 //			mindyPlugin.refreshModulatorListModel();
 		} else {
-			this.selections.getSelectedModulators().remove(mod);
-			this.mindyPlugin.getAggregateModel().disableModulator(mod);
+			this.selectedModulators.remove(mod);
+			this.mindyPlugin.tableTab.getAggregateModel().disableModulator(mod);
 			this.mindyPlugin.modTargetModel.disableModulator(mod);
-//			mindyPlugin.refreshModulatorListModel();
 		}
-//		mindyPlugin.initModulatorListModel();
 
 		if (this.getNumberOfModulatorsSelected() > 0) {
 			mindyPlugin.enableTabs();
@@ -372,8 +344,8 @@ class ModulatorModel extends AbstractTableModel {
 	 *
 	 * @return number of modulator selected
 	 */
-	public int getNumberOfModulatorsSelected() {
-		return this.selections.getSelectedModulators().size();
+	int getNumberOfModulatorsSelected() {
+		return this.selectedModulators.size();
 	}
 
 	/**
@@ -381,8 +353,8 @@ class ModulatorModel extends AbstractTableModel {
 	 *
 	 * @return the list of selected modulators
 	 */
-	public List<DSGeneMarker> getSelectedModulators() {
-		return this.selections.getSelectedModulators();
+	List<DSGeneMarker> getSelectedModulators() {
+		return this.selectedModulators;
 	}
 
 	/**
@@ -394,7 +366,7 @@ class ModulatorModel extends AbstractTableModel {
 	 *            if true, sort the column in ascending order. Otherwise,
 	 *            sort in descending order.
 	 */
-	public void sort(int col, boolean ascending) {
+	void sort(int col, boolean ascending) {
 		log.debug("\t\tmod model::sort::start::"
 				+ System.currentTimeMillis());
 		if (col == 0)
@@ -445,7 +417,7 @@ class ModulatorModel extends AbstractTableModel {
 
 		modulators = mods;
 		enabled = new boolean[modulators.size()];
-		for (DSGeneMarker marker : this.selections.getSelectedModulators()) {
+		for (DSGeneMarker marker : this.selectedModulators) {
 			int index = mods.indexOf(marker);
 			if ((index >= 0) && (index < this.enabled.length)) {
 				this.enabled[index] = true;
@@ -454,9 +426,6 @@ class ModulatorModel extends AbstractTableModel {
 
 		mindyPlugin.setTextNumModSelected(getNumberOfModulatorsSelected());
 
-/*		this.mindyPlugin.numModSelectedInModTab.setText(MindyPlugin.NUM_MOD_SELECTED_LABEL + " "
-				+ this.getNumberOfModulatorsSelected());
-*/
 		if (this.getNumberOfModulatorsSelected() >= mods.size())
 			mindyPlugin.setSelectAll(true);
 		else
@@ -469,17 +438,6 @@ class ModulatorModel extends AbstractTableModel {
 	}
 
 	/**
-	 * Check to see if the modulator table should display probe names or
-	 * gene names.
-	 *
-	 * @return If true, the modulator table displays probe names. If not,
-	 *         the modulator table displays gene names.
-	 */
-	public boolean isShowProbeName() {
-		return this.showProbeName;
-	}
-
-	/**
 	 * Specify whether or not the modulator table should display probe names
 	 * or gene names.
 	 *
@@ -487,7 +445,7 @@ class ModulatorModel extends AbstractTableModel {
 	 *            if true, the modulator table displays probe names. If not,
 	 *            the modulator table displays gene names.
 	 */
-	public void setShowProbeName(boolean showProbeName) {
+	void setShowProbeName(boolean showProbeName) {
 		this.showProbeName = showProbeName;
 	}
 }

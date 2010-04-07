@@ -4,13 +4,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import javax.swing.JCheckBox;
 import javax.swing.table.DefaultTableModel;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.components.mindy.MindyPlugin.ModulatorSort;
-import org.geworkbench.components.mindy.MindyPlugin.ModulatorStatComparator;
 import org.geworkbench.util.pathwaydecoder.mutualinformation.MindyData;
 import org.geworkbench.util.pathwaydecoder.mutualinformation.MindyGeneMarker;
 
@@ -21,13 +21,19 @@ import org.geworkbench.util.pathwaydecoder.mutualinformation.MindyGeneMarker;
 	 * @author mhall
 	 * @author ch2514
 	 * @author os2201
-	 * @version $Id: $
-	 */
-	class AggregateTableModel extends DefaultTableModel {
+	 * @version $Id$
+*/
+class AggregateTableModel extends DefaultTableModel {
+	private static final long serialVersionUID = -5144760407967305076L;
 
 		private static Log log = LogFactory.getLog(AggregateTableModel.class);
 
+		// get from constructor
 		private final MindyPlugin mindyPlugin;
+
+		// get reference from mindyPlugin
+		private MindyData mindyData;
+		private MindyTableTab mindyTableTab;
 
 		static final int EXTRA_COLS = 2;
 
@@ -45,9 +51,6 @@ import org.geworkbench.util.pathwaydecoder.mutualinformation.MindyGeneMarker;
 
 		private List<DSGeneMarker> selectedTargets;
 
-
-		private MindyData mindyData;
-
 		private boolean scoreView = false;
 
 		private boolean modulatorsLimited = false;
@@ -63,38 +66,25 @@ import org.geworkbench.util.pathwaydecoder.mutualinformation.MindyGeneMarker;
 		/**
 		 * Constructor.
 		 *
-		 * @param mindyData
-		 * @param mindyPlugin TODO
+		 * @param mindyPlugin
 		 */
-		public AggregateTableModel(MindyPlugin mindyPlugin, MindyData mindyData) {
+		public AggregateTableModel(final MindyPlugin mindyPlugin) {
 			this.mindyPlugin = mindyPlugin;
+			
+			mindyData = mindyPlugin.getMindyData();
+			mindyTableTab = mindyPlugin.getTableTab();
+			
 			this.showProbeName = !mindyData.isAnnotated();
-//			this.checkedTargets = new boolean[mindyData.getData().size()];
 			this.checkedTargets = new boolean[mindyData.getDataSize()];
-			this.mindyData = mindyData;
-//			allModulators = mindyData.getModulators();
 			int allModulatorsSize = mindyData.getModulators().size();
 			enabledModulators = new ArrayList<DSGeneMarker>();
 			activeTargets = new ArrayList<DSGeneMarker>();
-//			ascendSortStates = new boolean[allModulators.size()
 			ascendSortStates = new boolean[allModulatorsSize
 					+ AggregateTableModel.EXTRA_COLS];
-//			this.checkedModulators = new boolean[this.allModulators.size()
 			this.checkedModulators = new boolean[allModulatorsSize
 					+ AggregateTableModel.EXTRA_COLS];
 			this.selectedModulators = new ArrayList<DSGeneMarker>();
 			this.selectedTargets = new ArrayList<DSGeneMarker>();
-		}
-
-		/**
-		 * Whether the targets table shows the actual scores or just -1, 0, and
-		 * 1.
-		 *
-		 * @return true if the table is to show the actual scores, and false
-		 *         otherwise
-		 */
-		public boolean isScoreView() {
-			return scoreView;
 		}
 
 		/**
@@ -105,18 +95,8 @@ import org.geworkbench.util.pathwaydecoder.mutualinformation.MindyGeneMarker;
 		 *            true if the table is to show the actual scores, and false
 		 *            otherwise
 		 */
-		public void setScoreView(boolean scoreView) {
+		void setScoreView(boolean scoreView) {
 			this.scoreView = scoreView;
-		}
-
-		/**
-		 * Get the modulator sort methods for targets table.
-		 *
-		 * @return the ModulatorSort object representing the sorting scheme for
-		 *         the table columns
-		 */
-		public ModulatorSort getModulatorSortMethod() {
-			return modulatorSortMethod;
 		}
 
 		/**
@@ -126,21 +106,10 @@ import org.geworkbench.util.pathwaydecoder.mutualinformation.MindyGeneMarker;
 		 *            ModulatorSort object that specifies how to sort table
 		 *            columns
 		 */
-		public void setModulatorSortMethod(ModulatorSort modulatorSortMethod) {
+		void setModulatorSortMethod(ModulatorSort modulatorSortMethod) {
 			this.modulatorSortMethod = modulatorSortMethod;
 			resortModulators();
 			fireTableStructureChanged();
-		}
-
-		/**
-		 * Whether or not to display only the top modulator(s) in the targets
-		 * table.
-		 *
-		 * @return true if to limit display to the specified number of top
-		 *         modulator(s), and false otherwise.
-		 */
-		public boolean isModulatorsLimited() {
-			return modulatorsLimited;
 		}
 
 		/**
@@ -151,17 +120,8 @@ import org.geworkbench.util.pathwaydecoder.mutualinformation.MindyGeneMarker;
 		 *            true if to limit display to the specified number of top
 		 *            modulator(s), and false otherwise.
 		 */
-		public void setModulatorsLimited(boolean modulatorsLimited) {
+		void setModulatorsLimited(boolean modulatorsLimited) {
 			this.modulatorsLimited = modulatorsLimited;
-		}
-
-		/**
-		 * Get the number of top modulator(s) to display in the targets table.
-		 *
-		 * @return number of top modulator(s) to display
-		 */
-		public int getModLimit() {
-			return modLimit;
 		}
 
 		/**
@@ -170,11 +130,11 @@ import org.geworkbench.util.pathwaydecoder.mutualinformation.MindyGeneMarker;
 		 * @param modLimit -
 		 *            number of top modulator(s) to display
 		 */
-		public void setModLimit(int modLimit) {
+		void setModLimit(int modLimit) {
 			this.modLimit = modLimit;
 		}
 
-		public DSGeneMarker getEnabledModulatorAtPosition(int pos) {
+		DSGeneMarker getEnabledModulatorAtPosition(int pos) {
 			return enabledModulators.get(pos);
 		}
 
@@ -184,7 +144,7 @@ import org.geworkbench.util.pathwaydecoder.mutualinformation.MindyGeneMarker;
 		 *
 		 * @return size of the list that keeps enabled modulators
 		 */
-		public  int getEnabledModulatorsSize() {
+		int getEnabledModulatorsSize() {
 			return enabledModulators.size();
 		}
 
@@ -195,7 +155,7 @@ import org.geworkbench.util.pathwaydecoder.mutualinformation.MindyGeneMarker;
 		 * @param enabledModulators -
 		 *            list of enabled modulators
 		 */
-		public void setEnabledModulators(List<DSGeneMarker> enabledModulators) {
+		void setEnabledModulators(List<DSGeneMarker> enabledModulators) {
 			this.enabledModulators = enabledModulators;
 			this.checkedModulators = new boolean[this.enabledModulators.size()
 					+ AggregateTableModel.EXTRA_COLS];
@@ -203,9 +163,11 @@ import org.geworkbench.util.pathwaydecoder.mutualinformation.MindyGeneMarker;
 					+ AggregateTableModel.EXTRA_COLS];
 			recalcActiveTargets();
 			resortModulators(); // This also fires structure changed
-			this.mindyPlugin.getTableTab()
-					.setTargetCheckboxesVisibility(this.mindyPlugin.getSelectionEnabledCheckBoxTarget()
-							.isSelected());
+			if(mindyTableTab==null)return;
+			JCheckBox c = mindyTableTab.getSelectionEnabledCheckBoxTarget();
+			if (c != null) {
+				mindyTableTab.setTargetCheckboxesVisibility(c.isSelected());
+			}
 
 			fireTableStructureChanged();
 		}
@@ -215,7 +177,7 @@ import org.geworkbench.util.pathwaydecoder.mutualinformation.MindyGeneMarker;
 		 *
 		 * @return list of selected targets
 		 */
-		public List<DSGeneMarker> getCheckedTargets() {
+		private List<DSGeneMarker> getCheckedTargets() {
 			return this.selectedTargets;
 		}
 
@@ -224,7 +186,7 @@ import org.geworkbench.util.pathwaydecoder.mutualinformation.MindyGeneMarker;
 		 *
 		 * @return list of selected modulators
 		 */
-		public List<DSGeneMarker> getCheckedModulators() {
+		List<DSGeneMarker> getCheckedModulators() {
 			return this.selectedModulators;
 		}
 
@@ -234,14 +196,16 @@ import org.geworkbench.util.pathwaydecoder.mutualinformation.MindyGeneMarker;
 		 * @param mod -
 		 *            the modulator to enable
 		 */
-		public void enableModulator(DSGeneMarker mod) {
+		void enableModulator(DSGeneMarker mod) {
 			if (!enabledModulators.contains(mod)) {
 				enabledModulators.add(mod);
 				recalcActiveTargets();
 				resortModulators(); // This also fires structure changed
-				this.mindyPlugin.getTableTab()
-						.setTargetCheckboxesVisibility(this.mindyPlugin.getSelectionEnabledCheckBoxTarget()
-								.isSelected());
+				if(mindyTableTab==null)return;
+				JCheckBox c = mindyTableTab.getSelectionEnabledCheckBoxTarget();
+				if (c != null) {
+					mindyTableTab.setTargetCheckboxesVisibility(c.isSelected());
+				}
 
 				fireTableStructureChanged();
 			}
@@ -253,30 +217,32 @@ import org.geworkbench.util.pathwaydecoder.mutualinformation.MindyGeneMarker;
 		 * @param mod -
 		 *            the modulator to disable
 		 */
-		public void disableModulator(DSGeneMarker mod) {
+		void disableModulator(DSGeneMarker mod) {
 			enabledModulators.remove(mod);
 			// ch2514 -- re-examine this!
 			recalcActiveTargets();
 			resortModulators(); // This also fires structure changed
-			this.mindyPlugin.getTableTab()
-					.setTargetCheckboxesVisibility(this.mindyPlugin.getSelectionEnabledCheckBoxTarget()
-							.isSelected());
+			if(mindyTableTab==null)return;
+			JCheckBox c = mindyTableTab.getSelectionEnabledCheckBoxTarget();
+			if (c != null) {
+				mindyTableTab.setTargetCheckboxesVisibility(c.isSelected());
+			}
 
 			fireTableStructureChanged();
 		}
 
-		public void disableAllModulators() {
+		void disableAllModulators() {
 			enabledModulators.clear();
 		}
 
+		@SuppressWarnings("unchecked")
 		private void recalcActiveTargets() {
-			// activeTargets.clear();
 
 			if ((this.enabledModulators != null)
 					&& (this.enabledModulators.size() > 0)) {
-//				DSGeneMarker modMarker = this.enabledModulators.get(0);
-				if (this.mindyPlugin.getTargetAllMarkersCheckBox().isSelected()) {
-//					this.activeTargets = mindyData.getTargets(modMarker);
+
+				if (mindyTableTab!=null && mindyTableTab.getTargetAllMarkersCheckBox()!=null 
+						&& mindyTableTab.getTargetAllMarkersCheckBox().isSelected()) {
 					this.activeTargets = mindyData.getTargets(this.enabledModulators);
 				} else {
 					if ((this.limitedTargets != null)
@@ -284,9 +250,6 @@ import org.geworkbench.util.pathwaydecoder.mutualinformation.MindyGeneMarker;
 						this.activeTargets = (List<DSGeneMarker>) ((ArrayList<DSGeneMarker>) this.limitedTargets)
 								.clone();
 					} else {
-						// this.activeTargets = mindyData.getAllTargets(); //
-						// MindyData.getAllTargets() broken??
-//						this.activeTargets = mindyData.getTargets(modMarker);
 						this.activeTargets = mindyData.getTargets(this.enabledModulators);
 					}
 				}
@@ -337,6 +300,7 @@ import org.geworkbench.util.pathwaydecoder.mutualinformation.MindyGeneMarker;
 		 *
 		 * @return the number of columns in the targets table
 		 */
+		@Override
 		public int getColumnCount() {
 			// Number of allModulators plus target name and checkbox column
 			if (!modulatorsLimited) {
@@ -361,7 +325,7 @@ import org.geworkbench.util.pathwaydecoder.mutualinformation.MindyGeneMarker;
 		 * @param -
 		 *            list of selected markers
 		 */
-		public void limitMarkers(List<DSGeneMarker> limitList) {
+		void limitMarkers(List<DSGeneMarker> limitList) {
 			if (limitList == null) {
 				limitedTargets = null;
 				log.debug("Cleared modulator and target limits.");
@@ -371,10 +335,6 @@ import org.geworkbench.util.pathwaydecoder.mutualinformation.MindyGeneMarker;
 						+ " targets.");
 			}
 
-/*			if (!targetAllMarkersCheckBox.isSelected()) {
-				redrawTable();
-			}
-*/
 			if (limitList == null) {
 				this.checkSelectedMarkers(true);
 			} else {
@@ -389,7 +349,7 @@ import org.geworkbench.util.pathwaydecoder.mutualinformation.MindyGeneMarker;
 		 * Show only the markers selected in the marker sets on the Selector
 		 * Panel. Applies only to the targets table.
 		 */
-		public void showLimitedMarkers() {
+		void showLimitedMarkers() {
 			redrawTable();
 			this.checkSelectedMarkers(false);
 		}
@@ -398,7 +358,7 @@ import org.geworkbench.util.pathwaydecoder.mutualinformation.MindyGeneMarker;
 		/**
 		 * Show all markers. Applies only to the targets table.
 		 */
-		public void showAllMarkers() {
+		void showAllMarkers() {
 			redrawTable();
 			this.checkSelectedMarkers(true);
 		}
@@ -409,17 +369,17 @@ import org.geworkbench.util.pathwaydecoder.mutualinformation.MindyGeneMarker;
 						&& (this.selectedModulators.size() > 0)
 						&& (this.enabledModulators.size() == this.selectedModulators
 								.size())) {
-					this.mindyPlugin.getSelectAllModsCheckBoxTarget().setSelected(true);
+					this.mindyTableTab.getSelectAllModsCheckBoxTarget().setSelected(true);
 				} else {
-					this.mindyPlugin.getSelectAllModsCheckBoxTarget().setSelected(false);
+					this.mindyTableTab.getSelectAllModsCheckBoxTarget().setSelected(false);
 				}
 				if ((this.selectedTargets != null)
 						&& (this.selectedTargets.size() > 0)
 						&& (this.activeTargets.size() == this.selectedTargets
 								.size())) {
-					this.mindyPlugin.getSelectAllTargetsCheckBoxTarget().setSelected(true);
+					this.mindyTableTab.getSelectAllTargetsCheckBoxTarget().setSelected(true);
 				} else {
-					this.mindyPlugin.getSelectAllTargetsCheckBoxTarget().setSelected(false);
+					this.mindyTableTab.getSelectAllTargetsCheckBoxTarget().setSelected(false);
 				}
 			} else {
 				if ((this.selectedModulators != null)
@@ -436,9 +396,9 @@ import org.geworkbench.util.pathwaydecoder.mutualinformation.MindyGeneMarker;
 							break;
 						}
 					}
-					this.mindyPlugin.getSelectAllModsCheckBoxTarget().setSelected(allMods);
+					this.mindyTableTab.getSelectAllModsCheckBoxTarget().setSelected(allMods);
 				} else {
-					this.mindyPlugin.getSelectAllModsCheckBoxTarget().setSelected(false);
+					this.mindyTableTab.getSelectAllModsCheckBoxTarget().setSelected(false);
 				}
 				if ((this.selectedTargets != null)
 						&& (this.limitedTargets != null)
@@ -454,22 +414,22 @@ import org.geworkbench.util.pathwaydecoder.mutualinformation.MindyGeneMarker;
 							break;
 						}
 					}
-					this.mindyPlugin.getSelectAllTargetsCheckBoxTarget().setSelected(allTargets);
+					this.mindyTableTab.getSelectAllTargetsCheckBoxTarget().setSelected(allTargets);
 				} else {
-					this.mindyPlugin.getSelectAllTargetsCheckBoxTarget().setSelected(false);
+					this.mindyTableTab.getSelectAllTargetsCheckBoxTarget().setSelected(false);
 				}
 			}
 		}
 
-		public void redrawTable() {
+		private void redrawTable() {
 			recalcActiveTargets();
-			this.mindyPlugin.getTableTab()
-					.setTargetCheckboxesVisibility(this.mindyPlugin.getSelectionEnabledCheckBoxTarget()
+			this.mindyTableTab
+					.setTargetCheckboxesVisibility(this.mindyTableTab.getSelectionEnabledCheckBoxTarget()
 							.isSelected());
 
 			fireTableStructureChanged();
 			fireTableDataChanged();
-			this.mindyPlugin.getTableTab().columnScrolling();
+			this.mindyTableTab.columnScrolling();
 		}
 
 		/**
@@ -477,6 +437,7 @@ import org.geworkbench.util.pathwaydecoder.mutualinformation.MindyGeneMarker;
 		 *
 		 * @return number of rows on the table
 		 */
+		@Override
 		public int getRowCount() {
 			if (activeTargets == null) {
 				return 0;
@@ -491,6 +452,7 @@ import org.geworkbench.util.pathwaydecoder.mutualinformation.MindyGeneMarker;
 		 *            column index
 		 * @return the class object representing the table column
 		 */
+		@Override
 		public Class<?> getColumnClass(int i) {
 			if (i == 0) {
 				return Boolean.class;
@@ -510,9 +472,10 @@ import org.geworkbench.util.pathwaydecoder.mutualinformation.MindyGeneMarker;
 		 *            column index of the cell
 		 * @return the value object of specified table cell
 		 */
+		@Override
 		public Object getValueAt(int row, int col) {
 			if (col == 1) {
-				return MindyPlugin.getMarkerDisplayName(this.isShowProbeName(), (DSGeneMarker) activeTargets
+				return MindyPlugin.getMarkerDisplayName(showProbeName, (DSGeneMarker) activeTargets
 						.get(row));
 			} else if (col == 0) {
 				return checkedTargets[row];
@@ -540,7 +503,7 @@ import org.geworkbench.util.pathwaydecoder.mutualinformation.MindyGeneMarker;
 		 *            col index of the table cell
 		 * @return the score of the modulator and target
 		 */
-		public float getScoreAt(int row, int col) {
+		float getScoreAt(int row, int col) {
 			float score = mindyData.getScore(enabledModulators.get(col
 					- AggregateTableModel.EXTRA_COLS), activeTargets.get(row));
 			return score;
@@ -556,6 +519,7 @@ import org.geworkbench.util.pathwaydecoder.mutualinformation.MindyGeneMarker;
 		 * @param columnIndex -
 		 *            column index of the cell
 		 */
+		@Override
 		public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
 			if (columnIndex == 0) {
 				boolean select = (Boolean) aValue;
@@ -574,14 +538,14 @@ import org.geworkbench.util.pathwaydecoder.mutualinformation.MindyGeneMarker;
 							+ AggregateTableModel.EXTRA_COLS, select);
 			}
 
-			this.mindyPlugin.getSelectionEnabledCheckBoxTarget().setText(MindyPlugin.ENABLE_SELECTION
+			this.mindyTableTab.getSelectionEnabledCheckBoxTarget().setText(MindyPlugin.ENABLE_SELECTION
 					+ " " + this.getNumberOfMarkersSelected());
 
 			if (this.getCheckedTargets().size() == this.getActiveTargets()
 					.size())
-				this.mindyPlugin.getSelectAllTargetsCheckBoxTarget().setSelected(true);
+				this.mindyTableTab.getSelectAllTargetsCheckBoxTarget().setSelected(true);
 			else
-				this.mindyPlugin.getSelectAllTargetsCheckBoxTarget().setSelected(false);
+				this.mindyTableTab.getSelectAllTargetsCheckBoxTarget().setSelected(false);
 
 		}
 
@@ -591,6 +555,7 @@ import org.geworkbench.util.pathwaydecoder.mutualinformation.MindyGeneMarker;
 		 * @param col -
 		 *            column index
 		 */
+		@Override
 		public String getColumnName(int col) {
 			if (col == 0) {
 				return " ";
@@ -599,7 +564,7 @@ import org.geworkbench.util.pathwaydecoder.mutualinformation.MindyGeneMarker;
 			} else {
 				DSGeneMarker mod = enabledModulators.get(col
 						- AggregateTableModel.EXTRA_COLS);
-				String colName = MindyPlugin.getMarkerDisplayName(this.isShowProbeName(), mod);
+				String colName = MindyPlugin.getMarkerDisplayName(showProbeName, mod);
 				if (modulatorSortMethod == ModulatorSort.Aggregate) {
 					colName += " (M# "
 						+ mindyData.getFilteredStatistics(mod).getCount() + ")";
@@ -618,8 +583,8 @@ import org.geworkbench.util.pathwaydecoder.mutualinformation.MindyGeneMarker;
 		 * Sorts the columns on the targets table based on modulator stat (M#,
 		 * M+. M-) selection.
 		 */
-		public void resortModulators() {
-			Collections.sort(enabledModulators, this.mindyPlugin.new ModulatorStatComparator(
+		private void resortModulators() {
+			Collections.sort(enabledModulators, new ModulatorStatComparator(
 					mindyData, modulatorSortMethod));
 			for (int i = 0; i < this.enabledModulators.size(); i++) {
 				if (this.selectedModulators.contains(this.enabledModulators
@@ -630,39 +595,21 @@ import org.geworkbench.util.pathwaydecoder.mutualinformation.MindyGeneMarker;
 				}
 			}
 
-
-			//			fireTableStructureChanged();
-
-			this.mindyPlugin.getTableTab()
-					.setTargetCheckboxesVisibility(this.mindyPlugin.getSelectionEnabledCheckBoxTarget()
-							.isSelected());
+			if(mindyTableTab==null) return;
+			JCheckBox c = mindyTableTab.getSelectionEnabledCheckBoxTarget();
+			if (c != null) {
+				mindyTableTab.setTargetCheckboxesVisibility(c.isSelected());
+			}
 			if ((this.selectedModulators != null)
 					&& (this.selectedModulators.size() > 0)
 					&& (this.enabledModulators.size() == this.selectedModulators
 							.size())) {
-				this.mindyPlugin.getSelectAllModsCheckBoxTarget().setSelected(true);
+				this.mindyTableTab.getSelectAllModsCheckBoxTarget().setSelected(true);
 			} else {
-				this.mindyPlugin.getSelectAllModsCheckBoxTarget().setSelected(false);
+				this.mindyTableTab.getSelectAllModsCheckBoxTarget().setSelected(false);
 			}
 		}
 
-		/**
-		 * Clear all modulator selection from the targets table.
-		 */
-/*		public void clearModulatorSelections() {
-			int length = this.checkedModulators.length;
-			this.checkedModulators = new boolean[length];
-			// for (int i = 0; i < this.checkedModulators.length; i++)
-			// this.checkedModulators[i] = false;
-			this.selectedModulators.clear();
-
-			fireTableStructureChanged();
-
-			MindyPlugin.this
-					.setTargetCheckboxesVisibility(selectionEnabledCheckBoxTarget
-							.isSelected());
-		}
-*/
 		/**
 		 * Handles table column sorting for the targets table.
 		 *
@@ -672,7 +619,7 @@ import org.geworkbench.util.pathwaydecoder.mutualinformation.MindyGeneMarker;
 		 *            if true, sort the column in ascending order. Otherwise,
 		 *            sort in descending order.
 		 */
-		public void sort(int col, boolean ascending) {
+		void sort(int col, boolean ascending) {
 			log.debug("\t\ttable model::sort::start::"
 					+ System.currentTimeMillis());
 			if (col == 0)
@@ -703,11 +650,11 @@ import org.geworkbench.util.pathwaydecoder.mutualinformation.MindyGeneMarker;
 				}
 			}
 
-			this.mindyPlugin.getSelectionEnabledCheckBoxTarget().setText(MindyPlugin.ENABLE_SELECTION + " "
-					+ this.mindyPlugin.getAggregateModel().getNumberOfMarkersSelected());
+			this.mindyTableTab.getSelectionEnabledCheckBoxTarget().setText(MindyPlugin.ENABLE_SELECTION + " "
+					+ this.mindyTableTab.getAggregateModel().getNumberOfMarkersSelected());
 
-			this.mindyPlugin.getTableTab()
-					.setTargetCheckboxesVisibility(this.mindyPlugin.getSelectionEnabledCheckBoxTarget()
+			this.mindyTableTab
+					.setTargetCheckboxesVisibility(this.mindyTableTab.getSelectionEnabledCheckBoxTarget()
 							.isSelected());
 			log.debug("\t\ttable model::sort::end::"
 					+ System.currentTimeMillis());
@@ -718,7 +665,7 @@ import org.geworkbench.util.pathwaydecoder.mutualinformation.MindyGeneMarker;
 		 *
 		 * @return the list of selected markers
 		 */
-		public List<DSGeneMarker> getUniqueCheckedTargetsAndModulators() {
+		List<DSGeneMarker> getUniqueCheckedTargetsAndModulators() {
 			if ((this.selectedTargets != null)
 					&& (this.selectedModulators != null)) {
 				int tsize = this.selectedTargets.size();
@@ -756,7 +703,7 @@ import org.geworkbench.util.pathwaydecoder.mutualinformation.MindyGeneMarker;
 		 *
 		 * @return the total number of markers selected
 		 */
-		public int getNumberOfMarkersSelected() {
+		int getNumberOfMarkersSelected() {
 			int tsize = 0;
 			int msize = 0;
 			if (this.selectedTargets != null)
@@ -795,7 +742,7 @@ import org.geworkbench.util.pathwaydecoder.mutualinformation.MindyGeneMarker;
 		 *
 		 * @return list of active targets
 		 */
-		public List<DSGeneMarker> getActiveTargets() {
+		List<DSGeneMarker> getActiveTargets() {
 			return activeTargets;
 		}
 
@@ -806,31 +753,8 @@ import org.geworkbench.util.pathwaydecoder.mutualinformation.MindyGeneMarker;
 		 * @return a list of sorting states (ascending = true, descending =
 		 *         false)
 		 */
-		public boolean[] getAscendSortStates() {
+		boolean[] getAscendSortStates() {
 			return this.ascendSortStates;
-		}
-
-		/**
-		 * Set the sorting states (ascending or descending) of each column in
-		 * the targets table.
-		 *
-		 * @param b -
-		 *            a list of sorting states (ascending = true, descending =
-		 *            false)
-		 */
-		public void setAscendSortStates(boolean[] b) {
-			this.ascendSortStates = b;
-		}
-
-		/**
-		 * Check to see if the targets table should display probe names or gene
-		 * names.
-		 *
-		 * @return If true, the targets table displays probe names. If not, the
-		 *         targets table displays gene names.
-		 */
-		public boolean isShowProbeName() {
-			return this.showProbeName;
 		}
 
 		/**
@@ -841,7 +765,7 @@ import org.geworkbench.util.pathwaydecoder.mutualinformation.MindyGeneMarker;
 		 *            if true, the targets table displays probe names. If not,
 		 *            the targets table displays gene names.
 		 */
-		public void setShowProbeName(boolean showProbeName) {
+		 void setShowProbeName(boolean showProbeName) {
 			this.showProbeName = showProbeName;
 		}
 
@@ -854,7 +778,7 @@ import org.geworkbench.util.pathwaydecoder.mutualinformation.MindyGeneMarker;
 		 * @return true if the modulator represented by the column is selected,
 		 *         and false otherwise
 		 */
-		public boolean getModulatorCheckBoxState(int index) {
+		boolean getModulatorCheckBoxState(int index) {
 			return this.checkedModulators[index];
 		}
 
@@ -868,7 +792,7 @@ import org.geworkbench.util.pathwaydecoder.mutualinformation.MindyGeneMarker;
 		 *            true if the modulator at the specified index is selected,
 		 *            and false otherwise
 		 */
-		public void setModulatorCheckBoxState(int index, boolean b) {
+		void setModulatorCheckBoxState(int index, boolean b) {
 			this.checkedModulators[index] = b;
 			DSGeneMarker m = enabledModulators.get(index
 					- AggregateTableModel.EXTRA_COLS);
@@ -888,7 +812,7 @@ import org.geworkbench.util.pathwaydecoder.mutualinformation.MindyGeneMarker;
 		 * @return the number of modulator checkboxes from the table column
 		 *         headers
 		 */
-		public int getNumberOfModulatorCheckBoxes() {
+		int getNumberOfModulatorCheckBoxes() {
 			return this.checkedModulators.length;
 		}
 
@@ -902,8 +826,8 @@ import org.geworkbench.util.pathwaydecoder.mutualinformation.MindyGeneMarker;
 			}
 			this.fireTableDataChanged();
 
-			this.mindyPlugin.getTableTab()
-					.setTargetCheckboxesVisibility(this.mindyPlugin.getSelectionEnabledCheckBoxTarget()
+			this.mindyTableTab
+					.setTargetCheckboxesVisibility(this.mindyTableTab.getSelectionEnabledCheckBoxTarget()
 							.isSelected());
 		}
 
@@ -921,9 +845,11 @@ import org.geworkbench.util.pathwaydecoder.mutualinformation.MindyGeneMarker;
 			}
 			this.fireTableStructureChanged();
 
-			this.mindyPlugin.getTableTab()
-					.setTargetCheckboxesVisibility(this.mindyPlugin.getSelectionEnabledCheckBoxTarget()
-							.isSelected());
+			if(mindyTableTab==null)return;
+			JCheckBox c = mindyTableTab.getSelectionEnabledCheckBoxTarget();
+			if (c != null) {
+				mindyTableTab.setTargetCheckboxesVisibility(c.isSelected());
+			}
 		}
 
 		List<DSGeneMarker> getLimitedTargets() {

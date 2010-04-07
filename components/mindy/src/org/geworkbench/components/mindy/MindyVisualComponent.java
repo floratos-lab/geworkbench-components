@@ -151,6 +151,8 @@ public class MindyVisualComponent implements VisualPlugin, java.util.Observer {
 
 					MindyData mindyData = dataSet.getData();
 					mindyPlugin = new MindyPlugin(mindyData, this);
+					mindyPlugin.populateTableTab();
+					mindyPlugin.populateModulatorModel();
 
 					// Incorporate selections from marker set selection panel
 					DSMicroarraySetView<DSGeneMarker, DSMicroarray> maView = new CSMicroarraySetView<DSGeneMarker, DSMicroarray>(
