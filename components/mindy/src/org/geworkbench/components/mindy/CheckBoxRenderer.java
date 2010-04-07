@@ -16,7 +16,6 @@ import javax.swing.table.DefaultTableCellRenderer;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.geworkbench.components.mindy.MindyPlugin.ModulatorTargetModel;
 
 /**
  * For rendering modulator checkboxes on the targets table column headers.
@@ -25,9 +24,11 @@ import org.geworkbench.components.mindy.MindyPlugin.ModulatorTargetModel;
  *
  * @author ch2514
  * @author os2201
- * @version $Id: $
+ * @version $Id$
  */
 class CheckBoxRenderer extends DefaultTableCellRenderer {
+	private static final long serialVersionUID = -2798656880742337015L;
+
 	private static Log log = LogFactory.getLog(CheckBoxRenderer.class);
 
 	private final MindyPlugin mindyPlugin;

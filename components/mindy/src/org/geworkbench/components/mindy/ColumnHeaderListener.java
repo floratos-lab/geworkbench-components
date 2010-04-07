@@ -13,7 +13,6 @@ import javax.swing.table.TableModel;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
-import org.geworkbench.components.mindy.MindyPlugin.ModulatorTargetModel;
 
 /**
  * Handles column sorting in MINDY tables. Also handles modulator selection
@@ -23,18 +22,18 @@ import org.geworkbench.components.mindy.MindyPlugin.ModulatorTargetModel;
  *
  * @author ch2514
  * @author os2201
- * @version $Id: $
+ * @version $Id$
  */
 class ColumnHeaderListener extends MouseAdapter {
 	private static Log log = LogFactory.getLog(ColumnHeaderListener.class);
 	
-	private final MindyPlugin mindyPlugin;
+	private final MindyTableTab mindyTableTab;
 
 	/**
 	 * @param mindyPlugin
 	 */
 	ColumnHeaderListener(MindyPlugin mindyPlugin) {
-		this.mindyPlugin = mindyPlugin;
+		mindyTableTab = mindyPlugin.getTableTab();
 	}
 
 	/**
@@ -91,13 +90,13 @@ class ColumnHeaderListener extends MouseAdapter {
 			AggregateTableModel atm = (AggregateTableModel) model;
 			boolean clickedCheckbox = false;
 			// checkbox
-			if ((this.mindyPlugin.getSelectionEnabledCheckBoxTarget().isSelected())
+			if ((mindyTableTab.getSelectionEnabledCheckBoxTarget().isSelected())
 					&& (mColIndex >= 2)
 					&& (evt.getX() >= headerRect.getX())
 					&& (evt.getX() <= (headerRect.getX() + 15))) {
 				clickedCheckbox = true;
 //				JCheckBox cb = this.mindyPlugin.getHeaderCheckBoxes()[mColIndex];
-				JCheckBox cb = mindyPlugin.getTableTab().getHeaderCheckBoxes()[mColIndex];
+				JCheckBox cb = mindyTableTab.getHeaderCheckBoxes()[mColIndex];
 				if ((cb != null)
 						&& (mColIndex < atm
 								.getNumberOfModulatorCheckBoxes())) {
@@ -114,16 +113,16 @@ class ColumnHeaderListener extends MouseAdapter {
 						atm.fireTableDataChanged();
 					}
 
-					this.mindyPlugin.getSelectionEnabledCheckBoxTarget().setText(MindyPlugin.ENABLE_SELECTION
+					mindyTableTab.getSelectionEnabledCheckBoxTarget().setText(MindyPlugin.ENABLE_SELECTION
 							+ " " + atm.getNumberOfMarkersSelected());
 
 					if (atm.getCheckedModulators().size() == atm
 							.getEnabledModulatorsSize())
-						this.mindyPlugin.getSelectAllModsCheckBoxTarget().setSelected(true);
+						mindyTableTab.getSelectAllModsCheckBoxTarget().setSelected(true);
 					else
-						this.mindyPlugin.getSelectAllModsCheckBoxTarget().setSelected(false);
-					this.mindyPlugin.getTableTab()
-							.setTargetCheckboxesVisibility(this.mindyPlugin.getSelectionEnabledCheckBoxTarget()
+						mindyTableTab.getSelectAllModsCheckBoxTarget().setSelected(false);
+					mindyTableTab
+							.setTargetCheckboxesVisibility(mindyTableTab.getSelectionEnabledCheckBoxTarget()
 									.isSelected());
 					atm.fireTableStructureChanged();
 				}
@@ -140,7 +139,7 @@ class ColumnHeaderListener extends MouseAdapter {
 					boolean tmp = states[mColIndex];
 					states[mColIndex] = !tmp;
 					atm.sort(mColIndex, states[mColIndex]);
-					this.mindyPlugin.getAggregateModel().fireTableStructureChanged();
+					mindyTableTab.getAggregateModel().fireTableStructureChanged();
 				}
 			}
 		}

@@ -7,7 +7,7 @@ import javax.swing.AbstractListModel;
  *
  * @author mhall
  * @author oshteynb
- * @version $Id: ModulatorListModel.java,v 1.3 2009-04-29 19:55:33 oshteynb Exp $
+ * @version $Id$
  */
 class ModulatorListModel extends AbstractListModel {
 	/**
@@ -15,27 +15,19 @@ class ModulatorListModel extends AbstractListModel {
 	 */
 	private static final long serialVersionUID = 5709243936247643069L;
 
-	private final MindyPlugin mindyPlugin;
 	private ModulatorModel modulatorModel;
-
 	private boolean showProbeName = false;
 
-	public ModulatorListModel(MindyPlugin mindyPlugin, boolean showProbeName, ModulatorModel modulatorModel) {
-		this.mindyPlugin = mindyPlugin;
+	public ModulatorListModel(boolean showProbeName, ModulatorModel modulatorModel) {
 		this.modulatorModel = modulatorModel;
-
 		this.showProbeName = showProbeName;
 	}
 
-	public void setModulatorModel(ModulatorModel modulatorModel) {
+	void setModulatorModel(ModulatorModel modulatorModel) {
 		this.modulatorModel = modulatorModel;
 	}
 
-	public boolean isShowProbeName() {
-		return this.showProbeName;
-	}
-
-	public void setShowProbeName(boolean b) {
+	void setShowProbeName(boolean b) {
 		this.showProbeName = b;
 	}
 
@@ -44,10 +36,9 @@ class ModulatorListModel extends AbstractListModel {
 	 *
 	 * @return number of enabled modulators
 	 */
+	@Override
 	public int getSize() {
-		// TODO
-//		return this.mindyPlugin.modTargetModel.getEnabledModulators().size();
-		return this.modulatorModel.getSelections().getSelectedModulators().size();
+		return this.modulatorModel.getSelectedModulators().size();
 	}
 
 	/**
@@ -58,16 +49,10 @@ class ModulatorListModel extends AbstractListModel {
 	 * @return Modulator marker name of the enabled modulators in the heat
 	 *         map as specified by index i.
 	 */
+	@Override
 	public Object getElementAt(int i) {
-		// really bad idea...
-/*		boolean orig = this.mindyPlugin.modTargetModel.isShowProbeName();
-		this.mindyPlugin.modTargetModel.setShowProbeName(this.showProbeName);
-		String displayName = MindyPlugin.getMarkerDisplayName(this.mindyPlugin.modTargetModel.isShowProbeName(),
-				this.mindyPlugin.modTargetModel.getEnabledModulators().get(i));
-		this.mindyPlugin.modTargetModel.setShowProbeName(orig);
-*/
-		String displayName = MindyPlugin.getMarkerDisplayName(isShowProbeName(),
-				this.modulatorModel.getSelections().getSelectedModulators().get(i));
+		String displayName = MindyPlugin.getMarkerDisplayName(showProbeName,
+				this.modulatorModel.getSelectedModulators().get(i));
 
 		return displayName;
 	}
@@ -75,7 +60,7 @@ class ModulatorListModel extends AbstractListModel {
 	/**
 	 * Refreshes the data model.
 	 */
-	public void refresh() {
+	void refresh() {
 		fireContentsChanged(this, 0, getSize());
 	}
 }
