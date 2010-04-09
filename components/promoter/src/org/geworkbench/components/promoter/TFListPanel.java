@@ -22,7 +22,6 @@ class TFListPanel extends JPanel {
 	private static final long serialVersionUID = 4166305079090877412L;
 	
 	public static final String SEARCH_LABEL_TEXT = "Search:";
-//    private JTextField filterField = new JTextField();
     private JTextField filterField = null;
     JComboBox filterComboBox = null;
     
@@ -71,7 +70,29 @@ class TFListPanel extends JPanel {
             }
         });
         
-        KeyAdapter keyAdapter = new KeyAdapter() {
+		KeyAdapter tfListKeyAdapter = new KeyAdapter() {
+			@Override
+			public void keyReleased(KeyEvent e) {
+				if (e.isActionKey()) {
+					int index = tfList.getSelectedIndex();
+					if (index != -1) {
+						String tfName = (String) tfListModel.getElementAt(index);
+						TranscriptionFactor pattern = promoterViewPanel
+								.getTfMap().get(tfName);
+						promoterViewPanel.setCurrentTF(pattern);
+						try {
+							promoterViewPanel.drawLogo(pattern);
+						} catch (Exception e2) {
+							e2.printStackTrace();
+						}
+					}
+				}
+			}
+		};
+        
+		tfList.addKeyListener(tfListKeyAdapter);
+        
+        KeyAdapter filterKeyAdapter = new KeyAdapter() {
 			@Override
 			public void keyReleased(KeyEvent e) {
 				String filter = filterField.getText();
@@ -79,7 +100,7 @@ class TFListPanel extends JPanel {
 				tfListModel.refresh();
 			}
 		};
-		filterField.addKeyListener(keyAdapter);
+		filterField.addKeyListener(filterKeyAdapter);
 		topPanel.add(filterField);
 		
 		ActionListener filterComboBoxActionListener = new ActionListener() {
