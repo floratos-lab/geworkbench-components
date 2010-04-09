@@ -18,7 +18,6 @@ import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.DefaultComboBoxModel;
-import javax.swing.DefaultListSelectionModel;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -73,9 +72,13 @@ import com.borland.jbcl.layout.XYLayout;
 @SuppressWarnings("unchecked")
 @AcceptTypes( {CSSequenceSet.class})
 public class BlastAppComponent implements VisualPlugin {
+	private static final String SELECT_A_PROGRAM_PROMPT = "Select a program";
+
 	private static final int DATABASE_NAME_INDEX = 1;
 
 	Log log = LogFactory.getLog(BlastAppComponent.class);
+	
+	private static AlgorithmMatcher algorithmMatcher = AlgorithmMatcher.getInstance();
 
 	// members from the base class in the previous version
 	private DSSequenceSet sequenceDB = null;
@@ -109,7 +112,7 @@ public class BlastAppComponent implements VisualPlugin {
     public static final String ERROR1 = "Interrupted";
     public static final String ERROR2 = "The connection to the Columbia Blast Server cannot be established, please try NCBI Blast Server.";
 
-    private JTable jDBList = null;
+    private JTable databaseTable = null;
     private JButton blastButton = new JButton();
     private JScrollPane jScrollPane1 = new JScrollPane();
 
@@ -220,7 +223,7 @@ public class BlastAppComponent implements VisualPlugin {
 
         jAdvancedPane = new JPanel();
 
-        jDBList = new JTable() // customized only to hide the header
+        databaseTable = new JTable() // customized only to hide the header
         {
 			private static final long serialVersionUID = -7546361375519248646L;
 
@@ -331,10 +334,10 @@ public class BlastAppComponent implements VisualPlugin {
         jBasicPane.setMinimumSize(new Dimension(10, 100));
 
         jAdvancedPane.setLayout(gridBagLayout3);
-        jDBList.setToolTipText("Select a database");
-        jDBList.setVerifyInputWhenFocusTarget(true);
-        jDBList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        jProgramBox.addItem("Select a program");
+        databaseTable.setToolTipText("Select a database");
+        databaseTable.setVerifyInputWhenFocusTarget(true);
+        databaseTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        jProgramBox.addItem(SELECT_A_PROGRAM_PROMPT);
         jProgramBox.addItem("blastn");
         jProgramBox.addItem("blastp");
         jProgramBox.addItem("blastx");
@@ -354,7 +357,7 @@ public class BlastAppComponent implements VisualPlugin {
         jTabbedPane1.setMinimumSize(new Dimension(5, 5));
         jProgramBox.addActionListener(new
                                       BlastAppComponent_jProgramBox_actionAdapter());
-        jDBList.getSelectionModel().addListSelectionListener(new BlastAppComponent_jDBList_listSelectionListener() );
+        databaseTable.getSelectionModel().addListSelectionListener(new BlastAppComponent_jDBList_listSelectionListener() );
 
         // details of four combo boxes on plastx panel
         // (1)
@@ -615,51 +618,49 @@ public class BlastAppComponent implements VisualPlugin {
 
         JComboBox cb = (JComboBox) e.getSource();
 
-        // Get the new item
+		// Get the new item
+		String selectedProgramName = (String) cb.getSelectedItem();
+		if (selectedProgramName == null
+				|| selectedProgramName
+						.equalsIgnoreCase(SELECT_A_PROGRAM_PROMPT)) {
+			jScrollPane1.getViewport().removeAll();
+			textArea.setText( "" );
+			return;
+		}
 
-        String selectedProgramName = (String) cb.getSelectedItem();
-        if (selectedProgramName != null) {
+		String[][] array = algorithmMatcher
+				.translateToArray((String) selectedProgramName);
+		if (array == null)
+			return;
 
-            TableModel listModel = new UneditableTableModel(AlgorithmMatcher.translateToArray((String)selectedProgramName));
-        	jDBList.setModel(listModel);
-        	jDBList.setAutoResizeMode(JTable.AUTO_RESIZE_LAST_COLUMN); 
-        	// make the first column large enough
-        	int vColIndex = 0; 
-        	TableColumn col = jDBList.getColumnModel().getColumn(vColIndex); 
-        	int width = 250; 
-        	col.setPreferredWidth(width); 
-            (jScrollPane1.getViewport()).add(jDBList, null);
-            String[] model = AlgorithmMatcher.translateToMatrices(
-                    selectedProgramName);
-            jMatrixBox.setModel(new DefaultComboBoxModel(model));
-            String[] model2 = AlgorithmMatcher.translateToWordSize(
-                    selectedProgramName);
-            jWordsizeBox.setModel(new DefaultComboBoxModel(model2));
-            if (selectedProgramName.equalsIgnoreCase("blastn")) {
-                humanRepeatFilter.setEnabled(true);
-                jGapcostsBox.setEditable(false);
-                jGapcostsBox.setVisible(false);
-                jGapcostsLabel.setVisible(false);
-            } else {
-                humanRepeatFilter.setEnabled(false);
-                jGapcostsBox.setEditable(false);
-                jGapcostsBox.setVisible(true);
-                jGapcostsLabel.setVisible(true);
-            }
-
-        }
+		TableModel listModel = new UneditableTableModel(array);
+		databaseTable.setModel(listModel);
+		databaseTable.setAutoResizeMode(JTable.AUTO_RESIZE_LAST_COLUMN);
+		// make the first column large enough
+		int vColIndex = 0;
+		TableColumn col = databaseTable.getColumnModel().getColumn(vColIndex);
+		int width = 250;
+		col.setPreferredWidth(width);
+		(jScrollPane1.getViewport()).add(databaseTable, null);
+		String[] model = AlgorithmMatcher
+				.translateToMatrices(selectedProgramName);
+		jMatrixBox.setModel(new DefaultComboBoxModel(model));
+		String[] model2 = AlgorithmMatcher
+				.translateToWordSize(selectedProgramName);
+		jWordsizeBox.setModel(new DefaultComboBoxModel(model2));
+		if (selectedProgramName.equalsIgnoreCase("blastn")) {
+			humanRepeatFilter.setEnabled(true);
+			jGapcostsBox.setEditable(false);
+			jGapcostsBox.setVisible(false);
+			jGapcostsLabel.setVisible(false);
+		} else {
+			humanRepeatFilter.setEnabled(false);
+			jGapcostsBox.setEditable(false);
+			jGapcostsBox.setVisible(true);
+			jGapcostsLabel.setVisible(true);
+		}
     }
 
-    private void jDBList_actionPerformed(ListSelectionEvent e) {
-    	DefaultListSelectionModel jDBList = (DefaultListSelectionModel)e.getSource();
-    	int dbSelection = jDBList.getMinSelectionIndex();
-    	
-        String program = (String) jProgramBox.getSelectedItem();
-        String dbDetails = AlgorithmMatcher.translateToDBdetails(program, dbSelection); 
-        
-        textArea.setText( dbDetails );
-    }
-    
     private void jMatrixBox_actionPerformed(ActionEvent e) {
         String[] model = AlgorithmMatcher.translateToGapcosts(
                 jMatrixBox.getSelectedItem().toString());
@@ -724,12 +725,12 @@ public class BlastAppComponent implements VisualPlugin {
      * @return ParameterSetting
      */
     private ParameterSetting collectParameters() {
-        int selectedRow = jDBList.getSelectedRow();
-        String dbName = (String)jDBList.getModel().getValueAt(selectedRow, DATABASE_NAME_INDEX);
+        int selectedRow = databaseTable.getSelectedRow();
+        String dbName = (String)databaseTable.getModel().getValueAt(selectedRow, DATABASE_NAME_INDEX);
 
         String programName = (String) jProgramBox.getSelectedItem();
         if (programName == null ||
-            programName.equalsIgnoreCase(AlgorithmMatcher.BLASTPROGRAM0)) {
+            programName.equalsIgnoreCase(SELECT_A_PROGRAM_PROMPT)) {
             reportError("Please select a PROGRAM to search!", "Parameter Error");
             return null;
         }
@@ -1068,7 +1069,15 @@ public class BlastAppComponent implements VisualPlugin {
 				return;
 			}
 
-			jDBList_actionPerformed(e);
+	        String program = (String) jProgramBox.getSelectedItem();
+	        int selectedRow = databaseTable.getSelectedRow();
+	        String dbDetails = "";
+	        if(selectedRow!=-1) {
+		        String dbName = (String)databaseTable.getModel().getValueAt(selectedRow, DATABASE_NAME_INDEX);
+		        dbDetails = algorithmMatcher.getDatabaseDetail(program, dbName);
+	        }
+	        
+	        textArea.setText( dbDetails );
 		}
 	}
 

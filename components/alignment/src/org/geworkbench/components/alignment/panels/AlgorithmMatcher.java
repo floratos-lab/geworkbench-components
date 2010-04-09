@@ -1,279 +1,254 @@
 package org.geworkbench.components.alignment.panels;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.digester.Digester;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.geworkbench.engine.management.ComponentClassLoader;
+import org.geworkbench.engine.management.ComponentResource;
+import org.xml.sax.SAXException;
+
 /**
  * Utility used by BlastAppComponent and BlastAlgorithm.
  * 
  * <p>Company: Columbia University</p>
  *
- * @author not attributable
+ * @author zji
  * @version $Id$
  */
-
 public class AlgorithmMatcher {
+	Log log = LogFactory.getLog(AlgorithmMatcher.class);
+	
+	private static AlgorithmMatcher instance;
+	private List<DatabaseInfo> databaseList = null;
+	
+	@SuppressWarnings("unchecked")
+	private AlgorithmMatcher() {
+        String componentDirectory = null;
+		ClassLoader classLoader = AlgorithmMatcher.class.getClassLoader();
+        if (classLoader instanceof ComponentClassLoader) {
+            ComponentClassLoader ccl = (ComponentClassLoader) classLoader;
+            ComponentResource componentResource = ccl.getComponentResource();
+            componentDirectory = componentResource.getDir();
+        } else {
+        	log.error("not loaded by ComponentClassLoader");
+        }
+            
+		Digester digester = new Digester();
+		digester.setValidating( false );
 
-    public static final String GAP0 = "Existence: 11 Extension: 1";
-    public static final String GAP1 = "Existence:  9 Extension: 2";
-    public static final String GAP2 = "Existence:  8 Extension: 2";
-    public static final String GAP3 = "Existence:  7 Extension: 2";
-    public static final String GAP4 = "Existence: 12 Extension: 1";
-    public static final String GAP5 = "Existence: 10 Extension: 1";
-    public static final String GAPB45_1 = "Existence: 15 Extension: 2";
-    public static final String GAPB45_2 = "Existence: 13 Extension: 3";
-    public static final String GAPB45_3 = "Existence: 12 Extension: 3";
-    public static final String GAPB45_4 = "Existence: 11 Extension: 3";
-    public static final String GAPB45_5 = "Existence: 10 Extension: 3";
-    public static final String GAPB45_6 = "Existence: 14 Extension: 2";
-    public static final String GAPB45_7 = "Existence: 13 Extension: 2";
-    public static final String GAPB45_8 = "Existence: 12 Extension: 2";
-    public static final String GAPB45_9 = "Existence: 19 Extension: 1";
-    public static final String GAPB45_10 = "Existence: 18 Extension: 1";
-    public static final String GAPB45_11 = "Existence: 17 Extension: 1";
-    public static final String GAPB45_12 = "Existence: 16 Extension: 1";
-    public static final String GAPB80_1 = "Existence: 10 Extension: 1";
-    public static final String GAPB80_2 = "Existence: 8 Extension: 2";
-    public static final String GAPB80_3 = "Existence: 7 Extension:2";
-    public static final String GAPB80_4 = "Existence: 6 Extension: 2";
-    public static final String GAPB80_5 = "Existence: 11 Extension: 1";
-    public static final String GAPB80_6 = "Existence: 9 Extension: 1";
-    public static final String GAPP30_1 = "Existence: 9 Extension: 1";
-    public static final String GAPP30_2 = "Existence: 7 Extension: 2";
-    public static final String GAPP30_3 = "Existence: 6 Extension: 2";
-    public static final String GAPP30_4 = "Existence: 5 Extension: 2";
-    public static final String GAPP30_5 = "Existence: 8 Extension: 1";
-    public static final String GAPP70_1 = "Existence: 10 Extension: 1";
-    public static final String GAPP70_2 = "Existence: 7 Extension: 2";
-    public static final String GAPP70_3 = "Existence: 6 Extension: 2";
-    public static final String GAPP70_4 = "Existence: 8 Extension: 2";
-    public static final String GAPP70_5 = "Existence: 9 Extension: 1";
-    public static final String GAPP70_6 = "Existence: 11 Extension: 1";
+		digester.setUseContextClassLoader(true);
+		digester.addObjectCreate("database_list", ArrayList.class);
+		digester.addObjectCreate("database_list/database", DatabaseInfo.class);
+		digester.addSetProperties( "database_list/database", "name", "abbreviation" );
+		digester.addSetProperties( "database_list/database", "type", "type" );
+		digester.addBeanPropertySetter( "database_list/database/description", "description" );
+        digester.addBeanPropertySetter( "database_list/database/detail", "detail" );
+        digester.addSetNext("database_list/database", "add" );
 
+        File input = new File( componentDirectory+"/classes/databaseInfo.xml" );
+        
+		try {
+			databaseList = (List<DatabaseInfo>)digester.parse( input );
+			System.out.println("list size = "+databaseList.size()); // TODO remove
+	        for(DatabaseInfo d: databaseList) {
+	        	System.out.println(d.getDescription()+":"+d.getDetail()+":"+d.abbreviation+":"+d.getType());
+	        }
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (SAXException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 
-    public static final String MATRIX1 = "BLOSUM62";
-    public static final String MATRIX2 = "BLOSUM45";
-    public static final String MATRIX3 = "BLOSUM80";
-    public static final String MATRIX4 = "PAM30";
-    public static final String MATRIX5 = "PAM70";
-    public static final String MATRIX0 = "dna.mat";
-
-    public static final String BLASTPROGRAM1 = "blastn";
-    public static final String BLASTPROGRAM2 = "blastx";
-    public static final String BLASTPROGRAM3 = "tblastx";
-    public static final String BLASTPROGRAM4 = "blastp";
-    public static final String BLASTPROGRAM5 = "tblastn";
-    public static final String BLASTPROGRAM0 = "Please select a program first.";
-    
-    private static class DatabaseInfo {
-    	private String abbreviation;
-		private String description;
-    	
-    	DatabaseInfo(String abbreviation, String description) {
-    		this.abbreviation = abbreviation;
-    		this.description = description;
+    	List<DatabaseInfo> proteinList = new ArrayList<DatabaseInfo>();  
+    	List<DatabaseInfo> nucleotideList = new ArrayList<DatabaseInfo>();  
+    	for(DatabaseInfo d: databaseList) {
+    		if(d.getType().equals("protein"))proteinList.add(d);
+    		else if(d.getType().equals("nucleotide"))nucleotideList.add(d);
+    		else {
+    			log.error("wrong type "+d.getType()+" "+d.abbreviation);
+    		}
     	}
+    	proteinDBdescriptionArray  = new String[proteinList.size()][2];
+    	int i = 0;
+		for(DatabaseInfo d: proteinList) {
+			proteinDBdescriptionArray[i][1] = d.getAbbreviation();
+			proteinDBdescriptionArray[i][0] = d.getDescription();
+			i++;
+		}
+		nucleotideDBdescriptionArray = new String[nucleotideList.size()][2];
+    	i = 0;
+		for(DatabaseInfo d: nucleotideList) {
+			nucleotideDBdescriptionArray[i][1] = d.getAbbreviation();
+			nucleotideDBdescriptionArray[i][0] = d.getDescription();
+			i++;
+		}
+	} // end of constructor
+	
+	private String[][] nucleotideDBdescriptionArray = null;
+	private String[][] proteinDBdescriptionArray = null;
+	
+	static AlgorithmMatcher getInstance() {
+		if(instance==null) {
+			instance = new AlgorithmMatcher();
+		}
+		return instance;
+	}
+	
+	static public class DatabaseInfo {
+		private String abbreviation;
+		private String description;
+		private String detail;
+		private String type;
+		
+		public DatabaseInfo() {
+		}
 
-    	String getAbbreviation() {
+		public void setAbbreviation(String abbreviation) {
+			this.abbreviation = abbreviation;
+		}
+
+		public void setDescription(String description) {
+			this.description = description;
+		}
+
+		public void setDetail(String detail) {
+			this.detail = detail;
+		}
+
+		public void setType(String type) {
+			this.type = type;
+		}
+		
+		String getAbbreviation() {
 			return abbreviation;
 		}
 
 		String getDescription() {
 			return description;
 		}
-    }
 
-    private static final DatabaseInfo[] nucleotideDBdescription = {
-			new DatabaseInfo("nr", "All GenBank+EMBL+DDBJ+PDB sequences"),
-			new DatabaseInfo("refseq_rna", "mRNA from NCBI"),
-			new DatabaseInfo("refseq_genomic", "Genomic from NCBI"),
-			new DatabaseInfo("est", "GenBank+EMBL+DDBJ from EST"),
-			new DatabaseInfo("est_human", "Human subset of EST"),
-			new DatabaseInfo("est_mouse", "Mouse subset of EST"),
-			new DatabaseInfo("est_others", "Other than human or mouse"),
-			new DatabaseInfo("gss", "Genome Survey Sequence"),
-			new DatabaseInfo("htgs",
-					"Unfinished High Throughput Genomic Sequences"),
-			new DatabaseInfo("pat", "GenBank's Patent division nucleotides"),
-			new DatabaseInfo("pdb",
-					"3D structure seqeuences from Protein Data Bank"),
-			new DatabaseInfo("month", "Recent GenBank+EMBL+DDBJ+PDB sequences"),
-			new DatabaseInfo("alu", "Select Alu repeats from REPBASE"),
-			new DatabaseInfo("dbsts", "GenBank + EMBL + DDBJ"),
-			new DatabaseInfo("chromosome", "Complete chromosomes from NCBI RSP"),
-			new DatabaseInfo("wgs",
-					"Assemblies of Whole Genome Shotgun sequences"),
-			new DatabaseInfo("env_nt", "Sequences from environmental samples") };
-
-	private static final DatabaseInfo[] proteinDBdescription = {
-			new DatabaseInfo("nr", "All GenBank+EMBL+DDBJ+PDB sequences"),
-			new DatabaseInfo("refseq_protein", "NCBI Protein sequences"),
-			new DatabaseInfo("swissprot", "SWISS-PROT protein sequences"),
-			new DatabaseInfo("pat", "GenBank's Patent division"),
-			new DatabaseInfo("month", "Recent GenBank+EMBL+DDBJ+PDB"),
-			new DatabaseInfo("pdb",
-					"3D structure seqeuences from Protein Data Bank"),
-			new DatabaseInfo("env_nr", "CDS translations")};
-	
-	private static final String[][] nucleotideDBdescriptionArray = new String[nucleotideDBdescription.length][2];
-	private static final String[][] proteinDBdescriptionArray  = new String[proteinDBdescription.length][2];
-	static {
-		for(int i=0; i<nucleotideDBdescription.length; i++) {
-			nucleotideDBdescriptionArray[i][1] = nucleotideDBdescription[i].getAbbreviation();
-			nucleotideDBdescriptionArray[i][0] = nucleotideDBdescription[i].getDescription();
+		String getDetail() {
+			return detail;
 		}
-		for(int i=0; i<proteinDBdescription.length; i++) {
-			proteinDBdescriptionArray[i][1] = proteinDBdescription[i].getAbbreviation();
-			proteinDBdescriptionArray[i][0] = proteinDBdescription[i].getDescription();
+
+		String getType() {
+			return type;
 		}
 	}
-    
-    private static final String[] nucleotideDBdetails = {
-        "All GenBank+EMBL+DDBJ+PDB sequences\n" +
-        "(but no EST, STS, GSS, or phase 0,\n" +
-        "1 or 2 HTGS sequences).\n" +
-        "No longer 'non-redundant'\n" +
-        "due to computational cost.", // nr
-        
-        "mRNA sequences from NCBI\n" +
-        "Reference Sequence Project.", // refseq_mrna
-        
-        "Genomic sequences from\n" +
-        "NCBI Reference Sequence Project.", // refseq_genomic
-        
-        "Database of GenBank + EMBL + DDBJ\n" +
-        "sequences from EST division.", // est
-        
-        "Human subset of EST.", // est_human
-        "Mouse subset of EST.", // est_mouse
-        "Subset of est other than human or mouse.", // est_others
-        
-        "Genome Survey Sequence, includes\n" + 
-        "single-pass genomic data,\n" +
-        "nexon-trapped sequences,\n" +
-        "and Alu PCR sequences.", // gss
-        
-        "Unfinished High Throughput\n" +
-        "Genomic Sequences:\n" +
-        "phases 0, 1 and 2. Finished,\n" +
-        "phase 3 HTG sequences are in nr.", // htgs
-        
-        "Nucleotides from the\n" +
-        "Patent division of GenBank.", // pat
-                
-        "Sequences derived from the 3-dimensional\n" +
-        "structure records from Protein Data Bank.\n" +
-        "They are NOT the coding sequences for the\n" +
-        "coresponding proteins found in the same\n" +
-        "PDB record.", // pdb
-        
-        "All new or revised GenBank+EMBL+DDBJ+PDB\n" +
-        "sequences released in the last 30 days.", // month
-        
-        "Select Alu repeats from REPBASE,\n" +
-        "suitable for masking Alu repeats\n" +
-        "from query sequences.\n" +
-        "See 'Alu alert' by Claverie and Makalowski,\n" +
-        "Nature 371: 752 (1994).", // alu_repeats
-        
-        "Database of Sequence Tag Site entries\n" +
-        "from the STS division of\n" +
-        "GenBank + EMBL + DDBJ.", // dbsts
-        
-        "Complete genomes and complete chromosomes\n" +
-        "from the NCBI Reference Sequence project.\n" +
-        "It overlaps with refseq_genomic.", // chromosome
-        
-        "Assemblies of Whole Genome Shotgun sequences.", // wgs
-        
-        "Sequences from environmental samples,\n" +
-        "such as uncultured bacterial samples\n" +
-        "isolated from soil or marine samples.\n" +
-        "The largest single source is\n" +
-        "Sagarsso Sea project. \n" + 
-        "This does NOT overlap with nucleotide nr." // env_nt
-    
-    };
+	
+	static private Map<String, String> program2type = new HashMap<String, String>();
+	static {
+		program2type.put("blastn", "nucleotide");
+		program2type.put("blastp", "protein");
+		program2type.put("blastx", "protein");
+		program2type.put("tblastn", "nucleotide");
+		program2type.put("tblastx", "nucleotide");
+	}
 
-    private static final String[] proteinDBdetails = {
-        "Non-redundant GenBank CDS translations\n" +
-        "+ PDB + SwissProt + PIR + PRF, \n" +
-        "excluding those in env_nr.", // nr
-        
-        "Protein sequences from NCBI Reference\n" +
-        "Sequence project.", // refseq
-        
-        "Last major release of the SWISS-PROT protein\n" +
-        "sequence database (no incremental updates).", // swissprot
-        
-        "Proteins from the Patent division of GenBank.", // pat
-        "All new or revised GenBank CDS translations\n" +
-        "+ PDB + SwissProt + PIR + PRF released in the\n" +
-        "last 30 days.", // month
-        
-        "Sequences derived from the 3-dimensional\n" +
-        "structure records from the Protein Data Bank.", // pdb
+	private static final String GAP0 = "Existence: 11 Extension: 1";
+    private static final String GAP1 = "Existence:  9 Extension: 2";
+    private static final String GAP2 = "Existence:  8 Extension: 2";
+    private static final String GAP3 = "Existence:  7 Extension: 2";
+    private static final String GAP4 = "Existence: 12 Extension: 1";
+    private static final String GAP5 = "Existence: 10 Extension: 1";
+    private static final String GAPB45_1 = "Existence: 15 Extension: 2";
+    private static final String GAPB45_2 = "Existence: 13 Extension: 3";
+    private static final String GAPB45_3 = "Existence: 12 Extension: 3";
+    private static final String GAPB45_4 = "Existence: 11 Extension: 3";
+    private static final String GAPB45_5 = "Existence: 10 Extension: 3";
+    private static final String GAPB45_6 = "Existence: 14 Extension: 2";
+    private static final String GAPB45_7 = "Existence: 13 Extension: 2";
+    private static final String GAPB45_8 = "Existence: 12 Extension: 2";
+    private static final String GAPB45_9 = "Existence: 19 Extension: 1";
+    private static final String GAPB45_10 = "Existence: 18 Extension: 1";
+    private static final String GAPB45_11 = "Existence: 17 Extension: 1";
+    private static final String GAPB45_12 = "Existence: 16 Extension: 1";
+    private static final String GAPB80_1 = "Existence: 10 Extension: 1";
+    private static final String GAPB80_2 = "Existence: 8 Extension: 2";
+    private static final String GAPB80_3 = "Existence: 7 Extension:2";
+    private static final String GAPB80_4 = "Existence: 6 Extension: 2";
+    private static final String GAPB80_5 = "Existence: 11 Extension: 1";
+    private static final String GAPB80_6 = "Existence: 9 Extension: 1";
+    private static final String GAPP30_1 = "Existence: 9 Extension: 1";
+    private static final String GAPP30_2 = "Existence: 7 Extension: 2";
+    private static final String GAPP30_3 = "Existence: 6 Extension: 2";
+    private static final String GAPP30_4 = "Existence: 5 Extension: 2";
+    private static final String GAPP30_5 = "Existence: 8 Extension: 1";
+    private static final String GAPP70_1 = "Existence: 10 Extension: 1";
+    private static final String GAPP70_2 = "Existence: 7 Extension: 2";
+    private static final String GAPP70_3 = "Existence: 6 Extension: 2";
+    private static final String GAPP70_4 = "Existence: 8 Extension: 2";
+    private static final String GAPP70_5 = "Existence: 9 Extension: 1";
+    private static final String GAPP70_6 = "Existence: 11 Extension: 1";
 
-        "Non-redundant CDS translations\n" +
-        "from env_nt entries." // env_nr
-
-    };
+    private static final String MATRIX1 = "BLOSUM62";
+    private static final String MATRIX2 = "BLOSUM45";
+    private static final String MATRIX3 = "BLOSUM80";
+    private static final String MATRIX4 = "PAM30";
+    private static final String MATRIX5 = "PAM70";
+    private static final String MATRIX0 = "dna.mat";
 
     /**
      * Match to correct database.
      * 
      */
-    static String[][] translateToArray(String programName) {
-		if (programName.equalsIgnoreCase("blastp")) {
+    String[][] translateToArray(String programName) {
+    	String type = program2type.get(programName);
+		if (type==null) {
+			log.error("no database type for program "+programName);
+			return null;
+		} else if (type.equalsIgnoreCase("protein")) {
 			return proteinDBdescriptionArray;
-		} else if (programName.equalsIgnoreCase("blastn")) {
+		} else if (type.equalsIgnoreCase("nucleotide")) {
 			return nucleotideDBdescriptionArray;
-		} else if (programName.startsWith("tblast")) {
-			return nucleotideDBdescriptionArray;
-		} else if (programName.equalsIgnoreCase("blastx")) {
-			return proteinDBdescriptionArray;
 		} else {
+			log.error("wrong database type "+type+" for program "+programName);
 			return null;
 		}
 	}
 
-    static String translateToDBdetails(String programName, int selection) {
-    	if (selection < 0 ){
-    		return "";
+    /**
+     * Given program + the index of database, return the detail
+     * @param programName
+     * @param selection
+     * @return
+     */
+    String getDatabaseDetail(String programName, String databaseName) {
+    	String type = program2type.get(programName);
+    	for(DatabaseInfo d: databaseList) {
+    		if (d.getType().equals(type)
+					&& d.getAbbreviation().equals(databaseName))
+				return d.getDetail();
     	}
-    	
-		if (programName.equalsIgnoreCase("blastp")) {
-			return proteinDBdetails[selection];
-		} else if (programName.equalsIgnoreCase("blastn")) {
-			return nucleotideDBdetails[selection];
-		} else if (programName.startsWith("tblast")) {
-			return nucleotideDBdetails[selection];
-		} else if (programName.equalsIgnoreCase("blastx")) {
-			return proteinDBdetails[selection];
-		} else if (programName.equalsIgnoreCase("gridblast.cu-genome.org")) {
-			return "http://adgate.cu-genome.org:8080/ogsa/services/core/registry/ContainerRegistryService";
-		} else if (programName.equalsIgnoreCase("informatics40")) {
-			return "http://156.145.235.50:8081/ogsa/services/core/registry/ContainerRegistryService";
-		} else {
-			return "";
-		}
+    	log.error("no matching database for program "+programName);
+    	return null;
 	}
 
     /**
-     * Match to correct matrix.
+     * Static utility used in BlastAppComponent: Match to correct matrix.
      * @param programName String
      * @return String[]
      */
     static String[] translateToMatrices(String programName) {
         if (programName.equalsIgnoreCase("blastn")) {
             return new String[] {MATRIX0};
-
         } else {
             return new String[] {MATRIX1, MATRIX2, MATRIX3, MATRIX4, MATRIX5
             };
         }
-
     }
 
     /**
-     * Match matrix name with gap costs.
+     * Static utility used in BlastAppComponent: Match matrix name with gap costs.
      * @param programName String
      * @return String[]
      */
@@ -303,7 +278,27 @@ public class AlgorithmMatcher {
 
     }
 
+    /**
+     * Static utility ussed in BlastAppComponent: translate program name to word size.
+     *
+     * @param selectedProgramName String
+     * @return String[]
+     */
+    static String[] translateToWordSize(String selectedProgramName) {
+        if (selectedProgramName.trim().equalsIgnoreCase("blastn")) {
+            return new String[] {"11", "7", "15"};
+        } else {
+            return new String[] {"3", "2"};
+        }
 
+    }
+
+    /**
+     * Utility to create command-line parameter, only used by BlastAlgorithm.execute();
+     * 
+     * @param ps
+     * @return
+     */
     public static String translateToCommandline(ParameterSetting ps) {
         String cmd = null;
         if (ps != null) {
@@ -443,21 +438,5 @@ public class AlgorithmMatcher {
         }
 
         return cmd;
-    }
-
-    /**
-     * translateToWordSize
-     *
-     * @param selectedProgramName String
-     * @return String[]
-     */
-    static String[] translateToWordSize(String selectedProgramName) {
-        if (selectedProgramName.trim().equalsIgnoreCase("blastn")) {
-            return new String[] {"11", "7", "15"};
-
-        } else {
-            return new String[] {"3", "2"};
-        }
-
     }
 }
