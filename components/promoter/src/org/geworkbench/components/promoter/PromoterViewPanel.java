@@ -262,7 +262,7 @@ public class PromoterViewPanel extends JPanel {
         matrixPane.setViewportBorder(BorderFactory.createRaisedBevelBorder());
         matrixPane.setMinimumSize(new Dimension(50, 100));
         matrixPane.setPreferredSize(new Dimension(100, 100));
-        matrixPane.setToolTipText("Detaill");
+        matrixPane.setToolTipText("Detail");
         reverseButton = new JButton("Reverse complement");
         reverseButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -374,6 +374,26 @@ public class PromoterViewPanel extends JPanel {
             }
         });
         jSelectedTFList.setToolTipText("Selected transcription factors");
+		KeyAdapter tfListKeyAdapter = new KeyAdapter() {
+			@Override
+			public void keyReleased(KeyEvent e) {
+				if (e.isActionKey()) {
+					int index = jSelectedTFList.getSelectedIndex();
+					if (index < 0) {
+						return;
+					}
+					TranscriptionFactor pattern = (TranscriptionFactor) jSelectedTFList
+							.getModel().getElementAt(index);
+					currentTF = pattern;
+					try {
+						drawLogo(pattern);
+					} catch (Exception e2) {
+						e2.printStackTrace();
+					}
+				}
+			}
+		};
+		jSelectedTFList.addKeyListener(tfListKeyAdapter);
         jLabel3.setHorizontalAlignment(SwingConstants.CENTER);
         jLabel3.setText("Selected TF");
         jPanel1.setLayout(borderLayout5);
