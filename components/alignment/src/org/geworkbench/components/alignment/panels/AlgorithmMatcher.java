@@ -56,10 +56,6 @@ public class AlgorithmMatcher {
         
 		try {
 			databaseList = (List<DatabaseInfo>)digester.parse( input );
-			System.out.println("list size = "+databaseList.size()); // TODO remove
-	        for(DatabaseInfo d: databaseList) {
-	        	System.out.println(d.getDescription()+":"+d.getDetail()+":"+d.abbreviation+":"+d.getType());
-	        }
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
