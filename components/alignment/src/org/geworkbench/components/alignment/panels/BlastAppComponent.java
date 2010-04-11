@@ -725,14 +725,16 @@ public class BlastAppComponent implements VisualPlugin {
      * @return ParameterSetting
      */
     private ParameterSetting collectParameters() {
-        int selectedRow = databaseTable.getSelectedRow();
-        String dbName = (String)databaseTable.getModel().getValueAt(selectedRow, DATABASE_NAME_INDEX);
-
         String programName = (String) jProgramBox.getSelectedItem();
         if (programName == null ||
             programName.equalsIgnoreCase(SELECT_A_PROGRAM_PROMPT)) {
             reportError("Please select a PROGRAM to search!", "Parameter Error");
             return null;
+        }
+        int selectedRow = databaseTable.getSelectedRow();
+        String dbName = null;
+        if(selectedRow!=-1) {
+        	dbName = (String)databaseTable.getModel().getValueAt(selectedRow, DATABASE_NAME_INDEX);
         }
         if (dbName == null) {
             reportError("Please select a DATABASE to search!",
