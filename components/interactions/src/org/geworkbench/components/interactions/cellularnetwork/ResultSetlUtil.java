@@ -1,13 +1,5 @@
 package org.geworkbench.components.interactions.cellularnetwork;
 
-import java.awt.BorderLayout;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.Toolkit;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -16,17 +8,9 @@ import java.io.OutputStreamWriter;
 import java.math.BigDecimal;
 import java.net.Authenticator;
 import java.net.HttpURLConnection;
-import java.net.PasswordAuthentication;
 import java.net.URL;
 import java.util.Properties;
 import java.util.TreeMap;
-import javax.servlet.http.HttpServletResponse;
-import javax.swing.JButton;
-import javax.swing.JDialog;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JPasswordField;
-import javax.swing.JTextField;
 
 /**
  * @author oleg shteynbuk
@@ -191,12 +175,12 @@ public class ResultSetlUtil {
 
 		int respCode = aConnection.getResponseCode();
 
-		if (respCode == HttpServletResponse.SC_UNAUTHORIZED)
+		if (respCode == HttpURLConnection.HTTP_UNAUTHORIZED )
 			throw new UnAuthenticatedException("server response code = "
 					+ respCode);
 
-		if ((respCode == HttpServletResponse.SC_BAD_REQUEST)
-				|| (respCode == HttpServletResponse.SC_INTERNAL_SERVER_ERROR)) {
+		if ((respCode == HttpURLConnection.HTTP_BAD_REQUEST)
+				|| (respCode == HttpURLConnection.HTTP_INTERNAL_ERROR)) {
 			throw new IOException("server response code = " + respCode
 					+ ", see server logs");
 		}
