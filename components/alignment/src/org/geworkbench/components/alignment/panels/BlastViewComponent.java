@@ -85,25 +85,20 @@ public class BlastViewComponent implements
             sequenceDB = ((CSAlignmentResultSet)df).getBlastedParentDataSet();
         }
         if (sequenceDB instanceof CSSequenceSet && df != null) {
-            //update db with the selected file in the project
             if (df instanceof DSAlignmentResultSet) {
-                if ( ((CSAlignmentResultSet) df).getLabel().equals(BlastAppComponent.NCBILABEL) ) {
-                	int totalSequenceNumber = ((CSSequenceSet<? extends DSSequence>) sequenceDB)
-							.size();
-					NCBIBlastParser nbp = new NCBIBlastParser(
-							totalSequenceNumber, ((DSAlignmentResultSet) df)
-									.getResultFilePath());
+            	log.debug("update blast result view panel");
+               	int totalSequenceNumber = ((CSSequenceSet<? extends DSSequence>) sequenceDB)
+						.size();
+				NCBIBlastParser nbp = new NCBIBlastParser(totalSequenceNumber,
+						((DSAlignmentResultSet) df).getResultFilePath());
 
-					blastViewPanel
-							.setSequenceDB((CSSequenceSet<? extends DSSequence>) sequenceDB);
-					blastViewPanel.setBlastDataSet(nbp.parseResults());
+				blastViewPanel
+						.setSequenceDB((CSSequenceSet<? extends DSSequence>) sequenceDB);
+				blastViewPanel.setBlastDataSet(nbp.parseResults());
 
-					String summary = nbp.getSummary();
-					blastViewPanel.setSummary(summary);
-					df.addDescription(summary);
-                } else {
-                	log.error("Unexpected CSAlignmentResultSet label "+((CSAlignmentResultSet) df).getLabel());
-                }
+				String summary = nbp.getSummary();
+				blastViewPanel.setSummary(summary);
+				df.addDescription(summary);
             } else {
                 blastViewPanel.resetToWhite();
             }
