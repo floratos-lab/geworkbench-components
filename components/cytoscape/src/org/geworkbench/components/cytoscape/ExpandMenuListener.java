@@ -94,9 +94,10 @@ public class ExpandMenuListener implements NodeContextMenuListener {
 					&& Cytoscape.getCurrentNetwork() != null) {
 				java.util.List nodes = Cytoscape.getCurrentNetworkView()
 						.getSelectedNodes();
-				
-				if(nodes.size()==0)return;
-				
+
+				if (nodes.size() == 0)
+					return;
+
 				log.debug(nodes.size() + " node(s) selected");
 
 				DSPanel<DSGeneMarker> IntersectionMarkers = new CSPanel<DSGeneMarker>(
@@ -217,26 +218,23 @@ public class ExpandMenuListener implements NodeContextMenuListener {
 		for (Node node : nodes) {
 			if (node instanceof CyNode) {
 				String id = node.getIdentifier();
-
-				List<String> spIDs = Cytoscape.getNodeAttributes()
-						.getListAttribute(id, "swissprotIDs");
-				if (spIDs != null) {
-					for (Iterator<String> isp = spIDs.iterator(); isp.hasNext();) {
-						Collection<Integer> markerIds = geneIdToMarkerIdMap
-								.get(isp.next());
-						if (markerIds != null) {
-							for (Integer markerId : markerIds) {
-								selectedMarkers.add((DSGeneMarker) maSet
-										.getMarkers().get(markerId));
-							}
+				Integer geneId = Cytoscape.getNodeAttributes()
+						.getIntegerAttribute(id, "geneID");
+				if (geneId != null) {
+					Collection<Integer> markerIds = geneIdToMarkerIdMap
+							.get(geneId.toString());
+					if (markerIds != null) {
+						for (Integer markerId : markerIds) {
+							selectedMarkers.add(maSet.getMarkers()
+									.get(markerId));
 						}
 					}
+
 				}
 				if (geneIdToMarkerIdMap.size() == 0)
-					// probably user doesn't load annotation file, so
-					// swissprotIdToMarkerIdMap contains nothing
-					selectedMarkers.add((DSGeneMarker) maSet.getMarkers().get(
-							id));
+
+					selectedMarkers.add(maSet.getMarkers().get(id));
+
 			}
 		}
 		return selectedMarkers;
