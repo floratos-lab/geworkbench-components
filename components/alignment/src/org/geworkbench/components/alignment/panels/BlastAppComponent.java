@@ -5,7 +5,6 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -131,74 +130,45 @@ public class BlastAppComponent implements VisualPlugin {
     private JLabel jGapcostsLabel = new JLabel("Gap costs:");
     private JComboBox jGapcostsBox = new JComboBox();
     
-	CSSequenceSet fastaFile;
+    private CSSequenceSet fastaFile;
     private BlastAppComponent blastAppComponent = null;
-    JPanel subSeqPanel;
-    JPanel subSeqPanel2;
+    private JPanel subSeqPanel;
+    private JPanel subSeqPanel2;
 
-    JTextField jstartPointField = new JTextField();
-    JTextField jendPointField = new JTextField();
-    JProgressBar serviceProgressBar = new JProgressBar();
+    private JTextField jstartPointField = new JTextField();
+    private JTextField jendPointField = new JTextField();
+    private JProgressBar serviceProgressBar = new JProgressBar();
 
-    JLabel jLabel5 = new JLabel();
-    JPanel subSeqPanel1 = new JPanel();
+    private JComboBox jProgramBox1 = new JComboBox();
 
-    JLabel jLabel6 = new JLabel();
-    JComboBox jProgramBox1 = new JComboBox();
-    JLabel jLabel7 = new JLabel();
-    JLabel databaseLabel1 = new JLabel();
+    private GridBagLayout gridBagLayout3 = new GridBagLayout();
+    private GridBagLayout gridBagLayout2 = new GridBagLayout();
 
-    JLabel jLabel8 = new JLabel();
-    GridBagLayout gridBagLayout7 = new GridBagLayout();
-    JLabel jAlgorithmLabel = new JLabel();
-    JTextField jendPointField1 = new JTextField();
+    private JButton blastStopButton = new JButton();
 
-    GridBagLayout gridBagLayout8 = new GridBagLayout();
-    FlowLayout flowLayout2 = new FlowLayout();
-    JTextField jstartPointField1 = new JTextField();
-    BorderLayout borderLayout5 = new BorderLayout();
+    private JToolBar jToolBar2 = new JToolBar();
 
-    JProgressBar progressBar1 = new JProgressBar();
-    GridBagLayout gridBagLayout9 = new GridBagLayout();
-
-    BorderLayout borderLayout1 = new BorderLayout();
-    GridBagLayout gridBagLayout3 = new GridBagLayout();
-    GridBagLayout gridBagLayout2 = new GridBagLayout();
-
-    JButton blastStopButton = new JButton();
-
-    FlowLayout flowLayout4 = new FlowLayout();
-    GridBagLayout gridBagLayout14 = new GridBagLayout();
-    BorderLayout borderLayout8 = new BorderLayout();
-
-    BorderLayout borderLayout9 = new BorderLayout();
-
-    BorderLayout borderLayout6 = new BorderLayout();
-    GridBagLayout gridBagLayout4 = new GridBagLayout();
-    JCheckBox allArraysCheckBox;
-    JToolBar jToolBar2 = new JToolBar();
-    TitledBorder titledBorder1 = new TitledBorder("");
-    Border border1 = BorderFactory.createEtchedBorder(Color.white,
+    private Border border1 = BorderFactory.createEtchedBorder(Color.white,
             new Color(165, 163, 151));
-    Border border2 = new TitledBorder(border1,
+    private Border border2 = new TitledBorder(border1,
                                       "Please specify Program and Database");
-    Border border3 = new TitledBorder(border1, "Database Details");
-    JTextArea textArea = new JTextArea();
+    private Border border3 = new TitledBorder(border1, "Database Details");
+    private JTextArea textArea = new JTextArea();
 
-    JLabel jLabel9 = new JLabel();
-    XYLayout xYLayout1 = new XYLayout();
-    ImageIcon startButtonIcon = new ImageIcon(this.getClass().getResource(
+    private JLabel jLabel9 = new JLabel();
+    private XYLayout xYLayout1 = new XYLayout();
+    private ImageIcon startButtonIcon = new ImageIcon(this.getClass().getResource(
             "start.gif"));
-    ImageIcon stopButtonIcon = new ImageIcon(this.getClass().getResource(
+    private ImageIcon stopButtonIcon = new ImageIcon(this.getClass().getResource(
             "stop.gif"));
-    JPanel jPanel2 = new JPanel();
-    JPanel jPanel3 = new JPanel();
-    BorderLayout borderLayout2 = new BorderLayout();
 
-    BorderLayout borderLayout3 = new BorderLayout();
-    JScrollPane jScrollPane4 = new JScrollPane();
+    private JPanel jPanel3 = new JPanel();
+    private BorderLayout borderLayout2 = new BorderLayout();
+
+    private BorderLayout borderLayout3 = new BorderLayout();
+    private JScrollPane jScrollPane4 = new JScrollPane();
     private static final int MAIN = 0;
-    public static final int SERVER = 2;
+    private static final int SERVER = 2;
 
     private boolean stopButtonPushed;
     
@@ -258,44 +228,15 @@ public class BlastAppComponent implements VisualPlugin {
         jendPointField = new JTextField();
         serviceProgressBar = new JProgressBar();
 
-        jLabel5 = new JLabel();
-        subSeqPanel1 = new JPanel();
-
-        jLabel6 = new JLabel();
         jProgramBox1 = new JComboBox();
-        jLabel7 = new JLabel();
-        databaseLabel1 = new JLabel();
 
-        jLabel8 = new JLabel();
-        gridBagLayout7 = new GridBagLayout();
-        jAlgorithmLabel = new JLabel();
-        jendPointField1 = new JTextField();
-
-        gridBagLayout8 = new GridBagLayout();
-        flowLayout2 = new FlowLayout();
-        jstartPointField1 = new JTextField();
-        borderLayout5 = new BorderLayout();
-
-        progressBar1 = new JProgressBar();
-        gridBagLayout9 = new GridBagLayout();
-
-        borderLayout1 = new BorderLayout();
         gridBagLayout3 = new GridBagLayout();
         gridBagLayout2 = new GridBagLayout();
 
         blastStopButton = new JButton();
 
-        flowLayout4 = new FlowLayout();
-        gridBagLayout14 = new GridBagLayout();
-        borderLayout8 = new BorderLayout();
-
-        borderLayout9 = new BorderLayout();
-
-        borderLayout6 = new BorderLayout();
-        gridBagLayout4 = new GridBagLayout();
-
         jToolBar2 = new JToolBar();
-        titledBorder1 = new TitledBorder("");
+
         border1 = BorderFactory.createEtchedBorder(Color.white,
                 new Color(165, 163, 151));
         border2 = new TitledBorder(border1,
@@ -307,7 +248,7 @@ public class BlastAppComponent implements VisualPlugin {
                 "start.gif"));
         stopButtonIcon = new ImageIcon(this.getClass().getResource(
                 "stop.gif"));
-        jPanel2 = new JPanel();
+
         jPanel3 = new JPanel();
         borderLayout2 = new BorderLayout();
 
@@ -315,7 +256,6 @@ public class BlastAppComponent implements VisualPlugin {
 
         //above is part of code to get rid of npe.
         //sgePanel.setPv(this);
-        allArraysCheckBox = new JCheckBox("Activated Sequences", true);
         subSeqPanel = new JPanel();
         subSeqPanel.setBorder(border2);
         subSeqPanel2 = new JPanel();
@@ -409,35 +349,12 @@ public class BlastAppComponent implements VisualPlugin {
         jstartPointField.setText("1");
         jendPointField.setText("");
 
-        jLabel5.setAlignmentY((float) 0.5);
-        jLabel5.setMinimumSize(new Dimension(5, 15));
-        jLabel5.setHorizontalTextPosition(SwingConstants.TRAILING);
-        jLabel5.setText("Please specify subsequence, database and program .");
-        jLabel5.setVerticalAlignment(javax.swing.SwingConstants.BOTTOM);
-        jLabel5.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
-        subSeqPanel1.setLayout(gridBagLayout9);
-
-        jLabel6.setText("to ");
         jProgramBox1.setAutoscrolls(false);
         jProgramBox1.setMinimumSize(new Dimension(26, 21));
         //jProgramBox1.setPreferredSize(new Dimension(26, 21));
-        jLabel7.setText("Subsequence: ");
-        databaseLabel1.setToolTipText("");
-        databaseLabel1.setText("Database:");
-
-        jLabel8.setText("From");
-        jAlgorithmLabel.setText("Algorithms:");
-        jendPointField1.setText("end");
-
-        jstartPointField1.setText("1");
-
-        progressBar1.setOrientation(JProgressBar.HORIZONTAL);
-        progressBar1.setBorder(BorderFactory.createEtchedBorder());
-        progressBar1.setStringPainted(true);
 
         jAdvancedPane.setMinimumSize(new Dimension(5, 25));
         blastxSettingPanel.setMinimumSize(new Dimension(5, 115));
-        subSeqPanel1.setMinimumSize(new Dimension(10, 30));
 
         blastStopButton.setFont(new java.awt.Font("Arial Black", 0, 11));
         blastStopButton.setVerifyInputWhenFocusTarget(true);
@@ -452,26 +369,6 @@ public class BlastAppComponent implements VisualPlugin {
         serviceProgressBar.setOrientation(JProgressBar.HORIZONTAL);
         serviceProgressBar.setBorder(BorderFactory.createEtchedBorder());
         serviceProgressBar.setStringPainted(true);
-
-        subSeqPanel1.add(jLabel8, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0
-                , GridBagConstraints.WEST, GridBagConstraints.NONE,
-                new Insets(5, 17, 0, 0), 0, 10));
-        subSeqPanel1.add(jstartPointField1,
-                         new GridBagConstraints(2, 0, 1, 1, 1.0, 0.0
-                                                , GridBagConstraints.WEST,
-                                                GridBagConstraints.HORIZONTAL,
-                                                new Insets(5, 18, 0, 0), 14, 4));
-        subSeqPanel1.add(jLabel6, new GridBagConstraints(3, 0, 1, 1, 0.0, 0.0
-                , GridBagConstraints.WEST, GridBagConstraints.NONE,
-                new Insets(5, 0, 0, 0), 0, 10));
-        subSeqPanel1.add(jendPointField1,
-                         new GridBagConstraints(4, 0, 1, 1, 1.0, 0.0
-                                                , GridBagConstraints.WEST,
-                                                GridBagConstraints.HORIZONTAL,
-                                                new Insets(5, 36, 0, 49), 6, 4));
-        subSeqPanel1.add(jLabel7, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
-                , GridBagConstraints.WEST, GridBagConstraints.NONE,
-                new Insets(5, 0, 0, 0), 0, 10));
 
         jTabbedPane1.add(jTabbedBlastPane, "BLAST");
         
@@ -790,44 +687,6 @@ public class BlastAppComponent implements VisualPlugin {
         return ps;
     }
 
-    /**
-     * blastFinished
-     * Take care of the state of finished blast.
-     */
-    public void blastFinished(String cmd) {
-        Date finished_Date = new Date();
-        if (cmd.startsWith("Interrupted")) {
-
-            serviceProgressBar.setForeground(Color.ORANGE);
-            serviceProgressBar.setBackground(Color.ORANGE);
-           updateProgressBar(false, "Stopped on " + finished_Date);
-
-        } else if (cmd.startsWith("OTHERS_Interrupted")) {
-
-            progressBar1.setForeground(Color.ORANGE);
-            progressBar1.setBackground(Color.ORANGE);
-            updateProgressBar(false, "Stopped on " + finished_Date);
-
-        } else {
-
-            if (cmd.startsWith("pb")) {
-
-                serviceProgressBar.setIndeterminate(false);
-
-                serviceProgressBar.setForeground(Color.ORANGE);
-                serviceProgressBar.setBackground(Color.ORANGE);
-                serviceProgressBar.setString("Finished on " + finished_Date);
-            } else if (cmd.startsWith("btk search")) {
-                progressBar1.setIndeterminate(false);
-
-                progressBar1.setForeground(Color.ORANGE);
-                progressBar1.setBackground(Color.ORANGE);
-                progressBar1.setString("Finished on " + finished_Date);
-            }
-
-        }
-    }
-
     private void blastButton_actionPerformed(ActionEvent e) {
         stopButtonPushed = false;
         if (jTabbedPane1.getSelectedIndex() == BlastAppComponent.BLAST) {
@@ -854,8 +713,10 @@ public class BlastAppComponent implements VisualPlugin {
     private void blastStopButton_actionPerformed(ActionEvent e) {
         stopButtonPushed = true;
         if (this.jTabbedPane1.getSelectedIndex() == BlastAppComponent.BLAST) {
-            blastFinished("Interrupted");
-        }
+			serviceProgressBar.setForeground(Color.ORANGE);
+			serviceProgressBar.setBackground(Color.ORANGE);
+			updateProgressBar(false, "Stopped on " + new Date());
+		}
         
         if(blastAlgo!=null)
         	blastAlgo.stop();
