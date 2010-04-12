@@ -38,7 +38,6 @@ public class BlastAlgorithm {
 	private boolean startBrowser;
 	private boolean jobFinished = false;
 
-	private boolean useNCBI = false;
 	private ParameterSetting parameterSetting;
 
 	private CSSequenceSet<CSSequence> sequenceDB;
@@ -123,10 +122,6 @@ public class BlastAlgorithm {
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
-		}
-
-		if (!useNCBI) {
-			LOG.error("useNCBI is never expected to be false");
 		}
 
 		String tempFolder = FilePathnameUtils.getTemporaryFilesDirectoryPath();
@@ -279,10 +274,6 @@ public class BlastAlgorithm {
 		return blastAppComponent;
 	}
 
-	public boolean isUseNCBI() {
-		return useNCBI;
-	}
-
 	public ParameterSetting getParameterSetting() {
 		return parameterSetting;
 	}
@@ -293,10 +284,6 @@ public class BlastAlgorithm {
 
 	public void setStartBrowser(boolean startBrowser) {
 		this.startBrowser = startBrowser;
-	}
-
-	public void setUseNCBI(boolean useNCBI) {
-		this.useNCBI = useNCBI;
 	}
 
 	public void setParameterSetting(ParameterSetting parameterSetting) {
