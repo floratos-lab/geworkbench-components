@@ -150,6 +150,9 @@ public class BlastAlgorithm {
 				processExceptionFromNcbi(e1, sequence);
 				return;
 			}
+			if (stopRequested) { // even if 'not done'
+				return;
+			}
 			if (BLAST_rid == null) {
 				if (blastAppComponent != null) {
 					blastAppComponent
@@ -171,19 +174,20 @@ public class BlastAlgorithm {
 
 			blast.getBlast(BLAST_rid, "HTML");
 			while (!blast.getBlastDone()) {
-				try {
-					if (blastAppComponent != null
-							&& !blastAppComponent.isStopButtonPushed()
-							&& !stopRequested) {
-						updateStatus("For sequence " + sequence
-								+ ",  the blast job is running. ");
+				if (blastAppComponent != null
+						&& !blastAppComponent.isStopButtonPushed()
+						&& !stopRequested) {
+					updateStatus("For sequence " + sequence
+							+ ",  the blast job is running. ");
+					try {
 						Thread.sleep(TIMEGAP);
-					} else {
+					} catch (InterruptedException e) {
 						return;
 					}
-				} catch (Exception e) {
-
+				} else {
+					return;
 				}
+
 				updateStatus("Querying sequence: "
 						+ sequence.getDescriptions().toString());
 

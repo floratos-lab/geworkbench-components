@@ -238,7 +238,7 @@ public class RemoteBlast {
 			try {
 				Thread.sleep(TIMEGAP);
 			} catch (InterruptedException e) {
-				e.printStackTrace();
+				return;
 			}
 		}
 		getBlastDone = true;
