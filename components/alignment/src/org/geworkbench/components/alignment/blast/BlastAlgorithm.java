@@ -187,6 +187,9 @@ public class BlastAlgorithm {
 				} else {
 					return;
 				}
+				if (stopRequested) { // even if 'not done'
+					return;
+				}
 
 				updateStatus("Querying sequence: "
 						+ sequence.getDescriptions().toString());
