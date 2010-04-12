@@ -598,7 +598,6 @@ public class BlastAppComponent implements VisualPlugin {
                     }
 
                     blastAlgo = new BlastAlgorithm();
-                    blastAlgo.setUseNCBI(true);
                     blastAlgo.setParameterSetting(parameterSetting);
 
                     blastAlgo.setBlastAppComponent(this);
