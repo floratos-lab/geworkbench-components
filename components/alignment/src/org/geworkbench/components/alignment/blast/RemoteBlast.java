@@ -70,10 +70,6 @@ public class RemoteBlast {
 	 * the combination of parameters.
 	 */
 	private String cmdLine;
-	/**
-	 * The URL of the Blast result corresponds to one sequence.
-	 */
-	private String resultURLString;
 
 	/**
 	 * Creates a new RemoteBlast and sets query, filename.
@@ -222,30 +218,7 @@ public class RemoteBlast {
 		}
 	}
 
-	/**
-	 * Sets getBlastDone to <code>false</code> indicating Blast is not done
-	 * yet and creates a new GetBlast with the specified String as a parameter.
-	 *
-	 * @param rid -
-	 *            String representing the Blast RID# to retrieve results for.
-	 */
-	void getBlast(String rid, String format) {
-		getBlastDone = false;
-		resultURLString = "http://blast.ncbi.nlm.nih.gov/Blast.cgi?CMD=Get&FORMAT_TYPE="
-				+ format + "&RID=" + rid;
-
-		while(!retrieveResult()) {
-			try {
-				Thread.sleep(TIMEGAP);
-			} catch (InterruptedException e) {
-				return;
-			}
-		}
-		getBlastDone = true;
-	}
-	
-	// a new thread is not necessary because this is already in a separate thread managed by BlastAlgorithm
-	private boolean retrieveResult() {
+	boolean retrieveResult(String resultURLString) {
 		HttpClient client = new HttpClient();
 		DefaultHttpMethodRetryHandler retryhandler = new DefaultHttpMethodRetryHandler(
 				10, true);
@@ -303,8 +276,6 @@ public class RemoteBlast {
 		}
 
 	}
-	
-	private static long TIMEGAP = 4000;
 	
 	private String updateImageLink(String data) {
 		data = data.replaceAll("(src|SRC)=\"(/blast/)?images",
