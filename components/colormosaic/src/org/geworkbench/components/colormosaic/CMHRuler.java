@@ -8,6 +8,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
 import java.awt.font.FontRenderContext;
+import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 import java.text.StringCharacterIterator;
 
@@ -22,13 +23,19 @@ import java.text.StringCharacterIterator;
  * @version 1.0
  */
 public class CMHRuler extends JComponent {
-    public final static int SIZE = 22;
+	private static final long serialVersionUID = -2929497868642667486L;
+	private static final int SIZE = 15;
+	private static final int gutter = 4;
     public final static int DEFAULTRES = 72;
     private int selGroupId = -1;
-    private boolean showPattern = true;
+//    private boolean showPattern = true;
     private int increment;
     private ColorMosaicImage colorMosaicImage;
     private int vSize = 0;
+    private int arrayNameLength = 0;
+    // Do the ruler labels in a small font that's black.
+    private int fontSize = 9;
+    private Font font = new Font("Times New Roman", Font.PLAIN, fontSize);
     private JPopupMenu jGeneRuleMenu = new JPopupMenu();
     private JMenu jShowMArrayVector = new JMenu();
     private JMenuItem jHideMArrayVector = new JMenuItem();
@@ -70,46 +77,51 @@ public class CMHRuler extends JComponent {
         paint(gGen, DEFAULTRES);
     }
 
+    private boolean clearArraynames = true;
+    public void setClearArraynames(boolean val) {
+    	clearArraynames = val;
+    }
+
+    private boolean clearDisplay = true;
+    public void setClearDisplay(boolean val) {
+    	clearDisplay = val;
+    }
+    
     public void paint(Graphics gGen, int res) {
         double scale = (double) res / (double) DEFAULTRES;
-        Graphics2D g = (Graphics2D) gGen;
-        Rectangle drawHere = g.getClipBounds();
-        g.setColor(Color.WHITE);
-        g.fill(drawHere);
-        if ((colorMosaicImage.getMArrayPanel() != null) && (!colorMosaicImage.showAllMArrays)) {
-            // Do the ruler labels in a small font that's black.
-            int fontSize = (int) (9.0);
+		Graphics2D g = (Graphics2D) gGen;
+		Rectangle drawHere = g.getClipBounds();
+		g.setColor(Color.WHITE);
+		g.fill(drawHere);
 
-            if (res != DEFAULTRES) {
-                fontSize = 15;
-            }
+		if (res != DEFAULTRES) {
+			fontSize = 15;
+			font.deriveFont(fontSize);
+		}
+		g.setFont(font);
+		g.setColor(Color.black);
 
-            Font font = new Font("Times New Roman", Font.PLAIN, fontSize);
-            g.setFont(font);
-            g.setColor(Color.black);
+		int tickLength = (int) (5 * scale);
+		int realSize = (int) (vSize * scale);
+		int minSize = (int) scale;
+		
+		// Use clipping bounds to calculate first tick and last tick location.
+		// Vector boundaries = Area.GetChipManager().Boundaries;
+		// ArrayList Groups = ColorMosaicImage.GetChipManager().Groups;
+		DSPanel<DSMicroarray> maGroupVector = colorMosaicImage.getMArrayPanel();
+		
+		//ArrayList Groups = ColorMosaicImage.GetMArrayPanel().GetGroups;
+		int chipId = 0;
+		int chipNo = colorMosaicImage.getChipNo();
 
-            // Some vars we need.
-            int end = 0;
-            int start = 0;
-            int tickLength = (int) (5 * scale);
-            int realSize = (int) (vSize * scale);
-            int minSize = (int) scale;
-            String text = null;
-
-            // Use clipping bounds to calculate first tick and last tick location.
-            // Vector boundaries = Area.GetChipManager().Boundaries;
-            // ArrayList Groups = ColorMosaicImage.GetChipManager().Groups;
-            DSPanel<DSMicroarray> maGroupVector = colorMosaicImage.getMArrayPanel();
-
-            //ArrayList Groups = ColorMosaicImage.GetMArrayPanel().GetGroups;
-            int chipId = 0;
-
-            // Show each phenotype in the panel if active
-            for (int i = 0; i < maGroupVector.panels().size(); i++) {
+		if (maGroupVector != null) {
+			// Show each phenotype in the panel if active
+			for (int i = 0; i < maGroupVector.panels().size(); i++) {
                 DSPanel<DSMicroarray> mArrayVector = maGroupVector.panels().get(i);
 
                 //JMicroarrayManager chipMgr = (JMicroarrayManager)Groups.get(i);
                 if (mArrayVector.isActive() && (mArrayVector.size() > 0)) {
+
                     int firstChip = chipId;
                     int lastChip = chipId + mArrayVector.size();
                     int x0 = ((firstChip * colorMosaicImage.geneWidth) + (colorMosaicImage.geneWidth / 2)) / 1;
@@ -129,10 +141,31 @@ public class CMHRuler extends JComponent {
                     }
 
                     g.drawString(mArrayVector.getLabel(), (int) (xx - halfWidth), realSize - tickLength);
-                    chipId = lastChip;
+                    chipId = lastChip;                	
                 }
-            }
-        }
+			}	
+		}
+		if (clearArraynames)  return;
+		
+		for (int j = 0; j < chipNo; j++) {
+			DSMicroarray pl = colorMosaicImage.getPhenoLabel(j);
+			if (pl instanceof DSMicroarray) {
+				DSMicroarray mArray = (DSMicroarray) pl;
+				if (j == colorMosaicImage.getSelectedArray()
+						&& mArray.toString().toLowerCase().indexOf(colorMosaicImage.searchArray) >= 0) {
+					g.setColor(Color.cyan);
+					g.fillRect(j * colorMosaicImage.geneWidth, 0, colorMosaicImage.geneWidth, arrayNameLength);
+				}
+
+				g.setColor(Color.black);
+				AffineTransform hat = g.getTransform();
+				AffineTransform vat = new AffineTransform();
+				vat.rotate(-Math.PI / 2);
+				g.transform(vat);
+				g.drawString(mArray.toString(), -arrayNameLength, (int) ((j + 0.7) * colorMosaicImage.geneWidth));
+				g.setTransform(hat);
+			}
+		}
     }
 
     private void jbInit() throws Exception {
@@ -225,7 +258,7 @@ public class CMHRuler extends JComponent {
         DSPanel<DSMicroarray> maVector = colorMosaicImage.getMArrayPanel();
 
         //ArrayList Groups = ColorMosaicImage.GetChipManager().Groups;
-        int chipId = 0;
+        //int chipId = 0;
 
         for (int i = 0; i < maVector.panels().size(); i++) {
             DSPanel<DSMicroarray> taggedItemSet = maVector.panels().get(i);
@@ -305,13 +338,28 @@ public class CMHRuler extends JComponent {
     }
 
     public void revalidate() {
-        if ((colorMosaicImage.getMArrayPanel() != null) && (!colorMosaicImage.showAllMArrays)) {
-            vSize = SIZE;
-        } else {
-            vSize = 0;
-        }
+		DSPanel<DSMicroarray> marraypanel = colorMosaicImage.getMArrayPanel();
+		arrayNameLength = 0;
+		int chipno = colorMosaicImage.getChipNo();
+		for (int j = 0; j < chipno; j++) {
+			DSMicroarray pl = colorMosaicImage.getPhenoLabel(j);
+			if (pl instanceof DSMicroarray) {
+				FontRenderContext frc = new FontRenderContext(null, false, false);
+				Rectangle2D rect = font.getStringBounds( new StringCharacterIterator(pl.toString()), 0, pl.toString().length(), frc);
+				if (rect.getWidth() > arrayNameLength)
+					arrayNameLength = (int) rect.getWidth();
+			}
+		}
 
-        setPreferredSize(new Dimension(colorMosaicImage.getRequiredWidth(), vSize));
-        super.revalidate();
-    }
+		if (clearDisplay)  vSize = 0;
+		else {
+			if (clearArraynames)  vSize = 0;
+			else  vSize = arrayNameLength + gutter;
+			if (marraypanel != null && marraypanel.size() > 0)  vSize += SIZE;
+		}
+
+		setPreferredSize(new Dimension(colorMosaicImage.getRequiredWidth(), vSize));
+		super.revalidate();
+		repaint();
+	}
 }

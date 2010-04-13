@@ -12,6 +12,8 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Rectangle2D;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
@@ -71,7 +73,7 @@ public class ColorMosaicImage extends JPanel implements Scrollable {
 	private BorderLayout borderLayout1 = new BorderLayout();
 
 	private DSPanel<DSGeneMarker> markerPanel = null;
-	private DSPanel<DSMicroarray> microarrayPanel = null;
+	protected DSPanel<DSMicroarray> microarrayPanel = null;
 	private boolean showPattern = false;
 	private boolean isPrintLabels = true;
 	private boolean isPrintRatio = true;
@@ -96,7 +98,7 @@ public class ColorMosaicImage extends JPanel implements Scrollable {
 	private boolean showAllMarkers = true;
 	private boolean showSignal = false;
 	private DecimalFormat format = new DecimalFormat("0.#E00");
-	private DSSignificanceResultSet<DSGeneMarker> significanceResultSet = null;
+	protected DSSignificanceResultSet<DSGeneMarker> significanceResultSet = null;
 
 	private JPopupMenu popupMenu;
 	private JMenuItem imageSnapshotItem;
@@ -136,6 +138,7 @@ public class ColorMosaicImage extends JPanel implements Scrollable {
 		}
 		g.setFont(labelFont);
 		int row = 0;
+		markerList.clear();
 		for (int patId = 0; patId < clusterNo; patId++) {
 			cluster[patId].setFirstRow(row);
 			row += showCluster(g, cluster[patId], row, screenMode);
@@ -145,10 +148,48 @@ public class ColorMosaicImage extends JPanel implements Scrollable {
 
 	private EisenBlock currentCluster = null;
 
+	protected int maxDisplayMarker = 0;
+	protected int maxDisplayArray = 0;
+	private String searchAccession = null;
+	private String searchLabel = null;
+	protected String searchArray = null;
+	private int selectedLabel = -1;
+	public void setSelectedLabel(int i, String searchStr) {
+		selectedLabel = i;
+		searchLabel = searchStr;
+	}
+	public int getSelectedLabel() {
+		return selectedLabel;
+	}
+	private int selectedAccession = -1;
+	public void setSelectedAccession(int i, String searchStr) {
+		selectedAccession = i;
+		searchAccession = searchStr;
+	}
+	public int getSelectedAccession() {
+		return selectedAccession;
+	}
+	private int selectedArray = -1;
+	public void setSelectedArray(int i, String searchStr) {
+		selectedArray = i;
+		searchArray = searchStr;
+	}
+	public int getSelectedArray() {
+		return selectedArray;
+	}
+	public int getVWidth() {
+		return getRequiredWidth()-getVisibleRect().width;
+	}
+	public int getVHeight() {
+		return getRequiredHeight()-getVisibleRect().height;
+	}
+
+	protected List<DSGeneMarker> markerList = new ArrayList<DSGeneMarker>();
 	private int showCluster(Graphics g, EisenBlock cluster, int row,
 			boolean screenMode) {
 		Rectangle visibleRect = getVisibleRect();
-
+		maxDisplayMarker = visibleRect.height / geneHeight;
+		maxDisplayArray = visibleRect.width / geneWidth;
 		DSAnnotationContext<DSMicroarray> context = CSAnnotationContextManager
 				.getInstance().getCurrentContext(microarraySet);
 
@@ -176,6 +217,7 @@ public class ColorMosaicImage extends JPanel implements Scrollable {
 		}
 		for (int i = startIndex; i < stopIndex; i++) {
 			DSGeneMarker stats = cluster.getGeneLabel(i);
+			if (this.significanceResultSet!=null)  markerList.add(stats);
 			if(stats==null)continue;
 			
 			DSGeneMarker mkInfo = microarraySet.getMarkers().get(
@@ -231,7 +273,9 @@ public class ColorMosaicImage extends JPanel implements Scrollable {
 			int xLabel = (chipNo * geneWidth) / 1 + 4;
 			int yLabel = (row + i + 1) * geneHeight - (geneHeight - fontSize)
 					/ 2;
-			print(g, xLabel, yLabel, mkInfo);
+			print(g, xLabel, yLabel, mkInfo, 
+					i==selectedAccession && mkInfo.getLabel().toLowerCase().indexOf(searchAccession)>=0, 
+					i==selectedLabel && mkInfo.getShortName().toLowerCase().indexOf(searchLabel)>=0);
 			if (i == 0) {
 				g.setColor(Color.black);
 				int y0 = 0;
@@ -261,7 +305,7 @@ public class ColorMosaicImage extends JPanel implements Scrollable {
 		return cluster.getMarkerNo();
 	}
 
-	private DSMicroarray getPhenoLabel(int j) {
+	protected DSMicroarray getPhenoLabel(int j) {
 		DSMicroarray mArray = null;
 		if (showAllMArrays || (microarrayPanel == null)
 				|| (microarrayPanel.size() == 0)) {
@@ -276,12 +320,12 @@ public class ColorMosaicImage extends JPanel implements Scrollable {
 		return mArray;
 	}
 
-	private int getChipNo() {
-		int chipNo;
-		if (showAllMArrays || (microarrayPanel == null)
-				|| (microarrayPanel.size() == 0)) {
+	protected int getChipNo() {
+		int chipNo=0;
+		if ((showAllMArrays || (microarrayPanel == null)
+				|| (microarrayPanel.size() == 0)) && microarraySet!= null) {
 			chipNo = microarraySet.size();
-		} else {
+		} else if (microarrayPanel!=null){
 			chipNo = microarrayPanel.size();
 		}
 		return chipNo;
@@ -566,6 +610,7 @@ public class ColorMosaicImage extends JPanel implements Scrollable {
 					marker);
 			parent.publishMarkerSelectedEvent(mse);
 		}
+		if (microarrayId < 0)  return;
 		DSMicroarray microarray = microarraySet.get(microarrayId);
 		if (microarray!=null) {
 			PhenotypeSelectedEvent pse = new PhenotypeSelectedEvent(microarray);
@@ -674,7 +719,7 @@ public class ColorMosaicImage extends JPanel implements Scrollable {
 		repaint();
 	}
 
-	private void print(Graphics g, int x, int y, DSGeneMarker stats) {
+	private void print(Graphics g, int x, int y, DSGeneMarker stats, boolean selectedAccession, boolean selectedLabel) {
 		if (isPrintLabels) {
 			g.setColor(Color.black);
 			if (isPrintRatio) {
@@ -706,6 +751,11 @@ public class ColorMosaicImage extends JPanel implements Scrollable {
 				if (accession == null) {
 					accession = "Undefined";
 				}
+				if (selectedAccession) {
+					g.setColor(Color.cyan);
+					g.fillRect(x, y - geneHeight, accessionWidth, geneHeight);
+					g.setColor(Color.black);
+				}
 				g.drawString(accession, x, y);
 				x += accessionWidth;
 			}
@@ -713,6 +763,11 @@ public class ColorMosaicImage extends JPanel implements Scrollable {
 				String label = stats.getShortName();
 				if (label == null) {
 					label = "Undefined";
+				}
+				if (selectedLabel) {
+					g.setColor(Color.cyan);
+					g.fillRect(x, y - geneHeight, labelWidth, geneHeight);
+					g.setColor(Color.black);
 				}
 				g.drawString(label, x, y);
 			}
