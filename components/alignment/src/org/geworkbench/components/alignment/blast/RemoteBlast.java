@@ -16,6 +16,7 @@ import org.apache.commons.httpclient.DefaultHttpMethodRetryHandler;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.HttpStatus;
+import org.apache.commons.httpclient.cookie.CookiePolicy;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.apache.commons.logging.Log;
@@ -161,6 +162,7 @@ public class RemoteBlast {
 				10, true);
 		client.getParams().setParameter(HttpMethodParams.RETRY_HANDLER,
 				retryhandler);
+		client.getParams().setCookiePolicy(CookiePolicy.IGNORE_COOKIES);
 
 		String submitURLString = "http://blast.ncbi.nlm.nih.gov/Blast.cgi?CMD=Put&QUERY="
 				+ query + cmdLine;
@@ -224,6 +226,7 @@ public class RemoteBlast {
 				10, true);
 		client.getParams().setParameter(HttpMethodParams.RETRY_HANDLER,
 				retryhandler);
+		client.getParams().setCookiePolicy(CookiePolicy.IGNORE_COOKIES);
 
 		GetMethod getMethod = new GetMethod(resultURLString);
 		try {
