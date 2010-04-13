@@ -11,9 +11,11 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Image;
 import java.awt.Insets;
+import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
@@ -27,6 +29,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -40,6 +43,7 @@ import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSlider;
 import javax.swing.JSpinner;
+import javax.swing.JTextField;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import javax.swing.SpinnerNumberModel;
@@ -108,18 +112,26 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
     private JLabel jLabel5 = new JLabel();
     private JButton exportButton = new JButton("Export Data");
     private JToggleButton jToolTipToggleButton = new JToggleButton();
+    private JTextField searchArray = new JTextField();
+    private JTextField searchAccession = new JTextField();
+    private JTextField searchLabel = new JTextField();
+    private JButton searchArrayBtn = new JButton("Search Array");
+    private JButton searchAccessionBtn = new JButton("Search Accession");
+    private JButton searchLabelBtn = new JButton("Search Label");
+    private JButton clearButton = new JButton("Clear Search");
     private JToggleButton jTogglePrintDescription = new JToggleButton("Label", true);
     private JToggleButton jTogglePrintRatio = new JToggleButton("Ratio", true);
     private JToggleButton jTogglePrintAccession = new JToggleButton("Accession", false);
     private JToggleButton jToggleButton2 = new JToggleButton("Pat");
     private JToggleButton jHideMaskedBtn = new JToggleButton("Display");
+    private JToggleButton jToggleArraynames = new JToggleButton("Array Names", false);
     private JToggleButton jToggleSortButton = new JToggleButton("Sort");
     private BorderLayout borderLayout2 = new BorderLayout();
     private CMHRuler colRuler = new CMHRuler(colorMosaicImage);
     private CMVRuler rowRuler = new CMVRuler(colorMosaicImage);
     private JCheckBox jAllMArrays = new JCheckBox();
     private JCheckBox jAllMarkers = new JCheckBox();
-    private HashMap listeners = new HashMap();
+    private HashMap<String, ActionListener> listeners = new HashMap<String, ActionListener>();
 	protected JPopupMenu jCMMenu = new JPopupMenu();
 	protected JMenuItem jZoomInItem = new JMenuItem();
 	protected JMenuItem jZoomOutItem = new JMenuItem();
@@ -131,12 +143,13 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
     DSSignificanceResultSet<DSGeneMarker> significance = null;
     private ArrayList<DSGeneMarker> sortedMarkers = new ArrayList<DSGeneMarker>();
     private ArrayList<DSGeneMarker> unsortedMarkers = new ArrayList<DSGeneMarker>();
-    DSSignificanceResultSet sigSet = null;
-
+    DSSignificanceResultSet<DSGeneMarker> sigSet = null;
+    private List<DSGeneMarker> markerSet = null;
     private boolean showSignal = false;
     
     private static final int GENE_HEIGHT = 10;
     private static final int GENE_WIDTH = 20;
+    public enum searchBy {ARRAYNAME, ACCESSION, LABEL};
 
     @Subscribe 
     public void receive(DirtyDataEvent event, Object from) {
@@ -317,13 +330,74 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
                 jHideMaskedBtn_actionPerformed(e);
             }
         });
-        
-        jToggleSortButton.setMargin(new Insets(2, 3, 2, 3));
-        jToggleSortButton.setHorizontalTextPosition(SwingConstants.CENTER);
-        jToggleSortButton.setToolTipText("Sort by fold changes and t-values");
-        jToggleSortButton.addActionListener(new ActionListener() {
+
+        jToggleArraynames.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-            	jToggleSortButton_actionPerformed(e);
+                jToggleArraynames_actionPerformed(e);
+            }
+        });
+
+		searchArrayBtn.setMargin(new Insets(2, 3, 2, 3));
+		searchArrayBtn.setEnabled(false);
+		searchArrayBtn.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				searchBtn_actionPerformed(e, searchBy.ARRAYNAME);
+			}
+		});
+		searchArray.setMinimumSize(new Dimension(60, 25));
+		searchArray.setPreferredSize(new Dimension(60, 25));
+		searchArray.setMaximumSize(new Dimension(60, 25));
+		searchArray.setEnabled(false);
+		searchArray.addKeyListener(new java.awt.event.KeyAdapter() {
+			public void keyPressed(KeyEvent e) {
+				searchText(e, searchBy.ARRAYNAME);
+			}
+		});
+
+		searchAccessionBtn.setMargin(new Insets(2, 3, 2, 3));
+		searchAccessionBtn.setEnabled(false);
+		searchAccessionBtn.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				searchBtn_actionPerformed(e, searchBy.ACCESSION);
+			}
+		});
+		searchAccession.setMinimumSize(new Dimension(60, 25));
+		searchAccession.setPreferredSize(new Dimension(60, 25));
+		searchAccession.setMaximumSize(new Dimension(60, 25));
+		searchAccession.setEnabled(false);
+		searchAccession.addKeyListener(new java.awt.event.KeyAdapter() {
+			public void keyPressed(KeyEvent e) {
+				searchText(e, searchBy.ACCESSION);
+			}
+		});
+
+		searchLabelBtn.setMargin(new Insets(2, 3, 2, 3));
+		searchLabelBtn.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				searchBtn_actionPerformed(e, searchBy.LABEL);
+			}
+		});
+		searchLabel.setMinimumSize(new Dimension(60, 25));
+		searchLabel.setPreferredSize(new Dimension(60, 25));
+		searchLabel.setMaximumSize(new Dimension(60, 25));
+		searchLabel.addKeyListener(new java.awt.event.KeyAdapter() {
+			public void keyPressed(KeyEvent e) {
+				searchText(e, searchBy.LABEL);
+			}
+		});
+
+		clearButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				clearButton_actionPerformed(e);
+			}
+		});
+
+		jToggleSortButton.setMargin(new Insets(2, 3, 2, 3));
+		jToggleSortButton.setHorizontalTextPosition(SwingConstants.CENTER);
+		jToggleSortButton.setToolTipText("Sort by fold changes and t-values");
+		jToggleSortButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				jToggleSortButton_actionPerformed(e);
             }
         });
         if(!significanceMode) jToggleSortButton.setEnabled(false);
@@ -359,13 +433,21 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
 //        jToolBar1.add(jToggleButton1, null);
         jToolBar1.add(jHideMaskedBtn, null);
 //        jToolBar1.add(jTogglePrintRatio, null);
+        jToolBar1.add(jToggleArraynames, null);
         jToolBar1.add(jTogglePrintAccession, null);        
         jToolBar1.add(jTogglePrintDescription, null);
         jToolBar1.add(exportButton, null);
         jToolBar1.add(jAllMArrays, null);
         jToolBar1.add(jAllMarkers, null);
         jToolBar1.add(jToggleSortButton, null);
-        jToolBar1.add(jToolTipToggleButton, null);        
+        jToolBar1.add(jToolTipToggleButton, null);
+		jToolBar1.add(searchArray, null);
+		jToolBar1.add(searchArrayBtn, null);
+		jToolBar1.add(searchAccession, null);
+		jToolBar1.add(searchAccessionBtn, null);
+		jToolBar1.add(searchLabel, null);
+		jToolBar1.add(searchLabelBtn, null);
+		jToolBar1.add(clearButton, null);        
         mainPanel.add(jScrollPane, BorderLayout.CENTER);
         mainPanel.add(jPanel1, BorderLayout.SOUTH);
         jPanel1.add(jGeneWidthSlider, new GridBagConstraints(3, 1, 1, 1, 0.34, 0.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
@@ -380,7 +462,8 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
         jScrollPane.setColumnHeaderView(colRuler);
         jScrollPane.setRowHeaderView(rowRuler);
         jScrollPane.setCorner(JScrollPane.UPPER_LEFT_CORNER, new JComponent() {
-            public void paint(Graphics g) {
+			private static final long serialVersionUID = 9052547911998188349L;
+			public void paint(Graphics g) {
                 setBackground(Color.WHITE);
                 Rectangle clip = g.getClipBounds();
                 g.clearRect(clip.x, clip.y, clip.width, clip.height);
@@ -541,11 +624,27 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
     }
 
     void jTogglePrintAccession_actionPerformed(ActionEvent e) {
-        colorMosaicImage.setPrintAccession(jTogglePrintAccession.isSelected());
-    }
+		colorMosaicImage.setPrintAccession(jTogglePrintAccession.isSelected());
+		if (jTogglePrintAccession.isSelected()) {
+			searchAccessionBtn.setEnabled(true);
+			searchAccession.setEnabled(true);
+			colRuler.revalidate();
+		} else {
+			searchAccessionBtn.setEnabled(false);
+			searchAccession.setEnabled(false);
+		}
+	}
 
     void jTogglePrintDescription_actionPerformed(ActionEvent e) {
         colorMosaicImage.setPrintDescription(jTogglePrintDescription.isSelected());
+    	if (jTogglePrintDescription.isSelected()) {
+			searchLabelBtn.setEnabled(true);
+			searchLabel.setEnabled(true);
+			colRuler.revalidate();
+		} else {
+			searchLabelBtn.setEnabled(false);
+			searchLabel.setEnabled(false);
+		}
     }
 
     void jToggleButton2_actionPerformed(ActionEvent e) {
@@ -576,6 +675,120 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
         }
     }
     
+    void jToggleArraynames_actionPerformed(ActionEvent e) {
+		if (jToggleArraynames.isSelected() &&  jHideMaskedBtn.isSelected()) {
+			searchArrayBtn.setEnabled(true);
+			searchArray.setEnabled(true);
+			colRuler.setClearArraynames(false);
+		} else {
+			searchArrayBtn.setEnabled(false);
+			searchArray.setEnabled(false);
+			colRuler.setClearArraynames(true);
+		}
+		colRuler.revalidate();
+    	colRuler.repaint();
+    }
+
+    void searchBtn_actionPerformed(ActionEvent e, searchBy type) {
+    	findNext(1, '\u000E', type);
+    }
+
+    /* Enter: search forward starting from next item
+     * Ctl-B: search backwards from next item
+     * Backspace: remove last char without search
+     * other keys: search forward from current item
+     */
+    void searchText(KeyEvent e, searchBy type) {
+        char c = e.getKeyChar();
+        if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+            findNext(1, c, type);
+        } else if (e.isControlDown() && (e.getKeyChar() == '\u0002')) {
+            findNext(-1, c, type);
+        } else if (e.getKeyCode() != KeyEvent.VK_BACK_SPACE){
+            findNext(0, c, type);
+        }
+    }
+    
+    private void findNext(int offset, char c, searchBy type) {
+        int index = 0;
+        String markerString = "";
+        if (type == searchBy.ACCESSION) {
+        	index = colorMosaicImage.getSelectedAccession();
+        	markerString = searchAccession.getText().toLowerCase();
+        } else if (type == searchBy.LABEL) {
+        	index = colorMosaicImage.getSelectedLabel();
+        	markerString = searchLabel.getText().toLowerCase();
+        } else if (type == searchBy.ARRAYNAME) {
+        	index = colorMosaicImage.getSelectedArray();
+        	markerString = searchArray.getText().toLowerCase();
+        }
+        if (index < 0)  index = 0;
+        if (Character.isLetterOrDigit(c))  markerString += Character.toLowerCase(c);
+
+    	int chipNo = colorMosaicImage.getChipNo();
+        boolean found = false;
+        if(type == searchBy.ARRAYNAME) {
+        	for (int idx = Math.abs(offset); idx <= chipNo; idx++) {
+				int j = 0;
+				if (offset < 0)  j = (index + chipNo - idx) % chipNo;
+				else  j = (index + idx) % chipNo;
+				DSMicroarray pl = colorMosaicImage.getPhenoLabel(j);
+				if (pl instanceof DSMicroarray) {
+					DSMicroarray mArray = (DSMicroarray) pl;
+					String name = mArray.toString().toLowerCase();
+					if (name.indexOf(markerString) >= 0) {
+						colorMosaicImage.setSelectedArray(j, markerString);
+						found = true;
+						int xstart = (j - colorMosaicImage.maxDisplayArray / 2) * colorMosaicImage.geneWidth;
+						if (xstart < 0)  xstart = 0;
+						else if (xstart > colorMosaicImage.getVWidth())  xstart = colorMosaicImage.getVWidth();
+						jScrollPane.getViewport().setViewPosition(new Point(xstart, 0));
+						break;
+					}
+				}
+			}
+			if (!found) {
+				colorMosaicImage.setSelectedArray(-1, null);
+				JOptionPane.showMessageDialog(null, "No match found for search term: " + markerString, "Warning", JOptionPane.WARNING_MESSAGE);
+			}
+			colRuler.repaint();
+		} else {
+			int markerNo = markerSet.size();
+			if (colorMosaicImage.significanceResultSet != null)
+				markerNo = colorMosaicImage.markerList.size();
+			found = false;
+			for (int idx = Math.abs(offset); idx <= markerNo; idx++) {
+				int i = 0;
+				if (offset < 0)  i = (index + markerNo - idx) % markerNo;
+				else  i = (index + idx) % markerNo;
+				DSGeneMarker marker = markerSet.get(i);
+				if (colorMosaicImage.significanceResultSet != null)
+					marker = colorMosaicImage.markerList.get(i);
+				String name = "";
+				if (type == searchBy.ACCESSION)   name = marker.getLabel().toLowerCase();
+				else if (type == searchBy.LABEL)  name = marker.getShortName().toLowerCase();
+				if (name.indexOf(markerString) >= 0) {
+					if (type == searchBy.ACCESSION)   colorMosaicImage.setSelectedAccession(i, markerString);
+					else if (type == searchBy.LABEL)  colorMosaicImage.setSelectedLabel(i, markerString);
+					found = true;
+					int xstart = 0;
+					if (chipNo > colorMosaicImage.maxDisplayArray)  xstart = colorMosaicImage.getVWidth();
+					int ystart = (i-colorMosaicImage.maxDisplayMarker/2)*colorMosaicImage.geneHeight;
+					if (ystart < 0)  ystart = 0;
+					else if (ystart > colorMosaicImage.getVHeight())  ystart = colorMosaicImage.getVHeight();
+					jScrollPane.getViewport().setViewPosition(new Point(xstart, ystart));
+					break;
+				}
+			}
+			if (!found) {
+				if (type == searchBy.ACCESSION)   colorMosaicImage.setSelectedAccession(-1, null);
+				else if (type == searchBy.LABEL)  colorMosaicImage.setSelectedLabel(-1, null);	
+				JOptionPane.showMessageDialog(null, "No match found for search term: "+markerString, "Warning", JOptionPane.WARNING_MESSAGE);
+			}
+			colorMosaicImage.repaint();
+		}
+    }
+
     void jToggleSortButton_actionPerformed(ActionEvent e) {
     	if (colorMosaicImage.isDisplayable() && significanceMode) {
     		DSPanel<DSGeneMarker> mp = colorMosaicImage.getPanel();
@@ -602,8 +815,18 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
     	}     	
     }
 
+	void clearButton_actionPerformed(ActionEvent e) {
+		colorMosaicImage.setSelectedAccession(-1, null);
+		colorMosaicImage.setSelectedLabel(-1, null);
+		colorMosaicImage.setSelectedArray(-1, null);
+		colorMosaicImage.repaint();
+		jScrollPane.getViewport().setViewPosition(new Point(0, 0));
+		colRuler.repaint();
+	}
+	
     private void clearMosaic() {
         colorMosaicImage.clearPatterns();
+        colRuler.setClearDisplay(true);
     }
 
     @SuppressWarnings("unchecked")
@@ -611,12 +834,13 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
         colorMosaicImage.clearPatterns();
         DSMicroarraySet<DSMicroarray> mArraySet = colorMosaicImage.getGeneChips();
         if (mArraySet != null) {
-            int markerNo = mArraySet.getMarkers().size();
+            markerSet = mArraySet.getMarkers();
+            int markerNo = markerSet.size();
             CSMatrixPattern thePattern = new CSMatrixPattern();
             thePattern.init(markerNo);
             CSMatchedMatrixPattern matchedPattern = new CSMatchedMatrixPattern(thePattern);
             for (int i = 0; i < markerNo; i++) {
-                matchedPattern.getPattern().markers()[i] = mArraySet.getMarkers().get(i);
+                matchedPattern.getPattern().markers()[i] = markerSet.get(i);
             }
             colorMosaicImage.addPattern(matchedPattern);
             
@@ -629,7 +853,8 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
             colorScale.setMaxColor(colorContext
 					.getMaxColorValue(jIntensitySlider.getValue()));
             colorScale.repaint();
-
+            colorMosaicImage.revalidate();
+            colRuler.setClearDisplay(false);
         }
     }
 
@@ -766,8 +991,13 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
             if (dataFile instanceof DSMicroarraySet) {
                 DSMicroarraySet set = (DSMicroarraySet) dataFile;
                 if (colorMosaicImage.getChips() != set) {
+                    colorMosaicImage.microarrayPanel = null;
+                    colorMosaicImage.setMarkerPanel(null);
                     setChips(set);
                     colorMosaicImage.clearSignificanceResultSet();
+                    colorMosaicImage.showAllMArrays(true); 
+                    colorMosaicImage.showAllMarkers(true);
+                    if (jHideMaskedBtn.isSelected())  jHideMaskedBtn_actionPerformed(null);
                 } else{
                 	colorMosaicImage.clearSignificanceResultSet();
        //             jAllMArrays.setSelected(true);
@@ -779,7 +1009,6 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
       //              jHideMaskedBtn.setSelected(true);
                     jAllMArrays.setEnabled(true);
                    jAllMarkers.setEnabled(true);
-                    
                 }
                 org.geworkbench.bison.util.colorcontext.ColorContext colorContext = (org.geworkbench.bison.util.colorcontext.ColorContext) set
     			.getObject(org.geworkbench.bison.util.colorcontext.ColorContext.class);
@@ -796,7 +1025,7 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
                 significance = sigSet;         
                 DSMicroarraySet set = sigSet.getParentDataSet();             
                 jToggleSortButton.setEnabled(true);
-                                
+
                 // by default color mosaic displays unsorted markers
                 jToggleSortButton.setSelected(false);
                 if (colorMosaicImage.getChips() != set) {
@@ -836,6 +1065,7 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
                 setSignificance(sigSet);
                 revalidate();
                 displayMosaic();
+                mainPanel.repaint();
             }
         } else {
             jToggleButton2.setSelected(false);
@@ -870,6 +1100,10 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
         if (significanceMode) {
             return;
         }
+        if (jAllMArrays.isEnabled()==false)
+        	colorMosaicImage.microarrayPanel = null;
+        if (jAllMarkers.isEnabled()==false)
+        	setMarkerPanel(null);
         DSPanel<DSBioObject> pl = e.getTaggedItemSetTree();
         setMicroarrayPanel((DSPanel) pl);    
         jHideMaskedBtn_actionPerformed(null); 
@@ -968,9 +1202,9 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
     }
     
     private class TValueComparator implements Comparator<DSGeneMarker> {
-    	DSSignificanceResultSet significantResultSet;
+    	DSSignificanceResultSet<DSGeneMarker> significantResultSet;
     	
-    	public TValueComparator(DSSignificanceResultSet significantResultSet){
+    	public TValueComparator(DSSignificanceResultSet<DSGeneMarker> significantResultSet){
     		this.significantResultSet = significantResultSet;
     	}
 
@@ -1025,8 +1259,8 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
     
     private void printTValueAndPValue(DSPanel<DSGeneMarker> markersInUse, boolean sorted){
     	StringBuilder sb = new StringBuilder();  	
-    	int noClusters = colorMosaicImage.getClusterNo();
-		EisenBlock[] clusters = colorMosaicImage.getClusters();
+    	//int noClusters = colorMosaicImage.getClusterNo();
+		//EisenBlock[] clusters = colorMosaicImage.getClusters();
     	
     	for(DSGeneMarker m: markersInUse){
     		sb.append(m.getShortName());
@@ -1052,9 +1286,9 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
     }
     
     private class FoldChangesComparator implements Comparator<DSGeneMarker> {
-    	DSSignificanceResultSet significantResultSet;
+    	DSSignificanceResultSet<DSGeneMarker> significantResultSet;
     	
-    	public FoldChangesComparator(DSSignificanceResultSet significantResultSet){
+    	public FoldChangesComparator(DSSignificanceResultSet<DSGeneMarker> significantResultSet){
     		this.significantResultSet = significantResultSet;
     	}
 
