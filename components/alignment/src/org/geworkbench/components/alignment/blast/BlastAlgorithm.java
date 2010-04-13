@@ -139,7 +139,7 @@ public class BlastAlgorithm extends SwingWorker<CSAlignmentResultSet, Integer> {
 				BLAST_rid = blast.submitBlast();
 			} catch (NcbiResponseException e1) {
 				processExceptionFromNcbi(e1, sequence);
-				throw e1;
+				return null;
 			}
 			if (isCancelled()) { 
 				return null;
@@ -219,6 +219,8 @@ public class BlastAlgorithm extends SwingWorker<CSAlignmentResultSet, Integer> {
 		CSAlignmentResultSet blastResult;
 		try {
 			blastResult = get();
+			if (blastResult==null)return;
+			
 			blastResult.setLabel(BlastAppComponent.NCBILABEL);
 			ProjectNodeAddedEvent event = new ProjectNodeAddedEvent(null, null,
 					blastResult);
