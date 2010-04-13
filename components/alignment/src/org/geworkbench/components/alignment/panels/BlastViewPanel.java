@@ -551,7 +551,7 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
 							+ " has 0 hit.");
 
 				}
-			} else if (blastDataSet != null
+			} else if (blastDataSet != null && blastDataSet.size()>0
 					&& (Vector) blastDataSet.get(0) != null) {
 				setResults((Vector) blastDataSet.get(0));
 			}
