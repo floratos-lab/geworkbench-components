@@ -33,9 +33,7 @@ public class CellSelectionTable extends JTable {
   /**
     * refers to its TableSelectionModel.
     */
-  public boolean isCellSelected(int row, int column) { 
-	  System.out.println("rows is " + this.getSelectedRowCount());
-	  System.out.println("cols is " + this.getSelectedColumnCount());
+  public boolean isCellSelected(int row, int column) { 	 
 	  return tableSelectionModel.isSelected(row, convertColumnIndexToModel(column));
   }
 

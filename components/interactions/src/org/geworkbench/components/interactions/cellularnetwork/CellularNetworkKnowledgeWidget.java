@@ -778,9 +778,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 
 				if (e.getStateChange() == ItemEvent.DESELECTED)
 					return;
-
-				// System.out.println("click on data set started:"
-				// + System.currentTimeMillis());
+ 
 				Object selectedVersion = versionComboBox.getSelectedItem();
 				String selectedCoxtext = SELECTCONTEXT;
 				if (selectedVersion != null)
@@ -822,10 +820,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 				versionComboBox.setModel(new DefaultComboBoxModel(versionList
 						.toArray()));
 				versionComboBox.revalidate();
-
-				// System.out.println("click on data set ended:"
-				// + System.currentTimeMillis());
-
+ 
 			}
 
 		});
@@ -1493,8 +1488,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 					columnLabels[i].length() - COLUMNLABELPOSTFIX.length()))) {
 				model.addColumn(tableColumns[i]);
 			}
-			// System.out.println(tableColumns.length + "model size" +
-			// model.getColumnCount());
+		 
 		}
 
 		detailTable.tableChanged(new TableModelEvent(previewTableModel));
@@ -3191,11 +3185,10 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 	@Subscribe
 	public void receive(ProjectEvent pe, Object source) {
 		DSDataSet ds = pe.getDataSet();
-		if (ds != null && ds instanceof DSMicroarraySet) {
-			log.info("test1");
+		if (ds != null && ds instanceof DSMicroarraySet) {		 
 			geneIdToMarkerIdMap = AnnotationParser
 					.getGeneIdToMarkerIDMapping((DSMicroarraySet) ds);
-			log.info("test2");
+			 
 		}
 	}
 
@@ -3218,8 +3211,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 	}
 
 	synchronized void processData(DSPanel<DSGeneMarker> panel) {
-		log.debug("start processData");
-		log.info("test1");
+		log.debug("start processData");	 
 		DSDataSet ds = ProjectPanel.getInstance().getDataSet();
 
 		if ((dataset == null || dataset.hashCode() != ds.hashCode())
@@ -3261,7 +3253,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 
 		}
 		repaint();
-		log.info("test2");
+	 
 		log.debug("end processData");
 	}
 
