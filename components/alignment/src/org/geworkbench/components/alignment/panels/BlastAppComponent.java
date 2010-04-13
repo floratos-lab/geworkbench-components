@@ -605,9 +605,7 @@ public class BlastAppComponent implements VisualPlugin {
                     blastAlgo.setSequenceDB(activeSequenceDB);
                     blastAlgo.setParentSequenceDB(sequenceDB);
                     
-                    blastAlgo.start();
-                    Thread.sleep(5);
-
+                    blastAlgo.execute();
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -717,8 +715,11 @@ public class BlastAppComponent implements VisualPlugin {
 			updateProgressBar(false, "Stopped on " + new Date());
 		}
         
-        if(blastAlgo!=null)
-        	blastAlgo.stop();
+        if(blastAlgo!=null) {
+        	if(!blastAlgo.cancel(true)) {
+        		log.error("blast job was not able to be cancelled.");
+        	}
+        }
     }
 
     public void updateProgressBar(final double percent, final String text) {

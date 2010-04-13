@@ -2,8 +2,10 @@ package org.geworkbench.components.alignment.blast;
 
 import java.io.File;
 import java.util.Date;
+import java.util.concurrent.ExecutionException;
 
 import javax.swing.JOptionPane;
+import javax.swing.SwingWorker;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -29,9 +31,9 @@ import org.geworkbench.util.FilePathnameUtils;
  * @author zji
  * @version $Id$
  */
-public class BlastAlgorithm {
+public class BlastAlgorithm extends SwingWorker<CSAlignmentResultSet, Integer> {
 
-	static private Log LOG = LogFactory.getLog(RemoteBlast.class);
+	static private Log log = LogFactory.getLog(RemoteBlast.class);
 
 	private BlastAppComponent blastAppComponent = null;
 
@@ -44,7 +46,6 @@ public class BlastAlgorithm {
 	private DSSequenceSet<? extends DSSequence> parentSequenceDB;
 	
 	private final static int TIMEGAP = 4000;
-	private final static int SHORTTIMEGAP = 50;
 	private final static String LINEBREAK = System.getProperty("line.separator");
 	
 	public void setBlastAppComponent(BlastAppComponent _blastAppComponent) {
@@ -114,14 +115,10 @@ public class BlastAlgorithm {
 	 *
 	 * This method is invoked by from the working thread.
 	 */
-	protected void execute() {
+	@Override
+	protected CSAlignmentResultSet doInBackground() throws Exception {
 		if (sequenceDB == null || parentSequenceDB == null) {
-			LOG.error("null pointer detected");
-			try { // FIXME if this can recover after 50 milliseconds, the design was wrong somewhere
-				Thread.sleep(SHORTTIMEGAP);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
+			throw new Exception("null sequenceDB or null parentSequenceDB");
 		}
 
 		String tempFolder = FilePathnameUtils.getTemporaryFilesDirectoryPath();
@@ -131,10 +128,9 @@ public class BlastAlgorithm {
 				+ RandomNumberGenerator.getID() + ".html";
 
 		RemoteBlast blast;
-		CSSequenceSet<CSSequence> activeSequenceDB = sequenceDB;
 		DSSequenceSet<? extends DSSequence> parentSequenceSet = parentSequenceDB;
 
-		for (CSSequence sequence : activeSequenceDB) {
+		for (CSSequence sequence : sequenceDB) {
 			updateStatus("Uploading sequence: " + sequence);
 			blast = new RemoteBlast(sequence.getSequence(), outputFile, AlgorithmMatcher
 					.translateToCommandline(parameterSetting));
@@ -143,10 +139,10 @@ public class BlastAlgorithm {
 				BLAST_rid = blast.submitBlast();
 			} catch (NcbiResponseException e1) {
 				processExceptionFromNcbi(e1, sequence);
-				return;
+				throw e1;
 			}
-			if (stopRequested) { // even if 'not done'
-				return;
+			if (isCancelled()) { 
+				return null;
 			}
 			if (BLAST_rid == null) {
 				if (blastAppComponent != null) {
@@ -160,40 +156,26 @@ public class BlastAlgorithm {
 				}
 				updateStatus(false, "NCBI Blast is stopped at "
 						+ new Date());
-				return;
+				return null;
 
 			}
-			updateStatus("Querying sequence: "
-					+ sequence.getDescriptions().toString());
 			updateStatus("The Request ID is : " + BLAST_rid);
 
-			blast.getBlast(BLAST_rid, "HTML");
-			while (!blast.getBlastDone()) {
-				if (blastAppComponent != null
-						&& !blastAppComponent.isStopButtonPushed()
-						&& !stopRequested) {
-					updateStatus("For sequence " + sequence
-							+ ",  the blast job is running. ");
-					try {
-						Thread.sleep(TIMEGAP);
-					} catch (InterruptedException e) {
-						return;
-					}
-				} else {
-					return;
+			String resultURLString = "http://blast.ncbi.nlm.nih.gov/Blast.cgi?CMD=Get&FORMAT_TYPE=HTML&RID="
+					+ BLAST_rid;
+			while(!blast.retrieveResult(resultURLString) && !isCancelled()) {
+				updateStatus("For sequence " + sequence
+						+ ",  the blast job is running. ");
+				try {
+					Thread.sleep(TIMEGAP);
+				} catch (InterruptedException e) {
+					// do nothing
 				}
-				if (stopRequested) { // even if 'not done'
-					return;
-				}
-
-				updateStatus("Querying sequence: "
-						+ sequence.getDescriptions().toString());
-
 			}
-			if (stopRequested) {
-				return;
-			}
-
+		}
+		if(isCancelled()){
+			updateStatus(false, "NCBI Blast is canceled at " + new Date());
+			return null;
 		}
 		updateStatus(false, "NCBI Blast is finisheded at " + new Date());
 		String outputFilePath = "file://"
@@ -206,7 +188,7 @@ public class BlastAlgorithm {
 						BrowserLauncher.openURL(outputFilePath);
 					} else {
 						BrowserLauncher.openURL("file:///"+new File(outputFile)
-								.getAbsolutePath().replace("\\", "/"));
+								.getAbsolutePath().replace("\\", "/").replace(" ", "%20"));
 					}
 				} catch (Exception ex) {
 					ex.printStackTrace();
@@ -225,18 +207,36 @@ public class BlastAlgorithm {
 			}
 
 		}
-		CSAlignmentResultSet blastResult = new CSAlignmentResultSet(outputFile, activeSequenceDB
-				.getFASTAFileName(), activeSequenceDB, parentSequenceSet);
-		blastResult.setLabel(BlastAppComponent.NCBILABEL);
-		ProjectNodeAddedEvent event = new ProjectNodeAddedEvent(null, null,
-				blastResult);
-		String historyStr = generateHistoryStr(activeSequenceDB);
-		ProjectPanel.addToHistory(blastResult, historyStr);
 
-		if (blastAppComponent != null) {
-			blastAppComponent.publishProjectNodeAddedEvent(event);
-		}
+		return(new CSAlignmentResultSet(outputFile, sequenceDB
+				.getFASTAFileName(), sequenceDB, parentSequenceSet));
 	}
+	
+	@Override
+    protected void done() {
+		if(isCancelled())return;
+		
+		CSAlignmentResultSet blastResult;
+		try {
+			blastResult = get();
+			blastResult.setLabel(BlastAppComponent.NCBILABEL);
+			ProjectNodeAddedEvent event = new ProjectNodeAddedEvent(null, null,
+					blastResult);
+			String historyStr = generateHistoryStr(sequenceDB);
+			ProjectPanel.addToHistory(blastResult, historyStr);
+
+			if (blastResult!=null && blastAppComponent != null) {
+				blastAppComponent.publishProjectNodeAddedEvent(event);
+				log.debug("blast result node added");
+			}
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ExecutionException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    }
 
 	private String generateHistoryStr(CSSequenceSet<CSSequence> activeSequenceDB) {
 		String histStr = "";
@@ -303,56 +303,5 @@ public class BlastAlgorithm {
 		this.parentSequenceDB = parentSequenceDB;
 		
 	}
-
-	// following code is adopted from BWAAbstractAlgorithm
-    /**
-     * Specifies if a stop has been requested
-     */
-    private boolean stopRequested = false;
-    
-    /**
-     * Runs the analysis on a separate thread
-     */
-    private AnalysisThread worker = null;
-
-    /**
-     * Starts the Algorithm execution
-     */
-    public void start() {
-        if ((worker == null) || (!worker.isAlive())) {
-            worker = new AnalysisThread(this);
-            worker.start();
-        }
-    }
-    
-    /**
-     * Stops the algorithm execution
-     */
-    public void stop() {
-        stopRequested = true;
-        worker.interrupt();
-
-    }
-
-    private class AnalysisThread extends Thread {
-        private BlastAlgorithm analysis = null;
-
-        public AnalysisThread(BlastAlgorithm algo) {
-            analysis = algo;
-        }
-
-        @Override
-        public void run() {
-            synchronized (analysis) {
-                try {
-                    analysis.execute();
-                    stopRequested = false;
-                } catch (Exception e) {
-                	e.printStackTrace();
-                    return;
-                }
-            }
-        }
-    }
 
 }
