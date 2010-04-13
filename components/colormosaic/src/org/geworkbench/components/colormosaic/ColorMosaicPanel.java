@@ -222,6 +222,7 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
             }
         });
         
+		jToolTipToggleButton.setMargin(new Insets(2, 3, 2, 3));
         jToolTipToggleButton.setToolTipText("Toggle signal");
         jToolTipToggleButton.setActionCommand("TOOL_TIP_TOGGLE");
         jToolTipToggleButton.setSelected(false);
@@ -331,6 +332,7 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
             }
         });
 
+		jToggleArraynames.setMargin(new Insets(2, 3, 2, 3));
         jToggleArraynames.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 jToggleArraynames_actionPerformed(e);
@@ -344,9 +346,9 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
 				searchBtn_actionPerformed(e, searchBy.ARRAYNAME);
 			}
 		});
-		searchArray.setMinimumSize(new Dimension(60, 25));
-		searchArray.setPreferredSize(new Dimension(60, 25));
-		searchArray.setMaximumSize(new Dimension(60, 25));
+		searchArray.setMinimumSize(new Dimension(60, 24));
+		searchArray.setPreferredSize(new Dimension(60, 24));
+		searchArray.setMaximumSize(new Dimension(60, 24));
 		searchArray.setEnabled(false);
 		searchArray.addKeyListener(new java.awt.event.KeyAdapter() {
 			public void keyPressed(KeyEvent e) {
@@ -361,9 +363,9 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
 				searchBtn_actionPerformed(e, searchBy.ACCESSION);
 			}
 		});
-		searchAccession.setMinimumSize(new Dimension(60, 25));
-		searchAccession.setPreferredSize(new Dimension(60, 25));
-		searchAccession.setMaximumSize(new Dimension(60, 25));
+		searchAccession.setMinimumSize(new Dimension(60, 24));
+		searchAccession.setPreferredSize(new Dimension(60, 24));
+		searchAccession.setMaximumSize(new Dimension(60, 24));
 		searchAccession.setEnabled(false);
 		searchAccession.addKeyListener(new java.awt.event.KeyAdapter() {
 			public void keyPressed(KeyEvent e) {
@@ -377,15 +379,16 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
 				searchBtn_actionPerformed(e, searchBy.LABEL);
 			}
 		});
-		searchLabel.setMinimumSize(new Dimension(60, 25));
-		searchLabel.setPreferredSize(new Dimension(60, 25));
-		searchLabel.setMaximumSize(new Dimension(60, 25));
+		searchLabel.setMinimumSize(new Dimension(60, 24));
+		searchLabel.setPreferredSize(new Dimension(60, 24));
+		searchLabel.setMaximumSize(new Dimension(60, 24));
 		searchLabel.addKeyListener(new java.awt.event.KeyAdapter() {
 			public void keyPressed(KeyEvent e) {
 				searchText(e, searchBy.LABEL);
 			}
 		});
 
+		clearButton.setMargin(new Insets(2, 3, 2, 3));
 		clearButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				clearButton_actionPerformed(e);
@@ -411,6 +414,7 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
             }
         });
         
+		exportButton.setMargin(new Insets(2, 3, 2, 3));
         exportButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 if (significance != null && significance instanceof CSTTestResultSet) {
