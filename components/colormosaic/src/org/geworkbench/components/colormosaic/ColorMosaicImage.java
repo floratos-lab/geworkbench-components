@@ -1,5 +1,7 @@
 package org.geworkbench.components.colormosaic;
 
+import java.awt.AlphaComposite;
+import java.awt.Composite;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -103,6 +105,9 @@ public class ColorMosaicImage extends JPanel implements Scrollable {
 	private JPopupMenu popupMenu;
 	private JMenuItem imageSnapshotItem;
 	private boolean enablePaint = true;
+	protected Composite comp = null;
+    protected AlphaComposite hltcomp = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.5f);
+
 
 	/* used only by ColorMosaicPanel */
 	void setEnablePaint(boolean b) {
@@ -137,6 +142,8 @@ public class ColorMosaicImage extends JPanel implements Scrollable {
 			oldRes = res;
 		}
 		g.setFont(labelFont);
+		comp = ((Graphics2D)g).getComposite();
+
 		int row = 0;
 		markerList.clear();
 		for (int patId = 0; patId < clusterNo; patId++) {
@@ -752,8 +759,10 @@ public class ColorMosaicImage extends JPanel implements Scrollable {
 					accession = "Undefined";
 				}
 				if (selectedAccession) {
-					g.setColor(Color.cyan);
+			        ((Graphics2D)g).setComposite(hltcomp);
+			        g.setColor(Color.blue);
 					g.fillRect(x, y - geneHeight, accessionWidth, geneHeight);
+					((Graphics2D)g).setComposite(comp);
 					g.setColor(Color.black);
 				}
 				g.drawString(accession, x, y);
@@ -765,8 +774,10 @@ public class ColorMosaicImage extends JPanel implements Scrollable {
 					label = "Undefined";
 				}
 				if (selectedLabel) {
-					g.setColor(Color.cyan);
+			        ((Graphics2D)g).setComposite(hltcomp);
+					g.setColor(Color.blue);
 					g.fillRect(x, y - geneHeight, labelWidth, geneHeight);
+					((Graphics2D)g).setComposite(comp);
 					g.setColor(Color.black);
 				}
 				g.drawString(label, x, y);

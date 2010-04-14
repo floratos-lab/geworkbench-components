@@ -153,10 +153,11 @@ public class CMHRuler extends JComponent {
 				DSMicroarray mArray = (DSMicroarray) pl;
 				if (j == colorMosaicImage.getSelectedArray()
 						&& mArray.toString().toLowerCase().indexOf(colorMosaicImage.searchArray) >= 0) {
-					g.setColor(Color.cyan);
+			        ((Graphics2D)g).setComposite(colorMosaicImage.hltcomp);
+					g.setColor(Color.blue);
 					g.fillRect(j * colorMosaicImage.geneWidth, 0, colorMosaicImage.geneWidth, arrayNameLength);
 				}
-
+				((Graphics2D)g).setComposite(colorMosaicImage.comp);
 				g.setColor(Color.black);
 				AffineTransform hat = g.getTransform();
 				AffineTransform vat = new AffineTransform();
