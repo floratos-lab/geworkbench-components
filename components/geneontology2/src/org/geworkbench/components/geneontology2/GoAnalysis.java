@@ -276,7 +276,7 @@ public class GoAnalysis extends AbstractAnalysis implements ClusteringAnalysis {
 				}
 			}
 			result.addResultRow(term.getID().id, term.getName(), term
-					.getNamespaceAsString(), prop.p, prop.p_adjusted, popCount,
+					.getNamespaceAsAbbrevString(), prop.p, prop.p_adjusted, popCount,
 					studyCount);
 		}
 	}
